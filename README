@@ -1,0 +1,18 @@
+Welcome to the OPAE SDK source code repository
+==============================================
+
+OPAE is the Open Programmable Acceleration Engine, a software framework for
+managing and accessing programmable accelerators (FPGAs).
+
+The OPAE SDK is a collection of libraries and tools to facilitate the
+development of software applications and accelerators using OPAE.
+
+General documentation on OPAE can be found at <http://01.org/OPAE>.
+
+The OPAE mailing list is available at
+<http://lists.01.org/mailman/listinfo/opae>.
+
+The OPAE SDK source code is hosted at <http://github.com/OPAE/opae-sdk>.
+
+Please use the issue tracker at <http://github.com/OPAE/opae-sdk/issues> to
+report bugs.

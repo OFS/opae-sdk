@@ -1,0 +1,625 @@
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
+#include <chrono>
+#include <thread>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include "nlb7.h"
+#include "fpga_app/fpga_common.h"
+#include "option.h"
+#include "nlb.h"
+#include "nlb_stats.h"
+#include "safe_string/safe_string.h"
+
+#define USE_UMSG 0
+
+using namespace std::chrono;
+using namespace intel::utils;
+using namespace intel::fpga::nlb;
+
+namespace intel
+{
+namespace fpga
+{
+namespace diag
+{
+
+static uint32_t max_cl = 65535;
+
+nlb7::nlb7()
+: name_("nlb7")
+, config_("nlb7.json")
+, target_("fpga")
+, afu_id_("7BAF4DEA-A57C-E91E-168A-455D9BDA88A3")
+, wkspc_size_(GB(1))
+, dsm_size_(MB(4))
+, inp_size_(CL(65536))
+, out_size_(CL(65536))
+, step_(1)
+, begin_(1)
+, end_(1)
+, frequency_(DEFAULT_FREQ)
+, notice_(nlb7_notice::poll)
+, dsm_timeout_(FPGA_DSM_TIMEOUT)
+, suppress_headers_(false)
+, csv_format_(false)
+{
+    options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
+    options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
+    options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
+    options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
+    options_.add_option<uint32_t>("end",             'e', option::with_argument, "where 1 <= <value> <= 65535", end_);
+    options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M, wrpush-I }", "wrline-M");
+    options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S }", "rdline-I");
+    options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of { auto, vl0, vh0, vh1, random }", "auto");
+    options_.add_option<std::string>("write-vc",     'w', option::with_argument, "one of { auto, vl0, vh0, vh1, random }", "auto");
+    options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of { auto, vl0, vh0, vh1 }", "auto");
+    options_.add_option<std::string>("notice",       'N', option::with_argument, "one of { poll, csr-write, umsg-data, umsg-hint }", "poll");
+    options_.add_option<uint64_t>("dsm-timeout-usec",     option::with_argument, "Timeout for test completion", dsm_timeout_.count());
+    options_.add_option<uint8_t>("bus-number",       'B', option::with_argument, "Bus number of PCIe device");
+    options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
+    options_.add_option<uint8_t>("function",         'F', option::with_argument, "Function number of PCIe device");
+    options_.add_option<uint8_t>("socket-id",        's', option::with_argument, "Socket id encoded in BBS");
+    options_.add_option<std::string>("guid",         'g', option::with_argument, "accelerator id to enumerate", afu_id_);
+    options_.add_option<uint32_t>("clock-freq",      'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
+    options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_headers_);
+    options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+}
+
+nlb7::~nlb7()
+{
+}
+
+void nlb7::show_help(std::ostream &os)
+{
+    os << "Usage: nlb7 [options]" << std::endl
+       << std::endl;
+
+    for (const auto &it : options_)
+    {
+        it->show_help(os);
+    }
+}
+
+bool nlb7::setup()
+{
+    options_.get_value<std::string>("target", target_);
+    if (target_ == "fpga")
+    {
+        dsm_timeout_ = FPGA_DSM_TIMEOUT;
+    }
+    else if (target_ == "ase")
+    {
+        dsm_timeout_ = ASE_DSM_TIMEOUT;
+    }
+    else
+    {
+        std::cerr << "Invalid --target: " << target_ << std::endl;
+        return false;
+    }
+
+    uint64_t dsm_timeout_usec = 0;
+    if (options_.get_value<uint64_t>("dsm-timeout-usec", dsm_timeout_usec))
+    {
+        dsm_timeout_ = microseconds(dsm_timeout_usec);
+    }
+
+    options_.get_value<uint32_t>("begin", begin_);
+
+    if (begin_ > max_cl)
+    {
+        log_.error("nlb7") << "begin: " << begin_ << " is greater than max: " << max_cl << std::endl;
+        return false;
+    }
+
+    if (options_.get_value<uint32_t>("end", end_))
+    {
+        if (end_ < begin_)
+        {
+            log_.warn("nlb7") << "end: " << end_ << " is less than begin: " << begin_ << std::endl;
+            end_ = begin_;
+        }
+    }
+    else
+    {
+        end_ = begin_;
+    }
+
+
+    cfg_ = nlb_mode::sw;
+
+    // wrline-I, default=wrline-M, wrpush-I
+    std::string cache_policy;
+    options_.get_value<std::string>("cache-policy", cache_policy);
+    if (cache_policy == "wrpush-I")
+    {
+        cfg_ |= nlb0_ctl::wrpush_i;
+    }
+    else if (cache_policy == "wrline-I")
+    {
+        cfg_ |= nlb0_ctl::wrline_i;
+    }
+    else if (cache_policy == "wrline-M")
+    {
+        cfg_ |= nlb0_ctl::wrline_m;
+    }
+    else
+    {
+        std::cerr << "Invalid --cache-policy: " << cache_policy << std::endl;
+        return false;
+    }
+
+    // default=rdline-I, rdline-S
+    std::string cache_hint;
+    options_.get_value<std::string>("cache-hint", cache_hint);
+    if (cache_hint == "rdline-I")
+    {
+        cfg_ |= nlb0_ctl::rdi;
+    }
+    else if (cache_hint == "rdline-S")
+    {
+        cfg_ |= nlb0_ctl::rds;
+    }
+    else
+    {
+        std::cerr << "Invalid --cache-hint: " << cache_hint << std::endl;
+        return false;
+    }
+
+    // set the read channel
+    // default=auto, vl0, vh0, vh1, random
+    std::string rd_channel;
+    options_.get_value<std::string>("read-vc", rd_channel);
+    if (rd_channel == "vl0")
+    {
+        cfg_ |= nlb0_ctl::read_vl0;
+    }
+    else if (rd_channel == "vh0")
+    {
+        cfg_ |= nlb0_ctl::read_vh0;
+    }
+    else if (rd_channel == "vh1")
+    {
+        cfg_ |= nlb0_ctl::read_vh1;
+    }
+    else if (rd_channel == "random")
+    {
+        cfg_ |= nlb0_ctl::read_vr;
+    }
+    else if (rd_channel == "auto")
+    {
+        ;
+    }
+    else
+    {
+        std::cerr << "Invalid --read-vc: " << rd_channel << std::endl;
+        return false;
+    }
+
+    // set the write fence channel
+    // default=auto, vl0, vh0, vh1
+    std::string wrfence = "auto";
+    auto wrfence_opt = options_.find("wrfence-vc");
+    options_.get_value<std::string>("wrfence-vc", wrfence);
+    if (wrfence == "auto")
+    {
+        cfg_ |= nlb0_ctl::wrfence_va;
+    }
+    else if (wrfence == "vl0")
+    {
+        cfg_ |= nlb0_ctl::wrfence_vl0;
+    }
+    else if (wrfence == "vh0")
+    {
+        cfg_ |= nlb0_ctl::wrfence_vh0;
+    }
+    else if (wrfence == "vh1")
+    {
+        cfg_ |= nlb0_ctl::wrfence_vh1;
+    }
+    else
+    {
+        std::cerr << "Invalid --wrfence-vc: " << wrfence << std::endl;
+        return false;
+    }
+    bool wrfence_set = wrfence_opt && wrfence_opt->is_set();
+
+    // set the write channel
+    // default=auto, vl0, vh0, vh1, random
+    std::string wr_channel;
+    options_.get_value<std::string>("write-vc", wr_channel);
+    if (wr_channel == "vl0")
+    {
+        cfg_ |= nlb0_ctl::write_vl0;
+        if (!wrfence_set)
+        {
+            cfg_ |= nlb0_ctl::wrfence_vl0;
+        }
+    }
+    else if (wr_channel == "vh0")
+    {
+        cfg_ |= nlb0_ctl::write_vh0;
+        if (!wrfence_set)
+        {
+            cfg_ |= nlb0_ctl::wrfence_vh0;
+        }
+    }
+    else if (wr_channel == "vh1")
+    {
+        cfg_ |= nlb0_ctl::write_vh1;
+        if (!wrfence_set)
+        {
+            cfg_ |= nlb0_ctl::wrfence_vh1;
+        }
+    }
+    else if (wr_channel == "random")
+    {
+        cfg_ |= nlb0_ctl::write_vr;
+    }
+    else if (wr_channel == "auto")
+    {
+        ;
+    }
+    else
+    {
+        std::cerr << "Invalid --write-vc: " << wr_channel << std::endl;
+        return false;
+    }
+
+    // default=poll, csr-write, umsg-data, umsg-hint
+    std::string notice;
+    options_.get_value<std::string>("notice", notice);
+    if (notice == "poll")
+    {
+        notice_ = nlb7_notice::poll;
+    }
+    else if (notice == "csr-write")
+    {
+        notice_ = nlb7_notice::csr_write;
+	cfg_ |= nlb0_ctl::csr_write;
+    }
+#if USE_UMSG
+    else if (notice == "umsg-data")
+    {
+        notice_ = nlb7_notice::umsg_data;
+    }
+    else if (notice == "umsg-hint")
+    {
+        notice_ = nlb7_notice::umsg_hint;
+    }
+#endif // USE_UMSG
+    else
+    {
+        std::cerr << "Invalid --notice: " << notice << std::endl;
+        return false;
+    }
+
+    options_.get_value<bool>("suppress-hdr", suppress_headers_);
+    options_.get_value<bool>("csv", csv_format_);
+
+    return true;
+}
+
+#define HIGH 0xffffffff
+#define LOW  0
+
+bool nlb7::run()
+{
+    bool res = true;
+    const dma_buffer::microseconds_t one_msec(1000);
+
+    // Allocate one large workspace, then carve it up amongst
+    // DSM, Input, and Output buffers.
+
+    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
+    if (!wkspc_)
+    {
+        std::cerr << "failed to allocate workspace." << std::endl;
+        return false;
+    }
+
+    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_ });
+
+    dma_buffer::ptr_t dsm = bufs[0];
+    dma_buffer::ptr_t input = bufs[1];
+    dma_buffer::ptr_t output = bufs[2];
+
+    accelerator_->umsg_set_mask(LOW);
+
+#if USE_UMSG
+    volatile uint8_t *pUMsgUsrVirt = (volatile uint8_t *) accelerator_->umsg_get_ptr();
+    size_t pagesize = (size_t) sysconf(_SC_PAGESIZE);
+    size_t UMsgBufSize = pagesize * (size_t) accelerator_->umsg_num();
+#else
+    volatile uint8_t *pUMsgUsrVirt = (volatile uint8_t *) NULL;
+    size_t UMsgBufSize = 0;
+#endif
+    if (pUMsgUsrVirt &&
+        (nlb7_notice::umsg_data == notice_) ||
+        (nlb7_notice::umsg_hint == notice_))
+    {
+       if (nlb7_notice::umsg_data == notice_)
+       {
+           accelerator_->umsg_set_mask(LOW);
+       }
+       else
+       {
+           accelerator_->umsg_set_mask(HIGH);
+       }
+    }
+
+    if (!accelerator_->reset())
+    {
+        std::cerr << "accelerator reset failed." << std::endl;
+        return false;
+    }
+
+    // set dsm base, high then low
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm->iova()));
+    // assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+    // de-assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
+    // set input workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(input->iova()));
+    // set output workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(output->iova()));
+
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::cfg), cfg_.value());
+
+    uint32_t sz = CL(begin_);
+
+    // Read perf counters.
+    fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
+    fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
+
+    while (sz <= CL(end_))
+    {
+        size_t MaxPoll = 1000;
+        if (target_ == "ase")
+            MaxPoll *= 100000;
+
+        // Clear the UMsg address space.
+        if (pUMsgUsrVirt)
+            memset((uint8_t *)pUMsgUsrVirt, 0, UMsgBufSize);
+
+        // Zero the output buffer.
+        output->fill(0);
+
+        // Re-initialize the input buffer.
+        const uint32_t InputData = 0xdecafbad;
+        for (size_t i = 0; i < input->size()/sizeof(uint32_t); ++i)
+            input->write(InputData, i);
+
+        // assert AFU reset.
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+        // clear the DSM.
+        dsm->fill(0);
+        // de-assert afu reset
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
+        // set number of cache lines for test
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::num_lines), sz / CL(1));
+        // start the test
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 3);
+
+        // Test flow
+        // 1. CPU polls on address N+1
+        bool poll_result = output->poll<uint32_t>(sz, dsm_timeout_, HIGH, HIGH);
+        if (!poll_result)
+        {
+            std::cerr << "Maximum timeout for CPU poll on Address N+1 was exceeded" << std::endl;
+            res = false;
+            break;
+        }
+
+        // 2. CPU copies dest to src
+        errno_t e;
+        e = memcpy_s((void *)input->address(), sz,
+			(void *)output->address(), sz);
+	if (EOK != e) {
+            std::cerr << "memcpy_s failed" << std::endl;
+            res = false;
+            break;
+	}
+
+        // fence operation
+        __sync_synchronize();
+
+        // 3. CPU to FPGA message. Select notice type.
+        if (nlb7_notice::csr_write == notice_)
+        {
+            accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::sw_notice), 0x10101010);
+        }
+        else if (pUMsgUsrVirt && ((nlb7_notice::umsg_data == notice_) ||
+                 (nlb7_notice::umsg_hint == notice_)))
+        {
+            *(uint32_t *)pUMsgUsrVirt = HIGH;
+        }
+        else
+        { // poll
+            input->write<uint32_t>(HIGH, sz);
+            input->write<uint32_t>(HIGH, sz+4);
+            input->write<uint32_t>(HIGH, sz+8);
+        }
+
+        // Wait for test completion
+        poll_result = dsm->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
+                                          dsm_timeout_,
+                                          (uint32_t)0x1,
+                                          (uint32_t)1);
+        if (!poll_result)
+        {
+            std::cerr << "Maximum Timeout for test complete was exceeded." << std::endl;
+            res = false;
+            break;
+        }
+
+        // stop the device
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 7);
+
+        while ((0 == dsm->read<uint32_t>((size_t)nlb0_dsm::test_complete)) &&
+               MaxPoll)
+        {
+            --MaxPoll;
+            dsm->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
+                                one_msec,
+                                (uint32_t)0x1,
+                                (uint32_t)1);
+        }
+
+        // Read Perf Counters
+        fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
+        fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
+
+        if (!MaxPoll)
+        {
+            std::cerr << "Maximum timeout for test stop was exceeded." << std::endl;
+            res = false;
+            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+                                                     sz/CL(1),
+                                                     end_cache_ctrs - start_cache_ctrs,
+                                                     end_fabric_ctrs - start_fabric_ctrs,
+                                                     frequency_,
+                                                     false,
+                                                     suppress_headers_,
+                                                     csv_format_);
+            break;
+        }
+
+        auto test_error = dsm->read<uint32_t>((size_t)nlb0_dsm::test_error);
+        if (0 != test_error)
+        {
+            std::cerr << "Error bit set in DSM." << std::endl;
+            std::cerr << "DSM Test Error: 0x" << std::hex << test_error << std::endl;
+
+            if (test_error & 0x1)
+            {
+                std::cerr << "Unexpected Read or Write response" << std::endl;
+            }
+            else if(test_error & 0x4)
+            {
+                std::cerr << "Write FIFO overflow" << std::endl;
+            }
+            else if(test_error & 0x8)
+            {
+                std::cerr << "Read data not as expected when FPGA read back N lines" << std::endl;
+            }
+
+            std::cerr << "Mode error vector:" << std::endl;
+
+            for (int i=0 ; i < 8 ; ++i)
+            {
+                std::cerr << "[" << i << "]: 0x" << std::hex <<
+                        dsm->read<uint32_t>((size_t)nlb7_dsm::mode_error + i*sizeof(uint32_t)) <<
+                        std::endl;
+
+                if (0 == i)
+                {
+                    std::cerr << " ; Read Data";
+                }
+                else if(1 == i)
+                {
+                    std::cerr << " ; Read response address";
+                }
+                else if(2 == i)
+                {
+                    std::cerr << " ; Read response header";
+                }
+                else if(3 == i)
+                {
+                    std::cerr << " ; Num of read responses";
+                }
+
+                std::cerr << std::endl;
+            }
+
+            std::cerr << std::dec << std::endl;
+
+            res = false;
+
+            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+                                                     sz/CL(1),
+                                                     end_cache_ctrs - start_cache_ctrs,
+                                                     end_fabric_ctrs - start_fabric_ctrs,
+                                                     frequency_,
+                                                     false,
+                                                     suppress_headers_,
+                                                     csv_format_);
+            break;
+        }
+
+        // Check for num_clocks underflow.
+        auto num_clocks = dsm->read<uint32_t>((size_t)nlb7_dsm::num_clocks);
+        auto start_overhead = dsm->read<uint32_t>((size_t)nlb7_dsm::start_overhead);
+        auto end_overhead = dsm->read<uint32_t>((size_t)nlb7_dsm::end_overhead);
+        if (num_clocks < start_overhead + end_overhead)
+        {
+            std::cerr << "Number of Clocks underflow." << std::endl;
+            res = false;
+            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+                                                     sz/CL(1),
+                                                     end_cache_ctrs - start_cache_ctrs,
+                                                     end_fabric_ctrs - start_fabric_ctrs,
+                                                     frequency_,
+                                                     false,
+                                                     suppress_headers_,
+                                                     csv_format_);
+            break;
+        }
+
+        std::cout << intel::fpga::nlb::nlb_stats(dsm,
+                                                 sz/CL(1),
+                                                 end_cache_ctrs - start_cache_ctrs,
+                                                 end_fabric_ctrs - start_fabric_ctrs,
+                                                 frequency_,
+                                                 false,
+                                                 suppress_headers_,
+                                                 csv_format_);
+
+        // Save Perf Monitors
+        start_cache_ctrs  = end_cache_ctrs;
+        start_fabric_ctrs = end_fabric_ctrs;
+
+        sz += CL(1);
+    }
+
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+
+    if (!accelerator_->reset())
+    {
+        std::cerr << "accelerator reset failed after test completion." << std::endl;
+        return false;
+    }
+
+    return res;
+}
+
+} // end of namespace diag
+} // end of namespace fpga
+} // end of namespace intel
+

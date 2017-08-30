@@ -1,0 +1,12 @@
++incdir+.
+
+ccip_if_pkg.sv
+ase_pkg.sv
+outoforder_wrf_channel.sv
+inorder_wrf_channel.sv
+latency_pipe.sv
+ccip_emulator.sv
+ase_svfifo.sv
+ccip_logger.sv
+ccip_checker.sv
+ase_top.sv
