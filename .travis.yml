@@ -1,0 +1,10 @@
+language: c
+compiler: gcc
+script: mkdir mybuild && cd mybuild && cmake .. -DBUILD_ASE=1 && make
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - libjson-c-dev
+      - uuid-dev
+
