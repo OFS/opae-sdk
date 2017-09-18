@@ -1,0 +1,12 @@
+language: c
+compiler: gcc
+script:
+  - scripts/test-build.sh
+  - scripts/test-codingstyle.sh
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - libjson-c-dev
+      - uuid-dev
+
