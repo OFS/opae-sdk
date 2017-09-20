@@ -35,29 +35,8 @@ namespace fpga
 namespace nlb
 {
 
-nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
-                     uint32_t cachelines,
-                     const fpga_cache_counters &cache_counters,
-                     const fpga_fabric_counters &fabric_counters,
-                     uint32_t clock_freq,
-                     bool continuous,
-                     bool suppress_hdr,
-                     bool csv)
-: dsm_(dsm)
-, cachelines_(cachelines)
-, cache_counters_(cache_counters)
-, fabric_counters_(fabric_counters)
-, clock_freq_(clock_freq)
-, continuous_(continuous)
-, suppress_hdr_(suppress_hdr)
-, csv_(csv)
-{
-}
-
 enum class nlb_dsm : uint32_t
 {
-    basel           = 0x0110,
-    baseh           = 0x0114,
     test_complete   = 0x0040,
     test_error      = 0x0044,
     num_clocks      = 0x0048,
@@ -67,15 +46,71 @@ enum class nlb_dsm : uint32_t
     end_overhead    = 0x005c
 };
 
+enum class cmdqbatch_dsm : uint32_t
+{
+    test_complete   = 0x0040,
+    test_error      = 0x0042,
+    num_clocks      = 0x0046,
+    num_reads       = 0x004e,
+    num_writes      = 0x0056,
+    start_overhead  = 0x005e,
+    end_overhead    = 0x005f
+};
+
+nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
+                     uint32_t cachelines,
+                     const fpga_cache_counters &cache_counters,
+                     const fpga_fabric_counters &fabric_counters,
+                     uint32_t clock_freq,
+                     bool continuous,
+                     bool suppress_hdr,
+                     bool csv)
+: dsm_(dsm)
+, dsm_version_(dsm_version::nlb_classic)
+, cachelines_(cachelines)
+, cache_counters_(cache_counters)
+, fabric_counters_(fabric_counters)
+, clock_freq_(clock_freq)
+, continuous_(continuous)
+, suppress_hdr_(suppress_hdr)
+, csv_(csv)
+{
+
+}
+
+
+nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
+                     dsm_version dsm_v,
+                     uint32_t cachelines,
+                     const fpga_cache_counters &cache_counters,
+                     const fpga_fabric_counters &fabric_counters,
+                     uint32_t clock_freq,
+                     bool continuous,
+                     bool suppress_hdr,
+                     bool csv)
+: dsm_(dsm)
+, dsm_version_(dsm_v)
+, cachelines_(cachelines)
+, cache_counters_(cache_counters)
+, fabric_counters_(fabric_counters)
+, clock_freq_(clock_freq)
+, continuous_(continuous)
+, suppress_hdr_(suppress_hdr)
+, csv_(csv)
+{
+
+}
+
 std::ostream & operator << (std::ostream &os, const nlb_stats &stats)
 {
     auto header = !stats.suppress_hdr_;
     auto csv = stats.csv_;
 
     uint64_t ticks;
-    auto rawticks = stats.dsm_->read<uint64_t>((size_t)nlb_dsm::num_clocks);
-    auto startpenalty = stats.dsm_->read<uint32_t>((size_t)nlb_dsm::start_overhead);
-    auto endpenalty = stats.dsm_->read<uint32_t>((size_t)nlb_dsm::end_overhead);
+    dsm_tuple dsm(stats.dsm_, stats.dsm_version_);
+    auto rawticks = dsm.raw_ticks();
+    auto startpenalty = dsm.start_overhead();
+    auto endpenalty = dsm.end_overhead();
 
     if (stats.continuous_)
     {
@@ -86,8 +121,8 @@ std::ostream & operator << (std::ostream &os, const nlb_stats &stats)
         ticks = rawticks - (startpenalty + endpenalty);
     }
 
-    auto num_reads = stats.dsm_->read<uint32_t>((size_t)nlb_dsm::num_reads);
-    auto num_writes = stats.dsm_->read<uint32_t>((size_t)nlb_dsm::num_writes);
+    auto num_reads = dsm.num_reads();
+    auto num_writes = dsm.num_writes();
 
     if (csv)
     {
@@ -193,10 +228,11 @@ std::string nlb_stats::read_bandwidth() const
     auto clockfreq = clock_freq_;
     const double giga = 1000.0 * 1000.0 * 1000.0;
 
-    auto rawticks = dsm_->read<uint64_t>((size_t)nlb_dsm::num_clocks);
-    auto startpenalty = dsm_->read<uint32_t>((size_t)nlb_dsm::start_overhead);
-    auto endpenalty = dsm_->read<uint32_t>((size_t)nlb_dsm::end_overhead);
-    auto rds = dsm_->read<uint32_t>((size_t)nlb_dsm::num_reads);
+    dsm_tuple dsm(dsm_, dsm_version_);
+    auto rawticks = dsm.raw_ticks();
+    auto startpenalty = dsm.start_overhead();
+    auto endpenalty = dsm.end_overhead();
+    auto rds = dsm.num_reads();
 
     uint64_t ticks;
 
@@ -221,7 +257,11 @@ std::string nlb_stats::read_bandwidth() const
 
     oss.precision(3);
     oss.setf(std::ios::fixed, std::ios::floatfield);
-    oss << bw << " GB/s";
+    oss << bw;
+    if (!(csv_ && suppress_hdr_))
+    {
+        oss << " GB/s";
+    }
 
     return oss.str();
 }
@@ -231,10 +271,11 @@ std::string nlb_stats::write_bandwidth() const
     auto clockfreq = clock_freq_;
     const double giga = 1000.0 * 1000.0 * 1000.0;
 
-    auto rawticks = dsm_->read<uint64_t>((size_t)nlb_dsm::num_clocks);
-    auto startpenalty = dsm_->read<uint32_t>((size_t)nlb_dsm::start_overhead);
-    auto endpenalty = dsm_->read<uint32_t>((size_t)nlb_dsm::end_overhead);
-    auto wrs = dsm_->read<uint32_t>((size_t)nlb_dsm::num_writes);
+    dsm_tuple dsm(dsm_, dsm_version_);
+    auto rawticks = dsm.raw_ticks();
+    auto startpenalty = dsm.start_overhead();
+    auto endpenalty = dsm.end_overhead();
+    auto wrs = dsm.num_writes();
 
     uint64_t ticks;
 
@@ -259,13 +300,18 @@ std::string nlb_stats::write_bandwidth() const
 
     oss.precision(3);
     oss.setf(std::ios::fixed, std::ios::floatfield);
-    oss << bw << " GB/s";
+    oss << bw;
+    if (!(csv_ && suppress_hdr_))
+    {
+        oss << " GB/s";
+    }
 
     return oss.str();
 }
 
-dsm_tuple::dsm_tuple()
-: raw_ticks_(0)
+dsm_tuple::dsm_tuple(dsm_version v)
+: version_(v)
+, raw_ticks_(0)
 , start_overhead_(0)
 , end_overhead_(0)
 , num_reads_(0)
@@ -273,20 +319,17 @@ dsm_tuple::dsm_tuple()
 {
 }
 
-dsm_tuple::dsm_tuple(dma_buffer::ptr_t dsm)
-: raw_ticks_(dsm->read<uint64_t>((size_t)nlb_dsm::num_clocks))
-, start_overhead_(dsm->read<uint32_t>((size_t)nlb_dsm::start_overhead))
-, end_overhead_(dsm->read<uint32_t>((size_t)nlb_dsm::end_overhead))
-, num_reads_(dsm->read<uint32_t>((size_t)nlb_dsm::num_reads))
-, num_writes_(dsm->read<uint32_t>((size_t)nlb_dsm::num_writes))
+dsm_tuple::dsm_tuple(dma_buffer::ptr_t dsm, dsm_version v)
+: dsm_tuple(v)
 {
+    get(dsm);
 }
 
 dsm_tuple::dsm_tuple(uint64_t raw_ticks,
                      uint32_t start_overhead,
                      uint32_t end_overhead,
-                     uint32_t num_reads,
-                     uint32_t num_writes)
+                     uint64_t num_reads,
+                     uint64_t num_writes)
 : raw_ticks_(raw_ticks)
 , start_overhead_(start_overhead)
 , end_overhead_(end_overhead)
@@ -294,6 +337,7 @@ dsm_tuple::dsm_tuple(uint64_t raw_ticks,
 , num_writes_(num_writes)
 {
 }
+
 
 dsm_tuple & dsm_tuple::operator += (const dsm_tuple &rhs)
 {
@@ -305,13 +349,50 @@ dsm_tuple & dsm_tuple::operator += (const dsm_tuple &rhs)
     return *this;
 }
 
+void dsm_tuple::get(dma_buffer::ptr_t dsm)
+{
+    switch(version_)
+    {
+        case dsm_version::nlb_classic:
+            raw_ticks_ = dsm->read<uint64_t>((size_t)nlb_dsm::num_clocks);
+            start_overhead_ = dsm->read<uint32_t>((size_t)nlb_dsm::start_overhead);
+            end_overhead_ = dsm->read<uint32_t>((size_t)nlb_dsm::end_overhead);
+            num_reads_ = dsm->read<uint32_t>((size_t)nlb_dsm::num_reads);
+            num_writes_ = dsm->read<uint32_t>((size_t)nlb_dsm::num_writes);
+            break;
+        case dsm_version::cmdq_batch:
+            raw_ticks_ = dsm->read<uint64_t>((size_t)cmdqbatch_dsm::num_clocks);
+            start_overhead_ = dsm->read<uint8_t>((size_t)cmdqbatch_dsm::start_overhead);
+            end_overhead_ = dsm->read<uint8_t>((size_t)cmdqbatch_dsm::end_overhead);
+            num_reads_ = dsm->read<uint64_t>((size_t)cmdqbatch_dsm::num_reads);
+            num_writes_ = dsm->read<uint64_t>((size_t)cmdqbatch_dsm::num_writes);
+            break;
+        default:
+            std::cerr << "Unrecognized DSM version\r";
+    }
+}
+
 void dsm_tuple::put(dma_buffer::ptr_t dsm)
 {
-    dsm->write<uint64_t>(raw_ticks_, (size_t)nlb_dsm::num_clocks);
-    dsm->write<uint32_t>(start_overhead_, (size_t)nlb_dsm::start_overhead);
-    dsm->write<uint32_t>(end_overhead_, (size_t)nlb_dsm::end_overhead);
-    dsm->write<uint32_t>(num_reads_, (size_t)nlb_dsm::num_reads);
-    dsm->write<uint32_t>(num_writes_, (size_t)nlb_dsm::num_writes);
+    switch(version_)
+    {
+        case dsm_version::nlb_classic:
+            dsm->write<uint64_t>(raw_ticks_, (size_t)nlb_dsm::num_clocks);
+            dsm->write<uint32_t>(start_overhead_, (size_t)nlb_dsm::start_overhead);
+            dsm->write<uint32_t>(end_overhead_, (size_t)nlb_dsm::end_overhead);
+            dsm->write<uint32_t>(num_reads_, (size_t)nlb_dsm::num_reads);
+            dsm->write<uint32_t>(num_writes_, (size_t)nlb_dsm::num_writes);
+            break;
+        case dsm_version::cmdq_batch:
+            dsm->write<uint64_t>(raw_ticks_, (size_t)cmdqbatch_dsm::num_clocks);
+            dsm->write<uint8_t>(start_overhead_, (size_t)cmdqbatch_dsm::start_overhead);
+            dsm->write<uint8_t>(end_overhead_, (size_t)cmdqbatch_dsm::end_overhead);
+            dsm->write<uint64_t>(num_reads_, (size_t)cmdqbatch_dsm::num_reads);
+            dsm->write<uint64_t>(num_writes_, (size_t)cmdqbatch_dsm::num_writes);
+            break;
+        default:
+            std::cerr << "Unrecognized DSM version\r";
+    }
 }
 
 dsm_tuple operator + (const dsm_tuple &lhs, const dsm_tuple &rhs)
