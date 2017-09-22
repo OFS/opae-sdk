@@ -113,7 +113,7 @@ bool make_apps(const std::string & muxfile, std::vector<accelerator_app::ptr_t> 
             return false;
         }
     }
-    return true;
+    return (apps.size() > 0);
 }
 
 int main(int argc, char* argv[])
@@ -152,14 +152,24 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if (opts["guid"] && !opts["guid"]->is_set())
+    auto guid_opt = opts.find("guid");
+    if (guid_opt)
     {
-        *opts["guid"] = apps[0]->afu_id();
+        if (!guid_opt->is_set())
+        {
+            log.info("main") << "Setting guid from first app in mux configuration: " << apps[0]->afu_id() << "\n";
+            *guid_opt = std::string(apps[0]->afu_id());
+        }
+        else
+        {
+            log.info("main") << "Using guid from options: " << guid_opt->value<std::string>() << "\n";
+        }
     }
 
     std::vector<accelerator::ptr_t> acceleratorlist = accelerator::enumerate({ std::make_shared<option_map>(opts) });
     if (acceleratorlist.size() == 0)
     {
+        log.error("accelerator::enumerate") << "Could not find AFC with given filter\n";
         return EXIT_FAILURE;
     }
 
