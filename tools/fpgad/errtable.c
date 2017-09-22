@@ -579,7 +579,6 @@ static int poll_error(struct fpga_err *e)
  */
 static int poll_errors(struct fpga_err error_table[])
 {
-	uint64_t err_val;
 	unsigned i;
 	int errors = 0;
 	int res;

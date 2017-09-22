@@ -181,7 +181,6 @@ void *ap6_thread(void *thread_context)
 	int ret;
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000 }; /* 100ms */
 
-	fpga_guid interface_id;
 	fpga_token fme_token;
 	fpga_handle fme_handle;
 	fpga_properties filter;
