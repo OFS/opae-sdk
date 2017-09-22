@@ -43,6 +43,7 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 {
 	FILE *fp = stdout;
 	pthread_mutexattr_t mattr;
+	int err;
 
 	/* TODO: how to make this lazy initializer thread-safe? */
 	if (g_loglevel < 0) { /* loglevel not yet set? */
@@ -85,9 +86,13 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 
 	va_list argp;
 	va_start(argp, fmt);
-	pthread_mutex_lock(&log_lock); /* ignore failure and print anyway */
+	err = pthread_mutex_lock(&log_lock); /* ignore failure and print anyway */
+	if (err)
+		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
 	vfprintf(fp, fmt, argp);
-	pthread_mutex_unlock(&log_lock);
+	err = pthread_mutex_unlock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
 	va_end(argp);
 
 	return;
