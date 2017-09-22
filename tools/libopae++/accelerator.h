@@ -69,6 +69,8 @@ public:
 
     virtual bool read_mmio64(uint32_t offset, uint64_t & value);
 
+    virtual uint8_t* mmio_pointer(uint32_t offset);
+
     virtual bool reset();
 
     virtual bool ready();
@@ -98,6 +100,7 @@ private:
 
     status_t status_;
     std::string parent_sysfs_;
+    uint8_t * mmio_base_;
 };
 
 } // end of namespace fpga

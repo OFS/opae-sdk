@@ -44,6 +44,8 @@ public:
     virtual bool read_mmio32(uint32_t offset, uint32_t & value) = 0;
 
     virtual bool read_mmio64(uint32_t offset, uint64_t & value) = 0;
+
+    virtual uint8_t* mmio_pointer(uint32_t offset) = 0;
 };
 
 } // end of namespace fpga

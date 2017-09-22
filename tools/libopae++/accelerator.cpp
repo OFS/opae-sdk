@@ -40,6 +40,7 @@ accelerator::accelerator(shared_token token, fpga_properties props,
 : fpga_resource(token, props, parent)
 , status_(accelerator::unknown)
 , parent_sysfs_(par_sysfs)
+, mmio_base_(nullptr)
 {
 }
 
@@ -47,6 +48,7 @@ accelerator::accelerator(const accelerator & other)
 : fpga_resource(other)
 , status_(other.status_)
 , parent_sysfs_(other.parent_sysfs_)
+, mmio_base_(other.mmio_base_)
 {
 
 }
@@ -57,6 +59,7 @@ accelerator & accelerator::operator=(const accelerator & other)
     {
         status_ = other.status_;
         parent_sysfs_ = other.parent_sysfs_;
+        mmio_base_ = other.mmio_base_;
         fpga_resource::operator=(other);
     }
     return *this;
@@ -69,7 +72,7 @@ fpga_resource::type_t accelerator::type()
 bool accelerator::open(bool shared)
 {
     return fpga_resource::open(shared) &&
-           FPGA_OK == fpgaMapMMIO(handle_, 0, NULL);
+           FPGA_OK == fpgaMapMMIO(handle_, 0, reinterpret_cast<uint64_t**>(&mmio_base_));
 }
 
 bool accelerator::close()
@@ -153,6 +156,11 @@ bool accelerator::read_mmio32(uint32_t offset, uint32_t & value)
 bool accelerator::read_mmio64(uint32_t offset, uint64_t & value)
 {
     return FPGA_OK == fpgaReadMMIO64(handle_, 0, offset, &value);
+}
+
+uint8_t* accelerator::mmio_pointer(uint32_t offset)
+{
+    return mmio_base_ + offset;
 }
 
 bool accelerator::reset()
