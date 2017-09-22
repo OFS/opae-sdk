@@ -51,6 +51,7 @@ fpga_result __FPGA_API__ fpgaAssignPortToInterface(fpga_handle fpga,
 	struct _fpga_handle *_handle = (struct _fpga_handle *)fpga;
 	fpga_result result = FPGA_OK;
 	struct fpga_fme_port_assign config = {0};
+	int err;
 
 	config.argsz = sizeof(config);
 	config.flags = 0;
@@ -95,7 +96,9 @@ fpga_result __FPGA_API__ fpgaAssignPortToInterface(fpga_handle fpga,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 
 }
