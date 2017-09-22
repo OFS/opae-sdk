@@ -154,11 +154,17 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
         }
     }
     uint32_t matches = 0;
-    if (fpgaEnumerate(filters.data(), filters.size(), nullptr, 0, &matches) == FPGA_OK)
+    auto enum_result = fpgaEnumerate(filters.data(), filters.size(), nullptr, 0, &matches);
+    if (enum_result == FPGA_OK)
     {
         tokens.reserve(matches);
         real_tokens.resize(matches);
-        if (fpgaEnumerate(filters.data(), filters.size(), real_tokens.data(), real_tokens.size(), &matches) == FPGA_OK)
+        enum_result = fpgaEnumerate(filters.data(),
+                                    filters.size(),
+                                    real_tokens.data(),
+                                    real_tokens.size(),
+                                    &matches);
+        if (enum_result == FPGA_OK && matches > 0)
         {
             result = true;
 
@@ -176,6 +182,14 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
                             }));
             }
         }
+        else if (enum_result != FPGA_OK)
+        {
+            log.error() << "fpgaEnumerate returned " << enum_result << "\n";
+        }
+    }
+    else
+    {
+        log.error() << "fpgaEnumerate returned " << enum_result << "\n";
     }
 
     for (auto f : filters)
