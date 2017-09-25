@@ -57,7 +57,8 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 }
 
 fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
-					     fpga_event_type event_type)
+					     fpga_event_type event_type,
+					     fpga_event_handle event_handle)
 {
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
