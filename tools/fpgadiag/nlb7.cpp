@@ -57,7 +57,7 @@ nlb7::nlb7()
 , target_("fpga")
 , afu_id_("7BAF4DEA-A57C-E91E-168A-455D9BDA88A3")
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
+, dsm_size_(MB(2))
 , inp_size_(CL(65536))
 , out_size_(CL(65536))
 , step_(1)
@@ -129,7 +129,11 @@ bool nlb7::setup()
         dsm_timeout_ = microseconds(dsm_timeout_usec);
     }
 
+    // begin, end
     options_.get_value<uint32_t>("begin", begin_);
+    options_.get_value<uint32_t>("end", end_);
+    auto end_opt = options_.find("end");
+
 
     if (begin_ > max_cl)
     {
@@ -137,7 +141,11 @@ bool nlb7::setup()
         return false;
     }
 
-    if (options_.get_value<uint32_t>("end", end_))
+    if (end_opt && !end_opt->is_set())
+    {
+        end_ = begin_;
+    }
+    else
     {
         if (end_ < begin_)
         {
@@ -145,11 +153,6 @@ bool nlb7::setup()
             end_ = begin_;
         }
     }
-    else
-    {
-        end_ = begin_;
-    }
-
 
     cfg_ = nlb_mode::sw;
 
@@ -332,22 +335,42 @@ bool nlb7::run()
 {
     bool res = true;
     const dma_buffer::microseconds_t one_msec(1000);
+    dma_buffer::ptr_t dsm;
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
 
-    // Allocate one large workspace, then carve it up amongst
-    // DSM, Input, and Output buffers.
+    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+    inp_size_ = out_size_ = buf_size;
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        std::cerr << "failed to allocate workspace." << std::endl;
+    // Allocate the smallest possible workspaces for DSM, Input and Output
+    // buffers.
+    // FIXME: use actual size for dsm size
+    dsm = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm) {
+        log_.error("nlb7") << "failed to allocate DSM workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_ });
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t input = bufs[1];
-    dma_buffer::ptr_t output = bufs[2];
+    if (!inp) {
+        log_.error("nlb7") << "failed to allocate input workspace." << std::endl;
+        return false;
+    }
+    if (!out) {
+        log_.error("nlb7") << "failed to allocate output workspace." << std::endl;
+        return false;
+    }
 
     accelerator_->umsg_set_mask(LOW);
 
@@ -386,9 +409,9 @@ bool nlb7::run()
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(input->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(output->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
 
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::cfg), cfg_.value());
 
@@ -409,12 +432,12 @@ bool nlb7::run()
             memset((uint8_t *)pUMsgUsrVirt, 0, UMsgBufSize);
 
         // Zero the output buffer.
-        output->fill(0);
+        out->fill(0);
 
         // Re-initialize the input buffer.
         const uint32_t InputData = 0xdecafbad;
-        for (size_t i = 0; i < input->size()/sizeof(uint32_t); ++i)
-            input->write(InputData, i);
+        for (size_t i = 0; i < inp->size()/sizeof(uint32_t); ++i)
+            inp->write(InputData, i);
 
         // assert AFU reset.
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
@@ -429,7 +452,7 @@ bool nlb7::run()
 
         // Test flow
         // 1. CPU polls on address N+1
-        bool poll_result = output->poll<uint32_t>(sz, dsm_timeout_, HIGH, HIGH);
+        bool poll_result = out->poll<uint32_t>(sz, dsm_timeout_, HIGH, HIGH);
         if (!poll_result)
         {
             std::cerr << "Maximum timeout for CPU poll on Address N+1 was exceeded" << std::endl;
@@ -439,8 +462,8 @@ bool nlb7::run()
 
         // 2. CPU copies dest to src
         errno_t e;
-        e = memcpy_s((void *)input->address(), sz,
-			(void *)output->address(), sz);
+        e = memcpy_s((void *)inp->address(), sz,
+			(void *)out->address(), sz);
 	if (EOK != e) {
             std::cerr << "memcpy_s failed" << std::endl;
             res = false;
@@ -462,9 +485,9 @@ bool nlb7::run()
         }
         else
         { // poll
-            input->write<uint32_t>(HIGH, sz);
-            input->write<uint32_t>(HIGH, sz+4);
-            input->write<uint32_t>(HIGH, sz+8);
+            inp->write<uint32_t>(HIGH, sz);
+            inp->write<uint32_t>(HIGH, sz+4);
+            inp->write<uint32_t>(HIGH, sz+8);
         }
 
         // Wait for test completion

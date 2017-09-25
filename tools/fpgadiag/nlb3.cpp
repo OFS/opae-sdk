@@ -50,7 +50,7 @@ nlb3::nlb3()
 , mode_("read")
 , afu_id_("F7DF405C-BD7A-CF72-22F1-44B0B93ACD18")
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
+, dsm_size_(MB(2))
 , inp_size_(MB(4))
 , out_size_(MB(4))
 , num_strides_(0)
@@ -330,6 +330,7 @@ bool nlb3::setup()
     // begin, end
     options_.get_value<uint32_t>("begin", begin_);
     options_.get_value<uint32_t>("end", end_);
+    auto end_opt = options_.find("end");
 
     if (begin_ > MAX_CL)
     {
@@ -343,17 +344,17 @@ bool nlb3::setup()
         return false;
     }
 
-    if (options_.get_value<uint32_t>("end", end_))
+    if (end_opt && !end_opt->is_set())
+    {
+        end_ = begin_;
+    }
+    else
     {
         if (end_ < begin_)
         {
             log_.warn("nlb3") << "end: " << end_ << " is less than begin: " << begin_ << std::endl;
             end_ = begin_;
         }
-    }
-    else
-    {
-        end_ = begin_;
     }
 
     if (strided_acs * end_ > MAX_CL)
@@ -400,23 +401,49 @@ bool nlb3::setup()
 
 bool nlb3::run()
 {
-    // Allocate one large workspace, then carve it up amongst
-    // DSM, Input, and Output buffers.
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        log_.error("nlb3") << "failed to allocate workspace." << std::endl;
+    dma_buffer::ptr_t dsm;
+    dma_buffer::ptr_t ice;
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
+
+    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+    inp_size_ = out_size_ = buf_size;
+
+    // Allocate the smallest possible workspaces for DSM, Input and Output
+    // buffers.
+    // FIXME: use actual size for dsm size
+    dsm = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm) {
+        log_.error("nlb3") << "failed to allocate DSM workspace." << std::endl;
+        return false;
+    }
+    ice = accelerator_->allocate_buffer(static_cast<size_t>
+                                (nlb_cache_cool::fpga_cache_cool_size));
+    if (!ice) {
+        log_.error("nlb3") << "failed to allocate ICE workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_,
-            { dsm_size_, static_cast<size_t>(nlb_cache_cool::fpga_cache_cool_size),
-            inp_size_, out_size_});
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t ice = bufs[1];
-    dma_buffer::ptr_t inp = bufs[2];
-    dma_buffer::ptr_t out = bufs[3];
+    if (!inp) {
+        log_.error("nlb3") << "failed to allocate input workspace." << std::endl;
+        return false;
+    }
+    if (!out) {
+        log_.error("nlb3") << "failed to allocate output workspace." << std::endl;
+        return false;
+    }
 
     const uint32_t read_data = 0xc0cac01a;
 

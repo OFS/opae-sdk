@@ -48,7 +48,7 @@ nlb0::nlb0()
 , target_("fpga")
 , afu_id_("D8424DC4-A4A3-C413-F89E-433683F9040B")
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
+, dsm_size_(MB(2))
 , inp_size_(MB(4))
 , out_size_(MB(4))
 , step_(1)
@@ -240,7 +240,10 @@ bool nlb0::setup()
         }
     }
 
+    // begin, end
     options_.get_value<uint32_t>("begin", begin_);
+    options_.get_value<uint32_t>("end", end_);
+    auto end_opt = options_.find("end");
 
     if (begin_ > MAX_CL)
     {
@@ -254,17 +257,17 @@ bool nlb0::setup()
         return false;
     }
 
-    if (options_.get_value<uint32_t>("end", end_))
+    if (end_opt && !end_opt->is_set())
+    {
+        end_ = begin_;
+    }
+    else
     {
         if (end_ < begin_)
         {
             log_.warn("nlb0") << "end: " << end_ << " is less than begin: " << begin_ << std::endl;
             end_ = begin_;
         }
-    }
-    else
-    {
-        end_ = begin_;
     }
 
     if (cont_)
@@ -304,20 +307,42 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    // Allocate one large workspace, then carve it up amongst
-    // DSM, Input, and Output buffers.
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        log_.error("nlb0") << "failed to allocate workspace." << std::endl;
+    dma_buffer::ptr_t dsm;
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
+
+    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+    inp_size_ = out_size_ = buf_size;
+
+    // Allocate the smallest possible workspaces for DSM, Input and Output
+    // buffers.
+    // FIXME: use actual size for dsm size
+    dsm = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm) {
+        log_.error("nlb0") << "failed to allocate DSM workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_});
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t inp = bufs[1];
-    dma_buffer::ptr_t out = bufs[2];
+    if (!inp) {
+        log_.error("nlb0") << "failed to allocate input workspace." << std::endl;
+        return false;
+    }
+    if (!out) {
+        log_.error("nlb0") << "failed to allocate output workspace." << std::endl;
+        return false;
+    }
 
     inp->write<uint8_t>(0xA, 15);
 
