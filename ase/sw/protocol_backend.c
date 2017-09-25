@@ -36,7 +36,6 @@
  *              Intel Corporation
  *
  */
-
 #include "ase_common.h"
 
 // Log-level
@@ -52,6 +51,9 @@ char umsg_mode_msg[ASE_LOGGER_LEN];
 
 // Session status
 int session_empty;
+
+volatile int sockserver_kill;
+pthread_t socket_srv_tid;
 
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
@@ -308,7 +310,21 @@ void mmio_response(struct mmio_t *mmio_pkt)
  */
 void ase_interrupt_generator(int id)
 {
-	ASE_ERR("*FIXME* Nothing happening here !\n");
+	int cnt;
+
+	if (intr_event_fd < 0) {
+		ASE_ERR("SIM-C : No valid event for AFU interrupt !\n");
+	} else {
+		uint64_t val = 1;
+
+		cnt = write(intr_event_fd, &val, sizeof(uint64_t));
+		if (cnt < 0) {
+			ASE_ERR("SIM-C : Error writing fd %d errno = %s\n",
+				intr_event_fd, strerror(errno));
+		} else {
+			ASE_MSG("SIM-C : AFU Interrupt event\n");
+		}
+	}
 }
 
 
@@ -804,6 +820,137 @@ void calc_phys_memory_ranges(void)
 		(uint64_t) (sysmem_phys_hi + 1) / (uint64_t) pow(1024, 3));
 }
 
+int read_fd(int sock_fd)
+{
+	struct msghdr msg = {0};
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct event_request req;
+	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
+	struct cmsghdr *cmsg;
+	int *fdptr;
+
+	memset(buf, '\0', sizeof(buf));
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+
+	if (recvmsg(sock_fd, &msg, 0) < 0) {
+		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
+		return 1;
+	}
+
+	cmsg = CMSG_FIRSTHDR(&msg);
+
+	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	if (req.type == REGISTER_EVENT)
+		intr_event_fd = *fdptr;
+	if (req.type == UNREGISTER_EVENT)
+		intr_event_fd = -1;
+	return 0;
+}
+
+int start_socket_srv(void)
+{
+	int res = 0; int err_cnt = 0;
+	int sock_msg;
+	errno_t err;
+	int sock_fd;
+	struct sockaddr_un saddr;
+	size_t addrlen;
+	struct timeval tv;
+	fd_set readfds;
+
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd == -1) {
+		ASE_ERR("SIM-C : Error opening event socket: %s",
+			strerror(errno));
+		err_cnt++;
+		return err_cnt;
+	}
+
+	// set socket type to non blocking
+	fcntl(sock_fd, F_SETFL, O_NONBLOCK);
+	fcntl(sock_fd, F_SETFL, O_ASYNC);
+	saddr.sun_family = AF_UNIX;
+	err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
+			strlen(SOCKNAME)+1);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		err_cnt++;
+		goto err;
+	}
+
+	addrlen = sizeof(saddr);
+	if (bind(sock_fd, (struct sockaddr *)&saddr, addrlen) < 0) {
+		ASE_ERR("SIM-C : Error binding event socket: %s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Creating Socket Server@%s...\n", saddr.sun_path);
+	if (listen(sock_fd, 5) < 0) {
+		ASE_ERR("SIM-C : Socket server listen failed with error:%s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Started listening on server\n");
+	tv.tv_usec = 0;
+	FD_ZERO(&readfds);
+
+	do {
+		FD_SET(sock_fd, &readfds);
+		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
+		if (res < 0) {
+			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
+			err_cnt++;
+			break;
+		}
+		if (FD_ISSET(sock_fd, &readfds)) {
+			sock_msg = accept(sock_fd, (struct sockaddr *)&saddr,
+					&addrlen);
+			if (sock_msg == -1) {
+				ASE_ERR("SIM-C : accept error=%s\n",
+					strerror(errno));
+				err_cnt++;
+				break;
+			}
+			if (read_fd(sock_msg) != 0) {
+				err_cnt++;
+				break;
+			}
+		}
+		if (sockserver_kill)
+			break;
+	} while (res >= 0);
+
+	ASE_MSG("SIM-C : Exiting event socket server@%s...\n", saddr.sun_path);
+
+err:
+	close(sock_msg);
+	close(sock_fd);
+	unlink(SOCKNAME);
+	return err_cnt;
+}
+
 
 // -----------------------------------------------------------------------
 // DPI Initialize routine
@@ -925,6 +1072,18 @@ int ase_init(void)
 	    mqueue_open(mq_array[8].name, mq_array[8].perm_flag);
 	sim2app_intr_request_tx =
 	    mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
+
+	intr_event_fd = -1;
+	sockserver_kill = 0;
+
+	int thr_err = pthread_create(&socket_srv_tid, NULL,
+					&start_socket_srv, NULL);
+
+	if (thr_err != 0) {
+		ASE_ERR("FAILED Event socket server failed to start\n");
+		exit(1);
+	}
+	ASE_MSG("SUCCESS Event socket server started\n");
 
 	// Calculate memory map regions
 	ASE_MSG("Calculating memory map...\n");
@@ -1070,6 +1229,10 @@ void start_simkill_countdown(void)
 
 	// Final clean of IPC
 	final_ipc_cleanup();
+
+	sockserver_kill = 1;
+	// wait for server shutdown
+	pthread_join(socket_srv_tid, NULL);
 
 	// Close workspace log
 	if (fp_workspace_log != NULL) {

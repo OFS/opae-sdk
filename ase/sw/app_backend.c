@@ -1470,6 +1470,126 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
+/*
+ * Helper for sending a file descriptor over a socket
+ */
+static int send_fd(int sock_fd, int fd, struct event_request *req)
+{
+	struct msghdr msg = {0};
+	struct cmsghdr *cmsg;
+	char buf[CMSG_SPACE(sizeof(int))];
+
+	memset(buf, 0x0, sizeof(buf));
+	struct iovec io = { .iov_base = req, .iov_len = sizeof(req) };
+
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+	int *fd_ptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	*fd_ptr = fd;
+	if (sendmsg(sock_fd, &msg, 0) == -1) {
+		ASE_ERR("error sending message. errno = %s\n", strerror(errno));
+		close(sock_fd);
+		return 1;
+	}
+	return 0;
+}
+
+/*
+ * Register event handle
+ */
+int register_event(int event_handle)
+{
+	struct sockaddr_un saddr;
+	errno_t err;
+	int res;
+	int sock_fd;
+
+	saddr.sun_family = AF_UNIX;
+	err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
+			strlen(SOCKNAME)+1);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		return 1;
+	}
+
+	/* open socket */
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd < 0) {
+		ASE_ERR("Error opening socket: %s\n", strerror(errno));
+		return 1;
+	}
+
+	res = connect(sock_fd, (struct sockaddr *) &saddr,
+			sizeof(struct sockaddr_un));
+	if (res < 0) {
+		ASE_ERR("%s: Error connecting to stream socket: %s\n",
+			__func__, strerror(errno));
+		goto out;
+	}
+
+	struct event_request req;
+
+	req.type = REGISTER_EVENT;
+	res = send_fd(sock_fd, event_handle, &req);
+out:
+	close(sock_fd);
+	return res;
+}
+
+/*
+ * Unregister event
+ */
+int unregister_event(void)
+{
+	struct sockaddr_un saddr;
+	int res;
+	struct event_request req;
+	errno_t err;
+	int sock_fd;
+
+	err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
+			strlen(SOCKNAME)+1);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		return 1;
+	}
+
+	/* open socket */
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd < 0) {
+		ASE_ERR("Error opening socket: %s\n", strerror(errno));
+		return 1;
+	}
+
+	saddr.sun_family = AF_UNIX;
+	res =  connect(sock_fd, (struct sockaddr *) &saddr,
+			sizeof(struct sockaddr_un));
+	if (res < 0) {
+		ASE_ERR("%s: Error connecting to stream socket: %s\n",
+			__func__, strerror(errno));
+		goto out;
+	}
+
+	req.type = UNREGISTER_EVENT;
+	// send a dummy file descriptor (sock_fd). Since the implementation
+	// only supports only one event type, event handle to unregister is
+	// implict.
+	res = send_fd(sock_fd, sock_fd, &req);
+
+out:
+	close(sock_fd);
+	return res;
+}
 
 /*
  * ase_portctrl: Send port control message to simulator

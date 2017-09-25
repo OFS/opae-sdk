@@ -30,20 +30,39 @@
 
 #include <opae/access.h>
 #include "common_int.h"
-
+#include <ase_common.h>
 
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	int fd;
 
-	return result;
+	if (!handle)
+		return FPGA_INVALID_PARAM;
+
+	/* create eventfd */
+	fd = eventfd(0, 0);
+	if (fd < 0) {
+		FPGA_ERR("eventfd : %s", strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	*handle = fd;
+	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *handle)
 {
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	if (!handle)
+		return FPGA_INVALID_PARAM;
 
-	return result;
+	if (close(*handle) < 0) {
+		FPGA_ERR("eventfd : %s", strerror(errno));
+		if (errno == EBADF)
+			return FPGA_INVALID_PARAM;
+		else
+			return FPGA_EXCEPTION;
+	}
+	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
@@ -51,16 +70,24 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 					   fpga_event_handle event_handle,
 					   uint32_t flags)
 {
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	if (type != FPGA_EVENT_INTERRUPT)
+		return FPGA_NOT_SUPPORTED;
 
-	return result;
+	if (register_event((int)event_handle) == 0)
+		return FPGA_OK;
+	else
+		return FPGA_EXCEPTION;
 }
 
 fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 					     fpga_event_type event_type,
 					     fpga_event_handle event_handle)
 {
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	if (event_type != FPGA_EVENT_INTERRUPT)
+		return FPGA_NOT_SUPPORTED;
 
-	return result;
+	if (unregister_event() == 0)
+		return FPGA_OK;
+	else
+		return FPGA_EXCEPTION;
 }

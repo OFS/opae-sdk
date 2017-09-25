@@ -69,10 +69,7 @@
 #include <linux/limits.h>
 #include <uuid/uuid.h>
 #include <safe_string/safe_string.h>
-
-#ifndef SIM_SIDE
 #include <pthread.h>
-#endif
 
 #ifdef SIM_SIDE
 #include "svdpi.h"
@@ -613,6 +610,15 @@ struct ipc_t mq_array[ASE_MQ_INSTANCES];
 #define FUNC_CALL_ENTRY
 #define FUNC_CALL_EXIT
 #endif
+#define SOCKNAME "/tmp/ase_event_server"
+enum request_type {
+	REGISTER_EVENT = 0,
+	UNREGISTER_EVENT = 1
+};
+
+struct event_request {
+	enum request_type type;
+};
 
 // ---------------------------------------------------------------------
 // Enable memory test function
@@ -819,6 +825,7 @@ int app2sim_dealloc_rx;
 int sim2app_dealloc_tx;
 int sim2app_portctrl_rsp_tx;
 int sim2app_intr_request_tx;
+int intr_event_fd;
 #else
 int app2sim_alloc_tx;		// app2sim mesaage queue in RX mode
 int sim2app_alloc_rx;		// sim2app mesaage queue in TX mode
