@@ -340,7 +340,7 @@ bool nlb7::run()
     dma_buffer::ptr_t inp;   // input workspace
     dma_buffer::ptr_t out;   // output workspace
 
-    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+    std::size_t buf_size = CL(end_ + 1);  // size of input and output buffer (each)
     inp_size_ = out_size_ = buf_size;
 
     // Allocate the smallest possible workspaces for DSM, Input and Output
