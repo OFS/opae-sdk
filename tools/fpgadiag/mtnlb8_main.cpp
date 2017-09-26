@@ -52,6 +52,8 @@ int main(int argc, char* argv[])
         opts.show_help("mtnlb8", std::cout);
         return 100;
     }
+    bool target_fpga = true;
+    opts.get_value<bool>("target", target_fpga);
 
     std::string config;
     if (opts.get_value<std::string>("config", config) && path_exists(config))
@@ -79,7 +81,7 @@ int main(int argc, char* argv[])
     if (accelerator_list.size() >= 1)
     {
         accelerator::ptr_t accelerator_obj = accelerator_list[0];
-        if (accelerator_obj->open(true))
+        if (accelerator_obj->open(target_fpga))
         {
             nlb.assign(accelerator_obj);
             if (nlb.setup())

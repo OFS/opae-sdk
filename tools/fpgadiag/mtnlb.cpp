@@ -56,7 +56,7 @@ mtnlb::mtnlb(const std::string & afu_id)
 , frequency_(DEFAULT_FREQ)
 , thread_count_(0)
 , count_(0)
-, stride_(0)
+, stride_(1)
 , mode7_args_(0)
 , mode_("mt7")
 , config_("mtnlb7.json")
@@ -73,15 +73,15 @@ mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 , name_(name)
 , afu_id_(afu_id)
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
-, inp_size_(MB(4))
-, out_size_(MB(4))
+, dsm_size_(MB(1))
+, inp_size_(MB(2))
+, out_size_(MB(2))
 , frequency_(DEFAULT_FREQ)
 , thread_count_(0)
 , count_(0)
-, stride_(0)
+, stride_(1)
 , mode7_args_(0)
-, mode_("mtnlb7")
+, mode_("mt7")
 , config_("mtnlb7.json")
 , target_("fpga")
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
@@ -100,7 +100,7 @@ void mtnlb::define_options()
     options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
     options_.add_option<uint32_t>("count",           'C', option::with_argument, "number of iterations", 1);
     options_.add_option<uint32_t>("threads",         'T', option::with_argument, "number of threads to spawn - default is 64", 64);
-    options_.add_option<uint32_t>("stride",          'e', option::with_argument, "stride number", 1);
+    options_.add_option<uint32_t>("stride",          'e', option::with_argument, "stride number", stride_);
     options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M wrpush-I", "wrline-M");
     options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S}", "rdline-I");
     options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of { auto, vl0, vh0, vh1, random}", "auto");
@@ -236,8 +236,6 @@ bool mtnlb::setup()
         return false;
     }
 
-    inp_size_ = CL(max_cachelines);
-    out_size_ = CL(max_cachelines);
     double log_stride = std::log2(static_cast<double>(stride_));
 
     if (thread_count_*stride_*cacheline_size > inp_size_)
@@ -247,11 +245,9 @@ bool mtnlb::setup()
     }
 
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    auto bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_});
-    dsm_ = bufs[0];
-    inp_ = bufs[1];
-    out_ = bufs[2];
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    inp_ = accelerator_->allocate_buffer(inp_size_);
+    out_ = accelerator_->allocate_buffer(out_size_);
 
     if (mode_ == "mt7")
     {
