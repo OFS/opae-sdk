@@ -469,11 +469,14 @@ void ase_memory_barrier(void);
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
 void ase_free_buffer(char *);
+void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
 void ase_write_seed(uint32_t);
 uint32_t ase_read_seed(void);
-
+bool check_app_lock_file(void);
+void create_new_lock_file(void);
+bool remove_existing_lock_file(void);
 
 // ASE operations
 #ifdef ASE_DEBUG
