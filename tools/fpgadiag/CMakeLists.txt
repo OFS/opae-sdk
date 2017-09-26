@@ -71,6 +71,11 @@ set_target_properties(opae-c++-nlb PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
+find_library(NUMA_LIB numa)
+if (NUMA_LIB)
+    add_definitions(-DENABLE_NUMA)
+endif(NUMA_LIB)
+
 set(binaries "")
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
@@ -89,6 +94,10 @@ add_fpgadiag_app( nlb7    nlb7_main.cpp   )
 add_fpgadiag_app( mtnlb7  mtnlb7_main.cpp )
 add_fpgadiag_app( mtnlb8  mtnlb8_main.cpp )
 add_fpgadiag_app( fpgamux mux.cpp         )
+
+if (NUMA_LIB)
+    target_link_libraries(cmdq3 ${NUMA_LIB})
+endif(NUMA_LIB)
 
 install(PROGRAMS fpgadiag
     DESTINATION bin

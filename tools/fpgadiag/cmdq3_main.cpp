@@ -32,6 +32,10 @@
 #include "option_parser.h"
 #include "accelerator.h"
 
+#ifdef ENABLE_NUMA
+#include <numa.h>
+#endif
+
 using namespace intel::fpga;
 using namespace intel::fpga::diag;
 using namespace intel::utils;
@@ -81,6 +85,9 @@ int main(int argc, char *argv[])
     if (accelerator_list.size() >= 1)
     {
         accelerator::ptr_t accelerator_obj = accelerator_list[0];
+#ifdef ENABLE_NUMA
+        numa_run_on_node(accelerator_obj->socket_id());
+#endif
         if (accelerator_obj->open(shared))
         {
             nlb.assign(accelerator_obj);

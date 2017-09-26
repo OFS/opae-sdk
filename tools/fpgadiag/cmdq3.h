@@ -101,13 +101,20 @@ private:
     typedef std::deque< cmdq_entry_t > cmdq_t;
 
     cmdq_t fifo1_;
-    std::mutex fifo1_lock_;
-    cmdq_t fifo2_;
-    std::mutex fifo2_lock_;
+    uint64_t poll_sleep_ns_;
     std::atomic_bool cancel_;
+    std::atomic<uint32_t> swvalid_next_;
+    std::atomic<uint32_t> hwvalid_next_;
+    volatile uint64_t *src_address_;
+    volatile uint64_t *dst_address_;
+    volatile uint32_t *sw_valid_;
+    uint32_t assignments_;
+    uint32_t iterations_;
+
     int errors_;
     bool suppress_header_;
     bool csv_format_;
+    bool batch_mode_;
 
     std::mutex print_lock_;
 
@@ -116,51 +123,16 @@ private:
     fpga_cache_counters end_cache_ctrs_;
     fpga_fabric_counters end_fabric_ctrs_;
 
-    void apply(accelerator::ptr_t accelerator, const cmdq_entry_t &entry);
+    inline bool apply(const cmdq_entry_t &entry);
+    inline bool apply_ptr(const cmdq_entry_t &entry);
 
-    uint32_t swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
+
+    void swvalid_thr();
+    void hwvalid_thr();
+    void cont_swvalid_thr();
+    void cont_hwvalid_thr();
 
     bool wait_for_done(uint32_t allocations);
-
-    bool fifo1_is_empty()
-    {
-        std::lock_guard<std::mutex> g(fifo1_lock_);
-        return fifo1_.empty();
-    }
-    bool fifo2_is_empty()
-    {
-        std::lock_guard<std::mutex> g(fifo2_lock_);
-        return fifo2_.empty();
-    }
-
-    cmdq_entry_t fifo1_pop()
-    {
-        std::lock_guard<std::mutex> g(fifo1_lock_);
-        cmdq_entry_t e(fifo1_.front());
-        fifo1_.pop_front();
-        return e;
-    }
-    cmdq_entry_t fifo2_pop()
-    {
-        std::lock_guard<std::mutex> g(fifo2_lock_);
-        cmdq_entry_t e(fifo2_.front());
-        fifo2_.pop_front();
-        return e;
-    }
-
-    void fifo1_push(cmdq_entry_t e)
-    {
-        std::lock_guard<std::mutex> g(fifo1_lock_);
-        fifo1_.push_back(e);
-    }
-    void fifo2_push(cmdq_entry_t e)
-    {
-        std::lock_guard<std::mutex> g(fifo2_lock_);
-        fifo2_.push_back(e);
-    }
 
 };
 

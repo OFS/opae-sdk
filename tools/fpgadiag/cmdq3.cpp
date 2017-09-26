@@ -72,9 +72,16 @@ cmdq3::cmdq3()
 , guid_("F7DF405C-BD7A-CF72-22F1-44B0B93ACD18")
 , dsm_size_(MB(4))
 , timeout_(0)
+, poll_sleep_ns_(100)
+, src_address_(nullptr)
+, dst_address_(nullptr)
+, sw_valid_(nullptr)
+, assignments_(0)
+, iterations_(0)
 , errors_(0)
 , suppress_header_(false)
 , csv_format_(false)
+, batch_mode_(false)
 {
     options_.add_option<bool>("help",                 'h', intel::utils::option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",        'c', intel::utils::option::with_argument, "Path to test config file", config_);
@@ -104,6 +111,8 @@ cmdq3::cmdq3()
     options_.add_option<std::string>("guid",          'g', intel::utils::option::with_argument, "accelerator id to enumerate", guid_);
     options_.add_option<bool>("suppress-hdr",         'S', intel::utils::option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                  'V', intel::utils::option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("batch",                     intel::utils::option::no_argument,   "Run in batch mode", batch_mode_);
+    options_.add_option<uint64_t>("poll-sleep",            intel::utils::option::with_argument, "Amount of time (ns) to sleep in between polling. Default is 100ns", poll_sleep_ns_);
 }
 
 cmdq3::~cmdq3()
@@ -123,11 +132,19 @@ void cmdq3::show_help(std::ostream &os)
 
 bool cmdq3::setup()
 {
+    options_.get_value<bool>("batch", batch_mode_);
     options_.get_value<std::string>("target", target_);
     if ((target_ != "fpga") && (target_ != "ase"))
     {
         std::cerr << "Invalid --target: " << target_ << std::endl;
         return false;
+    }
+
+    if (target_ == "fpga")
+    {
+        src_address_ = reinterpret_cast<volatile uint64_t*>(accelerator_->mmio_pointer(static_cast<uint32_t>(nlb0_csr::src_addr)));
+        dst_address_ = reinterpret_cast<volatile uint64_t*>(accelerator_->mmio_pointer(static_cast<uint32_t>(nlb0_csr::dst_addr)));
+        sw_valid_    = reinterpret_cast<volatile uint32_t*>(accelerator_->mmio_pointer(static_cast<uint32_t>(nlb0_csr::cmdq_sw)));
     }
 
     options_.get_value<std::string>("mode", mode_);
@@ -269,7 +286,7 @@ bool cmdq3::setup()
         std::cerr << "Invalid --wrfence-vc: " << wrfence_vc_ << std::endl;
         return false;
     }
-    options_.get_value<bool>("supress-hdr", suppress_header_);
+    options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
     return true;
 }
@@ -364,6 +381,8 @@ bool cmdq3::run()
     // set the test mode
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
 
+    // set number of cache lines for test
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), cachelines_);
     // spawn another thread to check for HWVALID being set to 0
     // when HWVALID is 0, then check the buffers for the test mode
     // eg. test mode is 0, then check output buffers match input buffers
@@ -371,51 +390,46 @@ bool cmdq3::run()
     cancel_ = false;
     errors_ = 0;
 
-    std::future<uint32_t> swvalid;
-    std::future<uint32_t> hwvalid;
-
+    std::thread sw_thread;
+    std::thread hw_thread;
+    swvalid_next_ = 0;
+    hwvalid_next_ = 0;
     if (cont_)
     {
-        swvalid = std::async(std::launch::async,
-                             &cmdq3::cont_swvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
-
-        hwvalid = std::async(std::launch::async,
-                             &cmdq3::cont_hwvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
+        sw_thread = std::thread(&cmdq3::cont_swvalid_thr, this);
+        if (!batch_mode_)
+        {
+            hw_thread = std::thread(&cmdq3::cont_hwvalid_thr, this);
+        }
 
         std::this_thread::sleep_for(duration<double, std::micro>(timeout_));
         cancel_ = true;
-        swvalid.wait();
-        hwvalid.wait();
+        sw_thread.join();
+
+        if (!batch_mode_)
+        {
+            hw_thread.join();
+        }
     }
     else
     {
-        swvalid = std::async(std::launch::async,
-                             &cmdq3::swvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
-
-        hwvalid = std::async(std::launch::async,
-                             &cmdq3::hwvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
-
-        swvalid.wait();
-        hwvalid.wait();
+        sw_thread = std::thread(&cmdq3::swvalid_thr, this);
+        if (!batch_mode_)
+        {
+            hw_thread = std::thread(&cmdq3::hwvalid_thr, this);
+        }
+        sw_thread.join();
+        if (!batch_mode_)
+        {
+            hw_thread.join();
+        }
     }
 
-    uint32_t allocations = swvalid.get();
-    uint32_t iterations = hwvalid.get();
-
     // stop the device
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+    if (!batch_mode_)
+    {
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+    }
 
     bool res = true;
 
@@ -423,7 +437,7 @@ bool cmdq3::run()
 
     cancel_ = false;
     std::future<bool> done = std::async(std::launch::async,
-                &cmdq3::wait_for_done, this, allocations);
+                &cmdq3::wait_for_done, this, assignments_);
     const auto fs = done.wait_for(seconds(1));
 
 
@@ -437,9 +451,17 @@ bool cmdq3::run()
     else
     {
         res = done.get();
+        if (batch_mode_)
+        {
+            end_cache_ctrs_ = accelerator_->cache_counters();
+            end_fabric_ctrs_ = accelerator_->fabric_counters();
+        }
+
+        auto dsm_v = batch_mode_ ? dsm_version::cmdq_batch : dsm_version::nlb_classic;
 
         std::cout << intel::fpga::nlb::nlb_stats(dsm_,
-                                                 allocations_ * cachelines_,
+                                                 dsm_v,
+                                                 assignments_ * cachelines_,
                                                  end_cache_ctrs_ - start_cache_ctrs_,
                                                  end_fabric_ctrs_ - start_fabric_ctrs_,
                                                  freq_,
@@ -451,67 +473,101 @@ bool cmdq3::run()
     if (errors_ > 0)
     {
         std::lock_guard<std::mutex> g(print_lock_);
-        std::cerr << "swvalid iters: " << allocations << " hwvalid iters: " << iterations << std::endl;
+        std::cerr << "swvalid iters: " << assignments_ << " hwvalid iters: " << iterations_ << std::endl;
     }
 
     return res && (0 == errors_);
 }
 
-void cmdq3::apply(accelerator::ptr_t accelerator, const cmdq_entry_t &entry)
+bool cmdq3::apply(const cmdq_entry_t &entry)
 {
     dma_buffer::ptr_t inp = entry.first;
     dma_buffer::ptr_t out = entry.second;
 
+    uint64_t src_address = CACHELINE_ALIGNED_ADDR(inp->iova());
+    uint64_t dst_address = CACHELINE_ALIGNED_ADDR(out->iova());
+
+    const uint32_t max_loops = 100000;
+    uint32_t loops = 0;
+    uint32_t sw = 1;
+    accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
+    while ((sw & 0x1) != 0)
+    {
+        ++loops;
+        if (loops >= max_loops)
+        {
+            return false;
+        }
+
+        accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
+    }
     // set input workspace address
-    accelerator->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), src_address);
     // set output workspace address
-    accelerator->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
-    // set number of cache lines for test
-    accelerator->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), inp->size() / CL(1));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), dst_address);
 
     // set swvalid bit to 1
-    accelerator->write_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
+    assignments_++;
+    return true;
 }
 
-uint32_t cmdq3::swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+bool cmdq3::apply_ptr(const cmdq_entry_t &entry)
 {
-    uint32_t i;
-    uint32_t loops;
+    dma_buffer::ptr_t inp = entry.first;
+    dma_buffer::ptr_t out = entry.second;
+
+    uint64_t src_address = CACHELINE_ALIGNED_ADDR(inp->iova());
+    uint64_t dst_address = CACHELINE_ALIGNED_ADDR(out->iova());
+
     const uint32_t max_loops = 100000;
-
-    start_cache_ctrs_ = accelerator_->cache_counters();
-    start_fabric_ctrs_ = accelerator_->fabric_counters();
-
-    for (i = 0 ; i < allocations_ ; ++i)
+    uint32_t loops = 0;
+    uint32_t sw = 1;
+    while(*sw_valid_ & 0x1 == 1 && loops++ <= max_loops)
     {
-        cmdq_entry_t entry = fifo1_pop();
-        apply(accelerator_, entry);
-        fifo2_push(entry);
-
-        loops = 0;
-        uint32_t sw = 1;
-        accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
-        while ((sw & 0x1) != 0)
+        if (poll_sleep_ns_)
         {
-            ++loops;
-            if (loops >= max_loops)
-            {
-                std::lock_guard<std::mutex> g(print_lock_);
-                cancel_ = true;
-                ++errors_;
-                std::cerr << "swvalid_thr: Timeout waiting for cmdq_sw to be 0." << std::endl;
-                return i;
-            }
-
-            std::this_thread::sleep_for(microseconds(10));
-            accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
+            std::this_thread::sleep_for(std::chrono::nanoseconds(poll_sleep_ns_));
         }
     }
 
-    return i;
+    if (loops >= max_loops)
+    {
+        return false;
+    }
+    // set input workspace address
+    *src_address_ = src_address;
+    // set output workspace address
+    *dst_address_ = dst_address;
+
+    // set swvalid bit to 1
+    *sw_valid_ = 1;
+    assignments_++;
+    return true;
 }
 
-uint32_t cmdq3::cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+void cmdq3::swvalid_thr()
+{
+    uint32_t i;
+    uint32_t loops;
+
+    start_cache_ctrs_ = accelerator_->cache_counters();
+    start_fabric_ctrs_ = accelerator_->fabric_counters();
+    while (swvalid_next_ < allocations_)
+    {
+        if (!(target_ == "fpga" ? apply_ptr(fifo1_[swvalid_next_++]) :
+                                  apply(fifo1_[swvalid_next_++])))
+        {
+            cancel_ = true;
+            std::lock_guard<std::mutex> g(print_lock_);
+            ++errors_;
+            std::cerr << "swvalid_thr: Timeout waiting for cmdq_sw to be 0." << std::endl;
+            return;
+        }
+    }
+}
+
+void cmdq3::cont_swvalid_thr()
 {
     uint32_t allocations = 0;
     uint32_t sw;
@@ -523,57 +579,20 @@ uint32_t cmdq3::cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 
     while (!cancel_)
     {
-        cmdq_entry_t entry = fifo1_pop();
-        apply(accelerator_, entry);
-        ++allocations;
-        fifo2_push(entry);
-
-        loops = 0;
-        sw = 1;
-        accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
-        while ((sw & 0x1) != 0)
+        if (!(target_ == "fpga" ? apply_ptr(fifo1_[swvalid_next_]) :
+                                  apply(fifo1_[swvalid_next_])))
         {
-            ++loops;
-            if (loops >= max_loops)
-            {
-                std::lock_guard<std::mutex> g(print_lock_);
-                cancel_ = true;
-                ++errors_;
-                std::cerr << "cont_swvalid_thr: Timeout waiting for cmdq_sw to be 0." << std::endl;
-            }
-
-            std::this_thread::sleep_for(microseconds(10));
-            accelerator_->read_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), sw);
-            if (cancel_)
-            {
-                return allocations;
-            }
+            cancel_ = true;
+            std::lock_guard<std::mutex> g(print_lock_);
+            ++errors_;
+            std::cerr << "cont_swvalid_thr: Timeout waiting for cmdq_sw to be 0." << std::endl;
+            return;
         }
-
-        loops = 0;
-        while (fifo1_is_empty())
-        {
-            ++loops;
-            if (loops >= max_loops)
-            {
-                std::lock_guard<std::mutex> g(print_lock_);
-                cancel_ = true;
-                ++errors_;
-                std::cerr << "cont_swvalid_thr: Timeout waiting for queue items." << std::endl;
-            }
-
-            std::this_thread::sleep_for(microseconds(10));
-            if (cancel_)
-            {
-                return allocations;
-            }
-        }
+        swvalid_next_ = (swvalid_next_ + 1) % allocations_;
     }
-
-    return allocations;
 }
 
-uint32_t cmdq3::hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+void cmdq3::hwvalid_thr()
 {
     uint32_t hw = 0;
     uint32_t i;
@@ -588,6 +607,8 @@ uint32_t cmdq3::hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 
         volatile uint32_t *dsm_status_addr = (volatile uint32_t *)(dsm_->address() + dsm_offset);
 
+        while(hwvalid_next_ == swvalid_next_);
+
         if (i == 0)
         {
             // Wait for status bit to be set to 1
@@ -621,23 +642,16 @@ uint32_t cmdq3::hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
             dsm_tuple_ += dsm_tuple(dsm_);
         }
 
-        if (fifo2_is_empty())
-        {
-            goto out;
-        }
-
-        cmdq_entry_t entry(fifo2_pop());
-        fifo1_push(entry);
+        cmdq_entry_t & entry = fifo1_[hwvalid_next_++];
     }
 
 out:
     end_cache_ctrs_ = accelerator_->cache_counters();
     end_fabric_ctrs_ = accelerator_->fabric_counters();
     dsm_tuple_.put(dsm_);
-    return i;
 }
 
-uint32_t cmdq3::cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+void cmdq3::cont_hwvalid_thr()
 {
     uint32_t i = 0;
     uint32_t hw;
@@ -652,6 +666,8 @@ uint32_t cmdq3::cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 
         volatile uint32_t *dsm_status_addr = (volatile uint32_t *)(dsm_->address() + dsm_offset);
 
+        while(hwvalid_next_ == swvalid_next_);
+
         if (i == 0)
         {
             // Wait for status bit to be set to 1
@@ -685,17 +701,8 @@ uint32_t cmdq3::cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
             dsm_tuple_ += dsm_tuple(dsm_);
         }
 
-        while (fifo2_is_empty())
-        {
-            std::this_thread::sleep_for(microseconds(10));
-            if (cancel_)
-            {
-                goto out;
-            }
-        }
-
-        cmdq_entry_t entry = fifo2_pop();
-        fifo1_push(entry);
+        cmdq_entry_t entry = fifo1_[hwvalid_next_];
+        hwvalid_next_ = (hwvalid_next_+1)/fifo1_.size();
 
         ++i;
     }
@@ -704,7 +711,6 @@ out:
     end_cache_ctrs_ = accelerator_->cache_counters();
     end_fabric_ctrs_ = accelerator_->fabric_counters();
     dsm_tuple_.put(dsm_);
-    return i;
 }
 
 bool cmdq3::wait_for_done(uint32_t allocations)
