@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     opts.get_value("target", target);
     bool shared = target == "fpga";
     std::vector<accelerator::ptr_t> accelerator_list = accelerator::enumerate({ filter });
-    if (accelerator_list.size() == 1)
+    if (accelerator_list.size() >= 1)
     {
         accelerator::ptr_t accelerator_obj = accelerator_list[0];
         if (accelerator_obj->open(shared))
