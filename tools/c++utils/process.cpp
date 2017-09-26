@@ -121,7 +121,7 @@ process process::start(const string &file, const vector<string> &args)
     // else (in addition), invoke external application in the child process
     else
     {
-        execvp(file.c_str(), cargs);
+        execve(file.c_str(), cargs, { nullptr });
         // shouldn't be here
         cerr << "We shouldn't be here after exec" << endl;
         abort();

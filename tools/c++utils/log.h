@@ -24,15 +24,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
+#include <thread>
+#include <mutex>
+#include <sstream>
 
 namespace intel
 {
 namespace utils
 {
+
+class wrapped_stream
+{
+public:
+    wrapped_stream(std::ostream * stream, bool new_line = false);
+
+    wrapped_stream(const wrapped_stream & other);
+
+    wrapped_stream & operator=(const wrapped_stream & other);
+
+    ~wrapped_stream();
+
+    template<typename T>
+    wrapped_stream& operator<<(const T& v)
+    {
+        if (stream_) *sstream_ << v;
+        return *this;
+    }
+
+    void lock();
+    wrapped_stream& operator<<(std::ostream& (*manip)(std::ostream&));
+private:
+    std::ostream * stream_;
+    std::shared_ptr<std::stringstream> sstream_;
+    bool locked_;
+    bool have_stream_;
+    std::unique_lock<std::timed_mutex> lock_;
+    bool append_new_line_;
+};
 
 class logger
 {
@@ -48,21 +81,21 @@ public :
         level_fatal       = 60
     };
 
-    logger(const std::string & filename);
-    logger(std::ostream & stream = std::cout);
+    logger();
+    logger(const std::string & name);
 
     virtual ~logger()
     {
     }
 
 
-    std::ostream & log(level l, std::string str = "");
-    std::ostream & debug(std::string str = "");
-    std::ostream & info(std::string str = "");
-    std::ostream & warn(std::string str = "");
-    std::ostream & error(std::string str= "");
-    std::ostream & exception(std::string str = "");
-    std::ostream & fatal(std::string str = "");
+    wrapped_stream log(level l, std::string str = "");
+    wrapped_stream debug(std::string str = "");
+    wrapped_stream info(std::string str = "");
+    wrapped_stream warn(std::string str = "");
+    wrapped_stream error(std::string str= "");
+    wrapped_stream exception(std::string str = "");
+    wrapped_stream fatal(std::string str = "");
 
     void set_level(level l);
 
@@ -73,8 +106,7 @@ public :
     std::string level_name(level l);
 
 private:
-    std::ostream *log_;
-    std::ostream null_stream_;
+    std::string name_;
     std::ofstream filestream_;
     int pid_;
     level level_;

@@ -285,7 +285,6 @@ void cmd_handler::run_command_loop(const std::string & prompt)
 
     while (run)
     {
-        char c;
         line = readline("\n>");
         if (line.empty())
         {

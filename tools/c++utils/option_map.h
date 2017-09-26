@@ -53,6 +53,16 @@ public:
     {
     }
 
+    option_map & operator=(const option_map & other)
+    {
+        if (&other != this)
+        {
+            options_ = other.options_;
+            options_list_ = other.options_list_;
+        }
+        return *this;
+    }
+
     template<typename T>
     option::ptr_t add_option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help,  T default_value = T())
     {
