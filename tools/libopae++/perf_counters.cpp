@@ -33,19 +33,36 @@ namespace intel
 namespace fpga
 {
 
+const std::string sysfs_perf_choices[] = { "/perf", "/dperf", "/iperf" };
+
 fpga_cache_counters::fpga_cache_counters()
 : sysfspath_("")
+, perf_feature_path_("")
+, perf_feature_rev_(-1)
 {
 }
 
 fpga_cache_counters::fpga_cache_counters(std::string sysfspath)
 : sysfspath_(sysfspath)
+, perf_feature_path_("")
+, perf_feature_rev_(-1)
 {
+    std::ifstream inf;
+    for (const std::string & perf : sysfs_perf_choices){
+        if (inf.open(sysfspath_ + perf + "/revision"), inf) {
+            perf_feature_path_ = perf;
+            inf >> std::hex >> perf_feature_rev_;
+            break;
+        }
+    }
+
     ctr_map_ = read_counters();
 }
 
 fpga_cache_counters::fpga_cache_counters(const fpga_cache_counters &other)
 : sysfspath_(other.sysfspath_)
+, perf_feature_path_(other.perf_feature_path_)
+, perf_feature_rev_(other.perf_feature_rev_)
 , ctr_map_(other.ctr_map_)
 {
 }
@@ -55,6 +72,8 @@ fpga_cache_counters & fpga_cache_counters::operator = (const fpga_cache_counters
     if (&other != this)
     {
         sysfspath_ = other.sysfspath_;
+        perf_feature_path_ = other.perf_feature_path_;
+        perf_feature_rev_ = other.perf_feature_rev_;
         ctr_map_ = other.ctr_map_;
     }
     return *this;
@@ -120,7 +139,7 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
 
 void fpga_cache_counters::freeze(bool f)
 {
-    std::string fr = sysfspath_ + "/perf/cache/freeze";
+    std::string fr = sysfspath_ + perf_feature_path_ + "/cache/freeze";
     std::ofstream of;
     of.open(fr);
     if (of)
@@ -165,7 +184,7 @@ fpga_cache_counters::ctr_map_t fpga_cache_counters::read_counters()
 
 uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
 {
-    std::string ctr(sysfspath_ + "/perf/cache/");
+    std::string ctr(sysfspath_ + perf_feature_path_ + "/cache/");
 
 #define CASE(x) case x : ctr += #x; break
     switch(c)
@@ -199,17 +218,32 @@ uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
 
 fpga_fabric_counters::fpga_fabric_counters()
 : sysfspath_("")
+, perf_feature_path_("")
+, perf_feature_rev_(-1)
 {
 }
 
 fpga_fabric_counters::fpga_fabric_counters(std::string sysfspath)
 : sysfspath_(sysfspath)
+, perf_feature_path_("")
+, perf_feature_rev_(-1)
 {
+    std::ifstream inf;
+    for (const std::string & perf : sysfs_perf_choices){
+        if (inf.open(sysfspath_ + perf + "/revision"), inf) {
+            perf_feature_path_ = perf;
+            inf >> std::hex >> perf_feature_rev_;
+            break;
+        }
+    }
+
     ctr_map_ = read_counters();
 }
 
 fpga_fabric_counters::fpga_fabric_counters(const fpga_fabric_counters &other)
 : sysfspath_(other.sysfspath_)
+, perf_feature_path_(other.perf_feature_path_)
+, perf_feature_rev_(other.perf_feature_rev_)
 , ctr_map_(other.ctr_map_)
 {
 }
@@ -219,6 +253,8 @@ fpga_fabric_counters & fpga_fabric_counters::operator = (const fpga_fabric_count
     if (&other != this)
     {
         sysfspath_ = other.sysfspath_;
+        perf_feature_path_ = other.perf_feature_path_;
+        perf_feature_rev_ = other.perf_feature_rev_;
         ctr_map_ = other.ctr_map_;
     }
     return *this;
@@ -278,7 +314,7 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
 
 void fpga_fabric_counters::freeze(bool f)
 {
-    std::string fr = sysfspath_ + "/perf/fabric/freeze";
+    std::string fr = sysfspath_ + perf_feature_path_ + "/fabric/freeze";
     std::ofstream of;
     of.open(fr);
     if (of)
@@ -319,7 +355,7 @@ fpga_fabric_counters::ctr_map_t fpga_fabric_counters::read_counters()
 
 uint64_t fpga_fabric_counters::read_counter(fpga_fabric_counters::ctr_t c)
 {
-    std::string ctr(sysfspath_ + "/perf/fabric/");
+    std::string ctr(sysfspath_ + perf_feature_path_ + "/fabric/");
 
 #define CASE(x) case x : ctr += #x; break
     switch(c)
