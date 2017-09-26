@@ -82,6 +82,7 @@ endif()
 
 add_subdirectory(tools/userclk)
 add_subdirectory(tools/fpgad)
+add_subdirectory(tools/ras)
 add_subdirectory(tools/mmlink)
 add_subdirectory(tools/fpgaconf)
 add_subdirectory(tools/fpgainfo)
@@ -89,6 +90,7 @@ add_subdirectory(tools/c++utils)
 add_subdirectory(tools/libopae++)
 add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
+
 
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
