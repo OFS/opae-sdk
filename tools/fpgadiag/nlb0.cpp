@@ -65,7 +65,7 @@ nlb0::nlb0()
     options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
     options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
     options_.add_option<uint32_t>("end",             'e', option::with_argument, "where 1 <= <value> <= 65535", end_);
-    options_.add_option<uint32_t>("multi-cl",        'U', option::with_argument, "one of {1, 2, 4}", 1);
+    options_.add_option<uint32_t>("multi-cl",        'u', option::with_argument, "one of {1, 2, 4}", 1);
     options_.add_option<bool>("cont",                'L', option::no_argument,   "Continuous mode", cont_);
     options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M wrpush-I", "wrline-M");
     options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S}", "rdline-I");
