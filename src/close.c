@@ -39,6 +39,7 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -46,7 +47,10 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 
 	if (-1 == _handle->fddev) {
 		FPGA_ERR("Invalid handle file descriptor");
-		pthread_mutex_unlock(&_handle->lock);
+		err = pthread_mutex_unlock(&_handle->lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -59,8 +63,14 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 	// invalidate magic (just in case)
 	_handle->magic = FPGA_INVALID_MAGIC;
 
-	pthread_mutex_unlock(&_handle->lock);
-	pthread_mutex_destroy(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
+	err = pthread_mutex_destroy(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 
 	free(_handle);
 
