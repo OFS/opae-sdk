@@ -51,7 +51,8 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t value)
 {
 
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	if (offset % sizeof(uint32_t) != 0) {
@@ -79,7 +80,10 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 	*((volatile uint32_t *) ((uint8_t *)wm->offset + offset)) = value;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -88,7 +92,8 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 					uint64_t offset,
 					uint32_t *value)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	if (offset % sizeof(uint32_t) != 0) {
@@ -116,7 +121,10 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 	*value = *((volatile uint32_t *) ((uint8_t *)wm->offset + offset));
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -125,7 +133,8 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 					 uint64_t offset,
 					 uint64_t value)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	if (offset % sizeof(uint64_t) != 0) {
@@ -153,7 +162,10 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 	*((volatile uint64_t *) ((uint8_t *)wm->offset + offset)) = value;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -162,7 +174,8 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 					uint64_t offset,
 					uint64_t *value)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	if (offset % sizeof(uint64_t) != 0) {
@@ -190,7 +203,10 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 	*value = *((volatile uint64_t *) ((uint8_t *)wm->offset + offset));
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -200,7 +216,8 @@ static fpga_result port_get_region_info(fpga_handle handle,
 				 uint64_t *size,
 				 uint64_t *offset)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	ASSERT_NOT_NULL(flags);
@@ -229,7 +246,10 @@ static fpga_result port_get_region_info(fpga_handle handle,
 	*offset = (uint64_t) rinfo.offset;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -241,7 +261,8 @@ static fpga_result port_mmap_region(fpga_handle handle,
 			     uint32_t mmio_num)
 {
 	void *addr;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
 	/* Assure returning pointer contains allocated memory */
@@ -265,7 +286,10 @@ static fpga_result port_mmap_region(fpga_handle handle,
 		*vaddr = addr;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -277,6 +301,7 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 	fpga_result result = FPGA_NOT_FOUND;
 	void *addr;
 	uint64_t wsid;
+	int err;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -338,7 +363,10 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 		*mmio_ptr = addr;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -348,6 +376,7 @@ fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	void *mmio_ptr;
 	fpga_result result = FPGA_OK;
+	int err;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -374,6 +403,9 @@ fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
 	wsid_del(&_handle->mmio_root, wm->wsid);
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
