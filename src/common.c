@@ -78,7 +78,10 @@ fpga_result prop_check_and_lock(struct _fpga_properties *prop)
 
 	if (prop->magic != FPGA_PROPERTY_MAGIC) {
 		FPGA_MSG("Invalid properties object");
-		pthread_mutex_unlock(&prop->lock);
+		int err = pthread_mutex_unlock(&prop->lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -100,7 +103,10 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 
 	if (handle->magic != FPGA_HANDLE_MAGIC) {
 		FPGA_MSG("Invalid handle object");
-		pthread_mutex_unlock(&handle->lock);
+		int err = pthread_mutex_unlock(&handle->lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
 		return FPGA_INVALID_PARAM;
 	}
 
