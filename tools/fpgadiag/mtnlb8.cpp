@@ -65,8 +65,6 @@ void mtnlb8::work(uint64_t thread_id, uint64_t iterations, uint64_t stride)
     // wait for the signal to start
     while (!ready_);
 
-    uint64_t offset = 0;
-
     volatile uint64_t* out_ptr = reinterpret_cast<volatile uint64_t*>(out_->address() + thread_id*stride*cacheline_size);
     uint64_t cpuCount = 2, fpgaCount = 1;
     while (!cancel_ && fpgaCount <= mtnlb_max_count)

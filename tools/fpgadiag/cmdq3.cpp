@@ -522,7 +522,6 @@ bool cmdq3::apply_ptr(const cmdq_entry_t &entry)
 
     const uint32_t max_loops = 100000;
     uint32_t loops = 0;
-    uint32_t sw = 1;
     while(*sw_valid_ & 0x1 == 1 && loops++ <= max_loops)
     {
         if (poll_sleep_ns_)
@@ -548,9 +547,6 @@ bool cmdq3::apply_ptr(const cmdq_entry_t &entry)
 
 void cmdq3::swvalid_thr()
 {
-    uint32_t i;
-    uint32_t loops;
-
     start_cache_ctrs_ = accelerator_->cache_counters();
     start_fabric_ctrs_ = accelerator_->fabric_counters();
     while (swvalid_next_ < allocations_)
@@ -569,11 +565,6 @@ void cmdq3::swvalid_thr()
 
 void cmdq3::cont_swvalid_thr()
 {
-    uint32_t allocations = 0;
-    uint32_t sw;
-    uint32_t loops;
-    const uint32_t max_loops = 1000000;
-
     start_cache_ctrs_ = accelerator_->cache_counters();
     start_fabric_ctrs_ = accelerator_->fabric_counters();
 
@@ -594,7 +585,6 @@ void cmdq3::cont_swvalid_thr()
 
 void cmdq3::hwvalid_thr()
 {
-    uint32_t hw = 0;
     uint32_t i;
 
     for(i = 0 ; i < allocations_ ; ++i)
@@ -641,8 +631,6 @@ void cmdq3::hwvalid_thr()
 
             dsm_tuple_ += dsm_tuple(dsm_);
         }
-
-        cmdq_entry_t & entry = fifo1_[hwvalid_next_++];
     }
 
 out:
@@ -654,7 +642,6 @@ out:
 void cmdq3::cont_hwvalid_thr()
 {
     uint32_t i = 0;
-    uint32_t hw;
 
     while (!cancel_)
     {

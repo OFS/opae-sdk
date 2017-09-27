@@ -77,6 +77,7 @@ fpga_resource::type_t accelerator::type()
 
 bool accelerator::open(bool shared)
 {
+
     port_errors_ = port_error::read(socket_id());
     if (port_errors_) throw port_error(port_errors_.load());
     if (fpga_resource::open(shared))
@@ -90,6 +91,7 @@ bool accelerator::open(bool shared)
 
         if (result == FPGA_OK)
         {
+
             error_event_ = register_event(fpga_event::event_type::error);
             if (error_event_)
             {

@@ -335,6 +335,7 @@ dsm_tuple::dsm_tuple(uint64_t raw_ticks,
 , end_overhead_(end_overhead)
 , num_reads_(num_reads)
 , num_writes_(num_writes)
+, version_(dsm_version::nlb_classic)
 {
 }
 
