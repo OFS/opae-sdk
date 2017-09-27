@@ -63,7 +63,7 @@ char *tstamp_string;
 char app_ready_lockpath[ASE_FILEPATH_LEN];
 
 // Session file path
-char tstamp_filepath[ASE_FILEPATH_LEN];
+char tstamp_filepath[ASE_FILEPATH_LEN] = {0,};
 
 // Base addresses of required regions
 uint64_t *mmio_afu_vbase;
@@ -71,6 +71,9 @@ uint64_t *umsg_umas_vbase;
 
 // work Directory location
 char *ase_workdir_path;
+
+// ASE Capability register
+struct ase_capability_t ase_capability;
 
 // MMIO Scoreboard (used in APP-side only)
 struct mmio_scoreboard_line_t {
@@ -267,14 +270,14 @@ void send_swreset(void)
 	sleep(1);
     }
 
-    // Sending reset trigger
-    char ase_reset_msg[ASE_MQ_MSGSIZE];
-    snprintf(ase_reset_msg, ASE_MQ_MSGSIZE, "AFU_RESET 1");
-    ase_portctrl(ase_reset_msg);
+    // Reset High
+    ase_portctrl(AFU_RESET, 1);
 
+    // Wait
     usleep(1);
-    snprintf(ase_reset_msg, ASE_MQ_MSGSIZE, "AFU_RESET 0");
-    ase_portctrl(ase_reset_msg);
+
+    // Reset Low
+    ase_portctrl(AFU_RESET, 0);
 }
 
 
@@ -283,13 +286,10 @@ void send_swreset(void)
  */
 void send_simkill(int n)
 {
-    ASE_ERR("User Interrupt was seen... SW application will exit\n");
+    // Issue Simkill
+    ase_portctrl(ASE_SIMKILL, 0);
 
-    // Simkill
-    char ase_simkill_msg[ASE_MQ_MSGSIZE];
-    memset(ase_simkill_msg, 0, ASE_MQ_MSGSIZE);
-    snprintf(ase_simkill_msg, ASE_MQ_MSGSIZE, "ASE_SIMKILL 0");
-    ase_portctrl(ase_simkill_msg);
+    ASE_ERR("CTRL-C was seen... SW application will exit\n");
 
     // Deinitialize session
     session_exist_status = NOT_ESTABLISHED;
@@ -328,10 +328,13 @@ void session_init(void)
 	ASE_MSG("ASE Session Directory located at =>\n");
 	ASE_MSG("%s\n", ase_workdir_path);
 
-	// Craft a .app_lock.pid lock filepath string
-	memset(app_ready_lockpath, 0, ASE_FILEPATH_LEN);
-	snprintf(app_ready_lockpath, ASE_FILEPATH_LEN, "%s/%s",
-		 ase_workdir_path, APP_LOCK_FILENAME);
+		// Generate Timestamp filepath
+		snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path, TSTAMP_FILENAME);
+
+		// Craft a .app_lock.pid lock filepath string
+		memset(app_ready_lockpath, 0, ASE_FILEPATH_LEN);
+		snprintf(app_ready_lockpath, ASE_FILEPATH_LEN, "%s/%s",
+			 ase_workdir_path, APP_LOCK_FILENAME);
 
 	// Check if .app_lock_pid lock already exists or not.
 	if (check_app_lock_file()) {
@@ -410,81 +413,74 @@ void session_init(void)
 	}
 #endif
 
+		// Set MMIO Tid to 0
+		glbl_mmio_tid = 0;
 
-	// Set MMIO Tid to 0
-	glbl_mmio_tid = 0;
+		// Thread error integer
+		int thr_err;
 
-	// Thread error integer
-	int thr_err;
+		// Start MSI-X watcher thread
+		// ASE_MSG("Starting Interrupt watcher ... ");
 
-	// Start MSI-X watcher thread
-	// ASE_MSG("Starting Interrupt watcher ... ");
+		// Session start
+		ASE_MSG("Session started\n");
 
-	// Session start
-	ASE_MSG("Session started\n");
+		// Initialize session with PID
+		ase_portctrl(ASE_INIT, getpid());
 
-	// Send portctrl command to start a session
-	char session_ctrlcmd[ASE_MQ_MSGSIZE];
-	memset(session_ctrlcmd, 0, ASE_MQ_MSGSIZE);
-	snprintf(session_ctrlcmd, ASE_MQ_MSGSIZE, "ASE_INIT %d",
-		 getpid());
-	ase_portctrl(session_ctrlcmd);
+		// Wait till session file is created
+		poll_for_session_id();
 
-	// Wait till session file is created
-	poll_for_session_id();
-	tstamp_string = (char *) ase_malloc(20);
-	// tstamp_string = get_timestamp(0);
-	get_timestamp(tstamp_string);
+		tstamp_string = (char *) ase_malloc(20);
+		get_timestamp(tstamp_string);
 
-	// Creating CSR map
+		// Creating CSR map
+		ASE_MSG("Creating MMIO ...\n");
 
-	ASE_MSG("Creating MMIO ...\n");
+		mmio_region = (struct buffer_t *)
+			ase_malloc(sizeof(struct buffer_t));
+		mmio_region->memsize = MMIO_LENGTH;
+		mmio_region->is_mmiomap = 1;
+		allocate_buffer(mmio_region, NULL);
+		mmio_afu_vbase =
+			(uint64_t *) ((uint64_t) mmio_region->vbase +
+				      MMIO_AFU_OFFSET);
+		mmio_exist_status = ESTABLISHED;
 
-	mmio_region = (struct buffer_t *)
-	    ase_malloc(sizeof(struct buffer_t));
-	mmio_region->memsize = MMIO_LENGTH;
-	mmio_region->is_mmiomap = 1;
-	allocate_buffer(mmio_region, NULL);
-	mmio_afu_vbase =
-	    (uint64_t *) ((uint64_t) mmio_region->vbase +
-			  MMIO_AFU_OFFSET);
-	mmio_exist_status = ESTABLISHED;
-
-	ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
-		(void *) mmio_afu_vbase);
+		ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
+			(void *) mmio_afu_vbase);
 
 
-	// Create UMSG region
+		// Create UMSG region
+		umas_init_flag = 0;
+		ASE_MSG("Creating UMAS ... \n");
 
-	umas_init_flag = 0;
-	ASE_MSG("Creating UMAS ... \n");
+		umas_region = (struct buffer_t *)
+			ase_malloc(sizeof(struct buffer_t));
+		umas_region->memsize = UMAS_REGION_MEMSIZE;	//UMAS_LENGTH;
+		umas_region->is_umas = 1;
+		allocate_buffer(umas_region, NULL);
+		umsg_umas_vbase =
+			(uint64_t *) ((uint64_t) umas_region->vbase);
+		umas_exist_status = ESTABLISHED;
+		umsg_set_attribute(0x0);
+		ASE_MSG("UMAS Virtual Base address = %p\n",
+			(void *) umsg_umas_vbase);
 
-	umas_region = (struct buffer_t *)
-	    ase_malloc(sizeof(struct buffer_t));
-	umas_region->memsize = UMAS_REGION_MEMSIZE;	//UMAS_LENGTH;
-	umas_region->is_umas = 1;
-	allocate_buffer(umas_region, NULL);
-	umsg_umas_vbase =
-	    (uint64_t *) ((uint64_t) umas_region->vbase);
-	umas_exist_status = ESTABLISHED;
-	umsg_set_attribute(0x0);
-	ASE_MSG("UMAS Virtual Base address = %p\n",
-		(void *) umsg_umas_vbase);
-
-	// Start MMIO read response watcher watcher thread
-	ASE_MSG("Starting MMIO Read Response watcher ... \n");
-	thr_err =
-	    pthread_create(&mmio_watch_tid, NULL,
-			   &mmio_response_watcher, NULL);
-	if (thr_err != 0) {
-	    ASE_ERR("FAILED\n");
-	    BEGIN_RED_FONTCOLOR;
-	    perror("pthread_create");
-	    END_RED_FONTCOLOR;
-	    exit(1);
-	} else {
-	    ASE_MSG("SUCCESS\n");
-	}
+		// Start MMIO read response watcher watcher thread
+		ASE_MSG("Starting MMIO Read Response watcher ... \n");
+		thr_err =
+			pthread_create(&mmio_watch_tid, NULL,
+				       &mmio_response_watcher, NULL);
+		if (thr_err != 0) {
+			ASE_ERR("FAILED\n");
+			BEGIN_RED_FONTCOLOR;
+			perror("pthread_create");
+			END_RED_FONTCOLOR;
+			exit(1);
+		} else {
+			ASE_MSG("SUCCESS\n");
+		}
 
 	ASE_MSG("Starting UMsg watcher ... \n");
 
@@ -661,14 +657,15 @@ void session_deinit(void)
 	    deallocate_buffer(mmio_region);
 	    mmio_exist_status = NOT_ESTABLISHED;
 
-	    // Close MMIO Response tracker thread
-	    pthread_cancel(mmio_watch_tid);
-	}
-	// Send SIMKILL
-	char session_ctrlcmd[ASE_MQ_MSGSIZE];
-	memset(session_ctrlcmd, 0, ASE_MQ_MSGSIZE);
-	snprintf(session_ctrlcmd, ASE_MQ_MSGSIZE, "ASE_SIMKILL 0");
-	ase_portctrl(session_ctrlcmd);
+			// Close MMIO Response tracker thread
+			if (pthread_cancel(mmio_watch_tid) != 0) {
+				printf
+					("MMIO pthread_cancel failed -- Ignoring\n");
+			}
+		}
+
+		// Send SIMKILL
+		ase_portctrl(ASE_SIMKILL, 0);
 
 #ifdef ASE_DEBUG
 	fclose(fp_pagetable_log);
@@ -868,11 +865,10 @@ void mmio_write32(int offset, uint32_t data)
 	    (uint32_t *) ((uint64_t) mmio_afu_vbase + offset);
 	ase_memcpy(mmio_vaddr, (char *) &data, sizeof(uint32_t));
 
-	// Display
-
-	ASE_MSG
-	    ("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%08x\n",
-	     mmio_pkt->tid, mmio_pkt->addr, data);
+		// Display
+		ASE_MSG
+			("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%08x\n",
+			 mmio_pkt->tid, mmio_pkt->addr, data);
 
 	free(mmio_pkt);
     }
@@ -1445,18 +1441,8 @@ void umsg_send(int umsg_id, uint64_t *umsg_data)
  */
 void umsg_set_attribute(uint32_t hint_mask)
 {
-    char *umsg_attrib_cmd;
-
-    // Cast message
-    umsg_attrib_cmd = ase_malloc(ASE_MQ_MSGSIZE);
-    snprintf(umsg_attrib_cmd, ASE_MQ_MSGSIZE, "UMSG_MODE %d",
-	     hint_mask);
-
-    // Send transaction
-    ase_portctrl(umsg_attrib_cmd);
-
-    // Free memory
-    ase_free_buffer(umsg_attrib_cmd);
+    // Send hint transaction
+    ase_portctrl(UMSG_MODE, hint_mask);
 }
 
 
@@ -1576,7 +1562,7 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
 /*
  * Register event handle
  */
-int register_event(int event_handle)
+int register_event(int event_handle, int flags)
 {
     struct sockaddr_un saddr;
     errno_t err;
@@ -1609,6 +1595,7 @@ int register_event(int event_handle)
     struct event_request req;
 
     req.type = REGISTER_EVENT;
+	req.flags = flags;
     res = send_fd(sock_fd, event_handle, &req);
  out:
     close(sock_fd);
@@ -1618,7 +1605,7 @@ int register_event(int event_handle)
 /*
  * Unregister event
  */
-int unregister_event(void)
+int unregister_event(int event_handle)
 {
     struct sockaddr_un saddr;
     int res;
@@ -1650,10 +1637,7 @@ int unregister_event(void)
     }
 
     req.type = UNREGISTER_EVENT;
-    // send a dummy file descriptor (sock_fd). Since the implementation
-    // only supports only one event type, event handle to unregister is
-    // implict.
-    res = send_fd(sock_fd, sock_fd, &req);
+	res = send_fd(sock_fd, event_handle, &req);
 
  out:
     close(sock_fd);
@@ -1669,20 +1653,43 @@ int unregister_event(void)
  * ASE_SIMKILL <dummy number>       | (X)
  *
  */
-void __attribute__ ((optimize("O0"))) ase_portctrl(const char *ctrl_msg)
-// void ase_portctrl(const char *ctrl_msg)
+void __attribute__ ((optimize("O0"))) ase_portctrl(ase_portctrl_cmd command, int value)
 {
-    // char dummy_rxstr[ASE_MQ_MSGSIZE];
-    // memset(dummy_rxstr, 0, ASE_MQ_MSGSIZE);
-    char *dummy_rxstr;
-    dummy_rxstr = (char *) ase_malloc(ASE_MQ_MSGSIZE);
+    char ctrl_msg[ASE_MQ_MSGSIZE] = {0, };
+    char rx_msg[ASE_MQ_MSGSIZE] = {0, };
+
+    struct ase_capability_t tmp_cap;
+
+    // construct message
+    snprintf(ctrl_msg, ASE_MQ_MSGSIZE, "%d %d", (int)command, value);
 
     // Send message
     mqueue_send(app2sim_portctrl_req_tx, ctrl_msg, ASE_MQ_MSGSIZE);
 
     // Receive message
-    mqueue_recv(sim2app_portctrl_rsp_rx, dummy_rxstr, ASE_MQ_MSGSIZE);
+    mqueue_recv(sim2app_portctrl_rsp_rx, rx_msg, ASE_MQ_MSGSIZE);
 
-    // Release memory
-    free(dummy_rxstr);
+    // Copy to ase_capability
+    ase_memcpy(&tmp_cap, rx_msg, sizeof(struct ase_capability_t));
+
+    // Check capability register integrity
+    if (command == ASE_INIT) {
+	    // Set Capability register only when ASE_INIT is used
+	    ase_memcpy(&ase_capability, &tmp_cap, sizeof(struct ase_capability_t));
+
+	    // Make a check for the magic word
+	    if (memcmp(ase_capability.magic_word, ASE_UNIQUE_ID, sizeof(ASE_UNIQUE_ID)) != 0) {
+		    // Restore defaults
+		    ASE_MSG("ASE Capability register was corrupted, loading defaults\n");
+		    ase_capability.umsg_feature = 0;
+		    ase_capability.intr_feature = 0;
+		    ase_capability.mmio_512bit = 0;
+		}
+
+	    // Print ASE Capabilities on console
+	    ASE_MSG("ASE Capabilities: Base %s %s %s\n",
+		    ase_capability.umsg_feature ? "UMsg" : "",
+		    ase_capability.intr_feature ? "Intr" : "",
+		    ase_capability.mmio_512bit  ? "MMIO512" : "");
+	}
 }

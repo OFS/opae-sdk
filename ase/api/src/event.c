@@ -73,7 +73,10 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 	if (type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 
-	if (register_event((int)event_handle) == 0)
+	if (flags >= MAX_USR_INTRS)
+		return FPGA_INVALID_PARAM;
+
+	if (register_event((int)event_handle, flags) == 0)
 		return FPGA_OK;
 	else
 		return FPGA_EXCEPTION;
@@ -86,7 +89,7 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 	if (event_type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 
-	if (unregister_event() == 0)
+	if (unregister_event(event_handle) == 0)
 		return FPGA_OK;
 	else
 		return FPGA_EXCEPTION;
