@@ -148,7 +148,8 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 {
 	void *addr = NULL;
 	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	int err;
 
 	bool preallocated = (flags & FPGA_BUF_PREALLOCATED);
 	bool quiet = (flags & FPGA_BUF_QUIET);
@@ -263,7 +264,10 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	result = FPGA_OK;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -272,6 +276,7 @@ fpga_result __FPGA_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	void *buf_addr;
 	uint64_t iova;
 	uint64_t len;
+	int err;
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result = FPGA_NOT_FOUND;
@@ -330,7 +335,10 @@ ws_free:
 	wsid_del(&_handle->wsid_root, wsid);
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
 }
 
@@ -340,6 +348,7 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	struct wsid_map *wm;
 	fpga_result result = FPGA_OK;
+	int err;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -354,6 +363,10 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
 	return result;
+
 }
