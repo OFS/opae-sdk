@@ -271,6 +271,19 @@ bool cmd_handler::do_cmd(const cmd_vector_t & cmd, std::string & help)
     return false;
 }
 
+void cmd_handler::show_help(std::ostream & str, bool include_help)
+{
+    for (const auto & verb_pair : help_)
+    {
+        if (verb_pair.first != "help" || include_help)
+        {
+            const auto & help_pair = verb_pair.second;
+            str << verb_pair.first << "\n";
+            str << "\t" << help_pair.second << "\n";
+        }
+    }
+}
+
 void cmd_handler::run_command_loop(const std::string & prompt)
 {
     bool run = true;
