@@ -830,6 +830,8 @@ struct ase_capability_t {
     int  mmio_512bit;
 };
 
+extern struct ase_capability_t ase_capability;
+
 // ------------------------------------------ //
 #ifdef FPGA_PLATFORM_INTG_XEON
 #define ASE_ENABLE_UMSG_FEATURE

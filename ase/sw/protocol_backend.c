@@ -128,7 +128,7 @@ static struct mmio_t *incoming_mmio_pkt;
  * ASE capability register
  * Purpose: This is the response for portctrl_cmd requests (as an ACK)
  */
-const struct ase_capability_t ase_capability = {
+struct ase_capability_t ase_capability = {
     ASE_UNIQUE_ID,
     /* UMsg feature interrupt */
     #ifdef ASE_ENABLE_UMSG_FEATURE

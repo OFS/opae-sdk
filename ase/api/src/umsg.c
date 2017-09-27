@@ -42,37 +42,50 @@
 // Get number of Umsgs
 fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
-	fpga_result result = FPGA_OK;
+    fpga_result result = FPGA_OK;
+
+    if (ase_capability.umsg_feature != 0) {
 	// Get Umsg Number
 	*value = NUM_UMSG_PER_AFU;
 	result = FPGA_OK;
+    } else {
+	result = FPGA_NOT_SUPPORTED;
+    }
 
-	return result;
+    return result;
 }
 
 // Set Umsg Attributes
 fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
-	fpga_result result;
+    fpga_result result;
+
+    if (ase_capability.umsg_feature != 0) {
 	// Send UMSG setup (call ASE)
 	umsg_set_attribute(value);
 	result = FPGA_OK;
+    } else {
+	result = FPGA_NOT_SUPPORTED;
+    }
 
-	return result;
+    return result;
 }
 
 // Gets Umsg address
 fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
-	fpga_result result = FPGA_OK;
+    fpga_result result = FPGA_OK;
 
+    if (ase_capability.umsg_feature != 0) {
 	*umsg_ptr = umsg_umas_vbase;
-
 	if (*umsg_ptr == NULL) {
-
-		result = FPGA_NO_MEMORY;
+	    result = FPGA_NO_MEMORY;
 	} else {
-		result = FPGA_OK;
+	    result = FPGA_OK;
 	}
-	return result;
+    } else {
+	result = FPGA_NOT_SUPPORTED;
+    }
+
+    return result;
 }
