@@ -41,7 +41,12 @@ add_library(opae-c++ SHARED
                    fpga.h
                    fpga.cpp
                    perf_counters.h
-                   perf_counters.cpp)
+                   perf_counters.cpp
+                   fpga_event.h
+                   fpga_event.cpp
+                   fpga_errors.h
+                   fpga_errors.cpp
+)
 
 set_install_rpath(opae-c++)
 

@@ -26,6 +26,8 @@
 
 #pragma once
 #include <memory>
+#include <atomic>
+#include <cstdint>
 #include <opae/fpga.h>
 #include "option_map.h"
 #include "fpga_resource.h"
@@ -33,6 +35,7 @@
 #include "dma_buffer.h"
 #include "perf_counters.h"
 #include "mmio.h"
+#include "fpga_errors.h"
 
 namespace intel
 {
@@ -89,6 +92,9 @@ public:
 
     fpga_fabric_counters fabric_counters() const;
 
+    uint64_t port_errors() const { return port_errors_; }
+
+    void error_assert() const { if (port_errors_)  throw port_error(port_errors_.load()); }
 protected:
     accelerator(const accelerator & other);
     accelerator & operator=(const accelerator & other);
@@ -101,6 +107,8 @@ private:
     status_t status_;
     std::string parent_sysfs_;
     uint8_t * mmio_base_;
+    fpga_event::ptr_t error_event_;
+    std::atomic<uint64_t> port_errors_;
 };
 
 } // end of namespace fpga

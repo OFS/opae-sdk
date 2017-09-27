@@ -278,5 +278,17 @@ uint8_t fpga_resource::socket_id()
     return socket_id_;
 }
 
+fpga_event::ptr_t fpga_resource::register_event(fpga_event::event_type event_type) const
+{
+    fpga_event::ptr_t fpga_event_ptr(0);
+    fpga_event_handle h;
+    if (FPGA_OK == fpgaCreateEventHandle(&h) &&
+        FPGA_OK == fpgaRegisterEvent(handle_, (fpga_event_type)event_type, h, 0))
+    {
+        fpga_event_ptr.reset(new fpga_event(event_type, h));
+    }
+    return fpga_event_ptr;
+}
+
 } // end of namespace fpga
 } // end of namespace intel

@@ -23,80 +23,46 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-#pragma once
-#include "option_map.h"
-#include <memory>
-#include <vector>
-#include <opae/types.h>
-#include "fpga_event.h"
+#include "fpga_errors.h"
+#include <sstream>
+#include <fstream>
 
 namespace intel
 {
 namespace fpga
 {
 
+const char* SYSFS_DEV                    = "/sys/class/fpga/intel-fpga-dev.";
+const char* SYSFS_PORT                   = "/intel-fpga-port.";
+const char* ERRORS_ERRORS                = "/errors/errors";
+const char* ERRORS_CLEAR                 = "/errors/clear";
 
-typedef std::shared_ptr<fpga_token> shared_token;
-
-class fpga_resource
+port_error::port_error(uint64_t err)
+: exception()
+, err_(err)
 {
-public:
-    typedef std::shared_ptr<fpga_resource> ptr_t;
+}
 
-    enum type_t
-    {
-        fpga = 0,
-        accelerator,
-    };
+uint64_t port_error::read(uint8_t socket_id)
+{
+    uint64_t errors = 0;
+    std::stringstream ss;
+    ss << SYSFS_DEV << +socket_id << SYSFS_PORT << +socket_id << ERRORS_ERRORS;
+    std::string filename = ss.str();
+    std::ifstream portfile(filename);
+    portfile >> std::hex >> errors;
+    return errors;
+}
 
-
-    fpga_resource(shared_token token, fpga_properties props, ptr_t parent = ptr_t());
-    virtual ~fpga_resource();
-
-    static bool enumerate_tokens(fpga_objtype ojbtype, const std::vector<intel::utils::option_map::ptr_t> & options, std::vector<shared_token> & tokens);
-
-    virtual type_t type() = 0;
-
-    virtual bool is_open();
-
-    virtual bool open(bool shared);
-
-    virtual bool close();
-
-    virtual std::string guid();
-
-    virtual ptr_t parent();
-
-    virtual uint8_t bus();
-
-    virtual uint8_t device();
-
-    virtual uint8_t function();
-
-    virtual uint8_t socket_id();
-
-    static std::string sysfs_path_from_token(fpga_token t);
-
-    fpga_event::ptr_t register_event(fpga_event::event_type ev) const;
-
-protected:
-    fpga_resource(const fpga_resource &other);
-    fpga_resource & operator=(const fpga_resource & other);
-    fpga_handle          handle_;
-    intel::utils::logger log_;
-
-private:
-    shared_token         token_;
-    fpga_properties      props_;
-    ptr_t                parent_;
-    std::string          guid_;
-    uint8_t              bus_;
-    uint8_t              device_;
-    uint8_t              function_;
-    uint8_t              socket_id_;
-    bool                 is_copy_;
-};
+uint64_t port_error::clear(uint8_t socket_id, uint64_t errs)
+{
+    std::stringstream ss;
+    ss << SYSFS_DEV << +socket_id << SYSFS_PORT << +socket_id << ERRORS_CLEAR;
+    std::ofstream clearfile(ss.str());
+    clearfile << "0x" << std::hex << errs << "\n";
+    clearfile.close();
+    return port_error::read(socket_id);
+}
 
 } // end of namespace fpga
 } // end of namespace intel
