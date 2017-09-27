@@ -867,7 +867,7 @@ int read_fd(int sock_fd)
 {
 	struct msghdr msg = {0};
 	char buf[CMSG_SPACE(sizeof(int))];
-	struct event_request req;
+	struct event_request req = { .type = 0, .flags = 0 };
 	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
 	struct cmsghdr *cmsg;
 	int *fdptr;
@@ -917,14 +917,14 @@ int read_fd(int sock_fd)
 	return 0;
 }
 
-int start_socket_srv(void)
+static void *start_socket_srv(void *args)
 {
 	int res = 0; int err_cnt = 0;
 	int sock_msg;
 	errno_t err;
 	int sock_fd;
 	struct sockaddr_un saddr;
-	size_t addrlen;
+	socklen_t addrlen;
 	struct timeval tv;
 	fd_set readfds;
 
@@ -932,10 +932,10 @@ int start_socket_srv(void)
 
 	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (sock_fd == -1) {
-		ASE_ERR("SIM-C : Error opening event socket: %s",
+		ASE_ERR("Error opening event socket: %s",
 			strerror(errno));
 		err_cnt++;
-		return err_cnt;
+		return args;
 	}
 
 	// set socket type to non blocking
@@ -960,7 +960,7 @@ int start_socket_srv(void)
 
 	ASE_MSG("SIM-C : Creating Socket Server@%s...\n", saddr.sun_path);
 	if (listen(sock_fd, 5) < 0) {
-		ASE_ERR("SIM-C : Socket server listen failed with error:%s\n",
+		ASE_ERR("Socket server listen failed with error:%s\n",
 			strerror(errno));
 		err_cnt++;
 		goto err;
@@ -974,7 +974,7 @@ int start_socket_srv(void)
 		FD_SET(sock_fd, &readfds);
 		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
 		if (res < 0) {
-			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
+			ASE_ERR("select error=%s\n", strerror(errno));
 			err_cnt++;
 			break;
 		}
@@ -982,7 +982,7 @@ int start_socket_srv(void)
 			sock_msg = accept(sock_fd, (struct sockaddr *)&saddr,
 					  &addrlen);
 			if (sock_msg == -1) {
-				ASE_ERR("SIM-C : accept error=%s\n",
+				ASE_ERR("accept error=%s\n",
 					strerror(errno));
 				err_cnt++;
 				break;
@@ -996,13 +996,13 @@ int start_socket_srv(void)
 			break;
 	} while (res >= 0);
 
-	ASE_MSG("SIM-C : Exiting event socket server@%s...\n", saddr.sun_path);
+	ASE_MSG("Exiting event socket server@%s...\n", saddr.sun_path);
 
 err:
 	close(sock_msg);
 	close(sock_fd);
 	unlink(SOCKNAME);
-	return err_cnt;
+	return args;
 }
 
 
