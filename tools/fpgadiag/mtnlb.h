@@ -74,7 +74,6 @@ protected:
 
     intel::utils::logger log_;
     intel::utils::option_map options_;
-    std::size_t wkspc_size_;
     std::size_t dsm_size_;
     std::size_t inp_size_;
     std::size_t out_size_;
@@ -89,7 +88,6 @@ protected:
     std::string target_;
 
     accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t wkspc_;
     dma_buffer::ptr_t dsm_;
     dma_buffer::ptr_t inp_;
     dma_buffer::ptr_t out_;

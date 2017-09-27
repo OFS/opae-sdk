@@ -56,10 +56,7 @@ nlb7::nlb7()
 , config_("nlb7.json")
 , target_("fpga")
 , afu_id_("7BAF4DEA-A57C-E91E-168A-455D9BDA88A3")
-, wkspc_size_(GB(1))
 , dsm_size_(MB(2))
-, inp_size_(CL(65536))
-, out_size_(CL(65536))
 , step_(1)
 , begin_(1)
 , end_(1)
@@ -341,7 +338,6 @@ bool nlb7::run()
     dma_buffer::ptr_t out;   // output workspace
 
     std::size_t buf_size = CL(end_ + 1);  // size of input and output buffer (each)
-    inp_size_ = out_size_ = buf_size;
 
     // Allocate the smallest possible workspaces for DSM, Input and Output
     // buffers.

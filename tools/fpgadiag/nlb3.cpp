@@ -49,10 +49,7 @@ nlb3::nlb3()
 , target_("fpga")
 , mode_("read")
 , afu_id_("F7DF405C-BD7A-CF72-22F1-44B0B93ACD18")
-, wkspc_size_(GB(1))
 , dsm_size_(MB(2))
-, inp_size_(MB(4))
-, out_size_(MB(4))
 , num_strides_(0)
 , step_(1)
 , begin_(1)
@@ -408,7 +405,6 @@ bool nlb3::run()
     dma_buffer::ptr_t out;   // output workspace
 
     std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
-    inp_size_ = out_size_ = buf_size;
 
     // Allocate the smallest possible workspaces for DSM, Input and Output
     // buffers.

@@ -75,10 +75,7 @@ private:
     std::string target_;
     std::string afu_id_;
 
-    std::size_t wkspc_size_;
     std::size_t dsm_size_;
-    std::size_t inp_size_;
-    std::size_t out_size_;
 
     uint32_t step_;
     uint32_t begin_;

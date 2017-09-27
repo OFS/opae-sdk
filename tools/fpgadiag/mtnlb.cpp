@@ -49,7 +49,6 @@ namespace diag
 mtnlb::mtnlb(const std::string & afu_id)
 : accelerator_app()
 , afu_id_(afu_id)
-, wkspc_size_(GB(1))
 , dsm_size_(MB(4))
 , inp_size_(MB(4))
 , out_size_(MB(4))
@@ -72,7 +71,6 @@ mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 : accelerator_app()
 , name_(name)
 , afu_id_(afu_id)
-, wkspc_size_(GB(1))
 , dsm_size_(MB(1))
 , inp_size_(MB(2))
 , out_size_(MB(2))
@@ -328,9 +326,6 @@ bool mtnlb::run()
 
     std::this_thread::sleep_for(microseconds(100));
     bool result = !cancel_;
-    uint32_t offset = static_cast<uint32_t>(mtnlb_dsm::test_complete);
-    volatile uint8_t *dsm_status_addr = dsm_->address() + offset;
-    uint8_t* dsm_ptr = const_cast<uint8_t*>(dsm_->address());
 
     log_.debug(mode_) << "All threads complete, sending stop command" << std::endl;
     // stop the test
