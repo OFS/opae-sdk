@@ -145,7 +145,6 @@ enum ase_loglevel {
 	ASE_LOG_MESSAGE,
 	ASE_LOG_DEBUG
 };
-
 extern int glbl_loglevel;
 
 int ase_calc_loglevel(void);
@@ -249,29 +248,19 @@ void ase_print(int loglevel, char *fmt, ...);
 #define ASE_SESSION_CODE_LEN    20
 
 // work Directory location
-char *ase_workdir_path;
+extern char *ase_workdir_path;
 
 // Timestamp IPC file
 #define TSTAMP_FILENAME ".ase_timestamp"
-char tstamp_filepath[ASE_FILEPATH_LEN];
-char *glbl_session_id;
+extern char tstamp_filepath[ASE_FILEPATH_LEN];
+extern char *glbl_session_id;
 
 // CCIP Warnings and Error stat location
-char *ccip_sniffer_file_statpath;
+extern char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 
 // READY file name
 #define ASE_READY_FILENAME ".ase_ready.pid"
 #define APP_LOCK_FILENAME  ".app_lock.pid"
-
-// IPC control list
-char *ipclist_filepath;
-
-// CONFIG,SCRIPT parameter paths received from SV (initial)
-char *sv2c_config_filepath;
-char *sv2c_script_filepath;
-
-// ASE-APP run command
-char *app_run_cmd;
 
 // ASE Mode macros
 #define ASE_MODE_DAEMON_NO_SIMKILL   1
@@ -391,12 +380,6 @@ typedef struct umsgcmd_t {
 } umsgcmd_t;
 
 
-// Incoming UMSG packet (allocated in ase_init, deallocated in start_simkill_countdown)
-struct umsgcmd_t *incoming_umsg_pkt;
-
-// Incoming MMIO packet (allocated in ase_init, deallocated in start_simkill_countdown)
-struct mmio_t *incoming_mmio_pkt;
-
 // Compute buffer_t size
 #define BUFSIZE     sizeof(struct buffer_t)
 
@@ -406,10 +389,9 @@ extern struct buffer_t *head;	// Head pointer
 extern struct buffer_t *end;	// Tail pointer
 
 // DPI side CSR base, offsets updated on CSR writes
-uint64_t *mmio_afu_vbase;
+extern uint64_t *mmio_afu_vbase;
 // UMAS Base Address
-uint64_t *umsg_umas_vbase;
-
+extern uint64_t *umsg_umas_vbase;
 
 // ASE buffer valid/invalid indicator
 // When a buffer is 'allocated' successfully, it will be valid, when
@@ -595,7 +577,6 @@ struct ipc_t {
 	int perm_flag;
 };
 struct ipc_t mq_array[ASE_MQ_INSTANCES];
-//struct ipc_t *mq_array;
 
 
 /* ********************************************************************
@@ -760,56 +741,38 @@ void update_glbl_dealloc(int);
 // Redeclaring ase_malloc, following maintainer-check issues !!! Do Not Edit !!!
 char *ase_malloc(size_t);
 
-
-/*
- * ASE Ready session control files, for wrapping with autorun script
- */
-//   File pointer
-FILE *fp_ase_ready;
 // Ready filepath
-char *ase_ready_filepath;
-
-// ASE seed
-uint64_t ase_seed;
-
-// ASE error file
-FILE *error_fp;			// = (FILE *)NULL;
+extern char *ase_ready_filepath;
 
 
 /*
  * IPC cleanup on catastrophic errors
  */
 #define IPC_LOCAL_FILENAME ".ase_ipc_local"
-FILE *local_ipc_fp;		// = (FILE *)NULL;
+extern FILE *local_ipc_fp;
 
 /*
  * Physical Memory ranges for PrivMem & SysMem
  */
 // System Memory
-uint64_t sysmem_size;
-uint64_t sysmem_phys_lo;
-uint64_t sysmem_phys_hi;
+extern uint64_t sysmem_size;
+extern uint64_t sysmem_phys_lo;
+extern uint64_t sysmem_phys_hi;
 
 // ASE PID
-int ase_pid;
-
-// ASE hostname
-char *ase_hostname;
-
-// Workspace information log (information dump of
-FILE *fp_workspace_log;		// = (FILE *)NULL;
+extern int ase_pid;
 
 // Memory access debug log
 #ifdef ASE_DEBUG
-FILE *fp_memaccess_log;		// = (FILE *)NULL;
-FILE *fp_pagetable_log;		// = (FILE *)NULL;
+extern FILE *fp_memaccess_log;
+extern FILE *fp_pagetable_log;
 #endif
 
 // Physical address mask - used to constrain generated addresses
-uint64_t PHYS_ADDR_PREFIX_MASK;
+extern uint64_t PHYS_ADDR_PREFIX_MASK;
 
 // '1' indicates that teardown is in progress
-int self_destruct_in_progress;
+extern int self_destruct_in_progress;
 
 #endif
 
@@ -845,10 +808,16 @@ int sim2app_intr_request_rx;
 // There is no global fixes for this
 #define DEFEATURE_ATOMICS
 
-
 /*
  * Platform specific switches are enabled here
  */
+struct ase_capability_t {
+    bool umsg_feature;
+    bool intr_feature;
+    bool mmio_512bit;
+};
+extern struct ase_capability_t cap;
+
 // ------------------------------------------ //
 #ifdef FPGA_PLATFORM_INTG_XEON
 #define ASE_ENABLE_UMSG_FEATURE

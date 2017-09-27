@@ -38,6 +38,14 @@
 struct buffer_t *head;
 struct buffer_t *end;
 
+//   File pointer
+static FILE *fp_ase_ready;
+
+// Ready filepath
+char *ase_ready_filepath;
+
+// ASE hostname
+static char *ase_hostname;
 
 /*
  * Parse strings and remove unnecessary characters

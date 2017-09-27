@@ -61,6 +61,55 @@ pthread_t socket_srv_tid;
 // User clock frequency
 float f_usrclk;
 
+// Variable declarations
+char tstamp_filepath[ASE_FILEPATH_LEN];
+char *glbl_session_id;
+char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
+
+// CONFIG,SCRIPT parameter paths received from SV (initial)
+char sv2c_config_filepath[ASE_FILEPATH_LEN];
+char sv2c_script_filepath[ASE_FILEPATH_LEN];
+
+// ASE-APP run command
+char *app_run_cmd;
+
+// ASE seed
+uint64_t ase_seed;
+
+// Local IPC log
+FILE *local_ipc_fp;
+
+// ASE PID
+int ase_pid;
+
+// System Memory
+uint64_t sysmem_size;
+uint64_t sysmem_phys_lo;
+uint64_t sysmem_phys_hi;
+
+// Workspace information log (information dump of
+static FILE *fp_workspace_log;
+
+// Memory access debug log
+#ifdef ASE_DEBUG
+FILE *fp_memaccess_log;
+FILE *fp_pagetable_log;
+#endif
+
+uint64_t PHYS_ADDR_PREFIX_MASK;
+
+int self_destruct_in_progress;
+
+// work Directory location
+char *ase_workdir_path;
+
+
+// Incoming UMSG packet (allocated in ase_init, deallocated in start_simkill_countdown)
+static struct umsgcmd_t *incoming_umsg_pkt;
+
+// Incoming MMIO packet (allocated in ase_init, deallocated in start_simkill_countdown)
+static struct mmio_t *incoming_mmio_pkt;
+
 /*
  * Generate scope data
  */
@@ -105,12 +154,11 @@ int ase_instance_running(void)
 void sv2c_config_dex(const char *str)
 {
 	// Allocate memory
-	sv2c_config_filepath = ase_malloc(ASE_FILEPATH_LEN);
+	memset(sv2c_config_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Check that input string is not NULL
 	if (str == NULL) {
 		ASE_MSG("sv2c_config_dex => Input string is unusable\n");
-		ase_free_buffer(sv2c_config_filepath);
 	} else {
 		// If Malloc fails
 		if (sv2c_config_filepath != NULL) {
@@ -145,7 +193,7 @@ void sv2c_script_dex(const char *str)
 	if (str == NULL) {
 		ASE_MSG("sv2c_script_dex => Input string is unusable\n");
 	} else {
-		sv2c_script_filepath = ase_malloc(ASE_FILEPATH_LEN);
+		memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
 		if (sv2c_script_filepath != NULL) {
 			ase_string_copy(sv2c_script_filepath, str,
 					ASE_FILEPATH_LEN);
@@ -1010,7 +1058,7 @@ int ase_init(void)
 	create_ipc_listfile();
 
 	// Sniffer file stat path
-	ccip_sniffer_file_statpath = ase_malloc(ASE_FILEPATH_LEN);
+	memset(ccip_sniffer_file_statpath, 0, ASE_FILEPATH_LEN);
 	snprintf(ccip_sniffer_file_statpath, ASE_FILEPATH_LEN,
 		 "%s/ccip_warning_and_errors.txt", ase_workdir_path);
 

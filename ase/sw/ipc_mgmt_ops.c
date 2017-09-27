@@ -35,6 +35,10 @@
 
 #include "ase_common.h"
 
+// IPC control list
+static char ipclist_filepath[ASE_FILEPATH_LEN];
+
+
 // -----------------------------------------------------------------------
 // create_ipc_listfile : Creates a log of IPC structures opened by
 //                       this ASE session. This will be looked up so a
@@ -45,7 +49,7 @@ void create_ipc_listfile(void)
 	FUNC_CALL_ENTRY;
 
 	// Allocate memory, fail if not possible
-	ipclist_filepath = ase_malloc(ASE_FILEPATH_LEN);
+    memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Create IPC file path length
 	snprintf(ipclist_filepath, ASE_FILEPATH_LEN, "%s/%s",

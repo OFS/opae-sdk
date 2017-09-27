@@ -62,6 +62,16 @@ char *tstamp_string;
 // Application lock file path
 char app_ready_lockpath[ASE_FILEPATH_LEN];
 
+// Session file path
+char tstamp_filepath[ASE_FILEPATH_LEN];
+
+// Base addresses of required regions
+uint64_t *mmio_afu_vbase;
+uint64_t *umsg_umas_vbase;
+
+// work Directory location
+char *ase_workdir_path;
+
 // MMIO Scoreboard (used in APP-side only)
 struct mmio_scoreboard_line_t {
     uint64_t data;
@@ -105,6 +115,15 @@ char *umsg_addr_array[NUM_UMSG_PER_AFU];
 
 // UMAS initialized flag
 volatile int umas_init_flag;
+
+/*
+ * Existance check flags
+ */
+static uint32_t session_exist_status;
+static uint32_t mq_exist_status;
+static uint32_t mmio_exist_status;
+static uint32_t umas_exist_status;
+
 
 // Time taken calc
 struct timespec start_time_snapshot, end_time_snapshot;
