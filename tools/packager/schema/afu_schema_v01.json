@@ -1,0 +1,31 @@
+{
+    "type" : "object",
+    "properties" : {
+        "version" : {"type" : "number"},
+        "platform-name" : {"type" : "string"},
+        "afu-image" : {
+            "type" : "object",
+            "properties" : {
+                "magic-no" : {"type" : "number"},
+                "interface-uuid" : {"type" : "string"},
+                "clock-frequency-low" : {"type" : "number"},
+                "clock-frequency-high" : {"type" : "number"},
+                "power": {"type" : "number"},
+                "accelerator-clusters":  {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "accelerator-type-uuid" : {"type" : "string"},
+                            "name" : {"type" : "string"},
+                            "total-contexts" : {"type" : "number"}
+                        },
+                        "required" : ["accelerator-type-uuid","name","total-contexts"]
+                    }
+                }
+            },
+            "required" : ["interface-uuid", "accelerator-clusters", "power"]
+        }
+    },
+    "required": ["afu-image","version"]
+}
