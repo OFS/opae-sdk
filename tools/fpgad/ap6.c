@@ -36,7 +36,8 @@
 #include "config_int.h"
 #include "log.h"
 #include "bitstream_int.h"
-
+#include "safe_string/safe_string.h"
+#include "bitstream-tools.h"
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
@@ -93,6 +94,81 @@ int parse_metadata(struct bitstream_info *info)
 
 	return 0;
 }
+
+/*
+ * Read inferface id from bistream
+ */
+static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+{
+	fpga_result result = FPGA_EXCEPTION;
+	char *json_metadata = NULL;
+	uint32_t json_len = 0;
+	const uint8_t *json_metadata_ptr = NULL;
+	json_object *root = NULL;
+	json_object *afu_image = NULL;
+	json_object *interface_id = NULL;
+	errno_t e;
+
+	if (check_bitstream_guid(bitstream) != FPGA_OK)
+		goto out_free;
+
+	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN, sizeof(uint32_t));
+	if (json_len == 0) {
+		PRINT_MSG("Bitstream has no metadata");
+		result = FPGA_OK;
+		goto out_free;
+	}
+
+	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
+
+	json_metadata = (char *) malloc(json_len + 1);
+	if (json_metadata == NULL) {
+		PRINT_ERR("Could not allocate memory for metadata!");
+		return FPGA_NO_MEMORY;
+	}
+
+	e = memcpy_s(json_metadata, json_len+1,
+			json_metadata_ptr, json_len);
+	if (EOK != e) {
+		PRINT_ERR("memcpy_s failed");
+		result = FPGA_EXCEPTION;
+		goto out_free;
+	}
+	json_metadata[json_len] = '\0';
+
+	root = json_tokener_parse(json_metadata);
+
+	if (root != NULL) {
+		if (json_object_object_get_ex(root, GBS_AFU_IMAGE, &afu_image)) {
+			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID, &interface_id);
+
+			if (interface_id == NULL) {
+				PRINT_ERR("Invalid metadata");
+				result = FPGA_INVALID_PARAM;
+				goto out_free;
+			}
+
+			result = string_to_guid(json_object_get_string(interface_id), guid);
+			if (result != FPGA_OK) {
+				PRINT_ERR("Invalid BBS interface id ");
+				goto out_free;
+			}
+		} else {
+			PRINT_ERR("Invalid metadata");
+			result = FPGA_INVALID_PARAM;
+			goto out_free;
+		}
+	}
+
+out_free:
+	if (root)
+		json_object_put(root);
+	if (json_metadata)
+		free(json_metadata);
+
+	return result;
+}
+
 
 /*
  * Read bitstream from file and populate bitstream_info structure
@@ -154,8 +230,19 @@ int read_bitstream(const char *filename, struct bitstream_info *info)
 		goto out_free;
 	}
 
-	if (check_bitstream_guid(info->data) == FPGA_OK)
+
+	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
+
+		printf(" 	skip_header_checks = true;\n");
+
+		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
+			!= FPGA_OK) {
+			fprintf(stderr, "Invalid metadata in the bitstream\n");
+			goto out_free;
+		}
+
+	}
 
 	if (!skip_header_checks) {
 		/* populate remaining bitstream_info fields */
@@ -198,14 +285,6 @@ void *ap6_thread(void *thread_context)
 		ret = read_bitstream(c->config->null_gbs[i], &null_gbs_info);
 		if (ret < 0) {
 			dlog("ap6[%i]: \tfailed to read bitstream\n", c->socket);
-			free((void *)null_gbs_info.data);
-			null_gbs_info.data = NULL;
-			continue;
-		}
-
-		ret = parse_metadata(&null_gbs_info);
-		if (ret < 0) {
-			dlog("ap6[%i]: \tfailed to parse metadata\n", c->socket);
 			free((void *)null_gbs_info.data);
 			null_gbs_info.data = NULL;
 			continue;

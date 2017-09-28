@@ -26,9 +26,10 @@
 
 
 include_directories(${CMAKE_SOURCE_DIR}/../../common/include
-                    ${CMAKE_SOURCE_DIR}/libopae/src )
+                    ${CMAKE_SOURCE_DIR}/libopae/src
+                    ${CMAKE_SOURCE_DIR}/tools/fpgaconf )
 
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c)
+set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
 add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)
