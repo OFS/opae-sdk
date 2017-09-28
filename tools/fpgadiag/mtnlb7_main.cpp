@@ -74,12 +74,15 @@ int main(int argc, char* argv[])
 
     logger log;
     option_map::ptr_t filter(new option_map(opts));
+    std::string target = "fpga";
+    opts.get_value("target", target);
+    bool shared = target == "fpga";
 
     std::vector<accelerator::ptr_t> accelerator_list = accelerator::enumerate({ filter });
     if (accelerator_list.size() >= 1)
     {
         accelerator::ptr_t accelerator_obj = accelerator_list[0];
-        if (accelerator_obj->open(true))
+        if (accelerator_obj->open(shared))
         {
             nlb.assign(accelerator_obj);
             if (nlb.setup())

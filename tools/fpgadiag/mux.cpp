@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
     std::vector<accelerator::ptr_t> acceleratorlist = accelerator::enumerate({ std::make_shared<option_map>(opts) });
     if (acceleratorlist.size() == 0)
     {
-        log.error("accelerator::enumerate") << "Could not find AFC with given filter\n";
+        log.error("accelerator::enumerate") << "Could not find accelerator with given filter\n";
         return EXIT_FAILURE;
     }
 
