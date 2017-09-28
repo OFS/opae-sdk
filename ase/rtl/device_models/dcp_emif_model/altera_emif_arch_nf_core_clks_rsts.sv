@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -156,32 +156,14 @@
    // Get signals to/from the master/slave sharing interface.
    logic pll_locked_int;
    logic phy_reset_n_int;
-   logic dcc_stable_int;
    logic counter_lock;
    logic cpa_lock_pri;
    logic cpa_lock_sec;
    logic async_reset_n_pri;
    logic async_reset_n_sec;
-   logic issp_reset_n;
 
-`ifdef ALTERA_EMIF_ENABLE_ISSP
-   altsource_probe #(
-      .sld_auto_instance_index ("YES"),
-      .sld_instance_index      (0),
-      .instance_id             ("TGR"),
-      .probe_width             (0),
-      .source_width            (1),
-      .source_initial_value    ("1"),
-      .enable_metastability    ("NO")
-   ) core_reset_n_issp (
-      .source  (issp_reset_n)
-   );
-`else
-   assign issp_reset_n = 1'b1;
-`endif
-
-   assign async_reset_n_pri = (DIAG_USE_CPA_LOCK ? cpa_lock_pri : counter_lock) & dcc_stable_int & issp_reset_n;
-   assign async_reset_n_sec = (DIAG_USE_CPA_LOCK ? cpa_lock_sec : counter_lock) & dcc_stable_int & issp_reset_n;
+   assign async_reset_n_pri = (DIAG_USE_CPA_LOCK ? cpa_lock_pri : counter_lock) & dcc_stable;
+   assign async_reset_n_sec = (DIAG_USE_CPA_LOCK ? cpa_lock_sec : counter_lock) & dcc_stable;
 
    logic pll_ref_clk_slave_in;
    logic pll_locked_slave_in;
@@ -189,7 +171,6 @@
    logic cpa_lock_pri_slave_in;
    logic cpa_lock_sec_slave_in;
    logic phy_reset_n_slave_in;
-   logic dcc_stable_slave_in;
    logic afi_clk_slave_in;
    logic afi_half_clk_slave_in;
    logic afi_reset_n_pre_reg_slave_in;
@@ -216,7 +197,6 @@
          assign pll_locked_int                    = pll_locked_slave_in;
          assign global_reset_n_int                = global_reset_n_slave_in;
          assign phy_reset_n_int                   = phy_reset_n_slave_in;
-         assign dcc_stable_int                    = dcc_stable_slave_in;
 
          assign pll_ref_clk_slave_in                  = clks_sharing_slave_in[0];
          assign global_reset_n_slave_in               = clks_sharing_slave_in[1];
@@ -237,9 +217,8 @@
          assign emif_usr_half_clk_sec_slave_in        = clks_sharing_slave_in[16];
          assign cal_master_clk_slave_in               = clks_sharing_slave_in[17];
          assign cal_master_reset_n_slave_in           = clks_sharing_slave_in[18];
-         assign dcc_stable_slave_in                   = clks_sharing_slave_in[19];
 
-         assign clks_sharing_master_out = '0;
+         assign clks_sharing_master_out           = '0;
       end else
       begin : master
 
@@ -288,10 +267,14 @@
          assign phy_reset_n_int    = phy_reset_n;
          assign pll_ref_clk_int    = pll_ref_clk;
          assign pll_locked_int     = pll_locked;
-         assign dcc_stable_int     = dcc_stable;
 
          if (IS_VID) begin : use_vid_persist_reset
-            assign global_reset_n_int = global_reset_n & probe_global_reset_n & vid_cal_done_persist;
+            // Create register to capture path false path internal to EMIF block
+            reg vid_cal_done_persist_reg;
+            always_ff @(posedge pll_ref_clk) begin
+               vid_cal_done_persist_reg <= vid_cal_done_persist;
+            end
+            assign global_reset_n_int = global_reset_n & probe_global_reset_n & vid_cal_done_persist_reg;
          end else begin : default_reset
             assign global_reset_n_int = global_reset_n & probe_global_reset_n;
          end
@@ -315,9 +298,8 @@
          assign clks_sharing_master_out[16] = emif_usr_half_clk_sec;
          assign clks_sharing_master_out[17] = cal_master_clk;
          assign clks_sharing_master_out[18] = cal_master_reset_n;
-         assign clks_sharing_master_out[19] = dcc_stable_int;
 
-         assign clks_sharing_master_out[PORT_CLKS_SHARING_MASTER_OUT_WIDTH-1:20] = '0;
+         assign clks_sharing_master_out[PORT_CLKS_SHARING_MASTER_OUT_WIDTH-1:19] = '0;
       end
    endgenerate
 
@@ -603,35 +585,35 @@
    // Generate core reset signals for CPA-based core clocks
    logic sync_clk_pri;
    logic sync_clk_sec;
-   logic reset_sync_pri_pre_reg;
-   logic reset_sync_sec_pre_reg;
+   logic sync_reset_n_pri_pre_reg;
+   logic sync_reset_n_sec_pre_reg;
 
    // Every interface flops the synchronized reset signal locally,
    // to avoid recovery/removal timing issue due to high fanout.
    // The flop is marked to prevent from being optimized away.
-   (* altera_attribute = {"-name GLOBAL_SIGNAL OFF"}*) logic reset_sync_pri_sdc_anchor /* synthesis dont_merge syn_noprune syn_preserve = 1 */;
+   (* altera_attribute = {"-name GLOBAL_SIGNAL OFF"}*) logic sync_reset_n /* synthesis dont_merge syn_noprune syn_preserve = 1 */;
    always_ff @(posedge sync_clk_pri or negedge async_reset_n_pri) begin
       if (~async_reset_n_pri) begin
-         reset_sync_pri_sdc_anchor <= '0;
+         sync_reset_n <= '0;
       end else begin
-         reset_sync_pri_sdc_anchor <= reset_sync_pri_pre_reg;
+         sync_reset_n <= sync_reset_n_pri_pre_reg;
       end
    end
 
-   logic reset_sync_sec_sdc_anchor_ext;
+   logic sync_reset_n_sec_ext;
    generate
       if (PHY_PING_PONG_EN) begin : pp
-         (* altera_attribute = {"-name GLOBAL_SIGNAL OFF"}*) logic reset_sync_sec_sdc_anchor /* synthesis dont_merge syn_noprune syn_preserve = 1 */;
+         (* altera_attribute = {"-name GLOBAL_SIGNAL OFF"}*) logic sync_reset_n_sec /* synthesis dont_merge syn_noprune syn_preserve = 1 */;
          always_ff @(posedge sync_clk_sec or negedge async_reset_n_sec) begin
             if (~async_reset_n_sec) begin
-               reset_sync_sec_sdc_anchor <= '0;
+               sync_reset_n_sec <= '0;
             end else begin
-               reset_sync_sec_sdc_anchor <= reset_sync_sec_pre_reg;
+               sync_reset_n_sec <= sync_reset_n_sec_pre_reg;
             end
          end
-         assign reset_sync_sec_sdc_anchor_ext = reset_sync_sec_sdc_anchor;
+         assign sync_reset_n_sec_ext = sync_reset_n_sec;
       end else begin : no_pp
-         assign reset_sync_sec_sdc_anchor_ext = 1'b0;
+         assign sync_reset_n_sec_ext = 1'b0;
       end
    endgenerate
 
@@ -642,10 +624,10 @@
          // recovery/removal in the slow clock domain.
          assign sync_clk_pri                 = (USER_CLK_RATIO == 2 && C2P_P2C_CLK_RATIO == 4 ? emif_usr_half_clk : emif_usr_clk);
          assign sync_clk_sec                 = (USER_CLK_RATIO == 2 && C2P_P2C_CLK_RATIO == 4 ? emif_usr_half_clk_sec : emif_usr_clk_sec);
-         assign emif_usr_reset_n_pri_pre_reg = reset_sync_pri_pre_reg;
-         assign emif_usr_reset_n_sec_pre_reg = reset_sync_sec_pre_reg;
-         assign emif_usr_reset_n             = reset_sync_pri_sdc_anchor;
-         assign emif_usr_reset_n_sec         = reset_sync_sec_sdc_anchor_ext;
+         assign emif_usr_reset_n_pri_pre_reg = sync_reset_n_pri_pre_reg;
+         assign emif_usr_reset_n_sec_pre_reg = sync_reset_n_sec_pre_reg;
+         assign emif_usr_reset_n             = sync_reset_n;
+         assign emif_usr_reset_n_sec         = sync_reset_n_sec_ext;
          assign afi_reset_n_pre_reg          = 1'b0;
          assign afi_reset_n                  = 1'b0;
       end else
@@ -655,8 +637,8 @@
          // in the slow clock domain.
          assign sync_clk_pri                 = afi_half_clk;
          assign sync_clk_sec                 = 1'b0;
-         assign afi_reset_n_pre_reg          = reset_sync_pri_pre_reg;
-         assign afi_reset_n                  = reset_sync_pri_sdc_anchor;
+         assign afi_reset_n_pre_reg          = sync_reset_n_pri_pre_reg;
+         assign afi_reset_n                  = sync_reset_n;
          assign emif_usr_reset_n_pri_pre_reg = 1'b0;
          assign emif_usr_reset_n             = 1'b0;
          assign emif_usr_reset_n_sec_pre_reg = 1'b0;
@@ -667,11 +649,11 @@
       begin : reset_gen_slave
          // The master exposes a synchronized reset signal for the slaves
          if (PHY_CONFIG_ENUM == "CONFIG_PHY_AND_HARD_CTRL") begin
-            assign reset_sync_pri_pre_reg = emif_usr_reset_n_pri_pre_reg_slave_in;
-            assign reset_sync_sec_pre_reg = emif_usr_reset_n_sec_pre_reg_slave_in;
+            assign sync_reset_n_pri_pre_reg = emif_usr_reset_n_pri_pre_reg_slave_in;
+            assign sync_reset_n_sec_pre_reg = emif_usr_reset_n_sec_pre_reg_slave_in;
          end else begin
-            assign reset_sync_pri_pre_reg = afi_reset_n_pre_reg_slave_in;
-            assign reset_sync_sec_pre_reg = 1'b0;
+            assign sync_reset_n_pri_pre_reg = afi_reset_n_pre_reg_slave_in;
+            assign sync_reset_n_sec_pre_reg = 1'b0;
          end
       end else
       begin : reset_gen_master
@@ -686,7 +668,7 @@
                reset_sync_pri[CPA_RESET_SYNC_LENGTH-1:1] <= reset_sync_pri[CPA_RESET_SYNC_LENGTH-2:0];
             end
          end
-         assign reset_sync_pri_pre_reg = reset_sync_pri[CPA_RESET_SYNC_LENGTH-1];
+         assign sync_reset_n_pri_pre_reg = reset_sync_pri[CPA_RESET_SYNC_LENGTH-1];
 
          if (PHY_PING_PONG_EN) begin : gen_sec_rst_sync
             logic [CPA_RESET_SYNC_LENGTH-1:0] reset_sync_sec;
@@ -698,9 +680,9 @@
                   reset_sync_sec[CPA_RESET_SYNC_LENGTH-1:1] <= reset_sync_sec[CPA_RESET_SYNC_LENGTH-2:0];
                end
             end
-            assign reset_sync_sec_pre_reg = reset_sync_sec[CPA_RESET_SYNC_LENGTH-1];
+            assign sync_reset_n_sec_pre_reg = reset_sync_sec[CPA_RESET_SYNC_LENGTH-1];
          end else begin : no_pp
-            assign reset_sync_sec_pre_reg = 1'b0;
+            assign sync_reset_n_sec_pre_reg = 1'b0;
          end
       end
    endgenerate
@@ -719,11 +701,13 @@
          assign cal_master_clk = pll_c_counters[4];
 
          logic [PLL_RESET_SYNC_LENGTH-1:0] reset_sync;
+         logic async_reset_n;
 
          assign cal_master_reset_n = reset_sync[PLL_RESET_SYNC_LENGTH-1];
+         assign async_reset_n      = (global_reset_n_int & pll_locked);
 
-         always_ff @(posedge cal_master_clk or negedge pll_locked) begin
-            if (~pll_locked) begin
+         always_ff @(posedge cal_master_clk or negedge async_reset_n) begin
+            if (~async_reset_n) begin
                reset_sync <= '0;
             end else begin
                reset_sync[0] <= 1'b1;
@@ -733,11 +717,13 @@
       end
 
       (* altera_attribute = {"-name GLOBAL_SIGNAL OFF"}*) logic [PLL_RESET_SYNC_LENGTH-1:0] per_if_cal_slave_reset_sync /* synthesis dont_merge */;
+      logic async_reset_n;
 
       assign cal_slave_reset_n = per_if_cal_slave_reset_sync[PLL_RESET_SYNC_LENGTH-1];
+      assign async_reset_n     = (global_reset_n_int & pll_locked_int);
 
-      always_ff @(posedge cal_slave_clk or negedge pll_locked_int) begin
-         if (~pll_locked_int) begin
+      always_ff @(posedge cal_slave_clk or negedge async_reset_n) begin
+         if (~async_reset_n) begin
             per_if_cal_slave_reset_sync <= '0;
          end else begin
             per_if_cal_slave_reset_sync[0] <= 1'b1;

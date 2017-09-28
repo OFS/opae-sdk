@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -76,7 +76,7 @@
   initial begin \
    for (i = 0; i < _mem_port_width; ++i) begin  \
       for (j = 0; j < _num_of_phases; ++j) begin  \
-        if ( DIAG_VERBOSE_IOAUX!=0 ) $display( "abphy %d/%d connected to tile=%-d,pin=%-d",i,j,`_abphy_get_tile(_loc,i),`_abphy_get_pin_index(_loc,i)%48); \
+        //$display( "abphy %d/%d connected to tile=%-d,pin=%-d",i,j,`_abphy_get_tile(_loc,i),`_abphy_get_pin_index(_loc,i)%48); \
       end \
    end \
   end
@@ -86,7 +86,6 @@
 `define _get_pin_ddr_str_wrap(_loc, _port_i)             (`_get_pin_ddr_str(`_abphy_get_tile(_loc,_port_i), `_abphy_get_lane(_loc,_port_i), `_abphy_get_pin(_loc,_port_i)))
 
 module mem_array_abphy # (
-  parameter DIAG_VERBOSE_IOAUX      = 0,
   parameter NUM_OF_RTL_TILES        = 1,
   parameter LANES_PER_TILE          = 4,
   parameter PINS_PER_LANE           = 12,
@@ -725,7 +724,7 @@ module mem_array_abphy # (
               end
             end
             default : begin
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("ERROR FAIL : protocol not defined");
+              //$display("ERROR FAIL : protocol not defined");
             end
           endcase
         end
@@ -812,11 +811,11 @@ module mem_array_abphy # (
               pCMD_ACTIVE : begin
                 if ( PROTOCOL_ENUM=="PROTOCOL_LPDDR3" ) begin
                   row_addr[bank_d[i]][j]        <= lpddr3_row_addr_d[i];
-                  if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d ACTIVATE(%b):%0t bank=%d row_addr=%x",j,cmd_d[j][i],$time,bank_d[i],lpddr3_row_addr_d[i]);
+                  //$display("abphy FIFO IN : CS%-d ACTIVATE(%b):%0t bank=%d row_addr=%x",j,cmd_d[j][i],$time,bank_d[i],lpddr3_row_addr_d[i]);
                 end
                 else begin
                   row_addr[bank_d[i]][j]        <= addr_d[i];
-                  if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d ACTIVATE(%b):%0t bank=%d full_addr=%x row_addr=%x",j,cmd_d[j][i],$time,bank_d[i],addr_d[i],addr_d[i]);
+                  //$display("abphy FIFO IN : CS%-d ACTIVATE(%b):%0t bank=%d full_addr=%x row_addr=%x",j,cmd_d[j][i],$time,bank_d[i],addr_d[i],addr_d[i]);
                 end
               end
             endcase
@@ -882,7 +881,7 @@ module mem_array_abphy # (
           end
 
           default : begin
-            if ( DIAG_VERBOSE_IOAUX!=0 ) $display("ERROR FAIL : col addr not defined");
+            //$display("ERROR FAIL : col addr not defined");
           end
         endcase
       end
@@ -912,20 +911,20 @@ module mem_array_abphy # (
                 wr_READ_en[j][i]                  <= 1'b0;
                 if ( row_addr_d_en[j] ) begin
                   wr_ac_data[j][i]                <= {bank_d[i],row_addr_d[j],col_addr_d[i]};
-                  if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
+                  //$display("abphy FIFO IN : CS%-d phase=%-d WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
                 end
                 else begin
                   if ( PROTOCOL_ENUM == "PROTOCOL_QDR4" ) begin
                     wr_ac_data[j][i]              <= {bank_d[i],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]};
-                    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d qdr4WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i],addr_d[{i[1:0],j[0]}],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]);
+                    //$display("abphy FIFO IN : CS%-d phase=%-d qdr4WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i],addr_d[{i[1:0],j[0]}],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]);
                   end
                   else begin
                     wr_ac_data[j][i]              <= {bank_d[i],row_addr[bank_d[i]][j],col_addr_d[i]};
                     if ( PROTOCOL_ENUM == "PROTOCOL_QDR2" && pADDR_PIN_RATE=="mode_ddr" ) begin
-                      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d qdrWRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i+1],addr_d[i+1],row_addr[bank_d[i]][j],col_addr_d[i+1]);
+                      //$display("abphy FIFO IN : CS%-d phase=%-d qdrWRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i+1],addr_d[i+1],row_addr[bank_d[i]][j],col_addr_d[i+1]);
                     end
                     else begin
-                      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
+                      //$display("abphy FIFO IN : CS%-d phase=%-d WRITE(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
                     end
                   end
                 end
@@ -934,16 +933,16 @@ module mem_array_abphy # (
                 wr_WRITE_en[j][i]                 <= 1'b0;
                 wr_READ_en[j][i]                  <= 1'b1;
                 if ( row_addr_d_en[j] ) begin
-                  if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
+                  //$display("abphy FIFO IN : CS%-d phase=%-d READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
                   wr_ac_data[j][i]                <= {bank_d[i],row_addr_d[j],col_addr_d[i]};
                 end
                 else begin
                   if ( PROTOCOL_ENUM == "PROTOCOL_QDR4" ) begin
                     wr_ac_data[j][i]            <= {bank_d[i],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]};
-                    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d qdr4READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i],addr_d[{i[1:0],j[0]}],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]);
+                    //$display("abphy FIFO IN : CS%-d phase=%-d qdr4READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x", j,i,cmd_d[j][i],$time,bank_d[i],addr_d[{i[1:0],j[0]}],row_addr[bank_d[i]][j],col_addr_d[{i[1:0],j[0]}]);
                   end
                   else begin
-                    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
+                    //$display("abphy FIFO IN : CS%-d phase=%-d READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
                     wr_ac_data[j][i]              <= {bank_d[i],row_addr[bank_d[i]][j],col_addr_d[i]};
                   end
                 end
@@ -953,13 +952,13 @@ module mem_array_abphy # (
                   wr_WRITE_en[j][i]                 <= 1'b1;
                   wr_READ_en[j][i]                  <= 1'b1;
                   if ( row_addr_d_en[j] ) begin
-                    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d WRITE/READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
+                    //$display("abphy FIFO IN : CS%-d phase=%-d WRITE/READ(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr_d[j],col_addr_d[i]);
                     wr_ac_data[j][i]                <= {bank_d[i],row_addr_d[j],col_addr_d[i]};
                   end
                   else begin
                     if ( PROTOCOL_ENUM == "PROTOCOL_QDR2" && pADDR_PIN_RATE=="mode_ddr" ) begin
-                      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d qdrWRITE_read(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i+1],addr_d[i+1],row_addr_d[j],col_addr_d[i+1]);
-                      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy FIFO IN : CS%-d phase=%-d qdrREAD_write(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
+                      //$display("abphy FIFO IN : CS%-d phase=%-d qdrWRITE_read(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i+1],addr_d[i+1],row_addr_d[j],col_addr_d[i+1]);
+                      //$display("abphy FIFO IN : CS%-d phase=%-d qdrREAD_write(%b):%0t bank=%d full_addr=%x row_addr=%x col_addr=%x",j,i,cmd_d[j][i],$time,bank_d[i],addr_d[i],row_addr[bank_d[i]][j],col_addr_d[i]);
                     end
                     else begin
                     end
@@ -1266,14 +1265,7 @@ generate
         end
         for ( jj=0; jj<4; jj++ ) begin
           if ( mem_wr_pipe[i][jj] ) begin
-
-            if ( mem.exists({high_addr[5:0],mem_addr_pipe[i][jj]}) ) begin
-              mem_temp             = mem[{high_addr[5:0],mem_addr_pipe[i][jj]}];
-            end
-            else begin
-              mem_temp             = 'd0;
-            end
-
+            mem_temp             = mem[{high_addr[5:0],mem_addr_pipe[i][jj]}];
             mem_temp_array[7]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*8)-1:(PORT_MEM_DQ_WIDTH_PER_INTF*7)];
             mem_temp_array[6]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*7)-1:(PORT_MEM_DQ_WIDTH_PER_INTF*6)];
             mem_temp_array[5]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*6)-1:(PORT_MEM_DQ_WIDTH_PER_INTF*5)];
@@ -1282,7 +1274,7 @@ generate
             mem_temp_array[2]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*3)-1:(PORT_MEM_DQ_WIDTH_PER_INTF*2)];
             mem_temp_array[1]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*2)-1:(PORT_MEM_DQ_WIDTH_PER_INTF*1)];
             mem_temp_array[0]    = mem_temp[(PORT_MEM_DQ_WIDTH_PER_INTF*1)-1:0];
-            if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : mem_array WR CS%-d addr=%x",i,mem_addr_pipe[i][jj]);
+            //$display("abphy : mem_array WR CS%-d addr=%x",i,mem_addr_pipe[i][jj]);
             for ( j=0; j<MEM_BURST_LENGTH; j++ ) begin
               if ( mem_temp_array[j]==={PORT_MEM_DQ_WIDTH_PER_INTF{1'bx}} ) begin
                 mem_temp_array[j]       ='d0;
@@ -1315,13 +1307,13 @@ generate
                 end
               end
               mem_temp_array[j]         = (mem_temp_array[j]&~mem_temp_array_mask)|(mem_data_pipe_array[i][jj][j]&mem_temp_array_mask);
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : CS%-d phase%-d burst=%-d mask=%x masked_data=%x unmasked_data=%x",i,jj,j,mem_temp_array_mask,mem_temp_array[j],mem_data_pipe_array[i][jj][j]);
+              //$display("abphy : CS%-d phase%-d burst=%-d mask=%x masked_data=%x unmasked_data=%x",i,jj,j,mem_temp_array_mask,mem_temp_array[j],mem_data_pipe_array[i][jj][j]);
             end
             for ( ii=0; ii<banks_per_write; ii++ ) begin
               temp_addr = mem_addr_pipe[i][jj];
               temp_addr[pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-pBANK_WIDTH]=temp_addr[pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-pBANK_WIDTH]+(ii*(16/banks_per_write));
               mem[{high_addr[5:0],temp_addr}]    = {mem_temp_array[7],mem_temp_array[6],mem_temp_array[5],mem_temp_array[4],mem_temp_array[3],mem_temp_array[2],mem_temp_array[1],mem_temp_array[0]};
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : multi-bank WR CS%-d phase%-d addr=%x data=%x",i,jj,temp_addr,mem[{high_addr[5:0],temp_addr}]);
+              //$display("abphy : multi-bank WR CS%-d phase%-d addr=%x data=%x",i,jj,temp_addr,mem[{high_addr[5:0],temp_addr}]);
             end
           end
         end
@@ -1352,7 +1344,7 @@ generate
                 temp_addr = mem_addr_pipe[i][jj];
                 temp_addr[pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-pBANK_WIDTH]=temp_addr[pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-pBANK_WIDTH]+(ii*(16/banks_per_write));
                 mem[{high_addr[5:0],temp_addr}]    = mem_data_pipe[i][jj];
-                if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : multi-bank WR CS%-d phase%-d addr=%x data=%x",i,jj,temp_addr,mem[{high_addr[5:0],temp_addr}]);
+                //$display("abphy : multi-bank WR CS%-d phase%-d addr=%x data=%x",i,jj,temp_addr,mem[{high_addr[5:0],temp_addr}]);
               end
             end
             else begin
@@ -1384,13 +1376,12 @@ endgenerate
           if ( RD_req_d[i][k] ) begin
             if ( mem.exists({high_addr[5:0],RD_mem_addr_d[i][k]}) ) begin
               rd_mem_data_d[i][k]           = mem[{high_addr[5:0],RD_mem_addr_d[i][k]}];
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : memory_array RD CS%-d phase%-d addr=%x rd_data=%x at time=%0t",i,k,RD_mem_addr_d[i][k],mem[{high_addr[5:0],RD_mem_addr_d[i][k]}],$time);
             end
             else begin
               rd_mem_data_d[i][k]           = 'd0;
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : WARNING: Attempting to read from uninitialized location @ CS%-d addr=%x at time=%0t",i,RD_mem_addr_d[i][k],$time);
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : memory_array RD CS%-d phase%-d addr=%x rd_data=%x at time=%0t",i,k,RD_mem_addr_d[i][k],'d0,$time);
+              //$display("abphy : WARNING: Attempting to read from uninitialized location @ CS%-d addr=%x at time=%0t",i,RD_mem_addr_d[i][k],$time);
             end
+            //$display("abphy : memory_array RD CS%-d phase%-d addr=%x rd_data=%x at time=%0t",i,k,RD_mem_addr_d[i][k],mem[{high_addr[5:0],RD_mem_addr_d[i][k]}],$time);
           end
         end
       end
@@ -1474,39 +1465,7 @@ endgenerate
 
 
 
-  always @ ( posedge phy_clk ) begin
-    if ( reset_n ) begin
-      for ( i=0; i<pNUM_OF_CHANS; i++ ) begin
-        for ( k=0; k<4; k++ ) begin
-          if ( mem_wr_pipe[i][k]=='d1  ) begin
-            if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : CS%-d phase%-d WR %0t bank=%d, row_addr=%x, col_addr=%x",
-                   i,k,$time,mem_addr_pipe[i][k][pAC_PIPE_ADDR_WIDTH-1:(2*LOCAL_ADDR_WIDTH)],mem_addr_pipe[i][k][(2*LOCAL_ADDR_WIDTH)-1:LOCAL_ADDR_WIDTH],
-                      mem_addr_pipe[i][k][LOCAL_ADDR_WIDTH-1:0]);
-            for ( j=0; j<MEM_BURST_LENGTH; j++ ) begin
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : WR %0t data=%x/%b @ %x (GBRC=%x/%x/%x/%x )",
-                      $time,mem_data_pipe_array[i][k][j],mem_data_dm_pipe_array[i][k][j],mem_addr_pipe[i][k]+j,
-                           mem_addr_pipe[i][k][pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-2],mem_addr_pipe[i][k][pAC_PIPE_ADDR_WIDTH-3:(2*LOCAL_ADDR_WIDTH)],
-                             mem_addr_pipe[i][k][(2*LOCAL_ADDR_WIDTH)-1:LOCAL_ADDR_WIDTH],mem_addr_pipe[i][k][LOCAL_ADDR_WIDTH-1:0]);
-            end
-          end
-          if ( RD_req_d[i][k]=='d1  ) begin
-            if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : CS%-d phase%-d RD %0t bank=%d, row_addr=%x, col_addr=%x",
-               i,k,$time,RD_mem_addr_d[i][k][pAC_PIPE_ADDR_WIDTH-1:(2*LOCAL_ADDR_WIDTH)],RD_mem_addr_d[i][k][(2*LOCAL_ADDR_WIDTH)-1:LOCAL_ADDR_WIDTH],
-                  RD_mem_addr_d[i][k][LOCAL_ADDR_WIDTH-1:0]);
-            for ( j=0; j<MEM_BURST_LENGTH; j++ ) begin
-              if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : RD %0t data=%x @ %x (GBRC=%x/%x/%x/%x )",
-                     $time,rd_data_debug_d[i][k][j],RD_mem_addr_d[i][k]+j,RD_mem_addr_d[i][k][pAC_PIPE_ADDR_WIDTH-1:pAC_PIPE_ADDR_WIDTH-2],
-                        RD_mem_addr_d[i][k][pAC_PIPE_ADDR_WIDTH-3:(2*LOCAL_ADDR_WIDTH)],RD_mem_addr_d[i][k][(2*LOCAL_ADDR_WIDTH)-1:LOCAL_ADDR_WIDTH],
-                           RD_mem_addr_d[i][k][LOCAL_ADDR_WIDTH-1:0]);
-            end
-          end
-          if ( mem_wr_pipe[i][k]=='d1 && RD_req_d[i][k]=='d1 && PROTOCOL_ENUM != "PROTOCOL_QDR2" ) begin
-            if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy Warning CS%-d phase%-d: MEM WRITE and READ at the SAME TIME",i,k);
-          end
-        end
-      end
-    end
-  end
+
 
   generate
     genvar geni4;
@@ -1552,26 +1511,26 @@ endgenerate
       end
     end
 
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : banks_per_write=%d",banks_per_write);
+    //$display("abphy : banks_per_write=%d",banks_per_write);
 
 
     repeat (20) @ ( posedge phy_clk );
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : ----------------parameter values----------------------------------");
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : NUM_OF_RTL_TILES        = %10d",NUM_OF_RTL_TILES);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : LANES_PER_TILE          = %10d",LANES_PER_TILE);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : PORT_MEM_DQ_WIDTH       = %10d",PORT_MEM_DQ_WIDTH);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : MEM_DATA_MASK_EN        = %10d",MEM_DATA_MASK_EN);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : USER_CLK_RATIO          = %10d",USER_CLK_RATIO);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : PHY_HMC_CLK_RATIO       = %10d",PHY_HMC_CLK_RATIO);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : PHY_PING_PONG_EN        = %10d",PHY_PING_PONG_EN);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : NUM_OF_HMC_PORTS        = %10d",NUM_OF_HMC_PORTS);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : pADDR_PIN_RATE          = %10s",pADDR_PIN_RATE);
+    //$display("abphy : ----------------parameter values----------------------------------");
+    //$display("abphy : NUM_OF_RTL_TILES        = %10d",NUM_OF_RTL_TILES);
+    //$display("abphy : LANES_PER_TILE          = %10d",LANES_PER_TILE);
+    //$display("abphy : PORT_MEM_DQ_WIDTH       = %10d",PORT_MEM_DQ_WIDTH);
+    //$display("abphy : MEM_DATA_MASK_EN        = %10d",MEM_DATA_MASK_EN);
+    //$display("abphy : USER_CLK_RATIO          = %10d",USER_CLK_RATIO);
+    //$display("abphy : PHY_HMC_CLK_RATIO       = %10d",PHY_HMC_CLK_RATIO);
+    //$display("abphy : PHY_PING_PONG_EN        = %10d",PHY_PING_PONG_EN);
+    //$display("abphy : NUM_OF_HMC_PORTS        = %10d",NUM_OF_HMC_PORTS);
+    //$display("abphy : pADDR_PIN_RATE          = %10s",pADDR_PIN_RATE);
     for ( i=0; i<pNUM_OF_CHANS; i++ ) begin
-      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : afi_rlat CS%-d            = %10d",i,afi_rlat_sel[i]);
-      if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy : afi_wlat CS%-d            = %10d",i,afi_wlat_sel[i]);
+      //$display("abphy : afi_rlat CS%-d            = %10d",i,afi_rlat_sel[i]);
+      //$display("abphy : afi_wlat CS%-d            = %10d",i,afi_wlat_sel[i]);
     end
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("abphy :  tile=%d lane=%d %d",`_abphy_get_tile(PORT_MEM_DQ_PINLOC, 0),`_abphy_get_lane(PORT_MEM_DQ_PINLOC, 0),afi_wlat[`_abphy_get_tile(PORT_MEM_DQ_PINLOC, 0)][`_abphy_get_lane(PORT_MEM_DQ_PINLOC, 0)]);
-    if ( DIAG_VERBOSE_IOAUX!=0 ) $display("------------------------------------------------------------------");
+    //$display("abphy :  tile=%d lane=%d %d",`_abphy_get_tile(PORT_MEM_DQ_PINLOC, 0),`_abphy_get_lane(PORT_MEM_DQ_PINLOC, 0),afi_wlat[`_abphy_get_tile(PORT_MEM_DQ_PINLOC, 0)][`_abphy_get_lane(PORT_MEM_DQ_PINLOC, 0)]);
+    //$display("------------------------------------------------------------------");
   end
 
 

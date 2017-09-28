@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -1040,7 +1040,6 @@ module altera_emif_arch_nf_io_tiles #(
          // Data buffer control blocks in the lanes to HMC
          logic [22:0]      l2t_dbc2ctl [LANES_PER_TILE-1:0];
 
-         (* altera_attribute = "-name MAX_WIRES_FOR_CORE_PERIPHERY_TRANSFER  1" *)
          twentynm_tile_ctrl # (
             .silicon_rev                      (SILICON_REV),
             .hps_ctrl_en                      (IS_HPS ? "true" : "false"),
@@ -1404,7 +1403,7 @@ module altera_emif_arch_nf_io_tiles #(
          for (lane_i = 0; lane_i < LANES_PER_TILE; ++lane_i)
          begin: lane_gen
 
-            (* altera_attribute = "-name MAX_WIRES_FOR_CORE_PERIPHERY_TRANSFER  2; -name MAX_WIRES_FOR_PERIPHERY_CORE_TRANSFER  1" *)
+            (* altera_attribute = "-name MAX_WIRES_FOR_CORE_PERIPHERY_TRANSFER  2; -name MAX_WIRES_FOR_PERIPHERY_CORE_TRANSFER  2" *)
             twentynm_io_12_lane #(
                .silicon_rev                              (SILICON_REV),
                .fast_interpolator_sim                    (USE_FAST_INTERPOLATOR_SIM),

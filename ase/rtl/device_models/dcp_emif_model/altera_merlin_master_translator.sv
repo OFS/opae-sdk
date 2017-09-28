@@ -548,16 +548,16 @@ module altera_merlin_master_translator #(
             (av_write_r | av_read_r) &&         // Check only when : previously initiated a write/read
             (!USE_CHIPSELECT | av_chipselect_r) //                   and chipselect was asserted (or unused)
          ) begin
-            $display( "%t: %m: Error: Input controls/data changed while av_waitrequest is asserted.", $time());
-            $display("av_address                %x --> %x", av_address_r               , av_address               );
-            $display("av_byteenable             %x --> %x", av_byteenable_r            , av_byteenable            );
-            $display("av_burstcount             %x --> %x", av_burstcount_r            , av_burstcount            );
-            $display("av_writedata              %x --> %x", av_writedata_r             , av_writedata             );
-            $display("av_write                  %x --> %x", av_write_r                 , av_write                 );
-            $display("av_read                   %x --> %x", av_read_r                  , av_read                  );
-            $display("av_lock                   %x --> %x", av_lock_r                  , av_lock                  );
-            $display("av_chipselect             %x --> %x", av_chipselect_r            , av_chipselect            );
-            $display("av_debugaccess            %x --> %x", av_debugaccess_r           , av_debugaccess           );
+            //$display( "%t: %m: Error: Input controls/data changed while av_waitrequest is asserted.", $time());
+            //$display("av_address                %x --> %x", av_address_r               , av_address               );
+            //$display("av_byteenable             %x --> %x", av_byteenable_r            , av_byteenable            );
+            //$display("av_burstcount             %x --> %x", av_burstcount_r            , av_burstcount            );
+            //$display("av_writedata              %x --> %x", av_writedata_r             , av_writedata             );
+            //$display("av_write                  %x --> %x", av_write_r                 , av_write                 );
+            //$display("av_read                   %x --> %x", av_read_r                  , av_read                  );
+            //$display("av_lock                   %x --> %x", av_lock_r                  , av_lock                  );
+            //$display("av_chipselect             %x --> %x", av_chipselect_r            , av_chipselect            );
+            //$display("av_debugaccess            %x --> %x", av_debugaccess_r           , av_debugaccess           );
          end
       end
 

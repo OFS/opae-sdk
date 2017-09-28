@@ -29,8 +29,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module handles the creation of a conditional register stage
-// This module may be used to implement a synchronizer (with properly selected
-// REGISTER value)
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 // The following ensures that the register stage isn't synthesized into

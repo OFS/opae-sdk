@@ -112,9 +112,9 @@ module altera_emif_arch_nf_pll_fast_sim #(
       end
    end
 
-   assign pll_locked = (pll_lock_count == 5'b11111);
-   assign pll_dll_clk = pll_locked & vco_out;
-   assign phy_clk_phs[0] = pll_locked & vco_out;
+   assign pll_locked = global_reset_n_int & (pll_lock_count == 5'b11111);
+   assign pll_dll_clk = global_reset_n_int & vco_out;
+   assign phy_clk_phs[0] = global_reset_n_int & vco_out;
    always @ (*) begin
       phy_clk_phs[1] <= #(PLL_SIM_VCO_FREQ_PS/VCO_PHASES) phy_clk_phs[0];
       phy_clk_phs[2] <= #(PLL_SIM_VCO_FREQ_PS/VCO_PHASES) phy_clk_phs[1];
@@ -124,13 +124,13 @@ module altera_emif_arch_nf_pll_fast_sim #(
       phy_clk_phs[6] <= #(PLL_SIM_VCO_FREQ_PS/VCO_PHASES) phy_clk_phs[5];
       phy_clk_phs[7] <= #(PLL_SIM_VCO_FREQ_PS/VCO_PHASES) phy_clk_phs[6];
    end
-   assign phy_clk = {pll_locked & phyclk1_out, pll_locked & phyclk0_out};
-   assign phy_fb_clk_to_tile = pll_locked & fbclk_out;
-   assign pll_c_counters[0] =  pll_locked & phyclk1_out;
-   assign pll_c_counters[1] =  pll_locked & phyclk0_out;
-   assign pll_c_counters[2] =  pll_locked & fbclk_out;
-   assign pll_c_counters[3] =  pll_locked & cal_slave_clk_out;
-   assign pll_c_counters[4] =  pll_locked & cal_master_clk_out;
+   assign phy_clk = {global_reset_n_int & phyclk1_out, global_reset_n_int & phyclk0_out};
+   assign phy_fb_clk_to_tile = global_reset_n_int & fbclk_out;
+   assign pll_c_counters[0] =  global_reset_n_int & phyclk1_out;
+   assign pll_c_counters[1] =  global_reset_n_int & phyclk0_out;
+   assign pll_c_counters[2] =  global_reset_n_int & fbclk_out;
+   assign pll_c_counters[3] =  global_reset_n_int & cal_slave_clk_out;
+   assign pll_c_counters[4] =  global_reset_n_int & cal_master_clk_out;
    assign pll_c_counters[8:5] = 5'b0;
    assign pll_phase_done = 1'b1;
 

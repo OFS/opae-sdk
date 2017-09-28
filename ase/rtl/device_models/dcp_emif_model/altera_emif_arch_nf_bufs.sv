@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -32,7 +32,6 @@
 
 module altera_emif_arch_nf_bufs #(
    parameter PROTOCOL_ENUM                           = "",
-   parameter MEM_FORMAT_ENUM                         = "",
    parameter PINS_PER_LANE                           = 1,
    parameter PINS_IN_RTL_TILES                       = 1,
    parameter LANES_IN_RTL_TILES                      = 1,
@@ -904,7 +903,7 @@ module altera_emif_arch_nf_bufs #(
          assign mem_doff_n = '1;
       end
 
-      if ((`_get_pin_count(PORT_MEM_DM_PINLOC) != 0) && (MEM_FORMAT_ENUM != "MEM_FORMAT_LRDIMM")) begin : gen_mem_dm
+      if (`_get_pin_count(PORT_MEM_DM_PINLOC) != 0) begin : gen_mem_dm
          for (port_i = 0; port_i < PORT_MEM_DM_WIDTH; ++port_i)
          begin : inst
             altera_emif_arch_nf_buf_udir_se_o # (

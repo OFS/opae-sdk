@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -35,7 +35,6 @@
 
 module altera_emif_arch_nf_io_tiles_wrap #(
    parameter DIAG_SYNTH_FOR_SIM                      = 0,
-   parameter DIAG_VERBOSE_IOAUX                      = 0,
    parameter DIAG_CPA_OUT_1_EN                       = 0,
    parameter DIAG_FAST_SIM                           = 0,
    parameter IS_HPS                                  = 0,
@@ -855,7 +854,6 @@ module altera_emif_arch_nf_io_tiles_wrap #(
      if ( DIAG_USE_ABSTRACT_PHY==1 ) begin : abphy_tiles
        altera_emif_arch_nf_io_tiles_abphy # (
           .DIAG_SYNTH_FOR_SIM                   (DIAG_SYNTH_FOR_SIM),
-          .DIAG_VERBOSE_IOAUX                   (DIAG_VERBOSE_IOAUX),
           .DIAG_CPA_OUT_1_EN                    (DIAG_CPA_OUT_1_EN),
           .DIAG_FAST_SIM                        (DIAG_FAST_SIM),
           .IS_HPS                               (IS_HPS),

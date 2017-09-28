@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -2097,15 +2097,15 @@ always @(*)
 
 task display_good_clock;
 begin
-  $display("\nIO_12_LANE Message, The clock ratio of phy_clk_lane/phy_clk_phs is good, the expected ratio is %f,  the actual ratio is %f", expected_ratio, frequency_ratio );
-  $display("Time = %t,\n  %m\n",$time);
+  //$display("\nIO_12_LANE Message, The clock ratio of phy_clk_lane/phy_clk_phs is good, the expected ratio is %f,  the actual ratio is %f", expected_ratio, frequency_ratio );
+  //$display("Time = %t,\n  %m\n",$time);
 end
 endtask
 
 task display_bad_clock;
 begin
-  $display("\nIO_12_LANE Message, The clock ratio of phy_clk_lane/phy_clk_phs is bad, the expected ratio is %f,  the actual ratio is %f", expected_ratio, frequency_ratio );
-  $display("Time = %t,\n  %m\n",$time);
+  //$display("\nIO_12_LANE Message, The clock ratio of phy_clk_lane/phy_clk_phs is bad, the expected ratio is %f,  the actual ratio is %f", expected_ratio, frequency_ratio );
+  //$display("Time = %t,\n  %m\n",$time);
 end
 endtask
 
