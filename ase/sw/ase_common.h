@@ -60,6 +60,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/file.h>
+#include <sys/eventfd.h>
 #include <dirent.h>
 #include <execinfo.h>
 #include <locale.h>
@@ -611,6 +612,9 @@ struct event_request {
 	enum request_type type;
 	int flags;
 };
+
+int register_event(int event_handle, int flags);
+int unregister_event(int event_handle);
 
 // ---------------------------------------------------------------------
 // Enable memory test function
