@@ -83,6 +83,10 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle);
  * The event_handle points to an OS specific mechanism for event notification.
  * An event_handle is associated with only a single event.
  *
+ * In case of user interrupts, the flags parameter will be used to specify
+ * the vector ID. The value of the flags parameter indicates the vector ID,
+ * no bit encoding is used.
+ *
  * @todo define if calling fpgaRegisterEvent multiple times with the
  * same event_handle is an error condition or if it is silently ignored.
  *
