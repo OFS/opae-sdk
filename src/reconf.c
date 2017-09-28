@@ -287,6 +287,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	struct gbs_metadata  metadata   = {0};
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
+	int err                         = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -423,6 +424,8 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

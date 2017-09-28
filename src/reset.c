@@ -39,6 +39,7 @@ fpga_result __FPGA_API__ fpgaReset(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result 	     = FPGA_OK;
+	int err                      = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -58,6 +59,8 @@ fpga_result __FPGA_API__ fpgaReset(fpga_handle handle)
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
