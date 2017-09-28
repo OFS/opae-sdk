@@ -40,9 +40,10 @@
 // Get number of Umsgs
 fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result 	     = FPGA_OK;
-	struct fpga_port_info info   = { 0 };
+	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
+	fpga_result result            = FPGA_OK;
+	struct fpga_port_info info    = { 0 };
+	int err                       = 0;
 
 	ASSERT_NOT_NULL(value);
 	result = handle_check_and_lock(_handle);
@@ -76,16 +77,19 @@ fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 	*value = info.num_umsgs;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
 // Set Umsg Attributes
 fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
-	struct _fpga_handle *_handle          = (struct _fpga_handle *)handle;
-	fpga_result result 		      = FPGA_OK;
+	struct _fpga_handle  *_handle         = (struct _fpga_handle *)handle;
+	fpga_result result                    = FPGA_OK;
 	struct fpga_port_umsg_cfg umsg_cfg    = {0};
+	int err                               = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -114,14 +118,16 @@ fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t valu
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
 // Gets Umsg address
 fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
-	struct _fpga_handle *_handle             = (struct _fpga_handle *)handle;
+	struct _fpga_handle  *_handle           = (struct _fpga_handle *)handle;
 	struct fpga_port_dma_map dma_map         = {0};
 	struct fpga_port_dma_unmap dma_unmap     = {0};
 	struct fpga_port_umsg_base_addr baseaddr = {0};
@@ -131,6 +137,7 @@ fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	uint64_t umsg_size                        = 0;
 	int pagesize                              = 0;
 	void *umsg_virt                           = NULL;
+	int err                                   = 0;
 
 	ASSERT_NOT_NULL(umsg_ptr);
 	result = handle_check_and_lock(_handle);
@@ -216,7 +223,9 @@ fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	_handle->umsg_size = umsg_size;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 
 umsg_map_exit:
@@ -239,14 +248,18 @@ umsg_exit:
 	if (umsg_virt != NULL)
 		free_buffer(umsg_virt, umsg_size);
 
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
 fpga_result free_umsg_buffer(fpga_handle handle)
 {
 	fpga_result result                = FPGA_OK;
-	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
+	struct _fpga_handle  *_handle     = (struct _fpga_handle *)handle;
+	int err                           = 0;
+
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -283,17 +296,19 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 		_handle->umsg_iova = NULL;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
 // Trigger umsg
 fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result           = FPGA_OK;
-	uint64_t *umsg_ptr           = NULL;
+	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
+	fpga_result result            = FPGA_OK;
+	uint64_t *umsg_ptr            = NULL;
+	int err                       = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -315,6 +330,8 @@ fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 	*((volatile uint64_t *) (umsg_ptr)) = value;
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

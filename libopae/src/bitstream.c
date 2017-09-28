@@ -253,7 +253,6 @@ fpga_result __FPGA_API__ check_bitstream_guid(const uint8_t *bitstream)
 {
 	fpga_guid bitstream_guid;
 	fpga_guid expected_guid;
-	fpga_result ret = FPGA_EXCEPTION;
 	errno_t e;
 
 	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid),
@@ -411,7 +410,6 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 	fpga_result result                  = FPGA_OK;
 	const uint8_t *json_metadata_ptr    = NULL;
 	char *json_metadata                 = NULL;
-	char *uuid_str                      = NULL;
 	json_object *root                   = NULL;
 	json_object *magic_num              = NULL;
 	json_object *interface_id           = NULL;

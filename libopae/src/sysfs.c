@@ -370,11 +370,11 @@ fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)
 fpga_result get_port_sysfs(fpga_handle handle,
 				char *sysfs_port)
 {
+
 	struct _fpga_token  *_token;
-	struct _fpga_handle *_handle   = (struct _fpga_handle *)handle;
-	char syfs_path[SYSFS_PATH_MAX] = {0};
-	char *p                        = 0;
-	int device_id                  = 0;
+	struct _fpga_handle *_handle  = (struct _fpga_handle *)handle;
+	char *p                       = 0;
+	int device_id                 = 0;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -417,11 +417,12 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 				uint64_t *deviceid)
 {
 	struct _fpga_token  *_token      = NULL;
-	struct _fpga_handle *_handle     = (struct _fpga_handle *)handle;
+	struct _fpga_handle  *_handle    = (struct _fpga_handle *)handle;
 	char sysfs_path[SYSFS_PATH_MAX]  = {0};
 	char *p                          = NULL;
 	int device_id                    = 0;
 	fpga_result result               = FPGA_OK;
+	int err                          = 0;
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid handle");
@@ -474,7 +475,9 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
