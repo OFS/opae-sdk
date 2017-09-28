@@ -317,6 +317,17 @@ out_free:
 	return NULL;
 }
 
+bool del_dev(struct dev_list *pdev, struct dev_list *parent)
+{
+	if (!parent || !pdev)
+		return false;
+
+	parent->next = pdev->next;
+	free(pdev);
+
+	return true;
+}
+
 static const fpga_guid FPGA_FME_GUID = {
 	0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3,
 	0x82, 0xfe, 0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
@@ -435,9 +446,15 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 				sysfspath);
 
 		result = sysfs_read_guid(spath, pdev->guid);
-		if (FPGA_OK != result)
-			return result;
-
+		/* if we can't read the afu_id, remove device from list */
+		if (FPGA_OK != result) {
+			FPGA_MSG("Could not read afu_id from '%s', ignoring",
+				 spath);
+			if (!del_dev(pdev, parent)) {
+				FPGA_ERR("del_dev() failed");
+				return FPGA_EXCEPTION;
+			}
+		}
 	}
 
 	return FPGA_OK;
