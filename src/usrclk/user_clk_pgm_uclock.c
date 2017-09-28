@@ -140,10 +140,10 @@ int fi_RunInitz(const char* sysfs_path)
 	// Initialize
 	// Reinitialization okay too, since will issue machine reset
 
-	uint64_t u64i_PrtAddr, u64i_PrtData;
+	uint64_t u64i_PrtData;
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat;
 	int      i_ReturnErr;
-	char syfs_usrpath[SYSFS_PATH_MAX]; 
+	char syfs_usrpath[SYSFS_PATH_MAX];
 
 	gQUCPU_Uclock.i_InitzState = 0;
 	gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (uint64_t) 0;
@@ -283,7 +283,7 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	// fi_AvmmRWcom
 	uint64_t u64i_SeqCmdAddrData, u64i_SeqCmdAddrData_seq_2, u64i_SeqCmdAddrData_wrt_1;
 	uint64_t u64i_SeqCmdAddrData_adr_10, u64i_SeqCmdAddrData_dat_32;
-	uint64_t u64i_PrtAddr, u64i_PrtData;
+	uint64_t u64i_PrtData;
 	uint64_t u64i_DataX;
 	uint64_t u64i_FastPoll, u64i_SlowPoll;
 	long int li_sleep_nanoseconds;
@@ -330,7 +330,7 @@ int fi_AvmmRWcom(int i_CmdWrite,
 
 	// Poll register 0 for completion.
 	// CCI is synchronous and needs only 1 read with matching sequence.
-	// u64i_PrtAddr      = QUCPU_UI64_PRT_UCLK_STS_0;
+
 	for (u64i_SlowPoll = 0; u64i_SlowPoll<100; ++u64i_SlowPoll)  // 100 ms
 	{ // Poll 0, slow outer loop with 1 ms sleep
 		for (u64i_FastPoll = 0; u64i_FastPoll<100; ++u64i_FastPoll)
@@ -424,13 +424,12 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 {
 	// fi_GetFreqs
 	// Read the frequency for the User clock and div2 clock
-	
-	uint64_t u64i_PrtAddr                 = 0,
-	u64i_PrtData                          = 0;
+
+	uint64_t u64i_PrtData                 = 0;
 	long int li_sleep_nanoseconds         = 0;
 	int      res                          = 0;
-	char syfs_usrpath[SYSFS_PATH_MAX]     = {0}; 
-	
+	char syfs_usrpath[SYSFS_PATH_MAX]     = {0};
+
 	// Assume return error okay, for now
 	res                           = 0;
 
@@ -493,11 +492,11 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 {
 	// fi_SetFreqs
 	// Set the user clock frequency
-	uint64_t u64i_I, u64i_MifReg, u64i_PrtAddr, u64i_PrtData;
+	uint64_t u64i_I, u64i_MifReg, u64i_PrtData;
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk;
 	long int li_sleep_nanoseconds;
 	int      i_ReturnErr;
-	char syfs_usrpath[SYSFS_PATH_MAX]; 
+	char syfs_usrpath[SYSFS_PATH_MAX];
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -643,14 +642,12 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 
 	if (i_ReturnErr == 0)
 	{ // Wait for PLL to lock
-		// u64i_PrtAddr      = QUCPU_UI64_PRT_UCLK_STS_0;
+
 		for (u64i_I = 0; u64i_I<100; u64i_I++)
 		{ // Poll with 100 ms timeout
-			// u64i_PrtData      = fu64i_PrtMmioRead(u64i_PrtAddr);
 
 			snprintf(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
 			sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
-			//sysfs_read_uint64(gQUCPU_Uclock.sys_path, USER_CLOCK_STS0, &u64i_PrtData);
 
 			if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0) break;
 
@@ -682,8 +679,8 @@ const char * fpac_GetErrMsg(int i_ErrMsgInx)
 
 	// Check index range
 	if (i_ErrMsgInx >= 0
-		|| i_ErrMsgInx  < QUCPU_INT_UCLOCK_NUM_ERROR_MESSAGES);
-	{ // All okay, set the message string
+		|| i_ErrMsgInx  < QUCPU_INT_UCLOCK_NUM_ERROR_MESSAGES) {
+	// All okay, set the message string
 		pac_ErrMsgStr = pac_UclockErrorMsg[i_ErrMsgInx];
 	} // All okay, set the message string
 
@@ -762,7 +759,6 @@ int fi_WaitCalDone(void)
 {
 	// fi_WaitCalDone
 	// Wait for calibration to be done
-	uint64_t u64i_PrtAddr                = 0;
 	uint64_t u64i_PrtData                = 0;
 	uint64_t u64i_I                      = 0;
 	long int li_sleep_nanoseconds        = 0;
