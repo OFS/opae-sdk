@@ -332,12 +332,12 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_iprop.function = (uint8_t) f;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
+	// only set socket id if we have it on sysfs
 	result = sysfs_get_socket_id(device_id, &_iprop.socket_id);
-	if (result)
-		return result;
+	if (0 == result)
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
-
+	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
