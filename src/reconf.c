@@ -376,7 +376,8 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 
 	result = ioctl(_handle->fddev, FPGA_FME_PORT_PR, &port_pr);
 	if (result != 0) {
-		FPGA_ERR("Failed to reconfigure bitstream");
+		FPGA_ERR("Failed to reconfigure bitstream: %s",
+			  strerror(errno));
 
 		if ((errno == EINVAL) || (errno == EFAULT)) {
 			result = FPGA_INVALID_PARAM;
