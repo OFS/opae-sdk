@@ -210,7 +210,7 @@ bool accelerator::reset()
     {
         return true;
     }
-    log_.warn("fpga_app::reset") << "Reset operation resulted in " << res << std::endl;
+    log_.warn("accelerator::reset") << "Reset operation resulted in " << res << std::endl;
     return false;
 }
 
@@ -234,6 +234,11 @@ dma_buffer::ptr_t accelerator::allocate_buffer(std::size_t size)
     if (res == FPGA_OK)
     {
         res = fpgaGetIOAddress(handle_, wsid, &iova);
+    }
+    else
+    {
+        log_.error("accelerator::allocate_buffer") << "Could not allocate buffer\n";
+        return buffer;
     }
 
     if (res == FPGA_OK)
