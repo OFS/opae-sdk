@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import argparse, struct, sys, tempfile, os, subprocess, re, filecmp, stat
+import argparse, struct, sys, tempfile, os, subprocess, fcntl, filecmp, stat
 from array import *
  
 def check_rpd(ifile):
@@ -63,31 +63,108 @@ def reverse_bits_in_file(ifile, ofile):
             ochunk += chr(bit_rev[ord(b)])
         ofile.write(ochunk)
 
-def get_flash_size(mtd_debug, dev):
+def get_flash_size(dev):
+
+    MEMGETINFO = 0x80204d01
+
     try:
-        mode = os.stat(args.device).st_mode
-        if not stat.S_ISCHR(mode):
-            print args.device, "is not a device file."
-
+        fd = os.open(dev, os.O_SYNC|os.O_RDONLY)
     except Exception as e:
-        print "Couldn't open", args.device, ":", e
-        sys.exit(1)
+	print "failed to open "+dev+": ", e
+	sys.exit(1)
 
-    output = subprocess.check_output([mtd_debug, "info", dev])
-    regex = re.compile('mtd\.size = (\d+) ', re.MULTILINE)
-    m = regex.search(output)
-    if m:
-        return int(m.group(1))
-    else:
-        print "could not find flash size"
-        sys.exit(1)
+    ioctl_data = struct.pack('BIIIIIQ', 0,0,0,0,0,0,0)
+
+    try:
+        ret = fcntl.ioctl(fd, MEMGETINFO, ioctl_data)
+    except Exception as e:
+	print "ioctl failed: ", e
+	sys.exit(1)
+
+    ioctl_odata = struct.unpack_from('BIIIIIQ', ret)
+
+    os.close(fd)
+
+    return ioctl_odata[2]
+   
+def flash_erase(dev, start, nbytes):
+    MEMERASE = 0x40084d02
+
+    try:
+        fd = os.open(dev, os.O_SYNC|os.O_RDWR)
+    except Exception as e:
+	print "failed to open "+dev+": ", e
+	sys.exit(1)
+
+    ioctl_data = struct.pack('II', start, nbytes)
+
+    try:
+        ret = fcntl.ioctl(fd, MEMERASE, ioctl_data)
+    except Exception as e:
+	print "ioctl failed: ", e
+	sys.exit(1)
+
+    os.close(fd)
+
+def flash_write(dev, start, nbytes, ifile):
+
+    try:
+        fd = os.open(dev, os.O_SYNC|os.O_RDWR)
+    except Exception as e:
+	print "failed to open "+dev+": ", e
+	sys.exit(1)
+
+    os.lseek(fd, start, os.SEEK_SET)
+
+    while nbytes > 0:
+        if (nbytes > 4096):
+            rbytes = 4096
+        else:
+            rbytes = nbytes
+
+        ichunk = ifile.read(rbytes)
+
+        if not ichunk:
+            print "read of flash failed"
+            sys.exit(1) 
+
+	os.write(fd, ichunk)
+        nbytes -= rbytes
+
+    os.close(fd)
+
+def flash_read(dev, start, nbytes, ofile):
+    try:
+        fd = os.open(dev, os.O_SYNC|os.O_RDONLY)
+    except Exception as e:
+	print "failed to open "+dev+": ", e
+	sys.exit(1)
+
+    os.lseek(fd, start, os.SEEK_SET)
+
+    while nbytes > 0:
+        if (nbytes > 4096):
+            rbytes = 4096
+        else:
+            rbytes = nbytes
+
+        ichunk = os.read(fd, rbytes)
+
+        if not ichunk:
+            print "read of flash failed"
+            sys.exit(1) 
+
+        ofile.write(ichunk)
+        nbytes -= rbytes
+
+    os.close(fd)
 
 def parse_args():
     descr = 'A tool to help update the flash used to configure an '
     descr += 'Intel FPGA at power up.'
 
     epi = 'example usage:\n\n'
-    epi += '    fpgaflash user new_image.rpd /dev/mtd0 /usr/sbin/mtd_debug\n\n'
+    epi += '    fpgaflash user new_image.rpd /dev/mtd0\n\n'
     epi += 'Use the output of \'ls -l /sys/class/mtd\' to help determine\n'
     epi += 'which device, /dev/mtd*.\n\n'
 
@@ -99,22 +176,23 @@ def parse_args():
     parser.add_argument('file', help = 'rpd file to program into flash')
     parser.add_argument('device',
         help = 'mtd device to program (e.g. /dev/mtd0)')
-    parser.add_argument('mtd_debug',
-        help = 'full path to mtd_debug executable')
     return parser.parse_args()
 
 if __name__ == "__main__":
 
     args = parse_args()
 
-    if not os.path.isfile(args.mtd_debug):
-        print args.mtd_debug + " is not a file."
-        sys.exit(1)
-    elif not os.access(args.mtd_debug, os.X_OK):
-        print args.mtd_debug + " is not a executable."
+    try:
+        mode = os.stat(args.device).st_mode
+        if not stat.S_ISCHR(mode):
+            print args.device, "is not a device file."
+            sys.exit(1)
+
+    except Exception as e:
+        print "Couldn't stat", args.device, ":", e
         sys.exit(1)
 
-    flash_size = get_flash_size(args.mtd_debug, args.device)
+    flash_size = get_flash_size(args.device)
 
     print "flash size is " + str(flash_size)
 
@@ -146,35 +224,25 @@ if __name__ == "__main__":
     ofile.close()
 
     print "erasing flash"
-    retval = subprocess.call([args.mtd_debug, "erase", args.device,
-        str(start_addr), str(flash_size - start_addr)])
+    flash_erase(args.device, start_addr, (flash_size - start_addr))
 
-    if retval:
-        print "failed to erase flash"
-        os.remove(ofile.name)
+    nbytes = os.path.getsize(ofile.name)
+    try:
+        rfile = open(ofile.name, 'rb')
+    except Exception as e:
+        print "open() failed:", e
         sys.exit(1)
 
     print "writing flash"
-    retval = subprocess.call([args.mtd_debug, "write", args.device,
-        str(start_addr), str(os.path.getsize(ofile.name)), ofile.name])
-
-    if retval:
-        print "failed to write flash"
-        os.remove(ofile.name)
-        sys.exit(1)
+    flash_write(args.device, start_addr, nbytes, rfile)
+    rfile.close()
 
     vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
-    vfile.close()
 
     print "reading back flash"
-    retval = subprocess.call([args.mtd_debug, "read", args.device,
-        str(start_addr), str(os.path.getsize(ofile.name)), vfile.name])
+    flash_read(args.device, start_addr, nbytes, vfile)
 
-    if retval:
-        print "failed to read back flash"
-        os.remove(ofile.name)
-        os.remove(vfile.name)
-        sys.exit(1)
+    vfile.close()
 
     print "verifying flash"
 
