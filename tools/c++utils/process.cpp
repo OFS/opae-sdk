@@ -32,6 +32,8 @@
 #include <wait.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <pthread.h>
+#include <string.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -125,6 +127,34 @@ process process::start(const string &file, const vector<string> &args)
         // shouldn't be here
         cerr << "We shouldn't be here after exec" << endl;
         abort();
+    }
+}
+
+void process::set_thread_maxpriority(const std::thread & t)
+{
+    struct sched_param sched;
+    auto native_handle = const_cast<std::thread&>(t).native_handle();
+    int policy = SCHED_FIFO;
+    auto result = pthread_getschedparam(native_handle, &policy, &sched);
+    if (result == 0)
+    {
+        sched.sched_priority = sched_get_priority_max(SCHED_FIFO);
+        result = pthread_setschedparam(native_handle, SCHED_FIFO, &sched);
+        if (result != 0)
+        {
+            std::cerr << "Could not set sched parameters: " << strerror(result) << "\n";
+        }
+    }
+}
+
+void process::set_process_maxpriority(pid_t p)
+{
+    auto max_priority = sched_get_priority_max(SCHED_FIFO);
+    struct sched_param sched = { .sched_priority = max_priority };
+    auto result = sched_setscheduler(p, SCHED_FIFO, &sched);
+    if (result != 0)
+    {
+        std::cerr << "Could not set sched parameters: " << strerror(result) << "\n";
     }
 }
 
