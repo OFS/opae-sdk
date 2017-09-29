@@ -45,7 +45,7 @@ namespace fpga
 namespace diag
 {
 
-const uint32_t num_rd_lines = 65536;
+const uint32_t num_rd_lines = MB(2)/CL(1);
 const uint32_t rd_lines_stride = 1;
 
 mb1::mb1()
@@ -60,7 +60,7 @@ mb1::mb1()
 , guid_("C000C966-0D82-4272-9AEF-FE5F84570612")
 , frequency_(MHZ(400))
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
+, dsm_size_(MB(2))
 , inp_size_(CL(65536))
 , out_size_(CL(65536))
 , rd_lines_size_(num_rd_lines*sizeof(uint32_t))
@@ -255,21 +255,32 @@ bool mb1::run()
 
     bool res = true;
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        std::cerr << "failed to allocate workspace." << std::endl;
+    dma_buffer::ptr_t dsm = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm) {
+        log_.error("mb1") << "failed to allocate DSM workspace." << std::endl;
+        return false;
+    }
+    dma_buffer::ptr_t rd_lines = accelerator_->allocate_buffer(rd_lines_size_);
+    if (!rd_lines) {
+        log_.error("mb1") << "failed to allocate rdlines workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_, rd_lines_size_, cool_cache_size_ });
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t inp = bufs[1];
-    dma_buffer::ptr_t out = bufs[2];
-    dma_buffer::ptr_t rd_lines = bufs[3];
-    dma_buffer::ptr_t cool_cache = bufs[4];
-
+    std::size_t buf_size = CL(cachelines_);
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
     // Initialize the rd_lines buffer
     uint32_t *prd_lines = (uint32_t *) rd_lines->address();
 
@@ -316,14 +327,13 @@ bool mb1::run()
     // set the test config
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::cfg), cfg_.value());
 
+    std::vector<uint32_t> cpu_cool_buffer(0);
     if (cool_cpu_cache_)
     {
-        uint32_t *p32 = (uint32_t *) cool_cache->address();
-        uint32_t *pEnd = p32 + (cool_cache->size() / sizeof(uint32_t));
+        cpu_cool_buffer.resize(cool_cache_size_/sizeof(uint32_t));
         uint32_t  i = 0;
-
-        while (p32 < pEnd)
-            *p32++ = i++;
+        for (auto & r32 : cpu_cool_buffer)
+            r32 = i++;
     }
 
     // Read perf counters.
