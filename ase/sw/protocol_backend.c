@@ -950,6 +950,8 @@ static void *start_socket_srv(void *args)
 		goto err;
 	}
 
+	// unlink previous addresses in use (if any)
+	unlink(SOCKNAME);
 	addrlen = sizeof(saddr);
 	if (bind(sock_fd, (struct sockaddr *)&saddr, addrlen) < 0) {
 		ASE_ERR("SIM-C : Error binding event socket: %s\n",
