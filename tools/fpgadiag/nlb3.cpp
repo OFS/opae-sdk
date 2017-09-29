@@ -453,17 +453,6 @@ bool nlb3::run()
         return false;
     }
 
-    // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 0);
-    // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 1);
-    // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm->iova());
-    // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
-    // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
-
     // prime cache
     bool do_cool_fpga = false;
     options_.get_value<bool>("cool-fpga-cache", do_cool_fpga);
@@ -505,16 +494,28 @@ bool nlb3::run()
             }
         }
     }
-
+    std::vector<uint32_t> cpu_cool_buff(0);
     if (do_cool_cpu)
     {
-        std::vector<uint8_t> buffer(max_cpu_cache_size);
+        cpu_cool_buff.resize(max_cpu_cache_size/sizeof(uint32_t));
         uint32_t i = 0;
-        for (auto & it : buffer)
+        for (auto & it : cpu_cool_buff)
         {
             it = i++;
         }
     }
+
+
+    // assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 0);
+    // de-assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 1);
+    // set dsm base, high then low
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm->iova());
+    // set input workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    // set output workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
 
     // set the test mode
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::cfg), 0);
