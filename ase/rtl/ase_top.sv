@@ -38,7 +38,7 @@
 
 import ccip_if_pkg::*;
 
-`timescale 1ns/1ns
+`timescale 1ps/1ps
 
 module ase_top();
 
