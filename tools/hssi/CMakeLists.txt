@@ -27,7 +27,8 @@ find_package(Boost 1.41.0 REQUIRED)
 include_directories(${OPAE_INCLUDE_DIR}
                     ${CMAKE_SOURCE_DIR}/tools/fpgadiag
                     ${CMAKE_SOURCE_DIR}/tools/c++utils
-                    ${CMAKE_SOURCE_DIR}/tools/libopae++)
+                    ${CMAKE_SOURCE_DIR}/tools/libopae++
+                    ${Boost_INCLUDE_DIRS})
 
 add_library(hssi-io  SHARED przone.h
                             accelerator_przone.h
