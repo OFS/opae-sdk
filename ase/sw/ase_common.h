@@ -602,7 +602,7 @@ struct ipc_t mq_array[ASE_MQ_INSTANCES];
 #define FUNC_CALL_ENTRY
 #define FUNC_CALL_EXIT
 #endif
-#define SOCKNAME "/tmp/ase_event_server"
+#define SOCKNAME "/tmp/ase_event_server_"
 enum request_type {
 	REGISTER_EVENT = 0,
 	UNREGISTER_EVENT = 1

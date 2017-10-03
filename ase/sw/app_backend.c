@@ -1570,20 +1570,15 @@ int register_event(int event_handle, int flags)
     int sock_fd;
 
     saddr.sun_family = AF_UNIX;
-    err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
-		    strlen(SOCKNAME)+1);
-    if (err != EOK) {
-	ASE_ERR("%s: Error strncpy_s\n", __func__);
+	err = generate_sockname(saddr.sun_path);
+	if (err != EOK)
 	return 1;
-    }
-
     /* open socket */
     sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock_fd < 0) {
 	ASE_ERR("Error opening socket: %s\n", strerror(errno));
 	return 1;
     }
-
     res = connect(sock_fd, (struct sockaddr *) &saddr,
 		  sizeof(struct sockaddr_un));
     if (res < 0) {
@@ -1613,12 +1608,9 @@ int unregister_event(int event_handle)
     errno_t err;
     int sock_fd;
 
-    err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
-		    strlen(SOCKNAME)+1);
-    if (err != EOK) {
-	ASE_ERR("%s: Error strncpy_s\n", __func__);
+	err = generate_sockname(saddr.sun_path);
+	if (err != EOK)
 	return 1;
-    }
 
     /* open socket */
     sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);

@@ -521,6 +521,97 @@ void update_fme_dfh(struct buffer_t *umas)
 	*csr_umsg_base_address = (uint64_t) umas->pbase;
 }
 
+static void *start_socket_srv(void *args)
+{
+	int res = 0; int err_cnt = 0;
+	int sock_msg;
+	errno_t err;
+	int sock_fd;
+	struct sockaddr_un saddr;
+	socklen_t addrlen;
+	struct timeval tv;
+	fd_set readfds;
+
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd == -1) {
+		ASE_ERR("SIM-C : Error opening event socket: %s",
+			strerror(errno));
+		err_cnt++;
+		return args;
+	}
+
+	// set socket type to non blocking
+	fcntl(sock_fd, F_SETFL, O_NONBLOCK);
+	fcntl(sock_fd, F_SETFL, O_ASYNC);
+	saddr.sun_family = AF_UNIX;
+
+	err = generate_sockname(saddr.sun_path);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		err_cnt++;
+		goto err;
+	}
+
+	// unlink previous addresses in use (if any)
+	unlink(saddr.sun_path);
+	addrlen = sizeof(struct sockaddr_un);
+	if (bind(sock_fd, (struct sockaddr *)&saddr, addrlen) < 0) {
+		ASE_ERR("SIM-C : Error binding event socket: %s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Creating Socket Server@%s...\n", saddr.sun_path);
+	if (listen(sock_fd, 5) < 0) {
+		ASE_ERR("SIM-C : Socket server listen failed with error:%s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Started listening on server %s\n", saddr.sun_path);
+	tv.tv_usec = 0;
+	FD_ZERO(&readfds);
+
+	do {
+		FD_SET(sock_fd, &readfds);
+		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
+		if (res < 0) {
+			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
+			err_cnt++;
+			break;
+		}
+		if (FD_ISSET(sock_fd, &readfds)) {
+			sock_msg = accept(sock_fd, (struct sockaddr *)&saddr,
+					  &addrlen);
+			if (sock_msg == -1) {
+				ASE_ERR("SIM-C : accept error=%s\n",
+					strerror(errno));
+				err_cnt++;
+				break;
+			}
+			if (read_fd(sock_msg) != 0) {
+				err_cnt++;
+				break;
+			}
+		}
+		if (sockserver_kill)
+			break;
+	} while (res >= 0);
+
+	ASE_MSG("SIM-C : Exiting event socket server@%s...\n", saddr.sun_path);
+
+err:
+	close(sock_msg);
+	close(sock_fd);
+	unlink(saddr.sun_path);
+	sockserver_kill = 0;
+	return args;
+}
+
 
 /* ********************************************************************
  * ASE Listener thread
@@ -595,10 +686,22 @@ int ase_listener(void)
 
 				// Send portctrl_rsp message
 				mqueue_send(sim2app_portctrl_rsp_tx, completed_str_msg, ASE_MQ_MSGSIZE);
+
+				int thr_err = pthread_create(&socket_srv_tid,
+				NULL, &start_socket_srv, NULL);
+
+				if (thr_err != 0) {
+					ASE_ERR("FAILED Event server \
+					failed to start\n");
+					exit(1);
+				}
+				ASE_MSG("Event socket server started\n");
 			} else if (rx_portctrl_cmd == ASE_SIMKILL) {
 #ifdef ASE_DEBUG
 				ASE_MSG("ASE_SIMKILL requested, processing options... \n");
 #endif
+
+				sockserver_kill = 1;
 				// ------------------------------------------------------------- //
 				// Update regression counter
 				glbl_test_cmplt_cnt = glbl_test_cmplt_cnt + 1;
@@ -628,6 +731,9 @@ int ase_listener(void)
 						ase_reset_trig();
 					}
 				}
+				// wait for server shutdown
+				pthread_join(socket_srv_tid, NULL);
+
 
 				// Check for simulator sanity -- if transaction counts dont match
 				// Kill the simulation ASAP -- DEBUG feature only
@@ -917,95 +1023,6 @@ int read_fd(int sock_fd)
 	return 0;
 }
 
-static void *start_socket_srv(void *args)
-{
-	int res = 0; int err_cnt = 0;
-	int sock_msg;
-	errno_t err;
-	int sock_fd;
-	struct sockaddr_un saddr;
-	socklen_t addrlen;
-	struct timeval tv;
-	fd_set readfds;
-
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
-	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (sock_fd == -1) {
-		ASE_ERR("Error opening event socket: %s",
-			strerror(errno));
-		err_cnt++;
-		return args;
-	}
-
-	// set socket type to non blocking
-	fcntl(sock_fd, F_SETFL, O_NONBLOCK);
-	fcntl(sock_fd, F_SETFL, O_ASYNC);
-	saddr.sun_family = AF_UNIX;
-	err = strncpy_s(saddr.sun_path, strlen(SOCKNAME)+1, SOCKNAME,
-			strlen(SOCKNAME)+1);
-	if (err != EOK) {
-		ASE_ERR("%s: Error strncpy_s\n", __func__);
-		err_cnt++;
-		goto err;
-	}
-
-	// unlink previous addresses in use (if any)
-	unlink(SOCKNAME);
-	addrlen = sizeof(saddr);
-	if (bind(sock_fd, (struct sockaddr *)&saddr, addrlen) < 0) {
-		ASE_ERR("SIM-C : Error binding event socket: %s\n",
-			strerror(errno));
-		err_cnt++;
-		goto err;
-	}
-
-	ASE_MSG("SIM-C : Creating Socket Server@%s...\n", saddr.sun_path);
-	if (listen(sock_fd, 5) < 0) {
-		ASE_ERR("Socket server listen failed with error:%s\n",
-			strerror(errno));
-		err_cnt++;
-		goto err;
-	}
-
-	ASE_MSG("SIM-C : Started listening on server\n");
-	tv.tv_usec = 0;
-	FD_ZERO(&readfds);
-
-	do {
-		FD_SET(sock_fd, &readfds);
-		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
-		if (res < 0) {
-			ASE_ERR("select error=%s\n", strerror(errno));
-			err_cnt++;
-			break;
-		}
-		if (FD_ISSET(sock_fd, &readfds)) {
-			sock_msg = accept(sock_fd, (struct sockaddr *)&saddr,
-					  &addrlen);
-			if (sock_msg == -1) {
-				ASE_ERR("accept error=%s\n",
-					strerror(errno));
-				err_cnt++;
-				break;
-			}
-			if (read_fd(sock_msg) != 0) {
-				err_cnt++;
-				break;
-			}
-		}
-		if (sockserver_kill)
-			break;
-	} while (res >= 0);
-
-	ASE_MSG("Exiting event socket server@%s...\n", saddr.sun_path);
-
-err:
-	close(sock_msg);
-	close(sock_fd);
-	unlink(SOCKNAME);
-	return args;
-}
 
 
 // -----------------------------------------------------------------------
@@ -1136,14 +1153,6 @@ int ase_init(void)
 
 	sockserver_kill = 0;
 
-	int thr_err = pthread_create(&socket_srv_tid, NULL,
-				     &start_socket_srv, NULL);
-
-	if (thr_err != 0) {
-		ASE_ERR("FAILED Event socket server failed to start\n");
-		exit(1);
-	}
-	ASE_MSG("SUCCESS Event socket server started\n");
 
 	// Generate Completed message for portctrl
 	/* completed_str_msg = (char*)ase_malloc(ASE_MQ_MSGSIZE); */
@@ -1294,9 +1303,6 @@ void start_simkill_countdown(void)
 	// Final clean of IPC
 	final_ipc_cleanup();
 
-	sockserver_kill = 1;
-	// wait for server shutdown
-	pthread_join(socket_srv_tid, NULL);
 
 	// Close workspace log
 	if (fp_workspace_log != NULL) {

@@ -47,6 +47,32 @@ char *ase_ready_filepath;
 // ASE hostname
 static char *ase_hostname;
 
+
+/*
+ * Generate unique socket server name
+ * Generated name is populated in "name"
+ */
+errno_t generate_sockname(char *name)
+{
+	errno_t err = EOK;
+
+	err = strncpy_s(name, strlen(SOCKNAME)+1, SOCKNAME,
+							strlen(SOCKNAME)+1);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		return err;
+	}
+
+	char *tstamp = ase_malloc(100);
+
+	if (!tstamp)
+		return ENOMEM;
+
+	get_timestamp(tstamp);
+	err = strcat_s(name, strlen(SOCKNAME)+strlen(tstamp)+1, tstamp);
+	ase_free_buffer((char *) tstamp);
+	return err;
+}
 /*
  * Parse strings and remove unnecessary characters
  */
