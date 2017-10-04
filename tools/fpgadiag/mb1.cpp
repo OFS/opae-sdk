@@ -45,8 +45,10 @@ namespace fpga
 namespace diag
 {
 
-const uint32_t num_rd_lines = MB(2)/CL(1);
-const uint32_t rd_lines_stride = 1;
+struct cacheline_t
+{
+    uint64_t data[8];
+};
 
 mb1::mb1()
 : name_("mb1")
@@ -63,7 +65,6 @@ mb1::mb1()
 , dsm_size_(MB(2))
 , inp_size_(CL(65536))
 , out_size_(CL(65536))
-, rd_lines_size_(num_rd_lines*sizeof(uint32_t))
 , cool_cache_size_(MB(200))
 , suppress_header_(false)
 , csv_format_(false)
@@ -175,7 +176,7 @@ bool mb1::setup()
     }
 
     options_.get_value<uint32_t>("num-lines", cachelines_);
-    if ((0 == cachelines_) || (cachelines_ > num_rd_lines))
+    if (0 == cachelines_)
     {
         std::cerr << "Invalid --num-lines: " << cachelines_ << std::endl;
         return false;
@@ -260,11 +261,6 @@ bool mb1::run()
         log_.error("mb1") << "failed to allocate DSM workspace." << std::endl;
         return false;
     }
-    dma_buffer::ptr_t rd_lines = accelerator_->allocate_buffer(rd_lines_size_);
-    if (!rd_lines) {
-        log_.error("mb1") << "failed to allocate rdlines workspace." << std::endl;
-        return false;
-    }
 
     dma_buffer::ptr_t inout; // shared workspace, if possible
     dma_buffer::ptr_t inp;   // input workspace
@@ -281,17 +277,13 @@ bool mb1::run()
         inp = accelerator_->allocate_buffer(buf_size);
         out = accelerator_->allocate_buffer(buf_size);
     }
-    // Initialize the rd_lines buffer
-    uint32_t *prd_lines = (uint32_t *) rd_lines->address();
 
-    for (uint32_t i = 0 ; i < num_rd_lines ; ++i)
-        prd_lines[i] = (i + rd_lines_stride) % num_rd_lines;
-
-    // Initialize the input buffer
-    uint32_t *pinp = (uint32_t *) inp->address();
-    for (uint32_t i = 0 ; i < num_rd_lines ; ++i)
-        for(uint32_t j = 0 ; j < 16 ; ++j)
-            *pinp++ = prd_lines[i];
+    inp->fill(0);
+    volatile cacheline_t *cl_ptr = reinterpret_cast<volatile cacheline_t*>(inp->address());
+    for (size_t i = 0; i < cachelines_; ++i, ++cl_ptr)
+    {
+        cl_ptr->data[0] = (i + 1)%cachelines_;
+    }
 
     // Initialize the output buffer
     out->fill(0);
