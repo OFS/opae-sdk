@@ -223,7 +223,7 @@ bool config_app::setup()
         options_.get_value<int8_t>("socket-id", socket_id);
     }
 
-    if (!path_exists(sysfs_path))
+    if (!path_exists(sysfs_path) && !c_header_)
     {
         std::cerr << "Resource path does not exist: " << sysfs_path << std::endl;
         return false;
@@ -716,9 +716,6 @@ size_t config_app::load(eq_register registers[], size_t size)
                 }
                 hssi_soft_cmd(nios_cmd::change_hssi_mode, std::vector<uint32_t>{ reg.value  });
                 hssi_soft_cmd(nios_cmd::hssi_init, std::vector<uint32_t>{ reg.value  });
-                przone_->write(reg.channel_lane,reg.device);
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
-                przone_->write(reg.channel_lane,reg.address);
                 break;
             case eq_register_type::mdio:
                 if (!c_header_)
