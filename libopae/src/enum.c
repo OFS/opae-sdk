@@ -593,6 +593,11 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (!num_filters && (NULL != filters)) {
+		FPGA_MSG("num_filters == 0 with non-NULL filters");
+		return FPGA_INVALID_PARAM;
+	}
+
 	*num_matches = 0;
 
 	memset(&head, 0, sizeof(head));
