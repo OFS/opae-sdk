@@ -25,9 +25,18 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import argparse, struct, sys, tempfile, os, subprocess, fcntl, filecmp, stat
+import argparse
+import struct
+import sys
+import tempfile
+import os
+import subprocess
+import fcntl
+import filecmp
+import stat
 from array import *
- 
+
+
 def check_rpd(ifile):
     data = ifile.read(0x20)
     pof_hdr = struct.unpack('IIIIIIII', data)
@@ -42,11 +51,14 @@ def check_rpd(ifile):
 
     return pof_hdr[4]
 
+
 def reverse_bits(x, n):
     result = 0
     for i in xrange(n):
-        if (x >> i) & 1: result |= 1 << (n - 1 - i)
+        if (x >> i) & 1:
+            result |= 1 << (n - 1 - i)
     return result
+
 
 def reverse_bits_in_file(ifile, ofile):
     bit_rev = array('B')
@@ -63,56 +75,59 @@ def reverse_bits_in_file(ifile, ofile):
             ochunk += chr(bit_rev[ord(b)])
         ofile.write(ochunk)
 
+
 def get_flash_size(dev):
 
     MEMGETINFO = 0x80204d01
 
     try:
-        fd = os.open(dev, os.O_SYNC|os.O_RDONLY)
+        fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
     except Exception as e:
-	print "failed to open "+dev+": ", e
-	sys.exit(1)
+        print "failed to open " + dev + ": ", e
+        sys.exit(1)
 
-    ioctl_data = struct.pack('BIIIIIQ', 0,0,0,0,0,0,0)
+    ioctl_data = struct.pack('BIIIIIQ', 0, 0, 0, 0, 0, 0, 0)
 
     try:
         ret = fcntl.ioctl(fd, MEMGETINFO, ioctl_data)
     except Exception as e:
-	print "ioctl failed: ", e
-	sys.exit(1)
+        print "ioctl failed: ", e
+        sys.exit(1)
 
     ioctl_odata = struct.unpack_from('BIIIIIQ', ret)
 
     os.close(fd)
 
     return ioctl_odata[2]
-   
+
+
 def flash_erase(dev, start, nbytes):
     MEMERASE = 0x40084d02
 
     try:
-        fd = os.open(dev, os.O_SYNC|os.O_RDWR)
+        fd = os.open(dev, os.O_SYNC | os.O_RDWR)
     except Exception as e:
-	print "failed to open "+dev+": ", e
-	sys.exit(1)
+        print "failed to open " + dev + ": ", e
+        sys.exit(1)
 
     ioctl_data = struct.pack('II', start, nbytes)
 
     try:
         ret = fcntl.ioctl(fd, MEMERASE, ioctl_data)
     except Exception as e:
-	print "ioctl failed: ", e
-	sys.exit(1)
+        print "ioctl failed: ", e
+        sys.exit(1)
 
     os.close(fd)
+
 
 def flash_write(dev, start, nbytes, ifile):
 
     try:
-        fd = os.open(dev, os.O_SYNC|os.O_RDWR)
+        fd = os.open(dev, os.O_SYNC | os.O_RDWR)
     except Exception as e:
-	print "failed to open "+dev+": ", e
-	sys.exit(1)
+        print "failed to open " + dev + ": ", e
+        sys.exit(1)
 
     os.lseek(fd, start, os.SEEK_SET)
 
@@ -126,19 +141,20 @@ def flash_write(dev, start, nbytes, ifile):
 
         if not ichunk:
             print "read of flash failed"
-            sys.exit(1) 
+            sys.exit(1)
 
-	os.write(fd, ichunk)
+        os.write(fd, ichunk)
         nbytes -= rbytes
 
     os.close(fd)
 
+
 def flash_read(dev, start, nbytes, ofile):
     try:
-        fd = os.open(dev, os.O_SYNC|os.O_RDONLY)
+        fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
     except Exception as e:
-	print "failed to open "+dev+": ", e
-	sys.exit(1)
+        print "failed to open " + dev + ": ", e
+        sys.exit(1)
 
     os.lseek(fd, start, os.SEEK_SET)
 
@@ -152,12 +168,13 @@ def flash_read(dev, start, nbytes, ofile):
 
         if not ichunk:
             print "read of flash failed"
-            sys.exit(1) 
+            sys.exit(1)
 
         ofile.write(ichunk)
         nbytes -= rbytes
 
     os.close(fd)
+
 
 def parse_args():
     descr = 'A tool to help update the flash used to configure an '
@@ -168,14 +185,15 @@ def parse_args():
     epi += 'Use the output of \'ls -l /sys/class/mtd\' to help determine\n'
     epi += 'which device, /dev/mtd*.\n\n'
 
+    fc = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=descr, epilog=epi,
-                formatter_class=argparse.RawDescriptionHelpFormatter)
+                                     formatter_class=fc)
 
-    parser.add_argument('type', help = 'type of flash programming',
-        choices = ['user', 'factory_that_can_brick_board'])
-    parser.add_argument('file', help = 'rpd file to program into flash')
+    parser.add_argument('type', help='type of flash programming',
+                        choices=['user', 'factory_that_can_brick_board'])
+    parser.add_argument('file', help='rpd file to program into flash')
     parser.add_argument('device',
-        help = 'mtd device to program (e.g. /dev/mtd0)')
+                        help='mtd device to program (e.g. /dev/mtd0)')
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -209,7 +227,7 @@ if __name__ == "__main__":
     if args.type == 'factory_that_can_brick_board':
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         sys.stdout.write(msg)
-        line =  sys.stdin.readline()
+        line = sys.stdin.readline()
         if line == "Yes\n":
             start_addr = 0
         else:
