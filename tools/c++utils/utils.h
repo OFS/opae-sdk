@@ -155,7 +155,7 @@ namespace utils
             /// @brief generates a random integer
             /// @returns a random number between range
             /// lo_ and hi_
-            int operator()()
+            IntType operator()()
             {
                 return dist_(gen_);
             }
