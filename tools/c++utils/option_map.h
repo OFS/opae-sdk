@@ -108,6 +108,25 @@ public:
         return opt;
     }
 
+    bool remove_option(const std::string & name)
+    {
+        auto vec_it = std::find_if(options_list_.begin(),
+                                   options_list_.end(),
+                                   [&name](option::ptr_t o)
+                                   {
+                                       return o->name() == name;
+                                   });
+        auto map_it = options_.find(name);
+        if (vec_it != options_list_.end() &&
+            map_it != options_.end())
+        {
+            options_list_.erase(vec_it);
+            options_.erase(map_it);
+            return true;
+        }
+        return false;
+    }
+
     template<typename T>
     T get_value(const std::string & name)
     {
