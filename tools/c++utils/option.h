@@ -28,6 +28,8 @@
 #include <string>
 #include <memory>
 #include <boost/any.hpp>
+#include <boost/lexical_cast.hpp>
+#include <type_traits>
 
 namespace intel
 {
@@ -60,13 +62,40 @@ public:
 
     }
 
+    option(const option & other)
+    : is_set_(other.is_set_)
+    , name_(other.name_)
+    , short_opt_(other.short_opt_)
+    , option_type_(other.option_type_)
+    , help_(other.help_)
+    , value_(other.value_)
+    , default_(other.default_)
+    {
+
+    }
+
+    option & operator=(const option & other)
+    {
+        if (&other != this)
+        {
+            is_set_ = other.is_set_;
+            name_ = other.name_;
+            short_opt_ = other.short_opt_;
+            option_type_ = other.option_type_;
+            help_ = other.help_;
+            value_ = other.value_;
+            default_ = other.default_;
+        }
+        return *this;
+    }
+
     template<typename T>
     static ptr_t create(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help, T default_value = T());
 
     template<typename T>
     static ptr_t create(const std::string & name, option::option_type has_arg, const std::string & help = "", T default_value = T());
 
-    const std::string & name()
+    virtual const std::string & name() const
     {
         return name_;
     }
@@ -95,6 +124,12 @@ public:
     }
 
     template<typename T>
+    void set_default(T d)
+    {
+        default_ = d;
+    }
+
+    template<typename T>
     option & operator=(T v)
     {
         is_set_ = true;
@@ -111,6 +146,10 @@ public:
     {
         return short_opt_;
     }
+
+    virtual std::string to_string() = 0;
+
+    virtual boost::any any() { return value_; }
 
 protected:
     option()
@@ -135,6 +174,10 @@ class typed_option : public option
 {
 public:
     typedef std::shared_ptr<typed_option<T>> ptr_t;
+
+    typed_option()
+    {
+    }
 
     typed_option(const std::string & name, boost::any default_value = 0)
     : option(name, 0, option::with_argument, "", default_value)
@@ -181,6 +224,16 @@ public:
         return typeid(T);
     }
 
+    virtual std::string to_string()
+    {
+        auto str = boost::lexical_cast<std::string>(value<T>());
+        if (!std::is_arithmetic<T>())
+        {
+            str = "\"" + str + "\"";
+        }
+        return str;
+    }
+
 };
 
 template<typename T>
@@ -194,5 +247,6 @@ option::ptr_t option::create(const std::string & name, option::option_type has_a
 {
     return option::ptr_t(new typed_option<T>(name, 0, has_arg, help, default_value));
 }
+
 } // end of namespace utils
 } // end of namespace intel
