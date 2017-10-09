@@ -66,8 +66,8 @@ void mtnlb8::work(uint64_t thread_id, uint64_t iterations, uint64_t stride)
     while (!ready_);
 
     volatile uint64_t* out_ptr = reinterpret_cast<volatile uint64_t*>(out_->address() + thread_id*stride*cacheline_size);
-    uint64_t cpuCount = 2, fpgaCount = 1;
-    while (!cancel_ && fpgaCount <= mtnlb_max_count)
+    uint64_t fpgaCount = 1;
+    while (!cancel_ && fpgaCount <= count_)
     {
         auto begin = system_clock::now();
         while (!cancel_ && *out_ptr != fpgaCount)
@@ -98,23 +98,8 @@ void mtnlb8::work(uint64_t thread_id, uint64_t iterations, uint64_t stride)
             //log_.info() << "thread [" << thread_id << "]: fpgaCount ="<< *out_ptr << std::endl;
             log_.debug(mode_) << "thread[" << thread_id << "] [FPGA] count is: " << *out_ptr << std::endl;
             fpgaCount += 2;
-            if (cpuCount <= mtnlb_max_count)
-            {
-                *out_ptr = cpuCount;
-            }
+            *out_ptr += 1;
             log_.debug(mode_) << "thread[" << thread_id << "] [CPU] count is: " << *out_ptr << std::endl;
-            //log_.info() << "thread [" << thread_id << "]: cpuCount  ="<< *out_ptr << std::endl;
-
-            if (cpuCount == mtnlb_max_count || fpgaCount > mtnlb_max_count )
-            {
-                // stop the test
-                if (!stop_)
-                {
-                    stop_ = true;
-                }
-                return;
-            }
-            cpuCount += 2;
         }
     }
 

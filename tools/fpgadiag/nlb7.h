@@ -58,6 +58,8 @@ public:
     virtual const std::string &        name()                 { return name_;    }
     virtual bool                       setup();
     virtual bool                       run();
+    virtual dma_buffer::ptr_t          dsm()            const override { return dsm_; }
+    virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_help(std::ostream &os);
 
@@ -77,6 +79,8 @@ private:
 
     std::size_t dsm_size_;
 
+    dma_buffer::ptr_t dsm_;
+
     uint32_t step_;
     uint32_t begin_;
     uint32_t end_;
@@ -93,6 +97,8 @@ private:
     std::chrono::microseconds dsm_timeout_;
     bool suppress_headers_;
     bool csv_format_;
+    bool suppress_stats_;
+    uint64_t cachelines_;
 };
 
 } // end of namespace diag

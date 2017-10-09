@@ -56,7 +56,8 @@ public:
     virtual const std::string &        name()                 { return name_;    }
     virtual bool                       setup();
     virtual bool                       run();
-
+    virtual dma_buffer::ptr_t          dsm()            const override { return dsm_; }
+    virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_pending(uint32_t thread_id);
     std::string show_rw();
@@ -96,6 +97,8 @@ protected:
     std::chrono::microseconds     dsm_timeout_;
     bool suppress_header_;
     bool csv_format_;
+    bool suppress_stats_;
+    uint64_t cachelines_;
     //void _mode7(uint64_t thread_id, uint64_t iterations, uint64_t stride);
     //void _mode8(uint64_t thread_id, uint64_t iterations, uint64_t stride);
 

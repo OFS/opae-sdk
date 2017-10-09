@@ -262,6 +262,7 @@ bool mb1::run()
         return false;
     }
 
+
     dma_buffer::ptr_t inout; // shared workspace, if possible
     dma_buffer::ptr_t inp;   // input workspace
     dma_buffer::ptr_t out;   // output workspace
@@ -295,11 +296,11 @@ bool mb1::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(mb1_csr::basel), reinterpret_cast<uint64_t>(dsm->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(mb1_csr::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
     // assert AFU reset.
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::ctl), 0);
     // clear the DSM.
-    dsm->fill(0);
+    dsm_->fill(0);
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::ctl), 1);
 
@@ -337,7 +338,7 @@ bool mb1::run()
 
     dma_buffer::microseconds_t timeout(3000000);
 
-    bool poll_result = dsm->poll<uint32_t>((size_t)mb1_dsm::test_complete,
+    bool poll_result = dsm_->poll<uint32_t>((size_t)mb1_dsm::test_complete,
                                            timeout,
                                            (uint32_t)0x1,
                                            (uint32_t)1);
@@ -352,7 +353,7 @@ bool mb1::run()
         res = false;
     }
 
-    std::cout << intel::fpga::nlb::nlb_stats(dsm,
+    std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                              cachelines_,
                                              end_cache_ctrs - start_cache_ctrs,
                                              end_fabric_ctrs - start_fabric_ctrs,

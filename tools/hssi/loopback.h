@@ -115,6 +115,10 @@ public:
 
     virtual bool run();
 
+    virtual dma_buffer::ptr_t          dsm()            const override { throw std::logic_error("Not Implemented"); }
+
+    virtual uint64_t                   cachelines()     const override { throw std::logic_error("Not Implemented"); }
+
     void show_help(std::ostream &os);
 
     virtual void clear_status();

@@ -63,6 +63,7 @@ mtnlb::mtnlb(const std::string & afu_id)
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, cachelines_(0)
 {
     define_options();
 }
@@ -85,6 +86,7 @@ mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
 {
     define_options();
 }
@@ -109,9 +111,10 @@ void mtnlb::define_options()
     options_.add_option<uint32_t>("timeout-sec",          option::with_argument, "Timeout for continuous mode (seconds portion)", 1);
     options_.add_option<uint32_t>("timeout-min",          option::with_argument, "Timeout for continuous mode (minutes portion)", 0);
     options_.add_option<uint32_t>("timeout-hour",         option::with_argument, "Timeout for continuous mode (hours portion)", 0);
-    options_.add_option<uint32_t>("freq",            'k', option::with_argument, "Clock frequence (used for bw measurements)", frequency_);
+    options_.add_option<uint32_t>("frequency",       'k', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stats", suppress_stats_);
 }
 
 mtnlb::~mtnlb()
@@ -122,6 +125,7 @@ mtnlb::~mtnlb()
 bool mtnlb::setup()
 {
     options_.get_value<std::string>("target", target_);
+    options_.get_value<bool>("suppress-stats", suppress_stats_);
     if (target_ == "fpga")
     {
         dsm_timeout_ = FPGA_DSM_TIMEOUT;
@@ -215,7 +219,6 @@ bool mtnlb::setup()
     options_.get_value<uint32_t>("count", count_);
     options_.get_value<uint32_t>("stride", stride_);
     log_.set_level(logger::level::level_info);
-
     if (thread_count_ > mtnlb_max_threads)
     {
         log_.error(mode_) << "thread count is bigger than max: " << mtnlb_max_threads << std::endl;
@@ -236,6 +239,7 @@ bool mtnlb::setup()
 
     double log_stride = std::log2(static_cast<double>(stride_));
 
+    cachelines_ = count_*thread_count_*stride_;
     if (thread_count_*stride_*cacheline_size > inp_size_)
     {
         log_.warn() << "Thread count and stride not compatible with max buffer size of " << inp_size_ << std::endl;
@@ -310,9 +314,13 @@ bool mtnlb::run()
         threads.push_back(std::thread(thread_fn, i, count_, stride_));
     }
     // Read perf counters.
-    fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
-    fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
-
+    fpga_cache_counters  start_cache_ctrs ;
+    fpga_fabric_counters start_fabric_ctrs;
+    if (!suppress_stats_)
+    {
+        start_cache_ctrs  = accelerator_->cache_counters();
+        start_fabric_ctrs = accelerator_->fabric_counters();
+    }
     // start the threads
     ready_ = true;
     for( std::thread & t : threads )
@@ -352,15 +360,19 @@ bool mtnlb::run()
         log_.warn(mode_) << "Timed out waiting for dsm status bit" << std::endl;
         show_pending(-1);
     }
-    log_.info(name()) << std::endl
-                      << intel::fpga::nlb::nlb_stats(dsm_,
-                                                     0,
-                                                     end_cache_ctrs - start_cache_ctrs,
-                                                     end_fabric_ctrs -start_fabric_ctrs,
-                                                     frequency_,
-                                                     false,
-                                                     suppress_header_,
-                                                     csv_format_);
+
+    if (!suppress_stats_)
+    {
+        log_.info(name()) << std::endl
+                          << intel::fpga::nlb::nlb_stats(dsm_,
+                                                         0,
+                                                         end_cache_ctrs - start_cache_ctrs,
+                                                         end_fabric_ctrs -start_fabric_ctrs,
+                                                         frequency_,
+                                                         false,
+                                                         suppress_header_,
+                                                         csv_format_);
+    }
 
     return result;
 }

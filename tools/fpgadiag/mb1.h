@@ -54,6 +54,8 @@ public:
     virtual const std::string &        name()                 override { return name_;    }
     virtual bool                       setup()                override;
     virtual bool                       run()                  override;
+    virtual dma_buffer::ptr_t          dsm()                  const override { return dsm_; }
+    virtual uint64_t                   cachelines()           const override { return cachelines_; }
 
     void show_help(std::ostream &os);
 
@@ -83,6 +85,7 @@ private:
 
     accelerator::ptr_t accelerator_;
     csr_t<uint32_t> cfg_;
+    dma_buffer::ptr_t dsm_;
     dma_buffer::ptr_t wkspc_;
 };
 

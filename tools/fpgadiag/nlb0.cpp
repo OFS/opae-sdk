@@ -56,6 +56,8 @@ nlb0::nlb0()
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
+, cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
@@ -83,6 +85,7 @@ nlb0::nlb0()
     options_.add_option<uint32_t>("freq",            'T', option::with_argument, "Clock frequence (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("suppress-stats",               option::no_argument,   "Show stas at end", suppress_stats_);
 }
 
 nlb0::~nlb0()
@@ -93,6 +96,7 @@ nlb0::~nlb0()
 bool nlb0::setup()
 {
     options_.get_value<std::string>("target", target_);
+    options_.get_value<bool>("suppress-stats", suppress_stats_);
     if (target_ == "fpga")
     {
         dsm_timeout_ = FPGA_DSM_TIMEOUT;
@@ -299,6 +303,12 @@ bool nlb0::setup()
     options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
 
+    // FIXME: use actual size for dsm size
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm_) {
+        log_.error("nlb0") << "failed to allocate DSM workspace." << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -313,12 +323,6 @@ bool nlb0::run()
 
     // Allocate the smallest possible workspaces for DSM, Input and Output
     // buffers.
-    // FIXME: use actual size for dsm size
-    dsm = accelerator_->allocate_buffer(dsm_size_);
-    if (!dsm) {
-        log_.error("nlb0") << "failed to allocate DSM workspace." << std::endl;
-        return false;
-    }
 
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
@@ -349,7 +353,7 @@ bool nlb0::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
     // assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // de-assert afu reset
@@ -366,9 +370,10 @@ bool nlb0::run()
         inp->write(i, i);
     }
 
+    dsm_tuple dsm_tpl;
     for (uint32_t i = begin_; i <= end_; i+=step_)
     {
-        dsm->fill(0);
+        dsm_->fill(0);
         out->fill(0);
 
         // assert afu reset
@@ -380,9 +385,13 @@ bool nlb0::run()
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), i);
 
         // Read perf counters.
-        fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
-        fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
-
+        fpga_cache_counters  start_cache_ctrs;
+        fpga_fabric_counters start_fabric_ctrs;
+        if (!suppress_stats_)
+        {
+            start_cache_ctrs  = accelerator_->cache_counters();
+            start_fabric_ctrs = accelerator_->fabric_counters();
+        }
         // start the test
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
 
@@ -391,7 +400,7 @@ bool nlb0::run()
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
-            if (!dsm->wait(static_cast<size_t>(nlb0_dsm::test_complete),
+            if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                            dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
                 log_.warn("nlb0") << "test timeout" << std::endl;
@@ -399,7 +408,7 @@ bool nlb0::run()
         }
         else
         {
-            if (!dsm->wait(static_cast<size_t>(nlb0_dsm::test_complete),
+            if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                         dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
                 log_.warn("nlb0") << "test timeout" << std::endl;
@@ -407,28 +416,39 @@ bool nlb0::run()
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
         }
-
-        // Read Perf Counters
-        fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
-        fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
-
-        std::cout << intel::fpga::nlb::nlb_stats(dsm,
-                                                 i,
-                                                 end_cache_ctrs - start_cache_ctrs,
-                                                 end_fabric_ctrs - start_fabric_ctrs,
-                                                 frequency_,
-                                                 cont_,
-                                                 suppress_header_,
-                                                 csv_format_);
-
+        cachelines_ += i;
+        // if we don't suppress stats then we show them at the end of each iteration
+	if (!suppress_stats_)
+        {
+            // Read Perf Counters
+            fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
+            fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
+            std::cout << intel::fpga::nlb::nlb_stats(dsm_,
+                                                     i,
+                                                     end_cache_ctrs - start_cache_ctrs,
+                                                     end_fabric_ctrs - start_fabric_ctrs,
+                                                     frequency_,
+                                                     cont_,
+                                                     suppress_header_,
+                                                     csv_format_);
+        }
+        else
+        {
+            // if we suppress stats, add the current dsm stats to the rolling tuple
+            dsm_tpl += dsm_tuple(dsm_);
+        }
         // verify in and out
         if (!inp->equal(out, i * cacheline_size))
         {
+            // put the tuple back into the dsm buffer
+            dsm_tpl.put(dsm_);
             std::cerr << "Input and output buffer mismatch when testing on "
                       << i << " cache lines" << std::endl;
             return false;
         }
     }
+    // put the tuple back into the dsm buffer
+    dsm_tpl.put(dsm_);
 
     return true;
 }

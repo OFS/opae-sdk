@@ -33,7 +33,7 @@ import random
 import tempfile
 import subprocess
 import time
-
+import os
 max_threads = 2047;  # 11 bits
 max_count = 1048575; # 20 bits
 max_stride = 4294967295; # 32 bit
@@ -47,10 +47,10 @@ class nlb_options(object):
             "mode": ["read", "write"],
             "multi-cl":  [1, 2, 4],
             "cache-policy":  ["wrline-I", "wrline-M", "wrpush-I"],
-            "cache-hint": ["rdline-I", "rdline-S"],
-            "read-vc":    ["vh0", "vh1"], # vl0
+            "cache-hint": ["rdline-I", "rdline-S" ],
+            "read-vc":    ["vh0", "vh1" , "vl0"], # vl0
             "write-vc":   ["vh0", "vh1"], # vl0
-            "wrfence-vc": ["vh0", "vh1", "none"], # vl0
+            "wrfence-vc": ["vh0", "vh1"], # vl0
             "strided-access": range(1,65),
             "threads": range(1,65),
             "count": range(1,100),
@@ -86,7 +86,7 @@ class nlb_options(object):
                 yield opts
 
     def const(self):
-        return {}
+        return {'suppress-stats':True}
 
     def validate(self, opts):
         return True
@@ -137,9 +137,10 @@ class nlb3_options(nlb_options):
             return False
         return True
 
+
 class mtnlb7_options(nlb_options):
     def const(self):
-        return {"mode":"mt7"}
+        return {"mode":"mt7", "suppress-stats":True}
 
     @property
     def keys(self):
@@ -154,7 +155,7 @@ class mtnlb7_options(nlb_options):
 
 class mtnlb8_options(nlb_options):
     def const(self):
-        return {"mode":"mt8"}
+        return {"mode":"mt8", "suppress-stats":True}
 
     @property
     def keys(self):
@@ -176,14 +177,13 @@ class mtnlb8_options(nlb_options):
             return False
         return True
 
-def run_mux(muxfile, iteration=0):
+def run_mux(muxfile, args, iteration=0):
     errcode = 0
     result = "PASS"
     stdout, stderr = None, None
     try:
         dirname = os.path.dirname(os.path.abspath(__file__))
-        exename = os.path.join(dirname, 'swmux')
-        p = subprocess.Popen('{} -m {}'.format(exename, muxfile), shell=True,
+        p = subprocess.Popen('{} -m {} -s {}'.format(args.cmd, muxfile, args.socket_id), shell=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timedout = False
         start_time = time.time()
@@ -194,7 +194,7 @@ def run_mux(muxfile, iteration=0):
             result = "TIMEOUT"
             timedout = True
         stderr,stdout = p.communicate()
-    except:
+    except subprocess.CalledProcessError:
         result = "CRASH"
     else:
         if not timedout:
@@ -232,7 +232,8 @@ def summarize(results):
             "total": len(results)},
             "results": results}
 
-def run(generator="iter", **kwargs):
+def run(args):
+    generator = args.generator
     n0 = nlb0_options()
     n3 = nlb3_options()
     mt7 = mtnlb7_options()
@@ -242,10 +243,10 @@ def run(generator="iter", **kwargs):
                 "mtnlb7" : mt7,
                 "mtnlb8" : mt8 }
     results = []
-    iterators = [getattr(engines[e], generator)() for e in kwargs.get("engines", [])]
+    iterators = [getattr(engines[e], generator)() for e in args.engines]
     count = 1
     start_time = datetime.datetime.now()
-    stop_on_fail = kwargs.get("stop_on_fail", False)
+    stop_on_fail = args.stop_on_fail
     while True:
         options = [
                 { "name" : "nlb0",
@@ -255,15 +256,15 @@ def run(generator="iter", **kwargs):
                   "app"  : "nlb3",
                   "config" : next(iterators[1]) },
                 { "name" : "mtnlb7",
-                  "app"  : "mtnlb",
+                  "app"  : "mtnlb7",
                   "config" : next(iterators[2]) },
                 { "name" : "mtnlb8",
-                  "app"  : "mtnlb",
+                  "app"  : "mtnlb8",
                   "config" : next(iterators[3]) }
                 ]
         for opt in options:
-            if opt["name"] in kwargs.get('disable', []):
-                opt["disable"] = True
+            if opt["name"] in args.disable:
+                opt["disabled"] = True
 
         with tempfile.NamedTemporaryFile("w",
                                          prefix="mux-{}-{}-".format(count, generator),
@@ -272,9 +273,11 @@ def run(generator="iter", **kwargs):
         print count, "running with: " ,fd.name
         count += 1
         try:
-            result = run_mux(fd.name, count)
+            result = run_mux(fd.name, args, count)
         except KeyboardInterrupt:
             print "Stopping..."
+            return results
+            break
         else:
             results.append(result)
 
@@ -282,17 +285,17 @@ def run(generator="iter", **kwargs):
             print "tests failed with file: ", fd.name
             if stop_on_fail:
                 break
-        if kwargs.get("timeout") is not None:
-            if (datetime.datetime.now() - start_time).total_seconds() >  kwargs["timeout"]:
+        if args.timeout is not None:
+            if (datetime.datetime.now() - start_time).total_seconds() > args.timeout:
                 break
-        if kwargs.get("max") is not None:
-            if count > kwargs.get("max"):
+        if args.max_iterations is not None:
+            if count > args.max_iterations:
                 break
+    return results
 
-    with open("mux-results-{}.json".format(datetime.datetime.now().isoformat('_')), "w") as fd_results:
-        json.dump(summarize(results), fd_results, indent=4, sort_keys=True)
 
-def retry(results_file, **kwargs):
+def retry(args):
+    results_file = args.retry
     results = []
     retries = []
     with open(results_file, "r") as fd:
@@ -315,9 +318,8 @@ def retry(results_file, **kwargs):
             print rerunfile
             with open(rerunfile, "w") as fd:
                 json.dump(configs, fd, indent=4, sort_keys=True)
-            retries.append(run_mux(rerunfile, result["iteration"]))
-    with open(results_file.replace("results", "retries"), "w") as fd:
-        json.dump(summarize(retries), fd, indent=4, sort_keys=True)
+            retries.append(run_mux(rerunfile, args, result["iteration"]))
+    return retries
 
 
 
@@ -326,6 +328,8 @@ def retry(results_file, **kwargs):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("cmd")
+    parser.add_argument('-s', '--socket-id', default=0, choices=[0,1], type=int)
     parser.add_argument("-g", "--generator", default="iter", choices=["iter", "random"],
                         help="generator type for generating options")
     parser.add_argument("-m", "--max-iterations", type=int,
@@ -343,6 +347,10 @@ if __name__ == "__main__":
         os.mkdir("muxfiles")
 
     if args.retry:
-        retry(args.retry)
+        retries = retry(args)
+        with open(args.retry.replace("results", "retries"), "w") as fd:
+            json.dump(summarize(retries), fd, indent=4, sort_keys=True)
     else:
-        run(args.generator, max=args.max_iterations, timeout=args.timeout, stop_on_fail=args.stop_on_fail, engines=args.engines, disable=args.disable)
+        results = run(args)
+        with open("mux-results-{}.json".format(datetime.datetime.now().isoformat('_')), "w") as fd_results:
+            json.dump(summarize(results), fd_results, indent=4, sort_keys=True)
