@@ -26,6 +26,7 @@
 #pragma once
 #include <cstdint>
 #include <exception>
+#include <iostream>
 
 namespace intel
 {
@@ -40,6 +41,7 @@ public:
     static uint64_t clear(uint8_t socket_id, uint64_t errs);
 
     uint64_t value() { return err_; }
+    friend std::ostream & operator<<(std::ostream & str, const port_error &err);
 private:
     uint64_t err_;
 };
