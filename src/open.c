@@ -91,7 +91,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	_handle->wsid_root = NULL;
 
 	// Open resources in exclusive mode unless FPGA_OPEN_SHARED is given
-	open_flags = O_RDWR | (flags & FPGA_OPEN_SHARED ? 0 : O_EXCL);
+	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
 	fddev = open(_token->devpath, open_flags);
 	if (-1 == fddev) {
 		FPGA_MSG("Open failed: %s", strerror(errno));
