@@ -252,25 +252,6 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 		return result;
 	}
 
-	// FIXME Fix threshold2 calculation.
-	// FPGA threshold2 =  110% (FPGA threshold1)
-	fpga_power = fpga_power + FPGA_THRESHOLD2(fpga_power);
-	if (fpga_power > FPGA_MAX_POWER) {
-		FPGA_ERR("Invalid power threshold 2");
-		result = FPGA_NOT_SUPPORTED;
-		return result;
-	}
-
-	// set fpga threshold 2
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD2);
-	FPGA_DBG(" FPGA Threshold2             :%ld watts\n", fpga_power);
-
-	result = sysfs_write_u64(sysfs_path, fpga_power);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to write power threshold 2");
-		return result;
-	}
-
 	return result;
 }
 
