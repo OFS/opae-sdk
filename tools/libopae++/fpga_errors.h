@@ -27,13 +27,14 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <opae/types_enum.h>
 
 namespace intel
 {
 namespace fpga
 {
 
-class port_error : std::exception
+class port_error : public std::exception
 {
 public:
     port_error(uint64_t err);
@@ -46,6 +47,15 @@ private:
     uint64_t err_;
 };
 
+class fpga_error : public std::exception
+{
+public:
+    fpga_error(fpga_result res);
+    virtual const char* what() const noexcept;
+    friend std::ostream & operator<<(std::ostream & str, const fpga_error &err);
+private:
+    fpga_result result_;
+};
 
 } // end of namespace fpga
 } // end of namespace intel

@@ -27,6 +27,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <map>
 
 namespace intel
 {
@@ -146,6 +147,43 @@ std::ostream & operator<<(std::ostream & str, const port_error & err)
     if (bits.f.PMRError) str << std::setw(24) << "PMRError: " << bits.f.PMRError << "\n";
     if (bits.f.Ap6Event) str << std::setw(24) << "Ap6Event: " << bits.f.Ap6Event << "\n";
     if (bits.f.VfFlrAccessError) str << std::setw(24) << "VfFlrAccessError: " << bits.f.VfFlrAccessError << "\n";
+    return str;
+}
+
+static std::map<fpga_result, std::string> error_strings = 
+{
+	{ FPGA_INVALID_PARAM,  "Invalid parameter supplied"},
+	{ FPGA_BUSY,           "Resource is busy"},
+	{ FPGA_EXCEPTION,      "An exception occurred"},
+	{ FPGA_NOT_FOUND,      "A required resource was not found"},
+	{ FPGA_NO_MEMORY,      "Not enough memory to complete operation"},
+	{ FPGA_NOT_SUPPORTED,  "Requested operation is not supported"},
+	{ FPGA_NO_DRIVER,      "Driver is not loaded"},
+	{ FPGA_NO_DAEMON,      "FPGA Daemon (fpgad) is not running"},
+	{ FPGA_NO_ACCESS,      "Insufficient privileges or permissions"},
+	{ FPGA_RECONF_ERROR,   "Error while reconfiguring FPGA"}
+};
+
+
+
+fpga_error::fpga_error(fpga_result res)
+: result_(res)
+{
+}
+
+const char* fpga_error::what() const noexcept
+{
+    auto it = error_strings.find(result_);
+    if (it != error_strings.end())
+    {
+        return it->second.c_str();
+    }
+    return "Unknown error code";
+}
+
+std::ostream & operator<<(std::ostream & str, const fpga_error & err)
+{
+    str << err.what();
     return str;
 }
 
