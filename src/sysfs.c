@@ -191,7 +191,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
-		FPGA_MSG("open: %s", strerror(errno));
+		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
