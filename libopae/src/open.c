@@ -94,7 +94,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
 	fddev = open(_token->devpath, open_flags);
 	if (-1 == fddev) {
-		FPGA_MSG("Open failed: %s", strerror(errno));
+		FPGA_MSG("open(%s) failed: %s", _token->devpath, strerror(errno));
 		switch (errno) {
 		case EACCES:
 			result = FPGA_NO_ACCESS;
