@@ -540,7 +540,7 @@ enum_top_dev(const char *sysfspath, const char *name, struct dev_list *list)
 	// Find the FME and AFU devices.
 	dir = opendir(sysfspath);
 	if (NULL == dir) {
-		FPGA_MSG("Can't open directory");
+		FPGA_MSG("Can't open directory: %s", sysfspath);
 		return FPGA_NO_DRIVER;
 	}
 
