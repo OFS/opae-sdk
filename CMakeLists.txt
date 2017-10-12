@@ -39,8 +39,8 @@ set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MI
 ############################################################################
 ## Compilation configuration ###############################################
 ############################################################################
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 
 include(compiler_config)
 include(libraries_config)
@@ -58,8 +58,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 ## Compilation configuration ###############################################
 ############################################################################
 
-set(COMMON_DIR        ${CMAKE_SOURCE_DIR}/common)
-set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include)
+set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
+set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
 add_custom_target(copy-common-opae-header-files ALL
   COMMAND cmake -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
 
@@ -67,6 +67,14 @@ add_custom_target(copy-common-opae-header-files ALL
 install(DIRECTORY common/include/opae
   DESTINATION include
   COMPONENT libopaeheaders)
+
+############################################################################
+## Add 'doxygen' target ####################################################
+############################################################################
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -285,7 +293,7 @@ set(PACKAGE_VENDOR "Intel Corporation")
 set(PACKAGE_URL http://www.intel.com)
 set(PACKAGE_SRC_TAR_NAME ${CPACK_SOURCE_PACKAGE_FILE_NAME})
 
-set(CONFIG_TEMPLATE_PATH "${CMAKE_SOURCE_DIR}/cmake/config")
+set(CONFIG_TEMPLATE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config")
 configure_file(${CONFIG_TEMPLATE_PATH}/libopae-all.spec.in
   ${CMAKE_CURRENT_BINARY_DIR}/libopae-all.spec @ONLY)
 

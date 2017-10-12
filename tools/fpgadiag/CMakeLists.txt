@@ -32,8 +32,8 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(
     ${OPAE_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}/tools/c++utils
-    ${CMAKE_SOURCE_DIR}/tools/libopae++
+    ${OPAE_SDK_SOURCE}/tools/c++utils
+    ${OPAE_SDK_SOURCE}/tools/libopae++
     ${Boost_INCLUDE_DIRS}
     )
 

@@ -29,7 +29,7 @@ find_package(Boost 1.41.0 REQUIRED)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
                      ${Boost_INCLUDE_DIRS}
                      ${OPAE_INCLUDE_DIR}
-                     ${CMAKE_SOURCE_DIR}/tools/c++utils
+                     ${OPAE_SDK_SOURCE}/tools/c++utils
                      )
 
 add_library(opae-c++ SHARED
