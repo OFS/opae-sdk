@@ -10,7 +10,7 @@ Release:       @CPACK_PACKAGE_RELEASE@
 Summary:       @PACKAGE_SUMMARY@
 Vendor:        @PACKAGE_VENDOR@
 URL:           @PACKAGE_URL@
-License:       GPL-2.0+
+License:       BSD-3.0+
 Group:         unknown
 
 BuildArch:     x86_64
