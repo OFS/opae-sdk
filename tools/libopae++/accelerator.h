@@ -94,7 +94,8 @@ public:
 
     uint64_t port_errors() const { return port_errors_; }
 
-    void error_assert() const { if (port_errors_)  throw port_error(port_errors_.load()); }
+    void throw_errors(bool value) { throw_errors_ = value; }
+    void error_assert() const { if (throw_errors_ && port_errors_)  throw port_error(port_errors_.load()); }
 protected:
     accelerator(const accelerator & other);
     accelerator & operator=(const accelerator & other);
@@ -109,6 +110,7 @@ private:
     uint8_t * mmio_base_;
     fpga_event::ptr_t error_event_;
     std::atomic<uint64_t> port_errors_;
+    bool throw_errors_;
 };
 
 } // end of namespace fpga

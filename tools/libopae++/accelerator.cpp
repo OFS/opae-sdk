@@ -45,6 +45,7 @@ accelerator::accelerator(shared_token token, fpga_properties props,
 , mmio_base_(nullptr)
 , port_errors_(0)
 , error_event_(0)
+, throw_errors_(false)
 {
 }
 
@@ -55,6 +56,7 @@ accelerator::accelerator(const accelerator & other)
 , mmio_base_(other.mmio_base_)
 , port_errors_(0)
 , error_event_(0)
+, throw_errors_(false)
 {
 
 }
@@ -79,7 +81,7 @@ bool accelerator::open(bool shared)
 {
 
     port_errors_ = port_error::read(socket_id());
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     if (fpga_resource::open(shared))
     {
         auto result = fpgaMapMMIO(handle_, 0, reinterpret_cast<uint64_t**>(&mmio_base_));
@@ -174,37 +176,36 @@ bool accelerator::ready()
 
 bool accelerator::write_mmio32(uint32_t offset, uint32_t value)
 {
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     return FPGA_OK == fpgaWriteMMIO32(handle_, 0, offset, value);
 }
 
 bool accelerator::write_mmio64(uint32_t offset, uint64_t value)
 {
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     return FPGA_OK == fpgaWriteMMIO64(handle_, 0, offset, value);
 }
 
 bool accelerator::read_mmio32(uint32_t offset, uint32_t & value)
 {
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     return FPGA_OK == fpgaReadMMIO32(handle_, 0, offset, &value);
 }
 
 bool accelerator::read_mmio64(uint32_t offset, uint64_t & value)
 {
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     return FPGA_OK == fpgaReadMMIO64(handle_, 0, offset, &value);
 }
 
 uint8_t* accelerator::mmio_pointer(uint32_t offset)
 {
-    if (port_errors_) throw port_error(port_errors_.load());
+    error_assert();
     return mmio_base_ + offset;
 }
 
 bool accelerator::reset()
 {
-    if (port_errors_) throw port_error(port_errors_.load());
     fpga_result res = fpgaReset(handle_);
     if (res == FPGA_OK)
     {
