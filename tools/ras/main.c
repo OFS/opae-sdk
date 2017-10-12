@@ -84,7 +84,7 @@
 #define FPGA_SET_BIT(val, index) val |= (1 << index)
 #define FPGA_CLEAR_BIT(val, index) val &= ~(1 << index)
 #define FPGA_TOGGLE_BIT(val, index) val ^= (1 << index)
-#define FPGA_BIT_IS_SET(val, index) (val & (1 << index))
+#define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
 
 /* Type definitions */
 typedef struct {
@@ -234,6 +234,7 @@ static const char * const PORT_ERROR[] = {
 		"Tx Channel 0 invalid request encodingr error detected.", \
 		"Tx Channel 0 cl_len=3 not supported error detected.", \
 		"Tx Channel 0 request with cl_len=2 does NOT have a 2CL aligned address error detected.", \
+		"Tx Channel 0 request with cl_len=4 does NOT have a 4CL aligned address error detected.", \
 		"RSVD.", "RSVD.", "RSVD.","RSVD.",\
 		"AFU MMIO RD received while PORT is in reset error detected", \
 		"AFU MMIO WR received while PORT is in reset error detected", \
@@ -510,6 +511,16 @@ int main( int argc, char** argv )
 		}
 	}
 
+	if (rasCmdLine.pagefault_error) {
+		// Page fault error
+		result = page_fault_errors();
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed  to trigger page fault errors");
+			goto out_destroy_prop;
+		}
+	}
+
+
 	sleep(1);
 
 	if (rasCmdLine.print_error) {
@@ -535,14 +546,6 @@ int main( int argc, char** argv )
 		}
 	}
 
-	if (rasCmdLine.pagefault_error) {
-		// Page fault error
-		result = page_fault_errors();
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to trigger page fault errors");
-			goto out_destroy_prop;
-		}
-	}
 
 	/* Destroy properties object */
 out_destroy_prop:
@@ -1243,11 +1246,11 @@ fpga_result page_fault_errors()
 	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 1);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
-	// Free Input buffer
-	res = fpgaReleaseBuffer(accelerator_handle, input_wsid);
-
 	res = fpgaGetIOAddress(accelerator_handle, input_wsid, &iova);
 	ON_ERR_GOTO(res, out_free_output, "getting input IOVA");
+
+	// Free Input buffer
+	res = fpgaReleaseBuffer(accelerator_handle, input_wsid);
 	res = fpgaWriteMMIO64(accelerator_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_SRC_ADDR");
 
