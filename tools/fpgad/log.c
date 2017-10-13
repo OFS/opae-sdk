@@ -28,12 +28,7 @@
  * log.c : logging routines
  */
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <pthread.h>
-#undef _GNU_SOURCE
+#include "log.h"
 
 static pthread_mutex_t log_lock = PTHREAD_MUTEX_INITIALIZER;
 FILE *fLog;
@@ -88,4 +83,3 @@ void close_log(void)
 {
 	fclose(fLog);
 }
-
