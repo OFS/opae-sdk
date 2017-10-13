@@ -38,6 +38,20 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage.")
 endif (NOT DEFINED CMAKE_BUILD_TYPE)
 
+# Helper function to set cached variables
+function(SET_CACHED_VARIABLE var)
+  set(${var} ${ARGN} CACHE INTERNAL "")
+  list(APPEND _cached_vars ${var})
+  list(REMOVE_DUPLICATES _cached_vars)
+  set(_cached_vars ${_cached_vars} CACHE INTERNAL "")
+endfunction(SET_CACHED_VARIABLE)
+
+# Helper function to join list elements into a single string
+function(JOIN VALUES GLUE OUTPUT)
+  string (REPLACE ";" "${GLUE}" _TMP_STR "${VALUES}")
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
 ############################################################################
 ## GCC specific options ####################################################
 ############################################################################
@@ -74,6 +88,18 @@ elseif(COMPILER_SUPPORTS_CXX0X)
 endif()
 
 # Disable GCC warnings
+check_c_compiler_flag("-Wno-format"
+  C_SUPPORTS_NO_FORMAT)
+if (C_SUPPORTS_NO_FORMAT)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format")
+endif()
+
+check_c_compiler_flag("-Wno-format-truncation"
+  C_SUPPORTS_NO_FORMAT_TRUNCATION)
+if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
+endif()
+
 check_cxx_compiler_flag("-Wno-format"
   CXX_SUPPORTS_NO_FORMAT)
 if (CXX_SUPPORTS_NO_FORMAT)
