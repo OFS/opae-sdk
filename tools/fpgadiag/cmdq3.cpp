@@ -597,7 +597,8 @@ void cmdq3::hwvalid_thr()
 
         volatile uint32_t *dsm_status_addr = (volatile uint32_t *)(dsm_->address() + dsm_offset);
 
-        while(hwvalid_next_ == swvalid_next_);
+        while(!cancel_ && (hwvalid_next_ == swvalid_next_));
+        if (cancel_) break;
 
         if (i == 0)
         {
@@ -653,7 +654,8 @@ void cmdq3::cont_hwvalid_thr()
 
         volatile uint32_t *dsm_status_addr = (volatile uint32_t *)(dsm_->address() + dsm_offset);
 
-        while(hwvalid_next_ == swvalid_next_);
+        while(!cancel_ && (hwvalid_next_ == swvalid_next_));
+        if (cancel_) break;
 
         if (i == 0)
         {
