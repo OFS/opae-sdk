@@ -395,6 +395,7 @@ int ase_read_lock_file(const char *workdir)
 	char *curr_uid;
 	int readback_pid = 0;
 	int ret_err;
+	char *saveptr;
 
 	// Null check and exit
 	if (workdir == NULL) {
@@ -437,8 +438,8 @@ int ase_read_lock_file(const char *workdir)
 				while (getline(&line, &len, fp_exp_ready)
 				       != -1) {
 					// LHS/RHS tokenizing
-					parameter = strtok(line, "=");
-					value = strtok(NULL, "");
+					parameter = strtok_r(line, "=", &saveptr);
+					value = strtok_r(NULL, "", &saveptr);
 					// Check for parameter being recorded as NULL
 					if ((parameter == NULL)
 					    || (value == NULL)) {

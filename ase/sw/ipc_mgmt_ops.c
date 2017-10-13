@@ -107,6 +107,7 @@ void final_ipc_cleanup(void)
 
 	char *ipc_line;
 	size_t ipc_line_len = 0;
+	char *saveptr;
 
 	ipc_line = ase_malloc(ASE_FILEPATH_LEN + 16);
 
@@ -124,8 +125,8 @@ void final_ipc_cleanup(void)
 		    ("Removing message queues and buffer handles ... \n");
 		while (getline(&ipc_line, &ipc_line_len, local_ipc_fp) !=
 		       -1) {
-			ipc_type = strtok(ipc_line, " \t");
-			ipc_name = strtok(NULL, " \t");
+			ipc_type = strtok_r(ipc_line, " \t", &saveptr);
+			ipc_name = strtok_r(NULL, " \t", &saveptr);
 			if ((ipc_type == NULL) || (ipc_name == NULL)) {
 				ASE_DBG("Ignoring ipc_line_len\n");
 			} else {

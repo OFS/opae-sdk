@@ -1379,7 +1379,7 @@ void ase_config_parse(char *filename)
 	char *parameter;
 	int value;
 	char *pch;
-
+	char *saveptr;
 
 	// Allocate space to store ASE config
 	cfg = (struct ase_cfg_t *) ase_malloc(sizeof(struct ase_cfg_t));
@@ -1419,14 +1419,14 @@ void ase_config_parse(char *filename)
 				remove_newline(line);
 				// Ignore strings begining with '#' OR NULL (compound NOR)
 				if ((line[0] != '#') && (line[0] != '\0')) {
-					parameter = strtok(line, "=\n");
+					parameter = strtok_r(line, "=\n", &saveptr);
 					if (parameter != NULL) {
 						if (ase_strncmp
 						    (parameter, "ASE_MODE",
 						     8) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_mode
@@ -1440,8 +1440,8 @@ void ase_config_parse(char *filename)
 							 "ASE_TIMEOUT",
 							 11) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_timeout
@@ -1455,8 +1455,8 @@ void ase_config_parse(char *filename)
 							 "ASE_NUM_TESTS",
 							 13) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_num_tests
@@ -1470,8 +1470,8 @@ void ase_config_parse(char *filename)
 							 "ENABLE_REUSE_SEED",
 							 17) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    enable_reuse_seed
@@ -1485,8 +1485,8 @@ void ase_config_parse(char *filename)
 							 "ASE_SEED",
 							 8) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_seed
@@ -1500,8 +1500,8 @@ void ase_config_parse(char *filename)
 							 "ENABLE_CL_VIEW",
 							 14) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    enable_cl_view
@@ -1515,8 +1515,8 @@ void ase_config_parse(char *filename)
 							 "USR_CLK_MHZ",
 							 11) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								f_usrclk =
 								    atof
@@ -1576,8 +1576,8 @@ void ase_config_parse(char *filename)
 							 "PHYS_MEMORY_AVAILABLE_GB",
 							 24) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								value =
 								    atoi

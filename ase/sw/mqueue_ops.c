@@ -69,7 +69,8 @@ int get_smq_perm_flag(const char *mq_name_str)
 
 	// Tokenize string and get first phrase --- "app2sim" OR "sim2app"
 	char *token;
-	token = strtok(mq_str, "_");
+	char *saveptr;
+	token = strtok_r(mq_str, "_", &saveptr);
 
 	// If name looks weird, throw an error, crash gracefully
 	if (token == NULL) {
