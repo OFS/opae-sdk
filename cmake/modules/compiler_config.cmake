@@ -46,12 +46,6 @@ function(SET_CACHED_VARIABLE var)
   set(_cached_vars ${_cached_vars} CACHE INTERNAL "")
 endfunction(SET_CACHED_VARIABLE)
 
-# Helper function to join list elements into a single string
-function(JOIN VALUES GLUE OUTPUT)
-  string (REPLACE ";" "${GLUE}" _TMP_STR "${VALUES}")
-  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
-endfunction()
-
 ############################################################################
 ## GCC specific options ####################################################
 ############################################################################

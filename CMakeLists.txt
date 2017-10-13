@@ -101,7 +101,6 @@ add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
 add_subdirectory(tools/hssi)
 
-
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
 if(BUILD_ASE)
@@ -116,18 +115,19 @@ endif()
 find_package(Threads REQUIRED)
 
 ############################################################################
-## Add 'samples' ###################################################
+## Add 'samples' ###########################################################
 ############################################################################
+
 add_subdirectory(samples)
 
 ############################################################################
 ## RPATH Handling ##########################################################
 ############################################################################
+
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 
 ############################################################################
 ## Packaging ###############################################################
@@ -138,121 +138,101 @@ mark_as_advanced(HASH_ARCHIVES)
 
 find_program(GIT_EXECUTABLE git)
 if(EXISTS ${GIT_EXECUTABLE})
-   execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-     OUTPUT_VARIABLE GIT_COMMIT_HASH
-     OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 else(EXISTS ${GIT_EXECUTABLE})
-   set(GIT_COMMIT_HASH unknown)
+  set(GIT_COMMIT_HASH unknown)
 endif(EXISTS ${GIT_EXECUTABLE})
 
-set(CPACK_COMPONENT_OPAECLIB_GROUP         "libs")
-
-set(CPACK_COMPONENT_LIBOPAEHEADERS_GROUP   "devel")
-set(CPACK_COMPONENT_DOCHTML_GROUP          "devel")
-set(CPACK_COMPONENT_DOCLATEX_GROUP         "devel")
-set(CPACK_COMPONENT_DOCRTF_GROUP           "devel")
-set(CPACK_COMPONENT_DOCMAN_GROUP           "devel")
-set(CPACK_COMPONENT_DOCXML_GROUP           "devel")
-set(CPACK_COMPONENT_SAMPLESRC_GROUP        "devel")
-
-set(CPACK_COMPONENT_TOOLUSERCLK_GROUP      "tools")
-set(CPACK_COMPONENT_TOOLFPGAD_GROUP        "tools")
-set(CPACK_COMPONENT_TOOLRAS_GROUP          "tools")
-set(CPACK_COMPONENT_TOOLMMLINK_GROUP       "tools")
-set(CPACK_COMPONENT_TOOLCOREIDLE_GROUP     "tools")
-set(CPACK_COMPONENT_TOOLFPGACONF_GROUP     "tools")
-set(CPACK_COMPONENT_TOOLFPGADIAG_GROUP     "tools")
-set(CPACK_COMPONENT_TOOLFPGADIAGAPPS_GROUP "tools")
-set(CPACK_COMPONENT_TOOLFPGAINFO_GROUP     "tools")
-set(CPACK_COMPONENT_TOOLFPGAPORT_GROUP     "tools")
-set(CPACK_COMPONENT_OPAECXXUTILS_GROUP     "tools")
-set(CPACK_COMPONENT_OPAECXXLIB_GROUP       "tools")
-set(CPACK_COMPONENT_OPAECXXNLB_GROUP       "tools")
-set(CPACK_COMPONENT_HSSIIOLIB_GROUP        "tools")
-set(CPACK_COMPONENT_HSSIPROGRAMS_GROUP     "tools")
-
-set(CPACK_COMPONENT_OPAECASE_GROUP         "ase")
-set(CPACK_COMPONENT_ASERTL_GROUP           "ase")
-set(CPACK_COMPONENT_ASESW_GROUP            "ase")
-set(CPACK_COMPONENT_ASESCRIPTS_GROUP       "ase")
-set(CPACK_COMPONENT_ASESAMPLECONFIG_GROUP  "ase")
-set(CPACK_COMPONENT_ASEEXTRA_GROUP         "ase")
-
-set(CPACK_COMPONENT_GROUP_LIBS_DESCRIPTION
-	"libopae-c")
-set(CPACK_COMPONENT_GROUP_DEVEL_DESCRIPTION
-	"OPAE headers, sample source, and documentation")
-set(CPACK_COMPONENT_GROUP_TOOLS_DESCRIPTION
-	"OPAE tool binaries")
-set(CPACK_COMPONENT_GROUP_ASE_DESCRIPTION
-	"OPAE AFU Simulation Environment")
-set(CPACK_COMPONENT_GROUP_ALL_DESCRIPTION
-        "OPAE meta package")
-
-set(CPACK_COMPONENT_GROUP_DEVEL_DEPENDS libs)
-set(CPACK_COMPONENT_GROUP_TOOLS_DEPENDS libs)
-set(CPACK_COMPONENT_GROUP_ASE_DEPENDS   devel)
-set(CPACK_COMPONENT_GROUP_ALL_DEPENDS   devel tools ase)
-
-set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
-set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
-
+include(packaging)
+set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
 set(CPACK_PACKAGE_VERSION_MAJOR "${INTEL_FPGA_API_VER_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${INTEL_FPGA_API_VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
+set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
 set(CPACK_PACKAGE_RELEASE 1)
 
-if (HASH_ARCHIVES)
-   set(CPACK_RPM_LIBS_FILE_NAME "${CMAKE_PROJECT_NAME}-libs-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64_git${GIT_COMMIT_HASH}.rpm")
-   set(CPACK_RPM_DEVEL_FILE_NAME "${CMAKE_PROJECT_NAME}-devel-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64_git${GIT_COMMIT_HASH}.rpm")
-   set(CPACK_RPM_TOOLS_FILE_NAME "${CMAKE_PROJECT_NAME}-tools-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64_git${GIT_COMMIT_HASH}.rpm")
-   set(CPACK_RPM_ASE_FILE_NAME "${CMAKE_PROJECT_NAME}-ase-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64_git${GIT_COMMIT_HASH}.rpm")
-else(HASH_ARCHIVES)
-   set(CPACK_RPM_LIBS_FILE_NAME "${CMAKE_PROJECT_NAME}-libs-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64.rpm")
-   set(CPACK_RPM_DEVEL_FILE_NAME "${CMAKE_PROJECT_NAME}-devel-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64.rpm")
-   set(CPACK_RPM_TOOLS_FILE_NAME "${CMAKE_PROJECT_NAME}-tools-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64.rpm")
-   set(CPACK_RPM_ASE_FILE_NAME "${CMAKE_PROJECT_NAME}-ase-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64.rpm")
-endif(HASH_ARCHIVES)
+# Component definition
+define_pkg(libs
+  COMPONENTS
+  opaeclib
+  GROUP "libs"
+  DISPLAY_NAME "opae-libs"
+  DESCRIPTION "OPAE runtime"
+  RPM_REQUIRES "uuid , json-c , boost")
 
-# Source code packaging target
-set(CPACK_SOURCE_GENERATOR "TGZ")
-if (HASH_ARCHIVES)
-   set(CPACK_SOURCE_PACKAGE_FILE_NAME
-     "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_git${GIT_COMMIT_HASH}")
-   set(DEFINE_RPM_NAME "%define _rpmfilename %%{ARCH}/%%{NAME}-%%{VERSION}-%%{RELEASE}_git${GIT_COMMIT_HASH}.%%{ARCH}.rpm")
-else(HASH_ARCHIVES)
-   set(CPACK_SOURCE_PACKAGE_FILE_NAME
-     "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-   set(DEFINE_RPM_NAME "")
-endif(HASH_ARCHIVES)
+define_pkg(devel
+  COMPONENTS
+  libopaeheaders
+  dochtml
+  doclatex
+  docrtf
+  docman
+  docxml
+  samplesrc
+  GROUP "devel"
+  DISPLAY_NAME "opae-devel"
+  DESCRIPTION "OPAE headers, sample source, and documentation"
+  DEPENDS "libs"
+  RPM_REQUIRES "libuuid-devel , json-c-devel , boost-devel , opae-libs")
 
-set(CPACK_SOURCE_IGNORE_FILES
-  "coverage.cmake"
-  "/mybuild/"
-  "/build/"
-  "/.git"
-  "~$"
-  ${CPACK_SOURCE_IGNORE_FILES})
+define_pkg(tools
+  COMPONENTS
+  tooluserclk
+  toolfpgad
+  toolras
+  toolmmlink
+  toolcoreidle
+  toolfpgaconf
+  toolfpgadiag
+  toolfpgadiagapps
+  toolfpgainfo
+  toolfpgaport
+  opaecxxutils
+  opaecxxlib
+  opaecxxnlb
+  hssiiolib
+  hssiprograms
+  GROUP "tools"
+  DISPLAY_NAME "opae-tools"
+  DESCRIPTION "OPAE tool binaries"
+  DEPENDS "libs"
+  RPM_REQUIRES "boost-devel, opae-libs , opae-devel")
+
+define_pkg(ase
+  COMPONENTS
+  opaecase
+  asertl
+  asescripts
+  asesampleconfig
+  aseextra
+  asesw
+  GROUP "ase"
+  DISPLAY_NAME "opae-ase"
+  DESCRIPTION "OPAE AFU Simulation Environment"
+  DEPENDS "devel"
+  RPM_REQUIRES "boost , opae-libs , opae-devel")
+
+set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
+set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
+
+# Hashing the package components
+if(HASH_ARCHIVES)
+  set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-1.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
+else()
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+endif()
 
 # Binary packaging target
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_RPM_COMPONENT_INSTALL ON)
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_RPM_PACKAGE_COMPONENT ON)
-set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
-set(CPACK_GENERATOR "RPM")
-set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
-set(CPACK_PACKAGE_RELEASE 1)
-
-if(HASH_ARCHIVES)
-  set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-1.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
-else()
-  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
-endif()
-set(CPACK_RPM_PACKAGE_REQUIRES "libuuid, libuuid-devel")
+set(CPACK_DEB_PACKAGE_COMPONENT ON)
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
@@ -276,15 +256,37 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
   "/usr/src"
   "/usr/doc")
 
+# Source code packaging target
+set(CPACK_SOURCE_GENERATOR "TGZ")
+if (HASH_ARCHIVES)
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_git${GIT_COMMIT_HASH}")
+  set(DEFINE_RPM_NAME "%define _rpmfilename %%{ARCH}/%%{NAME}-%%{VERSION}-%%{RELEASE}_git${GIT_COMMIT_HASH}.%%{ARCH}.rpm")
+else(HASH_ARCHIVES)
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+  set(DEFINE_RPM_NAME "")
+endif(HASH_ARCHIVES)
+
+# Ignore following files in the final package
+set(CPACK_SOURCE_IGNORE_FILES
+  "coverage.cmake"
+  "/mybuild/"
+  "/build/"
+  "/.git"
+  "~$"
+  ${CPACK_SOURCE_IGNORE_FILES})
+
 include(CPack)
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
 ############################################################################
 ## Meta Package RPM ########################################################
 ############################################################################
+
+set(MODULE_NAME libopae-all)
 set(PACKAGE_PACKAGER_NAME "The OPAE Development Team")
 set(PACKAGE_PACKAGER_EMAIL ${CPACK_PACKAGE_CONTACT})
-set(MODULE_NAME libopae-all)
 set(PACKAGE_NAME opae-all)
 set(PACKAGE_VERSION ${CPACK_PACKAGE_VERSION})
 set(PACKAGE_SUMMARY "OPAE meta-package")
@@ -299,7 +301,7 @@ configure_file(${CONFIG_TEMPLATE_PATH}/libopae-all.spec.in
 
 find_program(RPMBUILD_EXECUTABLE rpmbuild)
 if(EXISTS ${RPMBUILD_EXECUTABLE})
-   add_custom_target(metarpm
-                      COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
-                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  add_custom_target(metarpm
+    COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif(EXISTS ${RPMBUILD_EXECUTABLE})
