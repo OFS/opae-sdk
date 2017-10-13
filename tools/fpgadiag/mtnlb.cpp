@@ -63,6 +63,7 @@ mtnlb::mtnlb(const std::string & afu_id)
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
 , cachelines_(0)
 {
     define_options();
@@ -87,6 +88,7 @@ mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 , suppress_header_(false)
 , csv_format_(false)
 , suppress_stats_(false)
+, cachelines_(0)
 {
     define_options();
 }

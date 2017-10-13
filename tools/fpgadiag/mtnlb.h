@@ -99,8 +99,6 @@ protected:
     bool csv_format_;
     bool suppress_stats_;
     uint64_t cachelines_;
-    //void _mode7(uint64_t thread_id, uint64_t iterations, uint64_t stride);
-    //void _mode8(uint64_t thread_id, uint64_t iterations, uint64_t stride);
 
 };
 
