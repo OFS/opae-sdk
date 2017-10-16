@@ -362,11 +362,9 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		*ioaddr = wm->phys;
 	}
 
-out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return result;
-
 }
