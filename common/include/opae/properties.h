@@ -637,6 +637,38 @@ fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
 fpga_result fpgaPropertiesSetAcceleratorState(fpga_properties prop,
 					      fpga_accelerator_state state);
 
+/**
+ * Get the object ID of a resource
+ *
+ * Returns the object ID of a resource. The object ID is a 64 bit identifier
+ * that is unique within a single node or system. It represents a similar
+ * concept as the token, but can be used across processes (e.g. passed on the
+ * command line).
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[out] object_id  Pointer to a 64bit memory location to store the object
+ *                        ID in
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
+					    uint64_t *object_id);
+
+
+/**
+ * Set the object ID of a resource
+ *
+ * Sets the object ID of a resource. The object ID is a 64 bit identifier
+ * that is unique within a single node or system. It represents a similar
+ * concept as the token, but can be used across processes (e.g. passed on the
+ * command line).
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[in]  object_id  A 64bit value to use as the object ID
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetObjectID(const fpga_properties prop,
+					    uint64_t object_id);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

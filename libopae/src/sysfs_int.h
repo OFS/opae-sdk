@@ -68,6 +68,8 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f);
 fpga_result sysfs_read_int(const char *path, int *i);
 fpga_result sysfs_read_u32(const char *path, uint32_t *u);
+fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
+				 char sep);
 fpga_result sysfs_read_u64(const char *path, uint64_t *u);
 fpga_result sysfs_write_u64(const char *path, uint64_t u);
 fpga_result sysfs_read_guid(const char *path, fpga_guid guid);
@@ -78,5 +80,7 @@ fpga_result sysfs_get_slots(int dev, uint32_t *slots);
 fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
 fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid);
+fpga_result sysfs_objectid_from_path(const char *sysfspath,
+				     uint64_t *object_id);
 
 #endif // ___FPGA_SYSFS_INT_H__
