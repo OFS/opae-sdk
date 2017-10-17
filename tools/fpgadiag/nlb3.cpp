@@ -50,6 +50,7 @@ nlb3::nlb3()
 , mode_("read")
 , afu_id_("F7DF405C-BD7A-CF72-22F1-44B0B93ACD18")
 , dsm_size_(MB(2))
+, stride_acs_(1)
 , num_strides_(0)
 , step_(1)
 , begin_(1)
@@ -174,16 +175,15 @@ bool nlb3::setup()
             return false;
     }
 
-    // stride distance in bytes
-    uint32_t strided_acs = 0;
-    if (options_.get_value<uint32_t>("strided-access", strided_acs))
+    // stride distance 
+    if (options_.get_value<uint32_t>("strided-access", stride_acs_))
     {
-        if (strided_acs > 64)
+        if (stride_acs_ > 64)
         {
             log_.error("nlb3") << "strided access too big" << std::endl;
             return false;
         }
-        num_strides_ = multi_cl * (strided_acs - 1);
+        num_strides_ = multi_cl * (stride_acs_ - 1);
     }
 
     // cache policy
@@ -358,12 +358,6 @@ bool nlb3::setup()
         }
     }
 
-    if (strided_acs * end_ > MAX_CL)
-    {
-        log_.error("nlb3") << "num strides greater than buffer size" << std::endl;
-        return false;
-    }
-
     // timeout
     if (cont_)
     {
@@ -413,7 +407,7 @@ bool nlb3::run()
     dma_buffer::ptr_t inp;   // input workspace
     dma_buffer::ptr_t out;   // output workspace
 
-    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+    std::size_t buf_size = CL(stride_acs_ * end_);  // size of input and output buffer (each)
 
     // Allocate the smallest possible workspaces for DSM, Input and Output
     // buffers.

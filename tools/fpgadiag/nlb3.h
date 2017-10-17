@@ -70,6 +70,8 @@ private:
     std::string afu_id_;
 
     std::size_t dsm_size_;
+
+    uint32_t stride_acs_;
     uint32_t num_strides_;
     uint32_t step_;
     uint32_t begin_;
