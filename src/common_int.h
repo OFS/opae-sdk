@@ -85,4 +85,5 @@ void aal_guid_to_fpga(uint64_t guidh,
 		      uint64_t guidl,
 		      uint8_t *guid);
 
+
 #endif // ___FPGA_COMMON_INT_H__
