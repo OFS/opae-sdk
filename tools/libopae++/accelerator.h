@@ -45,13 +45,14 @@ namespace fpga
 class accelerator : public fpga_resource, public mmio
 {
 public:
-    virtual ~accelerator(){}
+    virtual ~accelerator() { close(); }
 
     enum status_t
     {
         unknown = 0,
         opened,
-        released
+        released,
+        closed
     };
 
     fpga_resource::type_t type();

@@ -113,6 +113,11 @@ bool accelerator::open(bool shared)
 
 bool accelerator::close()
 {
+    if (status_ == status_t::closed) {
+        return true;
+    }
+
+    status_ = status_t::closed;
     return FPGA_OK == fpgaUnmapMMIO(handle_, 0) &&
            fpga_resource::close();
 }

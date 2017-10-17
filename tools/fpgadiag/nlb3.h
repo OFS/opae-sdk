@@ -70,9 +70,6 @@ private:
     std::string afu_id_;
 
     std::size_t dsm_size_;
-
-    dma_buffer::ptr_t dsm_;
-
     uint32_t num_strides_;
     uint32_t step_;
     uint32_t begin_;
@@ -87,8 +84,8 @@ private:
     intel::utils::option_map options_;
 
     accelerator::ptr_t accelerator_;
+    dma_buffer::ptr_t dsm_;
     csr_t<uint32_t> cfg_;
-    dma_buffer::ptr_t wkspc_;
 
     std::chrono::duration<double> cont_timeout_;
     std::chrono::microseconds     dsm_timeout_;
