@@ -337,6 +337,10 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 
+	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
+	if (0 == result)
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
+
 	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
@@ -1141,6 +1145,51 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state s
 		     _prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(object_id);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID)) {
+		*object_id = _prop->object_id;
+	} else {
+		FPGA_MSG("No object_id");
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
+	_prop->object_id = object_id;
 
 	err = pthread_mutex_unlock(&_prop->lock);
 	if (err)

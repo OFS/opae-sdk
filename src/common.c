@@ -184,4 +184,3 @@ void aal_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
 		guid[8 + i] = (uint8_t) ((guidl >> s) & 0xff);
 	}
 }
-

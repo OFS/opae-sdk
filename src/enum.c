@@ -168,6 +168,16 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJECTID)) {
+		uint64_t objid;
+		fpga_result result;
+		result = sysfs_objectid_from_path(attr->sysfspath, &objid);
+		if (result != FPGA_OK || _filter->object_id != objid) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE) &&
 			(FPGA_DEVICE == _filter->objtype)) {
 
