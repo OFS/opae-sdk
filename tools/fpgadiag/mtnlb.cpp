@@ -252,6 +252,10 @@ bool mtnlb::setup()
     dsm_ = accelerator_->allocate_buffer(dsm_size_);
     inp_ = accelerator_->allocate_buffer(inp_size_);
     out_ = accelerator_->allocate_buffer(out_size_);
+    if (!dsm_ || !inp_ || !out_) {
+        log_.error(mode_) << "failed to allocate workspace and input/output buffers." << std::endl;
+        return false;
+    }
 
     if (mode_ == "mt7")
     {

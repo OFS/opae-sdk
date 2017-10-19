@@ -228,6 +228,10 @@ int main(int argc, char* argv[])
     }
     accelerator_ptr->reset();
     auto buffer = accelerator_ptr->allocate_buffer(GB(1));
+    if (!buffer) {
+        log.error("main") << "failed to allocate workspace and input/output buffers." << std::endl;
+        return EXIT_FAILURE;
+    }
     buffer_pool::ptr_t pool(new buffer_pool(buffer));
     auto dsm = pool->allocate_buffer(MB(2));
    // Read perf counters.
