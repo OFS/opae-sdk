@@ -34,32 +34,33 @@ import tempfile
 import subprocess
 import time
 import os
-max_threads = 2047;  # 11 bits
-max_count = 1048575; # 20 bits
-max_stride = 4294967295; # 32 bit
+max_threads = 2047       # 11 bits
+max_count = 1048575      # 20 bits
+max_stride = 4294967295  # 32 bit
+
 
 class nlb_options(object):
     all_options = {
-            "begin":  range(1, 65535),
-            "end":  range(2, 65535),
-            "cont" : [True, False],
-            "timeout-sec" : range(1,11),
-            "mode": ["read", "write"],
-            "multi-cl":  [1, 2, 4],
-            "cache-policy":  ["wrline-I", "wrline-M", "wrpush-I"],
-            "cache-hint": ["rdline-I", "rdline-S" ],
-            "read-vc":    ["vh0", "vh1" , "vl0"], # vl0
-            "write-vc":   ["vh0", "vh1"], # vl0
-            "wrfence-vc": ["vh0", "vh1"], # vl0
-            "strided-access": range(1,65),
-            "threads": range(1,65),
-            "count": range(1,100),
-            "stride": [int(math.pow(2, n)) for n in range(9)],
-            "warm-fpga-cache": [True, False],
-            "cool-fpga-cache": [True, False],
-            "cool-cpu-cache": [True, False],
-            "alt-wr-pattern": [True, False]
-            }
+        "begin":  range(1, 65535),
+        "end":  range(2, 65535),
+        "cont": [True, False],
+        "timeout-sec": range(1, 11),
+        "mode": ["read", "write"],
+        "multi-cl":  [1, 2, 4],
+        "cache-policy":  ["wrline-I", "wrline-M", "wrpush-I"],
+        "cache-hint": ["rdline-I", "rdline-S"],
+        "read-vc":    ["vh0", "vh1", "vl0"],
+        "write-vc":   ["vh0", "vh1"],
+        "wrfence-vc": ["vh0", "vh1"],
+        "strided-access": range(1, 65),
+        "threads": range(1, 65),
+        "count": range(1, 100),
+        "stride": [int(math.pow(2, n)) for n in range(9)],
+        "warm-fpga-cache": [True, False],
+        "cool-fpga-cache": [True, False],
+        "cool-cpu-cache": [True, False],
+        "alt-wr-pattern": [True, False]
+    }
 
     @property
     def keys(self):
@@ -72,7 +73,9 @@ class nlb_options(object):
     def random(self):
         while True:
             opts = {}
-            opts.update(dict([(k, random.choice(self.all_options[k])) for k in self.keys]))
+            opts.update(
+                dict([(k, random.choice(self.all_options[k]))
+                      for k in self.keys]))
             opts.update(self.const())
             if self.validate(opts):
                 yield opts
@@ -86,12 +89,14 @@ class nlb_options(object):
                 yield opts
 
     def const(self):
-        return {'suppress-stats':True}
+        return {'suppress-stats': True}
 
     def validate(self, opts):
         return True
 
+
 class nlb0_options(nlb_options):
+
     @property
     def keys(self):
         return ("begin",
@@ -105,11 +110,13 @@ class nlb0_options(nlb_options):
                 "wrfence-vc")
 
     def validate(self, opts):
-        if int(opts["begin"])%int(opts["multi-cl"]) > 0:
+        if int(opts["begin"]) % int(opts["multi-cl"]) > 0:
             return False
         return True
 
+
 class nlb3_options(nlb_options):
+
     @property
     def keys(self):
         return ("begin",
@@ -131,7 +138,7 @@ class nlb3_options(nlb_options):
     def validate(self, opts):
         if opts["warm-fpga-cache"] and opts["cool-fpga-cache"]:
             return False
-        if int(opts["begin"])%int(opts["multi-cl"]) > 0:
+        if int(opts["begin"]) % int(opts["multi-cl"]) > 0:
             return False
         if opts.get("end", opts["begin"]) * opts.get("strided-access") > 65535:
             return False
@@ -139,8 +146,9 @@ class nlb3_options(nlb_options):
 
 
 class mtnlb7_options(nlb_options):
+
     def const(self):
-        return {"mode":"mt7", "suppress-stats":True}
+        return {"mode": "mt7", "suppress-stats": True}
 
     @property
     def keys(self):
@@ -153,9 +161,11 @@ class mtnlb7_options(nlb_options):
                 "write-vc",
                 )
 
+
 class mtnlb8_options(nlb_options):
+
     def const(self):
-        return {"mode":"mt8", "suppress-stats":True}
+        return {"mode": "mt8", "suppress-stats": True}
 
     @property
     def keys(self):
@@ -177,14 +187,18 @@ class mtnlb8_options(nlb_options):
             return False
         return True
 
+
 def run_mux(muxfile, args, iteration=0):
     errcode = 0
     result = "PASS"
     stdout, stderr = None, None
     try:
         dirname = os.path.dirname(os.path.abspath(__file__))
-        p = subprocess.Popen('{} -m {} -s {}'.format(args.cmd, muxfile, args.socket_id), shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(
+            '{} -m {} -s {}'.format(args.cmd, muxfile, args.socket_id),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         timedout = False
         start_time = time.time()
         while p.poll() is None and time.time() - start_time < 30:
@@ -193,7 +207,7 @@ def run_mux(muxfile, args, iteration=0):
             p.terminate()
             result = "TIMEOUT"
             timedout = True
-        stderr,stdout = p.communicate()
+        stderr, stdout = p.communicate()
     except subprocess.CalledProcessError:
         result = "CRASH"
     else:
@@ -202,14 +216,15 @@ def run_mux(muxfile, args, iteration=0):
     print stdout
     print stderr
     if result == "PASS":
-        stdout,stderr = None, None
+        stdout, stderr = None, None
     result = {"result": result,
               "filename": muxfile,
               "iteration": iteration,
-              "stdout" : stdout,
-              "stderr" : stderr}
+              "stdout": stdout,
+              "stderr": stderr}
 
     return result
+
 
 def summarize(results):
     failures = 0
@@ -220,17 +235,18 @@ def summarize(results):
         if r["result"] == "PASS":
             passes += 1
         elif r["result"] == "FAIL":
-            failures +=1
+            failures += 1
         elif r["result"] == "CRASH":
             crashes += 1
         elif r["result"] == "TIMEOUT":
-            timeout +=1
-    return {"overview": {"failures":failures,
-            "passes": passes,
-            "crashes": crashes,
-            "timeout" : timeout,
-            "total": len(results)},
+            timeout += 1
+    return {"overview": {"failures": failures,
+                         "passes": passes,
+                         "crashes": crashes,
+                         "timeout": timeout,
+                         "total": len(results)},
             "results": results}
+
 
 def run(args):
     generator = args.generator
@@ -238,10 +254,10 @@ def run(args):
     n3 = nlb3_options()
     mt7 = mtnlb7_options()
     mt8 = mtnlb8_options()
-    engines = { "nlb0" : n0,
-                "nlb3" : n3,
-                "mtnlb7" : mt7,
-                "mtnlb8" : mt8 }
+    engines = {"nlb0": n0,
+               "nlb3": n3,
+               "mtnlb7": mt7,
+               "mtnlb8": mt8}
     results = []
     iterators = [getattr(engines[e], generator)() for e in args.engines]
     count = 1
@@ -249,28 +265,30 @@ def run(args):
     stop_on_fail = args.stop_on_fail
     while True:
         options = [
-                { "name" : "nlb0",
-                  "app"  : "nlb0",
-                  "config" : next(iterators[0]) },
-                { "name" : "nlb3",
-                  "app"  : "nlb3",
-                  "config" : next(iterators[1]) },
-                { "name" : "mtnlb7",
-                  "app"  : "mtnlb7",
-                  "config" : next(iterators[2]) },
-                { "name" : "mtnlb8",
-                  "app"  : "mtnlb8",
-                  "config" : next(iterators[3]) }
-                ]
+            {"name": "nlb0",
+             "app": "nlb0",
+             "config": next(iterators[0])},
+            {"name": "nlb3",
+             "app": "nlb3",
+             "config": next(iterators[1])},
+            {"name": "mtnlb7",
+             "app": "mtnlb7",
+             "config": next(iterators[2])},
+            {"name": "mtnlb8",
+             "app": "mtnlb8",
+             "config": next(iterators[3])}
+        ]
         for opt in options:
             if opt["name"] in args.disable:
                 opt["disabled"] = True
-
+        file_prefix = "mux-{}-{}-".format(count, generator)
         with tempfile.NamedTemporaryFile("w",
-                                         prefix="mux-{}-{}-".format(count, generator),
-                                         suffix=".json", delete=False, dir="muxfiles") as fd:
+                                         prefix=file_prefix,
+                                         suffix=".json",
+                                         delete=False,
+                                         dir="muxfiles") as fd:
             json.dump(options, fd, indent=4, sort_keys=True)
-        print count, "running with: " ,fd.name
+        print count, "running with: ", fd.name
         count += 1
         try:
             result = run_mux(fd.name, args, count)
@@ -286,7 +304,8 @@ def run(args):
             if stop_on_fail:
                 break
         if args.timeout is not None:
-            if (datetime.datetime.now() - start_time).total_seconds() > args.timeout:
+            total_sec = (datetime.datetime.now() - start_time).total_seconds()
+            if total_sec > args.timeout:
                 break
         if args.max_iterations is not None:
             if count > args.max_iterations:
@@ -310,11 +329,8 @@ def retry(args):
                     config["name"] = "mtnlb7"
                 elif config["config"].get("mode") == "mt8":
                     config["name"] = "mtnlb8"
-                if config["config"].get("mode") == "mt7" or config["name"] == "nlb3":
-                    config["disable"] = False
-                else:
-                    config["disable"] = True
-            rerunfile =  result["filename"].replace("random", "rerun")
+                config["disable"] = True
+            rerunfile = result["filename"].replace("random", "rerun")
             print rerunfile
             with open(rerunfile, "w") as fd:
                 json.dump(configs, fd, indent=4, sort_keys=True)
@@ -322,16 +338,15 @@ def retry(args):
     return retries
 
 
-
-
-
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("cmd")
-    parser.add_argument('-s', '--socket-id', default=0, choices=[0,1], type=int)
-    parser.add_argument("-g", "--generator", default="iter", choices=["iter", "random"],
-                        help="generator type for generating options")
+    parser.add_argument(
+        '-s', '--socket-id', default=0, choices=[0, 1], type=int)
+    parser.add_argument(
+        "-g", "--generator", default="iter", choices=["iter", "random"],
+        help="generator type for generating options")
     parser.add_argument("-m", "--max-iterations", type=int,
                         help="maximum number of iterations to execute")
     parser.add_argument("-t", "--timeout", type=float,
@@ -340,7 +355,8 @@ if __name__ == "__main__":
                         help="stop running after first failure")
     parser.add_argument("--retry",
                         help="run failed cases from a results file")
-    parser.add_argument("--engines", nargs="+", default=["nlb0", "nlb3", "mtnlb7", "mtnlb8"])
+    parser.add_argument("--engines", nargs="+",
+                        default=["nlb0", "nlb3", "mtnlb7", "mtnlb8"])
     parser.add_argument("--disable", nargs="*", default=[])
     args = parser.parse_args()
     if not os.path.exists("muxfiles"):
@@ -352,5 +368,7 @@ if __name__ == "__main__":
             json.dump(summarize(retries), fd, indent=4, sort_keys=True)
     else:
         results = run(args)
-        with open("mux-results-{}.json".format(datetime.datetime.now().isoformat('_')), "w") as fd_results:
+        datestr = datetime.datetime.now().isoformat('_')
+        fname = "mux-results-{}.json".format(datestr)
+        with open(fname, "w") as fd_results:
             json.dump(summarize(results), fd_results, indent=4, sort_keys=True)
