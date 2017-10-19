@@ -383,7 +383,7 @@ bool nlb3::setup()
             cont_timeout_ += minutes(timeout_min);
         }
         uint32_t timeout_hour = 0;
-        if (options_.get_value<uint32_t>("timeout-hours", timeout_hour))
+        if (options_.get_value<uint32_t>("timeout-hour", timeout_hour))
         {
             cont_timeout_ += hours(timeout_hour);
         }
