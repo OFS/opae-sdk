@@ -76,9 +76,10 @@ public:
         {
             fpgaReleaseBuffer(handle_, wsid_);
             handle_ = nullptr;
-            virtual_address_ = 0;
-            iova_ = 0;
         }
+        virtual_address_ = 0;
+        iova_ = 0;
+        parent_.reset();
     }
 
     template <typename T>
