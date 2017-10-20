@@ -79,6 +79,11 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint32_t *value)
 {
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
 	} else {
@@ -103,6 +108,10 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint64_t value)
 {
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
@@ -126,6 +135,10 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint64_t *value)
 {
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
