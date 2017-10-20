@@ -24,9 +24,9 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 import os
 import os.path
+from sysfs import sysfsinfo
 from fpga_common import (
     global_arguments,
     fpga_command,
@@ -41,7 +41,8 @@ PORT_REVISION = os.path.join(PORT_DEVICE, 'errors/revision')
 
 
 class error_mask(object):
-    bitmasks = []
+    _name = None
+    _bitmasks = []
 
     def __init__(self, value):
         self.value = value
@@ -49,16 +50,17 @@ class error_mask(object):
     def __str__(self):
         s = '{:32} : 0x{:02x}\n'.format('Raw Value', self.value)
         if self.value:
-            for name, bm in self.bitmasks:
+            for name, bm in self._bitmasks:
                 s += '{:32} : 0x{:02x}\n'.format(name, bm(self.value))
         return s
 
     def data(self):
-        return dict([(name, bm(self.value)) for (name, bm) in self.bitmasks])
+        return dict([(name, bm(self.value)) for (name, bm) in self._bitmasks])
 
 
 class fme_errors(error_mask):
-    bitmasks = [
+    _name = "fme"
+    _bitmasks = [
         ("CvlCdcParErro0", bitmask(17, 19)),
         ("Pcie1CdcParErr", bitmask(12, 16)),
         ("Pcie0CdcParErr", bitmask(7, 11)),
@@ -72,7 +74,8 @@ class fme_errors(error_mask):
 
 
 class bbs_errors(error_mask):
-    bitmasks = [
+    _name = "bbs"
+    _bitmasks = [
         ("InjectedCatastErr", bitmask(11, 11)),
         ("ThermCatastErr", bitmask(10, 10)),
         ("CrcCatastErr", bitmask(9, 9)),
@@ -89,7 +92,8 @@ class bbs_errors(error_mask):
 
 
 class port_errors(error_mask):
-    bitmasks = [
+    _name = "port"
+    _bitmasks = [
         ("VfFlrAccessError", bitmask(51, 51)),
         ("Ap6Event", bitmask(50, 50)),
         ("PMRError", bitmask(49, 49)),
@@ -125,7 +129,8 @@ class port_errors(error_mask):
 
 
 class pcie0_errors(error_mask):
-    bitmasks = [
+    _name = "pcie0"
+    _bitmasks = [
         ("FunctTypeErr", bitmask(63, 63)),
         ("VFNumb", bitmask(62, 62)),
         ("RxPoisonTlpErr", bitmask(9, 9)),
@@ -142,7 +147,8 @@ class pcie0_errors(error_mask):
 
 
 class pcie1_errors(error_mask):
-    bitmasks = [
+    _name = "pcie1"
+    _bitmasks = [
         ("RxPoisonTlpErr", bitmask(9, 9)),
         ("ParityErr", bitmask(8, 8)),
         ("CompTimeOutErr", bitmask(7, 7)),
@@ -157,7 +163,8 @@ class pcie1_errors(error_mask):
 
 
 class gbs_errors(error_mask):
-    bitmasks = [
+    _name = "gbs"
+    _bitmasks = [
         ("MBPErr", bitmask(12, 12)),
         ("PowerThreshAP2", bitmask(11, 11)),
         ("PowerThreshAP1", bitmask(10, 10)),
@@ -173,7 +180,8 @@ class gbs_errors(error_mask):
 
 
 class first_errors(error_mask):
-    bitmasks = [
+    _name = "first_error"
+    _bitmasks = [
         ("TxReqCounterOverflow", bitmask(40, 40)),
         ("TxCh2FifoOverflow", bitmask(33, 33)),
         ("MMIOTimedOut", bitmask(32, 32)),
@@ -196,7 +204,8 @@ class first_errors(error_mask):
 
 
 class nonfatal_errors(error_mask):
-    bitmasks = [
+    _name = "nonfatal"
+    _bitmasks = [
         ("MBPErr", bitmask(12, 12)),
         ("PowerThreshAP2", bitmask(11, 11)),
         ("PowerThreshAP1", bitmask(10, 10)),
@@ -212,7 +221,8 @@ class nonfatal_errors(error_mask):
 
 
 class fatal_errors(error_mask):
-    bitmasks = [
+    _name = "catfatal"
+    _bitmasks = [
         ("InjectedCatastErr", bitmask(11, 11)),
         ("ThermCatastErr", bitmask(10, 10)),
         ("CrcCatastErr", bitmask(9, 9)),
@@ -228,47 +238,34 @@ class fatal_errors(error_mask):
     ]
 
 
-err_classes_rev0 = {
-    "fme": fme_errors,
-    "port": port_errors,
-    "pcie0": pcie0_errors,
-    "pcie1": pcie1_errors,
-    "gbs": gbs_errors,
-    "bbs": bbs_errors,
-    "first_error": first_errors,
-}
-
-
-err_classes_rev1 = {
-    "fme": fme_errors,
-    "port": port_errors,
-    "pcie0": pcie0_errors,
-    "pcie1": pcie1_errors,
-    "gbs": nonfatal_errors,
-    "bbs": fatal_errors,
-    "first_error": first_errors,
+err_classes = {
+    "fme": {
+        0: [fme_errors, pcie0_errors, pcie1_errors,
+            gbs_errors, bbs_errors],
+        1: [fme_errors, pcie0_errors, pcie1_errors,
+            nonfatal_errors, fatal_errors]
+    },
+    "port": {
+        0: [port_errors, first_errors],
+        1: [port_errors, first_errors]
+    }
 }
 
 
 class errors_command(fpga_command):
-
     name = 'errors'
 
-    @staticmethod
-    def get_revision(args):
-        revpath = "unsupported"
-        if args.which == 'fme':
-            revpath = FME_REVISION
-        elif args.which == 'port':
-            revpath = PORT_REVISION
-        revpath = revpath.format(socket_id=args.socket_id)
-        if os.path.isfile(revpath):
-            with open(revpath, 'r') as fd:
-                value = fd.read().strip()
-            if value != 0:
-                return value
-            else:
-                return 0
+    def __init__(self, parser):
+        self._info = sysfsinfo()
+        fme_rev = self._info.fme()[0].errors_revision
+        port_rev = self._info.port()[0].errors_revision
+        self._fme_revision = fme_rev
+        self._port_revision = port_rev
+        self._cmd_classes = err_classes["fme"][self._fme_revision]
+        self._cmd_classes += err_classes["port"][self._port_revision]
+        self._cmd_list = [c._name for c in self._cmd_classes]
+        self._cmd_dict = dict([(c._name, c) for c in self._cmd_classes])
+        super(errors_command, self).__init__(parser)
 
     def args(self, parser):
         parser.add_argument('-c', '--clear', action='store_true',
@@ -276,30 +273,21 @@ class errors_command(fpga_command):
                             help='specify whether or not'
                             ' to clear error registers')
 
-        parser.add_argument('which', choices=[
-            'fme',
-            'port',
-            'first_error',
-            'pcie0'
-            'pcie1', 'bbs', 'gbs', 'all'],
-            default='fme',
-            help='specify what kind of errors to operate on')
+        parser.add_argument('which',
+                            choices=self._cmd_list + ['all'],
+                            default='fme',
+                            help='specify what kind of errors to operate on')
 
     def run(self, args):
         if args.which == 'all':
-            for choice in [
-                'fme',
-                'port',
-                'first_error',
-                'pcie0',
-                'pcie1',
-                'bbs',
-                    'gbs']:
+            for choice in self._cmd_list:
                 args.which = choice
+                # clear only applies to fme and port errors
+                args.clear = args.clear and args.which in ['fme', 'port']
                 self.run(args)
+
             return
 
-        # assume one fme instance for now - instance is 0
         if args.which == 'fme':
             errpath = os.path.join(FME_ERRORS, 'fme-errors/errors')
         elif args.which == 'port':
@@ -310,34 +298,31 @@ class errors_command(fpga_command):
             errpath = os.path.join(FME_ERRORS, '{}_errors'.format(args.which))
         errpath = errpath.format(socket_id=args.socket_id)
         print errpath
-        try:
-            with open(errpath, 'r') as fd:
-                value = fd.read().strip()
-            # TODO : interpret the value
-        except IOError:
-            print "unsupported on this revision"
-            return
-        rev = errors_command.get_revision(args)
-        if rev == 0:
-            err_class = err_classes_rev0.get(args.which, error_mask)
-        else:
-            err_class = err_classes_rev1.get(args.which, error_mask)
-        errs = err_class(int(value, 16))
-        print errs
-        if errs.value and args.clear:
-            try:
-                clear_path = os.path.join(
-                    os.path.dirname(errpath), 'clear')
-            except IOError:
-                print "unsupported on this device"
-                return
-        with open(clear_path, 'w') as fd:
-            fd.write(value)
         with open(errpath, 'r') as fd:
             value = fd.read().strip()
-        radix = 16 if value.startswith('0x') else 10
-        errs = err_class(int(value, radix))
+
+        err_class = self._cmd_dict.get(args.which, error_mask)
+        errs = err_class(int(value, 16))
+
         print errs
+        if args.clear and args.which not in ['fme', 'port']:
+            print 'WARNING: --clear only applies to fme or port'
+            args.clear = False
+
+        if errs.value and args.clear:
+            clear_path = os.path.join(os.path.dirname(errpath), 'clear')
+            try:
+                with open(clear_path, 'w') as fd:
+                    fd.write(value)
+            except IOError:
+                print 'WARNING: Could not clear errors. May need to run as root'
+            else:
+                with open(errpath, 'r') as fd:
+                    value = fd.read().strip()
+                radix = 16 if value.startswith('0x') else 10
+                errs = err_class(int(value, radix))
+                print errs
+
 
 if __name__ == "__main__":
     import argparse
