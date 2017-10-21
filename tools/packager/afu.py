@@ -1,5 +1,5 @@
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -44,6 +44,7 @@ else:
 
 ARCHIVE_FORMAT = "zip"
 ARCHIVE_EXT = ".zip"
+
 
 class AFU(object):
     def __init__(self, afu_desc_file=None):
@@ -98,11 +99,13 @@ class AFU(object):
                         self.afu_json[curr_val[0]] = curr_val[1]
         except IndexError as e:
             print(e)
-            raise Exception("Invalid <key>:<value> pair passed using --set-value")
+            raise Exception(
+                "Invalid <key>:<value> pair passed using --set-value")
 
         if not self.validate():
-            raise Exception('AFU metadata validation failed after updating metadata '
-                                ' with values provided with --set_value')
+            raise Exception(
+                'AFU metadata validation failed after updating metadata '
+                ' with values provided with --set_value')
 
     def create_gbs(self, rbf_file, gbs_file, key_values=None):
         if key_values:
@@ -116,19 +119,38 @@ class AFU(object):
         if not os.path.exists(image_dir):
             os.makedirs(image_dir)
 
-        gbs_name = os.path.splitext(os.path.basename(self.afu_desc_file))[0] + GBS_EXT
+        gbs_name = os.path.splitext(
+            os.path.basename(
+                self.afu_desc_file))[0] + GBS_EXT
         gbs_path = os.path.join(image_dir, gbs_name)
         self.create_gbs(rbf_file, gbs_path)
 
-        shutil.copyfile(self.afu_desc_file,
-                os.path.join(image_dir, os.path.basename(self.afu_desc_file)))
+        shutil.copyfile(
+            self.afu_desc_file, os.path.join(
+                image_dir, os.path.basename(
+                    self.afu_desc_file)))
 
         package_dir = os.path.join(utils.get_work_dir(), "package")
-        shutil.make_archive(os.path.join(package_dir, "image_0"), ARCHIVE_FORMAT, image_dir)
+        shutil.make_archive(
+            os.path.join(
+                package_dir,
+                "image_0"),
+            ARCHIVE_FORMAT,
+            image_dir)
         if sw_dir:
-            shutil.make_archive(os.path.join(package_dir, "sw"), ARCHIVE_FORMAT, sw_dir)
+            shutil.make_archive(
+                os.path.join(
+                    package_dir,
+                    "sw"),
+                ARCHIVE_FORMAT,
+                sw_dir)
         if doc_dir:
-            shutil.make_archive(os.path.join(package_dir, "docs"), ARCHIVE_FORMAT, doc_dir)
+            shutil.make_archive(
+                os.path.join(
+                    package_dir,
+                    "docs"),
+                ARCHIVE_FORMAT,
+                doc_dir)
 
         shutil.make_archive(package_name, ARCHIVE_FORMAT, package_dir)
         shutil.rmtree(utils.get_work_dir())
