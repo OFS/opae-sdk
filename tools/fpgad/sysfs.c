@@ -33,10 +33,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "common_int.h"
 
-#define SYSFS_PATH_MAX 256
 
-int sysfs_read_u64(const char *path, uint64_t *u)
+fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 {
 	int fd;
 	int res;
@@ -44,20 +44,27 @@ int sysfs_read_u64(const char *path, uint64_t *u)
 	int b;
 
 	fd = open(path, O_RDONLY);
-	if (fd < 0)
-		return fd;
+	if (fd < 0) {
+		FPGA_MSG("open(%s) failed", path);
+		return FPGA_NOT_FOUND;
+	}
 
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET))
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		FPGA_MSG("seek failed");
 		goto out_close;
+	}
 
 	b = 0;
 
 	do {
 		res = read(fd, buf+b, sizeof(buf)-b);
-		if (res <= 0)
+		if (res <= 0) {
+			FPGA_MSG("Read from %s failed", path);
 			goto out_close;
+		}
 		b += res;
 		if ((b > sizeof(buf)) || (b <= 0)) {
+			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
@@ -68,10 +75,10 @@ int sysfs_read_u64(const char *path, uint64_t *u)
 	*u = strtoull(buf, NULL, 0);
 
 	close(fd);
-	return 0;
+	return FPGA_OK;
 
 out_close:
 	close(fd);
-	return -1;
+	return FPGA_NOT_FOUND;
 }
 
