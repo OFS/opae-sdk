@@ -411,7 +411,9 @@ bool nlb0::run()
             if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                            dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
-                log_.warn("nlb0") << "test timeout" << std::endl;
+                log_.error("nlb0") << "test timeout at "
+                                   << i << " cachelines." << std::endl;
+                return false;
             }
         }
         else
@@ -419,7 +421,9 @@ bool nlb0::run()
             if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                         dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
-                log_.warn("nlb0") << "test timeout" << std::endl;
+                log_.error("nlb0") << "test timeout at "
+                                   << i << " cachelines." << std::endl;
+                return false;
             }
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
