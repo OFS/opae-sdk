@@ -75,16 +75,22 @@ fpga_event::poll_result fpga_event::poll(int timeout_msec)
     bool timedout = false;
     while(!cancel_ && !timedout && num_events == 0)
     {
-        num_events = epoll_wait(epollfd_, events, 1, timeout_msec);
+        num_events = epoll_wait(epollfd_, events, 1, 0);
         if (timeout_msec > 0)
         {
-            timedout = high_resolution_clock::now() - begin > milliseconds(timeout_msec);
+            timedout = high_resolution_clock::now() - begin > milliseconds(timeout_msec) &&
+                       num_events == 0;
+        }
+
+        if (!timedout)
+        {
+            std::this_thread::sleep_for(microseconds(100));
         }
     }
 
     if (cancel_) return poll_result::canceled;
 
-    if (num_events == 0 && timeout_msec >= 0)
+    if (timedout)
     {
         return poll_result::timeout;
     }
