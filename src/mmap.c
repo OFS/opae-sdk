@@ -81,6 +81,24 @@ void *alloc_buffer(uint64_t len)
 
 int free_buffer(void *addr, uint64_t len)
 {
+	/* If the buffer allocation was backed by hugepages, then
+	 * len must be rounded up to the nearest hugepage size,
+	 * otherwise munmap will fail.
+	 *
+	 * Buffer with size larger than 2MB is backed by 1GB page(s),
+	 * round up the size to the nearest GB boundary.
+	 *
+	 * Buffer with size smaller than 2MB but larger than 4KB is
+	 * backed by a 2MB pages, round up the size to 2MB.
+	 *
+	 * Buffer with size smaller than 4KB is backed by a 4KB page,
+	 * and its size is already 4KB aligned.
+	 */
+
+	if (len > 2 * MB)
+		len = (len + (1 * GB - 1)) & (~(1 * GB - 1));
+	else if (len > 4 * KB)
+		len = 2 * MB;
 	if (munmap(addr, len)) {
 		FPGA_ERR("munmap failed");
 		return FPGA_INVALID_PARAM;
