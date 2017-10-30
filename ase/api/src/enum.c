@@ -127,13 +127,19 @@ matches_filters(const fpga_properties *filter, uint32_t num_filter,
 			else
 				*j = 1;
 		}
-
+		if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJECTID)) {
+			uint64_t objid;
+			fpga_result result;
+			result = objectid_for_ase(&objid);
+			if (result != FPGA_OK || _filter->object_id != objid) {
+				return false;
+			}
+		}
 		if (_filter->objtype != _tok->ase_objtype)
 			return false;
-
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
 			if (0 != memcmp(_tok->accelerator_id, _filter->guid,
-							sizeof(fpga_guid))) {
+					sizeof(fpga_guid))) {
 				BEGIN_RED_FONTCOLOR;
 				printf("  [APP]  Filter mismatch\n");
 				END_RED_FONTCOLOR;
@@ -198,7 +204,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 
 }
 
-fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token * token)
+fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 {
 	if (NULL == token || NULL == *token) {
 		FPGA_MSG("Invalid token pointer");
@@ -222,7 +228,7 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token * token)
 }
 
 fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
-					   fpga_properties * prop)
+					   fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
@@ -253,7 +259,7 @@ out_free:
 
 /* FIXME: make thread-safe? */
 fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
-					     fpga_properties * dst)
+					     fpga_properties *dst)
 {
 	struct _fpga_properties *_src = (struct _fpga_properties *) src;
 	struct _fpga_properties *_dst;
@@ -290,7 +296,7 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties * prop)
+fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
 
@@ -310,10 +316,10 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
 	struct _fpga_token *_token = (struct _fpga_token *) token;
 	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
-
+	fpga_result result;
 	struct _fpga_properties _iprop;
 
-	if (NULL == token)
+	if (token == NULL)
 		return FPGA_INVALID_PARAM;
 
 	if (_prop->magic != FPGA_PROPERTY_MAGIC) {
@@ -323,20 +329,22 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	if (ASE_TOKEN_MAGIC != _token->magic)
 		return FPGA_INVALID_PARAM;
-
 	//clear fpga_properties buffer
 	memset(&_iprop, 0, sizeof(struct _fpga_properties));
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
+	result = objectid_for_ase(&_iprop.object_id);
+	if (result == 0)
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 	if (ASE_TOKEN_MAGIC == _token->magic) {
 		// The input token is either an FME or an AFU.
-		if (0 == memcmp(_token->accelerator_id, FPGA_FME_GUID, sizeof(fpga_guid))) {
+		if (memcmp(_token->accelerator_id, FPGA_FME_GUID, sizeof(fpga_guid)) == 0) {
 			_iprop.objtype = FPGA_DEVICE;
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 			_iprop.device_id = ASE_ID;
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 		} else {
 			_iprop.parent = (fpga_token) token_get_parent(_token);
-			if (NULL != _iprop.parent)
+			if (_iprop.parent != NULL)
 				SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
 			_iprop.objtype = FPGA_ACCELERATOR;
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
@@ -349,7 +357,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetParent(const fpga_properties prop, fpga_token * parent)
+fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
 	fpga_result result = FPGA_INVALID_PARAM;
@@ -1007,4 +1015,48 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state s
 	return result;
 }
 
+fpga_result __FPGA_API__
+fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
 
+	ASSERT_NOT_NULL(object_id);
+
+	if (_prop == NULL)
+		return FPGA_INVALID_PARAM;
+	if (_prop->magic != FPGA_PROPERTY_MAGIC)
+		return FPGA_INVALID_PARAM;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID)) {
+		*object_id = _prop->object_id;
+	} else {
+		FPGA_MSG("No object_id");
+		result = FPGA_NOT_FOUND;
+	}
+
+	return result;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	if (_prop == NULL)
+		return FPGA_INVALID_PARAM;
+	if (_prop->magic != FPGA_PROPERTY_MAGIC)
+		return FPGA_INVALID_PARAM;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
+	_prop->object_id = object_id;
+
+	return FPGA_OK;
+}
+
+fpga_result objectid_for_ase(uint64_t *object_id)
+{
+	fpga_result result;
+
+	*object_id = ASE_OBJID;
+
+	return FPGA_OK;
+}

@@ -52,6 +52,7 @@
 #define FPGA_INVALID_MAGIC  0x46504741494e564c
 // ASE token Magic (FPGATOKN)
 #define ASE_TOKEN_MAGIC    0x46504741544f4b40
+#define ASE_OBJID          0x0000000000a53a53
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint64_t magic;
@@ -93,6 +94,7 @@ struct _fpga_properties {
 	uint8_t function;
 	uint8_t socket_id;
 	uint64_t device_id;
+	uint64_t object_id;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20

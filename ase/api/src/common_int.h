@@ -121,4 +121,5 @@ static struct _fpga_token aseToken[2] = {
 };
 void fpga_print(int loglevel, char *fmt, ...);
 struct _fpga_token *token_get_parent(struct _fpga_token *);
+fpga_result objectid_for_ase(uint64_t *object_id);
 #endif // ___FPGA_COMMON_INT_H__
