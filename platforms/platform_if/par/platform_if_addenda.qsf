@@ -1,0 +1,19 @@
+##
+## This platform library is imported into Quartus with:
+##
+##   source <path>/platform_if/par/platform_if_addenda.qsf
+##
+
+## Find the source tree relative to this script
+set this_script [dict get [ info frame 0 ] file]
+# Pop 2 levels (including the script name) off the path to find the root
+set PLATFORM_IF_SRC [file join {*}[lrange [file split $this_script] 0 end-2]]
+
+## Search path
+set_global_assignment -name SEARCH_PATH $PLATFORM_IF_SRC/rtl
+set_global_assignment -name SEARCH_PATH $PLATFORM_IF_SRC/rtl/device_if
+
+## Sources
+set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_if/ccip_if_pkg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_cfg/ccip_cfg_pkg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_cfg/local_mem_cfg_pkg.sv

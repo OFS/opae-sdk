@@ -80,6 +80,7 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
+add_subdirectory(platforms)
 add_subdirectory(tools/userclk)
 add_subdirectory(tools/fpgad)
 add_subdirectory(tools/mmlink)
@@ -163,16 +164,11 @@ set(CPACK_COMPONENT_ASESCRIPTS_GROUP       "ase")
 set(CPACK_COMPONENT_ASESAMPLECONFIG_GROUP  "ase")
 set(CPACK_COMPONENT_ASEEXTRA_GROUP         "ase")
 
-set(CPACK_COMPONENT_GROUP_LIBS_DESCRIPTION
-	"libopae-c")
-set(CPACK_COMPONENT_GROUP_DEVEL_DESCRIPTION
-	"OPAE headers, sample source, and documentation")
-set(CPACK_COMPONENT_GROUP_TOOLS_DESCRIPTION
-	"OPAE tool binaries")
-set(CPACK_COMPONENT_GROUP_ASE_DESCRIPTION
-	"OPAE AFU Simulation Environment")
-set(CPACK_COMPONENT_GROUP_ALL_DESCRIPTION
-        "OPAE meta package")
+set(CPACK_COMPONENT_GROUP_LIBS_DESCRIPTION  "libopae-c")
+set(CPACK_COMPONENT_GROUP_DEVEL_DESCRIPTION "OPAE headers, sample source, and documentation")
+set(CPACK_COMPONENT_GROUP_TOOLS_DESCRIPTION "OPAE tool binaries")
+set(CPACK_COMPONENT_GROUP_ASE_DESCRIPTION   "OPAE AFU Simulation Environment")
+set(CPACK_COMPONENT_GROUP_ALL_DESCRIPTION   "OPAE meta package")
 
 set(CPACK_COMPONENT_GROUP_DEVEL_DEPENDS libs)
 set(CPACK_COMPONENT_GROUP_TOOLS_DEPENDS libs)

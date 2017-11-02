@@ -1,0 +1,68 @@
+{
+   "version": 1,
+   "description": "Default values for platform configuration",
+   "comment":
+      [
+         "Some module arguments describe interfaces that have platform-specific",
+         "configuration.  Default values for expected configuration parameters",
+         "may be set here.",
+         "",
+         "Individual platforms may override these values by setting the same",
+         "parameters in a 'params' key in a module-arguments-offered class.",
+         "",
+         "Setting a parameter to null will keep it from being emitted.",
+         "platforms can use this to avoid emitting one of the default entries.",
+         "",
+         "Keys named 'comment' are ignored."
+      ],
+   "module-argument-params" :
+      {
+         "local-memory":
+            {
+               "comment":
+                  [
+                     "These properties all apply to a single bank.  It is assumed that",
+                     "all banks are configured identically."
+                  ],
+               "addr-width": 26,
+               "data-width": 512,
+               "burst-cnt-width": 7
+            },
+         "cci-p":
+            {
+               "comment":
+                  [
+                     "Masks of request classes supported by the platform.",
+                     "The required enumeration is defined in platform_cap_ccip_pkg.sv"
+                  ],
+               "c0-supported-reqs": "(C0_REQ_RDLINE_S | C0_REQ_RDLINE_I)",
+               "c1-supported-reqs": "(C1_REQ_WRLINE_S | C1_REQ_WRLINE_I | C1_REQ_WRFENCE)",
+
+               "comment":
+                  [
+                     "Boolean (0/1) properties of whether each virtual channel",
+                     "is supported by the platform, indexed by t_ccip_vc."
+                  ],
+               "vc-supported": "{ 1, 1, 1, 1 }",
+
+               "comment":
+                  [
+                     "Boolean (0/1) properties of whether each possible request size",
+                     "is supported by the platform, indexed by t_ccip_clLen."
+                  ],
+               "cl-len-supported": "{ 1, 1, 0, 1 }",
+
+               "comment":
+                  [
+                     "Minimum number of outstanding lines that must be in flight to",
+                     "saturate bandwidth on each virtual channel.  (Index of the parameter",
+                     "is the virtual channel number.)  Maximum bandwidth is typically a",
+                     "function of the number lines in flight, indepent of request sizes."
+                  ],
+               "max-bw-active-lines-c0": "{ 768, 512, 256, 256 }",
+               "max-bw-active-lines-c1": "{ 512, 256, 128, 128 }",
+
+               "max-outstanding-mmio-rd-reqs": 32
+            }
+      }
+}
