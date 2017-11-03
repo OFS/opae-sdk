@@ -81,7 +81,7 @@ class fpga_command(object):
         pass
 
     def run(self, args):
-        raise NotImplemented
+        raise NotImplementedError
 
     def fme_feature_is_supported(self, path):
         return os.path.isfile(path)

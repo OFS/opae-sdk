@@ -180,7 +180,7 @@ class temp_command(cmd.fpga_command):
                 feature_path):
             with open(feature_path, "r") as fd:
                 value = fd.read().strip().lower()
-	        radix = 16 if value.startswith('0x') else 10
+            radix = 16 if value.startswith('0x') else 10
             return str(int(value, radix))
 
     def printValue(self, ftr):
