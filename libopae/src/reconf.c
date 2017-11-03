@@ -252,25 +252,6 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 		return result;
 	}
 
-	// FIXME Fix threshold2 calculation.
-	// FPGA threshold2 =  110% (FPGA threshold1)
-	fpga_power = fpga_power + FPGA_THRESHOLD2(fpga_power);
-	if (fpga_power > FPGA_MAX_POWER) {
-		FPGA_ERR("Invalid power threshold 2");
-		result = FPGA_NOT_SUPPORTED;
-		return result;
-	}
-
-	// set fpga threshold 2
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD2);
-	FPGA_DBG(" FPGA Threshold2             :%ld watts\n", fpga_power);
-
-	result = sysfs_write_u64(sysfs_path, fpga_power);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to write power threshold 2");
-		return result;
-	}
-
 	return result;
 }
 
@@ -287,6 +268,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	struct gbs_metadata  metadata   = {0};
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
+	int err                         = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -375,56 +357,57 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 
 	result = ioctl(_handle->fddev, FPGA_FME_PORT_PR, &port_pr);
 	if (result != 0) {
-		FPGA_MSG("Failed to reconfigure bitstream");
+		FPGA_ERR("Failed to reconfigure bitstream: %s",
+			  strerror(errno));
 
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
+		if ((errno == EINVAL) || (errno == EFAULT)) {
 			result = FPGA_INVALID_PARAM;
 		} else {
 			result = FPGA_EXCEPTION;
 		}
-		goto out_unlock;
 	}
 
 	// PR error
 	error.csr = port_pr.status;
 
 	if (error.reconf_operation_error == 0x1) {
-		FPGA_MSG("PR operation error detected");
+		FPGA_ERR("PR operation error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_CRC_error == 0x1) {
-		FPGA_MSG("PR CRC error detected");
+		FPGA_ERR("PR CRC error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_incompatible_bitstream_error == 0x1) {
-		FPGA_MSG("PR incompatible bitstream error detected");
+		FPGA_ERR("PR incompatible bitstream error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_IP_protocol_error == 0x1) {
-		FPGA_MSG("PR IP protocol error detected");
+		FPGA_ERR("PR IP protocol error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_FIFO_overflow_error == 0x1) {
-		FPGA_MSG("PR FIFO overflow error detected");
+		FPGA_ERR("PR FIFO overflow error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_timeout_error == 0x1) {
-		FPGA_MSG("PR timeout error detected");
+		FPGA_ERR("PR timeout error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_secure_load_error == 0x1) {
-		FPGA_MSG("PR secure load error detected");
+		FPGA_ERR("PR secure load error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

@@ -35,6 +35,10 @@
 
 #include "ase_common.h"
 
+// IPC control list
+static char ipclist_filepath[ASE_FILEPATH_LEN];
+
+
 // -----------------------------------------------------------------------
 // create_ipc_listfile : Creates a log of IPC structures opened by
 //                       this ASE session. This will be looked up so a
@@ -45,7 +49,7 @@ void create_ipc_listfile(void)
 	FUNC_CALL_ENTRY;
 
 	// Allocate memory, fail if not possible
-	ipclist_filepath = ase_malloc(ASE_FILEPATH_LEN);
+    memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Create IPC file path length
 	snprintf(ipclist_filepath, ASE_FILEPATH_LEN, "%s/%s",
@@ -103,6 +107,7 @@ void final_ipc_cleanup(void)
 
 	char *ipc_line;
 	size_t ipc_line_len = 0;
+	char *saveptr;
 
 	ipc_line = ase_malloc(ASE_FILEPATH_LEN + 16);
 
@@ -120,8 +125,8 @@ void final_ipc_cleanup(void)
 		    ("Removing message queues and buffer handles ... \n");
 		while (getline(&ipc_line, &ipc_line_len, local_ipc_fp) !=
 		       -1) {
-			ipc_type = strtok(ipc_line, " \t");
-			ipc_name = strtok(NULL, " \t");
+			ipc_type = strtok_r(ipc_line, " \t", &saveptr);
+			ipc_name = strtok_r(NULL, " \t", &saveptr);
 			if ((ipc_type == NULL) || (ipc_name == NULL)) {
 				ASE_DBG("Ignoring ipc_line_len\n");
 			} else {

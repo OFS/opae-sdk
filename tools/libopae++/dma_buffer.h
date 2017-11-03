@@ -67,10 +67,17 @@ public:
 
     ~dma_buffer()
     {
+        release();
+    }
+
+    void release()
+    {
         if (handle_ != nullptr)
         {
             fpgaReleaseBuffer(handle_, wsid_);
             handle_ = nullptr;
+            virtual_address_ = 0;
+            iova_ = 0;
         }
     }
 

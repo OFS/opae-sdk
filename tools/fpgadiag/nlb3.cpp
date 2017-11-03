@@ -49,10 +49,7 @@ nlb3::nlb3()
 , target_("fpga")
 , mode_("read")
 , afu_id_("F7DF405C-BD7A-CF72-22F1-44B0B93ACD18")
-, wkspc_size_(GB(1))
-, dsm_size_(MB(4))
-, inp_size_(MB(4))
-, out_size_(MB(4))
+, dsm_size_(MB(2))
 , num_strides_(0)
 , step_(1)
 , begin_(1)
@@ -62,6 +59,8 @@ nlb3::nlb3()
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
+, cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
@@ -95,6 +94,7 @@ nlb3::nlb3()
     options_.add_option<uint32_t>("freq",            'T', option::with_argument, "Clock frequence (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("suppress-stats",               option::no_argument,   "Show stas at end", suppress_stats_);
 }
 
 nlb3::~nlb3()
@@ -104,6 +104,7 @@ nlb3::~nlb3()
 bool nlb3::setup()
 {
     options_.get_value<std::string>("target", target_);
+    options_.get_value<bool>("suppress-stats", suppress_stats_);
     if (target_ == "fpga")
     {
         dsm_timeout_ = FPGA_DSM_TIMEOUT;
@@ -330,6 +331,7 @@ bool nlb3::setup()
     // begin, end
     options_.get_value<uint32_t>("begin", begin_);
     options_.get_value<uint32_t>("end", end_);
+    auto end_opt = options_.find("end");
 
     if (begin_ > MAX_CL)
     {
@@ -343,17 +345,17 @@ bool nlb3::setup()
         return false;
     }
 
-    if (options_.get_value<uint32_t>("end", end_))
+    if (end_opt && !end_opt->is_set())
+    {
+        end_ = begin_;
+    }
+    else
     {
         if (end_ < begin_)
         {
             log_.warn("nlb3") << "end: " << end_ << " is less than begin: " << begin_ << std::endl;
             end_ = begin_;
         }
-    }
-    else
-    {
-        end_ = begin_;
     }
 
     if (strided_acs * end_ > MAX_CL)
@@ -395,32 +397,56 @@ bool nlb3::setup()
     options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
 
+    // FIXME: use actual size for dsm size
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm_) {
+        log_.error("nlb3") << "failed to allocate DSM workspace." << std::endl;
+        return false;
+    }
     return true;
 }
 
 bool nlb3::run()
 {
-    // Allocate one large workspace, then carve it up amongst
-    // DSM, Input, and Output buffers.
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        log_.error("nlb3") << "failed to allocate workspace." << std::endl;
+    dma_buffer::ptr_t ice;
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
+
+    std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
+
+    // Allocate the smallest possible workspaces for DSM, Input and Output
+    // buffers.
+    ice = accelerator_->allocate_buffer(static_cast<size_t>
+                                (nlb_cache_cool::fpga_cache_cool_size));
+    if (!ice) {
+        log_.error("nlb3") << "failed to allocate ICE workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_,
-            { dsm_size_, static_cast<size_t>(nlb_cache_cool::fpga_cache_cool_size),
-            inp_size_, out_size_});
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t ice = bufs[1];
-    dma_buffer::ptr_t inp = bufs[2];
-    dma_buffer::ptr_t out = bufs[3];
+    if (!inp) {
+        log_.error("nlb3") << "failed to allocate input workspace." << std::endl;
+        return false;
+    }
+    if (!out) {
+        log_.error("nlb3") << "failed to allocate output workspace." << std::endl;
+        return false;
+    }
 
     const uint32_t read_data = 0xc0cac01a;
 
-    dsm->fill(0);
+    dsm_->fill(0);
     inp->fill(read_data);
     out->fill(0);
 
@@ -429,17 +455,6 @@ bool nlb3::run()
         log_.error("nlb3") << "accelerator reset failed." << std::endl;
         return false;
     }
-
-    // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 0);
-    // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 1);
-    // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm->iova());
-    // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
-    // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
 
     // prime cache
     bool do_cool_fpga = false;
@@ -457,7 +472,7 @@ bool nlb3::run()
 
     if (do_cool_fpga)
     {
-        nlb_cache_cool cooler(target_, accelerator_, dsm, ice);
+        nlb_cache_cool cooler(target_, accelerator_, dsm_, ice);
         cooler.cool();
     }
 
@@ -471,27 +486,39 @@ bool nlb3::run()
         {
             if (do_read_warm_fpga)
             {
-                nlb_read_cache_warm warmer(target_, accelerator_, dsm, inp, out);
+                nlb_read_cache_warm warmer(target_, accelerator_, dsm_, inp, out);
                 warmer.warm();
             }
 
             if (do_write_warm_fpga)
             {
-                nlb_write_cache_warm warmer(target_, accelerator_, dsm, inp, out);
+                nlb_write_cache_warm warmer(target_, accelerator_, dsm_, inp, out);
                 warmer.warm();
             }
         }
     }
-
+    std::vector<uint32_t> cpu_cool_buff(0);
     if (do_cool_cpu)
     {
-        std::vector<uint8_t> buffer(max_cpu_cache_size);
+        cpu_cool_buff.resize(max_cpu_cache_size/sizeof(uint32_t));
         uint32_t i = 0;
-        for (auto & it : buffer)
+        for (auto & it : cpu_cool_buff)
         {
             it = i++;
         }
     }
+
+
+    // assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 0);
+    // de-assert afu reset
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 1);
+    // set dsm base, high then low
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm_->iova());
+    // set input workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    // set output workspace address
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
 
     // set the test mode
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::cfg), 0);
@@ -499,10 +526,12 @@ bool nlb3::run()
     // set the stride value
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::strided_acs), num_strides_);
 
+
+    dsm_tuple dsm_tpl;
     // run tests
     for (uint32_t i = begin_; i <= end_; i+=step_)
     {
-        dsm->fill(0);
+        dsm_->fill(0);
         out->fill(0);
 
         // assert afu reset
@@ -514,9 +543,13 @@ bool nlb3::run()
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::num_lines), i);
 
         // Read perf counters.
-        fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
-        fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
-
+        fpga_cache_counters  start_cache_ctrs ;
+        fpga_fabric_counters start_fabric_ctrs;
+        if (!suppress_stats_)
+        {
+            start_cache_ctrs  = accelerator_->cache_counters();
+            start_fabric_ctrs = accelerator_->fabric_counters();
+        }
         // start the test
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 3);
 
@@ -525,7 +558,7 @@ bool nlb3::run()
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 7);
-            if (!dsm->wait(static_cast<size_t>(nlb3_dsm::test_complete),
+            if (!dsm_->wait(static_cast<size_t>(nlb3_dsm::test_complete),
                         dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
                 log_.warn("nlb3") << "test timeout" << std::endl;
@@ -533,7 +566,7 @@ bool nlb3::run()
         }
         else
         {
-            if (!dsm->wait(static_cast<size_t>(nlb3_dsm::test_complete),
+            if (!dsm_->wait(static_cast<size_t>(nlb3_dsm::test_complete),
                         dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
                 log_.warn("nlb3") << "test timeout" << std::endl;
@@ -541,20 +574,30 @@ bool nlb3::run()
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 7);
         }
+        cachelines_ += i;
+        // if we don't suppress stats then we show them at the end of each iteration
+        if (!suppress_stats_)
+        {
+            // Read Perf Counters
+            fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
+            fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
 
-        // Read Perf Counters
-        fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
-        fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
-
-        std::cout << intel::fpga::nlb::nlb_stats(dsm,
-                                                 i,
-                                                 end_cache_ctrs - start_cache_ctrs,
-                                                 end_fabric_ctrs - start_fabric_ctrs,
-                                                 frequency_,
-                                                 cont_,
-                                                 suppress_header_,
-                                                 csv_format_);
+            std::cout << intel::fpga::nlb::nlb_stats(dsm_,
+                                                     i,
+                                                     end_cache_ctrs - start_cache_ctrs,
+                                                     end_fabric_ctrs - start_fabric_ctrs,
+                                                     frequency_,
+                                                     cont_,
+                                                     suppress_header_,
+                                                     csv_format_);
+        }
+        else
+        {
+            // if we suppress stats, add the current dsm stats to the rolling tuple
+            dsm_tpl += dsm_tuple(dsm_);
+        }
     }
+    dsm_tpl.put(dsm_);
 
     return true;
 }

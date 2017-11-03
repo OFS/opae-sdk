@@ -42,6 +42,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *pr
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
 	pthread_mutexattr_t mattr;
+	int err = 0;
 
 	ASSERT_NOT_NULL(prop);
 
@@ -83,10 +84,14 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *pr
 	return result;
 
 out_mutex_destroy:
-	pthread_mutex_destroy(&_prop->lock);
+	err = pthread_mutex_destroy(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_destroy() failed: %s", strerror(err));
 
 out_attr_destroy:
-	pthread_mutexattr_destroy(&mattr);
+	err = pthread_mutexattr_destroy(&mattr);
+	if (err)
+		FPGA_ERR("pthread_mutexatr_destroy() failed: %s", strerror(err));
 
 out_free:
 	free(_prop);
@@ -97,6 +102,7 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -104,7 +110,9 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 
 	_prop->valid_fields = 0;
 
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -113,6 +121,7 @@ fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
 {
 	struct _fpga_properties *_src = (struct _fpga_properties *)src;
 	struct _fpga_properties *_dst;
+	int err = 0;
 	pthread_mutexattr_t mattr;
 	fpga_result result;
 
@@ -124,13 +133,17 @@ fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
 	_dst = malloc(sizeof(struct _fpga_properties));
 	if (NULL == _dst) {
 		FPGA_MSG("Failed to allocate memory for properties");
-		pthread_mutex_unlock(&_src->lock);
+		err = pthread_mutex_unlock(&_src->lock);
+		if (err)
+			FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 		return FPGA_NO_MEMORY;
 	}
 
 	*_dst = *_src;
 
-	pthread_mutex_unlock(&_src->lock);
+	err = pthread_mutex_unlock(&_src->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 
 	/* we just copied a locked mutex, so reinitialize it */
 	if (pthread_mutexattr_init(&mattr)) {
@@ -163,6 +176,7 @@ fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(prop);
 
@@ -174,8 +188,12 @@ fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 	// invalidate magic (just in case)
 	_prop->magic = FPGA_INVALID_MAGIC;
 
-	pthread_mutex_unlock(&_prop->lock);
-	pthread_mutex_destroy(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	err = pthread_mutex_destroy(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_destroy() failed: %s", strerror(err));
 
 	free(*prop);
 	*prop = NULL;
@@ -197,6 +215,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	int device_id;
 	int res;
 	errno_t e;
+	int err = 0;
 
 	pthread_mutex_t lock;
 
@@ -313,12 +332,16 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_iprop.function = (uint8_t) f;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
+	// only set socket id if we have it on sysfs
 	result = sysfs_get_socket_id(device_id, &_iprop.socket_id);
-	if (result)
-		return result;
+	if (0 == result)
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
+	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
+	if (0 == result)
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 
+	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
@@ -331,7 +354,9 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	*_prop = _iprop;
 	_prop->lock = lock;
 
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 
 	return FPGA_OK;
 }
@@ -341,6 +366,7 @@ fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(parent);
 	result = prop_check_and_lock(_prop);
@@ -356,7 +382,9 @@ fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 		result = FPGA_NOT_FOUND;
 	}
 
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -365,6 +393,7 @@ fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -373,7 +402,9 @@ fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
 	_prop->parent = parent;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
 
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -382,6 +413,7 @@ fpgaPropertiesGetObjectType(const fpga_properties prop, fpga_objtype *objtype)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(objtype);
 	result = prop_check_and_lock(_prop);
@@ -395,7 +427,9 @@ fpgaPropertiesGetObjectType(const fpga_properties prop, fpga_objtype *objtype)
 		result = FPGA_NOT_FOUND;
 	}
 
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -404,6 +438,7 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -412,8 +447,9 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 	_prop->objtype = objtype;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -421,6 +457,7 @@ fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop, uint8_
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(bus);
 	result = prop_check_and_lock(_prop);
@@ -434,8 +471,9 @@ fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop, uint8_
 		result = FPGA_NOT_FOUND;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -444,6 +482,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -452,8 +491,9 @@ fpga_result __FPGA_API__ fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
 	_prop->bus = bus;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_BUS);
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -463,6 +503,7 @@ fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(device);
 	result = prop_check_and_lock(_prop);
@@ -476,8 +517,9 @@ fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 		result = FPGA_NOT_FOUND;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -486,6 +528,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetDevice(fpga_properties prop, uint8_t d
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	// PCIe supports 32 devices per bus.
 	if (device > 31) {
@@ -500,8 +543,9 @@ fpga_result __FPGA_API__ fpgaPropertiesSetDevice(fpga_properties prop, uint8_t d
 	_prop->device = device;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_DEVICE);
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -511,6 +555,7 @@ fpgaPropertiesGetFunction(const fpga_properties prop, uint8_t *function)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(function);
 	result = prop_check_and_lock(_prop);
@@ -524,8 +569,9 @@ fpgaPropertiesGetFunction(const fpga_properties prop, uint8_t *function)
 		result = FPGA_NOT_FOUND;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -535,6 +581,7 @@ fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	// PCIe supports 8 functions per device.
 	if (function > 7) {
@@ -549,8 +596,9 @@ fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 	_prop->function = function;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_FUNCTION);
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -559,6 +607,7 @@ fpgaPropertiesGetSocketID(const fpga_properties prop, uint8_t *socket_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(socket_id);
 	result = prop_check_and_lock(_prop);
@@ -572,8 +621,9 @@ fpgaPropertiesGetSocketID(const fpga_properties prop, uint8_t *socket_id)
 		result = FPGA_NOT_FOUND;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -582,6 +632,7 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -590,8 +641,9 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 	_prop->socket_id = socket_id;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID);
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -614,6 +666,7 @@ fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(num_slots);
 	result = prop_check_and_lock(_prop);
@@ -635,8 +688,9 @@ fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -645,6 +699,7 @@ fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -661,8 +716,9 @@ fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -671,6 +727,7 @@ fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(bbs_id);
 	result = prop_check_and_lock(_prop);
@@ -692,8 +749,9 @@ fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -702,6 +760,7 @@ fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -718,8 +777,9 @@ fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -730,6 +790,7 @@ fpgaPropertiesGetBBSVersion(const fpga_properties prop,
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(bbs_version);
 	result = prop_check_and_lock(_prop);
@@ -751,8 +812,9 @@ fpgaPropertiesGetBBSVersion(const fpga_properties prop,
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -762,6 +824,7 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop,
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -778,8 +841,9 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop,
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -848,6 +912,7 @@ fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop, fpga_
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(guid);
 	result = prop_check_and_lock(_prop);
@@ -869,8 +934,9 @@ fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop, fpga_
 		result = FPGA_NOT_FOUND;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -879,6 +945,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid g
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
 	errno_t e;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -894,8 +961,9 @@ fpga_result __FPGA_API__ fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid g
 		result = FPGA_OK;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -904,6 +972,7 @@ fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(mmio_spaces);
 	result = prop_check_and_lock(_prop);
@@ -925,8 +994,9 @@ fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -935,6 +1005,7 @@ fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -951,8 +1022,9 @@ fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -962,6 +1034,7 @@ fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(num_interrupts);
 	result = prop_check_and_lock(_prop);
@@ -983,8 +1056,9 @@ fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -994,6 +1068,7 @@ fpgaPropertiesSetNumInterrupts(fpga_properties prop,
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -1010,8 +1085,9 @@ fpgaPropertiesSetNumInterrupts(fpga_properties prop,
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -1020,6 +1096,7 @@ fpgaPropertiesGetAcceleratorState(const fpga_properties prop, fpga_accelerator_s
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	ASSERT_NOT_NULL(state);
 	result = prop_check_and_lock(_prop);
@@ -1041,8 +1118,9 @@ fpgaPropertiesGetAcceleratorState(const fpga_properties prop, fpga_accelerator_s
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -1051,6 +1129,7 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state s
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	result = prop_check_and_lock(_prop);
 	if (result)
@@ -1067,8 +1146,54 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state s
 		result = FPGA_INVALID_PARAM;
 	}
 
-out_unlock:
-	pthread_mutex_unlock(&_prop->lock);
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(object_id);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID)) {
+		*object_id = _prop->object_id;
+	} else {
+		FPGA_MSG("No object_id");
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
+	_prop->object_id = object_id;
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 

@@ -83,10 +83,12 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle);
  * The event_handle points to an OS specific mechanism for event notification.
  * An event_handle is associated with only a single event.
  *
+ * In case of user interrupts, the flags parameter will be used to specify
+ * the vector ID. The value of the flags parameter indicates the vector ID,
+ * no bit encoding is used.
+ *
  * @todo define if calling fpgaRegisterEvent multiple times with the
  * same event_handle is an error condition or if it is silently ignored.
- *
- * @note This function is currently not supported.
  *
  * @param[in]  handle       Handle to previously opened FPGA resource.
  * @param[in]  event_type   Type of event
@@ -118,17 +120,19 @@ fpga_result fpgaRegisterEvent(fpga_handle handle,
  * @todo define if calling fpgaUnregisterEvent multiple times with the
  * same event_handle is an error condition or if it is silently ignored.
  *
- * @note This function is currently not supported.
- *
- * @param[in]  handle     Handle to previously opened FPGA resource.
- * @param[in]  event_type Type of previously registered event.
+ * @param[in]  handle       Handle to previously opened FPGA resource.
+ * @param[in]  event_type   Type of event to unregister.
+ * @param[in]  event_handle Handle to previously registered resource for event
+ *                          notification.
  * @returns             FPGA_OK on success. FPGA_INVALID_PARAM if handle does
  *                      not refer to a resource supporting the requested event,
  *                      or if event_handle is not valid. FPGA_EXCEPTION if an
  *                      internal error occurred accessing the handle or the
  *                      event_handle.
  */
-fpga_result fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type);
+fpga_result fpgaUnregisterEvent(fpga_handle handle,
+					     fpga_event_type event_type,
+					     fpga_event_handle event_handle);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -56,10 +56,7 @@ nlb7::nlb7()
 , config_("nlb7.json")
 , target_("fpga")
 , afu_id_("7BAF4DEA-A57C-E91E-168A-455D9BDA88A3")
-, wkspc_size_(GB(1))
-, dsm_size_(MB(4))
-, inp_size_(CL(65536))
-, out_size_(CL(65536))
+, dsm_size_(MB(2))
 , step_(1)
 , begin_(1)
 , end_(1)
@@ -68,6 +65,8 @@ nlb7::nlb7()
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_headers_(false)
 , csv_format_(false)
+, suppress_stats_(false)
+, cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
@@ -89,6 +88,7 @@ nlb7::nlb7()
     options_.add_option<uint32_t>("clock-freq",      'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_headers_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stas at end", suppress_stats_);
 }
 
 nlb7::~nlb7()
@@ -109,6 +109,7 @@ void nlb7::show_help(std::ostream &os)
 bool nlb7::setup()
 {
     options_.get_value<std::string>("target", target_);
+    options_.get_value<bool>("suppress-stats", suppress_stats_);
     if (target_ == "fpga")
     {
         dsm_timeout_ = FPGA_DSM_TIMEOUT;
@@ -129,7 +130,11 @@ bool nlb7::setup()
         dsm_timeout_ = microseconds(dsm_timeout_usec);
     }
 
+    // begin, end
     options_.get_value<uint32_t>("begin", begin_);
+    options_.get_value<uint32_t>("end", end_);
+    auto end_opt = options_.find("end");
+
 
     if (begin_ > max_cl)
     {
@@ -137,7 +142,11 @@ bool nlb7::setup()
         return false;
     }
 
-    if (options_.get_value<uint32_t>("end", end_))
+    if (end_opt && !end_opt->is_set())
+    {
+        end_ = begin_;
+    }
+    else
     {
         if (end_ < begin_)
         {
@@ -145,11 +154,6 @@ bool nlb7::setup()
             end_ = begin_;
         }
     }
-    else
-    {
-        end_ = begin_;
-    }
-
 
     cfg_ = nlb_mode::sw;
 
@@ -322,6 +326,12 @@ bool nlb7::setup()
     options_.get_value<bool>("suppress-hdr", suppress_headers_);
     options_.get_value<bool>("csv", csv_format_);
 
+    // FIXME: use actual size for dsm size
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm_) {
+        log_.error("nlb7") << "failed to allocate DSM workspace." << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -332,22 +342,34 @@ bool nlb7::run()
 {
     bool res = true;
     const dma_buffer::microseconds_t one_msec(1000);
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
 
-    // Allocate one large workspace, then carve it up amongst
-    // DSM, Input, and Output buffers.
+    std::size_t buf_size = CL(end_ + 1);  // size of input and output buffer (each)
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        std::cerr << "failed to allocate workspace." << std::endl;
-        return false;
+    // Allocate the smallest possible workspaces for DSM, Input and Output
+    // buffers.
+
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_ });
-
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t input = bufs[1];
-    dma_buffer::ptr_t output = bufs[2];
+    if (!inp) {
+        log_.error("nlb7") << "failed to allocate input workspace." << std::endl;
+        return false;
+    }
+    if (!out) {
+        log_.error("nlb7") << "failed to allocate output workspace." << std::endl;
+        return false;
+    }
 
     accelerator_->umsg_set_mask(LOW);
 
@@ -380,15 +402,15 @@ bool nlb7::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
     // assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(input->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(output->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
 
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::cfg), cfg_.value());
 
@@ -409,17 +431,17 @@ bool nlb7::run()
             memset((uint8_t *)pUMsgUsrVirt, 0, UMsgBufSize);
 
         // Zero the output buffer.
-        output->fill(0);
+        out->fill(0);
 
         // Re-initialize the input buffer.
         const uint32_t InputData = 0xdecafbad;
-        for (size_t i = 0; i < input->size()/sizeof(uint32_t); ++i)
-            input->write(InputData, i);
+        for (size_t i = 0; i < inp->size()/sizeof(uint32_t); ++i)
+            inp->write(InputData, i);
 
         // assert AFU reset.
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
         // clear the DSM.
-        dsm->fill(0);
+        dsm_->fill(0);
         // de-assert afu reset
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
         // set number of cache lines for test
@@ -429,7 +451,7 @@ bool nlb7::run()
 
         // Test flow
         // 1. CPU polls on address N+1
-        bool poll_result = output->poll<uint32_t>(sz, dsm_timeout_, HIGH, HIGH);
+        bool poll_result = out->poll<uint32_t>(sz, dsm_timeout_, HIGH, HIGH);
         if (!poll_result)
         {
             std::cerr << "Maximum timeout for CPU poll on Address N+1 was exceeded" << std::endl;
@@ -439,8 +461,8 @@ bool nlb7::run()
 
         // 2. CPU copies dest to src
         errno_t e;
-        e = memcpy_s((void *)input->address(), sz,
-			(void *)output->address(), sz);
+        e = memcpy_s((void *)inp->address(), sz,
+			(void *)out->address(), sz);
 	if (EOK != e) {
             std::cerr << "memcpy_s failed" << std::endl;
             res = false;
@@ -462,13 +484,13 @@ bool nlb7::run()
         }
         else
         { // poll
-            input->write<uint32_t>(HIGH, sz);
-            input->write<uint32_t>(HIGH, sz+4);
-            input->write<uint32_t>(HIGH, sz+8);
+            inp->write<uint32_t>(HIGH, sz);
+            inp->write<uint32_t>(HIGH, sz+4);
+            inp->write<uint32_t>(HIGH, sz+8);
         }
 
         // Wait for test completion
-        poll_result = dsm->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
+        poll_result = dsm_->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
                                           dsm_timeout_,
                                           (uint32_t)0x1,
                                           (uint32_t)1);
@@ -482,11 +504,11 @@ bool nlb7::run()
         // stop the device
         accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 7);
 
-        while ((0 == dsm->read<uint32_t>((size_t)nlb0_dsm::test_complete)) &&
+        while ((0 == dsm_->read<uint32_t>((size_t)nlb0_dsm::test_complete)) &&
                MaxPoll)
         {
             --MaxPoll;
-            dsm->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
+            dsm_->poll<uint32_t>((size_t)nlb0_dsm::test_complete,
                                 one_msec,
                                 (uint32_t)0x1,
                                 (uint32_t)1);
@@ -500,7 +522,7 @@ bool nlb7::run()
         {
             std::cerr << "Maximum timeout for test stop was exceeded." << std::endl;
             res = false;
-            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+            std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                                      sz/CL(1),
                                                      end_cache_ctrs - start_cache_ctrs,
                                                      end_fabric_ctrs - start_fabric_ctrs,
@@ -511,7 +533,7 @@ bool nlb7::run()
             break;
         }
 
-        auto test_error = dsm->read<uint32_t>((size_t)nlb0_dsm::test_error);
+        auto test_error = dsm_->read<uint32_t>((size_t)nlb0_dsm::test_error);
         if (0 != test_error)
         {
             std::cerr << "Error bit set in DSM." << std::endl;
@@ -535,7 +557,7 @@ bool nlb7::run()
             for (int i=0 ; i < 8 ; ++i)
             {
                 std::cerr << "[" << i << "]: 0x" << std::hex <<
-                        dsm->read<uint32_t>((size_t)nlb7_dsm::mode_error + i*sizeof(uint32_t)) <<
+                        dsm_->read<uint32_t>((size_t)nlb7_dsm::mode_error + i*sizeof(uint32_t)) <<
                         std::endl;
 
                 if (0 == i)
@@ -562,7 +584,7 @@ bool nlb7::run()
 
             res = false;
 
-            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+            std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                                      sz/CL(1),
                                                      end_cache_ctrs - start_cache_ctrs,
                                                      end_fabric_ctrs - start_fabric_ctrs,
@@ -574,14 +596,14 @@ bool nlb7::run()
         }
 
         // Check for num_clocks underflow.
-        auto num_clocks = dsm->read<uint32_t>((size_t)nlb7_dsm::num_clocks);
-        auto start_overhead = dsm->read<uint32_t>((size_t)nlb7_dsm::start_overhead);
-        auto end_overhead = dsm->read<uint32_t>((size_t)nlb7_dsm::end_overhead);
+        auto num_clocks = dsm_->read<uint32_t>((size_t)nlb7_dsm::num_clocks);
+        auto start_overhead = dsm_->read<uint32_t>((size_t)nlb7_dsm::start_overhead);
+        auto end_overhead = dsm_->read<uint32_t>((size_t)nlb7_dsm::end_overhead);
         if (num_clocks < start_overhead + end_overhead)
         {
             std::cerr << "Number of Clocks underflow." << std::endl;
             res = false;
-            std::cout << intel::fpga::nlb::nlb_stats(dsm,
+            std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                                      sz/CL(1),
                                                      end_cache_ctrs - start_cache_ctrs,
                                                      end_fabric_ctrs - start_fabric_ctrs,
@@ -592,7 +614,7 @@ bool nlb7::run()
             break;
         }
 
-        std::cout << intel::fpga::nlb::nlb_stats(dsm,
+        std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                                  sz/CL(1),
                                                  end_cache_ctrs - start_cache_ctrs,
                                                  end_fabric_ctrs - start_fabric_ctrs,
@@ -604,7 +626,7 @@ bool nlb7::run()
         // Save Perf Monitors
         start_cache_ctrs  = end_cache_ctrs;
         start_fabric_ctrs = end_fabric_ctrs;
-
+        cachelines_ += sz/CL(1);
         sz += CL(1);
     }
 

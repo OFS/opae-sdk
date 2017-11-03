@@ -126,7 +126,7 @@ namespace utils
         }
         catch(std::invalid_argument &e)
         {
-            std::cerr << "Could not convert " << str << " to a number" << std::endl;
+            std::cerr << "Exception caught: " << e.what() << " - could not convert " << str << " to a number" << std::endl;
         }
         return false;
     }
@@ -155,7 +155,7 @@ namespace utils
             /// @brief generates a random integer
             /// @returns a random number between range
             /// lo_ and hi_
-            int operator()()
+            IntType operator()()
             {
                 return dist_(gen_);
             }

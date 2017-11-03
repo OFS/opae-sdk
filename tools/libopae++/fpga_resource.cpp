@@ -118,19 +118,14 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
                                      vector<shared_token> & tokens)
 {
     bool result = false;
-    uint32_t filter_size = 0;
     intel::utils::logger log;
     vector<fpga_properties> filters;
     vector<fpga_token>      real_tokens;
 
-    if (options.empty())
-    {
-        filter_size = 1;
-        filters.resize(1);
-        fpgaGetProperties(nullptr, &filters[0]);
-        fpgaPropertiesSetObjectType(filters[0], objtype);
-    }
-    else
+    // if we have a non empty list of option_map objects
+    // iteratve over those objects and try to make an
+    // fpga_properties object from each option_map
+    if (!options.empty())
     {
         filters.reserve(options.size());
         filters.resize(0);
@@ -138,6 +133,7 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
         for (int i = 0; i < options.size(); ++i)
         {
             fpga_properties props;
+            // make a temporary fpga_properties object
             if (fpgaGetProperties(nullptr, &props) == FPGA_OK)
             {
                 fpgaPropertiesSetObjectType(props, objtype);
@@ -148,17 +144,38 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
                 }
                 else
                 {
+                    // Couldn't find at least one key/value in the map
+                    // that could be used as a fpga_properties property
+                    // Then destoy the temporary props
                     fpgaDestroyProperties(&props);
                 }
             }
         }
     }
+
+    // If the filters is empty then it means we couldn't convert at
+    // least one of the option_map objects into an fpga_properties object.
+    // Because we want to use at least one filter that includes the object
+    // type, then let's add it here. This ensures we always filter by object type.
+    if (filters.empty())
+    {
+        filters.resize(1);
+        fpgaGetProperties(nullptr, &filters[0]);
+        fpgaPropertiesSetObjectType(filters[0], objtype);
+    }
+
     uint32_t matches = 0;
-    if (fpgaEnumerate(filters.data(), filters.size(), nullptr, 0, &matches) == FPGA_OK)
+    auto enum_result = fpgaEnumerate(filters.data(), filters.size(), nullptr, 0, &matches);
+    if (enum_result == FPGA_OK)
     {
         tokens.reserve(matches);
         real_tokens.resize(matches);
-        if (fpgaEnumerate(filters.data(), filters.size(), real_tokens.data(), real_tokens.size(), &matches) == FPGA_OK)
+        enum_result = fpgaEnumerate(filters.data(),
+                                    filters.size(),
+                                    real_tokens.data(),
+                                    real_tokens.size(),
+                                    &matches);
+        if (enum_result == FPGA_OK && matches > 0)
         {
             result = true;
 
@@ -176,6 +193,14 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
                             }));
             }
         }
+        else if (enum_result != FPGA_OK)
+        {
+            log.error() << "fpgaEnumerate returned " << enum_result << "\n";
+        }
+    }
+    else
+    {
+        log.error() << "fpgaEnumerate returned " << enum_result << "\n";
     }
 
     for (auto f : filters)
@@ -251,6 +276,18 @@ uint8_t fpga_resource::function()
 uint8_t fpga_resource::socket_id()
 {
     return socket_id_;
+}
+
+fpga_event::ptr_t fpga_resource::register_event(fpga_event::event_type event_type) const
+{
+    fpga_event::ptr_t fpga_event_ptr(0);
+    fpga_event_handle h;
+    if (FPGA_OK == fpgaCreateEventHandle(&h) &&
+        FPGA_OK == fpgaRegisterEvent(handle_, (fpga_event_type)event_type, h, 0))
+    {
+        fpga_event_ptr.reset(new fpga_event(event_type, h));
+    }
+    return fpga_event_ptr;
 }
 
 } // end of namespace fpga

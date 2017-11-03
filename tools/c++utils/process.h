@@ -28,6 +28,7 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <thread>
 
 namespace intel
 {
@@ -46,6 +47,9 @@ public:
     int wait(int timeout_msec = -1);
     void terminate(int signal);
     void terminate();
+
+    static void set_thread_maxpriority(const std::thread & t);
+    static void set_process_maxpriority(pid_t p = 0);
 
 private:
     process(int pid);

@@ -84,12 +84,16 @@ struct client_event_registry *register_event(int conn_socket, int fd,
 		goto out_free;
 	}
 
-	pthread_mutex_lock(&list_lock);
+	err = pthread_mutex_lock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_lock() failed: %s", strerror(err));
 
 	r->next = event_registry_list;
 	event_registry_list = r;
 
-	pthread_mutex_unlock(&list_lock);
+	err = pthread_mutex_unlock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
 
 	return r;
 
@@ -108,8 +112,11 @@ void unregister_event(int conn_socket, fpga_event_type e, const char *device)
 {
 	struct client_event_registry *trash;
 	struct client_event_registry *save;
+	int err;
 
-	pthread_mutex_lock(&list_lock);
+	err = pthread_mutex_lock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_lock() failed: %s", strerror(err));
 
 	trash = event_registry_list;
 
@@ -147,7 +154,9 @@ void unregister_event(int conn_socket, fpga_event_type e, const char *device)
 	save->next = trash->next;
 	release_event_registry(trash);
 out_unlock:
-	pthread_mutex_unlock(&list_lock);
+	err = pthread_mutex_unlock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
 }
 
 struct client_event_registry *
@@ -165,8 +174,11 @@ find_event_for(int conn_socket)
 void unregister_all_events_for(int conn_socket)
 {
 	struct client_event_registry *r;
+	int err;
 
-	pthread_mutex_lock(&list_lock);
+	err = pthread_mutex_lock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_lock() failed: %s", strerror(err));
 
 	r = find_event_for(conn_socket);
 	while (r) {
@@ -174,14 +186,19 @@ void unregister_all_events_for(int conn_socket)
 		r = find_event_for(conn_socket);
 	}
 
-	pthread_mutex_unlock(&list_lock);
+	err = pthread_mutex_unlock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
 }
 
 void unregister_all_events(void)
 {
 	struct client_event_registry *r;
+	int err;
 
-	pthread_mutex_lock(&list_lock);
+	err = pthread_mutex_lock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_lock() failed: %s", strerror(err));
 
 	for (r = event_registry_list ; r != NULL ; ) {
 		struct client_event_registry *trash;
@@ -192,21 +209,28 @@ void unregister_all_events(void)
 
 	event_registry_list = NULL;
 
-	pthread_mutex_unlock(&list_lock);
+	err = pthread_mutex_unlock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
 }
 
 void for_each_registered_event(void (*cb)(struct client_event_registry *,
 					  const struct fpga_err *),
 			       const struct fpga_err *e) {
 	struct client_event_registry *r;
+	int err;
 
-	pthread_mutex_lock(&list_lock);
+	err = pthread_mutex_lock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_lock() failed: %s", strerror(err));
 
 	for (r = event_registry_list; r != NULL; r = r->next) {
 		cb(r, e);
 	}
 
-	pthread_mutex_unlock(&list_lock);
+	err = pthread_mutex_unlock(&list_lock);
+	if (err)
+		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
 }
 
 #define SRV_SOCKET          0

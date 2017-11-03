@@ -29,6 +29,7 @@
 #include <memory>
 #include <vector>
 #include <opae/types.h>
+#include "fpga_event.h"
 
 namespace intel
 {
@@ -76,6 +77,8 @@ public:
     virtual uint8_t socket_id();
 
     static std::string sysfs_path_from_token(fpga_token t);
+
+    fpga_event::ptr_t register_event(fpga_event::event_type ev) const;
 
 protected:
     fpga_resource(const fpga_resource &other);

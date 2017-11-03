@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -26,9 +26,9 @@
 
 
 
-// $Id: //acds/rel/17.0/ip/merlin/altera_avalon_mm_bridge/altera_avalon_mm_bridge.v#1 $
+// $Id: //acds/rel/16.0/ip/merlin/altera_avalon_mm_bridge/altera_avalon_mm_bridge.v#1 $
 // $Revision: #1 $
-// $Date: 2017/02/12 $
+// $Date: 2016/02/08 $
 // $Author: swbranch $
 // --------------------------------------
 // Avalon-MM pipeline bridge

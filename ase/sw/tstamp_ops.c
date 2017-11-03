@@ -59,8 +59,9 @@ static __inline__ unsigned long long rdtsc(void)
 
 
 // -----------------------------------------------------------------------
-// Write timestamp
+// Write timestamp: Used by simulator
 // -----------------------------------------------------------------------
+#ifdef SIM_SIDE
 void put_timestamp(void)
 {
 	FUNC_CALL_ENTRY;
@@ -99,7 +100,7 @@ void put_timestamp(void)
 
 	FUNC_CALL_EXIT;
 }
-
+#endif
 
 // -----------------------------------------------------------------------
 // Read timestamp
@@ -110,9 +111,8 @@ void get_timestamp(char *session_str)
 
 	FILE *fp = (FILE *) NULL;
 
-	// Form session code path
-	snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s",
-		 ase_workdir_path, TSTAMP_FILENAME);
+    // Form session code path
+    // snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path, TSTAMP_FILENAME);
 
 	ASE_DBG("tstamp_filepath = %s\n", tstamp_filepath);
 
@@ -176,11 +176,7 @@ void get_timestamp(char *session_str)
 // -----------------------------------------------------------------------
 void poll_for_session_id(void)
 {
-	// char tstamp_filepath[ASE_FILEPATH_LEN];
-	snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s",
-		 ase_workdir_path, TSTAMP_FILENAME);
-
-	ASE_MSG("Waiting till session ID is created by ASE ... ");
+    ASE_MSG("Waiting till session ID is created by ASE ... ");
 
 	while (access(tstamp_filepath, F_OK) == -1) {
 		usleep(1000);

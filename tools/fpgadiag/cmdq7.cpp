@@ -849,7 +849,6 @@ uint32_t cmdq7::cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 
 uint32_t cmdq7::hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 {
-    uint32_t hw = 0;
     uint32_t i;
 
     for(i = 0 ; i < allocations_ ; ++i)
@@ -926,7 +925,6 @@ out:
 uint32_t cmdq7::cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
 {
     uint32_t i = 0;
-    uint32_t hw;
 
     while (!cancel_)
     {

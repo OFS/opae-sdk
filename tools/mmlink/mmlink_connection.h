@@ -55,7 +55,7 @@ public:
 	void close_connection() { if (is_open()) ::close(m_fd); init(); }
 	void bind() { m_is_bound = true; }
 	void socket(int socket) { m_fd = socket; }
-	int socket() { return m_fd; }
+	int getsocket() { return m_fd; }
 	int handle_receive();
 	int handle_management(void);
 

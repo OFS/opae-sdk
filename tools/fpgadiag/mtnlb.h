@@ -56,7 +56,8 @@ public:
     virtual const std::string &        name()                 { return name_;    }
     virtual bool                       setup();
     virtual bool                       run();
-
+    virtual dma_buffer::ptr_t          dsm()            const override { return dsm_; }
+    virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_pending(uint32_t thread_id);
     std::string show_rw();
@@ -74,7 +75,6 @@ protected:
 
     intel::utils::logger log_;
     intel::utils::option_map options_;
-    std::size_t wkspc_size_;
     std::size_t dsm_size_;
     std::size_t inp_size_;
     std::size_t out_size_;
@@ -89,7 +89,6 @@ protected:
     std::string target_;
 
     accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t wkspc_;
     dma_buffer::ptr_t dsm_;
     dma_buffer::ptr_t inp_;
     dma_buffer::ptr_t out_;
@@ -98,8 +97,8 @@ protected:
     std::chrono::microseconds     dsm_timeout_;
     bool suppress_header_;
     bool csv_format_;
-    //void _mode7(uint64_t thread_id, uint64_t iterations, uint64_t stride);
-    //void _mode8(uint64_t thread_id, uint64_t iterations, uint64_t stride);
+    bool suppress_stats_;
+    uint64_t cachelines_;
 
 };
 

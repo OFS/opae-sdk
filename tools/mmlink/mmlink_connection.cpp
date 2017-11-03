@@ -60,7 +60,10 @@ int mmlink_connection::handle_receive()
 {
 	int fail = 0;
 	int size = 0;
-	int conn = this->socket();
+	int conn = this->getsocket();
+
+	if(conn < 0)
+		return -1;
 
 	int bytes_to_receive = m_bufsize - m_buf_end;
 	if (bytes_to_receive == 0)
@@ -70,7 +73,7 @@ int mmlink_connection::handle_receive()
 	}
 
 	size = ::recv(conn, m_buf + m_buf_end, bytes_to_receive, 0);
-	if (size < 0)
+	if (size == -1)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
 		{
@@ -79,7 +82,7 @@ int mmlink_connection::handle_receive()
 		}
 		else
 		{
-			cerr << "error on socket " << conn << " : " 
+			cerr << "error on socket " << conn << " : "
 				<< errno << " " << strerror(errno) << endl;
 			fail = -errno;
 		}
@@ -125,7 +128,7 @@ int mmlink_connection::handle_management()
 			}
 
 			// If not bound, close.
-			cout << socket() << ": rejecting attempt to convert "
+			cout << getsocket() << ": rejecting attempt to convert "
 					"unbound connection to data.\n";
 			fail = -1;
 			break;
@@ -163,7 +166,7 @@ int mmlink_connection::handle_management_command(char *cmd)
 {
 	int fail = 0;
 
-	cout << "mmlink_connection::handle_management_command('" 
+	cout << "mmlink_connection::handle_management_command('"
 			<< cmd << "')\n";
 	// Ignore empty string.
 	if (!*cmd)
@@ -191,7 +194,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 
 	if (0 == strcmp(expect_handle, cmd))
 	{
-		cout << socket() << ": accepted handle value (' "<< cmd << "'),"
+		cout << getsocket() << ": accepted handle value (' "<< cmd << "'),"
 				" setting to bound state\n";
 
 		bind();
@@ -199,7 +202,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 	}
 	else
 	{
-		cout << socket() << ": closing socket: incorrect HANDLE value "
+		cout << getsocket() << ": closing socket: incorrect HANDLE value "
 				"(expected: '"
 				<< expect_handle << "'; got: '"<< cmd << "')\n";
 		fail = -1;
@@ -211,7 +214,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 int mmlink_connection::handle_data()
 {
 	m_buf[m_buf_end] = '\0';
-	cout << socket() << "(data): ";
+	cout << getsocket() << "(data): ";
 	for (int i = 0; i < m_buf_end; ++i)
 	{
 		cout << setw(2) << m_buf[i] << " ";

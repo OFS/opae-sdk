@@ -29,19 +29,27 @@ find_package(Boost 1.41.0 REQUIRED)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
                      ${Boost_INCLUDE_DIRS}
                      ${OPAE_INCLUDE_DIR}
-                     ${CMAKE_SOURCE_DIR}/tools/c++utils
+                     ${OPAE_SDK_SOURCE}/tools/c++utils
                      )
 
 add_library(opae-c++ SHARED
                    fpga_resource.h
                    fpga_resource.cpp
+                   resource_properties.h
+                   resource_properties.cpp
+                   property_map.h
                    property_map.cpp
                    accelerator.h
                    accelerator.cpp
                    fpga.h
                    fpga.cpp
                    perf_counters.h
-                   perf_counters.cpp)
+                   perf_counters.cpp
+                   fpga_event.h
+                   fpga_event.cpp
+                   fpga_errors.h
+                   fpga_errors.cpp
+)
 
 set_install_rpath(opae-c++)
 

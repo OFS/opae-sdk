@@ -53,6 +53,16 @@ public:
     {
     }
 
+    option_map & operator=(const option_map & other)
+    {
+        if (&other != this)
+        {
+            options_ = other.options_;
+            options_list_ = other.options_list_;
+        }
+        return *this;
+    }
+
     template<typename T>
     option::ptr_t add_option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help,  T default_value = T())
     {
@@ -96,6 +106,25 @@ public:
         options_[name] = opt;
         options_list_.push_back(opt);
         return opt;
+    }
+
+    bool remove_option(const std::string & name)
+    {
+        auto vec_it = std::find_if(options_list_.begin(),
+                                   options_list_.end(),
+                                   [&name](option::ptr_t o)
+                                   {
+                                       return o->name() == name;
+                                   });
+        auto map_it = options_.find(name);
+        if (vec_it != options_list_.end() &&
+            map_it != options_.end())
+        {
+            options_list_.erase(vec_it);
+            options_.erase(map_it);
+            return true;
+        }
+        return false;
     }
 
     template<typename T>

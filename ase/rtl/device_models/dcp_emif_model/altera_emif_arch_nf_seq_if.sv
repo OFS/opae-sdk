@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -52,7 +52,6 @@ module altera_emif_arch_nf_seq_if #(
    input  logic                                                     emif_usr_reset_n,
    output logic                                                     afi_cal_success,
    output logic                                                     afi_cal_fail,
-   output logic                                                     afi_cal_in_progress,
    input  logic                                                     afi_cal_req,
    output logic [PORT_AFI_RLAT_WIDTH-1:0]                           afi_rlat,
    output logic [PORT_AFI_WLAT_WIDTH-1:0]                           afi_wlat,
@@ -204,10 +203,8 @@ module altera_emif_arch_nf_seq_if #(
       .data_out (afi_seq_busy)
    );
 
-   localparam SYNC_LENGTH = 3;
-
    altera_emif_arch_nf_regs # (
-      .REGISTER       (SYNC_LENGTH),
+      .REGISTER       (REGISTER_AFI),
       .WIDTH          (1)
    ) afi_cal_success_regs (
       .clk      (clk),
@@ -217,23 +214,13 @@ module altera_emif_arch_nf_seq_if #(
    );
 
    altera_emif_arch_nf_regs # (
-      .REGISTER       (SYNC_LENGTH),
+      .REGISTER       (REGISTER_AFI),
       .WIDTH          (1)
    ) afi_cal_fail_regs (
       .clk      (clk),
       .reset_n  (reset_n),
       .data_in  (t2c_afi[25]),
       .data_out (afi_cal_fail)
-   );
-
-   altera_emif_arch_nf_regs # (
-      .REGISTER       (SYNC_LENGTH),
-      .WIDTH          (1)
-   ) afi_cal_in_progress_regs (
-      .clk      (clk),
-      .reset_n  (reset_n),
-      .data_in  (t2c_afi[16]),
-      .data_out (afi_cal_in_progress)
    );
 
    generate

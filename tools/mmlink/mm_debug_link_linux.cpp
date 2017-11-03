@@ -108,7 +108,6 @@ mm_debug_link_linux::mm_debug_link_linux() {
 
 int mm_debug_link_linux::open(unsigned char* stpAddr)
 {
-	struct stat sts;
 	unsigned int sign, version;
 	m_fd = -1;
 	map_base = stpAddr;
@@ -175,7 +174,6 @@ void mm_debug_link_linux::write_mmr(off_t target,
 	cout << hex <<"WRITING : "<< write_val << dec << endl;
 #endif
 	void *virt_addr;
-	void *read_result;
 	/* Map one page */
 
 	virt_addr = (void *) (map_base + target);

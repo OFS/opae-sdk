@@ -38,6 +38,13 @@
 
 #include "ase_common.h"
 
+// Base addresses of required regions
+uint64_t *mmio_afu_vbase;
+uint64_t *umsg_umas_vbase;
+
+// ASE error file
+static FILE *error_fp;
+
 
 // ---------------------------------------------------------------
 // ASE graceful shutdown - Called if: error() occurs

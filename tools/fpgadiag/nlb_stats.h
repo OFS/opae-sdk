@@ -36,9 +36,24 @@ namespace fpga
 namespace nlb
 {
 
+enum class dsm_version
+{
+    nlb_classic,
+    cmdq_batch
+};
+
 class nlb_stats
 {
 public:
+    nlb_stats(dma_buffer::ptr_t dsm,
+              dsm_version dsm_v,
+              uint32_t cachelines,
+              const fpga_cache_counters &cache_counters,
+              const fpga_fabric_counters &fabric_counters,
+              uint32_t clock_freq,
+              bool continuous=false,
+              bool suppress_hdr=false,
+              bool csv=false);
     nlb_stats(dma_buffer::ptr_t dsm,
               uint32_t cachelines,
               const fpga_cache_counters &cache_counters,
@@ -52,6 +67,7 @@ friend std::ostream & operator << (std::ostream &os, const nlb_stats &stats);
 
 private:
     dma_buffer::ptr_t dsm_;
+    dsm_version dsm_version_;
     uint32_t cachelines_;
     const fpga_cache_counters &cache_counters_;
     const fpga_fabric_counters &fabric_counters_;
@@ -68,25 +84,55 @@ private:
 class dsm_tuple
 {
 public:
-    dsm_tuple();
-    dsm_tuple(dma_buffer::ptr_t dsm);
+
+    dsm_tuple(dsm_version v = dsm_version::nlb_classic);
+    dsm_tuple(dma_buffer::ptr_t dsm, dsm_version v = dsm_version::nlb_classic);
     dsm_tuple & operator += (const dsm_tuple &rhs);
     void put(dma_buffer::ptr_t dsm);
+    void get(dma_buffer::ptr_t dsm);
+
+    uint64_t raw_ticks()
+    {
+        return raw_ticks_;
+    }
+
+    uint32_t start_overhead()
+    {
+        return start_overhead_;
+    }
+
+    uint32_t end_overhead()
+    {
+        return end_overhead_;
+    }
+
+    uint64_t num_reads()
+    {
+        return num_reads_;
+    }
+
+    uint64_t num_writes()
+    {
+        return num_writes_;
+    }
+
 
 protected:
     uint64_t raw_ticks_;
     uint32_t start_overhead_;
     uint32_t end_overhead_;
-    uint32_t num_reads_;
-    uint32_t num_writes_;
+    uint64_t num_reads_;
+    uint64_t num_writes_;
 
     dsm_tuple(uint64_t raw_ticks,
               uint32_t start_overhead,
               uint32_t end_overhead,
-              uint32_t num_reads,
-              uint32_t num_writes);
+              uint64_t num_reads,
+              uint64_t num_writes);
 
     friend dsm_tuple operator + (const dsm_tuple &lhs, const dsm_tuple &rhs);
+private:
+    dsm_version version_;
 };
 
 } // end of namespace nlb

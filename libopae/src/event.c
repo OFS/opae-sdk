@@ -133,7 +133,7 @@ static fpga_result daemon_register_event(fpga_handle handle,
 		}
 
 		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-			FPGA_ERR("connect: %s", strerror(errno));
+			FPGA_DBG("connect: %s", strerror(errno));
 			result = FPGA_NO_DAEMON;
 			goto out_close_conn;
 		}
@@ -161,7 +161,6 @@ static fpga_result daemon_register_event(fpga_handle handle,
 		goto out_close_conn;
 	}
 
-out:
 	return result;
 
 out_close_conn:
@@ -254,6 +253,7 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 	fpga_result result = FPGA_OK;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	struct _fpga_token *_token;
+	int err;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -287,13 +287,18 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type)
+fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
+					     fpga_event_type event_type,
+					     fpga_event_handle event_handle)
 {
 	fpga_result result = FPGA_OK;
+	int err;
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	struct _fpga_token *_token;
@@ -327,7 +332,10 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle, fpga_event_type
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+
 	return result;
 }
 

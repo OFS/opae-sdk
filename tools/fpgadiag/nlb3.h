@@ -57,6 +57,8 @@ public:
     virtual const std::string &        name()                 override { return name_;    }
     virtual bool                       setup()                override;
     virtual bool                       run()                  override;
+    virtual dma_buffer::ptr_t          dsm()            const override { return dsm_; }
+    virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_help(std::ostream &os);
 
@@ -67,11 +69,7 @@ private:
     std::string mode_;
     std::string afu_id_;
 
-    std::size_t wkspc_size_;
     std::size_t dsm_size_;
-    std::size_t inp_size_;
-    std::size_t out_size_;
-
     uint32_t num_strides_;
     uint32_t step_;
     uint32_t begin_;
@@ -80,17 +78,18 @@ private:
     bool cont_;
     bool suppress_header_;
     bool csv_format_;
+    bool suppress_stats_;
 
     intel::utils::logger log_;
     intel::utils::option_map options_;
 
     accelerator::ptr_t accelerator_;
+    dma_buffer::ptr_t dsm_;
     csr_t<uint32_t> cfg_;
-    dma_buffer::ptr_t wkspc_;
 
     std::chrono::duration<double> cont_timeout_;
     std::chrono::microseconds     dsm_timeout_;
-
+    uint64_t cachelines_;
 };
 
 } // end of namespace diag

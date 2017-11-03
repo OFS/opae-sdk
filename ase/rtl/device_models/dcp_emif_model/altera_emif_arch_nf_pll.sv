@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -46,8 +46,8 @@ module altera_emif_arch_nf_pll #(
    parameter PORT_DFT_NF_PLL_CNTSEL_WIDTH            = 1,
    parameter PORT_DFT_NF_PLL_NUM_SHIFT_WIDTH         = 1,
 
-   parameter PLL_REF_CLK_FREQ_PS_STR                 = "",
-   parameter PLL_VCO_FREQ_PS_STR                     = "",
+   parameter PLL_REF_CLK_FREQ_PS_STR_FROM_API        = "",
+   parameter PLL_VCO_FREQ_PS_STR_FROM_API            = "",
    parameter PLL_M_CNT_HIGH                          = 0,
    parameter PLL_M_CNT_LOW                           = 0,
    parameter PLL_N_CNT_HIGH                          = 0,
@@ -216,8 +216,8 @@ module altera_emif_arch_nf_pll #(
       //  VCO and Ref clock
       //  fVCO = fRefClk * M * CCnt2 / N
       ////////////////////////////////////
-      .reference_clock_frequency                  (PLL_REF_CLK_FREQ_PS_STR),
-      .vco_frequency                              (PLL_VCO_FREQ_PS_STR),
+      .reference_clock_frequency                  (PLL_REF_CLK_FREQ_PS_STR_FROM_API),
+      .vco_frequency                              (PLL_VCO_FREQ_PS_STR_FROM_API),
 
       .pll_vco_ph0_en                             ("true"),                        // vcoph[0] is required to drive phy_clk_phs[0]
       .pll_vco_ph1_en                             ("true"),                        // vcoph[1] is required to drive phy_clk_phs[1]

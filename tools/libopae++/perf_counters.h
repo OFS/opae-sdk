@@ -74,6 +74,8 @@ protected:
 
 private:
     std::string sysfspath_;
+    std::string perf_feature_path_;
+    uint64_t perf_feature_rev_;
     ctr_map_t ctr_map_;
 };
 
@@ -115,6 +117,8 @@ protected:
 
 private:
     std::string sysfspath_;
+    std::string perf_feature_path_;
+    uint64_t perf_feature_rev_;
     ctr_map_t ctr_map_;
 };
 

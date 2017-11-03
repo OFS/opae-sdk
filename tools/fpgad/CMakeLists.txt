@@ -25,10 +25,11 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-include_directories(${CMAKE_SOURCE_DIR}/../../common/include
-                    ${CMAKE_SOURCE_DIR}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}/libopae/src
+                    ${OPAE_SDK_SOURCE}/tools/fpgaconf )
 
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c)
+set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
 add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)

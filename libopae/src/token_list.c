@@ -44,7 +44,7 @@ extern pthread_mutex_t global_lock;
 
 /**
  * @brief Add entry to linked list for tokens
- *        Will allocate memory (which is freed by token_cleanup())
+ *	Will allocate memory (which is freed by token_cleanup())
  *
  * @param sysfspath
  * @param devpath
@@ -55,23 +55,33 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 {
 	struct token_map *tmp;
 	errno_t e;
+	int err = 0;
 
-	pthread_mutex_lock(&global_lock);
+	if (pthread_mutex_lock(&global_lock)) {
+		FPGA_MSG("Failed to lock global mutex");
+		return NULL;
+	}
 
 	/* Prevent duplicate entries. */
 	for (tmp = token_root ; NULL != tmp ; tmp = tmp->next) {
 		if ((0 == strncmp(sysfspath, tmp->_token.sysfspath,
-				  SYSFS_PATH_MAX)) &&
-		    (0 == strncmp(devpath, tmp->_token.devpath,
-				  DEV_PATH_MAX))) {
-			pthread_mutex_unlock(&global_lock);
+						SYSFS_PATH_MAX)) &&
+				(0 == strncmp(devpath, tmp->_token.devpath,
+					      DEV_PATH_MAX))) {
+			err = pthread_mutex_unlock(&global_lock);
+			if (err) {
+				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			}
 			return &tmp->_token;
 		}
 	}
 
 	tmp = malloc(sizeof(struct token_map));
 	if (!tmp) {
-		pthread_mutex_unlock(&global_lock);
+		err = pthread_mutex_unlock(&global_lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
 		return NULL;
 	}
 
@@ -96,13 +106,19 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	tmp->next = token_root;
 	token_root = tmp;
 
-	pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 
 	return &tmp->_token;
 
 out_free:
 	free(tmp);
-	pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 	return NULL;
 }
 
@@ -119,6 +135,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 	char spath[SYSFS_PATH_MAX];
 	int device_id;
 	struct token_map *itr;
+	int err = 0;
 
 	p = strstr(_t->sysfspath, FPGA_SYSFS_AFU);
 	if (!p) // FME objects have no parent.
@@ -131,20 +148,29 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 	device_id = atoi(p+1);
 
 	snprintf(spath, sizeof(spath),
-		 SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
-		 device_id, device_id);
+			SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
+			device_id, device_id);
 
-	pthread_mutex_lock(&global_lock);
+	if (pthread_mutex_lock(&global_lock)) {
+		FPGA_MSG("Failed to lock global mutex");
+		return NULL;
+	}
 
 	for (itr = token_root ; NULL != itr ; itr = itr->next) {
 		if (0 == strncmp(spath, itr->_token.sysfspath,
-				 SYSFS_PATH_MAX)) {
-			pthread_mutex_unlock(&global_lock);
+					SYSFS_PATH_MAX)) {
+			err = pthread_mutex_unlock(&global_lock);
+			if (err) {
+				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			}
 			return &itr->_token;
 		}
 	}
 
-	pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 
 	return NULL;
 }
@@ -155,7 +181,11 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
  */
 void token_cleanup(void)
 {
-	pthread_mutex_lock(&global_lock);
+	int err = 0;
+	if (pthread_mutex_lock(&global_lock)) {
+		FPGA_MSG("Failed to lock global mutex");
+		return;
+	}
 
 	if (!token_root)
 		return;
@@ -172,6 +202,9 @@ void token_cleanup(void)
 	free(token_root);
 	token_root = NULL;
 
-	pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 }
 

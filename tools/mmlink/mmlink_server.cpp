@@ -181,7 +181,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 			mmlink_connection *pc = *(m_conn + i);
 			if (pc->is_open())
 			{
-				int fd = pc->socket();
+				int fd = pc->getsocket();
 				FD_SET(fd, &readfds);
 
 				max_fd = MAX(fd, max_fd);
@@ -193,7 +193,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 		if (data_conn)
 		{
 			int driver_fd = m_driver->get_fd();
-			int host_fd = data_conn->socket();
+			int host_fd = data_conn->getsocket();
 
 			// Listen for read on the driver fd.
 			//   responses from the driver fd are written to the host via the data socket.
@@ -237,7 +237,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 		// Transfer response data from the driver to the data socket.
 		if (data_conn)
 		{
-			bool can_write_host = FD_ISSET(data_conn->socket(), &writefds);
+			bool can_write_host = FD_ISSET(data_conn->getsocket(), &writefds);
 			//bool can_read_driver = FD_ISSET(m_driver->get_fd(), &readfds);
 			bool can_read_driver = m_driver->can_read_data();
 			err = handle_t2h(data_conn, can_read_driver, can_write_host); //TODO add logic to check if driver has data to be read
@@ -248,7 +248,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 			// Transfer command data from the data socket to the driver.
 			//bool can_write_driver = FD_ISSET(m_driver->get_fd(), &writefds);
 			bool can_write_driver = true;
-			bool can_read_host = FD_ISSET(data_conn->socket(), &readfds);
+			bool can_read_host = FD_ISSET(data_conn->getsocket(), &readfds);
 			err = handle_h2t(data_conn, can_read_host, can_write_driver); //TODO add logic to check if host has data to be written to driver
 
 			if (err < 0)
@@ -275,14 +275,14 @@ int mmlink_server::run(unsigned char* stpAddr)
 				continue;
 			}
 
-			if (FD_ISSET(pc->socket(), &readfds))
+			if (FD_ISSET(pc->getsocket(), &readfds))
 			{
 				int fail = pc->handle_receive();
 				if (fail)
 				{
 					--m_num_connections;
 					printf("%d: handle_receive() returned %d, closing connection, now have %d\n",
-					       pc->socket(), fail, m_num_connections);
+					       pc->getsocket(), fail, m_num_connections);
 					pc->close_connection();
 				}
 				else
@@ -292,12 +292,12 @@ int mmlink_server::run(unsigned char* stpAddr)
 					{
 						--m_num_connections;
 						printf("%d: handle_management() returned %d, closing connection, now have %d\n",
-						       pc->socket(), fail, m_num_connections);
+						       pc->getsocket(), fail, m_num_connections);
 						pc->close_connection();
 					}
 					else if (pc->is_data())
 					{
-						printf("%d: converted to data\n", pc->socket());
+						printf("%d: converted to data\n", pc->getsocket());
 						// A management connection was converted to data. There can be only one.
 						close_other_data_connection(pc);
 						m_h2t_pending = true;
@@ -347,10 +347,10 @@ mmlink_connection *mmlink_server::handle_accept()
 			// be bound if it sends the correct handle.
 			if (m_num_connections == 1)
 			{
-				printf("%d: binding first connection\n", pc->socket());
+				printf("%d: binding first connection\n", pc->getsocket());
 				pc->bind();
 			}
-			printf("%d: Accepted connection request from %s\n", pc->socket(), inet_ntoa(incoming_addr.sin_addr));
+			printf("%d: Accepted connection request from %s\n", pc->getsocket(), inet_ntoa(incoming_addr.sin_addr));
 		}
 		else
 		{
@@ -438,7 +438,6 @@ int mmlink_server::handle_t2h(mmlink_connection *data_conn, bool can_read_driver
 	bool socket_error = false;
 	bool t2h_ready = m_t2h_pending ? can_write_host : can_read_driver;
 
-	static bool printed8 = false;
 
 	if (!t2h_ready)
 	{
@@ -562,7 +561,6 @@ int mmlink_server::handle_h2t(mmlink_connection *data_conn, bool can_read_host, 
 
 	// Handle command data from the data socket.
 	int total_sent = 0;
-	bool socket_error = false;
 	while (total_sent < data_conn->buf_end())
 	{
 		ssize_t sent = m_driver->write(data_conn->buf() + total_sent, data_conn->buf_end() - total_sent);

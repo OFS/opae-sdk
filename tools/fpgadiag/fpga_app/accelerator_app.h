@@ -41,12 +41,14 @@ class accelerator_app
 public:
     accelerator_app()
     : name_("none")
+    , disabled_(false)
     {
 
     }
 
     explicit accelerator_app(const std::string &name)
     : name_(name)
+    , disabled_(false)
     {
     }
 
@@ -54,6 +56,17 @@ public:
     {
         return name_;
     }
+
+    virtual void disabled(bool value)
+    {
+        disabled_ = value;
+    }
+
+    virtual bool disabled() const
+    {
+        return disabled_;
+    }
+
 
     typedef std::shared_ptr<accelerator_app> ptr_t;
     virtual const std::string & afu_id() = 0;
@@ -66,8 +79,12 @@ public:
         return std::async(std::launch::async, &accelerator_app::run, this);
     }
 
+    virtual dma_buffer::ptr_t  dsm() const { return dma_buffer::ptr_t(); }
+    virtual uint64_t cachelines()    const  = 0;
+
 private:
     std::string name_;
+    bool disabled_;
 };
 
 } // end of namespace fpga

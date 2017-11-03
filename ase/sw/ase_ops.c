@@ -38,7 +38,41 @@
 struct buffer_t *head;
 struct buffer_t *end;
 
+//   File pointer
+static FILE *fp_ase_ready;
 
+// Ready filepath
+char *ase_ready_filepath;
+
+// ASE hostname
+static char *ase_hostname;
+
+
+/*
+ * Generate unique socket server name
+ * Generated name is populated in "name"
+ */
+errno_t generate_sockname(char *name)
+{
+	errno_t err = EOK;
+
+	err = strncpy_s(name, strlen(SOCKNAME)+1, SOCKNAME,
+							strlen(SOCKNAME)+1);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		return err;
+	}
+
+	char *tstamp = ase_malloc(100);
+
+	if (!tstamp)
+		return ENOMEM;
+
+	get_timestamp(tstamp);
+	err = strcat_s(name, strlen(SOCKNAME)+strlen(tstamp)+1, tstamp);
+	ase_free_buffer((char *) tstamp);
+	return err;
+}
 /*
  * Parse strings and remove unnecessary characters
  */
@@ -361,6 +395,7 @@ int ase_read_lock_file(const char *workdir)
 	char *curr_uid;
 	int readback_pid = 0;
 	int ret_err;
+	char *saveptr;
 
 	// Null check and exit
 	if (workdir == NULL) {
@@ -403,8 +438,8 @@ int ase_read_lock_file(const char *workdir)
 				while (getline(&line, &len, fp_exp_ready)
 				       != -1) {
 					// LHS/RHS tokenizing
-					parameter = strtok(line, "=");
-					value = strtok(NULL, "");
+					parameter = strtok_r(line, "=", &saveptr);
+					value = strtok_r(NULL, "", &saveptr);
 					// Check for parameter being recorded as NULL
 					if ((parameter == NULL)
 					    || (value == NULL)) {

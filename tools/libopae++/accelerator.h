@@ -26,6 +26,8 @@
 
 #pragma once
 #include <memory>
+#include <atomic>
+#include <cstdint>
 #include <opae/fpga.h>
 #include "option_map.h"
 #include "fpga_resource.h"
@@ -33,6 +35,7 @@
 #include "dma_buffer.h"
 #include "perf_counters.h"
 #include "mmio.h"
+#include "fpga_errors.h"
 
 namespace intel
 {
@@ -42,13 +45,14 @@ namespace fpga
 class accelerator : public fpga_resource, public mmio
 {
 public:
-    virtual ~accelerator(){}
+    virtual ~accelerator() { close(); }
 
     enum status_t
     {
         unknown = 0,
         opened,
-        released
+        released,
+        closed
     };
 
     fpga_resource::type_t type();
@@ -69,6 +73,8 @@ public:
 
     virtual bool read_mmio64(uint32_t offset, uint64_t & value);
 
+    virtual uint8_t* mmio_pointer(uint32_t offset);
+
     virtual bool reset();
 
     virtual bool ready();
@@ -87,6 +93,10 @@ public:
 
     fpga_fabric_counters fabric_counters() const;
 
+    uint64_t port_errors() const { return port_errors_; }
+
+    void throw_errors(bool value) { throw_errors_ = value; }
+    void error_assert() const { if (throw_errors_ && port_errors_)  throw port_error(port_errors_.load()); }
 protected:
     accelerator(const accelerator & other);
     accelerator & operator=(const accelerator & other);
@@ -98,6 +108,10 @@ private:
 
     status_t status_;
     std::string parent_sysfs_;
+    uint8_t * mmio_base_;
+    fpga_event::ptr_t error_event_;
+    std::atomic<uint64_t> port_errors_;
+    bool throw_errors_;
 };
 
 } // end of namespace fpga

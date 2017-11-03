@@ -220,7 +220,6 @@ out_exit:
 fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid)
 {
 	struct _fpga_token  *_token;
-	char syfs_path[SYSFS_PATH_MAX] = {0};
 	char *p                        = 0;
 	int device_id                  = 0;
 

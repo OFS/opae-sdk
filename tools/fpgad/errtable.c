@@ -579,7 +579,6 @@ static int poll_error(struct fpga_err *e)
  */
 static int poll_errors(struct fpga_err error_table[])
 {
-	uint64_t err_val;
 	unsigned i;
 	int errors = 0;
 	int res;
@@ -636,11 +635,11 @@ void *logger_thread(void *thread_context)
 	}
 
 	/*
-	 * Check the errors/fme-errors/revision sysfs file to determine
+	 * Check the errors/revision sysfs file to determine
 	 * which table to use.
 	 */
 	snprintf(sysfspath, sizeof(sysfspath),
-			"%s/errors/fme-errors/revision", SYSFS_FME0);
+			"%s/errors/revision", SYSFS_FME0);
 
 	if (!stat(sysfspath, &stats)) {
 		if (!sysfs_read_u64(sysfspath, &err_rev)) {

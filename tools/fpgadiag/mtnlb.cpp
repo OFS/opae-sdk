@@ -49,14 +49,13 @@ namespace diag
 mtnlb::mtnlb(const std::string & afu_id)
 : accelerator_app()
 , afu_id_(afu_id)
-, wkspc_size_(GB(1))
 , dsm_size_(MB(4))
 , inp_size_(MB(4))
 , out_size_(MB(4))
 , frequency_(DEFAULT_FREQ)
 , thread_count_(0)
 , count_(0)
-, stride_(0)
+, stride_(1)
 , mode7_args_(0)
 , mode_("mt7")
 , config_("mtnlb7.json")
@@ -64,6 +63,8 @@ mtnlb::mtnlb(const std::string & afu_id)
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
+, cachelines_(0)
 {
     define_options();
 }
@@ -72,21 +73,22 @@ mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 : accelerator_app()
 , name_(name)
 , afu_id_(afu_id)
-, wkspc_size_(GB(1))
-, dsm_size_(MB(4))
-, inp_size_(MB(4))
-, out_size_(MB(4))
+, dsm_size_(MB(1))
+, inp_size_(MB(2))
+, out_size_(MB(2))
 , frequency_(DEFAULT_FREQ)
 , thread_count_(0)
 , count_(0)
-, stride_(0)
+, stride_(1)
 , mode7_args_(0)
-, mode_("mtnlb7")
+, mode_("mt7")
 , config_("mtnlb7.json")
 , target_("fpga")
 , dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
+, suppress_stats_(false)
+, cachelines_(0)
 {
     define_options();
 }
@@ -100,7 +102,7 @@ void mtnlb::define_options()
     options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
     options_.add_option<uint32_t>("count",           'C', option::with_argument, "number of iterations", 1);
     options_.add_option<uint32_t>("threads",         'T', option::with_argument, "number of threads to spawn - default is 64", 64);
-    options_.add_option<uint32_t>("stride",          'e', option::with_argument, "stride number", 1);
+    options_.add_option<uint32_t>("stride",          'e', option::with_argument, "stride number", stride_);
     options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M wrpush-I", "wrline-M");
     options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S}", "rdline-I");
     options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of { auto, vl0, vh0, vh1, random}", "auto");
@@ -111,9 +113,10 @@ void mtnlb::define_options()
     options_.add_option<uint32_t>("timeout-sec",          option::with_argument, "Timeout for continuous mode (seconds portion)", 1);
     options_.add_option<uint32_t>("timeout-min",          option::with_argument, "Timeout for continuous mode (minutes portion)", 0);
     options_.add_option<uint32_t>("timeout-hour",         option::with_argument, "Timeout for continuous mode (hours portion)", 0);
-    options_.add_option<uint32_t>("freq",            'k', option::with_argument, "Clock frequence (used for bw measurements)", frequency_);
+    options_.add_option<uint32_t>("frequency",       'k', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
+    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stats", suppress_stats_);
 }
 
 mtnlb::~mtnlb()
@@ -124,6 +127,7 @@ mtnlb::~mtnlb()
 bool mtnlb::setup()
 {
     options_.get_value<std::string>("target", target_);
+    options_.get_value<bool>("suppress-stats", suppress_stats_);
     if (target_ == "fpga")
     {
         dsm_timeout_ = FPGA_DSM_TIMEOUT;
@@ -217,7 +221,6 @@ bool mtnlb::setup()
     options_.get_value<uint32_t>("count", count_);
     options_.get_value<uint32_t>("stride", stride_);
     log_.set_level(logger::level::level_info);
-
     if (thread_count_ > mtnlb_max_threads)
     {
         log_.error(mode_) << "thread count is bigger than max: " << mtnlb_max_threads << std::endl;
@@ -236,10 +239,9 @@ bool mtnlb::setup()
         return false;
     }
 
-    inp_size_ = CL(max_cachelines);
-    out_size_ = CL(max_cachelines);
     double log_stride = std::log2(static_cast<double>(stride_));
 
+    cachelines_ = count_*thread_count_*stride_;
     if (thread_count_*stride_*cacheline_size > inp_size_)
     {
         log_.warn() << "Thread count and stride not compatible with max buffer size of " << inp_size_ << std::endl;
@@ -247,11 +249,9 @@ bool mtnlb::setup()
     }
 
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    auto bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_});
-    dsm_ = bufs[0];
-    inp_ = bufs[1];
-    out_ = bufs[2];
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    inp_ = accelerator_->allocate_buffer(inp_size_);
+    out_ = accelerator_->allocate_buffer(out_size_);
 
     if (mode_ == "mt7")
     {
@@ -316,9 +316,13 @@ bool mtnlb::run()
         threads.push_back(std::thread(thread_fn, i, count_, stride_));
     }
     // Read perf counters.
-    fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
-    fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
-
+    fpga_cache_counters  start_cache_ctrs ;
+    fpga_fabric_counters start_fabric_ctrs;
+    if (!suppress_stats_)
+    {
+        start_cache_ctrs  = accelerator_->cache_counters();
+        start_fabric_ctrs = accelerator_->fabric_counters();
+    }
     // start the threads
     ready_ = true;
     for( std::thread & t : threads )
@@ -332,9 +336,6 @@ bool mtnlb::run()
 
     std::this_thread::sleep_for(microseconds(100));
     bool result = !cancel_;
-    uint32_t offset = static_cast<uint32_t>(mtnlb_dsm::test_complete);
-    volatile uint8_t *dsm_status_addr = dsm_->address() + offset;
-    uint8_t* dsm_ptr = const_cast<uint8_t*>(dsm_->address());
 
     log_.debug(mode_) << "All threads complete, sending stop command" << std::endl;
     // stop the test
@@ -361,15 +362,19 @@ bool mtnlb::run()
         log_.warn(mode_) << "Timed out waiting for dsm status bit" << std::endl;
         show_pending(-1);
     }
-    log_.info(name()) << std::endl
-                      << intel::fpga::nlb::nlb_stats(dsm_,
-                                                     0,
-                                                     end_cache_ctrs - start_cache_ctrs,
-                                                     end_fabric_ctrs -start_fabric_ctrs,
-                                                     frequency_,
-                                                     false,
-                                                     suppress_header_,
-                                                     csv_format_);
+
+    if (!suppress_stats_)
+    {
+        log_.info(name()) << std::endl
+                          << intel::fpga::nlb::nlb_stats(dsm_,
+                                                         0,
+                                                         end_cache_ctrs - start_cache_ctrs,
+                                                         end_fabric_ctrs -start_fabric_ctrs,
+                                                         frequency_,
+                                                         false,
+                                                         suppress_header_,
+                                                         csv_format_);
+    }
 
     return result;
 }

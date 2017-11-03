@@ -38,6 +38,7 @@
 #include "ap6.h"
 #include "config_int.h"
 #include "log.h"
+#include "ap_event.h"
 #include <getopt.h>
 
 #define OPT_STR ":hdD:l:p:m:s:n:"
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
 	int j;
 	pthread_t logger;
 	pthread_t server;
+	pthread_t apevent;
 	pthread_t ap6[MAX_SOCKETS]; /* one per socket */
 	struct ap6_context context[MAX_SOCKETS];
 
@@ -282,9 +284,22 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	// AP event
+	res = pthread_create(&apevent, NULL, apevent_thread, &config);
+	if (res) {
+		dlog("failed to create apevent thread.\n");
+		config.running = false;
+		for (i = 0; i < MAX_SOCKETS; i++)\
+			pthread_join(ap6[i], NULL);
+		pthread_join(logger, NULL);
+		pthread_join(server, NULL);
+		return 1;
+	}
 
 	pthread_join(logger, NULL);
 	pthread_join(server, NULL);
+	pthread_join(apevent, NULL);
+
 	for (i = 0; i < MAX_SOCKETS; i++)
 		pthread_join(ap6[i], NULL);
 

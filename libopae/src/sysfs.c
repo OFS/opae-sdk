@@ -138,6 +138,75 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
+// read tuple separated by 'sep' character
+fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
+				 char sep)
+{
+	int fd;
+	int res;
+	char buf[SYSFS_PATH_MAX];
+	int b;
+	char *c;
+	uint32_t x1, x2;
+
+	if (sep == '\0') {
+		FPGA_MSG("invalid separation character");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		FPGA_MSG("open(%s) failed", path);
+		return FPGA_NOT_FOUND;
+	}
+
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		FPGA_MSG("seek failed");
+		goto out_close;
+	}
+
+	b = 0;
+
+	do {
+		res = read(fd, buf+b, sizeof(buf)-b);
+		if (res <= 0) {
+			FPGA_MSG("Read from %s failed", path);
+			goto out_close;
+		}
+		b += res;
+		if ((b > sizeof(buf)) || (b <= 0)) {
+			FPGA_MSG("Unexpected size reading from %s", path);
+			goto out_close;
+		}
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+
+	// erase \n
+	buf[b-1] = 0;
+
+	// read first value
+	x1 = strtoul(buf, &c, 0);
+	if (*c != sep) {
+		FPGA_MSG("couldn't find separation character '%c' in '%s'", sep, path);
+		goto out_close;
+	}
+	// read second value
+	x2 = strtoul(c+1, &c, 0);
+	if (*c != '\0') {
+		FPGA_MSG("unexpected character '%c' in '%s'", *c, path);
+		goto out_close;
+	}
+
+	*u1 = x1;
+	*u2 = x2;
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_NOT_FOUND;
+}
+
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
 {
 	int fd                     = -1;
@@ -191,7 +260,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
-		FPGA_MSG("open: %s", strerror(errno));
+		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -370,11 +439,11 @@ fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)
 fpga_result get_port_sysfs(fpga_handle handle,
 				char *sysfs_port)
 {
+
 	struct _fpga_token  *_token;
-	struct _fpga_handle *_handle   = (struct _fpga_handle *)handle;
-	char syfs_path[SYSFS_PATH_MAX] = {0};
-	char *p                        = 0;
-	int device_id                  = 0;
+	struct _fpga_handle *_handle  = (struct _fpga_handle *)handle;
+	char *p                       = 0;
+	int device_id                 = 0;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -417,11 +486,12 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 				uint64_t *deviceid)
 {
 	struct _fpga_token  *_token      = NULL;
-	struct _fpga_handle *_handle     = (struct _fpga_handle *)handle;
+	struct _fpga_handle  *_handle    = (struct _fpga_handle *)handle;
 	char sysfs_path[SYSFS_PATH_MAX]  = {0};
 	char *p                          = NULL;
 	int device_id                    = 0;
 	fpga_result result               = FPGA_OK;
+	int err                          = 0;
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid handle");
@@ -474,7 +544,9 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 	}
 
 out_unlock:
-	pthread_mutex_unlock(&_handle->lock);
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -528,3 +600,20 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f)
 	return FPGA_OK;
 }
 
+fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)
+{
+	char sdevpath[SYSFS_PATH_MAX];
+	uint32_t major = 0;
+	uint32_t minor = 0;
+	fpga_result result;
+
+	snprintf(sdevpath, SYSFS_PATH_MAX, "%s/dev", sysfspath);
+
+	result = sysfs_read_u32_pair(sdevpath, &major, &minor, ':');
+	if (FPGA_OK != result)
+		return result;
+
+	*object_id = ((major & 0xFFF) << 20) | (minor & 0xFFFFF);
+
+	return FPGA_OK;
+}

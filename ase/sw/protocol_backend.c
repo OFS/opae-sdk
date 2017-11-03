@@ -36,7 +36,6 @@
  *              Intel Corporation
  *
  */
-
 #include "ase_common.h"
 
 // Log-level
@@ -53,11 +52,105 @@ char umsg_mode_msg[ASE_LOGGER_LEN];
 // Session status
 int session_empty;
 
+volatile int sockserver_kill;
+pthread_t socket_srv_tid;
+
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
 
+/*
+ * ASE Listener process variables
+ */
+// Portctrl variables
+static char portctrl_msgstr[ASE_MQ_MSGSIZE];
+
+// Buffer management variables
+static struct buffer_t ase_buffer;
+static char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
+static char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
+static int rx_portctrl_cmd;
+static int portctrl_value;
+
+static char logger_str[ASE_LOGGER_LEN];
+static char umsg_mapstr[ASE_MQ_MSGSIZE];
+
 // User clock frequency
 float f_usrclk;
+
+// Variable declarations
+char tstamp_filepath[ASE_FILEPATH_LEN];
+char *glbl_session_id;
+char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
+
+// CONFIG,SCRIPT parameter paths received from SV (initial)
+char sv2c_config_filepath[ASE_FILEPATH_LEN];
+char sv2c_script_filepath[ASE_FILEPATH_LEN];
+
+// ASE-APP run command
+char *app_run_cmd;
+
+// ASE seed
+uint64_t ase_seed;
+
+// Local IPC log
+FILE *local_ipc_fp;
+
+// ASE PID
+int ase_pid;
+
+// System Memory
+uint64_t sysmem_size;
+uint64_t sysmem_phys_lo;
+uint64_t sysmem_phys_hi;
+
+// Workspace information log (information dump of
+static FILE *fp_workspace_log;
+
+// Memory access debug log
+#ifdef ASE_DEBUG
+FILE *fp_memaccess_log;
+FILE *fp_pagetable_log;
+#endif
+
+uint64_t PHYS_ADDR_PREFIX_MASK;
+int self_destruct_in_progress;
+
+// work Directory location
+char *ase_workdir_path;
+
+// Incoming UMSG packet (allocated in ase_init, deallocated in start_simkill_countdown)
+static struct umsgcmd_t *incoming_umsg_pkt;
+
+// Incoming MMIO packet (allocated in ase_init, deallocated in start_simkill_countdown)
+static struct mmio_t *incoming_mmio_pkt;
+
+/*
+ * ASE capability register
+ * Purpose: This is the response for portctrl_cmd requests (as an ACK)
+ */
+struct ase_capability_t ase_capability = {
+    ASE_UNIQUE_ID,
+    /* UMsg feature interrupt */
+    #ifdef ASE_ENABLE_UMSG_FEATURE
+    1,
+    #else
+    0,
+    #endif
+    /* Interrupt feature interrupt */
+    #ifdef ASE_ENABLE_INTR_FEATURE
+    1,
+    #else
+    0,
+    #endif
+    /* 512-bit MMIO support */
+    #ifdef ASE_ENABLE_MMIO512
+    1
+    #else
+    0
+    #endif
+};
+
+const char *completed_str_msg = (char *)&ase_capability;
 
 /*
  * Generate scope data
@@ -103,12 +196,11 @@ int ase_instance_running(void)
 void sv2c_config_dex(const char *str)
 {
 	// Allocate memory
-	sv2c_config_filepath = ase_malloc(ASE_FILEPATH_LEN);
+	memset(sv2c_config_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Check that input string is not NULL
 	if (str == NULL) {
 		ASE_MSG("sv2c_config_dex => Input string is unusable\n");
-		ase_free_buffer(sv2c_config_filepath);
 	} else {
 		// If Malloc fails
 		if (sv2c_config_filepath != NULL) {
@@ -143,7 +235,7 @@ void sv2c_script_dex(const char *str)
 	if (str == NULL) {
 		ASE_MSG("sv2c_script_dex => Input string is unusable\n");
 	} else {
-		sv2c_script_filepath = ase_malloc(ASE_FILEPATH_LEN);
+		memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
 		if (sv2c_script_filepath != NULL) {
 			ase_string_copy(sv2c_script_filepath, str,
 					ASE_FILEPATH_LEN);
@@ -308,7 +400,27 @@ void mmio_response(struct mmio_t *mmio_pkt)
  */
 void ase_interrupt_generator(int id)
 {
-	ASE_ERR("*FIXME* Nothing happening here !\n");
+	int cnt;
+
+	if (id >= MAX_USR_INTRS) {
+		ASE_ERR("SIM-C : Interrupt #%d > avail. interrupts (%d)!\n",
+					id, MAX_USR_INTRS);
+		return;
+	}
+
+	if (intr_event_fds[id] < 0) {
+		ASE_ERR("SIM-C : No valid event for AFU interrupt %d!\n", id);
+	} else {
+		uint64_t val = 1;
+
+		cnt = write(intr_event_fds[id], &val, sizeof(uint64_t));
+		if (cnt < 0) {
+			ASE_ERR("SIM-C : Error writing fd %d errno = %s\n",
+				intr_event_fds[id], strerror(errno));
+		} else {
+			ASE_MSG("SIM-C : AFU Interrupt event %d\n", id);
+		}
+	}
 }
 
 
@@ -409,6 +521,97 @@ void update_fme_dfh(struct buffer_t *umas)
 	*csr_umsg_base_address = (uint64_t) umas->pbase;
 }
 
+static void *start_socket_srv(void *args)
+{
+	int res = 0; int err_cnt = 0;
+	int sock_msg;
+	errno_t err;
+	int sock_fd;
+	struct sockaddr_un saddr;
+	socklen_t addrlen;
+	struct timeval tv;
+	fd_set readfds;
+
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd == -1) {
+		ASE_ERR("SIM-C : Error opening event socket: %s",
+			strerror(errno));
+		err_cnt++;
+		return args;
+	}
+
+	// set socket type to non blocking
+	fcntl(sock_fd, F_SETFL, O_NONBLOCK);
+	fcntl(sock_fd, F_SETFL, O_ASYNC);
+	saddr.sun_family = AF_UNIX;
+
+	err = generate_sockname(saddr.sun_path);
+	if (err != EOK) {
+		ASE_ERR("%s: Error strncpy_s\n", __func__);
+		err_cnt++;
+		goto err;
+	}
+
+	// unlink previous addresses in use (if any)
+	unlink(saddr.sun_path);
+	addrlen = sizeof(struct sockaddr_un);
+	if (bind(sock_fd, (struct sockaddr *)&saddr, addrlen) < 0) {
+		ASE_ERR("SIM-C : Error binding event socket: %s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Creating Socket Server@%s...\n", saddr.sun_path);
+	if (listen(sock_fd, 5) < 0) {
+		ASE_ERR("SIM-C : Socket server listen failed with error:%s\n",
+			strerror(errno));
+		err_cnt++;
+		goto err;
+	}
+
+	ASE_MSG("SIM-C : Started listening on server %s\n", saddr.sun_path);
+	tv.tv_usec = 0;
+	FD_ZERO(&readfds);
+
+	do {
+		FD_SET(sock_fd, &readfds);
+		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
+		if (res < 0) {
+			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
+			err_cnt++;
+			break;
+		}
+		if (FD_ISSET(sock_fd, &readfds)) {
+			sock_msg = accept(sock_fd, (struct sockaddr *)&saddr,
+					  &addrlen);
+			if (sock_msg == -1) {
+				ASE_ERR("SIM-C : accept error=%s\n",
+					strerror(errno));
+				err_cnt++;
+				break;
+			}
+			if (read_fd(sock_msg) != 0) {
+				err_cnt++;
+				break;
+			}
+		}
+		if (sockserver_kill)
+			break;
+	} while (res >= 0);
+
+	ASE_MSG("SIM-C : Exiting event socket server@%s...\n", saddr.sun_path);
+
+err:
+	close(sock_msg);
+	close(sock_fd);
+	unlink(saddr.sun_path);
+	sockserver_kill = 0;
+	return args;
+}
+
 
 /* ********************************************************************
  * ASE Listener thread
@@ -441,53 +644,30 @@ int ase_listener(void)
 	 * expectation of a string check
 	 *
 	 */
-	char portctrl_msgstr[ASE_MQ_MSGSIZE];
-	char portctrl_cmd[ASE_MQ_MSGSIZE];
-	int portctrl_value;
-	memset(portctrl_msgstr, 0, ASE_MQ_MSGSIZE);
-	memset(portctrl_cmd, 0, ASE_MQ_MSGSIZE);
-
-	// Allocate a completed string
-	completed_str_msg = (char *) ase_malloc(ASE_MQ_MSGSIZE);
-	snprintf(completed_str_msg, 10, "COMPLETED");
-
 	// Simulator is not in lockdown mode (simkill not in progress)
 	if (self_destruct_in_progress == 0) {
-		if (mqueue_recv
-		    (app2sim_portctrl_req_rx, (char *) portctrl_msgstr,
-		     ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
-			sscanf(portctrl_msgstr, "%s %d", portctrl_cmd,
-			       &portctrl_value);
-			if (ase_strncmp(portctrl_cmd, "AFU_RESET", 9) == 0) {
+		if (mqueue_recv(app2sim_portctrl_req_rx, (char *)portctrl_msgstr, ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
+			sscanf(portctrl_msgstr, "%d %d", &rx_portctrl_cmd, &portctrl_value);
+			if (rx_portctrl_cmd == AFU_RESET) {
 				// AFU Reset control
-				portctrl_value =
-				    (portctrl_value != 0) ? 1 : 0;
+				portctrl_value = (portctrl_value != 0) ? 1 : 0 ;
 
 				// Wait until transactions clear
 				// AFU Reset trigger function will wait until channels clear up
-				afu_softreset_trig(0, portctrl_value);
+				afu_softreset_trig (0, portctrl_value);
 
 				// Reset response is returned from simulator once queues are cleared
 				// Simulator cannot be held up here.
-			} else
-			    if (ase_strncmp(portctrl_cmd, "UMSG_MODE", 9)
-				== 0) {
+			} else if (rx_portctrl_cmd == UMSG_MODE) {
 				// Umsg mode setting here
-				glbl_umsgmode =
-				    portctrl_value & 0xFFFFFFFF;
-				snprintf(umsg_mode_msg, ASE_LOGGER_LEN,
-					 "UMSG Mode mask set to 0x%x",
-					 glbl_umsgmode);
+				glbl_umsgmode = portctrl_value & 0xFFFFFFFF;
+				snprintf(umsg_mode_msg, ASE_LOGGER_LEN, "UMSG Mode mask set to 0x%x", glbl_umsgmode);
 				buffer_msg_inject(1, umsg_mode_msg);
 
 				// Send portctrl_rsp message
-				mqueue_send(sim2app_portctrl_rsp_tx,
-					    completed_str_msg,
-					    ASE_MQ_MSGSIZE);
-			} else if (ase_strncmp(portctrl_cmd, "ASE_INIT", 8)
-				   == 0) {
-				ASE_INFO("Session requested by PID = %d\n",
-					 portctrl_value);
+				mqueue_send(sim2app_portctrl_rsp_tx, completed_str_msg, ASE_MQ_MSGSIZE);
+			} else if (rx_portctrl_cmd == ASE_INIT) {
+				ASE_INFO("Session requested by PID = %d\n", portctrl_value);
 				// Generate new timestamp
 				put_timestamp();
 
@@ -495,6 +675,7 @@ int ase_listener(void)
 				snprintf(tstamp_filepath, ASE_FILEPATH_LEN,
 					 "%s/%s", ase_workdir_path,
 					 TSTAMP_FILENAME);
+
 				// Print timestamp
 				glbl_session_id = ase_malloc(20);
 				get_timestamp(glbl_session_id);
@@ -504,60 +685,56 @@ int ase_listener(void)
 				session_empty = 0;
 
 				// Send portctrl_rsp message
-				mqueue_send(sim2app_portctrl_rsp_tx,
-					    completed_str_msg,
-					    ASE_MQ_MSGSIZE);
-			} else
-			    if (ase_strncmp
-				(portctrl_cmd, "ASE_SIMKILL", 11) == 0) {
+				mqueue_send(sim2app_portctrl_rsp_tx, completed_str_msg, ASE_MQ_MSGSIZE);
+
+				int thr_err = pthread_create(&socket_srv_tid,
+				NULL, &start_socket_srv, NULL);
+
+				if (thr_err != 0) {
+					ASE_ERR("FAILED Event server \
+					failed to start\n");
+					exit(1);
+				}
+				ASE_MSG("Event socket server started\n");
+			} else if (rx_portctrl_cmd == ASE_SIMKILL) {
 #ifdef ASE_DEBUG
-				ASE_MSG
-				    ("ASE_SIMKILL requested, processing options... \n");
+				ASE_MSG("ASE_SIMKILL requested, processing options... \n");
 #endif
+
+				sockserver_kill = 1;
 				// ------------------------------------------------------------- //
 				// Update regression counter
-				glbl_test_cmplt_cnt =
-				    glbl_test_cmplt_cnt + 1;
+				glbl_test_cmplt_cnt = glbl_test_cmplt_cnt + 1;
 				// Mode specific exit behaviour
-				if ((cfg->ase_mode ==
-				     ASE_MODE_DAEMON_NO_SIMKILL)
-				    && (session_empty == 0)) {
-					ASE_MSG
-					    ("ASE running in daemon mode (see ase.cfg)\n");
-					ASE_MSG
-					    ("Reseting buffers ... Simulator RUNNING\n");
+				if ((cfg->ase_mode == ASE_MODE_DAEMON_NO_SIMKILL) && (session_empty == 0)) {
+					ASE_MSG("ASE running in daemon mode (see ase.cfg)\n");
+					ASE_MSG("Reseting buffers ... Simulator RUNNING\n");
 					ase_reset_trig();
 					ase_destroy();
-					ASE_INFO
-					    ("Ready to run next test\n");
+					ASE_INFO("Ready to run next test\n");
 					session_empty = 1;
-					buffer_msg_inject(0,
-							  TEST_SEPARATOR);
-				} else if (cfg->ase_mode ==
-					   ASE_MODE_DAEMON_SIMKILL) {
-					ASE_INFO
-					    ("ASE Timeout SIMKILL will happen soon\n");
-				} else if (cfg->ase_mode ==
-					   ASE_MODE_DAEMON_SW_SIMKILL) {
-					ASE_INFO
-					    ("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
-					run_clocks(500);
+					buffer_msg_inject(0, TEST_SEPARATOR);
+				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SIMKILL) {
+					ASE_INFO("ASE Timeout SIMKILL will happen soon\n");
+				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
+					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
+					run_clocks (500);
 					ase_perror_teardown();
 					start_simkill_countdown();
-				} else if (cfg->ase_mode ==
-					   ASE_MODE_REGRESSION) {
-					if (cfg->ase_num_tests ==
-					    glbl_test_cmplt_cnt) {
-						ASE_INFO
-						    ("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n",
-						     cfg->ase_num_tests);
-						run_clocks(500);
+				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
+					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
+						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
+						run_clocks (500);
 						ase_perror_teardown();
 						start_simkill_countdown();
 					} else {
 						ase_reset_trig();
 					}
 				}
+				// wait for server shutdown
+				pthread_join(socket_srv_tid, NULL);
+
+
 				// Check for simulator sanity -- if transaction counts dont match
 				// Kill the simulation ASAP -- DEBUG feature only
 #ifdef ASE_DEBUG
@@ -588,16 +765,11 @@ int ase_listener(void)
 					    ASE_MQ_MSGSIZE);
 			}
 		}
-		// ------------------------------------------------------------------------------- //
 
+		// ------------------------------------------------------------------------------- //
 		/*
 		 * Buffer Allocation Replicator
 		 */
-		struct buffer_t ase_buffer;
-		char logger_str[ASE_LOGGER_LEN];
-		char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
-		memset(incoming_alloc_msgstr, 0, ASE_MQ_MSGSIZE);
-
 		// Receive a DPI message and get information from replicated buffer
 		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
@@ -679,10 +851,8 @@ int ase_listener(void)
 			ase_buffer_info(&ase_buffer);
 #endif
 		}
-		// ------------------------------------------------------------------------------- //
-		char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
-		memset(incoming_dealloc_msgstr, 0, ASE_MQ_MSGSIZE);
 
+		// ------------------------------------------------------------------------------- //
 		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
 		    (app2sim_dealloc_rx, (char *) incoming_dealloc_msgstr,
@@ -716,14 +886,11 @@ int ase_listener(void)
 			ase_buffer_info(&ase_buffer);
 #endif
 		}
+
 		// ------------------------------------------------------------------------------- //
 		/*
 		 * MMIO request listener
 		 */
-		// char mmio_mapstr[ASE_MQ_MSGSIZE];
-		// Message string
-		// struct mmio_t *mmio_pkt;
-
 		// Receive csr_write packet
 		if (mqueue_recv
 		    (app2sim_mmioreq_rx, (char *) incoming_mmio_pkt,
@@ -740,8 +907,6 @@ int ase_listener(void)
 		/*
 		 * UMSG engine
 		 */
-		char umsg_mapstr[ASE_MQ_MSGSIZE];
-
 		// cleanse string before reading
 		if (mqueue_recv
 		    (app2sim_umsg_rx, (char *) umsg_mapstr,
@@ -804,6 +969,61 @@ void calc_phys_memory_ranges(void)
 		(uint64_t) (sysmem_phys_hi + 1) / (uint64_t) pow(1024, 3));
 }
 
+int read_fd(int sock_fd)
+{
+	struct msghdr msg = {0};
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct event_request req = { .type = 0, .flags = 0 };
+	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
+	struct cmsghdr *cmsg;
+	int *fdptr;
+
+	memset(buf, '\0', sizeof(buf));
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+
+	if (recvmsg(sock_fd, &msg, 0) < 0) {
+		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
+		return 1;
+	}
+
+	cmsg = CMSG_FIRSTHDR(&msg);
+
+	int vector_id;
+
+	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	if (req.type == REGISTER_EVENT) {
+		vector_id = req.flags;
+		intr_event_fds[vector_id] = *fdptr;
+	}
+	if (req.type == UNREGISTER_EVENT) {
+		int i;
+		// locate the interrupt vector to unregister
+		// from the event handle
+		for (i = 0; i < MAX_USR_INTRS; i++) {
+			if (intr_event_fds[vector_id] == *fdptr)
+				intr_event_fds[vector_id] = -1;
+		}
+	}
+	return 0;
+}
+
+
 
 // -----------------------------------------------------------------------
 // DPI Initialize routine
@@ -863,7 +1083,7 @@ int ase_init(void)
 	create_ipc_listfile();
 
 	// Sniffer file stat path
-	ccip_sniffer_file_statpath = ase_malloc(ASE_FILEPATH_LEN);
+	memset(ccip_sniffer_file_statpath, 0, ASE_FILEPATH_LEN);
 	snprintf(ccip_sniffer_file_statpath, ASE_FILEPATH_LEN,
 		 "%s/ccip_warning_and_errors.txt", ase_workdir_path);
 
@@ -926,6 +1146,18 @@ int ase_init(void)
 	sim2app_intr_request_tx =
 	    mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
 
+	int i;
+
+	for (i = 0; i < MAX_USR_INTRS; i++)
+		intr_event_fds[i] = -1;
+
+	sockserver_kill = 0;
+
+
+	// Generate Completed message for portctrl
+	/* completed_str_msg = (char*)ase_malloc(ASE_MQ_MSGSIZE); */
+	/* snprintf(completed_str_msg, 10, "COMPLETED"); */
+
 	// Calculate memory map regions
 	ASE_MSG("Calculating memory map...\n");
 	calc_phys_memory_ranges();
@@ -940,7 +1172,7 @@ int ase_init(void)
 	/*     ase_seed = generate_ase_seed(); */
 	/*     ase_write_seed ( ase_seed ); */
 	/*   } */
-	ase_write_seed(cfg->ase_seed);
+	ase_write_seed (cfg->ase_seed);
 	srand(cfg->ase_seed);
 
 	// Open Buffer info log
@@ -1071,6 +1303,7 @@ void start_simkill_countdown(void)
 	// Final clean of IPC
 	final_ipc_cleanup();
 
+
 	// Close workspace log
 	if (fp_workspace_log != NULL) {
 		fclose(fp_workspace_log);
@@ -1146,7 +1379,7 @@ void ase_config_parse(char *filename)
 	char *parameter;
 	int value;
 	char *pch;
-
+	char *saveptr;
 
 	// Allocate space to store ASE config
 	cfg = (struct ase_cfg_t *) ase_malloc(sizeof(struct ase_cfg_t));
@@ -1186,14 +1419,14 @@ void ase_config_parse(char *filename)
 				remove_newline(line);
 				// Ignore strings begining with '#' OR NULL (compound NOR)
 				if ((line[0] != '#') && (line[0] != '\0')) {
-					parameter = strtok(line, "=\n");
+					parameter = strtok_r(line, "=\n", &saveptr);
 					if (parameter != NULL) {
 						if (ase_strncmp
 						    (parameter, "ASE_MODE",
 						     8) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_mode
@@ -1207,8 +1440,8 @@ void ase_config_parse(char *filename)
 							 "ASE_TIMEOUT",
 							 11) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_timeout
@@ -1222,8 +1455,8 @@ void ase_config_parse(char *filename)
 							 "ASE_NUM_TESTS",
 							 13) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_num_tests
@@ -1237,8 +1470,8 @@ void ase_config_parse(char *filename)
 							 "ENABLE_REUSE_SEED",
 							 17) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    enable_reuse_seed
@@ -1252,8 +1485,8 @@ void ase_config_parse(char *filename)
 							 "ASE_SEED",
 							 8) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    ase_seed
@@ -1267,8 +1500,8 @@ void ase_config_parse(char *filename)
 							 "ENABLE_CL_VIEW",
 							 14) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								cfg->
 								    enable_cl_view
@@ -1282,8 +1515,8 @@ void ase_config_parse(char *filename)
 							 "USR_CLK_MHZ",
 							 11) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								f_usrclk =
 								    atof
@@ -1343,8 +1576,8 @@ void ase_config_parse(char *filename)
 							 "PHYS_MEMORY_AVAILABLE_GB",
 							 24) == 0) {
 							pch =
-							    strtok(NULL,
-								   "");
+							    strtok_r(NULL,
+								   "", &saveptr);
 							if (pch != NULL) {
 								value =
 								    atoi

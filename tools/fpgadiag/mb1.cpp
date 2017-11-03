@@ -45,8 +45,10 @@ namespace fpga
 namespace diag
 {
 
-const uint32_t num_rd_lines = 65536;
-const uint32_t rd_lines_stride = 1;
+struct cacheline_t
+{
+    uint64_t data[8];
+};
 
 mb1::mb1()
 : name_("mb1")
@@ -60,10 +62,9 @@ mb1::mb1()
 , guid_("C000C966-0D82-4272-9AEF-FE5F84570612")
 , frequency_(MHZ(400))
 , wkspc_size_(GB(1))
-, dsm_size_(MB(4))
+, dsm_size_(MB(2))
 , inp_size_(CL(65536))
 , out_size_(CL(65536))
-, rd_lines_size_(num_rd_lines*sizeof(uint32_t))
 , cool_cache_size_(MB(200))
 , suppress_header_(false)
 , csv_format_(false)
@@ -175,7 +176,7 @@ bool mb1::setup()
     }
 
     options_.get_value<uint32_t>("num-lines", cachelines_);
-    if ((0 == cachelines_) || (cachelines_ > num_rd_lines))
+    if (0 == cachelines_)
     {
         std::cerr << "Invalid --num-lines: " << cachelines_ << std::endl;
         return false;
@@ -255,32 +256,35 @@ bool mb1::run()
 
     bool res = true;
 
-    wkspc_ = accelerator_->allocate_buffer(wkspc_size_);
-    if (!wkspc_)
-    {
-        std::cerr << "failed to allocate workspace." << std::endl;
+    dma_buffer::ptr_t dsm = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm) {
+        log_.error("mb1") << "failed to allocate DSM workspace." << std::endl;
         return false;
     }
 
-    std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(wkspc_, { dsm_size_, inp_size_, out_size_, rd_lines_size_, cool_cache_size_ });
 
-    dma_buffer::ptr_t dsm = bufs[0];
-    dma_buffer::ptr_t inp = bufs[1];
-    dma_buffer::ptr_t out = bufs[2];
-    dma_buffer::ptr_t rd_lines = bufs[3];
-    dma_buffer::ptr_t cool_cache = bufs[4];
+    dma_buffer::ptr_t inout; // shared workspace, if possible
+    dma_buffer::ptr_t inp;   // input workspace
+    dma_buffer::ptr_t out;   // output workspace
 
-    // Initialize the rd_lines buffer
-    uint32_t *prd_lines = (uint32_t *) rd_lines->address();
+    std::size_t buf_size = CL(cachelines_);
+    if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
+                             (buf_size > MB(2) && buf_size < MB(512))) {  // split
+        inout = accelerator_->allocate_buffer(buf_size * 2);
+        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        inp = bufs[0];
+        out = bufs[1];
+    } else {
+        inp = accelerator_->allocate_buffer(buf_size);
+        out = accelerator_->allocate_buffer(buf_size);
+    }
 
-    for (uint32_t i = 0 ; i < num_rd_lines ; ++i)
-        prd_lines[i] = (i + rd_lines_stride) % num_rd_lines;
-
-    // Initialize the input buffer
-    uint32_t *pinp = (uint32_t *) inp->address();
-    for (uint32_t i = 0 ; i < num_rd_lines ; ++i)
-        for(uint32_t j = 0 ; j < 16 ; ++j)
-            *pinp++ = prd_lines[i];
+    inp->fill(0);
+    volatile cacheline_t *cl_ptr = reinterpret_cast<volatile cacheline_t*>(inp->address());
+    for (size_t i = 0; i < cachelines_; ++i, ++cl_ptr)
+    {
+        cl_ptr->data[0] = (i + 1)%cachelines_;
+    }
 
     // Initialize the output buffer
     out->fill(0);
@@ -292,11 +296,11 @@ bool mb1::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(mb1_csr::basel), reinterpret_cast<uint64_t>(dsm->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(mb1_csr::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
     // assert AFU reset.
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::ctl), 0);
     // clear the DSM.
-    dsm->fill(0);
+    dsm_->fill(0);
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::ctl), 1);
 
@@ -316,14 +320,13 @@ bool mb1::run()
     // set the test config
     accelerator_->write_mmio32(static_cast<uint32_t>(mb1_csr::cfg), cfg_.value());
 
+    std::vector<uint32_t> cpu_cool_buffer(0);
     if (cool_cpu_cache_)
     {
-        uint32_t *p32 = (uint32_t *) cool_cache->address();
-        uint32_t *pEnd = p32 + (cool_cache->size() / sizeof(uint32_t));
+        cpu_cool_buffer.resize(cool_cache_size_/sizeof(uint32_t));
         uint32_t  i = 0;
-
-        while (p32 < pEnd)
-            *p32++ = i++;
+        for (auto & r32 : cpu_cool_buffer)
+            r32 = i++;
     }
 
     // Read perf counters.
@@ -335,7 +338,7 @@ bool mb1::run()
 
     dma_buffer::microseconds_t timeout(3000000);
 
-    bool poll_result = dsm->poll<uint32_t>((size_t)mb1_dsm::test_complete,
+    bool poll_result = dsm_->poll<uint32_t>((size_t)mb1_dsm::test_complete,
                                            timeout,
                                            (uint32_t)0x1,
                                            (uint32_t)1);
@@ -350,7 +353,7 @@ bool mb1::run()
         res = false;
     }
 
-    std::cout << intel::fpga::nlb::nlb_stats(dsm,
+    std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                              cachelines_,
                                              end_cache_ctrs - start_cache_ctrs,
                                              end_fabric_ctrs - start_fabric_ctrs,

@@ -60,6 +60,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/file.h>
+#include <sys/eventfd.h>
 #include <dirent.h>
 #include <execinfo.h>
 #include <locale.h>
@@ -69,10 +70,7 @@
 #include <linux/limits.h>
 #include <uuid/uuid.h>
 #include <safe_string/safe_string.h>
-
-#ifndef SIM_SIDE
 #include <pthread.h>
-#endif
 
 #ifdef SIM_SIDE
 #include "svdpi.h"
@@ -132,6 +130,8 @@
 #define DEFAULT_USR_CLK_MHZ        312.500
 #define DEFAULT_USR_CLK_TPS        (int)(1E+12/(DEFAULT_USR_CLK_MHZ*pow(1000, 2)));
 
+// Max number of user interrupts
+#define MAX_USR_INTRS              4
 
 /*
  * ASE Debug log-level
@@ -155,9 +155,9 @@ int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
 
 #ifdef SIM_SIDE
-  #define LOG_PREFIX "  [SIM]  "
+#define LOG_PREFIX "  [SIM]  "
 #else
-  #define LOG_PREFIX "  [APP]  "
+#define LOG_PREFIX "  [APP]  "
 #endif
 
 // Shorten filename
@@ -183,10 +183,10 @@ void ase_print(int loglevel, char *fmt, ...);
 #endif
 #ifdef ASE_DEBUG
 #define ASE_ERR(format, ...)					\
-    ase_print(ASE_LOG_ERROR, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+	ase_print(ASE_LOG_ERROR, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define ASE_ERR(format, ...)					\
-    ase_print(ASE_LOG_ERROR, LOG_PREFIX format, ## __VA_ARGS__)
+	ase_print(ASE_LOG_ERROR, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
 
@@ -195,10 +195,10 @@ void ase_print(int loglevel, char *fmt, ...);
 #endif
 #ifdef ASE_DEBUG
 #define ASE_INFO(format, ...)					\
-    ase_print(ASE_LOG_INFO, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+	ase_print(ASE_LOG_INFO, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define ASE_INFO(format, ...)					\
-    ase_print(ASE_LOG_INFO, LOG_PREFIX format, ## __VA_ARGS__)
+	ase_print(ASE_LOG_INFO, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
 
@@ -207,10 +207,10 @@ void ase_print(int loglevel, char *fmt, ...);
 #endif
 #ifdef ASE_DEBUG
 #define ASE_INFO_2(format, ...)					\
-    ase_print(ASE_LOG_INFO_2, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+	ase_print(ASE_LOG_INFO_2, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define ASE_INFO_2(format, ...)					\
-    ase_print(ASE_LOG_INFO_2, LOG_PREFIX format, ## __VA_ARGS__)
+	ase_print(ASE_LOG_INFO_2, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
 
@@ -219,10 +219,10 @@ void ase_print(int loglevel, char *fmt, ...);
 #endif
 #ifdef ASE_DEBUG
 #define ASE_MSG(format, ...)					\
-    ase_print(ASE_LOG_MESSAGE, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+	ase_print(ASE_LOG_MESSAGE, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 #else
 #define ASE_MSG(format, ...)						\
-    ase_print(ASE_LOG_MESSAGE, LOG_PREFIX format, ## __VA_ARGS__)
+	ase_print(ASE_LOG_MESSAGE, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
 
@@ -230,7 +230,7 @@ void ase_print(int loglevel, char *fmt, ...);
 #undef ASE_DBG
 #endif
 #define ASE_DBG(format, ...)						\
-    ase_print(ASE_LOG_DEBUG, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+	ase_print(ASE_LOG_DEBUG, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 
 
 /*
@@ -252,29 +252,19 @@ void ase_print(int loglevel, char *fmt, ...);
 #define ASE_SESSION_CODE_LEN    20
 
 // work Directory location
-char *ase_workdir_path;
+extern char *ase_workdir_path;
 
 // Timestamp IPC file
 #define TSTAMP_FILENAME ".ase_timestamp"
-char tstamp_filepath[ASE_FILEPATH_LEN];
-char *glbl_session_id;
+extern char tstamp_filepath[ASE_FILEPATH_LEN];
+extern char *glbl_session_id;
 
 // CCIP Warnings and Error stat location
-char *ccip_sniffer_file_statpath;
+extern char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 
 // READY file name
 #define ASE_READY_FILENAME ".ase_ready.pid"
 #define APP_LOCK_FILENAME  ".app_lock.pid"
-
-// IPC control list
-char *ipclist_filepath;
-
-// CONFIG,SCRIPT parameter paths received from SV (initial)
-char *sv2c_config_filepath;
-char *sv2c_script_filepath;
-
-// ASE-APP run command
-char *app_run_cmd;
 
 // ASE Mode macros
 #define ASE_MODE_DAEMON_NO_SIMKILL   1
@@ -318,17 +308,22 @@ char *app_run_cmd;
 #define ASE_OS_MALLOC_ERR              0x7	// Malloc error
 #define ASE_OS_STRING_ERR              0x8	// String operations error
 #define ASE_IPCKILL_CATERR             0xA	// Catastropic error when cleaning
-					      // IPCs, manual intervention required
+// IPCs, manual intervention required
 #define ASE_UNDEF_ERROR                0xFF	// Undefined error, pls report
 
 // Simkill message
 #define ASE_SIMKILL_MSG      0xDEADDEAD
 
+// ASE PortCtrl Command values
+typedef enum {
+    AFU_RESET,
+    ASE_SIMKILL,
+    ASE_INIT,
+    UMSG_MODE
+} ase_portctrl_cmd;
+
 // Test complete separator
 #define TEST_SEPARATOR       "#####################################################"
-
-// Completed String
-char *completed_str_msg;
 
 
 /* *******************************************************************************
@@ -394,12 +389,6 @@ typedef struct umsgcmd_t {
 } umsgcmd_t;
 
 
-// Incoming UMSG packet (allocated in ase_init, deallocated in start_simkill_countdown)
-struct umsgcmd_t *incoming_umsg_pkt;
-
-// Incoming MMIO packet (allocated in ase_init, deallocated in start_simkill_countdown)
-struct mmio_t *incoming_mmio_pkt;
-
 // Compute buffer_t size
 #define BUFSIZE     sizeof(struct buffer_t)
 
@@ -409,10 +398,9 @@ extern struct buffer_t *head;	// Head pointer
 extern struct buffer_t *end;	// Tail pointer
 
 // DPI side CSR base, offsets updated on CSR writes
-uint64_t *mmio_afu_vbase;
+extern uint64_t *mmio_afu_vbase;
 // UMAS Base Address
-uint64_t *umsg_umas_vbase;
-
+extern uint64_t *umsg_umas_vbase;
 
 // ASE buffer valid/invalid indicator
 // When a buffer is 'allocated' successfully, it will be valid, when
@@ -472,11 +460,14 @@ void ase_memory_barrier(void);
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
 void ase_free_buffer(char *);
+void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
 void ase_write_seed(uint32_t);
 uint32_t ase_read_seed(void);
-
+bool check_app_lock_file(void);
+void create_new_lock_file(void);
+bool remove_existing_lock_file(void);
 
 // ASE operations
 #ifdef ASE_DEBUG
@@ -533,45 +524,44 @@ void update_fme_dfh(struct buffer_t *);
 #ifdef __cplusplus
 extern "C" {
 #endif				// __cplusplus
+	// Session control
+	void session_init(void);
+	void session_deinit(void);
+	void poll_for_session_id(void);
+	int ase_read_lock_file(const char *);
+	void send_simkill(int);
+	void send_swreset(void);
+	// Shared memory alloc/dealloc operations
+	void allocate_buffer(struct buffer_t *, uint64_t *);
+	void deallocate_buffer(struct buffer_t *);
+	bool deallocate_buffer_by_index(int);
+	void append_wsmeta(struct wsmeta_t *);
+	// MMIO activity
+	int find_empty_mmio_scoreboard_slot(void);
+	int get_scoreboard_slot_by_tid(int);
+	int count_mmio_tid_used(void);
+	uint32_t generate_mmio_tid(void);
+	int mmio_request_put(struct mmio_t *);
+	void mmio_response_get(struct mmio_t *);
+	void mmio_write32(int, uint32_t);
+	void mmio_write64(int, uint64_t);
+	void mmio_read32(int, uint32_t *);
+	void mmio_read64(int, uint64_t *);
+	// GET IOVA
+	struct buffer_t *find_buffer_by_index(uint64_t);
 
-// Session control
-void session_init(void);
-void session_deinit(void);
-void poll_for_session_id(void);
-int ase_read_lock_file(const char *);
-void send_simkill(int);
-void send_swreset(void);
-// Shared memory alloc/dealloc operations
-void allocate_buffer(struct buffer_t *, uint64_t *);
-void deallocate_buffer(struct buffer_t *);
-bool deallocate_buffer_by_index(int);
-void append_wsmeta(struct wsmeta_t *);
-// MMIO activity
-int find_empty_mmio_scoreboard_slot(void);
-int get_scoreboard_slot_by_tid(int);
-int count_mmio_tid_used(void);
-uint32_t generate_mmio_tid(void);
-int mmio_request_put(struct mmio_t *);
-void mmio_response_get(struct mmio_t *);
-void mmio_write32(int, uint32_t);
-void mmio_write64(int, uint64_t);
-void mmio_read32(int, uint32_t *);
-void mmio_read64(int, uint64_t *);
-// GET IOVA
-struct buffer_t *find_buffer_by_index(uint64_t);
-
-// UMSG functions
-uint64_t *umsg_get_address(int);
-void umsg_send(int, uint64_t *);
-void umsg_set_attribute(uint32_t);
-// Driver activity
-void ase_portctrl(const char *);
-// Threaded watch processes
-void *mmio_response_watcher(void *);
-// ASE-special malloc
-char *ase_malloc(size_t);
-void *umsg_watcher(void *);
-
+	// UMSG functions
+	uint64_t *umsg_get_address(int);
+	void umsg_send(int, uint64_t *);
+	void umsg_set_attribute(uint32_t);
+	// Driver activity
+	void ase_portctrl(ase_portctrl_cmd, int);
+	// Threaded watch processes
+	void *mmio_response_watcher();
+	// ASE-special malloc
+	char *ase_malloc(size_t);
+	void *umsg_watcher();
+	// void *intr_request_watcher();
 #ifdef __cplusplus
 }
 #endif				// __cplusplus
@@ -595,7 +585,6 @@ struct ipc_t {
 	int perm_flag;
 };
 struct ipc_t mq_array[ASE_MQ_INSTANCES];
-//struct ipc_t *mq_array;
 
 
 /* ********************************************************************
@@ -613,6 +602,19 @@ struct ipc_t mq_array[ASE_MQ_INSTANCES];
 #define FUNC_CALL_ENTRY
 #define FUNC_CALL_EXIT
 #endif
+#define SOCKNAME "/tmp/ase_event_server_"
+enum request_type {
+	REGISTER_EVENT = 0,
+	UNREGISTER_EVENT = 1
+};
+
+struct event_request {
+	enum request_type type;
+	int flags;
+};
+
+int register_event(int event_handle, int flags);
+int unregister_event(int event_handle);
 
 // ---------------------------------------------------------------------
 // Enable memory test function
@@ -694,7 +696,6 @@ typedef struct {
 #define CCIPKT_ATOMIC_MODE   0x8080
 #define CCIPKT_INTR_MODE     0x4040
 
-
 /*
  * Function prototypes
  */
@@ -751,56 +752,38 @@ void update_glbl_dealloc(int);
 // Redeclaring ase_malloc, following maintainer-check issues !!! Do Not Edit !!!
 char *ase_malloc(size_t);
 
-
-/*
- * ASE Ready session control files, for wrapping with autorun script
- */
-//   File pointer
-FILE *fp_ase_ready;
 // Ready filepath
-char *ase_ready_filepath;
-
-// ASE seed
-uint64_t ase_seed;
-
-// ASE error file
-FILE *error_fp;			// = (FILE *)NULL;
+extern char *ase_ready_filepath;
 
 
 /*
  * IPC cleanup on catastrophic errors
  */
 #define IPC_LOCAL_FILENAME ".ase_ipc_local"
-FILE *local_ipc_fp;		// = (FILE *)NULL;
+extern FILE *local_ipc_fp;
 
 /*
  * Physical Memory ranges for PrivMem & SysMem
  */
 // System Memory
-uint64_t sysmem_size;
-uint64_t sysmem_phys_lo;
-uint64_t sysmem_phys_hi;
+extern uint64_t sysmem_size;
+extern uint64_t sysmem_phys_lo;
+extern uint64_t sysmem_phys_hi;
 
 // ASE PID
-int ase_pid;
-
-// ASE hostname
-char *ase_hostname;
-
-// Workspace information log (information dump of
-FILE *fp_workspace_log;		// = (FILE *)NULL;
+extern int ase_pid;
 
 // Memory access debug log
 #ifdef ASE_DEBUG
-FILE *fp_memaccess_log;		// = (FILE *)NULL;
-FILE *fp_pagetable_log;		// = (FILE *)NULL;
+extern FILE *fp_memaccess_log;
+extern FILE *fp_pagetable_log;
 #endif
 
 // Physical address mask - used to constrain generated addresses
-uint64_t PHYS_ADDR_PREFIX_MASK;
+extern uint64_t PHYS_ADDR_PREFIX_MASK;
 
 // '1' indicates that teardown is in progress
-int self_destruct_in_progress;
+extern int self_destruct_in_progress;
 
 #endif
 
@@ -819,6 +802,7 @@ int app2sim_dealloc_rx;
 int sim2app_dealloc_tx;
 int sim2app_portctrl_rsp_tx;
 int sim2app_intr_request_tx;
+int intr_event_fds[MAX_USR_INTRS];
 #else
 int app2sim_alloc_tx;		// app2sim mesaage queue in RX mode
 int sim2app_alloc_rx;		// sim2app mesaage queue in TX mode
@@ -835,18 +819,33 @@ int sim2app_intr_request_rx;
 // There is no global fixes for this
 #define DEFEATURE_ATOMICS
 
-
 /*
  * Platform specific switches are enabled here
+ * - ase_magic - ensure that the data is legal (0xFACEF00D is default)
+ * - umsg_feature - Enable Umsg feature
+ * - intr_feature - Enable Interrupt feature
+ * - mmio_512bit  - Enable 512-bit MMIO Write
+ *
  */
+struct ase_capability_t {
+    char magic_word[sizeof(ASE_UNIQUE_ID)];
+    int  umsg_feature;
+    int  intr_feature;
+    int  mmio_512bit;
+};
+
+extern struct ase_capability_t ase_capability;
+
 // ------------------------------------------ //
 #ifdef FPGA_PLATFORM_INTG_XEON
 #define ASE_ENABLE_UMSG_FEATURE
 #undef  ASE_ENABLE_INTR_FEATURE
+#define ASE_ENABLE_MMIO512
 // ------------------------------------------ //
 #elif FPGA_PLATFORM_DISCRETE
 #undef  ASE_ENABLE_UMSG_FEATURE
 #define ASE_ENABLE_INTR_FEATURE
+#undef  ASE_ENABLE_MMIO512
 #endif
 // ------------------------------------------ //
 

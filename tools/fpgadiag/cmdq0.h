@@ -59,7 +59,7 @@ public:
     virtual const std::string &        name()                 override { return name_;    }
     virtual bool                       setup()                override;
     virtual bool                       run()                  override;
-
+    virtual uint64_t                   cachelines()     const override { return cachelines_; }
     void show_help(std::ostream &os);
 
 private:

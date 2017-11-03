@@ -25,8 +25,8 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-include_directories(${CMAKE_SOURCE_DIR}/../../common/include
-                    ${CMAKE_SOURCE_DIR}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}/libopae/src )
 
 set(SRC main.c )
 

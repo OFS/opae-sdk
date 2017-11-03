@@ -28,20 +28,18 @@
  * log.c : logging routines
  */
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <pthread.h>
-#undef _GNU_SOURCE
+#include "log.h"
 
 static pthread_mutex_t log_lock = PTHREAD_MUTEX_INITIALIZER;
 FILE *fLog;
 int open_log(const char *filename)
 {
 	int res;
+	int err;
 
-	pthread_mutex_lock(&log_lock);
+	err = pthread_mutex_lock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
 
 	fLog = fopen(filename, "a");
 	if (fLog) {
@@ -51,7 +49,9 @@ int open_log(const char *filename)
 		res = -1;
 	}
 
-	pthread_mutex_unlock(&log_lock);
+	err = pthread_mutex_unlock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
 	return res;
 }
 
@@ -59,15 +59,20 @@ int dlog(const char *fmt, ...)
 {
 	va_list l;
 	int res;
+	int err;
 
 	va_start(l, fmt);
 
-	pthread_mutex_lock(&log_lock);
+	err = pthread_mutex_lock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
 
 	res = vfprintf(fLog, fmt, l);
 	fflush(fLog);
 
-	pthread_mutex_unlock(&log_lock);
+	err = pthread_mutex_unlock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
 
 	va_end(l);
 
@@ -78,4 +83,3 @@ void close_log(void)
 {
 	fclose(fLog);
 }
-

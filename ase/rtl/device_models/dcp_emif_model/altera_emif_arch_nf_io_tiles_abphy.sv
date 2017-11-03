@@ -1,5 +1,5 @@
-// Copyright(c) 2017, Intel Corporation
-//
+// (C) 2001-2017 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -358,7 +358,6 @@
 
 module altera_emif_arch_nf_io_tiles_abphy #(
    parameter DIAG_SYNTH_FOR_SIM                      = 0,
-   parameter DIAG_VERBOSE_IOAUX                      = 0,
    parameter DIAG_CPA_OUT_1_EN                       = 0,
    parameter DIAG_FAST_SIM                           = 0,
    parameter IS_HPS                                  = 0,
@@ -960,7 +959,7 @@ module altera_emif_arch_nf_io_tiles_abphy #(
          min_wlat         = PRI_AC_TILE_INDEX+1;
        end
      end
-     if ( DIAG_VERBOSE_IOAUX!=0 ) $display("min wlat=%d",min_wlat);
+     //$display("min wlat=%d",min_wlat);
      if ( DIAG_ABSTRACT_PHY_WLAT<min_wlat ) begin
        wlat             = min_wlat;
      end
@@ -971,7 +970,7 @@ module altera_emif_arch_nf_io_tiles_abphy #(
      if ( rlat<(wlat+6) )
        rlat             = wlat+6;
 
-     if ( DIAG_VERBOSE_IOAUX!=0 ) $display("post min wlat=%d rlat=%d",wlat,rlat);
+     //$display("post min wlat=%d rlat=%d",wlat,rlat);
    end
 
    generate
@@ -1340,8 +1339,8 @@ module altera_emif_arch_nf_io_tiles_abphy #(
              if ( global_reset_n_int !==1'b1 )
                @ (posedge global_reset_n_int);
              #100;
-             if ( DIAG_VERBOSE_IOAUX!=0 ) $display("wlat=%d rtl",wlat);
-             if ( DIAG_VERBOSE_IOAUX!=0 ) $display("rlat=%d rtl",rlat);
+             //$display("wlat=%d rtl",wlat);
+             //$display("rlat=%d rtl",rlat);
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk2.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_phy_rst_n=1;
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk2.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_ctl_rst_n=1;
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk2.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_rst_n=1;
@@ -1364,8 +1363,8 @@ module altera_emif_arch_nf_io_tiles_abphy #(
              if ( global_reset_n_int !==1'b1 )
                @ (posedge global_reset_n_int);
              #100;
-             if ( DIAG_VERBOSE_IOAUX!=0 ) $display("wlat=%d rtl",wlat);
-             if ( DIAG_VERBOSE_IOAUX!=0 ) $display("rlat=%d rtl",rlat);
+             //$display("wlat=%d rtl",wlat);
+             //$display("rlat=%d rtl",rlat);
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk1.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_phy_rst_n=1;
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk1.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_ctl_rst_n=1;
              force tile_gen[tile_i].tile_ctrl_inst.inst.genblk1.xio_tile_ctrl.xio_hmc.io_phy_sequencer_inst.avl_tile_inst.cmd_rst_n=1;
@@ -1715,7 +1714,6 @@ module altera_emif_arch_nf_io_tiles_abphy #(
 
 
    mem_array_abphy #(
-     .DIAG_VERBOSE_IOAUX                        (DIAG_VERBOSE_IOAUX),
      .NUM_OF_RTL_TILES                          (NUM_OF_RTL_TILES),
      .LANES_PER_TILE                            (LANES_PER_TILE),
      .USER_CLK_RATIO                            (USER_CLK_RATIO),

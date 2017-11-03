@@ -26,43 +26,107 @@
 #include "log.h"
 #include <fstream>
 #include <unistd.h>
+#include <iostream>
 
 namespace intel
 {
 namespace utils
 {
 
-logger::logger(const std::string & filename)
-    : log_(0)
-    , null_stream_(0)
-    , level_(level::level_none)
+std::timed_mutex s_mutex;
+
+wrapped_stream::wrapped_stream(std::ostream * stream, bool new_line)
+: stream_(stream)
+, sstream_(new std::stringstream())
+, locked_(false)
+, have_stream_(false)
+, lock_(s_mutex, std::defer_lock)
+, append_new_line_(new_line)
 {
-    filestream_.open(filename);
-    if (filestream_.is_open())
+}
+
+wrapped_stream::wrapped_stream(const wrapped_stream & other)
+: stream_(other.stream_)
+, sstream_(other.sstream_)
+, locked_(false)
+, have_stream_(other.have_stream_)
+, lock_(s_mutex, std::defer_lock)
+, append_new_line_(other.append_new_line_)
+{
+}
+
+wrapped_stream & wrapped_stream::operator=(const wrapped_stream & other)
+{
+    if (this != &other)
     {
-        log_ = &filestream_;
+        stream_ = other.stream_;
+        sstream_ = other.sstream_;
+        locked_ = other.locked_;
+        have_stream_ = other.have_stream_;
+        if (other.lock_ && !lock_)
+        {
+            lock_.lock();
+        }
+        else if (!other.lock_ && lock_)
+        {
+            lock_.release();
+        }
+        append_new_line_ = other.append_new_line_;
     }
+    return *this;
+}
+
+wrapped_stream::~wrapped_stream()
+{
+    lock();
+    if (append_new_line_)
+    {
+        *stream_ << "\n";
+    }
+    if (stream_) *stream_  << sstream_->str();
+    sstream_->str(std::string());
+}
+
+void wrapped_stream::lock()
+{
+    if (!locked_)
+    {
+        lock_.try_lock_for(std::chrono::seconds(1));
+        locked_ = true;
+    }
+}
+
+wrapped_stream& wrapped_stream::operator<<(std::ostream& (*manip)(std::ostream&))
+{
+    if (stream_) *sstream_ << manip;
+    return *this;
+}
+
+logger::logger()
+: level_(level::level_none)
+, name_()
+{
     pid_ = ::getpid();
 }
 
-logger::logger(std::ostream & stream)
-    : log_(&stream)
-    , null_stream_(0)
-    , level_(level::level_none)
+logger::logger(const std::string & name)
+: level_(level::level_none)
+, name_(name)
 {
     pid_ = ::getpid();
 }
 
 
-std::ostream & logger::log(level l, std::string str)
+wrapped_stream logger::log(level l, std::string str)
 {
-    auto & stream = l >= level_ && log_ ? *log_ : null_stream_;
-    stream << "[" << pid_ << "][" << level_name(l) << "]";
+    wrapped_stream stream((l >= level_  ? &std::cout : 0));
+    stream << std::dec << "[" << pid_ << "][" << level_name(l) << "]";
+    if (name_ != "") stream << "[" << name_ << "]";
     if (str != "")
     {
         stream << "[" << str << "]";
     }
-    stream << std::boolalpha;
+    stream << std::boolalpha << " ";
 
     return stream;
 }
@@ -98,30 +162,30 @@ std::string logger::level_name(level l)
 }
 
 
-std::ostream & logger::debug(std::string str)
+wrapped_stream logger::debug(std::string str)
 {
     return log(level::level_debug, str);
 }
 
-std::ostream & logger::info(std::string str)
+wrapped_stream logger::info(std::string str)
 {
     return log(level::level_info, str);
 }
 
-std::ostream & logger::warn(std::string str)
+wrapped_stream logger::warn(std::string str)
 {
     return log(level::level_warn, str);
 }
 
-std::ostream & logger::error(std::string str)
+wrapped_stream logger::error(std::string str)
 {
     return log(level::level_error, str);
 }
-std::ostream & logger::exception(std::string str)
+wrapped_stream logger::exception(std::string str)
 {
     return log(level::level_exception, str);
 }
-std::ostream & logger::fatal(std::string str)
+wrapped_stream logger::fatal(std::string str)
 {
     return log(level::level_fatal, str);
 }

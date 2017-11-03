@@ -26,6 +26,7 @@
 #pragma once
 #include <mutex>
 #include "dma_buffer.h"
+#include "fpga_common.h"
 
 namespace intel
 {
@@ -53,15 +54,22 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         dma_buffer::ptr_t buffer(0);
-        if (!buffer_ || addr_offset_ + size > buffer_->address() + buffer_->size())
+        // round up to next multiple of 4MB
+        auto next_size = size;
+        if (next_size % MB(4) != 0)
+        {
+            next_size = (size/MB(4) + 1)*MB(4);
+        }
+
+        if (!buffer_ || addr_offset_ + next_size > buffer_->address() + buffer_->size())
         {
             // TODO: Log some sort of error or throw an exception?
             // but for now return a null buffer
             return buffer;
         }
-        buffer.reset(new dma_buffer(buffer_, addr_offset_, iova_offset_, size));
-        addr_offset_ += size;
-        iova_offset_ += size;
+        buffer.reset(new dma_buffer(buffer_, addr_offset_, iova_offset_, next_size));
+        addr_offset_ += next_size;
+        iova_offset_ += next_size;
         return buffer;
     }
 

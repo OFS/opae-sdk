@@ -51,8 +51,8 @@ namespace utils
 
     bool path_exists(const std::string &path)
     {
-        struct stat buffer;
-        return 0 == stat(path.c_str(), &buffer);
+        std::fstream fs(path);
+        return fs.good();
     }
 
     std::string rtrim(std::string str)

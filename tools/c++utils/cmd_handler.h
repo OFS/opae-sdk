@@ -82,6 +82,7 @@ public:
     }
 
     bool do_help(const cmd_vector_t & cmd);
+    void show_help(std::ostream & str, bool include_help = false);
     std::string readline(const std::string & prompt);
 
     template<typename ...Types>
