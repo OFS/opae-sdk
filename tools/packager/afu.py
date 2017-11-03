@@ -32,7 +32,7 @@ import jsonschema
 import utils
 import zipfile
 from metadata import metadata
-from gbs import GBS
+from gbs import GBS, GBS_EXT
 
 filepath = os.path.dirname(os.path.realpath(__file__))
 schema_path = "schema/afu_schema_v01.json"
