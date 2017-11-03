@@ -174,6 +174,7 @@ define_pkg(devel
   docrtf
   docman
   docxml
+  platform
   samplesrc
   GROUP "devel"
   DISPLAY_NAME "opae-devel"

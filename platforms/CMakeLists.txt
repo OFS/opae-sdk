@@ -35,16 +35,21 @@ set(PLATFORM_SHARE_DIR share/opae/platform)
 
 install(DIRECTORY ${PLATFORM_DIRS} DESTINATION ${PLATFORM_SHARE_DIR} COMPONENT platform)
 
-## Update directory paths in the platform configuration script
-configure_file(
-        scripts/afu_platform_config afu_platform_config
-        @ONLY NEWLINE_STYLE UNIX)
-add_custom_target(afu_platform_config ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/afu_platform_config)
-
+## All scripts from the scripts subdirectory
 set(PLATFORM_SCRIPTS
-        ${CMAKE_CURRENT_BINARY_DIR}/afu_platform_config
-        scripts/rtl_src_config)
+        afu_platform_config
+        rtl_src_config)
 
-install(PROGRAMS ${PLATFORM_SCRIPTS}
-        DESTINATION bin
-        COMPONENT platform)
+foreach(SRC ${PLATFORM_SCRIPTS})
+  ## Substitute CMake variables of the form @<var>@ in the source file
+  ## and store the file in the build tree's bin directory.
+  configure_file(
+          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
+          @ONLY NEWLINE_STYLE UNIX)
+  ## This forces the configure_file to be built for all targets
+  add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
+
+  install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
+          DESTINATION bin
+          COMPONENT platform)
+endforeach(SRC)
