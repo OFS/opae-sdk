@@ -29,7 +29,9 @@
             "interface": "struct",
             "params":
                {
-                  "vc-supported": "{ 1, 0, 1, 0 }"
+                  "vc-supported": "{ 1, 0, 1, 0 }",
+                  "max-bw-active-lines-c0": "{ 256, 256, 256, 256 }",
+                  "max-bw-active-lines-c1": "{ 128, 128, 128, 128 }"
                }
          },
          {

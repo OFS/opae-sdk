@@ -60,15 +60,25 @@ def errorExit(msg):
 def getDBRootPath():
     ## CMake will update any variables marked by @ with the proper values.
     opae_install_dir = '@CMAKE_INSTALL_PREFIX@'
+    project_src_dir = '@CMAKE_CURRENT_SOURCE_DIR@'
     db_root_dir = '@PLATFORM_SHARE_DIR@'
+
+    # Parent directory of the running script
+    parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
     # If this script is installed, the above variables are substituted.
     if (db_root_dir[0] != '@'):
-        db_root = os.path.join(opae_install_dir, db_root_dir)
+        # The script has at least had variables substituted.  Either it is in the
+        # CMake build directory or it is installed.
+        if (os.path.isfile(os.path.join(parent_dir, 'CMakeCache.txt'))):
+            # We're in the CMake build directory.  Use the source tree's database.
+            db_root = project_src_dir
+        else:
+            # The script is installed.
+            db_root = os.path.join(opae_install_dir, db_root_dir)
     else:
-        # Running the script from the source tree.  The database root is the root
-        # directory of this script
-        db_root = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
+        # Running out of the source tree
+        db_root = parent_dir
 
     return db_root
 
@@ -297,7 +307,8 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
                 # AFU can accept a single entry we're ok.
                 if (arg['min-entries'] > 1):
                     errorExit("{0} argument {1}:{2} requires more vector entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
-                print("  vector length is 1")
+                if (args.verbose):
+                    print("  {0} vector length is 1".format(plat_key))
             elif (not arg['vector'] and plat_match['vector']):
                 # Platform provides a vector, but the AFU doesn't want one
                 if (plat_match['min-entries'] > 1):
@@ -329,7 +340,8 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
                     errorExit("{0} argument {1}:{2} requires more fewer entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
 
                 # Found an acceptable number of entries
-                print("  vector length is {0}".format(entries))
+                if (args.verbose):
+                    print("  {0} vector length is {1}".format(plat_key, entries))
                 match['num-entries'] = entries
 
             # Valid module argument

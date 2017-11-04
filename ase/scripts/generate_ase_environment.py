@@ -54,6 +54,7 @@ import ase_functions
 import os, re, sys
 from collections import defaultdict
 from fnmatch import fnmatch
+import json
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -85,7 +86,11 @@ arg_list = []
 tolowarg_list = []
 valid_dirlist = []
 
-special_chars_in_path = 0
+def errorExit(msg):
+    ase_functions.begin_red_fontcolor()
+    sys.stderr.write("\nError: " + msg + "\n")
+    ase_functions.end_red_fontcolor()
+    sys.exit(1)
 
 def remove_dups(filepath, exclude=None):
     import hashlib
@@ -104,7 +109,11 @@ def remove_dups(filepath, exclude=None):
             hashes[h] = f
     text = '\n'.join(sorted(hashes.values(), key=os.path.basename))
     with open(filepath, 'w') as fd:
+        ## Add the prologue to load platform include paths
+        fd.write("+incdir+rtl\n")
+        fd.write("-F rtl/platform_if_includes.txt\n")
         fd.write(text)
+        fd.write("\n")
     return text
 
 
@@ -146,8 +155,229 @@ def has_duplicates(word_dict):
         return True
     return False
 
-######################## Close file and exit #################################
-def print_instructions():
+
+#############################################################################
+##    Case #1: Construct build from a list of files                        ##
+#############################################################################
+
+def config_sources(fd, filelist):
+    # Get all the sources.  rtl_src_config will emit all relevant source
+    # files, one per line.
+    try:
+        srcs = commands_getoutput("rtl_src_config --sim --abs {0}".format(filelist))
+    except:
+        errorExit("failed to read sources from {0}".format(filelist))
+
+    vlog_srcs = []
+    vhdl_srcs = []
+    json_srcs = []
+
+    # Separate boolean tracking for whether vlog/vhdl are found since
+    # simulator commands (e.g. +define+) wind up in both.
+    vlog_found = False
+    vhdl_found = False
+
+    srcs = srcs.split('\n')
+    for s in srcs:
+        if (len(s) == 0):
+            None
+        elif (s[0] == '+'):
+            # + simulator commands go in both Verilog and VHDL
+            vlog_srcs.append(s)
+            vhdl_srcs.append(s)
+        elif (s[0] == '-'):
+            # For now assume - is an include directive and used only for Verilog
+            vlog_srcs.append(s)
+            vlog_found = True
+        else:
+            sl = s.lower()
+
+            # Verilog or SystemVerilog?
+            for ext in VLOG_EXTENSIONS:
+                if (sl[-len(ext):] == ext):
+                    vlog_srcs.append(s)
+                    vlog_found = True
+                    break
+
+            # VHDL?
+            for ext in VHD_EXTENSIONS:
+                if (sl[-len(ext):] == ext):
+                    vhdl_srcs.append(s)
+                    vhdl_found = True
+                    break
+
+            if (sl[-5:] == '.json'):
+                json_srcs.append(s)
+
+    # List Verilog & SystemVerilog sources in a file
+    if (vlog_found):
+        fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
+        with open(VLOG_FILE_LIST, "w") as f:
+            f.write("+incdir+rtl\n")
+            f.write("-F rtl/platform_if_includes.txt\n")
+            for s in vlog_srcs:
+                f.write(s + "\n")
+
+    # List VHDL sources in a file
+    if (vhdl_found):
+        fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
+        with open(VHDL_FILE_LIST, "w") as f:
+            f.write("+incdir+rtl\n")
+            f.write("-F rtl/platform_if_includes.txt\n")
+            for s in vhdl_srcs:
+                f.write(s + "\n")
+
+    # Is there a JSON file describing the AFU?
+    json_file = None
+    if (len(json_srcs)):
+        # Yes, JSON specified in file list
+        json_file = json_srcs[0]
+    else:
+        # Is there a JSON file in the same directory as the file list?
+        dir = os.path.dirname(filelist)
+        str = commands_getoutput("find -L {0} -maxdepth 1 -type f -name *.json".format(dir))
+        if (len(str)):
+            # Use the discovered JSON file, but complain that it should have been
+            # named explicitly.
+            json_file = str.split('\n')[0]
+            ase_functions.begin_green_fontcolor()
+            json_basename = os.path.basename(json_file)
+            print(" *** JSON file {0} should be included in {1} ***".format(json_basename,
+                                                                            os.path.abspath(filelist)))
+            print("     The afu-image:afu-top-interface key in {0} will be used".format(json_basename))
+            print("     to specify the AFU's top level interface.")
+            ase_functions.end_green_fontcolor()
+
+    return json_file
+
+
+#############################################################################
+##    Case #2: Construct build automatically by looking for RTL sources    ##
+#############################################################################
+def auto_find_sources(fd):
+    #######################################################################
+    # Prepare list of candidate directories
+    print("Valid directories supplied => ")
+    valid_dirlist = filter(lambda p : os.path.exists(p), args.dirlist)
+    str_dirlist = " ".join(valid_dirlist)
+    if len(valid_dirlist) == 0:
+        ase_functions.begin_red_fontcolor()
+        print("No Valid source directories were specified ... please re-run script with legal directory name")
+        show_help()
+        ase_functions.end_red_fontcolor()
+        sys.exit(1)
+
+    ########################################################
+    # Check if VHDL files exist, populate if any
+    ########################################################
+    print("")
+    print("Finding VHDL files ... ")
+    str = ""
+    vhdl_filepaths = ""
+    for extn in VHD_EXTENSIONS:
+        str = str + commands_getoutput("find -L " + str_dirlist + " -type f -name *" + extn)
+        if len(str) != 0:
+            str = str + "\n"
+    if len(str.strip()) != 0:
+        open(VHDL_FILE_LIST, "w").write(str)
+        vhdl_filepaths = str
+        print("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST)
+        fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
+    else:
+        print("No VHDL files were found !")
+
+    ########################################################
+    # Check if V/SV files exist, populate if any
+    ########################################################
+    print("")
+    print("Finding {System}Verilog files ... ")
+    str = ""
+    vlog_filepaths = ""
+    cmd = ""
+    for extn in VLOG_EXTENSIONS:
+        cmd = "find -L " + str_dirlist + " -type f -name *pkg*" + extn
+        str = str + commands_getoutput(cmd)
+        if len(str) != 0:
+            str = str + "\n"
+    for extn in VLOG_EXTENSIONS:
+        cmd = "find -L " + str_dirlist + " -type f -name *" + extn + " -not -name *pkg*" + extn
+        str = str + commands_getoutput(cmd)
+        if len(str) != 0:
+            str = str + "\n"
+    if len(str) != 0:
+        open(VLOG_FILE_LIST, "w").write(str)
+        vlog_filepaths = str
+        print("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST)
+        fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
+    else:
+        print("No {System}Verilog files were found !")
+
+    vlog_filepaths = remove_dups(VLOG_FILE_LIST, args.exclude)
+
+    ########################################################
+    # Recursively find and add directory locations for VH
+    ########################################################
+    print("")
+    print("Finding include directories ... ")
+    str = commands_getoutput("find -L " + str_dirlist + " -type d")
+    str = str.replace("\n", "+")
+    if len(str) != 0:
+        print("DUT_INCDIR = " + str)
+        fd.write("DUT_INCDIR = " + str + "\n\n")
+
+    #############################################
+    # Module repetition check
+    #############################################
+    vhdl_filepaths = vhdl_filepaths.replace("\n", " ").split()
+    vlog_filepaths = vlog_filepaths.replace("\n", " ").split()
+
+    all_filepaths = vhdl_filepaths + vlog_filepaths
+    module_namelist = []
+    module_files = defaultdict(list)
+
+    for filepath in all_filepaths:
+        file_content = open(filepath).readlines()
+        for line in file_content:
+            strip_line = line.strip()
+            if strip_line.startswith("//"):
+                continue
+            elif strip_line.startswith("module"):
+                words = strip_line.split()
+                modname = words[1]
+                module_files[modname].append(filepath)
+                module_namelist.append(modname)
+
+    if (has_duplicates(module_files) == True):
+        ase_functions.begin_red_fontcolor()
+        print("\n")
+        print("Duplicate module names were found in the RTL file lists.")
+        print("Please remove them manually as RTL compilation is expected to FAIL !")
+        ase_functions.end_red_fontcolor()
+
+    ############################################################
+    # Search for a JSON file describing the top-level interface
+    ############################################################
+    json_file = None
+    str = commands_getoutput("find -L " + str_dirlist + " -type f -name *.json")
+    if (len(str)):
+        for js in str.split('\n'):
+            try:
+                with open(js) as f:
+                    db = json.load(f)
+                f.close()
+
+                afu_ifc = db['afu-image']['afu-top-interface']['name']
+                # If we get this far without an exception the JSON file names
+                # a top-level interface.  Use it.
+                json_file = js
+                print("\nAFU interface from {0}: {1}".format(os.path.basename(json_file), afu_ifc))
+                break
+            except:
+                None
+
+    #############################################
+    # Print auto-find instructions
+    #############################################
     print("")
     ase_functions.begin_green_fontcolor()
     print("NOTES TO USER => ")
@@ -161,6 +391,33 @@ def print_instructions():
     ase_functions.end_green_fontcolor()
     print("")
 
+    return json_file
+
+
+#############################################################################
+##    AFU / Platform interface configuration                               ##
+#############################################################################
+def gen_afu_platform_ifc(json_file):
+    cfg = "afu_platform_config --sim --tgt=rtl "
+
+    if (json_file):
+        cfg += "--src={0} ".format(json_file)
+    elif (args.plat == 'discrete'):
+        cfg += "--ifc=ccip_std_afu_avalon_mm_legacy_wires "
+    else:
+        cfg += "--ifc=ccip_std_afu "
+
+    if (args.plat == 'discrete'):
+        cfg += "discrete_pcie3"
+    else:
+        cfg += args.plat
+
+    try:
+        print(commands_getoutput(cfg))
+    except:
+        errorExit("Aborting ASE configuration")
+
+
 #############################################################################
 ##                        Script begins here                               ##
 #############################################################################
@@ -170,33 +427,44 @@ print("#             OPAE Intel(R) Xeon(R) + FPGA Library              #")
 print("#               AFU Simulation Environment (ASE)                #")
 print("#                                                               #")
 print("#################################################################")
-parser = argparse.ArgumentParser()
-parser.add_argument('dirlist', nargs='+',
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="Configure an ASE environment given a set of RTL sources.",
+    epilog='''\
+Two modes of specifying sources are available.  When the --files argument
+is set, sources are specified explicitly.  The rtl_src_config script,
+included in OPAE, parses the sources file.  rtl_src_config supports
+setting preprocessor variables and include paths.  It also offers
+guaranteed ordering to support SystemVerilog package dependence.
+
+The second mode is source auto-discovery.  Pass a set of directories on
+the command line and they will be searched for RTL sources.''')
+
+parser.add_argument('dirlist', nargs='*',
                     help='list of directories to scan')
+parser.add_argument('-f', '--files',
+                    help="""file containing list of source files.  The file will be
+                            parsed by rtl_src_config.""")
 parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default='VCS',
                     help='simulator tool to use, default is VCS')
 parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'], default='intg_xeon',
                     help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
-                    help='file name pattern to exclude')
+                    help='file name pattern to exclude (only in auto-discovery mode)')
+
 args = parser.parse_args()
+
+if (len(args.dirlist) == 0) and not args.files:
+    errorExit("either --files or at least on scan directory must be specified")
+if len(args.dirlist) and args.files:
+    errorExit("scan directories may not be specified along with --files")
+
 tool_type = args.tool
 TOOL_BRAND = args.tool
 PLAT_TYPE = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
              'discrete' : 'FPGA_PLATFORM_DISCRETE'}.get(args.plat)
-print("\nTool Brand : ", TOOL_BRAND)
-print("\nPlatform Type : ", PLAT_TYPE)
-#######################################################################
-# Prepare list of candidate directories
-print ("Valid directories supplied => "); 
-valid_dirlist = filter(lambda p : os.path.exists(p), args.dirlist)
-str_dirlist = " ".join(valid_dirlist)
-if len(valid_dirlist) == 0:
-    ase_functions.begin_red_fontcolor()
-    print("No Valid source directories were specified ... please re-run script with legal directory name")
-    show_help()
-    ase_functions.end_red_fontcolor()
-    sys.exit(0)
+print("\nTool Brand: ", TOOL_BRAND)
+print("Platform Type: ", PLAT_TYPE)
 
 ########################################################
 ### Write Makefile snippet ###
@@ -210,69 +478,6 @@ fd.write("# File generated by ase/scripts/generate_ase_environment.py  #\n")
 fd.write("#                                                            #\n")
 fd.write("##############################################################\n")
 fd.write("\n")
-
-########################################################
-# Check if VHDL files exist, populate if any
-########################################################
-print("")
-print("Finding VHDL files ... ")
-str = ""
-vhdl_filepaths = ""
-for extn in VHD_EXTENSIONS:
-    str = str + commands_getoutput("find -L " + str_dirlist + " -type f -name *" + extn)
-    if len(str) != 0:
-        str = str + "\n"
-if len(str.strip()) != 0:
-    open(VHDL_FILE_LIST, "w").write(str)
-    vhdl_filepaths = str
-    print("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST)
-    fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
-else:
-    print("No VHDL files were found !")
-
-########################################################
-# Check if V/SV files exist, populate if any
-########################################################
-print("")
-print("Finding {System}Verilog files ... ")
-str = ""
-vlog_filepaths = ""
-cmd = ""
-for extn in VLOG_EXTENSIONS:
-    cmd = "find -L " + str_dirlist + " -type f -name *pkg*" + extn
-    str = str + commands_getoutput(cmd)
-    if len(str) != 0:
-        str = str + "\n"
-for extn in VLOG_EXTENSIONS:
-    cmd = "find -L " + str_dirlist + " -type f -name *" + extn + " -not -name *pkg*" + extn
-    str = str + commands_getoutput(cmd)
-    if len(str) != 0:
-        str = str + "\n"
-if len(str) != 0:
-    open(VLOG_FILE_LIST, "w").write(str)
-    vlog_filepaths = str
-    print("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST)
-    fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
-else:
-    print("No {System}Verilog files were found !")
-
-vlog_filepaths = remove_dups(VLOG_FILE_LIST, args.exclude)
-
-########################################################
-# Recursively find and add directory locations for VH
-########################################################
-print("")
-print("Finding include directories ... ")
-str = commands_getoutput("find -L " + str_dirlist + " -type d")
-str = str.replace("\n", "+")
-if len(str) != 0:
-    print("DUT_INCDIR = " + str)
-    fd.write("DUT_INCDIR = " + str + "\n\n")
-
-#############################################
-# Find ASE HW files ###
-#############################################
-pwd = commands_getoutput("pwd").strip()
 
 #############################################
 # Update SIMULATOR
@@ -288,59 +493,32 @@ fd.write("ASE_PLATFORM ?= ")
 fd.write(PLAT_TYPE)
 fd.write("\n\n")
 
+#############################################
+# Configure RTL sources
+#############################################
+if (args.files):
+    # Sources are specified explicitly in a file containing a list of sources
+    json_file = config_sources(fd, args.files)
+else:
+    # Discover sources by scanning a set of directories
+    json_file = auto_find_sources(fd)
+
+# Both source discovery methods may return a JSON file describing the AFU.
+# They will return None if no JSON file is found.
+gen_afu_platform_ifc(json_file)
+
 fd.close()
 
 #############################################
 # Write tool specific scripts
 #############################################
-if tool_type == "VCS":
-    print ("Generating VCS specific Runtime TCL scripts")
-    ### Write Synopsys Setup file& TCL script ###
-    open("synopsys_sim.setup", "w").write("WORK > DEFAULT\nDEFAULT : ./work\n")
-    open("vcs_run.tcl", "w").write("dump -depth 0 \ndump -aggregates -add / \nrun \nquit\n")
-elif tool_type == "QUESTA":
-    ### Generate .DO file ###
-    print ("Generating Modelsim specific scripts")
-    open("vsim_run.tcl", "w").write("add wave -r /* \nrun -all\n")
 
-#############################################
-# Print special character message
-#############################################
-if (special_chars_in_path == 1):
-    ase_functions.begin_red_fontcolor()
-    print("Special characters found in path name --- RTL simulator tools may have trouble deciphering paths")
-    ase_functions.end_red_fontcolor()
+## Scripts for multiple tools are written since the default tool
+## can be selected at build time.
 
-#############################################
-# Module repetition check
-#############################################
-vhdl_filepaths = vhdl_filepaths.replace("\n", " ").split()
-vlog_filepaths = vlog_filepaths.replace("\n", " ").split()
+# Write Synopsys Setup file & TCL script
+open("synopsys_sim.setup", "w").write("WORK > DEFAULT\nDEFAULT : ./work\n")
+open("vcs_run.tcl", "w").write("dump -depth 0 \ndump -aggregates -add / \nrun \nquit\n")
 
-all_filepaths = vhdl_filepaths + vlog_filepaths
-module_namelist = []
-module_files = defaultdict(list)
-
-for filepath in all_filepaths:
-    file_content = open(filepath).readlines()
-    for line in file_content:
-        strip_line = line.strip()
-        if strip_line.startswith("//"):
-            continue
-        elif strip_line.startswith("module"):
-            words = strip_line.split()
-            modname = words[1]
-            module_files[modname].append(filepath)
-            module_namelist.append(modname)
-
-ase_functions.begin_red_fontcolor()
-if (has_duplicates(module_files) == True):
-    print("\n")
-    print("Duplicate module names were found in the RTL file lists.")
-    print("Please remove them manually as RTL compilation is expected to FAIL !")
-ase_functions.end_red_fontcolor()
-
-#############################################
-# Print instructions
-#############################################
-print_instructions()
+# Generate .DO file
+open("vsim_run.tcl", "w").write("add wave -r /* \nrun -all\n")

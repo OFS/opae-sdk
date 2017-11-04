@@ -44,7 +44,8 @@ sim_tag_map = {
     '.sv':   'SYSTEMVERILOG_FILE',
     '.vh':   'SYSTEMVERILOG_FILE',
     '.svh':  'SYSTEMVERILOG_FILE',
-    '.vhd':  'VHDL_FILE'
+    '.vhd':  'VHDL_FILE',
+    '.json': 'MISC_FILE'
 }
 
 ##
@@ -52,6 +53,7 @@ sim_tag_map = {
 ##
 def quartusTag(filename):
     _basename, ext = os.path.splitext(filename)
+    ext = ext.lower()
 
     if (not ext in quartus_tag_map):
         errorExit("unrecognized file extension '{0}' ({1})".format(ext, filename))
@@ -60,6 +62,7 @@ def quartusTag(filename):
 
 def lookupTag(filename, db):
     _basename, ext = os.path.splitext(filename)
+    ext = ext.lower()
 
     if (not ext in db):
         return None
