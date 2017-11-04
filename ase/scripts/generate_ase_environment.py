@@ -127,6 +127,14 @@ def commands_getoutput(cmd):
         str_out = byte_out.decode("utf-8")
         return str_out
 
+def commands_list_getoutput(cmd):
+    if sys.version_info < (2,7):
+        return commands.getoutput(' '.join(cmd))
+    else:
+        byte_out = subprocess.check_output(cmd)
+        str_out = byte_out.decode("utf-8")
+        return str_out
+
 ############################# Print Help #####################################
 def show_help():
     ase_functions.begin_red_fontcolor()
@@ -164,7 +172,7 @@ def config_sources(fd, filelist):
     # Get all the sources.  rtl_src_config will emit all relevant source
     # files, one per line.
     try:
-        srcs = commands_getoutput("rtl_src_config --sim --abs {0}".format(filelist))
+        srcs = commands_list_getoutput("rtl_src_config --sim --abs".split(" ") + [filelist])
     except:
         errorExit("failed to read sources from {0}".format(filelist))
 
@@ -216,7 +224,7 @@ def config_sources(fd, filelist):
             f.write("+incdir+rtl\n")
             f.write("-F rtl/platform_if_includes.txt\n")
             for s in vlog_srcs:
-                f.write(s + "\n")
+                f.write(s.replace(' ', '\ ') + "\n")
 
     # List VHDL sources in a file
     if (vhdl_found):
@@ -225,7 +233,7 @@ def config_sources(fd, filelist):
             f.write("+incdir+rtl\n")
             f.write("-F rtl/platform_if_includes.txt\n")
             for s in vhdl_srcs:
-                f.write(s + "\n")
+                f.write(s.replace(' ', '\ ') + "\n")
 
     # Is there a JSON file describing the AFU?
     json_file = None
@@ -235,7 +243,7 @@ def config_sources(fd, filelist):
     else:
         # Is there a JSON file in the same directory as the file list?
         dir = os.path.dirname(filelist)
-        str = commands_getoutput("find -L {0} -maxdepth 1 -type f -name *.json".format(dir))
+        str = commands_list_getoutput("find -L".split(" ") + [dir] + "-maxdepth 1 -type f -name *.json".split(" "))
         if (len(str)):
             # Use the discovered JSON file, but complain that it should have been
             # named explicitly.
@@ -398,22 +406,22 @@ def auto_find_sources(fd):
 ##    AFU / Platform interface configuration                               ##
 #############################################################################
 def gen_afu_platform_ifc(json_file):
-    cfg = "afu_platform_config --sim --tgt=rtl "
+    cfg = "afu_platform_config --sim --tgt=rtl".split(" ")
 
     if (json_file):
-        cfg += "--src={0} ".format(json_file)
+        cfg.append("--src={0}".format(json_file))
     elif (args.plat == 'discrete'):
-        cfg += "--ifc=ccip_std_afu_avalon_mm_legacy_wires "
+        cfg.append("--ifc=ccip_std_afu_avalon_mm_legacy_wires")
     else:
-        cfg += "--ifc=ccip_std_afu "
+        cfg.append("--ifc=ccip_std_afu")
 
     if (args.plat == 'discrete'):
-        cfg += "discrete_pcie3"
+        cfg.append("discrete_pcie3")
     else:
-        cfg += args.plat
+        cfg.append(args.plat)
 
     try:
-        print(commands_getoutput(cfg))
+        print(commands_list_getoutput(cfg))
     except:
         errorExit("Aborting ASE configuration")
 
