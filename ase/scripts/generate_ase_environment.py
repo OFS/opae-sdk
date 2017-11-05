@@ -194,11 +194,19 @@ def config_sources(fd, filelist):
             vlog_srcs.append(s)
             vhdl_srcs.append(s)
         elif (s[0] == '-'):
-            # For now assume - is an include directive and used only for Verilog
+            # For now assume - is an include directive and used only for Verilog.
+            # Escape all but the first space, which likely follows a simulator
+            # command.
+            spl = s.split(' ')
+            if (len(spl) > 1):
+                s = spl[0] + ' ' + '\ '.join(spl[1:])
             vlog_srcs.append(s)
             vlog_found = True
         else:
+            # Convert extensions to lower case for comparison
             sl = s.lower()
+            # Escape spaces in pathnames
+            s = s.replace(' ', '\ ')
 
             # Verilog or SystemVerilog?
             for ext in VLOG_EXTENSIONS:
@@ -224,7 +232,7 @@ def config_sources(fd, filelist):
             f.write("+incdir+rtl\n")
             f.write("-F rtl/platform_if_includes.txt\n")
             for s in vlog_srcs:
-                f.write(s.replace(' ', '\ ') + "\n")
+                f.write(s + "\n")
 
     # List VHDL sources in a file
     if (vhdl_found):
@@ -233,7 +241,7 @@ def config_sources(fd, filelist):
             f.write("+incdir+rtl\n")
             f.write("-F rtl/platform_if_includes.txt\n")
             for s in vhdl_srcs:
-                f.write(s.replace(' ', '\ ') + "\n")
+                f.write(s + "\n")
 
     # Is there a JSON file describing the AFU?
     json_file = None
