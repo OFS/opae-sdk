@@ -471,9 +471,11 @@ parser.add_argument('-x', '--exclude', default=None,
 args = parser.parse_args()
 
 if (len(args.dirlist) == 0) and not args.files:
-    errorExit("either --files or at least on scan directory must be specified")
+    parser.print_usage(sys.stderr)
+    errorExit("either --files or at least on scan directory must be specified.  See --help.")
 if len(args.dirlist) and args.files:
-    errorExit("scan directories may not be specified along with --files")
+    parser.print_usage(sys.stderr)
+    errorExit("scan directories may not be specified along with --files.  See --help.")
 
 tool_type = args.tool
 TOOL_BRAND = args.tool
