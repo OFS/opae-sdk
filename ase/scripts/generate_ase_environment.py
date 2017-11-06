@@ -447,7 +447,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description="Configure an ASE environment given a set of RTL sources.",
     epilog='''\
-Two modes of specifying sources are available.  When the --files argument
+Two modes of specifying sources are available.  When the --sources argument
 is set, sources are specified explicitly.  The rtl_src_config script,
 included in OPAE, parses the sources file.  rtl_src_config supports
 setting preprocessor variables and include paths.  It also offers
@@ -458,7 +458,7 @@ the command line and they will be searched for RTL sources.''')
 
 parser.add_argument('dirlist', nargs='*',
                     help='list of directories to scan')
-parser.add_argument('-f', '--files',
+parser.add_argument('-s', '--sources',
                     help="""file containing list of source files.  The file will be
                             parsed by rtl_src_config.""")
 parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default='VCS',
@@ -470,12 +470,12 @@ parser.add_argument('-x', '--exclude', default=None,
 
 args = parser.parse_args()
 
-if (len(args.dirlist) == 0) and not args.files:
+if (len(args.dirlist) == 0) and not args.sources:
     parser.print_usage(sys.stderr)
-    errorExit("either --files or at least on scan directory must be specified.  See --help.")
-if len(args.dirlist) and args.files:
+    errorExit("either --sources or at least on scan directory must be specified.  See --help.")
+if len(args.dirlist) and args.sources:
     parser.print_usage(sys.stderr)
-    errorExit("scan directories may not be specified along with --files.  See --help.")
+    errorExit("scan directories may not be specified along with --sources.  See --help.")
 
 tool_type = args.tool
 TOOL_BRAND = args.tool
@@ -514,9 +514,9 @@ fd.write("\n\n")
 #############################################
 # Configure RTL sources
 #############################################
-if (args.files):
+if (args.sources):
     # Sources are specified explicitly in a file containing a list of sources
-    json_file = config_sources(fd, args.files)
+    json_file = config_sources(fd, args.sources)
 else:
     # Discover sources by scanning a set of directories
     json_file = auto_find_sources(fd)

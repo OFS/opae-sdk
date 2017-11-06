@@ -593,6 +593,8 @@ def getAfuIfc(args):
     if (args.ifc):
         # Interface name specified on the command line
         afu_ifc['name'] = args.ifc
+        afu_ifc['file_path'] = None
+        afu_ifc['file_name'] = None
     else:
         # The AFU top-level interface was not specified explicitly.  Look for it in
         # a JSON file.
@@ -629,6 +631,8 @@ def getAfuIfc(args):
 
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
+            afu_ifc['file_path'] = afu_json
+            afu_ifc['file_name'] = os.path.splitext(os.path.basename(afu_json))[0]
         except:
             errorExit("No afu-image:afu-top-interface:name found in {0}".format(afu_json))
 
@@ -636,6 +640,52 @@ def getAfuIfc(args):
         print("AFU interface requested: {0}".format(afu_ifc))
 
     return afu_ifc
+
+
+# Fields that in AFU interface that may be updated by a particular AFU's JSON file.
+legal_afu_ifc_update_classes = { 'default-entries': True,
+                                 'max-entries': True,
+                                 'min-entries': True,
+                                 'optional': True
+                                 }
+
+##
+## An AFU's JSON database may override some parameters in the generic AFU interface
+## description by specifying updates in the AFU's
+##     afu-image:afu-top-interface:module-arguments
+## field.  The class must already be present in the AFU interface and only certain
+## fields may be updated.
+##
+def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
+    if (not 'module-arguments' in afu_ifc_req):
+        return
+    if (not isinstance(afu_ifc_req['module-arguments'], list)):
+        errorExit("module-arguments is not a list in {0}".format(afu_ifc_req['file_path']))
+
+    # Walk all the updated classes
+    for arg in afu_ifc_req['module-arguments']:
+        if (not 'class' in arg):
+            errorExit("Each module-arguments must have a class in {0}".format(afu_ifc_req['file_path']))
+        c = arg['class']
+        # The class must already be present in the AFU interface
+        if (not c in afu_ifc_db['module-arguments']):
+            errorExit("AFU {0} refers to class {1} which is not in {2}".format(afu_ifc_req['file_path'],
+                                                                               c,
+                                                                               afu_ifc_db['file_path']))
+        for k in arg.keys():
+            if (k != 'class'):
+                # Only legal_afu_ifc_update_classes may be modified by the AFU's JSON database
+                if (not k in legal_afu_ifc_update_classes):
+                    errorExit("AFU may not update module-argument class '{0}', field '{1}' ({2})".format(c,
+                                                                                                         k,
+                                                                                                         afu_ifc_req['file_path']))
+                if (args.verbose):
+                    print("  AFU {0} overrides module-argument class '{1}', field '{2}': {3}".format(afu_ifc_req['file_name'],
+                                                                                                     c,
+                                                                                                     k,
+                                                                                                     arg[k]))
+                # Do the update
+                afu_ifc_db['module-arguments'][c][k] = arg[k]
 
 
 ##
@@ -725,6 +775,7 @@ def main():
 
     # Load the AFU top-level interface database
     afu_ifc_db = getJsonDb(args, afu_ifc_req['name'], args.afu_top_ifc_db, 'AFU')
+    injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req)
     canonicalizeDb(afu_ifc_db, 'AFU')
 
     # Load the platform database

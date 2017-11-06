@@ -67,9 +67,11 @@ Each of the module-arguments is a dictionary with the following keys:
 
     If true, the AFU will accept platforms that do not offer the
     class and interface.  The Verilog preprocessor variable
-    PLATFORM_AFU_IFC_<class>_<interface> will be defined in the
-    compilation when the interface is present.  Note: class and interface
-    are converted to upper case and dashes become underscores.
+    AFU_TOP_REQUIRES_<class>_<interface> will be defined in the
+    compilation when the interface is present.  The variable
+    PLATFORM_PROVIDES_<class> will also be defined.  Note: class
+    and interface are converted to upper case and dashes become
+    underscores.
 
   version:
     Integer [optional (defaults to 1)]
