@@ -192,21 +192,10 @@ int mmlink_server::run(unsigned char* stpAddr)
 		mmlink_connection *data_conn = get_data_connection();
 		if (data_conn)
 		{
-			int driver_fd = m_driver->get_fd();
 			int host_fd = data_conn->getsocket();
 
-			// Listen for read on the driver fd.
-			//   responses from the driver fd are written to the host via the data socket.
-			FD_SET(driver_fd, &readfds);
-
-			// Listen for write on the driver fd.
-			//   Host commands from the data socket are written to this fd.
-			FD_SET(driver_fd, &writefds);
-
-			max_fd = MAX(driver_fd, max_fd);
-
 			// Listen for write on the host
-			//   Data from the driver are written here.
+			// Data from the driver are written here.
 			FD_SET(host_fd, &writefds);
 			max_fd = MAX(host_fd, max_fd);
 		}
