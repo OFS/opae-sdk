@@ -87,7 +87,7 @@ valid_dirlist = []
 
 def errorExit(msg):
     ase_functions.begin_red_fontcolor()
-    sys.stderr.write("\nError: " + msg + "\n")
+    sys.stderr.write("Error: " + msg + "\n")
     ase_functions.end_red_fontcolor()
     sys.exit(1)
 
@@ -135,8 +135,15 @@ def commands_list_getoutput(cmd):
     if sys.version_info < (2, 7):
         return commands.getoutput(' '.join(cmd))
     else:
-        byte_out = subprocess.check_output(cmd)
-        str_out = byte_out.decode("utf-8")
+        try:
+            byte_out = subprocess.check_output(cmd)
+            str_out = byte_out.decode("utf-8")
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                errorExit(cmd[0] + " not found on PATH")
+            else:
+                raise
+
         return str_out
 
 
@@ -386,7 +393,8 @@ def auto_find_sources(fd):
 
 # AFU / Platform interface configuration
 def gen_afu_platform_ifc(json_file):
-    cfg = "afu_platform_config --sim --tgt=rtl".split(" ")
+    cmd = "afu_platform_config"
+    cfg = (cmd + " --sim --tgt=rtl").split(" ")
 
     if (json_file):
         cfg.append("--src={0}".format(json_file))
@@ -403,7 +411,7 @@ def gen_afu_platform_ifc(json_file):
     try:
         print(commands_list_getoutput(cfg))
     except:
-        errorExit("Aborting ASE configuration")
+        errorExit(cmd + " from OPAE SDK failed!")
 
 
 print("#################################################################")
