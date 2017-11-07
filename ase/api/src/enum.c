@@ -93,7 +93,7 @@ struct dev_list {
 	struct dev_list *fme;
 };
 
-	static bool
+static bool
 matches_filters(const fpga_properties *filter, uint32_t num_filter,
 		fpga_token *token, uint64_t *j)
 {
@@ -342,16 +342,45 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 			_iprop.device_id = ASE_ID;
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+			//Assign FME guid
+			ase_memcpy(&_iprop.guid, FPGA_FME_GUID, sizeof(fpga_guid));
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+			_iprop.u.fpga.num_slots = ASE_NUM_SLOTS;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
+			_iprop.u.fpga.bbs_id = ASE_ID;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
+			_iprop.u.fpga.bbs_version.major = 0;
+			_iprop.u.fpga.bbs_version.minor = 0;
+			_iprop.u.fpga.bbs_version.patch = 0;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 		} else {
+			ase_memcpy(&_iprop.guid, &aseToken[1].accelerator_id, sizeof(fpga_guid));
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+			_iprop.u.accelerator.state = FPGA_ACCELERATOR_ASSIGNED;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_ACCELERATOR_STATE);
 			_iprop.parent = (fpga_token) token_get_parent(_token);
 			if (_iprop.parent != NULL)
 				SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
 			_iprop.objtype = FPGA_ACCELERATOR;
 			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
+			_iprop.u.accelerator.num_mmio = 2;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_MMIO);
+			_iprop.u.accelerator.num_interrupts = 0;
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_INTERRUPTS);
 
 		}
 	}
+	_iprop.bus = ASE_BUS;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BUS);
 
+	_iprop.device = ASE_DEVICE;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICE);
+
+	_iprop.function = ASE_FUNCTION;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
+
+	_iprop.socket_id = ASE_SOCKET_ID;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 	*_prop = _iprop;
 	return FPGA_OK;
 }
