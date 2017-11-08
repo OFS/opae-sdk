@@ -74,7 +74,7 @@ install(DIRECTORY common/include/opae
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
-  add_subdirectory(site/doxygen)
+  add_subdirectory(doc)
 endif()
 
 ############################################################################

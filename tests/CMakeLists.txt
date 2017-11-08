@@ -133,8 +133,21 @@ endif(BUILD_ASE)
 ## Add testing targets #####################################################
 ############################################################################
 
+add_test(NAME gtapi_enum
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*EnumCommon*enum*)
+
 add_test(NAME gtapi_mmio
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*mmio*)
-set_tests_properties(gtapi_mmio PROPERTIES
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*MmioCommon*mmio*)
+
+add_test(NAME gtapi_open
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommon*open*)
+
+set_tests_properties(
+  gtapi_enum
+  gtapi_open
+  gtapi_mmio
+  PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
