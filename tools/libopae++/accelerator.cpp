@@ -113,7 +113,8 @@ bool accelerator::open(bool shared)
 
 bool accelerator::close()
 {
-    if (status_ == status_t::closed) {
+    if ((status_ == status_t::closed) ||
+        (handle_ == nullptr)) {
         return true;
     }
 

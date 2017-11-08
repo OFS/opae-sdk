@@ -471,11 +471,11 @@ bool nlb7::run()
         errno_t e;
         e = memcpy_s((void *)inp->address(), sz,
 			(void *)out->address(), sz);
-	if (EOK != e) {
+        if (EOK != e) {
             std::cerr << "memcpy_s failed" << std::endl;
             res = false;
             break;
-	}
+        }
 
         // fence operation
         __sync_synchronize();
@@ -645,6 +645,8 @@ bool nlb7::run()
         std::cerr << "accelerator reset failed after test completion." << std::endl;
         return false;
     }
+
+    dsm_.reset();
 
     return res;
 }

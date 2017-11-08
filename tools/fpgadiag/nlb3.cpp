@@ -605,6 +605,8 @@ bool nlb3::run()
     }
     dsm_tpl.put(dsm_);
 
+    dsm_.reset();
+
     return true;
 }
 

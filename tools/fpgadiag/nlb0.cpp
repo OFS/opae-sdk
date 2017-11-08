@@ -314,7 +314,6 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    dma_buffer::ptr_t dsm;
     dma_buffer::ptr_t inout; // shared workspace, if possible
     dma_buffer::ptr_t inp;   // input workspace
     dma_buffer::ptr_t out;   // output workspace
@@ -461,6 +460,8 @@ bool nlb0::run()
     }
     // put the tuple back into the dsm buffer
     dsm_tpl.put(dsm_);
+
+    dsm_.reset();
 
     return true;
 }
