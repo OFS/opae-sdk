@@ -1,0 +1,18 @@
+{
+   "description": "Legacy CCI-P top-level module with a large collection of Avalon local memory wires",
+   "comment":
+      [
+         "This interface was used in early PCIe discrete CCI-P-based cards to",
+         "pass wires for two Avalon memory banks to the AFU.  New AFUs should",
+         "use the SystemVerilog interface described in the parent."
+      ],
+   "parent": "ccip_std_afu_avalon_mm",
+   "module-arguments" :
+      [
+         {
+             "class": "local-memory",
+             "interface": "avalon_mm_legacy_wires_2bank",
+             "optional": true
+         }
+      ]
+}

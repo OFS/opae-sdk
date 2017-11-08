@@ -1,0 +1,26 @@
+{
+   "version": 1,
+   "platform-name": "intg_xeon",
+   "description": "Integrated Xeon + Arria 10 with QPI/UPI and two PCIe host channels",
+   "module-arguments-offered" :
+      [
+         {
+            "class": "clocks",
+            "interface": "pClk3_usr2"
+         },
+         {
+            "class": "power",
+            "interface": "2bit",
+            "optional": true
+         },
+         {
+            "class": "error",
+            "interface": "1bit",
+            "optional": true
+         },
+         {
+            "class": "cci-p",
+            "interface": "struct"
+         }
+      ]
+}

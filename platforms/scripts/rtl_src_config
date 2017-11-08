@@ -1,0 +1,256 @@
+#!/usr/bin/env python
+
+##
+## Consume a file with a list of source files, include paths and preprocessor definitions.
+## Emit either Quartus or simulator commands to load the sources.
+##
+## The configuration can be recursive, with configuration file loading another.
+## See the output of --help for details.
+##
+
+import argparse
+import os
+import sys
+
+def errorExit(msg):
+    sys.stderr.write("\nError: " + msg + "\n")
+    sys.exit(1)
+
+# Suffix to Quartus tag.
+quartus_tag_map = {
+    '.v':    'VERILOG_FILE',
+    '.sv':   'SYSTEMVERILOG_FILE',
+    '.vh':   'SYSTEMVERILOG_FILE',
+    '.svh':  'SYSTEMVERILOG_FILE',
+    '.vhd':  'VHDL_FILE',
+    '.sdc':  'SDC_FILE',
+    '.qsys': 'QSYS_FILE',
+    '.ip':   'IP_FILE',
+    '.json': 'MISC_FILE',
+    '.tcl':  'MISC_FILE',
+    '.stp' : 'SIGNALTAP_FILE',
+    '.hex' : 'MIF_FILE',
+    '.mif' : 'MIF_FILE',
+}
+
+# QSYS-only tags.
+qsys_tag_map = {
+    '.qsys': 'QSYS_FILE'
+}
+
+# Suffixes to emit for simulation targets.  This is a subset of the Quartus map.
+sim_tag_map = {
+    '.v':    'VERILOG_FILE',
+    '.sv':   'SYSTEMVERILOG_FILE',
+    '.vh':   'SYSTEMVERILOG_FILE',
+    '.svh':  'SYSTEMVERILOG_FILE',
+    '.vhd':  'VHDL_FILE',
+    '.json': 'MISC_FILE'
+}
+
+##
+## Return the Quartus tag for a given file extension.
+##
+def quartusTag(filename):
+    _basename, ext = os.path.splitext(filename)
+    ext = ext.lower()
+
+    if (not ext in quartus_tag_map):
+        errorExit("unrecognized file extension '{0}' ({1})".format(ext, filename))
+
+    return quartus_tag_map[ext]
+
+def lookupTag(filename, db):
+    _basename, ext = os.path.splitext(filename)
+    ext = ext.lower()
+
+    if (not ext in db):
+        return None
+    else:
+        return db[ext]
+
+
+##
+## Given a list of directives, emit the configuration.
+##
+def emitCfg(opts, cfg):
+    if (not opts.qsys):
+        # First emit all preprocessor configuration
+        for c in cfg:
+            if ("+define+" == c[:8]):
+                if (opts.sim):
+                    print(c)
+                else:
+                    print('set_global_assignment -name VERILOG_MACRO "' + c[8:] + '"')
+
+        # Emit all include directives
+        for c in cfg:
+            if ("+incdir+" == c[:8]):
+                if (opts.sim):
+                    print(c)
+                else:
+                    print('set_global_assignment -name SEARCH_PATH "' + c[8:] + '"')
+
+    # Emit sources and Quartus/simulator includes
+    for c in cfg:
+        if ("+" == c[:1]):
+            # Directive handled already
+            None
+        elif ("SI:" == c[:3]):
+            # Simulator include
+            if (opts.sim):
+                print("-F " + c[3:])
+        elif ("QI:" == c[:3]):
+            # Quartus include
+            if (not opts.sim and not opts.qsys):
+                print("source " + c[3:])
+        else:
+            # Always ask for the Quartus tag since it has the side-effect of validating
+            # the suffix.
+            tag = quartusTag(c)
+
+            if (opts.sim):
+                if (lookupTag(c, sim_tag_map)):
+                    print(c)
+            elif (opts.qsys):
+                if (lookupTag(c, qsys_tag_map)):
+                    print(c)
+            else:
+                print('set_global_assignment -name {0} "{1}"'.format(tag, c))
+
+
+##
+## Detect paths in configuration directives and make them relative to the target
+## directory.
+##
+def fixRelPath(opts, c, config_dir, tgt_dir):
+    if (len(c) == 0):
+        return c
+    if ("+define+" == c[:8]):
+        return c
+
+    # Everything else ends in a path, though check for prefixes
+    if ("+incdir+" == c[:8]):
+        prefix = "+incdir+"
+        c = c[8:]
+    else:
+        prefix = ""
+        split = c.split(':', 1)
+        if (len(split) <= 1):
+            # Is the entry a directory?  If so, canonicalize it as +incdir+.
+            if (os.path.isdir(os.path.join(config_dir, c))):
+                prefix = "+incdir+"
+        else:
+            prefix = split[0] + ":"
+            c = split[1]
+
+    # Transform path first to be relative to the configuration file.
+    # Then transform it to be relative to the target directory.
+    p = os.path.relpath(os.path.join(config_dir, c), tgt_dir)
+    if (opts.abs):
+        p = os.path.abspath(p)
+
+    return prefix + p
+
+
+##
+## Recursive parse of configuration files.
+##
+def parseConfigFile(opts, cfg_file_name, tgt_dir):
+    if (len(cfg_file_name) == 0):
+        return []
+
+    cfg = []
+
+    try:
+        dir = os.path.dirname(cfg_file_name)
+        with open(cfg_file_name) as cfg_file:
+            for c in cfg_file:
+                c = c.strip()
+                # Drop comments
+                c = c.split('#', 1)[0]
+                # Replace environment variables
+                c = os.path.expandvars(c)
+
+                # Recursive include?
+                if (c[:2] == 'C:'):
+                    cfg += parseConfigFile(opts, os.path.join(dir, c[2:]), tgt_dir)
+                elif (len(c)):
+                    # Append to the configuration list
+                    cfg.append(fixRelPath(opts, c, dir, tgt_dir))
+
+    except IOError:
+        errorExit("failed to open file ({0})".format(cfg_file_name))
+
+    return cfg
+
+def main(args=None):
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Emit RTL source list for Quartus or simulation given a configuration file.",
+        epilog='''\
+The configuration file is a list of source file names and configuration
+directives.  The suffix of a file indicates its type and Quartus type
+tags are emitted automatically for supported suffixes.  Some file types
+are ignored, depending on the build target.  For example, SDC files are
+ignored when constructing a list for simulation.
+
+Environment variables in file paths are substituted as a configuration
+file is loaded.
+
+Files should be specified one per line in the configuration file.  A few
+prefixes are treated specially.  Most are directives supported by Verilog
+simulation tools.  In --qsf mode, these directives are transformed into
+Quartus commands.  The following special syntax is supported:
+
+  +incdir+<path>    Add include directory to the build-time search path.
+                    Paths that are directories, even without +incdir+ are
+                    also treated as include directives.
+
+  +define+<X>       Define preprocessor variable.
+
+  SI:<file>         Emit a directive to include <file> in the simulator
+                    configuration (the -F directive).  The request is
+                    ignored when the target is Quartus.
+
+  QI:<file>         The equivalent of SI, but for Quartus.  A "source"
+                    command is emitted.
+
+These commands affect script parsing:
+
+  C:<file>          Recursively parse <file> as a configuration file,
+                    including it as though it were part of the current
+                    script.
+
+  # <comment>       All text following a '#' is ignored.''')
+
+    parser.add_argument("config_file",
+                        help="""Configuration file containing RTL source file paths,
+                                preprocessor variable settings, etc.""")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--sim",
+                       action="store_true",
+                       help="""Emit a configuration for RTL simulation.""")
+    group.add_argument("--qsf",
+                       action="store_true",
+                       help="""Emit a configuration for Quartus.""")
+    group.add_argument("--qsys",
+                       action="store_true",
+                       help="""Emit only QSYS and IP file names.""")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-r", "--rel",
+                       default=os.getcwd(),
+                       help="""Convert paths relative to directory.""")
+    group.add_argument("-a", "--abs",
+                       action="store_true",
+                       help="""Convert paths so they are absolute.""")
+
+    opts = parser.parse_args(args)
+    cfg = parseConfigFile(opts, opts.config_file, opts.rel)
+
+    emitCfg(opts, cfg)
+
+if __name__ == '__main__':
+    main()

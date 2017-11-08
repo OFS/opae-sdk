@@ -88,6 +88,7 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
+add_subdirectory(platforms)
 add_subdirectory(tools/userclk)
 add_subdirectory(tools/fpgad)
 add_subdirectory(tools/ras)
@@ -173,6 +174,7 @@ define_pkg(devel
   docrtf
   docman
   docxml
+  platform
   samplesrc
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
