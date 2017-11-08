@@ -13,3 +13,4 @@ addons:
       - uuid-dev
       - google-mock
       - lcov
+      - doxygen
