@@ -151,3 +151,14 @@ set_tests_properties(
   gtapi_mmio
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
+############################################################################
+## Add 'coverage' ##########################################################
+############################################################################
+
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  if(BUILD_TESTS AND GTEST_FOUND)
+    set_target_for_coverage(opae-c ctest)
+    add_dependencies(coverage_opae-c gtapi)
+  endif(BUILD_TESTS AND GTEST_FOUND)
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
