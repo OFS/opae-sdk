@@ -128,3 +128,13 @@ add_subdirectory(dcp)
 if(BUILD_ASE)
   add_subdirectory(ASE)
 endif(BUILD_ASE)
+
+############################################################################
+## Add testing targets #####################################################
+############################################################################
+
+add_test(NAME gtapi_mmio
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*mmio*)
+set_tests_properties(gtapi_mmio PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
