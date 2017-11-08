@@ -356,13 +356,19 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
 ## db_category is just a string used for printing the type of database being opened,
 ## e.g. "platform".
 ##
-def getJsonDb(args, fname, db_dir, db_category):
+def getJsonDb(args, fname, db_dir_path, db_category):
     if (os.path.isfile(fname)):
         json_fname = fname
     else:
-        # Find the DB in a directory.
-        json_fname = db_dir + "/" + fname + ".json"
-        if (not os.path.isfile(json_fname)):
+        # Find the DB in a directory using the search path
+        json_fname = None
+        for db_dir in db_dir_path:
+            fn = os.path.join(db_dir, fname + ".json")
+            if (os.path.isfile(fn)):
+                json_fname = fn
+                break
+
+        if (not json_fname):
             errorExit("Failed to find {0} file: {1}".format(db_category, json_fname))
 
     if (not args.quiet):
@@ -385,14 +391,8 @@ def getJsonDb(args, fname, db_dir, db_category):
         if (not args.quiet):
             print("  Loading parent database: {0}".format(db['parent']))
 
-        # Load parents recursively.  First look for a JSON file in the same
-        # directory as the child, then search the primary database directory.
-        parent_name = db['parent']
-        parent_json = os.path.join(os.path.dirname(json_fname), parent_name + '.json')
-        if (os.path.isfile(parent_json)):
-            parent_name = parent_json
-
-        db_parent = getJsonDb(args, parent_name, db_dir, db_category)
+        # Load parents recursively.
+        db_parent = getJsonDb(args, db['parent'], db_dir_path, db_category)
         if (db_category == 'platform'):
             db = mergeDbs(db_parent, db, 'module-arguments-offered')
         elif (db_category == 'AFU'):
@@ -616,7 +616,7 @@ def getAfuIfc(args):
                           "The desired JSON file may be specified explicitly with --ifc.")
 
             # Found a JSON file
-            afu_json = args.src + '/' + afu_json_list[0]
+            afu_json = os.path.join(args.src, afu_json_list[0])
 
         else:
             errorExit("AFU source ({0}) not found!".format(args.src))
@@ -712,15 +712,61 @@ def emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db):
             errorExit("failed to open {0} for writing.".format(fn))
 
 
+##
+## Compute a directory search path given an environment variable name.  The final
+## entry on the path is set to default_dir.
+##
+def getSearchPath(env_name, default_dir):
+    path = []
+
+    if (env_name in os.environ):
+        # Break path string using ':' and drop empty entries
+        path = [p for p in os.environ[env_name].split(':') if p]
+
+    # Append the default directory
+    path.append(os.path.join(getDBRootPath(), default_dir))
+
+    return path
+
+
 def main():
-    parser = argparse.ArgumentParser()
+    # Users can extend the AFU and platform database search paths beyond
+    # the OPAE SDK defaults using environment variables.
+    afu_top_ifc_db_path = getSearchPath('OPAE_AFU_TOP_IFC_DB_PATH', 'afu_top_ifc_db')
+    platform_db_path = getSearchPath('OPAE_PLATFORM_DB_PATH', 'platform_db')
+
+    msg = '''
+Given a platform and an AFU, afu_platform_config attempts to map the top-level
+interfaces offered by the platform to the requirements of the AFU.  If the
+AFU's requirements are satisfiable, afu_platform_config emits header files
+that describe the interface.
+
+Databases describe both top-level AFU and platform interfaces.  The search
+paths for database files are configurable with environment variables using
+standard colon separation between paths:
+
+Platform databases (OPAE_PLATFORM_DB_PATH):
+'''
+    for p in platform_db_path[:-1]:
+        msg += '  ' + p + '\n'
+    msg += '  ' + platform_db_path[-1] + ' [default]\n'
+
+    msg += "\nAFU databases (OPAE_AFU_TOP_IFC_DB_PATH):\n"
+    for p in afu_top_ifc_db_path[:-1]:
+        msg += '  ' + p + '\n'
+    msg += '  ' + afu_top_ifc_db_path[-1] + ' [default]\n'
+
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Match AFU top-level interface's requirements and a specific platform.",
+        epilog=msg)
 
     # Positional arguments
     parser.add_argument("platform",
                         help = """Either the name of a platform or the name of a platform
                                   JSON file. If the argument is a platform name, the
                                   platform JSON file will be loaded from the platform
-                                  database directory, which can be modified with --platform_db.""")
+                                  database directory search path (see below).""")
 
     parser.add_argument("-t", "--tgt",
                         help = """Target directory to which configuration files will be written.
@@ -739,17 +785,10 @@ def main():
                                  If the argument is a directory, there must be exactly one
                                  JSON file in the directory.""")
 
-    # Allow specification of the platform_db and afu_top_ifc_db directories.
-    db_root_dir = getDBRootPath()
-    parser.add_argument("--platform_db", default = db_root_dir + "/platform_db",
-                        help = """The directory containing platform JSON databases.
-                                  (Default: """ + db_root_dir + "/platform_db" + ")")
-    parser.add_argument("--afu_top_ifc_db", default = db_root_dir + "/afu_top_ifc_db",
-                        help = """The directory containing AFU top-level interface JSON databases.
-                                  (Default: """ + db_root_dir + "/afu_top_ifc_db" + ")")
-    parser.add_argument("--platform_if", default = db_root_dir + "/platform_if",
+    if_default = os.path.join(getDBRootPath(), "platform_if")
+    parser.add_argument("--platform_if", default = if_default,
                         help = """The directory containing AFU top-level SystemVerilog interfaces.
-                                  (Default: """ + db_root_dir + "/platform_if" + ")")
+                                  (Default: """ + if_default + ")")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
@@ -774,16 +813,16 @@ def main():
     afu_ifc_req = getAfuIfc(args)
 
     # Load the AFU top-level interface database
-    afu_ifc_db = getJsonDb(args, afu_ifc_req['name'], args.afu_top_ifc_db, 'AFU')
+    afu_ifc_db = getJsonDb(args, afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU')
     injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req)
     canonicalizeDb(afu_ifc_db, 'AFU')
 
     # Load the platform database
-    platform_db = getJsonDb(args, args.platform, args.platform_db, 'platform')
+    platform_db = getJsonDb(args, args.platform, platform_db_path, 'platform')
     canonicalizeDb(platform_db, 'platform')
 
     # Load the platform default parameters
-    platform_defaults_db = getJsonDb(args, 'platform_defaults', args.platform_db, 'platform-params')
+    platform_defaults_db = getJsonDb(args, 'platform_defaults', platform_db_path, 'platform-params')
     canonicalizePlatformDefaultsDb(platform_defaults_db)
 
     if (args.debug):
