@@ -28,8 +28,7 @@ include_directories(${GTEST_INCLUDE_DIRS}
   ${OPAE_INCLUDE_DIR}
   ${COMMON_DIR}/fptutils
   ${CMAKE_SOURCE_DIR}/ase/api/src
-  ${CMAKE_SOURCE_DIR}/src
-  ${CMAKE_BINARY_DIR}/../tests/ASE)
+  ${CMAKE_SOURCE_DIR}/src)
 
 set(SRC gtmain.cpp
   # unit_tests/gtProperties_base.cpp
