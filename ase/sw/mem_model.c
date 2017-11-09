@@ -46,9 +46,9 @@ uint64_t *umsg_umas_vbase;
 static FILE *error_fp;
 
 // System Memory
-uint64_t sysmem_size = 0;
-uint64_t sysmem_phys_lo = 0;
-uint64_t sysmem_phys_hi = 0;
+uint64_t sysmem_size;
+uint64_t sysmem_phys_lo;
+uint64_t sysmem_phys_hi;
 
 /*
 * Calculate Sysmem & CAPCM ranges to be used by ASE

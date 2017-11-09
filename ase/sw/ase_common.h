@@ -152,7 +152,7 @@ enum ase_loglevel {
 int get_loglevel(void);
 void set_loglevel(int level);
 
-void calc_phys_memory_ranges(void); 
+void calc_phys_memory_ranges(void);
 
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);

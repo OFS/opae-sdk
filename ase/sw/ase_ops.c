@@ -57,8 +57,8 @@ inline int get_loglevel(void)
 
 inline void set_loglevel(int level)
 {
-	if ( (level >= ASE_LOG_ERROR)
-		&&(level <= ASE_LOG_DEBUG))
+	if ((level >= ASE_LOG_ERROR)
+		&& (level <= ASE_LOG_DEBUG))
 		glbl_loglevel = level;
 	else
 		ASE_MSG("%s: Illlegal loglevel value.\n", __func__);
