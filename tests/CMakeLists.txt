@@ -66,6 +66,7 @@ set(GTEST_MAIN_LIBRARIES gtest_main PARENT_SCOPE)
 set(GTEST_MAIN_LIBRARY gtest_main PARENT_SCOPE)
 set(GTEST_LIBRARY gtest_main PARENT_SCOPE)
 set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+set(GTEST_FOUND true)
 
 # Include directories
 include_directories(
