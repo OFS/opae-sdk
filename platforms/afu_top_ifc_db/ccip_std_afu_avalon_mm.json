@@ -1,0 +1,17 @@
+{
+   "description": "Local memory added to the original CCI-P standard top-level module",
+   "comment":
+      [
+         "Local memory is connected using a SystemVerilog interface (avalon_mm_if)."
+      ],
+   "parent": "ccip_std_afu",
+   "module-arguments" :
+      [
+         {
+             "class": "local-memory",
+             "interface": "avalon_mm",
+             "vector": true,
+             "default-entries": 2
+         }
+      ]
+}

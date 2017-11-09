@@ -1,0 +1,24 @@
+{
+   "version": 1,
+   "module-name" : "ccip_std_afu",
+   "description": "The original CCI-P standard top-level module",
+   "module-arguments" :
+      [
+         {
+             "class": "clocks",
+             "interface": "pClk3_usr2"
+         },
+         {
+             "class": "power",
+             "interface": "2bit"
+         },
+         {
+             "class": "error",
+             "interface": "1bit"
+         },
+         {
+             "class": "cci-p",
+             "interface": "struct"
+         }
+      ]
+}

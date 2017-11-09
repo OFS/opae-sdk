@@ -45,6 +45,33 @@ uint64_t *umsg_umas_vbase;
 // ASE error file
 static FILE *error_fp;
 
+// System Memory
+uint64_t sysmem_size;
+uint64_t sysmem_phys_lo;
+uint64_t sysmem_phys_hi;
+
+/*
+* Calculate Sysmem & CAPCM ranges to be used by ASE
+*/
+void calc_phys_memory_ranges(void)
+{
+	sysmem_size = cfg->phys_memory_available_gb * pow(1024, 3);
+	sysmem_phys_lo = 0;
+	sysmem_phys_hi = sysmem_size - 1;
+
+	// Calculate address mask
+	PHYS_ADDR_PREFIX_MASK =
+	    ((sysmem_phys_hi >> MEMBUF_2MB_ALIGN) << MEMBUF_2MB_ALIGN);
+#ifdef ASE_DEBUG
+	ASE_DBG("PHYS_ADDR_PREFIX_MASK = 0x%" PRIx64 "\n",
+		(uint64_t) PHYS_ADDR_PREFIX_MASK);
+#endif
+
+	ASE_MSG("        System memory range  => 0x%016" PRIx64 "-0x%016"
+		PRIx64 " | %" PRId64 "~%" PRId64 " GB \n", sysmem_phys_lo,
+		sysmem_phys_hi, sysmem_phys_lo / (uint64_t) pow(1024, 3),
+		(uint64_t) (sysmem_phys_hi + 1) / (uint64_t) pow(1024, 3));
+}
 
 // ---------------------------------------------------------------
 // ASE graceful shutdown - Called if: error() occurs

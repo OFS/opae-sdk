@@ -149,7 +149,10 @@ enum ase_loglevel {
 	ASE_LOG_DEBUG
 };
 
-extern int glbl_loglevel;
+int get_loglevel(void);
+void set_loglevel(int level);
+
+void calc_phys_memory_ranges(void);
 
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
@@ -761,14 +764,6 @@ extern char *ase_ready_filepath;
  */
 #define IPC_LOCAL_FILENAME ".ase_ipc_local"
 extern FILE *local_ipc_fp;
-
-/*
- * Physical Memory ranges for PrivMem & SysMem
- */
-// System Memory
-extern uint64_t sysmem_size;
-extern uint64_t sysmem_phys_lo;
-extern uint64_t sysmem_phys_hi;
 
 // ASE PID
 extern int ase_pid;

@@ -1,0 +1,16 @@
+##
+## Include this file in an ASE build to import platform interface definitions
+## into a simulation environment by adding the following line to vlog_files.list
+## in an ASE build directory:
+##
+##     -F <absolute path to this directory>/platform_if_addenda.txt
+##
+## Note that "-F" must be used and not "-f".  The former uses paths relative
+## to this directory.  The latter uses only absolute paths.
+##
+
+-F platform_if_includes.txt
+
+../rtl/device_if/ccip_if_pkg.sv
+../rtl/device_cfg/ccip_cfg_pkg.sv
+../rtl/device_cfg/local_mem_cfg_pkg.sv

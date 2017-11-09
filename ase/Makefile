@@ -168,13 +168,15 @@ MENT_COMMAND = $(shell command -v vsim)
 ## GCC version
 GCC_VERSION_GT_49 = $(shell gcc -dumpversion | gawk '{print $$1>=4.9?"1":"0"}')
 
-## For ModelSim figure out whether it is the 32 bit starter edition
+## For ModelSim figure out whether it is a 32 bit edition
 CC_INT_SIZE=-m64
 ifeq ($(SIMULATOR), QUESTA)
   ifdef MENT_COMMAND
+    # Assume 32 bit edition unless "vsim -version" indicates -64
+    CC_INT_SIZE=-m32
     MENT_VERSION=$(shell vsim -version)
-    ifneq (,$(findstring STARTER EDITION, $(MENT_VERSION)))
-      CC_INT_SIZE=-m32
+    ifneq (,$(findstring -64, $(MENT_VERSION)))
+      CC_INT_SIZE=-m64
     endif
   endif
 endif

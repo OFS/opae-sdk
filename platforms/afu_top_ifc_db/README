@@ -1,0 +1,204 @@
+AFU top-level interface databases describe the top-level module name and
+arguments expected by an AFU.
+
+Each JSON database is a dictionary, supporting the following keys:
+
+  version:
+    Integer [required]
+
+    Indicates the JSON database version.  Currently only version 1 is supported.
+
+  description:
+    String [optional]
+
+    One line description.
+
+  comment:
+    String or list of strings [optional]
+
+    A list of strings is supported in order to allow line breaks in the JSON file.
+
+  module-name: 
+    String [required]
+
+    The name of the AFU's top-level module.  The platform will instantiate a module
+    with this name.
+
+  parent:
+    String [optional]
+
+    The name of a parent AFU top-level interface JSON database.  The parent will
+    be loaded and fields from the child will be merged into the parent.  For most
+    fields, the merge overwrites any existing parent data.  For module-arguments,
+    the merge completely overwrites entries with matching classes.  Keys within
+    a module-arguments class aren't merged.  The parent class is removed and
+    replaced with the child's module-arguments class entry.
+
+  module-arguments:
+    List [required]
+
+    The set of arguments expected by the AFU top-level module (module-name).
+    Each entry in the module-arguments list is a dictionary which describes
+    an argument or group of arguments to the AFU top-level module.
+    The format of a module-arguments dictionary entry is described below.
+
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+
+There may be at most one instance of a given class in a module-arguments
+list.  For example, only one type of local-memory may be offered.
+
+Each of the module-arguments is a dictionary with the following keys:
+
+  class:
+    String [required]
+
+    The major interface class, such as clocks, cci-p and local-memory.
+    Supported classes are are listed below.
+
+  interface:
+    String [required]
+
+    The interface expected by the AFU for the given class.
+
+  optional:
+    Boolean [optional (defaults to false)]
+
+    If true, the AFU will accept platforms that do not offer the
+    class and interface.  The Verilog preprocessor variable
+    AFU_TOP_REQUIRES_<class>_<interface> will be defined in the
+    compilation when the interface is present.  The variable
+    PLATFORM_PROVIDES_<class> will also be defined.  Note: class
+    and interface are converted to upper case and dashes become
+    underscores.
+
+  version:
+    Integer [optional (defaults to 1)]
+
+    Version allows for variations in either the JSON database or in the
+    actual interface.  The significance of version numbers is specific
+    to a given class and interface.
+
+  vector:
+    Boolean [optional (defaults to false)]
+
+    When true, the module argument is a vector of multiple instances
+    of the argument.  For example, local-memory banks may be passed
+    as a vector of memory interfaces.  The minimum and maximum number
+    of entries is specified using min-entries and max-entries.
+
+  min-entries:
+    Integer [optional (defaults to 1), must be > 0]
+
+    For vector arguments, the minimum number of instances required by
+    the AFU.
+
+  max-entries:
+    Integer [optional (defaults to infinite), must be > min-entries]
+
+    For vector arguments, the maximum number of instances accepted by
+    the AFU.
+
+  default-entries:
+    Integer [optional, no default]
+
+    When both the platform and the AFU are willing to accept a range
+    of vector lengths, default-entries are instantiated.  When both
+    the AFU and the platform specify default-entries, the AFU takes
+    precedence.
+
+  define:
+    List of strings [optional, no default]
+
+    When the module argument is present, add these strings as
+    Verilog preprocessor values to the platform configuration.
+
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+
+Below are supported class/interface types:
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+
+Class clocks:
+
+  pClk3_usr2:
+    input  logic        pClk,                 // Primary CCI-P interface clock.
+    input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
+    input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
+    input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
+    input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
+    input  logic        pck_cp2af_softReset,  // CCI-P ACTIVE HIGH Soft Reset
+
+
+---------------------------------------------------------------------------
+
+Class power:
+
+  2bit:
+    input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
+
+
+---------------------------------------------------------------------------
+
+Class error:
+
+  1bit:
+    input  logic        pck_cp2af_error,      // CCI-P Protocol Error Detected
+
+
+---------------------------------------------------------------------------
+
+Class cci-p:
+
+  struct:
+    input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
+    output t_if_ccip_Tx pck_af2cp_sTx         // CCI-P Tx Port
+
+
+---------------------------------------------------------------------------
+
+Class local-memory:
+
+  avalon_mm:
+    // Vector of Avalon memory interfaces, one per bank.
+    // The module parameter NUM_LOCAL_MEM_BANKS is expected.
+    avalon_mem_if.to_fim local_mem[NUM_LOCAL_MEM_BANKS]
+
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  avalon_mm_legacy_wires_2bank [DEPRECATED]:
+    // This interface was used in a very early discrete card memory
+    // interface.  It will be deprecated and should not be used
+    // in new AFUs.
+
+    // The module parameter DDR_ADDR_WIDTH is expected
+    // The preprocessor variable INCLUDE_DDR4 is defined automatically
+    // when the memory is present.
+
+    // bank A
+    input   logic                       DDR4a_USERCLK,    // EMIF shared clock
+    input   logic                       DDR4a_waitrequest,
+    input   logic [511:0]               DDR4a_readdata,
+    input   logic                       DDR4a_readdatavalid,
+    output  logic [6:0]                 DDR4a_burstcount,
+    output  logic [511:0]               DDR4a_writedata,
+    output  logic [DDR_ADDR_WIDTH-1:0]  DDR4a_address,
+    output  logic                       DDR4a_write,
+    output  logic                       DDR4a_read,
+    output  logic [63:0]                DDR4a_byteenable,
+
+    // bank B
+    input   logic                       DDR4b_USERCLK,
+    input   logic                       DDR4b_waitrequest,
+    input   logic [511:0]               DDR4b_readdata,
+    input   logic                       DDR4b_readdatavalid,
+    output  logic [6:0]                 DDR4b_burstcount,
+    output  logic [511:0]               DDR4b_writedata,
+    output  logic [DDR_ADDR_WIDTH-1:0]  DDR4b_address,
+    output  logic                       DDR4b_write,
+    output  logic                       DDR4b_read,
+    output  logic [63:0]                DDR4b_byteenable,

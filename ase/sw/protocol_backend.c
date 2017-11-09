@@ -38,9 +38,6 @@
  */
 #include "ase_common.h"
 
-// Log-level
-int glbl_loglevel = ASE_LOG_MESSAGE;
-
 // Global test complete counter
 // Keeps tabs of how many session_deinits were received
 int glbl_test_cmplt_cnt;
@@ -57,22 +54,6 @@ pthread_t socket_srv_tid;
 
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
-
-/*
- * ASE Listener process variables
- */
-// Portctrl variables
-static char portctrl_msgstr[ASE_MQ_MSGSIZE];
-
-// Buffer management variables
-static struct buffer_t ase_buffer;
-static char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
-static char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
-static int rx_portctrl_cmd;
-static int portctrl_value;
-
-static char logger_str[ASE_LOGGER_LEN];
-static char umsg_mapstr[ASE_MQ_MSGSIZE];
 
 // User clock frequency
 float f_usrclk;
@@ -97,11 +78,6 @@ FILE *local_ipc_fp;
 
 // ASE PID
 int ase_pid;
-
-// System Memory
-uint64_t sysmem_size;
-uint64_t sysmem_phys_lo;
-uint64_t sysmem_phys_hi;
 
 // Workspace information log (information dump of
 static FILE *fp_workspace_log;
@@ -627,6 +603,18 @@ err:
  * *******************************************************************/
 int ase_listener(void)
 {
+	// Buffer management variables
+	static struct buffer_t ase_buffer;
+	char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
+	char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
+	int  rx_portctrl_cmd;
+	int  portctrl_value;
+
+	// Portctrl variables
+	char portctrl_msgstr[ASE_MQ_MSGSIZE];
+	char logger_str[ASE_LOGGER_LEN];
+	char umsg_mapstr[ASE_MQ_MSGSIZE];
+
 	//   FUNC_CALL_ENTRY;
 
 	// ---------------------------------------------------------------------- //
@@ -946,28 +934,7 @@ int ase_listener(void)
 }
 
 
-/*
- * Calculate Sysmem & CAPCM ranges to be used by ASE
- */
-void calc_phys_memory_ranges(void)
-{
-	sysmem_size = cfg->phys_memory_available_gb * pow(1024, 3);
-	sysmem_phys_lo = 0;
-	sysmem_phys_hi = sysmem_size - 1;
 
-	// Calculate address mask
-	PHYS_ADDR_PREFIX_MASK =
-	    ((sysmem_phys_hi >> MEMBUF_2MB_ALIGN) << MEMBUF_2MB_ALIGN);
-#ifdef ASE_DEBUG
-	ASE_DBG("PHYS_ADDR_PREFIX_MASK = 0x%" PRIx64 "\n",
-		(uint64_t) PHYS_ADDR_PREFIX_MASK);
-#endif
-
-	ASE_MSG("        System memory range  => 0x%016" PRIx64 "-0x%016"
-		PRIx64 " | %" PRId64 "~%" PRId64 " GB \n", sysmem_phys_lo,
-		sysmem_phys_hi, sysmem_phys_lo / (uint64_t) pow(1024, 3),
-		(uint64_t) (sysmem_phys_hi + 1) / (uint64_t) pow(1024, 3));
-}
 
 int read_fd(int sock_fd)
 {
@@ -1035,7 +1002,7 @@ int ase_init(void)
 	FUNC_CALL_ENTRY;
 
 	// Set loglevel
-	glbl_loglevel = ase_calc_loglevel();
+	set_loglevel(ase_calc_loglevel());
 
 	// Set stdout bufsize to empty immediately
 	// setvbuf(stdout, NULL, _IONBF, 0);
