@@ -54,6 +54,8 @@ endif()
 message(STATUS "gtest is in ${gtest_root}")
 if (NOT TARGET ${gtest_root})
   add_subdirectory(${gtest_root} ${CMAKE_BINARY_DIR}/gtest)
+  set_property(TARGET gtest_main PROPERTY POSITION_INDEPENDENT_CODE ON)
+  set_property(TARGET gtest PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # Export gtest variables; do not use find gtest!
@@ -77,7 +79,12 @@ include_directories(${GTEST_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/..)
 
 add_library(commonlib SHARED common_test.h common_test.cpp)
-target_link_libraries(commonlib opae-c)
+target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES})
+target_include_directories(commonlib PUBLIC
+  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
 
 add_executable(foapp
   fpgaopen_app.cpp)
