@@ -1,77 +1,80 @@
 #!/usr/bin/env python
 
-##
-## Copyright (c) 2017, Intel Corporation
-## All rights reserved.
-##
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions are met:
-##
-## Redistributions of source code must retain the above copyright notice, this
-## list of conditions and the following disclaimer.
-##
-## Redistributions in binary form must reproduce the above copyright notice,
-## this list of conditions and the following disclaimer in the documentation
-## and/or other materials provided with the distribution.
-##
-## Neither the name of the Intel Corporation nor the names of its contributors
-## may be used to endorse or promote products derived from this software
-## without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-## ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-## LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-## CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-## SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-## INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-## CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
-##
+#
+# Copyright (c) 2017, Intel Corporation
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# Neither the name of the Intel Corporation nor the names of its contributors
+# may be used to endorse or promote products derived from this software
+# without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
 
-##
-## This script reads an AFU top-level interface specification that describes
-## the module name and arguments expected by an AFU.  It also reads a
-## platform database that describes the top-level interface arguments
-## that the platform offers.  The script validates that the platform meets
-## the requirements of the AFU and constructs a set of SystemVerilog header
-## and interface files that describe the platform.  Files containing rules
-## for loading the constructed headers and interfaces into either ASE or
-## Quartus are also emitted.
-##
+#
+# This script reads an AFU top-level interface specification that describes
+# the module name and arguments expected by an AFU.  It also reads a
+# platform database that describes the top-level interface arguments
+# that the platform offers.  The script validates that the platform meets
+# the requirements of the AFU and constructs a set of SystemVerilog header
+# and interface files that describe the platform.  Files containing rules
+# for loading the constructed headers and interfaces into either ASE or
+# Quartus are also emitted.
+#
 
 import os
 import sys
 import argparse
 import json
 
+
 def errorExit(msg):
     sys.stderr.write("\nError: " + msg + "\n")
     sys.exit(1)
 
 
-##
-## Figure out the root of the base platform/AFU interface database.  The
-## database is installed along with OPAE SDK, so either find it in the
-## installation tree or in the source tree.
-##
+#
+# Figure out the root of the base platform/AFU interface database.  The
+# database is installed along with OPAE SDK, so either find it in the
+# installation tree or in the source tree.
+#
 def getDBRootPath():
-    ## CMake will update any variables marked by @ with the proper values.
+    # CMake will update any variables marked by @ with the proper values.
     opae_install_dir = '@CMAKE_INSTALL_PREFIX@'
     project_src_dir = '@CMAKE_CURRENT_SOURCE_DIR@'
     db_root_dir = '@PLATFORM_SHARE_DIR@'
 
     # Parent directory of the running script
-    parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
+    parent_dir = os.path.dirname(
+        os.path.dirname(os.path.realpath(sys.argv[0])))
 
     # If this script is installed, the above variables are substituted.
     if (db_root_dir[0] != '@'):
-        # The script has at least had variables substituted.  Either it is in the
-        # CMake build directory or it is installed.
+        # The script has at least had variables substituted.  Either
+        # it is in the CMake build directory or it is installed.
         if (os.path.isfile(os.path.join(parent_dir, 'CMakeCache.txt'))):
-            # We're in the CMake build directory.  Use the source tree's database.
+            # We're in the CMake build directory.  Use the source tree's
+            # database.
             db_root = project_src_dir
         else:
             # The script is installed.
@@ -83,37 +86,41 @@ def getDBRootPath():
     return db_root
 
 
-def emitHeader(f, afu_ifc_db, platform_db, comment = "//"):
+def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
     f.write(comment + "\n" +
-            comment + " This file has been generated automatically by afu_platform_config.\n" +
+            comment + " This file has been generated automatically by " +
+            "afu_platform_config.\n" +
             comment + " Do not edit it by hand.\n" +
             comment + "\n")
     f.write(comment + " Platform: {0}\n".format(platform_db['file_name']))
-    f.write(comment + " AFU top-level interface: {0}\n{1}\n\n".format(afu_ifc_db['file_name'], comment))
+    f.write(comment + " AFU top-level interface: {0}\n{1}\n\n".format(
+        afu_ifc_db['file_name'], comment))
 
 
-##
-## Emit the Verilog header file with the AFU interface and platform capabilities.
-##
-def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list):
+#
+# Emit the Verilog header file with the AFU interface and
+# platform capabilities.
+#
+def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
+               afu_arg_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
-    ##
-    ## platform_afu_top_config.vh describes the required module arguments using
-    ## Verilog preprocessor variables.  A top-level module provided with
-    ## each platform must honor this configuration.  The platform JSON
-    ## argument options must match the platform's top-level module.
-    ##
+    #
+    # platform_afu_top_config.vh describes the required module arguments using
+    # Verilog preprocessor variables.  A top-level module provided with
+    # each platform must honor this configuration.  The platform JSON
+    # argument options must match the platform's top-level module.
+    #
     fn = os.path.join(f_prefix, "platform_afu_top_config.vh")
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
     try:
         f = open(fn, "w")
-    except:
+    except Exception:
         errorExit("failed to open {0} for writing.".format(fn))
 
     emitHeader(f, afu_ifc_db, platform_db)
@@ -121,7 +128,8 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list
     f.write("`ifndef __PLATFORM_AFU_TOP_CONFIG_VH__\n" +
             "`define __PLATFORM_AFU_TOP_CONFIG_VH__\n\n")
 
-    f.write("`define AFU_TOP_MODULE_NAME " + afu_ifc_db['module-name'] + "\n\n")
+    f.write("`define AFU_TOP_MODULE_NAME " +
+            afu_ifc_db['module-name'] + "\n\n")
 
     if (args.sim):
         f.write("`define PLATFORM_SIMULATED 1\n\n")
@@ -133,28 +141,31 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list
         name = name.replace('-', '_')
         f.write("`define " + name + " 1\n")
 
-    f.write("\n\n//\n// These top-level arguments are passed from the platform to the AFU\n//\n\n")
+    f.write("\n\n//\n// These top-level arguments are passed from the " +
+            "platform to the AFU\n//\n\n")
     for arg in afu_arg_list:
         afu_arg = arg['afu']
         plat_arg = arg['plat']
 
         f.write("// {0}\n".format(afu_arg['class']))
 
-        name = "AFU_TOP_REQUIRES_" + afu_arg['class'].upper() + "_" + afu_arg['interface'].upper()
+        name = "AFU_TOP_REQUIRES_" + \
+            afu_arg['class'].upper() + "_" + afu_arg['interface'].upper()
         name = name.replace('-', '_')
 
         f.write("`define " + name + " ")
-        if (not 'num-entries' in arg):
+        if ('num-entries' not in arg):
             f.write("1\n")
         else:
             f.write("{0}\n".format(arg['num-entries']))
 
-        # Does either the AFU or platform request some preprocessor definitions?
+        # Does either the AFU or platform request some preprocessor
+        # definitions?
         for d in (afu_arg['define'] + plat_arg['define']):
             f.write("`undef {0}\n`define {0} 1\n".format(d))
 
-        # Gather the parameters required by this class.  Start with the defaults
-        # and then merge in any specified by the platform.
+        # Gather the parameters required by this class.  Start with
+        # the defaults and then merge in any specified by the platform.
         key = afu_arg['class']
         params = dict()
         if (key in platform_defaults_db['module-argument-params']):
@@ -167,7 +178,8 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list
 
         # Now we have the parameters.  Emit them.
         for k in params.keys():
-            name = "PLATFORM_PARAM_" + afu_arg['class'].upper() + "_" + k.upper()
+            name = "PLATFORM_PARAM_" + \
+                afu_arg['class'].upper() + "_" + k.upper()
             name = name.replace('-', '_')
             # Skip comments and parameters with no value
             if ((k != 'comment') and params[k]):
@@ -179,54 +191,57 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list
     f.close()
 
 
-##
-## Emit the QSF script to load the platform interface.
-##
-def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list):
+#
+# Emit the QSF script to load the platform interface.
+#
+def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
+                  afu_arg_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
-    ##
-    ## platform_if_addenda.txt imports the platform configuration into
-    ## the simulator.
-    ##
+    #
+    # platform_if_addenda.txt imports the platform configuration into
+    # the simulator.
+    #
     fn = os.path.join(f_prefix, "platform_if_addenda.qsf")
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
     try:
         f = open(fn, "w")
-    except:
+    except Exception:
         errorExit("failed to open {0} for writing.".format(fn))
 
     emitHeader(f, afu_ifc_db, platform_db, comment="##")
 
-    f.write("source {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+    f.write(
+        "source {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
     f.close()
 
 
-##
-## Emit the RTL simulator file to include platform interfaces.
-##
-def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list):
+#
+# Emit the RTL simulator file to include platform interfaces.
+#
+def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
+                  afu_arg_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
-    ##
-    ## platform_if_addenda.txt imports the platform configuration into
-    ## the simulator.
-    ##
+    #
+    # platform_if_addenda.txt imports the platform configuration into
+    # the simulator.
+    #
     fn = os.path.join(f_prefix, "platform_if_addenda.txt")
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
     try:
         f = open(fn, "w")
-    except:
+    except Exception:
         errorExit("failed to open {0} for writing.".format(fn))
 
     emitHeader(f, afu_ifc_db, platform_db)
@@ -234,17 +249,17 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_l
     f.write("-F {0}/sim/platform_if_addenda.txt\n".format(args.platform_if))
     f.close()
 
-    ##
-    ## platform_if_includes.txt just sets up include file paths for
-    ## the simulator.
-    ##
+    #
+    # platform_if_includes.txt just sets up include file paths for
+    # the simulator.
+    #
     fn = os.path.join(f_prefix, "platform_if_includes.txt")
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
     try:
         f = open(fn, "w")
-    except:
+    except Exception:
         errorExit("failed to open {0} for writing.".format(fn))
 
     emitHeader(f, afu_ifc_db, platform_db)
@@ -253,10 +268,10 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_l
     f.close()
 
 
-##
-## Walk the AFU's module-argments requirements and look for corresponding
-## arguments offered by the platform.
-##
+#
+# Walk the AFU's module-argments requirements and look for corresponding
+# arguments offered by the platform.
+#
 def matchAfuArgs(args, afu_ifc_db, platform_db):
     afu_args = []
 
@@ -264,9 +279,11 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
     plat_name = platform_db['file_name']
 
     if (not isinstance(afu_ifc_db['module-arguments'], dict)):
-        errorExit("module-arguments is not a dictionary in {0}".format(afu_ifc_db['file_path']))
+        errorExit("module-arguments is not a dictionary " +
+                  "in {0}".format(afu_ifc_db['file_path']))
     if (not isinstance(platform_db['module-arguments-offered'], dict)):
-        errorExit("module-arguments-offered is not a dictionary in {0}".format(platform_db['file_path']))
+        errorExit("module-arguments-offered is not a dictionary " +
+                  "in {0}".format(platform_db['file_path']))
 
     if (args.verbose):
         print("Starting module arguments match...")
@@ -285,34 +302,43 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
 
         # Arguments offered by the platform
         plat_key = arg['class'] + '/' + arg['interface']
-        if (not plat_key in platform_db['module-arguments-offered']):
+        if (plat_key not in platform_db['module-arguments-offered']):
             # Failed to find a match
             if (not arg['optional']):
-                errorExit("{0} needs argument {1}:{2} that {3} doesn't offer!".format(afu_name, arg['class'], arg['interface'], plat_name))
+                errorExit(
+                    "{0} needs argument {1}:{2} that {3} doesn't offer".format(
+                        afu_name, arg['class'], arg['interface'], plat_name))
         else:
             if (args.verbose):
-                print("Found match for argument {0}:{1}".format(arg['class'], arg['interface']))
+                print("Found match for argument {0}:{1}".format(
+                    arg['class'], arg['interface']))
 
             plat_match = platform_db['module-arguments-offered'][plat_key]
 
             # Found a potential match.
-            match = { 'afu': arg, 'plat': plat_match }
+            match = {'afu': arg, 'plat': plat_match}
 
             # For vector classes, do the offered sizes work?
             if (not arg['vector'] and not plat_match['vector']):
                 # Not a vector
                 None
             elif (arg['vector'] and not plat_match['vector']):
-                # AFU wants a vector, but the platform doesn't offer one.  If the
-                # AFU can accept a single entry we're ok.
+                # AFU wants a vector, but the platform doesn't offer one.
+                # If the AFU can accept a single entry we're ok.
                 if (arg['min-entries'] > 1):
-                    errorExit("{0} argument {1}:{2} requires more vector entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
+                    errorExit(("{0} argument {1}:{2} requires more vector " +
+                               "entries than {3} provides!").format(
+                                   afu_name, arg['class'],
+                                   arg['interface'], plat_name))
                 if (args.verbose):
                     print("  {0} vector length is 1".format(plat_key))
             elif (not arg['vector'] and plat_match['vector']):
                 # Platform provides a vector, but the AFU doesn't want one
                 if (plat_match['min-entries'] > 1):
-                    errorExit("{0} argument {1}:{2} requires fewer vector entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
+                    errorExit(("{0} argument {1}:{2} requires fewer vector " +
+                               "entries than {3} provides!").format(
+                                   afu_name, arg['class'],
+                                   arg['interface'], plat_name))
                 # Tell the platform to provide 1 entry
                 match['num-entries'] = 1
             else:
@@ -322,11 +348,11 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
                 if ((arg['max-entries'] == sys.maxint) and
                     ('default-entries' in arg) and
                     (arg['default-entries'] >= plat_match['min-entries']) and
-                    (arg['default-entries'] <= plat_match['max-entries'])):
+                        (arg['default-entries'] <= plat_match['max-entries'])):
                     entries = arg['default-entries']
                 elif ((arg['max-entries'] == sys.maxint) and
-                    ('default-entries' in plat_match) and
-                    (plat_match['default-entries'] >= arg['min-entries'])):
+                      ('default-entries' in plat_match) and
+                      (plat_match['default-entries'] >= arg['min-entries'])):
                     entries = plat_match['default-entries']
                 else:
                     entries = plat_match['max-entries']
@@ -335,13 +361,20 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
                 if (entries > arg['max-entries']):
                     entries = arg['max-entries']
                 if (entries < arg['min-entries']):
-                    errorExit("{0} argument {1}:{2} requires more vector entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
+                    errorExit(("{0} argument {1}:{2} requires more vector " +
+                               "entries than {3} provides!").format(
+                                   afu_name, arg['class'], arg['interface'],
+                                   plat_name))
                 if (entries < plat_match['min-entries']):
-                    errorExit("{0} argument {1}:{2} requires more fewer entries than {3} provides!".format(afu_name, arg['class'], arg['interface'], plat_name))
+                    errorExit(("{0} argument {1}:{2} requires more fewer " +
+                               "entries than {3} provides!").format(
+                                   afu_name, arg['class'], arg['interface'],
+                                   plat_name))
 
                 # Found an acceptable number of entries
                 if (args.verbose):
-                    print("  {0} vector length is {1}".format(plat_key, entries))
+                    print(
+                        "  {0} vector length is {1}".format(plat_key, entries))
                 match['num-entries'] = entries
 
             # Valid module argument
@@ -350,12 +383,12 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
     return afu_args
 
 
-##
-## Return a dictionary derived from a JSON file, using a search path.
-##
-## db_category is just a string used for printing the type of database being opened,
-## e.g. "platform".
-##
+#
+# Return a dictionary derived from a JSON file, using a search path.
+#
+# db_category is just a string used for printing the type of database
+# being opened, e.g. "platform".
+#
 def getJsonDb(args, fname, db_dir_path, db_category):
     if (os.path.isfile(fname)):
         json_fname = fname
@@ -369,7 +402,8 @@ def getJsonDb(args, fname, db_dir_path, db_category):
                 break
 
         if (not json_fname):
-            errorExit("Failed to find {0} file: {1}".format(db_category, json_fname))
+            errorExit(
+                "Failed to find {0} file: {1}".format(db_category, json_fname))
 
     if (not args.quiet):
         print("Loading {0} database: {1}".format(db_category, json_fname))
@@ -382,8 +416,8 @@ def getJsonDb(args, fname, db_dir_path, db_category):
     db['file_path'] = json_fname
     db['file_name'] = os.path.splitext(os.path.basename(json_fname))[0]
 
-    # First pass canonicalization guarantees that module arguments are ready for
-    # merging with parents.
+    # First pass canonicalization guarantees that module arguments
+    # are ready for merging with parents.
     db = canonicalizeStg1Db(db, db_category)
 
     # Does the database have a parent with more data?
@@ -398,22 +432,23 @@ def getJsonDb(args, fname, db_dir_path, db_category):
         elif (db_category == 'AFU'):
             db = mergeDbs(db_parent, db, 'module-arguments')
         else:
-            errorExit("'parent' keys are not supported in {0} databases ({1})".format(db_category, json_fname))
+            errorExit(("'parent' keys are not supported in {0} " +
+                       "databases ({1})").format(db_category, json_fname))
 
     return db
 
 
-##
-## Merge parent and child databases by overwriting parent
-## fields with updates from the child.
-##
-## Note: for module-arguments and module-arguments-offered,
-## the child completely overwrites an entry.  Namely, for
-## AFUs if both the parent and child have a local-memory
-## class then the parent's local-memory descriptor is deleted
-## and replaced with the child's.  For platform databases,
-## the same is true, but for class/interface pairs.
-##
+#
+# Merge parent and child databases by overwriting parent
+# fields with updates from the child.
+#
+# Note: for module-arguments and module-arguments-offered,
+# the child completely overwrites an entry.  Namely, for
+# AFUs if both the parent and child have a local-memory
+# class then the parent's local-memory descriptor is deleted
+# and replaced with the child's.  For platform databases,
+# the same is true, but for class/interface pairs.
+#
 def mergeDbs(db, db_child, module_arg_key):
     # Copy everything from the child that isn't a module arguments.
     # Arguments are special.  They will be checked by class.
@@ -421,7 +456,7 @@ def mergeDbs(db, db_child, module_arg_key):
         if (k != module_arg_key):
             db[k] = db_child[k]
 
-    if (not module_arg_key in db):
+    if (module_arg_key not in db):
         # No parent module arguments
         if (module_arg_key in db_child):
             db[module_arg_key] = db_child[module_arg_key]
@@ -434,12 +469,12 @@ def mergeDbs(db, db_child, module_arg_key):
     return db
 
 
-##
-## First canonicalization pass over a database.  This pass runs before parent
-## databases are imported, so many fields may be missing.
-##
-## db_class is either 'platform' or 'AFU'.
-##
+#
+# First canonicalization pass over a database.  This pass runs before parent
+# databases are imported, so many fields may be missing.
+#
+# db_class is either 'platform' or 'AFU'.
+#
 def canonicalizeStg1Db(db, db_class):
     if (not isinstance(db, dict)):
         errorExit("{0} interface JSON is not a dictionary!".format(db_class))
@@ -454,12 +489,14 @@ def canonicalizeStg1Db(db, db_class):
             for arg in db[args_key]:
                 # Module arguments must be dictionaries
                 if (not isinstance(arg, dict)):
-                    errorExit("{0} in {1} must be dictionaries ({2})".format(args_key, fname, arg))
+                    errorExit("{0} in {1} must be dictionaries ({2})".format(
+                        args_key, fname, arg))
 
                 # Check for mandatory keys
                 for key in ['class', 'interface']:
-                    if (not key in arg):
-                        errorExit("module argument {0} is missing {1} in {2}".format(arg, key, fname))
+                    if (key not in arg):
+                        errorExit(("module argument {0} is missing {1} " +
+                                   "in {2}").format(arg, key, fname))
 
                 # For AFU module-arguments the key is just the class, since
                 # classes must be unique.  Platforms may offer more than one
@@ -470,7 +507,8 @@ def canonicalizeStg1Db(db, db_class):
 
                 # No duplicate keys allowed!
                 if k in arg_dict:
-                    errorExit("multiple instances of module argument key '{0}' in {1}".format(k, fname))
+                    errorExit(("multiple instances of module argument key " +
+                               "'{0}' in {1}").format(k, fname))
 
                 arg_dict[k] = arg
 
@@ -479,12 +517,12 @@ def canonicalizeStg1Db(db, db_class):
     return db
 
 
-##
-## Validate an interface database and add some default fields to avoid having to check
-## whether they are present.
-##
-## db_class is either 'platform' or 'AFU'.
-##
+#
+# Validate an interface database and add some default fields to
+# avoid having to check whether they are present.
+#
+# db_class is either 'platform' or 'AFU'.
+#
 def canonicalizeDb(db, db_class):
     fname = db['file_path']
 
@@ -496,39 +534,44 @@ def canonicalizeDb(db, db_class):
         args_key = 'module-arguments'
 
     for key in keys_expected:
-        if (not key in db):
+        if (key not in db):
             errorExit("{0} entry missing in {1}".format(key, fname))
 
     if (db['version'] != 1):
-        errorExit("Unsupported {0} interface dictionary version {1} ({2})".format(db_class, db['version'], fname))
+        errorExit(("Unsupported {0} interface dictionary version " +
+                   "{1} ({2})").format(db_class, db['version'], fname))
 
     # Walk the module arguments list
     classes_seen = dict()
     for arg in db[args_key].values():
         # Default optional is False
-        if (not 'optional' in arg):
+        if ('optional' not in arg):
             arg['optional'] = False
 
         if (arg['class'] in classes_seen):
             if (db_class == 'AFU'):
                 # AFU's can have only a single instance of a class
-                errorExit("multiple instances of module argument class '{0}' in {1}".format(arg['class'], fname))
+                errorExit(("multiple instances of module argument class " +
+                           "'{0}' in {1}").format(arg['class'], fname))
             else:
-                # Platforms may have multiple instances as long as they all are optional
+                # Platforms may have multiple instances as long as they all are
+                # optional
                 if (not classes_seen[arg['class']] or not arg['optional']):
-                    errorExit("multiple instances of module argument class '{0}' must all be optional in {1}".format(arg['class'], fname))
+                    errorExit(("multiple instances of module argument class " +
+                               "'{0}' must all be optional in {1}").format(
+                                   arg['class'], fname))
         classes_seen[arg['class']] = arg['optional']
 
         # Default version is 1
-        if (not 'version' in arg):
+        if ('version' not in arg):
             arg['version'] = 1
 
         # Add a 'vector'/false key/value if it isn't defined
-        if (not 'vector' in arg):
+        if ('vector' not in arg):
             arg['vector'] = False
 
         # Add empty list of preprocessor variables to define if not presentV
-        if (not 'define' in arg):
+        if ('define' not in arg):
             arg['define'] = []
 
         if (not arg['vector']):
@@ -540,39 +583,47 @@ def canonicalizeDb(db, db_class):
             # Argument is a vector:
 
             # If min-entries isn't defined, set it to 1
-            if (not 'min-entries' in arg):
+            if ('min-entries' not in arg):
                 arg['min-entries'] = 1
             if (arg['min-entries'] < 1):
-                errorExit("module argument class '{0}:{1}' min-entries must be >= 1 in {2}".format(arg['class'], arg['interface'], fname))
+                errorExit(("module argument class '{0}:{1}' min-entries " +
+                           "must be >= 1 in {2}").format(
+                               arg['class'], arg['interface'], fname))
 
-            # If max-entries isn't defined, assume the AFU can handle whatever the
-            # platform offers.
-            if (not 'max-entries' in arg):
+            # If max-entries isn't defined, assume the AFU can handle
+            # whatever the platform offers.
+            if ('max-entries' not in arg):
                 if (db_class != 'AFU'):
-                    errorExit("module argument class '{0}:{1}' max-entries must be defined in {2}".format(arg['class'], arg['interface'], fname))
+                    errorExit(("module argument class '{0}:{1}' max-entries " +
+                               "must be defined in {2}").format(
+                                   arg['class'], arg['interface'], fname))
                 arg['max-entries'] = sys.maxint
             if (arg['max-entries'] < arg['min-entries']):
-                errorExit("module argument class '{0}:{1}' max-entries must be >= min-entries in {2}".format(arg['class'], arg['interface'], fname))
+                errorExit(("module argument class '{0}:{1}' max-entries " +
+                           "must be >= min-entries in {2}").format(
+                               arg['class'], arg['interface'], fname))
 
 
-##
-## Validate an platform defaults database and add some default fields to avoid
-## having to check whether they are present.
-##
+#
+# Validate an platform defaults database and add some default fields to avoid
+# having to check whether they are present.
+#
 def canonicalizePlatformDefaultsDb(db):
     fname = db['file_path']
 
-    if (not 'version' in db):
+    if ('version' not in db):
         db['version'] = 1
     if (not isinstance(db['version'], int)):
-        errorExit("version value ({0}) must be an integer ({1}).".format(db['version'], fname))
+        errorExit(("version value ({0}) must be an integer " +
+                   "({1}).").format(db['version'], fname))
 
-    if (not 'module-argument-params' in db):
+    if ('module-argument-params' not in db):
         db['module-argument-params'] = dict()
 
     params = db['module-argument-params']
     if (not isinstance(params, dict)):
-        errorExit("module-argument-params in {0} must be a dictionary.".format(fname))
+        errorExit(("module-argument-params in {0} must be a " +
+                   "dictionary.").format(fname))
 
     # Each class in module-argument-params must also be a dictionary
     for c in params.keys():
@@ -580,12 +631,13 @@ def canonicalizePlatformDefaultsDb(db):
             None   # Ignore comments
         else:
             if (not isinstance(params[c], dict)):
-                errorExit("class {0} in module-argument-params must be a dictionary ({1}).".format(c, fname))
+                errorExit(("class {0} in module-argument-params must " +
+                           "be a dictionary ({1}).").format(c, fname))
 
 
-##
-## Return a dictionary describing the AFU's desired top-level interface.
-##
+#
+# Return a dictionary describing the AFU's desired top-level interface.
+#
 def getAfuIfc(args):
 
     afu_ifc = dict()
@@ -596,11 +648,11 @@ def getAfuIfc(args):
         afu_ifc['file_path'] = None
         afu_ifc['file_name'] = None
     else:
-        # The AFU top-level interface was not specified explicitly.  Look for it in
-        # a JSON file.
+        # The AFU top-level interface was not specified explicitly.
+        # Look for it in a JSON file.
         if (not args.src):
             errorExit("Either --ifc or --src must be specified.  See --help.")
-        
+
         # Is the source argument a JSON file?
         if (os.path.isfile(args.src)):
             afu_json = args.src
@@ -608,12 +660,15 @@ def getAfuIfc(args):
         # Is the source argument a directory?
         elif (os.path.isdir(args.src)):
             # Find all the JSON files in the directory
-            afu_json_list = [f for f in os.listdir(args.src) if f.endswith(".json")]
+            afu_json_list = [
+                f for f in os.listdir(args.src) if f.endswith(".json")]
             if (len(afu_json_list) == 0):
-                errorExit("AFU source directory ({0}) has no JSON file!".format(args.src))
+                errorExit("AFU source directory " +
+                          "({0}) has no JSON file!".format(args.src))
             if (len(afu_json_list) > 1):
-                errorExit("AFU source directory ({0}) has multiple JSON files.".format(args.src) +
-                          "The desired JSON file may be specified explicitly with --ifc.")
+                errorExit("AFU source directory ({0}) has ".format(args.src) +
+                          "multiple JSON files.  The desired JSON file may " +
+                          "be specified explicitly with --ifc.")
 
             # Found a JSON file
             afu_json = os.path.join(args.src, afu_json_list[0])
@@ -625,16 +680,18 @@ def getAfuIfc(args):
         if (args.verbose):
             print("Loading AFU interface from {0}".format(afu_json))
 
-        with open(afu_json) as f:    
+        with open(afu_json) as f:
             data = json.load(f)
         f.close()
 
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
             afu_ifc['file_path'] = afu_json
-            afu_ifc['file_name'] = os.path.splitext(os.path.basename(afu_json))[0]
-        except:
-            errorExit("No afu-image:afu-top-interface:name found in {0}".format(afu_json))
+            afu_ifc['file_name'] = os.path.splitext(
+                os.path.basename(afu_json))[0]
+        except Exception:
+            errorExit("No afu-image:afu-top-interface:name found " +
+                      "in {0}".format(afu_json))
 
     if (args.verbose):
         print("AFU interface requested: {0}".format(afu_ifc))
@@ -642,64 +699,70 @@ def getAfuIfc(args):
     return afu_ifc
 
 
-# Fields that in AFU interface that may be updated by a particular AFU's JSON file.
-legal_afu_ifc_update_classes = { 'default-entries': True,
-                                 'max-entries': True,
-                                 'min-entries': True,
-                                 'optional': True
-                                 }
+# Fields that in AFU interface that may be updated by a particular AFU's
+# JSON file.
+legal_afu_ifc_update_classes = {'default-entries': True,
+                                'max-entries': True,
+                                'min-entries': True,
+                                'optional': True
+                                }
 
-##
-## An AFU's JSON database may override some parameters in the generic AFU interface
-## description by specifying updates in the AFU's
-##     afu-image:afu-top-interface:module-arguments
-## field.  The class must already be present in the AFU interface and only certain
-## fields may be updated.
-##
+#
+# An AFU's JSON database may override some parameters in the generic AFU
+# interface description by specifying updates in the AFU's
+#          afu-image:afu-top-interface:module-arguments
+# field.  The class must already be present in the AFU interface and
+# only certain fields may be updated.
+#
+
+
 def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
-    if (not 'module-arguments' in afu_ifc_req):
+    if ('module-arguments' not in afu_ifc_req):
         return
     if (not isinstance(afu_ifc_req['module-arguments'], list)):
-        errorExit("module-arguments is not a list in {0}".format(afu_ifc_req['file_path']))
+        errorExit("module-arguments is not a list in {0}".format(
+            afu_ifc_req['file_path']))
 
     # Walk all the updated classes
     for arg in afu_ifc_req['module-arguments']:
-        if (not 'class' in arg):
-            errorExit("Each module-arguments must have a class in {0}".format(afu_ifc_req['file_path']))
+        if ('class' not in arg):
+            errorExit(("Each module-arguments must have a class " +
+                       "in {0}").format(afu_ifc_req['file_path']))
         c = arg['class']
         # The class must already be present in the AFU interface
-        if (not c in afu_ifc_db['module-arguments']):
-            errorExit("AFU {0} refers to class {1} which is not in {2}".format(afu_ifc_req['file_path'],
-                                                                               c,
-                                                                               afu_ifc_db['file_path']))
+        if (c not in afu_ifc_db['module-arguments']):
+            errorExit(("AFU {0} refers to class {1} which is not " +
+                       "in {2}").format(afu_ifc_req['file_path'],
+                                        c, afu_ifc_db['file_path']))
         for k in arg.keys():
             if (k != 'class'):
-                # Only legal_afu_ifc_update_classes may be modified by the AFU's JSON database
-                if (not k in legal_afu_ifc_update_classes):
-                    errorExit("AFU may not update module-argument class '{0}', field '{1}' ({2})".format(c,
-                                                                                                         k,
-                                                                                                         afu_ifc_req['file_path']))
+                # Only legal_afu_ifc_update_classes may be modified by the
+                # AFU's JSON database
+                if (k not in legal_afu_ifc_update_classes):
+                    errorExit(
+                        ("AFU may not update module-argument class '{0}', " +
+                         "field '{1}' ({2})").format(
+                             c, k, afu_ifc_req['file_path']))
                 if (args.verbose):
-                    print("  AFU {0} overrides module-argument class '{1}', field '{2}': {3}".format(afu_ifc_req['file_name'],
-                                                                                                     c,
-                                                                                                     k,
-                                                                                                     arg[k]))
+                    print(("  AFU {0} overrides module-argument class '{1}'," +
+                           " field '{2}': {3}").format(
+                               afu_ifc_req['file_name'], c, k, arg[k]))
                 # Do the update
                 afu_ifc_db['module-arguments'][c][k] = arg[k]
 
 
-##
-## Dump the loaded and updated databases for debugging.
-##
+#
+# Dump the loaded and updated databases for debugging.
+#
 def emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
-    fn_list = [ [ 'afu_ifc_db', afu_ifc_db ],
-                [ 'platform_db', platform_db ],
-                [ 'platform_defaults_db', platform_defaults_db ] ]
+    fn_list = [['afu_ifc_db', afu_ifc_db],
+               ['platform_db', platform_db],
+               ['platform_defaults_db', platform_defaults_db]]
 
     for db in fn_list:
         fn = os.path.join(f_prefix, 'debug_' + db[0] + '.json')
@@ -708,13 +771,13 @@ def emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db):
         try:
             with open(fn, "w") as f:
                 json.dump(db[1], f, indent=4, sort_keys=True)
-        except:
+        except Exception:
             errorExit("failed to open {0} for writing.".format(fn))
 
 
-##
-## Return a list of all platform names found on the search path.
-##
+#
+# Return a list of all platform names found on the search path.
+#
 def findPlatforms(db_path):
     platforms = set()
     # Walk all the directories
@@ -727,16 +790,16 @@ def findPlatforms(db_path):
                         # Does it have a platform name field?
                         db = json.load(f)
                         platforms.add(db['platform-name'])
-        except:
+        except Exception:
             # Give up on this file or directory if there is any error
             None
 
     return sorted(list(platforms))
 
 
-##
-## Return a list of all AFU top-level interface names found on the search path.
-##
+#
+# Return a list of all AFU top-level interface names found on the search path.
+#
 def findAfuIfcs(db_path):
     afus = set()
     # Walk all the directories
@@ -747,20 +810,21 @@ def findAfuIfcs(db_path):
                 if fn.endswith('.json'):
                     with open(os.path.join(db_dir, fn)) as f:
                         db = json.load(f)
-                        # If it has a module-arguments entry assume the file is valid
+                        # If it has a module-arguments entry assume the file is
+                        # valid
                         if ('module-arguments' in db):
                             afus.add(fn[:-5])
-        except:
+        except Exception:
             # Give up on this file or directory if there is any error
             None
 
     return sorted(list(afus))
 
 
-##
-## Compute a directory search path given an environment variable name.  The final
-## entry on the path is set to default_dir.
-##
+#
+# Compute a directory search path given an environment variable name.
+# The final entry on the path is set to default_dir.
+#
 def getSearchPath(env_name, default_dir):
     path = []
 
@@ -777,7 +841,8 @@ def getSearchPath(env_name, default_dir):
 def main():
     # Users can extend the AFU and platform database search paths beyond
     # the OPAE SDK defaults using environment variables.
-    afu_top_ifc_db_path = getSearchPath('OPAE_AFU_TOP_IFC_DB_PATH', 'afu_top_ifc_db')
+    afu_top_ifc_db_path = getSearchPath(
+        'OPAE_AFU_TOP_IFC_DB_PATH', 'afu_top_ifc_db')
     platform_db_path = getSearchPath('OPAE_PLATFORM_DB_PATH', 'platform_db')
 
     msg = '''
@@ -807,7 +872,6 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         msg += '  ' + p + '\n'
     msg += '  ' + afu_top_ifc_db_path[-1] + ' [default]\n'
 
-
     afu_names = findAfuIfcs(afu_top_ifc_db_path)
     if (afu_names):
         msg += "\n  AFU top-level interfaces found:\n"
@@ -816,62 +880,71 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Match AFU top-level interface's requirements and a specific platform.",
+        description="Match AFU top-level interface's requirements and a " +
+                    "specific platform.",
         epilog=msg)
 
     # Positional arguments
-    parser.add_argument("platform",
-                        help = """Either the name of a platform or the name of a platform
-                                  JSON file. If the argument is a platform name, the
-                                  platform JSON file will be loaded from the platform
-                                  database directory search path (see below).""")
+    parser.add_argument(
+        "platform",
+        help="""Either the name of a platform or the name of a platform
+                JSON file. If the argument is a platform name, the
+                platform JSON file will be loaded from the platform
+                database directory search path (see below).""")
 
-    parser.add_argument("-t", "--tgt",
-                        help = """Target directory to which configuration files will be written.
-                                  Defaults to current working directory.""")
+    parser.add_argument(
+        "-t", "--tgt",
+        help="""Target directory to which configuration files will be written.
+                  Defaults to current working directory.""")
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-i", "--ifc",
-                       help = """The AFU's top-level interface name or the full pathname
-                                 of a JSON top-level interface descriptor. (E.g. ccip_std_afu)""")
-    group.add_argument("-s", "--src",
-                       help = """The AFU sources, where a JSON file that specifies the AFU's
-                                 top-level interface is found. Use either the --ifc argument
-                                 or this one, but not both. The argument may either be the
-                                 full path of a JSON file describing the application or the
-                                 argument may be a directory in which the JSON file is found.
-                                 If the argument is a directory, there must be exactly one
-                                 JSON file in the directory.""")
+    group.add_argument(
+        "-i", "--ifc",
+        help="""The AFU's top-level interface name or the full pathname of a
+                JSON top-level interface descriptor. (E.g. ccip_std_afu)""")
+    group.add_argument(
+        "-s", "--src",
+        help="""The AFU sources, where a JSON file that specifies the AFU's
+                  top-level interface is found. Use either the --ifc argument
+                  or this one, but not both. The argument may either be the
+                  full path of a JSON file describing the application or the
+                  argument may be a directory in which the JSON file is found.
+                  If the argument is a directory, there must be exactly one
+                  JSON file in the directory.""")
 
     if_default = os.path.join(getDBRootPath(), "platform_if")
-    parser.add_argument("--platform_if", default = if_default,
-                        help = """The directory containing AFU top-level SystemVerilog interfaces.
+    parser.add_argument("--platform_if", default=if_default,
+                        help="""The directory containing AFU top-level SystemVerilog interfaces.
                                   (Default: """ + if_default + ")")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
-                       action = "store_true",
-                       default = False,
+                       action="store_true",
+                       default=False,
                        help="""Emit a configuration for RTL simulation.""")
     group.add_argument("--qsf",
-                       action = "store_true",
-                       default = True,
+                       action="store_true",
+                       default=True,
                        help="""Emit a configuration for Quartus. (default)""")
 
-    parser.add_argument("--debug", action = 'store_true', default = False, help = argparse.SUPPRESS)
+    parser.add_argument(
+        "--debug", action='store_true', default=False, help=argparse.SUPPRESS)
 
     # Verbose/quiet
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    group.add_argument("-q", "--quiet", action="store_true", help="Reduce output")
+    group.add_argument(
+        "-v", "--verbose", action="store_true", help="Verbose output")
+    group.add_argument(
+        "-q", "--quiet", action="store_true", help="Reduce output")
     args = parser.parse_args()
 
-    # Get the AFU top-level interface request, either from the command line or from
-    # the AFU source's JSON descriptor.
+    # Get the AFU top-level interface request, either from the command
+    # line or from the AFU source's JSON descriptor.
     afu_ifc_req = getAfuIfc(args)
 
     # Load the AFU top-level interface database
-    afu_ifc_db = getJsonDb(args, afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU')
+    afu_ifc_db = getJsonDb(
+        args, afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU')
     injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req)
     canonicalizeDb(afu_ifc_db, 'AFU')
 
@@ -880,7 +953,8 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     canonicalizeDb(platform_db, 'platform')
 
     # Load the platform default parameters
-    platform_defaults_db = getJsonDb(args, 'platform_defaults', platform_db_path, 'platform-params')
+    platform_defaults_db = getJsonDb(
+        args, 'platform_defaults', platform_db_path, 'platform-params')
     canonicalizePlatformDefaultsDb(platform_defaults_db)
 
     if (args.debug):
@@ -890,11 +964,15 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     afu_arg_list = matchAfuArgs(args, afu_ifc_db, platform_db)
 
     # Emit platform configuration
-    emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list)
+    emitConfig(args, afu_ifc_db, platform_db,
+               platform_defaults_db, afu_arg_list)
     if (args.sim):
-        emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list)
+        emitSimConfig(args, afu_ifc_db, platform_db,
+                      platform_defaults_db, afu_arg_list)
     else:
-        emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db, afu_arg_list)
+        emitQsfConfig(args, afu_ifc_db, platform_db,
+                      platform_defaults_db, afu_arg_list)
+
 
 if __name__ == "__main__":
     main()
