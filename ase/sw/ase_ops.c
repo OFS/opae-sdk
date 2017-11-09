@@ -47,6 +47,22 @@ char *ase_ready_filepath;
 // ASE hostname
 static char *ase_hostname;
 
+// Log-level
+int glbl_loglevel = ASE_LOG_MESSAGE;
+
+inline int get_loglevel(void)
+{
+	return glbl_loglevel;
+}
+
+inline void set_loglevel(int level)
+{
+	if ((level >= ASE_LOG_ERROR)
+		&& (level <= ASE_LOG_DEBUG))
+		glbl_loglevel = level;
+	else
+		ASE_MSG("%s: Illlegal loglevel value.\n", __func__);
+}
 
 /*
  * Generate unique socket server name

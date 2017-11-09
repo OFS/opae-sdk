@@ -36,9 +36,6 @@
 
 #include "ase_common.h"
 
-// Log-level
-int glbl_loglevel = ASE_LOG_MESSAGE;
-
 // MMIO Mutex Lock, initilize it here
 pthread_mutex_t mmio_port_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -318,7 +315,7 @@ void session_init(void)
     if (session_exist_status != ESTABLISHED) {
 
 	// Set loglevel
-	glbl_loglevel = ase_calc_loglevel();
+	set_loglevel(ase_calc_loglevel());
 
 	setvbuf(stdout, NULL, (int) _IONBF, (size_t) 0);
 
