@@ -10,6 +10,7 @@ addons:
     packages:
       - libboost-all-dev
       - libjson-c-dev
+      - libjsoncpp-dev
       - uuid-dev
       - google-mock
       - lcov

@@ -68,21 +68,22 @@ set(GTEST_LIBRARY gtest_main PARENT_SCOPE)
 set(GTEST_BOTH_LIBRARIES gtest gtest_main)
 
 # Include directories
-include_directories(${GTEST_INCLUDE_DIRS}
+include_directories(
+  ${GTEST_INCLUDE_DIRS}
   ${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src
   ${OPAE_SDK_SOURCE}/tools/libopae++
   ${OPAE_SDK_SOURCE}/tools/c++utils
   ${Boost_INCLUDE_DIRS}
-  ${OPAE_SDK_SOURCE}/comlmon/include
-  ${OPAE_SDK_SOURCE}/tests
-  ${CMAKE_BINARY_DIR}/..)
+  ${OPAE_SDK_SOURCE}/common/include
+  ${OPAE_SDK_SOURCE}/tests)
 
 add_library(commonlib SHARED common_test.h common_test.cpp)
-target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${jsoncpp_LIBRARIES})
 target_include_directories(commonlib PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${jsoncpp_INCLUDE_DIRS}>
   $<INSTALL_INTERFACE:include>
   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
 
