@@ -39,8 +39,33 @@ if(DOXYGEN_FOUND)
     COMMENT "Generating test lists and descriptions with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-find_package(GTest REQUIRED)
+# Bootstrap gtest
+if (NOT DEFINED gtest_root)
+  message(STATUS "Trying to fetch gtest throught git")
+  find_package(Git)
+  execute_process(COMMAND "${GIT_EXECUTABLE}"
+    "clone"
+    "--branch"
+    "release-1.8.0"
+    "https://github.com/google/googletest.git"
+    "gtest" WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+  set (gtest_root "${CMAKE_BINARY_DIR}/gtest")
+endif()
+message(STATUS "gtest is in ${gtest_root}")
+if (NOT TARGET ${gtest_root})
+  add_subdirectory(${gtest_root} ${CMAKE_BINARY_DIR}/gtest)
+endif()
 
+# Export gtest variables; do not use find gtest!
+# Find gtest breaks building on travis CI
+set(GTEST_ROOT ${gtest_root} PARENT_SCOPE)
+set(GTEST_INCLUDE_DIRS ${gtest_root}/include PARENT_SCOPE)
+set(GTEST_MAIN_LIBRARIES gtest_main PARENT_SCOPE)
+set(GTEST_MAIN_LIBRARY gtest_main PARENT_SCOPE)
+set(GTEST_LIBRARY gtest_main PARENT_SCOPE)
+set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+
+# Include directories
 include_directories(${GTEST_INCLUDE_DIRS}
   ${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src
