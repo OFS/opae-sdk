@@ -713,6 +713,51 @@ def emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db):
 
 
 ##
+## Return a list of all platform names found on the search path.
+##
+def findPlatforms(db_path):
+    platforms = set()
+    # Walk all the directories
+    for db_dir in db_path:
+        try:
+            # Look for JSON files in each directory
+            for fn in os.listdir(db_dir):
+                if fn.endswith('.json'):
+                    with open(os.path.join(db_dir, fn)) as f:
+                        # Does it have a platform name field?
+                        db = json.load(f)
+                        platforms.add(db['platform-name'])
+        except:
+            # Give up on this file or directory if there is any error
+            None
+
+    return sorted(list(platforms))
+
+
+##
+## Return a list of all AFU top-level interface names found on the search path.
+##
+def findAfuIfcs(db_path):
+    afus = set()
+    # Walk all the directories
+    for db_dir in db_path:
+        try:
+            # Look for JSON files in each directory
+            for fn in os.listdir(db_dir):
+                if fn.endswith('.json'):
+                    with open(os.path.join(db_dir, fn)) as f:
+                        db = json.load(f)
+                        # If it has a module-arguments entry assume the file is valid
+                        if ('module-arguments' in db):
+                            afus.add(fn[:-5])
+        except:
+            # Give up on this file or directory if there is any error
+            None
+
+    return sorted(list(afus))
+
+
+##
 ## Compute a directory search path given an environment variable name.  The final
 ## entry on the path is set to default_dir.
 ##
@@ -745,16 +790,29 @@ Databases describe both top-level AFU and platform interfaces.  The search
 paths for database files are configurable with environment variables using
 standard colon separation between paths:
 
-Platform databases (OPAE_PLATFORM_DB_PATH):
+Platform database directories (OPAE_PLATFORM_DB_PATH):
 '''
     for p in platform_db_path[:-1]:
         msg += '  ' + p + '\n'
     msg += '  ' + platform_db_path[-1] + ' [default]\n'
 
-    msg += "\nAFU databases (OPAE_AFU_TOP_IFC_DB_PATH):\n"
+    platform_names = findPlatforms(platform_db_path)
+    if (platform_names):
+        msg += "\n  Platforms found:\n"
+        for p in platform_names:
+            msg += '    ' + p + '\n'
+
+    msg += "\nAFU database directories (OPAE_AFU_TOP_IFC_DB_PATH):\n"
     for p in afu_top_ifc_db_path[:-1]:
         msg += '  ' + p + '\n'
     msg += '  ' + afu_top_ifc_db_path[-1] + ' [default]\n'
+
+
+    afu_names = findAfuIfcs(afu_top_ifc_db_path)
+    if (afu_names):
+        msg += "\n  AFU top-level interfaces found:\n"
+        for a in afu_names:
+            msg += '    ' + a + '\n'
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
