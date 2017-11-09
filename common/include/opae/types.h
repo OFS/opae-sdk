@@ -152,10 +152,10 @@ typedef struct {
  * `fpga_event_handle`, which encapsulates the OS-specific data structure for
  * event objects.
  *
- * On Linux, an `fpga_event_handle` can be used as a file descriptor and passed
- * to select(), poll(), epoll() and similar functions to wait for asynchronous
- * events.
+ * After use, `fpga_event_handle` objects should be destroyed using
+ * fpgaDestroyEventHandle() to free backing memory used by the
+ * `fpga_event_handle` object.
  */
-typedef int fpga_event_handle;
+typedef void *fpga_event_handle;
 
 #endif // __FPGA_TYPES_H__

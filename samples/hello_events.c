@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
 	int max_fd = 0, ret = 0;
 	uint64_t count = 0;
 	pid_t pid;
+	int fd = -1;
 
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out_destroy_prop, "creating properties object");
@@ -145,33 +146,37 @@ int main(int argc, char *argv[])
 		ON_ERR_GOTO(res, out_close, "creating event handle");
 
 		res = fpgaRegisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh, 0);
-		ON_ERR_GOTO(res, out_close, "registering an FME event");
+		ON_ERR_GOTO(res, out_destroy_eh, "registering an FME event");
 
 		printf("Waiting for interrupts now...\n");
 
+		res = fpgaGetOSObjectFromEventHandle(eh, &fd);
+		ON_ERR_GOTO(res, out_destroy_eh, "getting file descriptor");
+
 		FD_ZERO(&fds);
-		FD_SET(eh, &fds);
-		max_fd = eh;
+		FD_SET(fd, &fds);
+		max_fd = fd;
 		ret = select(max_fd + 1, &fds, NULL, NULL, NULL);
 
 		if (ret < 0) {
 			printf("SELECT FAILED!\n");
-			goto out_close;
+			goto out_destroy_eh;
 		}
 
-		if (FD_ISSET(eh, &fds)) {
+		if (FD_ISSET(fd, &fds)) {
 			printf("FME Interrupt occured!\n");
-			ret = read(eh, &count, sizeof(count));
+			ret = read(fd, &count, sizeof(count));
 		}
 
 		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
-		ON_ERR_GOTO(res, out_close, "unregistering an FME event");
-
-		res = fpgaDestroyEventHandle(&eh);
-		ON_ERR_GOTO(res, out_close, "deleting event handle");
+		ON_ERR_GOTO(res, out_destroy_eh, "unregistering an FME event");
 
 		printf("Successfully tested Register/Unregister for FME events!\n");
 	}
+
+out_destroy_eh:
+	res = fpgaDestroyEventHandle(&eh);
+	ON_ERR_GOTO(res, out_close, "deleting event handle");
 
 out_close:
 	res = fpgaClose(fpga_device_handle);

@@ -73,6 +73,7 @@
 /* Check validity of various objects */
 fpga_result prop_check_and_lock(struct _fpga_properties *prop);
 fpga_result handle_check_and_lock(struct _fpga_handle *handle);
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
 
 /**
  * @brief
