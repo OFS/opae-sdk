@@ -134,6 +134,21 @@
 #define MAX_USR_INTRS              4
 
 /*
+* ASE config structure
+* This will reflect ase.cfg
+*/
+struct ase_cfg_t {
+	int ase_mode;
+	int ase_timeout;
+	int ase_num_tests;
+	int enable_reuse_seed;
+	int ase_seed;
+	int enable_cl_view;
+	int usr_tps;
+	int phys_memory_available_gb;
+};
+
+/*
  * ASE Debug log-level
  * -------------------
  * Two log levels are supported in ASE, controlled by env(ASE_LOG)
@@ -317,6 +332,7 @@ extern char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 // Simkill message
 #define ASE_SIMKILL_MSG      0xDEADDEAD
 
+
 // ASE PortCtrl Command values
 typedef enum {
     AFU_RESET,
@@ -471,6 +487,8 @@ uint32_t ase_read_seed(void);
 bool check_app_lock_file(void);
 void create_new_lock_file(void);
 bool remove_existing_lock_file(void);
+struct ase_cfg_t *get_cfg(void);
+void config_free(void);
 
 // ASE operations
 #ifdef ASE_DEBUG
@@ -655,22 +673,6 @@ char **bt_strings;
  *
  * *********************************************************************/
 #ifdef SIM_SIDE
-
-/*
- * ASE config structure
- * This will reflect ase.cfg
- */
-struct ase_cfg_t {
-	int ase_mode;
-	int ase_timeout;
-	int ase_num_tests;
-	int enable_reuse_seed;
-	int ase_seed;
-	int enable_cl_view;
-	int usr_tps;
-	int phys_memory_available_gb;
-};
-struct ase_cfg_t *cfg;
 
 // ASE config file
 // #define ASE_CONFIG_FILE "ase.cfg"

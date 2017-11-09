@@ -55,6 +55,7 @@ uint64_t sysmem_phys_hi;
 */
 void calc_phys_memory_ranges(void)
 {
+	struct ase_cfg_t * cfg = get_cfg();
 	sysmem_size = cfg->phys_memory_available_gb * pow(1024, 3);
 	sysmem_phys_lo = 0;
 	sysmem_phys_hi = sysmem_size - 1;
