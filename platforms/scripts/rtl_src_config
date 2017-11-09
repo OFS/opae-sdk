@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 
-##
-## Consume a file with a list of source files, include paths and preprocessor definitions.
-## Emit either Quartus or simulator commands to load the sources.
-##
-## The configuration can be recursive, with configuration file loading another.
-## See the output of --help for details.
-##
+#
+# Consume a file with a list of source files, include paths and preprocessor
+# definitions. Emit either Quartus or simulator commands to load the sources.
+#
+# The configuration can be recursive, with configuration file loading another.
+# See the output of --help for details.
+#
 
 import argparse
 import os
 import sys
 
+
 def errorExit(msg):
     sys.stderr.write("\nError: " + msg + "\n")
     sys.exit(1)
+
 
 # Suffix to Quartus tag.
 quartus_tag_map = {
@@ -28,9 +30,9 @@ quartus_tag_map = {
     '.ip':   'IP_FILE',
     '.json': 'MISC_FILE',
     '.tcl':  'MISC_FILE',
-    '.stp' : 'SIGNALTAP_FILE',
-    '.hex' : 'MIF_FILE',
-    '.mif' : 'MIF_FILE',
+    '.stp': 'SIGNALTAP_FILE',
+    '.hex': 'MIF_FILE',
+    '.mif': 'MIF_FILE',
 }
 
 # QSYS-only tags.
@@ -38,7 +40,8 @@ qsys_tag_map = {
     '.qsys': 'QSYS_FILE'
 }
 
-# Suffixes to emit for simulation targets.  This is a subset of the Quartus map.
+# Suffixes to emit for simulation targets.  This is a subset of the
+# Quartus map.
 sim_tag_map = {
     '.v':    'VERILOG_FILE',
     '.sv':   'SYSTEMVERILOG_FILE',
@@ -48,31 +51,35 @@ sim_tag_map = {
     '.json': 'MISC_FILE'
 }
 
-##
-## Return the Quartus tag for a given file extension.
-##
+#
+# Return the Quartus tag for a given file extension.
+#
+
+
 def quartusTag(filename):
     _basename, ext = os.path.splitext(filename)
     ext = ext.lower()
 
-    if (not ext in quartus_tag_map):
-        errorExit("unrecognized file extension '{0}' ({1})".format(ext, filename))
+    if (ext not in quartus_tag_map):
+        errorExit(
+            "unrecognized file extension '{0}' ({1})".format(ext, filename))
 
     return quartus_tag_map[ext]
+
 
 def lookupTag(filename, db):
     _basename, ext = os.path.splitext(filename)
     ext = ext.lower()
 
-    if (not ext in db):
+    if (ext not in db):
         return None
     else:
         return db[ext]
 
 
-##
-## Given a list of directives, emit the configuration.
-##
+#
+# Given a list of directives, emit the configuration.
+#
 def emitCfg(opts, cfg):
     if (not opts.qsys):
         # First emit all preprocessor configuration
@@ -81,7 +88,8 @@ def emitCfg(opts, cfg):
                 if (opts.sim):
                     print(c)
                 else:
-                    print('set_global_assignment -name VERILOG_MACRO "' + c[8:] + '"')
+                    print('set_global_assignment -name VERILOG_MACRO "' +
+                          c[8:] + '"')
 
         # Emit all include directives
         for c in cfg:
@@ -89,7 +97,8 @@ def emitCfg(opts, cfg):
                 if (opts.sim):
                     print(c)
                 else:
-                    print('set_global_assignment -name SEARCH_PATH "' + c[8:] + '"')
+                    print('set_global_assignment -name SEARCH_PATH "' +
+                          c[8:] + '"')
 
     # Emit sources and Quartus/simulator includes
     for c in cfg:
@@ -105,8 +114,8 @@ def emitCfg(opts, cfg):
             if (not opts.sim and not opts.qsys):
                 print("source " + c[3:])
         else:
-            # Always ask for the Quartus tag since it has the side-effect of validating
-            # the suffix.
+            # Always ask for the Quartus tag since it has the
+            # side-effect of validating the suffix.
             tag = quartusTag(c)
 
             if (opts.sim):
@@ -119,10 +128,10 @@ def emitCfg(opts, cfg):
                 print('set_global_assignment -name {0} "{1}"'.format(tag, c))
 
 
-##
-## Detect paths in configuration directives and make them relative to the target
-## directory.
-##
+#
+# Detect paths in configuration directives and make them relative to the target
+# directory.
+#
 def fixRelPath(opts, c, config_dir, tgt_dir):
     if (len(c) == 0):
         return c
@@ -153,9 +162,9 @@ def fixRelPath(opts, c, config_dir, tgt_dir):
     return prefix + p
 
 
-##
-## Recursive parse of configuration files.
-##
+#
+# Recursive parse of configuration files.
+#
 def parseConfigFile(opts, cfg_file_name, tgt_dir):
     if (len(cfg_file_name) == 0):
         return []
@@ -174,7 +183,8 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
 
                 # Recursive include?
                 if (c[:2] == 'C:'):
-                    cfg += parseConfigFile(opts, os.path.join(dir, c[2:]), tgt_dir)
+                    cfg += parseConfigFile(
+                        opts, os.path.join(dir, c[2:]), tgt_dir)
                 elif (len(c)):
                     # Append to the configuration list
                     cfg.append(fixRelPath(opts, c, dir, tgt_dir))
@@ -184,10 +194,12 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
 
     return cfg
 
+
 def main(args=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Emit RTL source list for Quartus or simulation given a configuration file.",
+        description="Emit RTL source list for Quartus or simulation " +
+                    "given a configuration file.",
         epilog='''\
 The configuration file is a list of source file names and configuration
 directives.  The suffix of a file indicates its type and Quartus type
@@ -251,6 +263,7 @@ These commands affect script parsing:
     cfg = parseConfigFile(opts, opts.config_file, opts.rel)
 
     emitCfg(opts, cfg)
+
 
 if __name__ == '__main__':
     main()

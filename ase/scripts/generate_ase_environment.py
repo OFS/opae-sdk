@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-#######################################################################
+#
 # generate_ase_environment.py : Generate AFU paths, include directories as a
 # Makefile snippet for ASE builds
 #
@@ -45,7 +45,7 @@
 #                                             Version check added
 # May 2017                RRS                 Platform type support added
 #
-#######################################################################
+#
 
 # Future-proofing against Python 3 syntax changes in 'print'
 from __future__ import print_function
@@ -79,17 +79,19 @@ TOOL_BRAND = "VCS"
 SPECIAL_CHARS = '\[]~!@#$%^&*(){}:;+$\''
 
 
-#        DO NOT MODIFY BELOW THIS COMMENT BLOCK     #
+# DO NOT MODIFY BELOW THIS COMMENT BLOCK     #
 # Global variables
 arg_list = []
 tolowarg_list = []
 valid_dirlist = []
+
 
 def errorExit(msg):
     ase_functions.begin_red_fontcolor()
     sys.stderr.write("Error: " + msg + "\n")
     ase_functions.end_red_fontcolor()
     sys.exit(1)
+
 
 def remove_dups(filepath, exclude=None):
     import hashlib
@@ -113,13 +115,12 @@ def remove_dups(filepath, exclude=None):
             hashes[h] = f
     text = '\n'.join(sorted(hashes.values(), key=os.path.basename))
     with open(filepath, 'w') as fd:
-        ## Add the prologue to load platform include paths
+        # Add the prologue to load platform include paths
         fd.write("+incdir+rtl\n")
         fd.write("-F rtl/platform_if_includes.txt\n")
         fd.write(text)
         fd.write("\n")
     return text
-
 
 
 # Run command and get string output #
@@ -130,6 +131,7 @@ def commands_getoutput(cmd):
         byte_out = subprocess.check_output(cmd.split())
         str_out = byte_out.decode("utf-8")
         return str_out
+
 
 def commands_list_getoutput(cmd):
     if sys.version_info < (2, 7):
@@ -166,8 +168,9 @@ def config_sources(fd, filelist):
     # Get all the sources.  rtl_src_config will emit all relevant source
     # files, one per line.
     try:
-        srcs = commands_list_getoutput("rtl_src_config --sim --abs".split(" ") + [filelist])
-    except:
+        srcs = commands_list_getoutput(
+            "rtl_src_config --sim --abs".split(" ") + [filelist])
+    except Exception:
         errorExit("failed to read sources from {0}".format(filelist))
 
     vlog_srcs = []
@@ -188,9 +191,9 @@ def config_sources(fd, filelist):
             vlog_srcs.append(s)
             vhdl_srcs.append(s)
         elif (s[0] == '-'):
-            # For now assume - is an include directive and used only for Verilog.
-            # Escape all but the first space, which likely follows a simulator
-            # command.
+            # For now assume - is an include directive and used only for
+            # Verilog. Escape all but the first space, which likely
+            # follows a simulator command.
             spl = s.split(' ')
             if (len(spl) > 1):
                 s = spl[0] + ' ' + '\ '.join(spl[1:])
@@ -245,16 +248,22 @@ def config_sources(fd, filelist):
     else:
         # Is there a JSON file in the same directory as the file list?
         dir = os.path.dirname(filelist)
-        str = commands_list_getoutput("find -L".split(" ") + [dir] + "-maxdepth 1 -type f -name *.json".split(" "))
+        str = commands_list_getoutput(
+                "find -L".split(" ") + [dir] +
+                "-maxdepth 1 -type f -name *.json".split(" "))
         if (len(str)):
-            # Use the discovered JSON file, but complain that it should have been
-            # named explicitly.
+            # Use the discovered JSON file, but complain that it should
+            # have been named explicitly.
             json_file = str.split('\n')[0]
             ase_functions.begin_green_fontcolor()
             json_basename = os.path.basename(json_file)
-            print(" *** JSON file {0} should be included in {1} ***".format(json_basename,
-                                                                            os.path.abspath(filelist)))
-            print("     The afu-image:afu-top-interface key in {0} will be used".format(json_basename))
+            print(
+                " *** JSON file {0} should be included in {1} ***".format(
+                    json_basename,
+                    os.path.abspath(filelist)))
+            print(
+                "     The afu-image:afu-top-interface key in " +
+                json_basename + " will be used")
             print("     to specify the AFU's top level interface.")
             ase_functions.end_green_fontcolor()
 
@@ -267,7 +276,7 @@ def config_sources(fd, filelist):
 def auto_find_sources(fd):
     # Prepare list of candidate directories
     print("Valid directories supplied => ")
-    valid_dirlist = filter(lambda p : os.path.exists(p), args.dirlist)
+    valid_dirlist = filter(lambda p: os.path.exists(p), args.dirlist)
     str_dirlist = " ".join(valid_dirlist)
     if len(valid_dirlist) == 0:
         # This line should never be reached since the directory list was
@@ -280,8 +289,8 @@ def auto_find_sources(fd):
     str = ""
     vhdl_filepaths = ""
     for extn in VHD_EXTENSIONS:
-        str = str + commands_getoutput("find -L " + str_dirlist + ' -type f -name '
-                                       ' *' + extn)
+        str = str + commands_getoutput("find -L " + str_dirlist +
+                                       ' -type f -name *' + extn)
         if len(str) != 0:
             str = str + "\n"
     if len(str.strip()) != 0:
@@ -304,7 +313,8 @@ def auto_find_sources(fd):
         if len(str) != 0:
             str = str + "\n"
     for extn in VLOG_EXTENSIONS:
-        cmd = "find -L " + str_dirlist + " -type f -name *" + extn + " -not -name *pkg*" + extn
+        cmd = "find -L " + str_dirlist + \
+            " -type f -name *" + extn + " -not -name *pkg*" + extn
         str = str + commands_getoutput(cmd)
         if len(str) != 0:
             str = str + "\n"
@@ -347,16 +357,18 @@ def auto_find_sources(fd):
                 module_files[modname].append(filepath)
                 module_namelist.append(modname)
 
-    if (has_duplicates(module_files) == True):
+    if (has_duplicates(module_files)):
         ase_functions.begin_red_fontcolor()
         print("\n")
         print("Duplicate module names were found in the RTL file lists.")
-        print("Please remove them manually as RTL compilation is expected to FAIL !")
+        print("Please remove them manually as RTL compilation is expected " +
+              "to FAIL !")
         ase_functions.end_red_fontcolor()
 
     # Search for a JSON file describing the top-level interface
     json_file = None
-    str = commands_getoutput("find -L " + str_dirlist + " -type f -name *.json")
+    str = commands_getoutput(
+        "find -L " + str_dirlist + " -type f -name *.json")
     if (len(str)):
         for js in str.split('\n'):
             try:
@@ -368,9 +380,10 @@ def auto_find_sources(fd):
                 # If we get this far without an exception the JSON file names
                 # a top-level interface.  Use it.
                 json_file = js
-                print("\nAFU interface from {0}: {1}".format(os.path.basename(json_file), afu_ifc))
+                print("\nAFU interface from {0}: {1}".format(
+                    os.path.basename(json_file), afu_ifc))
                 break
-            except:
+            except Exception:
                 None
 
     # Print auto-find instructions
@@ -410,7 +423,7 @@ def gen_afu_platform_ifc(json_file):
 
     try:
         print(commands_list_getoutput(cfg))
-    except:
+    except Exception:
         errorExit(cmd + " from OPAE SDK failed!")
 
 
@@ -443,16 +456,21 @@ parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default='VCS',
 parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'],
                     default='intg_xeon', help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
-                    help='file name pattern to exclude (only in auto-discovery mode)')
+                    help="""file name pattern to exclude
+                            (auto-discovery mode only)""")
 
 args = parser.parse_args()
 
 if (len(args.dirlist) == 0) and not args.sources:
     parser.print_usage(sys.stderr)
-    errorExit("either --sources or at least on scan directory must be specified.  See --help.")
+    errorExit(
+        "either --sources or at least on scan directory must be specified.  " +
+        "See --help.")
 if len(args.dirlist) and args.sources:
     parser.print_usage(sys.stderr)
-    errorExit("scan directories may not be specified along with --sources.  See --help.")
+    errorExit(
+        "scan directories may not be specified along with --sources.  " +
+        "See --help.")
 
 tool_type = args.tool
 TOOL_BRAND = args.tool
@@ -502,8 +520,8 @@ fd.close()
 
 # Write tool specific scripts
 
-## Scripts for multiple tools are written since the default tool
-## can be selected at build time.
+# Scripts for multiple tools are written since the default tool
+# can be selected at build time.
 
 # Write Synopsys Setup file & TCL script
 open("synopsys_sim.setup", "w").write("WORK > DEFAULT\nDEFAULT : ./work\n")
