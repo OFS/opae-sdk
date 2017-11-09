@@ -18,6 +18,7 @@ find_path(jsoncpp_INCLUDE_DIRS
   ${JSONCPP_PKG_CONFIG_INCLUDE_DIRS}
   /usr/local/include
   /usr/include
+  /usr/include/jsoncpp
   ${CMAKE_EXTRA_INCLUDES})
 
 # The library itself

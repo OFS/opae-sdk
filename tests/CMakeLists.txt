@@ -78,6 +78,7 @@ include_directories(
   ${OPAE_SDK_SOURCE}/common/include
   ${OPAE_SDK_SOURCE}/tests)
 
+message("jsoncpp=${jsoncpp_INCLUDE_DIRS}")
 add_library(commonlib SHARED common_test.h common_test.cpp)
 target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${jsoncpp_LIBRARIES})
 target_include_directories(commonlib PUBLIC
