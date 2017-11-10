@@ -36,6 +36,7 @@
 #include "safe_string/safe_string.h"
 
 #include "opae/access.h"
+#include "opae/properties.h"
 #include "types_int.h"
 #include "common_int.h"
 #include "intel-fpga.h"
