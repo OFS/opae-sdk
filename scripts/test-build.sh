@@ -6,6 +6,6 @@ pushd mybuild
 trap "popd" EXIT
 
 cmake .. -DBUILD_ASE=1
-make -j
+make
 
 echo "test-build PASSED"
