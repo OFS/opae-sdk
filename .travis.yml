@@ -3,7 +3,7 @@ compiler: gcc
 script:
   - sudo unlink /usr/bin/gcc
   - sudo unlink /usr/bin/g++
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
   - scripts/test-build.sh
   - scripts/test-codingstyle.sh
   - scripts/test-gtest.sh
@@ -13,8 +13,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-6
-      - g++-6
+      - gcc-5
+      - g++-5
       - libboost-all-dev
       - libjson-c-dev
       - libjsoncpp-dev
@@ -26,3 +26,6 @@ addons:
       - dia
       - mscgen
       - pkg-config
+before_install:
+  - export CC="gcc-5" CXX="g++-5"
+
