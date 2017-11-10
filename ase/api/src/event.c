@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/access.h>
+#include <opae/properties.h>
 #include "common_int.h"
 #include <ase_common.h>
 
