@@ -5,13 +5,8 @@ script:
   - scripts/test-codingstyle.sh
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - g++-5
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
-before_install:
-  - export CC="gcc-5" CXX="g++-5"
 
