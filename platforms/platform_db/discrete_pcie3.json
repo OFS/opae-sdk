@@ -1,6 +1,6 @@
 {
    "version": 1,
-   "platform-name": "discrete_pci3",
+   "platform-name": "discrete_pcie3",
    "description": "First generation CCI-P-based discrete PCIe Gen3 cards",
    "comment":
       [
