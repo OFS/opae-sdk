@@ -71,6 +71,7 @@ install(DIRECTORY common/include/opae
 ############################################################################
 ## Add 'doxygen' target ####################################################
 ############################################################################
+
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
@@ -129,6 +130,17 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+############################################################################
+## Testing #################################################################
+############################################################################
+
+option(BUILD_TESTS "Enable TESTS compilation" OFF)
+mark_as_advanced(BUILD_TESTS)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 
 ############################################################################
 ## Packaging ###############################################################

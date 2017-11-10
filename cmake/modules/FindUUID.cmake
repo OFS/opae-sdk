@@ -27,6 +27,7 @@ find_library(libuuid_LIBRARIES
   /usr/local/lib
   /usr/lib
   /lib
+  /usr/lib/x86_64-linux-gnu
   ${CMAKE_EXTRA_LIBS})
 
 if(libuuid_LIBRARIES AND libuuid_INCLUDE_DIRS)

@@ -27,6 +27,7 @@ find_library(librt_LIBRARIES
   /usr/local/lib
   /usr/lib
   /lib
+  /usr/lib/x86_64-linux-gnu
   ${CMAKE_EXTRA_LIBS})
 
 if(librt_LIBRARIES AND librt_INCLUDE_DIRS)

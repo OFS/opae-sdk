@@ -106,15 +106,3 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 install(TARGETS opae-c
   LIBRARY DESTINATION lib
   COMPONENT opaeclib)
-
-
-############################################################################
-## Add 'coverage' ##########################################################
-############################################################################
-
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  if(BUILD_TESTS AND GTEST_FOUND)
-    set_target_for_coverage(opae-c bin/gtapi -p)
-    add_dependencies(coverage_opae-c gtapi)
-  endif(BUILD_TESTS AND GTEST_FOUND)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
