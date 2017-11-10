@@ -36,7 +36,8 @@ class fme_command(fpga_common.fpga_command):
                   'socket_id',
                   'bitstream_id',
                   'bitstream_metadata',
-                  'pr_interface_id']
+                  'pr_interface_id',
+                  'object_ID']
 
     def run(self, args):
         info = sysfs.sysfsinfo()

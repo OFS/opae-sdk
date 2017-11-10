@@ -339,6 +339,15 @@ class fme_info(sysfs_resource):
     def bitstream_metadata(self):
         return self.read_sysfs("bitstream_metadata")
 
+    @property
+    def object_ID(self):
+        value = self.read_sysfs("dev")
+        valueList = value.split(":")
+        major = valueList[0]
+        minor = valueList[1]
+        objID = ((int(major) & 0xFFF) << 20) | (int(minor) & 0xFFFFF)
+        return hex(objID) + "   FPGA_DEVICE"
+
 
 class port_info(sysfs_resource):
     def __init__(self, path, instance_id, **kwargs):
@@ -350,6 +359,15 @@ class port_info(sysfs_resource):
     @property
     def afu_id(self):
         return str(uuid.UUID(self.read_sysfs("afu_id")))
+
+    @property
+    def object_ID(self):
+        value = self.read_sysfs("dev")
+        valueList = value.split(":")
+        major = valueList[0]
+        minor = valueList[1]
+        objID = ((int(major) & 0xFFF) << 20) | (int(minor) & 0xFFFFF)
+        return hex(objID) + "   FPGA_ACCELERATOR"
 
 
 class sysfsinfo(object):

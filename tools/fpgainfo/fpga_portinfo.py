@@ -32,6 +32,9 @@ import sysfs
 class port_command(fpga_common.fpga_command):
     name = "port"
 
+    properties = ['afu_id',
+                  'object_ID']
+
     def run(self, args):
         info = sysfs.sysfsinfo()
         json_data = []
@@ -39,7 +42,7 @@ class port_command(fpga_common.fpga_command):
             if args.json:
                 json_data.append(port.to_dict())
             else:
-                port.print_info("//****** PORT ******//", "afu_id")
+                port.print_info("//****** PORT ******//", *self.properties)
 
         if args.json:
             print(json.dumps(json_data, indent=4, sort_keys=False))
