@@ -24,20 +24,11 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import os
-import os.path
+import json
 from sysfs import sysfsinfo
 from fpga_common import (
-    global_arguments,
     fpga_command,
-    bitmask,
-    FME_DEVICE,
-    PORT_DEVICE)
-
-FME_ERRORS = os.path.join(FME_DEVICE, 'errors')
-PORT_ERRORS = os.path.join(PORT_DEVICE, 'errors')
-FME_REVISION = os.path.join(FME_DEVICE, 'errors/revision')
-PORT_REVISION = os.path.join(PORT_DEVICE, 'errors/revision')
+    bitmask)
 
 
 class error_mask(object):
@@ -47,19 +38,27 @@ class error_mask(object):
     def __init__(self, value):
         self.value = value
 
-    def __str__(self):
-        s = '{:32} : 0x{:02x}\n'.format('Raw Value', self.value)
+    def __unicode__(self):
+        s = u'0x{:02x}'.format(self.value)
         if self.value:
             for name, bm in self._bitmasks:
-                s += '{:32} : 0x{:02x}\n'.format(name, bm(self.value))
+                err = bm(self.value)
+                if err:
+                    s += u'\n  {:20} : 0x{:02X}'.format(name, err)
         return s
 
-    def data(self):
-        return dict([(name, bm(self.value)) for (name, bm) in self._bitmasks])
+    def to_dict(self, include_bdf=False):
+        if self._bitmasks:
+            data = (dict([(name, bm(self.value))
+                          for (name, bm) in self._bitmasks]))
+            return data
+        else:
+            return self.value
 
 
 class fme_errors(error_mask):
     _name = "fme"
+    _file = "fme-errors/errors"
     _bitmasks = [
         ("CvlCdcParErro0", bitmask(17, 19)),
         ("Pcie1CdcParErr", bitmask(12, 16)),
@@ -75,6 +74,7 @@ class fme_errors(error_mask):
 
 class bbs_errors(error_mask):
     _name = "bbs"
+    _file = "bbs_errors"
     _bitmasks = [
         ("InjectedCatastErr", bitmask(11, 11)),
         ("ThermCatastErr", bitmask(10, 10)),
@@ -93,6 +93,7 @@ class bbs_errors(error_mask):
 
 class port_errors(error_mask):
     _name = "port"
+    _file = "errors"
     _bitmasks = [
         ("VfFlrAccessError", bitmask(51, 51)),
         ("Ap6Event", bitmask(50, 50)),
@@ -130,6 +131,7 @@ class port_errors(error_mask):
 
 class pcie0_errors(error_mask):
     _name = "pcie0"
+    _file = "pcie0_errors"
     _bitmasks = [
         ("FunctTypeErr", bitmask(63, 63)),
         ("VFNumb", bitmask(62, 62)),
@@ -148,6 +150,7 @@ class pcie0_errors(error_mask):
 
 class pcie1_errors(error_mask):
     _name = "pcie1"
+    _file = "pcie1_errors"
     _bitmasks = [
         ("RxPoisonTlpErr", bitmask(9, 9)),
         ("ParityErr", bitmask(8, 8)),
@@ -164,6 +167,7 @@ class pcie1_errors(error_mask):
 
 class gbs_errors(error_mask):
     _name = "gbs"
+    _file = "gbs_errors"
     _bitmasks = [
         ("MBPErr", bitmask(12, 12)),
         ("PowerThreshAP2", bitmask(11, 11)),
@@ -181,6 +185,7 @@ class gbs_errors(error_mask):
 
 class first_errors(error_mask):
     _name = "first_error"
+    _file = "first_error"
     _bitmasks = [
         ("TxReqCounterOverflow", bitmask(40, 40)),
         ("TxCh2FifoOverflow", bitmask(33, 33)),
@@ -205,6 +210,7 @@ class first_errors(error_mask):
 
 class nonfatal_errors(error_mask):
     _name = "nonfatal"
+    _file = "nonfatal_errors"
     _bitmasks = [
         ("MBPErr", bitmask(12, 12)),
         ("PowerThreshAP2", bitmask(11, 11)),
@@ -222,6 +228,7 @@ class nonfatal_errors(error_mask):
 
 class fatal_errors(error_mask):
     _name = "catfatal"
+    _file = "catfatal_errors"
     _bitmasks = [
         ("InjectedCatastErr", bitmask(11, 11)),
         ("ThermCatastErr", bitmask(10, 10)),
@@ -238,97 +245,85 @@ class fatal_errors(error_mask):
     ]
 
 
-err_classes = {
-    "fme": {
-        0: [fme_errors, pcie0_errors, pcie1_errors,
-            gbs_errors, bbs_errors],
-        1: [fme_errors, pcie0_errors, pcie1_errors,
-            nonfatal_errors, fatal_errors]
-    },
-    "port": {
-        0: [port_errors, first_errors],
-        1: [port_errors, first_errors]
-    }
+error_classes = {
+    "fme": {"errors": fme_errors,
+            "pcie0_errors": pcie0_errors,
+            "pcie1_errors": pcie1_errors,
+            "gbs_errors": gbs_errors,
+            "bbs_errors": bbs_errors,
+            "nonfatal_errors": nonfatal_errors,
+            "catfatal_errors": fatal_errors,
+            "first_error": error_mask,
+            "next_error": error_mask},
+    "port": {"errors": port_errors,
+             "first_error": first_errors}
 }
+
+
+def set_error_parsers(err_feature, err_classes):
+    for name, err_class in err_classes.iteritems():
+        if hasattr(err_feature, name):
+            err_value = getattr(err_feature, name).fget(err_feature)
+            setattr(err_feature, name, err_class(err_value))
 
 
 class errors_command(fpga_command):
     name = 'errors'
 
     def __init__(self, parser):
-        self._info = sysfsinfo()
-        fme_rev = self._info.fme()[0].errors_revision
-        port_rev = self._info.port()[0].errors_revision
-        self._fme_revision = fme_rev
-        self._port_revision = port_rev
-        self._cmd_classes = err_classes["fme"][self._fme_revision]
-        self._cmd_classes += err_classes["port"][self._port_revision]
-        self._cmd_list = [c._name for c in self._cmd_classes]
-        self._cmd_dict = dict([(c._name, c) for c in self._cmd_classes])
         super(errors_command, self).__init__(parser)
 
     def args(self, parser):
+        super(errors_command, self).args(parser)
         parser.add_argument('-c', '--clear', action='store_true',
                             default=False,
                             help='specify whether or not'
                             ' to clear error registers')
 
         parser.add_argument('which',
-                            choices=self._cmd_list + ['all'],
+                            choices=['fme', 'port', 'all'],
                             default='fme',
                             help='specify what kind of errors to operate on')
 
     def run(self, args):
-        if args.which == 'all':
-            for choice in self._cmd_list:
-                args.which = choice
-                # clear only applies to fme and port errors
-                args.clear = args.clear and args.which in ['fme', 'port']
-                self.run(args)
+        info = sysfsinfo()
+        resources = []
+        # let's monkey patch the error sysfs resource
+        # by looking at our dicionaries of error parsers and matching
+        # them with the corresponding property and then replacing
+        # that property attribute with an instance of the error parsing
+        # class with the value of the property
+        if args.which == "fme" or args.which == "all":
+            for fme in info.fme(**vars(args)):
+                set_error_parsers(fme.errors, error_classes["fme"])
+                resources.append(fme.errors)
 
-            return
+        if args.which == "port" or args.which == "all":
+            for port in info.port(**vars(args)):
+                set_error_parsers(port.errors, error_classes["port"])
+                resources.append(port.errors)
 
-        if args.which == 'fme':
-            errpath = os.path.join(FME_ERRORS, 'fme-errors/errors')
-        elif args.which == 'port':
-            errpath = os.path.join(PORT_ERRORS, 'errors')
-        elif args.which == 'first_error':
-            errpath = os.path.join(PORT_ERRORS, 'first_error')
-        else:
-            errpath = os.path.join(FME_ERRORS, '{}_errors'.format(args.which))
-        errpath = errpath.format(socket_id=args.socket_id)
-        print errpath
-        with open(errpath, 'r') as fd:
-            value = fd.read().strip()
-
-        err_class = self._cmd_dict.get(args.which, error_mask)
-        errs = err_class(int(value, 16))
-
-        print errs
-        if args.clear and args.which not in ['fme', 'port']:
-            print 'WARNING: --clear only applies to fme or port'
-            args.clear = False
-
-        if errs.value and args.clear:
-            clear_path = os.path.join(os.path.dirname(errpath), 'clear')
-            try:
-                with open(clear_path, 'w') as fd:
-                    fd.write(value)
-            except IOError:
-                print('WARNING: Could not clear errors. '
-                      'May need to run as root.')
+        json_data = []
+        for r in resources:
+            if args.json:
+                json_data.append(r.to_dict())
             else:
-                with open(errpath, 'r') as fd:
-                    value = fd.read().strip()
-                radix = 16 if value.startswith('0x') else 10
-                errs = err_class(int(value, radix))
-                print errs
+                r.print_info(
+                    "//****** {} ******//".format(r.name))
+
+        if args.json:
+            print(json.dumps(json_data, indent=4, sort_keys=False))
+
+        if args.clear:
+            for r in resources:
+                if not r.clear():
+                    print("ERROR: Could not clear errors for resource {}.\n"
+                          "Are you running as root?\n".format(r.sysfs_path))
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    global_arguments(parser)
     errors_command(parser)
     args = parser.parse_args()
     args.func(args)

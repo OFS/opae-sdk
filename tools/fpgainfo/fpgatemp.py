@@ -26,174 +26,35 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import fpga_common as cmd
-import os
-import sys
+import sysfs
 
-# RW | It contains thermal management configure files
-FME_SYSFS_THERMAL_MGMT = os.path.join(cmd.FME_DEVICE, "thermal_mgmt")
 
-# RO | Reads out FPGA temperature in Centigrade
-FME_SYSFS_THERMAL_MGMT_TEMP = None
-
-# RW | Get/set thermal threshold, write values: 7-bit unsigned integer,
-# 0 - disable threshold1
-FME_SYSFS_THERMAL_MGMT_THRESHOLD1 = None
-
-# RW | Get/set thermal threshold2, write values: 7-bit unsigned integer, 0
-# - disable threshold2
-FME_SYSFS_THERMAL_MGMT_THRESHOLD2 = None
-
-# RO | Check if Temperature reaches threshold1, 0 - not; 1 - yes
-FME_SYSFS_THERMAL_MGMT_THRESHOLD1_REACHED = None
-
-# RO | Check if Temperature reaches threshold2, 0 - not; 1 - yes
-FME_SYSFS_THERMAL_MGMT_THRESHOLD2_REACHED = None
-
-# RW | Get/set the policy of threshold1
-# 0 - AP2 state (90% throttle) 1 - AP1 state (50% throttle)
-# other values fail with -EINVAL
-FME_SYSFS_THERMAL_MGMT_THRESHOLD1_POLICY = None
-
-# RO | Get Therm Trip Threshold
-FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP = None
+def print_celcius(value):
+    return u'{}\u00b0 C'.format(value)
 
 
 class temp_command(cmd.fpga_command):
-
     name = "temp"
-    output_message = None
-
-    def args(self, parser):
-        pass
+    thermal_props = [("temperature", print_celcius),
+                     ("threshold1", print_celcius),
+                     ("threshold1_policy", repr),
+                     ("threshold1_reached", bool),
+                     ("threshold2", print_celcius),
+                     ("threshold2_reached", bool),
+                     ("threshold2_policy", repr),
+                     ("threshold_trip", print_celcius)]
 
     def run(self, args):
-        global FME_SYSFS_THERMAL_MGMT
-        FME_SYSFS_THERMAL_MGMT = FME_SYSFS_THERMAL_MGMT.format(
-            socket_id=args.socket_id, fme_instance=0)
-        # print(FME_SYSFS_THERMAL_MGMT)
-        self.get_temp(FME_SYSFS_THERMAL_MGMT)
-
-    def get_temp(self, temppath):
-        global FME_SYSFS_THERMAL_MGMT_TEMP
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD1
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD1_POLICY
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD1_REACHED
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD2
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD2_REACHED
-        global FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP
-
-        if os.path.isdir(temppath):
-            print("Thermal management is supported, getting values ...")
-        else:
-            print("Thermal management is NOT supported!")
-            return
-
-        FME_SYSFS_THERMAL_MGMT_TEMP = FME_SYSFS_THERMAL_MGMT + "/temperature"
-        self.output_message = "FPGA thermal temperature"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_TEMP)
-        if ftr is not None:
-            ftr = ":  " + ftr + u"\u00b0" + " Centigrade"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  temperature"
-
-        FME_SYSFS_THERMAL_MGMT_THRESHOLD1 = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold1"
-        self.output_message = "FPGA thermal threshold 1"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THRESHOLD1)
-        if ftr is not None:
-            if ftr == "0":
-                ftr = ":  " + ftr + "disabled"
-            else:
-                ftr = ":  " + ftr + u"\u00b0" + " Centigrade"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold 1"
-
-        FME_SYSFS_THERMAL_MGMT_THRESHOLD1_POLICY = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold1_policy"
-        self.output_message = "FPGA thermal threshold 1 policy"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THRESHOLD1_POLICY)
-        if ftr is not None:
-            if ftr == "0":
-                ftr = ":  " + ftr + " (AP2 state (90% throttle))"
-            elif ftr == "1":
-                ftr = ":  " + ftr + " (AP1 state (50% throttle))"
-            else:
-                ftr = ":  " + ftr + "error"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold 1"
-
-        FME_SYSFS_THERMAL_MGMT_THRESHOLD1_REACHED = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold1_reached"
-        self.output_message = "FPGA thermal threshold 1 reached"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THRESHOLD1_REACHED)
-        if ftr is not None:
-            if ftr == "0":
-                ftr = ":  " + ftr + " (false)"
-            else:
-                ftr = ":  " + ftr + " (true)"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold 1 reached"
-
-        FME_SYSFS_THERMAL_MGMT_THRESHOLD2 = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold2"
-        self.output_message = "FPGA thermal threshold 2"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THRESHOLD2)
-        if ftr is not None:
-            if ftr == "0":
-                ftr = ":  " + ftr + " (disabled)"
-            else:
-                ftr = ":  " + ftr + u"\u00b0" + " Centigrade"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold 2"
-
-        FME_SYSFS_THERMAL_MGMT_THESHOLD2_REACHED = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold2_reached"
-        self.output_message = "FPGA thermal threshold 2 reached"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THESHOLD2_REACHED)
-        if ftr is not None:
-            if ftr == "0":
-                ftr = ":  " + ftr + " (false)"
-            else:
-                ftr = ":  " + ftr + " (true)"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold 2 reached"
-
-        FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP = \
-            FME_SYSFS_THERMAL_MGMT + "/threshold_trip"
-        self.output_message = "FPGA thermal threshold trip"
-        ftr = self.get_feature(FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP)
-        if ftr is not None:
-            ftr = ":  " + ftr + u"\u00b0" + " Centigrade"
-            self.printValue(ftr)
-        else:
-            print "Feature not supported:  threshold trip"
-
-    def get_feature(self, feature_path):
-        if cmd.fpga_command.fme_feature_is_supported(
-                self,
-                feature_path):
-            with open(feature_path, "r") as fd:
-                value = fd.read().strip().lower()
-            radix = 16 if value.startswith('0x') else 10
-            return str(int(value, radix))
-
-    def printValue(self, ftr):
-        line_length = 40
-        padding = line_length - len(self.output_message)
-        sys.stdout.write(" " * padding)
-        print self.output_message + ftr
+        info = sysfs.sysfsinfo()
+        for fme in info.fme(**vars(args)):
+            fme.thermal_mgmt.print_info("//****** THERMAL ******//",
+                                        *[p[0] for p in self.thermal_props],
+                                        **dict(self.thermal_props))
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    cmd.global_arguments(parser)
     temp_command(parser)
     args = parser.parse_args()
     args.func(args)

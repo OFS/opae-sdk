@@ -24,94 +24,34 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
+import json
 import fpga_common
-from fpgapwr import power_command
-import os
+import sysfs
 
 
 class fme_command(fpga_common.fpga_command):
-
     name = "fme"
-
-    def args(self, parser):
-        pass
+    properties = ['version',
+                  'ports_num',
+                  'socket_id',
+                  'bitstream_id',
+                  'bitstream_metadata',
+                  'pr_interface_id']
 
     def run(self, args):
-
-        global FME_SYSFS_PATH
-
-        FME_SYSFS_PATH = fpga_common.FME_DEVICE.format(
-            socket_id=args.socket_id, fme_instance=0)
-        # print(FME_SYSFS_INFO)
-        self.print_fme_info(FME_SYSFS_PATH)
-
-    def get_feature(self, feature_path):
-        if fpga_common.fpga_command.fme_feature_is_supported(
-                self,
-                feature_path):
-            with open(feature_path, "r") as fd:
-                value = fd.read().strip().lower()
-                return value
-        else:
-            print "Feature not supported: " + feature_path + "\n"
-
-    def print_fme_info(self, fmepath):
-        # RO | It contains FME Babric version.
-        FME_SYSFS_FABRIC_VERSION = fmepath + "/version"
-        # RO | It contains the number of PR ports.
-        FME_SYSFS_PR_NUM = fmepath + "/ports_num"
-        # RO | It contains FME Socket ID
-        FME_SYSFS_SOCKET_ID = fmepath + "/socket_id"
-        # RO | It contains FME bitstream ID
-        FME_SYSFS_BITSTREAM_ID = fmepath + "/bitstream_id"
-        # RO | It contains FME bitstream-metadata
-        FME_SYSFS_BITSTREAM_METADATA = fmepath + "/bitstream_metadata"
-        # RO | It contains FME PR interface ID
-        FME_SYSFS_PR_INTER_ID = fmepath + "/pr/interface_id"
-
-        feature = self.get_feature(FME_SYSFS_FABRIC_VERSION)
-        if feature is not None:
-            print "FME fabric version:" + feature + "\n"
-        else:
-            print "Feature not supported: " + FME_SYSFS_FABRIC_VERSION + "\n"
-
-        feature = self.get_feature(FME_SYSFS_PR_NUM)
-        if feature is not None:
-            print "Number of PR ports: " + feature + "\n"
-        else:
-            print "Feature not supported: " + FME_SYSFS_PR_NUM + "\n"
-
-        feature = self.get_feature(FME_SYSFS_SOCKET_ID)
-        if feature is not None:
-            print "FME Socket ID: " + feature + "\n"
-        else:
-            print "Feature not supported: " + FME_SYSFS_SOCKET_ID + "\n"
-
-        feature = self.get_feature(FME_SYSFS_BITSTREAM_ID)
-        if feature is not None:
-            print "FME Bitstream ID: " + feature + "\n"
-        else:
-            print "Feature not supported: " + FME_SYSFS_BITSTREAM_ID + "\n"
-
-        feature = self.get_feature(FME_SYSFS_BITSTREAM_METADATA)
-        if feature is not None:
-            print "FME Bitstream Metadata: " + feature + "\n"
-        else:
-            print("Feature not supported: " + FME_SYSFS_BITSTREAM_METADATA +
-                  "\n")
-
-        feature = self.get_feature(FME_SYSFS_PR_INTER_ID)
-        if feature is not None:
-            print "FME PR interface ID: " + feature + "\n"
-        else:
-            print "Feature not supported: " + FME_SYSFS_PR_INTER_ID + "\n"
+        info = sysfs.sysfsinfo()
+        json_data = []
+        for fme in info.fme(**vars(args)):
+            if args.json:
+                json_data.append(fme.to_dict())
+            else:
+                fme.print_info("//****** FME ******//", *self.properties)
+        if args.json:
+            print(json.dumps(json_data, indent=4, sort_keys=False))
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    fpga_common.global_arguments(parser)
-    power_command(parser)
     args = parser.parse_args()
     args.func(args)
