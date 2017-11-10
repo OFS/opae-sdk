@@ -177,10 +177,24 @@ add_test(NAME gtapi_open
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommon*open*)
 
+add_test(NAME gtapi_hostif
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*HostifCommon*Hostif*)
+
+add_test(NAME gtapi_buff4kb_prerel
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*Buf*PrepRel4*0*)
+
+add_test(NAME gtapi_close
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*Close*01)
+
 set_tests_properties(
   gtapi_enum
   gtapi_open
   gtapi_mmio
+  gtapi_hostif
+  gtapi_buff4kb_prerel
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
