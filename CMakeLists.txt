@@ -93,6 +93,7 @@ add_subdirectory(tools/ras)
 add_subdirectory(tools/mmlink)
 add_subdirectory(tools/coreidle)
 add_subdirectory(tools/fpgaconf)
+add_subdirectory(tools/fpgabist)
 add_subdirectory(tools/fpgainfo)
 add_subdirectory(tools/c++utils)
 add_subdirectory(tools/libopae++)
@@ -189,6 +190,7 @@ define_pkg(tools
   toolcoreidle
   toolfpgaconf
   toolfpgadiag
+  toolfpgabist
   toolfpgadiagapps
   toolfpgainfo
   toolfpgaport
