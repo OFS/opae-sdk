@@ -260,10 +260,6 @@ extern char *ase_workdir_path;
 // Timestamp IPC file
 #define TSTAMP_FILENAME ".ase_timestamp"
 extern char tstamp_filepath[ASE_FILEPATH_LEN];
-extern char *glbl_session_id;
-
-// CCIP Warnings and Error stat location
-extern char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 
 // READY file name
 #define ASE_READY_FILENAME ".ase_ready.pid"
@@ -670,7 +666,7 @@ struct ase_cfg_t {
 	int usr_tps;
 	int phys_memory_available_gb;
 };
-struct ase_cfg_t *cfg;
+extern struct ase_cfg_t *cfg;
 
 // ASE config file
 // #define ASE_CONFIG_FILE "ase.cfg"
