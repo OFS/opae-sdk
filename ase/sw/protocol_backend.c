@@ -607,7 +607,7 @@ int ase_listener(void)
 
 	//umsg, lookup before issuing UMSG
 	static int   glbl_umsgmode;
-	char umsg_mode_msg[ASE_LOGGER_LEN];	
+	char umsg_mode_msg[ASE_LOGGER_LEN];
 
 	//   FUNC_CALL_ENTRY;
 
