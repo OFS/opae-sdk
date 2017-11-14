@@ -38,8 +38,6 @@
 
 #include "ase_common.h"
 
-extern struct ase_cfg_t *cfg;
-
 // Base addresses of required regions
 uint64_t *mmio_afu_vbase;
 uint64_t *umsg_umas_vbase;

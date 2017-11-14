@@ -34,7 +34,6 @@
 
 #include "ase_common.h"
 
-extern char tstamp_filepath[ASE_FILEPATH_LEN];
 
 // -----------------------------------------------------------------------
 // Timestamp based isolation
