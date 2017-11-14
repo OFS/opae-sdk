@@ -38,16 +38,9 @@
  */
 #include "ase_common.h"
 
-// Global test complete counter
-// Keeps tabs of how many session_deinits were received
-int glbl_test_cmplt_cnt;
+struct ase_cfg_t *cfg;
 
-// Global umsg mode, lookup before issuing UMSG
-int glbl_umsgmode;
-char umsg_mode_msg[ASE_LOGGER_LEN];
-
-// Session status
-int session_empty;
+int glbl_test_cmplt_cnt;   // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
 pthread_t socket_srv_tid;
@@ -55,20 +48,13 @@ pthread_t socket_srv_tid;
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
 
-// User clock frequency
-float f_usrclk;
-
 // Variable declarations
 char tstamp_filepath[ASE_FILEPATH_LEN];
-char *glbl_session_id;
 char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 
 // CONFIG,SCRIPT parameter paths received from SV (initial)
 char sv2c_config_filepath[ASE_FILEPATH_LEN];
 char sv2c_script_filepath[ASE_FILEPATH_LEN];
-
-// ASE-APP run command
-char *app_run_cmd;
 
 // ASE seed
 uint64_t ase_seed;
@@ -614,6 +600,14 @@ int ase_listener(void)
 	char portctrl_msgstr[ASE_MQ_MSGSIZE];
 	char logger_str[ASE_LOGGER_LEN];
 	char umsg_mapstr[ASE_MQ_MSGSIZE];
+
+	// Session status
+	static int   session_empty;
+	static char *glbl_session_id;
+
+	//umsg, lookup before issuing UMSG
+	static int   glbl_umsgmode;
+	char umsg_mode_msg[ASE_LOGGER_LEN];	
 
 	//   FUNC_CALL_ENTRY;
 
@@ -1166,8 +1160,8 @@ int ase_ready(void)
 {
 	FUNC_CALL_ENTRY;
 
-	// App run command
-	app_run_cmd = ase_malloc(ASE_FILEPATH_LEN);
+	// ASE-APP run command
+	char app_run_cmd[ASE_FILEPATH_LEN];
 
 	// Set test_cnt to 0
 	glbl_test_cmplt_cnt = 0;
@@ -1347,6 +1341,9 @@ void ase_config_parse(char *filename)
 	int value;
 	char *pch;
 	char *saveptr;
+	// User clock frequency
+	float f_usrclk;
+
 
 	// Allocate space to store ASE config
 	cfg = (struct ase_cfg_t *) ase_malloc(sizeof(struct ase_cfg_t));
