@@ -13,16 +13,6 @@ from recommonmark.transform import AutoStructify
 import subprocess
 subprocess.call('cd ../doxygen; doxygen', shell=True)
 
-# Assure symbolic link is removed
-if os.path.lexists('docs') and os.path.islink('docs'):
-    os.remove('docs')
-else:
-    shutil.rmtree('docs', ignore_errors=True)
-
-# Create symbolic link
-if os.path.exists('../../src'):
-    os.symlink('../../src', './docs')
-
 # Default doxygen location
 doxyDir = os.path.join(os.path.expanduser('~'),
                            'cmake_builds',
@@ -40,19 +30,28 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.pngmath',
+    'sphinx.ext.ifconfig',
     'breathe'
 ]
+
+# numpy style documentation with Napoleon
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
 
 # Use breathe to include doxygen documents
 breathe_projects = {'FPGA-API' : 'doxygen_xml/'}
 breathe_default_project = 'FPGA-API'
 
 # Markdown/Org-mode extension
-# sys.path.append(os.path.abspath('_contrib'))
-# extensions += ["sphinxcontrib_markdown"]
+sys.path.append(os.path.abspath('_contrib'))
+extensions += ["sphinxcontrib_markdown"]
 
-source_parsers = {'.md': CommonMarkParser}
-source_suffix = ['.rst', '.md']
+# Do not use this; if _contrib markdown plugin was used
+# source_parsers = {'.md': CommonMarkParser}
+# source_suffix = ['.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
