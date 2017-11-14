@@ -94,8 +94,14 @@ add_subdirectory(safe_string)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
+option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the default C++ OPAE API implementation." ON)
+mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
+endif()
+
+if(BUILD_LIBOPAE_CXX)
+  add_subdirectory(libopae++)
 endif()
 
 add_subdirectory(platforms)
