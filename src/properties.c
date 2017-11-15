@@ -650,6 +650,8 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 fpga_result __FPGA_API__
 fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(device_id);
 	FPGA_MSG("Device ID not yet supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -657,6 +659,8 @@ fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
 fpga_result __FPGA_API__
 fpgaPropertiesSetDeviceID(fpga_properties prop, uint32_t device_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(device_id);
 	FPGA_MSG("Device ID not yet supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -851,6 +855,8 @@ fpga_result __FPGA_API__
 fpgaPropertiesGetVendorID(const fpga_properties prop,
 			  uint16_t *vendor_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(vendor_id);
 	FPGA_MSG("Vendor ID not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -858,6 +864,8 @@ fpgaPropertiesGetVendorID(const fpga_properties prop,
 fpga_result __FPGA_API__
 fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(vendor_id);
 	FPGA_MSG("Vendor ID not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -865,6 +873,8 @@ fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 fpga_result __FPGA_API__
 fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(model);
 	FPGA_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -872,6 +882,8 @@ fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 fpga_result __FPGA_API__
 fpgaPropertiesSetModel(fpga_properties prop, char *model)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(model);
 	FPGA_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -880,6 +892,8 @@ fpga_result __FPGA_API__
 fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
 				 uint64_t *local_memory_size)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
 	FPGA_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -888,6 +902,8 @@ fpga_result __FPGA_API__
 fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
 				 uint64_t local_memory_size)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
 	FPGA_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -896,6 +912,8 @@ fpga_result __FPGA_API__
 fpgaPropertiesGetCapabilities(const fpga_properties prop,
 			      uint64_t *capabilities)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(capabilities);
 	FPGA_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -904,6 +922,8 @@ fpga_result __FPGA_API__
 fpgaPropertiesSetCapabilities(fpga_properties prop,
 			      uint64_t capabilities)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(capabilities);
 	FPGA_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
