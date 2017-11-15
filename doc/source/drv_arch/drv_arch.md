@@ -1,5 +1,6 @@
-# OPAE Intel&reg; FPGA Linux Device Driver Architecture #
+# OPAE Intel FPGA Linux Device Driver Architecture #
 
+```eval_rst
 .. toctree::
 
 .. highlight:: c
@@ -8,9 +9,12 @@
 
 .. highlight:: console
 
-The OPAE Intel&reg; FPGA driver provides interfaces for userspace applications to
+.. highlight:: markdown
+```
+
+The OPAE Intel FPGA driver provides interfaces for userspace applications to
 configure, enumerate, open, and access FPGA accelerators on platforms equipped
-with Intel&reg; FPGA solutions and enables system-level management functions such
+with Intel FPGA solutions and enables system-level management functions such
 as FPGA reconfiguration, power management, and virtualization.
 
 ## Hardware Architecture ##
@@ -67,10 +71,8 @@ comparing the interface ID noted in the GBS header against the interface ID
 exposed by the FME through sysfs. This check is usually done by
 user-space before calling the reconfiguration IOCTL.
 
-
+```eval_rst
 .. note::
-
-```
     Currently, any software program accessing the FPGA, including those
     running in a virtualized host, must be closed prior to attempting a Partial
     Reconfiguration. The steps would be:
@@ -198,7 +200,7 @@ buffer mapping service, UMsg notification, and remote debug functions
 This section introduces how applications enumerate the FPGA device from
 the sysfs hierarchy under `/sys/class/fpga`.
 
-In the example below, two Intel&reg; FPGA devices are installed in the host. Each
+In the example below, two Intel FPGA devices are installed in the host. Each
 FPGA device has one FME and two Ports (AFUs).
 
 For each FPGA device, a device directory is created under `/sys/class/fpga`:
@@ -720,9 +722,9 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
     };
 ```
 
-.. note::
 
-```
+```eval_rst
+.. note::
     To clear the port errors, you have to write the exact bitmask of the current errors, eg:
 
     $ cat errors > clear
@@ -734,6 +736,7 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/
 
+```markdown
 | sysfs file         | mmio field                         | type         | access    |
 |--------------------|------------------------------------|--------------|-----------|
 | ports_num          | fme_header.capability.num_ports    | decimal int  | Read-only |
@@ -742,11 +745,13 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/
 | socket_id          | fme_header.capability.socket_id    | decimal int  | Read-only |
 | bitstream_id       | fme_header.bitstream_id            | hex uint64_t | Read-only |
 | bitstream_metadata | fme_header.bitstream_md            | hex uint64_t | Read-only |
+```
 
 ## FME Thermal Management sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/thermal_mgmt/
 
+```markdown
 | sysfs file         | mmio field                           | type         | access                           |
 |--------------------|--------------------------------------|--------------|----------------------------------|
 | threshold1         | thermal.threshold.tmp_thshold1       | decimal int  | User: Read-only Root: Read-write |
@@ -756,11 +761,13 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/thermal_mgmt/
 | threshold2_reached | thermal.threshold.thshold2_status    | decimal int  | Read-only                        |
 | threshold1_policy  | thermal.threshold.thshold_policy     | decimal int  | User: Read-only Root: Read-write |
 | temperature        | thermal.rdsensor_fm1.fpga_temp       | decimal int  | Read-only                        |
+```
 
 ## FME Power Management sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/power_mgmt/
 
+```markdown
 | sysfs file        | mmio field                        | type             | access                           |
 |-------------------|-----------------------------------|------------------|----------------------------------|
 | consumed          | power.status.pwr_consumed         | hex uint64_t     | Read-only                        |
@@ -769,11 +776,13 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/power_mgmt/
 | threshold1_status | power.threshold.threshold1_status | decimal unsigned | Read-only                        |
 | threshold2_status | power.threshold.threshold2_status | decimal unsigned | Read-only                        |
 | rtl               | power.status.fpga_latency_report  | decimal unsigned | Read-only                        |
+```
 
 ## FME Global Error sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/
 
+```markdown
 | sysfs file         | mmio field                     | type             | access     |
 |--------------------|--------------------------------|------------------|------------|
 | pcie0_errors       | gerror.pcie0_err               | hex uint64_t     | Read-write |
@@ -782,19 +791,21 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/
 | bbs_errors         | gerror.ras_berr                | hex uint64_t     | Read-only  |
 | warning_errors     | gerror.ras_werr.event_warn_err | hex int          | Read-write |
 | inject_error       | gerror.ras_error_inj           | hex uint64_t     | Read-write |
+```
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 
+```markdown
 | sysfs file         | mmio field                             | type             | access     |
 |--------------------|----------------------------------------|------------------|------------|
 | errors             | gerror.fme_err                         | hex uint64_t     | Read-only  |
 | first_error        | gerror.fme_first_err.err_reg_status    | hex uint64_t     | Read-only  |
 | next_error         | gerror.fme_next_err.err_reg_status     | hex uint64_t     | Read-only  |
 | clear              | Clears errors, first_error, next_error | various uint64_t | Write-only |
-
-.. note::
-
 ```
+
+```eval_rst
+.. note::
     To clear the FME errors, you must write the exact bitmask of the current errors, eg
 ```
 
@@ -806,20 +817,25 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/pr/
 
+```markdown
 | sysfs file   | mmio field                                    | type        | access    |
 |--------------|-----------------------------------------------|-------------|-----------|
 | interface_id | pr.fme_pr_intfc_id0_h, pr.fme_pre_intfc_id0_l | hex 16-byte | Read-only |
+```
 
 ## FME Global Performance sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/clock
 
+```markdown
 | sysfs file | mmio field                 | type         | access    |
 |------------|----------------------------|--------------|-----------|
 | clock      | gperf.clk.afu_interf_clock | hex uint64_t | Read-only |
+```
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for DISCRETE)
 
+```markdown
 | sysfs file                 | mmio field                      | type         | access     |
 |----------------------------|---------------------------------|--------------|------------|
 | freeze                     | gperf.ch_ctl.freeze             | decimal int  | Read-write |
@@ -832,24 +848,30 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for DISCRETE)
 | rx_req_stall               | gperf.CACHE_RX_REQ_STALL        | hex uint64_t | Read-only  |
 | data_write_port_contention | gperf.CACHE_DATA_WR_PORT_CONTEN | hex uint64_t | Read-only  |
 | tag_write_port_contention  | gperf.CACHE_TAG_WR_PORT_CONTEN  | hex uint64_t | Read-only  |
+```
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/    (Not valid for DISCRETE)
 
+```markdown
 | sysfs file | mmio field           | type        | access                           |
 |------------|----------------------|-------------|----------------------------------|
 | freeze     | gperf.vtd_ctl.freeze | decimal int | User: Read-only Root: Read-write |
+```
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for DISCRETE)
 
+```markdown
 | sysfs file        | mmio field                  | type         | access    |
 |-------------------|-----------------------------|--------------|-----------|
 | read_transaction  | gperf.VTD_AFU0_MEM_RD_TRANS | hex uint64_t | Read-only |
 | write_transaction | gperf.VTD_AFU0_MEM_WR_TRANS | hex uint64_t | Read-only |
 | tlb_read_hit      | gperf.VTD_AFU0_TLB_RD_HIT   | hex uint64_t | Read-only |
 | tlb_write_hit     | gperf.VTD_AFU0_TLB_WR_HIT   | hex uint64_t | Read-only |
+```
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/fabric/
 
+```markdown
 | sysfs file  | mmio field              | type         | access                           |
 |-------------|-------------------------|--------------|----------------------------------|
 | enable      | gperf.fab_ctl.(enabled) | decimal int  | User: Read-only Root: Read-write |
@@ -860,9 +882,11 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/fabric/
 | pcie1_write | gperf.FAB_PCIE1_WR      | hex uint64_t | Read-only                        |
 | upi_read    | gperf.FAB_UPI_RD        | hex uint64_t | Read-only                        |
 | upi_write   | gperf.FAB_UPI_WR        | hex uint64_t | Read-only                        |
+```
 
 intel-fpga-ev.*i*/intel-fpga/fme.*j*/perf/fabric/port*k*/
 
+```markdown
 | sysfs file  | mmio field         | type         | access    |
 |-------------|--------------------|--------------|-----------|
 | pcie0_read  | gperf.FAB_PCIE0_RD | hex uint64_t | Read-only |
@@ -871,38 +895,44 @@ intel-fpga-ev.*i*/intel-fpga/fme.*j*/perf/fabric/port*k*/
 | pcie1_write | gperf.FAB_PCIE1_WR | hex uint64_t | Read-only |
 | upi_read    | gperf.FAB_UPI_RD   | hex uint64_t | Read-only |
 | upi_write   | gperf.FAB_UPI_WR   | hex uint64_t | Read-only |
+```
 
 ## Port Header sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-port.*k*/
 
+```markdown
 | sysfs file | mmio field                            | type        | access    |
 |------------|---------------------------------------|-------------|-----------|
 | id         | port_header.capability.port_number    | decimal int | Read-only |
 | ltr        | port_header.control.latency_tolerance | decimal int | Read-only |
+```
 
 ## Port AFU Header sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-port.*k*/
 
+```markdown
 | sysfs file | mmio field      | type        | access    |
 |------------|-----------------|-------------|-----------|
 | afu_id     | afu_header.guid | hex 16-byte | Read-only |
+```
 
 ## Port Error sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-port.*k*/errors/
 
+```markdown
 | sysfs file          | mmio field              | type             | access     |
 |---------------------|-------------------------|------------------|------------|
 | errors              | perror.port_error       | hex uint64_t     | Read-only  |
 | first_error         | perror.port_first_error | hex uint64_t     | Read-only  |
 | first_malformed_req | perror.malreq           | hex 16-byte      | Read-only  |
 | clear               | perror.(all errors)     | various uint64_t | Write-only |
-
-.. note::
-
 ```
+
+```eval_rst
+.. note::
     To clear the Port errors, you must write the exact bitmask of the current errors, eg
 ```
 

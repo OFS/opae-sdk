@@ -52,13 +52,6 @@ add_custom_target(copy-doxygen-files ALL
 add_custom_target(copy-markdown-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/source ${BINARY_BUILD_DIR}/docs)
 
-add_custom_target(copy-include-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
-  DEPENDS copy-markdown-files)
-
-add_custom_target(copy-sphinx-contrib-files ALL
-  COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/_contrib ${BINARY_BUILD_DIR}/_contrib)
-
 add_custom_target(sphinx_html ALL
   ${SPHINX_EXECUTABLE}
   -q -b html
@@ -71,6 +64,4 @@ add_custom_target(sphinx_html ALL
 
 add_dependencies(sphinx_html
   copy-doxygen-files
-  copy-markdown-files
-  copy-include-files
-  copy-sphinx-contrib-files)
+  copy-markdown-files)

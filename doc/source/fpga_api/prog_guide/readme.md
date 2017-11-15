@@ -1,6 +1,16 @@
 # OPAE C API Programming Guide #
 
+```eval_rst
 .. toctree::
+
+.. highlight:: c
+
+.. highlight:: sh
+
+.. highlight:: console
+
+.. highlight:: markdown
+```
 
 ## Overview ##
 The OPAE C library (*libopae-c*) is a lightweight user-space library that
@@ -67,10 +77,10 @@ FPGA with the purpose of accelerating certain computation. It represents a
 resource discoverable and usable by user applications. The
 logic is designed in RTL and synthesized into a bitstream. A tool (_fpgaconf_)
 is provided to reconfigure an FPGA using a bitstream.
-* **Green bitstream (GBS)**: A bitstream for an application-specific 
-accelerator logic, for example, compression, encryption, mathematical operations, 
+* **Green bitstream (GBS)**: A bitstream for an application-specific
+accelerator logic, for example, compression, encryption, mathematical operations,
 etc.
-* **Accelerator**: An allocatable accelerator function implemented in an FPGA, 
+* **Accelerator**: An allocatable accelerator function implemented in an FPGA,
 closely related to an AFU. An accelerator tracks the  _ownership_
 of an AFU (or part of it) for a process that uses it. An accelerator can be shared by multiple
 processes.
@@ -91,21 +101,21 @@ compiler on Linux as an example, the minimalist compile and link line should loo
 
 `gcc myprog.c -I</path/to/fpga.h> -L</path/to/libopae-c.so> -lopae-c -luuid -ljson-c -lpthread`
 
-.. note::
 
-```
-Third-party library dependency: The library internally uses `libuuid` and
-`libjson-c`. But they are not distributed as part of the library. Make sure you
-have these libraries properly installed.
+```eval_rst
+.. note::
+        Third-party library dependency: The library internally uses `libuuid` and
+        `libjson-c`. But they are not distributed as part of the library. Make sure you
+        have these libraries properly installed.
 ```
 
 ## Use the sample code ##
 The library source include two code samples. Use these samples
 to learn how to call functions in the library. Build and run these samples as
 quick sanity checks to determine if your installation and environment are set up
-properly. Details about using the sample code can be found in 
+properly. Details about using the sample code can be found in
 [this section in the Quick Start
-Guide](/fpga-doc/docs/fpga_api/quick_start/readme.html#building-a-sample-application). 
+Guide](/fpga-doc/docs/fpga_api/quick_start/readme.html#building-a-sample-application).
 
 ## High-level directory structure ##
 When successfully built and installed, users see the following directory
@@ -113,23 +123,25 @@ structure. This discussion is using installation on Unix/Linux systems as an
 example. But it will be a similar situation on Windows and MacOS
 installations.
 
-|Directory & Files |Contents |
-|------------------|---------|
-|include/opae      |Directory containing all header files|
-|include/opae/fpga.h |Top-level header for user code to include|
-|include/opae/access.h |Header file for accelerator acquire/release, MMIO, memory management, event handling, etc. |
-|include/opae/bitstream.h |Header file for bitstream manipulation functions |
-|include/opae/common.h |Header file for error reporting functions |
-|include/opae/enum.h |Header file for AFU enumeration functions |
-|include/opae/manage.h |Header file for FPGA management functions |
-|include/opae/types.h |Various type definitions |
-|lib               |Directory containing shared library files |
-|lib/libopae-c.so    |The shared dynamic library for user application to link against|
-|doc               |Directory containing API documentation |
+```markdown
+|Directory & Files         |Contents                                                                                    |
+|--------------------------|--------------------------------------------------------------------------------------------|
+| include/opae             | Directory containing all header files                                                      |
+| include/opae/fpga.h      | Top-level header for user code to include                                                  |
+| include/opae/access.h    | Header file for accelerator acquire/release, MMIO, memory management, event handling, etc. |
+| include/opae/bitstream.h | Header file for bitstream manipulation functions                                           |
+| include/opae/common.h    | Header file for error reporting functions                                                  |
+| include/opae/enum.h      | Header file for AFU enumeration functions                                                  |
+| include/opae/manage.h    | Header file for FPGA management functions                                                  |
+| include/opae/types.h     | Various type definitions                                                                   |
+| lib                      | Directory containing shared library files                                                  |
+| lib/libopae-c.so         | The shared dynamic library for user application to link against                            |
+| doc                      | Directory containing API documentation                                                     |
+```
 
 ## Basic application flow ##
 The picture below depicts the basic application flow from the
-viewpoint of a user process. 
+viewpoint of a user process.
 API components are discussed in the next section. The `hello_fpga.c` sample code
 is a good example showing the flow in action.
 
@@ -138,14 +150,14 @@ is a good example showing the flow in action.
 ## API Components ##
 The API is designed around an object model that abstracts physical FPGA device and
 functions available on the device. The object model is not tied to a particular
-type FPGA product. Instead, it is a generalized model and can be extended to 
-describe any type of FPGAs. 
+type FPGA product. Instead, it is a generalized model and can be extended to
+describe any type of FPGAs.
 
 ### Object model ###
 * `fpga_objtype`: An enum type to represent the type of an FPGA resource, which
 is either `FPGA_DEVICE` or `FPGA_ACCELERATOR`. An `FPGA_DEVICE` object is corresponding to
 a physical FPGA device. Only `FPGA_DEVICE` objects can invoke management function.
-`FPGA_ACCELERATOR` represents an instance of an AFU. 
+`FPGA_ACCELERATOR` represents an instance of an AFU.
 * `fpga_token`: An opaque type to represent a resource known to but not
 necessarily owned by the calling process. The calling process must own a
 resource before it can invoke functions of the resource.
@@ -171,51 +183,56 @@ The table below groups key API functions by their purposes. Consult with the
 [OPAE C API reference manual](https://atp-lab.jf.intel.com/fpga-doc/docs/fpga_api/fpga_api.html)
 for detail documentation for each function.
 
+
+```markdown
 |Purpose |Functions |Note |
-|--------|----------|-----|
-|Enumeration | `fpgaEnumerate()` | Query FPGA resources that match certain properties |
-|Enumeration: Properties | `fpga[Get|Update|Clear|Clone|Destroy]Properties]()` | Manage `fpga_properties` life cycle |
-|           | `fpgaPropertiesGet[Prop]()` | Get a certain property *Prop*, see [below](#fpga-resource-properties) |
-|           | `fpgaPropertiesSet[Prop]()` | Set a certain property *Prop*, see [below](#fpga-resource-properties) |
-|Access: Ownership  | `fpga[Open|Close]()` | Aquire/release ownership |
-|Access: Reset      | `fpgaReset()` | Reset an accelerator |
-|Access: Event handling | `fpga[Register|Unregister]Event()` | Register/unregister an event to be notified about |
-|               | `fpga[Create|Destroy]EventHandle()` | Manage `fpga_event_handle` life cycle |
-|Access: UMsg           | `fpgaGetNumUmsg()`, `fpgaSetUmsgAttributes()`, `fpgaTriggerUmsg()`, `fpgaGetUmsgPtr()` | Low-latency accelerator notification mechanism |
-|Access: MMIO       | `fpgaMapMMIO()`, `fpgaUnMapMMIO()` | Map/unmap MMIO space |
-|           | `fpgaGetMMIOInfo()` | Get information about a particular MMIO space |
-|           | `fpgaReadMMIO[32|64]()` | Read a 32-bit/64-bit value from MMIO space |
-|           | `fpgaWriteMMIO[32|64]()` | Write a 32-bit/64-bit value to MMIO space |
-|Memory management: Shared memory | `fpga[Prepare|Release]Buffer()` | Manage memory buffer shared between the calling process and an accelerator |
-|              | `fpgaGetIOVA()` | Return the virtual address of a shared memory buffer |
-|Management: Reconfiguration | `fpgaReconfigureSlot()` | Replace an existing AFU with a new one |
-|Error report | `fpgaErrStr()` | Map an error code to a human readable string |
+|----------------------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------|----------------------------------------------------------------------------|-------|------------------------|-------------------------------------|
+| Enumeration                      | `fpgaEnumerate()`                                                                      | Query FPGA resources that match certain properties                    |                                                                            |       |                        |                                     |
+| Enumeration: Properties          | `fpga[Get                                                                              | Update                                                                | Clear                                                                      | Clone | Destroy]Properties]()` | Manage `fpga_properties` life cycle |
+|                                  | `fpgaPropertiesGet[Prop]()`                                                            | Get a certain property *Prop*, see [below](#fpga-resource-properties) |                                                                            |       |                        |                                     |
+|                                  | `fpgaPropertiesSet[Prop]()`                                                            | Set a certain property *Prop*, see [below](#fpga-resource-properties) |                                                                            |       |                        |                                     |
+| Access: Ownership                | `fpga[Open                                                                             | Close]()`                                                             | Aquire/release ownership                                                   |       |                        |                                     |
+| Access: Reset                    | `fpgaReset()`                                                                          | Reset an accelerator                                                  |                                                                            |       |                        |                                     |
+| Access: Event handling           | `fpga[Register                                                                         | Unregister]Event()`                                                   | Register/unregister an event to be notified about                          |       |                        |                                     |
+|                                  | `fpga[Create                                                                           | Destroy]EventHandle()`                                                | Manage `fpga_event_handle` life cycle                                      |       |                        |                                     |
+| Access: UMsg                     | `fpgaGetNumUmsg()`, `fpgaSetUmsgAttributes()`, `fpgaTriggerUmsg()`, `fpgaGetUmsgPtr()` | Low-latency accelerator notification mechanism                        |                                                                            |       |                        |                                     |
+| Access: MMIO                     | `fpgaMapMMIO()`, `fpgaUnMapMMIO()`                                                     | Map/unmap MMIO space                                                  |                                                                            |       |                        |                                     |
+|                                  | `fpgaGetMMIOInfo()`                                                                    | Get information about a particular MMIO space                         |                                                                            |       |                        |                                     |
+|                                  | `fpgaReadMMIO[32                                                                       | 64]()`                                                                | Read a 32-bit/64-bit value from MMIO space                                 |       |                        |                                     |
+|                                  | `fpgaWriteMMIO[32                                                                      | 64]()`                                                                | Write a 32-bit/64-bit value to MMIO space                                  |       |                        |                                     |
+| Memory management: Shared memory | `fpga[Prepare                                                                          | Release]Buffer()`                                                     | Manage memory buffer shared between the calling process and an accelerator |       |                        |                                     |
+|                                  | `fpgaGetIOVA()`                                                                        | Return the virtual address of a shared memory buffer                  |                                                                            |       |                        |                                     |
+| Management: Reconfiguration      | `fpgaReconfigureSlot()`                                                                | Replace an existing AFU with a new one                                |                                                                            |       |                        |                                     |
+| Error report                     | `fpgaErrStr()`                                                                         | Map an error code to a human readable string                          |                                                                            |       |                        |                                     |
+```
 
 ### FPGA resource properties ###
 These are the properties of a resource that can be queried by a user application,
 by plugging  property name for `Prop` in the names of `fpgaPropertiesGet[Prop]()` and
 `fpgaPropertiesSet[Prop]()` functions.
 
+```markdown
 |Property |FPGA |accelerator |Note |
-|---------|-----|----|-----|
-|Parent |No |Yes |`fpga_token` of the parent object |
-|ObjectType |Yes |Yes |The type of the resource: either `FPGA_DEVICE` or `FPGA_ACCELERATOR` |
-|Bus |Yes |Yes |The bus number |
-|Device |Yes |Yes |The PCI device number |
-|Function |Yes |Yes |The PCI function number |
-|SocketId |Yes |Yes |The socket ID |
-|DeviceId |Yes |Yes |The device ID |
-|NumSlots |Yes |No |Number of AFU slots available on an `FPGA_DEVICE` resource |
-|BBSId |Yes |No |The blue bitstream ID of an `FPGA_DEVICE` resource |
-|BBSVersion |Yes |No |The blue bitstream version of an `FPGA_DEVICE` resource |
-|VendorId |Yes |No |The vendor ID of an `FPGA_DEVICE` resource |
-|Model |Yes |No |The model of an `FPGA_DEVICE` resource |
-|LocalMemorySize |Yes |No |The local memory size of an `FPGA_DEVICE` resource |
-|Capabilities |Yes |No |The capabilities of an `FPGA_DEVICE` resource |
-|Guid |Yes |Yes |The GUID of an `FPGA_DEVICE` or `FPGA_ACCELERATOR` resource |
-|NumMMIO |No |Yes |The number of MMIO space of an `FPGA_ACCELERATOR` resource |
-|NumInterrupts |No |Yes |The number of interrupts of an `FPGA_ACCELERATOR` resource |
-|AcceleratorState |No |Yes |The state of an `FPGA_ACCELERATOR` resource: either `FPGA_ACCELERATOR_ASSIGNED` or `FPGA_ACCELERATOR_UNASSIGNED`|
+|------------------|-----|-----|------------------------------------------------------------------------------------------------------------------|
+| Parent           | No  | Yes | `fpga_token` of the parent object                                                                                |
+| ObjectType       | Yes | Yes | The type of the resource: either `FPGA_DEVICE` or `FPGA_ACCELERATOR`                                             |
+| Bus              | Yes | Yes | The bus number                                                                                                   |
+| Device           | Yes | Yes | The PCI device number                                                                                            |
+| Function         | Yes | Yes | The PCI function number                                                                                          |
+| SocketId         | Yes | Yes | The socket ID                                                                                                    |
+| DeviceId         | Yes | Yes | The device ID                                                                                                    |
+| NumSlots         | Yes | No  | Number of AFU slots available on an `FPGA_DEVICE` resource                                                       |
+| BBSId            | Yes | No  | The blue bitstream ID of an `FPGA_DEVICE` resource                                                               |
+| BBSVersion       | Yes | No  | The blue bitstream version of an `FPGA_DEVICE` resource                                                          |
+| VendorId         | Yes | No  | The vendor ID of an `FPGA_DEVICE` resource                                                                       |
+| Model            | Yes | No  | The model of an `FPGA_DEVICE` resource                                                                           |
+| LocalMemorySize  | Yes | No  | The local memory size of an `FPGA_DEVICE` resource                                                               |
+| Capabilities     | Yes | No  | The capabilities of an `FPGA_DEVICE` resource                                                                    |
+| Guid             | Yes | Yes | The GUID of an `FPGA_DEVICE` or `FPGA_ACCELERATOR` resource                                                      |
+| NumMMIO          | No  | Yes | The number of MMIO space of an `FPGA_ACCELERATOR` resource                                                       |
+| NumInterrupts    | No  | Yes | The number of interrupts of an `FPGA_ACCELERATOR` resource                                                       |
+| AcceleratorState | No  | Yes | The state of an `FPGA_ACCELERATOR` resource: either `FPGA_ACCELERATOR_ASSIGNED` or `FPGA_ACCELERATOR_UNASSIGNED` |
+```
 
 ## Usage Models ##
 This section illustrates a few typical API usage models with code snippets.
@@ -263,16 +280,16 @@ Then, it passes it to `fpgaEnumerate()` to search for matching resources.
     }
 ```
 
-.. note::
 
-```
-The `fpgaEnumerate()` function can take multiple `fpg_properties`
-objects (in an array). In this situation, the function returns resources that
-match *any* of the properties object. In other words, the multiple properties
-objects are logically OR'ed in the query operation.
-* Again, `fpga_token` objects return by `fpgaEnumerate()` do *not* signify
-ownership. To acquire ownership of a resource represented by a token, pass the
-token to `fpgaOpen()`.
+```eval_rst
+.. note::
+    The `fpgaEnumerate()` function can take multiple `fpg_properties`
+    objects (in an array). In this situation, the function returns resources that
+    match *any* of the properties object. In other words, the multiple properties
+    objects are logically OR'ed in the query operation.
+    * Again, `fpga_token` objects return by `fpgaEnumerate()` do *not* signify
+    ownership. To acquire ownership of a resource represented by a token, pass the
+    token to `fpgaOpen()`.
 ```
 
 ### Acquire and release a resource ###
@@ -340,12 +357,12 @@ calling process and an accelerator.
     res = fpgaReleaseBuffer(handle, bufid);
 ```
 
-.. note::
 
-```
-The `flag` variable can take a constant `FPGA_BUF_PREALLOCATED`, which
-indicates that the address space pointed to by `addr_hint` is already allocated
-by the calling process.
+```eval_rst
+.. note::
+    The `flag` variable can take a constant `FPGA_BUF_PREALLOCATED`, which
+    indicates that the address space pointed to by `addr_hint` is already allocated
+    by the calling process.
 ```
 
 ### MMIO ###
@@ -381,11 +398,10 @@ virtual memory space of the calling process.
     res = fpgaUnmapMMIO(handle, mmio_num);
 ```
 
+
+```eval_rst
 .. note::
-
+    Every AFU has its own layout of register spaces and its own protocol about
+    how to control its behavior through the registers. These are defined in the
+    green bitstream used to implemented the AFU.
 ```
-Every AFU has its own layout of register spaces and its own protocol about
-how to control its behavior through the registers. These are defined in the
-green bitstream used to implemented the AFU.
-```
-
