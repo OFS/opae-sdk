@@ -69,20 +69,19 @@ fpga_result send_event_request(int conn_socket, int fd, struct event_request *re
 	iov[0].iov_base = req;
 	iov[0].iov_len = sizeof(*req);
 	memset(buf, 0x0, sizeof(buf));
-	cmh = (struct cmsghdr *)buf;
-	cmh->cmsg_len = CMSG_LEN(sizeof(int));
-	cmh->cmsg_level = SOL_SOCKET;
-	cmh->cmsg_type = SCM_RIGHTS;
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
 	mh.msg_iovlen = sizeof(iov) / sizeof(iov[0]);
-	mh.msg_control = cmh;
+	mh.msg_control = buf;
 	mh.msg_controllen = CMSG_LEN(sizeof(int));
 	mh.msg_flags = 0;
-	fd_ptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	cmh = CMSG_FIRSTHDR(&mh);
+	cmh->cmsg_len = CMSG_LEN(sizeof(int));
+	cmh->cmsg_level = SOL_SOCKET;
+	cmh->cmsg_type = SCM_RIGHTS;
+	fd_ptr = (int *)CMSG_DATA(cmh);
 	*fd_ptr = fd;
-
 	/* send ancillary data */
 	n = sendmsg(conn_socket, &mh, 0);
 	if (n < 0) {
@@ -422,6 +421,8 @@ static fpga_result daemon_register_event(fpga_handle handle,
 	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
 	errno_t e;
 
+	UNUSED_PARAM(flags);
+
 	if (_handle->fdfpgad < 0) {
 
 		/* connect to event socket */
@@ -671,6 +672,9 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 			goto out_unlock;
 		}
 		break;
+	case FPGA_EVENT_ERROR: /* fall through */
+	case FPGA_EVENT_POWER_THERMAL:
+		break;
 	}
 
 	/* TODO: reject unknown flags */
@@ -729,6 +733,9 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
+		break;
+	case FPGA_EVENT_ERROR: /* fall through */
+	case FPGA_EVENT_POWER_THERMAL:
 		break;
 	}
 

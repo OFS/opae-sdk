@@ -62,7 +62,7 @@ mmlink_server::mmlink_server(struct sockaddr_in *sock, mm_debug_link_interface *
 	m_h2t_pending = false;
 
 	m_conn = new mmlink_connection*[MAX_CONNECTIONS];
-	for (int i = 0; i < MAX_CONNECTIONS; ++i)
+	for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 		m_conn[i] = new mmlink_connection(this);
 
 	m_running = false;
@@ -83,7 +83,7 @@ mmlink_server::mmlink_server(struct sockaddr_in *sock, mm_debug_link_interface *
 mmlink_server::~mmlink_server()
 {
 	if (m_conn)
-		for (int i = 0; i < MAX_CONNECTIONS; ++i)
+		for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 		{
 			delete m_conn[i]; m_conn[i] = NULL;
 		}
@@ -169,14 +169,14 @@ int mmlink_server::run(unsigned char* stpAddr)
 
 		int max_fd = -1;
 		// Listen for more connections, if needed.
-		if (m_num_connections < MAX_CONNECTIONS)
+		if ((size_t)m_num_connections < MAX_CONNECTIONS)
 		{
 			FD_SET(m_listen, &readfds);
 			max_fd = MAX(m_listen, max_fd);
 		}
 
 		// Listen for read on all connections.
-		for (int i = 0; i < MAX_CONNECTIONS; ++i)
+		for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 		{
 			mmlink_connection *pc = *(m_conn + i);
 			if (pc->is_open())
@@ -252,7 +252,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 		}
 
 		// Handle management connection commands and responses.
-		for (int i = 0; i < MAX_CONNECTIONS; ++i)
+		for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 		{
 			mmlink_connection *pc = *(m_conn + i);
 			if (!pc->is_open())
@@ -380,7 +380,7 @@ void mmlink_server::get_welcome_message(char *msg, size_t msg_len)
 mmlink_connection *mmlink_server::get_unused_connection()
 {
 	mmlink_connection *pc = NULL;
-	for (int i = 0; i < MAX_CONNECTIONS; ++i)
+	for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 		if (!m_conn[i]->is_open())
 		{
 
@@ -393,7 +393,7 @@ mmlink_connection *mmlink_server::get_unused_connection()
 
 void mmlink_server::close_other_data_connection(mmlink_connection *pc)
 {
-	for (int i = 0; i < MAX_CONNECTIONS; ++i)
+	for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 	{
 		mmlink_connection *other_pc = *(m_conn + i);
 		if (other_pc == pc)
@@ -411,7 +411,7 @@ void mmlink_server::close_other_data_connection(mmlink_connection *pc)
 // Could cache this.
 mmlink_connection *mmlink_server::get_data_connection(void)
 {
-	for (int i = 0; i < MAX_CONNECTIONS; ++i)
+	for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 	{
 		mmlink_connection *pc = *(m_conn + i);
 		if (pc->is_data())
@@ -451,7 +451,7 @@ int mmlink_server::handle_t2h(mmlink_connection *data_conn, bool can_read_driver
 		// Send the data to the data socket.
 		int total_sent = 0;
 
-		while (total_sent < m_driver->buf_end())
+		while ((size_t)total_sent < m_driver->buf_end())
 		{
 			ssize_t sent = data_conn->send(m_driver->buf() + total_sent, m_driver->buf_end() - total_sent);
 			// printf("t2h sent: %u (%d of %d)\n", sent, total_sent, m_driver->buf_end());
@@ -550,7 +550,7 @@ int mmlink_server::handle_h2t(mmlink_connection *data_conn, bool can_read_host, 
 
 	// Handle command data from the data socket.
 	int total_sent = 0;
-	while (total_sent < data_conn->buf_end())
+	while ((size_t)total_sent < data_conn->buf_end())
 	{
 		ssize_t sent = m_driver->write(data_conn->buf() + total_sent, data_conn->buf_end() - total_sent);
 		if (sent < 0)

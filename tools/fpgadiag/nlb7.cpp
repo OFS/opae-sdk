@@ -390,8 +390,8 @@ bool nlb7::run()
     size_t UMsgBufSize = 0;
 #endif
     if (pUMsgUsrVirt &&
-        (nlb7_notice::umsg_data == notice_) ||
-        (nlb7_notice::umsg_hint == notice_))
+        ((nlb7_notice::umsg_data == notice_) ||
+         (nlb7_notice::umsg_hint == notice_)))
     {
        if (nlb7_notice::umsg_data == notice_)
        {

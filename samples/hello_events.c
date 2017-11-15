@@ -73,7 +73,7 @@ struct ras_inject_error {
 static fpga_result inject_ras_error(fpga_token token)
 {
 	struct _fpga_token  *_token           = NULL;
-	struct ras_inject_error  inj_error    = {0};
+	struct ras_inject_error  inj_error    = { {0} };
 	char sysfs_path[SYSFS_PATH_MAX]       = {0};
 	fpga_result result                    = FPGA_OK;
 
@@ -111,6 +111,9 @@ int main(int argc, char *argv[])
 	uint64_t count = 0;
 	pid_t pid;
 	int fd = -1;
+
+	UNUSED_PARAM(argc);
+	UNUSED_PARAM(argv);
 
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out_destroy_prop, "creating properties object");

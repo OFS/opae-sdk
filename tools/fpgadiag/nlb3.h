@@ -81,6 +81,8 @@ private:
     bool suppress_header_;
     bool csv_format_;
     bool suppress_stats_;
+    std::chrono::microseconds dsm_timeout_;
+    uint64_t cachelines_;
 
     intel::utils::logger log_;
     intel::utils::option_map options_;
@@ -90,8 +92,6 @@ private:
     csr_t<uint32_t> cfg_;
 
     std::chrono::duration<double> cont_timeout_;
-    std::chrono::microseconds     dsm_timeout_;
-    uint64_t cachelines_;
 };
 
 } // end of namespace diag

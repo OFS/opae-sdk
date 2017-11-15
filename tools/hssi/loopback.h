@@ -83,7 +83,7 @@ enum
     eeprom = 0xAE
 };
 
-static std::array<uint32_t, 4> mac_offsets = { { 0xE0, 0xE8, 0xF0, 0xF8 } };
+extern std::array<uint32_t, 4> mac_offsets;
 
 class loopback : public accelerator_app
 {
@@ -227,6 +227,8 @@ private:
     intel::utils::option_map options_;
 
 };
+
+#define UNUSED_PARAM(x) (void)x
 
 } // end of namespace hssi
 } // end of namespace fpga

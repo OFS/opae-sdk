@@ -430,15 +430,11 @@ bool cmdq7::run()
     {
         swvalid = std::async(std::launch::async,
                              &cmdq7::cont_swvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
+                             this);
 
         hwvalid = std::async(std::launch::async,
                              &cmdq7::cont_hwvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
+                             this);
 
         std::this_thread::sleep_for(duration<double, std::micro>(timeout_));
         cancel_ = true;
@@ -449,15 +445,11 @@ bool cmdq7::run()
     {
         swvalid = std::async(std::launch::async,
                              &cmdq7::swvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
+                             this);
 
         hwvalid = std::async(std::launch::async,
                              &cmdq7::hwvalid_thr,
-                             this,
-                             std::ref(fifo1_),
-                             std::ref(fifo2_));
+                             this);
 
         swvalid.wait();
         hwvalid.wait();
@@ -475,7 +467,7 @@ bool cmdq7::run()
 
     cancel_ = false;
     std::future<bool> done = std::async(std::launch::async,
-            &cmdq7::wait_for_done, this, allocations);
+            &cmdq7::wait_for_done, this);
     const auto fs = done.wait_for(seconds(1));
 
 
@@ -615,7 +607,7 @@ print_done:
     std::cerr << std::dec << std::setfill(' ');
 }
 
-uint32_t cmdq7::swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+uint32_t cmdq7::swvalid_thr()
 {
     uint32_t i;
     uint32_t loops;
@@ -719,7 +711,7 @@ uint32_t cmdq7::swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
     return i;
 }
 
-uint32_t cmdq7::cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+uint32_t cmdq7::cont_swvalid_thr()
 {
     uint32_t allocations = 0;
     uint32_t sw;
@@ -847,7 +839,7 @@ uint32_t cmdq7::cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
     return allocations;
 }
 
-uint32_t cmdq7::hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+uint32_t cmdq7::hwvalid_thr()
 {
     uint32_t i;
 
@@ -922,7 +914,7 @@ out:
     return i;
 }
 
-uint32_t cmdq7::cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2)
+uint32_t cmdq7::cont_hwvalid_thr()
 {
     uint32_t i = 0;
 
@@ -1002,7 +994,7 @@ out:
     return i;
 }
 
-bool cmdq7::wait_for_done(uint32_t allocations)
+bool cmdq7::wait_for_done()
 {
     const uint32_t max_loops = 10000;
     uint32_t loops = 0;

@@ -343,7 +343,7 @@ bool config_app::do_read(const cmd_handler::cmd_vector_t & cmds)
         if (parse_int(cmds[0], lane) &&
             parse_int(cmds[1], address))
         {
-            if (lane > max_xcvr_lane || address > max_xcvr_addr)
+            if (lane > (int32_t)max_xcvr_lane || address > max_xcvr_addr)
             {
                 std::cerr << "invalid xcvr read parameter" << std::endl;
                 return false;
@@ -411,7 +411,7 @@ bool config_app::do_retimer_read(const cmd_handler::cmd_vector_t & cmds)
             parse_int(cmds[1], reg.channel_lane) &&
             parse_int(cmds[2], reg.address))
         {
-            if (reg.channel_lane > max_rtmr_channel)
+            if (reg.channel_lane > static_cast<int32_t>(max_rtmr_channel))
             {
                 std::cerr << "Invalid retimer channel" << std::endl;
                 return false;
@@ -733,6 +733,7 @@ size_t config_app::load(eq_register registers[], size_t size)
                     przone_->write(reg.address, reg.value);
                 }
                 break;
+            default: break;
         }
     }
     return loaded;
@@ -827,7 +828,7 @@ size_t config_app::dump(eq_register registers[], size_t size, std::ostream & str
             case eq_register_type::fpga_tx:
                 if (reg.channel_lane == -1)
                 {
-                    for(int i = 0; i < max_xcvr_lane; ++i)
+                    for(int32_t i = 0; i < static_cast<int32_t>(max_xcvr_lane); ++i)
                     {
                         eq_register cpy = reg;
                         cpy.channel_lane = i;
@@ -849,7 +850,7 @@ size_t config_app::dump(eq_register registers[], size_t size, std::ostream & str
                 {
                     for (uint32_t i : valid_rtmr_device_addrs)
                     {
-                        for (int j = 0; j < max_rtmr_channel; ++j)
+                        for (int32_t j = 0; j < static_cast<int32_t>(max_rtmr_channel); ++j)
                         {
                             eq_register cpy = reg;
                             cpy.device = i;

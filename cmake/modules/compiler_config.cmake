@@ -32,11 +32,12 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # Set the default build type to release with debug info
-if (NOT DEFINED CMAKE_BUILD_TYPE)
+if (CMAKE_BUILD_TYPE STREQUAL "")
   set(CMAKE_BUILD_TYPE RelWithDebInfo
     CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage.")
-endif (NOT DEFINED CMAKE_BUILD_TYPE)
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage."
+    FORCE)
+endif (CMAKE_BUILD_TYPE STREQUAL "")
 
 # Helper function to set cached variables
 function(SET_CACHED_VARIABLE var)
@@ -66,6 +67,13 @@ if(CMAKE_COMPILER_IS_GNUCC)
   set(CMAKE_CXX_FLAGS_RELEASE "-Wall"
     CACHE STRING "C++ compiler flags for release builds.")
 endif(CMAKE_COMPILER_IS_GNUCC)
+
+# Recommend enabling Werror. Can't enable it yet because we are not warning clean
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # Check if support for C++ 11 is available
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)

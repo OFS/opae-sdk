@@ -264,11 +264,13 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	struct _fpga_handle *_handle    = (struct _fpga_handle *)fpga;
 	fpga_result result              = FPGA_OK;
 	struct fpga_fme_port_pr port_pr = {0};
-	struct reconf_error  error      = {0};
-	struct gbs_metadata  metadata   = {0};
+	struct reconf_error  error      = { {0} };
+	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
 	int err                         = 0;
+
+	UNUSED_PARAM(flags);
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -296,6 +298,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	if (get_bitstream_json_len(bitstream) > 0) {
 
 		// Read GBS json metadata
+		memset(&metadata, 0, sizeof(metadata));
 		result = read_gbs_metadata(bitstream, &metadata);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to read metadata");

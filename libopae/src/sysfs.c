@@ -73,11 +73,11 @@ fpga_result sysfs_read_int(const char *path, int *i)
 			goto out_close;
 		}
 		b += res;
-		if ((b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 	// erase \n
 	buf[b-1] = 0;
@@ -119,11 +119,11 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 			goto out_close;
 		}
 		b += res;
-		if ((b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 	// erase \n
 	buf[b-1] = 0;
@@ -174,11 +174,11 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 			goto out_close;
 		}
 		b += res;
-		if ((b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 	// erase \n
 	buf[b-1] = 0;
@@ -232,11 +232,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
 			goto out_close;
 		}
 		b += res;
-		if ((b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 	// erase \n
 	buf[b-1] = 0;
@@ -279,12 +279,12 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 		}
 		b += res;
 
-		if (b > sizeof(buf) || b <= 0) {
+		if ((unsigned)b > sizeof(buf) || b <= 0) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 
-	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && (unsigned)b < sizeof(buf));
 
 	close(fd);
 	return FPGA_OK;
@@ -325,11 +325,11 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 			goto out_close;
 		}
 		b += res;
-		if ((b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 	// erase \n
 	buf[b-1] = 0;

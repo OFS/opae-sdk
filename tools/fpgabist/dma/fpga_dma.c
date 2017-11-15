@@ -34,6 +34,7 @@
 #include <string.h>
 #include <opae/fpga.h>
 #include <assert.h>
+#include "safe_string/safe_string.h"
 #include "fpga_dma_internal.h"
 #include "fpga_dma.h"
 
@@ -152,7 +153,7 @@ static fpga_result _dma_write_fifo_status(fpga_dma_handle dma_h, int fifo_level)
    res = fpgaReadMMIO32(dma_h->fpga_h, dma_h->mmio_num, dma_h->dma_base+FPGA_DMA_CSR+0x8, &data32);
    ON_ERR_GOTO(res, out, "fpgaReadMMIO32");
    
-   while(((data32 >> 16) > fifo_level) != 0) {
+   while(((data32 >> 16) > (uint32_t)fifo_level) != 0) {
       res = fpgaReadMMIO32(dma_h->fpga_h, dma_h->mmio_num, dma_h->dma_base+FPGA_DMA_CSR+0x8, &data32);
       ON_ERR_GOTO(res, out, "fpgaReadMMIO32");
    }
@@ -969,9 +970,17 @@ fpga_result fpgaDmaTransferSync(fpga_dma_handle dma_h, uint64_t dst, uint64_t sr
 return res;
 }
 
+#define UNUSED_PARAM(x) ((void)x)
 fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma, uint64_t dst, uint64_t src, size_t count,
                                 fpga_dma_transfer_t type, fpga_dma_transfer_cb cb, void *context) {
    // TODO
+   UNUSED_PARAM(dma);
+   UNUSED_PARAM(dst);
+   UNUSED_PARAM(src);
+   UNUSED_PARAM(count);
+   UNUSED_PARAM(type);
+   UNUSED_PARAM(cb);
+   UNUSED_PARAM(context);
    return FPGA_NOT_SUPPORTED;
 }
 

@@ -275,17 +275,17 @@ int handle_message(int conn_socket)
 	iov[0].iov_base = &req;
 	iov[0].iov_len = sizeof(req);
 	memset(buf, 0, sizeof(buf));
-	cmh = (struct cmsghdr *)buf;
-	cmh->cmsg_len = CMSG_LEN(sizeof(int));
-	cmh->cmsg_level = SOL_SOCKET;
-	cmh->cmsg_type = SCM_RIGHTS;
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
 	mh.msg_iovlen = sizeof(iov) / sizeof(iov[0]);
-	mh.msg_control = cmh;
+	mh.msg_control = buf;
 	mh.msg_controllen = CMSG_LEN(sizeof(int));
 	mh.msg_flags = 0;
+	cmh = CMSG_FIRSTHDR(&mh);
+	cmh->cmsg_len = CMSG_LEN(sizeof(int));
+	cmh->cmsg_level = SOL_SOCKET;
+	cmh->cmsg_type = SCM_RIGHTS;
 
 	n = recvmsg(conn_socket, &mh, 0);
 	if (n < 0) {
@@ -301,7 +301,7 @@ int handle_message(int conn_socket)
 	switch (req.type) {
 
 	case REGISTER_EVENT:
-		fd_ptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+		fd_ptr = (int *)CMSG_DATA(cmh);
 
 		if (!register_event(conn_socket, *fd_ptr, req.event,
 							  req.device)) {
@@ -330,7 +330,7 @@ void *server_thread(void *thread_context)
 {
 	struct config *c = (struct config *)thread_context;
 
-	int i;
+	nfds_t i;
 
 	struct sockaddr_un addr;
 	int server_socket;
@@ -383,7 +383,7 @@ void *server_thread(void *thread_context)
 		if (0 == res) // timeout
 			continue;
 
-		if (res > num_fds) { // weird
+		if ((nfds_t)res > num_fds) { // weird
 			dlog("server: something bad happened during poll!\n");
 			continue;
 		}

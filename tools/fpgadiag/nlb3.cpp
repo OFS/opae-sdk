@@ -57,10 +57,10 @@ nlb3::nlb3()
 , end_(1)
 , frequency_(DEFAULT_FREQ)
 , cont_(false)
-, dsm_timeout_(FPGA_DSM_TIMEOUT)
 , suppress_header_(false)
 , csv_format_(false)
 , suppress_stats_(false)
+, dsm_timeout_(FPGA_DSM_TIMEOUT)
 , cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
