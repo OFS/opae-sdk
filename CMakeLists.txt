@@ -234,6 +234,7 @@ set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_RPM_PACKAGE_COMPONENT ON)
 set(CPACK_DEB_PACKAGE_COMPONENT ON)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
+set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
