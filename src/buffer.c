@@ -77,6 +77,8 @@ static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 {
 	void *addr_local = NULL;
 
+	UNUSED_PARAM(flags);
+
 	ASSERT_NOT_NULL(addr);
 
 	/* ! FPGA_BUF_PREALLOCATED, allocate memory using huge pages

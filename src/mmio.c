@@ -265,6 +265,8 @@ static fpga_result port_mmap_region(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
+	UNUSED_PARAM(mmio_num);
+
 	/* Assure returning pointer contains allocated memory */
 	ASSERT_NOT_NULL(vaddr);
 
@@ -302,15 +304,15 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 	void *addr;
 	uint64_t wsid;
 	int err;
+	uint32_t flags  = 0;
+	uint64_t size   = 0;
+	uint64_t offset = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
 
 	/* Obtain MMIO region information */
-	uint32_t flags;
-	uint64_t size;
-	uint64_t offset;
 	result = port_get_region_info(handle,
 				      mmio_num,
 				      &flags,
