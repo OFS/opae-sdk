@@ -1385,7 +1385,7 @@ void free_buffers(void)
 	ptr = buf_head;
 	while (ptr != NULL) {
 		bufptr = ptr;
-		if (ptr->valid = ASE_BUFFER_VALID)
+		if (ptr->valid == ASE_BUFFER_VALID)
 			deallocate_buffer(ptr);
 
 		ptr = ptr->next;
