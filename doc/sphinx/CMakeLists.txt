@@ -36,30 +36,41 @@ set(SPHINX_CACHE_DIR "${CMAKE_BINARY_DIR}/sphinx/_doctrees")
 set(SPHINX_HTML_DIR "${CMAKE_BINARY_DIR}/sphinx/html")
 
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
-    "${BINARY_BUILD_DIR}/conf.py"
-    @ONLY)
+  "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
+  "${BINARY_BUILD_DIR}/conf.py"
+  @ONLY)
 
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/index.rst.in"
-    "${BINARY_BUILD_DIR}/index.rst.in"
-    @ONLY)
+  "${CMAKE_CURRENT_SOURCE_DIR}/index.rst.in"
+  "${BINARY_BUILD_DIR}/index.rst"
+  @ONLY)
 
 add_custom_target(copy-doxygen-files ALL
-    COMMAND cmake -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
-    DEPENDS doc)
+  COMMAND cmake -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
+  DEPENDS doc)
 
 add_custom_target(copy-markdown-files ALL
-    COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/source ${BINARY_BUILD_DIR}/docs)
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/source ${BINARY_BUILD_DIR}/docs)
+
+add_custom_target(copy-include-files ALL
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
+  DEPENDS copy-markdown-files)
+
+add_custom_target(copy-sphinx-contrib-files ALL
+  COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/_contrib ${BINARY_BUILD_DIR}/_contrib)
 
 add_custom_target(sphinx_html ALL
-    ${SPHINX_EXECUTABLE}
-        -q -b html
-        -c "${BINARY_BUILD_DIR}"
-        -d "${SPHINX_CACHE_DIR}"
-        "${BINARY_BUILD_DIR}"
-        "${SPHINX_HTML_DIR}"
-    COMMENT "Building HTML documentation with Sphinx")
+  ${SPHINX_EXECUTABLE}
+  -q -b html
+  -c "${BINARY_BUILD_DIR}"
+  -d "${SPHINX_CACHE_DIR}"
+  "${BINARY_BUILD_DIR}"
+  "${SPHINX_HTML_DIR}"
+  WORKING_DIRECTORY "${BINARY_BUILD_DIR}"
+  COMMENT "Building HTML documentation with Sphinx")
+
 add_dependencies(sphinx_html
   copy-doxygen-files
-  copy-markdown-files)
+  copy-markdown-files
+  copy-include-files
+  copy-sphinx-contrib-files)
