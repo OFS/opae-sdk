@@ -32,8 +32,15 @@ set(BINARY_BUILD_DIR "${CMAKE_BINARY_DIR}/sphinx/_build")
 # Sphinx cache with pickled ReST documents
 set(SPHINX_CACHE_DIR "${CMAKE_BINARY_DIR}/sphinx/_doctrees")
 
+# Documentation number
+if(HASH_ARCHIVES)
+  set(SPHINX_DOC_RELEASE "${INTEL_FPGA_API_VERSION}.${GIT_COMMIT_HASH}")
+else()
+  set(SPHINX_DOC_RELEASE "${INTEL_FPGA_API_VERSION}")
+endif()
+
 # HTML output directory
-set(SPHINX_HTML_DIR "${CMAKE_BINARY_DIR}/sphinx/html")
+set(SPHINX_HTML_DIR "${CMAKE_BINARY_DIR}/sphinx/html/${SPHINX_DOC_RELEASE}")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
