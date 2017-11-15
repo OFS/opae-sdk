@@ -350,18 +350,6 @@ struct buffer_t			//  Descriptiion                    Computed by
 	struct buffer_t *next;
 };
 
-
-/*
- * Workspace meta list
- */
-struct wsmeta_t {
-	int index;
-	int valid;
-	uint64_t *buf_structaddr;
-	struct wsmeta_t *next;
-};
-
-
 /*
  * MMIO transaction packet --
  *   Be careful of alignment within this structure!  The layout must be
@@ -404,7 +392,7 @@ extern uint64_t *umsg_umas_vbase;
 // ASE buffer valid/invalid indicator
 // When a buffer is 'allocated' successfully, it will be valid, when
 // it is deallocated, it will become invalid.
-#define ASE_BUFFER_VALID        0xFFFF
+#define ASE_BUFFER_VALID        0x1
 #define ASE_BUFFER_INVALID      0x0
 
 // Buffer allocate/deallocate message headers
@@ -534,7 +522,8 @@ extern "C" {
 	void allocate_buffer(struct buffer_t *, uint64_t *);
 	void deallocate_buffer(struct buffer_t *);
 	bool deallocate_buffer_by_index(int);
-	void append_wsmeta(struct wsmeta_t *);
+	void append_buf(struct buffer_t *);
+	void free_buffers(void);
 	// MMIO activity
 	int find_empty_mmio_scoreboard_slot(void);
 	int get_scoreboard_slot_by_tid(int);

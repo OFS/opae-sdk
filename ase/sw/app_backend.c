@@ -45,9 +45,9 @@ struct buffer_t *mmio_region;
 // UMAS region
 struct buffer_t *umas_region;
 
-// Workspace metadata table
-struct wsmeta_t *wsmeta_head = (struct wsmeta_t *) NULL;
-struct wsmeta_t *wsmeta_end = (struct wsmeta_t *) NULL;
+// Record of MMIO and UMAS memory
+struct buffer_t *buf_head = (struct buffer_t *) NULL;
+struct buffer_t *buf_end = (struct buffer_t *) NULL;
 
 // Buffer index count
 int asebuf_index_count;   // global count/index
@@ -704,12 +704,15 @@ void session_deinit(void)
     ASE_INFO("\tTook %'llu nsec \n", runtime_nsec);
     setlocale(LC_NUMERIC, oldLocale);
 
+	//free memory
+	free_buffers();
+
     // Delete the .app_lock.pid file
     if (access(app_ready_lockpath, F_OK) == 0) {
-	if (unlink(app_ready_lockpath) == 0) {
-	    // Session end, set locale
-	    ASE_INFO("Session ended \n");
-	}
+		if (unlink(app_ready_lockpath) == 0) {
+			// Session end, set locale
+			ASE_INFO("Session ended \n");
+		}
     }
 
     FUNC_CALL_EXIT;
@@ -1231,12 +1234,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
     ase_buffer_info(mem);
 #endif
 
-    // book-keeping WSmeta // used by ASEALIAFU
-    struct wsmeta_t *ws;
-    ws = (struct wsmeta_t *) ase_malloc(sizeof(struct wsmeta_t));
-    ws->index = mem->index;
-    ws->buf_structaddr = (uint64_t *) mem;
-    append_wsmeta(ws);
+    append_buf(mem);
 
 #ifdef ASE_DEBUG
     if (fp_pagetable_log != NULL) {
@@ -1289,6 +1287,8 @@ void deallocate_buffer(struct buffer_t *mem)
 	END_RED_FONTCOLOR;
 	exit(1);
     }
+	mem->valid = ASE_BUFFER_INVALID;
+
     // Print if successful
     ASE_MSG("SUCCESS\n");
 
@@ -1297,34 +1297,36 @@ void deallocate_buffer(struct buffer_t *mem)
 
 
 /*
- * Appends and maintains a Workspace Meta Linked List (wsmeta_t)
+ * Appends and maintains a buffer Linked List (buffer_t)
  * <index, buffer_t<vaddr>> linkedlist
  */
-void append_wsmeta(struct wsmeta_t *new)
+void append_buf(struct buffer_t *buf)
 {
     FUNC_CALL_ENTRY;
 
-    if (wsmeta_head == NULL) {
-	wsmeta_head = new;
-	wsmeta_end = new;
+    if (buf_head == NULL) {
+		buf_head = buf;
+		buf_end = buf;
+		buf->next = NULL;
     }
+	else {
 
-    wsmeta_end->next = new;
-    new->next = NULL;
-    wsmeta_end = new;
-    wsmeta_end->valid = 1;
-
+		buf_end->next = buf;
+		buf->next = NULL;
+		buf_end = buf;
+		buf_end->valid = 1;
+	}
 #ifdef ASE_DEBUG
 
-    struct wsmeta_t *wsptr;
-    ASE_DBG("WSMeta traversal START =>\n");
-    wsptr = wsmeta_head;
-    while (wsptr != NULL) {
-	ASE_DBG("\t%d %p %d\n", wsptr->index,
-		wsptr->buf_structaddr, wsptr->valid);
-	wsptr = wsptr->next;
+    struct buffer_t *ptr;
+    ASE_DBG("Buffer traversal START =>\n");
+    ptr = buf_head;
+    while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
     }
-    ASE_DBG("WSMeta traversal END\n");
+    ASE_DBG("Buffer traversal END\n");
 
 #endif
 
@@ -1340,56 +1342,76 @@ bool deallocate_buffer_by_index(int search_index)
 {
     FUNC_CALL_ENTRY;
     bool value;
-    uint64_t *bufptr = (uint64_t *) NULL;
-    struct wsmeta_t *wsptr;
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+    struct buffer_t *ptr;
 
     ASE_MSG("Deallocate request index = %d ... \n", search_index);
 
-    // Traverse wsmeta_t
-    wsptr = wsmeta_head;
-    while (wsptr != NULL) {
-	if (wsptr->index == search_index) {
-	    bufptr = wsptr->buf_structaddr;
-	    ASE_DBG("FOUND\n");
-	    break;
-	} else {
-	    wsptr = wsptr->next;
-	}
+    // Traverse buffer list
+    ptr = buf_head;
+    while (ptr != NULL) {
+		if (ptr->index == search_index) {
+			bufptr = ptr;
+			ASE_DBG("FOUND\n");
+			break;
+		} else {
+		  ptr = ptr->next;
+		}
     }
 
-
     // Call deallocate
-    if ((bufptr != NULL) && (wsptr->valid == 1)) {
-	deallocate_buffer((struct buffer_t *) bufptr);
-	wsptr->valid = 0;
-	value = true;
+    if ((bufptr != NULL) && (bufptr->valid == ASE_BUFFER_VALID)) {
+		deallocate_buffer((struct buffer_t *) bufptr);
+		value = true;
     } else {
-	ASE_MSG("Buffer pointer was returned as NULL\n");
-	value = false;
+		ASE_MSG("Buffer pointer was returned as NULL\n");
+		value = false;
     }
 
     FUNC_CALL_EXIT;
     return value;
 }
 
+void free_buffers(void)
+{
+	FUNC_CALL_ENTRY;
+
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+	struct buffer_t *ptr;
+
+	ASE_MSG("Deallocate all buffers ... \n");
+
+	// Traverse buffer list
+	ptr = buf_head;
+	while (ptr != NULL) {
+		bufptr = ptr;
+		if (ptr->valid = ASE_BUFFER_VALID)
+			deallocate_buffer(ptr);
+
+		ptr = ptr->next;
+		free(bufptr);
+	}
+
+	FUNC_CALL_EXIT;
+}
+
 
 /*
- * Traverse WSmeta array and find buffer by WSID
+ * Traverse buffer array and find buffer by ID
  */
 struct buffer_t *find_buffer_by_index(uint64_t wsid)
 {
     struct buffer_t *bufptr = (struct buffer_t *) NULL;
-    struct wsmeta_t *trav_ptr;
+    struct buffer_t *trav_ptr;
 
-    trav_ptr = wsmeta_head;
+    trav_ptr = buf_head;
     while (trav_ptr != NULL) {
-	if (trav_ptr->index == wsid) {
-	    bufptr =
-		(struct buffer_t *) trav_ptr->buf_structaddr;
-	    break;
-	} else {
-	    trav_ptr = trav_ptr->next;
-	}
+		if (trav_ptr->index == wsid) {
+			bufptr = trav_ptr;
+			break;
+		} else {
+			trav_ptr = trav_ptr->next;
+		}
     }
 
     if (bufptr == (struct buffer_t *) NULL) {
@@ -1399,7 +1421,6 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
 
     return bufptr;
 }
-
 
 /*
  * UMSG Get Address
