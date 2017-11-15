@@ -24,16 +24,42 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-############################################################################
-## Add 'doxygen' library ###################################################
-############################################################################
+project(sphinx)
 
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  add_subdirectory(doxygen)
-endif(DOXYGEN_FOUND)
+# configured documentation tools and intermediate build results
+set(BINARY_BUILD_DIR "${CMAKE_BINARY_DIR}/sphinx/_build")
 
-find_package(Sphinx)
-if(SPHINX_EXECUTABLE)
-  add_subdirectory(sphinx)
-endif(SPHINX_EXECUTABLE)
+# Sphinx cache with pickled ReST documents
+set(SPHINX_CACHE_DIR "${CMAKE_BINARY_DIR}/sphinx/_doctrees")
+
+# HTML output directory
+set(SPHINX_HTML_DIR "${CMAKE_BINARY_DIR}/sphinx/html")
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
+    "${BINARY_BUILD_DIR}/conf.py"
+    @ONLY)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/index.rst.in"
+    "${BINARY_BUILD_DIR}/index.rst.in"
+    @ONLY)
+
+add_custom_target(copy-doxygen-files ALL
+    COMMAND cmake -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
+    DEPENDS doc)
+
+add_custom_target(copy-markdown-files ALL
+    COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/source ${BINARY_BUILD_DIR}/docs)
+
+add_custom_target(sphinx_html ALL
+    ${SPHINX_EXECUTABLE}
+        -q -b html
+        -c "${BINARY_BUILD_DIR}"
+        -d "${SPHINX_CACHE_DIR}"
+        "${BINARY_BUILD_DIR}"
+        "${SPHINX_HTML_DIR}"
+    COMMENT "Building HTML documentation with Sphinx")
+add_dependencies(sphinx_html
+  copy-doxygen-files
+  copy-markdown-files)
