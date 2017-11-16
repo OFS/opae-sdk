@@ -1,5 +1,5 @@
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -29,20 +29,26 @@ import tempfile
 import collections
 
 __work_dir__ = None
+
+
 def get_work_dir():
     global __work_dir__
     if not __work_dir__:
         __work_dir__ = tempfile.mkdtemp(prefix="packager_work_", dir=".")
     return __work_dir__
 
+
 def delete_work_dir():
     global __work_dir__
     if __work_dir__:
         shutil.rmtree(__work_dir__)
 
+
 """
 Utility function to convert input to a native type
 """
+
+
 def convert_to_native_type(val):
     try:
         if isinstance(val, str) and val.startswith('0x'):

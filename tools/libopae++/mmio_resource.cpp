@@ -23,57 +23,65 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <iostream>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "mmio_resource.h"
 
-#pragma once
-#include <memory>
-#include <thread>
-#include <atomic>
-#include <vector>
-#include <opae/event.h>
+
+using namespace std;
+
 
 namespace intel
 {
 namespace fpga
 {
 
-class fpga_event
+mmio_resource::mmio_resource(const string & resource, bool read_only)
+: mmio_(0),
+  resource_(resource),
+  fd_(-1),
+  mmap_size_(0)
 {
-public:
-    typedef std::shared_ptr<fpga_event> ptr_t;
-
-    enum class event_type : uint32_t
+    struct stat stbuffer;
+    int flags = read_only ?  O_RDONLY : O_RDWR | O_SYNC;
+    fd_ = ::open(resource_.c_str(), flags);
+    if (fd_ > 0 && ::fstat(fd_ , &stbuffer) == 0)
     {
-        interrupt = 0,
-        error,
-        power_thermal
-    };
-
-    enum class poll_result : uint32_t
+        mmap_size_ = stbuffer.st_size;
+        int prot = read_only ? PROT_READ : PROT_READ | PROT_WRITE;
+        mmio_ = mmap(0, mmap_size_, prot, MAP_SHARED, fd_, 0);
+        // if map fails, set mmio_ to 0 as this determins whether
+        // the mmio_resource device is open in the is_open function
+        if (mmio_ == MAP_FAILED)
+        {
+            mmio_ = 0;
+        }
+    }
+    else
     {
-        unknown = 0,
-        error,
-        triggered,
-        timeout,
-        canceled
-    };
+        std::cerr << "Error opening resource: " << resource_ << "\n";
+    }
+}
 
-    fpga_event(event_type etype, fpga_event_handle handle);
+mmio_resource::~mmio_resource()
+{
+    if (mmio_)
+    {
+        munmap(mmio_, mmap_size_);
+        mmio_ = 0;
+    }
 
-    virtual ~fpga_event();
+    if (fd_ > 0)
+    {
+        close(fd_);
+        fd_ = 0;
+    }
+}
 
-    poll_result poll(int timeout_msec = -1);
 
-    void notify(void (*callback)(void*, event_type), void* data = nullptr);
-
-    void cancel();
-
-private:
-    event_type type_;
-    std::atomic_bool cancel_;
-    fpga_event_handle handle_;
-    int epollfd_;
-    std::vector<std::thread> callbacks_;
-};
-
-} // end of namespace fpga
-} // end of namespace intel
+}   // end of namespace fpga
+}   // end of namespace intel

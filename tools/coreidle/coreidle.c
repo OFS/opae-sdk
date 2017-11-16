@@ -40,12 +40,7 @@
 #include "common_int.h"
 
 // FIXME
-#define FPGA_BBS_MAX_POWER               90  // watts
 #define FPGA_BBS_MIN_POWER               30  // watts
-#define FPGA_GBS_MAX_POWER               60  // watts
-#define SKX_SHARED_TDP_MAX_POWER         185 // watts
-#define SKX_TDP_PLUS_MAX_POWER           255 // watts
-#define SKX_CORE_POWER                    6 // 6 watts
 
 // MSR
 #define MSR_CORE_COUNT                    0x35
@@ -55,7 +50,11 @@
 #define RDMSR_CMD_PATH                    "rdmsr -c0 -p %d 0x%lx"
 #define SYFS_PID_MAX_PATH                 "/proc/sys/kernel/pid_max"
 
-#define MSR_MAX_BUF_SIZE                1024
+#define MSR_MAX_BUF_SIZE                  1024
+
+#define XEON_PWR_LIMIT                    "power_mgmt/xeon_limit"
+#define FPGA_PWR_LIMIT                    "power_mgmt/fpga_limit"
+
 
 fpga_result get_package_power(int split_point, long double *pkg_power);
 fpga_result cpuset_setaffinity(int socket, int split_point, uint64_t max_cpu_count);
@@ -111,6 +110,11 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	struct _fpga_token  *_token          = NULL;
 	struct _fpga_handle *_handle         = (struct _fpga_handle*)handle;
 	int err                              = 0;
+	uint64_t value                       = 0;
+	long double xeon_pwr_limit           = 0;
+	long double fpga_pwr_limit           = 0;
+	long double core_power               = 0;
+
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid fpga handle");
@@ -133,15 +137,32 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 			FPGA_SYSFS_SOCKET_ID);
 	result = sysfs_read_u64(sysfs_path, &socketid);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed  to read socket id ");
+		FPGA_ERR("Failed to read socket id");
 		goto out_unlock;
 	}
 
-	if (gbs_power >= FPGA_GBS_MAX_POWER)  {
-		FPGA_ERR("Invalid Input FPGA GBS Power ");
-		result = FPGA_INVALID_PARAM;
+	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
+		XEON_PWR_LIMIT);
+	result = sysfs_read_u64(sysfs_path, &value);
+	if (result != FPGA_OK) {
+		FPGA_MSG("Failed to read xeon power limit");
 		goto out_unlock;
 	}
+
+	xeon_pwr_limit = value / 8;
+	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
+		FPGA_PWR_LIMIT);
+	result = sysfs_read_u64(sysfs_path, &value);
+	if (result != FPGA_OK) {
+		FPGA_MSG("Failed to read fpga power limit");
+		goto out_unlock;
+	}
+
+	fpga_pwr_limit = value / 8;
+
+	FPGA_MSG("Socket id        : %d", socketid);
+	FPGA_MSG("XEON Power limit : %Lf watts", xeon_pwr_limit);
+	FPGA_MSG("FPGA pwr limit   : %Lf watts", fpga_pwr_limit);
 
 	if (readmsr(socketid, MSR_CORE_COUNT, &msrvalue) != 0) {
 		FPGA_ERR("Failed to read MSR");
@@ -149,7 +170,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	FPGA_DBG("msrvalue : %lx \n", msrvalue);
+	FPGA_DBG("msrvalue : %lx", msrvalue);
 
 	// Threads count in a socket
 	threads_num = msrvalue & 0xff;
@@ -161,7 +182,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	if (cores_num > 0) {
 		threads_per_core = threads_num / cores_num;
 	} else {
-		FPGA_ERR("Invalid coure count ");
+		FPGA_ERR("Invalid coure count");
 		result = FPGA_NOT_SUPPORTED;
 		goto out_unlock;
 	}
@@ -185,55 +206,60 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 		split_point = cpu_num / socket_num;
 	}
 
-	FPGA_DBG("threads_num        : %d \n", threads_num);
-	FPGA_DBG("coreCount          : %d \n", cores_num);
-	FPGA_DBG("socket_num         : %d \n", socket_num);
-	FPGA_DBG("threads per core   : %d \n", threads_per_core);
-	FPGA_DBG("cpu_num            : %d \n", cpu_num);
-	FPGA_DBG("split_point        : %d \n", split_point);
+	FPGA_MSG("Threads_num        : %d", threads_num);
+	FPGA_MSG("CoreCount          : %d", cores_num);
+	FPGA_MSG("Socket_num         : %d", socket_num);
+	FPGA_MSG("Threads per core   : %d", threads_per_core);
+	FPGA_MSG("CPU_num            : %d", cpu_num);
+	FPGA_MSG("Split_point        : %d", split_point);
 
 	// Get Package power
 	result = get_package_power( split_point, &total_power);
 	if (result != FPGA_OK) {
-		FPGA_ERR(" Failed to read Package power \n");
+		FPGA_ERR("Failed to read Package power");
 		goto out_unlock;
 	}
 
-	FPGA_DBG("Total Power: %Lf \n", total_power);
+	// per core power
+	core_power = xeon_pwr_limit / cores_num;
 
-	//Shared TDP Scocket
-	//TDP+ Scoekt  SKUs > 164 watts socket TDP.
-	//Max TDP 255 watts per sku.
+	FPGA_MSG("Total Power : %Lf", total_power);
+	FPGA_MSG("Core Power  : %Lf", core_power);
 
-	//FIXME
-	// BBS has to export Xeon and FPAG power limit via sysfs
-	if (total_power < SKX_SHARED_TDP_MAX_POWER) {
+	if ((gbs_power + FPGA_BBS_MIN_POWER) > fpga_pwr_limit) {
+		FPGA_ERR("Invalid Input FPGA GBS Power");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
 
-		printf("Shared TDP Socket \n");
-		printf("Total Power: %Lf \n", total_power);
+	//Shared TDP SKU 
+	if (xeon_pwr_limit + fpga_pwr_limit > total_power) {
 
-		// FIXME
+		FPGA_MSG("Shared TDP SKU power shared between XEON and FPGA");
+
 		// Available power to CPU
 		available_cpu_pwr = (int)total_power -
-				(gbs_power + FPGA_BBS_MIN_POWER);
+			(gbs_power + FPGA_BBS_MIN_POWER);
 
-		printf("Available cpu Power: %Lf \n", available_cpu_pwr);
-		// FIXME
+		FPGA_MSG("Available CPU power: %Lf", available_cpu_pwr);
+
 		// Max number of CPU available
-		max_available_cpu = 2 * ((int)available_cpu_pwr / SKX_CORE_POWER);
+		max_available_cpu = 2 * ((int) available_cpu_pwr / core_power);
 
-		printf("Online core count: %ld \n", max_available_cpu);
+		FPGA_MSG("Online CPU count: %ld", max_available_cpu);
+
 		result = cpuset_setaffinity(socketid, split_point,
 				max_available_cpu);
 		if (result != FPGA_OK) {
-			FPGA_ERR(" Failed to idle cores \n");
+			FPGA_ERR("Failed to idle cores");
 			goto out_unlock;
 		}
 
-	} else if ((total_power <= SKX_TDP_PLUS_MAX_POWER) &&
-		(total_power >= SKX_SHARED_TDP_MAX_POWER))  {
-
-		FPGA_DBG("TDP + Socket");
+	} else if (xeon_pwr_limit + fpga_pwr_limit <= total_power) {
+		// TDP+ SKU
+		FPGA_MSG("TDP+ SKU XEON and FPGA each can run maximum allowed TDP");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 
 	} else {
 		FPGA_ERR("Invalid Socket Power");
@@ -387,7 +413,6 @@ fpga_result cpuset_setaffinity(int socket,
 	i = CPU_COUNT_S(sizeof(cpu_set_t), &idle_set);
 	FPGA_DBG("CPU_COUNT_S : %d\n", i);
 
-
 	// Get affinity of pid 1
 	// Change CPU set
 	// Set affinity of pid 1
@@ -405,7 +430,6 @@ fpga_result cpuset_setaffinity(int socket,
 		FPGA_ERR(" sched_setaffnity failure for pid: 1\n");
 		return result;
 	}
-
 
 	// Find max pid number
 	result = sysfs_read_u64(SYFS_PID_MAX_PATH, &max_pid_index);

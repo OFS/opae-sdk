@@ -67,6 +67,24 @@ enum test_result
     error
 };
 
+static std::map<json_tokener_error, std::string> json_parse_errors =
+{
+    { json_tokener_success, "json_tokener_success" },
+    { json_tokener_continue, "json_tokener_continue" },
+    { json_tokener_error_depth, "json_tokener_error_depth" },
+    { json_tokener_error_parse_eof, "json_tokener_error_parse_eof" },
+    { json_tokener_error_parse_unexpected, "json_tokener_error_parse_unexpected" },
+    { json_tokener_error_parse_null, "json_tokener_error_parse_null" },
+    { json_tokener_error_parse_boolean, "json_tokener_error_parse_boolean" },
+    { json_tokener_error_parse_number, "json_tokener_error_parse_number" },
+    { json_tokener_error_parse_array, "json_tokener_error_parse_array" },
+    { json_tokener_error_parse_object_key_name, "json_tokener_error_parse_object_key_name" },
+    { json_tokener_error_parse_object_key_sep, "json_tokener_error_parse_object_key_sep" },
+    { json_tokener_error_parse_object_value_sep, "json_tokener_error_parse_object_value_sep" },
+    { json_tokener_error_parse_string, "json_tokener_error_parse_string" },
+    { json_tokener_error_parse_comment, "json_tokener_error_parse_comment" },
+    { json_tokener_error_size, "json_tokener_error_size" }
+};
 bool make_apps(const std::string & muxfile, std::vector<accelerator_app::ptr_t> & apps)
 {
     std::ifstream inp;
@@ -80,11 +98,14 @@ bool make_apps(const std::string & muxfile, std::vector<accelerator_app::ptr_t> 
     inp.seekg(0, inp.beg);
     char jbuff[length];
     inp.read(jbuff, length);
-
-    struct json_object * root = json_tokener_parse(jbuff);
+    enum json_tokener_error err = json_tokener_success;
+    struct json_object * root = json_tokener_parse_verbose(jbuff, &err);
 
     if (root == nullptr)
     {
+        auto it = json_parse_errors.find(err);
+        auto msg = it == json_parse_errors.end() ? "Unknown" : it->second;
+        std::cerr << "ERROR parsing muxfile: " << msg << "\n";
         return false;
     }
 
@@ -129,13 +150,14 @@ int main(int argc, char* argv[])
     option_map opts;
     uint64_t freq = 300000000;
 
+    opts.add_option<bool>("help",             'h', option::no_argument,   "Show help", false);
     opts.add_option<uint8_t>("socket-id",     's', option::with_argument, "Socket id encoded in BBS");
     opts.add_option<uint8_t>("bus-number",    'B', option::with_argument, "Bus number of PCIe device");
     opts.add_option<uint8_t>("device",        'D', option::with_argument, "Device number of PCIe device");
     opts.add_option<uint8_t>("function",      'F', option::with_argument, "Function number of PCIe device");
     opts.add_option<std::string>("target",    't', option::with_argument, "Target platform. fpga or ase - default is fpga", "fpga");
     opts.add_option<std::string>("guid",      'G', option::with_argument, "GUID of accelerator to open");
-    opts.add_option<std::string>("muxfile",   'm', option::with_argument, "Path to JSON file containing mux sw apps");
+    opts.add_option<std::string>("config",    'c', option::with_argument, "Path to JSON file containing mux sw apps");
     opts.add_option<bool>("suppress-header",  'H', option::no_argument, "Suppress header when showing results", false);
     opts.add_option<bool>("csv",              'V', option::no_argument, "Show results in CSV format", false);
     opts.add_option<uint64_t>("frequency",    'T', option::with_argument, "Clock frequency (used for bw measurements)", freq);
@@ -143,9 +165,16 @@ int main(int argc, char* argv[])
     log.set_level(logger::level::level_debug);
     if (!parser.parse_args(argc, argv, opts))
     {
-       log.error("main") << "Error parsing command line arguments" << std::endl;
-       return EXIT_FAILURE;
+        log.error("main") << "Error parsing command line arguments" << std::endl;
+        opts.show_help("fpgamux", std::cout);
+        return EXIT_FAILURE;
     };
+
+    bool help = false;
+    if (opts.get_value<bool>("help", help) && help){
+        opts.show_help("fpgamux", std::cout);
+        return EXIT_SUCCESS;
+    }
 
     auto muxopt = opts.find("muxfile");
     if (!muxopt || !muxopt->is_set() || !path_exists(muxopt->value<std::string>()))

@@ -96,7 +96,7 @@ public:
     uint64_t port_errors() const { return port_errors_; }
 
     void throw_errors(bool value) { throw_errors_ = value; }
-    void error_assert() const { if (throw_errors_ && port_errors_)  throw port_error(port_errors_.load()); }
+    void error_assert(bool update = false);
 protected:
     accelerator(const accelerator & other);
     accelerator & operator=(const accelerator & other);

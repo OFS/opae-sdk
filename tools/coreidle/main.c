@@ -37,9 +37,7 @@
 #include <fcntl.h>
 
 #include "safe_string/safe_string.h"
-
 #include "opae/fpga.h"
-
 #include "bitstream_int.h"
 
 
@@ -118,6 +116,7 @@ int main( int argc, char** argv )
 	fpga_token fme_token               = NULL;
 	fpga_handle  fme_handle            = NULL;
 	struct gbs_metadata  metadata      = {0};
+	fpga_result res                    = FPGA_OK;
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -205,8 +204,7 @@ int main( int argc, char** argv )
 
 	// Idle CPU cores
 	if ( metadata.afu_image.power >0 ) {
-		 result = set_cpu_core_idle(fme_handle,metadata.afu_image.power);
-		 ON_ERR_GOTO(result, out_close, "closing FME");
+		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
 	}
 
 
@@ -227,7 +225,7 @@ out_destroy_prop:
 	ON_ERR_GOTO(result, out_exit, "destroying properties object");
 
 out_exit:
-	return result;
+	return res;
 
 }
 

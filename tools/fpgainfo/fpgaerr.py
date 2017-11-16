@@ -315,7 +315,8 @@ class errors_command(fpga_command):
                 with open(clear_path, 'w') as fd:
                     fd.write(value)
             except IOError:
-                print 'WARNING: Could not clear errors. May need to run as root'
+                print('WARNING: Could not clear errors. '
+                      'May need to run as root.')
             else:
                 with open(errpath, 'r') as fd:
                     value = fd.read().strip()

@@ -288,6 +288,16 @@ fpga_fabric_counters accelerator::fabric_counters() const
     return fpga_fabric_counters(parent_sysfs_);
 }
 
+void accelerator::error_assert(bool update)
+{
+    if (update)
+        port_errors_ = port_error::read(socket_id());
+
+    uint64_t err = port_errors_;
+    if (throw_errors_ && err)
+        throw port_error(err);
+}
+
 } // end of namespace fpga
 } // end of namespace intel
 

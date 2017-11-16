@@ -67,10 +67,8 @@ void put_timestamp(void)
 	FUNC_CALL_ENTRY;
 
 	FILE *fp = (FILE *) NULL;
-	char *tstamp_path;
+	char tstamp_path[ASE_FILEPATH_LEN];
 	unsigned long long rdtsc_out;
-
-	tstamp_path = (char *) ase_malloc(ASE_FILEPATH_LEN);
 
 	snprintf(tstamp_path, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path,
 		 TSTAMP_FILENAME);
@@ -95,8 +93,6 @@ void put_timestamp(void)
 		// Close file
 		fclose(fp);
 	}
-
-	free(tstamp_path);
 
 	FUNC_CALL_EXIT;
 }

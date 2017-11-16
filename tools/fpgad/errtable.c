@@ -549,13 +549,15 @@ static int poll_error(struct fpga_err *e)
 
 	struct stat st;
 
+	fpga_result res;
+
 	i = stat(e->sysfsfile, &st);
 	if (i != 0) // file may not exist on single-socket.
 		return 0;
 
 	err = 0;
-	i = sysfs_read_u64(e->sysfsfile, &err);
-	if (i) {
+	res = sysfs_read_u64(e->sysfsfile, &err);
+	if (res != FPGA_OK) {
 		return -1;
 	}
 
@@ -611,7 +613,7 @@ void *logger_thread(void *thread_context)
 			"%s/errors/revision", SYSFS_PORT0);
 
 	if (!stat(sysfspath, &stats)) {
-		if (!sysfs_read_u64(sysfspath, &err_rev)) {
+		if (FPGA_OK == sysfs_read_u64(sysfspath, &err_rev)) {
 			switch (err_rev) {
 			case 0ULL:
 				port_error_table = port_error_table_rev_0;
@@ -642,7 +644,7 @@ void *logger_thread(void *thread_context)
 			"%s/errors/revision", SYSFS_FME0);
 
 	if (!stat(sysfspath, &stats)) {
-		if (!sysfs_read_u64(sysfspath, &err_rev)) {
+		if (FPGA_OK == sysfs_read_u64(sysfspath, &err_rev)) {
 			switch (err_rev) {
 			case 0ULL:
 				fme_error_table = fme_error_table_rev_0;

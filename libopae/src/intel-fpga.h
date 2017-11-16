@@ -34,6 +34,9 @@
 #define PORT_BASE 0x40
 #define FME_BASE 0x80
 
+#define FPGA_IRQ_ASSIGN    (1 << 0)
+#define FPGA_IRQ_DEASSIGN  (1 << 1)
+
 /* Common IOCTLs for both FME and AFU file descriptor */
 
 /**
@@ -79,9 +82,13 @@ struct fpga_port_info {
 	__u32 flags;		/* Zero for now */
 	__u32 num_regions;	/* The number of supported regions */
 	__u32 num_umsgs;	/* The number of allocated umsgs */
+	__u32 irq_capability;	/* The capability of interrupts */
+	__u32 num_uafu_irqs;    /* The number of uafu interrupts */
 };
 
 #define FPGA_PORT_GET_INFO	_IO(FPGA_MAGIC, PORT_BASE + 1)
+
+#define FPGA_PORT_CAP_ERR_IRQ	(1 << 0) /* Support port error interrpt */
 
 /**
  * FPGA_PORT_GET_REGION_INFO - _IOWR(FPGA_MAGIC, PORT_BASE + 2,
@@ -268,5 +275,30 @@ struct fpga_fme_port_assign {
 };
 
 #define FPGA_FME_PORT_ASSIGN	_IO(FPGA_MAGIC, FME_BASE + 2)
+
+/**
+ * FPGA_FME_ERR_SET_IRQ
+ *
+ */
+struct fpga_fme_info {
+	/* Input */
+	__u32 argsz;		/* Structure length */
+	/* Output */
+	__u32 flags;		/* Zero for now */
+	__u32 irq_capability;	/* The capablility of irq */
+};
+
+#define FPGA_FME_GET_INFO      _IO(FPGA_MAGIC, FME_BASE + 3)
+
+#define FPGA_FME_CAP_ERR_IRQ	(1 << 0) /* Support fme error interrpt */
+
+struct fpga_fme_err_irq_set {
+	/* Input */
+	__u32 argsz;	/* Structure length */
+	__u32 flags;
+	__s32 evtfd;	/* Eventfd handler */
+};
+
+#define FPGA_FME_ERR_SET_IRQ	_IO(FPGA_MAGIC, FME_BASE + 4)
 
 #endif /* _UAPI_INTEL_FPGA_H */

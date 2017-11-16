@@ -188,7 +188,7 @@ void token_cleanup(void)
 	}
 
 	if (!token_root)
-		return;
+		goto out_unlock;
 
 	while (token_root->next) {
 		struct token_map *tmp = token_root;
@@ -202,6 +202,7 @@ void token_cleanup(void)
 	free(token_root);
 	token_root = NULL;
 
+out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));

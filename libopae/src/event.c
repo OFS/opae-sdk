@@ -38,6 +38,7 @@
 #include "opae/access.h"
 #include "types_int.h"
 #include "common_int.h"
+#include "intel-fpga.h"
 
 #define EVENT_SOCKET_NAME     "/tmp/fpga_event_socket"
 #define EVENT_SOCKET_NAME_LEN 23
@@ -92,14 +93,213 @@ fpga_result send_event_request(int conn_socket, int fd, struct event_request *re
 
 }
 
-static fpga_result driver_register_event(/* tbd */)
+static fpga_result send_fme_event_request(fpga_handle handle,
+	fpga_event_handle event_handle, int fme_operation)
 {
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct fpga_fme_info fme_info  = {.argsz = sizeof(fme_info),
+						.flags = 0 };
+	struct fpga_fme_err_irq_set fme_irq = {.argsz = sizeof(fme_irq),
+						.flags = 0};
+
+	if (fme_operation != FPGA_IRQ_ASSIGN && fme_operation != FPGA_IRQ_DEASSIGN) {
+		FPGA_ERR("Invalid FME operation requested");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (ioctl(_handle->fddev, FPGA_FME_GET_INFO, &fme_info) != 0) {
+		FPGA_ERR("Could not get FME info: %s", strerror(errno));
+		return FPGA_EXCEPTION;
+	}
+
+	/*irq_capability field is set to 1 if the platform supports interrupts*/
+	if (fme_info.irq_capability & FPGA_FME_CAP_ERR_IRQ) {
+		fme_irq.evtfd = event_handle;
+		fme_irq.flags = fme_operation;
+
+		if (ioctl(_handle->fddev, FPGA_FME_ERR_SET_IRQ, &fme_irq) != 0) {
+			FPGA_ERR("Could not set eventfd %s", strerror(errno));
+			return FPGA_EXCEPTION;
+		}
+	} else {
+		FPGA_ERR("FME interrupts not supported in hw");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
 }
 
-static fpga_result driver_unregister_event(/* tbd */)
+static fpga_result get_handle_objtype(fpga_handle handle, fpga_objtype *objtype)
 {
-	return FPGA_NOT_SUPPORTED;
+	fpga_result res = FPGA_OK;
+	fpga_result destroy_res = FPGA_OK;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token;
+	fpga_properties prop = NULL;
+
+	/*_handle->lock mutex is not locked since it will be locked
+	  by the calling functions*/
+	_token = (struct _fpga_token *)_handle->token;
+
+	res = fpgaGetProperties(_token, &prop);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Could not get FPGA properties");
+		return res;
+	}
+
+	res = fpgaPropertiesGetObjectType(prop, &objtype);
+	if (res != FPGA_OK)
+		FPGA_MSG("Could not determine FPGA object type");
+
+	destroy_res = fpgaDestroyProperties(&prop);
+	if (destroy_res != FPGA_OK)
+		FPGA_MSG("Could not destroy FPGA properties");
+
+	return res;
+}
+
+static fpga_result check_interrupts_supported(fpga_handle handle)
+{
+	fpga_result res = FPGA_OK;
+	fpga_result destroy_res = FPGA_OK;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token;
+	fpga_properties prop = NULL;
+	fpga_objtype objtype;
+	struct fpga_fme_info fme_info  = {.argsz = sizeof(fme_info),
+					.flags = 0 };
+	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
+					.flags = 0 };
+
+	/*_handle->lock mutex is not locked since it will be locked
+	  by the calling functions*/
+	_token = (struct _fpga_token *)_handle->token;
+
+	res = fpgaGetProperties(_token, &prop);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Could not get FPGA properties");
+		return res;
+	}
+
+	res = fpgaPropertiesGetObjectType(prop, &objtype);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Could not determine FPGA object type");
+		goto destroy_prop;
+	}
+
+	if (objtype == FPGA_DEVICE) {
+		if (ioctl(_handle->fddev, FPGA_FME_GET_INFO, &fme_info) != 0) {
+			FPGA_ERR("Could not get FME info: %s", strerror(errno));
+			res = FPGA_EXCEPTION;
+			goto destroy_prop;
+		}
+
+		if (fme_info.irq_capability & FPGA_FME_CAP_ERR_IRQ) {
+			res = FPGA_OK;
+		} else {
+			FPGA_ERR("Interrupts not supported in hw");
+			res = FPGA_NOT_SUPPORTED;
+		}
+	} else if (objtype == FPGA_ACCELERATOR) {
+		if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info) != 0) {
+			FPGA_ERR("Could not get PORT info: %s", strerror(errno));
+			res = FPGA_EXCEPTION;
+			goto destroy_prop;
+		}
+
+		if (port_info.irq_capability & FPGA_PORT_CAP_ERR_IRQ) {
+			res = FPGA_OK;
+		} else {
+			FPGA_ERR("Interrupts not supported in hw");
+			res = FPGA_NOT_SUPPORTED;
+		}
+	}
+
+destroy_prop:
+	destroy_res = fpgaDestroyProperties(&prop);
+	if (destroy_res != FPGA_OK) {
+		FPGA_MSG("Could not destroy FPGA properties");
+		return destroy_res;
+	}
+
+	return res;
+}
+
+static fpga_result driver_register_event(fpga_handle handle,
+	fpga_event_type event_type,
+	fpga_event_handle event_handle)
+{
+	fpga_objtype objtype;
+	fpga_result res = FPGA_OK;
+
+	res = check_interrupts_supported(handle);
+	if (res != FPGA_OK) {
+		FPGA_ERR("Could not determine whether interrupts are supported");
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	switch (event_type) {
+	case FPGA_EVENT_ERROR:
+		res = get_handle_objtype(handle, &objtype);
+		if (res != FPGA_OK) {
+			FPGA_MSG("Could not determine FPGA object type");
+			return res;
+		}
+
+		if (objtype == FPGA_DEVICE) {
+			return send_fme_event_request(handle, event_handle, FPGA_IRQ_ASSIGN);
+		} else if (objtype == FPGA_ACCELERATOR) {
+			FPGA_MSG("Port event type not supported");
+			return FPGA_NOT_SUPPORTED;
+		}
+	case FPGA_EVENT_INTERRUPT:
+		FPGA_MSG("User AFU event type not supported");
+		return FPGA_NOT_SUPPORTED;
+	case FPGA_EVENT_POWER_THERMAL:
+		FPGA_MSG("Thermal interrupts not supported");
+		return FPGA_NOT_SUPPORTED;
+	default:
+		FPGA_ERR("Invalid event type");
+		return FPGA_EXCEPTION;
+	}
+}
+
+static fpga_result driver_unregister_event(fpga_handle handle,
+	fpga_event_type event_type, fpga_event_handle event_handle)
+{
+	fpga_objtype objtype;
+	fpga_result res = FPGA_OK;
+
+	res = check_interrupts_supported(handle);
+	if (res != FPGA_OK) {
+		FPGA_ERR("Could not determine whether interrupts are supported");
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	switch (event_type) {
+	case FPGA_EVENT_ERROR:
+		res = get_handle_objtype(handle, &objtype);
+		if (res != FPGA_OK) {
+			FPGA_ERR("Could not determine FPGA object type");
+			return res;
+		}
+
+		if (objtype == FPGA_DEVICE) {
+			return send_fme_event_request(handle, event_handle, FPGA_IRQ_DEASSIGN);
+		} else if (objtype == FPGA_ACCELERATOR) {
+			FPGA_MSG("Port event type not supported");
+			return FPGA_NOT_SUPPORTED;
+		}
+	case FPGA_EVENT_INTERRUPT:
+		FPGA_MSG("User AFU event type not supported");
+		return FPGA_NOT_SUPPORTED;
+	case FPGA_EVENT_POWER_THERMAL:
+		FPGA_MSG("Thermal interrupts not supported");
+		return FPGA_NOT_SUPPORTED;
+	default:
+		FPGA_ERR("Invalid event type");
+		return FPGA_EXCEPTION;
+	}
 }
 
 static fpga_result daemon_register_event(fpga_handle handle,
@@ -280,7 +480,7 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 	/* TODO: reject unknown flags */
 
 	/* try driver first */
-	result = driver_register_event();
+	result = driver_register_event(handle, event_type, event_handle);
 	if (result == FPGA_NOT_SUPPORTED) {
 		result = daemon_register_event(handle, event_type,
 					       event_handle, flags);
@@ -326,7 +526,7 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 	}
 
 	/* try driver first */
-	result = driver_unregister_event();
+	result = driver_unregister_event(handle, event_type, event_handle);
 	if (result == FPGA_NOT_SUPPORTED) {
 		result = daemon_unregister_event(handle, event_type);
 	}
