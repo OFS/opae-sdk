@@ -34,12 +34,10 @@
 #define FPGA_PROPERTY_BUS            2
 #define FPGA_PROPERTY_DEVICE         3
 #define FPGA_PROPERTY_FUNCTION       4
-#define FPGA_PROPERTY_SUBDEV         5
-#define FPGA_PROPERTY_SOCKETID       6
-#define FPGA_PROPERTY_PERMISSIONS    7
-#define FPGA_PROPERTY_DEVICEID       8
-#define FPGA_PROPERTY_GUID           9
-
+#define FPGA_PROPERTY_SOCKETID       5
+#define FPGA_PROPERTY_DEVICEID       6
+#define FPGA_PROPERTY_GUID           7
+#define FPGA_PROPERTY_OBJECTID       8
 
 /** Fields for FPGA objects */
 #define FPGA_PROPERTY_NUM_SLOTS     32

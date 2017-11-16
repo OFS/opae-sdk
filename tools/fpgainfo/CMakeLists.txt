@@ -31,7 +31,8 @@ set(PYTHON_SRC
      fpgaerr.py
      fpgainfo
      fpgapwr.py
-     fpgatemp.py)
+     fpgatemp.py
+     sysfs.py)
 
 install(PROGRAMS ${PYTHON_SRC}
     DESTINATION bin

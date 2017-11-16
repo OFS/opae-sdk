@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import fpga_common
+from fpgapwr import power_command
 import os
 
 
@@ -49,11 +50,11 @@ class fme_command(fpga_common.fpga_command):
         if fpga_common.fpga_command.fme_feature_is_supported(
                 self,
                 feature_path):
-           with open(feature_path, "r") as fd:
+            with open(feature_path, "r") as fd:
                 value = fd.read().strip().lower()
                 return value
         else:
-           print "Feature not supported: " + feature_path + "\n"
+            print "Feature not supported: " + feature_path + "\n"
 
     def print_fme_info(self, fmepath):
         # RO | It contains FME Babric version.
@@ -97,7 +98,8 @@ class fme_command(fpga_common.fpga_command):
         if feature is not None:
             print "FME Bitstream Metadata: " + feature + "\n"
         else:
-            print "Feature not supported: " + FME_SYSFS_BITSTREAM_METADATA + "\n"
+            print("Feature not supported: " + FME_SYSFS_BITSTREAM_METADATA +
+                  "\n")
 
         feature = self.get_feature(FME_SYSFS_PR_INTER_ID)
         if feature is not None:

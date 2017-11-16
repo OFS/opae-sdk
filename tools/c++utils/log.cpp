@@ -107,6 +107,7 @@ logger::logger()
 , name_()
 {
     pid_ = ::getpid();
+    sink_ = &std::cout;
 }
 
 logger::logger(const std::string & name)
@@ -114,12 +115,27 @@ logger::logger(const std::string & name)
 , name_(name)
 {
     pid_ = ::getpid();
+    sink_ = &std::cout;
 }
 
+logger::logger(const std::string & name, const std::string & filename)
+: level_(level::level_none)
+, name_(name)
+{
+    pid_ = ::getpid();
+    filestream_.open(filename);
+    sink_ = &filestream_;
+}
+
+void logger::open(const std::string & filename)
+{
+    filestream_.open(filename);
+    sink_ = &filestream_;
+}
 
 wrapped_stream logger::log(level l, std::string str)
 {
-    wrapped_stream stream((l >= level_  ? &std::cout : 0));
+    wrapped_stream stream((l >= level_  ? sink_ : 0));
     stream << std::dec << "[" << pid_ << "][" << level_name(l) << "]";
     if (name_ != "") stream << "[" << name_ << "]";
     if (str != "")

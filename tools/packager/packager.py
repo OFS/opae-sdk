@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -28,40 +28,43 @@
 import os
 import sys
 import subprocess
-
-PACKAGER_EXEC="packager"
-DESCRIPTION='Intel Xeon + FPGA Packager'
-
-try:
-    assert sys.version_info >= (2,7) and sys.version_info < (3,0,0)
-except AssertionError:
-    print(DESCRIPTION + " requires Python 2 version 2.7+")
-    sys.exit(1)
-
 import shutil
 import argparse
 import json
-
 import utils
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
 
-USAGE =  "\n{0}".format(DESCRIPTION)
-USAGE += "\n\n{0} <cmd> [options]\n\n".format(PACKAGER_EXEC)
-USAGE += "The following values for <cmd> are currently supported:\n"
-USAGE += "\t help - displays this message\n"
-USAGE += "\t create-gbs - creates GBS file from RBF and Accelerator Description File\n"
-USAGE += "\t modify-gbs - modify metadata of existing GBS file using --set-value\n"
-USAGE += "\t gbs-info - prints information about GBS file\n"
-USAGE += "\t get-rbf - creates RBF file by extracting RBF from GBS file\n"
-#USAGE += "\t package - generates AFU Suite \n"
-USAGE += "\n{0} <cmd> --h will give command specific help\n".format(PACKAGER_EXEC)
+PACKAGER_EXEC = "packager"
+DESCRIPTION = 'Intel Xeon + FPGA Packager'
+
+try:
+    assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
+except AssertionError:
+    print(DESCRIPTION + " requires Python 2 version 2.7+")
+    sys.exit(1)
+
+USAGE = """
+{0}
+
+{1} <cmd> [options]
+
+The following values for <cmd> are currently supported:
+\t help - displays this message
+\t create-gbs - creates GBS file from RBF and Accelerator Description File
+\t modify-gbs - modify metadata of existing GBS file using --set-value
+\t gbs-info - prints information about GBS file
+\t get-rbf - creates RBF file by extracting RBF from GBS file
+
+{1} <cmd> --h will give command specific help
+""".format(DESCRIPTION, PACKAGER_EXEC)
+
 
 def run_packager():
     parser = argparse.ArgumentParser(usage=USAGE, add_help=False)
     parser.add_argument("cmd", nargs="?")
-    parser.add_argument("remain_args", nargs = argparse.REMAINDER)
+    parser.add_argument("remain_args", nargs=argparse.REMAINDER)
     args = parser.parse_args(sys.argv[1:])
     cmd_description = "{0} {1}".format(PACKAGER_EXEC, args.cmd)
     subparser = argparse.ArgumentParser(description=cmd_description)
@@ -72,18 +75,22 @@ def run_packager():
 
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
-            " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH> --gbs=<NAME_FOR_GBS> --set-value <key>:<value>\n"
+            " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
+            " --gbs=<NAME_FOR_GBS> --set-value <key>:<value>\n"
         subparser.add_argument('--rbf', required=True,
-            help='RBF file (REQUIRED)')
+                               help='RBF file (REQUIRED)')
         subparser.add_argument('--afu-json', required=False,
-            help='AFU JSON file that contains metadata')
-        subparser.add_argument('--no-metadata', default=False, action='store_true',
-            help='Empty metadata section will be appended')
+                               help='AFU JSON file that contains metadata')
+        subparser.add_argument('--no-metadata', default=False,
+                               action='store_true',
+                               help='Empty metadata section will be appended')
         subparser.add_argument('--gbs', required=False,
-            help='Output location for gbs file. Default is <rbf_name>.gbs')
+                               help='Output location for gbs file. '
+                               'Default is <rbf_name>.gbs')
         subparser.add_argument('--set-value', required=False, nargs='*',
-            help='set values for keys in JSON metadata as <key>:<value>. Can be followed by '
-            'more than one <key>:<value> pairs.')
+                               help='set values for keys in JSON metadata as '
+                               '<key>:<value>. Can be followed by more than '
+                               'one <key>:<value> pairs.')
         subargs = subparser.parse_args(args.remain_args)
         afu = AFU(subargs.afu_json)
         gbs_file = afu.create_gbs(subargs.rbf, subargs.gbs, subargs.set_value)
@@ -91,13 +98,17 @@ def run_packager():
 
     elif args.cmd == "modify-gbs":
         subparser.usage = "\n" + cmd_description + \
-            "--input-gbs=<PATH_TO_GBS_TO_BE_MODIFIED> --output-gbs=<NAME_FOR_NEW_GBS> --set-value <key>:<value>\n"
-        subparser.add_argument('--input-gbs', required=True, help='Path to input gbs file')
-        subparser.add_argument('--output-gbs', required=False, help='Path to output gbs file. Will replace'
-            'original file if not provided')
+            " --input-gbs=<PATH_TO_GBS_TO_BE_MODIFIED>"\
+            " --output-gbs=<NAME_FOR_NEW_GBS> --set-value <key>:<value>\n"
+        subparser.add_argument('--input-gbs', required=True,
+                               help='Path to input gbs file')
+        subparser.add_argument('--output-gbs', required=False,
+                               help='Path to output gbs file. Will replace '
+                               'original file if not provided')
         subparser.add_argument('--set-value', required=True, nargs='*',
-            help='set values for keys in JSON metadata as <key>:<value>. Can be followed by '
-            'more than one <key>:<value> pairs.')
+                               help='set values for keys in JSON metadata as '
+                               '<key>:<value>. Can be followed by more than '
+                               'one <key>:<value> pairs.')
         subargs = subparser.parse_args(args.remain_args)
         gbs = GBS(subargs.input_gbs)
         afu = AFU.create_afu_from_gbs(gbs)
@@ -108,53 +119,62 @@ def run_packager():
 
     elif args.cmd == "package":
         subparser.usage = "\n" + cmd_description + \
-            " --afu-json=<AFU_JSON_PATH> --rbf=<RBF_PATH> --out=<NAME_OF_PACKAGE>\n"
+            " --afu-json=<AFU_JSON_PATH> --rbf=<RBF_PATH>"\
+            " --out=<NAME_OF_PACKAGE>\n"
         subparser.usage += cmd_description + \
-            " --afu-json=<AFU_JSON_PATH> --rbf=<RBF_PATH> --sw-dir=<SW_DIR> --doc-dir=<DOC_DIR>"
+            " --afu-json=<AFU_JSON_PATH> --rbf=<RBF_PATH> --sw-dir=<SW_DIR>"\
+            " --doc-dir=<DOC_DIR>"
         subparser.add_argument('--afu-json', required=True,
-            help='AFU JSON file that contains metadata (REQUIRED)')
+                               help='AFU JSON file that contains metadata '
+                               '(REQUIRED)')
         subparser.add_argument('--rbf', required=True,
-            help='RBF file (REQUIRED)')
+                               help='RBF file (REQUIRED)')
         subparser.add_argument('--sw-dir', required=False,
-            help='Location of software files to include')
+                               help='Location of software files to include')
         subparser.add_argument('--doc-dir', required=False,
-            help='Location of documentation files to include')
+                               help='Location of documentation files to '
+                               'include')
         subparser.add_argument('--out', required=False, default="afu",
-            help='Used to specify name of package')
+                               help='Used to specify name of package')
         subargs = subparser.parse_args(args.remain_args)
         afu = AFU(subargs.afu_json)
         afu.package(subargs.rbf, subargs.sw_dir, subargs.doc_dir, subargs.out)
         print("Wrote {0}.zip".format(subargs.out))
-        
+
     elif args.cmd == "gbs-info":
         subparser.usage = "\n" + cmd_description + " --gbs=<GBS_PATH>"
         subparser.add_argument('--gbs', required=True,
-            help='Path to GBS file')
+                               help='Path to GBS file')
         subargs = subparser.parse_args(args.remain_args)
         gbs = GBS(subargs.gbs)
         gbs.print_gbs_info()
-        
+
     elif args.cmd == "get-rbf":
         subparser.usage = "\n" + cmd_description + \
             "--gbs=<GBS_PATH> --rbf=<NAME_FOR_RBF>"
         subparser.add_argument('--gbs', required=True,
-            help='Path to GBS file from which rbf is to be extracted')
+                               help='Path to GBS file from which rbf is to be '
+                               'extracted')
         subparser.add_argument('--rbf', required=False,
-            help='Output location for rbf file. Default is <gbs_name>.rbf')
+                               help='Output location for rbf file. Default is '
+                               '<gbs_name>.rbf')
         subargs = subparser.parse_args(args.remain_args)
         gbs = GBS(subargs.gbs)
         rbf_file = gbs.write_rbf(subargs.rbf)
         print("Wrote {0}".format(rbf_file))
 
     else:
-        raise Exception("{0} is not a command for {1}!".format(args.cmd, DESCRIPTION))
+        raise Exception("{0} is not a command for {1}!".format(
+            args.cmd, DESCRIPTION))
+
 
 def main():
     try:
         sys.exit(run_packager())
     except Exception as e:
-       print("ERROR: {0}".format(e.__str__()))
-       sys.exit(1)
+        print("ERROR: {0}".format(e.__str__()))
+        sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

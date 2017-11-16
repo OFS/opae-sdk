@@ -104,7 +104,8 @@ class sysfsinfo(object):
             bdf = read_bdf(path)
             # strip {socket_id} from the template FPGA_DEVICE
             # socket id is what comes after this in the real path
-            socket_id = path.strip(fpga_common.FPGA_DEVICE.strip('{socket_id}'))
+            socket_id = path.strip(fpga_common.FPGA_DEVICE
+                                   .strip('{socket_id}'))
             sysfs_fme = fpga_common.FME_DEVICE.format(socket_id=socket_id)
             sysfs_port = fpga_common.PORT_DEVICE.format(socket_id=socket_id)
             self._fmelist.append(fme_info(sysfs_fme, socket_id, **bdf))

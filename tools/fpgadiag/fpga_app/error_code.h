@@ -23,57 +23,32 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #pragma once
-#include <memory>
-#include <thread>
-#include <atomic>
-#include <vector>
-#include <opae/event.h>
 
 namespace intel
 {
 namespace fpga
 {
-
-class fpga_event
+namespace diag
 {
-public:
-    typedef std::shared_ptr<fpga_event> ptr_t;
 
-    enum class event_type : uint32_t
-    {
-        interrupt = 0,
-        error,
-        power_thermal
-    };
-
-    enum class poll_result : uint32_t
-    {
-        unknown = 0,
-        error,
-        triggered,
-        timeout,
-        canceled
-    };
-
-    fpga_event(event_type etype, fpga_event_handle handle);
-
-    virtual ~fpga_event();
-
-    poll_result poll(int timeout_msec = -1);
-
-    void notify(void (*callback)(void*, event_type), void* data = nullptr);
-
-    void cancel();
-
-private:
-    event_type type_;
-    std::atomic_bool cancel_;
-    fpga_event_handle handle_;
-    int epollfd_;
-    std::vector<std::thread> callbacks_;
+enum error_code
+{
+    none = 0,
+    error_enumerate,
+    error_open,
+    error_close,
+    error_reset,
+    error_mmio_read,
+    error_mmio_write,
+    error_buffer_allocate,
+    error_timeout,
+    error_testfail,
+    error_port,
+    error_fme,
+    error_unknown = 500
 };
 
+} // end of namespace diag
 } // end of namespace fpga
 } // end of namespace intel

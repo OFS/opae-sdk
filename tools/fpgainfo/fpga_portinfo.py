@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import fpga_common
+from fpgapwr import power_command
 import os
 
 
@@ -56,6 +57,7 @@ class port_command(fpga_common.fpga_command):
         else:
             print("Feature not supported:")
             print PORT_SYSFS_AFU_ID
+
 
 if __name__ == "__main__":
     import argparse
