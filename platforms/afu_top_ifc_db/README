@@ -166,7 +166,7 @@ Class local-memory:
   avalon_mm:
     // Vector of Avalon memory interfaces, one per bank.
     // The module parameter NUM_LOCAL_MEM_BANKS is expected.
-    avalon_mem_if.to_fim local_mem[NUM_LOCAL_MEM_BANKS]
+    avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS]
 
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
