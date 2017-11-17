@@ -65,8 +65,7 @@ module inorder_wrf_channel
     parameter string DEBUG_LOGNAME = "channel.log",
     parameter int    NUM_WAIT_STATIONS = 8,
     parameter int    NUM_STATIONS_FULL_THRESH = 3,
-    parameter int    COUNT_WIDTH = 8,
-    parameter int    VISIBLE_DEPTH_BASE2 = 8,
+    parameter int    VISIBLE_DEPTH = 256,
     parameter int    VISIBLE_FULL_THRESH = 220,
     parameter int    LATBUF_MAX_TXN = 4,
     parameter int    WRITE_CHANNEL = 0
@@ -104,10 +103,6 @@ module inorder_wrf_channel
       $fwrite(log_fd, "Logger for %m transactions\n");
    end
 `endif
-
-
-   // Visible depth
-   localparam VISIBLE_DEPTH = 2**VISIBLE_DEPTH_BASE2;
 
    // Internal signals
    logic [LATBUF_TID_WIDTH-1:0] 	  tid_in;
