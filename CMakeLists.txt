@@ -192,6 +192,7 @@ define_pkg(tools
   toolfpgaconf
   toolfpgadiag
   toolfpgabist
+  toolfpga_dma_test
   toolfpgadiagapps
   toolfpgaflash
   toolfpgainfo
