@@ -278,8 +278,6 @@ package ase_pkg;
     */
    // Number of transactions in latency scoreboard
    parameter LATBUF_NUM_TRANSACTIONS = 32;
-   // Radix of latency scoreboard radix
-   parameter LATBUF_COUNT_WIDTH      = $clog2(LATBUF_NUM_TRANSACTIONS) + 1;
    // ASE_fifo full threshold inside latency scoreboard
    parameter LATBUF_FULL_THRESHOLD   = LATBUF_NUM_TRANSACTIONS - 5;
    // Radix of ASE_fifo (subcomponent in latency scoreboard)

@@ -1732,9 +1732,8 @@ module ccip_emulator
        .DEBUG_LOGNAME       ("latbuf_ch0.log"),
        .NUM_WAIT_STATIONS   (LATBUF_NUM_TRANSACTIONS),
        .NUM_STATIONS_FULL_THRESH (LATBUF_FULL_THRESHOLD),
-       .COUNT_WIDTH         (LATBUF_COUNT_WIDTH),
-       .VISIBLE_DEPTH_BASE2 (8),
-       .VISIBLE_FULL_THRESH (220),
+       .VISIBLE_DEPTH       (`ASE_CHANNEL_0_DEPTH),
+       .VISIBLE_FULL_THRESH (`ASE_CHANNEL_0_FULLTHRESH),
        .LATBUF_MAX_TXN      (1),
        .WRITE_CHANNEL       (0)
        )
@@ -1812,9 +1811,8 @@ module ccip_emulator
        .DEBUG_LOGNAME       ("latbuf_ch1.log"),
        .NUM_WAIT_STATIONS   (LATBUF_NUM_TRANSACTIONS),
        .NUM_STATIONS_FULL_THRESH (LATBUF_FULL_THRESHOLD),
-       .COUNT_WIDTH         (LATBUF_COUNT_WIDTH),
-       .VISIBLE_DEPTH_BASE2 (8),
-       .VISIBLE_FULL_THRESH (220),
+       .VISIBLE_DEPTH       (`ASE_CHANNEL_1_DEPTH),
+       .VISIBLE_FULL_THRESH (`ASE_CHANNEL_1_FULLTHRESH),
        .LATBUF_MAX_TXN      (4),
        .WRITE_CHANNEL       (1)
        )

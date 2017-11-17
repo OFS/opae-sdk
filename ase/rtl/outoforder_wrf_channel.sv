@@ -95,8 +95,7 @@ module outoforder_wrf_channel
     parameter string DEBUG_LOGNAME = "channel.log",
     parameter int    NUM_WAIT_STATIONS = 8,
     parameter int    NUM_STATIONS_FULL_THRESH = 3,
-    parameter int    COUNT_WIDTH = 8,
-    parameter int    VISIBLE_DEPTH_BASE2 = 8,
+    parameter int    VISIBLE_DEPTH = 256,
     parameter int    VISIBLE_FULL_THRESH = 220,
     parameter int    LATBUF_MAX_TXN = 4,
     parameter int    WRITE_CHANNEL = 0
@@ -184,9 +183,6 @@ module outoforder_wrf_channel
    localparam OUTFIFO_WIDTH       = LATBUF_TID_WIDTH + CCIP_RX_HDR_WIDTH + CCIP_TX_HDR_WIDTH + CCIP_DATA_WIDTH;
 
    localparam LATBUF_SLOT_INVALID = 255;
-
-   // Visible depth
-   localparam VISIBLE_DEPTH = 2**VISIBLE_DEPTH_BASE2;
 
    // Internal FIFOs are invisible FIFOs inside channel
    localparam INTERNAL_FIFO_DEPTH_RADIX    = 6;
