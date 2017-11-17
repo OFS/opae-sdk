@@ -4,9 +4,14 @@ pushd $(dirname $0)/..
 
 PYCODESTYLE=$(which pycodestyle)
 PYLINT=$(which pylint)
-FILES=$(find . -iname "*.py" -not -name "cpplint.py")
+FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*")
 FILES+=" "
-FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py)
+FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/doc\/")
+
+if [ "$1" == "-v" ]; then
+	echo "Checking the following files:"
+	echo $FILES
+fi
 
 if [ ! -x "$PYLINT" ]; then
 	echo "no pylint"
@@ -39,3 +44,4 @@ fi
 echo "test-codingstyle-py PASSED"
 popd
 exit 0
+

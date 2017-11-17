@@ -324,10 +324,13 @@ fpga_result setaffinity(cpu_set_t * idle_set,
 			int pid,
 			int split_point)
 {
-	cpu_set_t current_set          = {0};
-	cpu_set_t full_mask_set        = {0};
-	int i                          = 0;
-	fpga_result result             = FPGA_OK;
+	cpu_set_t current_set;
+	cpu_set_t full_mask_set;
+	int i              = 0;
+	fpga_result result = FPGA_OK;
+
+	CPU_ZERO(&current_set);
+	CPU_ZERO(&full_mask_set);
 
 	if (idle_set == NULL) {
 		FPGA_ERR("Invalid input parm. \n");
@@ -376,9 +379,9 @@ fpga_result cpuset_setaffinity(int socket,
 				int split_point,
 				uint64_t max_cpu_count)
 {
-	cpu_set_t idle_set             = {0};
-	int i                          = 0;
-	int pid                        = 0;
+	cpu_set_t idle_set;
+	uint64_t i                     = 0;
+	uint64_t pid                   = 0;
 	uint64_t max_pid_index         = 0;
 	fpga_result result             = FPGA_OK;
 

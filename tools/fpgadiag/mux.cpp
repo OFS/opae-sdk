@@ -52,11 +52,11 @@ using namespace intel::utils;
 
 std::map<std::string, accelerator_app::ptr_t(*)(const std::string &)> app_factory =
 {
-    { "nlb0",   [](const std::string & name){ return accelerator_app::ptr_t(new nlb0());   }},
-    { "nlb3",   [](const std::string & name){ return accelerator_app::ptr_t(new nlb3());   }},
-    { "nlb7",   [](const std::string & name){ return accelerator_app::ptr_t(new nlb7());   }},
-    { "mtnlb7", [](const std::string & name){ return accelerator_app::ptr_t(new mtnlb7()); }},
-    { "mtnlb8", [](const std::string & name){ return accelerator_app::ptr_t(new mtnlb8()); }}
+    { "nlb0",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb0());   }},
+    { "nlb3",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb3());   }},
+    { "nlb7",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb7());   }},
+    { "mtnlb7", [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new mtnlb7()); }},
+    { "mtnlb8", [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new mtnlb8()); }}
 };
 
 enum test_result
@@ -228,6 +228,10 @@ int main(int argc, char* argv[])
     }
     accelerator_ptr->reset();
     auto buffer = accelerator_ptr->allocate_buffer(GB(1));
+    if (!buffer) {
+        log.error("main") << "failed to allocate workspace and input/output buffers." << std::endl;
+        return EXIT_FAILURE;
+    }
     buffer_pool::ptr_t pool(new buffer_pool(buffer));
     auto dsm = pool->allocate_buffer(MB(2));
    // Read perf counters.
@@ -245,7 +249,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    int complete = 0;
+    std::map<std::string, test_result>::size_type complete = 0;
     dsm_tuple tpl;
     while(complete < results.size())
     {

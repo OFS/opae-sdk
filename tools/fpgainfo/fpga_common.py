@@ -25,12 +25,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import glob
-
-ROOT_PATH = '/sys/class/fpga'
-FPGA_DEVICE = os.path.join(ROOT_PATH, 'intel-fpga-dev.{socket_id}')
-FME_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-fme.{socket_id}')
-PORT_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-port.{socket_id}')
 
 
 class bitmask(object):
@@ -44,21 +38,6 @@ class bitmask(object):
 
     def __call__(self, value):
         return self.type(self.mask & value) >> self.bit_lo
-
-
-class fpga_device(object):
-
-    def __init__(self, devpath):
-        self.devpath = devpath
-
-    @classmethod
-    def enumerate(cls):
-        return [fpga_device(p) for p in glob.glob(
-            FPGA_DEVICE.format(socket_id='*'))]
-
-    def children(self):
-        # TODO: return FME objects
-        pass
 
 
 class fpga_command(object):
@@ -78,15 +57,20 @@ class fpga_command(object):
         self.parser.set_defaults(func=self.run)
 
     def args(self, parser):
-        pass
+        parser.add_argument('-b', '--bus',
+                            help='pcie bus number of resource')
+
+        parser.add_argument('-d', '--device',
+                            help='pcie device number of resource')
+
+        parser.add_argument('-f', '--function',
+                            help='pcie function number of resource')
+
+        parser.add_argument('--json', action='store_true', default=False,
+                            help='Display information as JSON string')
 
     def run(self, args):
         raise NotImplementedError
 
     def fme_feature_is_supported(self, path):
         return os.path.isfile(path)
-
-
-def global_arguments(parser):
-    parser.add_argument('-s', '--socket-id', default=0,
-                        type=int, help='socket id of FPGA resource')

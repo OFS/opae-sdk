@@ -310,12 +310,12 @@ std::string nlb_stats::write_bandwidth() const
 }
 
 dsm_tuple::dsm_tuple(dsm_version v)
-: version_(v)
-, raw_ticks_(0)
+: raw_ticks_(0)
 , start_overhead_(0)
 , end_overhead_(0)
 , num_reads_(0)
 , num_writes_(0)
+, version_(v)
 {
 }
 

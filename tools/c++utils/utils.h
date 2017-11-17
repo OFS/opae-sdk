@@ -188,5 +188,7 @@ namespace utils
 
     };
 
+#define UNUSED_PARAM(x) (void)x
+
 }
 }

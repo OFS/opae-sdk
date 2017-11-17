@@ -30,7 +30,7 @@
 /// @verbatim
 //****************************************************************************
 
-		#include <fcntl.h>
+#include <fcntl.h>
 
 #include <cerrno>
 #include <cstdarg>
@@ -362,6 +362,8 @@ ssize_t mm_debug_link_linux::read()
 
 #ifdef DEBUG_FLAG
 			cout << setfill('0') << setw(2) << std::hex << x << " ";
+#else
+			UNUSED_PARAM(x);
 #endif
 		}
 #ifdef DEBUG_FLAG
@@ -473,6 +475,8 @@ ssize_t mm_debug_link_linux::write(const void *buf, size_t count)
 			x = *((unsigned char *)buf + i);
 #ifdef DEBUG_FLAG
 			cout << setfill('0') << setw(2) << std::hex << x << " ";
+#else
+			UNUSED_PARAM(x);
 #endif
 		}
 #ifdef DEBUG_FLAG
