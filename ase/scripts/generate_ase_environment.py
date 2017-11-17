@@ -139,7 +139,9 @@ def commands_list_getoutput(cmd):
             str_out = byte_out.decode("utf-8")
         except OSError as e:
             if e.errno == os.errno.ENOENT:
-                errorExit(cmd[0] + " not found on PATH")
+                msg = cmd[0] + " not found on PATH!\n"
+                msg += "The installed OPAE SDK bin directory must be on the PATH environment variable."
+                errorExit(msg)
             else:
                 raise
 
