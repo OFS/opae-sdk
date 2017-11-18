@@ -32,7 +32,7 @@ project(opae)
 ############################################################################
 
 set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 12 CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_MINOR 13 CACHE STRING "Intel FPGA API minor version")
 set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
 
