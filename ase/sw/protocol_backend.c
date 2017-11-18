@@ -483,6 +483,60 @@ void update_fme_dfh(struct buffer_t *umas)
 	*csr_umsg_base_address = (uint64_t) umas->pbase;
 }
 
+int read_fd(int sock_fd)
+{
+	struct msghdr msg = {0};
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct event_request req = { .type = 0, .flags = 0 };
+	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
+	struct cmsghdr *cmsg;
+	int *fdptr;
+
+	memset(buf, '\0', sizeof(buf));
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+
+	if (recvmsg(sock_fd, &msg, 0) < 0) {
+		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
+		return 1;
+	}
+
+	cmsg = CMSG_FIRSTHDR(&msg);
+
+	int vector_id = 0;
+
+	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	if (req.type == REGISTER_EVENT) {
+		vector_id = req.flags;
+		intr_event_fds[vector_id] = *fdptr;
+	}
+	if (req.type == UNREGISTER_EVENT) {
+		int i;
+		// locate the interrupt vector to unregister
+		// from the event handle
+		for (i = 0; i < MAX_USR_INTRS; i++) {
+			if (intr_event_fds[vector_id] == *fdptr)
+				intr_event_fds[vector_id] = -1;
+		}
+	}
+	return 0;
+}
+
 static void *start_socket_srv(void *args)
 {
 	int res = 0;
@@ -927,65 +981,6 @@ int ase_listener(void)
 	//  FUNC_CALL_EXIT;
 	return 0;
 }
-
-
-
-
-int read_fd(int sock_fd)
-{
-	struct msghdr msg = {0};
-	char buf[CMSG_SPACE(sizeof(int))];
-	struct event_request req = { .type = 0, .flags = 0 };
-	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
-	struct cmsghdr *cmsg;
-	int *fdptr;
-
-	memset(buf, '\0', sizeof(buf));
-	msg.msg_iov = &io;
-	msg.msg_iovlen = 1;
-	msg.msg_control = buf;
-	msg.msg_controllen = sizeof(buf);
-
-	cmsg = (struct cmsghdr *)buf;
-	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-	cmsg->cmsg_level = SOL_SOCKET;
-	cmsg->cmsg_type = SCM_RIGHTS;
-
-	msg.msg_name = NULL;
-	msg.msg_namelen = 0;
-	msg.msg_iov = &io;
-	msg.msg_iovlen = 1;
-	msg.msg_control = cmsg;
-	msg.msg_controllen = CMSG_LEN(sizeof(int));
-	msg.msg_flags = 0;
-
-	if (recvmsg(sock_fd, &msg, 0) < 0) {
-		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
-		return 1;
-	}
-
-	cmsg = CMSG_FIRSTHDR(&msg);
-
-	int vector_id;
-
-	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
-	if (req.type == REGISTER_EVENT) {
-		vector_id = req.flags;
-		intr_event_fds[vector_id] = *fdptr;
-	}
-	if (req.type == UNREGISTER_EVENT) {
-		int i;
-		// locate the interrupt vector to unregister
-		// from the event handle
-		for (i = 0; i < MAX_USR_INTRS; i++) {
-			if (intr_event_fds[vector_id] == *fdptr)
-				intr_event_fds[vector_id] = -1;
-		}
-	}
-	return 0;
-}
-
-
 
 // -----------------------------------------------------------------------
 // DPI Initialize routine
