@@ -103,8 +103,8 @@ if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
 endif()
 
 check_c_compiler_flag("-Wno-unused-parameter"
-  C_SUPPORTS_NO_FORMAT_TRUNCATION)
-if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
+  C_SUPPORTS_NO_UNUSED_PARAMETER)
+if (C_SUPPORTS_NO_UNUSED_PARAMETER)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
 endif()
 
@@ -133,8 +133,8 @@ if (CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
 endif()
 
 check_cxx_compiler_flag("-Wno-unused-local-typedefs"
-  CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
-if (CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
+  CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
+if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
 endif()
 
