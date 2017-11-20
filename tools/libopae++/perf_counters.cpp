@@ -133,7 +133,7 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
     for (auto it : ctr_ts) {
         left  = l[it];
         right = r[it];
-        diff  = (right < left) ? (UINT64_MAX - left) + right : left - right;
+        diff  = (left < right) ? (UINT64_MAX - right) + left : left - right;
         ctrs.ctr_map_.insert(std::make_pair(it, diff));
     }
 
@@ -312,7 +312,7 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
     for (auto it : ctr_ts) {
         left  = l[it];
         right = r[it];
-        diff  = (right < left) ? (UINT64_MAX - left) + right : left - right;
+        diff  = (left < right) ? (UINT64_MAX - right) + left : left - right;
         ctrs.ctr_map_.insert(std::make_pair(it, diff));
     }
 
