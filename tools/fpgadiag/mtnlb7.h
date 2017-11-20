@@ -38,7 +38,6 @@ class mtnlb7 : public intel::fpga::diag::mtnlb
 {
 public:
     mtnlb7();
-    mtnlb7(const std::string & name);
     virtual ~mtnlb7();
 
 

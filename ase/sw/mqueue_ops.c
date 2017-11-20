@@ -126,7 +126,6 @@ void ipc_init(void)
 	int ipc_iter;
 
 	// Evaluate ase_workdir_path
-	ase_workdir_path = (char *) ase_malloc(ASE_FILEPATH_LEN);
 	ase_eval_session_directory();
 
 	// Initialize named pipe array

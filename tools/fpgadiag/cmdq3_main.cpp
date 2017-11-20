@@ -105,6 +105,8 @@ int main(int argc, char *argv[])
     else
     {
         std::cerr << "Error: device enumeration failed." << std::endl;
+        std::cerr << "Please make sure that the driver is loaded and that a bitstream for" << std::endl
+                  << "AFU id: " << nlb.afu_id() << " is programmed." << std::endl;
     }
 
     return 102;

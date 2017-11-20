@@ -352,7 +352,7 @@ int parse_args(int argc, char *argv[])
 #define HEADER_SIZE 20
 int parse_metadata(struct bitstream_info *info)
 {
-	int i = 0;
+	unsigned i = 0;
 
 	if (!info)
 		return -EINVAL;
@@ -432,7 +432,7 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 		perror(filename);
 		goto out_free;
 	}
-	if (info->data_len != len) {
+	if (info->data_len != (size_t)len) {
 		fprintf(stderr,
 		     "Filesize and number of bytes read don't match\n");
 		goto out_free;

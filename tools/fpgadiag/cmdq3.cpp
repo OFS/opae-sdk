@@ -437,7 +437,7 @@ bool cmdq3::run()
 
     cancel_ = false;
     std::future<bool> done = std::async(std::launch::async,
-                &cmdq3::wait_for_done, this, assignments_);
+                &cmdq3::wait_for_done, this);
     const auto fs = done.wait_for(seconds(1));
 
 
@@ -522,7 +522,7 @@ bool cmdq3::apply_ptr(const cmdq_entry_t &entry)
 
     const uint32_t max_loops = 100000;
     uint32_t loops = 0;
-    while(*sw_valid_ & 0x1 == 1 && loops++ <= max_loops)
+    while(((*sw_valid_ & 0x1) == 1) && (loops++ <= max_loops))
     {
         if (poll_sleep_ns_)
         {
@@ -702,7 +702,7 @@ out:
     dsm_tuple_.put(dsm_);
 }
 
-bool cmdq3::wait_for_done(uint32_t allocations)
+bool cmdq3::wait_for_done()
 {
     const uint32_t max_loops = 10000;
     uint32_t loops = 0;

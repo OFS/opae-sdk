@@ -88,6 +88,8 @@ struct config config = {
 
 void sig_handler(int sig, siginfo_t *info, void *unused)
 {
+	UNUSED_PARAM(info);
+	UNUSED_PARAM(unused);
 	switch (sig) {
 	case SIGINT:
 		// Process terminated.

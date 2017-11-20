@@ -27,6 +27,8 @@
 
 import argparse
 import struct
+import fnmatch
+import glob
 import sys
 import tempfile
 import os
@@ -34,6 +36,7 @@ import subprocess
 import fcntl
 import filecmp
 import stat
+import re
 from array import *
 
 
@@ -43,11 +46,11 @@ def check_rpd(ifile):
     for i in range(0, 3):
         if pof_hdr[i] != 0xffffffff:
             print "invalid rpd file"
-            sys.exit(1)
+            raise Exception
 
     if pof_hdr[3] != 0x6a6a6a6a:
         print "invalid rpd file"
-        sys.exit(1)
+        raise Exception
 
     return pof_hdr[4]
 
@@ -84,7 +87,7 @@ def get_flash_size(dev):
         fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
     except Exception as e:
         print "failed to open " + dev + ": ", e
-        sys.exit(1)
+        raise
 
     ioctl_data = struct.pack('BIIIIIQ', 0, 0, 0, 0, 0, 0, 0)
 
@@ -92,7 +95,7 @@ def get_flash_size(dev):
         ret = fcntl.ioctl(fd, MEMGETINFO, ioctl_data)
     except Exception as e:
         print "ioctl failed: ", e
-        sys.exit(1)
+        raise
 
     ioctl_odata = struct.unpack_from('BIIIIIQ', ret)
 
@@ -108,7 +111,7 @@ def flash_erase(dev, start, nbytes):
         fd = os.open(dev, os.O_SYNC | os.O_RDWR)
     except Exception as e:
         print "failed to open " + dev + ": ", e
-        sys.exit(1)
+        raise
 
     ioctl_data = struct.pack('II', start, nbytes)
 
@@ -116,7 +119,7 @@ def flash_erase(dev, start, nbytes):
         ret = fcntl.ioctl(fd, MEMERASE, ioctl_data)
     except Exception as e:
         print "ioctl failed: ", e
-        sys.exit(1)
+        raise
 
     os.close(fd)
 
@@ -127,7 +130,7 @@ def flash_write(dev, start, nbytes, ifile):
         fd = os.open(dev, os.O_SYNC | os.O_RDWR)
     except Exception as e:
         print "failed to open " + dev + ": ", e
-        sys.exit(1)
+        raise
 
     os.lseek(fd, start, os.SEEK_SET)
 
@@ -141,7 +144,7 @@ def flash_write(dev, start, nbytes, ifile):
 
         if not ichunk:
             print "read of flash failed"
-            sys.exit(1)
+            raise Exception
 
         os.write(fd, ichunk)
         nbytes -= rbytes
@@ -154,7 +157,7 @@ def flash_read(dev, start, nbytes, ofile):
         fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
     except Exception as e:
         print "failed to open " + dev + ": ", e
-        sys.exit(1)
+        raise
 
     os.lseek(fd, start, os.SEEK_SET)
 
@@ -168,7 +171,7 @@ def flash_read(dev, start, nbytes, ofile):
 
         if not ichunk:
             print "read of flash failed"
-            sys.exit(1)
+            raise Exception
 
         ofile.write(ichunk)
         nbytes -= rbytes
@@ -181,57 +184,107 @@ def parse_args():
     descr += 'Intel FPGA at power up.'
 
     epi = 'example usage:\n\n'
-    epi += '    fpgaflash user new_image.rpd /dev/mtd0\n\n'
-    epi += 'Use the output of \'ls -l /sys/class/mtd\' to help determine\n'
-    epi += 'which device, /dev/mtd*.\n\n'
+    epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
 
     fc = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=descr, epilog=epi,
                                      formatter_class=fc)
 
     parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory_that_can_brick_board'])
-    parser.add_argument('file', help='rpd file to program into flash')
-    parser.add_argument('device',
-                        help='mtd device to program (e.g. /dev/mtd0)')
+                        choices=['user', 'factory'])
+    parser.add_argument('file', type=argparse.FileType('rb'),
+                        help='rpd file to program into flash')
+
+    bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
+    bdf_help += " optional when one device in system"
+
+    parser.add_argument('bdf', nargs='?', help=bdf_help)
     return parser.parse_args()
 
-if __name__ == "__main__":
 
-    args = parse_args()
+def get_bdf_mtd_mapping():
+    bdf_map = dict()
+    for fpga in glob.glob('/sys/class/fpga/*'):
+        bdf = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+        if not bdf:
+            continue
+
+        mtds = glob.glob(os.path.join(fpga, 'intel-fpga-fme.*',
+                                      'altr-asmip2*', 'mtd', 'mtd*'))
+        for mtd in mtds:
+            if not fnmatch.fnmatchcase(mtd, "*ro"):
+                bdf_map[bdf] = os.path.join('/dev', os.path.basename(mtd))
+                break
+
+    return bdf_map
+
+
+def print_bdf_mtd_mapping(bdf_map):
+    print "\nFPGA cards available for flashing:"
+
+    for key in bdf_map.keys():
+        print "    {}".format(key)
+
+    print
+
+
+def normalize_bdf(bdf):
+
+    pat = '[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
+    if re.match(pat, bdf):
+        return bdf
+
+    if re.match('[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$', bdf):
+        return "0000:{}".format(bdf)
+
+
+def update_flash(update_type, ifile, bdf):
+
+    bdf_map = get_bdf_mtd_mapping()
+
+    if len(bdf_map) == 0:
+        print "No FPGA devices found"
+        raise Exception
+
+    mtd_dev = None
+    if not bdf:
+        if len(bdf_map) > 1:
+            print "Must specify a bdf. More than one device found."
+        else:
+            mtd_dev = bdf_map[bdf_map.keys()[0]]
+    else:
+        bdf = normalize_bdf(bdf)
+        if not bdf:
+            print "{} is an invalid bdf".format(bdf)
+        elif bdf not in bdf_map.keys():
+            print "Could not find flash device for {}".format(bdf)
+        else:
+            mtd_dev = bdf_map[bdf]
+
+    if not mtd_dev:
+        print_bdf_mtd_mapping(bdf_map)
+        raise Exception
 
     try:
-        mode = os.stat(args.device).st_mode
-        if not stat.S_ISCHR(mode):
-            print args.device, "is not a device file."
-            sys.exit(1)
-
+        mode = os.stat(mtd_dev).st_mode
     except Exception as e:
-        print "Couldn't stat", args.device, ":", e
-        sys.exit(1)
+        print "Couldn't stat {}".format(mtd_dev)
+        raise
 
-    flash_size = get_flash_size(args.device)
+    if not stat.S_ISCHR(mode):
+        print "{} is not a device file.".format(mtd_dev)
+        raise Exception
 
-    print "flash size is " + str(flash_size)
+    flash_size = get_flash_size(mtd_dev)
 
-    try:
-        ifile = open(args.file, 'rb')
-    except Exception as e:
-        print "open() failed:", e
-        sys.exit(1)
+    print "flash size is {}".format(flash_size)
 
     start_addr = check_rpd(ifile)
 
-    ofile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+    if update_type == 'factory':
+        start_addr = 0
 
-    if args.type == 'factory_that_can_brick_board':
-        msg = "Are you sure you want to perform a factory update? [Yes/No]"
-        sys.stdout.write(msg)
-        line = sys.stdin.readline()
-        if line == "Yes\n":
-            start_addr = 0
-        else:
-            sys.exit(1)
+    ofile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
 
     ifile.seek(start_addr)
 
@@ -242,23 +295,23 @@ if __name__ == "__main__":
     ofile.close()
 
     print "erasing flash"
-    flash_erase(args.device, start_addr, (flash_size - start_addr))
+    flash_erase(mtd_dev, start_addr, (flash_size - start_addr))
 
     nbytes = os.path.getsize(ofile.name)
     try:
         rfile = open(ofile.name, 'rb')
     except Exception as e:
-        print "open() failed:", e
-        sys.exit(1)
+        print "open({}) failed:".format(ofile.name)
+        raise
 
     print "writing flash"
-    flash_write(args.device, start_addr, nbytes, rfile)
+    flash_write(mtd_dev, start_addr, nbytes, rfile)
     rfile.close()
 
     vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
 
     print "reading back flash"
-    flash_read(args.device, start_addr, nbytes, vfile)
+    flash_read(mtd_dev, start_addr, nbytes, vfile)
 
     vfile.close()
 
@@ -273,4 +326,18 @@ if __name__ == "__main__":
         print "flash successfully verified"
     else:
         print "failed to verify flash"
-        sys.exit(1)
+        raise Exception
+
+
+if __name__ == "__main__":
+
+    args = parse_args()
+
+    if args.type == 'factory':
+        msg = "Are you sure you want to perform a factory update? [Yes/No]"
+        sys.stdout.write(msg)
+        line = sys.stdin.readline()
+        if line != "Yes\n":
+            sys.exit(1)
+
+    update_flash(args.type, args.file, args.bdf)

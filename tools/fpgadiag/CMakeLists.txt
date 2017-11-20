@@ -76,17 +76,12 @@ if (NUMA_LIB)
     add_definitions(-DENABLE_NUMA)
 endif(NUMA_LIB)
 
-set(binaries "")
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
     target_link_libraries(${target_name} opae-c++-utils uuid pthread ${Boost_LIBRARIES} opae-c opae-c++ opae-c++-nlb)
     set_install_rpath(${target_name})
-    set(binaries ${target_name} ${binaries})
 endmacro(add_fpgadiag_app target_name sources)
 
-add_fpgadiag_app( cmdq0   cmdq0_main.cpp  )
-add_fpgadiag_app( cmdq3   cmdq3_main.cpp  )
-add_fpgadiag_app( cmdq7   cmdq7_main.cpp  )
 add_fpgadiag_app( mb1     mb1_main.cpp    )
 add_fpgadiag_app( nlb0    nlb0_main.cpp   )
 add_fpgadiag_app( nlb3    nlb3_main.cpp   )
@@ -94,6 +89,16 @@ add_fpgadiag_app( nlb7    nlb7_main.cpp   )
 add_fpgadiag_app( mtnlb7  mtnlb7_main.cpp )
 add_fpgadiag_app( mtnlb8  mtnlb8_main.cpp )
 add_fpgadiag_app( fpgamux mux.cpp         )
+add_fpgadiag_app( cmdq0   cmdq0_main.cpp  )
+add_fpgadiag_app( cmdq3   cmdq3_main.cpp  )
+add_fpgadiag_app( cmdq7   cmdq7_main.cpp  )
+
+set(binaries nlb0
+             nlb3
+             nlb7
+             mtnlb7
+             mtnlb8
+             fpgamux)
 
 if (NUMA_LIB)
     target_link_libraries(cmdq3 ${NUMA_LIB})

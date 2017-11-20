@@ -904,7 +904,7 @@ fpga_result inject_ras_errors(fpga_token token,
 				struct RASCommandLine *rasCmdLine)
 {
 	struct _fpga_token  *_token           = NULL;
-	struct ras_inject_error  inj_error    = {0};
+	struct ras_inject_error  inj_error    = {{0}};
 	char sysfs_path[SYSFS_PATH_MAX]       = {0};
 	fpga_result result                    = FPGA_OK;
 
@@ -956,9 +956,11 @@ fpga_result clear_inject_ras_errors(fpga_token token,
 					struct RASCommandLine *rasCmdLine)
 {
 	struct _fpga_token  *_token           = NULL;
-	struct ras_inject_error  inj_error    = {0};
+	struct ras_inject_error  inj_error    = {{0}};
 	char sysfs_path[SYSFS_PATH_MAX]       = {0};
 	fpga_result result                    = FPGA_OK;
+
+	UNUSED_PARAM(rasCmdLine);
 
 	_token = (struct _fpga_token*)token;
 	if (_token == NULL) {
@@ -1148,7 +1150,6 @@ fpga_result page_fault_errors()
 	uint32_t           num_matches;
 
 	volatile uint64_t *dsm_ptr    = NULL;
-	volatile uint64_t *status_ptr = NULL;
 	volatile uint64_t *input_ptr  = NULL;
 	volatile uint64_t *output_ptr = NULL;
 
@@ -1264,8 +1265,6 @@ fpga_result page_fault_errors()
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_NUM_LINES");
 	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CFG, 0x42000);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
-
-	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/8;
 
 	/* Start the test */
 	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 3);

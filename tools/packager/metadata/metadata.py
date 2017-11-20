@@ -1,5 +1,5 @@
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -31,23 +31,24 @@ from collections import OrderedDict
 
 """  This is the entrypoint for generating the metadata
 """
+
+
 def get_metadata(afu_json):
-	ret_list = []
+    ret_list = []
 
-	ret_list.extend(list(constants.METADATA_GUID))
+    ret_list.extend(list(constants.METADATA_GUID))
 
-	if len(afu_json) != 0:
-		ret_list.extend(pack_int_to_buf(len(json.dumps(afu_json))))
-		ret_list.extend(list(json.dumps(afu_json)))
+    if len(afu_json) != 0:
+        ret_list.extend(pack_int_to_buf(len(json.dumps(afu_json))))
+        ret_list.extend(list(json.dumps(afu_json)))
 
-	else:
-		ret_list.extend(pack_int_to_buf(0))
+    else:
+        ret_list.extend(pack_int_to_buf(0))
 
-	return ret_list
+    return ret_list
+
 
 def pack_int_to_buf(val):
-	pack_format = "<I"
-	buf = struct.pack(pack_format, val)
-	return list(buf)
-
-
+    pack_format = "<I"
+    buf = struct.pack(pack_format, val)
+    return list(buf)

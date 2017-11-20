@@ -471,7 +471,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 }
 
 	static fpga_result
-enum_top_dev(const char *sysfspath, const char *name, struct dev_list *list)
+enum_top_dev(const char *sysfspath, struct dev_list *list)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct stat stats;
@@ -628,7 +628,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		snprintf(sysfspath, sizeof(sysfspath), "%s/%s",
 				SYSFS_FPGA_CLASS_PATH,	dirent->d_name);
 
-		result = enum_top_dev(sysfspath, dirent->d_name, &head);
+		result = enum_top_dev(sysfspath, &head);
 		if (result != FPGA_OK)
 			break;
 	}

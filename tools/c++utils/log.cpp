@@ -103,23 +103,48 @@ wrapped_stream& wrapped_stream::operator<<(std::ostream& (*manip)(std::ostream&)
 }
 
 logger::logger()
-: level_(level::level_none)
-, name_()
+: name_()
+, filestream_()
+, sink_(NULL)
+, pid_(0)
+, level_(level::level_none)
 {
     pid_ = ::getpid();
+    sink_ = &std::cout;
 }
 
 logger::logger(const std::string & name)
-: level_(level::level_none)
-, name_(name)
+: name_(name)
+, filestream_()
+, sink_(NULL)
+, pid_(0)
+, level_(level::level_none)
 {
     pid_ = ::getpid();
+    sink_ = &std::cout;
 }
 
+logger::logger(const std::string & name, const std::string & filename)
+: name_(name)
+, filestream_()
+, sink_(NULL)
+, pid_(0)
+, level_(level::level_none)
+{
+    pid_ = ::getpid();
+    filestream_.open(filename);
+    sink_ = &filestream_;
+}
+
+void logger::open(const std::string & filename)
+{
+    filestream_.open(filename);
+    sink_ = &filestream_;
+}
 
 wrapped_stream logger::log(level l, std::string str)
 {
-    wrapped_stream stream((l >= level_  ? &std::cout : 0));
+    wrapped_stream stream((l >= level_  ? sink_ : 0));
     stream << std::dec << "[" << pid_ << "][" << level_name(l) << "]";
     if (name_ != "") stream << "[" << name_ << "]";
     if (str != "")
