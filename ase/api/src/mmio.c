@@ -184,7 +184,7 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 		printf
 			("  [APP] ** WARNING ** => ASE does not support pointer access to MMIO, use mmio{Read,Write}{32,64} functions\n");
 		END_YELLOW_FONTCOLOR;
-		result = FPGA_NOT_SUPPORTED;
+		*mmio_ptr = NULL;
 	}
 	return result;
 }

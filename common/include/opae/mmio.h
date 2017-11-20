@@ -138,12 +138,19 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  * Map MMIO space
  *
  * This function will return a pointer to the specified MMIO space of the
- * target object in process virtual memory. Some MMIO spaces may be restricted
- * to privileged processes, depending on the used handle and type.
+ * target object in process virtual memory, if supported by the target. Some
+ * MMIO spaces may be restricted to privileged processes, depending on the used
+ * handle and type.
  *
  * After mapping the respective MMIO space, you can access it either through
  * direct pointer operations (observing supported access sizes and alignments
  * of the target platform and accelerator), or by using fpgaReadMMIO32(),
+ * fpgaWriteMMIO32(), fpgeReadMMIO64(), and fpgaWriteMMIO64().
+ *
+ * Some targets (such as the ASE simulator) may require the fpgaMapMMIO() call
+ * to set up MMIO operations, but will not return a pointer to an actually
+ * mapped space. Instead, they will return NULL. Usually, these platforms still
+ * allow the application to issue MMIO operations using fpgaReadMMIO32(),
  * fpgaWriteMMIO32(), fpgeReadMMIO64(), and fpgaWriteMMIO64().
  *
  * @note This call only supports returning an actual mmio_ptr for hardware
@@ -164,7 +171,9 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  * @param[in]  mmio_num Number of MMIO space to access
  * @param[out] mmio_ptr Pointer to memory where a pointer to the MMIO space
  *                      will be returned. May be NULL, in which case no pointer
- *                      is returned.
+ *                      is returned. Returned address may be NULL if underlying
+ *                      platform does not support memory mapping for register
+ *                      access.
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle. FPGA_NO_ACCESS if the process'
