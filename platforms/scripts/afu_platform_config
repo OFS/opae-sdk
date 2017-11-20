@@ -162,7 +162,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         # Does either the AFU or platform request some preprocessor
         # definitions?
         for d in (afu_arg['define'] + plat_arg['define']):
-            f.write("`undef {0}\n`define {0} 1\n".format(d))
+            f.write("`define {0} 1\n".format(d))
 
         # Gather the parameters required by this class.  Start with
         # the defaults and then merge in any specified by the platform.
