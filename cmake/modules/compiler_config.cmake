@@ -47,33 +47,22 @@ function(SET_CACHED_VARIABLE var)
   set(_cached_vars ${_cached_vars} CACHE INTERNAL "")
 endfunction(SET_CACHED_VARIABLE)
 
-############################################################################
-## GCC specific options ####################################################
-############################################################################
+# Default flags to compiler when build user-space programs.
+# Should come before enabling language.
 
-if(CMAKE_COMPILER_IS_GNUCC)
-  # Default flags to compiler when build user-space programs.
-  # Should come before enabling language.
-  set(CMAKE_C_FLAGS_DEBUG "-g -O0 -Wall -Wextra"
-    CACHE STRING "Compiler flags for debug builds.")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -Wall -Wextra"
-    CACHE STRING "Compiler flags for Release With Debug Info builds.")
-  set(CMAKE_C_FLAGS_RELEASE "-Wall"
-    CACHE STRING "Compiler flags for release builds.")
-  set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra"
-    CACHE STRING "C++ compiler flags for debug builds.")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -Wall -Wextra"
-    CACHE STRING "C++ compiler flags for Release with Debug Info builds.")
-  set(CMAKE_CXX_FLAGS_RELEASE "-Wall"
-    CACHE STRING "C++ compiler flags for release builds.")
-endif(CMAKE_COMPILER_IS_GNUCC)
+#TODO enable -Werror
 
-# Recommend enabling Werror. Can't enable it yet because we are not warning clean
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_C_FLAGS_RELEASE          "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE        "-Wall -Wextra")
+
+set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -Wall -Wextra")
+
+set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra")
 
 # Check if support for C++ 11 is available
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
@@ -89,67 +78,6 @@ elseif(COMPILER_SUPPORTS_CXX0X)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-# Disable GCC warnings
-check_c_compiler_flag("-Wno-format"
-  C_SUPPORTS_NO_FORMAT)
-if (C_SUPPORTS_NO_FORMAT)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format")
-endif()
-
-check_c_compiler_flag("-Wno-format-truncation"
-  C_SUPPORTS_NO_FORMAT_TRUNCATION)
-if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
-endif()
-
-check_c_compiler_flag("-Wno-unused-parameter"
-  C_SUPPORTS_NO_UNUSED_PARAMETER)
-if (C_SUPPORTS_NO_UNUSED_PARAMETER)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
-endif()
-
-check_cxx_compiler_flag("-Wno-format"
-  CXX_SUPPORTS_NO_FORMAT)
-if (CXX_SUPPORTS_NO_FORMAT)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
-endif()
-
-check_cxx_compiler_flag("-Wno-write-strings"
-  CXX_SUPPORTS_NO_WRITE_STRINGS)
-if (CXX_SUPPORTS_NO_WRITE_STRINGS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
-endif()
-
-check_cxx_compiler_flag("-Wno-deprecated-declarations"
-  CXX_SUPPORTS_NO_DEPRECATED_DECLARATIONS)
-if (CXX_SUPPORTS_NO_DEPRECATED_DECLARATIONS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-endif()
-
-check_cxx_compiler_flag("-Wno-unknown-pragmas"
-  CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
-if (CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
-endif()
-
-check_cxx_compiler_flag("-Wno-unused-local-typedefs"
-  CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
-endif()
-
-check_cxx_compiler_flag("-Wno-strict-aliasing"
-  CXX_SUPPORTS_NO_STRICT_ALIASING)
-if (CXX_SUPPORTS_NO_STRICT_ALIASING)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing")
-endif()
-
-check_cxx_compiler_flag("-Wno-nonnull"
-  CXX_SUPPORTS_NO_NONNULL_EXTENSION)
-if (CXX_SUPPORTS_NO_NONNULL_EXTENSION)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nonnull")
-endif()
-
 # If building on a 32-bit system, make sure off_t can store offsets > 2GB
 if(CMAKE_COMPILER_IS_GNUCC)
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -157,23 +85,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-D_FILE_OFFSET_BITS=64)
   endif()
 endif(CMAKE_COMPILER_IS_GNUCC)
-
-############################################################################
-## Clang specific options ##################################################
-############################################################################
-
-# Disable Clang warnings
-check_cxx_compiler_flag("-Wno-deprecated-register"
-  CXX_SUPPORTS_NO_DEPRECATED_REGISTER)
-if (CXX_SUPPORTS_NO_DEPRECATED_REGISTER)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
-endif()
-
-check_cxx_compiler_flag("-Wno-vla-extension"
-  CXX_SUPPORTS_NO_VLA_EXTENSION)
-if (CXX_SUPPORTS_NO_VLA_EXTENSION)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla-extension")
-endif()
 
 ############################################################################
 ## Defensive compilation for Release #######################################
