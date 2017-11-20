@@ -51,7 +51,7 @@ module ccip_std_afu
     output t_if_ccip_Tx pck_af2cp_sTx,        // CCI-P Tx Port
 
     // Local memory interface
-    avalon_mem_if.to_fim local_mem[NUM_AVALON_MM]
+    avalon_mem_if.to_fiu local_mem[NUM_AVALON_MM]
     );
 
     //

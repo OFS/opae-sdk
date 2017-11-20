@@ -292,7 +292,7 @@ ASE supplies a Generate ASE Environment helper script that does a brute-force ch
 
 * **Mandatory Option**: The script requires a directory path to RTL AFU.
 * **Optional -t**: By default the tool option selected is ```VCS```. If Mentor\* tools are used, supply the ```QUESTA``` option.
-* **Optional -p**: By default integraded FPGA ```skxp``` option is selected. If programmable FPGA acceleration card is used, supply the ```dcp``` option.
+* **Optional -p**: By default integraded FPGA ```intg_xeon``` option is selected. If programmable FPGA acceleration card is used, supply the ```discrete``` option.
 * **Optional -x**: Exclsions for path searches can be supplied using this option.
 
 Along with the AFU configuration files, depending on the RTL tools used, certain tool control scripts are generated.
@@ -325,7 +325,7 @@ Users must manually check this file for correctness before using it in the simul
 	#               AFU Simulation Environment (ASE)                #
 	#                                                               #
 	#################################################################
-	usage: generate_ase_environment.py [-h] [-t {VCS,QUESTA}] [-p {skxp,dcp}]
+	usage: generate_ase_environment.py [-h] [-t {VCS,QUESTA}] [-p {intg_xeon,discrete}]
                                    [-x EXCLUDE]
 								   dirlist [dirlist ...]
 
@@ -336,7 +336,7 @@ Users must manually check this file for correctness before using it in the simul
 		-h, --help            show this help message and exit
 		-t {VCS,QUESTA}, --tool {VCS,QUESTA}
 			                  simulator tool to use, default is VCS
-	    -p {skxp,dcp}, --plat {skxp,dcp}
+	    -p {intg_xeon,discrete}, --plat {intg_xeon,discrete}
 			                  FPGA Platform to simulate
 	    -x EXCLUDE, --exclude EXCLUDE
 				              file name pattern to exclude
@@ -453,6 +453,7 @@ ASE Source directory will point to ``/tmp/opae/ase/``
 	$ make
 	$ make install
 
+	# The environment Variable PATH should be pointed to /myinst/bin
 	# Check library install paths
 	$ cd /tmp/opae/myinst/
 	$ ls
@@ -545,7 +546,7 @@ You may use the [Generate ASE Environment](#generate-ase-environment-script) scr
 	$ cd /tmp/opae/ase/
 
 	# Use the scripts/generate_ase_environment.py
-	$ ./scripts/generate_ase_environment.py -t VCS -p dcp <Path to sample RTL>
+	$ ./scripts/generate_ase_environment.py -t VCS -p discrete <Path to sample RTL>
 	.
 	.
 	.
@@ -870,7 +871,7 @@ Open Two terminals, We will use **Terminal 1** to run the ASE simulator, and **T
 		$ cd <work-path>/ase/
 
 		# Generate the ASE path
-		$ /tmp/opae/ase/scripts/generate_ase_environment.py -t VCS -p skxp /tmp/opae/ase/sample_config/mcp_nlb0/rtl/
+		$ /tmp/opae/ase/scripts/generate_ase_environment.py -t VCS -p intg_xeon /tmp/opae/ase/sample_config/mcp_nlb0/rtl/
 
 
 		# INSTRUCTIONS TO USER

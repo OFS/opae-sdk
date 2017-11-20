@@ -71,9 +71,9 @@ interface avalon_mem_if
 
 
     //
-    // Connection to the FIM (FPGA Interface Manager)
+    // Connection to the platform (FPGA Interface Manager)
     //
-    modport to_fim
+    modport to_fiu
        (
         input  clk,
         input  reset,
@@ -113,9 +113,9 @@ interface avalon_mem_if
 
 
     //
-    // Snooping port -- all signals are input
+    // Monitoring port -- all signals are input
     //
-    modport snoop
+    modport monitor
        (
         input  waitrequest,
         input  readdata,

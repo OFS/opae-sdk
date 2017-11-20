@@ -31,9 +31,9 @@ project(opae)
 ## Add 'versioning' library ################################################
 ############################################################################
 
-set(INTEL_FPGA_API_VER_MAJOR 0 CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 9 CACHE STRING "Intel FPGA API minor version")
-set(INTEL_FPGA_API_VER_REV   0 CACHE STRING "Intel FPGA API revision version")
+set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
+set(INTEL_FPGA_API_VER_MINOR 12 CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
 
 ############################################################################
@@ -93,6 +93,8 @@ add_subdirectory(tools/ras)
 add_subdirectory(tools/mmlink)
 add_subdirectory(tools/coreidle)
 add_subdirectory(tools/fpgaconf)
+add_subdirectory(tools/fpgabist)
+add_subdirectory(tools/fpgaflash)
 add_subdirectory(tools/fpgainfo)
 add_subdirectory(tools/c++utils)
 add_subdirectory(tools/libopae++)
@@ -189,7 +191,10 @@ define_pkg(tools
   toolcoreidle
   toolfpgaconf
   toolfpgadiag
+  toolfpgabist
+  toolfpga_dma_test
   toolfpgadiagapps
+  toolfpgaflash
   toolfpgainfo
   toolfpgaport
   opaecxxutils

@@ -131,6 +131,7 @@ TIMESCALE = 1ps/1ps
 ASEHW_FILE_LIST = -F $(ASE_SRCDIR)/rtl/sources.txt
 
 ## ASE platform-specific HW
+ASE_PLATFORM_INC = -F $(ASE_SRCDIR)/rtl/includes.txt
 ASE_PLATFORM_FILE_LIST ?=
 ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
   ASE_PLATFORM_FILE_LIST += -F $(ASE_MEM_SRC)/sources.txt
@@ -436,7 +437,7 @@ ifdef DUT_VHD_SRC_LIST
 	vhdlan $(SNPS_VHDLAN_OPT) -F $(DUT_VHD_SRC_LIST)
 endif
 ifdef DUT_VLOG_SRC_LIST
-	vlogan $(SNPS_VLOGAN_OPT) -F $(DUT_VLOG_SRC_LIST) -l vlogan-afu.log
+	vlogan $(SNPS_VLOGAN_OPT) $(ASE_PLATFORM_INC) -F $(DUT_VLOG_SRC_LIST) -l vlogan-afu.log
 endif
 ifeq ($(CC), gcc)
 	vcs $(SNPS_VCS_OPT) $(ASE_TOP) $(WORK)/$(ASE_SHOBJ_SO) $(ASE_LD_SWITCHES)
@@ -456,7 +457,7 @@ ifdef DUT_VHD_SRC_LIST
 	cd $(WORK) ; vcom $(MENT_VCOM_OPT) -F $(DUT_VHD_SRC_LIST) -l vcom-afu.log ; cd -
 endif
 ifdef DUT_VLOG_SRC_LIST
-	cd $(WORK) ; vlog $(MENT_VLOG_OPT) -F $(DUT_VLOG_SRC_LIST) -l vlog-afu.log ; cd -
+	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASE_PLATFORM_INC) -F $(DUT_VLOG_SRC_LIST) -l vlog-afu.log ; cd -
 endif
 
 ## Build Simulator objects ##

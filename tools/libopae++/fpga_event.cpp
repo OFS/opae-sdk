@@ -44,8 +44,11 @@ fpga_event::fpga_event(fpga_event::event_type etype, fpga_event_handle handle)
     {
         struct epoll_event ev;
         ev.events = EPOLLIN;
-        ev.data.fd = handle_;
-        if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, handle_, &ev) == -1)
+        if(fpgaGetOSObjectFromEventHandle(handle_, &ev.data.fd) != 0)
+        {
+            epollfd_ = -1;
+        }
+        if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, ev.data.fd, &ev) == -1)
         {
             epollfd_ = -1;
         }
@@ -73,6 +76,8 @@ fpga_event::poll_result fpga_event::poll(int timeout_msec)
     int num_events = 0;
     auto begin = high_resolution_clock::now();
     bool timedout = false;
+    int fd = -1;
+
     while(!cancel_ && !timedout && num_events == 0)
     {
         num_events = epoll_wait(epollfd_, events, 1, 0);
@@ -100,7 +105,12 @@ fpga_event::poll_result fpga_event::poll(int timeout_msec)
         return errno == EINTR ? poll_result::canceled : poll_result::error;
     }
 
-    if (num_events == 1 && events[0].data.fd == handle_)
+    if(fpgaGetOSObjectFromEventHandle(handle_, &fd) != 0)
+    {
+        return poll_result::error;
+    }
+
+    if (num_events == 1 && events[0].data.fd == fd)
     {
         return poll_result::triggered;
     }

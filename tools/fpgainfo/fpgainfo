@@ -31,11 +31,11 @@ import fpgapwr
 import fpgatemp
 import fpga_fmeinfo
 import fpga_portinfo
+import logging
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    fpga_common.global_arguments(parser)
     subparsers = parser.add_subparsers(title='fpga commands')
 
     fpga_common.fpga_command.register_command(subparsers,
@@ -54,4 +54,5 @@ if __name__ == "__main__":
                                               fpga_portinfo.port_command)
 
     args = parser.parse_args()
+    logging.basicConfig(filename='fpgainfo.log')
     args.func(args)

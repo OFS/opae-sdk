@@ -1,12 +1,16 @@
 language: c
 compiler: gcc
+install:
+  - pip install --user pylint
+  - pip install --user pycodestyle
+
 script:
-  - scripts/test-build.sh
-  - scripts/test-codingstyle.sh
+    - scripts/test-codingstyle.sh
+    - scripts/test-codingstyle-py.sh
+    - scripts/test-build.sh
 addons:
   apt:
     packages:
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
-

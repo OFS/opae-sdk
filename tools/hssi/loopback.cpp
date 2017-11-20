@@ -35,36 +35,38 @@ namespace fpga
 namespace hssi
 {
 
+std::array<uint32_t, 4> mac_offsets = { { 0xE0, 0xE8, 0xF0, 0xF8 } };
+
 loopback::loopback()
 : accelerator_app()
-, config_("hssi.json")
-, mode_("auto")
 , afu_id_("")
 , accelerator_(0)
-, continuous_(0)
+, continuous_(false)
 , packet_count_(0)
 , packet_length_(0)
 , packet_delay_(0)
 , random_count_(false)
 , random_length_(false)
 , random_delay_(false)
+, config_("hssi.json")
+, mode_("auto")
 {
 
 }
 
 loopback::loopback(const std::string & name)
 : accelerator_app(name)
-, config_("hssi.json")
-, mode_("auto")
 , afu_id_("")
 , accelerator_(0)
-, continuous_(0)
+, continuous_(false)
 , packet_count_(0)
 , packet_length_(0)
 , packet_delay_(0)
 , random_count_(false)
 , random_length_(false)
 , random_delay_(false)
+, config_("hssi.json")
+, mode_("auto")
 {
 
 }
@@ -118,7 +120,7 @@ bool loopback::run()
 
 void loopback::show_help(std::ostream &os)
 {
-
+    UNUSED_PARAM(os);
 }
 
 
@@ -128,21 +130,24 @@ void loopback::clear_status()
 
 void loopback::internal_loopback(uint32_t port)
 {
-
+    UNUSED_PARAM(port);
 }
 
 void loopback::external_loopback(uint32_t source, uint32_t destination)
 {
-
+    UNUSED_PARAM(source);
+    UNUSED_PARAM(destination);
 }
 
 void loopback::stop(uint32_t instance, packet_flow flow)
 {
-
+    UNUSED_PARAM(instance);
+    UNUSED_PARAM(flow);
 }
 
 mac_report loopback::gen_report(uint32_t instace)
 {
+    UNUSED_PARAM(instace);
     return mac_report();
 }
 

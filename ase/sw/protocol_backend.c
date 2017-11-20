@@ -485,8 +485,9 @@ void update_fme_dfh(struct buffer_t *umas)
 
 static void *start_socket_srv(void *args)
 {
-	int res = 0; int err_cnt = 0;
-	int sock_msg;
+	int res = 0;
+	int err_cnt = 0;
+	int sock_msg = 0;
 	errno_t err;
 	int sock_fd;
 	struct sockaddr_un saddr;

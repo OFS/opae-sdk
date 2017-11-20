@@ -42,13 +42,6 @@ namespace diag
 
 const std::string AFUID = "B6B76CDF-4012-4671-AA2B-3612B792E59A";
 
-mtnlb7::mtnlb7(const std::string & name)
-: mtnlb(AFUID, "mtnlb7")
-{
-    mode_ = "mt7";
-    config_ = "mtnlb7.json";
-}
-
 mtnlb7::mtnlb7()
 : mtnlb(AFUID, "mtnlb7")
 {
