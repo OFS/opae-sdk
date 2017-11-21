@@ -54,8 +54,10 @@ extern "C" {
  * @param[in]  flags    One of the following flags:
  *                        * FPGA_OPEN_SHARED allows the resource to be opened
  *                          multiple times (not supported in ASE)
- *                          When the last handle is closed with fpgaClose(),
- *                          all of the shared resources are released.
+ *                          Shared resources (including buffers) are released
+ *                          when all associated handles have been closed
+ *                          (either explicitly with fpgaClose() or by process
+ *                          termination).
  * @returns             FPGA_OK on success. FPGA_NOT_FOUND if the resource for
  *                      'token' could not be found. FPGA_INVALID_PARAM if
  *                      'token' does not refer to a resource that can be
