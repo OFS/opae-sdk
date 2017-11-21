@@ -55,11 +55,11 @@ endfunction(SET_CACHED_VARIABLE)
 set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra")
 
-set(CMAKE_C_FLAGS_RELEASE          "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE        "-Wall -Wextra")
+set(CMAKE_C_FLAGS_RELEASE          "-O2 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -Wall -Wextra")
 
-set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -Wall -Wextra")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -O2 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra")
 
 set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra")
@@ -92,7 +92,7 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   ## C options
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O2 -D_FORTIFY_SOURCE=2")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -D_FORTIFY_SOURCE=2")
   if (GCC_VERSION VERSION_GREATER 4.9 OR GCC_VERSION VERSION_EQUAL 4.9)
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong")
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -z noexecstack -z relro -z now")
@@ -102,7 +102,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 
   ## C++ options
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wformat-security")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O2 -D_FORTIFY_SOURCE=2")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -D_FORTIFY_SOURCE=2")
   if (GCC_VERSION VERSION_GREATER 4.9 OR GCC_VERSION VERSION_EQUAL 4.9)
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector-strong")
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -z noexecstack -z relro -z now")
