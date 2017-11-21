@@ -38,30 +38,40 @@ if (NOT BUILD_GTEST)
 else()
   message(STATUS "Trying to fetch gtest throught git")
   find_package(Git REQUIRED)
-  execute_process(COMMAND "${GIT_EXECUTABLE}"
-    "clone"
-    "--branch"
-    "release-1.8.0"
-    "https://github.com/google/googletest.git"
-    "gtest" WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-  set (gtest_root "${CMAKE_BINARY_DIR}/gtest")
+
+  # Enable ExternalProject CMake module
+  include(ExternalProject)
+
+  # Download and install GoogleTest
+  ExternalProject_Add(
+    gtest
+    URL https://github.com/google/googletest/archive/master.zip
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
+    CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    # Disable install step
+    INSTALL_COMMAND "")
+  set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
-  # Ensure gtest libraries are position relocatable
-  if (NOT TARGET ${gtest_root})
-    add_subdirectory(${gtest_root} ${CMAKE_BINARY_DIR}/gtest)
-    set_property(TARGET gtest_main PROPERTY POSITION_INDEPENDENT_CODE ON)
-    set_property(TARGET gtest PROPERTY POSITION_INDEPENDENT_CODE ON)
-  endif()
+  # Create a libgtest target to be used as a dependency by test programs
+  add_library(libgtest IMPORTED STATIC GLOBAL)
+  add_dependencies(libgtest gtest)
+
+  # Get GTest source and binary directories from CMake project
+  ExternalProject_Get_Property(gtest source_dir binary_dir)
+
+  # Set libgtest properties
+  set_target_properties(libgtest PROPERTIES
+    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
+    "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
   # Export gtest variables
   set(GTEST_ROOT ${gtest_root} PARENT_SCOPE)
-  set(GTEST_INCLUDE_DIRS ${gtest_root}/include PARENT_SCOPE)
-  set(GTEST_MAIN_LIBRARIES gtest_main PARENT_SCOPE)
+  set(GTEST_INCLUDE_DIRS ${gtest_root}/include)
   set(GTEST_MAIN_LIBRARY gtest_main PARENT_SCOPE)
-  set(GTEST_LIBRARY gtest_main PARENT_SCOPE)
-  set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+  set(GTEST_BOTH_LIBRARIES libgtest)
   set(GTEST_FOUND true)
+  message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
 endif()
 
 # Include directories
@@ -84,26 +94,14 @@ target_include_directories(commonlib PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
 
-add_executable(foapp
-  fpgaopen_app.cpp)
-target_include_directories(foapp PUBLIC
-  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-target_link_libraries(foapp commonlib safestr opae-c uuid ${GTEST_BOTH_LIBRARIES})
-
+# Test binary
 set(SRC gtmain.cpp
   jsonParser.cpp
   unit/gtProperties_base.cpp
   unit/gtOpenClose_base.cpp
-  unit/gtEnumerate.cpp
   unit/gtOpen.cpp
   unit/gtOptionParser.cpp
-  function/gtEnumerate.cpp
-  function/gtOpenClose.cpp
-  function/gtMMIO.cpp
-  function/gtReset.cpp)
+  function/gtOpenClose.cpp)
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -118,12 +116,10 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 
 if(THREADS_HAVE_PTHREAD_ARG)
   target_compile_options(PUBLIC commonlib "-pthread")
-  target_compile_options(PUBLIC foapp "-pthread")
   target_compile_options(PUBLIC gtapi "-pthread")
 endif()
 
 if(CMAKE_THREAD_LIBS_INIT)
-  target_link_libraries(foapp "${CMAKE_THREAD_LIBS_INIT}")
   target_link_libraries(gtapi "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
@@ -145,14 +141,6 @@ target_link_libraries(mock dl safestr)
 ## Add testing targets #####################################################
 ############################################################################
 
-add_test(NAME test_enum_mock_drv
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*EnumCommon*enum*)
-
-add_test(NAME test_mmio_mock_drv
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*MmioCommon*mmio*)
-
 add_test(NAME test_open_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommon*open*)
@@ -162,9 +150,7 @@ add_test(NAME test_close_mock_drv
   COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*Close*01)
 
 set_tests_properties(
-  test_enum_mock_drv
   test_open_mock_drv
-  test_mmio_mock_drv
   test_close_mock_drv
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
