@@ -1,4 +1,4 @@
-# - Try to find libjson-c
+# - Try to find libjsoncpp-dev
 # Once done, this will define
 #
 #  libjsoncpp_FOUND - system has libjsoncpp

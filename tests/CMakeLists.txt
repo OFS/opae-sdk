@@ -50,7 +50,6 @@ else()
     UPDATE_COMMAND ""
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DBUILD_SHARED_LIBS=ON
     # Disable install step
     INSTALL_COMMAND "")
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
@@ -65,7 +64,7 @@ else()
 
   # Set libgtest properties
   set_target_properties(libgtest PROPERTIES
-    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.so"
+    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
     "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
   # Export gtest variables
@@ -164,7 +163,10 @@ set_tests_properties(
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   if(BUILD_TESTS AND GTEST_FOUND)
+    # targetname     The name of original target from which coverage is created for
+    # testrunner     The name of the target which runs the tests.
     set_target_for_coverage(opae-c ctest)
+
     add_dependencies(coverage_opae-c gtapi)
   endif(BUILD_TESTS AND GTEST_FOUND)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
