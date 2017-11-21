@@ -68,6 +68,11 @@ class sysfs_filter(object):
         return True
 
 
+def add_static_property(sysfs_path):
+    return property(lambda s_: s_.parse_sysfs(sysfs_path),
+                    lambda s_, v_: s_.write_sysfs(v_, sysfs_path))
+
+
 class sysfs_resource(object):
     def __init__(self, path, instance_id, **kwargs):
         self._path = path
@@ -183,43 +188,22 @@ class pr_feature(sysfs_resource):
 
 
 class power_mgmt_feature(sysfs_resource):
-    @property
-    def consumed(self):
-        return self.parse_sysfs("consumed")
+    consumed = add_static_property("consumed")
 
 
 class thermal_feature(sysfs_resource):
-    @property
-    def temperature(self):
-        return self.parse_sysfs("temperature")
-
-    @property
-    def threshold1(self):
-        return self.parse_sysfs("threshold1")
-
-    @property
-    def threshold1_policy(self):
-        return self.parse_sysfs("threshold1_policy")
-
-    @property
-    def threshold1_reached(self):
-        return self.parse_sysfs("threshold1_reached")
-
-    @property
-    def threshold2(self):
-        return self.parse_sysfs("threshold2")
-
-    @property
-    def threshold2_reached(self):
-        return self.parse_sysfs("threshold2_reached")
-
-    @property
-    def threshold_trip(self):
-        return self.parse_sysfs("threshold_trip")
+    temperature = add_static_property("temperature")
+    threshold1 = add_static_property("threshold1")
+    threshold1_policy = add_static_property("threshold1_policy")
+    threshold1_reached = add_static_property("threshold1_reached")
+    threshold2 = add_static_property("threshold2")
+    threshold2_reached = add_static_property("threshold2_reached")
+    threshold_trip = add_static_property("threshold_trip")
 
 
 class errors_feature(sysfs_resource):
     error_files = {}
+    revision = add_static_property("revision")
 
     def __init__(self, path, instance_id, **kwargs):
         super(errors_feature, self).__init__(path, instance_id, **kwargs)
@@ -248,10 +232,6 @@ class errors_feature(sysfs_resource):
                 setattr(self,
                         os.path.basename(err_file),
                         property(lambda self_: self_.parse_sysfs(err_file)))
-
-    @property
-    def revision(self):
-        return self.parse_sysfs("revision")
 
     def clear(self):
         value = self.parse_sysfs(self.errors_file)
