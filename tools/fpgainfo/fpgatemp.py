@@ -37,11 +37,11 @@ class temp_command(cmd.fpga_command):
     name = "temp"
     thermal_props = [("temperature", print_celcius),
                      ("threshold1", print_celcius),
-                     ("threshold1_policy", repr),
+                     ("threshold1_policy", int),
                      ("threshold1_reached", bool),
                      ("threshold2", print_celcius),
                      ("threshold2_reached", bool),
-                     ("threshold2_policy", repr),
+                     ("threshold2_policy", int),
                      ("threshold_trip", print_celcius)]
 
     def run(self, args):
