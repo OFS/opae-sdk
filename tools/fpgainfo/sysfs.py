@@ -73,6 +73,20 @@ def add_static_property(sysfs_path):
                     lambda s_, v_: s_.write_sysfs(v_, sysfs_path))
 
 
+def add_dynamic_property(obj, property_name, sysfs_path=None):
+    sysfs_path = sysfs_path or property_name
+
+    def getter(self_):
+        return self_.parse_sysfs(sysfs_path)
+
+    def setter(self_, v_):
+        self_.write_sysfs(v_, sysfs_path)
+
+    if obj.sysfs_path_exists(sysfs_path):
+        setattr(obj, property_name,
+                property(getter, setter))
+
+
 class sysfs_resource(object):
     def __init__(self, path, instance_id, **kwargs):
         self._path = path
@@ -269,6 +283,15 @@ class fme_errors(errors_feature):
         self.name = "fme errors"
         self.errors_file = "fme-errors/errors"
         self.clear_file = "fme-errors/clear"
+        add_dynamic_property(self, "errors", "fme-errors/errors")
+        add_dynamic_property(self, "first_error", "fme-errors/first_error")
+        add_dynamic_property(self, "next_error", "fme-errors/next_error")
+        add_dynamic_property(self, "bbs_errors")
+        add_dynamic_property(self, "gbs_errors")
+        add_dynamic_property(self, "pcie0_errors")
+        add_dynamic_property(self, "pcie1_errors")
+        add_dynamic_property(self, "catfatal_errors")
+        add_dynamic_property(self, "nonfatal_errors")
 
 
 class port_errors(errors_feature):
@@ -283,6 +306,8 @@ class port_errors(errors_feature):
         self.name = "port errors"
         self.errors_file = "errors"
         self.clear_file = "clear"
+        add_dynamic_property(self, "errors")
+        add_dynamic_property(self, "first_error")
 
 
 class fme_info(sysfs_resource):
