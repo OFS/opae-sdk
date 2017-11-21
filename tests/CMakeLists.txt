@@ -45,7 +45,9 @@ else()
   # Download and install GoogleTest
   ExternalProject_Add(
     gtest
-    URL https://github.com/google/googletest/archive/master.zip
+    GIT_REPOSITORY "https://github.com/google/googletest"
+    GIT_TAG "release-1.8.0"
+    UPDATE_COMMAND ""
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DBUILD_SHARED_LIBS=ON
@@ -63,7 +65,7 @@ else()
 
   # Set libgtest properties
   set_target_properties(libgtest PROPERTIES
-    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
+    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.so"
     "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
   # Export gtest variables
