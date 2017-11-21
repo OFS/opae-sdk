@@ -78,7 +78,7 @@ class i2c
 {
 public:
     typedef std::shared_ptr<i2c> ptr_t;
-    i2c(przone_interface::ptr_t przone);
+    i2c(przone_interface::ptr_t przone, size_t byte_addr_size = 1);
     ~i2c(){}
     bool read(uint32_t instance, uint32_t device_addr, uint32_t byte_addr, uint8_t bytes[], std::size_t read_bytes);
     bool write(uint32_t instance, uint32_t device_addr, uint32_t byte_addr, uint8_t bytes[], std::size_t read_bytes);
@@ -86,6 +86,9 @@ public:
 private:
     przone_interface::ptr_t przone_;
     intel::utils::logger log_;
+    size_t byte_addr_size_;
+
+    bool send_byte_address(uint32_t instance, uint32_t byte_addr);
 };
 
 } // end of namespace hssi
