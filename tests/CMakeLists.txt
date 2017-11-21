@@ -48,6 +48,7 @@ else()
     URL https://github.com/google/googletest/archive/master.zip
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    -DBUILD_SHARED_LIBS=ON
     # Disable install step
     INSTALL_COMMAND "")
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
