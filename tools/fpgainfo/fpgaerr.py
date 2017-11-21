@@ -263,8 +263,8 @@ error_classes = {
 def set_error_parsers(err_feature, err_classes):
     for name, err_class in err_classes.iteritems():
         if hasattr(err_feature, name):
-            err_value = getattr(err_feature, name).fget(err_feature)
-            setattr(err_feature, name, err_class(err_value))
+            value = getattr(err_feature, name)
+            setattr(err_feature, name, value)
 
 
 class errors_command(fpga_command):
@@ -306,10 +306,10 @@ class errors_command(fpga_command):
         json_data = []
         for r in resources:
             if args.json:
-                json_data.append(r.to_dict())
+                json_data.append(r.to_dict(True))
             else:
                 r.print_info(
-                    "//****** {} ******//".format(r.name))
+                    "//****** {} ******//".format(r.name()))
 
         if args.json:
             print(json.dumps(json_data, indent=4, sort_keys=False))
