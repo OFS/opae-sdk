@@ -157,7 +157,7 @@ void ase_buffer_info(struct buffer_t *mem)
 
 	ASE_MSG("\tindex       = %d \n", mem->index);
 	ASE_MSG("\tvalid       = %s \n",
-		(mem->valid == 0xffff) ? "VALID" : "INVALID");
+		(mem->valid == ASE_BUFFER_VALID) ? "VALID" : "INVALID");
 	ASE_MSG("\tAPPVirtBase = 0x%" PRIx64 "\n", mem->vbase);
 	ASE_MSG("\tSIMVirtBase = 0x%" PRIx64 "\n", mem->pbase);
 	ASE_MSG("\tBufferSize  = 0x%" PRIx32 " \n", mem->memsize);

@@ -1314,7 +1314,6 @@ void append_buf(struct buffer_t *buf)
 		buf_end->next = buf;
 		buf->next = NULL;
 		buf_end = buf;
-		buf_end->valid = 1;
 	}
 #ifdef ASE_DEBUG
 
