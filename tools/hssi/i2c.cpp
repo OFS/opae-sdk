@@ -46,7 +46,7 @@ i2c::i2c(przone_interface::ptr_t przone, size_t byte_addr_size)
 
 bool i2c::send_byte_address(uint32_t instance, uint32_t byte_addr)
 {
-    uint32_t ctrl = i2c_ctrl_trigger  | i2c_ctrl_transmit | i2c_ctrl_send_start;
+    uint32_t ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit | i2c_ctrl_send_start;
     // support multi-byte byte addresses in big endian format
     uint8_t *base_ptr = reinterpret_cast<uint8_t*>(&byte_addr);
     // start with the upper byte (base address of the byte_addr + byte address size)
