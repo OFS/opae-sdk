@@ -392,7 +392,7 @@ extern uint64_t *umsg_umas_vbase;
 // ASE buffer valid/invalid indicator
 // When a buffer is 'allocated' successfully, it will be valid, when
 // it is deallocated, it will become invalid.
-#define ASE_BUFFER_VALID        0x1
+#define ASE_BUFFER_VALID        0xFFFF
 #define ASE_BUFFER_INVALID      0x0
 
 // Buffer allocate/deallocate message headers
