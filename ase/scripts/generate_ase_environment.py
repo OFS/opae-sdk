@@ -71,8 +71,8 @@ else:
 VLOG_EXTENSIONS = [".svh", ".sv", ".vs", ".v"]
 VHD_EXTENSIONS = [".vhd", ".vhdl"]
 
-VHDL_FILE_LIST = os.environ['PWD'] + "/vhdl_files.list"
-VLOG_FILE_LIST = os.environ['PWD'] + "/vlog_files.list"
+VHDL_FILE_LIST = os.getcwd() + "/vhdl_files.list"
+VLOG_FILE_LIST = os.getcwd() + "/vlog_files.list"
 TOOL_BRAND = "VCS"
 
 # Forbidden characters
