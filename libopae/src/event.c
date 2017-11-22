@@ -28,6 +28,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include "common_int.h"
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/eventfd.h>
@@ -38,7 +40,6 @@
 #include "opae/access.h"
 #include "opae/properties.h"
 #include "types_int.h"
-#include "common_int.h"
 #include "intel-fpga.h"
 
 #define EVENT_SOCKET_NAME     "/tmp/fpga_event_socket"

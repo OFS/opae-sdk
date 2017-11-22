@@ -102,6 +102,12 @@ if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
 endif()
 
+check_c_compiler_flag("-Wno-unused-parameter"
+  C_SUPPORTS_NO_UNUSED_PARAMETER)
+if (C_SUPPORTS_NO_UNUSED_PARAMETER)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
+endif()
+
 check_cxx_compiler_flag("-Wno-format"
   CXX_SUPPORTS_NO_FORMAT)
 if (CXX_SUPPORTS_NO_FORMAT)
@@ -124,6 +130,12 @@ check_cxx_compiler_flag("-Wno-unknown-pragmas"
   CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
 if (CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
+endif()
+
+check_cxx_compiler_flag("-Wno-unused-local-typedefs"
+  CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
+if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
 endif()
 
 check_cxx_compiler_flag("-Wno-strict-aliasing"
