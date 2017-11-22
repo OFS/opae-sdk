@@ -32,12 +32,11 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # Set the default build type to release with debug info
-if (CMAKE_BUILD_TYPE STREQUAL "")
+if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo
     CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage."
-    FORCE)
-endif (CMAKE_BUILD_TYPE STREQUAL "")
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage.")
+endif (NOT DEFINED CMAKE_BUILD_TYPE)
 
 # Helper function to set cached variables
 function(SET_CACHED_VARIABLE var)
@@ -68,13 +67,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
     CACHE STRING "C++ compiler flags for release builds.")
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-# Recommend enabling Werror. Can't enable it yet because we are not warning clean
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-
 # Check if support for C++ 11 is available
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -102,12 +94,6 @@ if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
 endif()
 
-check_c_compiler_flag("-Wno-unused-parameter"
-  C_SUPPORTS_NO_UNUSED_PARAMETER)
-if (C_SUPPORTS_NO_UNUSED_PARAMETER)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
-endif()
-
 check_cxx_compiler_flag("-Wno-format"
   CXX_SUPPORTS_NO_FORMAT)
 if (CXX_SUPPORTS_NO_FORMAT)
@@ -130,12 +116,6 @@ check_cxx_compiler_flag("-Wno-unknown-pragmas"
   CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
 if (CXX_SUPPORTS_NO_UNKNOWN_PRAGMAS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
-endif()
-
-check_cxx_compiler_flag("-Wno-unused-local-typedefs"
-  CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
 endif()
 
 check_cxx_compiler_flag("-Wno-strict-aliasing"
