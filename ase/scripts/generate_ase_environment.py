@@ -54,6 +54,7 @@ import ase_functions
 import os
 import re
 import sys
+import subprocess
 from collections import defaultdict
 from fnmatch import fnmatch
 import json
@@ -73,7 +74,6 @@ VHD_EXTENSIONS = [".vhd", ".vhdl"]
 
 VHDL_FILE_LIST = os.getcwd() + "/vhdl_files.list"
 VLOG_FILE_LIST = os.getcwd() + "/vlog_files.list"
-TOOL_BRAND = "VCS"
 
 # Forbidden characters
 SPECIAL_CHARS = '\[]~!@#$%^&*(){}:;+$\''
@@ -447,8 +447,8 @@ parser.add_argument('dirlist', nargs='*',
 parser.add_argument('-s', '--sources',
                     help="""file containing list of source files.  The file will be
                             parsed by rtl_src_config.""")
-parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default='VCS',
-                    help='simulator tool to use, default is VCS')
+parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default=None,
+                    help='simulator tool to use, default is VCS if present')
 parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'],
                     default='intg_xeon', help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
@@ -468,11 +468,19 @@ if len(args.dirlist) and args.sources:
         "scan directories may not be specified along with --sources.  " +
         "See --help.")
 
-tool_type = args.tool
-TOOL_BRAND = args.tool
+tool_brand = args.tool
+if (tool_brand == None):
+    # Simulator wasn't specified.  Use VCS if it is present.
+    try:
+        with open(os.devnull, 'w') as fnull:
+            subprocess.call(['vcs', '-ID'], stdout = fnull, stderr = fnull)
+        tool_brand = 'VCS'
+    except OSError:
+        tool_brand = 'QUESTA'
+
 PLAT_TYPE = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
              'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(args.plat)
-print("\nTool Brand: ", TOOL_BRAND)
+print("\nTool Brand: ", tool_brand)
 print("Platform Type: ", PLAT_TYPE)
 
 # Write Makefile snippet #
@@ -489,7 +497,7 @@ fd.write("\n")
 
 # Update SIMULATOR
 fd.write("SIMULATOR ?= ")
-fd.write(TOOL_BRAND)
+fd.write(tool_brand)
 fd.write("\n\n")
 
 
