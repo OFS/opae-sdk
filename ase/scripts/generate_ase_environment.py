@@ -245,8 +245,8 @@ def config_sources(fd, filelist):
         # Is there a JSON file in the same directory as the file list?
         dir = os.path.dirname(filelist)
         str = commands_list_getoutput(
-                "find -L".split(" ") + [dir] +
-                "-maxdepth 1 -type f -name *.json".split(" "))
+            "find -L".split(" ") + [dir] +
+            "-maxdepth 1 -type f -name *.json".split(" "))
         if (len(str)):
             # Use the discovered JSON file, but complain that it should
             # have been named explicitly.
@@ -469,11 +469,11 @@ if len(args.dirlist) and args.sources:
         "See --help.")
 
 tool_brand = args.tool
-if (tool_brand == None):
+if (tool_brand is None):
     # Simulator wasn't specified.  Use VCS if it is present.
     try:
         with open(os.devnull, 'w') as fnull:
-            subprocess.call(['vcs', '-ID'], stdout = fnull, stderr = fnull)
+            subprocess.call(['vcs', '-ID'], stdout=fnull, stderr=fnull)
         tool_brand = 'VCS'
     except OSError:
         tool_brand = 'QUESTA'
