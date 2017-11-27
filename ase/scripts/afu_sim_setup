@@ -142,7 +142,7 @@ def setup_ase_sim(args):
                "ase.cfg").format(int(args.ase_verbose)))
 
 
-def main(args=None):
+def main():
     import argparse
     parser = argparse.ArgumentParser(
         description="""Generate an ASE simulation environment for an AFU.
