@@ -187,5 +187,6 @@ def main(args=None):
     copy_ase_env(args.dst, args.force)
     setup_ase_sim(args)
 
+
 if __name__ == '__main__':
     main()
