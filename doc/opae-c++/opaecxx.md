@@ -8,7 +8,7 @@ The OPAE C++ API enables C++ developers with the means to use FPGA resources by 
 The following is a list of goals and design decisions made while designing this API.
 
 ### Simplicity
-Keep the API as small and lightweight as possible. Features such as system validation and orchestration are beyond the scope of this.
+Keep the API as small and lightweight as possible. Although features such as system validation or orchestration are beyond the scope of this API, using this API for their development should be relatively easy.
 
 ### Extensibility and Interoperability
 While keeping to the goal of simplicity, the OPAE C++ API is designed to allow for better reuse by either extending the API or by integrating with other languages. 
@@ -17,12 +17,12 @@ While keeping to the goal of simplicity, the OPAE C++ API is designed to allow f
 The OPAE C++ API will use the C++ 11 standard library and make use of its features whenever practical. Furthermore, the OPAE C++ API is designed to require as few as possible any other third party libraries/dependencies.
 
 ### Error Handling
-The OPAE C++ API is designed to throw exceptions when appropriate. The stucture of OPAE C++ exceptions will be similar to the error codes in the OPAE C API. This gives users of the API more freedom on error handling while providing better debug information in cases of failure.
+The OPAE C++ API is designed to throw exceptions when appropriate. The structure of OPAE C++ exceptions will be similar to the error codes in the OPAE C API. This gives users of the API more freedom on error handling while providing better debug information in cases of failure.
 
 ### Coding Style
 _TODO_
 
-## Fundemental Types
+## Fundamental Types
 Basic types for the OPAE C++ API are found in the `opae.fpga.types` namespace.
 They serve as an adapter layer between the OPAE-C API and the OPAE-C++ layer.
 Aside from providing a C++ binding to the C fundemental types, these types also
