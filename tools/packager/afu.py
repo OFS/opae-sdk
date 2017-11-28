@@ -82,21 +82,47 @@ class AFU(object):
             jsonschema.validate(self.afu_json, afu_schema)
             return True
         except jsonschema.exceptions.ValidationError as ve:
-            print(str(ve.message))
+            print("JSON schema error at {0}: {1}".format(
+                str(list(ve.path)), str(ve.message)))
             return False
 
     def update_afu_json(self, key_values):
         try:
             for value in key_values:
+                # Colon separates key and value
                 curr_val = value.split(':')
                 curr_val[1] = utils.convert_to_native_type(curr_val[1])
                 if self.afu_json:
-                    if curr_val[0] in self.afu_json:
-                        self.afu_json[curr_val[0]] = curr_val[1]
-                    elif curr_val[0] in self.afu_json['afu-image']:
-                        self.afu_json['afu-image'][curr_val[0]] = curr_val[1]
+                    # Compatibility support for old scripts that set
+                    # interface-uuid, assuming it would be found in
+                    # afu-image.  After all scripts are updated, this
+                    # check can be removed.
+                    if curr_val[0] == 'interface-uuid':
+                        curr_val[0] = 'afu-image/interface-uuid'
+
+                    # Slash separates key hierarchy
+                    key = curr_val[0].split('/')
+                    if len(key) > 1:
+                        # Walk key hierarchy
+                        afu = self.afu_json
+                        for k in key[:-1]:
+                            if k not in afu:
+                                # Intermediate key not present, add it.
+                                afu[k] = dict()
+                            afu = afu[k]
+
+                        # Add the new value
+                        afu[key[-1]] = curr_val[1]
                     else:
-                        self.afu_json[curr_val[0]] = curr_val[1]
+                        # Old method didn't support key hierarchy.  Search
+                        # for the key either in afu-image or at top-level.
+                        # If not found, assume top-level.
+                        if key[0] in self.afu_json:
+                            self.afu_json[key[0]] = curr_val[1]
+                        elif key[0] in self.afu_json['afu-image']:
+                            self.afu_json['afu-image'][key[0]] = curr_val[1]
+                        else:
+                            self.afu_json[key[0]] = curr_val[1]
         except IndexError as e:
             print(e)
             raise Exception(
@@ -110,6 +136,10 @@ class AFU(object):
     def create_gbs(self, rbf_file, gbs_file, key_values=None):
         if key_values:
             self.update_afu_json(key_values)
+
+        # Set the expected magic number if it hasn't already been set
+        if 'magic-no' not in self.afu_json['afu-image']:
+            self.afu_json['afu-image']['magic-no'] = 0x1d1f8680
 
         gbs = GBS.create_gbs_from_afu_info(rbf_file, self.afu_json)
         return gbs.write_gbs(gbs_file)
