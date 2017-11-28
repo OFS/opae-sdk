@@ -50,6 +50,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint32_t value)
 {
+	UNUSED_PARAM(mmio_num);
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
@@ -79,6 +80,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint32_t *value)
 {
+	UNUSED_PARAM(mmio_num);
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
@@ -108,6 +110,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint64_t value)
 {
+	UNUSED_PARAM(mmio_num);
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
@@ -135,6 +138,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint64_t *value)
 {
+	UNUSED_PARAM(mmio_num);
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
@@ -161,6 +165,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
+	UNUSED_PARAM(mmio_num);
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
@@ -187,8 +192,8 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
 				       uint32_t mmio_num)
 {
-	// TODO: check handle?
-	// TODO: check mmio_num?
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(mmio_num);
 
 	if (fpgaMMIO_is_mapped) {
 		fpgaMMIO_is_mapped = false;
