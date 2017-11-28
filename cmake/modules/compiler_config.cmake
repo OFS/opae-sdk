@@ -78,6 +78,13 @@ elseif(COMPILER_SUPPORTS_CXX0X)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
+# Disable some warnings that fire in system libraries
+check_cxx_compiler_flag("-Wno-unused-local-typedefs"
+  CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
+if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
+endif()
+
 # If building on a 32-bit system, make sure off_t can store offsets > 2GB
 if(CMAKE_COMPILER_IS_GNUCC)
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
