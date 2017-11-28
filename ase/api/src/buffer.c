@@ -53,6 +53,11 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle,
 	uint64_t pg_size;
 	fpga_result result = FPGA_NOT_FOUND;
 
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
 	if (flags & FPGA_BUF_PREALLOCATED) {
 		return FPGA_INVALID_PARAM;
 	}
@@ -123,6 +128,10 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	struct buffer_t *iova_match_buf;
 
 	fpga_result result;
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
 	iova_match_buf = find_buffer_by_index(wsid);
 

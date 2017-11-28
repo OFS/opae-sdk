@@ -35,6 +35,7 @@
 
 #include <opae/utils.h>
 #include "common_int.h"
+#include "token.h"
 
 // Buffer Allocation constants
 #define KB 1024
@@ -61,8 +62,6 @@
 #define FLAGS_1G (FLAGS | MAP_1G_HUGEPAGE)
 #endif
 
-/* global list of tokens we've seen */
-static struct token_map *token_root;
 /* global loglevel */
 static int g_loglevel = FPGA_LOG_UNDEFINED;
 
