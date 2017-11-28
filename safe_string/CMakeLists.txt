@@ -111,3 +111,9 @@ add_library(safestr STATIC ${SRC})
 set_property(TARGET safestr PROPERTY C_STANDARD 99)
 set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(safestr PRIVATE PIC=1)
+
+if(INSTALL_SAFESTR)
+   install(TARGETS safestr
+         ARCHIVE DESTINATION lib
+         COMPONENT safestrlib)
+endif()
