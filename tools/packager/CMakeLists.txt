@@ -27,26 +27,18 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 ################# generate executable python zip file ########################
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/packager.zip")
-  message(STATUS "Remove old packager.zip & packager files")
-  execute_process(COMMAND sh -c "rm -f packager.zip packager"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-endif()
 
 set(ZIP_STR 
-    "zip -x *CMakeList.txt* -x *MakeFile* -x test/\\* -9r packager.zip *")
-execute_process(COMMAND bash "-c" ${ZIP_STR} 
+    "zip -qr ${CMAKE_CURRENT_BINARY_DIR}/packager.zip * -x README* -x CMake* -x Makefile* -x test/\\*")
+execute_process(COMMAND sh -c ${ZIP_STR} 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(ECHO_STR "echo '#!/usr/bin/env python ' | cat - packager.zip > packager")
+set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/packager)
+set(ECHO_STR "echo '#!/usr/bin/env python ' | cat - ${CMAKE_CURRENT_BINARY_DIR}/packager.zip > ${PACKAGER_BIN}")
     
-execute_process(COMMAND sh -c ${ECHO_STR}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
 
 ################# install executable python zip file ######################## 
-install(PROGRAMS packager
-    DESTINATION bin
-    COMPONENT toolpackager)
-
-
- 
+install(PROGRAMS ${PACKAGER_BIN}
+        DESTINATION bin
+        COMPONENT toolpackager)
