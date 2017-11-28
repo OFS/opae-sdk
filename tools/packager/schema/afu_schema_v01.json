@@ -8,6 +8,13 @@
             "properties" : {
                 "magic-no" : {"type" : "number"},
                 "interface-uuid" : {"type" : "string"},
+                "afu-top-interface": {
+                    "type" : "object",
+                    "properties" : {
+                        "name" : {"type" : "string"}
+                    },
+                    "required" : ["name"]
+                },
                 "clock-frequency-low" : {"type" : "number"},
                 "clock-frequency-high" : {"type" : "number"},
                 "power": {"type" : "number"},
@@ -24,7 +31,7 @@
                     }
                 }
             },
-            "required" : ["interface-uuid", "accelerator-clusters", "power"]
+            "required" : ["accelerator-clusters", "power"]
         }
     },
     "required": ["afu-image","version"]
