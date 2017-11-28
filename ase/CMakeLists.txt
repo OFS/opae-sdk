@@ -24,9 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+## Install target for ASE support files
+set(ASE_SHARE_DIR share/opae/ase)
+
 install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
 install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase COMPONENT asescripts)
+install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 install(DIRECTORY sample_config DESTINATION share/opae/ase COMPONENT asesampleconfig)
 
 set(EXTRA_ASE_FILES
@@ -35,5 +38,23 @@ set(EXTRA_ASE_FILES
        ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-        DESTINATION share/opae/ase
+        DESTINATION ${ASE_SHARE_DIR}
         COMPONENT aseextra)
+
+## Some ASE scripts are installed in bin
+set(PLATFORM_SCRIPTS
+        afu_sim_setup)
+
+foreach(SRC ${PLATFORM_SCRIPTS})
+  ## Substitute CMake variables of the form @<var>@ in the source file
+  ## and store the file in the build tree's bin directory.
+  configure_file(
+          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
+          @ONLY NEWLINE_STYLE UNIX)
+  ## This forces the configure_file to be built for all targets
+  add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
+
+  install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
+          DESTINATION bin
+          COMPONENT asescripts)
+endforeach(SRC)

@@ -29,7 +29,7 @@ set(PLATFORM_DIRS
         platform_db
         platform_if)
 
-## This paths may be used in scripts to point to the installed platform database.
+## This path may be used in scripts to point to the installed platform database.
 ## The configure_file rule below handles the substitution.
 set(PLATFORM_SHARE_DIR share/opae/platform)
 
