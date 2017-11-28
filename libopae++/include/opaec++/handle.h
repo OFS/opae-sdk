@@ -55,7 +55,9 @@ public:
 
     static handle::ptr_t open(token::ptr_t token, int flags);
 
+protected:
     fpga_result close();
+
 private:
     handle(fpga_handle h);
 
