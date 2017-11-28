@@ -40,19 +40,22 @@ cmd_map = {'lpbk1': ['nlb0'],
            'mb1': ['mb1']}
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-t', '--target',
                         default='fpga',
                         choices=['fpga', 'ase'],
                         help='choose target')
     parser.add_argument('-m', '--mode',
                         choices=cmd_list,
-                        required=True,
                         help='choose test mode')
 
     args, leftover = parser.parse_known_args()
 
-    cmdline = cmd_map[args.mode] + leftover
+    if args.mode:
+        cmdline = cmd_map[args.mode] + leftover
+    else:
+        parser.print_help()
+        exit(1)
 
     cmdline[0] = os.path.join(cwd, cmdline[0])
     cmdline = cmdline + ['-t', args.target] + leftover
