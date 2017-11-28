@@ -44,10 +44,11 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--target',
                         default='fpga',
                         choices=['fpga', 'ase'],
-                        help='choose target')
+                        help='choose target. Default: fpga')
     parser.add_argument('-m', '--mode',
                         choices=cmd_list,
-                        help='choose test mode')
+                        help='choose test mode. Combine this with -h or --help \
+                        to see detail help message for each mode.')
 
     args, leftover = parser.parse_known_args()
 
