@@ -41,7 +41,6 @@ class temp_command(cmd.fpga_command):
                      ("threshold1_reached", bool),
                      ("threshold2", print_celcius),
                      ("threshold2_reached", bool),
-                     ("threshold2_policy", int),
                      ("threshold_trip", print_celcius)]
 
     def run(self, args):
