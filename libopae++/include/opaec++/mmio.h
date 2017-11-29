@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <memory>
+#include "handle.h"
 
 namespace opae
 {
@@ -36,11 +37,34 @@ namespace io
 class mmio
 {
 public:
+    /** The types of mmio region that can be requested.
+     */
+    enum class region_t : int32_t
+    {
+        AFU, ///< Get the Accelerator Function Unit region.
+        STP  ///< Get the Signal Tap region.
+    };
+
+    /** The types of MMIO implementation that can be requested.
+     */
+    enum class impl_t : int32_t
+    {
+        API,   ///< Use the OPAE API implementation.
+        Direct ///< Use the Direct implementation.
+    };
+
     /**
      * mmio smart pointer type.
      */
     typedef std::shared_ptr<mmio> ptr_t;
 
+    /** Factory method used to obtain an mmio_region.
+     * @return A smart pointer containing the requested region,
+     * or an empty smart pointer if the region was not obtained.
+     */
+    static ptr_t map(opae::fpga::types::handle::ptr_t h, 
+                     region_t region = region_t::AFU,
+                     impl_t implementation = impl_t::API);
     /**
      * mmio destructor.
      */
@@ -78,6 +102,20 @@ public:
      * @param[in] offset The byte offset to be added to the MMIO base.
      */
     virtual volatile uint8_t * mmio_pointer(uint32_t offset) const = 0;
+
+    /** Retrieve the region type.
+     */
+    region_t region() const { return region_; }
+
+    /** Retrieve the underlying region implementation type.
+     */
+    impl_t implementation() const { return implementation_; }
+
+protected:
+    region_t region_;
+    impl_t  implementation_;
+
+    mmio(region_t region, impl_t implementation);
 };
 
 } // end of namespace io

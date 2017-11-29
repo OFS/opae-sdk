@@ -24,6 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/mmio.h>
+#include "opaec++/mmio.h"
 #include "opaec++/mmio_region.h"
 
 namespace opae
@@ -33,40 +34,47 @@ namespace fpga
 namespace io
 {
 
-mmio_region::mmio_region(opae::fpga::types::handle::ptr_t h,
-                         uint32_t id,
-                         uint8_t *base,
-                         mmio::region_t region)
-: mmio(region, mmio::impl_t::API)
-, owner_(h)
-, id_(id)
-, mmio_base_(base)
+mmio::mmio(mmio::region_t region, mmio::impl_t implementation)
+: region_(region)
+, implementation_(implementation)
 {}
 
-mmio_region::~mmio_region()
+mmio::ptr_t mmio::map(opae::fpga::types::handle::ptr_t h,
+                      mmio::region_t region,
+                      mmio::impl_t implementation)
 {
-    fpga_result res = fpgaUnmapMMIO(owner_->get(), id_);
-    // TODO: log error?
-}
+    mmio::ptr_t p;
 
-bool mmio_region::write_mmio32(uint32_t offset, uint32_t value)
-{
-    return FPGA_OK == fpgaWriteMMIO32(owner_->get(), id_, offset, value);
-}
+    switch(implementation) {
 
-bool mmio_region::write_mmio64(uint32_t offset, uint64_t value)
-{
-    return FPGA_OK == fpgaWriteMMIO64(owner_->get(), id_, offset, value);
-}
+        case impl_t::API : {
+            uint32_t iid = 0;
+            uint8_t *base = nullptr;
 
-bool mmio_region::read_mmio32(uint32_t offset, uint32_t & value) const
-{
-    return FPGA_OK == fpgaReadMMIO32(owner_->get(), id_, offset, &value);
-}
+            switch (region) {
+                case region_t::AFU : iid = 0; break;
+                case region_t::STP : iid = 1; break;
+                default:/* TODO throw exception? */ break;
+            }
 
-bool mmio_region::read_mmio64(uint32_t offset, uint64_t & value) const
-{
-    return FPGA_OK == fpgaReadMMIO64(owner_->get(), id_, offset, &value);
+            fpga_result res = fpgaMapMMIO(h->get(),
+                                          iid, 
+                                          reinterpret_cast<uint64_t **>(&base));
+
+            if (res == FPGA_OK) {
+                p.reset(new mmio_region(h, iid, base, region));
+            }
+        } break;
+
+        case impl_t::Direct : {
+
+        // TODO
+
+        } break;
+
+    }
+
+    return p;
 }
 
 } // end of namespace io

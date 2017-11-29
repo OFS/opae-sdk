@@ -27,7 +27,6 @@
 #include <memory>
 #include <cstdint>
 #include "mmio.h"
-#include "handle.h"
 
 namespace opae
 {
@@ -36,23 +35,11 @@ namespace fpga
 namespace io
 {
 
+/** Implements the mmio interface, using the OPAE MMIO API.
+*/
 class mmio_region : public mmio
 {
 public:
-    /** The types of mmio_region that can be requested.
-     */
-    enum class id_t : int32_t
-    {
-        AFU,
-        STP
-    };
-
-    /** Factory method used to obtain an mmio_region.
-     * @return A smart pointer containing the requested region,
-     * or an empty smart pointer if the region was not obtained.
-     */
-    static mmio::ptr_t map(opae::fpga::types::handle::ptr_t h, id_t id);
-
     /** mmio_region destructor.
      */
     ~mmio_region();
@@ -74,7 +61,11 @@ protected:
     uint8_t *mmio_base_;
 
 private:
-    mmio_region(opae::fpga::types::handle::ptr_t h, uint32_t id, uint8_t *base);
+    mmio_region(opae::fpga::types::handle::ptr_t h,
+                uint32_t id,
+                uint8_t *base,
+                mmio::region_t region);
+    friend class mmio;
 };
 
 } // end of namespace io
