@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    auto muxopt = opts.find("muxfile");
+    auto muxopt = opts.find("config");
     if (!muxopt || !muxopt->is_set() || !path_exists(muxopt->value<std::string>()))
     {
         log.error("main") << "Invalid or no muxfile specified" << std::endl;
