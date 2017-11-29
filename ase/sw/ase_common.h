@@ -85,6 +85,7 @@
  */
 #define ASE_UNIQUE_ID "SR-6.4.0-7325e31"
 
+#define UNUSED_PARAM(x) ((void)x)
 
 /*
  * Return integers
@@ -156,6 +157,7 @@ void calc_phys_memory_ranges(void);
 
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
+errno_t generate_sockname(char *);
 
 #ifdef SIM_SIDE
 #define LOG_PREFIX "  [SIM]  "
