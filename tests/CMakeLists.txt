@@ -28,10 +28,10 @@ cmake_minimum_required(VERSION 2.8.11)
 project(opae-tests)
 
 # Bootstrap gtest
-option(BUILD_GTEST "Enable gtest compilation" ON)
-mark_as_advanced(BUILD_GTEST)
+option(FETCH_AND_BUILD_GTEST "Enable gtest compilation" ON)
+mark_as_advanced(FETCH_AND_BUILD_GTEST)
 
-if (NOT BUILD_GTEST)
+if (NOT FETCH_AND_BUILD_GTEST)
   # Find gtest prevents compilation in travis CI
   # Ubuntu gmock libraries are non-position relocatable
   find_package(GTest)
@@ -99,11 +99,8 @@ target_include_directories(commonlib PUBLIC
 # Test binary
 set(SRC gtmain.cpp
   jsonParser.cpp
-  unit/gtProperties_base.cpp
-  unit/gtOpenClose_base.cpp
-  unit/gtOpen.cpp
   unit/gtOptionParser.cpp
-  function/gtOpenClose.cpp)
+  unit/gtOpenClose_base.cpp)
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -143,17 +140,12 @@ target_link_libraries(mock dl safestr)
 ## Add testing targets #####################################################
 ############################################################################
 
-add_test(NAME test_open_mock_drv
+add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommon*open*)
-
-add_test(NAME test_close_mock_drv
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*Close*01)
+  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommonHW*)
 
 set_tests_properties(
-  test_open_mock_drv
-  test_close_mock_drv
+  test_open_common_mock_drv
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 

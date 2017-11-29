@@ -1,3 +1,27 @@
+/*++
+
+  INTEL CONFIDENTIAL
+  Copyright 2016 - 2017 Intel Corporation
+
+  The source code contained or described  herein and all documents related to
+  the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
+  suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
+  Corporation or  its suppliers  and licensors.  The Material  contains trade
+  secrets  and  proprietary  and  confidential  information  of Intel  or its
+  suppliers and licensors.  The Material is protected  by worldwide copyright
+  and trade secret laws and treaty provisions. No part of the Material may be
+  used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
+  transmitted,  distributed, or  disclosed in  any way  without Intel's prior
+  express written permission.
+
+  No license under any patent, copyright,  trade secret or other intellectual
+  property  right  is  granted to  or conferred  upon  you by  disclosure  or
+  delivery of the  Materials, either  expressly, by  implication, inducement,
+  estoppel or otherwise. Any license  under such intellectual property rights
+  must be express and approved by Intel in writing.
+
+  --*/
+
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -26,9 +50,9 @@ using namespace std;
 int usleep(unsigned);
 
 #define SleepMicro(x) std::this_thread::sleep_for(std::chrono::microseconds(x));
-#define DSM_STATUS_TEST_COMPLETE 0x40
-#define NLB_TEST_MODE_LPBK1 0x000
-#define NUM_MODE0_CLS 40
+#define DSM_STATUS_TEST_COMPLETE	0x40
+#define NLB_TEST_MODE_LPBK1		0x000
+#define NUM_MODE0_CLS			40
 
 GlobalOptions GlobalOptions::sm_Instance;
 GlobalOptions& GlobalOptions::Instance() { return GlobalOptions::sm_Instance; }
@@ -36,17 +60,9 @@ GlobalOptions& GlobalOptions::Instance() { return GlobalOptions::sm_Instance; }
 namespace common_test {
 
 std::map<config_enum, char*> config_map = {
-    {BITSTREAM_MODE0, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_MODE3, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_MODE7, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_MMIO, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_SIGTAP, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_PR07, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_PR08, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_PR09, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_PR10, (char*)calloc(MAX_PATH, sizeof(char))},
-    {BITSTREAM_PR18, (char*)calloc(MAX_PATH, sizeof(char))},
-    {OPAE_INSTALL_PATH, (char*)calloc(MAX_PATH, sizeof(char))}};
+	{BITSTREAM_MODE0, (char*)calloc(MAX_PATH, sizeof(char))},
+	{BITSTREAM_MODE3, (char*)calloc(MAX_PATH, sizeof(char))},
+	{OPAE_INSTALL_PATH, (char*)calloc(MAX_PATH, sizeof(char))}};
 
 /**
  * @brief      Calls out to the nlb0 C++ sample application.
@@ -56,7 +72,7 @@ std::map<config_enum, char*> config_map = {
  * @return     Returns exit value from system API
  */
 signed exerciseNLB0Function(fpga_token tok) {
-  return doExternalNLB(tok, NLB_MODE_0);
+	return doExternalNLB(tok, NLB_MODE_0);
 }
 
 /**
@@ -67,7 +83,7 @@ signed exerciseNLB0Function(fpga_token tok) {
  * @return     Returns exit value from system API.
  */
 signed exerciseNLB3Function(fpga_token tok) {
-  return doExternalNLB(tok, NLB_MODE_3);
+	return doExternalNLB(tok, NLB_MODE_3);
 }
 
 /**
@@ -80,23 +96,23 @@ signed exerciseNLB3Function(fpga_token tok) {
  *             application.
  */
 int tryOpen(bool shared, uint8_t bus) {
-  char arguments[MAX_PATH] = {0};
-  char path[MAX_PATH] = {0};
+	char arguments[MAX_PATH] = {0};
+	char path[MAX_PATH] = {0};
 
-  char* retval = getcwd(&path[0], sizeof(path));
-  if (NULL == retval) {
-    printIOError(LINE(__LINE__));
-    return FPGA_INVALID_PARAM;
-  }
+	char* retval = getcwd(&path[0], sizeof(path));
+	if (NULL == retval) {
+		printIOError(LINE(__LINE__));
+		return FPGA_INVALID_PARAM;
+	}
 
-  if (shared) {
-    snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x -s", path,
-             bus);
-    return system(arguments);
-  }
+	if (shared) {
+		snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x -s", path,
+			 bus);
+		return system(arguments);
+	}
 
-  snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x", path, bus);
-  return system(arguments);
+	snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x", path, bus);
+	return system(arguments);
 }
 
 /**
@@ -108,188 +124,63 @@ int tryOpen(bool shared, uint8_t bus) {
  * @return     Returns exit value from nlb applications.
  */
 signed doExternalNLB(fpga_token tok, nlbmode mode) {
-  fpga_properties filter = NULL;
-  fpga_guid guid;
-  char uuid[strlen(SKX_P_NLB0_AFUID)];
+	fpga_properties filter = NULL;
+	fpga_guid guid;
+	char uuid[strlen(SKX_P_NLB0_AFUID)];
 
-  uint8_t socketid = 0;
-  uint8_t bus = 0;
-  fpga_objtype otype = FPGA_DEVICE;
-  signed retval = -1;
+	uint8_t socketid = 0;
+	uint8_t bus = 0;
+	fpga_objtype otype = FPGA_DEVICE;
+	signed retval = -1;
 
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaGetProperties(tok, &filter), LINE(__LINE__)));
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaGetProperties(tok, &filter), LINE(__LINE__)));
 
-  // These values are not currently used; they are included for testing
-  // and to allow eventual use in a more customized invocation of nlb
-  // applications, if needed.
+	// These values are not currently used; they are included for testing
+	// and to allow eventual use in a more customized invocation of nlb
+	// applications, if needed.
 
-  //******************************************************************//
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPropertiesGetGUID(filter, &guid), LINE(__LINE__)));
+	//******************************************************************//
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaPropertiesGetGUID(filter, &guid), LINE(__LINE__)));
 
-  if (!GlobalOptions::Instance().VM()) {
-    EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(filter, &socketid),
-                                 LINE(__LINE__)));
-  }
+	if (!GlobalOptions::Instance().VM()) {
+		EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(filter, &socketid),
+					     LINE(__LINE__)));
+	}
 
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPropertiesGetBus(filter, &bus), LINE(__LINE__)));
-  //******************************************************************//
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaPropertiesGetBus(filter, &bus), LINE(__LINE__)));
+	//******************************************************************//
 
-  // else socketid remains zero
-  EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetObjectType(filter, &otype),
-                               LINE(__LINE__)));
+	// else socketid remains zero
+	EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetObjectType(filter, &otype),
+				     LINE(__LINE__)));
 
-  uuid_unparse(guid, uuid);
+	uuid_unparse(guid, uuid);
 
-  // setup proper arguments based on nlb mode
-  char arguments[MAX_PATH] = {0};
-  char nlbapp[64] = {0};
-  switch (mode) {
-    case NLB_MODE_0:
-      snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb0");
-      break;
-    case NLB_MODE_3:
-      snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb3");
-      break;
-  }
+	// setup proper arguments based on nlb mode
+	char arguments[MAX_PATH] = {0};
+	char nlbapp[64] = {0};
+	switch (mode) {
+	case NLB_MODE_0:
+		snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb0");
+		break;
+	case NLB_MODE_3:
+		snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb3");
+		break;
+	}
 
-  snprintf(&arguments[0], sizeof(arguments),
-           "LD_LIBRARY_PATH=%s/lib %s%s --target fpga --bus-number %u",
-           config_map[OPAE_INSTALL_PATH], config_map[OPAE_INSTALL_PATH], nlbapp,
-           bus);
-  retval = system(arguments);
+	snprintf(&arguments[0], sizeof(arguments),
+		 "LD_LIBRARY_PATH=%s/lib %s%s --target fpga --bus-number %u",
+		 config_map[OPAE_INSTALL_PATH], config_map[OPAE_INSTALL_PATH], nlbapp,
+		 bus);
+	retval = system(arguments);
 
-  if (NULL != filter) {
-    checkReturnCodes(fpgaDestroyProperties(&filter), LINE(__LINE__));
-  }
-  return retval;
-}
-
-/**
- * @brief      Runs a Gtest version of hello_fpga application sample
- *             code.
- *
- * @param[in]  tok   The FPGA token
- *
- * @return     void  OPAE library codes are output to user and tests fail
- *             on error.
- */
-void sayHello(fpga_token tok) {
-  volatile uint64_t* dsm_ptr = NULL;
-  volatile uint64_t* status_ptr = NULL;
-  volatile uint64_t* input_ptr = NULL;
-  volatile uint64_t* output_ptr = NULL;
-
-  uint64_t dsm_wsid;
-  uint64_t input_wsid;
-  uint64_t output_wsid;
-
-  fpga_handle h = NULL;
-
-  /* Open accelerator and map MMIO */
-  EXPECT_TRUE(checkReturnCodes(fpgaOpen(tok, &h, 0), LINE(__LINE__)));
-
-  EXPECT_TRUE(checkReturnCodes(fpgaMapMMIO(h, 0, NULL), LINE(__LINE__)));
-
-  /* Allocate buffers */
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaPrepareBuffer(h, LPBK1_DSM_SIZE, (void**)&dsm_ptr, &dsm_wsid, 0),
-      LINE(__LINE__)));
-
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
-                                         (void**)&input_ptr, &input_wsid, 0),
-                       LINE(__LINE__)));
-
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
-                                         (void**)&output_ptr, &output_wsid, 0),
-                       LINE(__LINE__)));
-
-  printf("Running Test\n");
-
-  /* Initialize buffers */
-  memset((void*)dsm_ptr, 0, LPBK1_DSM_SIZE);
-  memset((void*)input_ptr, 0xAF, LPBK1_BUFFER_SIZE);
-  memset((void*)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
-
-  cache_line* cl_ptr = (cache_line*)input_ptr;
-  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
-    cl_ptr[i].uint[15] = i + 1; /* set the last uint in every cacheline */
-  }
-
-  /* Reset accelerator */
-  EXPECT_TRUE(checkReturnCodes(fpgaReset(h), LINE(__LINE__)));
-
-  /* Program DMA addresses */
-  uint64_t iova;
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaGetIOAddress(h, dsm_wsid, &iova), LINE(__LINE__)));
-
-  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO64(h, 0, CSR_AFU_DSM_BASEL, iova),
-                               LINE(__LINE__)));
-
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 0), LINE(__LINE__)));
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 1), LINE(__LINE__)));
-
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaGetIOAddress(h, input_wsid, &iova), LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaWriteMMIO64(h, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
-      LINE(__LINE__)));
-
-  EXPECT_TRUE(checkReturnCodes(fpgaGetIOAddress(h, output_wsid, &iova),
-                               LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaWriteMMIO64(h, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
-      LINE(__LINE__)));
-
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaWriteMMIO32(h, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1)),
-      LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CFG, 0x42000),
-                               LINE(__LINE__)));
-
-  status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE / 8;
-
-  /* Start the test */
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 3), LINE(__LINE__)));
-
-  /* Wait for test completion */
-  while (0 == ((*status_ptr) & 0x1)) {
-    usleep(100);
-  }
-
-  /* Stop the device */
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 7), LINE(__LINE__)));
-
-  /* Check output buffer contents */
-  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE; i++) {
-    if (((uint8_t*)output_ptr)[i] != ((uint8_t*)input_ptr)[i]) {
-      fprintf(stderr,
-              "Output does NOT match input "
-              "at offset %i!\n",
-              i);
-      break;
-    }
-  }
-
-  printf("Done Running Test\n");
-
-  /* Release buffers */
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaReleaseBuffer(h, output_wsid), LINE(__LINE__)));
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaReleaseBuffer(h, input_wsid), LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaReleaseBuffer(h, dsm_wsid), LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaUnmapMMIO(h, 0), LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+	if (NULL != filter) {
+		checkReturnCodes(fpgaDestroyProperties(&filter), LINE(__LINE__));
+	}
+	return retval;
 }
 
 /**
@@ -301,17 +192,17 @@ void sayHello(fpga_token tok) {
  * @return     True if directory, false otherwise.
  */
 bool check_path_is_dir(const char* path) {
-  struct stat statbuf;
+	struct stat statbuf;
 
-  stat(path, &statbuf);
+	stat(path, &statbuf);
 
-  if (S_ISDIR(statbuf.st_mode)) {
-    return true;
-  }  // directory
+	if (S_ISDIR(statbuf.st_mode)) {
+		return true;
+	}  // directory
 
-  else {
-    return false;
-  }  // file
+	else {
+		return false;
+	}  // file
 }
 
 /**
@@ -324,68 +215,68 @@ bool check_path_is_dir(const char* path) {
  *             otherwise.
  */
 bool checkReturnCodes(fpga_result result, string line) {
-  auto pid = getpid();
+	auto pid = getpid();
 
-  switch (result) {
-    case FPGA_OK:
-      // cout << "fpga ok\t"
-      //      << "pid:  " << pid << endl;
-      return true;
+	switch (result) {
+	case FPGA_OK:
+		// cout << "fpga ok\t"
+		//      << "pid:  " << pid << endl;
+		return true;
 
-    case FPGA_INVALID_PARAM:
-      cout << endl
-           << "fpga invalid param\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_BUSY:
-      cout << endl
-           << "fpga busy\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_EXCEPTION:
-      cout << endl
-           << "fpga exception\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      // raise(SIGINT);
-      return false;
-    case FPGA_NOT_FOUND:
-      cout << endl
-           << "fpga not found\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_NO_MEMORY:
-      cout << endl
-           << "fpga no memory\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_NOT_SUPPORTED:
-      cout << endl
-           << "fpga not supported\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_NO_DRIVER:
-      cout << endl
-           << "fpga no driver\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_NO_DAEMON:
-      cout << endl
-           << "fpga no daemon\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_NO_ACCESS:
-      cout << endl
-           << "fpga no access\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-    case FPGA_RECONF_ERROR:
-      cout << endl
-           << "fpga reconf error\t"
-           << "pid:  " << pid << " ... " << line << endl;
-      return false;
-  }
+	case FPGA_INVALID_PARAM:
+		cout << endl
+		     << "fpga invalid param\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_BUSY:
+		cout << endl
+		     << "fpga busy\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_EXCEPTION:
+		cout << endl
+		     << "fpga exception\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		// raise(SIGINT);
+		return false;
+	case FPGA_NOT_FOUND:
+		cout << endl
+		     << "fpga not found\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_NO_MEMORY:
+		cout << endl
+		     << "fpga no memory\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_NOT_SUPPORTED:
+		cout << endl
+		     << "fpga not supported\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_NO_DRIVER:
+		cout << endl
+		     << "fpga no driver\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_NO_DAEMON:
+		cout << endl
+		     << "fpga no daemon\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_NO_ACCESS:
+		cout << endl
+		     << "fpga no access\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	case FPGA_RECONF_ERROR:
+		cout << endl
+		     << "fpga reconf error\t"
+		     << "pid:  " << pid << " ... " << line << endl;
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 /**
@@ -400,24 +291,24 @@ bool checkReturnCodes(fpga_result result, string line) {
  * @return     Returns the length of the file.
  */
 size_t fillBSBuffer(const char* filename, uint8_t** bsbuffer) {
-  if ((NULL != filename) && (NULL != bsbuffer)) {
-    ifstream gbsfile(filename, ios::binary);
-    EXPECT_TRUE(gbsfile.good());
-    gbsfile.seekg(0, ios::end);
-    size_t bitstream_len = bitstream_len = gbsfile.tellg();
-    EXPECT_NE(bitstream_len, 0);
+	if ((NULL != filename) && (NULL != bsbuffer)) {
+		ifstream gbsfile(filename, ios::binary);
+		EXPECT_TRUE(gbsfile.good());
+		gbsfile.seekg(0, ios::end);
+		size_t bitstream_len = bitstream_len = gbsfile.tellg();
+		EXPECT_NE(bitstream_len, 0);
 
-    gbsfile.seekg(0, ios::beg);
-    *bsbuffer = (uint8_t*)calloc(bitstream_len, sizeof(char));
-    EXPECT_TRUE(*bsbuffer != NULL);
+		gbsfile.seekg(0, ios::beg);
+		*bsbuffer = (uint8_t*)calloc(bitstream_len, sizeof(char));
+		EXPECT_TRUE(*bsbuffer != NULL);
 
-    gbsfile.read((char*)*bsbuffer, bitstream_len);
-    gbsfile.close();
-    return bitstream_len;
-  } else {
-    std::cout << "parameters cannot be NULL" << endl;
-    return 0;
-  }
+		gbsfile.read((char*)*bsbuffer, bitstream_len);
+		gbsfile.close();
+		return bitstream_len;
+	} else {
+		std::cout << "parameters cannot be NULL" << endl;
+		return 0;
+	}
 }
 
 /**
@@ -429,56 +320,56 @@ size_t fillBSBuffer(const char* filename, uint8_t** bsbuffer) {
  * @return     Returns OPAE library  success or failure code.
  */
 fpga_result sysfs_read_64(const char* path, uint64_t* u) {
-  int fd = -1;
-  int res = 0;
-  char buf[SYSFS_PATH_MAX] = {0};
-  int b = 0;
+	int fd = -1;
+	int res = 0;
+	char buf[SYSFS_PATH_MAX] = {0};
+	int b = 0;
 
-  fd = open(path, O_RDONLY);
-  if (fd < 0) {
-    printf("open(%s) failed", path);
-    return FPGA_NOT_FOUND;
-  }
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		printf("open(%s) failed", path);
+		return FPGA_NOT_FOUND;
+	}
 
-  if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-    printf("seek failed");
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		printf("seek failed");
 
-    goto out_close;
-  }
+		goto out_close;
+	}
 
-  do {
-    res = read(fd, buf + b, sizeof(buf) - b);
-    if (res <= 0) {
-      printf("Read from %s failed", path);
+	do {
+		res = read(fd, buf + b, sizeof(buf) - b);
+		if (res <= 0) {
+			printf("Read from %s failed", path);
 
-      goto out_close;
-    }
-    b += res;
-    if ((b > sizeof(buf)) || (b <= 0)) {
-      printf("Unexpected size reading from %s", path);
+			goto out_close;
+		}
+		b += res;
+		if ((b > sizeof(buf)) || (b <= 0)) {
+			printf("Unexpected size reading from %s", path);
 
-      goto out_close;
-    }
-  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
+			goto out_close;
+		}
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
 
-  // erase \n
-  buf[b - 1] = 0;
+	// erase \n
+	buf[b - 1] = 0;
 
-  *u = strtoull(buf, NULL, 0);
+	*u = strtoull(buf, NULL, 0);
 
-  if (close(fd)) {
-    perror("close");
-  }
-  return FPGA_OK;
+	if (close(fd)) {
+		perror("close");
+	}
+	return FPGA_OK;
 
 out_close:
-  if (close(fd)) {
-    perror("close");
-  } else {
-    fd = -1;
-  }
+	if (close(fd)) {
+		perror("close");
+	} else {
+		fd = -1;
+	}
 
-  return FPGA_NOT_FOUND;
+	return FPGA_NOT_FOUND;
 }
 
 /**
@@ -492,66 +383,66 @@ out_close:
  */
 
 fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
-  int res = 0;
-  char buf[SYSFS_PATH_MAX] = {0};
-  int b = 0;
-  fpga_result retval = FPGA_OK;
+	int res = 0;
+	char buf[SYSFS_PATH_MAX] = {0};
+	int b = 0;
+	fpga_result retval = FPGA_OK;
 
-  int fd = open(path, O_WRONLY);
+	int fd = open(path, O_WRONLY);
 
-  if (fd < 0) {
-    printf("open: %s", strerror(errno));
-    retval = FPGA_NOT_FOUND;
-    goto out_close;
-  }
+	if (fd < 0) {
+		printf("open: %s", strerror(errno));
+		retval = FPGA_NOT_FOUND;
+		goto out_close;
+	}
 
-  if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-    printf("seek: %s", strerror(errno));
-    retval = FPGA_NOT_FOUND;
-    goto out_close;
-  }
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		printf("seek: %s", strerror(errno));
+		retval = FPGA_NOT_FOUND;
+		goto out_close;
+	}
 
-  switch (B) {
-    // write hex value
-    case HEX:
-      snprintf(buf, sizeof(buf), "%lx", u);
-      break;
+	switch (B) {
+		// write hex value
+	case HEX:
+		snprintf(buf, sizeof(buf), "%lx", u);
+		break;
 
-    // write dec value
-    case DEC:
-      snprintf(buf, sizeof(buf), "%ld", u);
-      break;
-  }
+		// write dec value
+	case DEC:
+		snprintf(buf, sizeof(buf), "%ld", u);
+		break;
+	}
 
-  do {
-    res = write(fd, buf + b, sizeof(buf) - b);
+	do {
+		res = write(fd, buf + b, sizeof(buf) - b);
 
-    if (res <= 0) {
-      printf("Failed to write");
-      retval = FPGA_NOT_FOUND;
-      goto out_close;
-    }
+		if (res <= 0) {
+			printf("Failed to write");
+			retval = FPGA_NOT_FOUND;
+			goto out_close;
+		}
 
-    b += res;
+		b += res;
 
-    if (b > sizeof(buf) || b <= 0) {
-      printf("Unexpected size reading from %s", path);
-      retval = FPGA_NOT_FOUND;
-      goto out_close;
-    }
+		if (b > sizeof(buf) || b <= 0) {
+			printf("Unexpected size reading from %s", path);
+			retval = FPGA_NOT_FOUND;
+			goto out_close;
+		}
 
-  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
 
-  retval = FPGA_OK;
-  goto out_close;
+	retval = FPGA_OK;
+	goto out_close;
 
 out_close:
-  if (close(fd) < 0) {
-    perror("close");
-  } else {
-    fd = -1;
-  }
-  return retval;
+	if (close(fd) < 0) {
+		perror("close");
+	} else {
+		fd = -1;
+	}
+	return retval;
 }
 
 /**
@@ -565,14 +456,14 @@ out_close:
  */
 fpga_result read_sysfs_value(const char* feature, uint64_t* value,
                              fpga_token tok) {
-  fpga_result result;
-  char path[SYSFS_PATH_MAX];
-  memset(path, 0, SYSFS_PATH_MAX);
+	fpga_result result;
+	char path[SYSFS_PATH_MAX];
+	memset(path, 0, SYSFS_PATH_MAX);
 
-  strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
-  strcat_s(path, sizeof(path), feature);
-  checkReturnCodes(result = sysfs_read_64(path, value), LINE(__LINE__));
-  return result;
+	strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
+	strcat_s(path, sizeof(path), feature);
+	checkReturnCodes(result = sysfs_read_64(path, value), LINE(__LINE__));
+	return result;
 }
 
 /**
@@ -587,30 +478,30 @@ fpga_result read_sysfs_value(const char* feature, uint64_t* value,
  */
 fpga_result write_sysfs_value(const char* feature, uint64_t value,
                               fpga_token tok, base B) {
-  fpga_result result = FPGA_OK;
-  char path[SYSFS_PATH_MAX] = {0};
+	fpga_result result = FPGA_OK;
+	char path[SYSFS_PATH_MAX] = {0};
 
-  memset(path, 0, SYSFS_PATH_MAX);
+	memset(path, 0, SYSFS_PATH_MAX);
 
-  strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
-  strcat_s(path, sizeof(path), feature);
+	strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
+	strcat_s(path, sizeof(path), feature);
 
-  switch (B) {
-    case HEX:
-      if (!checkReturnCodes(result = sysfs_write_64(path, value, HEX),
-                            LINE(__LINE__))) {
-        checkIOErrors(path, value);
-      }
-      break;
+	switch (B) {
+	case HEX:
+		if (!checkReturnCodes(result = sysfs_write_64(path, value, HEX),
+				      LINE(__LINE__))) {
+			checkIOErrors(path, value);
+		}
+		break;
 
-    case DEC:
-      if (!checkReturnCodes(result = sysfs_write_64(path, value, DEC),
-                            LINE(__LINE__))) {
-        checkIOErrors(path, value);
-      }
-      break;
-  }
-  return result;
+	case DEC:
+		if (!checkReturnCodes(result = sysfs_write_64(path, value, DEC),
+				      LINE(__LINE__))) {
+			checkIOErrors(path, value);
+		}
+		break;
+	}
+	return result;
 }
 
 /**
@@ -622,27 +513,27 @@ fpga_result write_sysfs_value(const char* feature, uint64_t value,
  * @return     True if supported, false otherwise.
  */
 bool feature_is_supported(const char* feature, fpga_token tok) {
-  bool isDir = false;
-  char path[SYSFS_PATH_MAX];
-  memset(path, 0, SYSFS_PATH_MAX);
+	bool isDir = false;
+	char path[SYSFS_PATH_MAX];
+	memset(path, 0, SYSFS_PATH_MAX);
 
-  strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
-  strcat_s(path, sizeof(path), feature);
-  printf("FEATURE PATH:  %s \n", path);
-  EXPECT_TRUE(isDir = check_path_is_dir(path));
-  return isDir;
+	strcat_s(path, sizeof(path), ((_fpga_token*)tok)->sysfspath);
+	strcat_s(path, sizeof(path), feature);
+	printf("FEATURE PATH:  %s \n", path);
+	EXPECT_TRUE(isDir = check_path_is_dir(path));
+	return isDir;
 }
 
 void printIOError(string line) {
-  perror("IOERROR:  ");
-  cout << ":  " << line << endl;
+	perror("IOERROR:  ");
+	cout << ":  " << line << endl;
 }
 
 void checkIOErrors(const char* syspath, uint64_t value) {
-  struct stat idstat;
-  if (0 != (stat(syspath, &idstat))) cout << "File stat failed!!" << endl;
-  printf("value:  %lx", value);
-  printIOError(LINE(__LINE__));
+	struct stat idstat;
+	if (0 != (stat(syspath, &idstat))) cout << "File stat failed!!" << endl;
+	printf("value:  %lx", value);
+	printIOError(LINE(__LINE__));
 }
 
 /**
@@ -654,76 +545,76 @@ void checkIOErrors(const char* syspath, uint64_t value) {
  * @return     Returns OPAE library success or failure code.
  */
 fpga_result loadBitstream(const char* path, fpga_token tok) {
-  if (GlobalOptions::Instance().VM()) {
-    return FPGA_OK;
-  }
+	if (GlobalOptions::Instance().VM()) {
+		return FPGA_OK;
+	}
 
-  fpga_result result = FPGA_OK;  // return of reconf API
+	fpga_result result = FPGA_OK;  // return of reconf API
 
-  // fill bitstream buffer
-  uint8_t* bsbuffer = NULL;
-  size_t bitstream_len = 0;
+	// fill bitstream buffer
+	uint8_t* bsbuffer = NULL;
+	size_t bitstream_len = 0;
 
-  bitstream_len = fillBSBuffer(path, &bsbuffer);
-  assert(bsbuffer);
+	bitstream_len = fillBSBuffer(path, &bsbuffer);
+	assert(bsbuffer);
 
-  fpga_handle h = NULL;
+	fpga_handle h = NULL;
 
-  fpga_properties proptemp = NULL;
-  fpga_properties tokprop = NULL;
-  fpga_token toktemp = NULL;
+	fpga_properties proptemp = NULL;
+	fpga_properties tokprop = NULL;
+	fpga_token toktemp = NULL;
 
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaGetProperties(NULL, &proptemp), LINE(__LINE__)));
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaGetProperties(tok, &tokprop), LINE(__LINE__)));
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaGetProperties(NULL, &proptemp), LINE(__LINE__)));
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaGetProperties(tok, &tokprop), LINE(__LINE__)));
 
-  uint8_t socketid = 0;
-  EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(tokprop, &socketid),
-                               LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaPropertiesSetSocketID(proptemp, socketid),
-                               LINE(__LINE__)));
+	uint8_t socketid = 0;
+	EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(tokprop, &socketid),
+				     LINE(__LINE__)));
+	EXPECT_TRUE(checkReturnCodes(fpgaPropertiesSetSocketID(proptemp, socketid),
+				     LINE(__LINE__)));
 
-  uint8_t bus = 0;
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPropertiesGetBus(tokprop, &bus), LINE(__LINE__)));
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaPropertiesSetBus(proptemp, bus), LINE(__LINE__)));
+	uint8_t bus = 0;
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaPropertiesGetBus(tokprop, &bus), LINE(__LINE__)));
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaPropertiesSetBus(proptemp, bus), LINE(__LINE__)));
 
-  // set to device for reconfig
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaPropertiesSetObjectType(proptemp, FPGA_DEVICE), LINE(__LINE__)));
+	// set to device for reconfig
+	EXPECT_TRUE(checkReturnCodes(
+			    fpgaPropertiesSetObjectType(proptemp, FPGA_DEVICE), LINE(__LINE__)));
 
-  uint32_t num_matches = 0;
-  EXPECT_TRUE(checkReturnCodes(
-      fpgaEnumerate(&proptemp, 1, &toktemp, 1, &num_matches), LINE(__LINE__)));
+	uint32_t num_matches = 0;
+	EXPECT_TRUE(checkReturnCodes(
+			    fpgaEnumerate(&proptemp, 1, &toktemp, 1, &num_matches), LINE(__LINE__)));
 
-  if (num_matches > 0) {
-    if (checkReturnCodes(fpgaOpen(toktemp, &h, 0), LINE(__LINE__))) {
-      EXPECT_TRUE(checkReturnCodes(fpgaUpdateProperties(tok, proptemp),
-                                   LINE(__LINE__)));
+	if (num_matches > 0) {
+		if (checkReturnCodes(fpgaOpen(toktemp, &h, 0), LINE(__LINE__))) {
+			EXPECT_TRUE(checkReturnCodes(fpgaUpdateProperties(tok, proptemp),
+						     LINE(__LINE__)));
 
-      cout << "PR API:  setting bitstream to - " << path << endl;
-      cout << "PR API:  using sysfs path - "
-           << ((_fpga_token*)toktemp)->sysfspath << endl;
+			cout << "PR API:  setting bitstream to - " << path << endl;
+			cout << "PR API:  using sysfs path - "
+			     << ((_fpga_token*)toktemp)->sysfspath << endl;
 
-      // Expect return false (fail) from negative test PR 18 here.
-      checkReturnCodes(result = fpgaReconfigureSlot(h, FPGA_SLOT, bsbuffer,
-                                                    bitstream_len, 0),
-                       LINE(__LINE__));  // this is the only return value
-      EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
-    }
-  } else {
-    cout << "problem loading bitstream" << endl;
-  }
+			// Expect return false (fail) from negative test PR 18 here.
+			checkReturnCodes(result = fpgaReconfigureSlot(h, FPGA_SLOT, bsbuffer,
+								      bitstream_len, 0),
+					 LINE(__LINE__));  // this is the only return value
+			EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+		}
+	} else {
+		cout << "problem loading bitstream" << endl;
+	}
 
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaDestroyProperties(&proptemp), LINE(__LINE__)));
-  EXPECT_TRUE(
-      checkReturnCodes(fpgaDestroyProperties(&tokprop), LINE(__LINE__)));
-  EXPECT_TRUE(checkReturnCodes(fpgaDestroyToken(&toktemp), LINE(__LINE__)));
-  free(bsbuffer);
-  return result;
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaDestroyProperties(&proptemp), LINE(__LINE__)));
+	EXPECT_TRUE(
+		checkReturnCodes(fpgaDestroyProperties(&tokprop), LINE(__LINE__)));
+	EXPECT_TRUE(checkReturnCodes(fpgaDestroyToken(&toktemp), LINE(__LINE__)));
+	free(bsbuffer);
+	return result;
 }
 
 // bus number shall be passed in from the command line
@@ -742,132 +633,132 @@ fpga_result loadBitstream(const char* path, fpga_token tok) {
  */
 uint32_t getAllTokens(fpga_token toks[], fpga_objtype otype, int cbus,
                       fpga_guid guid) {
-  fpga_properties filter[1] = {0};
-  uint32_t num_matches = 0;
-  void** enum_param = NULL;
-  signed number_filters = 0;
+	fpga_properties filter[1] = {0};
+	uint32_t num_matches = 0;
+	void** enum_param = NULL;
+	signed number_filters = 0;
 
-  checkReturnCodes(fpgaGetProperties(NULL, &filter[0]), LINE(__LINE__));
+	checkReturnCodes(fpgaGetProperties(NULL, &filter[0]), LINE(__LINE__));
 
-  if (cbus > 0) {
-    checkReturnCodes(fpgaPropertiesSetBus(filter[0], (uint8_t)cbus),
-                     LINE(__LINE__));
-  }
+	if (cbus > 0) {
+		checkReturnCodes(fpgaPropertiesSetBus(filter[0], (uint8_t)cbus),
+				 LINE(__LINE__));
+	}
 
-  else {  // set the socket id when bus is default of zero (i.e. unused)
-    if (cbus == 0) {  // only when not running on VM
-      if (!GlobalOptions::Instance().VM()) {
-        checkReturnCodes(fpgaPropertiesSetSocketID(filter[0], 0),
-                         LINE(__LINE__));
-      }
-    }
-  }
+	else {  // set the socket id when bus is default of zero (i.e. unused)
+		if (cbus == 0) {  // only when not running on VM
+			if (!GlobalOptions::Instance().VM()) {
+				checkReturnCodes(fpgaPropertiesSetSocketID(filter[0], 0),
+						 LINE(__LINE__));
+			}
+		}
+	}
 
-  // else bus is less than 0, run on all sockets
+	// else bus is less than 0, run on all sockets
 
-  switch (otype) {
-    case FPGA_DEVICE:
-      checkReturnCodes(fpgaPropertiesSetObjectType(filter[0], FPGA_DEVICE),
-                       LINE(__LINE__));
-      break;
+	switch (otype) {
+	case FPGA_DEVICE:
+		checkReturnCodes(fpgaPropertiesSetObjectType(filter[0], FPGA_DEVICE),
+				 LINE(__LINE__));
+		break;
 
-    case FPGA_ACCELERATOR:
-      checkReturnCodes(fpgaPropertiesSetObjectType(filter[0], FPGA_ACCELERATOR),
-                       LINE(__LINE__));
-      if (guid != NULL) {
-        checkReturnCodes(fpgaPropertiesSetGUID(filter[0], guid),
-                         LINE(__LINE__));
-      }
-      break;
-  }
+	case FPGA_ACCELERATOR:
+		checkReturnCodes(fpgaPropertiesSetObjectType(filter[0], FPGA_ACCELERATOR),
+				 LINE(__LINE__));
+		if (guid != NULL) {
+			checkReturnCodes(fpgaPropertiesSetGUID(filter[0], guid),
+					 LINE(__LINE__));
+		}
+		break;
+	}
 
-  if (GlobalOptions::Instance().VM()) {
-    enum_param = NULL;
-  } else {
-    enum_param = &filter[0];
-    number_filters = 1;
-  }
+	if (GlobalOptions::Instance().VM()) {
+		enum_param = NULL;
+	} else {
+		enum_param = &filter[0];
+		number_filters = 1;
+	}
 
-  checkReturnCodes(
-      fpgaEnumerate(enum_param, number_filters, toks, MAX_TOKENS, &num_matches),
-      LINE(__LINE__));
+	checkReturnCodes(
+		fpgaEnumerate(enum_param, number_filters, toks, MAX_TOKENS, &num_matches),
+			 LINE(__LINE__));
 
-  if (NULL != filter[0]) {
-    checkReturnCodes(fpgaDestroyProperties(&filter[0]), LINE(__LINE__));
-  }
-  return num_matches;
+	if (NULL != filter[0]) {
+		checkReturnCodes(fpgaDestroyProperties(&filter[0]), LINE(__LINE__));
+	}
+	return num_matches;
 }
 
 /**
  * @brief      Core test function that supports enumeration.
- *
- * @param[in]  otype          The object type
- * @param[in]  loadbitstream  Boolean switch to preload or not to
- *                            preload bitstream prior to running test
- *                            code.
- * @param[in]  pStrategy      The test code functor
- * @param[in]  guid           A unique identifier to be used as a filter
- *                            if desired
- */
+*
+* @param[in]  otype          The object type
+* @param[in]  loadbitstream  Boolean switch to preload or not to
+*                            preload bitstream prior to running test
+*                            code.
+* @param[in]  pStrategy      The test code functor
+* @param[in]  guid           A unique identifier to be used as a filter
+*                            if desired
+*/
 void BaseFixture::TestAllFPGA(fpga_objtype otype, bool loadbitstream,
                               std::function<void()> pStrategy, fpga_guid guid) {
-  fpga_properties filter = NULL;
-  assert(pStrategy);
+	fpga_properties filter = NULL;
+	assert(pStrategy);
 
-  int cbus = GlobalOptions::Instance().Bus();
+	int cbus = GlobalOptions::Instance().Bus();
 
-  checkReturnCodes(fpgaGetProperties(NULL, &filter), LINE(__LINE__));
+	checkReturnCodes(fpgaGetProperties(NULL, &filter), LINE(__LINE__));
 
-  if (guid != NULL) {
-    checkReturnCodes(fpgaPropertiesSetGUID(filter, guid), LINE(__LINE__));
-  }
+	if (guid != NULL) {
+		checkReturnCodes(fpgaPropertiesSetGUID(filter, guid), LINE(__LINE__));
+	}
 
-  number_found = getAllTokens(tokens, otype, cbus);
-  ASSERT_GT(number_found, 0);
+	number_found = getAllTokens(tokens, otype, cbus);
+	ASSERT_GT(number_found, 0);
 
-  // reset the filter to avoid corruption and/or leak
-  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));
+	// reset the filter to avoid corruption and/or leak
+	EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));
 
-  for (index = 0; index < number_found; index++) {  // enumeration for loop
-    uint8_t bus = 0x0;
-    uint8_t socketid = 0;
+	for (index = 0; index < number_found; index++) {  // enumeration for loop
+		uint8_t bus = 0x0;
+		uint8_t socketid = 0;
 
-    // reuse filter pointer to hold properties for output
-    // but reset/re-allocate the filter to avoid property value corruption
-    checkReturnCodes(fpgaGetProperties(tokens[index], &filter), LINE(__LINE__));
+		// reuse filter pointer to hold properties for output
+		// but reset/re-allocate the filter to avoid property value corruption
+		checkReturnCodes(fpgaGetProperties(tokens[index], &filter), LINE(__LINE__));
 
-    if (!GlobalOptions::Instance().VM()) {
-      EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(filter, &socketid),
-                                   LINE(__LINE__)));
-      EXPECT_TRUE(
-          checkReturnCodes(fpgaPropertiesGetBus(filter, &bus), LINE(__LINE__)));
-    }
-    // else socketid and bus remain zero
-    printf("common: +++++++++++++++++++++++++++++++++\n");
-    printf("running on socket:  %d\n", socketid);
-    printf("running on bus:  %x\n", bus);
-    printf("common: +++++++++++++++++++++++++++++++++\n");
+		if (!GlobalOptions::Instance().VM()) {
+			EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(filter, &socketid),
+						     LINE(__LINE__)));
+			EXPECT_TRUE(
+				checkReturnCodes(fpgaPropertiesGetBus(filter, &bus), LINE(__LINE__)));
+		}
+		// else socketid and bus remain zero
+		printf("common: +++++++++++++++++++++++++++++++++\n");
+		printf("running on socket:  %d\n", socketid);
+		printf("running on bus:  %x\n", bus);
+		printf("common: +++++++++++++++++++++++++++++++++\n");
 
-    if (NULL != guid) {
-      char uuid[16];
-      uuid_unparse(guid, &uuid[0]);
-      printf("using guid:  %s\n", uuid);
-    }
+		if (NULL != guid) {
+			char uuid[16];
+			uuid_unparse(guid, &uuid[0]);
+			printf("using guid:  %s\n", uuid);
+		}
 
-    if (loadbitstream && !GlobalOptions::Instance().VM()) {
-      EXPECT_TRUE(checkReturnCodes(
-          loadBitstream(config_map[BITSTREAM_MODE0], tokens[index]),
-          LINE(__LINE__)));
-    }
+		if (loadbitstream && !GlobalOptions::Instance().VM()) {
+			EXPECT_TRUE(checkReturnCodes(
+					    loadBitstream(config_map[BITSTREAM_MODE0], tokens[index]),
+						     LINE(__LINE__)));
+		}
 
-    pStrategy();  // RUN THE TEST CODE
+		pStrategy();  // RUN THE TEST CODE
 
-    // allow "invalid parameter" to be returned for cases that intentionally
-    // malform the token
-    checkReturnCodes(fpgaDestroyToken(&tokens[index]), LINE(__LINE__));
-    // destroy properties each iteration to avoid a leak
-    EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));
-  }
+		// allow "invalid parameter" to be returned for cases that intentionally
+		// malform the token
+		checkReturnCodes(fpgaDestroyToken(&tokens[index]), LINE(__LINE__));
+		// destroy properties each iteration to avoid a leak
+		EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));
+	}
 }
 
 }  // end namespace common_test
