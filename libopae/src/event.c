@@ -583,6 +583,11 @@ out_free:
 
 fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
+	//sanity check
+	if (!event_handle) {
+		return FPGA_INVALID_PARAM;
+	}
+
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) *event_handle;
 	fpga_result result = FPGA_OK;
 	int err = 0;
