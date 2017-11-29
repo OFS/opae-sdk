@@ -24,37 +24,16 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libopae-cxx)
+cmake_minimum_required(VERSION 2.8.11)
 
-
-#############################################################################
-### Add 'libopae-cxx' library ###################################################
-#############################################################################
-#set(SRC)
-
-## Define target
-#add_library(opae-c SHARED ${SRC})
-#add_dependencies(opae-c copy-common-opae-header-files)
-#target_link_libraries(opae-c
-#  m
-#  safestr
-#  ${libjson-c_LIBRARIES}
-#  ${libuuid_LIBRARIES})
-#
-include_directories(
-    ${OPAE_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
-
-set(OPAECXX_SRC src/properties.cpp
-                src/token.cpp
-                src/handle.cpp)
-add_library(opae-cxx-core SHARED ${OPAECXX_SRC})
-target_link_libraries(opae-cxx-core opae-c)
-add_executable(simple_example samples/simple_example.cpp)
-target_link_libraries(simple_example opae-c opae-cxx-core pthread)
-
+set(GTEST_ROOT /usr/local)
 find_package(GTest)
-if (GTEST_FOUND)
-    add_subdirectory(tests)
-endif()
+
+set(SRC gtmain.cpp
+    unit/gtEnumerate.cpp
+    unit/gtOpenClose.cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include ${GTEST_INCLUDE_DIRS})
+add_executable(gtcxx ${SRC})
+target_link_libraries(gtcxx  opae-c opae-cxx-core uuid ${GTEST_BOTH_LIBRARIES})
+
+
