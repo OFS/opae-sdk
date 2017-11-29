@@ -288,24 +288,6 @@ include(CPack)
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
 ############################################################################
-## safe_string library #####################################################
-############################################################################
-option(INSTALL_SAFESTR "Include safestring library in install" OFF)
-if(INSTALL_SAFESTR)
-   install(DIRECTORY common/include/safe_string
-         DESTINATION include
-         COMPONENT libsafestrheaders)
-
-   define_pkg(safestring
-      COMPONENTS safestr
-      GROUP "safestring"
-      DISPLAY_NAME "opae-safestring"
-      DESCRIPTION "Safe string library"
-   )
-
-endif()
-
-############################################################################
 ## Meta Package RPM ########################################################
 ############################################################################
 
