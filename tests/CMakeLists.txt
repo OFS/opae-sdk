@@ -99,7 +99,6 @@ target_include_directories(commonlib PUBLIC
 # Test binary
 set(SRC gtmain.cpp
   jsonParser.cpp
-  unit/gtOptionParser.cpp
   unit/gtOpenClose_base.cpp)
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
