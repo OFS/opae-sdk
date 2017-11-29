@@ -40,7 +40,12 @@ project(libopae-cxx)
 #  safestr
 #  ${libjson-c_LIBRARIES}
 #  ${libuuid_LIBRARIES})
-#
+
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+find_package(Threads)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 include_directories(
     ${OPAE_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -52,7 +57,7 @@ set(OPAECXX_SRC src/properties.cpp
 add_library(opae-cxx-core SHARED ${OPAECXX_SRC})
 target_link_libraries(opae-cxx-core opae-c)
 add_executable(simple_example samples/simple_example.cpp)
-target_link_libraries(simple_example opae-c opae-cxx-core pthread)
+target_link_libraries(simple_example opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 
 find_package(GTest)
 if (GTEST_FOUND)
