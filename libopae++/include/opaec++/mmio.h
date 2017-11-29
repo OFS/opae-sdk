@@ -48,7 +48,7 @@ public:
 
     virtual bool read_mmio64(uint32_t offset, uint64_t & value) const = 0;
 
-    virtual uint8_t * mmio_pointer(uint32_t offset) const = 0;
+    virtual volatile uint8_t * mmio_pointer(uint32_t offset) const = 0;
 };
 
 } // end of namespace io

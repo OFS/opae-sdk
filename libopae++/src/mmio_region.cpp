@@ -33,9 +33,25 @@ namespace fpga
 namespace io
 {
 
+mmio::ptr_t mmio_region::region(opae::fpga::types::handle::ptr_t h, mmio_region::id_t id)
+{
+    mmio_region *rptr = new mmio_region(h, id);
+    mmio::ptr_t p;
+
+    if (!rptr->mmio_base_) {
+        // TODO throw fpga_error?
+        delete rptr;
+        return p;
+    }
+
+    p.reset(rptr);
+
+    return p;
+}
+
 mmio_region::mmio_region(opae::fpga::types::handle::ptr_t h, id_t id)
 : owner_(h)
-, id_(id_t::UAFU == id ? 0 : 1)
+, id_(id_t::AFU == id ? 0 : 1)
 , mmio_base_(nullptr)
 {
     fpga_result res = fpgaMapMMIO(owner_->get(),
