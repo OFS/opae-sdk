@@ -264,7 +264,7 @@ def set_error_parsers(err_feature, err_classes):
     for name, err_class in err_classes.iteritems():
         if hasattr(err_feature, name):
             value = getattr(err_feature, name)
-            setattr(err_feature, name, value)
+            setattr(err_feature, name, err_class(value.fget(err_feature)))
 
 
 class errors_command(fpga_command):

@@ -111,7 +111,7 @@ class sysfs_resource(object):
             k_, v_ = k, v
             if isinstance(v, property):
                 k_, v_ = k, v.fget(self)
-            elif hasattr(v, 'to_dict') and k != '__class__':
+            elif not as_string and hasattr(v, 'to_dict') and k != '__class__':
                 k_, v_ = k, v.to_dict()
             if as_string:
                 yield k_, unicode(v_)
