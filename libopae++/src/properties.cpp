@@ -61,6 +61,11 @@ properties::properties()
     }
 }
 
+properties::properties(fpga_objtype objtype)
+: properties(){
+    type = objtype;
+}
+
 properties::~properties(){
     if (props_ != nullptr){
         auto res = fpgaDestroyProperties(&props_);

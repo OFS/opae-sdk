@@ -45,6 +45,7 @@ public:
     typedef std::shared_ptr<properties> ptr_t;
 
     properties();
+    properties(fpga_objtype objetype);
 
     ~properties();
 
