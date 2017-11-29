@@ -8,4 +8,5 @@ trap "popd" EXIT
 cmake .. -DBUILD_TESTS=ON
 make
 
+make test
 echo "test-gtapi-mock-drv build PASSED"
