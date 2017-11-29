@@ -24,74 +24,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <opae/properties.h>
-#include <type_traits>
-#include <iostream>
+#include <memory>
+#include <cstdint>
+#include "mmio.h"
 
 namespace opae
 {
 namespace fpga
 {
-namespace types
+namespace io
 {
 
-template<typename T>
-struct pvalue
+/** Implements the mmio interface, using the OPAE MMIO API.
+*/
+class mmio_region : public mmio
 {
-    typedef typename std::conditional<std::is_same<T, char*>::value,
-                                      fpga_result(*)(fpga_properties, T),
-                                      fpga_result(*)(fpga_properties, T*)>::type getter_t;
-    typedef fpga_result (*setter_t)(fpga_properties, T);
-    pvalue()
-    : props_(0)
-    {
-    }
+public:
+    /** mmio_region destructor.
+     */
+    ~mmio_region();
 
-    pvalue(fpga_properties *p, getter_t g, setter_t s)
-    : props_(p)
-    , get_(g)
-    , set_(s)
-    {
-    }
+    virtual bool write_mmio32(uint32_t offset, uint32_t value) override;
 
-    template<typename U>
-    pvalue<T>& operator=(U v){
-        T value = static_cast<T>(v);
-        auto res = set_(*props_, value);
-        if (res != FPGA_OK){
-            // TODO: Print error: std::cerr << "Could not set property";
-        }
-        return *this;
-    }
+    virtual bool write_mmio64(uint32_t offset, uint64_t value) override;
 
-    pvalue<fpga_guid>& operator=(fpga_guid v){
-        auto res = set_(*props_, v);
-        if (res != FPGA_OK){
-            // TODO : log error
-        }
-        return *this;
-    }
+    virtual bool read_mmio32(uint32_t offset, uint32_t & value) const override;
 
-    fpga_result get_value(T & value) const {
-        return get_(*props_, &value);
-    }
+    virtual bool read_mmio64(uint32_t offset, uint64_t & value) const override;
 
-    friend std::ostream & operator<<(std::ostream & ostr, const pvalue<T> & p){
-        T value;
-        if (p.get_value(value) == FPGA_OK){
-            ostr << +(value);
-        }else{
-            ostr << "null";
-        }
-        return ostr;
-    }
+    virtual volatile uint8_t * mmio_pointer(uint32_t offset) const override
+    { return const_cast<volatile uint8_t *>(mmio_base_ + offset); }
+
+protected:
+    opae::fpga::types::handle::ptr_t owner_;
+    uint32_t id_;
+    uint8_t *mmio_base_;
 
 private:
-    fpga_properties *props_;
-    getter_t get_;
-    setter_t set_;
+    mmio_region(opae::fpga::types::handle::ptr_t h,
+                uint32_t id,
+                uint8_t *base,
+                mmio::region_t region);
+    friend class mmio;
 };
 
-} // end of namespace types
+} // end of namespace io
 } // end of namespace fpga
 } // end of namespace opae

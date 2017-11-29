@@ -23,75 +23,61 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#pragma once
-#include <opae/properties.h>
-#include <type_traits>
-#include <iostream>
+#include <opae/mmio.h>
+#include "opaec++/mmio.h"
+#include "opaec++/mmio_region.h"
 
 namespace opae
 {
 namespace fpga
 {
-namespace types
+namespace io
 {
 
-template<typename T>
-struct pvalue
+mmio::mmio(mmio::region_t region, mmio::impl_t implementation)
+: region_(region)
+, implementation_(implementation)
+{}
+
+mmio::ptr_t mmio::map(opae::fpga::types::handle::ptr_t h,
+                      mmio::region_t region,
+                      mmio::impl_t implementation)
 {
-    typedef typename std::conditional<std::is_same<T, char*>::value,
-                                      fpga_result(*)(fpga_properties, T),
-                                      fpga_result(*)(fpga_properties, T*)>::type getter_t;
-    typedef fpga_result (*setter_t)(fpga_properties, T);
-    pvalue()
-    : props_(0)
-    {
+    mmio::ptr_t p;
+
+    switch(implementation) {
+
+        case impl_t::API : {
+            uint32_t iid = 0;
+            uint8_t *base = nullptr;
+
+            switch (region) {
+                case region_t::AFU : iid = 0; break;
+                case region_t::STP : iid = 1; break;
+                default:/* TODO throw exception? */ break;
+            }
+
+            fpga_result res = fpgaMapMMIO(h->get(),
+                                          iid, 
+                                          reinterpret_cast<uint64_t **>(&base));
+
+            if (res == FPGA_OK) {
+                p.reset(new mmio_region(h, iid, base, region));
+            }
+        } break;
+
+        case impl_t::Direct : {
+
+        // TODO
+
+        } break;
+
     }
 
-    pvalue(fpga_properties *p, getter_t g, setter_t s)
-    : props_(p)
-    , get_(g)
-    , set_(s)
-    {
-    }
+    return p;
+}
 
-    template<typename U>
-    pvalue<T>& operator=(U v){
-        T value = static_cast<T>(v);
-        auto res = set_(*props_, value);
-        if (res != FPGA_OK){
-            // TODO: Print error: std::cerr << "Could not set property";
-        }
-        return *this;
-    }
-
-    pvalue<fpga_guid>& operator=(fpga_guid v){
-        auto res = set_(*props_, v);
-        if (res != FPGA_OK){
-            // TODO : log error
-        }
-        return *this;
-    }
-
-    fpga_result get_value(T & value) const {
-        return get_(*props_, &value);
-    }
-
-    friend std::ostream & operator<<(std::ostream & ostr, const pvalue<T> & p){
-        T value;
-        if (p.get_value(value) == FPGA_OK){
-            ostr << +(value);
-        }else{
-            ostr << "null";
-        }
-        return ostr;
-    }
-
-private:
-    fpga_properties *props_;
-    getter_t get_;
-    setter_t set_;
-};
-
-} // end of namespace types
+} // end of namespace io
 } // end of namespace fpga
 } // end of namespace opae
+

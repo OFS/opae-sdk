@@ -48,7 +48,9 @@ include_directories(
 
 set(OPAECXX_SRC src/properties.cpp
                 src/token.cpp
-                src/handle.cpp)
+                src/handle.cpp
+                src/mmio.cpp
+                src/mmio_region.cpp)
 add_library(opae-cxx-core SHARED ${OPAECXX_SRC})
 add_executable(simple_example samples/simple_example.cpp)
 target_link_libraries(simple_example opae-c opae-cxx-core pthread)
