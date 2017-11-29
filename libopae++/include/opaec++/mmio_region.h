@@ -39,14 +39,22 @@ namespace io
 class mmio_region : public mmio
 {
 public:
+    /** The types of mmio_region that can be requested.
+     */
     enum class id_t : int32_t
     {
         AFU,
         STP
     };
 
-    static mmio::ptr_t region(opae::fpga::types::handle::ptr_t h, id_t id);
+    /** Factory method used to obtain an mmio_region.
+     * @return A smart pointer containing the requested region,
+     * or an empty smart pointer if the region was not obtained.
+     */
+    static mmio::ptr_t map(opae::fpga::types::handle::ptr_t h, id_t id);
 
+    /** mmio_region destructor.
+     */
     ~mmio_region();
 
     virtual bool write_mmio32(uint32_t offset, uint32_t value) override;
@@ -58,7 +66,7 @@ public:
     virtual bool read_mmio64(uint32_t offset, uint64_t & value) const override;
 
     virtual volatile uint8_t * mmio_pointer(uint32_t offset) const override
-    { return const_cast<volatile uint8_t *>(mmio_base_); }
+    { return const_cast<volatile uint8_t *>(mmio_base_ + offset); }
 
 protected:
     opae::fpga::types::handle::ptr_t owner_;
@@ -66,7 +74,7 @@ protected:
     uint8_t *mmio_base_;
 
 private:
-    mmio_region(opae::fpga::types::handle::ptr_t h, id_t id);
+    mmio_region(opae::fpga::types::handle::ptr_t h, uint32_t id, uint8_t *base);
 };
 
 } // end of namespace io

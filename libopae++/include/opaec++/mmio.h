@@ -36,18 +36,47 @@ namespace io
 class mmio
 {
 public:
+    /**
+     * mmio smart pointer type.
+     */
     typedef std::shared_ptr<mmio> ptr_t;
 
+    /**
+     * mmio destructor.
+     */
     virtual ~mmio() {}
 
+    /** Write 32-bit value to MMIO.
+     * @param[in] offset The byte offset to the location to be written.
+     * @param[in] value  The value to write.
+     * @return Whether the write was successful.
+     */
     virtual bool write_mmio32(uint32_t offset, uint32_t value) = 0;
 
+    /** Write 64-bit value to MMIO.
+     * @param[in] offset The byte offset to the location to be written.
+     * @param[in] value  The value to write.
+     * @return Whether the write was successful.
+     */
     virtual bool write_mmio64(uint32_t offset, uint64_t value) = 0;
 
+    /** Read 32-bit value from MMIO.
+     * @param[in] offset The byte offset to the location to be written.
+     * @param[out] value Contains the read value on return.
+     * @return Whether the read was successful.
+     */
     virtual bool read_mmio32(uint32_t offset, uint32_t & value) const = 0;
 
+    /** Read 64-bit value from MMIO.
+     * @param[in] offset The byte offset to the location to be written.
+     * @param[out] value Contains the read value on return.
+     * @return Whether the read was successful.
+     */
     virtual bool read_mmio64(uint32_t offset, uint64_t & value) const = 0;
 
+    /** Retrieve a pointer to the MMIO, given an offset.
+     * @param[in] offset The byte offset to be added to the MMIO base.
+     */
     virtual volatile uint8_t * mmio_pointer(uint32_t offset) const = 0;
 };
 

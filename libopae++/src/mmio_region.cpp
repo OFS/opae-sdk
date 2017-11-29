@@ -33,43 +33,39 @@ namespace fpga
 namespace io
 {
 
-mmio::ptr_t mmio_region::region(opae::fpga::types::handle::ptr_t h, mmio_region::id_t id)
+mmio::ptr_t mmio_region::map(opae::fpga::types::handle::ptr_t h, mmio_region::id_t id)
 {
-    mmio_region *rptr = new mmio_region(h, id);
-    mmio::ptr_t p;
+    uint32_t iid = 0;
+    uint8_t *base = nullptr;
 
-    if (!rptr->mmio_base_) {
-        // TODO throw fpga_error?
-        delete rptr;
-        return p;
+    switch (id) {
+        case id_t::AFU : iid = 0; break;
+        case id_t::STP : iid = 1; break;
+        default:/* TODO throw exception? */ break;
     }
 
-    p.reset(rptr);
+    fpga_result res = fpgaMapMMIO(h->get(),
+                                  iid, 
+                                  reinterpret_cast<uint64_t **>(&base));
+    mmio::ptr_t p;
+
+    if (res == FPGA_OK) {
+        p.reset(new mmio_region(h, iid, base));
+    }
 
     return p;
 }
 
-mmio_region::mmio_region(opae::fpga::types::handle::ptr_t h, id_t id)
+mmio_region::mmio_region(opae::fpga::types::handle::ptr_t h, uint32_t id, uint8_t *base)
 : owner_(h)
-, id_(id_t::AFU == id ? 0 : 1)
-, mmio_base_(nullptr)
-{
-    fpga_result res = fpgaMapMMIO(owner_->get(),
-                                  id_,
-                                  reinterpret_cast<uint64_t **>(&mmio_base_));
-    if (res != FPGA_OK) {
-        // TODO log appropriate error message
-    }
-}
+, id_(id)
+, mmio_base_(base)
+{}
 
 mmio_region::~mmio_region()
 {
-    if (mmio_base_) {
-        fpga_result res = fpgaUnmapMMIO(owner_->get(), id_);
-        if (res != FPGA_OK) {
-            // TODO log appropriate error message
-        }
-    }
+    fpga_result res = fpgaUnmapMMIO(owner_->get(), id_);
+    // TODO: log error?
 }
 
 bool mmio_region::write_mmio32(uint32_t offset, uint32_t value)
