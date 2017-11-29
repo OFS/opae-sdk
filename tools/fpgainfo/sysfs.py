@@ -179,10 +179,11 @@ class sysfs_resource(object):
         print('{:22} : 0x{:02X}'.format('Device', self.device))
         print('{:22} : 0x{:02X}'.format('Function', self.function))
 
-        if not props:
-            props = [(k, v) for k, v in self.enum_props(as_string=True)]
+        prop_values = [(k, v) for k, v in self.enum_props(as_string=True)]
+        if props:
+            prop_values = filter(lambda (k, v): k in props, prop_values)
 
-        for k, v in props:
+        for k, v in prop_values:
             value = kwargs.get(k)(v) if k in kwargs else v
             label = ' '.join([_.capitalize() for _ in k.split('_')])
             print(u'{:22} : {}'.format(label, value))
