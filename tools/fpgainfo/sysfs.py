@@ -181,12 +181,24 @@ class sysfs_resource(object):
 
         prop_values = [(k, v) for k, v in self.enum_props(as_string=True)]
         if props:
-            prop_values = filter(lambda (k, v): k in props, prop_values)
+            def get_value(key):
+                namespaces = key.split('.')
+                obj = self
+                try:
+                    while len(namespaces) > 1:
+                        obj = getattr(obj, namespaces.pop(0))
+                    return getattr(obj, namespaces[0])
+                except AttributeError:
+                    pass
+
+            prop_values = [(k, get_value(k)) for k in props]
 
         for k, v in prop_values:
-            value = kwargs.get(k)(v) if k in kwargs else v
-            label = ' '.join([_.capitalize() for _ in k.split('_')])
-            print(u'{:22} : {}'.format(label, value))
+            if v is not None:
+                value = kwargs.get(k)(v) if k in kwargs else v
+                subbed = re.sub('[_\.]', ' ', k)
+                label = ' '.join([_.capitalize() for _ in subbed.split()])
+                print(u'{:22} : {}'.format(label, value))
 
         print('\n')
 
