@@ -29,9 +29,7 @@ include(packaging)
 
 ################# generate executable python zip file ########################
 set(PYTHONE_FILES
-     "afu.py gbs.py __main__.py packager.py utils.py \
-     metadata/constants.py metadata/__init__.py metadata/metadata.py \
-     schema/afu_schema_v01.json README" )  
+    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README" )  
 
 set(PY_EXE_NAME "packager")
 CREATE_PYTHONE_EXE(${PY_EXE_NAME} "${PYTHONE_FILES}")
