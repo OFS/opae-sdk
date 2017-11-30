@@ -25,18 +25,24 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.11)
+include(packaging)
 
 ################# generate executable python zip file ########################
+set(PYTHONE_FILES
+     afu.py
+     gbs.py
+     __main__.py
+     packager.py
+     utils.py
+     metadata/constants.py 
+     metadata/__init__.py 
+     metadata/metadata.py
+     schema/afu_schema_v01.json
+     README
+     )  
 
-set(ZIP_STR 
-    "zip -qr ${CMAKE_CURRENT_BINARY_DIR}/packager.zip * -x README* -x CMake* -x Makefile* -x test/\\*")
-execute_process(COMMAND sh -c ${ZIP_STR} 
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/packager)
-set(ECHO_STR "echo '#!/usr/bin/env python ' | cat - ${CMAKE_CURRENT_BINARY_DIR}/packager.zip > ${PACKAGER_BIN}")
-    
-execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
+set(PY_EXE_NAME "packager")
+CREATE_PYTHONE_EXE(${PY_EXE_NAME} ${PYTHONE_FILES})
 
 ################# install executable python zip file ######################## 
 install(PROGRAMS ${PACKAGER_BIN}
