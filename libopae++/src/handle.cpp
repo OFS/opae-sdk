@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/mmio.h>
 #include "opaec++/handle.h"
-
+#include "opaec++/properties.h"
 
 namespace opae
 {
@@ -72,21 +72,16 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
 
     auto res = fpgaOpen(token, &c_handle, flags);
     if (res == FPGA_OK) {
+        fpga_objtype ty = FPGA_DEVICE;
 
-        // This will fail for FPGA_DEVICE (no mmio region), so we need to continue when it does.
-        res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
+        properties::ptr_t props = properties::read(token);
+        props->type.get_value(ty);
 
-        if (res != FPGA_OK) {
-            fpga_properties props = NULL;
-            fpga_objtype type = FPGA_DEVICE;
+        if (FPGA_ACCELERATOR == ty) {
 
-            fpgaGetProperties(token, &props);
+            res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
 
-            fpgaPropertiesGetObjectType(props, &type);
-
-            fpgaDestroyProperties(&props);
-
-            if (FPGA_ACCELERATOR == type) {
+            if (res != FPGA_OK) {
                 // TODO : Log/throw error in the case that
                 // the token does refer to an FPGA_ACCELERATOR.
             }
@@ -105,28 +100,26 @@ handle::ptr_t handle::open(token::ptr_t token, int flags, uint32_t mmio_region){
 fpga_result handle::close(){
     fpga_result res = FPGA_INVALID_PARAM;
 
-    if (handle_ != nullptr){
+    if (handle_ != nullptr) {
 
-        res = fpgaUnmapMMIO(handle_, mmio_region_);
+        if (mmio_base_ != nullptr) {
+            res = fpgaUnmapMMIO(handle_, mmio_region_);
 
-        // Similar to open(), an FPGA_DEVICE will not have mmio regions,
-        // so we don't fail based on res here.
-       
-        if (res != FPGA_OK) {
-           // TODO : Log or throw error in the case that
-           // the handle does refer to an FPGA_ACCELERATOR.
+            if (res == FPGA_OK) {
+                mmio_base_ = nullptr;
+            } else {
+               // TODO : Log or throw error in the case that
+               // the handle does refer to an FPGA_ACCELERATOR.
+            }
         }
-
-        mmio_base_ = nullptr;
 
         res = fpgaClose(handle_);
 
         if (res == FPGA_OK){
             handle_ = nullptr;
-        }else{
+        } else {
             // TODO : Log or throw error
         }
-
     }
 
     return res;
