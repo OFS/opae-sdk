@@ -93,7 +93,7 @@ mb1::~mb1()
 
 void mb1::show_help(std::ostream &os)
 {
-    os << "Usage: fpgadiag --mode mb1 [options]:" << std::endl
+    os << "Usage: mb1 [options]:" << std::endl
        << std::endl;
 
     os << "   options are chosen from the following and may appear in the JSON" << std::endl
