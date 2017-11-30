@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import glob
+import inspect
 import json
 import logging
 import os
@@ -68,6 +69,25 @@ class sysfs_filter(object):
         return True
 
 
+def add_static_property(sysfs_path):
+    return property(lambda s_: s_.parse_sysfs(sysfs_path),
+                    lambda s_, v_: s_.write_sysfs(v_, sysfs_path))
+
+
+def add_dynamic_property(obj, property_name, sysfs_path=None):
+    sysfs_path = sysfs_path or property_name
+
+    def getter(self_):
+        return self_.parse_sysfs(sysfs_path)
+
+    def setter(self_, v_):
+        self_.write_sysfs(v_, sysfs_path)
+
+    if obj.sysfs_path_exists(sysfs_path):
+        setattr(obj, property_name,
+                property(getter, setter))
+
+
 class sysfs_resource(object):
     def __init__(self, path, instance_id, **kwargs):
         self._path = path
@@ -76,17 +96,32 @@ class sysfs_resource(object):
         self._device = kwargs.get('device')
         self._function = kwargs.get('function')
 
-    def to_dict(self, include_bdf=True):
+    def enum_props(self, as_string=False):
+        def pred(xxx_todo_changeme):
+            (k, v) = xxx_todo_changeme
+            if k in dir(sysfs_resource):
+                return False
+            if inspect.ismethod(v):
+                return False
+            if k.startswith('_'):
+                return False
+            return True
+
+        for k, v in filter(pred, inspect.getmembers(self)):
+            k_, v_ = k, v
+            if isinstance(v, property):
+                k_, v_ = k, v.fget(self)
+            elif not as_string and hasattr(v, 'to_dict') and k != '__class__':
+                k_, v_ = k, v.to_dict()
+            if as_string:
+                yield k_, unicode(v_)
+            else:
+                yield k_, v_
+
+    def to_dict(self, include_bdf=False):
         data = {}
-        for k, v in vars(self).iteritems():
-            if hasattr(v.__class__, 'to_dict'):
-                data[k] = v.to_dict(False)
-        for k, v in vars(self.__class__).iteritems():
-            if isinstance(v, property):
-                data[k] = v.fget(self)
-        for k, v in vars(self).iteritems():
-            if isinstance(v, property):
-                data[k] = v.fget(self)
+        for k, v in self.enum_props():
+            data[k] = v
         if include_bdf:
             root_data = {}
             root_data["class_path"] = self.sysfs_path
@@ -143,16 +178,28 @@ class sysfs_resource(object):
         print('{:22} : 0x{:02X}'.format('Bus', self.bus))
         print('{:22} : 0x{:02X}'.format('Device', self.device))
         print('{:22} : 0x{:02X}'.format('Function', self.function))
-        for prop in filter(
-                lambda p: hasattr(
-                    self.__class__, p) or hasattr(self, p),
-                props):
-            prop_value = getattr(self, prop)
-            prop_value = kwargs.get(prop, lambda p: p)(prop_value)
-            print(
-                u'{:22} : {}'.format(
-                    ' '.join([p.capitalize() for p in prop.split('_')]),
-                    prop_value))
+
+        prop_values = [(k, v) for k, v in self.enum_props(as_string=True)]
+        if props:
+            def get_value(key):
+                namespaces = key.split('.')
+                obj = self
+                try:
+                    while len(namespaces) > 1:
+                        obj = getattr(obj, namespaces.pop(0))
+                    return getattr(obj, namespaces[0])
+                except AttributeError:
+                    pass
+
+            prop_values = [(k, get_value(k)) for k in props]
+
+        for k, v in prop_values:
+            if v is not None:
+                value = kwargs.get(k)(v) if k in kwargs else v
+                subbed = re.sub('[_\.]', ' ', k)
+                label = ' '.join([_.capitalize() for _ in subbed.split()])
+                print(u'{:22} : {}'.format(label, value))
+
         print('\n')
 
     @property
@@ -183,126 +230,70 @@ class pr_feature(sysfs_resource):
 
 
 class power_mgmt_feature(sysfs_resource):
-    @property
-    def consumed(self):
-        return self.parse_sysfs("consumed")
+    consumed = add_static_property("consumed")
 
 
 class thermal_feature(sysfs_resource):
-    @property
-    def temperature(self):
-        return self.parse_sysfs("temperature")
-
-    @property
-    def threshold1(self):
-        return self.parse_sysfs("threshold1")
-
-    @property
-    def threshold1_policy(self):
-        return self.parse_sysfs("threshold1_policy")
-
-    @property
-    def threshold1_reached(self):
-        return self.parse_sysfs("threshold1_reached")
-
-    @property
-    def threshold2(self):
-        return self.parse_sysfs("threshold2")
-
-    @property
-    def threshold2_reached(self):
-        return self.parse_sysfs("threshold2_reached")
-
-    @property
-    def threshold_trip(self):
-        return self.parse_sysfs("threshold_trip")
+    temperature = add_static_property("temperature")
+    threshold1 = add_static_property("threshold1")
+    threshold1_policy = add_static_property("threshold1_policy")
+    threshold1_reached = add_static_property("threshold1_reached")
+    threshold2 = add_static_property("threshold2")
+    threshold2_reached = add_static_property("threshold2_reached")
+    threshold_trip = add_static_property("threshold_trip")
 
 
 class errors_feature(sysfs_resource):
-    error_files = {}
+    revision = add_static_property("revision")
 
     def __init__(self, path, instance_id, **kwargs):
         super(errors_feature, self).__init__(path, instance_id, **kwargs)
-        self.name = None
-        self.errors_file = None
-        self.clear_file = None
-        self.error_classes = []
-        self.valid_error_files = []
-        # first check the error files for the given revision
-        errfiles = self.error_files[self.revision]
-        if all([self.sysfs_path_exists(f) for f in errfiles]):
-            self.add_error_props(*errfiles)
-        else:
-            for rev, errfiles in self.error_files.iteritems():
-                self.add_error_props(*errfiles)
+        self._errors_file = None
+        self._clear_file = None
+        self._name = "errors"
 
-    def print_info(self, label, *props, **kwargs):
-        super(errors_feature, self).print_info(label, *self.valid_error_files)
-
-    def add_error_props(self, *errfiles):
-        for err_file in errfiles:
-            base_name = os.path.basename(err_file)
-            if self.sysfs_path_exists(
-                    err_file) and not hasattr(self, base_name):
-                self.valid_error_files.append(base_name)
-                setattr(self,
-                        os.path.basename(err_file),
-                        property(lambda self_: self_.parse_sysfs(err_file)))
-
-    @property
-    def revision(self):
-        return self.parse_sysfs("revision")
+    def name(self):
+        return self._name
 
     def clear(self):
-        value = self.parse_sysfs(self.errors_file)
+        value = self.parse_sysfs(self._errors_file)
         try:
             if value:
-                self.write_sysfs(hex(value), self.clear_file)
+                self.write_sysfs(hex(value), self._clear_file)
             return True
         except IOError:
             logging.warn(
                 "Could not clear errors: {}."
                 "Are you running as root?".format(
-                    self.clear_file))
+                    self._clear_file))
         return False
 
 
 class fme_errors(errors_feature):
-    error_files = {
-        0: ["fme-errors/errors",
-            "fme-errors/first_error",
-            "fme-errors/next_error",
-            "bbs_errors",
-            "gbs_errors",
-            "pcie0_errors",
-            "pcie1_errors"],
-        1: ["fme-errors/errors",
-            "fme-errors/first_error",
-            "fme-errors/next_error",
-            "catfatal_errors",
-            "nonfatal_errors",
-            "pcie0_errors",
-            "pcie1_errors"]}
-
     def __init__(self, path, instance_id, **kwargs):
         super(fme_errors, self).__init__(path, instance_id, **kwargs)
-        self.name = "fme errors"
-        self.errors_file = "fme-errors/errors"
-        self.clear_file = "fme-errors/clear"
+        self._name = "fme errors"
+        self._errors_file = "fme-errors/errors"
+        self._clear_file = "fme-errors/clear"
+        add_dynamic_property(self, "errors", "fme-errors/errors")
+        add_dynamic_property(self, "first_error", "fme-errors/first_error")
+        add_dynamic_property(self, "next_error", "fme-errors/next_error")
+        add_dynamic_property(self, "bbs_errors")
+        add_dynamic_property(self, "gbs_errors")
+        add_dynamic_property(self, "pcie0_errors")
+        add_dynamic_property(self, "pcie1_errors")
+        add_dynamic_property(self, "catfatal_errors")
+        add_dynamic_property(self, "nonfatal_errors")
 
 
 class port_errors(errors_feature):
-    error_files = {
-        0: ["errors",
-            "first_error"],
-        1: ["errors",
-            "first_error"]}
-
     def __init__(self, path, instance_id, **kwargs):
         super(port_errors, self).__init__(path, instance_id, **kwargs)
-        self.name = "port errors"
-        self.errors_file = "errors"
-        self.clear_file = "clear"
+        self._name = "port errors"
+        self._errors_file = "errors"
+        self._clear_file = "clear"
+        add_dynamic_property(self, "errors")
+        add_dynamic_property(self, "first_error")
 
 
 class fme_info(sysfs_resource):
