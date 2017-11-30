@@ -42,6 +42,7 @@ set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MI
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 
+include(utility_functions)
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
@@ -101,6 +102,7 @@ add_subdirectory(tools/libopae++)
 add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
 add_subdirectory(tools/hssi)
+add_subdirectory(tools/packager)
 
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
@@ -197,6 +199,7 @@ define_pkg(tools
   toolfpgaflash
   toolfpgainfo
   toolfpgaport
+  toolpackager
   opaecxxutils
   opaecxxlib
   opaecxxnlb
