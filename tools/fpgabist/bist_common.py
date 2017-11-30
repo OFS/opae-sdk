@@ -27,8 +27,8 @@
 import glob
 import os
 import re
-import sys
 import subprocess
+import sys
 
 INSTALL_PATH = '/usr/local/bin'
 
@@ -38,7 +38,8 @@ BIST_MODES = ['nlb_3', 'dma_afu']
 
 # Return a list of all available bus numbers
 def get_all_fpga_bdfs():
-    pattern = '\d+:(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d)'
+    pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'
+               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
@@ -52,7 +53,8 @@ def get_all_fpga_bdfs():
 
 
 def get_bdf_from_args(args):
-    pattern = "(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d).*?."
+    pattern = ('(?P<bus>[a-fA-F0-9]{2}):'
+               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
     pattern += vars(args)['device_id']
     bdf_pattern = re.compile(pattern)
     bdf_list = []
@@ -65,20 +67,19 @@ def get_bdf_from_args(args):
             if vars(args)['function'] else '')
     host = subprocess.check_output(['/usr/sbin/lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
-    for match in matches:
-        bdf_list.append({'bus': match[0], 'device': match[1],
-                        'function': match[2]})
+    for bus, device, function in matches:
+        bdf_list.append({'bus': bus, 'device': device,
+                        'function': function})
     return bdf_list
 
 
 def get_mode_from_path(gbs_path):
-    if not os.path.isfile(gbs_path):
-        return None
-    pattern = r'^(.*\/)(.*)[^gbs]'
-    match = re.match(pattern, gbs_path)
-    if match is None:
-        return None
-    return match.group(2)
+    if os.path.isfile(gbs_path):
+        pattern = r'^(.*\/)(.*)[^gbs]'
+        match = re.match(pattern, gbs_path)
+        if match:
+            return match.group(2)
+    return None
 
 
 def load_gbs(install_path, gbs_file, bus_num):

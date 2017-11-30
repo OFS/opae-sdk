@@ -33,8 +33,11 @@ import bist_common as bc
 
 class Nlb3Mode(bc.BistMode):
     name = "nlb_3"
-    # TODO: Add executable to exercise Peters AFU
-    executables = {'nlb3': ''}
+
+    fpga_params = ('--mode=trput --read-vc=vh0 --write-vc=vh0 '
+                   '--multi-cl=4 --begin=1024, --end=1024 --timeout-sec=30 '
+                   '--cont')
+    executables = {'nlb3': fpga_params}
 
     def run(self, gbs_path, bus_num):
         bc.load_gbs(bc.INSTALL_PATH, gbs_path, bus_num)
