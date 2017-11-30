@@ -57,7 +57,7 @@ add_custom_target(copy-doxygen-files ALL
   DEPENDS doc)
 
 add_custom_target(copy-markdown-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/source ${BINARY_BUILD_DIR}/docs)
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
 
 add_custom_target(sphinx_html ALL
   ${SPHINX_EXECUTABLE}

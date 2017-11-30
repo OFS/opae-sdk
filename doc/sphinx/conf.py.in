@@ -9,6 +9,9 @@ import shutil
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
 
+# Another markdown parser for sphinx
+from sphinxcontrib.pandoc_markdown import MarkdownParser
+
 # Enabled extensions
 extensions = [
     'sphinx.ext.autodoc',
@@ -31,7 +34,8 @@ breathe_projects = {'FPGA-API' : 'doxygen_xml/'}
 breathe_default_project = 'FPGA-API'
 
 # Do not use this; if _contrib markdown plugin was used
-source_parsers = {'.md': CommonMarkParser}
+# source_parsers = {'.md': CommonMarkParser}
+source_parsers = { '.md': MarkdownParser}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
