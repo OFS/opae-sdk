@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${CMAKE_SOURCE_DIR}/libopae/src )
+                    ${OPAE_SDK_SOURCE}/libopae/src )
 
 set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 
