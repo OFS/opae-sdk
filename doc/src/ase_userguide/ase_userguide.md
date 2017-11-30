@@ -1,61 +1,37 @@
 # OPAE AFU Simulation Environment (ASE) User Guide #
 
-```eval_rst
 .. toctree::
 
 .. highlight:: c
 
-.. highlight:: sh
-
 .. highlight:: console
 
-.. highlight:: markdown
-```
 
 ## Intended Audience ##
 
-This document is written for developers who plan to use AFU Simulation
-Environment (ASE) as a tool to begin development on the Intel
-Xeon-FPGA Platform with an Intel FPGA IP (a.k.a Blue Bitstream)
-accelerator before deployment in a real system. The document is intended for
-both beginners and experienced developers.
+This document is written for developers who plan to use AFU Simulation Environment (ASE) as a tool to begin development on the Intel&reg; Xeon&reg;-FPGA Platform with an Intel&reg; FPGA IP (a.k.a Blue Bitstream) accelerator before deployment in a real system. The document is intended for both beginners and experienced developers.
 
-To use the ASE Environment, the developer must have access to Accelerated
-Functional Unit (AFU) source code in RTL format like {System}Verilog, VHDL) or
-in SystemC, etc. or in a High-level Synthesis (HLS) language, so long as the
-generated output can be interpreted by industry-common RTL Simulator
-tools. Application software can be developed to operate this AFU in the same
-unified environment.
+To use the ASE Environment, the developer must have access to Accelerated Functional Unit (AFU) source code in RTL format like {System}Verilog, VHDL) or in SystemC, etc. or in a High-level Synthesis (HLS) language, so long as the generated output can be interpreted by industry-common RTL Simulator tools. Application software can be developed to operate this AFU in the same unified environment.
 
-The minimum set of skills required for developing with ASE, is competence in
-C/C++, synthesizable SystemVerilog development, familiarity with RTL simulators
-like Synopsys\* VCS-MX or Mentor Graphics\** ModelSim-SE*/QuestaSim, and
-preferably some FPGA PAR experience. Additional skills may be necessary and
-recommended for more advanced work. Teams of developers who specialize in either
-RTL development or Software development may use ASE in lock-step to develop
-functional AFUs for Intel Xeon-FPGA platform.
+The minimum set of skills required for developing with ASE, is competence in C/C++, synthesizable SystemVerilog development, familiarity with RTL simulators like Synopsys\* VCS-MX or Mentor Graphics\** ModelSim-SE*/QuestaSim, and preferably some FPGA PAR experience. Additional skills may be necessary and recommended for more advanced work. Teams of developers who specialize in either RTL development or Software development may use ASE in lock-step to develop functional AFUs for Intel&reg; Xeon&reg;-FPGA platform.
 
 
 ## Introduction ##
 
-AFU Simulation Environment (ASE) is the term used to refer to the Intel
-Xeon-FPGA user application development and debug environment. It aims to provide
-a consistent transaction level hardware interface and software API that allows
-users to develop production-quality AFU RTL and SW host application that can
-then be run on the real FPGA system without modifications.
+AFU Simulation Environment (ASE) is the term used to refer to the Intel&reg; Xeon&reg;-FPGA user application development and debug environment. It aims to provide a consistent transaction level hardware interface and software API that allows users to develop production-quality AFU RTL and SW host application that can then be run on the real FPGA system without modifications.
 
 ASE can be used to develop and  simulate AFU and software code that will run on tightly-coupled FPGA and the programmable FPGA acceleration cards. The figures shown may refer to one of the two platforms, but the enviroment may be used to simulate either of the two platforms.
 
-```eval_rst
 .. note::
-    The ASE environment is integrated to support one AFU and one application at a time. Multiple slot simulation in a single platform is not supported in ASE.
+```
+The ASE environment is integrated to support one AFU and one application at a time. Multiple slot simulation in a single platform is not supported in ASE.
 ```
 
 ### Overview of Supported platforms ###
 
 ![Xeon-FPGA Multi-chip overview](mcp_platform.png "Xeon-FPGA Multi-chip overview")
 
-The Intel Xeon-FPGA tightly-coupled FPGA platform provides coherent accelerator attachment to an Intel platform via Intel Ultra Path Interconnect (UPI) and two PCIe channels. In this case the FPGA Blue Bitstream (BBS) realized on the FPGA hosts a proprietary UPI Protocol layer and PCIe fabric in FPGA logic (registers, slices, LUTs, etc. This Blue Bitstream incorporates a Caching Agent (CA) that participates in Intel Xeon caching activities.
+The Intel&reg; Xeon&reg;-FPGA tightly-coupled FPGA platform provides coherent accelerator attachment to an Intel platform via Intel&reg; Ultra Path Interconnect (UPI) and two PCIe channels. In this case the FPGA Blue Bitstream (BBS) realized on the FPGA hosts a proprietary UPI Protocol layer and PCIe fabric in FPGA logic (registers, slices, LUTs, etc. This Blue Bitstream incorporates a Caching Agent (CA) that participates in Intel&reg; Xeon&reg; caching activities.
 
 
 ### AFU Simulation Environment (ASE) ###
@@ -81,7 +57,7 @@ Customers developing AFU RTL and Software application must comply with these int
 
 * ASE presents a fake memory model to the AFU which keeps tabs on memory requested as accelerator workspaces, immediately flagging illegal memory transactions to locations outside of requested memory spaces. This is a good way to identify address violation bugs in simulation.
 
-* ASE does not guarantee synthesizability of the AFU design. However ASE and Intel Quartus Prime Pro suite can be used in an iterative design flow to generate a successfully compiled Green Bitstream (GBS) from AFU RTL functionally verified in ASE for interoperability within the modeled platform.
+* ASE does not guarantee synthesizability of the AFU design. However ASE and Intel&reg; Quartus&reg; Prime Pro suite can be used in an iterative design flow to generate a successfully compiled Green Bitstream (GBS) from AFU RTL functionally verified in ASE for interoperability within the modeled platform.
 
 * ASE provides a data hazard checker which can be used to warn users of CCI-P traffic patterns that may cause WAW, RAW, WAR hazards. These transactions may be debugged using the waveform viewer or by using a relevant Memory Protocol Factory (MPF) shim.
 
@@ -113,7 +89,7 @@ Accelerator Functional Unit (AFU) using ASE can be broken down into four stages.
 
 * **Development Phase**: In the development phase, ASE is used to develop AFU RTL and Software logic in a single workflow. Design RTL can be either developed from scratch or by modifying existing sample RTL. ASE behaviorally models the Intel Blue Bitstream IP providing immediate functionality feedback at the development phase. Any errors in CCI-P protocols, transactions, or invalid memory accesses can be flagged off in this stage and fixed at development time, without involving long place and route run times.
 
-* **Bitstream Generation**: Once functional AFU RTL and SW have been developed satisfactorily, the AFU RTL can be seamlessly ported to the Intel Quartus Prime Pro tool and placed-routed for the specific kind of Intel Blue Bitstream IP (integraded FPGA or programmable FPGA acceleration cards). Synthesis reports can be used as feedback to fix AFU RTL. This can be taken back to Development Phase and functionally validated in ASE. It must be noted that bitstream generation can take hours depending on the design's complexity, area occupancy, etc. Once a bitstream is generated, timing analysis is performed to check for timing corners, setup-hold violations, clock closure, etc. Feedback or failures from these also can be fed back to the design and validated in the ASE environment. Once all these criteria are sufficed, a Green Bitstream (GBS) containing the AFU RTL is generated.
+* **Bitstream Generation**: Once functional AFU RTL and SW have been developed satisfactorily, the AFU RTL can be seamlessly ported to the Intel&reg; Quartus&reg; Prime Pro tool and placed-routed for the specific kind of Intel Blue Bitstream IP (integraded FPGA or programmable FPGA acceleration cards). Synthesis reports can be used as feedback to fix AFU RTL. This can be taken back to Development Phase and functionally validated in ASE. It must be noted that bitstream generation can take hours depending on the design's complexity, area occupancy, etc. Once a bitstream is generated, timing analysis is performed to check for timing corners, setup-hold violations, clock closure, etc. Feedback or failures from these also can be fed back to the design and validated in the ASE environment. Once all these criteria are sufficed, a Green Bitstream (GBS) containing the AFU RTL is generated.
 
 * **In-system Deployment**: Once a successful GBS is generated, this can be tested in system or deployed. Further in-system debug of failures can be performed using Quartus Signaltap. Platform specific software optimization can be performed in this stage. Platform specific optimizations to the application may be pursued in the same manner as any other software optimization task.
 
@@ -122,12 +98,12 @@ Accelerator Functional Unit (AFU) using ASE can be broken down into four stages.
 
 AFU RTL code and OPAE software code produced in ASE is portable between the Simulation and Place-and-Route (PAR) Quartus environment. This is true as long as the AFU RTL code developed in the ASE environment is synthesizable and meets timing criteria.
 * In the simulation environment, the AFU RTL is compiled in either Synopsys\* VCS-MX or Mentor\* Modelsim-SE/Questasim tools. The Software application is compiled for an ASE-specific implementation of the OPAE API.
-* In the in-system environment, the AFU RTL will be synthesized in Intel Quartus and a bitstream produced. The FPGA in the Intel platform is programmed using this bitstream. The Software application is compiled for an platform-specific implementation of the OPAE API.
+* In the in-system environment, the AFU RTL will be synthesized in Intel&reg; Quartus&reg; and a bitstream produced. The FPGA in the Intel platform is programmed using this bitstream. The Software application is compiled for an platform-specific implementation of the OPAE API.
 
-
-```eval_rst
 .. note::
-    ASE is capable of consuming AFU code in RTL source form only, and not in Bitstream form.
+
+```
+ASE is capable of consuming AFU code in RTL source form only, and not in Bitstream form.
 ```
 
 ## System Requirements ##
@@ -149,11 +125,11 @@ The following RTL Simulators versions are supported in the current version of AS
     * ModelSim-SE 10.5a
     * QuestaSim 10.4d
 
-```eval_rst
 .. note::
-    Both Mentor Graphics\* Modelsim-SE/Questasim and Synopsys\* VCS-MX system requirements are different are varied.
+```
+Both Mentor Graphics\* Modelsim-SE/Questasim and Synopsys\* VCS-MX system requirements are different are varied.
 
-    ASE is tested in some common configurations including the support list for Mentor\* and Synopsys\*. It is impractical to verify ASE functionality on all possible OS configurations. When choosing an operating system configuration, please consult the RTL Simulator supported OS List.
+ASE is tested in some common configurations including the support list for Mentor\* and Synopsys\*. It is impractical to verify ASE functionality on all possible OS configurations. When choosing an operating system configuration, please consult the RTL Simulator supported OS List.
 ```
 
 ASE uses Inter-Process Communication (IPC) constructs. Although under most circumstances these constructs operate normally without glitches. The following Linux locations should exist and be writeable. In most Linux distributions, ```/dev/shm``` comes pre-mounted as a default option.
@@ -170,7 +146,7 @@ The other ASE requirements are as follows:
 * **Cmake**: version 2.8 or above
 * **GLIBC**: version 2.19 or above
 * **Python**: This is optional, but is used by ```ase/scripts/generate_ase_environment.py``` script. However, the functions of the script can be performed manually. Python >=2.7 is recommended.
-* **Intel Quartus Pro 17**: If you are simulating the provided NLB sample, ASE needs to find the ```$QUARTUS_HOME/eda/sim_lib/``` directory supplied with Intel Quartus Pro. The NLB sample RTL uses the Altera gates library.set GLS_SIM to 1 in the ```ase/Makefile```.
+* **Intel&reg; Quartus&reg; Pro 17**: If you are simulating the provided NLB sample, ASE needs to find the ```$QUARTUS_HOME/eda/sim_lib/``` directory supplied with Intel&reg; Quartus&reg; Pro. The NLB sample RTL uses the Altera gates library.set GLS_SIM to 1 in the ```ase/Makefile```.
 
 ASE provides a bash script called env_check.sh in ```ase/scripts/``` directory. Run this script to determine if you have the required tools installed.
 
@@ -185,7 +161,7 @@ ASE implementation of OPAE API may be downloaded either in RPM format (see Downl
 
 The source form directory tree looks as follows:
 
-```sh
+```{.shell}
 
     OPAE_BASEDIR
         |-- ase
@@ -236,7 +212,7 @@ Several scripts are supplied in the ASE distribution under the ```ase/scripts```
 
 An RTL Simulator tool is required for running ASE amongst other [System Requirements](#system-requirements). To set up the tools required, use ase/scripts/ase_setup.sh as a template script. The script has many empty placeholders that are site and environment specific. Consult your Electronic Design Automation (EDA) tools  administrator, and/or the RTL simulator User Guides for help setting up the tools.
 
-```console
+```{.bash}
 
     # This file must be edited before sourcing it.
     $ emacs ase/scripts/ase_setup.sh
@@ -253,11 +229,12 @@ An RTL Simulator tool is required for running ASE amongst other [System Requirem
 
 This script checks the status of the OS distribution, distro and available system libraries. This is a non-exhaustive check, and looks for only the most important dependencies, e.g. GCC version, GLIBC version, etc.
 
-```console
+```{.bash}
 
     $ ./scripts/env_check.sh
 
 ```
+
 
 #### Create Empty ASE Environment ####
 
@@ -265,7 +242,7 @@ The simulator for ASE execution may be built either in-tree or out-of-tree. Choi
 
 For this reason, an ASE environment create/clone script is made available. This script will generate only an empty ASE environment, and does not take any inputs. The ASE environment is created
 
-```console
+```{.bash}
 
     # Change directory to target date
     $ cd <work-dir>
@@ -303,10 +280,11 @@ For this reason, an ASE environment create/clone script is made available. This 
 
 ```
 
-```
 .. note::
-    The ``ase/scripts/create_ase_simbuild_env.sh`` will not generate any AFU specific configuration files. These will need to be provided by the user or using the ``generate_ase_environment.py`` script.
 ```
+The ``ase/scripts/create_ase_simbuild_env.sh`` will not generate any AFU specific configuration files. These will need to be provided by the user or using the ``generate_ase_environment.py`` script.
+```
+
 
 #### Generate ASE Environment Script ####
 
@@ -314,7 +292,7 @@ ASE supplies a Generate ASE Environment helper script that does a brute-force ch
 
 * **Mandatory Option**: The script requires a directory path to RTL AFU.
 * **Optional -t**: By default the tool option selected is ```VCS```. If Mentor\* tools are used, supply the ```QUESTA``` option.
-* **Optional -p**: By default integraded FPGA ```skxp``` option is selected. If programmable FPGA acceleration card is used, supply the ```dcp``` option.
+* **Optional -p**: By default integraded FPGA ```intg_xeon``` option is selected. If programmable FPGA acceleration card is used, supply the ```discrete``` option.
 * **Optional -x**: Exclsions for path searches can be supplied using this option.
 
 Along with the AFU configuration files, depending on the RTL tools used, certain tool control scripts are generated.
@@ -332,13 +310,13 @@ Details on generated files:
 
 Absolute paths are used wherever possible. One helpful option to use for portability across users and groups may be to use an environment variables may be used. These can be used directly in the generated files for building and running the simulator.
 
-
-```eval_rst
 .. note::
-    Users must manually check this file for correctness before using it in the simulation.
+
+```
+Users must manually check this file for correctness before using it in the simulation.
 ```
 
-```console
+```{.bash}
 
     $ ./scripts/generate_ase_environment.py  --help
     #################################################################
@@ -347,7 +325,7 @@ Absolute paths are used wherever possible. One helpful option to use for portabi
     #               AFU Simulation Environment (ASE)                #
     #                                                               #
     #################################################################
-    usage: generate_ase_environment.py [-h] [-t {VCS,QUESTA}] [-p {skxp,dcp}]
+    usage: generate_ase_environment.py [-h] [-t {VCS,QUESTA}] [-p {intg_xeon,discrete}]
                                    [-x EXCLUDE]
                                    dirlist [dirlist ...]
 
@@ -358,7 +336,7 @@ Absolute paths are used wherever possible. One helpful option to use for portabi
         -h, --help            show this help message and exit
         -t {VCS,QUESTA}, --tool {VCS,QUESTA}
                               simulator tool to use, default is VCS
-        -p {skxp,dcp}, --plat {skxp,dcp}
+        -p {intg_xeon,discrete}, --plat {intg_xeon,discrete}
                               FPGA Platform to simulate
         -x EXCLUDE, --exclude EXCLUDE
                               file name pattern to exclude
@@ -369,7 +347,7 @@ Absolute paths are used wherever possible. One helpful option to use for portabi
 
 the ASE cleanup script located at ```scripts/ipc_clean.py``` may be used for killing zombie simulation processes and temporary files left behind by failed simulation processes or crashes.
 
-```console
+```{.bash}
 
     $ ./scripts/ipc_clean.py
 
@@ -409,10 +387,11 @@ AFU Simulation Environment (ASE) is structured as a server-client simulation env
     * The server also includes a CCI-P Checker block that rule-checks CCI-P transactions originating in the AFU. This allows for development-time live checking of protocol issues, and early warning of CCI-P protocol non-compliance, hazards, race conditions, etc.
     * Lastly. buffer allocation calls are mapped to POSIX Shared Memory (/dev/shm). Information about these buffers are shared back and forth between server-client processes using the named pipes.
 
-```eval_rst
 .. note::
-    The Physical addresses generated in ASE are not realistic and are not replicable in-system.
 ```
+The Physical addresses generated in ASE are not realistic and are not replicable in-system.
+```
+
 
 * **Client Process**:
 
@@ -431,17 +410,17 @@ The two processes (both server and client) are built using two separate build sc
 
 If you downloaded a source tarball, you will need this step, else go directly to the Application build step.
 
-```eval_rst
 .. note::
-    For the sake this discussion, we will use the directory ``/tmp/opae/`` as the base directory where OPAE API software distribution is installed. ``/tmp`` prefix may point to any system or user directory.
+```
+For the sake this discussion, we will use the directory ``/tmp/opae/`` as the base directory where OPAE API software distribution is installed. ``/tmp`` prefix may point to any system or user directory.
 
-    ASE Source directory will point to ``/tmp/opae/ase/``
+ASE Source directory will point to ``/tmp/opae/ase/``
 
 ```
 
 * The first step in the Software build is to build the OPAE libraries.
 
-```console
+```{.bash}
 
     # Change directory to opae directory
     $ cd /tmp/opae/
@@ -474,6 +453,7 @@ If you downloaded a source tarball, you will need this step, else go directly to
     $ make
     $ make install
 
+    # The environment Variable PATH should be pointed to /myinst/bin
     # Check library install paths
     $ cd /tmp/opae/myinst/
     $ ls
@@ -490,7 +470,7 @@ There are a few ways to build this:
 
 ##### Dynamically linking libopae-c-ase.so #####
 
-```console
+```{.bash}
 
     # Change directory to <Path to Directory>/opae/samples/
     #   -luuid is required by UUID code
@@ -506,7 +486,7 @@ There are a few ways to build this:
 
 The ASE implementation of the OPAE library attempts to functionally mirror system behavior. Hence, the application may also be dynamically linked to the System library, and then overloaded with the ```LD_PRELOAD``` environment.
 
-```console
+```{.bash}
 
     # Change directory to <Path to Directory>/opae/samples/
     #   -luuid is required by UUID code
@@ -525,7 +505,7 @@ The ASE implementation of the OPAE library attempts to functionally mirror syste
 
 A much simpler method to use the OPAE ASE library implementation and compile it to the OPAE software application directly in one command using GCC.
 
-```console
+```{.bash}
 
     # Compile command
     $ gcc -g -o hello_fpga_ase hello_fpga.c /tmp/opae/myinst/lib/libopae-c-ase.so -I /tmp/opae/myinst/include/ -std=c99 -luuid
@@ -542,33 +522,31 @@ ASE uses a platform differentiation key in the simulator Makefile to enable diff
 
 Users must note the following **REQUIRED** Build configurations
 
-```markdown
 | Configuration | Description | Default |
-|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|
-| ```ASE_PLATFORM```                                                     | This is the platform differentiator  must be set in ```ase_sources.mk``` to point to the required simulator features. <br>```FPGA_PLATFORM_INTG_XEON``` and ```FPGA_PLATFORM_DISCRETE``` are the only legal values.                                                                         | ```FPGA_PLATFORM_INTG_XEON```                  |
-| ```SIMULATOR```                                                        | This must be set in ```ase_sources.mk``` to point to the correct kind of RTL simulator. Currently Synopsys\* VCS-MX and Modelsim-SE (Questasim)  simulator builds are supported in ASE. Only 64-bit configurations are supported. <br>```VCS``` and ```QUESTA``` are the only legal values. | ```VCS```                                      |
-| ```DUT_VLOG_SRC_LIST```, ```DUT_VHDL_SRC_LIST```, and ```DUT_INCDIR``` | These options point to AFU Verilog, VHDL and include path settings required for RTL simulators to build the simulation model correctly                                                                                                                                                      | None supplied &mdash; Users must fill this in. |
-```
+|---------------|:------------|:--------|
+| ```ASE_PLATFORM``` | This is the platform differentiator  must be set in ```ase_sources.mk``` to point to the required simulator features. <br>```FPGA_PLATFORM_INTG_XEON``` and ```FPGA_PLATFORM_DISCRETE``` are the only legal values. | ```FPGA_PLATFORM_INTG_XEON``` |
+| ```SIMULATOR``` | This must be set in ```ase_sources.mk``` to point to the correct kind of RTL simulator. Currently Synopsys\* VCS-MX and Modelsim-SE (Questasim)  simulator builds are supported in ASE. Only 64-bit configurations are supported. <br>```VCS``` and ```QUESTA``` are the only legal values. | ```VCS``` |
+|```DUT_VLOG_SRC_LIST```, ```DUT_VHDL_SRC_LIST```, and ```DUT_INCDIR``` | These options point to AFU Verilog, VHDL and include path settings required for RTL simulators to build the simulation model correctly | None supplied &mdash; Users must fill this in. |
 
 For more information on other switches see [ASE Makefile targets](#ase-makefile-targets)
 
 To generate the AFU specific files for the simulator build, you may use the ```scripts/generate_ase_environment.py``` script. This script is imperfect, and will require manual inspection of generated configurations in order to get correct operation.
 
 
-```
 .. note::
-    Any AFU RTL specific define macros or include paths must be edited in ``ase_sources.mk``.
+```
+Any AFU RTL specific define macros or include paths must be edited in ``ase_sources.mk``.
 ```
 
 You may use the [Generate ASE Environment](#generate-ase-environment-script) script to generate the required AFU ```ase_sources.mk``` and ```vlog_files.list```.
 
-```console
+```{.bash}
 
     # change to ASE directory
     $ cd /tmp/opae/ase/
 
     # Use the scripts/generate_ase_environment.py
-    $ ./scripts/generate_ase_environment.py -t VCS -p dcp <Path to sample RTL>
+    $ ./scripts/generate_ase_environment.py -t VCS -p discrete <Path to sample RTL>
     .
     .
     .
@@ -580,7 +558,7 @@ You may use the [Generate ASE Environment](#generate-ase-environment-script) scr
 ```
 The ```vlog_files.list``` and ```ase_sources.mk``` files may need to be checked manually for correctness. The simulator is now be built with a 'make' command.
 
-```sh
+```{.shell}
 
     $ cd <opae>/ase/
     $ make
@@ -596,7 +574,7 @@ The ```vlog_files.list``` and ```ase_sources.mk``` files may need to be checked 
 
 Broadly in the server-client configuration of ASE, the server (ASE simulator) is invoked first. Then the client software application is invoked next along. The run time options are shown here.
 
-```console
+```{.bash}
 
     $ make sim \
         [SIMULATOR=<VCS|QUESTA>] \
@@ -611,7 +589,7 @@ For a start, we recommend using two terminal windows.
 
 The environment variable ```ASE_WORKDIR``` is indicated in **Terminal 1**.
 
-```sh
+```{.shell}
 
     # Invoke the simulator
     $ make sim
@@ -663,7 +641,7 @@ The environment variable ```ASE_WORKDIR``` is indicated in **Terminal 1**.
 
 **Terminal 2**: First set an environment variable ```ASE_WORKDIR``` as seen in **Terminal 1**. In this example ```ASE_WORKDIR``` is set to ```/tmp/opae/ase/work```.  Then invoke the software application.
 
-```console
+```{.bash}
 
     # Set ASE_WORKDIR environment variable
     $ export ASE_WORKDIR=/tmp/opae/ase/work/
@@ -674,13 +652,16 @@ The environment variable ```ASE_WORKDIR``` is indicated in **Terminal 1**.
 
 ```
 
-```eval_rst
 .. note::
-    When simulation is completed (application has exited), the simulator must be closed so the waveform dump process may get completed. On **Terminal 1**, issue a ``CTRL-C`` command.
+```
+When simulation is completed (application has exited), the simulator must be closed so the waveform dump process may get completed. On **Terminal 1**, issue a ``CTRL-C`` command.
 ```
 
 
-```console
+```{.bash}
+
+
+
     <Simulator running>
     .
     .
@@ -745,7 +726,7 @@ At the end of the simulation, a few files are generated.
 
 ### Tips for successful ASE Usage ###
 
-1. ```ccip_logger.sv``` is a module in ASE (located at ```ase/hw/ccip_logger.sv```) and can be used to log CCI-P events if there are interfaces inside the AFU which conform to CCI-P protocol. This is common for designs that use the Intel FPGA IP Basic Building Blocks (BBB). This can be used to compare transactions and traffic flow through various CCI-P interfaces.
+1. ```ccip_logger.sv``` is a module in ASE (located at ```ase/hw/ccip_logger.sv```) and can be used to log CCI-P events if there are interfaces inside the AFU which conform to CCI-P protocol. This is common for designs that use the Intel&reg; FPGA IP Basic Building Blocks (BBB). This can be used to compare transactions and traffic flow through various CCI-P interfaces.
 
 
 .. note::
@@ -760,7 +741,7 @@ When instantiating ``ccip_logger`` in multiple locations, distinct file names mu
 
 3. ASE simulations can be easily scripted. When the simulator becomes ready for use, a lock file is written in the work directory. The lock file name is ```$ASE_WORKDIR/.ase_ready```.
 
-```console
+```{.bash}
 
     # Start Simulator in background
     make sim &
@@ -788,7 +769,7 @@ When instantiating ``ccip_logger`` in multiple locations, distinct file names mu
 5. The latency model of ASE can be modified to generate random patterns of CCI-P transactions for every run. The latency model settings are located at ```$ASE_SRCDIR/rtl/platform.vh```.
 The ```*_LATRANGE``` constraints are set up as a pair and coded as follows:
 
-```verilog
+```{.verilog}
 
     `define X_LATRANGE     min, max
 
@@ -802,7 +783,7 @@ The larger the difference between (min, max), the bigger the standard deviation 
 None of these values can be implied to be the actual latencies of different transactions when running on the FPGA platform. These settings must be used for simulation and testing only.
 ```
 
-```verilog
+```{.verilog}
 
     /*
      * Latency model
@@ -865,7 +846,7 @@ Open Two terminals, We will use **Terminal 1** to run the ASE simulator, and **T
 
     * When executing this binary, it dynamically links to the ```libopae-c-ase.so```
 
-    ```console
+    ```{.bash}
 
         $ ldd /tmp/opae/mybuild/bin/hello_fpga
             linux-vdso.so.1 =>  (0x00007ffe44860000)
@@ -884,13 +865,13 @@ Open Two terminals, We will use **Terminal 1** to run the ASE simulator, and **T
    * The example shows ```VCS``` usage but the steps may be used for ```QUESTA``` as well.
    * The example can only be used in the ```ASE_PLATFORM=FPGA_PLATFORM_INTG_XEON``` configuration. Using the ```FPGA_PLATFORM_DISCRETE``` configuration will cause compilation failures.
 
-    ```console
+    ```{.bash}
 
         # Change to the 'ase' directory
         $ cd <work-path>/ase/
 
         # Generate the ASE path
-        $ /tmp/opae/ase/scripts/generate_ase_environment.py -t VCS -p skxp /tmp/opae/ase/sample_config/mcp_nlb0/rtl/
+        $ /tmp/opae/ase/scripts/generate_ase_environment.py -t VCS -p intg_xeon /tmp/opae/ase/sample_config/mcp_nlb0/rtl/
 
 
         # INSTRUCTIONS TO USER
@@ -915,7 +896,7 @@ Open Two terminals, We will use **Terminal 1** to run the ASE simulator, and **T
 
 3. On **Terminal 1**, we will invoke the simulator
 
-    ```console
+    ```{.bash}
 
         $ make sim
 
@@ -957,6 +938,14 @@ Open Two terminals, We will use **Terminal 1** to run the ASE simulator, and **T
     * Open ```work/ccip_transactions.tsv``` in a text viewer to see the actual transactions. The timestamps may be checked in the wavefor viewer.
 
 
+
+<!-- ### Using Basic Building Blocks (BBB) in ASE ### -->
+
+<!-- #### Using CCI-P Asynchronous Shim in ASE #### -->
+
+<!-- #### Using Memory Protocol Factory (MPF) in ASE #### -->
+
+
 ## Operation Reference ##
 
 ### ASE Simulator Makefile Switches ###
@@ -972,9 +961,10 @@ The abstract steps to compile ASE Simulator are as follows:
 * **Step 1**: Compile Software objects of ASE into a library file
     * The Software components located in ```ase/sw/``` directory is first compiled into  software library.
 
-```eval_rst
 .. note::
-    ``SIM_SIDE`` must be defined as a compilation macro when compiling the ASE simulator objects. This is not the same as the OPAE ASE software library.
+```
+
+``SIM_SIDE`` must be defined as a compilation macro when compiling the ASE simulator objects. This is not the same as the OPAE ASE software library.
 
 ```
 
@@ -987,7 +977,6 @@ The abstract steps to compile ASE Simulator are as follows:
 
 #### ASE Makefile targets ####
 
-```markdown
 | Target             | Description |
 |:-------------------|:------------|
 | ```all```          | Default build target, attempts a simulator build in Synopsys\* VCS-MX |
@@ -1001,16 +990,15 @@ The abstract steps to compile ASE Simulator are as follows:
 | ```wave```         | Open Selected RTL Waveform Viewer |
 | ```clean```        | Clean build, simulation, and log files |
 | ```distclean```    | Clean distribution - removes the AFU configuration files as well |
-```
+
 
 #### ASE Makefile Variables ####
 
-```markdown
 | Makefile target    | Description | Default value |
 |:-------------------|:------------|:--------------|
 | ```VCS_HOME```           | Synopsys\* VCS-MX installation path | Tool Installation Specific |
 | ```MTI_HOME```           | Mentor installation path | Tool Installation Specific |
-| ```QUARTUS_HOME```       | Intel Quartus Pro installation path | Tool Installation Specific |
+| ```QUARTUS_HOME```       | Intel&reg; Quartus&reg; Pro installation path | Tool Installation Specific |
 | ```ASE_PLATFORM```       | Platform selection switch: <br> Either tightly-coupled FPGA or programmable FPGA acceleration card may be selected using ```FPGA_PLATFORM_INTG_XEON``` and ```FPGA_PLATFORM_DISCRETE``` respectively | ```FPGA_PLATFORM_INTG_XEON``` |
 | ```SIMULATOR```          | Simulator Key to environment <br>Allowed values ```VCS``` or ```QUESTA``` | ```VCS``` |
 | ```ASE_SRCDIR```         | ASE Source location | Current source path |
@@ -1039,23 +1027,23 @@ The abstract steps to compile ASE Simulator are as follows:
 | ```DUT_VLOG_SRC_LIST```  | Points to a text file listing AFU {System}Verilog files (usually ```vlog_files.list```) | User Generated |
 | ```DUT_VHDL_SRC_LIST```  | Points to a text file listing AFU VHDL files (usually ```vhdl_files.list``` | User Generated |
 | ```DUT_INCDIR```         | Lists AFU include directories separated by a '\+' (usually in ```ase_sources.mk```) | User Generated |
-```
+
 
 ### ASE Runtime Configuration Options ###
 
 The ASE configuration file is a text file that can be used to configure simulator behavior. An example configuration script is available at ```ase/ase.cfg```
 
-```markdown
+
 | Switch Name              | Default                            | Description |
-| :-------------------------     |     :----------------------------------- | :------------                                                                                                                                                                                                                                                                                    |
-| ```ASE_MODE```                 |                                        1 | Modes in which ASE can be run<br>1 : Standard Server-Client Mode<br>2 : Simulator is closed after ```ASE_TIMEOUT``` clocks<br>3 : Software shuts down simulator when client application releases session<br> 4 : Regression mode invoked by script<br>>=5 : Ignored (revert to ```ASE_MODE=1```) |
-| ```ASE_TIMEOUT```              |         50000 (only if ```ASE_MODE=2```) | Watchdog timer shuts down simulator after ```ASE_TIMEOUT``` clocks of CCI-P interface inactivity.                                                                                                                                                                                                |
-| ```ASE_NUM_TESTS```            |           500 (only if ```ASE_MODE=4```) | Number of tests in regression mode. Failure to set this number correctly, may cause the simulator to exit pre-maturely or to keep waiting for tests to get started.                                                                                                                              |
-| ```ENABLE_REUSE_SEED```        |                                        1 | Reuses simulation seed, for the same application, CCI-P transactions are 're-playable', i.e., the addresses used can be re-played.<br>When set to 0, obtains a new seed.                                                                                                                         |
-| ```ASE_SEED```                 | 1234 (only if ```ENABLE_REUSE_SEED=1```) | ASE seed setting, this is used only when ```ENABLE_REUSE_SEED``` is set to 1, else a different seed is used. <br>At the end of the simulation, a ```$ASE_WORKDIR/ase_seed.txt``` file is written with the currently used seed.                                                                   |
-| ```ENABLE_CL_VIEW```           |                                        1 | ASE verbosely prints all CCI-P transactions. On long simulation runs, setting this to 0 may speed up simulation.                                                                                                                                                                                 |
-| ```PHYS_MEMORY_AVAILABLE_GB``` |                                       32 | Restricts ASE address generation to within this memory range.                                                                                                                                                                                                                                    |
-```
+|:-------------------------|:-----------------------------------|:------------|
+| ```ASE_MODE```               | 1                                  | Modes in which ASE can be run<br>1 : Standard Server-Client Mode<br>2 : Simulator is closed after ```ASE_TIMEOUT``` clocks<br>3 : Software shuts down simulator when client application releases session<br> 4 : Regression mode invoked by script<br>>=5 : Ignored (revert to ```ASE_MODE=1```) |
+| ```ASE_TIMEOUT```            | 50000 (only if ```ASE_MODE=2```)        | Watchdog timer shuts down simulator after ```ASE_TIMEOUT``` clocks of CCI-P interface inactivity. |
+| ```ASE_NUM_TESTS```          | 500 (only if ```ASE_MODE=4```)          | Number of tests in regression mode. Failure to set this number correctly, may cause the simulator to exit pre-maturely or to keep waiting for tests to get started. |
+| ```ENABLE_REUSE_SEED```      | 1                                  | Reuses simulation seed, for the same application, CCI-P transactions are "re-playable", i.e., the addresses used can be re-played.<br>When set to 0, obtains a new seed.   |
+| ```ASE_SEED```                | 1234 (only if ```ENABLE_REUSE_SEED=1```) | ASE seed setting, this is used only when ```ENABLE_REUSE_SEED``` is set to 1, else a different seed is used. <br>At the end of the simulation, a ```$ASE_WORKDIR/ase_seed.txt``` file is written with the currently used seed. |
+| ```ENABLE_CL_VIEW```         | 1                                  | ASE verbosely prints all CCI-P transactions. On long simulation runs, setting this to 0 may speed up simulation. |
+| ```PHYS_MEMORY_AVAILABLE_GB``` | 32                                 | Restricts ASE address generation to within this memory range. |
+
 
 ### Logging Verbosity Control ###
 
@@ -1066,7 +1054,7 @@ ASE supports verbosity control of logging messages. In general, three logging le
 
 ```ASE_LOG=0``` can be used while running the application, something like this:
 
-````console
+````{.bash}
 
     $ ASE_LOG=0 LD_PRELOAD=libopae-c-ase ./hello_fpga
 
@@ -1080,15 +1068,13 @@ In the simulator, two types of messgaes are generated:
 
 The following are a non-conclusive list of errors and warnings that one may see in ASE.
 
-```markdown
-| Observation                                                                    | Problem                                                                                                                                                         | Next Steps                                                                                                                                                                                                                                       |
-| :--------------------------                                                    | :------------------                                                                                                                                             | :---------------------                                                                                                                                                                                                                           |
-| Either all transactions are not seen or simulation ends earlier than expected. | ASE Simulation inactivity is too short for the application use-case to be successfully simulated in ASE.                                                        | If using ASE\_MODE=2 (Daemon with timeout), in the ```ase.cfg``` file, edit setting ASE\_TIMEOUT to a higher clock count value or a disable.                                                                                                     |
-| ASE simulation build error - compilation, or linking failed                    | GCC version might be too old.                                                                                                                                   | Enter the ```ase``` directory and check if the following command works <br> ``` $ make sw_build ``` <br>ASE is known to build correctly with GCC 4.4 or higher. Use the ```ase/scripts/env_check.sh``` script to identify issues.                |
-| Synopsys\* VCS-MX dumped stack while compiling or running                      | Possible corruption of compiled objects or problem with incremental compilation.                                                                                | Clean up ASE environment using <br>```$ make clean``` <br> If this fails, clean the distribution with <br>```$ ./distclean.sh```<br>Then rebuild the simulation.                                                                                 |
-| ERROR: Too many open files                                                     | Past ASE simulation runs did not close cleanly and may have left behind open IPC instances.                                                                     | Use the script located at ``` $ASE_SRCDIR/scripts/ipc_clean.py ```. <br>Check if [System Requirements](#system-requirements) has been met. <br>If problem continues to occur, check how to increase resource limits for your Linux distribution. |
-| ``` $ASE_WORKDIR``` environment variable has not been set up                   | Application could not find a valid simulation session                                                                                                           | Follow the steps printed when the ASE simulation starts. These instructions are printed in GREEN.                                                                                                                                                |
-| ``` .ase_timestamp``` cannot be opened at ```<DIRECTORY>```                    | Simulator may not have been started yet. Note that when started, the simulator prints: <br>Ready for Simulation<br>```$ASE_WORKDIR``` may not set up correctly. | Check the ASE\_WORKDIR  environment variable. <br>```$ echo $ASE_WORKDIR ``` <br>Wait for simulator to print:<br> ```Ready for Simulation```                                                                                                     |
-| ```ase_sources.mk: No such file or directory```                                | ASE Environment has not been generated.                                                                                                                         | Generate a AFU RTL listing (in ```vlog_files.list``` and ``` ase_sources.mk```) configuration. See ```ase/sample_configs``` for sample configurations. <br> ```ase/scripts/generate_ase_environment.py``` may be used for this purpose           |
-| An ASE instance is probably still running in current directory.                | An ASE simulation is already running in the ```$ASE_WORKDIR``` directory.                                                                                       | If the simulation process is unusable or unreachable, use the ```ase/scripts/ipc_clean.py``` script to clean up the simulation temporary files. It is recommended to do: <br>```$ make clean``` <br>Then attempt to rebuild the simulator.       |
-```
+| Observation               | Problem           | Next Steps           |
+|:--------------------------|:------------------|:---------------------|
+| Either all transactions are not seen or simulation ends earlier than expected. | ASE Simulation inactivity is too short for the application use-case to be successfully simulated in ASE. | If using ASE\_MODE=2 (Daemon with timeout), in the ```ase.cfg``` file, edit setting ASE\_TIMEOUT to a higher clock count value or a disable. |
+| ASE simulation build error - compilation, or linking failed | GCC version might be too old. | Enter the ```ase``` directory and check if the following command works <br> ``` $ make sw_build ``` <br>ASE is known to build correctly with GCC 4.4 or higher. Use the ```ase/scripts/env_check.sh``` script to identify issues. |
+| Synopsys\* VCS-MX dumped stack while compiling or running | Possible corruption of compiled objects or problem with incremental compilation. | Clean up ASE environment using <br>```$ make clean``` <br> If this fails, clean the distribution with <br>```$ ./distclean.sh```<br>Then rebuild the simulation. |
+| ERROR: Too many open files | Past ASE simulation runs did not close cleanly and may have left behind open IPC instances. | Use the script located at ``` $ASE_SRCDIR/scripts/ipc_clean.py ```. <br>Check if [System Requirements](#system-requirements) has been met. <br>If problem continues to occur, check how to increase resource limits for your Linux distribution. |
+| ``` $ASE_WORKDIR``` environment variable has not been set up | Application could not find a valid simulation session | Follow the steps printed when the ASE simulation starts. These instructions are printed in GREEN. |
+| ``` .ase_timestamp``` cannot be opened at ```<DIRECTORY>``` | Simulator may not have been started yet. Note that when started, the simulator prints: <br>Ready for Simulation<br>```$ASE_WORKDIR``` may not set up correctly. | Check the ASE\_WORKDIR  environment variable. <br>```$ echo $ASE_WORKDIR ``` <br>Wait for simulator to print:<br> ```Ready for Simulation``` |
+| ```ase_sources.mk: No such file or directory``` | ASE Environment has not been generated. | Generate a AFU RTL listing (in ```vlog_files.list``` and ``` ase_sources.mk```) configuration. See ```ase/sample_configs``` for sample configurations. <br> ```ase/scripts/generate_ase_environment.py``` may be used for this purpose |
+| An ASE instance is probably still running in current directory. | An ASE simulation is already running in the ```$ASE_WORKDIR``` directory. | If the simulation process is unusable or unreachable, use the ```ase/scripts/ipc_clean.py``` script to clean up the simulation temporary files. It is recommended to do: <br>```$ make clean``` <br>Then attempt to rebuild the simulator. |

@@ -1,7 +1,8 @@
 Building the OPAE Intel FPGA driver (in-tree)
 =============================================
 
-```sh
+``` {.bash}
+
 git clone ssh://«Place your username here»@git-amr-1.devtools.intel.com:29418/cpt_sys_sw-intel-fpga
 cd cpt_sys_sw-intel-fpga
 git config user.name "«Place your name here»"
@@ -16,9 +17,9 @@ make modules SUBDIRS=drivers/fpga
 
 ```
 
-
-```eval_rst
 .. warning::
+
+```
   Kernel modules built using in-tree building cannot *insmod’d* or
   *modprobe’d* into the currently running kernel (e.g. in-tree building
   the Intel FPGA driver when running on a workstation with different
@@ -40,9 +41,9 @@ Steps
 6.  Build RPM package (RPM)
 7.  Insert the driver into currently running kernel
 
-
-```eval_rst
 .. note::
+
+```
   The resulting kernel objects has only been tested for correct functionality
   between kernel 3.10 up to kernel 4.10.
 ```
@@ -50,7 +51,8 @@ Steps
 Fetch the Intel FPGA kernel repository
 --------------------------------------
 
-```sh
+``` {.bash}
+
 git clone ssh://«Place your username here»@git-amr-1.devtools.intel.com:29418/cpt_sys_sw-intel-fpga
 cd cpt_sys_sw-intel-fpga
 git config user.name "«Place your name here»"
@@ -64,7 +66,8 @@ git pull
 Fetch the Intel FPGA internal tools repository
 ----------------------------------------------
 
-```sh
+``` {.bash}
+
 git clone ssh://«Place your username here»@git-amr-1.devtools.intel.com:29418/cpt_sys_sw-fpga-internal
 cd cpt_sys_sw-fpga-internal
 git config user.name "«Place your name here»"
@@ -78,7 +81,8 @@ git pull
 Configure the Intel FPGA internal tools project
 -----------------------------------------------
 
-```sh
+``` {.bash}
+
 cd cpt_sys_sw-fpga-internal
 cd fpga_driver/fpga-kernel
 mkdir mybuild
@@ -89,19 +93,17 @@ cmake .. «user configuration flags»
 
 Valid «user configuration flags» are:
 
-```markdown
   cmake flag                                                             Optional or mandatory   Purpose                       Default value
   ---------------------------------------------------------------------- ----------------------- ----------------------------- ---------------
   -DINTEL_FPGA_DRIVER_VER_MAJOR                                          Optional                Driver major version          0
   -DINTEL_FPGA_DRIVER_VER_MINOR                                          Optional                Driver minor version          1
   -DINTEL_FPGA_DRIVER_VER_REV                                            Optional                Driver revision version       0
   -DKERNEL_SOURCE_DIR=«path to the root of the FPGA kernel repository»   Mandatory               Path for driver source code   None
-```
 
 Build the driver
 ----------------
 
-```sh
+``` {.bash}
 
 cd cpt_sys_sw-fpga-internal
 cd fpga_driver/fpga_kernel
@@ -112,14 +114,12 @@ make «user target»
 
 Valid «user targets» are:
 
-```markdown
   make target                Purpose
   -------------------------- --------------------------------------------------------------------------------------
   make                       Compiles the driver
   make dist                  Creates distributable driver tarball intel-fpga-dkms_0.1.0.tar.gz
   make intel-fpga-dkms-deb   Create Debian DKMS-enabled driver installer package: intel-fpga-dkms_0.1.0_amd64.deb
   make intel-fpga-dkms-rpm   Create Redhat DKMS-enabled driver installer package
-```
 
 Inserting the driver into currently running kernel
 --------------------------------------------------
@@ -127,7 +127,8 @@ Inserting the driver into currently running kernel
 After building the driver (previous step), driver can be inserted into
 the currently running kernel.
 
-```sh
+``` {.bash}
+
 cd cpt_sys_sw-fpga-internal
 cd fpga_driver/fpga_kernel
 cd mybuild # (created during previous step)
@@ -138,8 +139,9 @@ sudo insmod ./drivers/fpga/intel/intel-fpga-fme.ko
 
 ```
 
-```eval_rst
 .. warning::
+
+```
    Before running applications; system administrator should request OS to enable allocation of 2,048kB memory pages. System adminitrator ('root') should run following command for such purpose:
 
    echo 20 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
