@@ -45,7 +45,7 @@ public:
     typedef std::shared_ptr<properties> ptr_t;
 
     properties();
-    properties(fpga_objtype objetype);
+    properties(fpga_objtype objtype);
 
     ~properties();
 
@@ -54,14 +54,14 @@ public:
     static properties::ptr_t read(std::shared_ptr<token> t);
     static properties::ptr_t read(fpga_token t);
 
-    pvalue<fpga_objtype> 	       type;
-    pvalue<uint8_t> 		       bus;
+    pvalue<fpga_objtype>           type;
+    pvalue<uint8_t>                bus;
     pvalue<uint8_t>                device;
     pvalue<uint8_t>                function;
     pvalue<uint8_t>                socket_id;
     pvalue<uint32_t>               num_slots;
     pvalue<uint64_t>               bbs_id;
-    pvalue<fpga_version> 	       bbs_version;
+    pvalue<fpga_version>           bbs_version;
     pvalue<uint16_t>               vendor_id;
     pvalue<char*>                  model;
     pvalue<uint64_t>               local_memory_size;
@@ -70,7 +70,7 @@ public:
     pvalue<uint32_t>               num_mmio;
     pvalue<uint32_t>               num_interrupts;
     pvalue<fpga_accelerator_state> accelerator_state;
-    pvalue<uint64_t> 		       object_id;
+    pvalue<uint64_t>               object_id;
     pvalue<fpga_token>             parent;
 
 private:
