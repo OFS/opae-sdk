@@ -37,7 +37,7 @@ from gbs import GBS
 from metadata import metadata
 
 PACKAGER_EXEC = "packager"
-DESCRIPTION = 'Intel OPAE FPGA Packager'
+DESCRIPTION = 'Intel Xeon + FPGA Packager'
 
 try:
     assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
