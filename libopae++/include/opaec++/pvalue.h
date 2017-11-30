@@ -24,9 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <opae/properties.h>
 #include <type_traits>
 #include <iostream>
+
+#include <opae/properties.h>
 
 namespace opae
 {
