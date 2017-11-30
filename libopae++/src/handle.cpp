@@ -73,14 +73,26 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
     auto res = fpgaOpen(token, &c_handle, flags);
     if (res == FPGA_OK) {
 
+        // This will fail for FPGA_DEVICE (no mmio region), so we need to continue when it does.
         res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
 
-        if (res == FPGA_OK) {
-           p.reset(new handle(c_handle, mmio_region, mmio_base));
-        } else {
-           res = fpgaClose(c_handle);
-           // TODO : Log or throw error
+        if (res != FPGA_OK) {
+            fpga_properties props = NULL;
+            fpga_objtype type = FPGA_DEVICE;
+
+            fpgaGetProperties(token, &props);
+
+            fpgaPropertiesGetObjectType(props, &type);
+
+            fpgaDestroyProperties(&props);
+
+            if (FPGA_ACCELERATOR == type) {
+                // TODO : Log/throw error in the case that
+                // the token does refer to an FPGA_ACCELERATOR.
+            }
         }
+
+        p.reset(new handle(c_handle, mmio_region, mmio_base));
     }
 
     return p;
@@ -97,19 +109,21 @@ fpga_result handle::close(){
 
         res = fpgaUnmapMMIO(handle_, mmio_region_);
 
-        if (res == FPGA_OK) {
+        // Similar to open(), an FPGA_DEVICE will not have mmio regions,
+        // so we don't fail based on res here.
+       
+        if (res != FPGA_OK) {
+           // TODO : Log or throw error in the case that
+           // the handle does refer to an FPGA_ACCELERATOR.
+        }
 
-            mmio_base_ = nullptr;
+        mmio_base_ = nullptr;
 
-            res = fpgaClose(handle_);
+        res = fpgaClose(handle_);
 
-            if (res == FPGA_OK){
-                handle_ = nullptr;
-            }else{
-                // TODO : Log or throw error
-            }
-
-        } else {
+        if (res == FPGA_OK){
+            handle_ = nullptr;
+        }else{
             // TODO : Log or throw error
         }
 
