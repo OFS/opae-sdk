@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/mmio.h>
 #include "opaec++/handle.h"
 
 
@@ -33,8 +34,10 @@ namespace fpga
 namespace types
 {
 
-handle::handle(fpga_handle h)
+handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
 : handle_(h)
+, mmio_region_(mmio_region)
+, mmio_base_(mmio_base)
 {
 }
 
@@ -42,32 +45,77 @@ handle::~handle(){
     close();
 }
 
-
-handle::ptr_t handle::open(fpga_token token, int flags){
-    fpga_handle c_handle;
-    auto res = fpgaOpen(token, &c_handle, flags);
-    if (res == FPGA_OK){
-        return handle::ptr_t(new handle(c_handle));
-    }
-    // TODO : Log or throw error
-    return handle::ptr_t();
+bool handle::write(uint64_t offset, uint32_t value)
+{
+    return FPGA_OK == fpgaWriteMMIO32(handle_, mmio_region_, offset, value);
 }
 
-handle::ptr_t handle::open(token::ptr_t token, int flags){
-    return handle::open(token->get(), flags);
+bool handle::write(uint64_t offset, uint64_t value)
+{
+    return FPGA_OK == fpgaWriteMMIO64(handle_, mmio_region_, offset, value);
+}
+
+bool handle::read(uint64_t offset, uint32_t &value) const
+{
+    return FPGA_OK == fpgaReadMMIO32(handle_, mmio_region_, offset, &value);
+}
+
+bool handle::read(uint64_t offset, uint64_t &value) const
+{
+    return FPGA_OK == fpgaReadMMIO64(handle_, mmio_region_, offset, &value);
+}
+
+handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
+    fpga_handle c_handle = nullptr;
+    uint8_t *mmio_base = nullptr;
+    ptr_t p;
+
+    auto res = fpgaOpen(token, &c_handle, flags);
+    if (res == FPGA_OK) {
+
+        res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
+
+        if (res == FPGA_OK) {
+           p.reset(new handle(c_handle, mmio_region, mmio_base));
+        } else {
+           res = fpgaClose(c_handle);
+           // TODO : Log or throw error
+        }
+    }
+
+    return p;
+}
+
+handle::ptr_t handle::open(token::ptr_t token, int flags, uint32_t mmio_region){
+    return handle::open(token->get(), flags, mmio_region);
 }
 
 fpga_result handle::close(){
+    fpga_result res = FPGA_INVALID_PARAM;
+
     if (handle_ != nullptr){
-        auto res = fpgaClose(handle_);
-        if (res == FPGA_OK){
-            handle_ = nullptr;
-        }else{
+
+        res = fpgaUnmapMMIO(handle_, mmio_region_);
+
+        if (res == FPGA_OK) {
+
+            mmio_base_ = nullptr;
+
+            res = fpgaClose(handle_);
+
+            if (res == FPGA_OK){
+                handle_ = nullptr;
+            }else{
+                // TODO : Log or throw error
+            }
+
+        } else {
             // TODO : Log or throw error
         }
-        return res;
+
     }
 
+    return res;
 }
 
 } // end of namespace types
