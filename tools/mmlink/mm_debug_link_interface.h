@@ -58,5 +58,7 @@ public:
 // Concrete classes must implement this routine.
 mm_debug_link_interface *get_mm_debug_link(void);
 
+#define UNUSED_PARAM(x) (void)x
+
 #endif
 

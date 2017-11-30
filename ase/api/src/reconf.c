@@ -36,5 +36,10 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 					     size_t bitstream_len,
 					     int flags)
 {
+	UNUSED_PARAM(slot);
+	UNUSED_PARAM(bitstream_len);
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(flags);
+	UNUSED_PARAM(bitstream);
 	return FPGA_OK;
 }

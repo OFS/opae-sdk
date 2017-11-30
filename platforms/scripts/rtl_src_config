@@ -37,7 +37,13 @@ quartus_tag_map = {
 
 # QSYS-only tags.
 qsys_tag_map = {
-    '.qsys': 'QSYS_FILE'
+    '.qsys': 'QSYS_FILE',
+    '.ip':   'IP_FILE'
+}
+
+# JSON-only tags.
+json_tag_map = {
+    '.json': 'MISC_FILE'
 }
 
 # Suffixes to emit for simulation targets.  This is a subset of the
@@ -81,7 +87,10 @@ def lookupTag(filename, db):
 # Given a list of directives, emit the configuration.
 #
 def emitCfg(opts, cfg):
-    if (not opts.qsys):
+    # Filtering for specific file types?
+    file_type_filter = opts.qsys or opts.json
+
+    if (not file_type_filter):
         # First emit all preprocessor configuration
         for c in cfg:
             if ("+define+" == c[:8]):
@@ -111,7 +120,7 @@ def emitCfg(opts, cfg):
                 print("-F " + c[3:])
         elif ("QI:" == c[:3]):
             # Quartus include
-            if (not opts.sim and not opts.qsys):
+            if (not opts.sim and not file_type_filter):
                 print("source " + c[3:])
         else:
             # Always ask for the Quartus tag since it has the
@@ -123,6 +132,9 @@ def emitCfg(opts, cfg):
                     print(c)
             elif (opts.qsys):
                 if (lookupTag(c, qsys_tag_map)):
+                    print(c)
+            elif (opts.json):
+                if (lookupTag(c, json_tag_map)):
                     print(c)
             else:
                 print('set_global_assignment -name {0} "{1}"'.format(tag, c))
@@ -250,6 +262,9 @@ These commands affect script parsing:
     group.add_argument("--qsys",
                        action="store_true",
                        help="""Emit only QSYS and IP file names.""")
+    group.add_argument("--json",
+                       action="store_true",
+                       help="""Emit only JSON file names.""")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-r", "--rel",

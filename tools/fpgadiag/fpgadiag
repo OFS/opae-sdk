@@ -31,46 +31,29 @@ import subprocess
 from subprocess import CalledProcessError
 
 cwd = os.path.dirname(os.path.realpath(__file__))
-
-cmd_map = { 'lpbk1':['nlb0'],
-            'read':['nlb3', '--mode=read'],
-            'write':['nlb3', '--mode=write'],
-            'trput':['nlb3', '--mode=trput'],
-            'sw':['nlb7'],
-            'mb1':['mb1'] }
+cmd_list = ['lpbk1', 'read', 'write', 'trput', 'sw', 'mb1']
+cmd_map = {'lpbk1': ['nlb0'],
+           'read': ['nlb3', '--mode=read'],
+           'write': ['nlb3', '--mode=write'],
+           'trput': ['nlb3', '--mode=trput'],
+           'sw': ['nlb7'],
+           'mb1': ['mb1']}
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-t', '--target', default='fpga', choices=['fpga', 'ase'],
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--target',
+                        default='fpga',
+                        choices=['fpga', 'ase'],
                         help='choose target')
     parser.add_argument('-m', '--mode',
-                        choices=['lpbk1', 'read', 'write', 'trput', 'sw', 'mb1'],
+                        choices=cmd_list,
+                        required=True,
                         help='choose test mode')
-    parser.add_argument('--cmdq0', help='run CMDQ mode 0',
-                        action="store_true");
-    parser.add_argument('--cmdq3', help='run CMDQ mode 3',
-                        action="store_true");
-    parser.add_argument('--cmdq7', help='run CMDQ mode 7',
-                        action="store_true");
 
-    args,leftover = parser.parse_known_args()
+    args, leftover = parser.parse_known_args()
 
-    if args.cmdq0:
-        cmdline = ['cmdq0'] + leftover
-    elif args.cmdq3:
-        if args.mode:
-            cmdline = ['cmdq3', '--mode='+args.mode] +  leftover
-        else:
-            parser.print_help()
-            exit(1)
-    elif args.cmdq7:
-        cmdline = ['cmdq7'] + leftover
-    else:
-        if args.mode:
-            cmdline = cmd_map[args.mode] + leftover
-        else:
-            parser.print_help()
-            exit(1)
+    cmdline = cmd_map[args.mode] + leftover
+
     cmdline[0] = os.path.join(cwd, cmdline[0])
     cmdline = cmdline + ['-t', args.target] + leftover
     cmdline = ' '.join(cmdline)
@@ -79,6 +62,3 @@ if __name__ == "__main__":
         subprocess.check_call(cmdline, shell=True)
     except CalledProcessError as e:
         exit(e.returncode)
-
-
-

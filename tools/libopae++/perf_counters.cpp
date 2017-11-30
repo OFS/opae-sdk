@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstdint>
 #include "perf_counters.h"
 
 namespace intel
@@ -111,28 +112,30 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
                                 const fpga_cache_counters &r)
 {
     fpga_cache_counters ctrs;
-    fpga_cache_counters::ctr_t c;
+    fpga_cache_counters::ctr_t ctr_ts[] =
+    {
+        fpga_cache_counters::ctr_t::read_hit,
+        fpga_cache_counters::ctr_t::write_hit,
+        fpga_cache_counters::ctr_t::read_miss,
+        fpga_cache_counters::ctr_t::write_miss,
+        fpga_cache_counters::ctr_t::hold_request,
+        fpga_cache_counters::ctr_t::data_write_port_contention,
+        fpga_cache_counters::ctr_t::tag_write_port_contention,
+        fpga_cache_counters::ctr_t::tx_req_stall,
+        fpga_cache_counters::ctr_t::rx_req_stall,
+        fpga_cache_counters::ctr_t::rx_eviction,
+    };
 
-    c = fpga_cache_counters::ctr_t::read_hit;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::write_hit;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::read_miss;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::write_miss;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::hold_request;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::data_write_port_contention;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::tag_write_port_contention;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::tx_req_stall;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::rx_req_stall;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_cache_counters::ctr_t::rx_eviction;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
+    uint64_t left;
+    uint64_t right;
+    uint64_t diff;
+
+    for (auto it : ctr_ts) {
+        left  = l[it];
+        right = r[it];
+        diff  = (left < right) ? (UINT64_MAX - right) + left : left - right;
+        ctrs.ctr_map_.insert(std::make_pair(it, diff));
+    }
 
     return ctrs;
 }
@@ -290,24 +293,28 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
                                 const fpga_fabric_counters &r)
 {
     fpga_fabric_counters ctrs;
-    fpga_fabric_counters::ctr_t c;
+    fpga_fabric_counters::ctr_t ctr_ts[] =
+    {
+        fpga_fabric_counters::ctr_t::mmio_read,
+        fpga_fabric_counters::ctr_t::mmio_write,
+        fpga_fabric_counters::ctr_t::pcie0_read,
+        fpga_fabric_counters::ctr_t::pcie0_write,
+        fpga_fabric_counters::ctr_t::pcie1_read,
+        fpga_fabric_counters::ctr_t::pcie1_write,
+        fpga_fabric_counters::ctr_t::upi_read,
+        fpga_fabric_counters::ctr_t::upi_write,
+    };
 
-    c = fpga_fabric_counters::ctr_t::mmio_read;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::mmio_write;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::pcie0_read;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::pcie0_write;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::pcie1_read;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::pcie1_write;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::upi_read;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
-    c = fpga_fabric_counters::ctr_t::upi_write;
-    ctrs.ctr_map_.insert(std::make_pair(c, l[c] - r[c]));
+    uint64_t left;
+    uint64_t right;
+    uint64_t diff;
+
+    for (auto it : ctr_ts) {
+        left  = l[it];
+        right = r[it];
+        diff  = (left < right) ? (UINT64_MAX - right) + left : left - right;
+        ctrs.ctr_map_.insert(std::make_pair(it, diff));
+    }
 
     return ctrs;
 }

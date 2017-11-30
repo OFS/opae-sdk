@@ -49,6 +49,8 @@ add_library(opae-c++ SHARED
                    fpga_event.cpp
                    fpga_errors.h
                    fpga_errors.cpp
+                   mmio_resource.h
+                   mmio_resource.cpp
 )
 
 set_install_rpath(opae-c++)

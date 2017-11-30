@@ -69,7 +69,7 @@ struct bitstream_info {
 #define HEADER_SIZE 20
 int parse_metadata(struct bitstream_info *info)
 {
-	int i;
+	unsigned i;
 
 	if (!info)
 		return -EINVAL;
@@ -224,7 +224,7 @@ int read_bitstream(const char *filename, struct bitstream_info *info)
 		perror(filename);
 		goto out_free;
 	}
-	if (info->data_len != len) {
+	if (info->data_len != (size_t)len) {
 		fprintf(stderr,
 		     "Filesize and number of bytes read don't match\n");
 		goto out_free;
@@ -264,7 +264,7 @@ out_close:
 void *ap6_thread(void *thread_context)
 {
 	struct ap6_context *c = (struct ap6_context *)thread_context;
-	int i;
+	unsigned i;
 	int ret;
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000 }; /* 100ms */
 

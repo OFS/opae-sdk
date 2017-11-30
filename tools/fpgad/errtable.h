@@ -43,16 +43,14 @@
 #include <signal.h>
 #undef _GNU_SOURCE
 
-#define SYSFS_PATH_MAX 256
-
-#define SYSFS_CLASS_PATH "/sys/class/fpga"
+#include "common_int.h"
 
 /* TODO: support variable number of FMEs and PORTs */
-#define SYSFS_FME0  SYSFS_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0"
-#define SYSFS_FME1  SYSFS_CLASS_PATH "/intel-fpga-dev.1/intel-fpga-fme.1"
+#define SYSFS_FME0  SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0"
+#define SYSFS_FME1  SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.1/intel-fpga-fme.1"
 
-#define SYSFS_PORT0 SYSFS_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0"
-#define SYSFS_PORT1 SYSFS_CLASS_PATH "/intel-fpga-dev.1/intel-fpga-port.1"
+#define SYSFS_PORT0 SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0"
+#define SYSFS_PORT1 SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.1/intel-fpga-port.1"
 
 struct fpga_err {
 	int socket;
@@ -66,7 +64,7 @@ struct fpga_err {
 
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
 
-int sysfs_read_u64(const char *path, uint64_t *u);
+fpga_result sysfs_read_u64(const char *path, uint64_t *u);
 
 void *logger_thread(void *);
 

@@ -43,8 +43,8 @@ accelerator::accelerator(shared_token token, fpga_properties props,
 , status_(accelerator::unknown)
 , parent_sysfs_(par_sysfs)
 , mmio_base_(nullptr)
-, port_errors_(0)
 , error_event_(0)
+, port_errors_(0)
 , throw_errors_(false)
 {
 }
@@ -54,8 +54,8 @@ accelerator::accelerator(const accelerator & other)
 , status_(other.status_)
 , parent_sysfs_(other.parent_sysfs_)
 , mmio_base_(other.mmio_base_)
-, port_errors_(0)
 , error_event_(0)
+, port_errors_(0)
 , throw_errors_(false)
 {
 
@@ -113,7 +113,8 @@ bool accelerator::open(bool shared)
 
 bool accelerator::close()
 {
-    if (status_ == status_t::closed) {
+    if ((status_ == status_t::closed) ||
+        (handle_ == nullptr)) {
         return true;
     }
 
@@ -286,6 +287,16 @@ fpga_cache_counters accelerator::cache_counters() const
 fpga_fabric_counters accelerator::fabric_counters() const
 {
     return fpga_fabric_counters(parent_sysfs_);
+}
+
+void accelerator::error_assert(bool update)
+{
+    if (update)
+        port_errors_ = port_error::read(socket_id());
+
+    uint64_t err = port_errors_;
+    if (throw_errors_ && err)
+        throw port_error(err);
 }
 
 } // end of namespace fpga

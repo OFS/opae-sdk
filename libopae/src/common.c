@@ -101,9 +101,35 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 		return FPGA_EXCEPTION;
 	}
 
+
 	if (handle->magic != FPGA_HANDLE_MAGIC) {
 		FPGA_MSG("Invalid handle object");
 		int err = pthread_mutex_unlock(&handle->lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
+		return FPGA_INVALID_PARAM;
+	}
+
+	return FPGA_OK;
+}
+
+/*
+ * Check event handle object for validity and lock its mutex
+ * If event_handle_check_and_lock() returns FPGA_OK, assume the mutex to be locked.
+ */
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
+{
+	ASSERT_NOT_NULL(eh);
+
+	if (pthread_mutex_lock(&eh->lock)) {
+		FPGA_MSG("Failed to lock mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	if (eh->magic != FPGA_EVENT_HANDLE_MAGIC) {
+		FPGA_MSG("Invalid event handle object");
+		int err = pthread_mutex_unlock(&eh->lock);
 		if (err) {
 			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 		}

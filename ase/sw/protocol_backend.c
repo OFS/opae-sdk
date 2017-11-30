@@ -38,16 +38,9 @@
  */
 #include "ase_common.h"
 
-// Global test complete counter
-// Keeps tabs of how many session_deinits were received
-int glbl_test_cmplt_cnt;
+struct ase_cfg_t *cfg;
 
-// Global umsg mode, lookup before issuing UMSG
-int glbl_umsgmode;
-char umsg_mode_msg[ASE_LOGGER_LEN];
-
-// Session status
-int session_empty;
+int glbl_test_cmplt_cnt;   // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
 pthread_t socket_srv_tid;
@@ -55,20 +48,13 @@ pthread_t socket_srv_tid;
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
 
-// User clock frequency
-float f_usrclk;
-
 // Variable declarations
 char tstamp_filepath[ASE_FILEPATH_LEN];
-char *glbl_session_id;
 char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 
 // CONFIG,SCRIPT parameter paths received from SV (initial)
 char sv2c_config_filepath[ASE_FILEPATH_LEN];
 char sv2c_script_filepath[ASE_FILEPATH_LEN];
-
-// ASE-APP run command
-char *app_run_cmd;
 
 // ASE seed
 uint64_t ase_seed;
@@ -497,10 +483,65 @@ void update_fme_dfh(struct buffer_t *umas)
 	*csr_umsg_base_address = (uint64_t) umas->pbase;
 }
 
+int read_fd(int sock_fd)
+{
+	struct msghdr msg = {0};
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct event_request req = { .type = 0, .flags = 0 };
+	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
+	struct cmsghdr *cmsg;
+	int *fdptr;
+
+	memset(buf, '\0', sizeof(buf));
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+
+	if (recvmsg(sock_fd, &msg, 0) < 0) {
+		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
+		return 1;
+	}
+
+	cmsg = CMSG_FIRSTHDR(&msg);
+
+	int vector_id = 0;
+
+	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	if (req.type == REGISTER_EVENT) {
+		vector_id = req.flags;
+		intr_event_fds[vector_id] = *fdptr;
+	}
+	if (req.type == UNREGISTER_EVENT) {
+		int i;
+		// locate the interrupt vector to unregister
+		// from the event handle
+		for (i = 0; i < MAX_USR_INTRS; i++) {
+			if (intr_event_fds[vector_id] == *fdptr)
+				intr_event_fds[vector_id] = -1;
+		}
+	}
+	return 0;
+}
+
 static void *start_socket_srv(void *args)
 {
-	int res = 0; int err_cnt = 0;
-	int sock_msg;
+	int res = 0;
+	int err_cnt = 0;
+	int sock_msg = 0;
 	errno_t err;
 	int sock_fd;
 	struct sockaddr_un saddr;
@@ -614,6 +655,14 @@ int ase_listener(void)
 	char portctrl_msgstr[ASE_MQ_MSGSIZE];
 	char logger_str[ASE_LOGGER_LEN];
 	char umsg_mapstr[ASE_MQ_MSGSIZE];
+
+	// Session status
+	static int   session_empty;
+	static char *glbl_session_id;
+
+	//umsg, lookup before issuing UMSG
+	static int   glbl_umsgmode;
+	char umsg_mode_msg[ASE_LOGGER_LEN];
 
 	//   FUNC_CALL_ENTRY;
 
@@ -933,65 +982,6 @@ int ase_listener(void)
 	return 0;
 }
 
-
-
-
-int read_fd(int sock_fd)
-{
-	struct msghdr msg = {0};
-	char buf[CMSG_SPACE(sizeof(int))];
-	struct event_request req = { .type = 0, .flags = 0 };
-	struct iovec io = { .iov_base = &req, .iov_len = sizeof(req) };
-	struct cmsghdr *cmsg;
-	int *fdptr;
-
-	memset(buf, '\0', sizeof(buf));
-	msg.msg_iov = &io;
-	msg.msg_iovlen = 1;
-	msg.msg_control = buf;
-	msg.msg_controllen = sizeof(buf);
-
-	cmsg = (struct cmsghdr *)buf;
-	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-	cmsg->cmsg_level = SOL_SOCKET;
-	cmsg->cmsg_type = SCM_RIGHTS;
-
-	msg.msg_name = NULL;
-	msg.msg_namelen = 0;
-	msg.msg_iov = &io;
-	msg.msg_iovlen = 1;
-	msg.msg_control = cmsg;
-	msg.msg_controllen = CMSG_LEN(sizeof(int));
-	msg.msg_flags = 0;
-
-	if (recvmsg(sock_fd, &msg, 0) < 0) {
-		ASE_ERR("SIM-C : Unable to rcvmsg from socket\n");
-		return 1;
-	}
-
-	cmsg = CMSG_FIRSTHDR(&msg);
-
-	int vector_id;
-
-	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
-	if (req.type == REGISTER_EVENT) {
-		vector_id = req.flags;
-		intr_event_fds[vector_id] = *fdptr;
-	}
-	if (req.type == UNREGISTER_EVENT) {
-		int i;
-		// locate the interrupt vector to unregister
-		// from the event handle
-		for (i = 0; i < MAX_USR_INTRS; i++) {
-			if (intr_event_fds[vector_id] == *fdptr)
-				intr_event_fds[vector_id] = -1;
-		}
-	}
-	return 0;
-}
-
-
-
 // -----------------------------------------------------------------------
 // DPI Initialize routine
 // - Setup message queues
@@ -1166,8 +1156,8 @@ int ase_ready(void)
 {
 	FUNC_CALL_ENTRY;
 
-	// App run command
-	app_run_cmd = ase_malloc(ASE_FILEPATH_LEN);
+	// ASE-APP run command
+	char app_run_cmd[ASE_FILEPATH_LEN];
 
 	// Set test_cnt to 0
 	glbl_test_cmplt_cnt = 0;
@@ -1347,6 +1337,9 @@ void ase_config_parse(char *filename)
 	int value;
 	char *pch;
 	char *saveptr;
+	// User clock frequency
+	float f_usrclk;
+
 
 	// Allocate space to store ASE config
 	cfg = (struct ase_cfg_t *) ase_malloc(sizeof(struct ase_cfg_t));

@@ -152,6 +152,20 @@ public:
 
     }
 
+    template<typename T>
+    bool set_value(const std::string & name, const T & value)
+    {
+        auto it = options_.find(name);
+        if (it != options_.end())
+        {
+            *(it->second) = value;
+            return true;
+        }
+        // TODO: Add debug log message here indicating no option found
+        return false;
+
+    }
+
     option::ptr_t operator[](const std::string & name)
     {
         auto it = options_.find(name);

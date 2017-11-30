@@ -29,39 +29,77 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/access.h>
+#include <opae/properties.h>
 #include "common_int.h"
 #include <ase_common.h>
 
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
-	int fd;
+	struct _fpga_event_handle *_eh;
+	fpga_result result = FPGA_OK;
 
 	if (!handle)
 		return FPGA_INVALID_PARAM;
 
-	/* create eventfd */
-	fd = eventfd(0, 0);
-	if (fd < 0) {
-		FPGA_ERR("eventfd : %s", strerror(errno));
-		return FPGA_NOT_FOUND;
+	_eh = malloc(sizeof(struct _fpga_event_handle));
+	if (NULL == _eh) {
+		FPGA_ERR("Could not allocate memory for event handle");
+		return FPGA_NO_MEMORY;
 	}
 
-	*handle = fd;
+	/* create eventfd */
+	_eh->fd = eventfd(0, 0);
+	if (_eh->fd < 0) {
+		FPGA_ERR("eventfd : %s", strerror(errno));
+		result = FPGA_NOT_FOUND;
+		goto out_free;
+	}
+
+	*handle = (fpga_event_handle)_eh;
 	return FPGA_OK;
+
+out_free:
+	free(_eh);
+	return result;
 }
 
 fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *handle)
 {
+	struct _fpga_event_handle *_eh;
 	if (!handle)
 		return FPGA_INVALID_PARAM;
 
-	if (close(*handle) < 0) {
+	_eh = (struct _fpga_event_handle *) *handle;
+
+	if (NULL == _eh) {
+		FPGA_ERR("Received NULL event handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (close(_eh->fd) < 0) {
 		FPGA_ERR("eventfd : %s", strerror(errno));
 		if (errno == EBADF)
 			return FPGA_INVALID_PARAM;
 		else
 			return FPGA_EXCEPTION;
 	}
+
+	free(*handle);
+	*handle = NULL;
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
+						int *fd)
+{
+	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) eh;
+	if (NULL == _eh) {
+		FPGA_ERR("Event handle is null");
+		return FPGA_INVALID_PARAM;
+	}
+
+	*fd = _eh->fd;
+
 	return FPGA_OK;
 }
 
@@ -70,13 +108,14 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 					   fpga_event_handle event_handle,
 					   uint32_t flags)
 {
+	UNUSED_PARAM(handle);
 	if (type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 
 	if (flags >= MAX_USR_INTRS)
 		return FPGA_INVALID_PARAM;
 
-	if (register_event((int)event_handle, flags) == 0)
+	if (register_event(FILE_DESCRIPTOR(event_handle), flags) == 0)
 		return FPGA_OK;
 	else
 		return FPGA_EXCEPTION;
@@ -86,10 +125,11 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 					     fpga_event_type event_type,
 					     fpga_event_handle event_handle)
 {
+	UNUSED_PARAM(handle);
 	if (event_type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 
-	if (unregister_event(event_handle) == 0)
+	if (unregister_event(FILE_DESCRIPTOR(event_handle)) == 0)
 		return FPGA_OK;
 	else
 		return FPGA_EXCEPTION;
