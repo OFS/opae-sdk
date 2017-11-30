@@ -23,8 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "opaec++/token.h"
 #include <algorithm>
+#include "opaec++/token.h"
 
 namespace opae
 {

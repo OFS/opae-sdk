@@ -27,8 +27,9 @@
 #include <map>
 #include <memory>
 #include <iostream>
-#include "pvalue.h"
+
 #include <opae/properties.h>
+#include <opaec++/pvalue.h>
 
 namespace opae
 {

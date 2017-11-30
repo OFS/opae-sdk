@@ -24,12 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <opae/types.h>
-#include <opae/enum.h>
-
 #include <vector>
 #include <memory>
-#include "token.h"
+
+#include <opae/types.h>
+#include <opae/enum.h>
+#include <opaec++/token.h>
 
 namespace opae
 {
