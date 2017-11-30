@@ -6,8 +6,8 @@ import os
 import shutil
 
 # The suffix of source filenames.
-from recommonmark.parser import CommonMarkParser
-from recommonmark.transform import AutoStructify
+# from recommonmark.parser import CommonMarkParser
+# from recommonmark.transform import AutoStructify
 
 # Another markdown parser for sphinx
 from sphinxcontrib.pandoc_markdown import MarkdownParser
@@ -285,4 +285,4 @@ def setup(app):
         'enable_math': True,
         'enable_inline_math': True,
         }, True)
-    app.add_transform(AutoStructify)
+    # app.add_transform(AutoStructify)
