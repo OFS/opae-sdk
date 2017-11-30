@@ -57,7 +57,7 @@ add_custom_target(copy-doxygen-files ALL
   DEPENDS doc)
 
 add_custom_target(copy-markdown-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/source ${BINARY_BUILD_DIR}/docs)
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
 
 add_custom_target(copy-include-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
