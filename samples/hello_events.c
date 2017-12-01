@@ -31,6 +31,8 @@
 #include <opae/fpga.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <poll.h>
+#include <errno.h>
 
 #include "opae/fpga.h"
 #include "types_int.h"
@@ -70,7 +72,7 @@ struct ras_inject_error {
 	};
 };
 
-static fpga_result inject_ras_error(fpga_token token)
+static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
 {
 	struct _fpga_token  *_token           = NULL;
 	struct ras_inject_error  inj_error    = { {0} };
@@ -87,7 +89,7 @@ static fpga_result inject_ras_error(fpga_token token)
 			_token->sysfspath,
 			FME_SYSFS_INJECT_ERROR);
 
-	inj_error.fatal_error = 1;
+	inj_error.fatal_error = err;
 
 	result = sysfs_write_u64(sysfs_path, inj_error.csr);
 	if (result != FPGA_OK) {
@@ -106,11 +108,10 @@ int main(int argc, char *argv[])
 	uint32_t           num_matches;
 	fpga_result res;
 	fpga_event_handle eh;
-	fd_set fds;
-	int max_fd = 0, ret = 0;
 	uint64_t count = 0;
 	pid_t pid;
-	int fd = -1;
+	struct pollfd pfd;
+	int timeout = 10000;
 
 	UNUSED_PARAM(argc);
 	UNUSED_PARAM(argv);
@@ -137,10 +138,11 @@ int main(int argc, char *argv[])
 	}
 	if (pid == 0) {
 		usleep(5000000);
-		res = inject_ras_error(fpga_device_token);
-		if (res != FPGA_OK)
-			printf("ERROR injecting error!");
-		goto out_destroy_tok;
+		res = inject_ras_fatal_error(fpga_device_token, 1);
+		ON_ERR_GOTO(res, out_destroy_tok, "setting inject error register");
+
+		res = inject_ras_fatal_error(fpga_device_token, 0);
+		ON_ERR_GOTO(res, out_destroy_tok, "unsetting inject error register");
 	} else {
 		res = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
 		ON_ERR_GOTO(res, out_close, "opening accelerator");
@@ -153,22 +155,23 @@ int main(int argc, char *argv[])
 
 		printf("Waiting for interrupts now...\n");
 
-		res = fpgaGetOSObjectFromEventHandle(eh, &fd);
+		res = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
 		ON_ERR_GOTO(res, out_destroy_eh, "getting file descriptor");
 
-		FD_ZERO(&fds);
-		FD_SET(fd, &fds);
-		max_fd = fd;
-		ret = select(max_fd + 1, &fds, NULL, NULL, NULL);
+		pfd.events = POLLIN;
+		res = poll(&pfd, 1, timeout);
 
-		if (ret < 0) {
-			printf("SELECT FAILED!\n");
+		if (res < 0) {
+			printf("Poll error errno = %s\n", strerror(errno));
+			res = FPGA_EXCEPTION;
 			goto out_destroy_eh;
-		}
-
-		if (FD_ISSET(fd, &fds)) {
-			printf("FME Interrupt occured!\n");
-			ret = read(fd, &count, sizeof(count));
+		} else if (res == 0) {
+			 printf("Poll timeout occured\n");
+			 res = FPGA_EXCEPTION;
+			 goto out_destroy_eh;
+		} else {
+			 printf("FME Interrupt occured\n");
+			 read(pfd.fd, &count, sizeof(count));
 		}
 
 		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);

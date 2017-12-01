@@ -101,6 +101,7 @@ add_subdirectory(tools/libopae++)
 add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
 add_subdirectory(tools/hssi)
+add_subdirectory(tools/packager)
 
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
@@ -197,6 +198,7 @@ define_pkg(tools
   toolfpgaflash
   toolfpgainfo
   toolfpgaport
+  toolpackager
   opaecxxutils
   opaecxxlib
   opaecxxnlb

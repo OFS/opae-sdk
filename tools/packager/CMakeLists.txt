@@ -24,21 +24,17 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+cmake_minimum_required(VERSION 2.8.11)
+include(packaging)
 
-set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+################# generate executable python zip file ########################
+set(PYTHONE_FILES
+    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README" )  
 
-find_package(UUID REQUIRED)
+set(PY_EXE_NAME "packager")
+CREATE_PYTHONE_EXE(${PY_EXE_NAME} "${PYTHONE_FILES}")
 
-add_executable(hello_fpga hello_fpga.c)
-target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-
-add_executable(hello_events hello_events.c)
-target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-        DESTINATION src/opae
-        COMPONENT samplesrc)
+################# install executable python zip file ######################## 
+install(PROGRAMS ${PACKAGER_BIN}
+        DESTINATION bin
+        COMPONENT toolpackager)

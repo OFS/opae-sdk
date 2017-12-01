@@ -35,7 +35,6 @@
 
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
-	int fd;
 	struct _fpga_event_handle *_eh;
 	fpga_result result = FPGA_OK;
 
@@ -94,9 +93,6 @@ fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle 
 						int *fd)
 {
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) eh;
-	fpga_result result = FPGA_OK;
-	int err = 0;
-
 	if (NULL == _eh) {
 		FPGA_ERR("Event handle is null");
 		return FPGA_INVALID_PARAM;
@@ -112,6 +108,7 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 					   fpga_event_handle event_handle,
 					   uint32_t flags)
 {
+	UNUSED_PARAM(handle);
 	if (type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 
@@ -128,6 +125,7 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 					     fpga_event_type event_type,
 					     fpga_event_handle event_handle)
 {
+	UNUSED_PARAM(handle);
 	if (event_type != FPGA_EVENT_INTERRUPT)
 		return FPGA_NOT_SUPPORTED;
 

@@ -43,6 +43,7 @@
 fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
     fpga_result result = FPGA_OK;
+	UNUSED_PARAM(handle);
 
     if (ase_capability.umsg_feature != 0) {
 	// Get Umsg Number
@@ -59,6 +60,7 @@ fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
     fpga_result result;
+	UNUSED_PARAM(handle);
 
     if (ase_capability.umsg_feature != 0) {
 	// Send UMSG setup (call ASE)
@@ -75,6 +77,7 @@ fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t valu
 fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
     fpga_result result = FPGA_OK;
+	UNUSED_PARAM(handle);
 
     if (ase_capability.umsg_feature != 0) {
 	*umsg_ptr = umsg_umas_vbase;

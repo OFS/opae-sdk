@@ -33,6 +33,7 @@
 #include <opae/utils.h>
 #include "properties_int.h"
 #include "common_int.h"
+#include "token.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -578,13 +579,12 @@ fpga_result __FPGA_API__
 fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
-	fpga_result result = FPGA_OK;
 
 	if (NULL == _prop) {
 		return FPGA_INVALID_PARAM;
 	}
 	if (_prop->magic != FPGA_PROPERTY_MAGIC) {
-		result = FPGA_INVALID_PARAM;
+		return FPGA_INVALID_PARAM;
 	}
 
 	_prop->socket_id = socket_id;
@@ -619,6 +619,8 @@ fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
 fpga_result __FPGA_API__
 fpgaPropertiesSetDeviceID(fpga_properties prop, uint32_t device_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(device_id);
 	printf(" ASE doesnt support Device ID \n");
 	return FPGA_NOT_SUPPORTED;
 }
@@ -775,24 +777,35 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop, fpga_version bbs_version)
 fpga_result __FPGA_API__
 fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(vendor_id);
+	FPGA_MSG("Vendor ID not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(vendor_id);
 	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(model);
+	FPGA_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesSetModel(fpga_properties prop, char *model)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(model);
+	FPGA_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
@@ -801,6 +814,9 @@ fpga_result __FPGA_API__
 fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
 				 uint64_t *local_memory_size)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
+	FPGA_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
@@ -808,6 +824,9 @@ fpga_result __FPGA_API__
 fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
 				 uint64_t local_memory_size)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
+	FPGA_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
@@ -816,12 +835,18 @@ fpga_result __FPGA_API__
 fpgaPropertiesGetCapabilities(const fpga_properties prop,
 			      uint64_t *capabilities)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(capabilities);
+	FPGA_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesSetCapabilities(fpga_properties prop, uint64_t capabilities)
 {
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(capabilities);
+	FPGA_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
@@ -1083,8 +1108,6 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 
 fpga_result objectid_for_ase(uint64_t *object_id)
 {
-	fpga_result result;
-
 	*object_id = ASE_OBJID;
 
 	return FPGA_OK;

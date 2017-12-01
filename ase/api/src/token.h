@@ -24,45 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#include <opae/manage.h>
-#include "common_int.h"
-
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-					       uint32_t host_interface, int flags)
-{
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
-	UNUSED_PARAM(host_interface);
-	UNUSED_PARAM(flags);
-	FPGA_MSG("fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
-
-	return result;
-}
-
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
-{
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
-
-	return result;
-}
-
-fpga_result __FPGA_API__ fpgaReconfigureContext(fpga_handle accelerator,
-						const uint8_t *bitstream,
-						size_t bitstream_len, int flags)
-{
-	UNUSED_PARAM(accelerator);
-	UNUSED_PARAM(bitstream);
-	UNUSED_PARAM(bitstream_len);
-	UNUSED_PARAM(flags);
-	fpga_result result = FPGA_NOT_FOUND;
-
-	return result;
-}
+static struct _fpga_token aseToken[2] = {
+	{ .magic = 0x46504741544f4b40, .accelerator_id = {0}, .ase_objtype = FPGA_DEVICE },
+	{ .magic = 0x46504741544f4b40, .accelerator_id = {0}, .ase_objtype = FPGA_ACCELERATOR}
+};
