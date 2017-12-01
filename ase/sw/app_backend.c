@@ -166,6 +166,7 @@ uint32_t generate_mmio_tid(void)
  */
 void *mmio_response_watcher(void *arg)
 {
+	UNUSED_PARAM(arg);
     // Mark as thread that can be cancelled anytime
     pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 
@@ -283,6 +284,7 @@ void send_swreset(void)
  */
 void send_simkill(int n)
 {
+	UNUSED_PARAM(n);
     // Issue Simkill
     ase_portctrl(ASE_SIMKILL, 0);
 
@@ -306,10 +308,6 @@ void session_init(void)
 
     // Start clock
     clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
-
-    // Current APP PID
-    pid_t lockread_app_pid;
-    FILE *fp_app_lockfile;
 
     // Session setup
     if (session_exist_status != ESTABLISHED) {
@@ -659,10 +657,9 @@ void session_deinit(void)
 				printf
 					("MMIO pthread_cancel failed -- Ignoring\n");
 			}
-		}
-
-		// Send SIMKILL
-		ase_portctrl(ASE_SIMKILL, 0);
+	}
+	// Send SIMKILL
+	ase_portctrl(ASE_SIMKILL, 0);
 
 #ifdef ASE_DEBUG
 	fclose(fp_pagetable_log);
@@ -687,6 +684,7 @@ void session_deinit(void)
     if (pthread_mutex_unlock(&mmio_port_lock) != 0) {
 	ASE_MSG("Trying to shutdown mutex unlock\n");
     }
+
     // Stop running threads
     pthread_cancel(umsg_watch_tid);
     pthread_join(umsg_watch_tid, NULL);
@@ -1190,10 +1188,11 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 	ASE_ERR("error string %s", strerror(errno));
 	exit(1);
     }
-    // Extend memory to required size
+
+#ifdef ASE_DEBUG
+	// Extend memory to required size
     int ret;
     ret = ftruncate(fd_alloc, (off_t) mem->memsize);
-#ifdef ASE_DEBUG
     if (ret != 0) {
 	ASE_DBG("ftruncate failed");
 	BEGIN_RED_FONTCOLOR;
@@ -1471,6 +1470,7 @@ void umsg_set_attribute(uint32_t hint_mask)
  */
 void *umsg_watcher(void *arg)
 {
+	UNUSED_PARAM(arg);
     // Mark as thread that can be cancelled anytime
     pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 

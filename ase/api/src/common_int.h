@@ -115,10 +115,8 @@ enum fpga_loglevel {
 #define FPGA_DBG(format, ...) {}
 #endif // LIBFPGA_DEBUG
 
-static struct _fpga_token aseToken[2] = {
-	{ 0x46504741544f4b40, 0, FPGA_DEVICE },
-	{ 0x46504741544f4b40, 0, FPGA_ACCELERATOR}
-};
+#define UNUSED_PARAM(x) ((void)x)
+
 void fpga_print(int loglevel, char *fmt, ...);
 struct _fpga_token *token_get_parent(struct _fpga_token *);
 fpga_result objectid_for_ase(uint64_t *object_id);

@@ -24,32 +24,17 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(PLATFORM_DIRS
-        afu_top_ifc_db
-        platform_db
-        platform_if)
+cmake_minimum_required(VERSION 2.8.11)
+include(packaging)
 
-## This path may be used in scripts to point to the installed platform database.
-## The configure_file rule below handles the substitution.
-set(PLATFORM_SHARE_DIR share/opae/platform)
+################# generate executable python zip file ########################
+set(PYTHONE_FILES
+    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README" )  
 
-install(DIRECTORY ${PLATFORM_DIRS} DESTINATION ${PLATFORM_SHARE_DIR} COMPONENT platform)
+set(PY_EXE_NAME "packager")
+CREATE_PYTHONE_EXE(${PY_EXE_NAME} "${PYTHONE_FILES}")
 
-## All scripts from the scripts subdirectory
-set(PLATFORM_SCRIPTS
-        afu_platform_config
-        rtl_src_config)
-
-foreach(SRC ${PLATFORM_SCRIPTS})
-  ## Substitute CMake variables of the form @<var>@ in the source file
-  ## and store the file in the build tree's bin directory.
-  configure_file(
-          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-          @ONLY NEWLINE_STYLE UNIX)
-  ## This forces the configure_file to be built for all targets
-  add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
-
-  install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-          DESTINATION bin
-          COMPONENT platform)
-endforeach(SRC)
+################# install executable python zip file ######################## 
+install(PROGRAMS ${PACKAGER_BIN}
+        DESTINATION bin
+        COMPONENT toolpackager)
