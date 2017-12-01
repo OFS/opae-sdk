@@ -144,25 +144,20 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  *
  * After mapping the respective MMIO space, you can access it either through
  * direct pointer operations (observing supported access sizes and alignments
- * of the target platform and accelerator), or by using fpgaReadMMIO32(),
- * fpgaWriteMMIO32(), fpgeReadMMIO64(), and fpgaWriteMMIO64().
+ * of the target platform and accelerator).
  *
- * Some targets (such as the ASE simulator) may require the fpgaMapMMIO() call
- * to set up MMIO operations, but will not return a pointer to an actually
- * mapped space. Instead, they will return NULL. Usually, these platforms still
- * allow the application to issue MMIO operations using fpgaReadMMIO32(),
- * fpgaWriteMMIO32(), fpgeReadMMIO64(), and fpgaWriteMMIO64().
- *
- * @note This call only supports returning an actual mmio_ptr for hardware
- * targets, not for ASE simulation. Use fpgaReadMMIO32(), fpgaWriteMMIO32(),
- * fpgeReadMMIO64(), and fpgaWriteMMIO64() if you need ASE simulation
- * capabilities. You will still need to call fpgaMapMMIO() before using these
- * functions, though.
- *
- * If the caller passes in NULL for mmio_ptr, no virtual address will be
- * returned. This implies that all accesses will be performed through
+ * @note Some targets (such as the ASE simulator) do not support memory-mapping
+ * of IO register spaces and will not return a pointer to an actually mapped
+ * space. Instead, they will return `FPGA_NOT_SUPPORTED`. Usually, these
+ * platforms still allow the application to issue MMIO operations using
  * fpgaReadMMIO32(), fpgaWriteMMIO32(), fpgeReadMMIO64(), and
- * fpgaWriteMMIO64(). This is the only supported case for ASE.
+ * fpgaWriteMMIO64().
+ *
+ * If the caller passes in NULL for mmio_ptr, no mapping will be performed, and
+ * no virtual address will be returned, though the call will return `FPGA_OK`.
+ * This implies that all accesses will be performed through fpgaReadMMIO32(),
+ * fpgaWriteMMIO32(), fpgeReadMMIO64(), and fpgaWriteMMIO64(). This is the only
+ * supported case for ASE.
  *
  * The number of available MMIO spaces can be retrieved through the num_mmio
  * property (fpgaPropertyGetNumMMIO()).
@@ -178,6 +173,7 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle. FPGA_NO_ACCESS if the process'
  * permissions are not sufficient to map the requested MMIO space.
+ * FPGA_NOT_SUPPORTED if platform does not support memory mapped IO.
  */
 fpga_result fpgaMapMMIO(fpga_handle handle,
 			uint32_t mmio_num, uint64_t **mmio_ptr);
