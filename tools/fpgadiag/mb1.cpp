@@ -271,12 +271,20 @@ bool mb1::run()
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
         inout = accelerator_->allocate_buffer(buf_size * 2);
+        if (!inout) {
+            log_.error("mb1") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
         std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
         inp = bufs[0];
         out = bufs[1];
     } else {
         inp = accelerator_->allocate_buffer(buf_size);
         out = accelerator_->allocate_buffer(buf_size);
+        if (!inp || !out) {
+            log_.error("mb1") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
     }
 
     inp->fill(0);

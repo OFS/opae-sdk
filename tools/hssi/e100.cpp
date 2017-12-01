@@ -119,7 +119,7 @@ void e100::external_loopback(uint32_t source_port, uint32_t destination_port)
     }
 
     if (packet_length_ > 0) eth_->write(eth_ctrl_reg::gen_pkt_length, source_port, packet_length_);
-    if (packet_delay_  >= 0) eth_->write(eth_ctrl_reg::gen_pkt_delay, source_port, packet_delay_);
+    eth_->write(eth_ctrl_reg::gen_pkt_delay, source_port, packet_delay_);
 
     // turn off serial loopback
     mac_write(mac_reg::mac0_ctrl, mac_reg::mac_srl_lpbk_ctrl, 0x0);

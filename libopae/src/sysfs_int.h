@@ -80,6 +80,8 @@ fpga_result sysfs_get_slots(int dev, uint32_t *slots);
 fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
 fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid);
+fpga_result sysfs_deviceid_from_path(const char *sysfspath,
+				uint64_t *deviceid);
 fpga_result sysfs_objectid_from_path(const char *sysfspath,
 				     uint64_t *object_id);
 

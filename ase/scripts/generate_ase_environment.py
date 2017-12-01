@@ -115,9 +115,6 @@ def remove_dups(filepath, exclude=None):
             hashes[h] = f
     text = '\n'.join(sorted(hashes.values(), key=os.path.basename))
     with open(filepath, 'w') as fd:
-        # Add the prologue to load platform include paths
-        fd.write("+incdir+rtl\n")
-        fd.write("-F rtl/platform_if_includes.txt\n")
         fd.write(text)
         fd.write("\n")
     return text
@@ -142,7 +139,10 @@ def commands_list_getoutput(cmd):
             str_out = byte_out.decode("utf-8")
         except OSError as e:
             if e.errno == os.errno.ENOENT:
-                errorExit(cmd[0] + " not found on PATH")
+                msg = cmd[0] + " not found on PATH!\n"
+                msg += "The installed OPAE SDK bin directory must be on " + \
+                       "the PATH environment variable."
+                errorExit(msg)
             else:
                 raise
 
@@ -226,8 +226,6 @@ def config_sources(fd, filelist):
     if (vlog_found):
         fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
         with open(VLOG_FILE_LIST, "w") as f:
-            f.write("+incdir+rtl\n")
-            f.write("-F rtl/platform_if_includes.txt\n")
             for s in vlog_srcs:
                 f.write(s + "\n")
 
@@ -235,8 +233,6 @@ def config_sources(fd, filelist):
     if (vhdl_found):
         fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
         with open(VHDL_FILE_LIST, "w") as f:
-            f.write("+incdir+rtl\n")
-            f.write("-F rtl/platform_if_includes.txt\n")
             for s in vhdl_srcs:
                 f.write(s + "\n")
 

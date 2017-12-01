@@ -53,6 +53,8 @@ fpga_result __FPGA_API__ fpgaAssignPortToInterface(fpga_handle fpga,
 	struct fpga_fme_port_assign config = {0};
 	int err;
 
+	UNUSED_PARAM(flags);
+
 	config.argsz = sizeof(config);
 	config.flags = 0;
 	config.port_id = slot_num;

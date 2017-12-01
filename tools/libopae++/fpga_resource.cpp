@@ -130,7 +130,7 @@ bool fpga_resource::enumerate_tokens(fpga_objtype objtype,
         filters.reserve(options.size());
         filters.resize(0);
 
-        for (int i = 0; i < options.size(); ++i)
+        for (vector<shared_token>::size_type i = 0; i < options.size(); ++i)
         {
             fpga_properties props;
             // make a temporary fpga_properties object

@@ -73,6 +73,7 @@
 /* Check validity of various objects */
 fpga_result prop_check_and_lock(struct _fpga_properties *prop);
 fpga_result handle_check_and_lock(struct _fpga_handle *handle);
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
 
 /**
  * @brief
@@ -85,5 +86,6 @@ void aal_guid_to_fpga(uint64_t guidh,
 		      uint64_t guidl,
 		      uint8_t *guid);
 
+#define UNUSED_PARAM(x) ((void)x)
 
 #endif // ___FPGA_COMMON_INT_H__

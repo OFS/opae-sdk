@@ -132,6 +132,7 @@ config_app::config_app()
 , hssi_cmd_count_(0)
 , ctrl_(static_cast<uint32_t>(fme_csr::hssi_ctrl))
 , stat_(static_cast<uint32_t>(fme_csr::hssi_stat))
+, byte_addr_size_(1)
 , header_stream_()
 , input_file_("")
 {
@@ -141,6 +142,7 @@ config_app::config_app()
     options_.add_option<uint8_t>("device",         'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",       'F', option::with_argument, "Function number of PCIe device");
     options_.add_option<bool>("c-header",          'C', option::no_argument,   "Generate a C header file to integrate into BIOS", false);
+    options_.add_option<uint32_t>("byte-address-size", option::with_argument,  "Byte address width (in bytes) of I2C devices", byte_addr_size_);
     options_.add_option<bool>("help",              'h', option::no_argument,   "Show help message", false);
 
     using std::placeholders::_1;
@@ -217,6 +219,7 @@ bool config_app::setup()
         std::string sysfs_path = sysfs_path_template;
         sysfs_path =  sysfs_path.replace(pos, 3, socket_str);
     }
+    options_.get_value<uint32_t>("byte-address-size", byte_addr_size_);
 
     if (options_["socket-id"] && options_["socket-id"]->is_set())
     {
@@ -252,7 +255,7 @@ bool config_app::setup()
         stat_ = it->offset() + 0x10;
     }
     przone_.reset(new hssi_przone(mmio_, ctrl_, stat_));
-    i2c_.reset(new i2c(std::dynamic_pointer_cast<przone_interface>(przone_)));
+    i2c_.reset(new i2c(std::dynamic_pointer_cast<przone_interface>(przone_), byte_addr_size_));
     mdio_.reset(new mdio(std::dynamic_pointer_cast<przone_interface>(przone_)));
     return true;
 
@@ -343,7 +346,7 @@ bool config_app::do_read(const cmd_handler::cmd_vector_t & cmds)
         if (parse_int(cmds[0], lane) &&
             parse_int(cmds[1], address))
         {
-            if (lane > max_xcvr_lane || address > max_xcvr_addr)
+            if (lane > (int32_t)max_xcvr_lane || address > max_xcvr_addr)
             {
                 std::cerr << "invalid xcvr read parameter" << std::endl;
                 return false;
@@ -411,7 +414,7 @@ bool config_app::do_retimer_read(const cmd_handler::cmd_vector_t & cmds)
             parse_int(cmds[1], reg.channel_lane) &&
             parse_int(cmds[2], reg.address))
         {
-            if (reg.channel_lane > max_rtmr_channel)
+            if (reg.channel_lane > static_cast<int32_t>(max_rtmr_channel))
             {
                 std::cerr << "Invalid retimer channel" << std::endl;
                 return false;
@@ -733,6 +736,7 @@ size_t config_app::load(eq_register registers[], size_t size)
                     przone_->write(reg.address, reg.value);
                 }
                 break;
+            default: break;
         }
     }
     return loaded;
@@ -827,7 +831,7 @@ size_t config_app::dump(eq_register registers[], size_t size, std::ostream & str
             case eq_register_type::fpga_tx:
                 if (reg.channel_lane == -1)
                 {
-                    for(int i = 0; i < max_xcvr_lane; ++i)
+                    for(int32_t i = 0; i < static_cast<int32_t>(max_xcvr_lane); ++i)
                     {
                         eq_register cpy = reg;
                         cpy.channel_lane = i;
@@ -849,7 +853,7 @@ size_t config_app::dump(eq_register registers[], size_t size, std::ostream & str
                 {
                     for (uint32_t i : valid_rtmr_device_addrs)
                     {
-                        for (int j = 0; j < max_rtmr_channel; ++j)
+                        for (int32_t j = 0; j < static_cast<int32_t>(max_rtmr_channel); ++j)
                         {
                             eq_register cpy = reg;
                             cpy.device = i;

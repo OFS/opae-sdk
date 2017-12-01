@@ -689,7 +689,9 @@ void session_deinit(void)
     }
     // Stop running threads
     pthread_cancel(umsg_watch_tid);
+    pthread_join(umsg_watch_tid, NULL);
     pthread_cancel(mmio_watch_tid);
+    pthread_join(mmio_watch_tid, NULL);
 
     // End Clock snapshot
     clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);

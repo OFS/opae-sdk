@@ -38,10 +38,19 @@ class port_error : public std::exception
 {
 public:
     port_error(uint64_t err);
+    port_error(const port_error & other)
+    : err_(other.err_)
+    {
+    }
+    port_error & operator=(const port_error & other)
+    {
+        if(this != &other) err_ = other.err_;
+        return *this;
+    }
     static uint64_t read(uint8_t socket_id);
     static uint64_t clear(uint8_t socket_id, uint64_t errs);
 
-    uint64_t value() { return err_; }
+    uint64_t value() const { return err_; }
     friend std::ostream & operator<<(std::ostream & str, const port_error &err);
 private:
     uint64_t err_;

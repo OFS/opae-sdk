@@ -42,13 +42,6 @@ namespace diag
 
 const std::string AFUID = "2D9C88FE-2BE5-4105-8A1A-EEEC94364467";
 
-mtnlb8::mtnlb8(const std::string & name)
-: mtnlb(AFUID, "mtnlb8")
-{
-    mode_ = "mt8";
-    config_ = "mtnlb8.json";
-}
-
 mtnlb8::mtnlb8()
 : mtnlb(AFUID, "mtnlb8")
 {
@@ -62,6 +55,7 @@ mtnlb8::~mtnlb8()
 
 void mtnlb8::work(uint64_t thread_id, uint64_t iterations, uint64_t stride)
 {
+    UNUSED_PARAM(iterations);
     // wait for the signal to start
     while (!ready_);
 

@@ -43,8 +43,7 @@ public:
 
     enum class event_type : uint32_t
     {
-        none = 0,
-        interrupt,
+        interrupt = 0,
         error,
         power_thermal
     };

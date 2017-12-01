@@ -24,7 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR})
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${CMAKE_SOURCE_DIR}/libopae/src )
 
 set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 
@@ -33,7 +34,10 @@ find_package(UUID REQUIRED)
 add_executable(hello_fpga hello_fpga.c)
 target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 
-set(SAMPLES_SRC hello_fpga.c)
+add_executable(hello_events hello_events.c)
+target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+
+set(SAMPLES_SRC hello_fpga.c hello_events.c)
 
 install(FILES ${SAMPLES_SRC}
         DESTINATION src/opae

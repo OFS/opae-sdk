@@ -60,6 +60,7 @@ public:
 
     virtual bool write_mmio32(uint32_t offset, uint32_t value)
     {
+        UNUSED_PARAM(offset);
         for (int i = 0; i < indent_; ++i)
         {
             stream_ << "\t";
@@ -70,6 +71,7 @@ public:
 
     virtual bool write_mmio64(uint32_t offset, uint64_t value)
     {
+        UNUSED_PARAM(offset);
         for (int i = 0; i < indent_; ++i)
         {
             stream_ << "\t";
@@ -80,6 +82,8 @@ public:
 
     virtual bool read_mmio32(uint32_t offset, uint32_t & value)
     {
+        UNUSED_PARAM(offset);
+        UNUSED_PARAM(value);
         for (int i = 0; i < indent_; ++i)
         {
             stream_ << "\t";
@@ -89,6 +93,8 @@ public:
 
     virtual bool read_mmio64(uint32_t offset, uint64_t & value)
     {
+        UNUSED_PARAM(offset);
+	UNUSED_PARAM(value);
         for (int i = 0; i < indent_; ++i)
         {
             stream_ << "\t";
@@ -98,6 +104,7 @@ public:
 
     virtual uint8_t * mmio_pointer(uint32_t offset)
     {
+        UNUSED_PARAM(offset);
         return nullptr;
     }
 

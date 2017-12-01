@@ -26,60 +26,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import fpga_common
-import os
-
-# RO | It contains power management configure files.
-FME_SYSFS_POWER_MGMT = os.path.join(fpga_common.FME_DEVICE, "power_mgmt")
-
-# RO | PCU will write the FPGA power consumption value
-FME_SYSFS_POWER_MGMT_CONSUMED = None
-
-# RW | Get/set AP threshold 1
-FME_SYSFS_POWER_MGMT_THRESHOLD1 = None
-
-# RO | Indicates if the power exceeds Threshold 2.  Will trigger AP2 state.
-FME_SYSFS_POWER_MGMT_THRESHOLD1_STATUS = None
-
-# RO | Indicates if the power exceeds Threshold 1.  Will trigger AP1 state.
-FME_SYSFS_POWER_MGMT_THRESHOLD2 = None
-
-# RW | Get/set AP threshold 2
-FME_SYSFS_POWER_MGMT_THRESHOLD2_STATUS = None
-
-# RO | Indicates if the power exceeds Threshold 2.  Will trigger AP2 state.
-RTL = None
+import sysfs
 
 
 class power_command(fpga_common.fpga_command):
-
     name = "power"
-
-    def args(self, parser):
-        pass
+    properties = ["consumed"]
 
     def run(self, args):
-        global FME_SYSFS_POWER_MGMT_CONSUMED
-        powerpath = FME_SYSFS_POWER_MGMT.format(
-            socket_id=args.socket_id, fme_instance=0)
-        FME_SYSFS_POWER_MGMT_CONSUMED = os.path.join(
-            powerpath, "consumed")
-        self.get_power_consumed(FME_SYSFS_POWER_MGMT_CONSUMED)
-
-    def get_power_consumed(self, powerpath):
-        if self.fme_feature_is_supported(powerpath):
-            with open(powerpath, "r") as fd:
-                value = fd.read()
-            watts = int(value, 16)
-            print "Power consumption value in watts:  {}\n".format(watts)
-        else:
-            print("Feature not supported:")
-            print powerpath
+        info = sysfs.sysfsinfo()
+        for fme in info.fme(**vars(args)):
+            fme.power_mgmt.print_info("//****** POWER ******//",
+                                      "consumed",
+                                      consumed=lambda v: '{} Watts'.format(v))
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    fpga_common.global_arguments(parser)
     power_command(parser)
     args = parser.parse_args()
     args.func(args)

@@ -133,7 +133,7 @@ private:
     void cont_swvalid_thr();
     void cont_hwvalid_thr();
 
-    bool wait_for_done(uint32_t allocations);
+    bool wait_for_done();
 
 };
 
