@@ -204,7 +204,7 @@ public:
 
         os << " " << help();
 
-        if (name() != "help")
+        if (name() != "help" && dval != T())
         {
            os << " Default=" << dval;
         }
