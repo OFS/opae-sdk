@@ -71,11 +71,11 @@ mb1::mb1()
 {
     options_.add_option<bool>("help",              'h', intel::utils::option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",     'c', intel::utils::option::with_argument, "Path to test config file", config_);
-    options_.add_option<std::string>("target",     't', intel::utils::option::with_argument, "one of { fpga, ase }", target_);
+    options_.add_option<std::string>("target",     't', intel::utils::option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<uint32_t>("num-lines",     'l', intel::utils::option::with_argument, "Number of cache lines", cachelines_);
     options_.add_option<uint32_t>("num-sw-repeat", 'R', intel::utils::option::with_argument, "Number of test repetitions", num_sw_repeat_);
-    options_.add_option<std::string>("read-vc",    'r', intel::utils::option::with_argument, "one of { auto, vl0, vh0, vh1, random }", read_vc_);
-    options_.add_option<std::string>("cache-hint", 'i', intel::utils::option::with_argument, "one of { rdline-I, rdline-S }", cache_hint_);
+    options_.add_option<std::string>("read-vc",    'r', intel::utils::option::with_argument, "one of {auto, vl0, vh0, vh1, random}", read_vc_);
+    options_.add_option<std::string>("cache-hint", 'i', intel::utils::option::with_argument, "one of {rdline-I, rdline-S}", cache_hint_);
     options_.add_option<bool>("cool-cpu-cache",    'C', intel::utils::option::no_argument,   "cool down cpu cache", cool_cpu_cache_);
     options_.add_option<uint8_t>("bus-number",     'B', intel::utils::option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",         'D', intel::utils::option::with_argument, "Device number of PCIe device");
@@ -93,7 +93,7 @@ mb1::~mb1()
 
 void mb1::show_help(std::ostream &os)
 {
-    os << "Usage: mb1 [options]" << std::endl
+    os << "Usage: mb1 [options]:" << std::endl
        << std::endl;
 
     os << "   options are chosen from the following and may appear in the JSON" << std::endl
