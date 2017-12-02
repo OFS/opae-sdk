@@ -76,6 +76,13 @@ struct guid_t
         }
     }
 
+    friend std::ostream & operator<<(std::ostream & ostr, const guid_t & g){
+        char guid_str[84];
+        uuid_unparse(g.data_.data(), guid_str);
+        ostr << guid_str;
+        return ostr;
+    }
+
 private:
     fpga_properties *props_;
     std::array<uint8_t, 16> data_;
