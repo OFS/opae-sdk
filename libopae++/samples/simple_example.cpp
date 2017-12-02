@@ -50,20 +50,8 @@ int main(int argc, char* argvp[])
     if (tokens.size() > 0){
         auto tok = tokens[0];
         auto props = properties::read(tok->get());
-        fpga_guid g;
-        auto r = props->guid.get_value(g);
-        if (r == FPGA_OK){
-            char guid_str[84];
-            uuid_unparse(g, guid_str);
-            std::cout << "guid prop read: " << guid_str << "\n";
-        }
-        fpga_token p;
-        r = props->parent.get_value(p);
-        if (r == FPGA_OK){
-            //char guid_str[84];
-            //uuid_unparse(g, guid_str);
-            //std::cout << "parent prop read: " << guid_str << "\n";
-        }
+        std::cout << "guid prop read: " << props->guid << "\n";
+        fpga_token p = props->parent;
 
         std::cout << "bus: 0x" << std::hex << props->bus << "\n";
         handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
