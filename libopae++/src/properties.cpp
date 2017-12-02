@@ -47,12 +47,12 @@ properties::properties()
 , model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel)
 , local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize, fpgaPropertiesSetLocalMemorySize)
 , capabilities(&props_, fpgaPropertiesGetCapabilities, fpgaPropertiesSetCapabilities)
-, guid(&props_, fpgaPropertiesGetGUID, fpgaPropertiesSetGUID)
 , num_mmio(&props_, fpgaPropertiesGetNumMMIO, fpgaPropertiesSetNumMMIO)
 , num_interrupts(&props_, fpgaPropertiesGetNumInterrupts, fpgaPropertiesSetNumInterrupts)
 , accelerator_state(&props_, fpgaPropertiesGetAcceleratorState, fpgaPropertiesSetAcceleratorState)
 , object_id(&props_, fpgaPropertiesGetObjectID, fpgaPropertiesSetObjectID)
 , parent(&props_, fpgaPropertiesGetParent, fpgaPropertiesSetParent)
+, guid(&props_)
 {
     auto res = fpgaGetProperties(nullptr, &props_);
     if (res != FPGA_OK){
