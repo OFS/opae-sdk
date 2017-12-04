@@ -27,6 +27,12 @@
 
 set -e
 
+##
+## There is a newer script, afu_sim_setup, that both creates an ASE simulation
+## environment in a directory and configures ASE for simulating a specified
+## AFU.  create_ase_simbuild_env.sh is retained here for compatibility.
+##
+
 ##################################
 #                                #
 # Usage notes:                   #

@@ -60,7 +60,6 @@ def errorExit(msg):
 #
 def getDBRootPath():
     # CMake will update any variables marked by @ with the proper values.
-    opae_install_dir = '@CMAKE_INSTALL_PREFIX@'
     project_src_dir = '@CMAKE_CURRENT_SOURCE_DIR@'
     db_root_dir = '@PLATFORM_SHARE_DIR@'
 
@@ -77,8 +76,11 @@ def getDBRootPath():
             # database.
             db_root = project_src_dir
         else:
-            # The script is installed.
-            db_root = os.path.join(opae_install_dir, db_root_dir)
+            # The script is installed.  The installation path isn't known
+            # since it can be changed when using rpm --prefix.  We do
+            # guarantee that the OPAE bin and share directories have the
+            # same parent.
+            db_root = os.path.join(parent_dir, db_root_dir)
     else:
         # Running out of the source tree
         db_root = parent_dir
@@ -787,17 +789,17 @@ def findPlatforms(db_path):
     platforms = set()
     # Walk all the directories
     for db_dir in db_path:
-        try:
-            # Look for JSON files in each directory
-            for fn in os.listdir(db_dir):
-                if fn.endswith('.json'):
+        # Look for JSON files in each directory
+        for fn in os.listdir(db_dir):
+            if fn.endswith('.json'):
+                try:
                     with open(os.path.join(db_dir, fn)) as f:
                         # Does it have a platform name field?
                         db = json.load(f)
                         platforms.add(db['platform-name'])
-        except Exception:
-            # Give up on this file or directory if there is any error
-            None
+                except Exception:
+                    # Give up on this file or directory if there is any error
+                    None
 
     return sorted(list(platforms))
 
@@ -809,19 +811,19 @@ def findAfuIfcs(db_path):
     afus = set()
     # Walk all the directories
     for db_dir in db_path:
-        try:
-            # Look for JSON files in each directory
-            for fn in os.listdir(db_dir):
-                if fn.endswith('.json'):
+        # Look for JSON files in each directory
+        for fn in os.listdir(db_dir):
+            if fn.endswith('.json'):
+                try:
                     with open(os.path.join(db_dir, fn)) as f:
                         db = json.load(f)
                         # If it has a module-arguments entry assume the file is
                         # valid
                         if ('module-arguments' in db):
                             afus.add(fn[:-5])
-        except Exception:
-            # Give up on this file or directory if there is any error
-            None
+                except Exception:
+                    # Give up on this file or directory if there is any error
+                    None
 
     return sorted(list(afus))
 

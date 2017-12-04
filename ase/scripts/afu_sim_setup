@@ -25,6 +25,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+#
+# Create an ASE environment in a new directory and configure it for
+# simulating an AFU.  Run "afu_sim_setup --help" for details.
+#
+
 import sys
 import os
 import errno
@@ -40,7 +45,6 @@ import subprocess
 #
 def getASESrcPath():
     # CMake will update any variables marked by @ with the proper values.
-    opae_install_dir = '@CMAKE_INSTALL_PREFIX@'
     project_src_dir = '@CMAKE_CURRENT_SOURCE_DIR@'
     ase_share_dir = '@ASE_SHARE_DIR@'
 
@@ -57,8 +61,11 @@ def getASESrcPath():
             # database.
             ase_share = project_src_dir
         else:
-            # The script is installed.
-            ase_share = os.path.join(opae_install_dir, ase_share_dir)
+            # The script is installed.  The installation path isn't known
+            # since it can be changed when using rpm --prefix.  We do
+            # guarantee that the OPAE bin and share directories have the
+            # same parent.
+            ase_share = os.path.join(parent_dir, ase_share_dir)
     else:
         # Running out of the source tree
         ase_share = parent_dir
