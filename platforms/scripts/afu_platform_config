@@ -793,7 +793,7 @@ def findPlatforms(db_path):
                     db = json.load(f)
                     platforms.add(db['platform-name'])
             except Exception:
-                # Give up on this file or directory if there is any error
+                # Give up on this file if there is any error
                 None
 
     return sorted(list(platforms))
@@ -817,7 +817,7 @@ def findAfuIfcs(db_path):
                         base = os.path.basename(json_file)
                         afus.add(os.path.splitext(base)[0])
             except Exception:
-                # Give up on this file or directory if there is any error
+                # Give up on this file is any error
                 None
 
     return sorted(list(afus))
