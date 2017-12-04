@@ -90,6 +90,13 @@ def errorExit(msg):
     ase_functions.begin_red_fontcolor()
     sys.stderr.write("Error: " + msg + "\n")
     ase_functions.end_red_fontcolor()
+
+    # Try to remove ase_sources.mk to make it clear something went wrong
+    try:
+        os.remove('ase_sources.mk')
+    except Exception:
+        None
+
     sys.exit(1)
 
 
@@ -145,6 +152,11 @@ def commands_list_getoutput(cmd):
                 errorExit(msg)
             else:
                 raise
+        except subprocess.CalledProcessError as e:
+            ase_functions.begin_red_fontcolor()
+            sys.stderr.write(e.output)
+            ase_functions.end_red_fontcolor()
+            raise
 
         return str_out
 
@@ -418,9 +430,22 @@ def gen_afu_platform_ifc(json_file):
         cfg.append(args.plat)
 
     try:
-        print(commands_list_getoutput(cfg))
+        sys.stdout.write(commands_list_getoutput(cfg))
     except Exception:
         errorExit(cmd + " from OPAE SDK failed!")
+
+
+# Generate a Verilog header file with values from the AFU JSON file
+def gen_afu_json_verilog_macros(json_file):
+    cmd = ['afu_json_mgr', 'json-info']
+    cmd.append('--afu-json=' + json_file)
+    cmd.append('--verilog-hdr=rtl/afu_json_info.vh')
+
+    try:
+        sys.stdout.write(commands_list_getoutput(cmd))
+    except Exception:
+        errorExit("afu_json_mgr from OPAE SDK failed, parsing {0}".format(
+            json_file))
 
 
 print("#################################################################")
@@ -445,8 +470,8 @@ the command line and they will be searched for RTL sources.''')
 parser.add_argument('dirlist', nargs='*',
                     help='list of directories to scan')
 parser.add_argument('-s', '--sources',
-                    help="""file containing list of source files.  The file will be
-                            parsed by rtl_src_config.""")
+                    help="""file containing list of source files.  The file
+                            will be parsed by rtl_src_config.""")
 parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default=None,
                     help='simulator tool to use, default is VCS if present')
 parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'],
@@ -494,18 +519,15 @@ fd.write("#                                                            #\n")
 fd.write("##############################################################\n")
 fd.write("\n")
 
-
 # Update SIMULATOR
 fd.write("SIMULATOR ?= ")
 fd.write(tool_brand)
 fd.write("\n\n")
 
-
 # Update ASE_PLATFORM
 fd.write("ASE_PLATFORM ?= ")
 fd.write(PLAT_TYPE)
 fd.write("\n\n")
-
 
 # Configure RTL sources
 if (args.sources):
@@ -515,12 +537,13 @@ else:
     # Discover sources by scanning a set of directories
     json_file = auto_find_sources(fd)
 
+fd.close()
+
 # Both source discovery methods may return a JSON file describing the AFU.
 # They will return None if no JSON file is found.
 gen_afu_platform_ifc(json_file)
-
-fd.close()
-
+if (json_file):
+    gen_afu_json_verilog_macros(json_file)
 
 # Write tool specific scripts
 
