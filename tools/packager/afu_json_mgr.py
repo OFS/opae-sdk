@@ -109,8 +109,12 @@ def json_info(subargs):
     accel = afu.afu_json['afu-image']['accelerator-clusters'][0]
     entries['afu_image_name'] = accel['name']
     entries['afu_image_uuid'] = accel['accelerator-type-uuid']
-    entries['afu_top_ifc'] = \
-        afu.afu_json['afu-image']['afu-top-interface']['name']
+    try:
+        # May not be present.  (Will become required eventually.)
+        entries['afu_top_ifc'] = \
+            afu.afu_json['afu-image']['afu-top-interface']['name']
+    except Exception:
+        None
 
     # C header
     if (subargs.c_hdr):

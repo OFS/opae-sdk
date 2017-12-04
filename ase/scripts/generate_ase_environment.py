@@ -373,7 +373,7 @@ def auto_find_sources(fd):
               "to FAIL !")
         ase_functions.end_red_fontcolor()
 
-    # Search for a JSON file describing the top-level interface
+    # Search for a JSON file describing the AFU
     json_file = None
     str = commands_getoutput(
         "find -L " + str_dirlist + " -type f -name *.json")
@@ -384,12 +384,10 @@ def auto_find_sources(fd):
                     db = json.load(f)
                 f.close()
 
-                afu_ifc = db['afu-image']['afu-top-interface']['name']
-                # If we get this far without an exception the JSON file names
-                # a top-level interface.  Use it.
+                afu_image = db['afu-image']
+                # If we get this far without an exception the JSON file looks
+                # like an AFU descriptor.
                 json_file = js
-                print("\nAFU interface from {0}: {1}".format(
-                    os.path.basename(json_file), afu_ifc))
                 break
             except Exception:
                 None
@@ -417,12 +415,15 @@ def gen_afu_platform_ifc(json_file):
     cmd = "afu_platform_config"
     cfg = (cmd + " --sim --tgt=rtl").split(" ")
 
+    default_ifc = "ccip_std_afu"
+    if (args.plat == 'discrete'):
+        default_ifc = "ccip_std_afu_avalon_mm_legacy_wires"
+
     if (json_file):
-        cfg.append("--src={0}".format(json_file))
-    elif (args.plat == 'discrete'):
-        cfg.append("--ifc=ccip_std_afu_avalon_mm_legacy_wires")
+        cfg.append("--src=" + json_file)
+        cfg.append("--default-ifc=" + default_ifc)
     else:
-        cfg.append("--ifc=ccip_std_afu")
+        cfg.append("--ifc=" + default_ifc)
 
     if (args.plat == 'discrete'):
         cfg.append("discrete_pcie3")
