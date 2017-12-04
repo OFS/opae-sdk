@@ -51,6 +51,7 @@ public:
     ~properties();
 
     fpga_properties get() const { return props_; }
+    operator fpga_properties () const { return props_; }
 
     static properties::ptr_t read(std::shared_ptr<token> t);
     static properties::ptr_t read(fpga_token t);

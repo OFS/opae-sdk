@@ -46,7 +46,11 @@ public:
 
     ~handle();
 
-    fpga_handle get(){
+    fpga_handle get() const {
+        return handle_;
+    }
+
+    operator fpga_handle () const {
         return handle_;
     }
 
