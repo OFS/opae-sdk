@@ -386,9 +386,6 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
 #
 # Return a dictionary derived from a JSON file, using a search path.
 #
-# db_category is just a string used for printing the type of database
-# being opened, e.g. "platform".
-#
 def getJsonDb(args, fname, db_dir_path, db_category):
     if (os.path.isfile(fname)):
         json_fname = fname
@@ -402,8 +399,11 @@ def getJsonDb(args, fname, db_dir_path, db_category):
                 break
 
         if (not json_fname):
+            c = db_category
+            if (c == 'AFU'):
+                c = 'AFU top-level interface'
             errorExit(
-                "Failed to find {0} file: {1}".format(db_category, json_fname))
+                "Failed to find {0} JSON file for {1}".format(c, fname))
 
     if (not args.quiet):
         print("Loading {0} database: {1}".format(db_category, json_fname))
@@ -639,7 +639,6 @@ def canonicalizePlatformDefaultsDb(db):
 # Return a dictionary describing the AFU's desired top-level interface.
 #
 def getAfuIfc(args):
-
     afu_ifc = dict()
 
     if (args.ifc):
@@ -686,12 +685,18 @@ def getAfuIfc(args):
 
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
-            afu_ifc['file_path'] = afu_json
-            afu_ifc['file_name'] = os.path.splitext(
-                os.path.basename(afu_json))[0]
         except Exception:
-            errorExit("No afu-image:afu-top-interface:name found " +
-                      "in {0}".format(afu_json))
+            # The JSON file doesn't name the top-level interface.
+            # Was a default specified on the command line?
+            if (args.default_ifc):
+                afu_ifc = dict()
+                afu_ifc['name'] = args.default_ifc
+            else:
+                errorExit("No afu-image:afu-top-interface:name found " +
+                          "in {0}".format(afu_json))
+
+        afu_ifc['file_path'] = afu_json
+        afu_ifc['file_name'] = os.path.splitext(os.path.basename(afu_json))[0]
 
     if (args.verbose):
         print("AFU interface requested: {0}".format(afu_ifc))
@@ -895,7 +900,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     parser.add_argument(
         "-t", "--tgt",
         help="""Target directory to which configuration files will be written.
-                  Defaults to current working directory.""")
+                Defaults to current working directory.""")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -905,12 +910,17 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     group.add_argument(
         "-s", "--src",
         help="""The AFU sources, where a JSON file that specifies the AFU's
-                  top-level interface is found. Use either the --ifc argument
-                  or this one, but not both. The argument may either be the
-                  full path of a JSON file describing the application or the
-                  argument may be a directory in which the JSON file is found.
-                  If the argument is a directory, there must be exactly one
-                  JSON file in the directory.""")
+                top-level interface is found. Use either the --ifc argument
+                or this one, but not both. The argument may either be the
+                full path of a JSON file describing the application or the
+                argument may be a directory in which the JSON file is found.
+                If the argument is a directory, there must be exactly one
+                JSON file in the directory.""")
+
+    parser.add_argument(
+        "--default-ifc",
+        help="""The default top-level interface name if no interface is
+                specified in the AFU's JSON descriptor.""")
 
     if_default = os.path.join(getDBRootPath(), "platform_if")
     parser.add_argument("--platform_if", default=if_default,
