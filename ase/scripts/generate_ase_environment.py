@@ -324,7 +324,11 @@ def auto_find_sources(fd):
     # Recursively find and add directory locations for VH
     print("")
     print("Finding include directories ... ")
-    str = commands_getoutput("find -L " + str_dirlist + " -type d")
+
+    # use absolute path names in DUT_INCDIR to keep Questa happy
+    pathname = os.path.abspath(str_dirlist)
+    str = commands_getoutput("find -L " + pathname + " -type d")
+
     str = str.replace("\n", "+")
     if len(str) != 0:
         print("DUT_INCDIR = " + str)
