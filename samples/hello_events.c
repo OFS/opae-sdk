@@ -143,6 +143,8 @@ int main(int argc, char *argv[])
 
 		res = inject_ras_fatal_error(fpga_device_token, 0);
 		ON_ERR_GOTO(res, out_destroy_tok, "unsetting inject error register");
+
+		goto out_destroy_tok;
 	} else {
 		res = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
 		ON_ERR_GOTO(res, out_close, "opening accelerator");
