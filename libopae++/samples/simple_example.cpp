@@ -37,16 +37,16 @@ int main(int argc, char* argvp[])
     const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
     const char* NLB3 = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18";
 
-    properties p;
+    properties props_filter;
 
-    p.socket_id = 1;
-    p.type = FPGA_ACCELERATOR;
+    props_filter.socket_id = 1;
+    props_filter.type = FPGA_ACCELERATOR;
     uuid_t uuid;
     if (uuid_parse(NLB0, uuid) == 0){
-        p.guid = uuid;
+        props_filter.guid = uuid;
     }
-    p.bbs_id = 0;
-    auto tokens = token::enumerate({p});
+    props_filter.bbs_id = 0; // This is invalid - libopae-c prints out a warning
+    auto tokens = token::enumerate({props_filter});
     if (tokens.size() > 0){
         auto tok = tokens[0];
         auto props = properties::read(tok);
