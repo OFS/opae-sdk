@@ -75,10 +75,8 @@ def get_bdf_from_args(args):
 
 def get_mode_from_path(gbs_path):
     if os.path.isfile(gbs_path):
-        pattern = r'^(.*\/)(.*)[^gbs]'
-        match = re.match(pattern, gbs_path)
-        if match:
-            return match.group(2)
+        base = os.path.basename(gbs_path)
+        return os.path.splitext(base)[0]
     return None
 
 
