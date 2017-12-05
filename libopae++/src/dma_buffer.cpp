@@ -81,6 +81,40 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len)
     return p;
 }
 
+dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle,
+                                     uint8_t *base,
+                                     size_t len)
+{
+    ptr_t p;
+
+    uint8_t *virt = base;
+    uint64_t iova = 0;
+    uint64_t wsid = 0;
+
+    fpga_result res = fpgaPrepareBuffer(handle->get(),
+                                        len,
+                                        reinterpret_cast<void **>(&virt),
+                                        &wsid,
+                                        FPGA_BUF_PREALLOCATED);
+ 
+    if (res == FPGA_OK) {
+
+        res = fpgaGetIOAddress(handle->get(), wsid, &iova);
+        if (res == FPGA_OK) {
+
+            p.reset(new dma_buffer(handle, len, virt, wsid, iova));
+
+        } else {
+            // TODO: log/throw error
+        }
+
+    } else {
+        // TODO: log/throw error
+    }
+
+    return p;
+}
+
 void dma_buffer::fill(int c)
 {
     ::memset(virt_, c, len_);

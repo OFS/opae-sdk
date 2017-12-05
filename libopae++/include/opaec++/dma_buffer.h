@@ -59,6 +59,19 @@ public:
      */
     static dma_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
 
+    /** Attach a pre-allocated buffer to a dma_buffer object.
+     *
+     * @param[in] handle The handle used to attach the buffer.
+     * @param[in] base The base of the pre-allocated memory.
+     * @param[in] len The size of the pre-allocated memory,
+     * which must be a multiple of the page size.
+     * @return A valid dma_buffer smart pointer on success, or an
+     * empty smart pointer on failure.
+     */
+    static dma_buffer::ptr_t attach(handle::ptr_t handle,
+                                    uint8_t *base,
+                                    size_t len);
+
     /** Retrieve the virtual address of the buffer base.
      */
     volatile uint8_t * get() const { return virt_; }

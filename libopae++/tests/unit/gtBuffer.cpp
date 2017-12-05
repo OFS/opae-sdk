@@ -6,6 +6,8 @@ extern "C" {
 }
 #endif
 
+#include <unistd.h>
+
 #include "gtest/gtest.h"
 
 #include "opaec++/handle.h"
@@ -61,6 +63,26 @@ TEST_F(CxxBuffer_f1, alloc_02){
 
     EXPECT_EQ(64, buf_->size());
     EXPECT_NE(0, buf_->iova());
+}
+
+/**
+ * @test alloc_07
+ * Given an open accelerator handle object and a pre-allocated buffer<br>
+ * When I call dma_buffer::attach() with a length that is a multiple of the page size<br>
+ * Then I get a valid dma_buffer pointer.<br>
+ */
+TEST_F(CxxBuffer_f1, alloc_07){
+
+    uint64_t pg_size = (uint64_t) sysconf(_SC_PAGE_SIZE);
+    uint8_t *buf = (uint8_t *) malloc(pg_size);
+
+    buf_ = dma_buffer::attach(accel_, buf, pg_size);
+    ASSERT_NE(nullptr, buf_.get());
+
+    EXPECT_EQ(static_cast<dma_buffer::size_t>(pg_size), buf_->size());
+    EXPECT_NE(0, buf_->iova());
+
+    free(buf);
 }
 
 /**
