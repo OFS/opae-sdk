@@ -59,8 +59,8 @@ TEST_F(CxxBuffer_f1, alloc_02){
     buf_ = dma_buffer::allocate(accel_, 64);
     ASSERT_NE(nullptr, buf_.get());
 
-    EXPECT_EQ(64, buf_->get_size());
-    EXPECT_NE(0, buf_->get_iova());
+    EXPECT_EQ(64, buf_->size());
+    EXPECT_NE(0, buf_->iova());
 }
 
 /**
@@ -76,20 +76,20 @@ TEST_F(CxxBuffer_f1, split_03){
     std::vector<dma_buffer::ptr_t> v = buf_->split({16, 16, 16, 16});
 
     EXPECT_EQ(buf_->get(), v[0]->get());
-    EXPECT_EQ(buf_->get_iova(), v[0]->get_iova());
-    EXPECT_EQ(16, v[0]->get_size());
+    EXPECT_EQ(buf_->iova(), v[0]->iova());
+    EXPECT_EQ(16, v[0]->size());
 
     EXPECT_EQ(buf_->get()+16, v[1]->get());
-    EXPECT_EQ(buf_->get_iova()+16, v[1]->get_iova());
-    EXPECT_EQ(16, v[1]->get_size());
+    EXPECT_EQ(buf_->iova()+16, v[1]->iova());
+    EXPECT_EQ(16, v[1]->size());
 
     EXPECT_EQ(buf_->get()+32, v[2]->get());
-    EXPECT_EQ(buf_->get_iova()+32, v[2]->get_iova());
-    EXPECT_EQ(16, v[2]->get_size());
+    EXPECT_EQ(buf_->iova()+32, v[2]->iova());
+    EXPECT_EQ(16, v[2]->size());
 
     EXPECT_EQ(buf_->get()+48, v[3]->get());
-    EXPECT_EQ(buf_->get_iova()+48, v[3]->get_iova());
-    EXPECT_EQ(16, v[3]->get_size());
+    EXPECT_EQ(buf_->iova()+48, v[3]->iova());
+    EXPECT_EQ(16, v[3]->size());
 }
 
 /**
@@ -109,7 +109,7 @@ TEST_F(CxxBuffer_f1, fill_compare_04){
 
     buf_->fill(1);
     buf2->fill(1);
-    EXPECT_EQ(0, buf_->compare(buf2, buf_->get_size()));
+    EXPECT_EQ(0, buf_->compare(buf2, buf_->size()));
 }
 
 /**
@@ -131,13 +131,13 @@ TEST_F(CxxBuffer_f1, read_write_05){
 /**
  * @test poll_wait_06
  * Given a valid dma_buffer smart pointer<br>
- * When I call dma_buffer::poll(),<br>
+ * When I call poll(),<br>
  * Then the return value is false when the given mask/value are not observed .<br>
- * When I call dma_buffer::poll(),<br>
+ * When I call poll(),<br>
  * Then the return value is true when the given mask/value are observed .<br>
- * When I call dma_buffer::wait(),<br>
+ * When I call wait(),<br>
  * Then the return value is false when the given mask/value are not observed .<br>
- * When I call dma_buffer::wait(),<br>
+ * When I call wait(),<br>
  * Then the return value is true when the given mask/value are observed .<br>
  */
 TEST_F(CxxBuffer_f1, poll_wait_06){
@@ -145,17 +145,17 @@ TEST_F(CxxBuffer_f1, poll_wait_06){
     ASSERT_NE(nullptr, buf_.get());
 
     dma_buffer::size_t offset = 0;
-    dma_buffer::microseconds_t micros(1000);
-    dma_buffer::microseconds_t each(100);
+    std::chrono::microseconds micros(1000);
+    std::chrono::microseconds each(100);
     uint32_t mask = 0xffffffff;
     uint32_t value = 0xdecafbad;
     uint32_t wrong_value = 0xdeadbeef;
 
     buf_->write<uint32_t>(value, offset);
-    EXPECT_FALSE(buf_->poll(offset, micros, mask, wrong_value));
-    EXPECT_TRUE(buf_->poll(offset, micros, mask, value));
+    EXPECT_FALSE(poll(buf_, offset, micros, mask, wrong_value));
+    EXPECT_TRUE(poll(buf_, offset, micros, mask, value));
 
-    EXPECT_FALSE(buf_->wait(offset, each, micros, mask, wrong_value));
-    EXPECT_TRUE(buf_->wait(offset, each, micros, mask, value));
+    EXPECT_FALSE(wait(buf_, offset, each, micros, mask, wrong_value));
+    EXPECT_TRUE(wait(buf_, offset, each, micros, mask, value));
 }
 

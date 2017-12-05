@@ -66,16 +66,16 @@ public:
     /** Retrieve the handle smart pointer associated with
      * this buffer.
      */
-    handle::ptr_t get_owner() const { return handle_; }
+    handle::ptr_t owner() const { return handle_; }
 
     /** Retrieve the length of the buffer in bytes.
      */
-    size_t get_size() const { return len_; }
+    size_t size() const { return len_; }
 
     /** Retrieve the address of the buffer suitable for
      * programming into the accelerator device.
      */
-    uint64_t get_iova() const { return iova_; }
+    uint64_t iova() const { return iova_; }
 
     /** Divide a buffer into a series of smaller buffers.
      *
@@ -150,76 +150,6 @@ public:
         // TODO log/throw error
     }
 
-    using microseconds_t = std::chrono::microseconds;
-    using time_point_t = std::chrono::high_resolution_clock::time_point;
-    using duration_t = std::chrono::duration<double>;
-
-    /** Poll for a specific value to appear at a given buffer location.
-     *
-     * Loops on a memory location without explicitly yielding the processor.
-     * This API should be used only for time-critical scenarios, eg waiting
-     * on a DMA address to be updated by hardware.
-     *
-     * @param[in] offset The byte offset from the start of the buffer.
-     * @param[in] timeout The maximum time to wait in microseconds.
-     * @param[in] mask A bit mask to apply to the value read from the buffer.
-     * @param[in] value The expected value after applying the mask.
-     * @retval true If the expected value was observed.
-     * @retval false If the timeout expired before seeing the expected value.
-     */
-    template <typename T>
-    bool poll(size_t offset, microseconds_t timeout, T mask, T value) const
-    {
-        time_point_t start = std::chrono::high_resolution_clock::now();
-        microseconds_t elapsed;
-
-        do
-        {
-            if ((read<T>(offset) & mask) == value)
-                return true;
-
-            elapsed = std::chrono::duration_cast<microseconds_t>(
-                        std::chrono::high_resolution_clock::now() - start);
-
-        }while(elapsed < timeout);
-
-        return false;
-    }
-
-    /** Wait for a specific value to appear at a given buffer location.
-     *
-     * Loops on a memory location, yielding the processor after each iteration.
-     * This API should not be used for time-critical scenarios. See poll instead.
-     *
-     * @param[in] offset The byte offset from the start of the buffer.
-     * @param[in] each The number of microseconds to sleep each loop iteration.
-     * @param[in] timeout The maximum time to wait in microseconds.
-     * @param[in] mask A bit mask to apply to the value read from the buffer.
-     * @param[in] value The expected value after applying the mask.
-     * @retval true If the expected value was observed.
-     * @retval false If the timeout expired before seeing the expected value.
-     */
-    template <typename T>
-    bool wait(size_t offset, microseconds_t each, microseconds_t timeout, T mask, T value) const
-    {
-        time_point_t start = std::chrono::high_resolution_clock::now();
-        microseconds_t elapsed;
-
-        do
-        {
-            if ((read<T>(offset) & mask) == value)
-                return true;
-
-            std::this_thread::sleep_for(each);
-
-            elapsed = std::chrono::duration_cast<microseconds_t>(
-                        std::chrono::high_resolution_clock::now() - start);
-
-        }while(elapsed < timeout);
-
-        return false;
-    }
-
 protected:
     handle::ptr_t handle_;
     size_t len_;
@@ -242,6 +172,86 @@ private:
                uint64_t iova,
                ptr_t parent);
 };
+
+/** Poll for a specific value to appear at a given buffer location.
+ *
+ * Loops on a memory location without explicitly yielding the processor.
+ * This API should be used only for time-critical scenarios, eg waiting
+ * on a DMA address to be updated by hardware.
+ *
+ * @param[in] buf The buffer containing the memory location.
+ * @param[in] offset The byte offset from the start of the buffer.
+ * @param[in] timeout The maximum time to wait in microseconds.
+ * @param[in] mask A bit mask to apply to the value read from the buffer.
+ * @param[in] value The expected value after applying the mask.
+ * @retval true If the expected value was observed.
+ * @retval false If the timeout expired before seeing the expected value.
+ */
+template <typename T>
+bool poll(dma_buffer::ptr_t buf,
+          size_t offset,
+          std::chrono::microseconds timeout,
+          T mask,
+          T value)
+{
+    std::chrono::high_resolution_clock::time_point
+        start = std::chrono::high_resolution_clock::now();
+
+    std::chrono::microseconds elapsed;
+
+    do
+    {
+        if ((buf->read<T>(offset) & mask) == value)
+            return true;
+
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::high_resolution_clock::now() - start);
+
+    }while(elapsed < timeout);
+
+    return false;
+}
+
+/** Wait for a specific value to appear at a given buffer location.
+ *
+ * Loops on a memory location, yielding the processor after each iteration.
+ * This API should not be used for time-critical scenarios. See poll instead.
+ *
+ * @param[in] buf The buffer containing the memory location.
+ * @param[in] offset The byte offset from the start of the buffer.
+ * @param[in] each The number of microseconds to sleep each loop iteration.
+ * @param[in] timeout The maximum time to wait in microseconds.
+ * @param[in] mask A bit mask to apply to the value read from the buffer.
+ * @param[in] value The expected value after applying the mask.
+ * @retval true If the expected value was observed.
+ * @retval false If the timeout expired before seeing the expected value.
+ */
+template <typename T>
+bool wait(dma_buffer::ptr_t buf,
+          size_t offset,
+          std::chrono::microseconds each,
+          std::chrono::microseconds timeout,
+          T mask,
+          T value)
+{
+    std::chrono::high_resolution_clock::time_point
+        start = std::chrono::high_resolution_clock::now();
+    std::chrono::microseconds elapsed;
+
+    do
+    {
+        if ((buf->read<T>(offset) & mask) == value)
+            return true;
+
+        std::this_thread::sleep_for(each);
+
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::high_resolution_clock::now() - start);
+
+    }while(elapsed < timeout);
+
+    return false;
+}
 
 } // end of namespace types
 } // end of namespace fpga
