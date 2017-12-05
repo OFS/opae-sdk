@@ -68,12 +68,12 @@ public:
     pvalue<char*>                  model;
     pvalue<uint64_t>               local_memory_size;
     pvalue<uint64_t>               capabilities;
-    pvalue<fpga_guid>              guid;
     pvalue<uint32_t>               num_mmio;
     pvalue<uint32_t>               num_interrupts;
     pvalue<fpga_accelerator_state> accelerator_state;
     pvalue<uint64_t>               object_id;
     pvalue<fpga_token>             parent;
+    guid_t                         guid;
 
 private:
     fpga_properties props_;

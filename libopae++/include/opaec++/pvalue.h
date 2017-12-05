@@ -26,7 +26,9 @@
 #pragma once
 #include <type_traits>
 #include <iostream>
-
+#include <algorithm>
+#include <cstring>
+#include <uuid/uuid.h>
 #include <opae/properties.h>
 
 namespace opae
@@ -35,6 +37,57 @@ namespace fpga
 {
 namespace types
 {
+
+struct guid_t
+{
+    guid_t(fpga_properties * p)
+    : props_(p)
+    {
+    }
+
+    operator uint8_t* (){
+        if (fpgaPropertiesGetGUID(*props_, reinterpret_cast<fpga_guid*>(&data_)) == FPGA_OK){
+            return data_.data();
+        }
+        return nullptr;
+    }
+
+    guid_t & operator=(fpga_guid g){
+        if (fpgaPropertiesSetGUID(*props_, g) == FPGA_OK){
+            uint8_t *begin = &g[0];
+            uint8_t *end = begin+sizeof(fpga_guid);
+            std::copy(begin, end, data_.begin());
+        }else{
+            // throw exception
+        }
+        return *this;
+    }
+
+    bool operator==(const fpga_guid & g){
+        return 0 == std::memcmp(data_.data(), g, sizeof(fpga_guid));
+    }
+
+    void parse(const char* str){
+        if (0 != uuid_parse(str, data_.data())){
+            //throw error
+        }
+        if (FPGA_OK != fpgaPropertiesSetGUID(*props_, data_.data())){
+            // throw error
+        }
+    }
+
+    friend std::ostream & operator<<(std::ostream & ostr, const guid_t & g){
+        char guid_str[84];
+        uuid_unparse(g.data_.data(), guid_str);
+        ostr << guid_str;
+        return ostr;
+    }
+
+private:
+    fpga_properties *props_;
+    std::array<uint8_t, 16> data_;
+
+};
 
 template<typename T>
 struct pvalue
@@ -55,43 +108,41 @@ struct pvalue
     {
     }
 
-    template<typename U>
-    pvalue<T>& operator=(U v){
-        T value = static_cast<T>(v);
-        auto res = set_(*props_, value);
-        if (res != FPGA_OK){
-            // TODO: Print error: std::cerr << "Could not set property";
-        }
-        return *this;
-    }
-
-    pvalue<fpga_guid>& operator=(fpga_guid v){
+    pvalue<T>& operator=(const T& v){
         auto res = set_(*props_, v);
-        if (res != FPGA_OK){
-            // TODO : log error
+        if (res == FPGA_OK){
+            copy_ = v;
         }
-        return *this;
     }
 
+    bool operator==(const T & other){
+        return copy_ == other;
+    }
+
+    operator T () {
+        if (get_(*props_, &copy_) == FPGA_OK){
+            return copy_;
+        }
+        return T();
+    }
+
+    // TODO: Remove this once all properties are tested
     fpga_result get_value(T & value) const {
         return get_(*props_, &value);
     }
 
     friend std::ostream & operator<<(std::ostream & ostr, const pvalue<T> & p){
-        T value;
-        if (p.get_value(value) == FPGA_OK){
-            ostr << +(value);
-        }else{
-            ostr << "null";
-        }
+        ostr << +(p.copy_);
         return ostr;
     }
 
 private:
     fpga_properties *props_;
+    T copy_;
     getter_t get_;
     setter_t set_;
 };
+
 
 } // end of namespace types
 } // end of namespace fpga

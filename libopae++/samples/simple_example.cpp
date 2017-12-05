@@ -51,7 +51,6 @@ int main(int argc, char* argvp[])
         auto tok = tokens[0];
         auto props = properties::read(tok);
         std::cout << "guid prop read: " << props->guid << "\n";
-        fpga_token p;
 
         std::cout << "bus: 0x" << std::hex << props->bus << "\n";
         handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
