@@ -658,6 +658,10 @@ void session_deinit(void)
 					("MMIO pthread_cancel failed -- Ignoring\n");
 			}
 	}
+
+	//free memory
+	free_buffers();
+
 	// Send SIMKILL
 	ase_portctrl(ASE_SIMKILL, 0);
 
@@ -703,9 +707,6 @@ void session_deinit(void)
     setlocale(LC_NUMERIC, "");
     ASE_INFO("\tTook %'llu nsec \n", runtime_nsec);
     setlocale(LC_NUMERIC, oldLocale);
-
-	//free memory
-	free_buffers();
 
     // Delete the .app_lock.pid file
     if (access(app_ready_lockpath, F_OK) == 0) {
@@ -1372,6 +1373,9 @@ bool deallocate_buffer_by_index(int search_index)
     return value;
 }
 
+/*
+* Clean up the memory allocated for buffer_t
+*/
 void free_buffers(void)
 {
 	FUNC_CALL_ENTRY;
@@ -1385,12 +1389,12 @@ void free_buffers(void)
 	ptr = buf_head;
 	while (ptr != NULL) {
 		bufptr = ptr;
-		if (ptr->valid == ASE_BUFFER_VALID)
-			deallocate_buffer(ptr);
-
 		ptr = ptr->next;
 		free(bufptr);
 	}
+	
+	buf_head = NULL;
+	buf_end = NULL;
 
 	FUNC_CALL_EXIT;
 }
@@ -1406,7 +1410,7 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
 
     trav_ptr = buf_head;
     while (trav_ptr != NULL) {
-		if (trav_ptr->index == wsid) {
+		if ((uint64_t)(trav_ptr->index) == wsid) {
 			bufptr = trav_ptr;
 			break;
 		} else {
