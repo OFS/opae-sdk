@@ -43,6 +43,9 @@ class token
 {
 public:
     typedef std::shared_ptr<token> ptr_t;
+
+    static std::vector<token::ptr_t> enumerate();
+
     static std::vector<token::ptr_t> enumerate(const std::vector<properties> & props);
 
     ~token();

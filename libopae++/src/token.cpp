@@ -34,6 +34,10 @@ namespace types
 {
 
 
+std::vector<token::ptr_t> token::enumerate(){
+    return token::enumerate({});
+}
+
 std::vector<token::ptr_t> token::enumerate(const std::vector<properties> & props){
     std::vector<token::ptr_t> tokens;
     std::vector<fpga_properties> c_props(props.size());
