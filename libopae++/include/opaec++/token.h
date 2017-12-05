@@ -47,7 +47,10 @@ public:
 
     ~token();
 
-    fpga_token get(){
+    fpga_token get() const {
+        return token_;
+    }
+    operator fpga_token () const {
         return token_;
     }
 

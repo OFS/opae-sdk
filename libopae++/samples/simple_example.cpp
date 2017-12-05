@@ -36,9 +36,9 @@ int main(int argc, char* argvp[])
 {
     const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
     const char* NLB3 = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18";
-   
+
     properties p;
-        
+
     p.socket_id = 1;
     p.type = FPGA_ACCELERATOR;
     uuid_t uuid;
@@ -49,23 +49,21 @@ int main(int argc, char* argvp[])
     auto tokens = token::enumerate({ p });
     if (tokens.size() > 0){
         auto tok = tokens[0];
-        auto props = properties::read(tok->get());
+        auto props = properties::read(tok);
         std::cout << "guid prop read: " << props->guid << "\n";
-        fpga_token p = props->parent;
 
         std::cout << "bus: 0x" << std::hex << props->bus << "\n";
         handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
         uint8_t *mmio_ptr = 0;
-        auto res = fpgaMapMMIO(h->get(), 0, reinterpret_cast<uint64_t**>(&mmio_ptr));
+        auto res = fpgaMapMMIO(*h, 0, reinterpret_cast<uint64_t**>(&mmio_ptr));
         if (res == FPGA_OK){
             uint64_t scratch = 0;
-            if (fpgaWriteMMIO64(h->get(), 0, 0x100, 0xdeadbeef) == FPGA_OK &&
-                fpgaReadMMIO64(h->get(), 0, 0x100, &scratch) == FPGA_OK){
+            if (fpgaWriteMMIO64(*h, 0, 0x100, 0xdeadbeef) == FPGA_OK &&
+                fpgaReadMMIO64(*h, 0, 0x100, &scratch) == FPGA_OK){
                 std::cout << "mmio @0x100: 0x" << std::hex << scratch << std::endl;
                 std::cout << "mmio @0x100: 0x" << std::hex << *reinterpret_cast<uint64_t*>(mmio_ptr+0x100) << std::endl;
-     
+
             }
-            
         }
     }
 
