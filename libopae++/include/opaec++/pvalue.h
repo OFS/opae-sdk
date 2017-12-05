@@ -108,8 +108,7 @@ struct pvalue
     {
     }
 
-    template<typename V = typename std::enable_if<!std::is_same<T, guid_t>::value, T>::type>
-    pvalue<T>& operator=(const V& v){
+    pvalue<T>& operator=(const T& v){
         auto res = set_(*props_, v);
         if (res == FPGA_OK){
             copy_ = v;
@@ -120,7 +119,7 @@ struct pvalue
         return copy_ == other;
     }
 
-    operator T () const {
+    operator T () {
         if (get_(*props_, &copy_) == FPGA_OK){
             return copy_;
         }
@@ -133,8 +132,7 @@ struct pvalue
     }
 
     friend std::ostream & operator<<(std::ostream & ostr, const pvalue<T> & p){
-        T value = p;
-        ostr << +(value);
+        ostr << +(p.copy_);
         return ostr;
     }
 
