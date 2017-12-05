@@ -77,9 +77,15 @@ struct guid_t
     }
 
     friend std::ostream & operator<<(std::ostream & ostr, const guid_t & g){
-        char guid_str[84];
-        uuid_unparse(g.data_.data(), guid_str);
-        ostr << guid_str;
+        fpga_properties props = *g.props_;
+        fpga_guid guid_value;
+        if (fpgaPropertiesGetGUID(props, &guid_value) == FPGA_OK){
+            char guid_str[84];
+            uuid_unparse(g.data_.data(), guid_str);
+            ostr << guid_str;
+        }else{
+            // TODO: Log or throw
+        }
         return ostr;
     }
 
@@ -132,7 +138,13 @@ struct pvalue
     }
 
     friend std::ostream & operator<<(std::ostream & ostr, const pvalue<T> & p){
-        ostr << +(p.copy_);
+        T value;
+        fpga_properties props = *p.props_;
+        if (p.get_(props, &value) == FPGA_OK){
+            ostr << +(value);
+        }else{
+            // TODO: Log or throw
+        }
         return ostr;
     }
 
