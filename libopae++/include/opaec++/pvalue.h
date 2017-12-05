@@ -120,11 +120,9 @@ struct pvalue
         return copy_ == other;
     }
 
-    template<typename Y = T>
-    operator Y () const {
-        T value;
-        if (get_(*props_, &value) == FPGA_OK){
-            return value;
+    operator T () const {
+        if (get_(*props_, &copy_) == FPGA_OK){
+            return copy_;
         }
         return T();
     }
