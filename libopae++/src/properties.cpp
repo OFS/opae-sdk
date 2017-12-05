@@ -33,6 +33,8 @@ namespace fpga
 namespace types
 {
 
+std::vector<properties> properties::none = {};
+
 properties::properties()
 : props_(nullptr)
 , type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType)
