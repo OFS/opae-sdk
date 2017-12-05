@@ -1392,7 +1392,7 @@ void free_buffers(void)
 		ptr = ptr->next;
 		free(bufptr);
 	}
-	
+
 	buf_head = NULL;
 	buf_end = NULL;
 
