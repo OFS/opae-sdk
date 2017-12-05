@@ -68,6 +68,8 @@ target_link_libraries(opae-c
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
