@@ -46,7 +46,7 @@ int main(int argc, char* argvp[])
         p.guid = uuid;
     }
     p.bbs_id = 0;
-    auto tokens = token::enumerate({ p });
+    auto tokens = token::enumerate({p});
     if (tokens.size() > 0){
         auto tok = tokens[0];
         auto props = properties::read(tok);
@@ -54,17 +54,11 @@ int main(int argc, char* argvp[])
 
         std::cout << "bus: 0x" << std::hex << props->bus << "\n";
         handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
-        uint8_t *mmio_ptr = 0;
-        auto res = fpgaMapMMIO(*h, 0, reinterpret_cast<uint64_t**>(&mmio_ptr));
-        if (res == FPGA_OK){
-            uint64_t scratch = 0;
-            if (fpgaWriteMMIO64(*h, 0, 0x100, 0xdeadbeef) == FPGA_OK &&
-                fpgaReadMMIO64(*h, 0, 0x100, &scratch) == FPGA_OK){
-                std::cout << "mmio @0x100: 0x" << std::hex << scratch << std::endl;
-                std::cout << "mmio @0x100: 0x" << std::hex << *reinterpret_cast<uint64_t*>(mmio_ptr+0x100) << std::endl;
-
-            }
-        }
+        uint64_t value1 = 0xdeadbeef, value2 = 0;
+        h->write(0x100, value1);
+        h->read(0x100, value2);
+        std::cout << "mmio @0x100: 0x" << std::hex << value2 << "\n";
+        std::cout << "mmio @0x100: 0x" << std::hex << *reinterpret_cast<uint64_t*>(h->mmio_ptr(0x100)) << "\n";
     }
 
     return  0;
