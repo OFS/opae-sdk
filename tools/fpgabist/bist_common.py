@@ -30,10 +30,8 @@ import re
 import subprocess
 import sys
 
-INSTALL_PATH = '/usr/local/bin'
-
 # TODO: Use AFU IDs vs. names of AFUs
-BIST_MODES = ['nlb_3', 'dma_afu']
+BIST_MODES = ['nlb_mode_3', 'dma_afu']
 
 
 # Return a list of all available bus numbers
@@ -80,10 +78,9 @@ def get_mode_from_path(gbs_path):
     return None
 
 
-def load_gbs(install_path, gbs_file, bus_num):
+def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    fpga_conf_path = os.path.join(install_path, 'fpgaconf')
-    cmd = "{} -b {} -v {}".format(fpga_conf_path, bus_num, gbs_file)
+    cmd = "{} -b {} -v {}".format('fpgaconf', bus_num, gbs_file)
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
