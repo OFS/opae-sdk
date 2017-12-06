@@ -24,6 +24,19 @@ Each JSON database is a dictionary, supporting the following keys:
     The name of the AFU's top-level module.  The platform will instantiate a module
     with this name.
 
+  platform-shim-module-name:
+    String [option]
+
+    The name of a shim that will be instantiated automatically between the platform
+    and the AFU's top-level module (module-name).  When present, platform shims
+    offer a standard set of transformations that are common to many AFUs.  Platform
+    shims will automatically instantiate clock-crossing FIFOs.  The shims will
+    also insert registers to relieve timing.  Clock management and register
+    insertion are controlled by parameters in an AFU's JSON file.  See the
+    num-auto-timing-reg-stages and clock module-arguments parameters, described
+    in README_AFU in this directory.  When not defined or NULL, no shim is
+    instantiated.
+
   parent:
     String [optional]
 
@@ -175,7 +188,7 @@ Class local-memory:
     // interface.  It will be deprecated and should not be used
     // in new AFUs.
 
-    // The module parameter DDR_ADDR_WIDTH is expected
+    // The preprocessor variable DDR_ADDR_WIDTH is expected.
     // The preprocessor variable INCLUDE_DDR4 is defined automatically
     // when the memory is present.
 

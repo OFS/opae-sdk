@@ -18,7 +18,7 @@
             forever @(posedge clk)
             begin
                 // Read request
-                if (! reset && read)
+                if (! reset && read && ! waitrequest)
                 begin
                     $fwrite(avalon_mem_if_log_fd, "%m: %t bank %0d read 0x%x burst 0x%x\n",
                             $time,
@@ -37,7 +37,7 @@
                 end
 
                 // Write request
-                if (! reset && write)
+                if (! reset && write && ! waitrequest)
                 begin
                     $fwrite(avalon_mem_if_log_fd, "%m: %t bank %0d write 0x%x burst 0x%x mask 0x%x data 0x%x\n",
                             $time,

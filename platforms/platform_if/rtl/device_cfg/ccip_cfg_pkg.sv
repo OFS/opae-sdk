@@ -67,14 +67,22 @@ package ccip_cfg_pkg;
     e_c1_req;
 
     //
-    // Configuration parameters are set in the platform JSON database
+    // Configuration parameters are set in the platform JSON database.
+    // See more detailed comments in ../../../platform_db/platform_defaults.json.
     //
 
-    // Is a given VC supported, indexed by t_ccip_vc.  (0 or 1)
+    // Is a given VC supported, indexed by t_ccip_vc?  (0 or 1)
     parameter int VC_SUPPORTED[4] = `PLATFORM_PARAM_CCI_P_VC_SUPPORTED;
+    parameter ccip_if_pkg::t_ccip_vc VC_DEFAULT = ccip_if_pkg::t_ccip_vc'(`PLATFORM_PARAM_CCI_P_VC_DEFAULT);
+    parameter int NUM_PHYS_CHANNELS = `PLATFORM_PARAM_CCI_P_NUM_PHYS_CHANNELS;
 
-    // Is a given request length supported, indexed by t_ccip_clLen.  (0 or 1)
+    // Is a given request length supported, indexed by t_ccip_clLen?  (0 or 1)
     parameter int CL_LEN_SUPPORTED[4] = `PLATFORM_PARAM_CCI_P_CL_LEN_SUPPORTED;
+
+    // Recommended number of edge register stages for CCI-P request/response
+    // signals.  All platforms require at least 1.  On some platforms, timing
+    // closure is difficult without more stages.
+    parameter int NUM_TIMING_REG_STAGES = `PLATFORM_PARAM_CCI_P_NUM_TIMING_REG_STAGES;
 
     // Mask of request types (e_c0_req and e_c1_req) supported by the platform.
     parameter C0_SUPPORTED_REQS = int'(`PLATFORM_PARAM_CCI_P_C0_SUPPORTED_REQS);
@@ -90,6 +98,6 @@ package ccip_cfg_pkg;
     parameter int C0_MAX_BW_ACTIVE_LINES[4] = `PLATFORM_PARAM_CCI_P_MAX_BW_ACTIVE_LINES_C0;
     parameter int C1_MAX_BW_ACTIVE_LINES[4] = `PLATFORM_PARAM_CCI_P_MAX_BW_ACTIVE_LINES_C1;
 
-endpackage // local_mem_cfg_pkg
+endpackage // ccip_cfg_pkg
 
 `endif // PLATFORM_PROVIDES_CCI_P
