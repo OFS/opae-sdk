@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #include "safe_string/safe_string.h"
 
@@ -389,9 +390,20 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	FILE *f;
 	long len;
 	int ret;
+	struct stat file_mode = { 0 };;
 
 	if (!filename || !info)
 		return -EINVAL;
+
+	if (stat(filename, &file_mode) < 0) {
+		perror(filename);
+		return -1;
+	}
+
+	if (S_ISREG(file_mode.st_mode) == 0) {
+		fprintf(stderr, "Invalid input GBS file \n");
+		return -1;
+	}
 
 	info->filename = filename;
 
