@@ -46,7 +46,7 @@ struct guid_t
     }
 
     operator uint8_t* (){
-        if (fpgaPropertiesGetGUID(*props_, reinterpret_cast<fpga_guid*>(&data_)) == FPGA_OK){
+        if (fpgaPropertiesGetGUID(*props_, reinterpret_cast<fpga_guid*>(data_.data())) == FPGA_OK){
             return data_.data();
         }
         return nullptr;
