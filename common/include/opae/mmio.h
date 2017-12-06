@@ -52,17 +52,13 @@ extern "C" {
  * This function will write to MMIO space of the target object at a specified
  * offset.
  *
- * In order to access a resource's MMIO space using this function, it has to be
- * mapped to the application's address space using fpgaMapMMIO().
- *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[in]  mmio_num Number of MMIO space to access
  * @param[in]  offset   Byte offset into MMIO space
  * @param[in]  value    Value to write (64 bit)
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle. FPGA_NOT_FOUND if the MMIO space
- * `mmio_num` was not mapped using fpgaMapMMIO() before calling this function.
+ * while trying to access the handle.
  */
 fpga_result fpgaWriteMMIO64(fpga_handle handle,
 			    uint32_t mmio_num, uint64_t offset,
@@ -74,17 +70,13 @@ fpga_result fpgaWriteMMIO64(fpga_handle handle,
  * This function will read from MMIO space of the target object at a specified
  * offset.
  *
- * In order to access a resource's MMIO space using this function, it has to be
- * mapped to the application's address space using fpgaMapMMIO().
- *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[in]  mmio_num Number of MMIO space to access
  * @param[in]  offset   Byte offset into MMIO space
  * @param[out] value    Pointer to memory where read value is returned (64 bit)
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle. FPGA_NOT_FOUND if the MMIO space
- * `mmio_num` was not mapped using fpgaMapMMIO() before calling this function.
+ * while trying to access the handle.
  */
 fpga_result fpgaReadMMIO64(fpga_handle handle,
 			   uint32_t mmio_num,
@@ -96,17 +88,13 @@ fpga_result fpgaReadMMIO64(fpga_handle handle,
  * This function will write to MMIO space of the target object at a specified
  * offset.
  *
- * In order to access a resource's MMIO space using this function, it has to be
- * mapped to the application's address space using fpgaMapMMIO().
- *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[in]  mmio_num Number of MMIO space to access
  * @param[in]  offset   Byte offset into MMIO space
  * @param[in]  value    Value to write (32 bit)
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle. FPGA_NOT_FOUND if the MMIO space
- * `mmio_num` was not mapped using fpgaMapMMIO() before calling this function.
+ * while trying to access the handle.
  */
 fpga_result fpgaWriteMMIO32(fpga_handle handle,
 			    uint32_t mmio_num, uint64_t offset,
@@ -118,17 +106,13 @@ fpga_result fpgaWriteMMIO32(fpga_handle handle,
  * This function will read from MMIO space of the target object at a specified
  * offset.
  *
- * In order to access a resource's MMIO space using this function, it has to be
- * mapped to the application's address space using fpgaMapMMIO().
- *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[in]  mmio_num Number of MMIO space to access
  * @param[in]  offset   Byte offset into MMIO space
  * @param[out] value    Pointer to memory where read value is returned (32 bit)
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle. FPGA_NOT_FOUND if the MMIO space
- * `mmio_num` was not mapped using fpgaMapMMIO() before calling this function.
+ * while trying to access the handle.
  */
 fpga_result fpgaReadMMIO32(fpga_handle handle,
 			   uint32_t mmio_num,
@@ -142,9 +126,9 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  * MMIO spaces may be restricted to privileged processes, depending on the used
  * handle and type.
  *
- * After mapping the respective MMIO space, you can access it either through
- * direct pointer operations (observing supported access sizes and alignments
- * of the target platform and accelerator).
+ * After mapping the respective MMIO space, you can access it through direct
+ * pointer operations (observing supported access sizes and alignments of the
+ * target platform and accelerator).
  *
  * @note Some targets (such as the ASE simulator) do not support memory-mapping
  * of IO register spaces and will not return a pointer to an actually mapped
