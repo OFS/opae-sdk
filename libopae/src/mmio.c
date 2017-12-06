@@ -111,7 +111,7 @@ static fpga_result port_mmap_region(fpga_handle handle,
 
 	/* Map MMIO memory */
 	addr = (void *) mmap(NULL, size, flags, MAP_SHARED, _handle->fddev, offset);
-	if (vaddr == MAP_FAILED) {
+	if (addr == MAP_FAILED) {
 		FPGA_MSG("Unable to map MMIO region. Error value is : %s",
 			 strerror(errno));
 		result = FPGA_INVALID_PARAM;
@@ -119,8 +119,7 @@ static fpga_result port_mmap_region(fpga_handle handle,
 	}
 
 	/* Save return address */
-	if (vaddr)
-		*vaddr = addr;
+	*vaddr = addr;
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
