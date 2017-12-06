@@ -45,7 +45,7 @@ class properties
 public:
     typedef std::shared_ptr<properties> ptr_t;
 
-    static std::vector<properties> none;
+    const static std::vector<properties> none;
 
     properties();
     properties(fpga_objtype objtype);
