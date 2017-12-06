@@ -44,6 +44,7 @@
 
 import os
 import sys
+import glob
 import argparse
 import json
 
@@ -790,16 +791,15 @@ def findPlatforms(db_path):
     # Walk all the directories
     for db_dir in db_path:
         # Look for JSON files in each directory
-        for fn in os.listdir(db_dir):
-            if fn.endswith('.json'):
-                try:
-                    with open(os.path.join(db_dir, fn)) as f:
-                        # Does it have a platform name field?
-                        db = json.load(f)
-                        platforms.add(db['platform-name'])
-                except Exception:
-                    # Give up on this file or directory if there is any error
-                    None
+        for json_file in glob.glob(os.path.join(db_dir, "*.json")):
+            try:
+                with open(json_file, 'r') as f:
+                    # Does it have a platform name field?
+                    db = json.load(f)
+                    platforms.add(db['platform-name'])
+            except Exception:
+                # Give up on this file if there is any error
+                None
 
     return sorted(list(platforms))
 
@@ -812,18 +812,18 @@ def findAfuIfcs(db_path):
     # Walk all the directories
     for db_dir in db_path:
         # Look for JSON files in each directory
-        for fn in os.listdir(db_dir):
-            if fn.endswith('.json'):
-                try:
-                    with open(os.path.join(db_dir, fn)) as f:
-                        db = json.load(f)
-                        # If it has a module-arguments entry assume the file is
-                        # valid
-                        if ('module-arguments' in db):
-                            afus.add(fn[:-5])
-                except Exception:
-                    # Give up on this file or directory if there is any error
-                    None
+        for json_file in glob.glob(os.path.join(db_dir, "*.json")):
+            try:
+                with open(json_file, 'r') as f:
+                    db = json.load(f)
+                    # If it has a module-arguments entry assume the file is
+                    # valid
+                    if ('module-arguments' in db):
+                        base = os.path.basename(json_file)
+                        afus.add(os.path.splitext(base)[0])
+            except Exception:
+                # Give up on this file is any error
+                None
 
     return sorted(list(afus))
 
