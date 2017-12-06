@@ -75,9 +75,8 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
         fpga_objtype ty = FPGA_DEVICE;
 
         properties::ptr_t props = properties::read(token);
-        props->type.get_value(ty);
 
-        if (FPGA_ACCELERATOR == ty) {
+        if (FPGA_ACCELERATOR == props->type) {
 
             res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
 
@@ -93,8 +92,8 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
     return p;
 }
 
-handle::ptr_t handle::open(token::ptr_t token, int flags, uint32_t mmio_region){
-    return handle::open(token->get(), flags, mmio_region);
+handle::ptr_t handle::open(token::ptr_t tok, int flags, uint32_t mmio_region){
+    return handle::open(*tok, flags, mmio_region);
 }
 
 fpga_result handle::close(){
