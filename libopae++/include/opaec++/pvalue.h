@@ -43,7 +43,10 @@ struct guid_t {
             *props_, reinterpret_cast<fpga_guid *>(data_.data())) == FPGA_OK) {
       return data_.data();
     }
-    return nullptr;
+  }
+
+  const uint8_t* get() const {
+      return data_.data();
   }
 
   guid_t &operator=(fpga_guid g) {

@@ -64,6 +64,8 @@ properties::properties()
   }
 }
 
+properties::properties(fpga_guid guid_in) : properties(){ guid = guid_in; }
+
 properties::properties(fpga_objtype objtype) : properties() { type = objtype; }
 
 properties::~properties() {

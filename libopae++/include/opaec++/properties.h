@@ -44,6 +44,9 @@ class properties {
   const static std::vector<properties> none;
 
   properties();
+
+  properties(fpga_guid guid_in);
+
   properties(fpga_objtype objtype);
 
   ~properties();
