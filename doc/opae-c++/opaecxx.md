@@ -41,7 +41,7 @@ The two diagrams below illustrate the design of the class in the `opae::fpga::ty
 
 ### Properties classes
 The first diagram shows classes related to `fpga_properties`. The class, `properties`, wraps `fpga_properties` and uses public members of type `pvalue` and `guid_t` to get/set properties stored in an instance of an `fpga_properties`.
-Theese two classes are designed to call an accessor method in the OPAE C API to either read property values or set them. Because most accessor methods in the OPAE C API share a similar signature, `pvalue` generalizes them into common operations that translate into calling the corresponding C API function. The class, `guid_t`, follows similar patterns when reading or assigning values.
+These two classes are designed to call an accessor method in the OPAE C API to either read property values or set them. Because most accessor methods in the OPAE C API share a similar signature, `pvalue` generalizes them into common operations that translate into calling the corresponding C API function. The class, `guid_t`, follows similar patterns when reading or assigning values.
 
 
 
