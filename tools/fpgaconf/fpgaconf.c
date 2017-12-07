@@ -407,12 +407,12 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 
 	if (fstat(fileno(f), &file_mode) != 0) {
 		perror(filename);
-		return -1;
+		goto out_close;
 	}
 
 	if (S_ISREG(file_mode.st_mode) == 0) {
 		fprintf(stderr, "Invalid input GBS file\n");
-		return -1;
+		goto out_close;
 	}
 
 	/* get filesize */
