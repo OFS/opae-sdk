@@ -10,7 +10,6 @@ extern "C" {
 #include "gtest/gtest.h"
 using namespace opae::fpga::types;
 
-
 /**
  * @test cxx_enum_01
  * Given an environment with at least one accelerator<br>
@@ -18,8 +17,8 @@ using namespace opae::fpga::types;
  * Then I get at least one accelerator object in the return list<br>
  * And no exceptions are thrown
  */
-TEST(CxxEnum, enum_01){
-    auto tokens = token::enumerate({});
-    EXPECT_TRUE(tokens.size() > 0);
-    ASSERT_NO_THROW(tokens.clear());
+TEST(CxxEnum, enum_01) {
+  auto tokens = token::enumerate({});
+  EXPECT_TRUE(tokens.size() > 0);
+  ASSERT_NO_THROW(tokens.clear());
 }

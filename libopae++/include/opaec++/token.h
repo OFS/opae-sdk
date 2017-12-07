@@ -32,35 +32,27 @@
 #include <opae/enum.h>
 #include <opaec++/properties.h>
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
-class token
-{
-public:
-    typedef std::shared_ptr<token> ptr_t;
+class token {
+ public:
+  typedef std::shared_ptr<token> ptr_t;
 
-    static std::vector<token::ptr_t> enumerate(const std::vector<properties> & props);
+  static std::vector<token::ptr_t> enumerate(
+      const std::vector<properties>& props);
 
-    ~token();
+  ~token();
 
-    fpga_token get() const {
-        return token_;
-    }
-    operator fpga_token () const {
-        return token_;
-    }
+  fpga_token get() const { return token_; }
+  operator fpga_token() const { return token_; }
 
-private:
-    fpga_token token_;
-    token(fpga_token tok);
+ private:
+  fpga_token token_;
+  token(fpga_token tok);
 };
 
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
-
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

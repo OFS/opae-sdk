@@ -34,156 +34,137 @@
 #include <opae/buffer.h>
 #include <opaec++/handle.h>
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
-class dma_buffer : public std::enable_shared_from_this<dma_buffer>
-{
-public:
-    typedef std::size_t size_t;
-    typedef std::shared_ptr<dma_buffer> ptr_t;
+class dma_buffer : public std::enable_shared_from_this<dma_buffer> {
+ public:
+  typedef std::size_t size_t;
+  typedef std::shared_ptr<dma_buffer> ptr_t;
 
-    /** dma_buffer destructor.
-     */
-    virtual ~dma_buffer();
+  /** dma_buffer destructor.
+   */
+  virtual ~dma_buffer();
 
-    /** dma_buffer factory method - allocate a dma_buffer.
-     * @param[in] handle The handle used to allocate the buffer.
-     * @param[in] len    The length in bytes of the requested buffer.
-     * @return A valid dma_buffer smart pointer on success, or an
-     * empty smart pointer on failure.
-     */
-    static dma_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
+  /** dma_buffer factory method - allocate a dma_buffer.
+   * @param[in] handle The handle used to allocate the buffer.
+   * @param[in] len    The length in bytes of the requested buffer.
+   * @return A valid dma_buffer smart pointer on success, or an
+   * empty smart pointer on failure.
+   */
+  static dma_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
 
-    /** Attach a pre-allocated buffer to a dma_buffer object.
-     *
-     * @param[in] handle The handle used to attach the buffer.
-     * @param[in] base The base of the pre-allocated memory.
-     * @param[in] len The size of the pre-allocated memory,
-     * which must be a multiple of the page size.
-     * @return A valid dma_buffer smart pointer on success, or an
-     * empty smart pointer on failure.
-     */
-    static dma_buffer::ptr_t attach(handle::ptr_t handle,
-                                    uint8_t *base,
-                                    size_t len);
+  /** Attach a pre-allocated buffer to a dma_buffer object.
+   *
+   * @param[in] handle The handle used to attach the buffer.
+   * @param[in] base The base of the pre-allocated memory.
+   * @param[in] len The size of the pre-allocated memory,
+   * which must be a multiple of the page size.
+   * @return A valid dma_buffer smart pointer on success, or an
+   * empty smart pointer on failure.
+   */
+  static dma_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
+                                  size_t len);
 
-    /** Retrieve the virtual address of the buffer base.
-     */
-    volatile uint8_t * get() const { return virt_; }
+  /** Retrieve the virtual address of the buffer base.
+   */
+  volatile uint8_t *get() const { return virt_; }
 
-    /** Retrieve the handle smart pointer associated with
-     * this buffer.
-     */
-    handle::ptr_t owner() const { return handle_; }
+  /** Retrieve the handle smart pointer associated with
+   * this buffer.
+   */
+  handle::ptr_t owner() const { return handle_; }
 
-    /** Retrieve the length of the buffer in bytes.
-     */
-    size_t size() const { return len_; }
+  /** Retrieve the length of the buffer in bytes.
+   */
+  size_t size() const { return len_; }
 
-    /** Retrieve the address of the buffer suitable for
-     * programming into the accelerator device.
-     */
-    uint64_t iova() const { return iova_; }
+  /** Retrieve the address of the buffer suitable for
+   * programming into the accelerator device.
+   */
+  uint64_t iova() const { return iova_; }
 
-    /** Divide a buffer into a series of smaller buffers.
-     *
-     * For each item sz found in sizes, create a new dma_buffer
-     * smart pointer whose size is sz and append the new smart
-     * pointer to the end of the returned vector. The sub-buffers
-     * are created in increasing order from the beginning of
-     * this dma_buffer. The parent buffer (this) of each sub-buffer
-     * is tracked so that it cannot be freed prior to a sub-buffer
-     * free.
-     *
-     * @param[in] sizes An initializer list of sizes for the sub-buffers.
-     * @return A std::vector of the sub-buffer pointers.
-     */
-    template <typename T>
-    std::vector<ptr_t> split(std::initializer_list<T> sizes)
-    {
-        std::vector<ptr_t> v;
-        size_t offset = 0;
+  /** Divide a buffer into a series of smaller buffers.
+   *
+   * For each item sz found in sizes, create a new dma_buffer
+   * smart pointer whose size is sz and append the new smart
+   * pointer to the end of the returned vector. The sub-buffers
+   * are created in increasing order from the beginning of
+   * this dma_buffer. The parent buffer (this) of each sub-buffer
+   * is tracked so that it cannot be freed prior to a sub-buffer
+   * free.
+   *
+   * @param[in] sizes An initializer list of sizes for the sub-buffers.
+   * @return A std::vector of the sub-buffer pointers.
+   */
+  template <typename T>
+  std::vector<ptr_t> split(std::initializer_list<T> sizes) {
+    std::vector<ptr_t> v;
+    size_t offset = 0;
 
-        v.reserve(sizes.size());
+    v.reserve(sizes.size());
 
-        for (const auto &sz : sizes) {
-            ptr_t p;
-            p.reset(new dma_buffer(handle_,
-                                   sz,
-                                   virt_ + offset,
-                                   wsid_,
-                                   iova_ + offset,
-                                   shared_from_this()));
-            v.push_back(p);
-            offset += sz;
-        }
-
-        return v;
+    for (const auto &sz : sizes) {
+      ptr_t p;
+      p.reset(new dma_buffer(handle_, sz, virt_ + offset, wsid_, iova_ + offset,
+                             shared_from_this()));
+      v.push_back(p);
+      offset += sz;
     }
 
-    /** Write c to each byte location in the buffer.
-     */
-    void fill(int c);
+    return v;
+  }
 
-    /** Compare this dma_buffer (the first len bytes)
-     * to that held in other, using memcmp().
-     */
-    int compare(ptr_t other, size_t len) const;
+  /** Write c to each byte location in the buffer.
+   */
+  void fill(int c);
 
-    /** Read a T-sized block of memory at the given location.
-     * @param[in] offset The byte offset from the start of the buffer.
-     * @return A T from buffer base + offset.
-     */
-    template <typename T>
-    T read(size_t offset) const
-    {
-        if ((offset < len_) && (virt_ != nullptr)) {
-            return *reinterpret_cast<T *>(virt_ + offset);
-        }
-        // TODO log/throw error
+  /** Compare this dma_buffer (the first len bytes)
+   * to that held in other, using memcmp().
+   */
+  int compare(ptr_t other, size_t len) const;
 
-        return T();
+  /** Read a T-sized block of memory at the given location.
+   * @param[in] offset The byte offset from the start of the buffer.
+   * @return A T from buffer base + offset.
+   */
+  template <typename T>
+  T read(size_t offset) const {
+    if ((offset < len_) && (virt_ != nullptr)) {
+      return *reinterpret_cast<T *>(virt_ + offset);
     }
+    // TODO log/throw error
 
-    /** Write a T-sized block of memory to the given location.
-     * @param[in] value The value to write.
-     * @param[in] offset The byte offset from the start of the buffer.
-     */
-    template <typename T>
-    void write(const T &value, size_t offset)
-    {
-        if ((offset < len_) && (virt_ != nullptr)) {
-            *reinterpret_cast<T *>(virt_ + offset) = value;
-        }
-        // TODO log/throw error
+    return T();
+  }
+
+  /** Write a T-sized block of memory to the given location.
+   * @param[in] value The value to write.
+   * @param[in] offset The byte offset from the start of the buffer.
+   */
+  template <typename T>
+  void write(const T &value, size_t offset) {
+    if ((offset < len_) && (virt_ != nullptr)) {
+      *reinterpret_cast<T *>(virt_ + offset) = value;
     }
+    // TODO log/throw error
+  }
 
-protected:
-    handle::ptr_t handle_;
-    size_t len_;
-    uint8_t *virt_;
-    uint64_t wsid_;
-    uint64_t iova_;
-    ptr_t parent_; // for split buffers
+ protected:
+  handle::ptr_t handle_;
+  size_t len_;
+  uint8_t *virt_;
+  uint64_t wsid_;
+  uint64_t iova_;
+  ptr_t parent_;  // for split buffers
 
-private:
-    dma_buffer(handle::ptr_t handle,
-               size_t len,
-               uint8_t *virt,
-               uint64_t wsid,
-               uint64_t iova);
+ private:
+  dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
+             uint64_t iova);
 
-    dma_buffer(handle::ptr_t handle,
-               size_t len,
-               uint8_t *virt,
-               uint64_t wsid,
-               uint64_t iova,
-               ptr_t parent);
+  dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
+             uint64_t iova, ptr_t parent);
 };
 
 /** Poll for a specific value to appear at a given buffer location.
@@ -201,28 +182,22 @@ private:
  * @retval false If the timeout expired before seeing the expected value.
  */
 template <typename T>
-bool poll(dma_buffer::ptr_t buf,
-          size_t offset,
-          std::chrono::microseconds timeout,
-          T mask,
-          T value)
-{
-    std::chrono::high_resolution_clock::time_point
-        start = std::chrono::high_resolution_clock::now();
+bool poll(dma_buffer::ptr_t buf, size_t offset,
+          std::chrono::microseconds timeout, T mask, T value) {
+  std::chrono::high_resolution_clock::time_point start =
+      std::chrono::high_resolution_clock::now();
 
-    std::chrono::microseconds elapsed;
+  std::chrono::microseconds elapsed;
 
-    do
-    {
-        if ((buf->read<T>(offset) & mask) == value)
-            return true;
+  do {
+    if ((buf->read<T>(offset) & mask) == value) return true;
 
-        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
-                    std::chrono::high_resolution_clock::now() - start);
+    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::high_resolution_clock::now() - start);
 
-    }while(elapsed < timeout);
+  } while (elapsed < timeout);
 
-    return false;
+  return false;
 }
 
 /** Wait for a specific value to appear at a given buffer location.
@@ -240,32 +215,25 @@ bool poll(dma_buffer::ptr_t buf,
  * @retval false If the timeout expired before seeing the expected value.
  */
 template <typename T>
-bool wait(dma_buffer::ptr_t buf,
-          size_t offset,
-          std::chrono::microseconds each,
-          std::chrono::microseconds timeout,
-          T mask,
-          T value)
-{
-    std::chrono::high_resolution_clock::time_point
-        start = std::chrono::high_resolution_clock::now();
-    std::chrono::microseconds elapsed;
+bool wait(dma_buffer::ptr_t buf, size_t offset, std::chrono::microseconds each,
+          std::chrono::microseconds timeout, T mask, T value) {
+  std::chrono::high_resolution_clock::time_point start =
+      std::chrono::high_resolution_clock::now();
+  std::chrono::microseconds elapsed;
 
-    do
-    {
-        if ((buf->read<T>(offset) & mask) == value)
-            return true;
+  do {
+    if ((buf->read<T>(offset) & mask) == value) return true;
 
-        std::this_thread::sleep_for(each);
+    std::this_thread::sleep_for(each);
 
-        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
-                    std::chrono::high_resolution_clock::now() - start);
+    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::high_resolution_clock::now() - start);
 
-    }while(elapsed < timeout);
+  } while (elapsed < timeout);
 
-    return false;
+  return false;
 }
 
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

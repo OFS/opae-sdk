@@ -13,7 +13,6 @@ extern "C" {
 
 using namespace opae::fpga::types;
 
-
 /**
  * @test cxx_enum_01
  * Given an environment with at least one accelerator<br>
@@ -22,11 +21,11 @@ using namespace opae::fpga::types;
  * Then I get a non-null handle<br>
  * And no exceptions are thrown
  */
-TEST(CxxOpen, open_01){
-    auto tokens = token::enumerate({ FPGA_ACCELERATOR });
-    EXPECT_TRUE(tokens.size() > 0);
-    handle::ptr_t h = handle::open(tokens[0], FPGA_OPEN_SHARED);
-    ASSERT_NE(nullptr, h.get());
-    h.reset();
-    ASSERT_NO_THROW(tokens.clear());
+TEST(CxxOpen, open_01) {
+  auto tokens = token::enumerate({FPGA_ACCELERATOR});
+  EXPECT_TRUE(tokens.size() > 0);
+  handle::ptr_t h = handle::open(tokens[0], FPGA_OPEN_SHARED);
+  ASSERT_NE(nullptr, h.get());
+  h.reset();
+  ASSERT_NO_THROW(tokens.clear());
 }
