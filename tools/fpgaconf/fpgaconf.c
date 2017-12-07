@@ -396,22 +396,22 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	if (!filename || !info)
 		return -EINVAL;
 
-	if (stat(filename, &file_mode) < 0) {
-		perror(filename);
-		return -1;
-	}
-
-	if (S_ISREG(file_mode.st_mode) == 0) {
-		fprintf(stderr, "Invalid input GBS file\n");
-		return -1;
-	}
-
 	info->filename = filename;
 
 	/* open file */
 	f = fopen(filename, "rb");
 	if (!f) {
 		perror(filename);
+		return -1;
+	}
+
+	if (fstat(fileno(f), &file_mode) != 0) {
+		perror(filename);
+		return -1;
+	}
+
+	if (S_ISREG(file_mode.st_mode) == 0) {
+		fprintf(stderr, "Invalid input GBS file\n");
 		return -1;
 	}
 
