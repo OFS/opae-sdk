@@ -8,9 +8,11 @@ script:
     - scripts/test-codingstyle.sh
     - scripts/test-codingstyle-py.sh
     - scripts/test-build.sh
+    - scripts/test-gtapi-mock-drv.sh
 addons:
   apt:
     packages:
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
+      - libjsoncpp-dev

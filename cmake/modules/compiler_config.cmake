@@ -85,6 +85,13 @@ if (CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
 endif()
 
+# Disable some warnings that fire during gtest compilation
+check_cxx_compiler_flag("-Wno-sign-compare"
+  CXX_SUPPORTS_NO_SIGN_COMPARE)
+if (CXX_SUPPORTS_NO_SIGN_COMPARE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+endif()
+
 # If building on a 32-bit system, make sure off_t can store offsets > 2GB
 if(CMAKE_COMPILER_IS_GNUCC)
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -95,7 +102,7 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 
 ############################################################################
 ## Defensive compilation for Release #######################################
-#######################################################################
+############################################################################
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   ## C options
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
