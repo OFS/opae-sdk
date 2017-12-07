@@ -75,6 +75,13 @@ class AFU(object):
         if not self.validate():
             raise Exception("Accelerator description file failed validation!")
 
+    # Load AFU JSON file given an open file handle
+    def load_afu_desc_file_hdl(self, afu_desc_file_hdl):
+        self.afu_json = json.load(afu_desc_file_hdl)
+
+        if not self.validate():
+            raise Exception("Accelerator description file failed validation!")
+
     def validate(self):
         if self.afu_json == {}:
             return False
@@ -143,6 +150,10 @@ class AFU(object):
 
         gbs = GBS.create_gbs_from_afu_info(rbf_file, self.afu_json)
         return gbs.write_gbs(gbs_file)
+
+    # Dump AFU JSON to string
+    def dumps(self):
+        return json.dumps(self.afu_json, indent=3)
 
     def package(self, rbf_file, sw_dir, doc_dir, package_name):
         image_dir = os.path.join(utils.get_work_dir(), "image_0")
