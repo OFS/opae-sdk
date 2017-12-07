@@ -105,14 +105,16 @@ GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/stratixv_pcie_hip_atoms.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/altera_lnsim.sv
 
 # add required files for local memory model
-ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
-GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/twentynm_atoms.v
-ifeq ($(SIMULATOR), VCS)
-  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/synopsys/twentynm_atoms_ncrypt.v
-endif
-ifeq ($(SIMULATOR), QUESTA)
-  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
-endif
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
+  ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
+    GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/twentynm_atoms.v
+    ifeq ($(SIMULATOR), VCS)
+      GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/synopsys/twentynm_atoms_ncrypt.v
+    endif
+    ifeq ($(SIMULATOR), QUESTA)
+      GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
+    endif
+  endif
 endif
 
 ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
