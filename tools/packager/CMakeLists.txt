@@ -24,21 +24,25 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+cmake_minimum_required(VERSION 2.8.11)
+include(packaging)
 
-set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+################# generate executable python zip files ########################
+set(PKG_PYTHON_FILES
+    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README")
 
-find_package(UUID REQUIRED)
+CREATE_PYTHON_EXE("packager" "${PKG_PYTHON_FILES}")
+set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
-add_executable(hello_fpga hello_fpga.c)
-target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 
-add_executable(hello_events hello_events.c)
-target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+set(AFU_JSON_MGR_FILES
+    "afu.py gbs.py afu_json_mgr.py __main__.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json schema/afu_template.json")
 
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
+CREATE_PYTHON_EXE("afu_json_mgr" "${AFU_JSON_MGR_FILES}")
+list(APPEND PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
-install(FILES ${SAMPLES_SRC}
-        DESTINATION src/opae
-        COMPONENT samplesrc)
+
+################# install executable python zip files ######################## 
+install(PROGRAMS ${PACKAGER_BIN_LIST}
+        DESTINATION bin
+        COMPONENT toolpackager)

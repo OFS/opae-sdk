@@ -25,6 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import sys
-from packager import main
+
 if __name__ == '__main__':
+    # Figure out what the script is.  Only one of these will be in the zipped
+    # program.
+    try:
+        from packager import main
+    except Exception:
+        from afu_json_mgr import main
+
     sys.exit(main())
