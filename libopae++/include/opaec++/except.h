@@ -24,86 +24,79 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <exception>
 #include <cstdint>
+#include <exception>
 
 #include <opae/types_enum.h>
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
 /// Identify a particular line in a source file.
-class src_location
-{
-public:
-    /** src_location constructor
-     * @param[in] file The source file name, typically __FILE__.
-     * @param[in] fn The current function, typically __func__.
-     * @param[in] line The current line number, typically __LINE__.
-     */
-    src_location(const char *file,
-                 const char *fn,
-                 int line) noexcept;
+class src_location {
+ public:
+  /** src_location constructor
+   * @param[in] file The source file name, typically __FILE__.
+   * @param[in] fn The current function, typically __func__.
+   * @param[in] line The current line number, typically __LINE__.
+   */
+  src_location(const char *file, const char *fn, int line) noexcept;
 
-    /** Retrieve the file name component of the location.
-     */
-    const char *file() const noexcept;
+  /** Retrieve the file name component of the location.
+   */
+  const char *file() const noexcept;
 
-    /** Retrieve the function name component of the location.
-     */
-    const char *fn() const noexcept { return fn_; }
+  /** Retrieve the function name component of the location.
+   */
+  const char *fn() const noexcept { return fn_; }
 
-    /** Retrieve the line number component of the location.
-     */
-     int line() const noexcept { return line_; }
+  /** Retrieve the line number component of the location.
+   */
+  int line() const noexcept { return line_; }
 
-private:
-    const char *file_;
-    const char *fn_;
-    int line_;
+ private:
+  const char *file_;
+  const char *fn_;
+  int line_;
 };
 
 /// Construct a src_location object for the current source line.
-#define OPAECXX_HERE opae::fpga::types::src_location(__FILE__, __func__, __LINE__)
+#define OPAECXX_HERE \
+  opae::fpga::types::src_location(__FILE__, __func__, __LINE__)
 
-class except : public std::exception
-{
-public:
-    static const std::size_t MAX_EXCEPT = 100;
+class except : public std::exception {
+ public:
+  static const std::size_t MAX_EXCEPT = 100;
 
-    /** except constructor
-     * The fpga_result value is FPGA_EXCEPTION.
-     *
-     * @param[in] loc Location where the exception was constructed.
-     */
-    except(src_location loc) noexcept;
+  /** except constructor
+   * The fpga_result value is FPGA_EXCEPTION.
+   *
+   * @param[in] loc Location where the exception was constructed.
+   */
+  except(src_location loc) noexcept;
 
-    /** except constructor
-     *
-     * @param[in] res The fpga_result value associated with this exception.
-     * @param[in] loc Location where the exception was constructed.
-     */
-    except(fpga_result res, src_location loc) noexcept;
+  /** except constructor
+   *
+   * @param[in] res The fpga_result value associated with this exception.
+   * @param[in] loc Location where the exception was constructed.
+   */
+  except(fpga_result res, src_location loc) noexcept;
 
-    /** Convert this except to an informative string.
-     */
-    virtual const char * what() const noexcept override;
+  /** Convert this except to an informative string.
+   */
+  virtual const char *what() const noexcept override;
 
-    /** Convert this except to its fpga_result.
-     */
-    operator fpga_result() const noexcept { return res_; }
+  /** Convert this except to its fpga_result.
+   */
+  operator fpga_result() const noexcept { return res_; }
 
-protected:
-    fpga_result res_;
-    src_location loc_;
-    mutable char buf_[MAX_EXCEPT];
+ protected:
+  fpga_result res_;
+  src_location loc_;
+  mutable char buf_[MAX_EXCEPT];
 };
 
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
-
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

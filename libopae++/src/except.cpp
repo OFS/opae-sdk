@@ -26,75 +26,55 @@
 #include <cerrno>
 #include <cstring>
 
-#include <safe_string/safe_string.h>
 #include <opae/utils.h>
+#include <safe_string/safe_string.h>
 
 #include "opaec++/except.h"
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
-src_location::src_location(const char *file,
-                           const char *fn,
-                           int line) noexcept
-: file_(file)
-, fn_(fn)
-, line_(line)
-{}
+src_location::src_location(const char *file, const char *fn, int line) noexcept
+    : file_(file), fn_(fn), line_(line) {}
 
-const char * src_location::file() const noexcept
-{
-    // return a pointer to the file name component.
-    const char *p = file_;
+const char *src_location::file() const noexcept {
+  // return a pointer to the file name component.
+  const char *p = file_;
 
-    while (*p++) {}
-    while ((p > file_) &&
-           (*p != '\\') &&
-           (*p != '/'))
-        --p;
-    if (('\\' == *p) ||
-        ('/' == *p))
-        ++p;
+  while (*p++) {
+  }
+  while ((p > file_) && (*p != '\\') && (*p != '/')) --p;
+  if (('\\' == *p) || ('/' == *p)) ++p;
 
-    return p;
+  return p;
 }
 
-except::except(src_location loc) noexcept
-: res_(FPGA_EXCEPTION)
-, loc_(loc)
-{}
+except::except(src_location loc) noexcept : res_(FPGA_EXCEPTION), loc_(loc) {}
 
 except::except(fpga_result res, src_location loc) noexcept
-: res_(res)
-, loc_(loc)
-{}
+    : res_(res), loc_(loc) {}
 
-const char * except::what() const noexcept
-{
-    errno_t err;
+const char *except::what() const noexcept {
+  errno_t err;
 
-    err = strncpy_s(buf_, 32, loc_.file(), 32);
+  err = strncpy_s(buf_, 32, loc_.file(), 32);
 
-    err = strcat_s(buf_, 34, ":");
+  err = strcat_s(buf_, 34, ":");
 
-    err = strcat_s(buf_, 50, loc_.fn());
+  err = strcat_s(buf_, 50, loc_.fn());
 
-    err = strcat_s(buf_, 53, "():");
+  err = strcat_s(buf_, 53, "():");
 
-    err = snprintf_s_i(buf_+strlen(buf_), 64, "%d:", loc_.line());
+  err = snprintf_s_i(buf_ + strlen(buf_), 64, "%d:", loc_.line());
 
-    err = strcat_s(buf_, sizeof(buf_), fpgaErrStr(res_));
+  err = strcat_s(buf_, sizeof(buf_), fpgaErrStr(res_));
 
-// TODO log err
+  // TODO log err
 
-    return const_cast<const char *>(buf_);
+  return const_cast<const char *>(buf_);
 }
 
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
-
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae
