@@ -20,7 +20,12 @@ The OPAE C++ API will use the C++ 11 standard library and make use of its featur
 The OPAE C++ API is designed to throw exceptions when appropriate. The structure of OPAE C++ exceptions will be similar to the error codes in the OPAE C API. This gives users of the API more freedom on error handling while providing better debug information in cases of failure.
 
 ### Coding Style
-_TODO_
+Formatting of the OPAE C++ API will apply most of the recommendations of the Google C++ style style. For example, the OPAE C++ API will:
+* Use opening braces on the same line as their scope definition
+* Use spaces instead of tabs for indentation
+* Use indentation of two spaces
+
+Refer to the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) for more information.
 
 ## Fundamental Types
 Basic types for the OPAE C++ API are found in the `opae.fpga.types` namespace.
@@ -87,7 +92,8 @@ namespace opae.fpga.types {
 }
 ```
 
-### Enumeration and Access Classes
+### Resource Classes
+The basic types in `opae::fpga::types` used for enumerating and accessing fpga resources are shown in the diagram below.
 
 ```plantuml
 @startuml
