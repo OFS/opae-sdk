@@ -144,7 +144,8 @@ altera_avalon_mm_slave_bfm #(
 	.AV_WRITE_WAIT_TIME         (0),
 	.REGISTER_WAITREQUEST       (0),
 	.AV_REGISTERINCOMINGSIGNALS (0),
-	.VHDL_ID                    (0)
+	.VHDL_ID                    (0),
+	.PRINT_HELLO                (0)
 )  avs_bfm_inst_ddra (
 	.clk                  	(ddr4a_pll_ref_clk_clock_sink_clk),
 	.reset                	(~ddr4a_global_reset_reset_sink_reset_n),
@@ -182,7 +183,8 @@ altera_avalon_mm_slave_bfm #(
 	.AV_WRITE_WAIT_TIME         (0),
 	.REGISTER_WAITREQUEST       (0),
 	.AV_REGISTERINCOMINGSIGNALS (0),
-	.VHDL_ID                    (0)
+	.VHDL_ID                    (0),
+	.PRINT_HELLO                (0)
 )  avs_bfm_inst_ddrb (
 	.clk                  	(ddr4a_pll_ref_clk_clock_sink_clk),
 	.reset                	(~ddr4a_global_reset_reset_sink_reset_n),
