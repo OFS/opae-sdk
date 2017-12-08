@@ -77,7 +77,7 @@ function(DEFINE_PKG name)
 
 endfunction(DEFINE_PKG)
 
-macro(CREATE_PYTHONE_EXE EXE_NAME)
+macro(CREATE_PYTHON_EXE EXE_NAME)
 
     set(PYTHON_SRC "${ARGN}")
     set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/${EXE_NAME})
@@ -91,4 +91,4 @@ macro(CREATE_PYTHONE_EXE EXE_NAME)
 
     execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
 
-endmacro(CREATE_PYTHONE_EXE)
+endmacro(CREATE_PYTHON_EXE)

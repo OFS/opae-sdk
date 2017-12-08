@@ -27,14 +27,22 @@
 cmake_minimum_required(VERSION 2.8.11)
 include(packaging)
 
-################# generate executable python zip file ########################
-set(PYTHONE_FILES
-    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README" )  
+################# generate executable python zip files ########################
+set(PKG_PYTHON_FILES
+    "afu.py gbs.py __main__.py packager.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json README")
 
-set(PY_EXE_NAME "packager")
-CREATE_PYTHONE_EXE(${PY_EXE_NAME} "${PYTHONE_FILES}")
+CREATE_PYTHON_EXE("packager" "${PKG_PYTHON_FILES}")
+set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
-################# install executable python zip file ######################## 
-install(PROGRAMS ${PACKAGER_BIN}
+
+set(AFU_JSON_MGR_FILES
+    "afu.py gbs.py afu_json_mgr.py __main__.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json schema/afu_template.json")
+
+CREATE_PYTHON_EXE("afu_json_mgr" "${AFU_JSON_MGR_FILES}")
+list(APPEND PACKAGER_BIN_LIST ${PACKAGER_BIN})
+
+
+################# install executable python zip files ######################## 
+install(PROGRAMS ${PACKAGER_BIN_LIST}
         DESTINATION bin
         COMPONENT toolpackager)
