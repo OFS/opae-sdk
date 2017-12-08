@@ -20,7 +20,12 @@ The OPAE C++ API will use the C++ 11 standard library and make use of its featur
 The OPAE C++ API is designed to throw exceptions when appropriate. The structure of OPAE C++ exceptions will be similar to the error codes in the OPAE C API. This gives users of the API more freedom on error handling while providing better debug information in cases of failure.
 
 ### Coding Style
-_TODO_
+Formatting of the OPAE C++ API will apply most of the recommendations of the Google C++ style style. For example, the OPAE C++ API will:
+* Use opening braces on the same line as their scope definition
+* Use spaces instead of tabs for indentation
+* Use indentation of two spaces
+
+Refer to the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) for more information.
 
 ## Fundamental Types
 Basic types for the OPAE C++ API are found in the `opae.fpga.types` namespace.
@@ -30,21 +35,32 @@ Aside from providing a C++ binding to the C fundemental types, these types also
   * For example, a C++ destructor will take care of calling the appropriate C function to deallocate or release the data structure being wrapped
 * Provide an easy to use syntax for using them
 
-Most classes in this namespace have a `get()` method that returns the C data structure being wrapped. This is useful for when one wishes to use one of OPAE C API functions.
+Most classes in this namespace have a `get()` method that returns the C data structure being wrapped. This is useful for when one wishes to use one of OPAE C API functions. Additionally, most classes in this namespace have implicit conversion operators that allow instances of these types to be interoperable with OPAE C API functions. These operators are designed so that they are invoked when instances are converted to their corresponding C structure (either explicitly or implicitly).
 
-Below is a diagram of the classes defined in the opae::fpga::types namespace.
+The two diagrams below illustrate the design of the class in the `opae::fpga::types` namespace. 
+
+### Properties classes
+The first diagram shows classes related to `fpga_properties`. The class, `properties`, wraps `fpga_properties` and uses public members of type `pvalue` and `guid_t` to get/set properties stored in an instance of an `fpga_properties`.
+These two classes are designed to call an accessor method in the OPAE C API to either read property values or set them. Because most accessor methods in the OPAE C API share a similar signature, `pvalue` generalizes them into common operations that translate into calling the corresponding C API function. The class, `guid_t`, follows similar patterns when reading or assigning values.
+
+
 
 ```plantuml
 @startuml
 namespace opae.fpga.types {
 
-    class pvalue<< property >>{
+    class pvalue<< T >>{
         -fpga_properties *props_
         -get_
         -set_
-        +pvalue()
-        +operator=()
-        +get_value()
+        +pvalue(fpga_properties *props)
+        +operator=(T value)
+    }
+    
+    class guid_t {
+        -fpga_properties *props_
+        +guid_t(fpga_properties *props)
+        +operator=(fpga_guid guid)
     }
 
     class properties {
@@ -60,31 +76,66 @@ namespace opae.fpga.types {
         +pvalue<char*> model
         +pvalue<uint64_t> local_memory_size
         +pvalue<uint64_t> capabilities
-        +pvalue<fpga_guid> guid
         +pvalue<uint32_t> num_mmio
         +pvalue<uint32_t> num_interrupts
         +pvalue<fpga_accelerator_state> accelerator_state
         +pvalue<uint64_t> object_id
         +pvalue<fpga_token> parent
+        +guid_t guid
+        +properties(fpga_guid guid)
+        +properties(fpga_objtype objtype)
         +fpga_properties get()
+        +operator fpga_properties()
         +{static} properties::ptr_t read(fpga_token t)
         -fpga_properties props_
     }
+}
+```
+
+### Resource Classes
+The basic types in `opae::fpga::types` used for enumerating and accessing fpga resources are shown in the diagram below.
+
+```plantuml
+@startuml
+namespace opae.fpga.types {
 
     class token {
         +{static} token::ptr_t enumerate(const std::vector<properties> & props)
         +fpga_token get()
+        +operator fpga_token()
         -token(fpga_token t)
         -fpga_token token_
     }
     
     class handle {
         +fpga_handle get()
+        +operator fpga_handle()
+        +bool write(uint64_t offset, uint32_t value)
+        +bool write(uint64_t offset, uint64_t value)
+        +bool read(uint64_t offset, uint32_t value)
+        +bool read(uint64_t offset, uint64_t value)
+        +uint8_t* mmio_ptr()
         +{static} handle::ptr_t open(fpga_token t, int flags)
         +{static} handle::ptr_t open(token::ptr_t t, int flags)
-        +fpga_result close()
-        -handle(fpga_handle h)
+        #fpga_result close()
+        -handle(fpga_handle h, uint32_t mmio_region, uint8_t* mmio_base)
         -fpga_handle handle_
+        -uint32_t mmio_region_
+        -uint8_t *mmio_base_
+    }
+
+    class dma_buffer {
+        +{static}dma_buffer::ptr_t allocate(handle::ptr_t handle, size_t len)
+        +{static}dma_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base, size_t len)
+        +uint8_t *get()
+        +handle::ptr_t owner()
+        +size_t size()
+        +uint64_t iova()
+        +vector<dma_buffer::ptr_t> split(initializer_list sizes)
+        +fill(int c)
+        int compare(dma_buffer::ptr_t other, size_t len)
+        +T read(size_t offset)
+        +write(T value, size_t offset)
     }
 
 
@@ -177,8 +228,34 @@ namespace opae.fpga.resource {
 ```c++
 
     int main(int argc, char* argv[])
-    {
-
+    {    
+        const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+ 
+        properties props_filter;
+ 
+        props_filter.socket_id = 1;
+        props_filter.type = FPGA_ACCELERATOR;
+        uuid_t uuid;
+        if (uuid_parse(NLB0, uuid) == 0){
+            props_filter.guid = uuid;
+        }
+        props_filter.bbs_id = 0; // This is invalid - libopae-c prints out a warning
+        auto tokens = token::enumerate({props_filter});
+        if (tokens.size() > 0){
+            auto tok = tokens[0];
+            auto props = properties::read(tok);
+            std::cout << "guid prop read: " << props->guid << "\n";
+ 
+            std::cout << "bus: 0x" << std::hex << props->bus << "\n";
+            handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
+            uint64_t value1 = 0xdeadbeef, value2 = 0;
+            h->write(0x100, value1);
+            h->read(0x100, value2);
+            std::cout << "mmio @0x100: 0x" << std::hex << value2 << "\n";
+            std::cout << "mmio @0x100: 0x" << std::hex << *reinterpret_cast<uint64_t*>(h->mmio_ptr(0x100)) << "\n";
+        }
+ 
+        return  0;
     }
 
 ```
