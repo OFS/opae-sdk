@@ -27,131 +27,96 @@
 
 #include "opaec++/dma_buffer.h"
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
-dma_buffer::~dma_buffer()
-{
-    // If this owns the buffer allocation and
-    // that allocation was successful.
-    if (!parent_ && virt_) {
-        fpga_result res = fpgaReleaseBuffer(handle_->get(), wsid_);
+dma_buffer::~dma_buffer() {
+  // If this owns the buffer allocation and
+  // that allocation was successful.
+  if (!parent_ && virt_) {
+    fpga_result res = fpgaReleaseBuffer(handle_->get(), wsid_);
 
-        if (res != FPGA_OK) {
-            // TODO log/throw error
-        }
+    if (res != FPGA_OK) {
+      // TODO log/throw error
     }
+  }
 }
 
-dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len)
-{
-    ptr_t p;
+dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
+  ptr_t p;
 
-    if (!len)
-        return p;
+  if (!len) return p;
 
-    uint8_t *virt = nullptr;
-    uint64_t iova = 0;
-    uint64_t wsid = 0;
+  uint8_t *virt = nullptr;
+  uint64_t iova = 0;
+  uint64_t wsid = 0;
 
-    fpga_result res = fpgaPrepareBuffer(handle->get(),
-                                        len,
-                                        reinterpret_cast<void **>(&virt),
-                                        &wsid,
-                                        0);
+  fpga_result res = fpgaPrepareBuffer(
+      handle->get(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
+  if (res == FPGA_OK) {
+    res = fpgaGetIOAddress(handle->get(), wsid, &iova);
     if (res == FPGA_OK) {
-
-        res = fpgaGetIOAddress(handle->get(), wsid, &iova);
-        if (res == FPGA_OK) {
-
-            p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-
-        } else {
-            // TODO: log/throw error
-        }
+      p.reset(new dma_buffer(handle, len, virt, wsid, iova));
 
     } else {
-        // TODO: log/throw error
+      // TODO: log/throw error
     }
 
-    return p;
+  } else {
+    // TODO: log/throw error
+  }
+
+  return p;
 }
 
-dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle,
-                                     uint8_t *base,
-                                     size_t len)
-{
-    ptr_t p;
+dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
+                                     size_t len) {
+  ptr_t p;
 
-    uint8_t *virt = base;
-    uint64_t iova = 0;
-    uint64_t wsid = 0;
+  uint8_t *virt = base;
+  uint64_t iova = 0;
+  uint64_t wsid = 0;
 
-    fpga_result res = fpgaPrepareBuffer(handle->get(),
-                                        len,
-                                        reinterpret_cast<void **>(&virt),
-                                        &wsid,
-                                        FPGA_BUF_PREALLOCATED);
- 
+  fpga_result res =
+      fpgaPrepareBuffer(handle->get(), len, reinterpret_cast<void **>(&virt),
+                        &wsid, FPGA_BUF_PREALLOCATED);
+
+  if (res == FPGA_OK) {
+    res = fpgaGetIOAddress(handle->get(), wsid, &iova);
     if (res == FPGA_OK) {
-
-        res = fpgaGetIOAddress(handle->get(), wsid, &iova);
-        if (res == FPGA_OK) {
-
-            p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-
-        } else {
-            // TODO: log/throw error
-        }
+      p.reset(new dma_buffer(handle, len, virt, wsid, iova));
 
     } else {
-        // TODO: log/throw error
+      // TODO: log/throw error
     }
 
-    return p;
+  } else {
+    // TODO: log/throw error
+  }
+
+  return p;
 }
 
-void dma_buffer::fill(int c)
-{
-    ::memset(virt_, c, len_);
+void dma_buffer::fill(int c) { ::memset(virt_, c, len_); }
+
+int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const {
+  return ::memcmp(virt_, other->virt_, len);
 }
 
-int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const
-{
-    return ::memcmp(virt_, other->virt_, len);
-}
+dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
+                       uint64_t wsid, uint64_t iova)
+    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
 
-dma_buffer::dma_buffer(handle::ptr_t handle,
-                       size_t len,
-                       uint8_t *virt,
-                       uint64_t wsid,
-                       uint64_t iova)
-: handle_(handle)
-, len_(len)
-, virt_(virt)
-, wsid_(wsid)
-, iova_(iova)
-{}
+dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
+                       uint64_t wsid, uint64_t iova, dma_buffer::ptr_t parent)
+    : handle_(handle),
+      len_(len),
+      virt_(virt),
+      wsid_(wsid),
+      iova_(iova),
+      parent_(parent) {}
 
-dma_buffer::dma_buffer(handle::ptr_t handle,
-                       size_t len,
-                       uint8_t *virt,
-                       uint64_t wsid,
-                       uint64_t iova,
-                       dma_buffer::ptr_t parent)
-: handle_(handle)
-, len_(len)
-, virt_(virt)
-, wsid_(wsid)
-, iova_(iova)
-, parent_(parent)
-{}
-
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
-
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

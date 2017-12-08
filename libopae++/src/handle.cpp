@@ -27,103 +27,89 @@
 #include "opaec++/handle.h"
 #include "opaec++/properties.h"
 
-namespace opae
-{
-namespace fpga
-{
-namespace types
-{
+namespace opae {
+namespace fpga {
+namespace types {
 
 handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
-: handle_(h)
-, mmio_region_(mmio_region)
-, mmio_base_(mmio_base)
-{
+    : handle_(h), mmio_region_(mmio_region), mmio_base_(mmio_base) {}
+
+handle::~handle() { close(); }
+
+bool handle::write(uint64_t offset, uint32_t value) {
+  return FPGA_OK == fpgaWriteMMIO32(handle_, mmio_region_, offset, value);
 }
 
-handle::~handle(){
-    close();
+bool handle::write(uint64_t offset, uint64_t value) {
+  return FPGA_OK == fpgaWriteMMIO64(handle_, mmio_region_, offset, value);
 }
 
-bool handle::write(uint64_t offset, uint32_t value)
-{
-    return FPGA_OK == fpgaWriteMMIO32(handle_, mmio_region_, offset, value);
+bool handle::read(uint64_t offset, uint32_t &value) const {
+  return FPGA_OK == fpgaReadMMIO32(handle_, mmio_region_, offset, &value);
 }
 
-bool handle::write(uint64_t offset, uint64_t value)
-{
-    return FPGA_OK == fpgaWriteMMIO64(handle_, mmio_region_, offset, value);
+bool handle::read(uint64_t offset, uint64_t &value) const {
+  return FPGA_OK == fpgaReadMMIO64(handle_, mmio_region_, offset, &value);
 }
 
-bool handle::read(uint64_t offset, uint32_t &value) const
-{
-    return FPGA_OK == fpgaReadMMIO32(handle_, mmio_region_, offset, &value);
+handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
+  fpga_handle c_handle = nullptr;
+  uint8_t *mmio_base = nullptr;
+  ptr_t p;
+
+  auto res = fpgaOpen(token, &c_handle, flags);
+  if (res == FPGA_OK) {
+    fpga_objtype ty = FPGA_DEVICE;
+
+    properties::ptr_t props = properties::read(token);
+
+    if (FPGA_ACCELERATOR == props->type) {
+      res = fpgaMapMMIO(c_handle, mmio_region,
+                        reinterpret_cast<uint64_t **>(&mmio_base));
+
+      if (res != FPGA_OK) {
+        // TODO : Log/throw error in the case that
+        // the token does refer to an FPGA_ACCELERATOR.
+      }
+    }
+
+    p.reset(new handle(c_handle, mmio_region, mmio_base));
+  }
+
+  return p;
 }
 
-bool handle::read(uint64_t offset, uint64_t &value) const
-{
-    return FPGA_OK == fpgaReadMMIO64(handle_, mmio_region_, offset, &value);
+handle::ptr_t handle::open(token::ptr_t tok, int flags, uint32_t mmio_region) {
+  return handle::open(*tok, flags, mmio_region);
 }
 
-handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region){
-    fpga_handle c_handle = nullptr;
-    uint8_t *mmio_base = nullptr;
-    ptr_t p;
+fpga_result handle::close() {
+  fpga_result res = FPGA_INVALID_PARAM;
 
-    auto res = fpgaOpen(token, &c_handle, flags);
+  if (handle_ != nullptr) {
+    if (mmio_base_ != nullptr) {
+      res = fpgaUnmapMMIO(handle_, mmio_region_);
+
+      if (res == FPGA_OK) {
+        mmio_base_ = nullptr;
+      } else {
+        // TODO : Log or throw error in the case that
+        // the handle does refer to an FPGA_ACCELERATOR.
+      }
+    }
+
+    res = fpgaClose(handle_);
+
     if (res == FPGA_OK) {
-        fpga_objtype ty = FPGA_DEVICE;
-
-        properties::ptr_t props = properties::read(token);
-
-        if (FPGA_ACCELERATOR == props->type) {
-
-            res = fpgaMapMMIO(c_handle, mmio_region, reinterpret_cast<uint64_t **>(&mmio_base));
-
-            if (res != FPGA_OK) {
-                // TODO : Log/throw error in the case that
-                // the token does refer to an FPGA_ACCELERATOR.
-            }
-        }
-
-        p.reset(new handle(c_handle, mmio_region, mmio_base));
+      handle_ = nullptr;
+    } else {
+      // TODO : Log or throw error
     }
+  }
 
-    return p;
+  return res;
 }
 
-handle::ptr_t handle::open(token::ptr_t tok, int flags, uint32_t mmio_region){
-    return handle::open(*tok, flags, mmio_region);
-}
-
-fpga_result handle::close(){
-    fpga_result res = FPGA_INVALID_PARAM;
-
-    if (handle_ != nullptr) {
-
-        if (mmio_base_ != nullptr) {
-            res = fpgaUnmapMMIO(handle_, mmio_region_);
-
-            if (res == FPGA_OK) {
-                mmio_base_ = nullptr;
-            } else {
-               // TODO : Log or throw error in the case that
-               // the handle does refer to an FPGA_ACCELERATOR.
-            }
-        }
-
-        res = fpgaClose(handle_);
-
-        if (res == FPGA_OK){
-            handle_ = nullptr;
-        } else {
-            // TODO : Log or throw error
-        }
-    }
-
-    return res;
-}
-
-} // end of namespace types
-} // end of namespace fpga
-} // end of namespace opae
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

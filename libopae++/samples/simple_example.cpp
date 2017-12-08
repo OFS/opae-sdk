@@ -32,34 +32,34 @@
 
 using namespace opae::fpga::types;
 
-int main(int argc, char* argvp[])
-{
-    const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
-    const char* NLB3 = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18";
+int main(int argc, char* argvp[]) {
+  const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+  const char* NLB3 = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18";
 
-    properties props_filter;
+  properties props_filter;
 
-    props_filter.socket_id = 1;
-    props_filter.type = FPGA_ACCELERATOR;
-    uuid_t uuid;
-    if (uuid_parse(NLB0, uuid) == 0){
-        props_filter.guid = uuid;
-    }
-    props_filter.bbs_id = 0; // This is invalid - libopae-c prints out a warning
-    auto tokens = token::enumerate({props_filter});
-    if (tokens.size() > 0){
-        auto tok = tokens[0];
-        auto props = properties::read(tok);
-        std::cout << "guid prop read: " << props->guid << "\n";
+  props_filter.socket_id = 1;
+  props_filter.type = FPGA_ACCELERATOR;
+  uuid_t uuid;
+  if (uuid_parse(NLB0, uuid) == 0) {
+    props_filter.guid = uuid;
+  }
+  props_filter.bbs_id = 0;  // This is invalid - libopae-c prints out a warning
+  auto tokens = token::enumerate({props_filter});
+  if (tokens.size() > 0) {
+    auto tok = tokens[0];
+    auto props = properties::read(tok);
+    std::cout << "guid prop read: " << props->guid << "\n";
 
-        std::cout << "bus: 0x" << std::hex << props->bus << "\n";
-        handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
-        uint64_t value1 = 0xdeadbeef, value2 = 0;
-        h->write(0x100, value1);
-        h->read(0x100, value2);
-        std::cout << "mmio @0x100: 0x" << std::hex << value2 << "\n";
-        std::cout << "mmio @0x100: 0x" << std::hex << *reinterpret_cast<uint64_t*>(h->mmio_ptr(0x100)) << "\n";
-    }
+    std::cout << "bus: 0x" << std::hex << props->bus << "\n";
+    handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
+    uint64_t value1 = 0xdeadbeef, value2 = 0;
+    h->write(0x100, value1);
+    h->read(0x100, value2);
+    std::cout << "mmio @0x100: 0x" << std::hex << value2 << "\n";
+    std::cout << "mmio @0x100: 0x" << std::hex
+              << *reinterpret_cast<uint64_t*>(h->mmio_ptr(0x100)) << "\n";
+  }
 
-    return  0;
+  return 0;
 }
