@@ -74,6 +74,18 @@ ASE_PLATFORM?=FPGA_PLATFORM_INTG_XEON
 ASE_DISABLE_LOGGER ?= 0
 ASE_DISABLE_CHECKER ?= 0
 
+###############################################################
+# Selects the simulation model for local memory in the discrete
+# FPGA platform. Supported values are EMIF_MODEL_BASIC and 
+# EMIF_MODEL_ADVANCED. EMIF_MODEL_BASIC uses simple system 
+# verilog associative arrays to model local memory. 
+# EMIF_MODEL_ADVANCED uses a cycle accurate model derived from 
+# External Memory Interface Controller IP configuration. Use 
+# EMIF_MODEL_BASIC for faster simulation. Default value is 
+# EMIF_MODEL_BASIC.
+###############################################################
+ASE_DISCRETE_EMIF_MODEL ?= EMIF_MODEL_BASIC
+
 #########################################################################
 #                 Enable Altera gates library in ASE                    #
 #########################################################################
@@ -93,13 +105,31 @@ GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/stratixv_pcie_hip_atoms.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/altera_lnsim.sv
 
 # add required files for local memory model
-ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
-GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/twentynm_atoms.v
-ifeq ($(SIMULATOR), VCS)
-  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/synopsys/twentynm_atoms_ncrypt.v
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
+  ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
+    GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/twentynm_atoms.v
+    ifeq ($(SIMULATOR), VCS)
+      GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/synopsys/twentynm_atoms_ncrypt.v
+    endif
+    ifeq ($(SIMULATOR), QUESTA)
+      GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
+    endif
+  endif
 endif
+
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
+ifeq ($(SIMULATOR), VCS)
+  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/verbosity_pkg.sv
+  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/avalon_mm_pkg.sv
+  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/avalon_utilities_pkg.sv
+  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv
+endif
+
 ifeq ($(SIMULATOR), QUESTA)
-  GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
+  QSIM_MODEL_VLOG_OPT= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/mentor/verbosity_pkg.sv
+  QSIM_MODEL_VLOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/mentor/avalon_mm_pkg.sv
+  QSIM_MODEL_VLOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/lib/mentor/avalon_utilities_pkg.sv
+  QSIM_MODEL_VLOG_OPT+= $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv
 endif
 endif
 
@@ -119,7 +149,11 @@ ASE_CONFIG ?= $(PWD)/ase.cfg
 ASE_SCRIPT ?= $(PWD)/ase_regress.sh
 
 # Configuration for discrete Memory Model
-ASE_MEM_SRC = $(ASE_SRCDIR)/rtl/device_models/dcp_emif_model
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
+ASE_MEM_SRC = $(ASE_SRCDIR)/rtl/device_models/dcp_emif_model_basic
+else
+ASE_MEM_SRC = $(ASE_SRCDIR)/rtl/device_models/dcp_emif_model_advanced
+endif
 
 #########################################################################
 #                          ASE HW/SW settings                           #
@@ -300,6 +334,13 @@ else
 	exit 1
   endif
 endif
+
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
+	@echo "Local memory model set to BASIC"
+else
+	@echo "Local memory model set to ADVANCED"
+endif
+
 # Ensure GCC is available
 ifneq ($(CC), gcc)
 	@echo "#                                                          #"
@@ -427,10 +468,13 @@ vcs_build: sw_build
 	@echo "#                                                          #"
 	@echo "############################################################"
 ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
-	cp -f $(ASE_MEM_SRC)/*.hex $(ASE_WORKDIR)
 	vlogan $(SNPS_VLOGAN_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlogan-ase.log
 else
 	vlogan $(SNPS_VLOGAN_OPT) $(ASEHW_FILE_LIST) -l vlogan-ase.log
+endif
+
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
+	cp -f $(ASE_MEM_SRC)/*.hex $(ASE_WORKDIR)
 endif
 
 ifdef DUT_VHD_SRC_LIST
@@ -451,8 +495,10 @@ questa_build: sw_build
 	@echo "#                                                          #"
 	@echo "############################################################"
 	cd $(WORK) ; vlib $(WORK) ; vmap work $(WORK) ; cd -
+ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
 	cp -f $(ASE_MEM_SRC)/*.hex $(ASE_WORKDIR)
-	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlog-ase.log ; cd -
+endif
+	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QSIM_MODEL_VLOG_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlog-ase.log ; cd -
 ifdef DUT_VHD_SRC_LIST
 	cd $(WORK) ; vcom $(MENT_VCOM_OPT) -F $(DUT_VHD_SRC_LIST) -l vcom-afu.log ; cd -
 endif
@@ -480,6 +526,10 @@ ifeq ($(SIMULATOR), VCS)
 	cd $(ASE_WORKDIR) ; ./ase_simv $(SNPS_SIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) ; cd -
 else
   ifeq ($(SIMULATOR), QUESTA)
+        ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
+                # recompile memory model to keep Questa happy
+		cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv -l vlog-ase.log ; cd -
+        endif
 	cd $(ASE_WORKDIR) ; vsim $(MENT_VSIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) $(ASE_TOP) ; cd -
   else
 	@echo "############################################################"

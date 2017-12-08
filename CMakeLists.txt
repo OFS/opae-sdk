@@ -80,6 +80,9 @@ install(DIRECTORY common/include/opae
   DESTINATION include
   COMPONENT libopaeheaders)
 
+install(DIRECTORY common/include/safe_string
+  DESTINATION include
+  COMPONENT safestrheaders)
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
@@ -113,6 +116,7 @@ add_subdirectory(tools/libopae++)
 add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
 add_subdirectory(tools/hssi)
+add_subdirectory(tools/packager)
 
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
@@ -132,6 +136,18 @@ find_package(Threads REQUIRED)
 ############################################################################
 
 add_subdirectory(samples)
+
+############################################################################
+## Add 'tests' #############################################################
+############################################################################
+
+option(BUILD_TESTS "Enable tests compilation" OFF)
+mark_as_advanced(BUILD_TESTS)
+if(BUILD_TESTS)
+  enable_testing()
+  include(CTest)
+  add_subdirectory(tests)
+endif()
 
 ############################################################################
 ## RPATH Handling ##########################################################
@@ -175,6 +191,8 @@ define_pkg(devel
   docxml
   platform
   samplesrc
+  safestrlib
+  safestrheaders
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
@@ -196,6 +214,7 @@ define_pkg(tools
   toolfpgaflash
   toolfpgainfo
   toolfpgaport
+  toolpackager
   opaecxxutils
   opaecxxlib
   opaecxxnlb
