@@ -68,6 +68,9 @@ install(DIRECTORY common/include/opae
   DESTINATION include
   COMPONENT libopaeheaders)
 
+install(DIRECTORY common/include/safe_string
+  DESTINATION include
+  COMPONENT safestrheaders)
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
@@ -189,6 +192,8 @@ define_pkg(devel
   docxml
   platform
   samplesrc
+  safestrlib
+  safestrheaders
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
