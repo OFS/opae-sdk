@@ -1271,15 +1271,18 @@ void deallocate_buffer(struct buffer_t *mem)
 
     int ret;
     char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	struct buffer_t *mem_next;  // Keep current buffer's pointer to next
 
     ASE_MSG("Deallocating memory %s ... \n", mem->memname);
 
     // Send a one way message to request a deallocate
+	mem_next = mem->next;
     ase_buffer_t_to_str(mem, tmp_msg);
     mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
     // Wait for response to deallocate
     mqueue_recv(sim2app_dealloc_rx, tmp_msg, ASE_MQ_MSGSIZE);
     ase_str_to_buffer_t(tmp_msg, mem);
+	mem->next = mem_next;
 
     // Unmap the memory accordingly
     ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
@@ -1368,6 +1371,19 @@ bool deallocate_buffer_by_index(int search_index)
 		ASE_MSG("Buffer pointer was returned as NULL\n");
 		value = false;
     }
+
+#ifdef ASE_DEBUG
+	
+	ASE_DBG("Buffer traversal START =>\n");
+	ptr = buf_head;
+	while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
+	}
+	ASE_DBG("Buffer traversal END\n");
+
+#endif
 
     FUNC_CALL_EXIT;
     return value;
