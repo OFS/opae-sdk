@@ -112,6 +112,7 @@ private:
     uint32_t                  hssi_cmd_count_;
     uint32_t                  ctrl_;
     uint32_t                  stat_;
+    uint32_t                  byte_addr_size_;
     std::ostringstream        header_stream_;
     std::string               input_file_;
     intel::utils::logger      log_;

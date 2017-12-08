@@ -104,7 +104,7 @@ process process::start(const string &file, const vector<string> &args)
 
     // copy the args vector to char**
     // starting at index 1
-    for (int i = 0; i < args.size(); ++i)
+    for (vector<string>::size_type i = 0; i < args.size(); ++i)
     {
         cargs[i+1] = const_cast<char*>(args[i].c_str());
     }

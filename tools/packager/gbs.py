@@ -1,5 +1,5 @@
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -36,128 +36,138 @@ GBS_EXT = ".gbs"
 """
 Class GBS for operations related to GBS files
 """
+
+
 class GBS:
-	def __init__(self, gbs_file=None):
-		self.guid = ''
-		self.metadata_len = 0
-		self.gbs_info = ''
-		self.rbf = ''
-		self.metadata = []
+    def __init__(self, gbs_file=None):
+        self.guid = ''
+        self.metadata_len = 0
+        self.gbs_info = ''
+        self.rbf = ''
+        self.metadata = []
 
-		if gbs_file:
-			self.filename = os.path.splitext(os.path.basename(gbs_file))[0]
-			self.validate_gbs_file(gbs_file)
+        if gbs_file:
+            self.filename = os.path.splitext(os.path.basename(gbs_file))[0]
+            self.validate_gbs_file(gbs_file)
 
-	"""
-	classmethod to create a gbs instance from json and
-	rbf file. Used to create a new gbs file
+    """
+    classmethod to create a gbs instance from json and
+    rbf file. Used to create a new gbs file
 
-	@return instance of the new GBS object
-	"""
-	@classmethod
-	def create_gbs_from_afu_info(cls, rbf_file, afu_json):
-		gbs = cls()
+    @return instance of the new GBS object
+    """
+    @classmethod
+    def create_gbs_from_afu_info(cls, rbf_file, afu_json):
+        gbs = cls()
 
-		rbf = open(rbf_file, 'rb')
-		rbf_content = rbf.read()
+        rbf = open(rbf_file, 'rb')
+        rbf_content = rbf.read()
 
-		gbs.guid = constants.METADATA_GUID
-		gbs.metadata_len = len(afu_json)
-		gbs.gbs_info = afu_json
-		gbs.rbf = rbf_content
-		gbs.metadata = metadata.get_metadata(afu_json)
-		gbs.filename = os.path.splitext(os.path.basename(rbf_file))[0]
+        gbs.guid = constants.METADATA_GUID
+        gbs.metadata_len = len(afu_json)
+        gbs.gbs_info = afu_json
+        gbs.rbf = rbf_content
+        gbs.metadata = metadata.get_metadata(afu_json)
+        gbs.filename = os.path.splitext(os.path.basename(rbf_file))[0]
 
-		return gbs
+        return gbs
 
-	"""
-	Set of get methods to retrieve gbs attributes
-	"""
-	def get_gbs_guid(self):
-		return self.guid
+    """
+    Set of get methods to retrieve gbs attributes
+    """
 
-	def get_gbs_meta_len(self):
-		return self.metadata_len
+    def get_gbs_guid(self):
+        return self.guid
 
-	def get_gbs_info(self):
-		return self.gbs_info
+    def get_gbs_meta_len(self):
+        return self.metadata_len
 
-	def get_rbf_val(self):
-		return self.rbf
+    def get_gbs_info(self):
+        return self.gbs_info
 
-	def get_gbs_metadata(self):
-		return self.metadata
+    def get_rbf_val(self):
+        return self.rbf
 
-	"""
-	Function to print GBS info to the console
-	"""
-	def print_gbs_info(self):
-		if self.gbs_info == '':
-			raise Exception("No metadata in GBS file")
+    def get_gbs_metadata(self):
+        return self.metadata
 
-		print(json.dumps(self.gbs_info, indent=4))
+    """
+    Function to print GBS info to the console
+    """
 
-	"""
-	Function to write a new rbf file to the filesystem
-	"""
-	def write_rbf(self, rbf_file):
-		if not rbf_file:
-			rbf_file = self.filename + RBF_EXT
+    def print_gbs_info(self):
+        if self.gbs_info == '':
+            raise Exception("No metadata in GBS file")
 
-		with open(rbf_file, 'wb') as rbf:
-			rbf.write(self.rbf)
+        print(json.dumps(self.gbs_info, indent=4))
 
-		return rbf_file
+    """
+    Function to write a new rbf file to the filesystem
+    """
 
-	"""
-	Function to write a new gbs file to the filesystem
-	"""
-	def write_gbs(self, gbs_file):
-		if not gbs_file:
-			gbs_file = self.filename + GBS_EXT
+    def write_rbf(self, rbf_file):
+        if not rbf_file:
+            rbf_file = self.filename + RBF_EXT
 
-		gbs_file_header = bytearray(self.get_gbs_metadata())
+        with open(rbf_file, 'wb') as rbf:
+            rbf.write(self.rbf)
 
-		with open(gbs_file, 'wb') as gbs:
-			gbs.write(gbs_file_header + self.rbf)
+        return rbf_file
 
-		return gbs_file
+    """
+    Function to write a new gbs file to the filesystem
+    """
 
-	"""
-	Function to update gbs info in an object with input info
-	"""
-	def update_gbs_info(self, gbs_info):
-		self.gbs_info = gbs_info
-		self.metadata = metadata.get_metadata(self.gbs_info)
+    def write_gbs(self, gbs_file):
+        if not gbs_file:
+            gbs_file = self.filename + GBS_EXT
 
-	"""
-	Function to make make sure GBS file conforms to standard
-	and polpulate the GBS object with appropriate values
-	"""
-	def validate_gbs_file(self, gbs_file):
-		file = open(gbs_file, 'rb')
-		gbs = file.read()
+        gbs_file_header = bytearray(self.get_gbs_metadata())
 
-		if len(constants.METADATA_GUID) >= len(gbs):
-			raise Exception("Invalid GBS file")
+        with open(gbs_file, 'wb') as gbs:
+            gbs.write(gbs_file_header + self.rbf)
 
-		self.guid = gbs[:constants.GUID_LEN]
-		if self.guid != constants.METADATA_GUID:
-			raise Exception("Unsupported GBS format")
+        return gbs_file
 
-		metadata_index = constants.GUID_LEN + constants.SIZEOF_LEN_FIELD
+    """
+    Function to update gbs info in an object with input info
+    """
 
-		metadata_len = struct.unpack("<I", gbs[constants.GUID_LEN:metadata_index])
-		self.metadata_len = metadata_len[0]
+    def update_gbs_info(self, gbs_info):
+        self.gbs_info = gbs_info
+        self.metadata = metadata.get_metadata(self.gbs_info)
 
-		if self.metadata_len != 0:
-			self.gbs_info = json.loads(gbs[metadata_index:(metadata_index + self.metadata_len)])
+    """
+    Function to make make sure GBS file conforms to standard
+    and polpulate the GBS object with appropriate values
+    """
 
-		rbf_index = metadata_index + metadata_len[0]
+    def validate_gbs_file(self, gbs_file):
+        file = open(gbs_file, 'rb')
+        gbs = file.read()
 
-		if rbf_index == len(gbs):
-			raise Exception("No RBF in GBS file!")
+        if len(constants.METADATA_GUID) >= len(gbs):
+            raise Exception("Invalid GBS file")
 
-		self.rbf = gbs[rbf_index:]
+        self.guid = gbs[:constants.GUID_LEN]
+        if self.guid != constants.METADATA_GUID:
+            raise Exception("Unsupported GBS format")
 
-		self.metadata = metadata.get_metadata(self.gbs_info)
+        metadata_index = constants.GUID_LEN + constants.SIZEOF_LEN_FIELD
+
+        metadata_len = struct.unpack(
+            "<I", gbs[constants.GUID_LEN:metadata_index])
+        self.metadata_len = metadata_len[0]
+
+        if self.metadata_len != 0:
+            self.gbs_info = json.loads(
+                gbs[metadata_index:(metadata_index + self.metadata_len)])
+
+        rbf_index = metadata_index + metadata_len[0]
+
+        if rbf_index == len(gbs):
+            raise Exception("No RBF in GBS file!")
+
+        self.rbf = gbs[rbf_index:]
+
+        self.metadata = metadata.get_metadata(self.gbs_info)

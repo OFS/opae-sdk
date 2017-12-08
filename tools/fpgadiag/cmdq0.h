@@ -117,12 +117,12 @@ private:
     void apply(accelerator::ptr_t accelerator, const cmdq_entry_t &entry);
     bool verify(const cmdq_entry_t &entry);
     void show_mismatch(const cmdq_entry_t &entry);
-    uint32_t swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t cont_swvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
-    uint32_t cont_hwvalid_thr(cmdq_t &fifo1, cmdq_t &fifo2);
+    uint32_t swvalid_thr();
+    uint32_t hwvalid_thr();
+    uint32_t cont_swvalid_thr();
+    uint32_t cont_hwvalid_thr();
 
-    bool wait_for_done(uint32_t allocations);
+    bool wait_for_done();
 
     bool fifo1_is_empty()
     {

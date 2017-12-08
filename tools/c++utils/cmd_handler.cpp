@@ -286,10 +286,12 @@ void cmd_handler::show_help(std::ostream & str, bool include_help)
 
 void cmd_handler::run_command_loop(const std::string & prompt)
 {
+    UNUSED_PARAM(prompt);
     bool run = true;
     register_handler("quit",
             [&run](const cmd_vector_t & cmd)
             {
+                UNUSED_PARAM(cmd);
                 run = false;
                 return true;
             }, 0, "quit this program");

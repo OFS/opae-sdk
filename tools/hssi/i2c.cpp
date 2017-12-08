@@ -38,9 +38,26 @@ namespace hssi
 using namespace std;
 using namespace std::chrono;
 
-i2c::i2c(przone_interface::ptr_t przone)
+i2c::i2c(przone_interface::ptr_t przone, size_t byte_addr_size)
 : przone_(przone)
+, byte_addr_size_(byte_addr_size)
 {
+}
+
+bool i2c::send_byte_address(uint32_t instance, uint32_t byte_addr)
+{
+    uint32_t ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit | i2c_ctrl_send_start;
+    // support multi-byte byte addresses in big endian format
+    uint8_t *base_ptr = reinterpret_cast<uint8_t*>(&byte_addr);
+    // start with the upper byte (base address of the byte_addr + byte address size)
+    uint8_t* ptr = base_ptr + byte_addr_size_;
+    // make sure we decrement the ptr before we start using it to dereference the byte
+    while (ptr-- > base_ptr){
+        ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
+        przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | *ptr);
+        wait_for_i2c_tx();
+    }
+    return true;
 }
 
 bool i2c::read(uint32_t instance, uint32_t device_addr, uint32_t byte_addr, uint8_t bytes[], size_t read_bytes)
@@ -49,17 +66,9 @@ bool i2c::read(uint32_t instance, uint32_t device_addr, uint32_t byte_addr, uint
     uint32_t ctrl = i2c_ctrl_trigger  | i2c_ctrl_transmit | i2c_ctrl_send_start;
     przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | device_addr);
     wait_for_i2c_tx();
-    if (byte_addr > 0xFF) //TODO:Nasty hack for EEPROM address 
-    {
-    // 2a. Set the Byte Address (00) and the control bits (03) into I2C_CTRL_WDATA
-    ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
-    przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | ((byte_addr & 0xFF00) >> 8));
-    wait_for_i2c_tx();
-    }
+
     // 2. Set the byte address and control bits (03) into I2C_CTRL_WDATA
-    ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
-    przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | (byte_addr & 0xFF));
-    wait_for_i2c_tx();
+    send_byte_address(instance, byte_addr);
 
     // 3. Set the device address (as read) and control bits (07) into I2C_CTRL_WDATA
     ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit | i2c_ctrl_send_start;
@@ -100,17 +109,10 @@ bool i2c::write(uint32_t instance, uint32_t device_addr, uint32_t byte_addr, uin
     // 1. Set the Device Address (30) and the control bits (07) into I2C_CTRL_WDATA
     przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | device_addr);
     wait_for_i2c_tx();
-    if (byte_addr > 0xFF) //TODO:Nasty hack for EEPROM address 
-    {
-    // 2a. Set the Byte Address (00) and the control bits (03) into I2C_CTRL_WDATA
-    ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
-    przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | ((byte_addr & 0xFF00) >> 8));
-    wait_for_i2c_tx();
-    }
-    // 2. Set the Byte Address (00) and the control bits (03) into I2C_CTRL_WDATA
-    ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
-    przone_->write(i2c_reg_ctrl_wrdata, (instance << i2c_ctrl_instance) | ctrl | (byte_addr & 0xFF));
-    wait_for_i2c_tx();
+
+    // 2. Set the byte address and control bits (03) into I2C_CTRL_WDATA
+    send_byte_address(instance, byte_addr);
+
     // 3. Set the Byte0 Value (bb) and the control bits (13) into I2C_CTRL_WDATA
     ctrl = i2c_ctrl_trigger | i2c_ctrl_transmit;
     for (size_t i = 0; i < write_bytes; ++i)

@@ -52,3 +52,4 @@
 #define MB(x) ((x) * 1024*1024)
 #define KB(x) ((x) * 1024)
 
+#define UNUSED_PARAM(x) (void)x

@@ -83,6 +83,7 @@ public :
 
     logger();
     logger(const std::string & name);
+    logger(const std::string & name, const std::string & filename);
 
     virtual ~logger()
     {
@@ -99,6 +100,10 @@ public :
 
     void set_level(level l);
 
+    void open(const std::string & filename);
+
+    void flush() { sink_->flush(); }
+
     level get_level();
 
     std::string get_level_name();
@@ -108,6 +113,7 @@ public :
 private:
     std::string name_;
     std::ofstream filestream_;
+    std::ostream  *sink_;
     int pid_;
     level level_;
 };

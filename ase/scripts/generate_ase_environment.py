@@ -54,6 +54,7 @@ import ase_functions
 import os
 import re
 import sys
+import subprocess
 from collections import defaultdict
 from fnmatch import fnmatch
 import json
@@ -71,9 +72,8 @@ else:
 VLOG_EXTENSIONS = [".svh", ".sv", ".vs", ".v"]
 VHD_EXTENSIONS = [".vhd", ".vhdl"]
 
-VHDL_FILE_LIST = os.environ['PWD'] + "/vhdl_files.list"
-VLOG_FILE_LIST = os.environ['PWD'] + "/vlog_files.list"
-TOOL_BRAND = "VCS"
+VHDL_FILE_LIST = os.getcwd() + "/vhdl_files.list"
+VLOG_FILE_LIST = os.getcwd() + "/vlog_files.list"
 
 # Forbidden characters
 SPECIAL_CHARS = '\[]~!@#$%^&*(){}:;+$\''
@@ -115,9 +115,6 @@ def remove_dups(filepath, exclude=None):
             hashes[h] = f
     text = '\n'.join(sorted(hashes.values(), key=os.path.basename))
     with open(filepath, 'w') as fd:
-        # Add the prologue to load platform include paths
-        fd.write("+incdir+rtl\n")
-        fd.write("-F rtl/platform_if_includes.txt\n")
         fd.write(text)
         fd.write("\n")
     return text
@@ -142,7 +139,10 @@ def commands_list_getoutput(cmd):
             str_out = byte_out.decode("utf-8")
         except OSError as e:
             if e.errno == os.errno.ENOENT:
-                errorExit(cmd[0] + " not found on PATH")
+                msg = cmd[0] + " not found on PATH!\n"
+                msg += "The installed OPAE SDK bin directory must be on " + \
+                       "the PATH environment variable."
+                errorExit(msg)
             else:
                 raise
 
@@ -226,8 +226,6 @@ def config_sources(fd, filelist):
     if (vlog_found):
         fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
         with open(VLOG_FILE_LIST, "w") as f:
-            f.write("+incdir+rtl\n")
-            f.write("-F rtl/platform_if_includes.txt\n")
             for s in vlog_srcs:
                 f.write(s + "\n")
 
@@ -235,8 +233,6 @@ def config_sources(fd, filelist):
     if (vhdl_found):
         fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
         with open(VHDL_FILE_LIST, "w") as f:
-            f.write("+incdir+rtl\n")
-            f.write("-F rtl/platform_if_includes.txt\n")
             for s in vhdl_srcs:
                 f.write(s + "\n")
 
@@ -249,8 +245,8 @@ def config_sources(fd, filelist):
         # Is there a JSON file in the same directory as the file list?
         dir = os.path.dirname(filelist)
         str = commands_list_getoutput(
-                "find -L".split(" ") + [dir] +
-                "-maxdepth 1 -type f -name *.json".split(" "))
+            "find -L".split(" ") + [dir] +
+            "-maxdepth 1 -type f -name *.json".split(" "))
         if (len(str)):
             # Use the discovered JSON file, but complain that it should
             # have been named explicitly.
@@ -451,8 +447,8 @@ parser.add_argument('dirlist', nargs='*',
 parser.add_argument('-s', '--sources',
                     help="""file containing list of source files.  The file will be
                             parsed by rtl_src_config.""")
-parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default='VCS',
-                    help='simulator tool to use, default is VCS')
+parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default=None,
+                    help='simulator tool to use, default is VCS if present')
 parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'],
                     default='intg_xeon', help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
@@ -472,11 +468,19 @@ if len(args.dirlist) and args.sources:
         "scan directories may not be specified along with --sources.  " +
         "See --help.")
 
-tool_type = args.tool
-TOOL_BRAND = args.tool
+tool_brand = args.tool
+if (tool_brand is None):
+    # Simulator wasn't specified.  Use VCS if it is present.
+    try:
+        with open(os.devnull, 'w') as fnull:
+            subprocess.call(['vcs', '-ID'], stdout=fnull, stderr=fnull)
+        tool_brand = 'VCS'
+    except OSError:
+        tool_brand = 'QUESTA'
+
 PLAT_TYPE = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
              'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(args.plat)
-print("\nTool Brand: ", TOOL_BRAND)
+print("\nTool Brand: ", tool_brand)
 print("Platform Type: ", PLAT_TYPE)
 
 # Write Makefile snippet #
@@ -493,7 +497,7 @@ fd.write("\n")
 
 # Update SIMULATOR
 fd.write("SIMULATOR ?= ")
-fd.write(TOOL_BRAND)
+fd.write(tool_brand)
 fd.write("\n\n")
 
 

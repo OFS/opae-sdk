@@ -37,9 +37,7 @@
 #include <fcntl.h>
 
 #include "safe_string/safe_string.h"
-
 #include "opae/fpga.h"
-
 #include "bitstream_int.h"
 
 
@@ -117,7 +115,8 @@ int main( int argc, char** argv )
 	fpga_result result                 = FPGA_OK;
 	fpga_token fme_token               = NULL;
 	fpga_handle  fme_handle            = NULL;
-	struct gbs_metadata  metadata      = {0};
+	struct gbs_metadata  metadata;
+	fpga_result res                    = FPGA_OK;
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -194,6 +193,7 @@ int main( int argc, char** argv )
 	ON_ERR_GOTO(result, out_close, "closing FME");
 
 	// Verify bitstream length
+	memset(&metadata, 0, sizeof(metadata));
 	if (get_bitstream_json_len(coreidleCmdLine.gbs_data) > 0) {
 
 		// Read GBS json metadata
@@ -205,8 +205,7 @@ int main( int argc, char** argv )
 
 	// Idle CPU cores
 	if ( metadata.afu_image.power >0 ) {
-		 result = set_cpu_core_idle(fme_handle,metadata.afu_image.power);
-		 ON_ERR_GOTO(result, out_close, "closing FME");
+		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
 	}
 
 
@@ -227,7 +226,7 @@ out_destroy_prop:
 	ON_ERR_GOTO(result, out_exit, "destroying properties object");
 
 out_exit:
-	return result;
+	return res;
 
 }
 
@@ -279,7 +278,7 @@ int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine)
 		perror(coreidleCmdLine->filename);
 		goto out_free;
 	}
-	if (coreidleCmdLine->gbs_len != len) {
+	if (coreidleCmdLine->gbs_len != (size_t)len) {
 		fprintf(stderr,
 		     "Filesize and number of bytes read don't match\n");
 		goto out_free;

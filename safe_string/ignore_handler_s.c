@@ -65,7 +65,11 @@
 /* void ignore_handler_s(const char *msg, void *ptr, errno_t error) */
 void opae_safestr_ignore_handler_s(const char *msg, void *ptr, errno_t error)
 {
-
+#ifndef DEBUG
+   UNUSED_PARAM(msg);
+   UNUSED_PARAM(ptr);
+   UNUSED_PARAM(error);
+#endif
 	sldebug_printf("IGNORE CONSTRAINT HANDLER: (%u) %s\n", error,
 		       (msg) ? msg : "Null message");
 	return;

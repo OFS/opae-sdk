@@ -49,6 +49,7 @@ namespace diag
 mtnlb::mtnlb(const std::string & afu_id)
 : accelerator_app()
 , afu_id_(afu_id)
+, name_()
 , dsm_size_(MB(4))
 , inp_size_(MB(4))
 , out_size_(MB(4))
@@ -71,8 +72,8 @@ mtnlb::mtnlb(const std::string & afu_id)
 
 mtnlb::mtnlb(const std::string & afu_id, const std::string & name)
 : accelerator_app()
-, name_(name)
 , afu_id_(afu_id)
+, name_(name)
 , dsm_size_(MB(1))
 , inp_size_(MB(2))
 , out_size_(MB(2))
@@ -252,6 +253,10 @@ bool mtnlb::setup()
     dsm_ = accelerator_->allocate_buffer(dsm_size_);
     inp_ = accelerator_->allocate_buffer(inp_size_);
     out_ = accelerator_->allocate_buffer(out_size_);
+    if (!dsm_ || !inp_ || !out_) {
+        log_.error(mode_) << "failed to allocate workspace and input/output buffers." << std::endl;
+        return false;
+    }
 
     if (mode_ == "mt7")
     {
