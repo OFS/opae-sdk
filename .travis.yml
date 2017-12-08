@@ -9,6 +9,7 @@ script:
     - scripts/test-codingstyle-py.sh
     - scripts/test-build.sh
     - scripts/test-gtapi-mock-drv.sh
+    - scripts/build-documentation.sh
 addons:
   apt:
     packages:
