@@ -1,4 +1,4 @@
-# OPAE C API Reference
+# OPAE C API Reference #
 
 The reference documentation for the OPAE C API is grouped into the following
 sections:
