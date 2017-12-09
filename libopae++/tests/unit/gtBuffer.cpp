@@ -10,8 +10,8 @@ extern "C" {
 
 #include "gtest/gtest.h"
 
-#include "opaec++/handle.h"
 #include "opaec++/dma_buffer.h"
+#include "opaec++/handle.h"
 
 using namespace opae::fpga::types;
 
@@ -73,10 +73,8 @@ TEST_F(CxxBuffer_f1, alloc_07) {
 
   buf_ = dma_buffer::attach(accel_, buf, pg_size);
   ASSERT_NE(nullptr, buf_.get());
-
   EXPECT_EQ(static_cast<dma_buffer::size_t>(pg_size), buf_->size());
   EXPECT_NE(0, buf_->iova());
-
   free(buf);
 }
 
