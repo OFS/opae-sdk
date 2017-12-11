@@ -129,6 +129,7 @@ class sysfs_resource(object):
             root_data["bus"] = self.bus
             root_data["device"] = self.device
             root_data["function"] = self.function
+            root_data["object_id"] = self.object_id
             data["pcie_info"] = root_data
 
         return data
@@ -221,6 +222,15 @@ class sysfs_resource(object):
     @property
     def function(self):
         return self._function
+
+    @property
+    def object_id(self):
+        value = self.read_sysfs("dev")
+        valueList = value.split(":")
+        major = valueList[0]
+        minor = valueList[1]
+        obj_id = ((long(major) & 0xFFF) << 20) | (long(minor) & 0xFFFFF)
+        return obj_id
 
 
 class pr_feature(sysfs_resource):
@@ -330,15 +340,6 @@ class fme_info(sysfs_resource):
     def bitstream_metadata(self):
         return self.read_sysfs("bitstream_metadata")
 
-    @property
-    def object_ID(self):
-        value = self.read_sysfs("dev")
-        valueList = value.split(":")
-        major = valueList[0]
-        minor = valueList[1]
-        objID = ((int(major) & 0xFFF) << 20) | (int(minor) & 0xFFFFF)
-        return hex(objID) + "   FPGA_DEVICE"
-
 
 class port_info(sysfs_resource):
     def __init__(self, path, instance_id, **kwargs):
@@ -350,15 +351,6 @@ class port_info(sysfs_resource):
     @property
     def afu_id(self):
         return str(uuid.UUID(self.read_sysfs("afu_id")))
-
-    @property
-    def object_ID(self):
-        value = self.read_sysfs("dev")
-        valueList = value.split(":")
-        major = valueList[0]
-        minor = valueList[1]
-        objID = ((int(major) & 0xFFF) << 20) | (int(minor) & 0xFFFFF)
-        return hex(objID) + "   FPGA_ACCELERATOR"
 
 
 class sysfsinfo(object):
