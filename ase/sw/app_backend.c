@@ -1373,7 +1373,7 @@ bool deallocate_buffer_by_index(int search_index)
     }
 
 #ifdef ASE_DEBUG
-	
+
 	ASE_DBG("Buffer traversal START =>\n");
 	ptr = buf_head;
 	while (ptr != NULL) {
