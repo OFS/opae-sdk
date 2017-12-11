@@ -201,7 +201,10 @@ def config_sources(fd, filelist):
         elif (s[0] == '+'):
             # + simulator commands go in both Verilog and VHDL
             vlog_srcs.append(s)
-            vhdl_srcs.append(s)
+            # Unfortuantely, vhdlan (VCS VHDL simulator) doesn't support
+            # the same directives as the Verilog simulator.
+            if (tool_brand != 'VCS'):
+                vhdl_srcs.append(s)
         elif (s[0] == '-'):
             # For now assume - is an include directive and used only for
             # Verilog. Escape all but the first space, which likely
