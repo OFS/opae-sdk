@@ -27,6 +27,7 @@ find_library(libjson-c_LIBRARIES
   /usr/local/lib
   /usr/lib
   /lib
+  /usr/lib/x86_64-linux-gnu
   ${CMAKE_EXTRA_LIBS})
 
 if(libjson-c_LIBRARIES AND libjson-c_INCLUDE_DIRS)

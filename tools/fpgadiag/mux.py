@@ -25,6 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+
 import datetime
 import itertools
 import json
@@ -32,7 +33,6 @@ import math
 import random
 import tempfile
 import subprocess
-import time
 import os
 max_threads = 2047       # 11 bits
 max_count = 1048575      # 20 bits
@@ -120,6 +120,7 @@ class nlb3_options(nlb_options):
     @property
     def keys(self):
         return ("begin",
+                "end",
                 "mode",
                 "cont",
                 "timeout-sec",
@@ -140,9 +141,16 @@ class nlb3_options(nlb_options):
             return False
         if int(opts["begin"]) % int(opts["multi-cl"]) > 0:
             return False
+        if int(opts["end"]) % int(opts["multi-cl"]) > 0:
+            return False
+        if opts.get("end") < opts.get("begin"):
+            return False
         if opts.get("end", opts["begin"]) * opts.get("strided-access") > 65535:
             return False
         return True
+
+    def const(self):
+        return {'cont': False}
 
 
 class mtnlb7_options(nlb_options):
@@ -189,32 +197,21 @@ class mtnlb8_options(nlb_options):
 
 
 def run_mux(muxfile, args, iteration=0):
-    errcode = 0
     result = "PASS"
     stdout, stderr = None, None
     try:
-        dirname = os.path.dirname(os.path.abspath(__file__))
         p = subprocess.Popen(
-            '{} -m {} -s {}'.format(args.cmd, muxfile, args.socket_id),
+            '{} -c {} -s {}'.format(args.cmd, muxfile, args.socket_id),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         timedout = False
-        start_time = time.time()
-        while p.poll() is None and time.time() - start_time < 30:
-            time.sleep(1)
-        if p.poll() is None:
-            p.terminate()
-            result = "TIMEOUT"
-            timedout = True
-        stderr, stdout = p.communicate()
+        stdout, stderr = p.communicate()
     except subprocess.CalledProcessError:
         result = "CRASH"
     else:
         if not timedout:
             result = "PASS" if p.returncode == 0 else "FAIL"
-    print stdout
-    print stderr
     if result == "PASS":
         stdout, stderr = None, None
     result = {"result": result,
@@ -259,29 +256,20 @@ def run(args):
                "mtnlb7": mt7,
                "mtnlb8": mt8}
     results = []
-    iterators = [getattr(engines[e], generator)() for e in args.engines]
     count = 1
     start_time = datetime.datetime.now()
     stop_on_fail = args.stop_on_fail
     while True:
-        options = [
-            {"name": "nlb0",
-             "app": "nlb0",
-             "config": next(iterators[0])},
-            {"name": "nlb3",
-             "app": "nlb3",
-             "config": next(iterators[1])},
-            {"name": "mtnlb7",
-             "app": "mtnlb7",
-             "config": next(iterators[2])},
-            {"name": "mtnlb8",
-             "app": "mtnlb8",
-             "config": next(iterators[3])}
-        ]
+        options = [{"name": n,
+                    "app": n,
+                    "config": next(getattr(engines[n], generator)())}
+                   for n in args.engines]
         for opt in options:
             if opt["name"] in args.disable:
                 opt["disabled"] = True
-        file_prefix = "mux-{}-{}-".format(count, generator)
+        if len(options) == 1:
+            file_prefix = options[0]["name"]
+            options = options[0]["config"]
         with tempfile.NamedTemporaryFile("w",
                                          prefix=file_prefix,
                                          suffix=".json",
@@ -308,7 +296,7 @@ def run(args):
             if total_sec > args.timeout:
                 break
         if args.max_iterations is not None:
-            if count > args.max_iterations:
+            if count >= args.max_iterations:
                 break
     return results
 
