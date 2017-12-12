@@ -218,3 +218,6 @@
 /* Define to the type of an unsigned integer type wide enough to hold a
    pointer, if such a type exists, and if the system does not define it. */
 #cmakedefine uintptr_t
+
+#cmakedefine INTEL_FPGA_API_VERSION @INTEL_FPGA_API_VERSION@
+#cmakedefine INTEL_FPGA_API_HASH "@INTEL_FPGA_API_HASH@"
