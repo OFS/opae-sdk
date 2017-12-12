@@ -46,6 +46,10 @@ struct guid_t {
     return nullptr;
   }
 
+  const uint8_t* get() const {
+      return data_.data();
+  }
+
   guid_t &operator=(fpga_guid g) {
     if (fpgaPropertiesSetGUID(*props_, g) == FPGA_OK) {
       uint8_t *begin = &g[0];

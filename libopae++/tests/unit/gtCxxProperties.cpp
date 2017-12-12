@@ -77,12 +77,28 @@ TEST(CxxProperties, get_guid) {
  * When I set compare its guid with the known guid
  * Then the result is true
  */
-TEST(CxxProperties, compare_guid) {
+TEST(CxxProperties, compare_guid){
   fpga_guid guid_in;
   properties p;
   uuid_parse(TEST_GUID_STR, guid_in);
   EXPECT_FALSE(p.guid == guid_in);
   p.guid = guid_in;
+  ASSERT_EQ(memcmp(p.guid.get(), guid_in, sizeof(fpga_guid)), 0);
+  EXPECT_TRUE(p.guid == guid_in);
+}
+
+/**
+ * @test props_ctor_01
+ * Given a new properties object with a known guid
+ * passed in the constructor
+ * When I set compare its guid with the known guid
+ * Then the result is true
+ */
+TEST(CxxProperties, props_ctor_01){
+  fpga_guid guid_in;
+  uuid_parse(TEST_GUID_STR, guid_in);
+  properties p(guid_in);
+  ASSERT_EQ(memcmp(p.guid.get(), guid_in, sizeof(fpga_guid)), 0);
   EXPECT_TRUE(p.guid == guid_in);
 }
 
