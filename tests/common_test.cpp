@@ -32,8 +32,6 @@
 #include <fstream>
 #include <thread>
 #include "gtest/gtest.h"
-#include "types_int.h"
-
 #include <opae/access.h>
 #include <opae/enum.h>
 #include <opae/manage.h>
@@ -41,10 +39,15 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-
+#ifdef BUILD_ASE
+#include "ase/api/src/types_int.h"
+#else
+#include "types_int.h"
+#endif
 #include "common_test.h"
 #include "safe_string/safe_string.h"
 
+#define SYSFS_PATH_MAX 256
 using namespace std;
 
 int usleep(unsigned);
@@ -97,17 +100,25 @@ signed exerciseNLB3Function(fpga_token tok) {
  */
 int tryOpen(bool shared, uint8_t bus) {
 	char arguments[MAX_PATH] = {0};
-	char path[MAX_PATH] = {0};
+	char temporary_path[MAX_PATH] = {0};
+	char *path = NULL;
 
-	char* retval = getcwd(&path[0], sizeof(path));
-	if (NULL == retval) {
+	char* json_path = config_map[TEST_INSTALL_PATH];
+	if ((json_path != NULL) && (json_path[0] == '\0')) {
+		char* retval = getcwd(&temporary_path[0], sizeof(temporary_path));
+		if (NULL == retval) {
 		printIOError(LINE(__LINE__));
 		return FPGA_INVALID_PARAM;
+		}
+		path = temporary_path;
+
+	} else {
+		path = json_path;
 	}
 
 	if (shared) {
 		snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x -s", path,
-			 bus);
+				bus);
 		return system(arguments);
 	}
 
@@ -225,54 +236,54 @@ bool checkReturnCodes(fpga_result result, string line) {
 
 	case FPGA_INVALID_PARAM:
 		cout << endl
-		     << "fpga invalid param\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga invalid param\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_BUSY:
 		cout << endl
-		     << "fpga busy\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga busy\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_EXCEPTION:
 		cout << endl
-		     << "fpga exception\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga exception\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		// raise(SIGINT);
 		return false;
 	case FPGA_NOT_FOUND:
 		cout << endl
-		     << "fpga not found\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga not found\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_MEMORY:
 		cout << endl
-		     << "fpga no memory\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga no memory\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NOT_SUPPORTED:
 		cout << endl
-		     << "fpga not supported\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga not supported\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_DRIVER:
 		cout << endl
-		     << "fpga no driver\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga no driver\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_DAEMON:
 		cout << endl
-		     << "fpga no daemon\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga no daemon\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_ACCESS:
 		cout << endl
-		     << "fpga no access\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga no access\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_RECONF_ERROR:
 		cout << endl
-		     << "fpga reconf error\t"
-		     << "pid:  " << pid << " ... " << line << endl;
+			<< "fpga reconf error\t"
+			<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	}
 
@@ -295,7 +306,7 @@ size_t fillBSBuffer(const char* filename, uint8_t** bsbuffer) {
 		ifstream gbsfile(filename, ios::binary);
 		EXPECT_TRUE(gbsfile.good());
 		gbsfile.seekg(0, ios::end);
-		size_t bitstream_len = bitstream_len = gbsfile.tellg();
+		size_t bitstream_len = gbsfile.tellg();
 		EXPECT_NE(bitstream_len, 0);
 
 		gbsfile.seekg(0, ios::beg);
@@ -445,6 +456,7 @@ out_close:
 	return retval;
 }
 
+#ifndef BUILD_ASE
 /**
  * @brief      Reads a sysfs value.
  *
@@ -455,7 +467,7 @@ out_close:
  * @return     Returns OPAE library success or failure code.
  */
 fpga_result read_sysfs_value(const char* feature, uint64_t* value,
-                             fpga_token tok) {
+								fpga_token tok) {
 	fpga_result result;
 	char path[SYSFS_PATH_MAX];
 	memset(path, 0, SYSFS_PATH_MAX);
@@ -523,6 +535,7 @@ bool feature_is_supported(const char* feature, fpga_token tok) {
 	EXPECT_TRUE(isDir = check_path_is_dir(path));
 	return isDir;
 }
+#endif
 
 void printIOError(string line) {
 	perror("IOERROR:  ");
@@ -545,9 +558,10 @@ void checkIOErrors(const char* syspath, uint64_t value) {
  * @return     Returns OPAE library success or failure code.
  */
 fpga_result loadBitstream(const char* path, fpga_token tok) {
-	if (GlobalOptions::Instance().VM()) {
-		return FPGA_OK;
-	}
+#ifndef BUILD_ASE
+  if (GlobalOptions::Instance().VM()) {
+    return FPGA_OK;
+  }
 
 	fpga_result result = FPGA_OK;  // return of reconf API
 
@@ -615,6 +629,7 @@ fpga_result loadBitstream(const char* path, fpga_token tok) {
 	EXPECT_TRUE(checkReturnCodes(fpgaDestroyToken(&toktemp), LINE(__LINE__)));
 	free(bsbuffer);
 	return result;
+  #endif
 }
 
 // bus number shall be passed in from the command line
