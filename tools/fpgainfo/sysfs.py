@@ -89,6 +89,8 @@ def add_dynamic_property(obj, property_name, sysfs_path=None):
 
 
 class sysfs_resource(object):
+    _object_type = 'sysfs property'
+
     def __init__(self, path, instance_id, **kwargs):
         self._path = path
         self._instance_id = instance_id
@@ -179,6 +181,8 @@ class sysfs_resource(object):
         print('{:22} : 0x{:02X}'.format('Bus', self.bus))
         print('{:22} : 0x{:02X}'.format('Device', self.device))
         print('{:22} : 0x{:02X}'.format('Function', self.function))
+        print('{:22} : 0x{:02X}'.format('Object ID', self.object_id))
+        print('{:22} : {:12}'.format('Object Type', self.object_type))
 
         prop_values = [(k, v) for k, v in self.enum_props(as_string=True)]
         if props:
@@ -231,6 +235,10 @@ class sysfs_resource(object):
         minor = valueList[1]
         obj_id = ((long(major) & 0xFFF) << 20) | (long(minor) & 0xFFFFF)
         return obj_id
+
+    @property
+    def object_type(self):
+        return self._object_type
 
 
 class pr_feature(sysfs_resource):
@@ -307,6 +315,8 @@ class port_errors(errors_feature):
 
 
 class fme_info(sysfs_resource):
+    _object_type = "FME"
+
     def __init__(self, path, instance_id, **kwargs):
         super(fme_info, self).__init__(path, instance_id, **kwargs)
         self.pr = pr_feature(os.path.join(path, 'pr'), instance_id, **kwargs)
@@ -342,6 +352,8 @@ class fme_info(sysfs_resource):
 
 
 class port_info(sysfs_resource):
+    _object_type = "PORT"
+
     def __init__(self, path, instance_id, **kwargs):
         super(port_info, self).__init__(path, instance_id, **kwargs)
         self.errors = port_errors(os.path.join(path, "errors"),

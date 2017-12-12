@@ -36,15 +36,14 @@ class fme_command(fpga_common.fpga_command):
                   'socket_id',
                   'bitstream_id',
                   'bitstream_metadata',
-                  'pr.interface_id',
-                  'object_id']
+                  'pr.interface_id']
 
     def run(self, args):
         info = sysfs.sysfsinfo()
         json_data = []
         for fme in info.fme(**vars(args)):
             if args.json:
-                json_data.append(fme.to_dict())
+                json_data.append(fme.to_dict(include_bdf=True))
             else:
                 fme.print_info("//****** FME ******//", *self.properties)
         if args.json:
