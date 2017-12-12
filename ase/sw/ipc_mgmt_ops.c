@@ -38,6 +38,9 @@
 // IPC control list
 static char ipclist_filepath[ASE_FILEPATH_LEN];
 
+// Local IPC log
+FILE *local_ipc_fp;
+
 
 // -----------------------------------------------------------------------
 // create_ipc_listfile : Creates a log of IPC structures opened by
