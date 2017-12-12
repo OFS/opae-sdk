@@ -56,12 +56,6 @@ char ccip_sniffer_file_statpath[ASE_FILEPATH_LEN];
 char sv2c_config_filepath[ASE_FILEPATH_LEN];
 char sv2c_script_filepath[ASE_FILEPATH_LEN];
 
-// ASE seed
-uint64_t ase_seed;
-
-// Local IPC log
-FILE *local_ipc_fp;
-
 // ASE PID
 int ase_pid;
 
@@ -424,15 +418,8 @@ void update_glbl_dealloc(int flag)
 /*
  * Populating required DFH in BBS
  */
-
-// Capability CSRs
-uint64_t *csr_port_capability;
-uint64_t *csr_port_umsg;
-
 // UMSG CSRs
-uint64_t *csr_umsg_capability;
 uint64_t *csr_umsg_base_address;
-uint64_t *csr_umsg_mode;
 
 /*
  * Initialize: Populate FME DFH block
@@ -442,6 +429,13 @@ uint64_t *csr_umsg_mode;
 void initialize_fme_dfh(struct buffer_t *buf)
 {
 	FUNC_CALL_ENTRY;
+
+	// Capability CSRs
+	uint64_t *csr_port_capability;
+	uint64_t *csr_port_umsg;
+
+	uint64_t *csr_umsg_capability;
+	uint64_t *csr_umsg_mode;
 
 	uint8_t *port_vbase = (uint8_t *) (uintptr_t) buf->pbase;
 
