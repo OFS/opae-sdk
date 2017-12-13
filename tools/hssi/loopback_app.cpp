@@ -45,7 +45,6 @@ namespace fpga
 namespace hssi
 {
 
-static loopback_app* app_ = 0;
 const uint32_t min_packet_size = 46;
 const uint32_t max_packet_size = 1500;
 
@@ -145,8 +144,6 @@ bool loopback_app::do_loopback(const cmd_handler::cmd_vector_t & cmds)
     using std::chrono::microseconds;
     using std::chrono::seconds;
 
-    using hrc = std::chrono::high_resolution_clock;
-    using msec = std::chrono::milliseconds;
     bool cont = true;
 
     auto packet_count  = options_.find("packet-count");
@@ -268,9 +265,9 @@ bool loopback_app::wait_for_loopback(bool external)
     using std::chrono::seconds;
 
     using hrc = std::chrono::high_resolution_clock;
-    using msec = std::chrono::milliseconds;
 
     std::signal(SIGINT, [](int signal){
+        UNUSED_PARAM(signal);
         ++g_sigcount;
     });
 
@@ -300,7 +297,7 @@ bool loopback_app::wait_for_loopback(bool external)
 
     auto all_done = [this](bool check_stats = false)
     {
-        for (int i = 0; i < generators_.size(); ++i)
+        for (std::vector<mac_report>::size_type i = 0; i < generators_.size(); ++i)
         {
             if (!generators_[i].gen_complete)
             {
@@ -332,7 +329,8 @@ bool loopback_app::wait_for_loopback(bool external)
 
     auto print_stats = [this, external](double delta)
     {
-        for (int i = 0; i < generators_.size(); ++i)
+        UNUSED_PARAM(delta);
+        for (std::vector<mac_report>::size_type i = 0; i < generators_.size(); ++i)
         {
             std::cerr << "port " << generators_[i].port;
             if (external)
@@ -367,7 +365,7 @@ bool loopback_app::wait_for_loopback(bool external)
     }
     update_reports();
     std::vector<mac_report> reports;
-    for(int i = 0; i < lpbk_->num_ports(); ++i)
+    for(uint32_t i = 0; i < lpbk_->num_ports(); ++i)
     {
         reports.push_back(lpbk_->gen_report(i));
     }
@@ -379,6 +377,7 @@ bool loopback_app::wait_for_loopback(bool external)
 
 bool loopback_app::do_stop(const cmd_handler::cmd_vector_t & cmds)
 {
+    UNUSED_PARAM(cmds);
     using std::chrono::microseconds;
     uint32_t delay_us = 100;
     for (auto p : ports_)
@@ -453,7 +452,7 @@ std::ostream & operator<<(std::ostream & os, const std::vector<intel::fpga::hssi
     os << std::endl;
 
     os <<  "________________" << std::setfill('_');
-    for (int i = 0; i < reports.size(); ++i) os << std::setw(width) << "__";
+    for (std::size_t i = 0; i < reports.size(); ++i) os << std::setw(width) << "__";
     os << std::setfill(' ') << std::endl;
 
     os <<  "TX STAT      : ";

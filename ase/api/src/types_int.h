@@ -48,10 +48,23 @@
 #define FPGA_HANDLE_MAGIC   0x46504741484e444c
 // FPGA property magic (FPGAPROP)
 #define FPGA_PROPERTY_MAGIC 0x4650474150524f50
+//FPGA event handle magid (FPGAEVNT)
+#define FPGA_EVENT_HANDLE_MAGIC 0x4650474145564e54
 // FPGA invalid magic (FPGAINVL)
 #define FPGA_INVALID_MAGIC  0x46504741494e564c
+
 // ASE token Magic (FPGATOKN)
 #define ASE_TOKEN_MAGIC    0x46504741544f4b40
+#define ASE_OBJID          0x0000000000a53a53
+#define ASE_NUM_SLOTS      1
+#define ASE_BUS            1
+#define ASE_DEVICE         1
+#define ASE_FUNCTION       0
+#define ASE_SOCKET_ID      0
+
+//Get file descriptor from event handle
+#define FILE_DESCRIPTOR(eh) (((struct _fpga_event_handle *)eh)->fd)
+
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint64_t magic;
@@ -70,6 +83,7 @@ struct _fpga_handle {
 	void *umsg_virt;	    // umsg Virtual Memory pointer
 	uint64_t umsg_size;	    // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	    // umsg IOVA from driver
+	bool fpgaMMIO_is_mapped;  // is MMIO mapped?
 };
 
 /** Object property struct
@@ -93,6 +107,7 @@ struct _fpga_properties {
 	uint8_t function;
 	uint8_t socket_id;
 	uint64_t device_id;
+	uint64_t object_id;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20
@@ -121,6 +136,18 @@ struct _fpga_properties {
 
 	} u;
 
+};
+
+/*
+ * Event handle struct to perform
+ * event operations
+ *
+ */
+struct _fpga_event_handle {
+	pthread_mutex_t lock;
+	uint64_t magic;
+	int fd;
+	uint32_t flags;
 };
 
 /*

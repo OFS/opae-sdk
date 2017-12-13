@@ -70,15 +70,15 @@ nlb7::nlb7()
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
-    options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
+    options_.add_option<std::string>("target",       't', option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
     options_.add_option<uint32_t>("end",             'e', option::with_argument, "where 1 <= <value> <= 65535", end_);
-    options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M, wrpush-I }", "wrline-M");
-    options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S }", "rdline-I");
-    options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of { auto, vl0, vh0, vh1, random }", "auto");
-    options_.add_option<std::string>("write-vc",     'w', option::with_argument, "one of { auto, vl0, vh0, vh1, random }", "auto");
-    options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of { auto, vl0, vh0, vh1 }", "auto");
-    options_.add_option<std::string>("notice",       'N', option::with_argument, "one of { poll, csr-write, umsg-data, umsg-hint }", "poll");
+    options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of {wrline-I, wrline-M, wrpush-I}", "wrline-M");
+    options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of {rdline-I, rdline-S}", "rdline-I");
+    options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of {auto, vl0, vh0, vh1, random}", "auto");
+    options_.add_option<std::string>("write-vc",     'w', option::with_argument, "one of {auto, vl0, vh0, vh1, random}", "auto");
+    options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of {auto, vl0, vh0, vh1}", "auto");
+    options_.add_option<std::string>("notice",       'N', option::with_argument, "one of {poll, csr-write, umsg-data, umsg-hint}", "poll");
     options_.add_option<uint64_t>("dsm-timeout-usec",     option::with_argument, "Timeout for test completion", dsm_timeout_.count());
     options_.add_option<uint8_t>("bus-number",       'B', option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
@@ -97,7 +97,7 @@ nlb7::~nlb7()
 
 void nlb7::show_help(std::ostream &os)
 {
-    os << "Usage: nlb7 [options]" << std::endl
+    os << "Usage: fpgadiag --mode sw [options]:" << std::endl
        << std::endl;
 
     for (const auto &it : options_)
@@ -354,12 +354,20 @@ bool nlb7::run()
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
         inout = accelerator_->allocate_buffer(buf_size * 2);
+        if (!inout) {
+            log_.error("nlb7") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
         std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
         inp = bufs[0];
         out = bufs[1];
     } else {
         inp = accelerator_->allocate_buffer(buf_size);
         out = accelerator_->allocate_buffer(buf_size);
+        if (!inp || !out) {
+            log_.error("nlb7") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
     }
 
     if (!inp) {
@@ -382,8 +390,8 @@ bool nlb7::run()
     size_t UMsgBufSize = 0;
 #endif
     if (pUMsgUsrVirt &&
-        (nlb7_notice::umsg_data == notice_) ||
-        (nlb7_notice::umsg_hint == notice_))
+        ((nlb7_notice::umsg_data == notice_) ||
+         (nlb7_notice::umsg_hint == notice_)))
     {
        if (nlb7_notice::umsg_data == notice_)
        {
@@ -463,11 +471,11 @@ bool nlb7::run()
         errno_t e;
         e = memcpy_s((void *)inp->address(), sz,
 			(void *)out->address(), sz);
-	if (EOK != e) {
+        if (EOK != e) {
             std::cerr << "memcpy_s failed" << std::endl;
             res = false;
             break;
-	}
+        }
 
         // fence operation
         __sync_synchronize();
@@ -637,6 +645,8 @@ bool nlb7::run()
         std::cerr << "accelerator reset failed after test completion." << std::endl;
         return false;
     }
+
+    dsm_.reset();
 
     return res;
 }

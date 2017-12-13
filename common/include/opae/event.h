@@ -74,6 +74,21 @@ fpga_result fpgaCreateEventHandle(fpga_event_handle *event_handle);
  */
 fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle);
 
+
+/**
+ * Get OS object from event handle
+ *
+ * Check validity of event handle, and get the OS object used to
+ * subscribe and unsubscribe to events. On Linux, the obkect corresponds
+ * to a file descriptor.
+ *
+ * @param[in] event_handle Event handle to get the descriptor value from
+ * @param[out] fd integer to store the descriptor value
+ *
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if `event_handle` is invalid.
+ */
+fpga_result fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd);
+
 /**
  * Register an FPGA event
  *

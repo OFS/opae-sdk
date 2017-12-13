@@ -68,7 +68,7 @@ protected:
 			m_driver                  = mm_server.m_driver;
 
 			m_conn = new mmlink_connection*[MAX_CONNECTIONS];
-			for (int i = 0; i < MAX_CONNECTIONS; ++i)
+			for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 					m_conn[i] = mm_server.m_conn[i];
 		}
 
@@ -90,7 +90,7 @@ protected:
 
 				if(m_conn) delete[] m_conn;
 				m_conn = new mmlink_connection*[MAX_CONNECTIONS];
-				for (int i = 0; i < MAX_CONNECTIONS; ++i)
+				for (size_t i = 0; i < MAX_CONNECTIONS; ++i)
 						m_conn[i] = mm_server.m_conn[i];
 			}
 			return *this;
@@ -197,10 +197,11 @@ private:
 		unsigned m_min_count;
 		unsigned m_max_count;
 #else
-		mmlink_stats(const char *name) { }
+#define UNUSED_PARAM(x) (void)x
+		mmlink_stats(const char *name) { UNUSED_PARAM(name); }
 		void init(void) { }
 		void print(void) { }
-		void update(int count, char *buf) { }
+		void update(int count, char *buf) { UNUSED_PARAM(count); UNUSED_PARAM(buf); }
 #endif
 	};
 

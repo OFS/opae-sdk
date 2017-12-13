@@ -41,6 +41,14 @@ Function (PF).
 User-space applications can acquire exclusive access to the FME using `open()`,
 and release it using `close()` as a privileged user (root).
 
+.. note::
+
+```
+    In the case that an errant application terminates without freeing
+    the FME/Port resources, Linux closes all file descriptors owned by
+    the terminating process, freeing those resources.
+```
+
 ## Port ##
 
 A Port represents the interface between the static FPGA fabric (the "blue

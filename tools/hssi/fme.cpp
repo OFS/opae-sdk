@@ -99,7 +99,7 @@ fme::ptr_t fme::open(string resource, int8_t socket_id, bool read_only)
     fme_ptr.reset(new fme(resource, read_only));
     if (fme_ptr->mmio_ == nullptr ||
         (socket_id >= 0 &&
-         socket_id != (fme_ptr->ref()[csr::fab_capability] & static_cast<uint8_t>(bitmask::socket_id))))
+         static_cast<uint8_t>(socket_id) != (fme_ptr->ref()[csr::fab_capability] & static_cast<uint8_t>(bitmask::socket_id))))
     {
         fme_ptr.reset();
     }

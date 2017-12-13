@@ -109,7 +109,7 @@ size_t mmlink_connection::send(const char *msg, const size_t msg_len)
 
 int mmlink_connection::handle_management()
 {
-	int i, start;
+	size_t i, start;
 	size_t rem;
 	int fail = 0;
 
@@ -215,7 +215,7 @@ int mmlink_connection::handle_data()
 {
 	m_buf[m_buf_end] = '\0';
 	cout << getsocket() << "(data): ";
-	for (int i = 0; i < m_buf_end; ++i)
+	for (size_t i = 0; i < m_buf_end; ++i)
 	{
 		cout << setw(2) << m_buf[i] << " ";
 	}

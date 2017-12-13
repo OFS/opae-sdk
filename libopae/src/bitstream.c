@@ -180,13 +180,13 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 		}
 		b += ret;
 
-		if (b > sizeof(buf) || b <= 0) {
+		if ((unsigned)b > sizeof(buf) || b <= 0) {
 			FPGA_MSG("unexpected size on read from %s", file_path);
 			close(fd);
 			return FPGA_EXCEPTION;
 		}
 
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && b < sizeof(buf));
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
 
 
 	// PR Inteface Id h

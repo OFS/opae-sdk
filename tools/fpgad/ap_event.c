@@ -45,6 +45,7 @@ static int read_event(char *sysfspath, uint64_t *value)
 {
 	struct stat st;
 	int i;
+	fpga_result res;
 
 	if (sysfspath == NULL || value == NULL) {
 		return -1;
@@ -55,8 +56,8 @@ static int read_event(char *sysfspath, uint64_t *value)
 		return 0;
 	}
 
-	i = sysfs_read_u64(sysfspath, value);
-	if (i) {
+	res = sysfs_read_u64(sysfspath, value);
+	if (res != FPGA_OK) {
 		return -1;
 	}
 

@@ -48,6 +48,7 @@ class mtnlb : public intel::fpga::accelerator_app
 public:
     mtnlb(const std::string & afu_id);
     mtnlb(const std::string & afu_id, const std::string & name);
+    mtnlb() = delete;
     ~mtnlb();
 
     virtual intel::utils::option_map & get_options()          { return options_; }

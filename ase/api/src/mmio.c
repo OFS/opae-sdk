@@ -44,16 +44,21 @@
 #include <sys/mman.h>		/* mmap & munmap */
 #include <sys/time.h>		/* struct timeval */
 
-bool fpgaMMIO_is_mapped;
 
 fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint32_t value)
 {
+	UNUSED_PARAM(mmio_num);
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
+
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
@@ -79,10 +84,16 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint32_t *value)
 {
+	UNUSED_PARAM(mmio_num);
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
+
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
@@ -108,10 +119,16 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint64_t value)
 {
+	UNUSED_PARAM(mmio_num);
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
+
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
@@ -135,10 +152,16 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint64_t *value)
 {
+	UNUSED_PARAM(mmio_num);
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
+
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
 
 	if (NULL == mmio_afu_vbase) {
 		return FPGA_NOT_FOUND;
@@ -161,6 +184,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
+	UNUSED_PARAM(mmio_num);
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 
@@ -171,15 +195,19 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 	}
 	// TODO: check mmio_num?
 
-	// Record that MapMMIO was called
-	fpgaMMIO_is_mapped = true;
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
 
 	if (mmio_ptr) {
 		BEGIN_YELLOW_FONTCOLOR;
 		printf
 			("  [APP] ** WARNING ** => ASE does not support pointer access to MMIO, use mmio{Read,Write}{32,64} functions\n");
 		END_YELLOW_FONTCOLOR;
-		result = FPGA_NOT_SUPPORTED;
+		return FPGA_NOT_SUPPORTED;
+	} else {
+		BEGIN_YELLOW_FONTCOLOR;
+		printf("  [APP] ** WARNING ** => Calling fpgaMapMMIO() without passing a pointer is deprecated\n");
+		END_YELLOW_FONTCOLOR;
 	}
 	return result;
 }
@@ -187,11 +215,23 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
 				       uint32_t mmio_num)
 {
-	// TODO: check handle?
-	// TODO: check mmio_num?
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(mmio_num);
 
-	if (fpgaMMIO_is_mapped) {
-		fpgaMMIO_is_mapped = false;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
+	if (!_handle) {
+		FPGA_ERR("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_handle->magic != FPGA_HANDLE_MAGIC) {
+		FPGA_MSG("Invalid handle object");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_handle->fpgaMMIO_is_mapped) {
+		_handle->fpgaMMIO_is_mapped = false;
 		return FPGA_OK;
 	} else {
 		return FPGA_INVALID_PARAM;
