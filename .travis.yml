@@ -15,4 +15,3 @@ addons:
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
-      - libjsoncpp-dev
