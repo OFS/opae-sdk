@@ -37,7 +37,7 @@
 #include <random>
 #include <string>
 
-#include <json/json.h>
+#include <json-c/json.h>
 #include <log_int.h>
 #include <opae/access.h>
 #include <opae/fpga.h>
