@@ -339,99 +339,91 @@ bool config_app::do_dump(const cmd_handler::cmd_vector_t & cmds)
 
 bool config_app::do_read(const cmd_handler::cmd_vector_t & cmds)
 {
-    if (cmds.size() == 3)
+    int32_t lane = 0;
+    uint32_t address = 0, value = 0;
+    if (parse_int(cmds[0], lane) &&
+        parse_int(cmds[1], address))
     {
-        int32_t lane = 0;
-        uint32_t address = 0, value = 0;
-        if (parse_int(cmds[0], lane) &&
-            parse_int(cmds[1], address))
+        if (lane > (int32_t)max_xcvr_lane || address > max_xcvr_addr)
         {
-            if (lane > (int32_t)max_xcvr_lane || address > max_xcvr_addr)
-            {
-                std::cerr << "invalid xcvr read parameter" << std::endl;
-                return false;
-            }
+            std::cerr << "invalid xcvr read parameter" << std::endl;
+            return false;
+        }
 
-            if (lane < 0)
+        if (lane < 0)
+        {
+            for (uint32_t i = 0; i < max_xcvr_lane; ++i)
             {
-                for (uint32_t i = 0; i < max_xcvr_lane; ++i)
+                if ( xcvr_read(i, address, value))
                 {
-                    if ( xcvr_read(i, address, value))
-                    {
-                        std::cout << print_hex<uint32_t>(i*hssi_xcvr_lane_offset + address) << ": " <<  print_hex<uint32_t>(value) << std::endl;
-                    }
+                    std::cout << print_hex<uint32_t>(i*hssi_xcvr_lane_offset + address) << ": " <<  print_hex<uint32_t>(value) << std::endl;
                 }
-                return true;
             }
-            else
+            return true;
+        }
+        else
+        {
+            if ( xcvr_read(lane, address, value))
             {
-                if ( xcvr_read(lane, address, value))
-                {
-                    std::cout << print_hex<uint32_t>(value) << std::endl;
-                    return true;
-                }
+                std::cout << print_hex<uint32_t>(value) << std::endl;
+                return true;
             }
         }
     }
+
     return false;
 
 }
 
 bool config_app::do_write(const cmd_handler::cmd_vector_t & cmds)
 {
-    if (cmds.size() == 4)
+    uint32_t lane = 0, address = 0, value_write = 0, value_read = 0;
+    if (parse_int(cmds[0], lane) &&
+        parse_int(cmds[1], address) &&
+        parse_int(cmds[2], value_write))
     {
-        uint32_t lane = 0, address = 0, value_write = 0, value_read = 0;
-        if (parse_int(cmds[0], lane) &&
-            parse_int(cmds[1], address) &&
-            parse_int(cmds[2], value_write))
+
+        if (lane > max_xcvr_lane || address > max_xcvr_addr)
         {
+            std::cerr << "invalid xcvr write parameter" << std::endl;
+            return false;
+        }
 
-            if (lane > max_xcvr_lane || address > max_xcvr_addr)
-            {
-                std::cerr << "invalid xcvr write parameter" << std::endl;
-                return false;
-            }
-
-            if (xcvr_write(lane, address, value_write) &&
-                xcvr_read(lane, address, value_read))
-            {
-                std::cout << print_hex<uint32_t>(value_read) << std::endl;
-                return true;
-            }
+        if (xcvr_write(lane, address, value_write) &&
+            xcvr_read(lane, address, value_read))
+        {
+            std::cout << print_hex<uint32_t>(value_read) << std::endl;
+            return true;
         }
     }
-    return false;
-
 }
 
 bool config_app::do_retimer_read(const cmd_handler::cmd_vector_t & cmds)
 {
-    if (cmds.size() > 2)
+
+    eq_register reg;
+    if (parse_int(cmds[0], reg.device) &&
+        parse_int(cmds[1], reg.channel_lane) &&
+        parse_int(cmds[2], reg.address))
     {
-        eq_register reg;
-        if (parse_int(cmds[0], reg.device) &&
-            parse_int(cmds[1], reg.channel_lane) &&
-            parse_int(cmds[2], reg.address))
+        if (reg.channel_lane > static_cast<int32_t>(max_rtmr_channel))
         {
-            if (reg.channel_lane > static_cast<int32_t>(max_rtmr_channel))
-            {
-                std::cerr << "Invalid retimer channel" << std::endl;
-                return false;
-            }
+            std::cerr << "Invalid retimer channel" << std::endl;
+            return false;
+        }
 
-            if (reg.address > max_rtmr_addr)
-            {
-                std::cerr << "Invalid retimer address" << std::endl;
-            }
+        if (reg.address > max_rtmr_addr)
+        {
+            std::cerr << "Invalid retimer address" << std::endl;
+        }
 
-            if (retimer_read(reg.device, reg.channel_lane, reg.address, reg.value))
-            {
-                std::cout << print_hex<uint8_t>(reg.value) << std::endl;
-                return true;
-            }
+        if (retimer_read(reg.device, reg.channel_lane, reg.address, reg.value))
+        {
+            std::cout << print_hex<uint8_t>(reg.value) << std::endl;
+            return true;
         }
     }
+
     return false;
 
 }
@@ -504,25 +496,22 @@ bool config_app::do_i2c_write(const cmd_handler::cmd_vector_t & cmds)
 
 bool config_app::do_retimer_write(const cmd_handler::cmd_vector_t & cmds)
 {
-    if (cmds.size() > 4)
+    eq_register reg;
+    if (parse_int(cmds[0], reg.device) &&
+        parse_int(cmds[1], reg.channel_lane) &&
+        parse_int(cmds[2], reg.address) &&
+        parse_int(cmds[3], reg.value))
     {
-        eq_register reg;
-        if (parse_int(cmds[0], reg.device) &&
-            parse_int(cmds[1], reg.channel_lane) &&
-            parse_int(cmds[2], reg.address) &&
-            parse_int(cmds[3], reg.value))
+        if (reg.address > max_rtmr_addr)
         {
-            if (reg.address > max_rtmr_addr)
-            {
-                std::cerr << "Invalid retimer address" << std::endl;
-            }
+            std::cerr << "Invalid retimer address" << std::endl;
+        }
 
-            if (retimer_write(reg.device, reg.channel_lane, reg.address, reg.value) &&
-                retimer_read(reg.device, reg.channel_lane, reg.address, reg.value))
-            {
-                std::cout << print_hex<uint32_t>(reg.value) << std::endl;
-                return true;
-            }
+        if (retimer_write(reg.device, reg.channel_lane, reg.address, reg.value) &&
+            retimer_read(reg.device, reg.channel_lane, reg.address, reg.value))
+        {
+            std::cout << print_hex<uint32_t>(reg.value) << std::endl;
+            return true;
         }
     }
     return false;
@@ -534,20 +523,18 @@ bool config_app::do_mdio_write(const cmd_handler::cmd_vector_t & cmds)
     uint8_t device_addr = 0, port_addr = 0;
     uint16_t reg_addr = 0;
     uint32_t value = 0;
-    if (cmds.size() == 4)
+    if (parse_int(cmds[0], device_addr) &&
+        parse_int(cmds[1], port_addr) &&
+        parse_int(cmds[2], reg_addr) &&
+        parse_int(cmds[3], value))
     {
-        if (parse_int(cmds[0], device_addr) &&
-            parse_int(cmds[1], port_addr) &&
-            parse_int(cmds[2], reg_addr) &&
-            parse_int(cmds[3], value))
+        if (mdio_->write(device_addr, port_addr, reg_addr, value))
         {
-            if (mdio_->write(device_addr, port_addr, reg_addr, value))
-            {
-                std::cout << print_hex<uint32_t>(value) << std::endl;
-                return true;
-            }
+            std::cout << print_hex<uint32_t>(value) << std::endl;
+            return true;
         }
     }
+
     return false;
 }
 
@@ -556,38 +543,34 @@ bool config_app::do_mdio_read(const cmd_handler::cmd_vector_t & cmds)
     uint8_t device_addr = 0, port_addr = 0;
     uint16_t reg_addr = 0;
 
-    if (cmds.size() == 3)
+    if (parse_int(cmds[0], device_addr) &&
+        parse_int(cmds[1], port_addr) &&
+        parse_int(cmds[2], reg_addr) )
     {
-        if (parse_int(cmds[0], device_addr) &&
-            parse_int(cmds[1], port_addr) &&
-            parse_int(cmds[2], reg_addr) )
+        uint32_t value;
+        if (mdio_->read(device_addr, port_addr, reg_addr, value))
         {
-            uint32_t value;
-            if (mdio_->read(device_addr, port_addr, reg_addr, value))
-            {
-                std::cout << print_hex<uint32_t>(value) << std::endl;
-                return true;
-            }
+            std::cout << print_hex<uint32_t>(value) << std::endl;
+            return true;
         }
     }
+
     return false;
 }
 
 bool config_app::do_pr_read(const cmd_handler::cmd_vector_t & cmds)
 {
     uint32_t reg_addr = 0;
-    if (cmds.size() == 1)
+    if (parse_int(cmds[0], reg_addr))
     {
-        if (parse_int(cmds[0], reg_addr))
+        uint32_t value;
+        if (przone_->read(reg_addr, value))
         {
-            uint32_t value;
-            if (przone_->read(reg_addr, value))
-            {
-                std::cout << print_hex<uint32_t>(reg_addr) << ":" << print_hex<uint32_t>(value) << std::endl;
-                return true;
-            }
+            std::cout << print_hex<uint32_t>(reg_addr) << ":" << print_hex<uint32_t>(value) << std::endl;
+            return true;
         }
     }
+
     return false;
 }
 
@@ -595,18 +578,16 @@ bool config_app::do_pr_write(const cmd_handler::cmd_vector_t & cmds)
 {
     uint32_t reg_addr = 0;
     uint32_t value = 0;
-    if (cmds.size() == 2)
+    if (parse_int(cmds[0], reg_addr) &&
+        parse_int(cmds[1], value))
     {
-        if (parse_int(cmds[0], reg_addr) &&
-            parse_int(cmds[1], value))
+        if (przone_->write(reg_addr, value))
         {
-            if (przone_->write(reg_addr, value))
-            {
-                std::cout << print_hex<uint32_t>(reg_addr) << ":" << print_hex<uint32_t>(value) << std::endl;
-                return true;
-            }
+            std::cout << print_hex<uint32_t>(reg_addr) << ":" << print_hex<uint32_t>(value) << std::endl;
+            return true;
         }
     }
+
     return false;
 }
 
