@@ -75,6 +75,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 # paths. Keep current directory private.
 target_include_directories(opae-c PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
@@ -121,3 +122,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     add_dependencies(coverage_opae-c gtapi)
   endif(BUILD_TESTS AND GTEST_FOUND)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+############################################################################
+## Create config_int.h #########################################################
+############################################################################
+
+configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+                "${PROJECT_BINARY_DIR}/include/config_int.h" )
