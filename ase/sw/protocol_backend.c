@@ -40,6 +40,18 @@
 
 struct ase_cfg_t *cfg;
 
+int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
+int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
+int app2sim_mmioreq_rx;		// MMIO Request path
+int sim2app_mmiorsp_tx;		// MMIO Response path
+int app2sim_umsg_rx;		// UMSG    message queue in RX mode
+int app2sim_portctrl_req_rx;	// Port Control messages in Rx mode
+int app2sim_dealloc_rx;
+int sim2app_dealloc_tx;
+int sim2app_portctrl_rsp_tx;
+int sim2app_intr_request_tx;
+int intr_event_fds[MAX_USR_INTRS];
+
 int glbl_test_cmplt_cnt;   // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
