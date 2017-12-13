@@ -599,7 +599,7 @@ fpga_result fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 					   uint32_t *num_interrupts);
 
 /**
- * Set the number of mmio spaces
+ * Set the number of interrupts
  *
  * Sets the number of interrupts of an accelerator properties structure.
  *

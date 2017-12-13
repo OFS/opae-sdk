@@ -85,8 +85,17 @@
 #define FPGA_HANDLE_MAGIC   0x46504741484e444c
 // FPGA property magic (FPGAPROP)
 #define FPGA_PROPERTY_MAGIC 0x4650474150524f50
+//FPGA event handle magid (FPGAEVNT)
+#define FPGA_EVENT_HANDLE_MAGIC 0x4650474145564e54
 // FPGA invalid magic (FPGAINVL)
 #define FPGA_INVALID_MAGIC  0x46504741494e564c
+
+//Register/Unregister for interrupts
+#define FPGA_IRQ_ASSIGN    (1 << 0)
+#define FPGA_IRQ_DEASSIGN  (1 << 1)
+
+//Get file descriptor from event handle
+#define FILE_DESCRIPTOR(eh) (((struct _fpga_event_handle *)eh)->fd)
 
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
@@ -159,6 +168,18 @@ struct _fpga_properties {
 
 	} u;
 
+};
+
+/*
+ * Event handle struct to perform
+ * event operations
+ *
+ */
+struct _fpga_event_handle {
+	pthread_mutex_t lock;
+	uint64_t magic;
+	int fd;
+	uint32_t flags;
 };
 
 /*

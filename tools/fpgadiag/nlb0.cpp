@@ -61,16 +61,16 @@ nlb0::nlb0()
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
-    options_.add_option<std::string>("target",       't', option::with_argument, "one of { fpga, ase }", target_);
+    options_.add_option<std::string>("target",       't', option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
     options_.add_option<uint32_t>("end",             'e', option::with_argument, "where 1 <= <value> <= 65535", end_);
     options_.add_option<uint32_t>("multi-cl",        'u', option::with_argument, "one of {1, 2, 4}", 1);
     options_.add_option<bool>("cont",                'L', option::no_argument,   "Continuous mode", cont_);
-    options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of { wrline-I, wrline-M wrpush-I", "wrline-M");
-    options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of { rdline-I, rdline-S}", "rdline-I");
-    options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of { auto, vl0, vh0, vh1, random}", "auto");
-    options_.add_option<std::string>("write-vc",     'w', option::with_argument, "one of { auto, vl0, vh0, vh1, random}", "auto");
-    options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of { auto, vl0, vh0, vh1}", "auto");
+    options_.add_option<std::string>("cache-policy", 'p', option::with_argument, "one of {wrline-I, wrline-M wrpush-I}", "wrline-M");
+    options_.add_option<std::string>("cache-hint",   'i', option::with_argument, "one of {rdline-I, rdline-S}", "rdline-I");
+    options_.add_option<std::string>("read-vc",      'r', option::with_argument, "one of {auto, vl0, vh0, vh1, random}", "auto");
+    options_.add_option<std::string>("write-vc",     'w', option::with_argument, "one of {auto, vl0, vh0, vh1, random}", "auto");
+    options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of {auto, vl0, vh0, vh1}", "auto");
     options_.add_option<uint64_t>("dsm-timeout-usec",     option::with_argument, "Timeout for test completion", dsm_timeout_.count());
     options_.add_option<uint32_t>("timeout-usec",         option::with_argument, "Timeout for continuous mode (microseconds portion)", 0);
     options_.add_option<uint32_t>("timeout-msec",         option::with_argument, "Timeout for continuous mode (milliseconds portion)", 0);
@@ -295,7 +295,7 @@ bool nlb0::setup()
             cont_timeout_ += minutes(timeout_min);
         }
         uint32_t timeout_hour = 0;
-        if (options_.get_value<uint32_t>("timeout-hours", timeout_hour))
+        if (options_.get_value<uint32_t>("timeout-hour", timeout_hour))
         {
             cont_timeout_ += hours(timeout_hour);
         }
@@ -314,7 +314,6 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    dma_buffer::ptr_t dsm;
     dma_buffer::ptr_t inout; // shared workspace, if possible
     dma_buffer::ptr_t inp;   // input workspace
     dma_buffer::ptr_t out;   // output workspace
@@ -327,12 +326,20 @@ bool nlb0::run()
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
         inout = accelerator_->allocate_buffer(buf_size * 2);
+        if (!inout) {
+            log_.error("nlb0") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
         std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
         inp = bufs[0];
         out = bufs[1];
     } else {
         inp = accelerator_->allocate_buffer(buf_size);
         out = accelerator_->allocate_buffer(buf_size);
+        if (!inp || !out) {
+            log_.error("nlb0") << "failed to allocate input/output buffers." << std::endl;
+            return false;
+        }
     }
 
     if (!inp) {
@@ -403,7 +410,9 @@ bool nlb0::run()
             if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                            dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
-                log_.warn("nlb0") << "test timeout" << std::endl;
+                log_.error("nlb0") << "test timeout at "
+                                   << i << " cachelines." << std::endl;
+                return false;
             }
         }
         else
@@ -411,7 +420,9 @@ bool nlb0::run()
             if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                         dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
-                log_.warn("nlb0") << "test timeout" << std::endl;
+                log_.error("nlb0") << "test timeout at "
+                                   << i << " cachelines." << std::endl;
+                return false;
             }
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
@@ -450,13 +461,15 @@ bool nlb0::run()
     // put the tuple back into the dsm buffer
     dsm_tpl.put(dsm_);
 
+    dsm_.reset();
+
     return true;
 }
 
 
 void nlb0::show_help(std::ostream &os)
 {
-    os << "Usage: nlb0 [options]" << std::endl
+    os << "Usage: fpgadiag --mode lpbk1 [options]:" << std::endl
        << std::endl;
 
     for (const auto & it : options_)

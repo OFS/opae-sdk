@@ -38,14 +38,8 @@
 struct buffer_t *head;
 struct buffer_t *end;
 
-//   File pointer
-static FILE *fp_ase_ready;
-
 // Ready filepath
 char *ase_ready_filepath;
-
-// ASE hostname
-static char *ase_hostname;
 
 // Log-level
 int glbl_loglevel = ASE_LOG_MESSAGE;
@@ -157,7 +151,7 @@ void ase_buffer_info(struct buffer_t *mem)
 
 	ASE_MSG("\tindex       = %d \n", mem->index);
 	ASE_MSG("\tvalid       = %s \n",
-		(mem->valid == 0xffff) ? "VALID" : "INVALID");
+		(mem->valid == ASE_BUFFER_VALID) ? "VALID" : "INVALID");
 	ASE_MSG("\tAPPVirtBase = 0x%" PRIx64 "\n", mem->vbase);
 	ASE_MSG("\tSIMVirtBase = 0x%" PRIx64 "\n", mem->pbase);
 	ASE_MSG("\tBufferSize  = 0x%" PRIx32 " \n", mem->memsize);
@@ -326,7 +320,10 @@ char *ase_malloc(size_t size)
 void ase_write_lock_file(void)
 {
 	FUNC_CALL_ENTRY;
-
+	//   File pointer
+	static FILE *fp_ase_ready;
+	// ASE hostname
+	static char *ase_hostname;
 	int ret_err;
 
 	// Create a filepath string
@@ -696,7 +693,7 @@ void ase_string_copy(char *dest, const char *src, size_t num_bytes)
 		dest_strlen = strlen(dest);
 
 		// Terminate length, or kill
-		if (dest_strlen < num_bytes) {
+		if ((unsigned)dest_strlen < num_bytes) {
 			dest[dest_strlen] = '\0';
 		} else {
 			ASE_ERR

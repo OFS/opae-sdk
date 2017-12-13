@@ -108,6 +108,7 @@ void print_err(const char *s, fpga_result res)
 
 void mmlink_sig_handler(int sig)
 {
+	UNUSED_PARAM(sig);
 	perror("SIGINT: stopping the server\n");
 }
 
@@ -228,7 +229,7 @@ int run_mmlink(fpga_handle  port_handle,
 {
 	mmlink_server *server          = NULL;
 	int res                        = 0;
-	struct sockaddr_in sock        = {0};
+	struct sockaddr_in sock;
 	uint64_t value                 = 0;
 
 	if (mmio_ptr == NULL) {
@@ -241,6 +242,7 @@ int run_mmlink(fpga_handle  port_handle,
 		return -1;
 	}
 
+	memset(&sock, 0, sizeof(sock));
 	sock.sin_family = AF_INET;
 	sock.sin_port = htons(mmlinkCmdLine->port);
 	sock.sin_addr.s_addr = htonl(mmlinkCmdLine->ip);

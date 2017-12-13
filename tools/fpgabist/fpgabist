@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+# Copyright(c) 2017, Intel Corporation
+#
+# Redistribution  and  use  in source  and  binary  forms,  with  or  without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of  source code  must retain the  above copyright notice,
+# this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+# * Neither the name  of Intel Corporation  nor the names of its contributors
+# may be used to  endorse or promote  products derived  from this  software
+# without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+# IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+# LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+# CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+# SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+# INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+# CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+import argparse
+import sys
+import subprocess
+import os
+
+import bist_common
+import bist_nlb3
+import bist_dma
+
+
+sys.path.append(bist_common.INSTALL_PATH)
+
+FEATURES = ['fme', 'port', 'temp', 'errors all']
+
+
+def main(args):
+    # TODO: Add total number of cards in system this acts a check for
+    if not vars(args)['bus'] and not vars(args)['device'] and \
+            not vars(args)['function']:
+        bdfs = bist_common.get_all_fpga_bdfs()
+    else:
+        bdfs = bist_common.get_bdf_from_args(args)
+
+    start = "==========================================================\n\n" \
+            "Beginning FPGA Built-In Self-Test\n\n"\
+            "=========================================================="
+    print start
+    print " This system has found {} physical device(s)\n".format(len(bdfs))
+    if len(bdfs) == 0:
+        print "No FPGA devices found"
+        sys.exit()
+
+    # TODO: Add Opae version information
+    for bdf in bdfs:
+        print "Device: bus = {}, device = {}, func = {}".format(
+                bdf['bus'], bdf['device'], bdf['function'])
+
+        # Display data from FPGA info
+        for feat in FEATURES:
+            cmd = "fpgainfo {} -b {}".format(feat, bdf['bus'])
+            subprocess.call(cmd, shell=True)
+
+        gbs_paths = args.gbs_paths
+        for path in gbs_paths:
+            mode_name = bist_common.get_mode_from_path(path)
+            if mode_name == 'nlb_3':
+                mode = bist_nlb3.Nlb3Mode()
+            elif mode_name == "dma_afu":
+                mode = bist_dma.DmaMode()
+            else:
+                print "Unknown AFU for available BIST Modes: {}\n".format(path)
+                # TODO: Print currently supported AFUs
+                sys.exit()
+            print "Running mode: {}".format(mode.name)
+            mode.run(path, bdf['bus'])
+
+    print "\nBuilt-in Self-Test Completed.\n"
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    bist_common.global_arguments(parser)
+    args = parser.parse_args()
+    main(args)

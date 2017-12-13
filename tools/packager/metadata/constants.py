@@ -1,5 +1,5 @@
 # Copyright(c) 2017, Intel Corporation
-# 
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -24,13 +24,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-#GUID value: "58656F6E-4650-4741-B747-425376303031"
-#The string below will be converted to hex format
-#before being written into the bitstream file
+# GUID value: "58656F6E-4650-4741-B747-425376303031"
+# The string below will be converted to hex format
+# before being written into the bitstream file
 METADATA_GUID = "XeonFPGA" + chr(0xb7) + "GBSv001"
 
-#Metadata length field is a unsigned 32 bit int
+# Metadata length field is a unsigned 32 bit int
 SIZEOF_LEN_FIELD = 4
 
-#Length of GUID string
+# Length of GUID string
 GUID_LEN = len(METADATA_GUID)

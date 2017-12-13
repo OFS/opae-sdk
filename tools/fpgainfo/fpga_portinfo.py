@@ -24,43 +24,32 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
+import json
 import fpga_common
-import os
+import sysfs
 
 
 class port_command(fpga_common.fpga_command):
-
     name = "port"
 
-    def args(self, parser):
-        pass
+    properties = ['afu_id',
+                  'object_id']
 
     def run(self, args):
+        info = sysfs.sysfsinfo()
+        json_data = []
+        for port in info.port(**vars(args)):
+            if args.json:
+                json_data.append(port.to_dict())
+            else:
+                port.print_info("//****** PORT ******//", *self.properties)
 
-        global PORT_SYSFS_PATH
+        if args.json:
+            print(json.dumps(json_data, indent=4, sort_keys=False))
 
-        PORT_SYSFS_PATH = fpga_common.PORT_DEVICE.format(
-            socket_id=args.socket_id, fme_instance=0)
-        # print(FME_SYSFS_INFO)
-        self.print_fme_info(PORT_SYSFS_PATH)
-
-    def print_fme_info(self, portpath):
-        # RO | It contains FME Babric version.
-        PORT_SYSFS_AFU_ID = portpath + "/afu_id"
-
-        if self.fme_feature_is_supported(PORT_SYSFS_AFU_ID):
-            with open(PORT_SYSFS_AFU_ID, "r") as fd:
-                value = fd.read()
-            print "Port AFU ID:  0x{}\n".format(value)
-        else:
-            print("Feature not supported:")
-            print PORT_SYSFS_AFU_ID
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    fpga_common.global_arguments(parser)
-    power_command(parser)
     args = parser.parse_args()
     args.func(args)

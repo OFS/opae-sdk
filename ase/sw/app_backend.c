@@ -45,9 +45,9 @@ struct buffer_t *mmio_region;
 // UMAS region
 struct buffer_t *umas_region;
 
-// Workspace metadata table
-struct wsmeta_t *wsmeta_head = (struct wsmeta_t *) NULL;
-struct wsmeta_t *wsmeta_end = (struct wsmeta_t *) NULL;
+// Record of MMIO and UMAS memory
+struct buffer_t *buf_head = (struct buffer_t *) NULL;
+struct buffer_t *buf_end = (struct buffer_t *) NULL;
 
 // Buffer index count
 int asebuf_index_count;   // global count/index
@@ -166,6 +166,7 @@ uint32_t generate_mmio_tid(void)
  */
 void *mmio_response_watcher(void *arg)
 {
+	UNUSED_PARAM(arg);
     // Mark as thread that can be cancelled anytime
     pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 
@@ -283,6 +284,7 @@ void send_swreset(void)
  */
 void send_simkill(int n)
 {
+	UNUSED_PARAM(n);
     // Issue Simkill
     ase_portctrl(ASE_SIMKILL, 0);
 
@@ -306,10 +308,6 @@ void session_init(void)
 
     // Start clock
     clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
-
-    // Current APP PID
-    pid_t lockread_app_pid;
-    FILE *fp_app_lockfile;
 
     // Session setup
     if (session_exist_status != ESTABLISHED) {
@@ -659,10 +657,13 @@ void session_deinit(void)
 				printf
 					("MMIO pthread_cancel failed -- Ignoring\n");
 			}
-		}
+	}
 
-		// Send SIMKILL
-		ase_portctrl(ASE_SIMKILL, 0);
+	//free memory
+	free_buffers();
+
+	// Send SIMKILL
+	ase_portctrl(ASE_SIMKILL, 0);
 
 #ifdef ASE_DEBUG
 	fclose(fp_pagetable_log);
@@ -687,9 +688,12 @@ void session_deinit(void)
     if (pthread_mutex_unlock(&mmio_port_lock) != 0) {
 	ASE_MSG("Trying to shutdown mutex unlock\n");
     }
+
     // Stop running threads
     pthread_cancel(umsg_watch_tid);
+    pthread_join(umsg_watch_tid, NULL);
     pthread_cancel(mmio_watch_tid);
+    pthread_join(mmio_watch_tid, NULL);
 
     // End Clock snapshot
     clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
@@ -706,10 +710,10 @@ void session_deinit(void)
 
     // Delete the .app_lock.pid file
     if (access(app_ready_lockpath, F_OK) == 0) {
-	if (unlink(app_ready_lockpath) == 0) {
-	    // Session end, set locale
-	    ASE_INFO("Session ended \n");
-	}
+		if (unlink(app_ready_lockpath) == 0) {
+			// Session end, set locale
+			ASE_INFO("Session ended \n");
+		}
     }
 
     FUNC_CALL_EXIT;
@@ -1185,10 +1189,11 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 	ASE_ERR("error string %s", strerror(errno));
 	exit(1);
     }
-    // Extend memory to required size
+
+#ifdef ASE_DEBUG
+	// Extend memory to required size
     int ret;
     ret = ftruncate(fd_alloc, (off_t) mem->memsize);
-#ifdef ASE_DEBUG
     if (ret != 0) {
 	ASE_DBG("ftruncate failed");
 	BEGIN_RED_FONTCOLOR;
@@ -1231,12 +1236,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
     ase_buffer_info(mem);
 #endif
 
-    // book-keeping WSmeta // used by ASEALIAFU
-    struct wsmeta_t *ws;
-    ws = (struct wsmeta_t *) ase_malloc(sizeof(struct wsmeta_t));
-    ws->index = mem->index;
-    ws->buf_structaddr = (uint64_t *) mem;
-    append_wsmeta(ws);
+    append_buf(mem);
 
 #ifdef ASE_DEBUG
     if (fp_pagetable_log != NULL) {
@@ -1271,15 +1271,18 @@ void deallocate_buffer(struct buffer_t *mem)
 
     int ret;
     char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	struct buffer_t *mem_next;  // Keep current buffer's pointer to next
 
     ASE_MSG("Deallocating memory %s ... \n", mem->memname);
 
     // Send a one way message to request a deallocate
+	mem_next = mem->next;
     ase_buffer_t_to_str(mem, tmp_msg);
     mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
     // Wait for response to deallocate
     mqueue_recv(sim2app_dealloc_rx, tmp_msg, ASE_MQ_MSGSIZE);
     ase_str_to_buffer_t(tmp_msg, mem);
+	mem->next = mem_next;
 
     // Unmap the memory accordingly
     ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
@@ -1289,6 +1292,8 @@ void deallocate_buffer(struct buffer_t *mem)
 	END_RED_FONTCOLOR;
 	exit(1);
     }
+	mem->valid = ASE_BUFFER_INVALID;
+
     // Print if successful
     ASE_MSG("SUCCESS\n");
 
@@ -1297,34 +1302,35 @@ void deallocate_buffer(struct buffer_t *mem)
 
 
 /*
- * Appends and maintains a Workspace Meta Linked List (wsmeta_t)
+ * Appends and maintains a buffer Linked List (buffer_t)
  * <index, buffer_t<vaddr>> linkedlist
  */
-void append_wsmeta(struct wsmeta_t *new)
+void append_buf(struct buffer_t *buf)
 {
     FUNC_CALL_ENTRY;
 
-    if (wsmeta_head == NULL) {
-	wsmeta_head = new;
-	wsmeta_end = new;
+    if (buf_head == NULL) {
+		buf_head = buf;
+		buf_end = buf;
+		buf->next = NULL;
     }
+	else {
 
-    wsmeta_end->next = new;
-    new->next = NULL;
-    wsmeta_end = new;
-    wsmeta_end->valid = 1;
-
+		buf_end->next = buf;
+		buf->next = NULL;
+		buf_end = buf;
+	}
 #ifdef ASE_DEBUG
 
-    struct wsmeta_t *wsptr;
-    ASE_DBG("WSMeta traversal START =>\n");
-    wsptr = wsmeta_head;
-    while (wsptr != NULL) {
-	ASE_DBG("\t%d %p %d\n", wsptr->index,
-		wsptr->buf_structaddr, wsptr->valid);
-	wsptr = wsptr->next;
+    struct buffer_t *ptr;
+    ASE_DBG("Buffer traversal START =>\n");
+    ptr = buf_head;
+    while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
     }
-    ASE_DBG("WSMeta traversal END\n");
+    ASE_DBG("Buffer traversal END\n");
 
 #endif
 
@@ -1340,56 +1346,92 @@ bool deallocate_buffer_by_index(int search_index)
 {
     FUNC_CALL_ENTRY;
     bool value;
-    uint64_t *bufptr = (uint64_t *) NULL;
-    struct wsmeta_t *wsptr;
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+    struct buffer_t *ptr;
 
     ASE_MSG("Deallocate request index = %d ... \n", search_index);
 
-    // Traverse wsmeta_t
-    wsptr = wsmeta_head;
-    while (wsptr != NULL) {
-	if (wsptr->index == search_index) {
-	    bufptr = wsptr->buf_structaddr;
-	    ASE_DBG("FOUND\n");
-	    break;
-	} else {
-	    wsptr = wsptr->next;
-	}
+    // Traverse buffer list
+    ptr = buf_head;
+    while (ptr != NULL) {
+		if (ptr->index == search_index) {
+			bufptr = ptr;
+			ASE_DBG("FOUND\n");
+			break;
+		} else {
+		  ptr = ptr->next;
+		}
     }
-
 
     // Call deallocate
-    if ((bufptr != NULL) && (wsptr->valid == 1)) {
-	deallocate_buffer((struct buffer_t *) bufptr);
-	wsptr->valid = 0;
-	value = true;
+    if ((bufptr != NULL) && (bufptr->valid == ASE_BUFFER_VALID)) {
+		deallocate_buffer((struct buffer_t *) bufptr);
+		value = true;
     } else {
-	ASE_MSG("Buffer pointer was returned as NULL\n");
-	value = false;
+		ASE_MSG("Buffer pointer was returned as NULL\n");
+		value = false;
     }
+
+#ifdef ASE_DEBUG
+
+	ASE_DBG("Buffer traversal START =>\n");
+	ptr = buf_head;
+	while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
+	}
+	ASE_DBG("Buffer traversal END\n");
+
+#endif
 
     FUNC_CALL_EXIT;
     return value;
 }
 
+/*
+* Clean up the memory allocated for buffer_t
+*/
+void free_buffers(void)
+{
+	FUNC_CALL_ENTRY;
+
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+	struct buffer_t *ptr;
+
+	ASE_MSG("Deallocate all buffers ... \n");
+
+	// Traverse buffer list
+	ptr = buf_head;
+	while (ptr != NULL) {
+		bufptr = ptr;
+		ptr = ptr->next;
+		free(bufptr);
+	}
+
+	buf_head = NULL;
+	buf_end = NULL;
+
+	FUNC_CALL_EXIT;
+}
+
 
 /*
- * Traverse WSmeta array and find buffer by WSID
+ * Traverse buffer array and find buffer by ID
  */
 struct buffer_t *find_buffer_by_index(uint64_t wsid)
 {
     struct buffer_t *bufptr = (struct buffer_t *) NULL;
-    struct wsmeta_t *trav_ptr;
+    struct buffer_t *trav_ptr;
 
-    trav_ptr = wsmeta_head;
+    trav_ptr = buf_head;
     while (trav_ptr != NULL) {
-	if (trav_ptr->index == wsid) {
-	    bufptr =
-		(struct buffer_t *) trav_ptr->buf_structaddr;
-	    break;
-	} else {
-	    trav_ptr = trav_ptr->next;
-	}
+		if ((uint64_t)(trav_ptr->index) == wsid) {
+			bufptr = trav_ptr;
+			break;
+		} else {
+			trav_ptr = trav_ptr->next;
+		}
     }
 
     if (bufptr == (struct buffer_t *) NULL) {
@@ -1399,7 +1441,6 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
 
     return bufptr;
 }
-
 
 /*
  * UMSG Get Address
@@ -1449,6 +1490,7 @@ void umsg_set_attribute(uint32_t hint_mask)
  */
 void *umsg_watcher(void *arg)
 {
+	UNUSED_PARAM(arg);
     // Mark as thread that can be cancelled anytime
     pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 

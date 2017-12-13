@@ -77,6 +77,8 @@
 #define EXPORT_SYMBOL(sym)
 #define RCNEGATE(x)  (x)
 
+#define UNUSED_PARAM(x) (void)x
+
 #define slprintf(...) fprintf(stderr, __VA_ARGS__)
 #define slabort()     abort()
 #ifdef DEBUG
