@@ -28,6 +28,23 @@ cmake_minimum_required(VERSION 2.8.11)
 project(opae)
 
 ############################################################################
+## Get git hash info, if available #########################################
+############################################################################
+find_program(GIT_EXECUTABLE git)
+if(EXISTS ${GIT_EXECUTABLE})
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    RESULT_VARIABLE GIT_LOG_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
+      set(GIT_COMMIT_HASH unknown)
+    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
+else(EXISTS ${GIT_EXECUTABLE})
+  set(GIT_COMMIT_HASH unknown)
+endif(EXISTS ${GIT_EXECUTABLE})
+
+############################################################################
 ## Add 'versioning' library ################################################
 ############################################################################
 
@@ -35,6 +52,7 @@ set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
 set(INTEL_FPGA_API_VER_MINOR 12 CACHE STRING "Intel FPGA API minor version")
 set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
+set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
@@ -161,6 +179,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ############################################################################
 ## Packaging ###############################################################
 ############################################################################
+
+option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
+mark_as_advanced(HASH_ARCHIVES)
 
 include(packaging)
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
