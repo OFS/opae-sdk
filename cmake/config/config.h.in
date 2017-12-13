@@ -219,5 +219,9 @@
    pointer, if such a type exists, and if the system does not define it. */
 #cmakedefine uintptr_t
 
-#cmakedefine INTEL_FPGA_API_VERSION @INTEL_FPGA_API_VERSION@
-#cmakedefine INTEL_FPGA_API_HASH "@INTEL_FPGA_API_HASH@"
+#define INTEL_FPGA_API_VER_MAJOR @INTEL_FPGA_API_VER_MAJOR@
+#define INTEL_FPGA_API_VER_MINOR @INTEL_FPGA_API_VER_MINOR@
+#define INTEL_FPGA_API_VER_REV   @INTEL_FPGA_API_VER_REV@
+
+#cmakedefine INTEL_FPGA_API_VERSION "@INTEL_FPGA_API_VERSION@"
+#cmakedefine INTEL_FPGA_API_HASH    "@INTEL_FPGA_API_HASH@"
