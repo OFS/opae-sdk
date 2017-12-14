@@ -85,7 +85,8 @@ include_directories(
   ${OPAE_SDK_SOURCE}/tools/c++utils
   ${Boost_INCLUDE_DIRS}
   ${OPAE_SDK_SOURCE}/common/include
-  ${OPAE_SDK_SOURCE}/tests)
+  ${OPAE_SDK_SOURCE}/tests
+  ${OPAE_SDK_SOURCE}/libopae++/include)
 
 add_library(commonlib SHARED common_test.h common_test.cpp)
 target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${jsoncpp_LIBRARIES})
@@ -99,14 +100,19 @@ target_include_directories(commonlib PUBLIC
 # Test binary
 set(SRC gtmain.cpp
   jsonParser.cpp
-  unit/gtOpenClose_base.cpp)
+  unit/gtOpenClose_base.cpp
+  unit/gtCxxEnumerate.cpp
+  unit/gtCxxOpenClose.cpp
+  unit/gtCxxProperties.cpp
+  unit/gtCxxExcept.cpp)
+
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-target_link_libraries(gtapi commonlib safestr opae-c json-c uuid ${GTEST_BOTH_LIBRARIES}
+target_link_libraries(gtapi commonlib safestr opae-c opae-cxx-core json-c uuid ${GTEST_BOTH_LIBRARIES}
   opae-c++-utils opae-c++)
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
   ${CMAKE_BINARY_DIR}/tests/configuration.json
@@ -138,6 +144,17 @@ target_link_libraries(mock dl safestr)
 ############################################################################
 ## Add testing targets #####################################################
 ############################################################################
+macro(add_gtfilter test_name gtfilter is_mock)
+    add_test(NAME ${test_name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+    if(${is_mock})
+        set_tests_properties(
+            ${test_name}
+            PROPERTIES
+            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+    endif()
+endmacro()
 
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -148,6 +165,11 @@ set_tests_properties(
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
+add_gtfilter(CxxProperties "CxxProperties*" False)
+add_gtfilter(CxxEnum "CxxEnum*" True)
+add_gtfilter(CxxOpenClose "CxxOpen*" True)
+add_gtfilter(CxxBuffer "CxxEnum*" True)
+add_gtfilter(CxxExcept "CxxExcept*" False)
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
