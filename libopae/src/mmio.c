@@ -166,7 +166,7 @@ static fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 	wsid = wsid_gen();
 	if (!wsid_add(&_handle->mmio_root,
 		      wsid,
-		      (uint64_t) NULL,
+		      (uint64_t) addr,
 		      (uint64_t) NULL,
 		      size,
 		      (uint64_t) addr,
