@@ -36,16 +36,17 @@
 
 /* global loglevel */
 static int g_loglevel = FPGA_LOG_UNDEFINED;
-static FILE *g_logfile = NULL;
+static FILE *g_logfile;
 /* mutex to protect against garbled log output */
 pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 __attribute__((constructor))
-static void init_logging(){
+static void init_opae(void)
+{
 	pthread_mutexattr_t mattr;
 	/* try to read loglevel from environment */
 	char *s = getenv("LIBOPAE_LOG");
-	if (s){
+	if (s) {
 		g_loglevel = atoi(s);
 #ifndef LIBFGPA_DEBUG
 		if (g_loglevel >= FPGA_LOG_DEBUG)
@@ -58,9 +59,9 @@ static void init_logging(){
 	}
 
 	s = getenv("LIBOPAE_LOGFILE");
-	if (s){
+	if (s) {
 		g_logfile = fopen(s, "w");
-		if (g_logfile == NULL){
+		if (g_logfile == NULL) {
 			fprintf(stderr, "Could not open log file for writing: %s. ", s);
 			fprintf(stderr, "Error is: %s\n", strerror(errno));
 		}
@@ -83,7 +84,8 @@ static void init_logging(){
 }
 
 __attribute__((destructor))
-static void deinit_logging(){
+static void deinit_opae(void)
+{
 	if (g_logfile != NULL)
 		fclose(g_logfile);
 }
