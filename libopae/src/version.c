@@ -28,6 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include "safe_string/safe_string.h"
 #include "common_int.h"
 #include "types_int.h"
 #include "config_int.h"
@@ -55,7 +56,8 @@ fpga_result __FPGA_API__ fpgaGetVersionString(char *version_str, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	strncpy(version_str, INTEL_FPGA_API_VERSION, len);
+	strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
+		  sizeof(INTEL_FPGA_API_VERSION));
 
 	return FPGA_OK;
 }
@@ -67,7 +69,8 @@ fpga_result __FPGA_API__ fpgaGetBuildString(char *build_str, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	strncpy(build_str, INTEL_FPGA_API_HASH, len);
+	strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
+		  sizeof(INTEL_FPGA_API_HASH));
 
 	return FPGA_OK;
 }
