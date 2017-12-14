@@ -36,16 +36,16 @@
 
 #include "ase_common.h"
 
-int app2sim_alloc_tx;		// app2sim mesaage queue in RX mode
-int sim2app_alloc_rx;		// sim2app mesaage queue in TX mode
-int app2sim_mmioreq_tx;		// MMIO Request path
-int sim2app_mmiorsp_rx;		// MMIO Response path
-int app2sim_umsg_tx;		// UMSG    message queue in RX mode
-int app2sim_portctrl_req_tx;	// Port Control message in TX mode
-int app2sim_dealloc_tx;
-int sim2app_dealloc_rx;
-int sim2app_portctrl_rsp_rx;
-int sim2app_intr_request_rx;
+static int app2sim_alloc_tx;		// app2sim mesaage queue in RX mode
+static int sim2app_alloc_rx;		// sim2app mesaage queue in TX mode
+static int app2sim_mmioreq_tx;		// MMIO Request path
+static int sim2app_mmiorsp_rx;		// MMIO Response path
+static int app2sim_umsg_tx;		// UMSG    message queue in RX mode
+static int app2sim_portctrl_req_tx;	// Port Control message in TX mode
+static int app2sim_dealloc_tx;
+static int sim2app_dealloc_rx;
+static int sim2app_portctrl_rsp_rx;
+static int sim2app_intr_request_rx;
 
 // MMIO Mutex Lock, initilize it here
 pthread_mutex_t mmio_port_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -483,7 +483,8 @@ void session_init(void)
 	    ASE_MSG("SUCCESS\n");
 	}
 
-	while (umas_init_flag != 1);
+	while (umas_init_flag != 1)
+		;
 
 	// MMIO Scoreboard setup
 	int ii;
@@ -828,8 +829,7 @@ void mmio_write32(int offset, uint32_t data)
 
 		// Critical Section
 	    if (pthread_mutex_lock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		    	("pthread_mutex_lock could not attain lock !\n");
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			exit(1);
 	    }
 
@@ -891,8 +891,7 @@ void mmio_write64(int offset, uint64_t data)
 
 		// Critical section
 	    if (pthread_mutex_lock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		   	 ("pthread_mutex_lock could not attain lock !\n");
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			exit(1);
 	    }
 
@@ -904,8 +903,7 @@ void mmio_write64(int offset, uint64_t data)
 #endif
 
 	    if (pthread_mutex_unlock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		    	("Mutex unlock failure ... Application Exit here\n");
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			exit(1);
 	    }
 
@@ -967,8 +965,7 @@ void mmio_read32(int offset, uint32_t *data32)
 
 		// Critical section
 		if (pthread_mutex_lock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		   	 ("pthread_mutex_lock could not attain lock !\n");
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			exit(1);
 		}
 
@@ -976,8 +973,7 @@ void mmio_read32(int offset, uint32_t *data32)
 	    slot_idx = mmio_request_put(mmio_pkt);
 
 	    if (pthread_mutex_unlock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		    	("Mutex unlock failure ... Application Exit here\n");
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			exit(1);
 	    }
 
@@ -1041,8 +1037,7 @@ void mmio_read64(int offset, uint64_t *data64)
 
 		// Critical section
 	    if (pthread_mutex_lock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		   	 ("pthread_mutex_lock could not attain lock !\n");
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			exit(1);
 	    }
 
@@ -1050,8 +1045,7 @@ void mmio_read64(int offset, uint64_t *data64)
 	    slot_idx = mmio_request_put(mmio_pkt);
 
 	    if (pthread_mutex_unlock(&mmio_port_lock) != 0) {
-			ASE_ERR
-		   	 ("Mutex unlock failure ... Application Exit here\n");
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			exit(1);
 	    }
 
@@ -1201,7 +1195,8 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
     mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
 
     // Receive message from DPI with pbase populated
-	while (mqueue_recv(sim2app_alloc_rx, tmp_msg, ASE_MQ_MSGSIZE) == 0);
+	while (mqueue_recv(sim2app_alloc_rx, tmp_msg, ASE_MQ_MSGSIZE) == 0)
+		;
     ase_str_to_buffer_t(tmp_msg, mem);
 
     // Print out the buffer
