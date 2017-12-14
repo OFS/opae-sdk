@@ -59,8 +59,6 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
 
   auto res = fpgaOpen(token, &c_handle, flags);
   if (res == FPGA_OK) {
-    fpga_objtype ty = FPGA_DEVICE;
-
     properties::ptr_t props = properties::read(token);
 
     if (FPGA_ACCELERATOR == props->type) {

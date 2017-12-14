@@ -32,9 +32,11 @@
 
 using namespace opae::fpga::types;
 
-int main(int argc, char* argvp[]) {
-  const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
-  const char* NLB3 = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18";
+const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+int main(int argc, char* argv[]) {
+  if (argc == 0){
+    std::cerr << argv[0] << "\n";
+  }
 
   properties props_filter;
 

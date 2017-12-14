@@ -51,16 +51,28 @@ std::vector<token::ptr_t> token::enumerate(
 
     // discard our c struct token objects
     std::for_each(c_tokens.begin(), c_tokens.end(),
-                  [](fpga_token t) { auto res = fpgaDestroyToken(&t); });
+                  [](fpga_token t) {
+                    auto res = fpgaDestroyToken(&t);
+                    if (res != FPGA_OK){
+                      //TODO(rrojo): Log error
+                    }
+                  });
   }
   return tokens;
 }
 
-token::~token() { auto res = fpgaDestroyToken(&token_); }
+token::~token() {
+  auto res = fpgaDestroyToken(&token_);
+  if (res != FPGA_OK){
+    //TODO(rrojo): Log error
+  }
+}
 
 token::token(fpga_token tok) {
   auto res = fpgaCloneToken(tok, &token_);
-  // TODO: Throw exception on failure
+  if (res != FPGA_OK){
+    //TODO(rrojo): Throw exception
+  }
 }
 
 }  // end of namespace types

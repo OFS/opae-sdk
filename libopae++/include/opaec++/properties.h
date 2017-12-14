@@ -57,6 +57,10 @@ class properties {
   static properties::ptr_t read(std::shared_ptr<token> t);
   static properties::ptr_t read(fpga_token t);
 
+ private:
+  fpga_properties props_;
+
+ public:
   pvalue<fpga_objtype> type;
   pvalue<uint8_t> bus;
   pvalue<uint8_t> device;
@@ -76,8 +80,6 @@ class properties {
   pvalue<fpga_token> parent;
   guid_t guid;
 
- private:
-  fpga_properties props_;
 };
 
 }  // end of namespace types
