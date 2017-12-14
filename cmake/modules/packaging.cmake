@@ -77,16 +77,18 @@ function(DEFINE_PKG name)
 
 endfunction(DEFINE_PKG)
 
-macro(CREATE_PYTHON_EXE EXE_NAME)
+macro(CREATE_PYTHON_EXE EXE_NAME MAIN)
 
     set(PYTHON_SRC "${ARGN}")
     set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/${EXE_NAME})
     set(ZIP_STR 
         "zip -qr ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${PYTHON_SRC}")   
+    set(ZIP_MAIN_STR
+        "zip -qj ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${MAIN}")
     set(ECHO_STR "echo '#!/usr/bin/env python ' | 
         cat - ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip > ${PACKAGER_BIN}")
        
-    execute_process(COMMAND sh -c ${ZIP_STR} 
+    execute_process(COMMAND sh -ec "${ZIP_STR}; ${ZIP_MAIN_STR}"
               WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
