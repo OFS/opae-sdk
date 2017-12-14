@@ -20,7 +20,7 @@ using namespace opae::fpga::types;
 TEST(CxxExcept, except_01) {
   src_location loc(OPAECXX_HERE);
 
-  EXPECT_STREQ("gtExcept.cpp", loc.file());
+  EXPECT_STREQ("gtCxxExcept.cpp", loc.file());
   EXPECT_STREQ("TestBody", loc.fn());
   EXPECT_EQ(21, loc.line());
 }
@@ -50,5 +50,5 @@ TEST(CxxExcept, except_03) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, e);
 
-  EXPECT_STREQ("gtExcept.cpp:TestBody():49:invalid parameter", e.what());
+  EXPECT_STREQ("gtCxxExcept.cpp:TestBody():49:invalid parameter", e.what());
 }
