@@ -3,4 +3,5 @@ pygments==2.2.0
 sphinx==1.6.5
 sphinx-rtd-theme
 sphinxcontrib-pandoc-markdown
+breathe
 travis-sphinx
