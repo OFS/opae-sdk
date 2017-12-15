@@ -60,7 +60,7 @@ TEST(CxxProperties, parse_guid) {
  * Then the known guid matches the one retrieved
  */
 TEST(CxxProperties, get_guid) {
-  fpga_guid guid_in, guid_out;
+  fpga_guid guid_in;
   properties p;
   // set the guid using fpgaPropertiesSetGUID
   uuid_parse(TEST_GUID_STR, guid_in);

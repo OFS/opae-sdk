@@ -108,6 +108,7 @@ struct pvalue {
     if (res == FPGA_OK) {
       copy_ = v;
     }
+    return *this;
   }
 
   bool operator==(const T &other) { return copy_ == other; }
