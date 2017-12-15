@@ -35,6 +35,9 @@
 
 #include "ase_common.h"
 
+struct buffer_t *head;
+struct buffer_t *end;
+
 /*
  * ll_print_info: Print linked list node info
  * Thu Oct  2 15:50:06 PDT 2014 : Modified for cleanliness
@@ -82,21 +85,21 @@ void ll_traverse_print(void)
 // ll_append_buffer :  Append a buffer to linked list
 // A buffer must be allocated before this function is called
 // --------------------------------------------------------------------
-void ll_append_buffer(struct buffer_t *new)
+void ll_append_buffer(struct buffer_t *pbuf)
 {
 	FUNC_CALL_ENTRY;
 
 	// If there are no nodes in the list, set the new buffer as head
 	if (head == NULL) {
-		head = new;
-		end = new;
+		head = pbuf;
+		end = pbuf;
 	}
 	// Link the new new node to the end of the list
-	end->next = new;
+	end->next = pbuf;
 	// Set the next field as NULL
-	new->next = NULL;
+	pbuf->next = NULL;
 	// Adjust end to point to last node
-	end = new;
+	end = pbuf;
 
 	FUNC_CALL_EXIT;
 }
