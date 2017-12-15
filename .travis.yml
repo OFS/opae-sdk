@@ -3,6 +3,8 @@ compiler: gcc
 install:
   - pip install --user pylint
   - pip install --user pycodestyle
+  - pip install --user jsonschema
+
 
 script:
     - scripts/test-codingstyle.sh
