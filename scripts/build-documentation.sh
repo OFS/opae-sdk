@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install -r doc/sphinx/requirements.txt
+pip install --user -r doc/sphinx/requirements.txt
 
 mkdir mybuild_docs
 pushd mybuild_docs
