@@ -57,15 +57,6 @@ set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
-find_program(GIT_EXECUTABLE git)
-set(GIT_COMMIT_HASH unknown CACHE STRING "")
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif(EXISTS ${GIT_EXECUTABLE})
-
 ############################################################################
 ## Compilation configuration ###############################################
 ############################################################################
@@ -179,9 +170,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ############################################################################
 ## Packaging ###############################################################
 ############################################################################
-
-option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
-mark_as_advanced(HASH_ARCHIVES)
 
 include(packaging)
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
