@@ -322,6 +322,7 @@ bool config_app::do_dump(const cmd_handler::cmd_vector_t & cmds)
         registers = parsed.data();
         register_count = parsed.size();
     }
+
     if (cmds.size() > 1)
     {
         std::ofstream out(cmds[1]);
@@ -334,7 +335,6 @@ bool config_app::do_dump(const cmd_handler::cmd_vector_t & cmds)
         return true;
     }
     return false;
-
 }
 
 bool config_app::do_read(const cmd_handler::cmd_vector_t & cmds)
@@ -396,6 +396,7 @@ bool config_app::do_write(const cmd_handler::cmd_vector_t & cmds)
             return true;
         }
     }
+    return false;
 }
 
 bool config_app::do_retimer_read(const cmd_handler::cmd_vector_t & cmds)
