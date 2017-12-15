@@ -45,171 +45,6 @@
 #define AFU_SIZE	0x40000
 #define AFU_OFFSET	0
 
-fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
-					 uint32_t mmio_num,
-					 uint64_t offset,
-					 uint32_t value)
-{
-
-	int err;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-	fpga_result result = FPGA_OK;
-
-	if (offset % sizeof(uint32_t) != 0) {
-		FPGA_MSG("Misaligned MMIO access");
-		return FPGA_INVALID_PARAM;
-	}
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	struct wsid_map *wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
-	if (!wm) {
-		FPGA_MSG("Trying to access MMIO before calling fpgaMapMMIO()");
-		result = FPGA_NOT_FOUND;
-		goto out_unlock;
-	}
-
-	if (offset > wm->len) {
-		FPGA_MSG("offset out of bounds");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	*((volatile uint32_t *) ((uint8_t *)wm->offset + offset)) = value;
-
-out_unlock:
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-	}
-	return result;
-}
-
-fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
-					uint32_t mmio_num,
-					uint64_t offset,
-					uint32_t *value)
-{
-	int err;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-	fpga_result result = FPGA_OK;
-
-	if (offset % sizeof(uint32_t) != 0) {
-		FPGA_MSG("Misaligned MMIO access");
-		return FPGA_INVALID_PARAM;
-	}
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	struct wsid_map *wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
-	if (!wm) {
-		FPGA_MSG("Trying to access MMIO before calling fpgaMapMMIO()");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	if (offset > wm->len) {
-		FPGA_MSG("offset out of bounds");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	*value = *((volatile uint32_t *) ((uint8_t *)wm->offset + offset));
-
-out_unlock:
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-	}
-	return result;
-}
-
-fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
-					 uint32_t mmio_num,
-					 uint64_t offset,
-					 uint64_t value)
-{
-	int err;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-	fpga_result result = FPGA_OK;
-
-	if (offset % sizeof(uint64_t) != 0) {
-		FPGA_MSG("Misaligned MMIO access");
-		return FPGA_INVALID_PARAM;
-	}
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	struct wsid_map *wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
-	if (!wm) {
-		FPGA_MSG("Trying to access MMIO before calling fpgaMapMMIO()");
-		result = FPGA_NOT_FOUND;
-		goto out_unlock;
-	}
-
-	if (offset > wm->len) {
-		FPGA_MSG("offset out of bounds");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	*((volatile uint64_t *) ((uint8_t *)wm->offset + offset)) = value;
-
-out_unlock:
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-	}
-	return result;
-}
-
-fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
-					uint32_t mmio_num,
-					uint64_t offset,
-					uint64_t *value)
-{
-	int err;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-	fpga_result result = FPGA_OK;
-
-	if (offset % sizeof(uint64_t) != 0) {
-		FPGA_MSG("Misaligned MMIO access");
-		return FPGA_INVALID_PARAM;
-	}
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	struct wsid_map *wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
-	if (!wm) {
-		FPGA_MSG("Trying to access MMIO before calling fpgaMapMMIO()");
-		result = FPGA_NOT_FOUND;
-		goto out_unlock;
-	}
-
-	if (offset > wm->len) {
-		FPGA_MSG("offset out of bounds");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	*value = *((volatile uint64_t *) ((uint8_t *)wm->offset + offset));
-
-out_unlock:
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-	}
-	return result;
-}
-
 static fpga_result port_get_region_info(fpga_handle handle,
 				 uint32_t mmio_num,
 				 uint32_t *flags,
@@ -276,7 +111,7 @@ static fpga_result port_mmap_region(fpga_handle handle,
 
 	/* Map MMIO memory */
 	addr = (void *) mmap(NULL, size, flags, MAP_SHARED, _handle->fddev, offset);
-	if (vaddr == MAP_FAILED) {
+	if (addr == MAP_FAILED) {
 		FPGA_MSG("Unable to map MMIO region. Error value is : %s",
 			 strerror(errno));
 		result = FPGA_INVALID_PARAM;
@@ -284,8 +119,242 @@ static fpga_result port_mmap_region(fpga_handle handle,
 	}
 
 	/* Save return address */
-	if (vaddr)
-		*vaddr = addr;
+	*vaddr = addr;
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+static fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	void     *addr  = NULL;
+	uint64_t wsid   = 0;
+	uint32_t flags  = 0;
+	uint64_t size   = 0;
+	uint64_t offset = 0;
+	fpga_result result = FPGA_OK;
+
+	/* Obtain MMIO region information */
+	result = port_get_region_info(handle,
+				      mmio_num,
+				      &flags,
+				      &size,
+				      &offset);
+
+	if (flags != AFU_PERMISSION) {
+		FPGA_MSG("Invalid MMIO permission flags");
+		result = FPGA_NO_ACCESS;
+		return result;
+	}
+
+	/* Map UAFU MMIO */
+	result = port_mmap_region(handle,
+				    (void **) &addr,
+				    size,
+				    PROT_READ | PROT_WRITE,
+				    offset,
+				    mmio_num);
+	if (result != FPGA_OK)
+		return result;
+
+	/* Add to MMIO list */
+	wsid = wsid_gen();
+	if (!wsid_add(&_handle->mmio_root,
+		      wsid,
+		      (uint64_t) addr,
+		      (uint64_t) NULL,
+		      size,
+		      (uint64_t) addr,
+		      mmio_num,
+		      0)) {
+		if (munmap(addr, size)) {
+			FPGA_MSG("munmap failed. Error value is : %s",
+				 strerror(errno));
+			return FPGA_INVALID_PARAM;
+		} else {
+			FPGA_MSG("Failed to add MMIO id: %d", mmio_num);
+			return FPGA_NO_MEMORY;
+		}
+	}
+
+	return FPGA_OK;
+}
+
+/* Lazy mapping of MMIO region (only map if not already mapped) */
+static fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
+				struct wsid_map **wm_out)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
+	if (!wm) {
+		result = map_mmio_region(handle, mmio_num);
+		if (result != FPGA_OK) {
+			FPGA_ERR("failed to map mmio region %d", mmio_num);
+			return result;
+		}
+		wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
+	}
+
+	*wm_out = wm;
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
+					 uint32_t mmio_num,
+					 uint64_t offset,
+					 uint32_t value)
+{
+
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	if (offset % sizeof(uint32_t) != 0) {
+		FPGA_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
+		goto out_unlock;
+
+	if (offset > wm->len) {
+		FPGA_MSG("offset out of bounds");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	*((volatile uint32_t *) ((uint8_t *)wm->offset + offset)) = value;
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
+					uint32_t mmio_num,
+					uint64_t offset,
+					uint32_t *value)
+{
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	if (offset % sizeof(uint32_t) != 0) {
+		FPGA_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
+		goto out_unlock;
+
+	if (offset > wm->len) {
+		FPGA_MSG("offset out of bounds");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	*value = *((volatile uint32_t *) ((uint8_t *)wm->offset + offset));
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
+					 uint32_t mmio_num,
+					 uint64_t offset,
+					 uint64_t value)
+{
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	if (offset % sizeof(uint64_t) != 0) {
+		FPGA_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
+		goto out_unlock;
+
+	if (offset > wm->len) {
+		FPGA_MSG("offset out of bounds");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	*((volatile uint64_t *) ((uint8_t *)wm->offset + offset)) = value;
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
+					uint32_t mmio_num,
+					uint64_t offset,
+					uint64_t *value)
+{
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	if (offset % sizeof(uint64_t) != 0) {
+		FPGA_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
+		goto out_unlock;
+
+	if (offset > wm->len) {
+		FPGA_MSG("offset out of bounds");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	*value = *((volatile uint64_t *) ((uint8_t *)wm->offset + offset));
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -300,69 +369,21 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 				     uint64_t **mmio_ptr)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_NOT_FOUND;
-	void *addr;
-	uint64_t wsid;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
 	int err;
-	uint32_t flags  = 0;
-	uint64_t size   = 0;
-	uint64_t offset = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
 
-	/* Obtain MMIO region information */
-	result = port_get_region_info(handle,
-				      mmio_num,
-				      &flags,
-				      &size,
-				      &offset);
-
-	if (result != FPGA_OK)
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
 		goto out_unlock;
-
-	if (flags != AFU_PERMISSION) {
-		FPGA_MSG("Invalid MMIO permission flags");
-		result = FPGA_NO_ACCESS;
-		goto out_unlock;
-	}
-
-	/* Map UAFU MMIO */
-	result = port_mmap_region(handle,
-				    (void **) &addr,
-				    size,
-				    PROT_READ | PROT_WRITE,
-				    offset,
-				    mmio_num);
-	if (result != FPGA_OK)
-		goto out_unlock;
-
-	/* Add to MMIO list */
-	wsid = wsid_gen();
-	if (!wsid_add(&_handle->mmio_root,
-		      wsid,
-		      (uint64_t) NULL,
-		      (uint64_t) NULL,
-		      size,
-		      (uint64_t) addr,
-		      mmio_num,
-		      0)) {
-		if (munmap(addr, size)) {
-			FPGA_MSG("munmap failed. Error value is : %s",
-				 strerror(errno));
-			result = FPGA_INVALID_PARAM;
-			goto out_unlock;
-		} else {
-			FPGA_MSG("Failed to add MMIO id: %d", mmio_num);
-			result = FPGA_NO_MEMORY;
-			goto out_unlock;
-		}
-	}
 
 	/* Store return value only if return pointer has allocated memory */
 	if (mmio_ptr)
-		*mmio_ptr = addr;
+		*mmio_ptr = (uint64_t *)wm->addr;
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

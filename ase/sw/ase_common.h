@@ -352,18 +352,6 @@ struct buffer_t			//  Descriptiion                    Computed by
 	struct buffer_t *next;
 };
 
-
-/*
- * Workspace meta list
- */
-struct wsmeta_t {
-	int index;
-	int valid;
-	uint64_t *buf_structaddr;
-	struct wsmeta_t *next;
-};
-
-
 /*
  * MMIO transaction packet --
  *   Be careful of alignment within this structure!  The layout must be
@@ -536,7 +524,8 @@ extern "C" {
 	void allocate_buffer(struct buffer_t *, uint64_t *);
 	void deallocate_buffer(struct buffer_t *);
 	bool deallocate_buffer_by_index(int);
-	void append_wsmeta(struct wsmeta_t *);
+	void append_buf(struct buffer_t *);
+	void free_buffers(void);
 	// MMIO activity
 	int find_empty_mmio_scoreboard_slot(void);
 	int get_scoreboard_slot_by_tid(int);
@@ -785,28 +774,9 @@ extern int self_destruct_in_progress;
  * IPC MQ fd names
  */
 #ifdef SIM_SIDE
-int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
-int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
-int app2sim_mmioreq_rx;		// MMIO Request path
-int sim2app_mmiorsp_tx;		// MMIO Response path
-int app2sim_umsg_rx;		// UMSG    message queue in RX mode
-int app2sim_portctrl_req_rx;	// Port Control messages in Rx mode
-int app2sim_dealloc_rx;
-int sim2app_dealloc_tx;
-int sim2app_portctrl_rsp_tx;
-int sim2app_intr_request_tx;
-int intr_event_fds[MAX_USR_INTRS];
-#else
-int app2sim_alloc_tx;		// app2sim mesaage queue in RX mode
-int sim2app_alloc_rx;		// sim2app mesaage queue in TX mode
-int app2sim_mmioreq_tx;		// MMIO Request path
-int sim2app_mmiorsp_rx;		// MMIO Response path
-int app2sim_umsg_tx;		// UMSG    message queue in RX mode
-int app2sim_portctrl_req_tx;	// Port Control message in TX mode
-int app2sim_dealloc_tx;
-int sim2app_dealloc_rx;
-int sim2app_portctrl_rsp_rx;
-int sim2app_intr_request_rx;
+extern int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
+
+extern int sim2app_dealloc_tx;
 #endif				// End SIM_SIDE
 
 // There is no global fixes for this
