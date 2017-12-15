@@ -34,5 +34,5 @@ after_success: |
     git -c user.name='Abelardo Jara-Berrocal' -c user.email='abelardo.jara-berrocal@intel.com' commit -m init
     # Make sure to make the output quiet, or else the API token will leak!
     # This works because the API key can replace your password.
-    git push -f -q https://abelardojarab:$GITHUB_API_KEY@github.com/OPAE/opae-doc-test gh-pages &2>/dev/null
+    git push -f -q https://abelardojarab:$GITHUB_API_KEY@github.com/OPAE/opae-doc-test gh-pages
   fi
