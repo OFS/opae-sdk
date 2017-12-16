@@ -104,7 +104,8 @@ set(SRC gtmain.cpp
   unit/gtCxxEnumerate.cpp
   unit/gtCxxOpenClose.cpp
   unit/gtCxxProperties.cpp
-  unit/gtCxxExcept.cpp)
+  unit/gtCxxExcept.cpp
+  unit/gtCxxLog.cpp)
 
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
@@ -170,6 +171,7 @@ add_gtfilter(CxxEnum "CxxEnum*" True)
 add_gtfilter(CxxOpenClose "CxxOpen*" True)
 add_gtfilter(CxxBuffer "CxxEnum*" True)
 add_gtfilter(CxxExcept "CxxExcept*" False)
+add_gtfilter(CxxLog "CxxLog*" False)
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
