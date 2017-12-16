@@ -6,6 +6,8 @@ compiler: gcc
 install:
   - pip install --user pylint
   - pip install --user pycodestyle
+  - pip install --user jsonschema
+
 jobs:
   include:
     - stage: BAT
