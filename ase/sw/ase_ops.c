@@ -35,9 +35,6 @@
 
 #include "ase_common.h"
 
-struct buffer_t *head;
-struct buffer_t *end;
-
 // Ready filepath
 char *ase_ready_filepath;
 
