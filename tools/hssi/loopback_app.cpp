@@ -72,7 +72,7 @@ loopback_app::loopback_app()
     console_.register_handler("send",
                               std::bind(&loopback_app::do_loopback, this, _1),
                               2,
-                              "<source port> [<destination port>] [-p|--packet-count <packet count>] "
+                              "<source port> [<destination port>] [-c|--packet-count <packet count>] "
                               "[-l|--packet-length <packet length>] "
                               "# Start loopback from soure to destination. If no destination is given, internal loopback test is performed");
     console_.register_handler("stop",
