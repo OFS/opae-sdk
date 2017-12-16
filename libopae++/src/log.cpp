@@ -96,8 +96,7 @@ wrapped_stream logger::log(logger::level l, std::string str)
   wrapped_stream stream(lvl);
   stream << std::dec << "[" << s_pid << "][" << s_level_map[l] << "]";
   if (name_ != "") stream << "[" << name_ << "]";
-  if (str != "")
-  {
+  if (str != ""){
       stream << "[" << str << "]";
   }
   stream << std::boolalpha << " ";
