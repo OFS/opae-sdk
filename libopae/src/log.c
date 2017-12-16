@@ -41,7 +41,7 @@ static FILE *g_logfile;
 pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 __attribute__((constructor))
-static void init_opae(void)
+static void init_log(void)
 {
 	pthread_mutexattr_t mattr;
 	/* try to read loglevel from environment */
@@ -84,7 +84,7 @@ static void init_opae(void)
 }
 
 __attribute__((destructor))
-static void deinit_opae(void)
+static void deinit_log(void)
 {
 	if (g_logfile != NULL)
 		fclose(g_logfile);
