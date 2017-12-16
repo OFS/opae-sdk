@@ -107,7 +107,7 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
-option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the C++ API implementation on top of the API." OFF)
+option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the C++ API implementation on top of the API." ON)
 mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_CXX)
   add_subdirectory(libopae++)

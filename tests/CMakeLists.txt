@@ -112,7 +112,7 @@ target_include_directories(gtapi PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-target_link_libraries(gtapi commonlib safestr opae-c ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES}
+target_link_libraries(gtapi commonlib safestr opae-c opae-cxx-core ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES}
   opae-c++-utils opae-c++)
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
   ${CMAKE_BINARY_DIR}/tests/configuration.json
