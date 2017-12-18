@@ -159,6 +159,7 @@ def computedParams(afu_arg, params):
             chan = vc.index(1)
         params['vc-default'] = chan
 
+
 #
 # Verilog's preprocessor is unimpressive.  Among its failings is poor handling
 # of strings.  Some of the definitions written by emitConfig are easier to
