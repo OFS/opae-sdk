@@ -55,7 +55,8 @@ set(OPAECXX_SRC src/properties.cpp
                 src/token.cpp
                 src/handle.cpp
                 src/dma_buffer.cpp
-                src/except.cpp)
+                src/except.cpp
+                src/log.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXX_SRC})
 target_link_libraries(opae-cxx-core opae-c)
