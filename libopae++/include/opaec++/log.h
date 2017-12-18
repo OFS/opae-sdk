@@ -71,7 +71,7 @@ class wrapped_stream
    * @brief wrapped_stream destructor which indicates the end of the stream
    * sequence
    */
-  ~wrapped_stream();
+  virtual ~wrapped_stream();
 
   /**
    * @brief Templated stream operator
@@ -96,8 +96,11 @@ class wrapped_stream
    * @return A reference to `this`
    */
   wrapped_stream& operator<<(std::ostream& (*manip)(std::ostream&));
- private:
+
+ protected:
   std::stringstream sstream_;
+
+ private:
   int level_;
   char fmt_[4];
 };
@@ -139,7 +142,7 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream log(level l, std::string str = "");
+  wrapped_stream log(level l, std::string str = "") const;
 
   /**
    * @brief Log method for debug messages
@@ -149,7 +152,7 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream debug(std::string str = "");
+  wrapped_stream debug(std::string str = "") const;
 
   /**
    * @brief Log method for info messages
@@ -159,7 +162,7 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream info(std::string str = "");
+  wrapped_stream info(std::string str = "") const;
 
   /**
    * @brief Log method for warning messages
@@ -169,7 +172,18 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream warn(std::string str = "");
+  wrapped_stream warn(std::string str = "") const;
+
+  /**
+   * @brief Log method for warning messages if condition is true
+   *
+   * @param cond boolean flag that determines if message is logged
+   * @param str An optional string that may include more contextual
+   *            information
+   *
+   * @return A wrapped_stream object to begin the stream sequence
+   */
+  wrapped_stream warn_if(bool cond, std::string str = "") const;
 
   /**
    * @brief Log method for error messages
@@ -179,7 +193,18 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream error(std::string str= "");
+  wrapped_stream error(std::string str= "") const;
+
+  /**
+   * @brief Log method for error messages if condition is true
+   *
+   * @param cond boolean flag that determines if message is logged
+   * @param str An optional string that may include more contextual
+   *            information
+   *
+   * @return A wrapped_stream object to begin the stream sequence
+   */
+  wrapped_stream error_if(bool cond, std::string str = "") const;
 
   /**
    * @brief Log method for exception messages
@@ -189,7 +214,7 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream exception(std::string str = "");
+  wrapped_stream exception(std::string str = "") const;
 
   /**
    * @brief Log method for fatal error messages
@@ -201,7 +226,7 @@ class logger {
    *
    * @return A wrapped_stream object to begin the stream sequence
    */
-  wrapped_stream fatal(std::string str = "");
+  wrapped_stream fatal(std::string str = "") const;
 
 
  private:
