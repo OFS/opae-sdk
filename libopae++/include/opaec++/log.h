@@ -115,9 +115,9 @@ class logger {
   enum class level : int
   {
       none        = -1,
-      error       = 0,
+      fatal       = 0,
       exception   = 10,
-      fatal       = 15,
+      error       = 15,
       warn        = 20,
       info        = 25,
       debug       = 40
