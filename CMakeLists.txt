@@ -28,6 +28,23 @@ cmake_minimum_required(VERSION 2.8.11)
 project(opae)
 
 ############################################################################
+## Get git hash info, if available #########################################
+############################################################################
+find_program(GIT_EXECUTABLE git)
+if(EXISTS ${GIT_EXECUTABLE})
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    RESULT_VARIABLE GIT_LOG_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
+      set(GIT_COMMIT_HASH unknown)
+    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
+else(EXISTS ${GIT_EXECUTABLE})
+  set(GIT_COMMIT_HASH unknown)
+endif(EXISTS ${GIT_EXECUTABLE})
+
+############################################################################
 ## Add 'versioning' library ################################################
 ############################################################################
 
@@ -35,18 +52,7 @@ set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
 set(INTEL_FPGA_API_VER_MINOR 12 CACHE STRING "Intel FPGA API minor version")
 set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
-
-option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
-mark_as_advanced(HASH_ARCHIVES)
-
-find_program(GIT_EXECUTABLE git)
-set(GIT_COMMIT_HASH unknown CACHE STRING "")
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif(EXISTS ${GIT_EXECUTABLE})
+set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
 ############################################################################
 ## Compilation configuration ###############################################
@@ -57,15 +63,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
-
-############################################################################
-## Testing configuration ###################################################
-############################################################################
-option(BUILD_TESTS "Specifies whether tests are built" OFF)
-mark_as_advanced(BUILD_TESTS)
-if (BUILD_TESTS)
-    enable_testing()
-endif()
 
 ############################################################################
 ## Target configuration ####################################################
@@ -106,13 +103,11 @@ add_subdirectory(safe_string)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
-option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the default C++ OPAE API implementation." ON)
-mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
-option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the C++ API implementation on top of the API." OFF)
+option(BUILD_LIBOPAE_CXX "Enable building of libopae-cxx. This is the C++ API implementation on top of the API." ON)
 mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_CXX)
   add_subdirectory(libopae++)
@@ -178,6 +173,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ############################################################################
 ## Packaging ###############################################################
 ############################################################################
+
+option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
+mark_as_advanced(HASH_ARCHIVES)
 
 include(packaging)
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})

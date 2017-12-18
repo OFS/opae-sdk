@@ -77,16 +77,28 @@ function(DEFINE_PKG name)
 
 endfunction(DEFINE_PKG)
 
-macro(CREATE_PYTHON_EXE EXE_NAME)
+macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
 
     set(PYTHON_SRC "${ARGN}")
     set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/${EXE_NAME})
+
+    # Generate a __main__.py that loads the target module
+    set(BUILD_DIR_MAIN "${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}_main")
+    file(MAKE_DIRECTORY "${BUILD_DIR_MAIN}")
+    file(WRITE "${BUILD_DIR_MAIN}/__main__.py"
+        "import sys\n"
+        "from ${MAIN_MODULE} import main\n"
+        "if __name__ == '__main__':\n"
+        "    sys.exit(main())\n")
+
     set(ZIP_STR 
         "zip -qr ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${PYTHON_SRC}")   
+    set(ZIP_MAIN_STR
+        "zip -qj ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${BUILD_DIR_MAIN}/__main__.py")
     set(ECHO_STR "echo '#!/usr/bin/env python ' | 
         cat - ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip > ${PACKAGER_BIN}")
        
-    execute_process(COMMAND sh -c ${ZIP_STR} 
+    execute_process(COMMAND sh -c "${ZIP_STR}; ${ZIP_MAIN_STR}"
               WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
