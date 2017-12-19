@@ -38,15 +38,22 @@ dma_buffer::~dma_buffer() {
     fpga_result res = fpgaReleaseBuffer(handle_->get(), wsid_);
 
     if (res != FPGA_OK) {
-      // TODO log/throw error
+      log_.error() << "fpgaReleaseBuffer() failed with (" << res
+                   << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
   }
 }
 
 dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
   ptr_t p;
+  opae::fpga::internal::logger log("dma_buffer::allocate()");
 
-  if (!len) return p;
+  if (!len) {
+    log.error() << "attempt to allocate buffer with len == 0";
+    throw except(OPAECXX_HERE);
+    return p;
+  }
 
   uint8_t *virt = nullptr;
   uint64_t iova = 0;
@@ -58,13 +65,15 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
     res = fpgaGetIOAddress(handle->get(), wsid, &iova);
     if (res == FPGA_OK) {
       p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-
     } else {
-      // TODO: log/throw error
+      log.error() << "fpgaGetIOAddress() failed with (" << res
+                  << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
-
   } else {
-    // TODO: log/throw error
+    log.error() << "fpgaPrepareBuffer() failed with (" << res
+                << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
   }
 
   return p;
@@ -73,6 +82,7 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
 dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
                                      size_t len) {
   ptr_t p;
+  opae::fpga::internal::logger log("dma_buffer::attach()");
 
   uint8_t *virt = base;
   uint64_t iova = 0;
@@ -86,13 +96,16 @@ dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
     res = fpgaGetIOAddress(handle->get(), wsid, &iova);
     if (res == FPGA_OK) {
       p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-
     } else {
-      // TODO: log/throw error
+      log.error() << "fpgaGetIOAddress() failed with (" << res
+                  << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
 
   } else {
-    // TODO: log/throw error
+    log.error() << "fpgaPrepareBuffer() failed with (" << res
+                << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
   }
 
   return p;
@@ -106,7 +119,7 @@ int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const {
 
 dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                        uint64_t wsid, uint64_t iova)
-    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
+    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova), log_("dma_buffer") {}
 
 dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                        uint64_t wsid, uint64_t iova, dma_buffer::ptr_t parent)
@@ -115,6 +128,7 @@ dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
       virt_(virt),
       wsid_(wsid),
       iova_(iova),
+      log_("dma_buffer"),
       parent_(parent) {}
 
 }  // end of namespace types
