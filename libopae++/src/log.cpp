@@ -104,7 +104,7 @@ class null_stream : public wrapped_stream {
  public:
   null_stream() : wrapped_stream() {}
 
-  virtual ~null_stream(){
+  ~null_stream(){
   }
 
 };
