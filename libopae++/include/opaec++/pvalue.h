@@ -39,11 +39,12 @@ namespace fpga {
 namespace types {
 
 struct guid_t {
-  guid_t(fpga_properties *p) : props_(p), log_("guid_t") {}
+  guid_t(fpga_properties *p) : props_(p), log_("guid_t"), is_set_(false) {}
 
   operator uint8_t *() {
     if (fpgaPropertiesGetGUID(
             *props_, reinterpret_cast<fpga_guid *>(data_.data())) == FPGA_OK) {
+      is_set_ = true;
       return data_.data();
     }
     return nullptr;
@@ -56,6 +57,7 @@ struct guid_t {
   guid_t &operator=(fpga_guid g) {
     fpga_result res;
     if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
+      is_set_ = true;
       uint8_t *begin = &g[0];
       uint8_t *end = begin + sizeof(fpga_guid);
       std::copy(begin, end, data_.begin());
@@ -104,9 +106,13 @@ struct guid_t {
     return ostr;
   }
 
+  bool is_set() const { return is_set_; }
+  void is_set(bool b) { is_set_ = b;    }
+
  private:
   fpga_properties *props_;
-  mutable opae::fpga::internal::logger log_;
+  opae::fpga::internal::logger log_;
+  bool is_set_;
   std::array<uint8_t, 16> data_;
 };
 
@@ -142,7 +148,7 @@ struct pvalue {
   typedef typename std::conditional<
       std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
   
-  pvalue() : props_(0), log_("pvalue") {}
+  pvalue() : props_(0), log_("pvalue"), is_set_(false) {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
@@ -153,7 +159,7 @@ struct pvalue {
    * @param s The setter function
    */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
-      : props_(p), log_("pvalue"), get_(g), set_(s) {}
+      : props_(p), log_("pvalue"), is_set_(false), get_(g), set_(s) {}
 
   /**
    * @brief Overload of `=` operator that calls the wrapped setter
@@ -165,6 +171,7 @@ struct pvalue {
   pvalue<T> &operator=(const T &v) {
     auto res = set_(*props_, v);
     if (res == FPGA_OK) {
+      is_set_ = true;
       copy_ = v;
     }
     return *this;
@@ -187,6 +194,7 @@ struct pvalue {
    */
   operator copy_t() {
     if (get_(*props_, &copy_) == FPGA_OK) {
+      is_set_ = true;
       return copy_;
     }
     return copy_t();
@@ -222,9 +230,13 @@ struct pvalue {
     return ostr;
   }
 
+  bool is_set() const { return is_set_; }
+  void is_set(bool b) { is_set_ = b;    }
+
  private:
   fpga_properties *props_;
-  mutable opae::fpga::internal::logger log_;
+  opae::fpga::internal::logger log_;
+  bool is_set_;
   copy_t copy_;
   getter_t get_;
   setter_t set_;
@@ -239,6 +251,7 @@ template<> inline
 pvalue<char*>::operator pvalue<char*>::copy_t() {
   char buf[64];
   if (get_(*props_, buf) == FPGA_OK) {
+    is_set_ = true;
     copy_.assign(buf);
     return copy_;
   }

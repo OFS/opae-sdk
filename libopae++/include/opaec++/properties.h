@@ -46,6 +46,10 @@ class properties {
 
   properties();
 
+  properties(const properties &p);
+
+  properties & operator =(const properties &p);
+
   properties(fpga_guid guid_in);
 
   properties(fpga_objtype objtype);

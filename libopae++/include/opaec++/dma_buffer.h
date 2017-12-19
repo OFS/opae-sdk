@@ -170,7 +170,7 @@ class dma_buffer : public std::enable_shared_from_this<dma_buffer> {
   uint8_t *virt_;
   uint64_t wsid_;
   uint64_t iova_;
-  mutable opae::fpga::internal::logger log_;
+  opae::fpga::internal::logger log_;
   ptr_t parent_;  // for split buffers
 
  private:
