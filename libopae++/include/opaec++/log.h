@@ -39,6 +39,11 @@ namespace internal {
 class wrapped_stream
 {
  public:
+ /**
+  * @brief create an empty wrapped_stream
+  *
+  */
+  wrapped_stream();
 
  /**
   * @brief create a wrapped_stream object with a given level
@@ -84,7 +89,9 @@ class wrapped_stream
   template<typename T>
   wrapped_stream& operator<<(const T& v)
   {
-      sstream_ << v;
+      if (sstream_ != nullptr){
+        *sstream_ << v;
+      }
       return *this;
   }
 
@@ -98,7 +105,7 @@ class wrapped_stream
   wrapped_stream& operator<<(std::ostream& (*manip)(std::ostream&));
 
  protected:
-  std::stringstream sstream_;
+  std::ostringstream* sstream_;
 
  private:
   int level_;

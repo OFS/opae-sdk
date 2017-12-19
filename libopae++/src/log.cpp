@@ -51,8 +51,14 @@ static std::map<logger::level, std::string> s_level_map =
     {logger::level::fatal,      "FATAL"}
 };
 
+wrapped_stream::wrapped_stream()
+    : sstream_(nullptr)
+    , level_(-1)
+{
+}
+
 wrapped_stream::wrapped_stream(int level, bool new_line)
-    : sstream_()
+    : sstream_(new std::ostringstream())
     , level_(level)
     , fmt_{"%s\n"}
 {
@@ -62,38 +68,43 @@ wrapped_stream::wrapped_stream(int level, bool new_line)
 }
 
 wrapped_stream::wrapped_stream(const wrapped_stream & other)
-    : sstream_(other.sstream_.str())
+    : sstream_(nullptr)
 {
+  if (other.sstream_ != nullptr){
+    sstream_ = new std::ostringstream(other.sstream_->str());
+  }
 }
 
 wrapped_stream & wrapped_stream::operator=(const wrapped_stream & other) {
   if (this != &other) {
-      sstream_.str(other.sstream_.str());
+      sstream_->str(other.sstream_->str());
   }
   return *this;
 }
 
 wrapped_stream::~wrapped_stream() {
-  auto msg = sstream_.str();
-  if (!msg.empty()){
-    fpga_print(level_, fmt_, sstream_.str().c_str());
-    sstream_.str(std::string());
+  if (sstream_ != nullptr){
+    auto msg = sstream_->str();
+    if (!msg.empty()){
+      fpga_print(level_, fmt_, sstream_->str().c_str());
+    }
+    delete sstream_;
   }
 }
 
 
 wrapped_stream& wrapped_stream::operator<<(std::ostream& (*manip)(std::ostream&)) {
-  sstream_ << manip;
+  if (sstream_ != nullptr){
+    *sstream_ << manip;
+  }
   return *this;
 }
 
 class null_stream : public wrapped_stream {
  public:
-  null_stream() : wrapped_stream(-1) {
-  }
+  null_stream() : wrapped_stream() {}
 
   virtual ~null_stream(){
-    sstream_.str("");
   }
 
 };
