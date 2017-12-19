@@ -79,10 +79,17 @@ package ccip_cfg_pkg;
     // Is a given request length supported, indexed by t_ccip_clLen?  (0 or 1)
     parameter int CL_LEN_SUPPORTED[4] = `PLATFORM_PARAM_CCI_P_CL_LEN_SUPPORTED;
 
-    // Recommended number of edge register stages for CCI-P request/response
-    // signals.  All platforms require at least 1.  On some platforms, timing
-    // closure is difficult without more stages.
-    parameter int NUM_TIMING_REG_STAGES = `PLATFORM_PARAM_CCI_P_NUM_TIMING_REG_STAGES;
+    // Recommended number of extra edge register stages for CCI-P request/response
+    // signals, not including the single stage already required by the CCI-P
+    // specification.  On some platforms, timing closure is difficult without more
+    // stages.  Note:  There is no extra platform-side buffering added for handling
+    // extra almost full signals!  Extra buffering beyond one stage counts against
+    // the sending limit following almost full.  Typically, two times the number of
+    // extra inserted stages slots are lost to buffering.  This accounts for the
+    // added latency of receiving almost full and also accounts for extra in-flight
+    // requests beyond CCI-P's required single buffering stage.
+    parameter int SUGGESTED_EXTRA_TIMING_REG_STAGES =
+        `PLATFORM_PARAM_CCI_P_SUGGESTED_EXTRA_TIMING_REG_STAGES;
 
     // Mask of request types (e_c0_req and e_c1_req) supported by the platform.
     parameter C0_SUPPORTED_REQS = int'(`PLATFORM_PARAM_CCI_P_C0_SUPPORTED_REQS);

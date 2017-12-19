@@ -58,38 +58,42 @@
                      "CCI-P requires that an AFU register both the request and response",
                      "signals before any combinational logic.  On some platforms, it",
                      "is easier to meet timing when there is more than one register",
-                     "stage.  num-timing-reg-stages is a platform-specific recommendation",
-                     "to AFUs, suggesting the number of registered CCI-P request and",
-                     "response stages for timing across the partial reconfiguration boundary.",
+                     "stage.  suggested-extra-timing-reg-stages is a platform-specific",
+                     "recommendation of the number of extra CCI-P register stages",
+                     "(beyond the required one) most likely to meet timing.",
                      "",
                      "Note: There is no extra platform-side buffering added for handling",
                      "extra almost full signals!  Extra buffering beyond one stage",
                      "counts against the sending limit following almost full.  Typically,",
-                     "2 * (num-timing-reg-stages - 1) slots are lost to buffering.",
-                     "This accounts for the added latency of receiving almost full and",
-                     "also accounts for extra in-flight requests beyond the CCI-P",
-                     "allotted single stage."
+                     "two times the number of extra inserted stages slots are lost to",
+                     "buffering.  This accounts for the added latency of receiving",
+                     "almost full and also accounts for extra in-flight requests beyond",
+                     "CCI-P's required single buffering stage."
                   ],
-               "num-timing-reg-stages": 1,
+               "suggested-extra-timing-reg-stages": 0,
 
                "comment":
                   [
-                     "num-timing-reg-stages is related to num-auto-timing-reg-stages.",
-                     "The former is a characteristic of a platform.  It is the",
-                     "recommended number of register stages between the partial",
-                     "reconfiguration boundary and the AFU.  This new parameter,",
-                     "num-auto-timing-reg-stages is a request by the AFU to the",
-                     "platform to actually insert register stages on behalf of the",
-                     "AFU between the partial reconfiguration boundary and the AFU.",
+                     "suggested-extra-timing-reg-stages above is related to",
+                     "add-extra-timing-reg-stages.  The former is a characteristic of",
+                     "a platform.  It is the recommended number of extra register stages",
+                     "between the partial reconfiguration boundary and the AFU to meet",
+                     "timing.",
                      "",
-                     "In addition to integer counts, the string 'auto' (use double",
-                     "quotes) will request (num-timing-reg-stages - 1) auto-inserted",
-                     "stages.  One is subtracted because the AFU is still expected",
-                     "to register the CCI-P signals.  Automatic mode shifts",
-                     "responsibility for managing variations in num-timing-reg-stages",
-                     "from AFUs to the platform."
+                     "This new parameter, add-extra-timing-reg-stages is a",
+                     "request by the AFU to the platform to actually insert",
+                     "register stages on behalf of the AFU between the partial",
+                     "reconfiguration (PR) boundary and the AFU.",
+                     "",
+                     "If add-extra-timing-reg-stages is set to 'auto' (use double",
+                     "quotes), suggested-extra-timing-reg-stages are added.  The auto",
+                     "setting maximizes the chances than an AFU will be portable across",
+                     "multiple CCI-P platforms.  In addition to 'auto', this field",
+                     "may also be an integer.  In that case, the specified number of",
+                     "stages are added by the platform between the PR boundary and",
+                     "the AFU."
                   ],
-               "num-auto-timing-reg-stages": null,
+               "add-extra-timing-reg-stages": 0,
 
                "comment":
                   [
@@ -114,31 +118,27 @@
 
                "comment":
                   [
-                     "Like the CCI-P num-timing-reg-stages, this is the",
-                     "recommended number of times an AFU is expected to register",
-                     "local memory signals before use.  For Avalon MM interfaces",
-                     "this value is typically zero since registering Avalon MM's",
-                     "waitrequest protocol is complex.  The platform provides a",
-                     "module for adding pipeline stages when using the SystemVerilog",
-                     "Avalon interface:  avalon_mem_if_reg."
+                     "Like the same field in CCI-P, this is the recommended number",
+                     "of times an AFU should register local memory signals before use",
+                     "in order to make successful timing closure likely.  For Avalon",
+                     "MM interfaces this value is typically zero since registering",
+                     "Avalon MM's waitrequest protocol is complex."
                   ],
-               "num-timing-reg-stages": 0,
+               "suggested-extra-timing-reg-stages": 0,
 
                "comment":
                   [
-                     "Like the CCI-P num-auto-timing-reg-stages, this field requests",
-                     "that the platform add pipeline stages to the local memory",
-                     "signals before passing them to the AFU.",
+                     "Like the CCI-P add-extra-timing-reg-stages, this field",
+                     "requests that the platform add pipeline stages to the local",
+                     "memory signals before passing them to the AFU.  Register stages",
+                     "are added using an Avalon MM pipeline bridge.",
                      "",
                      "In addition to integer counts, the string 'auto' (use double",
-                     "quotes) will request num-timing-reg-stages auto-inserted",
-                     "stages.  Note the subtle difference from the CCI-P version.",
-                     "In CCI-P, one is subtracted in 'auto' mode because the AFU",
-                     "is expected to add a CCI-P register stage.  For local memory",
-                     "the AFU is not required to add a register stage, so the full",
-                     "count of num-timing-reg-stages is added by the platform."
+                     "quotes) will cause suggested-extra-timing-reg-stages to be",
+                     "added.  The 'auto' setting is intended to aid in making",
+                     "AFUs portable across platforms."
                   ],
-               "num-auto-timing-reg-stages": null,
+               "add-extra-timing-reg-stages": 0,
 
                "comment":
                   [

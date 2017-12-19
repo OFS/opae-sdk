@@ -108,21 +108,15 @@ def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
 # at synthesis time in Verilog.
 #
 def computedParams(afu_arg, params):
-    # Set an actual value for num-auto-timing-reg-stages if the AFU
+    # Set an actual value for add-extra-timing-reg-stages if the AFU
     # says "auto".
     try:
-        n_plat_stages = params['num-timing-reg-stages']
-        n_auto = params['num-auto-timing-reg-stages']
+        n_plat_stages = params['suggested-extra-timing-reg-stages']
+        n_auto = params['add-extra-timing-reg-stages']
         if (n_auto):
             if (n_auto == 'auto'):
                 n_auto = n_plat_stages
-                if (afu_arg['class'].upper() == 'CCI-P'):
-                    # Special case for CCI-P.  Since the AFU must register
-                    # CCI-P signals at least once, the auto-registration
-                    # skips one stage.
-                    n_auto = n_auto - 1
-
-                params['num-auto-timing-reg-stages'] = n_auto
+                params['add-extra-timing-reg-stages'] = n_auto
 
             # Raise ValueError if the parameter isn't a positive integer
             if (int(n_auto) < 0):
@@ -131,8 +125,8 @@ def computedParams(afu_arg, params):
         None
     except ValueError:
         errorExit(afu_arg['class'].upper() +
-                  ' parameter num-auto-timing-reg-stages must be ' +
-                  'either a positive integer or "auto"')
+                  ' parameter add-extra-timing-reg-stages must be ' +
+                  'either an unsigned integer or "auto"')
 
     if (afu_arg['class'].upper() == 'CCI-P'):
         # Convert the 'vc-supported' vector into a count of channels.
@@ -177,7 +171,7 @@ is_params.add('clock')
 #
 platform_shim_params = set()
 platform_shim_params.add('clock')
-platform_shim_params.add('num-auto-timing-reg-stages')
+platform_shim_params.add('add-extra-timing-reg-stages')
 
 
 #

@@ -33,9 +33,9 @@ Each JSON database is a dictionary, supporting the following keys:
     shims will automatically instantiate clock-crossing FIFOs.  The shims will
     also insert registers to relieve timing.  Clock management and register
     insertion are controlled by parameters in an AFU's JSON file.  See the
-    num-auto-timing-reg-stages and clock module-arguments parameters, described
-    in README_AFU in this directory.  When not defined or NULL, no shim is
-    instantiated.
+    add-extra-timing-reg-stages and clock module-arguments parameters,
+    described in README_AFU in this directory.  When not defined or NULL, no shim
+    is instantiated.
 
   parent:
     String [optional]
