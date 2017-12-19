@@ -51,8 +51,14 @@ static std::map<logger::level, std::string> s_level_map =
     {logger::level::fatal,      "FATAL"}
 };
 
+wrapped_stream::wrapped_stream()
+    : sstream_(nullptr)
+    , level_(-1)
+{
+}
+
 wrapped_stream::wrapped_stream(int level, bool new_line)
-    : sstream_()
+    : sstream_(new std::ostringstream())
     , level_(level)
     , fmt_{"%s\n"}
 {
@@ -62,34 +68,53 @@ wrapped_stream::wrapped_stream(int level, bool new_line)
 }
 
 wrapped_stream::wrapped_stream(const wrapped_stream & other)
-    : sstream_(other.sstream_.str())
+    : sstream_(nullptr)
 {
+  if (other.sstream_ != nullptr){
+    sstream_ = new std::ostringstream(other.sstream_->str());
+  }
 }
 
 wrapped_stream & wrapped_stream::operator=(const wrapped_stream & other) {
-  if (this != &other) {
-      sstream_.str(other.sstream_.str());
+  if (this != &other && other.sstream_ != nullptr) {
+      sstream_->str(other.sstream_->str());
   }
   return *this;
 }
 
 wrapped_stream::~wrapped_stream() {
-  fpga_print(level_, fmt_, sstream_.str().c_str());
-  sstream_.str(std::string());
+  if (sstream_ != nullptr){
+    auto msg = sstream_->str();
+    if (!msg.empty()){
+      fpga_print(level_, fmt_, sstream_->str().c_str());
+    }
+    delete sstream_;
+  }
 }
 
 
 wrapped_stream& wrapped_stream::operator<<(std::ostream& (*manip)(std::ostream&)) {
-  sstream_ << manip;
+  if (sstream_ != nullptr){
+    *sstream_ << manip;
+  }
   return *this;
 }
+
+class null_stream : public wrapped_stream {
+ public:
+  null_stream() : wrapped_stream() {}
+
+  ~null_stream(){
+  }
+
+};
 
 logger::logger(const std::string & name)
   : name_(name)
 {
 }
 
-wrapped_stream logger::log(logger::level l, std::string str)
+wrapped_stream logger::log(logger::level l, std::string str) const
 {
   // convert C++ log levels to C log
   int lvl = static_cast<int>(l)/20;
@@ -104,32 +129,44 @@ wrapped_stream logger::log(logger::level l, std::string str)
   return stream;
 }
 
-wrapped_stream logger::debug(std::string str)
+wrapped_stream logger::debug(std::string str) const
 {
   return log(level::debug, str);
 }
 
-wrapped_stream logger::info(std::string str)
+wrapped_stream logger::info(std::string str) const
 {
   return log(level::info, str);
 }
 
-wrapped_stream logger::warn(std::string str)
+wrapped_stream logger::warn(std::string str) const
 {
   return log(level::warn, str);
 }
 
-wrapped_stream logger::error(std::string str)
+wrapped_stream logger::warn_if(bool cond, std::string str) const
+{
+  if (cond) return log(level::warn, str);
+  return null_stream();
+}
+
+wrapped_stream logger::error(std::string str) const
 {
   return log(level::error, str);
 }
 
-wrapped_stream logger::exception(std::string str)
+wrapped_stream logger::error_if(bool cond, std::string str) const
+{
+  if (cond) return log(level::error, str);
+  return null_stream();
+}
+
+wrapped_stream logger::exception(std::string str) const
 {
   return log(level::exception, str);
 }
 
-wrapped_stream logger::fatal(std::string str)
+wrapped_stream logger::fatal(std::string str) const
 {
   return log(level::fatal, str);
 }
