@@ -1,6 +1,6 @@
 Shims here are invoked by the top-level code that manages the partial reconfiguration
 boundary.  Instead of directly instantiating an AFU (e.g. ccip_std_afu), these
-intermediate shims may be mapped first.  The shims transform the interface and then
+intermediate shims will be mapped first.  The shims transform the interface and then
 connect to the AFU.
 
 Shims names are defined in the JSON field "platform-shim-module-name" in

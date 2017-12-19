@@ -74,11 +74,13 @@
 
                "comment":
                   [
-                     "This field requests that the platform register CCI-P requests",
-                     "and responses on the AFU side of the partial reconfiguration",
-                     "boundary.  Register stages injected here count against the",
-                     "almost full sending limit in both directions!",
-                     "See num-timing-reg-stages above for a discussion.",
+                     "num-timing-reg-stages is related to num-auto-timing-reg-stages.",
+                     "The former is a characteristic of a platform.  It is the",
+                     "recommended number of register stages between the partial",
+                     "reconfiguration boundary and the AFU.  This new parameter,",
+                     "num-auto-timing-reg-stages is a request by the AFU to the",
+                     "platform to actually insert register stages on behalf of the",
+                     "AFU between the partial reconfiguration boundary and the AFU.",
                      "",
                      "In addition to integer counts, the string 'auto' (use double",
                      "quotes) will request (num-timing-reg-stages - 1) auto-inserted",
