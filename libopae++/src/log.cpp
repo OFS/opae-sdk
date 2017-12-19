@@ -76,7 +76,7 @@ wrapped_stream::wrapped_stream(const wrapped_stream & other)
 }
 
 wrapped_stream & wrapped_stream::operator=(const wrapped_stream & other) {
-  if (this != &other) {
+  if (this != &other && other.sstream_ != nullptr) {
       sstream_->str(other.sstream_->str());
   }
   return *this;
