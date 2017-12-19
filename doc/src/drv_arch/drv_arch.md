@@ -39,17 +39,14 @@ and release it using `close()` as a privileged user (root).
 
 ## Port ##
 
-A Port represents the interface between the static FPGA fabric (the "blue
-bitstream") and a partially reconfigurable region containing an Accelerator Function Unit (AFU) (the "green
-bitstream"). The Port controls the communication from software to the accelerator and
-exposes features such as reset and debug.
+A Port represents the interface between the static FPGA fabric, which is referred to as the FPGA Interface Manager (FIM) and a partially reconfigurable region containing an Accelerator Function (AF). The Port controls the communication from software to the accelerator and exposes features such as reset and debug.
 
 A PCIe device may have several Ports, and each Port can be exposed through a VF
 by assigning it using the `FPGA_FME_PORT_ASSIGN` ioctl on the FME device.
 
-## Accelerator Function Unit (AFU) ##
+## Accelerator Function (AF) ##
 
-An Accelerator Function Unit is attached to a Port and exposes a 256K MMIO region to be used for accelerator-specific control registers.
+An AF is attached to a Port and exposes a 256K MMIO region to be used for accelerator-specific control registers.
 
 User-space applications can acquire exclusive access to an AFU attached to a
 Port by using `open()` on the Port device, and release it using `close()`.
@@ -59,11 +56,10 @@ User-space applications can also `mmap()` accelerator MMIO regions.
 ## Partial Reconfiguration ##
 
 As mentioned above, accelerators can be reconfigured through partial
-reconfiguration of a green bitstream file (GBS). The green bitstream must have
-been generated for the exact blue bitstream and targeted reconfigurable region
-(Port) of the FPGA; otherwise, the reconfiguration operation will fail and
+reconfiguration of an AF file. The AF must have been generated for the exact FIM and targeted 
+reconfigurable region (Port) of the FPGA; otherwise, the reconfiguration operation will fail and
 possibly cause system instability. This compatibility can be checked by
-comparing the interface ID noted in the GBS header against the interface ID
+comparing the interface ID noted in the AF header against the interface ID
 exposed by the FME through sysfs. This check is usually done by
 user-space before calling the reconfiguration IOCTL.
 
@@ -87,14 +83,14 @@ user-space before calling the reconfiguration IOCTL.
 ## FPGA Virtualization ##
 
 To enable accessing an accelerator from applications running in a VM, the
-respective AFU's Port needs to be assigned to a VF using the following steps:
+respective AF's port needs to be assigned to a VF using the following steps:
 
 1. The PF owns all AFU Ports by default. Any Port that needs to be reassigned
-to a VF must be released from the PF firstly through the `FPGA_FME_PORT_RELEASE`
+to a VF must first be released from the PF through the `FPGA_FME_PORT_RELEASE`
 ioctl on the FME device.
 
-2. Once N Ports are released from the PF, then user can use below command to
-enable SRIOV and VFs. Each VF owns only one Port with AFU.
+2. Once N Ports are released from the PF, the command, below, can be used to 
+enable SRIOV and VFs. Each VF owns only one Port with AF.
 
 ```console
     echo N > $PCI_DEVICE_PATH/sriov_numvfs
@@ -102,12 +98,15 @@ enable SRIOV and VFs. Each VF owns only one Port with AFU.
 
 3. Pass through the VFs to VMs.
 
-4. The AFU under VF is accessible from applications in VM (using the same
+4. The AF under VF is accessible from applications in VM (using the same
 driver inside the VF).
 
-Note that an FME can't be assigned to a VF, thus PR and other management
-functions are only available via the PF.
+.. note::
 
+```
+An FME cannot be assigned to a VF, thus PR and other management
+functions are only available through the PF.
+```
 ## Driver Organization ##
 
 ### PCIe Module Device Driver ###
@@ -119,10 +118,10 @@ device driver (`intel-fpga-pci.ko`) is always loaded first once an
 FPGA PCIe PF or VF is detected. This driver plays an infrastructural
 role in the driver architecture. It:
 
-1. Creates FPGA container device as parent of the feature devices.
+1. Creates an FPGA container device as parent of the feature devices.
 2. Walks through the Device Feature List, which is implemented in PCIe
 device BAR memory, to discover feature devices and their sub-features
-and create platform device for them under the container device.
+and create platform devices for them under the container device.
 3. Supports SR-IOV.
 4. Introduces the feature device infrastructure, which abstracts
 operations for sub-features and exposes common functions to feature
@@ -132,7 +131,7 @@ device drivers.
 
 * Contains PCIe discovery, device enumeration, and feature discovery.
 * Creates sysfs directories for the parent device, FPGA Management Engine (FME), and Port.
-* Creates the platform driver instances, causing Linux to load their respective platform module drivers.
+* Creates the platform driver instances, causing the Linux kernel to load their respective platform module drivers.
 
 ### FME Platform Module Device Driver ###
 
@@ -142,12 +141,12 @@ device creation from the PCIe driver. It provides the key features for
 FPGA management, including:
 
 1. Power and thermal management, error reporting, performance reporting,
-and other infrastructure functions. Users can access these functions
-via sysfs interfaces exposed by FME driver.
+and other infrastructure functions. You can access these functions
+via sysfs interfaces exposed by the FME driver.
 
 2. Partial Reconfiguration. The FME driver registers an FPGA Manager
 during PR sub-feature initialization; once it receives an
-`FPGA_FME_PORT_PR` ioctl from user, it invokes the common interface
+`FPGA_FME_PORT_PR` ioctl from user-space, it invokes the common interface
 function from FPGA Manager to complete the partial reconfiguration of
 the bitstream to the given Port.
 
@@ -155,8 +154,9 @@ the bitstream to the given Port.
 ioctls, `FPGA_FME_PORT_RELEASE`, which releases given Port from PF; and
 `FPGA_FME_PORT_ASSIGN`, which assigns Port back to PF. Once the Port is
 released from the PF, it can be assigned to the VF through the SR-IOV
-interfaces provided by PCIe driver. (Refer to "FPGA Virtualization"
-for more details).
+interfaces provided by PCIe driver. 
+
+For more information, refer to "FPGA Virtualization".
 
 ### FME Platform Module Device Driver Functions ###
 
@@ -173,13 +173,15 @@ for more details).
 
 ### Port Platform Module Device Driver ###
 
-Similar to the FME driver, the FPGA Port (and AFU) driver
+Similar to the FME driver, the FPGA Port (and AF) driver
 (`intel-fpga-afu.ko`) is probed once the Port platform device is
 created. The main function of this module is to provide an interface
-for userspace applications to access the individual accelerators,
-including basic reset control on Port, AFU MMIO region export, DMA
-buffer mapping service, UMsg notification, and remote debug functions
+for user-space applications to access the individual accelerators,
+including basic reset control on Port, AF MMIO region export, DMA
+buffer mapping service, UMsg<sup>1</sup> notification, and remote debug functions
 (see above).
+
+<fn> <sup>1</sup> UMsg is only supported through Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA.</fn>
 
 ### Port Platform Module Device Driver Functions ###
 
@@ -190,8 +192,10 @@ buffer mapping service, UMsg notification, and remote debug functions
     * Port Header
     * AFU
     * Port Error
-    * UMsg
+    * UMsg<sup>2</sup>
     * Signal Tap
+
+<fn> <sup>2</sup> UMsg is only supported through Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA.</fn>
 
 ## Application FPGA Device Enumeration ##
 
@@ -242,7 +246,7 @@ The device nodes used for `ioctl()` and `mmap()` can be referenced through:
 
 This section gives an overview of the code flow for device enumeration
 performed by intel-fpga-pci.ko. The main data structures and functions
-are highlited. This section is best followed when viewing the accompanying
+are highlighted. This section is best followed when viewing the accompanying
 source code (`pcie.c`).
 
 ### Enumeration Data Structures ###
@@ -277,10 +281,12 @@ source code (`pcie.c`).
 
 ```c
     static struct pci_device_id cci_pcie_id_tbl[] = {
-        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_RCiEP0_INTG_XEON),},
-        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_VF_INTG_XEON),},
-        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_RCiEP0_DISCRETE),},
-        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_VF_DISCRETE),},
+    	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_RCiEP0_MCP),}, 
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_VF_MCP),}, 
+        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_RCiEP0_SKX_P),},
+        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_VF_SKX_P),},
+        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_RCiEP0_DCP),},
+        {PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIe_DEVICE_ID_VF_DCP),},
         {0,}
     };
 
@@ -708,7 +714,7 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
 
 * UMsg must be disabled prior to issuing this ioctl.
 * The iova field must be for a buffer large enough for all UMsg's (num_umsgs * PAGE_SIZE).
-    * The buffer will be marked as "in use" by the driver's buffer management.
+    * The buffer is marked as "in use" by the driver's buffer management.
     * If iova is NULL, any previous region is unmarked as "in use".
 * arg is a pointer to a:
 
@@ -723,7 +729,7 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
 .. note::
 
 ```
-    To clear the port errors, you have to write the exact bitmask of the current errors, eg:
+    To clear the port errors, you have to write the exact bitmask of the current errors, for example:
 
     $ cat errors > clear
 ```
@@ -795,7 +801,7 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 .. note::
 
 ```
-    To clear the FME errors, you must write the exact bitmask of the current errors, eg
+    To clear the FME errors, you must write the exact bitmask of the current errors, for example:
 ```
 
 ```sh
@@ -812,13 +818,14 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/pr/
 
 ## FME Global Performance sysfs files ##
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/clock
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/dperf/clock
 
 | sysfs file | mmio field                 | type         | access    |
 |------------|----------------------------|--------------|-----------|
 | clock      | gperf.clk.afu_interf_clock | hex uint64_t | Read-only |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for DISCRETE)
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs)
+
 
 | sysfs file                 | mmio field                      | type         | access     |
 |----------------------------|---------------------------------|--------------|------------|
@@ -833,13 +840,14 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for DISCRETE)
 | data_write_port_contention | gperf.CACHE_DATA_WR_PORT_CONTEN | hex uint64_t | Read-only  |
 | tag_write_port_contention  | gperf.CACHE_TAG_WR_PORT_CONTEN  | hex uint64_t | Read-only  |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/    (Not valid for DISCRETE)
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/    (Not valid for Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs)
 
 | sysfs file | mmio field           | type        | access                           |
 |------------|----------------------|-------------|----------------------------------|
 | freeze     | gperf.vtd_ctl.freeze | decimal int | User: Read-only Root: Read-write |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for DISCRETE)
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs)
+
 
 | sysfs file        | mmio field                  | type         | access    |
 |-------------------|-----------------------------|--------------|-----------|
@@ -848,7 +856,7 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for DISCRE
 | tlb_read_hit      | gperf.VTD_AFU0_TLB_RD_HIT   | hex uint64_t | Read-only |
 | tlb_write_hit     | gperf.VTD_AFU0_TLB_WR_HIT   | hex uint64_t | Read-only |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/fabric/
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/dperf/fabric/
 
 | sysfs file  | mmio field              | type         | access                           |
 |-------------|-------------------------|--------------|----------------------------------|
@@ -861,7 +869,7 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/fabric/
 | upi_read    | gperf.FAB_UPI_RD        | hex uint64_t | Read-only                        |
 | upi_write   | gperf.FAB_UPI_WR        | hex uint64_t | Read-only                        |
 
-intel-fpga-ev.*i*/intel-fpga/fme.*j*/perf/fabric/port*k*/
+intel-fpga-ev.*i*/intel-fpga/fme.*j*/dperf/fabric/port*k*/
 
 | sysfs file  | mmio field         | type         | access    |
 |-------------|--------------------|--------------|-----------|
@@ -889,7 +897,7 @@ intel-fpga-dev.*i*/intel-fpga-port.*k*/
 |------------|-----------------|-------------|-----------|
 | afu_id     | afu_header.guid | hex 16-byte | Read-only |
 
-## Port Error sysfs files ##
+## Port Error sysfs files ## 
 
 intel-fpga-dev.*i*/intel-fpga-port.*k*/errors/
 
@@ -903,7 +911,7 @@ intel-fpga-dev.*i*/intel-fpga-port.*k*/errors/
 .. note::
 
 ```
-    To clear the Port errors, you must write the exact bitmask of the current errors, eg
+    To clear the Port errors, you must write the exact bitmask of the current errors, for example:
 ```
 
 ```sh
