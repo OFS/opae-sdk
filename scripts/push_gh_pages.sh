@@ -12,10 +12,16 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
     # exit 0
 fi
 
+# Required variables
 SHA=`git rev-parse --verify HEAD`
+cd mybuild_docs
+INTEL_FPGA_API_VER_MAJOR=`cmake .. -LH | grep INTEL_FPGA_API_VER_MAJOR | awk -F "=" '{print $2}'`
+INTEL_FPGA_API_VER_MINOR=`cmake .. -LH | grep INTEL_FPGA_API_VER_MINOR | awk -F "=" '{print $2}'`
+INTEL_FPGA_API_VER_REV=`cmake .. -LH | grep INTEL_FPGA_API_VER_REV | awk -F "=" '{print $2}'`
+cd ..
 
 if [ -n "$GITHUB_API_KEY" ]; then
-  cd mybuild_docs/sphinx/html
+  cd mybuild_docs/sphinx/html/$INTEL_FPGA_API_VER_MAJOR.$INTEL_FPGA_API_VER_MINOR.$INTEL_FPGA_API_VER_REV
   git init
   git checkout -b gh-pages
   git add --all .
