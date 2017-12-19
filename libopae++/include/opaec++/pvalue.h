@@ -92,17 +92,57 @@ struct guid_t {
   std::array<uint8_t, 16> data_;
 };
 
+/**
+ * @brief Wraps OPAE properties defined in the OPAE C API
+ *        by associating an `fpga_properties` reference
+ *        with the getters and setters defined for a property
+ *
+ * @tparam T The type of the property value being wrapped
+ */
 template <typename T>
 struct pvalue {
+
+  /**
+   * @brief Define getter function as getter_t
+   * For `char*` types, do not use T* as the second argument
+   * but instead use T
+   */
   typedef typename std::conditional<
-      std::is_same<T, char *>::value, fpga_result (*)(fpga_properties, T),
+      std::is_same<T, char*>::value, fpga_result (*)(fpga_properties, T),
       fpga_result (*)(fpga_properties, T *)>::type getter_t;
+
+  /**
+   * @brief Define the setter function as setter_t
+   *
+   */
   typedef fpga_result (*setter_t)(fpga_properties, T);
+
+  /**
+   * @brief Define the type of our copy variable
+   * For `char*` types use std::string as the copy
+   */
+  typedef typename std::conditional<
+      std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
   pvalue() : props_(0) {}
 
+  /**
+   * @brief pvalue contructor that takes in a reference to fpga_properties
+   *        and corresponding accessor methods for a property
+   *
+   * @param p A reference to an fpga_properties
+   * @param g The getter function
+   * @param s The setter function
+   */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
       : props_(p), get_(g), set_(s) {}
 
+  /**
+   * @brief Overload of `=` operator that calls the wrapped setter
+   *
+   * @param v The value to set
+   *
+   * @return A reference to itself
+   */
   pvalue<T> &operator=(const T &v) {
     auto res = set_(*props_, v);
     if (res == FPGA_OK) {
@@ -111,18 +151,41 @@ struct pvalue {
     return *this;
   }
 
+  /**
+   * @brief Compare a property for equality with a value
+   *
+   * @param other The value being compared to
+   *
+   * @return Whether or not the property is equal to the value
+   */
   bool operator==(const T &other) { return copy_ == other; }
 
-  operator T() {
+  /**
+   * @brief Implicit converter operator - calls the wrapped getter
+   *
+   * @return The property value after calling the getter or a default
+   *         value of the value type
+   */
+  operator copy_t() {
     if (get_(*props_, &copy_) == FPGA_OK) {
       return copy_;
     }
-    return T();
+    return copy_t();
   }
+
+
 
   // TODO: Remove this once all properties are tested
   fpga_result get_value(T &value) const { return get_(*props_, &value); }
 
+  /**
+   * @brief Stream overalod operator
+   *
+   * @param ostr The output stream
+   * @param p A reference to a pvalue<T> object
+   *
+   * @return The stream operator after streaming the property value
+   */
   friend std::ostream &operator<<(std::ostream &ostr, const pvalue<T> &p) {
     T value;
     fpga_properties props = *p.props_;
@@ -136,10 +199,25 @@ struct pvalue {
 
  private:
   fpga_properties *props_;
-  T copy_;
+  copy_t copy_;
   getter_t get_;
   setter_t set_;
 };
+
+/**
+ * @brief Template specialization of `char*` type properties
+ *
+ * @return The property value as an copy_t which is std::string
+ */
+template<> inline
+pvalue<char*>::operator pvalue<char*>::copy_t() {
+  char buf[64];
+  if (get_(*props_, buf) == FPGA_OK) {
+    copy_.assign(buf);
+    return copy_;
+  }
+  return pvalue<char*>::copy_t();
+}
 
 }  // end of namespace types
 }  // end of namespace fpga
