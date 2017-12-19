@@ -30,6 +30,7 @@
 #include <opae/types.h>
 #include <opae/enum.h>
 #include <opaec++/token.h>
+#include <opaec++/log.h>
 
 namespace opae {
 namespace fpga {
@@ -94,6 +95,7 @@ class handle {
   fpga_handle handle_;
   uint32_t mmio_region_;
   uint8_t *mmio_base_;
+  opae::fpga::internal::logger log_;
 };
 
 }  // end of namespace types

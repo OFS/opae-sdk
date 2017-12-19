@@ -24,7 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
+#include <opae/utils.h>
 #include "opaec++/token.h"
+#include "opaec++/except.h"
 
 namespace opae {
 namespace fpga {
@@ -37,6 +39,7 @@ std::vector<token::ptr_t> token::enumerate(
   std::transform(props.begin(), props.end(), c_props.begin(),
                  [](const properties& p) { return p.get(); });
   uint32_t matches = 0;
+  opae::fpga::internal::logger log("token::enumerate()");
   auto res =
       fpgaEnumerate(c_props.data(), c_props.size(), nullptr, 0, &matches);
   if (res == FPGA_OK && matches > 0) {
@@ -51,10 +54,12 @@ std::vector<token::ptr_t> token::enumerate(
 
     // discard our c struct token objects
     std::for_each(c_tokens.begin(), c_tokens.end(),
-                  [](fpga_token t) {
+                  [&log](fpga_token t) {
                     auto res = fpgaDestroyToken(&t);
                     if (res != FPGA_OK){
-                      //TODO(rrojo): Log error
+                      log.error() << "fpgaDestroyToken() failed with (" << res
+                                  << ") " << fpgaErrStr(res);
+                      throw except(res, OPAECXX_HERE);
                     }
                   });
   }
@@ -64,14 +69,18 @@ std::vector<token::ptr_t> token::enumerate(
 token::~token() {
   auto res = fpgaDestroyToken(&token_);
   if (res != FPGA_OK){
-    //TODO(rrojo): Log error
+    log_.error() << "fpgaDestroyToken() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
   }
 }
 
-token::token(fpga_token tok) {
+token::token(fpga_token tok) : log_("token") {
   auto res = fpgaCloneToken(tok, &token_);
   if (res != FPGA_OK){
-    //TODO(rrojo): Throw exception
+    log_.error() << "fpgaCloneToken() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
   }
 }
 

@@ -31,6 +31,7 @@
 #include <opae/access.h>
 #include <opae/enum.h>
 #include <opaec++/properties.h>
+#include <opaec++/log.h>
 
 namespace opae {
 namespace fpga {
@@ -49,8 +50,10 @@ class token {
   operator fpga_token() const { return token_; }
 
  private:
-  fpga_token token_;
   token(fpga_token tok);
+
+  opae::fpga::internal::logger log_;
+  fpga_token token_;
 };
 
 }  // end of namespace types

@@ -23,8 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/utils.h>
 #include "opaec++/properties.h"
 #include "opaec++/token.h"
+#include "opaec++/except.h"
 
 namespace opae {
 namespace fpga {
@@ -34,6 +36,7 @@ const std::vector<properties> properties::none = {};
 
 properties::properties()
     : props_(nullptr),
+      log_("properties"),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
@@ -60,7 +63,9 @@ properties::properties()
   auto res = fpgaGetProperties(nullptr, &props_);
   if (res != FPGA_OK) {
     props_ = nullptr;
-    // TODO: Throw fpga_error
+    log_.error() << "fpgaGetProperties() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
   }
 }
 
@@ -72,17 +77,24 @@ properties::~properties() {
   if (props_ != nullptr) {
     auto res = fpgaDestroyProperties(&props_);
     if (res != FPGA_OK) {
-      // TODO: Throw fpga_error
+      /* TODO(tswhison): unmask this error path once copy c'tor in place
+      log_.error() << "fpgaDestroyProperties() failed with (" << res
+                   << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE); 
+      */
     }
   }
 }
 
 properties::ptr_t properties::read(fpga_token tok) {
+  opae::fpga::internal::logger log("properties::read()");
   ptr_t p(new properties());
   auto res = fpgaGetProperties(tok, &p->props_);
   if (res != FPGA_OK) {
-    // TODO: Throw fpga_error
     p.reset();
+    log.error() << "fpgaGetProperties() failed with (" << res
+                << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE); 
   }
   return p;
 }

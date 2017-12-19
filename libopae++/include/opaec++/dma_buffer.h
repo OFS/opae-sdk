@@ -33,6 +33,8 @@
 
 #include <opae/buffer.h>
 #include <opaec++/handle.h>
+#include <opaec++/log.h>
+#include <opaec++/except.h>
 
 namespace opae {
 namespace fpga {
@@ -133,9 +135,14 @@ class dma_buffer : public std::enable_shared_from_this<dma_buffer> {
   T read(size_t offset) const {
     if ((offset < len_) && (virt_ != nullptr)) {
       return *reinterpret_cast<T *>(virt_ + offset);
+    } else if (offset >= len_) {
+      log_.error() << "offset: " << offset
+                   << " is greater or equal to len_: " << len_;
+      throw except(OPAECXX_HERE);
+    } else {
+      log_.error() << "attempt to read from NULL buffer";
+      throw except(OPAECXX_HERE);
     }
-    // TODO log/throw error
-
     return T();
   }
 
@@ -147,8 +154,14 @@ class dma_buffer : public std::enable_shared_from_this<dma_buffer> {
   void write(const T &value, size_t offset) {
     if ((offset < len_) && (virt_ != nullptr)) {
       *reinterpret_cast<T *>(virt_ + offset) = value;
+    } else if (offset >= len_) {
+      log_.error() << "offset: " << offset
+                   << " is greater or equal to len_: " << len_;
+      throw except(OPAECXX_HERE);
+    } else {
+      log_.error() << "attempt to write to NULL buffer";
+      throw except(OPAECXX_HERE);
     }
-    // TODO log/throw error
   }
 
  protected:
@@ -157,6 +170,7 @@ class dma_buffer : public std::enable_shared_from_this<dma_buffer> {
   uint8_t *virt_;
   uint64_t wsid_;
   uint64_t iova_;
+  mutable opae::fpga::internal::logger log_;
   ptr_t parent_;  // for split buffers
 
  private:
