@@ -230,60 +230,58 @@ bool checkReturnCodes(fpga_result result, string line) {
 
 	switch (result) {
 	case FPGA_OK:
-		// cout << "fpga ok\t"
-		//      << "pid:  " << pid << endl;
 		return true;
 
 	case FPGA_INVALID_PARAM:
 		cout << endl
-			<< "fpga invalid param\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga invalid param\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_BUSY:
 		cout << endl
-			<< "fpga busy\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga busy\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_EXCEPTION:
 		cout << endl
-			<< "fpga exception\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga exception\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		// raise(SIGINT);
 		return false;
 	case FPGA_NOT_FOUND:
 		cout << endl
-			<< "fpga not found\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga not found\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_MEMORY:
 		cout << endl
-			<< "fpga no memory\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga no memory\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NOT_SUPPORTED:
 		cout << endl
-			<< "fpga not supported\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga not supported\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_DRIVER:
 		cout << endl
-			<< "fpga no driver\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga no driver\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_DAEMON:
 		cout << endl
-			<< "fpga no daemon\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga no daemon\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_NO_ACCESS:
 		cout << endl
-			<< "fpga no access\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga no access\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	case FPGA_RECONF_ERROR:
 		cout << endl
-			<< "fpga reconf error\t"
-			<< "pid:  " << pid << " ... " << line << endl;
+				<< "fpga reconf error\t"
+				<< "pid:  " << pid << " ... " << line << endl;
 		return false;
 	}
 

@@ -243,7 +243,7 @@ inline bool token_is_fme0(fpga_token t) {
 				&indicator)) {
 	perror("error in string compare");
 	} else {
-	retval += indicator;
+		retval += indicator;
 	}
 
 	if (strcmp_s(_t->devpath, sizeof(_t->sysfspath), "/dev/intel-fpga-fme.0",
@@ -268,18 +268,18 @@ inline bool token_is_afu0(fpga_token t) {
 		return ((0 == memcmp(_t->accelerator_id,ASE_GUID, sizeof(fpga_guid))));
 #else
 	if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
-				SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
-				&indicator)) {
-	perror("error in string compare");
+		SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
+		&indicator)) {
+		perror("error in string compare");
 	} else {
-	retval += indicator;
+		retval += indicator;
 	}
 
 	if (strcmp_s(_t->devpath, sizeof(_t->sysfspath),
-				FPGA_DEV_PATH "/intel-fpga-port.0", &indicator)) {
-	perror("error in string compare");
+		FPGA_DEV_PATH "/intel-fpga-port.0", &indicator)) {
+		perror("error in string compare");
 	} else {
-	retval += indicator;
+		retval += indicator;
 	}
 	return (retval == 0);
 #endif
