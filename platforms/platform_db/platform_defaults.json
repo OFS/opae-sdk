@@ -95,7 +95,8 @@
                   [
                      "AFUs may request that the platform transform the CCI-P clock",
                      "to a different clock domain by setting this value to the",
-                     "name of another incoming clock."
+                     "name of another incoming clock.  Only CCI-P clocks may be",
+                     "chosen. (E.g. pClkDiv2 or uClk_usr.)"
                   ],
                "clock": "default"
             },
@@ -147,7 +148,9 @@
                      "the clock domain of all memory banks may be converted to a",
                      "specific clock here by setting 'clock' to a string that matches",
                      "the name of any CCI-P clock.  Memory reset signals are",
-                     "also converted to the requested clock domain."
+                     "also converted to the requested clock domain.",
+                     "",
+                     "Only CCI-P clocks may be chosen. (E.g. pClkDiv2 or uClk_usr.)"
                   ],
                "clock": "default"
             }

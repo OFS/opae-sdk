@@ -172,21 +172,10 @@ module ase_top();
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
    initial begin
       #0     ddr_reset_n = 0;
+             ddr_pll_ref_clk = 0;
       #10000 ddr_reset_n = 1;
    end
-
-`ifndef ASE_LOCAL_MEM_CLOCK
-   // Usual case: generate a unique clock for local memory
-   initial begin
-             ddr_pll_ref_clk = 0;
-   end
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
-`else
-   // For testing: tie local memory's clock to some other clock.  This will likely
-   // work only with simple memory model, since it uses the incoming reference
-   // clock without modification.
-   assign ddr_pll_ref_clk = `ASE_LOCAL_MEM_CLOCK;
-`endif
 
    // emif model
    emif_ddr4 emif_ddr4 (
