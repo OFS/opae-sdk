@@ -116,3 +116,15 @@ TEST(CxxProperties, set_objtype) {
   p.type = other_t;
   EXPECT_TRUE(p.type == other_t);
 }
+
+/**
+ * @test get_model
+ * Given a properties object
+ * When I get the model property
+ * Then I get an empty string
+ */
+TEST(CxxProperties, get_model) {
+  properties p;
+  std::string model = p.model;
+  EXPECT_TRUE(model.empty());
+}
