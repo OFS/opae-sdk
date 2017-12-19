@@ -30,13 +30,16 @@
 #include <cstring>
 #include <uuid/uuid.h>
 #include <opae/properties.h>
+#include <opae/utils.h>
+#include "opaec++/log.h"
+#include "opaec++/except.h"
 
 namespace opae {
 namespace fpga {
 namespace types {
 
 struct guid_t {
-  guid_t(fpga_properties *p) : props_(p) {}
+  guid_t(fpga_properties *p) : props_(p), log_("guid_t") {}
 
   operator uint8_t *() {
     if (fpgaPropertiesGetGUID(
@@ -51,12 +54,15 @@ struct guid_t {
   }
 
   guid_t &operator=(fpga_guid g) {
-    if (fpgaPropertiesSetGUID(*props_, g) == FPGA_OK) {
+    fpga_result res;
+    if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
       uint8_t *begin = &g[0];
       uint8_t *end = begin + sizeof(fpga_guid);
       std::copy(begin, end, data_.begin());
     } else {
-      // throw exception
+      log_.error() << "fpgaPropertiesSetGUID() failed with (" << res
+                   << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
     return *this;
   }
@@ -66,29 +72,41 @@ struct guid_t {
   }
 
   void parse(const char *str) {
-    if (0 != uuid_parse(str, data_.data())) {
-      // throw error
+    int u;
+    if (0 != (u = uuid_parse(str, data_.data()))) {
+      log_.error() << "uuid_parse() failed with (" << u << ")";
+      throw except(OPAECXX_HERE);
     }
-    if (FPGA_OK != fpgaPropertiesSetGUID(*props_, data_.data())) {
-      // throw error
+    fpga_result res;
+    if (FPGA_OK != (res = fpgaPropertiesSetGUID(*props_, data_.data()))) {
+      log_.error() << "fpgaPropertiesSetGUID() failed with (" << res
+                   << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
   }
 
   friend std::ostream &operator<<(std::ostream &ostr, const guid_t &g) {
     fpga_properties props = *g.props_;
     fpga_guid guid_value;
-    if (fpgaPropertiesGetGUID(props, &guid_value) == FPGA_OK) {
+    fpga_result res;
+    if ((res = fpgaPropertiesGetGUID(props, &guid_value)) == FPGA_OK) {
       char guid_str[84];
       uuid_unparse(g.data_.data(), guid_str);
       ostr << guid_str;
+    } else if (FPGA_NOT_FOUND == res) {
+      g.log_.debug() << "fpgaPropertiesGetGUID() returned (" << res
+                     << ") " << fpgaErrStr(res);
     } else {
-      // TODO: Log or throw
+      g.log_.error() << "fpgaPropertiesGetGUID() failed with (" << res
+                     << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
     return ostr;
   }
 
  private:
   fpga_properties *props_;
+  mutable opae::fpga::internal::logger log_;
   std::array<uint8_t, 16> data_;
 };
 
@@ -123,7 +141,8 @@ struct pvalue {
    */
   typedef typename std::conditional<
       std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
-  pvalue() : props_(0) {}
+  
+  pvalue() : props_(0), log_("pvalue") {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
@@ -134,7 +153,7 @@ struct pvalue {
    * @param s The setter function
    */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
-      : props_(p), get_(g), set_(s) {}
+      : props_(p), log_("pvalue"), get_(g), set_(s) {}
 
   /**
    * @brief Overload of `=` operator that calls the wrapped setter
@@ -189,16 +208,23 @@ struct pvalue {
   friend std::ostream &operator<<(std::ostream &ostr, const pvalue<T> &p) {
     T value;
     fpga_properties props = *p.props_;
-    if (p.get_(props, &value) == FPGA_OK) {
+    fpga_result res;
+    if ((res = p.get_(props, &value)) == FPGA_OK) {
       ostr << +(value);
+    } else if (FPGA_NOT_FOUND == res) {
+      p.log_.debug() << "property getter returned (" << res
+                     << ") " << fpgaErrStr(res);
     } else {
-      // TODO: Log or throw
-    }
+      p.log_.error() << "property getter failed with (" << res
+                     << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
+     }
     return ostr;
   }
 
  private:
   fpga_properties *props_;
+  mutable opae::fpga::internal::logger log_;
   copy_t copy_;
   getter_t get_;
   setter_t set_;

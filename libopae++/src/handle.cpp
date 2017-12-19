@@ -24,15 +24,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/mmio.h>
+#include <opae/utils.h>
 #include "opaec++/handle.h"
 #include "opaec++/properties.h"
+#include "opaec++/except.h"
 
 namespace opae {
 namespace fpga {
 namespace types {
 
 handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
-    : handle_(h), mmio_region_(mmio_region), mmio_base_(mmio_base) {}
+    : handle_(h), mmio_region_(mmio_region), mmio_base_(mmio_base),
+      log_("handle")  {}
 
 handle::~handle() { close(); }
 
@@ -56,6 +59,7 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
   fpga_handle c_handle = nullptr;
   uint8_t *mmio_base = nullptr;
   ptr_t p;
+  opae::fpga::internal::logger log("handle::open()");
 
   auto res = fpgaOpen(token, &c_handle, flags);
   if (res == FPGA_OK) {
@@ -66,8 +70,9 @@ handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
                         reinterpret_cast<uint64_t **>(&mmio_base));
 
       if (res != FPGA_OK) {
-        // TODO : Log/throw error in the case that
-        // the token does refer to an FPGA_ACCELERATOR.
+        log.error() << "fpgaMapMMIO() failed with (" << res
+                    << ") " << fpgaErrStr(res);
+        throw except(res, OPAECXX_HERE);
       }
     }
 
@@ -91,8 +96,9 @@ fpga_result handle::close() {
       if (res == FPGA_OK) {
         mmio_base_ = nullptr;
       } else {
-        // TODO : Log or throw error in the case that
-        // the handle does refer to an FPGA_ACCELERATOR.
+        log_.error() << "fpgaUnmapMMIO() failed with (" << res
+                     << ") " << fpgaErrStr(res);
+        throw except(res, OPAECXX_HERE);
       }
     }
 
@@ -101,7 +107,9 @@ fpga_result handle::close() {
     if (res == FPGA_OK) {
       handle_ = nullptr;
     } else {
-      // TODO : Log or throw error
+      log_.error() << "fpgaClose() failed with (" << res
+                   << ") " << fpgaErrStr(res);
+      throw except(res, OPAECXX_HERE);
     }
   }
 
