@@ -30,9 +30,9 @@ up to be used by workloads with acceleration needs.
 
 The purpose of OPAE is to provide a common base layer for as wide a range of
 use cases as possible without sacrificing performance or efficiency. It aims
-at freeing the developers of applications and frameworks from having to deal
-with driver interfaces and FPGA interconnect details by providing a thin
-abstraction to expose required details of the platform.
+at freeing the developers of applications and frameworks from having to understand 
+the intricacies of the FPGA driver interfaces and FPGA interconnect details by 
+providing a thin abstraction to expose required details of the platform.
 
 To that end, OPAE abstracts access to the key components that frameworks and
 abstractions need to deal with (for example, FPGA devices and accelerators).
@@ -67,9 +67,8 @@ FPGA with the purpose of accelerating certain computation. It represents a
 resource discoverable and usable by user applications. The
 logic is designed in RTL and synthesized into a bitstream. A tool (_fpgaconf_)
 is provided to reconfigure an FPGA using a bitstream.
-* **Green bitstream (GBS)**: A bitstream for an application-specific 
-accelerator logic, for example, compression, encryption, mathematical operations, 
-etc.
+* **Accelerator Function (AF)**: A bitstream for an application-specific 
+accelerator logic, for example, compression, encryption, and mathematical operations.
 * **Accelerator**: An allocatable accelerator function implemented in an FPGA, 
 closely related to an AFU. An accelerator tracks the  _ownership_
 of an AFU (or part of it) for a process that uses it. An accelerator can be shared by multiple
@@ -146,8 +145,8 @@ describe any type of FPGAs.
 is either `FPGA_DEVICE` or `FPGA_ACCELERATOR`. An `FPGA_DEVICE` object is corresponding to
 a physical FPGA device. Only `FPGA_DEVICE` objects can invoke management function.
 `FPGA_ACCELERATOR` represents an instance of an AFU. 
-* `fpga_token`: An opaque type to represent a resource known to but not
-necessarily owned by the calling process. The calling process must own a
+* `fpga_token`: An opaque type to represent a resource known to, but not
+necessarily owned by, the calling process. The calling process must own a
 resource before it can invoke functions of the resource.
 * `fpga_handle`: An opaque type to represent a resource owned by the
 calling process. API functions `fpgaOpen()` and `fpgaClose()` (see [below](#functions))
@@ -167,9 +166,8 @@ one of the error codes. Function `fpgaErrStr()` can translate an error code
 into human-readable strings.
 
 ### Functions ###
-The table below groups key API functions by their purposes. Consult with the
-[OPAE C API reference manual](https://atp-lab.jf.intel.com/fpga-doc/docs/fpga_api/fpga_api.html)
-for detail documentation for each function.
+The table below groups key API functions by their purposes. For more information about each of the functions, refer to the 
+[OPAE C API reference manual](https://opae.github.io/docs/fpga_api/fpga_api.html).
 
 |Purpose |Functions |Note |
 |--------|----------|-----|
@@ -206,8 +204,8 @@ by plugging  property name for `Prop` in the names of `fpgaPropertiesGet[Prop]()
 |SocketId |Yes |Yes |The socket ID |
 |DeviceId |Yes |Yes |The device ID |
 |NumSlots |Yes |No |Number of AFU slots available on an `FPGA_DEVICE` resource |
-|BBSId |Yes |No |The blue bitstream ID of an `FPGA_DEVICE` resource |
-|BBSVersion |Yes |No |The blue bitstream version of an `FPGA_DEVICE` resource |
+|BBSID |Yes |No |The FPGA Interface Manager (FIM) ID of an `FPGA_DEVICE` resource |
+|BBSVersion |Yes |No |The FIM version of an `FPGA_DEVICE` resource |
 |VendorId |Yes |No |The vendor ID of an `FPGA_DEVICE` resource |
 |Model |Yes |No |The model of an `FPGA_DEVICE` resource |
 |LocalMemorySize |Yes |No |The local memory size of an `FPGA_DEVICE` resource |
@@ -386,6 +384,6 @@ virtual memory space of the calling process.
 ```
 Every AFU has its own layout of register spaces and its own protocol about
 how to control its behavior through the registers. These are defined in the
-green bitstream used to implemented the AFU.
+AF used to implemented the AFU.
 ```
 
