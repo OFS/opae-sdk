@@ -94,9 +94,8 @@ struct guid_t {
       uuid_unparse(g.data_.data(), guid_str);
       ostr << guid_str;
     } else {
-      g.log_.error() << "fpgaPropertiesGetGUID() failed with (" << res
+      g.log_.debug() << "fpgaPropertiesGetGUID() returned (" << res
                      << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
     }
     return ostr;
   }
@@ -145,9 +144,8 @@ struct pvalue {
     if ((res = p.get_(props, &value)) == FPGA_OK) {
       ostr << +(value);
     } else {
-      p.log_.error() << "property getter failed with (" << res
+      p.log_.debug() << "property getter returned (" << res
                      << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
     }
     return ostr;
   }

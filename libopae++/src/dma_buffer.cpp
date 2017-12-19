@@ -52,7 +52,6 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
   if (!len) {
     log.error() << "attempt to allocate buffer with len == 0";
     throw except(OPAECXX_HERE);
-    return p;
   }
 
   uint8_t *virt = nullptr;
