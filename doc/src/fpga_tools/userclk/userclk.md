@@ -7,7 +7,7 @@
 
 ## DESCRIPTION ##
 
-userclk tool used to set high and low clock frequency to acceleration function unit (AFU).
+userclk sets the frequency range for an AFU. 
 
 ## EXAMPLES  ##
 
@@ -25,7 +25,7 @@ userclk tool used to set high and low clock frequency to acceleration function u
 
 `-S,--socket` FPGA socket number.
 
-`-P,--port` Port id.
+`-P,--port` Port ID.
 
 `-H,--freq-high ` User clock high frequency. 
 
