@@ -28,34 +28,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-`include "device_if.vh"
-
-module ccip_std_afu
-  #(
-    parameter NUM_LOCAL_MEM_BANKS = 2
-    )
+//
+// Wire together two avalon_mem_if instances.
+//
+module avalon_mem_if_connect
    (
-    // CCI-P Clocks and Resets
-    input  logic        pClk,                 // Primary CCI-P interface clock.
-    input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
-    input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
-    input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
-    input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
-    input  logic        pck_cp2af_softReset,  // CCI-P ACTIVE HIGH Soft Reset
-
-    input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
-    input  logic        pck_cp2af_error,      // CCI-P Protocol Error Detected
-
-    // CCI-P structures
-    input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
-    output t_if_ccip_Tx pck_af2cp_sTx,        // CCI-P Tx Port
-
-    // Local memory interface
-    avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS]
+    avalon_mem_if.to_fiu mem_fiu,
+    avalon_mem_if.to_afu mem_afu
     );
 
-    //
-    // AFU logic...
-    //
+    always_comb
+    begin
+        mem_afu.waitrequest = mem_fiu.waitrequest;
+        mem_afu.readdata = mem_fiu.readdata;
+        mem_afu.readdatavalid = mem_fiu.readdatavalid;
 
-endmodule // ccip_std_afu
+        mem_fiu.burstcount = mem_afu.burstcount;
+        mem_fiu.writedata = mem_afu.writedata;
+        mem_fiu.address = mem_afu.address;
+        mem_fiu.write = mem_afu.write;
+        mem_fiu.read = mem_afu.read;
+        mem_fiu.byteenable = mem_afu.byteenable;
+    end
+
+endmodule // avalon_mem_if_connect
