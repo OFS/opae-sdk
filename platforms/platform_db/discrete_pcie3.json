@@ -30,6 +30,7 @@
             "params":
                {
                   "vc-supported": "{ 1, 0, 1, 0 }",
+                  "suggested-extra-timing-reg-stages": 1,
                   "max-bw-active-lines-c0": "{ 256, 256, 256, 256 }",
                   "max-bw-active-lines-c1": "{ 128, 128, 128, 128 }"
                }
