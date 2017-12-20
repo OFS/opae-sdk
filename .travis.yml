@@ -7,7 +7,8 @@ install:
   - pip install --user pylint
   - pip install --user pycodestyle
   - pip install --user jsonschema
-
+gemfile:
+    - Gemfile
 jobs:
   include:
     - stage: BAT
@@ -18,9 +19,14 @@ jobs:
       script: scripts/test-build.sh
     - # BAT
       script: scripts/test-gtapi-mock-drv.sh
+    - # BAT
+      script: scripts/build-documentation.sh
 addons:
   apt:
     packages:
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
+      - doxygen
+after_success:
+    - scripts/push_gh_pages.sh
