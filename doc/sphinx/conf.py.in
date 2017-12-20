@@ -5,22 +5,24 @@ import sys
 import os
 import shutil
 
-# The suffix of source filenames.
-# from recommonmark.parser import CommonMarkParser
-# from recommonmark.transform import AutoStructify
+# Better fonts
+import sphinx_fontawesome
 
-# Another markdown parser for sphinx
+# Pandoc-based markdown parser for sphinx
 from sphinxcontrib.pandoc_markdown import MarkdownParser
 
 # Enabled extensions
 extensions = [
     'sphinx.ext.autodoc',
     # 'sphinx.ext.intersphinx',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx_fontawesome',
     'breathe'
 ]
 
