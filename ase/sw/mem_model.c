@@ -99,14 +99,16 @@ void ase_alloc_action(struct buffer_t *mem)
 	FUNC_CALL_ENTRY;
 
 	struct buffer_t *new_buf;
-	int fd_alloc;
+	file_desc fd_alloc;
 
 	ASE_DBG("SIM-C : Adding a new buffer \"%s\"...\n", mem->memname);
 
 	// Obtain a file descriptor
-	fd_alloc = shm_open(mem->memname, O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd_alloc < 0) {
-		ase_error_report("shm_open", errno, ASE_OS_SHM_ERR);
+	int ret;
+	int error;
+	ret = ase_shm_open(mem->memname, &fd_alloc, &error);
+	if (ret == 0) {
+		ase_error_report("shm_open", error, ASE_OS_SHM_ERR);
 		ase_perror_teardown();
 		start_simkill_countdown();
 	} else {
@@ -114,22 +116,16 @@ void ase_alloc_action(struct buffer_t *mem)
 		add_to_ipc_list("SHM", mem->memname);
 
 		// Mmap to pbase, find one with unique low 38 bit
-		mem->pbase =
-		    (uintptr_t) mmap(NULL, mem->memsize,
-				     PROT_READ | PROT_WRITE, MAP_SHARED,
-				     fd_alloc, 0);
-		if (mem->pbase == 0) {
+		mem->pbase = ase_mmap(NULL, fd_alloc, 0, mem->memsize, &error);
+
+		if (mem->pbase == (uint64_t)NULL) {
 			ase_error_report("mmap", errno, ASE_OS_MEMMAP_ERR);
 			ase_perror_teardown();
 			start_simkill_countdown();
 		}
-		if (ftruncate(fd_alloc, (off_t) mem->memsize) != 0) {
-			ase_error_report("ftruncate", errno,
-					 ASE_OS_SHM_ERR);
-			ASE_MSG("Running ftruncate to %d bytes\n",
-				(off_t) mem->memsize);
-		}
-		close(fd_alloc);
+		ase_truncate(fd_alloc, mem->memsize);
+
+		ase_close_handle(fd_alloc);      
 
 		// Record fake address
 		mem->fake_paddr = get_range_checked_physaddr(mem->memsize);
@@ -213,9 +209,8 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 			   dealloc_ptr->memname);
 		// Mark buffer as invalid & deallocate
 		dealloc_ptr->valid = ASE_BUFFER_INVALID;
-		munmap((void *) (uintptr_t) dealloc_ptr->pbase,
-		       (size_t) dealloc_ptr->memsize);
-		shm_unlink(dealloc_ptr->memname);
+		ase_unmap(dealloc_ptr->pbase, dealloc_ptr->memsize);
+		ase_shm_unlink(dealloc_ptr->memname);
 		// Respond back
 		ll_remove_buffer(dealloc_ptr);
 		ase_memcpy(buf_str, dealloc_ptr, sizeof(struct buffer_t));
@@ -416,8 +411,7 @@ uint64_t *ase_fakeaddr_to_vaddr(uint64_t req_paddr)
 		    ("@ERROR: ASE has detected a memory operation to an unallocated memory region.\n");
 		ASE_ERR
 		    ("        Simulation cannot continue, please check the code.\n");
-		ASE_ERR("        Failure @ phys_addr = 0x%" PRIx64 "\n",
-			req_paddr);
+		ASE_ERR("        Failure @ phys_addr = 0x%" PRIx64 "\n", req_paddr);
 		ASE_ERR
 		    ("        See ERROR log file => ase_memory_error.log\n");
 		ASE_ERR

@@ -36,7 +36,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <malloc.h>
+
+#ifdef __linux__
 #include <sys/mman.h>
+#endif
 
 
 // Get number of Umsgs

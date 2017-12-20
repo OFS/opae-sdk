@@ -35,9 +35,12 @@
 #include <string.h>    /* memcpy */
 #include <unistd.h>    /* getpid */
 #include <sys/types.h> /* pid_t */
+
+#ifdef __linux__
 #include <sys/ioctl.h> /* ioctl */
 #include <sys/mman.h>  /* mmap & munmap */
 #include <sys/time.h>  /* struct timeval */
+#endif
 
 #include <opae/utils.h>
 #include "types_int.h"

@@ -36,7 +36,7 @@
 #include "ase_common.h"
 
 // Ready filepath
-char *ase_ready_filepath;
+char ase_ready_filepath[ASE_FILEPATH_LEN];
 
 // Log-level
 int glbl_loglevel = ASE_LOG_MESSAGE;
@@ -55,6 +55,7 @@ inline void set_loglevel(int level)
 		ASE_MSG("%s: Illlegal loglevel value.\n", __func__);
 }
 
+#ifdef __linux__
 /*
  * Generate unique socket server name
  * Generated name is populated in "name"
@@ -80,6 +81,8 @@ errno_t generate_sockname(char *name)
 	ase_free_buffer((char *) tstamp);
 	return err;
 }
+#endif
+
 /*
  * Parse strings and remove unnecessary characters
  */
@@ -211,9 +214,12 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
  */
 void ase_memory_barrier(void)
 {
-	// asm volatile("" ::: "memory");
+#ifdef _WIN32
+	MemoryBarrier();
+#elif defined __linux__
 	__asm__ __volatile__("":::"memory");
-}
+#endif
+} 
 
 
 /*
@@ -232,17 +238,13 @@ void ase_eval_session_directory(void)
 {
 	FUNC_CALL_ENTRY;
 
-	// ase_workdir_path = ase_malloc (ASE_FILEPATH_LEN);
-
 	// Evaluate location of simulator or own location
 #ifdef SIM_SIDE
 	ase_workdir_path = getenv("PWD");
 #else
 	ase_workdir_path = getenv("ASE_WORKDIR");
-
-#ifdef ASE_DEBUG
-	ASE_DBG("env(ASE_WORKDIR) = %s\n", ase_workdir_path);
 #endif
+	ASE_DBG("env(ASE_WORKDIR) = %s\n", ase_workdir_path);
 
 	if (ase_workdir_path == NULL) {
 		ASE_ERR
@@ -252,6 +254,32 @@ void ase_eval_session_directory(void)
 		exit(1);
 	} else {
 		// Check if directory exists here
+#ifdef _WIN32
+	  HANDLE WINAPI dirhandle = CreateFile(
+		  ase_workdir_path,
+		  GENERIC_READ,
+		  0,
+		  NULL,
+		  OPEN_EXISTING,
+		  FILE_ATTRIBUTE_NORMAL,
+		  NULL
+	  );
+
+	  if (dirhandle == INVALID_HANDLE_VALUE)
+	  {
+		  if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+			  BEGIN_RED_FONTCOLOR;
+			  printf("  [APP]  ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n");
+			  printf("         Cannot continue execution... exiting !");
+			  END_RED_FONTCOLOR;
+			  exit(1);
+		  }
+
+	  }
+	  else {
+		  CloseHandle(dirhandle);
+	  }
+#elif defined __linux__
 		DIR *ase_dir;
 		ase_dir = opendir(ase_workdir_path);
 		if (!ase_dir) {
@@ -263,8 +291,9 @@ void ase_eval_session_directory(void)
 		} else {
 			closedir(ase_dir);
 		}
-	}
 #endif
+	}
+
 }
 
 
@@ -320,16 +349,12 @@ void ase_write_lock_file(void)
 	//   File pointer
 	static FILE *fp_ase_ready;
 	// ASE hostname
-	static char *ase_hostname;
+	char ase_hostname[ASE_FILENAME_LEN];
 	int ret_err;
 
 	// Create a filepath string
-	ase_ready_filepath = ase_malloc(ASE_FILEPATH_LEN);
 	snprintf(ase_ready_filepath, ASE_FILEPATH_LEN, "%s/%s",
 		 ase_workdir_path, ASE_READY_FILENAME);
-
-	// Line 2
-	ase_hostname = ase_malloc(ASE_FILENAME_LEN);
 
 	// Open file
 	fp_ase_ready = fopen(ase_ready_filepath, "w");
@@ -351,9 +376,6 @@ void ase_write_lock_file(void)
 			// Close file
 			fclose(fp_ase_ready);
 
-			// Remove buffers
-			free(ase_hostname);
-
 			// Issue Simkill
 			start_simkill_countdown();
 		} else {
@@ -370,7 +392,6 @@ void ase_write_lock_file(void)
 			////////////////////////////////////////////
 			// Close file
 			fclose(fp_ase_ready);
-			free(ase_hostname);
 
 			// Notice on stdout
 			ASE_MSG
@@ -391,18 +412,18 @@ int ase_read_lock_file(const char *workdir)
 {
 	// Allocate string
 	FILE *fp_exp_ready;
-	char *exp_ready_filepath;
-	char *line;
-	size_t len;
+	char exp_ready_filepath[ASE_FILEPATH_LEN];
+	char line[256];
+	size_t len = 256;
 
 	char *parameter;
 	char *value;
 
-	char *readback_workdir_path;
-	char *readback_hostname;
-	char *curr_hostname;
-	char *readback_uid;
-	char *curr_uid;
+	char readback_workdir_path[ASE_FILEPATH_LEN];
+	char readback_hostname[ASE_FILENAME_LEN];
+	char curr_hostname[ASE_FILENAME_LEN];
+	char readback_uid[ASE_FILEPATH_LEN];
+	char curr_uid[ASE_FILENAME_LEN];
 	int readback_pid = 0;
 	int ret_err;
 	char *saveptr;
@@ -418,20 +439,17 @@ int ase_read_lock_file(const char *workdir)
 #endif
 	} else {
 		// Calculate ready file path
-		exp_ready_filepath = ase_malloc(ASE_FILEPATH_LEN);
-		snprintf(exp_ready_filepath, ASE_FILEPATH_LEN, "%s/%s",
+		snprintf(exp_ready_filepath, ASE_FILEPATH_LEN, "%s\\%s",
 			 workdir, ASE_READY_FILENAME);
 
 		// Check if file exists
+#ifdef _WIN32
+	  DWORD file_attr;
+	  file_attr = GetFileAttributes(exp_ready_filepath);
+	  if (file_attr != 0xFFFFFFFF) {	//File exists
+#elif defined __linux__
 		if (access(exp_ready_filepath, F_OK) != -1) {	// File exists
-			// Malloc/memset
-			line = ase_malloc(256);
-			readback_hostname = ase_malloc(ASE_FILENAME_LEN);
-			readback_uid = ase_malloc(ASE_FILEPATH_LEN);
-			readback_workdir_path =
-			    ase_malloc(ASE_FILEPATH_LEN);
-			curr_hostname = ase_malloc(ASE_FILENAME_LEN);
-
+#endif
 			// Open file
 			fp_exp_ready = fopen(exp_ready_filepath, "r");
 			if (fp_exp_ready == NULL) {
@@ -445,8 +463,8 @@ int ase_read_lock_file(const char *workdir)
 			} else {
 
 				// Read file line by line
-				while (getline(&line, &len, fp_exp_ready)
-				       != -1) {
+			  while (ase_fgets(line, &len, fp_exp_ready))
+			  {
 					// LHS/RHS tokenizing
 					parameter = strtok_r(line, "=", &saveptr);
 					value = strtok_r(NULL, "", &saveptr);
@@ -509,6 +527,14 @@ int ase_read_lock_file(const char *workdir)
 
 			////////////////// Error checks //////////////////
 			// If hostname does not match
+#ifdef _WIN32
+		  WSADATA data;
+
+		  if (WSAStartup(MAKEWORD(2, 2), &data) != 0) {
+			  printf("Initialization failed with %d\n", WSAGetLastError());
+			  exit(1);
+		  }
+#endif
 			ret_err =
 			    gethostname(curr_hostname, ASE_FILENAME_LEN);
 			if (ret_err != 0) {
@@ -533,8 +559,6 @@ int ase_read_lock_file(const char *workdir)
 #endif
 				} else {
 					// If readback_uid (Readback unique ID from lock file) doesnt match ase_common.h
-					curr_uid =
-					    ase_malloc(ASE_FILENAME_LEN);
 					ase_string_copy(curr_uid,
 							ASE_UNIQUE_ID,
 							ASE_FILENAME_LEN);
@@ -561,17 +585,9 @@ int ase_read_lock_file(const char *workdir)
 						exit(1);
 #endif
 					}
-					// Free curr_uid
-					free(curr_uid);
 				}
 			}
 
-			// Free all buffers
-			ase_free_buffer(line);
-			ase_free_buffer(readback_hostname);
-			ase_free_buffer(curr_hostname);
-			ase_free_buffer(readback_workdir_path);
-			ase_free_buffer(readback_uid);
 		} else {         // File does not exist
 			ASE_ERR
 			    ("ASE Ready file was not found at env(ASE_WORKDIR) !\n");
@@ -588,8 +604,6 @@ int ase_read_lock_file(const char *workdir)
 #endif
 		}
 
-		// Free expected filepath buffer
-		free(exp_ready_filepath);
 	}
 
 	// Return PID of Simulator instance
@@ -639,6 +653,7 @@ void register_signal(int sig, void *handler)
 {
 	FUNC_CALL_ENTRY;
 
+#ifdef __linux__
 	struct sigaction cfg;
 
 	// Configure signal handler
@@ -648,6 +663,7 @@ void register_signal(int sig, void *handler)
 
 	// Declare signal action
 	sigaction(sig, &cfg, 0);
+#endif
 
 	FUNC_CALL_EXIT;
 }
@@ -754,11 +770,13 @@ char *ase_getenv(const char *name)
  */
 void ase_memcpy(void *dest, const void *src, size_t n)
 {
+#ifdef _WIN32
 	// Insecure implementation
-	// memcpy(dest, src, n);
-
+	memcpy(dest, src, n);
+#elif defined __linux__
 	// Secure implementation
 	memcpy_s(dest, n, src, n);
+#endif
 }
 
 
@@ -850,12 +868,437 @@ int ase_strncmp(const char *s1, const char *s2, size_t n)
 	errno_t ret;
 	int indicator;
 
+#ifdef _WIN32
+	indicator = strncmp(s2, s1, n);
+	return indicator;
+#elif defined __linux__
 	// Run secure compare
 	ret = strcmp_s(s2, n, s1, &indicator);
+
 	if (ret != EOK) {
 		ASE_DBG("Problem with ase_strncmp - code %d\n", ret);
 		return -1;
 	} else {
 		return indicator;
 	}
+#endif
 }
+
+
+/*
+ * ASE sleep function
+ */
+void ase_sleep(int time, char unit) 
+{
+#ifdef _WIN32
+	if (unit == 'u') {
+		if ((time / 10) == 0) {
+			Sleep(1);
+		}
+		else {
+			Sleep(time / 10);
+		}
+	}
+	else if (unit == 's') {
+		Sleep(time * 1000);
+	}
+
+#elif defined __linux__
+	if (unit == 'u') {
+		usleep(time);
+	}
+	else if (unit == 's') {
+		sleep(time);
+	}
+#endif
+}
+
+/*
+ * ASE timer function
+ */
+void ase_timer(time_snapshot * timer) 
+{
+#ifdef _WIN32
+	QueryPerformanceCounter(timer);
+#elif defined __linux__
+	clock_gettime(CLOCK_MONOTONIC, timer);
+#endif
+}
+
+/*
+ * ASE timestamp function
+ */
+unsigned long long ase_timestamp(time_snapshot start, time_snapshot end) 
+{
+#ifdef _WIN32
+	time_snapshot frequency;
+	QueryPerformanceFrequency(&frequency);
+	return(1e9 * (end.QuadPart - start.QuadPart) / (long)frequency.QuadPart);
+#elif defined __linux__
+	return(1e9 * (end.tv_sec -
+			start.tv_sec) +
+			(end.tv_nsec -
+				start.tv_nsec));
+#endif
+}
+
+/*
+ * ASE create thread function
+ */
+void ase_create_thread(thread_handle * thread_id,  thread_routine thread_callback) 
+{
+#ifdef _WIN32
+	*thread_id = CreateThread(
+		NULL,
+		0,
+		thread_callback,
+		NULL,
+		0,
+		NULL
+	);
+
+	if ((*thread_id) == NULL) {
+		BEGIN_RED_FONTCOLOR;
+		printf("FAILED\n");
+		printf("thread_create with %d", GetLastError());
+		exit(1);
+		END_RED_FONTCOLOR;
+	}
+	else {
+		BEGIN_YELLOW_FONTCOLOR;
+		printf("SUCCESS\n");
+		END_YELLOW_FONTCOLOR;
+	}
+#elif defined __linux__
+	// Thread error integer
+	/* to-do*/
+	int thr_err;
+	thr_err =
+		pthread_create(thread_id, NULL,
+			(thread_callback), NULL);
+
+	if (thr_err != 0) {
+		BEGIN_RED_FONTCOLOR;
+		printf("FAILED\n");
+		perror("pthread_create");
+		exit(1);
+		END_RED_FONTCOLOR;
+	}
+	else {
+		BEGIN_YELLOW_FONTCOLOR;
+		printf("SUCCESS\n");
+		END_YELLOW_FONTCOLOR;
+	}
+#endif
+}
+
+/*
+ * ASE stop thread function
+ */
+void ase_stop_thread(thread_handle thread_id) 
+{
+#ifdef _WIN32
+	TerminateThread(
+		thread_id,
+		0
+	);
+	CloseHandle(thread_id);
+#elif defined __linux__
+	pthread_cancel(thread_id);
+	pthread_join(thread_id, NULL);
+#endif
+}
+
+
+/*
+ * ASE thread cancel function
+ */
+#ifndef SIM_SIDE
+void ase_thread_cancel() 
+{
+#ifdef __linux__
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+#endif
+}
+
+/*
+ * ASE Mutex creation function
+ */
+void ase_create_mutex(mutex_handle * handle) 
+{
+#ifdef _WIN32
+	(*handle) = CreateMutex(
+		NULL,
+		FALSE,
+		NULL
+	);
+	if (*handle == NULL) {
+		BEGIN_RED_FONTCOLOR;
+		printf
+		("  [APP]  MMIO Lock initialization failed, EXIT\n");
+		END_RED_FONTCOLOR;
+		exit(1);
+	}
+#elif defined __linux__
+	if (pthread_mutex_init(handle, NULL) != 0) {
+		BEGIN_RED_FONTCOLOR;
+		printf
+		("  [APP]  MMIO Lock initialization failed, EXIT\n");
+		END_RED_FONTCOLOR;
+		exit(EXIT_FAILURE);
+	}
+#endif
+}
+
+/*
+ * ASE Mutex lock function
+ */
+void ase_lock_mutex(mutex_handle * handle) 
+{
+#ifdef _WIN32
+	WaitForSingleObject(
+		(*handle),
+		INFINITE
+	);
+#elif defined __linux__
+	pthread_mutex_lock(handle);
+#endif
+}
+
+/*
+ * ASE Mutex release function
+ */
+void ase_release_mutex(mutex_handle * handle) 
+{
+#ifdef _WIN32
+	ReleaseMutex(*handle);
+	CloseHandle(*handle);
+#elif defined __linux__
+	pthread_mutex_unlock(handle);
+	pthread_mutex_destroy(handle);
+#endif
+}
+
+#endif   //#ifndef SIM_SIDE
+/*
+ * ASE get pid function
+ */
+pid ase_get_pid() 
+{
+#ifdef _WIN32
+	return GetCurrentProcessId();
+#elif defined __linux__
+	return getpid();
+#endif
+}
+
+/*
+ * ASE truncate function
+ */
+void ase_truncate(file_desc fd_alloc, uint32_t memsize) 
+{
+#ifdef __linux__
+	int res = ftruncate(fd_alloc, (off_t)memsize);
+#ifdef ASE_DEBUG
+	if (res != 0) {
+		BEGIN_YELLOW_FONTCOLOR;
+		printf("  [DEBUG]  ftruncate failed");
+		perror("ftruncate");
+		END_YELLOW_FONTCOLOR;
+	}
+#endif
+#endif
+}
+
+/*
+ * ASE close handle function
+ */
+void ase_close_handle(file_desc handle) 
+{
+#ifdef _WIN32
+	CloseHandle(handle);
+#elif defined __linux__
+	close(handle);
+#endif
+}
+
+/*
+ * ASE check file exist function
+ */
+int ase_check_file_exists(char * filename) 
+{
+#ifdef _WIN32
+	DWORD file_attr;
+	file_attr = GetFileAttributes(filename);
+	if (file_attr == 0xFFFFFFFF) {	//File doesnot exist
+		return 0;
+	}
+	else {
+		return 1;
+	}
+#elif defined __linux__
+	if (access(filename, F_OK) == -1) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+#endif
+}
+
+/*
+ * ASE getcwd function
+ */
+void ase_getcwd(char * cwd, int length) 
+{
+#ifdef _WIN32
+	GetCurrentDirectory(ASE_FILEPATH_LEN, cwd);
+#elif defined __linux__
+	cwd = getcwd(cwd, ASE_FILEPATH_LEN);
+#endif
+}
+
+/*
+ * ASE create shared memory function
+ */
+file_desc ase_create_shm(uint32_t memsize, char * memname) 
+{
+	file_desc fd_alloc;
+#ifdef _WIN32
+	fd_alloc = CreateFileMapping(
+		INVALID_HANDLE_VALUE,
+		NULL,
+		PAGE_READWRITE,
+		0,
+		memsize,
+		memname
+	);
+
+	if (fd_alloc == NULL) {
+		printf("CreateFilemapping error %d\n", GetLastError());
+		exit(1);
+	}
+#elif defined __linux__
+	fd_alloc =
+		shm_open(memname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd_alloc < 0) {
+		perror("shm_open");
+		exit(1);
+	}
+#endif
+	return fd_alloc;
+}
+
+/*
+ * ASE open shared memory function
+ */
+int ase_shm_open(char * memname, file_desc * fd_alloc, int * error) 
+{
+#ifdef _WIN32
+	*fd_alloc = OpenFileMapping(
+		FILE_MAP_ALL_ACCESS,
+		FALSE,
+		memname
+	);
+	if (*fd_alloc == NULL) {
+		*error = GetLastError();
+		return 0;
+	}
+	else {
+		return 1;
+	}
+#elif defined __linux__
+	*fd_alloc = shm_open(memname, O_RDWR, S_IRUSR | S_IWUSR);
+	if (*fd_alloc < 0) {
+		*error = errno;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+#endif
+}
+
+/*
+ * ASE memory map function
+ */
+uint64_t ase_mmap(uint64_t * addr, file_desc fd_alloc, int flags, uint32_t memsize, int *error) 
+{
+#ifdef _WIN32
+	DWORDLONG start = 0;
+	if (addr != NULL) {
+		start = (DWORDLONG)addr;
+	}
+	LPVOID WINAPI map = MapViewOfFile(
+		fd_alloc,
+		FILE_MAP_ALL_ACCESS,
+		start,
+		0,
+		memsize
+	);
+	
+	if (map == NULL) {
+		*error = GetLastError();
+	}
+#elif defined __linux__
+	int shared = MAP_SHARED;
+	if (flags == 1) {
+		shared = MAP_SHARED | MAP_FIXED;
+	}
+	void * map = mmap(addr, memsize,
+					PROT_READ | PROT_WRITE, shared,
+					fd_alloc, 0);
+	
+	if ((uint64_t)map == (uint64_t)MAP_FAILED) {
+		*error = errno;
+	}
+#endif
+	return (uint64_t)map;
+}
+
+/*
+ * ASE unmap shared memory function
+ */
+void ase_unmap(uint64_t addr, uint32_t memsize) 
+{
+	int ret;
+#ifdef _WIN32
+	ret = UnmapViewOfFile((LPCVOID)addr);
+	if (ret == 0) {
+		printf("UnmapViewOfFile error %d\n", GetLastError());
+		exit(1);
+	}
+#elif defined __linux__
+	ret = munmap((void *)addr, (size_t)memsize);
+	if (0 != ret) {
+		perror("munmap");
+		exit(1);
+	}
+#endif
+}
+
+/*
+ * ASE shared memory unlink
+ */
+void ase_shm_unlink(char * memname) 
+{
+#ifdef __linux__
+	shm_unlink(memname);
+#endif
+}
+
+/*
+ * ASE fgets function
+ */
+int ase_fgets(char * line, size_t * len, FILE * fp) 
+{
+#ifdef _WIN32
+	if (fgets(line, *len, fp)) return 1;
+	else return 0;
+#elif defined __linux__
+	if (getline(&line, len, fp) != -1) return 1;
+	else return 0;
+#endif
+}
+
+

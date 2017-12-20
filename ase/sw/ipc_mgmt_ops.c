@@ -104,7 +104,10 @@ void add_to_ipc_list(char *ipc_type, char *ipc_name)
 void final_ipc_cleanup(void)
 {
 	FUNC_CALL_ENTRY;
+#ifdef _WIN32
 
+	fclose(local_ipc_fp);
+#elif defined  __linux__
 	char *ipc_type;
 	char *ipc_name;
 
@@ -160,6 +163,7 @@ void final_ipc_cleanup(void)
 	}
 
 	ase_free_buffer(ipc_line);
+#endif
 
 	FUNC_CALL_EXIT;
 }

@@ -28,8 +28,11 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+
+#ifdef __linux__
 #include <pthread.h>
 #include <sys/mman.h>
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 
