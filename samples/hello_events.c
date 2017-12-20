@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 			 bytes_read = read(pfd.fd, &count, sizeof(count));
 			 if (bytes_read <= 0)
 				 printf("WARNING: error reading from poll fd: %s\n",
-				        bytes_read < 0 ? strerror(errno) : "zero bytes read");
+						 bytes_read < 0 ? strerror(errno) : "zero bytes read");
 		}
 
 		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
