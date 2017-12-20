@@ -54,7 +54,7 @@ configure_file(
 
 add_custom_target(copy-doxygen-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
-  DEPENDS doc)
+  DEPENDS doxygen)
 
 add_custom_target(copy-markdown-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
@@ -63,7 +63,7 @@ add_custom_target(copy-include-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
   DEPENDS copy-markdown-files)
 
-add_custom_target(sphinx_html ALL
+add_custom_target(docs ALL
   ${SPHINX_EXECUTABLE}
   -q -b html
   -c "${BINARY_BUILD_DIR}"
