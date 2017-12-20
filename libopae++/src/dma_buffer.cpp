@@ -31,10 +31,17 @@ namespace opae {
 namespace fpga {
 namespace types {
 
+dma_buffer::dma_buffer(const dma_buffer & other)
+    : handle_(other.handle_)
+    , len_(other.len_)
+    , virt_(other.virt_)
+    , wsid_(other.wsid_)
+    , iova_(other.iova_)
+    , log_("dma_buffer"){}
+
 dma_buffer::~dma_buffer() {
-  // If this owns the buffer allocation and
-  // that allocation was successful.
-  if (!parent_ && virt_) {
+  // If the allocation was successful.
+  if (virt_) {
     fpga_result res = fpgaReleaseBuffer(handle_->get(), wsid_);
 
     if (res != FPGA_OK) {
@@ -119,16 +126,6 @@ int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const {
 dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                        uint64_t wsid, uint64_t iova)
     : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova), log_("dma_buffer") {}
-
-dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
-                       uint64_t wsid, uint64_t iova, dma_buffer::ptr_t parent)
-    : handle_(handle),
-      len_(len),
-      virt_(virt),
-      wsid_(wsid),
-      iova_(iova),
-      log_("dma_buffer"),
-      parent_(parent) {}
 
 }  // end of namespace types
 }  // end of namespace fpga
