@@ -41,12 +41,16 @@ namespace types {
 struct guid_t {
   guid_t(fpga_properties *p) : props_(p), log_("guid_t"), is_set_(false) {}
 
+  fpga_result update() {
+    fpga_result res = fpgaPropertiesGetGUID(*props_,
+            reinterpret_cast<fpga_guid *>(data_.data()));
+    is_set_ = (FPGA_OK == res);
+    return res;
+  }
+
   operator uint8_t *() {
-    if (fpgaPropertiesGetGUID(
-            *props_, reinterpret_cast<fpga_guid *>(data_.data())) == FPGA_OK) {
-      is_set_ = true;
-      return data_.data();
-    }
+    if (FPGA_OK == update())
+        return data_.data();
     return nullptr;
   }
 
@@ -70,7 +74,7 @@ struct guid_t {
   }
 
   bool operator==(const fpga_guid &g) {
-    return 0 == std::memcmp(data_.data(), g, sizeof(fpga_guid));
+    return is_set() && (0 == std::memcmp(data_.data(), g, sizeof(fpga_guid)));
   }
 
   void parse(const char *str) {
@@ -106,8 +110,13 @@ struct guid_t {
     return ostr;
   }
 
-  bool is_set() const { return is_set_; }
-  void is_set(bool b) { is_set_ = b;    }
+  bool is_set() const {
+    return is_set_;
+  }
+
+  void invalidate() {
+    is_set_ = false;
+  }
 
  private:
   fpga_properties *props_;
@@ -184,7 +193,13 @@ struct pvalue {
    *
    * @return Whether or not the property is equal to the value
    */
-  bool operator==(const T &other) { return copy_ == other; }
+  bool operator==(const T &other) { return is_set() && (copy_ == other); }
+
+  fpga_result update() {
+    fpga_result res = get_(*props_, &copy_);
+    is_set_ = (FPGA_OK == res);
+    return res;
+  }
 
   /**
    * @brief Implicit converter operator - calls the wrapped getter
@@ -193,14 +208,11 @@ struct pvalue {
    *         value of the value type
    */
   operator copy_t() {
-    if (get_(*props_, &copy_) == FPGA_OK) {
-      is_set_ = true;
+    if (update() == FPGA_OK) {
       return copy_;
     }
     return copy_t();
   }
-
-
 
   // TODO: Remove this once all properties are tested
   fpga_result get_value(T &value) const { return get_(*props_, &value); }
@@ -230,8 +242,13 @@ struct pvalue {
     return ostr;
   }
 
-  bool is_set() const { return is_set_; }
-  void is_set(bool b) { is_set_ = b;    }
+  bool is_set() const {
+    return is_set_;
+  }
+
+  void invalidate() {
+    is_set_ = false;
+  }
 
  private:
   fpga_properties *props_;
@@ -243,19 +260,18 @@ struct pvalue {
 };
 
 /**
- * @brief Template specialization of `char*` type properties
+ * @brief Template specialization of `char*` type property updater
  *
- * @return The property value as an copy_t which is std::string
+ * @return The result of the property getter function.
  */
-template<> inline
-pvalue<char*>::operator pvalue<char*>::copy_t() {
-  char buf[64];
-  if (get_(*props_, buf) == FPGA_OK) {
-    is_set_ = true;
+template <> inline
+fpga_result pvalue<char*>::update() {
+  char buf[256];
+  fpga_result res = get_(*props_, buf);
+  if (res == FPGA_OK)
     copy_.assign(buf);
-    return copy_;
-  }
-  return pvalue<char*>::copy_t();
+  is_set_ = (FPGA_OK == res);
+  return res;
 }
 
 }  // end of namespace types

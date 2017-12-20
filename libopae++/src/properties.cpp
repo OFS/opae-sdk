@@ -104,65 +104,107 @@ properties::properties(const properties &p)
   // make sure that we have a cached copy of
   // everything that p has cached.
   if (p.type.is_set()) {
-    type.operator fpga_objtype();
+    res = type.update();
+    if (res)
+      goto log_err;
   }
   if (p.bus.is_set()) {
-    bus.operator uint8_t();
+    res = bus.update();
+    if (res)
+      goto log_err;
   }
   if (p.device.is_set()) {
-    device.operator uint8_t();
+    res = device.update();
+    if (res)
+      goto log_err;
   }
   if (p.function.is_set()) {
-    function.operator uint8_t();
+    res = function.update();
+    if (res)
+      goto log_err;
   }
   if (p.socket_id.is_set()) {
-    socket_id.operator uint8_t();
+    res = socket_id.update();
+    if (res)
+      goto log_err;
   }
   if (p.num_slots.is_set()) {
-    num_slots.operator uint32_t();
+    res = num_slots.update();
+    if (res)
+      goto log_err;
   }
   if (p.bbs_id.is_set()) {
-    bbs_id.operator uint64_t();
+    res = bbs_id.update();
+    if (res)
+      goto log_err;
   }
   if (p.bbs_version.is_set()) {
-    bbs_version.operator fpga_version();
+    res = bbs_version.update();
+    if (res)
+      goto log_err;
   }
   if (p.vendor_id.is_set()) {
-    vendor_id.operator uint16_t();
+    res = vendor_id.update();
+    if (res)
+      goto log_err;
   }
   if (p.model.is_set()) {
-    model.operator std::string();
+    res = model.update();
+    if (res)
+      goto log_err;
   }
   if (p.local_memory_size.is_set()) {
-    local_memory_size.operator uint64_t();
+    res = local_memory_size.update();
+    if (res)
+      goto log_err;
   }
   if (p.capabilities.is_set()) {
-    capabilities.operator uint64_t();
+    res = capabilities.update();
+    if (res)
+      goto log_err;
   }
   if (p.num_mmio.is_set()) {
-    num_mmio.operator uint32_t();
+    res = num_mmio.update();
+    if (res)
+      goto log_err;
   }
   if (p.num_interrupts.is_set()) {
-    num_interrupts.operator uint32_t();
+    res = num_interrupts.update();
+    if (res)
+      goto log_err;
   }
   if (p.accelerator_state.is_set()) {
-    accelerator_state.operator fpga_accelerator_state();
+    res = accelerator_state.update();
+    if (res)
+      goto log_err;
   }
   if (p.object_id.is_set()) {
-    object_id.operator uint64_t();
+    res = object_id.update();
+    if (res)
+      goto log_err;
   }
   if (p.parent.is_set()) {
-    parent.operator fpga_token();
+    res = parent.update();
+    if (res)
+      goto log_err;
   }
   if (p.guid.is_set()) {
-    guid.operator uint8_t *();
+    res = guid.update();
+    if (res)
+      goto log_err;
   }
+  return;
+
+log_err:
+  log_.error("copy ctor") << "property getter failed with (" << res
+               << ") " << fpgaErrStr(res);
+  throw except(res, OPAECXX_HERE);
 }
 
 properties & properties::operator =(const properties &p)
 {
+  fpga_result res;
   if (this != &p) {
-    fpga_result res;
 
     if (props_) {
       if ((res = fpgaDestroyProperties(&props_)) != FPGA_OK) {
@@ -171,24 +213,24 @@ properties & properties::operator =(const properties &p)
         throw except(res, OPAECXX_HERE); 
       }
       props_ = nullptr;
-      type.is_set(false);
-      bus.is_set(false);
-      device.is_set(false);
-      function.is_set(false);
-      socket_id.is_set(false);
-      num_slots.is_set(false);
-      bbs_id.is_set(false);
-      bbs_version.is_set(false);
-      vendor_id.is_set(false);
-      model.is_set(false);
-      local_memory_size.is_set(false);
-      capabilities.is_set(false);
-      num_mmio.is_set(false);
-      num_interrupts.is_set(false);
-      accelerator_state.is_set(false);
-      object_id.is_set(false);
-      parent.is_set(false);
-      guid.is_set(false);
+      type.invalidate();
+      bus.invalidate();
+      device.invalidate();
+      function.invalidate();
+      socket_id.invalidate();
+      num_slots.invalidate();
+      bbs_id.invalidate();
+      bbs_version.invalidate();
+      vendor_id.invalidate();
+      model.invalidate();
+      local_memory_size.invalidate();
+      capabilities.invalidate();
+      num_mmio.invalidate();
+      num_interrupts.invalidate();
+      accelerator_state.invalidate();
+      object_id.invalidate();
+      parent.invalidate();
+      guid.invalidate();
     }
 
     if (p.props_) {
@@ -201,62 +243,103 @@ properties & properties::operator =(const properties &p)
       // make sure that we have a cached copy of
       // everything that p has cached.
       if (p.type.is_set()) {
-        type.operator fpga_objtype();
+        res = type.update();
+        if (res)
+          goto log_err;
       }
       if (p.bus.is_set()) {
-        bus.operator uint8_t();
+        res = bus.update();
+        if (res)
+          goto log_err;
       }
       if (p.device.is_set()) {
-        device.operator uint8_t();
+        res = device.update();
+        if (res)
+          goto log_err;
       }
       if (p.function.is_set()) {
-        function.operator uint8_t();
+        res = function.update();
+        if (res)
+          goto log_err;
       }
       if (p.socket_id.is_set()) {
-        socket_id.operator uint8_t();
+        res = socket_id.update();
+        if (res)
+          goto log_err;
       }
       if (p.num_slots.is_set()) {
-        num_slots.operator uint32_t();
+        res = num_slots.update();
+        if (res)
+          goto log_err;
       }
       if (p.bbs_id.is_set()) {
-        bbs_id.operator uint64_t();
+        res = bbs_id.update();
+        if (res)
+          goto log_err;
       }
       if (p.bbs_version.is_set()) {
-        bbs_version.operator fpga_version();
+        res = bbs_version.update();
+        if (res)
+          goto log_err;
       }
       if (p.vendor_id.is_set()) {
-        vendor_id.operator uint16_t();
+        res = vendor_id.update();
+        if (res)
+          goto log_err;
       }
       if (p.model.is_set()) {
-        model.operator std::string();
+        res = model.update();
+        if (res)
+          goto log_err;
       }
       if (p.local_memory_size.is_set()) {
-        local_memory_size.operator uint64_t();
+        res = local_memory_size.update();
+        if (res)
+          goto log_err;
       }
       if (p.capabilities.is_set()) {
-        capabilities.operator uint64_t();
+        res = capabilities.update();
+        if (res)
+          goto log_err;
       }
       if (p.num_mmio.is_set()) {
-        num_mmio.operator uint32_t();
+        res = num_mmio.update();
+        if (res)
+          goto log_err;
       }
       if (p.num_interrupts.is_set()) {
-        num_interrupts.operator uint32_t();
+        res = num_interrupts.update();
+        if (res)
+          goto log_err;
       }
       if (p.accelerator_state.is_set()) {
-        accelerator_state.operator fpga_accelerator_state();
+        res = accelerator_state.update();
+        if (res)
+          goto log_err;
       }
       if (p.object_id.is_set()) {
-        object_id.operator uint64_t();
+        res = object_id.update();
+        if (res)
+          goto log_err;
       }
       if (p.parent.is_set()) {
-        parent.operator fpga_token();
+        res = parent.update();
+        if (res)
+          goto log_err;
       }
       if (p.guid.is_set()) {
-        guid.operator uint8_t *();
+        res = guid.update();
+        if (res)
+          goto log_err;
       }
     }
   }
   return *this;
+
+log_err:
+  log_.error("operator =") << "property getter failed with (" << res
+                           << ") " << fpgaErrStr(res);
+  throw except(res, OPAECXX_HERE);
 }
 
 properties::properties(fpga_guid guid_in) : properties(){ guid = guid_in; }

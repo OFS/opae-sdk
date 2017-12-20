@@ -30,6 +30,7 @@
 #include <safe_string/safe_string.h>
 
 #include "opaec++/except.h"
+#include "opaec++/log.h"
 
 namespace opae {
 namespace fpga {
@@ -59,19 +60,34 @@ const char *except::what() const noexcept {
   errno_t err;
 
   err = strncpy_s(buf_, 32, loc_.file(), 32);
+  if (err)
+    goto log_err;
 
   err = strcat_s(buf_, 34, ":");
+  if (err)
+    goto log_err;
 
   err = strcat_s(buf_, 50, loc_.fn());
+  if (err)
+    goto log_err;
 
   err = strcat_s(buf_, 53, "():");
+  if (err)
+    goto log_err;
 
-  err = snprintf_s_i(buf_ + strlen(buf_), 64, "%d:", loc_.line());
+  snprintf_s_i(buf_ + strlen(buf_), 64, "%d:", loc_.line());
 
   err = strcat_s(buf_, sizeof(buf_), fpgaErrStr(res_));
+  if (err)
+    goto log_err;
 
-  // TODO log err
+  return const_cast<const char *>(buf_);
 
+log_err:
+  opae::fpga::internal::logger log("except::what()");
+  log.error() << "safestr error " << err;
+
+  buf_[sizeof(buf_)-1] = '\0';
   return const_cast<const char *>(buf_);
 }
 
