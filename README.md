@@ -1,6 +1,9 @@
 Welcome to the OPAE SDK source code repository
 ==============================================
 
+[![Build Status](https://travis-ci.org/OPAE/opae-sdk.svg?branch=master)](https://travis-ci.org/OPAE/opae-sdk)
+
+
 OPAE is the Open Programmable Acceleration Engine, a software framework for
 managing and accessing programmable accelerators (FPGAs).
 

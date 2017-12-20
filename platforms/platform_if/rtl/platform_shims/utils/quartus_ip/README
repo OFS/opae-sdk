@@ -1,0 +1,10 @@
+This library is extracted from the generated HDL for a variety of Quartus
+components.  The module names are modified to make them unique, replacing
+the leading "altera" with "platform_utils".
+
+The SDC files are here instead of in a par directory to keep all the Qsys
+code together.
+
+Extracted components include:
+  * Qsys Avalon-MM Clock Crossing Bridge
+  * Qsys Avalon-MM Pipeline Bridge

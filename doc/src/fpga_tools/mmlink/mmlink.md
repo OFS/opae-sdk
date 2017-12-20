@@ -6,10 +6,9 @@
 
 
 ## DESCRIPTION ##
-
-Remote signaltap is software  tool used for debugging the Accelerator Function Unit (AFU), effectively a signal trace capability that Quartus places into a green bitstream.
-Remote Signal Tap provides  access the RST part of the Port MMIO space, and then runs the remote protocol on top.
-
+The Remote Signal Tap logic analyzer provides real-time hardware debugging for the Accelerator Function Unit (AFU). 
+It provides a signal trace capability that the Quartus Prime software adds to the AFU.
+The Remote Signal Tap logic analyzer provides access to the RST part of the Port MMIO space and then runs the remote protocol.
 ## EXAMPLES  ##
 
 `./mmlink  -B 0x5e -P 3333`
@@ -35,7 +34,7 @@ Remote Signal Tap provides  access the RST part of the Port MMIO space, and then
 
 Driver privilege:
 
-Change AFU driver privilege to user.
+Change AFU driver privilege to user:
 
 ```
 $ chmod 777 /dev/intel-fpga-port.0
@@ -54,9 +53,9 @@ user    hard   memlock           10000
 user    soft   memlock           10000
 ```
 
-exit terminal and login new terminal.
+Exit terminal and log into a new terminal.
 
-verify that the locked memory is now set: 
+Verify that the locked memory is now set: 
 ```
 $ ulimit -l 10000
 

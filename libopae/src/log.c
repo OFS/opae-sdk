@@ -36,35 +36,18 @@
 
 /* global loglevel */
 static int g_loglevel = FPGA_LOG_UNDEFINED;
+static FILE *g_logfile;
 /* mutex to protect against garbled log output */
 pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
+__attribute__((constructor))
+static void init_log(void)
 {
-	FILE *fp = stdout;
 	pthread_mutexattr_t mattr;
-	int err;
-
-	/* TODO: how to make this lazy initializer thread-safe? */
-	if (g_loglevel < 0) { /* loglevel not yet set? */
-
-		if (pthread_mutexattr_init(&mattr)) {
-			fprintf(stderr, "Failed to create log mutex attributes\n");
-			return;
-		}
-
-		if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
-		    pthread_mutex_init(&log_lock, &mattr)) {
-			fprintf(stderr, "Failed to create log mutex\n");
-			goto out_attr_destroy;
-		}
-
-		pthread_mutexattr_destroy(&mattr);
-
-		/* try to read loglevel from environment */
-		char *s = getenv("LIBOPAE_LOG");
-		if (s)
-			g_loglevel = atoi(s);
+	/* try to read loglevel from environment */
+	char *s = getenv("LIBOPAE_LOG");
+	if (s) {
+		g_loglevel = atoi(s);
 #ifndef LIBFGPA_DEBUG
 		if (g_loglevel >= FPGA_LOG_DEBUG)
 			fprintf(stderr,
@@ -74,6 +57,44 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 				"information.\n");
 #endif
 	}
+
+	s = getenv("LIBOPAE_LOGFILE");
+	if (s) {
+		g_logfile = fopen(s, "w");
+		if (g_logfile == NULL) {
+			fprintf(stderr, "Could not open log file for writing: %s. ", s);
+			fprintf(stderr, "Error is: %s\n", strerror(errno));
+		}
+	}
+
+	if (g_logfile == NULL)
+		g_logfile = stdout;
+
+	if (pthread_mutexattr_init(&mattr)) {
+		fprintf(stderr, "Failed to create log mutex attributes\n");
+		return;
+	}
+
+	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
+	    pthread_mutex_init(&log_lock, &mattr)) {
+		fprintf(stderr, "Failed to create log mutex\n");
+	}
+
+	pthread_mutexattr_destroy(&mattr);
+}
+
+__attribute__((destructor))
+static void deinit_log(void)
+{
+	if (g_logfile != NULL)
+		fclose(g_logfile);
+}
+
+
+void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
+{
+	FILE *fp = g_logfile == NULL ? stdout : g_logfile;
+	int err;
 
 	if (g_loglevel < 0) /* loglevel still not set? */
 		g_loglevel = FPGA_DEFAULT_LOGLEVEL;
@@ -94,10 +115,5 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 	if (err)
 		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
 	va_end(argp);
-
-	return;
-
-out_attr_destroy:
-	pthread_mutexattr_destroy(&mattr);
 }
 

@@ -256,8 +256,8 @@ bool mb1::run()
 
     bool res = true;
 
-    dma_buffer::ptr_t dsm = accelerator_->allocate_buffer(dsm_size_);
-    if (!dsm) {
+    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    if (!dsm_) {
         log_.error("mb1") << "failed to allocate DSM workspace." << std::endl;
         return false;
     }

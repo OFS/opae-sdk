@@ -342,7 +342,11 @@ def auto_find_sources(fd):
     # Recursively find and add directory locations for VH
     print("")
     print("Finding include directories ... ")
-    str = commands_getoutput("find -L " + str_dirlist + " -type d")
+
+    # use absolute path names in DUT_INCDIR to keep Questa happy
+    pathname = os.path.abspath(str_dirlist)
+    str = commands_getoutput("find -L " + pathname + " -type d")
+
     str = str.replace("\n", "+")
     if len(str) != 0:
         print("DUT_INCDIR = " + str)
@@ -392,7 +396,13 @@ def auto_find_sources(fd):
                 # like an AFU descriptor.
                 json_file = js
                 break
-            except Exception:
+            except ValueError:
+                ase_functions.begin_red_fontcolor()
+                sys.stderr.write("Error: reading JSON file {0}".format(js))
+                ase_functions.end_red_fontcolor()
+                raise
+            except KeyError:
+                # Ignore key error -- maybe the file isn't an AFU descriptor
                 None
 
     # Print auto-find instructions

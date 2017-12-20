@@ -7,6 +7,7 @@
          "use the SystemVerilog interface described in the parent."
       ],
    "parent": "ccip_std_afu_avalon_mm",
+   "platform-shim-module-name": null,
    "module-arguments" :
       [
          {

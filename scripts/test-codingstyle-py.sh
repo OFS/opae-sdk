@@ -8,9 +8,19 @@ FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*")
 FILES+=" "
 FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/doc\/")
 
+if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
+    CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
+    printf "Looking at changed files:\n${CHANGED_FILES}"
+    FILES=$(comm -12 <(sort <(for f in $FILES; do printf "$f\n"; done)) <(sort <(for f in $CHANGED_FILES; do printf "./$f\n"; done)))
+fi
+
 if [ "$1" == "-v" ]; then
 	echo "Checking the following files:"
 	echo $FILES
+fi
+
+if [ "$FILES" == "" ]; then
+    exit 0
 fi
 
 if [ ! -x "$PYLINT" ]; then

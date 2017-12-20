@@ -73,9 +73,6 @@ find_package(UUID)
 # json-c check
 find_package(json-c)
 
-# jsoncpp check
-find_package(jsoncpp)
-
 # ncurses check: CURSES_FOUND CURSES_INCLUDE_DIRS CURSES_LIBRARIES
 find_package(Curses)
 if (CURSES_FOUND)
