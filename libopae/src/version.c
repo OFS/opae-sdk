@@ -24,31 +24,53 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#include "safe_string/safe_string.h"
+#include "common_int.h"
+#include "types_int.h"
+#include "config_int.h"
 
-#define FPGA_API_VERSION_MAJOR 0
-#define FPGA_API_VERSION_MINOR 1
+#include <string.h>
 
-#include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/version.h>
+fpga_result __FPGA_API__ fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t *rev)
+{
+	if (!major || !minor || !rev) {
+		FPGA_MSG("arguments are NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
-#endif // __FPGA_FPGA_H__
+	*major = INTEL_FPGA_API_VER_MAJOR;
+	*minor = INTEL_FPGA_API_VER_MINOR;
+	*rev = INTEL_FPGA_API_VER_REV;
 
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaGetVersionString(char *version_str, size_t len)
+{
+	if (!version_str) {
+		FPGA_MSG("build_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
+		  sizeof(INTEL_FPGA_API_VERSION));
+
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaGetBuildString(char *build_str, size_t len)
+{
+	if (!build_str) {
+		FPGA_MSG("build_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
+		  sizeof(INTEL_FPGA_API_HASH));
+
+	return FPGA_OK;
+}

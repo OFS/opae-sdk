@@ -24,31 +24,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
-
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
-
-#define FPGA_API_VERSION_MAJOR 0
-#define FPGA_API_VERSION_MINOR 1
+#ifndef __FPGA_VERSION_H__
+#define __FPGA_VERSION_H__
 
 #include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/version.h>
 
-#endif // __FPGA_FPGA_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/**
+ * Get version information about the OPAE library
+ *
+ * Retrieve major version, minor version, and revision information about the
+ * OPAE library.
+ *
+ * @param[out]  major  Major version
+ * @param[out]  minor  Minor version
+ * @param[out]  rev    Revision
+ * @returns FPGA_INVALID_PARAM if any of the output parameters is NULL, FPGA_OK
+ * otherwise.
+ */
+fpga_result fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t *rev);
+
+/**
+ * Get version information about the OPAE library as a string
+ *
+ * Retrieve major version, minor version, and revision information about the
+ * OPAE library, encoded in a human-readable string (e.g. "1.0.0").
+ *
+ * @param[out]  version_str  String to copy version information into
+ * @param[in]   len          Length of `version_str`
+ * @returns FPGA_INVALID_PARAM if `version_str` is NULL, FPGA_OK otherwise.
+ */
+fpga_result fpgaGetVersionString(char *version_str, size_t len);
+#define FPGA_VERSION_STR_MAX 10
+
+/**
+ * Get build information about the OPAE library as a string
+ *
+ * Retrieve the build identifier of the OPAE library.
+ *
+ * @param[out]  build_str  String to copy build information into
+ * @param[in]   len        Length of `build_str`
+ * @returns FPGA_INVALID_PARAM if `build_str` is NULL, FPGA_OK otherwise.
+ */
+fpga_result fpgaGetBuildString(char *build_str, size_t len);
+#define FPGA_BUILD_STR_MAX 41
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // __FPGA_VERSION_H__
