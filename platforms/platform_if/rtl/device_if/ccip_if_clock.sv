@@ -28,34 +28,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-`include "device_if.vh"
+`include "platform_if.vh"
 
-module ccip_std_afu
-  #(
-    parameter NUM_LOCAL_MEM_BANKS = 2
-    )
+//
+// This module allows AFU writers to extract the clock that was chosen for
+// CCI-P in the AFU's JSON.  Use this to avoid using preprocessor macros
+// generated for platform interface configuration.
+//
+module ccip_if_clock
    (
     // CCI-P Clocks and Resets
-    input  logic        pClk,                 // Primary CCI-P interface clock.
-    input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
-    input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
-    input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
-    input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
-    input  logic        pck_cp2af_softReset,  // CCI-P ACTIVE HIGH Soft Reset
+    input  logic pClk,
+    input  logic pClkDiv2,
+    input  logic pClkDiv4,
+    input  logic uClk_usr,
+    input  logic uClk_usrDiv2,
+    input  logic pck_cp2af_softReset,
 
-    input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
-    input  logic        pck_cp2af_error,      // CCI-P Protocol Error Detected
-
-    // CCI-P structures
-    input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
-    output t_if_ccip_Tx pck_af2cp_sTx,        // CCI-P Tx Port
-
-    // Local memory interface
-    avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS]
+    output logic clk,
+    output logic reset
     );
 
-    //
-    // AFU logic...
-    //
+`ifdef PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
+    assign clk = pClk;
+`else
+    assign clk = `PLATFORM_PARAM_CCI_P_CLOCK;
+`endif
 
-endmodule // ccip_std_afu
+    assign reset = pck_cp2af_softReset;
+
+endmodule // ccip_if_clock
