@@ -45,13 +45,6 @@ class dma_buffer {
   typedef std::size_t size_t;
   typedef std::shared_ptr<dma_buffer> ptr_t;
 
-  /**
-   * @brief dma_buffer copy constructor
-   *
-   * @param other buffer to copy from
-   */
-  dma_buffer(const dma_buffer & other);
-
   /** dma_buffer destructor.
    */
   virtual ~dma_buffer();
@@ -144,6 +137,8 @@ class dma_buffer {
  protected:
   dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
              uint64_t iova);
+
+  dma_buffer(const dma_buffer & other);
 
   handle::ptr_t handle_;
   size_t len_;
