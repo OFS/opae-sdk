@@ -96,7 +96,7 @@ module ase_top();
 
 
    // CCIP AFU
-   `AFU_TOP_MODULE_NAME
+   `PLATFORM_SHIM_MODULE_NAME
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
     #(
       // Avalon memory as a SystemVerilog interface.  The number
@@ -110,7 +110,7 @@ module ase_top();
       .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
      )
 `endif
-    `AFU_TOP_MODULE_NAME
+    `PLATFORM_SHIM_MODULE_NAME
      (
       .pClkDiv4               (pClkDiv4            ),
       .pClkDiv2               (pClkDiv2            ),
