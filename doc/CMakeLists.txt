@@ -32,3 +32,8 @@ find_package(Doxygen)
 if(DOXYGEN_FOUND)
   add_subdirectory(doxygen)
 endif(DOXYGEN_FOUND)
+
+find_package(Sphinx)
+if(SPHINX_EXECUTABLE)
+  add_subdirectory(sphinx)
+endif(SPHINX_EXECUTABLE)
