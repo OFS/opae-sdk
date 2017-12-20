@@ -1,0 +1,8 @@
+requests==2.18.4
+docutils==0.14
+pygments==2.2.0
+sphinx==1.6.5
+sphinx-rtd-theme
+sphinxcontrib-pandoc-markdown
+breathe
+travis-sphinx
