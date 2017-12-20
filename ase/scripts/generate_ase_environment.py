@@ -396,7 +396,13 @@ def auto_find_sources(fd):
                 # like an AFU descriptor.
                 json_file = js
                 break
-            except Exception:
+            except ValueError:
+                ase_functions.begin_red_fontcolor()
+                sys.stderr.write("Error: reading JSON file {0}".format(js))
+                ase_functions.end_red_fontcolor()
+                raise
+            except KeyError:
+                # Ignore key error -- maybe the file isn't an AFU descriptor
                 None
 
     # Print auto-find instructions

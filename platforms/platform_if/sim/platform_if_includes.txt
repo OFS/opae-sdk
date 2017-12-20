@@ -9,6 +9,7 @@
 ## to this directory.  The latter uses only absolute paths.
 ##
 
++define+PLATFORM_IF_AVAIL
 +define+RTL_SIMULATION
 
 +incdir+../rtl
