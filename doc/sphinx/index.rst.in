@@ -47,13 +47,17 @@ The main documentation for the site is organized into following sections:
    :glob:
    :caption: OPAE FPGA Tools
 
+   docs/fpga_tools/coreidle/coreidle
+   docs/fpga_tools/fpgabist/fpgabist
    docs/fpga_tools/fpgainfo/fpgainfo
    docs/fpga_tools/fpgaconf/fpgaconf
    docs/fpga_tools/fpgad/fpgad
    docs/fpga_tools/fpgadiag/README
-   docs/fpga_tools/mmlink/mmlink
-   docs/fpga_tools/coreidle/coreidle
+   docs/fpga_tools/fpgaflash/fpgaflash
    docs/fpga_tools/fpgamux/fpgamux
+   docs/fpga_tools/fpgaport/fpgaport
+   docs/fpga_tools/mmlink/mmlink
+   docs/fpga_tools/packager/packager
    docs/fpga_tools/userclk/userclk
 
 .. _afu-tools-docs:
