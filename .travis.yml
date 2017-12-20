@@ -7,8 +7,6 @@ install:
   - pip install --user pylint
   - pip install --user pycodestyle
   - pip install --user jsonschema
-gemfile:
-    - Gemfile
 jobs:
   include:
     - stage: BAT
