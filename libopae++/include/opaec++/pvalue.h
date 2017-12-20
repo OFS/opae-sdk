@@ -39,13 +39,18 @@ namespace fpga {
 namespace types {
 
 struct guid_t {
-  guid_t(fpga_properties *p) : props_(p), log_("guid_t") {}
+  guid_t(fpga_properties *p) : props_(p), log_("guid_t"), is_set_(false) {}
+
+  fpga_result update() {
+    fpga_result res = fpgaPropertiesGetGUID(*props_,
+            reinterpret_cast<fpga_guid *>(data_.data()));
+    is_set_ = (FPGA_OK == res);
+    return res;
+  }
 
   operator uint8_t *() {
-    if (fpgaPropertiesGetGUID(
-            *props_, reinterpret_cast<fpga_guid *>(data_.data())) == FPGA_OK) {
-      return data_.data();
-    }
+    if (FPGA_OK == update())
+        return data_.data();
     return nullptr;
   }
 
@@ -56,6 +61,7 @@ struct guid_t {
   guid_t &operator=(fpga_guid g) {
     fpga_result res;
     if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
+      is_set_ = true;
       uint8_t *begin = &g[0];
       uint8_t *end = begin + sizeof(fpga_guid);
       std::copy(begin, end, data_.begin());
@@ -68,7 +74,7 @@ struct guid_t {
   }
 
   bool operator==(const fpga_guid &g) {
-    return 0 == std::memcmp(data_.data(), g, sizeof(fpga_guid));
+    return is_set() && (0 == std::memcmp(data_.data(), g, sizeof(fpga_guid)));
   }
 
   void parse(const char *str) {
@@ -104,9 +110,18 @@ struct guid_t {
     return ostr;
   }
 
+  bool is_set() const {
+    return is_set_;
+  }
+
+  void invalidate() {
+    is_set_ = false;
+  }
+
  private:
   fpga_properties *props_;
-  mutable opae::fpga::internal::logger log_;
+  opae::fpga::internal::logger log_;
+  bool is_set_;
   std::array<uint8_t, 16> data_;
 };
 
@@ -142,7 +157,7 @@ struct pvalue {
   typedef typename std::conditional<
       std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
   
-  pvalue() : props_(0), log_("pvalue") {}
+  pvalue() : props_(0), log_("pvalue"), is_set_(false) {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
@@ -153,7 +168,7 @@ struct pvalue {
    * @param s The setter function
    */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
-      : props_(p), log_("pvalue"), get_(g), set_(s) {}
+      : props_(p), log_("pvalue"), is_set_(false), get_(g), set_(s) {}
 
   /**
    * @brief Overload of `=` operator that calls the wrapped setter
@@ -165,6 +180,7 @@ struct pvalue {
   pvalue<T> &operator=(const T &v) {
     auto res = set_(*props_, v);
     if (res == FPGA_OK) {
+      is_set_ = true;
       copy_ = v;
     }
     return *this;
@@ -177,7 +193,13 @@ struct pvalue {
    *
    * @return Whether or not the property is equal to the value
    */
-  bool operator==(const T &other) { return copy_ == other; }
+  bool operator==(const T &other) { return is_set() && (copy_ == other); }
+
+  fpga_result update() {
+    fpga_result res = get_(*props_, &copy_);
+    is_set_ = (FPGA_OK == res);
+    return res;
+  }
 
   /**
    * @brief Implicit converter operator - calls the wrapped getter
@@ -186,13 +208,11 @@ struct pvalue {
    *         value of the value type
    */
   operator copy_t() {
-    if (get_(*props_, &copy_) == FPGA_OK) {
+    if (update() == FPGA_OK) {
       return copy_;
     }
     return copy_t();
   }
-
-
 
   // TODO: Remove this once all properties are tested
   fpga_result get_value(T &value) const { return get_(*props_, &value); }
@@ -222,27 +242,36 @@ struct pvalue {
     return ostr;
   }
 
+  bool is_set() const {
+    return is_set_;
+  }
+
+  void invalidate() {
+    is_set_ = false;
+  }
+
  private:
   fpga_properties *props_;
-  mutable opae::fpga::internal::logger log_;
+  opae::fpga::internal::logger log_;
+  bool is_set_;
   copy_t copy_;
   getter_t get_;
   setter_t set_;
 };
 
 /**
- * @brief Template specialization of `char*` type properties
+ * @brief Template specialization of `char*` type property updater
  *
- * @return The property value as an copy_t which is std::string
+ * @return The result of the property getter function.
  */
-template<> inline
-pvalue<char*>::operator pvalue<char*>::copy_t() {
-  char buf[64];
-  if (get_(*props_, buf) == FPGA_OK) {
+template <> inline
+fpga_result pvalue<char*>::update() {
+  char buf[256];
+  fpga_result res = get_(*props_, buf);
+  if (res == FPGA_OK)
     copy_.assign(buf);
-    return copy_;
-  }
-  return pvalue<char*>::copy_t();
+  is_set_ = (FPGA_OK == res);
+  return res;
 }
 
 }  // end of namespace types
