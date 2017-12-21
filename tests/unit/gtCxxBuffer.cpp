@@ -5,15 +5,18 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
+#include <memory>
 #include <unistd.h>
 
 #include "gtest/gtest.h"
 
 #include "opaec++/dma_buffer.h"
+#include "opaec++/buffers.h"
 #include "opaec++/handle.h"
+#include "opaec++/except.h"
 
 using namespace opae::fpga::types;
+using namespace opae::fpga::memory;
 
 class CxxBuffer_f1 : public ::testing::Test {
  protected:
@@ -40,11 +43,10 @@ class CxxBuffer_f1 : public ::testing::Test {
  * @test alloc_01
  * Given an open accelerator handle object<br>
  * When I call dma_buffer::allocate() with a length of 0<br>
- * Then I get an empty dma_buffer pointer.<br>
+ * Then an exception is throw of type opae::fpga::types::except
  */
 TEST_F(CxxBuffer_f1, alloc_01) {
-  buf_ = dma_buffer::allocate(accel_, 0);
-  ASSERT_EQ(nullptr, buf_.get());
+  ASSERT_THROW(buf_ = dma_buffer::allocate(accel_, 0), except);
 }
 
 /**
@@ -81,29 +83,30 @@ TEST_F(CxxBuffer_f1, alloc_07) {
 /**
  * @test split_03
  * Given a valid dma_buffer smart pointer<br>
- * When I call dma_buffer::split(),<br>
+ * When I convert it to a buffer_slice <br>
+ * And I call buffer_slice::split()<br>
  * The sub-buffers are created according to the initialier_list.<br>
  */
 TEST_F(CxxBuffer_f1, split_03) {
   buf_ = dma_buffer::allocate(accel_, 64);
   ASSERT_NE(nullptr, buf_.get());
+  auto chunk = buffer_slice::convert(buf_);
+  std::vector<dma_buffer::ptr_t> v = chunk->split({16, 16, 16, 16});
 
-  std::vector<dma_buffer::ptr_t> v = buf_->split({16, 16, 16, 16});
-
-  EXPECT_EQ(buf_->get(), v[0]->get());
-  EXPECT_EQ(buf_->iova(), v[0]->iova());
+  EXPECT_EQ(chunk->get(), v[0]->get());
+  EXPECT_EQ(chunk->iova(), v[0]->iova());
   EXPECT_EQ(16, v[0]->size());
 
-  EXPECT_EQ(buf_->get() + 16, v[1]->get());
-  EXPECT_EQ(buf_->iova() + 16, v[1]->iova());
+  EXPECT_EQ(chunk->get() + 16, v[1]->get());
+  EXPECT_EQ(chunk->iova() + 16, v[1]->iova());
   EXPECT_EQ(16, v[1]->size());
 
-  EXPECT_EQ(buf_->get() + 32, v[2]->get());
-  EXPECT_EQ(buf_->iova() + 32, v[2]->iova());
+  EXPECT_EQ(chunk->get() + 32, v[2]->get());
+  EXPECT_EQ(chunk->iova() + 32, v[2]->iova());
   EXPECT_EQ(16, v[2]->size());
 
-  EXPECT_EQ(buf_->get() + 48, v[3]->get());
-  EXPECT_EQ(buf_->iova() + 48, v[3]->iova());
+  EXPECT_EQ(chunk->get() + 48, v[3]->get());
+  EXPECT_EQ(chunk->iova() + 48, v[3]->iova());
   EXPECT_EQ(16, v[3]->size());
 }
 

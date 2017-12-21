@@ -105,6 +105,7 @@ set(SRC gtmain.cpp
   unit/gtCxxOpenClose.cpp
   unit/gtCxxProperties.cpp
   unit/gtCxxExcept.cpp
+  unit/gtCxxBuffer.cpp
   unit/gtCxxLog.cpp)
 
 add_executable(gtapi ${SRC})
