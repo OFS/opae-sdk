@@ -43,7 +43,7 @@ class CxxBuffer_f1 : public ::testing::Test {
  * @test alloc_01
  * Given an open accelerator handle object<br>
  * When I call dma_buffer::allocate() with a length of 0<br>
- * Then I get an empty dma_buffer pointer.<br>
+ * Then an exception is throw of type opae::fpga::types::except
  */
 TEST_F(CxxBuffer_f1, alloc_01) {
   ASSERT_THROW(buf_ = dma_buffer::allocate(accel_, 0), except);
@@ -83,14 +83,14 @@ TEST_F(CxxBuffer_f1, alloc_07) {
 /**
  * @test split_03
  * Given a valid dma_buffer smart pointer<br>
- * When I convert it to a buffer_chunk <br>
- * And I call buffer_chunk::split()<br>
+ * When I convert it to a buffer_slice <br>
+ * And I call buffer_slice::split()<br>
  * The sub-buffers are created according to the initialier_list.<br>
  */
 TEST_F(CxxBuffer_f1, split_03) {
   buf_ = dma_buffer::allocate(accel_, 64);
   ASSERT_NE(nullptr, buf_.get());
-  auto chunk = buffer_chunk::convert(buf_);
+  auto chunk = buffer_slice::convert(buf_);
   std::vector<dma_buffer::ptr_t> v = chunk->split({16, 16, 16, 16});
 
   EXPECT_EQ(chunk->get(), v[0]->get());

@@ -44,30 +44,30 @@ namespace fpga {
 namespace memory {
 
 
-class buffer_chunk : public opae::fpga::types::dma_buffer,
-                     public std::enable_shared_from_this<buffer_chunk> {
+class buffer_slice : public opae::fpga::types::dma_buffer,
+                     public std::enable_shared_from_this<buffer_slice> {
  public:
-  typedef std::shared_ptr<buffer_chunk> ptr_t;
+  typedef std::shared_ptr<buffer_slice> ptr_t;
 
 
   /**
-   * @brief Factor function to create buffer_chunk objects from existing
+   * @brief Factor function to create buffer_slice objects from existing
    *        dma_buffer objects
    *
    * @param buffer A shared pointer to a dma_buffer object
    *
-   * @return A shared pointer to a buffer_chunk object
+   * @return A shared pointer to a buffer_slice object
    */
-  static buffer_chunk::ptr_t convert(dma_buffer::ptr_t buffer)
+  static buffer_slice::ptr_t convert(dma_buffer::ptr_t buffer)
   {
-    return buffer_chunk::ptr_t(new buffer_chunk(buffer));
+    return buffer_slice::ptr_t(new buffer_slice(buffer));
   }
   /**
-   * @brief buffer_chunk destructor
+   * @brief buffer_slice destructor
    *        Invalidates its virt_ member variable so dma_buffer destructor
    *        won't try to release the buffer
    */
-  ~buffer_chunk() { virt_ = 0; }
+  ~buffer_slice() { virt_ = 0; }
 
 
   /** Divide a buffer into a series of smaller buffers.
@@ -92,7 +92,7 @@ class buffer_chunk : public opae::fpga::types::dma_buffer,
 
     for (const auto &sz : sizes) {
       ptr_t p;
-      p.reset(new buffer_chunk(handle_, sz, virt_ + offset, wsid_, iova_ + offset,
+      p.reset(new buffer_slice(handle_, sz, virt_ + offset, wsid_, iova_ + offset,
                                shared_from_this()));
       v.push_back(p);
       offset += sz;
@@ -105,9 +105,9 @@ class buffer_chunk : public opae::fpga::types::dma_buffer,
   dma_buffer::ptr_t parent_;  // for split buffers
 
  private:
-  buffer_chunk(dma_buffer::ptr_t buffer) : dma_buffer(*buffer), parent_(buffer){}
+  buffer_slice(dma_buffer::ptr_t buffer) : dma_buffer(*buffer), parent_(buffer){}
 
-  buffer_chunk(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
+  buffer_slice(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
                uint64_t iova, dma_buffer::ptr_t parent)
     : dma_buffer(handle, len, virt, wsid, iova)
     , parent_(parent){}
