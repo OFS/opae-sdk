@@ -24,16 +24,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-############################################################################
-## Add 'doxygen' library ###################################################
-############################################################################
+set(_python_paths)
+find_package(PythonInterp)
+if(PYTHON_EXECUTABLE)
+  get_filename_component(_python_dir "${PYTHON_EXECUTABLE}" DIRECTORY)
+  list(APPEND _python_paths
+    "${_python_dir}"
+    "${_python_dir}/Scripts")
+endif()
 
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  add_subdirectory(doxygen)
-endif(DOXYGEN_FOUND)
 
-find_package(Sphinx)
-if(SPHINX_EXECUTABLE)
-  add_subdirectory(sphinx)
-endif(SPHINX_EXECUTABLE)
+find_program(SPHINX_EXECUTABLE
+  NAMES
+    sphinx-build
+  HINTS
+    ${_python_paths}
+  PATHS
+    /usr/bin
+    /usr/local/bin
+    /opt/local/bin
+  DOC "Sphinx documentation generator")
+
+include(FindPackageHandleStandardArgs)
+
+find_package_handle_standard_args(Sphinx
+  DEFAULT_MSG
+  SPHINX_EXECUTABLE)
+
+mark_as_advanced(SPHINX_EXECUTABLE)
