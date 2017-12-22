@@ -71,6 +71,13 @@ class event {
   };
 
   /**
+   * @brief Get the fpga_event_handle contained in this object
+   *
+   * @return The fpga_event_handle contained in this object
+   */
+  fpga_event_handle get() { return event_handle_; }
+
+  /**
    * @brief Coversion operator for converting to fpga_event_handle objects
    *
    * @return The fpga_event_handle contained in this object
