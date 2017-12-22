@@ -44,6 +44,11 @@ event::~event()
   }
 }
 
+event::operator fpga_event_handle()
+{
+  return event_handle_;
+}
+
 event::ptr_t event::register_event(handle::ptr_t h, event::type_t t, int flags)
 {
   event::ptr_t evptr;

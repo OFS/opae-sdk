@@ -71,6 +71,13 @@ class event {
   };
 
   /**
+   * @brief Coversion operator for converting to fpga_event_handle objects
+   *
+   * @return The fpga_event_handle contained in this object
+   */
+  operator fpga_event_handle();
+
+  /**
    * @brief Factory function to create event objects
    *
    * @param h A shared ptr of a resource handle
