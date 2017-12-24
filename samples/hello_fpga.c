@@ -85,9 +85,6 @@ void print_err(const char *s, fpga_result res)
 
 int main(int argc, char *argv[])
 {
-
-	char               library_version[FPGA_VERSION_STR_MAX];
-	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_properties    filter = NULL;
 	fpga_token         accelerator_token;
 	fpga_handle        accelerator_handle;
@@ -118,12 +115,6 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	}
-
-	/* Print version information of the underlying library */
-	fpgaGetVersionString(library_version, sizeof(library_version));
-	fpgaGetBuildString(library_build, sizeof(library_build));
-	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
-	       library_build);
 
 	if (uuid_parse(NLB0_AFUID, guid) < 0) {
 		fprintf(stderr, "Error parsing guid '%s'\n", NLB0_AFUID);
