@@ -222,9 +222,9 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
+	// Set max power if not specified by gbs
 	if (gbs_power == 0) {
-		FPGA_ERR("GBS power value is 0");
-		return FPGA_INVALID_PARAM;
+		gbs_power = FPGA_GBS_MAX_POWER;
 	}
 
 	// verify gbs power limits
