@@ -151,7 +151,7 @@ module platform_utils_ccip_async_shim
     logic                        c0tx_rdempty;
     logic                        c0tx_fifo_wrfull;
 
-    platform_utils_ccip_afifo_channel
+    platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C0TX_TOTAL_WIDTH),
         .DEPTH_RADIX(C0TX_DEPTH_RADIX)
@@ -189,7 +189,7 @@ module platform_utils_ccip_async_shim
     // Track round-trip request -> response credits to avoid filling the
     // response pipeline.
     logic [C0RX_DEPTH_RADIX-1:0] c0req_cnt;
-    platform_utils_ccip_async_c0_active_cnt
+    platform_utils_ccip_c0_active_cnt
       #(
         .C0RX_DEPTH_RADIX (C0RX_DEPTH_RADIX)
         )
@@ -240,7 +240,7 @@ module platform_utils_ccip_async_shim
     logic                        c1tx_rdempty;
     logic                        c1tx_fifo_wrfull;
 
-    platform_utils_ccip_afifo_channel
+    platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C1TX_TOTAL_WIDTH),
         .DEPTH_RADIX(C1TX_DEPTH_RADIX)
@@ -279,7 +279,7 @@ module platform_utils_ccip_async_shim
     // Track round-trip request -> response credits to avoid filling the
     // response pipeline.
     logic [C1RX_DEPTH_RADIX-1:0] c1req_cnt;
-    platform_utils_ccip_async_c1_active_cnt
+    platform_utils_ccip_c1_active_cnt
       #(
         .C1RX_DEPTH_RADIX(C1RX_DEPTH_RADIX)
         )
@@ -326,7 +326,7 @@ module platform_utils_ccip_async_shim
     logic                        c2tx_rdempty;
     logic                        c2tx_fifo_wrfull;
 
-    platform_utils_ccip_afifo_channel
+    platform_utils_dc_fifo
       #(
         .DATA_WIDTH  (C2TX_TOTAL_WIDTH),
         .DEPTH_RADIX (C2TX_DEPTH_RADIX)
@@ -369,7 +369,7 @@ module platform_utils_ccip_async_shim
     logic                        c0rx_rdempty;
     logic                        c0rx_fifo_wrfull;
 
-    platform_utils_ccip_afifo_channel
+    platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C0RX_TOTAL_WIDTH),
         .DEPTH_RADIX(C0RX_DEPTH_RADIX)
@@ -420,7 +420,7 @@ module platform_utils_ccip_async_shim
     logic               c1rx_rdempty;
     logic               c1rx_fifo_wrfull;
 
-    platform_utils_ccip_afifo_channel
+    platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C1RX_TOTAL_WIDTH),
         .DEPTH_RADIX(C1RX_DEPTH_RADIX)

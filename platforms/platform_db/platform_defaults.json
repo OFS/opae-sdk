@@ -102,7 +102,8 @@
                      "name of another incoming clock.  Only CCI-P clocks may be",
                      "chosen. (E.g. pClkDiv2 or uClk_usr.)"
                   ],
-               "clock": "default"
+               "clock": "default",
+               "pclk-freq": 400
             },
 
          "local-memory":

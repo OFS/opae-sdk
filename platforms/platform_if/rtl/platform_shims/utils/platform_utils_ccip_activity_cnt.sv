@@ -35,7 +35,7 @@
 
 import ccip_if_pkg::*;
 
-module platform_utils_ccip_async_c0_active_cnt
+module platform_utils_ccip_c0_active_cnt
   #(
     parameter C0RX_DEPTH_RADIX = 10
     )
@@ -83,10 +83,10 @@ module platform_utils_ccip_async_c0_active_cnt
         end
     end
 
-endmodule // platform_utils_ccip_async_c0_active_cnt
+endmodule // platform_utils_ccip_c0_active_cnt
 
 
-module platform_utils_ccip_async_c1_active_cnt
+module platform_utils_ccip_c1_active_cnt
   #(
     parameter C1RX_DEPTH_RADIX = 10
     )
@@ -141,4 +141,4 @@ module platform_utils_ccip_async_c1_active_cnt
         end
     end
 
-endmodule // platform_utils_ccip_async_c1_active_cnt
+endmodule // platform_utils_ccip_c1_active_cnt
