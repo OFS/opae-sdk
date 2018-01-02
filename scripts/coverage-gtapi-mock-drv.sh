@@ -14,6 +14,10 @@ make mock gtapi
 lcov --directory . --zerocounters
 
 make test
+
+find */**/opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
+find */**/opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+
 find */**/opae-c.dir -iname "*.gcda" | xargs -i cp {} coverage_files
 find */**/opae-c.dir -iname "*.gcno" | xargs -i cp {} coverage_files
 
