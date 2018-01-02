@@ -141,7 +141,7 @@ static const fpga_guid 	WRONG_ASE_GUID = {
 #define MAX_TOKENS 4
 #define MAX_PATH 1024
 
-//#define LINE(x) __FILE__ + ':' + std::to_string(x)
+
 #define LINE(x)    "__FILE__  + ':' + std::to_string(x)"
 
 /* Type definitions */
@@ -151,23 +151,23 @@ typedef struct { uint32_t uint[16]; } cache_line;
  * @brief      Class for global options.
  */
 class GlobalOptions {
-public:
-	static GlobalOptions& Instance();
+ public:
+  static GlobalOptions& Instance();
 
-	void NumSockets(unsigned s) { m_NumSockets = s; }
-	unsigned NumSockets() const { return m_NumSockets; }
+  void NumSockets(unsigned s) { m_NumSockets = s; }
+  unsigned NumSockets() const { return m_NumSockets; }
 
-	void Bus(signed b) { m_Bus = b; }
-	signed Bus() const { return m_Bus; }
+  void Bus(signed b) { m_Bus = b; }
+  signed Bus() const { return m_Bus; }
 
-	void VM(bool bvm) { m_VM = bvm; }
-	bool VM() { return m_VM; }
+  void VM(bool bvm) { m_VM = bvm; }
+  bool VM() { return m_VM; }
 
-	void Platform(unsigned p) { m_Platform = p; }
-	unsigned Platform() const { return m_Platform; }
+  void Platform(unsigned p) { m_Platform = p; }
+  unsigned Platform() const { return m_Platform; }
 
-protected:
-	static GlobalOptions sm_Instance;
+ protected:
+  static GlobalOptions sm_Instance;
 
 	unsigned m_NumSockets;
 	signed m_Bus;
@@ -184,105 +184,105 @@ namespace common_test {
 
 inline void token_for_fme0(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-	memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
-	_tok->magic = ASE_TOKEN_MAGIC;
-	_tok->ase_objtype=FPGA_DEVICE;
+            memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
+	    _tok->magic = ASE_TOKEN_MAGIC;
+	    _tok->ase_objtype=FPGA_DEVICE;
 #else
-// slot 0 FME
-	strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
-			SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
-			SYSFS_PATH_MAX - 1);
-	strncpy_s(_tok->devpath, sizeof(_tok->devpath),
-			FPGA_DEV_PATH "/intel-fpga-fme.0", DEV_PATH_MAX - 1);
-	_tok->magic = FPGA_TOKEN_MAGIC;
+  // slot 0 FME
+  strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
+            SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
+            SYSFS_PATH_MAX - 1);
+  strncpy_s(_tok->devpath, sizeof(_tok->devpath),
+            FPGA_DEV_PATH "/intel-fpga-fme.0", DEV_PATH_MAX - 1);
+  _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
 
 inline void token_for_afu0(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-	memcpy(_tok->accelerator_id,ASE_GUID, sizeof(fpga_guid));
-	_tok->magic = ASE_TOKEN_MAGIC;
-	_tok->ase_objtype=FPGA_ACCELERATOR;
+            memcpy(_tok->accelerator_id,ASE_GUID, sizeof(fpga_guid));
+	   _tok->magic = ASE_TOKEN_MAGIC;
+           _tok->ase_objtype=FPGA_ACCELERATOR;
 #else
-	// slot 0 AFU
-	strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
-			SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
-			SYSFS_PATH_MAX - 1);
-	strncpy_s(_tok->devpath, sizeof(_tok->devpath),
-			FPGA_DEV_PATH "/intel-fpga-port.0", DEV_PATH_MAX - 1);
-	_tok->magic = FPGA_TOKEN_MAGIC;
+  // slot 0 AFU
+  strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
+            SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
+            SYSFS_PATH_MAX - 1);
+  strncpy_s(_tok->devpath, sizeof(_tok->devpath),
+            FPGA_DEV_PATH "/intel-fpga-port.0", DEV_PATH_MAX - 1);
+  _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
 
 inline void token_for_invalid(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-	memcpy(_tok->accelerator_id,WRONG_ASE_GUID, sizeof(fpga_guid));
-	_tok->magic = FPGA_TOKEN_MAGIC;
+            memcpy(_tok->accelerator_id,WRONG_ASE_GUID, sizeof(fpga_guid));
+	    _tok->magic = FPGA_TOKEN_MAGIC;
 #else
-	// slot 0 AFU
-	strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
-			SYSFS_FPGA_CLASS_PATH "/invalid_token", SYSFS_PATH_MAX - 1);
-	strncpy_s(_tok->devpath, sizeof(_tok->devpath),
-			FPGA_DEV_PATH "/invalid_token", DEV_PATH_MAX - 1);
-	_tok->magic = FPGA_TOKEN_MAGIC;
+  // slot 0 AFU
+  strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
+            SYSFS_FPGA_CLASS_PATH "/invalid_token", SYSFS_PATH_MAX - 1);
+  strncpy_s(_tok->devpath, sizeof(_tok->devpath),
+            FPGA_DEV_PATH "/invalid_token", DEV_PATH_MAX - 1);
+  _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
 
 inline bool token_is_fme0(fpga_token t) {
-	struct _fpga_token* _t = (struct _fpga_token*)t;
+  struct _fpga_token* _t = (struct _fpga_token*)t;
 
-	int indicator = 0;
-	signed retval = 0;
+  int indicator = 0;
+  signed retval = 0;
 #ifdef BUILD_ASE
-	if(_t->magic != ASE_TOKEN_MAGIC)
+	    if(_t->magic != ASE_TOKEN_MAGIC)
 		return 0;
-	else
-		return ((0 == memcmp(_t->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid))));
+	    else
+	        return ((0 == memcmp(_t->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid))));
 #else
-	if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
-				SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
-				&indicator)) {
-	perror("error in string compare");
-	} else {
-		retval += indicator;
-	}
+  if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
+               SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
+               &indicator)) {
+    perror("error in string compare");
+  } else {
+    retval += indicator;
+  }
 
-	if (strcmp_s(_t->devpath, sizeof(_t->sysfspath), "/dev/intel-fpga-fme.0",
-				&indicator)) {
-	perror("error in string compare");
-	} else {
-	retval += indicator;
-	}
-	return (retval == 0);
+  if (strcmp_s(_t->devpath, sizeof(_t->sysfspath), "/dev/intel-fpga-fme.0",
+               &indicator)) {
+    perror("error in string compare");
+  } else {
+    retval += indicator;
+  }
+  return (retval == 0);
 #endif
 };
 
 inline bool token_is_afu0(fpga_token t) {
-	struct _fpga_token* _t = (struct _fpga_token*)t;
+  struct _fpga_token* _t = (struct _fpga_token*)t;
 
-	int indicator = 0;
-	signed retval = 0;
+  int indicator = 0;
+  signed retval = 0;
 #ifdef BUILD_ASE
-	if(_t->magic != ASE_TOKEN_MAGIC)
-		return 0;
-	else
-		return ((0 == memcmp(_t->accelerator_id,ASE_GUID, sizeof(fpga_guid))));
+	     if(_t->magic != ASE_TOKEN_MAGIC)
+		 return 0;
+	     else
+	         return ((0 == memcmp(_t->accelerator_id,ASE_GUID, sizeof(fpga_guid))));
 #else
-	if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
-		SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
-		&indicator)) {
-		perror("error in string compare");
-	} else {
-		retval += indicator;
-	}
+  if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
+               SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
+               &indicator)) {
+    perror("error in string compare");
+  } else {
+    retval += indicator;
+  }
 
-	if (strcmp_s(_t->devpath, sizeof(_t->sysfspath),
-		FPGA_DEV_PATH "/intel-fpga-port.0", &indicator)) {
-		perror("error in string compare");
-	} else {
-		retval += indicator;
-	}
-	return (retval == 0);
+  if (strcmp_s(_t->devpath, sizeof(_t->sysfspath),
+               FPGA_DEV_PATH "/intel-fpga-port.0", &indicator)) {
+    perror("error in string compare");
+  } else {
+    retval += indicator;
+  }
+  return (retval == 0);
 #endif
 };
 
@@ -341,19 +341,19 @@ bool feature_is_supported(const char*, fpga_token);
  */
 template <int lo_, int hi_, typename IntType = int>
 class Random {
-public:
-	/// @brief Random<> constructor
-	Random() : gen_(rdev_()), dist_(lo_, hi_) {}
+ public:
+  /// @brief Random<> constructor
+  Random() : gen_(rdev_()), dist_(lo_, hi_) {}
 
-	/**
-	 * @brief      generates a Random integer
-	 * @return     a Random number between range lo_ and hi_ */
-	int operator()() { return dist_(gen_); }
+  /**
+   * @brief      generates a Random integer
+   * @return     a Random number between range lo_ and hi_ */
+  int operator()() { return dist_(gen_); }
 
-private:
-	std::random_device rdev_;
-	std::mt19937 gen_;
-	std::uniform_int_distribution<IntType> dist_;
+ private:
+  std::random_device rdev_;
+  std::mt19937 gen_;
+  std::uniform_int_distribution<IntType> dist_;
 };
 
 /**
@@ -361,13 +361,13 @@ private:
  *             enumeration in gtest.
  */
 class BaseFixture {
-public:
-	int number_found = 0;
-	fpga_token tokens[MAX_TOKENS] = {0};
-	int index = 0;
+ public:
+  int number_found = 0;
+  fpga_token tokens[MAX_TOKENS] = {0};
+  int index = 0;
 
-	void TestAllFPGA(fpga_objtype, bool, std::function<void()>,
-fpga_guid guid = NULL);
+  void TestAllFPGA(fpga_objtype, bool, std::function<void()>,
+                   fpga_guid guid = NULL);
 };
 
 }  // end namespace
