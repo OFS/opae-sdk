@@ -28,11 +28,14 @@ set_global_assignment -name VERILOG_MACRO "PLATFORM_IF_AVAIL=1"
 set plat_name ""
 set macros [get_all_global_assignments -name VERILOG_MACRO]
 foreach_in_collection m $macros {
+    if {[info exists key]} { unset key }
     regexp {(.+)=(.+)} [lindex $m 2] full key val
-    if {$key eq "PLATFORM_NAME"} {
-        set plat_name $val
-        puts "Platform macro is set: PLATFORM_NAME=${plat_name}"
-        break
+    if {[info exists key]} {
+        if {$key eq "PLATFORM_NAME"} {
+            set plat_name $val
+            puts "Platform macro is set: PLATFORM_NAME=${plat_name}"
+            break
+        }
     }
 }
 
