@@ -20,7 +20,7 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 
-module platform_utils_ccip_afifo_channel
+module platform_utils_dc_fifo
   #(
     parameter DATA_WIDTH = 32,
     parameter DEPTH_RADIX = 9
