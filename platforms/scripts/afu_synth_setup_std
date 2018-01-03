@@ -42,7 +42,11 @@ import errno
 import shutil
 import subprocess
 from os.path import dirname, realpath, sep
-import subprocess
+
+if sys.version_info < (2, 7):
+    import commands
+else:
+    import subprocess
 
 
 def errorExit(msg):
