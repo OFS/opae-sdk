@@ -26,8 +26,8 @@
 
 #include <opae/event.h>
 
-#include "opaec++/events.h"
-#include "opaec++/except.h"
+#include "opae/cxx/events.h"
+#include "opae/cxx/except.h"
 
 namespace opae {
 namespace fpga {
