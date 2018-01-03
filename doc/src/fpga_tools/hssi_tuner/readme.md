@@ -2,7 +2,7 @@
 
 ## NAME ##
 
-_hssi_tuner_ - Arria/Alaska transceivers tuner
+_hssi_tuner_ - Arria and Alaska transceivers tuner
 
 ## PREREQUISITES ##
 
@@ -31,18 +31,22 @@ Output binaries are located in `INSTALL_DIR`.
 ```
 
 ## DESCRIPTION ##
-hssi_tuner is a tool to tune the HSSI link between the Arria10 and the Alaska card. The tool sets initial parameters for transceivers on boths sides of the link and performs a cartesian product of specified parameter sweeps. Please refer to "Intel(R) FPGA IP High-Speed Link Tuning Using Signal Conditioning Circuitry in Intel(R) Arria(R) 10 Transceivers" document for more details on the tuning procedure.
+hssi_tuner tunes the HSSI link between the Intel Arria 10 device and the Alaska card. The tool sets initial parameters for
+transceivers on boths sides of the link. It performs a cartesian product of specified parameter sweeps. Please refer to 
+"Intel(R) FPGA IP High-Speed Link Tuning Using Signal Conditioning Circuitry in Intel(R) Arria(R) 10 Transceivers" document
+for more details on the tuning procedure. hssi_tuner only runs on the Integrated FPGA Platform. You cannot run it on the
+PCIe accelerator card (PAC).
 
 ```eval_rst
 .. important:: Tuning requires `lfsr_with_mdio` GBS to be loaded.
 ```
 
-The sweep procedure is as follows:
+The sweep procedure includes the following steps:
 
 1. Configure all devices according to `--xcvr_config` files.
-2. Step single parameter according to specified `--sweep` parameter.
+2. Step a single parameter according to specified `--sweep` parameter.
 3. Reset all transceivers.
-4. Start PRBS on all Tx and Rx.
+4. Start PRBS on all TX and RX interfaces.
 5. Wait for lock (up to `lock_timeout` seconds).
 6. Check if lock is stable (up to `lock_timeout` seconds).
 7. Reset error counters.
@@ -56,7 +60,7 @@ The sweep procedure is as follows:
 
 `--pci_device resource_path`
 
-    `path`: path to resource0 of fpga device eg. `/sys/devices/pci0000:5e/0000:5e:00.0/resource0`
+    `path`: path to resource0 of fpga device for example, `/sys/devices/pci0000:5e/0000:5e:00.0/resource0`
 
     Use `lspci` to find path to the PCIe device.
 
@@ -85,9 +89,9 @@ $ readlink -e $(lspci -nd 8086:bcc0 | awk '{print "/sys/bus/pci/devices/*"$1"/re
 
     `file`: filename to device initial configuration
 
-    Arria config file requires set of parameters for every link.
+    Arria configuration file requires set of parameters for every link.
 
-    Arria config supports parameters in given order:
+    Arria configuration supports parameters in the following order:
 
         - vod (default: 31)
         - pre_emp_1st_post_tap (default: 0)
@@ -152,15 +156,15 @@ $ readlink -e $(lspci -nd 8086:bcc0 | awk '{print "/sys/bus/pci/devices/*"$1"/re
 
     Given value is arria tranceiver link - corresponding alaska transceiver link is decoded internally.
 
-    Additionally `all` can be provided as value and xcvr parameters during sweep command will be changed on all links simultaneously.
+    Additionally `all` runs the same sweep command simultaneously on all links.
 
 `--out file`
 
     `file`: filename to save sweep results. (default = none, write to stdout)
 
-    Output file contains parameters under test and other gathered informations which allows to determine signal integrity.
+    Output file contains parameters under test and other gathered information to determine signal integrity.
 
-    Results are appended to an existing file.
+    Appends results to an existing file.
 
 `--lock_tout lock_timeout`
 
@@ -198,7 +202,7 @@ $ readlink -e $(lspci -nd 8086:bcc0 | awk '{print "/sys/bus/pci/devices/*"$1"/re
 
     Multiple sweep commands are accepted for app execution.
 
-    In case of invalid values an error will be reported.
+    In case of invalid values an error is reported.
 
 ## USAGE EXAMPLE ##
 
@@ -207,13 +211,13 @@ Usage example
 # ./hssi_tuner --pci_device /sys/devices/pci0000:de/0000:de:00.0/resource0 --xcvr_config arria ../cfg/arria.cfg --xcvr_config alaska ../cfg/alaska.cfg --link 0 --sweep arria rx ac_gain 0 20 1 --out ac_gain_0_0_20.csv
 ```
 
-This command will sweep the `ac_gain` parameter of Arria's link 0 receiver over values `[0, 1, .., 20]` and measure the impact on BER on all receivers in the network.
+This command sweeps the `ac_gain` parameter of the Arria 10 device link 0 receiver over values `[0, 1, .., 20]`. It measures the impact on BER for all receivers in the network.
 
 ```eval_rst
 :download:`See example result <ac_gain_0_0_20.csv>`
 ```
 
-![Tuning results for Arria's ac_gain parameter of line 0.](ac_gain_0_0_20.png)
+![Tuning results for Arria 10 AC_gain parameter from line 0.](ac_gain_0_0_20.png)
 
 Sample python script used for the plot above (requires `pandas` and `matplotlib` python packages):
 

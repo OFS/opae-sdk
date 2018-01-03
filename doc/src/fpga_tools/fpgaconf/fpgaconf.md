@@ -6,55 +6,53 @@
 
 ## DESCRIPTION ##
 
-fpgaconf writes accelerator configuration bitstreams (also referred to as "green
-bitstreams" to an FPGA device recognized by OPAE. In the process, it also checks
-the green bitstream file for compatibility with the targeted FPGA and its
-current infrastructure bitstream (the "blue bistream"). fpgaconf takes the
+fpgaconf configures the FPGA with the AF. It also checks the AF for compatibility with 
+the targeted FPGA and the FPGA Interface Manager (FIM). fpgaconf takes the
 following arguments:
 
 `-h, --help`
 
-	Print usage information
+	Prints usage information.
 
 `-v, --verbose`
 
-	Print more verbose messages while enumerating and configuring. Can be
-	given more than once
+	Prints more verbose messages while enumerating and configuring. Can be
+	requested more than once.
 
 `-n, --dry-run`
 
-	Perform enumeration, but skip any operations with side-effects (like the
-	actual configuration of the bitstream
+	Performs enumeration. Skips any operations with side-effects such as the
+	actual AF configuration. 
 
 `-b, --bus`
 
-	PCI bus number of the FPGA to target
+	PCIe bus number of the target FPGA.
 
 `-d, --device`
 
-	PCI device number of the FPGA to target
+	PCIe device number of the target FPGA. 
 
 `-f, --function`
 
-	PCI function number of the FPGA to target
+	PCIe function number of the target FPGA.
 
 `-s, --socket`
 
-	Socket number of the FPGA to target
+	Socket number of the target FPGA.
 
-fpgaconf will enumerate available FPGA devices in the system and select
-compatible FPGAs for configuration. If there are more than one candidate FPGAs
-that are compatible with the given green bitstream, fpgaconf will exit and ask
-you to be more specific in selecting the target FPGAs (e.g. by specifying a
-socket number, or a PCIe bus/device/function).
+fpgaconf enumerates available FPGA devices in the system and selects
+compatible FPGAs for configuration. If more than one FPGA is
+compatible with the AF, fpgaconf exits and asks you to be
+more specific in selecting the target FPGAs by specifying a
+socket number or a PCIe BDF.
 
 ## EXAMPLES ##
 
-`fpgaconf my_green_bitstream.gbs`
+`fpgaconf my_af.gbs`
 
-	Program "my_green_bitstream.gbs" to a compatible FPGA
+	Program "my_af.gbs" to a compatible FPGA.
 
-`fpgaconf -v -s 0 my_green_bitstream.gbs`
+`fpgaconf -v -s 0 my_af.gbs`
 
-	Program "my_green_bitstream.gbs" to the FPGA in socket 0, if compatible,
-	while printing out slightly more verbose information
+	Program "my_af.gbs" to the FPGA in socket 0, if compatible,
+	while printing out slightly more verbose information.

@@ -85,7 +85,7 @@ def copy_ase_env(dst, force):
     # Where is the base environment
     ase_base = getASESrcPath()
 
-    # Target directory can't exist (force is set)
+    # Target directory can't exist (unless force is set)
     dst = dst.rstrip(os.path.sep)
     if dst == '':
         errorExit('Target directory not set')
