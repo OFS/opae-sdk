@@ -24,83 +24,68 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-
+#include <map>
 #include <memory>
+#include <iostream>
 
-#include <opae/types_enum.h>
-
-#include <opaec++/handle.h>
-#include <opaec++/log.h>
+#include <opae/properties.h>
+#include <opae/cxx/pvalue.h>
+#include <opae/cxx/log.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-/**
- * @brief Wraps fpga event routines in OPAE C
- */
-class event {
+class token;
+
+class properties {
  public:
-  typedef std::shared_ptr<event> ptr_t;
+  typedef std::shared_ptr<properties> ptr_t;
 
-  /**
-   * @brief Destroy event and associated resources
-   */
-  virtual ~event();
+  const static std::vector<properties> none;
 
-  /**
-   * @brief C++ struct that is interchangeable with fpga_event_type enum
-   */
-  struct type_t
-  {
-    type_t(fpga_event_type c_type)
-    : type_(c_type){}
+  properties();
 
-    operator fpga_event_type()
-    {
-      return type_;
-    }
+  properties(const properties &p);
 
-    static constexpr fpga_event_type interrupt =  FPGA_EVENT_INTERRUPT;
-    static constexpr fpga_event_type error =  FPGA_EVENT_ERROR;
-    static constexpr fpga_event_type power_thermal =  FPGA_EVENT_POWER_THERMAL;
+  properties & operator =(const properties &p);
 
-   private:
-    fpga_event_type type_;
+  properties(fpga_guid guid_in);
 
-  };
+  properties(fpga_objtype objtype);
 
-  /**
-   * @brief Get the fpga_event_handle contained in this object
-   *
-   * @return The fpga_event_handle contained in this object
-   */
-  fpga_event_handle get() { return event_handle_; }
+  ~properties();
 
-  /**
-   * @brief Coversion operator for converting to fpga_event_handle objects
-   *
-   * @return The fpga_event_handle contained in this object
-   */
-  operator fpga_event_handle();
+  fpga_properties get() const { return props_; }
+  operator fpga_properties() const { return props_; }
 
-  /**
-   * @brief Factory function to create event objects
-   *
-   * @param h A shared ptr of a resource handle
-   * @param t The resource type
-   * @param flags Event registration flags passed on to fpgaRegisterEvent
-   *
-   * @return A shared ptr to an event object
-   */
-  static event::ptr_t register_event(handle::ptr_t h, event::type_t t, int flags = 0);
+  static properties::ptr_t read(std::shared_ptr<token> t);
+  static properties::ptr_t read(fpga_token t);
 
  private:
-  event(handle::ptr_t h, event::type_t t, fpga_event_handle event_h);
-  handle::ptr_t handle_;
-  event::type_t type_;
-  fpga_event_handle event_handle_;
+  fpga_properties props_;
   opae::fpga::internal::logger log_;
+
+ public:
+  pvalue<fpga_objtype> type;
+  pvalue<uint8_t> bus;
+  pvalue<uint8_t> device;
+  pvalue<uint8_t> function;
+  pvalue<uint8_t> socket_id;
+  pvalue<uint32_t> num_slots;
+  pvalue<uint64_t> bbs_id;
+  pvalue<fpga_version> bbs_version;
+  pvalue<uint16_t> vendor_id;
+  pvalue<char*> model;
+  pvalue<uint64_t> local_memory_size;
+  pvalue<uint64_t> capabilities;
+  pvalue<uint32_t> num_mmio;
+  pvalue<uint32_t> num_interrupts;
+  pvalue<fpga_accelerator_state> accelerator_state;
+  pvalue<uint64_t> object_id;
+  pvalue<fpga_token> parent;
+  guid_t guid;
+
 };
 
 }  // end of namespace types

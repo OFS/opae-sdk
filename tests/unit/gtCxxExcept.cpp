@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 #include "gtest/gtest.h"
-#include "opaec++/except.h"
+#include "opae/cxx/except.h"
 
 using namespace opae::fpga::types;
 

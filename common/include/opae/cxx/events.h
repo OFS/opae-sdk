@@ -24,36 +24,83 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <vector>
+
 #include <memory>
 
-#include <opae/types.h>
-#include <opae/access.h>
-#include <opae/enum.h>
-#include <opaec++/properties.h>
-#include <opaec++/log.h>
+#include <opae/types_enum.h>
+
+#include <opae/cxx/handle.h>
+#include <opae/cxx/log.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-class token {
+/**
+ * @brief Wraps fpga event routines in OPAE C
+ */
+class event {
  public:
-  typedef std::shared_ptr<token> ptr_t;
+  typedef std::shared_ptr<event> ptr_t;
 
-  static std::vector<token::ptr_t> enumerate(
-      const std::vector<properties>& props);
+  /**
+   * @brief Destroy event and associated resources
+   */
+  virtual ~event();
 
-  ~token();
+  /**
+   * @brief C++ struct that is interchangeable with fpga_event_type enum
+   */
+  struct type_t
+  {
+    type_t(fpga_event_type c_type)
+    : type_(c_type){}
 
-  fpga_token get() const { return token_; }
-  operator fpga_token() const { return token_; }
+    operator fpga_event_type()
+    {
+      return type_;
+    }
+
+    static constexpr fpga_event_type interrupt =  FPGA_EVENT_INTERRUPT;
+    static constexpr fpga_event_type error =  FPGA_EVENT_ERROR;
+    static constexpr fpga_event_type power_thermal =  FPGA_EVENT_POWER_THERMAL;
+
+   private:
+    fpga_event_type type_;
+
+  };
+
+  /**
+   * @brief Get the fpga_event_handle contained in this object
+   *
+   * @return The fpga_event_handle contained in this object
+   */
+  fpga_event_handle get() { return event_handle_; }
+
+  /**
+   * @brief Coversion operator for converting to fpga_event_handle objects
+   *
+   * @return The fpga_event_handle contained in this object
+   */
+  operator fpga_event_handle();
+
+  /**
+   * @brief Factory function to create event objects
+   *
+   * @param h A shared ptr of a resource handle
+   * @param t The resource type
+   * @param flags Event registration flags passed on to fpgaRegisterEvent
+   *
+   * @return A shared ptr to an event object
+   */
+  static event::ptr_t register_event(handle::ptr_t h, event::type_t t, int flags = 0);
 
  private:
-  token(fpga_token tok);
-
+  event(handle::ptr_t h, event::type_t t, fpga_event_handle event_h);
+  handle::ptr_t handle_;
+  event::type_t type_;
+  fpga_event_handle event_handle_;
   opae::fpga::internal::logger log_;
-  fpga_token token_;
 };
 
 }  // end of namespace types

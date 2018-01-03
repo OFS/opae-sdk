@@ -24,68 +24,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <map>
+#include <vector>
 #include <memory>
-#include <iostream>
 
-#include <opae/properties.h>
-#include <opaec++/pvalue.h>
-#include <opaec++/log.h>
+#include <opae/types.h>
+#include <opae/access.h>
+#include <opae/enum.h>
+#include <opae/cxx/properties.h>
+#include <opae/cxx/log.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-class token;
-
-class properties {
+class token {
  public:
-  typedef std::shared_ptr<properties> ptr_t;
+  typedef std::shared_ptr<token> ptr_t;
 
-  const static std::vector<properties> none;
+  static std::vector<token::ptr_t> enumerate(
+      const std::vector<properties>& props);
 
-  properties();
+  ~token();
 
-  properties(const properties &p);
-
-  properties & operator =(const properties &p);
-
-  properties(fpga_guid guid_in);
-
-  properties(fpga_objtype objtype);
-
-  ~properties();
-
-  fpga_properties get() const { return props_; }
-  operator fpga_properties() const { return props_; }
-
-  static properties::ptr_t read(std::shared_ptr<token> t);
-  static properties::ptr_t read(fpga_token t);
+  fpga_token get() const { return token_; }
+  operator fpga_token() const { return token_; }
 
  private:
-  fpga_properties props_;
+  token(fpga_token tok);
+
   opae::fpga::internal::logger log_;
-
- public:
-  pvalue<fpga_objtype> type;
-  pvalue<uint8_t> bus;
-  pvalue<uint8_t> device;
-  pvalue<uint8_t> function;
-  pvalue<uint8_t> socket_id;
-  pvalue<uint32_t> num_slots;
-  pvalue<uint64_t> bbs_id;
-  pvalue<fpga_version> bbs_version;
-  pvalue<uint16_t> vendor_id;
-  pvalue<char*> model;
-  pvalue<uint64_t> local_memory_size;
-  pvalue<uint64_t> capabilities;
-  pvalue<uint32_t> num_mmio;
-  pvalue<uint32_t> num_interrupts;
-  pvalue<fpga_accelerator_state> accelerator_state;
-  pvalue<uint64_t> object_id;
-  pvalue<fpga_token> parent;
-  guid_t guid;
-
+  fpga_token token_;
 };
 
 }  // end of namespace types

@@ -29,8 +29,8 @@
 
 #include <opae/types.h>
 #include <opae/enum.h>
-#include <opaec++/token.h>
-#include <opaec++/log.h>
+#include <opae/cxx/token.h>
+#include <opae/cxx/log.h>
 
 namespace opae {
 namespace fpga {
