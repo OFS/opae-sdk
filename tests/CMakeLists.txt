@@ -102,6 +102,7 @@ set(SRC gtmain.cpp
   jsonParser.cpp
   unit/gtOpenClose_base.cpp
   unit/gtCxxEnumerate.cpp
+  unit/gtCxxEvents.cpp
   unit/gtCxxOpenClose.cpp
   unit/gtCxxProperties.cpp
   unit/gtCxxExcept.cpp
@@ -173,6 +174,7 @@ add_gtfilter(CxxOpenClose "CxxOpen*" True)
 add_gtfilter(CxxBuffer "CxxBuffer*" True)
 add_gtfilter(CxxExcept "CxxExcept*" False)
 add_gtfilter(CxxLog "CxxLog*" False)
+add_gtfilter(CxxEvent "CxxEvent*" True)
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
@@ -186,3 +188,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     add_dependencies(coverage_opae-c gtapi)
   endif(BUILD_TESTS AND GTEST_FOUND)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+
+############################################################################
+## Add 'valgrind' ##########################################################
+############################################################################
+set(MEMORYCHECK_COMMAND FILEPATH /usr/bin/valgrind)
