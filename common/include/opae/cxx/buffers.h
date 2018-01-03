@@ -31,10 +31,10 @@
 #include <chrono>
 #include <thread>
 
-#include <opaec++/dma_buffer.h>
-#include <opaec++/handle.h>
-#include <opaec++/log.h>
-#include <opaec++/except.h>
+#include <opae/cxx/dma_buffer.h>
+#include <opae/cxx/handle.h>
+#include <opae/cxx/log.h>
+#include <opae/cxx/except.h>
 
 using opae::fpga::types::handle;
 using opae::fpga::types::dma_buffer;

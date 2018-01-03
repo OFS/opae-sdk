@@ -7,9 +7,9 @@ extern "C" {
 #endif
 
 #include "gtest/gtest.h"
-#include "opaec++/token.h"
-#include "opaec++/handle.h"
-#include "opaec++/properties.h"
+#include "opae/cxx/token.h"
+#include "opae/cxx/handle.h"
+#include "opae/cxx/properties.h"
 
 using namespace opae::fpga::types;
 

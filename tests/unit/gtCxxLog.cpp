@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "opaec++/log.h"
+#include "opae/cxx/log.h"
 
 using namespace opae::fpga::internal;
 

@@ -6,7 +6,7 @@ extern "C" {
 }
 #endif
 
-#include "opaec++/token.h"
+#include "opae/cxx/token.h"
 #include "gtest/gtest.h"
 using namespace opae::fpga::types;
 

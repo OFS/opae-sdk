@@ -23,9 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "opaec++/properties.h"
-#include "opaec++/token.h"
-#include "opaec++/handle.h"
+#include "opae/cxx/properties.h"
+#include "opae/cxx/token.h"
+#include "opae/cxx/handle.h"
 #include <uuid/uuid.h>
 #include <opae/mmio.h>
 #include <iostream>
