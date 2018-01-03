@@ -51,7 +51,7 @@
                "max-bw-active-lines-c0": "{ 512, 512, 256, 256 }",
                "max-bw-active-lines-c1": "{ 512, 256, 128, 128 }",
 
-               "max-outstanding-mmio-rd-reqs": 32,
+               "max-outstanding-mmio-rd-reqs": 64,
 
                "comment":
                   [

@@ -262,8 +262,21 @@ module platform_utils_ccip_async_shim
        .wrempty()
        );
 
+    // Track partial packets to avoid stopping the flow in the middle of a packet,
+    // even when c1TxAlmFull is asserted.
+    logic c1tx_in_partial_packet;
+    logic c1tx_complete_partial_packet;
+    // Force completion of the packet when in the middle of a packet and no requests
+    // have fired since the partial packet was detected.  The packet will complete
+    // with some bubbles due to the pipeline, but this doesn't matter since almost
+    // full must have been asserted.
+    assign c1tx_complete_partial_packet = c1tx_in_partial_packet &&
+                                          ! c1tx_rdreq_q;
+
     // Forward FIFO toward FIU when there is data and the output channel is available
-    assign c1tx_rdreq = ! c1tx_rdempty && ! bb_rx_q.c1TxAlmFull;
+    assign c1tx_rdreq = ! c1tx_rdempty &&
+                        (! bb_rx_q.c1TxAlmFull || c1tx_complete_partial_packet);
+
     always_ff @(posedge bb_clk)
     begin
         c1tx_rdreq_q <= c1tx_rdreq;
@@ -274,6 +287,39 @@ module platform_utils_ccip_async_shim
         bb_tx_next.c1.valid = c1tx_rdreq_q;
         bb_tx_next.c1.hdr = c1tx_dout_hdr;
         bb_tx_next.c1.data = c1tx_dout_data;
+    end
+
+    //
+    // Track whether the next beat is the start of a packet.
+    //
+    t_ccip_clNum c1tx_rem_beats;
+
+    always_ff @(posedge bb_clk)
+    begin
+        if (c1tx_rdreq_q)
+        begin
+            if (c1tx_in_partial_packet)
+            begin
+                // In the middle of a packet.  Done when remaining beat count would be
+                // zero in the next cycle.
+                c1tx_in_partial_packet <= (c1tx_rem_beats != t_ccip_clNum'(1));
+                c1tx_rem_beats <= c1tx_rem_beats - t_ccip_clNum'(1);
+            end
+            else
+            begin
+                // Is a new multi-beat write starting?
+                c1tx_in_partial_packet <= c1tx_dout_hdr.sop &&
+                                          (c1tx_dout_hdr.cl_len != eCL_LEN_1) &&
+                                          ((c1tx_dout_hdr.req_type == eREQ_WRLINE_I) ||
+                                           (c1tx_dout_hdr.req_type == eREQ_WRLINE_M));
+                c1tx_rem_beats <= t_ccip_clNum'(c1tx_dout_hdr.cl_len);
+            end
+        end
+
+        if (reset[0])
+        begin
+            c1tx_in_partial_packet <= 1'b0;
+        end
     end
 
     // Track round-trip request -> response credits to avoid filling the
@@ -434,12 +480,12 @@ module platform_utils_ccip_async_shim
         .rdclk(afu_clk),
         .aclr(reset[0]),
         .q(c1rx_dout),
-        .rdusedw (),
-        .wrusedw (),
-        .rdfull  (),
+        .rdusedw(),
+        .wrusedw(),
+        .rdfull(),
         .rdempty(c1rx_rdempty),
         .wrfull(c1rx_fifo_wrfull),
-        .wrempty ()
+        .wrempty()
         );
 
     assign c1rx_rdreq = ! c1rx_rdempty;
