@@ -55,6 +55,7 @@ set(OPAECXX_SRC src/properties.cpp
                 src/token.cpp
                 src/handle.cpp
                 src/dma_buffer.cpp
+                src/events.cpp
                 src/except.cpp
                 src/log.cpp)
 
