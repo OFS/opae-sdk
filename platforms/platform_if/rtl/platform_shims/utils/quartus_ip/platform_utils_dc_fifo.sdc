@@ -95,4 +95,4 @@ foreach each_inst $inst_list {
 ##
 ###########################################################################
 
-apply_sdc_pre_dcfifo "platform_utils_ccip_afifo_channel"
+apply_sdc_pre_dcfifo "platform_utils_dc_fifo"
