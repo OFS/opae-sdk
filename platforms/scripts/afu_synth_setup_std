@@ -228,7 +228,7 @@ def main():
                                 translates the source list into either Quartus
                                 or RTL simulator syntax.""")
     parser.add_argument('-p', '--plat', default=None,
-                        help="""FPGA platform to simulate.""")
+                        help="""FPGA platform name.""")
     parser.add_argument('-r', '--release', default=None,
                         help="""FPGA platform release directory.  If not
                                 specified, the environment variable
