@@ -71,6 +71,13 @@ module platform_utils_ccip_c0_active_cnt
         active_decr = c0Rx.rspValid && (c0Rx.hdr.resp_type == eRSP_RDLINE);
     end
 
+    // Two stage counter improves timing but delays updates for a cycle.
+    logic [3:0] active_delta;
+    always_ff @(posedge clk)
+    begin
+        active_delta <= 4'(active_incr) - 4'(active_decr);
+    end
+
     always_ff @(posedge clk)
     begin
         if (reset)
@@ -79,7 +86,7 @@ module platform_utils_ccip_c0_active_cnt
         end
         else
         begin
-            cnt <= cnt + t_active_cnt'(active_incr) - t_active_cnt'(active_decr);
+            cnt <= cnt + t_active_cnt'(signed'(active_delta));
         end
     end
 
@@ -129,6 +136,13 @@ module platform_utils_ccip_c1_active_cnt
         end
     end
 
+    // Two stage counter improves timing but delays updates for a cycle.
+    logic [3:0] active_delta;
+    always_ff @(posedge clk)
+    begin
+        active_delta <= 4'(active_incr) - 4'(active_decr);
+    end
+
     always_ff @(posedge clk)
     begin
         if (reset)
@@ -137,7 +151,7 @@ module platform_utils_ccip_c1_active_cnt
         end
         else
         begin
-            cnt <= cnt + t_active_cnt'(active_incr) - t_active_cnt'(active_decr);
+            cnt <= cnt + t_active_cnt'(signed'(active_delta));
         end
     end
 
