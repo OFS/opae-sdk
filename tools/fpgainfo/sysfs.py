@@ -40,6 +40,8 @@ FPGA_DEVICE = os.path.join(ROOT_PATH, 'intel-fpga-dev.{instance_id}')
 FME_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-fme.{instance_id}')
 PORT_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-port.{instance_id}')
 
+DCP_ID = 0x09c4
+
 
 def read_bdf(path):
     symlink = os.readlink(path)
@@ -89,9 +91,10 @@ def add_dynamic_property(obj, property_name, sysfs_path=None):
 
 
 class sysfs_resource(object):
-    def __init__(self, path, instance_id, **kwargs):
+    def __init__(self, path, instance_id, device_id=None, **kwargs):
         self._path = path
         self._instance_id = instance_id
+        self._device_id = device_id
         self._bus = kwargs.get('bus')
         self._device = kwargs.get('device')
         self._function = kwargs.get('function')
@@ -188,7 +191,10 @@ class sysfs_resource(object):
                 try:
                     while len(namespaces) > 1:
                         obj = getattr(obj, namespaces.pop(0))
-                    return getattr(obj, namespaces[0])
+                    p = getattr(obj, namespaces[0])
+                    if isinstance(p, property):
+                        p = p.fget(self)
+                    return p
                 except AttributeError:
                     pass
 
@@ -232,6 +238,10 @@ class sysfs_resource(object):
         obj_id = ((long(major) & 0xFFF) << 20) | (long(minor) & 0xFFFFF)
         return obj_id
 
+    @property
+    def device_id(self):
+        return self._device_id
+
 
 class pr_feature(sysfs_resource):
     @property
@@ -239,25 +249,40 @@ class pr_feature(sysfs_resource):
         return str(uuid.UUID(self.read_sysfs("interface_id")))
 
 
+class sysfs_device(sysfs_resource):
+    @property
+    def device_id(self):
+        return self.parse_sysfs("device")
+
+
 class power_mgmt_feature(sysfs_resource):
-    consumed = add_static_property("consumed")
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(power_mgmt_feature, self).__init__(path, instance_id, device_id,
+                                                 **kwargs)
+        if device_id != DCP_ID:
+            self.consumed = add_static_property("consumed")
 
 
 class thermal_feature(sysfs_resource):
-    temperature = add_static_property("temperature")
-    threshold1 = add_static_property("threshold1")
-    threshold1_policy = add_static_property("threshold1_policy")
-    threshold1_reached = add_static_property("threshold1_reached")
-    threshold2 = add_static_property("threshold2")
-    threshold2_reached = add_static_property("threshold2_reached")
-    threshold_trip = add_static_property("threshold_trip")
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(thermal_feature, self).__init__(path, instance_id, device_id,
+                                              **kwargs)
+        self.temperature = add_static_property("temperature")
+        if device_id != DCP_ID:
+            self.threshold1 = add_static_property("threshold1")
+            self.threshold1_policy = add_static_property("threshold1_policy")
+            self.threshold1_reached = add_static_property("threshold1_reached")
+            self.threshold2 = add_static_property("threshold2")
+            self.threshold2_reached = add_static_property("threshold2_reached")
+            self.threshold_trip = add_static_property("threshold_trip")
 
 
 class errors_feature(sysfs_resource):
     revision = add_static_property("revision")
 
-    def __init__(self, path, instance_id, **kwargs):
-        super(errors_feature, self).__init__(path, instance_id, **kwargs)
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(errors_feature, self).__init__(path, instance_id, device_id,
+                                             **kwargs)
         self._errors_file = None
         self._clear_file = None
         self._name = "errors"
@@ -280,25 +305,28 @@ class errors_feature(sysfs_resource):
 
 
 class fme_errors(errors_feature):
-    def __init__(self, path, instance_id, **kwargs):
-        super(fme_errors, self).__init__(path, instance_id, **kwargs)
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(fme_errors, self).__init__(path, instance_id, device_id,
+                                         **kwargs)
         self._name = "fme errors"
         self._errors_file = "fme-errors/errors"
         self._clear_file = "fme-errors/clear"
         add_dynamic_property(self, "errors", "fme-errors/errors")
         add_dynamic_property(self, "first_error", "fme-errors/first_error")
         add_dynamic_property(self, "next_error", "fme-errors/next_error")
-        add_dynamic_property(self, "bbs_errors")
-        add_dynamic_property(self, "gbs_errors")
         add_dynamic_property(self, "pcie0_errors")
-        add_dynamic_property(self, "pcie1_errors")
+        if device_id != DCP_ID:
+            add_dynamic_property(self, "pcie1_errors")
+            add_dynamic_property(self, "bbs_errors")
+            add_dynamic_property(self, "gbs_errors")
         add_dynamic_property(self, "catfatal_errors")
         add_dynamic_property(self, "nonfatal_errors")
 
 
 class port_errors(errors_feature):
-    def __init__(self, path, instance_id, **kwargs):
-        super(port_errors, self).__init__(path, instance_id, **kwargs)
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(port_errors, self).__init__(path, instance_id, device_id,
+                                          **kwargs)
         self._name = "port errors"
         self._errors_file = "errors"
         self._clear_file = "clear"
@@ -307,17 +335,21 @@ class port_errors(errors_feature):
 
 
 class fme_info(sysfs_resource):
-    def __init__(self, path, instance_id, **kwargs):
-        super(fme_info, self).__init__(path, instance_id, **kwargs)
-        self.pr = pr_feature(os.path.join(path, 'pr'), instance_id, **kwargs)
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(fme_info, self).__init__(path, instance_id, device_id, **kwargs)
+        self.pr = pr_feature(os.path.join(path, 'pr'), instance_id, device_id,
+                             **kwargs)
         self.power_mgmt = power_mgmt_feature(os.path.join(path, 'power_mgmt'),
                                              instance_id,
+                                             device_id,
                                              **kwargs)
         self.thermal_mgmt = thermal_feature(os.path.join(path, "thermal_mgmt"),
                                             instance_id,
+                                            device_id,
                                             **kwargs)
         self.errors = fme_errors(os.path.join(path, "errors"),
                                  instance_id,
+                                 device_id,
                                  **kwargs)
 
     @property
@@ -334,18 +366,21 @@ class fme_info(sysfs_resource):
 
     @property
     def bitstream_id(self):
-        return self.read_sysfs("bitstream_id")
+        if self.device_id != DCP_ID:
+            return self.read_sysfs("bitstream_id")
 
     @property
     def bitstream_metadata(self):
-        return self.read_sysfs("bitstream_metadata")
+        if self.device_id != DCP_ID:
+            return self.read_sysfs("bitstream_metadata")
 
 
 class port_info(sysfs_resource):
-    def __init__(self, path, instance_id, **kwargs):
-        super(port_info, self).__init__(path, instance_id, **kwargs)
+    def __init__(self, path, instance_id, device_id, **kwargs):
+        super(port_info, self).__init__(path, instance_id, device_id, **kwargs)
         self.errors = port_errors(os.path.join(path, "errors"),
                                   instance_id,
+                                  device_id,
                                   **kwargs)
 
     @property
@@ -366,10 +401,15 @@ class sysfsinfo(object):
             # strip {instance_id} from the template FPGA_DEVICE
             # socket id is what comes after this in the real path
             instance_id = path.strip(FPGA_DEVICE.strip('{instance_id}'))
+            device_id = sysfs_device(os.path.join(path, 'device'),
+                                     instance_id, None,
+                                     **bdf).device_id
             sysfs_fme = FME_DEVICE.format(instance_id=instance_id)
             sysfs_port = PORT_DEVICE.format(instance_id=instance_id)
-            self._fmelist.append(fme_info(sysfs_fme, instance_id, **bdf))
-            self._portlist.append(port_info(sysfs_port, instance_id, **bdf))
+            self._fmelist.append(fme_info(sysfs_fme, instance_id,
+                                 device_id, **bdf))
+            self._portlist.append(port_info(sysfs_port, instance_id,
+                                  device_id, **bdf))
 
     def fme(self, **kwargs):
         return filter(sysfs_filter(**kwargs), self._fmelist)
