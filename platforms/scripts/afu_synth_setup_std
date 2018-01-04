@@ -40,6 +40,7 @@ import os
 import stat
 import errno
 import shutil
+import glob
 import subprocess
 from os.path import dirname, realpath, sep
 
@@ -94,6 +95,18 @@ def commands_list_getoutput(cmd):
         return str_out
 
 
+# Remove a file, if it exists
+def remove_file(f):
+    if (os.path.isfile(f) or os.path.islink(f)):
+        os.unlink(f)
+
+
+# Remove a directory tree, if it exists
+def remove_dir(d):
+    if (os.path.isdir(d)):
+        shutil.rmtree(d)
+
+
 # Copy base build environment to target directory
 def copy_build_env(base_src, dst, force):
     # Target directory can't exist (unless force is set)
@@ -107,10 +120,19 @@ def copy_build_env(base_src, dst, force):
         if (not force):
             errorExit('Target ({0}) already exists.'.format(dst))
         if (os.path.isdir(dst)):
-            shutil.rmtree(dst)
+            # Clean up inside the existing directory
+            remove_dir(os.path.join(dst, 'build'))
+            remove_dir(os.path.join(dst, 'scripts'))
+            # Drop all top-level files in the 'hw' directory
+            for f in glob.glob(os.path.join(dst, 'hw/*')):
+                remove_file(f)
+            # Drop 'hw' if it is a file
+            remove_file(os.path.join(dst, 'hw'))
         else:
             os.remove(dst)
-    os.mkdir(dst)
+            os.mkdir(dst)
+    else:
+        os.mkdir(dst)
 
     # Copy build to target directory
     build_src = os.path.join(base_src, 'hw/lib/build')
@@ -124,20 +146,29 @@ def copy_build_env(base_src, dst, force):
         raise
 
     # Make target "hw" directory
-    os.mkdir(os.path.join(dst, 'hw'))
+    hw_dir = os.path.join(dst, 'hw')
+    if (not os.path.isdir(hw_dir)):
+        os.mkdir(hw_dir)
 
     # Make a scripts directory with clean.sh and run.sh
-    scripts_src = os.path.abspath(os.path.join(base_src, 'bin'))
     scripts_dst = os.path.join(dst, 'scripts')
     os.mkdir(scripts_dst)
+    scripts_src = os.path.relpath(os.path.join(base_src, 'bin'), scripts_dst)
     os.symlink(os.path.join(scripts_src, 'clean.sh'),
                os.path.join(scripts_dst, 'clean.sh'))
     run_sh = os.path.join(scripts_dst, 'run.sh')
     with open(run_sh, 'w') as f:
+        # Use relative paths so generated scripts can be shipped in
+        # a tarball along with a release.
         f.write('#!/bin/sh\n')
-        f.write('export BBS_LIB_PATH=${BBS_LIB_PATH:-"' +
-                os.path.join(base_src, 'hw/lib') + '"}\n')
-        f.write(os.path.join(scripts_src, 'run.sh') + ' $*\n')
+        f.write('SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && ' +
+                'pwd -P)"\n')
+        f.write('RELEASE_DIR="$(readlink -f ${SCRIPT_DIR}/' +
+                os.path.relpath(base_src, scripts_dst) +
+                ')"\n')
+        f.write('export BBS_LIB_PATH=' +
+                '${BBS_LIB_PATH:-"${RELEASE_DIR}/hw/lib"}\n')
+        f.write('${RELEASE_DIR}/bin/run.sh $*\n')
     st = os.stat(run_sh)
     os.chmod(run_sh, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
