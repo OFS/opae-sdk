@@ -73,7 +73,7 @@ module platform_utils_ccip_async_shim
     output logic       afu_error,
 
     // ---------------------------------- //
-    // Error vector
+    // Error vector (afu_clk domain)
     // ---------------------------------- //
     output logic [4:0] async_shim_error
     );
@@ -120,6 +120,15 @@ module platform_utils_ccip_async_shim
     begin
         pwrState[3:1] <= pwrState[2:0];
         error[3:1] <= error[2:0];
+    end
+
+
+    // Stop all traffic when a buffer error is detected.  This tends to be much easier
+    // to debug than just dropping overflow packets on the floor.
+    logic buffer_error;
+    always_ff @(posedge afu_clk)
+    begin
+        buffer_error <= (|(async_shim_error));
     end
 
 
@@ -226,7 +235,8 @@ module platform_utils_ccip_async_shim
     always_ff @(posedge afu_clk)
     begin
         afu_rx_next.c0TxAlmFull <= c0tx_cnt[C0TX_DEPTH_RADIX-1] ||
-                                   (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT));
+                                   (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT)) ||
+                                   buffer_error;
     end
 
 
@@ -360,7 +370,8 @@ module platform_utils_ccip_async_shim
     always_ff @(posedge afu_clk)
     begin
         afu_rx_next.c1TxAlmFull <= c1tx_cnt[C1TX_DEPTH_RADIX-1] ||
-                                   (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT));
+                                   (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT)) ||
+                                   buffer_error;
     end
 
 
@@ -528,23 +539,38 @@ module platform_utils_ccip_async_shim
         end
     end
 
+
+    // FIU-side errors in the bb_clk domain
+    (* preserve *) logic [1:0] async_shim_error_bb;
+
     always_ff @(posedge bb_clk)
     begin
         if (reset[0])
         begin
-            async_shim_error[4:3] <= 2'b0;
+            async_shim_error_bb <= 2'b0;
         end
         else
         begin
             // Hold the error state once set
-            async_shim_error[3] <= async_shim_error[3] ||
-                                   (c0rx_fifo_wrfull && (bb_rx_q.c0.rspValid ||
-                                                         bb_rx_q.c0.mmioRdValid ||
-                                                         bb_rx_q.c0.mmioWrValid));
-            async_shim_error[4] <= async_shim_error[4] ||
-                                   (c1rx_fifo_wrfull && bb_rx_q.c1.rspValid);
+            async_shim_error_bb[0] <= async_shim_error_bb[0] ||
+                                      (c0rx_fifo_wrfull && (bb_rx_q.c0.rspValid ||
+                                                            bb_rx_q.c0.mmioRdValid ||
+                                                            bb_rx_q.c0.mmioWrValid));
+            async_shim_error_bb[1] <= async_shim_error_bb[1] ||
+                                      (c1rx_fifo_wrfull && bb_rx_q.c1.rspValid);
         end
     end
+
+    // Transfer FIU-side errors to the afu_clk domain
+    logic [1:0] async_shim_error_afu, async_shim_error_afu_q;
+
+    always_ff @(posedge afu_clk)
+    begin
+        async_shim_error_afu <= async_shim_error_bb;
+        async_shim_error_afu_q <= async_shim_error_afu;
+        async_shim_error[4:3] <= async_shim_error_afu_q;
+    end
+
 
     // synthesis translate_off
     always_ff @(posedge afu_clk)
@@ -567,15 +593,15 @@ module platform_utils_ccip_async_shim
 
     always_ff @(posedge bb_clk)
     begin
-        if (async_shim_error[3])
+        if (async_shim_error_bb[0])
             $warning("** ERROR ** C0Rx dropped transaction");
-        if (async_shim_error[4])
+        if (async_shim_error_bb[1])
             $warning("** ERROR ** C1Rx dropped transaction");
     end
 
     always_ff @(negedge bb_clk)
     begin
-        if ((|(async_shim_error[4:3])))
+        if ((|(async_shim_error_bb)))
         begin
             $fatal("Aborting due to dropped transaction");
         end
