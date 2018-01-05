@@ -31,14 +31,6 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-dma_buffer::dma_buffer(const dma_buffer & other)
-    : handle_(other.handle_)
-    , len_(other.len_)
-    , virt_(other.virt_)
-    , wsid_(other.wsid_)
-    , iova_(other.iova_)
-    , log_("dma_buffer"){}
-
 dma_buffer::~dma_buffer() {
   // If the allocation was successful.
   if (virt_) {
