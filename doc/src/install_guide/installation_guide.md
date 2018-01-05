@@ -182,7 +182,7 @@ $ make package
 This will generate the following rpm packages. The names of the packages may be
 different, depending on the cmake version used.
 
-* If cmake version is between 2.8.11 and 3.0.0:
+* If cmake version is between 2.8.12 and 3.0.0:
 ```console
 opae-<release>-1.x86_64-libs.rpm    (libopae-c and samples)
 opae-<release>-1.x86_64-tools.rpm   (tools)
@@ -201,7 +201,7 @@ opae-ase-<release>-1.x86_64.rpm     (libopae-c-ase)
 ## OPAE SDK installation with rpm packages ##
 The rpm packages generated in the previous step can be installed
 using these commands (This example assumes the cmake version used to generate
-these packages was 2.8.11):
+these packages was 2.8.12):
 
 ```console
 $ sudo yum install opae-<release>-1.x86_64-libs.rpm
