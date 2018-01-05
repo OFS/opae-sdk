@@ -101,7 +101,7 @@ mkdir ase
 cp $ase_srcdir/Makefile ./ase/
 cp $ase_srcdir/ase.cfg ./ase/
 cp $ase_srcdir/ase_regress.sh ./ase/
-mkdir ase/rtl
+cp -r $ase_srcdir/rtl ./ase
 
 ## Change permission of 'ase' directory
 chmod 644 ase/Makefile ase/ase.cfg
@@ -110,6 +110,9 @@ chmod 744 ase/ase_regress.sh
 ## Modify ASE_SRCDIR location
 ## grep/sed and replace only the first instance of ASE_SRCDIR
 sed -i 's#^ASE_SRCDIR.*#ASE_SRCDIR = '$ase_srcdir'#g' ase/Makefile
+## Change Switch to out of dir ASE
+sed -i 's#^ASE_OOD.*#ASE_OOD = 1#g' ase/Makefile
+
 
 ## Print information about ase_sources.mk
 echo ""
