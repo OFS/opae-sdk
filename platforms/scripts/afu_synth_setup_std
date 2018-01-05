@@ -209,7 +209,7 @@ def setup_build(args):
     build_dir = os.path.join(args.dst, 'build')
     print('Configuring Quartus build directory: ' + build_dir)
 
-    # Configure sources
+    # Configure sources, generating hw/afu.qsf in the destination tree
     cmd = ['rtl_src_config']
     cmd.append('--qsf')
     if (os.path.isabs(sources)):

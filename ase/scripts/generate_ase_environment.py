@@ -58,10 +58,10 @@ import subprocess
 from collections import defaultdict
 from fnmatch import fnmatch
 import json
+import subprocess
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-import subprocess
 
 # Supported file extensions
 # USERs may modify this if needed
