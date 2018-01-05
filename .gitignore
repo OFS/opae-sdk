@@ -206,5 +206,7 @@ cscope.out
 cscope.in.out
 cscope.po.out
 
+# Visual Studio
+.vscode/
 
 # End of https://www.gitignore.io/api/c,c++,tags,cmake
