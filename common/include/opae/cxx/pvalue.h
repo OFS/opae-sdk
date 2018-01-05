@@ -97,7 +97,7 @@ struct guid_t {
     fpga_result res;
     if ((res = fpgaPropertiesGetGUID(props, &guid_value)) == FPGA_OK) {
       char guid_str[84];
-      uuid_unparse(g.data_.data(), guid_str);
+      uuid_unparse(guid_value, guid_str);
       ostr << guid_str;
     } else if (FPGA_NOT_FOUND == res) {
       g.log_.debug() << "fpgaPropertiesGetGUID() returned (" << res
