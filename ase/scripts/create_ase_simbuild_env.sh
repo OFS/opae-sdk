@@ -51,6 +51,7 @@ set -e
 ##           * Create 'ase' directory
 ##           * Copy ase/Makefile script, then ase_regress.sh, and ase.cfg
 ##           * grep/sed ASE_SRCDIR to point to retrieved source directory
+##           * Create dir rtl
 ##         * FALSE
 ##           * Error exit here
 ##     * Copy 'ase' directory from
@@ -100,6 +101,7 @@ mkdir ase
 cp $ase_srcdir/Makefile ./ase/
 cp $ase_srcdir/ase.cfg ./ase/
 cp $ase_srcdir/ase_regress.sh ./ase/
+mkdir ase/rtl
 
 ## Change permission of 'ase' directory
 chmod 644 ase/Makefile ase/ase.cfg
