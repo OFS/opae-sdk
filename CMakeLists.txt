@@ -247,21 +247,25 @@ option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
 mark_as_advanced(RUN_LDCONFIG)
     
 if (RUN_LDCONFIG)
-set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIB_DIR "lib")
+  endif()
 
-file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
 echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
 ldconfig
 ")
 
-file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
 rm /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
 ldconfig
 ")
 
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
-set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
-set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
+  set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
 endif(RUN_LDCONFIG)
 
 # Binary packaging target
