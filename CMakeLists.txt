@@ -89,11 +89,17 @@ install(DIRECTORY common/include/opae
 install(DIRECTORY common/include/safe_string
   DESTINATION include
   COMPONENT safestrheaders)
+
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
+option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(BUILD_SPHINX_DOC)
 
-add_subdirectory(doc)
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Sub-projects ############################################################
