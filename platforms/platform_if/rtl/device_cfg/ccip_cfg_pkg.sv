@@ -105,6 +105,9 @@ package ccip_cfg_pkg;
     parameter int C0_MAX_BW_ACTIVE_LINES[4] = `PLATFORM_PARAM_CCI_P_MAX_BW_ACTIVE_LINES_C0;
     parameter int C1_MAX_BW_ACTIVE_LINES[4] = `PLATFORM_PARAM_CCI_P_MAX_BW_ACTIVE_LINES_C1;
 
+    // pClk frequency
+    parameter int PCLK_FREQ = `PLATFORM_PARAM_CCI_P_PCLK_FREQ;
+
 endpackage // ccip_cfg_pkg
 
 `endif // PLATFORM_PROVIDES_CCI_P
