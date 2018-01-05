@@ -23,14 +23,13 @@
 ../rtl/platform_shims/utils/avalon_mem_if_async_shim.sv
 ../rtl/platform_shims/utils/avalon_mem_if_connect.sv
 ../rtl/platform_shims/utils/avalon_mem_if_reg.sv
+../rtl/platform_shims/utils/platform_utils_ccip_activity_cnt.sv
+../rtl/platform_shims/utils/platform_utils_ccip_async_shim.sv
 ../rtl/platform_shims/utils/platform_utils_ccip_reg.sv
-
-../rtl/platform_shims/utils/BBB_ccip_async/platform_utils_ccip_afifo_channel.sv
-../rtl/platform_shims/utils/BBB_ccip_async/platform_utils_ccip_async_activity_cnt.sv
-../rtl/platform_shims/utils/BBB_ccip_async/platform_utils_ccip_async_shim.sv
 
 ../rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_dc_fifo.v
 ../rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_mm_clock_crossing_bridge.v
 ../rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_mm_bridge.v
+../rtl/platform_shims/utils/quartus_ip/platform_utils_dc_fifo.sv
 ../rtl/platform_shims/utils/quartus_ip/platform_utils_dcfifo_synchronizer_bundle.v
 ../rtl/platform_shims/utils/quartus_ip/platform_utils_std_synchronizer_nocut.v

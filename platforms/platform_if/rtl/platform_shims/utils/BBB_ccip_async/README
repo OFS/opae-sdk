@@ -1,6 +1,0 @@
-The CCI-P clock crossing shim here an updated copy of the BBB in
-https://github.com/OPAE/intel-fpga-bbb.  The module names have been changed to
-avoid clashes with AFUs that use the BBB.
-
-The SDC file is here instead of in a par directory to keep all the code
-together.

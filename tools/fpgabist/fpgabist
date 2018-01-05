@@ -34,9 +34,6 @@ import bist_common
 import bist_nlb3
 import bist_dma
 
-
-sys.path.append(bist_common.INSTALL_PATH)
-
 FEATURES = ['fme', 'port', 'temp', 'errors all']
 
 
@@ -70,7 +67,7 @@ def main(args):
         gbs_paths = args.gbs_paths
         for path in gbs_paths:
             mode_name = bist_common.get_mode_from_path(path)
-            if mode_name == 'nlb_3':
+            if mode_name == 'nlb_mode_3':
                 mode = bist_nlb3.Nlb3Mode()
             elif mode_name == "dma_afu":
                 mode = bist_dma.DmaMode()

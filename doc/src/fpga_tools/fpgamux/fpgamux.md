@@ -7,43 +7,44 @@ fpgamux [-h] [-S|--socket-id SOCKET_ID] [-B|--bus-number BUS] [-D|--device DEVIC
 ```
 
 ## DESCRIPTION ##
-fpgamux is a testing tool to interact with multiple AFUs that have been synthesized into one GBS along with
-the CCIP-MUX BBB (basic building block). The CCIP-MUX uses upper bits in the MMIO addresses to route MMIO
-reads/writes to the AFU running on the corresponding CCIP-MUX port. fpgamux uses a configuration file that
-lists the software components and configuration to use.
+fpgamux tests multiple AFUs that are synthesized into a single AFU along with
+the CCIP-MUX BBB (basic building block). The CCIP-MUX uses the upper bits in the MMIO addresses to route MMIO
+reads and writes to the AFU running on the corresponding CCIP-MUX port. fpgamux uses a configuration file that
+lists the software components and correct configuration. fpgamux only runs on the Integrated FPGA Platform. 
+You cannot run it on the PCIe accelerator card (PAC).
 
 .. note::
 
 ```
-  Only one (the first) AFU is discoverable by the OPAE driver. Enumerating AFCs on an FPGA will find
-  the AFC associated with the first AFU only. The first software component in the configuration will
-  be used to determine the GUID to use for enumeration. This can be overridden with the -G|--guid option.
+  The OPAE driver discovers only the first AFU. The first software component in the configuration 
+  determines the GUID to use for enumeration. Use the -G|--guid option to override the GUID
+  for the first software component.
 ```
 
 
 ## OPTIONS ##
 `-S SOCKET_ID, --socket-id SOCKET_ID`
-   socket id of FPGA resource
+   socket id of FPGA resource.
 
 `-B BUS, --bus BUS`
-   bus id of FPGA resource
+   bus id of FPGA resource.
 
 `-D DEVICE, --device DEVICE`
-   device id of FPGA resource
+   device id of FPGA resource.
 
 `-F FUNCTION, --function FUNCTION`
-   function id of FPGA resource
+   function id of FPGA resource.
 
 `-G, --guid`
-   specify what guid to use for the AFC enumeration
+   specifies the GUID to use for the AFC enumeration.
 
 `-m, --muxfile <filepath.json>`
     The path to the fpgamux configuration file. This file must be in JSON format following the
-    schema described below
+    schema described below.
 
 ## CONFIGURATION ##
 fpgamux uses a configuration file (in JSON format) to determine what software components to instantiate and
-how to configure them for interacting with the AFUs in the GBS. This schema for this is listed below:
+how to configure them to work with the AFUs. The schema includes the following elements:
 
 ```
     [
@@ -56,7 +57,7 @@ how to configure them for interacting with the AFUs in the GBS. This schema for 
 ```
 
 ## EXAMPLES ##
-An example configuration with two components is listed below:
+The following example shows a configuration with two components:
 ```
     [
         {

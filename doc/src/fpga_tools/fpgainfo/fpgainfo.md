@@ -2,84 +2,73 @@
 
 ## SYNOPSIS ##
 ```console
-fpgainfo [-h | --help] [-s | --socket-id] <command> [<args>]
+fpgainfo [-h | --help] [-b <bus>] [-d <device>] [-f <function>] <command> [<args>]
 ```
 
 
 ## DESCRIPTION ##
-fpgainfo is a tool to show FPGA information derived from sysfs files. The command argument
-is one of the following: errors, power, temp and is used to specify what type of information
-to report. Some commands may also have other arguments/options that can be used to control the
-behavior of that command.
+fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following: errors, power, or temp. 
+Some commands may also have other arguments or options that control the behavior.
 
-## COMMON OPTIONS ##
-`--help, -h`
-
-    Print help information and exit.
-
-`--socket-id, -s`
-
-    Socket ID encoded in BBS. Default=0
-
+For systems with multiple devices, specify the BDF of the target device with -b, -d and -f.
 
 ### FPGAINFO COMMANDS ##
 `errors`
 
-    Show/clear errors of an FPGA resource as specified by the first argument.
-    Error information is parsed to display in human readable form.
+    Show/clear errors of an FPGA resource that the first argument specifies.
+    fpgainfo displays information in human readable form.
 
 `power`
 
-    Show total power consumed by the FPGA hardware in watts
+    Show total the power in watts that the FPGA hardware consumes.
 
 `temp`
 
-    Show FPGA temperature values in degrees Farenheit
-
-### ERRORS OPTIONS ###
-`--clear, -c`
-
-    Clear errors for the given FPGA resource
-
-### ERRORS ARGUMENTS ###
-The first argument to the `errors` command is used to specify what kind of
-resource to act on. It must be one of the following:
-`fme`,`port`,`first_error`,`pcie0`,`pcie1`,`bbs`,`gbs`,`all`
-More details on the errors reported for the resource can be found below:
-
-
-### ERRORS RESOURCES ###
-`fme`
-
-    Show/clear errors pertaining to the FME
+    Show FPGA temperature values in degrees Fahrenheit.
 
 `port`
 
-    Show/clear errors pertaining to the PORT
+   Shows information about the port such as the AFU ID of currently loaded AFU.
 
-`first_error`
+`fme`
 
-    Show/clear first errors encountered by the FPGA
+   Show information about the FPGA platform such as the FPGA Interface Manager (FIM) ID.
 
-`pcie0`
+## OPTIONAL ARGUMENTS ##
+`--help, -h`
 
-    Show/clear errors pertaining to the PCIE0 lane
+    Prints help information and exit.
 
-`pcie1`
+`-b, --bus`
 
-    Show/clear errors pertaining to the PCIE1 lane
+	PCIe bus number of the target FPGA.
+`-d, --device`
 
-`bbs`
+	PCIe device number of the target FPGA.
 
-    Show/clear errors pertaining to the BBS (blue bitstream)
+`-f, --function`
 
-`gbs`
+	PCIe function number of the target FPGA.
 
-    Show/clear errors pertaining to the GBS (green bitstream)
+`--clear, -c`
+
+    Clear errors for the given FPGA resource.
+
+### ERRORS ARGUMENTS ###
+The first argument to the `errors` command specifies the resource type. It must be one of the following:
+   `fme`,`port`,`all`
+
+`fme`
+
+    Show/clear FME errors. 
+
+`port`
+
+    Show/clear PORT errors.
 
 `all`
 
-    Show/clear errors for all resources
+    Show/clear errors for all resources.
 
 
 ## EXAMPLES ##
@@ -93,11 +82,11 @@ This command shows the current temperature reading:
 ./fpgainfo temp
 ```
 
-This command shows the errors for the FME resource:
+This command shows FME resource errors
 ```console
 ./fpgainfo errors fme
 ```
-This command clears all the errors on all resources:
+This command clears all errors on all resources:
 ```console
 ./fpgainfo errors all -c
 ```

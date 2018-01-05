@@ -104,8 +104,8 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 	// verify user clock freq range (100hz to 1200hz)
 	if ((userclk_high > MAX_FPGA_FREQ) ||
 		(userclk_high < MIN_FPGA_FREQ) ||
-		(userclk_low > MAX_FPGA_FREQ) ||
-		(userclk_low < MIN_FPGA_FREQ)) {
+		(userclk_low > (MAX_FPGA_FREQ / 2)) ||
+		(userclk_low < (MIN_FPGA_FREQ / 2))) {
 
 		FPGA_ERR("Invalid input frequency");
 		return FPGA_INVALID_PARAM;

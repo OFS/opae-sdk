@@ -28,6 +28,7 @@
 import os
 import sys
 import argparse
+import re
 import json
 import zipfile
 import uuid
@@ -100,21 +101,42 @@ def emit_header_comment(f, src):
 '''.format(src))
 
 
-# Emit C or Verilog header files based on an AFU JSON file
-def json_info(subargs):
+# Flatten JSON into a simple, single level dictionary to emit as header files
+def flatten_json(subargs):
     afu = AFU(subargs.afu_json)
 
     entries = dict()
 
-    accel = afu.afu_json['afu-image']['accelerator-clusters'][0]
-    entries['afu_image_name'] = accel['name']
-    entries['afu_image_uuid'] = accel['accelerator-type-uuid']
+    emit_types = (int, bool, str, float)
+
+    # Flattan all entries in afu-image that are of type emit_types
+    image = afu.afu_json['afu-image']
+    for k in sorted(image.keys()):
+        if (isinstance(image[k], emit_types)):
+            tag = str(k).replace('-', '_')
+            v = image[k]
+            # Does it look like a number?
+            if (not re.match('^[0-9.]+$', str(v))):
+                v = '"' + str(v) + '"'
+            entries['afu_image_' + tag] = v
+
+    # Some special names, taken from other levels
+    accel = image['accelerator-clusters'][0]
+    entries['afu_accel_name'] = '"' + accel['name'] + '"'
+    entries['afu_accel_uuid'] = accel['accelerator-type-uuid']
     try:
         # May not be present.  (Will become required eventually.)
-        entries['afu_top_ifc'] = \
-            afu.afu_json['afu-image']['afu-top-interface']['name']
+        entries['afu_top_ifc'] = '"' + \
+            afu.afu_json['afu-image']['afu-top-interface']['name'] + '"'
     except Exception:
         None
+
+    return entries
+
+
+# Emit C or Verilog header files based on an AFU JSON file
+def json_info(entries, subargs):
+    afu = AFU(subargs.afu_json)
 
     # C header
     if (subargs.c_hdr):
@@ -125,9 +147,9 @@ def json_info(subargs):
             p.write('#define __AFU_JSON_INFO__\n\n')
             for k in sorted(entries.keys()):
                 v = entries[k]
-                if (k == 'afu_image_uuid'):
-                    v = v.upper()
-                p.write('#define {0} "{1}"\n'.format(k.upper(), v))
+                if (k == 'afu_accel_uuid'):
+                    v = '"' + v.upper() + '"'
+                p.write('#define {0} {1}\n'.format(k.upper(), v))
             p.write('\n#endif // __AFU_JSON_INFO__\n')
 
     # Verilog header
@@ -138,8 +160,8 @@ def json_info(subargs):
             p.write('`ifndef __AFU_JSON_INFO__\n')
             p.write('`define __AFU_JSON_INFO__\n\n')
             for k in sorted(entries.keys()):
-                v = '"{0}"'.format(entries[k])
-                if (k == 'afu_image_uuid'):
+                v = entries[k]
+                if (k == 'afu_accel_uuid'):
                     v = "128'h" + entries[k].replace('-', '_')
                 p.write('`define {0} {1}\n'.format(k.upper(), v))
             p.write('\n`endif // __AFU_JSON_INFO__\n')
@@ -190,7 +212,8 @@ def run_afu_json_mgr():
         subparser.add_argument('--verilog-hdr', required=False,
                                help='Path of generated Verilog header file. ')
         subargs = subparser.parse_args(args.remain_args)
-        json_info(subargs)
+        entries = flatten_json(subargs)
+        json_info(entries, subargs)
 
     else:
         raise Exception("{0} is not a command for {1}!".format(

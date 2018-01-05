@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 	struct pollfd pfd;
 	int timeout = 10000;
 	int poll_ret = 0;
+	ssize_t bytes_read = 0;
 
 	UNUSED_PARAM(argc);
 	UNUSED_PARAM(argv);
@@ -174,7 +175,10 @@ int main(int argc, char *argv[])
 			 goto out_destroy_eh;
 		} else {
 			 printf("FME Interrupt occured\n");
-			 read(pfd.fd, &count, sizeof(count));
+			 bytes_read = read(pfd.fd, &count, sizeof(count));
+			 if (bytes_read <= 0)
+				 printf("WARNING: error reading from poll fd: %s\n",
+						 bytes_read < 0 ? strerror(errno) : "zero bytes read");
 		}
 
 		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
