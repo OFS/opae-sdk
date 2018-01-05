@@ -38,6 +38,7 @@ install(DIRECTORY ${PLATFORM_DIRS} DESTINATION ${PLATFORM_SHARE_DIR} COMPONENT p
 ## All scripts from the scripts subdirectory
 set(PLATFORM_SCRIPTS
         afu_platform_config
+        afu_synth_setup_std
         rtl_src_config)
 
 foreach(SRC ${PLATFORM_SCRIPTS})
