@@ -38,9 +38,15 @@ namespace opae {
 namespace fpga {
 namespace types {
 
+/** Representation of the guid member of a properties object.
+ */
 struct guid_t {
+  /** Construct the guid_t given its containing fpga_properties.
+   */
   guid_t(fpga_properties *p) : props_(p), log_("guid_t"), is_set_(false) {}
 
+  /** Update the local cached copy of the guid.
+   */
   fpga_result update() {
     fpga_result res = fpgaPropertiesGetGUID(*props_,
             reinterpret_cast<fpga_guid *>(data_.data()));
@@ -48,16 +54,27 @@ struct guid_t {
     return res;
   }
 
+  /** Return a raw pointer to the guid.
+   * @retval nullptr if the guid could not be queried.
+   */
   operator uint8_t *() {
     if (FPGA_OK == update())
         return data_.data();
     return nullptr;
   }
 
+  /** Return a raw pointer to the guid.
+   */
   const uint8_t* get() const {
       return data_.data();
   }
 
+  /** Assign from fpga_guid
+   * Sets the guid field of the associated properties
+   * object using the OPAE properties API.
+   * @param[in] g The given fpga_guid.
+   * @return a reference to this guid_t.
+   */
   guid_t &operator=(fpga_guid g) {
     fpga_result res;
     if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
@@ -73,10 +90,16 @@ struct guid_t {
     return *this;
   }
 
+  /** Compare contents with an fpga_guid.
+   * @retval The result of memcmp of the two objects.
+   */
   bool operator==(const fpga_guid &g) {
     return is_set() && (0 == std::memcmp(data_.data(), g, sizeof(fpga_guid)));
   }
 
+  /** Convert a string representation of a guid to binary.
+   * @param[in] str The guid string.
+   */
   void parse(const char *str) {
     int u;
     if (0 != (u = uuid_parse(str, data_.data()))) {
@@ -91,6 +114,8 @@ struct guid_t {
     }
   }
 
+  /** Send the string representation of the guid_t to the given stream.
+   */
   friend std::ostream &operator<<(std::ostream &ostr, const guid_t &g) {
     fpga_properties props = *g.props_;
     fpga_guid guid_value;
@@ -110,11 +135,15 @@ struct guid_t {
     return ostr;
   }
 
+  /** Tracks whether the cached local copy of the guid is valid.
+   */
   bool is_set() const {
     return is_set_;
   }
 
-  void invalidate() {
+  /** Invalidate the cached local copy of the guid.
+   */
+   void invalidate() {
     is_set_ = false;
   }
 
@@ -242,10 +271,14 @@ struct pvalue {
     return ostr;
   }
 
+  /** Tracks whether the cached local copy of the pvalue is valid.
+   */
   bool is_set() const {
     return is_set_;
   }
 
+  /** Invalidate the cached local copy of the pvalue.
+   */
   void invalidate() {
     is_set_ = false;
   }

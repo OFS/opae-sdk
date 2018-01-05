@@ -43,7 +43,13 @@ namespace opae {
 namespace fpga {
 namespace memory {
 
-
+/** Divisible memory blocks.
+ *
+ * buffer_slice extends dma_buffer by adding the ability
+ * to split a memory block into a series of smaller
+ * memory blocks, simplifying tasks that involve huge page
+ * allocations.
+ */
 class buffer_slice : public opae::fpga::types::dma_buffer,
                      public std::enable_shared_from_this<buffer_slice> {
  public:
@@ -51,7 +57,7 @@ class buffer_slice : public opae::fpga::types::dma_buffer,
 
 
   /**
-   * @brief Factor function to create buffer_slice objects from existing
+   * @brief Factory function to create buffer_slice objects from existing
    *        dma_buffer objects
    *
    * @param buffer A shared pointer to a dma_buffer object

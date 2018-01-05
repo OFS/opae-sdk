@@ -36,14 +36,26 @@ namespace opae {
 namespace fpga {
 namespace types {
 
+/** An allocated accelerator
+ *
+ * Represents an accelerator resource that has
+ * been allocated by OPAE. The accelerator's
+ * MMIO regions are made available for reading
+ * and writing.
+ *
+ */
 class handle {
  public:
   typedef std::shared_ptr<handle> ptr_t;
 
   ~handle();
 
+  /** Retrieve the underlying OPAE handle.
+   */
   fpga_handle get() const { return handle_; }
 
+  /** Retrieve the underlying OPAE handle.
+   */
   operator fpga_handle() const { return handle_; }
 
   /** Write 32-bit value to MMIO.
@@ -80,9 +92,29 @@ class handle {
    */
   uint8_t *mmio_ptr(uint64_t offset) const { return mmio_base_ + offset; }
 
+  /** Allocate an accelerator, given a raw fpga_token
+   *
+   * @param[in] token A token describing the accelerator
+   * resource to be allocated.
+   *
+   * @param[in] flags The flags parameter to fpgaOpen().
+   *
+   * @param[in] mmio_region The zero-based index of
+   * the desired MMIO region. See fpgaMapMMIO().
+   */
   static handle::ptr_t open(fpga_token token, int flags,
                             uint32_t mmio_region = 0);
 
+  /** Allocate an accelerator, given a token object
+   *
+   * @param[in] token A token object describing the
+   * accelerator resource to be allocated.
+   *
+   * @param[in] flags The flags parameter to fpgaOpen().
+   *
+   * @param[in] mmio_region The zero-based index of
+   * the desired MMIO region. See fpgaMapMMIO().
+   */
   static handle::ptr_t open(token::ptr_t token, int flags,
                             uint32_t mmio_region = 0);
 

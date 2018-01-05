@@ -40,6 +40,14 @@ namespace opae {
 namespace fpga {
 namespace types {
 
+/** Host/AFU shared memory blocks
+ *
+ * dma_buffer abstracts a memory block that may be shared
+ * between the host cpu and an accelerator. The block may
+ * be allocated by the dma_buffer class itself (see allocate),
+ * or it may be allocated elsewhere and then attached to
+ * a dma_buffer object via attach.
+ */
 class dma_buffer {
  public:
   typedef std::size_t size_t;
