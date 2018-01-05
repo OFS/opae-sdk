@@ -43,11 +43,7 @@ import shutil
 import glob
 import subprocess
 from os.path import dirname, realpath, sep
-
-if sys.version_info < (2, 7):
-    import commands
-else:
-    import subprocess
+import subprocess
 
 
 def errorExit(msg):
@@ -76,23 +72,20 @@ def getSysReleasePath(args):
 
 # Run a command and get the output
 def commands_list_getoutput(cmd):
-    if sys.version_info < (2, 7):
-        return commands.getoutput(' '.join(cmd))
-    else:
-        try:
-            byte_out = subprocess.check_output(cmd)
-            str_out = byte_out.decode("utf-8")
-        except OSError as e:
-            if e.errno == os.errno.ENOENT:
-                msg = cmd[0] + " not found on PATH!"
-                errorExit(msg)
-            else:
-                raise
-        except subprocess.CalledProcessError as e:
-            sys.stderr.write(e.output)
+    try:
+        byte_out = subprocess.check_output(cmd)
+        str_out = byte_out.decode(sys.stdout.encoding)
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            msg = cmd[0] + " not found on PATH!"
+            errorExit(msg)
+        else:
             raise
+    except subprocess.CalledProcessError as e:
+        sys.stderr.write(e.output)
+        raise
 
-        return str_out
+    return str_out
 
 
 # Remove a file, if it exists
@@ -163,12 +156,12 @@ def copy_build_env(base_src, dst, force):
         f.write('#!/bin/sh\n')
         f.write('SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && ' +
                 'pwd -P)"\n')
-        f.write('RELEASE_DIR="$(readlink -f ${SCRIPT_DIR}/' +
+        f.write('RELEASE_DIR="$(readlink -f "${SCRIPT_DIR}/' +
                 os.path.relpath(base_src, scripts_dst) +
-                ')"\n')
+                '")"\n')
         f.write('export BBS_LIB_PATH=' +
                 '${BBS_LIB_PATH:-"${RELEASE_DIR}/hw/lib"}\n')
-        f.write('${RELEASE_DIR}/bin/run.sh $*\n')
+        f.write('"${RELEASE_DIR}/bin/run.sh" $@\n')
     st = os.stat(run_sh)
     os.chmod(run_sh, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
@@ -208,6 +201,8 @@ def setup_build(args):
         errorExit("More than one AFU JSON file found in {0}".format(sources))
 
     json = json[0]
+    if (len(json) == 0):
+        errorExit("No AFU JSON file found in {0}".format(sources))
     os.symlink(json, os.path.basename(json))
 
     # Configure sources
@@ -225,8 +220,8 @@ def setup_build(args):
     cmd += ' --src=' + json + ' '
 
     # Was the platform specified on the commadn line?
-    if (args.plat):
-        cmd += args.plat
+    if (args.platform):
+        cmd += args.platform
     else:
         # Get the platform from the release
         plat_class_file = os.path.join(getSysReleasePath(args),
@@ -258,7 +253,7 @@ def main():
                                 --help" for the file's syntax.  rtl_src_config
                                 translates the source list into either Quartus
                                 or RTL simulator syntax.""")
-    parser.add_argument('-p', '--plat', default=None,
+    parser.add_argument('-p', '--platform', default=None,
                         help="""FPGA platform name.""")
     parser.add_argument('-r', '--release', default=None,
                         help="""FPGA platform release directory.  If not
