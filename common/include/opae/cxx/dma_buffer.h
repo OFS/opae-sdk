@@ -45,6 +45,9 @@ class dma_buffer {
   typedef std::size_t size_t;
   typedef std::shared_ptr<dma_buffer> ptr_t;
 
+  dma_buffer(const dma_buffer & ) = delete;
+  dma_buffer & operator =(const dma_buffer & ) = delete;
+
   /** dma_buffer destructor.
    */
   virtual ~dma_buffer();
@@ -81,6 +84,10 @@ class dma_buffer {
   /** Retrieve the length of the buffer in bytes.
    */
   size_t size() const { return len_; }
+
+  /** Retrieve the underlying buffer's workspace id.
+   */
+  uint64_t wsid() const { return wsid_; }
 
   /** Retrieve the address of the buffer suitable for
    * programming into the accelerator device.
@@ -138,7 +145,6 @@ class dma_buffer {
   dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
              uint64_t iova);
 
-  dma_buffer(const dma_buffer & other);
 
   handle::ptr_t handle_;
   size_t len_;

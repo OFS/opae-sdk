@@ -40,6 +40,9 @@ class handle {
  public:
   typedef std::shared_ptr<handle> ptr_t;
 
+  handle(const handle & ) = delete;
+  handle & operator =(const handle & ) = delete;
+
   ~handle();
 
   fpga_handle get() const { return handle_; }

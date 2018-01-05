@@ -105,7 +105,10 @@ class buffer_slice : public opae::fpga::types::dma_buffer,
   dma_buffer::ptr_t parent_;  // for split buffers
 
  private:
-  buffer_slice(dma_buffer::ptr_t buffer) : dma_buffer(*buffer), parent_(buffer){}
+  buffer_slice(dma_buffer::ptr_t buffer)
+    : dma_buffer(buffer->owner(), buffer->size(), const_cast<uint8_t *>(buffer->get()),
+        buffer->wsid(), buffer->iova()),
+      parent_(buffer){}    
 
   buffer_slice(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
                uint64_t iova, dma_buffer::ptr_t parent)
