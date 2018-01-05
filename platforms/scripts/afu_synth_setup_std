@@ -71,9 +71,9 @@ def getSysReleasePath(args):
 
 
 # Run a command and get the output
-def commands_list_getoutput(cmd):
+def commands_list_getoutput(cmd, cwd=None):
     try:
-        byte_out = subprocess.check_output(cmd)
+        byte_out = subprocess.check_output(cmd, cwd=cwd)
         str_out = byte_out.decode(sys.stdout.encoding)
     except OSError as e:
         if e.errno == os.errno.ENOENT:
@@ -174,19 +174,12 @@ def setup_build(args):
     if (not os.path.exists(args.sources)):
         errorExit("Sources file {0} not found.".format(args.sources))
 
-    # Transform path to sources relative to build directory
-    is_abs = os.path.isabs(args.sources)
-    if (is_abs):
-        sources = args.sources
-    else:
-        sources = os.path.relpath(args.sources,
-                                  os.path.join(args.dst, 'build'))
+    sources = args.sources
 
     # Get the JSON file
-    os.chdir(os.path.join(args.dst, 'hw'))
     try:
         cmd = ['rtl_src_config']
-        if (is_abs):
+        if (os.path.isabs(sources)):
             cmd.append('--abs')
         cmd.append('--json')
         cmd.append(sources)
@@ -203,38 +196,50 @@ def setup_build(args):
     json = json[0]
     if (len(json) == 0):
         errorExit("No AFU JSON file found in {0}".format(sources))
-    os.symlink(json, os.path.basename(json))
+
+    # json path will always be used one level below the destination's root.
+    # Convert it if the path is relative.
+    if (not os.path.isabs(json)):
+        json = os.path.relpath(json, os.path.join(args.dst, 'build'))
+
+    # Link to JSON file in hw tree
+    os.symlink(json, os.path.join(args.dst, 'hw', os.path.basename(json)))
+
+    # Where is the Quartus build directory?
+    build_dir = os.path.join(args.dst, 'build')
+    print('Configuring Quartus build directory: ' + build_dir)
 
     # Configure sources
-    print('Changing to directory ' + os.path.join(args.dst, 'build'))
-    os.chdir('../build')
     cmd = ['rtl_src_config']
-    if (is_abs):
-        cmd.append('--abs')
     cmd.append('--qsf')
-    cmd.append(sources)
-    os.system(' '.join(cmd) + ' > ../hw/afu.qsf')
+    if (os.path.isabs(sources)):
+        cmd.append('--abs')
+        cmd.append(sources)
+    else:
+        cmd.append(os.path.relpath(sources, build_dir))
+    with open(os.path.join(args.dst, 'hw/afu.qsf'), 'w') as f:
+        subprocess.check_call(cmd, stdout=f, cwd=build_dir)
 
     # Configure the platform
-    cmd = 'afu_platform_config --qsf --tgt platform'
-    cmd += ' --src=' + json + ' '
+    cmd = ['afu_platform_config', '--qsf', '--tgt', 'platform']
+    cmd.append('--src=' + json)
 
-    # Was the platform specified on the commadn line?
+    # Was the platform specified on the command line?
     if (args.platform):
-        cmd += args.platform
+        cmd.append(args.platform)
     else:
         # Get the platform from the release
         plat_class_file = os.path.join(getSysReleasePath(args),
                                        'hw/lib/fme-platform-class.txt')
         with open(plat_class_file) as f:
-            cmd += f.read().strip()
+            cmd.append(f.read().strip())
 
-    os.system(cmd)
+    subprocess.check_call(cmd, cwd=build_dir)
 
     # Extract JSON info for Verilog
-    cmd = 'afu_json_mgr json-info --afu-json=' + json
-    cmd += ' --verilog-hdr=../hw/afu_json_info.vh'
-    os.system(cmd)
+    cmd = ['afu_json_mgr', 'json-info', '--afu-json=' + json]
+    cmd.append('--verilog-hdr=../hw/afu_json_info.vh')
+    subprocess.check_call(cmd, cwd=build_dir)
 
 
 def main():
