@@ -28,31 +28,13 @@ cmake_minimum_required(VERSION 2.8.11)
 project(opae)
 
 ############################################################################
-## Get git hash info, if available #########################################
-############################################################################
-find_program(GIT_EXECUTABLE git)
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    RESULT_VARIABLE GIT_LOG_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
-      set(GIT_COMMIT_HASH unknown)
-    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
-else(EXISTS ${GIT_EXECUTABLE})
-  set(GIT_COMMIT_HASH unknown)
-endif(EXISTS ${GIT_EXECUTABLE})
-
-############################################################################
 ## Add 'versioning' library ################################################
 ############################################################################
 
-set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 13 CACHE STRING "Intel FPGA API minor version")
-set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
+set(INTEL_FPGA_API_VER_MAJOR 0 CACHE STRING "Intel FPGA API major version")
+set(INTEL_FPGA_API_VER_MINOR 9 CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_REV   0 CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
-set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
 ############################################################################
 ## Compilation configuration ###############################################
@@ -86,14 +68,17 @@ install(DIRECTORY common/include/opae
   DESTINATION include
   COMPONENT libopaeheaders)
 
-install(DIRECTORY common/include/safe_string
-  DESTINATION include
-  COMPONENT safestrheaders)
 ############################################################################
-## Add 'documentation' target ##############################################
+## Add 'doxygen' target ####################################################
 ############################################################################
 
-add_subdirectory(doc)
+option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(BUILD_SPHINX_DOC)
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -107,22 +92,18 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
-add_subdirectory(platforms)
 add_subdirectory(tools/userclk)
 add_subdirectory(tools/fpgad)
 add_subdirectory(tools/ras)
 add_subdirectory(tools/mmlink)
 add_subdirectory(tools/coreidle)
 add_subdirectory(tools/fpgaconf)
-add_subdirectory(tools/fpgabist)
-add_subdirectory(tools/fpgaflash)
 add_subdirectory(tools/fpgainfo)
 add_subdirectory(tools/c++utils)
 add_subdirectory(tools/libopae++)
 add_subdirectory(tools/fpgadiag)
 add_subdirectory(tools/fpgaport)
 add_subdirectory(tools/hssi)
-add_subdirectory(tools/packager)
 
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
@@ -144,18 +125,6 @@ find_package(Threads REQUIRED)
 add_subdirectory(samples)
 
 ############################################################################
-## Add 'tests' #############################################################
-############################################################################
-
-option(BUILD_TESTS "Enable tests compilation" OFF)
-mark_as_advanced(BUILD_TESTS)
-if(BUILD_TESTS)
-  enable_testing()
-  include(CTest)
-  add_subdirectory(tests)
-endif()
-
-############################################################################
 ## RPATH Handling ##########################################################
 ############################################################################
 
@@ -165,11 +134,32 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 ############################################################################
+## Testing #################################################################
+############################################################################
+
+option(BUILD_TESTS "Enable TESTS compilation" OFF)
+mark_as_advanced(BUILD_TESTS)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
+############################################################################
 ## Packaging ###############################################################
 ############################################################################
 
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
+
+find_program(GIT_EXECUTABLE git)
+if(EXISTS ${GIT_EXECUTABLE})
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+else(EXISTS ${GIT_EXECUTABLE})
+  set(GIT_COMMIT_HASH unknown)
+endif(EXISTS ${GIT_EXECUTABLE})
 
 include(packaging)
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
@@ -198,10 +188,7 @@ define_pkg(devel
   docrtf
   docman
   docxml
-  platform
   samplesrc
-  safestrlib
-  safestrheaders
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
@@ -217,13 +204,9 @@ define_pkg(tools
   toolcoreidle
   toolfpgaconf
   toolfpgadiag
-  toolfpgabist
-  toolfpga_dma_test
   toolfpgadiagapps
-  toolfpgaflash
   toolfpgainfo
   toolfpgaport
-  toolpackager
   opaecxxutils
   opaecxxlib
   opaecxxnlb
@@ -254,10 +237,36 @@ set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
 
 # Hashing the package components
 if(HASH_ARCHIVES)
-  set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
+  set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-1.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
 else()
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 endif()
+
+# Run ldconfig after installation
+option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
+mark_as_advanced(RUN_LDCONFIG)
+    
+if (RUN_LDCONFIG)
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
+
+  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+rm /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
+  set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
+endif(RUN_LDCONFIG)
 
 # Binary packaging target
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
@@ -265,8 +274,6 @@ set(CPACK_RPM_COMPONENT_INSTALL ON)
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_RPM_PACKAGE_COMPONENT ON)
 set(CPACK_DEB_PACKAGE_COMPONENT ON)
-set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
-set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
@@ -294,13 +301,13 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
 set(CPACK_SOURCE_GENERATOR "TGZ")
 if (HASH_ARCHIVES)
   set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}_git${GIT_COMMIT_HASH}")
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_git${GIT_COMMIT_HASH}")
   set(DEFINE_RPM_NAME "%define _rpmfilename %%{ARCH}/%%{NAME}-%%{VERSION}-%%{RELEASE}_git${GIT_COMMIT_HASH}.%%{ARCH}.rpm")
-else()
+else(HASH_ARCHIVES)
   set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}")
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
   set(DEFINE_RPM_NAME "")
-endif()
+endif(HASH_ARCHIVES)
 
 # Ignore following files in the final package
 set(CPACK_SOURCE_IGNORE_FILES
