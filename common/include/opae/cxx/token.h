@@ -38,8 +38,9 @@ namespace fpga {
 namespace types {
 
 /** Wraps the OPAE fpga_token primitive.
- * token's are enumerated based on a set of
- * properties describing an accelerator resource.
+ * token's are created from an enumeration operation
+ * that uses properties describing an accelerator resource
+ * as search criteria.
  */
 class token {
  public:

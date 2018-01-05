@@ -36,7 +36,7 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-/** An allocated accelerator
+/** An allocated accelerator resource
  *
  * Represents an accelerator resource that has
  * been allocated by OPAE. The accelerator's

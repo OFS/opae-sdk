@@ -42,7 +42,11 @@ class token;
  *
  * properties are information describing an
  * accelerator resource that is identified by
- * its token.
+ * its token. The properties are used during
+ * enumeration to narrow the search for an
+ * accelerator resource, and after enumeration
+ * to provide the configuration of that
+ * resource.
  */
 class properties {
  public:
