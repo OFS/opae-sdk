@@ -60,6 +60,7 @@ struct guid_t {
 
   guid_t &operator=(fpga_guid g) {
     fpga_result res;
+    is_set_ = false;
     if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
       is_set_ = true;
       uint8_t *begin = &g[0];
@@ -79,6 +80,7 @@ struct guid_t {
 
   void parse(const char *str) {
     int u;
+    is_set_ = false;
     if (0 != (u = uuid_parse(str, data_.data()))) {
       log_.error() << "uuid_parse() failed with (" << u << ")";
       throw except(OPAECXX_HERE);
@@ -89,6 +91,7 @@ struct guid_t {
                    << ") " << fpgaErrStr(res);
       throw except(res, OPAECXX_HERE);
     }
+    is_set_ = true;
   }
 
   friend std::ostream &operator<<(std::ostream &ostr, const guid_t &g) {
@@ -178,6 +181,7 @@ struct pvalue {
    * @return A reference to itself
    */
   pvalue<T> &operator=(const T &v) {
+    is_set_ = false;
     auto res = set_(*props_, v);
     if (res == FPGA_OK) {
       is_set_ = true;
