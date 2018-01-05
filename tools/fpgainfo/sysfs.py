@@ -121,20 +121,10 @@ class sysfs_node(object):
             else:
                 yield k_, v_
 
-    def to_dict(self, include_bdf=False):
+    def to_dict(self):
         data = {}
         for k, v in self.enum_props():
             data[k] = v
-        if include_bdf:
-            root_data = {}
-            root_data["class_path"] = self.sysfs_path
-            root_data["dev_path"] = os.path.realpath(self.sysfs_path)
-            root_data["bus"] = self.bus
-            root_data["device"] = self.device
-            root_data["function"] = self.function
-            root_data["object_id"] = self.object_id
-            data["pcie_info"] = root_data
-
         return data
 
     def to_json(self):
@@ -255,6 +245,19 @@ class sysfs_resource(sysfs_node):
         minor = valueList[1]
         obj_id = ((long(major) & 0xFFF) << 20) | (long(minor) & 0xFFFFF)
         return obj_id
+
+    def to_dict(self):
+        data = super(sysfs_resource, self).to_dict()
+        root_data = {}
+        root_data["class_path"] = self.sysfs_path
+        root_data["dev_path"] = os.path.realpath(self.sysfs_path)
+        root_data["bus"] = self.bus
+        root_data["device"] = self.device
+        root_data["function"] = self.function
+        root_data["object_id"] = self.object_id
+        data["pcie_info"] = root_data
+
+        return data
 
 
 class power_mgmt_feature(sysfs_node):
