@@ -89,11 +89,17 @@ install(DIRECTORY common/include/opae
 install(DIRECTORY common/include/safe_string
   DESTINATION include
   COMPONENT safestrheaders)
+
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
+option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(BUILD_SPHINX_DOC)
 
-add_subdirectory(doc)
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -267,6 +273,32 @@ set(CPACK_RPM_PACKAGE_COMPONENT ON)
 set(CPACK_DEB_PACKAGE_COMPONENT ON)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
+
+# Run ldconfig after installation
+option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
+mark_as_advanced(RUN_LDCONFIG)
+    
+if (RUN_LDCONFIG)
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
+
+  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+rm /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
+  set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
+endif(RUN_LDCONFIG)
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
