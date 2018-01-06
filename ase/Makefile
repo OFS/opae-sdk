@@ -44,6 +44,8 @@
 
 include ase_sources.mk
 
+ASE_OOD = 0
+
 ###############################################################
 ##                                                           ##
 ##         ASE Platform value (selection method)             ##
@@ -141,7 +143,13 @@ WORK = work
 
 # ASE Source directory
 ASE_SRCDIR = $(shell pwd)
+ifeq ($(ASE_OOD),0) 
 OPAE_BASEDIR ?= $(ASE_SRCDIR)/../
+OPAE_INCDIR = $(OPAE_BASEDIR)/common/include
+else
+OPAE_BASEDIR ?= $(ASE_SRCDIR)/../../../
+OPAE_INCDIR = $(OPAE_BASEDIR)/include
+endif
 ASE_WORKDIR = $(PWD)/$(WORK)
 
 # Configuration & regression file inputs
@@ -162,10 +170,10 @@ endif
 TIMESCALE = 1ps/1ps
 
 ## ASE HW file setup
-ASEHW_FILE_LIST = -F $(ASE_SRCDIR)/rtl/sources.txt
+ASEHW_FILE_LIST = -F $(PWD)/rtl/sources.txt
 
 ## ASE platform-specific HW
-ASE_PLATFORM_INC = -F $(ASE_SRCDIR)/rtl/includes.txt
+ASE_PLATFORM_INC = -F $(PWD)/rtl/includes.txt
 ASE_PLATFORM_FILE_LIST ?=
 ifeq ($(ASE_PLATFORM), FPGA_PLATFORM_DISCRETE)
   ASE_PLATFORM_FILE_LIST += -F $(ASE_MEM_SRC)/sources.txt
@@ -218,7 +226,7 @@ endif
 
 ## C Compiler options
 CC_OPT?=
-CC_OPT+= -g $(CC_INT_SIZE) -fPIC -D SIM_SIDE=1 -I $(ASE_SRCDIR)/sw/ -I $(OPAE_BASEDIR)/common/include/
+CC_OPT+= -g $(CC_INT_SIZE) -fPIC -D SIM_SIDE=1 -I $(ASE_SRCDIR)/sw/ -I $(OPAE_INCDIR)
 CC_OPT+= -D SIMULATOR=$(SIMULATOR) -D $(ASE_PLATFORM)
 CC_OPT+= -Wall -Wformat -Wformat-security
 CC_OPT+= -O2 -D_FORTIFY_SOURCE=2
@@ -242,7 +250,11 @@ endif
 
 ## ASE Link options
 ASE_LD_SWITCHES?=
+ifeq ($(ASE_OOD),0) 
 ASE_LD_SWITCHES+= -lrt -lpthread
+else
+ASE_LD_SWITCHES+= -L$(OPAE_BASEDIR)/lib -lrt -lpthread -lsafestr
+endif
 
 ## Library names
 ASE_SHOBJ_NAME = ase_libs
@@ -455,7 +467,9 @@ help: header
 sw_build:
 	make header
 	mkdir -p $(WORK)
+ifeq ($(ASE_OOD),0)
 	cd $(WORK) ; $(CC) $(CC_OPT) -c $(SAFESTR_SRC_LIST) || exit 1 ; cd -
+endif
 	cd $(WORK) ; $(CC) $(CC_OPT) -c $(ASESW_FILE_LIST) || exit 1 ; cd -
 	cd $(WORK) ; $(CC) $(CC_INT_SIZE) -g -shared -o $(ASE_SHOBJ_SO) `ls *.o` $(ASE_LD_SWITCHES) ; cd -
 	nm $(WORK)/$(ASE_SHOBJ_SO) > $(WORK)/$(ASE_SHOBJ_NAME).nm
