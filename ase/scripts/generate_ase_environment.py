@@ -126,14 +126,14 @@ def remove_dups(filepath, exclude=None):
 # Run command and get string output #
 def commands_getoutput(cmd):
     byte_out = subprocess.check_output(cmd.split())
-    str_out = byte_out.decode(sys.stdout.encoding)
+    str_out = byte_out.decode()
     return str_out
 
 
 def commands_list_getoutput(cmd):
     try:
         byte_out = subprocess.check_output(cmd)
-        str_out = byte_out.decode(sys.stdout.encoding)
+        str_out = byte_out.decode()
     except OSError as e:
         if e.errno == os.errno.ENOENT:
             msg = cmd[0] + " not found on PATH!\n"
