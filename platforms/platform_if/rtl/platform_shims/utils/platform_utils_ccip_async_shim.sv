@@ -182,7 +182,7 @@ module platform_utils_ccip_async_shim
      c0tx_afifo
        (
         .data(afu_tx_q.c0.hdr),
-        .wrreq(afu_tx_q.c0.valid),
+        .wrreq(afu_tx_q.c0.valid && ! c0tx_fifo_wrfull),
         .rdreq(c0tx_rdreq),
         .wrclk(afu_clk),
         .rdclk(bb_clk),
@@ -274,7 +274,7 @@ module platform_utils_ccip_async_shim
      c1tx_afifo
        (
         .data({afu_tx_q.c1.hdr, afu_tx_q.c1.data}),
-        .wrreq(afu_tx_q.c1.valid),
+        .wrreq(afu_tx_q.c1.valid && ! c1tx_fifo_wrfull),
         .rdreq(c1tx_rdreq),
         .wrclk(afu_clk),
         .rdclk(bb_clk),
@@ -408,7 +408,7 @@ module platform_utils_ccip_async_shim
       c2tx_afifo
        (
         .data({afu_tx_q.c2.hdr, afu_tx_q.c2.data}),
-        .wrreq(afu_tx_q.c2.mmioRdValid),
+        .wrreq(afu_tx_q.c2.mmioRdValid & ! c2tx_fifo_wrfull),
         .rdreq(c2tx_rdreq),
         .wrclk(afu_clk),
         .rdclk(bb_clk),
