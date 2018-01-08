@@ -23,7 +23,9 @@
 module platform_utils_dc_fifo
   #(
     parameter DATA_WIDTH = 32,
-    parameter DEPTH_RADIX = 9
+    parameter DEPTH_RADIX = 9,
+    // Minimum number of free slots before almost full is asserted
+    parameter ALMOST_FULL_THRESHOLD = 16
     )
    (
     aclr,
@@ -38,6 +40,7 @@ module platform_utils_dc_fifo
     rdusedw,
     wrempty,
     wrfull,
+    wralmfull,
     wrusedw);
 
    input    aclr;
@@ -52,6 +55,7 @@ module platform_utils_dc_fifo
    output [DEPTH_RADIX-1:0] rdusedw;
    output 		    wrempty;
    output 		    wrfull;
+   output 		    wralmfull;
    output [DEPTH_RADIX-1:0] wrusedw;
 `ifndef ALTERA_RESERVED_QIS
    // synopsys translate_off
@@ -108,5 +112,17 @@ module platform_utils_dc_fifo
      dcfifo_component.write_aclr_synch  = "ON",
      dcfifo_component.wrsync_delaypipe  = 5;
 
+   // The count of entries at which almost full is asserted.  Two extra free slots
+   // are added to account for wrreq to wrusedw latency.
+   localparam ALMOST_FULL_CNT = (2**DEPTH_RADIX) -
+                                ALMOST_FULL_THRESHOLD - 2;
+
+   logic sub_wralmfull;
+   assign wralmfull = sub_wralmfull;
+
+   always_ff @(posedge wrclk)
+   begin
+      sub_wralmfull <= (wrusedw >= DEPTH_RADIX'(ALMOST_FULL_CNT));
+   end
 
 endmodule
