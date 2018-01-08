@@ -74,7 +74,7 @@ def getSysReleasePath(args):
 def commands_list_getoutput(cmd, cwd=None):
     try:
         byte_out = subprocess.check_output(cmd, cwd=cwd)
-        str_out = byte_out.decode(sys.stdout.encoding)
+        str_out = byte_out.decode()
     except OSError as e:
         if e.errno == os.errno.ENOENT:
             msg = cmd[0] + " not found on PATH!"
