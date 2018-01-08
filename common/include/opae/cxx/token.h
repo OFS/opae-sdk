@@ -37,16 +37,31 @@ namespace opae {
 namespace fpga {
 namespace types {
 
+/** Wraps the OPAE fpga_token primitive.
+ * token's are created from an enumeration operation
+ * that uses properties describing an accelerator resource
+ * as search criteria.
+ */
 class token {
  public:
   typedef std::shared_ptr<token> ptr_t;
 
+  /** Obtain a vector of token smart pointers
+   * for given search criteria.
+   * @param[in] props The search criteria.
+   * @return A set of known tokens that match the search.
+   */
   static std::vector<token::ptr_t> enumerate(
       const std::vector<properties>& props);
 
   ~token();
 
+  /** Retrieve the underlying fpga_token primitive.
+   */
   fpga_token get() const { return token_; }
+
+  /** Retrieve the underlying fpga_token primitive.
+   */
   operator fpga_token() const { return token_; }
 
  private:

@@ -65,6 +65,12 @@ class src_location {
 #define OPAECXX_HERE \
   opae::fpga::types::src_location(__FILE__, __func__, __LINE__)
 
+/** Runtime exception
+ *
+ * An except tracks the source line of origin
+ * and an optional fpga_result. If no fpga_result
+ * is given, then FPGA_EXCEPTION is used.
+ */
 class except : public std::exception {
  public:
   static const std::size_t MAX_EXCEPT = 100;

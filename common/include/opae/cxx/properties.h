@@ -38,28 +38,66 @@ namespace types {
 
 class token;
 
+/** Wraps an OPAE fpga_properties object.
+ *
+ * properties are information describing an
+ * accelerator resource that is identified by
+ * its token. The properties are used during
+ * enumeration to narrow the search for an
+ * accelerator resource, and after enumeration
+ * to provide the configuration of that
+ * resource.
+ */
 class properties {
  public:
   typedef std::shared_ptr<properties> ptr_t;
 
+  /** An empty vector of properties.
+   * Useful for enumerating based on a
+   * "match all" criteria.
+   */
   const static std::vector<properties> none;
 
+  /** Construct an empty set of properties.
+   */
   properties();
 
+  /** properties may be copied.
+   */
   properties(const properties &p);
 
+  /** properties may be copy-assigned.
+   */
   properties & operator =(const properties &p);
 
+  /** Convert fpga_guid to properties.
+   */
   properties(fpga_guid guid_in);
 
+  /** Convert fpga_objtype to properties.
+   */
   properties(fpga_objtype objtype);
 
   ~properties();
 
+  /** Get the underlying fpga_properties object.
+   */
   fpga_properties get() const { return props_; }
+
+  /** Get the underlying fpga_properties object.
+   */
   operator fpga_properties() const { return props_; }
 
+  /** Retrieve the properties for a given token object.
+   * @param[in] t A token identifying the accelerator resource.
+   * @return A properties smart pointer for the given token.
+   */
   static properties::ptr_t read(std::shared_ptr<token> t);
+
+  /** Retrieve the properties for a given fpga_token.
+   * @param[in] t An fpga_token identifying the accelerator resource.
+   * @return A properties smart pointer for the given fpga_token.
+   */
   static properties::ptr_t read(fpga_token t);
 
  private:
