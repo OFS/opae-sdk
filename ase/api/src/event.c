@@ -33,6 +33,7 @@
 #include "common_int.h"
 #include <ase_common.h>
 
+#ifdef __linux__
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
 	struct _fpga_event_handle *_eh;
@@ -134,3 +135,4 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 	else
 		return FPGA_EXCEPTION;
 }
+#endif

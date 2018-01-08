@@ -26,13 +26,21 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#ifdef _WIN64
+#include <Windows.h>
+#elif defined__linux__
 #include <unistd.h>
 #include <uuid/uuid.h>
+#endif
+
 #include <opae/fpga.h>
 #include <stdlib.h>
 #include <getopt.h>
 
+#ifdef __linux__
 int usleep(unsigned);
+#endif
 
 #ifndef CL
 # define CL(x)                       ((x) * 64)
@@ -116,10 +124,29 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (uuid_parse(NLB0_AFUID, guid) < 0) {
+#ifdef _WIN64
+	if (UuidFromString((RPC_CSTR)NLB0_AFUID, (UUID *)guid) < 0) {
 		fprintf(stderr, "Error parsing guid '%s'\n", NLB0_AFUID);
 		goto out_exit;
 	}
+
+	/* TODO: UuidFromString() did not work as expected, use hardcoded 
+	         workarounds below for now  */
+	guid[0] = 0xd8; guid[1] = 0x42;
+	guid[2] = 0x4D; guid[3] = 0xC4;
+	guid[4] = 0xA4; guid[5] = 0xA3;
+	guid[6] = 0xC4; guid[7] = 0x13;
+	guid[8] = 0xF8; guid[9] = 0x9E;
+	guid[10] = 0x43; guid[11] = 0x36;
+	guid[12] = 0x83; guid[13] = 0xF9;
+	guid[14] = 0x04; guid[15] = 0x0B;
+
+#elif defined __linux__
+	if (uuid_parse(NLB0_AFUID, guid) < 0) {
+		fprintf(stderr, "Error parsing guid '%s'\n", NLB0_AFUID);
+		goto out_exit;
+}
+#endif
 
 	/* Look for accelerator with MY_ACCELERATOR_ID */
 	res = fpgaGetProperties(NULL, &filter);
@@ -220,7 +247,11 @@ int main(int argc, char *argv[])
 
 	/* Wait for test completion */
 	while (0 == ((*status_ptr) & 0x1)) {
+#ifdef _WIN64
+		Sleep(1);
+#elif defined __linux__
 		usleep(100);
+#endif
 	}
 
 	/* Stop the device */

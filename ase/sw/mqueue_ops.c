@@ -135,9 +135,11 @@ void ipc_init(void)
 				mq_name_arr[ipc_iter], ASE_MQ_NAME_LEN);
 
 		// Compute path
+#ifdef __linux__
 		snprintf(mq_array[ipc_iter].path, ASE_FILEPATH_LEN,
 			 "%s/%s", ase_workdir_path,
 			 mq_array[ipc_iter].name);
+#endif
 		// Set permission flag
 		mq_array[ipc_iter].perm_flag =
 		    get_smq_perm_flag(mq_name_arr[ipc_iter]);
@@ -154,8 +156,10 @@ void ipc_init(void)
 
 	// Remove IPCs if already there
 #ifdef SIM_SIDE
+#ifdef __linux__
 	for (ipc_iter = 0; ipc_iter < ASE_MQ_INSTANCES; ipc_iter++)
 		unlink(mq_array[ipc_iter].path);
+#endif
 #endif
 
 	FUNC_CALL_EXIT;
@@ -165,14 +169,58 @@ void ipc_init(void)
 /*
  * mqueue_create: Create a simplex mesaage queue by passing a name
  */
+#ifdef _WIN32
+void mqueue_create(char* mq_name_suffix, int perm_flag, pipe_handle * mq)
+#elif defined __linux__
 void mqueue_create(char *mq_name_suffix)
+#endif
 {
 	FUNC_CALL_ENTRY;
 
-	char *mq_path;
+	char mq_path[ASE_FILEPATH_LEN];
+
+
+	int perm;
+
+#ifdef _WIN32
+	OVERLAPPED overlapped;
+
+	if (perm_flag == O_WRONLY) {
+		perm = PIPE_ACCESS_OUTBOUND;
+	}
+	else {
+		perm = PIPE_ACCESS_INBOUND;
+	}
+
+	snprintf(mq_path, ASE_FILEPATH_LEN, "%s%s", "\\\\.\\pipe\\", mq_name_suffix);
+
+	*mq = CreateNamedPipe(
+		TEXT(mq_path),
+		perm | FILE_FLAG_OVERLAPPED,
+		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
+		PIPE_UNLIMITED_INSTANCES,
+		1024,
+		1024,
+		1000,
+		NULL
+	);
+
+	if ((*mq) == INVALID_HANDLE_VALUE) {
+		ASE_ERR("Error creating IPC %s\n", mq_path);
+		ASE_ERR("Consider re-compiling OPAE libraries !\n");
+	}
+	else {
+    	ZeroMemory(&overlapped, sizeof(OVERLAPPED));
+		BOOL connected = ConnectNamedPipe(*mq, &overlapped);
+
+		if (connected == 0 && GetLastError() != ERROR_IO_PENDING) {
+			ASE_ERR("Error connecting IPC %s\n", mq_path);
+			ASE_ERR("Consider re-compiling OPAE libraries !\n");
+		}
+	}
+#elif defined __linux__	
 	int ret;
 
-	mq_path = ase_malloc(ASE_FILEPATH_LEN);
 	snprintf(mq_path, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path,
 		 mq_name_suffix);
 
@@ -181,14 +229,13 @@ void mqueue_create(char *mq_name_suffix)
 		ASE_ERR("Error creating IPC %s\n", mq_path);
 		ASE_ERR("Consider re-compiling OPAE libraries !\n");
 	}
+	
+#endif
 	// Add IPC to list
 #ifdef SIM_SIDE
 	add_to_ipc_list("MQ", mq_path);
 	fflush(local_ipc_fp);
 #endif
-
-	// Free memories
-	free(mq_path);
 
 	FUNC_CALL_EXIT;
 }
@@ -204,14 +251,43 @@ void mqueue_create(char *mq_name_suffix)
  *   close it after ASE's real fd is created successfully.
  *
  */
-int mqueue_open(char *mq_name, int perm_flag)
+pipe_handle mqueue_open(char *mq_name, int perm_flag)
 {
 	FUNC_CALL_ENTRY;
 
-	int mq;
-	char *mq_path;
+	pipe_handle mq;
+	char mq_path[ASE_FILEPATH_LEN];
 
-	mq_path = ase_malloc(ASE_FILEPATH_LEN);
+#ifdef _WIN32
+	int perm;
+	snprintf(mq_path, ASE_FILEPATH_LEN, "%s%s", "\\\\.\\pipe\\", mq_name);
+
+	if (perm_flag == O_WRONLY) {
+		perm = GENERIC_WRITE;
+	}
+	else {
+		perm = GENERIC_READ;
+	}
+
+	mq = CreateFile(
+		TEXT(mq_path),
+		perm,
+		FILE_SHARE_READ | FILE_SHARE_WRITE,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL
+	);
+
+	if (mq == INVALID_HANDLE_VALUE) {
+		ASE_ERR("Error opening IPC %s\n", mq_path);
+		ASE_ERR("error %d\n", GetLastError());
+		exit(1);
+	}
+
+
+#elif defined __linux__
+
 	snprintf(mq_path, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path,
 		 mq_name);
 
@@ -243,10 +319,8 @@ int mqueue_open(char *mq_name, int perm_flag)
 	}
 #endif
 
+#endif
 	FUNC_CALL_EXIT;
-
-	// Free temp variables
-	free(mq_path);
 
 	return mq;
 }
@@ -255,10 +329,17 @@ int mqueue_open(char *mq_name, int perm_flag)
 // -------------------------------------------------------
 // mqueue_close(int): close MQ by descriptor
 // -------------------------------------------------------
-void mqueue_close(int mq)
+void mqueue_close(pipe_handle mq)
 {
 	FUNC_CALL_ENTRY;
-
+#ifdef _WIN32
+	DisconnectNamedPipe(mq);
+	if (CloseHandle(mq) == 0) {
+#ifdef SIM_SIDE
+		ASE_DBG("Error closing IPC\n");
+#endif
+	}
+#elif defined __linux__
 	int ret;
 	ret = close(mq);
 	if (ret == -1) {
@@ -266,6 +347,7 @@ void mqueue_close(int mq)
 		ASE_DBG("Error closing IPC\n");
 #endif
 	}
+#endif
 
 	FUNC_CALL_EXIT;
 }
@@ -276,13 +358,11 @@ void mqueue_close(int mq)
 // -----------------------------------------------------------
 void mqueue_destroy(char *mq_name_suffix)
 {
+#ifdef __linux__
 	FUNC_CALL_ENTRY;
 
-	char *mq_path;
+	char mq_path[ASE_FILEPATH_LEN];
 	int ret;
-
-	// ASE malloc will allocate buffer, mq_path will be set correctly
-	mq_path = ase_malloc(ASE_FILEPATH_LEN);
 
 	// Generate mq_path variable from given and $ASE_WORKDIR
 	snprintf(mq_path, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path,
@@ -295,10 +375,9 @@ void mqueue_destroy(char *mq_name_suffix)
 		    ("Message queue %s could not be removed, please remove manually\n",
 		     mq_name_suffix);
 	}
-	// Free memory
-	free(mq_path);
 
 	FUNC_CALL_EXIT;
+#endif
 }
 
 
@@ -306,10 +385,23 @@ void mqueue_destroy(char *mq_name_suffix)
 // mqueue_send(): Easy send function
 // - Typecast any message as a character array and ram it in.
 // ------------------------------------------------------------
-void mqueue_send(int mq, const char *str, int size)
+void mqueue_send(pipe_handle mq, const char *str, int size)
 {
 	FUNC_CALL_ENTRY;
+#ifdef _WIN32
 
+	DWORD ret_tx = 0;
+
+	WriteFile(mq, str, size, &ret_tx, NULL);
+
+	if ((ret_tx == 0) || (ret_tx != size))
+	{
+		ASE_DBG("Write error %d\n", GetLastError());
+		ASE_DBG("  [DEBUG]  write() returned wrong data size.");
+	}
+	FUNC_CALL_EXIT;
+
+#elif defined __linux__
 	int ret_tx;
 	ret_tx = write(mq, (void *) str, size);
 
@@ -319,7 +411,7 @@ void mqueue_send(int mq, const char *str, int size)
 		ASE_DBG("write() returned wrong data size.");
 #endif
 	}
-
+#endif
 	FUNC_CALL_EXIT;
 }
 
@@ -328,17 +420,53 @@ void mqueue_send(int mq, const char *str, int size)
 // mqueue_recv(): Easy receive function
 // - Typecast message back to a required type
 // ------------------------------------------------------------------
-int mqueue_recv(int mq, char *str, int size)
+#ifdef _WIN32
+int mqueue_recv(pipe_handle mq, char* str, int size, LPOVERLAPPED overlapped, HANDLE event, LPBOOL op_pending)
+#elif defined __linux__
+int mqueue_recv(pipe_handle mq, char *str, int size)
+#endif
 {
 	FUNC_CALL_ENTRY;
 
+#ifdef _WIN32
+	DWORD ret = 0;
+
+#ifdef SIM_SIDE
+	if (*op_pending == FALSE)
+	{
+		ZeroMemory(overlapped, sizeof(OVERLAPPED));
+		overlapped->hEvent = event;
+		int lastError = 0;		
+		BOOL ret_x = ReadFile(mq, str, size, &ret, overlapped);
+		lastError = GetLastError();
+		if (lastError == ERROR_IO_PENDING) {
+			*op_pending = TRUE;
+		}
+	}
+	else
+	{
+		if (WaitForSingleObject(event, 0) == WAIT_OBJECT_0)
+		{
+			*op_pending = FALSE;	
+			GetOverlappedResult(mq, overlapped, &ret, FALSE);
+		}
+	}
+#else
+	BOOL ret_x = ReadFile(mq, str, size, &ret, NULL);
+#endif
+#elif defined __linux__
 	int ret;
 
 	ret = read(mq, str, size);
-	FUNC_CALL_EXIT;
-	if (ret > 0) {
+#endif
+	if (ret > 0)
+	{
 		return ASE_MSG_PRESENT;
-	} else {
+	}
+	else
+	{
 		return ASE_MSG_ABSENT;
 	}
+	FUNC_CALL_EXIT;
+
 }

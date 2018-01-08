@@ -38,11 +38,13 @@
 #include <stdlib.h>		/* exit */
 #include <stdio.h>		/* printf */
 #include <string.h>		/* memcpy */
-#include <unistd.h>		/* getpid */
 #include <sys/types.h>		/* pid_t */
+#ifdef __linux__
+#include <unistd.h>		/* getpid */
 #include <sys/ioctl.h>		/* ioctl */
 #include <sys/mman.h>		/* mmap & munmap */
 #include <sys/time.h>		/* struct timeval */
+#endif
 
 
 fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle,
@@ -61,11 +63,13 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle,
 	if (flags & FPGA_BUF_PREALLOCATED) {
 		return FPGA_INVALID_PARAM;
 	}
+#ifdef __linux__
 	pg_size = (uint64_t) sysconf(_SC_PAGE_SIZE);
 	/* round up to nearest page boundary */
 	if (!len || (len & (pg_size - 1))) {
 		len = pg_size + (len & ~(pg_size - 1));
 	}
+#endif
 	uint64_t *inp_buf_addr;
 
 	buf = (struct buffer_t *) ase_malloc(sizeof(struct buffer_t));
@@ -76,9 +80,16 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle,
 	// Allocate buffer (ASE call)
 	allocate_buffer(buf, inp_buf_addr);
 
+#ifdef _WIN32
 	if ((ASE_BUFFER_VALID != buf->valid) ||
-	    (MAP_FAILED == (void *) buf->vbase) ||
-	    (0 == buf->fake_paddr)) {
+		(NULL == (void *)buf->vbase) ||
+		(0 == buf->fake_paddr)) {
+#elif defined __linux__
+	if ((ASE_BUFFER_VALID != buf->valid) ||
+		(MAP_FAILED == (void *)buf->vbase) ||
+		(0 == buf->fake_paddr)) {
+#endif
+
 		printf("Error Allocating ASE buffer ... EXITING\n");
 		result = FPGA_NO_MEMORY;
 	} else {

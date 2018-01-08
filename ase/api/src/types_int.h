@@ -31,6 +31,12 @@
 #ifndef __FPGA_TYPES_INT_H__
 #define __FPGA_TYPES_INT_H__
 
+#ifdef _WIN32
+#include <Windows.h>
+typedef HANDLE mutex_hand;
+#elif defined __linux__
+typedef pthread_mutex_t mutex_hand;
+#endif
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -74,7 +80,7 @@ struct _fpga_token {
 
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
-	pthread_mutex_t lock;
+	mutex_hand lock;
 	uint64_t magic;
 	fpga_token token;
 	int fddev;                  // file descriptor for the device.
@@ -89,7 +95,7 @@ struct _fpga_handle {
 /** Object property struct
   Intent is for property struct to be created dynamically */
 struct _fpga_properties {
-	pthread_mutex_t lock;
+	mutex_hand lock;
 	uint64_t magic;
 	/* Common properties */
 	uint64_t valid_fields; // bitmap of valid fields
@@ -144,7 +150,7 @@ struct _fpga_properties {
  *
  */
 struct _fpga_event_handle {
-	pthread_mutex_t lock;
+	mutex_hand lock;
 	uint64_t magic;
 	int fd;
 	uint32_t flags;

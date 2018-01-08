@@ -123,6 +123,7 @@ extern const char *__progname;
 
 void backtrace_handler(int sig)
 {
+#ifdef __linux__
 	void *bt_addr[16];
 	char **bt_messages = (char **) NULL;
 	int ii, trace_depth = 0;
@@ -175,4 +176,5 @@ void backtrace_handler(int sig)
 	}
 
 	exit(1);
+#endif
 }

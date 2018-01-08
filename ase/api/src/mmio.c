@@ -38,11 +38,13 @@
 #include <stdlib.h>		/* exit */
 #include <stdio.h>		/* printf */
 #include <string.h>		/* memcpy */
-#include <unistd.h>		/* getpid */
 #include <sys/types.h>		/* pid_t */
+#ifdef __linux__
+#include <unistd.h>    /* getpid */
 #include <sys/ioctl.h>		/* ioctl */
 #include <sys/mman.h>		/* mmap & munmap */
 #include <sys/time.h>		/* struct timeval */
+#endif
 
 
 fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,

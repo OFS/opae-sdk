@@ -39,24 +39,17 @@
 
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#ifdef _WIN32
+#include <Windows.h>
+#elif defined __linux__
 #include <unistd.h>
 #include <stdarg.h>
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <sys/fcntl.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <ctype.h>
 #include <mqueue.h>
-#include <errno.h>
 #include <signal.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-#include <math.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/file.h>
@@ -64,14 +57,27 @@
 #include <dirent.h>
 #include <execinfo.h>
 #include <locale.h>
-#include <stdbool.h>
-#include <inttypes.h>
 #include <sys/wait.h>
 #include <linux/limits.h>
 #include <uuid/uuid.h>
 #include <safe_string/safe_string.h>
 #include <pthread.h>
+#endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <ctype.h>
+#include <errno.h>
+#include <signal.h>
+#include <math.h>
+#include <locale.h>
+#include <stdbool.h>
+#include <inttypes.h>
 #ifdef SIM_SIDE
 #include "svdpi.h"
 #endif
@@ -80,6 +86,49 @@
 #define APP_SIDE
 #endif
 
+// ------------------------------------------ //
+#ifdef FPGA_PLATFORM_INTG_XEON
+#define ASE_ENABLE_UMSG_FEATURE
+#undef  ASE_ENABLE_INTR_FEATURE
+#define ASE_ENABLE_MMIO512
+// ------------------------------------------ //
+#elif FPGA_PLATFORM_DISCRETE
+#undef  ASE_ENABLE_UMSG_FEATURE
+#define ASE_ENABLE_INTR_FEATURE
+#undef  ASE_ENABLE_MMIO512
+#endif
+
+// ------------------------------------------ //
+#ifdef _WIN32
+	typedef HANDLE mutex_handle;
+	typedef HANDLE thread_handle;
+	typedef HANDLE WINAPI pipe_handle;
+	typedef LARGE_INTEGER time_snapshot;
+	typedef HANDLE file_desc;
+	typedef DWORD WINAPI thread_return;
+	typedef LPVOID thread_param;
+	typedef DWORD WINAPI pid;
+	typedef LPTHREAD_START_ROUTINE thread_routine;
+#elif defined __linux__
+	typedef pthread_mutex_t mutex_handle;
+	typedef pthread_t thread_handle;
+	typedef int pipe_handle;
+	typedef struct timespec time_snapshot;
+	typedef int file_desc;
+	typedef void * thread_return;
+	typedef void * thread_param;
+	typedef int pid;
+	typedef void * thread_routine;
+#endif
+
+#ifdef _WIN32
+#define F_OK 0
+#define	O_RDONLY	0x0000
+#define	O_WRONLY	0x0001
+#define	O_RDWR		0x0002
+#define	O_NONBLOCK	0x0004
+#define strtok_r strtok_s
+#endif
 /*
  * ASE Unique ID Check
  */
@@ -157,8 +206,9 @@ void calc_phys_memory_ranges(void);
 
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
+#ifdef __linux__
 errno_t generate_sockname(char *);
-
+#endif
 #ifdef SIM_SIDE
 #define LOG_PREFIX "  [SIM]  "
 #else
@@ -454,7 +504,6 @@ void delete_lock_file(void);
 uint32_t generate_ase_seed(void);
 void ase_write_seed(uint32_t);
 uint32_t ase_read_seed(void);
-bool check_app_lock_file(void);
 void create_new_lock_file(void);
 bool remove_existing_lock_file(void);
 
@@ -480,12 +529,20 @@ int ase_strncmp(const char *, const char *, size_t);
 
 // Message queue operations
 void ipc_init(void);
+#ifdef _WIN32
+void mqueue_create(char* mq_name_suffix, int perm_flag, pipe_handle * mq);
+#elif defined __linux__
 void mqueue_create(char *);
-int mqueue_open(char *, int);
-void mqueue_close(int);
+#endif
+pipe_handle mqueue_open(char *, int);
+void mqueue_close(pipe_handle);
 void mqueue_destroy(char *);
-void mqueue_send(int, const char *, int);
-int mqueue_recv(int, char *, int);
+void mqueue_send(pipe_handle, const char *, int);
+#ifdef _WIN32 
+int mqueue_recv(pipe_handle, char *, int, LPOVERLAPPED, HANDLE, LPBOOL);
+#elif defined __linux__
+int mqueue_recv(pipe_handle, char *, int);
+#endif
 
 // Timestamp functions
 void put_timestamp(void);
@@ -547,10 +604,10 @@ extern "C" {
 	// Driver activity
 	void ase_portctrl(ase_portctrl_cmd, int);
 	// Threaded watch processes
-	void *mmio_response_watcher();
+	thread_return mmio_response_watcher(thread_param param);
 	// ASE-special malloc
 	char *ase_malloc(size_t);
-	void *umsg_watcher();
+	thread_return umsg_watcher(thread_param param);
 	// void *intr_request_watcher();
 #ifdef __cplusplus
 }
@@ -571,7 +628,9 @@ extern "C" {
 // Message queue controls
 struct ipc_t {
 	char name[ASE_MQ_NAME_LEN];
+#ifdef __linux__
 	char path[ASE_FILEPATH_LEN];
+#endif
 	int perm_flag;
 };
 struct ipc_t mq_array[ASE_MQ_INSTANCES];
@@ -743,7 +802,7 @@ void update_glbl_dealloc(int);
 char *ase_malloc(size_t);
 
 // Ready filepath
-extern char *ase_ready_filepath;
+extern char ase_ready_filepath[ASE_FILEPATH_LEN];
 
 
 /*
@@ -774,10 +833,9 @@ extern int self_destruct_in_progress;
  * IPC MQ fd names
  */
 #ifdef SIM_SIDE
-extern int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
-
-extern int sim2app_dealloc_tx;
-#endif				// End SIM_SIDE
+extern pipe_handle sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
+extern pipe_handle sim2app_dealloc_tx;
+#endif
 
 // There is no global fixes for this
 #define DEFEATURE_ATOMICS
@@ -799,18 +857,29 @@ struct ase_capability_t {
 
 extern struct ase_capability_t ase_capability;
 
-// ------------------------------------------ //
-#ifdef FPGA_PLATFORM_INTG_XEON
-#define ASE_ENABLE_UMSG_FEATURE
-#undef  ASE_ENABLE_INTR_FEATURE
-#define ASE_ENABLE_MMIO512
-// ------------------------------------------ //
-#elif FPGA_PLATFORM_DISCRETE
-#undef  ASE_ENABLE_UMSG_FEATURE
-#define ASE_ENABLE_INTR_FEATURE
-#undef  ASE_ENABLE_MMIO512
-#endif
-// ------------------------------------------ //
 
+void ase_sleep(int, char);
+void ase_timer(time_snapshot *);
+unsigned long long ase_timestamp(time_snapshot, time_snapshot);
+void ase_thread_cancel();
 
+void ase_create_thread(thread_handle *, thread_routine);
+void ase_stop_thread(thread_handle);
+void ase_create_mutex(mutex_handle *);
+void ase_lock_mutex(mutex_handle *);
+void ase_release_mutex(mutex_handle *);
+
+pid ase_get_pid();
+void ase_truncate(file_desc, uint32_t);
+void ase_close_handle(file_desc);
+
+file_desc ase_create_shm(uint32_t, char *);
+uint64_t ase_mmap(uint64_t *, file_desc, int, uint32_t, int *);
+void ase_unmap(uint64_t addr, uint32_t memsize);
+int ase_shm_open(char *, file_desc *, int *);
+void ase_shm_unlink(char *);
+
+int ase_check_file_exists(char *);
+int ase_fgets(char *, size_t *, FILE *);
+void ase_create_events();
 #endif				// End _ASE_COMMON_H_

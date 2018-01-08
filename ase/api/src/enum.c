@@ -42,9 +42,12 @@ uint32_t session_exist_status = NOT_ESTABLISHED;
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <dirent.h>
 #include <fcntl.h>
+#ifdef __linux__
+#include <dirent.h>
 #include <unistd.h>
+#endif
+
 #define ASE_ID 0xA5EA5E
 #define ASE_FME_ID 0x3345678UL
 #define BBSID 0x63000023b637277UL

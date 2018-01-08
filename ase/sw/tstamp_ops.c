@@ -38,6 +38,7 @@
 // -----------------------------------------------------------------------
 // Timestamp based isolation
 // -----------------------------------------------------------------------
+#ifdef __linux__
 #if defined(__i386__)
 static __inline__ unsigned long long rdtsc(void)
 {
@@ -57,6 +58,7 @@ static __inline__ unsigned long long rdtsc(void)
 #error "Host Architecture unidentified, timestamp wont work"
 #endif
 
+#endif
 
 // -----------------------------------------------------------------------
 // Write timestamp: Used by simulator
@@ -68,7 +70,7 @@ void put_timestamp(void)
 
 	FILE *fp = (FILE *) NULL;
 	char tstamp_path[ASE_FILEPATH_LEN];
-	unsigned long long rdtsc_out;
+
 
 	snprintf(tstamp_path, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path,
 		 TSTAMP_FILENAME);
@@ -84,12 +86,23 @@ void put_timestamp(void)
 #endif
 	} else {
 		// rdtsc call
+#ifdef _WIN32
+		clock_t cur_ticks;
+		cur_ticks = clock();
+		ASE_DBG("  cur_ticks = %f\n", cur_ticks);
+
+		// Write session code
+		fprintf(fp, "%f tickes\n", cur_ticks);
+		// Write session code
+		fprintf(fp, "%f tickes\n", cur_ticks);
+#elif defined __linux__
+		unsigned long long rdtsc_out;
 		rdtsc_out = rdtsc();
 		ASE_DBG("  rdtsc_out = %lld\n", rdtsc_out);
 
 		// Write session code
-		fprintf(fp, "%lld\n", rdtsc_out);
-
+		fprintf(fp, "%lld\n", rdtsc_out); 
+#endif
 		// Close file
 		fclose(fp);
 	}
@@ -114,7 +127,13 @@ void get_timestamp(char *session_str)
 
 	if (session_str != NULL) {
 		// Check if file exists
+#ifdef _WIN32
+		DWORD file_attr;
+		file_attr = GetFileAttributes(tstamp_filepath);
+		if (file_attr != 0xFFFFFFFF) {
+#elif defined __linux__
 		if (access(tstamp_filepath, F_OK) != -1) {    // File exists
+#endif
 			fp = fopen(tstamp_filepath, "r");
 			// fopen failed
 			if (fp == NULL) {
@@ -174,8 +193,9 @@ void poll_for_session_id(void)
 {
     ASE_MSG("Waiting till session ID is created by ASE ... ");
 
-	while (access(tstamp_filepath, F_OK) == -1) {
-		usleep(1000);
+	while(ase_check_file_exists(tstamp_filepath) == 0) {
+  		ase_sleep(1000, 'u');
 	}
+
 	ASE_MSG("DONE\n");
 }
