@@ -39,10 +39,9 @@ namespace types {
 /** An allocated accelerator resource
  *
  * Represents an accelerator resource that has
- * been allocated by OPAE. The accelerator's
- * MMIO regions are made available for reading
- * and writing.
- *
+ * been allocated by OPAE. Depending on the type
+ * of resource, its register space may be
+ * read/written using a handle object.
  */
 class handle {
  public:
