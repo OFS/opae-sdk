@@ -91,7 +91,7 @@ class handle {
    */
   uint8_t *mmio_ptr(uint64_t offset) const { return mmio_base_ + offset; }
 
-  /** Allocate an accelerator, given a raw fpga_token
+  /** Open an accelerator resource, given a raw fpga_token
    *
    * @param[in] token A token describing the accelerator
    * resource to be allocated.
@@ -104,7 +104,7 @@ class handle {
   static handle::ptr_t open(fpga_token token, int flags,
                             uint32_t mmio_region = 0);
 
-  /** Allocate an accelerator, given a token object
+  /** Open an accelerator resource, given a token object
    *
    * @param[in] token A token object describing the
    * accelerator resource to be allocated.
