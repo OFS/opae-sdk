@@ -80,6 +80,8 @@ static struct mock_dev {
 } mock_devs[MAX_FD] = {0};
 
 typedef int (*open_func)(const char *pathname, int flags);
+typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
+
 typedef int (*close_func)(int fd);
 typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
 typedef DIR * (*opendir_func)(const char *name);
@@ -403,6 +405,7 @@ int open(const char* pathname, int flags, ...) {
     char path[MAX_STRLEN];
     char* err;
     int prefix_len = strlen(FPGA_DEV_PATH);
+    va_list argp;
 
     dlerror(); /* clear errors */
     open_func real_open = (open_func)dlsym(RTLD_NEXT, "open");
@@ -413,6 +416,7 @@ int open(const char* pathname, int flags, ...) {
         errno = EINVAL;
         return -1;
     }
+
     FPGA_DBG("open(\"%s\", %i)", pathname, flags);
 
     if (strncmp(FPGA_DEV_PATH "/" FPGA_FME_DEV_PREFIX, pathname, prefix_len + strlen(FPGA_FME_DEV_PREFIX) - 2) == 0 ) {
@@ -454,7 +458,14 @@ int open(const char* pathname, int flags, ...) {
 
     } else {
         FPGA_DBG("-> open(\"%s\", %i)", pathname, flags);
-        fd = real_open(pathname, flags);
+        if (flags & O_CREAT){
+            va_start(argp, flags);
+            mode_t arg = va_arg(argp, mode_t);
+            fd = ((open_mode_func)real_open)(pathname, flags, arg);
+            va_end(argp);
+        }else{
+            fd = real_open(pathname, flags);
+        }
     }
 
     return fd;
