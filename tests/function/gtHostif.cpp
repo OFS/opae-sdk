@@ -22,61 +22,56 @@ must be express and approved by Intel in writing.
 
 --*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <opae/access.h>
-
-#ifdef __cplusplus
-}
-#endif
+#include <opae/manage.h>
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 
 using namespace common_test;
 
 /**
- * @test       open_01
+ * @test       Hostif_drv_01
  *
- * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_01) {
-  fpga_token tok = NULL;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, NULL, 0));
-}
-
-/**
- * @test       open_06
- *
- * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_06) {
-  fpga_handle h;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
-}
-
-/**
- * @test       open_08
- *
- * @brief      When the flags parameter to fpgaOpen is invalid, the
- *             function returns FPGA_INVALID_PARAM.
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             fpgaAssignPortToInterface Release port to a host interface.
  *
  */
-TEST(LibopaecOpenCommonALL, open_08) {
+TEST(LibopaecHostifCommonHW, Hostif_drv_01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
 
-  token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &h, 42));
+  // open FME device
+  token_for_fme0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  // Release Port Interface
+  EXPECT_EQ(FPGA_OK, fpgaAssignPortToInterface(h, 1, 0, 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
 }
+
+/**
+ * @test       Hostif_drv_02
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             fpgaAssignPortToInterface Assign port to a host interface.
+ *
+ */
+TEST(LibopaecHostifCommonHW, Hostif_drv_02) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+
+  // open FME device
+  token_for_fme0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  // Assign Port Interface
+  EXPECT_EQ(FPGA_OK, fpgaAssignPortToInterface(h, 0, 0, 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+}
+

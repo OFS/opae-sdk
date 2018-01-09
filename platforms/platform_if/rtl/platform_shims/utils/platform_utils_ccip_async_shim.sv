@@ -43,11 +43,11 @@
 module platform_utils_ccip_async_shim
   #(
     parameter DEBUG_ENABLE          = 0,
-    parameter C0TX_DEPTH_RADIX      = 8,
-    parameter C1TX_DEPTH_RADIX      = 8,
+
     // There is no back pressure on C2TX, so it must be large enough to hold the
-    // maximum outstanding MMIO read requests (64).
-    parameter C2TX_DEPTH_RADIX      = 6,
+    // maximum outstanding MMIO read requests.
+    parameter C2TX_DEPTH_RADIX      = $clog2(ccip_cfg_pkg::MAX_OUTSTANDING_MMIO_RD_REQS),
+
     parameter C0RX_DEPTH_RADIX      = $clog2(2 * ccip_cfg_pkg::C0_MAX_BW_ACTIVE_LINES[0]),
     parameter C1RX_DEPTH_RADIX      = $clog2(2 * ccip_cfg_pkg::C1_MAX_BW_ACTIVE_LINES[0])
     )
@@ -73,7 +73,7 @@ module platform_utils_ccip_async_shim
     output logic       afu_error,
 
     // ---------------------------------- //
-    // Error vector
+    // Error vector (afu_clk domain)
     // ---------------------------------- //
     output logic [4:0] async_shim_error
     );
@@ -84,6 +84,19 @@ module platform_utils_ccip_async_shim
     localparam C0RX_TOTAL_WIDTH = 3 + $bits(t_ccip_c0_RspMemHdr) + CCIP_CLDATA_WIDTH;
     localparam C1RX_TOTAL_WIDTH = $bits(t_ccip_c1_RspMemHdr);
 
+    // TX buffers just need to be large enough to avoid pipeline back pressure.
+    // The TX rate limiter is the slower of the AFU and BB clocks, not the TX buffer.
+    localparam C0TX_DEPTH_RADIX = $clog2(3 * CCIP_TX_ALMOST_FULL_THRESHOLD);
+
+    // Leave a little extra room in Tx buffers to avoid overflow
+    localparam C0TX_ALMOST_FULL_THRESHOLD = CCIP_TX_ALMOST_FULL_THRESHOLD +
+                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2);
+
+    // Write buffers are slightly larger because even 4-line write requests
+    // send a line at a time.
+    localparam C1TX_DEPTH_RADIX = $clog2(4 * CCIP_TX_ALMOST_FULL_THRESHOLD);
+    localparam C1TX_ALMOST_FULL_THRESHOLD = CCIP_TX_ALMOST_FULL_THRESHOLD +
+                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2);
 
     //
     // Reset synchronizer
@@ -123,6 +136,15 @@ module platform_utils_ccip_async_shim
     end
 
 
+    // Stop all traffic when a buffer error is detected.  This tends to be much easier
+    // to debug than just dropping overflow packets on the floor.
+    logic buffer_error;
+    always_ff @(posedge afu_clk)
+    begin
+        buffer_error <= (|(async_shim_error));
+    end
+
+
     t_if_ccip_Rx bb_rx_q;
     t_if_ccip_Rx afu_rx_next;
 
@@ -145,31 +167,33 @@ module platform_utils_ccip_async_shim
     /*
      * C0Tx Channel
      */
-    logic [C0TX_DEPTH_RADIX-1:0] c0tx_cnt;
-    t_ccip_c0_ReqMemHdr          c0tx_dout;
-    logic                        c0tx_rdreq, c0tx_rdreq_q;
-    logic                        c0tx_rdempty;
-    logic                        c0tx_fifo_wrfull;
+    logic               c0tx_almfull;
+    t_ccip_c0_ReqMemHdr c0tx_dout;
+    logic               c0tx_rdreq, c0tx_rdreq_q;
+    logic               c0tx_rdempty;
+    logic               c0tx_fifo_wrfull;
 
     platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C0TX_TOTAL_WIDTH),
-        .DEPTH_RADIX(C0TX_DEPTH_RADIX)
+        .DEPTH_RADIX(C0TX_DEPTH_RADIX),
+        .ALMOST_FULL_THRESHOLD(C0TX_ALMOST_FULL_THRESHOLD)
         )
      c0tx_afifo
        (
         .data(afu_tx_q.c0.hdr),
-        .wrreq(afu_tx_q.c0.valid),
+        .wrreq(afu_tx_q.c0.valid && ! c0tx_fifo_wrfull),
         .rdreq(c0tx_rdreq),
         .wrclk(afu_clk),
         .rdclk(bb_clk),
         .aclr(reset[0]),
         .q(c0tx_dout),
         .rdusedw(),
-        .wrusedw(c0tx_cnt),
+        .wrusedw(),
         .rdfull(),
         .rdempty(c0tx_rdempty),
         .wrfull(c0tx_fifo_wrfull),
+        .wralmfull(c0tx_almfull),
         .wrempty()
         );
 
@@ -225,42 +249,45 @@ module platform_utils_ccip_async_shim
 
     always_ff @(posedge afu_clk)
     begin
-        afu_rx_next.c0TxAlmFull <= c0tx_cnt[C0TX_DEPTH_RADIX-1] ||
-                                   (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT));
+        afu_rx_next.c0TxAlmFull <= c0tx_almfull ||
+                                   (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT)) ||
+                                   buffer_error;
     end
 
 
     /*
      * C1Tx Channel
      */
-    logic [C1TX_DEPTH_RADIX-1:0] c1tx_cnt;
-    t_ccip_c1_ReqMemHdr          c1tx_dout_hdr;
-    t_ccip_clData                c1tx_dout_data;
-    logic                        c1tx_rdreq, c1tx_rdreq_q;
-    logic                        c1tx_rdempty;
-    logic                        c1tx_fifo_wrfull;
+    logic               c1tx_almfull;
+    t_ccip_c1_ReqMemHdr c1tx_dout_hdr;
+    t_ccip_clData       c1tx_dout_data;
+    logic               c1tx_rdreq, c1tx_rdreq_q;
+    logic               c1tx_rdempty;
+    logic               c1tx_fifo_wrfull;
 
     platform_utils_dc_fifo
       #(
         .DATA_WIDTH(C1TX_TOTAL_WIDTH),
-        .DEPTH_RADIX(C1TX_DEPTH_RADIX)
+        .DEPTH_RADIX(C1TX_DEPTH_RADIX),
+        .ALMOST_FULL_THRESHOLD(C1TX_ALMOST_FULL_THRESHOLD)
         )
-    c1tx_afifo
-      (
-       .data({afu_tx_q.c1.hdr, afu_tx_q.c1.data}),
-       .wrreq(afu_tx_q.c1.valid),
-       .rdreq(c1tx_rdreq),
-       .wrclk(afu_clk),
-       .rdclk(bb_clk),
-       .aclr(reset[0]),
-       .q({c1tx_dout_hdr, c1tx_dout_data}),
-       .rdusedw(),
-       .wrusedw(c1tx_cnt),
-       .rdfull(),
-       .rdempty(c1tx_rdempty),
-       .wrfull(c1tx_fifo_wrfull),
-       .wrempty()
-       );
+     c1tx_afifo
+       (
+        .data({afu_tx_q.c1.hdr, afu_tx_q.c1.data}),
+        .wrreq(afu_tx_q.c1.valid && ! c1tx_fifo_wrfull),
+        .rdreq(c1tx_rdreq),
+        .wrclk(afu_clk),
+        .rdclk(bb_clk),
+        .aclr(reset[0]),
+        .q({c1tx_dout_hdr, c1tx_dout_data}),
+        .rdusedw(),
+        .wrusedw(),
+        .rdfull(),
+        .rdempty(c1tx_rdempty),
+        .wrfull(c1tx_fifo_wrfull),
+        .wralmfull(c1tx_almfull),
+        .wrempty()
+        );
 
     // Track partial packets to avoid stopping the flow in the middle of a packet,
     // even when c1TxAlmFull is asserted.
@@ -359,8 +386,9 @@ module platform_utils_ccip_async_shim
 
     always_ff @(posedge afu_clk)
     begin
-        afu_rx_next.c1TxAlmFull <= c1tx_cnt[C1TX_DEPTH_RADIX-1] ||
-                                   (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT));
+        afu_rx_next.c1TxAlmFull <= c1tx_almfull ||
+                                   (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT)) ||
+                                   buffer_error;
     end
 
 
@@ -374,13 +402,13 @@ module platform_utils_ccip_async_shim
 
     platform_utils_dc_fifo
       #(
-        .DATA_WIDTH  (C2TX_TOTAL_WIDTH),
-        .DEPTH_RADIX (C2TX_DEPTH_RADIX)
+        .DATA_WIDTH(C2TX_TOTAL_WIDTH),
+        .DEPTH_RADIX(C2TX_DEPTH_RADIX)
         )
       c2tx_afifo
        (
         .data({afu_tx_q.c2.hdr, afu_tx_q.c2.data}),
-        .wrreq(afu_tx_q.c2.mmioRdValid),
+        .wrreq(afu_tx_q.c2.mmioRdValid & ! c2tx_fifo_wrfull),
         .rdreq(c2tx_rdreq),
         .wrclk(afu_clk),
         .rdclk(bb_clk),
@@ -391,6 +419,7 @@ module platform_utils_ccip_async_shim
         .rdfull(),
         .rdempty(c2tx_rdempty),
         .wrfull(c2tx_fifo_wrfull),
+        .wralmfull(),
         .wrempty()
         );
 
@@ -434,6 +463,7 @@ module platform_utils_ccip_async_shim
         .rdfull(),
         .rdempty(c0rx_rdempty),
         .wrfull(c0rx_fifo_wrfull),
+        .wralmfull(),
         .wrempty()
         );
 
@@ -485,6 +515,7 @@ module platform_utils_ccip_async_shim
         .rdfull(),
         .rdempty(c1rx_rdempty),
         .wrfull(c1rx_fifo_wrfull),
+        .wralmfull(),
         .wrempty()
         );
 
@@ -528,23 +559,38 @@ module platform_utils_ccip_async_shim
         end
     end
 
+
+    // FIU-side errors in the bb_clk domain
+    (* preserve *) logic [1:0] async_shim_error_bb;
+
     always_ff @(posedge bb_clk)
     begin
         if (reset[0])
         begin
-            async_shim_error[4:3] <= 2'b0;
+            async_shim_error_bb <= 2'b0;
         end
         else
         begin
             // Hold the error state once set
-            async_shim_error[3] <= async_shim_error[3] ||
-                                   (c0rx_fifo_wrfull && (bb_rx_q.c0.rspValid ||
-                                                         bb_rx_q.c0.mmioRdValid ||
-                                                         bb_rx_q.c0.mmioWrValid));
-            async_shim_error[4] <= async_shim_error[4] ||
-                                   (c1rx_fifo_wrfull && bb_rx_q.c1.rspValid);
+            async_shim_error_bb[0] <= async_shim_error_bb[0] ||
+                                      (c0rx_fifo_wrfull && (bb_rx_q.c0.rspValid ||
+                                                            bb_rx_q.c0.mmioRdValid ||
+                                                            bb_rx_q.c0.mmioWrValid));
+            async_shim_error_bb[1] <= async_shim_error_bb[1] ||
+                                      (c1rx_fifo_wrfull && bb_rx_q.c1.rspValid);
         end
     end
+
+    // Transfer FIU-side errors to the afu_clk domain
+    logic [1:0] async_shim_error_afu, async_shim_error_afu_q;
+
+    always_ff @(posedge afu_clk)
+    begin
+        async_shim_error_afu <= async_shim_error_bb;
+        async_shim_error_afu_q <= async_shim_error_afu;
+        async_shim_error[4:3] <= async_shim_error_afu_q;
+    end
+
 
     // synthesis translate_off
     always_ff @(posedge afu_clk)
@@ -567,15 +613,15 @@ module platform_utils_ccip_async_shim
 
     always_ff @(posedge bb_clk)
     begin
-        if (async_shim_error[3])
+        if (async_shim_error_bb[0])
             $warning("** ERROR ** C0Rx dropped transaction");
-        if (async_shim_error[4])
+        if (async_shim_error_bb[1])
             $warning("** ERROR ** C1Rx dropped transaction");
     end
 
     always_ff @(negedge bb_clk)
     begin
-        if ((|(async_shim_error[4:3])))
+        if ((|(async_shim_error_bb)))
         begin
             $fatal("Aborting due to dropped transaction");
         end

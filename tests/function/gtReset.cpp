@@ -22,14 +22,8 @@ must be express and approved by Intel in writing.
 
 --*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <opae/access.h>
-
-#ifdef __cplusplus
-}
-#endif
+#include <opae/manage.h>
 
 #include "common_test.h"
 #include "gtest/gtest.h"
@@ -42,41 +36,74 @@ extern "C" {
 using namespace common_test;
 
 /**
- * @test       open_01
+ * @test       Port_drv_reset_01
  *
- * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_01) {
-  fpga_token tok = NULL;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, NULL, 0));
-}
-
-/**
- * @test       open_06
- *
- * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_06) {
-  fpga_handle h;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
-}
-
-/**
- * @test       open_08
- *
- * @brief      When the flags parameter to fpgaOpen is invalid, the
- *             function returns FPGA_INVALID_PARAM.
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             fpgaReset Resets fpga slot.
  *
  */
-TEST(LibopaecOpenCommonALL, open_08) {
+TEST(LibopaecResetCommonALL, Port_drv_reset_01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
 
+  // Open port device
   token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &h, 42));
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  // Reset slot
+  EXPECT_EQ(FPGA_OK, fpgaReset(h));
+
+  // close
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+}
+
+/**
+ * @test       Port_drv_reset_02
+ *
+ * @brief      When the parameters are invalid and the drivers are
+ *             loaded, fpgaReset return error.
+ *
+ */
+TEST(LibopaecResetCommonALL, Port_drv_reset_02) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+  int fddev = -1;
+
+  // Open port device
+  token_for_afu0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  // Reset slot
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
+
+  // close
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+
+  // Invalid Magic Number
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  struct _fpga_handle* _handle = (struct _fpga_handle*)h;
+  _handle->magic = 0x123;
+
+  EXPECT_NE(FPGA_OK, fpgaReset(h));
+
+  _handle->magic = FPGA_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+
+  // Invalid Driver handle
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+  _handle = (struct _fpga_handle*)h;
+
+#ifndef BUILD_ASE
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_NE(FPGA_OK, fpgaReset(h));
+#else
+  EXPECT_EQ(FPGA_OK, fpgaReset(h));
+#endif
+  _handle->fddev = fddev;
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
 }
