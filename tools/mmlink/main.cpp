@@ -47,13 +47,13 @@
                ## __VA_ARGS__)
 
 struct option longopts[] = {
-		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
-		{"tcpport",             required_argument, NULL, 'P'},
-		{"ip-address",          required_argument, NULL, 'I'},
+		{"help",        no_argument,       NULL, 'h'},
+		{"bus",         required_argument, NULL, 'B'},
+		{"device",      required_argument, NULL, 'D'},
+		{"function",    required_argument, NULL, 'F'},
+		{"socket",      required_argument, NULL, 'S'},
+		{"port",        required_argument, NULL, 'P'},
+		{"ip",          required_argument, NULL, 'I'},
 		{0,0,0,0}
 };
 
@@ -75,18 +75,18 @@ void MMLinkAppShowHelp()
 {
 	printf("Usage:\n");
 	printf("./mmlink \n");
-	printf("<Bus>                 --bus-number=<BUS NUMBER>           "
-		"OR  -B=<BUS NUMBER>\n");
-	printf("<Device>              --device-number=<DEVICE NUMBER>     "
-		"OR  -D=<DEVICE NUMBER>\n");
-	printf("<Function>            --function-number=<FUNCTION NUMBER> "
-		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>              --socket-number=<SOCKET NUMBER>     "
-		"OR  -S=<SOCKET NUMBER>\n");
-	printf("<TCP PORT>            --tcpport=<PORT>                    "
-		"OR  -P=<PORT>\n");
-	printf("<IP ADDRESS>          --ip-address=<IP ADDRESS>           "
-		"OR  -I=<IP ADDRESS>\n");
+	printf("<Bus>                 --bus=<BUS NUMBER>           "
+		"OR  -B <BUS NUMBER>\n");
+	printf("<Device>              --device=<DEVICE NUMBER>     "
+		"OR  -D <DEVICE NUMBER>\n");
+	printf("<Function>            --function=<FUNCTION NUMBER> "
+		"OR  -F <FUNCTION NUMBER>\n");
+	printf("<Socket>              --socket=<SOCKET NUMBER>     "
+		"OR  -S <SOCKET NUMBER>\n");
+	printf("<TCP PORT>            --port=<PORT>                "
+		"OR  -P <PORT>\n");
+	printf("<IP ADDRESS>          --ip=<IP ADDRESS>            "
+		"OR  -I <IP ADDRESS>\n");
 	printf("\n");
 
 }
@@ -134,11 +134,11 @@ int main( int argc, char** argv )
 	// Parse command line
 	if ( argc < 2 ) {
 		MMLinkAppShowHelp();
-	return 1;
+		return 1;
 	} else if ( 0 != (res = ParseCmds(&mmlinkCmdLine, argc, argv)) ) {
 		if (res != -2)
 			PRINT_ERR( "Error scanning command line \n.");
-	return 2;
+		return 2;
 	}
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
@@ -320,7 +320,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'B':
 			// bus number
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --bus-number");
+				PRINT_ERR("Missing required argument for --bus");
 				return -1;
 			}
 			endptr = NULL;
@@ -330,7 +330,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'D':
 			// Device number
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --device-number");
+				PRINT_ERR("Missing required argument for --device");
 				return -1;
 			}
 			endptr = NULL;
@@ -340,7 +340,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'F':
 			// Function number
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --function-number");
+				PRINT_ERR("Missing required argument for --function");
 				return -1;
 			}
 			endptr = NULL;
@@ -351,7 +351,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'S':
 			// Socket number
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --socket-number");
+				PRINT_ERR("Missing required argument for --socket");
 				return -1;
 			}
 			endptr = NULL;
@@ -361,7 +361,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'P':
 			// TCP Port 
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --tcpport");
+				PRINT_ERR("Missing required argument for --port");
 				return -1;
 			}
 			endptr = NULL;
@@ -371,7 +371,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		case 'I':
 			// Ip address
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --ip-address");
+				PRINT_ERR("Missing required argument for --ip");
 				return -1;
 			}
 			strncpy_s(mmlinkCmdLine->ip, sizeof(mmlinkCmdLine->ip),
