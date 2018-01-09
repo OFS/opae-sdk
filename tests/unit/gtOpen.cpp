@@ -25,58 +25,31 @@ must be express and approved by Intel in writing.
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <opae/access.h>
+#include "opae/fpga.h"
 
 #ifdef __cplusplus
 }
 #endif
 
-#include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
-
-using namespace common_test;
-
-/**
- * @test       open_01
- *
- * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_01) {
-  fpga_token tok = NULL;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, NULL, 0));
-}
+#include "accelerator.h"
+using namespace intel::fpga;
 
 /**
- * @test       open_06
+ * @test       fx_open_01
  *
- * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST(LibopaecOpenCommonALL, open_06) {
-  fpga_handle h;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
-}
-
-/**
- * @test       open_08
- *
- * @brief      When the flags parameter to fpgaOpen is invalid, the
- *             function returns FPGA_INVALID_PARAM.
+ * @brief      Given an environment with at least one accelerator<br>
+ *             And accelerator::enumerate returns at least one
+ *             accelerator<br> When I call accelerator::open with one
+ *             accelerator<br> Then the result is true<br>
  *
  */
-TEST(LibopaecOpenCommonALL, open_08) {
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-  fpga_handle h;
-
-  token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &h, 42));
+TEST(LibopaecCppOpenCommonHW, fx_open_01)
+{
+    auto accelerator_list = accelerator::enumerate({});
+    ASSERT_GT(accelerator_list.size() , 0);
+    EXPECT_TRUE(accelerator_list[0]->open(false));
+    accelerator_list[0]->close();
+    ASSERT_NO_THROW(accelerator_list.clear());
 }
