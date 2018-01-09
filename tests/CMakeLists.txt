@@ -99,7 +99,19 @@ target_include_directories(commonlib PUBLIC
 # Test binary
 set(SRC gtmain.cpp
   jsonParser.cpp
-  unit/gtOpenClose_base.cpp)
+  unit/gtOpenClose_base.cpp
+  unit/gtProperties_base.cpp
+  unit/gtOpen.cpp
+  unit/gtEnumerate.cpp
+  unit/gtOptionParser.cpp
+  function/gtReset.cpp
+  function/gtUmsg.cpp
+  function/gtBuffer.cpp
+  function/gtEnumerate.cpp
+  function/gtHostif.cpp
+  function/gtMMIO.cpp
+  function/gtEvent.cpp)
+
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -141,7 +153,7 @@ target_link_libraries(mock dl safestr)
 
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi -j ${CMAKE_BINARY_DIR}/tests/configuration.json --gtest_filter=*OpenCommonHW*)
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*drv*:-*event_drv_05*:-*nodrv*")
 
 set_tests_properties(
   test_open_common_mock_drv
