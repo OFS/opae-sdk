@@ -1,10 +1,8 @@
 # Quick Start Guide #
 
+```eval_rst
 .. toctree::
-
-.. highlight:: c
-
-.. highlight:: console
+```
 
 ## Overview ##
 The OPAE C library is a lightweight user-space library that provides
@@ -40,11 +38,10 @@ GitHub](https://github.com/OPAE/opae-sdk/releases) - it is named
 `opae-intel-fpga-drv-x.y.z-1.x86_64.rpm`, with `x.y.z` being the respective OPAE
 release's version number.
 
+```eval_rst
 .. note::
-
-```
-The RPM package requires that the DKMS (Dynamic Kernel Module System)
-package, version greater than 2.2, is already installed.
+    The RPM package requires that the DKMS (Dynamic Kernel Module System)
+    package, version greater than 2.2, is already installed.
 ```
 
 For Redhat and Centos:
@@ -132,9 +129,9 @@ Usage:
                 -s,--socket         Set target socket number
 ```
 
-.. note::
 
-```
+```eval_rst
+.. note::
     The sample application on the Building a Sample Application
     section requires loading of an AFU called "Native Loopback
     Adapter" (NLB) on the FPGA. Please refer to the NLB documentation
@@ -353,17 +350,17 @@ like:
 $ gcc -std=c99 hello_fpga.c -I/usr/local/include -L/usr/local/lib -lopae-c -luuid -ljson-c -lpthread -o hello_fpga
 ```
 
-.. note:
 
-```
+```eval_rst
+.. note:
     The API uses some features from the C99 language standard. The
     `-std=c99` switch is required if the compiler does not support C99 by
     default.
 ```
 
-.. note::
 
-```
+```eval_rst
+.. note::
     Third-party library dependency: The library internally uses
     `libuuid` and `libjson-c`. But they are not distributed as part of the
     library. Make sure you have these libraries properly installed.
@@ -378,10 +375,10 @@ Done
 
 ```
 
-.. note::
 
-```
-  In order to successfully run hello\_fpga, user need to configure system hugepage to reserve 2M-hugepages. 
+```eval_rst
+.. note::
+  In order to successfully run hello\_fpga, user need to configure system hugepage to reserve 2M-hugepages.
   For example, the command below reserves 20 2M-hugepages:
 
   $ echo 20 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
@@ -400,8 +397,9 @@ Done
 
 ```
 
-```
-  The default configuration for many Linux distribution currently sets a relatively low limit for pinned memory allocations per process (RLIMIT_MEMLOCK, often set to a default of 64kiB). 
+```eval_rst
+.. note::
+  The default configuration for many Linux distribution currently sets a relatively low limit for pinned memory allocations per process (RLIMIT_MEMLOCK, often set to a default of 64kiB).
   To run an OPAE application which attempts to share more memory than specified by this limit between software and an accelerator, you can either:
 
      * Run the application as root, or

@@ -6,47 +6,45 @@ _hssi_loopback_ - Software utility to run HSSI loopback tests on FPGA
 
 ## SYNOPSIS ##
 `hssi_loopback [[--bus|-b <bus number>] [--device | -d <device number>] [--function | -f <function number>]]|[--socket-id <socket-id>]
-               [--mode|-m auto|e40|e10]
-               [send [<source port> [<destination port>] [--packet-count|-c <count>] [--packet-delay|-d <delay>] [--packet-length|-l <length>]]
-               |status [clear] | stop | readmacs`
+      [--mode|-m auto|e40|e10] 
+      [send [<source port> [<destination port>] [--packet-count|-c <count>] [--packet-delay|-d <delay>] [--packet-length|-l <length>]] |status [clear] | stop | readmacs`
 
 ## DESCRIPTION ##
-hssi_loopback is a command line utility to interact with a packet generator GBS (green bitstream)
-designed to test HSSI (high-speed serial interface) cards. The tests can be either external loopback or internal loopback.
-External loopback is performed when two ports are specified. If only one port is specified, then internal loopback is performed.
+The hssi_loopback utility works in conjunction with a packet generator accelerator function unit (AFU)
+to test HSSI (high-speed serial interface) cards. The hssi_loopback utility tests both external and internal loopbacks.
+hssi_loopback runs an external loopback test when the command line arguments include both source and destination ports. hssi_loopback runs an internal loopback test when command line argurments include a single port. hssi_loopback only runs on the Integrated FPGA
+Platform. You cannot run it on the PCIe accelerator card (PAC).
 
 
-_NOTE_: The following limitations apply to the current version of hssi_loopback
+_NOTE_: The following limitations apply to the current version of hssi_loopback:
 
-* When two ports are specified, they don't necassarily have to be different. For the e10 design, the ports should be the same
-* The only GBS that hssi_loopback supports are the e40 and e10 E2E GBS (developed for testing HSSI with a retimer card)
-* hssi_loopback is designed to work with CSRs defined in the AFU (Accelerator Functional Unit)
-  interface of the GBS
-
+* For the external loopback the two port arguments can be the same. For the e10 design, the ports should be the same.
+* The hssi_loopback test supports only the e40 and e10 E2E AFUs.  The e10 E2E AFU tests HSSI with a retimer card.
+* The hssi_loopback test uses the control and status registers (CSRs) defined in the AFU.
 
 ## OPTIONS ##
 `-S SOCKET_ID, --socket-id SOCKET_ID`
-    Socket id of FPGA resource
+    Socket id of FPGA resource.
 
 `-B BUS, --bus BUS`
-    Bus id of FPGA resource
+    Bus id of FPGA resource.
 
 `-D DEVICE, --device DEVICE`
-    Device id of FPGA resource
+    Device id of FPGA resource.
 
 `-F FUNCTION, --function FUNCTION`
-    Function id of FPGA resource
+    Function id of FPGA resource.
 
 `-G, --guid`
-    specify what guid to use for the AFC enumeration
+    specifies guid for the AFC enumeration.
 
 `-m, --mode`
     One of the following: [`auto`, `e40`, `e10]
-    `auto` is the default and is used to indicate that the software try to run the mode based on the
-    first AFC it enumerates.
+    `auto` is the default and indicates that the software runs the mode based on the
+    first acclerator functional context (AFC) it enumerates.
 
 `-t, --timeout`
-    Timeout (in seconds) before the application terminates if run in continous mode. Continuous mode is selected
+    Timeout (in seconds) before the application terminates in continous mode. Continuous mode is the default
     when the number of packets is not specified.
 
 `-y, --delay`
@@ -56,48 +54,48 @@ _NOTE_: The following limitations apply to the current version of hssi_loopback
     The number of packets to send.
 
 `-d, --packet-delay`
-    The delay in between packets. This delay is the number of cyles of a 100MHz clock Roughly about 10 nanoseconds.
+    The delay in between packets. This delay is the number of 100 MHz clock cycles, roughly 10 nanoseconds.
 
 `-s, --packet-size`
-    The packet size to send where the minimum is 46 bytes and the maximum is 1500 bytes. Default is 46 bytes.
+    The packet size to send. The minimum is 46 bytes and the maximum is 1500 bytes. The default is 46 bytes.
 
 ## COMMANDS ##
 `send <source port> [<destination port>] [--packet-count|-c <count>] [--packet-delay|-d <delay>] [--packet-length|-l <length>]`
-    Send packets from one port to the other. If the destination port is omitted then an internal loopback is perfomed.
-    Otherwise, an external loopback is performed from source port to destination port.
+    Send packets from one port to the other. If the command line does not specify a destination port, the test runs an internal 
+    loopback. Otherwise, the test runs an external loopback from the source port to the destination port.
 
 `status [clear]`
-    Read and interpret the status registers to print to the screen.
-    `clear` is used to indicate that the status registers should be cleared.
+    Read and interpret the status registers and print to the screen.
+    `clear` clears the status registers.
 
 `stop`
-    Issue a stop command to all Ethernet controllers in the GBS.
+    Issue a stop command to all Ethernet controllers in the AFU.
 
 `readmacs`
-    Read and display the MAC addresses of the ports. This is stored in the EEPROM.
+    Read and display the port MAC addresses. An EEPROM stores the MAC addresses.
 
 ## EXIT CODES ##
     0     Success - Number of packets received are equal to the number of packets sent and no errors
           are reported.
 
-    -1    Loopback failure - Either number of packets don't match or errors were detected
+    -1    Loopback failure - Either number of packets does not match or the test detected errors.
 
-    -2    Errors parsing arguments
+    -2    Errors parsing arguments.
 
 ## EXAMPLES ##
-Read the mac addresses of the GBS loaded on bus 0x5e:
+Read the MAC addresses of the AFU loaded on bus 0x5e:
 
 ```sh
 >sudo hssi_loopback readmacs -B 0x5e
 ```
 
-Run an external loopback, sending 100 packets from port 0 to port 1. The GBS has been loaded on bus 0x5e
+Run an external loopback, sending 100 packets from port 0 to port 1. The AFU is on bus 0x5e:
 
 ```sh
 >sudo hssi_loopback -B 0x5e send 0 1 -c 100
 ```
 
-Run an internal loopback until a timeout of 5 seconds has been reached. The GBS has been loaded on bus 0x5e
+Run an internal loopback until a timeout of 5 seconds is reached. The AFU is on bus 0x5e:
 
 ```sh
 >sudo hssi_loopback -B 0x5e send 0 -t 5

@@ -17,17 +17,6 @@
       ],
    "module-argument-params" :
       {
-         "local-memory":
-            {
-               "comment":
-                  [
-                     "These properties all apply to a single bank.  It is assumed that",
-                     "all banks are configured identically."
-                  ],
-               "addr-width": 26,
-               "data-width": 512,
-               "burst-cnt-width": 7
-            },
          "cci-p":
             {
                "comment":
@@ -59,10 +48,112 @@
                      "is the virtual channel number.)  Maximum bandwidth is typically a",
                      "function of the number lines in flight, indepent of request sizes."
                   ],
-               "max-bw-active-lines-c0": "{ 768, 512, 256, 256 }",
+               "max-bw-active-lines-c0": "{ 512, 512, 256, 256 }",
                "max-bw-active-lines-c1": "{ 512, 256, 128, 128 }",
 
-               "max-outstanding-mmio-rd-reqs": 32
+               "max-outstanding-mmio-rd-reqs": 64,
+
+               "comment":
+                  [
+                     "CCI-P requires that an AFU register both the request and response",
+                     "signals before any combinational logic.  On some platforms, it",
+                     "is easier to meet timing when there is more than one register",
+                     "stage.  suggested-extra-timing-reg-stages is a platform-specific",
+                     "recommendation of the number of extra CCI-P register stages",
+                     "(beyond the required one) most likely to meet timing.",
+                     "",
+                     "Note: There is no extra platform-side buffering added for handling",
+                     "extra almost full signals!  Extra buffering beyond one stage",
+                     "counts against the sending limit following almost full.  Typically,",
+                     "two times the number of extra inserted stages slots are lost to",
+                     "buffering.  This accounts for the added latency of receiving",
+                     "almost full and also accounts for extra in-flight requests beyond",
+                     "CCI-P's required single buffering stage."
+                  ],
+               "suggested-extra-timing-reg-stages": 0,
+
+               "comment":
+                  [
+                     "suggested-extra-timing-reg-stages above is related to",
+                     "add-extra-timing-reg-stages.  The former is a characteristic of",
+                     "a platform.  It is the recommended number of extra register stages",
+                     "between the partial reconfiguration boundary and the AFU to meet",
+                     "timing.",
+                     "",
+                     "This new parameter, add-extra-timing-reg-stages is a",
+                     "request by the AFU to the platform to actually insert",
+                     "register stages on behalf of the AFU between the partial",
+                     "reconfiguration (PR) boundary and the AFU.",
+                     "",
+                     "If add-extra-timing-reg-stages is set to 'auto' (use double",
+                     "quotes), suggested-extra-timing-reg-stages are added.  The auto",
+                     "setting maximizes the chances than an AFU will be portable across",
+                     "multiple CCI-P platforms.  In addition to 'auto', this field",
+                     "may also be an integer.  In that case, the specified number of",
+                     "stages are added by the platform between the PR boundary and",
+                     "the AFU."
+                  ],
+               "add-extra-timing-reg-stages": 0,
+
+               "comment":
+                  [
+                     "AFUs may request that the platform transform the CCI-P clock",
+                     "to a different clock domain by setting this value to the",
+                     "name of another incoming clock.  Only CCI-P clocks may be",
+                     "chosen. (E.g. pClkDiv2 or uClk_usr.)"
+                  ],
+               "clock": "default",
+               "pclk-freq": 400
+            },
+
+         "local-memory":
+            {
+               "comment":
+                  [
+                     "These properties all apply to a single bank.  It is assumed that",
+                     "all banks are configured identically."
+                  ],
+               "addr-width": 26,
+               "data-width": 512,
+               "burst-cnt-width": 7,
+
+               "comment":
+                  [
+                     "Like the same field in CCI-P, this is the recommended number",
+                     "of times an AFU should register local memory signals before use",
+                     "in order to make successful timing closure likely.  For Avalon",
+                     "MM interfaces this value is typically zero since registering",
+                     "Avalon MM's waitrequest protocol is complex."
+                  ],
+               "suggested-extra-timing-reg-stages": 0,
+
+               "comment":
+                  [
+                     "Like the CCI-P add-extra-timing-reg-stages, this field",
+                     "requests that the platform add pipeline stages to the local",
+                     "memory signals before passing them to the AFU.  Register stages",
+                     "are added using an Avalon MM pipeline bridge.",
+                     "",
+                     "In addition to integer counts, the string 'auto' (use double",
+                     "quotes) will cause suggested-extra-timing-reg-stages to be",
+                     "added.  The 'auto' setting is intended to aid in making",
+                     "AFUs portable across platforms."
+                  ],
+               "add-extra-timing-reg-stages": 0,
+
+               "comment":
+                  [
+                     "By default, each memory bank has its own clock which may be",
+                     "independent of all other clocks.  Since converting CCI-P and",
+                     "memory signals to the same clock domain is a common idiom,",
+                     "the clock domain of all memory banks may be converted to a",
+                     "specific clock here by setting 'clock' to a string that matches",
+                     "the name of any CCI-P clock.  Memory reset signals are",
+                     "also converted to the requested clock domain.",
+                     "",
+                     "Only CCI-P clocks may be chosen. (E.g. pClkDiv2 or uClk_usr.)"
+                  ],
+               "clock": "default"
             }
       }
 }

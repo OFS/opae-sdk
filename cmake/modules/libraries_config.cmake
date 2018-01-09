@@ -70,7 +70,7 @@ check_library_exists(rt clock_gettime "" HAVE_LIBRT)
 # uuid check
 find_package(UUID)
 
-#json-c check
+# json-c check
 find_package(json-c)
 
 # ncurses check: CURSES_FOUND CURSES_INCLUDE_DIRS CURSES_LIBRARIES

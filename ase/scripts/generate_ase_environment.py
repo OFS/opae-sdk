@@ -58,14 +58,10 @@ import subprocess
 from collections import defaultdict
 from fnmatch import fnmatch
 import json
+import subprocess
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-
-if sys.version_info < (2, 7):
-    import commands
-else:
-    import subprocess
 
 # Supported file extensions
 # USERs may modify this if needed
@@ -90,6 +86,13 @@ def errorExit(msg):
     ase_functions.begin_red_fontcolor()
     sys.stderr.write("Error: " + msg + "\n")
     ase_functions.end_red_fontcolor()
+
+    # Try to remove ase_sources.mk to make it clear something went wrong
+    try:
+        os.remove('ase_sources.mk')
+    except Exception:
+        None
+
     sys.exit(1)
 
 
@@ -122,31 +125,30 @@ def remove_dups(filepath, exclude=None):
 
 # Run command and get string output #
 def commands_getoutput(cmd):
-    if sys.version_info < (2, 7):
-        return commands.getoutput(cmd)
-    else:
-        byte_out = subprocess.check_output(cmd.split())
-        str_out = byte_out.decode("utf-8")
-        return str_out
+    byte_out = subprocess.check_output(cmd.split())
+    str_out = byte_out.decode()
+    return str_out
 
 
 def commands_list_getoutput(cmd):
-    if sys.version_info < (2, 7):
-        return commands.getoutput(' '.join(cmd))
-    else:
-        try:
-            byte_out = subprocess.check_output(cmd)
-            str_out = byte_out.decode("utf-8")
-        except OSError as e:
-            if e.errno == os.errno.ENOENT:
-                msg = cmd[0] + " not found on PATH!\n"
-                msg += "The installed OPAE SDK bin directory must be on " + \
-                       "the PATH environment variable."
-                errorExit(msg)
-            else:
-                raise
+    try:
+        byte_out = subprocess.check_output(cmd)
+        str_out = byte_out.decode()
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            msg = cmd[0] + " not found on PATH!\n"
+            msg += "The installed OPAE SDK bin directory must be on " + \
+                   "the PATH environment variable."
+            errorExit(msg)
+        else:
+            raise
+    except subprocess.CalledProcessError as e:
+        ase_functions.begin_red_fontcolor()
+        sys.stderr.write(e.output)
+        ase_functions.end_red_fontcolor()
+        raise
 
-        return str_out
+    return str_out
 
 
 # Has duplicates #
@@ -189,7 +191,10 @@ def config_sources(fd, filelist):
         elif (s[0] == '+'):
             # + simulator commands go in both Verilog and VHDL
             vlog_srcs.append(s)
-            vhdl_srcs.append(s)
+            # Unfortuantely, vhdlan (VCS VHDL simulator) doesn't support
+            # the same directives as the Verilog simulator.
+            if (tool_brand != 'VCS'):
+                vhdl_srcs.append(s)
         elif (s[0] == '-'):
             # For now assume - is an include directive and used only for
             # Verilog. Escape all but the first space, which likely
@@ -327,7 +332,11 @@ def auto_find_sources(fd):
     # Recursively find and add directory locations for VH
     print("")
     print("Finding include directories ... ")
-    str = commands_getoutput("find -L " + str_dirlist + " -type d")
+
+    # use absolute path names in DUT_INCDIR to keep Questa happy
+    pathname = os.path.abspath(str_dirlist)
+    str = commands_getoutput("find -L " + pathname + " -type d")
+
     str = str.replace("\n", "+")
     if len(str) != 0:
         print("DUT_INCDIR = " + str)
@@ -361,7 +370,7 @@ def auto_find_sources(fd):
               "to FAIL !")
         ase_functions.end_red_fontcolor()
 
-    # Search for a JSON file describing the top-level interface
+    # Search for a JSON file describing the AFU
     json_file = None
     str = commands_getoutput(
         "find -L " + str_dirlist + " -type f -name *.json")
@@ -372,14 +381,18 @@ def auto_find_sources(fd):
                     db = json.load(f)
                 f.close()
 
-                afu_ifc = db['afu-image']['afu-top-interface']['name']
-                # If we get this far without an exception the JSON file names
-                # a top-level interface.  Use it.
+                afu_image = db['afu-image']
+                # If we get this far without an exception the JSON file looks
+                # like an AFU descriptor.
                 json_file = js
-                print("\nAFU interface from {0}: {1}".format(
-                    os.path.basename(json_file), afu_ifc))
                 break
-            except Exception:
+            except ValueError:
+                ase_functions.begin_red_fontcolor()
+                sys.stderr.write("Error: reading JSON file {0}".format(js))
+                ase_functions.end_red_fontcolor()
+                raise
+            except KeyError:
+                # Ignore key error -- maybe the file isn't an AFU descriptor
                 None
 
     # Print auto-find instructions
@@ -405,22 +418,38 @@ def gen_afu_platform_ifc(json_file):
     cmd = "afu_platform_config"
     cfg = (cmd + " --sim --tgt=rtl").split(" ")
 
-    if (json_file):
-        cfg.append("--src={0}".format(json_file))
-    elif (args.plat == 'discrete'):
-        cfg.append("--ifc=ccip_std_afu_avalon_mm_legacy_wires")
-    else:
-        cfg.append("--ifc=ccip_std_afu")
+    default_ifc = "ccip_std_afu"
+    if (args.platform == 'discrete'):
+        default_ifc = "ccip_std_afu_avalon_mm_legacy_wires"
 
-    if (args.plat == 'discrete'):
+    if (json_file):
+        cfg.append("--src=" + json_file)
+        cfg.append("--default-ifc=" + default_ifc)
+    else:
+        cfg.append("--ifc=" + default_ifc)
+
+    if (args.platform == 'discrete'):
         cfg.append("discrete_pcie3")
     else:
-        cfg.append(args.plat)
+        cfg.append(args.platform)
 
     try:
-        print(commands_list_getoutput(cfg))
+        sys.stdout.write(commands_list_getoutput(cfg))
     except Exception:
         errorExit(cmd + " from OPAE SDK failed!")
+
+
+# Generate a Verilog header file with values from the AFU JSON file
+def gen_afu_json_verilog_macros(json_file):
+    cmd = ['afu_json_mgr', 'json-info']
+    cmd.append('--afu-json=' + json_file)
+    cmd.append('--verilog-hdr=rtl/afu_json_info.vh')
+
+    try:
+        sys.stdout.write(commands_list_getoutput(cmd))
+    except Exception:
+        errorExit("afu_json_mgr from OPAE SDK failed, parsing {0}".format(
+            json_file))
 
 
 print("#################################################################")
@@ -445,11 +474,11 @@ the command line and they will be searched for RTL sources.''')
 parser.add_argument('dirlist', nargs='*',
                     help='list of directories to scan')
 parser.add_argument('-s', '--sources',
-                    help="""file containing list of source files.  The file will be
-                            parsed by rtl_src_config.""")
+                    help="""file containing list of source files.  The file
+                            will be parsed by rtl_src_config.""")
 parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default=None,
                     help='simulator tool to use, default is VCS if present')
-parser.add_argument('-p', '--plat', choices=['intg_xeon', 'discrete'],
+parser.add_argument('-p', '--platform', choices=['intg_xeon', 'discrete'],
                     default='intg_xeon', help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
                     help="""file name pattern to exclude
@@ -479,7 +508,7 @@ if (tool_brand is None):
         tool_brand = 'QUESTA'
 
 PLAT_TYPE = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
-             'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(args.plat)
+             'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(args.platform)
 print("\nTool Brand: ", tool_brand)
 print("Platform Type: ", PLAT_TYPE)
 
@@ -494,18 +523,15 @@ fd.write("#                                                            #\n")
 fd.write("##############################################################\n")
 fd.write("\n")
 
-
 # Update SIMULATOR
 fd.write("SIMULATOR ?= ")
 fd.write(tool_brand)
 fd.write("\n\n")
 
-
 # Update ASE_PLATFORM
 fd.write("ASE_PLATFORM ?= ")
 fd.write(PLAT_TYPE)
 fd.write("\n\n")
-
 
 # Configure RTL sources
 if (args.sources):
@@ -515,12 +541,13 @@ else:
     # Discover sources by scanning a set of directories
     json_file = auto_find_sources(fd)
 
+fd.close()
+
 # Both source discovery methods may return a JSON file describing the AFU.
 # They will return None if no JSON file is found.
 gen_afu_platform_ifc(json_file)
-
-fd.close()
-
+if (json_file):
+    gen_afu_json_verilog_macros(json_file)
 
 # Write tool specific scripts
 

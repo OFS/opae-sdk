@@ -85,7 +85,7 @@ def copy_ase_env(dst, force):
     # Where is the base environment
     ase_base = getASESrcPath()
 
-    # Target directory can't exist (force is set)
+    # Target directory can't exist (unless force is set)
     dst = dst.rstrip(os.path.sep)
     if dst == '':
         errorExit('Target directory not set')
@@ -123,8 +123,8 @@ def setup_ase_sim(args):
     cmd = ['./scripts/generate_ase_environment.py']
     if (tool):
         cmd.append('--tool=' + tool)
-    if (args.plat):
-        cmd.append('--plat=' + args.plat)
+    if (args.platform):
+        cmd.append('--platform=' + args.platform)
 
     # Transform path to sources relative to target directory
     if (not os.path.isabs(args.sources)):
@@ -165,7 +165,7 @@ def main():
                                 --help" for the file's syntax.  rtl_src_config
                                 translates the source list into either Quartus
                                 or RTL simulator syntax.""")
-    parser.add_argument('-p', '--plat', default=None,
+    parser.add_argument('-p', '--platform', default=None,
                         help='FPGA Platform to simulate.')
     parser.add_argument('-t', '--tool', default=None, type=str.upper,
                         choices=['VCS', 'QUESTA', 'MODELSIM'],

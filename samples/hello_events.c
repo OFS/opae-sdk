@@ -112,6 +112,8 @@ int main(int argc, char *argv[])
 	pid_t pid;
 	struct pollfd pfd;
 	int timeout = 10000;
+	int poll_ret = 0;
+	ssize_t bytes_read = 0;
 
 	UNUSED_PARAM(argc);
 	UNUSED_PARAM(argv);
@@ -143,6 +145,8 @@ int main(int argc, char *argv[])
 
 		res = inject_ras_fatal_error(fpga_device_token, 0);
 		ON_ERR_GOTO(res, out_destroy_tok, "unsetting inject error register");
+
+		goto out_destroy_tok;
 	} else {
 		res = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
 		ON_ERR_GOTO(res, out_close, "opening accelerator");
@@ -159,19 +163,22 @@ int main(int argc, char *argv[])
 		ON_ERR_GOTO(res, out_destroy_eh, "getting file descriptor");
 
 		pfd.events = POLLIN;
-		res = poll(&pfd, 1, timeout);
+		poll_ret = poll(&pfd, 1, timeout);
 
-		if (res < 0) {
+		if (poll_ret < 0) {
 			printf("Poll error errno = %s\n", strerror(errno));
 			res = FPGA_EXCEPTION;
 			goto out_destroy_eh;
-		} else if (res == 0) {
+		} else if (poll_ret == 0) {
 			 printf("Poll timeout occured\n");
 			 res = FPGA_EXCEPTION;
 			 goto out_destroy_eh;
 		} else {
 			 printf("FME Interrupt occured\n");
-			 read(pfd.fd, &count, sizeof(count));
+			 bytes_read = read(pfd.fd, &count, sizeof(count));
+			 if (bytes_read <= 0)
+				 printf("WARNING: error reading from poll fd: %s\n",
+						 bytes_read < 0 ? strerror(errno) : "zero bytes read");
 		}
 
 		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);

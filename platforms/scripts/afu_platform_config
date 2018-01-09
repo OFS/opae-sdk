@@ -44,8 +44,11 @@
 
 import os
 import sys
+import glob
+import re
 import argparse
 import json
+import pprint
 
 
 def errorExit(msg):
@@ -100,6 +103,78 @@ def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
 
 
 #
+# Compute derived parameter values based on the database.  These
+# are typically computations more easily done here in Python than
+# at synthesis time in Verilog.
+#
+def computedParams(afu_arg, params):
+    # Set an actual value for add-extra-timing-reg-stages if the AFU
+    # says "auto".
+    try:
+        n_plat_stages = params['suggested-extra-timing-reg-stages']
+        n_auto = params['add-extra-timing-reg-stages']
+        if (n_auto):
+            if (n_auto == 'auto'):
+                n_auto = n_plat_stages
+                params['add-extra-timing-reg-stages'] = n_auto
+
+            # Raise ValueError if the parameter isn't a positive integer
+            if (int(n_auto) < 0):
+                raise ValueError
+    except KeyError:
+        None
+    except ValueError:
+        errorExit(afu_arg['class'].upper() +
+                  ' parameter add-extra-timing-reg-stages must be ' +
+                  'either an unsigned integer or "auto"')
+
+    if (afu_arg['class'].upper() == 'CCI-P'):
+        # Convert the 'vc-supported' vector into a count of channels.
+        try:
+            vc = params['vc-supported']
+            # It starts as a string.
+            vc = re.sub('[{} ]', '', vc)
+            # Count of boolean (0 or 1) is channel supported entries
+            vc = [int(x) for x in vc.split(',')]
+            # Ignore VA
+            vc[0] = 0
+            cnt = sum(vc)
+        except KeyError:
+            cnt = 0
+        # Add the count as a new parameter
+        params['num-phys-channels'] = cnt
+
+        # Default channel is VA unless there is only one channel active.
+        # With one channel active, this Python will indicate which one
+        # to use.
+        if (cnt != 1):
+            chan = 0
+        else:
+            chan = vc.index(1)
+        params['vc-default'] = chan
+
+
+#
+# Verilog's preprocessor is unimpressive.  Among its failings is poor handling
+# of strings.  Some of the definitions written by emitConfig are easier to
+# handle as tags.
+#
+is_params = set()
+is_params.add('clock')
+
+
+#
+# Platform shims transform the top-level interface before signals reach
+# an AFU top-level interface.  These are the parameters that control the
+# transformation.  They are the only parameters that may be overridden
+# in an AFU JSON module-arguments section.
+#
+platform_shim_params = set()
+platform_shim_params.add('clock')
+platform_shim_params.add('add-extra-timing-reg-stages')
+
+
+#
 # Emit the Verilog header file with the AFU interface and
 # platform capabilities.
 #
@@ -131,7 +206,9 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
             "`define __PLATFORM_AFU_TOP_CONFIG_VH__\n\n")
 
     f.write("`define AFU_TOP_MODULE_NAME " +
-            afu_ifc_db['module-name'] + "\n\n")
+            afu_ifc_db['module-name'] + "\n")
+    f.write("`define PLATFORM_SHIM_MODULE_NAME " +
+            afu_ifc_db['platform-shim-module-name'] + "\n\n")
 
     if (args.sim):
         f.write("`define PLATFORM_SIMULATED 1\n\n")
@@ -173,19 +250,45 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         if (key in platform_defaults_db['module-argument-params']):
             # Default values
             params = platform_defaults_db['module-argument-params'][key]
+
+        # Platform-specific values in 'params' key within a class
         if ('params' in plat_arg):
-            # Platform-specific values in 'params' key within a class
             for k in plat_arg['params'].keys():
                 params[k] = plat_arg['params'][k]
 
+        # Update parameters overridden by the AFU
+        if ('params' in afu_arg):
+            for k in afu_arg['params'].keys():
+                if (k not in params):
+                    # AFU can't define a new parameter.  It may only update
+                    # existing ones.
+                    errorExit(
+                        ('AFU attempting to set non-existent "{0}" ' +
+                         'parameter "{1}"').format(key, k))
+                # Only a handful of parameters may be updated by the AFU
+                # JSON since most are raw properties of the platform.
+                # These special parameters are managed by a shim.
+                if (k not in platform_shim_params):
+                    errorExit(
+                        ('Illegal AFU attempt to override "{0}" ' +
+                         'parameter "{1}"').format(key, k))
+
+                params[k] = afu_arg['params'][k]
+
+        # Add device-specific computed parameters
+        computedParams(afu_arg, params)
+
         # Now we have the parameters.  Emit them.
-        for k in params.keys():
+        for k in sorted(params.keys()):
             name = "PLATFORM_PARAM_" + \
                 afu_arg['class'].upper() + "_" + k.upper()
             name = name.replace('-', '_')
             # Skip comments and parameters with no value
-            if ((k != 'comment') and params[k]):
-                f.write("`define {0} {1}\n".format(name, params[k]))
+            if ((k != 'comment') and (params[k] is not None)):
+                f.write('`define {0} {1}\n'.format(name, params[k]))
+                if (k in is_params):
+                    f.write('`define {0}_IS_{1} 1\n'.format(
+                        name, params[k].upper()))
 
         f.write("\n")
 
@@ -388,9 +491,6 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
 #
 # Return a dictionary derived from a JSON file, using a search path.
 #
-# db_category is just a string used for printing the type of database
-# being opened, e.g. "platform".
-#
 def getJsonDb(args, fname, db_dir_path, db_category):
     if (os.path.isfile(fname)):
         json_fname = fname
@@ -404,8 +504,11 @@ def getJsonDb(args, fname, db_dir_path, db_category):
                 break
 
         if (not json_fname):
+            c = db_category
+            if (c == 'AFU'):
+                c = 'AFU top-level interface'
             errorExit(
-                "Failed to find {0} file: {1}".format(db_category, json_fname))
+                "Failed to find {0} JSON file for {1}".format(c, fname))
 
     if (not args.quiet):
         print("Loading {0} database: {1}".format(db_category, json_fname))
@@ -543,6 +646,19 @@ def canonicalizeDb(db, db_class):
         errorExit(("Unsupported {0} interface dictionary version " +
                    "{1} ({2})").format(db_class, db['version'], fname))
 
+    # Make sure AFU has a 'platform-shim-module-name'
+    if (db_class == 'AFU'):
+        if ('platform-shim-module-name' not in db):
+            db['platform-shim-module-name'] = None
+        if (not db['platform-shim-module-name']):
+            # No platform shim supported for this top-level module class.
+            # Fake the shim name to keep the platform happy but record
+            # that there is no shim.
+            db['platform-shim-supported'] = False
+            db['platform-shim-module-name'] = db['module-name']
+        else:
+            db['platform-shim-supported'] = True
+
     # Walk the module arguments list
     classes_seen = dict()
     for arg in db[args_key].values():
@@ -641,7 +757,6 @@ def canonicalizePlatformDefaultsDb(db):
 # Return a dictionary describing the AFU's desired top-level interface.
 #
 def getAfuIfc(args):
-
     afu_ifc = dict()
 
     if (args.ifc):
@@ -688,12 +803,18 @@ def getAfuIfc(args):
 
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
-            afu_ifc['file_path'] = afu_json
-            afu_ifc['file_name'] = os.path.splitext(
-                os.path.basename(afu_json))[0]
         except Exception:
-            errorExit("No afu-image:afu-top-interface:name found " +
-                      "in {0}".format(afu_json))
+            # The JSON file doesn't name the top-level interface.
+            # Was a default specified on the command line?
+            if (args.default_ifc):
+                afu_ifc = dict()
+                afu_ifc['name'] = args.default_ifc
+            else:
+                errorExit("No afu-image:afu-top-interface:name found " +
+                          "in {0}".format(afu_json))
+
+        afu_ifc['file_path'] = afu_json
+        afu_ifc['file_name'] = os.path.splitext(os.path.basename(afu_json))[0]
 
     if (args.verbose):
         print("AFU interface requested: {0}".format(afu_ifc))
@@ -703,11 +824,14 @@ def getAfuIfc(args):
 
 # Fields that in AFU interface that may be updated by a particular AFU's
 # JSON file.
-legal_afu_ifc_update_classes = {'default-entries': True,
-                                'max-entries': True,
-                                'min-entries': True,
-                                'optional': True
-                                }
+legal_afu_ifc_update_classes = {
+    'default-entries',
+    'max-entries',
+    'min-entries',
+    'optional',
+    'params'
+}
+
 
 #
 # An AFU's JSON database may override some parameters in the generic AFU
@@ -745,6 +869,7 @@ def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
                         ("AFU may not update module-argument class '{0}', " +
                          "field '{1}' ({2})").format(
                              c, k, afu_ifc_req['file_path']))
+
                 if (args.verbose):
                     print(("  AFU {0} overrides module-argument class '{1}'," +
                            " field '{2}': {3}").format(
@@ -754,27 +879,41 @@ def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
 
 
 #
-# Dump the loaded and updated databases for debugging.
+# Dump a database for debugging.
 #
-def emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db):
+def emitDebugJsonDb(args, name, db):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
-    fn_list = [['afu_ifc_db', afu_ifc_db],
-               ['platform_db', platform_db],
-               ['platform_defaults_db', platform_defaults_db]]
+    fn = os.path.join(f_prefix, 'debug_' + name + '.json')
+    print("Writing debug {0}".format(fn))
 
-    for db in fn_list:
-        fn = os.path.join(f_prefix, 'debug_' + db[0] + '.json')
-        print("Writing {0}".format(fn))
+    try:
+        with open(fn, "w") as f:
+            json.dump(db, f, indent=4, sort_keys=True)
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn))
 
-        try:
-            with open(fn, "w") as f:
-                json.dump(db[1], f, indent=4, sort_keys=True)
-        except Exception:
-            errorExit("failed to open {0} for writing.".format(fn))
+
+#
+# Dump a data structure for debugging.
+#
+def emitDebugData(args, name, data):
+    # Path prefix for emitting configuration files
+    f_prefix = ""
+    if (args.tgt):
+        f_prefix = args.tgt
+
+    fn = os.path.join(f_prefix, 'debug_' + name + '.data')
+    print("Writing debug {0}".format(fn))
+
+    try:
+        with open(fn, "w") as f:
+            pprint.pprint(data, stream=f, indent=4)
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn))
 
 
 #
@@ -785,16 +924,15 @@ def findPlatforms(db_path):
     # Walk all the directories
     for db_dir in db_path:
         # Look for JSON files in each directory
-        for fn in os.listdir(db_dir):
-            if fn.endswith('.json'):
-                try:
-                    with open(os.path.join(db_dir, fn)) as f:
-                        # Does it have a platform name field?
-                        db = json.load(f)
-                        platforms.add(db['platform-name'])
-                except Exception:
-                    # Give up on this file or directory if there is any error
-                    None
+        for json_file in glob.glob(os.path.join(db_dir, "*.json")):
+            try:
+                with open(json_file, 'r') as f:
+                    # Does it have a platform name field?
+                    db = json.load(f)
+                    platforms.add(db['platform-name'])
+            except Exception:
+                # Give up on this file if there is any error
+                None
 
     return sorted(list(platforms))
 
@@ -807,18 +945,18 @@ def findAfuIfcs(db_path):
     # Walk all the directories
     for db_dir in db_path:
         # Look for JSON files in each directory
-        for fn in os.listdir(db_dir):
-            if fn.endswith('.json'):
-                try:
-                    with open(os.path.join(db_dir, fn)) as f:
-                        db = json.load(f)
-                        # If it has a module-arguments entry assume the file is
-                        # valid
-                        if ('module-arguments' in db):
-                            afus.add(fn[:-5])
-                except Exception:
-                    # Give up on this file or directory if there is any error
-                    None
+        for json_file in glob.glob(os.path.join(db_dir, "*.json")):
+            try:
+                with open(json_file, 'r') as f:
+                    db = json.load(f)
+                    # If it has a module-arguments entry assume the file is
+                    # valid
+                    if ('module-arguments' in db):
+                        base = os.path.basename(json_file)
+                        afus.add(os.path.splitext(base)[0])
+            except Exception:
+                # Give up on this file is any error
+                None
 
     return sorted(list(afus))
 
@@ -897,7 +1035,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     parser.add_argument(
         "-t", "--tgt",
         help="""Target directory to which configuration files will be written.
-                  Defaults to current working directory.""")
+                Defaults to current working directory.""")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -907,12 +1045,17 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     group.add_argument(
         "-s", "--src",
         help="""The AFU sources, where a JSON file that specifies the AFU's
-                  top-level interface is found. Use either the --ifc argument
-                  or this one, but not both. The argument may either be the
-                  full path of a JSON file describing the application or the
-                  argument may be a directory in which the JSON file is found.
-                  If the argument is a directory, there must be exactly one
-                  JSON file in the directory.""")
+                top-level interface is found. Use either the --ifc argument
+                or this one, but not both. The argument may either be the
+                full path of a JSON file describing the application or the
+                argument may be a directory in which the JSON file is found.
+                If the argument is a directory, there must be exactly one
+                JSON file in the directory.""")
+
+    parser.add_argument(
+        "--default-ifc",
+        help="""The default top-level interface name if no interface is
+                specified in the AFU's JSON descriptor.""")
 
     if_default = os.path.join(getDBRootPath(), "platform_if")
     parser.add_argument("--platform_if", default=if_default,
@@ -944,12 +1087,6 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     # line or from the AFU source's JSON descriptor.
     afu_ifc_req = getAfuIfc(args)
 
-    # Load the AFU top-level interface database
-    afu_ifc_db = getJsonDb(
-        args, afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU')
-    injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req)
-    canonicalizeDb(afu_ifc_db, 'AFU')
-
     # Load the platform database
     platform_db = getJsonDb(args, args.platform, platform_db_path, 'platform')
     canonicalizeDb(platform_db, 'platform')
@@ -959,11 +1096,21 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         args, 'platform_defaults', platform_db_path, 'platform-params')
     canonicalizePlatformDefaultsDb(platform_defaults_db)
 
+    # Load the AFU top-level interface database
+    afu_ifc_db = getJsonDb(
+        args, afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU')
+    injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req)
+    canonicalizeDb(afu_ifc_db, 'AFU')
+
     if (args.debug):
-        emitDebugFiles(args, afu_ifc_db, platform_db, platform_defaults_db)
+        emitDebugJsonDb(args, 'afu_ifc_db', afu_ifc_db)
+        emitDebugJsonDb(args, 'platform_db', platform_db)
+        emitDebugJsonDb(args, 'platform_defaults_db', platform_defaults_db)
 
     # Match AFU argument requirements to platform offerings
     afu_arg_list = matchAfuArgs(args, afu_ifc_db, platform_db)
+    if (args.debug):
+        emitDebugData(args, 'afu_arg_list', afu_arg_list)
 
     # Emit platform configuration
     emitConfig(args, afu_ifc_db, platform_db,

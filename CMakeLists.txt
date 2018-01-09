@@ -24,17 +24,35 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 2.8.12)
 project(opae)
+
+############################################################################
+## Get git hash info, if available #########################################
+############################################################################
+find_program(GIT_EXECUTABLE git)
+if(EXISTS ${GIT_EXECUTABLE})
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    RESULT_VARIABLE GIT_LOG_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
+      set(GIT_COMMIT_HASH unknown)
+    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
+else(EXISTS ${GIT_EXECUTABLE})
+  set(GIT_COMMIT_HASH unknown)
+endif(EXISTS ${GIT_EXECUTABLE})
 
 ############################################################################
 ## Add 'versioning' library ################################################
 ############################################################################
 
 set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 12 CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_MINOR 13 CACHE STRING "Intel FPGA API minor version")
 set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
+set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
 ############################################################################
 ## Compilation configuration ###############################################
@@ -68,11 +86,20 @@ install(DIRECTORY common/include/opae
   DESTINATION include
   COMPONENT libopaeheaders)
 
+install(DIRECTORY common/include/safe_string
+  DESTINATION include
+  COMPONENT safestrheaders)
+
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
+option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(BUILD_SPHINX_DOC)
 
-add_subdirectory(doc)
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -123,6 +150,18 @@ find_package(Threads REQUIRED)
 add_subdirectory(samples)
 
 ############################################################################
+## Add 'tests' #############################################################
+############################################################################
+
+option(BUILD_TESTS "Enable tests compilation" OFF)
+mark_as_advanced(BUILD_TESTS)
+if(BUILD_TESTS)
+  enable_testing()
+  include(CTest)
+  add_subdirectory(tests)
+endif()
+
+############################################################################
 ## RPATH Handling ##########################################################
 ############################################################################
 
@@ -137,16 +176,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
-
-find_program(GIT_EXECUTABLE git)
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-else(EXISTS ${GIT_EXECUTABLE})
-  set(GIT_COMMIT_HASH unknown)
-endif(EXISTS ${GIT_EXECUTABLE})
 
 include(packaging)
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
@@ -177,6 +206,8 @@ define_pkg(devel
   docxml
   platform
   samplesrc
+  safestrlib
+  safestrheaders
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
@@ -242,6 +273,32 @@ set(CPACK_RPM_PACKAGE_COMPONENT ON)
 set(CPACK_DEB_PACKAGE_COMPONENT ON)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
+
+# Run ldconfig after installation
+option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
+mark_as_advanced(RUN_LDCONFIG)
+    
+if (RUN_LDCONFIG)
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
+
+  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+rm /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+ldconfig
+")
+
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
+  set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
+endif(RUN_LDCONFIG)
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression

@@ -208,6 +208,10 @@ int main(int argc, char *argv[]) {
 
    res = fpgaDmaOpen(afc_h, &dma_h);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaOpen");
+   if(!dma_h) {
+      res = FPGA_EXCEPTION;
+      ON_ERR_GOTO(res, out_dma_close, "Invaid DMA Handle");
+   }
 
    if(use_ase)
       count = ASE_TEST_BUF_SIZE;
@@ -215,11 +219,10 @@ int main(int argc, char *argv[]) {
       count = TEST_BUF_SIZE;
 
    dma_buf_ptr = (uint64_t*)malloc(count);
-
-   if(dma_h == NULL || dma_buf_ptr == NULL) {
+   if(!dma_buf_ptr) {
       res = FPGA_NO_MEMORY;
-      ON_ERR_GOTO(res, out_dma_close, "Malloc failed: no memory");
-   }
+      ON_ERR_GOTO(res, out_dma_close, "Error allocating memory");
+   }   
 
    fill_buffer((char*)dma_buf_ptr, count);
 
@@ -251,13 +254,14 @@ int main(int argc, char *argv[]) {
    res = fpgaDmaTransferSync(dma_h, count /*dst*/, 0x0 /*src*/, count, FPGA_TO_FPGA_MM);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_FPGA_MM");
 
+
    // copy from fpga to host
    res = fpgaDmaTransferSync(dma_h, (uint64_t)dma_buf_ptr /*dst*/, count /*src*/, count, FPGA_TO_HOST_MM);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
 
    res = verify_buffer((char*)dma_buf_ptr, count);
    ON_ERR_GOTO(res, out_dma_close, "verify_buffer");
-   
+
    if(!use_ase) {
       printf("Running DDR sweep test\n");
       res = ddr_sweep(dma_h);
