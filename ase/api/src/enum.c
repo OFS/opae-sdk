@@ -173,6 +173,10 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	if ((max_tokens > 0) && (NULL == tokens)) {
 		return FPGA_INVALID_PARAM;
 	}
+	if (!num_filters && (NULL != filters)) {
+		FPGA_MSG("num_filters == 0 with non-NULL filters");
+		return FPGA_INVALID_PARAM;
+	}
 
 	uint64_t afuid_data[2];
 	fpga_guid readback_afuid;
