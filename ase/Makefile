@@ -141,7 +141,6 @@ WORK = work
 
 # ASE Source directory
 ASE_SRCDIR = $(shell pwd)
-OPAE_BASEDIR ?= $(ASE_SRCDIR)/../
 ASE_WORKDIR = $(PWD)/$(WORK)
 
 # Configuration & regression file inputs
@@ -183,9 +182,6 @@ ASESW_FILE_LIST = \
 	$(ASE_SRCDIR)/sw/linked_list_ops.c \
 	$(ASE_SRCDIR)/sw/randomness_control.c \
 
-## Safe string sources
-SAFESTR_SRC_LIST = $(wildcard ${OPAE_BASEDIR}/safe_string/*.c)
-
 ## ASE top level module
 ASE_TOP = ase_top
 
@@ -218,7 +214,7 @@ endif
 
 ## C Compiler options
 CC_OPT?=
-CC_OPT+= -g $(CC_INT_SIZE) -fPIC -D SIM_SIDE=1 -I $(ASE_SRCDIR)/sw/ -I $(OPAE_BASEDIR)/common/include/
+CC_OPT+= -g $(CC_INT_SIZE) -fPIC -D SIM_SIDE=1 -I $(ASE_SRCDIR)/sw/
 CC_OPT+= -D SIMULATOR=$(SIMULATOR) -D $(ASE_PLATFORM)
 CC_OPT+= -Wall -Wformat -Wformat-security
 CC_OPT+= -O2 -D_FORTIFY_SOURCE=2
@@ -455,7 +451,6 @@ help: header
 sw_build:
 	make header
 	mkdir -p $(WORK)
-	cd $(WORK) ; $(CC) $(CC_OPT) -c $(SAFESTR_SRC_LIST) || exit 1 ; cd -
 	cd $(WORK) ; $(CC) $(CC_OPT) -c $(ASESW_FILE_LIST) || exit 1 ; cd -
 	cd $(WORK) ; $(CC) $(CC_INT_SIZE) -g -shared -o $(ASE_SHOBJ_SO) `ls *.o` $(ASE_LD_SWITCHES) ; cd -
 	nm $(WORK)/$(ASE_SHOBJ_SO) > $(WORK)/$(ASE_SHOBJ_NAME).nm
