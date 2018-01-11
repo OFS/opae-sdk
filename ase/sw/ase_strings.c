@@ -42,8 +42,8 @@
 static int buffers_overlap(const void *dest, const void *src, size_t n)
 {
 	// char* equivalents
-	const char* d = (char*)dest;
-	const char* s = (char*)src;
+	const char *d = (char *)dest;
+	const char *s = (char *)src;
 
 	// Is dest completely before or completely after src?  If so, they
 	// don't overlap.
