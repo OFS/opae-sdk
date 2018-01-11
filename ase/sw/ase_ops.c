@@ -63,9 +63,9 @@ int generate_sockname(char *name)
 {
 	int res;
 
-	res = ase_strncpy(name, SOCKNAME, strlen(SOCKNAME)+1);
+	res = ase_strncpy_s(name, strlen(SOCKNAME)+1, SOCKNAME, strlen(SOCKNAME)+1);
     if (res != 0) {
-		ASE_ERR("%s: Error strncpy\n", __func__);
+		ASE_ERR("%s: Error ase_strncpy_s\n", __func__);
 		return -1;
 	}
 
@@ -75,7 +75,7 @@ int generate_sockname(char *name)
 		return ENOMEM;
 
 	get_timestamp(tstamp);
-	res = ase_strncpy(name+strlen(SOCKNAME), tstamp, strlen(tstamp)+1);
+	res = ase_strncpy_s(name+strlen(SOCKNAME), strlen(tstamp)+1, tstamp, strlen(tstamp)+1);
 	ase_free_buffer((char *) tstamp);
 
 	return res;
@@ -750,6 +750,16 @@ char *ase_getenv(const char *name)
 
 
 /*
+ * ase_memcpy - Secure memcpy abstraction
+ */
+void ase_memcpy(void *dest, const void *src, size_t n)
+{
+	// Secure implementation
+	ase_memcpy_s(dest, n, src, n);
+}
+
+
+/*
  * Print messages
  */
 int ase_calc_loglevel(void)
@@ -826,4 +836,23 @@ void ase_print(int loglevel, char *fmt, ...)
 	}
 
 	va_end(args);
+}
+
+
+/*
+ * ASE String Compare
+ */
+int ase_strncmp(const char *s1, const char *s2, size_t n)
+{
+	int ret;
+	int indicator;
+
+	// Run secure compare
+	ret = ase_strcmp_s(s2, n, s1, &indicator);
+	if (ret != 0) {
+		ASE_DBG("Problem with ase_strncmp - code %d\n", ret);
+		return -1;
+	} else {
+		return indicator;
+	}
 }

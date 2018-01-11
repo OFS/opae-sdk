@@ -39,7 +39,7 @@
 /*
  * Internal method: detect buffer overlap.
  */
-static int buffers_overlap(const void *dest, const void *src, size_t n)
+static int buffers_overlap(const void *dest, size_t dmax, const void *src, size_t smax)
 {
 	// char* equivalents
 	const char *d = (char *)dest;
@@ -47,7 +47,7 @@ static int buffers_overlap(const void *dest, const void *src, size_t n)
 
 	// Is dest completely before or completely after src?  If so, they
 	// don't overlap.
-	if (((d + n) <= s) || (d >= (s + n))) {
+	if (((d + dmax) <= s) || (d >= (s + smax))) {
 		return 0;
 	}
 
@@ -59,21 +59,24 @@ static int buffers_overlap(const void *dest, const void *src, size_t n)
 /*
  * ase_memcpy - Secure memcpy abstraction.  Return 0 on success.
  */
-int ase_memcpy(void *dest, const void *src, size_t n)
+int ase_memcpy_s(void *dest, size_t dmax, const void *src, size_t smax)
 {
-	// No NULL pointers or long strings, no copies larger than 256MB.
-	if ((dest == NULL) || (src == NULL) || (n == 0) || (n > (256UL << 20))) {
-		ASE_DBG("Illegal parameter to ase_memcpy");
+	// No NULL pointers, maxima must be non-zero, smax must be less than dmax
+	// and dmax must be less than 256MB.
+	if ((dest == NULL) || (src == NULL) ||
+		(dmax == 0) || (smax == 0) || (smax > dmax) ||
+		(dmax > (256UL << 20))) {
+		ASE_DBG("Illegal parameter to ase_memcpy_s");
 		return -1;
 	}
 
 	// Strings must not overlap
-	if (buffers_overlap(dest, src, n)) {
-		ASE_DBG("Illegal buffer overlap in ase_memcpy");
+	if (buffers_overlap(dest, dmax, src, smax)) {
+		ASE_DBG("Illegal buffer overlap in ase_memcpy_s");
 		return -1;
 	}
 
-	memcpy(dest, src, n);
+	memcpy(dest, src, smax);
 	return 0;
 }
 
@@ -81,21 +84,24 @@ int ase_memcpy(void *dest, const void *src, size_t n)
 /*
  * ASE string copy.  Returns 0 on success.
  */
-int ase_strncpy(char *dest, const char *src, size_t n)
+int ase_strncpy_s(char *dest, size_t dmax, const char *src, size_t slen)
 {
-	// Validate parameters
-	if ((dest == NULL) || (src == NULL) || (n == 0) || (n > 4096)) {
-		ASE_DBG("Illegal parameter to ase_strncpy");
+	// No NULL pointers, maxima must be non-zero, smax must be less than dmax
+	// and dmax must be less than 4KB.
+	if ((dest == NULL) || (src == NULL) ||
+		(dmax == 0) || (slen == 0) || (slen > dmax) ||
+		(dmax > 4096)) {
+		ASE_DBG("Illegal parameter to ase_strncpy_s");
 		return -1;
 	}
 
 	// Strings must not overlap
-	if (buffers_overlap(dest, src, n)) {
-		ASE_DBG("Illegal buffer overlap in ase_strncpy");
+	if (buffers_overlap(dest, dmax, src, slen)) {
+		ASE_DBG("Illegal buffer overlap in ase_strncpy_s");
 		return -1;
 	}
 
-	strncpy(dest, src, n);
+	strncpy(dest, src, slen);
 	return 0;
 }
 
@@ -103,13 +109,15 @@ int ase_strncpy(char *dest, const char *src, size_t n)
 /*
  * ASE string compare
  */
-int ase_strncmp(const char *s1, const char *s2, size_t n)
+int ase_strcmp_s(const char *dest, size_t dmax, const char *src, int *indicator)
 {
 	// Validate parameters
-	if ((s1 == NULL) || (s2 == NULL) || (n == 0) || (n > 4096)) {
-		ASE_DBG("Illegal parameter to ase_strncmp");
+	if ((dest == NULL) || (src == NULL) || (dmax == 0) || (dmax > 4096) ||
+		(indicator == NULL)) {
+		ASE_DBG("Illegal parameter to ase_strncmp_s");
 		return -1;
 	}
 
-	return strncmp(s1, s2, n);
+	*indicator = strncmp(dest, src, dmax);
+	return 0;
 }
