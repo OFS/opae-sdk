@@ -69,7 +69,6 @@
 #include <sys/wait.h>
 #include <linux/limits.h>
 #include <uuid/uuid.h>
-#include <safe_string/safe_string.h>
 #include <pthread.h>
 
 #ifdef SIM_SIDE
@@ -157,7 +156,7 @@ void calc_phys_memory_ranges(void);
 
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
-errno_t generate_sockname(char *);
+int generate_sockname(char *);
 
 #ifdef SIM_SIDE
 #define LOG_PREFIX "  [SIM]  "
@@ -477,6 +476,11 @@ void ase_string_copy(char *, const char *, size_t);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
+
+// Safe string equivalents
+int ase_memcpy_s(void *, size_t, const void *, size_t);
+int ase_strncpy_s(char *, size_t, const char *, size_t);
+int ase_strcmp_s(const char *, size_t, const char *, int *);
 
 // Message queue operations
 void ipc_init(void);
