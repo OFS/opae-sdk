@@ -1,5 +1,6 @@
 language: c
 compiler: gcc
+script: scripts/$TEST_SCRIPT
 matrix:
   include:
     - env: TEST_SCRIPT=test-codingstyle.sh
@@ -27,4 +28,3 @@ matrix:
             - libjson-c-dev
             - uuid-dev
             - doxygen
-script: scripts/$TEST_SCRIPT
