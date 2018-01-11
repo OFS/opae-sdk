@@ -475,6 +475,7 @@ uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
 char *ase_getenv(const char *);
 int ase_memcpy(void *, const void *, size_t);
+int ase_strncpy(char *, const char *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
 
 // Message queue operations

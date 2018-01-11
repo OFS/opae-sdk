@@ -173,6 +173,7 @@ endif
 ## ASE SW file setup
 ASESW_FILE_LIST = \
 	$(ASE_SRCDIR)/sw/ase_ops.c \
+	$(ASE_SRCDIR)/sw/ase_strings.c \
 	$(ASE_SRCDIR)/sw/ipc_mgmt_ops.c \
 	$(ASE_SRCDIR)/sw/mem_model.c \
 	$(ASE_SRCDIR)/sw/protocol_backend.c \

@@ -61,11 +61,13 @@ inline void set_loglevel(int level)
  */
 int generate_sockname(char *name)
 {
-	if ((name == NULL) || (strlen(SOCKNAME) > 4096)) {
+	int res;
+
+	res = ase_strncpy(name, SOCKNAME, strlen(SOCKNAME)+1);
+    if (res != 0) {
 		ASE_ERR("%s: Error strncpy\n", __func__);
 		return -1;
 	}
-	strncpy(name, SOCKNAME, strlen(SOCKNAME)+1);
 
 	char *tstamp = ase_malloc(100);
 
@@ -73,17 +75,10 @@ int generate_sockname(char *name)
 		return ENOMEM;
 
 	get_timestamp(tstamp);
-
-	// Both name and tstamp have already been tested for NULL.  Ensure that
-	// tstamp isn't unreasonably long.
-	if (strlen(tstamp) > 99) {
-		ASE_ERR("%s: Error tstamp len\n", __func__);
-		return -1;
-	}
-	strncpy(name+strlen(SOCKNAME), tstamp, strlen(tstamp)+1);
-
+	res = ase_strncpy(name+strlen(SOCKNAME), tstamp, strlen(tstamp)+1);
 	ase_free_buffer((char *) tstamp);
-	return 0;
+
+	return res;
 }
 /*
  * Parse strings and remove unnecessary characters
@@ -755,27 +750,6 @@ char *ase_getenv(const char *name)
 
 
 /*
- * ase_memcpy - Secure memcpy abstraction
- */
-int ase_memcpy(void *dest, const void *src, size_t n)
-{
-	// No NULL pointers or long strings
-	if ((dest == NULL) || (src == NULL) || (n > 4096)) {
-		return -1;
-	}
-
-	// Strings must not overlap
-	if ((((char*)(dest) + n) < (char*)src) || ((char*)dest > ((char*)src + n))) {
-		memcpy(dest, src, n);
-		return 0;
-	}
-
-	// Strings overlap -- fail
-	return -1;
-}
-
-
-/*
  * Print messages
  */
 int ase_calc_loglevel(void)
@@ -852,19 +826,4 @@ void ase_print(int loglevel, char *fmt, ...)
 	}
 
 	va_end(args);
-}
-
-
-/*
- * ASE String Compare
- */
-int ase_strncmp(const char *s1, const char *s2, size_t n)
-{
-	// Validate parameters
-	if ((s1 == NULL) || (s2 == NULL) || (n == 0) || (n > 4096)) {
-		ASE_DBG("Illegal parameter to ase_strncmp");
-		return -1;
-	}
-
-	return strncmp(s1, s2, n);
 }
