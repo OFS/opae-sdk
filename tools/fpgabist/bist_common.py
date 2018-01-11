@@ -45,7 +45,7 @@ def get_all_fpga_bdfs():
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, int(v, 16))
+            bdf_list.append(dict([(k, v)
                             for (k, v) in data.iteritems()]))
     return bdf_list
 
@@ -57,11 +57,11 @@ def get_bdf_from_args(args):
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     param = ':{}:{}.{}'.format(
-            vars(args)['bus']
+            vars(args)['bus'][-2:]
             if vars(args)['bus'] else '',
-            vars(args)['device']
+            vars(args)['device'][-2:]
             if vars(args)['device'] else '',
-            vars(args)['function']
+            vars(args)['function'][-2:]
             if vars(args)['function'] else '')
     host = subprocess.check_output(['/usr/sbin/lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
@@ -103,13 +103,13 @@ def global_arguments(parser):
                         type=str,
                         help='Device Id for Intel FPGA default: 09c4')
 
-    parser.add_argument('-b', '--bus', type=int,
+    parser.add_argument('-b', '--bus', type=str,
                         help='Bus number for specific FPGA')
 
-    parser.add_argument('-d', '--device', type=int,
+    parser.add_argument('-d', '--device', type=str,
                         help='Device number for specific FPGA')
 
-    parser.add_argument('-f', '--function', type=int,
+    parser.add_argument('-f', '--function', type=str,
                         help='Function number for specific FPGA')
 
     parser.add_argument('gbs_paths', nargs='+', type=str,
