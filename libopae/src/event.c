@@ -291,7 +291,7 @@ static fpga_result check_interrupts_supported(fpga_handle handle)
 		if (fme_info.capability & FPGA_FME_CAP_ERR_IRQ) {
 			res = FPGA_OK;
 		} else {
-			FPGA_ERR("Interrupts not supported in hw");
+			FPGA_MSG("Interrupts not supported in hw");
 			res = FPGA_NOT_SUPPORTED;
 		}
 	} else if (objtype == FPGA_ACCELERATOR) {
@@ -304,7 +304,7 @@ static fpga_result check_interrupts_supported(fpga_handle handle)
 		if (port_info.capability & FPGA_PORT_CAP_ERR_IRQ) {
 			res = FPGA_OK;
 		} else {
-			FPGA_ERR("Interrupts not supported in hw");
+			FPGA_MSG("Interrupts not supported in hw");
 			res = FPGA_NOT_SUPPORTED;
 		}
 	}
@@ -329,7 +329,7 @@ static fpga_result driver_register_event(fpga_handle handle,
 
 	res = check_interrupts_supported(handle);
 	if (res != FPGA_OK) {
-		FPGA_ERR("Could not determine whether interrupts are supported");
+		FPGA_MSG("Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
 	}
 
@@ -376,7 +376,7 @@ static fpga_result driver_unregister_event(fpga_handle handle,
 
 	res = check_interrupts_supported(handle);
 	if (res != FPGA_OK) {
-		FPGA_ERR("Could not determine whether interrupts are supported");
+		FPGA_MSG("Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
 	}
 
@@ -589,10 +589,10 @@ fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 
 	//sanity check
 	if (!event_handle) {
-		return FPGA_INVALID_PARAM;
-	}
+      return FPGA_INVALID_PARAM;
+   }
 
-	_eh = (struct _fpga_event_handle *) *event_handle;
+   _eh = (struct _fpga_event_handle *) *event_handle;
 
 	result = event_handle_check_and_lock(_eh);
 	if (result)
