@@ -190,7 +190,7 @@ namespace opae::fpga::types {
 
 Once one or more `token`s have been enumerated, the application must choose which `token`s to request. The `token` is then converted to a `handle` by requesting that a `handle` object be allocated and opened for it.
 
-Once a `handle` has been successfully opened, the application may use the `handle` to allocate `dma_buffer`s or to register `event`s. The `dma_buffer` and `event` objects retain a reference to their owning `handle` so that the `handle` does not lose scope before freeing the `dma_buffer` and `event` objects.
+Once a `handle` has been successfully opened, the application can read and write the associated configuration and status space. Additionally, the application may use the `handle` to allocate `dma_buffer`s or to register `event`s. The `dma_buffer` and `event` objects retain a reference to their owning `handle` so that the `handle` does not lose scope before freeing the `dma_buffer` and `event` objects.
 
 ```plantuml
 @startuml
