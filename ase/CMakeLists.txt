@@ -30,7 +30,6 @@ set(ASE_SHARE_DIR share/opae/ase)
 install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
 install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
 install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
-install(DIRECTORY sample_config DESTINATION share/opae/ase COMPONENT asesampleconfig)
 
 set(EXTRA_ASE_FILES
        Makefile

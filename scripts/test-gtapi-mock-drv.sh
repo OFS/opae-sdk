@@ -5,8 +5,8 @@ pushd mybuild_gtapi_mock_drv
 
 trap "popd" EXIT
 
-cmake .. -DBUILD_TESTS=ON
-make
+cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
+make mock gtapi
 
 make test
 echo "test-gtapi-mock-drv build PASSED"
