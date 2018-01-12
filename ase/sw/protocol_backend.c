@@ -773,9 +773,6 @@ int ase_listener(void)
 						ase_reset_trig();
 					}
 				}
-				// wait for server shutdown
-				pthread_join(socket_srv_tid, NULL);
-
 
 				// Check for simulator sanity -- if transaction counts dont match
 				// Kill the simulation ASAP -- DEBUG feature only
@@ -1265,6 +1262,8 @@ void start_simkill_countdown(void)
 	// Final clean of IPC
 	final_ipc_cleanup();
 
+	// wait for server shutdown
+	pthread_join(socket_srv_tid, NULL);
 
 	// Close workspace log
 	if (fp_workspace_log != NULL) {
