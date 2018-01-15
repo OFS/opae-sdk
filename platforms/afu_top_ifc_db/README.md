@@ -3,57 +3,50 @@ arguments expected by an AFU.
 
 Each JSON database is a dictionary, supporting the following keys:
 
-  version:
-    Integer [required]
+- **version**: Integer [required]
 
-    Indicates the JSON database version.  Currently only version 1 is supported.
+  Indicates the JSON database version.  Currently only version 1 is supported.
 
-  description:
-    String [optional]
+- **description**: String [optional]
 
-    One line description.
+  One line description.
 
-  comment:
-    String or list of strings [optional]
+- **comment**: String or list of strings [optional]
 
-    A list of strings is supported in order to allow line breaks in the JSON file.
+  A list of strings is supported in order to allow line breaks in the JSON file.
 
-  module-name: 
-    String [required]
+- **module-name**: String [required]
 
-    The name of the AFU's top-level module.  The platform will instantiate a module
-    with this name.
+  The name of the AFU's top-level module.  The platform will instantiate a module
+  with this name.
 
-  platform-shim-module-name:
-    String [option]
+- **platform-shim-module-name**: String [option]
 
-    The name of a shim that will be instantiated automatically between the platform
-    and the AFU's top-level module (module-name).  When present, platform shims
-    offer a standard set of transformations that are common to many AFUs.  Platform
-    shims will automatically instantiate clock-crossing FIFOs.  The shims will
-    also insert registers to relieve timing.  Clock management and register
-    insertion are controlled by parameters in an AFU's JSON file.  See the
-    add-extra-timing-reg-stages and clock module-arguments parameters,
-    described in README_AFU in this directory.  When not defined or NULL, no shim
-    is instantiated.
+  The name of a shim that will be instantiated automatically between the platform
+  and the AFU's top-level module (module-name).  When present, platform shims
+  offer a standard set of transformations that are common to many AFUs.  Platform
+  shims will automatically instantiate clock-crossing FIFOs.  The shims will
+  also insert registers to relieve timing.  Clock management and register
+  insertion are controlled by parameters in an AFU's JSON file.  See the
+  add-extra-timing-reg-stages and clock module-arguments parameters,
+  described in README\_AFU in this directory.  When not defined or NULL, no shim
+  is instantiated.
 
-  parent:
-    String [optional]
+- **parent**: String [optional]
 
-    The name of a parent AFU top-level interface JSON database.  The parent will
-    be loaded and fields from the child will be merged into the parent.  For most
-    fields, the merge overwrites any existing parent data.  For module-arguments,
-    the merge completely overwrites entries with matching classes.  Keys within
-    a module-arguments class aren't merged.  The parent class is removed and
-    replaced with the child's module-arguments class entry.
+  The name of a parent AFU top-level interface JSON database.  The parent will
+  be loaded and fields from the child will be merged into the parent.  For most
+  fields, the merge overwrites any existing parent data.  For module-arguments,
+  the merge completely overwrites entries with matching classes.  Keys within
+  a module-arguments class aren't merged.  The parent class is removed and
+  replaced with the child's module-arguments class entry.
 
-  module-arguments:
-    List [required]
+- **module-arguments**: List [required]
 
-    The set of arguments expected by the AFU top-level module (module-name).
-    Each entry in the module-arguments list is a dictionary which describes
-    an argument or group of arguments to the AFU top-level module.
-    The format of a module-arguments dictionary entry is described below.
+  The set of arguments expected by the AFU top-level module (module-name).
+  Each entry in the module-arguments list is a dictionary which describes
+  an argument or group of arguments to the AFU top-level module.
+  The format of a module-arguments dictionary entry is described below.
 
 
 ---------------------------------------------------------------------------
@@ -139,6 +132,7 @@ Below are supported class/interface types:
 Class clocks:
 
   pClk3_usr2:
+  
     input  logic        pClk,                 // Primary CCI-P interface clock.
     input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
     input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
@@ -152,6 +146,7 @@ Class clocks:
 Class power:
 
   2bit:
+  
     input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
 
 
@@ -160,6 +155,7 @@ Class power:
 Class error:
 
   1bit:
+  
     input  logic        pck_cp2af_error,      // CCI-P Protocol Error Detected
 
 
@@ -168,6 +164,7 @@ Class error:
 Class cci-p:
 
   struct:
+  
     input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
     output t_if_ccip_Tx pck_af2cp_sTx         // CCI-P Tx Port
 
@@ -177,6 +174,7 @@ Class cci-p:
 Class local-memory:
 
   avalon_mm:
+  
     // Vector of Avalon memory interfaces, one per bank.
     // The module parameter NUM_LOCAL_MEM_BANKS is expected.
     avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS]
@@ -184,6 +182,7 @@ Class local-memory:
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   avalon_mm_legacy_wires_2bank [DEPRECATED]:
+  
     // This interface was used in a very early discrete card memory
     // interface.  It will be deprecated and should not be used
     // in new AFUs.
