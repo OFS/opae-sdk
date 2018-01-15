@@ -55,18 +55,18 @@ following primary keys:
 ## Module Arguments
 
 There may be at most one instance of a given class in a module-arguments
-list.  For example, only one type of local-memory may be offered.
+list.  For example, only one type of local-memory may be requested.
 
 Each of the module-arguments is a dictionary with the following keys:
 
 - **class**: String [required]
 
   The major interface class, such as clocks, cci-p and local-memory.
-  Supported classes are are listed below.
+  Supported classes are listed below.
 
 - **interface**: String [required]
 
-  The interface expected by the AFU for the given class.
+  The interface type expected by the AFU for the given class.
 
 - **optional**: Boolean [optional (defaults to false)]
 
