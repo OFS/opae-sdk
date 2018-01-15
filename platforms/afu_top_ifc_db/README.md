@@ -1,8 +1,17 @@
 # AFU Top-Level Interface Database
 
 The AFU top-level interface databases describe the top-level module name and
-arguments expected by an AFU. Each JSON database is a dictionary, supporting the
-following primary keys:
+arguments expected by an AFU.
+
+Instead of starting with the database fields below, reading a few databases
+in this directory may be a better introduction.  [ccip\_std\_afu.json](ccip_std_afu.json)
+describes the original, standard CCI-P interface. The interface has been broken down into
+several classes of signals, such as clocks and CCI-P request/response structures.
+[ccip\_std\_afu\_avalon\_mm.json](ccip_std_afu_avalon_mm.json) describes a platform
+that includes CCI-P plus local memory. Local memory is passed to the AFU as a vector
+of SystemVerilog Avalon memory interfaces, one instance per memory bank.
+
+Each JSON database is a dictionary, supporting the following primary keys:
 
 - **version**: Integer [required]
 
