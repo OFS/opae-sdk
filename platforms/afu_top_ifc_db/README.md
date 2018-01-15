@@ -1,9 +1,8 @@
 # AFU Top-Level Interface Database
 
 The AFU top-level interface databases describe the top-level module name and
-arguments expected by an AFU.
-
-Each JSON database is a dictionary, supporting the following keys:
+arguments expected by an AFU. Each JSON database is a dictionary, supporting the
+following primary keys:
 
 - **version**: Integer [required]
 
@@ -15,24 +14,26 @@ Each JSON database is a dictionary, supporting the following keys:
 
 - **comment**: String or list of strings [optional]
 
-  A list of strings is supported in order to allow line breaks in the JSON file.
+  JSON doesn't have a comment escape character.  In order to embed comments,
+  the AFU top-level database ignores JSON dictionary entries named "comment".
+  Comments may be a list of strings in order to write multi-line comments.
 
 - **module-name**: String [required]
 
   The name of the AFU's top-level module.  The platform will instantiate a module
   with this name.
 
-- **platform-shim-module-name**: String [option]
+- **platform-shim-module-name**: String [optional]
 
   The name of a shim that will be instantiated automatically between the platform
   and the AFU's top-level module (module-name).  When present, platform shims
   offer a standard set of transformations that are common to many AFUs.  Platform
-  shims will automatically instantiate clock-crossing FIFOs.  The shims will
-  also insert registers to relieve timing.  Clock management and register
+  shims may automatically instantiate clock-crossing FIFOs.  The shims may
+  also insert registers to relax timing.  Clock management and register
   insertion are controlled by parameters in an AFU's JSON file.  See the
   add-extra-timing-reg-stages and clock module-arguments parameters,
-  described in README\_AFU in this directory.  When not defined or NULL, no shim
-  is instantiated.
+  described in [README\_AFU](README_AFU.md) in this directory.  When not defined
+  or NULL, no shim is instantiated.
 
 - **parent**: String [optional]
 
