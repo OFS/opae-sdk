@@ -158,7 +158,7 @@ Each of the module-arguments is a dictionary with the following keys:
 
 ---------------------------------------------------------------------------
 
-Class local-memory:
+### Class *local-memory*
 
 - avalon_mm:
 ```Verilog
