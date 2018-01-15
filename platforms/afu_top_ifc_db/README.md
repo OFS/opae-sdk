@@ -50,7 +50,6 @@ Each JSON database is a dictionary, supporting the following keys:
   an argument or group of arguments to the AFU top-level module.
   The format of a module-arguments dictionary entry is described below.
 
----------------------------------------------------------------------------
 
 ## Module Arguments
 
@@ -115,62 +114,61 @@ Each of the module-arguments is a dictionary with the following keys:
 
 ---------------------------------------------------------------------------
 
-## Supported class/interface types
+## Supported Class/Interface Types
 
 ### Class *clocks*
 
-  pClk3_usr2:
-  
+- pClk3_usr2:
+```Verilog
     input  logic        pClk,                 // Primary CCI-P interface clock.
     input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
     input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
     input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
     input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
     input  logic        pck_cp2af_softReset,  // CCI-P ACTIVE HIGH Soft Reset
-
+```
 
 ---------------------------------------------------------------------------
 
 ### Class *power*
 
-  2bit:
-  
+- 2bit:
+```Verilog
     input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
-
+```
 
 ---------------------------------------------------------------------------
 
 ### Class *error*
 
-  1bit:
-  
+- 1bit:
+```Verilog
     input  logic        pck_cp2af_error,      // CCI-P Protocol Error Detected
-
+```
 
 ---------------------------------------------------------------------------
 
 ### Class *cci-p*
 
-  struct:
-  
+- struct:
+```Verilog
     input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
     output t_if_ccip_Tx pck_af2cp_sTx         // CCI-P Tx Port
-
+```
 
 ---------------------------------------------------------------------------
 
 Class local-memory:
 
-  avalon_mm:
-  
+- avalon_mm:
+```Verilog
     // Vector of Avalon memory interfaces, one per bank.
     // The module parameter NUM_LOCAL_MEM_BANKS is expected.
     avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS]
+```
 
-  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  avalon_mm_legacy_wires_2bank [DEPRECATED]:
-  
+- avalon_mm_legacy_wires_2bank [DEPRECATED]:
+```Verilog
     // This interface was used in a very early discrete card memory
     // interface.  It will be deprecated and should not be used
     // in new AFUs.
@@ -202,3 +200,4 @@ Class local-memory:
     output  logic                       DDR4b_write,
     output  logic                       DDR4b_read,
     output  logic [63:0]                DDR4b_byteenable,
+```
