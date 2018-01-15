@@ -1,4 +1,6 @@
-AFU top-level interface databases describe the top-level module name and
+# AFU Top-Level Interface Database
+
+The AFU top-level interface databases describe the top-level module name and
 arguments expected by an AFU.
 
 Each JSON database is a dictionary, supporting the following keys:
@@ -48,88 +50,74 @@ Each JSON database is a dictionary, supporting the following keys:
   an argument or group of arguments to the AFU top-level module.
   The format of a module-arguments dictionary entry is described below.
 
+---------------------------------------------------------------------------
 
----------------------------------------------------------------------------
----------------------------------------------------------------------------
+## Module Arguments
 
 There may be at most one instance of a given class in a module-arguments
 list.  For example, only one type of local-memory may be offered.
 
 Each of the module-arguments is a dictionary with the following keys:
 
-  class:
-    String [required]
+- **class**: String [required]
 
-    The major interface class, such as clocks, cci-p and local-memory.
-    Supported classes are are listed below.
+  The major interface class, such as clocks, cci-p and local-memory.
+  Supported classes are are listed below.
 
-  interface:
-    String [required]
+- **interface**: String [required]
 
-    The interface expected by the AFU for the given class.
+  The interface expected by the AFU for the given class.
 
-  optional:
-    Boolean [optional (defaults to false)]
+- **optional**: Boolean [optional (defaults to false)]
 
-    If true, the AFU will accept platforms that do not offer the
-    class and interface.  The Verilog preprocessor variable
-    AFU_TOP_REQUIRES_<class>_<interface> will be defined in the
-    compilation when the interface is present.  The variable
-    PLATFORM_PROVIDES_<class> will also be defined.  Note: class
-    and interface are converted to upper case and dashes become
-    underscores.
+  If true, the AFU will accept platforms that do not offer the
+  class and interface.  The Verilog preprocessor variable
+  AFU\_TOP\_REQUIRES\_<class>\_<interface> will be defined in the
+  compilation when the interface is present.  The variable
+  PLATFORM\_PROVIDES\_<class> will also be defined.  Note: class
+  and interface are converted to upper case and dashes become
+  underscores.
 
-  version:
-    Integer [optional (defaults to 1)]
+- **version**: Integer [optional (defaults to 1)]
 
-    Version allows for variations in either the JSON database or in the
-    actual interface.  The significance of version numbers is specific
-    to a given class and interface.
+  Version allows for variations in either the JSON database or in the
+  actual interface.  The significance of version numbers is specific
+  to a given class and interface.
 
-  vector:
-    Boolean [optional (defaults to false)]
+- **vector**: Boolean [optional (defaults to false)]
 
-    When true, the module argument is a vector of multiple instances
-    of the argument.  For example, local-memory banks may be passed
-    as a vector of memory interfaces.  The minimum and maximum number
-    of entries is specified using min-entries and max-entries.
+  When true, the module argument is a vector of multiple instances
+  of the argument.  For example, local-memory banks may be passed
+  as a vector of memory interfaces.  The minimum and maximum number
+  of entries is specified using min-entries and max-entries.
 
-  min-entries:
-    Integer [optional (defaults to 1), must be > 0]
+- **min-entries**: Integer [optional (defaults to 1), must be > 0]
 
-    For vector arguments, the minimum number of instances required by
-    the AFU.
+  For vector arguments, the minimum number of instances required by
+  the AFU.
 
-  max-entries:
-    Integer [optional (defaults to infinite), must be > min-entries]
+- **max-entries**: Integer [optional (defaults to infinite), must be > min-entries]
 
-    For vector arguments, the maximum number of instances accepted by
-    the AFU.
+  For vector arguments, the maximum number of instances accepted by
+  the AFU.
 
-  default-entries:
-    Integer [optional, no default]
+- **default-entries**: Integer [optional, no default]
 
-    When both the platform and the AFU are willing to accept a range
-    of vector lengths, default-entries are instantiated.  When both
-    the AFU and the platform specify default-entries, the AFU takes
-    precedence.
+  When both the platform and the AFU are willing to accept a range
+  of vector lengths, default-entries are instantiated.  When both
+  the AFU and the platform specify default-entries, the AFU takes
+  precedence.
 
-  define:
-    List of strings [optional, no default]
+- **define**: List of strings [optional, no default]
 
-    When the module argument is present, add these strings as
-    Verilog preprocessor values to the platform configuration.
-
+  When the module argument is present, add these strings as
+  Verilog preprocessor values to the platform configuration.
 
 ---------------------------------------------------------------------------
----------------------------------------------------------------------------
 
-Below are supported class/interface types:
+## Supported class/interface types
 
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-
-Class clocks:
+### Class *clocks*
 
   pClk3_usr2:
   
@@ -143,7 +131,7 @@ Class clocks:
 
 ---------------------------------------------------------------------------
 
-Class power:
+### Class *power*
 
   2bit:
   
@@ -152,7 +140,7 @@ Class power:
 
 ---------------------------------------------------------------------------
 
-Class error:
+### Class *error*
 
   1bit:
   
@@ -161,7 +149,7 @@ Class error:
 
 ---------------------------------------------------------------------------
 
-Class cci-p:
+### Class *cci-p*
 
   struct:
   
