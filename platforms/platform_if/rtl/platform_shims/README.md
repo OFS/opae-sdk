@@ -1,3 +1,5 @@
+# Platform Shims
+
 Shims here are invoked by the top-level code that manages the partial reconfiguration
 boundary.  Instead of directly instantiating an AFU (e.g. ccip_std_afu), these
 intermediate shims will be mapped first.  The shims transform the interface and then
