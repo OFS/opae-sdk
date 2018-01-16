@@ -1,5 +1,18 @@
 # Platform Description Databases
 
+The platform databases serve two purposes:
+
+1. To describe the classes of wired interfaces to local devices offered by
+   particular physical platforms.
+
+2. To describe parameterizable properties of the local device interfaces.
+   Some interfaces may maintain a consistent wired interface but vary their
+   characteristics across platforms. For example, the set of channels offered
+   by CCI-P may vary from platform to platform depending on the physical
+   interconnect.
+
+## Platform Wired Interfaces
+
 Each JSON database is a dictionary, supporting the following keys:
 
 - **version**: Integer [required]
@@ -24,8 +37,8 @@ Each JSON database is a dictionary, supporting the following keys:
 - **module-arguments-offered**: List [required]
 
   The set of arguments offered by the platform to AFUs.  Entries in the
-  list have the same format as the module-arguments list found in AFU
-  top-level interface databases.
+  list have the same format as the module-arguments list found in [AFU
+  top-level interface databases](../afu_top_ifc_db).
 
   module-arguments-offered differs from the AFU's module-arguments in
   the following ways:
@@ -37,17 +50,16 @@ Each JSON database is a dictionary, supporting the following keys:
     class will be instantiated, since the AFU is allowed to request
     only one instance of a class.
 
-  - Some classes require configuration parameters.  The full list of
-    parameters and their default values are found in
-    platform\_defaults.json.  Individual platforms may override these
-    defaults by setting updated values in a "params" dictionary
-    within module-arguments-offered classes.  Setting a parameter's
-    value to null will keep it from being defined.
+  - Some classes require configuration parameters.  See the *Platform Parameters*
+    section below.  Individual platforms may override a parameter's default
+    by setting updated values in a "params" dictionary within
+    module-arguments-offered classes.  Setting a parameter's value to null
+    will keep it from being defined.
 
-    See ../afu\_top\_ifc\_db/README for both the schema and a list of valid
-    class/interface pairs.
+    See [../afu\_top\_ifc\_db/README.md](../afu_top_ifc_db/README.md) for both
+    the schema and a list of valid class/interface pairs.
 
----------------------------------------------------------------------------
+## Platform Parameters
 
 platform\_defaults.json is a special database, holding default values for
 module argument classes that are configurable.  By convention, all
