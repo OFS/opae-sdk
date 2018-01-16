@@ -92,7 +92,17 @@ the [afu\_platform\_config](../scripts/afu_platform_config) script.
 The script emits parameter values as preprocessor variables of the form
 PLATFORM\_PARAM\_\<class\>\_\<param\>.  Consistent with the other
 variables, all characters are converted to upper case and dashes become
-underscores.
+underscores.  These preprocessor variables are further exported automatically
+to SystemVerilog data structures in
+[../platform\_if/rtl/device\_cfg](../platform_if/rtl/device_cfg).
+CCI-P descriptors are in [ccip\_cfg\_pkg.sv](../platform_if/rtl/device_cfg/ccip_cfg_pkg.sv)
+and local memory in [local\_mem\_cfg\_pkg.sv](../platform_if/rtl/device_cfg/local_mem_cfg_pkg.sv).
+The SystemVerilog configuration should be incorporated into AFUs using the
+standard mechanism:
+
+```Verilog
+  `include "platform_if.vh"
+```
 
 The platform database is tagged with a version.  This version could be
 used in the canonicalizePlatformDefaultsDb function within
