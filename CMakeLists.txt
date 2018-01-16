@@ -246,7 +246,6 @@ define_pkg(ase
   opaecase
   asertl
   asescripts
-  asesampleconfig
   aseextra
   asesw
   GROUP "ase"

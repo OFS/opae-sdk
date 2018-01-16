@@ -548,7 +548,6 @@ static void *start_socket_srv(void *args)
 	int res = 0;
 	int err_cnt = 0;
 	int sock_msg = 0;
-	errno_t err;
 	int sock_fd;
 	struct sockaddr_un saddr;
 	socklen_t addrlen;
@@ -570,8 +569,8 @@ static void *start_socket_srv(void *args)
 	fcntl(sock_fd, F_SETFL, O_ASYNC);
 	saddr.sun_family = AF_UNIX;
 
-	err = generate_sockname(saddr.sun_path);
-	if (err != EOK) {
+	res = generate_sockname(saddr.sun_path);
+	if (res < 0) {
 		ASE_ERR("%s: Error strncpy_s\n", __func__);
 		err_cnt++;
 		goto err;
@@ -774,9 +773,6 @@ int ase_listener(void)
 						ase_reset_trig();
 					}
 				}
-				// wait for server shutdown
-				pthread_join(socket_srv_tid, NULL);
-
 
 				// Check for simulator sanity -- if transaction counts dont match
 				// Kill the simulation ASAP -- DEBUG feature only
@@ -1266,6 +1262,8 @@ void start_simkill_countdown(void)
 	// Final clean of IPC
 	final_ipc_cleanup();
 
+	// wait for server shutdown
+	pthread_join(socket_srv_tid, NULL);
 
 	// Close workspace log
 	if (fp_workspace_log != NULL) {
