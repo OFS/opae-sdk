@@ -61,11 +61,11 @@ Each JSON database is a dictionary, supporting the following keys:
 
 ## Platform Parameters
 
-platform\_defaults.json is a special database, holding default values for
-module argument classes that are configurable.  By convention, all
-configuration parameters available for each class should be set in
-platform\_defaults.json in order to have a central repository of
-parameters.  Particular platforms can override these default values
+[platform\_defaults.json](platform_defaults.json) is a special database, holding
+default values for module argument classes that are configurable.  By convention,
+all configuration parameters available for each class should be set in
+[platform\_defaults.json](platform_defaults.json) in order to have a central
+repository of parameters.  Particular platforms can override these default values
 by specifying platform-specific values in a "params" dictionary within
 an offered class.  For example, a PCIe-only platform can indicate the
 set of supported VCs with:
@@ -88,12 +88,13 @@ set of supported VCs with:
 ```
 
 Like other configuration databases, platform parameters are consumed by
-the afu\_platform\_config script.  The script emits parameter values as
-preprocessor variables of the form PLATFORM\_PARAM\_\<class\>\_\<param\>.
-Consistent with the other variables, all characters are converted to
-upper case and dashes become underscores.
+the [afu\_platform\_config](../scripts/afu_platform_config) script.
+The script emits parameter values as preprocessor variables of the form
+PLATFORM\_PARAM\_\<class\>\_\<param\>.  Consistent with the other
+variables, all characters are converted to upper case and dashes become
+underscores.
 
 The platform database is tagged with a version.  This version could be
 used in the canonicalizePlatformDefaultsDb function within
-afu\_platform\_config to maintain compatibility with old databases as
-interface classes change over time.
+[afu\_platform\_config](../scripts/afu_platform_config) to maintain
+compatibility with old databases as interface classes change over time.
