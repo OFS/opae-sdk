@@ -3,13 +3,14 @@ boundary.  Instead of directly instantiating an AFU (e.g. ccip_std_afu), these
 intermediate shims will be mapped first.  The shims transform the interface and then
 connect to the AFU.
 
-Shims names are defined in the JSON field "platform-shim-module-name" in
-AFU top-level interface descriptions: ../../../afu_top_ifc_db/
+Shims names are defined in the JSON field *platform-shim-module-name* in
+AFU top-level interface descriptions: [afu\_top\_ifc\_db](../../../afu_top_ifc_db/).
 
 Shims typically offer automatic clock crossing and automatic platform-specific
 register stage insertion to aid in timing closure.  See the various instances of
-"clock" and "add-extra-timing-reg-stages" in ../../../platform_db/platform_defaults.json.
+*clock* and *add-extra-timing-reg-stages* in
+[platform\_defaults.json](../../../platform_db/platform_defaults.json).
 
 Some modules here are sub-shims, instantiated by larger shims.  For example,
-platform_shim_ccip() manages only CCI-P clock crossing and register stage insertion.
-It is instantiated by platform_shim_ccip_std_afu().
+platform\_shim\_ccip() manages only CCI-P clock crossing and register stage insertion.
+It is instantiated by platform\_shim\_ccip\_std\_afu().
