@@ -56,7 +56,7 @@ Each JSON database is a dictionary, supporting the following keys:
     module-arguments-offered classes.  Setting a parameter's value to null
     will keep it from being defined.
 
-    See [../afu\_top\_ifc\_db/README.md](../afu_top_ifc_db/README.md) for both
+    See [../afu\_top\_ifc\_db/](../afu_top_ifc_db/) for both
     the schema and a list of valid class/interface pairs.
 
 ## Platform Parameters
