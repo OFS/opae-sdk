@@ -57,11 +57,11 @@ def get_bdf_from_args(args):
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     param = ':{}:{}.{}'.format(
-            vars(args)['bus'][-2:]
+            hex(int(vars(args)['bus'], 16))
             if vars(args)['bus'] else '',
-            vars(args)['device'][-2:]
+            hex(int(vars(args)['device'], 16))
             if vars(args)['device'] else '',
-            vars(args)['function'][-2:]
+            hex(int(vars(args)['function'], 16))
             if vars(args)['function'] else '')
     host = subprocess.check_output(['/usr/sbin/lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
