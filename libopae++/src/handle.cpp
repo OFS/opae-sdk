@@ -116,6 +116,15 @@ fpga_result handle::close() {
   return res;
 }
 
+void handle::reset() {
+  auto res = fpgaReset(handle_);
+  if (res != FPGA_OK) {
+    log_.error() << "fpgaReset() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
+  }
+}
+
 }  // end of namespace types
 }  // end of namespace fpga
 }  // end of namespace opae
