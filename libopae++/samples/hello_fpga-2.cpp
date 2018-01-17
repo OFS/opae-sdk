@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 using namespace opae::fpga::resources;
 
@@ -61,17 +62,28 @@ int main(int argc, char* argv[]) {
   
   // assert we have found at least one
   if (accelerators.size() < 1) {
-  	std::cerr << "accelerator not found\n";
-  	return -1;
-  }
-  accelerator::ptr_t accel = accelerators[0];
-
-  // open accelerator and map MMIO
-  try{
-    accel->open(FPGA_OPEN_SHARED);
-  } catch (accelerator::open_error & e) {
-    std::cerr << "Could not open accelerator - error is : " << e.what() << "\n";
+    std::cerr << "no accelerator found with this GUID: " << NLB0_AFUID << "\n";
     return -1;
+  }
+
+  // Start with a null accel ptr
+  accelerator::ptr_t accel;
+  // Loop through all accelerators and try to open at least one
+  for (auto ptr : accelerators) {
+    try{
+      accel->open(FPGA_OPEN_SHARED);
+      // we've opened an accelerator, assign the ptr to accel and stop trying
+      accel = ptr;
+      break;
+    } catch (accelerator::open_error & e) {
+      std::cerr << "could not open accelerator: " << e.what() << "\n";
+    }
+  }
+
+  // if it's still null, we couldn't open any accelerators found
+  if (!accel) {
+    std::cerr << "could not open at any accelerators
+      return -1;
   }
 
   // allocate buffers
