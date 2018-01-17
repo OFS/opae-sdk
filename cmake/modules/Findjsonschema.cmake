@@ -11,6 +11,7 @@ execute_process ( COMMAND python -c "from distutils.sysconfig import get_python_
 find_path(jsonschema_INCLUDE_DIRS
   NAMES jsonschema 
   PATHS ${PYTHON_SITE_PACKAGES}
+  $ENV{PYTHONPATH}
   DOC "packager runtime dependencies: jsonschema")
 
 if(jsonschema_INCLUDE_DIRS)

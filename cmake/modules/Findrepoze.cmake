@@ -11,6 +11,7 @@ execute_process ( COMMAND python -c "from distutils.sysconfig import get_python_
 find_path(repoze_INCLUDE_DIRS
   NAMES repoze 
   PATHS ${PYTHON_SITE_PACKAGES}
+  $ENV{PYTHONPATH}
   DOC "packager runtime dependencies: repoze")
 
 if(repoze_INCLUDE_DIRS)
