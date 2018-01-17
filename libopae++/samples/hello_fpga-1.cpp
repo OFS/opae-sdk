@@ -34,31 +34,14 @@
 
 using namespace opae::fpga::types;
 
-#ifndef LOG2_CL
-# define LOG2_CL 6
-#endif // LOG2_CL
-
-static uint64_t cacheline_aligned_addr(uint64_t num) {
-  return num >> LOG2_CL;
-}
-
-uint64_t operator "" _CL(unsigned long long int num) {
-  return num * 64;
-}
-
-size_t operator "" _KB(unsigned long long int num) {
-  return 1024 * num;
-}
-
-size_t operator "" _MB(unsigned long long int num) {
-  return 1024 * 1024 * num;
-}
-
-static const char* NLB0_AFUID = "D8424DC4-A4A3-C413-F89E-433683F9040B";
-
-static const size_t LPBK1_DSM_SIZE                 = 4_KB;
-static const size_t LPBK1_BUFFER_SIZE              = 1_KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE   = 4_KB;
+static const char* NLB0_AFUID                      = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+static const uint64_t CL                           = 64;
+static const uint64_t KB                           = 1024;
+static const uint64_t MB                           = KB * 1024;
+static const uint64_t LOG2_CL                      = 6;
+static const size_t LPBK1_DSM_SIZE                 = 4*KB;
+static const size_t LPBK1_BUFFER_SIZE              = 1*KB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE   = 4*KB;
 static const uint64_t CSR_SRC_ADDR                 = 0x0120;
 static const uint32_t CSR_DST_ADDR                 = 0x0128;
 static const uint32_t CSR_CTL                      = 0x0138;
@@ -67,6 +50,10 @@ static const uint32_t CSR_NUM_LINES                = 0x0130;
 static const uint32_t DSM_STATUS_TEST_COMPLETE     = 0x40;
 static const uint64_t CSR_AFU_DSM_BASEL            = 0x0110;
 static const uint64_t CSR_AFU_DSM_BASEH            = 0x0114;
+
+static inline uint64_t cacheline_aligned_addr(uint64_t num) {
+  return num >> LOG2_CL;
+}
 
 int main(int argc, char* argv[]) {
   // look for accelerator with NLB0_AFUID
@@ -91,7 +78,7 @@ int main(int argc, char* argv[]) {
   auto inp = dma_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
   auto out = dma_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
-  // initialzie buffers
+  // initialize buffers
   dsm->fill(0);
   inp->fill(0xAF);
   out->fill(0xBE);
@@ -103,7 +90,7 @@ int main(int argc, char* argv[]) {
   accel->write(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
   accel->write(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
 
-  accel->write(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1_CL);
+  accel->write(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1*CL);
   accel->write(CSR_CFG, static_cast<uint32_t>(0x42000));
 
   // get ptr to device status memory - test complete
