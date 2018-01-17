@@ -64,3 +64,6 @@ target_link_libraries(opae-cxx-core opae-c)
 add_executable(simple_example samples/simple_example.cpp)
 target_link_libraries(simple_example opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 
+add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
+target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
+
