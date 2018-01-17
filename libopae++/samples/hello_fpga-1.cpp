@@ -79,9 +79,9 @@ int main(int argc, char* argv[]) {
   auto out = dma_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
   // initialize buffers
-  dsm->fill(0);
-  inp->fill(0xAF);
-  out->fill(0xBE);
+  std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
+  std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
+  std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
   //accel->reset();
   accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
