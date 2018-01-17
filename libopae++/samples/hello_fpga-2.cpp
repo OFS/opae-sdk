@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   // if it's still null, we couldn't open any accelerators found
   if (!accel) {
     std::cerr << "could not open at any accelerators
-      return -1;
+    return -1;
   }
 
   // allocate buffers
