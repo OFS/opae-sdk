@@ -28,10 +28,13 @@
 #include <getopt.h>
 #include <signal.h>
 #include <new>
+#include <arpa/inet.h>
 
 #include <opae/fpga.h>
 #include "mmlink_server.h"
 #include "mm_debug_link_interface.h"
+
+#include "safe_string/safe_string.h"
 
 // STP index in AFU
 #define FPGA_PORT_INDEX_STP               1
@@ -44,13 +47,13 @@
                ## __VA_ARGS__)
 
 struct option longopts[] = {
-		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
-		{"tcpport",             required_argument, NULL, 'P'},
-		{"ip-address",          required_argument, NULL, 'I'},
+		{"help",        no_argument,       NULL, 'h'},
+		{"bus",         required_argument, NULL, 'B'},
+		{"device",      required_argument, NULL, 'D'},
+		{"function",    required_argument, NULL, 'F'},
+		{"socket",      required_argument, NULL, 'S'},
+		{"port",        required_argument, NULL, 'P'},
+		{"ip",          required_argument, NULL, 'I'},
 		{0,0,0,0}
 };
 
@@ -62,29 +65,28 @@ struct  MMLinkCommandLine
 	int      function;
 	int      socket;
 	int      port;
-	int      ip;
-
+	char     ip[16];
 };
 
-struct MMLinkCommandLine mmlinkCmdLine = { -1, -1, -1, -1, 0, 0};
+struct MMLinkCommandLine mmlinkCmdLine = { -1, -1, -1, -1, 0, { 0, } };
 
 // mmlink Command line input help
 void MMLinkAppShowHelp()
 {
 	printf("Usage:\n");
 	printf("./mmlink \n");
-	printf("<Bus>                 --bus=<BUS NUMBER>          "
-		" OR  -B=<BUS NUMBER>\n");
-	printf("<Device>              --device=<DEVICE NUMBER>    "
-		" OR  -D=<DEVICE NUMBER>\n");
+	printf("<Bus>                 --bus=<BUS NUMBER>           "
+		"OR  -B <BUS NUMBER>\n");
+	printf("<Device>              --device=<DEVICE NUMBER>     "
+		"OR  -D <DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> "
-		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>              --socket=<socket NUMBER>     "
-		"OR  -S=<SOCKET NUMBER>\n");
-	printf("<TCP Port>              -port                       "
-		"OR  -P \n");
-	printf("<IP address>          --ip                         "
-		"OR  -I \n");
+		"OR  -F <FUNCTION NUMBER>\n");
+	printf("<Socket>              --socket=<SOCKET NUMBER>     "
+		"OR  -S <SOCKET NUMBER>\n");
+	printf("<TCP PORT>            --port=<PORT>                "
+		"OR  -P <PORT>\n");
+	printf("<IP ADDRESS>          --ip=<IP ADDRESS>            "
+		"OR  -I <IP ADDRESS>\n");
 	printf("\n");
 
 }
@@ -124,27 +126,34 @@ int main( int argc, char** argv )
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
 	fpga_result result                 = FPGA_OK;
-	fpga_token port_token               = NULL;
+	fpga_token port_token              = NULL;
 	fpga_handle  port_handle           = NULL;
 	uint64_t *mmio_ptr                 = NULL;
+	int res;
 
 	// Parse command line
 	if ( argc < 2 ) {
 		MMLinkAppShowHelp();
-	return 1;
-	} else if ( 0!= ParseCmds(&mmlinkCmdLine, argc, argv) ) {
-		PRINT_ERR( "Error scanning command line \n.");
-	return 2;
+		return 1;
+	} else if ( 0 != (res = ParseCmds(&mmlinkCmdLine, argc, argv)) ) {
+		if (res != -2)
+			PRINT_ERR( "Error scanning command line \n.");
+		return 2;
+	}
+
+	if ('\0' == mmlinkCmdLine.ip[0]) {
+		strncpy_s(mmlinkCmdLine.ip, sizeof(mmlinkCmdLine.ip),
+			"127.0.0.1", 9);
 	}
 
 	printf(" ------- Command line Input START ---- \n \n");
 
 	printf(" Bus                   : %d\n", mmlinkCmdLine.bus);
-	printf(" Device                : %d \n", mmlinkCmdLine.device);
-	printf(" Function              : %d \n", mmlinkCmdLine.function);
-	printf(" Socket                : %d \n", mmlinkCmdLine.socket);
-	printf(" Port                  : %d \n", mmlinkCmdLine.port);
-	printf(" IP address            : %d \n", mmlinkCmdLine.ip);
+	printf(" Device                : %d\n", mmlinkCmdLine.device);
+	printf(" Function              : %d\n", mmlinkCmdLine.function);
+	printf(" Socket                : %d\n", mmlinkCmdLine.socket);
+	printf(" Port                  : %d\n", mmlinkCmdLine.port);
+	printf(" IP address            : %s\n", mmlinkCmdLine.ip);
 	printf(" ------- Command line Input END ---- \n\n");
 
 	// Signal Handler
@@ -245,7 +254,10 @@ int run_mmlink(fpga_handle  port_handle,
 	memset(&sock, 0, sizeof(sock));
 	sock.sin_family = AF_INET;
 	sock.sin_port = htons(mmlinkCmdLine->port);
-	sock.sin_addr.s_addr = htonl(mmlinkCmdLine->ip);
+	if (1 != inet_pton(AF_INET, mmlinkCmdLine->ip, &sock.sin_addr)) {
+		PRINT_ERR("Failed to convert IP address: %s\n", mmlinkCmdLine->ip);
+		return -1;
+	}
 
 	res = fpgaReadMMIO64(port_handle, FPGA_PORT_INDEX_STP, 0, &value);
 	if (res != 0) {
@@ -298,9 +310,6 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 			tmp_optarg = argv[optind++];
 		}
 
-		if(tmp_optarg == NULL )
-			break;
-
 		switch(getopt_ret){
 		case 'h':
 			// Command line help
@@ -310,18 +319,30 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 
 		case 'B':
 			// bus number
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --bus");
+				return -1;
+			}
 			endptr = NULL;
 			mmlinkCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'D':
 			// Device number
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --device");
+				return -1;
+			}
 			endptr = NULL;
 			mmlinkCmdLine->device = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'F':
 			// Function number
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --function");
+				return -1;
+			}
 			endptr = NULL;
 			mmlinkCmdLine->function = strtol(tmp_optarg,
 							&endptr, 0);
@@ -329,20 +350,32 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 
 		case 'S':
 			// Socket number
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --socket");
+				return -1;
+			}
 			endptr = NULL;
 			mmlinkCmdLine->socket = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'P':
 			// TCP Port 
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --port");
+				return -1;
+			}
 			endptr = NULL;
 			mmlinkCmdLine->port = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'I':
 			// Ip address
-			endptr = NULL;
-			mmlinkCmdLine->ip = strtol(tmp_optarg, &endptr, 0);
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --ip");
+				return -1;
+			}
+			strncpy_s(mmlinkCmdLine->ip, sizeof(mmlinkCmdLine->ip),
+				tmp_optarg, 16);
 			break;
 
 		case '?':
