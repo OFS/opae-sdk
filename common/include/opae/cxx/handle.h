@@ -120,6 +120,10 @@ class handle {
   static handle::ptr_t open(token::ptr_t token, int flags,
                             uint32_t mmio_region = 0);
 
+  /** Reset the accelerator identified by this handle
+   */
+  virtual void reset();
+
  protected:
   fpga_result close();
 
