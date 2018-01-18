@@ -33,6 +33,8 @@
 #include "log.h"
 #include "config_int.h"
 
+#include "safe_string/safe_string.h"
+
 enum fpga_power_state {
 	NORAML_PWR = 0,
 	AP1_STATE,
@@ -76,7 +78,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	// Read AP1 Event
-	snprintf(sysfspath, sizeof(sysfspath),
+	snprintf_s_s(sysfspath, sizeof(sysfspath),
 		"%s/ap1_event", event->sysfsfile);
 
 	if (read_event(sysfspath, &ap1_event) != 0) {
@@ -88,7 +90,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	// Read AP2 Event
-	snprintf(sysfspath, sizeof(sysfspath),
+	snprintf_s_s(sysfspath, sizeof(sysfspath),
 		"%s/ap2_event", event->sysfsfile);
 
 	if (read_event(sysfspath, &ap2_event) != 0) {
@@ -100,7 +102,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	// Read FPGA power state
-	snprintf(sysfspath, sizeof(sysfspath),
+	snprintf_s_s(sysfspath, sizeof(sysfspath),
 		"%s/power_state", event->sysfsfile);
 
 	if (read_event(sysfspath, &pwr_state) != 0) {
