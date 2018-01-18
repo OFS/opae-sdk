@@ -198,7 +198,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 				" setting to bound state\n";
 
 		bind();
-		send(OK, strlen(OK));
+		send(OK, strnlen_s(OK, sizeof(OK)));
 	}
 	else
 	{
@@ -230,7 +230,7 @@ int mmlink_connection::handle_bound_command(char *cmd)
 	int arg1, arg2;
 	bool unknown = true;
 
-	if (1 == sscanf(cmd, "IDENT %X", &u))
+	if (1 == sscanf_s_u(cmd, "IDENT %X", &u))
 	{
 		arg1 = (int)u;
 		if (arg1 >= 0 && arg1 <= 0xF) {
@@ -241,39 +241,39 @@ int mmlink_connection::handle_bound_command(char *cmd)
 			// Write the nibble value
 			driver()->write_ident(arg1);
 			driver()->ident(ident);
-			snprintf(msg, msg_len, "%08X%08X%08X%08X\n",
+			snprintf_s_iiii(msg, msg_len, "%08X%08X%08X%08X\n",
 				 ident[3], ident[2], ident[1], ident[0]);
 
-			send(msg, strlen(msg));
+			send(msg, strnlen_s(msg, sizeof(msg)));
 			unknown = false;
 		}
 	}
-	else if (1 == sscanf(cmd, "RESET %d", &arg1))
+	else if (1 == sscanf_s_i(cmd, "RESET %d", &arg1))
 	{
 		if (arg1 == 0 || arg1 == 1)
 		{
 			driver()->reset(arg1);
-			send(OK, strlen(OK));
+			send(OK, strnlen_s(OK, sizeof(OK)));
 			unknown = false;
 		}
 	}
-	else if (2 == sscanf(cmd, "ENABLE %d %d", &arg1, &arg2))
+	else if (2 == sscanf_s_ii(cmd, "ENABLE %d %d", &arg1, &arg2))
 	{
 		if (arg1 >= 0 && (arg2 == 0 || arg2 == 1))
 		{
 			driver()->enable(arg1, arg2);
-			send(OK, strlen(OK));
+			send(OK, strnlen_s(OK, sizeof(OK)));
 			unknown = false;
 		}
 	}
 	else if (0 == strncmp(cmd, "NOOP", 4))
 	{
-		send(OK, strlen(OK));
+		send(OK, strnlen_s(OK, sizeof(OK)));
 		unknown = false;
 	}
 
 	if (unknown)
-		send(UNKNOWN, strlen(UNKNOWN));
+		send(UNKNOWN, strnlen_s(UNKNOWN, sizeof(UNKNOWN)));
 
 	return 0;
 }
