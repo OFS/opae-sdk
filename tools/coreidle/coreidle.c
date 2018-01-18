@@ -226,6 +226,11 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	FPGA_MSG("Total Power : %Lf", total_power);
 	FPGA_MSG("Core Power  : %Lf", core_power);
 
+	// Set to maximum gbs power if power setting is zero in metadata.
+	if (gbs_power == 0) {
+		gbs_power = fpga_pwr_limit - FPGA_BBS_MIN_POWER;
+	}
+
 	if ((gbs_power + FPGA_BBS_MIN_POWER) > fpga_pwr_limit) {
 		FPGA_ERR("Invalid Input FPGA GBS Power");
 		result = FPGA_INVALID_PARAM;
