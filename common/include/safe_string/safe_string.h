@@ -696,10 +696,11 @@ extern "C" {
 #endif // __cplusplus
 
 int snprintf_s_i(char *dest, rsize_t dmax, const char *format, int a);
-int snprintf_s_si(char *dest, rsize_t dmax, const char *format, char *s, int a);
 int snprintf_s_l(char *dest, rsize_t dmax, const char *format, long a);
-int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, char *s, long a);
+int snprintf_s_s(char *dest, rsize_t dmax, const char *format, const char *s);
 
+int snprintf_s_si(char *dest, rsize_t dmax, const char *format, const char *s, int a);
+int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, const char *s, long a);
 int snprintf_s_il(char *dest, rsize_t dmax, const char *format, int a, long b);
 
 #if defined(__cplusplus)

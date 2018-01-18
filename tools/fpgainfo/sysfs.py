@@ -90,7 +90,7 @@ def add_dynamic_property(obj, property_name, sysfs_path=None):
                 property(getter, setter))
 
 
-class sysfs_resource(object):
+class sysfs_node(object):
     def __init__(self, path, instance_id, device_id=None, **kwargs):
         self._path = path
         self._instance_id = instance_id
@@ -102,7 +102,7 @@ class sysfs_resource(object):
     def enum_props(self, as_string=False):
         def pred(xxx_todo_changeme):
             (k, v) = xxx_todo_changeme
-            if k in dir(sysfs_resource):
+            if k in dir(sysfs_node):
                 return False
             if inspect.ismethod(v):
                 return False
@@ -121,20 +121,10 @@ class sysfs_resource(object):
             else:
                 yield k_, v_
 
-    def to_dict(self, include_bdf=False):
+    def to_dict(self):
         data = {}
         for k, v in self.enum_props():
             data[k] = v
-        if include_bdf:
-            root_data = {}
-            root_data["class_path"] = self.sysfs_path
-            root_data["dev_path"] = os.path.realpath(self.sysfs_path)
-            root_data["bus"] = self.bus
-            root_data["device"] = self.device
-            root_data["function"] = self.function
-            root_data["object_id"] = self.object_id
-            data["pcie_info"] = root_data
-
         return data
 
     def to_json(self):
@@ -230,6 +220,24 @@ class sysfs_resource(object):
         return self._function
 
     @property
+    def device_id(self):
+        return self._device_id
+
+
+class pr_feature(sysfs_node):
+    @property
+    def interface_id(self):
+        return str(uuid.UUID(self.read_sysfs("interface_id")))
+
+
+class sysfs_device(sysfs_node):
+    @property
+    def device_id(self):
+        return self.parse_sysfs("device")
+
+
+class sysfs_resource(sysfs_node):
+    @property
     def object_id(self):
         value = self.read_sysfs("dev")
         valueList = value.split(":")
@@ -238,24 +246,21 @@ class sysfs_resource(object):
         obj_id = ((long(major) & 0xFFF) << 20) | (long(minor) & 0xFFFFF)
         return obj_id
 
-    @property
-    def device_id(self):
-        return self._device_id
+    def to_dict(self):
+        data = super(sysfs_resource, self).to_dict()
+        root_data = {}
+        root_data["class_path"] = self.sysfs_path
+        root_data["dev_path"] = os.path.realpath(self.sysfs_path)
+        root_data["bus"] = self.bus
+        root_data["device"] = self.device
+        root_data["function"] = self.function
+        root_data["object_id"] = self.object_id
+        data["pcie_info"] = root_data
+
+        return data
 
 
-class pr_feature(sysfs_resource):
-    @property
-    def interface_id(self):
-        return str(uuid.UUID(self.read_sysfs("interface_id")))
-
-
-class sysfs_device(sysfs_resource):
-    @property
-    def device_id(self):
-        return self.parse_sysfs("device")
-
-
-class power_mgmt_feature(sysfs_resource):
+class power_mgmt_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(power_mgmt_feature, self).__init__(path, instance_id, device_id,
                                                  **kwargs)
@@ -263,7 +268,7 @@ class power_mgmt_feature(sysfs_resource):
             self.consumed = add_static_property("consumed")
 
 
-class thermal_feature(sysfs_resource):
+class thermal_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(thermal_feature, self).__init__(path, instance_id, device_id,
                                               **kwargs)
@@ -277,7 +282,7 @@ class thermal_feature(sysfs_resource):
             self.threshold_trip = add_static_property("threshold_trip")
 
 
-class errors_feature(sysfs_resource):
+class errors_feature(sysfs_node):
     revision = add_static_property("revision")
 
     def __init__(self, path, instance_id, device_id, **kwargs):

@@ -47,7 +47,7 @@ class error_mask(object):
                     s += u'\n  {:20} : 0x{:02X}'.format(name, err)
         return s
 
-    def to_dict(self, include_bdf=False):
+    def to_dict(self):
         if self._bitmasks:
             data = (dict([(name, bm(self.value))
                           for (name, bm) in self._bitmasks]))
@@ -306,7 +306,7 @@ class errors_command(fpga_command):
         json_data = []
         for r in resources:
             if args.json:
-                json_data.append(r.to_dict(True))
+                json_data.append(r.to_dict())
             else:
                 r.print_info(
                     "//****** {} ******//".format(r.name()))
