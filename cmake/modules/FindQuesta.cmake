@@ -24,36 +24,25 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-## Install target for ASE support files
-set(ASE_SHARE_DIR share/opae/ase)
+find_package(Perl REQUIRED)
 
-install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+set(MTI_HOME $ENV{MTI_HOME})
+if(MTI_HOME)
+  message("-- Using MTI_HOME: ${MTI_HOME}")
+  set(VSIM_EXECUTABLE "${MTI_HOME}/bin/vsim" CACHE PATH "Path to vsim")
+  set(VLOG_EXECUTABLE "${MTI_HOME}/bin/vlog" CACHE PATH "Path to vlog")
+  set(VLIB_EXECUTABLE "${MTI_HOME}/bin/vlib" CACHE PATH "Path to vlib")
+  set(VMAP_EXECUTABLE "${MTI_HOME}/bin/vmap" CACHE PATH "Path to vlib")
+  set(VPI_INCLUDE_DIR "${MTI_HOME}/include"  CACHE PATH "Path to dpi.h file")
+else()
+  set(MTI_HOME "" CACHE PATH "Path to Questa Verilog simulator")
+endif()
 
-set(EXTRA_ASE_FILES
-  Makefile
-  ase.cfg
-  ase_regress.sh)
+set(libsvdpi_LIBRARIES 1)
+find_path(libsvdpi_INCLUDE_DIRS
+  NAMES "svdpi.h"
+  PATHS "${MTI_HOME}/include")
 
-install(FILES ${EXTRA_ASE_FILES}
-  DESTINATION ${ASE_SHARE_DIR}
-  COMPONENT aseextra)
-
-## Some ASE scripts are installed in bin
-set(PLATFORM_SCRIPTS
-  afu_sim_setup)
-
-foreach(SRC ${PLATFORM_SCRIPTS})
-  ## Substitute CMake variables of the form @<var>@ in the source file
-  ## and store the file in the build tree's bin directory.
-  configure_file(
-    scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-    @ONLY NEWLINE_STYLE UNIX)
-  ## This forces the configure_file to be built for all targets
-  add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
-
-  install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-    DESTINATION bin
-    COMPONENT asescripts)
-endforeach(SRC)
+if(libsvdpi_LIBRARIES AND libsvdpi_INCLUDE_DIRS)
+  set(libsvdpi_FOUND true)
+endif(libsvdpi_LIBRARIES AND libsvdpi_INCLUDE_DIRS)

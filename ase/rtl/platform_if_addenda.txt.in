@@ -1,0 +1,35 @@
+##
+## Include this file in an ASE build to import platform interface definitions
+## into a simulation environment by adding the following line to vlog_files.list
+## in an ASE build directory:
+##
+##     -F <absolute path to this directory>/platform_if_addenda.txt
+##
+## Note that "-F" must be used and not "-f".  The former uses paths relative
+## to this directory.  The latter uses only absolute paths.
+##
+
+-f platform_if_includes.txt
+
+@PLATFORM_IF_DIR@/rtl/device_if/ccip_if_pkg.sv
+@PLATFORM_IF_DIR@/rtl/device_cfg/ccip_cfg_pkg.sv
+@PLATFORM_IF_DIR@/rtl/device_cfg/local_mem_cfg_pkg.sv
+
+@PLATFORM_IF_DIR@/rtl/device_if/ccip_if_clock.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/platform_shim_ccip_std_afu.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/platform_shim_ccip.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/platform_shim_avalon_mem_if.sv
+
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/avalon_mem_if_async_shim.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/avalon_mem_if_connect.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/avalon_mem_if_reg.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/platform_utils_ccip_activity_cnt.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/platform_utils_ccip_async_shim.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/platform_utils_ccip_reg.sv
+
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_dc_fifo.v
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_mm_clock_crossing_bridge.v
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_mm_bridge.v
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_dc_fifo.sv
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_dcfifo_synchronizer_bundle.v
+@PLATFORM_IF_DIR@/rtl/platform_shims/utils/quartus_ip/platform_utils_std_synchronizer_nocut.v

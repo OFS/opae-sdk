@@ -33,7 +33,6 @@ if(PYTHON_EXECUTABLE)
     "${_python_dir}/Scripts")
 endif()
 
-
 find_program(SPHINX_EXECUTABLE
   NAMES
     sphinx-build

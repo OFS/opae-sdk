@@ -1,13 +1,13 @@
 // (C) 2001-2016 Altera Corporation. All rights reserved.
-// Your use of Altera Corporation's design tools, logic functions and other 
-// software and tools, and its AMPP partner logic functions, and any output 
-// files any of the foregoing (including device programming or simulation 
-// files), and any associated documentation or information are expressly subject 
-// to the terms and conditions of the Altera Program License Subscription 
-// Agreement, Altera MegaCore Function License Agreement, or other applicable 
-// license agreement, including, without limitation, that your use is for the 
-// sole purpose of programming logic devices manufactured by Altera and sold by 
-// Altera or its authorized distributors.  Please refer to the applicable 
+// Your use of Altera Corporation's design tools, logic functions and other
+// software and tools, and its AMPP partner logic functions, and any output
+// files any of the foregoing (including device programming or simulation
+// files), and any associated documentation or information are expressly subject
+// to the terms and conditions of the Altera Program License Subscription
+// Agreement, Altera MegaCore Function License Agreement, or other applicable
+// license agreement, including, without limitation, that your use is for the
+// sole purpose of programming logic devices manufactured by Altera and sold by
+// Altera or its authorized distributors.  Please refer to the applicable
 // agreement for further details.
 
 
@@ -64,7 +64,7 @@ module platform_utils_dc_fifo
 `ifndef ALTERA_RESERVED_QIS
    // synopsys translate_on
 `endif
-   
+
    wire [DATA_WIDTH-1:0]    sub_wire0;
    wire 		    sub_wire1;
    wire 		    sub_wire2;
@@ -121,8 +121,10 @@ module platform_utils_dc_fifo
    assign wralmfull = sub_wralmfull;
 
    always_ff @(posedge wrclk)
-   begin
-      sub_wralmfull <= (wrusedw >= DEPTH_RADIX'(ALMOST_FULL_CNT));
+     begin
+      sub_wralmfull <= 1; // by Abelardo
+
+      // sub_wralmfull <= (wrusedw >= DEPTH_RADIX'(ALMOST_FULL_CNT));
    end
 
 endmodule
