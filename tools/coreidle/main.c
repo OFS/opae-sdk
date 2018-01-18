@@ -204,7 +204,7 @@ int main( int argc, char** argv )
 	}
 
 	// Idle CPU cores
-	if ( metadata.afu_image.power >0 ) {
+	if ( metadata.afu_image.power >=0 ) {
 		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
 	}
 
