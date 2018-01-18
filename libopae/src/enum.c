@@ -644,7 +644,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	for (lptr = head.next ; NULL != lptr ; lptr = lptr->next) {
 		struct _fpga_token *_tok;
 
-		if (!strnlen_s(lptr->devpath,sizeof(lptr->devpath)))
+		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 
 		// propagate the socket_id field.
