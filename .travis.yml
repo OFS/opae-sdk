@@ -1,16 +1,15 @@
 language: c
 compiler: gcc
-script: scripts/$TEST_SCRIPT
 matrix:
   include:
-    - env: TEST_SCRIPT=test-codingstyle.sh
-    - env: TEST_SCRIPT=test-codingstyle-py.sh
+    - script: scripts/test-codingstyle.sh
+    - script: scripts/test-codingstyle-py.sh
       cache: pip
       install:
         - pip install --user pylint
         - pip install --user pycodestyle
         - pip install --user jsonschema
-    - env: TEST_SCRIPT=test-build.sh
+    - script: scripts/test-build.sh
       cache: ccache
       addons:
         apt:
@@ -19,7 +18,7 @@ matrix:
             - libjson-c-dev
             - uuid-dev
             - doxygen
-    - env: TEST_SCRIPT=test-gtapi-mock-drv.sh
+    - script: scripts/test-gtapi-mock-drv.sh
       cache: ccache
       addons:
         apt:
