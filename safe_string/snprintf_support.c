@@ -268,6 +268,31 @@ inline int snprintf_s_l(char *dest, rsize_t dmax, const char *format, long a)
 
 
 
+inline int snprintf_s_s(char *dest, rsize_t dmax, const char *format, const char *s)
+{
+	char pformatList[MAX_FORMAT_ELEMENTS];
+	unsigned int index = 0;
+
+	// Determine the number of format options in the format string
+	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
+
+	// Check that there are not too many format options
+	if ( nfo != 1 ) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESBADFMT);
+	}
+	// Check first format is of string type
+	if ( CHK_FORMAT(FMT_STRING, pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+	index++;
+
+	return snprintf(dest, dmax, format, s);
+}
+
+
+
 inline int snprintf_s_il(char *dest, rsize_t dmax, const char *format, int a, long b)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
@@ -302,7 +327,7 @@ inline int snprintf_s_il(char *dest, rsize_t dmax, const char *format, int a, lo
 
 
 
-inline int snprintf_s_si(char *dest, rsize_t dmax, const char *format, char *s, int a)
+inline int snprintf_s_si(char *dest, rsize_t dmax, const char *format, const char *s, int a)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
 	unsigned int index = 0;
@@ -333,7 +358,7 @@ inline int snprintf_s_si(char *dest, rsize_t dmax, const char *format, char *s, 
 }
 
 
-inline int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, char *s, long a)
+inline int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, const char *s, long a)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
 	unsigned int index = 0;

@@ -33,6 +33,8 @@
 #include "log.h"
 #include "config_int.h"
 
+#include "safe_string/safe_string.h"
+
 //#define  ACCELERATOR_IRQ(fil, field, l, hi)
 #define PORT_ERR(sock, fil, field, lo, hi)        { sock, fil, field, lo, hi, false, evt_notify_error        }
 #define  FME_ERR(sock, fil, field, lo, hi)        { sock, fil, field, lo, hi, false, evt_notify_error        }
@@ -609,7 +611,7 @@ void *logger_thread(void *thread_context)
 	 * Check the errors/revision sysfs file to determine
 	 * which table to use.
 	 */
-	snprintf(sysfspath, sizeof(sysfspath),
+	snprintf_s_s(sysfspath, sizeof(sysfspath),
 			"%s/errors/revision", SYSFS_PORT0);
 
 	if (!stat(sysfspath, &stats)) {
@@ -640,7 +642,7 @@ void *logger_thread(void *thread_context)
 	 * Check the errors/revision sysfs file to determine
 	 * which table to use.
 	 */
-	snprintf(sysfspath, sizeof(sysfspath),
+	snprintf_s_s(sysfspath, sizeof(sysfspath),
 			"%s/errors/revision", SYSFS_FME0);
 
 	if (!stat(sysfspath, &stats)) {
