@@ -273,7 +273,7 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+			if (endptr != tmp_optarg + strnlen_s(tmp_optarg, sizeof(tmp_optarg))) {
 				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
 				return -1;
 			}
@@ -284,7 +284,7 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.device = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+			if (endptr != tmp_optarg + strnlen_s(tmp_optarg, sizeof(tmp_optarg))) {
 				fprintf(stderr, "invalid device: %s\n", tmp_optarg);
 				return -1;
 			}
@@ -295,7 +295,7 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.function = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+			if (endptr != tmp_optarg + strnlen_s(tmp_optarg, sizeof(tmp_optarg))) {
 				fprintf(stderr, "invalid function: %s\n", tmp_optarg);
 				return -1;
 			}
@@ -306,7 +306,7 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.socket = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+			if (endptr != tmp_optarg + strnlen_s(tmp_optarg, sizeof(tmp_optarg))) {
 				fprintf(stderr, "invalid socket: %s\n", tmp_optarg);
 				return -1;
 			}

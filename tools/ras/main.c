@@ -1067,7 +1067,7 @@ fpga_result mmio_error(struct RASCommandLine *rasCmdLine)
 	if ( rasCmdLine->function >0 )
 		function = rasCmdLine->bus;
 
-	snprintf(sysfs_path, sizeof(sysfs_path),
+	snprintf_s_iiii(sysfs_path, sizeof(sysfs_path),
 			DEVICEID_PATH,0,bus,device,function);
 
 	result = sysfs_read_u64(sysfs_path, &value);
@@ -1081,7 +1081,7 @@ fpga_result mmio_error(struct RASCommandLine *rasCmdLine)
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	snprintf(sysfs_path, sizeof(sysfs_path),
+	snprintf_s_iiii(sysfs_path, sizeof(sysfs_path),
 			FPGA_PORT_RES_PATH,0,bus,device,function);
 
 	fd = open(sysfs_path, O_RDWR);
