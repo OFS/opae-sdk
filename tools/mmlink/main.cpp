@@ -143,7 +143,7 @@ int main( int argc, char** argv )
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
 		strncpy_s(mmlinkCmdLine.ip, sizeof(mmlinkCmdLine.ip),
-			"127.0.0.1", 9);
+			"0.0.0.0", 9);
 	}
 
 	printf(" ------- Command line Input START ---- \n \n");
