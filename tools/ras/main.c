@@ -38,6 +38,7 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 
+#include "safe_string/safe_string.h"
 #include "opae/fpga.h"
 #include "types_int.h"
 #include "common_int.h"
@@ -581,7 +582,7 @@ fpga_result print_errors(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf(syfs_path, sizeof(syfs_path), "%s/%s",
+	snprintf_s_ss(syfs_path, sizeof(syfs_path), "%s/%s",
 			_token->sysfspath,
 			err_path );
 
@@ -619,7 +620,7 @@ fpga_result print_ras_errors(fpga_token token)
 	printf(" ----------- PRINT FME ERROR  START-------- \n \n");
 
 	// get revision
-	snprintf(syfs_path, sizeof(syfs_path), "%s/%s",
+	snprintf_s_ss(syfs_path, sizeof(syfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_ERR_REVISION );
 
@@ -819,7 +820,7 @@ fpga_result print_port_errors(fpga_token token)
 
 	device_id = atoi(p + 1);
 
-	snprintf(sysfs_port, SYSFS_PATH_MAX,
+	snprintf_s_iis(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT"/%s",
 		device_id, device_id,PORT_SYSFS_ERR);
 
@@ -874,7 +875,7 @@ fpga_result clear_port_errors(fpga_token token)
 
 	device_id = atoi(p + 1);
 
-	snprintf(sysfs_port, SYSFS_PATH_MAX,
+	snprintf_s_iis(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT"/%s",
 		device_id, device_id,PORT_SYSFS_ERR);
 
@@ -887,7 +888,7 @@ fpga_result clear_port_errors(fpga_token token)
 
 	printf("\n \n Port error CSR : 0x%lx \n", value);
 
-	snprintf(sysfs_port, SYSFS_PATH_MAX,
+	snprintf_s_iis(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT"/%s",
 		device_id, device_id,PORT_SYSFS_ERR_CLEAR);
 
@@ -916,7 +917,7 @@ fpga_result inject_ras_errors(fpga_token token,
 
 	printf("----------- INJECT ERROR START -------- \n \n");
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_INJECT_ERROR);
 	result = sysfs_read_u64(sysfs_path, &inj_error.csr);
@@ -968,7 +969,7 @@ fpga_result clear_inject_ras_errors(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_INJECT_ERROR);
 	result = sysfs_read_u64(sysfs_path, &inj_error.csr);
@@ -1004,7 +1005,7 @@ fpga_result print_pwr_temp(fpga_token token)
 	printf("\n ----------- POWER & THERMAL -------------\n");
 	printf(" ========================================== \n \n");
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_POWER_MGMT_CONSUMED);
 	result = sysfs_read_u64(sysfs_path, &value);
@@ -1014,7 +1015,7 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 	printf(" Power consumed       : %lu watts \n",value);
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_THERMAL_MGMT_TEMP);
 	result = sysfs_read_u64(sysfs_path, &value);
@@ -1024,7 +1025,7 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 	printf(" Temperature          : %lu Centigrade \n",value );
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP);
 	result = sysfs_read_u64(sysfs_path, &value);

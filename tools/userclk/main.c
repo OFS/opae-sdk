@@ -34,6 +34,7 @@
 #include <time.h>
 #include <limits.h>
 
+#include "safe_string/safe_string.h"
 #include "opae/fpga.h"
 #include "types_int.h"
 
@@ -259,7 +260,7 @@ fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid)
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf(sysfs_port, SYSFS_PATH_MAX,
+	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
 		device_id, device_id + portid);
 
