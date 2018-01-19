@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
                           FPGA_OPEN_SHARED,
                           1*GB,
                           [](accelerator::ptr_t accel, buffer_sice::ptr_t buffer){
-    // allocate buffers
+    // split buffers
     auto buffers = buffer->split({ LPBK1_DSM_SIZE,
                                    LPBK1_BUFFER_ALLOCATION_SIZE,
                                    LPBK1_BUFFER_ALLOCATION_SIZE });
@@ -82,31 +82,33 @@ int main(int argc, char* argv[]) {
     std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
     std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
-    accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
-    accel->configure<uint32_t>({ 
+    accel->iowrite(CSR_AFU_DSM_BASEL, dsm->iova());
+    accel->iowrite<uint32_t>({ 
       {CSR_CTL, static_cast<uint32_t>(0)},
       {CSR_CTL, static_cast<uint32_t>(1)}
     });
-    accel->configure<uint64_t>({
+    accel->iowrite<uint64_t>({
       {CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova())},
       {CSR_DST_ADDR, cacheline_aligned_addr(out->iova())},
       {CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1 * CL}
     });
-    accel->write(CSR_CFG, static_cast<uint32_t>(0x42000));
-
-    // get ptr to device status memory - test complete
-    auto status_ptr = dsm->get() + DSM_STATUS_TEST_COMPLETE / 8;
+    accel->iowrite(CSR_CFG, static_cast<uint32_t>(0x42000));
 
     // start the test
-    accel->write(CSR_CTL, static_cast<uint32_t>(3));
+    accel->iowrite(CSR_CTL, static_cast<uint32_t>(3));
 
     // wait for test completion
-    while (0 == ((*status_ptr) * 0x1)) {
-      std::this_thread::sleep_for(std::chrono::microseconds(100));
-    }
+    opae::fpga::memory::wait(
+      dsm,                      // shared buffer
+      DSM_STATUS_TEST_COMPLETE, // ofset
+      100,                      // interval time
+      10000,                    // timeout
+      0x1,                      // mask to apply to memory
+      0x1                       // expected value
+    );
 
     // stop the device
-    accel->write(CSR_CTL, static_cast<uint32_t>(7));
+    accel->iowrite(CSR_CTL, static_cast<uint32_t>(7));
 
     // check output buffer contents
     auto mm = std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
