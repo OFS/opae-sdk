@@ -60,7 +60,13 @@ private:
 public:
 	mm_debug_link_linux();
 	int open(unsigned char* stpAddr);
-	void* read_mmr(uint32_t target, int access_type);
+
+	template <typename T, typename U>
+	T read_mmr(U offset)
+	{
+		return *reinterpret_cast<volatile T *>(map_base + offset);
+	}
+
 	void write_mmr(off_t target, int access_type, uint64_t write_val);
 	ssize_t read();
 	ssize_t write( const void *buf, size_t count);
