@@ -26,8 +26,11 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 include(packaging)
-find_package(jsonschema REQUIRED)
-find_package(repoze REQUIRED)
+
+####### check python dependency ##############################################
+include(FindPythonPackage)
+FIND_PYTHON_PKG("jsonschema")
+FIND_PYTHON_PKG("repoze")
 
 ################# generate executable python zip files ########################
 
