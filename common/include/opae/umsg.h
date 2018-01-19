@@ -93,8 +93,6 @@ fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value);
  *
  * This function will return a pointer to the memory allocated for low latency
  * accelerator notifications (UMsgs).
- * @note This call is only supported by hardware targets, not by ASE
- * simulation. Use fpgaTriggerUmsg() if you need ASE simulation capabilities.
  *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[out] umsg_ptr Pointer to memory where a pointer to the virtual
