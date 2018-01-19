@@ -18,6 +18,8 @@ matrix:
             - libjson-c-dev
             - uuid-dev
             - doxygen
+            - python-jsonschema
+            - python-repoze.lru
     - script: scripts/test-gtapi-mock-drv.sh
       cache: ccache
       addons:
