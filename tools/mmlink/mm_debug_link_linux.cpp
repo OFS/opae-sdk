@@ -117,7 +117,7 @@ int mm_debug_link_linux::open(unsigned char* stpAddr)
 	cout << "Remote STP : De-Assert Reset" << endl << flush;
 	write_mmr(REMSTP_RESET, 'w', 0x0);
 
-	sign = *(static_cast<unsigned int*>(read_mmr(MM_DEBUG_LINK_SIGNATURE, 'w')));
+	sign = read_mmr<unsigned int>(MM_DEBUG_LINK_SIGNATURE);
 	cout << "Read signature value " << std::hex << sign << " to hw\n" << flush;
 	if ( sign != EXPECT_SIGNATURE)
 	{
@@ -125,7 +125,7 @@ int mm_debug_link_linux::open(unsigned char* stpAddr)
 		return -1;
 	}
 
-	version = *(static_cast<int*>(read_mmr(MM_DEBUG_LINK_VERSION, 'w')));
+	version = read_mmr<unsigned int>(MM_DEBUG_LINK_VERSION);
 	cout << "Read version value " << version << " to hw\n";
 	if ( version > MAX_SUPPORTED_VERSION )
 	{
@@ -133,37 +133,10 @@ int mm_debug_link_linux::open(unsigned char* stpAddr)
 		return -1;
 	}
 
-	this->m_write_fifo_capacity = *(static_cast<int*>(read_mmr(MM_DEBUG_LINK_WRITE_CAPACITY, 'w')));
+	this->m_write_fifo_capacity = read_mmr<int>(MM_DEBUG_LINK_WRITE_CAPACITY);
 	cout << "Read write fifo capacity value " << std::dec << this->m_write_fifo_capacity << " to hw\n";
 
 	return 0;
-}
-
-void* mm_debug_link_linux::read_mmr(uint32_t target, int access_type)
-{
-	void *virt_addr;
-	void *read_result;
-
-	virt_addr = (void *) (map_base + target);
-
-	switch(access_type) {
-	case 'b':
-                read_result = (void *)((uint8_t *) virt_addr);
-                break;
-	case 'h':
-                read_result = (void *)((uint16_t *) virt_addr);
-                break;
-	case 'w':
-                read_result = (void *)((uint32_t *) virt_addr);
-                break;
-	case 'q':
-                read_result = (void *)((uint64_t *) virt_addr);
-                break;
-	default:
-                cerr << "Illegal data type '" << access_type << "'.\n";
-                exit(2);
-        }
-	return read_result;
 }
 
 void mm_debug_link_linux::write_mmr(off_t target,
@@ -220,8 +193,9 @@ bool mm_debug_link_linux::can_read_data()
 
 ssize_t mm_debug_link_linux::read()
 {
-	volatile uint8_t  num_bytes =0;
-	num_bytes = *(static_cast<uint8_t *>(read_mmr(MM_DEBUG_LINK_FIFO_READ_COUNT, 'b' )));
+	uint8_t num_bytes;
+
+	num_bytes = read_mmr<uint8_t>(MM_DEBUG_LINK_FIFO_READ_COUNT);
 
 	// Reset the timer record
 	if ( (this->m_write_before_any_read_rfifo_level ||  // when this is the first read after write
@@ -312,8 +286,10 @@ ssize_t mm_debug_link_linux::read()
 			write_mmr( REMSTP_MMIO_RD_LEN, 'w', LEN_8B);
 			for ( unsigned char  i = 0; i < num_8B_reads; ++i )
 			{
-				char *p = (this->m_buf + this->m_buf_end + (i*8) );
-				*(uint64_t*)p = *(static_cast<uint64_t*>(read_mmr( MM_DEBUG_LINK_DATA_READ, 'q')));
+				volatile uint64_t *p = reinterpret_cast<volatile uint64_t *>(this->m_buf +
+                                                                                             this->m_buf_end +
+                                                                                             (i*8));
+				*p = read_mmr<uint64_t>(MM_DEBUG_LINK_DATA_READ);
 #ifdef DEBUG_8B_4B_TRANSFERS
 				cout << "DBG_READ_8B : Iteration "<< (unsigned) i << "; READ VALUE : " << hex;
 				for (unsigned char j=0; j<8; j++)
@@ -329,8 +305,11 @@ ssize_t mm_debug_link_linux::read()
 			write_mmr( REMSTP_MMIO_RD_LEN, 'w', LEN_4B);
 			for ( unsigned char  i = 0; i < num_4B_reads; ++i )
 			{
-				char *p = (this->m_buf + this->m_buf_end + ( (num_8B_reads*8) + (i*4) ));
-				*(uint32_t*)p  = *(static_cast<uint32_t*>(read_mmr( MM_DEBUG_LINK_DATA_READ, 'w')));
+				volatile uint32_t *p = reinterpret_cast<volatile uint32_t *>(this->m_buf +
+                                                                                             this->m_buf_end +
+                                                                                             (num_8B_reads*8) +
+                                                                                             (i*4));
+				*p = read_mmr<uint32_t>(MM_DEBUG_LINK_DATA_READ);
 #ifdef DEBUG_8B_4B_TRANSFERS
 				cout << "DBG_READ_4B : Iteration "<< (int) i << "; READ VALUE : " << hex;
 				for (unsigned char j=0; j<4; j++)
@@ -346,7 +325,11 @@ ssize_t mm_debug_link_linux::read()
 			write_mmr( REMSTP_MMIO_RD_LEN, 'w', LEN_1B);
 			for ( unsigned char i = 0; i < num_1B_reads; ++i )
 			{
-				*( this->m_buf + this->m_buf_end + ( (num_8B_reads*8) + (num_4B_reads*4) + i ) ) = *(static_cast<unsigned char*>(read_mmr( MM_DEBUG_LINK_DATA_READ, 'b')));
+				volatile uint8_t *p = reinterpret_cast<volatile uint8_t *>(this->m_buf + this->m_buf_end +
+                                                                                           (num_8B_reads*8) +
+                                                                                           (num_4B_reads*4) +
+                                                                                           i);
+				*p = read_mmr<uint8_t>(MM_DEBUG_LINK_DATA_READ);
 #ifdef DEBUG_8B_4B_TRANSFERS
 				cout << "DBG_READ_1B : Iteration "<< (int) i << "; READ VALUE : "
 				     << hex << (int) *( this->m_buf + this->m_buf_end + ( (num_8B_reads*8) + (num_4B_reads*4) +i)) << endl << flush << dec;
@@ -394,7 +377,8 @@ ssize_t mm_debug_link_linux::write(const void *buf, size_t count)
 {
 	uint8_t num_bytes;
 	unsigned int x;
-	num_bytes = *(static_cast<uint8_t *>(read_mmr(MM_DEBUG_LINK_FIFO_WRITE_COUNT, 'b' )));
+
+	num_bytes = read_mmr<uint8_t>(MM_DEBUG_LINK_FIFO_WRITE_COUNT);
 
 	this->m_write_before_any_read_rfifo_level = true;     // Set this to kick off any possible read activity even if write FIFO is full to avoid potential deadlock.
 
@@ -522,7 +506,7 @@ void mm_debug_link_linux::ident(int id[4])
 {
 	for ( int i = 0; i < 4; i++ )
 	{
-		id[i] = *(static_cast<int*>(read_mmr(MM_DEBUG_LINK_ID_ROM + i * 4, 'w')));
+		id[i] = read_mmr<int>(MM_DEBUG_LINK_ID_ROM + i * 4);
 	}
 }
 
