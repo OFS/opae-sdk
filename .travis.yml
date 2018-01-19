@@ -11,14 +11,14 @@ addons:
       - libboost-all-dev
       - libjson-c-dev
       - uuid-dev
-coverity_scan:
-  project:
-    name: "opae-sdk"
-    description: "open programmable acceleration engine SDK"
-  notification_email: "rodrigo.rojo@intel.com"
-  build_command_prepend: "mkdir coverity_scan && pushd coverity_scan && cmake ../"
-  build_command: "cd coverity_scan && make"
-  branch_pattern: "rrojo/travis-scan"
+  coverity_scan:
+    project:
+      name: "opae-sdk"
+      description: "open programmable acceleration engine SDK"
+    notification_email: "rodrigo.rojo@intel.com"
+    build_command_prepend: "mkdir coverity_scan && pushd coverity_scan && cmake ../"
+    build_command: "cd coverity_scan && make"
+    branch_pattern: "rrojo/travis-scan"
 matrix:
   include:
     - script: scripts/test-codingstyle.sh
