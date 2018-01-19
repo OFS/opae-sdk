@@ -29,3 +29,5 @@ matrix:
             - libjson-c-dev
             - uuid-dev
             - doxygen
+            - python-jsonschema
+            - python-repoze.lru
