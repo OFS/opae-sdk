@@ -1,5 +1,24 @@
 language: c
 compiler: gcc
+env:
+  global:
+    - secure: "ImJpIxDq0QDS1zCLXPQkZRdwQ1u//zceFlvhJvQaic6jDJI614g09AbsW8nqB2jMKkHf5eGbGUDbgbGXekPZOMEkmYCSnHOGja4wwPuc4x0q/mWJGMKc5bSeCajju6FO0BCWCnXNzg7aOw4lpZhB8LUqQMjFf6/ZbFWFd5FSVZkQ1UhTb65Q0ZboJVf6MV4ApToSdCWCWAFZASgil6Tqe9UYk32+UFnQ47ehNMhXNP7yGzMNGCt3lngQ/XdmK9kZFMxoDnFfwNU9IifqrFrbuUu+DYA/BPY0VSLRJZrtA8uneIkUCxL+vE/bBMwOKXnhgVUo/cPdqwWCBtEzLBIi6qSTczDTebJdEVljBFqUIkfME07KP9Yw6hMxayqnZWFhPsT9x2U85yv2Q4nr2vZ9LG08XqSLt/DRhkSeAOkzrUHbplBEoEQJOV+6v/cvbfWs56JAnuLX2YM63sHLz60gZL/wTU0je61iN+RITIxFWBHzlYY0Ti2G6ZWLqHYvKFjfjCrdEn4xEeNQ0LuwiXLL/DRCPPzkIRbAUBodBBRcHp2VYwPBvktUCrunTVAD/ys0ppO1pdsrAiEuYiAmE0jPAb8z/Fyz+vlYgga6YaUjzj5WdNSSVH6MEU0cWenPr1cUVX0SwCRmuQXRpuMlCqfEMxdt2Bnrz/Qohzh3E88bXHA="
+before_install:
+    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - libjson-c-dev
+      - uuid-dev
+coverity_scan:
+  project:
+    name: "opae-sdk"
+    description: "open programmable acceleration engine SDK"
+  notification_email: "rodrigo.rojo@intel.com"
+  build_command_prepend: "mkdir coverity_scan && pushd coverity_scan && cmake ../"
+  build_command: "cd coverity_scan && make"
+  branch_pattern: "rrojo/travis-scan"
 matrix:
   include:
     - script: scripts/test-codingstyle.sh
@@ -27,22 +46,3 @@ matrix:
             - libjson-c-dev
             - uuid-dev
             - doxygen
-    - env:
-        global:
-          - secure: "ImJpIxDq0QDS1zCLXPQkZRdwQ1u//zceFlvhJvQaic6jDJI614g09AbsW8nqB2jMKkHf5eGbGUDbgbGXekPZOMEkmYCSnHOGja4wwPuc4x0q/mWJGMKc5bSeCajju6FO0BCWCnXNzg7aOw4lpZhB8LUqQMjFf6/ZbFWFd5FSVZkQ1UhTb65Q0ZboJVf6MV4ApToSdCWCWAFZASgil6Tqe9UYk32+UFnQ47ehNMhXNP7yGzMNGCt3lngQ/XdmK9kZFMxoDnFfwNU9IifqrFrbuUu+DYA/BPY0VSLRJZrtA8uneIkUCxL+vE/bBMwOKXnhgVUo/cPdqwWCBtEzLBIi6qSTczDTebJdEVljBFqUIkfME07KP9Yw6hMxayqnZWFhPsT9x2U85yv2Q4nr2vZ9LG08XqSLt/DRhkSeAOkzrUHbplBEoEQJOV+6v/cvbfWs56JAnuLX2YM63sHLz60gZL/wTU0je61iN+RITIxFWBHzlYY0Ti2G6ZWLqHYvKFjfjCrdEn4xEeNQ0LuwiXLL/DRCPPzkIRbAUBodBBRcHp2VYwPBvktUCrunTVAD/ys0ppO1pdsrAiEuYiAmE0jPAb8z/Fyz+vlYgga6YaUjzj5WdNSSVH6MEU0cWenPr1cUVX0SwCRmuQXRpuMlCqfEMxdt2Bnrz/Qohzh3E88bXHA="
-      before_install:
-          - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-      addons:
-        apt:
-          packages:
-            - libboost-all-dev
-            - libjson-c-dev
-            - uuid-dev
-      coverity_scan:
-        project:
-          name: "opae-sdk"
-          description: "open programmable acceleration engine SDK"
-        notification_email: "rodrigo.rojo@intel.com"
-        build_command_prepend: "mkdir coverity_scan && pushd coverity_scan && cmake ../"
-        build_command: "cd coverity_scan && make"
-        branch_pattern: "rrojo/travis-scan"
