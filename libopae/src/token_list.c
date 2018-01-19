@@ -147,7 +147,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 
 	device_id = atoi(p+1);
 
-	snprintf(spath, sizeof(spath),
+	snprintf_s_ii(spath, sizeof(spath),
 			SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
 			device_id, device_id);
 
