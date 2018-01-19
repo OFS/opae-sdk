@@ -108,7 +108,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 		device_id = (int) strtoul(p+1, NULL, 10);
 
-		snprintf(spath, SYSFS_PATH_MAX,
+		snprintf_s_ii(spath, SYSFS_PATH_MAX,
 				SYSFS_FPGA_CLASS_PATH
 				SYSFS_FME_PATH_FMT,
 				device_id, device_id);
@@ -364,7 +364,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 	if (strstr(name, FPGA_SYSFS_FME)) {
 		int socket_id = 0;
 
-		snprintf(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
+		snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
 		pdev = add_dev(sysfspath, dpath, parent);
 		if (!pdev) {
@@ -384,7 +384,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 		// populate from pr/interface_id
 
 		// Discover the FME GUID from sysfs (pr/interface_id)
-		snprintf(spath, sizeof(spath), "%s/"
+		snprintf_s_s(spath, sizeof(spath), "%s/"
 				FPGA_SYSFS_FME_INTERFACE_ID, sysfspath);
 
 		result = sysfs_read_guid(spath, pdev->guid);
@@ -392,20 +392,20 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 			return result;
 
 		// Discover the socket id from the FME's sysfs entry.
-		snprintf(spath, sizeof(spath), "%s/"
+		snprintf_s_s(spath, sizeof(spath), "%s/"
 				FPGA_SYSFS_SOCKET_ID, sysfspath);
 
 		result = sysfs_read_int(spath, &socket_id);
 		if (FPGA_OK != result)
 			return result;
 
-		snprintf(spath, sizeof(spath), "%s/"
+		snprintf_s_s(spath, sizeof(spath), "%s/"
 				FPGA_SYSFS_NUM_SLOTS, sysfspath);
 		result = sysfs_read_u32(spath, &pdev->fpga_num_slots);
 		if (FPGA_OK != result)
 			return result;
 
-		snprintf(spath, sizeof(spath), "%s/"
+		snprintf_s_s(spath, sizeof(spath), "%s/"
 				FPGA_SYSFS_BITSTREAM_ID, sysfspath);
 		result = sysfs_read_u64(spath, &pdev->fpga_bitstream_id);
 		if (FPGA_OK != result)
@@ -425,7 +425,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 	if (strstr(name, FPGA_SYSFS_AFU)) {
 		int res;
 
-		snprintf(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
+		snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
 		pdev = add_dev(sysfspath, dpath, parent);
 		if (!pdev) {
@@ -452,7 +452,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 		pdev->accelerator_num_irqs = 0;
 
 		// Discover the AFU GUID from sysfs.
-		snprintf(spath, sizeof(spath), "%s/" FPGA_SYSFS_AFU_GUID,
+		snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_AFU_GUID,
 				sysfspath);
 
 		result = sysfs_read_guid(spath, pdev->guid);
@@ -560,7 +560,7 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 		if (!strcmp(dirent->d_name, ".."))
 			continue;
 
-		snprintf(spath, sizeof(spath), "%s/%s", sysfspath,
+		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
 				dirent->d_name);
 
 		result = enum_fme_afu(spath, dirent->d_name, pdev);
@@ -625,7 +625,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		if (!strcmp(dirent->d_name, ".."))
 			continue;
 
-		snprintf(sysfspath, sizeof(sysfspath), "%s/%s",
+		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
 				SYSFS_FPGA_CLASS_PATH,	dirent->d_name);
 
 		result = enum_top_dev(sysfspath, &head);
@@ -644,7 +644,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	for (lptr = head.next ; NULL != lptr ; lptr = lptr->next) {
 		struct _fpga_token *_tok;
 
-		if (!strlen(lptr->devpath))
+		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 
 		// propagate the socket_id field.
