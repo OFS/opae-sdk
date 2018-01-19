@@ -148,7 +148,7 @@ static fpga_result clear_port_errors(fpga_handle handle)
 		return result;
 	}
 
-	snprintf(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERRORS);
+	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERRORS);
 	// Read port error.
 	result = sysfs_read_u64(syfs_errpath, &error);
 	if (result != FPGA_OK) {
@@ -156,7 +156,7 @@ static fpga_result clear_port_errors(fpga_handle handle)
 		return result;
 	}
 
-	snprintf(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
+	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
 	// Clear port error.
 	result = sysfs_write_u64(syfs_errpath, error);
 	if (result != FPGA_OK) {
@@ -243,7 +243,7 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	}
 
 	// set fpga threshold 1
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD1);
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD1);
 	FPGA_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
 
 	result = sysfs_write_u64(sysfs_path, fpga_power);
