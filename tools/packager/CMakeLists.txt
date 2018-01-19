@@ -30,7 +30,6 @@ include(packaging)
 ####### check python dependency ##############################################
 include(FindPythonPackage)
 FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
-FIND_PYTHON_PKG("repoze" SEND_ERROR)
 
 ################# generate executable python zip files ########################
 
