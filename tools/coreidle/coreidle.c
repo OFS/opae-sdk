@@ -133,7 +133,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath,
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath,
 			FPGA_SYSFS_SOCKET_ID);
 	result = sysfs_read_u64(sysfs_path, &socketid);
 	if (result != FPGA_OK) {
@@ -141,7 +141,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
 		XEON_PWR_LIMIT);
 	result = sysfs_read_u64(sysfs_path, &value);
 	if (result != FPGA_OK) {
@@ -150,7 +150,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	}
 
 	xeon_pwr_limit = value / 8;
-	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", _token->sysfspath,
 		FPGA_PWR_LIMIT);
 	result = sysfs_read_u64(sysfs_path, &value);
 	if (result != FPGA_OK) {
