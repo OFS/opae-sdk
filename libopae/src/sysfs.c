@@ -341,7 +341,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 		buf[i+2] = 0;
 
 		octet = 0;
-		sscanf(&buf[i], "%x", &octet);
+		sscanf_s_u(&buf[i], "%x", &octet);
 		guid[i/2] = (uint8_t) octet;
 
 		buf[i+2] = tmp;
@@ -533,9 +533,9 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 
 	device_id = atoi(p + 1);
 
-	snprintf(sysfs_path,
+	snprintf_s_is(sysfs_path,
 		 SYSFS_PATH_MAX,
-		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT"/%s",
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
 		 device_id,
 		 FPGA_SYSFS_DEVICEID);
 
@@ -580,9 +580,9 @@ fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 
 	device_id = atoi(p + 1);
 
-	snprintf(sysfs_path,
+	snprintf_s_is(sysfs_path,
 		 SYSFS_PATH_MAX,
-		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT"/%s",
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
 		 device_id,
 		 FPGA_SYSFS_DEVICEID);
 
@@ -650,7 +650,7 @@ fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)
 	uint32_t minor = 0;
 	fpga_result result;
 
-	snprintf(sdevpath, SYSFS_PATH_MAX, "%s/dev", sysfspath);
+	snprintf_s_s(sdevpath, SYSFS_PATH_MAX, "%s/dev", sysfspath);
 
 	result = sysfs_read_u32_pair(sdevpath, &major, &minor, ':');
 	if (FPGA_OK != result)

@@ -494,6 +494,39 @@ inline int snprintf_s_si(char *dest, rsize_t dmax, const char *format, const cha
 }
 
 
+
+inline int snprintf_s_is(char *dest, rsize_t dmax, const char *format, int a, const char *s)
+{
+	char pformatList[MAX_FORMAT_ELEMENTS];
+	unsigned int index = 0;
+
+	// Determine the number of format options in the format string
+	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
+
+	// Check that there are not too many format options
+	if ( nfo != 2 ) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESBADFMT);
+	}
+
+	// Check first format is of integer type
+	if ( check_integer_format(pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+	index++;
+
+	// Check that the format is for a string type
+	if ( CHK_FORMAT(FMT_STRING, pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+
+	return snprintf(dest, dmax, format, a, s);
+}
+
+
+
 inline int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, const char *s, long a)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
