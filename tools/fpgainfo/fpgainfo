@@ -32,6 +32,7 @@ import fpgatemp
 import fpga_fmeinfo
 import fpga_portinfo
 import logging
+import sys
 
 
 if __name__ == "__main__":
@@ -54,5 +55,14 @@ if __name__ == "__main__":
                                               fpga_portinfo.port_command)
 
     args = parser.parse_args()
-    logging.basicConfig(filename='fpgainfo.log')
+
+    logfile = "/tmp/fpgainfo.log"
+    formatstr = '%(asctime)s [%(levelname)s] %(message)s'
+    try:
+        logging.basicConfig(filename=logfile, format=formatstr)
+    except IOError:
+        logging.basicConfig(stream=sys.stderr, format=formatstr)
+        logging.warning("Could not open log file: {}."
+                        "Logging to stderr".format(logfile))
+
     args.func(args)
