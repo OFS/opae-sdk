@@ -113,6 +113,7 @@ def run_packager():
         gbs = GBS(subargs.input_gbs)
         afu = AFU.create_afu_from_gbs(gbs)
         afu.update_afu_json(subargs.set_value)
+        afu.validate(packaging=True)
         gbs.update_gbs_info(afu.afu_json)
         gbs_file = gbs.write_gbs(subargs.output_gbs)
         print("Wrote {0}".format(gbs_file))

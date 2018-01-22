@@ -93,3 +93,5 @@ set_global_assignment -name VERILOG_FILE       $PLATFORM_IF_SRC/rtl/platform_shi
 set_global_assignment -name SDC_FILE           $PLATFORM_IF_SRC/rtl/platform_shims/utils/quartus_ip/platform_utils_avalon_dc_fifo.sdc
 
 set_global_assignment -name SDC_FILE           $PLATFORM_IF_SRC/par/platform_if.sdc
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE $PLATFORM_IF_SRC/par/afu_json.tcl
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE $PLATFORM_IF_SRC/par/user_clock_config.tcl
