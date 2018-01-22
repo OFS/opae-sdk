@@ -3,6 +3,9 @@
 ##
 
 ##
+## For systems where there are two aligned user clocks: one primary and one running
+## at half the speed of the primary.
+##
 ## Input: a pair of user clock frequency requests from the AFU's JSON file,
 ## passed as an array, and the maximum permitted frequency.
 ##
@@ -13,8 +16,15 @@
 ## "target freq" or to freq_max.  The actual frequencies will be set based on
 ## the timing results.
 ##
-## For systems where there are two aligned user clocks: one primary and one running
-## at half the speed of the primary.
+## Precedence when the high/low clock configurations conflict:
+##   1. High clock auto.  The low clock will be set to half the frequency of
+##      the high clock.
+##   2. Low clock auto.  The high clock will be set to twice the frequency of
+##      the low clock.
+##   3. Numeric frequencies.  If both clock's frequencies are specified, the
+##      low clock must be half the frequency of the high clock.  If only one
+##      clock's frequency is specified, the other clock's frequency is derived
+##      from the configured clock.
 ##
 proc get_aligned_user_clock_targets {afu_json_uclk_freqs freq_max} {
     set uclk_freq_low [lindex $afu_json_uclk_freqs 0]
@@ -42,7 +52,11 @@ proc get_aligned_user_clock_targets {afu_json_uclk_freqs freq_max} {
         post_message "Target user clock low: auto ($uclk_freq_low)"
     } elseif {0 == [string compare -nocase -length 4 "auto" $uclk_freq_low]} {
         # Low frequency clock is "auto" and the high frequency clock is not.
-        # Ignore the high frequency constraint, setting it to 2x the low.
+        # Don't allow a conflicting high frequency constraint.
+        if {$uclk_freq_high > 0} {
+            error "Fixed user clock high ($uclk_freq_high) and auto user clock low are incompatible."
+        }
+
         set uclk_freq_low [uclk_parse_auto_freq $uclk_freq_low $freq_max]
         set uclk_freq_high [expr {$uclk_freq_low * 2}]
         if {$uclk_freq_high > $freq_max} {
@@ -59,7 +73,7 @@ proc get_aligned_user_clock_targets {afu_json_uclk_freqs freq_max} {
 
         # Validate.  Low is supposed to be 1/2 the frequency of high and the two are
         # aligned.  We avoid false negatives caused by floating point rounding here.
-        if {[expr {abs($uclk_freq_high / $uclk_freq_low - 2.0)}] > 0.01} {
+        if {[expr {abs((1.0 * $uclk_freq_high) / $uclk_freq_low - 2.0)}] > 0.01} {
             error "Target user clock low ($uclk_freq_low) is supposed to be half the frequency of user clock high ($uclk_freq_high)!"
         }
 
@@ -185,8 +199,9 @@ proc load_computed_user_clocks {freq_max} {
 proc uclk_freq_is_auto {afu_json_uclk_freqs} {
     set u_clk_auto 0
 
+    set llen [llength $afu_json_uclk_freqs]
     set i 0
-    while {$i < 2} {
+    while {$i < $llen} {
         # Is the requested clock frequency "auto"?
         if {0 == [string compare -nocase -length 4 "auto" [lindex $afu_json_uclk_freqs $i]]} {
             set u_clk_auto 1
