@@ -87,7 +87,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			(struct _fpga_token *) _filter->parent;
 		char spath[SYSFS_PATH_MAX];
 		char *p;
-		int device_id;
+		int device_instance;
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
 			res = false; // Only accelerator can have a parent
@@ -106,12 +106,12 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			goto out_unlock;
 		}
 
-		device_id = (int) strtoul(p+1, NULL, 10);
+		device_instance = (int) strtoul(p+1, NULL, 10);
 
 		snprintf_s_ii(spath, SYSFS_PATH_MAX,
 				SYSFS_FPGA_CLASS_PATH
 				SYSFS_FME_PATH_FMT,
-				device_id, device_id);
+				device_instance, device_instance);
 
 		if (strcmp(spath, ((struct _fpga_token *)
 						_filter->parent)->sysfspath)) {
