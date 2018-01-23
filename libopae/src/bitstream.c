@@ -143,7 +143,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 	}
 
 	// PR Interface id path
-	snprintf(file_path, sizeof(file_path), "%s/%s", _token->sysfspath,
+	snprintf_s_ss(file_path, sizeof(file_path), "%s/%s", _token->sysfspath,
 		 PR_INTERFACE_ID);
 
 	if ((stat(file_path, &astats)) != FPGA_OK) {

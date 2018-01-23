@@ -24,8 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 2.8.12)
 include(packaging)
+
+####### check python dependency ##############################################
+include(FindPythonPackage)
+FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
 
 ################# generate executable python zip files ########################
 

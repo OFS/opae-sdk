@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 2.8.12)
 
 project("opae-c-ase")
 find_package(Threads  REQUIRED)
@@ -32,6 +32,7 @@ set(API_DIR ${PROJECT_SOURCE_DIR})
 set(ASEAPI_SRC
   ${API_DIR}/../sw/tstamp_ops.c
   ${API_DIR}/../sw/ase_ops.c
+  ${API_DIR}/../sw/ase_strings.c
   ${API_DIR}/../sw/app_backend.c
   ${API_DIR}/../sw/mqueue_ops.c
   ${API_DIR}/../sw/error_report.c

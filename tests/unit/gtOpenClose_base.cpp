@@ -33,7 +33,11 @@ extern "C" {
 
 #include "common_test.h"
 #include "gtest/gtest.h"
+#ifdef BUILD_ASE
+#include "ase/api/src/types_int.h"
+#else
 #include "types_int.h"
+#endif
 
 using namespace common_test;
 
@@ -43,7 +47,7 @@ using namespace common_test;
  * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
  *             function returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecOpenCommonHW, open_01) {
+TEST(LibopaecOpenCommonALL, open_01) {
   fpga_token tok = NULL;
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, NULL, 0));
@@ -55,7 +59,7 @@ TEST(LibopaecOpenCommonHW, open_01) {
  * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
  *             function returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecOpenCommonHW, open_06) {
+TEST(LibopaecOpenCommonALL, open_06) {
   fpga_handle h;
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
@@ -68,7 +72,7 @@ TEST(LibopaecOpenCommonHW, open_06) {
  *             function returns FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecOpenCommonHW, open_08) {
+TEST(LibopaecOpenCommonALL, open_08) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;

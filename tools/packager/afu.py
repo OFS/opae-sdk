@@ -28,11 +28,17 @@ import json
 import os
 import shutil
 import sys
-import jsonschema
 import utils
 import zipfile
 from metadata import metadata
 from gbs import GBS, GBS_EXT
+
+try:
+    import jsonschema
+except ImportError:
+    print("afu.py requires the jsonschema package.  Please install it.")
+    print("  https://pypi.python.org/pypi/jsonschema" + os.linesep)
+    raise
 
 filepath = os.path.dirname(os.path.realpath(__file__))
 schema_path = "schema/afu_schema_v01.json"
@@ -82,16 +88,31 @@ class AFU(object):
         if not self.validate():
             raise Exception("Accelerator description file failed validation!")
 
-    def validate(self):
+    def validate(self, packaging=False):
         if self.afu_json == {}:
             return False
         try:
             jsonschema.validate(self.afu_json, afu_schema)
-            return True
         except jsonschema.exceptions.ValidationError as ve:
             print("JSON schema error at {0}: {1}".format(
                 str(list(ve.path)), str(ve.message)))
             return False
+
+        # If emitting a GBS file do some extra validation beyond the schema.
+        if packaging:
+            # User clocks can be "auto" in the source JSON in order to
+            # set the frequency to the actual achieved speed.  When
+            # creating the GBS, the frequencies must be numbers.
+            for clock in ['clock-frequency-high', 'clock-frequency-low']:
+                if clock in self.afu_json['afu-image']:
+                    f = self.afu_json['afu-image'][clock]
+                    if not isinstance(f, (int, float)):
+                        print("JSON schema error at {0}: {1}").format(
+                            "afu-image/" + clock, "expected number")
+                        raise Exception("Accelerator description file " +
+                                        "failed validation!")
+
+        return True
 
     def update_afu_json(self, key_values):
         try:
@@ -148,6 +169,7 @@ class AFU(object):
         if 'magic-no' not in self.afu_json['afu-image']:
             self.afu_json['afu-image']['magic-no'] = 0x1d1f8680
 
+        self.validate(packaging=True)
         gbs = GBS.create_gbs_from_afu_info(rbf_file, self.afu_json)
         return gbs.write_gbs(gbs_file)
 

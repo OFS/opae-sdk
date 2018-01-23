@@ -15,8 +15,12 @@
                     },
                     "required" : ["name"]
                 },
-                "clock-frequency-low" : {"type" : "number"},
-                "clock-frequency-high" : {"type" : "number"},
+                "clock-frequency-low" : {"type" : ["number", "string"],
+                                         "pattern" : "^auto(-[0-9.]+)?$"
+                                        },
+                "clock-frequency-high" : {"type" : ["number", "string"],
+                                          "pattern" : "^auto(-[0-9.]+)?$"
+                                         },
                 "power": {"type" : "number"},
                 "accelerator-clusters":  {
                     "type": "array",

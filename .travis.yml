@@ -1,26 +1,31 @@
 language: c
-cache:
-  - ccache
-  - pip
 compiler: gcc
-install:
-  - pip install --user pylint
-  - pip install --user pycodestyle
-  - pip install --user jsonschema
-jobs:
+matrix:
   include:
-    - stage: BAT
-      script: scripts/test-codingstyle.sh
-    - # BAT
-      script: scripts/test-codingstyle-py.sh
-    - # BAT
-      script: scripts/test-build.sh
-    - # BAT
-      script: scripts/test-gtapi-mock-drv.sh
-addons:
-  apt:
-    packages:
-      - libboost-all-dev
-      - libjson-c-dev
-      - uuid-dev
-      - doxygen
+    - script: scripts/test-codingstyle.sh
+    - script: scripts/test-codingstyle-py.sh
+      cache: pip
+      install:
+        - pip install --user pylint
+        - pip install --user pycodestyle
+        - pip install --user jsonschema
+    - script: scripts/test-build.sh
+      cache: ccache
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+            - libjson-c-dev
+            - uuid-dev
+            - doxygen
+            - python-jsonschema
+    - script: scripts/test-gtapi-mock-drv.sh
+      cache: ccache
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+            - libjson-c-dev
+            - uuid-dev
+            - doxygen
+            - python-jsonschema

@@ -27,7 +27,7 @@ The ASE environment is integrated to support one AFU and one application at a ti
 ```
 ![Supported Platforms](platform_rev1.PNG "Supported Platforms")
 
-The Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA platform provides coherent accelerator attachment to an Intel platform via Intel&reg; Ultra Path Interconnect (UPI) and two PCIe channels. In this case the FPGA Interface Manager (FIM) realized on the FPGA hosts a proprietary UPI Protocol layer and PCIe fabric in FPGA logic (registers, slices, LUTs, etc.). This FIM incorporates a Caching Agent (CA) that participates in Intel&reg; Xeon&reg; caching activities.
+The Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA platform provides coherent accelerator attachment to an Intel platform.
 
 ### AFU Simulation Environment (ASE) Overview ###
 
@@ -101,9 +101,9 @@ ASE is capable of consuming AFU code in RTL source form only, and not in Bitstre
 
 ## System Requirements ##
 
-ASE is available under the Open Programmable Acceleration Engine (OPAE) software release. The current OPAE ASE release support both Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA and Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs platforms. ASE does not require an FPGA in the platform, and uses the AF in source form. Bitstream configurations cannot be simulated in ASE.
+ASE is available under the Open Programmable Acceleration Engine (OPAE) software release. The current OPAE ASE release support both Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA and Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs platforms. ASE does not require an FPGA in the platform. Bitstream configurations cannot be simulated in ASE.
 
-ASE is supported only on 64-bit Linux operating systems. ASE requires a 64-bit RTL simulator, either Synopsys\* VCS-MX or Mentor Graphics\* QuestaSim/ModelSim-SE. The RTL simulator specific requirements are not listed here. Consult with your RTL simulator vendor for Synopsys\* or Mentor Graphics\* specific requirements.
+ASE is supported only on 64-bit Linux operating systems. ASE performs best on a 64-bit RTL simulator, either Synopsys\* VCS-MX or Mentor Graphics\* QuestaSim/ModelSim-SE, though support for 32-bit ModelSim is available. The RTL simulator-specific requirements are not listed here. Consult with your RTL simulator vendor for Synopsys\* or Mentor Graphics\* specific requirements.
 
 The following RTL Simulators versions are supported in the current version of ASE:
 
@@ -138,7 +138,7 @@ The other ASE requirements are as follows:
 
 * **Cmake**: version 2.8 or above
 * **GLIBC**: version 2.19 or above
-* **Python**: This is optional, but is used by ```ase/scripts/generate_ase_environment.py``` script. However, the functions of the script can be performed manually. Python >=2.7 is recommended.
+* **Python**: version 2.7 or above
 * **Intel&reg; Quartus&reg; Prime Pro Edition**: If you are simulating the provided NLB sample, ASE needs to find the ```$QUARTUS_HOME/eda/sim_lib/``` directory supplied with Intel&reg; Quartus&reg; Prime Pro Edition. The NLB sample RTL uses the Intel FPGA gates library.set GLS_SIM to 1 in the ```ase/Makefile```.
 
 ASE provides a bash script called ```env_check.sh``` in ```/sw/opae-x.x.x/ase/scripts``` directory. Run this script to determine if you have the required tools installed.
@@ -150,9 +150,9 @@ Intel does not provide consulting support for installing the RTL simulators from
 
 ## Package Description ##
 
-ASE implementation of OPAE API may be downloaded either in RPM format (see Download instructions) or as a source.
+ASE may be downloaded either in RPM format (see Download instructions) or as source.
 
-The source form directory tree is as following:
+The source directory tree is:
 
 ```{.shell}
 
@@ -162,10 +162,6 @@ The source form directory tree is as following:
 		|	|   `-- src
 		|	|-- rtl
 		|	|   `-- dcp_emif_model
-		|	|-- sample_config
-		|	|   `-- mcp_nlb0
-		|	|       |-- config
-		|	|       `-- rtl
 		|	|-- scripts
 		|	`-- sw
 		|
@@ -177,6 +173,7 @@ The source form directory tree is as following:
 		|	`-- utils
 		|-- doc
 		|-- libopae
+		|-- platforms
 		|-- samples
 		|-- tests
 		`-- tools
@@ -189,10 +186,10 @@ The above tree directory roughly depicts the package structure of the ASE distri
 	* ```api/src```: This directory contains the OPAE Intel ASE implementation. This is compiled into a library that may be statically or dynamically linked.
 	* ```rtl```: RTL components of ASE. This must be compiled in the RTL simulator for both programmable FPGA acceleration cards and tightly-coupled FPGA mode simulator builds.  
 		* ```dcp_emif_model```: programmable FPGA acceleration card Local DDR memory model. This must be compiled for all programmable FPGA acceleration card mode simulation model. 
-	* ```sample_config```: Contains sample configurations of different AFUS. These are described in [Sample Configurations](#sample-configurations) Section.
 	* ```scripts```: Contains several helper scripts. These are described in [Helper Scripts in ASE](#helper-scripts-in-ase) Section.
 	* ``` sw```: Software components of ASE. These are required for all simulations of ASE, and are compiled using GNU Compiler Collection (GCC).
 * ```common```: This directory contains the OPAE library definitions, and defines various macros for access to an FPGA in an OPAE context.
+* ```platforms```: Contains scripts and RTL for managing the connection between a platform and an AFU's top-level interface.
 * ```samples```: Contains a sample that will run on Native Loopback (NLB) RTL AFU.
 * ```libopae```: Intel platfrom specific implementation of the OPAE API.
 
@@ -202,20 +199,7 @@ Several scripts are supplied in the ASE distribution under the ```ase/scripts```
 
 #### Set Up Simulation Tools ####
 
-To set up the tools required, use ```ase/scripts/ase_setup.sh``` as a template script. The script has many empty placeholders that are site and environment specific. Consult your Electronic Design Automation (EDA) tools  administrator, and/or the RTL simulator User Guides for help setting up the tools.
-
-```{.bash}
-
-	# This file must be edited before sourcing it.
-	$ emacs ase/scripts/ase_setup.sh
-	.
-	.
-	.
-
-	# Source tools script
-	$ source ase/scripts/ase_setup.sh
-
-```
+To set up the tools required, use ```ase/scripts/ase_setup_template.sh``` as a template script. The script has many empty placeholders that are site and environment specific. Consult your Electronic Design Automation (EDA) tools  administrator, and/or the RTL simulator User Guides for help setting up the tools.
 
 #### ASE Environment Check ####
 
@@ -228,62 +212,35 @@ This script checks the status of the OS distribution, distro and available syste
 ```
 
 
-#### Create Empty ASE Environment ####
+#### Simulate an AFU using ASE ####
 
-The simulator for ASE execution may be built either in-tree or out-of-tree. Choice of either approach does not affect user experience or simulator capabilities. An out-of-tree build may be useful if the OPAE package has been installed in a read-only location and is shared across the file-system.
+An ASE environment for simulating a particular AFU is generated by replicating the ASE source tree and adding AFU-specific configuration. Several scripts are provided to accomplish this. The primary script is ```afu_sim_setup```, which is installed in the OPAE ```bin``` directory. Before attempting to configure ASE, follow the instructions for building the OPAE SDK and ensure that either the OPAE installed ```bin``` or the OPAE build tree's ```bin``` directory is on your shell's ```PATH```.
 
-For this reason, an ASE environment create/clone script is made available. This script will generate only an empty ASE environment, and does not take any inputs.
+See the [ASE Example](#ase-example) section below for a sample workload definition and execution flow.
+
+#### afu_sim_setup ###
+
+The ```afu_sim_setup``` script consumes a file containing a list of RTL sources and constructs an ASE tree to compile and simulate them. Consult ```afu_sim_setup --help``` for a list of arguments. The only required argument is the directory in which to construct the new environment. The ```--platform``` argument sets the platform class to simulate (e.g. integrated Xeon+FPGA with a coherent FPGA-side cache or a discrete PCIe-attached FPGA).  ```afu_sim_setup``` is a wrapper for other scripts, described below. It invokes ```rtl_src_config``` to transform the list of RTL sources into simulator configuration files. ```generate_ase_environment.py``` is invoked to instantiate a simulated platform configuration. Users could choose to invoke these scripts directly, though interacting only with ```afu_sim_setup``` should satisfy most requirements.
 
 ```{.bash}
 
-	# Change directory to target date
-	$ cd <work-dir>
-
-	# Run clone script
-	$ <install-path>/opae/ase/scripts/create_ase_simbuild_env.sh
-	#################################################################
-	#                                                               #
-	#             OPAE Intel(R) Xeon(R) + FPGA Library              #
-	#               AFU Simulation Environment (ASE)                #
-	#                                                               #
-	#################################################################
-	Script running from: /tmp/opae/ase/scripts/
-	ASE Sources found... will proceed to create directory
-	ASE Source directory: /tmp/opae/ase
-
-	ASE simulator build environment created
-	Next steps: This simulation environment must be configured for an AFU
-	            See ASE Documentation on usage steps
-
-
-
-	# Empty ASE directory created
-	$ ls
-	ase ...
-	$ tree ase
-	ase
-	|-- ase.cfg
-	|-- ase_regress.sh
-	`-- Makefile
-
-	0 directories, 3 files
-
-	$
+	$ afu_sim_setup --sources=<rtl_sources.txt> <target dir>
 
 ```
 
-.. note::
-```
-The ``ase/scripts/create_ase_simbuild_env.sh`` will not generate any AFU specific configuration files. Either you have to provide these files or use the ``generate_ase_environment.py`` script.
-```
+#### rtl_src_config ####
 
-#### Generate ASE Environment Script ####
+The ```rtl_src_config``` script maps a simple text file containing a list of RTL source files into either an ASE configuration file for simulation or a Quartus configuration file for synthesis. In addition to sources, preprocessor variables may be defined. Source configuration files may be hierarchical, with one file including another. Scripts are provided for constructing either ASE-based simulation trees or Quartus build trees, driven by ```rtl_src_config```.  Run ```rtl_src_config --help``` for a list of options and for documentation of the expected source specification syntax.
 
-ASE supplies a Generate ASE Environment helper script that does a brute-force check of supplied AFU RTL directories. The script is imperfect and lists every file ending in an ```.sv, .vs, .vhd, .v``` file and directories separated by ```+```.
+#### generate_ase_environment.py ####
+
+The ```generate_ase_environment.py``` script is invoked by ```afu_sim_setup``` to generate a number of platform configuration files. We recommend that most users use a list of RTL sources through ```afu_sim_setup``` and allow that script to invoke ```generate_ase_environment.py``` in the background. A legacy mode in ```generate_ase_environment.py``` does a brute-force check of supplied AFU RTL directories, attempting to define a compilation. The script is imperfect and lists every file ending in ```.sv, .vs, .vhd, or .v``` and directories separated by ```+```. It also may fail when compilation is order-dependent.
+
+Invoke ```generate_ase_environment.py --help``` for a list of options.
 
 * **Mandatory Option**: The script requires a directory path to RTL AFU.
 * **Optional -t**: By default the tool option selected is ```VCS```. If Mentor\* tools are used, supply the ```QUESTA``` option.
-* **Optional -p**: By default Acceleration Stack for Intel Xeon Processor with Integrated FPGA ```skxp``` option is selected. If Acceleration Stack for Intel Xeon CPU with FPGAs is used, supply the ```discrete``` option.
+* **Optional -p**: By default Acceleration Stack for Intel Xeon Processor with Integrated FPGA ```intg_xeon``` option is selected. If Acceleration Stack for Intel Xeon CPU with FPGAs is used, supply the ```discrete``` option.
 * **Optional -x**: Exclsions for path searches can be supplied using this option.
 
 Along with the AFU configuration files, depending on the RTL tools used, certain tool control scripts are generated.
@@ -307,33 +264,6 @@ Absolute paths are used wherever possible. One helpful option to use for portabi
 You must manually check this file for correctness before using it in the simulation.
 ```
 
-```{.bash}
-
-	$ ./scripts/generate_ase_environment.py  --help
-	#################################################################
-	#                                                               #
-	#             OPAE Intel(R) Xeon(R) + FPGA Library              #
-	#               AFU Simulation Environment (ASE)                #
-	#                                                               #
-	#################################################################
-	usage: generate_ase_environment.py [-h] [-t {VCS,QUESTA}] [-p {intg_xeon,discrete}]
-                                   [-x EXCLUDE]
-								   dirlist [dirlist ...]
-
-	positional arguments:
-		dirlist               list of directories to scan
-
-	optional arguments:
-		-h, --help            show this help message and exit
-		-t {VCS,QUESTA}, --tool {VCS,QUESTA}
-			                  simulator tool to use, default is VCS
-	    -p {intg_xeon,discrete}, --plat {intg_xeon,discrete}
-			                  FPGA Platform to simulate
-	    -x EXCLUDE, --exclude EXCLUDE
-				              file name pattern to exclude
-
-```
-
 #### Clean ASE Environment ####
 
 The ASE cleanup script located at ```scripts/ipc_clean.py``` may be used for killing zombie simulation processes and temporary files left behind by failed simulation processes or crashes.
@@ -354,15 +284,6 @@ The ASE cleanup script located at ```scripts/ipc_clean.py``` may be used for kil
 	$
 
 
-```
-
-### Sample Configurations ###
-
-ASE has a copy of the sample Native LoopBack (NLB) RTL AFU inside the ```ase/sample_config/mcp_nlb0``` directory. This NLB RTL can be simulated in ASE using the ```opae/samples/hello_fpga.c``` example. Specific steps to achieve this is described in [Running Sample NLB in Acceleration Stack for Intel Xeon Processor with Integrated FPGA Configuration](#running-sample-nlb-in-acceleration-stack-for-intel-xeon-processor-with-integrated-fpga-configuration) section.
-
-.. note::
-```
-This sample configuration is only valid for Acceleration Stack for Intel Xeon Processor with Integrated FPGA. For Acceleration Stack for Intel Xeon CPU with FPGAs, use the NLB under ``hw/samples/nlb_mode_0``.
 ```
 
 ## ASE Usage ##
@@ -818,116 +739,9 @@ None of these values can be implied to be the actual latencies of different tran
 Memory hazards (RAW, WAR and WAW hazards) may also be flagged off by ASE.
 
 
-## ASE Examples ##
+## ASE Example ##
 
-For Acceleration Stack for Intel Xeon CPU with FPGAs sample applications, refer to Accelerator Functional Unit (AFU) Simulation Environment (ASE) Quick Start User Guide.
-
-### Running Sample NLB in Acceleration Stack for Intel Xeon Processor with Integrated FPGA Configuration ###
-
-Open two terminals, use **Terminal 1** to run the ASE simulator, and **Terminal 2** to OPAE software application.
-
-1. In **Terminal 2**, build the OPAE software stack as described [here](#ase-application-client-build-instructions)
-
-	* The ```make``` process also builds the ```hello_fpga.c``` example located in ```/tmp/opae/samples/hello_fpga.c``` and creates an executable in the build directory. In this case, the location of the built binary is located here:
-
-	```
-
-		/tmp/opae/mybuild/bin/hello_fpga
-	```
-
-	* When executing this binary, it dynamically links to the ```libopae-c-ase.so```
-
-	```{.bash}
-
-		$ ldd /tmp/opae/mybuild/bin/hello_fpga
-			linux-vdso.so.1 =>  (0x00007ffe44860000)
-			libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f23cac8f000)
-			libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f23caa71000)
-			libopae-c.so.0 => /tmp/opae/mybuild/lib/libopae-c.so.0 (0x00007f23ca830000)
-			libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f23ca468000)
-			/lib64/ld-linux-x86-64.so.2 (0x00007f23cae94000)
-			libjson-c.so.2 => /lib/x86_64-linux-gnu/libjson-c.so.2 (0x00007f23ca25d000)
-
-	```
-
-2. On **Terminal 1**, open the ASE directory. If you are using an out-of-tree build flow, use steps located [here](#create-empty-ase-environment) for steps to create an empty ASE project directory.
-
-   * A sample NLB RTL and configuration is located in the ```<install-prefix>/opae/ase/sample_config/mcp_nlb0/``` directory. The RTL is located in the ```rtl``` directory. A pre-made configuration is available in the ```config``` directory. For this experiment, we will build a configuration from scratch using the ```scripts/generate_ase_environment.py``` script.
-   * The example shows ```VCS``` usage but the steps may be used for ```QUESTA``` as well.
-   * The example can only be used in the ```ASE_PLATFORM=FPGA_PLATFORM_INTG_XEON``` configuration. Using the ```FPGA_PLATFORM_DISCRETE``` configuration will cause compilation failures.
-
-	```{.bash}
-
-		# Change to the 'ase' directory
-		$ cd <work-path>/ase/
-
-		# Generate the ASE path
-		$ /tmp/opae/ase/scripts/generate_ase_environment.py -t VCS -p intg_xeon /tmp/opae/ase/sample_config/mcp_nlb0/rtl/
-
-
-		# INSTRUCTIONS TO USER
-		# --------------------
-		# ase_sources.mk, vlog_files.list, and other simulation settings are generated>
-		# Read the generated files for content
-		#
-		# Add the following line to ase_sources.mk file
-		# This switch will allow add the following switch
-		#
-
-		$ echo "SNPS_VLOGAN_OPT = +define+VENDOR_ALTERA +define+TOOL_QUARTUS +define+NUM_AFUS=1 +define+NLB400_MODE_0" >> ase_sources.mk
-
-		# If QUESTA is being used, set the following switch
-		# $ echo "MENT_VLOG_OPT = +define+VENDOR_ALTERA +define+TOOL_QUARTUS +define+NUM_AFUS=1 +define+NLB400_MODE_0" >> ase_sources.mk
-
-		# Build the simulator
-		$ make ASE_PLATFORM=FPGA_PLATFORM_INTG_XEON
-
-
-	```
-
-3. On **Terminal 1**, we will invoke the simulator
-
-	```{.bash}
-	
-		$ make sim
-
-		<wait until simulator starts and prints "Ready for Simulation">
-
-	```
-
-	* As a reference, see [ASE Runtime Instructions](#ase-runtime-instructions) for clues on what the simulation will look like.
-
-4. Switch back to **Terminal 2**: We will invoke the ```hello_fpga``` application.
-
-	```
-		# Change directory to build directory 'bin'
-		$ cd /tmp/opae/mybuild/bin/
-
-		# Set LD_LIBRARY_PATH environment variable
-		#
-		# Depending on the install method used, this path may be different
-		#
-		$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/opae/myinst/lib
-
-		# Set the ASE_WORKDIR environment variable
-		#
-		# Copy this environment variable from Terminal 1 simulator run (Green text)
-		#
-		$ export ASE_WORKDIR=<work-path>/ase/work/
-
-		# Run the application
-		$ LD_PRELOAD=libopae-c-ase.so ./hello_fpga
-
-
-	```
-	* Wait for Simulation to end, and application to exit.
-
-5. In **Terminal 1**, issue a ```CTRL-C``` to close the simulator.
-
-	* When exiting, the ASE simulator prints out transaction counts seen during the session.
-	* Run ```make wave``` to open the waveform viewer.
-	* Open ```work/ccip_transactions.tsv``` in a text viewer to see the actual transactions. The timestamps may be checked in the wavefor viewer.
-
+A tutorial for CCI-P systems is available in a separate [Basic Building Blocks repository](https://github.com/OPAE/intel-fpga-bbb) in the [samples/tutorial](https://github.com/OPAE/intel-fpga-bbb/tree/master/samples/tutorial) tree. The first example, [01_hello_world](https://github.com/OPAE/intel-fpga-bbb/tree/master/samples/tutorial/01_hello_world) follows the ```afu_sim_setup``` flow described above. Start with the tutorial's [README](https://github.com/OPAE/intel-fpga-bbb/blob/master/samples/tutorial/README) file for configuration and execution instructions. The example defines a set of sources and walks users through the process of creating an ASE tree, running the simulator and connecting it to a host program.
 
 
 <!-- ### Using Basic Building Blocks (BBB) in ASE ### -->
@@ -1067,5 +881,5 @@ The following are a non-conclusive list of errors and warnings that one may see 
 | ERROR: Too many open files | Past ASE simulation runs did not close cleanly and may have left behind open IPC instances. | Use the script located at ``` $ASE_SRCDIR/scripts/ipc_clean.py ```. <br>Check if [System Requirements](#system-requirements) has been met. <br>If problem continues to occur, check how to increase resource limits for your Linux distribution. |
 | ``` $ASE_WORKDIR``` environment variable has not been set up | Application could not find a valid simulation session | Follow the steps printed when the ASE simulation starts. These instructions are printed in GREEN. |
 | ``` .ase_timestamp``` cannot be opened at ```<DIRECTORY>``` | Simulator may not have been started yet. Note that when started, the simulator prints: <br>Ready for Simulation<br>```$ASE_WORKDIR``` may not set up correctly. | Check the ASE\_WORKDIR  environment variable. <br>```$ echo $ASE_WORKDIR ``` <br>Wait for simulator to print:<br> ```Ready for Simulation``` |
-| ```ase_sources.mk: No such file or directory``` | ASE Environment has not been generated. | Generate a AFU RTL listing (in ```vlog_files.list``` and ``` ase_sources.mk```) configuration. See ```ase/sample_configs``` for sample configurations. <br> ```ase/scripts/generate_ase_environment.py``` may be used for this purpose |
+| ```ase_sources.mk: No such file or directory``` | ASE Environment has not been generated. | Generate a AFU RTL listing (in ```vlog_files.list``` and ``` ase_sources.mk```) configuration. <br> ```ase/scripts/generate_ase_environment.py``` may be used for this purpose |
 | An ASE instance is probably still running in current directory. | An ASE simulation is already running in the ```$ASE_WORKDIR``` directory. | If the simulation process is unusable or unreachable, use the ```ase/scripts/ipc_clean.py``` script to clean up the simulation temporary files. It is recommended to do: <br>```$ make clean``` <br>Then attempt to rebuild the simulator. |

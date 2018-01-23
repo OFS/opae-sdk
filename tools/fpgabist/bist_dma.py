@@ -36,11 +36,10 @@ class DmaMode(bc.BistMode):
     executables = {'fpga_dma_test': '0'}
 
     def run(self, gbs_path, bus_num):
-        bc.load_gbs(bc.INSTALL_PATH, gbs_path, bus_num)
+        bc.load_gbs(gbs_path, bus_num)
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
-            run = os.path.join(bc.INSTALL_PATH, func)
-            cmd = "{} {}".format(run, param)
+            cmd = "{} {}".format(func, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
