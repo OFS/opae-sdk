@@ -2,6 +2,7 @@
    "version": 1,
    "platform-name": "intg_xeon",
    "description": "Integrated Xeon + Arria 10 with QPI/UPI and two PCIe host channels",
+   "ase-platform": "intg_xeon",
    "module-arguments-offered" :
       [
          {
