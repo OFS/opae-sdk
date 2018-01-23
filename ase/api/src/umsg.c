@@ -92,3 +92,24 @@ fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 
     return result;
 }
+
+
+// Trigger umsg
+fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
+{
+	fpga_result result            = FPGA_OK;
+	uint64_t *umsg_ptr            = NULL;
+
+	// TODO: make thread-safe and check for errors
+
+	result = fpgaGetUmsgPtr(handle, &umsg_ptr);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get UMsg buffer");
+		return result;
+	}
+
+	// Assign Value to UMsg
+	*((volatile uint64_t *) (umsg_ptr)) = value;
+
+	return result;
+}
