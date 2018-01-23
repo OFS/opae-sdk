@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
 	}
 
 	/* Print version information of the underlying library */
-	fpgaGetVersionString(library_version, sizeof(library_version));
-	fpgaGetBuildString(library_build, sizeof(library_build));
+	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
+	fpgaGetOPAECBuildString(library_build, sizeof(library_build));
 	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
 	       library_build);
 
