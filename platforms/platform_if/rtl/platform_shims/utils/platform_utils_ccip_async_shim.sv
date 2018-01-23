@@ -250,9 +250,8 @@ module platform_utils_ccip_async_shim
     always_ff @(posedge afu_clk)
     begin
         afu_rx_next.c0TxAlmFull <= c0tx_almfull ||
+                                   (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT)) ||
                                    buffer_error;
-
-                                   // (c0req_cnt > C0RX_DEPTH_RADIX'(C0_REQ_CREDIT_LIMIT)) || // by Abelardo
     end
 
 
@@ -388,9 +387,8 @@ module platform_utils_ccip_async_shim
     always_ff @(posedge afu_clk)
     begin
         afu_rx_next.c1TxAlmFull <= c1tx_almfull ||
-				   buffer_error;
-
-                                   // (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT)) || // by Abelardo
+                                   (c1req_cnt > C1RX_DEPTH_RADIX'(C1_REQ_CREDIT_LIMIT)) ||
+                                   buffer_error;
     end
 
 
