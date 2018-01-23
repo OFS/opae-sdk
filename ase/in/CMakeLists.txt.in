@@ -25,51 +25,28 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
+project(ase-server)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE}/cmake/modules")
 
-project("opae-c-ase-server")
-find_package(Threads REQUIRED)
+include(compiler_config)
+include(libraries_config)
 
-# Directories
-set(ASE_SERVER_SRC  ${PROJECT_SOURCE_DIR})
+set(INTEL_FPGA_API_VER_MAJOR @INTEL_FPGA_API_VER_MAJOR@  CACHE STRING "Intel FPGA API major version")
+set(INTEL_FPGA_API_VER_MINOR @INTEL_FPGA_API_VER_MINOR@ CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
+set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
+set(INTEL_FPGA_API_HASH      @GIT_COMMIT_HASH@)
 
-# ASE SW file setup
-set(ASESW_FILE_LIST
-  ${ASE_SERVER_SRC}/tstamp_ops.c
-  ${ASE_SERVER_SRC}/ase_ops.c
-  ${ASE_SERVER_SRC}/ipc_mgmt_ops.c
-  ${ASE_SERVER_SRC}/mem_model.c
-  ${ASE_SERVER_SRC}/protocol_backend.c
-  ${ASE_SERVER_SRC}/mqueue_ops.c
-  ${ASE_SERVER_SRC}/error_report.c
-  ${ASE_SERVER_SRC}/linked_list_ops.c
-  ${ASE_SERVER_SRC}/randomness_control.c)
+set(ASE_SIMULATOR "QUESTA" CACHE STRING "SystemVerilog simulator tool")
+set(ASE_PLATFORM "FPGA_PLATFORM_INTG_XEON" CACHE STRING "FPGA platform")
+set(ASE_PLATFORM_IF "ccip_std_afu" CACHE STRING "FPGA AFU interface")
+set(ASE_TIMESCALE "1ps/1ps" CACHE STRING "Simulator time-scale")
 
-add_library(opae-c-ase-server SHARED ${ASESW_FILE_LIST})
-target_link_libraries(opae-c-ase-server rt safestr)
-
-# Assure library is relocatable
-set_property(TARGET opae-c-ase-server PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-target_compile_definitions(opae-c-ase-server
-  PRIVATE
-  SIM_SIDE=1
-  SIMULATOR=${ASE_SIMULATOR}
-  ASE_PLATFORM=${ASE_PLATFORM})
-
-if(ASE_SIMULATOR STREQUAL "QUESTA")
-  find_package(Questa)
-
-  target_include_directories(opae-c-ase-server PUBLIC
-    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${libsvdpi_INCLUDE_DIRS}>
-    PRIVATE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
-
-  set_target_properties(opae-c-ase-server PROPERTIES
-    VERSION ${INTEL_FPGA_API_VERSION}
-    SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-  add_dependencies(opae-c-ase-server vlog_setup)
-
+if(ASE_PLATFORM STREQUAL "FPGA_PLATFORM_INTG_XEON")
+  set(ASE_PLATFORM_ABBREV "intg_xeon")
+else()
+  set(ASE_PLATFORM_ABBREV "intg_xeon")
 endif()
+
+add_subdirectory(rtl)
+add_subdirectory(sw)

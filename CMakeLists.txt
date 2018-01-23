@@ -133,14 +133,7 @@ add_subdirectory(tools/packager)
 option(BUILD_ASE "Enable ASE compilation" OFF)
 mark_as_advanced(BUILD_ASE)
 
-set(ASE_SIMULATOR "QUESTA" CACHE STRING "SystemVerilog simulator tool")
-set(ASE_PLATFORM "FPGA_PLATFORM_INTG_XEON" CACHE STRING "FPGA platform")
-set(ASE_TIMESCALE "1ps/1ps" CACHE STRING "Simulator time-scale")
-
 if(BUILD_ASE)
-  add_subdirectory(ase/api)
-  add_subdirectory(ase/sw)
-  add_subdirectory(ase/rtl)
   add_subdirectory(ase)
 endif()
 

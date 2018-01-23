@@ -25,12 +25,36 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ## Install target for ASE support files
+project(ase)
 set(ASE_SHARE_DIR share/opae/ase)
+add_subdirectory(api)
 
-install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
+install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
+install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 
+# Also needed
+configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
+  ${PROJECT_BINARY_DIR}/CMakeLists.txt)
+install(DIRECTORY in           DESTINATION share/opae/ase COMPONENT asescripts)
+
+install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
+  DESTINATION ${ASE_SHARE_DIR}
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/compiler_config.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/libraries_config.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuesta.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindOPAE.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+
+# Extra script platforms
 set(EXTRA_ASE_FILES
   Makefile
   ase.cfg

@@ -29,9 +29,10 @@ project("opae-c-ase-platform")
 
 # Directories
 set(ASE_SERVER_RTL     ${PROJECT_SOURCE_DIR})
-set(PLATFORM_IF_DIR    ${CMAKE_SOURCE_DIR}/platforms/platform_if)
+set(PLATFORM_SHARE_DIR ${CMAKE_SOURCE_DIR}/../platform)
+set(PLATFORM_IF_DIR    ${PLATFORM_SHARE_DIR}/platform_if)
 set(PLATFORM_IF_RTL    ${PLATFORM_IF_DIR}/rtl/device_if)
-set(PLATFORM_SHARE_DIR ${CMAKE_SOURCE_DIR}/platforms)
+set(ASE_SCRIPTS_IN     ${PROJECT_SOURCE_DIR}/../in)
 
 ## Verilog compilation
 set(VLOG_SRC_LIST
@@ -52,26 +53,45 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
   set(VLOG_OPTS_MENTOR "-nologo -sv +librescan -timescale ${ASE_TIMESCALE} -work work +define+${SIMULATOR} +define+${ASE_PLATFORM} +define+VENDOR_ALTERA +define+TOOL_QUARTUS -novopt")
 
   ## Questasim template
-  configure_file(${PROJECT_SOURCE_DIR}/../scripts/in/afu_platform_config.py.in
-    ${CMAKE_BINARY_DIR}/scripts/in/afu_platform_config.py @ONLY)
-  configure_file(${PROJECT_SOURCE_DIR}/../scripts/in/afu_synth_setup_std.py.in
-    ${CMAKE_BINARY_DIR}/scripts/afu_synth_setup.py @ONLY)
-  configure_file(${PROJECT_SOURCE_DIR}/../scripts/in/rtl_src_config.py.in
-    ${CMAKE_BINARY_DIR}/scripts/rtl_src_config.py @ONLY)
+  configure_file(${ASE_SCRIPTS_IN}/afu_platform_config.py.in
+    ${PROJECT_BINARY_DIR}/scripts/in/afu_platform_config.py @ONLY)
+  configure_file(${ASE_SCRIPTS_IN}/afu_synth_setup_std.py.in
+    ${PROJECT_BINARY_DIR}/scripts/in/afu_synth_setup.py @ONLY)
+  configure_file(${ASE_SCRIPTS_IN}/rtl_src_config.py.in
+    ${PROJECT_BINARY_DIR}/scripts/in/rtl_src_config.py @ONLY)
 
-  configure_file(${ASE_SERVER_RTL}/platform.txt.in
+  # now copy the temporary into the final destination, setting the permissions
+  file(COPY ${PROJECT_BINARY_DIR}/scripts/in/afu_platform_config.py
+    DESTINATION ${PROJECT_BINARY_DIR}/scripts
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+    GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+  file(COPY ${PROJECT_BINARY_DIR}/scripts/in/afu_synth_setup.py
+    DESTINATION ${PROJECT_BINARY_DIR}/scripts
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+    GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+  file(COPY ${PROJECT_BINARY_DIR}/scripts/in/rtl_src_config.py
+    DESTINATION ${PROJECT_BINARY_DIR}/scripts
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+    GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+  # Add extra project files
+  configure_file(${ASE_SCRIPTS_IN}/platform.txt.in
     ${PROJECT_BINARY_DIR}/platform.txt)
-  configure_file(${ASE_SERVER_RTL}/platform_if_addenda.txt.in
-    ${PROJECT_BINARY_DIR}/intg_xeon/sim/platform_if_addenda.txt)
-  configure_file(${ASE_SERVER_RTL}/platform_if_includes.txt.in
-    ${PROJECT_BINARY_DIR}/intg_xeon/sim/platform_if_includes.txt)
+  configure_file(${ASE_SCRIPTS_IN}/platform_if_addenda.txt.in
+    ${PROJECT_BINARY_DIR}/${ASE_PLATFORM_ABBREV}/sim/platform_if_addenda.txt)
+  configure_file(${ASE_SCRIPTS_IN}/platform_if_includes.txt.in
+    ${PROJECT_BINARY_DIR}/${ASE_PLATFORM_ABBREV}/sim/platform_if_includes.txt)
 
+  # Configure generic header file
   configure_file(${PLATFORM_IF_DIR}/rtl/platform_if.vh
     ${PROJECT_BINARY_DIR}/platform_if.vh)
 
+  # Define rule to generate platform_afu_top_config.vh
   add_custom_command(OUTPUT "platform_afu_top_config.vh"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    COMMAND ${CMAKE_BINARY_DIR}/scripts/in/afu_platform_config.py --platform_if intg_xeon --ifc=ccip_std_afu --sim -v intg_xeon)
+    COMMAND ${PROJECT_BINARY_DIR}/scripts/afu_platform_config.py --platform_if ${ASE_PLATFORM_ABBREV} --ifc=${ASE_PLATFORM_IF} --sim -v ${ASE_PLATFORM_ABBREV})
 
   file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
   add_custom_command(OUTPUT "include/platform_dpi.h"
@@ -86,67 +106,7 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
     DEPENDS "include/platform_dpi.h")
 
   # Simulation step
-  add_custom_target (tb_mag_top ALL
-    # COMMAND vsim -c tb_mag_top  +access+rw -l simv.log -work worklib -do "run -all; quit"
+  add_custom_target (vlog_setup ALL
     DEPENDS vlog)
 
 endif()
-# questa_build: sw_build
-#   @echo "############################################################"
-#   @echo "#                                                          #"
-#   @echo "#              QuestaSim-GCC build initiated               #"
-#   @echo "#                                                          #"
-#   @echo "############################################################"
-#   cd $(WORK) ; vlib $(WORK) ; vmap work $(WORK) ; cd -
-# ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
-#   cp -f $(ASE_MEM_SRC)/*.hex $(ASE_WORKDIR)
-# endif
-#   cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QSIM_MODEL_VLOG_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlog-ase.log ; cd -
-# ifdef DUT_VHD_SRC_LIST
-#   cd $(WORK) ; vcom $(MENT_VCOM_OPT) -f $(DUT_VHD_SRC_LIST) -l vcom-afu.log ; cd -
-# endif
-# ifdef DUT_VLOG_SRC_LIST
-#   cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASE_PLATFORM_INC) -f $(DUT_VLOG_SRC_LIST) -l vlog-afu.log ; cd -
-# endif
-
-# ## Build Simulator objects ##
-# build:
-# ifeq ($(SIMULATOR), VCS)
-#   make vcs_build
-# else
-#   ifeq ($(SIMULATOR), QUESTA)
-#   make questa_build
-#   else
-#   @echo "############################################################"
-#   @echo "#         SIMULATOR=$(SIMULATOR) not supported             #"
-#   @echo "############################################################"
-#   endif
-# endif
-
-# ## Run ASE Simulator ##
-# sim: check
-# ifeq ($(SIMULATOR), VCS)
-#   cd $(ASE_WORKDIR) ; ./ase_simv $(SNPS_SIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) ; cd -
-# else
-#   ifeq ($(SIMULATOR), QUESTA)
-#         ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
-#                 # recompile memory model to keep Questa happy
-#       cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv -l vlog-ase.log ; cd -
-#         endif
-#   cd $(ASE_WORKDIR) ; vsim $(MENT_VSIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) $(ASE_TOP) ; cd -
-#   else
-#   @echo "############################################################"
-#   @echo "#         SIMULATOR=$(SIMULATOR) not supported             #"
-#   @echo "############################################################"
-#   endif
-# endif
-
-# # Open Wave file
-# wave: check
-# ifeq ($(SIMULATOR), VCS)
-#   dve -vpd `find . -name inter.vpd` || dve -vpd `find . -name inter.vpd` -full64
-# else
-#   ifeq ($(SIMULATOR), QUESTA)
-#   vsim -view `find . -name vsim.wlf`
-#   endif
-# endif
