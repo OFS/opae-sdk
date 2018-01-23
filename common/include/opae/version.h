@@ -45,7 +45,7 @@ extern "C" {
  * @returns FPGA_INVALID_PARAM if any of the output parameters is NULL, FPGA_OK
  * otherwise.
  */
-fpga_result fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t *rev);
+fpga_result fpgaGetOPAECVersion(uint8_t *major, uint8_t *minor, uint8_t *rev);
 
 /**
  * Get version information about the OPAE library as a string
@@ -57,7 +57,7 @@ fpga_result fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t *rev);
  * @param[in]   len          Length of `version_str`
  * @returns FPGA_INVALID_PARAM if `version_str` is NULL, FPGA_OK otherwise.
  */
-fpga_result fpgaGetVersionString(char *version_str, size_t len);
+fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len);
 #define FPGA_VERSION_STR_MAX 10
 
 /**
@@ -69,7 +69,7 @@ fpga_result fpgaGetVersionString(char *version_str, size_t len);
  * @param[in]   len        Length of `build_str`
  * @returns FPGA_INVALID_PARAM if `build_str` is NULL, FPGA_OK otherwise.
  */
-fpga_result fpgaGetBuildString(char *build_str, size_t len);
+fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len);
 #define FPGA_BUILD_STR_MAX 41
 
 #ifdef __cplusplus

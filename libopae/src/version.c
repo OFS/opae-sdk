@@ -35,7 +35,7 @@
 
 #include <string.h>
 
-fpga_result __FPGA_API__ fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t *rev)
+fpga_result __FPGA_API__ fpgaGetOPAECVersion(uint8_t *major, uint8_t *minor, uint8_t *rev)
 {
 	if (!major || !minor || !rev) {
 		FPGA_MSG("arguments are NULL");
@@ -49,10 +49,10 @@ fpga_result __FPGA_API__ fpgaGetVersion(uint8_t *major, uint8_t *minor, uint8_t 
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetVersionString(char *version_str, size_t len)
+fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
 	if (!version_str) {
-		FPGA_MSG("build_str is NULL");
+		FPGA_MSG("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -62,7 +62,7 @@ fpga_result __FPGA_API__ fpgaGetVersionString(char *version_str, size_t len)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetBuildString(char *build_str, size_t len)
+fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
 	if (!build_str) {
 		FPGA_MSG("build_str is NULL");
