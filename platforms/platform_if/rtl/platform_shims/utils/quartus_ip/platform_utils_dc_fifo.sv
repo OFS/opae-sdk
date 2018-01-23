@@ -122,9 +122,7 @@ module platform_utils_dc_fifo
 
    always_ff @(posedge wrclk)
      begin
-      sub_wralmfull <= 1; // by Abelardo
-
-      // sub_wralmfull <= (wrusedw >= DEPTH_RADIX'(ALMOST_FULL_CNT));
+      sub_wralmfull <= (wrusedw >= DEPTH_RADIX'(ALMOST_FULL_CNT));
    end
 
 endmodule
