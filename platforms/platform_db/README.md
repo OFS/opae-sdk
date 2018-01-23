@@ -34,6 +34,10 @@ Each JSON database is a dictionary, supporting the following keys:
   merged.  The parent's entry is removed and replaced with the child's
   entry.
 
+- **ase-platform**: String [required]
+
+  The name of the ASE platform that simulates the physical platform.
+
 - **module-arguments-offered**: List [required]
 
   The set of arguments offered by the platform to AFUs.  Entries in the
