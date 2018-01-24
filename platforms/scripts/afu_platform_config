@@ -372,6 +372,24 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f.write("-F {0}/sim/platform_if_includes.txt\n".format(args.platform_if))
     f.close()
 
+    #
+    # ase_platform_name.txt holds the name of the corresponding ASE platform.
+    #
+    fn = os.path.join(f_prefix, "ase_platform_name.txt")
+    if (not args.quiet):
+        print("Writing {0}".format(fn))
+
+    try:
+        f = open(fn, "w")
+        f.write(platform_db['ase-platform'] + '\n')
+    except KeyError:
+        errorExit("Platform {0} does not define ase-platform".format(
+            platform_db['file_path']))
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn))
+
+    f.close()
+
 
 #
 # Walk the AFU's module-argments requirements and look for corresponding

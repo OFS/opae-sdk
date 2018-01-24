@@ -92,8 +92,16 @@ void report_bandwidth(size_t size, double seconds) {
    printf("\rMeasured bandwidth = %lf Megabytes/sec\n", throughput);
 }
 
+// return elapsed time
+double getTime(struct timespec start, struct timespec end) {
+   uint64_t diff = 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+   return (double) diff/(double)1000000000L;
+}
+
+
 fpga_result ddr_sweep(fpga_dma_handle dma_h) {
    int res;
+	struct timespec start, end;
    
    ssize_t total_mem_size = (uint64_t)(4*1024)*(uint64_t)(1024*1024);
    
@@ -110,35 +118,35 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h) {
    uint64_t dst = 0x0;
    
    printf("DDR Sweep Host to FPGA\n");   
-   clock_t start, end;
      
-   start = clock();
+	clock_gettime(CLOCK_MONOTONIC, &start);
    res = fpgaDmaTransferSync(dma_h, dst, src, total_mem_size, HOST_TO_FPGA_MM);
+	clock_gettime(CLOCK_MONOTONIC, &end);
    if(res != FPGA_OK) {
       printf(" fpgaDmaTransferSync Host to FPGA failed with error %s", fpgaErrStr(res));
       free(dma_buf_ptr);
       return FPGA_EXCEPTION;
    }
-   end = clock();
-   double seconds = ((double) (end - start)) / CLOCKS_PER_SEC;
-   report_bandwidth(total_mem_size, seconds);
+	
+   report_bandwidth(total_mem_size, getTime(start,end));
 
    printf("\rClear buffer\n");
    clear_buffer((char*)dma_buf_ptr, total_mem_size);
 
    src = 0x0;
    dst = (uint64_t)dma_buf_ptr;
-   start = clock();
+	
    printf("DDR Sweep FPGA to Host\n");   
+	clock_gettime(CLOCK_MONOTONIC, &start);
    res = fpgaDmaTransferSync(dma_h, dst, src, total_mem_size, FPGA_TO_HOST_MM);
+	clock_gettime(CLOCK_MONOTONIC, &end);
+
    if(res != FPGA_OK) {
       printf(" fpgaDmaTransferSync FPGA to Host failed with error %s", fpgaErrStr(res));
       free(dma_buf_ptr);
       return FPGA_EXCEPTION;
    }
-   end = clock();
-   seconds = ((double) (end - start)) / CLOCKS_PER_SEC;
-   report_bandwidth(total_mem_size, seconds);
+   report_bandwidth(total_mem_size, getTime(start,end));
    
    printf("Verifying buffer..\n");   
    verify_buffer((char*)dma_buf_ptr, total_mem_size);
