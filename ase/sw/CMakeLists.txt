@@ -24,30 +24,52 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(_python_paths)
-find_package(PythonInterp)
-if(PYTHON_EXECUTABLE)
-  get_filename_component(_python_dir "${PYTHON_EXECUTABLE}" DIRECTORY)
-  list(APPEND _python_paths
-    "${_python_dir}"
-    "${_python_dir}/Scripts")
+cmake_minimum_required(VERSION 2.8.12)
+
+project("opae-c-ase-server")
+find_package(Threads REQUIRED)
+
+# Directories
+set(ASE_SERVER_SRC  ${PROJECT_SOURCE_DIR})
+
+# ASE SW file setup
+set(ASESW_FILE_LIST
+  ${ASE_SERVER_SRC}/tstamp_ops.c
+  ${ASE_SERVER_SRC}/ase_ops.c
+  ${ASE_SERVER_SRC}/ipc_mgmt_ops.c
+  ${ASE_SERVER_SRC}/mem_model.c
+  ${ASE_SERVER_SRC}/protocol_backend.c
+  ${ASE_SERVER_SRC}/mqueue_ops.c
+  ${ASE_SERVER_SRC}/error_report.c
+  ${ASE_SERVER_SRC}/linked_list_ops.c
+  ${ASE_SERVER_SRC}/randomness_control.c)
+
+add_library(opae-c-ase-server SHARED ${ASESW_FILE_LIST})
+target_link_libraries(opae-c-ase-server rt safestr)
+
+# Assure library is relocatable
+set_property(TARGET opae-c-ase-server PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_compile_definitions(opae-c-ase-server
+  PRIVATE
+  SIM_SIDE=1
+  SIMULATOR=${ASE_SIMULATOR}
+  ASE_PLATFORM=${ASE_PLATFORM})
+
+if(ASE_SIMULATOR STREQUAL "QUESTA")
+  find_package(Questa)
+
+  target_include_directories(opae-c-ase-server PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${libsvdpi_INCLUDE_DIRS}>
+    PRIVATE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+
+  set_target_properties(opae-c-ase-server PROPERTIES
+    VERSION ${INTEL_FPGA_API_VERSION}
+    SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
+  add_dependencies(opae-c-ase-server vlog_setup)
+
 endif()
-
-find_program(SPHINX_EXECUTABLE
-  NAMES
-    sphinx-build
-  HINTS
-    ${_python_paths}
-  PATHS
-    /usr/bin
-    /usr/local/bin
-    /opt/local/bin
-  DOC "Sphinx documentation generator")
-
-include(FindPackageHandleStandardArgs)
-
-find_package_handle_standard_args(Sphinx
-  DEFAULT_MSG
-  SPHINX_EXECUTABLE)
-
-mark_as_advanced(SPHINX_EXECUTABLE)

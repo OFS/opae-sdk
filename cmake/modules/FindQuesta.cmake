@@ -24,30 +24,25 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(_python_paths)
-find_package(PythonInterp)
-if(PYTHON_EXECUTABLE)
-  get_filename_component(_python_dir "${PYTHON_EXECUTABLE}" DIRECTORY)
-  list(APPEND _python_paths
-    "${_python_dir}"
-    "${_python_dir}/Scripts")
+find_package(Perl REQUIRED)
+
+set(MTI_HOME $ENV{MTI_HOME})
+if(MTI_HOME)
+  message("-- Using MTI_HOME: ${MTI_HOME}")
+  set(VSIM_EXECUTABLE "${MTI_HOME}/bin/vsim" CACHE PATH "Path to vsim")
+  set(VLOG_EXECUTABLE "${MTI_HOME}/bin/vlog" CACHE PATH "Path to vlog")
+  set(VLIB_EXECUTABLE "${MTI_HOME}/bin/vlib" CACHE PATH "Path to vlib")
+  set(VMAP_EXECUTABLE "${MTI_HOME}/bin/vmap" CACHE PATH "Path to vlib")
+  set(VPI_INCLUDE_DIR "${MTI_HOME}/include"  CACHE PATH "Path to dpi.h file")
+else()
+  set(MTI_HOME "" CACHE PATH "Path to Questa Verilog simulator")
 endif()
 
-find_program(SPHINX_EXECUTABLE
-  NAMES
-    sphinx-build
-  HINTS
-    ${_python_paths}
-  PATHS
-    /usr/bin
-    /usr/local/bin
-    /opt/local/bin
-  DOC "Sphinx documentation generator")
+set(libsvdpi_LIBRARIES 1)
+find_path(libsvdpi_INCLUDE_DIRS
+  NAMES "svdpi.h"
+  PATHS "${MTI_HOME}/include")
 
-include(FindPackageHandleStandardArgs)
-
-find_package_handle_standard_args(Sphinx
-  DEFAULT_MSG
-  SPHINX_EXECUTABLE)
-
-mark_as_advanced(SPHINX_EXECUTABLE)
+if(libsvdpi_LIBRARIES AND libsvdpi_INCLUDE_DIRS)
+  set(libsvdpi_FOUND true)
+endif(libsvdpi_LIBRARIES AND libsvdpi_INCLUDE_DIRS)

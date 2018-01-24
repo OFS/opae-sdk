@@ -25,35 +25,59 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ## Install target for ASE support files
+project(ase)
 set(ASE_SHARE_DIR share/opae/ase)
+add_subdirectory(api)
 
-install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
+install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
+install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 
+# Also needed
+configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
+  ${PROJECT_BINARY_DIR}/CMakeLists.txt)
+install(DIRECTORY in           DESTINATION share/opae/ase COMPONENT asescripts)
+
+install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
+  DESTINATION ${ASE_SHARE_DIR}
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/compiler_config.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/libraries_config.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuesta.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindOPAE.cmake
+  DESTINATION ${ASE_SHARE_DIR}/cmake/modules
+  COMPONENT asescripts)
+
+# Extra script platforms
 set(EXTRA_ASE_FILES
-       Makefile
-       ase.cfg
-       ase_regress.sh)
+  Makefile
+  ase.cfg
+  ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-        DESTINATION ${ASE_SHARE_DIR}
-        COMPONENT aseextra)
+  DESTINATION ${ASE_SHARE_DIR}
+  COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
 set(PLATFORM_SCRIPTS
-        afu_sim_setup)
+  afu_sim_setup)
 
 foreach(SRC ${PLATFORM_SCRIPTS})
   ## Substitute CMake variables of the form @<var>@ in the source file
   ## and store the file in the build tree's bin directory.
   configure_file(
-          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-          @ONLY NEWLINE_STYLE UNIX)
+    scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
+    @ONLY NEWLINE_STYLE UNIX)
   ## This forces the configure_file to be built for all targets
   add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
 
   install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-          DESTINATION bin
-          COMPONENT asescripts)
+    DESTINATION bin
+    COMPONENT asescripts)
 endforeach(SRC)

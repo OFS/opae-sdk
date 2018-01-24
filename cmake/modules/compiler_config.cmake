@@ -92,6 +92,20 @@ if (CXX_SUPPORTS_NO_SIGN_COMPARE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
 endif()
 
+# Disable some warnings that fire with regards to DMA/fpgabist
+check_c_compiler_flag("-Wno-unused-variable"
+  C_SUPPORTS_NO_UNUSED_VARIABLE)
+if (C_SUPPORTS_NO_UNUSED_VARIABLE)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-variable")
+endif()
+
+# Disable some warnings that fire with regards to sysfs and snprintf
+check_c_compiler_flag("-Wno-format-truncation"
+  C_SUPPORTS_NO_FORMAT_TRUNCATION)
+if (C_SUPPORTS_NO_FORMAT_TRUNCATION)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
+endif()
+
 # If building on a 32-bit system, make sure off_t can store offsets > 2GB
 if(CMAKE_COMPILER_IS_GNUCC)
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
