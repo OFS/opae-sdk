@@ -377,7 +377,7 @@ def auto_find_sources(fd):
     if (len(str)):
         for js in str.split('\n'):
             try:
-                with open(js) as f:
+                with open(js, 'r') as f:
                     db = json.load(f)
                 f.close()
 
@@ -429,6 +429,7 @@ def gen_afu_platform_ifc(json_file):
         cfg.append("--ifc=" + default_ifc)
 
     if (args.platform == 'discrete'):
+        # Compatibility mode for original "discrete" platform argument.
         cfg.append("discrete_pcie3")
     else:
         cfg.append(args.platform)
@@ -452,12 +453,38 @@ def gen_afu_json_verilog_macros(json_file):
             json_file))
 
 
+# What's the default platform?  Environment variables allow developers
+# to set a default for their projects.
+def get_default_platform():
+    if 'OPAE_ASE_DEFAULT_PLATFORM' in os.environ:
+        return os.environ['OPAE_ASE_DEFAULT_PLATFORM']
+    return 'intg_xeon'
+
+
+# The Platform Interface Manager maps the simulated platform name to
+# an ASE platform name.  Load it.
+def get_ase_platform():
+    try:
+        # This file is created as a side effect of running afu_platform_config
+        with open('rtl/ase_platform_name.txt', 'r') as fd:
+            ase_platform = fd.read().strip()
+    except Exception:
+        errorExit("ASE platform name expected in rtl/ase_platform_name.txt")
+
+    valid_platform_names = ['intg_xeon', 'discrete']
+    if (ase_platform not in valid_platform_names):
+        errorExit("Unexpected ASE platform name: {0}".format(ase_platform))
+
+    return ase_platform
+
+
 print("#################################################################")
 print("#                                                               #")
 print("#             OPAE Intel(R) Xeon(R) + FPGA Library              #")
 print("#               AFU Simulation Environment (ASE)                #")
 print("#                                                               #")
 print("#################################################################")
+print("")
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description="Configure an ASE environment given a set of RTL sources.",
@@ -478,8 +505,9 @@ parser.add_argument('-s', '--sources',
                             will be parsed by rtl_src_config.""")
 parser.add_argument('-t', '--tool', choices=['VCS', 'QUESTA'], default=None,
                     help='simulator tool to use, default is VCS if present')
-parser.add_argument('-p', '--platform', choices=['intg_xeon', 'discrete'],
-                    default='intg_xeon', help='FPGA Platform to simulate')
+parser.add_argument('-p', '--platform',
+                    default=get_default_platform(),
+                    help='FPGA Platform to simulate')
 parser.add_argument('-x', '--exclude', default=None,
                     help="""file name pattern to exclude
                             (auto-discovery mode only)""")
@@ -507,11 +535,6 @@ if (tool_brand is None):
     except OSError:
         tool_brand = 'QUESTA'
 
-PLAT_TYPE = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
-             'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(args.platform)
-print("\nTool Brand: ", tool_brand)
-print("Platform Type: ", PLAT_TYPE)
-
 # Write Makefile snippet #
 fd = open("ase_sources.mk", "w")
 # Print Information in ase_sources.mk
@@ -524,13 +547,9 @@ fd.write("##############################################################\n")
 fd.write("\n")
 
 # Update SIMULATOR
+print("Tool Brand: " + tool_brand)
 fd.write("SIMULATOR ?= ")
 fd.write(tool_brand)
-fd.write("\n\n")
-
-# Update ASE_PLATFORM
-fd.write("ASE_PLATFORM ?= ")
-fd.write(PLAT_TYPE)
 fd.write("\n\n")
 
 # Configure RTL sources
@@ -541,16 +560,26 @@ else:
     # Discover sources by scanning a set of directories
     json_file = auto_find_sources(fd)
 
-fd.close()
-
 # Both source discovery methods may return a JSON file describing the AFU.
 # They will return None if no JSON file is found.
 gen_afu_platform_ifc(json_file)
 if (json_file):
     gen_afu_json_verilog_macros(json_file)
 
-# Write tool specific scripts
+ase_platform = get_ase_platform()
+plat_type = {'intg_xeon': 'FPGA_PLATFORM_INTG_XEON',
+             'discrete': 'FPGA_PLATFORM_DISCRETE'}.get(ase_platform)
+print("ASE Platform: {0} ({1})".format(ase_platform, plat_type))
 
+# Update ASE_PLATFORM
+fd.write("ASE_PLATFORM ?= ")
+fd.write(plat_type)
+fd.write("\n\n")
+
+fd.close()
+
+# Write tool specific scripts.
+#
 # Scripts for multiple tools are written since the default tool
 # can be selected at build time.
 
