@@ -45,7 +45,7 @@ extern "C" {
  * @returns FPGA_INVALID_PARAM if any of the output parameters is NULL, FPGA_OK
  * otherwise.
  */
-fpga_result fpgaGetOPAECVersion(uint8_t *major, uint8_t *minor, uint8_t *rev);
+fpga_result fpgaGetOPAECVersion(fpga_version *version);
 
 /**
  * Get version information about the OPAE library as a string

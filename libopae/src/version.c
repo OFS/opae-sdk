@@ -35,16 +35,16 @@
 
 #include <string.h>
 
-fpga_result __FPGA_API__ fpgaGetOPAECVersion(uint8_t *major, uint8_t *minor, uint8_t *rev)
+fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
-	if (!major || !minor || !rev) {
-		FPGA_MSG("arguments are NULL");
+	if (!version) {
+		FPGA_MSG("version is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	*major = INTEL_FPGA_API_VER_MAJOR;
-	*minor = INTEL_FPGA_API_VER_MINOR;
-	*rev = INTEL_FPGA_API_VER_REV;
+	version->major = INTEL_FPGA_API_VER_MAJOR;
+	version->minor = INTEL_FPGA_API_VER_MINOR;
+	version->patch = INTEL_FPGA_API_VER_REV;
 
 	return FPGA_OK;
 }
