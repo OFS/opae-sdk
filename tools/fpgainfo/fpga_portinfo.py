@@ -33,7 +33,7 @@ class port_command(fpga_common.fpga_command):
     name = "port"
 
     properties = ['afu_id',
-                  'object_ID']
+                  'object_id']
 
     def run(self, args):
         info = sysfs.sysfsinfo()
