@@ -153,7 +153,7 @@ target_link_libraries(mock dl safestr)
 
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*drv*:-*event_drv_05*:-*nodrv*")
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*MOCK*:-*event_drv_05*:-*nodrv*")
 
 set_tests_properties(
   test_open_common_mock_drv

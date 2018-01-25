@@ -39,7 +39,7 @@ using namespace common_test;
  *             slot.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_01) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;
@@ -64,7 +64,7 @@ TEST(LibopaecUmsgCommonHW, Umsg_drv_01) {
  *             loaded, fpgaUmsgGetNumber returns error.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_02) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_02) {
   struct _fpga_token _tok;
   fpga_handle h = NULL;
   fpga_token tok = &_tok;
@@ -114,7 +114,7 @@ TEST(LibopaecUmsgCommonHW, Umsg_drv_02) {
  *             fpgaUmsgSetAttributes sets umsg hit  Enable / Disable.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_03) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_03) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;
@@ -140,7 +140,7 @@ TEST(LibopaecUmsgCommonHW, Umsg_drv_03) {
  *             loaded, fpgaUmsgSetAttributes retuns error.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_04) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_04) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;
@@ -191,7 +191,7 @@ TEST(LibopaecUmsgCommonHW, Umsg_drv_04) {
  *             fpgaGetUmsgPtr returns umsg address.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_05) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_05) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;
@@ -217,7 +217,7 @@ TEST(LibopaecUmsgCommonHW, Umsg_drv_05) {
  *             loaded, fpgaGetUmsgPtr returns uerror.
  *
  */
-TEST(LibopaecUmsgCommonHW, Umsg_drv_06) {
+TEST(LibopaecUmsgCommonMOCK, Umsg_drv_06) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;

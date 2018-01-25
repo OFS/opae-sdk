@@ -42,7 +42,7 @@ must be express and approved by Intel in writing.
 
 using namespace common_test;
 
-class LibopaecMmioFCommonHW : public BaseFixture, public ::testing::Test {
+class LibopaecMmioFCommonMOCK : public BaseFixture, public ::testing::Test {
  public:
   uint64_t* mmio_ptr = NULL;
   uint32_t value32 = 0x12345678;
