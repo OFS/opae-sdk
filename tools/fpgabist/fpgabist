@@ -70,8 +70,7 @@ def main(args):
         elif mode_name == "dma_afu":
             mode = bist_dma.DmaMode()
         else:
-            print "Unknown AFU for available BIST Modes: {}\n".format(path)
-            sys.exit()
+            sys.exit("Unknown AFU for available BIST Modes: {}\n".format(path))
         print "Running mode: {}".format(mode.name)
         mode.run(path, bdf['bus'])
 
