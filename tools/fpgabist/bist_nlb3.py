@@ -34,19 +34,21 @@ import bist_common as bc
 class Nlb3Mode(bc.BistMode):
     name = "nlb_3"
 
-    fpga_params = ('--mode=trput --read-vc=vh0 --write-vc=vh0 '
-                   '--multi-cl=4 --begin=1024, --end=1024 --timeout-sec=30 '
-                   '--cont')
-    executables = {'nlb3': fpga_params}
+    def __init__(self):
+        modes = ['read', 'write', 'trput']
+        params = ('--mode={} --read-vc=vh0 --write-vc=vh0 '
+                  '--multi-cl=4 --begin=1024, --end=1024 --timeout-sec=5 '
+                  '--cont')
+        self.executables = {mode: params.format(mode) for mode in modes}
 
     def run(self, gbs_path, bus_num):
         bc.load_gbs(gbs_path, bus_num)
-        for func, param in self.executables.items():
-            print "Running {} test...\n".format(func)
-            cmd = "{} {}".format(func, param)
+        for test, param in self.executables.items():
+            print "Running fpgadiag {} test...\n".format(test)
+            cmd = "fpgadiag {}".format(param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(func)
+                print "Failed Test: {}".format(test)
                 print e
         print "Finished Executing NLB (FPGA DIAG)Tests\n"
