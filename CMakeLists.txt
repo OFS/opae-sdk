@@ -220,6 +220,7 @@ define_pkg(tools
   toolbist_app
   toolfpgadiagapps
   toolfpgaflash
+  toolpachssiconfig
   toolpackager
   jsonschema
   opaecxxutils
