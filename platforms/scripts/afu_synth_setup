@@ -27,12 +27,11 @@
 
 #
 # Create a Quartus build environment in a new directory and configure it for
-# building an AFU.  Run "afu_synth_setup_std --help" for details.
+# building an AFU.  Run "afu_synth_setup --help" for details.
 #
-# This standard version of afu_synth_setup may be used by multiple FPGA
-# platform releases.  Typically, a platform release will provide an
-# afu_synth_setup in the release's bin directory that is a stub.  The stub
-# sets FPGA_RELEASE_DIR and invokes this common script.
+# afu_synth_setup may be used by multiple FPGA platform releases.  Users must
+# either specify the path to a release's hw/lib directory by setting the
+# environment variable OPAE_FPGA_HW_LIB or by setting --lib.
 #
 
 import sys
@@ -51,23 +50,22 @@ def errorExit(msg):
     sys.exit(1)
 
 
-# The root directory of a system release.
-def getSysReleasePath(args):
-    if (args.release is not None):
-        release_dir = args.release
-    elif ('FPGA_RELEASE_DIR' in os.environ):
-        release_dir = os.environ['FPGA_RELEASE_DIR']
+# The hw/lib directory of a platform's release.
+def getHWLibPath(args):
+    if (args.lib is not None):
+        hw_lib_dir = args.lib
+    elif ('OPAE_FPGA_HW_LIB' in os.environ):
+        hw_lib_dir = os.environ['OPAE_FPGA_HW_LIB'].rstrip('/')
     else:
-        # Parent directory of the running script
-        release_dir = os.path.dirname(
-            os.path.dirname(os.path.realpath(sys.argv[0])))
+        errorExit("Release hw/lib directory must be specified with " +
+                  "OPAE_FPGA_HW_LIB or --lib")
 
     # Confirm that the path looks reasonable
-    if (not os.path.exists(os.path.join(release_dir,
-                                        'hw/lib/fme-ifc-id.txt'))):
-        errorExit("{0} is not a release directory".format(release_dir))
+    if (not os.path.exists(os.path.join(hw_lib_dir,
+                                        'fme-ifc-id.txt'))):
+        errorExit("{0} is not a release hw/lib directory".format(hw_lib_dir))
 
-    return release_dir
+    return hw_lib_dir
 
 
 # Run a command and get the output
@@ -101,7 +99,7 @@ def remove_dir(d):
 
 
 # Copy base build environment to target directory
-def copy_build_env(base_src, dst, force):
+def copy_build_env(hw_lib_dir, dst, force):
     # Target directory can't exist (unless force is set)
     dst = dst.rstrip(os.path.sep)
     if dst == '':
@@ -128,7 +126,7 @@ def copy_build_env(base_src, dst, force):
         os.mkdir(dst)
 
     # Copy build to target directory
-    build_src = os.path.join(base_src, 'hw/lib/build')
+    build_src = os.path.join(hw_lib_dir, 'build')
     build_dst = os.path.join(dst, 'build')
     print('Copying build from {0}...'.format(build_src))
     try:
@@ -146,7 +144,10 @@ def copy_build_env(base_src, dst, force):
     # Make a scripts directory with clean.sh and run.sh
     scripts_dst = os.path.join(dst, 'scripts')
     os.mkdir(scripts_dst)
-    scripts_src = os.path.relpath(os.path.join(base_src, 'bin'), scripts_dst)
+    # The release root is two levels above hw/lib
+    release_root_dir = os.path.dirname(os.path.dirname(hw_lib_dir))
+    scripts_src = os.path.relpath(os.path.join(release_root_dir, 'bin'),
+                                  scripts_dst)
     os.symlink(os.path.join(scripts_src, 'clean.sh'),
                os.path.join(scripts_dst, 'clean.sh'))
     run_sh = os.path.join(scripts_dst, 'run.sh')
@@ -157,7 +158,7 @@ def copy_build_env(base_src, dst, force):
         f.write('SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && ' +
                 'pwd -P)"\n')
         f.write('RELEASE_DIR="$(readlink -f "${SCRIPT_DIR}/' +
-                os.path.relpath(base_src, scripts_dst) +
+                os.path.relpath(release_root_dir, scripts_dst) +
                 '")"\n')
         f.write('export BBS_LIB_PATH=' +
                 '${BBS_LIB_PATH:-"${RELEASE_DIR}/hw/lib"}\n')
@@ -229,8 +230,8 @@ def setup_build(args):
         cmd.append(args.platform)
     else:
         # Get the platform from the release
-        plat_class_file = os.path.join(getSysReleasePath(args),
-                                       'hw/lib/fme-platform-class.txt')
+        plat_class_file = os.path.join(getHWLibPath(args),
+                                       'fme-platform-class.txt')
         with open(plat_class_file) as f:
             cmd.append(f.read().strip())
 
@@ -260,12 +261,10 @@ def main():
                                 or RTL simulator syntax.""")
     parser.add_argument('-p', '--platform', default=None,
                         help="""FPGA platform name.""")
-    parser.add_argument('-r', '--release', default=None,
-                        help="""FPGA platform release directory.  If not
-                                specified, the environment variable
-                                FPGA_RELEASE_DIR is checked first.  If not
-                                defined, the script is assumed to be in the
-                                top level 'bin' directory of a release.""")
+    parser.add_argument('-l', '--lib', default=None,
+                        help="""FPGA platform release hw/lib directory.  If
+                                not specified, the environment variable
+                                OPAE_FPGA_HW_LIB is checked.""")
     parser.add_argument('-f', '--force',
                         action='store_true',
                         help="""Overwrite target directory if it exists.""")
@@ -276,9 +275,9 @@ def main():
     args = parser.parse_args()
 
     # Where is the base environment
-    base_src = getSysReleasePath(args)
+    hw_lib_dir = getHWLibPath(args)
 
-    copy_build_env(base_src, args.dst, args.force)
+    copy_build_env(hw_lib_dir, args.dst, args.force)
     setup_build(args)
 
 
