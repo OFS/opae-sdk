@@ -51,26 +51,40 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
 
 fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
+	errno_t err = 0;
+
 	if (!version_str) {
 		FPGA_MSG("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
+	err = strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
 		  sizeof(INTEL_FPGA_API_VERSION));
+
+	if (err) {
+		FPGA_ERR("strncpy_s failed with error %i", err);
+		return FPGA_EXCEPTION;
+	}
 
 	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
+	errno_t err = 0;
+
 	if (!build_str) {
 		FPGA_MSG("build_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
+	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
 		  sizeof(INTEL_FPGA_API_HASH));
+
+	if (err) {
+		FPGA_ERR("strncpy_s failed with error %i", err);
+		return FPGA_EXCEPTION;
+	}
 
 	return FPGA_OK;
 }
