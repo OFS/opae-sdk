@@ -458,6 +458,23 @@ def gen_afu_json_verilog_macros(json_file):
 def get_default_platform():
     if 'OPAE_ASE_DEFAULT_PLATFORM' in os.environ:
         return os.environ['OPAE_ASE_DEFAULT_PLATFORM']
+
+    # FPGA platform releases use BBS_LIB_PATH to specify a path to
+    # the release library.  The library stores the platform class.
+    # Match the ASE environment to the current platform.
+    if 'BBS_LIB_PATH' in os.environ:
+        fname = os.path.join(os.environ['BBS_LIB_PATH'],
+                             'fme-platform-class.txt')
+        try:
+            with open(fname, 'r') as fd:
+                fpga_platform = fd.read().strip()
+            return fpga_platform
+        except Exception:
+            ase_functions.begin_red_fontcolor()
+            sys.stderr.write('Warning: expected to find FPGA platform ' +
+                             'in {0}\n\n'.format(fname))
+            ase_functions.end_red_fontcolor()
+
     return 'intg_xeon'
 
 
