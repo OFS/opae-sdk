@@ -69,7 +69,8 @@ module platform_utils_ccip_reg
         //
         if (REGISTER_RESET && N_REG_STAGES)
         begin : reg_reset
-            (* preserve *) logic reset[N_REG_STAGES] = '{N_REG_STAGES{1'b1}};
+            (* altera_attribute = {"-name AUTO_SHIFT_REGISTER_RECOGNITION OFF; -name PRESERVE_REGISTER ON"} *)
+            logic reset[N_REG_STAGES] = '{N_REG_STAGES{1'b1}};
 
             always @(posedge clk)
             begin
@@ -97,7 +98,8 @@ module platform_utils_ccip_reg
         //
         if (REGISTER_TX && N_REG_STAGES)
         begin : reg_tx
-            (* preserve *) t_if_ccip_Tx reg_af2cp_sTx[N_REG_STAGES];
+            (* altera_attribute = {"-name AUTO_SHIFT_REGISTER_RECOGNITION OFF; -name PRESERVE_REGISTER ON"} *)
+            t_if_ccip_Tx reg_af2cp_sTx[N_REG_STAGES];
 
             // Tx to register stages
             always_ff @(posedge clk)
@@ -127,7 +129,8 @@ module platform_utils_ccip_reg
         //
         if (REGISTER_RX && N_REG_STAGES)
         begin : reg_rx
-            (* preserve *) t_if_ccip_Rx reg_cp2af_sRx[N_REG_STAGES];
+            (* altera_attribute = {"-name AUTO_SHIFT_REGISTER_RECOGNITION OFF; -name PRESERVE_REGISTER ON"} *)
+            t_if_ccip_Rx reg_cp2af_sRx[N_REG_STAGES];
 
             always_ff @(posedge clk)
             begin
@@ -156,8 +159,10 @@ module platform_utils_ccip_reg
         //
         if (REGISTER_ERROR && N_REG_STAGES)
         begin : reg_err
-            (* preserve *) logic [1:0] reg_cp2af_pwrState[N_REG_STAGES];
-            (* preserve *) logic reg_cp2af_error[N_REG_STAGES];
+            (* altera_attribute = {"-name AUTO_SHIFT_REGISTER_RECOGNITION OFF; -name PRESERVE_REGISTER ON"} *)
+            logic [1:0] reg_cp2af_pwrState[N_REG_STAGES];
+            (* altera_attribute = {"-name AUTO_SHIFT_REGISTER_RECOGNITION OFF; -name PRESERVE_REGISTER ON"} *)
+            logic reg_cp2af_error[N_REG_STAGES];
 
             always_ff @(posedge clk)
             begin
