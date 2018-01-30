@@ -30,8 +30,8 @@
 #include <opae/types.h>
 #include <opae/access.h>
 #include <opae/enum.h>
-#include <opae/cxx/properties.h>
-#include <opae/cxx/log.h>
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {

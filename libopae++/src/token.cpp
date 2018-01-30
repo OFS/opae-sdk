@@ -25,8 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <opae/utils.h>
-#include "opae/cxx/token.h"
-#include "opae/cxx/except.h"
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "opae/cxx/events.h"
+#include "opae/cxx/core/events.h"
 
 using namespace opae::fpga::types;
 
