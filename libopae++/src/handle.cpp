@@ -25,9 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/mmio.h>
 #include <opae/utils.h>
-#include "opae/cxx/handle.h"
-#include "opae/cxx/properties.h"
-#include "opae/cxx/except.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

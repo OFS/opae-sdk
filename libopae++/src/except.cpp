@@ -29,8 +29,8 @@
 #include <opae/utils.h>
 #include <safe_string/safe_string.h>
 
-#include "opae/cxx/except.h"
-#include "opae/cxx/log.h"
+#include <opae/cxx/core/except.h>
+#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {

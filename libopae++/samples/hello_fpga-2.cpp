@@ -23,7 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "opae/cxx/accelerator.h"
+#include <opae/cxx/accelerator.h>
 #include <uuid/uuid.h>
 #include <algorithm>
 #include <iostream>

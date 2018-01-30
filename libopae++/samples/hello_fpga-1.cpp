@@ -23,14 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "opae/cxx/properties.h"
-#include "opae/cxx/token.h"
-#include "opae/cxx/handle.h"
-#include "opae/cxx/dma_buffer.h"
-#include <uuid/uuid.h>
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <thread>
+
+#include <uuid/uuid.h>
+
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/dma_buffer.h>
 
 using namespace opae::fpga::types;
 

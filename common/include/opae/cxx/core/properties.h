@@ -29,8 +29,8 @@
 #include <iostream>
 
 #include <opae/properties.h>
-#include <opae/cxx/pvalue.h>
-#include <opae/cxx/log.h>
+#include <opae/cxx/core/pvalue.h>
+#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {

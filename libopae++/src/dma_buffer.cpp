@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
 
-#include "opae/cxx/dma_buffer.h"
+#include <opae/cxx/core/dma_buffer.h>
 
 namespace opae {
 namespace fpga {
