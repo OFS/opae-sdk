@@ -705,6 +705,7 @@ int snprintf_s_ss(char *dest, rsize_t dmax, const char *format, const char *s, c
 int snprintf_s_ii(char *dest, rsize_t dmax, const char *format, int a, int b);
 int sscanf_s_ii(const char *src, const char *format, int *a, int *b);
 int snprintf_s_si(char *dest, rsize_t dmax, const char *format, const char *s, int a);
+int snprintf_s_is(char *dest, rsize_t dmax, const char *format, int a, const char *s);
 int snprintf_s_sl(char *dest, rsize_t dmax, const char *format, const char *s, long a);
 int snprintf_s_il(char *dest, rsize_t dmax, const char *format, int a, long b);
 
