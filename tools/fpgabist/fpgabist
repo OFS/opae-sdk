@@ -34,49 +34,45 @@ import bist_common
 import bist_nlb3
 import bist_dma
 
-FEATURES = ['fme', 'port', 'temp', 'errors all']
+FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
 
 
 def main(args):
-    # TODO: Add total number of cards in system this acts a check for
-    if not vars(args)['bus'] and not vars(args)['device'] and \
-            not vars(args)['function']:
-        bdfs = bist_common.get_all_fpga_bdfs()
+    bdf = bist_common.get_all_fpga_bdfs()
+    if not bdf:
+        sys.exit("No FPGA devices found")
+    elif len(bdf) > 1 and not any([args.bus, args.device, args.function]):
+        sys.exit("Multiple cards found. Specify a bus, device or function")
     else:
-        bdfs = bist_common.get_bdf_from_args(args)
-
+        bdf = bist_common.get_bdf_from_args(args)
+        if len(bdf) > 1 or not bdf:
+            sys.exit("Could not find fpga, please try again")
+    bdf = bdf[0]
     start = "==========================================================\n\n" \
             "Beginning FPGA Built-In Self-Test\n\n"\
             "=========================================================="
     print start
-    print " This system has found {} physical device(s)\n".format(len(bdfs))
-    if len(bdfs) == 0:
-        print "No FPGA devices found"
-        sys.exit()
 
     # TODO: Add Opae version information
-    for bdf in bdfs:
-        print "Device: bus = {}, device = {}, func = {}".format(
-                bdf['bus'], bdf['device'], bdf['function'])
+    print "Device: bus = {}, device = {}, func = {}".format(
+            bdf['bus'], bdf['device'], bdf['function'])
 
-        # Display data from FPGA info
-        for feat in FEATURES:
-            cmd = "fpgainfo {} -b {}".format(feat, bdf['bus'])
-            subprocess.call(cmd, shell=True)
+    # Display data from FPGA info
+    for feature in FEATURES:
+        cmd = "fpgainfo {} -b {}".format(feature, bdf['bus'])
+        subprocess.call(cmd, shell=True)
 
-        gbs_paths = args.gbs_paths
-        for path in gbs_paths:
-            mode_name = bist_common.get_mode_from_path(path)
-            if mode_name == 'nlb_mode_3':
-                mode = bist_nlb3.Nlb3Mode()
-            elif mode_name == "dma_afu":
-                mode = bist_dma.DmaMode()
-            else:
-                print "Unknown AFU for available BIST Modes: {}\n".format(path)
-                # TODO: Print currently supported AFUs
-                sys.exit()
-            print "Running mode: {}".format(mode.name)
-            mode.run(path, bdf['bus'])
+    gbs_paths = args.gbs_paths
+    for path in gbs_paths:
+        mode_name = bist_common.get_mode_from_path(path)
+        if mode_name == 'nlb_mode_3':
+            mode = bist_nlb3.Nlb3Mode()
+        elif mode_name == "dma_afu":
+            mode = bist_dma.DmaMode()
+        else:
+            sys.exit("Unknown AFU for available BIST Modes: {}\n".format(path))
+        print "Running mode: {}".format(mode.name)
+        mode.run(path, bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
 
