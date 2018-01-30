@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 #include "gtest/gtest.h"
-#include "opae/cxx/token.h"
+#include <opae/cxx/core/token.h>
 #include <uuid/uuid.h>
 
 using namespace opae::fpga::types;

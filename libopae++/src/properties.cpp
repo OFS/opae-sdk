@@ -24,9 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/utils.h>
-#include "opae/cxx/properties.h"
-#include "opae/cxx/token.h"
-#include "opae/cxx/except.h"
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

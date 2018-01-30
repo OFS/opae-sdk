@@ -32,9 +32,9 @@
 #include <thread>
 
 #include <opae/buffer.h>
-#include <opae/cxx/handle.h>
-#include <opae/cxx/log.h>
-#include <opae/cxx/except.h>
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/log.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

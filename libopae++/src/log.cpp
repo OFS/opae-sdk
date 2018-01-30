@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <map>
 
-#include "opae/cxx/log.h"
+#include <opae/cxx/core/log.h>
 
 extern "C" {
   void fpga_print(int, char*, ...);

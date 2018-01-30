@@ -31,8 +31,8 @@
 #include <uuid/uuid.h>
 #include <opae/properties.h>
 #include <opae/utils.h>
-#include "opae/cxx/log.h"
-#include "opae/cxx/except.h"
+#include <opae/cxx/core/log.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

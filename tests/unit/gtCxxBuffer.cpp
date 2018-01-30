@@ -10,10 +10,11 @@ extern "C" {
 
 #include "gtest/gtest.h"
 
-#include "opae/cxx/dma_buffer.h"
-#include "opae/cxx/buffers.h"
-#include "opae/cxx/handle.h"
-#include "opae/cxx/except.h"
+#include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/except.h>
+
+#include <opae/cxx/buffers.h>
 
 using namespace opae::fpga::types;
 using namespace opae::fpga::memory;
