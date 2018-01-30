@@ -130,9 +130,8 @@
 
 
 /*
- * Disable Transaction shuffling
- * - In integrated mode, OutOfOrder channel control is used
- * - In discrete mode, InOrder channel control is used
+ * By default ASE will cause transactions to be returned out of order.
+ * This reflects that there is no ordering guarantee when using CCI-P.
  *
  * Infinite bandwidth test mode (independent of platform selection)
  * `define INFINITE_BANDWIDTH_MODE
@@ -141,17 +140,31 @@
  * selected based on platform type
  */
 // ------------------------------------------------------ //
-`ifdef FPGA_PLATFORM_INTG_XEON
+
+// Set forwarding channel type
  `ifdef INFINITE_BANDWIDTH_MODE
   `define FORWARDING_CHANNEL            inorder_wrf_channel
  `else
   `define FORWARDING_CHANNEL            outoforder_wrf_channel
  `endif
+
+/*
+ * Forwarding channel configuration and message types
+ */
+// ------------------------------------------------------ //
+`ifdef FPGA_PLATFORM_INTG_XEON
+ `define ASE_CHANNEL_0_DEPTH            256
+ `define ASE_CHANNEL_0_FULLTHRESH       220
+ `define ASE_CHANNEL_1_DEPTH            256
+ `define ASE_CHANNEL_1_FULLTHRESH       220
  `define ASE_ENABLE_UMSG_FEATURE
  `undef  ASE_ENABLE_INTR_FEATURE
 // ------------------------------------------------------ //
 `elsif FPGA_PLATFORM_DISCRETE
- `define FORWARDING_CHANNEL             inorder_wrf_channel
+ `define ASE_CHANNEL_0_DEPTH            64
+ `define ASE_CHANNEL_0_FULLTHRESH       48
+ `define ASE_CHANNEL_1_DEPTH            64
+ `define ASE_CHANNEL_1_FULLTHRESH       48
  `undef  ASE_ENABLE_UMSG_FEATURE
  `define ASE_ENABLE_INTR_FEATURE
 // ------------------------------------------------------ //
