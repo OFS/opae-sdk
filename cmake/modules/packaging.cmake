@@ -79,7 +79,6 @@ endfunction(DEFINE_PKG)
 
 macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
 
-    set(PYTHON_SRC "${ARGN}")
     set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/${EXE_NAME})
 
     # Generate a __main__.py that loads the target module
@@ -91,16 +90,45 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "if __name__ == '__main__':\n"
         "    sys.exit(main())\n")
 
-    set(ZIP_STR 
-        "zip -qr ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${PYTHON_SRC}")   
-    set(ZIP_MAIN_STR
-        "zip -qj ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip ${BUILD_DIR_MAIN}/__main__.py")
-    set(ECHO_STR "echo '#!/usr/bin/env python ' | 
-        cat - ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.zip > ${PACKAGER_BIN}")
-       
-    execute_process(COMMAND sh -c "${ZIP_STR}; ${ZIP_MAIN_STR}"
-              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    # Generate a Python script to zip the sources.
+    #   *** We could use writepy() for Python files, but this introduces the
+    #   *** potential for compatibility problems, especially in RPMs.
+    file(WRITE "${BUILD_DIR_MAIN}/do_zip.py"
+        "import os\n"
+        "import stat\n"
+        "import zipfile\n"
+        "from io import BytesIO\n"
+        "\n"
+        "def addfile(fn, z):\n"
+        "  z.write(fn)\n"
+        "\n"
+        "# Write to a buffer so that the shebang can be prepended easily\n"
+        "wr_buf = BytesIO()\n"
+        "wr_buf.write('#!/usr/bin/env python' + os.linesep)\n"
+        "\n"
+        "z = zipfile.PyZipFile(wr_buf, 'w')\n")
 
-    execute_process(COMMAND sh -c "${ECHO_STR}; chmod a+x ${PACKAGER_BIN}")
+    foreach(PYFILE ${ARGN})
+        file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"
+             "addfile('${PYFILE}', z)\n")
+    endforeach(PYFILE)
+
+    file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"
+        "z.write('${BUILD_DIR_MAIN}/__main__.py', '__main__.py')\n"
+        "z.close()\n"
+        "\n"
+        "# Write out the buffer\n"
+        "with open('${PACKAGER_BIN}', 'wb') as f:\n"
+        "  f.write(wr_buf.getvalue())\n"
+        "  # Mark the file executable\n"
+        "  mode = os.fstat(f.fileno()).st_mode\n"
+        "  mode |= stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH\n"
+        "  os.fchmod(f.fileno(), stat.S_IMODE(mode))\n"
+        "\n"
+        "f.close()\n")
+
+    # Run Python to generate the zipped file
+    execute_process(COMMAND python "${BUILD_DIR_MAIN}/do_zip.py"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 endmacro(CREATE_PYTHON_EXE)
