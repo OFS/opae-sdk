@@ -30,7 +30,7 @@
 #include <chrono>
 #include <thread>
 
-using namespace opae::fpga::resources;
+using namespace opae::fpga::resource;
 
 static const char* NLB0_AFUID                      = "D8424DC4-A4A3-C413-F89E-433683F9040B";
 static const uint64_t CL                           = 64;
@@ -71,11 +71,11 @@ int main(int argc, char* argv[]) {
   // Loop through all accelerators and try to open at least one
   for (auto ptr : accelerators) {
     try{
-      accel->open(FPGA_OPEN_SHARED);
+      ptr->open(FPGA_OPEN_SHARED);
       // we've opened an accelerator, assign the ptr to accel and stop trying
       accel = ptr;
       break;
-    } catch (accelerator::open_error & e) {
+    } catch (except & e) {
       std::cerr << "could not open accelerator: " << e.what() << "\n";
     }
   }
@@ -87,48 +87,48 @@ int main(int argc, char* argv[]) {
   }
 
   // allocate buffers
-  auto dsm = accel->allocate(LPBK1_DSM_SIZE);
-  auto inp = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
-  auto out = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+  //auto dsm = accel->allocate(LPBK1_DSM_SIZE);
+  //auto inp = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+  //auto out = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
 
-  // initialize buffers
-  std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
-  std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
-  std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
+  //// initialize buffers
+  //std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
+  //std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
+  //std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
-  //accel->reset();
-  accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
-  accel->configure<uint32_t>({ 
-    {CSR_CTL, static_cast<uint32_t>(0)},
-    {CSR_CTL, static_cast<uint32_t>(1)}
-  });
-  accel->configure<uint64_t>({
-    {CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova())},
-    {CSR_DST_ADDR, cacheline_aligned_addr(out->iova())},
-    {CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1 * CL}
-  });
-  accel->write(CSR_CFG, static_cast<uint32_t>(0x42000));
+  ////accel->reset();
+  //accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
+  //accel->configure<uint32_t>({ 
+  //  {CSR_CTL, static_cast<uint32_t>(0)},
+  //  {CSR_CTL, static_cast<uint32_t>(1)}
+  //});
+  //accel->configure<uint64_t>({
+  //  {CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova())},
+  //  {CSR_DST_ADDR, cacheline_aligned_addr(out->iova())},
+  //  {CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1 * CL}
+  //});
+  //accel->write(CSR_CFG, static_cast<uint32_t>(0x42000));
 
-  // get ptr to device status memory - test complete
-  auto status_ptr = dsm->get() + DSM_STATUS_TEST_COMPLETE / 8;
+  //// get ptr to device status memory - test complete
+  //auto status_ptr = dsm->get() + DSM_STATUS_TEST_COMPLETE / 8;
 
-  // start the test
-  accel->write(CSR_CTL, static_cast<uint32_t>(3));
+  //// start the test
+  //accel->write(CSR_CTL, static_cast<uint32_t>(3));
 
-  // wait for test completion
-  while (0 == ((*status_ptr) * 0x1)) {
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
-  }
+  //// wait for test completion
+  //while (0 == ((*status_ptr) * 0x1)) {
+  //  std::this_thread::sleep_for(std::chrono::microseconds(100));
+  //}
 
-  // stop the device
-  accel->write(CSR_CTL, static_cast<uint32_t>(7));
+  //// stop the device
+  //accel->write(CSR_CTL, static_cast<uint32_t>(7));
 
-  // check output buffer contents
-  auto mm = std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
-  if (mm.second < out->get() + LPBK1_BUFFER_SIZE) {
-    std::cerr << "output does NOT match input at offset: " << (mm.second - out->get()) << "\n";
-    return -1;
-  }
+  //// check output buffer contents
+  //auto mm = std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
+  //if (mm.second < out->get() + LPBK1_BUFFER_SIZE) {
+  //  std::cerr << "output does NOT match input at offset: " << (mm.second - out->get()) << "\n";
+  //  return -1;
+  //}
 
   return 0;
 }

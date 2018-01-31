@@ -51,19 +51,29 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
 
-set(OPAECXX_SRC src/properties.cpp
-                src/token.cpp
-                src/handle.cpp
-                src/dma_buffer.cpp
-                src/events.cpp
-                src/except.cpp
-                src/log.cpp)
+set(OPAECXXCORE_SRC src/properties.cpp
+                    src/token.cpp
+                    src/handle.cpp
+                    src/dma_buffer.cpp
+                    src/events.cpp
+                    src/except.cpp
+                    src/log.cpp)
 
-add_library(opae-cxx-core SHARED ${OPAECXX_SRC})
+add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
 target_link_libraries(opae-cxx-core opae-c)
+
+set(OPAECXX_SRC src/accelerator.cpp
+)
+
+add_library(opae-cxx SHARED ${OPAECXX_SRC})
+target_link_libraries(opae-cxx opae-c opae-cxx-core)
+
 add_executable(simple_example samples/simple_example.cpp)
 target_link_libraries(simple_example opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
+
+add_executable(hello_cxx samples/hello_fpga-2.cpp)
+target_link_libraries(hello_cxx opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx )
 
