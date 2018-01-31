@@ -13,6 +13,7 @@ extern "C" {
 #include <opae/cxx/accelerator.h>
 
 using namespace opae::fpga::types;
+using namespace opae::fpga::resource;
 
 /**
  * @test handle_open_01
@@ -42,6 +43,6 @@ TEST(CxxOpen, handle_open_01) {
 TEST(CxxOpen, accelerator_open_01) {
   auto accelerators = accelerator::enumerate({});
   ASSERT_TRUE(accelerators.size() > 0);
-  ASSERT_NO_THROW(accelerators[0]->open());
+  ASSERT_NO_THROW(accelerators[0]->open(FPGA_OPEN_SHARED));
   ASSERT_NO_THROW(accelerators.clear());
 }
