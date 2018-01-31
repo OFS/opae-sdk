@@ -100,7 +100,7 @@ def remove_dups(filepath, exclude=None):
     import hashlib
 
     def include(f):
-        if exclude is None or not fnmatch(f, exclude):
+        if exclude is None or not fnmatch.fnmatch(f, exclude):
             return True
         else:
             return False
