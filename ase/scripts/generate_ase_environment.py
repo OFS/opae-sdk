@@ -123,20 +123,21 @@ def remove_dups(filepath, exclude=None):
     return text
 
 
-# Find files in a directory 
+# Find files in a directory
 def search_file(pattern, cur=os.curdir):
     filelist = []
     for dir, subdirs, files in os.walk(os.path.abspath(cur)):
         for file in fnmatch.filter(files, pattern):
-            filelist.append(os.path.join(os.path.abspath(dir), file))    
+            filelist.append(os.path.join(os.path.abspath(dir), file))
     return filelist
 
-# Find dirs in a directory 
+
+# Find dirs in a directory
 def search_dir(pattern, cur=os.curdir):
     dirlist = []
     for dir, subdirs, files in os.walk(os.path.abspath(cur)):
         for d in subdirs:
-            dirlist.append(os.path.join(dir, d))    
+            dirlist.append(os.path.join(dir, d))
     return dirlist
 
 
@@ -263,7 +264,7 @@ def config_sources(fd, filelist):
         for file in files:
             json_file = file
 
-        if (json_file != None):
+        if (json_file is not None):
             # Use the discovered JSON file, but complain that it should
             # have been named explicitly.
             ase_functions.begin_green_fontcolor()
@@ -324,10 +325,10 @@ def auto_find_sources(fd):
         for dir in valid_dirlist:
             pkgfiles = search_file("*pkg*" + extn, dir)
             for file in pkgfiles:
-                str = str + file+ '\n'
+                str = str + file + '\n'
     for extn in VLOG_EXTENSIONS:
         for dir in valid_dirlist:
-            for file in search_file( "*"+extn, dir):
+            for file in search_file("*"+extn, dir):
                 if file not in pkgfiles:
                     str = str + file + '\n'
     if len(str) != 0:
@@ -346,8 +347,8 @@ def auto_find_sources(fd):
 
     # use absolute path names in DUT_INCDIR to keep Questa happy
     str = ""
-    for dir in valid_dirlist:    
-        for file in search_dir( "*", dir):  
+    for dir in valid_dirlist:
+        for file in search_dir("*", dir):
             str = str + file + '\n'
 
     str = str.replace("\n", "+")
@@ -387,7 +388,7 @@ def auto_find_sources(fd):
     json_file = None
     str = ""
     for dir in valid_dirlist:
-        for file in search_file( "*.json", dir):
+        for file in search_file("*.json", dir):
             str = file
     if (len(str)):
         for js in str.split('\n'):
