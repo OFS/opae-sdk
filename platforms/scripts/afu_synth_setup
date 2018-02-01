@@ -55,10 +55,14 @@ def getHWLibPath(args):
     if (args.lib is not None):
         hw_lib_dir = args.lib
     elif ('OPAE_FPGA_HW_LIB' in os.environ):
+        # Environment variable specific to afu_synth_setup
         hw_lib_dir = os.environ['OPAE_FPGA_HW_LIB'].rstrip('/')
+    elif ('BBS_LIB_PATH' in os.environ):
+        # Environment variable shared with afu_sim_setup and HW releases
+        hw_lib_dir = os.environ['BBS_LIB_PATH'].rstrip('/')
     else:
         errorExit("Release hw/lib directory must be specified with " +
-                  "OPAE_FPGA_HW_LIB or --lib")
+                  "OPAE_FPGA_HW_LIB, BBS_LIB_PATH or --lib")
 
     # Confirm that the path looks reasonable
     if (not os.path.exists(os.path.join(hw_lib_dir,
@@ -263,8 +267,9 @@ def main():
                         help="""FPGA platform name.""")
     parser.add_argument('-l', '--lib', default=None,
                         help="""FPGA platform release hw/lib directory.  If
-                                not specified, the environment variable
-                                OPAE_FPGA_HW_LIB is checked.""")
+                                not specified, the environment variables
+                                OPAE_FPGA_HW_LIB and then BBS_LIB_PATH are
+                                checked.""")
     parser.add_argument('-f', '--force',
                         action='store_true',
                         help="""Overwrite target directory if it exists.""")
