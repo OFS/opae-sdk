@@ -99,16 +99,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {
-	uint64_t refClock  = 0;
+	uint64_t refClock = userclk_high;
 
 	if (sysfs_path == NULL) {
 		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
-	}
-
-	// set low refclk if only one clock is avalible 
-	if ( userclk_high == 0 && userclk_low != 0 ) {
-		refClock = userclk_low;
 	}
 
 	// verify user clock freq range (100hz to 1200hz)
@@ -124,9 +119,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		return FPGA_INVALID_PARAM;
 	}
 
-	// set refclok to high.
-	refClock = userclk_high;
-	
+	// set low refclk if only one clock is avalible 
+	if (userclk_high == 0 && userclk_low != 0) {
+		refClock = userclk_low;
+	}
+
 	if (refClock < MIN_FPGA_FREQ){
 		FPGA_ERR("Invalid Input frequency");
 		return FPGA_INVALID_PARAM;
