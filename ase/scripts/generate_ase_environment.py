@@ -56,7 +56,7 @@ import re
 import sys
 import subprocess
 from collections import defaultdict
-from fnmatch import fnmatch
+import fnmatch
 import json
 import subprocess
 
@@ -100,7 +100,7 @@ def remove_dups(filepath, exclude=None):
     import hashlib
 
     def include(f):
-        if exclude is None or not fnmatch(f, exclude):
+        if exclude is None or not fnmatch.fnmatch(f, exclude):
             return True
         else:
             return False
@@ -123,11 +123,22 @@ def remove_dups(filepath, exclude=None):
     return text
 
 
-# Run command and get string output #
-def commands_getoutput(cmd):
-    byte_out = subprocess.check_output(cmd.split())
-    str_out = byte_out.decode()
-    return str_out
+# Find files in a directory
+def search_file(pattern, cur=os.curdir):
+    filelist = []
+    for dir, subdirs, files in os.walk(os.path.abspath(cur)):
+        for file in fnmatch.filter(files, pattern):
+            filelist.append(os.path.join(os.path.abspath(dir), file))
+    return filelist
+
+
+# Find dirs in a directory
+def search_dir(pattern, cur=os.curdir):
+    dirlist = []
+    for dir, subdirs, files in os.walk(os.path.abspath(cur)):
+        for d in subdirs:
+            dirlist.append(os.path.join(dir, d))
+    return dirlist
 
 
 def commands_list_getoutput(cmd):
@@ -249,13 +260,13 @@ def config_sources(fd, filelist):
     else:
         # Is there a JSON file in the same directory as the file list?
         dir = os.path.dirname(filelist)
-        str = commands_list_getoutput(
-            "find -L".split(" ") + [dir] +
-            "-maxdepth 1 -type f -name *.json".split(" "))
-        if (len(str)):
+        files = fnmatch.filter(os.listdir(dir), "*.json")
+        for file in files:
+            json_file = file
+
+        if (json_file is not None):
             # Use the discovered JSON file, but complain that it should
             # have been named explicitly.
-            json_file = str.split('\n')[0]
             ase_functions.begin_green_fontcolor()
             json_basename = os.path.basename(json_file)
             print(
@@ -290,8 +301,9 @@ def auto_find_sources(fd):
     str = ""
     vhdl_filepaths = ""
     for extn in VHD_EXTENSIONS:
-        str = str + commands_getoutput("find -L " + str_dirlist +
-                                       ' -type f -name *' + extn)
+        for dir in valid_dirlist:
+            for file in search_file("*"+extn, dir):
+                str = str + file + '\n'
         if len(str) != 0:
             str = str + "\n"
     if len(str.strip()) != 0:
@@ -306,19 +318,19 @@ def auto_find_sources(fd):
     print("")
     print("Finding {System}Verilog files ... ")
     str = ""
+    pkgfiles = []
     vlog_filepaths = ""
     cmd = ""
     for extn in VLOG_EXTENSIONS:
-        cmd = "find -L " + str_dirlist + " -type f -name *pkg*" + extn
-        str = str + commands_getoutput(cmd)
-        if len(str) != 0:
-            str = str + "\n"
+        for dir in valid_dirlist:
+            pkgfiles = search_file("*pkg*" + extn, dir)
+            for file in pkgfiles:
+                str = str + file + '\n'
     for extn in VLOG_EXTENSIONS:
-        cmd = "find -L " + str_dirlist + \
-            " -type f -name *" + extn + " -not -name *pkg*" + extn
-        str = str + commands_getoutput(cmd)
-        if len(str) != 0:
-            str = str + "\n"
+        for dir in valid_dirlist:
+            for file in search_file("*"+extn, dir):
+                if file not in pkgfiles:
+                    str = str + file + '\n'
     if len(str) != 0:
         open(VLOG_FILE_LIST, "w").write(str)
         vlog_filepaths = str
@@ -334,8 +346,10 @@ def auto_find_sources(fd):
     print("Finding include directories ... ")
 
     # use absolute path names in DUT_INCDIR to keep Questa happy
-    pathname = os.path.abspath(str_dirlist)
-    str = commands_getoutput("find -L " + pathname + " -type d")
+    str = ""
+    for dir in valid_dirlist:
+        for file in search_dir("*", dir):
+            str = str + file + '\n'
 
     str = str.replace("\n", "+")
     if len(str) != 0:
@@ -372,8 +386,10 @@ def auto_find_sources(fd):
 
     # Search for a JSON file describing the AFU
     json_file = None
-    str = commands_getoutput(
-        "find -L " + str_dirlist + " -type f -name *.json")
+    str = ""
+    for dir in valid_dirlist:
+        for file in search_file("*.json", dir):
+            str = file
     if (len(str)):
         for js in str.split('\n'):
             try:
