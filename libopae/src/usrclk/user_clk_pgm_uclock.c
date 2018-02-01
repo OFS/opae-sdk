@@ -118,7 +118,8 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (userclk_low != 0  && userclk_low > userclk_high) {
+	if (userclk_low != 0 && userclk_high != 0
+		&& userclk_low > userclk_high) {
 		FPGA_ERR("Invalid Input low frequency");
 		return FPGA_INVALID_PARAM;
 	}
@@ -137,7 +138,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	FPGA_DBG("User clock high: %ld \n", refClock);
+	FPGA_DBG("User clock: %ld \n", refClock);
 
 	// set user clock
 	if (fi_SetFreqs(0, refClock) != 0) {
