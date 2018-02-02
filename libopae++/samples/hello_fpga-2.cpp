@@ -31,6 +31,7 @@
 #include <thread>
 
 using namespace opae::fpga::resource;
+using namespace opae::fpga::types;
 
 static const char* NLB0_AFUID                      = "D8424DC4-A4A3-C413-F89E-433683F9040B";
 static const uint64_t CL                           = 64;
