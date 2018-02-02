@@ -27,24 +27,14 @@
 
 using std::vector;
 
+using namespace opae::fpga::types;
+
 namespace opae {
 namespace fpga {
 namespace resource {
 
 accelerator::accelerator(token::ptr_t t)
     : token_(t), props_(properties::read(t)) {}
-
-accelerator::accelerator(const accelerator& other)
-    : token_(other.token_), props_(other.props_), handle_(other.handle_) {}
-
-accelerator& accelerator::operator=(const accelerator& other) {
-  if (&other != this) {
-    token_ = other.token_;
-    props_ = other.props_;
-    handle_ = other.handle_;
-  }
-  return *this;
-}
 
 accelerator::list_t accelerator::enumerate(vector<properties> filter) {
   list_t accelerators;

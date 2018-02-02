@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,11 +32,6 @@
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
 
-using opae::fpga::types::except;
-using opae::fpga::types::handle;
-using opae::fpga::types::properties;
-using opae::fpga::types::token;
-
 namespace opae {
 namespace fpga {
 namespace resource {
@@ -50,7 +45,6 @@ namespace resource {
  */
 class accelerator {
  public:
-
   /**
    * @brief     Defines an alias representing a shared_ptr of an
    * accelerator
@@ -65,20 +59,14 @@ class accelerator {
   typedef std::vector<ptr_t> list_t;
 
   /**
-   * @brief     Copy constructor
-   * @param     other   The other accelerator object.
+   * @fn        accelerator::accelerator() = delete;
+   *
+   * @brief     Default constructor is disabled
    */
-  accelerator(const accelerator& other);
+  accelerator() = delete;
 
   /** @brief     Destructor */
   virtual ~accelerator();
-
-  /**
-   * @brief     Assignment operator
-   * @param     other   The other accelerator object.
-   * @return    A shallow copy of this object.
-   */
-  accelerator& operator=(const accelerator& other);
 
   /**
    * @brief     Enumerates using the given filter
@@ -87,16 +75,26 @@ class accelerator {
    *            properties object set to type FPGA_ACCELERATOR.
    * @return    A list of accelerator shared_ptr objects.
    */
-  static list_t enumerate(std::vector<properties> filter = { FPGA_ACCELERATOR } );
+  static list_t enumerate(std::vector<opae::fpga::types::properties> filter =
+                          {FPGA_ACCELERATOR});
 
+  /**
+   * @fn        void accelerator::open(int flags);
+   *
+   * @brief     Open an accelerator resource and stores properties and
+   * structures internally.
+   *
+   * @throws    opae::fpga::types::except
+   *
+   * @param     flags   The flags.
+   */
   void open(int flags);
 
  private:
-  token::ptr_t token_;
-  properties::ptr_t props_;
-  handle::ptr_t handle_;
-  accelerator() = delete;
-  accelerator(token::ptr_t t);
+  opae::fpga::types::token::ptr_t token_;
+  opae::fpga::types::properties::ptr_t props_;
+  opae::fpga::types::handle::ptr_t handle_;
+  accelerator(opae::fpga::types::token::ptr_t t);
 };
 
 }  // end of namespace resource
