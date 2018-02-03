@@ -53,6 +53,14 @@ accelerator::~accelerator() {}
 
 void accelerator::open(int flags) { handle_ = handle::open(token_, flags); }
 
+dma_buffer::ptr_t accelerator::allocate_buffer(size_t size) {
+  if (handle_) {
+    return dma_buffer::allocate(handle_, size);
+  } else {
+    throw except(FPGA_EXCEPTION, OPAECXX_HERE);
+  }
+}
+
 }  // end of namespace resource
 }  // end of namespace fpga
 }  // end of namespace opae
