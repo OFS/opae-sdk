@@ -35,7 +35,7 @@ import logging
 import sys
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='fpga commands')
 

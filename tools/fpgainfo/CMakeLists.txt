@@ -23,17 +23,30 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+find_package(PythonInterp)
+find_program(RPMBUILD rpmbuild)
+if(RPMBUILD)
+    set(dist_type bdist_rpm)
+else(RPMBUILD)
+    set(dist_type bdist_wheel)
+endif(RPMBUILD)
 
-set(PYTHON_SRC
-     fpga_common.py
-     fpga_fmeinfo.py
-     fpga_portinfo.py
-     fpgaerr.py
-     fpgainfo
-     fpgapwr.py
-     fpgatemp.py
-     sysfs.py)
+set(TARGET_NAME fpgainfo-${INTEL_FPGA_API_VERSION}-py2-none-any.whl)
 
-install(PROGRAMS ${PYTHON_SRC}
-    DESTINATION bin
-    COMPONENT toolfpgainfo)
+configure_file(setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+
+add_custom_target(copy_fpgainfo
+    COMMAND cmake -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpgainfo ${CMAKE_CURRENT_BINARY_DIR}/fpgainfo)
+
+add_custom_command(
+    OUTPUT  ${TARGET_NAME}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py ${dist_type}
+    DEPENDS copy_fpgainfo
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+add_custom_target(fpgainfo
+    SOURCES ${TARGET_NAME})
+
+install(CODE "execute_process(COMMAND python -m pip install ${TARGET_NAME})")
+
