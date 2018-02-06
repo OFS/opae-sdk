@@ -133,7 +133,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 {
 	char *p;
 	char spath[SYSFS_PATH_MAX];
-	int device_id;
+	int device_instance;
 	struct token_map *itr;
 	int err = 0;
 
@@ -145,11 +145,11 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 	if (!p)
 		return NULL;
 
-	device_id = atoi(p+1);
+	device_instance = atoi(p+1);
 
 	snprintf_s_ii(spath, sizeof(spath),
 			SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
-			device_id, device_id);
+			device_instance, device_instance);
 
 	if (pthread_mutex_lock(&global_lock)) {
 		FPGA_MSG("Failed to lock global mutex");
