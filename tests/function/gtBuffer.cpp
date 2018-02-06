@@ -84,7 +84,7 @@ TEST(LibopaecBufCommonALL, NoPrep01) {
  *             fpgaReleaseBuffer must fail if invalid wsid is passed
  *
  */
-TEST(LibopaecBufCommonMOCK, InvalidWSID01) {
+TEST(LibopaecBufCommonMOCKHW, InvalidWSID01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -119,7 +119,7 @@ TEST(LibopaecBufCommonMOCK, InvalidWSID01) {
  *             fpgaReleaseBuffer must release a shared memory buffer.
  *
  */
-TEST(LibopaecBufCommonMOCK, PrepRel4K01) {
+TEST(LibopaecBufCommonMOCKHW, PrepRel4K01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -383,7 +383,7 @@ TEST(LibopaecBufCommonALL, WriteRead01) {
  *             release a shared memory buffer.
  *
  */
-TEST(LibopaecBufCommonMOCK, PrepPre2MB01) {
+TEST(LibopaecBufCommonMOCKHW, PrepPre2MB01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;

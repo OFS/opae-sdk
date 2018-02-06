@@ -38,7 +38,7 @@ using namespace intel::utils;
  *             the default value for that type
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, default_option_01) {
+TEST(LibopaecCppOptionsCommonMOCKHW, default_option_01) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument,
                             "test option help");
@@ -56,7 +56,7 @@ TEST(LibopaecCppOptionsCommonMOCK, default_option_01) {
  *             in the JSON string
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_json_02) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_json_02) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
                             42);
@@ -79,7 +79,7 @@ TEST(LibopaecCppOptionsCommonMOCK, parse_json_02) {
  *             false
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_json_03) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_json_03) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
                             42);
@@ -103,7 +103,7 @@ TEST(LibopaecCppOptionsCommonMOCK, parse_json_03) {
  *             value in the arguments vector
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_arg_04) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_04) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
@@ -129,7 +129,7 @@ TEST(LibopaecCppOptionsCommonMOCK, parse_arg_04) {
  *             value in the arguments vector
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_arg_05) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_05) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", 'a', option::with_argument,
@@ -154,7 +154,7 @@ TEST(LibopaecCppOptionsCommonMOCK, parse_arg_05) {
  *             parser is equal to the non-options
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_arg_06) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_06) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
@@ -183,7 +183,7 @@ TEST(LibopaecCppOptionsCommonMOCK, parse_arg_06) {
  *             vector in the parser is equal to the non-options
  *
  */
-TEST(LibopaecCppOptionsCommonMOCK, parse_arg_07) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_07) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",

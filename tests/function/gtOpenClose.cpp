@@ -35,10 +35,10 @@ must be express and approved by Intel in writing.
 using namespace common_test;
 using namespace std;
 
-class LibopaecOpenFCommonMOCK : public common_test::BaseFixture,
+class LibopaecOpenFCommonMOCKHW : public common_test::BaseFixture,
                               public ::testing::Test {};
 
-class LibopaecCloseFCommonMOCK : public common_test::BaseFixture,
+class LibopaecCloseFCommonMOCKHW : public common_test::BaseFixture,
                                public ::testing::Test {};
 
 class LibopaecOpenFCommonALL : public common_test::BaseFixture,
@@ -174,7 +174,7 @@ TEST_F(LibopaecOpenFCommonALL, 05) {
  *             but the user lacks sufficient privilege for the device,
  *             fpgaOpen returns FPGA_NO_ACCESS.
  */
-TEST_F(LibopaecOpenFCommonMOCK, 06) {
+TEST_F(LibopaecOpenFCommonMOCKHW, 06) {
   auto functor = [=]() -> void {
     fpga_handle h;
 
