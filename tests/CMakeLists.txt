@@ -53,7 +53,6 @@ include_directories(
   ${OPAE_SDK_SOURCE}/tools/c++utils
   ${OPAE_SDK_SOURCE}/tests)
 
-message(STATUS "build commlib")
 add_library(commonlib SHARED common_test.h common_test.cpp)
 target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
 target_include_directories(commonlib PUBLIC

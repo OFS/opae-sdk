@@ -43,7 +43,7 @@ function (Build_GTEST)
     # Disable install step
     INSTALL_COMMAND "")
     
-  set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest" [PARENT_SCOPE])
+  set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
   # Create a libgtest target to be used as a dependency by test programs
@@ -59,7 +59,7 @@ function (Build_GTEST)
       "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
   # Export gtest variables
-  set(GTEST_ROOT ${gtest_root} PARENT_SCOPE PARENT_SCOPE)
+  set(GTEST_ROOT ${gtest_root} PARENT_SCOPE)
   set(GTEST_INCLUDE_DIRS ${gtest_root}/include PARENT_SCOPE)
   set(GTEST_MAIN_LIBRARY gtest_main PARENT_SCOPE)
   set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
