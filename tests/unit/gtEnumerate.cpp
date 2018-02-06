@@ -52,7 +52,7 @@ using namespace intel::utils;
  *             list<br> And no exceptions are thrown
  *
  */
-TEST(LibopaecCppEnumerateCommonMOCKHW, NoFilters01) {
+TEST(LibopaecCppEnumCommonMOCKHW, NoFilters01) {
   auto accelerator_list = accelerator::enumerate({});
   EXPECT_TRUE(accelerator_list.size() > 0);
   ASSERT_NO_THROW(accelerator_list.clear());
@@ -68,7 +68,7 @@ TEST(LibopaecCppEnumerateCommonMOCKHW, NoFilters01) {
  *             thrown
  *
  */
-TEST(LibopaecCppEnumerateCommonMOCKHW, BusFilter02) {
+TEST(LibopaecCppEnumCommonMOCKHW, BusFilter02) {
   option_map::ptr_t opts(new option_map());
   // add an option with a default
   opts->add_option<uint8_t>("bus-number", option::with_argument, "bus number",

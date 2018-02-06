@@ -34,7 +34,7 @@ must be express and approved by Intel in writing.
 
 using namespace common_test;
 
-class LibopaecEnumerateFCommonMOCKHW : public BaseFixture, public ::testing::Test {
+class LibopaecEnumFCommonMOCKHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {
     m_Properties = NULL;
@@ -88,7 +88,7 @@ protected:
  * @brief      When the num_match parameter to fpgaEnumerate is NULL,
  *             the function returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecEnumerateCommonALL, 01) {
+TEST(LibopaecEnumCommonALL, 01) {
   fpga_properties prop;
   fpga_token tok;
 
@@ -102,7 +102,7 @@ TEST(LibopaecEnumerateCommonALL, 01) {
  *             than zero, but the tokens parameter is NULL, the function
  *             returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecEnumerateCommonALL, 02) {
+TEST(LibopaecEnumCommonALL, 02) {
   fpga_properties prop;
   uint32_t nummatch;
 
@@ -116,7 +116,7 @@ TEST(LibopaecEnumerateCommonALL, 02) {
  *             than zero, but the filter parameter is NULL, the function
  *             returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecEnumerateCommonALL, 03) {
+TEST(LibopaecEnumCommonALL, 03) {
   fpga_token tok;
   uint32_t nummatch;
 
@@ -130,7 +130,7 @@ TEST(LibopaecEnumerateCommonALL, 03) {
  *             but the filter parameter is non-NULL, the function
  *             returns FPGA_INVALID_PARAM.
  */
-TEST(LibopaecEnumerateCommonALL, 23) {
+TEST(LibopaecEnumCommonALL, 23) {
   fpga_properties prop;
   fpga_token tok;
   uint32_t nummatch;
@@ -147,7 +147,7 @@ TEST(LibopaecEnumerateCommonALL, 23) {
  *             system into the memory pointed to by num_matches, and
  *             returns FPGA_OK.
  */
-TEST(LibopaecEnumerateCommonALL, 04) {
+TEST(LibopaecEnumCommonALL, 04) {
   uint32_t nummatch;
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(NULL, 0, NULL, 0, &nummatch));
@@ -162,7 +162,7 @@ TEST(LibopaecEnumerateCommonALL, 04) {
  *             limiting the number of output entries written to the
  *             memory at match, even though more may exist.
  */
-TEST(LibopaecEnumerateCommonALL, 05) {
+TEST(LibopaecEnumCommonALL, 05) {
   uint32_t nummatch;
   fpga_token match[3] = {NULL, NULL, NULL};
 
@@ -185,7 +185,7 @@ TEST(LibopaecEnumerateCommonALL, 05) {
  * @brief      fpgaEnumerate honors a "don't care" properties filter by
  *             returning all available tokens.
  */
-TEST(LibopaecEnumerateCommonALL, 06) {
+TEST(LibopaecEnumCommonALL, 06) {
   uint32_t nummatch;
   fpga_properties props;
 
@@ -312,7 +312,7 @@ TEST_F(LibopaecEnumFCommonALL, 08) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_ACCELERATOR).
  */
-TEST_F(LibopaecEnumerateFCommonMOCKHW, 09) {
+TEST_F(LibopaecEnumFCommonMOCKHW, 09) {
   EXPECT_EQ(FPGA_OK,
             fpgaPropertiesSetObjectType(m_Properties, FPGA_ACCELERATOR));
 
@@ -349,7 +349,7 @@ TEST_F(LibopaecEnumerateFCommonMOCKHW, 09) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_DEVICE).
  */
-TEST_F(LibopaecEnumerateFCommonMOCKHW, 10) {
+TEST_F(LibopaecEnumFCommonMOCKHW, 10) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
@@ -728,7 +728,7 @@ TEST_F(LibopaecEnumFCommonALL, 19) {
  *             and the cloned token is equal to the original.
  *
  */
-TEST(LibopaecEnumerateCommonALL, enum_drv_020) {
+TEST(LibopaecEnumCommonALL, enum_drv_020) {
   fpga_properties props;
   uint32_t nummatch;
   fpga_token clone;
@@ -845,7 +845,7 @@ TEST_F(LibopaecEnumFCommonALL, DISABLED_enum_drv_021) {
  *             the result is FPGA_OK
  *
  */
-TEST(LibopaecEnumerateCommonALL, enum_drv_022) {
+TEST(LibopaecEnumCommonALL, enum_drv_022) {
   fpga_properties prop;
   fpga_guid guid;
   fpga_token tok;
