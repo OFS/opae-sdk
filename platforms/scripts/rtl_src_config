@@ -28,16 +28,18 @@ quartus_tag_map = {
     '.sdc':  'SDC_FILE',
     '.qsys': 'QSYS_FILE',
     '.ip':   'IP_FILE',
+    '.qip':  'QIP_FILE',
     '.json': 'MISC_FILE',
     '.tcl':  'MISC_FILE',
-    '.stp': 'SIGNALTAP_FILE',
-    '.hex': 'MIF_FILE',
-    '.mif': 'MIF_FILE',
+    '.stp':  'SIGNALTAP_FILE',
+    '.hex':  'MIF_FILE',
+    '.mif':  'MIF_FILE'
 }
 
 # QSYS-only tags.
 qsys_tag_map = {
     '.qsys': 'QSYS_FILE',
+    '.qip':  'QIP_FILE',
     '.ip':   'IP_FILE'
 }
 

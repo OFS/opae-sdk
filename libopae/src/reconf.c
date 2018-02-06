@@ -324,7 +324,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 			 metadata.afu_image.afu_clusters.afu_uuid);
 
 		// Set AFU user clock
-		if (metadata.afu_image.clock_frequency_high > 0 && metadata.afu_image.clock_frequency_low > 0) {
+		if (metadata.afu_image.clock_frequency_high > 0 || metadata.afu_image.clock_frequency_low > 0) {
 			result = set_afu_userclock(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to set user clock");

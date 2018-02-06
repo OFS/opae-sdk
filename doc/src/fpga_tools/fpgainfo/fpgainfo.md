@@ -2,15 +2,18 @@
 
 ## SYNOPSIS ##
 ```console
-fpgainfo [-h | --help] [-b <bus>] [-d <device>] [-f <function>] <command> [<args>]
+fpgainfo [-h | --help] <command> [<args>]
 ```
 
 
 ## DESCRIPTION ##
-fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following: errors, power, or temp. 
-Some commands may also have other arguments or options that control the behavior.
+fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
+errors, power, temp, port or fme. 
+Some commands may also have other arguments or options that control their behavior.
 
-For systems with multiple devices, specify the BDF of the target device with -b, -d and -f.
+For systems with multiple FPGA devices, the BDF (or bus, device, function) may be specified to limit
+the output to the FPGA resource with the corresponding PCIe configuration. If not specified, information
+will be displayed for all resources for the given command.
 
 ### FPGAINFO COMMANDS ##
 `errors`
@@ -39,20 +42,23 @@ For systems with multiple devices, specify the BDF of the target device with -b,
 
     Prints help information and exit.
 
+## COMMON ARGUMENTS ##
+The following arguments are common to all commands and are optional.
+
 `-b, --bus`
 
-	PCIe bus number of the target FPGA.
+	PCIe bus number of resource.
 `-d, --device`
 
-	PCIe device number of the target FPGA.
+	PCIe device number of resource.
 
 `-f, --function`
 
-	PCIe function number of the target FPGA.
+	PCIe function number of resource.
 
-`--clear, -c`
+`--json`
 
-    Clear errors for the given FPGA resource.
+	Display information as JSON string.
 
 ### ERRORS ARGUMENTS ###
 The first argument to the `errors` command specifies the resource type. It must be one of the following:
@@ -69,6 +75,10 @@ The first argument to the `errors` command specifies the resource type. It must 
 `all`
 
     Show/clear errors for all resources.
+
+`--clear, -c`
+
+    Clear errors for the given FPGA resource.
 
 
 ## EXAMPLES ##
@@ -89,4 +99,8 @@ This command shows FME resource errors
 This command clears all errors on all resources:
 ```console
 ./fpgainfo errors all -c
+```
+This command shows information of the FME on bus 0x5e
+```console
+./fpgainfo fme -b 0x5e
 ```

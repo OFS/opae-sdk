@@ -87,7 +87,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			(struct _fpga_token *) _filter->parent;
 		char spath[SYSFS_PATH_MAX];
 		char *p;
-		int device_id;
+		int device_instance;
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
 			res = false; // Only accelerator can have a parent
@@ -106,12 +106,12 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			goto out_unlock;
 		}
 
-		device_id = (int) strtoul(p+1, NULL, 10);
+		device_instance = (int) strtoul(p+1, NULL, 10);
 
 		snprintf_s_ii(spath, SYSFS_PATH_MAX,
 				SYSFS_FPGA_CLASS_PATH
 				SYSFS_FME_PATH_FMT,
-				device_id, device_id);
+				device_instance, device_instance);
 
 		if (strcmp(spath, ((struct _fpga_token *)
 						_filter->parent)->sysfspath)) {
@@ -531,19 +531,19 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	// 0123456
 	// bb:dd.f
 	f = 0;
-	sscanf(p+6, "%d", &f);
+	sscanf_s_i(p+6, "%d", &f);
 
 	pdev->function = (uint8_t) f;
 	*(p + 5) = 0;
 
 	d = 0;
-	sscanf(p+3, "%x", &d);
+	sscanf_s_u(p+3, "%x", &d);
 
 	pdev->device = (uint8_t) d;
 	*(p + 2) = 0;
 
 	b = 0;
-	sscanf(p, "%x", &b);
+	sscanf_s_u(p, "%x", &b);
 
 	pdev->bus = (uint8_t) b;
 
