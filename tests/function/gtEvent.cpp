@@ -35,7 +35,7 @@ must be express and approved by Intel in writing.
 using namespace common_test;
 using namespace std;
 
-class LibopaecEventFCommonHW : public BaseFixture, public ::testing::Test {
+class LibopaecEventFCommonMOCKHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {
     m_AFUHandle = NULL;
@@ -79,7 +79,7 @@ class LibopaecEventFCommonHW : public BaseFixture, public ::testing::Test {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_01) {
+TEST(LibopaecEventCommonMOCKHW, event_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaCreateEventHandle(NULL));
 }
 
@@ -91,7 +91,7 @@ TEST(LibopaecEventCommonHW, event_01) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_02) {
+TEST(LibopaecEventCommonMOCKHW, event_02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(NULL));
 }
 
@@ -106,7 +106,7 @@ TEST(LibopaecEventCommonHW, event_02) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_03) {
+TEST(LibopaecEventCommonMOCKHW, event_03) {
   fpga_event_type e = FPGA_EVENT_ERROR;
   fpga_event_handle eh;
 
@@ -150,7 +150,7 @@ TEST(LibopaecEventCommonHW, event_03) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_04) {
+TEST(LibopaecEventCommonMOCKHW, event_04) {
   fpga_event_type e = FPGA_EVENT_ERROR;
   fpga_event_handle eh;
 
@@ -187,7 +187,7 @@ TEST(LibopaecEventCommonHW, event_04) {
  * @brief      Test registration and unregistration of events.
  *
  */
-TEST_F(LibopaecEventFCommonHW, event_drv_05) {
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_05) {
   EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
                                        m_EventHandles[0], 0));
 

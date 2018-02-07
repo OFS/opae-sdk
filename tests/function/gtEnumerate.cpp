@@ -34,7 +34,7 @@ must be express and approved by Intel in writing.
 
 using namespace common_test;
 
-class LibopaecEnumFCommonHW : public BaseFixture, public ::testing::Test {
+class LibopaecEnumFCommonMOCKHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {
     m_Properties = NULL;
@@ -312,7 +312,7 @@ TEST_F(LibopaecEnumFCommonALL, 08) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_ACCELERATOR).
  */
-TEST_F(LibopaecEnumFCommonHW, 09) {
+TEST_F(LibopaecEnumFCommonMOCKHW, 09) {
   EXPECT_EQ(FPGA_OK,
             fpgaPropertiesSetObjectType(m_Properties, FPGA_ACCELERATOR));
 
@@ -349,7 +349,7 @@ TEST_F(LibopaecEnumFCommonHW, 09) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_DEVICE).
  */
-TEST_F(LibopaecEnumFCommonHW, 10) {
+TEST_F(LibopaecEnumFCommonMOCKHW, 10) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
