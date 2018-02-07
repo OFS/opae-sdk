@@ -45,7 +45,7 @@ using namespace intel::fpga;
  *             accelerator<br> Then the result is true<br>
  *
  */
-TEST(LibopaecCppOpenCommonHW, fx_open_01)
+TEST(LibopaecCppOpenCommonMOCKHW, fx_open_01)
 {
     auto accelerator_list = accelerator::enumerate({});
     ASSERT_GT(accelerator_list.size() , 0);

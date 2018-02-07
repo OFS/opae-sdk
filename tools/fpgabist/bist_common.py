@@ -80,7 +80,7 @@ def get_mode_from_path(gbs_path):
 
 def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    cmd = "{} -b {} -v {}".format('fpgaconf', bus_num, gbs_file)
+    cmd = "{} -b 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
