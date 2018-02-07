@@ -145,31 +145,6 @@ def copy_build_env(hw_lib_dir, dst, force):
     if (not os.path.isdir(hw_dir)):
         os.mkdir(hw_dir)
 
-    # Make a scripts directory with clean.sh and run.sh
-    scripts_dst = os.path.join(dst, 'scripts')
-    os.mkdir(scripts_dst)
-    # The release root is two levels above hw/lib
-    release_root_dir = os.path.dirname(os.path.dirname(hw_lib_dir))
-    scripts_src = os.path.relpath(os.path.join(release_root_dir, 'bin'),
-                                  scripts_dst)
-    os.symlink(os.path.join(scripts_src, 'clean.sh'),
-               os.path.join(scripts_dst, 'clean.sh'))
-    run_sh = os.path.join(scripts_dst, 'run.sh')
-    with open(run_sh, 'w') as f:
-        # Use relative paths so generated scripts can be shipped in
-        # a tarball along with a release.
-        f.write('#!/bin/sh\n')
-        f.write('SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && ' +
-                'pwd -P)"\n')
-        f.write('RELEASE_DIR="$(readlink -f "${SCRIPT_DIR}/' +
-                os.path.relpath(release_root_dir, scripts_dst) +
-                '")"\n')
-        f.write('export BBS_LIB_PATH=' +
-                '${BBS_LIB_PATH:-"${RELEASE_DIR}/hw/lib"}\n')
-        f.write('"${RELEASE_DIR}/bin/run.sh" $@\n')
-    st = os.stat(run_sh)
-    os.chmod(run_sh, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
 
 #
 # Configure the build environment
