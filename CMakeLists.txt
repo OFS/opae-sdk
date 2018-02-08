@@ -285,12 +285,13 @@ if (RUN_LDCONFIG)
   set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 
   file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
-echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+mkdir -p /etc/ld.so.conf.d
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 
   file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
-rm -f -- /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 
