@@ -35,10 +35,10 @@ must be express and approved by Intel in writing.
 using namespace common_test;
 using namespace std;
 
-class LibopaecOpenFCommonHW : public common_test::BaseFixture,
+class LibopaecOpenFCommonMOCKHW : public common_test::BaseFixture,
                               public ::testing::Test {};
 
-class LibopaecCloseFCommonHW : public common_test::BaseFixture,
+class LibopaecCloseFCommonMOCKHW : public common_test::BaseFixture,
                                public ::testing::Test {};
 
 class LibopaecOpenFCommonALL : public common_test::BaseFixture,
@@ -53,7 +53,7 @@ class LibopaecCloseFCommonALL : public common_test::BaseFixture,
  * @brief      Calling fpgaOpen() after fpgaClose() using the same token
  *             returns FPGA_OK.
  */
-TEST_F(LibopaecOpenFCommonHW, 02) {
+TEST_F(LibopaecOpenFCommonMOCK, 02) {
   auto functor = [=]() -> void {
     fpga_handle h = NULL;
     ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
@@ -68,7 +68,7 @@ TEST_F(LibopaecOpenFCommonHW, 02) {
               functor);          // test code
 }
 
-TEST_F(LibopaecOpenFCommonHW, 03) {
+TEST_F(LibopaecOpenFCommonMOCK, 03) {
   auto functor = [=]() -> void {
 
     fpga_handle h = NULL;
@@ -174,7 +174,7 @@ TEST_F(LibopaecOpenFCommonALL, 05) {
  *             but the user lacks sufficient privilege for the device,
  *             fpgaOpen returns FPGA_NO_ACCESS.
  */
-TEST_F(LibopaecOpenFCommonHW, 06) {
+TEST_F(LibopaecOpenFCommonMOCKHW, 06) {
   auto functor = [=]() -> void {
     fpga_handle h;
 
@@ -214,7 +214,7 @@ TEST(LibopaecOpenCommonALL, 07) {
  *             an already opened token returns FPGA_BUSY.
  *
  */
-TEST_F(LibopaecOpenFCommonHW, open_drv_09) {
+TEST_F(LibopaecOpenFCommonMOCK, open_drv_09) {
   auto functor = [=]() -> void {
     fpga_handle h1, h2;
 
@@ -278,7 +278,7 @@ TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
  *             returns FPGA_INVALID_PARAM for a corrupted token.
  *
  */
-TEST_F(LibopaecOpenFCommonHW, open_drv_11) {
+TEST_F(LibopaecOpenFCommonMOCK, open_drv_11) {
   auto functor = [=]() -> void {
     fpga_handle h;
 

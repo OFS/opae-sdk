@@ -13,7 +13,7 @@
          {
              "class": "local-memory",
              "interface": "avalon_mm_legacy_wires_2bank",
-             "optional": true
+             "optional": false
          }
       ]
 }
