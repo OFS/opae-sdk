@@ -100,8 +100,6 @@ GLS_VERILOG_OPT = $(QUARTUS_HOME)/eda/sim_lib/altera_primitives.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/220model.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/sgate.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/altera_mf.v
-GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/stratixv_hssi_atoms.v
-GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/stratixv_pcie_hip_atoms.v
 GLS_VERILOG_OPT+= $(QUARTUS_HOME)/eda/sim_lib/altera_lnsim.sv
 
 # add required files for local memory model
