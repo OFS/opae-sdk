@@ -67,7 +67,7 @@ Sphinx and Sphinx-related Python packages.
 ```
 
 Sphinx documentation website is generated under
-${CMAKE\_BINARY\_DIR}/sphinx/${INTEL\_FPGA\_API\_VER\_MAJOR}.{INTEL\_FPGA\_API\_VER\_MINOR}.{INTEL\_FPGA\_API\_VER\_REV}/html/index.html
+`${CMAKE_BINARY_DIR}/sphinx/${INTEL_FPGA_API_VER_MAJOR}.{INTEL_FPGA_API_VER_MINOR}.{INTEL_FPGA_API_VER_REV}/html/index.html`
 
 Build the Intel FPGA API project
 --------------------------------
