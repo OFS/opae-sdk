@@ -3,19 +3,19 @@
    "description": "Default values for platform configuration",
    "comment":
       [
-         "Some module arguments describe interfaces that have platform-specific",
+         "Some module ports describe interfaces that have platform-specific",
          "configuration.  Default values for expected configuration parameters",
          "may be set here.",
          "",
          "Individual platforms may override these values by setting the same",
-         "parameters in a 'params' key in a module-arguments-offered class.",
+         "parameters in a 'params' key in a module-ports-offered class.",
          "",
          "Setting a parameter to null will keep it from being emitted.",
          "platforms can use this to avoid emitting one of the default entries.",
          "",
          "Keys named 'comment' are ignored."
       ],
-   "module-argument-params" :
+   "module-port-params" :
       {
          "cci-p":
             {

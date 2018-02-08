@@ -8,7 +8,7 @@
       ],
    "parent": "ccip_std_afu_avalon_mm",
    "platform-shim-module-name": null,
-   "module-arguments" :
+   "module-ports" :
       [
          {
              "class": "local-memory",

@@ -11,7 +11,7 @@
          "",
          "10 and 40Gb HSSI are also available."
       ],
-   "module-arguments-offered" :
+   "module-ports-offered" :
       [
          {
             "class": "clocks",

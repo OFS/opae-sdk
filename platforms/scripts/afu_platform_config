@@ -33,8 +33,8 @@
 
 #
 # This script reads an AFU top-level interface specification that describes
-# the module name and arguments expected by an AFU.  It also reads a
-# platform database that describes the top-level interface arguments
+# the module name and ports expected by an AFU.  It also reads a
+# platform database that describes the top-level interface ports
 # that the platform offers.  The script validates that the platform meets
 # the requirements of the AFU and constructs a set of SystemVerilog header
 # and interface files that describe the platform.  Files containing rules
@@ -107,7 +107,7 @@ def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
 # are typically computations more easily done here in Python than
 # at synthesis time in Verilog.
 #
-def computedParams(afu_arg, params):
+def computedParams(afu_port, params):
     # Set an actual value for add-extra-timing-reg-stages if the AFU
     # says "auto".
     try:
@@ -124,11 +124,11 @@ def computedParams(afu_arg, params):
     except KeyError:
         None
     except ValueError:
-        errorExit(afu_arg['class'].upper() +
+        errorExit(afu_port['class'].upper() +
                   ' parameter add-extra-timing-reg-stages must be ' +
                   'either an unsigned integer or "auto"')
 
-    if (afu_arg['class'].upper() == 'CCI-P'):
+    if (afu_port['class'].upper() == 'CCI-P'):
         # Convert the 'vc-supported' vector into a count of channels.
         try:
             vc = params['vc-supported']
@@ -167,7 +167,7 @@ is_params.add('clock')
 # Platform shims transform the top-level interface before signals reach
 # an AFU top-level interface.  These are the parameters that control the
 # transformation.  They are the only parameters that may be overridden
-# in an AFU JSON module-arguments section.
+# in an AFU JSON module-ports section.
 #
 platform_shim_params = set()
 platform_shim_params.add('clock')
@@ -179,17 +179,17 @@ platform_shim_params.add('add-extra-timing-reg-stages')
 # platform capabilities.
 #
 def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
-               afu_arg_list):
+               afu_port_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
 
     #
-    # platform_afu_top_config.vh describes the required module arguments using
+    # platform_afu_top_config.vh describes the required module ports using
     # Verilog preprocessor variables.  A top-level module provided with
     # each platform must honor this configuration.  The platform JSON
-    # argument options must match the platform's top-level module.
+    # port options must match the platform's top-level module.
     #
     fn = os.path.join(f_prefix, "platform_afu_top_config.vh")
     if (not args.quiet):
@@ -213,52 +213,52 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     if (args.sim):
         f.write("`define PLATFORM_SIMULATED 1\n\n")
 
-    f.write("// These top-level argument classes are provided\n")
-    for arg in afu_arg_list:
-        afu_arg = arg['afu']
-        name = "PLATFORM_PROVIDES_" + afu_arg['class'].upper()
+    f.write("// These top-level port classes are provided\n")
+    for port in afu_port_list:
+        afu_port = port['afu']
+        name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()
         name = name.replace('-', '_')
         f.write("`define " + name + " 1\n")
 
-    f.write("\n\n//\n// These top-level arguments are passed from the " +
+    f.write("\n\n//\n// These top-level ports are passed from the " +
             "platform to the AFU\n//\n\n")
-    for arg in afu_arg_list:
-        afu_arg = arg['afu']
-        plat_arg = arg['plat']
+    for port in afu_port_list:
+        afu_port = port['afu']
+        plat_port = port['plat']
 
-        f.write("// {0}\n".format(afu_arg['class']))
+        f.write("// {0}\n".format(afu_port['class']))
 
         name = "AFU_TOP_REQUIRES_" + \
-            afu_arg['class'].upper() + "_" + afu_arg['interface'].upper()
+            afu_port['class'].upper() + "_" + afu_port['interface'].upper()
         name = name.replace('-', '_')
 
         f.write("`define " + name + " ")
-        if ('num-entries' not in arg):
+        if ('num-entries' not in port):
             f.write("1\n")
         else:
-            f.write("{0}\n".format(arg['num-entries']))
+            f.write("{0}\n".format(port['num-entries']))
 
         # Does either the AFU or platform request some preprocessor
         # definitions?
-        for d in (afu_arg['define'] + plat_arg['define']):
+        for d in (afu_port['define'] + plat_port['define']):
             f.write("`define {0} 1\n".format(d))
 
         # Gather the parameters required by this class.  Start with
         # the defaults and then merge in any specified by the platform.
-        key = afu_arg['class']
+        key = afu_port['class']
         params = dict()
-        if (key in platform_defaults_db['module-argument-params']):
+        if (key in platform_defaults_db['module-port-params']):
             # Default values
-            params = platform_defaults_db['module-argument-params'][key]
+            params = platform_defaults_db['module-port-params'][key]
 
         # Platform-specific values in 'params' key within a class
-        if ('params' in plat_arg):
-            for k in plat_arg['params'].keys():
-                params[k] = plat_arg['params'][k]
+        if ('params' in plat_port):
+            for k in plat_port['params'].keys():
+                params[k] = plat_port['params'][k]
 
         # Update parameters overridden by the AFU
-        if ('params' in afu_arg):
-            for k in afu_arg['params'].keys():
+        if ('params' in afu_port):
+            for k in afu_port['params'].keys():
                 if (k not in params):
                     # AFU can't define a new parameter.  It may only update
                     # existing ones.
@@ -273,15 +273,15 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
                         ('Illegal AFU attempt to override "{0}" ' +
                          'parameter "{1}"').format(key, k))
 
-                params[k] = afu_arg['params'][k]
+                params[k] = afu_port['params'][k]
 
         # Add device-specific computed parameters
-        computedParams(afu_arg, params)
+        computedParams(afu_port, params)
 
         # Now we have the parameters.  Emit them.
         for k in sorted(params.keys()):
             name = "PLATFORM_PARAM_" + \
-                afu_arg['class'].upper() + "_" + k.upper()
+                afu_port['class'].upper() + "_" + k.upper()
             name = name.replace('-', '_')
             # Skip comments and parameters with no value
             if ((k != 'comment') and (params[k] is not None)):
@@ -300,7 +300,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 # Emit the QSF script to load the platform interface.
 #
 def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
-                  afu_arg_list):
+                  afu_port_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
@@ -330,7 +330,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 # Emit the RTL simulator file to include platform interfaces.
 #
 def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
-                  afu_arg_list):
+                  afu_port_list):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
@@ -392,106 +392,106 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
 
 #
-# Walk the AFU's module-argments requirements and look for corresponding
-# arguments offered by the platform.
+# Walk the AFU's module-portments requirements and look for corresponding
+# ports offered by the platform.
 #
-def matchAfuArgs(args, afu_ifc_db, platform_db):
-    afu_args = []
+def matchAfuPorts(args, afu_ifc_db, platform_db):
+    afu_ports = []
 
     afu_name = afu_ifc_db['file_name']
     plat_name = platform_db['file_name']
 
-    if (not isinstance(afu_ifc_db['module-arguments'], dict)):
-        errorExit("module-arguments is not a dictionary " +
+    if (not isinstance(afu_ifc_db['module-ports'], dict)):
+        errorExit("module-ports is not a dictionary " +
                   "in {0}".format(afu_ifc_db['file_path']))
-    if (not isinstance(platform_db['module-arguments-offered'], dict)):
-        errorExit("module-arguments-offered is not a dictionary " +
+    if (not isinstance(platform_db['module-ports-offered'], dict)):
+        errorExit("module-ports-offered is not a dictionary " +
                   "in {0}".format(platform_db['file_path']))
 
     if (args.verbose):
-        print("Starting module arguments match...")
+        print("Starting module ports match...")
         print("  AFU {0} requests:".format(afu_name))
-        for k in sorted(afu_ifc_db['module-arguments'].keys()):
-            r = afu_ifc_db['module-arguments'][k]
+        for k in sorted(afu_ifc_db['module-ports'].keys()):
+            r = afu_ifc_db['module-ports'][k]
             print("    {0}:{1}".format(r['class'], r['interface']))
         print("  Platform {0} offers:".format(plat_name))
-        for k in sorted(platform_db['module-arguments-offered'].keys()):
-            r = platform_db['module-arguments-offered'][k]
+        for k in sorted(platform_db['module-ports-offered'].keys()):
+            r = platform_db['module-ports-offered'][k]
             print("    {0}:{1}".format(r['class'], r['interface']))
 
-    # Arguments requested by the AFU
-    for arg in afu_ifc_db['module-arguments'].values():
+    # Ports requested by the AFU
+    for port in afu_ifc_db['module-ports'].values():
         plat_match = None
 
-        # Arguments offered by the platform
-        plat_key = arg['class'] + '/' + arg['interface']
-        if (plat_key not in platform_db['module-arguments-offered']):
+        # Ports offered by the platform
+        plat_key = port['class'] + '/' + port['interface']
+        if (plat_key not in platform_db['module-ports-offered']):
             # Failed to find a match
-            if (not arg['optional']):
+            if (not port['optional']):
                 errorExit(
-                    "{0} needs argument {1}:{2} that {3} doesn't offer".format(
-                        afu_name, arg['class'], arg['interface'], plat_name))
+                    "{0} needs port {1}:{2} that {3} doesn't offer".format(
+                        afu_name, port['class'], port['interface'], plat_name))
         else:
             if (args.verbose):
-                print("Found match for argument {0}:{1}".format(
-                    arg['class'], arg['interface']))
+                print("Found match for port {0}:{1}".format(
+                    port['class'], port['interface']))
 
-            plat_match = platform_db['module-arguments-offered'][plat_key]
+            plat_match = platform_db['module-ports-offered'][plat_key]
 
             # Found a potential match.
-            match = {'afu': arg, 'plat': plat_match}
+            match = {'afu': port, 'plat': plat_match}
 
             # For vector classes, do the offered sizes work?
-            if (not arg['vector'] and not plat_match['vector']):
+            if (not port['vector'] and not plat_match['vector']):
                 # Not a vector
                 None
-            elif (arg['vector'] and not plat_match['vector']):
+            elif (port['vector'] and not plat_match['vector']):
                 # AFU wants a vector, but the platform doesn't offer one.
                 # If the AFU can accept a single entry we're ok.
-                if (arg['min-entries'] > 1):
-                    errorExit(("{0} argument {1}:{2} requires more vector " +
+                if (port['min-entries'] > 1):
+                    errorExit(("{0} port {1}:{2} requires more vector " +
                                "entries than {3} provides!").format(
-                                   afu_name, arg['class'],
-                                   arg['interface'], plat_name))
+                                   afu_name, port['class'],
+                                   port['interface'], plat_name))
                 if (args.verbose):
                     print("  {0} vector length is 1".format(plat_key))
-            elif (not arg['vector'] and plat_match['vector']):
+            elif (not port['vector'] and plat_match['vector']):
                 # Platform provides a vector, but the AFU doesn't want one
                 if (plat_match['min-entries'] > 1):
-                    errorExit(("{0} argument {1}:{2} requires fewer vector " +
+                    errorExit(("{0} port {1}:{2} requires fewer vector " +
                                "entries than {3} provides!").format(
-                                   afu_name, arg['class'],
-                                   arg['interface'], plat_name))
+                                   afu_name, port['class'],
+                                   port['interface'], plat_name))
                 # Tell the platform to provide 1 entry
                 match['num-entries'] = 1
             else:
                 # Both are vectors.  Pick a size, starting with either the most
                 # the platform will offer or the default number, depending on
                 # whether the AFU requested a specific number.
-                if ((arg['max-entries'] == sys.maxint) and
-                    ('default-entries' in arg) and
-                    (arg['default-entries'] >= plat_match['min-entries']) and
-                        (arg['default-entries'] <= plat_match['max-entries'])):
-                    entries = arg['default-entries']
-                elif ((arg['max-entries'] == sys.maxint) and
+                if ((port['max-entries'] == sys.maxint) and
+                    ('default-entries' in port) and
+                    (port['default-entries'] >= plat_match['min-entries']) and
+                        (port['default-entries'] <= plat_match['max-entries'])):
+                    entries = port['default-entries']
+                elif ((port['max-entries'] == sys.maxint) and
                       ('default-entries' in plat_match) and
-                      (plat_match['default-entries'] >= arg['min-entries'])):
+                      (plat_match['default-entries'] >= port['min-entries'])):
                     entries = plat_match['default-entries']
                 else:
                     entries = plat_match['max-entries']
 
                 # Constrain the number to what the AFU can accept
-                if (entries > arg['max-entries']):
-                    entries = arg['max-entries']
-                if (entries < arg['min-entries']):
-                    errorExit(("{0} argument {1}:{2} requires more vector " +
+                if (entries > port['max-entries']):
+                    entries = port['max-entries']
+                if (entries < port['min-entries']):
+                    errorExit(("{0} port {1}:{2} requires more vector " +
                                "entries than {3} provides!").format(
-                                   afu_name, arg['class'], arg['interface'],
+                                   afu_name, port['class'], port['interface'],
                                    plat_name))
                 if (entries < plat_match['min-entries']):
-                    errorExit(("{0} argument {1}:{2} requires more fewer " +
+                    errorExit(("{0} port {1}:{2} requires more fewer " +
                                "entries than {3} provides!").format(
-                                   afu_name, arg['class'], arg['interface'],
+                                   afu_name, port['class'], port['interface'],
                                    plat_name))
 
                 # Found an acceptable number of entries
@@ -500,10 +500,10 @@ def matchAfuArgs(args, afu_ifc_db, platform_db):
                         "  {0} vector length is {1}".format(plat_key, entries))
                 match['num-entries'] = entries
 
-            # Valid module argument
-            afu_args.append(match)
+            # Valid module port
+            afu_ports.append(match)
 
-    return afu_args
+    return afu_ports
 
 
 #
@@ -539,7 +539,7 @@ def getJsonDb(args, fname, db_dir_path, db_category):
     db['file_path'] = json_fname
     db['file_name'] = os.path.splitext(os.path.basename(json_fname))[0]
 
-    # First pass canonicalization guarantees that module arguments
+    # First pass canonicalization guarantees that module ports
     # are ready for merging with parents.
     db = canonicalizeStg1Db(db, db_category)
 
@@ -551,9 +551,9 @@ def getJsonDb(args, fname, db_dir_path, db_category):
         # Load parents recursively.
         db_parent = getJsonDb(args, db['parent'], db_dir_path, db_category)
         if (db_category == 'platform'):
-            db = mergeDbs(db_parent, db, 'module-arguments-offered')
+            db = mergeDbs(db_parent, db, 'module-ports-offered')
         elif (db_category == 'AFU'):
-            db = mergeDbs(db_parent, db, 'module-arguments')
+            db = mergeDbs(db_parent, db, 'module-ports')
         else:
             errorExit(("'parent' keys are not supported in {0} " +
                        "databases ({1})").format(db_category, json_fname))
@@ -565,29 +565,29 @@ def getJsonDb(args, fname, db_dir_path, db_category):
 # Merge parent and child databases by overwriting parent
 # fields with updates from the child.
 #
-# Note: for module-arguments and module-arguments-offered,
+# Note: for module-ports and module-ports-offered,
 # the child completely overwrites an entry.  Namely, for
 # AFUs if both the parent and child have a local-memory
 # class then the parent's local-memory descriptor is deleted
 # and replaced with the child's.  For platform databases,
 # the same is true, but for class/interface pairs.
 #
-def mergeDbs(db, db_child, module_arg_key):
-    # Copy everything from the child that isn't a module arguments.
-    # Arguments are special.  They will be checked by class.
+def mergeDbs(db, db_child, module_port_key):
+    # Copy everything from the child that isn't a module ports.
+    # Ports are special.  They will be checked by class.
     for k in db_child.keys():
-        if (k != module_arg_key):
+        if (k != module_port_key):
             db[k] = db_child[k]
 
-    if (module_arg_key not in db):
-        # No parent module arguments
-        if (module_arg_key in db_child):
-            db[module_arg_key] = db_child[module_arg_key]
-    elif (module_arg_key in db_child):
-        # Both databases have module arguments.  Overwrite any parent entries
+    if (module_port_key not in db):
+        # No parent module ports
+        if (module_port_key in db_child):
+            db[module_port_key] = db_child[module_port_key]
+    elif (module_port_key in db_child):
+        # Both databases have module ports.  Overwrite any parent entries
         # with matching classes.
-        for k in db_child[module_arg_key].keys():
-            db[module_arg_key][k] = db_child[module_arg_key][k]
+        for k in db_child[module_port_key].keys():
+            db[module_port_key][k] = db_child[module_port_key][k]
 
     return db
 
@@ -604,38 +604,38 @@ def canonicalizeStg1Db(db, db_class):
 
     fname = db['file_path']
 
-    # Convert module arguments lists to dictionaries.
-    for args_key in ['module-arguments', 'module-arguments-offered']:
-        if (args_key in db):
-            arg_dict = dict()
+    # Convert module ports lists to dictionaries.
+    for ports_key in ['module-ports', 'module-ports-offered']:
+        if (ports_key in db):
+            port_dict = dict()
 
-            for arg in db[args_key]:
-                # Module arguments must be dictionaries
-                if (not isinstance(arg, dict)):
+            for port in db[ports_key]:
+                # Module ports must be dictionaries
+                if (not isinstance(port, dict)):
                     errorExit("{0} in {1} must be dictionaries ({2})".format(
-                        args_key, fname, arg))
+                        ports_key, fname, port))
 
                 # Check for mandatory keys
                 for key in ['class', 'interface']:
-                    if (key not in arg):
-                        errorExit(("module argument {0} is missing {1} " +
-                                   "in {2}").format(arg, key, fname))
+                    if (key not in port):
+                        errorExit(("module port {0} is missing {1} " +
+                                   "in {2}").format(port, key, fname))
 
-                # For AFU module-arguments the key is just the class, since
+                # For AFU module-ports the key is just the class, since
                 # classes must be unique.  Platforms may offer more than one
                 # instance of a class, so their keys are class/instance.
-                k = arg['class']
-                if (args_key == 'module-arguments-offered'):
-                    k = k + '/' + arg['interface']
+                k = port['class']
+                if (ports_key == 'module-ports-offered'):
+                    k = k + '/' + port['interface']
 
                 # No duplicate keys allowed!
-                if k in arg_dict:
-                    errorExit(("multiple instances of module argument key " +
+                if k in port_dict:
+                    errorExit(("multiple instances of module port key " +
                                "'{0}' in {1}").format(k, fname))
 
-                arg_dict[k] = arg
+                port_dict[k] = port
 
-            db[args_key] = arg_dict
+            db[ports_key] = port_dict
 
     return db
 
@@ -650,11 +650,11 @@ def canonicalizeDb(db, db_class):
     fname = db['file_path']
 
     # Differences between platform and AFU db
-    keys_expected = ['version', 'platform-name', 'module-arguments-offered']
-    args_key = 'module-arguments-offered'
+    keys_expected = ['version', 'platform-name', 'module-ports-offered']
+    ports_key = 'module-ports-offered'
     if (db_class == 'AFU'):
-        keys_expected = ['version', 'module-name', 'module-arguments']
-        args_key = 'module-arguments'
+        keys_expected = ['version', 'module-name', 'module-ports']
+        ports_key = 'module-ports'
 
     for key in keys_expected:
         if (key not in db):
@@ -677,67 +677,67 @@ def canonicalizeDb(db, db_class):
         else:
             db['platform-shim-supported'] = True
 
-    # Walk the module arguments list
+    # Walk the module ports list
     classes_seen = dict()
-    for arg in db[args_key].values():
+    for port in db[ports_key].values():
         # Default optional is False
-        if ('optional' not in arg):
-            arg['optional'] = False
+        if ('optional' not in port):
+            port['optional'] = False
 
-        if (arg['class'] in classes_seen):
+        if (port['class'] in classes_seen):
             if (db_class == 'AFU'):
                 # AFU's can have only a single instance of a class
-                errorExit(("multiple instances of module argument class " +
-                           "'{0}' in {1}").format(arg['class'], fname))
+                errorExit(("multiple instances of module port class " +
+                           "'{0}' in {1}").format(port['class'], fname))
             else:
                 # Platforms may have multiple instances as long as they all are
                 # optional
-                if (not classes_seen[arg['class']] or not arg['optional']):
-                    errorExit(("multiple instances of module argument class " +
+                if (not classes_seen[port['class']] or not port['optional']):
+                    errorExit(("multiple instances of module port class " +
                                "'{0}' must all be optional in {1}").format(
-                                   arg['class'], fname))
-        classes_seen[arg['class']] = arg['optional']
+                                   port['class'], fname))
+        classes_seen[port['class']] = port['optional']
 
         # Default version is 1
-        if ('version' not in arg):
-            arg['version'] = 1
+        if ('version' not in port):
+            port['version'] = 1
 
         # Add a 'vector'/false key/value if it isn't defined
-        if ('vector' not in arg):
-            arg['vector'] = False
+        if ('vector' not in port):
+            port['vector'] = False
 
         # Add empty list of preprocessor variables to define if not presentV
-        if ('define' not in arg):
-            arg['define'] = []
+        if ('define' not in port):
+            port['define'] = []
 
-        if (not arg['vector']):
-            # Define min/max entries even when the argument isn't a vector
-            arg['min-entries'] = 1
-            arg['max-entries'] = 1
+        if (not port['vector']):
+            # Define min/max entries even when the port isn't a vector
+            port['min-entries'] = 1
+            port['max-entries'] = 1
 
         else:
-            # Argument is a vector:
+            # Port is a vector:
 
             # If min-entries isn't defined, set it to 1
-            if ('min-entries' not in arg):
-                arg['min-entries'] = 1
-            if (arg['min-entries'] < 1):
-                errorExit(("module argument class '{0}:{1}' min-entries " +
+            if ('min-entries' not in port):
+                port['min-entries'] = 1
+            if (port['min-entries'] < 1):
+                errorExit(("module port class '{0}:{1}' min-entries " +
                            "must be >= 1 in {2}").format(
-                               arg['class'], arg['interface'], fname))
+                               port['class'], port['interface'], fname))
 
             # If max-entries isn't defined, assume the AFU can handle
             # whatever the platform offers.
-            if ('max-entries' not in arg):
+            if ('max-entries' not in port):
                 if (db_class != 'AFU'):
-                    errorExit(("module argument class '{0}:{1}' max-entries " +
+                    errorExit(("module port class '{0}:{1}' max-entries " +
                                "must be defined in {2}").format(
-                                   arg['class'], arg['interface'], fname))
-                arg['max-entries'] = sys.maxint
-            if (arg['max-entries'] < arg['min-entries']):
-                errorExit(("module argument class '{0}:{1}' max-entries " +
+                                   port['class'], port['interface'], fname))
+                port['max-entries'] = sys.maxint
+            if (port['max-entries'] < port['min-entries']):
+                errorExit(("module port class '{0}:{1}' max-entries " +
                            "must be >= min-entries in {2}").format(
-                               arg['class'], arg['interface'], fname))
+                               port['class'], port['interface'], fname))
 
 
 #
@@ -753,21 +753,21 @@ def canonicalizePlatformDefaultsDb(db):
         errorExit(("version value ({0}) must be an integer " +
                    "({1}).").format(db['version'], fname))
 
-    if ('module-argument-params' not in db):
-        db['module-argument-params'] = dict()
+    if ('module-port-params' not in db):
+        db['module-port-params'] = dict()
 
-    params = db['module-argument-params']
+    params = db['module-port-params']
     if (not isinstance(params, dict)):
-        errorExit(("module-argument-params in {0} must be a " +
+        errorExit(("module-port-params in {0} must be a " +
                    "dictionary.").format(fname))
 
-    # Each class in module-argument-params must also be a dictionary
+    # Each class in module-port-params must also be a dictionary
     for c in params.keys():
         if (c == 'comment'):
             None   # Ignore comments
         else:
             if (not isinstance(params[c], dict)):
-                errorExit(("class {0} in module-argument-params must " +
+                errorExit(("class {0} in module-port-params must " +
                            "be a dictionary ({1}).").format(c, fname))
 
 
@@ -854,46 +854,46 @@ legal_afu_ifc_update_classes = {
 #
 # An AFU's JSON database may override some parameters in the generic AFU
 # interface description by specifying updates in the AFU's
-#          afu-image:afu-top-interface:module-arguments
+#          afu-image:afu-top-interface:module-ports
 # field.  The class must already be present in the AFU interface and
 # only certain fields may be updated.
 #
 
 
 def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
-    if ('module-arguments' not in afu_ifc_req):
+    if ('module-ports' not in afu_ifc_req):
         return
-    if (not isinstance(afu_ifc_req['module-arguments'], list)):
-        errorExit("module-arguments is not a list in {0}".format(
+    if (not isinstance(afu_ifc_req['module-ports'], list)):
+        errorExit("module-ports is not a list in {0}".format(
             afu_ifc_req['file_path']))
 
     # Walk all the updated classes
-    for arg in afu_ifc_req['module-arguments']:
-        if ('class' not in arg):
-            errorExit(("Each module-arguments must have a class " +
+    for port in afu_ifc_req['module-ports']:
+        if ('class' not in port):
+            errorExit(("Each module-ports must have a class " +
                        "in {0}").format(afu_ifc_req['file_path']))
-        c = arg['class']
+        c = port['class']
         # The class must already be present in the AFU interface
-        if (c not in afu_ifc_db['module-arguments']):
+        if (c not in afu_ifc_db['module-ports']):
             errorExit(("AFU {0} refers to class {1} which is not " +
                        "in {2}").format(afu_ifc_req['file_path'],
                                         c, afu_ifc_db['file_path']))
-        for k in arg.keys():
+        for k in port.keys():
             if (k != 'class'):
                 # Only legal_afu_ifc_update_classes may be modified by the
                 # AFU's JSON database
                 if (k not in legal_afu_ifc_update_classes):
                     errorExit(
-                        ("AFU may not update module-argument class '{0}', " +
+                        ("AFU may not update module-port class '{0}', " +
                          "field '{1}' ({2})").format(
                              c, k, afu_ifc_req['file_path']))
 
                 if (args.verbose):
-                    print(("  AFU {0} overrides module-argument class '{1}'," +
+                    print(("  AFU {0} overrides module-port class '{1}'," +
                            " field '{2}': {3}").format(
-                               afu_ifc_req['file_name'], c, k, arg[k]))
+                               afu_ifc_req['file_name'], c, k, port[k]))
                 # Do the update
-                afu_ifc_db['module-arguments'][c][k] = arg[k]
+                afu_ifc_db['module-ports'][c][k] = port[k]
 
 
 #
@@ -967,9 +967,9 @@ def findAfuIfcs(db_path):
             try:
                 with open(json_file, 'r') as f:
                     db = json.load(f)
-                    # If it has a module-arguments entry assume the file is
+                    # If it has a module-ports entry assume the file is
                     # valid
-                    if ('module-arguments' in db):
+                    if ('module-ports' in db):
                         base = os.path.basename(json_file)
                         afus.add(os.path.splitext(base)[0])
             except Exception:
@@ -1125,20 +1125,20 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         emitDebugJsonDb(args, 'platform_db', platform_db)
         emitDebugJsonDb(args, 'platform_defaults_db', platform_defaults_db)
 
-    # Match AFU argument requirements to platform offerings
-    afu_arg_list = matchAfuArgs(args, afu_ifc_db, platform_db)
+    # Match AFU port requirements to platform offerings
+    afu_port_list = matchAfuPorts(args, afu_ifc_db, platform_db)
     if (args.debug):
-        emitDebugData(args, 'afu_arg_list', afu_arg_list)
+        emitDebugData(args, 'afu_port_list', afu_port_list)
 
     # Emit platform configuration
     emitConfig(args, afu_ifc_db, platform_db,
-               platform_defaults_db, afu_arg_list)
+               platform_defaults_db, afu_port_list)
     if (args.sim):
         emitSimConfig(args, afu_ifc_db, platform_db,
-                      platform_defaults_db, afu_arg_list)
+                      platform_defaults_db, afu_port_list)
     else:
         emitQsfConfig(args, afu_ifc_db, platform_db,
-                      platform_defaults_db, afu_arg_list)
+                      platform_defaults_db, afu_port_list)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 # AFU Top-Level Interface Database
 
 The AFU top-level interface databases describe the top-level module name and
-arguments expected by an AFU.
+ports expected by an AFU.
 
 Instead of starting with the database fields below, reading a few databases
 in this directory may be a better introduction.  [ccip\_std\_afu.json](ccip_std_afu.json)
@@ -41,7 +41,7 @@ Each JSON database is a dictionary, supporting the following primary keys:
   shims may automatically instantiate clock-crossing FIFOs.  The shims may
   also insert registers to relax timing.  Clock management and register
   insertion are controlled by parameters in an AFU's JSON file.  See the
-  add-extra-timing-reg-stages and clock module-arguments parameters,
+  add-extra-timing-reg-stages and clock module-ports parameters,
   described in [README\_AFU](README_AFU.md) in this directory.  When not defined
   or NULL, no shim is instantiated.
 
@@ -49,25 +49,25 @@ Each JSON database is a dictionary, supporting the following primary keys:
 
   The name of a parent AFU top-level interface JSON database.  The parent will
   be loaded and fields from the child will be merged into the parent.  For most
-  fields, the merge overwrites any existing parent data.  For module-arguments,
+  fields, the merge overwrites any existing parent data.  For module-ports,
   the merge completely overwrites entries with matching classes.  Keys within
-  a module-arguments class aren't merged.  The parent class is removed and
-  replaced with the child's module-arguments class entry.
+  a module-ports class aren't merged.  The parent class is removed and
+  replaced with the child's module-ports class entry.
 
-- **module-arguments**: List [required]
+- **module-ports**: List [required]
 
-  The set of arguments expected by the AFU top-level module (module-name).
-  Each entry in the module-arguments list is a dictionary which describes
-  an argument or group of arguments to the AFU top-level module.
-  The format of a module-arguments dictionary entry is described below.
+  The set of ports expected by the AFU top-level module (module-name).
+  Each entry in the module-ports list is a dictionary which describes
+  a port or group of ports to the AFU top-level module.
+  The format of a module-ports dictionary entry is described below.
 
 
-## Module Arguments
+## Module Ports
 
-There may be at most one instance of a given class in a module-arguments
+There may be at most one instance of a given class in a module-ports
 list.  For example, only one type of local-memory may be requested.
 
-Each of the module-arguments is a dictionary with the following keys:
+Each of the module-ports is a dictionary with the following keys:
 
 - **class**: String [required]
 
@@ -96,19 +96,19 @@ Each of the module-arguments is a dictionary with the following keys:
 
 - **vector**: Boolean [optional (defaults to false)]
 
-  When true, the module argument is a vector of multiple instances
-  of the argument.  For example, local-memory banks may be passed
+  When true, the module port is a vector of multiple instances
+  of the port.  For example, local-memory banks may be passed
   as a vector of memory interfaces.  The minimum and maximum number
   of entries is specified using min-entries and max-entries.
 
 - **min-entries**: Integer [optional (defaults to 1), must be > 0]
 
-  For vector arguments, the minimum number of instances required by
+  For vector ports, the minimum number of instances required by
   the AFU.
 
 - **max-entries**: Integer [optional (defaults to infinite), must be > min-entries]
 
-  For vector arguments, the maximum number of instances accepted by
+  For vector ports, the maximum number of instances accepted by
   the AFU.
 
 - **default-entries**: Integer [optional, no default]
@@ -120,7 +120,7 @@ Each of the module-arguments is a dictionary with the following keys:
 
 - **define**: List of strings [optional, no default]
 
-  When the module argument is present, add these strings as
+  When the module port is present, add these strings as
   Verilog preprocessor values to the platform configuration.
 
 ---------------------------------------------------------------------------
