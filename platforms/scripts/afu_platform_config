@@ -861,45 +861,65 @@ legal_afu_ifc_update_classes = {
 # An AFU's JSON database may override some parameters in the generic AFU
 # interface description by specifying updates in the AFU's
 #          afu-image:afu-top-interface:module-ports
-# field.  The class must already be present in the AFU interface and
-# only certain fields may be updated.
+# field.
 #
-
-
+# In addition to overriding, the AFU JSON may extend the base interface
+# description by adding new port classes.  Without the ability to
+# extend the port class list here we would have to enumerate all
+# possible combinations of ports in the base interface classes.
+#
 def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
+    fname = afu_ifc_req['file_path']
+
     if ('module-ports' not in afu_ifc_req):
         return
     if (not isinstance(afu_ifc_req['module-ports'], list)):
         errorExit("module-ports is not a list in {0}".format(
-            afu_ifc_req['file_path']))
+            fname))
 
     # Walk all the updated classes
     for port in afu_ifc_req['module-ports']:
+        # Is the port descriptor a dictionary?
+        if (not isinstance(port, dict)):
+            errorExit("module-ports in {1} must be " +
+                      "dictionaries ({2})".format(fname, port))
+
         if ('class' not in port):
             errorExit(("Each module-ports must have a class " +
-                       "in {0}").format(afu_ifc_req['file_path']))
+                       "in {0}").format(fname))
         c = port['class']
-        # The class must already be present in the AFU interface
-        if (c not in afu_ifc_db['module-ports']):
-            errorExit(("AFU {0} refers to class {1} which is not " +
-                       "in {2}").format(afu_ifc_req['file_path'],
-                                        c, afu_ifc_db['file_path']))
-        for k in port.keys():
-            if (k != 'class'):
-                # Only legal_afu_ifc_update_classes may be modified by the
-                # AFU's JSON database
-                if (k not in legal_afu_ifc_update_classes):
-                    errorExit(
-                        ("AFU may not update module-port class '{0}', " +
-                         "field '{1}' ({2})").format(
-                             c, k, afu_ifc_req['file_path']))
 
-                if (args.verbose):
-                    print(("  AFU {0} overrides module-port class '{1}'," +
-                           " field '{2}': {3}").format(
-                               afu_ifc_req['file_name'], c, k, port[k]))
-                # Do the update
-                afu_ifc_db['module-ports'][c][k] = port[k]
+        # Is the class already be present in the AFU interface?
+        if (c not in afu_ifc_db['module-ports']):
+            # No, this is a new addition to the base list of ports.
+            # It must name an interface.
+            if ('interface' not in port):
+                errorExit(("module port {0} is missing 'interface' " +
+                           "in {1}").format(port, fname))
+            afu_ifc_db['module-ports'][c] = port
+            if (args.verbose):
+                print(("  AFU {0} adds new module-port class {1}").format(
+                    fname, c))
+        else:
+            # Yes, this is an update of a port already defined.
+            # Restrict the fields it may update.
+            for k in port.keys():
+                if (k != 'class'):
+                    # Only legal_afu_ifc_update_classes may be modified by the
+                    # AFU's JSON database
+                    if (k not in legal_afu_ifc_update_classes):
+                        errorExit(
+                            ("AFU may not update module-port class '{0}', " +
+                             "field '{1}' ({2})").format(
+                                 c, k, fname))
+
+                    if (args.verbose):
+                        print(("  AFU {0} overrides module-port class" +
+                               " '{1}', field '{2}': {3}").format(
+                                   fname, c, k, port[k]))
+
+                    # Do the update
+                    afu_ifc_db['module-ports'][c][k] = port[k]
 
 
 #

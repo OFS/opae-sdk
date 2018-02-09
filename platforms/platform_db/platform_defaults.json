@@ -154,6 +154,24 @@
                      "Only CCI-P clocks may be chosen. (E.g. pClkDiv2 or uClk_usr.)"
                   ],
                "clock": "default"
+            },
+
+         "hssi":
+            {
+               "comment":
+                  [
+                     "HSSI may be exported either as the raw interface, to which an",
+                     "Ethernet MAC must be connected or as a streaming interface",
+                     "to a MAC that is instantiated automatically by the platform.",
+                     "The choice is a function of the interface classes offered",
+                     "by platforms and requested by AFUs."
+                  ],
+
+               "comment":
+                  [
+                     "HSSI bandwidth variants available"
+                  ],
+               "bandwidth-offered": "( HSSI_BW_4x10G | HSSI_BW_40G )"
             }
       }
 }
