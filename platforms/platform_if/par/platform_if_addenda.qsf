@@ -69,6 +69,7 @@ set_global_assignment -name SEARCH_PATH $PLATFORM_IF_SRC/rtl/device_if
 ## Sources
 set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_if/ccip_if_pkg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_cfg/ccip_cfg_pkg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_cfg/hssi_cfg_pkg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_cfg/local_mem_cfg_pkg.sv
 
 set_global_assignment -name SYSTEMVERILOG_FILE $PLATFORM_IF_SRC/rtl/device_if/ccip_if_clock.sv

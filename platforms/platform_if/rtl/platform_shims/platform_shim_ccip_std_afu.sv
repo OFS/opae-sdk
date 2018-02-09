@@ -66,6 +66,10 @@ module platform_shim_ccip_std_afu
     avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS],
 `endif
 
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+    pr_hssi_if.to_fiu   hssi,
+`endif
+
     // CCI-P structures
     input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
     output t_if_ccip_Tx pck_af2cp_sTx         // CCI-P Tx Port
@@ -178,6 +182,10 @@ module platform_shim_ccip_std_afu
         // Local memory's clock is included in its interface.  If a clock crossing
         // was inserted, the included clock is updated to match.
         .local_mem(afu_local_mem),
+`endif
+
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+        .hssi(hssi),
 `endif
 
         .pck_af2cp_sTx(afu_af2cp_sTx),
