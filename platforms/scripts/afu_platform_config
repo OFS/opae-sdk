@@ -924,8 +924,8 @@ def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
     for port in afu_ifc_req['module-ports']:
         # Is the port descriptor a dictionary?
         if (not isinstance(port, dict)):
-            errorExit("module-ports in {1} must be " +
-                      "dictionaries ({2})".format(fname, port))
+            errorExit("module-ports in {0} must be " +
+                      "dictionaries ({1})".format(fname, port))
 
         if ('class' not in port):
             errorExit(("Each module-ports must have a class " +
