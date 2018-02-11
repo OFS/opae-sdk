@@ -49,7 +49,7 @@ import argparse
 import json
 import pprint
 
-from platmgr import *
+from platmgr.jsondb import jsondb
 from platmgr.emitcfg import emitConfig, emitSimConfig, emitQsfConfig
 
 
@@ -565,18 +565,17 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     afu_ifc_req = getAfuIfc(args)
 
     # Load the platform database
-    platform = jsondb.jsondb(args.platform, platform_db_path, 'platform',
-                             args.quiet)
+    platform = jsondb(args.platform, platform_db_path, 'platform', args.quiet)
     platform.canonicalize()
 
     # Load the platform default parameters
-    platform_defaults = jsondb.jsondb('platform_defaults', platform_db_path,
-                                      'platform-params', args.quiet)
+    platform_defaults = jsondb('platform_defaults', platform_db_path,
+                               'platform-params', args.quiet)
     platform_defaults.canonicalize()
 
     # Load the AFU top-level interface database
-    afu_ifc = jsondb.jsondb(afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU',
-                            args.quiet)
+    afu_ifc = jsondb(afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU',
+                     args.quiet)
     injectAfuIfcChanges(args, afu_ifc.db, afu_ifc_req)
     afu_ifc.canonicalize()
 
