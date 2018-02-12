@@ -40,12 +40,8 @@ module platform_shim_avalon_mem_if
     parameter NUM_LOCAL_MEM_BANKS = 2
     )
    (
-    // CCI-P Clocks
-    input  logic        pClk,                 // Primary CCI-P interface clock.
-    input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
-    input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
-    input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
-    input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
+    // AFU clock for memory when a clock crossing is requested
+    input  logic        tgt_mem_afu_clk,
 
     avalon_mem_if.to_fiu mem_fiu[NUM_LOCAL_MEM_BANKS],
     avalon_mem_if.to_afu mem_afu[NUM_LOCAL_MEM_BANKS],
@@ -59,16 +55,11 @@ module platform_shim_avalon_mem_if
     //
 
 `ifndef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK
-    // No local memory.  Just set a default to keep the compiler happy.
+    // No local memory clock change.
     localparam LOCAL_MEMORY_CHANGE_CLOCK = 0;
-    `define PLATFORM_PARAM_LOCAL_MEMORY_CLOCK mem_reg[0].clk
 `elsif PLATFORM_PARAM_LOCAL_MEMORY_CLOCK_IS_DEFAULT
     // AFU asked for default clock.
     localparam LOCAL_MEMORY_CHANGE_CLOCK = 0;
-    // The value of PLATFORM_PARAM_LOCAL_MEMORY_CLOCK won't be in a valid path
-    // below, but it is currently "default", which causes a syntax error.  Change it.
-    `undef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK
-    `define PLATFORM_PARAM_LOCAL_MEMORY_CLOCK mem_reg[0].clk
 `else
     // AFU asked for some other clock.
     localparam LOCAL_MEMORY_CHANGE_CLOCK = 1;
@@ -164,7 +155,7 @@ module platform_shim_avalon_mem_if
             // Synchronize a reset with the target clock
             (* preserve *) logic [2:0] local_mem_reset_pipe = 3'b111;
 
-            always @(posedge `PLATFORM_PARAM_LOCAL_MEMORY_CLOCK)
+            always @(posedge tgt_mem_afu_clk)
             begin
                 local_mem_reset_pipe[0] <= mem_reg[0].reset;
                 local_mem_reset_pipe[2:1] <= local_mem_reset_pipe[1:0];
@@ -174,7 +165,7 @@ module platform_shim_avalon_mem_if
             begin : mm_async
                 always_comb
                 begin
-                    mem_afu_clk[b] = `PLATFORM_PARAM_LOCAL_MEMORY_CLOCK;
+                    mem_afu_clk[b] = tgt_mem_afu_clk;
                     mem_afu_reset[b] = local_mem_reset_pipe[2];
                 end
 
