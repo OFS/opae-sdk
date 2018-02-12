@@ -337,6 +337,15 @@ class SklHssi(object):
     CNTR_RX_CONFIG = 0x945
 
     # AFU IDs
+    AFU_OFFSET_HI = 0x40010
+    AFU_OFFSET_LO = 0x40008
+
+    # AFU Registers
+    ETH_STAT_ADDR = 0x40028
+    ETH_CTRL_ADDR = 0x40030
+    ETH_WR_DATA = 0x40038
+    ETH_RD_DATA = 0x40040
+
     AFU_ID_E10 = 0x05189FE40676DD24B74F291AF34E1783
     AFU_ID_E40 = 0x26B40788034B4389B3C151A1B62ED6C2
 
@@ -345,53 +354,57 @@ class SklHssi(object):
     NUM_E10_CHANNELS = 4
 
     def __init__(self, mem, dfhaddr=DFH_BASE):
-        self._m = mem
+        self._mem0 = mem
+        self._mem2 = None
         self._dfhaddr = dfhaddr
         self._hssictrladdr = self._dfhaddr + self.HSSI_CTRL_REG_OFFSET
         self._hssistataddr = self._dfhaddr + self.HSSI_STAT_REG_OFFSET
 
     def _wait_for_ack(self):
-        val = self._m.read32(self._hssistataddr + 0x4) & 1
+        val = self._mem0.read32(self._hssistataddr + 0x4) & 1
         while val == 0:
-            val = self._m.read32(self._hssistataddr + 0x4) & 1
+            val = self._mem0.read32(self._hssistataddr + 0x4) & 1
 
     def _wait_for_clr(self):
-        val = self._m.read32(self._hssistataddr + 0x4) & 1
+        val = self._mem0.read32(self._hssistataddr + 0x4) & 1
         while val:
-            val = self._m.read32(self._hssistataddr + 0x4) & 1
+            val = self._mem0.read32(self._hssistataddr + 0x4) & 1
+
+    def skl_set_mem2(self, mem2):
+        self._mem2 = mem2
 
     def skl_read(self, addr):
-        self._m.write64(self._hssictrladdr,
-                        ((self.HSSI_CTRL_CMD_SW_RD << 16) + addr) << 32)
+        self._mem0.write64(self._hssictrladdr,
+                           ((self.HSSI_CTRL_CMD_SW_RD << 16) + addr) << 32)
         self._wait_for_ack()
-        ret = self._m.read32(self._hssistataddr)
-        self._m.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
+        ret = self._mem0.read32(self._hssistataddr)
+        self._mem0.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
         self._wait_for_clr()
         return ret
 
     def skl_write(self, addr, data):
-        self._m.write64(self._hssictrladdr,
-                        (((self.HSSI_CTRL_CMD_SW_WR << 16) + addr) << 32) |
-                        data)
+        self._mem0.write64(self._hssictrladdr,
+                           (((self.HSSI_CTRL_CMD_SW_WR << 16) + addr) << 32) |
+                           data)
         self._wait_for_ack()
-        self._m.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
+        self._mem0.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
         self._wait_for_clr()
 
     def skl_aux_read(self, addr):
-        self._m.write64(self._hssictrladdr,
-                        ((self.HSSI_CTRL_CMD_AUX_RD << 16) + addr) << 32)
+        self._mem0.write64(self._hssictrladdr,
+                           ((self.HSSI_CTRL_CMD_AUX_RD << 16) + addr) << 32)
         self._wait_for_ack()
-        ret = self._m.read32(self._hssistataddr)
-        self._m.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
+        ret = self._mem0.read32(self._hssistataddr)
+        self._mem0.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
         self._wait_for_clr()
         return ret
 
     def skl_aux_write(self, addr, data):
-        self._m.write64(self._hssictrladdr,
-                        (((self.HSSI_CTRL_CMD_AUX_WR << 16) + addr) << 32) |
-                        data)
+        self._mem0.write64(self._hssictrladdr,
+                           (((self.HSSI_CTRL_CMD_AUX_WR << 16) + addr) << 32) |
+                           data)
         self._wait_for_ack()
-        self._m.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
+        self._mem0.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
         self._wait_for_clr()
 
     def skl_local_read(self, addr):
@@ -404,13 +417,24 @@ class SklHssi(object):
         self.skl_aux_write(self.HSSI_AUX_LOCAL_CMD, 0x0)
 
     def skl_prmgmt_read(self, addr):
-        self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, addr)
-        return self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
+        if self._mem2:
+            self._mem2.write64(self.ETH_CTRL_ADDR, 0x20000 | addr)
+            rval = self._mem2.read64(self.ETH_RD_DATA)
+            self._mem2.write64(self.ETH_CTRL_ADDR, 0x0)
+            return rval
+        else:
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, addr)
+            return self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
 
     def skl_prmgmt_write(self, addr, din):
-        self.skl_aux_write(self.HSSI_AUX_PRMGMT_DIN, din)
-        self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0x10000 | addr)
-        self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0x0)
+        if self._mem2:
+            self._mem2.write64(self.ETH_WR_DATA, din)
+            self._mem2.write64(self.ETH_CTRL_ADDR, 0x10000 | addr)
+            self._mem2.write64(self.ETH_CTRL_ADDR, 0x0)
+        else:
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_DIN, din)
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0x10000 | addr)
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0x0)
 
     def skl_e10_read(self, addr):
         self.skl_prmgmt_write(self.PR_MGMT_STATUS, 0x20000 | addr)
@@ -419,6 +443,12 @@ class SklHssi(object):
     def skl_e10_write(self, addr, din):
         self.skl_prmgmt_write(self.PR_MGMT_STATUS_WR_DATA, din)
         self.skl_prmgmt_write(self.PR_MGMT_STATUS, 0x10000 | addr)
+
+    def skl_e10_check(self):
+        afu_guid = (self._mem2.read64(self.AFU_OFFSET_HI) <<
+                    64) | self._mem2.read64(self.AFU_OFFSET_LO)
+        if afu_guid != self.AFU_ID_E10:
+            raise Exception("Unexpected AFU_ID, please load the E2E_E10 AFU")
 
     def nios_soft_fn(self, cmd, arg0=0, arg1=0, arg2=0, arg3=0):
         self.skl_write(2, arg0)
@@ -472,7 +502,7 @@ class SklHssi(object):
             val = self.skl_local_read(self.NIOS_LBUS_CLK_MON_OUT)
             val *= 10
             print "%s %6d KHz" % (name, val)
-            i = i+1
+            i = i + 1
 
     def set_mode(self, mode):
         if mode < 0 or mode > 2:
@@ -543,6 +573,12 @@ class SklHssi(object):
             self.e10_tx_stat()
             self.e10_rx_stat()
         print ""
+
+    def skl_e40_check(self):
+        afu_guid = (self._mem2.read64(self.AFU_OFFSET_HI) <<
+                    64) | self._mem2.read64(self.AFU_OFFSET_LO)
+        if afu_guid != self.AFU_ID_E40:
+            raise Exception("Unexpected AFU_ID, please load the E2E_E40 AFU")
 
     def skl_e40_read(self, addr):
         self.skl_prmgmt_write(self.PR_MGMT_STATUS, 0x20000 | addr)
@@ -718,30 +754,12 @@ class SklHssi(object):
         print ""
 
 
-def check_e10(bdf, skl):
-    mem = PhyMemAccess()
-    mem.open(get_bdf_base_addr(bdf, 2), 0x80000)
-    afu_guid = (mem.read64(0x40010) << 64) | mem.read64(0x40008)
-    if afu_guid != skl.AFU_ID_E10:
-        mem.close()
-        sys.exit("Error: incorrect AFU_ID, please load the E2E_E10 AFU")
-
-
-def check_e40(bdf, skl):
-    mem = PhyMemAccess()
-    mem.open(get_bdf_base_addr(bdf, 2), 0x80000)
-    afu_guid = (mem.read64(0x40010) << 64) | mem.read64(0x40008)
-    if afu_guid != skl.AFU_ID_E40:
-        mem.close()
-        sys.exit("Error: incorrect AFU_ID, please load the E2E_E40 AFU")
-
-
 def stat_fxn(args, skl):
     skl.skl_stat()
 
 
 def e10_loop_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     if args.flag == "off":
         skl.skl_prmgmt_write(skl.PR_MGMT_SLOOP, 0x0)
     else:
@@ -749,7 +767,7 @@ def e10_loop_fxn(args, skl):
 
 
 def e10_reset_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     if args.flag == "off":
         skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x6)
         skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x4)
@@ -759,7 +777,7 @@ def e10_reset_fxn(args, skl):
 
 
 def e10_pkt_send_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     for i in range(skl.NUM_E10_CHANNELS):
         print "*** 10GE port %d sending" % i
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
@@ -768,7 +786,7 @@ def e10_pkt_send_fxn(args, skl):
 
 
 def e10_init_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     print "Changing SKL mode to 10g, \
     initializing E2E_10G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x7)
@@ -777,16 +795,17 @@ def e10_init_fxn(args, skl):
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x4)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_prmgmt_write(skl.PR_MGMT_SLOOP, 0xF)
+    e10_stat_clr_fxn(args, skl)
     print "Done!"
 
 
 def e10_stat_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     skl.e10_stat()
 
 
 def e10_stat_clr_fxn(args, skl):
-    check_e10(args.bdf, skl)
+    skl.skl_e10_check()
     for i in range(4):
         print "*** 10GE port %d clearing" % i
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
@@ -795,7 +814,7 @@ def e10_stat_clr_fxn(args, skl):
 
 
 def e40_loop_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     if args.flag == "off":
         skl.skl_e40_write(skl.PHY_PMA_SLOOP, 0x0)
     else:
@@ -803,7 +822,7 @@ def e40_loop_fxn(args, skl):
 
 
 def e40_reset_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     if args.flag == "off":
         skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     else:
@@ -811,7 +830,7 @@ def e40_reset_fxn(args, skl):
 
 
 def e40_pkt_send_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     print "Sending 1000000 1500-byte packets..."
     skl.skl_e40_traf_write(0x4, 1000000)  # number of packets
     skl.skl_e40_traf_write(0x5, 1500)  # packet length
@@ -821,23 +840,24 @@ def e40_pkt_send_fxn(args, skl):
 
 
 def e40_init_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     print "Changing SKL mode to 40g, \
     initializing E2E_40G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x3)
     skl.set_mode(2)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_e40_write(0x313, 0x3ff)
+    skl.skl_e40_stat_clr()
     print "Done!"
 
 
 def e40_stat_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     skl.skl_e40_stat()
 
 
 def e40_stat_clr_fxn(args, skl):
-    check_e40(args.bdf, skl)
+    skl.skl_e40_check()
     skl.skl_e40_stat_clr()
 
 
@@ -947,9 +967,16 @@ def main():
     mem.open(get_bdf_base_addr(args.bdf, 0), 0x80000)
     skl = SklHssi(mem)
 
+    mem2 = PhyMemAccess()
+
+    mem2.open(get_bdf_base_addr(args.bdf, 2), 0x80000)
+
+    skl.skl_set_mem2(mem2)
+
     args.func(args, skl)
 
     mem.close()
+    mem2.close()
 
 
 if __name__ == '__main__':
