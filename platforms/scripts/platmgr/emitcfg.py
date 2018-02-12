@@ -273,6 +273,31 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db, comment="##")
 
+    f.write('namespace eval platform_cfg {\n')
+    f.write("    # These top-level port classes are provided\n")
+    for port in afu_port_list:
+        afu_port = port['afu']
+        name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()
+        name = name.replace('-', '_')
+        f.write("    variable " + name + " 1\n")
+
+    f.write("\n    # These top-level ports are passed from the " +
+            "platform to the AFU\n")
+    for port in afu_port_list:
+        afu_port = port['afu']
+        plat_port = port['plat']
+
+        name = "AFU_TOP_REQUIRES_" + \
+            afu_port['class'].upper() + "_" + afu_port['interface'].upper()
+        name = name.replace('-', '_')
+
+        f.write("    variable " + name + " ")
+        if ('num-entries' not in port):
+            f.write("1\n")
+        else:
+            f.write("{0}\n".format(port['num-entries']))
+    f.write('}\n\n')
+
     f.write(
         "source {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
     f.close()
