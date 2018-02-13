@@ -147,6 +147,10 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
+    # Regular expression for characters we might encounter that can't be
+    # in preprocessor variables.  They will all be replaced with underscores.
+    illegal_chars = re.compile('[\.\[\]-]')
+
     try:
         f = open(fn, "w")
     except Exception:
@@ -169,7 +173,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     for port in afu_port_list:
         afu_port = port['afu']
         name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()
-        name = name.replace('-', '_')
+        name = illegal_chars.sub('_', name)
         f.write("`define " + name + " 1\n")
 
     f.write("\n\n//\n// These top-level ports are passed from the " +
@@ -182,7 +186,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
         name = "AFU_TOP_REQUIRES_" + \
             afu_port['class'].upper() + "_" + afu_port['interface'].upper()
-        name = name.replace('-', '_')
+        name = illegal_chars.sub('_', name)
 
         f.write("`define " + name + " ")
         if ('num-entries' not in port):
@@ -234,13 +238,13 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         for k in sorted(params.keys()):
             name = "PLATFORM_PARAM_" + \
                 afu_port['class'].upper() + "_" + k.upper()
-            name = name.replace('-', '_')
+            name = illegal_chars.sub('_', name)
             # Skip comments and parameters with no value
             if ((k != 'comment') and (params[k] is not None)):
                 f.write('`define {0} {1}\n'.format(name, params[k]))
                 if (k in is_params):
-                    f.write('`define {0}_IS_{1} 1\n'.format(
-                        name, params[k].upper()))
+                    p = illegal_chars.sub('_', params[k].upper())
+                    f.write('`define {0}_IS_{1} 1\n'.format(name, p))
 
         f.write("\n")
 
@@ -266,6 +270,10 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     if (not args.quiet):
         print("Writing {0}".format(fn))
 
+    # Regular expression for characters we might encounter that can't be
+    # in preprocessor variables.  They will all be replaced with underscores.
+    illegal_chars = re.compile('[\.\[\]-]')
+
     try:
         f = open(fn, "w")
     except Exception:
@@ -278,7 +286,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     for port in afu_port_list:
         afu_port = port['afu']
         name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()
-        name = name.replace('-', '_')
+        name = illegal_chars.sub('_', name)
         f.write("    variable " + name + " 1\n")
 
     f.write("\n    # These top-level ports are passed from the " +
@@ -289,7 +297,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
         name = "AFU_TOP_REQUIRES_" + \
             afu_port['class'].upper() + "_" + afu_port['interface'].upper()
-        name = name.replace('-', '_')
+        name = illegal_chars.sub('_', name)
 
         f.write("    variable " + name + " ")
         if ('num-entries' not in port):
