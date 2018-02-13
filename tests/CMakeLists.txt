@@ -28,6 +28,17 @@ cmake_minimum_required(VERSION 2.8.12)
 project(opae-tests)
 
 ##############################################################################
+############ Options #########################################################
+##############################################################################
+option(BUILD_GTAPI "Enable build gtapi test suite ." OFF)
+mark_as_advanced(BUILD_GTAPI)
+
+option(BUILD_ASE_TEST "Enable ASE compilation" ON)
+mark_as_advanced(BUILD_ASE_TEST)
+
+message(STATUS "BUILD_GTAPI" ${BUILD_GTAPI})
+message(STATUS "BUILD_ASE_TESTS: ${BUILD_ASE_TEST}")
+##############################################################################
 ## Setup GTEST ###############################################################
 ##############################################################################
 include(test_config)
@@ -39,65 +50,150 @@ else()
   Build_GTEST()
 endif()
 ############################################################################
-## Generate GTAPI ##########################################################
+#### COMMON DIR & LIB for GTAPI & GTASE ####################################
 ############################################################################
-# Include directories
-include_directories(
-  ${GTEST_INCLUDE_DIRS}
-  ${OPAE_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
-  ${libjson-c_INCLUDE_DIRS}
-  ${OPAE_SDK_SOURCE}/common/include
-  ${OPAE_SDK_SOURCE}/libopae/src
-  ${OPAE_SDK_SOURCE}/tools/libopae++
-  ${OPAE_SDK_SOURCE}/tools/c++utils
-  ${OPAE_SDK_SOURCE}/tests)
 
 add_library(commonlib SHARED common_test.h common_test.cpp)
-target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
-target_include_directories(commonlib PUBLIC
-  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
+############################################################################
+## Build GTAPI  ############################################################
+############################################################################
+if(BUILD_GTAPI)
+message(STATUS "BUILD_GTAPI:${BUILD_GTAPI}")
+    include_directories(
+		  ${GTEST_INCLUDE_DIRS}
+		  ${OPAE_INCLUDE_DIR}
+		  ${Boost_INCLUDE_DIRS}
+		  ${libjson-c_INCLUDE_DIRS}
+		  ${OPAE_SDK_SOURCE}/common/include
+		  ${OPAE_SDK_SOURCE}/libopae/src
+		  ${OPAE_SDK_SOURCE}/tools/libopae++
+		  ${OPAE_SDK_SOURCE}/tools/c++utils
+		  ${OPAE_SDK_SOURCE}/tests
+		  ${OPAE_SDK_SOURCE}/ase/api/src
+		  ${CMAKE_BINARY_DIR})
 
-# Test binary
-set(SRC gtmain.cpp
-  jsonParser.cpp
-  unit/gtOpenClose_base.cpp
-  unit/gtProperties_base.cpp
-  unit/gtOpen.cpp
-  unit/gtEnumerate.cpp
-  unit/gtOptionParser.cpp
-  function/gtReset.cpp
-  function/gtUmsg.cpp
-  function/gtBuffer.cpp
-  function/gtEnumerate.cpp
-  function/gtHostif.cpp
-  function/gtMMIO.cpp
-  function/gtEvent.cpp)
+    #add_library(commonlib SHARED common_test.h common_test.cpp)
+	target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
+	target_include_directories(commonlib PUBLIC
+	  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+	  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+	  $<INSTALL_INTERFACE:include>
+	  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
+	
+	# Test binary
+	set(SRC gtmain.cpp
+		  jsonParser.cpp
+		  unit/gtOpenClose_base.cpp
+		  unit/gtProperties_base.cpp
+		  unit/gtOpen.cpp
+		  unit/gtEnumerate.cpp
+		  unit/gtOptionParser.cpp
+		  function/gtReset.cpp
+		  function/gtUmsg.cpp
+		  function/gtBuffer.cpp
+		  function/gtEnumerate.cpp
+		  function/gtHostif.cpp
+		  function/gtMMIO.cpp
+		  function/gtEvent.cpp)
+	
+	add_executable(gtapi ${SRC})
+	
+	target_include_directories(gtapi PUBLIC
+	  		$<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+	  		$<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+	  		$<INSTALL_INTERFACE:include>
+	  		PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
+	 
+	get_property(dirs DIRECTORY ${OPAE_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+	foreach(dir ${dirs})
+	  message(STATUS "dir='${dir}'")
+	endforeach()
+	  		
+	target_link_libraries(gtapi commonlib safestr opae-c ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES}
+	  					  opae-c++-utils opae-c++)
+	  					  
+	configure_file(${PROJECT_SOURCE_DIR}/configuration.json
+	  			   ${CMAKE_BINARY_DIR}/tests/configuration.json
+	  			   COPYONLY)
+	  			   
+	if(THREADS_HAVE_PTHREAD_ARG)
+  		target_compile_options(PUBLIC commonlib "-pthread")
+  		target_compile_options(PUBLIC gtapi "-pthread")
+	endif()
 
-add_executable(gtapi ${SRC})
-target_include_directories(gtapi PUBLIC
-  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-target_link_libraries(gtapi commonlib safestr opae-c ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES}
-  opae-c++-utils opae-c++)
+	if(CMAKE_THREAD_LIBS_INIT)
+	  	target_link_libraries(gtapi "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
+endif(BUILD_GTAPI)
+############################################################################
+## Build ASE ###############################################################
+############################################################################
+message(STATUS "BUILD_ASE_TESTS: ${BUILD_ASE_TEST}")
+if(BUILD_ASE_TEST)
+    add_definitions(-DBUILD_ASE)
+    include_directories(
+				  ${GTEST_INCLUDE_DIRS}
+				  ${OPAE_INCLUDE_DIR}
+				  ${Boost_INCLUDE_DIRS}
+				  ${libjson-c_INCLUDE_DIRS}
+				  ${OPAE_SDK_SOURCE}/common/include
+				  ${OPAE_SDK_SOURCE}/tools/libopae++
+				  ${OPAE_SDK_SOURCE}/tools/c++utils
+				  ${OPAE_SDK_SOURCE}/tests
+				  ${OPAE_SDK_SOURCE}/ase/api/src
+	              ${CMAKE_BINARY_DIR})
+	
+	message(STATUS ${OPAE_SDK_SOURCE}/ase/api/src)              
+	target_link_libraries(commonlib opae-c-ase ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
+	target_include_directories(commonlib PUBLIC
+	  						   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+	  						   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+	  						   $<INSTALL_INTERFACE:include>
+	  						   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/api/src>)
+	  						   
+
+	set(ASE_SRC gtmain.cpp jsonParser.cpp
+				  unit/gtOpenClose_base.cpp
+				  unit/gtProperties_base.cpp
+				  unit/gtOpen.cpp
+				  unit/gtEnumerate.cpp
+				  unit/gtOptionParser.cpp
+				  function/gtReset.cpp
+				  function/gtBuffer.cpp
+				  function/gtEnumerate.cpp
+				  function/gtMMIO.cpp)
+				  
+	add_executable(gtase ${ASE_SRC})
+	target_include_directories(gtase PUBLIC
+	  						   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+	  						   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+	  						   $<INSTALL_INTERFACE:include>
+	  						   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/api/src>)
+	  		
+	target_link_libraries(gtase commonlib safestr opae-c-ase ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES}
+	  					  opae-c++-utils opae-c++)
+	  						
+	configure_file(${PROJECT_SOURCE_DIR}/configuration.json
+	  				 ${CMAKE_BINARY_DIR}/tests/configuration.json
+	  				 COPYONLY)
+	  				 
+	if(CMAKE_THREAD_LIBS_INIT)
+  		target_link_libraries(gtase "${CMAKE_THREAD_LIBS_INIT}")
+    endif()
+
+    if(THREADS_HAVE_PTHREAD_ARG)
+  		target_compile_options(PUBLIC commonlib "-pthread")
+  		target_compile_options(PUBLIC gtase "-pthread")		
+	endif()
+endif(BUILD_ASE_TEST)
+############################################################################
+#### COMMON for GTAPI & GTASE ##############################################
+############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
-  ${CMAKE_BINARY_DIR}/tests/configuration.json
-  COPYONLY)
+  			   ${CMAKE_BINARY_DIR}/tests/configuration.json
+  			   COPYONLY)
 
-if(THREADS_HAVE_PTHREAD_ARG)
-  target_compile_options(PUBLIC commonlib "-pthread")
-  target_compile_options(PUBLIC gtapi "-pthread")
-endif()
-
-if(CMAKE_THREAD_LIBS_INIT)
-  target_link_libraries(gtapi "${CMAKE_THREAD_LIBS_INIT}")
-endif()
-
+if(NOT BUILD_ASE_TEST)
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
@@ -115,7 +211,7 @@ set_tests_properties(
   test_open_common_mock_drv
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
-
+endif()
 ############################################################################
 ## Add Coverage Analysis ###################################################
 ############################################################################

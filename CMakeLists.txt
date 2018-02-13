@@ -153,8 +153,9 @@ add_subdirectory(samples)
 ## Add 'tests' #############################################################
 ############################################################################
 
-option(BUILD_TESTS "Enable tests compilation" OFF)
+option(BUILD_TESTS "Enable tests compilation" ON)
 mark_as_advanced(BUILD_TESTS)
+
 if(BUILD_TESTS)
   enable_testing()
   include(CTest)
