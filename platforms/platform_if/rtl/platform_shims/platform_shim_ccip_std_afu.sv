@@ -66,6 +66,10 @@ module platform_shim_ccip_std_afu
     avalon_mem_if.to_fiu local_mem[NUM_LOCAL_MEM_BANKS],
 `endif
 
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+    pr_hssi_if.to_fiu   hssi,
+`endif
+
     // CCI-P structures
     input  t_if_ccip_Rx pck_cp2af_sRx,        // CCI-P Rx Port
     output t_if_ccip_Tx pck_af2cp_sTx         // CCI-P Tx Port
@@ -91,10 +95,6 @@ module platform_shim_ccip_std_afu
     platform_shim_ccip platform_shim_ccip
        (
         .pClk,
-        .pClkDiv2,
-        .pClkDiv4,
-        .uClk_usr,
-        .uClk_usrDiv2,
 
         .pck_cp2af_softReset,
         .pck_cp2af_pwrState,
@@ -102,6 +102,13 @@ module platform_shim_ccip_std_afu
         .pck_cp2af_sRx,
         .pck_af2cp_sTx,
 
+`ifdef PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
+         // Default clock
+        .afu_clk(pClk),
+`else
+         // Updated CCI-P clock requested
+        .afu_clk(`PLATFORM_PARAM_CCI_P_CLOCK),
+`endif
         .afu_cp2af_sRx,
         .afu_af2cp_sTx,
         .afu_cp2af_softReset,
@@ -129,11 +136,13 @@ module platform_shim_ccip_std_afu
         )
       platform_shim_avalon_mem_if
        (
-        .pClk,
-        .pClkDiv2,
-        .pClkDiv4,
-        .uClk_usr,
-        .uClk_usrDiv2,
+`ifdef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK_IS_DEFAULT
+        // Not used -- local memory clocks unchanged
+        .tgt_mem_afu_clk(0),
+`else
+        // Updated target for local memory clock
+        .tgt_mem_afu_clk(`PLATFORM_PARAM_LOCAL_MEMORY_CLOCK),
+`endif
 
         .mem_fiu(local_mem),
         .mem_afu(afu_local_mem),
@@ -178,6 +187,10 @@ module platform_shim_ccip_std_afu
         // Local memory's clock is included in its interface.  If a clock crossing
         // was inserted, the included clock is updated to match.
         .local_mem(afu_local_mem),
+`endif
+
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+        .hssi(hssi),
 `endif
 
         .pck_af2cp_sTx(afu_af2cp_sTx),

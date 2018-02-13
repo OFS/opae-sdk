@@ -276,7 +276,7 @@ set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 # Run ldconfig after installation
 option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
 mark_as_advanced(RUN_LDCONFIG)
-    
+
 if (RUN_LDCONFIG)
   if (NOT CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib")
@@ -285,12 +285,13 @@ if (RUN_LDCONFIG)
   set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 
   file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
-echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+mkdir -p /etc/ld.so.conf.d
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 
   file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
-rm /etc/ld.so.conf.d/${CMAKE_PROJECT_NAME}.conf
+rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 

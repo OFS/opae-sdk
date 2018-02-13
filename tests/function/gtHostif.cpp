@@ -38,7 +38,7 @@ using namespace common_test;
  *             fpgaAssignPortToInterface Release port to a host interface.
  *
  */
-TEST(LibopaecHostifCommonHW, Hostif_drv_01) {
+TEST(LibopaecHostifCommonMOCK, Hostif_drv_01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -60,7 +60,7 @@ TEST(LibopaecHostifCommonHW, Hostif_drv_01) {
  *             fpgaAssignPortToInterface Assign port to a host interface.
  *
  */
-TEST(LibopaecHostifCommonHW, Hostif_drv_02) {
+TEST(LibopaecHostifCommonMOCK, Hostif_drv_02) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;

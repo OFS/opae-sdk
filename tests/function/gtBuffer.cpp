@@ -45,7 +45,7 @@ must be express and approved by Intel in writing.
 using namespace std;
 using namespace common_test;
 
-class LibopaecBufFCommonHW : public BaseFixture, public ::testing::Test {
+class LibopaecBufFCommonMOCK : public BaseFixture, public ::testing::Test {
  public:
   static const uint64_t len_min = 1024;
   static const uint64_t len_max = 4 * 1024;
@@ -84,7 +84,7 @@ TEST(LibopaecBufCommonALL, NoPrep01) {
  *             fpgaReleaseBuffer must fail if invalid wsid is passed
  *
  */
-TEST(LibopaecBufCommonHW, InvalidWSID01) {
+TEST(LibopaecBufCommonMOCKHW, InvalidWSID01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -119,7 +119,7 @@ TEST(LibopaecBufCommonHW, InvalidWSID01) {
  *             fpgaReleaseBuffer must release a shared memory buffer.
  *
  */
-TEST(LibopaecBufCommonHW, PrepRel4K01) {
+TEST(LibopaecBufCommonMOCKHW, PrepRel4K01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -383,7 +383,7 @@ TEST(LibopaecBufCommonALL, WriteRead01) {
  *             release a shared memory buffer.
  *
  */
-TEST(LibopaecBufCommonHW, PrepPre2MB01) {
+TEST(LibopaecBufCommonMOCKHW, PrepPre2MB01) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;

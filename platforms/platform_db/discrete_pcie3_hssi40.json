@@ -11,7 +11,7 @@
          "",
          "10 and 40Gb HSSI are also available."
       ],
-   "module-arguments-offered" :
+   "module-ports-offered" :
       [
          {
             "class": "clocks",
@@ -38,6 +38,7 @@
                   "max-bw-active-lines-c1": "{ 128, 128, 128, 128 }"
                }
          },
+
          {
             "class": "local-memory",
             "interface": "avalon_mm",
@@ -50,6 +51,11 @@
             "interface": "avalon_mm_legacy_wires_2bank",
             "optional": true,
             "define": [ "INCLUDE_DDR4" ]
+         },
+
+         {
+            "class": "hssi",
+            "interface": "raw_pr"
          }
       ]
 }

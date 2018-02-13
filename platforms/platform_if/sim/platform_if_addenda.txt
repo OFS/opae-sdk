@@ -13,6 +13,7 @@
 
 ../rtl/device_if/ccip_if_pkg.sv
 ../rtl/device_cfg/ccip_cfg_pkg.sv
+../rtl/device_cfg/hssi_cfg_pkg.sv
 ../rtl/device_cfg/local_mem_cfg_pkg.sv
 
 ../rtl/device_if/ccip_if_clock.sv

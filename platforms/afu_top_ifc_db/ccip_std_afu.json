@@ -3,7 +3,7 @@
    "module-name": "ccip_std_afu",
    "platform-shim-module-name": "platform_shim_ccip_std_afu",
    "description": "The original CCI-P standard top-level module",
-   "module-arguments" :
+   "module-ports" :
       [
          {
              "class": "clocks",

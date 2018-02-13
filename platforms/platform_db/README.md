@@ -28,9 +28,9 @@ Each JSON database is a dictionary, supporting the following keys:
 
   The name of a parent platform JSON database.  The parent will be loaded
   and fields from the child will be merged into the parent.  For most fields,
-  the merge overwrites any existing parent data.  For module-arguments-offered,
+  the merge overwrites any existing parent data.  For module-ports-offered,
   the merge completely overwrites entries with matching class/interface
-  pairs.  Keys within a module-arguments-offered class/interface entry aren't
+  pairs.  Keys within a module-ports-offered class/interface entry aren't
   merged.  The parent's entry is removed and replaced with the child's
   entry.
 
@@ -38,13 +38,13 @@ Each JSON database is a dictionary, supporting the following keys:
 
   The name of the ASE platform that simulates the physical platform.
 
-- **module-arguments-offered**: List [required]
+- **module-ports-offered**: List [required]
 
-  The set of arguments offered by the platform to AFUs.  Entries in the
-  list have the same format as the module-arguments list found in [AFU
+  The set of ports offered by the platform to AFUs.  Entries in the
+  list have the same format as the module-ports list found in [AFU
   top-level interface databases](../afu_top_ifc_db).
 
-  module-arguments-offered differs from the AFU's module-arguments in
+  module-ports-offered differs from the AFU's module-ports in
   the following ways:
 
   - For vector classes, max-entries must be defined.
@@ -57,7 +57,7 @@ Each JSON database is a dictionary, supporting the following keys:
   - Some classes require configuration parameters.  See the *Platform Parameters*
     section below.  Individual platforms may override a parameter's default
     by setting updated values in a "params" dictionary within
-    module-arguments-offered classes.  Setting a parameter's value to null
+    module-ports-offered classes.  Setting a parameter's value to null
     will keep it from being defined.
 
     See [../afu\_top\_ifc\_db/](../afu_top_ifc_db/) for both
@@ -66,7 +66,7 @@ Each JSON database is a dictionary, supporting the following keys:
 ## Platform Parameters
 
 [platform\_defaults.json](platform_defaults.json) is a special database, holding
-default values for module argument classes that are configurable.  By convention,
+default values for module port classes that are configurable.  By convention,
 all configuration parameters available for each class should be set in
 [platform\_defaults.json](platform_defaults.json) in order to have a central
 repository of parameters.  Particular platforms can override these default values
@@ -77,7 +77,7 @@ set of supported VCs with:
 ```json
 {
    "description": "PCIe-only platform",
-   "module-arguments-offered" :
+   "module-ports-offered" :
       [
          {
             "class": "cci-p",
