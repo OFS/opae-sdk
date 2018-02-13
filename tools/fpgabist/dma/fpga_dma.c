@@ -738,9 +738,15 @@ static fpga_result poll_interrupt(fpga_dma_handle dma_h) {
 		res = FPGA_EXCEPTION;
 	} else {
 		uint64_t count = 0;
-		read(pfd.fd, &count, sizeof(count));
-		debug_print("Poll success. Return = %d, count = %d\n",poll_res, (int)count);
-		res = FPGA_OK;
+		ssize_t bytes_read = read(pfd.fd, &count, sizeof(count));
+		if(bytes_read <= 0) {
+			fprintf( stderr, "Error: %s\n",
+				bytes_read < 0 ? strerror(errno) : "zero bytes read");
+			res = FPGA_EXCEPTION;
+		} else {
+			debug_print("Poll success. Return = %d, count = %d\n",poll_res, (int)count);
+			res = FPGA_OK;
+		}
 	}
 
 out:
@@ -1030,11 +1036,17 @@ fpga_result fpgaDmaTransferSync(fpga_dma_handle dma_h, uint64_t dst, uint64_t sr
 return res;
 }
 
+
+// TODO: warnings disabled until function implemented. Remove after
+// implementation complete
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma, uint64_t dst, uint64_t src, size_t count,
 										  fpga_dma_transfer_t type, fpga_dma_transfer_cb cb, void *context) {
 	// TODO
 	return FPGA_NOT_SUPPORTED;
 }
+#pragma GCC diagnostic pop
 
 fpga_result fpgaDmaClose(fpga_dma_handle dma_h) {
 	fpga_result res = FPGA_OK;
