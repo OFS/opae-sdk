@@ -13,10 +13,12 @@ extern "C" {
 #include <opae/cxx/core/dma_buffer.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/accelerator.h>
 
 #include <opae/cxx/buffers.h>
 
 using namespace opae::fpga::types;
+using namespace opae::fpga::resource;
 using namespace opae::fpga::memory;
 
 class CxxBuffer_f1 : public ::testing::Test {
@@ -37,6 +39,27 @@ class CxxBuffer_f1 : public ::testing::Test {
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t accel_;
+  dma_buffer::ptr_t buf_;
+};
+
+class CxxBuffer_f2 : public ::testing::Test {
+ protected:
+  CxxBuffer_f2() {}
+
+  virtual void SetUp() override {
+    accelerators_ = accelerator::enumerate();
+    ASSERT_GT(accelerators_.size(), 0);
+    accel_ = accelerators_[0];
+    ASSERT_NE(nullptr, accel_.get());
+  }
+
+  virtual void TearDown() override {
+    accel_.reset();
+    ASSERT_NO_THROW(accelerators_.clear());
+  }
+
+  std::vector<accelerator::ptr_t> accelerators_;
+  accelerator::ptr_t accel_;
   dma_buffer::ptr_t buf_;
 };
 
@@ -175,4 +198,28 @@ TEST_F(CxxBuffer_f1, poll_wait_06) {
 
   EXPECT_FALSE(wait(buf_, offset, each, micros, mask, wrong_value));
   EXPECT_TRUE(wait(buf_, offset, each, micros, mask, value));
+}
+
+/**
+ * @test accelerator_allocate01
+ * Given an open accelerator object<br> 
+ * When I call allocate_buffer with a given size<br>
+ * Then I get a dma_buffer object of the size requested<br>
+ */
+TEST_F(CxxBuffer_f2, accelerator_allocate01) {
+  accel_->open(0);
+  buf_ = accel_->allocate_buffer(1024);
+  ASSERT_NE(nullptr, buf_.get());
+  EXPECT_EQ(1024, buf_->size());
+  EXPECT_NO_THROW(buf_.reset());
+}
+
+/**
+ * @test accelerator_allocate02
+ * Given a closed accelerator object<br> 
+ * When I call allocate_buffer with a given size<br>
+ * Then an exception of type `except` is thrown<br>
+ */
+TEST_F(CxxBuffer_f2, accelerator_allocate02) {
+  EXPECT_THROW(buf_ = accel_->allocate_buffer(1024), except);
 }

@@ -31,6 +31,7 @@
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/dma_buffer.h>
 
 namespace opae {
 namespace fpga {
@@ -89,6 +90,17 @@ class accelerator {
    * @param     flags   The flags.
    */
   void open(int flags);
+
+  /**
+   * @fn        opae::fpga::types::dma_buffer::ptr_t accelerator::allocate_buffer(size_t size);
+   *
+   * @brief     Allocates a shared buffer to use with the accelerator.
+   *
+   * @param     size    The size of the buffer (in bytes).
+   *
+   * @return    A shared pointer to a dma_buffer object.
+   */
+  opae::fpga::types::dma_buffer::ptr_t allocate_buffer(size_t size);
 
  private:
   opae::fpga::types::token::ptr_t token_;
