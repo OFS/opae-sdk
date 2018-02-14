@@ -352,6 +352,7 @@ class SklHssi(object):
     # Miscallaenous
     CLK_RD_DELAY = 0.25
     NUM_E10_CHANNELS = 4
+    NUM_SEND_PACKETS = 1000000
 
     def __init__(self, mem, dfhaddr=DFH_BASE):
         self._mem0 = mem
@@ -567,7 +568,7 @@ class SklHssi(object):
         val = self.skl_prmgmt_read(self.PR_MGMT_I2C_SEL_WDATA)
         print "Word lock : %x" % val
         print ""
-        for i in range(4):
+        for i in range(self.NUM_E10_CHANNELS):
             print "*** 10GE port %d\n" % i
             self.skl_prmgmt_write(self.PR_MGMT_PORT_SEL, i)
             self.e10_tx_stat()
@@ -781,7 +782,7 @@ def e10_pkt_send_fxn(args, skl):
     for i in range(skl.NUM_E10_CHANNELS):
         print "*** 10GE port %d sending" % i
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
-        skl.skl_e10_write(0x3c00, 0xffffff + i)  # num pkts
+        skl.skl_e10_write(0x3c00, skl.NUM_SEND_PACKETS)  # num pkts
         skl.skl_e10_write(0x3c03, 1)          # go
 
 
@@ -806,7 +807,7 @@ def e10_stat_fxn(args, skl):
 
 def e10_stat_clr_fxn(args, skl):
     skl.skl_e10_check()
-    for i in range(4):
+    for i in range(skl.NUM_E10_CHANNELS):
         print "*** 10GE port %d clearing" % i
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
         skl.skl_e10_write(0xc00, 1)
@@ -831,8 +832,8 @@ def e40_reset_fxn(args, skl):
 
 def e40_pkt_send_fxn(args, skl):
     skl.skl_e40_check()
-    print "Sending 1000000 1500-byte packets..."
-    skl.skl_e40_traf_write(0x4, 1000000)  # number of packets
+    print "Sending {} 1500-byte packets...".format(skl.NUM_SEND_PACKETS)
+    skl.skl_e40_traf_write(0x4, skl.NUM_SEND_PACKETS)  # number of packets
     skl.skl_e40_traf_write(0x5, 1500)  # packet length
     skl.skl_e40_traf_write(0x6, 0)  # packet delay
     skl.skl_e40_traf_write(0x7, 0x1)  # start
