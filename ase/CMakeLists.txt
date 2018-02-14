@@ -44,7 +44,7 @@ install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
   COMPONENT asescripts)
 
 # CCIP base RTL code
-configure_file(${PROJECT_SOURCE_DIR}/rtl/sources_abs.txt.in
+configure_file(${PROJECT_SOURCE_DIR}/in/sources_abs.txt.in
   ${PROJECT_BINARY_DIR}/rtl/sources_abs.txt)
 install(FILES ${PROJECT_BINARY_DIR}/rtl/sources_abs.txt
   DESTINATION ${ASE_SHARE_DIR}/rtl
