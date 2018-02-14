@@ -99,18 +99,30 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "import zipfile\n"
         "from io import BytesIO\n"
         "\n"
-        "def addfile(fn, z):\n"
-        "  z.write(fn)\n"
-        "\n"
         "# Write to a buffer so that the shebang can be prepended easily\n"
         "wr_buf = BytesIO()\n"
         "wr_buf.write('#!/usr/bin/env python' + os.linesep)\n"
         "\n"
         "z = zipfile.PyZipFile(wr_buf, 'w')\n")
 
+    # Emit the list of files to include in the zipped file.  Entries in the ${ARGN}
+    # list may either be actual names of files to zip or entries may be the names
+    # of sub-lists.  The sub-lists are tuples, holding the path to the file to zip
+    # and the name to call the file in the zipped file.
     foreach(PYFILE ${ARGN})
-        file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"
-             "addfile('${PYFILE}', z)\n")
+        # Is this entry a list or a file?
+        if (DEFINED ${PYFILE})
+            # It's a list.  Extract the source path and the name to call the
+            # file inside the zipped file.
+            list(GET ${PYFILE} 0 F_PATH)
+            list(GET ${PYFILE} 1 Z_NAME)
+            file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"
+                 "z.write('${F_PATH}', '${Z_NAME}')\n")
+        else()
+            # Entry is just a file name.
+            file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"
+                 "z.write('${PYFILE}')\n")
+        endif()
     endforeach(PYFILE)
 
     file(APPEND "${BUILD_DIR_MAIN}/do_zip.py"

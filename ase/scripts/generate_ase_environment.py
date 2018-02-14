@@ -475,13 +475,24 @@ def get_default_platform():
     if 'OPAE_ASE_DEFAULT_PLATFORM' in os.environ:
         return os.environ['OPAE_ASE_DEFAULT_PLATFORM']
 
-    # FPGA platform releases use BBS_LIB_PATH to specify a path to
-    # the release library.  The library stores the platform class.
-    # Match the ASE environment to the current platform.
-    if 'BBS_LIB_PATH' in os.environ:
-        fname = os.path.join(os.environ['BBS_LIB_PATH'],
-                             'fme-platform-class.txt')
+    # FPGA platform releases store the platform class in their
+    # hw/lib tree.  There are two variables that may point to
+    # this tree.
+    if ('BBS_LIB_PATH' in os.environ):
+        # Legacy variable, shared with afu_synth_setup and HW releases
+        hw_lib_dir = os.environ['BBS_LIB_PATH'].rstrip('/')
+    elif ('OPAE_PLATFORM_ROOT' in os.environ):
+        # Currently documented variable, pointing to a platform release
+        hw_lib_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'].rstrip('/'),
+                                  'hw/lib')
+    else:
+        hw_lib_dir = None
+
+    # The release library stores the platform class.  Match the ASE
+    # environment to the current platform.
+    if hw_lib_dir is not None:
         try:
+            fname = os.path.join(hw_lib_dir, 'fme-platform-class.txt')
             with open(fname, 'r') as fd:
                 fpga_platform = fd.read().strip()
             return fpga_platform

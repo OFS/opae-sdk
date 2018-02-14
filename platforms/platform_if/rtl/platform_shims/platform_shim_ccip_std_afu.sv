@@ -95,10 +95,6 @@ module platform_shim_ccip_std_afu
     platform_shim_ccip platform_shim_ccip
        (
         .pClk,
-        .pClkDiv2,
-        .pClkDiv4,
-        .uClk_usr,
-        .uClk_usrDiv2,
 
         .pck_cp2af_softReset,
         .pck_cp2af_pwrState,
@@ -106,6 +102,13 @@ module platform_shim_ccip_std_afu
         .pck_cp2af_sRx,
         .pck_af2cp_sTx,
 
+`ifdef PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
+         // Default clock
+        .afu_clk(pClk),
+`else
+         // Updated CCI-P clock requested
+        .afu_clk(`PLATFORM_PARAM_CCI_P_CLOCK),
+`endif
         .afu_cp2af_sRx,
         .afu_af2cp_sTx,
         .afu_cp2af_softReset,
@@ -133,11 +136,13 @@ module platform_shim_ccip_std_afu
         )
       platform_shim_avalon_mem_if
        (
-        .pClk,
-        .pClkDiv2,
-        .pClkDiv4,
-        .uClk_usr,
-        .uClk_usrDiv2,
+`ifdef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK_IS_DEFAULT
+        // Not used -- local memory clocks unchanged
+        .tgt_mem_afu_clk(0),
+`else
+        // Updated target for local memory clock
+        .tgt_mem_afu_clk(`PLATFORM_PARAM_LOCAL_MEMORY_CLOCK),
+`endif
 
         .mem_fiu(local_mem),
         .mem_afu(afu_local_mem),

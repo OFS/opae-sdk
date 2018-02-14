@@ -30,11 +30,13 @@
 
 `include "platform_if.vh"
 
+// ************************************************************************
 //
-// This module allows AFU writers to extract the clock that was chosen for
-// CCI-P in the AFU's JSON.  Use this to avoid using preprocessor macros
-// generated for platform interface configuration.
+// This module is obsolete.  Please simply use `PLATFORM_PARAM_CCI_P_CLOCK
+// to retrieve the CCI-P primary clock.
 //
+// ************************************************************************
+
 module ccip_if_clock
    (
     // CCI-P Clocks and Resets
