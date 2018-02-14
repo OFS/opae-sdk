@@ -565,6 +565,8 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				size_t bitstream_len,
 				int flags)
 {
+	(void)flags;  /* silence unused-parameter warning */
+
 	if (!fpga ||
 		(((struct _fpga_handle *)fpga)->magic != FPGA_HANDLE_MAGIC) ||
 		(((struct _fpga_handle *)fpga)->fddev < 0)) {
