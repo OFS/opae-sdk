@@ -237,6 +237,37 @@ def setup_build(args):
     cmd.append('--verilog-hdr=../hw/afu_json_info.vh')
     subprocess.check_call(cmd, cwd=build_dir)
 
+    # Handle Qsys IPX file discovery
+    setup_build_ipx(args, sources, build_dir)
+
+
+# Construct the Qsys components.ipx file in the build directory, if needed.
+def setup_build_ipx(args, sources, build_dir):
+    # Get IPX files from source list
+    cmd = ['rtl_src_config']
+    cmd.append('--ipx')
+    if (os.path.isabs(sources)):
+        cmd.append('--abs')
+        cmd.append(sources)
+    else:
+        cmd.append(os.path.relpath(sources, build_dir))
+    ipx = commands_list_getoutput(cmd, cwd=build_dir)
+    ipx = ipx.strip()
+    # Anything to do?
+    if (len(ipx) == 0):
+        return
+    ipx = ipx.split('\n')
+
+    # Emit components.ipx
+    with open(os.path.join(build_dir, 'components.ipx'), 'w') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write('<library>\n')
+        for p in ipx:
+            # Just point to the directory containing the IPX file
+            ipx_path = os.path.dirname(p)
+            f.write('  <path path="{0}/*" />\n'.format(ipx_path))
+        f.write('</library>\n')
+
 
 def main():
     import argparse
