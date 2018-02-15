@@ -43,6 +43,11 @@ qsys_tag_map = {
     '.ip':   'IP_FILE'
 }
 
+# QSYS ipx tag.
+qsys_ipx_tag_map = {
+    '.ipx':  'IPX_FILE'
+}
+
 # JSON-only tags.
 json_tag_map = {
     '.json': 'MISC_FILE'
@@ -59,20 +64,18 @@ sim_tag_map = {
     '.json': 'MISC_FILE'
 }
 
-#
-# Return the Quartus tag for a given file extension.
-#
 
-
-def quartusTag(filename):
+def validateTag(filename):
     _basename, ext = os.path.splitext(filename)
     ext = ext.lower()
 
-    if (ext not in quartus_tag_map):
+    if (ext not in quartus_tag_map and
+            ext not in qsys_tag_map and
+            ext not in qsys_ipx_tag_map and
+            ext not in json_tag_map and
+            ext not in sim_tag_map):
         errorExit(
             "unrecognized file extension '{0}' ({1})".format(ext, filename))
-
-    return quartus_tag_map[ext]
 
 
 def lookupTag(filename, db):
@@ -90,7 +93,7 @@ def lookupTag(filename, db):
 #
 def emitCfg(opts, cfg):
     # Filtering for specific file types?
-    file_type_filter = opts.qsys or opts.json
+    file_type_filter = opts.qsys or opts.ipx or opts.json
 
     if (not file_type_filter):
         # First emit all preprocessor configuration
@@ -125,20 +128,22 @@ def emitCfg(opts, cfg):
             if (not opts.sim and not file_type_filter):
                 print("source " + c[3:])
         else:
-            # Always ask for the Quartus tag since it has the
-            # side-effect of validating the suffix.
-            tag = quartusTag(c)
+            validateTag(c)
+            tag = lookupTag(c, quartus_tag_map)
 
             if (opts.sim):
                 if (lookupTag(c, sim_tag_map)):
                     print(c)
-            elif (opts.qsys):
-                if (lookupTag(c, qsys_tag_map)):
-                    print(c)
             elif (opts.json):
                 if (lookupTag(c, json_tag_map)):
                     print(c)
-            else:
+            elif (opts.qsys):
+                if (lookupTag(c, qsys_tag_map)):
+                    print(c)
+            elif (opts.ipx):
+                if (lookupTag(c, qsys_ipx_tag_map)):
+                    print(c)
+            elif (tag is not None):
                 print('set_global_assignment -name {0} "{1}"'.format(tag, c))
 
 
@@ -264,6 +269,9 @@ These commands affect script parsing:
     group.add_argument("--qsys",
                        action="store_true",
                        help="""Emit only QSYS and IP file names.""")
+    group.add_argument("--ipx",
+                       action="store_true",
+                       help="""Emit only QSYS IPX file names.""")
     group.add_argument("--json",
                        action="store_true",
                        help="""Emit only JSON file names.""")
