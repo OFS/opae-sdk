@@ -5,7 +5,7 @@
          "Local memory is connected using a SystemVerilog interface (avalon_mm_if)."
       ],
    "parent": "ccip_std_afu",
-   "module-arguments" :
+   "module-ports" :
       [
          {
              "class": "local-memory",

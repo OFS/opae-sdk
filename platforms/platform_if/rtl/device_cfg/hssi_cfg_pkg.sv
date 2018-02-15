@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,35 +28,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-`include "platform_if.vh"
+`include "platform_afu_top_config.vh"
 
-// ************************************************************************
+`ifdef PLATFORM_PROVIDES_HSSI
+
 //
-// This module is obsolete.  Please simply use `PLATFORM_PARAM_CCI_P_CLOCK
-// to retrieve the CCI-P primary clock.
+// Platform-specific HSSI configuration.
 //
-// ************************************************************************
+// It is assumed that this package will NOT be wildcard imported.  The
+// package name serves as a prefix instead of making all symbols inside
+// the package long.
+//
 
-module ccip_if_clock
-   (
-    // CCI-P Clocks and Resets
-    input  logic pClk,
-    input  logic pClkDiv2,
-    input  logic pClkDiv4,
-    input  logic uClk_usr,
-    input  logic uClk_usrDiv2,
-    input  logic pck_cp2af_softReset,
+package hssi_cfg_pkg;
 
-    output logic clk,
-    output logic reset
-    );
+    parameter VERSION_NUMBER = 1;
 
-`ifdef PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
-    assign clk = pClk;
-`else
-    assign clk = `PLATFORM_PARAM_CCI_P_CLOCK;
-`endif
+    typedef enum
+    {
+        HSSI_BW_10G = 1,
+        HSSI_BW_4x10G = 2,
+        HSSI_BW_40G = 4,
+        HSSI_BW_2x40G = 8,
+        HSSI_BW_100G = 16
+    }
+    bw_mode_enum;
 
-    assign reset = pck_cp2af_softReset;
+    // Which modes are supported? (Bit mask)
+    parameter int BW_MODES = `PLATFORM_PARAM_HSSI_BANDWIDTH_OFFERED;
 
-endmodule // ccip_if_clock
+    // Characteristics of the raw HSSI interface
+    parameter int RAW_NUM_LANES = `PLATFORM_PARAM_HSSI_RAW_NUM_LANES;
+    parameter int RAW_LANE_WIDTH = `PLATFORM_PARAM_HSSI_RAW_LANE_WIDTH;
+
+endpackage // hssi_cfg_pkg
+
+`endif // PLATFORM_PROVIDES_HSSI

@@ -9,7 +9,7 @@
          "using either the preferred avalon_mm_if SystemVerilog interface object",
          "or with the legacy two-bank collection of Avalon wires."
       ],
-   "module-arguments-offered" :
+   "module-ports-offered" :
       [
          {
             "class": "clocks",
