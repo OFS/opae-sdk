@@ -27,14 +27,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-tests)
 
-##############################################################################
-############ Options #########################################################
-##############################################################################
-option(BUILD_ASE_TEST "Enable ASE compilation" OFF)
+option(BUILD_ASE_TEST "Build GTASE." OFF)
 mark_as_advanced(BUILD_ASE_TEST)
 
-message(STATUS "BUILD_GTAPI" ${BUILD_GTAPI})
-message(STATUS "BUILD_ASE_TESTS: ${BUILD_ASE_TEST}")
 ##############################################################################
 ## Setup GTEST ###############################################################
 ##############################################################################
@@ -62,7 +57,7 @@ include_directories(
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE)
+if(BUILD_ASE_TEST)
     add_definitions(-DBUILD_ASE)
 	          
 	target_link_libraries(commonlib opae-c-ase ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
@@ -159,7 +154,7 @@ endif()
 ## Build MOCK Driver   #####################################################
 ############################################################################
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE)
+if (NOT BUILD_ASE_TEST)
   Build_MOCk_DRV()
 endif()
 
