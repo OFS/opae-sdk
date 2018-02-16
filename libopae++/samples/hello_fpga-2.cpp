@@ -88,16 +88,16 @@ int main(int argc, char* argv[]) {
   }
 
   // allocate buffers
-  //auto dsm = accel->allocate(LPBK1_DSM_SIZE);
-  //auto inp = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
-  //auto out = accel->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+  auto dsm = accel->allocate_buffer(LPBK1_DSM_SIZE);
+  auto inp = accel->allocate_buffer(LPBK1_BUFFER_ALLOCATION_SIZE);
+  auto out = accel->allocate_buffer(LPBK1_BUFFER_ALLOCATION_SIZE);
 
   //// initialize buffers
-  //std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
-  //std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
-  //std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
+  std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
+  std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
+  std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
-  ////accel->reset();
+  accel->reset();
   //accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
   //accel->configure<uint32_t>({ 
   //  {CSR_CTL, static_cast<uint32_t>(0)},

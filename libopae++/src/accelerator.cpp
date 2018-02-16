@@ -61,6 +61,14 @@ dma_buffer::ptr_t accelerator::allocate_buffer(size_t size) {
   }
 }
 
+void accelerator::reset() {
+  if (handle_) {
+    handle_->reset();
+  } else {
+    throw except(FPGA_EXCEPTION, OPAECXX_HERE);
+  }
+}
+
 }  // end of namespace resource
 }  // end of namespace fpga
 }  // end of namespace opae

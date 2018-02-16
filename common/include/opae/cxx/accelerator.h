@@ -102,6 +102,13 @@ class accelerator {
    */
   opae::fpga::types::dma_buffer::ptr_t allocate_buffer(size_t size);
 
+  /**
+   * @fn        void accelerator::reset();
+   *
+   * @brief     Resets this accelerator object
+   */
+  void reset();
+
  private:
   opae::fpga::types::token::ptr_t token_;
   opae::fpga::types::properties::ptr_t props_;
