@@ -55,7 +55,8 @@ fpga_result fpgaGetOPAECVersion(fpga_version *version);
  *
  * @param[out]  version_str  String to copy version information into
  * @param[in]   len          Length of `version_str`
- * @returns FPGA_INVALID_PARAM if `version_str` is NULL, FPGA_OK otherwise.
+ * @returns FPGA_INVALID_PARAM if `version_str` is NULL, FPGA_EXCEPTION if the
+ * version string cannot be copied into `version_str`, FPGA_OK otherwise.
  */
 fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len);
 #define FPGA_VERSION_STR_MAX 10
@@ -67,7 +68,8 @@ fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len);
  *
  * @param[out]  build_str  String to copy build information into
  * @param[in]   len        Length of `build_str`
- * @returns FPGA_INVALID_PARAM if `build_str` is NULL, FPGA_OK otherwise.
+ * @returns FPGA_INVALID_PARAM if `build_str` is NULL, FPGA_EXCEPTION if the
+ * version string cannot be copied into `build_str`, FPGA_OK otherwise.
  */
 fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len);
 #define FPGA_BUILD_STR_MAX 41
