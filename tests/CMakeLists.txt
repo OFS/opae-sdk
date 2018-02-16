@@ -75,7 +75,8 @@ set(SRC gtmain.cpp
   function/gtEnumerate.cpp
   function/gtHostif.cpp
   function/gtMMIO.cpp
-  function/gtEvent.cpp)
+  function/gtEvent.cpp
+  function/gtVersion.cpp)
 
 add_executable(gtapi ${SRC})
 target_include_directories(gtapi PUBLIC
