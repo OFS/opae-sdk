@@ -35,22 +35,4 @@ set(PLATFORM_SHARE_DIR share/opae/platform)
 
 install(DIRECTORY ${PLATFORM_DIRS} DESTINATION ${PLATFORM_SHARE_DIR} COMPONENT platform)
 
-## All scripts from the scripts subdirectory
-set(PLATFORM_SCRIPTS
-        afu_platform_config
-        afu_synth_setup
-        rtl_src_config)
-
-foreach(SRC ${PLATFORM_SCRIPTS})
-  ## Substitute CMake variables of the form @<var>@ in the source file
-  ## and store the file in the build tree's bin directory.
-  configure_file(
-          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-          @ONLY NEWLINE_STYLE UNIX)
-  ## This forces the configure_file to be built for all targets
-  add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
-
-  install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-          DESTINATION bin
-          COMPONENT platform)
-endforeach(SRC)
+add_subdirectory(scripts)

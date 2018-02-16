@@ -40,10 +40,6 @@ module platform_shim_ccip
    (
     // CCI-P Clocks and Resets
     input  logic        pClk,                 // Primary CCI-P interface clock.
-    input  logic        pClkDiv2,             // Aligned, pClk divided by 2.
-    input  logic        pClkDiv4,             // Aligned, pClk divided by 4.
-    input  logic        uClk_usr,             // User clock domain. Refer to clock programming guide.
-    input  logic        uClk_usrDiv2,         // Aligned, user clock divided by 2.
     input  logic        pck_cp2af_softReset,  // CCI-P ACTIVE HIGH Soft Reset
 
     input  logic [1:0]  pck_cp2af_pwrState,   // CCI-P AFU Power State
@@ -54,6 +50,7 @@ module platform_shim_ccip
     output t_if_ccip_Tx pck_af2cp_sTx,
 
     // CCI-P structures (AFU side, AFU clock domain)
+    input  logic        afu_clk,
     output t_if_ccip_Rx afu_cp2af_sRx,
     input  t_if_ccip_Tx afu_af2cp_sTx,
     output logic        afu_cp2af_softReset,
@@ -70,9 +67,6 @@ module platform_shim_ccip
 `ifdef PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
     // AFU asked for default clock.
     localparam CCI_P_CHANGE_CLOCK = 0;
-    // Change the definition of the clock macro to "pClk" instead of "default"
-    `undef PLATFORM_PARAM_CCI_P_CLOCK
-    `define PLATFORM_PARAM_CCI_P_CLOCK pClk
 `elsif PLATFORM_PARAM_CCI_P_CLOCK_IS_PCLK
     // AFU asked for pClk explicitly.
     localparam CCI_P_CHANGE_CLOCK = 0;
@@ -183,7 +177,7 @@ module platform_shim_ccip
                 .bb_error(reg_cp2af_error),
 
                 .afu_softreset(afu_cp2af_softReset),
-                .afu_clk(`PLATFORM_PARAM_CCI_P_CLOCK),
+                .afu_clk(afu_clk),
                 .afu_tx(afu_af2cp_sTx),
                 .afu_rx(afu_cp2af_sRx),
                 .afu_pwrState(afu_cp2af_pwrState),
