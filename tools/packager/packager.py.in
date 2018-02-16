@@ -53,6 +53,7 @@ USAGE = """
 
 The following values for <cmd> are currently supported:
 \t help - displays this message
+\t version - displays the version of this tool
 \t create-gbs - creates GBS file from RBF and Accelerator Description File
 \t modify-gbs - modify metadata of existing GBS file using --set-value
 \t gbs-info - prints information about GBS file
