@@ -127,7 +127,7 @@ module platform_shim_ccip_std_afu
     logic afu_local_mem_clk[NUM_LOCAL_MEM_BANKS];
     logic afu_local_mem_reset[NUM_LOCAL_MEM_BANKS];
 
-    avalon_mem_if#(.ENABLE_LOG(1))
+    avalon_mem_if#(.ENABLE_LOG(0))
         afu_local_mem[NUM_LOCAL_MEM_BANKS](afu_local_mem_clk, afu_local_mem_reset);
 
     platform_shim_avalon_mem_if
