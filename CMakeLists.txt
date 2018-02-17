@@ -372,3 +372,20 @@ if(EXISTS ${RPMBUILD_EXECUTABLE})
     COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif(EXISTS ${RPMBUILD_EXECUTABLE})
+
+############################################################################
+## Python virtualenv #######################################################
+############################################################################
+find_package(PythonInterp REQUIRED)
+option(USE_VIRTUALENV "Install Python virtualenv in build directory" ON)
+if (USE_VIRTUALENV)
+    FIND_PYTHON_PKG(virtualenv WARNING)
+    if (virtualenv_FOUND)
+        execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_BINARY_DIR}
+            OUTPUT_QUIET RESULT_VARIABLE EXIT_CODE)
+        if (NOT EXIT_CODE)
+            set(PYTHON_VIRTUALENV ON INTERNAL)
+        endif(NOT EXIT_CODE)
+    endif(virtualenv_FOUND)
+endif (USE_VIRTUALENV)
