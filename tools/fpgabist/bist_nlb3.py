@@ -42,10 +42,11 @@ class Nlb3Mode(bc.BistMode):
         self.executables = {mode: params.format(mode) for mode in modes}
 
     def run(self, gbs_path, bus_num):
-        bc.load_gbs(gbs_path, bus_num)
+        bc.load_gbs(self, gbs_path, bus_num)
         for test, param in self.executables.items():
             print "Running fpgadiag {} test...\n".format(test)
-            cmd = "fpgadiag {}".format(param)
+            exec_cmd = os.path.join(self.cwd, 'fpgadiag')
+            cmd = "{} {}".format(exec_cmd, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
