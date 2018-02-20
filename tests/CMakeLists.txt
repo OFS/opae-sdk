@@ -36,7 +36,7 @@ mark_as_advanced(BUILD_ASE_TEST)
 include(test_config)
 find_package(GTest)
 
-If (${GTest_FOUND})
+If(${GTest_FOUND})
   message(STATUS Found GTest)
 else()
   Build_GTEST()
@@ -45,99 +45,22 @@ endif()
 ############################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
-add_library(commonlib SHARED common_test.h common_test.cpp)
+#add_library(commonlib SHARED common_test.h common_test.cpp)
 
-include_directories(
-					${OPAE_SDK_SOURCE}/tests
-	 				${Boost_INCLUDE_DIRS}
-					${libjson-c_INCLUDE_DIRS}
-					${OPAE_SDK_SOURCE}/common/include
-					${OPAE_SDK_SOURCE}/tools/libopae++
-					${OPAE_SDK_SOURCE}/tools/c++utils)
+#include_directories(
+#                    ${OPAE_SDK_SOURCE}/tests
+#                    ${Boost_INCLUDE_DIRS}
+#                    ${libjson-c_INCLUDE_DIRS}
+#                    ${OPAE_SDK_SOURCE}/common/include
+#                    ${OPAE_SDK_SOURCE}/tools/libopae++
+#                    ${OPAE_SDK_SOURCE}/tools/c++utils)
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
 if(BUILD_ASE_TEST)
-    add_definitions(-DBUILD_ASE)
-	          
-	target_link_libraries(commonlib opae-c-ase ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
-	target_include_directories(commonlib PUBLIC
-	  						   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	  						   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	  						   $<INSTALL_INTERFACE:include>
-	  						   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/api/src>)	  						   
-
-	set(ASE_SRC gtmain.cpp jsonParser.cpp
-				  unit/gtOpenClose_base.cpp
-				  unit/gtProperties_base.cpp
-				  unit/gtOpen.cpp
-				  unit/gtEnumerate.cpp
-				  unit/gtOptionParser.cpp
-				  function/gtReset.cpp
-				  function/gtBuffer.cpp
-				  function/gtEnumerate.cpp
-				  function/gtMMIO.cpp)
-				  
-	add_executable(gtase ${ASE_SRC})
-	target_include_directories(gtase PUBLIC
-	  						   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	  						   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	  						   $<INSTALL_INTERFACE:include>
-	  						   PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/api/src>)
-	  		
-	target_link_libraries(gtase commonlib safestr opae-c-ase ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
-	  						
-	if(CMAKE_THREAD_LIBS_INIT)
-  		target_link_libraries(gtase "${CMAKE_THREAD_LIBS_INIT}")
-    endif()
-
-    if(THREADS_HAVE_PTHREAD_ARG)
-  		target_compile_options(PUBLIC gtase "-pthread")		
-	endif()
+     Build_Test_Target(gtase opae-c-ase)
 else()
-	target_link_libraries(commonlib opae-c ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES})
-	target_include_directories(commonlib PUBLIC
-	  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	  $<INSTALL_INTERFACE:include>
-	  PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-	
-	# Test binary
-	set(SRC gtmain.cpp
-		  jsonParser.cpp
-		  unit/gtOpenClose_base.cpp
-		  unit/gtProperties_base.cpp
-		  unit/gtOpen.cpp
-		  unit/gtEnumerate.cpp
-		  unit/gtOptionParser.cpp
-		  function/gtReset.cpp
-		  function/gtUmsg.cpp
-		  function/gtBuffer.cpp
-		  function/gtEnumerate.cpp
-		  function/gtHostif.cpp
-		  function/gtMMIO.cpp
-		  function/gtEvent.cpp)
-	
-	add_executable(gtapi ${SRC})
-	
-	target_include_directories(gtapi PUBLIC
-	  		$<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	  		$<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	  		$<INSTALL_INTERFACE:include>
-	  		PRIVATE $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/libopae/src>)
-	  		
-	target_link_libraries(gtapi commonlib safestr opae-c ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
-	  			   
-	if(THREADS_HAVE_PTHREAD_ARG)
-  		target_compile_options(PUBLIC commonlib "-pthread")
-  		target_compile_options(PUBLIC gtapi "-pthread")
-	endif()
-
-	if(CMAKE_THREAD_LIBS_INIT)
-	  	target_link_libraries(gtapi "${CMAKE_THREAD_LIBS_INIT}")
-	endif()
+    Build_Test_Target(gtapi opae-c)
 endif()
 
 ############################################################################
@@ -147,9 +70,6 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
   			   ${CMAKE_BINARY_DIR}/tests/configuration.json
   			   COPYONLY)
   			   
-if(THREADS_HAVE_PTHREAD_ARG)
-  		target_compile_options(PUBLIC commonlib "-pthread")
-endif()
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
