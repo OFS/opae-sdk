@@ -77,7 +77,7 @@ static struct mock_dev {
 	int valid;
 	fpga_objtype objtype;
 	char pathname[MAX_STRLEN];
-} mock_devs[MAX_FD] = {0};
+} mock_devs[MAX_FD] = {{0}};
 
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
