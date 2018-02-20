@@ -42,18 +42,6 @@ else()
   Build_GTEST()
 endif()
 
-############################################################################
-#### COMMON for GTAPI & GTASE ##############################################
-############################################################################
-#add_library(commonlib SHARED common_test.h common_test.cpp)
-
-#include_directories(
-#                    ${OPAE_SDK_SOURCE}/tests
-#                    ${Boost_INCLUDE_DIRS}
-#                    ${libjson-c_INCLUDE_DIRS}
-#                    ${OPAE_SDK_SOURCE}/common/include
-#                    ${OPAE_SDK_SOURCE}/tools/libopae++
-#                    ${OPAE_SDK_SOURCE}/tools/c++utils)
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
@@ -67,9 +55,9 @@ endif()
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
-  			   ${CMAKE_BINARY_DIR}/tests/configuration.json
-  			   COPYONLY)
-  			   
+               ${CMAKE_BINARY_DIR}/tests/configuration.json
+               COPYONLY)
+
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################

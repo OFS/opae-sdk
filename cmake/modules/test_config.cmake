@@ -116,7 +116,7 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-	endif()         
+    endif()         
 	
     target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
                           ${libjson-c_LIBRARIES})
@@ -136,13 +136,13 @@ function(Build_Test_Target Target_Name Target_LIB)
 	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
 	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
 	  						
-	if(CMAKE_THREAD_LIBS_INIT)
+    if(CMAKE_THREAD_LIBS_INIT)
   		target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 
     if(THREADS_HAVE_PTHREAD_ARG)
         target_compile_options(PUBLIC commonlib "-pthread")
-  		target_compile_options(PUBLIC ${Target_Name} "-pthread")		
+        target_compile_options(PUBLIC ${Target_Name} "-pthread")		
     endif()
 
 endfunction(Build_Test_Target)

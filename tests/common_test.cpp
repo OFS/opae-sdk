@@ -39,11 +39,7 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#ifdef BUILD_ASE
 #include "types_int.h"
-#else
-#include "types_int.h"
-#endif
 #include "common_test.h"
 #include "safe_string/safe_string.h"
 
