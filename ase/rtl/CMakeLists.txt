@@ -62,12 +62,25 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
   set(ALTERA_MEGAFUNCTIONS    "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf" )
 
   # Create ASE scripts
-  configure_file(${CMAKE_SOURCE_DIR}/in/ase.cfg.in
-    ${PROJECT_BINARY_DIR}/ase.cfg)
-  configure_file(${CMAKE_SOURCE_DIR}/in/ase_regress.sh.in
-    ${PROJECT_BINARY_DIR}/ase_regress.sh)
-  configure_file(${CMAKE_SOURCE_DIR}/in/vsim_run.tcl.in
-    ${PROJECT_BINARY_DIR}/vsim_run.tcl)
+  if(EXISTS ${CMAKE_SOURCE_DIR}/in/ase.cfg.in)
+    configure_file(${CMAKE_SOURCE_DIR}/in/ase.cfg.in
+      ${PROJECT_BINARY_DIR}/ase.cfg)
+    configure_file(${CMAKE_SOURCE_DIR}/in/ase_regress.sh.in
+      ${PROJECT_BINARY_DIR}/ase_regress.sh)
+    configure_file(${CMAKE_SOURCE_DIR}/in/vsim_run.tcl.in
+      ${PROJECT_BINARY_DIR}/vsim_run.tcl)
+    configure_file(${CMAKE_SOURCE_DIR}/in/ase_server.in
+            ${PROJECT_BINARY_DIR}/ase_server)
+  else()
+    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase.cfg.in
+            ${PROJECT_BINARY_DIR}/ase.cfg)
+    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase_regress.sh.in
+            ${PROJECT_BINARY_DIR}/ase_regress.sh)
+    configure_file(${CMAKE_SOURCE_DIR}/ase/in/vsim_run.tcl.in
+            ${PROJECT_BINARY_DIR}/vsim_run.tcl)
+    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase_server.in
+            ${PROJECT_BINARY_DIR}/ase_server)
+  endif()
 
   set(questa_flags "")
   list(APPEND questa_flags +define+VENDOR_ALTERA)
@@ -143,8 +156,6 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
     DEPENDS vlog)
 
   # Create simulation application
-  configure_file(${CMAKE_SOURCE_DIR}/in/ase_server.in
-    ${PROJECT_BINARY_DIR}/ase_server)
   file(COPY ${PROJECT_BINARY_DIR}/ase_server
     DESTINATION ${CMAKE_BINARY_DIR}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ

@@ -26,8 +26,10 @@
 
 ## Install target for ASE support files
 project(ase)
+include(cmake_dev_config)
 set(OPAE_SHARE_DIR share/opae)
-set(ASE_SHARE_DIR  share/opae/ase)
+
+set(ASE_SHARE_DIR  ${OPAE_SHARE_DIR}/ase)
 set(ASE_SAMPLES    ${ASE_SHARE_DIR}/samples)
 add_subdirectory(api)
 
@@ -49,50 +51,13 @@ configure_file(${PROJECT_SOURCE_DIR}/in/sources_abs.txt.in
 install(FILES ${PROJECT_BINARY_DIR}/rtl/sources_abs.txt
   DESTINATION ${ASE_SHARE_DIR}/rtl
   COMPONENT aseextra)
+add_subdirectory(rtl)
 
-# Samples
-configure_file(${PROJECT_SOURCE_DIR}/samples/intg_xeon_nlb/sources.txt
-  ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb/sources.txt)
-configure_file(${PROJECT_SOURCE_DIR}/samples/intg_xeon_nlb/ccip_std_afu.json
-  ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb/ccip_std_afu.json)
-install(FILES ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb/sources.txt
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
-install(FILES ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb/ccip_std_afu.json
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
-file(COPY ${PROJECT_SOURCE_DIR}/samples/intg_xeon_nlb/src
-  DESTINATION ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb)
-install(DIRECTORY ${PROJECT_BINARY_DIR}/samples/intg_xeon_nlb/src
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
+# ASE server
+add_subdirectory(sw)
 
-# Post-installation Development scripts
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/compiler_config.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/libraries_config.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/Findjson-c.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindRT.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindUUID.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindOPAE.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuesta.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuartus.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+# ASE samples
+add_subdirectory(samples)
 
 # Extra platform scripts
 set(EXTRA_ASE_FILES
