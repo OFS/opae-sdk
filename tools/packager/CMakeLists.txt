@@ -36,7 +36,11 @@ FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
 set(PKG_COMMON_FILES
     afu.py gbs.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json)
 
-set(PKG_PYTHON_FILES packager.py ${PKG_COMMON_FILES} README)
+################# generate the py file for the packager ########################
+configure_file(packager.py.in packager.py @ONLY)
+
+set(${CMAKE_CURRENT_BINARY_DIR}/packager.py ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
+set(PKG_PYTHON_FILES ${CMAKE_CURRENT_BINARY_DIR}/packager.py ${PKG_COMMON_FILES} README)
 CREATE_PYTHON_EXE(packager packager ${PKG_PYTHON_FILES})
 set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
 

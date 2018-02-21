@@ -38,6 +38,7 @@ from metadata import metadata
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
+VERSION = "@INTEL_FPGA_API_VERSION@"
 
 try:
     assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
@@ -52,6 +53,7 @@ USAGE = """
 
 The following values for <cmd> are currently supported:
 \t help - displays this message
+\t version - displays the version of this tool
 \t create-gbs - creates GBS file from RBF and Accelerator Description File
 \t modify-gbs - modify metadata of existing GBS file using --set-value
 \t gbs-info - prints information about GBS file
@@ -67,12 +69,14 @@ def run_packager():
     parser.add_argument("remain_args", nargs=argparse.REMAINDER)
     args = parser.parse_args(sys.argv[1:])
     cmd_description = "{0} {1}".format(PACKAGER_EXEC, args.cmd)
-    subparser = argparse.ArgumentParser(description=cmd_description)
+    subparser = argparse.ArgumentParser()
     subparser._optionals.title = 'Options'
 
     if args.cmd == "help" or not args.cmd:
         print(USAGE)
 
+    elif args.cmd == "version":
+        print("{0}: version {1}".format(DESCRIPTION, VERSION))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
