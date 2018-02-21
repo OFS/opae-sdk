@@ -39,6 +39,7 @@ FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
 
 def main(args):
     bdf = bist_common.get_all_fpga_bdfs()
+    cwd = os.path.dirname(os.path.realpath(__file__))
     if not bdf:
         sys.exit("No FPGA devices found")
     elif len(bdf) > 1 and not any([args.bus, args.device, args.function]):
@@ -59,7 +60,8 @@ def main(args):
 
     # Display data from FPGA info
     for feature in FEATURES:
-        cmd = "fpgainfo {} -b {}".format(feature, bdf['bus'])
+        func = os.path.join(cwd, 'fpgainfo')
+        cmd = "{} {} -b {}".format(func, feature, bdf['bus'])
         subprocess.call(cmd, shell=True)
 
     gbs_paths = args.gbs_paths

@@ -78,9 +78,10 @@ def get_mode_from_path(gbs_path):
     return None
 
 
-def load_gbs(gbs_file, bus_num):
+def load_gbs(obj, gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    cmd = "{} -b 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
+    conf_cmd = os.path.join(obj.cwd, 'fpgaconf')
+    cmd = "{} -b 0x{} -v {}".format(conf_cmd, bus_num, gbs_file)
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
@@ -93,6 +94,7 @@ class BistMode(object):
     name = ""
     executables = {}
     dir_path = ""
+    cwd = os.path.dirname(os.path.realpath(__file__))
 
     def run(self, gbs_path, bus_num):
         raise NotImplementedError
