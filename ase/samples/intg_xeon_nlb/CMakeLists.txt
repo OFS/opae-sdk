@@ -24,10 +24,25 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-# ASE samples
+project("opae-c-ase-samples-nlb")
 
-cmake_minimum_required(VERSION 2.8.12)
-project("opae-c-ase-samples")
+configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
+        ${PROJECT_BINARY_DIR}/sources.txt)
 
-add_subdirectory(intg_xeon_nlb)
+configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
+        ${PROJECT_BINARY_DIR}/to_install/sources.txt)
+install(FILES ${PROJECT_BINARY_DIR}/to_install/sources.txt
+        DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+        COMPONENT aseextra)
 
+configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
+        ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
+install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
+        DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+        COMPONENT aseextra)
+
+file(COPY ${PROJECT_SOURCE_DIR}/src
+        DESTINATION ${PROJECT_BINARY_DIR})
+install(DIRECTORY ${PROJECT_BINARY_DIR}/src
+        DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+        COMPONENT aseextra)

@@ -27,12 +27,19 @@
 ## Install target for ASE support files
 project(ase)
 include(cmake_dev_config)
-set(OPAE_SHARE_DIR share/opae)
 
-set(ASE_SHARE_DIR  ${OPAE_SHARE_DIR}/ase)
-set(ASE_SAMPLES    ${ASE_SHARE_DIR}/samples)
-add_subdirectory(api)
+set(OPAE_SHARE_DIR     share/opae)
+set(OPAE_BASE_DIR      ${CMAKE_SOURCE_DIR})
 
+set(ASE_SHARE_DIR      ${OPAE_SHARE_DIR}/ase)
+set(ASE_SAMPLES        ${ASE_SHARE_DIR}/samples)
+set(ASE_SCRIPTS_IN     ${PROJECT_SOURCE_DIR}/in)
+
+set(PLATFORM_SHARE_DIR ${OPAE_SHARE_DIR}/platform)
+set(PLATFORM_IF_DIR    ${PLATFORM_SHARE_DIR}/platform_if)
+set(PLATFORM_IF_RTL    ${PLATFORM_IF_DIR}/rtl)
+
+# Install some directories
 install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
 install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
 install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
@@ -45,13 +52,11 @@ install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
   DESTINATION ${ASE_SHARE_DIR}
   COMPONENT asescripts)
 
-# CCIP base RTL code
-configure_file(${PROJECT_SOURCE_DIR}/in/sources_abs.txt.in
-  ${PROJECT_BINARY_DIR}/rtl/sources_abs.txt)
-install(FILES ${PROJECT_BINARY_DIR}/rtl/sources_abs.txt
-  DESTINATION ${ASE_SHARE_DIR}/rtl
-  COMPONENT aseextra)
+# ASE RTL code
 add_subdirectory(rtl)
+
+# ASE client
+add_subdirectory(api)
 
 # ASE server
 add_subdirectory(sw)

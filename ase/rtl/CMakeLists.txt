@@ -27,6 +27,13 @@
 cmake_minimum_required(VERSION 2.8.12)
 project("opae-c-ase-platform")
 
+# CCIP base RTL code
+configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
+        ${PROJECT_BINARY_DIR}/sources_abs.txt)
+install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
+        DESTINATION ${ASE_SHARE_DIR}/rtl
+        COMPONENT aseextra)
+
 # find afu_sim_setup
 find_program(AFU_PLATFORM_CONFIG
   NAMES
@@ -39,11 +46,6 @@ find_program(AFU_PLATFORM_CONFIG
 
 # Directories
 set(ASE_SERVER_RTL     ${PROJECT_SOURCE_DIR})
-set(ASE_SCRIPTS_IN     ${PROJECT_SOURCE_DIR}/../in)
-
-set(PLATFORM_SHARE_DIR ${CMAKE_SOURCE_DIR}/../platform)
-set(PLATFORM_IF_DIR    ${PLATFORM_SHARE_DIR}/platform_if)
-set(PLATFORM_IF_RTL    ${PLATFORM_IF_DIR}/rtl/device_if)
 
 ## Verilog compilation
 set(VLOG_SRC_LIST
