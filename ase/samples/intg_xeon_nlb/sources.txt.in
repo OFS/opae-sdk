@@ -15,7 +15,8 @@ $QUARTUS_HOME/eda/sim_lib/altera_lnsim.sv
 $QUARTUS_HOME/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
 
 # Required include directories
-+incdir+.+@OPAE_BASE_DIR@/@ASE_SAMPLES@/intg_xeon_nlb/src++incdir+.+./platform_includes+@OPAE_BASE_DIR@/@PLATFORM_IF_RTL@
++incdir+@OPAE_BASE_DIR@/@ASE_SAMPLES@/intg_xeon_nlb/src
++incdir+.+./platform_includes+@OPAE_BASE_DIR@/@PLATFORM_IF_RTL@
 
 # Required defines for NLB
 +define+NUM_AFUS=1 +define+NLB400_MODE_0
