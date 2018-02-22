@@ -75,8 +75,8 @@ def run_packager():
         print(USAGE)
 
     elif args.cmd == "version":
-        print("{0}: version {1}"
-            .format(DESCRIPTION, version.get_full_version()))
+        print("{0}: version {1}".format(DESCRIPTION,
+                                        version.get_full_version()))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
