@@ -256,18 +256,17 @@ int main(int argc, char *argv[])
         /* Perform BIST Check */
 	printf("Running BIST Test\n");
         uint64_t data = 0;
-        uint64_t fpga_res = 0;
         double count = 0;
         unsigned int bist_mask = ENABLE_DDRA_BIST;
         unsigned int ddra_bist_result = 0;
 
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 
-        fpga_res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR,&data);
+        fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR,&data);
 	while((CHECK_BIT(data,27) != 0x08000000)){
-	  printf("Enable Test: reading result #%f: %04x\n", count, data);
+	  printf("Enable Test: reading result #%f: %04x\n", count, (unsigned int)data);
 	  if (count >= MAX_COUNT){
-		printf(stderr, "BIST not enabled!\n");
+		fprintf(stderr, "BIST not enabled!\n");
                 return -1;
           }
 	  count++;
@@ -278,10 +277,10 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
         while ((CHECK_BIT(data,9) != 0x200) && (CHECK_BIT(data,8) != 0x100) && (CHECK_BIT(data,7) != 0x80) && 
             (CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
-          fpga_res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
+          fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
                  &data); 
           if (count >= MAX_COUNT){
-		printf(stderr, "DDR Bank A BIST Timed Out.\n");
+		fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
                 break;
           }
           count++;
@@ -304,10 +303,10 @@ int main(int argc, char *argv[])
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
         while ((CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
-          fpga_res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
+          fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
                  &data); 
           if (count >= MAX_COUNT){
-		printf(stderr, "DDR Bank B BIST Timed Out.\n");
+		fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
                 break;
           }
           count++;

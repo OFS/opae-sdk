@@ -1,5 +1,6 @@
 FPGABIST tool
 Built-in Self-Test
+* This application needs to be run with root permissions
 
 Requirements:
 The following binaries must be able to be found in your system path
