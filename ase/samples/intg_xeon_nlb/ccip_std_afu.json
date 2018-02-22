@@ -9,9 +9,9 @@
       "accelerator-clusters":
          [
             {
-               "name": "cci_hello",
+               "name": "cci_nlb0",
                "total-contexts": 1,
-               "accelerator-type-uuid": "c6aa954a-9b91-4a37-abc1-1d9f0709dcc3"
+               "accelerator-type-uuid": "D8424DC4-A4A3-C413-F89E-433683F9040B"
             }
          ]
    }

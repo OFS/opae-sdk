@@ -24,16 +24,24 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.12)
-project(ase-server)
-set(CMAKE_MODULE_PATH "@CMAKE_INSTALL_PREFIX@/@OPAE_SHARE_DIR@/cmake/modules")
+set(ASE_SHARE_DIR      ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
+set(ASE_SAMPLES        ${ASE_SHARE_DIR}/samples)
+set(ASE_SCRIPTS_IN     ${ASE_SHARE_DIR}/in)
 
-include(compiler_config)
-include(libraries_config)
+set(PLATFORM_SHARE_DIR ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/platform)
+set(PLATFORM_IF_DIR    ${PLATFORM_SHARE_DIR}/platform_if)
+set(PLATFORM_IF_RTL    ${PLATFORM_IF_DIR}/rtl)
 
-set(OPAE_BASE_DIR      @CMAKE_INSTALL_PREFIX@)
-set(OPAE_SHARE_DIR     share/opae)
-include(ase_variables_config)
+set(ASE_SIMULATOR "QUESTA" CACHE STRING "SystemVerilog simulator tool")
+set(ASE_PLATFORM "FPGA_PLATFORM_INTG_XEON" CACHE STRING "FPGA platform")
+set(ASE_PLATFORM_IF "ccip_std_afu" CACHE STRING "AFU interface type")
+set(ASE_TIMESCALE "1ps/1ps" CACHE STRING "Simulator time-scale")
+set(ASE_PROJECT_SOURCES "sources.txt" CACHE STRING "AFU sources input file")
+set(ASE_DISCRETE_EMIF_MODEL "EMIF_MODEL_BASIC" CACHE STRING "ASE EMIF discrete memory model")
+set(ASE_TOP_ENTITY "ase_top" CACHE STRING "Top entity for the ASE testbench")
 
-add_subdirectory(rtl)
-add_subdirectory(sw)
+if(ASE_PLATFORM STREQUAL "FPGA_PLATFORM_INTG_XEON")
+    set(ASE_PLATFORM_ABBREV "intg_xeon")
+else()
+    set(ASE_PLATFORM_ABBREV "discrete")
+endif()

@@ -60,29 +60,21 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
   find_package(Questa)
   set(ASE_WORKDIR             "${PROJECT_BINARY_DIR}")
   set(ASE_CONFIG              "${PROJECT_BINARY_DIR}/ase.cfg")
-  set(ASE_SCRIPT              "${PROJECT_BINARY_DIR}/ase_regress.sh")
+  set(ASE_REGRESS_SCRIPT      "${PROJECT_BINARY_DIR}/ase_regress.sh")
+  set(ASE_SERVER_SCRIPT       "${PROJECT_BINARY_DIR}/ase_server.sh")
+  set(ASE_SIMULATION_SCRIPT   "${PROJECT_BINARY_DIR}/vsim_run.tcl")
+
   set(ALTERA_MEGAFUNCTIONS    "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf" )
 
   # Create ASE scripts
-  if(EXISTS ${CMAKE_SOURCE_DIR}/in/ase.cfg.in)
-    configure_file(${CMAKE_SOURCE_DIR}/in/ase.cfg.in
-      ${PROJECT_BINARY_DIR}/ase.cfg)
-    configure_file(${CMAKE_SOURCE_DIR}/in/ase_regress.sh.in
-      ${PROJECT_BINARY_DIR}/ase_regress.sh)
-    configure_file(${CMAKE_SOURCE_DIR}/in/vsim_run.tcl.in
-      ${PROJECT_BINARY_DIR}/vsim_run.tcl)
-    configure_file(${CMAKE_SOURCE_DIR}/in/ase_server.in
-            ${PROJECT_BINARY_DIR}/ase_server)
-  else()
-    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase.cfg.in
-            ${PROJECT_BINARY_DIR}/ase.cfg)
-    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase_regress.sh.in
-            ${PROJECT_BINARY_DIR}/ase_regress.sh)
-    configure_file(${CMAKE_SOURCE_DIR}/ase/in/vsim_run.tcl.in
-            ${PROJECT_BINARY_DIR}/vsim_run.tcl)
-    configure_file(${CMAKE_SOURCE_DIR}/ase/in/ase_server.in
-            ${PROJECT_BINARY_DIR}/ase_server)
-  endif()
+  configure_file(${ASE_SCRIPTS_IN}/ase.cfg.in
+          ${ASE_CONFIG})
+  configure_file(${ASE_SCRIPTS_IN}/ase_regress.sh.in
+          ${ASE_REGRESS_SCRIPT})
+  configure_file(${ASE_SCRIPTS_IN}/vsim_run.tcl.in
+          ${ASE_SIMULATION_SCRIPT})
+  configure_file(${ASE_SCRIPTS_IN}/ase_server.in
+          ${PROJECT_BINARY_DIR}/tmp/ase_server.sh)
 
   set(questa_flags "")
   list(APPEND questa_flags +define+VENDOR_ALTERA)
@@ -158,8 +150,8 @@ if(ASE_SIMULATOR STREQUAL "QUESTA")
     DEPENDS vlog)
 
   # Create simulation application
-  file(COPY ${PROJECT_BINARY_DIR}/ase_server
-    DESTINATION ${CMAKE_BINARY_DIR}
+  file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
+    DESTINATION ${PROJECT_BINARY_DIR}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
     GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
