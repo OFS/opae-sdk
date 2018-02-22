@@ -155,6 +155,7 @@ add_subdirectory(samples)
 
 option(BUILD_TESTS "Enable tests compilation" OFF)
 mark_as_advanced(BUILD_TESTS)
+
 if(BUILD_TESTS)
   enable_testing()
   include(CTest)
