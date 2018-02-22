@@ -27,17 +27,22 @@
 
 import sys
 
+
 def get_full_version():
     return "@INTEL_FPGA_API_VERSION@"
+
 
 def get_major_version():
     return "@INTEL_FPGA_API_VER_MAJOR@"
 
+
 def get_minor_version():
     return "@INTEL_FPGA_API_VER_MINOR@"
 
+
 def get_revision():
     return "@INTEL_FPGA_API_VER_REV@"
+
 
 def main():
     print("FPGA API Version: {0}".format("@INTEL_FPGA_API_VERSION@"))
