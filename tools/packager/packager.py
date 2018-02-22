@@ -32,7 +32,7 @@ import shutil
 import argparse
 import json
 import utils
-import version  # pylint: disable=unused-import
+import version  # pylint: disable=import-error
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
