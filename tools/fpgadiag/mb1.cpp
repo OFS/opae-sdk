@@ -314,7 +314,7 @@ bool mb1::run()
 
     if (target_ == "ase")
     { // give ASE time to catch up.
-        sleep(5);
+      std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 
     // set input workspace address

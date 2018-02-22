@@ -23,8 +23,6 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-find_package(Boost 1.41.0)
-
 if(BUILD_ASE)
   add_definitions(-DTARGET_ASE)
 endif()
@@ -34,7 +32,6 @@ include_directories(
     ${OPAE_INCLUDE_DIR}
     ${OPAE_SDK_SOURCE}/tools/c++utils
     ${OPAE_SDK_SOURCE}/tools/libopae++
-    ${Boost_INCLUDE_DIRS}
     )
 
 add_library(opae-c++-nlb SHARED nlb.h
@@ -78,7 +75,7 @@ endif(NUMA_LIB)
 
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
-    target_link_libraries(${target_name} opae-c++-utils uuid pthread ${Boost_LIBRARIES} opae-c opae-c++ opae-c++-nlb)
+    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c opae-c++ opae-c++-nlb)
     set_install_rpath(${target_name})
 endmacro(add_fpgadiag_app target_name sources)
 
