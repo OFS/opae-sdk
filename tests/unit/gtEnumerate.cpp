@@ -34,11 +34,7 @@ extern "C" {
 #include "accelerator.h"
 #include "gtest/gtest.h"
 #include "option_map.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 
 using namespace intel::fpga;
 using namespace intel::utils;
