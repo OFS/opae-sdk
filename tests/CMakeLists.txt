@@ -69,6 +69,7 @@ set(SRC gtmain.cpp
   unit/gtOpen.cpp
   unit/gtEnumerate.cpp
   unit/gtOptionParser.cpp
+  unit/gtAnyValue.cpp
   function/gtReset.cpp
   function/gtUmsg.cpp
   function/gtBuffer.cpp
@@ -115,6 +116,11 @@ set_tests_properties(
   test_open_common_mock_drv
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
+add_test(NAME test_any_value
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
+
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
