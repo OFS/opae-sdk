@@ -32,7 +32,7 @@ import shutil
 import argparse
 import json
 import utils
-import version
+import version  # pylint: disable=unused-import
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
@@ -76,7 +76,7 @@ def run_packager():
 
     elif args.cmd == "version":
         print("{0}: version {1}".format(DESCRIPTION,
-                                        version.get_full_version()))
+                                        version.get_full_version())) # pylint: disable=no-member
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
