@@ -27,11 +27,7 @@ must be express and approved by Intel in writing.
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 
 using namespace common_test;
 

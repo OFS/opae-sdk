@@ -39,11 +39,8 @@ void aal_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t* guid);
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
+
 #define DECLARE_GUID(var, ...) uint8_t var[16] = {__VA_ARGS__};
 
 using namespace common_test;
