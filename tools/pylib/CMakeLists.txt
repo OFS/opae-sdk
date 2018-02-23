@@ -31,22 +31,7 @@ include(packaging)
 include(FindPythonPackage)
 FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
 
-################# generate executable python zip files ########################
+################# generate the py file for the version provider ########################
+configure_file(version.py.in version.py @ONLY)
 
-set(PKG_COMMON_FILES VERSION_PY
-    afu.py gbs.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json)
-
-set(PKG_PYTHON_FILES packager.py ${PKG_COMMON_FILES} README)
-CREATE_PYTHON_EXE(packager packager ${PKG_PYTHON_FILES})
-set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
-
-set(AFU_JSON_MGR_FILES afu_json_mgr.py ${PKG_COMMON_FILES} schema/afu_template.json)
-CREATE_PYTHON_EXE(afu_json_mgr afu_json_mgr ${AFU_JSON_MGR_FILES})
-list(APPEND PACKAGER_BIN_LIST ${PACKAGER_BIN})
-
-
-################# install executable python zip files ######################## 
-
-install(PROGRAMS ${PACKAGER_BIN_LIST}
-        DESTINATION bin
-        COMPONENT toolpackager)
+set(VERSION_PY ${CMAKE_CURRENT_BINARY_DIR}/version.py version.py PARENT_SCOPE)

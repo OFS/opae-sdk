@@ -114,6 +114,7 @@ if(BUILD_LIBOPAE_C)
 endif()
 
 add_subdirectory(platforms)
+add_subdirectory(tools/pylib)
 add_subdirectory(tools/userclk)
 add_subdirectory(tools/fpgad)
 add_subdirectory(tools/ras)
