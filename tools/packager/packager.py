@@ -77,12 +77,8 @@ def run_packager():
         print(USAGE)
 
     elif args.cmd == "version":
-        try:
-            cmd = shlex.split("git log -1 --oneline")
-            p = Popen(cmd, stdout=PIPE).communicate()[0]
-            version = p.split(" ")[0] if VERSION.startswith("@") else VERSION
-        except OSError:
-            version = "UNKNOWN"
+        p = subprocess.check_output('git describe --tags', shell=True)
+        version = p.split()[0] if VERSION.startswith("@") else VERSION
         print("{0}: version {1}".format(DESCRIPTION, version))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
