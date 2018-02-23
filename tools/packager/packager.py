@@ -38,6 +38,7 @@ from metadata import metadata
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
+VERSION = "@INTEL_FPGA_API_VERSION@"
 
 try:
     assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
@@ -73,6 +74,8 @@ def run_packager():
     if args.cmd == "help" or not args.cmd:
         print(USAGE)
 
+    elif args.cmd == "version":
+        print("{0}: version {1}".format(DESCRIPTION, VERSION))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
