@@ -36,6 +36,7 @@
 #include <map>
 #include <random>
 #include <string>
+#include <string.h>
 
 
 #include <json-c/json.h>
@@ -46,11 +47,7 @@
 #include <opae/fpga.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 #include <sys/mman.h>
 #include <types_int.h>
 
@@ -184,7 +181,7 @@ namespace common_test {
 
 inline void token_for_fme0(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-            memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
+         memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
 	    _tok->magic = ASE_TOKEN_MAGIC;
 	    _tok->ase_objtype=FPGA_DEVICE;
 #else
@@ -231,14 +228,15 @@ inline void token_for_invalid(struct _fpga_token* _tok) {
 inline bool token_is_fme0(fpga_token t) {
   struct _fpga_token* _t = (struct _fpga_token*)t;
 
-  int indicator = 0;
-  signed retval = 0;
 #ifdef BUILD_ASE
 	    if(_t->magic != ASE_TOKEN_MAGIC)
 		return 0;
 	    else
 	        return ((0 == memcmp(_t->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid))));
 #else
+  int indicator = 0;
+  signed retval = 0;
+
   if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
                SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
                &indicator)) {
@@ -260,14 +258,16 @@ inline bool token_is_fme0(fpga_token t) {
 inline bool token_is_afu0(fpga_token t) {
   struct _fpga_token* _t = (struct _fpga_token*)t;
 
-  int indicator = 0;
-  signed retval = 0;
+
 #ifdef BUILD_ASE
 	     if(_t->magic != ASE_TOKEN_MAGIC)
 		 return 0;
 	     else
 	         return ((0 == memcmp(_t->accelerator_id,ASE_GUID, sizeof(fpga_guid))));
 #else
+  int indicator = 0;
+  signed retval = 0;
+
   if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
                SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
                &indicator)) {

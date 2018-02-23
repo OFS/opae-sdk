@@ -39,11 +39,7 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 #include "common_test.h"
 #include "safe_string/safe_string.h"
 
@@ -630,7 +626,10 @@ fpga_result loadBitstream(const char* path, fpga_token tok) {
   EXPECT_TRUE(checkReturnCodes(fpgaDestroyToken(&toktemp), LINE(__LINE__)));
   free(bsbuffer);
   return result;
-  #endif
+#else
+  cout << "Bit stream path: " << path <<endl;
+  return FPGA_OK; // Do nothing for ASE
+#endif
 }
 
 // bus number shall be passed in from the command line
