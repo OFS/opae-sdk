@@ -104,11 +104,24 @@ TEST(CxxCommonAll, any_value_05) {
  * @test       any_value_06
  *
  * @brief      Given an any_value variable assigned from an int value<br>
- *             When I check if the type is int
+ *             When I check if the type is int<br>
  *             Then the result is true<br>
  *
  */
 TEST(CxxCommonAll, any_value_06) {
   any_value a = static_cast<int>(100);
   EXPECT_TRUE(a.is_type<int>());
+}
+
+/**
+ * @test       any_value_07
+ *
+ * @brief      Given an any_value variable assigned from an int value<br>
+ *             When I check if the type is a type other than int<br>
+ *             Then the result is false<br>
+ *
+ */
+TEST(CxxCommonAll, any_value_07) {
+  any_value a = static_cast<int>(100);
+  EXPECT_FALSE(a.is_type<std::string>());
 }
