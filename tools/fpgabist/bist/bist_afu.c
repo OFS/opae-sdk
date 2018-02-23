@@ -188,8 +188,6 @@ int main(int argc, char *argv[])
 			   (void **)&output_ptr, &output_wsid, 0);
 	ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
 
-	printf("Running Test\n");
-
 	/* Initialize buffers */
 	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
 	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
@@ -299,7 +297,7 @@ int main(int argc, char *argv[])
         while ((CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
           res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
                  &data);
-	  ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR")
+	  ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
           if (count >= MAX_COUNT){
 		fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
                 break;
