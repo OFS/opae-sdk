@@ -32,9 +32,11 @@ import shutil
 import argparse
 import json
 import utils
+import shlex
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
+from subprocess import Popen, PIPE
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
@@ -75,7 +77,13 @@ def run_packager():
         print(USAGE)
 
     elif args.cmd == "version":
-        print("{0}: version {1}".format(DESCRIPTION, VERSION))
+        try:
+            cmd = shlex.split("git log -1 --oneline")
+            p = Popen(cmd, stdout=PIPE).communicate()[0]
+            version = p.split(" ")[0] if VERSION.startswith("@") else VERSION
+        except OSError:
+            version = "UNKNOWN"
+        print("{0}: version {1}".format(DESCRIPTION, version))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\
