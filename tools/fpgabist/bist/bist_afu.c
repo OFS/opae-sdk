@@ -247,7 +247,6 @@ int main(int argc, char *argv[])
         uint64_t data = 0;
         double count = 0;
         unsigned int bist_mask = ENABLE_DDRA_BIST;
-        unsigned int ddra_bist_result = 0;
 
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
@@ -281,13 +280,13 @@ int main(int argc, char *argv[])
         }
 
         if (CHECK_BIT(data,9) == DDRA_BIST_PASS) {
-                ddra_bist_result = DDRA_BIST_PASS;
+		printf("DDR Bank A BIST Test Passed.\n");
         } else if (CHECK_BIT(data,8) == DDRA_BIST_FAIL) {
-                ddra_bist_result = DDRA_BIST_FAIL;
+		printf("DDR Bank A BIST Test failed.\n");
         } else if (CHECK_BIT(data,7) == DDRA_BIST_TIMEOUT) {
-                ddra_bist_result = DDRA_BIST_TIMEOUT;
+		printf("DDR Bank A BIST Test timed out.\n");
         } else {
-                ddra_bist_result = DDRA_BIST_FATAL_ERROR;
+		printf("DDR Bank A Test encountered a fatal error and cannot continue.\n");
         }
 
         bist_mask = ENABLE_DDRB_BIST;
@@ -304,16 +303,6 @@ int main(int argc, char *argv[])
           }
           count++;
 	  usleep(100);
-        }
-
-        if (ddra_bist_result == DDRA_BIST_PASS) {
-		printf("DDR Bank A BIST Test Passed.\n");
-        } else if (ddra_bist_result == DDRA_BIST_FAIL) {
-		printf("DDR Bank A BIST Test failed.\n");
-        } else if (ddra_bist_result == DDRA_BIST_TIMEOUT) {
-		printf("DDR Bank A BIST Test timed out.\n");
-        } else {
-		printf("DDR Bank A Test encountered a fatal error and cannot continue.\n");
         }
 
         if (CHECK_BIT(data,12) == DDRB_BIST_PASS) {
