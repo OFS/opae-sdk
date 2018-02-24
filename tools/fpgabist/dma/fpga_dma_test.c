@@ -58,7 +58,7 @@ static int err_cnt;
 
 void fill_buffer(char *buf, size_t size)
 {
-   size_t i=0;
+   size_t i = 0;
    // use a deterministic seed to generate pseudo-random numbers
    srand(99);
 
@@ -134,15 +134,15 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h)
       return FPGA_EXCEPTION;
 }
 
-   report_bandwidth(total_mem_size, getTime(start,end));
+   report_bandwidth(total_mem_size, getTime(start, end));
 
    printf("\rClear buffer\n");
    clear_buffer((char*)dma_buf_ptr, total_mem_size);
 
    src = 0x0;
    dst = (uint64_t)dma_buf_ptr;
-	
-   printf("DDR Sweep FPGA to Host\n");   
+
+   printf("DDR Sweep FPGA to Host\n");
 	clock_gettime(CLOCK_MONOTONIC, &start);
    res = fpgaDmaTransferSync(dma_h, dst, src, total_mem_size, FPGA_TO_HOST_MM);
 	clock_gettime(CLOCK_MONOTONIC, &end);
@@ -152,16 +152,17 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h)
       free(dma_buf_ptr);
       return FPGA_EXCEPTION;
    }
-   report_bandwidth(total_mem_size, getTime(start,end));
-   
-   printf("Verifying buffer..\n");   
-   verify_buffer((char*)dma_buf_ptr, total_mem_size);
+   report_bandwidth(total_mem_size, getTime(start, end));
+
+   printf("Verifying buffer..\n");
+   verify_buffer((char *)dma_buf_ptr, total_mem_size);
 
    free(dma_buf_ptr);
    return FPGA_OK;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
    fpga_result res = FPGA_OK;
    fpga_dma_handle dma_h;
    uint64_t count;
@@ -171,7 +172,7 @@ int main(int argc, char *argv[]) {
    fpga_guid guid;
    uint32_t num_matches;
    volatile uint64_t *mmio_ptr = NULL;
-   uint64_t *dma_buf_ptr  = NULL;   
+   uint64_t *dma_buf_ptr  = NULL;
    uint32_t use_ase;
 
    if (argc < 2) {
@@ -212,7 +213,7 @@ int main(int argc, char *argv[]) {
    ON_ERR_GOTO(res, out_destroy_tok, "fpgaOpen");
 
    if (!use_ase) {
-      res = fpgaMapMMIO(afc_h, 0, (uint64_t**)&mmio_ptr);
+      res = fpgaMapMMIO(afc_h, 0, (uint64_t **)&mmio_ptr);
       ON_ERR_GOTO(res, out_close, "fpgaMapMMIO");
    }
 
@@ -232,13 +233,13 @@ int main(int argc, char *argv[]) {
    else
       count = TEST_BUF_SIZE;
 
-   dma_buf_ptr = (uint64_t*)malloc(count);
+   dma_buf_ptr = (uint64_t *)malloc(count);
    if (!dma_buf_ptr) {
       res = FPGA_NO_MEMORY;
       ON_ERR_GOTO(res, out_dma_close, "Error allocating memory");
-   }   
+   }
 
-   fill_buffer((char*)dma_buf_ptr, count);
+   fill_buffer((char *)dma_buf_ptr, count);
 
    // Test procedure
    // - Fill host buffer with pseudo-random data
@@ -254,15 +255,15 @@ int main(int argc, char *argv[]) {
    // copy from host to fpga
    res = fpgaDmaTransferSync(dma_h, 0x0 /*dst*/, (uint64_t)dma_buf_ptr /*src*/, count, HOST_TO_FPGA_MM);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync HOST_TO_FPGA_MM");
-   clear_buffer((char*)dma_buf_ptr, count);
+   clear_buffer((char *)dma_buf_ptr, count);
 
    // copy from fpga to host
    res = fpgaDmaTransferSync(dma_h, (uint64_t)dma_buf_ptr /*dst*/, 0x0 /*src*/, count, FPGA_TO_HOST_MM);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
-   res = verify_buffer((char*)dma_buf_ptr, count);
+   res = verify_buffer((char *)dma_buf_ptr, count);
    ON_ERR_GOTO(res, out_dma_close, "verify_buffer");
 
-   clear_buffer((char*)dma_buf_ptr, count);
+   clear_buffer((char *)dma_buf_ptr, count);
 
    // copy from fpga to fpga
    res = fpgaDmaTransferSync(dma_h, count /*dst*/, 0x0 /*src*/, count, FPGA_TO_FPGA_MM);
@@ -273,7 +274,7 @@ int main(int argc, char *argv[]) {
    res = fpgaDmaTransferSync(dma_h, (uint64_t)dma_buf_ptr /*dst*/, count /*src*/, count, FPGA_TO_HOST_MM);
    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
 
-   res = verify_buffer((char*)dma_buf_ptr, count);
+   res = verify_buffer((char *)dma_buf_ptr, count);
    ON_ERR_GOTO(res, out_dma_close, "verify_buffer");
 
    if (!use_ase) {
