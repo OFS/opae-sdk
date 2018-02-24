@@ -26,8 +26,7 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
-file(CSources bist_afu.c)
-add_executable(bist_app ${CSources})
+add_executable(bist_app bist_afu.c)
 set_install_rpath(bist_app)
 
 set(CMAKE_C_FLAGS "-std=c99")
