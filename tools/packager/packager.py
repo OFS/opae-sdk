@@ -32,11 +32,9 @@ import shutil
 import argparse
 import json
 import utils
-import shlex
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
-from subprocess import Popen, PIPE
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
@@ -77,8 +75,20 @@ def run_packager():
         print(USAGE)
 
     elif args.cmd == "version":
-        p = subprocess.check_output('git describe --tags', shell=True)
-        version = p.split()[0] if VERSION.startswith("@") else VERSION
+        if VERSION.startswith("@"):
+            try:
+                devnull = open(os.devnull, 'w')
+                repo = subprocess.check_output('git remote -v',
+                                               shell=True,
+                                               stderr=devnull)
+                version = (subprocess.check_output('git describe --tags',
+                                                   shell=True,
+                                                   stderr=devnull).split()[0]
+                           if "opae-sdk" in repo else "UNKNOWN REPO")
+            except subprocess.CalledProcessError:
+                version = "UNKNOWN"
+        else:
+            version = VERSION
         print("{0}: version {1}".format(DESCRIPTION, version))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
