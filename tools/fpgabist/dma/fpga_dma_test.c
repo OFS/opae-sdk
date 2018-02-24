@@ -137,7 +137,7 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h)
    report_bandwidth(total_mem_size, getTime(start, end));
 
    printf("\rClear buffer\n");
-   clear_buffer((char*)dma_buf_ptr, total_mem_size);
+   clear_buffer((char *)dma_buf_ptr, total_mem_size);
 
    src = 0x0;
    dst = (uint64_t)dma_buf_ptr;

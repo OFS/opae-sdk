@@ -780,8 +780,8 @@ static fpga_result _issue_magic(fpga_dma_handle dma_h)
 static void _wait_magic(fpga_dma_handle dma_h)
 {
 	poll_interrupt(dma_h);
-	while (*(dma_h->magic_buf) != FPGA_DMA_WF_MAGIC_NO)
-		{};
+	while (*(dma_h->magic_buf) != FPGA_DMA_WF_MAGIC_NO) {
+		};
 	*(dma_h->magic_buf) = 0x0ULL;
 }
 
