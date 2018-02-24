@@ -26,7 +26,7 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
-file(GLOB CSources *.c)
+file(CSources bist_afu.c)
 add_executable(bist_app ${CSources})
 set_install_rpath(bist_app)
 

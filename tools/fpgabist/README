@@ -16,4 +16,4 @@ Accepted gbs files:
 
 Usage:
 fpgabist -b <bus_num> <path to gbs file>
-eg. fpgabist -b 6 ../../../dcp_1.1/samples/nlb_mode_3/bin/nlb_mode_3.gbs
+eg. fpgabist -b 0x06 ../../../dcp_1.1/samples/nlb_mode_3/bin/nlb_mode_3.gbs

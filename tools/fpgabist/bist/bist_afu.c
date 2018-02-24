@@ -268,15 +268,15 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
         while ((CHECK_BIT(data,9) != 0x200) && (CHECK_BIT(data,8) != 0x100) && (CHECK_BIT(data,7) != 0x80) && 
             (CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
-          res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
+		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
                  &data); 
-	  ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS");
-          if (count >= MAX_COUNT){
-		fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
-                break;
-          }
-          count++;
-	  usleep(100);
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS");
+		if (count >= MAX_COUNT){
+			fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
+			break;
+		}
+		count++;
+		usleep(100);
         }
 
         if (CHECK_BIT(data,9) == DDRA_BIST_PASS) {
@@ -294,15 +294,15 @@ int main(int argc, char *argv[])
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
         while ((CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
-          res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
+		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
                  &data);
-	  ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
-          if (count >= MAX_COUNT){
-		fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
-                break;
-          }
-          count++;
-	  usleep(100);
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
+		if (count >= MAX_COUNT){
+			fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
+			break;
+		}
+		count++;
+		usleep(100);
         }
 
         if (CHECK_BIT(data,12) == DDRB_BIST_PASS) {
