@@ -7,7 +7,8 @@ pushd mybuild_docs
 
 trap "popd" EXIT
 
-cmake ..
+cmake .. -DBUILD_SPHINX_DOC=ON
+make
 make docs
 
 echo "build Sphinx documentation FINISHED"
