@@ -70,5 +70,6 @@ def main():
     sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
     args.func(args)
 
+
 if __name__ == '__main__':
     main()
