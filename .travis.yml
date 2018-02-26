@@ -29,3 +29,14 @@ matrix:
             - uuid-dev
             - doxygen
             - python-jsonschema
+    - script: scripts/build-documentation.sh
+      cache: ccache
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+            - libjson-c-dev
+            - uuid-dev
+            - doxygen
+            - python-jsonschema
+            - pandoc
