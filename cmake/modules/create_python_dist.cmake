@@ -45,12 +45,20 @@ function(create_python_dist target mod_or_pkg)
         file(GLOB_RECURSE py_src
             RELATIVE
             ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}
-            ${mod_or_pkg}/*.py)
+            ${mod_or_pkg}/*)
         foreach(py_file ${py_src})
-            configure_file(
-                ${mod_or_pkg}/${py_file}
-                ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file}
-                @ONLY)
+            get_filename_component(file_ext ${py_file} EXT)
+            if (${file_ext} STREQUAL ".py")
+                configure_file(
+                    ${mod_or_pkg}/${py_file}
+                    ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file}
+                    @ONLY)
+            else (${file_ext} STREQUAL ".py")
+                if (NOT ${file_ext} STREQUAL ".pyc")
+                    file(COPY ${mod_or_pkg}/${py_file}
+                              ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file})
+                endif (NOT ${file_ext} STREQUAL ".pyc")
+            endif (${file_ext} STREQUAL ".py")
         endforeach(py_file ${py_src})
     else(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
         configure_file(
