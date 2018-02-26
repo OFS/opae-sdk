@@ -24,17 +24,14 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-#TODO: Edit the code dependencies here
-set(PYTHON_SRC
-     bist_app.py
-     bist_common.py
-     bist_dma.py
-     bist_nlb3.py
-     fpgabist)
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}/libopae/src )
+add_executable(bist_app bist_afu.c)
+set_install_rpath(bist_app)
 
- add_subdirectory(dma)
- add_subdirectory(bist)
+set(CMAKE_C_FLAGS "-std=c99")
+target_link_libraries(bist_app opae-c json-c uuid rt ${CMAKE_THREAD_LIBS_INIT})
 
-install(PROGRAMS ${PYTHON_SRC}
-    DESTINATION bin
-    COMPONENT toolfpgabist)
+install(TARGETS bist_app
+        RUNTIME DESTINATION bin
+        COMPONENT toolbist_app)
