@@ -6,8 +6,12 @@
 #     FATAL_ERROR    = CMake Error, stop processing and generation
 #
 
+if (NOT PYTHON_EXECUTABLE)
+    find_package(PythonInterp REQUIRED)
+endif (NOT PYTHON_EXECUTABLE)
+
 macro(FIND_PYTHON_PKG PKG_NAME ERR_LEVEL )
-    execute_process( COMMAND python -c "import ${PKG_NAME}" ERROR_QUIET RESULT_VARIABLE  STATUS_FLAG)
+    execute_process( COMMAND ${PYTHON_EXECUTABLE} -c "import ${PKG_NAME}" ERROR_QUIET RESULT_VARIABLE  STATUS_FLAG)
 
     if(STATUS_FLAG)
         message(${ERR_LEVEL} "PACKAGER depenency python ${PKG_NAME} package is missing!!!")
