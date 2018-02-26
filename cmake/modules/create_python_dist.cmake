@@ -29,27 +29,29 @@
 ## the package in the build tree. The second argument is the Python module or
 ## Python package that is expected to exist in the current source directory.
 ## Currently, the package/module distinction is made if the second argument is
-## a directory or not. If it is a directory, then it will assume it is a
-## package (and will create an empty __init__.py file in the binary directory
-## if it does not exits). It is up to the developer of the package to ensure
-## that the contents of the directory contain all required modules and the
-## setup.py is correct. It is assumed that the name of the module or package
-## given as the second argument is the name of the package listed in the setup.py
-## file. In either case (if the input is a package or a module), all input files
-## will be processed with 'configure_file' to replace any CMake variables that use
-## the @ symbol
+## a directory or not. If it is a directory, then it must contain an
+## __init__.py file to be treated as a Python package. It is up to the
+## developer of the package to ensure that the contents of the directory
+## contain all required modules and the setup.py is correct. It is assumed that
+## the name of the module or package given as the second argument is the name
+## of the package listed in the setup.py file. In either case (if the input is
+## a package or a module), all input files will be processed with
+## 'configure_file' to replace any CMake variables that use the @ symbol
 function(create_python_dist target mod_or_pkg)
     if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
-        file(GLOB py_src RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg} ${mod_or_pkg}/*.py)
+        if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
+            message(SEND_ERROR "${mod_or_pkg} is a directory but missing __init__.py")
+        endif (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
+        file(GLOB_RECURSE py_src
+            RELATIVE
+            ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}
+            ${mod_or_pkg}/*.py)
         foreach(py_file ${py_src})
             configure_file(
                 ${mod_or_pkg}/${py_file}
                 ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file}
                 @ONLY)
         endforeach(py_file ${py_src})
-        if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
-            file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py "")
-        endif (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
     else(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
         configure_file(
             ${mod_or_pkg}
