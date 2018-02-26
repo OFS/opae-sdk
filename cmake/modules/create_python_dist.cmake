@@ -39,9 +39,9 @@
 ## 'configure_file' to replace any CMake variables that use the @ symbol
 function(create_python_dist target mod_or_pkg)
     if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
-        if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
+        if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}/__init__.py)
             message(SEND_ERROR "${mod_or_pkg} is a directory but missing __init__.py")
-        endif (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/__init__.py)
+        endif (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}/__init__.py)
         file(GLOB_RECURSE py_src
             RELATIVE
             ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}
