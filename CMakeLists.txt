@@ -226,6 +226,7 @@ define_pkg(tools
   toolfpgadiag
   toolfpgabist
   toolfpga_dma_test
+  toolbist_app
   toolfpgadiagapps
   toolfpgaflash
   toolfpgainfo
