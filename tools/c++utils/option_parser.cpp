@@ -29,14 +29,12 @@
 #include <typeindex>
 #include <type_traits>
 #include <functional>
-#include <boost/lexical_cast.hpp>
-#include <boost/any.hpp>
 #include <getopt.h>
 #include "option_map.h"
 #include "utils.h"
 #include <iostream>
 #include <json-c/json.h>
-
+#include "any_value.h"
 
 typedef struct option option_struct;
 
@@ -46,7 +44,7 @@ namespace utils
 {
 
 template<typename T>
-boost::any cast_string(const std::string & v)
+any_value cast_string(const std::string & v)
 {
     if (std::is_integral<T>::value)
     {
@@ -56,27 +54,26 @@ boost::any cast_string(const std::string & v)
             return val;
         }
     }
-
-    return boost::lexical_cast<T>(v);
+    return v;
 }
 
 template<>
-boost::any cast_string<bool>(const std::string & v)
+any_value cast_string<bool>(const std::string & v)
 {
     if (v == "true") return true;
     if (v == "false") return false;
 
-    return static_cast<bool>(boost::lexical_cast<int>(v));
+    return v;
 }
 
 
 template<>
-boost::any cast_string<std::string>(const std::string & v)
+any_value cast_string<std::string>(const std::string & v)
 {
     return v;
 }
 
-static std::map<std::type_index, boost::any(*)(const std::string&)> type_cast_map =
+static std::map<std::type_index, any_value(*)(const std::string&)> type_cast_map =
 {
     { std::type_index(typeid(uint8_t) ), cast_string<uint8_t>},
     { std::type_index(typeid(int8_t) ), cast_string<int8_t>},
@@ -92,20 +89,20 @@ static std::map<std::type_index, boost::any(*)(const std::string&)> type_cast_ma
     { std::type_index(typeid(std::string)), cast_string<std::string>}
 };
 
-static std::map<std::type_index, boost::any(*)(struct json_object * v )> json_to_any =
+static std::map<std::type_index, any_value(*)(struct json_object * v )> json_to_any =
 {
-    { std::type_index(typeid(uint8_t) ), [](struct json_object * v) -> boost::any { return static_cast<uint8_t>(json_object_get_int(v));}},
-    { std::type_index(typeid(int8_t) ), [](struct json_object * v) -> boost::any { return static_cast<int8_t>(json_object_get_int(v)); }},
-    { std::type_index(typeid(uint16_t)), [](struct json_object * v) -> boost::any { return static_cast<uint16_t>(json_object_get_int(v)); }},
-    { std::type_index(typeid(int16_t)), [](struct json_object * v) -> boost::any { return static_cast<int16_t>(json_object_get_int(v)); }},
-    { std::type_index(typeid(uint32_t)), [](struct json_object * v) -> boost::any { return static_cast<uint32_t>(json_object_get_int(v)); }},
-    { std::type_index(typeid(int32_t)), [](struct json_object * v) -> boost::any {  return static_cast<int32_t>(json_object_get_int(v)); }},
-    { std::type_index(typeid(uint64_t)), [](struct json_object * v) -> boost::any { return static_cast<uint64_t>(json_object_get_int64(v)); }},
-    { std::type_index(typeid(int64_t)), [](struct json_object * v) -> boost::any { return static_cast<int64_t>(json_object_get_int64(v)); }},
-    { std::type_index(typeid(float)), [](struct json_object * v) -> boost::any { return static_cast<float>(json_object_get_double(v)); }},
-    { std::type_index(typeid(double)), [](struct json_object * v) -> boost::any { return json_object_get_double(v); }},
-    { std::type_index(typeid(bool)), [](struct json_object * v) -> boost::any { return json_object_get_boolean(v) ? true:false; }},
-    { std::type_index(typeid(std::string)), [](struct json_object * v) -> boost::any { return std::string(json_object_get_string(v)); }}
+    { std::type_index(typeid(uint8_t) ), [](struct json_object * v) -> any_value { return static_cast<uint8_t>(json_object_get_int(v));}},
+    { std::type_index(typeid(int8_t) ), [](struct json_object * v) -> any_value { return static_cast<int8_t>(json_object_get_int(v)); }},
+    { std::type_index(typeid(uint16_t)), [](struct json_object * v) -> any_value { return static_cast<uint16_t>(json_object_get_int(v)); }},
+    { std::type_index(typeid(int16_t)), [](struct json_object * v) -> any_value { return static_cast<int16_t>(json_object_get_int(v)); }},
+    { std::type_index(typeid(uint32_t)), [](struct json_object * v) -> any_value { return static_cast<uint32_t>(json_object_get_int(v)); }},
+    { std::type_index(typeid(int32_t)), [](struct json_object * v) -> any_value {  return static_cast<int32_t>(json_object_get_int(v)); }},
+    { std::type_index(typeid(uint64_t)), [](struct json_object * v) -> any_value { return static_cast<uint64_t>(json_object_get_int64(v)); }},
+    { std::type_index(typeid(int64_t)), [](struct json_object * v) -> any_value { return static_cast<int64_t>(json_object_get_int64(v)); }},
+    { std::type_index(typeid(float)), [](struct json_object * v) -> any_value { return static_cast<float>(json_object_get_double(v)); }},
+    { std::type_index(typeid(double)), [](struct json_object * v) -> any_value { return json_object_get_double(v); }},
+    { std::type_index(typeid(bool)), [](struct json_object * v) -> any_value { return json_object_get_boolean(v) ? true:false; }},
+    { std::type_index(typeid(std::string)), [](struct json_object * v) -> any_value { return std::string(json_object_get_string(v)); }}
 };
 option_parser::option_parser()
 {

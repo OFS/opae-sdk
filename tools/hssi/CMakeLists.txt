@@ -23,12 +23,10 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-find_package(Boost 1.41.0 REQUIRED)
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/fpgadiag
                     ${OPAE_SDK_SOURCE}/tools/c++utils
-                    ${OPAE_SDK_SOURCE}/tools/libopae++
-                    ${Boost_INCLUDE_DIRS})
+                    ${OPAE_SDK_SOURCE}/tools/libopae++)
 
 add_library(hssi-io  SHARED przone.h
                             accelerator_przone.h
