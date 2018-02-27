@@ -63,7 +63,7 @@ int usleep(unsigned);
 #define ENABLE_DDRB_BIST              0x10000000
 #define DDR_BIST_CTRL_ADDR           0x198
 #define DDR_BIST_STATUS_ADDR         0x200
-#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+#define CHECK_BIT(var, pos) ((var) & (1<<(pos)))
 #define MAX_COUNT       100000
 #define DDRA_BIST_PASS 0x200
 #define DDRA_BIST_FAIL 0x100
@@ -93,12 +93,12 @@ int usleep(unsigned);
 /* Type definitions */
 
 typedef struct {
-        fpga_properties         filter;
-        fpga_token*             accelerator_token;
-        fpga_handle             accelerator_handle;
-        fpga_guid               guid;
-        uint64_t                res;
-        int                     open_flags;
+	fpga_properties		filter;
+	fpga_token		*accelerator_token;
+	fpga_handle             accelerator_handle;
+	fpga_guid               guid;
+	uint64_t                res;
+	int                     open_flags;
 } fpga_struct;
 
 typedef struct {
@@ -244,19 +244,19 @@ int main(int argc, char *argv[])
 /************* Begin BIST *************/
         /* Perform BIST Check */
 	printf("Running BIST Test\n");
-        uint64_t data = 0;
+	uint64_t data = 0;
         double count = 0;
         unsigned int bist_mask = ENABLE_DDRA_BIST;
 
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
-        res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR,&data);
+        res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, &data);
 	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
-	while((CHECK_BIT(data,27) != 0x08000000)){
+	while ((CHECK_BIT(data, 27) != 0x08000000)) {
 	  printf("Enable Test: reading result #%f: %04lx\n", count, data);
-	  if (count >= MAX_COUNT){
+	  if (count >= MAX_COUNT) {
 		fprintf(stderr, "BIST not enabled!\n");
                 return -1;
           }
@@ -266,12 +266,12 @@ int main(int argc, char *argv[])
 
 	count = 0;
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
-        while ((CHECK_BIT(data,9) != 0x200) && (CHECK_BIT(data,8) != 0x100) && (CHECK_BIT(data,7) != 0x80) && 
-            (CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
+        while ((CHECK_BIT(data, 9) != 0x200) && (CHECK_BIT(data, 8) != 0x100) && (CHECK_BIT(data, 7) != 0x80) &&
+                (CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
-                 &data); 
+                        &data);
 		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS");
-		if (count >= MAX_COUNT){
+		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
 			break;
 		}
@@ -279,11 +279,11 @@ int main(int argc, char *argv[])
 		usleep(100);
         }
 
-        if (CHECK_BIT(data,9) == DDRA_BIST_PASS) {
+        if (CHECK_BIT(data, 9) == DDRA_BIST_PASS) {
 		printf("DDR Bank A BIST Test Passed.\n");
-        } else if (CHECK_BIT(data,8) == DDRA_BIST_FAIL) {
+        } else if (CHECK_BIT(data, 8) == DDRA_BIST_FAIL) {
 		printf("DDR Bank A BIST Test failed.\n");
-        } else if (CHECK_BIT(data,7) == DDRA_BIST_TIMEOUT) {
+        } else if (CHECK_BIT(data, 7) == DDRA_BIST_TIMEOUT) {
 		printf("DDR Bank A BIST Test timed out.\n");
         } else {
 		printf("DDR Bank A Test encountered a fatal error and cannot continue.\n");
@@ -293,11 +293,11 @@ int main(int argc, char *argv[])
         count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
-        while ((CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
+        while ((CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
-                 &data);
+                        &data);
 		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
-		if (count >= MAX_COUNT){
+		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
 			break;
 		}
@@ -305,11 +305,11 @@ int main(int argc, char *argv[])
 		usleep(100);
         }
 
-        if (CHECK_BIT(data,12) == DDRB_BIST_PASS) {
+        if (CHECK_BIT(data, 12) == DDRB_BIST_PASS) {
 		printf("DDR Bank B BIST Test Passed.\n");
-        } else if (CHECK_BIT(data,11) == DDRB_BIST_FAIL) {
+        } else if (CHECK_BIT(data, 11) == DDRB_BIST_FAIL) {
 		printf("DDR Bank BIST Test failed.\n");
-        } else if (CHECK_BIT(data,10) == DDRB_BIST_TIMEOUT) {
+        } else if (CHECK_BIT(data, 10) == DDRB_BIST_TIMEOUT) {
 		printf("DDR Bank B BIST Test timed out.\n");
         } else {
 		printf("DDR Bank B Test encountered a fatal error and cannot continue.\n");
