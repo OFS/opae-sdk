@@ -740,7 +740,7 @@ static fpga_result poll_interrupt(fpga_dma_handle dma_h) {
 		uint64_t count = 0;
 		ssize_t bytes_read = read(pfd.fd, &count, sizeof(count));
 		if(bytes_read <= 0) {
-			fprintf( stderr, "Error: %s\n",
+			fprintf( stderr, "Error poll_interrupt() failed: %s\n",
 				bytes_read < 0 ? strerror(errno) : "zero bytes read");
 			res = FPGA_EXCEPTION;
 		} else {
