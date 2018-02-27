@@ -1,13 +1,13 @@
 # - Find python package installation status
 #
-# ERR_LEVEL: 
-#     SEND_ERROR     = CMake Error, continue processing 
+# ERR_LEVEL:
+#     SEND_ERROR     = CMake Error, continue processing
 #     WARNING        = CMake Warning, continue processing
 #     FATAL_ERROR    = CMake Error, stop processing and generation
 #
 
 if (NOT PYTHON_EXECUTABLE)
-    find_package(PythonInterp REQUIRED)
+    find_package(PythonInterp 2.7 REQUIRED)
 endif (NOT PYTHON_EXECUTABLE)
 
 macro(FIND_PYTHON_PKG PKG_NAME ERR_LEVEL )
