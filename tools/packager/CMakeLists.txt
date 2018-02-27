@@ -31,12 +31,17 @@ include(packaging)
 include(FindPythonPackage)
 FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
 
+################# Add version to packager.py ########################
+configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/packager.py @ONLY)
+
+set(PKG_PATH_MODULE ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
+
 ################# generate executable python zip files ########################
 
 set(PKG_COMMON_FILES
     afu.py gbs.py utils.py metadata/constants.py metadata/__init__.py metadata/metadata.py schema/afu_schema_v01.json)
 
-set(PKG_PYTHON_FILES packager.py ${PKG_COMMON_FILES} README)
+set(PKG_PYTHON_FILES PKG_PATH_MODULE ${PKG_COMMON_FILES} README)
 CREATE_PYTHON_EXE(packager packager ${PKG_PYTHON_FILES})
 set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
