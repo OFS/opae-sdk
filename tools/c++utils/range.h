@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include "option.h"
+#include "any_value.h"
 
 namespace intel
 {
@@ -61,7 +62,7 @@ public:
 
     virtual const std::string & name() { return name_; }
 
-    virtual boost::any any() { return random(); }
+    virtual any_value any() { return random(); }
 
 private:
     std::string             name_;
