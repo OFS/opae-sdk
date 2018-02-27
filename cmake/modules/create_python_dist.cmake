@@ -38,27 +38,37 @@
 ## a package or a module), all input files will be processed with
 ## 'configure_file' to replace any CMake variables that use the @ symbol
 function(create_python_dist target mod_or_pkg)
+    set(CONFIGURE_FILES .py .json .JSON)
     if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
+        # check that the namespace package has a __init__.py file
+        # we will only check at this level - any subdirectories missing this
+        # may be invalid nested namespace packages
         if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}/__init__.py)
             message(SEND_ERROR "${mod_or_pkg} is a directory but missing __init__.py")
         endif (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}/__init__.py)
+        # stage a files in this namespace package in the binary tree
         file(GLOB_RECURSE py_src
             RELATIVE
             ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg}
             ${mod_or_pkg}/*)
         foreach(py_file ${py_src})
+            # check if the file is a text file we want to run through configure_file
             get_filename_component(file_ext ${py_file} EXT)
-            if (${file_ext} STREQUAL ".py")
+            list(FIND CONFIGURE_FILES ${file_ext} list_index)
+            if (${list_index} GREATER -1)
                 configure_file(
                     ${mod_or_pkg}/${py_file}
                     ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file}
                     @ONLY)
-            else (${file_ext} STREQUAL ".py")
+            else (${list_index} GREATER -1)
+                # we don't configure the file, simply copy to the binary staging area
+                # also, .pyc files may exist in the source tree if a user runs Python
+                # modules from there so let's not copy those
                 if (NOT ${file_ext} STREQUAL ".pyc")
                     file(COPY ${mod_or_pkg}/${py_file}
                               ${CMAKE_CURRENT_BINARY_DIR}/${mod_or_pkg}/${py_file})
                 endif (NOT ${file_ext} STREQUAL ".pyc")
-            endif (${file_ext} STREQUAL ".py")
+            endif (${list_index} GREATER -1)
         endforeach(py_file ${py_src})
     else(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${mod_or_pkg})
         configure_file(
