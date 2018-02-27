@@ -1,0 +1,19 @@
+FPGABIST tool
+Built-in Self-Test
+* This application needs to be run with root permissions
+
+Requirements:
+The following binaries must be able to be found in your system path
+- fpga_dma_test
+- bist_app
+- fpgaconf
+- fpgainfo
+
+Accepted gbs files:
+- bist_afu.gbs
+- dma_afu.gbs
+- nlb_mode_3.gbs
+
+Usage:
+fpgabist -b <bus_num> <path to gbs file>
+eg. fpgabist -b 0x06 ../../../dcp_1.1/samples/nlb_mode_3/bin/nlb_mode_3.gbs

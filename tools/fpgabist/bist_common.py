@@ -31,7 +31,7 @@ import subprocess
 import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
-BIST_MODES = ['nlb_mode_3', 'dma_afu']
+BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 
 
 # Return a list of all available bus numbers
