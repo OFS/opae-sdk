@@ -27,9 +27,9 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <boost/any.hpp>
-#include <boost/lexical_cast.hpp>
 #include <type_traits>
+#include <sstream>
+#include "any_value.h"
 
 namespace intel
 {
@@ -51,7 +51,7 @@ public:
         optional_argument
     };
 
-    option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help, boost::any default_value = nullptr)
+    option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help, any_value default_value = nullptr)
     : is_set_(false)
     , name_(name)
     , short_opt_(short_opt)
@@ -120,7 +120,7 @@ public:
     template<typename T>
     T value()
     {
-        return boost::any_cast<T>(is_set_ ? value_ : default_);
+        return is_set_ ? value_.value<T>() : default_.value<T>();
     }
 
     template<typename T>
@@ -149,7 +149,7 @@ public:
 
     virtual std::string to_string() = 0;
 
-    virtual boost::any any() { return value_; }
+    virtual any_value any() { return value_; }
 
 protected:
     option()
@@ -165,8 +165,8 @@ private:
     char        short_opt_;
     option_type option_type_;
     std::string help_;
-    boost::any  value_;
-    boost::any  default_;
+    any_value   value_;
+    any_value   default_;
 };
 
 template<typename T>
@@ -179,13 +179,13 @@ public:
     {
     }
 
-    typed_option(const std::string & name, boost::any default_value = 0)
+    typed_option(const std::string & name, any_value default_value = 0)
     : option(name, 0, option::with_argument, "", default_value)
     {
 
     }
 
-    typed_option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help, boost::any default_value = 0)
+    typed_option(const std::string & name, char short_opt, option::option_type has_arg, const std::string & help, any_value default_value = 0)
     : option(name, short_opt, has_arg, help, default_value)
     {
     }
@@ -226,7 +226,9 @@ public:
 
     virtual std::string to_string()
     {
-        auto str = boost::lexical_cast<std::string>(value<T>());
+        std::stringstream ss;
+        ss << value<T>();
+        auto str = ss.str();
         if (!std::is_arithmetic<T>())
         {
             str = "\"" + str + "\"";
