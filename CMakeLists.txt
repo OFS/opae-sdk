@@ -195,7 +195,7 @@ define_pkg(libs
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
-  RPM_REQUIRES "uuid , json-c , boost")
+  RPM_REQUIRES "uuid , json-c")
 
 define_pkg(devel
   COMPONENTS
@@ -213,7 +213,7 @@ define_pkg(devel
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
   DEPENDS "libs"
-  RPM_REQUIRES "libuuid-devel , json-c-devel , boost-devel , opae-libs")
+  RPM_REQUIRES "libuuid-devel , json-c-devel , opae-libs")
 
 define_pkg(tools
   COMPONENTS
@@ -226,6 +226,7 @@ define_pkg(tools
   toolfpgadiag
   toolfpgabist
   toolfpga_dma_test
+  toolbist_app
   toolfpgadiagapps
   toolfpgaflash
   toolfpgainfo
@@ -240,7 +241,7 @@ define_pkg(tools
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE tool binaries"
   DEPENDS "libs"
-  RPM_REQUIRES "boost-devel, opae-libs , opae-devel")
+  RPM_REQUIRES "opae-libs , opae-devel")
 
 define_pkg(ase
   COMPONENTS
@@ -253,7 +254,7 @@ define_pkg(ase
   DISPLAY_NAME "opae-ase"
   DESCRIPTION "OPAE AFU Simulation Environment"
   DEPENDS "devel"
-  RPM_REQUIRES "boost , opae-libs , opae-devel")
+  RPM_REQUIRES "opae-libs , opae-devel")
 
 set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
 set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)

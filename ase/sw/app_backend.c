@@ -1553,7 +1553,7 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
     msg.msg_control = cmsg;
     msg.msg_controllen = CMSG_LEN(sizeof(int));
     msg.msg_flags = 0;
-    int *fd_ptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+    int *fd_ptr = (int *)CMSG_DATA(cmsg);
     *fd_ptr = fd;
     if (sendmsg(sock_fd, &msg, 0) == -1) {
 		ASE_ERR("error sending message. errno = %s\n", strerror(errno));

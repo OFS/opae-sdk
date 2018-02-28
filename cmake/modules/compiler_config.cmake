@@ -50,19 +50,18 @@ endfunction(SET_CACHED_VARIABLE)
 # Default flags to compiler when build user-space programs.
 # Should come before enabling language.
 
-#TODO enable -Werror
 
-set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra")
+set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra -Werror")
 
-set(CMAKE_C_FLAGS_RELEASE          "-O2 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -Wall -Wextra")
+set(CMAKE_C_FLAGS_RELEASE          "-O2 -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -Wall -Wextra -Werror")
 
-set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -O2 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -O2 -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra -Werror")
 
-set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra")
+set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror")
 
 # Check if support for C++ 11 is available
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)

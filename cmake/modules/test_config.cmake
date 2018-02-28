@@ -101,6 +101,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtOpen.cpp
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
+                unit/gtAnyValue.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
