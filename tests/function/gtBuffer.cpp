@@ -34,11 +34,7 @@ must be express and approved by Intel in writing.
 
 #include "gtest/gtest.h"
 
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 
 #include "common_test.h"
 

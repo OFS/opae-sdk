@@ -23,12 +23,7 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-find_package(Boost 1.41.0 REQUIRED)
 find_library(CJSON_LIBRARY json-c)
-
-include_directories(
-    ${Boost_INCLUDE_DIRS}
-    )
 
 add_library(opae-c++-utils SHARED
                      utils.h

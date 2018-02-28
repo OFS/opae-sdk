@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # Copyright(c) 2017, Intel Corporation
-##
+#
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
-##
+#
 # * Redistributions of  source code  must retain the  above copyright notice,
 # this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
@@ -12,7 +12,7 @@
 # * Neither the name  of Intel Corporation  nor the names of its contributors
 # may be used to  endorse or promote  products derived  from this  software
 # without specific prior written permission.
-##
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
 # IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -24,48 +24,27 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import argparse
-import codecs
-import fpga_common
-import fpgaerr
-import fpgapwr
-import fpgatemp
-import fpga_fmeinfo
-import fpga_portinfo
-import logging
-import sys
+
+import os
+import subprocess
+
+import bist_common as bc
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(title='fpga commands')
+class BistMode(bc.BistMode):
+    name = "bist_afu"
 
-    fpga_common.fpga_command.register_command(subparsers,
-                                              fpgaerr.errors_command)
+    def __init__(self):
+        self.executables = {'bist_app': ''}
 
-    fpga_common.fpga_command.register_command(subparsers,
-                                              fpgapwr.power_command)
-
-    fpga_common.fpga_command.register_command(subparsers,
-                                              fpgatemp.temp_command)
-
-    fpga_common.fpga_command.register_command(subparsers,
-                                              fpga_fmeinfo.fme_command)
-
-    fpga_common.fpga_command.register_command(subparsers,
-                                              fpga_portinfo.port_command)
-
-    args = parser.parse_args()
-
-    logfile = "/tmp/fpgainfo.log"
-    formatstr = '%(asctime)s [%(levelname)s] %(message)s'
-    try:
-        logging.basicConfig(filename=logfile, format=formatstr)
-    except IOError:
-        logging.basicConfig(stream=sys.stderr, format=formatstr)
-        logging.warning("Could not open log file: {}."
-                        "Logging to stderr".format(logfile))
-
-    # wrap stdout with the StreamWriter that does unicode
-    sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
-    args.func(args)
+    def run(self, gbs_path, bus_num):
+        bc.load_gbs(gbs_path, bus_num)
+        for func, param in self.executables.items():
+            print "Running {} test...\n".format(func)
+            cmd = "{} {}".format(func, param)
+            try:
+                subprocess.check_call(cmd, shell=True)
+            except subprocess.CalledProcessError as e:
+                print "Failed Test: {}".format(func)
+                print e
+        print "Finished Executing BIST application\n"
