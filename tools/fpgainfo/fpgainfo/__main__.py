@@ -37,7 +37,7 @@ import sys
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog='fpgainfo')
     subparsers = parser.add_subparsers(title='fpga commands')
 
     fpga_common.fpga_command.register_command(subparsers,

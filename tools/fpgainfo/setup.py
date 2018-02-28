@@ -5,7 +5,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'fpgainfo = fpgainfo.fpgainfo:main',
+            'fpgainfo = fpgainfo:main',
         ],
     },
     description="fpgainfo is an OPAE utility to query information on "
