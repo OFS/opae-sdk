@@ -12,12 +12,11 @@ commit_website_files() {
   cd doc-testing
   cp -r ../../mybuild_docs/sphinx/html/* .
   git add -A
-  git commit --message "Travis build: Update Documentation with traceback: second test commit $TRAVIS_BUILD_NUMBER"
+  git commit --message "Travis build: Update Documentation under travis build : $TRAVIS_BUILD_NUMBER"
 }
 
 upload_files() {
   git push --quiet --set-upstream origin master 
-  cd ../../
 }
 
 setup_git 
