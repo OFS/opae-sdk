@@ -23,17 +23,4 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-
-set(PYTHON_SRC
-     fpga_common.py
-     fpga_fmeinfo.py
-     fpga_portinfo.py
-     fpgaerr.py
-     fpgainfo
-     fpgapwr.py
-     fpgatemp.py
-     sysfs.py)
-
-install(PROGRAMS ${PYTHON_SRC}
-    DESTINATION bin
-    COMPONENT toolfpgainfo)
+create_python_dist(fpgainfo fpgainfo)

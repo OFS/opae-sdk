@@ -63,6 +63,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
+include(create_python_dist)
 
 ############################################################################
 ## Target configuration ####################################################
@@ -100,6 +101,26 @@ find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
 endif()
+
+############################################################################
+## Python virtualenv #######################################################
+############################################################################
+include(FindPythonPackage)
+find_package(PythonInterp REQUIRED)
+option(USE_VIRTUALENV "Install Python virtualenv in build directory" ON)
+if (USE_VIRTUALENV)
+    FIND_PYTHON_PKG(virtualenv WARNING)
+    if (virtualenv_FOUND AND NOT EXISTS ${CMAKE_BINARY_DIR}/bin/python)
+        message(STATUS "Installing Python virtualenv in ${CMAKE_BINARY_DIR}")
+        execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_BINARY_DIR}
+            OUTPUT_QUIET RESULT_VARIABLE EXIT_CODE)
+    endif (virtualenv_FOUND AND NOT EXISTS ${CMAKE_BINARY_DIR}/bin/python)
+    if(EXISTS ${CMAKE_BINARY_DIR}/bin/python)
+        set(PYTHON_VIRTUALENV ${CMAKE_BINARY_DIR}/bin/python CACHE FILEPATH "Virtual Python Executable")
+    endif(EXISTS ${CMAKE_BINARY_DIR}/bin/python)
+endif (USE_VIRTUALENV)
+
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -373,19 +394,3 @@ if(EXISTS ${RPMBUILD_EXECUTABLE})
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif(EXISTS ${RPMBUILD_EXECUTABLE})
 
-############################################################################
-## Python virtualenv #######################################################
-############################################################################
-find_package(PythonInterp REQUIRED)
-option(USE_VIRTUALENV "Install Python virtualenv in build directory" ON)
-if (USE_VIRTUALENV)
-    FIND_PYTHON_PKG(virtualenv WARNING)
-    if (virtualenv_FOUND)
-        execute_process(
-            COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_BINARY_DIR}
-            OUTPUT_QUIET RESULT_VARIABLE EXIT_CODE)
-        if (NOT EXIT_CODE)
-            set(PYTHON_VIRTUALENV ON INTERNAL)
-        endif(NOT EXIT_CODE)
-    endif(virtualenv_FOUND)
-endif (USE_VIRTUALENV)
