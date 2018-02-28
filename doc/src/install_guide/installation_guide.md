@@ -131,8 +131,8 @@ $ sudo rmmod intel-fpga-pci
 $ sudo rmmod fpga-mgr-mod
 ```
 
-## Manual Driver build/installation with RPM package ##
-Use the following command to extract the driver sources from the rpm:
+## Manual Driver build from RPM package ##
+Use the following command to extract the driver source files from the rpm:
 
 ```console
 $ mkdir opae-intel-fpga-driver-<release>
