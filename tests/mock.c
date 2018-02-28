@@ -77,7 +77,7 @@ static struct mock_dev {
 	int valid;
 	fpga_objtype objtype;
 	char pathname[MAX_STRLEN];
-} mock_devs[MAX_FD] = {0};
+} mock_devs[MAX_FD] = {{0}};
 
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
@@ -565,6 +565,8 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				size_t bitstream_len,
 				int flags)
 {
+	(void)flags;  /* silence unused-parameter warning */
+
 	if (!fpga ||
 		(((struct _fpga_handle *)fpga)->magic != FPGA_HANDLE_MAGIC) ||
 		(((struct _fpga_handle *)fpga)->fddev < 0)) {
