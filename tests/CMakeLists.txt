@@ -66,6 +66,21 @@ if (NOT BUILD_ASE_TEST)
 endif()
 
 ############################################################################
+## add_gtfilter macro  #####################################################
+############################################################################
+macro(add_gtfilter test_name gtfilter is_mock)
+    add_test(NAME ${test_name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+    if(${is_mock})
+        set_tests_properties(
+            ${test_name}
+            PROPERTIES
+            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+    endif()
+endmacro()
+
+############################################################################
 ## Add testing targets #####################################################
 ############################################################################
 add_test(NAME test_open_common_mock_drv
@@ -81,6 +96,13 @@ add_test(NAME test_any_value
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
 
+add_gtfilter(CxxProperties "CxxProperties*" False)
+add_gtfilter(CxxEnum "CxxEnum*" True)
+add_gtfilter(CxxOpenClose "CxxOpen*" True)
+add_gtfilter(CxxBuffer "CxxBuffer*" True)
+add_gtfilter(CxxExcept "CxxExcept*" False)
+add_gtfilter(CxxLog "CxxLog*" False)
+add_gtfilter(CxxEvent "CxxEvent*" True)
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
