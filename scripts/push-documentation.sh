@@ -8,7 +8,7 @@ setup_git() {
 commit_website_files() {
   mkdir upload_docs
   cd upload_docs
-  git clone https://github.com/OPAE/opae.github.io.git
+  git clone https://OPAE:$GIT_TOKEN@github.com/OPAE/opae.github.io.git
   cd opae.github.io
   cp -r ../../mybuild_docs/sphinx/html/* .
   git add -A
