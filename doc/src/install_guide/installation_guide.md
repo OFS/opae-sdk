@@ -131,6 +131,22 @@ $ sudo rmmod intel-fpga-pci
 $ sudo rmmod fpga-mgr-mod
 ```
 
+## Manual Driver build from RPM package ##
+Use the following command to extract the driver source files from the rpm:
+
+```console
+$ mkdir opae-intel-fpga-driver-<release>
+$ cd opae-intel-fpga-driver-<release>
+$ rpm2cpio ../opae-intel-fpga-driver-<release>.rpm | cpio -idmv
+```
+
+Build the fpga driver from source with the following procedure:
+
+```console
+$ cd ./usr/src/intel-fpga-<release>
+$ make
+```
+
 ## OPAE SDK build/installation from OPAE SDK source ##
 Using the following command to untar the source tar ball:
 
