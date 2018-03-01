@@ -40,6 +40,10 @@ matrix:
         - doxygen
         - python-jsonschema
         - pandoc
+    before install:
+      - wget https://github.com/jgm/pandoc/releases/download/2.1.1/pandoc-2.1.1-1-amd64.deb
+      - sudo dpkg -i pandoc-2.1.1-1-amd64.deb
+      
 env:
   global:
     secure: LciVXkQV5xhP1xHa7Z+ZLaAdS164Lf3n5/O4DswLQbpsmE7IdZAxmPGfzUomi4JlPXfrTFdXjo3Z/VH+xwSLiBgfBQES5f6dN/Dkw+gs+10HMc4TZp3w1IfTE6/QADh/EgfoqwIQOSYPv4XRV8z0+cEnbWWefiq3eLRAYTNw9YwORD8jE8gAQ5UfnVLWzA+uHUnZDXCCJO0HU4QKVaDwlcf6T2/GNsbIvQgowyy4XKcV3EWeGBDAoVY3hZ3l0UMs+RBg3cps1E3KU+4Uf9UokdZDWy5QZWHL4BYM5KCN9PXeVcliYjpBXgfCI7cAcju7xxJ4TJYOe+syYEsDFNrPOV+gFpCqDPwRtC1kvT8hslabP+WrBgDSuR/zhfypMJ5/5/Ltaj0GcdeB25PvZTtG0rrt8KwGA9pUJxo43ucWtfThb7Og5dI2ChbllifwnSiRPnE7Oi9RQq4vKiDZfph2tJbXjFL+XbBh8TxoVwYbnLbLWw6ruRxqSw4cbKs2f4F0THRxu8THzZ2x1pQI0x1k6ERYns1eVlg/9PiiUlZ4n1XZx9i98urAnc+TVVGskpYbIs5azhsb0r4n1bfIrUhbsFHiJfH2rI2Ocs96KUPH60dFI+Z8DQFZDohLi2trNAALvqtxnOAMSScvFS4YpqAjWTTlLjswQZQddOan8Z5B7YE=
