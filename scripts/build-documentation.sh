@@ -4,7 +4,7 @@
 pip install --user -r doc/sphinx/requirements.txt
 
 wget https://github.com/jgm/pandoc/releases/download/2.1.1/pandoc-2.1.1-1-amd64.deb
-sudo dpkg -i pandoc-2.1.1-1-amd64.deb
+dpkg -i pandoc-2.1.1-1-amd64.deb
 
 mkdir mybuild_docs
 pushd mybuild_docs
