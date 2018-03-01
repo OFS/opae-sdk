@@ -9,7 +9,7 @@ commit_website_files() {
   mkdir upload_docs
   cd upload_docs
   git clone https://github.com/OPAE/opae.github.io.git
-  cd doc-testing
+  cd opae.github.io
   cp -r ../../mybuild_docs/sphinx/html/* .
   git add -A
   git commit --message "Travis build: Update Documentation under travis build : $TRAVIS_BUILD_NUMBER"
