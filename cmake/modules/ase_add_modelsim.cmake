@@ -24,6 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+cmake_minimum_required(VERSION 2.8.11)
+include(cmake_useful)
+
 find_package(Quartus)
 find_package(Questa)
 set(ALTERA_MEGAFUNCTIONS "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf" )
@@ -38,13 +41,15 @@ list(APPEND questa_flags +define+VENDOR_ALTERA)
 list(APPEND questa_flags +define+TOOL_QUARTUS)
 list(APPEND questa_flags +define+${ASE_SIMULATOR})
 list(APPEND questa_flags +define+${ASE_PLATFORM})
+_declare_per_build_vars(QUESTA_VLOG_DEFINES "Define flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VLOG_DEFINES "${questa_flags}"
-  CACHE STRING "Modelsim/Questa compiler define flags")
+  CACHE STRING "Modelsim/Questa compiler define flags" FORCE)
 
 set(questa_flags "")
 list(APPEND questa_flags +incdir+.+work+${ASE_SERVER_RTL}+${PLATFORM_IF_RTL})
+_declare_per_build_vars(QUESTA_VLOG_DEFINES "Include flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VLOG_INCLUDES "${questa_flags}"
-  CACHE STRING "Modelsim/Questa compiler include flags")
+  CACHE STRING "Modelsim/Questa compiler include flags" FORCE)
 
 set(questa_flags "")
 list(APPEND questa_flags -nologo -sv +librescan)
@@ -53,8 +58,9 @@ list(APPEND questa_flags -work work)
 list(APPEND questa_flags -novopt)
 list(APPEND questa_flags ${QUESTA_VLOG_DEFINES})
 list(APPEND questa_flags ${QUESTA_VLOG_INCLUDES})
+_declare_per_build_vars(QUESTA_VLOG_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VLOG_FLAGS "${questa_flags}"
-  CACHE STRING "Modelsim/Questa compiler flags")
+  CACHE STRING "Modelsim/Questa compiler flags" FORCE)
 
 # VSIM flags
 set(questa_flags "")
@@ -67,8 +73,15 @@ list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
 list(APPEND questa_flags -l vlog_run.log)
 string(REPLACE ";" " " questa_flags "${questa_flags}")
+_declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VSIM_FLAGS "${questa_flags}"
-  CACHE STRING "Modelsim/Questa simulator flags")
+  CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+
+mark_as_advanced(
+  QUESTA_VLOG_DEFINES
+  QUESTA_VLOG_INCLUDES
+  QUESTA_VLOG_FLAGS
+  QUESTA_VSIM_FLAGS)
 
 # Property prefixed with 'ASE_MODULE_' is readonly for outer use,
 # unless explicitely noted in its description.
