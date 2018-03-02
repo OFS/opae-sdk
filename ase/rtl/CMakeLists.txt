@@ -29,10 +29,10 @@ project("opae-c-ase-platform")
 
 # CCIP base RTL code
 configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
-        ${PROJECT_BINARY_DIR}/sources_abs.txt)
+  ${PROJECT_BINARY_DIR}/sources_abs.txt)
 install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
-        DESTINATION ${ASE_SHARE_DIR}/rtl
-        COMPONENT aseextra)
+  DESTINATION ${ASE_SHARE_DIR}/rtl
+  COMPONENT aseextra)
 
 # find afu_sim_setup
 find_program(AFU_PLATFORM_CONFIG
@@ -46,7 +46,7 @@ find_program(AFU_PLATFORM_CONFIG
   DOC "AFU platform configuration utility")
 
 # Directories
-set(ASE_SERVER_RTL     ${PROJECT_SOURCE_DIR})
+set(ASE_SERVER_RTL ${PROJECT_SOURCE_DIR})
 
 ## Verilog compilation
 set(VLOG_SRC_LIST
@@ -57,7 +57,5 @@ set(ASE_PKG_FILE ${ASE_SERVER_RTL}/ase_pkg.sv)
 set(PLATFORM_PKG_FILE ${PLATFORM_IF_RTL}/ccip_if_pkg.sv)
 
 if(ASE_SIMULATOR STREQUAL "QUESTA")
-  find_package(Quartus)
-  find_package(Questa)
-  set(ALTERA_MEGAFUNCTIONS    "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf" )
+
 endif()
