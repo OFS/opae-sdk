@@ -185,15 +185,16 @@ endfunction(ase_module_get_libopae_location RESULT_VAR module)
 # Specify additional flags for compile ASE module.
 function(ase_module_add_definitions target_name flags)
   get_property(current_flags TARGET ${target_name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-#  string(CONCAT current_flags "${current_flags}" " " "${flags}")
-  set(current_flags "${current_flags} ${flags}")
+  set(current_flags "${current_flags} +define+${flags}")
   set_property(TARGET ${target_name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS "${current_flags}")
 endfunction(ase_module_add_definitions flags)
 
 #  ase_modules_include_directories(dirs ...)
 # Add include directories for compile ASE module.
 function(ase_module_include_directories target_name dir)
-  set_property(TARGET ${target_name} APPEND PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES ${dir})
+  get_property(current_flags TARGET ${target_name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  set(current_flags "${current_flags} +incdir+${dir}")
+  set_property(TARGET ${target_name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES "${current_flags}")
 endfunction(ase_module_include_directories target name_dir)
 
 # Property prefixed with 'ASE_MODULE_' is readonly for outer use,
