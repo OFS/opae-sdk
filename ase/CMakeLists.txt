@@ -33,7 +33,7 @@ set(OPAE_BASE_DIR      ${CMAKE_SOURCE_DIR})
 set(OPAE_SHARE_DIR     ".")
 include(ase_variables_config)
 
-# Post-installation cmake project
+# Post-installation cmake project (enable ASE building after installation)
 configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
         ${PROJECT_BINARY_DIR}/CMakeLists.txt)
 install(DIRECTORY in DESTINATION share/opae/ase COMPONENT asescripts)
@@ -46,17 +46,17 @@ install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
 install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
 install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 
-# ASE RTL code
-add_subdirectory(rtl)
-
 # ASE client
 add_subdirectory(api)
 
-# ASE server
-add_subdirectory(sw)
+# ASE RTL code
+add_subdirectory(rtl)
 
-# ASE samples
-add_subdirectory(samples)
+# # ASE server
+# add_subdirectory(sw)
+
+# # ASE samples
+# add_subdirectory(samples)
 
 # Extra platform scripts
 set(EXTRA_ASE_FILES

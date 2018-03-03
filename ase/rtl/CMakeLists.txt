@@ -27,23 +27,14 @@
 cmake_minimum_required(VERSION 2.8.12)
 project("opae-c-ase-platform")
 
+include(ase_add_modelsim)
+
 # CCIP base RTL code
 configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
   ${PROJECT_BINARY_DIR}/sources_abs.txt)
 install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
   DESTINATION ${ASE_SHARE_DIR}/rtl
   COMPONENT aseextra)
-
-# find afu_sim_setup
-find_program(AFU_PLATFORM_CONFIG
-  NAMES
-  afu_platform_config
-  PATHS
-  ${CMAKE_SOURCE_DIR}/platforms/scripts
-  /usr/bin
-  /usr/local/bin
-  /opt/local/bin
-  DOC "AFU platform configuration utility")
 
 # Directories
 set(ASE_SERVER_RTL ${PROJECT_SOURCE_DIR})
