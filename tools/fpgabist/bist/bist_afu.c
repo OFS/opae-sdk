@@ -1,6 +1,6 @@
 // Copyright(c) 2017, Intel Corporation
 //
-// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of  source code  must retain the  above copyright notice,
@@ -16,12 +16,12 @@
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
 // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
-// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
-// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
-// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// LIABLE  FOR	ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,	EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,	BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,	DATA, OR PROFITS;  OR BUSINESS
 // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,	EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
@@ -35,36 +35,36 @@
 int usleep(unsigned);
 
 #ifndef CL
-# define CL(x)                       ((x) * 64)
+# define CL(x)			     ((x) * 64)
 #endif // CL
 #ifndef LOG2_CL
-# define LOG2_CL                     6
+# define LOG2_CL		     6
 #endif // LOG2_CL
 #ifndef MB
-# define MB(x)                       ((x) * 1024 * 1024)
+# define MB(x)			     ((x) * 1024 * 1024)
 #endif // MB
 
 #define CACHELINE_ALIGNED_ADDR(p) ((p) >> LOG2_CL)
 
-#define LPBK1_BUFFER_SIZE            MB(1)
+#define LPBK1_BUFFER_SIZE	     MB(1)
 #define LPBK1_BUFFER_ALLOCATION_SIZE MB(2)
-#define LPBK1_DSM_SIZE               MB(2)
-#define CSR_SRC_ADDR                 0x0120
-#define CSR_DST_ADDR                 0x0128
-#define CSR_CTL                      0x0138
-#define CSR_CFG                      0x0140
-#define CSR_NUM_LINES                0x0130
+#define LPBK1_DSM_SIZE		     MB(2)
+#define CSR_SRC_ADDR		     0x0120
+#define CSR_DST_ADDR		     0x0128
+#define CSR_CTL			     0x0138
+#define CSR_CFG			     0x0140
+#define CSR_NUM_LINES		     0x0130
 #define DSM_STATUS_TEST_COMPLETE     0x40
-#define CSR_AFU_DSM_BASEL            0x0110
-#define CSR_AFU_DSM_BASEH            0x0114
+#define CSR_AFU_DSM_BASEL	     0x0110
+#define CSR_AFU_DSM_BASEH	     0x0114
 
 /**************** BIST #defines ***************/
-#define ENABLE_DDRA_BIST              0x08000000
-#define ENABLE_DDRB_BIST              0x10000000
-#define DDR_BIST_CTRL_ADDR           0x198
-#define DDR_BIST_STATUS_ADDR         0x200
-#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
-#define MAX_COUNT       100000
+#define ENABLE_DDRA_BIST	      0x08000000
+#define ENABLE_DDRB_BIST	      0x10000000
+#define DDR_BIST_CTRL_ADDR	     0x198
+#define DDR_BIST_STATUS_ADDR	     0x200
+#define CHECK_BIT(var, pos) ((var) & (1<<(pos)))
+#define MAX_COUNT	100000
 #define DDRA_BIST_PASS 0x200
 #define DDRA_BIST_FAIL 0x100
 #define DDRA_BIST_TIMEOUT 0x80
@@ -82,23 +82,23 @@ int usleep(unsigned);
  * macro to check return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
  */
-#define ON_ERR_GOTO(res, label, desc)                    \
-	do {                                       \
-		if ((res) != FPGA_OK) {            \
+#define ON_ERR_GOTO(res, label, desc)			 \
+	do {					   \
+		if ((res) != FPGA_OK) {		   \
 			print_err((desc), (res));  \
-			goto label;                \
-		}                                  \
+			goto label;		   \
+		}				   \
 	} while (0)
 
 /* Type definitions */
 
 typedef struct {
-        fpga_properties         filter;
-        fpga_token*             accelerator_token;
-        fpga_handle             accelerator_handle;
-        fpga_guid               guid;
-        uint64_t                res;
-        int                     open_flags;
+	fpga_properties		filter;
+	fpga_token		*accelerator_token;
+	fpga_handle		accelerator_handle;
+	fpga_guid		guid;
+	uint64_t		res;
+	int			open_flags;
 } fpga_struct;
 
 typedef struct {
@@ -113,20 +113,20 @@ void print_err(const char *s, fpga_result res)
 int main(int argc, char *argv[])
 {
 	fpga_properties    filter = NULL;
-	fpga_token         accelerator_token;
-	fpga_handle        accelerator_handle;
-	fpga_guid          guid;
-	uint32_t           num_matches;
+	fpga_token	   accelerator_token;
+	fpga_handle	   accelerator_handle;
+	fpga_guid	   guid;
+	uint32_t	   num_matches;
 
 	volatile uint64_t *dsm_ptr    = NULL;
 	volatile uint64_t *status_ptr = NULL;
 	volatile uint64_t *input_ptr  = NULL;
 	volatile uint64_t *output_ptr = NULL;
 
-	uint64_t        dsm_wsid;
-	uint64_t        input_wsid;
-	uint64_t        output_wsid;
-	fpga_result     res = FPGA_OK;
+	uint64_t	dsm_wsid;
+	uint64_t	input_wsid;
+	uint64_t	output_wsid;
+	fpga_result	res = FPGA_OK;
 
 	int opt;
 	int open_flags = 0;
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
 
 	/* Initialize buffers */
-	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
+	memset((void *)dsm_ptr,    0,	 LPBK1_DSM_SIZE);
 	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
 	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
 
@@ -242,78 +242,78 @@ int main(int argc, char *argv[])
 
 
 /************* Begin BIST *************/
-        /* Perform BIST Check */
+	/* Perform BIST Check */
 	printf("Running BIST Test\n");
-        uint64_t data = 0;
-        double count = 0;
-        unsigned int bist_mask = ENABLE_DDRA_BIST;
+	uint64_t data = 0;
+	double count = 0;
+	unsigned int bist_mask = ENABLE_DDRA_BIST;
 
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
-        res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR,&data);
+	res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, &data);
 	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
-	while((CHECK_BIT(data,27) != 0x08000000)){
+	while ((CHECK_BIT(data, 27) != 0x08000000)) {
 	  printf("Enable Test: reading result #%f: %04lx\n", count, data);
-	  if (count >= MAX_COUNT){
+	  if (count >= MAX_COUNT) {
 		fprintf(stderr, "BIST not enabled!\n");
-                return -1;
-          }
+		return -1;
+	  }
 	  count++;
 	}
 	printf("BIST is enabled.  Reading status register\n");
 
 	count = 0;
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
-        while ((CHECK_BIT(data,9) != 0x200) && (CHECK_BIT(data,8) != 0x100) && (CHECK_BIT(data,7) != 0x80) && 
-            (CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
+	while ((CHECK_BIT(data, 9) != 0x200) && (CHECK_BIT(data, 8) != 0x100) && (CHECK_BIT(data, 7) != 0x80) &&
+		(CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
-                 &data); 
+			&data);
 		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS");
-		if (count >= MAX_COUNT){
+		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
 			break;
 		}
 		count++;
 		usleep(100);
-        }
+	}
 
-        if (CHECK_BIT(data,9) == DDRA_BIST_PASS) {
+	if (CHECK_BIT(data, 9) == DDRA_BIST_PASS) {
 		printf("DDR Bank A BIST Test Passed.\n");
-        } else if (CHECK_BIT(data,8) == DDRA_BIST_FAIL) {
+	} else if (CHECK_BIT(data, 8) == DDRA_BIST_FAIL) {
 		printf("DDR Bank A BIST Test failed.\n");
-        } else if (CHECK_BIT(data,7) == DDRA_BIST_TIMEOUT) {
+	} else if (CHECK_BIT(data, 7) == DDRA_BIST_TIMEOUT) {
 		printf("DDR Bank A BIST Test timed out.\n");
-        } else {
+	} else {
 		printf("DDR Bank A Test encountered a fatal error and cannot continue.\n");
-        }
+	}
 
-        bist_mask = ENABLE_DDRB_BIST;
-        count = 0;
+	bist_mask = ENABLE_DDRB_BIST;
+	count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
-        while ((CHECK_BIT(data,10) != 0x400) && (CHECK_BIT(data,11) != 0x800) && (CHECK_BIT(data,12) != 0x1000)){
+	while ((CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
-                 &data);
+			&data);
 		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
-		if (count >= MAX_COUNT){
+		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
 			break;
 		}
 		count++;
 		usleep(100);
-        }
+	}
 
-        if (CHECK_BIT(data,12) == DDRB_BIST_PASS) {
+	if (CHECK_BIT(data, 12) == DDRB_BIST_PASS) {
 		printf("DDR Bank B BIST Test Passed.\n");
-        } else if (CHECK_BIT(data,11) == DDRB_BIST_FAIL) {
+	} else if (CHECK_BIT(data, 11) == DDRB_BIST_FAIL) {
 		printf("DDR Bank BIST Test failed.\n");
-        } else if (CHECK_BIT(data,10) == DDRB_BIST_TIMEOUT) {
+	} else if (CHECK_BIT(data, 10) == DDRB_BIST_TIMEOUT) {
 		printf("DDR Bank B BIST Test timed out.\n");
-        } else {
+	} else {
 		printf("DDR Bank B Test encountered a fatal error and cannot continue.\n");
-        }
+	}
 /**************** End BIST *****************/
 
 
