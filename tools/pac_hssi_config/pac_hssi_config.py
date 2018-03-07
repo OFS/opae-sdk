@@ -526,7 +526,9 @@ class SklHssi(object):
             return rval
         else:
             self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, addr)
-            return self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
+            rval = self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0)
+            return rval
 
     def skl_prmgmt_write(self, addr, din):
         if self._mem2:
@@ -916,6 +918,8 @@ def e10_pkt_send_fxn(args, skl):
 
 def e10_init_fxn(args, skl):
     skl.skl_e10_check()
+    mem2 = skl._mem2
+    skl.skl_set_mem2(None)
     print "Changing SKL mode to 10g, \
     initializing E2E_10G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x7)
@@ -924,6 +928,7 @@ def e10_init_fxn(args, skl):
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x4)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_prmgmt_write(skl.PR_MGMT_SLOOP, 0xF)
+    skl.skl_set_mem2(mem2)
     e10_stat_clr_fxn(args, skl)
     print "Done!"
 
@@ -970,12 +975,15 @@ def e40_pkt_send_fxn(args, skl):
 
 def e40_init_fxn(args, skl):
     skl.skl_e40_check()
+    mem2 = skl._mem2
+    skl.skl_set_mem2(None)
     print "Changing SKL mode to 40g, \
     initializing E2E_40G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x3)
     skl.set_mode(2)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_e40_write(0x313, 0x3ff)
+    skl.skl_set_mem2(mem2)
     skl.skl_e40_stat_clr()
     print "Done!"
 
