@@ -13,13 +13,9 @@ extern "C" {
 #include <opae/cxx/core/dma_buffer.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/except.h>
-#include <opae/cxx/accelerator.h>
 
-#include <opae/cxx/buffers.h>
 
 using namespace opae::fpga::types;
-using namespace opae::fpga::resource;
-using namespace opae::fpga::memory;
 
 class CxxBuffer_f1 : public ::testing::Test {
  protected:

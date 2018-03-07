@@ -1,9 +1,8 @@
 #include "gtest/gtest.h"
-
-#include <opae/cxx/accelerator.h>
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
 
 using namespace opae::fpga::types;
-using namespace opae::fpga::resource;
 
 /**
  * @test handle_reset_01

@@ -10,10 +10,8 @@ extern "C" {
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
-#include <opae/cxx/accelerator.h>
 
 using namespace opae::fpga::types;
-using namespace opae::fpga::resource;
 
 /**
  * @test handle_open_01
