@@ -302,6 +302,7 @@ ldconfig
   set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
 endif(RUN_LDCONFIG)
 
+
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
 set(CPACK_RPM_SPEC_MORE_DEFINE "%define ignore \#")
@@ -313,7 +314,8 @@ set(CPACK_RPM_USER_FILELIST
   "%ignore /usr/share"
   "%ignore /usr/include"
   "%ignore /usr/src"
-  "%ignore /usr/doc")
+  "%ignore /usr/doc"
+  "%ignore /usr/lib64")
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
   "/"
   "/usr"
@@ -322,7 +324,8 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
   "/usr/share"
   "/usr/include"
   "/usr/src"
-  "/usr/doc")
+  "/usr/doc"
+  "/usr/lib64")
 
 # Source code packaging target
 set(CPACK_SOURCE_GENERATOR "TGZ")
