@@ -60,33 +60,44 @@ class handle {
    */
   operator fpga_handle() const { return handle_; }
 
-  /** Write 32-bit value to MMIO.
-   * @param[in] offset The byte offset from MMIO base to write.
-   * @param[in] value  The value to be written.
-   * @return Whether the write was successful.
+  /**
+   * @brief Read CSR from resource associated with the handle
+   *
+   * @tparam T The type of value to return.
+   *
+   * @note Only uint32_t or uint64_t are allowed.
+   *
+   * @param offset The register offset
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
+   * @return The value of type T read from the CSR
    */
-  virtual bool write(uint64_t offset, uint32_t value);
+  template<typename T>
+  T read_csr(uint64_t offset, uint32_t csr_space = 0) const {
+    (void)offset;
+    (void)csr_space;
+    throw except(OPAECXX_HERE);
+  }
 
-  /** Write 64-bit value to MMIO.
-   * @param[in] offset The byte offset from MMIO base to write.
-   * @param[in] value  The value to be written.
-   * @return Whether the write was successful.
+  /**
+   * @brief Write value to CSR from resource associated with the handle
+   *
+   * @tparam T The type of value to write.
+   *
+   * @note Only uint32_t or uint64_t are allowed.
+   *
+   * @param offset The register offset.
+   * @param value The value to write to the register.
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
    */
-  virtual bool write(uint64_t offset, uint64_t value);
-
-  /** Read 32-bit value from MMIO.
-   * @param[in]  offset The byte offset from MMIO base to read.
-   * @param[out] value  Receives the value read.
-   * @return Whether the read was successful.
-   */
-  virtual bool read(uint64_t offset, uint32_t &value) const;
-
-  /** Read 64-bit value from MMIO.
-   * @param[in]  offset The byte offset from MMIO base to read.
-   * @param[out] value  Receives the value read.
-   * @return Whether the read was successful.
-   */
-  virtual bool read(uint64_t offset, uint64_t &value) const;
+  template<typename T>
+  void write_csr(uint64_t offset, T value, uint32_t csr_space = 0) {
+    (void)offset;
+    (void)value;
+    (void)csr_space;
+    throw except(OPAECXX_HERE);
+  }
 
   /** Retrieve a pointer to the MMIO region.
    * @param[in] offset The byte offset to add to MMIO base.

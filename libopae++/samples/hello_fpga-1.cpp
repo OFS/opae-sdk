@@ -88,20 +88,20 @@ int main(__attribute__((unused)) int argc,
   std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
   //accel->reset();
-  accel->write(CSR_AFU_DSM_BASEL, dsm->iova());
-  accel->write(CSR_CTL, static_cast<uint32_t>(0));
-  accel->write(CSR_CTL, static_cast<uint32_t>(1));
-  accel->write(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
-  accel->write(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
+  accel->write_csr<uint64_t>(CSR_AFU_DSM_BASEL, dsm->iova());
+  accel->write_csr<uint32_t>(CSR_CTL, 0);
+  accel->write_csr<uint32_t>(CSR_CTL, 1);
+  accel->write_csr<uint64_t>(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
+  accel->write_csr<uint64_t>(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
 
-  accel->write(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1*CL);
-  accel->write(CSR_CFG, static_cast<uint32_t>(0x42000));
+  accel->write_csr<uint64_t>(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1*CL);
+  accel->write_csr<uint32_t>(CSR_CFG, 0x42000);
 
   // get ptr to device status memory - test complete
   auto status_ptr = dsm->get() + DSM_STATUS_TEST_COMPLETE / 8;
 
   // start the test
-  accel->write(CSR_CTL, static_cast<uint32_t>(3));
+  accel->write_csr<uint32_t>(CSR_CTL, 3);
 
   // wait for test completion
   while (0 == ((*status_ptr) * 0x1)) {
@@ -109,7 +109,7 @@ int main(__attribute__((unused)) int argc,
   }
 
   // stop the device
-  accel->write(CSR_CTL, static_cast<uint32_t>(7));
+  accel->write_csr<uint32_t>(CSR_CTL, 7);
 
   // check output buffer contents
   auto mm = std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());

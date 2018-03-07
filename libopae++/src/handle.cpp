@@ -39,22 +39,6 @@ handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
 
 handle::~handle() { close(); }
 
-bool handle::write(uint64_t offset, uint32_t value) {
-  return FPGA_OK == fpgaWriteMMIO32(handle_, mmio_region_, offset, value);
-}
-
-bool handle::write(uint64_t offset, uint64_t value) {
-  return FPGA_OK == fpgaWriteMMIO64(handle_, mmio_region_, offset, value);
-}
-
-bool handle::read(uint64_t offset, uint32_t &value) const {
-  return FPGA_OK == fpgaReadMMIO32(handle_, mmio_region_, offset, &value);
-}
-
-bool handle::read(uint64_t offset, uint64_t &value) const {
-  return FPGA_OK == fpgaReadMMIO64(handle_, mmio_region_, offset, &value);
-}
-
 handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
   fpga_handle c_handle = nullptr;
   uint8_t *mmio_base = nullptr;
@@ -125,6 +109,37 @@ void handle::reset() {
   }
 }
 
+template<>
+uint32_t handle::read_csr<uint32_t>(uint64_t offset, uint32_t csr_space) const {
+  uint32_t value = 0;
+  if (FPGA_OK == fpgaReadMMIO32(handle_, csr_space, offset, &value)){
+    return value;
+  }
+  throw except(OPAECXX_HERE);
+}
+
+template<>
+uint64_t handle::read_csr<uint64_t>(uint64_t offset, uint32_t csr_space) const {
+  uint64_t value = 0;
+  if (FPGA_OK == fpgaReadMMIO64(handle_, csr_space, offset, &value)){
+    return value;
+  }
+  throw except(OPAECXX_HERE);
+}
+
+template<>
+void handle::write_csr<uint32_t>(uint64_t offset, uint32_t value, uint32_t csr_space) {
+  if (FPGA_OK != fpgaWriteMMIO32(handle_, csr_space, offset, value)){
+    throw except(OPAECXX_HERE);
+  }
+}
+
+template<>
+void handle::write_csr<uint64_t>(uint64_t offset, uint64_t value, uint32_t csr_space) {
+  if (FPGA_OK != fpgaWriteMMIO64(handle_, csr_space, offset, value)){
+    throw except(OPAECXX_HERE);
+  }
+}
 }  // end of namespace types
 }  // end of namespace fpga
 }  // end of namespace opae
