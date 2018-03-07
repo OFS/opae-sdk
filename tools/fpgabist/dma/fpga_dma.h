@@ -52,7 +52,7 @@ typedef enum {
 	FPGA_TO_HOST_MM, //Memory mapped FPGA interface
 	FPGA_TO_FPGA_MM, //Memory mapped FPGA interface
 	FPGA_MAX_TRANSFER_TYPE,
-}fpga_dma_transfer_t;
+} fpga_dma_transfer_t;
 
 typedef struct _dma_handle_t *fpga_dma_handle;
 
