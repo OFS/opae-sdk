@@ -24,7 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <vector>
+#include <map>
 #include <memory>
 
 #include <opae/types.h>
@@ -108,7 +108,7 @@ class handle {
    * @param[in] offset The byte offset to add to MMIO base.
    * @return MMIO base + offset
    */
-  uint8_t *mmio_ptr(uint64_t offset) const { return mmio_base_ + offset; }
+  uint8_t *mmio_ptr(uint64_t offset, uint32_t csr_space = 0);
 
   /** Open an accelerator resource, given a raw fpga_token
    *
@@ -120,8 +120,7 @@ class handle {
    * @param[in] mmio_region The zero-based index of
    * the desired MMIO region. See fpgaMapMMIO().
    */
-  static handle::ptr_t open(fpga_token token, int flags,
-                            uint32_t mmio_region = 0);
+  static handle::ptr_t open(fpga_token token, int flags);
 
   /** Open an accelerator resource, given a token object
    *
@@ -133,8 +132,7 @@ class handle {
    * @param[in] mmio_region The zero-based index of
    * the desired MMIO region. See fpgaMapMMIO().
    */
-  static handle::ptr_t open(token::ptr_t token, int flags,
-                            uint32_t mmio_region = 0);
+  static handle::ptr_t open(token::ptr_t token, int flags);
 
   /** Reset the accelerator identified by this handle
    */
@@ -144,12 +142,23 @@ class handle {
   fpga_result close();
 
  private:
-  handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base);
+  handle(fpga_handle h);
 
   fpga_handle handle_;
-  uint32_t mmio_region_;
-  uint8_t *mmio_base_;
   opae::fpga::internal::logger log_;
+
+  // maps MMIO region numbers to pointers.
+  typedef std::map<uint32_t, uint8_t *> map_t;
+
+  mutable map_t mmio_map_;
+
+  /** Add an MMIO space to the local map
+   *
+   * @param[in] csr_space The requested MMIO space.
+   *
+   * @retval The base of the requested MMIO space.
+   */
+  uint8_t * track_mmio_space(uint32_t csr_space) const;
 };
 
 }  // end of namespace types

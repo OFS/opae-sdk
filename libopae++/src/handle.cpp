@@ -33,57 +33,44 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
-    : handle_(h), mmio_region_(mmio_region), mmio_base_(mmio_base),
+handle::handle(fpga_handle h)
+    : handle_(h),
       log_("handle")  {}
 
 handle::~handle() { close(); }
 
-handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
+handle::ptr_t handle::open(fpga_token token, int flags) {
   fpga_handle c_handle = nullptr;
-  uint8_t *mmio_base = nullptr;
   ptr_t p;
   opae::fpga::internal::logger log("handle::open()");
 
   auto res = fpgaOpen(token, &c_handle, flags);
   if (res == FPGA_OK) {
-    properties::ptr_t props = properties::read(token);
-
-    if (FPGA_ACCELERATOR == props->type) {
-      res = fpgaMapMMIO(c_handle, mmio_region,
-                        reinterpret_cast<uint64_t **>(&mmio_base));
-
-      if (res != FPGA_OK) {
-        log.error() << "fpgaMapMMIO() failed with (" << res
-                    << ") " << fpgaErrStr(res);
-        throw except(res, OPAECXX_HERE);
-      }
-    }
-
-    p.reset(new handle(c_handle, mmio_region, mmio_base));
+    p.reset(new handle(c_handle));
   }
 
   return p;
 }
 
-handle::ptr_t handle::open(token::ptr_t tok, int flags, uint32_t mmio_region) {
-  return handle::open(*tok, flags, mmio_region);
+handle::ptr_t handle::open(token::ptr_t tok, int flags) {
+  return handle::open(*tok, flags);
 }
 
 fpga_result handle::close() {
   fpga_result res = FPGA_INVALID_PARAM;
 
   if (handle_ != nullptr) {
-    if (mmio_base_ != nullptr) {
-      res = fpgaUnmapMMIO(handle_, mmio_region_);
 
-      if (res == FPGA_OK) {
-        mmio_base_ = nullptr;
-      } else {
+    for (auto it : mmio_map_) {
+
+      res = fpgaUnmapMMIO(handle_, it.first);
+
+      if (res != FPGA_OK) {
         log_.error() << "fpgaUnmapMMIO() failed with (" << res
                      << ") " << fpgaErrStr(res);
         throw except(res, OPAECXX_HERE);
       }
+
     }
 
     res = fpgaClose(handle_);
@@ -112,6 +99,7 @@ void handle::reset() {
 uint32_t handle::read_csr32(uint64_t offset, uint32_t csr_space) const {
   uint32_t value = 0;
   if (FPGA_OK == fpgaReadMMIO32(handle_, csr_space, offset, &value)){
+    track_mmio_space(csr_space);
     return value;
   }
   throw except(OPAECXX_HERE);
@@ -120,6 +108,7 @@ uint32_t handle::read_csr32(uint64_t offset, uint32_t csr_space) const {
 uint64_t handle::read_csr64(uint64_t offset, uint32_t csr_space) const {
   uint64_t value = 0;
   if (FPGA_OK == fpgaReadMMIO64(handle_, csr_space, offset, &value)){
+    track_mmio_space(csr_space);
     return value;
   }
   throw except(OPAECXX_HERE);
@@ -129,13 +118,50 @@ void handle::write_csr32(uint64_t offset, uint32_t value, uint32_t csr_space) {
   if (FPGA_OK != fpgaWriteMMIO32(handle_, csr_space, offset, value)){
     throw except(OPAECXX_HERE);
   }
+  track_mmio_space(csr_space);
 }
 
 void handle::write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space) {
   if (FPGA_OK != fpgaWriteMMIO64(handle_, csr_space, offset, value)){
     throw except(OPAECXX_HERE);
   }
+  track_mmio_space(csr_space);
 }
+
+uint8_t * handle::mmio_ptr(uint64_t offset, uint32_t csr_space) {
+  return track_mmio_space(csr_space) + offset;
+}
+
+uint8_t * handle::track_mmio_space(uint32_t csr_space) const
+{
+  map_t::const_iterator it = mmio_map_.find(csr_space);
+
+  if (mmio_map_.end() != it) {
+    return it->second; // Already tracking it.
+  }
+
+  uint8_t *mmio_ptr = nullptr;
+
+  fpga_result res = fpgaMapMMIO(handle_, csr_space,
+                      reinterpret_cast<uint64_t **>(&mmio_ptr));
+ 
+  if (res != FPGA_OK) {
+    log_.error() << "fpgaMapMMIO() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
+  }
+
+  std::pair<map_t::iterator, bool> insert_res =
+    mmio_map_.insert(std::make_pair(csr_space, mmio_ptr));
+
+  if (!insert_res.second) {
+    log_.error() << "local MMIO map insert failed";
+    throw except(OPAECXX_HERE);
+  }
+
+  return mmio_ptr;
+}
+
 }  // end of namespace types
 }  // end of namespace fpga
 }  // end of namespace opae
