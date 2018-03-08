@@ -93,3 +93,5 @@ Per-AFU  | clock-frequency-high | Float | Clock frequency for 2nd PLL (0 if abse
 Per-AFC Cluster | total-contexts | Integer | Number of AFCs in this cluster. Always be 1 in current architectures. | Yes
 Per-AFC Cluster | afc-type-uuid |  UUID | AFC type = AFU ID in current architectures. | Yes
 Per-AFC Cluster | name | string | AFC name = AFU name in current architectures. | Yes
+
+
