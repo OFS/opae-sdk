@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include "opae/cxx/core/token.h"
+#include "opae/cxx/core/handle.h"
 #include "opae/cxx/core/events.h"
 
 using namespace opae::fpga::types;

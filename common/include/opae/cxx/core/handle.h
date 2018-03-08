@@ -60,33 +60,49 @@ class handle {
    */
   operator fpga_handle() const { return handle_; }
 
-  /** Write 32-bit value to MMIO.
-   * @param[in] offset The byte offset from MMIO base to write.
-   * @param[in] value  The value to be written.
-   * @return Whether the write was successful.
+  /**
+   * @brief Read 32 bits from a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
+   * @return The 32-bit value read from the CSR
    */
-  virtual bool write(uint64_t offset, uint32_t value);
+  uint32_t read_csr32(uint64_t offset, uint32_t csr_space = 0) const;
 
-  /** Write 64-bit value to MMIO.
-   * @param[in] offset The byte offset from MMIO base to write.
-   * @param[in] value  The value to be written.
-   * @return Whether the write was successful.
+  /**
+   * @brief Write 32 bitto a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset.
+   * @param value The 32-bit value to write to the register.
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
    */
-  virtual bool write(uint64_t offset, uint64_t value);
+  void write_csr32(uint64_t offset, uint32_t value, uint32_t csr_space = 0);
 
-  /** Read 32-bit value from MMIO.
-   * @param[in]  offset The byte offset from MMIO base to read.
-   * @param[out] value  Receives the value read.
-   * @return Whether the read was successful.
+  /**
+   * @brief Read 64 bits from a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
+   * @return The 64-bit value read from the CSR
    */
-  virtual bool read(uint64_t offset, uint32_t &value) const;
+  uint64_t read_csr64(uint64_t offset, uint32_t csr_space = 0) const;
 
-  /** Read 64-bit value from MMIO.
-   * @param[in]  offset The byte offset from MMIO base to read.
-   * @param[out] value  Receives the value read.
-   * @return Whether the read was successful.
+  /**
+   * @brief Write 64 bitto a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset.
+   * @param value The 64-bit value to write to the register.
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
    */
-  virtual bool read(uint64_t offset, uint64_t &value) const;
+  void write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space = 0);
 
   /** Retrieve a pointer to the MMIO region.
    * @param[in] offset The byte offset to add to MMIO base.

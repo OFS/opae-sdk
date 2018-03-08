@@ -56,8 +56,8 @@ int main(int argc, char* argv[]) {
     std::cout << "bus: 0x" << std::hex << props->bus << "\n";
     handle::ptr_t h = handle::open(tok, FPGA_OPEN_SHARED);
     uint64_t value1 = 0xdeadbeef, value2 = 0;
-    h->write(0x100, value1);
-    h->read(0x100, value2);
+    h->write_csr64(0x100, value1);
+    value2 = h->read_csr64(0x100);
     std::cout << "mmio @0x100: 0x" << std::hex << value2 << "\n";
     std::cout << "mmio @0x100: 0x" << std::hex
               << *reinterpret_cast<uint64_t*>(h->mmio_ptr(0x100)) << "\n";
