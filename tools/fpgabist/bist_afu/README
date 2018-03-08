@@ -1,7 +1,0 @@
-The Arria® 10 DCP BIST is a mechanism designed to allow 
-the DCP system to troubleshoot itself and find components 
-that are responsible for any failures without modifying 
-the blue bit boundary or any external interface.  It is 
-intended to reduce test-cycle duration and reduce test 
-complexity for new DCP boards or DCP boards that are 
-believed to have malfunctioning components.
