@@ -9,57 +9,57 @@ fpgadiag [-m | --mode=] <mode> [-t | --target=] <target> [options]
 ## DESCRIPTION ##
 Includes several tests to diagnose, test, and report on the FPGA hardware.
 
-`<mode>` chooses which test to run. 
-`<target>` specifies the platform that runs the test.
-`<target>` can be either `fpga` or `ase` where `ase` stands for
-Accelerator Simulation Environment.
+```<mode>``` chooses which test to run. 
+```<target>``` specifies the platform that runs the test.
+```<target>``` can be either ```fpga``` or ```ase``` where ```ase```. 
+```<ase>``` is the abbreviation for Accelerator Simulation Environment.
 
-The `<mode>` selects from the following tests:
+The ```<mode>``` selects from the  following tests:
 
 **lpbk1**
 
-    This test runs a loopback test on the number of cachelines specified with 
-    the `BEGIN` option. _fpgadiag_ sets up source and  destination buffers in 
-    main memory. The FPGA then performs a memcpy from a source buffer to the 
-    destination buffer, one cacheline at a time. 
+This test runs a loopback test on the number of cachelines specified with 
+the ```BEGIN``` option. ```fpgadiag``` sets up source and  destination buffers in 
+main memory. The FPGA then performs a ```memcpy``` from a source buffer to the 
+destination buffer, one cacheline at a time. 
 
-    A cacheline is 64 bytes. When `BEGIN = END`, the test performs one iteration. When 
-    `BEGIN = END + x`, the test performs `x` iterations. The first iteration consists 
-    of copying `BEGIN` cachelines; the second iteration consists of copying 
-    `BEGIN+1` cache lines; the third iteration consists of copying `BEGIN+3` 
-    cache lines, and so on. 
+A cacheline is 64 bytes. When `BEGIN = END`, the test performs one iteration. When 
+`BEGIN = END + x`, the test performs `x` iterations. The first iteration consists 
+of copying `BEGIN` cachelines; the second iteration consists of copying 
+`BEGIN+1` cache lines. The third iteration consists of copying `BEGIN+2` 
+cache lines, and so on. 
     
-    The latency is shown as the number of clock cycles. 
+The latency is shown as the number of clock cycles. 
     
-    When you specify `MULTI-CL`, you copy `MULTI-CL` cache lines at a time.
-    The WR-FENCE chooses what virtual channel the WrFence occurs on.
+When you specify `MULTI-CL`, you copy `MULTI-CL` cache lines at a time.
+The WR-FENCE chooses on which virtual channel the WrFence occurs.
      
     
-    If you specify continuous mode with `--cont`, the program iterates
-    until the timeout specified in `TIMEOUT` completes.
+If you specify continuous mode with `--cont`, the program iterates
+until the timeout specified in `TIMEOUT` completes.
 
 
 **read**
 
-    This test performs reads. Use this test to measure read bandwidth. 
+This test performs reads. Use this test to measure read bandwidth. 
     
 
 
 **write** 
 
-    This test performs writes. Use it to measure write bandwidth. 
+This test performs writes. Use it to measure write bandwidth. 
 
 
 **trput**
 
-    This test measures both read and write bandwidth by performing 50% read and 
-    50% write tests.
+This test measures both read and write bandwidth by performing 50% read and 
+50% write tests.
 
 
 **sw**
 
-    This is a send-and-respond (ping-pong) test. One side sends data and 
-    waits for response.
+This is a send-and-respond (ping-pong) test. One side sends data and 
+waits for response.
 
 Each test requires a particular AF. Before running a test,
 make sure the required AF is properly configured
@@ -151,9 +151,7 @@ on the platform.
 
 `--timeout-usec=, --timeout-msec=, --timeout-sec=, --timeout-min=, --timeout-hour=`
 
-    timeout for --cont mode (microseconds portion default=0; milliseconds 
-    portion default=0; seconds portion default=1; minutes portion default=0;
-    hours portion default=0)
+    timeout for --cont mode. The default for all options is 0. 
 
 `--cache-policy=, -p`
 
@@ -179,23 +177,23 @@ on the platform.
 ### **read** test options ###
 `--guid=, -g`
 
-    AFU ID to enumerate. The default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
+    AFU ID to enumerate. The default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18. 
 
 `--begin=B, -b`
 
-    1 <= B <= 65535. The default=1, B = number of cache lines 
+    1 <= B <= 65535. The default=1, B = number of cache lines. 
 
 `--end=E, -e`
 
-    1 <= E <= 65535. The default=B, B and E designate number of cache lines 
+    1 <= E <= 65535. The default=B, B and E designate number of cache lines. 
 
 `--multi-cl=M, -u`
 
-    M can equal 1, 2, or 4. The default=1 
+    M can equal 1, 2, or 4. The default=1. 
 
 `--strided-access=S, -a`
 
-    1<= S <= 64. The default=1 
+    1<= S <= 64. The default=1. 
 
 `--cont, -L`
 
@@ -203,22 +201,20 @@ on the platform.
 
 `--timeout-usec=, --timeout-msec=, --timeout-sec=, --timeout-min=, --timeout-hour=`
 
-    timeout for --cont mode (microseconds portion default=0; milliseconds 
-    portion default=0; seconds portion default=1; minutes portion default=0;
-    hours portion default=0)
+    timeout for --cont mode. The default for all options is 0.
 
 `--cache-hint=, -i`
 
-    Can be rdline-I or rdline-S. The default=rdline-I 
+    Can be rdline-I or rdline-S. The default=rdline-I. 
 
 `--warm-fpga-cache -H; --cool-fpga-cache -M`
 
-    Attempt to prime the cache with hits. The default=off, Attempt to prime the 
+    Try to prime the cache with hits. The default=off. Try to prime the 
     cache with misses. The default=off.
 
 `--cool-cpu-cache, -C`
 
-    Attempt to prime the cpu cache with misses. The default=off. 
+    Try to prime the cpu cache with misses. The default=off. 
 
 `--read-vc=, -r`
 
@@ -232,7 +228,7 @@ on the platform.
 
 `--begin=B, -b`
 
-    1 <= E <= 65535. The default=B, B and E designate number of cache lines 
+    1 <= E <= 65535. The default=B, B and E designate number of cache lines. 
 
 `--multi-cl=M, -u`
 
@@ -240,7 +236,7 @@ on the platform.
 
 `--strided-access=S, -a`
 
-    1<= S <= 64. The default=1 
+    1<= S <= 64. The default=1.
 
 `--cont, -L`
 
@@ -248,9 +244,7 @@ on the platform.
 
 `--timeout-usec=, --timeout-msec=, --timeout-sec=, --timeout-min=, --timeout-hour=`
 
-    timeout for --cont mode (microseconds portion default=0; milliseconds 
-    portion default=0; seconds portion default=1; minutes portion default=0;
-    hours portion default=0)
+    timeout for --cont mode. The default for all options is 0.
 
 `--cache-policy=, -p`
 
@@ -258,20 +252,20 @@ on the platform.
 
 `--warm-fpga-cache -H; --cool-fpga-cache -M`
 
-    Attempt to prime the cache with hits. The default=off. Attempt to prime the 
+    Try to prime the cache with hits. The default=off. Try to prime the 
     cache with misses. The default=off. 
 
 `--cool-cpu-cache, -C`
 
-    Attempt to prime the cpu cache with misses. The default=off. 
+    Try to prime the cpu cache with misses. The default=off. 
 
 `--write-vc=, -w`
 
-    Can be auto, vl0, vh0, vh1, random. The default=auto 
+    Can be auto, vl0, vh0, vh1, random. The default=auto. 
 
 `--wrfence-vc=, -f`
 
-    Can be auto, vl0, vh0, vh1, random. The default=`WRITE-VC`
+    Can be auto, vl0, vh0, vh1, random. The default=`WRITE-VC`.
 
 `--alt-wr-pattern, -l`
 
@@ -285,11 +279,11 @@ on the platform.
 
 `--begin=B, -b`
 
-    1 <= B <= 65535. The default=1, B = number of cache lines 
+    1 <= B <= 65535. The default=1, B = number of cache lines. 
 
 `--end=E, -e`
 
-    1 <= E <= 65535. The default=B, B and E designate number of cache lines 
+    1 <= E <= 65535. The default=B, B and E designate number of cache lines. 
 
 `--multi-cl=M, -u`
 
@@ -305,29 +299,27 @@ on the platform.
 
 `--timeout-usec=, --timeout-msec=, --timeout-sec=, --timeout-min=, --timeout-hour=`
 
-    timeout for --cont mode (microseconds portion default=0; milliseconds 
-    portion default=0; seconds portion default=1; minutes portion default=0;
-    hours portion default=0)
+    timeout for --cont mode. The default for all options is 0.
 
 `--cache-policy=, -p`
 
-    Can be wrline-I, wrline-M, or wrpush-I The default=wrline-M 
+    Can be wrline-I, wrline-M, or wrpush-I The default=wrline-M. 
 
 `--cache-hint=, -i`
 
-    Can be rdline-I or rdline-S. The default=rdline-I 
+    Can be rdline-I or rdline-S. The default=rdline-I. 
 
 `--read-vc=, -r`
 
-    Can be auto, vl0, vh0, vh1, random. The default=auto 
+    Can be auto, vl0, vh0, vh1, random. The default=auto. 
 
 `--write-vc=, -w`
 
-    Can be auto, vl0, vh0, vh1, random. The default=auto 
+    Can be auto, vl0, vh0, vh1, random. The default=auto. 
 
 `--wrfence-vc=, -f`
 
-    Can be  auto, vl0, vh0, vh1. The default=`WRITE-VC`
+    Can be  auto, vl0, vh0, vh1. The default=`WRITE-VC`.
 
 
 ### **sw** test options ###
@@ -337,19 +329,19 @@ on the platform.
 
 `--begin=B, -b`
 
-    1 <= B <= 65535. The default=1, B = number of cache lines 
+    1 <= B <= 65535. The default=1, B = number of cache lines. 
 
 `--end=E, -e`
 
-    1 <= E <= 65535. The default=B, B and E designate number of cache lines 
+    1 <= E <= 65535. The default=B, B and E designate number of cache lines. 
 
 `--cache-policy=, -p`
 
-    Can be wrline-I, wrline-M, or wrpush-I. The default=wrline-M 
+    Can be wrline-I, wrline-M, or wrpush-I. The default=wrline-M. 
 
 `--cache-hint= -i`
 
-    Can be rdline-I or rdline-S. The ddfault=rdline-I 
+    Can be rdline-I or rdline-S. The ddfault=rdline-I. 
 
 `--read-vc=, -r`
 
@@ -371,7 +363,8 @@ on the platform.
 ## EXAMPLES ##
 This command starts a `lpbk1` test for the FPGA on bus `0x5e`. The test 
 copies 57535, 57536, 57537 ... up to 65535 cache lines, one line at a time.
-The test prints output in the CSV format with the header suppressed.
+The test prints output in the comma separated values (CSV) format with the
+header suppressed.
 ```console
 ./fpgadiag --mode=lpbk1 --target=fpga -SV --bus-number=0x5e --begin=57535
 --end=65535 --cache-hint=rdline-I --cache-policy=wrpush-I --multi-cl=1
@@ -411,8 +404,8 @@ for hugepage configuration steps. In particular, `fpgadiag` requires a few 1 GB
 pages. 
 * Is the required AFU loaded? See [DESCRIPTION](#description) for
 information about what AFU the test requires.
-* Are `--begin` and `--end` values set properly? `--end` must be no
-smaller than the `--begin`. Also, `--begin` must be a multiple of the
+* Are `--begin` and `--end` values set properly? `--end` must be larger
+than the `--begin`. Also, `--begin` must be a multiple of the
 `--multi-cl` value.
 * The `--warm-fpga-cache` and `--cool-fpga-cache` options in the `read`
 and `write` tests are mutually exclusive.

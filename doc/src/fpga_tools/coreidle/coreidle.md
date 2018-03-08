@@ -7,9 +7,9 @@
 
 ## DESCRIPTION ##
 
-coreidle parses the Accelerator Function Unit (AFU) metadata and extracts power information. coreidle calculates the FPGA power 
-and calculates the number of online and idle cores. It moves threads from idle cores to online cores. coreidle is only available 
-the Integrated FPGA Platform. You cannot run coreidle on the PCIe Accelerator Card (PAC).
+```coreidle``` parses the Accelerator Function Unit (AFU) metadata and extracts power information. ```coreidle``` calculates
+the FPGA power and calculates the number of online and idle cores. It moves threads from idle cores to online cores. 
+```coreidle``` is only available the Integrated FPGA Platform. You cannot run ```coreidle``` on the PCIe Accelerator Card (PAC).
 
 
 ## EXAMPLES  ##
@@ -20,9 +20,9 @@ the Integrated FPGA Platform. You cannot run coreidle on the PCIe Accelerator Ca
 
 ## OPTIONS ##
 
-`-B,--bus` FPGA Bus number.
+`-B,--bus` FPGA bus number.
 
-`-D,--device` FPGA Device number.
+`-D,--device` FPGA device number.
 
 `-F,--functio` FPGA function number.
 
