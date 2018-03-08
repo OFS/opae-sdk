@@ -109,8 +109,7 @@ void handle::reset() {
   }
 }
 
-template<>
-uint32_t handle::read_csr<uint32_t>(uint64_t offset, uint32_t csr_space) const {
+uint32_t handle::read_csr32(uint64_t offset, uint32_t csr_space) const {
   uint32_t value = 0;
   if (FPGA_OK == fpgaReadMMIO32(handle_, csr_space, offset, &value)){
     return value;
@@ -118,8 +117,7 @@ uint32_t handle::read_csr<uint32_t>(uint64_t offset, uint32_t csr_space) const {
   throw except(OPAECXX_HERE);
 }
 
-template<>
-uint64_t handle::read_csr<uint64_t>(uint64_t offset, uint32_t csr_space) const {
+uint64_t handle::read_csr64(uint64_t offset, uint32_t csr_space) const {
   uint64_t value = 0;
   if (FPGA_OK == fpgaReadMMIO64(handle_, csr_space, offset, &value)){
     return value;
@@ -127,15 +125,13 @@ uint64_t handle::read_csr<uint64_t>(uint64_t offset, uint32_t csr_space) const {
   throw except(OPAECXX_HERE);
 }
 
-template<>
-void handle::write_csr<uint32_t>(uint64_t offset, uint32_t value, uint32_t csr_space) {
+void handle::write_csr32(uint64_t offset, uint32_t value, uint32_t csr_space) {
   if (FPGA_OK != fpgaWriteMMIO32(handle_, csr_space, offset, value)){
     throw except(OPAECXX_HERE);
   }
 }
 
-template<>
-void handle::write_csr<uint64_t>(uint64_t offset, uint64_t value, uint32_t csr_space) {
+void handle::write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space) {
   if (FPGA_OK != fpgaWriteMMIO64(handle_, csr_space, offset, value)){
     throw except(OPAECXX_HERE);
   }

@@ -61,43 +61,48 @@ class handle {
   operator fpga_handle() const { return handle_; }
 
   /**
-   * @brief Read CSR from resource associated with the handle
-   *
-   * @tparam T The type of value to return.
-   *
-   * @note Only uint32_t or uint64_t are allowed.
+   * @brief Read 32 bits from a CSR belonging to a resource associated
+   * with a handle.
    *
    * @param offset The register offset
    * @param csr_space The CSR space to read from. Default is 0.
    *
-   * @return The value of type T read from the CSR
+   * @return The 32-bit value read from the CSR
    */
-  template<typename T>
-  T read_csr(uint64_t offset, uint32_t csr_space = 0) const {
-    (void)offset;
-    (void)csr_space;
-    throw except(OPAECXX_HERE);
-  }
+  uint32_t read_csr32(uint64_t offset, uint32_t csr_space = 0) const;
 
   /**
-   * @brief Write value to CSR from resource associated with the handle
-   *
-   * @tparam T The type of value to write.
-   *
-   * @note Only uint32_t or uint64_t are allowed.
+   * @brief Write 32 bitto a CSR belonging to a resource associated
+   * with a handle.
    *
    * @param offset The register offset.
-   * @param value The value to write to the register.
+   * @param value The 32-bit value to write to the register.
    * @param csr_space The CSR space to read from. Default is 0.
    *
    */
-  template<typename T>
-  void write_csr(uint64_t offset, T value, uint32_t csr_space = 0) {
-    (void)offset;
-    (void)value;
-    (void)csr_space;
-    throw except(OPAECXX_HERE);
-  }
+  void write_csr32(uint64_t offset, uint32_t value, uint32_t csr_space = 0);
+
+  /**
+   * @brief Read 64 bits from a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
+   * @return The 64-bit value read from the CSR
+   */
+  uint64_t read_csr64(uint64_t offset, uint32_t csr_space = 0) const;
+
+  /**
+   * @brief Write 64 bitto a CSR belonging to a resource associated
+   * with a handle.
+   *
+   * @param offset The register offset.
+   * @param value The 64-bit value to write to the register.
+   * @param csr_space The CSR space to read from. Default is 0.
+   *
+   */
+  void write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space = 0);
 
   /** Retrieve a pointer to the MMIO region.
    * @param[in] offset The byte offset to add to MMIO base.
