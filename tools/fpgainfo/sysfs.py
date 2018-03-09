@@ -288,7 +288,7 @@ class errors_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(errors_feature, self).__init__(path, instance_id, device_id,
                                              **kwargs)
-        self._errors_files = None
+        self._errors_files = []
         self._name = "errors"
 
     def name(self):
@@ -305,8 +305,7 @@ class errors_feature(sysfs_node):
                 success = False
                 logging.warn(
                     "Could not clear errors: {}."
-                    "Are you running as root?".format(
-                        self._clear_file))
+                    "Are you running as root?".format(clr))
         return success
 
 
