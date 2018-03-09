@@ -296,7 +296,7 @@ class errors_feature(sysfs_node):
 
     def clear(self):
         success = True
-        for (err,clr) in self._errors_files:
+        for (err, clr) in self._errors_files:
             value = self.parse_sysfs(err)
             try:
                 if value:
