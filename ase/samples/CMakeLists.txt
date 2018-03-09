@@ -29,5 +29,5 @@
 cmake_minimum_required(VERSION 2.8.12)
 project("opae-c-ase-samples")
 
+include(ase_add_modelsim)
 add_subdirectory(intg_xeon_nlb)
-

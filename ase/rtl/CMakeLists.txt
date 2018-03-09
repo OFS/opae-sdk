@@ -46,7 +46,3 @@ set(VLOG_SRC_LIST
 
 set(ASE_PKG_FILE ${ASE_SERVER_RTL}/ase_pkg.sv)
 set(PLATFORM_PKG_FILE ${PLATFORM_IF_RTL}/ccip_if_pkg.sv)
-
-if(ASE_SIMULATOR STREQUAL "QUESTA")
-
-endif()

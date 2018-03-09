@@ -55,8 +55,8 @@ add_subdirectory(rtl)
 # # ASE server
 # add_subdirectory(sw)
 
-# # ASE samples
-# add_subdirectory(samples)
+# ASE samples
+add_subdirectory(samples)
 
 # Extra platform scripts
 set(EXTRA_ASE_FILES

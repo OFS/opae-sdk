@@ -81,13 +81,11 @@ list(APPEND questa_flags +define+VENDOR_ALTERA)
 list(APPEND questa_flags +define+TOOL_QUARTUS)
 list(APPEND questa_flags +define+${ASE_SIMULATOR})
 list(APPEND questa_flags +define+${ASE_PLATFORM})
-_declare_per_build_vars(QUESTA_VLOG_DEFINES "Define flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VLOG_DEFINES "${questa_flags}"
   CACHE STRING "Modelsim/Questa global define flags" FORCE)
 
 set(questa_flags "")
 list(APPEND questa_flags +incdir+.+work+${ASE_SERVER_RTL}+${PLATFORM_IF_RTL})
-_declare_per_build_vars(QUESTA_VLOG_DEFINES "Include flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VLOG_INCLUDES "${questa_flags}"
   CACHE STRING "Modelsim/Questa global include flags" FORCE)
 
@@ -97,8 +95,10 @@ list(APPEND questa_flags -timescale ${ASE_TIMESCALE})
 list(APPEND questa_flags -work work)
 list(APPEND questa_flags -novopt)
 _declare_per_build_vars(QUESTA_VLOG_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
-set(QUESTA_VLOG_FLAGS "${questa_flags}"
-  CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_DEBUG "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_RELWITHDEBINFO "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_RELEASE "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_MINSIZEREL "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 
 # Per-directory tracking for questa_vlog compiler flags.
 define_property(DIRECTORY PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS
@@ -113,9 +113,7 @@ define_property(DIRECTORY PROPERTY QUESTA_VLOG_INCLUDE_DIRECTORIES
 #  questa_vlog_include_directories(dirs ...)
 # Add include directories for Questa_Vlog process.
 macro(questa_vlog_include_directories)
-  get_property(current_flags DIRECTORY PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS)
-  _string_join(" " current_flags "${current_flags}" "+incdir+${flags}")
-  set_property(DIRECTORY APPEND PROPERTY QUESTA_VLOG_INCLUDE_DIRECTORIES ${current_flags})
+  set_property(DIRECTORY APPEND PROPERTY QUESTA_VLOG_INCLUDE_DIRECTORIES ${ARGN})
 endmacro(questa_vlog_include_directories)
 
 #  questa_vlog_add_definitions (flags)
@@ -140,46 +138,6 @@ string(REPLACE ";" " " questa_flags "${questa_flags}")
 _declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VSIM_FLAGS "${questa_flags}"
   CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-
-mark_as_advanced(
-  QUESTA_VLOG_DEFINES
-  QUESTA_VLOG_INCLUDES
-  QUESTA_VLOG_FLAGS
-  QUESTA_VSIM_FLAGS)
-
-# Helpers for simple extract some ASE module properties.
-
-#  ase_module_get_module_location(RESULT_VAR name)
-#
-# Return location of the module work library, determined by the property
-# ASE_MODULE_WORK_LIB_LOCATION
-function(ase_module_get_module_location RESULT_VAR name)
-  if(NOT TARGET ${name})
-    message(FATAL_ERROR "\"${name}\" is not really a target.")
-  endif(NOT TARGET ${name})
-  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
-  if(NOT ase_module_type)
-    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
-  endif(NOT ase_module_type)
-  get_property(module_location TARGET ${name} PROPERTY ASE_MODULE_WORK_LIB_LOCATION)
-  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
-endfunction(ase_module_get_module_location RESULT_VAR module)
-
-#  ase_module_get_libopae_location(RESULT_VAR name)
-#
-# Return location of the OPAE server shared library, determined by the property
-# ASE_MODULE_LIBOPAE_LOCATION
-function(ase_module_get_libopae_location RESULT_VAR name)
-  if(NOT TARGET ${name})
-    message(FATAL_ERROR "\"${name}\" is not really a target.")
-  endif(NOT TARGET ${name})
-  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
-  if(NOT ase_module_type)
-    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
-  endif(NOT ase_module_type)
-  get_property(libopae_location TARGET ${name} PROPERTY ASE_MODULE_LIBOPAE_LOCATION)
-  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
-endfunction(ase_module_get_libopae_location RESULT_VAR module)
 
 #  ase_module_add_definitions (flags)
 # Specify additional flags for compile ASE module.
@@ -220,6 +178,78 @@ define_property(TARGET PROPERTY ASE_MODULE_LIBOPAE_LOCATION
   BRIEF_DOCS "Location of the libopae-c-ase-server library of the AFU module."
   FULL_DOCS "Location of the libopae-c-ase-server library of the AFU module.")
 
+# Compile definitions for the ASE module
+define_property(TARGET PROPERTY ASE_MODULE_COMPILE_DEFINITIONS
+  BRIEF_DOCS "Location of the libopae-c-ase-server library of the AFU module."
+  FULL_DOCS "Location of the libopae-c-ase-server library of the AFU module.")
+
+# Include directories for the ASE module
+define_property(TARGET PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES
+  BRIEF_DOCS "Location of the libopae-c-ase-server library of the AFU module."
+  FULL_DOCS "Location of the libopae-c-ase-server library of the AFU module.")
+
+# ASE platform
+define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_NAME
+  BRIEF_DOCS "Platform utilized between AFU and CPU."
+  FULL_DOCS "Platform utilized between AFU and CPU.")
+
+# ASE module interface
+define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_IF
+  BRIEF_DOCS "AFU platform interface."
+  FULL_DOCS "AFU platform interface.")
+
+# Helpers for simple extract some ASE module properties.
+
+#  ase_module_get_platform_name(RESULT_VAR name)
+#
+# Return location of the module work library, determined by the property
+# ASE_MODULE_PLATFORM_NAME
+function(ase_module_get_platform_name RESULT_VAR name)
+  if(NOT TARGET ${name})
+    message(FATAL_ERROR "\"${name}\" is not really a target.")
+  endif(NOT TARGET ${name})
+  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
+  if(NOT ase_module_type)
+    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
+  endif(NOT ase_module_type)
+  get_property(module_location TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME)
+  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
+endfunction(ase_module_get_platform_name RESULT_VAR name)
+
+
+#  ase_module_get_platform_if(RESULT_VAR name)
+#
+# Return location of the module work library, determined by the property
+# ASE_MODULE_PLATFORM_IF
+function(ase_module_get_platform_if RESULT_VAR name)
+  if(NOT TARGET ${name})
+    message(FATAL_ERROR "\"${name}\" is not really a target.")
+  endif(NOT TARGET ${name})
+  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
+  if(NOT ase_module_type)
+    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
+  endif(NOT ase_module_type)
+  get_property(module_location TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF)
+  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
+endfunction(ase_module_get_platform_if RESULT_VAR name)
+
+#  ase_module_get_libopae_location(RESULT_VAR name)
+#
+# Return location of the OPAE server shared library, determined by the property
+# ASE_MODULE_LIBOPAE_LOCATION
+function(ase_module_get_libopae_location RESULT_VAR name)
+  if(NOT TARGET ${name})
+    message(FATAL_ERROR "\"${name}\" is not really a target.")
+  endif(NOT TARGET ${name})
+  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
+  if(NOT ase_module_type)
+    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
+  endif(NOT ase_module_type)
+  get_property(libopae_location TARGET ${name} PROPERTY ASE_MODULE_LIBOPAE_LOCATION)
+  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
+endfunction(ase_module_get_libopae_location RESULT_VAR module)
+
+
 #  ase_add_modelsim_module(<name> [EXCLUDE_FROM_ALL] [MODULE_NAME <module_name>] [<sources> ...])
 #
 # Build ASE module from <sources>, analogue of add_library().
@@ -244,7 +274,7 @@ define_property(TARGET PROPERTY ASE_MODULE_LIBOPAE_LOCATION
 # of the ASE module. Otherwise <name> itself is used.
 function(ase_add_modelsim_module name)
 
-  cmake_parse_arguments(ase_add_modelsim_project "IMPORTED;EXCLUDE_FROM_ALL" "MODULE_NAME" "" ${ARGN})
+  cmake_parse_arguments(ase_add_modelsim_module "IMPORTED;EXCLUDE_FROM_ALL" "MODULE_NAME" "" ${ARGN})
   if(ase_add_modelsim_module_MODULE_NAME)
     set(module_name "${ase_add_modelsim_module_MODULE_NAME}")
   else(ase_add_modelsim_module_MODULE_NAME)
@@ -342,42 +372,73 @@ function(ase_add_modelsim_module name)
     message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
   endif(NOT obj_sources_noext_rel)
 
-  # Internal properties
-  _get_directory_property_chained(ccflags KBUILD_COMPILE_DEFINITIONS " ")
-  _get_directory_property_chained(include_dirs KBUILD_INCLUDE_DIRECTORIES " ")
-  foreach(dir ${include_dirs})
-    set(ccflags "${ccflags} -I${dir}")
-  endforeach(dir ${include_dirs})
-
-  # afu_platform_config --sim --tgt=rtl --src ccip_std_afu.json  intg_xeon
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/platform_includes)
-  add_custom_command(OUTPUT "platform_includes/platform_afu_top_config.vh"
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    COMMAND ${AFU_PLATFORM_CONFIG} --sim --tgt=platform_includes --src ${PROJECT_BINARY_DIR}/ccip_std_afu.json ${ASE_PLATFORM_ABBREV}
-    COMMAND {CMAKE_COMMAND} -E touch "platform_includes/platform_afu_top_config.vh")
-
-  # Build DPI header file for ASE
-  set(questa_flags ${QUESTA_VLOG_FLAGS})
-  list(APPEND questa_flags -f ${CMAKE_BINARY_DIR}/${ASE_PROJECT_SOURCES})
-  list(APPEND questa_flags -l vlog_if.log)
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-  add_custom_command(OUTPUT "include/platform_dpi.h"
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    COMMAND ${QUESTA_VLIB_EXECUTABLE} work
-    COMMAND ${QUESTA_VLOG_EXECUTABLE} -dpiheader ${PROJECT_BINARY_DIR}/include/platform_dpi.h ${questa_flags}
-    DEPENDS "platform_includes/platform_afu_top_config.vh")
-
-  # Compile SystemVerilog code for AFU, keep reuse questa_flags
-  list(APPEND questa_flags -f ${CMAKE_BINARY_DIR}/${ASE_PROJECT_SOURCES})
-  list(APPEND questa_flags -l vlog_afu.log)
-  add_custom_command (OUTPUT vlog
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    COMMAND ${QUESTA_VLOG_EXECUTABLE} ${questa_flags}
-    DEPENDS "include/platform_dpi.h")
+  # Target for create module.
+  add_custom_target(${name}_platform_config ALL
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/work/_info"
+    "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Define SystemVerilog compilation target
-  add_custom_target (vlog_compile ALL
-    DEPENDS vlog)
+  add_custom_target (${name} ALL
+    DEPENDS  "{CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
+
+  # Fill properties for the target.
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE "afu")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_NAME "${name}")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_OBJ_SOURCES ${obj_sources_rel})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_MODULE_LOCATION
+    "${CMAKE_CURRENT_BINARY_DIR}/work/_info")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS "")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES "${source_files}")
+
+  # afu_platform_config --sim --tgt=rtl --src ccip_std_afu.json  intg_xeon
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
+  ase_module_get_platform_name(ase_platform ${name})
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    COMMAND ${AFU_PLATFORM_CONFIG}
+    --sim
+    --tgt=platform_includes
+    --src ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json
+    ${ase_platform}
+    COMMAND {CMAKE_COMMAND} -E touch "platform_includes/platform_afu_top_config.vh"
+    COMMAND {CMAKE_COMMAND} -E touch "${PROJECT_BINARY_DIR}/work/_info")
+
+  # Build DPI header file for ASE server (module specific)
+  _get_per_build_var(questa_flags QUESTA_VLOG_FLAGS)
+  foreach(prj_file ${prj_sources_noext_abs})
+    set(questa_flags "${questa_flags} -f ${prj_file}")
+  endforeach()
+
+  # Concatenate directory specific flags (definitions and include directories)
+  _get_directory_property_chained(vlog_flags QUESTA_VLOG_COMPILE_DEFINITIONS " ")
+  _get_directory_property_chained(include_dirs QUESTA_VLOG_INCLUDE_DIRECTORIES " ")
+  foreach(dir ${include_dirs})
+    set(vlog_flags "${vlog_flags} +incdir+${dir}")
+  endforeach(dir ${include_dirs})
+
+  # Target specific properties
+  get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  get_property(vlog_flags_local
+    CACHE ASE_MODULE_${m}_VLOG_FLAGS
+    PROPERTY VALUE)
+  get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  foreach(dir ${include_dirs_local})
+    set(vlog_flags_local "${vlog_flags_local} +incdir+${dir}")
+  endforeach(dir ${include_dirs_local})
+
+  # Define DPI header file generation rule
+  set(questa_flags "${questa_flags} ${vlog_flags} ${vlog_flags_local} -l vlog.log")
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include)
+  add_custom_command(
+    OUTPUT "{CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${QUESTA_VLIB_EXECUTABLE} work
+    COMMAND ${QUESTA_VLOG_EXECUTABLE}
+    -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
+    ${questa_flags}
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Create simulation application
   file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
@@ -386,3 +447,55 @@ function(ase_add_modelsim_module name)
     GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 endfunction(ase_add_modelsim_module name)
+
+#  _get_per_build_var(RESULT_VAR variable)
+#
+# Return value of per-build variable.
+macro(_get_per_build_var RESULT_VAR variable)
+  if(CMAKE_BUILD_TYPE)
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type_uppercase)
+    set(${RESULT_VAR} "${${variable}_${_build_type_uppercase}}")
+  else(CMAKE_BUILD_TYPE)
+    set(${RESULT_VAR})
+  endif(CMAKE_BUILD_TYPE)
+endmacro(_get_per_build_var RESULT_VAR variable)
+
+#  _string_join(sep RESULT_VAR str1 str2)
+#
+# Join strings <str1> and <str2> using <sep> as glue.
+#
+# Note, that precisely 2 string are joined, not a list of strings.
+# This prevents automatic replacing of ';' inside strings while parsing arguments.
+macro(_string_join sep RESULT_VAR str1 str2)
+  if("${str1}" STREQUAL "")
+    set("${RESULT_VAR}" "${str2}")
+  elseif("${str2}" STREQUAL "")
+    set("${RESULT_VAR}" "${str1}")
+  else("${str1}" STREQUAL "")
+    set("${RESULT_VAR}" "${str1}${sep}${str2}")
+  endif("${str1}" STREQUAL "")
+endmacro(_string_join sep RESULT_VAR str1 str2)
+
+#  _build_get_directory_property_chained(RESULT_VAR <propert_name> [<separator>])
+#
+# Return list of all values for given property in the current directory
+# and all parent directories.
+#
+# If <separator> is given, it is used as glue for join values.
+# By default, cmake list separator (';') is used.
+function(_get_directory_property_chained RESULT_VAR property_name)
+  set(sep ";")
+  foreach(arg ${ARGN})
+    set(sep "${arg}")
+  endforeach(arg ${ARGN})
+  set(result "")
+  set(d "${CMAKE_CURRENT_SOURCE_DIR}")
+  while(NOT "${d}" STREQUAL "")
+    get_property(p DIRECTORY "${d}" PROPERTY "${property_name}")
+    # debug
+    # message("Property ${property_name} for directory ${d}: '${p}'")
+    _string_join("${sep}" result "${p}" "${result}")
+    get_property(d DIRECTORY "${d}" PROPERTY PARENT_DIRECTORY)
+  endwhile(NOT "${d}" STREQUAL "")
+  set("${RESULT_VAR}" "${result}" PARENT_SCOPE)
+endfunction(_get_directory_property_chained RESULT_VAR property_name)
