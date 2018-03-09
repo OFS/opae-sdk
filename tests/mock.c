@@ -407,7 +407,7 @@ struct afu_header {
     uint64_t afu_dfh;
     uint64_t afu_id_l;
     uint64_t afu_id_h;
-} __attribute((packed));
+} __attribute__((packed));
 
 int open(const char* pathname, int flags, ...) {
     int fd;
