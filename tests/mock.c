@@ -468,12 +468,14 @@ int open(const char* pathname, int flags, ...) {
 
         lseek(fd, 0, SEEK_SET);
 
-	sz = 0;
-	do
-	{
+        sz = 0;
+        do
+        {
             res = write(fd, &header+sz, sizeof(header)-sz);
+            if (res < 0)
+                break;
             sz += res;
-	} while((size_t)sz < sizeof(header));
+        } while((size_t)sz < sizeof(header));
 
         lseek(fd, 0, SEEK_SET);
 
