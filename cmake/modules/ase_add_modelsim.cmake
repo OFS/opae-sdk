@@ -372,14 +372,15 @@ function(ase_add_modelsim_module name)
     message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
   endif(NOT obj_sources_noext_rel)
 
-  # Target for create module.
+  # Target for create module platform configuration.
   add_custom_target(${name}_platform_config ALL
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/work/_info"
     "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
-  # Define SystemVerilog compilation target
+  # Define SystemVerilog compilation target for ASE module
   add_custom_target (${name} ALL
-    DEPENDS  "{CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
+  add_dependencies(${name} ${name}_platform_config)
 
   # Fill properties for the target.
   set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE "afu")
@@ -391,24 +392,24 @@ function(ase_add_modelsim_module name)
     "${CMAKE_CURRENT_BINARY_DIR}/work/_info")
   set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS "")
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES "${source_files}")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME "intg_xeon")
 
   # afu_platform_config --sim --tgt=rtl --src ccip_std_afu.json  intg_xeon
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
   ase_module_get_platform_name(ase_platform ${name})
   add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${AFU_PLATFORM_CONFIG}
     --sim
     --tgt=platform_includes
     --src ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json
     ${ase_platform}
-    COMMAND {CMAKE_COMMAND} -E touch "platform_includes/platform_afu_top_config.vh"
-    COMMAND {CMAKE_COMMAND} -E touch "${PROJECT_BINARY_DIR}/work/_info")
+    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Build DPI header file for ASE server (module specific)
   _get_per_build_var(questa_flags QUESTA_VLOG_FLAGS)
   foreach(prj_file ${prj_sources_noext_abs})
-    set(questa_flags "${questa_flags} -f ${prj_file}")
+    set(questa_flags "${questa_flags} -f ${prj_file}.txt")
   endforeach()
 
   # Concatenate directory specific flags (definitions and include directories)
@@ -432,7 +433,7 @@ function(ase_add_modelsim_module name)
   set(questa_flags "${questa_flags} ${vlog_flags} ${vlog_flags_local} -l vlog.log")
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include)
   add_custom_command(
-    OUTPUT "{CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h"
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${QUESTA_VLIB_EXECUTABLE} work
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
