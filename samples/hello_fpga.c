@@ -26,7 +26,7 @@
 
 /**
  * @file hello_fpga.c
- * @brief A code sample illustrates the basic usage of the OPAE C API. 
+ * @brief A code sample illustrates the basic usage of the OPAE C API.
  *
  * The sample is a host application that demonstrates the basic steps of
  * interacting with FPGA using the OPAE library. These steps include:
@@ -37,10 +37,10 @@
  *  - MMIO read and write
  *
  * The sample also demonstrates OPAE's object model, such as tokens, handles,
- * and properties. 
+ * and properties.
  *
  * The sample requires a native loopback mode (NLB) test image to be loaded on
- * the FPGA. Refer to 
+ * the FPGA. Refer to
  * <a href="https://opae.github.io/docs/fpga_api/quick_start/readme.html">Quick
  * Start Guide</a> for full instructions on building, configuring, and running
  * this code sample.
