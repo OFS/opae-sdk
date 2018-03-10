@@ -26,15 +26,15 @@
 
 /**
  * @file hello_events.c
- * @brief A code sample of using OPAE event API. 
+ * @brief A code sample of using OPAE event API.
  *
  * This sample starts two processes. One process injects an artificial fatal
- * error to sysfs; while the other tries to asynchronously capture and handle 
+ * error to sysfs; while the other tries to asynchronously capture and handle
  * the event. This
  * sample code exercises all major functions of the event API, including
  * creating and destroying event handles, register and unregister events,
  * polling on event file descriptor, and getting the OS object associated with
- * an event. For a full discussion of OPAE event API, refer to event.h. 
+ * an event. For a full discussion of OPAE event API, refer to event.h.
  *
  */
 
