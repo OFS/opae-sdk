@@ -28,16 +28,16 @@
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
+
 
 using namespace common_test;
 using namespace std;
 
 class LibopaecOpenFCommonMOCKHW : public common_test::BaseFixture,
+                              public ::testing::Test {};
+
+class LibopaecOpenFCommonMOCK : public common_test::BaseFixture,
                               public ::testing::Test {};
 
 class LibopaecCloseFCommonMOCKHW : public common_test::BaseFixture,
@@ -145,9 +145,8 @@ TEST_F(LibopaecOpenFCommonMOCK, 03) {
  *             fpgaOpen returns FPGA_OK.
  */
 TEST_F(LibopaecOpenFCommonALL, 05) {
-
-  fpga_handle h;
 #ifdef BUILD_ASE
+  fpga_handle h;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -240,10 +239,9 @@ TEST_F(LibopaecOpenFCommonMOCK, open_drv_09) {
  *
  */
 TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
-  fpga_handle h1, h2;
 
 #ifdef BUILD_ASE
-
+  fpga_handle h1, h2;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -317,10 +315,9 @@ TEST(LibopaecCloseCommonALL, 01) {
  *             returns FPGA_OK.
 */
 TEST_F(LibopaecCloseFCommonALL, 02) {
-  fpga_handle h;
 
 #ifdef BUILD_ASE
-
+  fpga_handle h;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
