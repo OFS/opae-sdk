@@ -44,7 +44,7 @@
  * <a href="https://opae.github.io/docs/fpga_api/quick_start/readme.html">Quick
  * Start Guide</a> for full instructions on building, configuring, and running
  * this code sample.
- * 
+ *
  */
 
 #include <stdio.h>
