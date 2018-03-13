@@ -15,7 +15,11 @@
       [
          {
             "class": "clocks",
-            "interface": "pClk3_usr2"
+            "interface": "pClk3_usr2",
+            "params":
+               {
+                  "pclk-freq": 200
+               }
          },
          {
             "class": "power",
@@ -33,7 +37,6 @@
             "params":
                {
                   "vc-supported": "{ 1, 0, 1, 0 }",
-                  "pclk-freq": 200,
                   "max-bw-active-lines-c0": "{ 256, 256, 256, 256 }",
                   "max-bw-active-lines-c1": "{ 128, 128, 128, 128 }"
                }
