@@ -70,16 +70,16 @@ endif()
 ############################################################################
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*MOCK*:-*event_drv_05*:-*nodrv*")
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*MOCK*:-*event_drv_05*")
 
 set_tests_properties(
   test_open_common_mock_drv
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
-add_test(NAME test_any_value
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
+#add_test(NAME test_any_value
+#  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
 
 
 ############################################################################
