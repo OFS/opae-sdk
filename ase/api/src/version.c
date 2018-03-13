@@ -28,7 +28,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "safe_string/safe_string.h"
 #include "common_int.h"
 #include "types_int.h"
 #include "config_int.h"
@@ -58,11 +57,11 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
+	err = ase_strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
 		  sizeof(INTEL_FPGA_API_VERSION));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		FPGA_ERR("ase_strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 
@@ -78,11 +77,11 @@ fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
+	err = ase_strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
 		  sizeof(INTEL_FPGA_API_HASH));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		FPGA_ERR("ase_strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 
