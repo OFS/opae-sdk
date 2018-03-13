@@ -33,59 +33,32 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h, uint32_t mmio_region, uint8_t *mmio_base)
-    : handle_(h), mmio_region_(mmio_region), mmio_base_(mmio_base),
+handle::handle(fpga_handle h)
+    : handle_(h),
       log_("handle")  {}
 
 handle::~handle() { close(); }
 
-handle::ptr_t handle::open(fpga_token token, int flags, uint32_t mmio_region) {
+handle::ptr_t handle::open(fpga_token token, int flags) {
   fpga_handle c_handle = nullptr;
-  uint8_t *mmio_base = nullptr;
   ptr_t p;
-  opae::fpga::internal::logger log("handle::open()");
 
   auto res = fpgaOpen(token, &c_handle, flags);
   if (res == FPGA_OK) {
-    properties::ptr_t props = properties::read(token);
-
-    if (FPGA_ACCELERATOR == props->type) {
-      res = fpgaMapMMIO(c_handle, mmio_region,
-                        reinterpret_cast<uint64_t **>(&mmio_base));
-
-      if (res != FPGA_OK) {
-        log.error() << "fpgaMapMMIO() failed with (" << res
-                    << ") " << fpgaErrStr(res);
-        throw except(res, OPAECXX_HERE);
-      }
-    }
-
-    p.reset(new handle(c_handle, mmio_region, mmio_base));
+    p.reset(new handle(c_handle));
   }
 
   return p;
 }
 
-handle::ptr_t handle::open(token::ptr_t tok, int flags, uint32_t mmio_region) {
-  return handle::open(*tok, flags, mmio_region);
+handle::ptr_t handle::open(token::ptr_t tok, int flags) {
+  return handle::open(*tok, flags);
 }
 
 fpga_result handle::close() {
   fpga_result res = FPGA_INVALID_PARAM;
 
   if (handle_ != nullptr) {
-    if (mmio_base_ != nullptr) {
-      res = fpgaUnmapMMIO(handle_, mmio_region_);
-
-      if (res == FPGA_OK) {
-        mmio_base_ = nullptr;
-      } else {
-        log_.error() << "fpgaUnmapMMIO() failed with (" << res
-                     << ") " << fpgaErrStr(res);
-        throw except(res, OPAECXX_HERE);
-      }
-    }
-
     res = fpgaClose(handle_);
 
     if (res == FPGA_OK) {
@@ -136,6 +109,23 @@ void handle::write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space) {
     throw except(OPAECXX_HERE);
   }
 }
+
+uint8_t * handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const
+{
+  uint8_t *base = nullptr;
+  fpga_result res;
+
+  res = fpgaMapMMIO(handle_, csr_space,
+                     reinterpret_cast<uint64_t **>(&base));
+  if (res != FPGA_OK) {
+    log_.error() << "fpgaMapMMIO() failed with (" << res
+                 << ") " << fpgaErrStr(res);
+    throw except(res, OPAECXX_HERE);
+  }
+
+  return base + offset;
+}
+
 }  // end of namespace types
 }  // end of namespace fpga
 }  // end of namespace opae
