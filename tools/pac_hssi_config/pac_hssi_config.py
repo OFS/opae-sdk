@@ -667,9 +667,8 @@ class SklHssi(object):
         val = self.skl_prmgmt_read(self.PR_MGMT_SLOOP)
         print "TxRx loop : %x" % val
         val = self.skl_prmgmt_read(self.PR_MGMT_LOCK_STATUS)
-        print "Freq lock : %x" % val
-        val = self.skl_prmgmt_read(self.PR_MGMT_I2C_SEL_WDATA)
-        print "Word lock : %x" % val
+        print "Freq lock : %x" % ((int(val) >> 4) & 0xf)
+        print "Word lock : %x" % (int(val) & 0xf)
         print ""
         for i in range(self.NUM_E10_CHANNELS):
             print "*** 10GE port %d\n" % i
