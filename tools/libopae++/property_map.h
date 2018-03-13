@@ -29,6 +29,7 @@
 #include "option.h"
 #include "log.h"
 #include "option_map.h"
+#include "any_value.h"
 
 namespace intel
 {
@@ -77,7 +78,7 @@ public:
             {
                 value = opt->value<T>();
             }
-            catch(boost::bad_any_cast bac)
+            catch(const intel::utils::any_value_cast_error & bac)
             {
                 return false;
             }

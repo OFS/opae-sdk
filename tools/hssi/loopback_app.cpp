@@ -223,6 +223,11 @@ bool loopback_app::do_loopback(const cmd_handler::cmd_vector_t & cmds)
                     return false;
                 }
                 external = true;
+                if (!parse_int(cmds[0], ports_[0].first))
+                {
+                    return false;
+                }
+                break;
             case 1 :
                 if (!parse_int(cmds[0], ports_[0].first))
                 {

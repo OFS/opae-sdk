@@ -30,9 +30,10 @@ import sys
 import subprocess
 import os
 
+import bist_app
 import bist_common
-import bist_nlb3
 import bist_dma
+import bist_nlb3
 
 FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
 
@@ -67,8 +68,10 @@ def main(args):
         mode_name = bist_common.get_mode_from_path(path)
         if mode_name == 'nlb_mode_3':
             mode = bist_nlb3.Nlb3Mode()
-        elif mode_name == "dma_afu":
+        elif mode_name == 'dma_afu':
             mode = bist_dma.DmaMode()
+        elif mode_name == 'bist_afu':
+            mode = bist_app.BistMode()
         else:
             sys.exit("Unknown AFU for available BIST Modes: {}\n".format(path))
         print "Running mode: {}".format(mode.name)

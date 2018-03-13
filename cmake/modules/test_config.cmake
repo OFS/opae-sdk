@@ -84,4 +84,67 @@ function (Build_MOCK_DRV)
   target_link_libraries(mock dl safestr)
 endfunction(Build_MOCK_DRV)
 
+function(Build_Test_Target Target_Name Target_LIB)
+    add_library(commonlib SHARED common_test.h common_test.cpp)
 
+    include_directories(
+                    ${OPAE_SDK_SOURCE}/tests
+                    ${Boost_INCLUDE_DIRS}
+                    ${libjson-c_INCLUDE_DIRS}
+                    ${OPAE_SDK_SOURCE}/common/include
+                    ${OPAE_SDK_SOURCE}/tools/libopae++
+                    ${OPAE_SDK_SOURCE}/tools/c++utils)
+
+    set(COMMON_SRC gtmain.cpp jsonParser.cpp
+                unit/gtOpenClose_base.cpp
+                unit/gtProperties_base.cpp
+                unit/gtOpen.cpp
+                unit/gtEnumerate.cpp
+                unit/gtOptionParser.cpp
+                unit/gtAnyValue.cpp
+                function/gtReset.cpp
+                function/gtBuffer.cpp
+                function/gtEnumerate.cpp
+                function/gtMMIO.cpp
+                function/gtOpenClose.cpp)
+
+    if(BUILD_ASE_TEST)
+        add_definitions(-DBUILD_ASE)
+        set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
+        set(TARGET_SRC ${COMMON_SRC})
+    else()
+        set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/libopae/src)
+        set(TARGET_SRC ${COMMON_SRC}
+            function/gtUmsg.cpp
+            function/gtHostif.cpp
+            function/gtEvent.cpp)
+    endif()         
+	
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
+                          ${libjson-c_LIBRARIES})
+	target_include_directories(commonlib PUBLIC
+                               $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+                               $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+                               $<INSTALL_INTERFACE:include>     
+                               $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
+
+	add_executable(${Target_Name} ${TARGET_SRC})
+	target_include_directories(${Target_Name} PUBLIC
+                               $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+	                           $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+	                           $<INSTALL_INTERFACE:include>
+                               $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
+                      
+	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
+	  						
+    if(CMAKE_THREAD_LIBS_INIT)
+  		target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
+    endif()
+
+    if(THREADS_HAVE_PTHREAD_ARG)
+        target_compile_options(PUBLIC commonlib "-pthread")
+        target_compile_options(PUBLIC ${Target_Name} "-pthread")		
+    endif()
+
+endfunction(Build_Test_Target)
