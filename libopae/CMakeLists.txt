@@ -106,7 +106,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set_property(TARGET opae-c PROPERTY C_VISIBILITY_PRESET hidden)
 endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 
-# Binary install locations
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
 if ("${LIB64}" STREQUAL "TRUE")
     install(TARGETS opae-c

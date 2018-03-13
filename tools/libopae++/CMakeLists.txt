@@ -62,3 +62,15 @@ set_target_properties(opae-c++ PROPERTIES
 install(TARGETS opae-c++
         LIBRARY DESTINATION lib
         COMPONENT opaecxxlib)
+
+
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+    if ("${LIB64}" STREQUAL "TRUE")
+      install(TARGETS opae-c++
+      LIBRARY DESTINATION lib64
+      COMPONENT opaecxxlib)
+    else()
+      install(TARGETS opae-c++
+      LIBRARY DESTINATION lib64
+      COMPONENT opaecxxlib)
+    endif() 
