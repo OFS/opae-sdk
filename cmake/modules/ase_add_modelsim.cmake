@@ -134,7 +134,6 @@ list(APPEND questa_flags -do vsim_run.tcl)
 list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
 list(APPEND questa_flags -l vlog_run.log)
-string(REPLACE ";" " " questa_flags "${questa_flags}")
 _declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VSIM_FLAGS "${questa_flags}"
   CACHE STRING "Modelsim/Questa simulator flags" FORCE)
@@ -374,8 +373,7 @@ function(ase_add_modelsim_module name)
 
   # Target for create module platform configuration.
   add_custom_target(${name}_platform_config ALL
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/work/_info"
-    "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Define SystemVerilog compilation target for ASE module
   add_custom_target (${name} ALL
@@ -394,7 +392,7 @@ function(ase_add_modelsim_module name)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES "${source_files}")
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME "intg_xeon")
 
-  # afu_platform_config --sim --tgt=rtl --src ccip_std_afu.json  intg_xeon
+  # afu_platform_config --sim --tgt=rtl --src ccip_st6d_afu.json  intg_xeon
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
   ase_module_get_platform_name(ase_platform ${name})
   add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
@@ -409,14 +407,14 @@ function(ase_add_modelsim_module name)
   # Build DPI header file for ASE server (module specific)
   _get_per_build_var(questa_flags QUESTA_VLOG_FLAGS)
   foreach(prj_file ${prj_sources_noext_abs})
-    set(questa_flags "${questa_flags} -f ${prj_file}.txt")
+    list(APPEND questa_flags -f ${prj_file}.txt)
   endforeach()
 
   # Concatenate directory specific flags (definitions and include directories)
   _get_directory_property_chained(vlog_flags QUESTA_VLOG_COMPILE_DEFINITIONS " ")
   _get_directory_property_chained(include_dirs QUESTA_VLOG_INCLUDE_DIRECTORIES " ")
   foreach(dir ${include_dirs})
-    set(vlog_flags "${vlog_flags} +incdir+${dir}")
+    list(APPEND vlog_flags +incdir+${dir})
   endforeach(dir ${include_dirs})
 
   # Target specific properties
@@ -426,11 +424,10 @@ function(ase_add_modelsim_module name)
     PROPERTY VALUE)
   get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
   foreach(dir ${include_dirs_local})
-    set(vlog_flags_local "${vlog_flags_local} +incdir+${dir}")
+    list(APPEND vlog_flags_local +incdir+${dir})
   endforeach(dir ${include_dirs_local})
 
   # Define DPI header file generation rule
-  set(questa_flags "${questa_flags} ${vlog_flags} ${vlog_flags_local} -l vlog.log")
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include)
   add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h"
@@ -439,6 +436,9 @@ function(ase_add_modelsim_module name)
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
     -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
     ${questa_flags}
+    ${vlog_flags}
+    ${vlog_flags_local}
+    -l vlog.log
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Create simulation application
