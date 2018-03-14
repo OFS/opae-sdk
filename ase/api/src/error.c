@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,43 +24,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_PROPERTIES_INT_H__
-#define __FPGA_PROPERTIES_INT_H__
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-/** Fields common across all object types */
-#define FPGA_PROPERTY_PARENT         0
-#define FPGA_PROPERTY_OBJTYPE        1
-#define FPGA_PROPERTY_BUS            2
-#define FPGA_PROPERTY_DEVICE         3
-#define FPGA_PROPERTY_FUNCTION       4
-#define FPGA_PROPERTY_SOCKETID       5
-#define FPGA_PROPERTY_VENDORID       6
-#define FPGA_PROPERTY_DEVICEID       7
-#define FPGA_PROPERTY_GUID           8
-#define FPGA_PROPERTY_OBJECTID       9
-#define FPGA_PROPERTY_NUM_ERRORS     10
+#include "common_int.h"
+#include "opae/error.h"
 
-/** Fields for FPGA objects */
-#define FPGA_PROPERTY_NUM_SLOTS     32
-#define FPGA_PROPERTY_BBSID         33
-#define FPGA_PROPERTY_BBSVERSION    34
-#define FPGA_PROPERTY_MODEL         35
-#define FPGA_PROPERTY_LOCAL_MEMORY  36
-#define FPGA_PROPERTY_CAPABILITIES  37
+fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
+{
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	UNUSED_PARAM(value);
+	return FPGA_NOT_SUPPORTED;
+}
 
-/** Fields for accelerator objects */
-#define FPGA_PROPERTY_ACCELERATOR_STATE 32
-#define FPGA_PROPERTY_NUM_MMIO          33
-#define FPGA_PROPERTY_NUM_INTERRUPTS    34
+fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
+{
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	return FPGA_NOT_SUPPORTED;
+}
 
+fpga_result fpgaClearAllErrors(fpga_token token)
+{
+	UNUSED_PARAM(token);
+	return FPGA_NOT_SUPPORTED;
+}
 
-#define FIELD_VALID(P, F) (((P)->valid_fields >> (F)) & 1)
-
-#define SET_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields | ((uint64_t)1 << (F)))
-
-#define CLEAR_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields & ~((uint64_t)1 << (F)))
-
-#endif // __FPGA_PROPERTIES_INT_H__
-
+fpga_result fpgaGetErrorInfo(fpga_token token,
+			     uint32_t error_num,
+			     struct fpga_error_info *error_info)
+{
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	UNUSED_PARAM(error_info);
+	return FPGA_NOT_SUPPORTED;
+}

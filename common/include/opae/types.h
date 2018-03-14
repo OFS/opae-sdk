@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -157,5 +157,18 @@ typedef struct {
  * `fpga_event_handle` object.
  */
 typedef void *fpga_event_handle;
+
+/** Information about an error register
+ *
+ * This data structure captures information about an error register exposed by
+ * an accelerator resource. The error API provides functions to retrieve these
+ * information structures from a particular resource.
+ *
+ * Currently, this information is limited to the name of the error register.
+ */
+#define FPGA_ERROR_NAME_MAX 64
+struct fpga_error_info {
+	char name[FPGA_ERROR_NAME_MAX];
+};
 
 #endif // __FPGA_TYPES_H__
