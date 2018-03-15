@@ -70,7 +70,7 @@ endif()
 ############################################################################
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09)
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:*ALL*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18:*Enum*.19)
 
 set_tests_properties(
   test_open_common_mock_drv
