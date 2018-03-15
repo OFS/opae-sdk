@@ -100,6 +100,9 @@ add_test(NAME test_any_value
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
 
+add_test(NAME test_errors
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=LibopaecError*)
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
