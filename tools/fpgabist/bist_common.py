@@ -32,6 +32,8 @@ import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
+REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
+            'bist_app']
 
 
 # Return a list of all available bus numbers
@@ -76,6 +78,13 @@ def get_mode_from_path(gbs_path):
         base = os.path.basename(gbs_path)
         return os.path.splitext(base)[0]
     return None
+
+
+def is_command_in_path(cmd):
+    for dir in os.getenv("PATH").split(':'):
+        if (os.path.exists(os.path.join(dir, cmd))):
+            return True
+    return False
 
 
 def load_gbs(gbs_file, bus_num):
