@@ -34,6 +34,7 @@
 #include "opae/enum.h"
 #include "opae/properties.h"
 #include "opae/utils.h"
+#include "error_int.h"
 #include "properties_int.h"
 #include <stdlib.h>
 #include <string.h>
@@ -189,6 +190,18 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
 		if (_filter->device_id != attr->device_id) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_ERRORS)) {
+		uint32_t errors;
+		char errpath[SYSFS_PATH_MAX];
+
+		snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", attr->sysfspath);
+		errors = count_error_files(errpath);
+		if (errors != _filter->num_errors) {
 			res = false;
 			goto out_unlock;
 		}
@@ -794,6 +807,14 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 		FPGA_MSG("Invalid token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
+	}
+
+	// free error list
+	struct error_list *p = _token->errors;
+	while (p) {
+		struct error_list *q = p->next;
+		free(p);
+		p = q;
 	}
 
 	// invalidate magic (just in case)

@@ -35,7 +35,7 @@ using namespace common_test;
 /**
  * @test       error_01
  *
- * @brief      When passed a valid token, the combination of fpgaGetProperties()
+ * @brief      When passed a valid AFU token, the combination of fpgaGetProperties()
  *             fpgaPropertiesGetNumErrors(), fpgaPropertiesGetErrorInfo() and
  *             fpgaReadError() is able to print the status of all error registers.
  *
@@ -55,13 +55,49 @@ TEST(LibopaecErrorCommonALL, error_01) {
   // get number of error registers
   ASSERT_EQ(FPGA_OK, fpgaGetProperties(t, &p));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
+  printf("Found %d PORT error registers\n", n);
 
   // for each error register, get info and read the current value  
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
     EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
-    printf("[%d] %s: 0x%16lX\n", i, info.name, val);
+    printf("[%u] %s: 0x%016lX\n", i, info.name, val);
+  }
+
+}
+
+/**
+ * @test       error_02
+ *
+ * @brief      When passed a valid FME token, the combination of fpgaGetProperties()
+ *             fpgaPropertiesGetNumErrors(), fpgaPropertiesGetErrorInfo() and
+ *             fpgaReadError() is able to print the status of all error registers.
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_02) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  fpga_properties p;
+  fpga_error_info info;
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+
+  // generate token
+  token_for_fme0(&_t);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, fpgaGetProperties(t, &p));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
+  printf("Found %d FME error registers\n", n);
+
+  // for each error register, get info and read the current value  
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
+    printf("[%u] %s: 0x%016lX\n", i, info.name, val);
   }
 
 }

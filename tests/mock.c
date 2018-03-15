@@ -590,6 +590,28 @@ int __xstat(int ver, const char *pathname, struct stat *buf)
 	return real_xstat(ver, s, buf);
 }
 
+/* lstat() redirects to __lxstat() */
+int __lxstat(int ver, const char *pathname, struct stat *buf)
+{
+	char *err;
+	char s[MAX_STRLEN];
+
+	dlerror(); /* clear errors */
+	__xstat_func real_lxstat = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+	assert(real_lxstat);
+	err = dlerror();
+	if (err) {
+		FPGA_ERR("dlsym() failed: %s", err);
+		errno = EINVAL;
+		return -1;
+	}
+
+	FPGA_DBG("lstat(%s)", pathname);
+	rewrite_sysfs_path(pathname, s, MAX_STRLEN);
+	FPGA_DBG("-> lstat(%s)", s);
+	return real_lxstat(ver, s, buf);
+}
+
 fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				uint32_t slot,
 				const uint8_t *bitstream,

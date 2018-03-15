@@ -102,6 +102,7 @@ struct _fpga_token {
 	uint64_t magic;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
+	struct error_list *errors;
 };
 
 /** Process-wide unique FPGA handle */

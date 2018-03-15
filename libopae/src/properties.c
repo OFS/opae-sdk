@@ -33,6 +33,7 @@
 #include "opae/enum.h"
 #include "opae/utils.h"
 #include "properties_int.h"
+#include "error_int.h"
 
 #include "safe_string/safe_string.h"
 
@@ -362,6 +363,14 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+
+	char errpath[SYSFS_PATH_MAX];
+	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", _token->sysfspath);
+	if (!_token->errors)
+		_iprop.num_errors = build_error_list(errpath, &_token->errors);
+	else
+		_iprop.num_errors = count_error_files(errpath);
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 
 	if (pthread_mutex_lock(&_prop->lock)) {
 		FPGA_MSG("Failed to lock properties mutex");

@@ -85,6 +85,9 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		return NULL;
 	}
 
+	/* initialize error list pointer */
+	tmp->_token.errors = NULL;
+
 	/* mark data structure as valid */
 	tmp->_token.magic = FPGA_TOKEN_MAGIC;
 

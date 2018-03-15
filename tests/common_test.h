@@ -193,6 +193,7 @@ inline void token_for_fme0(struct _fpga_token* _tok) {
             SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/intel-fpga-fme.0", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
@@ -209,6 +210,7 @@ inline void token_for_afu0(struct _fpga_token* _tok) {
             SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/intel-fpga-port.0", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
@@ -223,6 +225,7 @@ inline void token_for_invalid(struct _fpga_token* _tok) {
             SYSFS_FPGA_CLASS_PATH "/invalid_token", SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/invalid_token", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
