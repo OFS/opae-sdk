@@ -408,6 +408,107 @@ class SklHssi(object):
         self._mem0.write64(self._hssictrladdr, self.HSSI_CTRL_CMD_NO_REQ)
         self._wait_for_clr()
 
+    def skl_maci2c_start(self):
+        beat = 0x2 | 0x1
+        self.skl_aux_write(0x11, beat)
+        beat = 0x2 | 0x0
+        self.skl_aux_write(0x11, beat)
+        beat = 0x0 | 0x0
+        self.skl_aux_write(0x11, beat)
+
+    def skl_maci2c_stop(self):
+        beat = 0x2 | 0x0
+        self.skl_aux_write(0x11, beat)
+        beat = 0x2 | 0x1
+        self.skl_aux_write(0x11, beat)
+        beat = 0x0 | 0x1
+        self.skl_aux_write(0x11, beat)
+
+    def skl_maci2c_wrbeat(self, SDA):
+        beat = (0x0 << 1) | SDA
+        self.skl_aux_write(0x11, beat)
+        beat = (0x1 << 1) | SDA
+        self.skl_aux_write(0x11, beat)
+        beat = (0x0 << 1) | SDA
+        self.skl_aux_write(0x11, beat)
+
+    def skl_maci2c_rdbeat(self):
+        beat = (0x0 << 1) | 0x1
+        self.skl_aux_write(0x11, beat)
+        beat = (0x1 << 1) | 0x1
+        self.skl_aux_write(0x11, beat)
+        ret = self.skl_aux_read(0x11) & 0x1
+        beat = (0x0 << 1) | 0x1
+        self.skl_aux_write(0x11, beat)
+        return ret
+
+    def skl_maci2c_wrbyte(self, byte):
+        for i in range(7, -1, -1):
+            self.skl_maci2c_wrbeat((byte >> i) & 0x1)
+
+    def skl_maci2c_rdbyte(self):
+        ret = 0
+        for i in range(7, -1, -1):
+            ret = (ret << 1) | self.skl_maci2c_rdbeat()
+        return ret
+
+    def skl_maci2c_reset(self):
+        self.skl_maci2c_start()
+        for i in range(9):
+            self.skl_maci2c_rdbeat()
+        self.skl_maci2c_start()
+        self.skl_maci2c_stop()
+
+    def skl_maci2c_read_serial(self, addr, num=1):
+        self.skl_maci2c_start()
+        self.skl_maci2c_wrbyte(int('10110000', 2))
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (0)")
+
+        self.skl_maci2c_wrbyte(0x80 | addr)
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (1)")
+
+        self.skl_maci2c_stop()
+        self.skl_maci2c_start()
+        self.skl_maci2c_wrbyte(int('10110001', 2))
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (2)")
+
+        ret = 0
+        for i in range(num):
+            ret = (ret << 8) | self.skl_maci2c_rdbyte()
+            if i == (num - 1):
+                self.skl_maci2c_stop()
+            else:
+                self.skl_maci2c_wrbeat(0)  # ACK
+        return ret
+
+    def skl_maci2c_read_eeprom(self, addr, num=1):
+        self.skl_maci2c_start()
+        self.skl_maci2c_wrbyte(int('10100000', 2))
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (0)")
+
+        self.skl_maci2c_wrbyte(0x80 | addr)
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (1)")
+
+        self.skl_maci2c_stop()
+        self.skl_maci2c_start()
+        self.skl_maci2c_wrbyte(int('10100001', 2))
+        if self.skl_maci2c_rdbeat() != 0:
+            raise Exception("Error: I2C ACK bit not clear! (2)")
+
+        ret = 0
+        for i in range(num):
+            ret = (ret << 8) | self.skl_maci2c_rdbyte()
+            if i == (num - 1):
+                self.skl_maci2c_stop()
+            else:
+                self.skl_maci2c_wrbeat(0)  # ACK
+        return ret
+
     def skl_local_read(self, addr):
         self.skl_aux_write(self.HSSI_AUX_LOCAL_CMD, addr)
         return self.skl_aux_read(self.HSSI_AUX_LOCAL_DOUT)
@@ -425,7 +526,9 @@ class SklHssi(object):
             return rval
         else:
             self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, addr)
-            return self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
+            rval = self.skl_aux_read(self.HSSI_AUX_PRMGMT_DOUT)
+            self.skl_aux_write(self.HSSI_AUX_PRMGMT_CMD, 0)
+            return rval
 
     def skl_prmgmt_write(self, addr, din):
         if self._mem2:
@@ -564,9 +667,8 @@ class SklHssi(object):
         val = self.skl_prmgmt_read(self.PR_MGMT_SLOOP)
         print "TxRx loop : %x" % val
         val = self.skl_prmgmt_read(self.PR_MGMT_LOCK_STATUS)
-        print "Freq lock : %x" % val
-        val = self.skl_prmgmt_read(self.PR_MGMT_I2C_SEL_WDATA)
-        print "Word lock : %x" % val
+        print "Freq lock : %x" % ((int(val) >> 4) & 0xf)
+        print "Word lock : %x" % (int(val) & 0xf)
         print ""
         for i in range(self.NUM_E10_CHANNELS):
             print "*** 10GE port %d\n" % i
@@ -759,6 +861,33 @@ def stat_fxn(args, skl):
     skl.skl_stat()
 
 
+def eeprom_fxn(args, skl):
+    skl.skl_maci2c_reset()
+    val = 0
+    val = skl.skl_maci2c_read_serial(0, 16)
+    print ""
+    print "128-bit Unique Board ID: 0x%032x" % (val)
+    print ""
+    print "EEPROM:"
+    numbytes = 512
+    val = skl.skl_maci2c_read_eeprom(0, numbytes)
+    tmp = [0x0] * 16
+    for i in range(numbytes):
+        dat0 = int(((val >> ((numbytes - 1 - i) * 8))) & 0xFF)
+        tmp[i % 16] = dat0
+        if (i % 16) == 0:
+            sys.stdout.write("(0x%04X) " % i)
+        sys.stdout.write("%02X " % dat0)
+        if (i % 16) == 15:
+            for j in range(16):
+                if (tmp[j] >= 32) and (tmp[j] <= 126):
+                    sys.stdout.write(chr(tmp[j]))
+                else:
+                    sys.stdout.write('.')
+            sys.stdout.write("\n")
+    print ""
+
+
 def e10_loop_fxn(args, skl):
     skl.skl_e10_check()
     if args.flag == "off":
@@ -788,6 +917,8 @@ def e10_pkt_send_fxn(args, skl):
 
 def e10_init_fxn(args, skl):
     skl.skl_e10_check()
+    mem2 = skl._mem2
+    skl.skl_set_mem2(None)
     print "Changing SKL mode to 10g, \
     initializing E2E_10G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x7)
@@ -796,6 +927,7 @@ def e10_init_fxn(args, skl):
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x4)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_prmgmt_write(skl.PR_MGMT_SLOOP, 0xF)
+    skl.skl_set_mem2(mem2)
     e10_stat_clr_fxn(args, skl)
     print "Done!"
 
@@ -842,12 +974,15 @@ def e40_pkt_send_fxn(args, skl):
 
 def e40_init_fxn(args, skl):
     skl.skl_e40_check()
+    mem2 = skl._mem2
+    skl.skl_set_mem2(None)
     print "Changing SKL mode to 40g, \
     initializing E2E_40G AFU and placing it in loopback..."
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x3)
     skl.set_mode(2)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_e40_write(0x313, 0x3ff)
+    skl.skl_set_mem2(mem2)
     skl.skl_e40_stat_clr()
     print "Done!"
 
@@ -867,6 +1002,10 @@ def parse_args():
         {'subcmd': 'stat',
          'help': 'Print the SKL nios statistics',
          'function': stat_fxn},
+        {'subcmd': 'eeprom',
+         'help': ('Read out 128-bit unique id, '
+                  'MAC address and board specific ids from EEPROM'),
+         'function': eeprom_fxn},
         {'subcmd': 'e10init',
          'help': 'Initialize and turn on loopback E10 AFU',
          'function': e10_init_fxn},
