@@ -26,7 +26,7 @@ platform_includes/platform_afu_top_config.vh
 -F platform_includes/platform_if_includes.txt
 
 # ASE CCIP emulator
--F @PLATFORM_IF_RTL_DIR@/sources_abs.txt
+-F @PROJECT_BINARY_DIR@/sources_abs.txt
 
 # QSYS-IPs
 @PROJECT_SOURCE_DIR@/src/lpbk1_RdRspRAM2PORT.v

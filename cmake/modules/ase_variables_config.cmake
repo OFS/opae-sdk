@@ -24,13 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(ASE_SHARE_DIR      ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
-set(ASE_SAMPLES        ${ASE_SHARE_DIR}/samples)
-set(ASE_SCRIPTS_IN     ${ASE_SHARE_DIR}/in)
+if(ASE_POST_INSTALL)
+  set(ASE_SHARE_DIR            ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
+else()
+  set(ASE_SHARE_DIR            ${CMAKE_SOURCE_DIR}/ase)
+endif()
+set(ASE_SAMPLES                ${ASE_SHARE_DIR}/samples)
+set(ASE_SCRIPTS_IN             ${ASE_SHARE_DIR}/in)
+set(ASE_RTL_SOURCE_FILE_DIR    ${ASE_SHARE_DIR}/rtl)
 
-set(PLATFORM_SHARE_DIR ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/platform)
-set(PLATFORM_IF_DIR    ${PLATFORM_SHARE_DIR}/platform_if)
-set(PLATFORM_IF_RTL    ${PLATFORM_IF_DIR}/rtl)
+set(PLATFORM_SHARE_DIR         ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/platform)
+set(PLATFORM_IF_DIR            ${PLATFORM_SHARE_DIR}/platform_if)
+set(PLATFORM_IF_RTL            ${PLATFORM_IF_DIR}/rtl)
 
 set(ASE_SIMULATOR "QUESTA" CACHE STRING "SystemVerilog simulator tool")
 set(ASE_PLATFORM "FPGA_PLATFORM_INTG_XEON" CACHE STRING "FPGA platform")

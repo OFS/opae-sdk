@@ -26,19 +26,20 @@
 
 project("opae-c-ase-samples-nlb")
 
+include(ase_variables_config)
+
+configure_file(${ASE_RTL_SOURCE_FILE_DIR}/sources_abs.txt.in
+  ${PROJECT_BINARY_DIR}/sources_abs.txt)
 configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
   ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
 
 if(ASE_POST_INSTALL)
-  set(PLATFORM_IF_RTL_DIR ${ASE_SHARE_DIR}/rtl)
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt
     ${PROJECT_BINARY_DIR}/sources.txt)
 
 else()
-  set(PLATFORM_IF_RTL_DIR ${CMAKE_BINARY_DIR}/ase/rtl)
-
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
     ${PROJECT_BINARY_DIR}/sources.txt)
 
