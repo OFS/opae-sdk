@@ -249,8 +249,8 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
   "/usr/lib64")
 
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae-try.spec" @ONLY)
-set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae-try.spec")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae.spec" @ONLY)
+set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae.spec")
 
 # Source code packaging target
 set(CPACK_SOURCE_GENERATOR "TGZ")
