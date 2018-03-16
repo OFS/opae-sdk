@@ -168,8 +168,24 @@ endif()
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib64")
+else()
+      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif() 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+############################################################################
+## libs install location ###################################################
+############################################################################
+
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+    set(LIB_INSTALL_DIR "lib64")
+else()
+    set(LIB_INSTALL_DIR "lib")
+endif() 
+
 
 ############################################################################
 ## Packaging ###############################################################
@@ -178,7 +194,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
-include(packaging)
+set(CPACK_GENERATOR "RPM")
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
@@ -187,120 +203,25 @@ set(CPACK_PACKAGE_VERSION_MINOR "${INTEL_FPGA_API_VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
 set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
 set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
 
-# Component definition
-define_pkg(libs
-  COMPONENTS
-  opaeclib
-  GROUP "libs"
-  DISPLAY_NAME "opae-libs"
-  DESCRIPTION "OPAE runtime"
-  RPM_REQUIRES "uuid , json-c")
-
-define_pkg(devel
-  COMPONENTS
-  libopaeheaders
-  dochtml
-  doclatex
-  docrtf
-  docman
-  docxml
-  platform
-  samplesrc
-  safestrlib
-  safestrheaders
-  GROUP "devel"
-  DISPLAY_NAME "opae-devel"
-  DESCRIPTION "OPAE headers, sample source, and documentation"
-  DEPENDS "libs"
-  RPM_REQUIRES "libuuid-devel , json-c-devel , opae-libs")
-
-define_pkg(tools
-  COMPONENTS
-  tooluserclk
-  toolfpgad
-  toolras
-  toolmmlink
-  toolcoreidle
-  toolfpgaconf
-  toolfpgadiag
-  toolfpgabist
-  toolfpga_dma_test
-  toolbist_app
-  toolfpgadiagapps
-  toolfpgaflash
-  toolfpgainfo
-  toolfpgaport
-  toolpackager
-  opaecxxutils
-  opaecxxlib
-  opaecxxnlb
-  hssiiolib
-  hssiprograms
-  GROUP "tools"
-  DISPLAY_NAME "opae-tools"
-  DESCRIPTION "OPAE tool binaries"
-  DEPENDS "libs"
-  RPM_REQUIRES "opae-libs , opae-devel")
-
-define_pkg(ase
-  COMPONENTS
-  opaecase
-  asertl
-  asescripts
-  aseextra
-  asesw
-  GROUP "ase"
-  DISPLAY_NAME "opae-ase"
-  DESCRIPTION "OPAE AFU Simulation Environment"
-  DEPENDS "devel"
-  RPM_REQUIRES "opae-libs , opae-devel")
-
-set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
-set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
-
-# Hashing the package components
-if(HASH_ARCHIVES)
+#Hashing the package components
+ if(HASH_ARCHIVES)
   set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
 else()
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
+set(CPACK_META_GROUP_NAME "meta")
+set(CPACK_LIBS_GROUP_NAME "libs")
+
 # Binary packaging target
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
-set(CPACK_RPM_COMPONENT_INSTALL ON)
-set(CPACK_DEB_COMPONENT_INSTALL ON)
-set(CPACK_RPM_PACKAGE_COMPONENT ON)
-set(CPACK_DEB_PACKAGE_COMPONENT ON)
+set(CPACK_RPM_COMPONENT_INSTALL OFF)
+set(CPACK_RPM_PACKAGE_COMPONENT OFF)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
-
-# Run ldconfig after installation
-option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
-mark_as_advanced(RUN_LDCONFIG)
-
-if (RUN_LDCONFIG)
-  if (NOT CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR "lib")
-  endif()
-
-  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-
-  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
-mkdir -p /etc/ld.so.conf.d
-echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/opae-c.conf
-ldconfig
-")
-
-  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
-rm -f -- /etc/ld.so.conf.d/opae-c.conf
-ldconfig
-")
-
-  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
-  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/postinst")
-  set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${PROJECT_BINARY_DIR}/scripts/prerm")
-endif(RUN_LDCONFIG)
+set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_FILE_NAME}.rpm")
 
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
@@ -327,6 +248,10 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
   "/usr/doc"
   "/usr/lib64")
 
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae-try.spec" @ONLY)
+set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae-try.spec")
+
 # Source code packaging target
 set(CPACK_SOURCE_GENERATOR "TGZ")
 if (HASH_ARCHIVES)
@@ -349,30 +274,11 @@ set(CPACK_SOURCE_IGNORE_FILES
   ${CPACK_SOURCE_IGNORE_FILES})
 
 include(CPack)
+
+add_custom_target(package_rpm
+  COMMAND ${CMAKE_MAKE_PROGRAM}
+  COMMAND ${CMAKE_CPACK_COMMAND}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
-
-############################################################################
-## Meta Package RPM ########################################################
-############################################################################
-
-set(MODULE_NAME libopae-all)
-set(PACKAGE_PACKAGER_NAME "The OPAE Development Team")
-set(PACKAGE_PACKAGER_EMAIL ${CPACK_PACKAGE_CONTACT})
-set(PACKAGE_NAME opae-all)
-set(PACKAGE_VERSION ${CPACK_PACKAGE_VERSION})
-set(PACKAGE_SUMMARY "OPAE meta-package")
-set(PACKAGE_DESCRIPTION "OPAE meta-package")
-set(PACKAGE_VENDOR "Intel Corporation")
-set(PACKAGE_URL http://www.intel.com)
-set(PACKAGE_SRC_TAR_NAME ${CPACK_SOURCE_PACKAGE_FILE_NAME})
-
-set(CONFIG_TEMPLATE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config")
-configure_file(${CONFIG_TEMPLATE_PATH}/libopae-all.spec.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libopae-all.spec @ONLY)
-
-find_program(RPMBUILD_EXECUTABLE rpmbuild)
-if(EXISTS ${RPMBUILD_EXECUTABLE})
-  add_custom_target(metarpm
-    COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-endif(EXISTS ${RPMBUILD_EXECUTABLE})

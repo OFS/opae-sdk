@@ -66,7 +66,7 @@ set_target_properties(opae-c-ase PROPERTIES
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
 if ("${LIB64}" STREQUAL "TRUE")
     install(TARGETS opae-c-ase
-    LIBRARY DESTINATION lib
+    LIBRARY DESTINATION lib64
     COMPONENT opaecase)
 else()
     install(TARGETS opae-c-ase

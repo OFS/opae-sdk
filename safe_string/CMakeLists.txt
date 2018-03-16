@@ -116,6 +116,15 @@ target_compile_options(safestr PRIVATE -O3)
 # mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
 set_source_files_properties(mem_primitives_lib.c PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 
-install(TARGETS safestr
-        ARCHIVE DESTINATION lib
-        COMPONENT safestrlib)
+
+
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+  install(TARGETS safestr
+    ARCHIVE DESTINATION lib64
+    COMPONENT safestrlib)
+else()
+  install(TARGETS safestr
+    ARCHIVE DESTINATION lib
+    COMPONENT safestrlib)
+endif() 
