@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,35 +25,65 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ## Install target for ASE support files
-set(ASE_SHARE_DIR share/opae/ase)
+project(ase)
+include(cmake_dev_config)
 
-install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+# Set root ASE directories correctly now
+set(OPAE_BASE_DIR      ${CMAKE_SOURCE_DIR})
+set(OPAE_SHARE_DIR     ".")
+include(ase_variables_config)
 
+# Post-installation cmake project (enable ASE building after installation)
+configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
+  ${PROJECT_BINARY_DIR}/CMakeLists.txt)
+install(DIRECTORY in DESTINATION share/opae/ase COMPONENT asescripts)
+install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
+  DESTINATION ${ASE_SHARE_DIR}
+  COMPONENT asescripts)
+
+# Install some directories
+install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
+install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
+install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+
+# ASE client
+add_subdirectory(api)
+
+# ASE RTL code
+add_subdirectory(rtl)
+
+# # ASE server
+# add_subdirectory(sw)
+
+# ASE samples
+if(ASE_BUILD_SAMPLES)
+  add_subdirectory(samples)
+endif()
+
+# Extra platform scripts
 set(EXTRA_ASE_FILES
-       Makefile
-       ase.cfg
-       ase_regress.sh)
+  Makefile
+  ase.cfg
+  ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-        DESTINATION ${ASE_SHARE_DIR}
-        COMPONENT aseextra)
+  DESTINATION ${ASE_SHARE_DIR}
+  COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
 set(PLATFORM_SCRIPTS
-        afu_sim_setup)
+  afu_sim_setup)
 
 foreach(SRC ${PLATFORM_SCRIPTS})
   ## Substitute CMake variables of the form @<var>@ in the source file
   ## and store the file in the build tree's bin directory.
   configure_file(
-          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-          @ONLY NEWLINE_STYLE UNIX)
+    scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
+    @ONLY NEWLINE_STYLE UNIX)
   ## This forces the configure_file to be built for all targets
   add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
 
   install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-          DESTINATION bin
-          COMPONENT asescripts)
+    DESTINATION bin
+    COMPONENT asescripts)
 endforeach(SRC)
