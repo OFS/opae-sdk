@@ -31,6 +31,7 @@ set(CMAKE_MODULE_PATH "@CMAKE_INSTALL_PREFIX@/@OPAE_SHARE_DIR@/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 
+set(ASE_POST_INSTALL   ON)
 set(OPAE_BASE_DIR      @CMAKE_INSTALL_PREFIX@)
 set(OPAE_SHARE_DIR     share/opae)
 include(ase_variables_config)

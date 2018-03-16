@@ -26,26 +26,37 @@
 
 project("opae-c-ase-samples-nlb")
 
-configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
-  ${PROJECT_BINARY_DIR}/sources.txt)
-
-configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
-  ${PROJECT_BINARY_DIR}/to_install/sources.txt)
-install(FILES ${PROJECT_BINARY_DIR}/to_install/sources.txt
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
-
 configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
   ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
-install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
-
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
-install(DIRECTORY ${PROJECT_BINARY_DIR}/src
-  DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-  COMPONENT aseextra)
+
+if(ASE_POST_INSTALL)
+  set(PLATFORM_IF_RTL_DIR ${ASE_SHARE_DIR}/rtl)
+  configure_file(${PROJECT_SOURCE_DIR}/sources.txt
+    ${PROJECT_BINARY_DIR}/sources.txt)
+
+else()
+  set(PLATFORM_IF_RTL_DIR ${CMAKE_BINARY_DIR}/ase/rtl)
+
+  configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
+    ${PROJECT_BINARY_DIR}/sources.txt)
+
+  configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
+    ${PROJECT_BINARY_DIR}/to_install/sources.txt)
+
+  install(FILES ${PROJECT_BINARY_DIR}/to_install/sources.txt
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+  install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+endif()
 
 set(intg_xeon_nlb_SOURCES
   sources.txt

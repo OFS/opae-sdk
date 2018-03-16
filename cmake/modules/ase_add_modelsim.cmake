@@ -118,10 +118,8 @@ endmacro(questa_vlog_include_directories)
 
 #  questa_vlog_add_definitions (flags)
 # Specify additional flags for Questa_Vlog process.
-function(questa_vlog_add_definitions flags)
-  get_property(current_flags DIRECTORY PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS)
-  _string_join(" " current_flags "${current_flags}" "+define+${flags}")
-  set_property(DIRECTORY PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS "${current_flags}")
+function(questa_vlog_add_definitions)
+  set_property(DIRECTORY APPEND PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS "${ARGN}")
 endfunction(questa_vlog_add_definitions flags)
 
 # VSIM flags
@@ -436,6 +434,8 @@ function(ase_add_modelsim_module name)
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
     -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
     ${questa_flags}
+    ${QUESTA_VLOG_DEFINES}
+    ${QUESTA_VLOG_INCLUDE_DIRECTORIES}
     ${vlog_flags}
     ${vlog_flags_local}
     -l vlog.log
