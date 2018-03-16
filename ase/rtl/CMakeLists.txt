@@ -30,19 +30,10 @@ project("opae-c-ase-platform")
 include(ase_add_modelsim)
 
 # CCIP base RTL code
-configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
-  ${PROJECT_BINARY_DIR}/sources_abs.txt)
-install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
-  DESTINATION ${ASE_SHARE_DIR}/rtl
-  COMPONENT aseextra)
-
-# Directories
-set(ASE_SERVER_RTL ${PROJECT_SOURCE_DIR})
-
-## Verilog compilation
-set(VLOG_SRC_LIST
-  vlog_files.list
-  CACHE STRING "Project file listing all SystemVerilog source code for the AFU")
-
-set(ASE_PKG_FILE ${ASE_SERVER_RTL}/ase_pkg.sv)
-set(PLATFORM_PKG_FILE ${PLATFORM_IF_RTL}/ccip_if_pkg.sv)
+if(NOT ASE_POST_INSTALL)
+  configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
+    ${PROJECT_BINARY_DIR}/sources_abs.txt)
+  install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
+    DESTINATION ${ASE_SHARE_DIR}/rtl
+    COMPONENT aseextra)
+endif()

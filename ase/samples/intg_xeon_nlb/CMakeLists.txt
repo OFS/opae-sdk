@@ -28,18 +28,22 @@ project("opae-c-ase-samples-nlb")
 
 include(ase_variables_config)
 
-configure_file(${ASE_RTL_SOURCE_FILE_DIR}/sources_abs.txt.in
-  ${PROJECT_BINARY_DIR}/sources_abs.txt)
 configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
   ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
 
 if(ASE_POST_INSTALL)
+  configure_file(${ASE_SERVER_RTL}/sources_abs.txt
+    ${PROJECT_BINARY_DIR}/sources_abs.txt)
+
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt
     ${PROJECT_BINARY_DIR}/sources.txt)
 
 else()
+  configure_file(${ASE_SERVER_RTL}/sources_abs.txt.in
+    ${PROJECT_BINARY_DIR}/sources_abs.txt)
+
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
     ${PROJECT_BINARY_DIR}/sources.txt)
 
