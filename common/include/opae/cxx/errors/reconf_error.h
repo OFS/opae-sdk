@@ -40,57 +40,16 @@ namespace types {
  * FPGA_RECONF_ERROR is returned from a call to
  * an OPAE C API function
  */
-class reconf_error : public std::exception {
-  private:
-    static const std::size_t MAX_EXCEPT = 256;
-
+class reconf_error : public except {
   public:
 
     /** reconf_error constructor
      *
-     * @param[in] func The function that threw the exception
-     * @param[in] loc The file and line number where the exception was thrown
-     * exception.
+     * @param[in] loc Location where the exception was constructed.
      */
-    reconf_error(const char* func, const char* loc) noexcept
-    : func_(func),
-      loc_(loc),
-      msg_("failed with return code FPGA_RECONF_ERROR")
+    reconf_error(src_location loc) noexcept
+    : except(FPGA_RECONF_ERROR, "failed with return code FPGA_RECONF_ERROR", loc)
     {}
-
-    /** Convert this exception to an informative string.
-     *  Print out at least the error code returned.
-     */
-    virtual const char *what() const noexcept override
-    {
-      auto err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
-      if (err) return msg_;
-
-      err = strcat_s(buf_, MAX_EXCEPT, "\nin function: ");
-      if (err) return msg_;
-
-      err = strcat_s(buf_, MAX_EXCEPT, func_);
-      if (err) return msg_;
-
-      err = strcat_s(buf_, MAX_EXCEPT, "\nat: ");
-      if (err) return const_cast<const char*>(buf_);
-
-      err = strcat_s(buf_, MAX_EXCEPT, loc_);
-      if (err) return const_cast<const char*>(buf_);
-
-      return const_cast<const char*>(buf_);
-    }
-
-    /** Convert this exception to its fpga_result.
-     */
-    operator fpga_result() const noexcept { return FPGA_RECONF_ERROR; }
-
-  protected:
-    const char* func_;
-    const char* loc_;
-    const char* msg_;
-    mutable char buf_[MAX_EXCEPT];
-
 
 };
 

@@ -43,6 +43,8 @@ class src_location {
    */
   src_location(const char *file, const char *fn, int line) noexcept;
 
+  src_location(const src_location & other) noexcept;
+
   /** Retrieve the file name component of the location.
    */
   const char *file() const noexcept;
@@ -73,7 +75,7 @@ class src_location {
  */
 class except : public std::exception {
  public:
-  static const std::size_t MAX_EXCEPT = 100;
+  static const std::size_t MAX_EXCEPT = 256;
 
   /** except constructor
    * The fpga_result value is FPGA_EXCEPTION.
@@ -85,9 +87,18 @@ class except : public std::exception {
   /** except constructor
    *
    * @param[in] res The fpga_result value associated with this exception.
+   * @param[in] msg The error message as a string
    * @param[in] loc Location where the exception was constructed.
    */
   except(fpga_result res, src_location loc) noexcept;
+
+  /** except constructor
+   *
+   * @param[in] res The fpga_result value associated with this exception.
+   * @param[in] msg The error message as a string
+   * @param[in] loc Location where the exception was constructed.
+   */
+  except(fpga_result res, const char* msg, src_location loc) noexcept;
 
   /** Convert this except to an informative string.
    */
@@ -99,6 +110,7 @@ class except : public std::exception {
 
  protected:
   fpga_result res_;
+  const char* msg_;
   src_location loc_;
   mutable char buf_[MAX_EXCEPT];
 };

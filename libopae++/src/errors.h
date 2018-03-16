@@ -30,12 +30,7 @@
 #include <map>
 #include <opae/types_enum.h>
 
-#define STRINGIFY(x) #x
-#define NUMSTR(x) STRINGIFY(x)
-#define OPAECXX_AT  __FILE__ ":" NUMSTR(__LINE__)
-
-#include <safe_string/safe_string.h>
-
+#include <opae/cxx/core/except.h>
 #include <opae/cxx/errors/busy.h>
 #include <opae/cxx/errors/exception.h>
 #include <opae/cxx/errors/invalid_param.h>
@@ -51,11 +46,11 @@ namespace opae {
 namespace fpga {
 namespace detail {
 
-typedef bool (*exception_fn)(fpga_result, const char*, const char*);
+typedef bool (*exception_fn)(fpga_result, const opae::fpga::types::src_location & loc);
 
 template<typename T>
-constexpr bool is_ok(fpga_result result, const char* func, const char* loc) {
-  return result == FPGA_OK ? true : throw T(func, loc);
+constexpr bool is_ok(fpga_result result, const opae::fpga::types::src_location & loc) {
+  return result == FPGA_OK ? true : throw T(loc);
 }
 
 
@@ -72,14 +67,14 @@ static exception_fn opae_exceptions[12] = { is_ok<opae::fpga::types::invalid_par
 
 
 static inline void assert_fpga_ok(fpga_result result,
-                                  const char* func,
-                                  const char* loc) {
+                                  const opae::fpga::types::src_location & loc) {
   if (result >= FPGA_OK && result <= FPGA_RECONF_ERROR)
-    opae_exceptions[result](result, func, loc);
+    opae_exceptions[result](result, loc);
 }
 
 #define ASSERT_FPGA_OK(r) \
-  opae::fpga::detail::assert_fpga_ok(r, __func__, OPAECXX_AT);
+  opae::fpga::detail::assert_fpga_ok(r, \
+      opae::fpga::types::src_location(__FILE__, __func__, __LINE__));
 
 
 }  // end of namespace detail
