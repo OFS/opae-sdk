@@ -28,7 +28,6 @@
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/except.h>
-#include "errors.h"
 
 namespace opae {
 namespace fpga {

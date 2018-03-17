@@ -61,12 +61,19 @@ except::except(fpga_result res, const char* msg, src_location loc) noexcept
     : res_(res), msg_(msg), loc_(loc) {}
 
 except::except(fpga_result res, src_location loc) noexcept
-    : res_(res), loc_(loc) {}
+    : res_(res), msg_(0), loc_(loc) {}
 
 const char *except::what() const noexcept {
   errno_t err;
   bool buf_ok = false;
-  err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
+  if (msg_){
+    err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
+  }else{
+    err = strncpy_s(buf_, MAX_EXCEPT, "failed with error ", 64);
+    if (err)
+      goto log_err;
+    err = strcat_s(buf_, MAX_EXCEPT, fpgaErrStr(res_));
+  }
   if (err)
     goto log_err;
   buf_ok = true;
@@ -91,7 +98,7 @@ const char *except::what() const noexcept {
   if (err)
     goto log_err;
 
-  snprintf_s_i(buf_ + strlen(buf_), 64, "%d:", loc_.line());
+  snprintf_s_i(buf_ + strlen(buf_), 64, "%d", loc_.line());
 
   return const_cast<const char *>(buf_);
 
