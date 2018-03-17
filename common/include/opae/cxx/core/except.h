@@ -345,7 +345,7 @@ static exception_fn opae_exceptions[12] = { is_ok<opae::fpga::types::invalid_par
 
 static inline void assert_fpga_ok(fpga_result result,
                                   const opae::fpga::types::src_location & loc) {
-  if (result >= FPGA_OK && result <= FPGA_RECONF_ERROR)
+  if (result > FPGA_OK && result <= FPGA_RECONF_ERROR)
     // our exception table above starts at invalid_param with index 0
     // but FPGA_INVALID_PARAM is actually enum 1 - let's account for that
     opae_exceptions[result-1](result, loc);
