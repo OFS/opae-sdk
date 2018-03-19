@@ -113,7 +113,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
-                function/gtMMIO.cpp)
+                function/gtMMIO.cpp
+                function/gtOpenClose.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)
