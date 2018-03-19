@@ -1734,7 +1734,7 @@ module ccip_emulator
        .NUM_STATIONS_FULL_THRESH (LATBUF_FULL_THRESHOLD),
        .COUNT_WIDTH         (LATBUF_COUNT_WIDTH),
        .VISIBLE_DEPTH_BASE2 (8),
-       .VISIBLE_FULL_THRESH (220),
+       .VISIBLE_FULL_THRESH (32),
        .LATBUF_MAX_TXN      (1),
        .WRITE_CHANNEL       (0)
        )
@@ -1814,7 +1814,7 @@ module ccip_emulator
        .NUM_STATIONS_FULL_THRESH (LATBUF_FULL_THRESHOLD),
        .COUNT_WIDTH         (LATBUF_COUNT_WIDTH),
        .VISIBLE_DEPTH_BASE2 (8),
-       .VISIBLE_FULL_THRESH (220),
+       .VISIBLE_FULL_THRESH (32),
        .LATBUF_MAX_TXN      (4),
        .WRITE_CHANNEL       (1)
        )
