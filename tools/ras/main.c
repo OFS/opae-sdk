@@ -1072,7 +1072,8 @@ fpga_result mmio_error(struct RASCommandLine *rasCmdLine)
 		return result;
 	}
 
-	if(value != FPGA_INTEGRATED_DEVICEID) {
+	if( (value != FPGA_INTEGRATED_DEVICEID) ||
+		(value != FPGA_DISCRETE_DEVICEID) ) {
 		FPGA_ERR("Failed  to read Device id");
 		return FPGA_NOT_SUPPORTED;
 	}
