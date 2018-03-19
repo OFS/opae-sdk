@@ -39,6 +39,9 @@ namespace types {
 src_location::src_location(const char *file, const char *fn, int line) noexcept
     : file_(file), fn_(fn), line_(line) {}
 
+src_location::src_location(const src_location & other) noexcept
+    : file_(other.file_), fn_(other.fn_), line_(other.line_) {}
+
 const char *src_location::file() const noexcept {
   // return a pointer to the file name component.
   const char *p = file_;
@@ -51,35 +54,51 @@ const char *src_location::file() const noexcept {
   return p;
 }
 
-except::except(src_location loc) noexcept : res_(FPGA_EXCEPTION), loc_(loc) {}
+except::except(src_location loc) noexcept
+    : res_(FPGA_EXCEPTION), msg_("failed with return code FPGA_EXCEPTION"), loc_(loc) {}
+
+except::except(fpga_result res, const char* msg, src_location loc) noexcept
+    : res_(res), msg_(msg), loc_(loc) {}
 
 except::except(fpga_result res, src_location loc) noexcept
-    : res_(res), loc_(loc) {}
+    : res_(res), msg_(0), loc_(loc) {}
 
 const char *except::what() const noexcept {
   errno_t err;
+  bool buf_ok = false;
+  if (msg_){
+    err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
+  }else{
+    err = strncpy_s(buf_, MAX_EXCEPT, "failed with error ", 64);
+    if (err)
+      goto log_err;
+    err = strcat_s(buf_, MAX_EXCEPT, fpgaErrStr(res_));
+  }
+  if (err)
+    goto log_err;
+  buf_ok = true;
 
-  err = strncpy_s(buf_, 32, loc_.file(), 32);
+  err = strcat_s(buf_, MAX_EXCEPT, " at: ");
   if (err)
     goto log_err;
 
-  err = strcat_s(buf_, 34, ":");
+  err = strcat_s(buf_, MAX_EXCEPT, loc_.file());
   if (err)
     goto log_err;
 
-  err = strcat_s(buf_, 50, loc_.fn());
+  err = strcat_s(buf_, MAX_EXCEPT, ":");
   if (err)
     goto log_err;
 
-  err = strcat_s(buf_, 53, "():");
+  err = strcat_s(buf_, MAX_EXCEPT, loc_.fn());
   if (err)
     goto log_err;
 
-  snprintf_s_i(buf_ + strlen(buf_), 64, "%d:", loc_.line());
-
-  err = strcat_s(buf_, sizeof(buf_), fpgaErrStr(res_));
+  err = strcat_s(buf_, MAX_EXCEPT, "():");
   if (err)
     goto log_err;
+
+  snprintf_s_i(buf_ + strlen(buf_), 64, "%d", loc_.line());
 
   return const_cast<const char *>(buf_);
 
@@ -88,7 +107,7 @@ log_err:
   log.error() << "safestr error " << err;
 
   buf_[sizeof(buf_)-1] = '\0';
-  return const_cast<const char *>(buf_);
+  return buf_ok ? const_cast<const char *>(buf_) : msg_;
 }
 
 }  // end of namespace types

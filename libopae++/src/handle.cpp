@@ -44,9 +44,8 @@ handle::ptr_t handle::open(fpga_token token, int flags) {
   ptr_t p;
 
   auto res = fpgaOpen(token, &c_handle, flags);
-  if (res == FPGA_OK) {
-    p.reset(new handle(c_handle));
-  }
+  ASSERT_FPGA_OK(res);
+  p.reset(new handle(c_handle));
 
   return p;
 }
@@ -56,73 +55,48 @@ handle::ptr_t handle::open(token::ptr_t tok, int flags) {
 }
 
 fpga_result handle::close() {
-  fpga_result res = FPGA_INVALID_PARAM;
-
   if (handle_ != nullptr) {
-    res = fpgaClose(handle_);
-
-    if (res == FPGA_OK) {
-      handle_ = nullptr;
-    } else {
-      log_.error() << "fpgaClose() failed with (" << res
-                   << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
+    auto res = fpgaClose(handle_);
+    ASSERT_FPGA_OK(res);
+    handle_ = nullptr;
   }
 
-  return res;
+  return FPGA_OK;
 }
 
 void handle::reset() {
   auto res = fpgaReset(handle_);
-  if (res != FPGA_OK) {
-    log_.error() << "fpgaReset() failed with (" << res
-                 << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(res);
 }
 
 uint32_t handle::read_csr32(uint64_t offset, uint32_t csr_space) const {
   uint32_t value = 0;
-  if (FPGA_OK == fpgaReadMMIO32(handle_, csr_space, offset, &value)){
-    return value;
-  }
-  throw except(OPAECXX_HERE);
+  ASSERT_FPGA_OK(fpgaReadMMIO32(handle_, csr_space, offset, &value));
+  return value;
 }
 
 uint64_t handle::read_csr64(uint64_t offset, uint32_t csr_space) const {
   uint64_t value = 0;
-  if (FPGA_OK == fpgaReadMMIO64(handle_, csr_space, offset, &value)){
-    return value;
-  }
-  throw except(OPAECXX_HERE);
+  ASSERT_FPGA_OK(fpgaReadMMIO64(handle_, csr_space, offset, &value));
+  return value;
 }
 
 void handle::write_csr32(uint64_t offset, uint32_t value, uint32_t csr_space) {
-  if (FPGA_OK != fpgaWriteMMIO32(handle_, csr_space, offset, value)){
-    throw except(OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(fpgaWriteMMIO32(handle_, csr_space, offset, value));
 }
 
 void handle::write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space) {
-  if (FPGA_OK != fpgaWriteMMIO64(handle_, csr_space, offset, value)){
-    throw except(OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(fpgaWriteMMIO64(handle_, csr_space, offset, value));
 }
 
 uint8_t * handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const
 {
   uint8_t *base = nullptr;
-  fpga_result res;
 
-  res = fpgaMapMMIO(handle_, csr_space,
-                     reinterpret_cast<uint64_t **>(&base));
-  if (res != FPGA_OK) {
-    log_.error() << "fpgaMapMMIO() failed with (" << res
-                 << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  auto res = fpgaMapMMIO(handle_, csr_space,
+                         reinterpret_cast<uint64_t **>(&base));
 
+  ASSERT_FPGA_OK(res);
   return base + offset;
 }
 
