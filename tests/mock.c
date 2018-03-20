@@ -43,6 +43,7 @@
 #include "common_int.h"
 #include "intel-fpga.h"
 #include <assert.h>
+#include <stdint.h>
 #include <safe_string/safe_string.h>
 
 #define __USE_GNU
@@ -402,6 +403,12 @@ out_EINVAL:
 	goto out;
 }
 
+struct afu_header {
+    uint64_t afu_dfh;
+    uint64_t afu_id_l;
+    uint64_t afu_id_h;
+} __attribute__((packed));
+
 int open(const char* pathname, int flags, ...) {
     int fd;
     char path[MAX_STRLEN];
@@ -436,6 +443,10 @@ int open(const char* pathname, int flags, ...) {
         mock_devs[fd].valid = 1;
 
     } else if (strncmp(FPGA_DEV_PATH "/" FPGA_PORT_DEV_PREFIX, pathname, prefix_len + 1 + strlen(FPGA_PORT_DEV_PREFIX)) == 0 ) {
+        struct afu_header header;
+        ssize_t sz;
+        ssize_t res;
+
         FPGA_DBG("accessing PORT device");
         /* rewrite path */
         strncpy_s(path, sizeof(path), FPGA_MOCK_DEV_PATH, prefix_len);
@@ -449,6 +460,24 @@ int open(const char* pathname, int flags, ...) {
         strncpy_s(mock_devs[fd].pathname, sizeof(mock_devs[fd].pathname), path, MAX_STRLEN - 1);
         mock_devs[fd].objtype = FPGA_ACCELERATOR;
         mock_devs[fd].valid = 1;
+
+	/* Write the AFU header to offset 0, where the mmap call for CSR space 0 will point. */
+        header.afu_dfh  = 0x1000000000001070ULL;
+        header.afu_id_l = 0xf89e433683f9040bULL;
+        header.afu_id_h = 0xd8424dc4a4a3c413ULL;
+
+        lseek(fd, 0, SEEK_SET);
+
+        sz = 0;
+        do
+        {
+            res = write(fd, &header+sz, sizeof(header)-sz);
+            if (res < 0)
+                break;
+            sz += res;
+        } while((size_t)sz < sizeof(header));
+
+        lseek(fd, 0, SEEK_SET);
 
     } else if (strncmp(SYSFS_FPGA_CLASS_PATH, pathname, strlen(SYSFS_FPGA_CLASS_PATH)) == 0 ) {
 
