@@ -1,0 +1,34 @@
+{
+   "version": 1,
+   "platform-name": "discrete_pcie3_lm27",
+   "description": "First generation CCI-P-based discrete PCIe Gen3 cards, 27 bit local memory addresses",
+   "comment":
+      [
+         "The platform is similar to discrete_pcie3, but with more local memory."
+      ],
+   "parent": "discrete_pcie3",
+   "module-ports-offered" :
+      [
+         {
+            "class": "local-memory",
+            "interface": "avalon_mm",
+            "optional": true,
+            "vector": true,
+            "max-entries": 2,
+            "params":
+               {
+                 "addr-width": 27
+               }
+         },
+         {
+            "class": "local-memory",
+            "interface": "avalon_mm_legacy_wires_2bank",
+            "optional": true,
+            "define": [ "INCLUDE_DDR4" ],
+            "params":
+               {
+                 "addr-width": 27
+               }
+         }
+      ]
+}
