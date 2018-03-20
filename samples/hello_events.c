@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 #include <opae/fpga.h>
-#include <safe_string/safe_string.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <poll.h>
@@ -86,7 +85,7 @@ static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
+	snprintf(sysfs_path, sizeof(sysfs_path), "%s/%s",
 			_token->sysfspath,
 			FME_SYSFS_INJECT_ERROR);
 

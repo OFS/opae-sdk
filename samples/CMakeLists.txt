@@ -35,7 +35,7 @@ add_executable(hello_fpga hello_fpga.c)
 target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 
 add_executable(hello_events hello_events.c)
-target_link_libraries(hello_events safestr json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 
 set(SAMPLES_SRC hello_fpga.c hello_events.c)
 

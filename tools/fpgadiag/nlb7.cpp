@@ -323,7 +323,6 @@ bool nlb7::setup()
         return false;
     }
 
-    options_.get_value<uint32_t>("freq", frequency_);
     options_.get_value<bool>("suppress-hdr", suppress_headers_);
     options_.get_value<bool>("csv", csv_format_);
 

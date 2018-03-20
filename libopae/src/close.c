@@ -30,19 +30,10 @@
 
 #include <opae/access.h>
 #include "common_int.h"
-#include "wsid_list_int.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-static void unmap_mmio_region(struct wsid_map *wm)
-{
-	if (munmap((void *)wm->offset, wm->len)) {
-		FPGA_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
-}
 
 fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 {
@@ -63,8 +54,7 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 		return FPGA_INVALID_PARAM;
 	}
 
-	wsid_cleanup(&_handle->wsid_root, NULL);
-	wsid_cleanup(&_handle->mmio_root, unmap_mmio_region);
+	wsid_cleanup(&_handle->wsid_root);
 	free_umsg_buffer(handle);
 	close(_handle->fddev);
 	if (_handle->fdfpgad >= 0)
