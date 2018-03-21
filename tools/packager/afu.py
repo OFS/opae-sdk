@@ -32,14 +32,8 @@ import utils
 import zipfile
 from metadata import metadata
 from gbs import GBS, GBS_EXT
-
-try:
-    from jsonschema import validators
-    from jsonschema import exceptions
-except ImportError:
-    print("afu.py requires the jsonschema package.  Please install it.")
-    print("  https://pypi.python.org/pypi/jsonschema" + os.linesep)
-    raise
+from jsonschema import validators
+from jsonschema import exceptions
 
 filepath = os.path.dirname(os.path.realpath(__file__))
 schema_path = "schema/afu_schema_v01.json"
