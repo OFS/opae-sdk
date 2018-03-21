@@ -34,7 +34,8 @@ from metadata import metadata
 from gbs import GBS, GBS_EXT
 
 try:
-    import jsonschema
+    from jsonschema import validators
+    from jsonschema import exceptions
 except ImportError:
     print("afu.py requires the jsonschema package.  Please install it.")
     print("  https://pypi.python.org/pypi/jsonschema" + os.linesep)
@@ -92,8 +93,8 @@ class AFU(object):
         if self.afu_json == {}:
             return False
         try:
-            jsonschema.validate(self.afu_json, afu_schema)
-        except jsonschema.exceptions.ValidationError as ve:
+            validators.validate(self.afu_json, afu_schema)
+        except exceptions.exceptions.ValidationError as ve:
             print("JSON schema error at {0}: {1}".format(
                 str(list(ve.path)), str(ve.message)))
             return False

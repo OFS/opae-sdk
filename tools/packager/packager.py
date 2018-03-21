@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
+
 import os
 import sys
 import subprocess
@@ -35,6 +37,8 @@ import utils
 from afu import AFU
 from gbs import GBS
 from metadata import metadata
+
+sys.path.insert(0, 'jsonschema')
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
