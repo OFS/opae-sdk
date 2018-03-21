@@ -10,6 +10,14 @@
    "module-ports-offered" :
       [
          {
+            "class": "clocks",
+            "interface": "pClk3_usr2",
+            "params":
+               {
+                  "pclk-freq": 200
+               }
+         },
+         {
             "class": "local-memory",
             "interface": "avalon_mm",
             "optional": true,
