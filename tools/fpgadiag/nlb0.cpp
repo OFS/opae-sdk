@@ -300,6 +300,8 @@ bool nlb0::setup()
             cont_timeout_ += hours(timeout_hour);
         }
     }
+
+    options_.get_value<uint32_t>("freq", frequency_);
     options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
 

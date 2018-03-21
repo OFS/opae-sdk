@@ -640,32 +640,38 @@ package ase_pkg;
       end
    endfunction // isWrFenceResponse
 
-`ifdef ASE_ENABLE_INTR_FEATURE
    // isIntrRequest
    function automatic logic isIntrRequest(TxHdr_t hdr);
       begin
+`ifdef ASE_ENABLE_INTR_FEATURE
 	 if (hdr.reqtype == ASE_INTR_REQ) begin
 	    return 1;
 	 end
 	 else begin
 	    return 0;
 	 end
+`else
+	 return 0;
+`endif
       end
    endfunction
 
    // isIntrResponse
    function automatic logic isIntrResponse(RxHdr_t hdr);
       begin
+`ifdef ASE_ENABLE_INTR_FEATURE
 	 if (hdr.resptype == ASE_INTR_RSP) begin
 	    return 1;
 	 end
 	 else begin
 	    return 0;
 	 end
+`else
+	 return 0;
+`endif
       end
    endfunction
 
-`endif
 
    // ------------------------------------------- //
    // Virtual channel ease functions
