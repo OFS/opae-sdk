@@ -202,7 +202,7 @@ set(CPACK_PACKAGE_VERSION_MINOR "${INTEL_FPGA_API_VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
 set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
 set(CPACK_PACKAGE_RELEASE 1)
-set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
+set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 
 #Hashing the package components
  if(HASH_ARCHIVES)
@@ -318,15 +318,16 @@ set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;$
 endif(RUN_LDCONFIG)
 endif()
 
-
+if("${CPACK_GENERATOR}" STREQUAL "RPM")
 # Binary RPM packaging
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
-set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_RPM_COMPONENT_INSTALL OFF)
 set(CPACK_RPM_PACKAGE_COMPONENT OFF)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_FILE_NAME}.rpm")
+set(CPACK_META_GROUP_NAME "opae")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
@@ -355,6 +356,7 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae.spec" @ONLY)
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae.spec")
+endif()
 
 # Source code packaging target
 set(CPACK_SOURCE_GENERATOR "TGZ")
@@ -379,13 +381,17 @@ set(CPACK_SOURCE_IGNORE_FILES
 
 include(CPack)
 
+#Target to generate tarball
+add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+
+#Target to generate RPM package
 add_custom_target(package_rpm
   COMMAND ${CMAKE_MAKE_PROGRAM}
   COMMAND ${CMAKE_CPACK_COMMAND}
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
   )
 
-add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+#Target to generate DEB package
 add_custom_target(package_deb
   COMMAND ${CMAKE_MAKE_PROGRAM}
   COMMAND ${CMAKE_CPACK_COMMAND}
