@@ -352,8 +352,6 @@ static fpga_result driver_register_event(fpga_handle handle,
 		} else if (objtype == FPGA_ACCELERATOR) {
 			return send_port_event_request(handle, event_handle, FPGA_IRQ_ASSIGN);
 		}
-		FPGA_ERR("Invalid objtype: %d", objtype);
-		return FPGA_EXCEPTION;
 	case FPGA_EVENT_INTERRUPT:
 		if (objtype != FPGA_ACCELERATOR) {
 			FPGA_MSG("User events need an accelerator object");
@@ -395,8 +393,6 @@ static fpga_result driver_unregister_event(fpga_handle handle,
 		} else if (objtype == FPGA_ACCELERATOR) {
 			return send_port_event_request(handle, event_handle, FPGA_IRQ_DEASSIGN);
 		}
-		FPGA_ERR("Invalid objtype: %d", objtype);
-		return FPGA_EXCEPTION;
 	case FPGA_EVENT_INTERRUPT:
 		if (objtype != FPGA_ACCELERATOR) {
 			FPGA_MSG("User events need an Accelerator object");

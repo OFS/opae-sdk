@@ -113,9 +113,6 @@ set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(safestr PRIVATE PIC=1)
 target_compile_options(safestr PRIVATE -O3)
 
-# mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
-set_source_files_properties(mem_primitives_lib.c PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
-
 install(TARGETS safestr
         ARCHIVE DESTINATION lib
         COMPONENT safestrlib)

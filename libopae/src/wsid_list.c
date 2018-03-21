@@ -116,7 +116,7 @@ bool wsid_del(struct wsid_map **root, uint64_t wsid)
  *
  * @param root
  */
-void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))
+void wsid_cleanup(struct wsid_map **root)
 {
 	if (!*root)
 		return;
@@ -124,13 +124,9 @@ void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))
 	while ((*root)->next) {
 		struct wsid_map *tmp = *root;
 		*root = (*root)->next;
-		if (clean)
-			clean(tmp);
 		free(tmp);
 	}
 
-	if (clean)
-		clean(*root);
 	free(*root);
 	*root = NULL;
 }

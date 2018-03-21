@@ -42,7 +42,7 @@ bool wsid_add(struct wsid_map **root,
 	      uint64_t index,
 	      int      flags);
 bool wsid_del(struct wsid_map **root, uint64_t wsid);
-void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *));
+void wsid_cleanup(struct wsid_map **root);
 uint64_t wsid_gen(void);
 
 struct wsid_map *wsid_find(struct wsid_map *root, uint64_t wsid);

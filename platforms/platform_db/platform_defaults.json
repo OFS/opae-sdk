@@ -17,11 +17,6 @@
       ],
    "module-port-params" :
       {
-         "clocks":
-            {
-               "...": "platform_defaults/defaults_clocks.json"
-            },
-
          "cci-p":
             {
                "...": "platform_defaults/defaults_ccip.json"

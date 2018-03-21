@@ -226,6 +226,10 @@ static const char * const RAS_BBS_ERROR[] = {
 		"Injected Catastrophic Error detected", \
 };
 
+static const char * const RAS_WARNING_ERROR[] = {
+		"Green bitstream fatal event error detected.", \
+};
+
 static const char * const PORT_ERROR[] = {
 		"Tx Channel 0 overflow error detected.", \
 		"Tx Channel 0 invalid request encodingr error detected.", \
@@ -1072,8 +1076,7 @@ fpga_result mmio_error(struct RASCommandLine *rasCmdLine)
 		return result;
 	}
 
-	if( (value != FPGA_INTEGRATED_DEVICEID) ||
-		(value != FPGA_DISCRETE_DEVICEID) ) {
+	if(value != FPGA_INTEGRATED_DEVICEID) {
 		FPGA_ERR("Failed  to read Device id");
 		return FPGA_NOT_SUPPORTED;
 	}
