@@ -27,10 +27,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 include(packaging)
 
-####### check python dependency ##############################################
-include(FindPythonPackage)
-#FIND_PYTHON_PKG("jsonschema" SEND_ERROR)
-
 ################# Add version to packager.py ########################
 configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/packager.py @ONLY)
 
