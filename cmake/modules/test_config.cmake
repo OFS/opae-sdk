@@ -110,6 +110,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtCxxBuffer.cpp
                 unit/gtCxxReset.cpp
                 unit/gtCxxLog.cpp
+                unit/gtCxxMMIO.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
