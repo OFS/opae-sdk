@@ -73,9 +73,44 @@ fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 
 fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
 {
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	struct stat st;
+	uint32_t i = 0;
+	uint64_t value = 0;
+	fpga_result res = FPGA_OK;
+
+	// TODO: make thread-safe
+
+	struct error_list *p = _token->errors;
+	while (p) {
+		if (i == error_num) {
+			if (!p->info.can_clear) {
+				FPGA_MSG("can't clear error '%s'", p->info.name);
+				return FPGA_NOT_SUPPORTED;
+			}
+			// read current error value
+			res = fpgaReadError(token, error_num, &value);
+			if (res != FPGA_OK)
+				return res;
+
+			// write to 'clear' file
+			if (stat(p->clear_file, &st) == -1) {
+				FPGA_MSG("can't stat %s", p->clear_file);
+				return FPGA_EXCEPTION;
+			}
+			res = sysfs_write_u64(p->clear_file, value);
+			if (res != FPGA_OK) {
+				FPGA_MSG("can't write clear file '%s'", p->clear_file);
+				return res;
+			}
+			return FPGA_OK;
+		}
+		i++;
+		p = p->next;
+	}
+
+	FPGA_MSG("error info %d not found", error_num);
+	return FPGA_NOT_FOUND;
 }
 
 fpga_result fpgaClearAllErrors(fpga_token token)
@@ -198,8 +233,21 @@ uint32_t build_error_list(const char *path, struct error_list **list)
 		strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
 		strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 		new_entry->next = NULL;
+		// see if error can be cleared (currently only PORT error 'errors' can)
+		if (strcmp(de->d_name, "errors") == 0) {    // FIXME: SAFE
+			strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
+			strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+			new_entry->info.can_clear = true;
+		} else {
+			memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
+			new_entry->info.can_clear = false;
+		}
+
+		// find end of list
 		while (*el)
 			el = &(*el)->next;
+
+		// append
 		*el = new_entry;
 		el = &new_entry->next;
 	}	

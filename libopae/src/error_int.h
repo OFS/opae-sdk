@@ -33,6 +33,7 @@ struct error_list {
 	struct fpga_error_info info;
 	struct error_list *next;
 	char error_file[SYSFS_PATH_MAX];
+	char clear_file[SYSFS_PATH_MAX];
 };
 
 uint32_t count_error_files(const char *path);

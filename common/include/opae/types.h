@@ -65,6 +65,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <opae/types_enum.h>
 
 /**
@@ -163,12 +164,11 @@ typedef void *fpga_event_handle;
  * This data structure captures information about an error register exposed by
  * an accelerator resource. The error API provides functions to retrieve these
  * information structures from a particular resource.
- *
- * Currently, this information is limited to the name of the error register.
  */
 #define FPGA_ERROR_NAME_MAX 64
 struct fpga_error_info {
-	char name[FPGA_ERROR_NAME_MAX];
+	char name[FPGA_ERROR_NAME_MAX];   /** name of the error */
+	bool can_clear;                   /** whether error can be cleared */
 };
 
 #endif // __FPGA_TYPES_H__
