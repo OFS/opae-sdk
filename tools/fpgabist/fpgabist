@@ -84,12 +84,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     bist_common.global_arguments(parser)
     args = parser.parse_args()
-    req = []
+    reqs = []
     for cmd in bist_common.REQ_CMDS:
         if(not bist_common.is_command_in_path(cmd)):
-            req.append(cmd)
-    if req:
-        print "Unable to find {} in system PATH.".format(', '.join([r for r in req]))
+            reqs.append(cmd)
+    if reqs:
+        req = ', '.join([r for r in reqs])
+        print "Unable to find {} in system PATH.".format(req)
         print "Please see README for required commands"
         print "Terminating BIST."
         sys.exit(-1)
