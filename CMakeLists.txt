@@ -194,7 +194,6 @@ endif()
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
-set(CPACK_GENERATOR "RPM")
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
@@ -212,17 +211,122 @@ else()
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
-set(CPACK_META_GROUP_NAME "meta")
-set(CPACK_LIBS_GROUP_NAME "libs")
+if("${CPACK_GENERATOR}" STREQUAL "DEB")
+include(packaging)
+# Component definition
+define_pkg(tools
+  COMPONENTS
+  tooluserclk
+  toolfpgad
+  toolras
+  toolmmlink
+  toolcoreidle
+  toolfpgaconf
+  toolfpgadiag
+  toolfpgabist
+  toolfpga_dma_test
+  toolbist_app
+  toolfpgadiagapps
+  toolfpgaflash
+  toolfpgainfo
+  toolfpgaport
+  toolpackager
+  opaecxxutils
+  opaecxxlib
+  opaecxxnlb
+  hssiiolib
+  hssiprograms
+  GROUP "tools"
+  DISPLAY_NAME "opae-tools"
+  DESCRIPTION "OPAE tool binaries"
+  #DEPENDS "libs"
+  #DEB_DEPENDS "opae-libs , opae-devel"
+  )
 
-# Binary packaging target
+define_pkg(ase
+  COMPONENTS
+  opaecase
+  asertl
+  asescripts
+  aseextra
+  asesw
+  GROUP "ase"
+  DISPLAY_NAME "opae-ase"
+  DESCRIPTION "OPAE AFU Simulation Environment"
+  #DEPENDS "devel"
+  #DEB_DEPENDS "opae-libs , opae-devel"
+  )
+
+define_pkg(devel
+  COMPONENTS
+  libopaeheaders
+  dochtml
+  doclatex
+  docrtf
+  docman
+  docxml
+  platform
+  samplesrc
+  safestrlib
+  safestrheaders
+  GROUP "devel"
+  DISPLAY_NAME "opae-devel"
+  DESCRIPTION "OPAE headers, sample source, and documentation"
+  #DEPENDS "libs"
+  #DEB_DEPENDS "libuuid-devel , json-c-devel , opae-libs"
+  )
+
+  define_pkg(libs
+  COMPONENTS
+  opaeclib
+  GROUP "libs"
+  DISPLAY_NAME "opae-libs"
+  DESCRIPTION "OPAE runtime"
+  #DEPENDS " "
+  #DEB_DEPENDS "uuid , json-c"
+  )
+
+#Binary DEB packaging
+set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
+#set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_DEB_PACKAGE_COMPONENT ON)
+
+# Run ldconfig after installation
+option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
+mark_as_advanced(RUN_LDCONFIG)
+
+if (RUN_LDCONFIG)
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
+
+  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+mkdir -p /etc/ld.so.conf.d
+echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/opae-c.conf
+ldconfig
+")
+
+  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+rm -f -- /etc/ld.so.conf.d/opae-c.conf
+ldconfig
+")
+
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+endif(RUN_LDCONFIG)
+endif()
+
+
+# Binary RPM packaging
+set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_RPM_COMPONENT_INSTALL OFF)
 set(CPACK_RPM_PACKAGE_COMPONENT OFF)
 set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
 set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_FILE_NAME}.rpm")
-
 
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
@@ -282,3 +386,7 @@ add_custom_target(package_rpm
   )
 
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+add_custom_target(package_deb
+  COMMAND ${CMAKE_MAKE_PROGRAM}
+  COMMAND ${CMAKE_CPACK_COMMAND}
+  )

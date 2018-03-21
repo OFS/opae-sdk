@@ -22,7 +22,7 @@ Source0:        opae-0.13.0-1.tar.gz
 
 %package libs
 Summary:    Runtime libraries for OPAE applications
-Group:      @CPACK_LIBS_GROUP_NAME@
+Group:      libs
 Requires:   uuid , json-c
 
 %description libs 

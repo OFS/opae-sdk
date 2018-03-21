@@ -1,0 +1,8 @@
+{
+   "comment":
+      [
+         "Defaults for clocks."
+      ],
+
+   "pclk-freq": 400
+}
