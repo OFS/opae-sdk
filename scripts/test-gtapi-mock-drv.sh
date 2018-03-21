@@ -10,4 +10,6 @@ make mock gtapi fpgad
 ./bin/fpgad -d
 make test
 kill $(cat /tmp/fpgad.pid)
+
+CTEST_OUTPUT_ON_FAILURE=1 make test
 echo "test-gtapi-mock-drv build PASSED"

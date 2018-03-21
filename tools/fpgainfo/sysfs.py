@@ -288,25 +288,25 @@ class errors_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(errors_feature, self).__init__(path, instance_id, device_id,
                                              **kwargs)
-        self._errors_file = None
-        self._clear_file = None
+        self._errors_files = []
         self._name = "errors"
 
     def name(self):
         return self._name
 
     def clear(self):
-        value = self.parse_sysfs(self._errors_file)
-        try:
-            if value:
-                self.write_sysfs(hex(value), self._clear_file)
-            return True
-        except IOError:
-            logging.warn(
-                "Could not clear errors: {}."
-                "Are you running as root?".format(
-                    self._clear_file))
-        return False
+        success = True
+        for (err, clr) in self._errors_files:
+            value = self.parse_sysfs(err)
+            try:
+                if value:
+                    self.write_sysfs(hex(value), clr)
+            except IOError:
+                success = False
+                logging.warn(
+                    "Could not clear errors: {}."
+                    "Are you running as root?".format(clr))
+        return success
 
 
 class fme_errors(errors_feature):
@@ -314,8 +314,10 @@ class fme_errors(errors_feature):
         super(fme_errors, self).__init__(path, instance_id, device_id,
                                          **kwargs)
         self._name = "fme errors"
-        self._errors_file = "fme-errors/errors"
-        self._clear_file = "fme-errors/clear"
+        self._errors_files = [("fme-errors/errors", "fme-errors/clear"),
+                              ("inject_error", "inject_error"),
+                              ("pcie0_errors", "pcie0_errors"),
+                              ("pcie1_errors", "pcie1_errors")]
         add_dynamic_property(self, "errors", "fme-errors/errors")
         add_dynamic_property(self, "first_error", "fme-errors/first_error")
         add_dynamic_property(self, "next_error", "fme-errors/next_error")
@@ -333,8 +335,7 @@ class port_errors(errors_feature):
         super(port_errors, self).__init__(path, instance_id, device_id,
                                           **kwargs)
         self._name = "port errors"
-        self._errors_file = "errors"
-        self._clear_file = "clear"
+        self._errors_files = [("errors", "clear")]
         add_dynamic_property(self, "errors")
         add_dynamic_property(self, "first_error")
 

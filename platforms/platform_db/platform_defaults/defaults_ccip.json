@@ -7,10 +7,10 @@
    "comment":
       [
          "Masks of request classes supported by the platform.",
-         "The required enumeration is defined in platform_cap_ccip_pkg.sv"
+         "The required enumeration is defined in ccip_cfg_pkg.sv"
       ],
    "c0-supported-reqs": "(C0_REQ_RDLINE_S | C0_REQ_RDLINE_I)",
-   "c1-supported-reqs": "(C1_REQ_WRLINE_S | C1_REQ_WRLINE_I | C1_REQ_WRFENCE)",
+   "c1-supported-reqs": "(C1_REQ_WRLINE_S | C1_REQ_WRLINE_I | C1_REQ_WRFENCE | C1_REQ_INTR)",
 
    "comment":
       [
@@ -87,6 +87,5 @@
          "name of another incoming clock.  Only CCI-P clocks may be",
          "chosen. (E.g. pClkDiv2 or uClk_usr.)"
       ],
-   "clock": "default",
-   "pclk-freq": 400
+   "clock": "default"
 }
