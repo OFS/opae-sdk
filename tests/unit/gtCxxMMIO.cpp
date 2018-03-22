@@ -83,6 +83,7 @@ static const uint64_t nlb0_afu_id_h = 0xd8424dc4a4a3c413ULL;
 /**
  * @test mmio_05
  * Given an open accelerator handle object<br>
+ * for the NLB0 accelerator,<br>
  * When I call handle::read_csr64() with csr_space 0<br>
  * Then I can access the NLB0 DFH contents.
  */
@@ -105,6 +106,7 @@ TEST_F(CxxMMIO_f1, mmio_06) {
 /**
  * @test mmio_07
  * Given an open accelerator handle object<br>
+ * for the NLB0 accelerator,<br>
  * When I call handle::mmio_ptr() with csr_space 0<br>
  * Then I can access the NLB0 DFH contents.
  */
