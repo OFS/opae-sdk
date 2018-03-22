@@ -217,7 +217,7 @@ def getAfuIfc(args):
 
     if (args.ifc):
         # Interface name specified on the command line
-        afu_ifc['name'] = args.ifc
+        afu_ifc['class'] = args.ifc
         afu_ifc['file_path'] = None
         afu_ifc['file_name'] = None
     else:
@@ -260,18 +260,23 @@ def getAfuIfc(args):
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
 
-            # The name 'module-ports' used to be 'module-arguments'
+            # The name 'module-ports' used to be 'module-arguments'.
             # Maintain compatibility with older AFUs.
             if ('module-arguments' in afu_ifc):
                 afu_ifc['module-ports'] = afu_ifc.pop('module-arguments')
+
+            # The interface 'class' used to be called 'name'.
+            # Maintain compatibility with older AFUs.
+            if ('name' in afu_ifc):
+                afu_ifc['class'] = afu_ifc.pop('name')
         except Exception:
             # The JSON file doesn't name the top-level interface.
             # Was a default specified on the command line?
             if (args.default_ifc):
                 afu_ifc = dict()
-                afu_ifc['name'] = args.default_ifc
+                afu_ifc['class'] = args.default_ifc
             else:
-                errorExit("No afu-image:afu-top-interface:name found " +
+                errorExit("No afu-image:afu-top-interface:class found " +
                           "in {0}".format(afu_json))
 
         afu_ifc['file_path'] = afu_json
@@ -517,7 +522,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "-i", "--ifc",
-        help="""The AFU's top-level interface name or the full pathname of a
+        help="""The AFU's top-level interface class or the full pathname of a
                 JSON top-level interface descriptor. (E.g. ccip_std_afu)""")
     group.add_argument(
         "-s", "--src",
@@ -531,7 +536,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     parser.add_argument(
         "--default-ifc",
-        help="""The default top-level interface name if no interface is
+        help="""The default top-level interface class if no interface is
                 specified in the AFU's JSON descriptor.""")
 
     if_default = os.path.join(getDBRootPath(), "platform_if")
@@ -574,7 +579,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     platform_defaults.canonicalize()
 
     # Load the AFU top-level interface database
-    afu_ifc = jsondb(afu_ifc_req['name'], afu_top_ifc_db_path, 'AFU',
+    afu_ifc = jsondb(afu_ifc_req['class'], afu_top_ifc_db_path, 'AFU',
                      args.quiet)
     injectAfuIfcChanges(args, afu_ifc.db, afu_ifc_req)
     afu_ifc.canonicalize()
