@@ -90,7 +90,9 @@ void e100::internal_loopback(uint32_t instance)
     this_thread::sleep_for(std::chrono::milliseconds(1));
     eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   instance, static_cast<uint32_t>(mon_ctrl::stop));
     eth_->write(eth_ctrl_reg::gen_pkt_ctrl,   instance, static_cast<uint32_t>(gen_ctrl::stop));
+    
     mac_write(mac_ctrl, mac_reg::mac_cntr_tx_ctrl, 1);
+    this_thread::sleep_for(std::chrono::microseconds(10));
     mac_write(mac_ctrl, mac_reg::mac_cntr_rx_ctrl, 1);
     
     // run the actual test
