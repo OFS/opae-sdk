@@ -47,20 +47,19 @@ struct guid_t {
 
   /** Update the local cached copy of the guid.
    */
-  fpga_result update() {
+  void update() {
     fpga_result res = fpgaPropertiesGetGUID(*props_,
             reinterpret_cast<fpga_guid *>(data_.data()));
-    is_set_ = (FPGA_OK == res);
-    return res;
+    ASSERT_FPGA_OK(res);
+    is_set_ = true;
   }
 
   /** Return a raw pointer to the guid.
    * @retval nullptr if the guid could not be queried.
    */
   operator uint8_t *() {
-    if (FPGA_OK == update())
-        return data_.data();
-    return nullptr;
+    update();
+    return data_.data();
   }
 
   /** Return a raw pointer to the guid.
@@ -76,18 +75,12 @@ struct guid_t {
    * @return a reference to this guid_t.
    */
   guid_t &operator=(fpga_guid g) {
-    fpga_result res;
     is_set_ = false;
-    if ((res = fpgaPropertiesSetGUID(*props_, g)) == FPGA_OK) {
-      is_set_ = true;
-      uint8_t *begin = &g[0];
-      uint8_t *end = begin + sizeof(fpga_guid);
-      std::copy(begin, end, data_.begin());
-    } else {
-      log_.error() << "fpgaPropertiesSetGUID() failed with (" << res
-                   << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
+    ASSERT_FPGA_OK(fpgaPropertiesSetGUID(*props_, g));
+    is_set_ = true;
+    uint8_t *begin = &g[0];
+    uint8_t *end = begin + sizeof(fpga_guid);
+    std::copy(begin, end, data_.begin());
     return *this;
   }
 
@@ -108,12 +101,7 @@ struct guid_t {
       log_.error() << "uuid_parse() failed with (" << u << ")";
       throw except(OPAECXX_HERE);
     }
-    fpga_result res;
-    if (FPGA_OK != (res = fpgaPropertiesSetGUID(*props_, data_.data()))) {
-      log_.error() << "fpgaPropertiesSetGUID() failed with (" << res
-                   << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
+    ASSERT_FPGA_OK(fpgaPropertiesSetGUID(*props_, data_.data()));
     is_set_ = true;
   }
 
@@ -131,9 +119,7 @@ struct guid_t {
       g.log_.debug() << "fpgaPropertiesGetGUID() returned (" << res
                      << ") " << fpgaErrStr(res);
     } else {
-      g.log_.error() << "fpgaPropertiesGetGUID() failed with (" << res
-                     << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
+      ASSERT_FPGA_OK(res);
     }
     return ostr;
   }
@@ -188,7 +174,7 @@ struct pvalue {
    */
   typedef typename std::conditional<
       std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
-  
+
   pvalue() : props_(0), log_("pvalue"), is_set_(false) {}
 
   /**
@@ -211,11 +197,9 @@ struct pvalue {
    */
   pvalue<T> &operator=(const T &v) {
     is_set_ = false;
-    auto res = set_(*props_, v);
-    if (res == FPGA_OK) {
-      is_set_ = true;
-      copy_ = v;
-    }
+    ASSERT_FPGA_OK(set_(*props_, v));
+    is_set_ = true;
+    copy_ = v;
     return *this;
   }
 
@@ -228,10 +212,9 @@ struct pvalue {
    */
   bool operator==(const T &other) { return is_set() && (copy_ == other); }
 
-  fpga_result update() {
-    fpga_result res = get_(*props_, &copy_);
-    is_set_ = (FPGA_OK == res);
-    return res;
+  void update() {
+    ASSERT_FPGA_OK(get_(*props_, &copy_));
+    is_set_ = true;
   }
 
   /**
@@ -241,10 +224,8 @@ struct pvalue {
    *         value of the value type
    */
   operator copy_t() {
-    if (update() == FPGA_OK) {
-      return copy_;
-    }
-    return copy_t();
+    update();
+    return copy_;
   }
 
   // TODO: Remove this once all properties are tested
@@ -268,10 +249,8 @@ struct pvalue {
       p.log_.debug() << "property getter returned (" << res
                      << ") " << fpgaErrStr(res);
     } else {
-      p.log_.error() << "property getter failed with (" << res
-                     << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-     }
+      ASSERT_FPGA_OK(res);
+    }
     return ostr;
   }
 
@@ -302,13 +281,11 @@ struct pvalue {
  * @return The result of the property getter function.
  */
 template <> inline
-fpga_result pvalue<char*>::update() {
+void pvalue<char*>::update() {
   char buf[256];
-  fpga_result res = get_(*props_, buf);
-  if (res == FPGA_OK)
-    copy_.assign(buf);
-  is_set_ = (FPGA_OK == res);
-  return res;
+  ASSERT_FPGA_OK(get_(*props_, buf));
+  copy_.assign(buf);
+  is_set_ = true;
 }
 
 }  // end of namespace types
