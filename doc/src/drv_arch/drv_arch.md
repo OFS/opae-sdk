@@ -88,7 +88,7 @@ user-space before calling the reconfiguration IOCTL.
 ```
     NOTE: Unplugging the VF from the guest while an application on the guest is
     still accessing its resources may lead to VM instabilities. We recommend
-    cloing all applications accessing the VF in the guest before unplugging the
+    closing all applications accessing the VF in the guest before unplugging the
     VF.
 ```
 3. Disable SR-IOV
