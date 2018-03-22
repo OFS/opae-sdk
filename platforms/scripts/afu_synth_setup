@@ -50,19 +50,32 @@ def errorExit(msg):
     sys.exit(1)
 
 
-# The hw/lib directory of a platform's release.
+#
+# The hw/lib directory of a platform's release.  We find the hw/lib
+# directory using the following search rules, in decreasing priority:
+#
+#   1. --lib argument to this script.
+#   2. BBS_LIB_PATH:
+#        We used to document this environment variable as the primary
+#        pointer for scripts.
+#   3. OPAE_PLATFORM_ROOT:
+#        This variable replaces all pointers to a release directory,
+#        starting with the discrete platform's 1.1 release.  The
+#        hw/lib directory is ${OPAE_PLATFORM_ROOT}/hw/lib.
+#
 def getHWLibPath(args):
     if (args.lib is not None):
         hw_lib_dir = args.lib
-    elif ('OPAE_FPGA_HW_LIB' in os.environ):
-        # Environment variable specific to afu_synth_setup
-        hw_lib_dir = os.environ['OPAE_FPGA_HW_LIB'].rstrip('/')
     elif ('BBS_LIB_PATH' in os.environ):
-        # Environment variable shared with afu_sim_setup and HW releases
+        # Legacy variable, shared with afu_sim_setup and HW releases
         hw_lib_dir = os.environ['BBS_LIB_PATH'].rstrip('/')
+    elif ('OPAE_PLATFORM_ROOT' in os.environ):
+        # Currently documented variable, pointing to a platform release
+        hw_lib_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'].rstrip('/'),
+                                  'hw/lib')
     else:
         errorExit("Release hw/lib directory must be specified with " +
-                  "OPAE_FPGA_HW_LIB, BBS_LIB_PATH or --lib")
+                  "OPAE_PLATFORM_ROOT, BBS_LIB_PATH or --lib")
 
     # Confirm that the path looks reasonable
     if (not os.path.exists(os.path.join(hw_lib_dir,
@@ -85,6 +98,9 @@ def commands_list_getoutput(cmd, cwd=None):
             raise
     except subprocess.CalledProcessError as e:
         sys.stderr.write(e.output)
+        raise
+    except AttributeError:
+        sys.stderr.write('Error: Python 2.7 or greater required.\n')
         raise
 
     return str_out
@@ -144,31 +160,6 @@ def copy_build_env(hw_lib_dir, dst, force):
     hw_dir = os.path.join(dst, 'hw')
     if (not os.path.isdir(hw_dir)):
         os.mkdir(hw_dir)
-
-    # Make a scripts directory with clean.sh and run.sh
-    scripts_dst = os.path.join(dst, 'scripts')
-    os.mkdir(scripts_dst)
-    # The release root is two levels above hw/lib
-    release_root_dir = os.path.dirname(os.path.dirname(hw_lib_dir))
-    scripts_src = os.path.relpath(os.path.join(release_root_dir, 'bin'),
-                                  scripts_dst)
-    os.symlink(os.path.join(scripts_src, 'clean.sh'),
-               os.path.join(scripts_dst, 'clean.sh'))
-    run_sh = os.path.join(scripts_dst, 'run.sh')
-    with open(run_sh, 'w') as f:
-        # Use relative paths so generated scripts can be shipped in
-        # a tarball along with a release.
-        f.write('#!/bin/sh\n')
-        f.write('SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && ' +
-                'pwd -P)"\n')
-        f.write('RELEASE_DIR="$(readlink -f "${SCRIPT_DIR}/' +
-                os.path.relpath(release_root_dir, scripts_dst) +
-                '")"\n')
-        f.write('export BBS_LIB_PATH=' +
-                '${BBS_LIB_PATH:-"${RELEASE_DIR}/hw/lib"}\n')
-        f.write('"${RELEASE_DIR}/bin/run.sh" $@\n')
-    st = os.stat(run_sh)
-    os.chmod(run_sh, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 #
@@ -245,6 +236,37 @@ def setup_build(args):
     cmd = ['afu_json_mgr', 'json-info', '--afu-json=' + json]
     cmd.append('--verilog-hdr=../hw/afu_json_info.vh')
     subprocess.check_call(cmd, cwd=build_dir)
+
+    # Handle Qsys IPX file discovery
+    setup_build_ipx(args, sources, build_dir)
+
+
+# Construct the Qsys components.ipx file in the build directory, if needed.
+def setup_build_ipx(args, sources, build_dir):
+    # Get IPX files from source list
+    cmd = ['rtl_src_config']
+    cmd.append('--ipx')
+    if (os.path.isabs(sources)):
+        cmd.append('--abs')
+        cmd.append(sources)
+    else:
+        cmd.append(os.path.relpath(sources, build_dir))
+    ipx = commands_list_getoutput(cmd, cwd=build_dir)
+    ipx = ipx.strip()
+    # Anything to do?
+    if (len(ipx) == 0):
+        return
+    ipx = ipx.split('\n')
+
+    # Emit components.ipx
+    with open(os.path.join(build_dir, 'components.ipx'), 'w') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write('<library>\n')
+        for p in ipx:
+            # Just point to the directory containing the IPX file
+            ipx_path = os.path.dirname(p)
+            f.write('  <path path="{0}/*" />\n'.format(ipx_path))
+        f.write('</library>\n')
 
 
 def main():

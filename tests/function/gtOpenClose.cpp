@@ -1,44 +1,46 @@
-/*++
-
-INTEL CONFIDENTIAL
-Copyright 2016 - 2017 Intel Corporation
-
-The source code contained or described  herein and all documents related to
-the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
-suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
-Corporation or  its suppliers  and licensors.  The Material  contains trade
-secrets  and  proprietary  and  confidential  information  of Intel  or its
-suppliers and licensors.  The Material is protected  by worldwide copyright
-and trade secret laws and treaty provisions. No part of the Material may be
-used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
-transmitted,  distributed, or  disclosed in  any way  without Intel's prior
-express written permission.
-
-No license under any patent, copyright,  trade secret or other intellectual
-property  right  is  granted to  or conferred  upon  you by  disclosure  or
-delivery of the  Materials, either  expressly, by  implication, inducement,
-estoppel or otherwise. Any license  under such intellectual property rights
-must be express and approved by Intel in writing.
-
---*/
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/access.h>
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
+
 
 using namespace common_test;
 using namespace std;
 
-class LibopaecOpenFCommonHW : public common_test::BaseFixture,
+class LibopaecOpenFCommonMOCKHW : public common_test::BaseFixture,
                               public ::testing::Test {};
 
-class LibopaecCloseFCommonHW : public common_test::BaseFixture,
+class LibopaecOpenFCommonMOCK : public common_test::BaseFixture,
+                              public ::testing::Test {};
+
+class LibopaecCloseFCommonMOCKHW : public common_test::BaseFixture,
                                public ::testing::Test {};
 
 class LibopaecOpenFCommonALL : public common_test::BaseFixture,
@@ -53,7 +55,7 @@ class LibopaecCloseFCommonALL : public common_test::BaseFixture,
  * @brief      Calling fpgaOpen() after fpgaClose() using the same token
  *             returns FPGA_OK.
  */
-TEST_F(LibopaecOpenFCommonHW, 02) {
+TEST_F(LibopaecOpenFCommonMOCK, 02) {
   auto functor = [=]() -> void {
     fpga_handle h = NULL;
     ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
@@ -68,7 +70,7 @@ TEST_F(LibopaecOpenFCommonHW, 02) {
               functor);          // test code
 }
 
-TEST_F(LibopaecOpenFCommonHW, 03) {
+TEST_F(LibopaecOpenFCommonMOCK, 03) {
   auto functor = [=]() -> void {
 
     fpga_handle h = NULL;
@@ -143,9 +145,8 @@ TEST_F(LibopaecOpenFCommonHW, 03) {
  *             fpgaOpen returns FPGA_OK.
  */
 TEST_F(LibopaecOpenFCommonALL, 05) {
-
-  fpga_handle h;
 #ifdef BUILD_ASE
+  fpga_handle h;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -174,7 +175,7 @@ TEST_F(LibopaecOpenFCommonALL, 05) {
  *             but the user lacks sufficient privilege for the device,
  *             fpgaOpen returns FPGA_NO_ACCESS.
  */
-TEST_F(LibopaecOpenFCommonHW, 06) {
+TEST_F(LibopaecOpenFCommonMOCKHW, 06) {
   auto functor = [=]() -> void {
     fpga_handle h;
 
@@ -214,7 +215,7 @@ TEST(LibopaecOpenCommonALL, 07) {
  *             an already opened token returns FPGA_BUSY.
  *
  */
-TEST_F(LibopaecOpenFCommonHW, open_drv_09) {
+TEST_F(LibopaecOpenFCommonMOCK, open_drv_09) {
   auto functor = [=]() -> void {
     fpga_handle h1, h2;
 
@@ -238,10 +239,9 @@ TEST_F(LibopaecOpenFCommonHW, open_drv_09) {
  *
  */
 TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
-  fpga_handle h1, h2;
 
 #ifdef BUILD_ASE
-
+  fpga_handle h1, h2;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -278,7 +278,7 @@ TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
  *             returns FPGA_INVALID_PARAM for a corrupted token.
  *
  */
-TEST_F(LibopaecOpenFCommonHW, open_drv_11) {
+TEST_F(LibopaecOpenFCommonMOCK, open_drv_11) {
   auto functor = [=]() -> void {
     fpga_handle h;
 
@@ -315,10 +315,9 @@ TEST(LibopaecCloseCommonALL, 01) {
  *             returns FPGA_OK.
 */
 TEST_F(LibopaecCloseFCommonALL, 02) {
-  fpga_handle h;
 
 #ifdef BUILD_ASE
-
+  fpga_handle h;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -341,3 +340,38 @@ TEST_F(LibopaecCloseFCommonALL, 02) {
               functor);          // test code
 #endif
 }
+
+/**
+ * @test       03
+ *
+ * @brief      When MMIO spaces have been mapped by an open handle,
+ *             and there is no explicit call to unmap them,
+ *             fpgaClose will unmap all MMIO spaces.
+*/
+#ifndef BUILD_ASE
+TEST_F(LibopaecCloseFCommonALL, 03) {
+
+  auto functor = [=]() -> void {
+    fpga_handle h;
+    struct _fpga_handle *p;
+
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    
+    p = (struct _fpga_handle *)h;
+    EXPECT_EQ((void *)NULL, p->mmio_root);
+
+    EXPECT_EQ(FPGA_OK, fpgaMapMMIO(h, 0, NULL));
+
+    EXPECT_NE((void *)NULL, p->mmio_root);
+
+    EXPECT_EQ(FPGA_OK, fpgaClose(h));
+
+    EXPECT_EQ((void *)NULL, p->mmio_root);
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+}
+#endif // BUILD_ASE

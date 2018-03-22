@@ -3,7 +3,7 @@
    "platform-name": "intg_xeon",
    "description": "Integrated Xeon + Arria 10 with QPI/UPI and two PCIe host channels",
    "ase-platform": "intg_xeon",
-   "module-arguments-offered" :
+   "module-ports-offered" :
       [
          {
             "class": "clocks",
@@ -21,7 +21,12 @@
          },
          {
             "class": "cci-p",
-            "interface": "struct"
+            "interface": "struct",
+            "params":
+               {
+                  "c0-supported-reqs": "(C0_REQ_RDLINE_S | C0_REQ_RDLINE_I)",
+                  "c1-supported-reqs": "(C1_REQ_WRLINE_S | C1_REQ_WRLINE_I | C1_REQ_WRFENCE)"
+               }
          }
       ]
 }

@@ -1,26 +1,28 @@
-/*++
-
-  INTEL CONFIDENTIAL
-  Copyright 2016 - 2017 Intel Corporation
-
-  The source code contained or described  herein and all documents related to
-  the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
-  suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
-  Corporation or  its suppliers  and licensors.  The Material  contains trade
-  secrets  and  proprietary  and  confidential  information  of Intel  or its
-  suppliers and licensors.  The Material is protected  by worldwide copyright
-  and trade secret laws and treaty provisions. No part of the Material may be
-  used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
-  transmitted,  distributed, or  disclosed in  any way  without Intel's prior
-  express written permission.
-
-  No license under any patent, copyright,  trade secret or other intellectual
-  property  right  is  granted to  or conferred  upon  you by  disclosure  or
-  delivery of the  Materials, either  expressly, by  implication, inducement,
-  estoppel or otherwise. Any license  under such intellectual property rights
-  must be express and approved by Intel in writing.
-
-  --*/
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __COMMON_STRESS_H__
 #define __COMMON_STRESS_H__
@@ -36,6 +38,7 @@
 #include <map>
 #include <random>
 #include <string>
+#include <string.h>
 
 
 #include <json-c/json.h>
@@ -46,11 +49,7 @@
 #include <opae/fpga.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
 #include "types_int.h"
-#endif
 #include <sys/mman.h>
 #include <types_int.h>
 
@@ -184,7 +183,7 @@ namespace common_test {
 
 inline void token_for_fme0(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-            memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
+         memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
 	    _tok->magic = ASE_TOKEN_MAGIC;
 	    _tok->ase_objtype=FPGA_DEVICE;
 #else
@@ -231,14 +230,15 @@ inline void token_for_invalid(struct _fpga_token* _tok) {
 inline bool token_is_fme0(fpga_token t) {
   struct _fpga_token* _t = (struct _fpga_token*)t;
 
-  int indicator = 0;
-  signed retval = 0;
 #ifdef BUILD_ASE
 	    if(_t->magic != ASE_TOKEN_MAGIC)
 		return 0;
 	    else
 	        return ((0 == memcmp(_t->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid))));
 #else
+  int indicator = 0;
+  signed retval = 0;
+
   if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
                SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0",
                &indicator)) {
@@ -260,14 +260,16 @@ inline bool token_is_fme0(fpga_token t) {
 inline bool token_is_afu0(fpga_token t) {
   struct _fpga_token* _t = (struct _fpga_token*)t;
 
-  int indicator = 0;
-  signed retval = 0;
+
 #ifdef BUILD_ASE
 	     if(_t->magic != ASE_TOKEN_MAGIC)
 		 return 0;
 	     else
 	         return ((0 == memcmp(_t->accelerator_id,ASE_GUID, sizeof(fpga_guid))));
 #else
+  int indicator = 0;
+  signed retval = 0;
+
   if (strcmp_s(_t->sysfspath, sizeof(_t->sysfspath),
                SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-port.0",
                &indicator)) {

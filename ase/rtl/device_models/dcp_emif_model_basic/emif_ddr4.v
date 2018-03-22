@@ -249,15 +249,23 @@ function automatic Response create_response (
 	return rsp;
 endfunction
 
+// Expand data enable to a data mask
+function automatic logic [DATA_W-1:0] get_mask (logic [NUM_SYMBOLS-1:0] byteenable);
+	logic [DATA_W-1:0] mask;
+	for(int i=0; i<NUM_SYMBOLS; i++) begin
+		mask[i*SYMBOL_W +: SYMBOL_W] = byteenable[i]? {SYMBOL_W{1'b1}}:
+		                                              {SYMBOL_W{1'b0}};
+	end
+	return mask;
+endfunction
+
 function automatic Response memory_response (Command cmd, int SLAVE_ID);
 	Response rsp;
-	logic [NUM_SYMBOLS-1:0]      byteenable;
-
-	byteenable = cmd.byteenable[0];
+	
 	rsp.burstcount = (cmd.trans == READ) ? cmd.burstcount : 1;
 	for(int idx = 0; idx < cmd.burstcount; idx++) begin
 		if(cmd.trans == READ) begin
-			rsp.data[idx] = (memory[SLAVE_ID][cmd.addr+idx] & {8{byteenable}});
+			rsp.data[idx] = memory[SLAVE_ID][cmd.addr+idx] & get_mask(cmd.byteenable[0]);
 			rsp.latency[idx] = $urandom_range(0,MAX_LATENCY); // set a random memory response latency
 		end
 	end
@@ -269,6 +277,7 @@ endfunction
 \
 	Command     actual_cmd, exp_cmd; \
 	Response    rsp; \
+	logic [DATA_W-1:0] mask; \
 \
 	automatic int backpressure_cycles; \
 \
@@ -290,7 +299,9 @@ endfunction
 	if (actual_cmd.trans == WRITE) begin \
 		for(int idx = 0; idx < actual_cmd.burstcount; idx++) begin\
 			if(memory[SLAVE_ID].exists(actual_cmd.addr+idx)) begin\
-				memory[SLAVE_ID][actual_cmd.addr+idx] = ((memory[SLAVE_ID][actual_cmd.addr+idx] & ~{8{actual_cmd.byteenable[idx]}}) | actual_cmd.data[idx] & {8{actual_cmd.byteenable[idx]}});\
+				mask = get_mask(actual_cmd.byteenable[idx]); \
+				memory[SLAVE_ID][actual_cmd.addr+idx] = ((memory[SLAVE_ID][actual_cmd.addr+idx] & ~mask) | \
+					                                     (actual_cmd.data[idx] & mask));\
 			end\
 			else begin\
 				memory[SLAVE_ID][actual_cmd.addr+idx] = actual_cmd.data[idx];\

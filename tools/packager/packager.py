@@ -38,6 +38,7 @@ from metadata import metadata
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
+VERSION = "@INTEL_FPGA_API_VERSION@"
 
 try:
     assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
@@ -73,6 +74,22 @@ def run_packager():
     if args.cmd == "help" or not args.cmd:
         print(USAGE)
 
+    elif args.cmd == "version":
+        if VERSION.startswith("@"):
+            try:
+                devnull = open(os.devnull, 'w')
+                repo = subprocess.check_output('git remote -v',
+                                               shell=True,
+                                               stderr=devnull)
+                version = (subprocess.check_output('git describe --tags',
+                                                   shell=True,
+                                                   stderr=devnull).split()[0]
+                           if "opae-sdk" in repo else "UNKNOWN REPO")
+            except subprocess.CalledProcessError:
+                version = "UNKNOWN"
+        else:
+            version = VERSION
+        print("{0}: version {1}".format(DESCRIPTION, version))
     elif args.cmd == "create-gbs":
         subparser.usage = "\n" + cmd_description + \
             " --rbf=<RBF_PATH> --afu-json=<AFU_JSON_PATH>"\

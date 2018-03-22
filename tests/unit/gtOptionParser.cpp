@@ -1,26 +1,28 @@
-/*++
-
-INTEL CONFIDENTIAL
-Copyright 2016 - 2017 Intel Corporation
-
-The source code contained or described  herein and all documents related to
-the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
-suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
-Corporation or  its suppliers  and licensors.  The Material  contains trade
-secrets  and  proprietary  and  confidential  information  of Intel  or its
-suppliers and licensors.  The Material is protected  by worldwide copyright
-and trade secret laws and treaty provisions. No part of the Material may be
-used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
-transmitted,  distributed, or  disclosed in  any way  without Intel's prior
-express written permission.
-
-No license under any patent, copyright,  trade secret or other intellectual
-property  right  is  granted to  or conferred  upon  you by  disclosure  or
-delivery of the  Materials, either  expressly, by  implication, inducement,
-estoppel or otherwise. Any license  under such intellectual property rights
-must be express and approved by Intel in writing.
-
---*/
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #include "gtest/gtest.h"
 #include "option_map.h"
@@ -38,7 +40,7 @@ using namespace intel::utils;
  *             the default value for that type
  *
  */
-TEST(LibopaecCppOptionsCommonHW, default_option_01) {
+TEST(LibopaecCppOptionsCommonMOCKHW, default_option_01) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument,
                             "test option help");
@@ -56,7 +58,7 @@ TEST(LibopaecCppOptionsCommonHW, default_option_01) {
  *             in the JSON string
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_json_02) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_json_02) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
                             42);
@@ -79,7 +81,7 @@ TEST(LibopaecCppOptionsCommonHW, parse_json_02) {
  *             false
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_json_03) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_json_03) {
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
                             42);
@@ -103,7 +105,7 @@ TEST(LibopaecCppOptionsCommonHW, parse_json_03) {
  *             value in the arguments vector
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_arg_04) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_04) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
@@ -129,7 +131,7 @@ TEST(LibopaecCppOptionsCommonHW, parse_arg_04) {
  *             value in the arguments vector
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_arg_05) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_05) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", 'a', option::with_argument,
@@ -154,7 +156,7 @@ TEST(LibopaecCppOptionsCommonHW, parse_arg_05) {
  *             parser is equal to the non-options
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_arg_06) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_06) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",
@@ -183,7 +185,7 @@ TEST(LibopaecCppOptionsCommonHW, parse_arg_06) {
  *             vector in the parser is equal to the non-options
  *
  */
-TEST(LibopaecCppOptionsCommonHW, parse_arg_07) {
+TEST(LibopaecCppOptionsCommonMOCKHW, parse_arg_07) {
   optind = 1;
   option_map opts;
   opts.add_option<uint32_t>("answer", option::with_argument, "test option help",

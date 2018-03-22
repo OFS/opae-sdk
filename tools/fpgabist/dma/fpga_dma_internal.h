@@ -35,8 +35,8 @@
 #include <opae/fpga.h>
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
-#define IS_ALIGNED_DWORD(addr) (addr%4==0)
-#define IS_ALIGNED_QWORD(addr) (addr%8==0)
+#define IS_ALIGNED_DWORD(addr) (addr%4 == 0)
+#define IS_ALIGNED_QWORD(addr) (addr%8 == 0)
 
 #define FPGA_DMA_UUID_H 0xef82def7f6ec40fc
 #define FPGA_DMA_UUID_L 0xa9149a35bace01ea
@@ -73,7 +73,7 @@
 #define FPGA_DMA_DESC_BUFFER_FULL 0x4
 
 #define FPGA_DMA_ALIGN_BYTES 64
-#define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES==0)
+#define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES == 0)
 // Granularity of DMA transfer (maximum bytes that can be packed
 // in a single descriptor).This value must match configuration of
 // the DMA IP. Larger transfers will be broken down into smaller

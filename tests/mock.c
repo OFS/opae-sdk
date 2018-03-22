@@ -1,26 +1,28 @@
-/*++
-
-  INTEL CONFIDENTIAL
-  Copyright 2016 - 2017 Intel Corporation
-
-  The source code contained or described  herein and all documents related to
-  the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
-  suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
-  Corporation or  its suppliers  and licensors.  The Material  contains trade
-  secrets  and  proprietary  and  confidential  information  of Intel  or its
-  suppliers and licensors.  The Material is protected  by worldwide copyright
-  and trade secret laws and treaty provisions. No part of the Material may be
-  used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
-  transmitted,  distributed, or  disclosed in  any way  without Intel's prior
-  express written permission.
-
-  No license under any patent, copyright,  trade secret or other intellectual
-  property  right  is  granted to  or conferred  upon  you by  disclosure  or
-  delivery of the  Materials, either  expressly, by  implication, inducement,
-  estoppel or otherwise. Any license  under such intellectual property rights
-  must be express and approved by Intel in writing.
-
-  --*/
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 /*
  * Mock up driver interactions for testing
@@ -41,6 +43,7 @@
 #include "common_int.h"
 #include "intel-fpga.h"
 #include <assert.h>
+#include <stdint.h>
 #include <safe_string/safe_string.h>
 
 #define __USE_GNU
@@ -77,7 +80,7 @@ static struct mock_dev {
 	int valid;
 	fpga_objtype objtype;
 	char pathname[MAX_STRLEN];
-} mock_devs[MAX_FD] = {0};
+} mock_devs[MAX_FD] = {{0}};
 
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
@@ -400,6 +403,12 @@ out_EINVAL:
 	goto out;
 }
 
+struct afu_header {
+    uint64_t afu_dfh;
+    uint64_t afu_id_l;
+    uint64_t afu_id_h;
+} __attribute__((packed));
+
 int open(const char* pathname, int flags, ...) {
     int fd;
     char path[MAX_STRLEN];
@@ -434,6 +443,10 @@ int open(const char* pathname, int flags, ...) {
         mock_devs[fd].valid = 1;
 
     } else if (strncmp(FPGA_DEV_PATH "/" FPGA_PORT_DEV_PREFIX, pathname, prefix_len + 1 + strlen(FPGA_PORT_DEV_PREFIX)) == 0 ) {
+        struct afu_header header;
+        ssize_t sz;
+        ssize_t res;
+
         FPGA_DBG("accessing PORT device");
         /* rewrite path */
         strncpy_s(path, sizeof(path), FPGA_MOCK_DEV_PATH, prefix_len);
@@ -447,6 +460,24 @@ int open(const char* pathname, int flags, ...) {
         strncpy_s(mock_devs[fd].pathname, sizeof(mock_devs[fd].pathname), path, MAX_STRLEN - 1);
         mock_devs[fd].objtype = FPGA_ACCELERATOR;
         mock_devs[fd].valid = 1;
+
+	/* Write the AFU header to offset 0, where the mmap call for CSR space 0 will point. */
+        header.afu_dfh  = 0x1000000000001070ULL;
+        header.afu_id_l = 0xf89e433683f9040bULL;
+        header.afu_id_h = 0xd8424dc4a4a3c413ULL;
+
+        lseek(fd, 0, SEEK_SET);
+
+        sz = 0;
+        do
+        {
+            res = write(fd, &header+sz, sizeof(header)-sz);
+            if (res < 0)
+                break;
+            sz += res;
+        } while((size_t)sz < sizeof(header));
+
+        lseek(fd, 0, SEEK_SET);
 
     } else if (strncmp(SYSFS_FPGA_CLASS_PATH, pathname, strlen(SYSFS_FPGA_CLASS_PATH)) == 0 ) {
 
@@ -565,6 +596,8 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				size_t bitstream_len,
 				int flags)
 {
+	(void)flags;  /* silence unused-parameter warning */
+
 	if (!fpga ||
 		(((struct _fpga_handle *)fpga)->magic != FPGA_HANDLE_MAGIC) ||
 		(((struct _fpga_handle *)fpga)->fddev < 0)) {

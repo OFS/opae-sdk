@@ -31,7 +31,7 @@ import subprocess
 import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
-BIST_MODES = ['nlb_mode_3', 'dma_afu']
+BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 
 
 # Return a list of all available bus numbers
@@ -45,7 +45,7 @@ def get_all_fpga_bdfs():
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, int(v, 16))
+            bdf_list.append(dict([(k, v)
                             for (k, v) in data.iteritems()]))
     return bdf_list
 
@@ -80,7 +80,7 @@ def get_mode_from_path(gbs_path):
 
 def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    cmd = "{} -b {} -v {}".format('fpgaconf', bus_num, gbs_file)
+    cmd = "{} -b 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
@@ -103,13 +103,13 @@ def global_arguments(parser):
                         type=str,
                         help='Device Id for Intel FPGA default: 09c4')
 
-    parser.add_argument('-b', '--bus', type=int,
+    parser.add_argument('-b', '--bus', type=str,
                         help='Bus number for specific FPGA')
 
-    parser.add_argument('-d', '--device', type=int,
+    parser.add_argument('-d', '--device', type=str,
                         help='Device number for specific FPGA')
 
-    parser.add_argument('-f', '--function', type=int,
+    parser.add_argument('-f', '--function', type=str,
                         help='Function number for specific FPGA')
 
     parser.add_argument('gbs_paths', nargs='+', type=str,

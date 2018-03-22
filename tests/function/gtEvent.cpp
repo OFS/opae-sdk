@@ -1,26 +1,28 @@
-/*++
-
-INTEL CONFIDENTIAL
-Copyright 2016 - 2017 Intel Corporation
-
-The source code contained or described  herein and all documents related to
-the  source  code  ("Material")  are  owned  by  Intel  Corporation  or its
-suppliers  or  licensors.  Title   to  the  Material   remains  with  Intel
-Corporation or  its suppliers  and licensors.  The Material  contains trade
-secrets  and  proprietary  and  confidential  information  of Intel  or its
-suppliers and licensors.  The Material is protected  by worldwide copyright
-and trade secret laws and treaty provisions. No part of the Material may be
-used,   copied,   reproduced,   modified,   published,   uploaded,  posted,
-transmitted,  distributed, or  disclosed in  any way  without Intel's prior
-express written permission.
-
-No license under any patent, copyright,  trade secret or other intellectual
-property  right  is  granted to  or conferred  upon  you by  disclosure  or
-delivery of the  Materials, either  expressly, by  implication, inducement,
-estoppel or otherwise. Any license  under such intellectual property rights
-must be express and approved by Intel in writing.
-
---*/
+// Copyright(c) 2017, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/fpga.h>
 #include <stdio.h>
@@ -35,7 +37,7 @@ must be express and approved by Intel in writing.
 using namespace common_test;
 using namespace std;
 
-class LibopaecEventFCommonHW : public BaseFixture, public ::testing::Test {
+class LibopaecEventFCommonMOCKHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {
     m_AFUHandle = NULL;
@@ -79,7 +81,7 @@ class LibopaecEventFCommonHW : public BaseFixture, public ::testing::Test {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_01) {
+TEST(LibopaecEventCommonMOCKHW, event_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaCreateEventHandle(NULL));
 }
 
@@ -91,7 +93,7 @@ TEST(LibopaecEventCommonHW, event_01) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_02) {
+TEST(LibopaecEventCommonMOCKHW, event_02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(NULL));
 }
 
@@ -106,7 +108,7 @@ TEST(LibopaecEventCommonHW, event_02) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_03) {
+TEST(LibopaecEventCommonMOCKHW, event_03) {
   fpga_event_type e = FPGA_EVENT_ERROR;
   fpga_event_handle eh;
 
@@ -150,7 +152,7 @@ TEST(LibopaecEventCommonHW, event_03) {
  *             FPGA_INVALID_PARAM.
  *
  */
-TEST(LibopaecEventCommonHW, event_04) {
+TEST(LibopaecEventCommonMOCKHW, event_04) {
   fpga_event_type e = FPGA_EVENT_ERROR;
   fpga_event_handle eh;
 
@@ -187,7 +189,7 @@ TEST(LibopaecEventCommonHW, event_04) {
  * @brief      Test registration and unregistration of events.
  *
  */
-TEST_F(LibopaecEventFCommonHW, event_drv_05) {
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_05) {
   EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
                                        m_EventHandles[0], 0));
 
