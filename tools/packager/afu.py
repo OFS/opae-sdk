@@ -77,6 +77,7 @@ class AFU(object):
             raise Exception("Cannot find {0}".format(afu_desc_file))
 
         self.afu_json = json.load(open(self.afu_desc_file, "r"))
+        self.compat_update()
 
         if not self.validate():
             raise Exception("Accelerator description file failed validation!")
@@ -84,9 +85,21 @@ class AFU(object):
     # Load AFU JSON file given an open file handle
     def load_afu_desc_file_hdl(self, afu_desc_file_hdl):
         self.afu_json = json.load(afu_desc_file_hdl)
+        self.compat_update()
 
         if not self.validate():
             raise Exception("Accelerator description file failed validation!")
+
+    # Update/rename fields as needed to maintain backward compatibility
+    def compat_update(self):
+        try:
+            afu_ifc = self.afu_json['afu-image']['afu-top-interface']
+            # The interface 'class' used to be called 'name'.
+            # Maintain compatibility with older AFUs.
+            if ('name' in afu_ifc):
+                afu_ifc['class'] = afu_ifc.pop('name')
+        except KeyError as e:
+            None
 
     def validate(self, packaging=False):
         if self.afu_json == {}:
