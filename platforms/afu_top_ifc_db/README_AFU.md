@@ -25,14 +25,12 @@ field:
 The interface "class" field was previously called "name".  For compatibility,
 the legacy "name" key remains supported.
 
-In addition to the class, some module-ports parameters may be
-overridden in the AFU JSON database.  For example, the following
-requests automatic registering of CCI-P signals on platforms that
-need more than one register stage, makes local memory optional and
-adds clock-crossing logic so that local memory's interface runs at
-the same frequency as CCI-P.  These transformations are performed
-in a shim that is automatically instantiated between the platform
-and the AFU's top-level module.
+In addition to the class, some module-ports parameters may be overridden in
+the AFU JSON database.  For example, the following makes local memory optional
+and adds clock-crossing logic so that local memory's interface runs at the
+same frequency as CCI-P.  These transformations are performed in a shim that
+is automatically instantiated between the platform and the AFU's top-level
+module.
 
 ```json
 {
@@ -42,13 +40,6 @@ and the AFU's top-level module.
             "class": "ccip_std_afu_avalon_mm",
             "module-ports" :
                [
-                  {
-                     "class": "cci-p",
-                     "params":
-                        {
-                           "add-extra-timing-reg-stages": "auto"
-                        }
-                  },
                   {
                      "class": "local-memory",
                      "optional": true,

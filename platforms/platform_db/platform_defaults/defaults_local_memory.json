@@ -21,21 +21,16 @@
          "MM interfaces this value is typically zero since registering",
          "Avalon MM's waitrequest protocol is complex."
       ],
-   "suggested-extra-timing-reg-stages": 0,
+   "suggested-timing-reg-stages": 0,
 
    "comment":
       [
-         "Like the CCI-P add-extra-timing-reg-stages, this field",
-         "requests that the platform add pipeline stages to the local",
-         "memory signals before passing them to the AFU.  Register stages",
-         "are added using an Avalon MM pipeline bridge.",
-         "",
-         "In addition to integer counts, the string 'auto' (use double",
-         "quotes) will cause suggested-extra-timing-reg-stages to be",
-         "added.  The 'auto' setting is intended to aid in making",
-         "AFUs portable across platforms."
+         "Like the CCI-P add-timing-reg-stages, this field requests",
+         "that the platform add pipeline stages to the local memory",
+         "signals before passing them to the AFU.  Register stages",
+         "are added using an Avalon MM pipeline bridge."
       ],
-   "add-extra-timing-reg-stages": 0,
+   "add-timing-reg-stages": 0,
 
    "comment":
       [
