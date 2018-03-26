@@ -92,8 +92,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
-                    ${OPAE_SDK_SOURCE}/tools/libopae++
-                    ${OPAE_SDK_SOURCE}/tools/c++utils)
+                    ${OPAE_SDK_SOURCE}/tools/support/libopae++
+                    ${OPAE_SDK_SOURCE}/tools/support/c++utils)
 
     set(COMMON_SRC gtmain.cpp jsonParser.cpp
                 unit/gtOpenClose_base.cpp
