@@ -239,8 +239,7 @@ define_pkg(tools
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE tool binaries"
-  #DEPENDS "libs"
-  #DEB_DEPENDS "opae-libs , opae-devel"
+  DEB_DEPENDS "opae-libs , opae-devel"
   )
 
 define_pkg(ase
@@ -253,8 +252,7 @@ define_pkg(ase
   GROUP "ase"
   DISPLAY_NAME "opae-ase"
   DESCRIPTION "OPAE AFU Simulation Environment"
-  #DEPENDS "devel"
-  #DEB_DEPENDS "opae-libs , opae-devel"
+  DEB_DEPENDS "opae-libs , opae-devel"
   )
 
 define_pkg(devel
@@ -272,8 +270,7 @@ define_pkg(devel
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
-  #DEPENDS "libs"
-  #DEB_DEPENDS "libuuid-devel , json-c-devel , opae-libs"
+  DEB_DEPENDS "uuid , json-c , opae-libs"
   )
 
   define_pkg(libs
@@ -282,8 +279,7 @@ define_pkg(devel
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
-  #DEPENDS " "
-  #DEB_DEPENDS "uuid , json-c"
+  DEB_DEPENDS "uuid , json-c"
   )
 
 #Binary DEB packaging
@@ -358,7 +354,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINAR
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae.spec")
 endif()
 
+
 # Source code packaging target
+if(CPACK_GENERATOR STREQUAL "TGZ")
 set(CPACK_SOURCE_GENERATOR "TGZ")
 if (HASH_ARCHIVES)
   set(CPACK_SOURCE_PACKAGE_FILE_NAME
@@ -378,8 +376,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   "/.git"
   "~$"
   ${CPACK_SOURCE_IGNORE_FILES})
-
-include(CPack)
+endif()
 
 #Target to generate tarball
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
@@ -396,3 +393,4 @@ add_custom_target(package_deb
   COMMAND ${CMAKE_MAKE_PROGRAM}
   COMMAND ${CMAKE_CPACK_COMMAND}
   )
+  include(CPack)

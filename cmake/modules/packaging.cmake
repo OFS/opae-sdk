@@ -28,10 +28,10 @@ function(DEFINE_PKG name)
   set(_components "COMPONENTS")
 
   # Parse all these entries
-  set(_entries "GROUP;DISPLAY_NAME;DESCRIPTION")
+  set(_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEB_DEPENDS")
 
   # Only valid options for a component
-  set(_component_entries "GROUP;DISPLAY_NAME;DESCRIPTION")
+  set(_component_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEB_DEPENDS")
 
   # Define parsing order
   cmake_parse_arguments(DEFINE_PKG
@@ -52,7 +52,26 @@ function(DEFINE_PKG name)
       endif()
     endforeach()
   endforeach()
+
+
+  if(DEFINE_PKG_DEB_DEPENDS)
+  string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
+    set_cached_variable(
+      CPACK_DEBIAN_${_group_upper}_PACKAGE_DEPENDS
+      ${DEFINE_PKG_DEB_DEPENDS})
+  endif()
+
+  if(DEFINE_PKG_DESCRIPTION)
+  string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
+    set_cached_variable(
+      CPACK_COMPONENT_${_group_upper}_DESCRIPTION
+      ${DEFINE_PKG_DESCRIPTION})
+  endif()
+
+
 endfunction(DEFINE_PKG)
+
+
 
 macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
 
