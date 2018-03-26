@@ -260,6 +260,8 @@ def getAfuIfc(args):
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
 
+            # *** Clean up legacy AFU JSON ***
+
             # The name 'module-ports' used to be 'module-arguments'.
             # Maintain compatibility with older AFUs.
             if ('module-arguments' in afu_ifc):
