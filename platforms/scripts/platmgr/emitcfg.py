@@ -60,24 +60,24 @@ def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
 # at synthesis time in Verilog.
 #
 def computedParams(afu_port, params):
-    # Set an actual value for add-extra-timing-reg-stages if the AFU
-    # says "auto".
+    # The script used to accept "auto" for add-timing-reg-stages.
+    # This is no longer necessary, since the number of stages expected
+    # for a given interface class will be a fixed, platform-independent
+    # value.
     try:
-        n_plat_stages = params['suggested-extra-timing-reg-stages']
-        n_auto = params['add-extra-timing-reg-stages']
-        if (n_auto):
-            if (n_auto == 'auto'):
-                n_auto = n_plat_stages
-                params['add-extra-timing-reg-stages'] = n_auto
+        n_stages = params['add-timing-reg-stages']
+        if (n_stages == 'auto'):
+            n_stages = 0
+            params['add-timing-reg-stages'] = 0
 
-            # Raise ValueError if the parameter isn't a positive integer
-            if (int(n_auto) < 0):
-                raise ValueError
+        # Raise ValueError if the parameter isn't a positive integer
+        if (int(n_stages) < 0):
+            raise ValueError
     except KeyError:
         None
     except ValueError:
         errorExit(afu_port['class'].upper() +
-                  ' parameter add-extra-timing-reg-stages must be ' +
+                  ' parameter add-timing-reg-stages must be ' +
                   'either an unsigned integer or "auto"')
 
     if (afu_port['class'].upper() == 'CCI-P'):
@@ -123,7 +123,7 @@ is_params.add('clock')
 #
 platform_shim_params = set()
 platform_shim_params.add('clock')
-platform_shim_params.add('add-extra-timing-reg-stages')
+platform_shim_params.add('add-timing-reg-stages')
 
 
 #
