@@ -25,11 +25,11 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-# intrinsic
-add_subdirectory(intrinsic/fpgaconf)
-add_subdirectory(intrinsic/fpgad)
-add_subdirectory(intrinsic/fpgainfo)
-add_subdirectory(intrinsic/fpgaport)
+# base
+add_subdirectory(base/fpgaconf)
+add_subdirectory(base/fpgad)
+add_subdirectory(base/fpgainfo)
+add_subdirectory(base/fpgaport)
 
 # platform
 add_subdirectory(platform/coreidle)
