@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from distutils.spawn import find_executable
 import glob
 import os
 import re
@@ -37,6 +38,16 @@ REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
 
 
 # Return a list of all available bus numbers
+def check_commands():
+    terminate = False
+    for cmd in REQ_CMDS:
+        executable = find_executable(cmd, path=os.environ['PATH'])
+        if executable == cmd:
+            terminate = True
+            print "Could not find {} in $PATH".format(cmd)
+    return terminate
+
+
 def get_all_fpga_bdfs():
     pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'
                '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
@@ -81,8 +92,8 @@ def get_mode_from_path(gbs_path):
 
 
 def is_command_in_path(cmd):
-    for dir in os.getenv("PATH").split(':'):
-        if (os.path.exists(os.path.join(dir, cmd))):
+    for path in os.getenv("PATH").split(':'):
+        if (os.path.exists(os.path.join(path, cmd))):
             return True
     return False
 
