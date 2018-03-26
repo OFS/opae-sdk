@@ -30,8 +30,8 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(
     ${OPAE_INCLUDE_DIR}
-    ${OPAE_SDK_SOURCE}/tools/c++utils
-    ${OPAE_SDK_SOURCE}/tools/libopae++
+    ${OPAE_SDK_SOURCE}/tools/support/c++utils
+    ${OPAE_SDK_SOURCE}/tools/support/libopae++
     )
 
 add_library(opae-c++-nlb SHARED nlb.h

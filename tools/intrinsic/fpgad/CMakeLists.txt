@@ -26,18 +26,16 @@
 
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+                    ${OPAE_SDK_SOURCE}/libopae/src
+                    ${OPAE_SDK_SOURCE}/tools/intrinsic/fpgaconf )
 
-set(SRC main.c
-        coreidle.c 
-        ../../libopae/src/bitstream.c
-        ../../libopae/src/common.c)
+set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
+add_executable(fpgad ${SRC})
 
-add_executable(coreidle ${SRC})
-set_install_rpath(coreidle)
+set_install_rpath(fpgad)
 
-target_link_libraries(coreidle opae-c pthread m)
+target_link_libraries(fpgad opae-c pthread)
 
-install(TARGETS coreidle
+install(TARGETS fpgad
         RUNTIME DESTINATION bin
-        COMPONENT toolcoreidle)
+        COMPONENT toolfpgad)
