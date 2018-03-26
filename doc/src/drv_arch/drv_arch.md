@@ -82,6 +82,15 @@ user-space before calling the reconfiguration IOCTL.
 
 1. Unload the driver from the guest
 2. Unplug the VF from the guest
+
+.. note::
+
+```
+    NOTE: Unplugging the VF from the guest while an application on the guest is
+    still accessing its resources may lead to VM instabilities. We recommend
+    closing all applications accessing the VF in the guest before unplugging the
+    VF.
+```
 3. Disable SR-IOV
 4. Perform Partial Reconfiguration
 5. Enable SR-IOV
