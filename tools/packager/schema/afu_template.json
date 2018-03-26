@@ -4,7 +4,7 @@
       "power": 0,
       "afu-top-interface":
          {
-            "name": "ccip_std_afu"
+            "class": "ccip_std_afu"
          },
       "accelerator-clusters":
          [

@@ -178,7 +178,12 @@ module ase_top();
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
 
    // emif model
-   emif_ddr4 emif_ddr4 (
+   emif_ddr4
+    #(
+      .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
+      )
+    emif_ddr4
+    (
       .ddr4a_avmm_waitrequest                (ddr4[0].waitrequest),
       .ddr4a_avmm_readdata                   (ddr4[0].readdata),
       .ddr4a_avmm_readdatavalid              (ddr4[0].readdatavalid),

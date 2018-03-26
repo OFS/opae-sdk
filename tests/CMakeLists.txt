@@ -70,10 +70,20 @@ endif()
 ############################################################################
 add_test(NAME test_open_common_mock_drv
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter="*MOCK*:-*event_drv_05*:-*nodrv*")
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:*ALL*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18:*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03)
 
 set_tests_properties(
   test_open_common_mock_drv
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
+# FIXME: roll into more generic target
+add_test(NAME test_version
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecVersion*)
+
+set_tests_properties(
+  test_version
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
