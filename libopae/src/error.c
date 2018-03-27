@@ -115,8 +115,28 @@ fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
 
 fpga_result fpgaClearAllErrors(fpga_token token)
 {
-	UNUSED_PARAM(token);
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	uint32_t i = 0;
+	fpga_result res = FPGA_OK;
+
+	// TODO: make thread-safe
+
+	struct error_list *p = _token->errors;
+	while (p) {
+		// if error can be cleared
+		if (!p->info.can_clear)
+			break;
+
+		// clear error current error value
+		res = fpgaClearError(token, i);
+		if (res != FPGA_OK)
+			return res;
+
+		i++;
+		p = p->next;
+	}
+
+	return FPGA_OK;
 }
 
 fpga_result fpgaGetErrorInfo(fpga_token token,
