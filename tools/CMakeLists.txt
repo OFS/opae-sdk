@@ -31,14 +31,12 @@ add_subdirectory(base/fpgad)
 add_subdirectory(base/fpgainfo)
 add_subdirectory(base/fpgaport)
 
-# platform
-add_subdirectory(platform/coreidle)
-add_subdirectory(platform/userclk)
-add_subdirectory(platform/fpgaflash)
-add_subdirectory(platform/packager)
-add_subdirectory(platform/hssi)
-
 # support
+add_subdirectory(support/coreidle)
+add_subdirectory(support/userclk)
+add_subdirectory(support/fpgaflash)
+add_subdirectory(support/packager)
+add_subdirectory(support/hssi)
 add_subdirectory(support/c++utils)
 add_subdirectory(support/fpgabist)
 add_subdirectory(support/fpgadiag)
