@@ -233,14 +233,20 @@ uint32_t build_error_list(const char *path, struct error_list **list)
 		strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
 		strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 		new_entry->next = NULL;
-		// see if error can be cleared (currently only PORT error 'errors' can)
+		// see if error can be cleared (currently only errors called "errors" corresponding
+		// to a "clear" file can)
+		new_entry->info.can_clear = false;
 		if (strcmp(de->d_name, "errors") == 0) {    // FIXME: SAFE
 			strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
-			strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
-			new_entry->info.can_clear = true;
-		} else {
+			// try accessing clear file
+			if (lstat(basedir, &st) != -1) {
+				new_entry->info.can_clear = true;
+				strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+			}
+		}
+
+		if (!new_entry->info.can_clear) {
 			memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
-			new_entry->info.can_clear = false;
 		}
 
 		// find end of list
