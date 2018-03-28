@@ -64,6 +64,7 @@ enum class nlb0_csr : uint32_t
     num_lines   = 0x0130,
     src_addr    = 0x0120,
     dst_addr    = 0x0128,
+    status2     = 0x0170,
     mode7_args  = 0x0180,
     cmdq_sw     = 0x0190,
     cmdq_hw     = 0x0198
@@ -128,6 +129,7 @@ enum class nlb3_csr : uint32_t
     num_lines   = 0x0130,
     src_addr    = 0x0120,
     dst_addr    = 0x0128,
+    status2     = 0x0170,
     strided_acs = 0x0178,
     mode7_args  = 0x0180,
     cmdq_sw     = 0x0190,

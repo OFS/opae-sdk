@@ -11,9 +11,9 @@
                 "afu-top-interface": {
                     "type" : "object",
                     "properties" : {
-                        "name" : {"type" : "string"}
+                        "class" : {"type" : "string"}
                     },
-                    "required" : ["name"]
+                    "required" : ["class"]
                 },
                 "clock-frequency-low" : {"type" : ["number", "string"],
                                          "pattern" : "^auto(-[0-9.]+)?$"

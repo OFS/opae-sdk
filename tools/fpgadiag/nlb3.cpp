@@ -393,6 +393,18 @@ bool nlb3::setup()
     options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
 
+    // TODO: Infer pclock from the device id
+    // For now, get the pclock frequency from status2 register
+    // that frequency (MHz) is encoded in bits [47:32]
+    uint64_t s2 = 0;
+    if (accelerator_->read_mmio64(static_cast<uint32_t>(nlb3_csr::status2), s2)){
+      uint32_t freq = (s2 >> 32) & 0xffff;
+      if (freq > 0){
+        // frequency_ is in Hz
+        frequency_ = freq * 1E6;
+      }
+    }
+
     // FIXME: use actual size for dsm size
     dsm_ = accelerator_->allocate_buffer(dsm_size_);
     if (!dsm_) {

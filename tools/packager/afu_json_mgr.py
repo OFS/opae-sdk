@@ -75,7 +75,7 @@ def create_json(subargs):
 
     # Top-level interface specified?
     if (subargs.top_ifc):
-        afu.update_afu_json(['afu-image/afu-top-interface/name:' +
+        afu.update_afu_json(['afu-image/afu-top-interface/class:' +
                              subargs.top_ifc])
 
     # Either set the specified UUID or pick one
@@ -130,7 +130,7 @@ def flatten_json(subargs):
     try:
         # May not be present.  (Will become required eventually.)
         entries['afu_top_ifc'] = '"' + \
-            afu.afu_json['afu-image']['afu-top-interface']['name'] + '"'
+            afu.afu_json['afu-image']['afu-top-interface']['class'] + '"'
     except Exception:
         None
 
