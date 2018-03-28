@@ -193,7 +193,7 @@ TEST(LibopaecUmsgCommonMOCK, Umsg_drv_04) {
  *             fpgaGetUmsgPtr returns umsg address.
  *
  */
-TEST(LibopaecUmsgCommonMOCK, Umsg_drv_05) {
+TEST(LibopaecUmsgCommonHW, Umsg_drv_05) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h = NULL;
