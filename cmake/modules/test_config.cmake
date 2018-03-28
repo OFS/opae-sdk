@@ -92,6 +92,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
+                    ${OPAE_SDK_SOURCE}/tools/fpgainfo-c
                     ${OPAE_SDK_SOURCE}/tools/libopae++
                     ${OPAE_SDK_SOURCE}/tools/c++utils)
 
@@ -107,7 +108,11 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtEnumerate.cpp
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
-                function/gtOpenClose.cpp)
+                function/gtOpenClose.cpp
+		${OPAE_SDK_SOURCE}/tools/fpgainfo-c/fpgainfo.c
+		${OPAE_SDK_SOURCE}/tools/fpgainfo-c/fmeinfo.c
+		${OPAE_SDK_SOURCE}/tools/fpgainfo-c/portinfo.c
+		function/gtFpgaInfo.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)

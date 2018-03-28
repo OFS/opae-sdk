@@ -91,6 +91,15 @@ add_test(NAME test_any_value
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
 
+add_test(NAME test_fpgainfo
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*fpgainfo*)
+
+set_tests_properties(
+  test_fpgainfo
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
