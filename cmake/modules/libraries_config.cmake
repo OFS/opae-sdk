@@ -71,7 +71,11 @@ check_library_exists(rt clock_gettime "" HAVE_LIBRT)
 find_package(UUID)
 
 # json-c check
-find_package(json-c)
+find_package(json-c REQUIRED)
+if(NOT libjson-c_FOUND)
+  message(FATAL_ERROR "Please install libjson-c package.
+  If you have already installed this package in a nonstandard location please specify the location by defining the variable "LIBJSON-C_ROOT" in your cmake command as follows: cmake .. -DLIBJSON-C_ROOT=<path to install location>")
+endif()
 
 # ncurses check: CURSES_FOUND CURSES_INCLUDE_DIRS CURSES_LIBRARIES
 find_package(Curses)
