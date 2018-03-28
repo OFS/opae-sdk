@@ -28,6 +28,8 @@ import json
 import os
 import shutil
 import sys
+sys.path.insert(0, 'jsonschema-2.3.0')
+
 import utils
 import zipfile
 from metadata import metadata
