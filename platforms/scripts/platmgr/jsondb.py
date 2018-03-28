@@ -370,6 +370,15 @@ class jsondb(object):
                          "must be >= min-entries in {2}").format(
                              port['class'], port['interface'], fname))
 
+            # *** Clean up legacy AFU JSON ***
+
+            # 'add-extra-timing-reg-stages' -> 'add-timing-reg-stages'
+            if ('params' in port):
+                params = port['params']
+                if ('add-extra-timing-reg-stages' in params):
+                    params['add-timing-reg-stages'] = \
+                        params.pop('add-extra-timing-reg-stages')
+
     #
     # Validate a platform defaults database and add some default fields
     # to avoid having to check whether they are present.
