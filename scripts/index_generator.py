@@ -11,7 +11,8 @@ from jinja2 import Environment
 
 index_tpl = """
 <html>
-<title>{% block title %}Open Programmable Acceleration Engine{% endblock %}</title>
+<title>{% block title %}Open Programmable Acceleration Engine{% endblock %}
+</title>
 <body>
 <ul>
 {% for ver in versions %}
@@ -25,13 +26,14 @@ index_tpl = """
 def main():
     versions = []
     for x in os.listdir('.'):
-        if os.path.isdir(x) :
-            if x != ".git": versions.append(x)
-    #versions = os.listdir(os.getcwd())
+        if os.path.isdir(x):
+            if x != ".git":
+                versions.append(x)
     t = Environment().from_string(index_tpl)
     f = open('index.html', 'w')
     f.write(t.render(versions=versions))
     f.close()
+
 
 if __name__ == "__main__":
     main()
