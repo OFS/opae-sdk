@@ -91,13 +91,6 @@ def get_mode_from_path(gbs_path):
     return None
 
 
-def is_command_in_path(cmd):
-    for path in os.getenv("PATH").split(':'):
-        if (os.path.exists(os.path.join(path, cmd))):
-            return True
-    return False
-
-
 def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
     cmd = "{} -b 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
