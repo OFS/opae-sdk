@@ -9,6 +9,7 @@ matrix:
     - pip install --user pylint
     - pip install --user pycodestyle
     - pip install --user jsonschema
+    - pip install --user jinja2
   - script: scripts/test-build.sh
     cache: ccache
     addons:
