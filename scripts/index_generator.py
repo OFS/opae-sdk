@@ -14,9 +14,10 @@ index_tpl = """
 <title>{% block title %}Open Programmable Acceleration Engine{% endblock %}
 </title>
 <body>
+<h1>Open Programmable Acceleration Engine</h1>
 <ul>
 {% for ver in versions %}
-  <li><a href="{{ ver }}/index.html">{{ version }}</a></li>
+  <li><a href="{{ ver }}/index.html">{{ ver }}</a></li>
 {% endfor %}
 </ul>
 </body>
@@ -29,6 +30,7 @@ def main():
         if os.path.isdir(x):
             if x != ".git":
                 versions.append(x)
+    versions.sort()
     t = Environment().from_string(index_tpl)
     f = open('index.html', 'w')
     f.write(t.render(versions=versions))
