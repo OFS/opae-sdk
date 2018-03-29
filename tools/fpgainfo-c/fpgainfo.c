@@ -30,7 +30,8 @@
 /*
  * Print readable error message for fpga_results
  */
-void fpgainfo_print_err(const char *s, fpga_result res) {
+void fpgainfo_print_err(const char *s, fpga_result res)
+{
 	if (s && res)
 		fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }

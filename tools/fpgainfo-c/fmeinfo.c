@@ -107,7 +107,8 @@ void print_fme_info(struct fme_info *info)
 	printf("%-24s : 0x%02X\n", "Socket Id", info->socket_id);
 	printf("%-24s : %02d\n", "Ports Num", info->num_slots);
 	printf("%-24s : 0x%lX\n", "Bitstream Id", info->bbs_id);
-	printf("%-24s : 0x%lX\n", "Bitstream Metadata", *(uint64_t*)&info->bbs_version);
+	printf("%-24s : 0x%lX\n", "Bitstream Metadata",
+	       *(uint64_t *)&info->bbs_version);
 	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
 	//printf("%-24s : 0x%2lX\n", "Capabilities", info->capabilities);
 }
