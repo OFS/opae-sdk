@@ -341,6 +341,24 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 
+	// read the vendor and device ID from the 'device' path
+	uint32_t x = 0;
+	char vendorpath[SYSFS_PATH_MAX];
+	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/../device/vendor", _token->sysfspath);
+	result = sysfs_read_u32(vendorpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.vendor_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
+
+	char devicepath[SYSFS_PATH_MAX];
+	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/../device/device", _token->sysfspath);
+	result = sysfs_read_u32(devicepath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.device_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+
 	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
