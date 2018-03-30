@@ -104,6 +104,11 @@ add_test(NAME test_errors
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=LibopaecError*)
 
+set_tests_properties(
+  test_errors
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
 ############################################################################
 ## Add Coverage Analysis ###################################################
 ############################################################################
