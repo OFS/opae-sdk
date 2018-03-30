@@ -99,8 +99,8 @@ module platform_shim_ccip
         int n_stages = 0;
 
         // Were timing registers requested in the AFU JSON?
-`ifdef PLATFORM_PARAM_CCI_P_ADD_EXTRA_TIMING_REG_STAGES
-        n_stages = `PLATFORM_PARAM_CCI_P_ADD_EXTRA_TIMING_REG_STAGES;
+`ifdef PLATFORM_PARAM_CCI_P_ADD_TIMING_REG_STAGES
+        n_stages = `PLATFORM_PARAM_CCI_P_ADD_TIMING_REG_STAGES;
 `endif
 
         // Override the register request if a clock crossing is being
@@ -110,10 +110,10 @@ module platform_shim_ccip
             // At least one stage is required
             if (n_stages == 0) n_stages = 1;
             // Use at least the recommended number of stages
-`ifdef PLATFORM_PARAM_CCI_P_SUGGESTED_EXTRA_TIMING_REG_STAGES
-            if (`PLATFORM_PARAM_CCI_P_SUGGESTED_EXTRA_TIMING_REG_STAGES > n_stages)
+`ifdef PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES
+            if (`PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES > n_stages)
             begin
-                n_stages = `PLATFORM_PARAM_CCI_P_SUGGESTED_EXTRA_TIMING_REG_STAGES;
+                n_stages = `PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES;
             end
 `endif
         end

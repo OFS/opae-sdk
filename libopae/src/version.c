@@ -24,31 +24,67 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#include "safe_string/safe_string.h"
+#include "common_int.h"
+#include "types_int.h"
+#include "config_int.h"
 
-#define FPGA_API_VERSION_MAJOR 0
-#define FPGA_API_VERSION_MINOR 1
+#include <string.h>
 
-#include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/version.h>
+fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
+{
+	if (!version) {
+		FPGA_MSG("version is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
-#endif // __FPGA_FPGA_H__
+	version->major = INTEL_FPGA_API_VER_MAJOR;
+	version->minor = INTEL_FPGA_API_VER_MINOR;
+	version->patch = INTEL_FPGA_API_VER_REV;
 
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len)
+{
+	errno_t err = 0;
+
+	if (!version_str) {
+		FPGA_MSG("version_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	err = strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
+		  sizeof(INTEL_FPGA_API_VERSION));
+
+	if (err) {
+		FPGA_ERR("strncpy_s failed with error %i", err);
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
+{
+	errno_t err = 0;
+
+	if (!build_str) {
+		FPGA_MSG("build_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
+		  sizeof(INTEL_FPGA_API_HASH));
+
+	if (err) {
+		FPGA_ERR("strncpy_s failed with error %i", err);
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
