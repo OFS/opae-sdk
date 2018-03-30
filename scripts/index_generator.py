@@ -13,7 +13,7 @@ index_tpl = """
 <html>
 <title>{% block title %}Open Programmable Acceleration Engine{% endblock %}
 </title>
-<body>
+<body bgcolor='#85C1E9'>
 <h1>Open Programmable Acceleration Engine</h1>
 <ul>
 {% for ver in versions %}
