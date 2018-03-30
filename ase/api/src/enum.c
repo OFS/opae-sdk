@@ -1132,12 +1132,12 @@ fpgaPropertiesGetNumErrors(const fpga_properties prop,
 {
 	UNUSED_PARAM(prop);
 	ASSERT_NOT_NULL(num_errors);
-	
+
 	*num_errors = 0;
 	return FPGA_OK;	     // Errors are not supported in ASE
 }
 
-fpga_result __FPGA_API__ 
+fpga_result __FPGA_API__
 fpgaPropertiesSetNumErrors(const fpga_properties prop,
 			   uint32_t num_errors)
 {

@@ -1323,7 +1323,7 @@ fpgaPropertiesGetNumErrors(const fpga_properties prop,
 	return result;
 }
 
-fpga_result __FPGA_API__ 
+fpga_result __FPGA_API__
 fpgaPropertiesSetNumErrors(const fpga_properties prop,
 			   uint32_t num_errors)
 {

@@ -177,7 +177,7 @@ const char *errors_exclude[] = {
 	"power",
 	"clear"
 };
-#define NUM_ERRORS_EXCLUDE (sizeof(errors_exclude) / sizeof(char*))
+#define NUM_ERRORS_EXCLUDE (sizeof(errors_exclude) / sizeof(char *))
 
 /* returns the number of error entries added to `list` */
 uint32_t build_error_list(const char *path, struct error_list **list)
@@ -235,14 +235,14 @@ uint32_t build_error_list(const char *path, struct error_list **list)
 		// recursively dive into subdirectories
 		if (S_ISDIR(st.st_mode)) {
 			n += build_error_list(basedir, el);
-			continue;			
+			continue;
 		}
 
 		// not blacklisted, not hidden, accessible, no symlink, no dir -> count and append it!
 		n++;
 		if (!el)	// no list
 			continue;
-		
+
 		// append error info to list
 		struct error_list *new_entry = malloc(sizeof(struct error_list));
 		if (!new_entry) {
@@ -276,12 +276,13 @@ uint32_t build_error_list(const char *path, struct error_list **list)
 		// append
 		*el = new_entry;
 		el = &new_entry->next;
-	}	
+	}
 
 	return n;
 }
 
 
-uint32_t count_error_files(const char *path) {
+uint32_t count_error_files(const char *path)
+{
 	return build_error_list(path, NULL);
 }
