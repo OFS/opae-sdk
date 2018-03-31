@@ -91,6 +91,9 @@ add_test(NAME test_any_value
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
 
+add_test(NAME test_argsfilter
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=argsfilter*)
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
