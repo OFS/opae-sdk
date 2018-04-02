@@ -137,6 +137,9 @@ void *apevent_thread(void *thread_context)
 	struct fpga_ap_event apevt_socket1;
 	struct fpga_ap_event apevt_socket2;
 
+	memset(&apevt_socket1, 0, sizeof(apevt_socket1));
+	memset(&apevt_socket2, 0, sizeof(apevt_socket2));
+
 	// Max sockets count  2
 	apevt_socket1.socket = 0;
 	apevt_socket2.socket = 1;
