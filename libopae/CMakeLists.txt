@@ -26,21 +26,7 @@
 
 project(libopae-c)
 
-############################################################################
-## Check for dependencies###################################################
-############################################################################
-if((NOT libjson-c_FOUND) OR (NOT libuuid_FOUND ))
-  
-  if(NOT libjson-c_FOUND)
-    message(SEND_ERROR "Please install libjson-c package.If you have already installed this package in a nonstandard location please specify the location by defining the variable LIBJSON-C_ROOT in your cmake command as follows: cmake .. -DLIBJSON-C_ROOT=<path to install location>")
-  endif()
 
-  if(NOT libuuis_FOUND)
-    message(SEND_ERROR "Please install libuuid package. If you have already installed this package in a nonstandard location please specify the location by defining the variable LIBUUID_ROOT in your cmake command as follows: cmake .. -DLIBUUID_ROOT=<path to install location>")
-  endif()
-
-  message(SEND_ERROR "You are missing the above depenedcies.")
-endif()
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
