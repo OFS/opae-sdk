@@ -63,7 +63,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
-
+find_package(Doxygen)
+find_package(Threads REQUIRED)
+find_package(Sphinx)
+include(dependency_notifier)
 ############################################################################
 ## Target configuration ####################################################
 ############################################################################
@@ -96,11 +99,8 @@ install(DIRECTORY common/include/safe_string
 option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
 mark_as_advanced(BUILD_SPHINX_DOC)
 
-find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
-else()
-  message(SEND_ERROR "Doxygen not found, documentation will not get built, please install the package doxygen ")
 endif()
 
 ############################################################################
@@ -143,7 +143,6 @@ if (NOT BUILD_ASE AND NOT BUILD_LIBOPAE_C)
   message(FATAL_ERROR "Not building any OPAE libraries")
 endif()
 
-find_package(Threads REQUIRED)
 
 ############################################################################
 ## Add 'samples' ###########################################################
@@ -375,3 +374,4 @@ if(EXISTS ${RPMBUILD_EXECUTABLE})
     COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif(EXISTS ${RPMBUILD_EXECUTABLE})
+
