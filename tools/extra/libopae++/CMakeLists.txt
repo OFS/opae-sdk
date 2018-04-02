@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
                      ${OPAE_INCLUDE_DIR}
-                     ${OPAE_SDK_SOURCE}/tools/c++utils
+                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils
                      )
 
 add_library(opae-c++ SHARED
