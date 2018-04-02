@@ -24,6 +24,10 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+find_package(PythonInterp 2.7 REQUIRED)
+if(NOT PYTHONINTERP_FOUND )
+    message(SEND_ERROR "No suitable python interpreter found. Please install pythong > 2.7 in order to be able to build fpgainfo")
+endif()
 set(PYTHON_SRC
      fpga_common.py
      fpga_fmeinfo.py

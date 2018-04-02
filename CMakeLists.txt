@@ -99,6 +99,8 @@ mark_as_advanced(BUILD_SPHINX_DOC)
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
+else()
+  message(SEND_ERROR "Doxygen not found, documentation will not get built, please install the package doxygen ")
 endif()
 
 ############################################################################

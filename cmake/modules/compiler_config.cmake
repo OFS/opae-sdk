@@ -26,7 +26,14 @@
 
 # Enable checking compiler flags
 include(CheckCCompilerFlag)
+if(NOT CMAKE_C_COMPILER)
+  message("You don't have gcc installed. Please install the gcc for your distribution.") 
+endif()
+
 include(CheckCXXCompilerFlag)
+if(NOT CMAKE_CXX_COMPILER)
+message("You don't have g++ installed. Please install the g++ for your distribution.") 
+endif()
 
 # Export compile commands
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
