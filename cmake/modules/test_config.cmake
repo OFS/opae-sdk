@@ -92,7 +92,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
-                    ${OPAE_SDK_SOURCE}/tools/argsfilter
+                    ${OPAE_SDK_SOURCE}/tools/base/argsfilter
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
