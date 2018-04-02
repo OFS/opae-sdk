@@ -49,8 +49,8 @@ struct config {
 
 #define SUPPORTED_OPTIONS 4
 
-int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
-			   int *argc, char *argv[])
+int set_properties_from_args(fpga_properties filter, fpga_result *result,
+			     int *argc, char *argv[])
 {
 	// prefix the short options with '-' so that unrecognized options are
 	// ignored
@@ -86,7 +86,7 @@ int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
 					tmp_optarg);
 				return EX_USAGE;
 			}
-			found_opts[next_found++] = optind-2;
+			found_opts[next_found++] = optind - 2;
 			break;
 
 		case 'D': /* device */
@@ -99,7 +99,7 @@ int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
 					tmp_optarg);
 				return EX_USAGE;
 			}
-			found_opts[next_found++] = optind-2;
+			found_opts[next_found++] = optind - 2;
 			break;
 
 		case 'F': /* function */
@@ -112,7 +112,7 @@ int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
 					tmp_optarg);
 				return EX_USAGE;
 			}
-			found_opts[next_found++] = optind-2;
+			found_opts[next_found++] = optind - 2;
 			break;
 
 		case 'S': /* socket */
@@ -125,7 +125,7 @@ int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
 					tmp_optarg);
 				return EX_USAGE;
 			}
-			found_opts[next_found++] = optind-2;
+			found_opts[next_found++] = optind - 2;
 			break;
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
@@ -165,7 +165,8 @@ int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
 	int removed = 0;
 	for (int i = 0; i < SUPPORTED_OPTIONS; ++i) {
 		if (found_opts[i]) {
-			for (int j = found_opts[i] - removed; j < *argc-2; j++) {
+			for (int j = found_opts[i] - removed; j < *argc - 2;
+			     j++) {
 				argv[j] = argv[j + 2];
 			}
 			removed += 2;

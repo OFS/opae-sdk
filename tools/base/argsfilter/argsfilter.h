@@ -58,8 +58,8 @@ extern "C" {
  *       so that in the end, the resulting argument vector will be missing
  *       those options used for updating the fpga_properties filter.
  */
-int fpgaPropertiesFromArgs(fpga_properties filter, fpga_result *result,
-			   int *argc, char *argv[]);
+int set_properties_from_args(fpga_properties filter, fpga_result *result,
+			     int *argc, char *argv[]);
 
 #ifdef __cplusplus
 }

@@ -51,7 +51,8 @@ class argsfilter : public BaseFixture, public ::testing::Test {
  *
  * @brief      Given an argument vector with no options related to
  *             bus, device, function or socket id <br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is
  *             unchanged, and my argument vector remains unchanged as well
  *
@@ -60,8 +61,8 @@ TEST_F(argsfilter, none) {
   fpga_result res = FPGA_EXCEPTION;
   int argc = 5;
   const char *argv[5] = {"prog", "--opt1", "val1", "word1", "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(exit_code, 0);
   EXPECT_EQ(res, FPGA_EXCEPTION);
   EXPECT_EQ(5, argc);
@@ -76,7 +77,8 @@ TEST_F(argsfilter, none) {
  * @test       bus_long
  *
  * @brief      Given an argument vector with --bus options set to '0x5e'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that --bus and
  *             0x5e are removed.
@@ -88,8 +90,8 @@ TEST_F(argsfilter, bus_long) {
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "--bus",
                          "0x5e", "word1",  "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetBus(m_Properties, &value));
   EXPECT_EQ(0x5e, value);
   EXPECT_EQ(exit_code, 0);
@@ -106,7 +108,8 @@ TEST_F(argsfilter, bus_long) {
  * @test       device_long
  *
  * @brief      Given an argument vector with --device options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that --device and
  *             0x5e are removed.
@@ -118,8 +121,8 @@ TEST_F(argsfilter, device_long) {
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "--device",
                          "9",    "word1",  "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetDevice(m_Properties, &value));
   EXPECT_EQ(9, value);
   EXPECT_EQ(exit_code, 0);
@@ -136,7 +139,8 @@ TEST_F(argsfilter, device_long) {
  * @test       function_long
  *
  * @brief      Given an argument vector with --function options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that --function and
  *             0x5e are removed.
@@ -148,8 +152,8 @@ TEST_F(argsfilter, function_long) {
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "--function",
                          "1",    "word1",  "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetFunction(m_Properties, &value));
   EXPECT_EQ(1, value);
   EXPECT_EQ(exit_code, 0);
@@ -166,7 +170,8 @@ TEST_F(argsfilter, function_long) {
  * @test       socket_id_long
  *
  * @brief      Given an argument vector with --socket-id options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that --socket-id
  * and
@@ -179,8 +184,8 @@ TEST_F(argsfilter, socket_id_long) {
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "--socket-id",
                          "1",    "word1",  "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetSocketID(m_Properties, &value));
   EXPECT_EQ(1, value);
   EXPECT_EQ(exit_code, 0);
@@ -197,7 +202,8 @@ TEST_F(argsfilter, socket_id_long) {
  * @test       all_long
  *
  * @brief      Given an argument vector with all relavant long options<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that those options
  *             are removed and all those properties are set the the expected
@@ -212,8 +218,8 @@ TEST_F(argsfilter, all_long) {
                           "0x5e",  "word1",       "--device", "9",
                           "word2", "--function",  "1",        "--opt2",
                           "val2",  "--socket-id", "1"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetBus(m_Properties, &value));
   EXPECT_EQ(0x5e, value);
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetDevice(m_Properties, &value));
@@ -238,7 +244,8 @@ TEST_F(argsfilter, all_long) {
  * @test       bus_short
  *
  * @brief      Given an argument vector with -B options set to '0x5e'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that -B and
  *             0x5e are removed.
@@ -250,8 +257,8 @@ TEST_F(argsfilter, bus_short) {
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "-B",
                          "0x5e", "word1",  "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetBus(m_Properties, &value));
   EXPECT_EQ(0x5e, value);
   EXPECT_EQ(exit_code, 0);
@@ -268,7 +275,8 @@ TEST_F(argsfilter, bus_short) {
  * @test       device_short
  *
  * @brief      Given an argument vector with -D options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that -D and
  *             0x5e are removed.
@@ -279,8 +287,8 @@ TEST_F(argsfilter, device_short) {
   int argc = 7;
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "-D", "9", "word1", "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetDevice(m_Properties, &value));
   EXPECT_EQ(9, value);
   EXPECT_EQ(exit_code, 0);
@@ -297,7 +305,8 @@ TEST_F(argsfilter, device_short) {
  * @test       function_short
  *
  * @brief      Given an argument vector with -F options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that -F and
  *             0x5e are removed.
@@ -308,8 +317,8 @@ TEST_F(argsfilter, function_short) {
   int argc = 7;
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "-F", "1", "word1", "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetFunction(m_Properties, &value));
   EXPECT_EQ(1, value);
   EXPECT_EQ(exit_code, 0);
@@ -326,7 +335,8 @@ TEST_F(argsfilter, function_short) {
  * @test       socket_id_short
  *
  * @brief      Given an argument vector with -S options set to '9'<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that -S and
  *             0x5e are removed.
@@ -337,8 +347,8 @@ TEST_F(argsfilter, socket_id_short) {
   int argc = 7;
   uint8_t value = 0;
   const char *argv[7] = {"prog", "--opt1", "val1", "-S", "1", "word1", "word2"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetSocketID(m_Properties, &value));
   EXPECT_EQ(1, value);
   EXPECT_EQ(exit_code, 0);
@@ -355,7 +365,8 @@ TEST_F(argsfilter, socket_id_short) {
  * @test       all_short
  *
  * @brief      Given an argument vector with all relavant short options<br>
- *             When I call fpgaPropertiesFromArgs with that argument vector<br>
+ *             When I call set_properties_from_args with that argument
+ * vector<br>
  *             Then the return value is 0, the fpga_result object is<br>
  *             FPGA_OK, and my argument vector is changed so that those options
  *             are removed and all those properties are set the the expected
@@ -369,8 +380,8 @@ TEST_F(argsfilter, all_short) {
   const char *argv[15] = {"prog",  "--opt1", "val1", "-B",    "0x5e",
                           "word1", "-D",     "9",    "word2", "-F",
                           "1",     "--opt2", "val2", "-S",    "1"};
-  int exit_code = fpgaPropertiesFromArgs(m_Properties, &res, &argc,
-                                         const_cast<char **>(argv));
+  int exit_code = set_properties_from_args(m_Properties, &res, &argc,
+                                           const_cast<char **>(argv));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetBus(m_Properties, &value));
   EXPECT_EQ(0x5e, value);
   EXPECT_EQ(FPGA_OK, fpgaPropertiesGetDevice(m_Properties, &value));
