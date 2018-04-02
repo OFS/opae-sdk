@@ -28,14 +28,18 @@ import json
 import os
 import shutil
 import sys
-sys.path.insert(0, 'jsonschema-2.3.0')
-
 import utils
 import zipfile
 from metadata import metadata
 from gbs import GBS, GBS_EXT
-from jsonschema import validators
-from jsonschema import exceptions
+
+try:
+    sys.path.insert(0, 'jsonschema-2.3.0')
+    from jsonschema import validators
+    from jsonschema import exceptions
+except ImportError:
+    print("jsonschema module has no validatiors() or exceptions()")
+    raise
 
 filepath = os.path.dirname(os.path.realpath(__file__))
 schema_path = "schema/afu_schema_v01.json"
@@ -103,7 +107,7 @@ class AFU(object):
             return False
         try:
             validators.validate(self.afu_json, afu_schema)
-        except exceptions.exceptions.ValidationError as ve:
+        except exceptions.ValidationError as ve:
             print("JSON schema error at {0}: {1}".format(
                 str(list(ve.path)), str(ve.message)))
             return False

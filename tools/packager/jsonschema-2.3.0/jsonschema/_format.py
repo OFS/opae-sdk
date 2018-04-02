@@ -140,6 +140,7 @@ if hasattr(socket, "inet_pton"):
 
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
+
 @_checks_drafts(draft3="host-name", draft4="hostname")
 def is_host_name(instance):
     if not isinstance(instance, str_types):
@@ -215,7 +216,6 @@ else:
     def is_css_color_code(instance):
         return webcolors.normalize_hex(instance)
 
-
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if (
@@ -224,7 +224,6 @@ else:
         ):
             return True
         return is_css_color_code(instance)
-
 
     def is_css3_color(instance):
         if instance.lower() in webcolors.css3_names_to_hex:

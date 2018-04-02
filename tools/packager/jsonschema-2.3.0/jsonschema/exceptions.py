@@ -119,7 +119,6 @@ class UnknownType(Exception):
         __str__ = __unicode__
 
 
-
 class FormatError(Exception):
     def __init__(self, message, cause=None):
         super(FormatError, self).__init__(message, cause)
