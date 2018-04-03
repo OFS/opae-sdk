@@ -35,7 +35,7 @@ set(PKG_PATH_MODULE ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
 ################# generate executable python zip files ########################
 set(METADATA_FILES metadata/constants.py metadata/__init__.py metadata/metadata.py)
 set(SCHEMA_FILES schema/afu_schema_v01.json)
-file(GLOB_RECURSE JSONSCHEMA RELATIVE ${OPAE_SDK_SOURCE}/tools/packager "jsonschema-2.3.0/*")
+file(GLOB_RECURSE JSONSCHEMA RELATIVE ${OPAE_SDK_SOURCE}/tools/extra/packager "jsonschema-2.3.0/*")
 
 set(PKG_COMMON_FILES ${JSONSCHEMA} afu.py gbs.py utils.py ${METADATA_FILES} ${SCHEMA_FILES})
 
