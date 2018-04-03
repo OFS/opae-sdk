@@ -68,14 +68,8 @@ find_package(RT)
 check_library_exists(rt clock_gettime "" HAVE_LIBRT)
 
 # uuid check
-find_package(UUID)
+find_package(UUID REQUIRED)
 
 # json-c check
 find_package(json-c REQUIRED)
 
-# ncurses check: CURSES_FOUND CURSES_INCLUDE_DIRS CURSES_LIBRARIES
-find_package(Curses)
-if (CURSES_FOUND)
-  include_directories(${CURSES_INCLUDE_DIRS})
-  list(APPEND PROJECT_LIBS ${CURSES_LIBRARIES})
-endif()
