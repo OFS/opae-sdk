@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,19 +25,21 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+# base
+add_subdirectory(base/fpgaconf)
+add_subdirectory(base/fpgad)
+add_subdirectory(base/fpgainfo)
+add_subdirectory(base/fpgaport)
 
-set(SRC main.c
-        coreidle.c 
-        ../../libopae/src/bitstream.c
-        ../../libopae/src/common.c)
-
-add_executable(coreidle ${SRC})
-set_install_rpath(coreidle)
-
-target_link_libraries(coreidle opae-c pthread m)
-
-install(TARGETS coreidle
-        RUNTIME DESTINATION bin
-        COMPONENT toolcoreidle)
+# extra
+add_subdirectory(extra/coreidle)
+add_subdirectory(extra/userclk)
+add_subdirectory(extra/fpgaflash)
+add_subdirectory(extra/packager)
+add_subdirectory(extra/hssi)
+add_subdirectory(extra/c++utils)
+add_subdirectory(extra/fpgabist)
+add_subdirectory(extra/fpgadiag)
+add_subdirectory(extra/libopae++)
+add_subdirectory(extra/mmlink)
+add_subdirectory(extra/ras)

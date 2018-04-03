@@ -23,19 +23,54 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
+                     ${OPAE_INCLUDE_DIR}
+                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+                     )
+
+add_library(opae-c++ SHARED
+                   fpga_resource.h
+                   fpga_resource.cpp
+                   resource_properties.h
+                   resource_properties.cpp
+                   property_map.h
+                   property_map.cpp
+                   accelerator.h
+                   accelerator.cpp
+                   fpga.h
+                   fpga.cpp
+                   perf_counters.h
+                   perf_counters.cpp
+                   fpga_event.h
+                   fpga_event.cpp
+                   fpga_errors.h
+                   fpga_errors.cpp
+                   mmio_resource.h
+                   mmio_resource.cpp
+)
+
+set_install_rpath(opae-c++)
+
+target_link_libraries(opae-c++ uuid opae-c++-utils opae-c)
+
+set_target_properties(opae-c++ PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
+install(TARGETS opae-c++
+        LIBRARY DESTINATION lib
+        COMPONENT opaecxxlib)
 
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src
-                    ${OPAE_SDK_SOURCE}/tools/fpgaconf )
-
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
-add_executable(fpgad ${SRC})
-
-set_install_rpath(fpgad)
-
-target_link_libraries(fpgad opae-c pthread)
-
-install(TARGETS fpgad
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpgad)
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+    if ("${LIB64}" STREQUAL "TRUE")
+      install(TARGETS opae-c++
+      LIBRARY DESTINATION lib64
+      COMPONENT opaecxxlib)
+    else()
+      install(TARGETS opae-c++
+      LIBRARY DESTINATION lib64
+      COMPONENT opaecxxlib)
+    endif() 

@@ -3,12 +3,12 @@
 AFU implementations must indicate which top-level interface they expect.
 The afu\_platform\_config script matches a platform to the expected AFU
 interface.  AFUs demand a particular top-level interface either by passing
-the interface name to afu\_platform\_config's --ifc argument or by encoding
-the interface name in the AFU's packager JSON database.  The JSON option
+the interface class to afu\_platform\_config's --ifc argument or by encoding
+the interface class in the AFU's packager JSON database.  The JSON option
 offers more control, since top-level interface parameters can be modified
 and automatically inserted clock crossings may be specified.
 
-The interface encoding in JSON is in the afu-image:afu-top-interface:name
+The interface encoding in JSON is in the afu-image:afu-top-interface:class
 field:
 
 ```json
@@ -16,36 +16,30 @@ field:
    "afu-image": {
       "afu-top-interface":
          {
-            "name": "ccip_std_afu"
+            "class": "ccip_std_afu"
          }
    }
 }
 ```
 
-In addition to the name, some module-ports parameters may be
-overridden in the AFU JSON database.  For example, the following
-requests automatic registering of CCI-P signals on platforms that
-need more than one register stage, makes local memory optional and
-adds clock-crossing logic so that local memory's interface runs at
-the same frequency as CCI-P.  These transformations are performed
-in a shim that is automatically instantiated between the platform
-and the AFU's top-level module.
+The interface "class" field was previously called "name".  For compatibility,
+the legacy "name" key remains supported.
+
+In addition to the class, some module-ports parameters may be overridden in
+the AFU JSON database.  For example, the following makes local memory optional
+and adds clock-crossing logic so that local memory's interface runs at the
+same frequency as CCI-P.  These transformations are performed in a shim that
+is automatically instantiated between the platform and the AFU's top-level
+module.
 
 ```json
 {
    "afu-image": {
       "afu-top-interface":
          {
-            "name": "ccip_std_afu_avalon_mm",
+            "class": "ccip_std_afu_avalon_mm",
             "module-ports" :
                [
-                  {
-                     "class": "cci-p",
-                     "params":
-                        {
-                           "add-extra-timing-reg-stages": "auto"
-                        }
-                  },
                   {
                      "class": "local-memory",
                      "optional": true,

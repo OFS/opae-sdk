@@ -124,34 +124,32 @@
 `define LAT_UNDEFINED              300
 
 `define RDWR_VL_LATRANGE           20,118
-`define RDWR_VH_LATRANGE           240,270
+`define RDWR_VH_LATRANGE           140,180
 
 `define ASE_MAX_LATENCY            300
 
 
 /*
- * Disable Transaction shuffling
- * - In integrated mode, OutOfOrder channel control is used
- * - In discrete mode, InOrder channel control is used
+ * Select transaction shuffling mode.
  *
  * Infinite bandwidth test mode (independent of platform selection)
  * `define INFINITE_BANDWIDTH_MODE
- *
- * Specific platform features like interrupts and UMsgs are explicitly
+ */
+`ifdef INFINITE_BANDWIDTH_MODE
+ `define FORWARDING_CHANNEL            inorder_wrf_channel
+`else
+ `define FORWARDING_CHANNEL            outoforder_wrf_channel
+`endif
+
+/* Specific platform features like interrupts and UMsgs are explicitly
  * selected based on platform type
  */
 // ------------------------------------------------------ //
 `ifdef FPGA_PLATFORM_INTG_XEON
- `ifdef INFINITE_BANDWIDTH_MODE
-  `define FORWARDING_CHANNEL            inorder_wrf_channel
- `else
-  `define FORWARDING_CHANNEL            outoforder_wrf_channel
- `endif
  `define ASE_ENABLE_UMSG_FEATURE
  `undef  ASE_ENABLE_INTR_FEATURE
 // ------------------------------------------------------ //
 `elsif FPGA_PLATFORM_DISCRETE
- `define FORWARDING_CHANNEL             inorder_wrf_channel
  `undef  ASE_ENABLE_UMSG_FEATURE
  `define ASE_ENABLE_INTR_FEATURE
 // ------------------------------------------------------ //
