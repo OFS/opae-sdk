@@ -196,29 +196,37 @@ include(packaging)
 # Component definition
 define_pkg(tools
   COMPONENTS
-  tooluserclk
   toolfpgad
+  toolfpgaconf
+  toolfpgainfo
+  toolfpgaport
+  GROUP "tools"
+  DISPLAY_NAME "opae-tools"
+  DESCRIPTION "OPAE base tool binaries"
+  DEB_DEPENDS "opae-libs , opae-devel"
+  )
+
+  define_pkg(tools-extra
+  COMPONENTS
+  tooluserclk
   toolras
   toolmmlink
   toolcoreidle
-  toolfpgaconf
   toolfpgadiag
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
   toolfpgadiagapps
   toolfpgaflash
-  toolfpgainfo
-  toolfpgaport
   toolpackager
   opaecxxutils
   opaecxxlib
   opaecxxnlb
   hssiiolib
   hssiprograms
-  GROUP "tools"
-  DISPLAY_NAME "opae-tools"
-  DESCRIPTION "OPAE tool binaries"
+  GROUP "tools-extra"
+  DISPLAY_NAME "opae-tools-extra"
+  DESCRIPTION "OPAE extra tool binaries"
   DEB_DEPENDS "opae-libs , opae-devel"
   )
 
