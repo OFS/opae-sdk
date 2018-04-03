@@ -783,6 +783,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 	// copy error list
 	efrom = _src->errors;
 	eto = &_dst->errors;
+	*eto = NULL;
 
 	while (efrom) {
 		*eto = malloc(sizeof(struct error_list));
