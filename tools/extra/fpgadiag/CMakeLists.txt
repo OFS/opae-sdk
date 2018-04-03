@@ -105,18 +105,6 @@ install(PROGRAMS fpgadiag
     DESTINATION bin
     COMPONENT toolfpgadiag)
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-    install(TARGETS opae-c++-nlb
-    LIBRARY DESTINATION lib64
-    COMPONENT opaecxxnlb)
-else()
-    install(TARGETS opae-c++-nlb
-    LIBRARY DESTINATION lib
-    COMPONENT opaecxxnlb)
-endif() 
-
-install(TARGETS ${binaries}
-    RUNTIME DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
+install(TARGETS opae-c++-nlb
+   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+   COMPONENT opaecxxnlb)

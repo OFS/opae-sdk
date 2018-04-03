@@ -63,13 +63,6 @@ set_target_properties(opae-c-ase PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-    install(TARGETS opae-c-ase
-    LIBRARY DESTINATION lib64
-    COMPONENT opaecase)
-else()
-    install(TARGETS opae-c-ase
-    LIBRARY DESTINATION lib
-    COMPONENT opaecase)
-endif() 
+install(TARGETS opae-c-ase
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT opaecase)

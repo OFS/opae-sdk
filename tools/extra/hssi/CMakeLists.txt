@@ -76,16 +76,9 @@ add_executable(hssi_config config_main.cpp
 set_install_rpath(hssi_config)
 target_link_libraries(hssi_config hssi-io pthread)
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-    if ("${LIB64}" STREQUAL "TRUE")
-        install(TARGETS hssi-io
-        LIBRARY DESTINATION lib64
-        COMPONENT hssiiolib)
-    else()
-        install(TARGETS hssi-io
-        LIBRARY DESTINATION lib
-        COMPONENT hssiiolib)
-    endif() 
+install(TARGETS hssi-io
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+    COMPONENT hssiiolib)
 
 install(TARGETS hssi_config hssi_loopback
     RUNTIME DESTINATION bin

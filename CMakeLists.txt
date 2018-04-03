@@ -65,6 +65,17 @@ include(libraries_config)
 include(fpga_functions)
 
 ############################################################################
+## set libs install location ###################################################
+############################################################################
+
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
+else()
+    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
+endif() 
+
+############################################################################
 ## Target configuration ####################################################
 ############################################################################
 
@@ -153,24 +164,8 @@ endif()
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib64")
-else()
-      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-endif() 
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-############################################################################
-## libs install location ###################################################
-############################################################################
-
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-    set(LIB_INSTALL_DIR "lib64")
-else()
-    set(LIB_INSTALL_DIR "lib")
-endif() 
-
 
 ############################################################################
 ## Packaging ###############################################################

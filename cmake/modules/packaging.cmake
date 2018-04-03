@@ -75,6 +75,7 @@ endfunction(DEFINE_PKG)
 
 macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
 
+    file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
     set(PACKAGER_BIN ${PROJECT_BINARY_DIR}/bin/${EXE_NAME})
 
     # Generate a __main__.py that loads the target module

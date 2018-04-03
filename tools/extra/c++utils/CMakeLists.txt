@@ -48,13 +48,6 @@ set_target_properties(opae-c++-utils PROPERTIES
 
 target_link_libraries(opae-c++-utils ${CJSON_LIBRARY})
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-    install(TARGETS opae-c++-utils
-    LIBRARY DESTINATION lib64
+install(TARGETS opae-c++-utils
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
     COMPONENT opaecxxutils)
-else()
-    install(TARGETS opae-c++-utils
-    LIBRARY DESTINATION lib
-    COMPONENT opaecxxutils)
-endif() 
