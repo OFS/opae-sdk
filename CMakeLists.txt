@@ -113,6 +113,7 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
+add_subdirectory(platforms)
 add_subdirectory(tools)
 
 option(BUILD_ASE "Enable ASE compilation" ON)
