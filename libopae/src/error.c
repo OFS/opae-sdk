@@ -124,14 +124,12 @@ fpga_result fpgaClearAllErrors(fpga_token token)
 	struct error_list *p = _token->errors;
 	while (p) {
 		// if error can be cleared
-		if (!p->info.can_clear)
-			break;
-
-		// clear error current error value
-		res = fpgaClearError(token, i);
-		if (res != FPGA_OK)
-			return res;
-
+		if (p->info.can_clear) {
+			// clear error
+			res = fpgaClearError(token, i);
+			if (res != FPGA_OK)
+				return res;
+		}
 		i++;
 		p = p->next;
 	}
