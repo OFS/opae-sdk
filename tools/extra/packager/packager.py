@@ -36,7 +36,6 @@ from afu import AFU
 from gbs import GBS
 from metadata import metadata
 
-sys.path.insert(0, 'jsonschema-2.3.0')
 
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
