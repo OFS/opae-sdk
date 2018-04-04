@@ -194,10 +194,13 @@ systems to install the OPAE SDK.
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=RPM
+$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install loacation>
 $ make package_rpm
 ```
-
+.. note::
+```
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+```
 This will generate the following rpm packages. 
 
 ```console
@@ -241,10 +244,13 @@ To build deb packages follow these steps:
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=DEB
+$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install loacation>
 $ make package_deb
 ```
-
+.. note::
+```
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+```
 This will generate the following deb packages.
 
 ```console
