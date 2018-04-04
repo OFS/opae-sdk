@@ -31,6 +31,7 @@
 #include "common_int.h"
 #include "types_int.h"
 #include "config_int.h"
+#include "ase_common.h"
 
 #include <string.h>
 
@@ -50,7 +51,7 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
 
 fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
-	errno_t err = 0;
+	int err = 0;
 
 	if (!version_str) {
 		FPGA_MSG("version_str is NULL");
@@ -70,7 +71,7 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len
 
 fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
-	errno_t err = 0;
+	int err = 0;
 
 	if (!build_str) {
 		FPGA_MSG("build_str is NULL");
