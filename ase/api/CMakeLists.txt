@@ -56,6 +56,7 @@ target_link_libraries(opae-c-ase rt safestr)
 # paths. Keep current directory private.
 target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
@@ -67,3 +68,6 @@ set_target_properties(opae-c-ase PROPERTIES
 install(TARGETS opae-c-ase
   LIBRARY DESTINATION lib
   COMPONENT opaecase)
+
+configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+                "${PROJECT_BINARY_DIR}/include/config_int.h" )
