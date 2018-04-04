@@ -47,6 +47,12 @@ fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 	uint32_t i = 0;
 	fpga_result res = FPGA_OK;
 
+	ASSERT_NOT_NULL(token);
+	if (_token->magic != FPGA_TOKEN_MAGIC) {
+		FPGA_MSG("Invalid token");
+		return FPGA_INVALID_PARAM;
+	}
+
 	struct error_list *p = _token->errors;
 	while (p) {
 		if (i == error_num) {
@@ -79,7 +85,11 @@ fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
 	uint64_t value = 0;
 	fpga_result res = FPGA_OK;
 
-	// TODO: make thread-safe
+	ASSERT_NOT_NULL(token);
+	if (_token->magic != FPGA_TOKEN_MAGIC) {
+		FPGA_MSG("Invalid token");
+		return FPGA_INVALID_PARAM;
+	}
 
 	struct error_list *p = _token->errors;
 	while (p) {
@@ -119,7 +129,11 @@ fpga_result fpgaClearAllErrors(fpga_token token)
 	uint32_t i = 0;
 	fpga_result res = FPGA_OK;
 
-	// TODO: make thread-safe
+	ASSERT_NOT_NULL(token);
+	if (_token->magic != FPGA_TOKEN_MAGIC) {
+		FPGA_MSG("Invalid token");
+		return FPGA_INVALID_PARAM;
+	}
 
 	struct error_list *p = _token->errors;
 	while (p) {
@@ -149,7 +163,11 @@ fpga_result fpgaGetErrorInfo(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	// TODO: make thread-safe
+	ASSERT_NOT_NULL(token);
+	if (_token->magic != FPGA_TOKEN_MAGIC) {
+		FPGA_MSG("Invalid token");
+		return FPGA_INVALID_PARAM;
+	}
 
 	// TODO: should we populate this if user hasn't created a
 	//       properties structure for this token?
