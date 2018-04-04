@@ -24,9 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/tools/fpgadiag
-                    ${OPAE_SDK_SOURCE}/tools/c++utils
-                    ${OPAE_SDK_SOURCE}/tools/libopae++)
+                    ${OPAE_SDK_SOURCE}/tools/extra/fpgadiag
+                    ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+                    ${OPAE_SDK_SOURCE}/tools/extra/libopae++)
 
 add_library(hssi-io  SHARED przone.h
                             accelerator_przone.h

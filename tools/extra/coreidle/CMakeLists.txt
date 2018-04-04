@@ -29,9 +29,9 @@ include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
 
 set(SRC main.c
-        coreidle.c 
-        ../../libopae/src/bitstream.c
-        ../../libopae/src/common.c)
+        coreidle.c
+        ${OPAE_SDK_SOURCE}/libopae/src/bitstream.c
+        ${OPAE_SDK_SOURCE}/libopae/src/common.c)
 
 add_executable(coreidle ${SRC})
 set_install_rpath(coreidle)
