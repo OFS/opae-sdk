@@ -741,8 +741,6 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 {
 	struct _fpga_token *_src = (struct _fpga_token *)src;
 	struct _fpga_token *_dst;
-	struct error_list *efrom;
-	struct error_list **eto;
 	fpga_result result;
 	errno_t e;
 
@@ -780,36 +778,13 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 		goto out_free;
 	}
 
-	// copy error list
-	efrom = _src->errors;
-	eto = &_dst->errors;
-	*eto = NULL;
-
-	while (efrom) {
-		*eto = malloc(sizeof(struct error_list));
-		if (!*eto) {
-			FPGA_ERR("out of memory");
-			result = FPGA_NO_MEMORY;
-			goto out_free;
-		}
-		memcpy_s(*eto, sizeof(struct error_list), efrom, sizeof(struct error_list));
-		(*eto)->next = NULL;
-		efrom = efrom->next;
-		eto = &(*eto)->next;
-	}
+	// shallow-copy error list
+	_dst->errors = _src->errors;
 
 	*dst = _dst;
 	return FPGA_OK;
 
 out_free:
-	// free error list
-	efrom = _dst->errors;
-	while (efrom) {
-		struct error_list *q = efrom->next;
-		free(efrom);
-		efrom = q;
-	}
-
 	free(_dst);
 	return result;
 }
@@ -835,14 +810,6 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 		FPGA_MSG("Invalid token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
-	}
-
-	// free error list
-	struct error_list *p = _token->errors;
-	while (p) {
-		struct error_list *q = p->next;
-		free(p);
-		p = q;
 	}
 
 	// invalidate magic (just in case)

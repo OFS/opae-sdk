@@ -34,6 +34,7 @@
 #include <stdlib.h>
 
 #include "safe_string/safe_string.h"
+#include "error_int.h"
 
 #include "token_list_int.h"
 
@@ -85,8 +86,11 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		return NULL;
 	}
 
-	/* initialize error list pointer */
+	/* populate error list */
 	tmp->_token.errors = NULL;
+	char errpath[SYSFS_PATH_MAX];
+	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", sysfspath);
+	build_error_list(errpath, &tmp->_token.errors);
 
 	/* mark data structure as valid */
 	tmp->_token.magic = FPGA_TOKEN_MAGIC;
@@ -196,6 +200,15 @@ void token_cleanup(void)
 	while (token_root->next) {
 		struct token_map *tmp = token_root;
 		token_root = token_root->next;
+
+		// free error list
+		struct error_list *p = tmp->_token.errors;
+		while (p) {
+			struct error_list *q = p->next;
+			free(p);
+			p = q;
+		}
+
 		// invalidate magic (just in case)
 		tmp->_token.magic = FPGA_INVALID_MAGIC;
 		free(tmp);

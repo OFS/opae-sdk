@@ -169,9 +169,6 @@ fpga_result fpgaGetErrorInfo(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	// TODO: should we populate this if user hasn't created a
-	//       properties structure for this token?
-
 	struct error_list *p = _token->errors;
 	while (p) {
 		if (i == error_num) {
@@ -195,8 +192,14 @@ const char *errors_exclude[] = {
 };
 #define NUM_ERRORS_EXCLUDE (sizeof(errors_exclude) / sizeof(char *))
 
-/* returns the number of error entries added to `list` */
-uint32_t build_error_list(const char *path, struct error_list **list)
+/* Walks the given directory and adds error entries to `list`.
+ * This function is called during enumeration when adding tokens to
+ * the global tokens list. When tokens are cloned, their error
+ * lists are only shallowly copied (which works because errors of
+ * a token never change).
+ * returns the number of error entries added to `list` */
+uint32_t __FIXME_MAKE_VISIBLE__
+build_error_list(const char *path, struct error_list **list)
 {
 	struct dirent *de;
 	DIR *dir;

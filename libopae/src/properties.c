@@ -366,10 +366,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	char errpath[SYSFS_PATH_MAX];
 	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", _token->sysfspath);
-	if (!_token->errors)
-		_iprop.num_errors = build_error_list(errpath, &_token->errors);
-	else
-		_iprop.num_errors = count_error_files(errpath);
+	_iprop.num_errors = count_error_files(errpath);
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 
 	if (pthread_mutex_lock(&_prop->lock)) {

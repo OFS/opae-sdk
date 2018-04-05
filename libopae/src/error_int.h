@@ -29,6 +29,12 @@
 
 #include <opae/types.h>
 
+#include "sysfs_int.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct error_list {
 	struct fpga_error_info info;
 	struct error_list *next;
@@ -38,5 +44,9 @@ struct error_list {
 
 uint32_t count_error_files(const char *path);
 uint32_t build_error_list(const char *path, struct error_list **list);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
 #endif // ___FPGA_ERROR_INT_H__
