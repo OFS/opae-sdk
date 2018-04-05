@@ -50,7 +50,7 @@ if(NOT libuuid_FOUND)
     DEB: apt-get install uuid-dev
     RPM: yum install libuuid
    If you have already installed this package in a nonstandard location 
-   please specify the location by defining the variable LIBJSON-C_ROOT in 
+   please specify the location by defining the variable UUID_ROOT in 
    your cmake command as follows: cmake <path to clone dir> -DUUID_ROOT=<path to install location>")
 endif()
 
