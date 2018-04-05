@@ -888,6 +888,60 @@ def eeprom_fxn(args, skl):
     print ""
 
 
+def eqwrite_fxn(args, skl):
+    chan = int(args.channel, 16)
+    param = int(args.parameter, 16)
+    value = int(args.value, 16)
+    val = skl.nios_soft_fn(0x9, chan, param, value)
+    if (param == 0):
+        msg = "CTLE"
+    elif (param == 1):
+        msg = "VGA"
+    elif (param == 2):
+        msg = "DCGAIN"
+    elif (param == 3):
+        msg = "1st POST"
+    elif (param == 4):
+        msg = "2nd POST"
+    elif (param == 5):
+        msg = "1st PRE"
+    elif (param == 6):
+        msg = "2nd PRE"
+    elif (param == 7):
+        msg = "VOD"
+    else:
+        msg = "Unknown Paramter"
+    msg = "WRITE Channel %i - %s" % (chan, msg)
+    print "eqwrite(C=0x%01X,P=0x%02X) <- 0x%02X (%s)" % (
+        chan, param, value, msg)
+
+
+def eqread_fxn(args, skl):
+    chan = int(args.channel, 16)
+    param = int(args.parameter, 16)
+    val = skl.nios_soft_fn(0xa, chan, param)
+    if (param == 0):
+        msg = "CTLE"
+    elif (param == 1):
+        msg = "VGA"
+    elif (param == 2):
+        msg = "DCGAIN"
+    elif (param == 3):
+        msg = "1st POST"
+    elif (param == 4):
+        msg = "2nd POST"
+    elif (param == 5):
+        msg = "1st PRE"
+    elif (param == 6):
+        msg = "2nd PRE"
+    elif (param == 7):
+        msg = "VOD"
+    else:
+        msg = "Unknown Paramter"
+    msg = "READ Channel %i - %s" % (chan, msg)
+    print "eqread(C=0x%01X,P=0x%02X) -> 0x%02X (%s)" % (chan, param, val, msg)
+
+
 def e10_loop_fxn(args, skl):
     skl.skl_e10_check()
     if args.flag == "off":
@@ -998,6 +1052,15 @@ def e40_stat_clr_fxn(args, skl):
 
 
 def parse_args():
+    eqw = 'Write value to an equalization parameter to a transceiver channel '
+    eqw += 'Usage: eqwrite <channel> <parameter> <value>'
+    eqw += ' - List of parameters: 0 = CTLE, 1 = VGA, 2 = DCGAIN, '
+    eqw += '3 = 1st POST, 4 = 2nd POST, 5 = 1st PRE, 6 = 2nd PRE, 7 = VOD'
+
+    eqr = 'Read out an equalization parameter from a transceiver channel '
+    eqr += 'Usage: eqread <channel> <parameter> '
+    eqr += ' - List of parameters: 0 = CTLE, 1 = VGA, 2 = DCGAIN, '
+    eqr += '3 = 1st POST, 4 = 2nd POST, 5 = 1st PRE, 6 = 2nd PRE, 7 = VOD'
     subcmds = [
         {'subcmd': 'stat',
          'help': 'Print the SKL nios statistics',
@@ -1006,6 +1069,17 @@ def parse_args():
          'help': ('Read out 128-bit unique id, '
                   'MAC address and board specific ids from EEPROM'),
          'function': eeprom_fxn},
+        {'subcmd': 'eqwrite',
+         'help': eqw,
+         'arg0': 1,
+         'arg1': 1,
+         'arg2': 1,
+         'function': eqwrite_fxn},
+        {'subcmd': 'eqread',
+         'help': eqr,
+         'arg0': 1,
+         'arg1': 1,
+         'function': eqread_fxn},
         {'subcmd': 'e10init',
          'help': 'Initialize and turn on loopback E10 AFU',
          'function': e10_init_fxn},
@@ -1069,6 +1143,12 @@ def parse_args():
 
         if subcmd.get('flag', 0):
             subparser.add_argument('flag', type=str, choices=['on', 'off'])
+        if subcmd.get('arg0', 0):
+            subparser.add_argument('channel', type=str)
+        if subcmd.get('arg1', 0):
+            subparser.add_argument('parameter', type=str)
+        if subcmd.get('arg2', 0):
+            subparser.add_argument('value', type=str)
         subparser.add_argument('bdf', nargs='?')
         subparser.set_defaults(func=subcmd['function'])
 
