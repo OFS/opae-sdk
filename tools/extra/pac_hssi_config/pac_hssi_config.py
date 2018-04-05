@@ -888,29 +888,25 @@ def eeprom_fxn(args, skl):
     print ""
 
 
+PARAMS_DICT = {
+    0: "CTLE",
+    1: "VGA",
+    2: "DCGAIN",
+    3: "1st POST",
+    4: "2nd POST",
+    5: "1st PRE",
+    6: "2nd PRE",
+    7: "VOD"
+}
+
+
 def eqwrite_fxn(args, skl):
     chan = int(args.channel, 16)
     param = int(args.parameter, 16)
     value = int(args.value, 16)
-    val = skl.nios_soft_fn(0x9, chan, param, value)
-    if (param == 0):
-        msg = "CTLE"
-    elif (param == 1):
-        msg = "VGA"
-    elif (param == 2):
-        msg = "DCGAIN"
-    elif (param == 3):
-        msg = "1st POST"
-    elif (param == 4):
-        msg = "2nd POST"
-    elif (param == 5):
-        msg = "1st PRE"
-    elif (param == 6):
-        msg = "2nd PRE"
-    elif (param == 7):
-        msg = "VOD"
-    else:
-        msg = "Unknown Paramter"
+    val = skl.nios_soft_fn(skl.NIOS_TX_EQ_WRITE, chan, param, value)
+
+    msg = PARAMS_DICT.get(param, "Unknown Paramter")
     msg = "WRITE Channel %i - %s" % (chan, msg)
     print "eqwrite(C=0x%01X,P=0x%02X) <- 0x%02X (%s)" % (
         chan, param, value, msg)
@@ -919,25 +915,9 @@ def eqwrite_fxn(args, skl):
 def eqread_fxn(args, skl):
     chan = int(args.channel, 16)
     param = int(args.parameter, 16)
-    val = skl.nios_soft_fn(0xa, chan, param)
-    if (param == 0):
-        msg = "CTLE"
-    elif (param == 1):
-        msg = "VGA"
-    elif (param == 2):
-        msg = "DCGAIN"
-    elif (param == 3):
-        msg = "1st POST"
-    elif (param == 4):
-        msg = "2nd POST"
-    elif (param == 5):
-        msg = "1st PRE"
-    elif (param == 6):
-        msg = "2nd PRE"
-    elif (param == 7):
-        msg = "VOD"
-    else:
-        msg = "Unknown Paramter"
+    val = skl.nios_soft_fn(skl.NIOS_TX_EQ_READ, chan, param)
+
+    msg = PARAMS_DICT.get(param, "Unknown Paramter")
     msg = "READ Channel %i - %s" % (chan, msg)
     print "eqread(C=0x%01X,P=0x%02X) -> 0x%02X (%s)" % (chan, param, val, msg)
 
