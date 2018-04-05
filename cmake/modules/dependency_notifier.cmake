@@ -39,19 +39,21 @@ endif()
 if(NOT libjson-c_FOUND)
     message("-- json-c not found. Please install json-c package for you respective distribution:
     DEB: apt-get install libjson0-dev
-    RPM: yum install json-c
+    RPM: yum install json-c-devel
    If you have already installed this package in a nonstandard location 
    please specify the location by defining the variable LIBJSON-C_ROOT in 
    your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to install location>")
+   set(REQUIRED_DEPENDENCIES "libjson-c ${REQUIRED_DEPENDENCIES}")
 endif()
 
 if(NOT libuuid_FOUND)
     message("-- uuid not found. Please install uuid package for your respective distribution:
     DEB: apt-get install uuid-dev
-    RPM: yum install libuuid
+    RPM: yum install libuuid-devel
    If you have already installed this package in a nonstandard location 
-   please specify the location by defining the variable UUID_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DUUID_ROOT=<path to install location>")
+   please specify the location by defining the variable LIBUUID_ROOT in 
+   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to install location>")
+   set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
 endif()
 
 find_package(PythonInterp 2.7 REQUIRED)
@@ -67,6 +69,7 @@ if(NOT DOXYGEN_FOUND)
    please specify the location by defining the variable DOXYGEN_ROOT in 
    your cmake command as follows: cmake <path to clone dir> -DDOXYGEN_ROOT=<path to install location>")
 endif()
+
 if(NOT SPHINX_FOUND)
     message("-- Sphinx not found. HTML documentation will not be built. If you want HTML documentation to be built, 
    please install python-sphinx:
@@ -77,25 +80,10 @@ if(NOT SPHINX_FOUND)
    your cmake command as follows: cmake <path to clone dir> -DSPHINX_ROOT=<path to install location>")
 endif()
 
-
-if((NOT libjson-c_FOUND) AND (NOT libuuid_FOUND))
-    if(NOT PYTHONINTERP_FOUND)
-        message(FATAL_ERROR "libjson-c, libuuid and python were not found. libopae and base tools will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    else()
-        message(FATAL_ERROR "libjson-c and libuuid were not found. libopae-c will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    endif()
-elseif((NOT libjson-c_FOUND) AND (libuuid_FOUND))
-    if(NOT PYTHONINTERP_FOUND)
-        message(FATAL_ERROR "libjson-c and python were not found. libopae and base tools will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    else()
-        message(FATAL_ERROR "libjson-c was not found. libopae-c will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    endif()
-elseif((libjson-c_FOUND) AND (NOT libuuid_FOUND))
-    if(NOT PYTHONINTERP_FOUND)
-        message(FATAL_ERROR "libuuid and python were not found. libopae and base tools will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    else()
-        message(FATAL_ERROR "libuuid was not found. libopae-c will not be built unless they are satisfied. Please install the necessary packages as mentioned above.")
-    endif()
+if(REQUIRED_DEPENDENCIES AND (NOT PYTHONINTERP_FOUND))
+    message(FATAL_ERROR "The following dependencies are required; libopae-c and base tools will not be built unless they are satisfied. 
+   ---- ${REQUIRED_DEPENDENCIES} Python ----")
+elseif(REQUIRED_DEPENDENCIES)
+    message(FATAL_ERROR "The following dependencies are required; libopae-c will not be built unless they are satisfied. 
+   ---- ${REQUIRED_DEPENDENCIES}----")
 endif()
-
-
