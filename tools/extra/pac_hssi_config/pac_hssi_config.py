@@ -490,7 +490,7 @@ class SklHssi(object):
         if self.skl_maci2c_rdbeat() != 0:
             raise Exception("Error: I2C ACK bit not clear! (0)")
 
-        self.skl_maci2c_wrbyte(0x80 | addr)
+        self.skl_maci2c_wrbyte(addr)
         if self.skl_maci2c_rdbeat() != 0:
             raise Exception("Error: I2C ACK bit not clear! (1)")
 
