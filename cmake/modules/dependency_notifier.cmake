@@ -56,9 +56,9 @@ if(NOT libuuid_FOUND)
    set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
 endif()
 
-find_package(PythonInterp 2.7 REQUIRED)
-if(NOT PYTHONINTERP_FOUND )
-    message("-- No suitable python interpreter found. Please install Python >= 2.7 to satisfy dependency for building tools.")
+find_package(PythonInterp 2.7)
+if(NOT PYTHONINTERP_FOUND)
+    message("-- No suitable Python interpreter found. Some Python based tools will not function. Please install Python >= 2.7.")
 endif()
 
 if(NOT DOXYGEN_FOUND)
@@ -80,10 +80,7 @@ if(NOT SPHINX_FOUND)
    your cmake command as follows: cmake <path to clone dir> -DSPHINX_ROOT=<path to install location>")
 endif()
 
-if(REQUIRED_DEPENDENCIES AND (NOT PYTHONINTERP_FOUND))
-    message(FATAL_ERROR "The following dependencies are required; libopae-c and base tools will not be built unless they are satisfied. 
-   ---- ${REQUIRED_DEPENDENCIES} Python ----")
-elseif(REQUIRED_DEPENDENCIES)
+if(REQUIRED_DEPENDENCIES)
     message(FATAL_ERROR "The following dependencies are required; libopae-c will not be built unless they are satisfied. 
    ---- ${REQUIRED_DEPENDENCIES}----")
 endif()
