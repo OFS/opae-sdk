@@ -57,6 +57,8 @@
 #define FPGA_GBS_MAX_POWER    60            // watts
 #define FPGA_THRESHOLD2(x)    ((x*10)/100)  // threshold1 + 10%
 
+#define MAX_TRANSACTIONS      64
+
 #pragma pack(push, 1)
 // GBS Header
 struct bitstream_header {
@@ -133,6 +135,17 @@ static fpga_result validate_bitstream(fpga_handle handle,
 	}
 }
 
+static fpga_result read_port_error(char *errpath, char *path, uint64_t *error)
+{
+	snprintf_s_ss(errpath, sizeof(errpath), "%s/%s", path, PORT_SYSFS_ERRORS);
+	return sysfs_read_u64(errpath, error);
+}
+
+static fpga_result clear_error(char *errpath, char *path, uint64_t error)
+{
+	snprintf_s_ss(errpath, sizeof(errpath), "%s/%s", path, PORT_SYSFS_ERR_CLEAR);
+	return sysfs_write_u64(errpath, error);
+}
 
 // clears port errors
 static fpga_result clear_port_errors(fpga_handle handle)
@@ -148,17 +161,19 @@ static fpga_result clear_port_errors(fpga_handle handle)
 		return result;
 	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERRORS);
 	// Read port error.
-	result = sysfs_read_u64(syfs_errpath, &error);
+	result = read_port_error(syfs_errpath, syfs_path, &error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port errors");
 		return result;
 	}
+	// Check if errors exsist
+	if (error != 0) {
+		FPGA_ERR("Port Errors found");
+	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
 	// Clear port error.
-	result = sysfs_write_u64(syfs_errpath, error);
+	result = clear_error(syfs_errpath, syfs_path, error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors");
 		return result;
@@ -261,6 +276,8 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 						size_t bitstream_len,
 						int flags)
 {
+	char syfs_path[SYSFS_PATH_MAX]    = {0};
+	char syfs_errpath[SYSFS_PATH_MAX] = {0};
 	struct _fpga_handle *_handle    = (struct _fpga_handle *)fpga;
 	fpga_result result              = FPGA_OK;
 	struct fpga_fme_port_pr port_pr = {0};
@@ -268,6 +285,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
+	uint64_t porterr		= 0;
 	int err                         = 0;
 
 	UNUSED_PARAM(flags);
@@ -289,10 +307,13 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		goto out_unlock;
 	}
 
-	// Clear port errors
-	result = clear_port_errors(fpga);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to clear port errors.");
+	// Clear port errors for enough time for a max of 64 trasactions
+	for(int i = 0; i < 2*MAX_TRANSACTIONS2*MAX_TRANSACTIONS; ++i) {
+		result = clear_port_errors(fpga);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to clear port errors.");
+			goto out_unlock; // Why don't we exit here?
+		}
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
@@ -404,8 +425,18 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (error.reconf_secure_load_error == 0x1) {
+		goto out_unlock;
 		FPGA_ERR("PR secure load error detected");
 		result = FPGA_RECONF_ERROR;
+	}
+
+	//Check for Port Errors after PR complete
+	result = read_port_error(syfs_errpath, syfs_path, &porterr);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port errors");
+	printf("Port Error: %" PRId64, porterr);
+	if (porterr != 0) {
+		FPGA_ERR("Errors exsist after Attempted PR.");
 	}
 
 out_unlock:
