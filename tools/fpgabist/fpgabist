@@ -84,7 +84,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     bist_common.global_arguments(parser)
     args = parser.parse_args()
-    if bist_common.check_commands():
-        sys.exit("Terminating BIST.")
-    print("Found all required commands.")
+    bist_common.check_required_cmds()
     main(args)

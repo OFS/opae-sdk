@@ -37,17 +37,15 @@ REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 
 
-# Return a list of all available bus numbers
-def check_commands():
+def check_required_cmds():
     terminate = False
-    for cmd in REQ_CMDS:
-        executable = find_executable(cmd, path=os.environ['PATH'])
-        if executable == cmd:
-            terminate = True
-            print "Could not find {} in $PATH".format(cmd)
-    return terminate
+    path = os.environ['PATH'].split(os.pathsep)
+    del path[-1]
+    if not all([find_executable(cmd, path) for cmd in REQ_CMDS]):
+        sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
+# Return a list of all available bus numbers
 def get_all_fpga_bdfs():
     pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'
                '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
