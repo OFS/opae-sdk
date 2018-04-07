@@ -38,7 +38,7 @@ try:
     # pkgPATH1 : jsonschema search path for opae-sdk/tools/extra/packager
     pkgPath1 = os.path.join(sys.path[0], 'jsonschema-2.3.0')
 
-    # pkgPath2 : current packager script location 
+    # pkgPath2 : current packager script location
     pkgPath2 = os.path.abspath(os.path.dirname(sys.argv[0]))
     dirList = pkgPath2.split("/")
     dirList = dirList[:-1]
@@ -46,7 +46,7 @@ try:
 
     # pkgPath3 : jsonschema search path for current packager location
     pkgPath3 = pkgPath2 + "/share/opae/python/jsonschema-2.3.0"
-    
+
     sys.path.append(pkgPath1)
     sys.path.append(pkgPath3)
     from jsonschema import validators
