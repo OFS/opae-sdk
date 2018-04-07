@@ -37,11 +37,17 @@ REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 
 
+def find_exec(cmd, paths):
+    for p in paths:
+        f = os.path.join(p, cmd)
+        if os.path.isfile(f):
+            return True
+    return False
+
+
 def check_required_cmds():
-    terminate = False
     path = os.environ['PATH'].split(os.pathsep)
-    del path[-1]
-    if not all([find_executable(cmd, path) for cmd in REQ_CMDS]):
+    if not all([find_exec(cmd, path) for cmd in REQ_CMDS]):
         sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
