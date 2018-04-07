@@ -24,50 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.12)
 
-project("opae-c-ase")
-find_package(Threads  REQUIRED)
-set(API_DIR ${PROJECT_SOURCE_DIR})
-set(ASEAPI_SRC
-  ${API_DIR}/../sw/tstamp_ops.c
-  ${API_DIR}/../sw/ase_ops.c
-  ${API_DIR}/../sw/ase_strings.c
-  ${API_DIR}/../sw/app_backend.c
-  ${API_DIR}/../sw/mqueue_ops.c
-  ${API_DIR}/../sw/error_report.c
-  ${API_DIR}/src/common.c
-  ${API_DIR}/src/buffer.c
-  ${API_DIR}/src/close.c
-  ${API_DIR}/src/enum.c
-  ${API_DIR}/src/event.c
-  ${API_DIR}/src/manage.c
-  ${API_DIR}/src/reconf.c
-  ${API_DIR}/src/mmio.c
-  ${API_DIR}/src/open.c
-  ${API_DIR}/src/version.c
-  ${API_DIR}/src/umsg.c)
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}/libopae/src
+                    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf )
 
-add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase rt safestr)
+set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
+add_executable(fpgad ${SRC})
 
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
-target_include_directories(opae-c-ase PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
+set_install_rpath(fpgad)
 
-set_target_properties(opae-c-ase PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+target_link_libraries(fpgad opae-c pthread)
 
-install(TARGETS opae-c-ase
-  LIBRARY DESTINATION lib
-  COMPONENT opaecase)
-
-configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )
+install(TARGETS fpgad
+        RUNTIME DESTINATION bin
+        COMPONENT toolfpgad)
