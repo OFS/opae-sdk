@@ -92,6 +92,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
+                    ${OPAE_SDK_SOURCE}/tools/base/argsfilter
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
@@ -101,6 +102,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtOpen.cpp
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
+		unit/gtArgsFilter.cpp
                 unit/gtAnyValue.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
@@ -136,7 +138,7 @@ function(Build_Test_Target Target_Name Target_LIB)
 	                           $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+	target_link_libraries(${Target_Name} commonlib safestr argsfilter ${Target_LIB} ${libjson-c_LIBRARIES} 
 	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
 	  						
     if(CMAKE_THREAD_LIBS_INIT)
