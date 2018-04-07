@@ -28,9 +28,9 @@ cmake_minimum_required(VERSION 2.8.12)
 include(packaging)
 
 ## Install target for jsonschema files
-set(JSONSCHEMA_SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/opae/)
+set(JSONSCHEMA_SHARE_DIR share/opae/python)
 set(JSONSCHEMA_BIN_DIR ${PROJECT_BINARY_DIR}/share/opae/jsonschema-2.3.0)
-
+set(JSONSCHEMA_DIR ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0)
 
 ################# Add version to packager.py ########################
 configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/packager.py @ONLY)
@@ -40,7 +40,7 @@ set(PKG_PATH_MODULE ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
 ################# generate executable python zip files ########################
 set(METADATA_FILES metadata/constants.py metadata/__init__.py metadata/metadata.py)
 set(SCHEMA_FILES schema/afu_schema_v01.json)
-set(JSONSCHEMA_DIR ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0)
+
 file(GLOB_RECURSE JSONSCHEMA RELATIVE ${OPAE_SDK_SOURCE}/tools/extra/packager "jsonschema-2.3.0/*")
 
 set(PKG_COMMON_FILES afu.py gbs.py utils.py ${METADATA_FILES} ${SCHEMA_FILES})
