@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,10 @@
 // $Author: pscheidt $
 //-----------------------------------------------------------------------------
 //
-// File: altera_std_synchronizer_nocut.v
+// File: platform_utils_std_synchronizer_nocut.v
 //
 // Abstract: Single bit clock domain crossing synchronizer. Exactly the same
-//           as altera_std_synchronizer.v, except that the embedded false
+//           as platform_utils_std_synchronizer.v, except that the embedded false
 //           path constraint is removed in this module. If you use this
 //           module, you will have to apply the appropriate timing
 //           constraints.

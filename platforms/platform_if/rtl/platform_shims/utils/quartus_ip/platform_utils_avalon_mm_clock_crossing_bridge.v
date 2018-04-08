@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-// $Id: //acds/rel/17.0/ip/merlin/altera_avalon_mm_clock_crossing_bridge/altera_avalon_mm_clock_crossing_bridge.v#1 $
-// $Revision: #1 $
-// $Date: 2017/02/12 $
-// $Author: swbranch $
+// $Id: //acds/rel/18.0/ip/merlin/altera_avalon_mm_clock_crossing_bridge/altera_avalon_mm_clock_crossing_bridge.v#2 $
+// $Revision: #2 $
+// $Date: 2018/02/20 $
+// $Author: ashwinya $
 // --------------------------------------
 // Avalon-MM clock crossing bridge
 //
@@ -57,6 +57,7 @@ module platform_utils_avalon_mm_clock_crossing_bridge
 
     parameter MASTER_SYNC_DEPTH     = 2,
     parameter SLAVE_SYNC_DEPTH      = 2,
+    parameter SYNC_RESET            = 1,
 
     // --------------------------------------
     // Derived parameters
@@ -177,7 +178,18 @@ module platform_utils_avalon_mm_clock_crossing_bridge
         .almost_empty_valid(),
         .almost_empty_data(),
         .space_avail_data()
+        
     );
+
+
+    // Generation of internal reset synchronization
+   reg internal_sclr;
+   generate if (SYNC_RESET == 1) begin // rst_syncronizer
+      always @ (posedge m0_clk) begin
+         internal_sclr <= m0_reset;
+      end
+   end
+   endgenerate
 
     // --------------------------------------
     // Command payload
@@ -212,57 +224,113 @@ module platform_utils_avalon_mm_clock_crossing_bridge
     // ---------------------------------------------
     generate if (NON_BURSTING)
     begin
-        always @(posedge m0_clk, posedge m0_reset) begin
-            if (m0_reset) begin
-                pending_read_count <= 0;
-            end
-            else begin
-                if (m0_read_accepted & m0_readdatavalid)
-                    pending_read_count <= pending_read_count;
-                else if (m0_readdatavalid)
-                    pending_read_count <= pending_read_count - 1'd1;
-                else if (m0_read_accepted)
-                    pending_read_count <= pending_read_count + 1'd1;
-            end
-        end
-    end
+      if (SYNC_RESET == 0) begin  
+    
+           always @(posedge m0_clk, posedge m0_reset) begin
+               if (m0_reset) begin
+                   pending_read_count <= 0;
+               end
+               else begin
+                   if (m0_read_accepted & m0_readdatavalid)
+                       pending_read_count <= pending_read_count;
+                   else if (m0_readdatavalid)
+                       pending_read_count <= pending_read_count - 1'd1;
+                   else if (m0_read_accepted)
+                       pending_read_count <= pending_read_count + 1'd1;
+               end
+           end
+      end // async_rst0
+
+      else begin 
+           always @(posedge m0_clk) begin
+               if (internal_sclr) begin
+                   pending_read_count <= 0;
+               end
+               else begin
+                   if (m0_read_accepted & m0_readdatavalid)
+                       pending_read_count <= pending_read_count;
+                   else if (m0_readdatavalid)
+                       pending_read_count <= pending_read_count - 1'd1;
+                   else if (m0_read_accepted)
+                       pending_read_count <= pending_read_count + 1'd1;
+               end
+           end
+      end // sync_rst0
+    end // if non_bursting
+
     // ---------------------------------------------
     // the bursting case
     // ---------------------------------------------
     else begin
         assign m0_burstcount_words = m0_burstcount;
+      if (SYNC_RESET == 0 ) begin 
+           always @(posedge m0_clk, posedge m0_reset) begin
+               if (m0_reset) begin
+                   pending_read_count <= 0;
+               end
+               else begin
+                   if (m0_read_accepted & m0_readdatavalid)
+                       pending_read_count <= pending_read_count +
+                                               m0_burstcount_words - 1'd1;
+                   else if (m0_readdatavalid)
+                       pending_read_count <= pending_read_count - 1'd1;
+                   else if (m0_read_accepted)
+                       pending_read_count <= pending_read_count +
+                                               m0_burstcount_words;  
+               end
+           end
+      end // async_rst1
+      else begin 
+           always @(posedge m0_clk) begin
+               if (internal_sclr) begin
+                   pending_read_count <= 0;
+               end
+               else begin
+                   if (m0_read_accepted & m0_readdatavalid)
+                       pending_read_count <= pending_read_count +
+                                               m0_burstcount_words - 1'd1;
+                   else if (m0_readdatavalid)
+                       pending_read_count <= pending_read_count - 1'd1;
+                   else if (m0_read_accepted)
+                       pending_read_count <= pending_read_count +
+                                               m0_burstcount_words;  
+               end
+           end // @always
+      end // sync_rst1
 
-        always @(posedge m0_clk, posedge m0_reset) begin
-            if (m0_reset) begin
-                pending_read_count <= 0;
-            end
-            else begin
-                if (m0_read_accepted & m0_readdatavalid)
-                    pending_read_count <= pending_read_count +
-                                            m0_burstcount_words - 1'd1;
-                else if (m0_readdatavalid)
-                    pending_read_count <= pending_read_count - 1'd1;
-                else if (m0_read_accepted)
-                    pending_read_count <= pending_read_count +
-                                            m0_burstcount_words;  
-            end
-        end
-    end
+
+    end // else bursting
     endgenerate
 
     assign stop_cmd = (pending_read_count + 2*MAX_BURST) > space_avail;
+   
+    generate
+    if (SYNC_RESET == 0) begin // async_rst2
+       always @(posedge m0_clk, posedge m0_reset) begin
+           if (m0_reset) begin
+               stop_cmd_r <= 1'b0;
+               old_read   <= 1'b0;
+           end
+           else begin
+               stop_cmd_r <= stop_cmd;
+               old_read   <= m0_read & m0_waitrequest;
+           end
+       end
+     end // async_rst2
 
-    always @(posedge m0_clk, posedge m0_reset) begin
-        if (m0_reset) begin
-            stop_cmd_r <= 1'b0;
-            old_read   <= 1'b0;
-        end
-        else begin
-            stop_cmd_r <= stop_cmd;
-            old_read   <= m0_read & m0_waitrequest;
-        end
-    end
-
+     else begin
+       always @(posedge m0_clk) begin
+           if (internal_sclr) begin
+               stop_cmd_r <= 1'b0;
+               old_read   <= 1'b0;
+           end
+           else begin
+               stop_cmd_r <= stop_cmd;
+               old_read   <= m0_read & m0_waitrequest;
+           end
+       end
+     end // sync_rst2
+     endgenerate
     // --------------------------------------
     // Response FIFO
     // --------------------------------------
