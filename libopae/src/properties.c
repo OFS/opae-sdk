@@ -341,6 +341,24 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 
+	// read the vendor and device ID from the 'device' path
+	uint32_t x = 0;
+	char vendorpath[SYSFS_PATH_MAX];
+	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/../device/vendor", _token->sysfspath);
+	result = sysfs_read_u32(vendorpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.vendor_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
+
+	char devicepath[SYSFS_PATH_MAX];
+	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/../device/device", _token->sysfspath);
+	result = sysfs_read_u32(devicepath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.device_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+
 	// FIXME
 	// _iprop.device_id = ?? ;
 	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
@@ -648,21 +666,48 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
+fpgaPropertiesGetDeviceID(const fpga_properties prop, uint16_t *device_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(device_id);
-	FPGA_MSG("Device ID not yet supported");
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(device_id);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_DEVICEID)) {
+		*device_id = _prop->device_id;
+		result = FPGA_OK;
+	} else {
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetDeviceID(fpga_properties prop, uint32_t device_id)
+fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(device_id);
-	FPGA_MSG("Device ID not yet supported");
-	return FPGA_NOT_SUPPORTED;
+	int err = 0;
+	fpga_result result = FPGA_OK;
+
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_DEVICEID);
+	_prop->device_id = device_id;
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
 }
 
 fpga_result __FPGA_API__
@@ -852,22 +897,48 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetVendorID(const fpga_properties prop,
-			  uint16_t *vendor_id)
+fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(vendor_id);
-	FPGA_MSG("Vendor ID not supported");
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(vendor_id);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID)) {
+		*vendor_id = _prop->vendor_id;
+		result = FPGA_OK;
+	} else {
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(vendor_id);
-	FPGA_MSG("Vendor ID not supported");
-	return FPGA_NOT_SUPPORTED;
+	int err = 0;
+	fpga_result result = FPGA_OK;
+
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID);
+	_prop->vendor_id = vendor_id;
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
 }
 
 fpga_result __FPGA_API__
