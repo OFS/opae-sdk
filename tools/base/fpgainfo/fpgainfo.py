@@ -36,7 +36,7 @@ import logging
 import sys
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='fpga commands')
 
@@ -69,3 +69,7 @@ if __name__ == "__main__":
     # wrap stdout with the StreamWriter that does unicode
     sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
     args.func(args)
+
+
+if __name__ == "__main__":
+    main()

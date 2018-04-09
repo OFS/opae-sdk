@@ -23,19 +23,17 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-
-
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src
-                    ${OPAE_SDK_SOURCE}/tools/fpgaconf )
-
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
-add_executable(fpgad ${SRC})
-
-set_install_rpath(fpgad)
-
-target_link_libraries(fpgad opae-c pthread)
-
-install(TARGETS fpgad
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpgad)
+include(packaging)
+set(PYTHON_SRC
+     fpga_common.py
+     fpga_fmeinfo.py
+     fpga_portinfo.py
+     fpgaerr.py
+     fpgainfo.py
+     fpgapwr.py
+     fpgatemp.py
+     sysfs.py)
+CREATE_PYTHON_EXE(fpgainfo fpgainfo ${PYTHON_SRC})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT toolfpgainfo)
