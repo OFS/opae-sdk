@@ -40,9 +40,9 @@ if(NOT libjson-c_FOUND)
     message("-- json-c not found. Please install json-c package for you respective distribution:
     DEB: apt-get install libjson0-dev
     RPM: yum install json-c-devel
-   If you have already installed this package in a nonstandard location 
+   If you have already installed this package in a non-standard location 
    please specify the location by defining the variable LIBJSON-C_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to install location>")
+   your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to json-c install location>")
    set(REQUIRED_DEPENDENCIES "libjson-c ${REQUIRED_DEPENDENCIES}")
 endif()
 
@@ -50,9 +50,9 @@ if(NOT libuuid_FOUND)
     message("-- uuid not found. Please install uuid package for your respective distribution:
     DEB: apt-get install uuid-dev
     RPM: yum install libuuid-devel
-   If you have already installed this package in a nonstandard location 
+   If you have already installed this package in a non-standard location 
    please specify the location by defining the variable LIBUUID_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to install location>")
+   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to uuid install location>")
    set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
 endif()
 
@@ -65,9 +65,9 @@ if(NOT DOXYGEN_FOUND)
     message("-- Doxygen not found. Documentation will not be built. If you want documentation to be built, please install doxygen:
     DEB: apt-get install doxygen
     RPM: yum install doxygen
-   If you have already installed this package in a nonstandard location 
+   If you have already installed this package in a non-standard location 
    please specify the location by defining the variable DOXYGEN_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DDOXYGEN_ROOT=<path to install location>")
+   your cmake command as follows: cmake <path to clone dir> -DDOXYGEN_ROOT=<path to doxygen install location>")
 endif()
 
 if(NOT SPHINX_FOUND)
@@ -75,9 +75,9 @@ if(NOT SPHINX_FOUND)
    please install python-sphinx:
     DEB: apt-get install python-sphinx
     RPM: Please follow the official documentation to install Sphinx: http://www.sphinx-doc.org/en/stable/install.html
-   If you have already installed this package in a nonstandard location 
+   If you have already installed this package in a non-standard location 
    please specify the location by defining the variable SPHINX_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DSPHINX_ROOT=<path to install location>")
+   your cmake command as follows: cmake <path to clone dir> -DSPHINX_ROOT=<path to sphinx install location>")
 endif()
 
 if(REQUIRED_DEPENDENCIES)
