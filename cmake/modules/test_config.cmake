@@ -107,7 +107,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtEnumerate.cpp
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
-                function/gtOpenClose.cpp)
+                function/gtOpenClose.cpp
+		function/gtGetProperties.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)

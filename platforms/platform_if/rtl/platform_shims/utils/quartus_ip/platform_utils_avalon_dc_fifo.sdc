@@ -1,7 +1,7 @@
-# $File: //acds/rel/17.0/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.sdc $
+# $File: //acds/rel/18.0/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.sdc $
 # $Revision: #1 $
-# $Date: 2017/02/12 $
-# $Author: swbranch $
+# $Date: 2018/02/08 $
+# $Author: psgswbuild $
 
 #-------------------------------------------------------------------------------
 # TimeQuest constraints to constrain the timing across asynchronous clock domain crossings.
@@ -17,19 +17,14 @@
 #-------------------------------------------------------------------------------
 
 
-set_max_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 100
-set_min_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] -100
+set_max_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 200
+set_min_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] -200
 
-set_max_delay -from [get_registers {*|out_rd_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 100
-set_min_delay -from [get_registers {*|out_rd_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] -100
+set_max_delay -from [get_registers {*|out_rd_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 200
+set_min_delay -from [get_registers {*|out_rd_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] -200
 
-if { [ is_project_open ] && [ string equal -nocase on [ get_global_assignment -name TIMEQUEST2 ] ] } {
-    set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|in_wr_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 
-    set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|out_rd_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}]
-} else {
-    set_net_delay -max 2 -from [get_pins -compatibility_mode {*|in_wr_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 
-    set_net_delay -max 2 -from [get_pins -compatibility_mode {*|out_rd_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}]
-}
+set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|in_wr_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 
+set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|out_rd_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}]
 
 # add in timing constraints across asynchronous clock domain crossings for simple dual clock memory inference
 
@@ -44,13 +39,11 @@ if {![llength [query_collection -report -all $internal_out_payload_regs]] > 0} {
 }
 
 if {[llength [query_collection -report -all $internal_out_payload_regs]] > 0 && [llength [query_collection -report -all $mem_regs]] > 0} {
-    set_max_delay -from $mem_regs -to $internal_out_payload_regs 100
-    set_min_delay -from $mem_regs -to $internal_out_payload_regs -100
-    if { [ is_project_open ] && [ string equal -nocase on [ get_global_assignment -name TIMEQUEST2 ] ] } {
-        set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from $mem_regs -to $internal_out_payload_regs
-    } else {
-        set_net_delay -max 2 -from $mem_regs -to $internal_out_payload_regs
-    }
+    set_max_delay -from $mem_regs -to $internal_out_payload_regs 200
+    set_min_delay -from $mem_regs -to $internal_out_payload_regs -200
+
+    set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from $mem_regs -to $internal_out_payload_regs
+
     #set_max_skew 2 -from $mem_regs -to $internal_out_payload_regs
 }
 
@@ -63,12 +56,7 @@ if {[llength [query_collection -report -all $internal_out_payload_regs]] > 0 && 
 # -----------------------------------------------------------------------------
 proc constrain_platform_utils_avalon_dc_fifo_ptr_skew { path } {
 
-    if { [ is_project_open ] && [ string equal -nocase on [ get_global_assignment -name TIMEQUEST2 ] ] } {
-        set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8 -from [ get_registers $path|in_wr_ptr_gray\[*\] ] -to [ get_registers $path|write_crosser|sync\[*\].u|din_s1 ]
-        set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8 -from [ get_registers $path|out_rd_ptr_gray\[*\] ] -to [ get_registers $path|read_crosser|sync\[*\].u|din_s1 ]
-    } else {
-        set_max_skew 1.5 -from [ get_registers $path|in_wr_ptr_gray\[*\] ] -to [ get_registers $path|write_crosser|sync\[*\].u|din_s1 ]
-        set_max_skew 1.5 -from [ get_registers $path|out_rd_ptr_gray\[*\] ] -to [ get_registers $path|read_crosser|sync\[*\].u|din_s1 ]
-    }
+    set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8 -from [ get_registers $path|in_wr_ptr_gray\[*\] ] -to [ get_registers $path|write_crosser|sync\[*\].u|din_s1 ]
+    set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8 -from [ get_registers $path|out_rd_ptr_gray\[*\] ] -to [ get_registers $path|read_crosser|sync\[*\].u|din_s1 ]
 
 }

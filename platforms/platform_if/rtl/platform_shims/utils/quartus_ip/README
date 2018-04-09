@@ -1,6 +1,7 @@
-This library is extracted from the generated HDL for a variety of Quartus
-components.  The module names are modified to make them unique, replacing
-the leading "altera" with "platform_utils".
+This library is extracted from code in Quartus releases using gen_platform_ip.sh
+in this directory.  Point the script at a Quartus release and it will do the rest.
+The module names are modified to make them unique, replacing the leading "altera"
+with "platform_utils".
 
 The SDC files are here instead of in a par directory to keep all the Qsys
 code together.
@@ -8,3 +9,6 @@ code together.
 Extracted components include:
   * Qsys Avalon-MM Clock Crossing Bridge
   * Qsys Avalon-MM Pipeline Bridge
+
+
+Note: copyrights should be changed to BSD/MIT licenses.
