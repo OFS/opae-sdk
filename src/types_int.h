@@ -139,7 +139,8 @@ struct _fpga_properties {
 	uint8_t function;
 	uint8_t socket_id;
 	uint64_t object_id;
-	// TODO uint16_t device_id;
+	uint16_t vendor_id;
+	uint16_t device_id;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20
@@ -152,7 +153,6 @@ struct _fpga_properties {
 			uint32_t num_slots;
 			uint64_t bbs_id;
 			fpga_version bbs_version;
-			// TODO uint16_t vendor_id;
 			// TODO char model[FPGA_MODEL_LENGTH];
 			// TODO uint64_t local_memory_size;
 			// TODO uint64_t capabilities; #<{(| bitfield (HSSI, iommu, ...) |)}>#
