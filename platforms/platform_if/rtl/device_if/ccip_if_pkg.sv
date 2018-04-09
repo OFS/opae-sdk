@@ -47,7 +47,8 @@ parameter CCIP_MDATA_WIDTH       = 16;
 // Number of requests that can be accepted after almost full is asserted.
 parameter CCIP_TX_ALMOST_FULL_THRESHOLD = 8;
 
-parameter CCIP_MMIO_RD_TIMEOUT = 512;
+// pClk cycles by which an MMIO read response must be generated.
+parameter CCIP_MMIO_RD_TIMEOUT   = 65536;
 
 parameter CCIP_SYNC_RESET_POLARITY=1;       // Active High Reset
 
