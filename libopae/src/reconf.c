@@ -308,13 +308,15 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	// Clear port errors for enough time for a max of 64 trasactions
-	for(int i = 0; i < 2*MAX_TRANSACTIONS2*MAX_TRANSACTIONS; ++i) {
+	int i;
+	for (i = 0; i < 2*MAX_TRANSACTIONS; ++i) {
 		result = clear_port_errors(fpga);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to clear port errors.");
 			goto out_unlock; // Why don't we exit here?
 		}
 	}
+	printf("Finished Clearing Errors");
 
 	if (get_bitstream_json_len(bitstream) > 0) {
 
@@ -425,7 +427,6 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (error.reconf_secure_load_error == 0x1) {
-		goto out_unlock;
 		FPGA_ERR("PR secure load error detected");
 		result = FPGA_RECONF_ERROR;
 	}
@@ -434,6 +435,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	result = read_port_error(syfs_errpath, syfs_path, &porterr);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port errors");
+	}
 	printf("Port Error: %" PRId64, porterr);
 	if (porterr != 0) {
 		FPGA_ERR("Errors exsist after Attempted PR.");
