@@ -57,6 +57,8 @@ struct dev_list {
 	uint8_t device;
 	uint8_t function;
 	uint8_t socket_id;
+	uint16_t vendor_id;
+	uint16_t device_id;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -173,6 +175,20 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 		fpga_result result;
 		result = sysfs_objectid_from_path(attr->sysfspath, &objid);
 		if (result != FPGA_OK || _filter->object_id != objid) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {
+		if (_filter->vendor_id != attr->vendor_id) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
+		if (_filter->device_id != attr->device_id) {
 			res = false;
 			goto out_unlock;
 		}
@@ -377,6 +393,8 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 		pdev->bus      = parent->bus;
 		pdev->device   = parent->device;
 		pdev->function = parent->function;
+		pdev->vendor_id = parent->vendor_id;
+		pdev->device_id = parent->device_id;
 
 		// Hard-coding the FME guid for now. Leave the below code in case this changes.
 
@@ -435,9 +453,11 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		pdev->objtype  = FPGA_ACCELERATOR;
 
-		pdev->bus      = parent->bus;
-		pdev->device   = parent->device;
-		pdev->function = parent->function;
+		pdev->bus       = parent->bus;
+		pdev->device    = parent->device;
+		pdev->function  = parent->function;
+		pdev->vendor_id = parent->vendor_id;
+		pdev->device_id = parent->device_id;
 
 		res = open(pdev->devpath, O_RDWR);
 		if (-1 == res) {
@@ -546,6 +566,22 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	sscanf_s_u(p, "%x", &b);
 
 	pdev->bus = (uint8_t) b;
+
+	// read the vendor and device ID from the 'device' path
+	uint32_t x = 0;
+	char vendorpath[SYSFS_PATH_MAX];
+	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/device/vendor", sysfspath);
+	result = sysfs_read_u32(vendorpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	pdev->vendor_id = (uint16_t)x;
+
+	char devicepath[SYSFS_PATH_MAX];
+	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/device/device", sysfspath);
+	result = sysfs_read_u32(devicepath, &x);
+	if (result != FPGA_OK)
+		return result;
+	pdev->device_id = (uint16_t)x;
 
 	// Find the FME and AFU devices.
 	dir = opendir(sysfspath);
