@@ -456,7 +456,16 @@ def getSearchPath(env_name, default_dir):
         # Break path string using ':' and drop empty entries
         path = [p for p in os.environ[env_name].split(':') if p]
 
-    # Append the default directory
+    # Append the database directory shipped with a release if
+    # the release containts hw/lib/platform/<default_dir>.
+    if ('OPAE_PLATFORM_ROOT' in os.environ):
+        release_db_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'],
+                                      'hw', 'lib', 'platform',
+                                      default_dir)
+        if (os.path.isdir(release_db_dir)):
+            path.append(release_db_dir)
+
+    # Append the default directory from OPAE SDK
     path.append(os.path.join(getDBRootPath(), default_dir))
 
     return path
