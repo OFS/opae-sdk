@@ -23,7 +23,6 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-find_library(CJSON_LIBRARY json-c)
 
 add_library(opae-c++-utils SHARED
                      utils.h
@@ -46,7 +45,7 @@ set_target_properties(opae-c++-utils PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-target_link_libraries(opae-c++-utils ${CJSON_LIBRARY})
+target_link_libraries(opae-c++-utils ${libjson-c_LIBRARIES})
 
 install(TARGETS opae-c++-utils
         LIBRARY DESTINATION lib
