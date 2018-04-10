@@ -137,13 +137,13 @@ static fpga_result validate_bitstream(fpga_handle handle,
 
 static fpga_result read_port_error(char *errpath, char *path, uint64_t *error)
 {
-	snprintf_s_ss(errpath, sizeof(errpath), "%s/%s", path, PORT_SYSFS_ERRORS);
+	snprintf_s_ss(errpath, SYSFS_PATH_MAX, "%s/%s", path, PORT_SYSFS_ERRORS);
 	return sysfs_read_u64(errpath, error);
 }
 
 static fpga_result clear_error(char *errpath, char *path, uint64_t error)
 {
-	snprintf_s_ss(errpath, sizeof(errpath), "%s/%s", path, PORT_SYSFS_ERR_CLEAR);
+	snprintf_s_ss(errpath, SYSFS_PATH_MAX, "%s/%s", path, PORT_SYSFS_ERR_CLEAR);
 	return sysfs_write_u64(errpath, error);
 }
 
@@ -316,7 +316,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 			goto out_unlock; // Why don't we exit here?
 		}
 	}
-	printf("Finished Clearing Errors");
+	printf("Finished Clearing Errors\n");
 
 	if (get_bitstream_json_len(bitstream) > 0) {
 
@@ -432,13 +432,20 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	//Check for Port Errors after PR complete
+	result = get_port_sysfs(fpga, syfs_path);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port syfs path");
+		return result;
+	}
+
 	result = read_port_error(syfs_errpath, syfs_path, &porterr);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port errors");
 	}
-	printf("Port Error: %" PRId64, porterr);
+
 	if (porterr != 0) {
-		FPGA_ERR("Errors exsist after Attempted PR.");
+		printf("Port Error: %" PRId64, porterr);
+		FPGA_ERR("Errors exsist after Attempted PR.\n");
 	}
 
 out_unlock:
