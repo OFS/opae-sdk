@@ -19,7 +19,6 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
   - script: scripts/test-gtapi-mock-drv.sh
     cache: ccache
     addons:
@@ -29,7 +28,6 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
   - script: scripts/build-documentation.sh
     cache: 
       - ccache
@@ -41,7 +39,6 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
         - pandoc
     install:
       - pip install --user jinja2
