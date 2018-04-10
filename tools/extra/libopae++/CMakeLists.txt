@@ -60,5 +60,5 @@ set_target_properties(opae-c++ PROPERTIES
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
 install(TARGETS opae-c++
-        LIBRARY DESTINATION lib
-        COMPONENT opaecxxlib)
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT opaecxxlib)

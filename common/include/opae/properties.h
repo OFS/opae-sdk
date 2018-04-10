@@ -310,7 +310,7 @@ fpga_result fpgaPropertiesSetSocketID(fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
-				      uint32_t *device_id);
+				      uint16_t *device_id);
 
 /**
  * Set the device id of the resource
@@ -320,7 +320,7 @@ fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesSetDeviceID(fpga_properties prop,
-				      uint32_t device_id);
+				      uint16_t device_id);
 
 /**
  * Get the number of slots of an FPGA resource property

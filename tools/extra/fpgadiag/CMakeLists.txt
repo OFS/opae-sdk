@@ -68,10 +68,14 @@ set_target_properties(opae-c++-nlb PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-find_library(NUMA_LIB numa)
-if (NUMA_LIB)
-    add_definitions(-DENABLE_NUMA)
-endif(NUMA_LIB)
+option(CMDQ3_USE_NUMA "Build cmdq3 with numa support" OFF)
+mark_as_advanced(CMDQ3_USE_NUMA)
+if (CMDQ3_USE_NUMA)
+    find_library(NUMA_LIB numa)
+    if (NUMA_LIB)
+        add_definitions(-DENABLE_NUMA)
+    endif(NUMA_LIB)
+endif (CMDQ3_USE_NUMA)
 
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
@@ -104,10 +108,7 @@ endif(NUMA_LIB)
 install(PROGRAMS fpgadiag
     DESTINATION bin
     COMPONENT toolfpgadiag)
-install(TARGETS opae-c++-nlb
-    LIBRARY DESTINATION lib
-    COMPONENT opaecxxnlb)
-install(TARGETS ${binaries}
-    RUNTIME DESTINATION bin
-    COMPONENT toolfpgadiagapps)
 
+install(TARGETS opae-c++-nlb
+   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+   COMPONENT opaecxxnlb)

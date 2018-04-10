@@ -33,11 +33,26 @@ import zipfile
 from metadata import metadata
 from gbs import GBS, GBS_EXT
 
+# Update sys.path to include jsonschema folder from different locations
 try:
-    import jsonschema
+    # pkgPATH1 : jsonschema search path for opae-sdk/tools/extra/packager
+    pkgPath1 = os.path.join(sys.path[0], 'jsonschema-2.3.0')
+
+    # pkgPath2 : current packager script location
+    pkgPath2 = os.path.abspath(os.path.dirname(sys.argv[0]))
+    dirList = pkgPath2.split("/")
+    dirList = dirList[:-1]
+    pkgPath2 = "/".join(dirList)
+
+    # pkgPath3 : jsonschema search path for current packager location
+    pkgPath3 = pkgPath2 + "/share/opae/python/jsonschema-2.3.0"
+
+    sys.path.append(pkgPath1)
+    sys.path.append(pkgPath3)
+    from jsonschema import validators
+    from jsonschema import exceptions
 except ImportError:
-    print("afu.py requires the jsonschema package.  Please install it.")
-    print("  https://pypi.python.org/pypi/jsonschema" + os.linesep)
+    print("jsonschema module has no validatiors() or exceptions()")
     raise
 
 filepath = os.path.dirname(os.path.realpath(__file__))
@@ -105,8 +120,8 @@ class AFU(object):
         if self.afu_json == {}:
             return False
         try:
-            jsonschema.validate(self.afu_json, afu_schema)
-        except jsonschema.exceptions.ValidationError as ve:
+            validators.validate(self.afu_json, afu_schema)
+        except exceptions.ValidationError as ve:
             print("JSON schema error at {0}: {1}".format(
                 str(list(ve.path)), str(ve.message)))
             return False
