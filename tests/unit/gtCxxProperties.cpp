@@ -8,6 +8,7 @@ extern "C" {
 
 #include "gtest/gtest.h"
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/except.h>
 #include <uuid/uuid.h>
 
 using namespace opae::fpga::types;
@@ -110,6 +111,7 @@ TEST(CxxProperties, props_ctor_01){
  */
 TEST(CxxProperties, set_objtype) {
   properties p;
+  p.type = FPGA_ACCELERATOR;
   fpga_objtype t = p.type;
   fpga_objtype other_t =
       (t == FPGA_ACCELERATOR) ? FPGA_DEVICE : FPGA_ACCELERATOR;
@@ -125,6 +127,7 @@ TEST(CxxProperties, set_objtype) {
  */
 TEST(CxxProperties, get_model) {
   properties p;
-  std::string model = p.model;
-  EXPECT_TRUE(model.empty());
+  std::string model = "";
+  // Model is currently not supported in libopae-c
+  EXPECT_THROW(model = p.model, not_supported);
 }

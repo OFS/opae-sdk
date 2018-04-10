@@ -35,13 +35,8 @@ namespace types {
 
 event::~event()
 {
-  auto res = fpgaUnregisterEvent(*handle_, type_, event_handle_);
-  if (res){
-    log_.warn("~event()") << "fpgaUnregisterEvent returned " << fpgaErrStr(res);
-  }else{
-    res = fpgaDestroyEventHandle(&event_handle_);
-    log_.warn_if(res, "~event()") << "fpgaDestroyEventHandle returned " << fpgaErrStr(res);
-  }
+  ASSERT_FPGA_OK(fpgaUnregisterEvent(*handle_, type_, event_handle_));
+  ASSERT_FPGA_OK(fpgaDestroyEventHandle(&event_handle_));
 }
 
 event::operator fpga_event_handle()
@@ -53,10 +48,8 @@ event::ptr_t event::register_event(handle::ptr_t h, event::type_t t, int flags)
 {
   event::ptr_t evptr;
   fpga_event_handle eh;
-  auto res = fpgaCreateEventHandle(&eh);
-  if (res) throw except(res, OPAECXX_HERE);
-  res = fpgaRegisterEvent(*h, t, eh, flags);
-  if (res) throw except(res, OPAECXX_HERE);
+  ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
+  ASSERT_FPGA_OK(fpgaRegisterEvent(*h, t, eh, flags));
   evptr.reset(new event(h, t, eh));
 
   return evptr;

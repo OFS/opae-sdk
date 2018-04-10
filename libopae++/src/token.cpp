@@ -48,6 +48,9 @@ std::vector<token::ptr_t> token::enumerate(
     res = fpgaEnumerate(c_props.data(), c_props.size(), c_tokens.data(),
                         c_tokens.size(), &matches);
 
+    // throw exception (including not_found)
+    ASSERT_FPGA_OK(res);
+
     // create a new c++ token object for each c token struct
     std::transform(c_tokens.begin(), c_tokens.end(), tokens.begin(),
                    [](fpga_token t) { return token::ptr_t(new token(t)); });
@@ -56,32 +59,24 @@ std::vector<token::ptr_t> token::enumerate(
     std::for_each(c_tokens.begin(), c_tokens.end(),
                   [&log](fpga_token t) {
                     auto res = fpgaDestroyToken(&t);
-                    if (res != FPGA_OK){
-                      log.error() << "fpgaDestroyToken() failed with (" << res
-                                  << ") " << fpgaErrStr(res);
-                      throw except(res, OPAECXX_HERE);
-                    }
+                    ASSERT_FPGA_OK(res);
                   });
+  } else if (res != FPGA_NOT_FOUND) {
+    // throw exception except for not_found
+    // we don't want to throw not_found the frist time we enumerate
+    ASSERT_FPGA_OK(res);
   }
   return tokens;
 }
 
 token::~token() {
   auto res = fpgaDestroyToken(&token_);
-  if (res != FPGA_OK){
-    log_.error() << "fpgaDestroyToken() failed with (" << res
-                 << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(res);
 }
 
 token::token(fpga_token tok) : log_("token") {
   auto res = fpgaCloneToken(tok, &token_);
-  if (res != FPGA_OK){
-    log_.error() << "fpgaCloneToken() failed with (" << res
-                 << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(res);
 }
 
 }  // end of namespace types

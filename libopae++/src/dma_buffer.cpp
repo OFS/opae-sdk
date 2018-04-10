@@ -34,13 +34,7 @@ namespace types {
 dma_buffer::~dma_buffer() {
   // If the allocation was successful.
   if (virt_) {
-    fpga_result res = fpgaReleaseBuffer(handle_->get(), wsid_);
-
-    if (res != FPGA_OK) {
-      log_.error() << "fpgaReleaseBuffer() failed with (" << res
-                   << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
+    ASSERT_FPGA_OK(fpgaReleaseBuffer(handle_->get(), wsid_));
   }
 }
 
@@ -59,20 +53,10 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
 
   fpga_result res = fpgaPrepareBuffer(
       handle->get(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
-  if (res == FPGA_OK) {
-    res = fpgaGetIOAddress(handle->get(), wsid, &iova);
-    if (res == FPGA_OK) {
-      p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-    } else {
-      log.error() << "fpgaGetIOAddress() failed with (" << res
-                  << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
-  } else {
-    log.error() << "fpgaPrepareBuffer() failed with (" << res
-                << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(res);
+  res = fpgaGetIOAddress(handle->get(), wsid, &iova);
+  ASSERT_FPGA_OK(res);
+  p.reset(new dma_buffer(handle, len, virt, wsid, iova));
 
   return p;
 }
@@ -90,21 +74,10 @@ dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
       fpgaPrepareBuffer(handle->get(), len, reinterpret_cast<void **>(&virt),
                         &wsid, FPGA_BUF_PREALLOCATED);
 
-  if (res == FPGA_OK) {
-    res = fpgaGetIOAddress(handle->get(), wsid, &iova);
-    if (res == FPGA_OK) {
-      p.reset(new dma_buffer(handle, len, virt, wsid, iova));
-    } else {
-      log.error() << "fpgaGetIOAddress() failed with (" << res
-                  << ") " << fpgaErrStr(res);
-      throw except(res, OPAECXX_HERE);
-    }
-
-  } else {
-    log.error() << "fpgaPrepareBuffer() failed with (" << res
-                << ") " << fpgaErrStr(res);
-    throw except(res, OPAECXX_HERE);
-  }
+  ASSERT_FPGA_OK(res);
+  res = fpgaGetIOAddress(handle->get(), wsid, &iova);
+  ASSERT_FPGA_OK(res);
+  p.reset(new dma_buffer(handle, len, virt, wsid, iova));
 
   return p;
 }
