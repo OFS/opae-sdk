@@ -149,7 +149,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     # Regular expression for characters we might encounter that can't be
     # in preprocessor variables.  They will all be replaced with underscores.
-    illegal_chars = re.compile('[\.\[\]-]')
+    illegal_chars = re.compile('[\\.\\[\\]-]')
 
     try:
         f = open(fn, "w")
@@ -282,7 +282,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     # Regular expression for characters we might encounter that can't be
     # in preprocessor variables.  They will all be replaced with underscores.
-    illegal_chars = re.compile('[\.\[\]-]')
+    illegal_chars = re.compile('[\\.\\[\\]-]')
 
     try:
         f = open(fn, "w")
