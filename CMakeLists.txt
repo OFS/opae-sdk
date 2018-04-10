@@ -219,6 +219,7 @@ define_pkg(tools
   toolfpgainfo
   toolfpgaport
   toolpackager
+  jsonschema
   opaecxxutils
   opaecxxlib
   opaecxxnlb
