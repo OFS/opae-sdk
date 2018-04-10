@@ -24,18 +24,14 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if(NOT DEFINED CPACK_GENERATOR)
-  set(CPACK_GENERATOR "RPM")
-endif()
-
 function(DEFINE_PKG name)
   set(_components "COMPONENTS")
 
   # Parse all these entries
-  set(_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEPENDS;RPM_REQUIRES")
+  set(_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEB_DEPENDS")
 
   # Only valid options for a component
-  set(_component_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEPENDS")
+  set(_component_entries "GROUP;DISPLAY_NAME;DESCRIPTION;DEB_DEPENDS")
 
   # Define parsing order
   cmake_parse_arguments(DEFINE_PKG
@@ -57,25 +53,25 @@ function(DEFINE_PKG name)
     endforeach()
   endforeach()
 
-  # Set RPM filename according to Redhat convention
-  if(HASH_ARCHIVES)
+
+  if(DEFINE_PKG_DEB_DEPENDS)
+  string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
     set_cached_variable(
-      CPACK_RPM_${DEFINE_PKG_GROUP}_FILE_NAME
-      "${CMAKE_PROJECT_NAME}-${DEFINE_PKG_GROUP}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64_git${GIT_COMMIT_HASH}.rpm")
-  else()
-    set_cached_variable(
-      CPACK_RPM_${DEFINE_PKG_GROUP}_FILE_NAME
-      "${CMAKE_PROJECT_NAME}-${DEFINE_PKG_GROUP}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.x86_64.rpm")
+      CPACK_DEBIAN_${_group_upper}_PACKAGE_DEPENDS
+      ${DEFINE_PKG_DEB_DEPENDS})
   endif()
 
-  # Set RPM requires
-  if(DEFINE_PKG_RPM_REQUIRES)
+  if(DEFINE_PKG_DESCRIPTION)
+  string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
     set_cached_variable(
-      CPACK_RPM_${DEFINE_PKG_GROUP}_PACKAGE_REQUIRES
-      ${DEFINE_PKG_RPM_REQUIRES})
+      CPACK_COMPONENT_${_group_upper}_DESCRIPTION
+      ${DEFINE_PKG_DESCRIPTION})
   endif()
+
 
 endfunction(DEFINE_PKG)
+
+
 
 macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
 

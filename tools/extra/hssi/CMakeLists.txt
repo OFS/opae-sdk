@@ -77,8 +77,9 @@ set_install_rpath(hssi_config)
 target_link_libraries(hssi_config hssi-io pthread)
 
 install(TARGETS hssi-io
-    LIBRARY DESTINATION lib
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
     COMPONENT hssiiolib)
+
 install(TARGETS hssi_config hssi_loopback
     RUNTIME DESTINATION bin
     COMPONENT hssiprograms)

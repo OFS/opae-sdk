@@ -58,28 +58,31 @@ endif(DOXYGEN_DOT_FOUND)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
                ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+
 add_custom_target(doxygen ALL
     ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API docs" VERBATIM
     SOURCES ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+                   
 if(DOX_GENERATE_HTML)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc/html)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html DESTINATION doc/opae COMPONENT dochtml)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html DESTINATION share/opae COMPONENT dochtml)
 endif()
 if(DOX_GENERATE_LATEX)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc/latex)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/latex DESTINATION doc/opae COMPONENT doclatex)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/latex DESTINATION share/opae COMPONENT doclatex)
 endif()
 if(DOX_GENERATE_RTF)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc/rtf)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/rtf DESTINATION doc/opae COMPONENT docrtf)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/rtf DESTINATION share/opae COMPONENT docrtf)
 endif()
 if(DOX_GENERATE_MAN)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc/man)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man DESTINATION doc/opae COMPONENT docman)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man DESTINATION share/opae COMPONENT docman)
 endif()
 if(DOX_GENERATE_XML)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc/xml)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/xml DESTINATION doc/opae COMPONENT docxml)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/xml DESTINATION share/opae COMPONENT docxml)
 endif()

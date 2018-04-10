@@ -48,5 +48,5 @@ set_target_properties(opae-c++-utils PROPERTIES
 target_link_libraries(opae-c++-utils ${libjson-c_LIBRARIES})
 
 install(TARGETS opae-c++-utils
-        LIBRARY DESTINATION lib
-        COMPONENT opaecxxutils)
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+    COMPONENT opaecxxutils)
