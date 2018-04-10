@@ -221,6 +221,7 @@ define_pkg(tools
   toolfpgadiagapps
   toolfpgaflash
   toolpackager
+  jsonschema
   opaecxxutils
   opaecxxlib
   opaecxxnlb
