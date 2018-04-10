@@ -553,8 +553,8 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     if_default = os.path.join(getDBRootPath(), "platform_if")
     parser.add_argument(
         "--platform_if", default=if_default,
-        help="""The directory containing AFU top-level SystemVerilog interfaces.
-        (Default: """ + if_default + ")")
+        help="""The directory containing AFU top-level SystemVerilog
+                interfaces. (Default: """ + if_default + ")")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
