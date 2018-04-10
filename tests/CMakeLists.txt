@@ -77,6 +77,25 @@ set_tests_properties(
   PROPERTIES
   ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
+# FIXME: roll into more generic target
+add_test(NAME test_version
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecVersion*)
+
+set_tests_properties(
+  test_version
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
+add_test(NAME test_get_properties
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
+
+set_tests_properties(
+  test_get_properties
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
 add_test(NAME test_any_value
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)

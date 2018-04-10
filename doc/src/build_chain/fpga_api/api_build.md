@@ -37,15 +37,37 @@ cmake .. «user configuration flags»
 
 Valid «user configuration flags» are:
 
-  cmake flag                     Optional or mandatory   Purpose                            Valid values                                 Default value
-  ----------------------------- ----------------------- ----------------------------------- -------------------------------------------- --------------
-  -DINTEL\_FPGA\_API\_VER\_MAJOR    Optional                Driver major version                 Integer                                        0
-  -DINTEL\_FPGA\_API\_VER\_MINOR    Optional                Driver minor version                 Integer                                        1
-  -DINTEL\_FPGA\_API\_VER\_REV      Optional                Driver revision version              Integer                                        0
-  -DCMAKE\_BUILD\_TYPE            Optional                Set compiler and linker flags        Debug | Release | Coverage | RelWithDebInfo   RelWithDebInfo
-  -DBUILD\_TESTS                 Optional                Enable | disable building gtests     ON | OFF                                      OFF
-  -DBUILD\_ASE                   Optional                Enable | disable building ASE        ON | OFF                                      OFF
-  -DPACK\_ASE                    Optional                Include or not ASE in final package  ON | OFF                                      OFF
+
+```
+|----------------------------|-----------------------|-------------------------------------|---------------------------------------|----------------|
+| cmake flag                 | Optional or Mandatory | Purpose                             | Valid values                          | Default value  |
+|----------------------------|-----------------------|-------------------------------------|---------------------------------------|----------------|
+| -DINTEL_FPGA_API_VER_MAJOR | Optional              | OPAE major version                  | Integer                               | 0              |
+| -DINTEL_FPGA_API_VER_MINOR | Optional              | OPAE minor version                  | Integer                               | 13             |
+| -DINTEL_FPGA_API_VER_REV   | Optional              | OPAE revision version               | Integer                               | 0              |
+| -DCMAKE_BUILD_TYPE         | Optional              | Set compiler flags                  | Debug/Release/Coverage/RelWithDebInfo | RelWithDebInfo |
+| -DBUILD_TESTS              | Optional              | Enable/disable building gtests      | ON/OFF                                | OFF            |
+| -DBUILD_ASE                | Optional              | Enable/disable building ASE         | ON/OFF                                | ON             |
+| -DPACK_ASE                 | Optional              | Include or not ASE in final package | ON/OFF                                | OFF            |
+| -DBUILD_SPHINX_DOC         | Optional              | Enable/disable building Sphinx docs | ON/OFF                                | OFF            |
+
+```
+
+
+Building Sphinx documentation site requires previous installation of Python,
+Sphinx and Sphinx-related Python packages.
+
+
+```eval_rst
+
+.. warning::
+   Required Python packages to generate OPAE documentation can be installed with:
+
+   $ pip install --user -r ${CMAKE_SRC_DIR}/doc/sphinx/requirements.txt
+```
+
+Sphinx documentation website is generated under
+`${CMAKE_BINARY_DIR}/sphinx/${INTEL_FPGA_API_VER_MAJOR}.{INTEL_FPGA_API_VER_MINOR}.{INTEL_FPGA_API_VER_REV}/html/index.html`
 
 Build the Intel FPGA API project
 --------------------------------
@@ -63,14 +85,16 @@ Valid «user targets» are:
   make target                Purpose
   -------------------------- --------------------------------------------------------------------------------------
   make                       Compiles the Intel FPGA API libraries, sample applications, utilities
-  make dist                  Creates distributable tarball package intel-fpga\_0.1.0.tar.gz
-  make package               Create Redhat installer package: intel-fpga\_0.1.0\_1.x86\_64.rpm
+  make dist                  Creates distributable tarball package intel-fpga_0.1.0.tar.gz
+  make package               Create Redhat installer package: intel-fpga_0.1.0_1.x86_64.rpm
   make docs                  Generate doxygen documentation
   make install               Install headers, libraries, sample applications and utilities under installation directory (typically /usr/local)
 
+
+```eval_rst
+
 .. note::
 
-```
    For information on how to build and link applications using the Intel FPGA API, please refer to the Intel FPGA Library Programming Guide.
 
 ```
