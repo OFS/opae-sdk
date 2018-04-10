@@ -63,7 +63,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
-
+find_package(Doxygen)
+find_package(Threads REQUIRED)
+find_package(Sphinx)
+include(dependency_notifier)
 ############################################################################
 ## set libs install location ###################################################
 ############################################################################
@@ -107,7 +110,6 @@ install(DIRECTORY common/include/safe_string
 option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
 mark_as_advanced(BUILD_SPHINX_DOC)
 
-find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
 endif()
@@ -138,7 +140,6 @@ if (NOT BUILD_ASE AND NOT BUILD_LIBOPAE_C)
   message(FATAL_ERROR "Not building any OPAE libraries")
 endif()
 
-find_package(Threads REQUIRED)
 
 ############################################################################
 ## Add 'samples' ###########################################################
@@ -383,3 +384,4 @@ add_custom_target(package_deb
   COMMAND ${CMAKE_CPACK_COMMAND}
   )
   include(CPack)
+

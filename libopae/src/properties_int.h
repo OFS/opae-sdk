@@ -35,18 +35,18 @@
 #define FPGA_PROPERTY_DEVICE         3
 #define FPGA_PROPERTY_FUNCTION       4
 #define FPGA_PROPERTY_SOCKETID       5
-#define FPGA_PROPERTY_DEVICEID       6
-#define FPGA_PROPERTY_GUID           7
-#define FPGA_PROPERTY_OBJECTID       8
+#define FPGA_PROPERTY_VENDORID       6
+#define FPGA_PROPERTY_DEVICEID       7
+#define FPGA_PROPERTY_GUID           8
+#define FPGA_PROPERTY_OBJECTID       9
 
 /** Fields for FPGA objects */
 #define FPGA_PROPERTY_NUM_SLOTS     32
 #define FPGA_PROPERTY_BBSID         33
 #define FPGA_PROPERTY_BBSVERSION    34
-#define FPGA_PROPERTY_VENDORID      35
-#define FPGA_PROPERTY_MODEL         36
-#define FPGA_PROPERTY_LOCAL_MEMORY  37
-#define FPGA_PROPERTY_CAPABILITIES  38
+#define FPGA_PROPERTY_MODEL         35
+#define FPGA_PROPERTY_LOCAL_MEMORY  36
+#define FPGA_PROPERTY_CAPABILITIES  37
 
 
 /** Fields for accelerator objects */
