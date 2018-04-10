@@ -63,6 +63,10 @@ add_custom_target(copy-include-files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
   DEPENDS copy-markdown-files)
 
+add_custom_target(copy-sample-files ALL
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/samples ${BINARY_BUILD_DIR}/docs/fpga_api/samples
+  DEPENDS copy-include-files)
+
 add_custom_target(docs ALL
   ${SPHINX_EXECUTABLE}
   -q -b html
@@ -76,4 +80,5 @@ add_custom_target(docs ALL
 add_dependencies(docs
   copy-doxygen-files
   copy-markdown-files
-  copy-include-files)
+  copy-include-files
+  copy-sample-files)
