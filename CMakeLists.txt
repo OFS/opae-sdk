@@ -63,7 +63,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
-
+find_package(Doxygen)
+find_package(Threads REQUIRED)
+find_package(Sphinx)
+include(dependency_notifier)
 ############################################################################
 ## Target configuration ####################################################
 ############################################################################
@@ -96,7 +99,6 @@ install(DIRECTORY common/include/safe_string
 option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
 mark_as_advanced(BUILD_SPHINX_DOC)
 
-find_package(Doxygen)
 if (DOXYGEN_FOUND)
   add_subdirectory(doc)
 endif()
@@ -114,21 +116,7 @@ if(BUILD_LIBOPAE_C)
 endif()
 
 add_subdirectory(platforms)
-add_subdirectory(tools/userclk)
-add_subdirectory(tools/fpgad)
-add_subdirectory(tools/ras)
-add_subdirectory(tools/mmlink)
-add_subdirectory(tools/coreidle)
-add_subdirectory(tools/fpgaconf)
-add_subdirectory(tools/fpgabist)
-add_subdirectory(tools/fpgaflash)
-add_subdirectory(tools/fpgainfo)
-add_subdirectory(tools/c++utils)
-add_subdirectory(tools/libopae++)
-add_subdirectory(tools/fpgadiag)
-add_subdirectory(tools/fpgaport)
-add_subdirectory(tools/hssi)
-add_subdirectory(tools/packager)
+add_subdirectory(tools)
 
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
@@ -141,7 +129,6 @@ if (NOT BUILD_ASE AND NOT BUILD_LIBOPAE_C)
   message(FATAL_ERROR "Not building any OPAE libraries")
 endif()
 
-find_package(Threads REQUIRED)
 
 ############################################################################
 ## Add 'samples' ###########################################################
@@ -232,6 +219,7 @@ define_pkg(tools
   toolfpgainfo
   toolfpgaport
   toolpackager
+  jsonschema
   opaecxxutils
   opaecxxlib
   opaecxxnlb
@@ -373,3 +361,4 @@ if(EXISTS ${RPMBUILD_EXECUTABLE})
     COMMAND ${RPMBUILD_EXECUTABLE} -bb libopae-all.spec
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif(EXISTS ${RPMBUILD_EXECUTABLE})
+
