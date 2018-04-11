@@ -108,10 +108,7 @@ endif(NUMA_LIB)
 install(PROGRAMS fpgadiag
     DESTINATION bin
     COMPONENT toolfpgadiag)
-install(TARGETS opae-c++-nlb
-    LIBRARY DESTINATION lib
-    COMPONENT opaecxxnlb)
-install(TARGETS ${binaries}
-    RUNTIME DESTINATION bin
-    COMPONENT toolfpgadiagapps)
 
+install(TARGETS opae-c++-nlb
+   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+   COMPONENT opaecxxnlb)
