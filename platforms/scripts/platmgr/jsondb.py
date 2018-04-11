@@ -289,6 +289,11 @@ class jsondb(object):
                 ("Unsupported {0} interface dictionary version " +
                  "{1} ({2})").format(self.db_category, db['version'], fname))
 
+        # Add empty global list of preprocessor variables to define
+        # if not present.
+        if ('define' not in db):
+            db['define'] = []
+
         # Make sure AFU has a 'platform-shim-module-name'
         if (self.db_category == 'AFU'):
             if ('platform-shim-module-name' not in db):
