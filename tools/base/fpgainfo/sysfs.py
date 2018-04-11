@@ -31,14 +31,18 @@ import os
 import re
 import uuid
 
-pattern = ('.*/\d+:(?P<bus>\w{2}):'
-           '(?P<device>\d{2})\.(?P<function>\d).*')
+pattern = (r'.*/\d+:(?P<bus>\w{2}):'
+           r'(?P<device>\d{2})\.(?P<function>\d).*')
 bdf_pattern = re.compile(pattern)
 
 ROOT_PATH = '/sys/class/fpga'
 FPGA_DEVICE = os.path.join(ROOT_PATH, 'intel-fpga-dev.{instance_id}')
 FME_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-fme.{instance_id}')
 PORT_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-port.{instance_id}')
+
+MAJOR_VER = -15
+MINOR_VER = -14
+PATCH_VER = -13
 
 DCP_ID = 0x09c4
 
@@ -172,6 +176,7 @@ class sysfs_node(object):
         print('{:22} : 0x{:02X}'.format('Bus', self.bus))
         print('{:22} : 0x{:02X}'.format('Device', self.device))
         print('{:22} : 0x{:02X}'.format('Function', self.function))
+        print('{:22} : 0x{:04X}'.format('Device Id', self.device_id))
 
         prop_values = [(k, v) for k, v in self.enum_props(as_string=True)]
         if props:
@@ -193,7 +198,7 @@ class sysfs_node(object):
         for k, v in prop_values:
             if v is not None:
                 value = kwargs.get(k)(v) if k in kwargs else v
-                subbed = re.sub('[_\.]', ' ', k)
+                subbed = re.sub(r'[_\.]', ' ', k)
                 label = ' '.join([_.capitalize() for _ in subbed.split()])
                 print(u'{:22} : {}'.format(label, value))
 
@@ -360,7 +365,22 @@ class fme_info(sysfs_resource):
 
     @property
     def version(self):
-        return self.read_sysfs("version")
+        if self.device_id != DCP_ID:
+            return self.read_sysfs("version")
+
+    @property
+    def fim_version(self):
+        """This function formats bitstream_id majorver, minorver, patchver
+           to fim version format
+        bitstream_id format contains 0x followed by a number string
+        this is not 0 filled so index needs to be right aligned
+        >>> obj.fim_version
+        '1.1.2'
+        """
+        bitstr_id = self.read_sysfs("bitstream_id")
+        vers = '.'.join([bitstr_id[MAJOR_VER], bitstr_id[MINOR_VER],
+                        bitstr_id[PATCH_VER]])
+        return vers
 
     @property
     def ports_num(self):
@@ -372,13 +392,11 @@ class fme_info(sysfs_resource):
 
     @property
     def bitstream_id(self):
-        if self.device_id != DCP_ID:
-            return self.read_sysfs("bitstream_id")
+        return self.read_sysfs("bitstream_id")
 
     @property
     def bitstream_metadata(self):
-        if self.device_id != DCP_ID:
-            return self.read_sysfs("bitstream_metadata")
+        return self.read_sysfs("bitstream_metadata")
 
 
 class port_info(sysfs_resource):
