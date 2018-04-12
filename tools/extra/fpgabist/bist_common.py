@@ -53,8 +53,8 @@ def check_required_cmds():
 
 # Return a list of all available bus numbers
 def get_all_fpga_bdfs():
-    pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'
-               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
+    pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'  #pylint: disbale=W605
+               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')  
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
@@ -68,7 +68,7 @@ def get_all_fpga_bdfs():
 
 
 def get_bdf_from_args(args):
-    pattern = ('(?P<bus>[a-fA-F0-9]{2}):'
+    pattern = ('(?P<bus>[a-fA-F0-9]{2}):'  #pylint: disbale=W605
                '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
     pattern += vars(args)['device_id']
     bdf_pattern = re.compile(pattern)
