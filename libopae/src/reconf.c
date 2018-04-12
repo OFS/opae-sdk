@@ -135,17 +135,13 @@ static fpga_result validate_bitstream(fpga_handle handle,
 	}
 }
 
+
 static fpga_result read_port_error(char *errpath, char *path, uint64_t *error)
 {
 	snprintf_s_ss(errpath, SYSFS_PATH_MAX, "%s/%s", path, PORT_SYSFS_ERRORS);
 	return sysfs_read_u64(errpath, error);
 }
 
-static fpga_result clear_error(char *errpath, char *path, uint64_t error)
-{
-	snprintf_s_ss(errpath, SYSFS_PATH_MAX, "%s/%s", path, PORT_SYSFS_ERR_CLEAR);
-	return sysfs_write_u64(errpath, error);
-}
 
 // clears port errors
 static fpga_result clear_port_errors(fpga_handle handle)
@@ -167,13 +163,15 @@ static fpga_result clear_port_errors(fpga_handle handle)
 		FPGA_ERR("Failed to get port errors");
 		return result;
 	}
+
 	// Check if errors exsist
 	if (error != 0) {
 		FPGA_ERR("Port Errors found");
 	}
 
 	// Clear port error.
-	result = clear_error(syfs_errpath, syfs_path, error);
+	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
+	result = sysfs_write_u64(syfs_errpath, error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors");
 		return result;
