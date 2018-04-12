@@ -185,7 +185,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
 set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
 set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
-
+set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 #Hashing the package components
  if(HASH_ARCHIVES)
   set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
@@ -261,7 +261,7 @@ define_pkg(devel
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
-  DEB_DEPENDS "uuid , json-c , opae-libs"
+  DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
   )
 
   define_pkg(libs
@@ -270,7 +270,7 @@ define_pkg(devel
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
-  DEB_DEPENDS "uuid , json-c"
+  DEB_DEPENDS "uuid-dev , libjson0"
   )
 
 #Binary DEB packaging
