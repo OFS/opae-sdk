@@ -8,7 +8,7 @@ Release:        @CPACK_PACKAGE_RELEASE@
 License:        @CPACK_RPM_PACKAGE_LICENSE@
 Group:          @CPACK_META_GROUP_NAME@
 Vendor:         @CPACK_PACKAGE_VENDOR@
-Prefix:		@CMAKE_INSTALL_PREFIX@
+Prefix:         @CMAKE_INSTALL_PREFIX@
 Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra, opae-ase
 Source0:        opae-0.13.0-1.tar.gz
 
