@@ -31,7 +31,7 @@ This package contains runtime libraries that support OPAE applications
 %package devel
 Summary:    OPAE headers, sample source and documentation
 Group:      devel
-Requires:   opae-libs , libuuid-devel , json-c-devel 
+Requires:   opae-libs , libuuid-devel , json-c 
 
 %description devel 
 This package contains OPAE headers, sample source and documentation
