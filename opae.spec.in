@@ -158,7 +158,7 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
+@CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
 
 %files ase
