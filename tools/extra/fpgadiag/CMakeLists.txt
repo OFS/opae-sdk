@@ -112,3 +112,7 @@ install(PROGRAMS fpgadiag
 install(TARGETS opae-c++-nlb
    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
    COMPONENT opaecxxnlb)
+
+install(TARGETS ${binaries}	
+    RUNTIME DESTINATION bin	
+    COMPONENT toolfpgadiagapps)
