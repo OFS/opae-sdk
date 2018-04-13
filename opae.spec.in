@@ -67,7 +67,7 @@ This package contains OPAE AFU Simulation Environment
 # We do only save CPack installed tree in _prepr
 # and then restore it in build.
 %prep
-mv $RPM_BUILD_ROOT %_topdir/tmpBBroot
+mv $RPM_BUILD_ROOT %_topdir/tmpBRoot
 
 %build
 
@@ -76,7 +76,7 @@ if [ -e $RPM_BUILD_ROOT ];
 then
   rm -rf $RPM_BUILD_ROOT
 fi
-mv %_topdir/tmpBBroot $RPM_BUILD_ROOT
+mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 
 %clean
 
@@ -123,17 +123,10 @@ ldconfig
 
 %files tools
 %defattr(-,root,root,-)
-@CMAKE_INSTALL_PREFIX@/bin/fpga_fmeinfo.py
-@CMAKE_INSTALL_PREFIX@/bin/fpga_portinfo.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
-@CMAKE_INSTALL_PREFIX@/bin/fpgaerr.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
-@CMAKE_INSTALL_PREFIX@/bin/fpgapwr.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
-@CMAKE_INSTALL_PREFIX@/bin/sysfs.py
-@CMAKE_INSTALL_PREFIX@/bin/fpgatemp.py
-@CMAKE_INSTALL_PREFIX@/bin/fpga_common.py
 
 
 %files tools-extra
@@ -156,6 +149,10 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
+%dir @CMAKE_INSTALL_PREFIX@/share/opae
+%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
+%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
+%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
 %files ase
 %defattr(-,root,root,-)
@@ -170,3 +167,4 @@ ldconfig
 
 
 %changelog
+

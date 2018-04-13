@@ -63,7 +63,7 @@ def errorExit(msg):
 #        starting with the discrete platform's 1.1 release.  The
 #        hw/lib directory is ${OPAE_PLATFORM_ROOT}/hw/lib.
 #
-def getHWLibPath(args):
+def getHWLibPath():
     if (args.lib is not None):
         hw_lib_dir = args.lib
     elif ('BBS_LIB_PATH' in os.environ):
@@ -85,10 +85,50 @@ def getHWLibPath(args):
     return hw_lib_dir
 
 
+#
+# Construct environment variables for a subprocess based on command line
+# arguments.
+#
+def getCmdEnv():
+    env = os.environ
+
+    # Done if caller did not specify a non-standard library path.
+    if (args.lib is None and 'BBS_LIB_PATH' not in os.environ):
+        return env
+
+    hw_lib_dir = getHWLibPath()
+
+    # Define platform_db search path
+    plat_db = os.path.join(hw_lib_dir, 'platform', 'platform_db')
+    if (os.path.exists(plat_db)):
+        env = updCmdEnv(env, 'OPAE_PLATFORM_DB_PATH', plat_db)
+
+    # Define afu_top_ifc_db search path
+    ifc_db = os.path.join(hw_lib_dir, 'platform', 'afu_top_ifc_db')
+    if (os.path.exists(ifc_db)):
+        env = updCmdEnv(env, 'OPAE_AFU_TOP_IFC_DB_PATH', ifc_db)
+
+    return env
+
+
+# Update a platform db search path in env
+def updCmdEnv(env, key, value):
+    if (key not in env):
+        env[key] = value
+    else:
+        # Key already present.  The search list is colon separated.  Add the
+        # new value if it wasn't already added.
+        p = env[key].split(':')
+        if (p[-1] != value):
+            env[key] = env[key] + ':' + value
+
+    return env
+
+
 # Run a command and get the output
 def commands_list_getoutput(cmd, cwd=None):
     try:
-        byte_out = subprocess.check_output(cmd, cwd=cwd)
+        byte_out = subprocess.check_output(cmd, cwd=cwd, env=getCmdEnv())
         str_out = byte_out.decode()
     except OSError as e:
         if e.errno == os.errno.ENOENT:
@@ -165,7 +205,7 @@ def copy_build_env(hw_lib_dir, dst, force):
 #
 # Configure the build environment
 #
-def setup_build(args):
+def setup_build():
     # Does the sources file exist?
     if (not os.path.exists(args.sources)):
         errorExit("Sources file {0} not found.".format(args.sources))
@@ -225,7 +265,7 @@ def setup_build(args):
         cmd.append(args.platform)
     else:
         # Get the platform from the release
-        plat_class_file = os.path.join(getHWLibPath(args),
+        plat_class_file = os.path.join(getHWLibPath(),
                                        'fme-platform-class.txt')
         with open(plat_class_file) as f:
             cmd.append(f.read().strip())
@@ -238,11 +278,11 @@ def setup_build(args):
     subprocess.check_call(cmd, cwd=build_dir)
 
     # Handle Qsys IPX file discovery
-    setup_build_ipx(args, sources, build_dir)
+    setup_build_ipx(sources, build_dir)
 
 
 # Construct the Qsys components.ipx file in the build directory, if needed.
-def setup_build_ipx(args, sources, build_dir):
+def setup_build_ipx(sources, build_dir):
     # Get IPX files from source list
     cmd = ['rtl_src_config']
     cmd.append('--ipx')
@@ -299,13 +339,14 @@ def main():
                         help="""Target directory path (directory must
                                 not exist).""")
 
+    global args
     args = parser.parse_args()
 
     # Where is the base environment
-    hw_lib_dir = getHWLibPath(args)
+    hw_lib_dir = getHWLibPath()
 
     copy_build_env(hw_lib_dir, args.dst, args.force)
-    setup_build(args)
+    setup_build()
 
 
 if __name__ == '__main__':
