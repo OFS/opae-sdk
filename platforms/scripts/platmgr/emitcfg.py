@@ -161,8 +161,8 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f.write("`ifndef __PLATFORM_AFU_TOP_CONFIG_VH__\n" +
             "`define __PLATFORM_AFU_TOP_CONFIG_VH__\n\n")
 
-    f.write("`define PLATFORM_CLASS_NAME " +
-            platform_db['platform-name'] + "\n")
+    f.write("`define PLATFORM_CLASS_NAME \"" +
+            platform_db['platform-name'].upper() + "\"\n")
     f.write("`define PLATFORM_CLASS_NAME_IS_" +
             platform_db['platform-name'].upper() + " 1\n\n")
 
