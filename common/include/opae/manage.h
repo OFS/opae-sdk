@@ -120,11 +120,16 @@ fpga_result fpgaReleaseFromInterface(fpga_handle fpga,
  * @param[in]  slot           Token identifying the slot to reconfigure
  * @param[in]  bitstream      Pointer to memory holding the bitstream
  * @param[in]  bitstream_len  Length of the bitstream in bytes
- * @param[in]  flags          Flags (to be defined)
+ * @param[in]  flags          Flags that control behavior of reconfiguration
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if the provided parameters
  * are not valid. FPGA_EXCEPTION if an internal error occurred accessing the
- * handle or while sending the bitstream data to the driver. FPGA_RECONF_ERROR
- * on errors reported by the driver (such as CRC or protocol errors).
+ * handle or while sending the bitstream data to the driver. FPGA_BUSY if the
+ * accelerator for the given slot is in use. FPGA_RECONF_ERROR on errors
+ * reported by the driver (such as CRC or protocol errors).
+ *
+ * @note By default, fpgaReconfigureSlot will not allow reconfiguring a slot
+ * with an accelerator in use. Add the flag FPGA_RECONF_FORCE to force
+ * reconfiguration without checking for accelerators in use.
  */
 fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				uint32_t slot,

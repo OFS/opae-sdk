@@ -39,7 +39,8 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "opae/manage.h"
-#include "opae/manage.h"
+#include "opae/enum.h"
+#include "opae/properties.h"
 #include "bitstream_int.h"
 #include "common_int.h"
 #include "intel-fpga.h"
@@ -131,6 +132,74 @@ static fpga_result validate_bitstream(fpga_handle handle,
 		return check_interface_id(handle, bts_hdr.magic, bts_hdr.ifid_l,
 						bts_hdr.ifid_h);
 	}
+}
+
+
+// determine if ports for fpga are busy
+static fpga_result port_busy(fpga_handle handle){
+	fpga_result result                = FPGA_OK;
+	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
+	fpga_token token;
+	fpga_properties props;
+	fpga_handle accelerator_handle;
+	uint32_t matches = 0;
+
+	if (_handle == NULL) {
+		FPGA_ERR("Invalid handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_handle->token == NULL) {
+		FPGA_ERR("Invalid token within handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = fpgaGetProperties(NULL, &props);
+	if (result != FPGA_OK) return result;
+
+	result = fpgaPropertiesSetParent(props, _handle->token);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error setting parent in properties.");
+		goto free_props;
+	}
+
+	// TODO: Use slot number as part of filter
+	//       We only want to query for accelerators for the
+	//       slot being reconfigured
+	result = fpgaEnumerate(&props, 1, &token, 1, &matches);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error enumerating while reconfiguring");
+		goto free_props;
+	}
+
+	if (0 == matches) {
+		FPGA_ERR("No accelerators found while reconfiguring.");
+		result = FPGA_BUSY;
+		goto destroy_token;
+	}
+
+	result = fpgaOpen(token, &accelerator_handle, 0);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Could not open accelerator for given slot.");
+		goto destroy_token;
+	}
+	result = fpgaClose(&accelerator_handle);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error closing accelerator.");
+		goto destroy_token;
+	}
+
+
+destroy_token:
+	result = fpgaDestroyToken(&token);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error destroying a token.");
+	}
+
+free_props:
+	result = fpgaDestroyProperties(&props);
+
+	return result;
 }
 
 
@@ -293,6 +362,13 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	result = clear_port_errors(fpga);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors.");
+	}
+
+	if (!(flags & FPGA_RECONF_FORCE)) {
+		result = port_busy(fpga);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Port device(s) may be in use.");
+		}
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
