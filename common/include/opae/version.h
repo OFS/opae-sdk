@@ -39,9 +39,7 @@ extern "C" {
  * Retrieve major version, minor version, and revision information about the
  * OPAE library.
  *
- * @param[out]  major  Major version
- * @param[out]  minor  Minor version
- * @param[out]  rev    Revision
+ * @param[out]  version  FPGA version
  * @returns FPGA_INVALID_PARAM if any of the output parameters is NULL, FPGA_OK
  * otherwise.
  */

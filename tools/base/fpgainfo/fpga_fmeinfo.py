@@ -32,6 +32,7 @@ import sysfs
 class fme_command(fpga_common.fpga_command):
     name = "fme"
     properties = ['version',
+                  'fim_version',
                   'ports_num',
                   'socket_id',
                   'bitstream_id',

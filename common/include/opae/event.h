@@ -82,7 +82,7 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle);
  * subscribe and unsubscribe to events. On Linux, the obkect corresponds
  * to a file descriptor.
  *
- * @param[in] event_handle Event handle to get the descriptor value from
+ * @param[in] eh Event handle to get the descriptor value from
  * @param[out] fd integer to store the descriptor value
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if `event_handle` is invalid.
