@@ -1,7 +1,7 @@
-// $File: //acds/rel/17.0/ip/sopc/components/altera_avalon_dc_fifo/altera_dcfifo_synchronizer_bundle.v $
+// $File: //acds/rel/18.0/ip/sopc/components/altera_avalon_dc_fifo/altera_dcfifo_synchronizer_bundle.v $
 // $Revision: #1 $
-// $Date: 2017/02/12 $
-// $Author: swbranch $
+// $Date: 2018/02/08 $
+// $Author: psgswbuild $
 //-------------------------------------------------------------------------------
 
 `timescale 1 ns / 1 ns

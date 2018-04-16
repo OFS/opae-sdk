@@ -92,8 +92,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
-                    ${OPAE_SDK_SOURCE}/tools/libopae++
-                    ${OPAE_SDK_SOURCE}/tools/c++utils)
+                    ${OPAE_SDK_SOURCE}/tools/extra/libopae++
+                    ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
     set(COMMON_SRC gtmain.cpp jsonParser.cpp
                 unit/gtOpenClose_base.cpp
@@ -115,7 +115,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
                 function/gtMMIO.cpp
-                function/gtOpenClose.cpp)
+                function/gtVersion.cpp
+                function/gtOpenClose.cpp
+		function/gtGetProperties.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)

@@ -24,6 +24,29 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+/**
+ * @file hello_fpga.c
+ * @brief A code sample illustrates the basic usage of the OPAE C API.
+ *
+ * The sample is a host application that demonstrates the basic steps of
+ * interacting with FPGA using the OPAE library. These steps include:
+ *
+ *  - FPGA enumeration
+ *  - Resource acquiring and releasing
+ *  - Managing shared memory buffer
+ *  - MMIO read and write
+ *
+ * The sample also demonstrates OPAE's object model, such as tokens, handles,
+ * and properties.
+ *
+ * The sample requires a native loopback mode (NLB) test image to be loaded on
+ * the FPGA. Refer to
+ * <a href="https://opae.github.io/docs/fpga_api/quick_start/readme.html">Quick
+ * Start Guide</a> for full instructions on building, configuring, and running
+ * this code sample.
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -85,6 +108,9 @@ void print_err(const char *s, fpga_result res)
 
 int main(int argc, char *argv[])
 {
+
+	char               library_version[FPGA_VERSION_STR_MAX];
+	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_properties    filter = NULL;
 	fpga_token         accelerator_token;
 	fpga_handle        accelerator_handle;
@@ -115,6 +141,12 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	}
+
+	/* Print version information of the underlying library */
+	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
+	fpgaGetOPAECBuildString(library_build, sizeof(library_build));
+	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
+	       library_build);
 
 	if (uuid_parse(NLB0_AFUID, guid) < 0) {
 		fprintf(stderr, "Error parsing guid '%s'\n", NLB0_AFUID);

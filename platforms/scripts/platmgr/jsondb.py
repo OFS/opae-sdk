@@ -289,6 +289,11 @@ class jsondb(object):
                 ("Unsupported {0} interface dictionary version " +
                  "{1} ({2})").format(self.db_category, db['version'], fname))
 
+        # Add empty global list of preprocessor variables to define
+        # if not present.
+        if ('define' not in db):
+            db['define'] = []
+
         # Make sure AFU has a 'platform-shim-module-name'
         if (self.db_category == 'AFU'):
             if ('platform-shim-module-name' not in db):
@@ -369,6 +374,15 @@ class jsondb(object):
                         ("module port class '{0}:{1}' max-entries " +
                          "must be >= min-entries in {2}").format(
                              port['class'], port['interface'], fname))
+
+            # *** Clean up legacy AFU JSON ***
+
+            # 'add-extra-timing-reg-stages' -> 'add-timing-reg-stages'
+            if ('params' in port):
+                params = port['params']
+                if ('add-extra-timing-reg-stages' in params):
+                    params['add-timing-reg-stages'] = \
+                        params.pop('add-extra-timing-reg-stages')
 
     #
     # Validate a platform defaults database and add some default fields

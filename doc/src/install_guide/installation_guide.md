@@ -181,58 +181,106 @@ by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
 Please see Quick Start Guide on how to run the hello\_fpga sample to verify
 libopae-c & driver are built correctly.
 
-## Building OPAE SDK rpm packages from the source ##
+## Building OPAE SDK rpm and deb packages from the source ##
 In addition to building and installation from the source, users can also
-generate rpm packages for the SDK. The generated rpm packages can then be
+generate rpm and deb packages for the SDK. The generated packages can then be
 distributed to other users for easy installation. The advantage of this approach
 is that the other users do not need to have the build toolchain on their
 systems to install the OPAE SDK.
 
-Follow the instructions in the previous steps. But in the last step, instead of 
-`make install`, do 
+* To build rpm packages follow these steps:
 
 ```console
-$ make package
+$ cd opae-sdk-<release>
+$ mkdir mybuild
+$ cd mybuild
+$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ make package_rpm
 ```
-
-This will generate the following rpm packages. The names of the packages may be
-different, depending on the cmake version used.
-
-* If cmake version is between 2.8.12 and 3.0.0:
-```console
-opae-<release>-1.x86_64-libs.rpm    (libopae-c and samples)
-opae-<release>-1.x86_64-tools.rpm   (tools)
-opae-<release>-1.x86_64-devel.rpm   (headers)
-opae-<release>-1.x86_64-ase.rpm     (libopae-c-ase)
+.. note::
 ```
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+```
+This will generate the following rpm packages. 
 
-* If cmake version is 3.0.0 and above:
 ```console
-opae-libs-<release>-1.x86_64.rpm    (libopae-c and samples)
-opae-tools-<release>-1.x86_64.rpm   (tools)
-opae-devel-<release>-1.x86_64.rpm   (headers)
-opae-ase-<release>-1.x86_64.rpm     (libopae-c-ase)
+opae-<release>-1.x86_64.rpm               (meta package)
+opae-libs-<release>-1.x86_64.rpm          (libopae-c and samples)
+opae-tools-<release>-1.x86_64.rpm         (base tools)
+opae-tools-extra-<release>-1.x86_64.rpm   (extra tools)
+opae-devel-<release>-1.x86_64.rpm         (headers)
+opae-ase-<release>-1.x86_64.rpm           (libopae-c-ase)
 ```
 
 ## OPAE SDK installation with rpm packages ##
 The rpm packages generated in the previous step can be installed
-using these commands (This example assumes the cmake version used to generate
-these packages was 2.8.12):
+using these commands:
 
 ```console
-$ sudo yum install opae-<release>-1.x86_64-libs.rpm
-$ sudo yum install opae-<release>-1.x86_64-tools.rpm
-$ sudo yum install opae-<release>-1.x86_64-devel.rpm
-$ sudo yum install opae-<release>-1.x86_64-ase.rpm
+$ sudo yum install opae-<release>-1.x86_64.rpm
+$ sudo yum install opae-libs-<release>-1.x86_64.rpm
+$ sudo yum install opae-tools-<release>-1.x86_64.rpm
+$ sudo yum install opae-tools-extra-<release>-1.x86_64.rpm
+$ sudo yum install opae-devel-<release>-1.x86_64.rpm
+$ sudo yum install opae-ase-<release>-1.x86_64.rpm
 ```
 
 To uninstall:
 
 ```console
-$ sudo yum remove opae-<release>-1.x86_64-libs
-$ sudo yum remove opae-<release>-1.x86_64-tools
-$ sudo yum remove opae-<release>-1.x86_64-devel
-$ sudo yum remove opae-<release>-1.x86_64-ase
+$ sudo yum remove opae
+$ sudo yum remove opae-libs
+$ sudo yum remove opae-tools
+$ sudo yum remove opae-tools-extra
+$ sudo yum remove opae-devel
+$ sudo yum remove opae-ase
+```
+
+
+* For generating deb packages, cmake version 3.0.0 and above is required.
+To build deb packages follow these steps:
+
+```console
+$ cd opae-sdk-<release>
+$ mkdir mybuild
+$ cd mybuild
+$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ make package_deb
+```
+.. note::
+```
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+```
+This will generate the following deb packages.
+
+```console
+opae-<release>-1.x86_64-libs.deb          (libopae-c and samples)
+opae-<release>-1.x86_64-tools.deb         (tools)
+opae-<release>-1.x86_64-tools-extra.deb   (tools)
+opae-<release>-1.x86_64-devel.deb         (headers)
+opae-<release>-1.x86_64-ase.deb           (libopae-c-ase)
+```
+
+## OPAE SDK installation with deb packages ##
+The deb packages generated in the previous step can be installed
+using these commands:
+
+```console
+$ sudo dpkg -i opae-<release>-1.x86_64-libs.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-tools.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-tools-extra.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-devel.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-ase.deb
+```
+
+To uninstall:
+
+```console
+$ sudo dpkg -r opae-libs
+$ sudo dpkg -r opae-tools
+$ sudo dpkg -r opae-tools-extra
+$ sudo dpkg -r opae-devel
+$ sudo dpkg -r opae-ase
 ```
 
 ## FPGA Device Access Permissions ##
