@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,45 +24,17 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+# ASE samples
+
 cmake_minimum_required(VERSION 2.8.12)
+project("opae-c-ase-samples")
 
-project("opae-c-ase")
-find_package(Threads  REQUIRED)
-set(API_DIR ${PROJECT_SOURCE_DIR})
-set(ASEAPI_SRC
-  ${API_DIR}/../sw/tstamp_ops.c
-  ${API_DIR}/../sw/ase_ops.c
-  ${API_DIR}/../sw/ase_strings.c
-  ${API_DIR}/../sw/app_backend.c
-  ${API_DIR}/../sw/mqueue_ops.c
-  ${API_DIR}/../sw/error_report.c
-  ${API_DIR}/src/common.c
-  ${API_DIR}/src/buffer.c
-  ${API_DIR}/src/close.c
-  ${API_DIR}/src/enum.c
-  ${API_DIR}/src/event.c
-  ${API_DIR}/src/manage.c
-  ${API_DIR}/src/reconf.c
-  ${API_DIR}/src/mmio.c
-  ${API_DIR}/src/open.c
-  ${API_DIR}/src/umsg.c)
+include(intel_fpga_bbb)
+include(ase_add_modelsim)
 
-add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase rt safestr)
+Build_Intel_FPGA_BBB()
+include_directories(base/sw)
 
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
-target_include_directories(opae-c-ase PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
-
-set_target_properties(opae-c-ase PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-install(TARGETS opae-c-ase
-  LIBRARY DESTINATION lib
-  COMPONENT opaecase)
+add_subdirectory(intg_xeon_nlb)
+add_subdirectory(hello_world)
+add_subdirectory(hello_world_mpf)

@@ -208,4 +208,9 @@ cscope.po.out
 
 # Studio Code
 .vscode/
+
+# Idea
+.idea/
+cmake-build-debug/
+
 # End of https://www.gitignore.io/api/c,c++,tags,cmake

@@ -71,12 +71,12 @@ include(dependency_notifier)
 ## set libs install location ###################################################
 ############################################################################
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
     set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
 else()
     set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
-endif() 
+endif()
 
 ############################################################################
 ## Target configuration ####################################################
@@ -127,12 +127,15 @@ if(BUILD_LIBOPAE_C)
 endif()
 
 add_subdirectory(platforms)
-add_subdirectory(tools)
+option(BUILD_TOOLS "Enable TOOLS compilation" ON)
+mark_as_advanced(BUILD_TOOLS)
+if(BUILD_TOOLS)
+  add_subdirectory(tools)
+endif()
 
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
 if(BUILD_ASE)
-  add_subdirectory(ase/api)
   add_subdirectory(ase)
 endif()
 
@@ -399,4 +402,3 @@ add_custom_target(package_deb
   COMMAND ${CMAKE_CPACK_COMMAND}
   )
   include(CPack)
-
