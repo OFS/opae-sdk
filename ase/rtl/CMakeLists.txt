@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,44 +25,23 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
+project("opae-c-ase-server-rtl")
+include(ase_variables_config)
 
-project("opae-c-ase")
-find_package(Threads  REQUIRED)
-set(API_DIR ${PROJECT_SOURCE_DIR})
-set(ASEAPI_SRC
-  ${API_DIR}/../sw/tstamp_ops.c
-  ${API_DIR}/../sw/ase_ops.c
-  ${API_DIR}/../sw/ase_strings.c
-  ${API_DIR}/../sw/app_backend.c
-  ${API_DIR}/../sw/mqueue_ops.c
-  ${API_DIR}/../sw/error_report.c
-  ${API_DIR}/src/common.c
-  ${API_DIR}/src/buffer.c
-  ${API_DIR}/src/close.c
-  ${API_DIR}/src/enum.c
-  ${API_DIR}/src/event.c
-  ${API_DIR}/src/manage.c
-  ${API_DIR}/src/reconf.c
-  ${API_DIR}/src/mmio.c
-  ${API_DIR}/src/open.c
-  ${API_DIR}/src/umsg.c)
+# Altera simulation libraries
+configure_file(${PROJECT_SOURCE_DIR}/sources_quartus_libs.txt
+  ${PROJECT_BINARY_DIR}/sources_quartus_libs.txt @ONLY)
 
-add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase rt safestr)
+# ASE server Verilog code
+configure_file(${PROJECT_SOURCE_DIR}/sources_ase_server.txt
+  ${PROJECT_BINARY_DIR}/sources_ase_server.txt)
 
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
-target_include_directories(opae-c-ase PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
-
-set_target_properties(opae-c-ase PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-install(TARGETS opae-c-ase
-  LIBRARY DESTINATION lib
-  COMPONENT opaecase)
+# Installation targets
+if(NOT ASE_POST_INSTALL)
+  install(FILES ${PROJECT_BINARY_DIR}/sources_quartus_libs.txt
+    DESTINATION ${ASE_SHARE_DIR}/rtl
+    COMPONENT aseextra)
+  install(FILES ${PROJECT_BINARY_DIR}/sources_ase_server.txt
+    DESTINATION ${ASE_SHARE_DIR}/rtl
+    COMPONENT aseextra)
+endif()
