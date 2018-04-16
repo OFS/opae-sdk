@@ -136,7 +136,8 @@ static fpga_result validate_bitstream(fpga_handle handle,
 
 
 // determine if ports for fpga are busy
-static fpga_result port_busy(fpga_handle handle){
+static fpga_result port_busy(fpga_handle handle)
+{
 	fpga_result result                = FPGA_OK;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
 	fpga_token token;
@@ -155,7 +156,8 @@ static fpga_result port_busy(fpga_handle handle){
 	}
 
 	result = fpgaGetProperties(NULL, &props);
-	if (result != FPGA_OK) return result;
+	if (result != FPGA_OK)
+		return result;
 
 	result = fpgaPropertiesSetParent(props, _handle->token);
 	if (result != FPGA_OK) {
