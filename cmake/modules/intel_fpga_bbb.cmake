@@ -32,17 +32,34 @@ function (Build_Intel_FPGA_BBB)
   # Enable ExternalProject CMake module
   include(ExternalProject)
 
-  # Download and install GoogleTest
-  ExternalProject_Add(
-    intel-fpga-bbb
-    GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
-    GIT_TAG "bed3dcb"
-    UPDATE_COMMAND ""
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
-    CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    # Disable install step
-    INSTALL_COMMAND "")
-
+  # Download Intel BBB repository
+  set(GCOV_COMPILE_FLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage")
+  set(GCOV_LINK_FLAGS "-lgcov")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCOV_COMPILE_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCOV_LINK_FLAGS}")
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    ExternalProject_Add(
+      intel-fpga-bbb
+      GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
+      GIT_TAG "bed3dcb"
+      UPDATE_COMMAND ""
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
+      CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
+      # Disable install step
+      INSTALL_COMMAND "")
+  else()
+    ExternalProject_Add(
+      intel-fpga-bbb
+      GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
+      GIT_TAG "bed3dcb"
+      UPDATE_COMMAND ""
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
+      CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      # Disable install step
+      INSTALL_COMMAND "")
+  endif()
   set (mpf_root "${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb/BBB_cci_mpf/sw")
   message(STATUS "MPF locatet at: ${mpf_root}")
 
