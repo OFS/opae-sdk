@@ -341,8 +341,6 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	uint64_t deviceid               = 0;
 	int err                         = 0;
 
-	UNUSED_PARAM(flags);
-
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
@@ -360,17 +358,20 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		goto out_unlock;
 	}
 
-	// Clear port errors
-	result = clear_port_errors(fpga);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to clear port errors.");
-	}
-
+	// error out if "force" flag is NOT indicated
+	// and the resource is in use
 	if (!(flags & FPGA_RECONF_FORCE)) {
 		result = port_busy(fpga);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Port device(s) may be in use.");
+			goto out_unlock;
 		}
+	}
+
+	// Clear port errors
+	result = clear_port_errors(fpga);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to clear port errors.");
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
