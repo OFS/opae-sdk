@@ -294,10 +294,21 @@ inline bool token_is_afu0(fpga_token t) {
  * @brief      Enumeration for configuration parsing.
  */
 enum config_enum {
-	BITSTREAM_MODE0 = 0,
-	BITSTREAM_MODE3,
-	OPAE_INSTALL_PATH,
-	TEST_INSTALL_PATH
+    BITSTREAM_MODE0 = 0,
+    BITSTREAM_MODE3,
+    BITSTREAM_MODE7,
+    BITSTREAM_MMIO,
+    BITSTREAM_SIGTAP,
+    BITSTREAM_PR07,
+    BITSTREAM_PR08,
+    BITSTREAM_PR09,
+    BITSTREAM_PR10,
+    BITSTREAM_PR18,
+    BITSTREAM_NO_METADATA,
+    BITSTREAM_USR_CLK,
+    BITSTREAM_INVLAID_METADATA,
+    OPAE_INSTALL_PATH,
+    TEST_INSTALL_PATH
 };
 
 enum nlbmode { NLB_MODE_0 = 0, NLB_MODE_3 };

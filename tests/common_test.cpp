@@ -778,4 +778,129 @@ void BaseFixture::TestAllFPGA(fpga_objtype otype, bool loadbitstream,
   }
 }
 
+/**
+ * @brief      Runs a Gtest version of hello_fpga application sample
+ *             code.
+ *
+ * @param[in]  tok   The FPGA token
+ *
+ * @return     void  OPAE library codes are output to user and tests fail
+ *             on error.
+ */
+void sayHello(fpga_token tok) {
+  volatile uint64_t* dsm_ptr = NULL;
+  volatile uint64_t* status_ptr = NULL;
+  volatile uint64_t* input_ptr = NULL;
+  volatile uint64_t* output_ptr = NULL;
+
+  uint64_t dsm_wsid;
+  uint64_t input_wsid;
+  uint64_t output_wsid;
+
+  fpga_handle h = NULL;
+
+  /* Open accelerator and map MMIO */
+  EXPECT_TRUE(checkReturnCodes(fpgaOpen(tok, &h, 0), LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaMapMMIO(h, 0, NULL), LINE(__LINE__)));
+
+  /* Allocate buffers */
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaPrepareBuffer(h, LPBK1_DSM_SIZE, (void**)&dsm_ptr, &dsm_wsid, 0),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
+                                         (void**)&input_ptr, &input_wsid, 0),
+                       LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
+                                         (void**)&output_ptr, &output_wsid, 0),
+                       LINE(__LINE__)));
+
+  printf("Running Test\n");
+
+  /* Initialize buffers */
+  memset((void*)dsm_ptr, 0, LPBK1_DSM_SIZE);
+  memset((void*)input_ptr, 0xAF, LPBK1_BUFFER_SIZE);
+  memset((void*)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+
+  cache_line* cl_ptr = (cache_line*)input_ptr;
+  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+    cl_ptr[i].uint[15] = i + 1; /* set the last uint in every cacheline */
+  }
+
+  /* Reset accelerator */
+  EXPECT_TRUE(checkReturnCodes(fpgaReset(h), LINE(__LINE__)));
+
+  /* Program DMA addresses */
+  uint64_t iova;
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaGetIOAddress(h, dsm_wsid, &iova), LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO64(h, 0, CSR_AFU_DSM_BASEL, iova),
+                               LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 0), LINE(__LINE__)));
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 1), LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaGetIOAddress(h, input_wsid, &iova), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO64(h, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaGetIOAddress(h, output_wsid, &iova),
+                               LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO64(h, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO32(h, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1)),
+      LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CFG, 0x42000),
+                               LINE(__LINE__)));
+
+  status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE / 8;
+
+  /* Start the test */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 3), LINE(__LINE__)));
+
+  /* Wait for test completion */
+  while (0 == ((*status_ptr) & 0x1)) {
+    usleep(100);
+  }
+
+  /* Stop the device */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 7), LINE(__LINE__)));
+
+  /* Check output buffer contents */
+  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE; i++) {
+    if (((uint8_t*)output_ptr)[i] != ((uint8_t*)input_ptr)[i]) {
+      fprintf(stderr,
+              "Output does NOT match input "
+              "at offset %i!\n",
+              i);
+      break;
+    }
+  }
+
+  printf("Done Running Test\n");
+
+  /* Release buffers */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaReleaseBuffer(h, output_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaReleaseBuffer(h, input_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaReleaseBuffer(h, dsm_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaUnmapMMIO(h, 0), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+}
+
 }  // end namespace common_test
