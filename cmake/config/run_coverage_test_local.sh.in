@@ -28,6 +28,17 @@
 rm -rf coverage_${target_name}
 mkdir -p coverage_${target_name}
 ${test_command} ${ARGV2}
-find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
-find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+if [ "@COVERAGE_EXTRA@" = "1" ]; then
+  for i in @COVERAGE_EXTRA_COMPONENTS@
+  do
+    # add individual element of the array
+    find ${CMAKE_BINARY_DIR} -path "*$i.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+    find ${CMAKE_BINARY_DIR} -path "*$i.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+  done
+  find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+  find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+else
+  find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+  find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+fi
 echo "Finished running test."

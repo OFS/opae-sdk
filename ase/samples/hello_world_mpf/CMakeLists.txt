@@ -80,3 +80,13 @@ add_executable(cci_hello_world_mpf
   ${ASE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
   sw/cci_mpf_hello.cpp)
 target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+
+######################################################################
+# Test coverage ######################################################
+######################################################################
+
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  set(COVERAGE_EXTRA 1)
+  set(COVERAGE_EXTRA_COMPONENTS cci_hello_world_mpf intel-fpga-bbb)
+  set_target_for_coverage_local(opae-c-ase-server-cci_hello_world_mpf ${PROJECT_BINARY_DIR}/ase_server.sh)
+endif()
