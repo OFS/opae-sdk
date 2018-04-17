@@ -34,6 +34,8 @@ if [ "@COVERAGE_EXTRA@" = "1" ]; then
     # add individual element of the array
     find ${CMAKE_BINARY_DIR} -path "*$i.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
     find ${CMAKE_BINARY_DIR} -path "*$i.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+    find ${CMAKE_BINARY_DIR} -path "*$i-build*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
+    find ${CMAKE_BINARY_DIR} -path "*$i-build*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
   done
   find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcda" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
   find ${CMAKE_BINARY_DIR} -path "*${target_name}.dir*.gcno" | xargs -i cp {} ${CMAKE_BINARY_DIR}/coverage_${target_name}
