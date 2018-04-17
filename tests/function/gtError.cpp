@@ -100,7 +100,6 @@ TEST(LibopaecErrorCommonALL, error_02) {
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
     EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
-    EXPECT_FALSE(info.can_clear); // shouldn't be able to clear any FME errors
   }
 
 }

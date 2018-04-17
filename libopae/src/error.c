@@ -192,6 +192,15 @@ const char *errors_exclude[] = {
 };
 #define NUM_ERRORS_EXCLUDE (sizeof(errors_exclude) / sizeof(char *))
 
+/* files that can be cleared by writing their value to them */
+const char *errors_clearable[] = {
+	"pcie0_errors",
+	"pcie1_errors",
+	"warning_errors",
+	"inject_error"
+};
+#define NUM_ERRORS_CLEARABLE (sizeof(errors_clearable) / sizeof(char *))
+
 /* Walks the given directory and adds error entries to `list`.
  * This function is called during enumeration when adding tokens to
  * the global tokens list. When tokens are cloned, their error
@@ -272,15 +281,27 @@ build_error_list(const char *path, struct error_list **list)
 		strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
 		strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 		new_entry->next = NULL;
-		// see if error can be cleared (currently only errors called "errors" corresponding
-		// to a "clear" file can)
+		// Errors can be cleared:
+		//   * if the name is "errors" and there is a file called "clear" (generic case), OR
+		//   * if the name is in the "errors_clearable" table
 		new_entry->info.can_clear = false;
-		if (strcmp(de->d_name, "errors") == 0) {    // FIXME: SAFE
+		if (strcmp(de->d_name, "errors") == 0) {
 			strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
 			// try accessing clear file
 			if (lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
 				strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+			}
+		} else {
+			for (i = 0; i < NUM_ERRORS_CLEARABLE; i++) {
+				if (strcmp(de->d_name, errors_clearable[i]) == 0) {
+					strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX);
+					// try accessing clear file
+					if (lstat(basedir, &st) != -1) {
+						new_entry->info.can_clear = true;
+						strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+					}
+				}
 			}
 		}
 
