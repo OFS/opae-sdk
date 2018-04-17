@@ -23,19 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/mmio.h>
-#include <opae/utils.h>
+#include <opae/cxx/core/except.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
-#include <opae/cxx/core/except.h>
+#include <opae/mmio.h>
+#include <opae/utils.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h)
-    : handle_(h),
-      log_("handle")  {}
+handle::handle(fpga_handle h) : handle_(h) {}
 
 handle::~handle() { close(); }
 
@@ -89,12 +87,11 @@ void handle::write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space) {
   ASSERT_FPGA_OK(fpgaWriteMMIO64(handle_, csr_space, offset, value));
 }
 
-uint8_t * handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const
-{
+uint8_t *handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const {
   uint8_t *base = nullptr;
 
-  auto res = fpgaMapMMIO(handle_, csr_space,
-                         reinterpret_cast<uint64_t **>(&base));
+  auto res =
+      fpgaMapMMIO(handle_, csr_space, reinterpret_cast<uint64_t **>(&base));
 
   ASSERT_FPGA_OK(res);
   return base + offset;

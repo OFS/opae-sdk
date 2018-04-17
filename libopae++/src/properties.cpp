@@ -36,7 +36,6 @@ const std::vector<properties> properties::none = {};
 
 properties::properties()
     : props_(nullptr),
-      log_("properties"),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
@@ -65,7 +64,6 @@ properties::properties()
 
 properties::properties(const properties &p)
     : props_(nullptr),
-      log_("properties"),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
@@ -179,7 +177,6 @@ properties::~properties() {
 }
 
 properties::ptr_t properties::read(fpga_token tok) {
-  opae::fpga::internal::logger log("properties::read()");
   ptr_t p(new properties());
   ASSERT_FPGA_OK(fpgaGetProperties(tok, &p->props_));
   return p;

@@ -24,15 +24,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <type_traits>
-#include <iostream>
-#include <algorithm>
-#include <cstring>
-#include <uuid/uuid.h>
+#include <opae/cxx/core/except.h>
 #include <opae/properties.h>
 #include <opae/utils.h>
-#include <opae/cxx/core/log.h>
-#include <opae/cxx/core/except.h>
+#include <uuid/uuid.h>
+#include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <type_traits>
 
 namespace opae {
 namespace fpga {
@@ -43,13 +42,13 @@ namespace types {
 struct guid_t {
   /** Construct the guid_t given its containing fpga_properties.
    */
-  guid_t(fpga_properties *p) : props_(p), log_("guid_t"), is_set_(false) {}
+  guid_t(fpga_properties *p) : props_(p), is_set_(false) {}
 
   /** Update the local cached copy of the guid.
    */
   void update() {
-    fpga_result res = fpgaPropertiesGetGUID(*props_,
-            reinterpret_cast<fpga_guid *>(data_.data()));
+    fpga_result res = fpgaPropertiesGetGUID(
+        *props_, reinterpret_cast<fpga_guid *>(data_.data()));
     ASSERT_FPGA_OK(res);
     is_set_ = true;
   }
@@ -64,9 +63,7 @@ struct guid_t {
 
   /** Return a raw pointer to the guid.
    */
-  const uint8_t* get() const {
-      return data_.data();
-  }
+  const uint8_t *get() const { return data_.data(); }
 
   /** Assign from fpga_guid
    * Sets the guid field of the associated properties
@@ -98,7 +95,6 @@ struct guid_t {
     int u;
     is_set_ = false;
     if (0 != (u = uuid_parse(str, data_.data()))) {
-      log_.error() << "uuid_parse() failed with (" << u << ")";
       throw except(OPAECXX_HERE);
     }
     ASSERT_FPGA_OK(fpgaPropertiesSetGUID(*props_, data_.data()));
@@ -116,8 +112,7 @@ struct guid_t {
       uuid_unparse(guid_value, guid_str);
       ostr << guid_str;
     } else if (FPGA_NOT_FOUND == res) {
-      g.log_.debug() << "fpgaPropertiesGetGUID() returned (" << res
-                     << ") " << fpgaErrStr(res);
+      std::cerr << "[guid_t::<<] GUID property not set\n";
     } else {
       ASSERT_FPGA_OK(res);
     }
@@ -126,19 +121,14 @@ struct guid_t {
 
   /** Tracks whether the cached local copy of the guid is valid.
    */
-  bool is_set() const {
-    return is_set_;
-  }
+  bool is_set() const { return is_set_; }
 
   /** Invalidate the cached local copy of the guid.
    */
-   void invalidate() {
-    is_set_ = false;
-  }
+  void invalidate() { is_set_ = false; }
 
  private:
   fpga_properties *props_;
-  opae::fpga::internal::logger log_;
   bool is_set_;
   std::array<uint8_t, 16> data_;
 };
@@ -152,14 +142,13 @@ struct guid_t {
  */
 template <typename T>
 struct pvalue {
-
   /**
    * @brief Define getter function as getter_t
    * For `char*` types, do not use T* as the second argument
    * but instead use T
    */
   typedef typename std::conditional<
-      std::is_same<T, char*>::value, fpga_result (*)(fpga_properties, T),
+      std::is_same<T, char *>::value, fpga_result (*)(fpga_properties, T),
       fpga_result (*)(fpga_properties, T *)>::type getter_t;
 
   /**
@@ -172,10 +161,10 @@ struct pvalue {
    * @brief Define the type of our copy variable
    * For `char*` types use std::string as the copy
    */
-  typedef typename std::conditional<
-      std::is_same<T, char*>::value, typename std::string, T>::type copy_t;
+  typedef typename std::conditional<std::is_same<T, char *>::value,
+                                    typename std::string, T>::type copy_t;
 
-  pvalue() : props_(0), log_("pvalue"), is_set_(false) {}
+  pvalue() : props_(0), is_set_(false) {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
@@ -186,7 +175,7 @@ struct pvalue {
    * @param s The setter function
    */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
-      : props_(p), log_("pvalue"), is_set_(false), get_(g), set_(s) {}
+      : props_(p), is_set_(false), get_(g), set_(s) {}
 
   /**
    * @brief Overload of `=` operator that calls the wrapped setter
@@ -246,8 +235,8 @@ struct pvalue {
     if ((res = p.get_(props, &value)) == FPGA_OK) {
       ostr << +(value);
     } else if (FPGA_NOT_FOUND == res) {
-      p.log_.debug() << "property getter returned (" << res
-                     << ") " << fpgaErrStr(res);
+      std::cerr << "property getter returned (" << res << ") "
+                << fpgaErrStr(res);
     } else {
       ASSERT_FPGA_OK(res);
     }
@@ -256,19 +245,14 @@ struct pvalue {
 
   /** Tracks whether the cached local copy of the pvalue is valid.
    */
-  bool is_set() const {
-    return is_set_;
-  }
+  bool is_set() const { return is_set_; }
 
   /** Invalidate the cached local copy of the pvalue.
    */
-  void invalidate() {
-    is_set_ = false;
-  }
+  void invalidate() { is_set_ = false; }
 
  private:
   fpga_properties *props_;
-  opae::fpga::internal::logger log_;
   bool is_set_;
   copy_t copy_;
   getter_t get_;
@@ -280,8 +264,8 @@ struct pvalue {
  *
  * @return The result of the property getter function.
  */
-template <> inline
-void pvalue<char*>::update() {
+template <>
+inline void pvalue<char *>::update() {
   char buf[256];
   ASSERT_FPGA_OK(get_(*props_, buf));
   copy_.assign(buf);

@@ -120,7 +120,6 @@ add_gtfilter(CxxEnum "CxxEnum*" True)
 add_gtfilter(CxxOpenClose "CxxOpen*" True)
 add_gtfilter(CxxBuffer "CxxBuffer*" True)
 add_gtfilter(CxxExcept "CxxExcept*" False)
-add_gtfilter(CxxLog "CxxLog*" False)
 add_gtfilter(CxxEvent "CxxEvent*" True)
 add_gtfilter(CxxMMIO "CxxMMIO*" True)
 

@@ -39,7 +39,6 @@ std::vector<token::ptr_t> token::enumerate(
   std::transform(props.begin(), props.end(), c_props.begin(),
                  [](const properties& p) { return p.get(); });
   uint32_t matches = 0;
-  opae::fpga::internal::logger log("token::enumerate()");
   auto res =
       fpgaEnumerate(c_props.data(), c_props.size(), nullptr, 0, &matches);
   if (res == FPGA_OK && matches > 0) {
@@ -57,7 +56,7 @@ std::vector<token::ptr_t> token::enumerate(
 
     // discard our c struct token objects
     std::for_each(c_tokens.begin(), c_tokens.end(),
-                  [&log](fpga_token t) {
+                  [](fpga_token t) {
                     auto res = fpgaDestroyToken(&t);
                     ASSERT_FPGA_OK(res);
                   });
@@ -74,7 +73,7 @@ token::~token() {
   ASSERT_FPGA_OK(res);
 }
 
-token::token(fpga_token tok) : log_("token") {
+token::token(fpga_token tok) {
   auto res = fpgaCloneToken(tok, &token_);
   ASSERT_FPGA_OK(res);
 }
