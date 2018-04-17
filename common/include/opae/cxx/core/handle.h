@@ -117,8 +117,6 @@ class handle {
    *
    * @param[in] flags The flags parameter to fpgaOpen().
    *
-   * @param[in] mmio_region The zero-based index of
-   * the desired MMIO region. See fpgaMapMMIO().
    */
   static handle::ptr_t open(fpga_token token, int flags);
 
@@ -129,8 +127,6 @@ class handle {
    *
    * @param[in] flags The flags parameter to fpgaOpen().
    *
-   * @param[in] mmio_region The zero-based index of
-   * the desired MMIO region. See fpgaMapMMIO().
    */
   static handle::ptr_t open(token::ptr_t token, int flags);
 
