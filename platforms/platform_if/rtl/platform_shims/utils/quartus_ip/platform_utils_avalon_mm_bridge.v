@@ -1,20 +1,38 @@
-// (C) 2001-2017 Intel Corporation. All rights reserved.
-// Your use of Intel Corporation's design tools, logic functions and other 
-// software and tools, and its AMPP partner logic functions, and any output 
-// files any of the foregoing (including device programming or simulation 
-// files), and any associated documentation or information are expressly subject 
-// to the terms and conditions of the Intel Program License Subscription 
-// Agreement, Intel MegaCore Function License Agreement, or other applicable 
-// license agreement, including, without limitation, that your use is for the 
-// sole purpose of programming logic devices manufactured by Intel and sold by 
-// Intel or its authorized distributors.  Please refer to the applicable 
-// agreement for further details.
+//
+// Copyright (c) 2018, Intel Corporation
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// Redistributions of source code must retain the above copyright notice, this
+// list of conditions and the following disclaimer.
+//
+// Redistributions in binary form must reproduce the above copyright notice,
+// this list of conditions and the following disclaimer in the documentation
+// and/or other materials provided with the distribution.
+//
+// Neither the name of the Intel Corporation nor the names of its contributors
+// may be used to endorse or promote products derived from this software
+// without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 
-// $Id: //acds/rel/17.0/ip/merlin/altera_avalon_mm_bridge/altera_avalon_mm_bridge.v#1 $
+// $Id: //acds/rel/18.0/ip/merlin/altera_avalon_mm_bridge/altera_avalon_mm_bridge.v#1 $
 // $Revision: #1 $
-// $Date: 2017/02/12 $
-// $Author: swbranch $
+// $Date: 2018/02/08 $
+// $Author: psgswbuild $
 // --------------------------------------
 // Avalon-MM pipeline bridge
 //
@@ -32,6 +50,7 @@ module platform_utils_avalon_mm_bridge
 
     parameter PIPELINE_COMMAND     = 1,
     parameter PIPELINE_RESPONSE    = 1,
+    parameter SYNC_RESET           = 1,
 
     // --------------------------------------
     // Derived parameters
@@ -102,6 +121,16 @@ module platform_utils_avalon_mm_bridge
     reg                          rsp_readdatavalid;
     reg [RESPONSE_WIDTH-1:0]     rsp_response;   
 
+
+   // generating sync reset 
+    reg internal_sclr;
+    generate if (SYNC_RESET == 1) begin // rst_syncronizer
+       always @ (posedge clk) begin
+          internal_sclr <= reset;
+       end
+    end
+    endgenerate
+
     // --------------------------------------
     // Command pipeline
     //
@@ -129,55 +158,103 @@ module platform_utils_avalon_mm_bridge
         // --------------------------------------
         assign s0_waitrequest = wr_reg_waitrequest;
         assign wait_rise      = ~wr_reg_waitrequest & cmd_waitrequest;
-     
-        always @(posedge clk, posedge reset) begin
-            if (reset) begin
-                wr_reg_waitrequest <= 1'b1;
-                // --------------------------------------
-                // Bit of trickiness here, deserving of a long comment.
-                //
-                // On the first cycle after reset, the pass-through
-                // must not be used or downstream logic may sample
-                // the same command twice because of the delay in
-                // transmitting a falling waitrequest.
-                //
-                // Using the registered command works on the condition
-                // that downstream logic deasserts waitrequest
-                // immediately after reset, which is true of the 
-                // next stage in this bridge.
-                // --------------------------------------
-                use_reg            <= 1'b1;
-
-                wr_reg_burstcount <= 1'b1;
-                wr_reg_writedata  <= 0;
-                wr_reg_byteenable <= {BYTEEN_WIDTH{1'b1}};
-                wr_reg_address    <= 0;
-                wr_reg_write      <= 1'b0;
-                wr_reg_read       <= 1'b0;
-                wr_reg_debugaccess <= 1'b0;
-            end else begin
-                wr_reg_waitrequest <= cmd_waitrequest;
-
-                if (wait_rise) begin
-                    wr_reg_writedata  <= s0_writedata;
-                    wr_reg_byteenable <= s0_byteenable;
-                    wr_reg_address    <= s0_address;
-                    wr_reg_write      <= s0_write;
-                    wr_reg_read       <= s0_read;
-                    wr_reg_burstcount <= s0_burstcount;
-                    wr_reg_debugaccess <= s0_debugaccess;
-                end
-
-                // stop using the buffer when waitrequest is low
-                if (~cmd_waitrequest)
-                     use_reg <= 1'b0;
-                else if (wait_rise) begin
-                    use_reg <= 1'b1;
-                end     
-
-            end
+   
+        always @(posedge clk) begin
+         if (wait_rise) begin
+         wr_reg_writedata  <= s0_writedata;
+         wr_reg_byteenable <= s0_byteenable;
+         wr_reg_address    <= s0_address;
+         end
         end
-     
+      
+        if (SYNC_RESET == 0) begin // async_reg0 
+
+            always @(posedge clk, posedge reset) begin
+                if (reset) begin
+                    wr_reg_waitrequest <= 1'b1;
+                    // --------------------------------------
+                    // Bit of trickiness here, deserving of a long comment.
+                    //
+                    // On the first cycle after reset, the pass-through
+                    // must not be used or downstream logic may sample
+                    // the same command twice because of the delay in
+                    // transmitting a falling waitrequest.
+                    //
+                    // Using the registered command works on the condition
+                    // that downstream logic deasserts waitrequest
+                    // immediately after reset, which is true of the 
+                    // next stage in this bridge.
+                    // --------------------------------------
+                    use_reg            <= 1'b1;
+                    wr_reg_burstcount <= 1'b1;
+                    wr_reg_write      <= 1'b0;
+                    wr_reg_read       <= 1'b0;
+                    wr_reg_debugaccess <= 1'b0;
+                end else begin
+                    wr_reg_waitrequest <= cmd_waitrequest;
+
+                    if (wait_rise) begin
+                        wr_reg_write      <= s0_write;
+                        wr_reg_read       <= s0_read;
+                        wr_reg_burstcount <= s0_burstcount;
+                        wr_reg_debugaccess <= s0_debugaccess;
+                    end
+
+                    // stop using the buffer when waitrequest is low
+                    if (~cmd_waitrequest)
+                         use_reg <= 1'b0;
+                    else if (wait_rise) begin
+                        use_reg <= 1'b1;
+                    end     
+
+                end
+            end
+        end else begin // end aysnc_reg0
+        // sync_reset     
+            always @(posedge clk) begin
+                  if (internal_sclr) begin
+                      wr_reg_waitrequest <= 1'b1;
+                      // --------------------------------------
+                      // Bit of trickiness here, deserving of a long comment.
+                      //
+                      // On the first cycle after reset, the pass-through
+                      // must not be used or downstream logic may sample
+                      // the same command twice because of the delay in
+                      // transmitting a falling waitrequest.
+                      //
+                      // Using the registered command works on the condition
+                      // that downstream logic deasserts waitrequest
+                      // immediately after reset, which is true of the 
+                      // next stage in this bridge.
+                      // --------------------------------------
+                      use_reg            <= 1'b1;
+
+                      wr_reg_burstcount <= 1'b1;
+                      wr_reg_write      <= 1'b0;
+                      wr_reg_read       <= 1'b0;
+                      wr_reg_debugaccess <= 1'b0;
+                  end else begin
+                      wr_reg_waitrequest <= cmd_waitrequest;
+
+                      if (wait_rise) begin
+                          wr_reg_write      <= s0_write;
+                          wr_reg_read       <= s0_read;
+                          wr_reg_burstcount <= s0_burstcount;
+                          wr_reg_debugaccess <= s0_debugaccess;
+                      end
+
+                      // stop using the buffer when waitrequest is low
+                      if (~cmd_waitrequest)
+                           use_reg <= 1'b0;
+                      else if (wait_rise) begin
+                          use_reg <= 1'b1;
+                      end     
+
+                  end
+            end
+        
+        end // if sync_reset
+
         always @* begin
             wr_burstcount  =  s0_burstcount;
             wr_writedata   =  s0_writedata;
@@ -212,30 +289,53 @@ module platform_utils_avalon_mm_bridge
         wire no_command;
         assign no_command      = ~(cmd_read || cmd_write);
         assign cmd_waitrequest = m0_waitrequest & ~no_command;
-     
-        always @(posedge clk, posedge reset) begin
-            if (reset) begin
-                cmd_burstcount <= 1'b1;
-                cmd_writedata  <= 0;
-                cmd_byteenable <= {BYTEEN_WIDTH{1'b1}};
-                cmd_address    <= 0;
-                cmd_write      <= 1'b0;
-                cmd_read       <= 1'b0;
-                cmd_debugaccess <= 1'b0;
-            end 
-            else begin 
-                if (~cmd_waitrequest) begin
-                    cmd_writedata  <= wr_writedata;
-                    cmd_byteenable <= wr_byteenable;
-                    cmd_address    <= wr_address;
-                    cmd_write      <= wr_write;
-                    cmd_read       <= wr_read;
-                    cmd_burstcount <= wr_burstcount;
-                    cmd_debugaccess <= wr_debugaccess;
-                end
-            end
-        end
 
+        always @(posedge clk) begin
+         if (~cmd_waitrequest) begin
+         cmd_writedata  <= wr_writedata;
+         cmd_byteenable <= wr_byteenable;
+         cmd_address    <= wr_address;
+         end
+        end
+ 
+        if (SYNC_RESET == 0) begin // async_reg1
+       
+          always @(posedge clk, posedge reset) begin
+              if (reset) begin
+                  cmd_burstcount <= 1'b1;
+                  cmd_write      <= 1'b0;
+                  cmd_read       <= 1'b0;
+                  cmd_debugaccess <= 1'b0;
+              end 
+              else begin 
+                  if (~cmd_waitrequest) begin
+                      cmd_write      <= wr_write;
+                      cmd_read       <= wr_read;
+                      cmd_burstcount <= wr_burstcount;
+                      cmd_debugaccess <= wr_debugaccess;
+                  end
+              end
+          end
+
+        end else begin // aysnc_reg1
+
+          always @(posedge clk) begin //sync_reg1
+              if (internal_sclr) begin
+                  cmd_burstcount <= 1'b1;
+                  cmd_write      <= 1'b0;
+                  cmd_read       <= 1'b0;
+                  cmd_debugaccess <= 1'b0;
+              end 
+              else begin 
+                  if (~cmd_waitrequest) begin
+                      cmd_write      <= wr_write;
+                      cmd_read       <= wr_read;
+                      cmd_burstcount <= wr_burstcount;
+                      cmd_debugaccess <= wr_debugaccess;
+                  end
+              end
+          end 
+      end // sync_reg1
     end  // conditional command pipeline
     else begin
 
@@ -269,20 +369,37 @@ module platform_utils_avalon_mm_bridge
     // --------------------------------------
     generate if (PIPELINE_RESPONSE == 1) begin
 
+       always @(posedge clk) begin
+       rsp_readdata      <= m0_readdata;
+       end
+
+       if (SYNC_RESET == 0) begin // async_reg2
         always @(posedge clk, posedge reset) begin
             if (reset) begin
                 rsp_readdatavalid <= 1'b0;
-                rsp_readdata      <= 0;
                 rsp_response      <= 0;               
             end 
             else begin
                 rsp_readdatavalid <= m0_readdatavalid;
-                rsp_readdata      <= m0_readdata;
                 rsp_response      <= m0_response;               
             end
         end
-
+       end //async_reg2
+       else begin // sync reg2
+        always @(posedge clk) begin
+            if (internal_sclr) begin
+                rsp_readdatavalid <= 1'b0;
+                rsp_response      <= 0;               
+            end 
+            else begin
+                rsp_readdatavalid <= m0_readdatavalid;
+                rsp_response      <= m0_response;               
+            end
+        end  
+       end // end  sync_reg2 
+         
     end  // conditional response pipeline
+    
     else begin
 
         always @* begin

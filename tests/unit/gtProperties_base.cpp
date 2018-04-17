@@ -2801,3 +2801,151 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_214) {
   ASSERT_NO_THROW(result = fpgaGetProperties(NULL, NULL));
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
+
+/**
+ * @test    nodrv_prop_215
+ * @brief   Tests: fpgaPropertiesGetVendorID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetVendorID with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_215) {
+  fpga_properties prop = NULL;
+
+  uint16_t vendor_id;
+  fpga_result result = fpgaPropertiesGetVendorID(prop, &vendor_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_216
+ * @brief   Tests: fpgaPropertiesSetVendorID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetVendorID with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_216) {
+  fpga_properties prop = NULL;
+  // Call the API to set the vendor_id on the property
+  fpga_result result = fpgaPropertiesSetVendorID(prop, 0);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_217
+ * @brief   Tests: fpgaPropertiesGetVendorID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          And it has the vendor_id field set to a known value<br>
+ *          When I call fpgaPropertiesGetVendorID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_217) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the object type and number of slots fields as valid
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID);
+
+  // set the object type field
+  _prop->objtype = FPGA_ACCELERATOR;
+  // set the slot num_interrupts to a known value
+  _prop->vendor_id = 0x8087;
+
+  // now get the num_interrupts from the prop structure
+  uint16_t vendor_id;
+  result = fpgaPropertiesGetVendorID(prop, &vendor_id);
+
+  // assert the result was ok
+  EXPECT_EQ(FPGA_OK, result);
+
+  // assert it is set to what we set it to above
+  EXPECT_EQ(0x8087, vendor_id);
+
+  // now delete the properties object
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    nodrv_prop_218
+ * @brief   Tests: fpgaPropertiesGetDeviceID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetDeviceID with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_218) {
+  fpga_properties prop = NULL;
+
+  uint16_t device_id;
+  fpga_result result = fpgaPropertiesGetDeviceID(prop, &device_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_219
+ * @brief   Tests: fpgaPropertiesSetDeviceID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetDeviceID with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_219) {
+  fpga_properties prop = NULL;
+  // Call the API to set the device_id on the property
+  fpga_result result = fpgaPropertiesSetDeviceID(prop, 0);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_220
+ * @brief   Tests: fpgaPropertiesGetDeviceID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          And it has the device_id field set to a known value<br>
+ *          When I call fpgaPropertiesGetDeviceID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_220) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the object type and number of slots fields as valid
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_DEVICEID);
+
+  // set the object type field
+  _prop->objtype = FPGA_ACCELERATOR;
+  // set the slot num_interrupts to a known value
+  _prop->device_id = 0xAFFE;
+
+  // now get the num_interrupts from the prop structure
+  uint16_t device_id;
+  result = fpgaPropertiesGetDeviceID(prop, &device_id);
+
+  // assert the result was ok
+  EXPECT_EQ(FPGA_OK, result);
+
+  // assert it is set to what we set it to above
+  EXPECT_EQ(0xAFFE, device_id);
+
+  // now delete the properties object
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}

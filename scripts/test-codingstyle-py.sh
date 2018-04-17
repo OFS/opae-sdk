@@ -4,7 +4,8 @@ pushd $(dirname $0)/..
 
 PYCODESTYLE=$(which pycodestyle)
 PYLINT=$(which pylint)
-FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*")
+FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*" \
+-not -path "./tools/extra/packager/jsonschema-2.3.0/*")
 FILES+=" "
 FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/doc\/")
 
