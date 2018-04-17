@@ -23,13 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * main.c
- * Copyright (C) 2018 ubuntu <ubuntu@ubuntu-xenial>
- *
- * Distributed under terms of the %LICENSE% license.
- */
-
 #include <errno.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -46,6 +39,8 @@
 #include "fmeinfo.h"
 #include "portinfo.h"
 
+#define MAX_OPT_LENGTH 16
+
 /*
  * Global configuration, set during parse_args()
  */
@@ -58,7 +53,7 @@ struct config {
 		int socket;
 	} target;
 } config = {.verbosity = 0,
-	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1} };
+	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1}};
 
 /*
  * Print help
@@ -66,28 +61,28 @@ struct config {
  */
 void help(void)
 {
-	printf(
-	    "\n"
-	    "fpgainfo\n"
-	    "FPGA information utility\n"
-	    "\n"
-	    "Usage:\n"
-	    //"        fpgainfo [-hv] [-b <bus>] [-d <device>] [-f <function>]
-	    //<command>\n"
-	    "        fpgainfo [-hv] [-b <bus>] [-d <device>] [-f <function>] "
-	    "[-s <socket>] {errors,power,temp,fme,port}\n"
-	    "\n"
-	    "                -h,--help           Print this help\n"
-	    "                -v,--verbose        Increase verbosity\n"
-	    "                -b,--bus            Set target bus number\n"
-	    "                -d,--device         Set target device number\n"
-	    "                -f,--function       Set target function number\n"
-	    "                -s,--socket         Set target socket number\n"
-	    "\n");
+	printf("\n"
+	       "fpgainfo\n"
+	       "FPGA information utility\n"
+	       "\n"
+	       "Usage:\n"
+	       "        fpgainfo [-hv] [-b <bus>] [-d <device>]"
+	       "[-f <function>] [-s <socket>]"
+	       "{errors,power,temp,fme,port}\n"
+	       "\n"
+	       "                -h,--help           Print this help\n"
+	       "                -v,--verbose        Increase verbosity\n"
+	       "                -b,--bus            Set target bus number\n"
+	       "                -d,--device         Set target device number\n"
+	       "                -f,--function       Set target function "
+	       "number\n"
+	       "                -s,--socket         Set target socket number\n"
+	       "\n");
 }
+
+
 /*
  * Parse command line arguments
- * TODO: uncomment options as they are implemented
  */
 #define GETOPT_STRING "+hvb:d:f:s:"
 int parse_args(int argc, char *argv[])
@@ -98,7 +93,7 @@ int parse_args(int argc, char *argv[])
 				    {"device", required_argument, NULL, 'd'},
 				    {"function", required_argument, NULL, 'f'},
 				    {"socket", required_argument, NULL, 's'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;
@@ -125,8 +120,10 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.bus =
-			    (int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr
+			    != tmp_optarg
+				       + strnlen(tmp_optarg, MAX_OPT_LENGTH)) {
 				fprintf(stderr, "invalid bus: %s\n",
 					tmp_optarg);
 				return EX_USAGE;
@@ -138,8 +135,10 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.device =
-			    (int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr
+			    != tmp_optarg
+				       + strnlen(tmp_optarg, MAX_OPT_LENGTH)) {
 				fprintf(stderr, "invalid device: %s\n",
 					tmp_optarg);
 				return EX_USAGE;
@@ -151,8 +150,10 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.function =
-			    (int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr
+			    != tmp_optarg
+				       + strnlen(tmp_optarg, MAX_OPT_LENGTH)) {
 				fprintf(stderr, "invalid function: %s\n",
 					tmp_optarg);
 				return EX_USAGE;
@@ -164,8 +165,10 @@ int parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.socket =
-			    (int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr
+			    != tmp_optarg
+				       + strnlen(tmp_optarg, MAX_OPT_LENGTH)) {
 				fprintf(stderr, "invalid socket: %s\n",
 					tmp_optarg);
 				return EX_USAGE;
@@ -237,22 +240,24 @@ int main(int argc, char *argv[])
 		filter_fn filter;
 		command_fn run;
 	} cmd_array[CMD_SIZE] = {
-	    {.command = "errors",
-	     .filter = errors_filter,
-	     .run = errors_command},
-	    {.command = "fme", .filter = fme_filter, .run = fme_command},
-	    {.command = "port", .filter = port_filter, .run = port_command} };
+		{.command = "errors",
+		 .filter = errors_filter,
+		 .run = errors_command},
+		{.command = "fme", .filter = fme_filter, .run = fme_command},
+		{.command = "port",
+		 .filter = port_filter,
+		 .run = port_command}};
 
 	ret_value = parse_args(argc, argv);
-	if (ret_value == 0) {
-		ret_value = EX_SOFTWARE;
+	if (ret_value == EX_OK) {
 		int remaining_argc = argc - optind;
 		char **remaining_argv = &argv[optind];
 		size_t i;
 		uint32_t num_tokens = 0;
 		// start a filter using the first level command line arguments
 		res = fpgaGetProperties(NULL, &filter);
-		ON_FPGAINFO_ERR_GOTO(res, out_err, "creating properties object");
+		ON_FPGAINFO_ERR_GOTO(res, out_err,
+				     "creating properties object");
 		res = initialize_filter(&filter);
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy, 0);
 
@@ -264,28 +269,32 @@ int main(int argc, char *argv[])
 				fprintf(stderr,
 					"error with command line arguments\n");
 				ret_value = EX_DATAERR;
+				goto out_destroy;
 			} else if (!ind) {
 				if (cmd_array[i].filter) {
 					res = cmd_array[i].filter(
-					    &filter, remaining_argc,
-					    remaining_argv);
-					ON_FPGAINFO_ERR_GOTO(res, out_destroy, 0);
+						&filter, remaining_argc,
+						remaining_argv);
+					ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+							     0);
 				}
 				res = fpgaEnumerate(&filter, 1, NULL, 0,
 						    &matches);
 				ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-					    "enumerating resources");
+						     "enumerating resources");
 				num_tokens = matches;
 				tokens = (fpga_token *)malloc(
-				    num_tokens * sizeof(fpga_token));
+					num_tokens * sizeof(fpga_token));
 				res = fpgaEnumerate(&filter, 1, tokens,
 						    num_tokens, &matches);
 				ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-					    "enumerating resources");
+						     "enumerating resources");
 				if (num_tokens != matches) {
-					fprintf(stderr, "token list changed in "
-							"between enumeration "
-							"calls\n");
+					ret_value = EX_SOFTWARE;
+					fprintf(stderr,
+						"token list changed in "
+						"between enumeration "
+						"calls\n");
 					goto out_destroy;
 				}
 				res = cmd_array[i].run(tokens, matches,

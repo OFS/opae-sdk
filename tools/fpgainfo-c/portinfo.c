@@ -98,7 +98,7 @@ fpga_result port_filter(fpga_properties *filter, int argc, char *argv[])
 	(void)argv;
 	fpga_result res = FPGA_OK;
 	res = fpgaPropertiesSetObjectType(*filter, FPGA_ACCELERATOR);
-	fpgainfo_print_err("setting type to FPGA_DEVICE", res);
+	fpgainfo_print_err("setting type to FPGA_ACCELERATOR", res);
 	return res;
 }
 

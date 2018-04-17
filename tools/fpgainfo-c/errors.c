@@ -41,6 +41,8 @@
 
 #include "errors.h"
 
+#define STR_IN_LIST(S, ...)
+
 /*
  * errors command configuration, set during parse_args()
  */
@@ -49,12 +51,36 @@ struct errors_config {
 	const char *which;
 } errors_config = {.clear = false, .which = "all"};
 
+// TODO: Move this to a common file for reuse in other fpgainfo files
+static int str_in_list(const char *key, size_t max_key_length,
+		       const char *list[], size_t size)
+{
+	errno_t err = 0;
+	int indicator = 1;
+	size_t len = strnlen_s(key, max_key_length);
+	if (len == 0)
+		return indicator;
+	for (size_t i = 0; i < size; ++i) {
+		err = strcmp_s(key, len, list[i], &indicator);
+		if (err == 0) {
+			if (indicator == 0)
+				return 0;
+		} else {
+			return err;
+		}
+	}
+	return indicator;
+}
+
+#define MAX_VERB_LENGTH 8
 #define GETOPT_STRING ":c"
 int parse_error_args(int argc, char *argv[])
 {
+	const char *supported_verbs[] = {"all", "fme", "port"};
+	const size_t verb_count = 3;
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;
@@ -85,9 +111,8 @@ int parse_error_args(int argc, char *argv[])
 
 	/* use first non-option argument as what errors to operate on */
 	if (optind < argc) {
-		if (!strncmp(argv[optind], "all", 3) ||
-		    !strncmp(argv[optind], "fme", 3) ||
-		    !strncmp(argv[optind], "port", 4)) {
+		if (0 == str_in_list(argv[optind], MAX_VERB_LENGTH,
+				     supported_verbs, verb_count)) {
 			errors_config.which = argv[optind];
 		} else {
 			fprintf(stderr,
@@ -106,16 +131,17 @@ fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[])
 	int ind;
 	fpga_result res = FPGA_OK;
 	if (0 == parse_error_args(argc, argv)) {
-		err = strcmp_s(errors_config.which, 4, "fme", &ind);
+		err = strcmp_s("fme", 3, errors_config.which, &ind);
 		if (err) {
 			fprintf(stderr, "error with command line arguments\n");
 			return EX_DATAERR;
 		}
 		if (!ind) {
 			res = fpgaPropertiesSetObjectType(*filter, FPGA_DEVICE);
-			ON_FPGAINFO_ERR_GOTO(res, out, "setting type to FPGA_DEVICE");
+			ON_FPGAINFO_ERR_GOTO(res, out,
+					     "setting type to FPGA_DEVICE");
 		} else {
-			err = strcmp_s(errors_config.which, 4, "port", &ind);
+			err = strcmp_s("port", 4, errors_config.which, &ind);
 			if (err) {
 				fprintf(stderr,
 					"error with command line arguments\n");
@@ -123,9 +149,10 @@ fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[])
 			}
 			if (!ind) {
 				res = fpgaPropertiesSetObjectType(
-				    *filter, FPGA_ACCELERATOR);
-				ON_FPGAINFO_ERR_GOTO(res, out,
-					    "setting type to FPGA_ACCELERATOR");
+					*filter, FPGA_ACCELERATOR);
+				ON_FPGAINFO_ERR_GOTO(
+					res, out,
+					"setting type to FPGA_ACCELERATOR");
 			}
 		}
 	}
