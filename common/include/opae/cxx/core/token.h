@@ -31,7 +31,6 @@
 #include <opae/access.h>
 #include <opae/enum.h>
 #include <opae/cxx/core/properties.h>
-#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {
@@ -67,7 +66,6 @@ class token {
  private:
   token(fpga_token tok);
 
-  opae::fpga::internal::logger log_;
   fpga_token token_;
 };
 

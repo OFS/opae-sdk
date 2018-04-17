@@ -30,7 +30,6 @@
 
 #include <opae/properties.h>
 #include <opae/cxx/core/pvalue.h>
-#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {
@@ -102,7 +101,6 @@ class properties {
 
  private:
   fpga_properties props_;
-  opae::fpga::internal::logger log_;
 
  public:
   pvalue<fpga_objtype> type;

@@ -33,7 +33,6 @@
 
 #include <opae/buffer.h>
 #include <opae/cxx/core/handle.h>
-#include <opae/cxx/core/log.h>
 #include <opae/cxx/core/except.h>
 
 namespace opae {
@@ -121,11 +120,8 @@ class dma_buffer {
     if ((offset < len_) && (virt_ != nullptr)) {
       return *reinterpret_cast<T *>(virt_ + offset);
     } else if (offset >= len_) {
-      log_.error() << "offset: " << offset
-                   << " is greater or equal to len_: " << len_;
       throw except(OPAECXX_HERE);
     } else {
-      log_.error() << "attempt to read from NULL buffer";
       throw except(OPAECXX_HERE);
     }
     return T();
@@ -140,11 +136,8 @@ class dma_buffer {
     if ((offset < len_) && (virt_ != nullptr)) {
       *reinterpret_cast<T *>(virt_ + offset) = value;
     } else if (offset >= len_) {
-      log_.error() << "offset: " << offset
-                   << " is greater or equal to len_: " << len_;
       throw except(OPAECXX_HERE);
     } else {
-      log_.error() << "attempt to write to NULL buffer";
       throw except(OPAECXX_HERE);
     }
   }
@@ -159,7 +152,6 @@ class dma_buffer {
   uint8_t *virt_;
   uint64_t wsid_;
   uint64_t iova_;
-  opae::fpga::internal::logger log_;
 };
 
 

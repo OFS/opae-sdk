@@ -25,12 +25,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <cerrno>
 #include <cstring>
+#include <iostream>
 
 #include <opae/utils.h>
 #include <safe_string/safe_string.h>
 
 #include <opae/cxx/core/except.h>
-#include <opae/cxx/core/log.h>
 
 namespace opae {
 namespace fpga {
@@ -103,8 +103,7 @@ const char *except::what() const noexcept {
   return const_cast<const char *>(buf_);
 
 log_err:
-  opae::fpga::internal::logger log("except::what()");
-  log.error() << "safestr error " << err;
+  std::cerr << "[except::what()] error with safestr operation: " << err << "\n";
 
   buf_[sizeof(buf_)-1] = '\0';
   return buf_ok ? const_cast<const char *>(buf_) : msg_;

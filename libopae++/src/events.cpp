@@ -58,8 +58,7 @@ event::ptr_t event::register_event(handle::ptr_t h, event::type_t t, int flags)
 event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
     : handle_(h)
     , type_(t)
-    , event_handle_(eh)
-    , log_("event"){}
+    , event_handle_(eh){}
 
 }  // end of namespace types
 }  // end of namespace fpga

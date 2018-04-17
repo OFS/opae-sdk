@@ -40,10 +40,8 @@ dma_buffer::~dma_buffer() {
 
 dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
   ptr_t p;
-  opae::fpga::internal::logger log("dma_buffer::allocate()");
 
   if (!len) {
-    log.error() << "attempt to allocate buffer with len == 0";
     throw except(OPAECXX_HERE);
   }
 
@@ -64,7 +62,6 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
 dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
                                      size_t len) {
   ptr_t p;
-  opae::fpga::internal::logger log("dma_buffer::attach()");
 
   uint8_t *virt = base;
   uint64_t iova = 0;
@@ -90,7 +87,7 @@ int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const {
 
 dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                        uint64_t wsid, uint64_t iova)
-    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova), log_("dma_buffer") {}
+    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
 
 }  // end of namespace types
 }  // end of namespace fpga
