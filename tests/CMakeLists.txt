@@ -93,7 +93,8 @@ if(BUILD_ASE_TESTS)
   set_tests_properties(
     test_open_common_ase
     PROPERTIES
-    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so")
+    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so;ASE_WORKDIR=${CMAKE_BINARY_DIR}/ase/samples/intg_xeon_nlb")
+
 else()
   add_test(NAME test_open_common_mock_drv
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}

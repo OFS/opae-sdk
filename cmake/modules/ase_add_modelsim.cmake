@@ -229,7 +229,9 @@ function(ase_add_modelsim_module name)
 
   # Target for create module platform configuration.
   add_custom_target(${name}_platform_config ALL
-    DEPENDS ${ase_modules_sources}
+    DEPENDS
+    intel-fpga-bbb
+    ${ase_modules_sources}
     "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Target to build the ASE module

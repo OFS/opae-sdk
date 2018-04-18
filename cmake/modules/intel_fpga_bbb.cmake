@@ -65,7 +65,7 @@ function (Build_Intel_FPGA_BBB)
 
   # Create a libMPF target to be used as a dependency by sample programs
   add_library(MPF SHARED IMPORTED GLOBAL)
-  add_dependencies(MPF intel-fpga-bb)
+  add_dependencies(MPF intel-fpga-bbb)
 
   # Get MPF source and binary directories from CMake project
   ExternalProject_Get_Property(intel-fpga-bbb source_dir binary_dir)
