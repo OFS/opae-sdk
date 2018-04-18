@@ -69,13 +69,29 @@ any_value cast_string<bool>(const std::string & v)
 template<>
 any_value cast_string<float>(const std::string & v)
 {
-    return stof(v, nullptr);
+    try{
+        return stof(v, nullptr);
+    }catch(const std::invalid_argument & inv){
+        std::cerr << "Command line option could not be parsed as a 'float': \"" << v << "\"\n";
+        throw inv;
+    }catch(const std::out_of_range & our){
+        std::cerr << "Value out of range for a 'float': \"" << v << "\"\n";
+        throw our;
+    }
 }
 
 template<>
 any_value cast_string<double>(const std::string & v)
 {
-    return stod(v, nullptr);
+    try{
+        return stod(v, nullptr);
+    }catch(const std::invalid_argument & inv){
+        std::cerr << "Command line option could not be parsed as a 'double': \"" << v << "\"\n";
+        throw inv;
+    }catch(const std::out_of_range & our){
+        std::cerr << "Value out of range for a 'double': \"" << v << "\"\n";
+        throw our;
+    }
 }
 
 
