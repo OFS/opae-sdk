@@ -41,8 +41,6 @@
 
 #include "errors.h"
 
-#define STR_IN_LIST(S, ...)
-
 /*
  * errors command configuration, set during parse_args()
  */
