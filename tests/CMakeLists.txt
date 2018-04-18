@@ -147,7 +147,7 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   if(BUILD_ASE_TESTS AND GTEST_FOUND)
-      set_target_for_coverage(opae-c-ase ctest)
+      set_target_for_coverage_local(opae-c-ase ctest)
       add_dependencies(coverage_opae-c-ase gtase)
   else(BUILD_ASE_TESTS AND GTEST_FOUND)
     if(BUILD_TESTS AND GTEST_FOUND)
