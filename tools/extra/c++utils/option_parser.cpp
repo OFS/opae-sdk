@@ -66,6 +66,18 @@ any_value cast_string<bool>(const std::string & v)
     return v;
 }
 
+template<>
+any_value cast_string<float>(const std::string & v)
+{
+    return stof(v, nullptr);
+}
+
+template<>
+any_value cast_string<double>(const std::string & v)
+{
+    return stod(v, nullptr);
+}
+
 
 template<>
 any_value cast_string<std::string>(const std::string & v)
