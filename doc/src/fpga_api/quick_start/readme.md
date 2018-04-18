@@ -31,42 +31,65 @@ accelerator RTL with OPAE applications.
 For more information about ASE, see the [OPAE AFU Simulation Environment
 (ASE) User Guide](../../ase_userguide/ase_userguide.html).
 
-As part of the OPAE SDK release, we provide a DKMS-based RPM package for
-distributions using RPM (e.g. Redhat, Fedora, Centos) package managers.
-Download this package from the respective [release page on
-GitHub](https://github.com/OPAE/opae-sdk/releases) - it is named
-`opae-intel-fpga-drv-x.y.z-1.x86_64.rpm`, with `x.y.z` being the respective OPAE
+As part of the OPAE SDK release, we provide DKMS-based RPM and DEB packages for
+distributions using RPM (e.g. Redhat, Fedora, Centos) and DEB (eg. Ubuntu) package managers.
+Download these package from the respective [release page on
+GitHub](https://github.com/OPAE/opae-sdk/releases) - they are named
+`opae-intel-fpga-driver-x.y.z-r.x86_64.rpm` and `opae-intel-fpga-driver_x.y.z-r_amd64.deb`, with `x.y.z-r` being the respective OPAE
 release's version number.
 
 ```eval_rst
 .. note::
-    The RPM package requires that the DKMS (Dynamic Kernel Module System)
+    The packages requires that the DKMS (Dynamic Kernel Module System)
     package, version greater than 2.2, is already installed.
 ```
 
-For Redhat and Centos:
+For RPM base distributions:
 ```console
-$ sudo yum install opae-intel-fpga-drv-<release>-1.x86_64.rpm
+$ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
 ```
 
-## Installing the OPAE SDK from rpm packages ##
+For DEB base distributions:
+```console
+$ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
+```
+## Installing the OPAE SDK from rpm or deb packages ##
 See the [OPAE Installation Guide](/fpga-doc/docs/fpga_api/install_guide/installation_guide.html)
-for information about OPAE RPM packages.
-Assuming RPM packages are already downloaded and exist in the current folder,
+for information about OPAE RPM and DEB packages.
+Assuming the packages are already downloaded and exist in the current folder,
 then use the commands below to install the OPAE library, tools, and development
 headers.
 
+For rpm packages:
+
 ```console
-$ sudo yum install opae-<release>-1.x86_64-libs.rpm
-$ sudo yum install opae-<release>-1.x86_64-tools.rpm
-$ sudo yum install opae-<release>-1.x86_64-devel.rpm
+$ sudo yum install opae-libs-<release>-1.x86_64.rpm
+$ sudo yum install opae-tools-<release>-1.x86_64.rpm
+$ sudo yum install opae-tools-extra-<release>-1.x86_64.rpm
+$ sudo yum install opae-devel-<release>-1.x86_64.rpm
+```
+
+For deb packages:
+
+```console
+$ sudo dpkg -i opae-<release>-1.x86_64-libs.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-tools.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-tools-extra.deb
+$ sudo dpkg -i opae-<release>-1.x86_64-devel.deb
 ```
 
 To use OPAE in the simulation environment, you also need to install the AFU
 Simulation Environment (ASE) package:
 
+rpm:
+
 ```console
-$ sudo yum install opae-<release>-1.x86_64-ase.rpm
+$ sudo yum install opae-ase-<release>-1.x86_64.rpm
+```
+deb:
+
+```console
+$ sudo dpkg -i opae-<release>-1.x86_64-ase.deb
 ```
 
 ## Building and installing the OPAE SDK from source ##
