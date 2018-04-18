@@ -27,9 +27,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-tests)
 
-option(BUILD_ASE_TEST "Build GTASE." OFF)
-mark_as_advanced(BUILD_ASE_TEST)
-
 ##############################################################################
 ## Setup GTEST ###############################################################
 ##############################################################################
@@ -44,73 +41,105 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE_TEST)
-     Build_Test_Target(gtase opae-c-ase)
+if(BUILD_ASE_TESTS)
+  Build_Test_Target(gtase opae-c-ase)
 else()
-    Build_Test_Target(gtapi opae-c)
+  Build_Test_Target(gtapi opae-c)
 endif()
 
 ############################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
-               ${CMAKE_BINARY_DIR}/tests/configuration.json
-               COPYONLY)
+  ${CMAKE_BINARY_DIR}/tests/configuration.json
+  COPYONLY)
 
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TEST)
+if (NOT BUILD_ASE_TESTS)
   Build_MOCk_DRV()
 endif()
 
 ############################################################################
 ## Add testing targets #####################################################
 ############################################################################
-add_test(NAME test_open_common_mock_drv
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:*ALL*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18:*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03)
+set(gtest_filter)
+list(APPEND gtest_filter *MOCK*)
+list(APPEND gtest_filter *ALL*)
+list(APPEND gtest_filter -*event_drv_05*)
+list(APPEND gtest_filter *nodrv*)
+list(APPEND gtest_filter *Open*.03)
+list(APPEND gtest_filter *Open*.06)
+list(APPEND gtest_filter *Open*.open_drv_09)
+list(APPEND gtest_filter *Open*.07)
+list(APPEND gtest_filter *Enum*.18)
+list(APPEND gtest_filter *Enum*.19)
+list(APPEND gtest_filter *Buf*.PrepRel2MB01)
+list(APPEND gtest_filter *Buf*.Write01)
+list(APPEND gtest_filter *Buf*.WriteRead01)
+list(APPEND gtest_filter *Close*.03)
+set(gtest_filter_str "")
+foreach(filter ${gtest_filter})
+  set(gtest_filter "${gtest_filter}:${filter}")
+endforeach(filter ${gtest_filter})
 
-set_tests_properties(
-  test_open_common_mock_drv
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+if(BUILD_ASE_TESTS)
+  add_test(NAME test_open_common_ase
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtase  ${CMAKE_BINARY_DIR} -v --gtest_filter=${gtest_filter})
 
-# FIXME: roll into more generic target
-add_test(NAME test_version
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecVersion*)
+  set_tests_properties(
+    test_open_common_ase
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so")
+else()
+  add_test(NAME test_open_common_mock_drv
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:*ALL*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18:*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03)
 
-set_tests_properties(
-  test_version
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+  set_tests_properties(
+    test_open_common_mock_drv
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
-add_test(NAME test_get_properties
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
+  # FIXME: roll into more generic target
+  add_test(NAME test_version
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecVersion*)
 
-set_tests_properties(
-  test_get_properties
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+  set_tests_properties(
+    test_version
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
 
-add_test(NAME test_any_value
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
+  add_test(NAME test_get_properties
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
 
+  set_tests_properties(
+    test_get_properties
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+
+  add_test(NAME test_any_value
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
+endif()
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
 ############################################################################
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  if(BUILD_TESTS AND GTEST_FOUND)
-    # targetname     The name of original target from which coverage is created for
-    # testrunner     The name of the target which runs the tests.
-    set_target_for_coverage(opae-c ctest)
-
-    add_dependencies(coverage_opae-c gtapi)
-  endif(BUILD_TESTS AND GTEST_FOUND)
+  if(BUILD_ASE_TESTS AND GTEST_FOUND)
+      set_target_for_coverage(opae-c-ase ctest)
+      add_dependencies(coverage_opae-c-ase gtase)
+  else(BUILD_ASE_TESTS AND GTEST_FOUND)
+    if(BUILD_TESTS AND GTEST_FOUND)
+      set_target_for_coverage(opae-c ctest)
+      add_dependencies(coverage_opae-c gtapi)
+    endif(BUILD_TESTS AND GTEST_FOUND)
+  endif(BUILD_ASE_TESTS AND GTEST_FOUND)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

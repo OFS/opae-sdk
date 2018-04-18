@@ -42,7 +42,7 @@ function (Build_GTEST)
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     # Disable install step
     INSTALL_COMMAND "")
-    
+
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
@@ -65,7 +65,7 @@ function (Build_GTEST)
   set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
   set(GTEST_FOUND true PARENT_SCOPE)
   message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
-  
+
 endfunction(Build_GTEST)
 
 function (Build_MOCK_DRV)
@@ -108,9 +108,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
                 function/gtOpenClose.cpp
-		function/gtGetProperties.cpp)
+        function/gtGetProperties.cpp)
 
-    if(BUILD_ASE_TEST)
+    if(BUILD_ASE_TESTS)
         add_definitions(-DBUILD_ASE)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
         set(TARGET_SRC ${COMMON_SRC})
@@ -120,33 +120,41 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()         
-	
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
+    endif()
+
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
                           ${libjson-c_LIBRARIES})
-	target_include_directories(commonlib PUBLIC
+    target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-                               $<INSTALL_INTERFACE:include>     
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
-	add_executable(${Target_Name} ${TARGET_SRC})
-	target_include_directories(${Target_Name} PUBLIC
+    add_executable(${Target_Name} ${TARGET_SRC})
+    target_include_directories(${Target_Name} PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	                           $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	                           $<INSTALL_INTERFACE:include>
+                               $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
-                      
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
-	  						
+
+    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES}
+                          uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
+
+    if(BUILD_ASE_TESTS)
+        target_include_directories(commonlib      PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ase/include>)
+        target_include_directories(${Target_Name} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ase/include>)
+    else()
+        target_include_directories(commonlib      PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/libopae/include>)
+        target_include_directories(${Target_Name} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/libopae/include>)
+    endif()
+
     if(CMAKE_THREAD_LIBS_INIT)
-  		target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
+        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 
     if(THREADS_HAVE_PTHREAD_ARG)
         target_compile_options(PUBLIC commonlib "-pthread")
-        target_compile_options(PUBLIC ${Target_Name} "-pthread")		
+        target_compile_options(PUBLIC ${Target_Name} "-pthread")
     endif()
 
 endfunction(Build_Test_Target)

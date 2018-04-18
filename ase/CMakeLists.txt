@@ -28,12 +28,26 @@
 project(ase)
 include(cmake_dev_config)
 
+############################################################################
+## Create config_int.h #####################################################
+############################################################################
+
+configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+                "${PROJECT_BINARY_DIR}/include/config_int.h" )
+
+############################################################################
+## Set base directories ####################################################
+############################################################################
+
 # Set root ASE directories correctly now
-set(OPAE_BASE_DIR      ${CMAKE_SOURCE_DIR})
-set(OPAE_SHARE_DIR     ${CMAKE_SOURCE_DIR})
+set(OPAE_BASE_DIR      ${OPAE_SDK_SOURCE})
+set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE})
 include(ase_variables_config)
 
-# Post-installation cmake project (enable ASE building after installation)
+############################################################################
+## Post-installation cmake project (enable ASE building after installation)
+############################################################################
+
 configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
   ${PROJECT_BINARY_DIR}/CMakeLists.txt)
 install(DIRECTORY in DESTINATION share/opae/ase COMPONENT asescripts)
@@ -46,6 +60,11 @@ install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
 install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
 install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 
+############################################################################
+## Add sub-project (ASE client, ASE server Verilog code)       #############
+## (Exclude ASE server C code, as it is compiled per each AFU) #############
+############################################################################
+
 # ASE client
 add_subdirectory(api)
 
@@ -57,7 +76,10 @@ if(BUILD_ASE_SAMPLES)
   add_subdirectory(samples)
 endif()
 
-# Extra platform scripts
+###########################################################################
+## Extra platform scripts #################################################
+###########################################################################
+
 set(EXTRA_ASE_FILES
   Makefile
   ase.cfg
