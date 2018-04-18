@@ -135,14 +135,13 @@ static fpga_result validate_bitstream(fpga_handle handle,
 }
 
 
-// determine if ports for fpga are busy
-static fpga_result port_busy(fpga_handle handle)
+// open child accelerator exclusively - it not, it's busy!
+static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 {
 	fpga_result result                = FPGA_OK;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
 	fpga_token token;
 	fpga_properties props;
-	fpga_handle accelerator_handle;
 	uint32_t matches = 0;
 
 	if (_handle == NULL) {
@@ -170,33 +169,26 @@ static fpga_result port_busy(fpga_handle handle)
 	//       slot being reconfigured
 	result = fpgaEnumerate(&props, 1, &token, 1, &matches);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Error enumerating while reconfiguring");
+		FPGA_ERR("Error enumerating for accelerator to reconfigure");
 		goto free_props;
 	}
 
-	if (0 == matches) {
-		FPGA_ERR("No accelerators found while reconfiguring.");
+	if (matches == 0) {
+		FPGA_ERR("No accelerator found to reconfigure");
 		result = FPGA_BUSY;
 		goto destroy_token;
 	}
 
-	result = fpgaOpen(token, &accelerator_handle, 0);
+	result = fpgaOpen(token, accel, 0);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Could not open accelerator for given slot.");
+		FPGA_ERR("Could not open accelerator for given slot");
 		goto destroy_token;
 	}
-	result = fpgaClose(&accelerator_handle);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Error closing accelerator.");
-		goto destroy_token;
-	}
-
 
 destroy_token:
 	result = fpgaDestroyToken(&token);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Error destroying a token.");
-	}
+	if (result != FPGA_OK)
+		FPGA_ERR("Error destroying a token");
 
 free_props:
 	result = fpgaDestroyProperties(&props);
@@ -340,6 +332,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
 	int err                         = 0;
+	fpga_handle accel;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -361,9 +354,9 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	// error out if "force" flag is NOT indicated
 	// and the resource is in use
 	if (!(flags & FPGA_RECONF_FORCE)) {
-		result = port_busy(fpga);
+		result = open_accel(fpga, &accel);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Port device(s) may be in use.");
+			FPGA_ERR("Accelerator in use or not found");
 			goto out_unlock;
 		}
 	}
@@ -486,6 +479,13 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		FPGA_ERR("PR secure load error detected");
 		result = FPGA_RECONF_ERROR;
 	}
+
+	// close the accelerator opened during `open_accel`
+	if (fpgaClose(accel) != FPGA_OK) {
+		FPGA_ERR("Error closing accelerator after reconfiguration");
+		result = FPGA_RECONF_ERROR;
+	}
+
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

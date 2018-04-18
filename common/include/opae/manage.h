@@ -120,7 +120,11 @@ fpga_result fpgaReleaseFromInterface(fpga_handle fpga,
  * @param[in]  slot           Token identifying the slot to reconfigure
  * @param[in]  bitstream      Pointer to memory holding the bitstream
  * @param[in]  bitstream_len  Length of the bitstream in bytes
- * @param[in]  flags          Flags that control behavior of reconfiguration
+ * @param[in]  flags          Flags that control behavior of reconfiguration.
+ *                            Value of 0 indicates no flags. FPGA_RECONF_FORCE
+ *                            indicates that the bitstream is programmed into
+ *                            the slot without checking if the resource is
+ *                            currently in use.
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if the provided parameters
  * are not valid. FPGA_EXCEPTION if an internal error occurred accessing the
  * handle or while sending the bitstream data to the driver. FPGA_BUSY if the
