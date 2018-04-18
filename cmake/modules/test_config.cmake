@@ -95,9 +95,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
-    set(COMMON_SRC gtmain.cpp jsonParser.cpp
+    set(COMMON_SRC gtmain.cpp
+                jsonParser.cpp
                 unit/gtOpenClose_base.cpp
-                unit/gtProperties_base.cpp
                 unit/gtOpen.cpp
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
@@ -107,14 +107,15 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtEnumerate.cpp
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
-                function/gtOpenClose.cpp
-        function/gtGetProperties.cpp)
+                function/gtOpenClose.cpp)
 
     if(BUILD_ASE_TESTS)
         add_definitions(-DBUILD_ASE)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
         set(TARGET_SRC ${COMMON_SRC})
     else()
+        list(APPEND COMMON_SRC function/gtGetProperties.cpp)
+        list(APPEND COMMON_SRC unit/gtProperties_base.cpp)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/libopae/src)
         set(TARGET_SRC ${COMMON_SRC}
             function/gtUmsg.cpp

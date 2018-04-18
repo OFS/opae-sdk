@@ -65,30 +65,42 @@ endif()
 ############################################################################
 ## Add testing targets #####################################################
 ############################################################################
-set(gtest_filter)
-list(APPEND gtest_filter *MOCK*)
-list(APPEND gtest_filter *ALL*)
-list(APPEND gtest_filter -*event_drv_05*)
-list(APPEND gtest_filter *nodrv*)
-list(APPEND gtest_filter *Open*.03)
-list(APPEND gtest_filter *Open*.06)
-list(APPEND gtest_filter *Open*.open_drv_09)
-list(APPEND gtest_filter *Open*.07)
-list(APPEND gtest_filter *Enum*.18)
-list(APPEND gtest_filter *Enum*.19)
-list(APPEND gtest_filter *Buf*.PrepRel2MB01)
-list(APPEND gtest_filter *Buf*.Write01)
-list(APPEND gtest_filter *Buf*.WriteRead01)
-list(APPEND gtest_filter *Close*.03)
-set(gtest_filter_str "")
-foreach(filter ${gtest_filter})
-  set(gtest_filter "${gtest_filter}:${filter}")
-endforeach(filter ${gtest_filter})
+set(gtest_filter_include)
+set(gtest_filter_exclude)
+
+# list(APPEND gtest_filter *MOCK*)
+
+#inclusion pattern
+list(APPEND gtest_filter_include *ALL.*)
+
+#exclusion pattern
+list(APPEND gtest_filter_exclude *event_drv_05*)
+list(APPEND gtest_filter_exclude *Properties*._id.*)
+list(APPEND gtest_filter_exclude *Open*.03)
+list(APPEND gtest_filter_exclude *Open*.06)
+list(APPEND gtest_filter_exclude *Open*.open_drv_09)
+list(APPEND gtest_filter_exclude *Open*.07)
+list(APPEND gtest_filter_exclude *Enum*.18)
+list(APPEND gtest_filter_exclude *Enum*.19)
+list(APPEND gtest_filter_exclude *Buf*.PrepRel2MB01)
+list(APPEND gtest_filter_exclude *Buf*.Write01)
+list(APPEND gtest_filter_exclude *Buf*.WriteRead01)
+list(APPEND gtest_filter_exclude *Close*.03)
+
+set(gtest_filter_include_str "")
+foreach(filter ${gtest_filter_include})
+  set(gtest_filter_include_str "${gtest_filter}:${filter}")
+endforeach(filter ${gtest_filter_include})
+
+set(gtest_filter_exclude_str "")
+foreach(filter ${gtest_filter_exclude})
+  set(gtest_filter_exclude_str "${gtest_filter}:${filter}")
+endforeach(filter ${gtest_filter_exclude})
 
 if(BUILD_ASE_TESTS)
   add_test(NAME test_open_common_ase
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND gtase  ${CMAKE_BINARY_DIR} -v --gtest_filter=${gtest_filter})
+    COMMAND gtase  ${CMAKE_BINARY_DIR} -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
 
   set_tests_properties(
     test_open_common_ase
