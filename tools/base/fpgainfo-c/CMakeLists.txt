@@ -30,3 +30,4 @@ add_executable(fpgainfo-c main.c
 			  fmeinfo.c
 			  portinfo.c)
 target_link_libraries(fpgainfo-c opae-c)
+set_property(TARGET fpgainfo-c PROPERTY C_STANDARD 99)
