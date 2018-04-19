@@ -66,6 +66,7 @@ def errorExit(msg):
 def getHWLibPath():
     if (args.lib is not None):
         hw_lib_dir = args.lib
+        os.environ['BBS_LIB_PATH'] = hw_lib_dir
     elif ('BBS_LIB_PATH' in os.environ):
         # Legacy variable, shared with afu_sim_setup and HW releases
         hw_lib_dir = os.environ['BBS_LIB_PATH'].rstrip('/')
@@ -248,6 +249,7 @@ def setup_build():
     # Configure sources, generating hw/afu.qsf in the destination tree
     cmd = ['rtl_src_config']
     cmd.append('--qsf')
+    cmd.append('--quiet')
     if (os.path.isabs(sources)):
         cmd.append('--abs')
         cmd.append(sources)
@@ -286,6 +288,7 @@ def setup_build_ipx(sources, build_dir):
     # Get IPX files from source list
     cmd = ['rtl_src_config']
     cmd.append('--ipx')
+    cmd.append('--quiet')
     if (os.path.isabs(sources)):
         cmd.append('--abs')
         cmd.append(sources)
