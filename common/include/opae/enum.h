@@ -71,10 +71,10 @@ extern "C" {
  * @param[in] filters      Array of `fpga_properties` objects describing the
  *                         properties of the objects that should be returned. A
  *                         resource is considered matching if its properties
- *                         match any one of the supplied filters. Passing an
- *                         empty filters object (one without any filter criteria
- *                         set) will match all FPGA resources present in the
- *                         system.
+ *                         match any one of the supplied filters. To match all
+ *                         FPGA resources, pass an empty filters object (one
+ *                         without any filter criteria set) or pass a NULL
+ *                         filters parameter with num_filters set to 0.
  * @param[in] num_filters  Number of entries in the `filters` array.
  * @param[out] tokens      Pointer to an array of fpga_token variables to be
  *                         populated.  If NULL is supplied, fpgaEnumerate() will
