@@ -64,5 +64,5 @@ set_target_properties(opae-c-ase PROPERTIES
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
 install(TARGETS opae-c-ase
-  LIBRARY DESTINATION lib
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaecase)
