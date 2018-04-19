@@ -22,11 +22,10 @@ must be express and approved by Intel in writing.
 
 --*/
 
-
-#include "common_test.h"
-#include "gtest/gtest.h"
-#include "config_int.h"
 #include <opae/cxx/core/version.h>
+#include "common_test.h"
+#include "config_int.h"
+#include "gtest/gtest.h"
 
 using namespace common_test;
 using namespace std;
@@ -41,9 +40,9 @@ using namespace opae::fpga::types;
  */
 TEST(CxxVersion, as_struct) {
   auto v = version::as_struct();
-	EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
-	EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
-	EXPECT_EQ(v.patch, INTEL_FPGA_API_VER_REV);
+  EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
+  EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
+  EXPECT_EQ(v.patch, INTEL_FPGA_API_VER_REV);
 }
 
 /**
@@ -55,9 +54,8 @@ TEST(CxxVersion, as_struct) {
  */
 TEST(CxxVersion, as_string) {
   auto v = version::as_string();
-	EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_VERSION);
+  EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_VERSION);
 }
-
 
 /**
  * @test       build
@@ -68,5 +66,5 @@ TEST(CxxVersion, as_string) {
  */
 TEST(CxxVersion, build) {
   auto v = version::build();
-	EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_HASH);
+  EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_HASH);
 }
