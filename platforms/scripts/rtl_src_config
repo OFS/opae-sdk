@@ -293,7 +293,7 @@ def addDefaultFpgaFamily(opts):
 
             sys.stderr.write(
                 "Automatically set OPAE_PLATFORM_FPGA_FAMILY to {0}\n".format(
-                os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
+                    os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
         except Exception as e:
             errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY ({0})".format(
                 str(e)))
