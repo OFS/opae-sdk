@@ -71,9 +71,9 @@ foreach(SCRIPT afu_platform_config afu_platform_info)
                  ${SCRIPT}.py)
 
   CREATE_PYTHON_EXE(${SCRIPT} ${SCRIPT} ${PKG_PYTHON_FILES})
-endforeach(SCRIPT)
 
-# The CREATE_PYTHON_EXE macro sets PACKAGER_BIN to the generated zip file.
-install(PROGRAMS ${PACKAGER_BIN}
-        DESTINATION bin
-        COMPONENT platform)
+  # The CREATE_PYTHON_EXE macro sets PACKAGER_BIN to the generated zip file.
+  install(PROGRAMS ${PACKAGER_BIN}
+          DESTINATION bin
+          COMPONENT platform)
+endforeach(SCRIPT)
