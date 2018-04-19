@@ -71,6 +71,12 @@ comparing the interface ID noted in the AF header against the interface ID
 exposed by the FME through sysfs. This check is usually done by
 user-space before calling the reconfiguration IOCTL.
 
+.. note::
+
+```
+    Platforms that support 512-byte Partial Reconfiguration require
+    binutils >= version 2.25.
+```
 
 .. note::
 
