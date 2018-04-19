@@ -26,6 +26,8 @@
 #pragma once
 #include <string>
 
+#include <opae/types.h>
+
 namespace opae {
 namespace fpga {
 namespace types {
