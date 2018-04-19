@@ -366,8 +366,8 @@ These commands affect script parsing:
   # <comment>       All text following a '#' is ignored.''')
 
     parser.add_argument("config_file",
-                        help="""Configuration file containing RTL source file paths,
-                                preprocessor variable settings, etc.""")
+                        help="""Configuration file containing RTL source file
+                                paths, preprocessor variable settings, etc.""")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",

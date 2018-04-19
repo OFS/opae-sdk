@@ -211,5 +211,6 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     printKey(args, platform.db)
 
+
 if __name__ == "__main__":
     main()
