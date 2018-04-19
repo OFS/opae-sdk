@@ -46,6 +46,7 @@ import os
 import sys
 import argparse
 import glob
+import json
 
 from platmgr.jsondb import jsondb
 
