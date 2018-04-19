@@ -27,7 +27,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 project("opae-c-ase")
-find_package(Threads  REQUIRED)
+find_package(Threads REQUIRED)
 set(API_DIR ${PROJECT_SOURCE_DIR})
 set(ASEAPI_SRC
   ${API_DIR}/../sw/tstamp_ops.c
