@@ -48,16 +48,7 @@ foreach(SRC ${PLATFORM_SCRIPTS})
 endforeach(SRC)
 
 
-# Zip afu_platform_config with libraries.  Start with CMake variable substitution.
-configure_file(
-        afu_platform_config ${CMAKE_CURRENT_BINARY_DIR}/bin/afu_platform_config.py
-        @ONLY NEWLINE_STYLE UNIX)
-
-# Following variable substitution, the updated file is in a build directory.
-# The zipped file must be created without the path to the build tree.  Generate
-# a tuple (list) with the file's path and the name to call it in the zip file.
-set(AFU_PL_CFG ${CMAKE_CURRENT_BINARY_DIR}/bin/afu_platform_config.py
-               afu_platform_config.py)
+## Zip afu_platform_config and afu_platform_info with libraries.
 
 # The set of files to include in the zip file.  Pass the name of AFU_PL_CFG
 # above, which CREATE_PYTHON_EXE will detect as a path/name tuple.
@@ -67,7 +58,20 @@ set(PKG_PYTHON_FILES
     platmgr/jsondb.py
     platmgr/emitcfg.py)
 
-CREATE_PYTHON_EXE(afu_platform_config afu_platform_config ${PKG_PYTHON_FILES})
+foreach(SCRIPT afu_platform_config afu_platform_info)
+  # Start with CMake variable substitution.
+  configure_file(
+          ${SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/bin/${SCRIPT}.py
+          @ONLY NEWLINE_STYLE UNIX)
+
+  # Following variable substitution, the updated file is in a build directory.
+  # The zipped file must be created without the path to the build tree.  Generate
+  # a tuple (list) with the file's path and the name to call it in the zip file.
+  set(AFU_PL_CFG ${CMAKE_CURRENT_BINARY_DIR}/bin/${SCRIPT}.py
+                 ${SCRIPT}.py)
+
+  CREATE_PYTHON_EXE(${SCRIPT} ${SCRIPT} ${PKG_PYTHON_FILES})
+endforeach(SCRIPT)
 
 # The CREATE_PYTHON_EXE macro sets PACKAGER_BIN to the generated zip file.
 install(PROGRAMS ${PACKAGER_BIN}
