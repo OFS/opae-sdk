@@ -51,9 +51,9 @@ def main():
 
     def splitit(s):
         try:
-                return map(int, s.split('.'))
+            return map(int, s.split('.'))
         except ValueError:
-                return s
+            return s
     versions.sort(key=splitit)
     t = Environment().from_string(index_tpl)
     f = open('index.html', 'w')
