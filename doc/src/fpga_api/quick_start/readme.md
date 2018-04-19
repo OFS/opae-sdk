@@ -40,16 +40,16 @@ release's version number.
 
 ```eval_rst
 .. note::
-    The packages requires that the DKMS (Dynamic Kernel Module System)
+    The packages require that the DKMS (Dynamic Kernel Module System)
     package, version greater than 2.2, is already installed.
 ```
 
-For RPM base distributions:
+For RPM-based distributions:
 ```console
 $ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
 ```
 
-For DEB base distributions:
+For DEB-based distributions:
 ```console
 $ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
 ```
@@ -63,19 +63,19 @@ headers.
 For rpm packages:
 
 ```console
-$ sudo yum install opae-libs-<release>-1.x86_64.rpm
-$ sudo yum install opae-tools-<release>-1.x86_64.rpm
-$ sudo yum install opae-tools-extra-<release>-1.x86_64.rpm
-$ sudo yum install opae-devel-<release>-1.x86_64.rpm
+$ sudo yum install opae-libs-<release>.x86_64.rpm
+$ sudo yum install opae-tools-<release>.x86_64.rpm
+$ sudo yum install opae-tools-extra-<release>.x86_64.rpm
+$ sudo yum install opae-devel-<release>.x86_64.rpm
 ```
 
 For deb packages:
 
 ```console
-$ sudo dpkg -i opae-<release>-1.x86_64-libs.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-tools.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-tools-extra.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-devel.deb
+$ sudo dpkg -i opae-<release>.x86_64-libs.deb
+$ sudo dpkg -i opae-<release>.x86_64-tools.deb
+$ sudo dpkg -i opae-<release>.x86_64-tools-extra.deb
+$ sudo dpkg -i opae-<release>.x86_64-devel.deb
 ```
 
 To use OPAE in the simulation environment, you also need to install the AFU
@@ -84,12 +84,12 @@ Simulation Environment (ASE) package:
 rpm:
 
 ```console
-$ sudo yum install opae-ase-<release>-1.x86_64.rpm
+$ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 deb:
 
 ```console
-$ sudo dpkg -i opae-<release>-1.x86_64-ase.deb
+$ sudo dpkg -i opae-<release>.x86_64-ase.deb
 ```
 
 ## Building and installing the OPAE SDK from source ##
