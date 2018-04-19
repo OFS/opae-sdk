@@ -63,7 +63,7 @@ extern "C" {
  * accessor functions.
  *
  * @note fpgaGetPropertiesFromHandle() will allocate memory for the created properties
- * object returned in `prop`. It is the responsibility of the using application
+ * object returned in `prop`. It is the responsibility of the caller
  * to free this memory after use by calling fpgaDestroyProperties().
  *
  * @param[in]  handle     Open handle to get properties for.
@@ -91,7 +91,7 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *pro
  * fpgaUpdateProperties().
  *
  * @note fpgaGetProperties() will allocate memory for the created properties
- * object returned in `prop`. It is the responsibility of the using application
+ * object returned in `prop`. It is the responsibility of the caller
  * to free this memory after use by calling fpgaDestroyProperties().
  *
  * @param[in]  token      Token to get properties for. Can be NULL, which will
