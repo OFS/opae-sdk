@@ -46,8 +46,6 @@ import os
 import sys
 import argparse
 import glob
-import subprocess
-import re
 
 from platmgr.jsondb import jsondb
 
@@ -92,43 +90,15 @@ def getDBRootPath():
     return db_root
 
 
-# The qsys tag is a combination of the FPGA type and the current
-# Quartus version.
-def getQsysTag(args, platform_db):
-    if ('qsys-tag' in platform_db):
-        qsys_tag = platform_db['qsys-tag']
-    else:
-        # Default value (A10) predicates qsys-tag being present in the db.
-        qsys_tag = 'A10'
-
-    quartus_tag = ''
-    try:
-        # Get the Quartus major version number
-        proc = subprocess.Popen('quartus_sh --version', shell=True,
-                                stdout=subprocess.PIPE)
-        for line in proc.stdout:
-            line = line.strip()
-            if (line[:7] == 'Version'):
-                # Just the major version number
-                quartus_tag = '_Quartus' + re.sub(r'\..*', '', line[8:])
-
-        errcode = proc.wait()
-        if (errcode):
-            errorExit("Failed to compute qsys-tag")
-    except Exception as e:
-        errorExit(str(e))
-
-    return qsys_tag + quartus_tag
-
-
 def printKey(args, platform_db):
-    if (args.key == 'qsys-tag'):
-        print(getQsysTag(args, platform_db))
-        return
-
     # Default -- key matches a top-level db field exactly
     if ((args.key != '') and (args.key in platform_db)):
         print(platform_db[args.key])
+        return
+
+    if (args.key == 'fpga-family'):
+        # Default value (A10) predicates fpga-family being present in the db.
+        print('A10')
         return
 
 
@@ -218,7 +188,7 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     parser.add_argument(
         "-k", "--key",
-        choices=["ase-platform", "qsys-tag"],
+        choices=["ase-platform", "fpga-family"],
         help="""State to fetch.""")
 
     # Verbose/quiet

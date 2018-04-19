@@ -12,6 +12,7 @@ import argparse
 import os
 import sys
 import subprocess
+import re
 
 
 def errorExit(msg):
@@ -200,11 +201,15 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
                 c = c.split('#', 1)[0]
 
                 # Replace environment variables
-                if ('OPAE_PLATFORM_QSYS_TAG' in c and
-                        'OPAE_PLATFORM_QSYS_TAG' not in os.environ):
+                if ('OPAE_PLATFORM_FPGA_FAMILY' in c and
+                        'OPAE_PLATFORM_FPGA_FAMILY' not in os.environ):
                     # The source requires version-specific Qsys and the
                     # tag has not yet been determined.
-                    addDefaultQsysTag(opts)
+                    addDefaultFpgaFamily(opts)
+
+                if ('QUARTUS_VERSION_MAJOR' in c and
+                        'QUARTUS_VERSION_MAJOR' not in os.environ):
+                    getQuartusVersion(opts)
 
                 c = os.path.expandvars(c)
 
@@ -259,20 +264,18 @@ def getHWLibPath(opts):
 
 #
 # Qsys requires source files that are specific to both FPGA technology and
-# Quartus version.  We automatically define OPAE_PLATFORM_QSYS_TAG as an
+# Quartus version.  We automatically define OPAE_PLATFORM_FPGA_FAMILY as an
 # environment variable, which may be used in source specification to choose
 # the right code.
 #
-def addDefaultQsysTag(opts):
+def addDefaultFpgaFamily(opts):
     # Define an environment variable for Qsys versions based on the
     # platform.
-    global qsys_tag_err
-    qsys_tag_err = None
 
-    if ('OPAE_PLATFORM_QSYS_TAG' not in os.environ):
+    if ('OPAE_PLATFORM_FPGA_FAMILY' not in os.environ):
         try:
-            # Get the FPGA technology Qsys tag using afu_platform_info
-            cmd = 'afu_platform_info --key=qsys-tag '
+            # Get the FPGA technology tag using afu_platform_info
+            cmd = 'afu_platform_info --key=fpga-family '
 
             # What's the platform name?
             plat_class_file = os.path.join(getHWLibPath(opts),
@@ -283,17 +286,40 @@ def addDefaultQsysTag(opts):
             proc = subprocess.Popen(cmd, shell=True,
                                     stdout=subprocess.PIPE)
             for line in proc.stdout:
-                os.environ['OPAE_PLATFORM_QSYS_TAG'] = line.strip()
+                os.environ['OPAE_PLATFORM_FPGA_FAMILY'] = line.strip()
             errcode = proc.wait()
             if (errcode):
-                errorExit("failed to set OPAE_PLATFORM_QSYS_TAG")
+                errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY")
 
             sys.stderr.write(
-                "Automatically set OPAE_PLATFORM_QSYS_TAG to {0}\n".format(
-                os.environ['OPAE_PLATFORM_QSYS_TAG']))
+                "Automatically set OPAE_PLATFORM_FPGA_FAMILY to {0}\n".format(
+                os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
         except Exception as e:
-            errorExit("failed to set OPAE_PLATFORM_QSYS_TAG ({0})".format(
+            errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY ({0})".format(
                 str(e)))
+
+
+#
+# Invoke Quartus to load its major version number.
+#
+def getQuartusVersion(opts):
+    if ('QUARTUS_VERSION_MAJOR' not in os.environ):
+        try:
+            # Get the Quartus major version number
+            proc = subprocess.Popen('quartus_sh --version', shell=True,
+                                    stdout=subprocess.PIPE)
+            for line in proc.stdout:
+                line = line.strip()
+                if (line[:7] == 'Version'):
+                    # Just the major version number
+                    os.environ['QUARTUS_VERSION_MAJOR'] = re.sub(r'\..*',
+                                                                 '', line[8:])
+
+            errcode = proc.wait()
+            if (errcode):
+                errorExit("Failed to compute QUARTUS_VERSION_MAJOR")
+        except Exception as e:
+            errorExit(str(e))
 
 
 def main(args=None):
@@ -309,7 +335,9 @@ are ignored, depending on the build target.  For example, SDC files are
 ignored when constructing a list for simulation.
 
 Environment variables in file paths are substituted as a configuration
-file is loaded.
+file is loaded.  Several environment variables are defined automatically,
+including QUARTUS_VERSION_MAJOR (e.g. 18) and OPAE_PLATFORM_FPGA_FAMILY
+(the value output by "afu_platform_info --key=fpga-family").
 
 Files should be specified one per line in the configuration file.  A few
 prefixes are treated specially.  Most are directives supported by Verilog
