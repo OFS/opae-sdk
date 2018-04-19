@@ -207,8 +207,9 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
                     # tag has not yet been determined.
                     addDefaultFpgaFamily(opts)
 
-                if ('QUARTUS_VERSION_MAJOR' in c and
-                        'QUARTUS_VERSION_MAJOR' not in os.environ):
+                if ('QUARTUS_VERSION' in c and
+                        ('QUARTUS_VERSION' not in os.environ or
+                         'QUARTUS_VERSION_MAJOR' not in os.environ)):
                     getQuartusVersion(opts)
 
                 c = os.path.expandvars(c)
@@ -291,9 +292,10 @@ def addDefaultFpgaFamily(opts):
             if (errcode):
                 errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY")
 
-            sys.stderr.write(
-                "Automatically set OPAE_PLATFORM_FPGA_FAMILY to {0}\n".format(
-                    os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
+            if (not opts.quiet):
+                sys.stderr.write(
+                    "Set OPAE_PLATFORM_FPGA_FAMILY to {0}\n".format(
+                        os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
         except Exception as e:
             errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY ({0})".format(
                 str(e)))
@@ -303,21 +305,36 @@ def addDefaultFpgaFamily(opts):
 # Invoke Quartus to load its major version number.
 #
 def getQuartusVersion(opts):
-    if ('QUARTUS_VERSION_MAJOR' not in os.environ):
+    if ('QUARTUS_VERSION' not in os.environ or
+            'QUARTUS_VERSION_MAJOR' not in os.environ):
         try:
             # Get the Quartus major version number
             proc = subprocess.Popen('quartus_sh --version', shell=True,
                                     stdout=subprocess.PIPE)
+            ok = False
             for line in proc.stdout:
                 line = line.strip()
                 if (line[:7] == 'Version'):
+                    ok = True
+
                     # Just the major version number
-                    os.environ['QUARTUS_VERSION_MAJOR'] = re.sub(r'\..*',
-                                                                 '', line[8:])
+                    maj = re.sub(r'\D*(\d*)\..*', r'\1', line)
+                    os.environ['QUARTUS_VERSION_MAJOR'] = maj
+                    # Major.minor version
+                    maj_min = re.sub(r'\D*(\d*\.\d*)\..*', r'\1', line)
+                    os.environ['QUARTUS_VERSION'] = maj_min
 
             errcode = proc.wait()
-            if (errcode):
-                errorExit("Failed to compute QUARTUS_VERSION_MAJOR")
+            if (errcode or not ok):
+                errorExit("Failed to compute QUARTUS_VERSION")
+
+            if (not opts.quiet):
+                sys.stderr.write(
+                    "Set QUARTUS_VERSION to {0}\n".format(
+                        os.environ['QUARTUS_VERSION']))
+                sys.stderr.write(
+                    "Set QUARTUS_VERSION_MAJOR to {0}\n".format(
+                        os.environ['QUARTUS_VERSION_MAJOR']))
         except Exception as e:
             errorExit(str(e))
 
@@ -336,8 +353,9 @@ ignored when constructing a list for simulation.
 
 Environment variables in file paths are substituted as a configuration
 file is loaded.  Several environment variables are defined automatically,
-including QUARTUS_VERSION_MAJOR (e.g. 18) and OPAE_PLATFORM_FPGA_FAMILY
-(the value output by "afu_platform_info --key=fpga-family").
+including OPAE_PLATFORM_FPGA_FAMILY (the value output by "afu_platform_info
+--key=fpga-family"), QUARTUS_VERSION_MAJOR (e.g. 18) and QUARTUS_VERSION
+(e.g. 18.1).
 
 Files should be specified one per line in the configuration file.  A few
 prefixes are treated specially.  Most are directives supported by Verilog
@@ -393,6 +411,13 @@ These commands affect script parsing:
     group.add_argument("-a", "--abs",
                        action="store_true",
                        help="""Convert paths so they are absolute.""")
+
+    # Verbose/quiet
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-v", "--verbose", action="store_true", help="Verbose output")
+    group.add_argument(
+        "-q", "--quiet", action="store_true", help="Reduce output")
 
     parser.add_argument('-l', '--lib', default=None,
                         help="""FPGA platform release hw/lib directory.  If

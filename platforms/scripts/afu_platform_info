@@ -32,14 +32,8 @@
 #
 
 #
-# This script reads an AFU top-level interface specification that describes
-# the module name and ports expected by an AFU.  It also reads a
-# platform database that describes the top-level interface ports
-# that the platform offers.  The script validates that the platform meets
-# the requirements of the AFU and constructs a set of SystemVerilog header
-# and interface files that describe the platform.  Files containing rules
-# for loading the constructed headers and interfaces into either ASE or
-# Quartus are also emitted.
+# This script extracts state from a platform database, mostly for use in
+# other scripts.
 #
 
 import os
