@@ -75,7 +75,8 @@ extern "C" {
  *                         FPGA resources, pass an empty filters object (one
  *                         without any filter criteria set) or pass a NULL
  *                         filters parameter with num_filters set to 0.
- * @param[in] num_filters  Number of entries in the `filters` array.
+ * @param[in] num_filters  Number of entries in the `filters` array, or 0 to
+ *                         match all FPGA resources.
  * @param[out] tokens      Pointer to an array of fpga_token variables to be
  *                         populated.  If NULL is supplied, fpgaEnumerate() will
  *                         not create any tokens, but it will return the
