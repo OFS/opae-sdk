@@ -22,7 +22,7 @@
                 begin
                     $fwrite(avalon_mem_if_log_fd, "%m: %t bank %0d read 0x%x burst 0x%x\n",
                             $time,
-                            BANK_NUMBER,
+                            bank_number,
                             address,
                             burstcount);
                 end
@@ -32,7 +32,7 @@
                 begin
                     $fwrite(avalon_mem_if_log_fd, "%m: %t bank %0d resp 0x%x\n",
                             $time,
-                            BANK_NUMBER,
+                            bank_number,
                             readdata);
                 end
 
@@ -41,7 +41,7 @@
                 begin
                     $fwrite(avalon_mem_if_log_fd, "%m: %t bank %0d write 0x%x burst 0x%x mask 0x%x data 0x%x\n",
                             $time,
-                            BANK_NUMBER,
+                            bank_number,
                             address,
                             burstcount,
                             byteenable,
