@@ -110,6 +110,8 @@ public :
 
     std::string level_name(level l);
 
+    static logger * get_logger(const std::string & name);
+
 private:
     std::string name_;
     std::ofstream filestream_;

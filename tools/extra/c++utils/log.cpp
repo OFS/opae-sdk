@@ -33,6 +33,8 @@ namespace intel
 namespace utils
 {
 
+static std::map<std::string, logger*> loggers;
+
 std::timed_mutex s_mutex;
 
 wrapped_stream::wrapped_stream(std::ostream * stream, bool new_line)
@@ -213,6 +215,14 @@ wrapped_stream logger::exception(std::string str)
 wrapped_stream logger::fatal(std::string str)
 {
     return log(level::level_fatal, str);
+}
+
+logger* logger::get_logger(const std::string & name){
+    auto it = loggers.find(name);
+    if (it == loggers.end()){
+        loggers[name] = new logger(name);
+    }
+    return loggers[name];
 }
 
 } // end of namespace utils

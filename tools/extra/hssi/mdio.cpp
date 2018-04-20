@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+#include "log.h"
+
 namespace intel
 {
 namespace fpga
@@ -12,6 +14,7 @@ namespace hssi
 
 using namespace std;
 using namespace std::chrono;
+using intel::utils::logger;
 
 mdio::mdio(przone_interface::ptr_t przone)
 : przone_(przone)
@@ -20,6 +23,8 @@ mdio::mdio(przone_interface::ptr_t przone)
 
 bool mdio::write(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint32_t value)
 {
+    auto log = logger::get_logger("mdio");
+    log->debug("write") << device_addr << ", " << port_addr << ", " << reg_addr << ", " << value;
     uint32_t addr = (mdio_device_address_mask & (device_addr << mdio_device_address))
                   | (mdio_port_address_mask & (port_addr << mdio_port_addres))
                   | (mdio_register_address_mask & (reg_addr << mdio_register_address));
@@ -36,6 +41,7 @@ bool mdio::write(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint
 
 bool mdio::read(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint32_t &value)
 {
+    auto log = logger::get_logger("mdio");
     uint32_t addr = (mdio_device_address_mask & (device_addr << mdio_device_address))
                   | (mdio_port_address_mask & (port_addr << mdio_port_addres))
                   | (mdio_register_address_mask & (reg_addr << mdio_register_address));
@@ -56,7 +62,8 @@ bool mdio::read(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint3
             std::cerr << "WARNING: Could not complete MDIO read" << std::endl;
         }
 
-     return true;
+    log->debug("read") << device_addr << ", " << port_addr << ", " << reg_addr << ", " << value;
+    return true;
 }
 
 bool mdio::wait_for_mdio_tx(uint32_t timeout_usec)
