@@ -160,7 +160,7 @@ module ase_top();
       //   afu_platform_config.
       //
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-      .local_mem              (ddr4                 ),
+      .local_mem              (ddr4[0:NUM_LOCAL_MEM_BANKS-1]),
 `endif
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
       .DDR4a_USERCLK          (ddr4_avmm_clk[0]     ),
