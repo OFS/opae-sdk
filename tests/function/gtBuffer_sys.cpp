@@ -36,7 +36,7 @@
 
 #include "gtest/gtest.h"
 
-#include "types_int.h"
+#include "common_sys.h"
 
 #include "common_test.h"
 

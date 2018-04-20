@@ -41,7 +41,8 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#include "types_int.h"
+//#include "types_int.h"
+#include "common_sys.h"
 #include "common_test.h"
 #include "safe_string/safe_string.h"
 

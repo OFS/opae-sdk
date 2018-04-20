@@ -77,12 +77,12 @@ include_directories(${GTEST_INCLUDE_DIRS}
             ${CMAKE_BINARY_DIR}/../..
             ${CMAKE_BINARY_DIR}/..
             ${OPAE_LIB_DIR}
-            ${CMAKE_INSTALL_PREFIX}/include
+            ${CMAKE_INSTALL_PREFIX}/utils
             ${CMAKE_INSTALL_PREFIX}/lib)
 
 set(SRC ${CMAKE_SOURCE_DIR}/../gtmain.cpp 
         ${CMAKE_SOURCE_DIR}/../jsonParser.cpp
-        ${CMAKE_SOURCE_DIR}/../function/gtEnumerate.cpp
+        ${CMAKE_SOURCE_DIR}/../function/gtEnumerate_sys.cpp
         ${CMAKE_SOURCE_DIR}/../function/gtBuffer_sys.cpp
         ${CMAKE_SOURCE_DIR}/../function/gtMMIO_sys.cpp
         ${CMAKE_SOURCE_DIR}/../function/gtOpenClose_sys.cpp
@@ -92,16 +92,19 @@ set(SRC ${CMAKE_SOURCE_DIR}/../gtmain.cpp
         stress/gtPR_sys.cpp
         stress/gtPerfCounters_sys.cpp
         stress/gtRASPower_sys.cpp)
-  
+
 add_library(commonlib SHARED
-            ${CMAKE_SOURCE_DIR}/../common_test.h 
-            ${CMAKE_SOURCE_DIR}/../common_test.cpp)
+            ${CMAKE_SOURCE_DIR}/../common_test.cpp
+            ${CMAKE_SOURCE_DIR}/utils/common_sys.cpp)
+         #   ${CMAKE_SOURCE_DIR}/utils/common_pr.cpp
+         #   ${CMAKE_SOURCE_DIR}/utils/common_sysfs.cpp)
 
 add_executable(foapp  ${CMAKE_SOURCE_DIR}/utils/fpgaopen_app.cpp)
 
 target_include_directories(foapp PUBLIC
             $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
             $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/utils>
             $<INSTALL_INTERFACE:include>)
 
 add_executable(gtapi_sys ${SRC})

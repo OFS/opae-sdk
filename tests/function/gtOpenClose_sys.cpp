@@ -25,12 +25,13 @@ must be express and approved by Intel in writing.
 #include <opae/access.h>
 
 #include "common_test.h"
+#include "common_sys.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
-#include "types_int.h"
-#endif
+//#ifdef BUILD_ASE
+//#include "ase/api/src/types_int.h"
+//#else
+//#include "types_int.h"
+//#endif
 
 using namespace common_test;
 using namespace std;
@@ -144,17 +145,10 @@ TEST_F(LibopaecOpenFCommonHW, 03) {
  */
 TEST_F(LibopaecOpenFCommonALL, 05) {
 
-<<<<<<< HEAD
 #ifdef BUILD_ASE
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
-=======
-  fpga_handle h;
-#ifdef BUILD_ASE
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
->>>>>>> df08ab399106248b91e2bba60214b025085470cd
 
   token_for_afu0(&_tok);
   ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
@@ -231,16 +225,10 @@ TEST(LibopaecCloseCommonALL, 01) {
  *             returns FPGA_OK.
 */
 TEST_F(LibopaecCloseFCommonALL, 02) {
-<<<<<<< HEAD
 
 #ifdef BUILD_ASE
   fpga_handle h;
-=======
-  fpga_handle h;
 
-#ifdef BUILD_ASE
-
->>>>>>> df08ab399106248b91e2bba60214b025085470cd
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -263,7 +251,6 @@ TEST_F(LibopaecCloseFCommonALL, 02) {
               functor);          // test code
 #endif
 }
-<<<<<<< HEAD
 
 /**
  * @test       03
@@ -301,5 +288,3 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
 #endif // BUILD_ASE
 
 
-=======
->>>>>>> df08ab399106248b91e2bba60214b025085470cd

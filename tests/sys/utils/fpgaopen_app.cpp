@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include "common_test.h"
+#include "common_sys.h"
 
 using namespace std;
 using namespace common_test;

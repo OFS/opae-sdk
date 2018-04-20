@@ -43,15 +43,14 @@
 
 #include <json-c/json.h>
 #ifndef BUILD_ASE
-#include <log_int.h>
+#include "sys/utils/log_sys.h"
 #endif
 #include <opae/access.h>
 #include <opae/fpga.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#include "types_int.h"
+#include "sys/utils/types_sys.h"
 #include <sys/mman.h>
-#include <types_int.h>
 
 #include "safe_string/safe_string.h"
 

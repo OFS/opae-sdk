@@ -28,12 +28,9 @@ must be express and approved by Intel in writing.
 #include <opae/types_enum.h>
 #include <sys/mman.h>
 
-#include "safe_string/safe_string.h"
-
 #include "common_sys.h"
 #include "common_test.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
 
 using namespace common_test;
 using namespace std;

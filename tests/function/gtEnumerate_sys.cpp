@@ -25,12 +25,13 @@ must be express and approved by Intel in writing.
 #include "opae/fpga.h"
 
 #include "common_test.h"
+#include "common_sys.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
-#include "types_int.h"
-#endif // BUILD_ASE
+//#ifdef BUILD_ASE
+//#include "ase/api/src/types_int.h"
+//#else
+//#include "types_int.h"
+//#endif // BUILD_ASE
 
 using namespace common_test;
 

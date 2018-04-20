@@ -30,7 +30,7 @@ must be express and approved by Intel in writing.
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
+#include "common_sys.h"
 
 #define FME_SYSFS_PERF "/iperf"
 #define PERF_LIST_SIZE 10

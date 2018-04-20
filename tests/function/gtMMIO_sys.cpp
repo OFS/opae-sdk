@@ -27,12 +27,13 @@ must be express and approved by Intel in writing.
 #include <sys/mman.h>
 
 #include "common_test.h"
+#include "common_sys.h"
 #include "gtest/gtest.h"
-#ifdef BUILD_ASE
-#include "ase/api/src/types_int.h"
-#else
-#include "types_int.h"
-#endif
+//#ifdef BUILD_ASE
+//#include "ase/api/src/types_int.h"
+//#else
+//#include "types_int.h"
+//#endif
 
 #define CSR_SCRATCHPAD0 0x100
 //#define MAX_MMIO_SIZE  1024*256

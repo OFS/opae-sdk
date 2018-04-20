@@ -28,12 +28,9 @@ must be express and approved by Intel in writing.
 #include <opae/types_enum.h>
 #include <sys/mman.h>
 
-#include "safe_string/safe_string.h"
-
 #include "common_sys.h"
 #include "common_test.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
 
 #define FLAGS 0
 
@@ -426,6 +423,7 @@ TEST_F(StressLibopaecPRFCommonHW, 11) {
  * @brief      Use PR API to set MCP power threshold, use sysFS to
  *             verify the updated value.
  */
+/*
 TEST_F(StressLibopaecPRFCommonHW, 16) {
   auto functor = [=]() -> void {
 
@@ -487,8 +485,7 @@ TEST_F(StressLibopaecPRFCommonHW, 16) {
               true,         // reconfig default NLB0
               functor);     // test code
 }
-
-#define USER_CLOCK_CMD0 "userclk_freqcmd"
+*/
 
 /**
   * @test       17
@@ -496,6 +493,7 @@ TEST_F(StressLibopaecPRFCommonHW, 16) {
   * @brief      Set user clock, read back from sysFS to find the updated
   *             value.
   */
+/*
 TEST_F(StressLibopaecPRFCommonHW, 17) {
   auto functor = [=]() -> void {
 
@@ -524,7 +522,7 @@ TEST_F(StressLibopaecPRFCommonHW, 17) {
               true,         // reconfig default NLB0
               functor);     // test code
 }
-
+*/
 /**
   * @test       18
   *
@@ -598,3 +596,4 @@ TEST_F(StressLibopaecPRFCommonHW, 19) {
               true,              // reconfig default NLB0
               functor);          // test code
 }
+
