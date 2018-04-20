@@ -40,6 +40,13 @@ typedef class OPAE_SVC_WRAPPER SVC_WRAPPER;
 
 class OPAE_SVC_WRAPPER
 {
+
+  protected:
+    fpga_handle accel_handle;
+
+  public:
+    mpf_handle_t mpf_handle;
+
   public:
     // The constructor and destructor connect to and disconnect from the FPGA.
     OPAE_SVC_WRAPPER(const char* accel_uuid);
@@ -80,10 +87,7 @@ class OPAE_SVC_WRAPPER
     void* allocBuffer(size_t nBytes, uint64_t* ioAddress = NULL);
     void freeBuffer(void* va);
 
-    mpf_handle_t mpf_handle;
-
   protected:
-    fpga_handle accel_handle;
 
     bool is_ok;
     bool is_simulated;
