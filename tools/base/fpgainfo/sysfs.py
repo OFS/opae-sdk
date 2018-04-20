@@ -303,9 +303,10 @@ class errors_feature(sysfs_node):
         success = True
         for (err, clr) in self._errors_files:
             value = self.parse_sysfs(err)
+            clear_value = value if clr == "clear" else 0x0
             try:
                 if value:
-                    self.write_sysfs(hex(value), clr)
+                    self.write_sysfs(hex(clear_value), clr)
             except IOError:
                 success = False
                 logging.warn(
