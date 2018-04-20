@@ -79,7 +79,7 @@ set(QUESTA_VLOG_FLAGS_COVERAGE       ${questa_flags} CACHE STRING "Modelsim/Ques
 set(questa_flags)
 list(APPEND questa_flags -c)
 list(APPEND questa_flags -dpioutoftheblue 1)
-list(APPEND questa_flags -dpicpppath ${CMAKE_C_COMPILER})
+list(APPEND questa_flags -dpicpppath /usr/bin/gcc)
 list(APPEND questa_flags -cpppath ${CMAKE_C_COMPILER})
 list(APPEND questa_flags -do vsim_run.tcl)
 list(APPEND questa_flags -sv_seed 1234)
