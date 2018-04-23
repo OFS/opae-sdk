@@ -24,7 +24,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from distutils.spawn import find_executable
 import glob
 import os
 import re
