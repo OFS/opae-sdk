@@ -134,6 +134,7 @@ struct _fpga_properties {
 	fpga_guid guid;		// Applies only to accelerator types
 	fpga_token parent;
 	fpga_objtype objtype;
+    uint32_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
@@ -141,6 +142,7 @@ struct _fpga_properties {
 	uint64_t object_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
+    uint32_t numa_node;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20

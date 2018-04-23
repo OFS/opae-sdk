@@ -59,6 +59,15 @@ set(SRC
   src/version.c
   src/usrclk/user_clk_pgm_uclock.c)
 
+option(USE_NUMA "Build libopae with numa support" OFF)
+mark_as_advanced(USE_NUMA)
+if (USE_NUMA)
+    find_library(NUMA_LIB numa)
+    if (NUMA_LIB)
+        add_definitions(-DENABLE_NUMA)
+    endif(NUMA_LIB)
+endif (USE_NUMA)
+
 # Define target
 add_library(opae-c SHARED ${SRC})
 add_dependencies(opae-c copy-common-opae-header-files)
@@ -68,6 +77,10 @@ target_link_libraries(opae-c
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
+
+if (NUMA_LIB)
+    target_link_libraries(opae-c ${NUMA_LIB})
+endif(NUMA_LIB)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 

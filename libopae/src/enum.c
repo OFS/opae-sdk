@@ -45,6 +45,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#ifdef ENABLE_NUMA
+#include <numa.h>
+#endif
+
 /* mutex to protect global data structures */
 extern pthread_mutex_t global_lock;
 
@@ -53,12 +57,15 @@ struct dev_list {
 	char devpath[DEV_PATH_MAX];
 	fpga_objtype objtype;
 	fpga_guid guid;
+    uint32_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
 	uint8_t socket_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
+
+    uint32_t numa_node;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -153,6 +160,20 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_SOCKETID)) {
 		if (_filter->socket_id != attr->socket_id) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_SEGMENT)) {
+		if (_filter->segment != attr->segment) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUMANODE)) {
+		if (_filter->numa_node != attr->numa_node) {
 			res = false;
 			goto out_unlock;
 		}
@@ -390,11 +411,13 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		pdev->objtype  = FPGA_DEVICE;
 
+		pdev->segment  = parent->segment;
 		pdev->bus      = parent->bus;
 		pdev->device   = parent->device;
 		pdev->function = parent->function;
 		pdev->vendor_id = parent->vendor_id;
 		pdev->device_id = parent->device_id;
+        pdev->numa_node = parent->numa_node;
 
 		// Hard-coding the FME guid for now. Leave the below code in case this changes.
 
@@ -453,11 +476,13 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		pdev->objtype  = FPGA_ACCELERATOR;
 
+		pdev->segment   = parent->segment;
 		pdev->bus       = parent->bus;
 		pdev->device    = parent->device;
 		pdev->function  = parent->function;
 		pdev->vendor_id = parent->vendor_id;
 		pdev->device_id = parent->device_id;
+        pdev->numa_node = parent->numa_node;
 
 		res = open(pdev->devpath, O_RDWR);
 		if (-1 == res) {
@@ -504,7 +529,7 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	int res;
 	char *p;
 	int f;
-	unsigned b, d;
+	unsigned b, d, seg;
 
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
@@ -566,6 +591,12 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	sscanf_s_u(p, "%x", &b);
 
 	pdev->bus = (uint8_t) b;
+	*(p - 1) = 0;
+
+	seg = 0;
+	sscanf_s_u(p-5, "%x", &seg);
+
+	pdev->segment = (uint8_t) seg;
 
 	// read the vendor and device ID from the 'device' path
 	uint32_t x = 0;
@@ -582,6 +613,19 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	if (result != FPGA_OK)
 		return result;
 	pdev->device_id = (uint16_t)x;
+
+        // Discover the NUMA node that the device is attached to
+        pdev->numa_node = (uint32_t) -1;        // Default is no NUMA
+#ifdef ENABLE_NUMA
+        if(-1 != numa_available()) {
+	        char numapath[SYSFS_PATH_MAX];
+	        snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node", sysfspath);
+	        result = sysfs_read_u32(devicepath, &x);
+	        if (result != FPGA_OK)
+		        return result;
+	        pdev->numa_node = (uint16_t)x;
+        }
+#endif
 
 	// Find the FME and AFU devices.
 	dir = opendir(sysfspath);
@@ -683,8 +727,9 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 
-		// propagate the socket_id field.
+		// propagate the socket_id and numa_node fields.
 		lptr->socket_id = lptr->parent->socket_id;
+		lptr->numa_node = lptr->parent->numa_node;
 		lptr->fme = lptr->parent->fme;
 
 		/* FIXME: do we need to keep a global list of tokens? */

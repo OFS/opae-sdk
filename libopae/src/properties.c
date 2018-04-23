@@ -232,7 +232,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	char spath[SYSFS_PATH_MAX];
 	char *p;
-	int b, d, f;
+	int b, d, f, seg;
 	int device_instance;
 	int res;
 	errno_t e;
@@ -340,7 +340,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 	}
 
-	result = sysfs_bdf_from_path(spath, &b, &d, &f);
+	result = sysfs_bdf_from_path(spath, &b, &d, &f, &seg);
 	if (result)
 		return result;
 
@@ -352,6 +352,9 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	_iprop.function = (uint8_t) f;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
+
+	_iprop.segment = (uint32_t) seg;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SEGMENT);
 
 	// only set socket id if we have it on sysfs
 	result = sysfs_get_socket_id(device_instance, &_iprop.socket_id);
@@ -379,6 +382,20 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		return result;
 	_iprop.device_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+
+        // Discover the NUMA node that the device is attached to
+        _iprop.numa_node = (uint32_t) -1;        // Default is no NUMA
+#ifdef ENABLE_NUMA
+        if(-1 != numa_available()) {
+	        char numapath[SYSFS_PATH_MAX];
+	        snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node", _token->sysfspath);
+	        result = sysfs_read_u32(devicepath, &x);
+	        if (result != FPGA_OK)
+		        return result;
+	        _iprop.numa_node = (uint16_t)x;
+        }
+#endif
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUMANODE);
 
 	// FIXME
 	// _iprop.device_id = ?? ;
@@ -485,6 +502,50 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 
 	_prop->objtype = objtype;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, uint32_t *seg)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(seg);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT)) {
+		*seg = _prop->segment;
+	} else {
+		FPGA_MSG("No segment");
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+
+fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint32_t seg)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	_prop->segment = seg;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
 
 	err = pthread_mutex_unlock(&_prop->lock);
 	if (err)
@@ -1302,6 +1363,51 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
 	_prop->object_id = object_id;
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+
+fpga_result __FPGA_API__ fpgaPropertiesGetNumaNode(const fpga_properties prop, uint32_t *node)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(node);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_NUMANODE)) {
+		*node = _prop->numa_node;
+	} else {
+		FPGA_MSG("No NUMA node");
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+
+fpga_result __FPGA_API__ fpgaPropertiesSetNumaNode(fpga_properties prop, uint32_t numa)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	_prop->numa_node = numa;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUMANODE);
 
 	err = pthread_mutex_unlock(&_prop->lock);
 	if (err)
