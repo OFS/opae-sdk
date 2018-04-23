@@ -127,17 +127,8 @@ module platform_shim_ccip_std_afu
     logic afu_local_mem_clk[NUM_LOCAL_MEM_BANKS];
     logic afu_local_mem_reset[NUM_LOCAL_MEM_BANKS];
 
-    avalon_mem_if#(.ENABLE_LOG(0), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
+    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
         afu_local_mem[NUM_LOCAL_MEM_BANKS](afu_local_mem_clk, afu_local_mem_reset);
-
-    genvar b;
-    generate
-        for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
-        begin : bn
-            // Mostly used for debugging
-            assign afu_local_mem[b].bank_number = b;
-        end
-    endgenerate
 
 
     platform_shim_avalon_mem_if
