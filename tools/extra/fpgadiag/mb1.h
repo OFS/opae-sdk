@@ -75,7 +75,6 @@ private:
     std::size_t dsm_size_;
     std::size_t inp_size_;
     std::size_t out_size_;
-    std::size_t rd_lines_size_;
     std::size_t cool_cache_size_;
     bool suppress_header_;
     bool csv_format_;
