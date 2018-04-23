@@ -72,7 +72,7 @@ function (Build_MOCK_DRV)
   # build mock driver fake directory structure
   add_custom_target(mock-sysfs-prepare)
   add_custom_command(TARGET mock-sysfs-prepare POST_BUILD
-    COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz /tmp
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz /tmp
     COMMAND tar xzvf /tmp/mock_sys_tmp-1socket-nlb0.tar.gz -C /tmp --strip 1)
 
   # build mock driver
