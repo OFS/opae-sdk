@@ -6,9 +6,8 @@
 
 ## DESCRIPTION ##
 
-fpgaconf configures the FPGA with the AF. It also checks the AF for compatibility with 
-the targeted FPGA and the FPGA Interface Manager (FIM). fpgaconf takes the
-following arguments:
+```fpgaconf``` configures the FPGA with the accelerator funciton (AF). It also checks the AF for compatibility with 
+the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the following arguments:
 
 `-h, --help`
 
@@ -40,9 +39,9 @@ following arguments:
 
 	Socket number of the target FPGA.
 
-fpgaconf enumerates available FPGA devices in the system and selects
+```fpgaconf``` enumerates available FPGA devices in the system and selects
 compatible FPGAs for configuration. If more than one FPGA is
-compatible with the AF, fpgaconf exits and asks you to be
+compatible with the AF, ```fpgaconf``` exits and asks you to be
 more specific in selecting the target FPGAs by specifying a
 socket number or a PCIe BDF.
 
