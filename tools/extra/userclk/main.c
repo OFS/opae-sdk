@@ -187,8 +187,7 @@ int main( int argc, char** argv )
 		goto out_destroy_prop;
 	}
 
-	if (userclkCmdLine.freq_high > 0 &&
-		userclkCmdLine.freq_low  > 0) {
+	if (userclkCmdLine.freq_high > 0 ) {
 
 		// set user clock
 		result = set_userclock(sysfs_path, userclkCmdLine.freq_high, userclkCmdLine.freq_high);
@@ -203,6 +202,13 @@ int main( int argc, char** argv )
 			FPGA_ERR("Failed to get user clock ");
 			goto out_destroy_prop;
 		}
+   
+   
+   FPGA_DBG("\nApproximate frequency:\n"
+		"High clock = %5.1f MHz\n"
+		"Low clock  = %5.1f MHz\n \n",
+		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
+
 
 	}
 
