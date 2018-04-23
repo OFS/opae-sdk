@@ -49,6 +49,9 @@ module avalon_mem_if_connect
         mem_fiu.write = mem_afu.write;
         mem_fiu.read = mem_afu.read;
         mem_fiu.byteenable = mem_afu.byteenable;
+
+        // Debugging signal
+        mem_afu.bank_number = mem_fiu.bank_number;
     end
 
 endmodule // avalon_mem_if_connect

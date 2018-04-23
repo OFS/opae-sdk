@@ -66,8 +66,6 @@ module ase_top();
    logic [1:0] pck_cp2af_pwrState;   // CCI-P AFU Power State
    logic       pck_cp2af_error;      // CCI-P Protocol Error Detected
 
-   genvar b;
-
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
  // Now many memory banks?
  `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
@@ -88,14 +86,6 @@ module ase_top();
    // Interfaces for all DDR memory banks
    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
       ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
-
-   generate
-      for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
-      begin : bn
-         // Mostly used for debugging
-         assign ddr4[b].bank_number = b;
-      end
-   endgenerate
 
    logic ddr_reset_n;
    logic ddr_pll_ref_clk;
@@ -202,6 +192,7 @@ module ase_top();
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
 
    // emif model
+   genvar b;
    generate
       for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 2)
       begin : b_emul
@@ -237,6 +228,10 @@ module ase_top();
             .ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
             .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
          );
+
+         // Mostly used for debugging
+         assign ddr4[b].bank_number = b;
+         assign ddr4[b+1].bank_number = b+1;
       end
    endgenerate
 
