@@ -109,13 +109,13 @@ struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_token token;
-	int fddev;                  // file descriptor for the device.
-	int fdfpgad;                // file descriptor for the event daemon.
-	struct wsid_map *wsid_root; // wsid information (list)
-	struct wsid_map *mmio_root; // MMIO information (list)
-	void *umsg_virt;	    // umsg Virtual Memory pointer
-	uint64_t umsg_size;	    // umsg Virtual Memory Size
-	uint64_t *umsg_iova;	    // umsg IOVA from driver
+	int fddev;		// file descriptor for the device.
+	int fdfpgad;		// file descriptor for the event daemon.
+	struct wsid_map *wsid_root;	// wsid information (list)
+	struct wsid_map *mmio_root;	// MMIO information (list)
+	void *umsg_virt;	// umsg Virtual Memory pointer
+	uint64_t umsg_size;	// umsg Virtual Memory Size
+	uint64_t *umsg_iova;	// umsg IOVA from driver
 };
 
 /** Object property struct
@@ -124,7 +124,7 @@ struct _fpga_properties {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	/* Common properties */
-	uint64_t valid_fields; // bitmap of valid fields
+	uint64_t valid_fields;	// bitmap of valid fields
 	// valid here means the field has been set using the API
 	// bit 0x00 - parent field is valid
 	// bit 0x01 - objtype field is valid
@@ -134,7 +134,7 @@ struct _fpga_properties {
 	fpga_guid guid;		// Applies only to accelerator types
 	fpga_token parent;
 	fpga_objtype objtype;
-    uint32_t segment;
+	uint32_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
@@ -142,7 +142,7 @@ struct _fpga_properties {
 	uint64_t object_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
-    uint32_t numa_node;
+	uint32_t numa_node;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20
@@ -188,13 +188,13 @@ struct _fpga_event_handle {
  * Global list to store wsid/physptr/length vectors
  */
 struct wsid_map {
-	uint64_t         wsid;
-	uint64_t         addr;
-	uint64_t         phys;
-	uint64_t         len;
-	uint64_t         offset;
-	uint32_t         index;
-	int              flags;
+	uint64_t wsid;
+	uint64_t addr;
+	uint64_t phys;
+	uint64_t len;
+	uint64_t offset;
+	uint32_t index;
+	int flags;
 	struct wsid_map *next;
 };
 
@@ -208,5 +208,4 @@ struct token_map {
 	struct token_map *next;
 };
 
-
-#endif // __FPGA_TYPES_INT_H__
+#endif				// __FPGA_TYPES_INT_H__

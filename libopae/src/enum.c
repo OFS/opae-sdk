@@ -26,7 +26,7 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif				// HAVE_CONFIG_H
 
 #include "safe_string/safe_string.h"
 
@@ -57,7 +57,7 @@ struct dev_list {
 	char devpath[DEV_PATH_MAX];
 	fpga_objtype objtype;
 	fpga_guid guid;
-    uint32_t segment;
+	uint32_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
@@ -65,7 +65,7 @@ struct dev_list {
 	uint16_t vendor_id;
 	uint16_t device_id;
 
-    uint32_t numa_node;
+	uint32_t numa_node;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -79,7 +79,7 @@ struct dev_list {
 	struct dev_list *fme;
 };
 
-	static bool
+static bool
 matches_filter(const struct dev_list *attr, const fpga_properties filter)
 {
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
@@ -93,18 +93,18 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {
 		struct _fpga_token *_tok =
-			(struct _fpga_token *) _filter->parent;
+		    (struct _fpga_token *)_filter->parent;
 		char spath[SYSFS_PATH_MAX];
 		char *p;
 		int device_instance;
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
-			res = false; // Only accelerator can have a parent
+			res = false;	// Only accelerator can have a parent
 			goto out_unlock;
 		}
 
 		if (NULL == _tok) {
-			res = false; // Reject search based on NULL parent token
+			res = false;	// Reject search based on NULL parent token
 			goto out_unlock;
 		}
 
@@ -115,15 +115,15 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			goto out_unlock;
 		}
 
-		device_instance = (int) strtoul(p+1, NULL, 10);
+		device_instance = (int)strtoul(p + 1, NULL, 10);
 
 		snprintf_s_ii(spath, SYSFS_PATH_MAX,
-				SYSFS_FPGA_CLASS_PATH
-				SYSFS_FME_PATH_FMT,
-				device_instance, device_instance);
+			      SYSFS_FPGA_CLASS_PATH
+			      SYSFS_FME_PATH_FMT,
+			      device_instance, device_instance);
 
 		if (strcmp(spath, ((struct _fpga_token *)
-						_filter->parent)->sysfspath)) {
+				   _filter->parent)->sysfspath)) {
 			res = false;
 			goto out_unlock;
 		}
@@ -178,7 +178,6 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 			goto out_unlock;
 		}
 	}
-
 	// FIXME
 	// if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
 	//
@@ -216,12 +215,12 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE) &&
-			(FPGA_DEVICE == _filter->objtype)) {
+	    (FPGA_DEVICE == _filter->objtype)) {
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_SLOTS)) {
 			if ((FPGA_DEVICE != attr->objtype) ||
-					(attr->fpga_num_slots !=
-					 _filter->u.fpga.num_slots)) {
+			    (attr->fpga_num_slots !=
+			     _filter->u.fpga.num_slots)) {
 				res = false;
 				goto out_unlock;
 			}
@@ -229,8 +228,8 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSID)) {
 			if ((FPGA_DEVICE != attr->objtype) ||
-					(attr->fpga_bitstream_id !=
-					 _filter->u.fpga.bbs_id)) {
+			    (attr->fpga_bitstream_id !=
+			     _filter->u.fpga.bbs_id)) {
 				res = false;
 				goto out_unlock;
 			}
@@ -238,51 +237,51 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSVERSION)) {
 			if ((FPGA_DEVICE != attr->objtype) ||
-					(attr->fpga_bbs_version.major !=
-					 _filter->u.fpga.bbs_version.major) ||
-					(attr->fpga_bbs_version.minor !=
-					 _filter->u.fpga.bbs_version.minor) ||
-					(attr->fpga_bbs_version.patch !=
-					 _filter->u.fpga.bbs_version.patch)) {
+			    (attr->fpga_bbs_version.major !=
+			     _filter->u.fpga.bbs_version.major) ||
+			    (attr->fpga_bbs_version.minor !=
+			     _filter->u.fpga.bbs_version.minor) ||
+			    (attr->fpga_bbs_version.patch !=
+			     _filter->u.fpga.bbs_version.patch)) {
 				res = false;
 				goto out_unlock;
 			}
 		}
-
 		// FIXME
 		// if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
+		//      if (FPGA_DEVICE != attr->objtype)
+		//              return false;
 		//
 		// }
 
 		// FIXME
 		// if (FIELD_VALID(_filter, FPGA_PROPERTY_MODEL)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
+		//      if (FPGA_DEVICE != attr->objtype)
+		//              return false;
 		//
 		// }
 
 		// FIXME
 		// if (FIELD_VALID(_filter, FPGA_PROPERTY_LOCAL_MEMORY)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
+		//      if (FPGA_DEVICE != attr->objtype)
+		//              return false;
 		//
 		// }
 
 		// FIXME
 		// if (FIELD_VALID(_filter, FPGA_PROPERTY_CAPABILITIES)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
+		//      if (FPGA_DEVICE != attr->objtype)
+		//              return false;
 		//
 		// }
 
 	} else if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE) &&
-			(FPGA_ACCELERATOR == _filter->objtype)) {
+		   (FPGA_ACCELERATOR == _filter->objtype)) {
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_ACCELERATOR_STATE)) {
 			if ((FPGA_ACCELERATOR != attr->objtype) ||
-					(attr->accelerator_state != _filter->u.accelerator.state)) {
+			    (attr->accelerator_state !=
+			     _filter->u.accelerator.state)) {
 				res = false;
 				goto out_unlock;
 			}
@@ -290,7 +289,8 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_MMIO)) {
 			if ((FPGA_ACCELERATOR != attr->objtype) ||
-					(attr->accelerator_num_mmios != _filter->u.accelerator.num_mmio)) {
+			    (attr->accelerator_num_mmios !=
+			     _filter->u.accelerator.num_mmio)) {
 				res = false;
 				goto out_unlock;
 			}
@@ -298,8 +298,8 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_INTERRUPTS)) {
 			if ((FPGA_ACCELERATOR != attr->objtype) ||
-					(attr->accelerator_num_irqs !=
-					 _filter->u.accelerator.num_interrupts)) {
+			    (attr->accelerator_num_irqs !=
+			     _filter->u.accelerator.num_interrupts)) {
 				res = false;
 				goto out_unlock;
 			}
@@ -307,7 +307,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	}
 
-out_unlock:
+ out_unlock:
 	err = pthread_mutex_unlock(&_filter->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
@@ -315,13 +315,13 @@ out_unlock:
 	return res;
 }
 
-	static bool
+static bool
 matches_filters(const struct dev_list *attr,
-		const fpga_properties *filter, uint32_t num_filter)
+		const fpga_properties * filter, uint32_t num_filter)
 {
 	uint32_t i;
 
-	if (!num_filter) // no filter == match everything
+	if (!num_filter)	// no filter == match everything
 		return true;
 
 	for (i = 0; i < num_filter; ++i) {
@@ -332,23 +332,23 @@ matches_filters(const struct dev_list *attr,
 	return false;
 }
 
-	static struct dev_list *
-add_dev(const char *sysfspath, const char *devpath, struct dev_list *parent)
+static struct dev_list *add_dev(const char *sysfspath, const char *devpath,
+				struct dev_list *parent)
 {
 	struct dev_list *pdev;
 	errno_t e;
 
-	pdev = (struct dev_list *) malloc(sizeof(*pdev));
+	pdev = (struct dev_list *)malloc(sizeof(*pdev));
 	if (NULL == pdev)
 		return NULL;
 
 	e = strncpy_s(pdev->sysfspath, sizeof(pdev->sysfspath),
-			sysfspath, SYSFS_PATH_MAX);
+		      sysfspath, SYSFS_PATH_MAX);
 	if (EOK != e)
 		goto out_free;
 
 	e = strncpy_s(pdev->devpath, sizeof(pdev->devpath),
-			devpath, DEV_PATH_MAX);
+		      devpath, DEV_PATH_MAX);
 	if (EOK != e)
 		goto out_free;
 
@@ -359,12 +359,12 @@ add_dev(const char *sysfspath, const char *devpath, struct dev_list *parent)
 
 	return pdev;
 
-out_free:
+ out_free:
 	free(pdev);
 	return NULL;
 }
 
-bool del_dev(struct dev_list *pdev, struct dev_list *parent)
+bool del_dev(struct dev_list * pdev, struct dev_list * parent)
 {
 	if (!parent || !pdev)
 		return false;
@@ -376,11 +376,11 @@ bool del_dev(struct dev_list *pdev, struct dev_list *parent)
 }
 
 //static const fpga_guid FPGA_FME_GUID = {
-//	0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3,
-//	0x82, 0xfe, 0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
+//      0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3,
+//      0x82, 0xfe, 0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
 //};
 
-	static fpga_result
+static fpga_result
 enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 {
 	fpga_result result;
@@ -409,15 +409,15 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 			return FPGA_NO_MEMORY;
 		}
 
-		pdev->objtype  = FPGA_DEVICE;
+		pdev->objtype = FPGA_DEVICE;
 
-		pdev->segment  = parent->segment;
-		pdev->bus      = parent->bus;
-		pdev->device   = parent->device;
+		pdev->segment = parent->segment;
+		pdev->bus = parent->bus;
+		pdev->device = parent->device;
 		pdev->function = parent->function;
 		pdev->vendor_id = parent->vendor_id;
 		pdev->device_id = parent->device_id;
-        pdev->numa_node = parent->numa_node;
+		pdev->numa_node = parent->numa_node;
 
 		// Hard-coding the FME guid for now. Leave the below code in case this changes.
 
@@ -426,7 +426,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		// Discover the FME GUID from sysfs (pr/interface_id)
 		snprintf_s_s(spath, sizeof(spath), "%s/"
-				FPGA_SYSFS_FME_INTERFACE_ID, sysfspath);
+			     FPGA_SYSFS_FME_INTERFACE_ID, sysfspath);
 
 		result = sysfs_read_guid(spath, pdev->guid);
 		if (FPGA_OK != result)
@@ -434,30 +434,30 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		// Discover the socket id from the FME's sysfs entry.
 		snprintf_s_s(spath, sizeof(spath), "%s/"
-				FPGA_SYSFS_SOCKET_ID, sysfspath);
+			     FPGA_SYSFS_SOCKET_ID, sysfspath);
 
 		result = sysfs_read_int(spath, &socket_id);
 		if (FPGA_OK != result)
 			return result;
 
 		snprintf_s_s(spath, sizeof(spath), "%s/"
-				FPGA_SYSFS_NUM_SLOTS, sysfspath);
+			     FPGA_SYSFS_NUM_SLOTS, sysfspath);
 		result = sysfs_read_u32(spath, &pdev->fpga_num_slots);
 		if (FPGA_OK != result)
 			return result;
 
 		snprintf_s_s(spath, sizeof(spath), "%s/"
-				FPGA_SYSFS_BITSTREAM_ID, sysfspath);
+			     FPGA_SYSFS_BITSTREAM_ID, sysfspath);
 		result = sysfs_read_u64(spath, &pdev->fpga_bitstream_id);
 		if (FPGA_OK != result)
 			return result;
 
 		pdev->fpga_bbs_version.major =
-			FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+		    FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
 		pdev->fpga_bbs_version.minor =
-			FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+		    FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
 		pdev->fpga_bbs_version.patch =
-			FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+		    FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
 
 		parent->socket_id = socket_id;
 		parent->fme = pdev;
@@ -474,15 +474,15 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 			return FPGA_NO_MEMORY;
 		}
 
-		pdev->objtype  = FPGA_ACCELERATOR;
+		pdev->objtype = FPGA_ACCELERATOR;
 
-		pdev->segment   = parent->segment;
-		pdev->bus       = parent->bus;
-		pdev->device    = parent->device;
-		pdev->function  = parent->function;
+		pdev->segment = parent->segment;
+		pdev->bus = parent->bus;
+		pdev->device = parent->device;
+		pdev->function = parent->function;
 		pdev->vendor_id = parent->vendor_id;
 		pdev->device_id = parent->device_id;
-        pdev->numa_node = parent->numa_node;
+		pdev->numa_node = parent->numa_node;
 
 		res = open(pdev->devpath, O_RDWR);
 		if (-1 == res) {
@@ -498,7 +498,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 
 		// Discover the AFU GUID from sysfs.
 		snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_AFU_GUID,
-				sysfspath);
+			     sysfspath);
 
 		result = sysfs_read_guid(spath, pdev->guid);
 		/* if we can't read the afu_id, remove device from list */
@@ -515,8 +515,7 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 	return FPGA_OK;
 }
 
-	static fpga_result
-enum_top_dev(const char *sysfspath, struct dev_list *list)
+static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct stat stats;
@@ -551,7 +550,6 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 		FPGA_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
-
 	// Find the BDF from the link path.
 	spath[res] = 0;
 	p = strrchr(spath, '/');
@@ -576,13 +574,13 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	// 0123456
 	// bb:dd.f
 	f = 0;
-	sscanf_s_i(p+6, "%d", &f);
+	sscanf_s_i(p + 6, "%d", &f);
 
 	pdev->function = (uint8_t) f;
 	*(p + 5) = 0;
 
 	d = 0;
-	sscanf_s_u(p+3, "%x", &d);
+	sscanf_s_u(p + 3, "%x", &d);
 
 	pdev->device = (uint8_t) d;
 	*(p + 2) = 0;
@@ -594,7 +592,7 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	*(p - 1) = 0;
 
 	seg = 0;
-	sscanf_s_u(p-5, "%x", &seg);
+	sscanf_s_u(p - 5, "%x", &seg);
 
 	pdev->segment = (uint8_t) seg;
 
@@ -605,26 +603,27 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	result = sysfs_read_u32(vendorpath, &x);
 	if (result != FPGA_OK)
 		return result;
-	pdev->vendor_id = (uint16_t)x;
+	pdev->vendor_id = (uint16_t) x;
 
 	char devicepath[SYSFS_PATH_MAX];
 	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/device/device", sysfspath);
 	result = sysfs_read_u32(devicepath, &x);
 	if (result != FPGA_OK)
 		return result;
-	pdev->device_id = (uint16_t)x;
+	pdev->device_id = (uint16_t) x;
 
-        // Discover the NUMA node that the device is attached to
-        pdev->numa_node = (uint32_t) -1;        // Default is no NUMA
+	// Discover the NUMA node that the device is attached to
+	pdev->numa_node = (uint32_t) - 1;	// Default is no NUMA
 #ifdef ENABLE_NUMA
-        if(-1 != numa_available()) {
-	        char numapath[SYSFS_PATH_MAX];
-	        snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node", sysfspath);
-	        result = sysfs_read_u32(devicepath, &x);
-	        if (result != FPGA_OK)
-		        return result;
-	        pdev->numa_node = (uint16_t)x;
-        }
+	if (-1 != numa_available()) {
+		char numapath[SYSFS_PATH_MAX];
+		snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node",
+			     sysfspath);
+		result = sysfs_read_u32(devicepath, &x);
+		if (result != FPGA_OK)
+			return result;
+		pdev->numa_node = (uint16_t) x;
+	}
 #endif
 
 	// Find the FME and AFU devices.
@@ -641,7 +640,7 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 			continue;
 
 		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
-				dirent->d_name);
+			      dirent->d_name);
 
 		result = enum_fme_afu(spath, dirent->d_name, pdev);
 		if (result != FPGA_OK)
@@ -653,10 +652,9 @@ enum_top_dev(const char *sysfspath, struct dev_list *list)
 	return result;
 }
 
-
-	fpga_result __FPGA_API__
-fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
-		fpga_token *tokens, uint32_t max_tokens, uint32_t *num_matches)
+fpga_result __FPGA_API__
+fpgaEnumerate(const fpga_properties * filters, uint32_t num_filters,
+	      fpga_token * tokens, uint32_t max_tokens, uint32_t * num_matches)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 
@@ -706,7 +704,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 			continue;
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
-				SYSFS_FPGA_CLASS_PATH,	dirent->d_name);
+			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
 
 		result = enum_top_dev(sysfspath, &head);
 		if (result != FPGA_OK)
@@ -721,7 +719,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	}
 
 	/* create and populate token data structures */
-	for (lptr = head.next ; NULL != lptr ; lptr = lptr->next) {
+	for (lptr = head.next; NULL != lptr; lptr = lptr->next) {
 		struct _fpga_token *_tok;
 
 		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
@@ -735,20 +733,18 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		/* FIXME: do we need to keep a global list of tokens? */
 		/* For now we do becaue it is used in fpgaUpdateProperties
 		 * to lookup a parent from the global list of tokens...*/
-		_tok = token_add(lptr->sysfspath,
-				lptr->devpath);
+		_tok = token_add(lptr->sysfspath, lptr->devpath);
 
 		if (NULL == _tok) {
 			FPGA_MSG("Failed to allocate memory for token");
 			result = FPGA_NO_MEMORY;
 			goto out_free_trash;
 		}
-
 		// FIXME: should check contents of filter for token magic
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
 				if (fpgaCloneToken(_tok, &tokens[*num_matches])
-						!= FPGA_OK) {
+				    != FPGA_OK) {
 					// FIXME: should we error out here?
 					FPGA_MSG("Error cloning token");
 				}
@@ -757,9 +753,9 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		}
 	}
 
-out_free_trash:
+ out_free_trash:
 	/* FIXME: should this live in a separate function? */
-	for (lptr = head.next ; NULL != lptr;) {
+	for (lptr = head.next; NULL != lptr;) {
 		struct dev_list *trash = lptr;
 		lptr = lptr->next;
 		free(trash);
@@ -768,8 +764,7 @@ out_free_trash:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
-		fpga_token *dst)
+fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token * dst)
 {
 	struct _fpga_token *_src = (struct _fpga_token *)src;
 	struct _fpga_token *_dst;
@@ -795,7 +790,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 	_dst->magic = FPGA_TOKEN_MAGIC;
 
 	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath),
-			_src->sysfspath, sizeof(_src->sysfspath));
+		      _src->sysfspath, sizeof(_src->sysfspath));
 	if (EOK != e) {
 		FPGA_MSG("strncpy_s failed");
 		result = FPGA_EXCEPTION;
@@ -803,7 +798,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 	}
 
 	e = strncpy_s(_dst->devpath, sizeof(_dst->devpath),
-			_src->devpath, sizeof(_src->devpath));
+		      _src->devpath, sizeof(_src->devpath));
 	if (EOK != e) {
 		FPGA_MSG("strncpy_s failed");
 		result = FPGA_EXCEPTION;
@@ -813,12 +808,12 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 	*dst = _dst;
 	return FPGA_OK;
 
-out_free:
+ out_free:
 	free(_dst);
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
+fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token * token)
 {
 	fpga_result result = FPGA_OK;
 	int err = 0;
@@ -840,18 +835,16 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
-
 	// invalidate magic (just in case)
 	_token->magic = FPGA_INVALID_MAGIC;
 
 	free(*token);
 	*token = NULL;
 
-out_unlock:
+ out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	return result;
 }
-

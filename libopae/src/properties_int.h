@@ -50,12 +50,10 @@
 #define FPGA_PROPERTY_LOCAL_MEMORY  36
 #define FPGA_PROPERTY_CAPABILITIES  37
 
-
 /** Fields for accelerator objects */
 #define FPGA_PROPERTY_ACCELERATOR_STATE 32
 #define FPGA_PROPERTY_NUM_MMIO          33
 #define FPGA_PROPERTY_NUM_INTERRUPTS    34
-
 
 #define FIELD_VALID(P, F) (((P)->valid_fields >> (F)) & 1)
 
@@ -65,5 +63,4 @@
 #define CLEAR_FIELD_VALID(P, F)\
 	((P)->valid_fields = (P)->valid_fields & ~((uint64_t)1 << (F)))
 
-#endif // __FPGA_PROPERTIES_INT_H__
-
+#endif				// __FPGA_PROPERTIES_INT_H__
