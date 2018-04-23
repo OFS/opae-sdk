@@ -61,12 +61,6 @@ set(SRC
 
 option(USE_NUMA "Build libopae with numa support" OFF)
 mark_as_advanced(USE_NUMA)
-if (USE_NUMA)
-    find_library(NUMA_LIB numa)
-    if (NUMA_LIB)
-        add_definitions(-DENABLE_NUMA)
-    endif(NUMA_LIB)
-endif (USE_NUMA)
 
 # Define target
 add_library(opae-c SHARED ${SRC})
@@ -78,9 +72,12 @@ target_link_libraries(opae-c
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
-if (NUMA_LIB)
-    target_link_libraries(opae-c ${NUMA_LIB})
-endif(NUMA_LIB)
+if (USE_NUMA)
+    find_package(NUMA REQUIRED)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lnuma -I${NUMA_INCLUDE_DIR}")
+    add_definitions(-DENABLE_NUMA)
+    target_link_libraries(opae-c ${NUMA_LIBRARY})
+endif (USE_NUMA)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 

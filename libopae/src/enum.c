@@ -93,7 +93,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {
 		struct _fpga_token *_tok =
-		    (struct _fpga_token *)_filter->parent;
+			(struct _fpga_token *)_filter->parent;
 		char spath[SYSFS_PATH_MAX];
 		char *p;
 		int device_instance;
@@ -307,7 +307,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 	}
 
- out_unlock:
+out_unlock:
 	err = pthread_mutex_unlock(&_filter->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
@@ -317,7 +317,7 @@ matches_filter(const struct dev_list *attr, const fpga_properties filter)
 
 static bool
 matches_filters(const struct dev_list *attr,
-		const fpga_properties * filter, uint32_t num_filter)
+		const fpga_properties *filter, uint32_t num_filter)
 {
 	uint32_t i;
 
@@ -359,12 +359,12 @@ static struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 
 	return pdev;
 
- out_free:
+out_free:
 	free(pdev);
 	return NULL;
 }
 
-bool del_dev(struct dev_list * pdev, struct dev_list * parent)
+bool del_dev(struct dev_list *pdev, struct dev_list *parent)
 {
 	if (!parent || !pdev)
 		return false;
@@ -453,11 +453,11 @@ enum_fme_afu(const char *sysfspath, const char *name, struct dev_list *parent)
 			return result;
 
 		pdev->fpga_bbs_version.major =
-		    FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+			FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
 		pdev->fpga_bbs_version.minor =
-		    FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+			FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
 		pdev->fpga_bbs_version.patch =
-		    FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+			FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
 
 		parent->socket_id = socket_id;
 		parent->fme = pdev;
@@ -613,7 +613,7 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 	pdev->device_id = (uint16_t) x;
 
 	// Discover the NUMA node that the device is attached to
-	pdev->numa_node = (uint32_t) - 1;	// Default is no NUMA
+	pdev->numa_node = (uint32_t) (-1);	// Default is no NUMA
 #ifdef ENABLE_NUMA
 	if (-1 != numa_available()) {
 		char numapath[SYSFS_PATH_MAX];
@@ -653,8 +653,8 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 }
 
 fpga_result __FPGA_API__
-fpgaEnumerate(const fpga_properties * filters, uint32_t num_filters,
-	      fpga_token * tokens, uint32_t max_tokens, uint32_t * num_matches)
+fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
+	      fpga_token *tokens, uint32_t max_tokens, uint32_t *num_matches)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 
@@ -753,7 +753,7 @@ fpgaEnumerate(const fpga_properties * filters, uint32_t num_filters,
 		}
 	}
 
- out_free_trash:
+out_free_trash:
 	/* FIXME: should this live in a separate function? */
 	for (lptr = head.next; NULL != lptr;) {
 		struct dev_list *trash = lptr;
@@ -764,7 +764,7 @@ fpgaEnumerate(const fpga_properties * filters, uint32_t num_filters,
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token * dst)
+fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
 	struct _fpga_token *_src = (struct _fpga_token *)src;
 	struct _fpga_token *_dst;
@@ -808,12 +808,12 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token * dst)
 	*dst = _dst;
 	return FPGA_OK;
 
- out_free:
+out_free:
 	free(_dst);
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token * token)
+fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 {
 	fpga_result result = FPGA_OK;
 	int err = 0;
@@ -841,7 +841,7 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token * token)
 	free(*token);
 	*token = NULL;
 
- out_unlock:
+out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
