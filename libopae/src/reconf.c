@@ -196,7 +196,10 @@ free_props:
 	if (destroy_result != FPGA_OK)
 		FPGA_ERR("Error destroying properties");
 
-	return result;
+	if (!result || !destroy_result)
+		return !result ? result : destroy_result;
+
+	return FPGA_OK;
 }
 
 
