@@ -135,4 +135,14 @@ enum fpga_open_flags {
 	FPGA_OPEN_SHARED = (1u << 0)
 };
 
+/**
+ * Reconfiguration flags
+ *
+ * These flags can be passed to the fpgaReconfigure() function.
+ */
+enum fpga_reconf_flags {
+	/** Reconfigure the slot without checking if it is in use */
+	FPGA_RECONF_FORCE = (1u << 0)
+};
+
 #endif // __FPGA_TYPES_ENUM_H__
