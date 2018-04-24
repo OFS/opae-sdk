@@ -101,7 +101,7 @@ fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr, size_t s
 {
 	fpga_result res = FPGA_OK;
 
-	if ((!ptr) || (!fpga_h))
+	if ((!ptr) || (!fpga_h) || (0 == size))
 		return FPGA_INVALID_PARAM;
 
 #ifdef ENABLE_NUMA
