@@ -153,7 +153,7 @@ fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
  * internal exception occurred while trying to access the handle.
  */
 fpga_result fpgaAdviseDmaBuffer(fpga_handle handle, void *buf, uint64_t len,
-				bool bind_thread);
+				uint32_t bind_thread);
 
 #ifdef __cplusplus
 } // extern "C"
