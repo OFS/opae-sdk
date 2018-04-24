@@ -67,15 +67,17 @@ $ sudo yum install opae-libs-<release>.x86_64.rpm
 $ sudo yum install opae-tools-<release>.x86_64.rpm
 $ sudo yum install opae-tools-extra-<release>.x86_64.rpm
 $ sudo yum install opae-devel-<release>.x86_64.rpm
+$ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 
 For deb packages:
 
 ```console
-$ sudo dpkg -i opae-<release>.x86_64-libs.deb
-$ sudo dpkg -i opae-<release>.x86_64-tools.deb
-$ sudo dpkg -i opae-<release>.x86_64-tools-extra.deb
-$ sudo dpkg -i opae-<release>.x86_64-devel.deb
+$ sudo dpkg -i opae-libs-<release>.x86_64.deb
+$ sudo dpkg -i opae-tools-<release>.x86_64.deb
+$ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
+$ sudo dpkg -i opae-devel-<release>.x86_64.deb
+$ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
 To use OPAE in the simulation environment, you also need to install the AFU
