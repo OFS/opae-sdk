@@ -66,17 +66,41 @@ module ase_top();
    logic [1:0] pck_cp2af_pwrState;   // CCI-P AFU Power State
    logic       pck_cp2af_error;      // CCI-P Protocol Error Detected
 
+   genvar b;
+
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
+ // Now many memory banks?
+ `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
+   localparam NUM_LOCAL_MEM_BANKS = 2;
+ `else
+   localparam NUM_LOCAL_MEM_BANKS = `AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM;
+ `endif
+
+   // The ddr4 array size must be an even number, whether or not NUM_LOCAL_MEM_BANKS
+   // is even.  This is due to the way the emulator is structured in emif_ddr4
+   // below.  When NUM_LOCAL_MEM_BANKS is odd an extra slot will be instantiated
+   // but not passed to the AFU.
+   localparam NUM_ALLOC_MEM_BANKS = (((NUM_LOCAL_MEM_BANKS + 1) >> 1) << 1);
+
    // DDR clock will come from the memory emulator
-   logic ddr4_avmm_clk[2];
+   logic ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
 
    // Interfaces for all DDR memory banks
-   avalon_mem_if#(.ENABLE_LOG(1)) ddr4[2](ddr4_avmm_clk, pck_cp2af_softReset);
-   defparam ddr4[0].BANK_NUMBER = 0;
-   defparam ddr4[1].BANK_NUMBER = 1;
+   avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
+      ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
+
+   generate
+      for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
+      begin : bn
+         // Mostly used for debugging
+         assign ddr4[b].bank_number = b;
+      end
+   endgenerate
 
    logic ddr_reset_n;
    logic ddr_pll_ref_clk;
+`else
+   localparam NUM_LOCAL_MEM_BANKS = 0;
 `endif
 
    // CCI-P emulator
@@ -136,7 +160,7 @@ module ase_top();
       //   afu_platform_config.
       //
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-      .local_mem              (ddr4                 ),
+      .local_mem              (ddr4[0:NUM_LOCAL_MEM_BANKS-1]),
 `endif
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
       .DDR4a_USERCLK          (ddr4_avmm_clk[0]     ),
@@ -178,37 +202,43 @@ module ase_top();
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
 
    // emif model
-   emif_ddr4
-    #(
-      .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
-      )
-    emif_ddr4
-    (
-      .ddr4a_avmm_waitrequest                (ddr4[0].waitrequest),
-      .ddr4a_avmm_readdata                   (ddr4[0].readdata),
-      .ddr4a_avmm_readdatavalid              (ddr4[0].readdatavalid),
-      .ddr4a_avmm_burstcount                 (ddr4[0].burstcount),
-      .ddr4a_avmm_writedata                  (ddr4[0].writedata),
-      .ddr4a_avmm_address                    (ddr4[0].address),
-      .ddr4a_avmm_write                      (ddr4[0].write),
-      .ddr4a_avmm_read                       (ddr4[0].read),
-      .ddr4a_avmm_byteenable                 (ddr4[0].byteenable),
-      .ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[0]),
+   generate
+      for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 2)
+      begin : b_emul
+         emif_ddr4
+          #(
+            .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
+            .INSTANCE_ID(b)
+            )
+          emif_ddr4
+          (
+            .ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
+            .ddr4a_avmm_readdata                   (ddr4[b].readdata),
+            .ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
+            .ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
+            .ddr4a_avmm_writedata                  (ddr4[b].writedata),
+            .ddr4a_avmm_address                    (ddr4[b].address),
+            .ddr4a_avmm_write                      (ddr4[b].write),
+            .ddr4a_avmm_read                       (ddr4[b].read),
+            .ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
+            .ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
 
-      .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
-      .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
+            .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
+            .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
 
-      .ddr4b_avmm_waitrequest                (ddr4[1].waitrequest),
-      .ddr4b_avmm_readdata                   (ddr4[1].readdata),
-      .ddr4b_avmm_readdatavalid              (ddr4[1].readdatavalid),
-      .ddr4b_avmm_burstcount                 (ddr4[1].burstcount),
-      .ddr4b_avmm_writedata                  (ddr4[1].writedata),
-      .ddr4b_avmm_address                    (ddr4[1].address),
-      .ddr4b_avmm_write                      (ddr4[1].write),
-      .ddr4b_avmm_read                       (ddr4[1].read),
-      .ddr4b_avmm_byteenable                 (ddr4[1].byteenable),
-      .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[1])
-   );
+            .ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
+            .ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
+            .ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
+            .ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
+            .ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
+            .ddr4b_avmm_address                    (ddr4[b+1].address),
+            .ddr4b_avmm_write                      (ddr4[b+1].write),
+            .ddr4b_avmm_read                       (ddr4[b+1].read),
+            .ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
+            .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
+         );
+      end
+   endgenerate
 
 `endif
 

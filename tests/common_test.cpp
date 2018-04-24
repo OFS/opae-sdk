@@ -557,6 +557,7 @@ void checkIOErrors(const char* syspath, uint64_t value) {
  * @return     Returns OPAE library success or failure code.
  */
 fpga_result loadBitstream(const char* path, fpga_token tok) {
+(void) tok;
 #ifndef BUILD_ASE
   if (GlobalOptions::Instance().VM()) {
     return FPGA_OK;

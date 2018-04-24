@@ -257,7 +257,7 @@ def getHWLibPath(opts):
 
     # Confirm that the path looks reasonable
     if (not os.path.exists(os.path.join(hw_lib_dir,
-                                        'fme-ifc-id.txt'))):
+                                        'fme-platform-class.txt'))):
         errorExit("{0} is not a release hw/lib directory".format(hw_lib_dir))
 
     return hw_lib_dir
