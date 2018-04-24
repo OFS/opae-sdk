@@ -46,6 +46,7 @@ set(SRC
   src/close.c
   src/reset.c
   src/mmio.c
+  src/numa.c
   src/buffer.c
   src/bitstream.c
   src/hostif.c
@@ -74,7 +75,7 @@ target_link_libraries(opae-c
 
 if (USE_NUMA)
     find_package(NUMA REQUIRED)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lnuma -I${NUMA_INCLUDE_DIR}")
+    include_directories(${NUMA_INCLUDE_DIR})
     add_definitions(-DENABLE_NUMA)
     target_link_libraries(opae-c ${NUMA_LIBRARY})
 endif (USE_NUMA)

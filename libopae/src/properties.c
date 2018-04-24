@@ -401,7 +401,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		char numapath[SYSFS_PATH_MAX];
 		snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node",
 			     _token->sysfspath);
-		result = sysfs_read_u32(devicepath, &x);
+		result = sysfs_read_u32(numapath, &x);
 		if (result != FPGA_OK)
 			return result;
 		_iprop.numa_node = (uint16_t) x;

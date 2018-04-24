@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include "opae/utils.h"
 #include "common_int.h"
 #include "intel-fpga.h"
+#include "numa_int.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -155,6 +156,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 
 	bool preallocated = (flags & FPGA_BUF_PREALLOCATED);
 	bool quiet = (flags & FPGA_BUF_QUIET);
+	bool bind = (flags & FPGA_BUF_BIND);
 
 	uint64_t pg_size;
 
@@ -169,10 +171,15 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		goto out_unlock;
 	}
 
-	if (flags & (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET))) {
+	if (flags & (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET | FPGA_BUF_BIND))) {
 		FPGA_MSG("Unrecognized flags");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
+	}
+
+	// Bind to NUMA node if requested
+	if (FPGA_OK != save_and_bind(_handle, bind)) {
+		FPGA_MSG("save_and_bind failure");
 	}
 
 	pg_size = (uint64_t) sysconf(_SC_PAGE_SIZE);
@@ -266,10 +273,16 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	result = FPGA_OK;
 
 out_unlock:
+	// Restore previous binding if saved above
+	if (FPGA_OK != restore_and_unbind(_handle, bind)) {
+		FPGA_MSG("restore_and_unbind failure");
+	}
+
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
+
 	return result;
 }
 

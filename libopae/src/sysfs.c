@@ -622,20 +622,20 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f,
 		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
-	p += 6;
+	p += 1;
 
-	// 0123456
-	// bb:dd.f
-	*f = (int)strtoul(p + 6, NULL, 16);
-	*(p + 5) = 0;
+	// 012345678901
+	// ssss:bb:dd.f
+	*f = (int)strtoul(p + 11, NULL, 16);
+	*(p + 10) = 0;
 
-	*d = (int)strtoul(p + 3, NULL, 16);
-	*(p + 2) = 0;
+	*d = (int)strtoul(p + 8, NULL, 16);
+	*(p + 7) = 0;
 
-	*b = (int)strtoul(p, NULL, 16);
-	*(p - 1) = 0;
+	*b = (int)strtoul(p + 5, NULL, 16);
+	*(p + 4) = 0;
 
-	*seg = (int)strtoul(p - 5, NULL, 16);
+	*seg = (int)strtoul(p, NULL, 16);
 
 	return FPGA_OK;
 }

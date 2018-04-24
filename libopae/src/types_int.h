@@ -39,6 +39,10 @@
 #include <opae/types.h>
 #include <opae/types_enum.h>
 
+#ifdef ENABLE_NUMA
+#include <numa.h>
+#endif
+
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 #define FPGA_DEV_PATH "/dev"
@@ -97,6 +101,22 @@
 //Get file descriptor from event handle
 #define FILE_DESCRIPTOR(eh) (((struct _fpga_event_handle *)eh)->fd)
 
+#ifdef ENABLE_NUMA
+// Affinities for NUMA support
+typedef struct _affinities {
+	struct bitmask *membind_mask;
+	struct bitmask *runnode_mask;
+} affinities;
+
+typedef struct _numa_params {
+	affinities at_open;
+	affinities saved;
+	struct bitmask *fpgaNodeMask;
+} numa_params;
+#else
+typedef void numa_params;
+#endif
+
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint64_t magic;
@@ -116,6 +136,7 @@ struct _fpga_handle {
 	void *umsg_virt;	// umsg Virtual Memory pointer
 	uint64_t umsg_size;	// umsg Virtual Memory Size
 	uint64_t *umsg_iova;	// umsg IOVA from driver
+	numa_params *numa;	// For setting / restoring NUMA bindings
 };
 
 /** Object property struct

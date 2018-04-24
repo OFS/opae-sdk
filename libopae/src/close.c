@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #include <opae/access.h>
 #include "common_int.h"
 #include "wsid_list_int.h"
+#include "numa_int.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -72,6 +73,22 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 
 	// invalidate magic (just in case)
 	_handle->magic = FPGA_INVALID_MAGIC;
+
+	// Clean up NUMA
+	if (_handle->numa) {
+#ifdef ENABLE_NUMA
+		numa_set_membind(_handle->numa->at_open.membind_mask);
+		numa_run_on_node_mask(_handle->numa->at_open.runnode_mask);
+		numa_free_nodemask(_handle->numa->at_open.membind_mask);
+		numa_free_cpumask(_handle->numa->at_open.runnode_mask);
+		numa_free_nodemask(_handle->numa->fpgaNodeMask);
+		if (_handle->numa->saved.membind_mask != NULL)
+			numa_free_nodemask(_handle->numa->saved.membind_mask);
+		if (_handle->numa->saved.runnode_mask != NULL)
+			numa_free_cpumask(_handle->numa->saved.runnode_mask);
+		free(_handle->numa);
+#endif
+	}
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {

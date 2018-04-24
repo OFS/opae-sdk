@@ -121,7 +121,8 @@ typedef enum {
  */
 enum fpga_buffer_flags {
 	FPGA_BUF_PREALLOCATED = (1u << 0), /**< Use existing buffer */
-	FPGA_BUF_QUIET = (1u << 1)         /**< Suppress error messages */
+	FPGA_BUF_QUIET = (1u << 1),        /**< Suppress error messages */
+	FPGA_BUF_BIND = (1u << 2)          /**< Bind memory to NUMA node */
 };
 
 /**
