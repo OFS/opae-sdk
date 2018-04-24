@@ -299,18 +299,22 @@ class errors_feature(sysfs_node):
     def name(self):
         return self._name
 
-    def clear(self):
+    def clear(self, tries=1):
         success = True
         for (err, clr) in self._errors_files:
             value = self.parse_sysfs(err)
             try:
-                if value:
+                while value and (tries > 0):
                     self.write_sysfs(hex(value), clr)
+                    value = self.parse_sysfs(err)
+                    tries = tries - 1
             except IOError:
                 success = False
                 logging.warn(
                     "Could not clear errors: {}."
                     "Are you running as root?".format(clr))
+        if value:
+            success = False
         return success
 
 
