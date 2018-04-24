@@ -17,19 +17,33 @@ userclk sets the frequency range for an AFU.
 
 ## OPTIONS ##
 
-`-B,--bus` FPGA Bus number.
+`-B,--bus` 
 
-`-D,--device` FPGA Device number.
+FPGA Bus number.
 
-`-F,--functio` FPGA function number.
+`-D,--device` 
 
-`-S,--socket` FPGA socket number.
+FPGA Device number.
 
-`-P,--port` Port ID.
+`-F,--functio` 
 
-`-H,--freq-high ` User clock high frequency. 
+FPGA function number.
 
-`-L,--freq-low ` User clock low frequency. 
+`-S,--socket` 
+
+FPGA socket number.
+
+`-P,--port` 
+
+Port ID.
+
+`-H,--freq-high ` 
+
+User clock high frequency. 
+
+`-L,--freq-low ` 
+
+User clock low frequency. 
 
 
 
