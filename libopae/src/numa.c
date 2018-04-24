@@ -169,6 +169,11 @@ fpga_result __FPGA_API__ fpgaAdviseDmaBuffer(fpga_handle fpga_h, void *buf, uint
 		goto out_unlock;
 	}
 
+	// Write to the page in order to bring it into memory
+	volatile char *ptr = (volatile char *)buf;
+	char tmp = *ptr;
+	*ptr = tmp;
+
 	// Migrate buffer to NUMA node
 	result = move_memory_to_node(_handle, buf, len);
 
