@@ -37,26 +37,32 @@ function (Build_Intel_FPGA_BBB)
   set(GCOV_LINK_FLAGS "-lgcov")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCOV_COMPILE_FLAGS}")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCOV_LINK_FLAGS}")
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/intel_fpga_bbb_include.cmake
+    ${PROJECT_BINARY_DIR}/intel_fpga_bbb_include.cmake)
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     ExternalProject_Add(
       intel-fpga-bbb
       GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
-      GIT_TAG "bed3dcb"
+      GIT_TAG "e792572"
       UPDATE_COMMAND ""
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
       CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      -DCMAKE_PROJECT_mpf_INCLUDE=${PROJECT_BINARY_DIR}/intel_fpga_bbb_include.cmake
+      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -I${CMAKE_BINARY_DIR}/include
       -DCMAKE_SHARED_LINKER_FLAGS=${CMAKE_SHARED_LINKER_FLAGS}
+      -DOPAELIB_INC_PATH=${CMAKE_SOURCE_DIR}/common/include
       # Disable install step
       INSTALL_COMMAND "")
   else()
     ExternalProject_Add(
       intel-fpga-bbb
       GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
-      GIT_TAG "bed3dcb"
+      GIT_TAG "e792572"
       UPDATE_COMMAND ""
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
       CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      -DCMAKE_PROJECT_mpf_INCLUDE=${PROJECT_BINARY_DIR}/intel_fpga_bbb_include.cmake
+      -DOPAELIB_INC_PATH=${CMAKE_SOURCE_DIR}/common/include
       # Disable install step
       INSTALL_COMMAND "")
   endif()
