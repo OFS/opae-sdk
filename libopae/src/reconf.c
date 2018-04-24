@@ -139,6 +139,7 @@ static fpga_result validate_bitstream(fpga_handle handle,
 static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 {
 	fpga_result result                = FPGA_OK;
+	fpga_result destroy_result        = FPGA_OK;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
 	fpga_token token;
 	fpga_properties props;
@@ -186,12 +187,14 @@ static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	}
 
 destroy_token:
-	result = fpgaDestroyToken(&token);
-	if (result != FPGA_OK)
+	destroy_result = fpgaDestroyToken(&token);
+	if (destroy_result != FPGA_OK)
 		FPGA_ERR("Error destroying a token");
 
 free_props:
-	result = fpgaDestroyProperties(&props);
+	destroy_result = fpgaDestroyProperties(&props);
+	if (destroy_result != FPGA_OK)
+		FPGA_ERR("Error destroying properties");
 
 	return result;
 }
