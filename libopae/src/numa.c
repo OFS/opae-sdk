@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+	#include <config.h>
 #endif // HAVE_CONFIG_H
 
 #include "opae/access.h"
@@ -42,71 +42,166 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind)
+fpga_result save_and_bind(struct _fpga_handle *_handle, bool bind, bool save_state)
 {
+#ifndef ENABLE_NUMA
+	UNUSED_PARAM(save_state);
+#endif
+
 	fpga_result res = FPGA_OK;
 
-	if (!fpga_h)
+	if (!_handle) {
 		return FPGA_INVALID_PARAM;
-
-	if (!bind)
-		return res;
-#ifdef ENABLE_NUMA
-	if (NULL == fpga_h->numa)
-		return res;
-
-	if ((NULL != fpga_h->numa->saved.membind_mask) || (NULL != fpga_h->numa->saved.runnode_mask)) {
-		FPGA_MSG("Warning: attempting to save when context already exists");
-		numa_free_nodemask(fpga_h->numa->saved.membind_mask);
-		numa_free_cpumask(fpga_h->numa->saved.runnode_mask);
 	}
-	fpga_h->numa->saved.membind_mask = numa_get_membind();
-	fpga_h->numa->saved.runnode_mask = numa_get_run_node_mask();
 
-	numa_bind(fpga_h->numa->fpgaNodeMask);
+	if (!bind) {
+		return res;
+	}
+
+#ifdef ENABLE_NUMA
+
+	if (NULL == _handle->numa) {
+		return res;
+	}
+
+	if (save_state) {
+		if ((NULL != _handle->numa->saved.membind_mask) || (NULL != _handle->numa->saved.runnode_mask)) {
+			FPGA_MSG("Warning: attempting to save when context already exists");
+			numa_free_nodemask(_handle->numa->saved.membind_mask);
+			numa_free_cpumask(_handle->numa->saved.runnode_mask);
+		}
+
+		_handle->numa->saved.membind_mask = numa_get_membind();
+		_handle->numa->saved.runnode_mask = numa_get_run_node_mask();
+	}
+
+	numa_bind(_handle->numa->fpgaNodeMask);
 #endif
 	return res;
 }
 
-fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind)
+fpga_result restore_and_unbind(struct _fpga_handle *_handle, bool bind, bool restore_state)
 {
+#ifndef ENABLE_NUMA
+	UNUSED_PARAM(restore_state);
+#endif
+
 	fpga_result res = FPGA_OK;
 
-	if (!fpga_h)
+	if (!_handle) {
 		return FPGA_INVALID_PARAM;
+	}
 
-	if (!bind)
+	if (!bind) {
 		return res;
+	}
 
 #ifdef ENABLE_NUMA
-	if (NULL == fpga_h->numa)
+
+	if (NULL == _handle->numa) {
 		return res;
-
-	if ((NULL == fpga_h->numa->saved.membind_mask) || (NULL == fpga_h->numa->saved.runnode_mask)) {
-		FPGA_MSG("Error: attempting to restore to a NULL context");
-		return FPGA_EXCEPTION;
 	}
-	numa_set_membind(fpga_h->numa->saved.membind_mask);
-	numa_run_on_node_mask(fpga_h->numa->saved.runnode_mask);
 
-	numa_free_nodemask(fpga_h->numa->saved.membind_mask);
-	numa_free_cpumask(fpga_h->numa->saved.runnode_mask);
-	fpga_h->numa->saved.membind_mask = NULL;
-	fpga_h->numa->saved.runnode_mask = NULL;
+	if (restore_state) {
+		if ((NULL == _handle->numa->saved.membind_mask) || (NULL == _handle->numa->saved.runnode_mask)) {
+			FPGA_MSG("Error: attempting to restore to a NULL context");
+			return FPGA_EXCEPTION;
+		}
+
+		numa_set_membind(_handle->numa->saved.membind_mask);
+		numa_run_on_node_mask(_handle->numa->saved.runnode_mask);
+
+		numa_free_nodemask(_handle->numa->saved.membind_mask);
+		numa_free_cpumask(_handle->numa->saved.runnode_mask);
+		_handle->numa->saved.membind_mask = NULL;
+		_handle->numa->saved.runnode_mask = NULL;
+	} else {
+		numa_set_membind(_handle->numa->at_open.membind_mask);
+		numa_run_on_node_mask(_handle->numa->at_open.runnode_mask);
+	}
+
 #endif
 	return res;
 }
 
-fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr, size_t size)
+fpga_result move_memory_to_node(struct _fpga_handle *_handle, void *ptr, size_t size)
 {
 	fpga_result res = FPGA_OK;
 
-	if ((!ptr) || (!fpga_h) || (0 == size))
+	if ((!ptr) || (!_handle) || (0 == size)) {
 		return FPGA_INVALID_PARAM;
+	}
 
 #ifdef ENABLE_NUMA
-	numa_tonodemask_memory(ptr, size, fpga_h->numa->fpgaNodeMask);
+	numa_tonodemask_memory(ptr, size, _handle->numa->fpgaNodeMask);
 #endif
 
 	return res;
+}
+
+fpga_result __FPGA_API__ fpgaAdviseDmaBuffer(fpga_handle fpga_h, void *buf, uint64_t len,
+					     bool bind_thread)
+{
+	fpga_result result = FPGA_OK;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) fpga_h;
+	int err;
+
+	result = handle_check_and_lock(_handle);
+
+	if (result) {
+		return result;
+	}
+
+	/* Assure buf is a valid pointer */
+	if (!buf) {
+		FPGA_MSG("Buffer is NULL");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	if (0 == len) {
+		FPGA_MSG("Cannot handle zero-length buffer");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	if (NULL == _handle->numa) {
+		goto out_unlock;
+	}
+
+	// Migrate buffer to NUMA node
+	result = move_memory_to_node(_handle, buf, len);
+
+	if (FPGA_OK != result) {
+		FPGA_MSG("move_memory_to_node failure");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	// Bind to NUMA node if requested
+	if (bind_thread) {
+		result = save_and_bind(_handle, true, false);
+
+		if (FPGA_OK != result) {
+			FPGA_MSG("save_and_bind failure");
+			result = FPGA_EXCEPTION;
+			goto out_unlock;
+		}
+	}
+
+	// Tell the kernel we'll need this buffer and it is sequential
+	uint64_t addr = (uint64_t) buf;
+	uint64_t pg_size = (uint64_t)getpagesize();
+	size_t remainder = (pg_size - (addr & (pg_size - 1))) & ~(pg_size - 1);
+	addr = addr & ~(pg_size - 1);   // Align down to page boundary
+	madvise((void *)addr, len + remainder, MADV_SEQUENTIAL);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+
+	return result;
 }

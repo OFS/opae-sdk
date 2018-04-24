@@ -44,8 +44,8 @@
 #include <numa.h>
 #endif
 
-fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind);
-fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind);
+fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind, bool save_state);
+fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind, bool restore_state);
 fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr, size_t size);
 
 #endif				// __FPGA_NUMA_INT_H__

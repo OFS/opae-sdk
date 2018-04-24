@@ -178,7 +178,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	}
 
 	// Bind to NUMA node if requested
-	if (FPGA_OK != save_and_bind(_handle, bind)) {
+	if (FPGA_OK != save_and_bind(_handle, bind, true)) {
 		FPGA_MSG("save_and_bind failure");
 	}
 
@@ -274,7 +274,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 
 out_unlock:
 	// Restore previous binding if saved above
-	if (FPGA_OK != restore_and_unbind(_handle, bind)) {
+	if (FPGA_OK != restore_and_unbind(_handle, bind, true)) {
 		FPGA_MSG("restore_and_unbind failure");
 	}
 
