@@ -103,8 +103,8 @@ void get_timestamp(char *session_str)
 
 	FILE *fp = (FILE *) NULL;
 
-    // Form session code path
-    // snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path, TSTAMP_FILENAME);
+	// Form session code path
+	// snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path, TSTAMP_FILENAME);
 
 	ASE_DBG("tstamp_filepath = %s\n", tstamp_filepath);
 
@@ -150,7 +150,7 @@ void get_timestamp(char *session_str)
 		}
 	} else {
 		ASE_ERR
-		    ("** ASE ERROR: Session ID was calculated as NULL **\n");
+			("** ASE ERROR: Session ID was calculated as NULL **\n");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -168,7 +168,7 @@ void get_timestamp(char *session_str)
 // -----------------------------------------------------------------------
 void poll_for_session_id(void)
 {
-    ASE_MSG("Waiting till session ID is created by ASE ... ");
+	ASE_MSG("Waiting till session ID is created by ASE ... ");
 
 	while (access(tstamp_filepath, F_OK) == -1) {
 		usleep(1000);
