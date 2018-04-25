@@ -24,15 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: ASE common (C header file)
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
- */
-
 
 #ifndef _ASE_COMMON_H_
 #define _ASE_COMMON_H_
@@ -125,7 +116,7 @@
 // UMAS region
 #define UMAS_LENGTH                (NUM_UMSG_PER_AFU * ASE_PAGESIZE)
 #define UMAS_REGION_MEMSIZE        (2*1024*1024)
-
+l
 // User clock default
 #define DEFAULT_USR_CLK_MHZ        312.500
 #define DEFAULT_USR_CLK_TPS        (int)(1E+12/(DEFAULT_USR_CLK_MHZ*pow(1000, 2)));
