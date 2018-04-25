@@ -122,6 +122,7 @@ add_gtfilter(CxxBuffer "CxxBuffer*" True)
 add_gtfilter(CxxExcept "CxxExcept*" False)
 add_gtfilter(CxxEvent "CxxEvent*" True)
 add_gtfilter(CxxMMIO "CxxMMIO*" True)
+add_gtfilter(CxxVersion "CxxVersion*" False)
 
 ############################################################################
 ## Add Coverage Analysis ###################################################

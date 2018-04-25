@@ -46,17 +46,14 @@ find_package(Threads)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-include_directories(
-    ${OPAE_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
 
 set(OPAECXXCORE_SRC src/properties.cpp
                     src/token.cpp
                     src/handle.cpp
                     src/dma_buffer.cpp
                     src/events.cpp
-                    src/except.cpp)
+                    src/except.cpp
+                    src/version.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
 target_link_libraries(opae-cxx-core opae-c)
@@ -68,3 +65,18 @@ add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 
 
+# Define headers for this library. PUBLIC headers are used for
+# compiling the library, and will be added to consumers' build
+# paths. Keep current directory private.
+target_include_directories(opae-cxx-core PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE src)
+
+############################################################################
+## Create config_int.h #########################################################
+############################################################################
+
+configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+                "${PROJECT_BINARY_DIR}/include/config_int.h" )
