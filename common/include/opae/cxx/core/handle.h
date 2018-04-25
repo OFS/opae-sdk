@@ -117,6 +117,9 @@ class handle {
    *
    * @param[in] flags The flags parameter to fpgaOpen().
    *
+   * @return pointer to the mmio base + offset for the given
+   * csr space
+   *
    */
   static handle::ptr_t open(fpga_token token, int flags);
 
@@ -127,6 +130,7 @@ class handle {
    *
    * @param[in] flags The flags parameter to fpgaOpen().
    *
+   * @return shared ptr to a handle object
    */
   static handle::ptr_t open(token::ptr_t token, int flags);
 
@@ -134,7 +138,11 @@ class handle {
    */
   virtual void reset();
 
- protected:
+  /** Close an accelerator resource (if opened)
+   *
+   * @return fpga_result indication the result of closing the
+   * handle or FPGA_EXCEPTION if handle is not opened
+   */
   fpga_result close();
 
  private:
