@@ -26,10 +26,6 @@
 // **************************************************************************
 /*
  * Module Info: Timestamp based session control functions
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
  */
 
 #include "ase_common.h"

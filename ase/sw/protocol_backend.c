@@ -29,12 +29,6 @@
  * - Protocol backend for keeping IPCs alive
  * - Interfacing with DPI-C, messaging
  * - Interface to page table
- *
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  */
 #include "ase_common.h"
 
