@@ -95,4 +95,6 @@ module avalon_mem_if_async_shim
         .m0_debugaccess()
         );
 
+    // Debugging signal
+    assign mem_afu.bank_number = mem_fiu.bank_number;
 endmodule // avalon_mem_if_async_shim

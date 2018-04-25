@@ -36,6 +36,7 @@ from afu import AFU
 from gbs import GBS
 from metadata import metadata
 
+
 PACKAGER_EXEC = "packager"
 DESCRIPTION = 'Intel OPAE FPGA Packager'
 VERSION = "@INTEL_FPGA_API_VERSION@"

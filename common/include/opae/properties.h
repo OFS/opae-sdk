@@ -59,6 +59,26 @@ extern "C" {
  *
  * Initializes the memory pointed at by `prop` to represent a properties
  * object, and populates it with the properties of the resource referred to by
+ * `handle`. Individual properties can then be queried using fpgaPropertiesGet*()
+ * accessor functions.
+ *
+ * @note fpgaGetPropertiesFromHandle() will allocate memory for the created properties
+ * object returned in `prop`. It is the responsibility of the caller
+ * to free this memory after use by calling fpgaDestroyProperties().
+ *
+ * @param[in]  handle     Open handle to get properties for.
+ * @param[out] prop       Pointer to a variable of type fpga_properties
+ * @returns FPGA_OK on success. FPGA_NO_MEMORY if no memory could be allocated
+ * to create the `fpga_properties` object. FPGA_EXCEPTION if an exception
+ * happend while initializing the `fpga_properties` object.
+ */
+fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop);
+
+/**
+ * Create a fpga_properties object
+ *
+ * Initializes the memory pointed at by `prop` to represent a properties
+ * object, and populates it with the properties of the resource referred to by
  * `token`. Individual properties can then be queried using fpgaPropertiesGet*()
  * accessor functions.
  *
@@ -71,7 +91,7 @@ extern "C" {
  * fpgaUpdateProperties().
  *
  * @note fpgaGetProperties() will allocate memory for the created properties
- * object returned in `prop`. It is the responsibility of the using application
+ * object returned in `prop`. It is the responsibility of the caller
  * to free this memory after use by calling fpgaDestroyProperties().
  *
  * @param[in]  token      Token to get properties for. Can be NULL, which will
@@ -310,7 +330,7 @@ fpga_result fpgaPropertiesSetSocketID(fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
-				      uint32_t *device_id);
+				      uint16_t *device_id);
 
 /**
  * Set the device id of the resource
@@ -320,7 +340,7 @@ fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesSetDeviceID(fpga_properties prop,
-				      uint32_t device_id);
+				      uint16_t device_id);
 
 /**
  * Get the number of slots of an FPGA resource property

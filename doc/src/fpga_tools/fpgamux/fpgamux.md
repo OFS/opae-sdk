@@ -7,10 +7,10 @@ fpgamux [-h] [-S|--socket-id SOCKET_ID] [-B|--bus-number BUS] [-D|--device DEVIC
 ```
 
 ## DESCRIPTION ##
-fpgamux tests multiple AFUs that are synthesized into a single AFU along with
-the CCIP-MUX BBB (basic building block). The CCIP-MUX uses the upper bits in the MMIO addresses to route MMIO
-reads and writes to the AFU running on the corresponding CCIP-MUX port. fpgamux uses a configuration file that
-lists the software components and correct configuration. fpgamux only runs on the Integrated FPGA Platform. 
+```fpgamux``` tests multiple AFUs that are synthesized into a single AFU along with
+the CCIP-MUX basic building block (BBB). The CCIP-MUX uses the upper bits in the MMIO addresses to route MMIO
+reads and writes to the AFU running on the corresponding CCIP-MUX port. ```fpgamux``` uses a configuration file that
+lists the software components and correct configuration. ```fpgamux``` only runs on the Integrated FPGA Platform. 
 You cannot run it on the PCIe accelerator card (PAC).
 
 .. note::
@@ -24,26 +24,32 @@ You cannot run it on the PCIe accelerator card (PAC).
 
 ## OPTIONS ##
 `-S SOCKET_ID, --socket-id SOCKET_ID`
+
    socket id of FPGA resource.
 
 `-B BUS, --bus BUS`
+
    bus id of FPGA resource.
 
 `-D DEVICE, --device DEVICE`
-   device id of FPGA resource.
+
+   The device id of FPGA resource.
 
 `-F FUNCTION, --function FUNCTION`
-   function id of FPGA resource.
+
+   The function id of FPGA resource.
 
 `-G, --guid`
-   specifies the GUID to use for the AFC enumeration.
+
+   Specifies the GUID to use for the AFC enumeration.
 
 `-m, --muxfile <filepath.json>`
-    The path to the fpgamux configuration file. This file must be in JSON format following the
-    schema described below.
+
+The path to the ```fpgamux``` configuration file. This file must be in JSON format following the
+schema described below.
 
 ## CONFIGURATION ##
-fpgamux uses a configuration file (in JSON format) to determine what software components to instantiate and
+```fpgamux``` uses a configuration file (in JSON format) to determine what software components to instantiate and
 how to configure them to work with the AFUs. The schema includes the following elements:
 
 ```

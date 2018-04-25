@@ -53,15 +53,19 @@ configure_file(
   @ONLY)
 
 add_custom_target(copy-doxygen-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/xml ${BINARY_BUILD_DIR}/doxygen_xml
   DEPENDS doxygen)
 
 add_custom_target(copy-markdown-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
 
 add_custom_target(copy-include-files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
   DEPENDS copy-markdown-files)
+
+add_custom_target(copy-sample-files ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples ${BINARY_BUILD_DIR}/docs/fpga_api/samples
+  DEPENDS copy-include-files)
 
 add_custom_target(docs ALL
   ${SPHINX_EXECUTABLE}
@@ -76,4 +80,5 @@ add_custom_target(docs ALL
 add_dependencies(docs
   copy-doxygen-files
   copy-markdown-files
-  copy-include-files)
+  copy-include-files
+  copy-sample-files)

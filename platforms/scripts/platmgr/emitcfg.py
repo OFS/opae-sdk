@@ -149,7 +149,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     # Regular expression for characters we might encounter that can't be
     # in preprocessor variables.  They will all be replaced with underscores.
-    illegal_chars = re.compile('[\.\[\]-]')
+    illegal_chars = re.compile('[\\.\\[\\]-]')
 
     try:
         f = open(fn, "w")
@@ -161,6 +161,11 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f.write("`ifndef __PLATFORM_AFU_TOP_CONFIG_VH__\n" +
             "`define __PLATFORM_AFU_TOP_CONFIG_VH__\n\n")
 
+    f.write("`define PLATFORM_CLASS_NAME \"" +
+            platform_db['platform-name'].upper() + "\"\n")
+    f.write("`define PLATFORM_CLASS_NAME_IS_" +
+            platform_db['platform-name'].upper() + " 1\n\n")
+
     f.write("`define AFU_TOP_MODULE_NAME " +
             afu_ifc_db['module-name'] + "\n")
     f.write("`define PLATFORM_SHIM_MODULE_NAME " +
@@ -169,7 +174,12 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     if (args.sim):
         f.write("`define PLATFORM_SIMULATED 1\n\n")
 
-    f.write("// These top-level port classes are provided\n")
+    # Does either the AFU or platform request some preprocessor
+    # definitions?
+    for d in (platform_db['define'] + afu_ifc_db['define']):
+        f.write("`define {0} 1\n".format(d))
+
+    f.write("\n\n// These top-level port classes are provided\n")
     for port in afu_port_list:
         afu_port = port['afu']
         name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()
@@ -272,7 +282,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     # Regular expression for characters we might encounter that can't be
     # in preprocessor variables.  They will all be replaced with underscores.
-    illegal_chars = re.compile('[\.\[\]-]')
+    illegal_chars = re.compile('[\\.\\[\\]-]')
 
     try:
         f = open(fn, "w")
@@ -282,7 +292,10 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     emitHeader(f, afu_ifc_db, platform_db, comment="##")
 
     f.write('namespace eval platform_cfg {\n')
-    f.write("    # These top-level port classes are provided\n")
+    f.write("    variable PLATFORM_CLASS_NAME \"" +
+            platform_db['platform-name'] + "\"\n")
+
+    f.write("\n    # These top-level port classes are provided\n")
     for port in afu_port_list:
         afu_port = port['afu']
         name = "PLATFORM_PROVIDES_" + afu_port['class'].upper()

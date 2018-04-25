@@ -1,7 +1,7 @@
-// $File: //acds/rel/17.0/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.v $
+// $File: //acds/rel/18.0/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.v $
 // $Revision: #1 $
-// $Date: 2017/02/12 $
-// $Author: swbranch $
+// $Date: 2018/02/08 $
+// $Author: psgswbuild $
 //-------------------------------------------------------------------------------
 // Description: Dual clocked single channel FIFO with fill levels and status
 // information.
@@ -278,8 +278,8 @@ module platform_utils_avalon_dc_fifo(
         internal_out_payload <= mem[mem_rd_ptr];
     end
 
-    assign mem_rd_ptr = next_out_rd_ptr;
-    assign mem_wr_ptr = in_wr_ptr;
+    assign mem_rd_ptr = next_out_rd_ptr[ADDR_WIDTH-1:0];
+    assign mem_wr_ptr = in_wr_ptr[ADDR_WIDTH-1:0];
 
 
     // ---------------------------------------------------------------------

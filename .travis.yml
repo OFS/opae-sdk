@@ -9,6 +9,7 @@ matrix:
     - pip install --user pylint
     - pip install --user pycodestyle
     - pip install --user jsonschema
+    - pip install --user jinja2
   - script: scripts/test-build.sh
     cache: ccache
     addons:
@@ -18,7 +19,6 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
   - script: scripts/test-gtapi-mock-drv.sh
     cache: ccache
     addons:
@@ -28,9 +28,10 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
   - script: scripts/build-documentation.sh
-    cache: ccache
+    cache: 
+      - ccache
+      - pip
     addons:
       apt:
         packages:
@@ -38,8 +39,10 @@ matrix:
         - libjson-c-dev
         - uuid-dev
         - doxygen
-        - python-jsonschema
         - pandoc
+    install:
+      - pip install --user jinja2
+      - pip install --user requests[security]
     before_install:
     - wget https://github.com/jgm/pandoc/releases/download/2.1.1/pandoc-2.1.1-1-amd64.deb
     - sudo dpkg -i pandoc-2.1.1-1-amd64.deb

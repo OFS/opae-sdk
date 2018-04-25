@@ -45,7 +45,7 @@ uint32_t session_exist_status = NOT_ESTABLISHED;
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
-#define ASE_ID 0xA5EA5E
+#define ASE_ID 0x0A5E
 #define ASE_FME_ID 0x3345678UL
 #define BBSID 0x63000023b637277UL
 #define FPGA_NUM_SLOTS 1
@@ -230,6 +230,15 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 	*token = NULL;
 	return FPGA_OK;
 
+}
+
+fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
+						     fpga_properties *prop)
+{
+	ASSERT_NOT_NULL(handle);
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+
+	return fpgaGetProperties(_handle->token, prop);
 }
 
 fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
@@ -598,7 +607,7 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
+fpgaPropertiesGetDeviceID(const fpga_properties prop, uint16_t *device_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 
@@ -621,7 +630,7 @@ fpgaPropertiesGetDeviceID(const fpga_properties prop, uint32_t *device_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetDeviceID(fpga_properties prop, uint32_t device_id)
+fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
 {
 	UNUSED_PARAM(prop);
 	UNUSED_PARAM(device_id);
@@ -781,18 +790,34 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop, fpga_version bbs_version)
 fpga_result __FPGA_API__
 fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(vendor_id);
-	FPGA_MSG("Vendor ID not supported");
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	fpga_result result = FPGA_INVALID_PARAM;
+	if (NULL == _prop || NULL == vendor_id) {
+		FPGA_ERR("Attempting to dereference NULL pointer(s)");
+		return result;
+	}
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID)) {
+		*vendor_id = _prop->vendor_id;
+		result = FPGA_OK;
+	} else {
+		result = FPGA_NOT_FOUND;
+	}
+
+	return result;
 }
 
 fpga_result __FPGA_API__
 fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
-	UNUSED_PARAM(prop);
-	UNUSED_PARAM(vendor_id);
-	return FPGA_NOT_SUPPORTED;
+	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
+	if (NULL == _prop) {
+		FPGA_ERR("Attempting to dereference NULL pointer(s)");
+		return FPGA_INVALID_PARAM;
+	}
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID);
+	_prop->vendor_id = vendor_id;
+
+	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__
