@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/types.h>
 #include <opae/cxx/core/version.h>
+#include <opae/types.h>
 
 #include "config_int.h"
 
@@ -34,23 +34,15 @@ namespace fpga {
 namespace types {
 
 fpga_version version::as_struct() {
-  fpga_version version_struct = {
-    .major = INTEL_FPGA_API_VER_MAJOR,
-    .minor = INTEL_FPGA_API_VER_MINOR,
-    .patch = INTEL_FPGA_API_VER_REV
-  };
+  fpga_version version_struct = {.major = INTEL_FPGA_API_VER_MAJOR,
+                                 .minor = INTEL_FPGA_API_VER_MINOR,
+                                 .patch = INTEL_FPGA_API_VER_REV};
   return version_struct;
 }
 
-std::string version::as_string() {
-  return INTEL_FPGA_API_VERSION;
-}
+std::string version::as_string() { return INTEL_FPGA_API_VERSION; }
 
-std::string version::build() {
-  return INTEL_FPGA_API_HASH;
-}
-
-
+std::string version::build() { return INTEL_FPGA_API_HASH; }
 
 }  // end of namespace types
 }  // end of namespace fpga

@@ -23,10 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/utils.h>
+#include <opae/cxx/core/except.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
-#include <opae/cxx/core/except.h>
+#include <opae/utils.h>
 
 namespace opae {
 namespace fpga {
@@ -108,13 +108,10 @@ properties::properties(const properties &p)
   if (p.object_id.is_set()) object_id.update();
   if (p.parent.is_set()) parent.update();
   if (p.guid.is_set()) guid.update();
-
 }
 
-properties & properties::operator =(const properties &p)
-{
+properties &properties::operator=(const properties &p) {
   if (this != &p) {
-
     if (props_) {
       ASSERT_FPGA_OK(fpgaDestroyProperties(&props_));
       props_ = nullptr;
@@ -166,7 +163,7 @@ properties & properties::operator =(const properties &p)
   return *this;
 }
 
-properties::properties(fpga_guid guid_in) : properties(){ guid = guid_in; }
+properties::properties(fpga_guid guid_in) : properties() { guid = guid_in; }
 
 properties::properties(fpga_objtype objtype) : properties() { type = objtype; }
 

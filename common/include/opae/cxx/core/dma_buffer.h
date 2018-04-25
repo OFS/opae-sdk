@@ -24,16 +24,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <memory>
-#include <cstdint>
-#include <vector>
-#include <initializer_list>
 #include <chrono>
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
 #include <thread>
+#include <vector>
 
 #include <opae/buffer.h>
-#include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/core/handle.h>
 
 namespace opae {
 namespace fpga {
@@ -52,8 +52,8 @@ class dma_buffer {
   typedef std::size_t size_t;
   typedef std::shared_ptr<dma_buffer> ptr_t;
 
-  dma_buffer(const dma_buffer & ) = delete;
-  dma_buffer & operator =(const dma_buffer & ) = delete;
+  dma_buffer(const dma_buffer &) = delete;
+  dma_buffer &operator=(const dma_buffer &) = delete;
 
   /** dma_buffer destructor.
    */
@@ -101,7 +101,6 @@ class dma_buffer {
    */
   uint64_t iova() const { return iova_; }
 
-
   /** Write c to each byte location in the buffer.
    */
   void fill(int c);
@@ -146,14 +145,12 @@ class dma_buffer {
   dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
              uint64_t iova);
 
-
   handle::ptr_t handle_;
   size_t len_;
   uint8_t *virt_;
   uint64_t wsid_;
   uint64_t iova_;
 };
-
 
 }  // end of namespace types
 }  // end of namespace fpga

@@ -33,19 +33,15 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-event::~event()
-{
+event::~event() {
   ASSERT_FPGA_OK(fpgaUnregisterEvent(*handle_, type_, event_handle_));
   ASSERT_FPGA_OK(fpgaDestroyEventHandle(&event_handle_));
 }
 
-event::operator fpga_event_handle()
-{
-  return event_handle_;
-}
+event::operator fpga_event_handle() { return event_handle_; }
 
-event::ptr_t event::register_event(handle::ptr_t h, event::type_t t, int flags)
-{
+event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
+                                   int flags) {
   event::ptr_t evptr;
   fpga_event_handle eh;
   ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
@@ -56,9 +52,7 @@ event::ptr_t event::register_event(handle::ptr_t h, event::type_t t, int flags)
 }
 
 event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
-    : handle_(h)
-    , type_(t)
-    , event_handle_(eh){}
+    : handle_(h), type_(t), event_handle_(eh) {}
 
 }  // end of namespace types
 }  // end of namespace fpga

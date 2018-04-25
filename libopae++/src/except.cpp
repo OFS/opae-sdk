@@ -37,10 +37,14 @@ namespace fpga {
 namespace types {
 
 src_location::src_location(const char *file, const char *fn, int line) noexcept
-    : file_(file), fn_(fn), line_(line) {}
+    : file_(file),
+      fn_(fn),
+      line_(line) {}
 
-src_location::src_location(const src_location & other) noexcept
-    : file_(other.file_), fn_(other.fn_), line_(other.line_) {}
+src_location::src_location(const src_location &other) noexcept
+    : file_(other.file_),
+      fn_(other.fn_),
+      line_(other.line_) {}
 
 const char *src_location::file() const noexcept {
   // return a pointer to the file name component.
@@ -55,48 +59,46 @@ const char *src_location::file() const noexcept {
 }
 
 except::except(src_location loc) noexcept
-    : res_(FPGA_EXCEPTION), msg_("failed with return code FPGA_EXCEPTION"), loc_(loc) {}
+    : res_(FPGA_EXCEPTION),
+      msg_("failed with return code FPGA_EXCEPTION"),
+      loc_(loc) {}
 
-except::except(fpga_result res, const char* msg, src_location loc) noexcept
-    : res_(res), msg_(msg), loc_(loc) {}
+except::except(fpga_result res, const char *msg, src_location loc) noexcept
+    : res_(res),
+      msg_(msg),
+      loc_(loc) {}
 
-except::except(fpga_result res, src_location loc) noexcept
-    : res_(res), msg_(0), loc_(loc) {}
+except::except(fpga_result res, src_location loc) noexcept : res_(res),
+                                                             msg_(0),
+                                                             loc_(loc) {}
 
 const char *except::what() const noexcept {
   errno_t err;
   bool buf_ok = false;
-  if (msg_){
+  if (msg_) {
     err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
-  }else{
+  } else {
     err = strncpy_s(buf_, MAX_EXCEPT, "failed with error ", 64);
-    if (err)
-      goto log_err;
+    if (err) goto log_err;
     err = strcat_s(buf_, MAX_EXCEPT, fpgaErrStr(res_));
   }
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
   buf_ok = true;
 
   err = strcat_s(buf_, MAX_EXCEPT, " at: ");
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
 
   err = strcat_s(buf_, MAX_EXCEPT, loc_.file());
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
 
   err = strcat_s(buf_, MAX_EXCEPT, ":");
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
 
   err = strcat_s(buf_, MAX_EXCEPT, loc_.fn());
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
 
   err = strcat_s(buf_, MAX_EXCEPT, "():");
-  if (err)
-    goto log_err;
+  if (err) goto log_err;
 
   snprintf_s_i(buf_ + strlen(buf_), 64, "%d", loc_.line());
 
@@ -105,7 +107,7 @@ const char *except::what() const noexcept {
 log_err:
   std::cerr << "[except::what()] error with safestr operation: " << err << "\n";
 
-  buf_[sizeof(buf_)-1] = '\0';
+  buf_[sizeof(buf_) - 1] = '\0';
   return buf_ok ? const_cast<const char *>(buf_) : msg_;
 }
 

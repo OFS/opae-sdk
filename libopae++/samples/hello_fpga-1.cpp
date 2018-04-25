@@ -24,35 +24,35 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 #include <uuid/uuid.h>
 
+#include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
-#include <opae/cxx/core/handle.h>
-#include <opae/cxx/core/dma_buffer.h>
 
 using namespace opae::fpga::types;
 
-static const char* NLB0_AFUID                      = "D8424DC4-A4A3-C413-F89E-433683F9040B";
-static const uint64_t CL                           = 64;
-static const uint64_t KB                           = 1024;
-static const uint64_t MB                           = KB * 1024;
-static const uint64_t LOG2_CL                      = 6;
-static const size_t LPBK1_DSM_SIZE                 = 4*KB;
-static const size_t LPBK1_BUFFER_SIZE              = 1*KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE   = 4*KB;
-static const uint64_t CSR_SRC_ADDR                 = 0x0120;
-static const uint32_t CSR_DST_ADDR                 = 0x0128;
-static const uint32_t CSR_CTL                      = 0x0138;
-static const uint32_t CSR_CFG                      = 0x0140;
-static const uint32_t CSR_NUM_LINES                = 0x0130;
-static const uint32_t DSM_STATUS_TEST_COMPLETE     = 0x40;
-static const uint64_t CSR_AFU_DSM_BASEL            = 0x0110;
-static const uint64_t CSR_AFU_DSM_BASEH            = 0x0114;
+static const char* NLB0_AFUID = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+static const uint64_t CL = 64;
+static const uint64_t KB = 1024;
+static const uint64_t MB = KB * 1024;
+static const uint64_t LOG2_CL = 6;
+static const size_t LPBK1_DSM_SIZE = 4 * KB;
+static const size_t LPBK1_BUFFER_SIZE = 1 * KB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 4 * KB;
+static const uint64_t CSR_SRC_ADDR = 0x0120;
+static const uint32_t CSR_DST_ADDR = 0x0128;
+static const uint32_t CSR_CTL = 0x0138;
+static const uint32_t CSR_CFG = 0x0140;
+static const uint32_t CSR_NUM_LINES = 0x0130;
+static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
+static const uint64_t CSR_AFU_DSM_BASEL = 0x0110;
+static const uint64_t CSR_AFU_DSM_BASEH = 0x0114;
 
 static inline uint64_t cacheline_aligned_addr(uint64_t num) {
   return num >> LOG2_CL;
@@ -65,12 +65,12 @@ int main(__attribute__((unused)) int argc,
   filter.guid.parse(NLB0_AFUID);
   filter.type = FPGA_ACCELERATOR;
 
-  auto tokens = token::enumerate({ filter });
+  auto tokens = token::enumerate({filter});
 
   // assert we have found at least one
   if (tokens.size() < 1) {
-  	std::cerr << "accelerator not found\n";
-  	return -1;
+    std::cerr << "accelerator not found\n";
+    return -1;
   }
   token::ptr_t tok = tokens[0];
 
@@ -87,14 +87,14 @@ int main(__attribute__((unused)) int argc,
   std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
   std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
 
-  //accel->reset();
+  // accel->reset();
   accel->write_csr64(CSR_AFU_DSM_BASEL, dsm->iova());
   accel->write_csr32(CSR_CTL, 0);
   accel->write_csr32(CSR_CTL, 1);
   accel->write_csr64(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
   accel->write_csr64(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
 
-  accel->write_csr64(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1*CL);
+  accel->write_csr64(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1 * CL);
   accel->write_csr32(CSR_CFG, 0x42000);
 
   // get ptr to device status memory - test complete
@@ -112,9 +112,11 @@ int main(__attribute__((unused)) int argc,
   accel->write_csr32(CSR_CTL, 7);
 
   // check output buffer contents
-  auto mm = std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
+  auto mm =
+      std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
   if (mm.second < out->get() + LPBK1_BUFFER_SIZE) {
-    std::cerr << "output does NOT match input at offset: " << (mm.second - out->get()) << "\n";
+    std::cerr << "output does NOT match input at offset: "
+              << (mm.second - out->get()) << "\n";
     return -1;
   }
 

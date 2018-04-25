@@ -23,10 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <algorithm>
-#include <opae/utils.h>
-#include <opae/cxx/core/token.h>
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/core/token.h>
+#include <opae/utils.h>
+#include <algorithm>
 
 namespace opae {
 namespace fpga {
@@ -55,11 +55,10 @@ std::vector<token::ptr_t> token::enumerate(
                    [](fpga_token t) { return token::ptr_t(new token(t)); });
 
     // discard our c struct token objects
-    std::for_each(c_tokens.begin(), c_tokens.end(),
-                  [](fpga_token t) {
-                    auto res = fpgaDestroyToken(&t);
-                    ASSERT_FPGA_OK(res);
-                  });
+    std::for_each(c_tokens.begin(), c_tokens.end(), [](fpga_token t) {
+      auto res = fpgaDestroyToken(&t);
+      ASSERT_FPGA_OK(res);
+    });
   } else if (res != FPGA_NOT_FOUND) {
     // throw exception except for not_found
     // we don't want to throw not_found the frist time we enumerate

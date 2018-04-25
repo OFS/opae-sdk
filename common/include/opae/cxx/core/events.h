@@ -50,23 +50,17 @@ class event {
   /**
    * @brief C++ struct that is interchangeable with fpga_event_type enum
    */
-  struct type_t
-  {
-    type_t(fpga_event_type c_type)
-    : type_(c_type){}
+  struct type_t {
+    type_t(fpga_event_type c_type) : type_(c_type) {}
 
-    operator fpga_event_type()
-    {
-      return type_;
-    }
+    operator fpga_event_type() { return type_; }
 
-    static constexpr fpga_event_type interrupt =  FPGA_EVENT_INTERRUPT;
-    static constexpr fpga_event_type error =  FPGA_EVENT_ERROR;
-    static constexpr fpga_event_type power_thermal =  FPGA_EVENT_POWER_THERMAL;
+    static constexpr fpga_event_type interrupt = FPGA_EVENT_INTERRUPT;
+    static constexpr fpga_event_type error = FPGA_EVENT_ERROR;
+    static constexpr fpga_event_type power_thermal = FPGA_EVENT_POWER_THERMAL;
 
    private:
     fpga_event_type type_;
-
   };
 
   /**
@@ -92,7 +86,8 @@ class event {
    *
    * @return A shared ptr to an event object
    */
-  static event::ptr_t register_event(handle::ptr_t h, event::type_t t, int flags = 0);
+  static event::ptr_t register_event(handle::ptr_t h, event::type_t t,
+                                     int flags = 0);
 
  private:
   event(handle::ptr_t h, event::type_t t, fpga_event_handle event_h);
