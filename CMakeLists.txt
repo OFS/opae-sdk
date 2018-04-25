@@ -50,7 +50,7 @@ endif(EXISTS ${GIT_EXECUTABLE})
 
 set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
 set(INTEL_FPGA_API_VER_MINOR 13 CACHE STRING "Intel FPGA API minor version")
-set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
+set(INTEL_FPGA_API_VER_REV   1  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
 set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
@@ -93,7 +93,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
 set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
 add_custom_target(copy-common-opae-header-files ALL
-  COMMAND cmake -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
 
 # Install common header files
 install(DIRECTORY common/include/opae
@@ -220,6 +220,7 @@ define_pkg(tools
   toolbist_app
   toolfpgadiagapps
   toolfpgaflash
+  toolpachssiconfig
   toolpackager
   jsonschema
   opaecxxutils

@@ -113,6 +113,9 @@ module avalon_mem_if_reg
                     .m0_byteenable(mem_pipe[s - 1].byteenable),
                     .m0_debugaccess()
                     );
+
+                // Debugging signal
+                assign mem_pipe[s].bank_number = mem_pipe[s-1].bank_number;
             end
 
             // Map mem_afu to the last stage (wired)

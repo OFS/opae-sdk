@@ -1,4 +1,4 @@
-# OPAE Intel&reg; FPGA Linux Device Driver Architecture #
+# Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture #
 
 .. toctree::
 
@@ -8,77 +8,71 @@
 
 .. highlight:: console
 
-The OPAE Intel&reg; FPGA driver provides interfaces for userspace applications to
+The OPAE Intel&reg; FPGA Linux Device Driver provides interfaces for userspace applications to
 configure, enumerate, open, and access FPGA accelerators on platforms equipped
-with Intel&reg; FPGA solutions and enables system-level management functions such
-as FPGA reconfiguration, power management, and virtualization.
+with Intel FPGA solutions. The OPAE FPGA driver also enables system-level management functions such
+as FPGA reconfiguration and virtualization.
 
 ## Hardware Architecture ##
 
-From the OS's point of view, the FPGA hardware appears as a regular PCIe device.
-The FPGA device memory is organized using a predefined data structure (Device
-Feature List). Features supported by the particular FPGA device are exposed
-through these data structures, as illustrated below:
+The Linux Operating System treats the FPGA hardware as a PCIe\* device. A predefined data structure
+Device Feature List (DFL) defines PCIe memory.
 
 ![FPGA PCIe Device](FPGA_PCIe_Device.png "FPGA PCIe Device")
 
-The driver supports PCIe SR-IOV to create Virtual Functions (VFs) which can be
-used to assign individual accelerators to virtual machines.
+The Linux Device Driver uses PCIe Single Root I/O Virtualization (SR-IOV) to create Virtual Functions (VFs). The device driver
+can assign individual accelerators to virtual machines (VMs).
 
 ![Virtualized FPGA PCIe Device](FPGA_PCIe_Device_SRIOV.png "Virtualized FPGA PCIe Device")
 
 ## FPGA Management Engine (FME) ##
 
-The FPGA Management Engine performs power and thermal management, error
-reporting, reconfiguration, performance reporting, and other infrastructure
-functions. Each FPGA has one FME, which is always accessed through the Physical
-Function (PF).
+The FPGA Management Engine provides error reporting, reconfiguration, performance reporting, and other 
+infrastructure functions. Each FPGA has one FME which is always accessed through the Physical
+Function (PF). The Intel Xeon&reg; Processor with Integrated FPGA also performs power and thermal management.
+These functions are not available on the Intel Programmable Acceleration Card (PAC).  
 
 User-space applications can acquire exclusive access to the FME using `open()`,
 and release it using `close()` as a privileged user (root).
 
-.. note::
+.. Note::
 
 ```
-    In the case that an errant application terminates without freeing
-    the FME/Port resources, Linux closes all file descriptors owned by
-    the terminating process, freeing those resources.
+    If an application terminates without freeing the FME or Port resources, Linux closes all 
+    file descriptors owned by the terminating process, freeing those resources.
 ```
 
 ## Port ##
 
-A Port represents the interface between the static FPGA fabric, which is referred to as the FPGA Interface Manager (FIM) and a partially reconfigurable region containing an Accelerator Function (AF). The Port controls the communication from software to the accelerator and exposes features such as reset and debug.
+A Port represents the interface between two components: 
+* The FPGA Interface Manager (FIM) which is the static FPGA fabric 
+* The Accelerator Function (AF) which is the partially reconfigurable region
 
-A PCIe device may have several Ports, and each Port can be exposed through a VF
-by assigning it using the `FPGA_FME_PORT_ASSIGN` ioctl on the FME device.
+The Port controls the communication from software to the AF and makes features such as reset and debug available.
+A PCIe device may have several Ports. Assign multiple ports to VFs using the `FPGA_FME_PORT_ASSIGN` ioctl on the FME device.
 
 ## Accelerator Function (AF) ##
 
-An AF is attached to a Port and exposes a 256K MMIO region to be used for accelerator-specific control registers.
+An AF attaches to a Port. The AF provides a 256 KB memory mapped I/O (MMIO) region for accelerator-specific control registers.
 
-User-space applications can acquire exclusive access to an AFU attached to a
-Port by using `open()` on the Port device, and release it using `close()`.
+* Use `open()` on the Port device to acquire exclusive access to an AFU associated with the Port device.
+* Use `close()`on the Port device to release the AFU associated with the Port device.
+* Use `mmap()` on the Port device to map accelerator MMIO regions.
 
-User-space applications can also `mmap()` accelerator MMIO regions.
+## Partial Reconfiguration (PR) ##
 
-## Partial Reconfiguration ##
+Use PR to reconfigure an AF file. Successful reconfiguration has two requirements:
 
-As mentioned above, accelerators can be reconfigured through partial
-reconfiguration of an AF file. The AF must have been generated for the exact FIM and targeted 
-reconfigurable region (Port) of the FPGA; otherwise, the reconfiguration operation will fail and
-possibly cause system instability. This compatibility can be checked by
-comparing the interface ID noted in the AF header against the interface ID
-exposed by the FME through sysfs. This check is usually done by
-user-space before calling the reconfiguration IOCTL.
+* You must generate the reconfiguration AF for the exact FIM. The AF and FIM are compatible if their IDs match. You can
+verify this match by comparing the interface ID in the AF header against the interface ID the available through 
+```sysfs intel-fpga-dev.*i*/intel-fpga-fme.*j*/pr/interface_ID```. PR always performs this check before reconfiguring
+the AF. 
+* The AF must also target the reconfigurable region (Port) of the FPGA. 
 
+In all other cases PR fails and may cause system instability.
 
-.. note::
-
-```
-    Currently, any software program accessing the FPGA, including those
-    running in a virtualized host, must be closed prior to attempting a Partial
-    Reconfiguration. The steps would be:
-```
+ Close any software program accessing the FPGA, including software programs running in a virtualized host before
+initiating PR. Here is the recommended sequence: 
 
 1. Unload the driver from the guest
 2. Unplug the VF from the guest
@@ -92,137 +86,135 @@ user-space before calling the reconfiguration IOCTL.
     VF.
 ```
 3. Disable SR-IOV
-4. Perform Partial Reconfiguration
+4. Perform PR
 5. Enable SR-IOV
 6. Plug the VF to the guest
 7. Load the driver in the guest
 
 ## FPGA Virtualization ##
 
-To enable accessing an accelerator from applications running in a VM, the
-respective AF's port needs to be assigned to a VF using the following steps:
+To enable accelerator access from applications running on a VM, assign the AF Port to a VF using the following process:
 
-1. The PF owns all AFU Ports by default. Any Port that needs to be reassigned
-to a VF must first be released from the PF through the `FPGA_FME_PORT_RELEASE`
-ioctl on the FME device.
+1. Release the Port from the PF using the `FPGA_FME_PORT_RELEASE` ioctl on the FME device.
 
-2. Once N Ports are released from the PF, the command, below, can be used to 
-enable SRIOV and VFs. Each VF owns only one Port with AF.
+2. Use the following command to enable SR-IOV and VFs. Each VF can own a single Port with an AF. In the following command,
+N is the number of Port released from the PF.
 
 ```console
     echo N > $PCI_DEVICE_PATH/sriov_numvfs
 ```
 
-3. Pass through the VFs to VMs.
+3. Pass through the VFs to VMs. 
 
-4. The AF under VF is accessible from applications in VM (using the same
-driver inside the VF).
+4. You access the AF on a VF from applications running on the VM using the same driver inside the VF.
 
-.. note::
+.. Note::
 
 ```
-An FME cannot be assigned to a VF, thus PR and other management
-functions are only available through the PF.
+You cannot assign an FME to a VF. Consequently, PR and other management functions are only available through
+the PFs.
 ```
 ## Driver Organization ##
 
 ### PCIe Module Device Driver ###
 
+!## Driver Organization ##
+
+### PCIe Module Device Driver ###
+
 ![Driver Organization](Driver_Organization.png "Driver Organization")
 
-The FPGA devices appear as regular PCIe devices; thus, the FPGA PCIe
-device driver (`intel-fpga-pci.ko`) is always loaded first once an
-FPGA PCIe PF or VF is detected. This driver plays an infrastructural
-role in the driver architecture. It:
+
+
+
+FPGA devices appear as a PCIe devices. Once enumeration detects a PCIe PF or VF, the Linux OS loads the FPGA PCIe
+device driver, `intel-fpga-pci.ko`. The device driver performs the following functions:
 
 1. Creates an FPGA container device as parent of the feature devices.
-2. Walks through the Device Feature List, which is implemented in PCIe
-device BAR memory, to discover feature devices and their sub-features
-and create platform devices for them under the container device.
+2. Walks through the Device Feature List in PCIe device base address register (BAR) memory to discover feature devices
+and their sub-features. Creates platform devices for the features and sub-features under the container device.
 3. Supports SR-IOV.
-4. Introduces the feature device infrastructure, which abstracts
-operations for sub-features and exposes common functions to feature
-device drivers.
+4. Introduces the feature device infrastructure, which abstracts operations for sub-features and provides common functions 
+to feature device drivers.
 
 ### PCIe Module Device Driver Functions ###
 
-* Contains PCIe discovery, device enumeration, and feature discovery.
-* Creates sysfs directories for the parent device, FPGA Management Engine (FME), and Port.
-* Creates the platform driver instances, causing the Linux kernel to load their respective platform module drivers.
+The PCIe Module Device Driver performs the following functions:
+
+1. PCIe discovery, device enumeration, and feature discovery. 
+2. Creates sysfs directories for the parent device, FME, and Port.
+3. Creates the platform driver instances, causing the Linux kernel to load their respective platform module drivers.
 
 ### FME Platform Module Device Driver ###
 
-The FPGA Management Engine (FME) driver (`intel-fpga-fme.ko`) is a
-platform driver which is loaded automatically after FME platform
-device creation from the PCIe driver. It provides the key features for
-FPGA management, including:
+The FME Platform Module Device Driver, `intel-fpga-fme.ko`, loads automatically after the PCIe driver creates the
+FME Platform Module. It provides the following features for FPGA management:
 
-1. Power and thermal management, error reporting, performance reporting,
-and other infrastructure functions. You can access these functions
-via sysfs interfaces exposed by the FME driver.
+1. Power and thermal management, error reporting, performance reporting, and other infrastructure functions. You can access
+these functions via sysfs interfaces the FME driver provides. 
 
-2. Partial Reconfiguration. The FME driver registers an FPGA Manager
-during PR sub-feature initialization; once it receives an
-`FPGA_FME_PORT_PR` ioctl from user-space, it invokes the common interface
-function from FPGA Manager to complete the partial reconfiguration of
-the bitstream to the given Port.
+.. Note::
 
-3. Port management for virtualization. The FME driver introduces two
-ioctls, `FPGA_FME_PORT_RELEASE`, which releases given Port from PF; and
-`FPGA_FME_PORT_ASSIGN`, which assigns Port back to PF. Once the Port is
-released from the PF, it can be assigned to the VF through the SR-IOV
-interfaces provided by PCIe driver. 
+```
+The Power and thermal management function are only available on the Intel Xeon Processor with Integrated FPGA.
+```
+
+2. Partial Reconfiguration. During PR sub-feature initialization, the FME driver registers the FPGA Manager framework
+to support PR. When the FME receives an `FPGA_FME_PORT_PR` ioctl from user-space, it invokes the common interface
+function from the FPGA Manager to reconfigure the AF using PR.
+
+3. Port management for virtualization. The FME driver introduces two ioctls:
+* `FPGA_FME_PORT_RELEASE` releases a Port from  the PF
+* `FPGA_FME_PORT_ASSIGN` assigns a Port back to PF
+
+After `FPGA_FME_PORT_RELEASE` completes, you can use the PCIe driver SR-IOV interfaces to reassign the Port to a VF. 
 
 For more information, refer to "FPGA Virtualization".
 
 ### FME Platform Module Device Driver Functions ###
+
+The FME Platform Module Device Driver performs the the following functions:
 
 * Creates the FME character device node.
 * Creates the FME sysfs files and implements the FME sysfs file accessors.
 * Implements the FME private feature sub-drivers.
 * FME private feature sub-drivers:
     * FME Header
-    * Thermal Management
-    * Power Management
+    * Thermal Management - available only on the  Intel Xeon Processor with Integrated FPGA
+    * Power Management - available only on the  Intel Xeon Processor with Integrated FPGA
     * Global Error
     * Partial Reconfiguration
     * Global Performance
 
 ### Port Platform Module Device Driver ###
 
-Similar to the FME driver, the FPGA Port (and AF) driver
-(`intel-fpga-afu.ko`) is probed once the Port platform device is
-created. The main function of this module is to provide an interface
-for user-space applications to access the individual accelerators,
-including basic reset control on Port, AF MMIO region export, DMA
-buffer mapping service, UMsg<sup>1</sup> notification, and remote debug functions
-(see above).
-
-<fn> <sup>1</sup> UMsg is only supported through Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA.</fn>
+After the PCIe Module Device Driver creates the Port Platform Module device, the FPGA Port and AF driver,
+`intel-fpga-afu.ko`, are available. This module provides an interface for user-space applications to access the 
+individual accelerators, including basic reset control on the Port, AF MMIO region export, DMA buffer mapping 
+service, UMsg notification, and remote debug functions. UMsg is only supported on the Intel Xeon Processor 
+with Integrated FPGA.
 
 ### Port Platform Module Device Driver Functions ###
 
+The Port Platform Module Device Driver performs the the following functions:
+
 * Creates the Port character device node.
 * Creates the Port sysfs files and implements the Port sysfs file accessors.
-* Implements the Port private feature sub-drivers.
-* Port private feature sub-drivers:
+* Implements the following Port private feature sub-drivers.
     * Port Header
     * AFU
     * Port Error
-    * UMsg<sup>2</sup>
+    * UMsg - UMsg is only supported through the Intel Xeon Processor with Integrated FPGA.
     * Signal Tap
 
-<fn> <sup>2</sup> UMsg is only supported through Acceleration Stack for Intel&reg; Xeon&reg; Processor with Integrated FPGA.</fn>
 
 ## Application FPGA Device Enumeration ##
 
-This section introduces how applications enumerate the FPGA device from
-the sysfs hierarchy under `/sys/class/fpga`.
+Applications enumerate the FPGA device from the sysfs hierarchy under `/sys/class/fpga`.
 
-In the example below, two Intel&reg; FPGA devices are installed in the host. Each
-FPGA device has one FME and two Ports (AFUs).
+In the example below the host includes two Intel FPGA devices. Each FPGA device has one FME and two Ports (AFUs).
 
-For each FPGA device, a device directory is created under `/sys/class/fpga`:
+Each FPGA device has a device directory under `/sys/class/fpga`:
 
 ```c
     /sys/class/fpga/intel-fpga-dev.0
@@ -241,18 +233,18 @@ Each node has one FME and two Ports (AFUs) as child devices:
     /sys/class/fpga/intel-fpga-dev.1/intel-fpga-port.3
 ```
 
-In general, the FME/Port sysfs interfaces are named as follows:
+In general, the FME/Port sysfs interfaces use the following naming convention:
 
 ```c
     /sys/class/fpga/intel-fpga-dev.i/intel-fpga-fme.j/
     /sys/class/fpga/intel-fpga-dev.i/intel-fpga-port.k/
 ```
 
-with `i` consecutively numbering all of the container devices,
-`j` consecutively numbering the FME's and `k` consecutively numbering
-all Ports.
+* `i` consecutively numbers all of the container devices
+* `j` consecutively numbers the FMEs
+* `k` consecutively numbers all Ports
 
-The device nodes used for `ioctl()` and `mmap()` can be referenced through:
+Use the following device nodes to make `ioctl()` and `mmap()` calls:
 
 ```c
     /dev/intel-fpga-fme.j
@@ -261,10 +253,8 @@ The device nodes used for `ioctl()` and `mmap()` can be referenced through:
 
 ## PCIe Driver Enumeration ##
 
-This section gives an overview of the code flow for device enumeration
-performed by intel-fpga-pci.ko. The main data structures and functions
-are highlighted. This section is best followed when viewing the accompanying
-source code (`pcie.c`).
+`intel-fpga-pci.ko` performs device enumeration. This section highlights the main data structures and 
+functions of `intel-fpga-pci.ko`. For more detailed information refer to the source code, `pcie.c`.
 
 ### Enumeration Data Structures ###
 
@@ -358,7 +348,7 @@ source code (`pcie.c`).
     * Walk the BAR0 Device Feature List to discover the FME, the Port, and their private features.
 
 * `parse_feature()` `parse_feature_afus()` `parse_feature_fme()`
-    * When an FME is encountered:
+    * When enumeration discovers an FME:
         * `build_info_create_dev()`
              * Allocate a platform device for the FME, storing in `build_feature_devs_info.feature_dev`.
              * `feature_dev.id` is initialized to the result of `idr_alloc(fpga_ids[FME_ID],`
@@ -371,7 +361,7 @@ source code (`pcie.c`).
             * Initialize `feature_platform_data.features[FME_FEATURE_ID_HEADER]`, everything but .fops.
 
 * `parse_feature()` `parse_feature_afus()` `parse_feature_port()`
-    * When a Port is encountered:
+    * When enumeration discovers a Port:
         * `build_info_create_dev()`
             * Allocate a platform device for the Port, storing in `build_feature_devs_info.feature_dev`.
             * `feature_dev.id` is initialized to the result of `idr_alloc(fpga_ids[PORT_ID],`
@@ -386,14 +376,14 @@ source code (`pcie.c`).
             * Initialize `feature_platform_data.features[PORT_FEATURE_ID_HEADER]`, everything but .fops.
 
 * `parse_feature()` `parse_feature_afus()` `parse_feature_port_uafu()`
-    * When an AFU is encountered:
+    * When enumeration discovers an AFU:
         * `create_feature_instance()` `build_info_add_sub_feature()`
             * Initialize `feature_dev.resource[PORT_FEATURE_ID_UAFU]`.
         * `feature_platform_data_add()`
             * Initialize `feature_platform_data.features[PORT_FEATURE_ID_UAFU]`, everything but .fops.
 
 * `parse_feature()` `parse_feature_private()` `parse_feature_fme_private()`
-    * When an FME private feature is encountered:
+    * When enumeration discovers an FME private feature:
         * `create_feature_instance()` `build_info_add_sub_feature()`
             * Initialize `feature_dev.resource[id]`.
         * `feature_platform_data_add()`
@@ -413,10 +403,8 @@ source code (`pcie.c`).
 
 ## FME Platform Device Initialization ##
 
-This section gives an overview of the code flow for FME device initialization
-performed by intel-fpga-fme.ko. The main data structures and functions
-are highlited. This section is best followed when viewing the accompanying
-source code (`fme-main.c`).
+`intel-fpga-fme.ko` performs FME device initialization. This section highlights the main data structures and
+and functions. For more information refer to the source code, `fme-main.c`. 
 
 ### FME Platform Device Data Structures ###
 
@@ -494,10 +482,8 @@ source code (`fme-main.c`).
 
 ## Port Platform Device Initialization ##
 
-This section gives an overview of the code flow for port device initialization
-performed by `intel-fpga-afu.ko`. The main data structures and functions
-are highlighted. This section is best followed when viewing the accompanying
-source code (`afu.c`).
+`intel-fpga-afu.ko` performs Port device initialization.  This section highlights the main data structures and
+and functions. For more detailed information refer to the source code, `afu.c`.
 
 ### Port Platform Device Data Structures ###
 
@@ -587,7 +573,7 @@ source code (`afu.c`).
 
 ## FME IOCTLs ##
 
-IOCTLs that are called on an open file descriptor for /dev/intel-fpga-fme.*j*
+Call the following ioctls on an open file descriptor for /dev/intel-fpga-fme.*j*
 
 `FPGA_GET_API_VERSION`
 
@@ -639,7 +625,7 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-fme.*j*
 
 ## Port IOCTLs ##
 
-IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
+Call the following ioctls on an open file descriptor for /dev/intel-fpga-port.*k* .
 
 `FPGA_GET_API_VERSION`
 
@@ -729,10 +715,10 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
 
 `FPGA_PORT_UMSG_SET_BASE_ADDR`
 
-* UMsg must be disabled prior to issuing this ioctl.
-* The iova field must be for a buffer large enough for all UMsg's (num_umsgs * PAGE_SIZE).
-    * The buffer is marked as "in use" by the driver's buffer management.
-    * If iova is NULL, any previous region is unmarked as "in use".
+* Disable UMsg before issuing this ioctl.
+* The buffer for the iova field must large enough for all UMsg's (num_umsgs * PAGE_SIZE).
+    * The the driver's buffer management marks this buffer "in use".
+    * If iova is NULL, the driver's buffer management marks any previous region "in use".
 * arg is a pointer to a:
 
 ```c
@@ -743,16 +729,23 @@ IOCTLs that are called on an open file descriptor for /dev/intel-fpga-port.*k*
     };
 ```
 
-.. note::
+.. Note::
 
 ```
-    To clear the port errors, you have to write the exact bitmask of the current errors, for example:
+    To clear the port errors, write the exact bitmask of the current errors, for example:
 
     $ cat errors > clear
 ```
 
 # sysfs files #
 
+The registers available on the Intel Programmable Acceleration Card (PAC) are a subset of the registers
+available on the Intel Xeon Processor with Integrated FPGA. When the registers available for the two
+platforms differ, the tables below include a fifth column to specify platform support. The tables use the
+following abbreviations:
+
+* Integrated FPGA - Intel Xeon Processor with Integrated FPGA
+* PAC - Intel Programmable Acceleration Card (PAC)
 ## FME Header sysfs files ##
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/
@@ -770,17 +763,19 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/thermal_mgmt/
 
-| sysfs file         | mmio field                           | type         | access                           |
-|--------------------|--------------------------------------|--------------|----------------------------------|
-| threshold1         | thermal.threshold.tmp_thshold1       | decimal int  | User: Read-only Root: Read-write |
-| threshold2         | thermal.threshold.tmp_thshold2       | decimal int  | User: Read-only Root: Read-write |
-| threshold_trip     | thermal.threshold.therm_trip_thshold | decimal int  | Read-only                        |
-| threshold1_reached | thermal.threshold.thshold1_status    | decimal int  | Read-only                        |
-| threshold2_reached | thermal.threshold.thshold2_status    | decimal int  | Read-only                        |
-| threshold1_policy  | thermal.threshold.thshold_policy     | decimal int  | User: Read-only Root: Read-write |
-| temperature        | thermal.rdsensor_fm1.fpga_temp       | decimal int  | Read-only                        |
+| sysfs file         | mmio field                           | type         | access                           |platform support | 
+|--------------------|--------------------------------------|--------------|----------------------------------|---------------- |
+| threshold1         | thermal.threshold.tmp_thshold1       | decimal int  | User: Read-only Root: Read-write | Integrated FPGA |
+| threshold2         | thermal.threshold.tmp_thshold2       | decimal int  | User: Read-only Root: Read-write | Integrated FPGA |
+| threshold_trip     | thermal.threshold.therm_trip_thshold | decimal int  | Read-only                        | Integrated FPGA |
+| threshold1_reached | thermal.threshold.thshold1_status    | decimal int  | Read-only                        | Integrated FPGA |
+| threshold2_reached | thermal.threshold.thshold2_status    | decimal int  | Read-only                        | Integrated FPGA |
+| threshold1_policy  | thermal.threshold.thshold_policy     | decimal int  | User: Read-only Root: Read-write | Integrated FPGA |
+| temperature        | thermal.rdsensor_fm1.fpga_temp       | decimal int  | Read-only                        | Integrated FPGA, PAC |           |
 
 ## FME Power Management sysfs files ##
+
+Power management is available only for the Intel Xeon Processor with Integrated FPGA. 
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/power_mgmt/
 
@@ -797,14 +792,14 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/power_mgmt/
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/
 
-| sysfs file         | mmio field                     | type             | access     |
-|--------------------|--------------------------------|------------------|------------|
-| pcie0_errors       | gerror.pcie0_err               | hex uint64_t     | Read-write |
-| pcie1_errors       | gerror.pcie1_err               | hex uint64_t     | Read-write |
-| gbs_errors         | gerror.ras_gerr                | hex uint64_t     | Read-only  |
-| bbs_errors         | gerror.ras_berr                | hex uint64_t     | Read-only  |
-| warning_errors     | gerror.ras_werr.event_warn_err | hex int          | Read-write |
-| inject_error       | gerror.ras_error_inj           | hex uint64_t     | Read-write |
+| sysfs file         | mmio field                     | type             | access     |platform support      |
+|--------------------|--------------------------------|------------------|------------|--------------------- |
+| pcie0_errors       | gerror.pcie0_err               | hex uint64_t     | Read-write | Integrated FPGA, PAC |   
+| pcie1_errors       | gerror.pcie1_err               | hex uint64_t     | Read-write | Integrated FPGA      |
+| gbs_errors         | gerror.ras_gerr                | hex uint64_t     | Read-only  | Integrated FPGA, PAC |
+| bbs_errors         | gerror.ras_berr                | hex uint64_t     | Read-only  | Integrated FPGA, PAC |
+| warning_errors     | gerror.ras_werr.event_warn_err | hex int          | Read-write | Integrated FPGA, PAC |
+| inject_error       | gerror.ras_error_inj           | hex uint64_t     | Read-write | Integrated FPGA, PAC |
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 
@@ -818,7 +813,7 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 .. note::
 
 ```
-    To clear the FME errors, you must write the exact bitmask of the current errors, for example:
+    To clear the FME errors, write the exact bitmask of the current errors, for example:
 ```
 
 ```sh
@@ -827,7 +822,7 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/errors/fme-errors/
 
 ## FME Partial Reconfiguration sysfs files ##
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/pr/
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/pr/ 
 
 | sysfs file   | mmio field                                    | type        | access    |
 |--------------|-----------------------------------------------|-------------|-----------|
@@ -857,13 +852,16 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/cache/     (Not valid for Acceleratio
 | data_write_port_contention | gperf.CACHE_DATA_WR_PORT_CONTEN | hex uint64_t | Read-only  |
 | tag_write_port_contention  | gperf.CACHE_TAG_WR_PORT_CONTEN  | hex uint64_t | Read-only  |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/    (Not valid for Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs)
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/   
+
+Power management is only available for the Intel Xeon Processor with Integrated FPGA.
 
 | sysfs file | mmio field           | type        | access                           |
 |------------|----------------------|-------------|----------------------------------|
 | freeze     | gperf.vtd_ctl.freeze | decimal int | User: Read-only Root: Read-write |
 
-intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for Acceleration Stack for Intel&reg; Xeon&reg; CPU with FPGAs)
+intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   
+Power management is only available for the Intel Xeon Processor with Integrated FPGA.
 
 
 | sysfs file        | mmio field                  | type         | access    |
@@ -875,27 +873,27 @@ intel-fpga-dev.*i*/intel-fpga-fme.*j*/perf/iommu/afu*k*/   (Not valid for Accele
 
 intel-fpga-dev.*i*/intel-fpga-fme.*j*/dperf/fabric/
 
-| sysfs file  | mmio field              | type         | access                           |
-|-------------|-------------------------|--------------|----------------------------------|
-| enable      | gperf.fab_ctl.(enabled) | decimal int  | User: Read-only Root: Read-write |
-| freeze      | gperf.fab_ctl.freeze    | decimal int  | User: Read-only Root: Read-write |
-| pcie0_read  | gperf.FAB_PCIE0_RD      | hex uint64_t | Read-only                        |
-| pcie0_write | gperf.FAB_PCIE0_WR      | hex uint64_t | Read-only                        |
-| pcie1_read  | gperf.FAB_PCIE1_RD      | hex uint64_t | Read-only                        |
-| pcie1_write | gperf.FAB_PCIE1_WR      | hex uint64_t | Read-only                        |
-| upi_read    | gperf.FAB_UPI_RD        | hex uint64_t | Read-only                        |
-| upi_write   | gperf.FAB_UPI_WR        | hex uint64_t | Read-only                        |
+| sysfs file  | mmio field              | type         | access                           | platform support     |
+|-------------|-------------------------|--------------|----------------------------------|--------------------- |
+| enable      | gperf.fab_ctl.(enabled) | decimal int  | User: Read-only Root: Read-write | Integrated FPGA, PAC |
+| freeze      | gperf.fab_ctl.freeze    | decimal int  | User: Read-only Root: Read-write | Integrated FPGA, PAC |
+| pcie0_read  | gperf.FAB_PCIE0_RD      | hex uint64_t | Read-only                        | Integrated FPGA, PAC |
+| pcie0_write | gperf.FAB_PCIE0_WR      | hex uint64_t | Read-only                        | Integrated FPGA, PAC |
+| pcie1_read  | gperf.FAB_PCIE1_RD      | hex uint64_t | Read-only                        | Integrated FPGA      |
+| pcie1_write | gperf.FAB_PCIE1_WR      | hex uint64_t | Read-only                        | Integrated FPGA      |
+| upi_read    | gperf.FAB_UPI_RD        | hex uint64_t | Read-only                        | Integrated FPGA      |
+| upi_write   | gperf.FAB_UPI_WR        | hex uint64_t | Read-only                        | Integrated FPGA      |
 
 intel-fpga-ev.*i*/intel-fpga/fme.*j*/dperf/fabric/port*k*/
 
-| sysfs file  | mmio field         | type         | access    |
-|-------------|--------------------|--------------|-----------|
-| pcie0_read  | gperf.FAB_PCIE0_RD | hex uint64_t | Read-only |
-| pcie0_write | gperf.FAB_PCIE0_WR | hex uint64_t | Read-only |
-| pcie1_read  | gperf.FAB_PCIE1_RD | hex uint64_t | Read-only |
-| pcie1_write | gperf.FAB_PCIE1_WR | hex uint64_t | Read-only |
-| upi_read    | gperf.FAB_UPI_RD   | hex uint64_t | Read-only |
-| upi_write   | gperf.FAB_UPI_WR   | hex uint64_t | Read-only |
+| sysfs file  | mmio field         | type         | access    | Integrated FPGA      |
+|-------------|--------------------|--------------|-----------|--------------------- |
+| pcie0_read  | gperf.FAB_PCIE0_RD | hex uint64_t | Read-only | Integrated FPGA, PAC |
+| pcie0_write | gperf.FAB_PCIE0_WR | hex uint64_t | Read-only | Integrated FPGA, PAC |
+| pcie1_read  | gperf.FAB_PCIE1_RD | hex uint64_t | Read-only | Integrated FPGA      |
+| pcie1_write | gperf.FAB_PCIE1_WR | hex uint64_t | Read-only | Integrated FPGA      |
+| upi_read    | gperf.FAB_UPI_RD   | hex uint64_t | Read-only | Integrated FPGA      |
+| upi_write   | gperf.FAB_UPI_WR   | hex uint64_t | Read-only | Integrated FPGA      |
 
 ## Port Header sysfs files ##
 
@@ -925,10 +923,10 @@ intel-fpga-dev.*i*/intel-fpga-port.*k*/errors/
 | first_malformed_req | perror.malreq           | hex 16-byte      | Read-only  |
 | clear               | perror.(all errors)     | various uint64_t | Write-only |
 
-.. note::
+.. Note::
 
 ```
-    To clear the Port errors, you must write the exact bitmask of the current errors, for example:
+    To clear the Port errors, write the exact bitmask of the current errors, for example:
 ```
 
 ```sh
