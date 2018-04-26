@@ -1,5 +1,12 @@
 #!/bin/bash
 
+COMMIT_ID="$(git rev-parse HEAD)"
+TEMP=$((git describe --exact-match $COMMIT_ID) 2>&1)
+
+if [[ $TEMP == *"fatal"* ]]; then
+    echo "No new tag detected, hence builiding latest docs from master"
+    git reset --hard origin/master
+fi
 
 pip install --user -r doc/sphinx/requirements.txt
 
@@ -13,9 +20,6 @@ make
 
 echo "build Sphinx documentation FINISHED"
 
-
-COMMIT_ID="$(git rev-parse HEAD)"
-TEMP=$((git describe --exact-match $COMMIT_ID) 2>&1)
 
 if [[ $TEMP != *"fatal"* ]]; then
     echo "New tag detected; Uploading documentation under new tag on opae.github.io"
