@@ -27,8 +27,6 @@
 add_library(opae-c++-utils SHARED
                      utils.h
                      utils.cpp
-                     process.h
-                     process.cpp
                      cmd_handler.h
                      cmd_handler.cpp
                      log.h
