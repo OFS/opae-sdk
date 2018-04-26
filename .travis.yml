@@ -40,6 +40,9 @@ matrix:
         - uuid-dev
         - doxygen
         - pandoc
+    branches:
+      only:
+      - master
     install:
       - pip install --user jinja2
       - pip install --user requests[security]
