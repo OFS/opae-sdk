@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2017, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,23 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/fpgaflash)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/hssi)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgabist)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/pac_hssi_config)
-add_subdirectory(extra/ras)
+install(PROGRAMS pac_hssi_config.py
+        DESTINATION bin
+        COMPONENT toolpachssiconfig)

@@ -10,8 +10,7 @@
          {
              "class": "local-memory",
              "interface": "avalon_mm",
-             "vector": true,
-             "default-entries": 2
+             "vector": true
          }
       ]
 }
