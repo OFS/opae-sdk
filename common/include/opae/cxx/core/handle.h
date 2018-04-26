@@ -142,6 +142,9 @@ class handle {
    *
    * @return fpga_result indication the result of closing the
    * handle or FPGA_EXCEPTION if handle is not opened
+   *
+   * @note This is available for explicitly closing a handle.
+   * The destructor for handle will call close.
    */
   fpga_result close();
 
