@@ -79,7 +79,7 @@ def get_bdf_from_args(args):
             if vars(args)['device'] else '',
             hex(int(vars(args)['function'], 16))
             if vars(args)['function'] else '')
-    host = subprocess.check_output(['/usr/sbin/lspci', '-s', param])
+    host = subprocess.check_output(['lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
     for bus, device, function in matches:
         bdf_list.append({'bus': bus, 'device': device,
