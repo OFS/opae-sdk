@@ -5,6 +5,9 @@
 #  libuuid_INCLUDE_DIRS - the libuuid include directories
 #  libuuid_LIBRARIES - link these to use libuuid
 
+find_package(PkgConfig)
+pkg_check_modules(PC_UUID QUIET uuid)
+
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags uuid --silence-errors
   COMMAND cut -d I -f 2
@@ -24,6 +27,8 @@ find_path(libuuid_INCLUDE_DIRS
 find_library(libuuid_LIBRARIES
   NAMES uuid
   PATHS ${LIBUUID_ROOT}/lib
+  ${PC_UUID_LIBDIR}
+  ${PC_UUID_LIBRARY_DIRS}
   /usr/local/lib
   /usr/lib
   /lib
@@ -32,3 +37,6 @@ find_library(libuuid_LIBRARIES
 if(libuuid_LIBRARIES AND libuuid_INCLUDE_DIRS)
   set(libuuid_FOUND true)
 endif(libuuid_LIBRARIES AND libuuid_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(libuuid REQUIRED_VARS libuuid_INCLUDE_DIRS libuuid_LIBRARIES)

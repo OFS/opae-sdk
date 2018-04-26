@@ -35,7 +35,7 @@
 struct ase_cfg_t *cfg;
 
 static int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
-int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
+int sim2app_alloc_tx;		        // sim2app mesaage queue in TX mode
 static int app2sim_mmioreq_rx;		// MMIO Request path
 static int sim2app_mmiorsp_tx;		// MMIO Response path
 static int app2sim_umsg_rx;		// UMSG    message queue in RX mode
@@ -46,7 +46,7 @@ static int sim2app_portctrl_rsp_tx;
 static int sim2app_intr_request_tx;
 static int intr_event_fds[MAX_USR_INTRS];
 
-int glbl_test_cmplt_cnt;   // Keeps the number of session_deinits received
+int glbl_test_cmplt_cnt;                // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
 pthread_t socket_srv_tid;

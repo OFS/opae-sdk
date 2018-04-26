@@ -72,7 +72,7 @@ endif()
 ######################################################################
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+                    ${OPAE_SDK_SOURCE}/libopae/src)
 
 add_executable(cci_hello_world sw/cci_hello_world.c)
 target_link_libraries(cci_hello_world json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)

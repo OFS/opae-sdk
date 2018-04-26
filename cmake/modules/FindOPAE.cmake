@@ -5,6 +5,9 @@
 #  libopae-c_INCLUDE_DIRS - the libopae-c include directories
 #  libopae-c_LIBRARIES - link these to use libopae-c
 
+find_package(PkgConfig)
+pkg_check_modules(PC_OPAE QUIET opae-c)
+
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags opae-c --silence-errors
   COMMAND cut -d I -f 2
