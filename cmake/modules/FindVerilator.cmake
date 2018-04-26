@@ -24,12 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if (VERILATOR_FOUND)
-    return()
-endif()
-
-find_package(PackageHandleStandardArgs REQUIRED)
-
 find_program(VERILATOR_EXECUTABLE verilator
   HINTS $ENV{VERILATOR_ROOT}
   /usr/local/bin
@@ -56,6 +50,7 @@ mark_as_advanced(VERILATOR_EXECUTABLE)
 mark_as_advanced(VERILATOR_COVERAGE_EXECUTABLE)
 mark_as_advanced(VERILATOR_INCLUDE_DIR)
 
+find_package(PackageHandleStandardArgs REQUIRED)
 find_package_handle_standard_args(Verilator REQUIRED_VARS
   VERILATOR_EXECUTABLE VERILATOR_COVERAGE_EXECUTABLE VERILATOR_INCLUDE_DIR)
 

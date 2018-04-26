@@ -15,17 +15,17 @@ execute_process(COMMAND pkg-config --cflags dbus-1 --silence-errors
   OUTPUT_VARIABLE DBUS_PKG_CONFIG_INCLUDE_DIRS)
 set(DBUS_PKG_CONFIG_INCLUDE_DIRS "${DBUS_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for DBus library")
 
-find_library(libdbus_LIBRARIES
-  NAMES dbus-1
-  HINTS ${PC_DBUS_LIBDIR}
-  ${PC_DBUS_LIBRARY_DIRS})
-
 find_path(libdbus_INCLUDE_DIR
   NAMES dbus/dbus.h
   HINTS
   ${DBUS_PKG_CONFIG_INCLUDE_DIRS}
   ${PC_DBUS_INCLUDEDIR}
   ${PC_DBUS_INCLUDE_DIRS})
+
+find_library(libdbus_LIBRARIES
+  NAMES dbus-1
+  HINTS ${PC_DBUS_LIBDIR}
+  ${PC_DBUS_LIBRARY_DIRS})
 
 get_filename_component(_libdbus_LIBRARY_DIR ${libdbus_LIBRARIES} PATH)
 find_path(libdbus_ARCH_INCLUDE_DIR
