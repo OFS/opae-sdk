@@ -84,4 +84,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     bist_common.global_arguments(parser)
     args = parser.parse_args()
+    bist_common.check_required_cmds()
     main(args)
