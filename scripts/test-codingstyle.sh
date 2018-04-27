@@ -17,6 +17,8 @@ fi
 
 perl ./$CHECKPATCH --no-tree --no-signoff --terse -f $FILES | grep -v "need consistent spacing" | grep ERROR
 
+
+
 if [ $? -eq 0 ]; then
 	echo "test-codingstyle FAILED"
 	popd

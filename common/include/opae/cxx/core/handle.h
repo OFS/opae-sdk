@@ -24,12 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include <opae/types.h>
-#include <opae/enum.h>
 #include <opae/cxx/core/token.h>
+#include <opae/enum.h>
+#include <opae/types.h>
 
 namespace opae {
 namespace fpga {
@@ -46,8 +46,8 @@ class handle {
  public:
   typedef std::shared_ptr<handle> ptr_t;
 
-  handle(const handle & ) = delete;
-  handle & operator =(const handle & ) = delete;
+  handle(const handle &) = delete;
+  handle &operator=(const handle &) = delete;
 
   ~handle();
 

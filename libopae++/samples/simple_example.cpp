@@ -23,18 +23,18 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
-#include <opae/cxx/core/handle.h>
-#include <uuid/uuid.h>
 #include <opae/mmio.h>
+#include <uuid/uuid.h>
 #include <iostream>
 
 using namespace opae::fpga::types;
 
 const char* NLB0 = "D8424DC4-A4A3-C413-F89E-433683F9040B";
 int main(int argc, char* argv[]) {
-  if (argc == 0){
+  if (argc == 0) {
     std::cerr << argv[0] << "\n";
   }
 

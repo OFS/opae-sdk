@@ -24,12 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+#include <iostream>
 #include <map>
 #include <memory>
-#include <iostream>
 
-#include <opae/properties.h>
 #include <opae/cxx/core/pvalue.h>
+#include <opae/properties.h>
 
 namespace opae {
 namespace fpga {
@@ -67,7 +67,7 @@ class properties {
 
   /** properties may be copy-assigned.
    */
-  properties & operator =(const properties &p);
+  properties &operator=(const properties &p);
 
   /** Convert fpga_guid to properties.
    */
@@ -112,7 +112,7 @@ class properties {
   pvalue<uint64_t> bbs_id;
   pvalue<fpga_version> bbs_version;
   pvalue<uint16_t> vendor_id;
-  pvalue<char*> model;
+  pvalue<char *> model;
   pvalue<uint64_t> local_memory_size;
   pvalue<uint64_t> capabilities;
   pvalue<uint32_t> num_mmio;
@@ -121,7 +121,6 @@ class properties {
   pvalue<uint64_t> object_id;
   pvalue<fpga_token> parent;
   guid_t guid;
-
 };
 
 }  // end of namespace types

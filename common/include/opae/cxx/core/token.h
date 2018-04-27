@@ -24,13 +24,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include <opae/types.h>
 #include <opae/access.h>
-#include <opae/enum.h>
 #include <opae/cxx/core/properties.h>
+#include <opae/enum.h>
+#include <opae/types.h>
 
 namespace opae {
 namespace fpga {

@@ -33,8 +33,7 @@ namespace fpga {
 namespace types {
 
 class version {
-public:
-
+ public:
   /// @brief Get the package version information as a struct
   ///
   /// @return The package version as an `fpga_version` struct
@@ -49,7 +48,6 @@ public:
   ///
   /// @return The package build as an `std::string` object
   static std::string build();
-
 };
 
 }  // end of namespace types
