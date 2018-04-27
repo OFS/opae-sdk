@@ -88,13 +88,14 @@ PYBIND11_MODULE(opae, m) {
       }
     )
     .def_property("guid",
-      [](const properties &p) -> const char* {
+      [](const properties &p) -> std::string {
+        std::cout << "guid: " << p.guid << "\n";
         std::stringstream ss;
         ss << p.guid;
-        return ss.str().c_str();
+        return ss.str();
       },
-      [](properties & p, char* guid_str){
-        p.guid.parse(guid_str);
+      [](properties & p, const std::string& guid_str){
+        p.guid.parse(guid_str.c_str());
       }
     )
     .def_property("type",
@@ -130,7 +131,7 @@ PYBIND11_MODULE(opae, m) {
       .def("read_csr64", &handle::read_csr64,   py::arg("offset"), py::arg("csr_space") = 0)
       .def("write_csr32", &handle::write_csr32, py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
       .def("write_csr64", &handle::write_csr64, py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
-      // TODO: close method - Should the Python API should have a close method?
+      .def("close", &handle::close)
       ;
 
   py::class_<dma_buffer, dma_buffer::ptr_t> pybuffer(m, "dma_buffer");
