@@ -32,12 +32,28 @@ import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
+REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
+            'bist_app']
+
+
+def find_exec(cmd, paths):
+    for p in paths:
+        f = os.path.join(p, cmd)
+        if os.path.isfile(f):
+            return True
+    return False
+
+
+def check_required_cmds():
+    path = os.environ['PATH'].split(os.pathsep)
+    if not all([find_exec(cmd, path) for cmd in REQ_CMDS]):
+        sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
 # Return a list of all available bus numbers
 def get_all_fpga_bdfs():
-    pattern = ('\d+:(?P<bus>[a-fA-F0-9]{2}):'
-               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
+    pattern = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
+               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
@@ -51,8 +67,8 @@ def get_all_fpga_bdfs():
 
 
 def get_bdf_from_args(args):
-    pattern = ('(?P<bus>[a-fA-F0-9]{2}):'
-               '(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
+    pattern = (r'(?P<bus>[a-fA-F0-9]{2}):'
+               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
     pattern += vars(args)['device_id']
     bdf_pattern = re.compile(pattern)
     bdf_list = []
@@ -63,7 +79,7 @@ def get_bdf_from_args(args):
             if vars(args)['device'] else '',
             hex(int(vars(args)['function'], 16))
             if vars(args)['function'] else '')
-    host = subprocess.check_output(['/usr/sbin/lspci', '-s', param])
+    host = subprocess.check_output(['lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
     for bus, device, function in matches:
         bdf_list.append({'bus': bus, 'device': device,

@@ -269,6 +269,7 @@ def set_error_parsers(err_feature, err_classes):
 
 class errors_command(fpga_command):
     name = 'errors'
+    tries = 64
 
     def __init__(self, parser):
         super(errors_command, self).__init__(parser)
@@ -284,6 +285,13 @@ class errors_command(fpga_command):
                             choices=['fme', 'port', 'all'],
                             default='fme',
                             help='specify what kind of errors to operate on')
+
+        # FIXME: should get a '-f' option later
+        parser.add_argument('--force', action='store_true',
+                            default=False,
+                            help='retry clearing errors up to ' +
+                            str(self.tries) + ' to clear '
+                            'certain error conditions')
 
     def run(self, args):
         info = sysfsinfo()
@@ -316,7 +324,11 @@ class errors_command(fpga_command):
 
         if args.clear:
             for r in resources:
-                if not r.clear():
+                if (args.force):
+                    tries = self.tries
+                else:
+                    tries = 1
+                if not r.clear(tries):
                     print("ERROR: Could not clear errors for resource {}.\n"
                           "Are you running as root?\n".format(r.sysfs_path))
 

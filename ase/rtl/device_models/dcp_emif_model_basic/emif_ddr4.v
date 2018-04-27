@@ -29,9 +29,11 @@
 import verbosity_pkg::*;
 import avalon_mm_pkg::*;
 
-`define NUM_SLAVES   2 // each memory bank is a slave
-`define SLAVE0    $root.ase_top.emif_ddr4.avs_bfm_inst_ddra
-`define SLAVE1    $root.ase_top.emif_ddr4.avs_bfm_inst_ddrb
+// Position in the hierarchy
+`define SLAVE_PREFIX $root.ase_top.b_emul
+
+// emif_ddr4 implements two banks per instance
+`define NUM_SLAVES 2
 
 //---------------------------------------------------
 // Constants
@@ -49,7 +51,9 @@ localparam MAX_COMMAND_BACKPRESSURE = 2;
 localparam MAX_DATA_IDLE            = 3;
 
 module emif_ddr4 #(
-	parameter DDR_ADDR_WIDTH = 26
+	parameter DDR_ADDR_WIDTH = 26,
+        // Used to index the slave
+        parameter INSTANCE_ID = 0
 ) (
 	output wire         ddr4a_avmm_waitrequest,
 	output wire [DATA_W-1:0] ddr4a_avmm_readdata,
@@ -201,6 +205,9 @@ altera_avalon_mm_slave_bfm #(
 );
 
 // Macros
+`define SLAVE0 `SLAVE_PREFIX[INSTANCE_ID].emif_ddr4.avs_bfm_inst_ddra
+`define SLAVE1 `SLAVE_PREFIX[INSTANCE_ID].emif_ddr4.avs_bfm_inst_ddrb
+
 `define MACRO_PENDING_READ_CYCLES(SLAVE_ID) \
 	int pending_read_cycles_slave_``SLAVE_ID = 0; \
 	always @(posedge `SLAVE``SLAVE_ID.clk) begin \

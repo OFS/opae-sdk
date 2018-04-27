@@ -13,19 +13,25 @@ If there are multiple devices in the system, fpgaflash must specify a BDF to sel
 ## POSITIONAL ARGUMENTS ##
 `{user, factory}`
 
-   type of flash programming
+ Specifies the type of flash programming.
    
-   A user update only reprograms the user image in flash.  
+ `user` 
+ 
+ Only reprograms the user image in flash.  
    
-   A factory update reprograms the entire flash.  A catastrophic failure during a factory update such as a power outage requires a USB cable and quartus_pgm to recover.
+ `factory` 
+ 
+ Reprograms the entire flash.  A catastrophic failure during a factory update such as a power outage
+ requires a USB cable and `quartus_pgm` to recover.
 
 `file`
 
-   rpd file to program into flash.
+Specifies the Raw Programming Data File (rpd) to program into flash.
 
 `bdf`
 
-   BDF of device to program such as 04:00.0 or 0000:04:00.0. This flag is optional when there is a single device in the system.
+Specifies the bus, device and function (BDF) of device to program such as 04:00.0 or 0000:04:00.0. This flag
+is optional when there is a single device in the system.
 
 
 ## OPTIONAL ARGUMENTS ##
@@ -37,4 +43,4 @@ If there are multiple devices in the system, fpgaflash must specify a BDF to sel
 
 `fpgaflash user new_image.rpd 0000:04:00.0`
 
-   Programs new_image.rpd to flash of device with BDF 0000:04:00.0.
+Programs new_image.rpd to flash of device with BDF 0000:04:00.0.
