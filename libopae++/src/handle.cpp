@@ -57,9 +57,10 @@ fpga_result handle::close() {
     auto res = fpgaClose(handle_);
     ASSERT_FPGA_OK(res);
     handle_ = nullptr;
+    return FPGA_OK;
   }
 
-  return FPGA_OK;
+  return FPGA_EXCEPTION;
 }
 
 void handle::reset() {
