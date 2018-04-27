@@ -74,18 +74,18 @@ find_package(GTest REQUIRED)
 ############ Build GTAPI_SYS #################################################
 include_directories(${GTEST_INCLUDE_DIRS}
             ${OPAE_INCLUDE_DIR}
-            ${CMAKE_BINARY_DIR}/../..
-            ${CMAKE_BINARY_DIR}/..
+            ${CMAKE_SOURCE_DIR}
+            ${CMAKE_SOURCE_DIR}/..
             ${OPAE_LIB_DIR}
             ${CMAKE_INSTALL_PREFIX}/utils
             ${CMAKE_INSTALL_PREFIX}/lib)
 
-set(SRC ${CMAKE_SOURCE_DIR}/../gtmain.cpp 
-        ${CMAKE_SOURCE_DIR}/../jsonParser.cpp
-        ${CMAKE_SOURCE_DIR}/../function/gtEnumerate_sys.cpp
-        ${CMAKE_SOURCE_DIR}/../function/gtBuffer_sys.cpp
-        ${CMAKE_SOURCE_DIR}/../function/gtMMIO_sys.cpp
-        ${CMAKE_SOURCE_DIR}/../function/gtOpenClose_sys.cpp
+set(SRC gtmain_sys.cpp 
+        utils/jsonParser.cpp
+        function/gtEnumerate_sys.cpp
+        function/gtBuffer_sys.cpp
+        function/gtMMIO_sys.cpp
+        function/gtOpenClose_sys.cpp
   	    stress/gtBuf_sys.cpp
         stress/gtMMIO_sys.cpp
         stress/gtOpen_sys.cpp
@@ -94,7 +94,7 @@ set(SRC ${CMAKE_SOURCE_DIR}/../gtmain.cpp
         stress/gtRASPower_sys.cpp)
 
 add_library(commonlib SHARED
-            ${CMAKE_SOURCE_DIR}/../common_test.cpp
+            ${CMAKE_SOURCE_DIR}/utils/common_utils.cpp
             ${CMAKE_SOURCE_DIR}/utils/common_sys.cpp)
          #   ${CMAKE_SOURCE_DIR}/utils/common_pr.cpp
          #   ${CMAKE_SOURCE_DIR}/utils/common_sysfs.cpp)

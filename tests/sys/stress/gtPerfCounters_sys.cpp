@@ -28,7 +28,7 @@ must be express and approved by Intel in writing.
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "gtest/gtest.h"
 #include "common_sys.h"
 
@@ -84,7 +84,7 @@ must be express and approved by Intel in writing.
 #define FME_SYSFS_FME_PERF_FABRIC_PORT1_UPIWRITE "/iperf/fabric/port1/upi_write"
 
 using namespace std;
-using namespace common_test;
+using namespace common_utils;
 
 class StressLibopaecPerfFCommonHW : public BaseFixture, public ::testing::Test {
  public:
@@ -354,7 +354,7 @@ TEST_F(StressLibopaecPerfFCommonHW, 03) {
 
   auto functor = [=]() -> void {
 
-    common_test::Random<1, 2> rand;
+    common_utils::Random<1, 2> rand;
 
     for (int i = 0; i < 1000; ++i) {
       if (rand() % 2) {

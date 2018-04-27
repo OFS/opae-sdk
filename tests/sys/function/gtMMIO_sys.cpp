@@ -26,7 +26,7 @@ must be express and approved by Intel in writing.
 #include <opae/mmio.h>
 #include <sys/mman.h>
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "common_sys.h"
 #include "gtest/gtest.h"
 //#ifdef BUILD_ASE
@@ -41,7 +41,7 @@ must be express and approved by Intel in writing.
 #define MMIO_OUT_REGION_ADDRESS 1024 * 1024 * 256
 #define MAX_MMIO_SIZE 1024 * 256
 
-using namespace common_test;
+using namespace common_utils;
 
 class LibopaecMmioFCommonHW : public BaseFixture, public ::testing::Test {
  public:

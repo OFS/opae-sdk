@@ -35,13 +35,11 @@
 #include <random>
 
 #include "gtest/gtest.h"
-
 #include "common_sys.h"
-
-#include "common_test.h"
+#include "common_utils.h"
 
 using namespace std;
-using namespace common_test;
+using namespace common_utils;
 
 class LibopaecBufFCommonHW : public BaseFixture, public ::testing::Test {
  public:

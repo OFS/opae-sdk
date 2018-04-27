@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include "common_test.h"
+#include "common_utils.h"
 #include "common_sys.h"
 
 using namespace std;
-using namespace common_test;
+using namespace common_utils;
 
 void show_help() {
   printf(

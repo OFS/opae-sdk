@@ -30,10 +30,10 @@ must be express and approved by Intel in writing.
 #include <algorithm>
 #include <deque>
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "gtest/gtest.h"
 
-using namespace common_test;
+using namespace common_utils;
 using namespace std;
 
 class StressLibopaecBufFCommonHW : public BaseFixture, public ::testing::Test {

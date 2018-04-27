@@ -24,7 +24,7 @@ must be express and approved by Intel in writing.
 
 #include <opae/access.h>
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "common_sys.h"
 #include "gtest/gtest.h"
 //#ifdef BUILD_ASE
@@ -33,19 +33,19 @@ must be express and approved by Intel in writing.
 //#include "types_int.h"
 //#endif
 
-using namespace common_test;
+using namespace common_utils;
 using namespace std;
 
-class LibopaecOpenFCommonHW : public common_test::BaseFixture,
+class LibopaecOpenFCommonHW : public common_utils::BaseFixture,
                               public ::testing::Test {};
 
-class LibopaecCloseFCommonHW : public common_test::BaseFixture,
+class LibopaecCloseFCommonHW : public common_utils::BaseFixture,
                                public ::testing::Test {};
 
-class LibopaecOpenFCommonALL : public common_test::BaseFixture,
+class LibopaecOpenFCommonALL : public common_utils::BaseFixture,
                                public ::testing::Test {};
 
-class LibopaecCloseFCommonALL : public common_test::BaseFixture,
+class LibopaecCloseFCommonALL : public common_utils::BaseFixture,
                                 public ::testing::Test {};
 
 /**

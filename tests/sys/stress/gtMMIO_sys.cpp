@@ -27,11 +27,11 @@ must be express and approved by Intel in writing.
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "gtest/gtest.h"
 #include "common_sys.h"
 
-using namespace common_test;
+using namespace common_utils;
 using namespace std;
 
 #define CSR_SCRATCHPAD0 0x100  // 32b

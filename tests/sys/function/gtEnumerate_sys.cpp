@@ -24,7 +24,7 @@ must be express and approved by Intel in writing.
 
 #include "opae/fpga.h"
 
-#include "common_test.h"
+#include "common_utils.h"
 #include "common_sys.h"
 #include "gtest/gtest.h"
 //#ifdef BUILD_ASE
@@ -33,7 +33,7 @@ must be express and approved by Intel in writing.
 //#include "types_int.h"
 //#endif // BUILD_ASE
 
-using namespace common_test;
+using namespace common_utils;
 
 class LibopaecEnumFCommonHW : public BaseFixture, public ::testing::Test {
  protected:

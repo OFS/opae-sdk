@@ -29,12 +29,12 @@ must be express and approved by Intel in writing.
 #include <sys/mman.h>
 
 #include "common_sys.h"
-#include "common_test.h"
+#include "common_utils.h"
 #include "gtest/gtest.h"
 
 #define FLAGS 0
 
-using namespace common_test;
+using namespace common_utils;
 using namespace std;
 
 class StressLibopaecPRFCommonHW : public BaseFixture, public ::testing::Test {};
