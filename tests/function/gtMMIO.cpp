@@ -40,47 +40,6 @@
 
 using namespace common_test;
 
-class LibopaecMmioFCommonMOCK : public BaseFixture, public ::testing::Test {
- public:
-  uint64_t* mmio_ptr = NULL;
-  uint32_t value32 = 0x12345678;
-  uint64_t value64 = 0x1122334455667788;
-  uint32_t read_value32 = 0;
-  uint64_t read_value64 = 0;
-  uint32_t offset32 = 0x40;
-  uint64_t offset64 = 0x40;
-
- public:
-  void MMIOReadWrite32(fpga_handle h) {
-    offset32 = 0x40;
-    value32 = 0x12345678;
-    // Write value and verify
-    while (offset32 < MAX_MMIO_SIZE) {
-      read_value32 = 0;
-      EXPECT_EQ(FPGA_OK, fpgaWriteMMIO32(h, 0, offset32, value32));
-      EXPECT_EQ(FPGA_OK, fpgaReadMMIO32(h, 0, offset32, &read_value32));
-      // printf("%llx  %llx \n", offset32, read_value32);
-      EXPECT_EQ(read_value32, value32);
-      offset32 = offset32 + 4;
-      value32 = value32 + 10;
-    }
-  }
-
-  void MMIOReadWrite64(fpga_handle h) {
-    uint64_t value64 = 0x1122334455667788;
-    uint64_t offset64 = 0x40;
-    // Write value and verify
-    while (offset64 < MAX_MMIO_SIZE) {
-      read_value64 = 0;
-      EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(h, 0, offset64, value64));
-      EXPECT_EQ(FPGA_OK, fpgaReadMMIO64(h, 0, offset64, &read_value64));
-      // printf("%llx  %llx \n", offset64, read_value64);
-      EXPECT_EQ(read_value64, value64);
-      offset64 = offset64 + 8;
-      value64 = value64 + 10;
-    }
-  }
-};
 
 /**
  * @test       mmio_drv_init_01

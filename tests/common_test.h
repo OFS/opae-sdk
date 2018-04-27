@@ -311,11 +311,6 @@ size_t fillBSBuffer(const char* filename, uint8_t** bsbuffer);
 fpga_result loadBitstream(const char* path, fpga_token tok);
 uint32_t getAllTokens(fpga_token* toks, fpga_objtype, int cbus = 0,
                       fpga_guid = NULL);
-signed exerciseNLB0Function(fpga_token tok);
-signed exerciseNLB3Function(fpga_token tok);
-signed doExternalNLB(fpga_token tok, nlbmode);
-void sayHello(fpga_token tok);
-int tryOpen(bool shared, uint8_t bus);
 void closePRInterfaceIDHandle();
 void fetchConfiguration(const char* path);
 void checkIOErrors(const char*, uint64_t);
