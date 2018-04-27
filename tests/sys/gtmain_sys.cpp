@@ -28,7 +28,7 @@
 #include <iostream>
 #include <getopt.h>
 #include <json-c/json.h>
-#include <common_test.h>
+#include <common_utils.h>
 #include "gtest/gtest.h"
 
 using ::testing::TestCase;
@@ -37,7 +37,7 @@ using ::testing::TestPartResult;
 using ::testing::UnitTest;
 
 using namespace std;
-using namespace common_test;
+using namespace common_utils;
 
 void clean() {
 	for (auto& item : config_map) {

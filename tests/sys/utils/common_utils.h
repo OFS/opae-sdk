@@ -176,7 +176,7 @@ class GlobalOptions {
 
 };
 
-namespace common_test {
+namespace common_utils {
 
 // begin convenience functions for straight C unit tests
 

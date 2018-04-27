@@ -41,9 +41,8 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-//#include "types_int.h"
 #include "common_sys.h"
-#include "common_test.h"
+#include "common_utils.h"
 #include "safe_string/safe_string.h"
 
 #define SYSFS_PATH_MAX 256
@@ -59,7 +58,7 @@ int usleep(unsigned);
 GlobalOptions GlobalOptions::sm_Instance;
 GlobalOptions& GlobalOptions::Instance() { return GlobalOptions::sm_Instance; }
 
-namespace common_test {
+namespace common_utils {
 
 std::map<config_enum, char*> config_map = {
 	{BITSTREAM_MODE0, (char*)calloc(MAX_PATH, sizeof(char))},
@@ -904,4 +903,4 @@ void sayHello(fpga_token tok) {
   EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
 }
 
-}  // end namespace common_test
+}  // end namespace common_utils
