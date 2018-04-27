@@ -1,6 +1,12 @@
 from setuptools import setup, find_packages
+from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
+original_build_extensions = build_ext.build_extensions
+def override_build_extensions(self):
+    self.compiler.compiler_so.remove('-Wstrict-prototypes')
+    original_build_extensions(self)
+build_ext.build_extensions = override_build_extensions
 
 extensions = [
     Extension("opae",
