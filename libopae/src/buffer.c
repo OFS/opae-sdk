@@ -85,11 +85,11 @@ static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	   For buffer > 2M, use 1G-hugepage to ensure pages are
 	   contiguous */
 	if (len > 2 * MB)
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_1G, 0, 0);
+		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_1G | MAP_POPULATE, 0, 0);
 	else if (len > 4 * KB)
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_2M, 0, 0);
+		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_2M | MAP_POPULATE, 0, 0);
 	else
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);
+		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K | MAP_POPULATE, 0, 0);
 	if (addr_local == MAP_FAILED) {
 		if (errno == ENOMEM) {
 			if (len > 2 * MB)
