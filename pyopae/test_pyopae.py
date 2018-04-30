@@ -94,18 +94,18 @@ def test_hellofpga():
     assert len(toks) > 0
     h = opae.handle.open(toks[0], opae.OPEN_SHARED)
     assert h is not None
-    b = opae.dma_buffer.allocate(h, 1024);
+    b = opae.dma_buffer.allocate(h, 1024)
 
-# Should the Python API have a close?
-# def test_close():
-#     p = opae.properties()
-#     p.guid = NLB0
-#     toks = opae.token.enumerate([p])
-#     assert len(toks) > 0
-#     h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-#     assert h is not None
-#     r = h.close()
-#     assert r == opae.CLOSED
+
+def test_close():
+    p = opae.properties()
+    p.guid = NLB0
+    toks = opae.token.enumerate([p])
+    assert len(toks) > 0
+    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert h is not None
+    r = h.close()
+    assert r == opae.CLOSED
 
 
 if __name__ == "__main__":
