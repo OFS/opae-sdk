@@ -303,9 +303,12 @@ class errors_feature(sysfs_node):
         success = True
         for (err, clr) in self._errors_files:
             value = self.parse_sysfs(err)
+            # inject_error register is RW - write 0 to clear it
+            # all other error registers are RW1C - write the error value
+            clear_value = 0x0 if clr == "inject_error" else value
             try:
                 while value and (tries > 0):
-                    self.write_sysfs(hex(value), clr)
+                    self.write_sysfs(hex(clear_value), clr)
                     value = self.parse_sysfs(err)
                     tries = tries - 1
             except IOError:

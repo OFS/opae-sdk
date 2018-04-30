@@ -286,6 +286,8 @@ fpga_event::ptr_t fpga_resource::register_event(fpga_event::event_type event_typ
     {
         if (FPGA_OK == fpgaRegisterEvent(handle_, (fpga_event_type)event_type, h, 0))
         {
+            // new fpga_event takes ownership of handle and will destroy it in
+            // its destructor
             fpga_event_ptr.reset(new fpga_event(event_type, h));
         }
         else
