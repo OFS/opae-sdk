@@ -30,7 +30,6 @@ project(pyopae)
 # Enable ExternalProject CMake module
 include(ExternalProject)
 
-# Download and install GoogleTest
 ExternalProject_Add(
   pybind11
   GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
@@ -44,6 +43,15 @@ ExternalProject_Add(
 )
 
 ExternalProject_Get_Property(pybind11 source_dir binary_dir)
+
+# test if we can compile with pybind11
+find_package(PythonLibs 2.7)
+include_directories(${source_dir}/include
+	            ${PYTHON_INCLUDE_DIRS})
+file(WRITE test_pybind_compile.cpp "#include <pybind11/pybind11.h>")
+add_library(test_pybind_compile MODULE test_pybind_compile.cpp)
+set_property(TARGET test_pybind_compile PROPERTY CXX_STANDARD 11)
+
 include(FindPythonPackage)
 option(USE_VIRTUALENV "Install Python virtualenv in build directory" ON)
 if (USE_VIRTUALENV)
@@ -77,6 +85,7 @@ create_python_dist(
     BUILD_LIBRARY_DIRS ${LIBRARY_OUTPUT_PATH}
     DEPENDS pybind11 opae-c opae-cxx-core
 )
+
 
 
 
