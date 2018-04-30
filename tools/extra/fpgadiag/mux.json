@@ -51,39 +51,5 @@
             "suppress-stats" : true,
             "freq" : 400000000
         }
-    },
-    {
-        "app" : "mtnlb7",
-        "name" : "mtnlb7",
-        "disabled" : true,
-        "config" :
-        {
-            "mode" : "mt7",
-            "threads" : 1,
-            "count" : 1,
-            "stride" : 1,
-            "cache-policy" : "wrline-M",
-            "cache-hint" : "rdline-I",
-            "read-vc" : "vh0",
-            "write-vc" : "vh1",
-            "suppress-stats" : true
-        }
-    },
-    {
-        "app" : "mtnlb8",
-        "name" : "mtnlb8",
-        "disabled" : true,
-        "config" :
-        {
-            "mode" : "mt8",
-            "threads" : 1,
-            "count" : 1,
-            "stride" : 1,
-            "cache-policy" : "wrline-M",
-            "cache-hint" : "rdline-I",
-            "read-vc" : "vh0",
-            "write-vc" : "vh1",
-            "suppress-stats" : true
-        }
     }
 ]
