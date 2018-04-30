@@ -31,8 +31,6 @@
 #include "nlb0.h"
 #include "nlb3.h"
 #include "nlb7.h"
-#include "mtnlb7.h"
-#include "mtnlb8.h"
 #include "nlb_stats.h"
 #include "fpga_app/accelerator_mux.h"
 #include "log.h"
@@ -55,8 +53,6 @@ std::map<std::string, accelerator_app::ptr_t(*)(const std::string &)> app_factor
     { "nlb0",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb0());   }},
     { "nlb3",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb3());   }},
     { "nlb7",   [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new nlb7());   }},
-    { "mtnlb7", [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new mtnlb7()); }},
-    { "mtnlb8", [](const std::string & name){ UNUSED_PARAM(name); return accelerator_app::ptr_t(new mtnlb8()); }}
 };
 
 enum test_result
