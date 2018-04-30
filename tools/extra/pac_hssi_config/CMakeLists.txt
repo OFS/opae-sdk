@@ -24,27 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_library(opae-c++-utils SHARED
-                     utils.h
-                     utils.cpp
-                     cmd_handler.h
-                     cmd_handler.cpp
-                     log.h
-                     log.cpp
-                     option.h
-                     option_map.h
-                     option_map.cpp
-                     option_parser.h
-                     option_parser.cpp)
-
-set_install_rpath(opae-c++-utils)
-set_target_properties(opae-c++-utils PROPERTIES COMPILE_FLAGS "-std=c++11")
-set_target_properties(opae-c++-utils PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-target_link_libraries(opae-c++-utils ${libjson-c_LIBRARIES})
-
-install(TARGETS opae-c++-utils
-    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-    COMPONENT opaecxxutils)
+install(PROGRAMS pac_hssi_config.py
+        DESTINATION bin
+        COMPONENT toolpachssiconfig)

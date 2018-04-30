@@ -4,201 +4,185 @@
 
 ## Overview ##
 The OPAE C library (*libopae-c*) is a lightweight user-space library that
-provides abstraction for FPGA resources in a compute environment. Built on
-top of the driver stack that supports the FPGA device, the library abstracts away
-hardware specific and OS specific details and exposes the underlying FPGA
-resources as a set of features accessible from within software programs
+provides abstractions for FPGA resources in a compute environment. The OPAE C library 
+builds on the driver stack that supports the FPGA device, abstracting 
+hardware- and OS-specific details. It provides access to the underlying FPGA
+resources as a set of features available to software programs
 running on the host. These features include the acceleration logic
-preconfigured on the device, as well as functions to manage and reconfigure
-the device. Hence, the library can enable your applications to
-transparently and seamlessly take advantage of the FPGA-based acceleration.
+preconfigured on the FPGA and functions to manage and reconfigure
+the FPGA. The library enables your applications to
+transparently and seamlessly benefit from FPGA-based acceleration.
 
 ![Layered architecture](./FPGA-lib-1.png "A user space library built on top of FPGA driver stack")
 
 
-By providing a unified C API, the library supports different kinds of FPGA
+By providing a unified C API, the library supports different FPGA
 integration and deployment models, ranging from single-node systems with one or
-more FPGA devices to large-scale FPGA deployment in a data center.
-A simple use case, for example, is for a user
-application running on a system with an FPGA PCIe device to easily use the FPGA
-to accelerate certain algorithms. At the other end of the spectrum, resource
+a few FPGA devices to large-scale FPGA deployments in a data center.
+At one end of the spectrum, the API supports a simple application using a PCIe link to reconfigure 
+the FPGA with different accelerator functions. At the other end of the spectrum, resource
 management and orchestration services in a data center can use this API to
-discover and select FPGA resources and then allocate them
-to be used by workloads with acceleration needs.
+discover and select FPGA resources and then allocate them for use by acceleration workloads.
 
-## Philosophy ##
+## OPAE Role ##
 
-The purpose of OPAE is to provide a common base layer for as wide a range of
-use cases as possible without sacrificing performance or efficiency. It aims
-at freeing the developers of applications and frameworks from having to understand
-the intricacies of the FPGA driver interfaces and FPGA interconnect details by
-providing a thin abstraction to expose required details of the platform.
+The OPAE provides a common base layer for a wide range of
+applications without sacrificing performance or efficiency. The abstraction layer limits 
+the details of the FPGA hardware that software applications must handle. 
 
-To that end, OPAE abstracts access to the key components that frameworks and
-abstractions need to deal with (for example, FPGA devices and accelerators).
-It then provides means to interact with these components in the most
-efficient way possible. Essentially, it tries to provide friendly and
-consistent interfaces to crucial components of the platform. At the same
-time, OPAE tries not to constrain frameworks and applications by making
-optimizations that do not translate to many use cases - and where it does
-provide convenience functions or optimizations, these are optional.
+The OPAE provides consistent interfaces to crucial components of the platform. The  OPAE does not constrain
+frameworks and applications by making optimizations with limited applicability. When the OPAE does
+provide convenience functions or optimizations, they are optional.
 
-For example, OPAE provides an interface to allocate physically contiguous
-buffers in system memory that can be shared between user-space software and
-an accelerator. This interface enables the most basic feature set of
-allocating and sharing a large page of memory in one API call; it however
+For example, the OPAE provides an interface to allocate physically contiguous
+buffers in system memory that user-space software and an accelerator can share. 
+This interface enables the most basic feature set of
+allocating and sharing a large page of memory in one API call. However, it 
 does *not* provide a malloc()-like interface backed by a memory pool or slab
-allocator. These kinds of optimizations and added functionality are left to
-higher layers of the software stack, which is better suited to make
+allocator. Higher layers of the software stack can make such
 domain-specific optimizations.
 
-## Some Key Concepts ##
-The following key concepts are essential for writing code using the
-OPAE C API.
-These concepts are modeled with corresponding data structures and functions in
-the API specification, as discussed in the [Object model](#object-model) section.
 
-* **FPGA**: [Field Programmable Gate Array](https://en.wikipedia.org/wiki/Field-programmable_gate_array) 
-is a
-discrete or integrated peripheral device connecting to a host CPU via PCIe or
-other type of interconnects.
-* **AFU**: Accelerator Function Unit, is a computation logic preconfigured on
-FPGA with the purpose of accelerating certain computation. It represents a
-resource discoverable and usable by user applications. The
-logic is designed in RTL and synthesized into a bitstream. A tool (_fpgaconf_)
-is provided to reconfigure an FPGA using a bitstream.
-* **Accelerator Function (AF)**: A bitstream for an application-specific 
-accelerator logic, for example, compression, encryption, and mathematical operations.
-* **Accelerator**: An allocatable accelerator function implemented in an FPGA, 
-closely related to an AFU. An accelerator tracks the  _ownership_
-of an AFU (or part of it) for a process that uses it. An accelerator can be shared by multiple
-processes.
-* **Shared memory buffers**: Memory buffers allocated in user process memory
-on the host to be shared with an accelerator on the FPGA. Shared memory buffers
-fascilitate data transfers between the user process and the accelerator it owns.
-* **Events**: Events are asynchronous notification mechanism. The FPGA driver
-triggers certian events to indicate error conditions. An accelerator logic can also
+## Intel Accelerator Stack Hardware Terminology ##
+
+The following terms define the hardware and hardware processes involved in creating an accelerator function. 
+
+* FPGA: [Field Programmable Gate Array](https://en.wikipedia.org/wiki/Field-programmable_gate_array) 
+is a discrete or integrated device connecting to a host CPU via PCIe or other type of interconnects.
+* Accelerator Function Unit (AFU): The AFU is the supplied implementation of an accelerator, typically
+in HDL. AFUs implement a function such as compression, encryption, or mathematical operations.
+The Quartus Prime Pro software synthesizes the RTL logic into a bitstream. 
+* Accelerator Function (AF): The AF is the compiled binary for an AFU. An AF is a raw binary file (.rbf)
+bitstream. A tool (_fpgaconf_) reconfigures the FPGA using an AF bitstream.
+* Reconfiguration: The process of reprogramming the FPGA with a different AF.
+
+## OPAE Software Concepts Reflected in the C API ##
+
+The following OPAE data structures and functions integrate AFUs into the OPAE environment. 
+The OPAE C API models these data structures and functions. For more information on the object 
+models refer to the [Object model](#object-models) section.
+
+* Accelerator: An accelerator is an allocable accelerator function implemented in an FPGA. 
+An accelerator tracks the  _ownership_ of an AFU (or part of it) for a process that uses it.
+Multiple processes can share an accelerator.
+* Device: The OPAE enumerates and models two device types: the FPGA and the AFU.
+* Events: Events are asynchronous notifications. The FPGA driver
+triggers particular events to indicate error conditions. Accelerator logic can also
 define its own events. User applications can choose to be
-notified when certain types of the events occur and respond accordingly.
-* **Reconfiguration**: An AFU can be replaced by another AFU by a user application
-that has appropriate privilege.
+notified when particular events occur and respond appropriately.
+* Shared memory buffers: Software allocates shared memory buffers in user process memory
+on the host. Shared memory buffers facilitate data transfers between the user process and the 
+accelerator that it owns.
 
-## Link with the library ##
+## OPAE Library ##
 Linking with this library is straightforward.
-Code using this library should include the header file `fpga.h`. Taking the GCC
-compiler on Linux as an example, the minimalist compile and link line should look like:
+Code using the  OPAE library should include the header file `fpga.h`. Taking the GCC
+compiler on Linux as an example, here is the simplest compile and link command:
 
 `gcc myprog.c -I</path/to/fpga.h> -L</path/to/libopae-c.so> -lopae-c -luuid -ljson-c -lpthread`
 
 .. note::
 
 ```
-Third-party library dependency: The library internally uses `libuuid` and
-`libjson-c`; but these are not distributed as part of the library. Make sure you
-have these libraries properly installed.
+The OPAE library uses the third-party `libuuid` and `libjson-c` libraries that are not distributed with 
+the OPAE library. Make sure to install these libraries.
 ```
 
-## Use the Sample Code ##
+## Sample Code ##
 The library source includes two code samples. Use these samples
-to learn how to call functions in the library. Build and run these samples as
-quick sanity checks to determine if your installation and environment are set up
-properly. 
+to learn how to call functions in the library. Build and run these samples
+to determine if your installation and environment are set up properly. 
 
-For details about using the sample code, refer to the [Running the Hello FPGA Example](https://www.altera.com/content/altera-www/global/en_us/index/documentation/dnv1485190478614.html#vks1498593668425) chapter in the Intel&reg; Acceleration Stack for  Intel&reg; Xeon&reg; CPU with FPGAs Getting Started Guide. 
+Refer to the [Running the Hello FPGA Example](https://www.altera.com/content/altera-www/global/en_us/index/documentation/dnv1485190478614.html#vks1498593668425) chapter in the _Intel&reg; Acceleration Stack
+Quick Start Guide for for Intel Programmable Acceleration Card with Intel Arria&reg; 10 GX FPGA_ for more information about using the sample code.  
+
 
 ## High-Level Directory Structure ##
-When successfully built and installed, you can see the following directory
-structure. This discussion is using installation on Unix/Linux systems as an
-example. However, it is a similar situation on Windows and MacOS
-installations.
+Building and installing the OPAE library results in the following directory structure on the Linux OS.
+Windows and MacOS have similar directories and files.
 
 |Directory & Files |Contents |
 |------------------|---------|
 |include/opae      |Directory containing all header files|
 |include/opae/fpga.h |Top-level header for user code to include|
-|include/opae/access.h |Header file for accelerator acquire/release, MMIO, memory management, event handling, etc. |
+|include/opae/access.h |Header file for accelerator acquire/release, MMIO, memory management, event handling, and so on |
 |include/opae/bitstream.h |Header file for bitstream manipulation functions |
 |include/opae/common.h |Header file for error reporting functions |
 |include/opae/enum.h |Header file for AFU enumeration functions |
 |include/opae/manage.h |Header file for FPGA management functions |
 |include/opae/types.h |Various type definitions |
 |lib               |Directory containing shared library files |
-|lib/libopae-c.so    |The shared dynamic library for user application to link against|
+|lib/libopae-c.so    |The shared dynamic library for linking with the user application |
 |doc               |Directory containing API documentation |
 |doc/html          |Directory for documentation of HTML format
 |doc/latex         |Directory for documentation of LaTex format
 |doc/man           |Directory for documentation of Unix man page format
 
 ## Basic Application Flow ##
-The picture below depicts the basic application flow from the
+The figure below shows the basic application flow from the
 viewpoint of a user-process. 
-API components are discussed in the next section. The `hello_fpga.c` sample code
-is a good example showing the flow in action.
 
-![Basic flow](./FPGA-lib-2.png "Basic application flow")
+![Basic flow](./FPGA-lib-3.PNG "Basic application flow")
 
 ## API Components ##
-The API is designed around an object model that abstracts physical FPGA device and
-functions available on the device. The object model is not tied to a particular
-type of FPGA product. Instead, it is a generalized model and can be extended to 
-describe any type of FPGAs. 
+The API object model abstracts the physical FPGA device and
+available functions. It is a generalized model and extends to 
+describe any FPGA type. 
 
-### Object Model ###
-* `fpga_objtype`: An enum type to represent the type of an FPGA resource, which
-is either `FPGA_DEVICE` or `FPGA_ACCELERATOR`. An `FPGA_DEVICE` object is corresponding to
-a physical FPGA device. Only `FPGA_DEVICE` objects can invoke management function.
-`FPGA_ACCELERATOR` represents an instance of an AFU. 
-* `fpga_token`: An opaque type to represent a resource known to, but not
+### Object Models ###
+* `fpga_objtype`: An enum type that represents the type of an FPGA resource, either `FPGA_DEVICE` or `FPGA_ACCELERATOR`. 
+An `FPGA_DEVICE` object corresponds to a physical FPGA device. Only `FPGA_DEVICE` objects can invoke management functions.
+The `FPGA_ACCELERATOR` represents an instance of an AFU. 
+* `fpga_token`: An opaque type that represents a resource known to, but not
 necessarily owned by, the calling process. The calling process must own a
 resource before it can invoke functions of the resource.
-* `fpga_handle`: An opaque type to represent a resource owned by the
-calling process. API functions `fpgaOpen()` and `fpgaClose()` (see the [Functions](#functions) section)
-acquire and release ownership of a resource represented by an `fpga_handle`.
+* `fpga_handle`: An opaque type that represents a resource owned by the
+calling process. The API functions `fpgaOpen()` and `fpgaClose()` acquire and release ownership of a resource that an `fpga_handle` represents. (Refer to the [Functions](#functions) section for more information.)
 * `fpga_properties`: An opaque type for a properties object. Your
-applications use these properties to query and search for resources that suit
-their needs. The properties visible to your applications are documented in the 
-[FPGA Resource Properties](#fpga-resource-properties) section.
-* `fpga_event_handle`: An opaque handle used by the FPGA driver to notify your
-application about an event, and used by the your application to wait for the
-notification of the event.
-* `fpga_event_type`: An enum type to represent kinds of events which can be
-`FPGA_EVENT_INTERRUPT`, `FPGA_EVENT_ERROR`, or `FPGA_EVENT_POWER_THERMAL`.
+applications use these properties to query and search for appropriate resources. The 
+[FPGA Resource Properties](#fpga-resource-properties) section documents properties visible to your
+applications.
+* `fpga_event_handle`: An opaque handle the FPGA driver uses to notify your
+application about an event. 
+* `fpga_event_type`: An enum type that represents the types of events. The following are valid values: 
+`FPGA_EVENT_INTERRUPT`, `FPGA_EVENT_ERROR`, and `FPGA_EVENT_POWER_THERMAL`. (The Intel Programmable Acceleration Card (PAC) with
+Intel Arria 10 GX FPGA does not handle thermal and power events.)
 * `fpga_result`: An enum type to represent the result of an API function. If the
 function returns successfully the result is `FPGA_OK`. Otherwise, the result is
-one of the error codes. Function `fpgaErrStr()` can translate an error code
+the appropriate error codes. Function `fpgaErrStr()` translates an error code
 into human-readable strings.
 
 ### Functions ###
-The table below groups key API functions by their purposes. For more information about each of the functions, refer to the 
+The table below groups important API calls by their functionality. For more information about each of the functions, refer to the 
 [OPAE C API reference manual](https://opae.github.io/0.13.0/docs/fpga_api/fpga_api.html).
 
-|Purpose |Functions |Note |
-|--------|----------|-----|
-|Enumeration | `fpgaEnumerate()` | Query FPGA resources that match certain properties |
-|Enumeration: Properties | `fpga[Get|Update|Clear|Clone|Destroy]Properties]()` | Manage `fpga_properties` life cycle |
-|           | `fpgaPropertiesGet[Prop]()` | Get a certain property *Prop*, from the [FPGA Resource Properties](#fpga-resource-properties) chapter |
-|           | `fpgaPropertiesSet[Prop]()` | Set a certain property *Prop*, from the [FPGA Resource Properties](#fpga-resource-properties) chapter |
-|Access: Ownership  | `fpga[Open|Close]()` | Acquire/release ownership |
-|Access: Reset      | `fpgaReset()` | Reset an accelerator |
-|Access: Event handling | `fpga[Register|Unregister]Event()` | Register/unregister an event to be notified about |
-|               | `fpga[Create|Destroy]EventHandle()` | Manage `fpga_event_handle` life cycle |
-|Access: UMsg           | `fpgaGetNumUmsg()`, `fpgaSetUmsgAttributes()`, `fpgaTriggerUmsg()`, `fpgaGetUmsgPtr()` | Low-latency accelerator notification mechanism |
-|Access: MMIO       | `fpgaMapMMIO()`, `fpgaUnMapMMIO()` | Map/unmap MMIO space |
-|           | `fpgaGetMMIOInfo()` | Get information about a particular MMIO space |
-|           | `fpgaReadMMIO[32|64]()` | Read a 32-bit/64-bit value from MMIO space |
-|           | `fpgaWriteMMIO[32|64]()` | Write a 32-bit/64-bit value to MMIO space |
-|Memory management: Shared memory | `fpga[Prepare|Release]Buffer()` | Manage memory buffer shared between the calling process and an accelerator |
-|              | `fpgaGetIOVA()` | Return the virtual address of a shared memory buffer |
-|Management: Reconfiguration | `fpgaReconfigureSlot()` | Replace an existing AFU with a new one |
-|Error report | `fpgaErrStr()` | Map an error code to a human readable string |
+|Functionality |API Call |FPGA |Accelerator|Description |
+|:--------|:----------|:-----:|:-----:|:-----------------------|
+|Enumeration | ```fpgaEnumerate()``` |Yes| Yes| Query FPGA resources that match certain properties |
+|Enumeration: Properties | ```fpga[Get, Update, Clear, Clone, Destroy Properties]()``` |Yes| Yes| Manage ```fpga_properties``` life cycle |
+|           | ```fpgaPropertiesGet[Prop]()``` | Yes| Yes|Get the specified property *Prop*, from the [FPGA Resource Properties](#fpga-resource-properties) table |
+|           | ```fpgaPropertiesSet[Prop]()``` | Yes| Yes|Set the specified property *Prop*, from the [FPGA Resource Properties](#fpga-resource-properties) table |
+|Access: Ownership  | ```fpga[Open, Close]()``` | Yes| Yes|Acquire/release ownership |
+|Access: Reset      | ```fpgaReset()``` |Yes| Yes| Reset an accelerator |
+|Access: Event handling | ```fpga[Register, Unregister]Event()``` |Yes| Yes| Register/unregister an event to be notified about |
+|               | ```fpga[Create, Destroy]EventHandle()```|Yes| Yes| Manage ```fpga_event_handle``` life cycle |
+|Access: UMsg           | ```fpgaGetNumUmsg()```, ```fpgaSetUmsgAttributes()```, ```fpgaTriggerUmsg()```, ```fpgaGetUmsgPtr()``` |Yes| No| Low-latency accelerator notification mechanism.|
+|Access: MMIO       | ```fpgaMapMMIO()```, ```fpgaUnMapMMIO()``` |Yes| Yes| Map/unmap MMIO space |
+|           | ```fpgaGetMMIOInfo()``` |Yes| Yes| Get information about the specified MMIO space |
+|           | ```fpgaReadMMIO[32, 64]()``` | Yes| Yes|Read a 32-bit or 64-bit value from MMIO space |
+|           | ```fpgaWriteMMIO[32, 64]()``` |Yes| Yes| Write a 32-bit or 64-bit value to MMIO space |
+|Memory management: Shared memory | ```fpga[Prepare, Release]Buffer()``` |Yes| Yes| Manage memory buffer shared between the calling process and an accelerator |
+|              | ```fpgaGetIOVA()``` | Yes| Yes|Return the virtual address of a shared memory buffer |
+|Management: Reconfiguration | ```fpgaReconfigureSlot()``` | Replace an existing AFU with a new one |
+|Error report | ```fpgaErrStr()``` | Yes| Yes|Map an error code to a human readable string |
 
 ### FPGA Resource Properties ###
-These are the properties of a resource that can be queried by a user-application,
-by plugging  property name for `Prop` in the names of `fpgaPropertiesGet[Prop]()` and
-`fpgaPropertiesSet[Prop]()` functions.
+Applications query resource properties by specifying the property name for `Prop` in the 
+`fpgaPropertiesGet[Prop]()` and `fpgaPropertiesSet[Prop]()` functions. The FPGA and Accelerator
+columns state whether or not the Property is available for the FPGA or Accelerator objects.
 
-|Property |FPGA |accelerator |Note |
-|---------|-----|----|-----|
+|Property |FPGA |Accelerator |Description |
+|:---------|:-----:|:----:|:-----|
 |Parent |No |Yes |`fpga_token` of the parent object |
 |ObjectType |Yes |Yes |The type of the resource: either `FPGA_DEVICE` or `FPGA_ACCELERATOR` |
 |Bus |Yes |Yes |The bus number |
@@ -219,9 +203,9 @@ by plugging  property name for `Prop` in the names of `fpgaPropertiesGet[Prop]()
 |AcceleratorState |No |Yes |The state of an `FPGA_ACCELERATOR` resource: either `FPGA_ACCELERATOR_ASSIGNED` or `FPGA_ACCELERATOR_UNASSIGNED`|
 
 ## OPAE C API Return Codes ##
-The OPAE C library returns one of these codes for every public API function exported. Usually, `FPGA_OK` denotes successful completion
-of the requested operation, while any return code *other* than `FPGA_OK` indicates an error or other deviation from the expected
-behavior. When using the OPAE C API, always check the API return codes and not the functions that failed output parameters. 
+The OPAE C library returns a code for every exported public API function.  `FPGA_OK` indicates successful completion
+of the requested operation. Any return code other than `FPGA_OK` indicates an error or unexpected
+behavior. When using the OPAE C API, always check the API return codes. 
 
 |Error Code|Description|
 |----------|-----------|
@@ -238,22 +222,13 @@ behavior. When using the OPAE C API, always check the API return codes and not t
 |`FPGA_RECONF_ERROR`|Error while reconfiguring FPGA|
 
 ## Usage Models ##
-This section illustrates a few typical API usage models with code snippets.
+
 
 ### Query and Search for a Resource ###
-The user-code first populates an `fpga_properties` object with desired properties.
-Afterwards, `fpgaEnumerate()` is accessed to search for matching resources.
+The user-code first populates an `fpga_properties` object with the required properties.
+Then, `fpgaEnumerate()` searches for matching resources. `fpgaEnumerate()` may return more
+than one matching resource.
 
-```
-
-.. note::
-
-```
-`fpgaEnumerate()` may return more than one matching resources.
-
-```
-
-```c
     #include "fpga/fpga.h"
 
     fpga_guid               guid;
@@ -265,18 +240,18 @@ Afterwards, `fpgaEnumerate()` is accessed to search for matching resources.
     /* Start with an empty properties object */
     res = fpgaGetProperties(NULL, &filter);
 
-    /* Populate the properties object with desired values.
-       In this case, we want to search for accelerators that match a
-       particular GUID.
+    /* Populate the properties object with required values.
+       In this case, search for accelerators that matches 
+       the specified GUID.
     */
     uuid_parse(GUID, guid);
     res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
     res = fpgaPropertiesSetGuid(filter, guid);
 
-    /* Query the number of matched resources */
+    /* Query the number of matching resources */
     res = fpgaEnumerate(&filter, 1, NULL, 1, &num_matches);
 
-    /* Return all matched resources in tokens */
+    /* Return tokens for all matching resources */
     res = fpgaEnumerate(&filter, 1, tokens, num_matches, &num_matches);
 
     /* Destroy the properties object */
@@ -289,26 +264,19 @@ Afterwards, `fpgaEnumerate()` is accessed to search for matching resources.
     for (uint32_t i = 0; i < num_matches; ++i) {
         res = fpgaDestroyToken(tokens[i]);
     }
-```
 
-.. Note::
 
-```
-The `fpgaEnumerate()` function can take multiple `fpga_properties`
-objects (in an array). In this situation, the function returns resources that
-match *any* of the properties object. In other words, the multiple properties
-objects are logically OR'ed in the query operation.
-* Again, `fpga_token` objects return by `fpgaEnumerate()` do *not* signify
-ownership. To acquire ownership of a resource represented by a token, pass the
-token to `fpgaOpen()`.
-```
+
+The ```fpgaEnumerate()``` function can take multiple ```fpga_properties```objects in an array. In such cases,
+the function performs a logical OR of  the properties object and returns resources that match any of 
+the multiple properties. The  ```fpga_token``` objects that ```fpgaEnumerate()``` returns, do not signify
+ownership. To acquire ownership of a resource represented by a token, pass the token to `fpgaOpen()`.
+
 
 ### Acquire and Release a Resource ###
-Acquiring and releasing ownership of a resource is done
-using
-`fpgaOpen()` and `fpgaClose()`. The calling process must own the resource
-before it can do MMIO, share memory buffers, and use functions offered by the
-resource.
+Use `fpgaOpen()` and `fpgaClose()` to acquire and release ownership of a resource. 
+The calling process must own the resource before it can initiate MMIO, access share memory buffers, 
+and use functions offered by the resource.
 
 ```c
     #include "fpga/fpga.h"
@@ -316,9 +284,9 @@ resource.
     fpga_handle             handle;
     fpga_result             res;
 
-    /* Acquire ownership of a resource that was previously returned by
-       `fpgaEnumerate()` as a token
-    */
+    /* Acquire ownership of a resource that 
+    `fpgaEnumerate()` previously returned as a token */
+     
     res = fpgaOpen(token, &handle);
 
     /* More code */
@@ -329,7 +297,7 @@ resource.
 ```
 
 ### Shared Memory Buffer ###
-This code snippet shows how to prepare a memory buffer for sharing between the
+This code snippet shows how to prepare a memory buffer to be shared between the
 calling process and an accelerator.
 
 ```c
@@ -342,7 +310,7 @@ calling process and an accelerator.
     volatile uint64_t       *addr_hint;
     /* An ID we can use to reference the buffer later */
     uint32_t                bufid;
-    /* Flag to indicate if the buffer is preallocated or not */
+    /* Flag to indicate whether or not the buffer is preallocated */
     int                     flag = 0;
 
     /* Allocate (if necessary), pin, and map a buffer to be accessible
@@ -371,14 +339,14 @@ calling process and an accelerator.
 .. note::
 
 ```
-The `flag` variable can take a constant `FPGA_BUF_PREALLOCATED`, which
-indicates that the address space pointed to by `addr_hint` is already allocated
-by the calling process.
+The `flag` variable can take a constant `FPGA_BUF_PREALLOCATED` to
+indicate that the calling process has already allocated the address space
+that `addr_hint` points to.
 ```
 
 ### MMIO ###
-This code snippet shows how to map/unmap the register file of an accelerator into the
-virtual memory space of the calling process.
+This code snippet shows how to map and unmap the register file of an accelerator into the
+calling process's virtual memory space.
 
 ```c
     #include "fpga/fpga.h"
@@ -412,8 +380,7 @@ virtual memory space of the calling process.
 .. Note::
 
 ```
-Every AFU has its own layout of register spaces and its own protocol about
-how to control its behavior through the registers. These are defined in the
-AF used to implemented the AFU.
+Every AFU has its own register adress space and its own protocol to control operation through 
+the registers. 
 ```
 

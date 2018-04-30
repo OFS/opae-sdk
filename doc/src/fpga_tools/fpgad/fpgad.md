@@ -5,14 +5,15 @@
 `fpgad [--socket=<sock>] [--null-bitstream=<file>]`
 
 ## DESCRIPTION ##
-fpgad periodically monitors and reports the error status reflected in the device driver's error status sysfs files.
-fpgad establishes the channel to communicate events to the OPAE application. fpgad programs a NULL bitstream
-in response to an AP6 (power) event. fpgad is only available on the Integrated FPGA Platform. You cannot run
-fpgad on the PCIe Accelerator Card (PAC).
+```fpgad``` periodically monitors and reports the error status reflected in the device driver's error status sysfs files.
+```fpgad``` establishes the channel to communicate events to the Open Programmable Accelerator Engine (OPAE) application. 
+```fpgad``` programs a NULL bitstream in response to an AP6 (power) event. ```fpgad``` is only available on the Integrated FPGA
+Platform. You cannot run ```fpgad``` on the PCIe&reg; Accelerator Card (PAC).
 
-If your system does not support interrupts, you must run fpgad before the API calls `fpgaRegisterEvent` and `fpgaUnregisterEvent` can succeed.
+If your system does not support interrupts, you must run ```fpgad``` before the API calls `fpgaRegisterEvent` and
+`fpgaUnregisterEvent` can succeed.
 
-Use SIGINT to stop fpgad.
+Use SIGINT to stop ```fpgad```.
 
 `-d, --daemon`
 
@@ -21,22 +22,22 @@ Use SIGINT to stop fpgad.
 `-D, --directory <dir>`
 
     When running in daemon mode, run from the specified directory.
-    If omitted when daemonizing, /tmp is used.
+    If omitted when daemonizing, `fpgad` uses /tmp.
 
 `-l, --logfile <file>`
 
     When running in daemon mode, send output to file. When not in daemon mode, the output goes to stdout.
-    If omitted when daemonizaing, /tmp/fpgad.log is used.
+    If omitted when daemonizaing, fpgad uses /tmp/fpgad.log.
 
 `-p, --pidfile <file>`
 
     When running in daemon mode, write the daemon's process id to a file.
-    If omitted when daemonizing, /tmp/fpgad.pid is used.
+    If omitted when daemonizing, fpgad uses /tmp/fpgad.pid.
 
 `-m, --umask <mode>`
 
     When running in daemon mode, use the mode value as the file mode creation mask passed to umask.
-    If omitted when daemonizing, 0 is used.
+    If omitted when daemonizing, fpgad uses 0.
 
 `-s, --socket <sock>`
 
