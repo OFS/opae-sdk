@@ -59,6 +59,7 @@ from collections import defaultdict
 import fnmatch
 import json
 import subprocess
+from sets import Set
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -238,12 +239,16 @@ def config_sources(fd, filelist):
             if (sl[-5:] == '.json'):
                 json_srcs.append(s)
 
+    qsys_sim_files = config_qsys_sources(filelist, vlog_srcs)
+
     # List Verilog & SystemVerilog sources in a file
-    if (vlog_found):
+    if (vlog_found or qsys_sim_files):
         fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
         with open(VLOG_FILE_LIST, "w") as f:
             for s in vlog_srcs:
                 f.write(s + "\n")
+            if (qsys_sim_files):
+                f.write("-F " + qsys_sim_files + "\n")
 
     # List VHDL sources in a file
     if (vhdl_found):
@@ -280,6 +285,87 @@ def config_sources(fd, filelist):
             ase_functions.end_green_fontcolor()
 
     return json_file
+
+
+#
+# Qsys has a compilation step.  When using case #1 above, detect Qsys
+# sources, compile them, and include the generated Verilog in the
+# simulation.
+#
+def config_qsys_sources(filelist, vlog_srcs):
+    # Get all the sources.  rtl_src_config will emit all relevant source
+    # files, one per line.
+    try:
+        srcs = commands_list_getoutput(
+            "rtl_src_config --qsys --abs".split(" ") + [filelist])
+    except Exception:
+        errorExit("failed to read sources from {0}".format(filelist))
+
+    # Collect two sets: qsys source files and the names of directories into
+    # which generated Verilog will be written.  The directory names match
+    # the source names.
+    qsys_srcs = []
+    ip_dirs = []
+
+    srcs = srcs.split('\n')
+    for s in srcs:
+        if (s):
+            # Escape spaces in pathnames
+            s = s.replace(' ', '\ ')
+            # Record all build target directories
+            ip_dirs.append(os.path.splitext(s)[0])
+
+            # Collect all qsys files
+            sl = s.lower()
+            if (sl[-5:] == '.qsys'):
+                qsys_srcs.append(s)
+
+    if (not qsys_srcs):
+        return None
+
+    try:
+        cmd = [os.path.join(os.environ['QUARTUS_HOME'], 'sopc_builder',
+                            'bin', 'qsys-generate')]
+    except KeyError as k:
+        errorExit("Required environment variable {0} is undefined".format(k))
+
+    # We use synthesis mode instead of simulation because the generated
+    # simulation control isn't needed for ASE and because some Qsys
+    # projects are set up only for synthesis.
+    cmd.append('--synthesis=VERILOG')
+
+    for q in qsys_srcs:
+        cmd.append(q)
+        print("Building " + q)
+        try:
+            sys.stdout.write(commands_list_getoutput(cmd))
+        except Exception:
+            errorExit("Qsys failure: " + " ".join(cmd))
+        cmd.pop()
+
+    qsys_sim_files = 'qsys_sim_files.list'
+
+    # Qsys replicates library files in the tree.  Ensure that each module is
+    # imported only once.
+    sim_files_found = Set()
+    for s in vlog_srcs:
+        sim_files_found.add(os.path.basename(s))
+
+    # Find all generated Verilog/SystemVerilog sources
+    with open(qsys_sim_files, "w") as f:
+        for d in ip_dirs:
+            for dir, subdirs, files in os.walk(d):
+                for fn in files:
+                    if ((os.path.basename(dir) == 'synth') and
+                            (fn[-2:] == '.v' or fn[-3:] == '.sv')):
+                        full_path = os.path.join(dir, fn)
+                        # Is the module (file) name new?
+                        if (fn not in sim_files_found and
+                                full_path not in sim_files_found):
+                            sim_files_found.add(fn)
+                            f.write(full_path + "\n")
+
+    return qsys_sim_files
 
 
 #
