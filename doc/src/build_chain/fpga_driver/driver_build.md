@@ -115,11 +115,11 @@ make «user target»
 Valid «user targets» are:
 
   make target                Purpose
-  -------------------------- --------------------------------------------------------------------------------------
+  -------------------------- ----------------------------------------------------------------------------------------------------------
   make                       Compiles the driver
-  make dist                  Creates distributable driver tarball intel-fpga-dkms_0.1.0.tar.gz
-  make intel-fpga-dkms-deb   Create Debian DKMS-enabled driver installer package: intel-fpga-dkms_0.1.0_amd64.deb
-  make intel-fpga-dkms-rpm   Create Redhat DKMS-enabled driver installer package
+  make distgpl               Creates distributable driver tarball: gpl/opae-intel-fpga-driver-<release>.tar.gz
+  make debgpl                Create Debian DKMS-enabled driver installer package: gpl/debian/opae-intel-fpga-driver_<release>_amd64.deb
+  make rpmgpl                Create Redhat DKMS-enabled driver installer package: gpl/rpm/opae-intel-fpga-driver-<release>.x86_64.rpm
 
 Inserting the driver into currently running kernel
 --------------------------------------------------
