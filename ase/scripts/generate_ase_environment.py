@@ -73,7 +73,7 @@ VHDL_FILE_LIST = os.getcwd() + "/vhdl_files.list"
 VLOG_FILE_LIST = os.getcwd() + "/vlog_files.list"
 
 # Forbidden characters
-SPECIAL_CHARS = '\[]~!@#$%^&*(){}:;+$\''
+SPECIAL_CHARS = '\\[]~!@#$%^&*(){}:;+$\''
 
 
 # DO NOT MODIFY BELOW THIS COMMENT BLOCK     #
@@ -213,14 +213,14 @@ def config_sources(fd, filelist):
             # follows a simulator command.
             spl = s.split(' ')
             if (len(spl) > 1):
-                s = spl[0] + ' ' + '\ '.join(spl[1:])
+                s = spl[0] + ' ' + '\\ '.join(spl[1:])
             vlog_srcs.append(s)
             vlog_found = True
         else:
             # Convert extensions to lower case for comparison
             sl = s.lower()
             # Escape spaces in pathnames
-            s = s.replace(' ', '\ ')
+            s = s.replace(' ', '\\ ')
 
             # Verilog or SystemVerilog?
             for ext in VLOG_EXTENSIONS:
@@ -311,7 +311,7 @@ def config_qsys_sources(filelist, vlog_srcs):
     for s in srcs:
         if (s):
             # Escape spaces in pathnames
-            s = s.replace(' ', '\ ')
+            s = s.replace(' ', '\\ ')
             # Record all build target directories
             ip_dirs.append(os.path.splitext(s)[0])
 
