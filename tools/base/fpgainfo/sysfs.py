@@ -237,7 +237,6 @@ class pr_feature(sysfs_node):
 class sysfs_device(sysfs_node):
     @property
     def device_id(self):
-        
         return self.parse_sysfs("device")
 
 
@@ -269,7 +268,8 @@ class power_mgmt_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(power_mgmt_feature, self).__init__(path, instance_id, device_id,
                                                  **kwargs)
-        self.consumed = add_static_property("consumed")
+        if device_id != fpga_common.DCP_ID:
+            self.consumed = add_static_property("consumed")
 
 
 class thermal_feature(sysfs_node):
@@ -433,8 +433,8 @@ class sysfsinfo(object):
             # socket id is what comes after this in the real path
             instance_id = path.strip(FPGA_DEVICE.strip('{instance_id}'))
             self.device_id = sysfs_device(os.path.join(path, 'device'),
-                                     instance_id, None,
-                                     **bdf).device_id
+                                          instance_id, None,
+                                          **bdf).device_id
             sysfs_fme = FME_DEVICE.format(instance_id=instance_id)
             sysfs_port = PORT_DEVICE.format(instance_id=instance_id)
             self._fmelist.append(fme_info(sysfs_fme, instance_id,

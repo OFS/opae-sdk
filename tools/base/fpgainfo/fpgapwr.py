@@ -40,11 +40,13 @@ class power_command(fpga_common.fpga_command):
             if info.device() != fpga_common.DCP_ID:
                 fme.power_mgmt.print_info("//****** POWER ******//",
                                           "consumed",
-                                          consumed=lambda v: '{} Watts'.format(v))
+                                          consumed=lambda v: '{} Watts'
+                                          .format(v))
             else:
-                fme.power_mgmt.print_info("//*** POWER Not supported on DCP ***//",
+                fme.power_mgmt.print_info("//** POWER Not supported on HW **//",
                                           "",
-                                          consumed=lambda v: '{} Watts'.format(v))
+                                          consumed=lambda v: '{} W'.format(v))
+
 
 if __name__ == "__main__":
     import argparse
