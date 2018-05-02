@@ -30,7 +30,7 @@
 
 #include <uuid/uuid.h>
 
-#include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
@@ -78,9 +78,9 @@ int main(__attribute__((unused)) int argc,
   auto accel = handle::open(tok, FPGA_OPEN_SHARED);
 
   // allocate buffers
-  auto dsm = dma_buffer::allocate(accel, LPBK1_DSM_SIZE);
-  auto inp = dma_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
-  auto out = dma_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
+  auto dsm = shared_buffer::allocate(accel, LPBK1_DSM_SIZE);
+  auto inp = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
+  auto out = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
   // initialize buffers
   std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
