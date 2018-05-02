@@ -96,8 +96,6 @@ set(SRC gtmain_sys.cpp
 add_library(commonlib SHARED
             ${CMAKE_SOURCE_DIR}/utils/common_utils.cpp
             ${CMAKE_SOURCE_DIR}/utils/common_sys.cpp)
-         #   ${CMAKE_SOURCE_DIR}/utils/common_pr.cpp
-         #   ${CMAKE_SOURCE_DIR}/utils/common_sysfs.cpp)
 
 add_executable(foapp  ${CMAKE_SOURCE_DIR}/utils/fpgaopen_app.cpp)
 
