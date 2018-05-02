@@ -59,6 +59,8 @@ from collections import defaultdict
 import fnmatch
 import json
 import subprocess
+from sets import Set
+import shutil
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -72,7 +74,7 @@ VHDL_FILE_LIST = os.getcwd() + "/vhdl_files.list"
 VLOG_FILE_LIST = os.getcwd() + "/vlog_files.list"
 
 # Forbidden characters
-SPECIAL_CHARS = '\[]~!@#$%^&*(){}:;+$\''
+SPECIAL_CHARS = '\\[]~!@#$%^&*(){}:;+$\''
 
 
 # DO NOT MODIFY BELOW THIS COMMENT BLOCK     #
@@ -232,38 +234,42 @@ def config_sources(fd, filelist):
             # follows a simulator command.
             spl = s.split(' ')
             if (len(spl) > 1):
-                s = spl[0] + ' ' + '\ '.join(spl[1:])
+                s = spl[0] + ' ' + '\\ '.join(spl[1:])
             vlog_srcs.append(s)
             vlog_found = True
         else:
             # Convert extensions to lower case for comparison
             sl = s.lower()
             # Escape spaces in pathnames
-            s = s.replace(' ', '\ ')
+            s = s.replace(' ', '\\ ')
 
             # Verilog or SystemVerilog?
             for ext in VLOG_EXTENSIONS:
-                if (sl[-len(ext):] == ext):
+                if (sl.endswith(ext)):
                     vlog_srcs.append(s)
                     vlog_found = True
                     break
 
             # VHDL?
             for ext in VHD_EXTENSIONS:
-                if (sl[-len(ext):] == ext):
+                if (sl.endswith(ext)):
                     vhdl_srcs.append(s)
                     vhdl_found = True
                     break
 
-            if (sl[-5:] == '.json'):
+            if (sl.endswith('.json')):
                 json_srcs.append(s)
 
+    qsys_sim_files = config_qsys_sources(filelist, vlog_srcs)
+
     # List Verilog & SystemVerilog sources in a file
-    if (vlog_found):
+    if (vlog_found or qsys_sim_files):
         fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
         with open(VLOG_FILE_LIST, "w") as f:
             for s in vlog_srcs:
                 f.write(s + "\n")
+            if (qsys_sim_files):
+                f.write("-F " + qsys_sim_files + "\n")
 
     # List VHDL sources in a file
     if (vhdl_found):
@@ -300,6 +306,130 @@ def config_sources(fd, filelist):
             ase_functions.end_green_fontcolor()
 
     return json_file
+
+
+#
+# Qsys has a compilation step.  When using case #1 above, detect Qsys
+# sources, compile them, and include the generated Verilog in the
+# simulation.
+#
+def config_qsys_sources(filelist, vlog_srcs):
+    # Get all the sources.  rtl_src_config will emit all relevant source
+    # files, one per line.
+    try:
+        srcs = commands_list_getoutput(
+            "rtl_src_config --qsys --abs".split(" ") + [filelist])
+    except Exception:
+        errorExit("failed to read sources from {0}".format(filelist))
+
+    # Collect two sets: qsys source files and the names of directories into
+    # which generated Verilog will be written.  The directory names match
+    # the source names.
+    qsys_srcs = []
+    ip_dirs = []
+    srcs = srcs.split('\n')
+    for s in srcs:
+        if (s):
+            # Record all build target directories
+            ip_dirs.append(os.path.splitext(s)[0])
+
+            # Collect all qsys files
+            if (s.lower().endswith('.qsys')):
+                qsys_srcs.append(s)
+
+    # Any Qsys files found?
+    if (not qsys_srcs):
+        return None
+
+    # First step: copy the trees holding Qsys sources to a temporary tree
+    # inside the simulator environment.  We do this to avoid polluting the
+    # source tree with Qsys-generated files.
+    copied_qsys_dirs = dict()
+    tgt_idx = 0
+    os.mkdir('qsys_sim')
+    qsys_srcs_copy = []
+    for q in qsys_srcs:
+        src_dir = os.path.dirname(q)
+        # Has the source been copied already? Multiple Qsys files in the same
+        # directory are copied together.
+        if (src_dir not in copied_qsys_dirs):
+            b = os.path.basename(src_dir)
+            tgt_dir = os.path.join('qsys_sim', b + '_' + str(tgt_idx))
+            tgt_idx += 1
+            copied_qsys_dirs[src_dir] = tgt_dir
+            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            try:
+                shutil.copytree(src_dir, tgt_dir)
+            except Exception:
+                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
+                                                                  tgt_dir))
+
+        # Point to the copy
+        qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
+
+    # Second step: now that the trees are copied, update the paths in
+    # ip_dirs to point to the copies.
+    ip_dirs_copy = []
+    for d in ip_dirs:
+        match = None
+        for src in copied_qsys_dirs:
+            if (src == d[:len(src)]):
+                match = src
+                break
+        if match:
+            # Replace the prefix (source tree) with the copied prefix
+            ip_dirs_copy.append(copied_qsys_dirs[match] + d[len(match):])
+        else:
+            # Didn't find a match.  Use the original.
+            ip_dirs_copy.append(d)
+
+    # Now we are finally ready to run qsys-generate.
+    try:
+        cmd = [os.path.join(os.environ['QUARTUS_HOME'], 'sopc_builder',
+                            'bin', 'qsys-generate')]
+    except KeyError as k:
+        errorExit("Required environment variable {0} is undefined".format(k))
+
+    # We use synthesis mode instead of simulation because the generated
+    # simulation control isn't needed for ASE and because some Qsys
+    # projects are set up only for synthesis.
+    cmd.append('--synthesis=VERILOG')
+
+    for q in qsys_srcs_copy:
+        cmd.append(q)
+        print("\nBuilding " + q)
+        try:
+            sys.stdout.write(commands_list_getoutput(cmd))
+        except Exception:
+            errorExit("Qsys failure: " + " ".join(cmd))
+        cmd.pop()
+
+    print("Done building Qsys files.\n")
+
+    # Qsys replicates library files in the tree.  Ensure that each module is
+    # imported only once.
+    sim_files_found = Set()
+    for s in vlog_srcs:
+        sim_files_found.add(os.path.basename(s))
+
+    # Find all generated Verilog/SystemVerilog sources
+    qsys_sim_files = 'qsys_sim_files.list'
+    with open(qsys_sim_files, "w") as f:
+        for d in ip_dirs_copy:
+            for dir, subdirs, files in os.walk(d):
+                for fn in files:
+                    if ((os.path.basename(dir) == 'synth') and
+                            (fn.endswith('.v') or fn.endswith('.sv'))):
+                        full_path = os.path.join(dir, fn)
+                        # Is the module (file) name new?
+                        if (fn not in sim_files_found and
+                                full_path not in sim_files_found):
+                            sim_files_found.add(fn)
+                            # Escape spaces in pathnames
+                            full_path = full_path.replace(' ', '\\ ')
+                            f.write(full_path + "\n")
+
+    return qsys_sim_files
 
 
 #

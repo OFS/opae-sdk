@@ -368,6 +368,16 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     emitHeader(f, afu_ifc_db, platform_db)
 
     f.write("-F {0}/sim/platform_if_includes.txt\n".format(args.platform_if))
+
+    # Legacy AFUs may need INCLUDE_DDR4 defined without having to include
+    # platform_if.vh.  If INCLUDE_DDR4 is defined, then force it here.
+    for port in afu_port_list:
+        afu_port = port['afu']
+        plat_port = port['plat']
+        if ('INCLUDE_DDR4' in afu_port['define'] or
+                'INCLUDE_DDR4' in plat_port['define']):
+            f.write('+define+INCLUDE_DDR4\n')
+
     f.close()
 
     #
