@@ -8,11 +8,6 @@ setup_git() {
 
 commit_website_files() {
 
-  if [ "$1" = "latest" ]
-  then
-    git reset --hard origin/master
-  fi
-  
   mkdir upload_docs
   cd upload_docs
   git clone https://OPAE:$GIT_TOKEN@github.com/OPAE/opae.github.io.git

@@ -126,6 +126,25 @@ def updCmdEnv(env, key, value):
     return env
 
 
+# Run a command
+def commands_list(cmd, cwd=None, stdout=None):
+    try:
+        subprocess.check_call(cmd, cwd=cwd, stdout=stdout, env=getCmdEnv())
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            msg = cmd[0] + " not found on PATH!"
+            errorExit(msg)
+        else:
+            raise
+    except subprocess.CalledProcessError as e:
+        errorExit('"' + ' '.join(e.cmd) + '" failed')
+    except AttributeError:
+        sys.stderr.write('Error: Python 2.7 or greater required.\n')
+        raise
+
+    return None
+
+
 # Run a command and get the output
 def commands_list_getoutput(cmd, cwd=None):
     try:
@@ -256,7 +275,7 @@ def setup_build():
     else:
         cmd.append(os.path.relpath(sources, build_dir))
     with open(os.path.join(args.dst, 'hw/afu.qsf'), 'w') as f:
-        subprocess.check_call(cmd, stdout=f, cwd=build_dir)
+        commands_list(cmd, stdout=f, cwd=build_dir)
 
     # Configure the platform
     cmd = ['afu_platform_config', '--qsf', '--tgt', 'platform']
@@ -272,12 +291,12 @@ def setup_build():
         with open(plat_class_file) as f:
             cmd.append(f.read().strip())
 
-    subprocess.check_call(cmd, cwd=build_dir)
+    commands_list(cmd, cwd=build_dir)
 
     # Extract JSON info for Verilog
     cmd = ['afu_json_mgr', 'json-info', '--afu-json=' + json]
     cmd.append('--verilog-hdr=../hw/afu_json_info.vh')
-    subprocess.check_call(cmd, cwd=build_dir)
+    commands_list(cmd, cwd=build_dir)
 
     # Handle Qsys IPX file discovery
     setup_build_ipx(sources, build_dir)

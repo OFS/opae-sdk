@@ -56,20 +56,30 @@ For building libopae-c, tools and samples, the following dependences are require
 * boost.x86\_64:           (tested with 1.53.0-26.el7)
 * boost-devel.x86\_64:     (tested with 1.53.0-26.el7)
 
-## Driver installation with DKMS rpm package ##
+## Driver installation with DKMS rpm and deb packages ##
 
-Install:
+Install rpm package:
 ```console
-$ sudo yum install opae-intel-fpga-drv-<release>.rpm
+$ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
 ```
 
-Uninsall:
+Uninstall rpm package:
 ```console
-$ sudo yum remove opae-intel-fpga-drv-<release>
+$ sudo yum remove opae-intel-fpga-driver-<release>
 ```
 
-During the rpm installation process, the tool will compile the driver from
-source then install the driver automatically. Driver installed by rpm package
+Install deb package:
+```console
+$ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
+```
+
+Uninstall deb package:
+```console
+$ sudo dpkg -r opae-intel-fpga-driver
+```
+
+During the installation process, the tool will compile the driver from
+source then install the driver automatically. Driver installed by these packages
 will be automatically install again after system reboot.
 
 ## Driver build/installation with driver source package ##
@@ -204,41 +214,20 @@ Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix 
 This will generate the following rpm packages. 
 
 ```console
-opae-<release>-1.x86_64.rpm               (meta package)
-opae-libs-<release>-1.x86_64.rpm          (libopae-c and samples)
-opae-tools-<release>-1.x86_64.rpm         (base tools)
-opae-tools-extra-<release>-1.x86_64.rpm   (extra tools)
-opae-devel-<release>-1.x86_64.rpm         (headers)
-opae-ase-<release>-1.x86_64.rpm           (libopae-c-ase)
+opae-<release>.x86_64.rpm               (meta package)
+opae-libs-<release>.x86_64.rpm          (libopae-c and samples)
+opae-tools-<release>.x86_64.rpm         (base tools)
+opae-tools-extra-<release>.x86_64.rpm   (extra tools)
+opae-devel-<release>.x86_64.rpm         (headers)
+opae-ase-<release>.x86_64.rpm           (libopae-c-ase)
 ```
 
-## OPAE SDK installation with rpm packages ##
-The rpm packages generated in the previous step can be installed
-using these commands:
+* To build deb packages follow these steps:
 
-```console
-$ sudo yum install opae-<release>-1.x86_64.rpm
-$ sudo yum install opae-libs-<release>-1.x86_64.rpm
-$ sudo yum install opae-tools-<release>-1.x86_64.rpm
-$ sudo yum install opae-tools-extra-<release>-1.x86_64.rpm
-$ sudo yum install opae-devel-<release>-1.x86_64.rpm
-$ sudo yum install opae-ase-<release>-1.x86_64.rpm
-```
-
-To uninstall:
-
-```console
-$ sudo yum remove opae
-$ sudo yum remove opae-libs
-$ sudo yum remove opae-tools
-$ sudo yum remove opae-tools-extra
-$ sudo yum remove opae-devel
-$ sudo yum remove opae-ase
-```
-
-
-* For generating deb packages, cmake version 3.0.0 and above is required.
-To build deb packages follow these steps:
+ .. note::
+  ```
+  Note: For generating deb packages, cmake version 3.0.0 and above is required.
+  ```
 
 ```console
 $ cd opae-sdk-<release>
@@ -254,11 +243,35 @@ Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix 
 This will generate the following deb packages.
 
 ```console
-opae-<release>-1.x86_64-libs.deb          (libopae-c and samples)
-opae-<release>-1.x86_64-tools.deb         (tools)
-opae-<release>-1.x86_64-tools-extra.deb   (tools)
-opae-<release>-1.x86_64-devel.deb         (headers)
-opae-<release>-1.x86_64-ase.deb           (libopae-c-ase)
+opae-libs-<release>.x86_64.deb          (libopae-c and samples)
+opae-tools-<release>.x86_64.deb         (tools)
+opae-tools-extra-<release>.x86_64.deb   (tools)
+opae-devel-<release>.x86_64.deb         (headers)
+opae-ase-<release>.x86_64.deb           (libopae-c-ase)
+```
+
+# OPAE SDK installation with rpm packages #
+The rpm packages generated in the previous step can be installed
+using these commands:
+
+```console
+$ sudo yum install opae-<release>.x86_64.rpm
+$ sudo yum install opae-libs-<release>.x86_64.rpm
+$ sudo yum install opae-tools-<release>.x86_64.rpm
+$ sudo yum install opae-tools-extra-<release>.x86_64.rpm
+$ sudo yum install opae-devel-<release>.x86_64.rpm
+$ sudo yum install opae-ase-<release>.x86_64.rpm
+```
+
+To uninstall:
+
+```console
+$ sudo yum remove opae
+$ sudo yum remove opae-libs
+$ sudo yum remove opae-tools
+$ sudo yum remove opae-tools-extra
+$ sudo yum remove opae-devel
+$ sudo yum remove opae-ase
 ```
 
 ## OPAE SDK installation with deb packages ##
@@ -266,11 +279,11 @@ The deb packages generated in the previous step can be installed
 using these commands:
 
 ```console
-$ sudo dpkg -i opae-<release>-1.x86_64-libs.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-tools.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-tools-extra.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-devel.deb
-$ sudo dpkg -i opae-<release>-1.x86_64-ase.deb
+$ sudo dpkg -i opae-libs-<release>.x86_64.deb 
+$ sudo dpkg -i opae-tools-<release>.x86_64.deb
+$ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
+$ sudo dpkg -i opae-devel-<release>.x86_64.deb
+$ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
 To uninstall:

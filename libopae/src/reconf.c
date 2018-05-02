@@ -338,7 +338,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
 	int err                         = 0;
-	fpga_handle accel;
+	fpga_handle accel               = NULL;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -486,14 +486,13 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		result = FPGA_RECONF_ERROR;
 	}
 
+out_unlock:
 	// close the accelerator opened during `open_accel`
-	if (fpgaClose(accel) != FPGA_OK) {
+	if (accel && fpgaClose(accel) != FPGA_OK) {
 		FPGA_ERR("Error closing accelerator after reconfiguration");
 		result = FPGA_RECONF_ERROR;
 	}
 
-
-out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));

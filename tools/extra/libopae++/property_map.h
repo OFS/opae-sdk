@@ -78,7 +78,7 @@ public:
             {
                 value = opt->value<T>();
             }
-            catch(const intel::utils::any_value_cast_error & bac)
+            catch(const intel::utils::any_value_cast_error &)
             {
                 return false;
             }
