@@ -60,6 +60,7 @@ import fnmatch
 import json
 import subprocess
 from sets import Set
+import shutil
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -306,23 +307,63 @@ def config_qsys_sources(filelist, vlog_srcs):
     # the source names.
     qsys_srcs = []
     ip_dirs = []
-
     srcs = srcs.split('\n')
     for s in srcs:
         if (s):
-            # Escape spaces in pathnames
-            s = s.replace(' ', '\\ ')
             # Record all build target directories
             ip_dirs.append(os.path.splitext(s)[0])
 
             # Collect all qsys files
-            sl = s.lower()
-            if (sl[-5:] == '.qsys'):
+            if (s.lower()[-5:] == '.qsys'):
                 qsys_srcs.append(s)
 
+    # Any Qsys files found?
     if (not qsys_srcs):
         return None
 
+    # First step: copy the trees holding Qsys sources to a temporary tree
+    # inside the simulator environment.  We do this to avoid polluting the
+    # source tree with Qsys-generated files.
+    copied_qsys_dirs = dict()
+    tgt_idx = 0
+    os.mkdir('qsys_sim')
+    qsys_srcs_copy = []
+    for q in qsys_srcs:
+        src_dir = os.path.dirname(q)
+        # Has the source been copied already? Multiple Qsys files in the same
+        # directory are copied together.
+        if (src_dir not in copied_qsys_dirs):
+            b = os.path.basename(src_dir)
+            tgt_dir = os.path.join('qsys_sim', b + '_' + str(tgt_idx))
+            tgt_idx += 1
+            copied_qsys_dirs[src_dir] = tgt_dir
+            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            try:
+                shutil.copytree(src_dir, tgt_dir)
+            except Exception:
+                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
+                                                                  tgt_dir))
+
+        # Point to the copy
+        qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
+
+    # Second step: now that the trees are copied, update the paths in
+    # ip_dirs to point to the copies.
+    ip_dirs_copy = []
+    for d in ip_dirs:
+        match = None
+        for src in copied_qsys_dirs:
+            if (src == d[:len(src)]):
+                match = src
+                break
+        if match:
+            # Replace the prefix (source tree) with the copied prefix
+            ip_dirs_copy.append(copied_qsys_dirs[match] + d[len(match):])
+        else:
+            # Didn't find a match.  Use the original.
+            ip_dirs_copy.append(d)
+
+    # Now we are finally ready to run qsys-generate.
     try:
         cmd = [os.path.join(os.environ['QUARTUS_HOME'], 'sopc_builder',
                             'bin', 'qsys-generate')]
@@ -334,16 +375,16 @@ def config_qsys_sources(filelist, vlog_srcs):
     # projects are set up only for synthesis.
     cmd.append('--synthesis=VERILOG')
 
-    for q in qsys_srcs:
+    for q in qsys_srcs_copy:
         cmd.append(q)
-        print("Building " + q)
+        print("\nBuilding " + q)
         try:
             sys.stdout.write(commands_list_getoutput(cmd))
         except Exception:
             errorExit("Qsys failure: " + " ".join(cmd))
         cmd.pop()
 
-    qsys_sim_files = 'qsys_sim_files.list'
+    print("Done building Qsys files.\n")
 
     # Qsys replicates library files in the tree.  Ensure that each module is
     # imported only once.
@@ -352,8 +393,9 @@ def config_qsys_sources(filelist, vlog_srcs):
         sim_files_found.add(os.path.basename(s))
 
     # Find all generated Verilog/SystemVerilog sources
+    qsys_sim_files = 'qsys_sim_files.list'
     with open(qsys_sim_files, "w") as f:
-        for d in ip_dirs:
+        for d in ip_dirs_copy:
             for dir, subdirs, files in os.walk(d):
                 for fn in files:
                     if ((os.path.basename(dir) == 'synth') and
@@ -363,6 +405,8 @@ def config_qsys_sources(filelist, vlog_srcs):
                         if (fn not in sim_files_found and
                                 full_path not in sim_files_found):
                             sim_files_found.add(fn)
+                            # Escape spaces in pathnames
+                            full_path = full_path.replace(' ', '\\ ')
                             f.write(full_path + "\n")
 
     return qsys_sim_files
