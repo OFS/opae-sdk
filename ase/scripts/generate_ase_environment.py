@@ -143,6 +143,26 @@ def search_dir(pattern, cur=os.curdir):
     return dirlist
 
 
+# Run a command
+def commands_list(cmd, cwd=None, stdout=None):
+    try:
+        subprocess.check_call(cmd, cwd=cwd, stdout=stdout)
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            msg = cmd[0] + " not found on PATH!"
+            errorExit(msg)
+        else:
+            raise
+    except subprocess.CalledProcessError as e:
+        errorExit('"' + ' '.join(e.cmd) + '" failed')
+    except AttributeError:
+        sys.stderr.write('Error: Python 2.7 or greater required.\n')
+        raise
+
+    return None
+
+
+# Run a command and get the output
 def commands_list_getoutput(cmd):
     try:
         byte_out = subprocess.check_output(cmd)
@@ -580,10 +600,7 @@ def gen_afu_platform_ifc(json_file):
     else:
         cfg.append(args.platform)
 
-    try:
-        sys.stdout.write(commands_list_getoutput(cfg))
-    except Exception:
-        errorExit(cmd + " from OPAE SDK failed!")
+    commands_list(cfg)
 
 
 # Generate a Verilog header file with values from the AFU JSON file
@@ -592,11 +609,7 @@ def gen_afu_json_verilog_macros(json_file):
     cmd.append('--afu-json=' + json_file)
     cmd.append('--verilog-hdr=rtl/afu_json_info.vh')
 
-    try:
-        sys.stdout.write(commands_list_getoutput(cmd))
-    except Exception:
-        errorExit("afu_json_mgr from OPAE SDK failed, parsing {0}".format(
-            json_file))
+    commands_list_getoutput(cmd)
 
 
 # What's the default platform?  Environment variables allow developers
