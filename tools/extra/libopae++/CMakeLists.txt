@@ -33,14 +33,10 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 add_library(opae-c++ SHARED
                    fpga_resource.h
                    fpga_resource.cpp
-                   resource_properties.h
-                   resource_properties.cpp
                    property_map.h
                    property_map.cpp
                    accelerator.h
                    accelerator.cpp
-                   fpga.h
-                   fpga.cpp
                    perf_counters.h
                    perf_counters.cpp
                    fpga_event.h
