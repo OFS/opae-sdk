@@ -41,42 +41,42 @@ namespace types {
 
 /** Host/AFU shared memory blocks
  *
- * dma_buffer abstracts a memory block that may be shared
+ * shared_buffer abstracts a memory block that may be shared
  * between the host cpu and an accelerator. The block may
- * be allocated by the dma_buffer class itself (see allocate),
+ * be allocated by the shared_buffer class itself (see allocate),
  * or it may be allocated elsewhere and then attached to
- * a dma_buffer object via attach.
+ * a shared_buffer object via attach.
  */
-class dma_buffer {
+class shared_buffer {
  public:
   typedef std::size_t size_t;
-  typedef std::shared_ptr<dma_buffer> ptr_t;
+  typedef std::shared_ptr<shared_buffer> ptr_t;
 
-  dma_buffer(const dma_buffer &) = delete;
-  dma_buffer &operator=(const dma_buffer &) = delete;
+  shared_buffer(const shared_buffer &) = delete;
+  shared_buffer &operator=(const shared_buffer &) = delete;
 
-  /** dma_buffer destructor.
+  /** shared_buffer destructor.
    */
-  virtual ~dma_buffer();
+  virtual ~shared_buffer();
 
-  /** dma_buffer factory method - allocate a dma_buffer.
+  /** shared_buffer factory method - allocate a shared_buffer.
    * @param[in] handle The handle used to allocate the buffer.
    * @param[in] len    The length in bytes of the requested buffer.
-   * @return A valid dma_buffer smart pointer on success, or an
+   * @return A valid shared_buffer smart pointer on success, or an
    * empty smart pointer on failure.
    */
-  static dma_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
+  static shared_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
 
-  /** Attach a pre-allocated buffer to a dma_buffer object.
+  /** Attach a pre-allocated buffer to a shared_buffer object.
    *
    * @param[in] handle The handle used to attach the buffer.
    * @param[in] base The base of the pre-allocated memory.
    * @param[in] len The size of the pre-allocated memory,
    * which must be a multiple of the page size.
-   * @return A valid dma_buffer smart pointer on success, or an
+   * @return A valid shared_buffer smart pointer on success, or an
    * empty smart pointer on failure.
    */
-  static dma_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
+  static shared_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
                                   size_t len);
 
   /** Retrieve the virtual address of the buffer base.
@@ -105,7 +105,7 @@ class dma_buffer {
    */
   void fill(int c);
 
-  /** Compare this dma_buffer (the first len bytes)
+  /** Compare this shared_buffer (the first len bytes)
    * to that held in other, using memcmp().
    */
   int compare(ptr_t other, size_t len) const;
@@ -142,7 +142,7 @@ class dma_buffer {
   }
 
  protected:
-  dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
+  shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
              uint64_t iova);
 
   handle::ptr_t handle_;
