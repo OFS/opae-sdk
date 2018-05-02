@@ -225,19 +225,19 @@ def config_sources(fd, filelist):
 
             # Verilog or SystemVerilog?
             for ext in VLOG_EXTENSIONS:
-                if (sl[-len(ext):] == ext):
+                if (sl.endswith(ext)):
                     vlog_srcs.append(s)
                     vlog_found = True
                     break
 
             # VHDL?
             for ext in VHD_EXTENSIONS:
-                if (sl[-len(ext):] == ext):
+                if (sl.endswith(ext)):
                     vhdl_srcs.append(s)
                     vhdl_found = True
                     break
 
-            if (sl[-5:] == '.json'):
+            if (sl.endswith('.json')):
                 json_srcs.append(s)
 
     qsys_sim_files = config_qsys_sources(filelist, vlog_srcs)
@@ -314,7 +314,7 @@ def config_qsys_sources(filelist, vlog_srcs):
             ip_dirs.append(os.path.splitext(s)[0])
 
             # Collect all qsys files
-            if (s.lower()[-5:] == '.qsys'):
+            if (s.lower().endswith('.qsys')):
                 qsys_srcs.append(s)
 
     # Any Qsys files found?
@@ -399,7 +399,7 @@ def config_qsys_sources(filelist, vlog_srcs):
             for dir, subdirs, files in os.walk(d):
                 for fn in files:
                     if ((os.path.basename(dir) == 'synth') and
-                            (fn[-2:] == '.v' or fn[-3:] == '.sv')):
+                            (fn.endswith('.v') or fn.endswith('.sv'))):
                         full_path = os.path.join(dir, fn)
                         # Is the module (file) name new?
                         if (fn not in sim_files_found and
