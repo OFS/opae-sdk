@@ -25,55 +25,41 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/access.h>
-#include <opae/manage.h>
+#include <opae/mmio.h>
+#include <opae/properties.h>
+#include <opae/types_enum.h>
+#include <sys/mman.h>
 
-#include "common_test.h"
+#include "common_sys.h"
+#include "common_utils.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
 
-using namespace common_test;
 
-/**
- * @test       Hostif_drv_01
+#define FLAGS 0
+
+using namespace common_utils;
+using namespace std;
+
+class StressLibopaecTPFCommonHW : public BaseFixture, public ::testing::Test {};
+
+/*
+ * @test       01
  *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             fpgaAssignPortToInterface Release port to a host interface.
- *
+ * @brief      Load to be used for the AP6 portion of the maunal RAS
+ *             test.
  */
-TEST(LibopaecHostifCommonMOCK, Hostif_drv_01) {
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-  fpga_handle h;
 
-  // open FME device
-  token_for_fme0(&_tok);
-  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+TEST_F(StressLibopaecTPFCommonHW, 01) {
+    auto functor = [=]() -> void {
 
-  // Release Port Interface
-  EXPECT_EQ(FPGA_OK, fpgaAssignPortToInterface(h, 1, 0, 0));
+      sayHello(tokens[index]);
 
-  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+    };
+
+  while (true) {
+    // pass test code to enumerator
+    TestAllFPGA(FPGA_ACCELERATOR,  // object type
+                false,             // reconfig default NLB0
+                functor);          // test code
+  }
 }
-
-/**
- * @test       Hostif_drv_02
- *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             fpgaAssignPortToInterface Assign port to a host interface.
- *
- */
-TEST(LibopaecHostifCommonMOCK, Hostif_drv_02) {
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-  fpga_handle h;
-
-  // open FME device
-  token_for_fme0(&_tok);
-  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-
-  // Assign Port Interface
-  EXPECT_EQ(FPGA_OK, fpgaAssignPortToInterface(h, 0, 0, 0));
-
-  EXPECT_EQ(FPGA_OK, fpgaClose(h));
-}
-
