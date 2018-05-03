@@ -271,15 +271,21 @@ def getAfuIfc(args):
             # Maintain compatibility with older AFUs.
             if ('name' in afu_ifc):
                 afu_ifc['class'] = afu_ifc.pop('name')
+
+            # Dereference the class to be sure it is present.
+            afu_ifc_class = afu_ifc['class']
         except Exception:
             # The JSON file doesn't name the top-level interface.
             # Was a default specified on the command line?
+            msg = "No afu-image:afu-top-interface:class found in " + afu_json
             if (args.default_ifc):
                 afu_ifc = dict()
                 afu_ifc['class'] = args.default_ifc
+                print("Warning: " + msg)
+                print("         Using default interface: {0}\n".format(
+                    args.default_ifc))
             else:
-                errorExit("No afu-image:afu-top-interface:class found " +
-                          "in {0}".format(afu_json))
+                errorExit(msg)
 
         afu_ifc['file_path'] = afu_json
         afu_ifc['file_name'] = os.path.splitext(os.path.basename(afu_json))[0]
