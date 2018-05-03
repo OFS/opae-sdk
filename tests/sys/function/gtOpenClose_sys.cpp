@@ -26,28 +26,165 @@
 
 #include <opae/access.h>
 
-#include "common_test.h"
+#include "common_utils.h"
+#include "common_sys.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
 
 
-using namespace common_test;
+using namespace common_utils;
 using namespace std;
 
-class LibopaecOpenFCommonMOCKHW : public common_test::BaseFixture,
+class LibopaecOpenFCommonHW : public common_utils::BaseFixture,
                               public ::testing::Test {};
 
-class LibopaecOpenFCommonMOCK : public common_test::BaseFixture,
-                              public ::testing::Test {};
-
-class LibopaecCloseFCommonMOCKHW : public common_test::BaseFixture,
+class LibopaecCloseFCommonHW : public common_utils::BaseFixture,
                                public ::testing::Test {};
 
-class LibopaecOpenFCommonALL : public common_test::BaseFixture,
+class LibopaecOpenFCommonALL : public common_utils::BaseFixture,
                                public ::testing::Test {};
 
-class LibopaecCloseFCommonALL : public common_test::BaseFixture,
+class LibopaecCloseFCommonALL : public common_utils::BaseFixture,
                                 public ::testing::Test {};
+
+/**
+ * @test       02
+ *
+ * @brief      Calling fpgaOpen() after fpgaClose() using the same token
+ *             returns FPGA_OK.
+ */
+TEST_F(LibopaecOpenFCommonHW, 02) {
+  auto functor = [=]() -> void {
+    fpga_handle h = NULL;
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    fpgaClose(h);
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    fpgaClose(h);
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+}
+
+TEST_F(LibopaecOpenFCommonHW, 03) {
+  auto functor = [=]() -> void {
+
+    fpga_handle h = NULL;
+    fpga_properties props = NULL;
+    uint8_t obus = 0;
+
+    // open exclusive in gtest process
+    if (checkReturnCodes(fpgaOpen(tokens[index], &h, 0), LINE(__LINE__))) {
+      checkReturnCodes(fpgaGetProperties(tokens[index], &props),
+                       LINE(__LINE__));
+
+      checkReturnCodes(fpgaPropertiesGetBus(props, &obus), LINE(__LINE__));
+
+      ASSERT_LT(
+          0,
+          tryOpen(
+              false,
+              obus));  // open exclusive (shared == false) in external process
+                       // expect fail
+      ASSERT_LT(
+          0,
+          tryOpen(true,
+                  obus));  // open shared (shared == true) in external process
+                           // expect fail
+
+      ASSERT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+    }
+
+    else {
+      cout << "open failed\n";
+      FAIL();
+    }
+
+    // open shared in gtest process
+    if (checkReturnCodes(fpgaOpen(tokens[index], &h, FPGA_OPEN_SHARED),
+                         LINE(__LINE__))) {
+      checkReturnCodes(fpgaGetProperties(tokens[index], &props),
+                       LINE(__LINE__));
+
+      checkReturnCodes(fpgaPropertiesGetBus(props, &obus), LINE(__LINE__));
+
+      ASSERT_LT(
+          0,
+          tryOpen(
+              false,
+              obus));  // open exclusive (shared == false) in external process
+                       // expect fail
+      ASSERT_EQ(
+          FPGA_OK,
+          tryOpen(true,
+                  obus));  // open shared (shared == true) in external process
+                           // expect PASS
+
+      ASSERT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+    }
+
+    else {
+      cout << "open failed\n";
+      FAIL();
+    }
+  };
+
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+}
+
+/**
+ * @test       05
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             fpgaOpen returns FPGA_OK.
+ */
+TEST_F(LibopaecOpenFCommonALL, 05) {
+
+#ifdef BUILD_ASE
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+
+  token_for_afu0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+  fpgaClose(h);
+
+#else
+  auto functor = [=]() -> void {
+    fpga_handle h = NULL;
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    fpgaClose(h);
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+#endif
+}
+
+/**
+ * @test       06
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             but the user lacks sufficient privilege for the device,
+ *             fpgaOpen returns FPGA_NO_ACCESS.
+ */
+TEST_F(LibopaecOpenFCommonHW, 06) {
+  auto functor = [=]() -> void {
+    fpga_handle h;
+
+    EXPECT_EQ(FPGA_NO_ACCESS, fpgaOpen(tokens[index], &h, 0));
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_DEVICE,  // object type
+              true,         // reconfig default NLB0
+              functor);     // test code
+}
 
 /**
  * @test       07
@@ -66,96 +203,6 @@ TEST(LibopaecOpenCommonALL, 07) {
 #else
   EXPECT_EQ(FPGA_NO_DRIVER, fpgaOpen(tok, &h, 0));
 #endif
-}
-
-/**
- * @test       open_drv_09
- *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             and the flag FPGA_OPEN_SHARED is not given, fpgaOpen on
- *             an already opened token returns FPGA_BUSY.
- *
- */
-TEST_F(LibopaecOpenFCommonMOCK, open_drv_09) {
-  auto functor = [=]() -> void {
-    fpga_handle h1, h2;
-
-    EXPECT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h1, 0));
-    EXPECT_EQ(FPGA_BUSY, fpgaOpen(tokens[index], &h2, 0));
-    fpgaClose(h1);
-  };
-
-  // pass test code to enumerator
-  TestAllFPGA(FPGA_ACCELERATOR,  // object type
-              true,              // reconfig default NLB0
-              functor);          // test code
-}
-
-/**
- * @test       open_drv_10
- *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
- *             already opened token returns FPGA_OK.
- *
- */
-TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
-
-#ifdef BUILD_ASE
-  fpga_handle h1, h2;
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-
-  token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h1, FPGA_OPEN_SHARED));
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h2, FPGA_OPEN_SHARED));
-
-#else
-
-  auto functor = [=]() -> void {
-    fpga_handle h1, h2;
-
-    EXPECT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h1, FPGA_OPEN_SHARED));
-    EXPECT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h2, FPGA_OPEN_SHARED));
-    fpgaClose(h1);
-    fpgaClose(h2);
-
-  };
-
-  // pass test code to enumerator
-  TestAllFPGA(FPGA_ACCELERATOR,  // object type
-              true,              // reconfig default NLB0
-              functor);          // test code
-#endif
-}
-
-/**
- * @test       open_drv_11
- *
- * @brief      Invalid parameter verification.  fpgaOpen returns
- *             FPGA_INVALID_PARAM for a NULL token.  fpgaOpen returns
- *             FPGA_INVALID_PARAM for a NULL handle pointer.  fpgaOpen
- *             returns FPGA_INVALID_PARAM for invalid flags.  fpgaOpen
- *             returns FPGA_INVALID_PARAM for a corrupted token.
- *
- */
-TEST_F(LibopaecOpenFCommonMOCK, open_drv_11) {
-  auto functor = [=]() -> void {
-    fpga_handle h;
-
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tokens[index], NULL, 0));
-    EXPECT_EQ(FPGA_INVALID_PARAM,
-              fpgaOpen(tokens[index], &h, ~FPGA_OPEN_SHARED));
-
-    ((_fpga_token*)tokens[index])->magic = 0;
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tokens[index], &h, 0));
-  };
-
-  // pass test code to enumerator
-  TestAllFPGA(FPGA_DEVICE,  // object type
-              true,         // reconfig default NLB0
-              functor);     // test code
 }
 
 /**
@@ -179,6 +226,7 @@ TEST_F(LibopaecCloseFCommonALL, 02) {
 
 #ifdef BUILD_ASE
   fpga_handle h;
+
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
 
@@ -217,7 +265,7 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
     struct _fpga_handle *p;
 
     ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
-    
+
     p = (struct _fpga_handle *)h;
     EXPECT_EQ((void *)NULL, p->mmio_root);
 
@@ -236,3 +284,5 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
               functor);          // test code
 }
 #endif // BUILD_ASE
+
+
