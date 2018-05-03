@@ -54,7 +54,7 @@
 #define  USER_CLOCK_STS0       "userclk_freqsts"
 #define  USER_CLOCK_STS1       "userclk_freqcntrsts"
 #define  MAX_FPGA_FREQ          1200
-#define  MIN_FPGA_FREQ          100
+#define  MIN_FPGA_FREQ          25
 
 // User clock sleep
 #define  USRCLK_SLEEEP_1MS           1000000
