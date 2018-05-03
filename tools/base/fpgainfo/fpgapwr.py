@@ -43,7 +43,7 @@ class power_command(fpga_common.fpga_command):
                                           consumed=lambda v: '{} Watts'
                                           .format(v))
             else:
-                fme.power_mgmt.print_info("//** POWER Not supported on HW **//",
+                fme.power_mgmt.print_info("*** POWER Not supported on HW ***",
                                           "",
                                           consumed=lambda v: '{} W'.format(v))
 
