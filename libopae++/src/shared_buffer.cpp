@@ -25,20 +25,20 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
 
-#include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/shared_buffer.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-dma_buffer::~dma_buffer() {
+shared_buffer::~shared_buffer() {
   // If the allocation was successful.
   if (virt_) {
     ASSERT_FPGA_OK(fpgaReleaseBuffer(handle_->get(), wsid_));
   }
 }
 
-dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
+shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   ptr_t p;
 
   if (!len) {
@@ -54,12 +54,12 @@ dma_buffer::ptr_t dma_buffer::allocate(handle::ptr_t handle, size_t len) {
   ASSERT_FPGA_OK(res);
   res = fpgaGetIOAddress(handle->get(), wsid, &iova);
   ASSERT_FPGA_OK(res);
-  p.reset(new dma_buffer(handle, len, virt, wsid, iova));
+  p.reset(new shared_buffer(handle, len, virt, wsid, iova));
 
   return p;
 }
 
-dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
+shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
                                      size_t len) {
   ptr_t p;
 
@@ -74,18 +74,18 @@ dma_buffer::ptr_t dma_buffer::attach(handle::ptr_t handle, uint8_t *base,
   ASSERT_FPGA_OK(res);
   res = fpgaGetIOAddress(handle->get(), wsid, &iova);
   ASSERT_FPGA_OK(res);
-  p.reset(new dma_buffer(handle, len, virt, wsid, iova));
+  p.reset(new shared_buffer(handle, len, virt, wsid, iova));
 
   return p;
 }
 
-void dma_buffer::fill(int c) { ::memset(virt_, c, len_); }
+void shared_buffer::fill(int c) { ::memset(virt_, c, len_); }
 
-int dma_buffer::compare(dma_buffer::ptr_t other, size_t len) const {
+int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
   return ::memcmp(virt_, other->virt_, len);
 }
 
-dma_buffer::dma_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
+shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                        uint64_t wsid, uint64_t iova)
     : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
 
