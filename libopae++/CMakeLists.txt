@@ -77,3 +77,8 @@ target_include_directories(opae-cxx-core PUBLIC
 
 configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
                 "${PROJECT_BINARY_DIR}/include/config_int.h" )
+
+set_install_rpath(opae-cxx-core)
+install(TARGETS opae-cxx-core
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT opaecxxlib)
