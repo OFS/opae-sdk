@@ -24,89 +24,99 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import opae
 import uuid
 import random
-import time
+import opae
 
 NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
 
 def test_guid():
-    p = opae.properties()
-    p.guid = NLB0
-    guid_str = p.guid
+    props = opae.properties()
+    props.guid = NLB0
+    guid_str = props.guid
     print guid_str
-    u = uuid.UUID(guid_str)
-    assert str(u).lower() == NLB0
+    guid = uuid.UUID(guid_str)
+    assert str(guid).lower() == NLB0
 
 
 def test_enumerate():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
 
 
 def test_open():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
-    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert h is not None
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
 
 
 def test_mmio():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
-    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert h is not None
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
     dummy_values = dict([(offset, random.randint(0, 1000))
                          for offset in range(24, 4096, 8)])
 
-    for k, v in dummy_values.iteritems():
-        value = h.read_csr64(k, 0)
-        #assert value == 0
-        h.write_csr64(k, v, 0)
-        assert h.read_csr64(k, 0) == v
-        h.write_csr64(k, 0, 0)
-        assert h.read_csr64(k, 0) == 0
+    for key, value in dummy_values.iteritems():
+        resource.write_csr64(key, value)
+        assert resource.read_csr64(key) == value
+        resource.write_csr64(key, 0)
+        assert resource.read_csr64(key) == 0
 
 
 def test_buffer():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
-    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert h is not None
-    b = opae.dma_buffer.allocate(h, 1024);
-    print b.buffer()
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
+    buf = opae.dma_buffer.allocate(resource, 1024)
+    print buf.buffer()
 
 
 def test_hellofpga():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
-    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert h is not None
-    b = opae.dma_buffer.allocate(h, 1024)
-
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
+    buf = opae.dma_buffer.allocate(resource, 1024)
+    assert buf is not None
 
 def test_close():
-    p = opae.properties()
-    p.guid = NLB0
-    toks = opae.token.enumerate([p])
-    assert len(toks) > 0
-    h = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert h is not None
-    r = h.close()
-    assert r == opae.CLOSED
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
+    result = resource.close()
+    assert result == opae.CLOSED
 
+def test_version():
+    ver = opae.version()
+    assert ver == (0, 13, 1)
+
+def test_event():
+    props = opae.properties()
+    props.guid = NLB0
+    toks = opae.token.enumerate([props])
+    assert toks
+    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    assert resource is not None
+    event = opae.event.register_event(resource, opae.fpga_event_type.ERROR, 0)
+    assert event is not None
 
 if __name__ == "__main__":
     test_mmio()
