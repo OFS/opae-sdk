@@ -39,7 +39,8 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "opae/manage.h"
-#include "opae/manage.h"
+#include "opae/enum.h"
+#include "opae/properties.h"
 #include "bitstream_int.h"
 #include "common_int.h"
 #include "intel-fpga.h"
@@ -131,6 +132,74 @@ static fpga_result validate_bitstream(fpga_handle handle,
 		return check_interface_id(handle, bts_hdr.magic, bts_hdr.ifid_l,
 						bts_hdr.ifid_h);
 	}
+}
+
+
+// open child accelerator exclusively - it not, it's busy!
+static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
+{
+	fpga_result result                = FPGA_OK;
+	fpga_result destroy_result        = FPGA_OK;
+	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
+	fpga_token token;
+	fpga_properties props;
+	uint32_t matches = 0;
+
+	if (_handle == NULL) {
+		FPGA_ERR("Invalid handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_handle->token == NULL) {
+		FPGA_ERR("Invalid token within handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = fpgaGetProperties(NULL, &props);
+	if (result != FPGA_OK)
+		return result;
+
+	result = fpgaPropertiesSetParent(props, _handle->token);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error setting parent in properties.");
+		goto free_props;
+	}
+
+	// TODO: Use slot number as part of filter
+	//       We only want to query for accelerators for the
+	//       slot being reconfigured
+	result = fpgaEnumerate(&props, 1, &token, 1, &matches);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Error enumerating for accelerator to reconfigure");
+		goto free_props;
+	}
+
+	if (matches == 0) {
+		FPGA_ERR("No accelerator found to reconfigure");
+		result = FPGA_BUSY;
+		goto destroy_token;
+	}
+
+	result = fpgaOpen(token, accel, 0);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Could not open accelerator for given slot");
+		goto destroy_token;
+	}
+
+destroy_token:
+	destroy_result = fpgaDestroyToken(&token);
+	if (destroy_result != FPGA_OK)
+		FPGA_ERR("Error destroying a token");
+
+free_props:
+	destroy_result = fpgaDestroyProperties(&props);
+	if (destroy_result != FPGA_OK)
+		FPGA_ERR("Error destroying properties");
+
+	if (result != FPGA_OK || destroy_result != FPGA_OK)
+		return result != FPGA_OK ? result : destroy_result;
+
+	return FPGA_OK;
 }
 
 
@@ -269,8 +338,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	int bitstream_header_len        = 0;
 	uint64_t deviceid               = 0;
 	int err                         = 0;
-
-	UNUSED_PARAM(flags);
+	fpga_handle accel               = NULL;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -287,6 +355,16 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		FPGA_MSG("Invalid bitstream");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
+	}
+
+	// error out if "force" flag is NOT indicated
+	// and the resource is in use
+	if (!(flags & FPGA_RECONF_FORCE)) {
+		result = open_accel(fpga, &accel);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Accelerator in use or not found");
+			goto out_unlock;
+		}
 	}
 
 	// Clear port errors
@@ -409,6 +487,12 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 out_unlock:
+	// close the accelerator opened during `open_accel`
+	if (accel && fpgaClose(accel) != FPGA_OK) {
+		FPGA_ERR("Error closing accelerator after reconfiguration");
+		result = FPGA_RECONF_ERROR;
+	}
+
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
