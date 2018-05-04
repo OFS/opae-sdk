@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,8 +41,8 @@
 #include <opae/mmio.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#include "types_int.h"
-#include "common_test.h"
+#include "common_sys.h"
+#include "common_utils.h"
 #include "safe_string/safe_string.h"
 
 #define SYSFS_PATH_MAX 256
@@ -58,12 +58,140 @@ int usleep(unsigned);
 GlobalOptions GlobalOptions::sm_Instance;
 GlobalOptions& GlobalOptions::Instance() { return GlobalOptions::sm_Instance; }
 
-namespace common_test {
+namespace common_utils {
 
 std::map<config_enum, char*> config_map = {
 	{BITSTREAM_MODE0, (char*)calloc(MAX_PATH, sizeof(char))},
 	{BITSTREAM_MODE3, (char*)calloc(MAX_PATH, sizeof(char))},
 	{OPAE_INSTALL_PATH, (char*)calloc(MAX_PATH, sizeof(char))}};
+
+/**
+ * @brief      Calls out to the nlb0 C++ sample application.
+ *
+ * @param[in]  tok   The FPGA device/accelerator token
+ *
+ * @return     Returns exit value from system API
+ */
+signed exerciseNLB0Function(fpga_token tok) {
+  return doExternalNLB(tok, NLB_MODE_0);
+}
+
+/**
+ * @brief      Calls out to the nlb3 C++ sample application.
+ *
+ * @param[in]  tok   The FPGA device/accelerator token
+ *
+ * @return     Returns exit value from system API.
+ */
+signed exerciseNLB3Function(fpga_token tok) {
+  return doExternalNLB(tok, NLB_MODE_3);
+}
+
+/**
+ * @brief      Calls out to foapp, for inter-process fpgaOpen tests.
+ *
+ * @param[in]  shared  Boolean switch to open mode (shared, not shared)
+ * @param[in]  bus     The hardware bus
+ *
+ * @return     Returns the exit value from system API callout to foapp
+ *             application.
+ */
+int tryOpen(bool shared, uint8_t bus) {
+  char arguments[MAX_PATH] = {0};
+  char temporary_path[MAX_PATH] = {0};
+  char *path = NULL;
+
+  char* json_path = config_map[TEST_INSTALL_PATH];
+  if ((json_path != NULL) && (json_path[0] == '\0')) {
+      char* retval = getcwd(&temporary_path[0], sizeof(temporary_path));
+      if (NULL == retval) {
+        printIOError(LINE(__LINE__));
+        return FPGA_INVALID_PARAM;
+      }
+      path = temporary_path;
+
+  } else {
+     path = json_path;
+  }
+
+  if (shared) {
+    snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x -s", path,
+             bus);
+    return system(arguments);
+  }
+
+  snprintf(&arguments[0], sizeof(arguments), "%s/build/foapp -b %x", path, bus);
+  return system(arguments);
+}
+
+/**
+ * @brief      Calls out to NLB applications.
+ *
+ * @param[in]  tok   The FPGA device/accelerator token
+ * @param[in]  mode  The NLB mode:  0 or 3
+ *
+ * @return     Returns exit value from nlb applications.
+ */
+signed doExternalNLB(fpga_token tok, nlbmode mode) {
+  fpga_properties filter = NULL;
+  fpga_guid guid;
+  char uuid[strlen(SKX_P_NLB0_AFUID)];
+
+  uint8_t socketid = 0;
+  uint8_t bus = 0;
+  fpga_objtype otype = FPGA_DEVICE;
+  signed retval = -1;
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaGetProperties(tok, &filter), LINE(__LINE__)));
+
+  // These values are not currently used; they are included for testing
+  // and to allow eventual use in a more customized invocation of nlb
+  // applications, if needed.
+
+  //******************************************************************//
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPropertiesGetGUID(filter, &guid), LINE(__LINE__)));
+
+  if (!GlobalOptions::Instance().VM()) {
+    EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetSocketID(filter, &socketid),
+                                 LINE(__LINE__)));
+  }
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPropertiesGetBus(filter, &bus), LINE(__LINE__)));
+  //******************************************************************//
+
+  // else socketid remains zero
+  EXPECT_TRUE(checkReturnCodes(fpgaPropertiesGetObjectType(filter, &otype),
+                               LINE(__LINE__)));
+
+  uuid_unparse(guid, uuid);
+
+  // setup proper arguments based on nlb mode
+  char arguments[MAX_PATH] = {0};
+  char nlbapp[64] = {0};
+  switch (mode) {
+    case NLB_MODE_0:
+      snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb0");
+      break;
+    case NLB_MODE_3:
+      snprintf(&nlbapp[0], sizeof(nlbapp), "/bin/nlb3");
+      break;
+  }
+
+  snprintf(&arguments[0], sizeof(arguments),
+           "LD_LIBRARY_PATH=%s/lib %s%s --target fpga --bus-number %u",
+           config_map[OPAE_INSTALL_PATH], config_map[OPAE_INSTALL_PATH], nlbapp,
+           bus);
+  retval = system(arguments);
+
+  if (NULL != filter) {
+    checkReturnCodes(fpgaDestroyProperties(&filter), LINE(__LINE__));
+  }
+  return retval;
+}
+
 
 /**
  * @brief      Determines whether or not the input string is a
@@ -650,4 +778,129 @@ void BaseFixture::TestAllFPGA(fpga_objtype otype, bool loadbitstream,
   }
 }
 
-}  // end namespace common_test
+/**
+ * @brief      Runs a Gtest version of hello_fpga application sample
+ *             code.
+ *
+ * @param[in]  tok   The FPGA token
+ *
+ * @return     void  OPAE library codes are output to user and tests fail
+ *             on error.
+ */
+void sayHello(fpga_token tok) {
+  volatile uint64_t* dsm_ptr = NULL;
+  volatile uint64_t* status_ptr = NULL;
+  volatile uint64_t* input_ptr = NULL;
+  volatile uint64_t* output_ptr = NULL;
+
+  uint64_t dsm_wsid;
+  uint64_t input_wsid;
+  uint64_t output_wsid;
+
+  fpga_handle h = NULL;
+
+  /* Open accelerator and map MMIO */
+  EXPECT_TRUE(checkReturnCodes(fpgaOpen(tok, &h, 0), LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaMapMMIO(h, 0, NULL), LINE(__LINE__)));
+
+  /* Allocate buffers */
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaPrepareBuffer(h, LPBK1_DSM_SIZE, (void**)&dsm_ptr, &dsm_wsid, 0),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
+                                         (void**)&input_ptr, &input_wsid, 0),
+                       LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaPrepareBuffer(h, LPBK1_BUFFER_ALLOCATION_SIZE,
+                                         (void**)&output_ptr, &output_wsid, 0),
+                       LINE(__LINE__)));
+
+  printf("Running Test\n");
+
+  /* Initialize buffers */
+  memset((void*)dsm_ptr, 0, LPBK1_DSM_SIZE);
+  memset((void*)input_ptr, 0xAF, LPBK1_BUFFER_SIZE);
+  memset((void*)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+
+  cache_line* cl_ptr = (cache_line*)input_ptr;
+  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+    cl_ptr[i].uint[15] = i + 1; /* set the last uint in every cacheline */
+  }
+
+  /* Reset accelerator */
+  EXPECT_TRUE(checkReturnCodes(fpgaReset(h), LINE(__LINE__)));
+
+  /* Program DMA addresses */
+  uint64_t iova;
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaGetIOAddress(h, dsm_wsid, &iova), LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO64(h, 0, CSR_AFU_DSM_BASEL, iova),
+                               LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 0), LINE(__LINE__)));
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 1), LINE(__LINE__)));
+
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaGetIOAddress(h, input_wsid, &iova), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO64(h, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(fpgaGetIOAddress(h, output_wsid, &iova),
+                               LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO64(h, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova)),
+      LINE(__LINE__)));
+
+  EXPECT_TRUE(checkReturnCodes(
+      fpgaWriteMMIO32(h, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1)),
+      LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CFG, 0x42000),
+                               LINE(__LINE__)));
+
+  status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE / 8;
+
+  /* Start the test */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 3), LINE(__LINE__)));
+
+  /* Wait for test completion */
+  while (0 == ((*status_ptr) & 0x1)) {
+    usleep(100);
+  }
+
+  /* Stop the device */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaWriteMMIO32(h, 0, CSR_CTL, 7), LINE(__LINE__)));
+
+  /* Check output buffer contents */
+  for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE; i++) {
+    if (((uint8_t*)output_ptr)[i] != ((uint8_t*)input_ptr)[i]) {
+      fprintf(stderr,
+              "Output does NOT match input "
+              "at offset %i!\n",
+              i);
+      break;
+    }
+  }
+
+  printf("Done Running Test\n");
+
+  /* Release buffers */
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaReleaseBuffer(h, output_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(
+      checkReturnCodes(fpgaReleaseBuffer(h, input_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaReleaseBuffer(h, dsm_wsid), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaUnmapMMIO(h, 0), LINE(__LINE__)));
+  EXPECT_TRUE(checkReturnCodes(fpgaClose(h), LINE(__LINE__)));
+}
+
+}  // end namespace common_utils

@@ -26,13 +26,18 @@
 
 #include "opae/fpga.h"
 
-#include "common_test.h"
+#include "common_utils.h"
+#include "common_sys.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
+//#ifdef BUILD_ASE
+//#include "ase/api/src/types_int.h"
+//#else
+//#include "types_int.h"
+//#endif // BUILD_ASE
 
-using namespace common_test;
+using namespace common_utils;
 
-class LibopaecEnumFCommonMOCKHW : public BaseFixture, public ::testing::Test {
+class LibopaecEnumFCommonHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {
     m_Properties = NULL;
@@ -310,7 +315,7 @@ TEST_F(LibopaecEnumFCommonALL, 08) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_ACCELERATOR).
  */
-TEST_F(LibopaecEnumFCommonMOCKHW, 09) {
+TEST_F(LibopaecEnumFCommonHW, 09) {
   EXPECT_EQ(FPGA_OK,
             fpgaPropertiesSetObjectType(m_Properties, FPGA_ACCELERATOR));
 
@@ -347,7 +352,7 @@ TEST_F(LibopaecEnumFCommonMOCKHW, 09) {
  * @brief      fpgaEnumerate allows filtering by device object type
  *             (FPGA_DEVICE).
  */
-TEST_F(LibopaecEnumFCommonMOCKHW, 10) {
+TEST_F(LibopaecEnumFCommonHW, 10) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));

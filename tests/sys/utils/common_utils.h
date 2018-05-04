@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,15 +43,14 @@
 
 #include <json-c/json.h>
 #ifndef BUILD_ASE
-#include <log_int.h>
+#include "sys/utils/log_sys.h"
 #endif
 #include <opae/access.h>
 #include <opae/fpga.h>
 #include <opae/properties.h>
 #include <opae/types_enum.h>
-#include "types_int.h"
+#include "sys/utils/types_sys.h"
 #include <sys/mman.h>
-#include <types_int.h>
 
 #include "safe_string/safe_string.h"
 
@@ -177,7 +176,7 @@ class GlobalOptions {
 
 };
 
-namespace common_test {
+namespace common_utils {
 
 // begin convenience functions for straight C unit tests
 
@@ -294,10 +293,21 @@ inline bool token_is_afu0(fpga_token t) {
  * @brief      Enumeration for configuration parsing.
  */
 enum config_enum {
-	BITSTREAM_MODE0 = 0,
-	BITSTREAM_MODE3,
-	OPAE_INSTALL_PATH,
-	TEST_INSTALL_PATH
+    BITSTREAM_MODE0 = 0,
+    BITSTREAM_MODE3,
+    BITSTREAM_MODE7,
+    BITSTREAM_MMIO,
+    BITSTREAM_SIGTAP,
+    BITSTREAM_PR07,
+    BITSTREAM_PR08,
+    BITSTREAM_PR09,
+    BITSTREAM_PR10,
+    BITSTREAM_PR18,
+    BITSTREAM_NO_METADATA,
+    BITSTREAM_USR_CLK,
+    BITSTREAM_INVLAID_METADATA,
+    OPAE_INSTALL_PATH,
+    TEST_INSTALL_PATH
 };
 
 enum nlbmode { NLB_MODE_0 = 0, NLB_MODE_3 };
@@ -311,6 +321,11 @@ size_t fillBSBuffer(const char* filename, uint8_t** bsbuffer);
 fpga_result loadBitstream(const char* path, fpga_token tok);
 uint32_t getAllTokens(fpga_token* toks, fpga_objtype, int cbus = 0,
                       fpga_guid = NULL);
+signed exerciseNLB0Function(fpga_token tok);
+signed exerciseNLB3Function(fpga_token tok);
+signed doExternalNLB(fpga_token tok, nlbmode);
+void sayHello(fpga_token tok);
+int tryOpen(bool shared, uint8_t bus);
 void closePRInterfaceIDHandle();
 void fetchConfiguration(const char* path);
 void checkIOErrors(const char*, uint64_t);
