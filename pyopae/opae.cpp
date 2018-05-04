@@ -14,7 +14,9 @@
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/events.h>
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/core/version.h>
 #include <opae/manage.h>
 
 
@@ -27,7 +29,9 @@ using opae::fpga::types::token;
 using opae::fpga::types::properties;
 using opae::fpga::types::handle;
 using opae::fpga::types::dma_buffer;
+using opae::fpga::types::event;
 using opae::fpga::types::except;
+using opae::fpga::types::version;
 
 enum class fpga_status : uint8_t {
   closed = 0,
@@ -65,10 +69,17 @@ static bool buffer_poll(dma_buffer::ptr_t self, uint64_t offset, uint64_t value,
   return true;
 }
 
+py::tuple  get_version() {
+  auto v = version::as_struct();
+  return py::make_tuple(v.major, v.minor, v.patch);
+}
+
 PYBIND11_MODULE(opae, m) {
   m.doc() = "Open Programmable Acceleration Engine - Python bindings"; // optional module docstring
 
   m.def("reconfigure", reconfigure);
+  m.def("version", get_version);
+
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties");
   pyproperties
     .def(py::init())
@@ -159,6 +170,13 @@ PYBIND11_MODULE(opae, m) {
         })
   ;
 
+  py::class_<event, event::ptr_t> pyevent(m, "event");
+  pyevent
+      .def_static("register_event",
+          [](handle::ptr_t h, fpga_event_type t, int flags) -> event::ptr_t{
+            return event::register_event(h, t, flags);
+          })
+      ;
 
   py::enum_<fpga_result>(m, "fpga_result", py::arithmetic(), "OPAE return codes")
     .value("OK", FPGA_OK)
@@ -186,6 +204,12 @@ PYBIND11_MODULE(opae, m) {
   py::enum_<fpga_status>(m, "fpga_status", py::arithmetic(), "OPAE resource status")
     .value("CLOSED", fpga_status::closed)
     .value("OPEN", fpga_status::open)
+    .export_values();
+
+  py::enum_<fpga_event_type>(m, "fpga_event_type", py::arithmetic(), "OPAE event type")
+    .value("INTERRUPT", FPGA_EVENT_INTERRUPT)
+    .value("ERROR", FPGA_EVENT_ERROR)
+    .value("POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
     .export_values();
 
 }
