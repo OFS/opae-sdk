@@ -151,18 +151,17 @@ module platform_shim_avalon_mem_if
             //
             // Cross to the specified clock.
             //
-
-            // Synchronize a reset with the target clock
-            (* preserve *) logic [2:0] local_mem_reset_pipe = 3'b111;
-
-            always @(posedge tgt_mem_afu_clk)
-            begin
-                local_mem_reset_pipe[0] <= mem_reg[0].reset;
-                local_mem_reset_pipe[2:1] <= local_mem_reset_pipe[1:0];
-            end
-
             for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
             begin : mm_async
+                // Synchronize a reset with the target clock
+                (* preserve *) logic [2:0] local_mem_reset_pipe = 3'b111;
+
+                always @(posedge tgt_mem_afu_clk)
+                begin
+                    local_mem_reset_pipe[0] <= mem_reg[b].reset;
+                    local_mem_reset_pipe[2:1] <= local_mem_reset_pipe[1:0];
+                end
+
                 always_comb
                 begin
                     mem_afu_clk[b] = tgt_mem_afu_clk;
