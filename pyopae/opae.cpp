@@ -13,7 +13,7 @@
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/handle.h>
-#include <opae/cxx/core/dma_buffer.h>
+#include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/version.h>
@@ -28,7 +28,7 @@ using std::chrono::microseconds;
 using opae::fpga::types::token;
 using opae::fpga::types::properties;
 using opae::fpga::types::handle;
-using opae::fpga::types::dma_buffer;
+using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::except;
 using opae::fpga::types::version;
@@ -57,7 +57,7 @@ static void reconfigure(handle::ptr_t h, int slot, const char *filename, int fla
   }
 }
 
-static bool buffer_poll(dma_buffer::ptr_t self, uint64_t offset, uint64_t value,
+static bool buffer_poll(shared_buffer::ptr_t self, uint64_t offset, uint64_t value,
                         uint64_t mask, uint64_t poll_usec, uint64_t timeout_usec){
   auto timeout = high_resolution_clock::now() + microseconds(timeout_usec);
   while((self->read<uint64_t>(offset) & mask) != value){
@@ -145,26 +145,26 @@ PYBIND11_MODULE(opae, m) {
       .def("close", &handle::close)
       ;
 
-  py::class_<dma_buffer, dma_buffer::ptr_t> pybuffer(m, "dma_buffer");
+  py::class_<shared_buffer, shared_buffer::ptr_t> pybuffer(m, "shared_buffer");
   pybuffer
-    .def_static("allocate", &dma_buffer::allocate)
-    .def("size", &dma_buffer::size)
-    .def("wsid", &dma_buffer::wsid)
-    .def("iova", &dma_buffer::iova)
-    .def("fill", &dma_buffer::fill)
+    .def_static("allocate", &shared_buffer::allocate)
+    .def("size", &shared_buffer::size)
+    .def("wsid", &shared_buffer::wsid)
+    .def("iova", &shared_buffer::iova)
+    .def("fill", &shared_buffer::fill)
     .def("poll", buffer_poll, py::arg("offset"), py::arg("value"),
                               py::arg("mask") = ~0, py::arg("poll_usec") = 100, py::arg("timeout_usec") = 1000)
-    .def("compare", &dma_buffer::compare)
+    .def("compare", &shared_buffer::compare)
     .def("read32",
-        [](dma_buffer::ptr_t buff, size_t offset){
+        [](shared_buffer::ptr_t buff, size_t offset){
           return buff->read<uint32_t>(offset);
           })
     .def("read64",
-        [](dma_buffer::ptr_t buff, size_t offset){
+        [](shared_buffer::ptr_t buff, size_t offset){
           return buff->read<uint64_t>(offset);
           })
     .def("buffer",
-        [](dma_buffer::ptr_t b){
+        [](shared_buffer::ptr_t b){
           uint8_t* c_buffer = const_cast<uint8_t*>(b->get());
           return py::memoryview(py::buffer_info(c_buffer, b->size()));
         })

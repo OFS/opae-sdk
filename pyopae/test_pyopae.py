@@ -80,7 +80,7 @@ def test_buffer():
     assert toks
     resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
     assert resource is not None
-    buf = opae.dma_buffer.allocate(resource, 1024)
+    buf = opae.shared_buffer.allocate(resource, 1024)
     print buf.buffer()
 
 
@@ -91,7 +91,7 @@ def test_hellofpga():
     assert toks
     resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
     assert resource is not None
-    buf = opae.dma_buffer.allocate(resource, 1024)
+    buf = opae.shared_buffer.allocate(resource, 1024)
     assert buf is not None
 
 def test_close():
