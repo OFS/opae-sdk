@@ -66,6 +66,21 @@ if (NOT BUILD_ASE_TEST)
 endif()
 
 ############################################################################
+## add_gtfilter macro  #####################################################
+############################################################################
+macro(add_gtfilter test_name gtfilter is_mock)
+    add_test(NAME ${test_name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+    if(${is_mock})
+        set_tests_properties(
+            ${test_name}
+            PROPERTIES
+            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+    endif()
+endmacro()
+
+############################################################################
 ## Add testing targets #####################################################
 ############################################################################
 #  Exe_Tests (A B) Usage:
@@ -77,6 +92,14 @@ set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_dr
 set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
 set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
 
+add_gtfilter(CxxProperties "CxxProperties*" False)
+add_gtfilter(CxxEnum "CxxEnum*" True)
+add_gtfilter(CxxOpenClose "CxxOpen*" True)
+add_gtfilter(CxxBuffer "CxxBuffer*" True)
+add_gtfilter(CxxExcept "CxxExcept*" False)
+add_gtfilter(CxxEvent "CxxEvent*" True)
+add_gtfilter(CxxMMIO "CxxMMIO*" True)
+add_gtfilter(CxxVersion "CxxVersion*" False)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
 

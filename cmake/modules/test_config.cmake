@@ -102,6 +102,15 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
                 unit/gtAnyValue.cpp
+                unit/gtCxxEnumerate.cpp
+                unit/gtCxxEvents.cpp
+                unit/gtCxxOpenClose.cpp
+                unit/gtCxxProperties.cpp
+                unit/gtCxxExcept.cpp
+                unit/gtCxxBuffer.cpp
+                unit/gtCxxReset.cpp
+                unit/gtCxxMMIO.cpp
+                unit/gtCxxVersion.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
@@ -137,8 +146,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
-    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-                          uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
+	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
+	  						
 
     if(CMAKE_THREAD_LIBS_INIT)
        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
