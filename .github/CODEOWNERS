@@ -6,8 +6,8 @@
 
 # API specification, implementation, and samples
 /common/include/OPAE/          @OPAE/api
-/libOPAE/                      @OPAE/api
-/libOPAE++/                    @OPAE/api
+/libopae/                      @OPAE/api
+/libopae++/                    @OPAE/api
 /samples/                      @OPAE/api
 
 # Tools
