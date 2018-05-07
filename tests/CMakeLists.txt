@@ -68,38 +68,17 @@ endif()
 ############################################################################
 ## Add testing targets #####################################################
 ############################################################################
-add_test(NAME test_open_common_mock_drv
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=*MOCK*:*ALL*:-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18:*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03)
+#  Exe_Tests (A B) Usage:
+#  A         test group name
+#  B         regular expression of test name)
+############################################################################
+set(Test_Names "*MOCK*:*ALL*")
+set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18")
+set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
+set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
 
-set_tests_properties(
-  test_open_common_mock_drv
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
-
-# FIXME: roll into more generic target
-add_test(NAME test_version
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecVersion*)
-
-set_tests_properties(
-  test_version
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
-
-add_test(NAME test_get_properties
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
-
-set_tests_properties(
-  test_get_properties
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
-
-add_test(NAME test_any_value
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=Cxx*any*)
-
+Exe_Tests("Mock_All" ${Test_Names})
+Exe_tests("Any_Value" "Cxx*any*")
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
