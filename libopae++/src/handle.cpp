@@ -26,6 +26,7 @@
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
+#include <opae/enum.h>
 #include <opae/mmio.h>
 #include <opae/utils.h>
 
@@ -35,16 +36,27 @@ namespace types {
 
 handle::handle(fpga_handle h) : handle_(h) {}
 
-handle::~handle() { close(); }
+handle::~handle() {
+  close();
+  // releae the cloned token
+  auto result = fpgaDestroyToken(&token_);
+  if (result != FPGA_OK) {
+    std::cerr << "Error destroying token structure: " << fpgaErrStr(result)
+              << "\n";
+  }
+}
 
 handle::ptr_t handle::open(fpga_token token, int flags) {
   fpga_handle c_handle = nullptr;
+  fpga_token c_token = nullptr;
   ptr_t p;
-
-  auto res = fpgaOpen(token, &c_handle, flags);
+  // clone the token used to open the resource
+  ASSERT_FPGA_OK(fpgaCloneToken(token, &c_token));
+  auto res = fpgaOpen(c_token, &c_handle, flags);
   ASSERT_FPGA_OK(res);
   p.reset(new handle(c_handle));
-
+  // stash the cloned token along with the handle object
+  p->token_ = c_token;
   return p;
 }
 
