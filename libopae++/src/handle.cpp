@@ -38,7 +38,7 @@ handle::handle(fpga_handle h) : handle_(h) {}
 
 handle::~handle() {
   close();
-  // releae the cloned token
+  // release the cloned token
   auto result = fpgaDestroyToken(&token_);
   if (result != FPGA_OK) {
     std::cerr << "Error destroying token structure: " << fpgaErrStr(result)
