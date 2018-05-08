@@ -71,6 +71,13 @@ the AF.
 
 In all other cases PR fails and may cause system instability.
 
+.. note::
+
+```
+    Platforms that support 512-bit Partial Reconfiguration require
+    binutils >= version 2.25.
+```
+
  Close any software program accessing the FPGA, including software programs running in a virtualized host before
 initiating PR. Here is the recommended sequence: 
 
