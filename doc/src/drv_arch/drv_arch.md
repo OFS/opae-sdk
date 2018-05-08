@@ -74,7 +74,7 @@ In all other cases PR fails and may cause system instability.
 .. note::
 
 ```
-    Platforms that support 512-byte Partial Reconfiguration require
+    Platforms that support 512-bit Partial Reconfiguration require
     binutils >= version 2.25.
 ```
 
