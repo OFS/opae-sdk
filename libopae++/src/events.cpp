@@ -54,7 +54,7 @@ event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
 int event::os_object() const { return os_object_; }
 
 event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
-    : handle_(h), type_(t), event_handle_(eh), os_object_(0) {}
+    : handle_(h), type_(t), event_handle_(eh), os_object_(-1) {}
 
 }  // end of namespace types
 }  // end of namespace fpga
