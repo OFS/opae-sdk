@@ -15,7 +15,6 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
@@ -24,7 +23,6 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
@@ -35,7 +33,6 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
