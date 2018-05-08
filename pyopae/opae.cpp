@@ -74,7 +74,7 @@ py::tuple  get_version() {
   return py::make_tuple(v.major, v.minor, v.patch);
 }
 
-PYBIND11_MODULE(opae, m) {
+PYBIND11_MODULE(_opae, m) {
   m.doc() = "Open Programmable Acceleration Engine - Python bindings"; // optional module docstring
 
   m.def("reconfigure", reconfigure);

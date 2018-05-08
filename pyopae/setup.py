@@ -9,7 +9,7 @@ def override_build_extensions(self):
 build_ext.build_extensions = override_build_extensions
 
 extensions = [
-    Extension("opae",
+    Extension("opae._opae",
               sources=["opae.cpp"],
               language="c++",
               extra_compile_args=["-std=c++11"],
@@ -22,11 +22,10 @@ extensions = [
 setup(
     name="pyopae",
     version="@INTEL_FPGA_API_VERSION@",
-    py_modules=['accel', 'diag'],
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'accel = accel:main',
+            'accel = opae.accel:main',
         ]
     },
     ext_modules=extensions,

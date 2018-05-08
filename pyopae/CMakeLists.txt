@@ -78,8 +78,8 @@ include(create_python_dist)
 create_python_dist(
     TARGET pyopae
     BUILD_WHEEL
-    MODULE accel.py
-    COPY_FILES opae.cpp test_pyopae.py diag.py
+    PACKAGE opae
+    COPY_FILES opae.cpp test_pyopae.py
     BUILD_COMMAND build_ext
     BUILD_INCLUDE_DIRS "${source_dir}/include:${OPAE_INCLUDE_DIR}"
     BUILD_LIBRARY_DIRS ${LIBRARY_OUTPUT_PATH}
