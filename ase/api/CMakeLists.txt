@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,8 @@ set(ASEAPI_SRC
   ${API_DIR}/src/reconf.c
   ${API_DIR}/src/mmio.c
   ${API_DIR}/src/open.c
-  ${API_DIR}/src/umsg.c)
+  ${API_DIR}/src/umsg.c
+  ${API_DIR}/src/version.c)
 
 add_library(opae-c-ase SHARED ${ASEAPI_SRC})
 target_link_libraries(opae-c-ase rt safestr)
@@ -59,6 +60,7 @@ target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
   PRIVATE src
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/../include>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
 
 set_target_properties(opae-c-ase PROPERTIES

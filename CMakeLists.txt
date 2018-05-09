@@ -37,9 +37,9 @@ if(EXISTS ${GIT_EXECUTABLE})
     OUTPUT_VARIABLE GIT_COMMIT_HASH
     RESULT_VARIABLE GIT_LOG_RESULT
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
-      set(GIT_COMMIT_HASH unknown)
-    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
+  if(NOT ${GIT_LOG_RESULT} EQUAL 0)
+    set(GIT_COMMIT_HASH unknown)
+  endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
 else(EXISTS ${GIT_EXECUTABLE})
   set(GIT_COMMIT_HASH unknown)
 endif(EXISTS ${GIT_EXECUTABLE})
@@ -73,9 +73,9 @@ include(dependency_notifier)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
-    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
+  set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
 else()
-    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
+  set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
 endif()
 
 ############################################################################
@@ -118,11 +118,10 @@ endif()
 ## Sub-projects ############################################################
 ############################################################################
 
-add_subdirectory(safe_string)
-
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
 if(BUILD_LIBOPAE_C)
+  add_subdirectory(safe_string)
   add_subdirectory(libopae)
 endif()
 
@@ -159,10 +158,12 @@ mark_as_advanced(BUILD_TESTS)
 option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 mark_as_advanced(BUILD_ASE_TESTS)
 
-if(BUILD_TESTS OR BUILD_ASE_TESTS)
-  enable_testing()
-  include(CTest)
-  add_subdirectory(tests)
+if(BUILD_LIBOPAE_C)
+  if(BUILD_TESTS OR BUILD_ASE_TESTS)
+    enable_testing()
+    include(CTest)
+    add_subdirectory(tests)
+  endif()
 endif()
 
 ############################################################################
@@ -192,210 +193,210 @@ set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 #Hashing the package components
- if(HASH_ARCHIVES)
+if(HASH_ARCHIVES)
   set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
 else()
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
-include(packaging)
-# Component definition
-define_pkg(tools
-  COMPONENTS
-  toolfpgad
-  toolfpgaconf
-  toolfpgainfo
-  toolfpgaport
-  GROUP "tools"
-  DISPLAY_NAME "opae-tools"
-  DESCRIPTION "OPAE base tool binaries"
-  DEB_DEPENDS "opae-libs , opae-devel"
-  )
+  include(packaging)
+  # Component definition
+  define_pkg(tools
+    COMPONENTS
+    toolfpgad
+    toolfpgaconf
+    toolfpgainfo
+    toolfpgaport
+    GROUP "tools"
+    DISPLAY_NAME "opae-tools"
+    DESCRIPTION "OPAE base tool binaries"
+    DEB_DEPENDS "opae-libs , opae-devel"
+    )
 
   define_pkg(tools-extra
-  COMPONENTS
-  tooluserclk
-  toolras
-  toolmmlink
-  toolcoreidle
-  toolfpgadiag
-  toolfpgabist
-  toolfpga_dma_test
-  toolbist_app
-  toolfpgadiagapps
-  toolfpgaflash
-  toolpackager
-  jsonschema
-  opaecxxutils
-  opaecxxlib
-  opaecxxnlb
-  hssiiolib
-  hssiprograms
-  GROUP "tools-extra"
-  DISPLAY_NAME "opae-tools-extra"
-  DESCRIPTION "OPAE extra tool binaries"
-  DEB_DEPENDS "opae-libs , opae-devel"
-  )
+    COMPONENTS
+    tooluserclk
+    toolras
+    toolmmlink
+    toolcoreidle
+    toolfpgadiag
+    toolfpgabist
+    toolfpga_dma_test
+    toolbist_app
+    toolfpgadiagapps
+    toolfpgaflash
+    toolpackager
+    jsonschema
+    opaecxxutils
+    opaecxxlib
+    opaecxxnlb
+    hssiiolib
+    hssiprograms
+    GROUP "tools-extra"
+    DISPLAY_NAME "opae-tools-extra"
+    DESCRIPTION "OPAE extra tool binaries"
+    DEB_DEPENDS "opae-libs , opae-devel"
+    )
 
-define_pkg(ase
-  COMPONENTS
-  opaecase
-  asertl
-  asescripts
-  aseextra
-  asesw
-  GROUP "ase"
-  DISPLAY_NAME "opae-ase"
-  DESCRIPTION "OPAE AFU Simulation Environment"
-  DEB_DEPENDS "opae-libs , opae-devel"
-  )
+  define_pkg(ase
+    COMPONENTS
+    opaecase
+    asertl
+    asescripts
+    aseextra
+    asesw
+    GROUP "ase"
+    DISPLAY_NAME "opae-ase"
+    DESCRIPTION "OPAE AFU Simulation Environment"
+    DEB_DEPENDS "opae-libs , opae-devel"
+    )
 
-define_pkg(devel
-  COMPONENTS
-  libopaeheaders
-  dochtml
-  doclatex
-  docrtf
-  docman
-  docxml
-  platform
-  samplesrc
-  safestrlib
-  safestrheaders
-  GROUP "devel"
-  DISPLAY_NAME "opae-devel"
-  DESCRIPTION "OPAE headers, sample source, and documentation"
-  DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
-  )
+  define_pkg(devel
+    COMPONENTS
+    libopaeheaders
+    dochtml
+    doclatex
+    docrtf
+    docman
+    docxml
+    platform
+    samplesrc
+    safestrlib
+    safestrheaders
+    GROUP "devel"
+    DISPLAY_NAME "opae-devel"
+    DESCRIPTION "OPAE headers, sample source, and documentation"
+    DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
+    )
 
   define_pkg(libs
-  COMPONENTS
-  opaeclib
-  GROUP "libs"
-  DISPLAY_NAME "opae-libs"
-  DESCRIPTION "OPAE runtime"
-  DEB_DEPENDS "uuid-dev , libjson0"
-  )
+    COMPONENTS
+    opaeclib
+    GROUP "libs"
+    DISPLAY_NAME "opae-libs"
+    DESCRIPTION "OPAE runtime"
+    DEB_DEPENDS "uuid-dev , libjson0"
+    )
 
-#Binary DEB packaging
-set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
-#set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
-set(CPACK_DEB_COMPONENT_INSTALL ON)
-set(CPACK_DEB_PACKAGE_COMPONENT ON)
+  #Binary DEB packaging
+  set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
+  #set(CPACK_COMPONENT_GROUPS_ALL libs devel tools ase all)
+  set(CPACK_DEB_COMPONENT_INSTALL ON)
+  set(CPACK_DEB_PACKAGE_COMPONENT ON)
 
-# Run ldconfig after installation
-option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
-mark_as_advanced(RUN_LDCONFIG)
+  # Run ldconfig after installation
+  option(RUN_LDCONFIG "Enable execution of ldconfig after installation" ON)
+  mark_as_advanced(RUN_LDCONFIG)
 
-if (RUN_LDCONFIG)
-  if (NOT CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR "lib")
-  endif()
+  if (RUN_LDCONFIG)
+    if (NOT CMAKE_INSTALL_LIBDIR)
+      set(CMAKE_INSTALL_LIBDIR "lib")
+    endif()
 
-  set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+    set(LDCONFIG_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 
-  file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
+    file(WRITE ${PROJECT_BINARY_DIR}/scripts/postinst "
 mkdir -p /etc/ld.so.conf.d
 echo \"${LDCONFIG_DIR}\" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 
-  file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
+    file(WRITE ${PROJECT_BINARY_DIR}/scripts/prerm "
 rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 ")
 
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
-endif(RUN_LDCONFIG)
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/scripts/postinst;${PROJECT_BINARY_DIR}/scripts/prerm")
+  endif(RUN_LDCONFIG)
 endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "RPM")
-# Binary RPM packaging
-set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
-set(CPACK_RPM_COMPONENT_INSTALL OFF)
-set(CPACK_RPM_PACKAGE_COMPONENT OFF)
-set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
-set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
-set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm")
-set(CPACK_META_GROUP_NAME "opae")
-set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
+  # Binary RPM packaging
+  set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
+  set(CPACK_RPM_COMPONENT_INSTALL OFF)
+  set(CPACK_RPM_PACKAGE_COMPONENT OFF)
+  set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
+  set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
+  set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm")
+  set(CPACK_META_GROUP_NAME "opae")
+  set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
 
-# /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
-# but some Linux distributions complain without this explicit suppression
-set(CPACK_RPM_SPEC_MORE_DEFINE "%define ignore \#")
-set(CPACK_RPM_USER_FILELIST
-  "%ignore /"
-  "%ignore /usr"
-  "%ignore /usr/bin"
-  "%ignore /usr/lib"
-  "%ignore /usr/share"
-  "%ignore /usr/include"
-  "%ignore /usr/src"
-  "%ignore /usr/doc"
-  "%ignore /usr/lib64")
-set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
-  "/"
-  "/usr"
-  "/usr/bin"
-  "/usr/lib"
-  "/usr/share"
-  "/usr/include"
-  "/usr/src"
-  "/usr/doc"
-  "/usr/lib64")
+  # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
+  # but some Linux distributions complain without this explicit suppression
+  set(CPACK_RPM_SPEC_MORE_DEFINE "%define ignore \#")
+  set(CPACK_RPM_USER_FILELIST
+    "%ignore /"
+    "%ignore /usr"
+    "%ignore /usr/bin"
+    "%ignore /usr/lib"
+    "%ignore /usr/share"
+    "%ignore /usr/include"
+    "%ignore /usr/src"
+    "%ignore /usr/doc"
+    "%ignore /usr/lib64")
+  set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
+    "/"
+    "/usr"
+    "/usr/bin"
+    "/usr/lib"
+    "/usr/share"
+    "/usr/include"
+    "/usr/src"
+    "/usr/doc"
+    "/usr/lib64")
 
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae.spec" @ONLY)
-set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae.spec")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opae.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/opae.spec" @ONLY)
+  set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/opae.spec")
 endif()
 
 
 # Source code packaging target
 if(CPACK_GENERATOR STREQUAL "TGZ")
-set(CPACK_SOURCE_GENERATOR "TGZ")
-if(HASH_ARCHIVES)
-  set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}_git${GIT_COMMIT_HASH}")
-  set(DEFINE_RPM_NAME "%define _rpmfilename %%{ARCH}/%%{NAME}-%%{VERSION}-%%{RELEASE}_git${GIT_COMMIT_HASH}.%%{ARCH}.rpm")
-else()
-  set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}")
-  set(DEFINE_RPM_NAME "")
-endif()
+  set(CPACK_SOURCE_GENERATOR "TGZ")
+  if(HASH_ARCHIVES)
+    set(CPACK_SOURCE_PACKAGE_FILE_NAME
+      "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}_git${GIT_COMMIT_HASH}")
+    set(DEFINE_RPM_NAME "%define _rpmfilename %%{ARCH}/%%{NAME}-%%{VERSION}-%%{RELEASE}_git${GIT_COMMIT_HASH}.%%{ARCH}.rpm")
+  else()
+    set(CPACK_SOURCE_PACKAGE_FILE_NAME
+      "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}")
+    set(DEFINE_RPM_NAME "")
+  endif()
 
-# Ignore following files in the final package
-set(CPACK_SOURCE_IGNORE_FILES
-  "coverage.cmake"
-  "/mybuild/"
-  "/build/"
-  "/.git"
-  "~$"
-  ${CPACK_SOURCE_IGNORE_FILES})
+  # Ignore following files in the final package
+  set(CPACK_SOURCE_IGNORE_FILES
+    "coverage.cmake"
+    "/mybuild/"
+    "/build/"
+    "/.git"
+    "~$"
+    ${CPACK_SOURCE_IGNORE_FILES})
 endif()
 
 #Target to generate tarball
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
 if(HASH_ARCHIVES)
-#Target to generate RPM package
-    add_custom_target(package_rpm
-          COMMAND ${CMAKE_MAKE_PROGRAM}
-          COMMAND ${CMAKE_CPACK_COMMAND}
-          COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
-          COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-      COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-          COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-          COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-      COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-      COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
-      )
+  #Target to generate RPM package
+  add_custom_target(package_rpm
+    COMMAND ${CMAKE_MAKE_PROGRAM}
+    COMMAND ${CMAKE_CPACK_COMMAND}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.rpm
+    )
 else()
-    add_custom_target(package_rpm
-          COMMAND ${CMAKE_MAKE_PROGRAM}
-          COMMAND ${CMAKE_CPACK_COMMAND}
-          COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
-      )
+  add_custom_target(package_rpm
+    COMMAND ${CMAKE_MAKE_PROGRAM}
+    COMMAND ${CMAKE_CPACK_COMMAND}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64 ${CMAKE_CURRENT_BINARY_DIR}
+    )
 endif()
 
 #Target to generate DEB package
@@ -403,4 +404,4 @@ add_custom_target(package_deb
   COMMAND ${CMAKE_MAKE_PROGRAM}
   COMMAND ${CMAKE_CPACK_COMMAND}
   )
-  include(CPack)
+include(CPack)

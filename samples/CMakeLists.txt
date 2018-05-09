@@ -32,10 +32,16 @@ set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 find_package(UUID REQUIRED)
 
 add_executable(hello_fpga hello_fpga.c)
-target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+if(BUILD_LIBOPAE_C)
+  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+else()
+  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+endif()
 
-add_executable(hello_events hello_events.c)
-target_link_libraries(hello_events safestr json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+if(BUILD_LIBOPAE_C)
+  add_executable(hello_events hello_events.c)
+  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+endif()
 
 set(SAMPLES_SRC hello_fpga.c hello_events.c)
 
