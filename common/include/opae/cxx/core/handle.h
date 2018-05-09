@@ -152,6 +152,7 @@ class handle {
   handle(fpga_handle h);
 
   fpga_handle handle_;
+  fpga_token token_;
 };
 
 }  // end of namespace types
