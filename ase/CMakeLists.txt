@@ -47,15 +47,8 @@ set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE})
 include(ase_variables_config)
 
 ############################################################################
-## Post-installation cmake project (enable ASE building after installation)
+## Install some directories ################################################
 ############################################################################
-
-configure_file(${PROJECT_SOURCE_DIR}/in/CMakeLists.txt.in
-  ${PROJECT_BINARY_DIR}/CMakeLists.txt)
-install(DIRECTORY in DESTINATION share/opae/ase COMPONENT asescripts)
-install(PROGRAMS ${PROJECT_BINARY_DIR}/CMakeLists.txt
-  DESTINATION ${ASE_SHARE_DIR}
-  COMPONENT asescripts)
 
 # Install some directories
 install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
@@ -72,11 +65,6 @@ add_subdirectory(api)
 
 # ASE RTL code
 add_subdirectory(rtl)
-
-# ASE samples
-if(BUILD_ASE_SAMPLES)
-  add_subdirectory(samples)
-endif()
 
 ###########################################################################
 ## Extra platform scripts #################################################

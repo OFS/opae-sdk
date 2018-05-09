@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,27 +24,24 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
-
-set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-
 find_package(UUID REQUIRED)
 
-add_executable(hello_fpga hello_fpga.c)
-if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-else()
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+include_directories(${OPAE_INCLUDE_DIR}
+  ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(base/sw)
+
+if(BUILD_ASE_SAMPLES)
+  find_package(GLIB)
+  find_package(Questa)
+  include_directories(${GLIB_INCLUDE_DIRS})
 endif()
 
-if(BUILD_LIBOPAE_C)
-  add_executable(hello_events hello_events.c)
-  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-endif()
+# MPF library
+include(intel_fpga_bbb)
+Build_Intel_FPGA_BBB()
 
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-        DESTINATION src/opae
-        COMPONENT samplesrc)
+# Add the samples
+set(OPAE_SAMPLES src/opae/samples)
+add_subdirectory(intg_xeon_nlb)
+add_subdirectory(hello_world)
+add_subdirectory(hello_world_mpf)

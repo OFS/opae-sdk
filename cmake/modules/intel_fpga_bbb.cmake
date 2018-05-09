@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ function (Build_Intel_FPGA_BBB)
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     ExternalProject_Add(
       intel-fpga-bbb
-      GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
+      GIT_REPOSITORY "https://github.com/abelardojarab/intel-fpga-bbb"
       GIT_TAG "e792572"
       UPDATE_COMMAND ""
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
