@@ -27,6 +27,7 @@
 
 import fpga_common
 import sysfs
+import logging
 
 
 class power_command(fpga_common.fpga_command):
@@ -36,9 +37,15 @@ class power_command(fpga_common.fpga_command):
     def run(self, args):
         info = sysfs.sysfsinfo()
         for fme in info.fme(**vars(args)):
-            fme.power_mgmt.print_info("//****** POWER ******//",
-                                      "consumed",
-                                      consumed=lambda v: '{} Watts'.format(v))
+            if info.device() != fpga_common.DCP_ID:
+                fme.power_mgmt.print_info("//****** POWER ******//",
+                                          "consumed",
+                                          consumed=lambda v: '{} Watts'
+                                          .format(v))
+            else:
+                fme.power_mgmt.print_info("*** POWER Not supported on HW ***",
+                                          "",
+                                          consumed=lambda v: '{} W'.format(v))
 
 
 if __name__ == "__main__":
