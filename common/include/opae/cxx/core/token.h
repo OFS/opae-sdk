@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,37 +25,50 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <memory>
-#include <chrono>
-#include <string>
 #include <vector>
-#include <thread>
 
-namespace intel
-{
-namespace utils
-{
+#include <opae/access.h>
+#include <opae/cxx/core/properties.h>
+#include <opae/enum.h>
+#include <opae/types.h>
 
-class process
-{
-public:
-    ~process();
-    typedef std::shared_ptr<process> ptr_t;
-    static process start(const std::string &file,
-                         const std::vector<std::string> &args);
+namespace opae {
+namespace fpga {
+namespace types {
 
+/** Wraps the OPAE fpga_token primitive.
+ * token's are created from an enumeration operation
+ * that uses properties describing an accelerator resource
+ * as search criteria.
+ */
+class token {
+ public:
+  typedef std::shared_ptr<token> ptr_t;
 
-    int wait(int timeout_msec = -1);
-    void terminate(int signal);
-    void terminate();
+  /** Obtain a vector of token smart pointers
+   * for given search criteria.
+   * @param[in] props The search criteria.
+   * @return A set of known tokens that match the search.
+   */
+  static std::vector<token::ptr_t> enumerate(
+      const std::vector<properties>& props);
 
-    static void set_thread_maxpriority(const std::thread & t);
-    static void set_process_maxpriority(pid_t p = 0);
+  ~token();
 
-private:
-    process(int pid);
-    int pid_;
+  /** Retrieve the underlying fpga_token primitive.
+   */
+  fpga_token get() const { return token_; }
 
+  /** Retrieve the underlying fpga_token primitive.
+   */
+  operator fpga_token() const { return token_; }
+
+ private:
+  token(fpga_token tok);
+
+  fpga_token token_;
 };
 
-} // end namespace utils
-} // end namespace intel
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

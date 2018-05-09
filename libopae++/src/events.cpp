@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,46 +24,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-#include <memory>
-#include <opae/fpga.h>
-#include "option_map.h"
-#include "fpga_resource.h"
-#include "log.h"
-#include "dma_buffer.h"
-#include "perf_counters.h"
+#include <opae/event.h>
 
-namespace intel
-{
-namespace fpga
-{
+#include <opae/cxx/core/events.h>
+#include <opae/cxx/core/except.h>
 
-class fpga : public fpga_resource
-{
-public:
-    enum status_t
-    {
-        unknown = 0,
-        opened,
-        released
-    };
+namespace opae {
+namespace fpga {
+namespace types {
 
-    fpga_resource::type_t type();
+event::~event() {
+  ASSERT_FPGA_OK(fpgaUnregisterEvent(*handle_, type_, event_handle_));
+  ASSERT_FPGA_OK(fpgaDestroyEventHandle(&event_handle_));
+}
 
-    typedef std::shared_ptr<fpga> ptr_t;
+event::operator fpga_event_handle() { return event_handle_; }
 
-    static std::vector<ptr_t> enumerate(std::vector<intel::utils::option_map::ptr_t> options);
+event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
+                                   int flags) {
+  event::ptr_t evptr;
+  fpga_event_handle eh;
+  ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
+  ASSERT_FPGA_OK(fpgaRegisterEvent(*h, t, eh, flags));
+  evptr.reset(new event(h, t, eh));
 
-    bool reconfigure(const std::string & bitstream_path, uint32_t slot);
+  return evptr;
+}
 
-    // TODO : add accessor functions for properties
+event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
+    : handle_(h), type_(t), event_handle_(eh) {}
 
-private:
-
-    fpga(shared_token, fpga_properties props, const std::string & sysfspath);
-    status_t status_;
-    std::string sysfspath_;
-};
-
-} // end of namespace fpga
-} // end of namespace intel
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

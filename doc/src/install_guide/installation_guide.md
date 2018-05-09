@@ -53,8 +53,6 @@ For building libopae-c, tools and samples, the following dependences are require
 * json-c-devel.x86\_64:    json-c-devel-0.11-4.el7\_0.x86\_64.rpm
 * json-c.x86\_64:          (tested with 0.11-4.el7\_0)
 * cmake.x86\_64:           (tested with 2.8.12.2-2.el7)
-* boost.x86\_64:           (tested with 1.53.0-26.el7)
-* boost-devel.x86\_64:     (tested with 1.53.0-26.el7)
 
 ## Driver installation with DKMS rpm and deb packages ##
 
