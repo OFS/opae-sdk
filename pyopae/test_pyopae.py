@@ -32,15 +32,16 @@ NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
 
 def test_guid():
+    """test_guid test guid property"""
     props = opae.properties()
     props.guid = NLB0
     guid_str = props.guid
-    print guid_str
     guid = uuid.UUID(guid_str)
     assert str(guid).lower() == NLB0
 
 
 def test_enumerate():
+    """test_enumerate test if we can enumerate for NLB0 using GUID"""
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
@@ -48,6 +49,7 @@ def test_enumerate():
 
 
 def test_open():
+    """test_open test if we can enumerate/open NLB0 using GUID"""
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
@@ -57,6 +59,9 @@ def test_open():
 
 
 def test_mmio():
+    """test_mmio sweep through CSRs writing random values and reading from
+    them. NOTE: This should NOT be run on real hardware.
+    """
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
@@ -74,6 +79,7 @@ def test_mmio():
 
 
 def test_buffer():
+    """test_buffer test shared buffer allocation"""
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
@@ -81,20 +87,11 @@ def test_buffer():
     resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
     assert resource is not None
     buf = opae.shared_buffer.allocate(resource, 1024)
-    print buf.buffer()
 
-
-def test_hellofpga():
-    props = opae.properties()
-    props.guid = NLB0
-    toks = opae.token.enumerate([props])
-    assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
-    assert resource is not None
-    buf = opae.shared_buffer.allocate(resource, 1024)
-    assert buf is not None
 
 def test_close():
+    """test_close test if we can enumerate/open and then close an accelerator
+    handle"""
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
@@ -105,10 +102,12 @@ def test_close():
     assert result == opae.CLOSED
 
 def test_version():
+    """test_version test the version API"""
     ver = opae.version()
     assert ver == (0, 13, 1)
 
-def test_event():
+def test_register_event():
+    """test_event test that we can register for an event"""
     props = opae.properties()
     props.guid = NLB0
     toks = opae.token.enumerate([props])
