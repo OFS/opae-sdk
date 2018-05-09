@@ -111,40 +111,40 @@ if(BUILD_ASE_TESTS)
 
 else()
 
-macro(add_gtfilter test_name gtfilter is_mock)
+  macro(add_gtfilter test_name gtfilter is_mock)
     add_test(NAME ${test_name}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
     if(${is_mock})
-        set_tests_properties(
-            ${test_name}
-            PROPERTIES
-            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+      set_tests_properties(
+        ${test_name}
+        PROPERTIES
+        ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
     endif()
-endmacro()
+  endmacro()
 
-############################################################################
-## Add testing targets #####################################################
-############################################################################
-#  Exe_Tests (A B) Usage:
-#  A         test group name
-#  B         regular expression of test name)
-############################################################################
-set(Test_Names "*MOCK*:*ALL*")
-set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18")
-set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
-set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
+  ############################################################################
+  ## Add testing targets #####################################################
+  ############################################################################
+  #  Exe_Tests (A B) Usage:
+  #  A         test group name
+  #  B         regular expression of test name)
+  ############################################################################
+  set(Test_Names "*MOCK*:*ALL*")
+  set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18")
+  set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
+  set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
 
-add_gtfilter(CxxProperties "CxxProperties*" False)
-add_gtfilter(CxxEnum "CxxEnum*" True)
-add_gtfilter(CxxOpenClose "CxxOpen*" True)
-add_gtfilter(CxxBuffer "CxxBuffer*" True)
-add_gtfilter(CxxExcept "CxxExcept*" False)
-add_gtfilter(CxxEvent "CxxEvent*" True)
-add_gtfilter(CxxMMIO "CxxMMIO*" True)
-add_gtfilter(CxxVersion "CxxVersion*" False)
-Exe_Tests("Mock_All" ${Test_Names})
-Exe_tests("Any_Value" "Cxx*any*")
+  add_gtfilter(CxxProperties "CxxProperties*" False)
+  add_gtfilter(CxxEnum "CxxEnum*" True)
+  add_gtfilter(CxxOpenClose "CxxOpen*" True)
+  add_gtfilter(CxxBuffer "CxxBuffer*" True)
+  add_gtfilter(CxxExcept "CxxExcept*" False)
+  add_gtfilter(CxxEvent "CxxEvent*" True)
+  add_gtfilter(CxxMMIO "CxxMMIO*" True)
+  add_gtfilter(CxxVersion "CxxVersion*" False)
+  Exe_Tests("Mock_All" ${Test_Names})
+  Exe_tests("Any_Value" "Cxx*any*")
 
 endif()
 
@@ -154,8 +154,8 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   if(BUILD_ASE_TESTS AND GTEST_FOUND)
-      set_target_for_coverage_local(opae-c-ase ctest)
-      add_dependencies(coverage_opae-c-ase gtase)
+    set_target_for_coverage_local(opae-c-ase ctest)
+    add_dependencies(coverage_opae-c-ase gtase)
   else(BUILD_ASE_TESTS AND GTEST_FOUND)
     if(BUILD_TESTS AND GTEST_FOUND)
       set_target_for_coverage(opae-c ctest)

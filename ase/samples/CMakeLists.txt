@@ -33,7 +33,9 @@ include(intel_fpga_bbb)
 include(ase_add_modelsim)
 
 Build_Intel_FPGA_BBB()
+
 include_directories(base/sw)
+include_directories(${GLIB_INCLUDE_DIRS})
 
 add_subdirectory(intg_xeon_nlb)
 add_subdirectory(hello_world)

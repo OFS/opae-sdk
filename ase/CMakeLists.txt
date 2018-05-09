@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017, 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,8 @@
 ## Install target for ASE support files
 project(ase)
 include(cmake_dev_config)
+find_package(DBus)
+find_package(GLIB)
 
 ############################################################################
 ## Create config_int.h #####################################################

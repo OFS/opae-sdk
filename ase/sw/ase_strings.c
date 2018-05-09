@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,31 @@
  */
 
 #include "ase_common.h"
+
+#if !defined(__STDC_LIB_EXT1__)
+int strncpy_s(char * restrict dest, size_t dest_size, const char * restrict src)
+{
+	return (int) g_strlcpy ((gchar *) dest,
+				(const gchar*) src,
+				(gsize) dest_size);
+}
+
+int strcat_s(char *restrict dest, size_t dest_size, const char *restrict src)
+{
+	return (int) g_strlcat ((gchar *) dest,
+				(const gchar*) src,
+				(gsize) dest_size);
+}
+
+int snprintf_s_i(char *dest, size_t dest_size, const char *format, int a) {
+
+	return (int) g_snprintf ((gchar *) dest,
+				 (gulong) dest_size,
+				 (gchar const *) format,
+				 a);
+}
+
+#endif
 
 /*
  * Internal method: detect buffer overlap.

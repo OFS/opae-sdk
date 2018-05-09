@@ -28,7 +28,6 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project("opae-c-ase")
 find_package(Threads REQUIRED)
-find_package(DBus)
 
 set(API_DIR ${PROJECT_SOURCE_DIR})
 set(ASEAPI_SRC
@@ -51,11 +50,17 @@ set(ASEAPI_SRC
   ${API_DIR}/src/version.c)
 
 add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase rt safestr)
+target_link_libraries(opae-c-ase
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES}
+  ${librt_LIBRARIES}
+  ${GLIB_LIBRARIES})
+message("GLIB=${GLIB_INCLUDE_DIRS}")
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
+include_directories(${GLIB_INCLUDE_DIRS})
 target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
