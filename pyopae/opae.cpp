@@ -100,7 +100,6 @@ PYBIND11_MODULE(_opae, m) {
     )
     .def_property("guid",
       [](const properties &p) -> std::string {
-        std::cout << "guid: " << p.guid << "\n";
         std::stringstream ss;
         ss << p.guid;
         return ss.str();
