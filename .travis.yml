@@ -15,7 +15,6 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
@@ -24,7 +23,6 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
@@ -35,11 +33,11 @@ matrix:
     addons:
       apt:
         packages:
-        - libboost-all-dev
         - libjson-c-dev
         - uuid-dev
         - doxygen
         - pandoc
+    if: branch = master
     install:
       - pip install --user jinja2
       - pip install --user requests[security]

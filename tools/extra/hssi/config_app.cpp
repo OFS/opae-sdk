@@ -124,8 +124,8 @@ const uint32_t max_xcvr_addr          = 0xFFFF;
 const uint32_t max_rtmr_addr          = 0xFFFF;
 const uint32_t max_rtmr_channel       = 4;
 
-static std::vector<uint32_t> valid_rtmr_device_addrs =  { 0x30, 0x32, 0x34, 0x36, 0x38 };
-static std::vector<uint32_t> valid_rtmr_device_writes = { 0x31, 0x33, 0x35, 0x37, 0x39 };
+static std::vector<uint32_t> valid_rtmr_device_addrs =  { 0x30, 0x32, 0x34, 0x36 };
+static std::vector<uint32_t> valid_rtmr_device_writes = { 0x31, 0x33, 0x35, 0x37 };
 
 config_app::config_app()
 : c_header_(false)

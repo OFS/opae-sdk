@@ -44,21 +44,7 @@ add_library(opae-c++-nlb SHARED nlb.h
                        nlb3.h
                        nlb3.cpp
                        nlb7.h
-                       nlb7.cpp
-                       cmdq0.h
-                       cmdq0.cpp
-                       cmdq3.h
-                       cmdq3.cpp
-                       cmdq7.h
-                       cmdq7.cpp
-                       mb1.h
-                       mb1.cpp
-                       mtnlb.h
-                       mtnlb.cpp
-                       mtnlb7.h
-                       mtnlb7.cpp
-                       mtnlb8.h
-                       mtnlb8.cpp)
+                       nlb7.cpp)
 
 set_install_rpath(opae-c++-nlb)
 
@@ -68,42 +54,21 @@ set_target_properties(opae-c++-nlb PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-option(CMDQ3_USE_NUMA "Build cmdq3 with numa support" OFF)
-mark_as_advanced(CMDQ3_USE_NUMA)
-if (CMDQ3_USE_NUMA)
-    find_library(NUMA_LIB numa)
-    if (NUMA_LIB)
-        add_definitions(-DENABLE_NUMA)
-    endif(NUMA_LIB)
-endif (CMDQ3_USE_NUMA)
-
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
     target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c opae-c++ opae-c++-nlb)
     set_install_rpath(${target_name})
 endmacro(add_fpgadiag_app target_name sources)
 
-add_fpgadiag_app( mb1     mb1_main.cpp    )
 add_fpgadiag_app( nlb0    nlb0_main.cpp   )
 add_fpgadiag_app( nlb3    nlb3_main.cpp   )
 add_fpgadiag_app( nlb7    nlb7_main.cpp   )
-add_fpgadiag_app( mtnlb7  mtnlb7_main.cpp )
-add_fpgadiag_app( mtnlb8  mtnlb8_main.cpp )
 add_fpgadiag_app( fpgamux mux.cpp         )
-add_fpgadiag_app( cmdq0   cmdq0_main.cpp  )
-add_fpgadiag_app( cmdq3   cmdq3_main.cpp  )
-add_fpgadiag_app( cmdq7   cmdq7_main.cpp  )
 
 set(binaries nlb0
              nlb3
              nlb7
-             mtnlb7
-             mtnlb8
              fpgamux)
-
-if (NUMA_LIB)
-    target_link_libraries(cmdq3 ${NUMA_LIB})
-endif(NUMA_LIB)
 
 install(PROGRAMS fpgadiag
     DESTINATION bin
@@ -113,6 +78,6 @@ install(TARGETS opae-c++-nlb
    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
    COMPONENT opaecxxnlb)
 
-install(TARGETS ${binaries}	
-    RUNTIME DESTINATION bin	
+install(TARGETS ${binaries}
+    RUNTIME DESTINATION bin
     COMPONENT toolfpgadiagapps)

@@ -78,15 +78,14 @@ struct fpga_port_info {
 	/* Output */
 	__u32 flags;		/* Zero for now */
 	__u32 capability;	/* The capability of port device */
+#define FPGA_PORT_CAP_ERR_IRQ	(1 << 0) /* Support port error interrupt */
+#define FPGA_PORT_CAP_UAFU_IRQ	(1 << 1) /* Support uafu error interrupt */
 	__u32 num_regions;	/* The number of supported regions */
 	__u32 num_umsgs;	/* The number of allocated umsgs */
 	__u32 num_uafu_irqs;    /* The number of uafu interrupts */
 };
 
 #define FPGA_PORT_GET_INFO	_IO(FPGA_MAGIC, PORT_BASE + 1)
-
-#define FPGA_PORT_CAP_ERR_IRQ	(1 << 0) /* Support port error interrpt */
-#define FPGA_PORT_CAP_UAFU_IRQ	(1 << 1) /* Support uafu error interrpt */
 
 /**
  * FPGA_PORT_GET_REGION_INFO - _IOWR(FPGA_MAGIC, PORT_BASE + 2,
@@ -211,13 +210,14 @@ struct fpga_port_umsg_base_addr {
 struct fpga_port_err_irq_set {
 	/* Input */
 	__u32 argsz;		/* Structure length */
-	__u32 flags;
+	__u32 flags;		/* Zero for now */
 	__s32 evtfd;		/* Eventfd handler */
 };
 
 #define FPGA_PORT_ERR_SET_IRQ		_IO(FPGA_MAGIC, PORT_BASE + 9)
 
-/** FPGA_PORT_UAFU_SET_IRQ - _IOW(FPGA_MAGIC, PORT_BASE + 10,
+/**
+ * FPGA_PORT_UAFU_SET_IRQ - _IOW(FPGA_MAGIC, PORT_BASE + 10,
  *                                             struct fpga_port_uafu_irq_set)
  *
  * Set fpga UAFU interrupt eventfd
@@ -226,7 +226,7 @@ struct fpga_port_err_irq_set {
 struct fpga_port_uafu_irq_set {
 	/* Input */
 	__u32 argsz;		/* Structure length */
-	__u32 flags;
+	__u32 flags;		/* Zero for now */
 	__u32 start;		/* First irq number */
 	__u32 count;		/* The number of eventfd handler */
 	__s32 evtfd[];		/* Eventfd handler */
@@ -308,26 +308,35 @@ struct fpga_fme_port_assign {
 #define FPGA_FME_PORT_ASSIGN	_IO(FPGA_MAGIC, FME_BASE + 2)
 
 /**
- * FPGA_FME_ERR_SET_IRQ
+ * FPGA_FME_GET_INFO - _IOR(FPGA_MAGIC, FME_BASE + 3, struct fpga_fme_info)
  *
+ * Retrieve information about the fpga fme.
+ * Driver fills the info in provided struct fpga_fme_info.
+ * Return: 0 on success, -errno on failure.
  */
 struct fpga_fme_info {
 	/* Input */
 	__u32 argsz;		/* Structure length */
 	/* Output */
 	__u32 flags;		/* Zero for now */
-	__u32 capability;	/* The capablility of FME device */
+	__u32 capability;	/* The capability of FME device */
+#define FPGA_FME_CAP_ERR_IRQ	(1 << 0) /* Support fme error interrupt */
 };
 
 #define FPGA_FME_GET_INFO      _IO(FPGA_MAGIC, FME_BASE + 3)
 
-#define FPGA_FME_CAP_ERR_IRQ	(1 << 0) /* Support fme error interrpt */
-
+/**
+ * FPGA_FME_ERR_SET_IRQ - _IOW(FPGA_MAGIC, FME_BASE + 4,
+ *                                             struct fpga_fme_err_irq_set)
+ *
+ * Set fpga fme global error interrupt eventfd
+ * Return: 0 on success, -errno on failure.
+ */
 struct fpga_fme_err_irq_set {
 	/* Input */
-	__u32 argsz;	/* Structure length */
-	__u32 flags;
-	__s32 evtfd;	/* Eventfd handler */
+	__u32 argsz;		/* Structure length */
+	__u32 flags;		/* Zero for now */
+	__s32 evtfd;		/* Eventfd handler */
 };
 
 #define FPGA_FME_ERR_SET_IRQ	_IO(FPGA_MAGIC, FME_BASE + 4)

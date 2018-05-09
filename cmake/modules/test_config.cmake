@@ -102,6 +102,15 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
                 unit/gtAnyValue.cpp
+                unit/gtCxxEnumerate.cpp
+                unit/gtCxxEvents.cpp
+                unit/gtCxxOpenClose.cpp
+                unit/gtCxxProperties.cpp
+                unit/gtCxxExcept.cpp
+                unit/gtCxxBuffer.cpp
+                unit/gtCxxReset.cpp
+                unit/gtCxxMMIO.cpp
+                unit/gtCxxVersion.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
@@ -121,9 +130,9 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()
+    endif()         
 
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
                           ${libjson-c_LIBRARIES})
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -139,7 +148,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
     target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES}
-                          uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
+                          uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 
     if(BUILD_ASE_TESTS)
         target_include_directories(commonlib      PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ase/include>)
@@ -159,3 +168,22 @@ function(Build_Test_Target Target_Name Target_LIB)
     endif()
 
 endfunction(Build_Test_Target)
+
+function(Exe_Tests Test_Name Test_To_Be_Exe)
+
+   #Filter test list to preload ib/libmock.so
+   string(FIND ${Test_To_Be_Exe} "MOCK" pos)
+   
+   add_test(NAME ${Test_Name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
+   
+   if(${pos})
+     set_tests_properties(
+         ${Test_Name}
+         PROPERTIES
+         ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+   endif()
+
+endfunction(Exe_Tests)
+

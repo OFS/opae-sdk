@@ -125,6 +125,12 @@ if(BUILD_LIBOPAE_C)
   add_subdirectory(libopae)
 endif()
 
+option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
+mark_as_advanced(BUILD_LIBOPAE_CXX)
+if(BUILD_LIBOPAE_CXX)
+  add_subdirectory(libopae++)
+endif()
+
 add_subdirectory(platforms)
 option(BUILD_TOOLS "Enable TOOLS compilation" ON)
 mark_as_advanced(BUILD_TOOLS)
@@ -215,60 +221,61 @@ if("${CPACK_GENERATOR}" STREQUAL "DEB")
     )
 
   define_pkg(tools-extra
-    COMPONENTS
-    tooluserclk
-    toolras
-    toolmmlink
-    toolcoreidle
-    toolfpgadiag
-    toolfpgabist
-    toolfpga_dma_test
-    toolbist_app
-    toolfpgadiagapps
-    toolfpgaflash
-    toolpackager
-    jsonschema
-    opaecxxutils
-    opaecxxlib
-    opaecxxnlb
-    hssiiolib
-    hssiprograms
-    GROUP "tools-extra"
-    DISPLAY_NAME "opae-tools-extra"
-    DESCRIPTION "OPAE extra tool binaries"
-    DEB_DEPENDS "opae-libs , opae-devel"
-    )
+  COMPONENTS
+  tooluserclk
+  toolras
+  toolmmlink
+  toolcoreidle
+  toolfpgadiag
+  toolfpgabist
+  toolfpga_dma_test
+  toolbist_app
+  toolfpgadiagapps
+  toolfpgaflash
+  toolpachssiconfig
+  toolpackager
+  jsonschema
+  opaecxxutils
+  opaecxxlib
+  opaecxxnlb
+  hssiiolib
+  hssiprograms
+  GROUP "tools-extra"
+  DISPLAY_NAME "opae-tools-extra"
+  DESCRIPTION "OPAE extra tool binaries"
+  DEB_DEPENDS "opae-libs , opae-devel"
+  )
 
-  define_pkg(ase
-    COMPONENTS
-    opaecase
-    asertl
-    asescripts
-    aseextra
-    asesw
-    GROUP "ase"
-    DISPLAY_NAME "opae-ase"
-    DESCRIPTION "OPAE AFU Simulation Environment"
-    DEB_DEPENDS "opae-libs , opae-devel"
-    )
+define_pkg(ase
+  COMPONENTS
+  opaecase
+  asertl
+  asescripts
+  aseextra
+  asesw
+  GROUP "ase"
+  DISPLAY_NAME "opae-ase"
+  DESCRIPTION "OPAE AFU Simulation Environment"
+  DEB_DEPENDS "opae-libs , opae-devel"
+  )
 
-  define_pkg(devel
-    COMPONENTS
-    libopaeheaders
-    dochtml
-    doclatex
-    docrtf
-    docman
-    docxml
-    platform
-    samplesrc
-    safestrlib
-    safestrheaders
-    GROUP "devel"
-    DISPLAY_NAME "opae-devel"
-    DESCRIPTION "OPAE headers, sample source, and documentation"
-    DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
-    )
+define_pkg(devel
+  COMPONENTS
+  libopaeheaders
+  dochtml
+  doclatex
+  docrtf
+  docman
+  docxml
+  platform
+  samplesrc
+  safestrlib
+  safestrheaders
+  GROUP "devel"
+  DISPLAY_NAME "opae-devel"
+  DESCRIPTION "OPAE headers, sample source, and documentation"
+  DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
+  )
 
   define_pkg(libs
     COMPONENTS
@@ -399,9 +406,27 @@ else()
     )
 endif()
 
+if(HASH_ARCHIVES)
 #Target to generate DEB package
-add_custom_target(package_deb
+  add_custom_target(package_deb
   COMMAND ${CMAKE_MAKE_PROGRAM}
   COMMAND ${CMAKE_CPACK_COMMAND}
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}-libs.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}-devel.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}-tools.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}-tools-extra.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}-ase.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}.deb
+
   )
+else()
+  add_custom_target(package_deb
+  COMMAND ${CMAKE_MAKE_PROGRAM}
+  COMMAND ${CMAKE_CPACK_COMMAND}
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-libs.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-libs-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.deb
+	COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-devel.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-devel-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.deb
+	COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-tools.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-tools-extra.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-tools-extra-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.deb
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/opae-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-ase.deb ${CMAKE_CURRENT_BINARY_DIR}/opae-ase-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.deb
+  )
+endif()
 include(CPack)

@@ -159,6 +159,8 @@ class any_value {
     }
     if (other.value_ != nullptr) {
       std::swap(value_, other.value_);
+      delete other.value_;
+      other.value_ = nullptr;
     }
     return *this;
   }
