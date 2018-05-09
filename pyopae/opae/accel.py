@@ -55,7 +55,7 @@ def _get_accel(args):
     if len(tokens) > 1:
         logging.warning("Found more than one resourc, using first one")
     mode = 0 if args.exclusive_mode else OPEN_SHARED
-    accel = handle.open(tokens[0], mode, 0)
+    accel = handle.open(tokens[0], mode)
     if not accel:
         logging.error("Could not open accelerator")
         sys.exit(-1)
