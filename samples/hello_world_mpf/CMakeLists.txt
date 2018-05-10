@@ -84,7 +84,7 @@ include_directories(${OPAE_INCLUDE_DIR}
   ${MPF_INCLUDE_DIRS})
 
 add_executable(cci_hello_world_mpf
-  ${ASE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
+  ../base/sw/opae_svc_wrapper.cpp
   sw/cci_mpf_hello.cpp)
 if(BUILD_LIBOPAE_C)
   target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2014-2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifndef __OPAE_SVC_WRAPPER_H__
 #define __OPAE_SVC_WRAPPER_H__ 1
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <opae/fpga.h>
 #include <opae/mpf/mpf.h>
@@ -41,63 +41,63 @@ typedef class OPAE_SVC_WRAPPER SVC_WRAPPER;
 class OPAE_SVC_WRAPPER
 {
 
-  protected:
-    fpga_handle accel_handle;
+protected:
+	fpga_handle accel_handle;
 
-  public:
-    mpf_handle_t mpf_handle;
+public:
+	mpf_handle_t mpf_handle;
 
-  public:
-    // The constructor and destructor connect to and disconnect from the FPGA.
-    OPAE_SVC_WRAPPER(const char* accel_uuid);
-    ~OPAE_SVC_WRAPPER();
+public:
+	// The constructor and destructor connect to and disconnect from the FPGA.
+	OPAE_SVC_WRAPPER(const char* accel_uuid);
+	~OPAE_SVC_WRAPPER();
 
-    // Any errors in constructor?
-    bool isOk(void) const { return is_ok; }
+	// Any errors in constructor?
+	bool isOk(void) const { return is_ok; }
 
-    // Is the hardware simulated with ASE?
-    bool hwIsSimulated(void) const { return is_simulated; }
+	// Is the hardware simulated with ASE?
+	bool hwIsSimulated(void) const { return is_simulated; }
 
-    //
-    // Wrap MMIO write and read.
-    //
-    fpga_result mmioWrite64(uint32_t idx, uint64_t v)
-    {
-        return fpgaWriteMMIO64(accel_handle, 0, idx, v);
-    }
+	//
+	// Wrap MMIO write and read.
+	//
+	fpga_result mmioWrite64(uint32_t idx, uint64_t v)
+	{
+		return fpgaWriteMMIO64(accel_handle, 0, idx, v);
+	}
 
-    uint64_t mmioRead64(uint32_t idx)
-    {
-        fpga_result r;
-        uint64_t v;
+	uint64_t mmioRead64(uint32_t idx)
+	{
+		fpga_result r;
+		uint64_t v;
 
-        r = fpgaReadMMIO64(accel_handle, 0, idx, &v);
-        if (r != FPGA_OK) return -1;
+		r = fpgaReadMMIO64(accel_handle, 0, idx, &v);
+		if (r != FPGA_OK) return -1;
 
-        return v;
-    }
+		return v;
+	}
 
-    //
-    // Expose allocate and free interfaces that hide the details of
-    // the various allocation interfaces.  When VTP is present, large
-    // multi-page, virtually contiguous buffers may be allocated.
-    // The function returns the virtual address of the buffer and also
-    // the I/O (physical) address if ioAddress isn't NULL.
-    //
-    void* allocBuffer(size_t nBytes, uint64_t* ioAddress = NULL);
-    void freeBuffer(void* va);
+	//
+	// Expose allocate and free interfaces that hide the details of
+	// the various allocation interfaces.  When VTP is present, large
+	// multi-page, virtually contiguous buffers may be allocated.
+	// The function returns the virtual address of the buffer and also
+	// the I/O (physical) address if ioAddress isn't NULL.
+	//
+	void* allocBuffer(size_t nBytes, uint64_t* ioAddress = NULL);
+	void freeBuffer(void* va);
 
-  protected:
+protected:
 
-    bool is_ok;
-    bool is_simulated;
+	bool is_ok;
+	bool is_simulated;
 
-  private:
-    // Connect to an accelerator
-    fpga_result findAndOpenAccel(const char* accel_uuid);
+private:
+	// Connect to an accelerator
+	fpga_result findAndOpenAccel(const char* accel_uuid);
 
-    // Is the HW simulated with ASE or real?
-    bool probeForASE();
+	// Is the HW simulated with ASE or real?
+	bool probeForASE();
 };
 
 #endif //  __OPAE_SVC_WRAPPER_H__

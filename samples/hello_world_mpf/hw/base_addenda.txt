@@ -9,7 +9,7 @@
 # Include clock crossing FIFO
 -F @FPGA_BBB_CCI_SRC@/BBB_ccip_async/hw/sim/ccip_async_sim_addenda.txt
 
-+incdir+@ASE_SHARE_DIR@/samples/base/hw/rtl
++incdir+@OPAE_SAMPLES@/base/hw/rtl
 
-@ASE_SHARE_DIR@/samples/base/hw/rtl/cci_afu_with_mpf.sv
-@ASE_SHARE_DIR@/samples/base/hw/rtl/csr_mgr.sv
+@OPAE_SAMPLES@@/samples/base/hw/rtl/cci_afu_with_mpf.sv
+@OPAE_SAMPLES@@/samples/base/hw/rtl/csr_mgr.sv

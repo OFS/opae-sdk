@@ -44,6 +44,7 @@ configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
 # Set root ASE directories correctly now
 set(OPAE_BASE_DIR      ${OPAE_SDK_SOURCE})
 set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE})
+set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE} PARENT_SCOPE) # do not remove, they are not the same
 include(ase_variables_config)
 
 ############################################################################
