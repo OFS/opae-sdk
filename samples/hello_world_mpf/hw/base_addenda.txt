@@ -11,5 +11,5 @@
 
 +incdir+@OPAE_SAMPLES@/base/hw/rtl
 
-@OPAE_SAMPLES@@/samples/base/hw/rtl/cci_afu_with_mpf.sv
-@OPAE_SAMPLES@@/samples/base/hw/rtl/csr_mgr.sv
+@OPAE_SAMPLES@/base/hw/rtl/cci_afu_with_mpf.sv
+@OPAE_SAMPLES@/base/hw/rtl/csr_mgr.sv
