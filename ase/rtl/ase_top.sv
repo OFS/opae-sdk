@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright(c) 2011-2016, Intel Corporation
+ * Copyright(c) 2014-2018, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,10 +30,6 @@
  * Module Info: ASE top-level
  *              (hides ASE machinery, makes finding cci_std_afu easy)
  * Language   : System{Verilog}
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  * **************************************************************************/
 
 //
@@ -51,7 +47,6 @@
 
 module ase_top();
 
-
    logic pClkDiv4;
    logic pClkDiv2;
    logic pClk;
@@ -67,7 +62,7 @@ module ase_top();
    logic       pck_cp2af_error;      // CCI-P Protocol Error Detected
 
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
- // Now many memory banks?
+   // Now many memory banks?
  `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
    localparam NUM_LOCAL_MEM_BANKS = 2;
  `else
@@ -81,14 +76,14 @@ module ase_top();
    localparam NUM_ALLOC_MEM_BANKS = (((NUM_LOCAL_MEM_BANKS + 1) >> 1) << 1);
 
    // DDR clock will come from the memory emulator
-   logic ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
+   logic       ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
 
    // Interfaces for all DDR memory banks
    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
-      ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
+   ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
 
-   logic ddr_reset_n;
-   logic ddr_pll_ref_clk;
+   logic       ddr_reset_n;
+   logic       ddr_pll_ref_clk;
 `else
    localparam NUM_LOCAL_MEM_BANKS = 0;
 `endif
@@ -112,19 +107,19 @@ module ase_top();
    // CCIP AFU
    `PLATFORM_SHIM_MODULE_NAME
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-    #(
-      // Avalon memory as a SystemVerilog interface.  The number
-      // of banks is passed as a parameter.  The address size
-      // is part of the type, so not needed here.
-      .NUM_LOCAL_MEM_BANKS(`AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
-     )
+     #(
+       // Avalon memory as a SystemVerilog interface.  The number
+       // of banks is passed as a parameter.  The address size
+       // is part of the type, so not needed here.
+       .NUM_LOCAL_MEM_BANKS(`AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
+       )
 `endif
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
-    #(
-      .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
+   #(
+     .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
      )
 `endif
-    `PLATFORM_SHIM_MODULE_NAME
+   `PLATFORM_SHIM_MODULE_NAME
      (
       .pClkDiv4               (pClkDiv4            ),
       .pClkDiv2               (pClkDiv2            ),
@@ -186,7 +181,7 @@ module ase_top();
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
    initial begin
       #0     ddr_reset_n = 0;
-             ddr_pll_ref_clk = 0;
+      ddr_pll_ref_clk = 0;
       #10000 ddr_reset_n = 1;
    end
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
@@ -195,44 +190,44 @@ module ase_top();
    genvar b;
    generate
       for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 2)
-      begin : b_emul
-         emif_ddr4
-          #(
-            .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
-            .INSTANCE_ID(b)
-            )
-          emif_ddr4
-          (
-            .ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
-            .ddr4a_avmm_readdata                   (ddr4[b].readdata),
-            .ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
-            .ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
-            .ddr4a_avmm_writedata                  (ddr4[b].writedata),
-            .ddr4a_avmm_address                    (ddr4[b].address),
-            .ddr4a_avmm_write                      (ddr4[b].write),
-            .ddr4a_avmm_read                       (ddr4[b].read),
-            .ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
-            .ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
+	begin : b_emul
+           emif_ddr4
+               #(
+		 .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
+		 .INSTANCE_ID(b)
+		 )
+           emif_ddr4
+               (
+		.ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
+		.ddr4a_avmm_readdata                   (ddr4[b].readdata),
+		.ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
+		.ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
+		.ddr4a_avmm_writedata                  (ddr4[b].writedata),
+		.ddr4a_avmm_address                    (ddr4[b].address),
+		.ddr4a_avmm_write                      (ddr4[b].write),
+		.ddr4a_avmm_read                       (ddr4[b].read),
+		.ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
+		.ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
 
-            .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
-            .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
+		.ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
+		.ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
 
-            .ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
-            .ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
-            .ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
-            .ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
-            .ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
-            .ddr4b_avmm_address                    (ddr4[b+1].address),
-            .ddr4b_avmm_write                      (ddr4[b+1].write),
-            .ddr4b_avmm_read                       (ddr4[b+1].read),
-            .ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
-            .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
-         );
+		.ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
+		.ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
+		.ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
+		.ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
+		.ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
+		.ddr4b_avmm_address                    (ddr4[b+1].address),
+		.ddr4b_avmm_write                      (ddr4[b+1].write),
+		.ddr4b_avmm_read                       (ddr4[b+1].read),
+		.ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
+		.ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
+		);
 
-         // Mostly used for debugging
-         assign ddr4[b].bank_number = b;
-         assign ddr4[b+1].bank_number = b+1;
-      end
+           // Mostly used for debugging
+           assign ddr4[b].bank_number = b;
+           assign ddr4[b+1].bank_number = b+1;
+	end
    endgenerate
 
 `endif

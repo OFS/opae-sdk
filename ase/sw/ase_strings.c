@@ -36,31 +36,6 @@
 
 #include "ase_common.h"
 
-#if !defined(__STDC_LIB_EXT1__)
-int strncpy_s(char* dest, size_t dest_size, const char*  src)
-{
-	return (int) g_strlcpy ((gchar *) dest,
-				(const gchar*) src,
-				(gsize) dest_size);
-}
-
-int strcat_s(char* dest, size_t dest_size, const char* src)
-{
-	return (int) g_strlcat ((gchar *) dest,
-				(const gchar*) src,
-				(gsize) dest_size);
-}
-
-int snprintf_s_i(char *dest, size_t dest_size, const char *format, int a) {
-
-	return (int) g_snprintf ((gchar *) dest,
-				 (gulong) dest_size,
-				 (gchar const *) format,
-				 a);
-}
-
-#endif
-
 /*
  * Internal method: detect buffer overlap.
  */
@@ -126,7 +101,10 @@ int ase_strncpy_s(char *dest, size_t dmax, const char *src, size_t slen)
 		return -1;
 	}
 
-	strncpy(dest, src, slen);
+	g_strlcpy ((gchar *) dest,
+		   (const gchar*) src,
+		   (gsize) slen);
+
 	return 0;
 }
 
@@ -146,3 +124,27 @@ int ase_strcmp_s(const char *dest, size_t dmax, const char *src, int *indicator)
 	*indicator = strncmp(dest, src, dmax);
 	return 0;
 }
+
+#if !defined(__STDC_LIB_EXT1__)
+int strncpy_s(char* dest, size_t dest_size, const char*  src)
+{
+	return (int) g_strlcpy ((gchar *) dest,
+				(const gchar*) src,
+				(gsize) dest_size);
+}
+
+int strcat_s(char* dest, size_t dest_size, const char* src)
+{
+	return (int) g_strlcat ((gchar *) dest,
+				(const gchar*) src,
+				(gsize) dest_size);
+}
+
+int snprintf_s_i(char *dest, size_t dest_size, const char *format, int a) {
+
+	return (int) g_snprintf ((gchar *) dest,
+				 (gulong) dest_size,
+				 (gchar const *) format,
+				 a);
+}
+#endif
