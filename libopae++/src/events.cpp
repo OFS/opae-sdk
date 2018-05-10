@@ -34,8 +34,15 @@ namespace fpga {
 namespace types {
 
 event::~event() {
-  ASSERT_FPGA_OK(fpgaUnregisterEvent(*handle_, type_, event_handle_));
-  ASSERT_FPGA_OK(fpgaDestroyEventHandle(&event_handle_));
+  auto res = fpgaUnregisterEvent(*handle_, type_, event_handle_);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaUnregisterEvent: " << fpgaErrStr(res) << "\n";
+  }
+
+  res = fpgaDestroyEventHandle(&event_handle_);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaDestroyEventHandle: " << fpgaErrStr(res) << "\n";
+  }
 }
 
 event::operator fpga_event_handle() { return event_handle_; }
