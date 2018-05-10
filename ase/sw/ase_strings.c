@@ -37,14 +37,14 @@
 #include "ase_common.h"
 
 #if !defined(__STDC_LIB_EXT1__)
-int strncpy_s(char * restrict dest, size_t dest_size, const char * restrict src)
+int strncpy_s(char* dest, size_t dest_size, const char*  src)
 {
 	return (int) g_strlcpy ((gchar *) dest,
 				(const gchar*) src,
 				(gsize) dest_size);
 }
 
-int strcat_s(char *restrict dest, size_t dest_size, const char *restrict src)
+int strcat_s(char* dest, size_t dest_size, const char* src)
 {
 	return (int) g_strlcat ((gchar *) dest,
 				(const gchar*) src,
