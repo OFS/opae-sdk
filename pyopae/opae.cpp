@@ -104,7 +104,53 @@ PYBIND11_MODULE(_opae, m) {
                     [](properties &p) -> fpga_objtype { return p.type; },
                     [](properties &p, fpga_objtype t) { p.type = t; })
       .def_property("bus", [](properties &p) -> uint8_t { return p.bus; },
-                    [](properties &p, uint8_t b) { p.bus = b; });
+                    [](properties &p, uint8_t b) { p.bus = b; })
+      .def_property("device", [](properties &p) -> uint8_t { return p.device; },
+                    [](properties &p, uint8_t d) { p.device = d; })
+      .def_property("function",
+                    [](properties &p) -> uint8_t { return p.function; },
+                    [](properties &p, uint8_t f) { p.function = f; })
+      .def_property("socket_id",
+                    [](properties &p) -> uint8_t { return p.socket_id; },
+                    [](properties &p, uint8_t v) { p.socket_id = v; })
+      .def_property("num_slots",
+                    [](properties &p) -> uint32_t { return p.num_slots; },
+                    [](properties &p, uint32_t v) { p.num_slots = v; })
+      .def_property("bbs_id",
+                    [](properties &p) -> uint64_t { return p.bbs_id; },
+                    [](properties &p, uint64_t v) { p.bbs_id = v; })
+      .def_property("bbs_version",
+                    [](properties &p) -> fpga_version { return p.bbs_version; },
+                    [](properties &p, fpga_version v) { p.bbs_version = v; })
+      .def_property("vendor_id",
+                    [](properties &p) -> uint16_t { return p.vendor_id; },
+                    [](properties &p, uint16_t v) { p.vendor_id = v; })
+      .def_property("model",
+                    [](properties &p) -> std::string { return p.model; },
+                    [](properties &p, char *v) { p.model = v; })
+      .def_property(
+          "local_memory_size",
+          [](properties &p) -> uint64_t { return p.local_memory_size; },
+          [](properties &p, uint64_t v) { p.local_memory_size = v; })
+      .def_property("capabilities",
+                    [](properties &p) -> uint64_t { return p.capabilities; },
+                    [](properties &p, uint64_t v) { p.capabilities = v; })
+      .def_property("num_mmio",
+                    [](properties &p) -> uint32_t { return p.num_mmio; },
+                    [](properties &p, uint32_t v) { p.num_mmio = v; })
+      .def_property("num_interrupts",
+                    [](properties &p) -> uint32_t { return p.num_interrupts; },
+                    [](properties &p, uint32_t v) { p.num_interrupts = v; })
+      .def_property("accelerator_state",
+                    [](properties &p) -> fpga_accelerator_state {
+                      return p.accelerator_state;
+                    },
+                    [](properties &p, fpga_accelerator_state v) {
+                      p.accelerator_state = v;
+                    })
+      .def_property("object_id",
+                    [](properties &p) -> uint64_t { return p.object_id; },
+                    [](properties &p, uint64_t v) { p.object_id = v; });
 
   py::class_<token, token::ptr_t> pytoken(m, "token");
   pytoken.def_static("enumerate", &token::enumerate);
@@ -115,6 +161,11 @@ PYBIND11_MODULE(_opae, m) {
                   [](token::ptr_t t, int flags) -> handle::ptr_t {
                     return handle::open(t, flags);
                   })
+      .def_property_readonly("status",
+                             [](handle::ptr_t h) {
+                               return h->get() == nullptr ? fpga_status::closed
+                                                          : fpga_status::open;
+                             })
       .def("reset", &handle::reset)
       .def("read_csr32", &handle::read_csr32, py::arg("offset"),
            py::arg("csr_space") = 0)
@@ -188,5 +239,11 @@ PYBIND11_MODULE(_opae, m) {
       .value("INTERRUPT", FPGA_EVENT_INTERRUPT)
       .value("ERROR", FPGA_EVENT_ERROR)
       .value("POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
+      .export_values();
+
+  py::enum_<fpga_accelerator_state>(m, "fpga_accelerator_state",
+                                    py::arithmetic(), "OPAE accelerator_state")
+      .value("FPGA_ACCELERATOR_ASSIGNED", FPGA_ACCELERATOR_ASSIGNED)
+      .value("FPGA_ACCELERATOR_UNASSIGNED", FPGA_ACCELERATOR_UNASSIGNED)
       .export_values();
 }
