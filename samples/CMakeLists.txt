@@ -36,6 +36,14 @@ if(BUILD_ASE_SAMPLES)
   include_directories(${GLIB_INCLUDE_DIRS})
 endif()
 
+# Prefer GNU99
+if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
+    set (CMAKE_C_STANDARD_REQUIRED TRUE)
+    set (CMAKE_C_STANDARD "99")
+endif ()
+
 # MPF library
 include(intel_fpga_bbb)
 Build_Intel_FPGA_BBB()
