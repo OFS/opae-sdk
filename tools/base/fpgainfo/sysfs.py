@@ -30,6 +30,7 @@ import logging
 import os
 import re
 import uuid
+import fpga_common
 
 pattern = (r'.*/\d+:(?P<bus>\w{2}):'
            r'(?P<device>\d{2})\.(?P<function>\d).*')
@@ -43,8 +44,6 @@ PORT_DEVICE = os.path.join(FPGA_DEVICE, 'intel-fpga-port.{instance_id}')
 MAJOR_VER = -15
 MINOR_VER = -14
 PATCH_VER = -13
-
-DCP_ID = 0x09c4
 
 
 def read_bdf(path):
@@ -269,7 +268,7 @@ class power_mgmt_feature(sysfs_node):
     def __init__(self, path, instance_id, device_id, **kwargs):
         super(power_mgmt_feature, self).__init__(path, instance_id, device_id,
                                                  **kwargs)
-        if device_id != DCP_ID:
+        if device_id != fpga_common.DCP_ID:
             self.consumed = add_static_property("consumed")
 
 
@@ -278,7 +277,7 @@ class thermal_feature(sysfs_node):
         super(thermal_feature, self).__init__(path, instance_id, device_id,
                                               **kwargs)
         self.temperature = add_static_property("temperature")
-        if device_id != DCP_ID:
+        if device_id != fpga_common.DCP_ID:
             self.threshold1 = add_static_property("threshold1")
             self.threshold1_policy = add_static_property("threshold1_policy")
             self.threshold1_reached = add_static_property("threshold1_reached")
@@ -334,7 +333,7 @@ class fme_errors(errors_feature):
         add_dynamic_property(self, "first_error", "fme-errors/first_error")
         add_dynamic_property(self, "next_error", "fme-errors/next_error")
         add_dynamic_property(self, "pcie0_errors")
-        if device_id != DCP_ID:
+        if device_id != fpga_common.DCP_ID:
             add_dynamic_property(self, "pcie1_errors")
             add_dynamic_property(self, "bbs_errors")
             add_dynamic_property(self, "gbs_errors")
@@ -372,7 +371,7 @@ class fme_info(sysfs_resource):
 
     @property
     def version(self):
-        if self.device_id != DCP_ID:
+        if self.device_id != fpga_common.DCP_ID:
             return self.read_sysfs("version")
 
     @property
@@ -423,6 +422,7 @@ class sysfsinfo(object):
     def __init__(self):
         self._fmelist = []
         self._portlist = []
+        self.device_id = 0
         sysfs_paths = glob.glob(
             FPGA_DEVICE.format(instance_id='*'))
         if not sysfs_paths:
@@ -432,21 +432,24 @@ class sysfsinfo(object):
             # strip {instance_id} from the template FPGA_DEVICE
             # socket id is what comes after this in the real path
             instance_id = path.strip(FPGA_DEVICE.strip('{instance_id}'))
-            device_id = sysfs_device(os.path.join(path, 'device'),
-                                     instance_id, None,
-                                     **bdf).device_id
+            self.device_id = sysfs_device(os.path.join(path, 'device'),
+                                          instance_id, None,
+                                          **bdf).device_id
             sysfs_fme = FME_DEVICE.format(instance_id=instance_id)
             sysfs_port = PORT_DEVICE.format(instance_id=instance_id)
             self._fmelist.append(fme_info(sysfs_fme, instance_id,
-                                 device_id, **bdf))
+                                 self.device_id, **bdf))
             self._portlist.append(port_info(sysfs_port, instance_id,
-                                  device_id, **bdf))
+                                  self.device_id, **bdf))
 
     def fme(self, **kwargs):
         return filter(sysfs_filter(**kwargs), self._fmelist)
 
     def port(self, **kwargs):
         return filter(sysfs_filter(**kwargs), self._portlist)
+
+    def device(self):
+        return self.device_id
 
 
 if __name__ == "__main__":
