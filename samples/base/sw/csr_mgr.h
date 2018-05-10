@@ -28,9 +28,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __CSR_MGR_H__
-#define __CSR_MGR_H__ 1
-
+#pragma once
 #include "opae_svc_wrapper.h"
 
 //
@@ -53,9 +51,7 @@ protected:
 	};
 
 public:
-	CSR_MGR(SVC_WRAPPER& svc) :
-		svc(svc)
-		{};
+	CSR_MGR(SVC_WRAPPER& svc) : svc(svc) {};
 
 	~CSR_MGR() {};
 
@@ -63,16 +59,13 @@ public:
 	// Write/read application-specific CSRs.  The maximum CSR index
 	// is application-dependent.
 	//
-	void writeCSR(uint32_t idx, uint64_t v)
-	{
+	void writeCSR(uint32_t idx, uint64_t v)	{
 		svc.mmioWrite64(8 * (USER_CSR_BASE + idx), v);
 	}
 
-	uint64_t readCSR(uint32_t idx)
-	{
+	uint64_t readCSR(uint32_t idx)	{
 		return svc.mmioRead64(8 * (USER_CSR_BASE + idx));
 	}
-
 
 	//
 	// Common CSRs available on in all programs using CSR_MGR.  These offsets
@@ -103,8 +96,7 @@ public:
 	} t_csr_common;
 
 	// Read one of the common CSRs
-	uint64_t readCommonCSR(t_csr_common idx)
-	{
+	uint64_t readCommonCSR(t_csr_common idx) {
 		if (idx >= CSR_COMMON__LAST) return ~uint64_t(0);
 
 		return svc.mmioRead64(8 * uint32_t(idx));
@@ -116,18 +108,14 @@ public:
 	// AFU is attached.  When the attached clock is the "user clock" the
 	// frequency isn't known at compile time.
 	//
-	uint64_t getAFUMHz(uint64_t uClk_usr_mhz = 0)
-	{
+	uint64_t getAFUMHz(uint64_t uClk_usr_mhz = 0) {
 		// What's the AFU frequency (MHz)?
 		uint64_t afu_mhz = readCommonCSR(CSR_COMMON_FREQ);
 
-		if (afu_mhz == 2)
-		{
+		if (afu_mhz == 2) {
 			// 2 indicates uClk_usr
 			afu_mhz = uClk_usr_mhz;
-		}
-		else if (afu_mhz == 1)
-		{
+		} else if (afu_mhz == 1) {
 			// 1 indicates uClk_usrDiv2
 			afu_mhz = uClk_usr_mhz >> 1;
 		}
@@ -137,5 +125,3 @@ public:
 protected:
 	SVC_WRAPPER& svc;
 };
-
-#endif // __CSR_MGR_H__

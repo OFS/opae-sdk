@@ -28,9 +28,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_SVC_WRAPPER_H__
-#define __OPAE_SVC_WRAPPER_H__ 1
-
+#pragma once
 #include <cstdint>
 
 #include <opae/fpga.h>
@@ -61,13 +59,11 @@ public:
 	//
 	// Wrap MMIO write and read.
 	//
-	fpga_result mmioWrite64(uint32_t idx, uint64_t v)
-	{
+	fpga_result mmioWrite64(uint32_t idx, uint64_t v) {
 		return fpgaWriteMMIO64(accel_handle, 0, idx, v);
 	}
 
-	uint64_t mmioRead64(uint32_t idx)
-	{
+	uint64_t mmioRead64(uint32_t idx) {
 		fpga_result r;
 		uint64_t v;
 
@@ -84,8 +80,8 @@ public:
 	// The function returns the virtual address of the buffer and also
 	// the I/O (physical) address if ioAddress isn't NULL.
 	//
-	void* allocBuffer(size_t nBytes, uint64_t* ioAddress = NULL);
-	void freeBuffer(void* va);
+	void* allocBuffer(size_t nBytes, uint64_t *ioAddress = NULL);
+	void freeBuffer(void *va);
 
 protected:
 
@@ -94,10 +90,8 @@ protected:
 
 private:
 	// Connect to an accelerator
-	fpga_result findAndOpenAccel(const char* accel_uuid);
+	fpga_result findAndOpenAccel(const char *accel_uuid);
 
 	// Is the HW simulated with ASE or real?
 	bool probeForASE();
 };
-
-#endif //  __OPAE_SVC_WRAPPER_H__

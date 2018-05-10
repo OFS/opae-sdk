@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2014-2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,122 +48,121 @@
 //
 static fpga_handle connect_to_accel(const char *accel_uuid)
 {
-    fpga_properties filter = NULL;
-    fpga_guid guid;
-    fpga_token accel_token;
-    uint32_t num_matches;
-    fpga_handle accel_handle;
-    fpga_result r;
+	fpga_properties filter = NULL;
+	fpga_guid guid;
+	fpga_token accel_token;
+	uint32_t num_matches;
+	fpga_handle accel_handle;
+	fpga_result r;
 
-    // Don't print verbose messages in ASE by default
-    setenv("ASE_LOG", "0", 0);
+	// Don't print verbose messages in ASE by default
+	setenv("ASE_LOG", "0", 0);
 
-    // Set up a filter that will search for an accelerator
-    fpgaGetProperties(NULL, &filter);
-    fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
+	// Set up a filter that will search for an accelerator
+	fpgaGetProperties(NULL, &filter);
+	fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 
-    // Add the desired UUID to the filter
-    uuid_parse(accel_uuid, guid);
-    fpgaPropertiesSetGUID(filter, guid);
+	// Add the desired UUID to the filter
+	uuid_parse(accel_uuid, guid);
+	fpgaPropertiesSetGUID(filter, guid);
 
-    // Do the search across the available FPGA contexts
-    num_matches = 1;
-    fpgaEnumerate(&filter, 1, &accel_token, 1, &num_matches);
+	// Do the search across the available FPGA contexts
+	num_matches = 1;
+	fpgaEnumerate(&filter, 1, &accel_token, 1, &num_matches);
 
-    // Not needed anymore
-    fpgaDestroyProperties(&filter);
+	// Not needed anymore
+	fpgaDestroyProperties(&filter);
 
-    if (num_matches < 1)
-    {
-        fprintf(stderr, "Accelerator %s not found!\n", accel_uuid);
-        return 0;
-    }
+	if (num_matches < 1) {
+		fprintf(stderr, "Accelerator %s not found!\n", accel_uuid);
+		return 0;
+	}
 
-    // Open accelerator
-    r = fpgaOpen(accel_token, &accel_handle, 0);
-    assert(FPGA_OK == r);
+	// Open accelerator
+	r = fpgaOpen(accel_token, &accel_handle, 0);
+	assert(FPGA_OK == r);
 
-    // Map MMIO space
-    r = fpgaMapMMIO(accel_handle, 0, NULL);
-    assert(FPGA_OK == r);
+	// Map MMIO space
+	r = fpgaMapMMIO(accel_handle, 0, NULL);
+	assert(FPGA_OK == r);
 
-    // Done with token
-    fpgaDestroyToken(&accel_token);
+	// Done with token
+	fpgaDestroyToken(&accel_token);
 
-    return accel_handle;
+	return accel_handle;
 }
 
 
 static fpga_result disconnect_from_accel(fpga_handle accel_handle)
 {
-    fpgaUnmapMMIO(accel_handle, 0);
-    fpgaClose(accel_handle);
+	fpgaUnmapMMIO(accel_handle, 0);
+	fpgaClose(accel_handle);
 
-    return FPGA_OK;
+	return FPGA_OK;
 }
 
 
 //
 // Allocate a buffer in I/O memory, shared with the FPGA.
 //
-static volatile void* alloc_buffer(fpga_handle accel_handle,
-                                   ssize_t size,
-                                   uint64_t *wsid,
-                                   uint64_t *io_addr)
+static volatile void *alloc_buffer(fpga_handle accel_handle,
+				   ssize_t size,
+				   uint64_t *wsid,
+				   uint64_t *io_addr)
 {
-    fpga_result r;
-    volatile void* buf;
+	fpga_result r;
+	volatile void *buf;
 
-    r = fpgaPrepareBuffer(accel_handle, size, (void*)&buf, wsid, 0);
-    if (FPGA_OK != r) return NULL;
+	r = fpgaPrepareBuffer(accel_handle, size, (void *) &buf, wsid, 0);
+	if (FPGA_OK != r)
+		return NULL;
 
-    // Get the physical address of the buffer in the accelerator
-    r = fpgaGetIOAddress(accel_handle, *wsid, io_addr);
-    assert(FPGA_OK == r);
+	// Get the physical address of the buffer in the accelerator
+	r = fpgaGetIOAddress(accel_handle, *wsid, io_addr);
+	assert(FPGA_OK == r);
 
-    return buf;
+	return buf;
 }
 
 
 int main(int argc, char *argv[])
 {
-    fpga_handle accel_handle;
-    volatile char *buf;
-    uint64_t wsid;
-    uint64_t buf_pa;
+	fpga_handle accel_handle;
+	volatile char *buf;
+	uint64_t wsid;
+	uint64_t buf_pa;
 
-    (void) argc;
-    (void) argv;
+	(void) argc;
+	(void) argv;
 
-    // Find and connect to the accelerator
-    accel_handle = connect_to_accel(AFU_ACCEL_UUID);
+	// Find and connect to the accelerator
+	accel_handle = connect_to_accel(AFU_ACCEL_UUID);
 
-    // Allocate a single page memory buffer
-    buf = (volatile char*)alloc_buffer(accel_handle, getpagesize(),
-                                       &wsid, &buf_pa);
-    assert(NULL != buf);
+	// Allocate a single page memory buffer
+	buf = (volatile char *) alloc_buffer(accel_handle, getpagesize(),
+					     &wsid, &buf_pa);
+	assert(NULL != buf);
 
-    // Set the low byte of the shared buffer to 0.  The FPGA will write
-    // a non-zero value to it.
-    buf[0] = 0;
+	// Set the low byte of the shared buffer to 0.  The FPGA will write
+	// a non-zero value to it.
+	buf[0] = 0;
 
-    // Tell the accelerator the address of the buffer using cache line
-    // addresses.  The accelerator will respond by writing to the buffer.
-    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+	// Tell the accelerator the address of the buffer using cache line
+	// addresses.  The accelerator will respond by writing to the buffer.
+	fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
 
-    // Spin, waiting for the value in memory to change to something non-zero.
-    while (0 == buf[0])
-    {
-        // A well-behaved program would use _mm_pause(), nanosleep() or
-        // equivalent to save power here.
-    };
+	// Spin, waiting for the value in memory to change to something non-zero.
+	while (0 == buf[0]) {
+		// A well-behaved program would use _mm_pause(), nanosleep() or
+		// equivalent to save power here.
+	};
 
-    // Print the string written by the FPGA
-    printf("%s\n", buf);
+	// Print the string written by the FPGA
+	printf("%s\n", buf);
 
-    // Done
-    fpgaReleaseBuffer(accel_handle, wsid);
-    disconnect_from_accel(accel_handle);
+	// Done
+	fpgaReleaseBuffer(accel_handle, wsid);
+	disconnect_from_accel(accel_handle);
 
-    return 0;
+	return 0;
 }
