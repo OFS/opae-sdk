@@ -126,14 +126,14 @@ int ase_strcmp_s(const char *dest, size_t dmax, const char *src, int *indicator)
 }
 
 #if !defined(__STDC_LIB_EXT1__)
-int strncpy_s(char* dest, size_t dest_size, const char*  src)
+int strncpy_s(char *dest, size_t dest_size, const char *src)
 {
 	return (int) g_strlcpy ((gchar *) dest,
 				(const gchar*) src,
 				(gsize) dest_size);
 }
 
-int strcat_s(char* dest, size_t dest_size, const char* src)
+int strcat_s(char *dest, size_t dest_size, const char *src)
 {
 	return (int) g_strlcat ((gchar *) dest,
 				(const gchar*) src,
