@@ -79,7 +79,7 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle);
  * Get OS object from event handle
  *
  * Check validity of event handle, and get the OS object used to
- * subscribe and unsubscribe to events. On Linux, the obkect corresponds
+ * subscribe and unsubscribe to events. On Linux, the object corresponds
  * to a file descriptor.
  *
  * @param[in] eh Event handle to get the descriptor value from

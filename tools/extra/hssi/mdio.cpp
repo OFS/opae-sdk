@@ -13,6 +13,8 @@ namespace hssi
 using namespace std;
 using namespace std::chrono;
 
+const uint64_t mdio_delay_usec = 1000;
+
 mdio::mdio(przone_interface::ptr_t przone)
 : przone_(przone)
 {
@@ -26,9 +28,11 @@ bool mdio::write(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint
 
     przone_->write(mdio_wr_data_reg,  addr); //Write contents of MDIO addr reg
     przone_->write(mdio_ctrl_reg, mdio_write | mdio_address_reg); //Write request to MDIO addr reg
+    std::this_thread::sleep_for(microseconds(mdio_delay_usec));
     wait_for_mdio_tx();
     przone_->write(mdio_wr_data_reg, value); //Write contents of MDIO data reg
     przone_->write(mdio_ctrl_reg, mdio_write | mdio_access_reg); //Write request for data reg
+    std::this_thread::sleep_for(microseconds(mdio_delay_usec));
     wait_for_mdio_tx();
 
     return true;
@@ -42,21 +46,23 @@ bool mdio::read(uint8_t device_addr, uint8_t port_addr, uint16_t reg_addr, uint3
 
     przone_->write(mdio_wr_data_reg,  addr); //Write contents of MDIO addr reg
     przone_->write(mdio_ctrl_reg, mdio_write | mdio_address_reg); //Write request to MDIO addr reg
+    std::this_thread::sleep_for(microseconds(mdio_delay_usec));
     wait_for_mdio_tx();
     przone_->write(mdio_ctrl_reg, mdio_read | mdio_access_reg); //Write read request for data
+    std::this_thread::sleep_for(microseconds(mdio_delay_usec));
     wait_for_mdio_tx();
 
     uint32_t temp;
     if(przone_->read(mdio_rd_data_reg, temp))
-        {
-            value = temp;
-        }
-        else
-        {
-            std::cerr << "WARNING: Could not complete MDIO read" << std::endl;
-        }
+    {
+        value = temp;
+    }
+    else
+    {
+        std::cerr << "WARNING: Could not complete MDIO read" << std::endl;
+    }
 
-     return true;
+    return true;
 }
 
 bool mdio::wait_for_mdio_tx(uint32_t timeout_usec)
