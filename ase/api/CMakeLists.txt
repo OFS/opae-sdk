@@ -55,7 +55,6 @@ target_link_libraries(opae-c-ase
   ${libuuid_LIBRARIES}
   ${librt_LIBRARIES}
   ${GLIB_LIBRARIES})
-message("GLIB=${GLIB_INCLUDE_DIRS}")
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build

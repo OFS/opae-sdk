@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -42,11 +42,12 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
+
+add_library(commonlib SHARED common_test.h common_test.cpp)
 if(BUILD_ASE_TESTS)
   Build_Test_Target(gtase opae-c-ase)
-else()
-  Build_Test_Target(gtapi opae-c)
 endif()
+Build_Test_Target(gtapi opae-c)
 
 ############################################################################
 #### COMMON for GTAPI & GTASE ##############################################
@@ -67,15 +68,29 @@ endif()
 ## add_gtfilter macro  #####################################################
 ############################################################################
 
+macro(add_gtfilter test_name gtfilter is_mock)
+  add_test(NAME ${test_name}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+  if(${is_mock})
+    set_tests_properties(
+      ${test_name}
+      PROPERTIES
+      ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+  endif()
+endmacro()
+
+############################################################################
+## ASE compatible version of gtapi (gtase)  ################################
+############################################################################
+
 set(gtest_filter_include)
 set(gtest_filter_exclude)
 
-# list(APPEND gtest_filter *MOCK*)
-
-#inclusion pattern
+# inclusion pattern
 list(APPEND gtest_filter_include *ALL.*)
 
-#exclusion pattern
+# exclusion pattern
 list(APPEND gtest_filter_exclude *event_drv_05*)
 list(APPEND gtest_filter_exclude *Properties*._id.*)
 list(APPEND gtest_filter_exclude *Open*.03)
@@ -108,45 +123,30 @@ if(BUILD_ASE_TESTS)
     test_open_common_ase
     PROPERTIES
     ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so;ASE_WORKDIR=${CMAKE_BINARY_DIR}/ase/samples/intg_xeon_nlb")
-
-else()
-
-  macro(add_gtfilter test_name gtfilter is_mock)
-    add_test(NAME ${test_name}
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
-    if(${is_mock})
-      set_tests_properties(
-        ${test_name}
-        PROPERTIES
-        ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
-    endif()
-  endmacro()
-
-  ############################################################################
-  ## Add testing targets #####################################################
-  ############################################################################
-  #  Exe_Tests (A B) Usage:
-  #  A         test group name
-  #  B         regular expression of test name)
-  ############################################################################
-  set(Test_Names "*MOCK*:*ALL*")
-  set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18")
-  set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
-  set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
-
-  add_gtfilter(CxxProperties "CxxProperties*" False)
-  add_gtfilter(CxxEnum "CxxEnum*" True)
-  add_gtfilter(CxxOpenClose "CxxOpen*" True)
-  add_gtfilter(CxxBuffer "CxxBuffer*" True)
-  add_gtfilter(CxxExcept "CxxExcept*" False)
-  add_gtfilter(CxxEvent "CxxEvent*" True)
-  add_gtfilter(CxxMMIO "CxxMMIO*" True)
-  add_gtfilter(CxxVersion "CxxVersion*" False)
-  Exe_Tests("Mock_All" ${Test_Names})
-  Exe_tests("Any_Value" "Cxx*any*")
-
 endif()
+
+############################################################################
+## Add testing targets #####################################################
+############################################################################
+#  Exe_Tests (A B) Usage:
+#  A         test group name
+#  B         regular expression of test name)
+############################################################################
+set(Test_Names "*MOCK*:*ALL*")
+set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_drv_09:*Open*.07:*Enum*.18")
+set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
+set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
+
+add_gtfilter(CxxProperties "CxxProperties*" False)
+add_gtfilter(CxxEnum "CxxEnum*" True)
+add_gtfilter(CxxOpenClose "CxxOpen*" True)
+add_gtfilter(CxxBuffer "CxxBuffer*" True)
+add_gtfilter(CxxExcept "CxxExcept*" False)
+add_gtfilter(CxxEvent "CxxEvent*" True)
+add_gtfilter(CxxMMIO "CxxMMIO*" True)
+add_gtfilter(CxxVersion "CxxVersion*" False)
+Exe_Tests("Mock_All" ${Test_Names})
+Exe_tests("Any_Value" "Cxx*any*")
 
 ############################################################################
 ## Add Coverage Analysis ###################################################

@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -85,7 +85,6 @@ function (Build_MOCK_DRV)
 endfunction(Build_MOCK_DRV)
 
 function(Build_Test_Target Target_Name Target_LIB)
-    add_library(commonlib SHARED common_test.h common_test.cpp)
 
     include_directories(
                     ${OPAE_SDK_SOURCE}/tests
@@ -130,9 +129,9 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()         
+    endif()
 
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
                           ${libjson-c_LIBRARIES})
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -173,11 +172,11 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
 
    #Filter test list to preload ib/libmock.so
    string(FIND ${Test_To_Be_Exe} "MOCK" pos)
-   
+
    add_test(NAME ${Test_Name}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
-   
+
    if(${pos})
      set_tests_properties(
          ${Test_Name}
@@ -186,4 +185,3 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
    endif()
 
 endfunction(Exe_Tests)
-
