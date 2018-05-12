@@ -197,10 +197,12 @@ PYBIND11_MODULE(_opae, m) {
       });
 
   py::class_<event, event::ptr_t> pyevent(m, "event");
-  pyevent.def_static("register_event", [](handle::ptr_t h, fpga_event_type t,
+  pyevent
+    .def_static("register_event", [](handle::ptr_t h, fpga_event_type t,
                                           int flags) -> event::ptr_t {
     return event::register_event(h, t, flags);
-  });
+  })
+    .def("os_object", &event::os_object);
 
   py::enum_<fpga_result>(m, "fpga_result", py::arithmetic(),
                          "OPAE return codes")

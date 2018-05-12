@@ -116,6 +116,8 @@ def test_register_event():
     assert resource is not None
     event = opae.event.register_event(resource, opae.fpga_event_type.ERROR, 0)
     assert event is not None
+    fd = event.os_object()
+    assert fd >= 0
 
 if __name__ == "__main__":
     test_mmio()
