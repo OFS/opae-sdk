@@ -45,7 +45,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "\n===== pylint -E ====="
-$PYLINT -E -f parseable $FILES --ignore-pattern=__init__.py
+$PYLINT -E -f parseable $FILES --ignore-patterns=__init__.py,test_*.py
 if [ $? -ne 0 ]; then
 	echo "test-codingstyle-py FAILED"
 	popd
