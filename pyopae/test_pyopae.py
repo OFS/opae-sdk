@@ -69,7 +69,7 @@ def test_mmio():
     resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
     assert resource is not None
     dummy_values = dict([(offset, random.randint(0, 1000))
-                         for offset in range(24, 4096, 8)])
+                         for offset in range(0x100, 0x108, 8)])
 
     for key, value in dummy_values.iteritems():
         resource.write_csr64(key, value)
@@ -101,10 +101,12 @@ def test_close():
     result = resource.close()
     assert result == opae.CLOSED
 
+
 def test_version():
     """test_version test the version API"""
     ver = opae.version()
     assert ver == (0, 13, 1)
+
 
 def test_register_event():
     """test_event test that we can register for an event"""
@@ -116,6 +118,7 @@ def test_register_event():
     assert resource is not None
     event = opae.event.register_event(resource, opae.fpga_event_type.ERROR, 0)
     assert event is not None
+
 
 if __name__ == "__main__":
     test_mmio()

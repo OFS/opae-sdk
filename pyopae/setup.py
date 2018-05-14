@@ -3,12 +3,19 @@ from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
+# get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
+
+
 def override_build_extensions(self):
     if '-Wstrict-prototypes' in self.compiler.compiler_so:
         self.compiler.compiler_so.remove('-Wstrict-prototypes')
+    # call the original build_extensions
     original_build_extensions(self)
+
+# replace build_extensions with our custom version
 build_ext.build_extensions = override_build_extensions
+
 
 def get_include_dirs(*args):
     include_dirs = list(set(args))
