@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -520,7 +520,7 @@ int read_fd(int sock_fd)
 
 	int vector_id = 0;
 
-	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	fdptr = (int *)CMSG_DATA(cmsg);
 	if (req.type == REGISTER_EVENT) {
 		vector_id = req.flags;
 		intr_event_fds[vector_id] = *fdptr;
