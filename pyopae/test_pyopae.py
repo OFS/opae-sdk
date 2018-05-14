@@ -117,7 +117,8 @@ def test_register_event():
     assert toks
     resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
-    event = opae.api.event.register_event(resource, opae.api.FPGA_EVENT_ERROR, 0)
+    event = opae.api.event.register_event(resource,
+                                          opae.api.FPGA_EVENT_ERROR, 0)
     assert event is not None
 
 
