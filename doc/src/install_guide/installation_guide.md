@@ -344,6 +344,15 @@ all users, you can replace `user1` with `*`:
 *    soft   memlock           unlimited
 ```
 
+Note that settings in the /etc/security/limits.conf file don't apply to
+services.  To increase the locked memory limit for a service you need to
+modify the application's systemd service file and add the line:
+
+```console
+[Service]
+LimitMEMLOCK=infinity
+```
+
 ## Hupgepage Settings ##
 
 Users need to configure system hugepage to reserve 2MB-hugepages or
