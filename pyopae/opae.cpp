@@ -204,17 +204,17 @@ PYBIND11_MODULE(_opae, m) {
 
   py::enum_<fpga_result>(m, "fpga_result", py::arithmetic(),
                          "OPAE return codes")
-      .value("OK", FPGA_OK)
-      .value("INVALID_PARAM", FPGA_INVALID_PARAM)
-      .value("BUSY", FPGA_BUSY)
-      .value("EXCEPTION", FPGA_EXCEPTION)
-      .value("NOT_FOUND", FPGA_NOT_FOUND)
-      .value("NO_MEMORY", FPGA_NO_MEMORY)
-      .value("NOT_SUPPORTED", FPGA_NOT_SUPPORTED)
-      .value("NO_DRIVER", FPGA_NO_DRIVER)
-      .value("NO_DAEMON", FPGA_NO_DAEMON)
-      .value("NO_ACCESS", FPGA_NO_ACCESS)
-      .value("RECONF_ERROR", FPGA_RECONF_ERROR)
+      .value("FPGA_OK", FPGA_OK)
+      .value("FPGA_INVALID_PARAM", FPGA_INVALID_PARAM)
+      .value("FPGA_BUSY", FPGA_BUSY)
+      .value("FPGA_EXCEPTION", FPGA_EXCEPTION)
+      .value("FPGA_NOT_FOUND", FPGA_NOT_FOUND)
+      .value("FPGA_NO_MEMORY", FPGA_NO_MEMORY)
+      .value("FPGA_NOT_SUPPORTED", FPGA_NOT_SUPPORTED)
+      .value("FPGA_NO_DRIVER", FPGA_NO_DRIVER)
+      .value("FPGA_NO_DAEMON", FPGA_NO_DAEMON)
+      .value("FPGA_NO_ACCESS", FPGA_NO_ACCESS)
+      .value("FPGA_RECONF_ERROR", FPGA_RECONF_ERROR)
       .export_values();
 
   py::enum_<fpga_objtype>(m, "fpga_objtype", py::arithmetic(),
@@ -225,20 +225,20 @@ PYBIND11_MODULE(_opae, m) {
 
   py::enum_<fpga_open_flags>(m, "fpga_open_flags", py::arithmetic(),
                              "OPAE flags for opening resources")
-      .value("OPEN_SHARED", FPGA_OPEN_SHARED)
+      .value("FPGA_OPEN_SHARED", FPGA_OPEN_SHARED)
       .export_values();
 
   py::enum_<fpga_status>(m, "fpga_status", py::arithmetic(),
                          "OPAE resource status")
-      .value("CLOSED", fpga_status::closed)
-      .value("OPEN", fpga_status::open)
+      .value("FPGA_STATUS_CLOSED", fpga_status::closed)
+      .value("FPGA_STATUS_OPEN", fpga_status::open)
       .export_values();
 
   py::enum_<fpga_event_type>(m, "fpga_event_type", py::arithmetic(),
                              "OPAE event type")
-      .value("INTERRUPT", FPGA_EVENT_INTERRUPT)
-      .value("ERROR", FPGA_EVENT_ERROR)
-      .value("POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
+      .value("FPGA_EVENT_INTERRUPT", FPGA_EVENT_INTERRUPT)
+      .value("FPGA_EVENT_ERROR", FPGA_EVENT_ERROR)
+      .value("FPGA_EVENT_POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
       .export_values();
 
   py::enum_<fpga_accelerator_state>(m, "fpga_accelerator_state",

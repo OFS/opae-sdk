@@ -26,14 +26,14 @@
 
 import uuid
 import random
-import opae
+import opae.api
 
 NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
 
 def test_guid():
     """test_guid test guid property"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
     guid_str = props.guid
     guid = uuid.UUID(guid_str)
@@ -42,19 +42,19 @@ def test_guid():
 
 def test_enumerate():
     """test_enumerate test if we can enumerate for NLB0 using GUID"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
 
 
 def test_open():
     """test_open test if we can enumerate/open NLB0 using GUID"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
 
 
@@ -62,11 +62,11 @@ def test_mmio():
     """test_mmio sweep through CSRs writing random values and reading from
     them. NOTE: This should NOT be run on real hardware.
     """
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
     dummy_values = dict([(offset, random.randint(0, 1000))
                          for offset in range(0x100, 0x108, 8)])
@@ -80,43 +80,44 @@ def test_mmio():
 
 def test_buffer():
     """test_buffer test shared buffer allocation"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
-    buf = opae.shared_buffer.allocate(resource, 1024)
+    buf = opae.api.shared_buffer.allocate(resource, 1024)
+    assert buf is not None
 
 
 def test_close():
     """test_close test if we can enumerate/open and then close an accelerator
     handle"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
     result = resource.close()
-    assert result == opae.CLOSED
+    assert result == opae.api.FPGA_STATUS_CLOSED
 
 
 def test_version():
     """test_version test the version API"""
-    ver = opae.version()
+    ver = opae.api.version()
     assert ver == (0, 13, 1)
 
 
 def test_register_event():
     """test_event test that we can register for an event"""
-    props = opae.properties()
+    props = opae.api.properties()
     props.guid = NLB0
-    toks = opae.token.enumerate([props])
+    toks = opae.api.token.enumerate([props])
     assert toks
-    resource = opae.handle.open(toks[0], opae.OPEN_SHARED)
+    resource = opae.api.handle.open(toks[0], opae.api.FPGA_OPEN_SHARED)
     assert resource is not None
-    event = opae.event.register_event(resource, opae.fpga_event_type.ERROR, 0)
+    event = opae.api.event.register_event(resource, opae.api.FPGA_EVENT_ERROR, 0)
     assert event is not None
 
 

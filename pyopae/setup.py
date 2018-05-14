@@ -37,7 +37,7 @@ def get_include_dirs(*args):
 
 
 extensions = [
-    Extension("opae._opae",
+    Extension("opae.api._opae",
               sources=["opae.cpp"],
               language="c++",
               extra_compile_args=["-std=c++11"],
@@ -53,7 +53,6 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'accel = opae.accel:main',
         ]
     },
     ext_modules=extensions,
