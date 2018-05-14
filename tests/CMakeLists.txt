@@ -59,10 +59,9 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
+
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TESTS)
-  Build_MOCk_DRV()
-endif()
+Build_MOCk_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
@@ -156,10 +155,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   if(BUILD_ASE_TESTS AND GTEST_FOUND)
     set_target_for_coverage_local(opae-c-ase ctest)
     add_dependencies(coverage_opae-c-ase gtase)
-  else(BUILD_ASE_TESTS AND GTEST_FOUND)
-    if(BUILD_TESTS AND GTEST_FOUND)
-      set_target_for_coverage(opae-c ctest)
-      add_dependencies(coverage_opae-c gtapi)
-    endif(BUILD_TESTS AND GTEST_FOUND)
-  endif(BUILD_ASE_TESTS AND GTEST_FOUND)
+  endif()
+  if(BUILD_TESTS AND GTEST_FOUND)
+    set_target_for_coverage(opae-c ctest)
+    add_dependencies(coverage_opae-c gtapi)
+  endif()
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
