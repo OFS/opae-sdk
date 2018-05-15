@@ -62,6 +62,8 @@ void e100::internal_loopback(uint32_t instance)
     gen_ctrl_ = 0;
     mon_ctrl_ = 0;
     auto mac0 = read_mac_address(0);
+    src_mac_ = mac0;
+    dst_mac_ = mac0;
 
     auto mac_ctrl = instance == 0 ? mac_reg::mac0_ctrl : mac_reg::mac1_ctrl;
     if (packet_count_ > 0)
@@ -105,6 +107,8 @@ void e100::external_loopback(uint32_t source_port, uint32_t destination_port)
 {
     auto mac0 = read_mac_address(source_port);
     auto mac1 = read_mac_address(destination_port);
+    src_mac_ = mac0;
+    dst_mac_ = mac1;
     gen_ctrl_ = 0;
     mon_ctrl_ = 0;
 
@@ -240,6 +244,9 @@ mac_report e100::gen_report(uint32_t port)
         report.mon_src_error   = status & static_cast<uint32_t>(mon_stat::source_error);
         report.mon_pkt_length_error   = status & static_cast<uint32_t>(mon_stat::packet_length_error);
     }
+
+    report.src_mac = (static_cast<uint64_t>(src_mac_.hi) << 32) & src_mac_.lo;
+    report.dst_mac = (static_cast<uint64_t>(dst_mac_.hi) << 32) & dst_mac_.lo;
     return report;
 }
 

@@ -195,6 +195,8 @@ private:
     uint32_t mon_ctrl_;
     bool mac_read(mac_reg prctrl, mac_reg macreg, uint32_t & value);
     bool mac_write(mac_reg prctrl, mac_reg macreg, uint32_t value);
+    mac_address_t src_mac_;
+    mac_address_t dst_mac_;
 };
 
 } // end of namespace hssi

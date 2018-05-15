@@ -499,6 +499,14 @@ std::ostream & operator<<(std::ostream & os, const std::vector<intel::fpga::hssi
     os <<  "MON STATUS   : ";
     for (const auto & r : reports) os <<  std::setw(width) << status(r.mon_complete) << "|";
     os << std::endl;
+
+    os << "SRC ADDR     : ";
+    for (const auto & r : reports) os << std::setw(width-1) << "0x" << std::hex << r.src_mac;
+    os << "|" << std::endl;
+    
+    os << "DST ADDR     : ";
+    for (const auto & r : reports) os << std::setw(width-1) << "0x" << std::hex << r.dst_mac;
+    os << "|" << std::endl;
     return os;
 
 }

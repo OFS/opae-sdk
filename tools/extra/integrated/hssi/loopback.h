@@ -54,6 +54,8 @@ struct mac_report
     bool mon_dest_error;
     bool mon_src_error;
     bool mon_pkt_length_error;
+    uint64_t src_mac;
+    uint64_t dst_mac;
     mac_report():
         port(0),
         cntr_tx_stat(0),
