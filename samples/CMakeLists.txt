@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 find_package(UUID REQUIRED)
+include(opae_devpkgs_cmake_install)
 
 include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src )

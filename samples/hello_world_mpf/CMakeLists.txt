@@ -63,15 +63,15 @@ endif()
 # Installation files #################################################
 ######################################################################
 
-install(FILES ${PROJECT_BINARY_DIR}/sources.txt
+install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
 
-install(FILES ${PROJECT_BINARY_DIR}/hw/cci_mpf_hello.json
+install(FILES ${PROJECT_SOURCE_DIR}/hw/cci_mpf_hello.json
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
 
-install(DIRECTORY ${PROJECT_BINARY_DIR}/hw/rtl
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
 
@@ -92,6 +92,6 @@ else()
   target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
-install(FILES sw/cci_hello_world.c
-  DESTINATION ${OPAE_SAMPLES}/hello_world/sw
+install(FILES sw/cci_mpf_hello.cpp
+  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/sw
   COMPONENT samplesrc)

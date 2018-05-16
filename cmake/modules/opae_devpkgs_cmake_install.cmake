@@ -26,33 +26,36 @@
 
 # Post-installation Development scripts
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/cmake_useful.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/CMakeParseArguments.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/compiler_config.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/libraries_config.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/Findjson-c.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrasescriptsc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindRT.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindUUID.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindGLIB.cmake
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindOPAE.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuesta.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindQuartus.cmake
-  DESTINATION ${OPAE_SHARE_DIR}/cmake/modules
-  COMPONENT asescripts)
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindVerilator.cmake
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)

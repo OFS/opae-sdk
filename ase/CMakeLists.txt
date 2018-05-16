@@ -26,7 +26,7 @@
 
 ## Install target for ASE support files
 project(ase)
-include(cmake_dev_config)
+include(opae_devpkgs_cmake_install)
 find_package(DBus)
 find_package(GLIB)
 

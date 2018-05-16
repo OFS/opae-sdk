@@ -55,16 +55,16 @@ endif()
 # Installation files #################################################
 ######################################################################
 
-install(FILES ${PROJECT_BINARY_DIR}/sources.txt
+install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
   DESTINATION ${OPAE_SAMPLES}/hello_world/hw
   COMPONENT samplesrc)
 
-install(FILES ${PROJECT_BINARY_DIR}/hw/cci_hello.json
-  DESTINATION ${ASE_SAMPLES}/hello_world/hw
+install(FILES ${PROJECT_SOURCE_DIR}/hw/cci_hello.json
+  DESTINATION ${OPAE_SAMPLES}/hello_world/hw
   COMPONENT samplesrc)
 
-install(DIRECTORY ${PROJECT_BINARY_DIR}/hw/rtl
-  DESTINATION ${ASE_SAMPLES}/hello_world/hw
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
+  DESTINATION ${OPAE_SAMPLES}/hello_world/hw
   COMPONENT samplesrc)
 
 ######################################################################
