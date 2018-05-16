@@ -102,15 +102,15 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
                 unit/gtAnyValue.cpp
-                unit/gtCxxEnumerate.cpp
-                unit/gtCxxEvents.cpp
-                unit/gtCxxOpenClose.cpp
-                unit/gtCxxProperties.cpp
-                unit/gtCxxExcept.cpp
-                unit/gtCxxBuffer.cpp
-                unit/gtCxxReset.cpp
-                unit/gtCxxMMIO.cpp
-                unit/gtCxxVersion.cpp
+                function/gtCxxEnumerate.cpp
+                function/gtCxxEvents.cpp
+                function/gtCxxOpenClose.cpp
+                function/gtCxxProperties.cpp
+                function/gtCxxExcept.cpp
+                function/gtCxxBuffer.cpp
+                function/gtCxxReset.cpp
+                function/gtCxxMMIO.cpp
+                function/gtCxxVersion.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp

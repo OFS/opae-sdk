@@ -21,7 +21,7 @@ using namespace opae::fpga::types;
  * Then I get a non-null handle<br>
  * And no exceptions are thrown when I release the handle and tokens<br>
  */
-TEST(CxxOpen, handle_open_01) {
+TEST(LibopaecppOpenCommonALL, handle_open_01) {
   auto tokens = token::enumerate({FPGA_ACCELERATOR});
   ASSERT_TRUE(tokens.size() > 0);
   handle::ptr_t h = handle::open(tokens[0], FPGA_OPEN_SHARED);
