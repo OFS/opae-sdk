@@ -38,10 +38,6 @@ import avalon_mm_pkg::*;
 //---------------------------------------------------
 // Constants
 //---------------------------------------------------
-localparam SYMBOL_W                 = 8;
-localparam NUM_SYMBOLS              = 64;
-localparam DATA_W                   = NUM_SYMBOLS * SYMBOL_W; //512
-
 localparam BURST_W                  = 7;
 localparam MAX_BURST                = 64;
 localparam MAX_LATENCY              = 2;
@@ -52,14 +48,17 @@ localparam MAX_DATA_IDLE            = 3;
 
 module emif_ddr4 #(
 	parameter DDR_ADDR_WIDTH = 26,
-        // Used to index the slave
-        parameter INSTANCE_ID = 0
+	parameter DDR_DATA_WIDTH = 512,
+	parameter SYMBOL_WIDTH = 8,
+	parameter NUM_SYMBOLS = (DDR_DATA_WIDTH + SYMBOL_WIDTH - 1) / SYMBOL_WIDTH,
+	// Used to index the slave
+	parameter INSTANCE_ID = 0
 ) (
 	output wire         ddr4a_avmm_waitrequest,
-	output wire [DATA_W-1:0] ddr4a_avmm_readdata,
+	output wire [DDR_DATA_WIDTH-1:0] ddr4a_avmm_readdata,
 	output wire         ddr4a_avmm_readdatavalid,
 	input  wire [BURST_W-1:0]   ddr4a_avmm_burstcount,
-	input  wire [DATA_W-1:0] ddr4a_avmm_writedata,
+	input  wire [DDR_DATA_WIDTH-1:0] ddr4a_avmm_writedata,
 	input  wire [DDR_ADDR_WIDTH-1:0]  ddr4a_avmm_address,
 	input  wire         ddr4a_avmm_write,
 	input  wire         ddr4a_avmm_read,
@@ -70,10 +69,10 @@ module emif_ddr4 #(
 	input  wire         ddr4a_pll_ref_clk_clock_sink_clk,
 
 	output wire         ddr4b_avmm_waitrequest,
-	output wire [DATA_W-1:0] ddr4b_avmm_readdata,
+	output wire [DDR_DATA_WIDTH-1:0] ddr4b_avmm_readdata,
 	output wire         ddr4b_avmm_readdatavalid,
 	input  wire [BURST_W-1:0]   ddr4b_avmm_burstcount,
-	input  wire [DATA_W-1:0] ddr4b_avmm_writedata,
+	input  wire [DDR_DATA_WIDTH-1:0] ddr4b_avmm_writedata,
 	input  wire [DDR_ADDR_WIDTH-1:0]  ddr4b_avmm_address,
 	input  wire         ddr4b_avmm_write,
 	input  wire         ddr4b_avmm_read,
@@ -99,14 +98,14 @@ typedef enum bit
 } Burstmode;
 
 // model memory banks as associative arrays
-logic [DATA_W-1:0] memory[`NUM_SLAVES][*];
+logic [DDR_DATA_WIDTH-1:0] memory[`NUM_SLAVES][*];
 
 typedef struct
 {
    Transaction                  trans;
    Burstcount                   burstcount;
    logic [DDR_ADDR_WIDTH-1:0]   addr;
-   logic [DATA_W-1:0]           data       [MAX_BURST-1:0];
+   logic [DDR_DATA_WIDTH-1:0]   data       [MAX_BURST-1:0];
    logic [NUM_SYMBOLS-1:0]      byteenable [MAX_BURST-1:0];
    bit [31:0]                   cmd_delay;
    bit [31:0]                   data_idles [MAX_BURST-1:0];
@@ -115,7 +114,7 @@ typedef struct
 typedef struct
 {
    Burstcount                    burstcount;
-   logic [DATA_W-1:0]            data     [MAX_BURST-1:0];
+   logic [DDR_DATA_WIDTH-1:0]    data     [MAX_BURST-1:0];
    bit [31:0]                    latency  [MAX_BURST-1:0];
 } Response;
 
@@ -257,11 +256,11 @@ function automatic Response create_response (
 endfunction
 
 // Expand data enable to a data mask
-function automatic logic [DATA_W-1:0] get_mask (logic [NUM_SYMBOLS-1:0] byteenable);
-	logic [DATA_W-1:0] mask;
+function automatic logic [DDR_DATA_WIDTH-1:0] get_mask (logic [NUM_SYMBOLS-1:0] byteenable);
+	logic [DDR_DATA_WIDTH-1:0] mask;
 	for(int i=0; i<NUM_SYMBOLS; i++) begin
-		mask[i*SYMBOL_W +: SYMBOL_W] = byteenable[i]? {SYMBOL_W{1'b1}}:
-		                                              {SYMBOL_W{1'b0}};
+		mask[i*SYMBOL_WIDTH +: SYMBOL_WIDTH] =
+			byteenable[i]? {SYMBOL_WIDTH{1'b1}} : {SYMBOL_WIDTH{1'b0}};
 	end
 	return mask;
 endfunction
@@ -284,7 +283,7 @@ endfunction
 \
 	Command     actual_cmd, exp_cmd; \
 	Response    rsp; \
-	logic [DATA_W-1:0] mask; \
+	logic [DDR_DATA_WIDTH-1:0] mask; \
 \
 	automatic int backpressure_cycles; \
 \

@@ -4,7 +4,11 @@
 
 `timescale 1 ps / 1 ps
 module emif_ddr4 #(
-	parameter DDR_ADDR_WIDTH = 26
+	// To be fixed: These are all currently ignored.
+	parameter DDR_ADDR_WIDTH = 26,
+	parameter DDR_DATA_WIDTH = 512,
+	parameter SYMBOL_WIDTH = 8,
+	parameter NUM_SYMBOLS = (DDR_DATA_WIDTH + SYMBOL_WIDTH - 1) / SYMBOL_WIDTH
 ) (
 		output wire         ddr4a_avmm_waitrequest,                     //                    ddr4a_avmm.waitrequest
 		output wire [511:0] ddr4a_avmm_readdata,                        //                              .readdata
