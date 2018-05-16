@@ -26,6 +26,8 @@
 
 import os
 
+DCP_ID = 0x09c4
+
 
 class bitmask(object):
     def __init__(self, bit_lo, bit_hi=None):
