@@ -44,12 +44,40 @@ elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
     set (CMAKE_C_STANDARD "99")
 endif ()
 
-# MPF library
+######################################################################
+# MPF library ########################################################
+######################################################################
+
 include(intel_fpga_bbb)
 Build_Intel_FPGA_BBB()
 
-# Add the samples
+######################################################################
+# Add the samples ####################################################
+######################################################################
+
 set(OPAE_SAMPLES src/opae/samples)
 add_subdirectory(intg_xeon_nlb)
 add_subdirectory(hello_world)
 add_subdirectory(hello_world_mpf)
+
+######################################################################
+# Client application #################################################
+######################################################################
+
+add_executable(hello_fpga hello_fpga.c)
+if(BUILD_LIBOPAE_C)
+  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+else()
+  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+endif()
+
+if(BUILD_LIBOPAE_C)
+  add_executable(hello_events hello_events.c)
+  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+endif()
+
+set(SAMPLES_SRC hello_fpga.c hello_events.c)
+
+install(FILES ${SAMPLES_SRC}
+  DESTINATION ${OPAE_SAMPLES}
+  COMPONENT samplesrc)

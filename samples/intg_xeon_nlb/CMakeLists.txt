@@ -76,25 +76,3 @@ install(FILES ${PROJECT_BINARY_DIR}/hw/ccip_std_afu.json
 install(DIRECTORY ${PROJECT_BINARY_DIR}/hw/rtl
   DESTINATION ${OPAE_SAMPLES}/intg_xeon_nlb/hw
   COMPONENT samplesrc)
-
-######################################################################
-# Client application #################################################
-######################################################################
-
-add_executable(hello_fpga sw/hello_fpga.c)
-if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-else()
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
-endif()
-
-if(BUILD_LIBOPAE_C)
-  add_executable(hello_events sw/hello_events.c)
-  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-endif()
-
-set(SAMPLES_SRC sw/hello_fpga.c sw/hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}/intg_xeon_nlb/sw
-  COMPONENT samplesrc)
