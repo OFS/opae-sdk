@@ -45,6 +45,8 @@ class src_location {
 
   src_location(const src_location &other) noexcept;
 
+  src_location &operator=(const src_location &other) noexcept;
+
   /** Retrieve the file name component of the location.
    */
   const char *file() const noexcept;
