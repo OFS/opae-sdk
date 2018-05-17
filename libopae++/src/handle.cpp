@@ -34,14 +34,14 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h) : handle_(h) {}
+handle::handle(fpga_handle h) : handle_(h), token_(nullptr) {}
 
 handle::~handle() {
   close();
   // release the cloned token
   auto result = fpgaDestroyToken(&token_);
   if (result != FPGA_OK) {
-    std::cerr << "Error destroying token structure: " << fpgaErrStr(result)
+    std::cerr << "Error while calling fpgaDestroyToken: " << fpgaErrStr(result)
               << "\n";
   }
 }
