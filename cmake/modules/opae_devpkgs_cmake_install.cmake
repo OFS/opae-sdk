@@ -43,6 +43,9 @@ install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindRT.cmake
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindUUID.cmake
   DESTINATION src/opae/cmake/modules
   COMPONENT samplesrc)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindDBus.cmake
+  DESTINATION src/opae/cmake/modules
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindGLIB.cmake
   DESTINATION src/opae/cmake/modules
   COMPONENT samplesrc)
