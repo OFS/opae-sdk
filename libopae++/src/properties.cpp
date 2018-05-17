@@ -174,13 +174,21 @@ properties::properties(fpga_objtype objtype) : properties() { type = objtype; }
 
 properties::~properties() {
   if (props_ != nullptr) {
-    ASSERT_FPGA_OK(fpgaDestroyProperties(&props_));
+    auto res = fpgaDestroyProperties(&props_);
+    if (res != FPGA_OK) {
+      std::cerr << "Error while calling fpgaDestroyProperties: "
+                << fpgaErrStr(res) << "\n";
+    }
   }
 }
 
 properties::ptr_t properties::read(fpga_token tok) {
   ptr_t p(new properties());
-  ASSERT_FPGA_OK(fpgaGetProperties(tok, &p->props_));
+  auto res = fpgaGetProperties(tok, &p->props_);
+  if (res != FPGA_OK) {
+    p.reset();
+  }
+  ASSERT_FPGA_OK(res);
   return p;
 }
 
