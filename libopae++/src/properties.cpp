@@ -46,6 +46,7 @@ properties::properties()
       bbs_version(&props_, fpgaPropertiesGetBBSVersion,
                   fpgaPropertiesSetBBSVersion),
       vendor_id(&props_, fpgaPropertiesGetVendorID, fpgaPropertiesSetVendorID),
+      device_id(&props_, fpgaPropertiesGetDeviceID, fpgaPropertiesSetDeviceID),
       model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel),
       local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize,
                         fpgaPropertiesSetLocalMemorySize),
@@ -74,6 +75,7 @@ properties::properties(const properties &p)
       bbs_version(&props_, fpgaPropertiesGetBBSVersion,
                   fpgaPropertiesSetBBSVersion),
       vendor_id(&props_, fpgaPropertiesGetVendorID, fpgaPropertiesSetVendorID),
+      device_id(&props_, fpgaPropertiesGetDeviceID, fpgaPropertiesSetDeviceID),
       model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel),
       local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize,
                         fpgaPropertiesSetLocalMemorySize),
@@ -99,6 +101,7 @@ properties::properties(const properties &p)
   if (p.bbs_id.is_set()) bbs_id.update();
   if (p.bbs_version.is_set()) bbs_version.update();
   if (p.vendor_id.is_set()) vendor_id.update();
+  if (p.device_id.is_set()) device_id.update();
   if (p.model.is_set()) model.update();
   if (p.local_memory_size.is_set()) local_memory_size.update();
   if (p.capabilities.is_set()) capabilities.update();
@@ -124,6 +127,7 @@ properties &properties::operator=(const properties &p) {
       bbs_id.invalidate();
       bbs_version.invalidate();
       vendor_id.invalidate();
+      device_id.invalidate();
       model.invalidate();
       local_memory_size.invalidate();
       capabilities.invalidate();
@@ -149,6 +153,7 @@ properties &properties::operator=(const properties &p) {
       if (p.bbs_id.is_set()) bbs_id.update();
       if (p.bbs_version.is_set()) bbs_version.update();
       if (p.vendor_id.is_set()) vendor_id.update();
+      if (p.device_id.is_set()) device_id.update();
       if (p.model.is_set()) model.update();
       if (p.local_memory_size.is_set()) local_memory_size.update();
       if (p.capabilities.is_set()) capabilities.update();
