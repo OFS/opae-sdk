@@ -335,7 +335,7 @@ all users, you can replace `user1` with `*`:
 *    soft   memlock           unlimited
 ```
 
-## Hupgepage Settings ##
+## Hugepage Settings ##
 
 Users need to configure system hugepage to reserve 2MB-hugepages or
 1GB-hugepages. For example, the 'hello\_fpga' sample requires several
