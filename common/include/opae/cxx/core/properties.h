@@ -113,6 +113,7 @@ class properties {
   pvalue<uint64_t> bbs_id;
   pvalue<fpga_version> bbs_version;
   pvalue<uint16_t> vendor_id;
+  pvalue<uint16_t> device_id;
   pvalue<char *> model;
   pvalue<uint64_t> local_memory_size;
   pvalue<uint64_t> capabilities;

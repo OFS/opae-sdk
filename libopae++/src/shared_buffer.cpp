@@ -34,7 +34,11 @@ namespace types {
 shared_buffer::~shared_buffer() {
   // If the allocation was successful.
   if (virt_) {
-    ASSERT_FPGA_OK(fpgaReleaseBuffer(handle_->get(), wsid_));
+    auto res = fpgaReleaseBuffer(handle_->get(), wsid_);
+    if (res != FPGA_OK) {
+      std::cerr << "Error while calling fpgaReleaseBuffer: " << fpgaErrStr(res)
+                << "\n";
+    }
   }
 }
 
@@ -60,7 +64,7 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
 }
 
 shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
-                                     size_t len) {
+                                           size_t len) {
   ptr_t p;
 
   uint8_t *virt = base;
@@ -86,7 +90,7 @@ int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
 }
 
 shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
-                       uint64_t wsid, uint64_t iova)
+                             uint64_t wsid, uint64_t iova)
     : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
 
 }  // end of namespace types
