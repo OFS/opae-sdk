@@ -190,44 +190,45 @@ module ase_top();
    genvar b;
    generate
       for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 2)
-	begin : b_emul
-           emif_ddr4
-               #(
-		 .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
-		 .INSTANCE_ID(b)
-		 )
-           emif_ddr4
-               (
-		.ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
-		.ddr4a_avmm_readdata                   (ddr4[b].readdata),
-		.ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
-		.ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
-		.ddr4a_avmm_writedata                  (ddr4[b].writedata),
-		.ddr4a_avmm_address                    (ddr4[b].address),
-		.ddr4a_avmm_write                      (ddr4[b].write),
-		.ddr4a_avmm_read                       (ddr4[b].read),
-		.ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
-		.ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
+      begin : b_emul
+         emif_ddr4
+          #(
+            .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
+            .DDR_DATA_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_DATA_WIDTH),
+            .INSTANCE_ID(b)
+            )
+          emif_ddr4
+          (
+            .ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
+            .ddr4a_avmm_readdata                   (ddr4[b].readdata),
+            .ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
+            .ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
+            .ddr4a_avmm_writedata                  (ddr4[b].writedata),
+            .ddr4a_avmm_address                    (ddr4[b].address),
+            .ddr4a_avmm_write                      (ddr4[b].write),
+            .ddr4a_avmm_read                       (ddr4[b].read),
+            .ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
+            .ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
 
-		.ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
-		.ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
+            .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
+            .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
 
-		.ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
-		.ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
-		.ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
-		.ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
-		.ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
-		.ddr4b_avmm_address                    (ddr4[b+1].address),
-		.ddr4b_avmm_write                      (ddr4[b+1].write),
-		.ddr4b_avmm_read                       (ddr4[b+1].read),
-		.ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
-		.ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
-		);
+            .ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
+            .ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
+            .ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
+            .ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
+            .ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
+            .ddr4b_avmm_address                    (ddr4[b+1].address),
+            .ddr4b_avmm_write                      (ddr4[b+1].write),
+            .ddr4b_avmm_read                       (ddr4[b+1].read),
+            .ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
+            .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
+         );
 
-           // Mostly used for debugging
-           assign ddr4[b].bank_number = b;
-           assign ddr4[b+1].bank_number = b+1;
-	end
+         // Mostly used for debugging
+         assign ddr4[b].bank_number = b;
+         assign ddr4[b+1].bank_number = b+1;
+      end
    endgenerate
 
 `endif
