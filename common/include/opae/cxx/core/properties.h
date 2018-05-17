@@ -27,6 +27,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <vector>
 
 #include <opae/cxx/core/pvalue.h>
 #include <opae/properties.h>
