@@ -69,7 +69,9 @@ std::vector<token::ptr_t> token::enumerate(
 
 token::~token() {
   auto res = fpgaDestroyToken(&token_);
-  ASSERT_FPGA_OK(res);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaDestroyToken: " << fpgaErrStr(res) << "\n";
+  }
 }
 
 token::token(fpga_token tok) {
