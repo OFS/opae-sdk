@@ -46,6 +46,15 @@ src_location::src_location(const src_location &other) noexcept
       fn_(other.fn_),
       line_(other.line_) {}
 
+src_location &src_location::operator=(const src_location &other) noexcept {
+  if (&other != this) {
+    file_ = other.file_;
+    fn_ = other.fn_;
+    line_ = other.line_;
+  }
+  return *this;
+}
+
 const char *src_location::file() const noexcept {
   // return a pointer to the file name component.
   const char *p = file_;
