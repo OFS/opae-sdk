@@ -20,7 +20,7 @@ using namespace opae::fpga::types;
 TEST(LibopaecppExceptCommonALL, except_01) {
   src_location loc(OPAECXX_HERE);
 
-  EXPECT_STREQ("gtLibopaecppExceptCommonALL.cpp", loc.file());
+  EXPECT_STREQ("gtCxxExcept.cpp", loc.file());
   EXPECT_STREQ("TestBody", loc.fn());
   EXPECT_EQ(21, loc.line());
 }
@@ -49,7 +49,7 @@ TEST(LibopaecppExceptCommonALL, except_03) {
   except e(FPGA_INVALID_PARAM, OPAECXX_HERE);
 
   EXPECT_EQ(FPGA_INVALID_PARAM, e);
-  EXPECT_STREQ("failed with error invalid parameter at: gtLibopaecppExceptCommonALL.cpp:TestBody():49", e.what());
+  EXPECT_STREQ("failed with error invalid parameter at: gtCxxExcept.cpp:TestBody():49", e.what());
 }
 
 /**

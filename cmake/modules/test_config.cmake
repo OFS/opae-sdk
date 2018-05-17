@@ -165,12 +165,13 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
 
    #Filter test list to preload ib/libmock.so
    string(FIND ${Test_To_Be_Exe} "MOCK" pos)
+   string(FIND ${Test_To_Be_Exe} "ALL"  pos1)
    
    add_test(NAME ${Test_Name}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
    
-   if(${pos})
+  if(${pos} OR ${pos1})
      set_tests_properties(
          ${Test_Name}
          PROPERTIES
