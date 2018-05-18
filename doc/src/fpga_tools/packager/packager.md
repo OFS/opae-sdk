@@ -29,7 +29,7 @@ The following table describes the `<CMD>` arguments:
 | ```create-gbs```  | ```--rbf=<RBF_PATH>``` <br>```--afu=<AFU_JSON_PATH>``` <br>```--gbs=<GBS_PATH>``` <br>```--set-value=<key>.<value>```| Creates the AF file. The engineering name for this file is the green bit stream, abbreviated gbs. The `--rbf` and `--afu`   arguments are required.  `<RBF_PATH>` is the path to the RBF file for the AFU. The Quartus&reg; Prime software generates this RBF by compiling the AFU design. `<AFU_JSON_PATH>` is the path to the Accelerator Description file. This is a JSON file that describes the metadata that `create-gbs` appends to the RBF. `<GBS_PATH>` is the path to the RBF file for the FPGA Interface Manager (FIM) that contains the FPGA interface unit and other interfaces. If you do not specify the `--gbs`, the command defaults to `<rbf_name>.gbs`. You can use the optional `--set-value=<key>.<value>` argument to set values for JSON metadata. To set more than one JSON value, list a series of `<key>.<value>`  pairs.|
 |```modify-gbs``` | ```--gbs=<gbs_PATH>```| Modifies the AF file. The `--input-gbs`argument is required. If you do not provide the `--output-gbs` argument, `modify-gbs` overwrites the `--input-gbs` file. Use the `--set-value=<key>.<value>` argument to set values for JSON metadata. To set more than one JSON value, list a series of `<key>.<value>`  pairs.|
 |```gbs-info``` | ```--input-gbs=<gbs_PATH>```| Prints information about the AF file. The `--input-gbs` argument is required.|
-|```get-rbf``` | ```--gbs=<GBS_PATH>``` <br>```--rbf=<RBF_PATH>```| Creates the the RBF by extracting it from the AF file. The `--gbs`argument is required. If you do not specify the `--rbf` agrument, the command defaults to `<gbs_name.rbf` . |
+|```get-rbf``` | ```--gbs=<GBS_PATH>``` <br>```--rbf=<RBF_PATH>```| Creates the RBF by extracting it from the AF file. The `--gbs`argument is required. If you do not specify the `--rbf` argument, the command defaults to `<gbs_name.rbf` . |
 | None, or any `<CMD>`  | `--help` | Summarizes the `<CMD>` options. Typing `packager --help` gives a list of `<CMD>` values. Typing `packager <CMD> --help` provides detailed help for `<CMD>` | 
 
 
@@ -100,5 +100,9 @@ Per-AFU  | clock-frequency-high | Float | Clock frequency for 2nd PLL (0 if abse
 Per-AFC Cluster | total-contexts | Integer | Number of AFCs in this cluster. Always be 1 in current architectures. | Yes
 Per-AFC Cluster | afc-type-uuid |  UUID | AFC type = AFU ID in current architectures. | Yes
 Per-AFC Cluster | name | string | AFC name = AFU name in current architectures. | Yes
+
+| Date | Intel Acceleration Stack Version | Changes Made |
+|:------|----------------------------|:--------------|
+|2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) |  Fixed typos. |
 
 
