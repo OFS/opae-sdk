@@ -439,8 +439,11 @@ class sysfsinfo(object):
             sysfs_port = PORT_DEVICE.format(instance_id=instance_id)
             self._fmelist.append(fme_info(sysfs_fme, instance_id,
                                  self.device_id, **bdf))
-            self._portlist.append(port_info(sysfs_port, instance_id,
-                                  self.device_id, **bdf))
+
+            # if the port exists, get info for the port
+            if os.path.exists(sysfs_port):
+                self._portlist.append(port_info(sysfs_port, instance_id,
+                                      self.device_id, **bdf))
 
     def fme(self, **kwargs):
         return filter(sysfs_filter(**kwargs), self._fmelist)
