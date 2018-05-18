@@ -93,6 +93,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
                     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c
+                    ${OPAE_SDK_SOURCE}/tools/base/argsfilter
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
@@ -102,6 +103,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtOpen.cpp
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
+		unit/gtArgsFilter.cpp
                 unit/gtAnyValue.cpp
                 unit/gtCxxEnumerate.cpp
                 unit/gtCxxEvents.cpp

@@ -109,8 +109,21 @@ add_gtfilter(CxxExcept "CxxExcept*" False)
 add_gtfilter(CxxEvent "CxxEvent*" True)
 add_gtfilter(CxxMMIO "CxxMMIO*" True)
 add_gtfilter(CxxVersion "CxxVersion*" False)
+add_gtfilter(ArgsFilter "argsfilter*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
+
+## Is this test still needed or is this covered by another test?
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^##
+add_test(NAME test_get_properties
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
+
+set_tests_properties(
+  test_get_properties
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^##
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
