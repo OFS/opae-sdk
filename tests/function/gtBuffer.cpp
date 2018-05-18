@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,15 +42,6 @@
 
 using namespace std;
 using namespace common_test;
-
-class LibopaecBufFCommonMOCK : public BaseFixture, public ::testing::Test {
- public:
-  static const uint64_t len_min = 1024;
-  static const uint64_t len_max = 4 * 1024;
-  static const uint64_t len_2mb = 2 * 1024 * 1024;
-  static const uint64_t len_1gb = 960 * 1024 * 1024;
-  static const uint64_t accum_max = 2 * 1024UL * 1024UL * 1024UL;
-};
 
 /**
  * @test       NoPrep01
