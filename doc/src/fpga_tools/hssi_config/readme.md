@@ -30,7 +30,7 @@ The following options and commands are available:
 
 `[--resource|-r <sysfs resource path>`
 
-The resource path in the sysfs psuedo-filesystem.
+The resource path in the sysfs pseudo-filesystem.
 Example:
     `/sys/devices/pci0000\:5e/0000\:5e\:00.0/resource0`
 
@@ -107,9 +107,9 @@ The first argument is the path to a file containing the registers to test.
 ## Overview ##
 
 The ```hssi_config``` utility reads or writes hssi equalization parameters stored in either
-the tranceiver (XCVR) registers or the registers of the retimer on the I2C bus. To access registers, 
+the transceiver (XCVR) registers or the registers of the retimer on the I2C bus. To access registers, 
 the hssi controller writes to the ```HSSI_CTRL``` register and reads from the ```HSSI_STAT```
-register in the the FPGA Management Engine (FME). These two registers implement the HSSI AUX bus
+register in the FPGA Management Engine (FME). These two registers implement the HSSI AUX bus
 mailbox protocol to access devices on other buses. Because ```hssi_config``` maps the FME MMIO
 space directly, the FPGA driver is not required.
 
@@ -232,5 +232,11 @@ Specifies the path to a file containing the set of registers to test.
 
 `--acktimes ` 
 
-Specifies the time spent in the `ack` routine. When meaured, a summary of ack times prints 
+Specifies the time spent in the `ack` routine. When measured, a summary of ack times prints 
 to stdout. This argument is optional.
+
+## Revision History ##
+
+ | Document Version |  Intel Acceleration Stack Version  | Changes  |
+ | ---------------- |------------------------------------|----------|
+ | 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Corrected typos.  | 
