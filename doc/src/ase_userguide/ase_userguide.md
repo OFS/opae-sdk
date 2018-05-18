@@ -314,8 +314,8 @@ Run ```rtl_src_config --help``` for a list of options and the required command s
 #### generate_ase_environment.py ####
 
 The ```/ase/scripts/generate_ase_environment.py``` generates platform configuration files. ```afu_sim_setup``` invokes it
-automtically. A legacy mode in ```generate_ase_environment.py``` performs a brute-force check of the specified AFU RTL
-directories, attempting to define a compilation. This brute-force mode is
+automatically. A legacy mode in ```generate_ase_environment.py``` performs a brute-force check of the specified AFU RTL
+directories, attempting to define a compilation. This brute-force mode is 
 imperfect and lists every file ending in ```.sv, .vs, .vhd, or .v``` and directories separated by ```+```. It also may fail
 when compilation is order-dependent.
 
@@ -327,7 +327,7 @@ Run ```generate_ase_environment.py --help``` for a list of arguments.
 Platform. Use ```discrete``` for the Intel PAC.
 * ```-x```: The optional exclusions argument lists exclusions for path searches.
 
-The Synopsys and Mentor Graphics RTL simulatiors generate the following scripts.
+The Synopsys and Mentor Graphics RTL simulators generate the following scripts.
 * Synopsys: Creates ```synopsys_sim.setup``` and ```vcs_run.tcl``` in the ```VCS``` configuration directory.
 * Mentor Graphics: Creates ```vsim_run.tcl``` in the ```QUESTA``` configuration directory.
 
@@ -520,8 +520,8 @@ Use the OPAE ASE library implementation and compile it to the OPAE software appl
     # Compile command
     $ gcc -g -o hello_fpga_ase hello_fpga.c /tmp/opae/myinst/lib/libopae-c-ase.so -I /tmp/opae/myinst/include/ -std=c99 -luuid
 
-    # When running the application, start the simulatorm, then set LD_LIBRARY_PATH and ASE_WORKDIR
-    $ ./hello_fpga_ase
+	# When running the application, start the simulator, then set LD_LIBRARY_PATH and ASE_WORKDIR
+	$ ./hello_fpga_ase
 
 ```
 

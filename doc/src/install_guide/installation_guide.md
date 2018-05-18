@@ -354,7 +354,7 @@ modify the application's systemd service file and add the line:
 LimitMEMLOCK=infinity
 ```
 
-## Hupgepage Settings ##
+## Hugepage Settings ##
 
 Users need to configure system hugepage to reserve 2MB-hugepages or
 1GB-hugepages. For example, the 'hello\_fpga' sample requires several
