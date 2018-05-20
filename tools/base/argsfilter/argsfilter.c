@@ -40,12 +40,12 @@
 		}                                                              \
 	} while (0)
 
-struct config {
+struct args_filter_config {
 	int bus;
 	int device;
 	int function;
 	int socket_id;
-} config = {.bus = -1, .device = -1, .function = -1, .socket_id = -1};
+} args_filter_config = {.bus = -1, .device = -1, .function = -1, .socket_id = -1};
 
 #define SUPPORTED_OPTIONS 4
 
@@ -80,7 +80,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.bus = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.bus = (int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid bus: %s\n",
 					tmp_optarg);
@@ -93,7 +93,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.device = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.device = (int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid device: %s\n",
 					tmp_optarg);
@@ -106,7 +106,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.function = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.function = (int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid function: %s\n",
 					tmp_optarg);
@@ -119,7 +119,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.socket_id = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.socket_id = (int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid socket: %s\n",
 					tmp_optarg);
@@ -141,22 +141,22 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		}
 	}
 
-	if (-1 != config.bus) {
-		*result = fpgaPropertiesSetBus(filter, config.bus);
+	if (-1 != args_filter_config.bus) {
+		*result = fpgaPropertiesSetBus(filter, args_filter_config.bus);
 		RETURN_ON_ERR(*result, "setting bus");
 	}
-	if (-1 != config.device) {
-		*result = fpgaPropertiesSetDevice(filter, config.device);
+	if (-1 != args_filter_config.device) {
+		*result = fpgaPropertiesSetDevice(filter, args_filter_config.device);
 		RETURN_ON_ERR(*result, "setting device");
 	}
 
-	if (-1 != config.function) {
-		*result = fpgaPropertiesSetFunction(filter, config.function);
+	if (-1 != args_filter_config.function) {
+		*result = fpgaPropertiesSetFunction(filter, args_filter_config.function);
 		RETURN_ON_ERR(*result, "setting function");
 	}
 
-	if (-1 != config.socket_id) {
-		*result = fpgaPropertiesSetSocketID(filter, config.socket_id);
+	if (-1 != args_filter_config.socket_id) {
+		*result = fpgaPropertiesSetSocketID(filter, args_filter_config.socket_id);
 		RETURN_ON_ERR(*result, "setting socket id");
 	}
 	// using the list of optind values

@@ -37,7 +37,7 @@ struct port_info {
 	uint8_t device;
 	uint8_t function;
 	uint8_t socket_id;
-	uint32_t device_id;
+	uint16_t device_id;
 	char model[MODEL_SIZE];
 };
 
@@ -66,12 +66,11 @@ fpga_result get_port_info(fpga_token tok, struct port_info *finfo)
 	fpgaPropertiesGetSocketID(props, &finfo->socket_id);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading socket_id from properties");
 
-// TODO: Implement once device_id and model accessors are implemented
-// fpgaPropertiesGetDeviceId(props, &finfo->device_id);
-// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading device_id from properties");
+	fpgaPropertiesGetDeviceID(props, &finfo->device_id);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading device_id from properties");
 
-// fpgaPropertiesGetModel(props, &finfo->model);
-// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading model from properties");
+	// fpgaPropertiesGetModel(props, &finfo->model);
+	// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading model from properties");
 
 out_destroy:
 	fpgaDestroyProperties(&props);

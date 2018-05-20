@@ -50,24 +50,14 @@ struct errors_config {
 } errors_config = {.clear = false, .which = "all"};
 
 // TODO: Move this to a common file for reuse in other fpgainfo files
-static int str_in_list(const char *key, size_t max_key_length,
-		       const char *list[], size_t size)
+static int str_in_list(const char *key, const char *list[], size_t size)
 {
-	errno_t err = 0;
-	int indicator = 1;
-	size_t len = strnlen_s(key, max_key_length);
-	if (len == 0)
-		return indicator;
 	for (size_t i = 0; i < size; ++i) {
-		err = strcmp_s(key, len, list[i], &indicator);
-		if (err == 0) {
-			if (indicator == 0)
-				return 0;
-		} else {
-			return err;
+		if (!strcmp(key, list[i])) {
+			return true;
 		}
 	}
-	return indicator;
+	return false;
 }
 
 #define MAX_VERB_LENGTH 8
@@ -108,9 +98,8 @@ int parse_error_args(int argc, char *argv[])
 	}
 
 	/* use first non-option argument as what errors to operate on */
-	if (optind < argc) {
-		if (0 == str_in_list(argv[optind], MAX_VERB_LENGTH,
-				     supported_verbs, verb_count)) {
+	if (optind < argc && !strcmp(argv[optind], "errors")) {
+		if (str_in_list(argv[optind+1], supported_verbs, verb_count)) {
 			errors_config.which = argv[optind];
 		} else {
 			fprintf(stderr,

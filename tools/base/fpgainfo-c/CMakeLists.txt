@@ -24,10 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+include_directories(${OPAE_SDK_SOURCE}/tools/base/argsfilter)
 add_executable(fpgainfo-c main.c
-	                  fpgainfo.c
+	          fpgainfo.c
 			  errors.c
 			  fmeinfo.c
 			  portinfo.c)
-target_link_libraries(fpgainfo-c opae-c)
+
+target_link_libraries(fpgainfo-c opae-c argsfilter)
 set_property(TARGET fpgainfo-c PROPERTY C_STANDARD 99)
