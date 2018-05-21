@@ -84,6 +84,18 @@ function (Build_MOCK_DRV)
   target_link_libraries(mock dl safestr)
 endfunction(Build_MOCK_DRV)
 
+include_directories(
+                    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c
+                    ${OPAE_SDK_SOURCE}/tools/base/argsfilter
+                    )
+add_library(fpgainfo-test STATIC
+                ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fpgainfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fmeinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
+                )
+set_property(TARGET fpgainfo-test PROPERTY C_STANDARD 99)
+
 function(Build_Test_Target Target_Name Target_LIB)
     add_library(commonlib SHARED common_test.h common_test.cpp)
 
@@ -92,8 +104,6 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${Boost_INCLUDE_DIRS}
                     ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/common/include
-                    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c
-                    ${OPAE_SDK_SOURCE}/tools/base/argsfilter
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
@@ -121,18 +131,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtVersion.cpp
                 function/gtOpenClose.cpp
                 function/gtGetProperties.cpp
-                ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fpgainfo.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fmeinfo.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
                 function/gtFpgaInfo.cpp)
 
-    set_source_files_properties(
-                ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fpgainfo.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fmeinfo.c
-                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
-                PROPERTIES C_STANDARD 99)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)
@@ -147,7 +147,7 @@ function(Build_Test_Target Target_Name Target_LIB)
     endif()
 
     target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
-                          ${libjson-c_LIBRARIES})
+                          ${libjson-c_LIBRARIES} fpgainfo-test)
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
