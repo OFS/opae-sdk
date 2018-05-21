@@ -232,6 +232,15 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 
 }
 
+fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
+						     fpga_properties *prop)
+{
+	ASSERT_NOT_NULL(handle);
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+
+	return fpgaGetProperties(_handle->token, prop);
+}
+
 fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 					   fpga_properties *prop)
 {

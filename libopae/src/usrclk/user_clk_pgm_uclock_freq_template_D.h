@@ -29,7 +29,7 @@
 
 
 #define QUCPU_INT_NUMFRQ_INTG_END ((int)    2)
-#define QUCPU_INT_NUMFRQ_FRAC_BEG ((int)  100)
+#define QUCPU_INT_NUMFRQ_FRAC_BEG ((int)   25)
 #define QUCPU_INT_NUMFRQ_FRAC_END ((int) 1200)
 #define QUCPU_INT_NUMFRQ_CLIP     ((int)  600)
 #define QUCPU_INT_NUMFRQ          ((int) 1201)

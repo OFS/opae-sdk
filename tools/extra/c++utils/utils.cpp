@@ -57,7 +57,7 @@ namespace utils
 
     std::string rtrim(std::string str)
     {
-        auto it = str.end();
+        auto it = str.end()-1;
         while(std::iswspace(*it))
         {
             it--;
@@ -81,7 +81,6 @@ namespace utils
 
         if (it > str.begin())
         {
-            it--;
             str.erase(str.begin(), it);
         }
 

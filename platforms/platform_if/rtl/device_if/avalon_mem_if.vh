@@ -42,8 +42,13 @@ interface avalon_mem_if
   #(
     parameter ENABLE_LOG = 0,        // Log events for this instance?
     parameter LOG_NAME = "avalon_mem_if.tsv",
-    // The bank number is used only for debugging output
-    parameter BANK_NUMBER = 0,
+
+    // Legacy entry -- remains only for compatibility.  The bank number was
+    // recorded for debugging but the parameter is difficult to set in a
+    // vector of interfaces.  Use bank_number signal below instead.
+    parameter BANK_NUMBER = -1,
+    // Controls the size of bank_number
+    parameter NUM_BANKS = 1,
 
     parameter ADDR_WIDTH = `PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH,
     parameter DATA_WIDTH = `PLATFORM_PARAM_LOCAL_MEMORY_DATA_WIDTH,
@@ -55,7 +60,7 @@ interface avalon_mem_if
     );
 
     // Number of bytes in a data line
-    localparam DATA_N_BYTES = DATA_WIDTH / 8;
+    localparam DATA_N_BYTES = (DATA_WIDTH + 7) / 8;
 
     // Signals
     logic                       waitrequest;
@@ -68,6 +73,10 @@ interface avalon_mem_if
     logic                       write;
     logic                       read;
     logic [DATA_N_BYTES-1:0]    byteenable;
+
+    // Debugging state.  This will typically be driven to a constant by the
+    // code that instantiates the interface object.
+    logic [$clog2(NUM_BANKS)-1:0] bank_number;
 
 
     //
@@ -87,7 +96,9 @@ interface avalon_mem_if
         output address,
         output write,
         output read,
-        output byteenable
+        output byteenable,
+
+        output bank_number
         );
 
 
@@ -108,7 +119,9 @@ interface avalon_mem_if
         input  address,
         input  write,
         input  read,
-        input  byteenable
+        input  byteenable,
+
+        output bank_number
         );
 
 
@@ -126,7 +139,9 @@ interface avalon_mem_if
         input  address,
         input  write,
         input  read,
-        input  byteenable
+        input  byteenable,
+
+        output bank_number
         );
 
 

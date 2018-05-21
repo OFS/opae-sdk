@@ -44,8 +44,11 @@ void e100::assign(accelerator::ptr_t accelerator_ptr)
 
 void e100::clear_status()
 {
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   0, mon_ctrl_ | static_cast<uint32_t>(mon_ctrl::start));
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   0, static_cast<uint32_t>(mon_ctrl::stop));
     mac_write(mac_reg::mac0_ctrl, mac_reg::mac_cntr_tx_ctrl, 1);
     mac_write(mac_reg::mac0_ctrl, mac_reg::mac_cntr_rx_ctrl, 1);
+    this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 void e100::internal_loopback(uint32_t instance)
@@ -84,7 +87,16 @@ void e100::internal_loopback(uint32_t instance)
     eth_->write(eth_ctrl_reg::mon_dst_addr_l, instance, mac0.lo);
     eth_->write(eth_ctrl_reg::mon_dst_addr_h, instance, mac0.hi);
 
+    // run a pre-test
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   instance, mon_ctrl_ | static_cast<uint32_t>(mon_ctrl::start));
+    this_thread::sleep_for(std::chrono::microseconds(10));
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   instance, static_cast<uint32_t>(mon_ctrl::stop));
+    this_thread::sleep_for(std::chrono::milliseconds(10));
+    mac_write(mac_ctrl, mac_reg::mac_cntr_tx_ctrl, 1);
+    this_thread::sleep_for(std::chrono::microseconds(10));
+    mac_write(mac_ctrl, mac_reg::mac_cntr_rx_ctrl, 1);
 
+    // run the actual test
     eth_->write(eth_ctrl_reg::mon_pkt_ctrl,   instance, mon_ctrl_ | static_cast<uint32_t>(mon_ctrl::start));
     eth_->write(eth_ctrl_reg::gen_pkt_ctrl,   instance, gen_ctrl_ | static_cast<uint32_t>(gen_ctrl::start));
 }
@@ -123,6 +135,11 @@ void e100::external_loopback(uint32_t source_port, uint32_t destination_port)
 
     // turn off serial loopback
     mac_write(mac_reg::mac0_ctrl, mac_reg::mac_srl_lpbk_ctrl, 0x0);
+    // run a pre-test
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl, destination_port, mon_ctrl_ | static_cast<uint32_t>(mon_ctrl::start));
+    this_thread::sleep_for(std::chrono::microseconds(10));
+    eth_->write(eth_ctrl_reg::mon_pkt_ctrl, destination_port, mon_ctrl_ | static_cast<uint32_t>(mon_ctrl::stop));
+    this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // clear counters
     mac_write(mac_reg::mac0_ctrl, mac_reg::mac_cntr_tx_ctrl, 1);

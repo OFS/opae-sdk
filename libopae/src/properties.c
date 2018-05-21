@@ -38,6 +38,27 @@
 #include "safe_string/safe_string.h"
 
 
+fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = fpgaGetProperties(_handle->token, prop);
+
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
+
+	return result;
+}
+
+
 fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;

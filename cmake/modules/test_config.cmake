@@ -72,7 +72,7 @@ function (Build_MOCK_DRV)
   # build mock driver fake directory structure
   add_custom_target(mock-sysfs-prepare)
   add_custom_command(TARGET mock-sysfs-prepare POST_BUILD
-    COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz /tmp
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz /tmp
     COMMAND tar xzvf /tmp/mock_sys_tmp-1socket-nlb0.tar.gz -C /tmp --strip 1)
 
   # build mock driver
@@ -102,6 +102,15 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
                 unit/gtAnyValue.cpp
+                unit/gtCxxEnumerate.cpp
+                unit/gtCxxEvents.cpp
+                unit/gtCxxOpenClose.cpp
+                unit/gtCxxProperties.cpp
+                unit/gtCxxExcept.cpp
+                unit/gtCxxBuffer.cpp
+                unit/gtCxxReset.cpp
+                unit/gtCxxMMIO.cpp
+                unit/gtCxxVersion.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
@@ -122,32 +131,52 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtHostif.cpp
             function/gtEvent.cpp)
     endif()         
-	
+
     target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
                           ${libjson-c_LIBRARIES})
-	target_include_directories(commonlib PUBLIC
+    target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
                                $<INSTALL_INTERFACE:include>     
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
-	add_executable(${Target_Name} ${TARGET_SRC})
-	target_include_directories(${Target_Name} PUBLIC
+    add_executable(${Target_Name} ${TARGET_SRC})
+    target_include_directories(${Target_Name} PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-	                           $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-	                           $<INSTALL_INTERFACE:include>
+                               $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
 	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++)
+	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 	  						
+
     if(CMAKE_THREAD_LIBS_INIT)
-  		target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
+       target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 
     if(THREADS_HAVE_PTHREAD_ARG)
         target_compile_options(PUBLIC commonlib "-pthread")
-        target_compile_options(PUBLIC ${Target_Name} "-pthread")		
+        target_compile_options(PUBLIC ${Target_Name} "-pthread")
     endif()
 
 endfunction(Build_Test_Target)
+
+function(Exe_Tests Test_Name Test_To_Be_Exe)
+
+   #Filter test list to preload ib/libmock.so
+   string(FIND ${Test_To_Be_Exe} "MOCK" pos)
+   
+   add_test(NAME ${Test_Name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
+   
+   if(${pos})
+     set_tests_properties(
+         ${Test_Name}
+         PROPERTIES
+         ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+   endif()
+
+endfunction(Exe_Tests)
+
