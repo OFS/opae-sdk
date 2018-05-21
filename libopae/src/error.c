@@ -206,7 +206,9 @@ const char *errors_clearable[] = {
  * the global tokens list. When tokens are cloned, their error
  * lists are only shallowly copied (which works because errors of
  * a token never change).
- * returns the number of error entries added to `list` */
+ * Note that build_error_list() does not check for dupliates; if
+ * called again on the same list, it will add all found errors again.
+ * Returns the number of error entries added to `list` */
 uint32_t __FIXME_MAKE_VISIBLE__
 build_error_list(const char *path, struct error_list **list)
 {
@@ -218,13 +220,18 @@ build_error_list(const char *path, struct error_list **list)
 	uint32_t n = 0;
 	unsigned int i;
 	struct error_list **el = list;
+	errno_t err;
 
 	if (len+1 > FILENAME_MAX) {
 		FPGA_MSG("path too long");
 		return 0;
 	}
 
-	strncpy(basedir, path, FILENAME_MAX-1);
+	err = strncpy_s(basedir, FILENAME_MAX-1, path, FILENAME_MAX-1);
+	if (err != EOK) {
+		FPGA_MSG("strncpy_s() failed with return value %u", err);
+		return 0;
+	}
 	basedir[len++] = '/';
 
 	dir = opendir(path);
@@ -240,7 +247,7 @@ build_error_list(const char *path, struct error_list **list)
 
 		// skip names on blacklist
 		for (i = 0; i < NUM_ERRORS_EXCLUDE; i++) {
-			if (strcmp(de->d_name, errors_exclude[i]) == 0) {  // FIXME: SAFE?
+			if (strcmp(de->d_name, errors_exclude[i]) == 0) {
 				break;
 			}
 		}
@@ -248,7 +255,11 @@ build_error_list(const char *path, struct error_list **list)
 			continue;
 
 		// build absolute path
-		strncpy(basedir + len, de->d_name, FILENAME_MAX - len);
+		err = strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX - len);
+		if (err != EOK) {
+			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			continue;
+		}
 
 		// try accessing file/dir
 		if (lstat(basedir, &st) == -1) {
@@ -278,36 +289,78 @@ build_error_list(const char *path, struct error_list **list)
 			n--;
 			break;
 		}
-		strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
-		strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+		err = strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
+		if (err != EOK) {
+			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			n--;
+			free(new_entry);
+			break;
+		}
+		err = strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+		if (err != EOK) {
+			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			n--;
+			free(new_entry);
+			break;
+		}
 		new_entry->next = NULL;
 		// Errors can be cleared:
 		//   * if the name is "errors" and there is a file called "clear" (generic case), OR
 		//   * if the name is in the "errors_clearable" table
 		new_entry->info.can_clear = false;
 		if (strcmp(de->d_name, "errors") == 0) {
-			strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
+			err = strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
+			if (err != EOK) {
+				FPGA_MSG("strncpy_s() failed with return value %u", err);
+				n--;
+				free(new_entry);
+				break;
+			}
 			// try accessing clear file
 			if (lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
-				strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+				err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+				if (err != EOK) {
+					FPGA_MSG("strncpy_s() failed with return value %u", err);
+					n--;
+					free(new_entry);
+					break;
+				}
 			}
 		} else {
 			for (i = 0; i < NUM_ERRORS_CLEARABLE; i++) {
 				if (strcmp(de->d_name, errors_clearable[i]) == 0) {
-					strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX);
+					err = strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX);
+					if (err != EOK) {
+						FPGA_MSG("strncpy_s() failed with return value %u", err);
+						n--;
+						free(new_entry);
+						break;
+					}
 					// try accessing clear file
 					if (lstat(basedir, &st) != -1) {
 						new_entry->info.can_clear = true;
-						strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+						err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
+						if (err != EOK) {
+							FPGA_MSG("strncpy_s() failed with return value %u", err);
+							n--;
+							free(new_entry);
+							break;
+						}
 					}
 				}
 			}
 		}
 
 		if (!new_entry->info.can_clear) {
-			memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
-		}
+			err = memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
+			if (err != EOK) {
+				FPGA_MSG("memset_s() failed with return value %u", err);
+				n--;
+				free(new_entry);
+				break;
+			}
+}
 
 		// find end of list
 		while (*el)
