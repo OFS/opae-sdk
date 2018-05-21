@@ -269,8 +269,9 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
   char buf[SYSFS_PATH_MAX] = {0};
   int b = 0;
   fpga_result retval = FPGA_OK;
+  size_t len;
 
-  int fd = open(path, O_WRONLY);
+  int fd = open(path, O_WRONLY|O_TRUNC);
 
   if (fd < 0) {
     printf("open: %s", strerror(errno));
@@ -287,17 +288,19 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
   switch (B) {
     // write hex value
     case HEX:
-      snprintf(buf, sizeof(buf), "%lx", u);
+      snprintf(buf, sizeof(buf), "0x%lx\n", u);
       break;
 
     // write dec value
     case DEC:
-      snprintf(buf, sizeof(buf), "%ld", u);
+      snprintf(buf, sizeof(buf), "%ld\n", u);
       break;
   }
 
+  len = strlen(buf);
+
   do {
-    res = write(fd, buf + b, sizeof(buf) - b);
+    res = write(fd, buf + b, len - b);
 
     if (res <= 0) {
       printf("Failed to write");
@@ -307,13 +310,13 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
 
     b += res;
 
-    if (b > sizeof(buf) || b <= 0) {
-      printf("Unexpected size reading from %s", path);
+    if (b > len || b <= 0) {
+      printf("Unexpected size writing to %s", path);
       retval = FPGA_NOT_FOUND;
       goto out_close;
     }
 
-  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
+  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < len);
 
   retval = FPGA_OK;
   goto out_close;
@@ -321,8 +324,6 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
 out_close:
   if (close(fd) < 0) {
     perror("close");
-  } else {
-    fd = -1;
   }
   return retval;
 }
