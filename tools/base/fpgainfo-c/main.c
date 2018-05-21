@@ -38,8 +38,6 @@
 #include "errors.h"
 #include "fmeinfo.h"
 #include "portinfo.h"
-#include "power.h"
-#include "temperature.h"
 
 /*
  * Print help
