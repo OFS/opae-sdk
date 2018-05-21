@@ -85,28 +85,28 @@ const char *except::what() const noexcept {
   errno_t err;
   bool buf_ok = false;
   if (msg_) {
-    err = strncpy_s(buf_, MAX_EXCEPT, msg_, 64);
+    err = strncpy_s(buf_, MAX_EXCEPT-64, msg_, 64);
   } else {
-    err = strncpy_s(buf_, MAX_EXCEPT, "failed with error ", 64);
+    err = strncpy_s(buf_, MAX_EXCEPT-64, "failed with error ", 64);
     if (err) goto log_err;
-    err = strcat_s(buf_, MAX_EXCEPT, fpgaErrStr(res_));
+    err = strcat_s(buf_, MAX_EXCEPT-64, fpgaErrStr(res_));
   }
   if (err) goto log_err;
   buf_ok = true;
 
-  err = strcat_s(buf_, MAX_EXCEPT, " at: ");
+  err = strcat_s(buf_, MAX_EXCEPT-64, " at: ");
   if (err) goto log_err;
 
-  err = strcat_s(buf_, MAX_EXCEPT, loc_.file());
+  err = strcat_s(buf_, MAX_EXCEPT-64, loc_.file());
   if (err) goto log_err;
 
-  err = strcat_s(buf_, MAX_EXCEPT, ":");
+  err = strcat_s(buf_, MAX_EXCEPT-64, ":");
   if (err) goto log_err;
 
-  err = strcat_s(buf_, MAX_EXCEPT, loc_.fn());
+  err = strcat_s(buf_, MAX_EXCEPT-64, loc_.fn());
   if (err) goto log_err;
 
-  err = strcat_s(buf_, MAX_EXCEPT, "():");
+  err = strcat_s(buf_, MAX_EXCEPT-64, "():");
   if (err) goto log_err;
 
   snprintf_s_i(buf_ + strlen(buf_), 64, "%d", loc_.line());
