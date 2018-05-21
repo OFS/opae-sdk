@@ -127,6 +127,13 @@ function(Build_Test_Target Target_Name Target_LIB)
                 ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
                 function/gtFpgaInfo.cpp)
 
+    set_source_files_properties(
+                ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fpgainfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fmeinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
+                PROPERTIES C_STANDARD 99)
+
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
