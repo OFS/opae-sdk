@@ -29,7 +29,7 @@ TEST(CxxProperties, set_guid) {
   p.guid = guid_in;
 
   // now check we set the guid using C APIs
-  ASSERT_EQ(fpgaPropertiesGetGUID(p.get(), &guid_out), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetGUID(p.c_type(), &guid_out), FPGA_OK);
   EXPECT_EQ(memcmp(guid_in, guid_out, sizeof(fpga_guid)), 0);
 }
 
@@ -47,7 +47,7 @@ TEST(CxxProperties, parse_guid) {
   p.guid.parse(TEST_GUID_STR);
 
   // now check we set the guid using C APIs
-  ASSERT_EQ(fpgaPropertiesGetGUID(p.get(), &guid_out), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetGUID(p.c_type(), &guid_out), FPGA_OK);
   char guid_str[84];
   uuid_unparse(guid_out, guid_str);
   EXPECT_STREQ(TEST_GUID_STR, guid_str);
@@ -65,7 +65,7 @@ TEST(CxxProperties, get_guid) {
   properties p;
   // set the guid using fpgaPropertiesSetGUID
   uuid_parse(TEST_GUID_STR, guid_in);
-  fpgaPropertiesSetGUID(p.get(), guid_in);
+  fpgaPropertiesSetGUID(p.c_type(), guid_in);
 
   uint8_t* guid_ptr = p.guid;
   ASSERT_NE(nullptr, guid_ptr);
@@ -84,7 +84,7 @@ TEST(CxxProperties, compare_guid){
   uuid_parse(TEST_GUID_STR, guid_in);
   EXPECT_FALSE(p.guid == guid_in);
   p.guid = guid_in;
-  ASSERT_EQ(memcmp(p.guid.get(), guid_in, sizeof(fpga_guid)), 0);
+  ASSERT_EQ(memcmp(p.guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
   EXPECT_TRUE(p.guid == guid_in);
 }
 
@@ -99,7 +99,7 @@ TEST(CxxProperties, props_ctor_01){
   fpga_guid guid_in;
   uuid_parse(TEST_GUID_STR, guid_in);
   properties p(guid_in);
-  ASSERT_EQ(memcmp(p.guid.get(), guid_in, sizeof(fpga_guid)), 0);
+  ASSERT_EQ(memcmp(p.guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
   EXPECT_TRUE(p.guid == guid_in);
 }
 

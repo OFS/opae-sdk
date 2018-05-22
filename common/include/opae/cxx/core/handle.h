@@ -53,7 +53,7 @@ class handle {
 
   /** Retrieve the underlying OPAE handle.
    */
-  fpga_handle get() const { return handle_; }
+  fpga_handle c_type() const { return handle_; }
 
   /** Retrieve the underlying OPAE handle.
    */
