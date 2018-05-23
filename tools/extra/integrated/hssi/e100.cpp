@@ -245,7 +245,7 @@ mac_report e100::gen_report(uint32_t port)
         report.mon_src_error   = status & static_cast<uint32_t>(mon_stat::source_error);
         report.mon_pkt_length_error   = status & static_cast<uint32_t>(mon_stat::packet_length_error);
     }
-    if (report.mon_dest_error)
+    if (report.mon_src_error || report.mon_dest_error)
     {
 	mac_address_t mac0, mac1;
         // SRC PORT GEN SRC MAC
