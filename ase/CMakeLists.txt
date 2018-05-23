@@ -42,7 +42,8 @@ install(FILES ${EXTRA_ASE_FILES}
 
 ## Some ASE scripts are installed in bin
 set(PLATFORM_SCRIPTS
-        afu_sim_setup)
+        afu_sim_setup
+        sim_afu)
 
 foreach(SRC ${PLATFORM_SCRIPTS})
   ## Substitute CMake variables of the form @<var>@ in the source file
