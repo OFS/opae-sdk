@@ -414,7 +414,7 @@ endfunction(_ase_module_clean_files module_name)
 function(ase_finalize_modelsim_module_linking m)
 
   _get_per_build_var(vlog_flags QUESTA_VLOG_FLAGS)
-  list(APPEND vlog_flags -f sources.txt)
+  list(APPEND vlog_flags -f sources_simulation.txt)
   foreach(variable ${QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS})
     list(APPEND vlog_flags +define+${variable})
   endforeach(variable ${QUESTA_VLOG_COMPILE_DEFINITIONS})
@@ -494,6 +494,10 @@ function(ase_finalize_modelsim_module_linking m)
         configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
       endif()
     endif()
+
+    # Add simulation project
+    configure_file(${ASE_SHARE_DIR}/in/sources_simulation.txt.in
+       ${CMAKE_CURRENT_BINARY_DIR}/sources_simulation.txt @ONLY)
   endforeach(file_i ${ase_module_sources_abs})
 
   ############################################################################
