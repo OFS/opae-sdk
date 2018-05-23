@@ -245,7 +245,26 @@ mac_report e100::gen_report(uint32_t port)
         report.mon_src_error   = status & static_cast<uint32_t>(mon_stat::source_error);
         report.mon_pkt_length_error   = status & static_cast<uint32_t>(mon_stat::packet_length_error);
     }
-
+    if (report.mon_dest_error)
+    {
+	mac_address_t mac0, mac1;
+        // SRC PORT GEN SRC MAC
+        eth_->read(eth_ctrl_reg::gen_src_addr_l, 0, mac0.lo);
+        eth_->read(eth_ctrl_reg::gen_src_addr_h, 0, mac0.hi);
+	std::cerr << "GEN SRC MAC: 0x" << std::hex << mac0.hi << mac0.lo << "\n";
+        // SRC PORT GEN DST MAC
+        eth_->read(eth_ctrl_reg::gen_dst_addr_l, 0, mac1.lo);
+        eth_->read(eth_ctrl_reg::gen_dst_addr_h, 0, mac1.hi);
+	std::cerr << "GEN DST MAC: 0x" << std::hex << mac0.hi << mac1.lo << "\n";
+        // DST PORT MON SRC MAC
+        eth_->read(eth_ctrl_reg::mon_src_addr_l, 0, mac0.lo);
+        eth_->read(eth_ctrl_reg::mon_src_addr_h, 0, mac0.hi);
+	std::cerr << "MON SRC MAC: 0x" << std::hex << mac0.hi << mac0.lo << "\n";
+        // DST PORT MON DST MAC
+        eth_->read(eth_ctrl_reg::mon_dst_addr_l, 0, mac1.lo);
+        eth_->read(eth_ctrl_reg::mon_dst_addr_h, 0, mac1.hi);
+	std::cerr << "MON DST MAC: 0x" << std::hex << mac0.hi << mac1.lo << "\n";
+    }
     report.src_mac = (static_cast<uint64_t>(src_mac_.hi) << 32) & src_mac_.lo;
     report.dst_mac = (static_cast<uint64_t>(dst_mac_.hi) << 32) & dst_mac_.lo;
     return report;
