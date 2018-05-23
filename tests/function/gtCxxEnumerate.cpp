@@ -11,13 +11,13 @@ extern "C" {
 using namespace opae::fpga::types;
 
 /**
- * @test cxx_enum_01
+ * @test enum_01
  * Given an environment with at least one accelerator<br>
  * When I call accelerator::enumerate with no filters<br>
  * Then I get at least one accelerator object in the return list<br>
  * And no exceptions are thrown
  */
-TEST(CxxEnum, enum_01) {
+TEST(LibopaecppEnumCommonALL, enum_01) {
   auto tokens = token::enumerate({});
   EXPECT_TRUE(tokens.size() > 0);
   ASSERT_NO_THROW(tokens.clear());
