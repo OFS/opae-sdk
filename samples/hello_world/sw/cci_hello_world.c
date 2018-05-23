@@ -42,6 +42,7 @@
 #define CACHELINE_BYTES 64
 #define CL(x) ((x) * CACHELINE_BYTES)
 
+#define UNUSED_PARAM(x) (void) x
 
 //
 // Search for an accelerator matching the requested UUID and connect to it.
@@ -127,13 +128,13 @@ static volatile void *alloc_buffer(fpga_handle accel_handle,
 
 int main(int argc, char *argv[])
 {
+	UNUSED_PARAM(argc);
+	UNUSED_PARAM(argv);
+
 	fpga_handle accel_handle;
 	volatile char *buf;
 	uint64_t wsid;
 	uint64_t buf_pa;
-
-	(void) argc;
-	(void) argv;
 
 	// Find and connect to the accelerator
 	accel_handle = connect_to_accel(AFU_ACCEL_UUID);
