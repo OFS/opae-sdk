@@ -32,24 +32,24 @@ project("opae-samples-hello_world_mpf")
 
 if(BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
-  set(hello_world_SOURCES
+  set(hello_world_mpf_hw_SOURCES
     hw/sources.txt
-    hw/base_addenda.txt
-    hw/cci_mpf_hello.json)
-  ase_add_modelsim_module(hello_world_mpf
-    ${hello_world_SOURCES})
+    hw/mpf_addenda.txt
+    hw/hello_world_mpf.json)
+  ase_add_modelsim_module(hello_world_mpf_hw
+    ${hello_world_mpf_hw_SOURCES})
   file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
     DESTINATION ${PROJECT_BINARY_DIR}/hw)
 
   # Set platform
-  ase_module_set_platform_name(hello_world_mpf intg_xeon)
+  ase_module_set_platform_name(hello_world_mpf_hw intg_xeon)
 
   # Add definitions
-  ase_module_add_definitions(hello_world_mpf NUM_AFUS=1)
-  ase_module_add_definitions(hello_world_mpf FPGA_PLATFORM_INTG_XEON)
+  ase_module_add_definitions(hello_world_mpf_hw NUM_AFUS=1)
+  ase_module_add_definitions(hello_world_mpf_hw FPGA_PLATFORM_INTG_XEON)
 
   # Configure files and finalize target rules
-  ase_finalize_modelsim_module_linking(hello_world_mpf)
+  ase_finalize_modelsim_module_linking(hello_world_mpf_hw)
 
   # Test coverage
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
@@ -67,7 +67,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
 
-install(FILES ${PROJECT_SOURCE_DIR}/hw/cci_mpf_hello.json
+install(FILES ${PROJECT_SOURCE_DIR}/hw/hello_world_mpf.json
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
 
@@ -83,15 +83,15 @@ include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src
   ${MPF_INCLUDE_DIRS})
 
-add_executable(cci_hello_world_mpf
+add_executable(hello_world_mpf
   ../base/sw/opae_svc_wrapper.cpp
-  sw/cci_mpf_hello.cpp)
+  sw/hello_world_mpf.cpp)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
 else()
-  target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
-install(FILES sw/cci_mpf_hello.cpp
+install(FILES sw/hello_world_mpf.cpp
   DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/sw
   COMPONENT samplesrc)
