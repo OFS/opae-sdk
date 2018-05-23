@@ -21,7 +21,7 @@ const char* TEST_GUID_STR = "ae2878a7-926f-4332-aba1-2b952ad6df8e";
  * And I retrieve the same property using fpgaGetPropertiesGUID
  * Then the known guid matches the one retrieved
  */
-TEST(CxxProperties, set_guid) {
+TEST(LibopaecppPropsCommonALL, set_guid) {
   fpga_guid guid_in, guid_out;
   properties p;
   // set the guid to an fpga_guid
@@ -40,7 +40,7 @@ TEST(CxxProperties, set_guid) {
  * And I retrieve the same property using fpgaGetPropertiesGUID
  * Then the known guid string parsed matches the one retrieved
  */
-TEST(CxxProperties, parse_guid) {
+TEST(LibopaecppPropsCommonALL, parse_guid) {
   fpga_guid guid_out;
   properties p;
   // set the guid to an fpga_guid
@@ -60,7 +60,7 @@ TEST(CxxProperties, parse_guid) {
  * And I get a pointer to the guid member variable of the property object
  * Then the known guid matches the one retrieved
  */
-TEST(CxxProperties, get_guid) {
+TEST(LibopaecppPropsCommonALL, get_guid) {
   fpga_guid guid_in;
   properties p;
   // set the guid using fpgaPropertiesSetGUID
@@ -78,7 +78,7 @@ TEST(CxxProperties, get_guid) {
  * When I set compare its guid with the known guid
  * Then the result is true
  */
-TEST(CxxProperties, compare_guid){
+TEST(LibopaecppPropsCommonALL, compare_guid){
   fpga_guid guid_in;
   properties p;
   uuid_parse(TEST_GUID_STR, guid_in);
@@ -95,7 +95,7 @@ TEST(CxxProperties, compare_guid){
  * When I set compare its guid with the known guid
  * Then the result is true
  */
-TEST(CxxProperties, props_ctor_01){
+TEST(LibopaecppPropsCommonALL, props_ctor_01){
   fpga_guid guid_in;
   uuid_parse(TEST_GUID_STR, guid_in);
   properties p(guid_in);
@@ -109,7 +109,7 @@ TEST(CxxProperties, props_ctor_01){
  * When I set the object type to a known value
  * Then the property is set
  */
-TEST(CxxProperties, set_objtype) {
+TEST(LibopaecppPropsCommonALL, set_objtype) {
   properties p;
   p.type = FPGA_ACCELERATOR;
   fpga_objtype t = p.type;
@@ -125,7 +125,7 @@ TEST(CxxProperties, set_objtype) {
  * When I get the model property
  * Then I get an empty string
  */
-TEST(CxxProperties, get_model) {
+TEST(LibopaecppPropsCommonALL, get_model) {
   properties p;
   std::string model = "";
   // Model is currently not supported in libopae-c
