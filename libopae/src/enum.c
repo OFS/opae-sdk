@@ -646,7 +646,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 
 	*num_matches = 0;
 
-	memset(&head, 0, sizeof(head));
+	memset_s(&head, sizeof(head), 0);
 
 	// Find the top-level FPGA devices.
 	dir = opendir(SYSFS_FPGA_CLASS_PATH);
