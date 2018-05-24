@@ -57,7 +57,7 @@ class token {
 
   /** Retrieve the underlying fpga_token primitive.
    */
-  fpga_token get() const { return token_; }
+  fpga_token c_type() const { return token_; }
 
   /** Retrieve the underlying fpga_token primitive.
    */
