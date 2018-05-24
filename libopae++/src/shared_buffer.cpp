@@ -34,7 +34,7 @@ namespace types {
 shared_buffer::~shared_buffer() {
   // If the allocation was successful.
   if (virt_) {
-    auto res = fpgaReleaseBuffer(handle_->get(), wsid_);
+    auto res = fpgaReleaseBuffer(handle_->c_type(), wsid_);
     if (res != FPGA_OK) {
       std::cerr << "Error while calling fpgaReleaseBuffer: " << fpgaErrStr(res)
                 << "\n";
@@ -54,9 +54,9 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   uint64_t wsid = 0;
 
   fpga_result res = fpgaPrepareBuffer(
-      handle->get(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
+      handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
   ASSERT_FPGA_OK(res);
-  res = fpgaGetIOAddress(handle->get(), wsid, &iova);
+  res = fpgaGetIOAddress(handle->c_type(), wsid, &iova);
   ASSERT_FPGA_OK(res);
   p.reset(new shared_buffer(handle, len, virt, wsid, iova));
 
@@ -72,11 +72,11 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
   uint64_t wsid = 0;
 
   fpga_result res =
-      fpgaPrepareBuffer(handle->get(), len, reinterpret_cast<void **>(&virt),
+      fpgaPrepareBuffer(handle->c_type(), len, reinterpret_cast<void **>(&virt),
                         &wsid, FPGA_BUF_PREALLOCATED);
 
   ASSERT_FPGA_OK(res);
-  res = fpgaGetIOAddress(handle->get(), wsid, &iova);
+  res = fpgaGetIOAddress(handle->c_type(), wsid, &iova);
   ASSERT_FPGA_OK(res);
   p.reset(new shared_buffer(handle, len, virt, wsid, iova));
 
