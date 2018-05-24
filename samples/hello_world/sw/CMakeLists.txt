@@ -24,7 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project("opae-samples-hello_afu")
+######################################################################
+# Testing application ################################################
+######################################################################
 
-add_subdirectory(hw)
-add_subdirectory(sw)
+include_directories(${OPAE_INCLUDE_DIR}
+  ${OPAE_SDK_SOURCE}/libopae/src)
+
+add_executable(hello_world hello_world.c)
+if(BUILD_LIBOPAE_C)
+  target_link_libraries(hello_world json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+else()
+  target_link_libraries(hello_world json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+endif()
+
+install(FILES hello_world.c
+  DESTINATION ${OPAE_SAMPLES}/hello_world/sw
+  COMPONENT samplesrc)

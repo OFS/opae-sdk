@@ -24,7 +24,43 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project("opae-samples-hello_afu")
+######################################################################
+# ASE module definition ##############################################
+######################################################################
 
-add_subdirectory(hw)
-add_subdirectory(sw)
+if(BUILD_ASE_SAMPLES)
+  include(ase_add_modelsim)
+  set(hello_world_hw_SOURCES
+    sources.txt
+    hello_world.json)
+  ase_add_modelsim_module(hello_world_hw
+    ${hello_world_hw_SOURCES})
+  file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
+    DESTINATION ${PROJECT_BINARY_DIR}/hw)
+
+  # Set platform
+  ase_module_set_platform_name(hello_world_hw intg_xeon)
+
+  # Add definitions
+  ase_module_add_definitions(hello_world_hw NUM_AFUS=1)
+  ase_module_add_definitions(hello_world_hw FPGA_PLATFORM_INTG_XEON)
+
+  # Configure files and finalize target rules
+  ase_finalize_modelsim_module_linking(hello_world_hw)
+endif()
+
+######################################################################
+# Installation files #################################################
+######################################################################
+
+install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
+  DESTINATION ${OPAE_SAMPLES}/hello_world/hw
+  COMPONENT samplesrc)
+
+install(FILES ${PROJECT_SOURCE_DIR}/hw/hello_world.json
+  DESTINATION ${OPAE_SAMPLES}/hello_world/hw
+  COMPONENT samplesrc)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
+  DESTINATION ${OPAE_SAMPLES}/hello_world/hw
+  COMPONENT samplesrc)

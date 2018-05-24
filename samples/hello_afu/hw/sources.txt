@@ -2,6 +2,6 @@
 ## Synthesizable: AFU-specific section #####################################
 ############################################################################
 
-hw/rtl/afu.sv
-hw/rtl/ccip_interface_reg.sv
-hw/rtl/ccip_std_afu.sv
+rtl/afu.sv
+rtl/ccip_interface_reg.sv
+rtl/ccip_std_afu.sv
