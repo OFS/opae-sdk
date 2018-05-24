@@ -60,6 +60,28 @@ class handle {
   operator fpga_handle() const { return handle_; }
 
   /**
+   * @brief Load a bitstream into an FPGA slot
+   *
+   * @param slot The slot number to program
+   * @param bitstream The bitstream binary data
+   * @param size The size of the bitstream
+   * @param flags Flags that control behavior of reconfiguration.
+   *              Value of 0 indicates no flags. FPGA_RECONF_FORCE
+   *              indicates that the bitstream is programmed into
+   *              the slot without checking if the resource is
+   *              currently in use.
+   *
+   * @throws invalid_param if the handle is not an FPGA device handle
+   *         or if the other parameters are not valid.
+   * @throws exception if an internal error is encountered.
+   * @throws busy if the accelerator for the given slot is in use.
+   * @throws reconf_error if errors are reported by the driver
+   *         (CRC or protocol errors).
+   */
+  void reconfigure(uint32_t slot, const uint8_t *bitstream, size_t size,
+                   int flags);
+
+  /**
    * @brief Read 32 bits from a CSR belonging to a resource associated
    * with a handle.
    *
