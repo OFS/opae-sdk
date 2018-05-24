@@ -552,7 +552,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 				e = memcpy_s(gbs_metadata->afu_image.afu_clusters.name,
 						AFU_NAME_LEN,
 						json_object_get_string(name),
-						strlen(json_object_get_string(name))+1);
+						strnlen_s(json_object_get_string(name), AFU_NAME_LEN));
 				if (EOK != e) {
 					FPGA_ERR("memcpy_s failed");
 					result = FPGA_EXCEPTION;
