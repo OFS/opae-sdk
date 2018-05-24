@@ -38,10 +38,10 @@ configure_file(${PROJECT_SOURCE_DIR}/sources_ase_server.txt
 
 # Installation targets
 if(NOT ASE_POST_INSTALL)
-  install(FILES ${PROJECT_BINARY_DIR}/sources_quartus_libs.txt
-    DESTINATION ${ASE_SHARE_DIR}/rtl
+  install(FILES ${PROJECT_SOURCE_DIR}/sources_quartus_libs.txt
+    DESTINATION share/opae/ase/rtl
     COMPONENT aseextra)
-  install(FILES ${PROJECT_BINARY_DIR}/sources_ase_server.txt
-    DESTINATION ${ASE_SHARE_DIR}/rtl
+  install(FILES ${PROJECT_SOURCE_DIR}/sources_ase_server.txt
+    DESTINATION share/opae/ase/rtl
     COMPONENT aseextra)
 endif()

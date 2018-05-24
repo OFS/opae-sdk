@@ -77,7 +77,7 @@ set(EXTRA_ASE_FILES
   ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-  DESTINATION ${ASE_SHARE_DIR}
+  DESTINATION share/opae/ase
   COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
