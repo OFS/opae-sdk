@@ -41,6 +41,8 @@
 #include "ap_event.h"
 #include <getopt.h>
 
+#include "safe_string/safe_string.h"
+
 #define OPT_STR ":hdD:l:p:m:s:n:"
 
 struct option longopts[] = {
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
 	} else {
 		struct sigaction sa;
 
-		memset(&sa, 0, sizeof(sa));
+		memset_s(&sa, sizeof(sa), 0);
 		sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
 		sa.sa_sigaction = sig_handler;
 
