@@ -72,7 +72,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *pr
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
 	}
-	memset_s(_prop, sizeof(struct _fpga_properties),0);
+	memset_s(_prop, sizeof(struct _fpga_properties), 0);
 	// mark data structure as valid
 	_prop->magic = FPGA_PROPERTY_MAGIC;
 
