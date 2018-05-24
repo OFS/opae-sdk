@@ -37,6 +37,8 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include "safe_string/safe_string.h"
+
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir)
 {
 	pid_t pid;
@@ -60,7 +62,7 @@ int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *
 		return errno;
 
 	// 3) Establish signal handler.
-	memset(&sa, 0, sizeof(sa));
+	memset_s(&sa, sizeof(sa), 0);
 	sa.sa_flags     = SA_SIGINFO | SA_RESETHAND;
 	sa.sa_sigaction = hndlr;
 
