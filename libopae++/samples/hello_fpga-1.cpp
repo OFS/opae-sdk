@@ -83,9 +83,9 @@ int main(__attribute__((unused)) int argc,
   auto out = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
   // initialize buffers
-  std::fill_n(dsm->get(), LPBK1_DSM_SIZE, 0);
-  std::fill_n(inp->get(), LPBK1_BUFFER_SIZE, 0xAF);
-  std::fill_n(out->get(), LPBK1_BUFFER_SIZE, 0xBE);
+  std::fill_n(dsm->c_type(), LPBK1_DSM_SIZE, 0);
+  std::fill_n(inp->c_type(), LPBK1_BUFFER_SIZE, 0xAF);
+  std::fill_n(out->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
 
   // accel->reset();
   accel->write_csr64(CSR_AFU_DSM_BASEL, dsm->iova());
@@ -98,7 +98,7 @@ int main(__attribute__((unused)) int argc,
   accel->write_csr32(CSR_CFG, 0x42000);
 
   // get ptr to device status memory - test complete
-  auto status_ptr = dsm->get() + DSM_STATUS_TEST_COMPLETE / 8;
+  auto status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE / 8;
 
   // start the test
   accel->write_csr32(CSR_CTL, 3);
@@ -113,10 +113,10 @@ int main(__attribute__((unused)) int argc,
 
   // check output buffer contents
   auto mm =
-      std::mismatch(inp->get(), inp->get() + LPBK1_BUFFER_SIZE, out->get());
-  if (mm.second < out->get() + LPBK1_BUFFER_SIZE) {
+      std::mismatch(inp->c_type(), inp->c_type() + LPBK1_BUFFER_SIZE, out->c_type());
+  if (mm.second < out->c_type() + LPBK1_BUFFER_SIZE) {
     std::cerr << "output does NOT match input at offset: "
-              << (mm.second - out->get()) << "\n";
+              << (mm.second - out->c_type()) << "\n";
     return -1;
   }
 
