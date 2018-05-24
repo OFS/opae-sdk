@@ -376,7 +376,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	if (get_bitstream_json_len(bitstream) > 0) {
 
 		// Read GBS json metadata
-		memset(&metadata, 0, sizeof(metadata));
+		memset_s(&metadata, sizeof(metadata), 0);
 		result = read_gbs_metadata(bitstream, &metadata);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to read metadata");
