@@ -399,7 +399,7 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	long len;
 	int ret;
 	struct stat file_mode;
-	memset(&file_mode, 0, sizeof(file_mode));
+	memset_s(&file_mode, sizeof(file_mode), 0);
 
 	if (!filename || !info)
 		return -EINVAL;

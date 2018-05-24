@@ -72,7 +72,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *pr
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
 	}
-	memset(_prop, 0, sizeof(struct _fpga_properties));
+	memset_s(_prop, sizeof(struct _fpga_properties),0);
 	// mark data structure as valid
 	_prop->magic = FPGA_PROPERTY_MAGIC;
 
@@ -255,7 +255,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	}
 
 	//clear fpga_properties buffer
-	memset(&_iprop, 0, sizeof(struct _fpga_properties));
+	memset_s(&_iprop, sizeof(struct _fpga_properties), 0);
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 
 	// The input token is either for an FME or an AFU.
