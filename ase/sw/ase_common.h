@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: ASE common (C header file)
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
- */
-
 
 #ifndef _ASE_COMMON_H_
 #define _ASE_COMMON_H_
 
 #define _GNU_SOURCE
+#define __STDC_WANT_LIB_EXT1__ 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,6 +62,8 @@
 #include <linux/limits.h>
 #include <uuid/uuid.h>
 #include <pthread.h>
+
+#include <gio/gnetworking.h>
 
 #ifdef SIM_SIDE
 #include "svdpi.h"

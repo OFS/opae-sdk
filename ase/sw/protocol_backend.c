@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,19 +29,13 @@
  * - Protocol backend for keeping IPCs alive
  * - Interfacing with DPI-C, messaging
  * - Interface to page table
- *
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  */
 #include "ase_common.h"
 
 struct ase_cfg_t *cfg;
 
 static int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
-int sim2app_alloc_tx;		// sim2app mesaage queue in TX mode
+int sim2app_alloc_tx;		        // sim2app mesaage queue in TX mode
 static int app2sim_mmioreq_rx;		// MMIO Request path
 static int sim2app_mmiorsp_tx;		// MMIO Response path
 static int app2sim_umsg_rx;		// UMSG    message queue in RX mode
@@ -52,7 +46,7 @@ static int sim2app_portctrl_rsp_tx;
 static int sim2app_intr_request_tx;
 static int intr_event_fds[MAX_USR_INTRS];
 
-int glbl_test_cmplt_cnt;   // Keeps the number of session_deinits received
+int glbl_test_cmplt_cnt;                // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
 pthread_t socket_srv_tid;
@@ -526,7 +520,7 @@ int read_fd(int sock_fd)
 
 	int vector_id = 0;
 
-	fdptr = (int *)CMSG_DATA((struct cmsghdr *)buf);
+	fdptr = (int *)CMSG_DATA(cmsg);
 	if (req.type == REGISTER_EVENT) {
 		vector_id = req.flags;
 		intr_event_fds[vector_id] = *fdptr;

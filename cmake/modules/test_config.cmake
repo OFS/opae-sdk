@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ function (Build_GTEST)
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     # Disable install step
     INSTALL_COMMAND "")
-    
+
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
@@ -65,7 +65,7 @@ function (Build_GTEST)
   set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
   set(GTEST_FOUND true PARENT_SCOPE)
   message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
-  
+
 endfunction(Build_GTEST)
 
 function (Build_MOCK_DRV)
@@ -85,7 +85,6 @@ function (Build_MOCK_DRV)
 endfunction(Build_MOCK_DRV)
 
 function(Build_Test_Target Target_Name Target_LIB)
-    add_library(commonlib SHARED common_test.h common_test.cpp)
 
     include_directories(
                     ${OPAE_SDK_SOURCE}/tests
@@ -95,9 +94,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
-    set(COMMON_SRC gtmain.cpp jsonParser.cpp
+    set(COMMON_SRC gtmain.cpp
+                jsonParser.cpp
                 unit/gtOpenClose_base.cpp
-                unit/gtProperties_base.cpp
                 unit/gtOpen.cpp
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
@@ -116,27 +115,28 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtEnumerate.cpp
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
-                function/gtOpenClose.cpp
-		function/gtGetProperties.cpp)
+                function/gtOpenClose.cpp)
 
-    if(BUILD_ASE_TEST)
+    if(BUILD_ASE_TESTS)
         add_definitions(-DBUILD_ASE)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
         set(TARGET_SRC ${COMMON_SRC})
     else()
+        list(APPEND COMMON_SRC function/gtGetProperties.cpp)
+        list(APPEND COMMON_SRC unit/gtProperties_base.cpp)
         set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/libopae/src)
         set(TARGET_SRC ${COMMON_SRC}
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()         
+    endif()
 
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
                           ${libjson-c_LIBRARIES})
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-                               $<INSTALL_INTERFACE:include>     
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
     add_executable(${Target_Name} ${TARGET_SRC})
@@ -145,13 +145,20 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
                                $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
-                      
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
-	  						
+
+    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES}
+                          uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
+
+    if(BUILD_ASE_TESTS)
+        target_include_directories(commonlib      PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ase/include>)
+        target_include_directories(${Target_Name} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ase/include>)
+    else()
+        target_include_directories(commonlib      PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/libopae/include>)
+        target_include_directories(${Target_Name} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/libopae/include>)
+    endif()
 
     if(CMAKE_THREAD_LIBS_INIT)
-       target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
+        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 
     if(THREADS_HAVE_PTHREAD_ARG)
@@ -165,6 +172,7 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
 
    #Filter test list to preload ib/libmock.so
    string(FIND ${Test_To_Be_Exe} "MOCK" pos)
+
    string(FIND ${Test_To_Be_Exe} "ALL"  pos1)
    
    add_test(NAME ${Test_Name}
@@ -179,4 +187,3 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
    endif()
 
 endfunction(Exe_Tests)
-

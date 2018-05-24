@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,9 +27,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-tests)
 
-option(BUILD_ASE_TEST "Build GTASE." OFF)
-mark_as_advanced(BUILD_ASE_TEST)
-
 ##############################################################################
 ## Setup GTEST ###############################################################
 ##############################################################################
@@ -41,44 +38,91 @@ If(${GTest_FOUND})
 else()
   Build_GTEST()
 endif()
+
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE_TEST)
-     Build_Test_Target(gtase opae-c-ase)
-else()
-    Build_Test_Target(gtapi opae-c)
+
+add_library(commonlib SHARED common_test.h common_test.cpp)
+if(BUILD_ASE_TESTS)
+  Build_Test_Target(gtase opae-c-ase)
 endif()
+Build_Test_Target(gtapi opae-c)
 
 ############################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
-               ${CMAKE_BINARY_DIR}/tests/configuration.json
-               COPYONLY)
+  ${CMAKE_BINARY_DIR}/tests/configuration.json
+  COPYONLY)
 
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
+
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TEST)
-  Build_MOCk_DRV()
-endif()
+Build_MOCk_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
 ############################################################################
+
 macro(add_gtfilter test_name gtfilter is_mock)
-    add_test(NAME ${test_name}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
-    if(${is_mock})
-        set_tests_properties(
-            ${test_name}
-            PROPERTIES
-            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
-    endif()
+  add_test(NAME ${test_name}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+  if(${is_mock})
+    set_tests_properties(
+      ${test_name}
+      PROPERTIES
+      ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
+  endif()
 endmacro()
+
+############################################################################
+## ASE compatible version of gtapi (gtase)  ################################
+############################################################################
+
+set(gtest_filter_include)
+set(gtest_filter_exclude)
+
+# inclusion pattern
+list(APPEND gtest_filter_include *ALL.*)
+
+# exclusion pattern
+list(APPEND gtest_filter_exclude *event_drv_05*)
+list(APPEND gtest_filter_exclude *Properties*._id.*)
+list(APPEND gtest_filter_exclude *Open*.03)
+list(APPEND gtest_filter_exclude *Open*.06)
+list(APPEND gtest_filter_exclude *Open*.open_drv_09)
+list(APPEND gtest_filter_exclude *Open*.07)
+list(APPEND gtest_filter_exclude *Enum*.18)
+list(APPEND gtest_filter_exclude *Enum*.19)
+list(APPEND gtest_filter_exclude *Buf*.PrepRel2MB01)
+list(APPEND gtest_filter_exclude *Buf*.Write01)
+list(APPEND gtest_filter_exclude *Buf*.WriteRead01)
+list(APPEND gtest_filter_exclude *Close*.03)
+
+set(gtest_filter_include_str "")
+foreach(filter ${gtest_filter_include})
+  set(gtest_filter_include_str "${gtest_filter}:${filter}")
+endforeach(filter ${gtest_filter_include})
+
+set(gtest_filter_exclude_str "")
+foreach(filter ${gtest_filter_exclude})
+  set(gtest_filter_exclude_str "${gtest_filter}:${filter}")
+endforeach(filter ${gtest_filter_exclude})
+
+if(BUILD_ASE_TESTS)
+  add_test(NAME test_open_common_ase
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND gtase  ${CMAKE_BINARY_DIR} -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
+
+  set_tests_properties(
+    test_open_common_ase
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so;ASE_WORKDIR=${CMAKE_BINARY_DIR}/ase/samples/intg_xeon_nlb")
+endif()
 
 ############################################################################
 ## Add testing targets #####################################################
@@ -108,11 +152,10 @@ Exe_tests("Any_Value" "Cxx*any*")
 ############################################################################
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  if(BUILD_TESTS AND GTEST_FOUND)
-    # targetname     The name of original target from which coverage is created for
-    # testrunner     The name of the target which runs the tests.
-    set_target_for_coverage(opae-c ctest)
-
-    add_dependencies(coverage_opae-c gtapi)
-  endif(BUILD_TESTS AND GTEST_FOUND)
+  set_target_for_coverage(opae-c ctest)
+  add_dependencies(coverage_opae-c gtapi)
+  if(BUILD_ASE_TESTS)
+    set_target_for_coverage_local(opae-c-ase ctest)
+    add_dependencies(coverage_opae-c-ase gtase)
+  endif()
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

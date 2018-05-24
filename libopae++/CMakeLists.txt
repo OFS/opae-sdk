@@ -55,12 +55,20 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/except.cpp
                     src/version.cpp)
 
+if(BUILD_LIBOPAE_C)
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
 target_link_libraries(opae-cxx-core opae-c)
 
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
-target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
+target_link_libraries(hello_cxxcore opae-c-ase ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core)
 
+else()
+add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
+target_link_libraries(opae-cxx-core opae-c-ase)
+
+add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
+target_link_libraries(hello_cxxcore opae-c-ase ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core)
+endif()
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
