@@ -12,4 +12,4 @@
 ## Synthesizable: AFU-specific section #####################################
 ############################################################################
 
-hw/rtl/cci_mpf_hello_afu.sv
+rtl/cci_mpf_hello_afu.sv

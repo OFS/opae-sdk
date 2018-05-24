@@ -24,62 +24,51 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-find_package(UUID REQUIRED)
-include(opae_devpkgs_cmake_install)
-
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
-include_directories(base/sw)
+######################################################################
+# ASE module definition ##############################################
+######################################################################
 
 if(BUILD_ASE_SAMPLES)
-  find_package(GLIB)
-  find_package(Questa)
-  include_directories(${GLIB_INCLUDE_DIRS})
+  include(ase_add_modelsim)
+  set(hello_world_mpf_hw_SOURCES
+    sources.txt
+    mpf_addenda.txt
+    hello_world_mpf.json)
+  ase_add_modelsim_module(hello_world_mpf_hw
+    ${hello_world_mpf_hw_SOURCES})
+  file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
+    DESTINATION ${PROJECT_BINARY_DIR}/hw)
+
+  # Set platform
+  ase_module_set_platform_name(hello_world_mpf_hw intg_xeon)
+
+  # Add definitions
+  ase_module_add_definitions(hello_world_mpf_hw NUM_AFUS=1)
+  ase_module_add_definitions(hello_world_mpf_hw FPGA_PLATFORM_INTG_XEON)
+
+  # Configure files and finalize target rules
+  ase_finalize_modelsim_module_linking(hello_world_mpf_hw)
+
+  # Test coverage
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    set(COVERAGE_EXTRA 1)
+    set(COVERAGE_EXTRA_COMPONENTS " cci_hello_world_mpf intel-fpga-bbb")
+    set_target_for_coverage_local(opae-c-ase-server-hello_world_mpf ${PROJECT_BINARY_DIR}/ase_server.sh)
+  endif()
 endif()
 
-# Prefer GNU99
-if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
-    set (CMAKE_C_STANDARD_REQUIRED TRUE)
-    set (CMAKE_C_STANDARD "99")
-endif ()
-
 ######################################################################
-# MPF library ########################################################
+# Installation files #################################################
 ######################################################################
 
-include(intel_fpga_bbb)
-Build_Intel_FPGA_BBB()
+install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
+  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
+  COMPONENT samplesrc)
 
-######################################################################
-# Add the samples ####################################################
-######################################################################
+install(FILES ${PROJECT_SOURCE_DIR}/hw/hello_world_mpf.json
+  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
+  COMPONENT samplesrc)
 
-set(OPAE_SAMPLES src/opae/samples)
-add_subdirectory(hello_world)
-add_subdirectory(hello_afu)
-add_subdirectory(intg_xeon_nlb)
-add_subdirectory(hello_world_mpf)
-
-######################################################################
-# Client application #################################################
-######################################################################
-
-add_executable(hello_fpga hello_fpga.c)
-if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-else()
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
-endif()
-
-if(BUILD_LIBOPAE_C)
-  add_executable(hello_events hello_events.c)
-  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-endif()
-
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
+  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
   COMPONENT samplesrc)
