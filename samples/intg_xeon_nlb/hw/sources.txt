@@ -2,17 +2,17 @@
 ## Synthesizable: AFU-specific section #####################################
 ############################################################################
 
-hw/rtl/sys_cfg_pkg.svh
-hw/rtl/nlb_lpbk.sv
-hw/rtl/nlb_csr.sv
-hw/rtl/ccip_std_afu.sv
-hw/rtl/nlb_C1Tx_fifo.sv
-hw/rtl/ccip_debug.sv
-hw/rtl/arbiter.sv
-hw/rtl/requestor.sv
-hw/rtl/test_lpbk1.sv
-hw/rtl/ccip_interface_reg.sv
-hw/rtl/green_ccip_if_reg.sv
-hw/rtl/test_rdwr.sv
-hw/rtl/test_sw1.sv
-hw/rtl/nlb_gram_sdp.v
+rtl/sys_cfg_pkg.svh
+rtl/nlb_lpbk.sv
+rtl/nlb_csr.sv
+rtl/ccip_std_afu.sv
+rtl/nlb_C1Tx_fifo.sv
+rtl/ccip_debug.sv
+rtl/arbiter.sv
+rtl/requestor.sv
+rtl/test_lpbk1.sv
+rtl/ccip_interface_reg.sv
+rtl/green_ccip_if_reg.sv
+rtl/test_rdwr.sv
+rtl/test_sw1.sv
+rtl/nlb_gram_sdp.v
