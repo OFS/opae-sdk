@@ -38,7 +38,7 @@ using namespace opae::fpga::types;
  *             version::as_struct() then the struct values match the
  *             oonstants defined in config_int.h
  */
-TEST(CxxVersion, as_struct) {
+TEST(LibopaecppVersionCommonALL, as_struct) {
   auto v = version::as_struct();
   EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
   EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
@@ -52,7 +52,7 @@ TEST(CxxVersion, as_struct) {
  *             version::as_string() then the value returned matches
  *             the string oonstant defined in config_int.h
  */
-TEST(CxxVersion, as_string) {
+TEST(LibopaecppVersionCommonALL, as_string) {
   auto v = version::as_string();
   EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_VERSION);
 }
@@ -64,7 +64,7 @@ TEST(CxxVersion, as_string) {
  *             version::build() then the value returned matches
  *             the string oonstant defined in config_int.h
  */
-TEST(CxxVersion, build) {
+TEST(LibopaecppVersionCommonALL, build) {
   auto v = version::build();
   EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_HASH);
 }
