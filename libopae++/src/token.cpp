@@ -37,7 +37,7 @@ std::vector<token::ptr_t> token::enumerate(
   std::vector<token::ptr_t> tokens;
   std::vector<fpga_properties> c_props(props.size());
   std::transform(props.begin(), props.end(), c_props.begin(),
-                 [](const properties& p) { return p.get(); });
+                 [](const properties& p) { return p.c_type(); });
   uint32_t matches = 0;
   auto res =
       fpgaEnumerate(c_props.data(), c_props.size(), nullptr, 0, &matches);
