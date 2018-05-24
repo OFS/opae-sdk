@@ -82,7 +82,7 @@ class properties {
 
   /** Get the underlying fpga_properties object.
    */
-  fpga_properties get() const { return props_; }
+  fpga_properties c_type() const { return props_; }
 
   /** Get the underlying fpga_properties object.
    */

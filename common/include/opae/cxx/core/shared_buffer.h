@@ -81,7 +81,7 @@ class shared_buffer {
 
   /** Retrieve the virtual address of the buffer base.
    */
-  volatile uint8_t *get() const { return virt_; }
+  volatile uint8_t *c_type() const { return virt_; }
 
   /** Retrieve the handle smart pointer associated with
    * this buffer.
