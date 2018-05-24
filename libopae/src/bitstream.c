@@ -168,7 +168,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 		return FPGA_EXCEPTION;
 	}
 
-	memset(buf, 0, sizeof(buf));
+	memset_s(buf, sizeof(buf), 0);
 
 	b = 0;
 	do {
@@ -190,7 +190,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 
 
 	// PR Inteface Id h
-	memset(buf_h, 0, sizeof(buf_h));
+	memset_s(buf_h, sizeof(buf_h), 0);
 
 	e = strncpy_s(buf_h, sizeof(buf_h),
 			buf, INTFC_ID_HIGH_LEN);
@@ -203,7 +203,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 	*id_h = strtoull(buf_h, NULL, 16);
 
 	// PR Inteface Id l
-	memset(buf_l, 0, sizeof(buf_l));
+	memset_s(buf_l, sizeof(buf_l), 0);
 
 	e = strncpy_s(buf_l, sizeof(buf_l),
 			buf+INTFC_ID_LOW_LEN, INTFC_ID_LOW_LEN);
@@ -552,7 +552,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 				e = memcpy_s(gbs_metadata->afu_image.afu_clusters.name,
 						AFU_NAME_LEN,
 						json_object_get_string(name),
-						sizeof(json_object_get_string(name)));
+						strlen(json_object_get_string(name))+1);
 				if (EOK != e) {
 					FPGA_ERR("memcpy_s failed");
 					result = FPGA_EXCEPTION;
