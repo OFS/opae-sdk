@@ -273,10 +273,10 @@ function(ase_add_modelsim_module name)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/platform_includes
-    ${CMAKE_CURRENT_BINARY_DIR}/hw/rtl
+    ${CMAKE_CURRENT_BINARY_DIR}/rtl
     ${OPAE_BASE_DIR}/${PLATFORM_IF_RTL}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/hw/rtl)
+    ${CMAKE_CURRENT_SOURCE_DIR}/rtl)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_BINARY_DIR          ${CMAKE_CURRENT_BINARY_DIR})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES             ${ase_module_sources})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_ABS         ${ase_module_ase_module_sources_abs})
@@ -507,11 +507,11 @@ function(ase_finalize_modelsim_module_linking m)
   get_property(ase_module_ase_timeout   TARGET ${m} PROPERTY ASE_MODULE_ASE_TIMEOUT)
   get_property(ase_module_usr_clock_mhz TARGET ${m} PROPERTY ASE_MODULE_USR_CLOCK_MHZ)
 
-  set(ASE_WORKDIR             "${PROJECT_BINARY_DIR}")
-  set(ASE_CONFIG              "${PROJECT_BINARY_DIR}/ase.cfg")
-  set(ASE_REGRESS_SCRIPT      "${PROJECT_BINARY_DIR}/ase_regress.sh")
-  set(ASE_SERVER_SCRIPT       "${PROJECT_BINARY_DIR}/ase_server.sh")
-  set(ASE_SIMULATION_SCRIPT   "${PROJECT_BINARY_DIR}/vsim_run.tcl")
+  set(ASE_WORKDIR             "${CMAKE_CURRENT_BINARY_DIR}")
+  set(ASE_CONFIG              "${CMAKE_CURRENT_BINARY_DIR}/ase.cfg")
+  set(ASE_REGRESS_SCRIPT      "${CMAKE_CURRENT_BINARY_DIR}/ase_regress.sh")
+  set(ASE_SERVER_SCRIPT       "${CMAKE_CURRENT_BINARY_DIR}/ase_server.sh")
+  set(ASE_SIMULATION_SCRIPT   "${CMAKE_CURRENT_BINARY_DIR}/vsim_run.tcl")
 
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     set(vsim_coverage_header "coverage save -onexit ase.ucdb")
@@ -544,8 +544,8 @@ function(ase_finalize_modelsim_module_linking m)
     ${ASE_WORKDIR}/tmp/ase_server.sh)
 
   # Create simulation application
-  file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
-    DESTINATION ${PROJECT_BINARY_DIR}
+  file(COPY ${CMAKE_CURRENT_BINARY_DIR}/tmp/ase_server.sh
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
     GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
