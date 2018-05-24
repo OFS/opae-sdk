@@ -10,7 +10,7 @@ using namespace opae::fpga::types;
  * When I call handle::reset<br>
  * Then no exceptions are thrown<br>
  */
-TEST(CxxReset, handle_reset_01) {
+TEST(LibopaecppResetCommonALL, handle_reset_01) {
   auto tokens = token::enumerate({FPGA_ACCELERATOR});
   ASSERT_TRUE(tokens.size() > 0);
   handle::ptr_t h = handle::open(tokens[0], FPGA_OPEN_SHARED);

@@ -193,7 +193,7 @@ properties::ptr_t properties::read(fpga_token tok) {
 }
 
 properties::ptr_t properties::read(token::ptr_t tok) {
-  return read(tok->get());
+  return read(tok->c_type());
 }
 
 }  // end of namespace types
