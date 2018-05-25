@@ -23,13 +23,13 @@ const char* TEST_GUID_STR = "ae2878a7-926f-4332-aba1-2b952ad6df8e";
  */
 TEST(LibopaecppPropsCommonALL, set_guid) {
   fpga_guid guid_in, guid_out;
-  properties p;
+  auto p = properties::get();
   // set the guid to an fpga_guid
   uuid_parse(TEST_GUID_STR, guid_in);
-  p.guid = guid_in;
+  p->guid = guid_in;
 
   // now check we set the guid using C APIs
-  ASSERT_EQ(fpgaPropertiesGetGUID(p.c_type(), &guid_out), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetGUID(p->c_type(), &guid_out), FPGA_OK);
   EXPECT_EQ(memcmp(guid_in, guid_out, sizeof(fpga_guid)), 0);
 }
 
@@ -42,12 +42,12 @@ TEST(LibopaecppPropsCommonALL, set_guid) {
  */
 TEST(LibopaecppPropsCommonALL, parse_guid) {
   fpga_guid guid_out;
-  properties p;
+  auto p = properties::get();
   // set the guid to an fpga_guid
-  p.guid.parse(TEST_GUID_STR);
+  p->guid.parse(TEST_GUID_STR);
 
   // now check we set the guid using C APIs
-  ASSERT_EQ(fpgaPropertiesGetGUID(p.c_type(), &guid_out), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetGUID(p->c_type(), &guid_out), FPGA_OK);
   char guid_str[84];
   uuid_unparse(guid_out, guid_str);
   EXPECT_STREQ(TEST_GUID_STR, guid_str);
@@ -62,12 +62,12 @@ TEST(LibopaecppPropsCommonALL, parse_guid) {
  */
 TEST(LibopaecppPropsCommonALL, get_guid) {
   fpga_guid guid_in;
-  properties p;
+  auto p = properties::get();
   // set the guid using fpgaPropertiesSetGUID
   uuid_parse(TEST_GUID_STR, guid_in);
-  fpgaPropertiesSetGUID(p.c_type(), guid_in);
+  fpgaPropertiesSetGUID(p->c_type(), guid_in);
 
-  uint8_t* guid_ptr = p.guid;
+  uint8_t* guid_ptr = p->guid;
   ASSERT_NE(nullptr, guid_ptr);
   EXPECT_EQ(memcmp(guid_in, guid_ptr, sizeof(fpga_guid)), 0);
 }
@@ -80,12 +80,12 @@ TEST(LibopaecppPropsCommonALL, get_guid) {
  */
 TEST(LibopaecppPropsCommonALL, compare_guid){
   fpga_guid guid_in;
-  properties p;
+  auto p = properties::get();
   uuid_parse(TEST_GUID_STR, guid_in);
-  EXPECT_FALSE(p.guid == guid_in);
-  p.guid = guid_in;
-  ASSERT_EQ(memcmp(p.guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
-  EXPECT_TRUE(p.guid == guid_in);
+  EXPECT_FALSE(p->guid == guid_in);
+  p->guid = guid_in;
+  ASSERT_EQ(memcmp(p->guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
+  EXPECT_TRUE(p->guid == guid_in);
 }
 
 /**
@@ -98,9 +98,9 @@ TEST(LibopaecppPropsCommonALL, compare_guid){
 TEST(LibopaecppPropsCommonALL, props_ctor_01){
   fpga_guid guid_in;
   uuid_parse(TEST_GUID_STR, guid_in);
-  properties p(guid_in);
-  ASSERT_EQ(memcmp(p.guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
-  EXPECT_TRUE(p.guid == guid_in);
+  auto p = properties::get(guid_in);
+  ASSERT_EQ(memcmp(p->guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
+  EXPECT_TRUE(p->guid == guid_in);
 }
 
 /**
@@ -110,13 +110,13 @@ TEST(LibopaecppPropsCommonALL, props_ctor_01){
  * Then the property is set
  */
 TEST(LibopaecppPropsCommonALL, set_objtype) {
-  properties p;
-  p.type = FPGA_ACCELERATOR;
-  fpga_objtype t = p.type;
+  auto p = properties::get();
+  p->type = FPGA_ACCELERATOR;
+  fpga_objtype t = p->type;
   fpga_objtype other_t =
       (t == FPGA_ACCELERATOR) ? FPGA_DEVICE : FPGA_ACCELERATOR;
-  p.type = other_t;
-  EXPECT_TRUE(p.type == other_t);
+  p->type = other_t;
+  EXPECT_TRUE(p->type == other_t);
 }
 
 /**
@@ -126,8 +126,8 @@ TEST(LibopaecppPropsCommonALL, set_objtype) {
  * Then I get an empty string
  */
 TEST(LibopaecppPropsCommonALL, get_model) {
-  properties p;
+  auto p = properties::get();
   std::string model = "";
   // Model is currently not supported in libopae-c
-  EXPECT_THROW(model = p.model, not_supported);
+  EXPECT_THROW(model = p->model, not_supported);
 }

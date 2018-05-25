@@ -61,9 +61,9 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) char* argv[]) {
   // look for accelerator with NLB0_AFUID
-  properties filter;
-  filter.guid.parse(NLB0_AFUID);
-  filter.type = FPGA_ACCELERATOR;
+  auto filter = properties::get();
+  filter->guid.parse(NLB0_AFUID);
+  filter->type = FPGA_ACCELERATOR;
 
   auto tokens = token::enumerate({filter});
 
