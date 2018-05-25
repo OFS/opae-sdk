@@ -27,6 +27,7 @@
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/enum.h>
+#include <opae/manage.h>
 #include <opae/mmio.h>
 #include <opae/utils.h>
 
@@ -73,6 +74,11 @@ fpga_result handle::close() {
   }
 
   return FPGA_EXCEPTION;
+}
+
+void handle::reconfigure(uint32_t slot, const uint8_t *bitstream, size_t size,
+                         int flags) {
+  ASSERT_FPGA_OK(fpgaReconfigureSlot(handle_, slot, bitstream, size, flags));
 }
 
 void handle::reset() {
