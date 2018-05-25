@@ -74,6 +74,7 @@ struct config {
 		NORMAL,       /* stop if ambiguous */
 		AUTOMATIC     /* choose if ambiguous */
 	} mode;
+	int flags;
 	struct target {
 		int bus;
 		int device;
@@ -85,6 +86,7 @@ struct config {
 	.verbosity = 0,
 	.dry_run = false,
 	.mode = NORMAL,
+	.flags = 0,
 	.target = {
 		.bus = -1,
 		.device = -1,
@@ -209,6 +211,7 @@ void help(void)
 "                -h,--help           Print this help\n"
 "                -v,--verbose        Increase verbosity\n"
 "                -n,--dry-run        Don't actually perform actions\n"
+"                --force             Don't try to open accelerator resource\n"
 "                -b,--bus            Set target bus number\n"
 "                -d,--device         Set target device number\n"
 "                -f,--function       Set target function number\n"
@@ -237,6 +240,7 @@ int parse_args(int argc, char *argv[])
 		{"device",        required_argument, NULL, 'd'},
 		{"function",      required_argument, NULL, 'f'},
 		{"socket",        required_argument, NULL, 's'},
+		{"force",         no_argument,       NULL, 0xf},
 		/* {"auto",          no_argument,       NULL, 'a'}, */
 		/* {"interactive",   no_argument,       NULL, 'i'}, */
 		/* {"quiet",         no_argument,       NULL, 'q'}, */
@@ -266,6 +270,10 @@ int parse_args(int argc, char *argv[])
 
 		case 'n':    /* dry-run */
 			config.dry_run = true;
+			break;
+
+		case 0xf:    /* force */
+			config.flags |= FPGA_RECONF_FORCE;
 			break;
 
 		case 'b':    /* bus */
@@ -539,7 +547,7 @@ out_err:
 }
 
 int program_bitstream(fpga_token token,
-		uint32_t slot_num, struct bitstream_info *info)
+		uint32_t slot_num, struct bitstream_info *info, int flags)
 {
 	fpga_handle handle;
 	fpga_result res;
@@ -552,7 +560,7 @@ int program_bitstream(fpga_token token,
 	if (config.dry_run) {
 		print_msg(1, "[--dry-run] Skipping reconfiguration");
 	} else {
-		res = fpgaReconfigureSlot(handle, slot_num, info->data, info->data_len, 0);
+		res = fpgaReconfigureSlot(handle, slot_num, info->data, info->data_len, flags);
 		ON_ERR_GOTO(res, out_close, "writing bitstream to FPGA");
 	}
 
@@ -617,7 +625,7 @@ int main(int argc, char *argv[])
 
 	/* program bitstream */
 	print_msg(1, "Programming bitstream");
-	res = program_bitstream(token, slot_num, &info);
+	res = program_bitstream(token, slot_num, &info, config.flags);
 	if (res < 0) {
 		retval = 5;
 		goto out_free;
