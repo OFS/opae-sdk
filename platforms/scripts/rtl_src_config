@@ -11,10 +11,12 @@
 import argparse
 import os
 import sys
+import subprocess
+import re
 
 
 def errorExit(msg):
-    sys.stderr.write("\nError: " + msg + "\n")
+    sys.stderr.write("\nrtl_src_config error: " + msg + "\n")
     sys.exit(1)
 
 
@@ -197,7 +199,19 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
                 c = c.strip()
                 # Drop comments
                 c = c.split('#', 1)[0]
+
                 # Replace environment variables
+                if ('OPAE_PLATFORM_FPGA_FAMILY' in c and
+                        'OPAE_PLATFORM_FPGA_FAMILY' not in os.environ):
+                    # The source requires version-specific Qsys and the
+                    # tag has not yet been determined.
+                    addDefaultFpgaFamily(opts)
+
+                if ('QUARTUS_VERSION' in c and
+                        ('QUARTUS_VERSION' not in os.environ or
+                         'QUARTUS_VERSION_MAJOR' not in os.environ)):
+                    getQuartusVersion(opts)
+
                 c = os.path.expandvars(c)
 
                 # Recursive include?
@@ -214,6 +228,117 @@ def parseConfigFile(opts, cfg_file_name, tgt_dir):
     return cfg
 
 
+#
+# The hw/lib directory of a platform's release.  We find the hw/lib
+# directory using the following search rules, in decreasing priority:
+#
+#   1. --lib argument to this script.
+#   2. BBS_LIB_PATH:
+#        We used to document this environment variable as the primary
+#        pointer for scripts.
+#   3. OPAE_PLATFORM_ROOT:
+#        This variable replaces all pointers to a release directory,
+#        starting with the discrete platform's 1.1 release.  The
+#        hw/lib directory is ${OPAE_PLATFORM_ROOT}/hw/lib.
+#
+def getHWLibPath(opts):
+    if (opts.lib is not None):
+        hw_lib_dir = opts.lib
+    elif ('BBS_LIB_PATH' in os.environ):
+        # Legacy variable, shared with afu_sim_setup and HW releases
+        hw_lib_dir = os.environ['BBS_LIB_PATH'].rstrip('/')
+    elif ('OPAE_PLATFORM_ROOT' in os.environ):
+        # Currently documented variable, pointing to a platform release
+        hw_lib_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'].rstrip('/'),
+                                  'hw/lib')
+    else:
+        errorExit("Release hw/lib directory must be specified with " +
+                  "OPAE_PLATFORM_ROOT, BBS_LIB_PATH or --lib")
+
+    # Confirm that the path looks reasonable
+    if (not os.path.exists(os.path.join(hw_lib_dir,
+                                        'fme-ifc-id.txt'))):
+        errorExit("{0} is not a release hw/lib directory".format(hw_lib_dir))
+
+    return hw_lib_dir
+
+
+#
+# Qsys requires source files that are specific to both FPGA technology and
+# Quartus version.  We automatically define OPAE_PLATFORM_FPGA_FAMILY as an
+# environment variable, which may be used in source specification to choose
+# the right code.
+#
+def addDefaultFpgaFamily(opts):
+    # Define an environment variable for Qsys versions based on the
+    # platform.
+
+    if ('OPAE_PLATFORM_FPGA_FAMILY' not in os.environ):
+        try:
+            # Get the FPGA technology tag using afu_platform_info
+            cmd = 'afu_platform_info --key=fpga-family '
+
+            # What's the platform name?
+            plat_class_file = os.path.join(getHWLibPath(opts),
+                                           'fme-platform-class.txt')
+            with open(plat_class_file) as f:
+                cmd += f.read().strip()
+
+            proc = subprocess.Popen(cmd, shell=True,
+                                    stdout=subprocess.PIPE)
+            for line in proc.stdout:
+                os.environ['OPAE_PLATFORM_FPGA_FAMILY'] = line.strip()
+            errcode = proc.wait()
+            if (errcode):
+                errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY")
+
+            if (not opts.quiet):
+                sys.stderr.write(
+                    "Set OPAE_PLATFORM_FPGA_FAMILY to {0}\n".format(
+                        os.environ['OPAE_PLATFORM_FPGA_FAMILY']))
+        except Exception as e:
+            errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY ({0})".format(
+                str(e)))
+
+
+#
+# Invoke Quartus to load its major version number.
+#
+def getQuartusVersion(opts):
+    if ('QUARTUS_VERSION' not in os.environ or
+            'QUARTUS_VERSION_MAJOR' not in os.environ):
+        try:
+            # Get the Quartus major version number
+            proc = subprocess.Popen('quartus_sh --version', shell=True,
+                                    stdout=subprocess.PIPE)
+            ok = False
+            for line in proc.stdout:
+                line = line.strip()
+                if (line[:7] == 'Version'):
+                    ok = True
+
+                    # Just the major version number
+                    maj = re.sub(r'\D*(\d*)\..*', r'\1', line)
+                    os.environ['QUARTUS_VERSION_MAJOR'] = maj
+                    # Major.minor version
+                    maj_min = re.sub(r'\D*(\d*\.\d*)\..*', r'\1', line)
+                    os.environ['QUARTUS_VERSION'] = maj_min
+
+            errcode = proc.wait()
+            if (errcode or not ok):
+                errorExit("Failed to compute QUARTUS_VERSION")
+
+            if (not opts.quiet):
+                sys.stderr.write(
+                    "Set QUARTUS_VERSION to {0}\n".format(
+                        os.environ['QUARTUS_VERSION']))
+                sys.stderr.write(
+                    "Set QUARTUS_VERSION_MAJOR to {0}\n".format(
+                        os.environ['QUARTUS_VERSION_MAJOR']))
+        except Exception as e:
+            errorExit(str(e))
+
+
 def main(args=None):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -227,7 +352,10 @@ are ignored, depending on the build target.  For example, SDC files are
 ignored when constructing a list for simulation.
 
 Environment variables in file paths are substituted as a configuration
-file is loaded.
+file is loaded.  Several environment variables are defined automatically,
+including OPAE_PLATFORM_FPGA_FAMILY (the value output by "afu_platform_info
+--key=fpga-family"), QUARTUS_VERSION_MAJOR (e.g. 18) and QUARTUS_VERSION
+(e.g. 18.1).
 
 Files should be specified one per line in the configuration file.  A few
 prefixes are treated specially.  Most are directives supported by Verilog
@@ -256,8 +384,8 @@ These commands affect script parsing:
   # <comment>       All text following a '#' is ignored.''')
 
     parser.add_argument("config_file",
-                        help="""Configuration file containing RTL source file paths,
-                                preprocessor variable settings, etc.""")
+                        help="""Configuration file containing RTL source file
+                                paths, preprocessor variable settings, etc.""")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
@@ -283,6 +411,19 @@ These commands affect script parsing:
     group.add_argument("-a", "--abs",
                        action="store_true",
                        help="""Convert paths so they are absolute.""")
+
+    # Verbose/quiet
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-v", "--verbose", action="store_true", help="Verbose output")
+    group.add_argument(
+        "-q", "--quiet", action="store_true", help="Reduce output")
+
+    parser.add_argument('-l', '--lib', default=None,
+                        help="""FPGA platform release hw/lib directory.  If
+                                not specified, the environment variables
+                                OPAE_FPGA_HW_LIB and then BBS_LIB_PATH are
+                                checked.""")
 
     opts = parser.parse_args(args)
     cfg = parseConfigFile(opts, opts.config_file, opts.rel)
