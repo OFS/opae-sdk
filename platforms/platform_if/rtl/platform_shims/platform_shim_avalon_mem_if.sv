@@ -49,11 +49,22 @@ module platform_shim_avalon_mem_if
     output logic mem_afu_reset[NUM_LOCAL_MEM_BANKS]
     );
 
+    // ====================================================================
+    // While clocking and register stage insertion are logically
+    // independent, considering them together leads to an important
+    // optimization. The clock crossing FIFO has a large buffer that
+    // can be used to turn the standard Avalon MM waitrequest signal into
+    // an almost full protocol. The buffer stages become a simple
+    // pipeline.
+    //
+    // When there is no clock crossing FIFO, all register stages must
+    // honor the waitrequest protocol.
+    // ====================================================================
+
     //
     // Has the AFU JSON requested a clock crossing for the local memory signals?
     // We compute this here because it affects register stage insertion.
     //
-
 `ifndef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK
     // No local memory clock change.
     localparam LOCAL_MEMORY_CHANGE_CLOCK = 0;
@@ -65,85 +76,38 @@ module platform_shim_avalon_mem_if
     localparam LOCAL_MEMORY_CHANGE_CLOCK = 1;
 `endif
 
-
-    // ====================================================================
-    //  Local memory auto-register for timing
-    // ====================================================================
-
-    logic mem_reg_clk[NUM_LOCAL_MEM_BANKS];
-    logic mem_reg_reset[NUM_LOCAL_MEM_BANKS];
-    avalon_mem_if mem_reg[NUM_LOCAL_MEM_BANKS](mem_reg_clk, mem_reg_reset);
-
     //
     // How many register stages should be inserted for timing?
     //
-    function automatic int numTimingRegStages();
-        int n_stages = 0;
-
-        // Were timing registers requested in the AFU JSON?
 `ifdef PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES
-        n_stages = `PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES;
+    localparam NUM_TIMING_REG_STAGES =
+        `PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES;
+`else
+    localparam NUM_TIMING_REG_STAGES = 0;
 `endif
 
-        // Override the register request if a clock crossing is being
-        // inserted here.
-        if (LOCAL_MEMORY_CHANGE_CLOCK)
-        begin
-            // Use at least the recommended number of stages
-`ifdef PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES
-            if (`PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES > n_stages)
-            begin
-                n_stages = `PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES;
-            end
-`endif
-        end
-
-        return n_stages;
-    endfunction
-
-    localparam NUM_TIMING_REG_STAGES = numTimingRegStages();
 
     genvar b;
-    generate
-        for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
-        begin : pipe
-            assign mem_reg_clk[b] = mem_fiu[b].clk;
-            assign mem_reg_reset[b] = mem_fiu[b].reset;
-
-            avalon_mem_if_reg
-              #(
-                .N_REG_STAGES(NUM_TIMING_REG_STAGES)
-                )
-              mem_pipe
-               (
-                .mem_fiu(mem_fiu[b]),
-                .mem_afu(mem_reg[b])
-                );
-        end
-    endgenerate
-
-
-    // ====================================================================
-    //  Convert local memory signals to the clock domain specified in the
-    //  AFU's JSON file.
-    // ====================================================================
-
     generate
         if (LOCAL_MEMORY_CHANGE_CLOCK == 0)
         begin : nc
             //
-            // No clock crossing.  Just connect the memory wires.
+            // No clock crossing, maybe register stages.
             //
             for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
-            begin : mm_wires
-                always_comb
-                begin
-                    mem_afu_clk[b] = mem_reg[b].clk;
-                    mem_afu_reset[b] = mem_reg[b].reset;
-                end
+            begin : pipe
+                assign mem_afu_clk[b] = mem_fiu[b].clk;
+                assign mem_afu_reset[b] = mem_fiu[b].reset;
 
-                avalon_mem_if_connect mem_connect(.mem_fiu(mem_reg[b]),
-                                                  .mem_afu(mem_afu[b]));
+                avalon_mem_if_reg
+                  #(
+                    .N_REG_STAGES(NUM_TIMING_REG_STAGES)
+                    )
+                  mem_pipe
+                   (
+                    .mem_fiu(mem_fiu[b]),
+                    .mem_afu(mem_afu[b])
+                    );
             end
         end
         else
@@ -151,6 +115,8 @@ module platform_shim_avalon_mem_if
             //
             // Cross to the specified clock.
             //
+            avalon_mem_if mem_cross[NUM_LOCAL_MEM_BANKS](mem_afu_clk, mem_afu_reset);
+
             for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 1)
             begin : mm_async
                 // Synchronize a reset with the target clock
@@ -158,7 +124,7 @@ module platform_shim_avalon_mem_if
 
                 always @(posedge tgt_mem_afu_clk)
                 begin
-                    local_mem_reset_pipe[0] <= mem_reg[b].reset;
+                    local_mem_reset_pipe[0] <= mem_fiu[b].reset;
                     local_mem_reset_pipe[2:1] <= local_mem_reset_pipe[1:0];
                 end
 
@@ -168,10 +134,46 @@ module platform_shim_avalon_mem_if
                     mem_afu_reset[b] = local_mem_reset_pipe[2];
                 end
 
-                // Clock crossing bridge.
-                avalon_mem_if_async_shim mem_async_shim
+                // We assume that a single waitrequest signal can propagate faster
+                // than the entire bus, so limit the number of stages.
+                localparam NUM_WAITREQUEST_STAGES =
+                    // If pipeline is 4 stages or fewer then use the pipeline depth.
+                    (NUM_TIMING_REG_STAGES <= 4 ? NUM_TIMING_REG_STAGES :
+                        // Up to depth 16 pipelines, use 4 waitrequest stages.
+                        // Beyond 16 stages, set the waitrequest depth to 1/4 the
+                        // base pipeline depth.
+                        (NUM_TIMING_REG_STAGES <= 16 ? 4 : (NUM_TIMING_REG_STAGES >> 2)));
+
+                // Set the almost full threshold to satisfy the buffering pipeline depth
+                // plus the depth of the waitrequest pipeline plus a little extra to
+                // avoid having to worry about off-by-one errors.
+                localparam NUM_ALMFULL_SLOTS = NUM_TIMING_REG_STAGES +
+                                               NUM_WAITREQUEST_STAGES +
+                                               4;
+
+                // Clock crossing bridge
+                avalon_mem_if_async_shim
+                  #(
+                    .COMMAND_ALMFULL_THRESHOLD(NUM_ALMFULL_SLOTS)
+                    )
+                  mem_async_shim
                    (
-                    .mem_fiu(mem_reg[b]),
+                    .mem_fiu(mem_fiu[b]),
+                    .mem_afu(mem_cross[b])
+                    );
+
+                // Add requested register stages on the AFU side of the clock crossing.
+                // In this case the register stages are a simple pipeline because
+                // the clock crossing FIFO reserves space for these stages to drain
+                // after waitrequest is asserted.
+                avalon_mem_if_reg_simple
+                  #(
+                    .N_REG_STAGES(NUM_TIMING_REG_STAGES),
+                    .N_WAITREQUEST_STAGES(NUM_WAITREQUEST_STAGES)
+                    )
+                  mem_pipe
+                   (
+                    .mem_fiu(mem_cross[b]),
                     .mem_afu(mem_afu[b])
                     );
             end

@@ -29,9 +29,11 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Add a configurable number of pipeline stages between a pair of Avalon
-// memory interface objects.  Pipeline stages are complex because of the
-// waitrequest protocol.
+// A simple version of Avalon MM interface register stage insertion.
+// Waitrequest is treated as an almost full protocol, with the assumption
+// that the FIU end of the connection can handle at least as many
+// requests as the depth of the pipeline plus the latency of latency
+// of forwarding waitrequest from the FIU side to the AFU side.
 //
 
 `include "platform_if.vh"
@@ -40,20 +42,11 @@
 import local_mem_cfg_pkg::*;
 `endif
 
-module avalon_mem_if_reg
+module avalon_mem_if_reg_simple
   #(
     // Number of stages to add when registering inputs or outputs
     parameter N_REG_STAGES = 1,
-
-`ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-    parameter DATA_WIDTH = LOCAL_MEM_DATA_WIDTH,
-    parameter ADDR_WIDTH = LOCAL_MEM_ADDR_WIDTH,
-    parameter BURST_CNT_WIDTH = LOCAL_MEM_BURST_CNT_WIDTH
-`else
-    parameter DATA_WIDTH = 32,
-    parameter ADDR_WIDTH = 10,
-    parameter BURST_CNT_WIDTH = 4
-`endif
+    parameter N_WAITREQUEST_STAGES = N_REG_STAGES
     )
    (
     avalon_mem_if.to_fiu mem_fiu,
@@ -78,50 +71,61 @@ module avalon_mem_if_reg
             // Inject the requested number of stages
             for (s = 1; s <= N_REG_STAGES; s = s + 1)
             begin : p
-                platform_utils_avalon_mm_bridge
-                  #(
-                    .DATA_WIDTH(DATA_WIDTH),
-                    .HDL_ADDR_WIDTH(ADDR_WIDTH),
-                    .BURSTCOUNT_WIDTH(BURST_CNT_WIDTH)
-                    )
-                  bridge
-                   (
-                    .clk(mem_pipe[s].clk),
-                    .reset(mem_pipe[s].reset),
+                always_ff @(posedge mem_fiu.clk)
+                begin
+                    // Waitrequest is a different pipeline, implemented below.
+                    mem_pipe[s].waitrequest <= 1'b1;
 
-                    .s0_waitrequest(mem_pipe[s].waitrequest),
-                    .s0_readdata(mem_pipe[s].readdata),
-                    .s0_readdatavalid(mem_pipe[s].readdatavalid),
-                    .s0_response(),
-                    .s0_burstcount(mem_pipe[s].burstcount),
-                    .s0_writedata(mem_pipe[s].writedata),
-                    .s0_address(mem_pipe[s].address), 
-                    .s0_write(mem_pipe[s].write), 
-                    .s0_read(mem_pipe[s].read), 
-                    .s0_byteenable(mem_pipe[s].byteenable), 
-                    .s0_debugaccess(1'b0),
+                    mem_pipe[s].readdata <= mem_pipe[s-1].readdata;
+                    mem_pipe[s].readdatavalid <= mem_pipe[s-1].readdatavalid;
 
-                    .m0_waitrequest(mem_pipe[s - 1].waitrequest),
-                    .m0_readdata(mem_pipe[s - 1].readdata),
-                    .m0_readdatavalid(mem_pipe[s - 1].readdatavalid),
-                    .m0_response('x),
-                    .m0_burstcount(mem_pipe[s - 1].burstcount),
-                    .m0_writedata(mem_pipe[s - 1].writedata),
-                    .m0_address(mem_pipe[s - 1].address), 
-                    .m0_write(mem_pipe[s - 1].write), 
-                    .m0_read(mem_pipe[s - 1].read), 
-                    .m0_byteenable(mem_pipe[s - 1].byteenable),
-                    .m0_debugaccess()
-                    );
+                    mem_pipe[s-1].burstcount <= mem_pipe[s].burstcount;
+                    mem_pipe[s-1].writedata <= mem_pipe[s].writedata;
+                    mem_pipe[s-1].address <= mem_pipe[s].address;
+                    mem_pipe[s-1].write <= mem_pipe[s].write;
+                    mem_pipe[s-1].read <= mem_pipe[s].read;
+                    mem_pipe[s-1].byteenable <= mem_pipe[s].byteenable;
+                end
 
                 // Debugging signal
                 assign mem_pipe[s].bank_number = mem_pipe[s-1].bank_number;
             end
 
+
+            logic [N_WAITREQUEST_STAGES:1] mem_waitrequest_pipe;
+
+            always_ff @(posedge mem_fiu.clk)
+            begin
+                if (mem_fiu.reset)
+                begin
+                    mem_waitrequest_pipe <= {N_WAITREQUEST_STAGES{1'b1}};
+                end
+                else
+                begin
+                    mem_waitrequest_pipe <=
+                        { mem_waitrequest_pipe[N_WAITREQUEST_STAGES-1:1], mem_fiu.waitrequest };
+                end
+            end
+
+
             // Map mem_afu to the last stage (wired)
-            avalon_mem_if_connect conn1(.mem_fiu(mem_pipe[N_REG_STAGES]),
-                                        .mem_afu(mem_afu));
+            always_comb
+            begin
+                mem_afu.waitrequest = mem_waitrequest_pipe[N_WAITREQUEST_STAGES];
+                mem_afu.readdata = mem_pipe[N_REG_STAGES].readdata;
+                mem_afu.readdatavalid = mem_pipe[N_REG_STAGES].readdatavalid;
+
+                mem_pipe[N_REG_STAGES].burstcount = mem_afu.burstcount;
+                mem_pipe[N_REG_STAGES].writedata = mem_afu.writedata;
+                mem_pipe[N_REG_STAGES].address = mem_afu.address;
+                mem_pipe[N_REG_STAGES].write = mem_afu.write && ! mem_afu.waitrequest;
+                mem_pipe[N_REG_STAGES].read = mem_afu.read && ! mem_afu.waitrequest;
+                mem_pipe[N_REG_STAGES].byteenable = mem_afu.byteenable;
+
+                // Debugging signal
+                mem_afu.bank_number = mem_pipe[N_REG_STAGES].bank_number;
+            end
         end
     endgenerate
 
-endmodule // avalon_mem_if_reg
+endmodule // avalon_mem_if_reg_simple
