@@ -69,7 +69,7 @@ fpga_result send_event_request(int conn_socket, int fd, struct event_request *re
 	/* set up ancillary data message header */
 	iov[0].iov_base = req;
 	iov[0].iov_len = sizeof(*req);
-	memset(buf, 0x0, sizeof(buf));
+	memset_s(buf, sizeof(buf), 0x0);
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
