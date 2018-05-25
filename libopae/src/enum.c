@@ -617,6 +617,32 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 }
 
 
+/// Determine if filters require reading AFUs
+///
+/// Return true if any of the following conditions are met:
+/// * The number of filters is zero
+/// * At least one filter specifies FPGA_ACCELERATOR as object type
+/// * At least one filter does NOT specify an object type
+/// Return false otherwise
+bool include_afu(const fpga_properties *filters, uint32_t num_filters)
+{
+	size_t i = 0;
+	if (!num_filters)
+		return true;
+	for (i = 0; i < num_filters; ++i) {
+		struct _fpga_properties *_filter =
+			(struct _fpga_properties *)filters[i];
+		if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {
+			if (_filter->objtype == FPGA_ACCELERATOR) {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+	return false;
+}
+
 fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 				       uint32_t num_filters, fpga_token *tokens,
 				       uint32_t max_tokens,
@@ -654,7 +680,7 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 
 	*num_matches = 0;
 
-	memset(&head, 0, sizeof(head));
+	memset_s(&head, sizeof(head), 0);
 
 	// Find the top-level FPGA devices.
 	dir = opendir(SYSFS_FPGA_CLASS_PATH);
@@ -662,22 +688,6 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		FPGA_MSG("can't find %s (no driver?)", SYSFS_FPGA_CLASS_PATH);
 		return FPGA_NO_DRIVER;
 	}
-
-	bool include_port = num_filters == 0 ? true : false;
-	for (size_t i = 0; i < num_filters; ++i) {
-		struct _fpga_properties *_filter =
-			(struct _fpga_properties *)filters[i];
-		if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {
-			if (_filter->objtype == FPGA_ACCELERATOR) {
-				include_port = true;
-				break;
-			}
-		} else {
-			include_port = true;
-			break;
-		}
-	}
-
 
 	while ((dirent = readdir(dir)) != NULL) {
 		if (!strcmp(dirent->d_name, "."))
@@ -688,7 +698,7 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
 			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
 
-		result = enum_top_dev(sysfspath, &head, include_port);
+		result = enum_top_dev(sysfspath, &head, include_afu(filters, num_filters));
 		if (result != FPGA_OK)
 			break;
 	}
