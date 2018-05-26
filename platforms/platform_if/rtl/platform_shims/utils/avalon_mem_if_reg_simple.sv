@@ -32,8 +32,8 @@
 // A simple version of Avalon MM interface register stage insertion.
 // Waitrequest is treated as an almost full protocol, with the assumption
 // that the FIU end of the connection can handle at least as many
-// requests as the depth of the pipeline plus the latency of latency
-// of forwarding waitrequest from the FIU side to the AFU side.
+// requests as the depth of the pipeline plus the latency of
+// forwarding waitrequest from the FIU side to the AFU side.
 //
 
 `include "platform_if.vh"
@@ -92,19 +92,17 @@ module avalon_mem_if_reg_simple
             end
 
 
-            logic [N_WAITREQUEST_STAGES:1] mem_waitrequest_pipe;
+            // waitrequest is a shift register, with mem_fiu.waitrequest entering
+            // at bit 0.
+            logic [N_WAITREQUEST_STAGES:0] mem_waitrequest_pipe;
+            assign mem_waitrequest_pipe[0] = mem_fiu.waitrequest;
 
             always_ff @(posedge mem_fiu.clk)
             begin
-                if (mem_fiu.reset)
-                begin
-                    mem_waitrequest_pipe <= {N_WAITREQUEST_STAGES{1'b1}};
-                end
-                else
-                begin
-                    mem_waitrequest_pipe <=
-                        { mem_waitrequest_pipe[N_WAITREQUEST_STAGES-1:1], mem_fiu.waitrequest };
-                end
+                // Shift the waitrequest pipeline
+                mem_waitrequest_pipe[N_WAITREQUEST_STAGES:1] <=
+                    mem_fiu.reset ? {N_WAITREQUEST_STAGES{1'b1}} :
+                                    mem_waitrequest_pipe[N_WAITREQUEST_STAGES-1:0];
             end
 
 

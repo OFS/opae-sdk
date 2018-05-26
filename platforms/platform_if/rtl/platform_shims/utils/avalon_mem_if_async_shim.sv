@@ -135,8 +135,8 @@ module avalon_mem_if_async_shim
                 // In almost full mode it is illegal for a request to arrive
                 // when s0_waitrequest is asserted. If this ever happens it
                 // means the almost full protocol has failed and that
-                // cmd_space_avail didn't forced back-pressure too late or
-                // it was ignored.
+                // cmd_space_avail forced back-pressure too late or it was
+                // ignored.
 
                 if (~mem_afu.reset && cmd_waitrequest && mem_afu.write)
                 begin

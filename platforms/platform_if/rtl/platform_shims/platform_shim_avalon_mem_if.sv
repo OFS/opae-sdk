@@ -144,12 +144,16 @@ module platform_shim_avalon_mem_if
                         // base pipeline depth.
                         (NUM_TIMING_REG_STAGES <= 16 ? 4 : (NUM_TIMING_REG_STAGES >> 2)));
 
+                // A few extra stages to avoid off-by-one errors. There is plenty of
+                // space in FIFO, so this has no performance consequences.
+                localparam NUM_EXTRA_STAGES = (NUM_TIMING_REG_STAGES != 0) ? 4 : 0;
+
                 // Set the almost full threshold to satisfy the buffering pipeline depth
                 // plus the depth of the waitrequest pipeline plus a little extra to
                 // avoid having to worry about off-by-one errors.
                 localparam NUM_ALMFULL_SLOTS = NUM_TIMING_REG_STAGES +
                                                NUM_WAITREQUEST_STAGES +
-                                               4;
+                                               NUM_EXTRA_STAGES;
 
                 // Clock crossing bridge
                 avalon_mem_if_async_shim
