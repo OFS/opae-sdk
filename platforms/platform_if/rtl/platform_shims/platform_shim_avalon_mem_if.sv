@@ -79,12 +79,31 @@ module platform_shim_avalon_mem_if
     //
     // How many register stages should be inserted for timing?
     //
+    function automatic int numTimingRegStages();
+        int n_stages = 0;
+
+        // Were timing registers requested in the AFU JSON?
 `ifdef PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES
-    localparam NUM_TIMING_REG_STAGES =
-        `PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES;
-`else
-    localparam NUM_TIMING_REG_STAGES = 0;
+        n_stages = `PLATFORM_PARAM_LOCAL_MEMORY_ADD_TIMING_REG_STAGES;
 `endif
+
+        // Override the register request if a clock crossing is being
+        // inserted here.
+        if (LOCAL_MEMORY_CHANGE_CLOCK)
+        begin
+            // Use at least the recommended number of stages
+`ifdef PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES
+            if (`PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES > n_stages)
+            begin
+                n_stages = `PLATFORM_PARAM_LOCAL_MEMORY_SUGGESTED_TIMING_REG_STAGES;
+            end
+`endif
+        end
+
+        return n_stages;
+    endfunction
+
+    localparam NUM_TIMING_REG_STAGES = numTimingRegStages();
 
 
     genvar b;
