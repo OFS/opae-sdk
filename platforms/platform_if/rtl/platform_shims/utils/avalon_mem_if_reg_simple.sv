@@ -85,6 +85,12 @@ module avalon_mem_if_reg_simple
                     mem_pipe[s-1].write <= mem_pipe[s].write;
                     mem_pipe[s-1].read <= mem_pipe[s].read;
                     mem_pipe[s-1].byteenable <= mem_pipe[s].byteenable;
+
+                    if (mem_fiu.reset)
+                    begin
+                        mem_pipe[s-1].write <= 1'b0;
+                        mem_pipe[s-1].read <= 1'b0;
+                    end
                 end
 
                 // Debugging signal
