@@ -76,11 +76,35 @@ module platform_shim_ccip
     //
     // How many register stages should be inserted for timing?
     //
+    function automatic int numTimingRegStages();
+        int n_stages = 0;
+
+        // Were timing registers requested in the AFU JSON?
 `ifdef PLATFORM_PARAM_CCI_P_ADD_TIMING_REG_STAGES
-    localparam NUM_TIMING_REG_STAGES = `PLATFORM_PARAM_CCI_P_ADD_TIMING_REG_STAGES;
-`else
-    localparam NUM_TIMING_REG_STAGES = 0;
+        n_stages = `PLATFORM_PARAM_CCI_P_ADD_TIMING_REG_STAGES;
 `endif
+
+        // Override the register request if a clock crossing is being
+        // inserted here.
+        if (CCI_P_CHANGE_CLOCK)
+        begin
+            // Use at least the recommended number of stages.  We can afford
+            // to do this automatically without violating the CCI-P almost
+            // full sending limit when there is a clock crossing.  The clock
+            // crossing FIFO will leave enough extra space to accommodate
+            // the extra messages.
+`ifdef PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES
+            if (`PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES > n_stages)
+            begin
+                n_stages = `PLATFORM_PARAM_CCI_P_SUGGESTED_TIMING_REG_STAGES;
+            end
+`endif
+        end
+
+        return n_stages;
+    endfunction
+
+    localparam NUM_TIMING_REG_STAGES = numTimingRegStages();
 
 
     // ====================================================================
