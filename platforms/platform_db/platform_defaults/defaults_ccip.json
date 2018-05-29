@@ -54,8 +54,15 @@
          "reconfiguration (PR) boundary and the AFU.  An AFU may set this to",
          "1 in order to satisfy the CCI-P buffering required by the spec.",
          "",
-         "Be careful when requesting more than a single stage, since this",
-         "may lead to overruns due to late detection of almost full signals."
+         "When there is also a clock crossing, using 'clock' below, the",
+         "timing register stages are added between the clock crossing and",
+         "the AFU.  In addition, extra space is allocated in the clock",
+         "crossing FIFO to accommodate more CCI-P requests following an",
+         "almost full signal due to the latency of the extra pipeline stages.",
+         "",
+         "Be careful when requesting more than a single stage if there is",
+         "no clock crossing requested.  Extra register stages may lead to",
+         "overruns due to late detection of almost full signals."
       ],
    "add-timing-reg-stages": 0,
 
