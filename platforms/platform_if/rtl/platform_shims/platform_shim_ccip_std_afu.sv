@@ -139,7 +139,7 @@ module platform_shim_ccip_std_afu
        (
 `ifdef PLATFORM_PARAM_LOCAL_MEMORY_CLOCK_IS_DEFAULT
         // Not used -- local memory clocks unchanged
-        .tgt_mem_afu_clk(0),
+        .tgt_mem_afu_clk(1'b0),
 `else
         // Updated target for local memory clock
         .tgt_mem_afu_clk(`PLATFORM_PARAM_LOCAL_MEMORY_CLOCK),

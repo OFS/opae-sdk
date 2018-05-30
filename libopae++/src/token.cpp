@@ -37,7 +37,7 @@ std::vector<token::ptr_t> token::enumerate(
   std::vector<token::ptr_t> tokens;
   std::vector<fpga_properties> c_props(props.size());
   std::transform(props.begin(), props.end(), c_props.begin(),
-                 [](const properties& p) { return p.get(); });
+                 [](const properties& p) { return p.c_type(); });
   uint32_t matches = 0;
   auto res =
       fpgaEnumerate(c_props.data(), c_props.size(), nullptr, 0, &matches);
@@ -69,7 +69,9 @@ std::vector<token::ptr_t> token::enumerate(
 
 token::~token() {
   auto res = fpgaDestroyToken(&token_);
-  ASSERT_FPGA_OK(res);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaDestroyToken: " << fpgaErrStr(res) << "\n";
+  }
 }
 
 token::token(fpga_token tok) {

@@ -79,3 +79,5 @@ sed -e 's/^REPLACE/\n## Apply the constraints\napply_sdc_pre_dcfifo "platform_ut
 
 echo
 echo "  *** The copyrights must still be changed to BSD/MIT licenses.  Do this by hand. ***"
+echo
+echo "  +++ platform_utils_avalon_mm_clock_crossing_bridge.v must be edited. See README. +++"

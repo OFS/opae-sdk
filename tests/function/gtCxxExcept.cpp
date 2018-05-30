@@ -17,7 +17,7 @@ using namespace opae::fpga::types;
  * When the object is constructed with OPAECXX_HERE<br>
  * Then it represents the current location in the source file.<br>
  */
-TEST(CxxExcept, except_01) {
+TEST(LibopaecppExceptCommonALL, except_01) {
   src_location loc(OPAECXX_HERE);
 
   EXPECT_STREQ("gtCxxExcept.cpp", loc.file());
@@ -31,7 +31,7 @@ TEST(CxxExcept, except_01) {
  * When the object is constructed with a src_location only<br>
  * Then then the fpga_result value is FPGA_EXCEPTION.<br>
  */
-TEST(CxxExcept, except_02) {
+TEST(LibopaecppExceptCommonALL, except_02) {
   except e(OPAECXX_HERE);
 
   EXPECT_EQ(FPGA_EXCEPTION, e);
@@ -45,7 +45,7 @@ TEST(CxxExcept, except_02) {
  * constructor<br> And the string returned by what() represents the fpga_result
  * and src_location.<br>
  */
-TEST(CxxExcept, except_03) {
+TEST(LibopaecppExceptCommonALL, except_03) {
   except e(FPGA_INVALID_PARAM, OPAECXX_HERE);
 
   EXPECT_EQ(FPGA_INVALID_PARAM, e);
@@ -58,7 +58,7 @@ TEST(CxxExcept, except_03) {
  * When I use the macro with a result code of FPGA_INVALID_PARAM
  * Then an exception of type invalid_param is thrown
  */
-TEST(CxxExcept, assert_ok_invalid_param) {
+TEST(LibopaecppExceptCommonALL, assert_ok_invalid_param) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_INVALID_PARAM), invalid_param);
 }
 /**
@@ -67,7 +67,7 @@ TEST(CxxExcept, assert_ok_invalid_param) {
  * When I use the macro with a result code of FPGA_BUSY
  * Then an exception of type busy is thrown
  */
-TEST(CxxExcept, assert_ok_busy) {
+TEST(LibopaecppExceptCommonALL, assert_ok_busy) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_BUSY), busy);
 }
 /**
@@ -76,7 +76,7 @@ TEST(CxxExcept, assert_ok_busy) {
  * When I use the macro with a result code of FPGA_EXCEPTION
  * Then an exception of type exception is thrown
  */
-TEST(CxxExcept, assert_ok_exception) {
+TEST(LibopaecppExceptCommonALL, assert_ok_exception) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_EXCEPTION), exception);
 }
 /**
@@ -85,7 +85,7 @@ TEST(CxxExcept, assert_ok_exception) {
  * When I use the macro with a result code of FPGA_NOT_FOUND
  * Then an exception of type not_found is thrown
  */
-TEST(CxxExcept, assert_ok_not_found) {
+TEST(LibopaecppExceptCommonALL, assert_ok_not_found) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NOT_FOUND), not_found);
 }
 /**
@@ -94,7 +94,7 @@ TEST(CxxExcept, assert_ok_not_found) {
  * When I use the macro with a result code of FPGA_NO_MEMORY
  * Then an exception of type no_memory is thrown
  */
-TEST(CxxExcept, assert_ok_no_memory) {
+TEST(LibopaecppExceptCommonALL, assert_ok_no_memory) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NO_MEMORY), no_memory);
 }
 /**
@@ -103,7 +103,7 @@ TEST(CxxExcept, assert_ok_no_memory) {
  * When I use the macro with a result code of FPGA_NOT_SUPPORTED
  * Then an exception of type not_supported is thrown
  */
-TEST(CxxExcept, assert_ok_not_supported) {
+TEST(LibopaecppExceptCommonALL, assert_ok_not_supported) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NOT_SUPPORTED), not_supported);
 }
 /**
@@ -112,7 +112,7 @@ TEST(CxxExcept, assert_ok_not_supported) {
  * When I use the macro with a result code of FPGA_NO_DRIVER
  * Then an exception of type no_driver is thrown
  */
-TEST(CxxExcept, assert_ok_no_driver) {
+TEST(LibopaecppExceptCommonALL, assert_ok_no_driver) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NO_DRIVER), no_driver);
 }
 /**
@@ -121,7 +121,7 @@ TEST(CxxExcept, assert_ok_no_driver) {
  * When I use the macro with a result code of FPGA_NO_DAEMON
  * Then an exception of type no_daemon is thrown
  */
-TEST(CxxExcept, assert_ok_no_daemon) {
+TEST(LibopaecppExceptCommonALL, assert_ok_no_daemon) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NO_DAEMON), no_daemon);
 }
 /**
@@ -130,7 +130,7 @@ TEST(CxxExcept, assert_ok_no_daemon) {
  * When I use the macro with a result code of FPGA_NO_ACCESS
  * Then an exception of type no_access is thrown
  */
-TEST(CxxExcept, assert_ok_no_access) {
+TEST(LibopaecppExceptCommonALL, assert_ok_no_access) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_NO_ACCESS), no_access);
 }
 /**
@@ -139,6 +139,6 @@ TEST(CxxExcept, assert_ok_no_access) {
  * When I use the macro with a result code of FPGA_RECONF_ERROR
  * Then an exception of type reconf_error is thrown
  */
-TEST(CxxExcept, assert_ok_reconf_error) {
+TEST(LibopaecppExceptCommonALL, assert_ok_reconf_error) {
   EXPECT_THROW(ASSERT_FPGA_OK(FPGA_RECONF_ERROR), reconf_error);
 }
