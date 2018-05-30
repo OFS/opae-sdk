@@ -262,6 +262,11 @@ $ sudo yum install opae-devel-<release>.x86_64.rpm
 $ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo yum install opae-*.rpm
+```
 To uninstall:
 
 ```console
@@ -285,6 +290,11 @@ $ sudo dpkg -i opae-devel-<release>.x86_64.deb
 $ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo dpkg -i opae-*.deb
+```
 To uninstall:
 
 ```console
