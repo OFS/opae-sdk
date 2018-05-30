@@ -251,7 +251,7 @@ int run_mmlink(fpga_handle  port_handle,
 		return -1;
 	}
 
-	memset(&sock, 0, sizeof(sock));
+	memset_s(&sock, sizeof(sock), 0);
 	sock.sin_family = AF_INET;
 	sock.sin_port = htons(mmlinkCmdLine->port);
 	if (1 != inet_pton(AF_INET, mmlinkCmdLine->ip, &sock.sin_addr)) {
