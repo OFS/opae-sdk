@@ -340,17 +340,6 @@ out_free:
 	return NULL;
 }
 
-bool del_dev(struct dev_list *pdev, struct dev_list *parent)
-{
-	if (!parent || !pdev)
-		return false;
-
-	parent->next = pdev->next;
-	free(pdev);
-
-	return true;
-}
-
 static fpga_result enum_fme(const char *sysfspath, const char *name,
 			    struct dev_list *parent)
 {
@@ -481,10 +470,8 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 	/* if we can't read the afu_id, remove device from list */
 	if (FPGA_OK != result) {
 		FPGA_MSG("Could not read afu_id from '%s', ignoring", spath);
-		if (!del_dev(pdev, parent)) {
-			FPGA_ERR("del_dev() failed");
-			return FPGA_EXCEPTION;
-		}
+		parent->next = pdev->next;
+		free(pdev);
 	}
 
 	return FPGA_OK;
