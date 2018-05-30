@@ -34,6 +34,7 @@
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/version.h>
 
 using namespace opae::fpga::types;
 
@@ -42,9 +43,9 @@ static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t LOG2_CL = 6;
-static const size_t LPBK1_DSM_SIZE = 4 * KB;
-static const size_t LPBK1_BUFFER_SIZE = 1 * KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 4 * KB;
+static const size_t LPBK1_DSM_SIZE = 2 * MB;
+static const size_t LPBK1_BUFFER_SIZE = 1 * MB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 2 * MB;
 static const uint64_t CSR_SRC_ADDR = 0x0120;
 static const uint32_t CSR_DST_ADDR = 0x0128;
 static const uint32_t CSR_CTL = 0x0138;
@@ -60,6 +61,10 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
 
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) char* argv[]) {
+
+  std::cout << "Using OPAE C++ Core library version '"
+            << version::as_string() << "' build '"
+            << version::build() << "'\n";
   // look for accelerator with NLB0_AFUID
   properties filter;
   filter.guid.parse(NLB0_AFUID);
@@ -82,24 +87,25 @@ int main(__attribute__((unused)) int argc,
   auto inp = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
   auto out = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
+  std::cout << "Running Test\n";
+
   // initialize buffers
   std::fill_n(dsm->c_type(), LPBK1_DSM_SIZE, 0);
   std::fill_n(inp->c_type(), LPBK1_BUFFER_SIZE, 0xAF);
   std::fill_n(out->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
 
-  // accel->reset();
+  accel->reset();
   accel->write_csr64(CSR_AFU_DSM_BASEL, dsm->iova());
   accel->write_csr32(CSR_CTL, 0);
   accel->write_csr32(CSR_CTL, 1);
   accel->write_csr64(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
   accel->write_csr64(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
 
-  accel->write_csr64(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / 1 * CL);
+  accel->write_csr32(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
   accel->write_csr32(CSR_CFG, 0x42000);
 
   // get ptr to device status memory - test complete
-  auto status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE / 8;
-
+  auto status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE;
   // start the test
   accel->write_csr32(CSR_CTL, 3);
 
@@ -119,6 +125,8 @@ int main(__attribute__((unused)) int argc,
               << (mm.second - out->c_type()) << "\n";
     return -1;
   }
+
+  std::cout << "Done Running Test\n";
 
   return 0;
 }
