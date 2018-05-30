@@ -49,12 +49,20 @@ module avalon_mem_if_async_shim
     parameter ADDR_WIDTH = 10,
     parameter BURST_CNT_WIDTH = 4,
 `endif
-    parameter COMMAND_FIFO_DEPTH = 128
+    parameter COMMAND_FIFO_DEPTH = 128,
+    // When non-zero, set the command buffer such that COMMAND_ALMFULL_THRESHOLD
+    // requests can be received after mem_afu.waitrequest is asserted.
+    parameter COMMAND_ALMFULL_THRESHOLD = 0
     )
    (
     avalon_mem_if.to_fiu mem_fiu,
     avalon_mem_if.to_afu mem_afu
     );
+
+    localparam SPACE_AVAIL_WIDTH = $clog2(COMMAND_FIFO_DEPTH) + 1;
+
+    logic cmd_waitrequest;
+    logic [SPACE_AVAIL_WIDTH-1:0] cmd_space_avail;
 
     platform_utils_avalon_mm_clock_crossing_bridge
       #(
@@ -72,7 +80,7 @@ module avalon_mem_if_async_shim
         .m0_clk(mem_fiu.clk),
         .m0_reset(mem_fiu.reset),
 
-        .s0_waitrequest(mem_afu.waitrequest),
+        .s0_waitrequest(cmd_waitrequest),
         .s0_readdata(mem_afu.readdata),
         .s0_readdatavalid(mem_afu.readdatavalid),
         .s0_burstcount(mem_afu.burstcount),
@@ -82,6 +90,7 @@ module avalon_mem_if_async_shim
         .s0_read(mem_afu.read),
         .s0_byteenable(mem_afu.byteenable),
         .s0_debugaccess(1'b0),
+        .s0_space_avail_data(cmd_space_avail),
 
         .m0_waitrequest(mem_fiu.waitrequest),
         .m0_readdata(mem_fiu.readdata),
@@ -94,6 +103,56 @@ module avalon_mem_if_async_shim
         .m0_byteenable(mem_fiu.byteenable),
         .m0_debugaccess()
         );
+
+    // Compute mem_afu.waitrequest
+    generate
+        if (COMMAND_ALMFULL_THRESHOLD == 0)
+        begin : no_almfull
+            // Use the usual Avalon MM protocol
+            assign mem_afu.waitrequest = cmd_waitrequest;
+        end
+        else
+        begin : almfull
+            // Treat waitrequest as an almost full signal, allowing
+            // COMMAND_ALMFULL_THRESHOLD requests after waitrequest is
+            // asserted.
+            always_ff @(posedge mem_afu.clk)
+            begin
+                if (mem_afu.reset)
+                begin
+                    mem_afu.waitrequest <= 1'b1;
+                end
+                else
+                begin
+                    mem_afu.waitrequest <= cmd_waitrequest ||
+                        (cmd_space_avail <= (SPACE_AVAIL_WIDTH)'(COMMAND_ALMFULL_THRESHOLD));
+                end
+            end
+
+            // synthesis translate_off
+            always @(negedge mem_afu.clk)
+            begin
+                // In almost full mode it is illegal for a request to arrive
+                // when s0_waitrequest is asserted. If this ever happens it
+                // means the almost full protocol has failed and that
+                // cmd_space_avail forced back-pressure too late or it was
+                // ignored.
+
+                if (~mem_afu.reset && cmd_waitrequest && mem_afu.write)
+                begin
+                    $fatal("** ERROR ** local memory bank %0d dropped write transaction",
+                           mem_afu.bank_number);
+                end
+
+                if (~mem_afu.reset && cmd_waitrequest && mem_afu.read)
+                begin
+                    $fatal("** ERROR ** local memory bank %0d dropped read transaction",
+                           mem_afu.bank_number);
+                end
+            end
+            // synthesis translate_on
+        end
+    endgenerate
 
     // Debugging signal
     assign mem_afu.bank_number = mem_fiu.bank_number;
