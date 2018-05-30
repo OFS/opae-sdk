@@ -87,8 +87,8 @@ protected:
 			m_server         = mm_conn.m_server;
 
 			m_buf= new char[m_bufsize];
-			strncpy_s(m_buf, sizeof(m_buf),
-				mm_conn.m_buf, sizeof(mm_conn.m_buf));
+			strncpy_s(m_buf, m_bufsize,
+				mm_conn.m_buf, m_bufsize);
 		}
 
 		mmlink_connection& operator=(const mmlink_connection& mm_conn)
@@ -103,8 +103,8 @@ protected:
 				if(m_buf) delete m_buf;
 
 				m_buf = new char[m_bufsize];
-				strncpy_s(m_buf, sizeof(m_buf),
-					mm_conn.m_buf, sizeof(mm_conn.m_buf));
+				strncpy_s(m_buf, m_bufsize,
+					mm_conn.m_buf, m_bufsize);
 			}
 			return *this;
 		}

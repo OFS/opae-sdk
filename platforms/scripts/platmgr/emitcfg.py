@@ -123,7 +123,18 @@ is_params.add('clock')
 #
 platform_shim_params = set()
 platform_shim_params.add('clock')
+platform_shim_params.add('addr-width')
+platform_shim_params.add('data-width')
 platform_shim_params.add('add-timing-reg-stages')
+
+
+#
+# Some platform_shim_params can be validated here.  These parameters must
+# be less than or equal to the value from the platform.
+#
+platform_shim_le_params = set()
+platform_shim_le_params.add('addr-width')
+platform_shim_le_params.add('data-width')
 
 
 #
@@ -238,6 +249,20 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
                     errorExit(
                         ('Illegal AFU attempt to override "{0}" ' +
                          'parameter "{1}"').format(key, k))
+
+                # The parameter may be overridden. Is the value legal?
+                if ((k in platform_shim_le_params) and
+                        (afu_port['params'][k] > params[k])):
+                    errorExit(
+                        ('Illegal AFU parameter override value "{0}" ' +
+                         'parameter "{1}" ({2} > {3})').format(
+                             key, k, afu_port['params'][k], params[k]))
+                if ((k in platform_shim_le_params) and
+                        (afu_port['params'][k] <= 0)):
+                    errorExit(
+                        ('Illegal AFU parameter override value "{0}" ' +
+                         'parameter "{1}" ({2} <= 0)').format(
+                             key, k, afu_port['params'][k]))
 
                 params[k] = afu_port['params'][k]
 

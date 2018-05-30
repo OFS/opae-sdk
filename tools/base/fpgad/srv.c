@@ -274,7 +274,7 @@ int handle_message(int conn_socket)
 	/* set up ancillary data message header */
 	iov[0].iov_base = &req;
 	iov[0].iov_len = sizeof(req);
-	memset(buf, 0, sizeof(buf));
+	memset_s(buf, sizeof(buf), 0);
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
