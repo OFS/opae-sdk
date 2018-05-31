@@ -43,11 +43,12 @@ static void reconfigure(handle::ptr_t h, int slot, const char *filename,
     std::vector<char> buff(size);
     gbsfile.seekg(0, gbsfile.beg);
     gbsfile.read(buff.data(), size);
-    auto result = fpgaReconfigureSlot(
-        *h, slot, reinterpret_cast<uint8_t *>(buff.data()), size, flags);
-    if (result != FPGA_OK) {
+    try {
+      h->reconfigure(slot, reinterpret_cast<const uint8_t *>(buff.data()), size,
+                     flags);
+    } catch (const except &opae_error) {
       gbsfile.close();
-      throw except(result, OPAECXX_HERE);
+      throw opae_error;
     }
     gbsfile.close();
   } else {
@@ -76,7 +77,6 @@ py::tuple get_version() {
 PYBIND11_MODULE(_opae, m) {
   m.doc() = "Open Programmable Acceleration Engine - Python bindings";
 
-  m.def("reconfigure", reconfigure, "Reconfigure an accelerator");
   m.def("version", get_version,
         "Get OPAE version information as a three element tuple");
 
@@ -161,10 +161,14 @@ PYBIND11_MODULE(_opae, m) {
                   [](token::ptr_t t, int flags) -> handle::ptr_t {
                     return handle::open(t, flags);
                   })
+      .def("reconfigure", reconfigure,
+           "Reconfigure an accelerator on the given slot. The handle must be "
+           "of type FPGA_DEVICE")
       .def_property_readonly("status",
                              [](handle::ptr_t h) {
-                               return h->get() == nullptr ? fpga_status::closed
-                                                          : fpga_status::open;
+                               return h->c_type() == nullptr
+                                          ? fpga_status::closed
+                                          : fpga_status::open;
                              })
       .def("reset", &handle::reset)
       .def("read_csr32", &handle::read_csr32, py::arg("offset"),
@@ -192,7 +196,7 @@ PYBIND11_MODULE(_opae, m) {
       .def("read64", [](shared_buffer::ptr_t buff,
                         size_t offset) { return buff->read<uint64_t>(offset); })
       .def("buffer", [](shared_buffer::ptr_t b) {
-        uint8_t *c_buffer = const_cast<uint8_t *>(b->get());
+        uint8_t *c_buffer = const_cast<uint8_t *>(b->c_type());
         return py::memoryview(py::buffer_info(c_buffer, b->size()));
       });
 
@@ -219,8 +223,8 @@ PYBIND11_MODULE(_opae, m) {
 
   py::enum_<fpga_objtype>(m, "fpga_objtype", py::arithmetic(),
                           "OPAE resource objects")
-      .value("DEVICE", FPGA_DEVICE)
-      .value("ACCELERATOR", FPGA_ACCELERATOR)
+      .value("FPGA_DEVICE", FPGA_DEVICE)
+      .value("FPGA_ACCELERATOR", FPGA_ACCELERATOR)
       .export_values();
 
   py::enum_<fpga_open_flags>(m, "fpga_open_flags", py::arithmetic(),
