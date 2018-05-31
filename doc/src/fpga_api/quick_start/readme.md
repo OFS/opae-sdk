@@ -94,6 +94,13 @@ deb:
 $ sudo dpkg -i opae-<release>.x86_64-ase.deb
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    rpm: $ sudo yum install opae-*.rpm
+    deb: $ sudo dpkg -i opae-*.deb
+```
+
 ## Building and installing the OPAE SDK from source ##
 Download the OPAE SDK source package from the respective [release page on
 GitHub](https://github.com/OPAE/opae-sdk/releases) - click the `Source code

@@ -70,7 +70,7 @@ TEST_F(LibopaecppBufCommonALL_f1, alloc_02) {
  */
 TEST_F(LibopaecppBufCommonALL_f1, alloc_07) {
   uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
-  uint8_t *buf = (uint8_t *)malloc(pg_size);
+  uint8_t *buf = (uint8_t *)aligned_alloc(pg_size, pg_size);
 
   buf_ = shared_buffer::attach(accel_, buf, pg_size);
   ASSERT_NE(nullptr, buf_.get());
