@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -87,6 +87,10 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Target properties
 set_property(TARGET opae-c PROPERTY C_STANDARD 99)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+endif()
+
 set_target_properties(opae-c PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
@@ -111,7 +115,7 @@ install(TARGETS opae-c
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
 
-#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 #if ("${LIB64}" STREQUAL "TRUE")
 #    install(TARGETS opae-c
 #      LIBRARY DESTINATION lib64
@@ -120,7 +124,7 @@ install(TARGETS opae-c
 #    install(TARGETS opae-c
 #      LIBRARY DESTINATION lib
 #      COMPONENT opaeclib)
-#endif() 
+#endif()
 
 
 ############################################################################
