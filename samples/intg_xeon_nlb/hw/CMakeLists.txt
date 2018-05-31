@@ -52,9 +52,8 @@ if(BUILD_ASE_SAMPLES)
   # Test coverage
   include_directories(${GLIB_INCLUDE_DIRS})
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    set(COVERAGE_EXTRA 1)
-    set(COVERAGE_EXTRA_COMPONENTS " intel-fpga-bbb")
-    set_target_for_coverage_local(opae-c-ase-server-intg_xeon_nlb ${PROJECT_BINARY_DIR}/ase_server.sh)
+    set_target_for_coverage_local(opae-c-ase-server-intg_xeon_nlb
+      TESTRUNNER ${PROJECT_BINARY_DIR}/ase_server.sh)
   endif()
 
 endif()

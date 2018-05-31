@@ -49,12 +49,6 @@ if(BUILD_ASE_SAMPLES)
   # Configure files and finalize target rules
   ase_finalize_modelsim_module_linking(hello_afu_hw)
 
-  # Test coverage
-  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    set(COVERAGE_EXTRA 1)
-    set(COVERAGE_EXTRA_COMPONENTS " hello_afu intel-fpga-bbb")
-    set_target_for_coverage_local(opae-c-ase-server-hello_afu_hw ${PROJECT_BINARY_DIR}/ase_server.sh)
-  endif()
 endif()
 
 ######################################################################

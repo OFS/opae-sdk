@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright(c) 2011-2016, Intel Corporation
+ * Copyright(c) 2014-2018, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,9 +29,6 @@
  *
  * Module Info: Generic register block & Latency pipe
  * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
  *
  */
 
@@ -40,8 +37,8 @@ module register
     parameter REG_WIDTH = 1
     )
    (
-    input logic 		 clk,
-    input logic 		 rst,
+    input logic                  clk,
+    input logic                  rst,
     input logic [REG_WIDTH-1:0]  d,
     output logic [REG_WIDTH-1:0] q
     );
@@ -50,9 +47,9 @@ module register
    // DFF behaviour
    always @( posedge clk or posedge rst ) begin
       if (rst)
-	q	<= 0;
+        q   <= 0;
       else
-	q	<= d;
+        q   <= d;
    end
 
 endmodule
@@ -68,30 +65,30 @@ module latency_pipe
     parameter PIPE_WIDTH = 1
     )
    (
-    input logic 		  clk,
-    input logic 		  rst,
+    input logic                   clk,
+    input logic                   rst,
     input logic [PIPE_WIDTH-1:0]  pipe_in,
     output logic [PIPE_WIDTH-1:0] pipe_out
     );
 
-   logic [PIPE_WIDTH-1:0] 	  pipe_out_tmp [0:NUM_DELAY-1];
+   logic [PIPE_WIDTH-1:0]         pipe_out_tmp [0:NUM_DELAY-1];
 
 
    // Register stages (instantiated here, not connected)
-   genvar 			  ii;
+   genvar                         ii;
    generate
       for(ii = 1; ii < NUM_DELAY; ii = ii + 1) begin : reg_array_gen
-	 register
-	       #(
-		 .REG_WIDTH (PIPE_WIDTH)
-		 )
-	 reg_i
-	       (
-		.clk (clk),
-		.rst (rst),
-		.d   (pipe_out_tmp[ii-1]),
-		.q   (pipe_out_tmp[ii])
-		);
+         register
+               #(
+                 .REG_WIDTH (PIPE_WIDTH)
+                 )
+         reg_i
+               (
+                .clk (clk),
+                .rst (rst),
+                .d   (pipe_out_tmp[ii-1]),
+                .q   (pipe_out_tmp[ii])
+                );
       end
    endgenerate
 

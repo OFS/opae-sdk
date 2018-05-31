@@ -61,7 +61,7 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 ############################################################################
 
 # build mock driver and unpack fake sysfs to /tmp folder
-Build_MOCk_DRV()
+Build_Mock_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
@@ -114,14 +114,23 @@ foreach(filter ${gtest_filter_exclude})
 endforeach(filter ${gtest_filter_exclude})
 
 if(BUILD_ASE_TESTS)
-  add_test(NAME test_open_common_ase
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND gtase  ${CMAKE_BINARY_DIR} -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
+  add_test(NAME ase_all
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND gtase -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
 
-  set_tests_properties(
-    test_open_common_ase
+  set_tests_properties(ase_all
     PROPERTIES
-    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so;ASE_WORKDIR=${CMAKE_BINARY_DIR}/ase/samples/intg_xeon_nlb")
+    ENVIRONMENT "ASE_WORKDIR=${CMAKE_BINARY_DIR}/samples/intg_xeon_nlb/hw")
+
+  set_property(TEST ase_all
+    APPEND
+    PROPERTY
+    ENVIRONMENT "CTEST_OUTPUT_ON_FAILURE=1")
+
+  set_property(TEST ase_all
+    APPEND
+    PROPERTY
+    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so")
 endif()
 
 ############################################################################
@@ -155,7 +164,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   set_target_for_coverage(opae-c ctest)
   add_dependencies(coverage_opae-c gtapi)
   if(BUILD_ASE_TESTS)
-    set_target_for_coverage_local(opae-c-ase ctest)
+    set_target_for_coverage_local(opae-c-ase
+      TESTRUNNER ctest
+      TESTRUNNER_ARGS "-R;ase_all"
+      COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb")
     add_dependencies(coverage_opae-c-ase gtase)
   endif()
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

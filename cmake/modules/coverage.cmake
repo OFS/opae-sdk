@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
 find_program(GCOV_EXECUTABLE gcov)
 find_program(LCOV_EXECUTABLE lcov)
 find_program(GENHTML_EXECUTABLE genhtml)
+include(CMakeParseArguments)
 
 if(NOT GCOV_EXECUTABLE)
   message(FATAL_ERROR "gcov not found! Aborting...")
@@ -114,7 +115,21 @@ endfunction()
 # testrunner     The name of the target which runs the tests.
 # Optional third parameter is passed as arguments to testrunner
 # Pass them in list form, e.g.: "-k;1" for -k 1
-function(set_target_for_coverage_local target_name testrunner)
+function(set_target_for_coverage_local target_name)
+
+  cmake_parse_arguments(set_target_for_coverage_local "" "TESTRUNNER" "TESTRUNNER_ARGS;COVERAGE_EXTRA_COMPONENTS" ${ARGN})
+  set(testrunner ${set_target_for_coverage_local_TESTRUNNER})
+  set(COVERAGE_EXTRA 0)
+  set(COVERAGE_EXTRA_COMPONENTS "")
+  foreach(comp_i ${set_target_for_coverage_local_COVERAGE_EXTRA_COMPONENTS})
+    set(COVERAGE_EXTRA_COMPONENTS "${COVERAGE_EXTRA_COMPONENTS} ${comp_i}")
+    set(COVERAGE_EXTRA 1)
+  endforeach()
+
+  set(TESTRUNNER_ARGS "")
+  foreach(arg_i ${set_target_for_coverage_local_TESTRUNNER_ARGS})
+    set(TESTRUNNER_ARGS "${TESTRUNNER_ARGS} ${arg_i}")
+  endforeach()
 
   if(NOT LCOV_EXECUTABLE)
     message(FATAL_ERROR "lcov not found! Aborting...")
