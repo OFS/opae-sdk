@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
+
+#define _BSD_SOURCE
 #include <unistd.h>
 
 /* mutex to protect global data structures */

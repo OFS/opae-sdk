@@ -65,7 +65,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <unistd.h>
 
 #include <opae/types_enum.h>
 
