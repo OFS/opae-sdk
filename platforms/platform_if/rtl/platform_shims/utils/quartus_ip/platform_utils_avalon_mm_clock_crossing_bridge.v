@@ -62,7 +62,8 @@ module platform_utils_avalon_mm_clock_crossing_bridge
     // --------------------------------------
     // Derived parameters
     // --------------------------------------
-    parameter BYTEEN_WIDTH = DATA_WIDTH / SYMBOL_WIDTH
+    parameter BYTEEN_WIDTH = DATA_WIDTH / SYMBOL_WIDTH,
+    parameter COMMAND_COUNT_WIDTH = log2ceil(COMMAND_FIFO_DEPTH)
 )
 (
     input                           s0_clk,
@@ -81,6 +82,9 @@ module platform_utils_avalon_mm_clock_crossing_bridge
     input                           s0_read,  
     input  [BYTEEN_WIDTH-1:0]       s0_byteenable,  
     input                           s0_debugaccess,
+    // Added for OPAE to the base bridge implementation in order to build
+    // almost full protocols, using the command FIFO as a buffer.
+    output [COMMAND_COUNT_WIDTH:0]  s0_space_avail_data,
 
     input                           m0_waitrequest,
     input  [DATA_WIDTH-1:0]         m0_readdata,
@@ -135,7 +139,9 @@ module platform_utils_avalon_mm_clock_crossing_bridge
         .FIFO_DEPTH       (COMMAND_FIFO_DEPTH),
         .WR_SYNC_DEPTH    (MASTER_SYNC_DEPTH),
         .RD_SYNC_DEPTH    (SLAVE_SYNC_DEPTH),
-        .BACKPRESSURE_DURING_RESET (1)
+        .BACKPRESSURE_DURING_RESET (1),
+        // Added for OPAE to drive s0_space_avail_data
+        .USE_SPACE_AVAIL_IF (1)
     ) 
     cmd_fifo
     (
@@ -177,7 +183,7 @@ module platform_utils_avalon_mm_clock_crossing_bridge
         .almost_full_data(),
         .almost_empty_valid(),
         .almost_empty_data(),
-        .space_avail_data()
+        .space_avail_data(s0_space_avail_data)
         
     );
 

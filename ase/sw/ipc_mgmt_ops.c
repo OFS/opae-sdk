@@ -52,7 +52,7 @@ void create_ipc_listfile(void)
 	FUNC_CALL_ENTRY;
 
 	// Allocate memory, fail if not possible
-    memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
+    ase_memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Create IPC file path length
 	snprintf(ipclist_filepath, ASE_FILEPATH_LEN, "%s/%s",

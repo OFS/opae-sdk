@@ -49,7 +49,7 @@ add_library(opae-c++ SHARED
 
 set_install_rpath(opae-c++)
 
-target_link_libraries(opae-c++ uuid opae-c++-utils opae-c)
+target_link_libraries(opae-c++ uuid opae-c++-utils safestr opae-c)
 
 set_target_properties(opae-c++ PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
