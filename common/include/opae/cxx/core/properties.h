@@ -58,25 +58,9 @@ class properties {
    */
   const static std::vector<properties> none;
 
-  /** Construct an empty set of properties.
-   */
-  properties();
+  properties(const properties &p) = delete;
 
-  /** properties may be copied.
-   */
-  properties(const properties &p);
-
-  /** properties may be copy-assigned.
-   */
-  properties &operator=(const properties &p);
-
-  /** Convert fpga_guid to properties.
-   */
-  properties(fpga_guid guid_in);
-
-  /** Convert fpga_objtype to properties.
-   */
-  properties(fpga_objtype objtype);
+  properties &operator=(const properties &p) = delete;
 
   ~properties();
 
@@ -88,19 +72,37 @@ class properties {
    */
   operator fpga_properties() const { return props_; }
 
+  /** Create a new properties object.
+   * @return A properties smart pointer.
+   */
+  static properties::ptr_t get();
+
+  /** Create a new properties object from a guid.
+   * @param guid_in A guid to set in the properties
+   * @return A properties smart pointer with its guid initialized to guid_in
+   */
+  static properties::ptr_t get(fpga_guid guid_in);
+
+  /** Create a new properties object from an fpga_objtype.
+   * @param objtype An object type to set in the properties
+   * @return A properties smart pointer with its object type set to objtype.
+   */
+  static properties::ptr_t get(fpga_objtype objtype);
+
   /** Retrieve the properties for a given token object.
    * @param[in] t A token identifying the accelerator resource.
    * @return A properties smart pointer for the given token.
    */
-  static properties::ptr_t read(std::shared_ptr<token> t);
+  static properties::ptr_t get(std::shared_ptr<token> t);
 
   /** Retrieve the properties for a given fpga_token.
    * @param[in] t An fpga_token identifying the accelerator resource.
    * @return A properties smart pointer for the given fpga_token.
    */
-  static properties::ptr_t read(fpga_token t);
+  static properties::ptr_t get(fpga_token t);
 
  private:
+  properties();
   fpga_properties props_;
 
  public:

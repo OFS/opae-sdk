@@ -66,9 +66,9 @@ int main(__attribute__((unused)) int argc,
             << version::as_string() << "' build '"
             << version::build() << "'\n";
   // look for accelerator with NLB0_AFUID
-  properties filter;
-  filter.guid.parse(NLB0_AFUID);
-  filter.type = FPGA_ACCELERATOR;
+  auto filter = properties::get();
+  filter->guid.parse(NLB0_AFUID);
+  filter->type = FPGA_ACCELERATOR;
 
   auto tokens = token::enumerate({filter});
 
