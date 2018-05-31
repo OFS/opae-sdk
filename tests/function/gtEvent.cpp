@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include "common_test.h"
 #include "gtest/gtest.h"
@@ -218,5 +219,44 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_05) {
                                          m_EventHandles[1]));
 
   EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                         m_EventHandles[0]));
+}
+
+/**
+ * @test       event_drv_06
+ *
+ * @brief      Test that a power event can be received.
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_06) {
+  int fd = -1;
+  uint64_t error_csr = 1UL << 50; // Ap6Event
+  struct pollfd poll_fd;
+  int res;
+
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[0], 0));
+
+  // get the OS-specific event object, here (Linux) a file descriptor.
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(m_EventHandles[0], &fd));
+
+  EXPECT_GE(fd, 0);
+
+  // Write to the mock sysfs node to generate the event.
+  sysfs_write_64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors", error_csr, HEX);
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  res = poll(&poll_fd, 1, 1000);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  // Write to the mock sysfs node to clear the event.
+  sysfs_write_64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors", 0, DEC);
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
                                          m_EventHandles[0]));
 }

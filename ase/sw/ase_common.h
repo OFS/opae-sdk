@@ -475,10 +475,12 @@ uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
+void ase_memset(void *, int, size_t);
 int ase_strncmp(const char *, const char *, size_t);
 
 // Safe string equivalents
 int ase_memcpy_s(void *, size_t, const void *, size_t);
+int ase_memset_s(void *, size_t, int, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
 

@@ -437,7 +437,7 @@ bool nlb7::run()
 
         // Clear the UMsg address space.
         if (pUMsgUsrVirt)
-            memset((uint8_t *)pUMsgUsrVirt, 0, UMsgBufSize);
+            memset_s((uint8_t *)pUMsgUsrVirt, UMsgBufSize, 0);
 
         // Zero the output buffer.
         out->fill(0);
