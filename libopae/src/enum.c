@@ -43,8 +43,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
-
-#define _BSD_SOURCE
 #include <unistd.h>
 
 /* mutex to protect global data structures */
