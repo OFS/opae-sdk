@@ -60,7 +60,7 @@ set(ASE_TIMESCALE              "1ps/1ps"                          CACHE STRING "
 set(ASE_SIMULATOR              "QUESTA"                           CACHE STRING "Default ASE simulator")
 set(ASE_PLATFORM               "FPGA_PLATFORM_INTG_XEON"          CACHE STRING "Default ASE platform")
 set(ASE_MODE                   2                                  CACHE STRING "Default ASE mode (1=Ctrl-C server kill, 2=timeout server kill)")
-set(ASE_TIMEOUT                50000                              CACHE STRING "Default ASE timeout cycles")
+set(ASE_TIMEOUT                10000                              CACHE STRING "Default ASE timeout cycles")
 set(ASE_USR_CLK_MHZ            312.50000                          CACHE STRING "Default ASE AFU clock frequency")
 
 # SW library name
