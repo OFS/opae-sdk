@@ -130,7 +130,7 @@ if(BUILD_ASE_TESTS)
   set_property(TEST ase_all
     APPEND
     PROPERTY
-    ENVIRONMENT "LD_PRELOAD=lib/libopae-c-ase.so")
+    ENVIRONMENT "LD_PRELOAD=${CMAKE_BINARY_DIR}/lib/libopae-c-ase.so")
 endif()
 
 ############################################################################
