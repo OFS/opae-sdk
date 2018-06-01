@@ -26,6 +26,7 @@ using std::chrono::microseconds;
 
 using opae::fpga::types::token;
 using opae::fpga::types::properties;
+using opae::fpga::types::pvalue;
 using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
@@ -74,6 +75,53 @@ py::tuple get_version() {
   return py::make_tuple(v.major, v.minor, v.patch);
 }
 
+template <typename T>
+static inline void kwargs_to_props(pvalue<T> &prop, py::kwargs kwargs,
+                                   const char *key) {
+  if (kwargs.contains(key)) {
+    prop = kwargs[key].cast<T>();
+  }
+}
+
+properties::ptr_t properties_get(py::kwargs kwargs) {
+  auto props = properties::get();
+  // if kwargs is empty, return a new (empty) properties object
+  if (!kwargs) {
+    return props;
+  }
+
+  if (kwargs.contains("parent")) {
+    props->parent = *kwargs["parent"].cast<token::ptr_t>();
+  }
+
+  if (kwargs.contains("guid")) {
+    props->guid.parse(kwargs["guid"].cast<std::string>().c_str());
+  }
+
+  kwargs_to_props<fpga_objtype>(props->type, kwargs, "type");
+  kwargs_to_props<uint8_t>(props->bus, kwargs, "bus");
+  kwargs_to_props<uint8_t>(props->device, kwargs, "device");
+  kwargs_to_props<uint8_t>(props->function, kwargs, "function");
+  kwargs_to_props<uint8_t>(props->socket_id, kwargs, "socket_id");
+  kwargs_to_props<uint32_t>(props->num_slots, kwargs, "num_slots");
+  kwargs_to_props<uint64_t>(props->bbs_id, kwargs, "bbs_id");
+  kwargs_to_props<fpga_version>(props->bbs_version, kwargs, "bbs_version");
+  kwargs_to_props<uint16_t>(props->vendor_id, kwargs, "vendor_id");
+
+  if (kwargs.contains("model")) {
+    props->model = const_cast<char*>(kwargs["model"].cast<std::string>().c_str());
+  }
+
+  kwargs_to_props<uint64_t>(props->local_memory_size, kwargs, "local_memory_size");
+  kwargs_to_props<uint64_t>(props->capabilities, kwargs, "capabilities");
+  kwargs_to_props<uint32_t>(props->num_mmio, kwargs, "num_mmio");
+  kwargs_to_props<uint32_t>(props->num_interrupts, kwargs, "num_interrupts");
+  kwargs_to_props<fpga_accelerator_state>(props->accelerator_state, kwargs, "accelerator_state");
+  kwargs_to_props<uint64_t>(props->object_id, kwargs, "object_id");
+
+  return props;
+}
+
 PYBIND11_MODULE(_opae, m) {
   m.doc() = "Open Programmable Acceleration Engine - Python bindings";
 
@@ -81,76 +129,75 @@ PYBIND11_MODULE(_opae, m) {
         "Get OPAE version information as a three element tuple");
 
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties");
-  pyproperties.def(py::init())
-      .def_static("read", [](token::ptr_t t) { return properties::read(t); })
+  pyproperties.def_static("get", properties_get)
       .def_property("parent",
-                    [](const properties &p) -> token::ptr_t {
-                      auto token_struct = p.parent;
-                      auto parent_props = properties::read(token_struct);
-                      auto tokens = token::enumerate({*parent_props});
+                    [](const properties::ptr_t p) -> token::ptr_t {
+                      auto token_struct = p->parent;
+                      auto parent_props = properties::get(token_struct);
+                      auto tokens = token::enumerate({parent_props});
                       return tokens[0];
                     },
-                    [](properties &p, token::ptr_t t) { p.parent = *t; })
+                    [](properties::ptr_t p, token::ptr_t t) { p->parent = *t; })
       .def_property("guid",
-                    [](const properties &p) -> std::string {
+                    [](const properties::ptr_t p) -> std::string {
                       std::stringstream ss;
-                      ss << p.guid;
+                      ss << p->guid;
                       return ss.str();
                     },
-                    [](properties &p, const std::string &guid_str) {
-                      p.guid.parse(guid_str.c_str());
+                    [](properties::ptr_t p, const std::string &guid_str) {
+                      p->guid.parse(guid_str.c_str());
                     })
       .def_property("type",
-                    [](properties &p) -> fpga_objtype { return p.type; },
-                    [](properties &p, fpga_objtype t) { p.type = t; })
-      .def_property("bus", [](properties &p) -> uint8_t { return p.bus; },
-                    [](properties &p, uint8_t b) { p.bus = b; })
-      .def_property("device", [](properties &p) -> uint8_t { return p.device; },
-                    [](properties &p, uint8_t d) { p.device = d; })
+                    [](properties::ptr_t p) -> fpga_objtype { return p->type; },
+                    [](properties::ptr_t p, fpga_objtype t) { p->type = t; })
+      .def_property("bus", [](properties::ptr_t p) -> uint8_t { return p->bus; },
+                    [](properties::ptr_t p, uint8_t b) { p->bus = b; })
+      .def_property("device", [](properties::ptr_t p) -> uint8_t { return p->device; },
+                    [](properties::ptr_t p, uint8_t d) { p->device = d; })
       .def_property("function",
-                    [](properties &p) -> uint8_t { return p.function; },
-                    [](properties &p, uint8_t f) { p.function = f; })
+                    [](properties::ptr_t p) -> uint8_t { return p->function; },
+                    [](properties::ptr_t p, uint8_t f) { p->function = f; })
       .def_property("socket_id",
-                    [](properties &p) -> uint8_t { return p.socket_id; },
-                    [](properties &p, uint8_t v) { p.socket_id = v; })
+                    [](properties::ptr_t p) -> uint8_t { return p->socket_id; },
+                    [](properties::ptr_t p, uint8_t v) { p->socket_id = v; })
       .def_property("num_slots",
-                    [](properties &p) -> uint32_t { return p.num_slots; },
-                    [](properties &p, uint32_t v) { p.num_slots = v; })
+                    [](properties::ptr_t p) -> uint32_t { return p->num_slots; },
+                    [](properties::ptr_t p, uint32_t v) { p->num_slots = v; })
       .def_property("bbs_id",
-                    [](properties &p) -> uint64_t { return p.bbs_id; },
-                    [](properties &p, uint64_t v) { p.bbs_id = v; })
+                    [](properties::ptr_t p) -> uint64_t { return p->bbs_id; },
+                    [](properties::ptr_t p, uint64_t v) { p->bbs_id = v; })
       .def_property("bbs_version",
-                    [](properties &p) -> fpga_version { return p.bbs_version; },
-                    [](properties &p, fpga_version v) { p.bbs_version = v; })
+                    [](properties::ptr_t p) -> fpga_version { return p->bbs_version; },
+                    [](properties::ptr_t p, fpga_version v) { p->bbs_version = v; })
       .def_property("vendor_id",
-                    [](properties &p) -> uint16_t { return p.vendor_id; },
-                    [](properties &p, uint16_t v) { p.vendor_id = v; })
+                    [](properties::ptr_t p) -> uint16_t { return p->vendor_id; },
+                    [](properties::ptr_t p, uint16_t v) { p->vendor_id = v; })
       .def_property("model",
-                    [](properties &p) -> std::string { return p.model; },
-                    [](properties &p, char *v) { p.model = v; })
+                    [](properties::ptr_t p) -> std::string { return p->model; },
+                    [](properties::ptr_t p, char *v) { p->model = v; })
       .def_property(
           "local_memory_size",
-          [](properties &p) -> uint64_t { return p.local_memory_size; },
-          [](properties &p, uint64_t v) { p.local_memory_size = v; })
+          [](properties::ptr_t p) -> uint64_t { return p->local_memory_size; },
+          [](properties::ptr_t p, uint64_t v) { p->local_memory_size = v; })
       .def_property("capabilities",
-                    [](properties &p) -> uint64_t { return p.capabilities; },
-                    [](properties &p, uint64_t v) { p.capabilities = v; })
+                    [](properties::ptr_t p) -> uint64_t { return p->capabilities; },
+                    [](properties::ptr_t p, uint64_t v) { p->capabilities = v; })
       .def_property("num_mmio",
-                    [](properties &p) -> uint32_t { return p.num_mmio; },
-                    [](properties &p, uint32_t v) { p.num_mmio = v; })
+                    [](properties::ptr_t p) -> uint32_t { return p->num_mmio; },
+                    [](properties::ptr_t p, uint32_t v) { p->num_mmio = v; })
       .def_property("num_interrupts",
-                    [](properties &p) -> uint32_t { return p.num_interrupts; },
-                    [](properties &p, uint32_t v) { p.num_interrupts = v; })
+                    [](properties::ptr_t p) -> uint32_t { return p->num_interrupts; },
+                    [](properties::ptr_t p, uint32_t v) { p->num_interrupts = v; })
       .def_property("accelerator_state",
-                    [](properties &p) -> fpga_accelerator_state {
-                      return p.accelerator_state;
+                    [](properties::ptr_t p) -> fpga_accelerator_state {
+                      return p->accelerator_state;
                     },
-                    [](properties &p, fpga_accelerator_state v) {
-                      p.accelerator_state = v;
+                    [](properties::ptr_t p, fpga_accelerator_state v) {
+                      p->accelerator_state = v;
                     })
       .def_property("object_id",
-                    [](properties &p) -> uint64_t { return p.object_id; },
-                    [](properties &p, uint64_t v) { p.object_id = v; });
+                    [](properties::ptr_t p) -> uint64_t { return p->object_id; },
+                    [](properties::ptr_t p, uint64_t v) { p->object_id = v; });
 
   py::class_<token, token::ptr_t> pytoken(m, "token");
   pytoken.def_static("enumerate", &token::enumerate);
