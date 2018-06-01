@@ -54,6 +54,7 @@
 #include <types_int.h>
 
 #include "safe_string/safe_string.h"
+#include "error_int.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #define PROTECTION (PROT_READ | PROT_WRITE)
@@ -193,6 +194,10 @@ inline void token_for_fme0(struct _fpga_token* _tok) {
             SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/intel-fpga-fme.0", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
+  char _errpath[SYSFS_PATH_MAX];
+  snprintf_s_s(_errpath, SYSFS_PATH_MAX, "%s/errors", _tok->sysfspath);
+  build_error_list(_errpath, &_tok->errors);
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
@@ -209,6 +214,10 @@ inline void token_for_afu0(struct _fpga_token* _tok) {
             SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/intel-fpga-port.0", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
+  char _errpath[SYSFS_PATH_MAX];
+  snprintf_s_s(_errpath, SYSFS_PATH_MAX, "%s/errors", _tok->sysfspath);
+  build_error_list(_errpath, &_tok->errors);
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
@@ -223,6 +232,7 @@ inline void token_for_invalid(struct _fpga_token* _tok) {
             SYSFS_FPGA_CLASS_PATH "/invalid_token", SYSFS_PATH_MAX - 1);
   strncpy_s(_tok->devpath, sizeof(_tok->devpath),
             FPGA_DEV_PATH "/invalid_token", DEV_PATH_MAX - 1);
+  _tok->errors = NULL;
   _tok->magic = FPGA_TOKEN_MAGIC;
 #endif
 };
