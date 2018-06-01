@@ -22,7 +22,7 @@ class LibopaecppBufCommonALL_f1 : public ::testing::Test {
   LibopaecppBufCommonALL_f1() {}
 
   virtual void SetUp() override {
-    tokens_ = token::enumerate({FPGA_ACCELERATOR});
+    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_GT(tokens_.size(), 0);
     accel_ = handle::open(tokens_[0], 0);
     ASSERT_NE(nullptr, accel_.get());

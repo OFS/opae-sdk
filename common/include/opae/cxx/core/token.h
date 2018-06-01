@@ -51,7 +51,7 @@ class token {
    * @return A set of known tokens that match the search.
    */
   static std::vector<token::ptr_t> enumerate(
-      const std::vector<properties>& props);
+      const std::vector<properties::ptr_t>& props);
 
   ~token();
 
