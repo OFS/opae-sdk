@@ -44,25 +44,30 @@ def test_set_objtype_accelerator():
     props = opae.api.properties.get(type=opae.api.FPGA_ACCELERATOR)
     assert props.type == opae.api.FPGA_ACCELERATOR
 
+
 def test_set_objtype_device():
     """test_set_objtype test setting object type to FPGA_DEVICE"""
     props = opae.api.properties.get(type=opae.api.FPGA_DEVICE)
     assert props.type == opae.api.FPGA_DEVICE
+
 
 def test_set_bus():
     """test_set_bus"""
     props = opae.api.properties.get(bus=0x5e)
     assert props.bus == 0x5e
 
+
 def test_set_device():
     """test_set_device"""
     props = opae.api.properties.get(device=0xe)
     assert props.device == 0xe
 
+
 def test_set_function():
     """test_set_function"""
     props = opae.api.properties.get(function=0x7)
     assert props.function == 0x7
+
 
 def test_enumerate():
     """test_enumerate test if we can enumerate for NLB0 using GUID"""
