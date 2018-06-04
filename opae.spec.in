@@ -104,6 +104,8 @@ ldconfig
 %files libs
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
 
 %files devel
 %defattr(-,root,root,-)
