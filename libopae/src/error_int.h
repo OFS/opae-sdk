@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,43 +24,29 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_PROPERTIES_INT_H__
-#define __FPGA_PROPERTIES_INT_H__
+#ifndef __FPGA_ERROR_INT_H__
+#define __FPGA_ERROR_INT_H__
 
-/** Fields common across all object types */
-#define FPGA_PROPERTY_PARENT         0
-#define FPGA_PROPERTY_OBJTYPE        1
-#define FPGA_PROPERTY_BUS            2
-#define FPGA_PROPERTY_DEVICE         3
-#define FPGA_PROPERTY_FUNCTION       4
-#define FPGA_PROPERTY_SOCKETID       5
-#define FPGA_PROPERTY_VENDORID       6
-#define FPGA_PROPERTY_DEVICEID       7
-#define FPGA_PROPERTY_GUID           8
-#define FPGA_PROPERTY_OBJECTID       9
-#define FPGA_PROPERTY_NUM_ERRORS     10
+#include <opae/types.h>
 
-/** Fields for FPGA objects */
-#define FPGA_PROPERTY_NUM_SLOTS     32
-#define FPGA_PROPERTY_BBSID         33
-#define FPGA_PROPERTY_BBSVERSION    34
-#define FPGA_PROPERTY_MODEL         35
-#define FPGA_PROPERTY_LOCAL_MEMORY  36
-#define FPGA_PROPERTY_CAPABILITIES  37
+#include "sysfs_int.h"
 
-/** Fields for accelerator objects */
-#define FPGA_PROPERTY_ACCELERATOR_STATE 32
-#define FPGA_PROPERTY_NUM_MMIO          33
-#define FPGA_PROPERTY_NUM_INTERRUPTS    34
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+struct error_list {
+	struct fpga_error_info info;
+	struct error_list *next;
+	char error_file[SYSFS_PATH_MAX];
+	char clear_file[SYSFS_PATH_MAX];
+};
 
-#define FIELD_VALID(P, F) (((P)->valid_fields >> (F)) & 1)
+uint32_t count_error_files(const char *path);
+uint32_t build_error_list(const char *path, struct error_list **list);
 
-#define SET_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields | ((uint64_t)1 << (F)))
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
-#define CLEAR_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields & ~((uint64_t)1 << (F)))
-
-#endif // __FPGA_PROPERTIES_INT_H__
-
+#endif // ___FPGA_ERROR_INT_H__

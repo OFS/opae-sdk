@@ -34,6 +34,7 @@
 #include "opae/enum.h"
 #include "opae/properties.h"
 #include "opae/utils.h"
+#include "error_int.h"
 #include "properties_int.h"
 #include <stdlib.h>
 #include <string.h>
@@ -191,6 +192,18 @@ static bool matches_filter(const struct dev_list *attr,
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_ERRORS)) {
+		uint32_t errors;
+		char errpath[SYSFS_PATH_MAX];
+
+		snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", attr->sysfspath);
+		errors = count_error_files(errpath);
+		if (errors != _filter->num_errors) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 	    && (FPGA_DEVICE == _filter->objtype)) {
 
@@ -340,17 +353,6 @@ out_free:
 	return NULL;
 }
 
-bool del_dev(struct dev_list *pdev, struct dev_list *parent)
-{
-	if (!parent || !pdev)
-		return false;
-
-	parent->next = pdev->next;
-	free(pdev);
-
-	return true;
-}
-
 static fpga_result enum_fme(const char *sysfspath, const char *name,
 			    struct dev_list *parent)
 {
@@ -481,10 +483,8 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 	/* if we can't read the afu_id, remove device from list */
 	if (FPGA_OK != result) {
 		FPGA_MSG("Could not read afu_id from '%s', ignoring", spath);
-		if (!del_dev(pdev, parent)) {
-			FPGA_ERR("del_dev() failed");
-			return FPGA_EXCEPTION;
-		}
+		parent->next = pdev->next;
+		free(pdev);
 	}
 
 	return FPGA_OK;
@@ -617,6 +617,32 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 }
 
 
+/// Determine if filters require reading AFUs
+///
+/// Return true if any of the following conditions are met:
+/// * The number of filters is zero
+/// * At least one filter specifies FPGA_ACCELERATOR as object type
+/// * At least one filter does NOT specify an object type
+/// Return false otherwise
+bool include_afu(const fpga_properties *filters, uint32_t num_filters)
+{
+	size_t i = 0;
+	if (!num_filters)
+		return true;
+	for (i = 0; i < num_filters; ++i) {
+		struct _fpga_properties *_filter =
+			(struct _fpga_properties *)filters[i];
+		if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {
+			if (_filter->objtype == FPGA_ACCELERATOR) {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+	return false;
+}
+
 fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 				       uint32_t num_filters, fpga_token *tokens,
 				       uint32_t max_tokens,
@@ -663,22 +689,6 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		return FPGA_NO_DRIVER;
 	}
 
-	bool include_port = num_filters == 0 ? true : false;
-	for (size_t i = 0; i < num_filters; ++i) {
-		struct _fpga_properties *_filter =
-			(struct _fpga_properties *)filters[i];
-		if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {
-			if (_filter->objtype == FPGA_ACCELERATOR) {
-				include_port = true;
-				break;
-			}
-		} else {
-			include_port = true;
-			break;
-		}
-	}
-
-
 	while ((dirent = readdir(dir)) != NULL) {
 		if (!strcmp(dirent->d_name, "."))
 			continue;
@@ -688,7 +698,7 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
 			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
 
-		result = enum_top_dev(sysfspath, &head, include_port);
+		result = enum_top_dev(sysfspath, &head, include_afu(filters, num_filters));
 		if (result != FPGA_OK)
 			break;
 	}
@@ -786,6 +796,9 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
+
+	// shallow-copy error list
+	_dst->errors = _src->errors;
 
 	*dst = _dst;
 	return FPGA_OK;

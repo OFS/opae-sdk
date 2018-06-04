@@ -22,7 +22,7 @@ using namespace opae::fpga::types;
  * And no exceptions are thrown when I release the handle and tokens<br>
  */
 TEST(LibopaecppOpenCommonALL, handle_open_01) {
-  auto tokens = token::enumerate({FPGA_ACCELERATOR});
+  auto tokens = token::enumerate({properties::get(FPGA_ACCELERATOR)});
   ASSERT_TRUE(tokens.size() > 0);
   handle::ptr_t h = handle::open(tokens[0], FPGA_OPEN_SHARED);
   ASSERT_NE(nullptr, h.get());

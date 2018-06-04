@@ -124,4 +124,4 @@ module avalon_mem_if_reg
         end
     endgenerate
 
-endmodule // avalon_mem_if_connect
+endmodule // avalon_mem_if_reg
