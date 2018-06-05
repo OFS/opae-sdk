@@ -1,5 +1,5 @@
 # #############################################################################
-# Copyright(c) 2011-2016, Intel Corporation
+# Copyright(c) 2014-2018, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,9 +29,6 @@
 #
 # Module Info:
 # Language   : System{Verilog} | C/C++
-# Owner      : Rahul R Sharma
-#              rahul.r.sharma@intel.com
-#              Intel Corporation
 #
 # ASE environment build - Makefile
 #
@@ -60,7 +57,7 @@ include ase_sources.mk
 ##   and C components                                        ##
 ## - ASE_PLATFORM will be used as the differentiating macro  ##
 ##   during the compilation stage                            ##
-## - This methos allows for newer platforms to be added as   ##
+## - This method allows for newer platforms to be added as   ##
 ##   ASE_PLATFORM, reduces accidental settings failure       ##
 ##                                                           ##
 ###############################################################
@@ -76,12 +73,12 @@ ASE_DISABLE_CHECKER ?= 0
 
 ###############################################################
 # Selects the simulation model for local memory in the discrete
-# FPGA platform. Supported values are EMIF_MODEL_BASIC and 
-# EMIF_MODEL_ADVANCED. EMIF_MODEL_BASIC uses simple system 
-# verilog associative arrays to model local memory. 
-# EMIF_MODEL_ADVANCED uses a cycle accurate model derived from 
-# External Memory Interface Controller IP configuration. Use 
-# EMIF_MODEL_BASIC for faster simulation. Default value is 
+# FPGA platform. Supported values are EMIF_MODEL_BASIC and
+# EMIF_MODEL_ADVANCED. EMIF_MODEL_BASIC uses simple system
+# verilog associative arrays to model local memory.
+# EMIF_MODEL_ADVANCED uses a cycle accurate model derived from
+# External Memory Interface Controller IP configuration. Use
+# EMIF_MODEL_BASIC for faster simulation. Default value is
 # EMIF_MODEL_BASIC.
 ###############################################################
 ASE_DISCRETE_EMIF_MODEL ?= EMIF_MODEL_BASIC
