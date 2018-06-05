@@ -43,6 +43,9 @@ static inline void kwargs_to_props(opae::fpga::types::pvalue<T> &prop,
 const char *properties_doc_get();
 opae::fpga::types::properties::ptr_t properties_get(pybind11::kwargs kwargs);
 
+const char *properties_doc_get_token();
+opae::fpga::types::properties::ptr_t properties_get_token(opae::fpga::types::token::ptr_t tok);
+
 const char *properties_doc_parent();
 opae::fpga::types::token::ptr_t properties_get_parent(
     opae::fpga::types::properties::ptr_t props);

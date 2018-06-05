@@ -1,10 +1,13 @@
 #include <Python.h>
 
+#include <opae/cxx/core/token.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include "pyproperties.h"
 
 namespace py = pybind11;
 using opae::fpga::types::properties;
+using opae::fpga::types::token;
 
 PYBIND11_MODULE(_opae, m) {
   m.doc() = "Open Programmable Acceleration Engine - Python bindings";
@@ -52,6 +55,7 @@ PYBIND11_MODULE(_opae, m) {
   // define properties class
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties");
   pyproperties.def_static("get", properties_get, properties_doc_get())
+      .def_static("get", properties_get_token, properties_doc_get_token())
       .def_property("parent", properties_get_parent, properties_get_parent,
                     properties_doc_parent())
       .def_property("guid", properties_get_guid, properties_set_guid,
@@ -92,4 +96,7 @@ PYBIND11_MODULE(_opae, m) {
                     properties_set_accelerator_state,
                     properties_doc_accelerator_state());
 
+  // define token class
+  py::class_<token, token::ptr_t> pytoken(m, "token");
+  pytoken.def_static("enumerate", &token::enumerate);
 }

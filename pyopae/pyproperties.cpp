@@ -89,6 +89,14 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   return props;
 }
 
+const char *properties_doc_get_token() {
+  return "Get properties from a token object";
+}
+
+opae::fpga::types::properties::ptr_t properties_get_token(opae::fpga::types::token::ptr_t tok){
+  return properties::get(tok);
+}
+
 const char *properties_doc_parent() {
   return "Get or set the token representing a parent object of a resource. "
          "The "

@@ -111,3 +111,20 @@ class TestProperties(unittest.TestCase):
                                         accelerator_state=opae.api.FPGA_ACCELERATOR_ASSIGNED)
         assert props.accelerator_state == opae.api.FPGA_ACCELERATOR_ASSIGNED
 
+class TestToken(unittest.TestCase):
+    def test_enumerate(self):
+        props = opae.api.properties.get(guid=NLB0)
+        toks = opae.api.token.enumerate([props])
+        assert toks
+
+    def test_token_properties(self):
+        props = opae.api.properties.get(guid=NLB0)
+        toks = opae.api.token.enumerate([props])
+        assert toks
+        for tok in toks:
+            token_props = opae.api.properties.get(tok)
+            assert token_props
+            assert token_props.guid and token_props.guid != ""
+
+
+
