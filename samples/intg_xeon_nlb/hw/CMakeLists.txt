@@ -32,7 +32,7 @@ if(BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
   set(intg_xeon_nlb_SOURCES
     sources.txt
-    ccip_std_afu.json)
+    intg_xeon_nlb.json)
   ase_add_modelsim_module(intg_xeon_nlb
     ${intg_xeon_nlb_SOURCES})
   file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
