@@ -257,21 +257,23 @@ function(ase_add_modelsim_module name)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_NAME                ${name})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_MODULE_LOCATION     ${CMAKE_CURRENT_BINARY_DIR}/work)
 
-  # Fill properties for the target using default values
+  # Initialize target properties using default values
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_FULLNAME   ${ASE_PLATFORM})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       "intg_xeon")
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         "ccip_std_afu")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       ${ASE_PLATFORM_NAME})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         ${ASE_PLATFORM_IF})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR           ${ASE_SIMULATOR})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_TIMESCALE           ${ASE_TIMESCALE})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_USR_CLOCK_MHZ       ${ASE_USR_CLK_MHZ})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_ASE_MODE            ${ASE_MODE})
   set_property(TARGET ${name} PROPERTY ASE_MODULE_ASE_TIMEOUT         ${ASE_TIMEOUT})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_AFU_JSON            ${ASE_AFU_JSON})
 
   # Target specific: Compilation/linker flags + sources
   set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/platform_includes
     ${CMAKE_CURRENT_BINARY_DIR}/rtl
     ${OPAE_BASE_DIR}/${PLATFORM_IF_RTL}
@@ -558,6 +560,16 @@ function(ase_finalize_modelsim_module_linking m)
   ## Finally set commands to create targets ##################################
   ############################################################################
 
+  set(afu_json)
+  ase_module_get_afu_json(afu_json ${m})
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${AFU_JSON_MGR}
+    json-info
+    --afu-json       ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
+    --verilog-hdr    ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh
+    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh")
+
   # afu_platform_config --sim --tgt=rtl --src ccip_st6d_afu.json  intg_xeon
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
   set(ase_platform)
@@ -567,9 +579,10 @@ function(ase_finalize_modelsim_module_linking m)
     COMMAND ${AFU_PLATFORM_CONFIG}
     --sim
     --tgt=platform_includes
-    --src ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json
+    --src ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
     ${ase_platform}
-    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
+    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh")
 
   # Define DPI header file generation rule
   file(MAKE_DIRECTORY ${module_binary_dir}/include)

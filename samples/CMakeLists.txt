@@ -57,7 +57,6 @@ Build_Intel_FPGA_BBB()
 ######################################################################
 
 set(OPAE_SAMPLES src/opae/samples)
-add_subdirectory(hello_world)
 add_subdirectory(hello_afu)
 add_subdirectory(intg_xeon_nlb)
 add_subdirectory(hello_world_mpf)
