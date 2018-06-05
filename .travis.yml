@@ -16,6 +16,7 @@ matrix:
       apt:
         packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
   - script: scripts/test-gtapi-mock-drv.sh
@@ -24,6 +25,7 @@ matrix:
       apt:
         packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
   - script: scripts/build-documentation.sh
@@ -34,6 +36,7 @@ matrix:
       apt:
         packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
         - pandoc
