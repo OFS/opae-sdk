@@ -26,20 +26,9 @@
 
 project(libopae-cxx)
 
-
 #############################################################################
-### Add 'libopae-cxx' library ###################################################
+### Add 'libopae-cxx' library ###############################################
 #############################################################################
-#set(SRC)
-
-## Define target
-#add_library(opae-c SHARED ${SRC})
-#add_dependencies(opae-c copy-common-opae-header-files)
-#target_link_libraries(opae-c
-#  m
-#  safestr
-#  ${libjson-c_LIBRARIES}
-#  ${libuuid_LIBRARIES})
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads)
@@ -62,7 +51,7 @@ target_link_libraries(opae-cxx-core opae-c)
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c-ase ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core)
 
-else()
+elseif(BUILD_ASE)
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
 target_link_libraries(opae-cxx-core opae-c-ase)
 
@@ -80,7 +69,7 @@ target_include_directories(opae-cxx-core PUBLIC
   PRIVATE src)
 
 ############################################################################
-## Create config_int.h #########################################################
+## Create config_int.h #####################################################
 ############################################################################
 
 configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"

@@ -87,9 +87,14 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Target properties
 set_property(TARGET opae-c PROPERTY C_STANDARD 99)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-endif()
+
+# Prefer GNU99
+if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
+    set (CMAKE_C_STANDARD_REQUIRED TRUE)
+    set (CMAKE_C_STANDARD "99")
+endif ()
 
 set_target_properties(opae-c PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}

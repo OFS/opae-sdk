@@ -68,7 +68,7 @@ add_subdirectory(hello_world_mpf)
 add_executable(hello_fpga hello_fpga.c)
 if(BUILD_LIBOPAE_C)
   target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
-else()
+elseif(BUILD_ASE)
   target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
