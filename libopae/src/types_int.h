@@ -102,6 +102,7 @@ struct _fpga_token {
 	uint64_t magic;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
+	struct error_list *errors;
 };
 
 /** Process-wide unique FPGA handle */
@@ -141,6 +142,7 @@ struct _fpga_properties {
 	uint64_t object_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
+	uint32_t num_errors;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20

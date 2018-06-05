@@ -40,6 +40,7 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 set(SRC
   src/common.c
   src/enum.c
+  src/error.c
   src/umsg.c
   src/reconf.c
   src/open.c

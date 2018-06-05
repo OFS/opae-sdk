@@ -81,4 +81,4 @@ configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
 set_install_rpath(opae-cxx-core)
 install(TARGETS opae-cxx-core
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaecxxlib)
+  COMPONENT opaecxxcorelib)

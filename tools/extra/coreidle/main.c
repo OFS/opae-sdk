@@ -193,7 +193,7 @@ int main( int argc, char** argv )
 	ON_ERR_GOTO(result, out_close, "closing FME");
 
 	// Verify bitstream length
-	memset(&metadata, 0, sizeof(metadata));
+	memset_s(&metadata, sizeof(metadata), 0);
 	if (get_bitstream_json_len(coreidleCmdLine.gbs_data) > 0) {
 
 		// Read GBS json metadata
