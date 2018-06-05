@@ -14,7 +14,8 @@ The OPAE SDK has been tested on the following configurations.
 * Hardware: tightly coupled FPGA products and programmable FPGA acceleration 
   cards for Intel&reg; Xeon&reg; processors (to be released)
 * Operating System: tested on RedHat 7.3, Linux kernels 3.10 through 4.7
-* FIM (FPGA Interface Manager): 6.3.0
+* Integrated FPGA FIM (FPGA Interface Manager) version: 6.4.0
+* Arria(R) 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
 
 ## How to download the OPAE SDK ##
 
@@ -261,6 +262,11 @@ $ sudo yum install opae-devel-<release>.x86_64.rpm
 $ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo yum install opae-*.rpm
+```
 To uninstall:
 
 ```console
@@ -284,6 +290,11 @@ $ sudo dpkg -i opae-devel-<release>.x86_64.deb
 $ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo dpkg -i opae-*.deb
+```
 To uninstall:
 
 ```console
@@ -331,6 +342,15 @@ all users, you can replace `user1` with `*`:
 ```console
 *    hard   memlock           unlimited
 *    soft   memlock           unlimited
+```
+
+Note that settings in the /etc/security/limits.conf file don't apply to
+services.  To increase the locked memory limit for a service you need to
+modify the application's systemd service file and add the line:
+
+```console
+[Service]
+LimitMEMLOCK=infinity
 ```
 
 ## Hupgepage Settings ##

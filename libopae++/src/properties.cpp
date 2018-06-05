@@ -46,6 +46,7 @@ properties::properties()
       bbs_version(&props_, fpgaPropertiesGetBBSVersion,
                   fpgaPropertiesSetBBSVersion),
       vendor_id(&props_, fpgaPropertiesGetVendorID, fpgaPropertiesSetVendorID),
+      device_id(&props_, fpgaPropertiesGetDeviceID, fpgaPropertiesSetDeviceID),
       model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel),
       local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize,
                         fpgaPropertiesSetLocalMemorySize),
@@ -62,125 +63,45 @@ properties::properties()
   ASSERT_FPGA_OK(fpgaGetProperties(nullptr, &props_));
 }
 
-properties::properties(const properties &p)
-    : props_(nullptr),
-      type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
-      bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
-      device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
-      function(&props_, fpgaPropertiesGetFunction, fpgaPropertiesSetFunction),
-      socket_id(&props_, fpgaPropertiesGetSocketID, fpgaPropertiesSetSocketID),
-      num_slots(&props_, fpgaPropertiesGetNumSlots, fpgaPropertiesSetNumSlots),
-      bbs_id(&props_, fpgaPropertiesGetBBSID, fpgaPropertiesSetBBSID),
-      bbs_version(&props_, fpgaPropertiesGetBBSVersion,
-                  fpgaPropertiesSetBBSVersion),
-      vendor_id(&props_, fpgaPropertiesGetVendorID, fpgaPropertiesSetVendorID),
-      model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel),
-      local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize,
-                        fpgaPropertiesSetLocalMemorySize),
-      capabilities(&props_, fpgaPropertiesGetCapabilities,
-                   fpgaPropertiesSetCapabilities),
-      num_mmio(&props_, fpgaPropertiesGetNumMMIO, fpgaPropertiesSetNumMMIO),
-      num_interrupts(&props_, fpgaPropertiesGetNumInterrupts,
-                     fpgaPropertiesSetNumInterrupts),
-      accelerator_state(&props_, fpgaPropertiesGetAcceleratorState,
-                        fpgaPropertiesSetAcceleratorState),
-      object_id(&props_, fpgaPropertiesGetObjectID, fpgaPropertiesSetObjectID),
-      parent(&props_, fpgaPropertiesGetParent, fpgaPropertiesSetParent),
-      guid(&props_) {
-  ASSERT_FPGA_OK(fpgaCloneProperties(p.props_, &props_));
-  // make sure that we have a cached copy of
-  // everything that p has cached.
-  if (p.type.is_set()) type.update();
-  if (p.bus.is_set()) bus.update();
-  if (p.device.is_set()) device.update();
-  if (p.function.is_set()) function.update();
-  if (p.socket_id.is_set()) socket_id.update();
-  if (p.num_slots.is_set()) num_slots.update();
-  if (p.bbs_id.is_set()) bbs_id.update();
-  if (p.bbs_version.is_set()) bbs_version.update();
-  if (p.vendor_id.is_set()) vendor_id.update();
-  if (p.model.is_set()) model.update();
-  if (p.local_memory_size.is_set()) local_memory_size.update();
-  if (p.capabilities.is_set()) capabilities.update();
-  if (p.num_mmio.is_set()) num_mmio.update();
-  if (p.num_interrupts.is_set()) num_interrupts.update();
-  if (p.accelerator_state.is_set()) accelerator_state.update();
-  if (p.object_id.is_set()) object_id.update();
-  if (p.parent.is_set()) parent.update();
-  if (p.guid.is_set()) guid.update();
+properties::ptr_t properties::get() {
+  properties::ptr_t props(new properties());
+  return props;
 }
 
-properties &properties::operator=(const properties &p) {
-  if (this != &p) {
-    if (props_) {
-      ASSERT_FPGA_OK(fpgaDestroyProperties(&props_));
-      props_ = nullptr;
-      type.invalidate();
-      bus.invalidate();
-      device.invalidate();
-      function.invalidate();
-      socket_id.invalidate();
-      num_slots.invalidate();
-      bbs_id.invalidate();
-      bbs_version.invalidate();
-      vendor_id.invalidate();
-      model.invalidate();
-      local_memory_size.invalidate();
-      capabilities.invalidate();
-      num_mmio.invalidate();
-      num_interrupts.invalidate();
-      accelerator_state.invalidate();
-      object_id.invalidate();
-      parent.invalidate();
-      guid.invalidate();
-    }
-
-    if (p.props_) {
-      ASSERT_FPGA_OK(fpgaCloneProperties(p.props_, &props_));
-
-      // make sure that we have a cached copy of
-      // everything that p has cached.
-      if (p.type.is_set()) type.update();
-      if (p.bus.is_set()) bus.update();
-      if (p.device.is_set()) device.update();
-      if (p.function.is_set()) function.update();
-      if (p.socket_id.is_set()) socket_id.update();
-      if (p.num_slots.is_set()) num_slots.update();
-      if (p.bbs_id.is_set()) bbs_id.update();
-      if (p.bbs_version.is_set()) bbs_version.update();
-      if (p.vendor_id.is_set()) vendor_id.update();
-      if (p.model.is_set()) model.update();
-      if (p.local_memory_size.is_set()) local_memory_size.update();
-      if (p.capabilities.is_set()) capabilities.update();
-      if (p.num_mmio.is_set()) num_mmio.update();
-      if (p.num_interrupts.is_set()) num_interrupts.update();
-      if (p.accelerator_state.is_set()) accelerator_state.update();
-      if (p.object_id.is_set()) object_id.update();
-      if (p.parent.is_set()) parent.update();
-      if (p.guid.is_set()) guid.update();
-    }
-  }
-  return *this;
+properties::ptr_t properties::get(fpga_guid guid_in) {
+  properties::ptr_t props(new properties());
+  props->guid = guid_in;
+  return props;
 }
 
-properties::properties(fpga_guid guid_in) : properties() { guid = guid_in; }
-
-properties::properties(fpga_objtype objtype) : properties() { type = objtype; }
-
-properties::~properties() {
-  if (props_ != nullptr) {
-    ASSERT_FPGA_OK(fpgaDestroyProperties(&props_));
-  }
+properties::ptr_t properties::get(fpga_objtype objtype) {
+  properties::ptr_t props(new properties());
+  props->type = objtype;
+  return props;
 }
 
-properties::ptr_t properties::read(fpga_token tok) {
+properties::ptr_t properties::get(fpga_token tok) {
   ptr_t p(new properties());
-  ASSERT_FPGA_OK(fpgaGetProperties(tok, &p->props_));
+  auto res = fpgaGetProperties(tok, &p->props_);
+  if (res != FPGA_OK) {
+    p.reset();
+  }
+  ASSERT_FPGA_OK(res);
   return p;
 }
 
-properties::ptr_t properties::read(token::ptr_t tok) {
-  return read(tok->get());
+properties::ptr_t properties::get(token::ptr_t tok) {
+  return get(tok->c_type());
+}
+
+properties::~properties() {
+  if (props_ != nullptr) {
+    auto res = fpgaDestroyProperties(&props_);
+    if (res != FPGA_OK) {
+      std::cerr << "Error while calling fpgaDestroyProperties: "
+                << fpgaErrStr(res) << "\n";
+    }
+  }
 }
 
 }  // end of namespace types

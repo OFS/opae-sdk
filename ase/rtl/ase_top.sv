@@ -199,6 +199,7 @@ module ase_top();
          emif_ddr4
           #(
             .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
+            .DDR_DATA_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_DATA_WIDTH),
             .INSTANCE_ID(b)
             )
           emif_ddr4

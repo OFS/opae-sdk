@@ -49,7 +49,10 @@ module platform_utils_ccip_async_shim
     parameter C2TX_DEPTH_RADIX      = $clog2(ccip_cfg_pkg::MAX_OUTSTANDING_MMIO_RD_REQS),
 
     parameter C0RX_DEPTH_RADIX      = $clog2(2 * ccip_cfg_pkg::C0_MAX_BW_ACTIVE_LINES[0]),
-    parameter C1RX_DEPTH_RADIX      = $clog2(2 * ccip_cfg_pkg::C1_MAX_BW_ACTIVE_LINES[0])
+    parameter C1RX_DEPTH_RADIX      = $clog2(2 * ccip_cfg_pkg::C1_MAX_BW_ACTIVE_LINES[0]),
+
+    // Extra space to add to almust full buffering
+    parameter EXTRA_ALMOST_FULL_STAGES = 0
     )
    (
     // ---------------------------------- //
@@ -86,17 +89,21 @@ module platform_utils_ccip_async_shim
 
     // TX buffers just need to be large enough to avoid pipeline back pressure.
     // The TX rate limiter is the slower of the AFU and BB clocks, not the TX buffer.
-    localparam C0TX_DEPTH_RADIX = $clog2(3 * CCIP_TX_ALMOST_FULL_THRESHOLD);
+    localparam C0TX_DEPTH_RADIX = $clog2(3 * CCIP_TX_ALMOST_FULL_THRESHOLD +
+                                         EXTRA_ALMOST_FULL_STAGES);
 
     // Leave a little extra room in Tx buffers to avoid overflow
     localparam C0TX_ALMOST_FULL_THRESHOLD = CCIP_TX_ALMOST_FULL_THRESHOLD +
-                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2);
+                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2) +
+                                            EXTRA_ALMOST_FULL_STAGES;
 
     // Write buffers are slightly larger because even 4-line write requests
     // send a line at a time.
-    localparam C1TX_DEPTH_RADIX = $clog2(4 * CCIP_TX_ALMOST_FULL_THRESHOLD);
+    localparam C1TX_DEPTH_RADIX = $clog2(4 * CCIP_TX_ALMOST_FULL_THRESHOLD +
+                                         EXTRA_ALMOST_FULL_STAGES);
     localparam C1TX_ALMOST_FULL_THRESHOLD = CCIP_TX_ALMOST_FULL_THRESHOLD +
-                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2);
+                                            (CCIP_TX_ALMOST_FULL_THRESHOLD / 2) +
+                                            EXTRA_ALMOST_FULL_STAGES;
 
     //
     // Reset synchronizer

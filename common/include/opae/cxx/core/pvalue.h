@@ -63,7 +63,7 @@ struct guid_t {
 
   /** Return a raw pointer to the guid.
    */
-  const uint8_t *get() const { return data_.data(); }
+  const uint8_t *c_type() const { return data_.data(); }
 
   /** Assign from fpga_guid
    * Sets the guid field of the associated properties
@@ -164,7 +164,7 @@ struct pvalue {
   typedef typename std::conditional<std::is_same<T, char *>::value,
                                     typename std::string, T>::type copy_t;
 
-  pvalue() : props_(0), is_set_(false) {}
+  pvalue() : props_(0), is_set_(false), get_(nullptr), set_(nullptr)  {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties

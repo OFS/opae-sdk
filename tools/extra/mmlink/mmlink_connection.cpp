@@ -44,7 +44,10 @@
 using namespace std;
 
 const char *mmlink_connection::UNKNOWN = "UNKNOWN\n";
+#define MMLINK_UNKNOWN_SIZE  9
+
 const char *mmlink_connection::OK = "OK\n";
+#define MMLINK_OK_SIZE  4
 
 mmlink_connection::mmlink_connection(mmlink_server* server) : m_bufsize(3000)
 {
@@ -198,7 +201,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 				" setting to bound state\n";
 
 		bind();
-		send(OK, strnlen_s(OK, sizeof(OK)));
+		send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
 	}
 	else
 	{
@@ -244,7 +247,7 @@ int mmlink_connection::handle_bound_command(char *cmd)
 			snprintf_s_iiii(msg, msg_len, "%08X%08X%08X%08X\n",
 				 ident[3], ident[2], ident[1], ident[0]);
 
-			send(msg, strnlen_s(msg, sizeof(msg)));
+			send(msg, strnlen_s(msg, msg_len + 1));
 			unknown = false;
 		}
 	}
@@ -253,7 +256,7 @@ int mmlink_connection::handle_bound_command(char *cmd)
 		if (arg1 == 0 || arg1 == 1)
 		{
 			driver()->reset(arg1);
-			send(OK, strnlen_s(OK, sizeof(OK)));
+			send(OK,strnlen_s(OK, MMLINK_OK_SIZE));
 			unknown = false;
 		}
 	}
@@ -262,18 +265,18 @@ int mmlink_connection::handle_bound_command(char *cmd)
 		if (arg1 >= 0 && (arg2 == 0 || arg2 == 1))
 		{
 			driver()->enable(arg1, arg2);
-			send(OK, strnlen_s(OK, sizeof(OK)));
+			send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
 			unknown = false;
 		}
 	}
 	else if (0 == strncmp(cmd, "NOOP", 4))
 	{
-		send(OK, strnlen_s(OK, sizeof(OK)));
+		send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
 		unknown = false;
 	}
 
 	if (unknown)
-		send(UNKNOWN, strnlen_s(UNKNOWN, sizeof(UNKNOWN)));
+		send(UNKNOWN, strnlen_s(UNKNOWN, MMLINK_UNKNOWN_SIZE));
 
 	return 0;
 }

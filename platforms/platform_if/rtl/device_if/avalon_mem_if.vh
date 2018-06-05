@@ -60,7 +60,7 @@ interface avalon_mem_if
     );
 
     // Number of bytes in a data line
-    localparam DATA_N_BYTES = DATA_WIDTH / 8;
+    localparam DATA_N_BYTES = (DATA_WIDTH + 7) / 8;
 
     // Signals
     logic                       waitrequest;
