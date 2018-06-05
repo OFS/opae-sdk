@@ -58,14 +58,25 @@ set(ASESW_FILE_LIST
   ${ASE_SERVER_SRC}/linked_list_ops.c
   ${ASE_SERVER_SRC}/randomness_control.c)
 
-
 ############################################################################
 ## Define DPI C code #######################################################
 ############################################################################
 
 function(ase_add_dpic_module name)
 
-  add_library(opae-c-ase-server-${name} SHARED ${ASESW_FILE_LIST})
+  set(afu_json)
+  ase_module_get_afu_json(afu_json ${name})
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${AFU_JSON_MGR}
+    json-info
+    --afu-json  ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
+    --c-hdr     ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h
+    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h")
+
+  add_library(opae-c-ase-server-${name} SHARED
+    ${ASESW_FILE_LIST}
+    ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h)
   target_link_libraries(opae-c-ase-server-${name} rt)
 
   # Assure position indenpendent code
@@ -85,7 +96,8 @@ function(ase_add_dpic_module name)
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${libsvdpi_INCLUDE_DIRS}>
     PRIVATE
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 
   # Match OPAE ASE client library version

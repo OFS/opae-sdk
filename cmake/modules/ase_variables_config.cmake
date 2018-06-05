@@ -202,7 +202,7 @@ define_property(TARGET PROPERTY ASE_MODULE_SOURCES_REL
 ## Helpers to fetch ASE module properties ##################################
 ############################################################################
 
-#  ase_module_get_platform_name(RESULT_VAR name)
+# ase_module_get_platform_name(RESULT_VAR name)
 # Return platform name (e.g. intg_xeon, discrete, etc)
 # ASE_MODULE_PLATFORM_NAME
 function(ase_module_get_platform_name RESULT_VAR name)
@@ -217,7 +217,7 @@ function(ase_module_get_platform_name RESULT_VAR name)
   set(${RESULT_VAR} ${platform_name} PARENT_SCOPE)
 endfunction(ase_module_get_platform_name RESULT_VAR name)
 
-#  ase_module_set_platform_name(name RESULT_VAR)
+# ase_module_set_platform_name(name RESULT_VAR)
 # Return platform name (e.g. intg_xeon, discrete, etc)
 # ASE_MODULE_PLATFORM_NAME
 function(ase_module_set_platform_name name RESULT_VAR)
@@ -231,7 +231,7 @@ function(ase_module_set_platform_name name RESULT_VAR)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME  ${RESULT_VAR})
 endfunction(ase_module_set_platform_name name RESULT_VAR)
 
-#  ase_module_get_platform_fullname(RESULT_VAR name)
+# ase_module_get_platform_fullname(RESULT_VAR name)
 # Return platform name (e.g. FPGA_PLATFORM_INTG_XEON, etc)
 # ASE_MODULE_PLATFORM_FULLNAME
 function(ase_module_get_platform_fullname RESULT_VAR name)
@@ -246,7 +246,7 @@ function(ase_module_get_platform_fullname RESULT_VAR name)
   set(${RESULT_VAR} ${module_fullname} PARENT_SCOPE)
 endfunction(ase_module_get_platform_fullname RESULT_VAR name)
 
-#  ase_module_get_platform_if(RESULT_VAR name)
+# ase_module_get_platform_if(RESULT_VAR name)
 # Return platform interface name (e.g. ccip_std_afu)
 # ASE_MODULE_PLATFORM_IF
 function(ase_module_get_platform_if RESULT_VAR name)
@@ -261,7 +261,7 @@ function(ase_module_get_platform_if RESULT_VAR name)
   set(${RESULT_VAR} ${platform_if_name} PARENT_SCOPE)
 endfunction(ase_module_get_platform_if RESULT_VAR name)
 
-#  ase_module_get_afu_json(RESULT_VAR name)
+# ase_module_get_afu_json(RESULT_VAR name)
 # Return AFU json metadata file (e.g. ccip_std_afu.json, etc)
 # ASE_MODULE_AFU_JSON
 function(ase_module_get_afu_json RESULT_VAR name)
@@ -276,7 +276,21 @@ function(ase_module_get_afu_json RESULT_VAR name)
   set(${RESULT_VAR} ${module_fullname} PARENT_SCOPE)
 endfunction(ase_module_get_afu_json RESULT_VAR name)
 
-#  ase_module_get_simulator(RESULT_VAR name)
+# ase_module_set_afu_json(name RESULT_VAR)
+# Set AFU json metadata file
+# ASE_MODULE_AFU_JSON
+function(ase_module_set_afu_json name RESULT_VAR)
+  if(NOT TARGET ${name})
+    message(FATAL_ERROR "\"${name}\" is not really a target.")
+  endif(NOT TARGET ${name})
+  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
+  if(NOT ase_module_type)
+    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
+  endif(NOT ase_module_type)
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_AFU_JSON ${RESULT_VAR})
+endfunction(ase_module_set_afu_json name RESULT_VAR)
+
+# ase_module_get_simulator(RESULT_VAR name)
 # Return EDA simulation tool name
 # ASE_MODULE_SIMULATOR
 function(ase_module_get_simulator RESULT_VAR name)

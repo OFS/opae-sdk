@@ -240,15 +240,6 @@ function(ase_add_modelsim_module name)
   add_dependencies(${name} ${name}_platform_config)
 
   ############################################################################
-  ## Target to build DPI C library
-  ############################################################################
-
-  ase_add_dpic_module(${name})
-
-  # Assure compilation occurs after generation of DPI header file
-  add_dependencies(opae-c-ase-server-${name} ${name})
-
-  ############################################################################
   ## Initialize ASE module properties ########################################
   ############################################################################
 
@@ -473,7 +464,7 @@ function(ase_finalize_modelsim_module_linking m)
   ############################################################################
 
   foreach(file_i ${ase_module_sources_abs})
-    get_filename_component(ext             ${file_i}   EXT)
+    get_filename_component(ext              ${file_i}   EXT)
     get_filename_component(source_noext    "${file_i}" NAME_WE)
     get_filename_component(source_dir      "${file_i}" PATH)
     get_filename_component(source_filename "${file_i}" NAME)
@@ -491,7 +482,8 @@ function(ase_finalize_modelsim_module_linking m)
       if(ext STREQUAL ".txt")
         configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
       elseif(ext STREQUAL ".json")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json @ONLY)
+        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
+        ase_module_set_afu_json(${m} ${source_filename})
       else()
         configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
       endif()
@@ -555,6 +547,15 @@ function(ase_finalize_modelsim_module_linking m)
   get_property(ase_module_targets_per_directory
     DIRECTORY "${module_source_dir}"
     PROPERTY ASE_MODULE_TARGETS)
+
+  ############################################################################
+  ## Target to build DPI C library
+  ############################################################################
+
+  ase_add_dpic_module(${m})
+
+  # Assure compilation occurs after generation of DPI header file
+  add_dependencies(opae-c-ase-server-${m} ${m})
 
   ############################################################################
   ## Finally set commands to create targets ##################################
