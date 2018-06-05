@@ -14,7 +14,7 @@ applicable:
 * Can you reproduce the bug using the latest [master](https://github.com/OPAE/opae-sdk/tree/master)?
 * What CPU, platform, operating system/distribution, and FPGA board/device (if any) are you running? The more specific, the better.
 * For crashes, please provide the backtrace (use gdb).
-
+ 
 ### Contribution Guide
 
 We accept contributions as pull requests on GitHub. More detailed guidelines
