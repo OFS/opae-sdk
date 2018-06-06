@@ -146,15 +146,47 @@ class TestHandle(unittest.TestCase):
         self.handle.close()
         assert not self.handle
 
+class TestSharedBuffer(unittest.TestCase):
+    def setUp(self):
+        self.props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR)
+        self.toks = opae.api.token.enumerate([self.props])
+        assert self.toks
+        self.handle = opae.api.handle.open(self.toks[0])
+        assert self.handle
+
+    def test_allocate(self):
+        buff1 = opae.api.shared_buffer.allocate(self.handle, 4096)
+        buff2 = opae.api.shared_buffer.allocate(self.handle, 4096)
+        assert buff1
+        assert buff2
+        assert buff1.size() == 4096
+        assert buff1.wsid() != 0
+        assert buff1.iova() != 0
+        mv = buff1.memoryview()
+        assert mv
+        assert not buff1.compare(buff2, 4096)
+        buff1.fill(0xAA)
+        buff2.fill(0xEE)
+        assert buff1.compare(buff2, 4096)
+        assert mv[0] == '\xaa'
+        assert mv[-1] == '\xaa'
+        ba = bytearray(buff1)
+        assert ba[0] == 0xaa
+
+
 
 if __name__ == "__main__":
     props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR)
     toks = opae.api.token.enumerate([props])
     assert toks
     handle = opae.api.handle.open(toks[0])
-    #assert handle
+    assert handle
     with open('m0.gbs', 'r') as fd:
         handle.reconfigure(0, fd)
+    buff = opae.api.shared_buffer.allocate(handle, 4096)
+    mv = buff.memoryview()
+    ba = bytearray(buff)
     handle.close()
     assert not handle
+
 

@@ -5,11 +5,13 @@
 #include <pybind11/stl.h>
 #include "pyhandle.h"
 #include "pyproperties.h"
+#include "pyshared_buffer.h"
 
 namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
 using opae::fpga::types::handle;
+using opae::fpga::types::shared_buffer;
 
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
@@ -129,4 +131,21 @@ PYBIND11_MODULE(_opae, m) {
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
       .def("write_csr64", &handle::write_csr64, handle_doc_write_csr64(),
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0);
+
+  // define shared_buffer class
+  py::class_<shared_buffer, shared_buffer::ptr_t> pybuffer(
+      m, "shared_buffer", py::buffer_protocol(), shared_buffer_doc());
+  pybuffer
+      .def_static("allocate", &shared_buffer::allocate,
+                  shared_buffer_doc_allocate())
+      .def("size", &shared_buffer::size, shared_buffer_doc_size())
+      .def("wsid", &shared_buffer::wsid, shared_buffer_doc_wsid())
+      .def("iova", &shared_buffer::iova, shared_buffer_doc_iova())
+      .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
+      .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
+      .def("memoryview", shared_buffer_to_memoryview,
+           shared_buffer_doc_to_memoryview())
+      .def_buffer([](shared_buffer& b) -> py::buffer_info {
+        return py::buffer_info(const_cast<uint8_t*>(b.c_type()), b.size());
+      });
 }
