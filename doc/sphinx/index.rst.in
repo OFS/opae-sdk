@@ -29,6 +29,8 @@ The main documentation for the site is organized into following sections:
 
    docs/build_chain/fpga_api/api_build
    docs/fpga_api/fpga_api
+   docs/fpga_api/fpga_cxx_api
+
 
 .. _driver-docs:
 
