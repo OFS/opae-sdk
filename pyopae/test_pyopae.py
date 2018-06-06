@@ -127,3 +127,34 @@ class TestToken(unittest.TestCase):
             assert token_props.guid and token_props.guid != ""
 
 
+class TestHandle(unittest.TestCase):
+    def setUp(self):
+        self.props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR)
+        self.toks = opae.api.token.enumerate([self.props])
+        assert self.toks
+        self.handle = opae.api.handle.open(self.toks[0])
+        assert self.handle
+
+    def test_open(self):
+        assert self.handle
+
+    def test_reconfigure(self):
+        with open('m0.gbs', 'r') as fd:
+            self.handle.reconfigure(0, fd)
+
+    def test_close(self):
+        self.handle.close()
+        assert not self.handle
+
+
+if __name__ == "__main__":
+    props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR)
+    toks = opae.api.token.enumerate([props])
+    assert toks
+    handle = opae.api.handle.open(toks[0])
+    #assert handle
+    with open('m0.gbs', 'r') as fd:
+        handle.reconfigure(0, fd)
+    handle.close()
+    assert not handle
+

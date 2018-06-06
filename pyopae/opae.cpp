@@ -3,11 +3,13 @@
 #include <opae/cxx/core/token.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "pyhandle.h"
 #include "pyproperties.h"
 
 namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
+using opae::fpga::types::handle;
 
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
@@ -55,10 +57,15 @@ PYBIND11_MODULE(_opae, m) {
       .value("FPGA_ACCELERATOR_UNASSIGNED", FPGA_ACCELERATOR_UNASSIGNED)
       .export_values();
 
+  py::enum_<fpga_reconf_flags>(
+      m, "fpga_reconf_flags", py::arithmetic(),
+      "Flags that define how an accelerator is opened.")
+      .value("FPGA_RECONF_FORCE", FPGA_RECONF_FORCE)
+      .export_values();
+
   // define properties class
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties");
-  pyproperties
-      .def(py::init(&properties_get), properties_doc_get())
+  pyproperties.def(py::init(&properties_get), properties_doc_get())
       .def(py::init(&properties_get_token), properties_doc_get_token())
       .def_property("parent", properties_get_parent, properties_get_parent,
                     properties_doc_parent())
@@ -103,4 +110,23 @@ PYBIND11_MODULE(_opae, m) {
   // define token class
   py::class_<token, token::ptr_t> pytoken(m, "token");
   pytoken.def_static("enumerate", &token::enumerate);
+
+  // define handle class
+  py::class_<handle, handle::ptr_t> pyhandle(m, "handle");
+  pyhandle
+      .def_static("open", handle_open, handle_doc_open(), py::arg("tok"),
+                  py::arg("flags") = 0)
+      .def("reconfigure", handle_reconfigure, handle_doc_reconfigure(),
+           py::arg("slot"), py::arg("fd"), py::arg("flags") = 0)
+      .def("__bool__", handle_valid, handle_doc_valid())
+      .def("close", &handle::close, handle_doc_close())
+      .def("reset", &handle::reset)
+      .def("read_csr32", &handle::read_csr32, handle_doc_read_csr32(),
+           py::arg("offset"), py::arg("csr_space") = 0)
+      .def("read_csr64", &handle::read_csr64, handle_doc_read_csr64(),
+           py::arg("offset"), py::arg("csr_space") = 0)
+      .def("write_csr32", &handle::write_csr32, handle_doc_write_csr32(),
+           py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
+      .def("write_csr64", &handle::write_csr64, handle_doc_write_csr64(),
+           py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0);
 }

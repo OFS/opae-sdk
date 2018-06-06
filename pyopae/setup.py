@@ -39,7 +39,8 @@ def get_include_dirs(*args):
 extensions = [
     Extension("opae.api._opae",
               sources=["opae.cpp",
-                       "pyproperties.cpp"],
+                       "pyproperties.cpp",
+                       "pyhandle.cpp"],
               language="c++",
               extra_compile_args=["-std=c++11"],
               extra_link_args=["-std=c++11"],

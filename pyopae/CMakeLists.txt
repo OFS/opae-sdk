@@ -72,6 +72,8 @@ create_python_dist(
     COPY_FILES opae.cpp
                pyproperties.h
 	       pyproperties.cpp
+	       pyhandle.h
+	       pyhandle.cpp
 	       test_pyopae.py
     BUILD_COMMAND build_ext
     BUILD_INCLUDE_DIRS "${SETUP_INCLUDE_DIRS}"

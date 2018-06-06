@@ -44,7 +44,8 @@ const char *properties_doc_get();
 opae::fpga::types::properties::ptr_t properties_get(pybind11::kwargs kwargs);
 
 const char *properties_doc_get_token();
-opae::fpga::types::properties::ptr_t properties_get_token(opae::fpga::types::token::ptr_t tok);
+opae::fpga::types::properties::ptr_t properties_get_token(
+    opae::fpga::types::token::ptr_t tok);
 
 const char *properties_doc_parent();
 opae::fpga::types::token::ptr_t properties_get_parent(
