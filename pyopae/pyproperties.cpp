@@ -32,11 +32,31 @@ using opae::fpga::types::properties;
 using opae::fpga::types::token;
 
 const char *properties_doc_get() {
-  return "Create a new properties object. If no kwargs are included then the "
-         "properties object is created with no property values set."
-         "If one of the kwargs keys is an OPAE property name then the kwargs "
-         "value is used to initialize the corresponding value in the "
-         "properties object";
+  return R"opaedoc(
+    Create a new properties object. If kwargs is not included then the
+    properties object is created with no property values set.
+    If one of the kwargs keys is an OPAE property name then the kwargs
+    value is used to initialize the corresponding value in the
+    properties object.
+    Kwargs:
+      parent (token): Token object representing parent resource.
+      guid (str): GUID (as a string) of the resource.
+      type (fpga_objtype): The object type - FPGA_DEVICE or FPGA_ACCELERATOR.
+      bus : The PCIe bus numer.
+      device : The PCIe device number.
+      function : The PCIe function number.
+      socket_id: The socket ID encoded in the FIM.
+      num_slots: Number of slots available in the FPGA.
+      bbs_id (uint64_t): The BBS ID encoded in the FIM.
+      bbs_version: The version of the BBS.
+      vendor_id: The vendor ID in PCI config space.
+      model (str): The model of the FPGA.
+      local_memory_size: The size (in bytes) of the FPGA local memory.
+      num_mmio: The numer of mmio spaces.
+      num_interrupts: The number of interrupts supported by an accelerator.
+      accelerator_state (fpga_accelerator_state): The state of the accelerator - FPGA_ASSIGNED or FPGA_UNASSIGNED.
+      object_id (uint64_t): The 64-bit number unique within a single node or system.
+   )opaedoc";
 }
 properties::ptr_t properties_get(py::kwargs kwargs) {
   auto props = properties::get();
@@ -90,17 +110,23 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
 }
 
 const char *properties_doc_get_token() {
-  return "Get properties from a token object";
+  return R"opaedoc(
+    Get properties from a token object.
+    Args:
+      tok (token): The token to read properties from.
+   )opaedoc";
 }
 
-opae::fpga::types::properties::ptr_t properties_get_token(opae::fpga::types::token::ptr_t tok){
+opae::fpga::types::properties::ptr_t properties_get_token(
+    opae::fpga::types::token::ptr_t tok) {
   return properties::get(tok);
 }
 
 const char *properties_doc_parent() {
-  return "Get or set the token representing a parent object of a resource. "
-         "The "
-         "resource must be of type FPGA_ACCELERATOR";
+  return R"opaedoc(
+    Get or set the token representing a parent object of a resource.
+    The resource must be of type FPGA_ACCELERATOR
+   )opaedoc";
 }
 
 token::ptr_t properties_get_parent(properties::ptr_t props) {
@@ -116,7 +142,9 @@ void properties_set_parent(properties::ptr_t props, token::ptr_t parent) {
 
 // guid
 const char *properties_doc_guid() {
-  return "Get or set the guid property of a resource as a string.";
+  return R"opaedoc(
+    Get or set the guid property of a resource as a string.
+ )opaedoc";
 }
 
 std::string properties_get_guid(properties::ptr_t props) {
@@ -131,8 +159,10 @@ void properties_set_guid(properties::ptr_t props, const std::string &guid_str) {
 
 // object type
 const char *properties_doc_type() {
-  return "Get or set the type property of a resource. The type must be "
-         "either FPGA_DEVICE or FPGA_ACCELERATOR";
+  return R"opaedoc(
+    Get or set the type property of a resource. The type must be
+    either FPGA_DEVICE or FPGA_ACCELERATOR
+   )opaedoc";
 }
 
 fpga_objtype properties_get_type(properties::ptr_t props) {
@@ -145,7 +175,9 @@ void properties_set_type(properties::ptr_t props, fpga_objtype type) {
 
 // pcie bus
 const char *properties_doc_bus() {
-  return "Get or set the PCIe bus property of a resource.";
+  return R"opaedoc(
+    Get or set the PCIe bus property of a resource.
+   )opaedoc";
 }
 
 uint8_t properties_get_bus(properties::ptr_t props) { return props->bus; }
@@ -156,7 +188,9 @@ void properties_set_bus(properties::ptr_t props, uint8_t bus) {
 
 // pcie device
 const char *properties_doc_device() {
-  return "Get or set the PCIe device property of a resource.";
+  return R"opaedoc(
+    Get or set the PCIe device property of a resource.
+   )opaedoc";
 }
 
 uint8_t properties_get_device(properties::ptr_t props) { return props->device; }
@@ -167,7 +201,9 @@ void properties_set_device(properties::ptr_t props, uint8_t device) {
 
 // pcie function
 const char *properties_doc_function() {
-  return "Get or set the PCIe function property of a resource.";
+  return R"opaedoc(
+    Get or set the PCIe function property of a resource.
+   )opaedoc";
 }
 
 uint8_t properties_get_function(properties::ptr_t props) {
@@ -180,8 +216,10 @@ void properties_set_function(properties::ptr_t props, uint8_t function) {
 
 // socket id
 const char *properties_doc_socket_id() {
-  return "Get or set the Socket ID  property of a resource. The socket id is "
-         "encoded in of the FIM CSRs";
+  return R"opaedoc(
+    Get or set the Socket ID  property of a resource. The socket id is
+    encoded in of the FIM CSRs
+   )opaedoc";
 }
 
 uint8_t properties_get_socket_id(properties::ptr_t props) {
@@ -194,10 +232,12 @@ void properties_set_socket_id(properties::ptr_t props, uint8_t socket_id) {
 
 // object id
 const char *properties_doc_object_id() {
-  return "Get or set the Object ID  property of a resource. The object id is "
-         "a 64-bit identifier that is unique within a single node or system."
-         "I represents a similar concept as the token but can be serialized "
-         "for use across processes";
+  return R"opaedoc(
+    Get or set the Object ID  property of a resource. The object id is
+    a 64-bit identifier that is unique within a single node or system.
+    I represents a similar concept as the token but can be serialized
+    for use across processes
+   )opaedoc";
 }
 
 uint64_t properties_get_object_id(properties::ptr_t props) {
@@ -210,9 +250,10 @@ void properties_set_object_id(properties::ptr_t props, uint64_t object_id) {
 
 // num slots
 const char *properties_doc_num_slots() {
-  return "Get or set the number of slots property of a resource. The "
-         "resource "
-         "must be of type FPGA_DEVICE";
+  return R"opaedoc(
+    Get or set the number of slots property of a resource.
+    The resource must be of type FPGA_DEVICE
+   )opaedoc";
 }
 
 uint32_t properties_get_num_slots(properties::ptr_t props) {
@@ -225,8 +266,10 @@ void properties_set_num_slots(properties::ptr_t props, uint32_t num_slots) {
 
 // bbs id
 const char *properties_doc_bbs_id() {
-  return "Get or set the BBS ID property of a resource. The resource must "
-         "be of type FPGA_DEVICE";
+  return R"opaedoc(
+    Get or set the BBS ID property of a resource.
+    The resource must be of type FPGA_DEVICE
+   )opaedoc";
 }
 
 uint64_t properties_get_bbs_id(properties::ptr_t props) {
@@ -239,8 +282,10 @@ void properties_set_bbs_id(properties::ptr_t props, uint64_t bbs_id) {
 
 // bbs version
 const char *properties_doc_bbs_version() {
-  return "Get or set the BBS version property of a resource. The resource "
-         "must be of type FPGA_DEVICE";
+  return R"opaedoc(
+    Get or set the BBS version property of a resource.
+    The resource must be of type FPGA_DEVICE
+   )opaedoc";
 }
 
 std::tuple<uint8_t, uint8_t, uint16_t> properties_get_bbs_version(
@@ -256,8 +301,10 @@ void properties_set_bbs_version(properties::ptr_t props,
 
 // vendor id
 const char *properties_doc_vendor_id() {
-  return "Get or set the vendor ID  property of a resource. The vendor ID is "
-         "part of the PCIe configuration space of the device";
+  return R"opaedoc(
+    Get or set the vendor ID  property of a resource.
+    The vendor ID is part of the PCIe configuration space of the device.
+   )opaedoc";
 }
 
 uint32_t properties_get_vendor_id(properties::ptr_t props) {
@@ -270,7 +317,9 @@ void properties_set_vendor_id(properties::ptr_t props, uint32_t vendor_id) {
 
 // model
 const char *properties_doc_model() {
-  return "Get or set the model property of a resource.";
+  return R"opaedoc(
+    Get or set the model property of a resource.
+   )opaedoc";
 }
 
 std::string properties_get_model(properties::ptr_t props) {
@@ -283,7 +332,9 @@ void properties_set_model(properties::ptr_t props, char *model) {
 
 // local memory size
 const char *properties_doc_local_memory_size() {
-  return "Get or set the local memory size property of a resource";
+  return R"opaedoc(
+    Get or set the local memory size property of a resource.
+   )opaedoc";
 }
 
 uint64_t properties_get_local_memory_size(properties::ptr_t props) {
@@ -296,8 +347,10 @@ void properties_set_local_memory_size(properties::ptr_t props, uint64_t size) {
 
 // capabilities
 const char *properties_doc_capabilities() {
-  return "Get or set the capabilities property of a resource. This is taken "
-         "directory from the capabilities CSR in the FIM";
+  return R"opaedoc(
+    Get or set the capabilities property of a resource.
+    This is taken directly from the capabilities CSR in the FIM.
+   )opaedoc";
 }
 
 uint64_t properties_get_capabilities(properties::ptr_t props) {
@@ -310,7 +363,9 @@ void properties_set_capabilities(properties::ptr_t props, uint64_t caps) {
 
 // num mmio
 const char *properties_doc_num_mmio() {
-  return "Get or set the number of mmio spaces in a resource";
+  return R"opaedoc(
+    Get or set the number of mmio spaces in a resource.
+   )opaedoc";
 }
 
 uint32_t properties_get_num_mmio(properties::ptr_t props) {
@@ -323,7 +378,9 @@ void properties_set_num_mmio(properties::ptr_t props, uint32_t num_mmio) {
 
 // num interrupts
 const char *properties_doc_num_interrupts() {
-  return "Get or set the number of interrupt vectors supported by a resource";
+  return R"opaedoc(
+    Get or set the number of interrupt vectors supported by a resource.
+ )opaedoc";
 }
 uint32_t properties_get_num_interrupts(properties::ptr_t props) {
   return props->num_interrupts;
@@ -335,9 +392,10 @@ void properties_set_num_interrupts(properties::ptr_t props,
 
 // accelerator state
 const char *properties_doc_accelerator_state() {
-  return "Get or set the state of an accelerator. The accelerator state is "
-         "of "
-         "type fpga_accelerator_state";
+  return R"opaedoc(
+    Get or set the state of an accelerator.
+    The accelerator state is of type fpga_accelerator_state.
+ )opaedoc";
 }
 
 fpga_accelerator_state properties_get_accelerator_state(
