@@ -81,4 +81,5 @@ add_dependencies(docs
   copy-doxygen-files
   copy-markdown-files
   copy-include-files
-  copy-sample-files)
+  copy-sample-files
+  doxygen)
