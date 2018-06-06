@@ -121,222 +121,15 @@ function(questa_vlog_add_definitions)
   set_property(DIRECTORY APPEND PROPERTY QUESTA_VLOG_COMPILE_DEFINITIONS "${ARGN}")
 endfunction(questa_vlog_add_definitions flags)
 
-############################################################################
-#  ase_add_modelsim_module(<name> [EXCLUDE_FROM_ALL] [MODULE_NAME <module_name>] [<sources> ...])
-############################################################################
-#
-# Build ASE module from <sources>, analogue of add_library().
-#
-# Source files are divided into two categories:
-# -Object sources
-# -Other sources
-#
-# Object sources are those sources, which may be used in building ASE
-# module externally.
-# Follow types of object sources are supported now:
-# .txt: Modelsim project
-# .json: AFU specification file
-# .sv: SystemVerilog files
-#
-# Other sources are treated as only prerequisite of building process.
-# In either case, if MODULE_NAME option is given, it determine name
-# of the ASE module. Otherwise <name> itself is used.
-
-function(ase_add_modelsim_module name)
-
-  cmake_parse_arguments(ase_add_modelsim_module "IMPORTED;EXCLUDE_FROM_ALL" "MODULE_NAME" "" ${ARGN})
-  if(ase_add_modelsim_module_MODULE_NAME)
-    set(module_name "${ase_add_modelsim_module_MODULE_NAME}")
-  else(ase_add_modelsim_module_MODULE_NAME)
-    set(module_name "${name}")
-  endif(ase_add_modelsim_module_MODULE_NAME)
-
-  # List of all source files, which are given.
-  set(sources ${ase_add_modelsim_module_UNPARSED_ARGUMENTS})
-
-  # Calculate sources absolute paths
-  to_abs_path(ase_module_sources_abs ${sources})
-
-  # List of files from which module building is depended
-  set(ase_modules_sources)
-
-  # Modelsim project files (.txt)
-  set(prj_ase_module_sources_abs)
-  # AFU metadata files (.json)
-  set(json_ase_module_sources_abs)
-  # SystemVerilog source files (.sv)
-  set(sverilog_ase_module_sources_abs)
-  # SystemVerilog header files (.svh)
-  set(sverilog_headers_abs)
-
-  ############################################################################
-  ## Categorize sources
-  ############################################################################
-  foreach(file_i ${ase_module_sources_abs})
-    get_filename_component(ext ${file_i} EXT)
-    get_filename_component(source_noext "${file_i}" NAME_WE)
-    get_filename_component(source_dir "${file_i}" PATH)
-    get_filename_component(source_filename "${file_i}" NAME)
-
-    # Calculate module locations
-    if(ext STREQUAL ".txt"
-        OR ext STREQUAL ".sv"
-        OR ext STREQUAL ".svh"
-        OR ext STREQUAL ".v"
-        OR ext STREQUAL ".vh"
-        OR ext STREQUAL ".json")
-
-      # Categorize sources
-      set(source_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
-      if(ext STREQUAL ".txt")
-        # Project source file
-        list(APPEND prj_ase_module_sources_abs ${source_abs}.txt)
-      elseif(ext STREQUAL ".json")
-        # JSON source file
-        list(APPEND json_ase_module_sources_abs ${source_abs}.json)
-      elseif(ext STREQUAL ".sv")
-        # SystemVerilog source file
-        list(APPEND sverilog_ase_module_sources_abs ${source_abs}.sv)
-      elseif(ext STREQUAL ".svh")
-        # SystemVerilog source file
-        list(APPEND sverilog_ase_module_headers_abs ${source_abs}.svh)
-      endif()
-    endif()
-
-    # Add file to depend list
-    list(APPEND ase_modules_sources ${file_i})
-  endforeach(file_i ${ase_module_sources_abs})
-
-  # ASE module sources relative to current binary dir
-  set(ase_module_sources_rel)
-  foreach(file_i
-      ${prj_ase_module_sources_abs}
-      ${json_ase_module_sources_abs}
-      ${sverilog_ase_module_sources_abs}
-      ${sverilog_ase_module_headers_abs})
-    file(RELATIVE_PATH ase_module_source_rel
-      ${CMAKE_CURRENT_BINARY_DIR} ${file_i})
-    list(APPEND ase_module_sources_rel ${ase_module_source_rel})
-  endforeach(file_i)
-
-  if(NOT ase_module_sources_rel)
-    message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
-  endif(NOT ase_module_sources_rel)
-
-  ############################################################################
-  ## Create main target ######################################################
-  ############################################################################
-
-  # Target for create module platform configuration.
-  add_custom_target(${name}_platform_config ALL
-    DEPENDS
-    intel-fpga-bbb
-    ${ase_modules_sources}
-    "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
-
-  # Target to build the ASE module
-  add_custom_target (${name} ALL
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
-  add_dependencies(${name} ${name}_platform_config)
-
-  ############################################################################
-  ## Initialize ASE module properties ########################################
-  ############################################################################
-
-  # Initial set of properties for the module
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE                "verilog")
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_NAME                ${name})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_MODULE_LOCATION     ${CMAKE_CURRENT_BINARY_DIR}/work)
-
-  # Initialize target properties using default values
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_FULLNAME   ${ASE_PLATFORM})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       ${ASE_PLATFORM_NAME})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         ${ASE_PLATFORM_IF})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR           ${ASE_SIMULATOR})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_TIMESCALE           ${ASE_TIMESCALE})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_USR_CLOCK_MHZ       ${ASE_USR_CLK_MHZ})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_ASE_MODE            ${ASE_MODE})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_ASE_TIMEOUT         ${ASE_TIMEOUT})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_AFU_JSON            ${ASE_AFU_JSON})
-
-  # Target specific: Compilation/linker flags + sources
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/platform_includes
-    ${CMAKE_CURRENT_BINARY_DIR}/rtl
-    ${OPAE_BASE_DIR}/${PLATFORM_IF_RTL}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/rtl)
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_BINARY_DIR          ${CMAKE_CURRENT_BINARY_DIR})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES             ${ase_module_sources})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_ABS         ${ase_module_ase_module_sources_abs})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_REL         ${ase_module_sources_rel})
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCE_DIR          ${CMAKE_CURRENT_SOURCE_DIR})
-
-  # Target specific properties
-  set(vlog_flags_local)
-  get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-  foreach(definition ${definitions_local})
-    list(APPEND vlog_flags_local +define+${definition})
-  endforeach(definition ${definitions_local})
-
-  get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
-  foreach(dir ${include_dirs_local})
-    list(APPEND vlog_flags_local +incdir+${dir})
-  endforeach(dir ${include_dirs_local})
-
-  # Create target specific cache entries
-  set(ASE_MODULE_${name}_DIRECTORY_FLAGS                ${vlog_flags_dir}           CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
-  set(ASE_MODULE_${name}_TARGET_FLAGS                   ${vlog_flags_local}         CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
-  set(ASE_MODULE_${name}_SOURCES                        ${ase_module_sources}       CACHE STRING "List of source files used to build ASE module '${name}'.")
-  set(ASE_MODULE_${name}_SOURCES_ABS                    ${ase_module_sources_abs}   CACHE STRING "List of source files used to build ASE module '${name}'.")
-  set(ASE_MODULE_${name}_SOURCES_REL                    ${ase_module_sources_rel}}  CACHE STRING "List of source files used to build ASE module '${name}'.")
-
-  mark_as_advanced(
-    ASE_MODULE_${name}_DIRECTORY_FLAGS
-    ASE_MODULE_${name}_TARGET_FLAGS
-    ASE_MODULE_${name}_SOURCES
-    ASE_MODULE_${name}_SOURCES_ABS
-    ASE_MODULE_${name}_SOURCES_REL)
-
-  # Cached properties
-  set_property(CACHE ASE_MODULE_${name}_DIRECTORY_FLAGS    PROPERTY VALUE ${vlog_flags})
-  set_property(CACHE ASE_MODULE_${name}_TARGET_FLAGS       PROPERTY VALUE ${vlog_flags_local})
-  set_property(CACHE ASE_MODULE_${name}_SOURCES            PROPERTY VALUE ${ase_module_sources})
-  set_property(CACHE ASE_MODULE_${name}_SOURCES_ABS        PROPERTY VALUE ${ase_module_sources_abs})
-  set_property(CACHE ASE_MODULE_${name}_SOURCES_REL        PROPERTY VALUE ${ase_module_sources_rel})
-
-  # Add target to the global list of modules for built.
-  set_property(GLOBAL APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
-
-  # Keep track of which modules will be built from same directory
-  set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
-
-  ############################################################################
-  ## The rule to clean files #################################################
-  ############################################################################
-
-  _ase_module_clean_files(${name}
-    SV_SOURCE       ${sverilog_ase_module_sources_abs}
-    JSON_SOURCE     ${json_ase_module_sources_abs}
-    PRJ_SOURCE      ${prj_ase_module_sources_abs}
-    SHIPPED_SOURCE  ${shipped_ase_module_sources_abs})
-
-endfunction(ase_add_modelsim_module name)
-
-#  _ase_module_clean_files(module_name ...)
+#  _ase_module_clean_modelsim_files(module_name ...)
 #
 # Tell CMake that intermediate files, created by kbuild system,
 # should be cleaned with 'make clean'.
-function(_ase_module_clean_files module_name)
-  cmake_parse_arguments(ase_module_clean "" "" "SV_SOURCE;JSON_SOURCE;PRJ_SOURCE;SHIPPED_SOURCE" ${ARGN})
-  if(ase_module_clean_UNPARSED_ARGUMENTS)
+function(ase_module_clean_modelsim_files module_name)
+  cmake_parse_arguments(ase_module_clean_modelsim_files "" "" "SV_SOURCE;JSON_SOURCE;PRJ_SOURCE;SHIPPED_SOURCE" ${ARGN})
+  if(ase_module_clean_questa_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Unparsed arguments")
-  endif(ase_module_clean_UNPARSED_ARGUMENTS)
+  endif(ase_module_clean_questa_UNPARSED_ARGUMENTS)
 
   # List common files (names only) for cleaning
   set(common_files_names
@@ -395,7 +188,7 @@ function(_ase_module_clean_files module_name)
   # Tell CMake that given files should be cleaned.
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${files_list}")
 
-endfunction(_ase_module_clean_files module_name)
+endfunction(ase_module_clean_modelsim_files module_name)
 
 ############################################################################
 ## ase_finalize_modelsim_linking(m) ########################################
@@ -404,7 +197,7 @@ endfunction(_ase_module_clean_files module_name)
 # Should be called after ASE module `m` is defined.
 #
 
-function(ase_finalize_modelsim_module_linking m)
+function(ase_module_finalize_modelsim_linking m)
 
   _get_per_build_var(vlog_flags QUESTA_VLOG_FLAGS)
   list(APPEND vlog_flags -f sources_simulation.txt)
@@ -427,7 +220,7 @@ function(ase_finalize_modelsim_module_linking m)
   endforeach(dir ${include_dirs})
 
   # Get object properties
-  get_property(module_binary_dir TARGET ${m} PROPERTY ASE_MODULE_BINARY_DIR)
+  get_property(module_build_dir  TARGET ${m} PROPERTY ASE_MODULE_BUILD_DIR)
   get_property(module_source_dir TARGET ${m} PROPERTY ASE_MODULE_SOURCE_DIR)
   get_property(module_name       TARGET ${m} PROPERTY ASE_MODULE_NAME)
 
@@ -480,18 +273,18 @@ function(ase_finalize_modelsim_module_linking m)
       # Copy source into binary tree, if needed
       # copy_source_to_binary_dir("${file_i}" file_i)
       if(ext STREQUAL ".txt")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
+        configure_file("${file_i}" ${module_build_dir}/${source_filename} @ONLY)
       elseif(ext STREQUAL ".json")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
+        configure_file("${file_i}" ${module_build_dir}/${source_filename} @ONLY)
         ase_module_set_afu_json(${m} ${source_filename})
       else()
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
+        configure_file("${file_i}" ${module_build_dir}/${source_filename} COPYONLY)
       endif()
     endif()
 
     # Add simulation project
     configure_file(${ASE_SHARE_DIR}/in/sources_simulation.txt.in
-       ${CMAKE_CURRENT_BINARY_DIR}/sources_simulation.txt @ONLY)
+       ${module_build_dir}/sources_simulation.txt @ONLY)
   endforeach(file_i ${ase_module_sources_abs})
 
   ############################################################################
@@ -501,11 +294,11 @@ function(ase_finalize_modelsim_module_linking m)
   get_property(ase_module_ase_timeout   TARGET ${m} PROPERTY ASE_MODULE_ASE_TIMEOUT)
   get_property(ase_module_usr_clock_mhz TARGET ${m} PROPERTY ASE_MODULE_USR_CLOCK_MHZ)
 
-  set(ASE_WORKDIR             "${CMAKE_CURRENT_BINARY_DIR}")
-  set(ASE_CONFIG              "${CMAKE_CURRENT_BINARY_DIR}/ase.cfg")
-  set(ASE_REGRESS_SCRIPT      "${CMAKE_CURRENT_BINARY_DIR}/ase_regress.sh")
-  set(ASE_SERVER_SCRIPT       "${CMAKE_CURRENT_BINARY_DIR}/ase_server.sh")
-  set(ASE_SIMULATION_SCRIPT   "${CMAKE_CURRENT_BINARY_DIR}/vsim_run.tcl")
+  set(ASE_WORKDIR             "${module_build_dir}")
+  set(ASE_CONFIG              "${module_build_dir}/ase.cfg")
+  set(ASE_REGRESS_SCRIPT      "${module_build_dir}/ase_regress.sh")
+  set(ASE_SERVER_SCRIPT       "${module_build_dir}/ase_server.sh")
+  set(ASE_SIMULATION_SCRIPT   "${module_build_dir}/vsim_run.tcl")
 
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     set(vsim_coverage_header "coverage save -onexit ase.ucdb")
@@ -538,8 +331,8 @@ function(ase_finalize_modelsim_module_linking m)
     ${ASE_WORKDIR}/tmp/ase_server.sh)
 
   # Create simulation application
-  file(COPY ${CMAKE_CURRENT_BINARY_DIR}/tmp/ase_server.sh
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+  file(COPY ${module_build_dir}/tmp/ase_server.sh
+    DESTINATION ${module_build_dir}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
     GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
@@ -549,55 +342,37 @@ function(ase_finalize_modelsim_module_linking m)
     PROPERTY ASE_MODULE_TARGETS)
 
   ############################################################################
+  ## Process AFU JSON metadata file ##########################################
+  ############################################################################
+
+  ase_module_process_json(${m})
+
+  ############################################################################
   ## Target to build DPI C library
   ############################################################################
 
-  ase_add_dpic_module(${m})
+  ase_module_add_dpic(${m})
 
-  # Assure compilation occurs after generation of DPI header file
+  # Assure DPIC compilation occurs after generation of DPI header file
   add_dependencies(opae-c-ase-server-${m} ${m})
 
   ############################################################################
   ## Finally set commands to create targets ##################################
   ############################################################################
 
-  set(afu_json)
-  ase_module_get_afu_json(afu_json ${m})
-  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${AFU_JSON_MGR}
-    json-info
-    --afu-json       ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
-    --verilog-hdr    ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh
-    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh")
-
-  # afu_platform_config --sim --tgt=rtl --src ccip_st6d_afu.json  intg_xeon
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
-  set(ase_platform)
-  ase_module_get_platform_name(ase_platform ${m})
-  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${AFU_PLATFORM_CONFIG}
-    --sim
-    --tgt=platform_includes
-    --src ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
-    ${ase_platform}
-    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.vh")
-
   # Define DPI header file generation rule
-  file(MAKE_DIRECTORY ${module_binary_dir}/include)
+  file(MAKE_DIRECTORY ${module_build_dir}/include)
   add_custom_command(
-    OUTPUT "${module_binary_dir}/include/platform_dpi.h"
-    WORKING_DIRECTORY ${module_binary_dir}
+    OUTPUT "${module_build_dir}/include/platform_dpi.h"
+    WORKING_DIRECTORY ${module_build_dir}
     COMMAND ${QUESTA_VLIB_EXECUTABLE} work
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
-    -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
+    -dpiheader ${module_build_dir}/include/platform_dpi.h
     ${vlog_flags}
     ${vlog_flags_local}
     -l vlog.log
-    DEPENDS "${module_binary_dir}/platform_includes/platform_afu_top_config.vh"
+    DEPENDS "${module_build_dir}/platform_includes/platform_afu_top_config.vh"
     COMMENT "Building ASE module ${module_name}"
     VERBATIM)
 
-endfunction(ase_finalize_modelsim_module_linking m)
+endfunction(ase_module_finalize_modelsim_linking m)

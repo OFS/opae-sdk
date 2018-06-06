@@ -60,15 +60,16 @@ find_program(AFU_JSON_MGR
 ## Global ASE variables ####################################################
 ############################################################################
 
+# Default directory and model variables
 set(ASE_SHARE_DIR              ${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
 set(ASE_SAMPLES                ${OPAE_SHARE_DIR}/samples)
 set(ASE_SCRIPTS_IN             ${ASE_SHARE_DIR}/in)
-
 set(ASE_SERVER_RTL             ${ASE_SHARE_DIR}/rtl               CACHE STRING "Location of ASE server SystemVerilog code")
 set(ASE_DISCRETE_EMIF_MODEL    "EMIF_MODEL_BASIC"                 CACHE STRING "ASE EMIF discrete memory model")
 set(ASE_TOP_ENTITY             "ase_top"                          CACHE STRING "Top entity for the ASE testbench")
 
 # Default values for project variables (should be modified for each target!)
+set(ASE_MODULE_TYPE            "AFU"                              CACHE STRING "Default ASE module type (AFU, BBB, LIBSIM)")
 set(ASE_SIMULATOR              "QUESTA"                           CACHE STRING "Default ASE simulator")
 set(ASE_PLATFORM               "FPGA_PLATFORM_INTG_XEON"          CACHE STRING "Default ASE platform (fullname)")
 set(ASE_PLATFORM_NAME          "intg_xeon"                        CACHE STRING "Default ASE platform (abbreviation)")

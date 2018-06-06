@@ -34,7 +34,7 @@ if(BUILD_ASE_SAMPLES)
     sources.txt
     base_addenda.txt
     hello_afu.json)
-  ase_add_modelsim_module(hello_afu_hw
+  ase_add_afu_module(hello_afu_hw
     ${hello_afu_hw_SOURCES})
   file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
     DESTINATION ${PROJECT_BINARY_DIR}/hw)
@@ -47,7 +47,7 @@ if(BUILD_ASE_SAMPLES)
   ase_module_add_definitions(hello_afu_hw FPGA_PLATFORM_DISCRETE)
 
   # Configure files and finalize target rules
-  ase_finalize_modelsim_module_linking(hello_afu_hw)
+  ase_module_finalize_modelsim_linking(hello_afu_hw)
 
 endif()
 

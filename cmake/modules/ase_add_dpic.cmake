@@ -62,17 +62,7 @@ set(ASESW_FILE_LIST
 ## Define DPI C code #######################################################
 ############################################################################
 
-function(ase_add_dpic_module name)
-
-  set(afu_json)
-  ase_module_get_afu_json(afu_json ${name})
-  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${AFU_JSON_MGR}
-    json-info
-    --afu-json  ${CMAKE_CURRENT_BINARY_DIR}/${afu_json}
-    --c-hdr     ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h
-    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h")
+function(ase_module_add_dpic name)
 
   add_library(opae-c-ase-server-${name} SHARED
     ${ASESW_FILE_LIST}
@@ -115,4 +105,4 @@ function(ase_add_dpic_module name)
     target_link_libraries(opae-c-ase-server-${name} ${GCOV_LINK_FLAGS})
   endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
-endfunction(ase_add_dpic_module name)
+endfunction(ase_module_add_dpic name)

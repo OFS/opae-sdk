@@ -33,7 +33,7 @@ if(BUILD_ASE_SAMPLES)
   set(intg_xeon_nlb_SOURCES
     sources.txt
     intg_xeon_nlb.json)
-  ase_add_modelsim_module(intg_xeon_nlb
+  ase_add_afu_module(intg_xeon_nlb
     ${intg_xeon_nlb_SOURCES})
   file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
     DESTINATION ${PROJECT_BINARY_DIR}/hw)
@@ -47,7 +47,7 @@ if(BUILD_ASE_SAMPLES)
   ase_module_add_definitions(intg_xeon_nlb FPGA_PLATFORM_INTG_XEON)
 
   # Configure files and finalize target rules
-  ase_finalize_modelsim_module_linking(intg_xeon_nlb)
+  ase_module_finalize_modelsim_linking(intg_xeon_nlb)
 
   # Test coverage
   include_directories(${GLIB_INCLUDE_DIRS})
