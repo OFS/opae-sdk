@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file properties.h
+ * @file opae/properties.h
  * @brief Functions for examining and manipulating `fpga_properties` objects
  *
  * In OPAE, `fpga_properties` objects are used both for obtaining information
