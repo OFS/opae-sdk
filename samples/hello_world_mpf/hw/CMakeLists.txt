@@ -32,7 +32,7 @@ if(BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
   set(hello_world_mpf_hw_SOURCES
     sources.txt
-    mpf_addenda.txt
+    base_addenda.txt
     hello_world_mpf.json)
   ase_add_afu_module(hello_world_mpf_hw
     ${hello_world_mpf_hw_SOURCES})
@@ -45,6 +45,10 @@ if(BUILD_ASE_SAMPLES)
   # Add definitions
   ase_module_add_definitions(hello_world_mpf_hw NUM_AFUS=1)
   ase_module_add_definitions(hello_world_mpf_hw FPGA_PLATFORM_INTG_XEON)
+
+  # Include required AFU BBS
+  ase_module_include_bbbs(hello_world_mpf_hw cci_mpf)
+  ase_module_include_bbbs(hello_world_mpf_hw ccip_async)
 
   # Configure files and finalize target rules
   ase_module_finalize_modelsim_linking(hello_world_mpf_hw)

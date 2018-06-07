@@ -282,6 +282,14 @@ function(ase_module_finalize_modelsim_linking m)
       endif()
     endif()
 
+    # Generate the BBBs project section
+    set(AFU_SIM_BBBS)
+    get_property(include_bbbs TARGET ${m} PROPERTY ASE_MODULE_INCLUDE_BBBS)
+    foreach(bbb_i ${include_bbbs})
+      set(AFU_SIM_BBBS "${AFU_SIM_BBBS}# Adding BBB: ${bbb_i}\n")
+      set(AFU_SIM_BBBS "${AFU_SIM_BBBS}-F ${FPGA_BBB_CCI_SRC}/BBB_${bbb_i}/hw/sim/${bbb_i}_sim_addenda.txt\n\n")
+    endforeach(bbb_i ${include_bbbs})
+
     # Add simulation project
     configure_file(${ASE_SHARE_DIR}/in/sources_simulation.txt.in
        ${module_build_dir}/sources_simulation.txt @ONLY)

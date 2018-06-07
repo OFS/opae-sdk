@@ -165,9 +165,9 @@ define_property(TARGET PROPERTY ASE_MODULE_ASE_TIMEOUT
   FULL_DOCS "ASE simulator timeout in clock cycles (when ASE_MODE=2)")
 
 # Required BBBs (AFU basic building blocks)
-define_property(TARGET PROPERTY ASE_MODULE_REQUIRED_BBBS
-  BRIEF_DOCS "ASE module required BBBs (AFU basic building blocks)"
-  FULL_DOCS "ASE module required BBBs (AFU basic building blocks)")
+define_property(TARGET PROPERTY ASE_MODULE_INCLUDE_BBBS
+  BRIEF_DOCS "ASE module included BBBs (AFU basic building blocks)"
+  FULL_DOCS "ASE module included BBBs (AFU basic building blocks)")
 
 # Compile definitions for the ASE module
 define_property(TARGET PROPERTY ASE_MODULE_COMPILE_DEFINITIONS
@@ -325,6 +325,14 @@ function(ase_module_include_directories target_name dir)
   list(APPEND current_flags ${dir})
   set_property(TARGET ${target_name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES "${current_flags}")
 endfunction(ase_module_include_directories target_name dir)
+
+#  ase_modules_include_bbbs(bbbs ...)
+# Add include BBBs for compile ASE module.
+function(ase_module_include_bbbs target_name bbbs)
+  get_property(current_flags TARGET ${target_name} PROPERTY ASE_MODULE_INCLUDE_BBBS)
+  list(APPEND current_flags ${bbbs})
+  set_property(TARGET ${target_name} PROPERTY ASE_MODULE_INCLUDE_BBBS "${current_flags}")
+endfunction(ase_module_include_bbbs target_name defs)
 
 ############################################################################
 ## Helper utilities ########################################################

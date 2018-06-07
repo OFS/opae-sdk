@@ -32,7 +32,6 @@ if(BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
   set(hello_afu_hw_SOURCES
     sources.txt
-    base_addenda.txt
     hello_afu.json)
   ase_add_afu_module(hello_afu_hw
     ${hello_afu_hw_SOURCES})
