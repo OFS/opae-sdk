@@ -23,13 +23,18 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import random
+import select
+import subprocess
+import threading
+import time
 import unittest
 import uuid
 
 import opae.api
 
 NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
+
+MOCK_PORT_ERROR = "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors"
 
 class TestProperties(unittest.TestCase):
     def test_guid(self):
@@ -173,20 +178,59 @@ class TestSharedBuffer(unittest.TestCase):
         ba = bytearray(buff1)
         assert ba[0] == 0xaa
 
+def trigger_port_error(value=1):
+    with open(MOCK_PORT_ERROR, 'w') as fd:
+        fd.write('0\n')
+    if value:
+        print "Writing {} to {}".format(value, MOCK_PORT_ERROR)
+        with open(MOCK_PORT_ERROR, 'w') as fd:
+            fd.write('{}\n'.format(value))
+
+class TestEvent(unittest.TestCase):
+    def setUp(self):
+        trigger_port_error(0)
+        self.props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR,
+                                         socket_id=0)
+        self.toks = opae.api.token.enumerate([self.props])
+        assert self.toks
+        self.handle = opae.api.handle.open(self.toks[0])
+        assert self.handle
+
+    def tearDown(self):
+        trigger_port_error(0)
+
+    def test_events(self):
+        err_ev = opae.api.event.register_event(self.handle,
+                                               opae.api.FPGA_EVENT_ERROR)
+        assert err_ev
+        # FIXME: os_object returns long
+        # WA is to cast it to int
+        os_object = int(err_ev.os_object())
+        assert type(os_object) is int
+        assert os_object > -1
+        print "os_object: {}".format(os_object)
+        epoll = select.epoll()
+        epoll.register(os_object, select.EPOLLIN)
+        received_event = False
+        count = 0
+        trigger_error_timer = threading.Timer(1, trigger_port_error)
+        trigger_error_timer.start()
+        for _ in range(10):
+            for fileno, ev in epoll.poll(1):
+                print "fileno: {}".format(fileno)
+                if fileno == os_object:
+                    received_event = True
+                    break
+            if received_event:
+                break
+            time.sleep(1)
+
+        trigger_error_timer.cancel()
+        assert received_event
+
 
 
 if __name__ == "__main__":
-    props = opae.api.properties(type=opae.api.FPGA_ACCELERATOR)
-    toks = opae.api.token.enumerate([props])
-    assert toks
-    handle = opae.api.handle.open(toks[0])
-    assert handle
-    with open('m0.gbs', 'r') as fd:
-        handle.reconfigure(0, fd)
-    buff = opae.api.shared_buffer.allocate(handle, 4096)
-    mv = buff.memoryview()
-    ba = bytearray(buff)
-    handle.close()
-    assert not handle
-
+    test = TestEvent('test_events')
+    test.run()
 

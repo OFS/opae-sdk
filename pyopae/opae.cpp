@@ -3,6 +3,7 @@
 #include <opae/cxx/core/token.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "pyevents.h"
 #include "pyhandle.h"
 #include "pyproperties.h"
 #include "pyshared_buffer.h"
@@ -12,6 +13,7 @@ using opae::fpga::types::properties;
 using opae::fpga::types::token;
 using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::event;
 
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
@@ -148,4 +150,12 @@ PYBIND11_MODULE(_opae, m) {
       .def_buffer([](shared_buffer& b) -> py::buffer_info {
         return py::buffer_info(const_cast<uint8_t*>(b.c_type()), b.size());
       });
+
+  // define event class
+  py::class_<event, event::ptr_t> pyevent(m, "event", event_doc());
+  pyevent
+      .def_static("register_event", event_register_event,
+                  event_doc_register_event(), py::arg("handle"),
+                  py::arg("event_type"), py::arg("flags") = 0)
+      .def("os_object", event_os_object, event_doc_os_object());
 }

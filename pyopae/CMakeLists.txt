@@ -76,6 +76,8 @@ create_python_dist(
 	       pyhandle.cpp
 	       pyshared_buffer.h
 	       pyshared_buffer.cpp
+	       pyevents.h
+	       pyevents.cpp
 	       test_pyopae.py
     BUILD_COMMAND build_ext
     BUILD_INCLUDE_DIRS "${SETUP_INCLUDE_DIRS}"
