@@ -132,7 +132,7 @@ do {\
 /**
 * MMIOWrite64Blk
 *
-* @brief                Writes a block of 64-bit values to FPGA MMIO space
+* @brief                Writes a block of 64-bit values host to FPGA MMIO space
 * @param[in] dma        Handle to the FPGA DMA object
 * @param[in] device     FPGA address
 * @param[in] host       Host buffer address
@@ -174,7 +174,7 @@ static fpga_result MMIOWrite64Blk(fpga_dma_handle dma_h, uint64_t device,
 /**
 * MMIOWrite32Blk
 *
-* @brief                Writes a block of 32-bit values to FPGA MMIO space
+* @brief                Writes a block of 32-bit values host to FPGA MMIO space
 * @param[in] dma        Handle to the FPGA DMA object
 * @param[in] device     FPGA address
 * @param[in] host       Host buffer address
@@ -734,7 +734,7 @@ static fpga_result _read_memory_mmio_unaligned(fpga_dma_handle dma_h,
 * @param[in] dev_addr   FPGA address
 * @param[in] host_addr  Host buffer address
 * @param[in] count      Size in bytes, always less than 8bytes.
-* @return fpga_result FPGA_OK on success, return code otherwise
+* @return fpga_result FPGA_OK on success, return fpga_result code otherwise
 *
 */
 static fpga_result _write_memory_mmio_unaligned(fpga_dma_handle dma_h,
@@ -799,8 +799,6 @@ static fpga_result _write_memory_mmio(fpga_dma_handle dma_h, uint64_t * dst_ptr,
 
 	assert(*count >= DWORD_BYTES);
 	assert(IS_ALIGNED_DWORD(*dst_ptr));
-	if (!IS_ALIGNED_DWORD(*dst_ptr))	// If QWORD aligned, this will be true
-		return FPGA_EXCEPTION;
 
 	uint64_t src = *src_ptr;
 	uint64_t dst = *dst_ptr;
