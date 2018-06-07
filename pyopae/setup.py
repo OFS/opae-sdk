@@ -42,7 +42,7 @@ extensions = [
                        "pyhandle.cpp",
                        "pyshared_buffer.cpp",
                        "pyevents.cpp",
-                       "opae.cpp",],
+                       "opae.cpp"],
               language="c++",
               extra_compile_args=["-std=c++11"],
               extra_link_args=["-std=c++11"],
