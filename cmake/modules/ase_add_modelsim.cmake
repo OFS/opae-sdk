@@ -257,7 +257,7 @@ function(ase_module_finalize_modelsim_linking m)
   ############################################################################
 
   foreach(file_i ${ase_module_sources_abs})
-    get_filename_component(ext              ${file_i}   EXT)
+    get_filename_component(ext              ${file_i}  EXT)
     get_filename_component(source_noext    "${file_i}" NAME_WE)
     get_filename_component(source_dir      "${file_i}" PATH)
     get_filename_component(source_filename "${file_i}" NAME)
