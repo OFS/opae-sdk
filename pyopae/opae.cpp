@@ -15,6 +15,30 @@ using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 
+const char *token_doc(){
+  return R"opaedoc(
+    Token for referencing an OPAE resource.
+
+    A token object serves as a reference so a specific resource in the system.
+    Holding a token does not constitute ownership of an OPAE resource.
+    It is used to query information about a resource,
+    or to acquire ownership by calling handle.open static method.
+  )opaedoc";
+}
+
+
+const char *token_doc_enumerate(){
+  return R"opaedoc(
+    Get a list of tokens for the given search criteria.
+
+    Args:
+
+      props(list): A list of properties objects that define the search criteria.
+                   All OPAE properties in each properties object make up one filter.
+                   All properties objects are combined in a union.
+  )opaedoc";
+}
+
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
   // opts.disable_function_signatures();
@@ -68,7 +92,8 @@ PYBIND11_MODULE(_opae, m) {
       .export_values();
 
   // define properties class
-  py::class_<properties, properties::ptr_t> pyproperties(m, "properties");
+  py::class_<properties, properties::ptr_t> pyproperties(m, "properties",
+                                                         properties_doc());
   pyproperties.def(py::init(&properties_get), properties_doc_get())
       .def(py::init(&properties_get_token), properties_doc_get_token())
       .def_property("parent", properties_get_parent, properties_get_parent,
@@ -112,8 +137,8 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_accelerator_state());
 
   // define token class
-  py::class_<token, token::ptr_t> pytoken(m, "token");
-  pytoken.def_static("enumerate", &token::enumerate);
+  py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
+  pytoken.def_static("enumerate", &token::enumerate, token_doc_enumerate());
 
   // define handle class
   py::class_<handle, handle::ptr_t> pyhandle(m, "handle");

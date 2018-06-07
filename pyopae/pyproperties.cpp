@@ -31,6 +31,12 @@ namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
 
+const char *properties_doc() {
+  return R"opaedoc(
+    properties class is a container class for OPAE resource properties.
+  )opaedoc";
+}
+
 const char *properties_doc_get() {
   return R"opaedoc(
     Create a new properties object. If kwargs is not included then the
@@ -38,24 +44,43 @@ const char *properties_doc_get() {
     If one of the kwargs keys is an OPAE property name then the kwargs
     value is used to initialize the corresponding value in the
     properties object.
+
     Kwargs:
+
       parent (token): Token object representing parent resource.
+
       guid (str): GUID (as a string) of the resource.
+
       type (fpga_objtype): The object type - FPGA_DEVICE or FPGA_ACCELERATOR.
+
       bus : The PCIe bus numer.
+
       device : The PCIe device number.
+
       function : The PCIe function number.
+
       socket_id: The socket ID encoded in the FIM.
+
       num_slots: Number of slots available in the FPGA.
+
       bbs_id (uint64_t): The BBS ID encoded in the FIM.
+
       bbs_version: The version of the BBS.
+
       vendor_id: The vendor ID in PCI config space.
+
       model (str): The model of the FPGA.
+
       local_memory_size: The size (in bytes) of the FPGA local memory.
+
       num_mmio: The numer of mmio spaces.
+
       num_interrupts: The number of interrupts supported by an accelerator.
+
       accelerator_state (fpga_accelerator_state): The state of the accelerator - FPGA_ASSIGNED or FPGA_UNASSIGNED.
+
       object_id (uint64_t): The 64-bit number unique within a single node or system.
+
    )opaedoc";
 }
 properties::ptr_t properties_get(py::kwargs kwargs) {
