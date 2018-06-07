@@ -60,7 +60,6 @@ execute_process(COMMAND
 find_package(PythonLibs 2.7)
 include_directories(${PYBIND_INCLUDE_DIR}
 	            ${PYTHON_INCLUDE_DIRS})
-file(WRITE test_pybind_compile.cpp "#include <pybind11/pybind11.h>")
 add_library(test_pybind_compile MODULE test_pybind_compile.cpp)
 set_property(TARGET test_pybind_compile PROPERTY CXX_STANDARD 11)
 set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
