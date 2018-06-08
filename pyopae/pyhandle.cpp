@@ -24,7 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include"pyhandle.h"
+#include "pyhandle.h"
 #include <sstream>
 
 namespace py = pybind11;
@@ -85,18 +85,38 @@ const char *handle_doc_valid() {
   return R"opaedoc(
     "Boolean protocol to test if a handle is open or not."
   )opaedoc";
-
 }
 
-bool handle_valid(opae::fpga::types::handle::ptr_t handle){
+bool handle_valid(opae::fpga::types::handle::ptr_t handle) {
   return *handle != nullptr;
+}
+
+const char *handle_doc_context_enter() {
+  return R"opaedoc(
+    Context manager protocol enter function.
+    Simply returns the handle object.
+  )opaedoc";
+}
+
+handle::ptr_t handle_context_enter(handle::ptr_t hnd) { return hnd; }
+
+const char *handle_doc_context_exit() {
+  return R"opaedoc(
+    Context manager protocol exit function.
+    Closes the resource identified by this handle and currently does nothing with the exit arguments.
+  )opaedoc";
+}
+
+void handle_context_exit(opae::fpga::types::handle::ptr_t hnd, py::args args) {
+  // TODO: Use args for logging exceptions
+  (void)args;
+  hnd->close();
 }
 
 const char *handle_doc_close() {
   return R"opaedoc(
     "Close an accelerator associated with handle."
   )opaedoc";
-
 }
 
 const char *handle_doc_reset() {

@@ -151,6 +151,13 @@ class TestHandle(unittest.TestCase):
         self.handle.close()
         assert not self.handle
 
+    def test_context(self):
+        self.handle.close()
+        assert not self.handle
+        with opae.fpga.open(self.toks[0]) as h:
+            assert h
+        assert not h
+
 class TestSharedBuffer(unittest.TestCase):
     def setUp(self):
         self.props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)

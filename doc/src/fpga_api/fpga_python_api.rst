@@ -17,7 +17,7 @@ The reference documentation for the OPAE Python API
         :members:
 
 .. autoclass:: opae.fpga.handle
-        :members: close, reset, read_csr32, read_csr64, write_csr32, write_csr64
+        :members: __enter__, __exit__, close, reset, read_csr32, read_csr64, write_csr32, write_csr64
 
 .. autoclass:: opae.fpga.event
         :members: os_object

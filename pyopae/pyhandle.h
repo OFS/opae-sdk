@@ -40,6 +40,11 @@ void handle_reconfigure(opae::fpga::types::handle::ptr_t handle, uint32_t slot,
 const char *handle_doc_valid();
 bool handle_valid(opae::fpga::types::handle::ptr_t handle);
 
+const char *handle_doc_context_enter();
+opae::fpga::types::handle::ptr_t handle_context_enter(opae::fpga::types::handle::ptr_t hnd);
+const char *handle_doc_context_exit();
+void handle_context_exit(opae::fpga::types::handle::ptr_t hnd, pybind11::args args);
+
 const char *handle_doc_close();
 const char *handle_doc_reset();
 const char *handle_doc_read_csr32();

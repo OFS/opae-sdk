@@ -22,7 +22,7 @@ const char *token_doc() {
     A token object serves as a reference so a specific resource in the system.
     Holding a token does not constitute ownership of an OPAE resource.
     It is used to query information about a resource,
-    or to acquire ownership by calling handle.open static method.
+    or to acquire ownership by calling fpga.open module method.
   )opaedoc";
 }
 
@@ -144,6 +144,8 @@ PYBIND11_MODULE(_opae, m) {
         py::arg("flags") = 0);
   py::class_<handle, handle::ptr_t> pyhandle(m, "handle");
   pyhandle
+      .def("__enter__", handle_context_enter, handle_doc_context_enter())
+      .def("__exit__", handle_context_exit, handle_doc_context_exit())
       .def("reconfigure", handle_reconfigure, handle_doc_reconfigure(),
            py::arg("slot"), py::arg("fd"), py::arg("flags") = 0)
       .def("__bool__", handle_valid, handle_doc_valid())
