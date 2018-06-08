@@ -37,7 +37,7 @@ def get_include_dirs(*args):
 
 
 extensions = [
-    Extension("opae.api._opae",
+    Extension("opae.fpga._opae",
               sources=["pyproperties.cpp",
                        "pyhandle.cpp",
                        "pyshared_buffer.cpp",
