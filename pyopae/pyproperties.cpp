@@ -51,7 +51,7 @@ const char *properties_doc_get() {
 
       guid (str): GUID (as a string) of the resource.
 
-      type (fpga_objtype): The object type - FPGA_DEVICE or FPGA_ACCELERATOR.
+      type (fpga_objtype): The object type - DEVICE or ACCELERATOR.
 
       bus : The PCIe bus numer.
 
@@ -77,7 +77,7 @@ const char *properties_doc_get() {
 
       num_interrupts: The number of interrupts supported by an accelerator.
 
-      accelerator_state (fpga_accelerator_state): The state of the accelerator - FPGA_ASSIGNED or FPGA_UNASSIGNED.
+      accelerator_state (fpga_accelerator_state): The state of the accelerator - ASSIGNED or UNASSIGNED.
 
       object_id (uint64_t): The 64-bit number unique within a single node or system.
 
@@ -150,7 +150,7 @@ opae::fpga::types::properties::ptr_t properties_get_token(
 const char *properties_doc_parent() {
   return R"opaedoc(
     Get or set the token representing a parent object of a resource.
-    The resource must be of type FPGA_ACCELERATOR
+    The resource must be of type ACCELERATOR
    )opaedoc";
 }
 
@@ -186,7 +186,7 @@ void properties_set_guid(properties::ptr_t props, const std::string &guid_str) {
 const char *properties_doc_type() {
   return R"opaedoc(
     Get or set the type property of a resource. The type must be
-    either FPGA_DEVICE or FPGA_ACCELERATOR
+    either DEVICE or ACCELERATOR
    )opaedoc";
 }
 
@@ -277,7 +277,7 @@ void properties_set_object_id(properties::ptr_t props, uint64_t object_id) {
 const char *properties_doc_num_slots() {
   return R"opaedoc(
     Get or set the number of slots property of a resource.
-    The resource must be of type FPGA_DEVICE
+    The resource must be of type DEVICE
    )opaedoc";
 }
 
@@ -293,7 +293,7 @@ void properties_set_num_slots(properties::ptr_t props, uint32_t num_slots) {
 const char *properties_doc_bbs_id() {
   return R"opaedoc(
     Get or set the BBS ID property of a resource.
-    The resource must be of type FPGA_DEVICE
+    The resource must be of type DEVICE
    )opaedoc";
 }
 
@@ -309,7 +309,7 @@ void properties_set_bbs_id(properties::ptr_t props, uint64_t bbs_id) {
 const char *properties_doc_bbs_version() {
   return R"opaedoc(
     Get or set the BBS version property of a resource.
-    The resource must be of type FPGA_DEVICE
+    The resource must be of type DEVICE
    )opaedoc";
 }
 

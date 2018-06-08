@@ -31,9 +31,9 @@ const char *event_doc() {
   return R"opaedoc(
     event object are used to register for OPAE events.
     Currently, the event types are:
-      FPGA_EVENT_ERROR
-      FPGA_EVENT_INTERRUPT
-      FPGA_EVENT_POWER_THERMAL
+      EVENT_ERROR
+      EVENT_INTERRUPT
+      EVENT_POWER_THERMAL
   )opaedoc";
 }
 
@@ -44,7 +44,7 @@ const char *event_doc_register_event() {
     Args:
       handle: A handle to an OPAE resource.
       type(fpga_event_type): The event type to register for. Valid event types are:
-                             FPGA_EVENT_ERROR, FPGA_EVENT_INTERRUPT, FPGA_EVENT_POWER_THERMAL
+                             EVENT_ERROR, EVENT_INTERRUPT, EVENT_POWER_THERMAL
       flags: Event registration flags that control registration behavior.
   )opaedoc";
 }

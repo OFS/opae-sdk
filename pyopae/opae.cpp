@@ -15,7 +15,7 @@ using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 
-const char *token_doc(){
+const char *token_doc() {
   return R"opaedoc(
     Token for referencing an OPAE resource.
 
@@ -26,8 +26,7 @@ const char *token_doc(){
   )opaedoc";
 }
 
-
-const char *token_doc_enumerate(){
+const char *token_doc_enumerate() {
   return R"opaedoc(
     Get a list of tokens for the given search criteria.
 
@@ -48,47 +47,47 @@ PYBIND11_MODULE(_opae, m) {
   // define enumerations
   py::enum_<fpga_result>(m, "fpga_result", py::arithmetic(),
                          "OPAE return codes")
-      .value("FPGA_OK", FPGA_OK)
-      .value("FPGA_INVALID_PARAM", FPGA_INVALID_PARAM)
-      .value("FPGA_BUSY", FPGA_BUSY)
-      .value("FPGA_EXCEPTION", FPGA_EXCEPTION)
-      .value("FPGA_NOT_FOUND", FPGA_NOT_FOUND)
-      .value("FPGA_NO_MEMORY", FPGA_NO_MEMORY)
-      .value("FPGA_NOT_SUPPORTED", FPGA_NOT_SUPPORTED)
-      .value("FPGA_NO_DRIVER", FPGA_NO_DRIVER)
-      .value("FPGA_NO_DAEMON", FPGA_NO_DAEMON)
-      .value("FPGA_NO_ACCESS", FPGA_NO_ACCESS)
-      .value("FPGA_RECONF_ERROR", FPGA_RECONF_ERROR)
+      .value("OK", FPGA_OK)
+      .value("INVALID_PARAM", FPGA_INVALID_PARAM)
+      .value("BUSY", FPGA_BUSY)
+      .value("EXCEPTION", FPGA_EXCEPTION)
+      .value("NOT_FOUND", FPGA_NOT_FOUND)
+      .value("NO_MEMORY", FPGA_NO_MEMORY)
+      .value("NOT_SUPPORTED", FPGA_NOT_SUPPORTED)
+      .value("NO_DRIVER", FPGA_NO_DRIVER)
+      .value("NO_DAEMON", FPGA_NO_DAEMON)
+      .value("NO_ACCESS", FPGA_NO_ACCESS)
+      .value("RECONF_ERROR", FPGA_RECONF_ERROR)
       .export_values();
 
   py::enum_<fpga_objtype>(m, "fpga_objtype", py::arithmetic(),
                           "OPAE resource objects")
-      .value("FPGA_DEVICE", FPGA_DEVICE)
-      .value("FPGA_ACCELERATOR", FPGA_ACCELERATOR)
+      .value("DEVICE", FPGA_DEVICE)
+      .value("ACCELERATOR", FPGA_ACCELERATOR)
       .export_values();
 
   py::enum_<fpga_open_flags>(m, "fpga_open_flags", py::arithmetic(),
                              "OPAE flags for opening resources")
-      .value("FPGA_OPEN_SHARED", FPGA_OPEN_SHARED)
+      .value("OPEN_SHARED", FPGA_OPEN_SHARED)
       .export_values();
 
   py::enum_<fpga_event_type>(m, "fpga_event_type", py::arithmetic(),
                              "OPAE event type")
-      .value("FPGA_EVENT_INTERRUPT", FPGA_EVENT_INTERRUPT)
-      .value("FPGA_EVENT_ERROR", FPGA_EVENT_ERROR)
-      .value("FPGA_EVENT_POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
+      .value("EVENT_INTERRUPT", FPGA_EVENT_INTERRUPT)
+      .value("EVENT_ERROR", FPGA_EVENT_ERROR)
+      .value("EVENT_POWER_THERMAL", FPGA_EVENT_POWER_THERMAL)
       .export_values();
 
   py::enum_<fpga_accelerator_state>(m, "fpga_accelerator_state",
                                     py::arithmetic(), "OPAE accelerator_state")
-      .value("FPGA_ACCELERATOR_ASSIGNED", FPGA_ACCELERATOR_ASSIGNED)
-      .value("FPGA_ACCELERATOR_UNASSIGNED", FPGA_ACCELERATOR_UNASSIGNED)
+      .value("ACCELERATOR_ASSIGNED", FPGA_ACCELERATOR_ASSIGNED)
+      .value("ACCELERATOR_UNASSIGNED", FPGA_ACCELERATOR_UNASSIGNED)
       .export_values();
 
   py::enum_<fpga_reconf_flags>(
       m, "fpga_reconf_flags", py::arithmetic(),
       "Flags that define how an accelerator is opened.")
-      .value("FPGA_RECONF_FORCE", FPGA_RECONF_FORCE)
+      .value("RECONF_FORCE", FPGA_RECONF_FORCE)
       .export_values();
 
   // define properties class
@@ -137,14 +136,14 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_accelerator_state());
 
   // define token class
+  m.def("enumerate", &token::enumerate, token_doc_enumerate());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
-  pytoken.def_static("enumerate", &token::enumerate, token_doc_enumerate());
 
   // define handle class
+  m.def("open", handle_open, handle_doc_open(), py::arg("tok"),
+        py::arg("flags") = 0);
   py::class_<handle, handle::ptr_t> pyhandle(m, "handle");
   pyhandle
-      .def_static("open", handle_open, handle_doc_open(), py::arg("tok"),
-                  py::arg("flags") = 0)
       .def("reconfigure", handle_reconfigure, handle_doc_reconfigure(),
            py::arg("slot"), py::arg("fd"), py::arg("flags") = 0)
       .def("__bool__", handle_valid, handle_doc_valid())
@@ -160,27 +159,26 @@ PYBIND11_MODULE(_opae, m) {
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0);
 
   // define shared_buffer class
+  m.def("allocate_shared_buffer", &shared_buffer::allocate,
+        shared_buffer_doc_allocate());
   py::class_<shared_buffer, shared_buffer::ptr_t> pybuffer(
       m, "shared_buffer", py::buffer_protocol(), shared_buffer_doc());
-  pybuffer
-      .def_static("allocate", &shared_buffer::allocate,
-                  shared_buffer_doc_allocate())
-      .def("size", &shared_buffer::size, shared_buffer_doc_size())
+  pybuffer.def("size", &shared_buffer::size, shared_buffer_doc_size())
       .def("wsid", &shared_buffer::wsid, shared_buffer_doc_wsid())
       .def("iova", &shared_buffer::iova, shared_buffer_doc_iova())
       .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
       .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
       .def("memoryview", shared_buffer_to_memoryview,
            shared_buffer_doc_to_memoryview())
-      .def_buffer([](shared_buffer& b) -> py::buffer_info {
-        return py::buffer_info(const_cast<uint8_t*>(b.c_type()), b.size());
+      .def_buffer([](shared_buffer &b) -> py::buffer_info {
+    return py::buffer_info(const_cast<uint8_t *>(b.c_type()), b.size());
       });
 
   // define event class
+  m.def("register_event", event_register_event,
+               event_doc_register_event(), py::arg("handle"),
+               py::arg("event_type"), py::arg("flags") = 0);
   py::class_<event, event::ptr_t> pyevent(m, "event", event_doc());
-  pyevent
-      .def_static("register_event", event_register_event,
-                  event_doc_register_event(), py::arg("handle"),
-                  py::arg("event_type"), py::arg("flags") = 0)
-      .def("os_object", event_os_object, event_doc_os_object());
+
+  pyevent.def("os_object", event_os_object, event_doc_os_object());
 }
