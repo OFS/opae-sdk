@@ -74,7 +74,7 @@ void handle_reconfigure(handle::ptr_t handle, uint32_t slot, py::object file,
   size_t size = ftell(fp);
   fseek(fp, 0L, SEEK_SET);
   std::vector<char> buffer(size);
-  if (!fgets(buffer.data(), size, fp)) {
+  if (!fread(buffer.data(), size, 1, fp)) {
     throw std::runtime_error("error reading from file object");
   }
   handle->reconfigure(slot, reinterpret_cast<const uint8_t *>(buffer.data()),
