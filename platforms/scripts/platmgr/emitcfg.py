@@ -288,6 +288,49 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
 
 #
+# Emit simulator Makefile/CMake configuration.
+#
+def emitSimMakeConfig(args, afu_ifc_db, platform_db):
+    # Path prefix for emitting configuration files
+    f_prefix = ""
+    if (args.tgt):
+        f_prefix = args.tgt
+
+    #
+    # ase_platform_config.mk and ase_platform_config.cmake hold make and
+    # cmake preprocessor variables describing the configuration.
+    #
+    fn_mk = os.path.join(f_prefix, "ase_platform_config.mk")
+    fn_cm = os.path.join(f_prefix, "ase_platform_config.cmake")
+    if (not args.quiet):
+        print("Writing {0} and {1}".format(fn_mk, fn_cm))
+
+    try:
+        f_mk = open(fn_mk, "w")
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn_mk))
+
+    try:
+        f_cm = open(fn_cm, "w")
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn_cm))
+
+    f_mk.write("# This file has been generated automatically by " +
+               "afu_platform_config.\n\n")
+    f_cm.write("# This file has been generated automatically by " +
+               "afu_platform_config.\n\n")
+
+    # Does either the AFU or platform request some preprocessor
+    # definitions?
+    for d in (platform_db['define'] + afu_ifc_db['define']):
+        f_mk.write("{0} = 1\n".format(d))
+        f_cm.write("set({0} 1)\n".format(d))
+
+    f_mk.close()
+    f_cm.close()
+
+
+#
 # Emit the QSF script to load the platform interface.
 #
 def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
@@ -422,3 +465,8 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         errorExit("failed to open {0} for writing.".format(fn))
 
     f.close()
+
+    #
+    # Emit some preprocessor configuration for the simulator environment.
+    #
+    emitSimMakeConfig(args, afu_ifc_db, platform_db)
