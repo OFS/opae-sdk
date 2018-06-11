@@ -77,7 +77,7 @@ void UserClkAppShowHelp()
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socketid>            --socket-id=<socket NUMBER>  OR -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR -S=<SOCKET NUMBER>\n");
 	printf("<Port>                --port                       OR  -P=<Port id> \n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high> \n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low> \n");
