@@ -56,7 +56,7 @@ class properties {
    * Useful for enumerating based on a
    * "match all" criteria.
    */
-  const static std::vector<properties> none;
+  const static std::vector<properties::ptr_t> none;
 
   properties(const properties &p) = delete;
 
@@ -107,6 +107,7 @@ class properties {
 
  public:
   pvalue<fpga_objtype> type;
+  pvalue<uint32_t> num_errors;
   pvalue<uint8_t> bus;
   pvalue<uint8_t> device;
   pvalue<uint8_t> function;
