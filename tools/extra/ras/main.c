@@ -294,10 +294,10 @@ struct ras_inject_error {
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
+		{"bus",                 required_argument, NULL, 'B'},
+		{"device",              required_argument, NULL, 'D'},
+		{"function",            required_argument, NULL, 'F'},
+		{"socket-id",           required_argument, NULL, 'S'},
 		{"print-error",         no_argument,       NULL, 'P'},
 		{"catast-error",        no_argument,       NULL, 'Q'},
 		{"fatal-error",         no_argument,       NULL, 'R'},
@@ -356,8 +356,8 @@ void RASAppShowHelp()
 		"OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>         --function=<FUNCTION NUMBER> "
 		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>           --socket=<socket NUMBER>    "
-		" OR  -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>        --socket-id=<socket NUMBER>  "
+		"OR  -S=<SOCKET NUMBER>\n");
 	printf("<Print Error>      --print-error                OR  -P \n");
 	printf("<Catast Error>     --catast-error               OR  -Q \n");
 	printf("<Fatal Error>      --fatal-error                OR  -R \n");
@@ -422,7 +422,7 @@ int main( int argc, char** argv )
 	printf(" Bus                   : %d\n", rasCmdLine.bus);
 	printf(" Device                : %d \n", rasCmdLine.device);
 	printf(" Function              : %d \n", rasCmdLine.function);
-	printf(" Socket                : %d \n", rasCmdLine.socket);
+	printf(" Socket-id             : %d \n", rasCmdLine.socket);
 	printf(" Print Error           : %d \n", rasCmdLine.print_error);
 	printf(" Catas Error           : %d \n", rasCmdLine.catast_error);
 	printf(" Fatal Error           : %d \n", rasCmdLine.fatal_error);
