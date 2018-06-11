@@ -37,7 +37,7 @@ if [ ! -x "$PYCODESTYLE" ]; then
 fi
 
 echo -e "\n===== pycodestyle ====="
-$PYCODESTYLE $FILES
+$PYCODESTYLE $FILES --exclude=test_*.py
 if [ $? -ne 0 ]; then
 	echo "test-codingstyle-py FAILED"
 	popd
@@ -45,7 +45,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "\n===== pylint -E ====="
-$PYLINT -E -f parseable $FILES
+$PYLINT -E -f parseable --ignore-patterns=__init__.py,test_*.py $FILES
 if [ $? -ne 0 ]; then
 	echo "test-codingstyle-py FAILED"
 	popd
