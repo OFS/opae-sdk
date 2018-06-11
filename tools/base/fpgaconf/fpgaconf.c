@@ -205,22 +205,22 @@ void help(void)
 "FPGA configuration utility\n"
 "\n"
 "Usage:\n"
-//"        fpgaconf [-hvnaiq] [-b <bus>] [-d <device>] [-f <function>] <gbs>\n"
-"        fpgaconf [-hvn] [-b <bus>] [-d <device>] [-f <function>] [-s <socket>] <gbs>\n"
+//"        fpgaconf [-hVNAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+"        fpgaconf [-hVN] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
 "\n"
 "                -h,--help           Print this help\n"
-"                -v,--verbose        Increase verbosity\n"
-"                -n,--dry-run        Don't actually perform actions\n"
+"                -V,--verbose        Increase verbosity\n"
+"                -N,--dry-run        Don't actually perform actions\n"
 "                --force             Don't try to open accelerator resource\n"
-"                -b,--bus            Set target bus number\n"
-"                -d,--device         Set target device number\n"
-"                -f,--function       Set target function number\n"
-"                -s,--socket         Set target socket number\n"
-/* "                -a,--auto           Automatically choose target slot if\n" */
+"                -B,--bus            Set target bus number\n"
+"                -D,--device         Set target device number\n"
+"                -F,--function       Set target function number\n"
+"                -S,--socket-id      Set target socket number\n"
+/* "                -A,--auto           Automatically choose target slot if\n" */
 /* "                                    multiple valid slots are available\n" */
-/* "                -i,--interactive    Prompt user to choose target slot if\n" */
+/* "                -I,--interactive    Prompt user to choose target slot if\n" */
 /* "                                    multiple valid slots are available\n" */
-/* "                -q,--quiet          Don't print any messages except errors\n" */
+/* "                -Q,--quiet          Don't print any messages except errors\n" */
 "\n"
 		);
 }
@@ -229,21 +229,21 @@ void help(void)
  * Parse command line arguments
  * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hvnb:d:f:s:aiq"
+#define GETOPT_STRING ":hVNB:D:F:S:AIQ"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help",          no_argument,       NULL, 'h'},
-		{"verbose",       no_argument,       NULL, 'v'},
-		{"dry-run",       no_argument,       NULL, 'n'},
-		{"bus",           required_argument, NULL, 'b'},
-		{"device",        required_argument, NULL, 'd'},
-		{"function",      required_argument, NULL, 'f'},
-		{"socket",        required_argument, NULL, 's'},
+		{"verbose",       no_argument,       NULL, 'V'},
+		{"dry-run",       no_argument,       NULL, 'N'},
+		{"bus",           required_argument, NULL, 'B'},
+		{"device",        required_argument, NULL, 'D'},
+		{"function",      required_argument, NULL, 'F'},
+		{"socket-id",     required_argument, NULL, 'S'},
 		{"force",         no_argument,       NULL, 0xf},
-		/* {"auto",          no_argument,       NULL, 'a'}, */
-		/* {"interactive",   no_argument,       NULL, 'i'}, */
-		/* {"quiet",         no_argument,       NULL, 'q'}, */
+		/* {"auto",          no_argument,       NULL, 'A'}, */
+		/* {"interactive",   no_argument,       NULL, 'I'}, */
+		/* {"quiet",         no_argument,       NULL, 'Q'}, */
 		{0, 0, 0, 0}
 	};
 
@@ -264,11 +264,11 @@ int parse_args(int argc, char *argv[])
 			help();
 			return -1;
 
-		case 'v':    /* verbose */
+		case 'V':    /* verbose */
 			config.verbosity++;
 			break;
 
-		case 'n':    /* dry-run */
+		case 'N':    /* dry-run */
 			config.dry_run = true;
 			break;
 
@@ -276,7 +276,7 @@ int parse_args(int argc, char *argv[])
 			config.flags |= FPGA_RECONF_FORCE;
 			break;
 
-		case 'b':    /* bus */
+		case 'B':    /* bus */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
@@ -287,7 +287,7 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 
-		case 'd':    /* device */
+		case 'D':    /* device */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
@@ -298,7 +298,7 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 
-		case 'f':    /* function */
+		case 'F':    /* function */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
@@ -309,7 +309,7 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 
-		case 's':    /* socket */
+		case 'S':    /* socket */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
@@ -320,15 +320,15 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 
-		case 'a':    /* auto */
+		case 'A':    /* auto */
 			config.mode = AUTOMATIC;
 			break;
 
-		case 'i':    /* interactive */
+		case 'I':    /* interactive */
 			config.mode = INTERACTIVE;
 			break;
 
-		case 'q':    /* quiet */
+		case 'Q':    /* quiet */
 			config.verbosity = 0;
 			break;
 

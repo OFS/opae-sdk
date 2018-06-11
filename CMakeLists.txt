@@ -280,6 +280,7 @@ define_pkg(devel
   define_pkg(libs
   COMPONENTS
   opaeclib
+  opaecxxcorelib
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"

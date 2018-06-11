@@ -53,6 +53,7 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/shared_buffer.cpp
                     src/events.cpp
                     src/except.cpp
+		    src/errors.cpp
                     src/version.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
@@ -81,4 +82,4 @@ configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
 set_install_rpath(opae-cxx-core)
 install(TARGETS opae-cxx-core
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaecxxlib)
+  COMPONENT opaecxxcorelib)

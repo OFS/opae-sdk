@@ -111,6 +111,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtCxxReset.cpp
                 function/gtCxxMMIO.cpp
                 function/gtCxxVersion.cpp
+		function/gtCxxErrors.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp

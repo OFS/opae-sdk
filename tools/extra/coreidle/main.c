@@ -45,10 +45,10 @@
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
+		{"bus",                 required_argument, NULL, 'B'},
+		{"device",              required_argument, NULL, 'D'},
+		{"function",            required_argument, NULL, 'F'},
+		{"socket-id",           required_argument, NULL, 'S'},
 		{"gbs",                 required_argument, NULL, 'G'},
 		{0,0,0,0}
 };
@@ -79,9 +79,9 @@ void CoreidleAppShowHelp()
 			" OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> "
 			"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>              --socket=<socket NUMBER>    "
+	printf("<Socket-id>           --socket-id=<socket NUMBER>    "
 			" OR  -S=<SOCKET NUMBER>\n");
-	printf("<GBS bitstream>       --gbs                      "
+	printf("<GBS Bitstream>       --gbs                      "
 			"  OR  -G \n");
 	printf("\n");
 
@@ -133,7 +133,7 @@ int main( int argc, char** argv )
 	printf(" Device                : %d \n", coreidleCmdLine.device);
 	printf(" Function              : %d \n", coreidleCmdLine.function);
 	printf(" Socket                : %d \n", coreidleCmdLine.socket);
-	printf(" filename              : %s \n", coreidleCmdLine.filename);
+	printf(" Filename              : %s \n", coreidleCmdLine.filename);
 
 
 	printf(" ------- Command line Input END ---- \n\n");
