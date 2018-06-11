@@ -100,6 +100,7 @@ add_gtfilter(CxxExcept    "LibopaecppExcept*" False)
 add_gtfilter(CxxEvent     "LibopaecppEvent*" True)
 add_gtfilter(CxxMMIO      "LibopaecppMMIO*" True)
 add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
+add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
 
