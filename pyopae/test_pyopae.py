@@ -38,7 +38,7 @@ MOCK_PORT_ERROR = "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/err
 
 class TestProperties(unittest.TestCase):
     def test_set_parent(self):
-        props = opae.fpga.properties()
+        props = opae.fpga.properties(type=opae.fpga.DEVICE)
         toks = opae.fpga.enumerate([props])
         props2 = opae.fpga.properties(type=opae.fpga.ACCELERATOR,
                                      parent=toks[0])
@@ -68,8 +68,8 @@ class TestProperties(unittest.TestCase):
     def test_set_objtype_device(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE)
         assert props.type == opae.fpga.DEVICE
-        props.type = opae.fpga.DEVICE
-        assert props.type == opae.fpga.DEVICE
+        props.type = opae.fpga.ACCELERATOR
+        assert props.type == opae.fpga.ACCELERATOR
 
     def test_set_bus(self):
         props = opae.fpga.properties(bus=0x5e)
