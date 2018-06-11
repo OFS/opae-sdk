@@ -37,8 +37,23 @@ NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
 MOCK_PORT_ERROR = "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors"
 
 class TestProperties(unittest.TestCase):
+    def test_set_parent(self):
+        props = opae.fpga.properties()
+        toks = opae.fpga.enumerate([props])
+        props2 = opae.fpga.properties(type=opae.fpga.ACCELERATOR,
+                                     parent=toks[0])
+        assert props2.parent
+        props2 = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
+        props2.parent = toks[0]
+        assert props2.parent
+
     def test_guid(self):
         props = opae.fpga.properties(guid=NLB0)
+        guid_str = props.guid
+        guid = uuid.UUID(guid_str)
+        assert str(guid).lower() == NLB0
+        props = opae.fpga.properties()
+        props.guid = NLB0
         guid_str = props.guid
         guid = uuid.UUID(guid_str)
         assert str(guid).lower() == NLB0
@@ -46,75 +61,130 @@ class TestProperties(unittest.TestCase):
     def test_set_objtype_accelerator(self):
         props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
         assert props.type == opae.fpga.ACCELERATOR
+        props = opae.fpga.properties()
+        props.type = opae.fpga.ACCELERATOR
+        assert props.type == opae.fpga.ACCELERATOR
 
     def test_set_objtype_device(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE)
+        assert props.type == opae.fpga.DEVICE
+        props.type = opae.fpga.DEVICE
         assert props.type == opae.fpga.DEVICE
 
     def test_set_bus(self):
         props = opae.fpga.properties(bus=0x5e)
         assert props.bus == 0x5e
+        props = opae.fpga.properties()
+        props.bus = 0x5e
+        assert props.bus == 0x5e
 
     def test_set_device(self):
         props = opae.fpga.properties(device=0xe)
+        assert props.device == 0xe
+        props = opae.fpga.properties()
+        props.device = 0xe
         assert props.device == 0xe
 
     def test_set_function(self):
         props = opae.fpga.properties(function=0x7)
         assert props.function == 0x7
+        props = opae.fpga.properties()
+        props.function = 0x7
+        assert props.function == 0x7
+
+    def test_set_socket_id(self):
+        props = opae.fpga.properties(socket_id=1)
+        assert props.socket_id == 1
+        props = opae.fpga.properties()
+        props.socket_id = 1
+        assert props.socket_id == 1
 
     def test_set_object_id(self):
         props = opae.fpga.properties(object_id=0xcafe)
+        assert props.object_id == 0xcafe
+        props = opae.fpga.properties()
+        props.object_id = 0xcafe
         assert props.object_id == 0xcafe
 
     def test_set_num_slots(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE,
                                         num_slots=3)
         assert props.num_slots == 3
+        props = opae.fpga.properties(type=opae.fpga.DEVICE)
+        props.num_slots = 3
+        assert props.num_slots == 3
 
     def test_set_bbs_id(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE,
                                         bbs_id=0xc0c0cafe)
+        assert props.bbs_id == 0xc0c0cafe
+        props = opae.fpga.properties(type=opae.fpga.DEVICE)
+        props.bbs_id = 0xc0c0cafe
         assert props.bbs_id == 0xc0c0cafe
 
     def test_set_bbs_version(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE,
                                         bbs_version=(0,1,2))
         assert props.bbs_version == (0,1,2)
+        props = opae.fpga.properties(type=opae.fpga.DEVICE)
+        props.bbs_version = (0,1,2)
+        assert props.bbs_version == (0,1,2)
 
     def test_set_vendor_id(self):
         props = opae.fpga.properties(vendor_id=0xfafa)
+        assert props.vendor_id == 0xfafa
+        props = opae.fpga.properties()
+        props.vendor_id = 0xfafa
         assert props.vendor_id == 0xfafa
 
     @unittest.skip("model not implemented yet")
     def test_set_model(self):
         props = opae.fpga.properties(model="intel skxp")
         assert props.model == "intel skxp"
+        props = opae.fpga.properties()
+        props.model = "intel skxp"
+        assert props.model == "intel skxp"
 
     @unittest.skip("local_memory_size not implemented yet")
     def test_set_local_memory_size(self):
         props = opae.fpga.properties(local_memory_size=0xffff)
         assert props.local_memory_size == 0xffff
+        props = opae.fpga.properties()
+        props.local_memory_size = 0xffff
+        assert props.local_memory_size == 0xffff
 
     @unittest.skip("capabilities not implemented yet")
     def test_set_capabilities(self):
         props = opae.fpga.properties(capabilities=0xdeadbeef)
-        props.capabilities == 0xdeadbeef
+        assert props.capabilities == 0xdeadbeef
+        props = opae.fpga.properties()
+        props.capabilities = 0xdeadbeef
+        assert props.capabilities == 0xdeadbeef
 
     def test_set_num_mmio(self):
         props = opae.fpga.properties(type=opae.fpga.ACCELERATOR,
                                         num_mmio=4)
+        assert props.num_mmio == 4
+        props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
+        props.num_mmio = 4
         assert props.num_mmio == 4
 
     def test_set_num_interrupts(self):
         props = opae.fpga.properties(type=opae.fpga.ACCELERATOR,
                                         num_interrupts=9)
         assert props.num_interrupts == 9
+        props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
+        props.num_interrupts = 9
+        assert props.num_interrupts == 9
 
     def test_set_accelerator_state(self):
         props = opae.fpga.properties(type=opae.fpga.ACCELERATOR,
                                         accelerator_state=opae.fpga.ACCELERATOR_ASSIGNED)
         assert props.accelerator_state == opae.fpga.ACCELERATOR_ASSIGNED
+        props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
+        props.accelerator_state = opae.fpga.ACCELERATOR_ASSIGNED
+        assert props.accelerator_state == opae.fpga.ACCELERATOR_ASSIGNED
+
 
 class TestToken(unittest.TestCase):
     def test_enumerate(self):
@@ -157,6 +227,27 @@ class TestHandle(unittest.TestCase):
         with opae.fpga.open(self.toks[0]) as h:
             assert h
         assert not h
+
+    def test_reset(self):
+        self.handle.reset()
+
+    def test_mmio(self):
+        offset = 0x100
+        write_value = 10
+        self.handle.write_csr32(offset, write_value)
+        read_value = self.handle.read_csr32(offset)
+        assert read_value == write_value
+        self.handle.write_csr64(offset, write_value)
+        read_value = self.handle.read_csr64(offset)
+        assert read_value == write_value
+        write_value = 0
+        self.handle.write_csr32(offset, write_value)
+        read_value = self.handle.read_csr32(offset)
+        assert read_value == write_value
+        self.handle.write_csr64(offset, write_value)
+        read_value = self.handle.read_csr64(offset)
+        assert read_value == write_value
+
 
 class TestSharedBuffer(unittest.TestCase):
     def setUp(self):
