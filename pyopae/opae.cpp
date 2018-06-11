@@ -95,7 +95,7 @@ PYBIND11_MODULE(_opae, m) {
                                                          properties_doc());
   pyproperties.def(py::init(&properties_get), properties_doc_get())
       .def(py::init(&properties_get_token), properties_doc_get_token())
-      .def_property("parent", properties_get_parent, properties_get_parent,
+      .def_property("parent", properties_get_parent, properties_set_parent,
                     properties_doc_parent())
       .def_property("guid", properties_get_guid, properties_set_guid,
                     properties_doc_guid())
@@ -150,7 +150,7 @@ PYBIND11_MODULE(_opae, m) {
            py::arg("slot"), py::arg("fd"), py::arg("flags") = 0)
       .def("__bool__", handle_valid, handle_doc_valid())
       .def("close", &handle::close, handle_doc_close())
-      .def("reset", &handle::reset)
+      .def("reset", &handle::reset, handle_doc_reset())
       .def("read_csr32", &handle::read_csr32, handle_doc_read_csr32(),
            py::arg("offset"), py::arg("csr_space") = 0)
       .def("read_csr64", &handle::read_csr64, handle_doc_read_csr64(),

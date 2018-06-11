@@ -62,7 +62,7 @@ void handle_reconfigure(handle::ptr_t handle, uint32_t slot, py::object file,
                         int flags) {
   PyObject *obj = file.ptr();
   if (!PyFile_Check(obj)) {
-    throw std::invalid_argument("fd argument is not a file objeict");
+    throw std::invalid_argument("fd argument is not a file object");
   }
   FILE *fp = PyFile_AsFile(obj);
   if (!fp) {
