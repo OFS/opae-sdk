@@ -51,7 +51,7 @@ struct option longopts[] = {
 		{"bus",         required_argument, NULL, 'B'},
 		{"device",      required_argument, NULL, 'D'},
 		{"function",    required_argument, NULL, 'F'},
-		{"socket",      required_argument, NULL, 'S'},
+		{"socket-id",   required_argument, NULL, 'S'},
 		{"port",        required_argument, NULL, 'P'},
 		{"ip",          required_argument, NULL, 'I'},
 		{0,0,0,0}
@@ -81,7 +81,7 @@ void MMLinkAppShowHelp()
 		"OR  -D <DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> "
 		"OR  -F <FUNCTION NUMBER>\n");
-	printf("<Socket>              --socket=<SOCKET NUMBER>     "
+	printf("<Socket-id>           --socket-id=<SOCKET NUMBER>  "
 		"OR  -S <SOCKET NUMBER>\n");
 	printf("<TCP PORT>            --port=<PORT>                "
 		"OR  -P <PORT>\n");
@@ -151,7 +151,7 @@ int main( int argc, char** argv )
 	printf(" Bus                   : %d\n", mmlinkCmdLine.bus);
 	printf(" Device                : %d\n", mmlinkCmdLine.device);
 	printf(" Function              : %d\n", mmlinkCmdLine.function);
-	printf(" Socket                : %d\n", mmlinkCmdLine.socket);
+	printf(" Socket-id             : %d\n", mmlinkCmdLine.socket);
 	printf(" Port                  : %d\n", mmlinkCmdLine.port);
 	printf(" IP address            : %s\n", mmlinkCmdLine.ip);
 	printf(" ------- Command line Input END ---- \n\n");
