@@ -31,9 +31,7 @@
 #include "common_int.h"
 #include "opae/error.h"
 
-fpga_result __FPGA_API__ fpgaReadError(fpga_token token,
-                                       uint32_t error_num,
-                                       uint64_t *value)
+fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
 	UNUSED_PARAM(token);
 	UNUSED_PARAM(error_num);
@@ -55,8 +53,8 @@ fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
 }
 
 fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
-                                          uint32_t error_num,
-                                          struct fpga_error_info *error_info)
+			     uint32_t error_num,
+			     struct fpga_error_info *error_info)
 {
 	UNUSED_PARAM(token);
 	UNUSED_PARAM(error_num);
