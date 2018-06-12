@@ -488,7 +488,6 @@ out_close:
 	return -1;
 }
 
-
 /*
 * Prints Actual and Expected Interface id
 */
@@ -537,8 +536,7 @@ int prints_interface_id(fpga_guid actual_interface_id)
 
 	if (num_matches > 0) {
 		retval = (int) num_matches; /* FPGA found */
-	}
-	else {
+	} else {
 		retval = 0; /* no FPGA found */
 	}
 
@@ -566,10 +564,7 @@ out_destroy:
 	ON_ERR_GOTO(res, out_err, "destroying properties object");
 out_err:
 	return retval;
-
-
 }
-
 
 /*
  * Find first FPGA matching the interface ID of the GBS
@@ -696,10 +691,8 @@ int main(int argc, char *argv[])
 	}
 	if (res == 0) {
 		fprintf(stderr, "No suitable slots found.\n");
-
-		if (config.verbosity >0)
+		if (config.verbosity > 0)
 			prints_interface_id(info.interface_id);
-
 		retval = 4;
 		goto out_free;
 	}
