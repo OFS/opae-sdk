@@ -82,7 +82,7 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
  * @param guidl
  * @param guid
  */
-void aal_guid_to_fpga(uint64_t guidh,
+void fpga_guid_to_fpga(uint64_t guidh,
 		      uint64_t guidl,
 		      uint8_t *guid);
 

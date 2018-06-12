@@ -142,6 +142,19 @@ fpga_result validate_bitstream_metadata(fpga_handle handle,
 fpga_result read_gbs_metadata(const uint8_t *bitstream,
 			      struct gbs_metadata *gbs_metadata);
 
+/**
+ * Reads interface id high and low values
+ *
+ * Reads interface id from sysfs.
+ *
+ * @param[in] handle   FME handle
+ * @param[out] id_l    Interface id low
+ * @param[out] id_h    Interface id lHigh
+ * @returns             FPGA_OK on success
+ */
+fpga_result get_interface_id(fpga_handle handle,
+							uint64_t *id_l, uint64_t *id_h);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
