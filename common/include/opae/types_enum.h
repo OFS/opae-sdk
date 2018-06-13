@@ -141,7 +141,8 @@ enum fpga_open_flags {
  */
 enum fpga_reconf_flags {
 	/** Reconfigure the slot without checking if it is in use */
-	FPGA_RECONF_FORCE = (1u << 0)
+	FPGA_RECONF_FORCE = (1u << 0),
+  FPGA_RECONF_SRIOV = (1u << 1)
 };
 
 #endif // __FPGA_TYPES_ENUM_H__
