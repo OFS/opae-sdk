@@ -89,6 +89,11 @@ uint64_t properties_get_object_id(opae::fpga::types::properties::ptr_t props);
 void properties_set_object_id(opae::fpga::types::properties::ptr_t props,
                               uint64_t object_id);
 
+const char *properties_doc_num_errors();
+uint32_t properties_get_num_errors(opae::fpga::types::properties::ptr_t props);
+void properties_set_num_errors(opae::fpga::types::properties::ptr_t props,
+                              uint32_t num_errors);
+
 const char *properties_doc_num_slots();
 uint32_t properties_get_num_slots(opae::fpga::types::properties::ptr_t props);
 void properties_set_num_slots(opae::fpga::types::properties::ptr_t props,

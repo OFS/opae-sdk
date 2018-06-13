@@ -67,6 +67,12 @@ class TestProperties(unittest.TestCase):
         props = opae.fpga.properties(object_id=0xcafe)
         assert props.object_id == 0xcafe
 
+    def test_set_num_errors(self):
+        props = opae.fpga.properties(num_errors=8)
+        assert props.num_errors == 8
+        props.num_errors = 4
+        assert props.num_errors == 4
+
     def test_set_num_slots(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE,
                                         num_slots=3)
@@ -236,6 +242,43 @@ class TestEvent(unittest.TestCase):
         assert received_event
 
 
+class TestError(unittest.TestCase):
+    def setUp(self):
+        self.port_errors = {"errors": {"can_clear": True},
+                            "first_error": {"can_clear": False},
+                            "first_malformed_req": {"can_clear": False}}
+        self.fme_errors = {"pcie0_errors": {"can_clear": True},
+                           "warning_errors": {"can_clear": True},
+                           "pcie1_errors": {"can_clear": True},
+                           "gbs_errors": {"can_clear": False},
+                           "bbs_errors": {"can_clear": False},
+                           "next_error": {"can_clear": False},
+                           "errors": {"can_clear": False},
+                           "first_error": {"can_clear": False},
+                           "inject_error": {"can_clear": True}}
+        props = opae.fpga.properties(type=opae.fpga.ACCELERATOR)
+        toks = opae.fpga.enumerate([props])
+        assert toks
+        self.acc_token = toks[0]
+        props.type = opae.fpga.DEVICE
+        toks = opae.fpga.enumerate([props])
+        assert toks
+        self.dev_token = toks[0]
+
+
+    def test_port_errors(self):
+        for err in opae.fpga.errors(self.acc_token):
+            print err.name, err.read_value()
+            assert self.port_errors[err.name]["can_clear"] == err.can_clear
+            self.port_errors.pop(err.name)
+        assert not self.port_errors
+
+    def test_fme_errors(self):
+        for err in opae.fpga.errors(self.dev_token):
+            print err.name, err.can_clear
+            assert self.fme_errors[err.name]["can_clear"] == err.can_clear
+            self.fme_errors.pop(err.name)
+        assert not self.fme_errors
 
 if __name__ == "__main__":
     test = TestEvent('test_events')
