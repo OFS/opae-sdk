@@ -192,7 +192,7 @@ uint64_t wsid_gen(void)
  * @param guidl
  * @param guid
  */
-void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
+void __FIXME_MAKE_VISIBLE__ fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
 {
 	uint32_t i;
 	uint32_t s;
