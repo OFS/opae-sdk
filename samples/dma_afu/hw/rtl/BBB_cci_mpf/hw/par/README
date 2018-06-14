@@ -1,0 +1,4 @@
+The order in which modules are loaded into VCS matters since VCS requires that
+a collection of packages is included depth first.  The order of files in
+sim_file_list.txt is accurate and should be included in vlog_files.list in an
+ASE project.

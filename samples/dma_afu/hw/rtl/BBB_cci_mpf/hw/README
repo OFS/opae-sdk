@@ -1,0 +1,55 @@
+MPF -- Memory Properties Factory
+
+cci_mpf.sv is provided as a standard wrapper for building typical
+configurations.  Module cci_mpf is configurable with parameters that control
+instantiation of shims.  cci_mpf instantiates common components, including
+the FIU edge connection and the VTP translation server.  cci_mpf also
+instantiates one instance of the standard MPF pipeline: cci_mpf_pipe_std.
+This standard pipeline is the primary flow through MPF's shims.  In the
+reference implementation there is one instance of the standard pipeline.
+MPF's structure could support multiple instances of the primary pipeline,
+all connected to the cci_mpf services and edge connections.  Multiple
+pipelines could be used to implement separate reorder buffers or multiple
+write/read order domains.
+
+The choice of shims to instantiate in a particular design is flexible
+and can be tailored to the design's requirements.  Some shims are mandatory:
+
+* cci_mpf_shim_edge_fiu must be connected at the FIU edge and
+  cci_mpf_shim_edge_afu must be connected at the AFU edge.  In addition to
+  some basic canonicalization, the shims combine to store write request
+  data in a block RAM so that write data does not flow through MPF pipelines.
+  This significantly reduces MPF buffer sizes.  The shims also convert
+  multi-line write requests into a single representative request that flows
+  through MPF.  Multiple write beats are reconstructed on exit from the
+  MPF FIU edge.
+
+* cci_mpf_shim_detect_eop must be connected near the FIU edge before
+  responses flow through other MPF shims.  Detect EOP serves two purposes:
+  It tags the last read response in a multi-line group with an EOP flag,
+  simplifying the logic in other shims to reclaim buffers associated with
+  the read.  Detect EOP also converts all unpacked write responses to packed,
+  single-beat responses.
+
+* cci_mpf_shim_rsp_order must be connected near the AFU edge even when
+  the reorder buffer for reads is not instantiated.  The response order
+  module preserves the original MDATA values and sets MDATA for use by
+  other MPF modules.
+
+
+MPF is broken into several directories, each with a README file:
+
+* cci-if: Packages and functions that describe and operate on CCI.
+
+* cci-mpf-if: An extension of cci-if with extra state required to control
+    the behavior of shims.  For example, the CCI-MPF interface adds a bit
+    to indicate whether a memory request's address is virtual or physical.
+    The README file in cci-mpf-if describes the differences between CCI
+    and CCI-MPF.
+
+* cci-mpf-shims: Shim implementations.
+
+* cci-mpf-prims: A collection of primitive modules used by the shims.
+
+
+See cci-mpf-if/README for information in instantiating MPF in a design.

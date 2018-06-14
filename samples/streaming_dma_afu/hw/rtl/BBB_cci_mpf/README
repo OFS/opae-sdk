@@ -1,0 +1,62 @@
+MPF -- Memory Properties Factory
+================================
+
+The raw FPGA CCI (Cache Coherent Interface) exposes a primitive connection
+to memory.  Addresses are physical and, except for write fence, no completion
+order guarantees are provided.
+
+MPF is a collection of CCI to CCI shims, each adding a feature to the resulting
+interface.  Shims can be composed to generate memory interfaces with properties
+required for a particular application.  Shims include:
+
+* VTP - Virtual to Physical translation
+
+* WRO - Write/Read Order: guarantee write/write and write/read order within
+  a cache line
+
+* Read response sorting
+
+* VC_MAP - Address-based virtual channel selection, useful when the order
+  guarantees from channel eVC_VA are too relaxed and using write fences
+  is too expensive.
+
+
+Hardware implementation
+-----------------------
+
+MPF RTL implementation files can be found in the HW/ subdirectory.
+
+cci_mpf.sv is provided as a standard wrapper for building typical
+configurations.  Module cci_mpf is configurable with parameters that control
+instantiation of shims.
+
+MPF RTL is broken into several directories, each with a README file:
+
+* cci-if: Packages and functions that describe and operate on CCI.
+
+* cci-mpf-if: An extension of cci-if with extra state required to control
+    the behavior of shims.  For example, the CCI-MPF interface adds a bit
+    to indicate whether a memory request's address is virtual or physical.
+    The README file in cci-mpf-if describes the differences between CCI
+    and CCI-MPF.
+
+* cci-mpf-shims: Shim implementations.
+
+* cci-mpf-prims: A collection of primitive modules used by the shims.
+
+See HW/cci-mpf-if/NOTES for information in instantiating MPF in a design.
+
+
+Software implementation
+-----------------------
+
+Some MPF shims, such as VTP, also require software built on top of either
+the Open Programmable Acceleration Engine (OPAE) or the Accelerator
+Abstraciton Layer (AAL). This VTP service initializes the page table used
+for virtual to physical address translations, provides functions for VTP
+shim initialization, and presents an API for creation and management of
+shared buffers.
+
+The sources for the MPF software library can be found in the sw/
+subdirectory together with a README detailing how to build and instantiate
+it in your design.

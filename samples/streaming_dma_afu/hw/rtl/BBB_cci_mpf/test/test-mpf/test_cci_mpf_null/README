@@ -1,0 +1,23 @@
+test_cci_mpf_null is a CCI-P test.  The AFU uses MPF SystemVerilog interfaces
+but the actual MPF shim collection is never instantiated.
+
+The test allocates a collection of 2MB buffers.  The write process streams through
+a buffer once, writing a known value to each line.  The known value changes with
+each pass through a buffer.  When a buffer is completely written the write
+process moves on to the next buffer.
+
+The read process follows the write process, streaming continuously through a
+single buffer that is not currently being written.  The read process shifts
+buffers at the same time that the write process shifts.  Each read response
+value is checked against the expected response.  When a mismatch is detected
+the location and expected value are forwarded to the CPU.  The CPU then
+checks the actual value in memory and determines whether the value in memory
+is correct.  The error is then categorized as either write or read failure.
+
+The CPU is involved only to categorize errors and to control the length
+and number of testing passes.  All other data comparison is done on the FPGA.
+
+There are options for 1, 2, 4 or variable size requests (--mcl) and the test
+can target either VA, one channel or some channel patterns (--rd-vc /
+--wr-vc).  The channel used for signaling errors can also be configured
+(--dsm-vc).

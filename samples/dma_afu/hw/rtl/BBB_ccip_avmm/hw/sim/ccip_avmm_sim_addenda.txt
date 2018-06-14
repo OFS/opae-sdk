@@ -1,0 +1,14 @@
+##
+## Include this file in an ASE build to import MPF into a simulation environment
+## by adding the following line to vlog_files.list in an ASE build directory:
+##
+##     -F <absolute path to this directory>/ccip_avmm_sim_addenda.txt
+##
+
++incdir+../rtl
+
+../rtl/ccip_avmm_pkg.sv
+
+../rtl/avmm_ccip_host_wr.sv
+../rtl/avmm_ccip_host_rd.sv
+../rtl/ccip_avmm_mmio.sv

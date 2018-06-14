@@ -1,0 +1,88 @@
+##
+## Include this file in an ASE build to import MPF into a simulation environment
+## by adding the following line to vlog_files.list in an ASE build directory:
+##
+##     -F <absolute path to this directory>/cci_mpf_sim_addenda.txt
+##
+## Note that "-F" must be used and not "-f".  The former uses paths relative
+## to this directory.  The latter uses only absolute paths.
+##
+
+##
+## You must define a platform to use MPF.  Exactly one of the following
+## must be defined outside of this file:
+##
+##     MPF_PLATFORM_BDX
+##     MPF_PLATFORM_OME
+##
+
++define+CCI_SIMULATION
+
++incdir+../rtl
++incdir+../rtl/cci-if
++incdir+../rtl/cci-mpf-if
++incdir+../rtl/cci-mpf-prims
++incdir+../rtl/cci-mpf-shims
++incdir+../rtl/cci-mpf-shims/cci_mpf_shim_edge
++incdir+../rtl/cci-mpf-shims/cci_mpf_shim_pwrite
++incdir+../rtl/cci-mpf-shims/cci_mpf_shim_vtp
++incdir+../rtl/cci-mpf-shims/cci_mpf_shim_wro
++incdir+../../sw/include/opae/mpf
+
+../rtl/cci-if/ccis_if_pkg.sv
+../rtl/cci-if/ccis_if_funcs_pkg.sv
+#../rtl/cci-if/ccip_if_pkg.sv
+../rtl/cci-if/ccip_if_funcs_pkg.sv
+../rtl/cci-mpf-if/cci_mpf_if_pkg.sv
+../rtl/cci-if/cci_csr_if_pkg.sv
+../rtl/cci-if/ccip_feature_list_pkg.sv
+../rtl/cci_mpf_csrs_pkg.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_pkg.sv
+../rtl/cci_mpf.sv
+../rtl/cci_mpf_null.sv
+../rtl/cci_mpf_pipe_std.sv
+../rtl/cci-mpf-if/ccip_wires_to_mpf.sv
+../rtl/cci-mpf-if/ccis_wires_to_mpf.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_arb_rr.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_fifo1.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_fifo2.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_fifo_bram.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_fifo_lutram.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_filter_cam.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_filter_counting.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_filter_decode.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_heap.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_lfsr.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_lutram.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_onehot_to_bin.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_ram_dualport.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_ram_dualport_byteena.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_ram_simple.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_repl_lru_pseudo.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_repl_random.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_rob.sv
+../rtl/cci-mpf-prims/cci_mpf_prim_track_multi_write.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_buffer_afu.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_buffer_afu_epoch.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_buffer_afu_lockstep.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_buffer_fiu.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_csr.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_dbg_history.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_dedup_reads.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_detect_eop.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_edge/cci_mpf_shim_edge_afu.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_edge/cci_mpf_shim_edge_fiu.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_latency_qos.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_mux.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_null.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_pwrite/cci_mpf_shim_pwrite.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_rsp_order.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vc_map.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vtp/cci_mpf_shim_vtp.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vtp/cci_mpf_svc_vtp.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vtp/cci_mpf_svc_vtp_pipe.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vtp/cci_mpf_svc_vtp_pt_walk.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_vtp/cci_mpf_svc_vtp_tlb.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_wro/cci_mpf_shim_wro.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_wro/cci_mpf_shim_wro_filter_group.sv
+../rtl/cci-mpf-shims/cci_mpf_shim_wro/cci_mpf_shim_wro_epoch_order.sv

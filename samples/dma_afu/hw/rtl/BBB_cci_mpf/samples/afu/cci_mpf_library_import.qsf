@@ -1,0 +1,24 @@
+##
+## MPF Quartus import -- 
+##
+##   Change the configuration parameters below and use this file as
+##   a template for importing the MPF library using:
+##
+##       source cci_mpf_library_import.qsf
+##
+
+
+## Define the target platform.  The list of platforms is in
+## hw/rtl/cci-mpf-if/cci_mpf_platform.vh.
+##
+set_global_assignment -name VERILOG_MACRO "MPF_PLATFORM_BDX=1"
+
+
+## Define the path to the MPF sources
+##
+set CCI_MPF_SRC "../samples/cci-mpf"
+
+
+## Import sources
+##
+source $CCI_MPF_SRC/hw/par/qsf_cci_mpf_PAR_files.qsf

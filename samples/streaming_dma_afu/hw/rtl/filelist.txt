@@ -1,0 +1,95 @@
+streaming_dma_afu.json
+
+# CCI-P avmm shim
+QI:BBB_ccip_avmm/hw/par/ccip_avmm_addenda.qsf
+SI:BBB_ccip_avmm/hw/sim/ccip_avmm_sim_addenda.txt
+
+
+
+# MPF
++define+MPF_PLATFORM_DCP_PCIE=1
+QI:BBB_cci_mpf/hw/par/qsf_cci_mpf_PAR_files.qsf
+SI:BBB_cci_mpf/hw/sim/cci_mpf_sim_addenda.txt
+
+afu.sv
+ccip_interface_reg.sv
+ccip_std_afu.sv
+
+# Qsys systems and component search path
+qsys/components.ipx
+qsys/streaming_dma_test_system.qsys
+qsys/memory_to_stream_dma_bbb.qsys
+qsys/stream_to_memory_dma_bbb.qsys
+
+# Modified mSGDMA write master
+#qsys/afu_id_avmm_slave/afu_id_avmm_slave_hw.tcl
+qsys/afu_id_avmm_slave/afu_id_avmm_slave.sv
+#qsys/write_master/dcp_write_master_hw.tcl
+qsys/write_master/dcp_byte_enable_generator.v
+qsys/write_master/dcp_write_burst_control.v
+qsys/write_master/dcp_write_master.v
+qsys/write_master/dcp_ST_to_MM_Adapter.v
+
+# Modified mSGDMA dispatcher
+#qsys/dispatcher/dcp_dispatcher_hw.tcl
+qsys/dispatcher/dcp_csr_block.v
+qsys/dispatcher/dcp_fifo_with_byteenables.v
+qsys/dispatcher/dcp_descriptor_buffers.v
+qsys/dispatcher/dcp_read_signal_breakout.v
+qsys/dispatcher/dcp_response_block.v
+qsys/dispatcher/dcp_dispatcher.v
+qsys/dispatcher/dcp_write_signal_breakout.v
+
+# new write only pipeline bridge that supports Avalon write responses
+#qsys/write_response_bridge/Write_Response_Bridge_hw.tcl
+qsys/write_response_bridge/write_response_bridge.v
+
+# streaming valve used in the stream-to-memory DMA to prohibit additional data entering DMA after an EOP
+#qsys/streaming_valve/m2s_streaming_valve_hw.tcl
+qsys/streaming_valve/s2m_streaming_valve.sv
+
+# Pattern checker
+#qsys/custom_pattern_checker/custom_pattern_checker_hw.tcl
+qsys/custom_pattern_checker/mtm_custom_pattern_checker.v
+
+# Pattern generator
+#qsys/custom_pattern_generator/custom_pattern_generator_hw.tcl
+qsys/custom_pattern_generator/mtm_custom_pattern_generator.v
+
+# Streamimg DMA AFU Qsys system .ip files
+qsys/ip/streaming_dma_test_system/dma_clock.ip
+qsys/ip/streaming_dma_test_system/emif_B_clock.ip
+qsys/ip/streaming_dma_test_system/streaming_dma_afu_id.ip
+qsys/ip/streaming_dma_test_system/emif_A_bridge.ip
+qsys/ip/streaming_dma_test_system/host_rd_bridge.ip
+qsys/ip/streaming_dma_test_system/streaming_dma_test_system_reset_in.ip
+qsys/ip/streaming_dma_test_system/emif_A_clock.ip
+qsys/ip/streaming_dma_test_system/emif_B_bridge.ip
+qsys/ip/streaming_dma_test_system/mmio_bridge.ip
+qsys/ip/streaming_dma_test_system/null_dfh.ip
+qsys/ip/streaming_dma_test_system/streaming_dma_test_system_host_wr_bridge.ip
+qsys/ip/streaming_dma_test_system/s2m_custom_pattern_generator.ip
+qsys/ip/streaming_dma_test_system/m2s_custom_pattern_checker.ip
+
+
+# Memory to streaming DMA BBB Qsys system .ip files
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_clock_in.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_csr_bridge.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_dispatcher.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_dma_read_master.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_host_bridge.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_id.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_memory_bridge.ip
+qsys/ip/memory_to_stream_dma_bbb/memory_to_stream_dma_bbb_reset_in.ip
+
+# Streaming to memory DMA BBB Qsys system .ip files
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_clock_in.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_csr_bridge.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_dcp_modular_sgdma_dispatcher.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_id.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_memory_bridge.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_reset_in.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_write_master.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_write_response_bridge.ip
+qsys/ip/stream_to_memory_dma_bbb/stream_to_memory_dma_bbb_streaming_valve.ip
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+##
+## Setup ASE environment using sources.txt in the same directory as
+## this script.
+##
+
+if [ "$1" == "" ]; then
+  echo "Usage: $0 <dst>"
+  exit 1
+fi
+
+# Absolute path to this script
+SCRIPT=$(readlink -f "$0")
+SCRIPT_PATH=$(dirname "$SCRIPT")
+
+# Use VCS as long as it is present
+SIMULATOR='vcs'
+if ! [ -x "$(command -v ${SIMULATOR})" ]; then
+  SIMULATOR='questa'
+fi
+
+echo "Setting up ASE environment in ${1}..."
+
+python ${SCRIPT_PATH}/../../../base/hw/sim/setup_ase_sim.py \
+       --src ${SCRIPT_PATH}/sources.txt \
+       --simulator ${SIMULATOR} \
+       $1
