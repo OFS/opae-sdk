@@ -28,6 +28,7 @@
 
 #include <opae/cxx/core/shared_buffer.h>
 #include <pybind11/pybind11.h>
+#include "pyhandle.h"
 
 const char *shared_buffer_doc();
 
@@ -43,10 +44,9 @@ const char *shared_buffer_doc_fill();
 
 const char *shared_buffer_doc_compare();
 
-const char *shared_buffer_doc_to_memoryview();
-pybind11::object shared_buffer_to_memoryview(
-    opae::fpga::types::shared_buffer::ptr_t buffer);
+const char *shared_buffer_doc_getitem();
+uint8_t shared_buffer_getitem(opae::fpga::types::shared_buffer::ptr_t buf,
+                              uint32_t offset);
 
-const char *shared_buffer_doc_to_buffer();
-pybind11::buffer_info shared_buffer_to_buffer(
-    opae::fpga::types::shared_buffer::ptr_t buffer);
+const char *shared_buffer_doc_getslice();
+pybind11::list shared_buffer_getslice(opae::fpga::types::shared_buffer::ptr_t buf, pybind11::slice slice);

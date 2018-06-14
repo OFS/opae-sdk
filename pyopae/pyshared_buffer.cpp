@@ -80,24 +80,35 @@ const char *shared_buffer_doc_compare() {
   )opaedoc";
 }
 
-const char *shared_buffer_doc_to_memoryview() {
+const char *shared_buffer_doc_getitem() {
   return R"opaedoc(
-   Get a native Python memoryview object from this buffer.
+    Get the byte at the given offset.
   )opaedoc";
 }
 
-py::object shared_buffer_to_memoryview(shared_buffer::ptr_t buffer) {
-  uint8_t *c_buffer = const_cast<uint8_t *>(buffer->c_type());
-  return py::memoryview(py::buffer_info(c_buffer, buffer->size()));
+uint8_t shared_buffer_getitem(shared_buffer::ptr_t buf, uint32_t offset) {
+  return *(buf->c_type() + offset);
 }
 
-const char *shared_buffer_doc_to_buffer() {
+const char *shared_buffer_doc_getslice() {
   return R"opaedoc(
-   Get a native Python buffer object from this buffer.
-  )opaedoc";
+    Get a slice of the bytes as determined by the slice arguments ([start:stop:step])
+    Args:
+      start: start offset of buffer
+      stop: end offset of the buffer (not incusive)
+      step: step offset
+
+    NOTE: This current implementation copies the data into a new list.
+    )opaedoc";
 }
 
-py::buffer_info shared_buffer_to_buffer(shared_buffer::ptr_t buffer) {
-  uint8_t *c_buffer = const_cast<uint8_t *>(buffer->c_type());
-  return py::buffer_info(c_buffer, buffer->size());
+py::list shared_buffer_getslice(shared_buffer::ptr_t buf, py::slice slice) {
+  size_t start, stop, step, length;
+  if (!slice.compute(buf->size(), &start, &stop, &step, &length))
+    throw py::error_already_set();
+  py::list list;
+  for (size_t i = start; i < stop; i += step) {
+    list.append(*(buf->c_type() + i));
+  }
+  return list;
 }
