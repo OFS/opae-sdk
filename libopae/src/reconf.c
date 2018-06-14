@@ -58,6 +58,7 @@
 #define FPGA_GBS_MAX_POWER    60            // watts
 #define FPGA_THRESHOLD2(x)    ((x*10)/100)  // threshold1 + 10%
 
+
 #pragma pack(push, 1)
 // GBS Header
 struct bitstream_header {
@@ -84,6 +85,9 @@ struct reconf_error {
 	};
 };
 
+
+#define FPGA_PORT_RES_PATH   "/sys/bus/pci/devices/%04x:%02x:%02x.%d/resource2"
+#define PORT_MMIO_LEN                          (0x40000 + 0x0512)
 
 static fpga_result validate_bitstream(fpga_handle handle,
 			const uint8_t *bitstream, size_t bitstream_len,
@@ -201,6 +205,83 @@ free_props:
 
 	return FPGA_OK;
 }
+fpga_result get_bdf_from_handle(fpga_handle handle, int *b, int *d, int *f)
+{
+	struct _fpga_handle *_handle    = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token      = (struct _fpga_token *)_handle->token;
+	char *p                         = 0;
+	int device_instance             = 0;
+	char sysfs_path[SYSFS_PATH_MAX] = {0};
+
+	p = strstr(_token->sysfspath, "intel-fpga-dev");
+	if (NULL == p) {
+		FPGA_ERR("Invalid sysfspath in token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	p = strrchr(_token->sysfspath, '.');
+	if (NULL == p) {
+		FPGA_ERR("Invalid sysfspath in token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	device_instance = atoi(p + 1);
+
+	snprintf_s_i(sysfs_path, SYSFS_PATH_MAX,
+		SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.%d/device",
+		device_instance);
+
+	sysfs_bdf_from_path(sysfs_path, b, d, f);
+
+	return   FPGA_OK;
+}
+
+// clears port errors
+static fpga_result clear_port_errors_mmio(fpga_handle handle)
+{
+	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	fpga_result result                = FPGA_OK;
+	uint64_t error                    = 0 ;
+	int fd                            = 0;
+	uint8_t *ptr                      = 0;
+	int f;
+	int b, d;
+
+	result = get_bdf_from_handle(handle, &b, &d, &f);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port syfs path");
+		return result;
+	}
+
+	snprintf(sysfs_path, sizeof(sysfs_path),
+			FPGA_PORT_RES_PATH, 0, b, d, f);
+
+	fd = open(sysfs_path, O_RDWR);
+	if (fd < 0) {
+		printf("Failed to open FPGA PCIE BAR2");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = (uint8_t *) mmap(NULL, PORT_MMIO_LEN, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED) {
+		result = FPGA_EXCEPTION;
+		goto out_close ;
+	}
+
+	error = *((volatile  uint64_t *) (ptr +0x1010));
+	printf("error= %lx\n", error);
+
+	*((volatile uint64_t *) (ptr+0x1010)) = (uint64_t) error;
+
+if (ptr)
+		munmap(ptr, PORT_MMIO_LEN);
+out_close:
+	if (fd >= 0)
+		close(fd);
+
+	return result;
+}
+
 
 
 // clears port errors
@@ -233,8 +314,70 @@ static fpga_result clear_port_errors(fpga_handle handle)
 		return result;
 	}
 
+
 	return result;
 }
+
+
+// set afu user clock
+fpga_result set_afu_userclock_mmio(fpga_handle handle,
+				uint64_t usrlclock_high,
+				uint64_t usrlclock_low)
+{
+	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	fpga_result result                = FPGA_OK;
+	uint64_t userclk_high             = 0;
+	uint64_t userclk_low              = 0;
+
+	int fd                            = 0;
+	uint8_t *ptr                      = 0;
+	int f;
+	int b, d;
+
+	result = get_bdf_from_handle(handle, &b, &d, &f);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port syfs path");
+		return result;
+	}
+
+	snprintf(sysfs_path, sizeof(sysfs_path),
+		FPGA_PORT_RES_PATH, 0, b, d, f);
+
+	fd = open(sysfs_path, O_RDWR);
+	if (fd < 0) {
+		printf("Failed to open FPGA PCIE BAR2");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = (uint8_t *) mmap(NULL, PORT_MMIO_LEN, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED) {
+		result = FPGA_EXCEPTION;
+		goto out_close ;
+	}
+
+	// set user clock
+	result = set_userclock(sysfs_path, usrlclock_high, usrlclock_low, ptr);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to set user clock");
+		return result;
+	}
+
+	// read user clock
+	result = get_userclock(sysfs_path, &userclk_high, &userclk_low, ptr);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get user clock");
+		return result;
+	}
+
+if (ptr)
+		munmap(ptr, PORT_MMIO_LEN);
+out_close:
+	if (fd >= 0)
+		close(fd);
+
+	return result;
+}
+
 
 // set afu user clock
 fpga_result set_afu_userclock(fpga_handle handle,
@@ -254,14 +397,14 @@ fpga_result set_afu_userclock(fpga_handle handle,
 	}
 
 	// set user clock
-	result = set_userclock(syfs_path, usrlclock_high, usrlclock_low);
+	result = set_userclock(syfs_path, usrlclock_high, usrlclock_low, NULL);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to set user clock");
 		return result;
 	}
 
 	// read user clock
-	result = get_userclock(syfs_path, &userclk_high, &userclk_low);
+	result = get_userclock(syfs_path, &userclk_high, &userclk_low, NULL);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get user clock");
 		return result;
@@ -359,7 +502,8 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 
 	// error out if "force" flag is NOT indicated
 	// and the resource is in use
-	if (!(flags & FPGA_RECONF_FORCE)) {
+
+	if (!(flags & (FPGA_RECONF_FORCE | FPGA_RECONF_SRIOV))) {
 		result = open_accel(fpga, &accel);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Accelerator in use or not found");
@@ -367,10 +511,18 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		}
 	}
 
-	// Clear port errors
-	result = clear_port_errors(fpga);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to clear port errors.");
+	if (flags & FPGA_RECONF_SRIOV) {
+
+		result = clear_port_errors_mmio(fpga);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to clear port errors.");
+			}
+	} else {
+		// Clear port errors
+		result = clear_port_errors(fpga);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to clear port errors.");
+			}
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
@@ -401,6 +553,17 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 		FPGA_DBG(" AFU_uuid                 :%s\n",
 			 metadata.afu_image.afu_clusters.afu_uuid);
 
+	if (flags & FPGA_RECONF_SRIOV) {
+
+		// Set AFU user clock
+		if (metadata.afu_image.clock_frequency_high > 0 || metadata.afu_image.clock_frequency_low > 0) {
+			result = set_afu_userclock_mmio(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to set user clock");
+				goto out_unlock;
+				}
+		}
+	} else {
 		// Set AFU user clock
 		if (metadata.afu_image.clock_frequency_high > 0 || metadata.afu_image.clock_frequency_low > 0) {
 			result = set_afu_userclock(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);
@@ -409,6 +572,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 				goto out_unlock;
 			}
 		}
+	}
 
 		// get fpga device id.
 		result = get_fpga_deviceid(fpga, &deviceid);

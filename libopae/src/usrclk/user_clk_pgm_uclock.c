@@ -62,10 +62,38 @@
 
 struct  QUCPU_Uclock   gQUCPU_Uclock;
 
+
+void write_mmio(uint8_t *mmio_ptr,uint64_t u64i_PrtAddr, uint64_t u64i_PrtData)
+{ 
+
+  uint64_t           abs_addr;
+  uint64_t           write_data;
+
+  abs_addr = (uint64_t)(u64i_PrtAddr << 3);
+  write_data = (uint64_t)u64i_PrtData;
+  *((volatile uint64_t *) (mmio_ptr+abs_addr))
+				= (uint64_t)write_data;
+
+  return;
+} 
+
+
+uint64_t read_mmio(uint8_t *mmio_ptr,uint64_t u64i_PrtAddr)
+{ 
+  uint64_t           abs_addr;
+  uint64_t           read_data;
+  abs_addr = (uint64_t)(u64i_PrtAddr << 3);
+  read_data = *((volatile  uint64_t *) (mmio_ptr +abs_addr));
+
+  return(read_data);
+} 
+
+
 //Get fpga user clock
 fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sys_path,
 					uint64_t* userclk_high,
-					uint64_t* userclk_low)
+					uint64_t* userclk_low,
+          uint8_t *mmio_ptr)
 {
 	QUCPU_tFreqs userClock;
 
@@ -77,13 +105,13 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sys_path,
 	}
 
 	// Initialize
-	if (fi_RunInitz(sys_path) != 0) {
+	if (fi_RunInitz(sys_path,mmio_ptr) != 0) {
 		FPGA_ERR("Failed to initialize user clock ");
 		return FPGA_NOT_SUPPORTED;
 	}
 
 	// get user clock
-	if (fi_GetFreqs(&userClock) != 0) {
+	if (fi_GetFreqs(&userClock,mmio_ptr) != 0) {
 		FPGA_ERR("Failed to get user clock Frequency ");
 		return FPGA_NOT_SUPPORTED;
 	}
@@ -97,7 +125,8 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sys_path,
 // set fpga user clock
 fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
-					uint64_t userclk_low)
+					uint64_t userclk_low,
+          uint8_t *mmio_ptr)
 {
 	uint64_t refClock = userclk_high;
 
@@ -130,7 +159,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 	}
 
 	// Initialize
-	if (fi_RunInitz(sysfs_path) != 0) {
+	if (fi_RunInitz(sysfs_path,mmio_ptr) != 0) {
 		FPGA_ERR("Failed to initialize user clock ");
 		return FPGA_NOT_SUPPORTED;
 	}
@@ -138,7 +167,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 	FPGA_DBG("User clock: %ld \n", refClock);
 
 	// set user clock
-	if (fi_SetFreqs(0, refClock) != 0) {
+	if (fi_SetFreqs(0, refClock,mmio_ptr) != 0) {
 		FPGA_ERR("Failed to set user clock frequency ");
 		return FPGA_NOT_SUPPORTED;
 	}
@@ -147,7 +176,8 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 }
 
 //fi_RunInitz
-int fi_RunInitz(const char* sysfs_path)
+int fi_RunInitz(const char* sysfs_path,
+                uint8_t *mmio_ptr)
 {
 	// fi_RunInitz
 	// Initialize
@@ -207,8 +237,19 @@ int fi_RunInitz(const char* sysfs_path)
 	if (i_ReturnErr == 0) // This always true; added for future safety
 	{
 		// Verifying User Clock version number
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath, &u64i_PrtData);
+	//	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+	//	sysfs_read_u64(syfs_usrpath, &u64i_PrtData);
+ 
+    if(mmio_ptr) {
+    
+      u64i_PrtData= read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_1);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+      sysfs_read_u64(syfs_usrpath, &u64i_PrtData);
+    }
+
+   
+   
 		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
 
 		gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (u64i_PrtData & QUCPU_UI64_STS_1_VER_b63t60) >> 60;
@@ -224,7 +265,7 @@ int fi_RunInitz(const char* sysfs_path)
 	// Read PLL ID
 	if (i_ReturnErr == 0)
 	{ // Waiting for fcr PLL calibration not to be busy
-		i_ReturnErr = fi_WaitCalDone();
+		i_ReturnErr = fi_WaitCalDone(mmio_ptr);
 	} // Waiting for fcr PLL calibration not to be busy
 
 	if (i_ReturnErr == 0)
@@ -236,8 +277,18 @@ int fi_RunInitz(const char* sysfs_path)
 		gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_MRN_b52);
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+	//	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+		//sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+      write_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_CMD_0,u64i_PrtData);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+      sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+}
+   
+   
 
 		// Deasserting management & machine reset
 		gQUCPU_Uclock.u64i_cmd_reg_0 |= (QUCPU_UI64_CMD_0_MRN_b52);
@@ -248,13 +299,13 @@ int fi_RunInitz(const char* sysfs_path)
 		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
 
 		// Waiting for fcr PLL calibration not to be busy
-		i_ReturnErr = fi_WaitCalDone();
+		i_ReturnErr = fi_WaitCalDone(mmio_ptr);
 	} // Cycle reset and wait for any calibration to finish
 
 	if (i_ReturnErr == 0)
 	{ // Checking fPLL ID
 		u64i_AvmmAdr = QUCPU_UI64_AVMM_FPLL_IPI_200;
-		i_ReturnErr = fi_AvmmRead(u64i_AvmmAdr, &u64i_AvmmDat);
+		i_ReturnErr = fi_AvmmRead(u64i_AvmmAdr, &u64i_AvmmDat,mmio_ptr);
 		if (i_ReturnErr == 0)
 		{ // Check identifier
 			gQUCPU_Uclock.tInitz_InitialParams.u64i_PLL_ID = u64i_AvmmDat & 0xffLLU;
@@ -291,7 +342,8 @@ uint64_t fu64i_GetAVMM_seq()
 int fi_AvmmRWcom(int i_CmdWrite,
 		uint64_t   u64i_AvmmAdr,
 		uint64_t   u64i_WriteData,
-		uint64_t *pu64i_ReadData)
+		uint64_t *pu64i_ReadData,
+    uint8_t *mmio_ptr)
 {
 	// fi_AvmmRWcom
 	uint64_t u64i_SeqCmdAddrData, u64i_SeqCmdAddrData_seq_2, u64i_SeqCmdAddrData_wrt_1;
@@ -333,8 +385,17 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	// Write register 0 to kick it off
 
 	u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
-	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-	sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+	//snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+	//sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+ 
+    if(mmio_ptr) {
+    
+      write_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_CMD_0,u64i_PrtData);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+      sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+    }
+
 
 	li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
 	fv_SleepShort(li_sleep_nanoseconds);
@@ -350,6 +411,16 @@ int fi_AvmmRWcom(int i_CmdWrite,
 		{
 			// Poll 0, fast inner loop with no sleep
 			sysfs_read_u64(syfs_usrpath, &u64i_DataX);
+      
+      if(mmio_ptr) {
+      
+        u64i_DataX= read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_0);
+      } else {
+      
+        sysfs_read_u64(syfs_usrpath, &u64i_DataX);
+      }
+   
+   
 
 			if ((u64i_DataX & QUCPU_UI64_STS_0_SEQ_b49t48) == (u64i_SeqCmdAddrData & QUCPU_UI64_STS_0_SEQ_b49t48))
 			{ // Have result
@@ -373,7 +444,7 @@ GOTO_LABEL_HAVE_RESULT: // No error
 
 
 //fi_AvmmRead
-int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData)
+int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData,uint8_t *mmio_ptr)
 {
 	// fi_AvmmRead
 	int         i_CmdWrite    = 0;
@@ -383,14 +454,14 @@ int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData)
 	// Perform read with common code
 	i_CmdWrite = 0;
 	u64i_WriteData = 0; // Not used for read
-	res = fi_AvmmRWcom(i_CmdWrite, u64i_AvmmAdr, u64i_WriteData, pu64i_ReadData);
+	res = fi_AvmmRWcom(i_CmdWrite, u64i_AvmmAdr, u64i_WriteData, pu64i_ReadData,mmio_ptr);
 
 	// Return error status
 	return(res);
 } // fi_AvmmRead
 
 //fi_AvmmWrite
-int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData)
+int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData,uint8_t *mmio_ptr)
 {
 	// fi_AvmmWrite
 	int         i_CmdWrite   = 0;
@@ -399,7 +470,7 @@ int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData)
 
 	// Perform write with common code
 	i_CmdWrite = 1;
-	res = fi_AvmmRWcom(i_CmdWrite, u64i_AvmmAdr, u64i_WriteData, &u64i_ReadData);
+	res = fi_AvmmRWcom(i_CmdWrite, u64i_AvmmAdr, u64i_WriteData, &u64i_ReadData,mmio_ptr);
 
 	// Return error status
 	return(res);
@@ -433,7 +504,7 @@ void fv_SleepShort(long int li_sleep_nanoseconds)
 
 // get user clock
 // Read the frequency for the User clock and div2 clock
-int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
+int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs,uint8_t *mmio_ptr)
 {
 	// fi_GetFreqs
 	// Read the frequency for the User clock and div2 clock
@@ -454,15 +525,32 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 		gQUCPU_Uclock.u64i_cmd_reg_1 &= ~QUCPU_UI64_CMD_1_MEA_b32;
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
-		sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+		//snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+		//sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+      write_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_CMD_1,u64i_PrtData);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+      sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+    }
 
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS;            // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+	//	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+	//	sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+ 
+
+      if(mmio_ptr) {
+        
+        u64i_PrtData= read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_1);
+      } else {
+       snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+       sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+      }
 
 
 		ptFreqs_retFreqs->u64i_Frq_DivBy2 = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
@@ -475,14 +563,36 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
-		sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+		//snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+		//sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+   
+      if(mmio_ptr) {
+      
+      write_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_CMD_1,u64i_PrtData);
+      } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+      sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+      }
+
+          
+          
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS; // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+	//	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+		//sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+      u64i_PrtData= read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_1);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+      sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+    }
+          
+          
+          
 		ptFreqs_retFreqs->u64i_Frq_ClkUsr = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
 		//printf(" ptFreqs_retFreqs->u64i_Frq_ClkUsr %llx \n", ptFreqs_retFreqs->u64i_Frq_ClkUsr);
 
@@ -490,7 +600,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 	} // Read div2 and 1x user clock frequency
 
-	FPGA_DBG("\nApproximate frequency:\n"
+	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		ptFreqs_retFreqs->u64i_Frq_ClkUsr / 1.0e6, (ptFreqs_retFreqs->u64i_Frq_DivBy2) / 1.0e6);
@@ -501,7 +611,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 // set user clock
 int fi_SetFreqs(uint64_t u64i_Refclk,
-		uint64_t u64i_FrqInx)
+		uint64_t u64i_FrqInx,uint8_t *mmio_ptr)
 {
 	// fi_SetFreqs
 	// Set the user clock frequency
@@ -554,7 +664,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		u64i_AvmmDat = 0x03LLU;
 		u64i_AvmmMsk = 0x03LLU;
 
-		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 
 		// Sleep 1 ms
 		li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
@@ -564,9 +674,18 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 	if (i_ReturnErr == 0)
 	{ // Verifying fcr PLL not locking
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+	  //	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+	//	sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
 		//sysfs_read_uint64(gQUCPU_Uclock.sys_path, USER_CLOCK_STS0, &u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+      u64i_PrtData= read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_0);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+      sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+    }
+   
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0)
 		{ // fcr PLL is locked but should be unlocked
@@ -581,8 +700,16 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		if (u64i_Refclk) gQUCPU_Uclock.u64i_cmd_reg_0 |= QUCPU_UI64_CMD_0_SR1_b58;
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+	//	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+	//	sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+       write_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_CMD_0,u64i_PrtData);
+    } else {
+      snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+      sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+    }
 
 		// Sleep 1 ms
 		li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
@@ -595,7 +722,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 			u64i_AvmmAdr = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk]) >> 16;
 			u64i_AvmmDat = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk] & 0x000000ff);
 			u64i_AvmmMsk = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk] & 0x0000ff00) >> 8;
-			i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+			i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 
 			if (i_ReturnErr) break;
 		} // Write each register in the diff mif
@@ -603,7 +730,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 
 	if (i_ReturnErr == 0)
 	{ // Waiting for fcr PLL calibration not to be busy
-		i_ReturnErr = fi_WaitCalDone();
+		i_ReturnErr = fi_WaitCalDone(mmio_ptr);
 	} // Waiting for fcr PLL calibration not to be busy
 
 	if (i_ReturnErr == 0)
@@ -616,21 +743,21 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		u64i_AvmmAdr = 0x000LLU;
 		u64i_AvmmDat = 0x02LLU;
 		u64i_AvmmMsk = 0xffLLU;
-		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 
 		if (i_ReturnErr == 0)
 		{ // "To calibrate the fPLL, Read-Modify-Write:" set B1 of 0x100 high
 			u64i_AvmmAdr = 0x100LLU;
 			u64i_AvmmDat = 0x02LLU;
 			u64i_AvmmMsk = 0x02LLU;
-			i_ReturnErr = fi_AvmmReadModifyWrite(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+			i_ReturnErr = fi_AvmmReadModifyWrite(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 		} // "To calibrate the fPLL, Read-Modify-Write:" set B1 of 0x100 high
 
 		if (i_ReturnErr == 0)
 		{ // "Release the internal configuraiton bus to PreSICE to perform recalibration"
 			u64i_AvmmAdr = 0x000LLU;
 			u64i_AvmmDat = 0x01LLU;
-			i_ReturnErr = fi_AvmmWrite(u64i_AvmmAdr, u64i_AvmmDat);
+			i_ReturnErr = fi_AvmmWrite(u64i_AvmmAdr, u64i_AvmmDat,mmio_ptr);
 
 			// Sleep 1 ms
 			li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
@@ -640,7 +767,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 
 	if (i_ReturnErr == 0)
 	{ // Waiting for fcr PLL calibration not to be busy
-		i_ReturnErr = fi_WaitCalDone();
+		i_ReturnErr = fi_WaitCalDone(mmio_ptr);
 	} // Waiting for fcr PLL calibration not to be busy
 
 	if (i_ReturnErr == 0)
@@ -650,7 +777,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		u64i_AvmmAdr = 0x2e0LLU;
 		u64i_AvmmDat = 0x02LLU;
 		u64i_AvmmMsk = 0x03LLU;
-		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+		i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 	} // Power up PLL
 
 	if (i_ReturnErr == 0)
@@ -659,8 +786,16 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		for (u64i_I = 0; u64i_I<100; u64i_I++)
 		{ // Poll with 100 ms timeout
 
-			snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-			sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+			//snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+			//sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+      if(mmio_ptr) {
+      
+        u64i_PrtData =read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_0);
+      } else {
+      
+        snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+        sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+      }
 
 			if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0) break;
 
@@ -703,18 +838,19 @@ const char * fpac_GetErrMsg(int i_ErrMsgInx)
 // fi_AvmmReadModifyWriteVerify
 int fi_AvmmReadModifyWriteVerify(uint64_t u64i_AvmmAdr,
 				uint64_t u64i_AvmmDat,
-				uint64_t u64i_AvmmMsk)
+				uint64_t u64i_AvmmMsk,
+        uint8_t *mmio_ptr)
 {
 	// fi_AvmmReadModifyWriteVerify
 	int      res                 = 0;
 	uint64_t u64i_VerifyData     = 0;
 
-	res = fi_AvmmReadModifyWrite(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
+	res = fi_AvmmReadModifyWrite(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk,mmio_ptr);
 
 	if (res == 0)
 	{ // Read back the data and verify mask-enabled bits
 
-		res = fi_AvmmRead(u64i_AvmmAdr, &u64i_VerifyData);
+		res = fi_AvmmRead(u64i_AvmmAdr, &u64i_VerifyData,mmio_ptr);
 
 		if (res == 0)
 		{ // Perform verify
@@ -732,19 +868,20 @@ int fi_AvmmReadModifyWriteVerify(uint64_t u64i_AvmmAdr,
 // fi_AvmmReadModifyWrite
 int fi_AvmmReadModifyWrite(uint64_t u64i_AvmmAdr,
 			uint64_t u64i_AvmmDat,
-			uint64_t u64i_AvmmMsk)
+			uint64_t u64i_AvmmMsk,
+      uint8_t *mmio_ptr)
 {
 	uint64_t u64i_ReadData    = 0;
 	uint64_t u64i_WriteData   = 0;
 	int      res              = 0;
 
 	// Read data
-	res = fi_AvmmRead(u64i_AvmmAdr, &u64i_ReadData);
+	res = fi_AvmmRead(u64i_AvmmAdr, &u64i_ReadData,mmio_ptr);
 
 	if (res == 0)
 	{ // Modify the read data and write it
 		u64i_WriteData = (u64i_ReadData & ~u64i_AvmmMsk) | (u64i_AvmmDat & u64i_AvmmMsk);
-		res = fi_AvmmWrite(u64i_AvmmAdr, u64i_WriteData);
+		res = fi_AvmmWrite(u64i_AvmmAdr, u64i_WriteData,mmio_ptr);
 	} // Modify the read data and write it
 
 	return(res);
@@ -768,7 +905,7 @@ void fv_BugLog(int i_BugID)
 
 // wait caldone
 // Wait for calibration to be done
-int fi_WaitCalDone(void)
+int fi_WaitCalDone(uint8_t *mmio_ptr)
 {
 	// fi_WaitCalDone
 	// Wait for calibration to be done
@@ -782,8 +919,19 @@ int fi_WaitCalDone(void)
 	for (u64i_I = 0; u64i_I<1000; u64i_I++)
 	{ // Poll with 1000 ms timeout
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+		//snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+		//sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+   
+    if(mmio_ptr) {
+    
+      u64i_PrtData =read_mmio(mmio_ptr,QUCPU_UI64_PRT_UCLK_STS_0);
+    } else {
+    
+     snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
 		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+    }
+          
+          
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_BSY_b61) == 0) break;
 

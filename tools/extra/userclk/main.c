@@ -181,7 +181,7 @@ int main( int argc, char** argv )
 	}
 
 	// read user clock
-	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
+	result = get_userclock(sysfs_path, &userclk_high, &userclk_low,NULL);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get user clock ");
 		goto out_destroy_prop;
@@ -190,14 +190,14 @@ int main( int argc, char** argv )
 	if (userclkCmdLine.freq_high > 0 ) {
 
 		// set user clock
-		result = set_userclock(sysfs_path, userclkCmdLine.freq_high, userclkCmdLine.freq_high);
+		result = set_userclock(sysfs_path, userclkCmdLine.freq_high, userclkCmdLine.freq_high,NULL);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to set user clock ");
 			goto out_destroy_prop;
 		}
 
 		// read user clock
-		result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
+		result = get_userclock(sysfs_path, &userclk_high, &userclk_low,NULL);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to get user clock ");
 			goto out_destroy_prop;

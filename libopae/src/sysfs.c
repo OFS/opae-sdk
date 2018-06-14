@@ -616,6 +616,7 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f)
 		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
+/*
 	*p = 0;
 	p = strrchr(rlpath, '/');
 	if (!p) {
@@ -627,7 +628,7 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f)
 	if (!p) {
 		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
-	}
+	}*/
 	p += 6;
 
 	// 0123456

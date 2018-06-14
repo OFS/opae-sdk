@@ -46,6 +46,12 @@
 
 #include "common_int.h"
 
+#define QUCPU_UI64_PRT_UCLK_CMD_0                                ((uint64_t)0x000000000000000aLLU) // 0x00050 / 8 = 0x0060a
+#define QUCPU_UI64_PRT_UCLK_CMD_1                                ((uint64_t)0x000000000000000bLLU) // 0x00058 / 8 = 0x0060b
+#define QUCPU_UI64_PRT_UCLK_STS_0                                ((uint64_t)0x000000000000000cLLU) // 0x00060 / 8 = 0x0060c
+#define QUCPU_UI64_PRT_UCLK_STS_1                                ((uint64_t)0x000000000000000dLLU) // 0x00068 / 8 = 0x0060d
+
+
 // qph_user_clk.sv Equates
 #if defined(DEF_BDX_P)
 // BDX-P:
@@ -143,33 +149,35 @@ struct  QUCPU_Uclock
 	uint64_t     u64i_AVMM_seq ;                       // Sequence ID
 };
 
-int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs);
+int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs, uint8_t *mmio_ptr);
 
-int fi_SetFreqs(uint64_t u64i_Refclk, uint64_t u64i_FrqInx);
+int fi_SetFreqs(uint64_t u64i_Refclk, uint64_t u64i_FrqInx, uint8_t *mmio_ptr );
 
-int fi_RunInitz(const char* sysfs_path);
+int fi_RunInitz(const char* sysfs_path, uint8_t *mmio_ptr);
 
 int sysfs_read_file(const char *sysfs_path, const char * csr_path, uint64_t * value );
 
 int sysfs_write_file(const char *sysfs_path, const char * csr_path, uint64_t value);
 
-int fi_WaitCalDone(void);
+int fi_WaitCalDone(uint8_t *mmio_ptr);
 
 void fv_BugLog(int i_BugID);
 
 int fi_AvmmReadModifyWrite(uint64_t u64i_AvmmAdr,
 				uint64_t u64i_AvmmDat,
-				uint64_t u64i_AvmmMsk);
+				uint64_t u64i_AvmmMsk ,
+        uint8_t *mmio_ptr);
 
 int fi_AvmmReadModifyWriteVerify(uint64_t u64i_AvmmAdr,
 				uint64_t u64i_AvmmDat,
-				uint64_t u64i_AvmmMsk);
+				uint64_t u64i_AvmmMsk,
+        uint8_t *mmio_ptr);
 
 void fv_SleepShort(long int li_sleep_nanoseconds);
 
-int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData);
+int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData, uint8_t *mmio_ptr);
 
-int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData);
+int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData, uint8_t *mmio_ptr);
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,7 +192,7 @@ extern "C" {
 *
 * @return error code
 */
-fpga_result get_userclock(const char* sysfs_path, uint64_t *userclk_high, uint64_t *userclk_low);
+fpga_result get_userclock(const char* sysfs_path, uint64_t *userclk_high, uint64_t *userclk_low,uint8_t *mmio_ptr);
 
 /**
 * @brief set fpga user clock
@@ -195,7 +203,7 @@ fpga_result get_userclock(const char* sysfs_path, uint64_t *userclk_high, uint64
 *
 * @return error code
 */
-fpga_result set_userclock(const char* sysfs_path, uint64_t userclk_high, uint64_t userclk_low);
+fpga_result set_userclock(const char* sysfs_path, uint64_t userclk_high, uint64_t userclk_low,uint8_t *mmio_ptr);
 
 #ifdef __cplusplus
 }

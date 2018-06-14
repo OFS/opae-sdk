@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 
 	/* program bitstream */
 	print_msg(1, "Programming bitstream");
-	res = program_bitstream(token, slot_num, &info, config.flags);
+	res = program_bitstream(token, slot_num, &info, FPGA_RECONF_SRIOV);
 	if (res < 0) {
 		retval = 5;
 		goto out_free;
