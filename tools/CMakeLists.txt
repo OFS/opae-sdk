@@ -41,8 +41,8 @@ add_subdirectory(extra/libopae++)
 add_subdirectory(extra/mmlink)
 add_subdirectory(extra/ras)
 
-# mcp
-add_subdirectory(extra/mcp/hssi)
+# integrated
+add_subdirectory(extra/integrated/hssi)
 
 # pac
 add_subdirectory(extra/pac/fpgaflash)
