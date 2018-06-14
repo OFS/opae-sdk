@@ -25,7 +25,15 @@ platform_includes/platform_afu_top_config.vh
 -F sources_ase_server.txt
 
 ############################################################################
-## Simulation: QSYS code (do not touch) ####################################
+## Simulation: ASE device models (do not touch) ############################
+############################################################################
+
+# EMIF DDR4 model
++incdir+@ASE_SHARE_DIR@/rtl/device_models/dcp_emif_model_basic/
+-F @ASE_SHARE_DIR@/rtl/device_models/dcp_emif_model_basic/sources.txt
+
+############################################################################
+## Simulation: QSYS models (do not touch) ##################################
 ############################################################################
 
 # QSYS-IPs
