@@ -9,7 +9,7 @@
       "accelerator-clusters":
          [
             {
-               "name": "cci_mpf_hello",
+               "name": "hello_mpf_afu",
                "total-contexts": 1,
                "accelerator-type-uuid": "1cddcf01-c266-44de-af63-9d09858310e5"
             }

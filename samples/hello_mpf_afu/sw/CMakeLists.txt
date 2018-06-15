@@ -25,47 +25,21 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ######################################################################
-# ASE module definition ##############################################
+# Testing application ################################################
 ######################################################################
 
-if(BUILD_ASE_SAMPLES)
-  include(ase_add_modelsim)
-  set(hello_world_mpf_hw_SOURCES
-    sources.txt
-    base_addenda.txt
-    hello_world_mpf.json)
-  ase_add_afu_module(hello_world_mpf_hw
-    ${hello_world_mpf_hw_SOURCES})
-  file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
-    DESTINATION ${PROJECT_BINARY_DIR}/hw)
-
-  # Set platform
-  ase_module_set_platform_name(hello_world_mpf_hw intg_xeon)
-
-  # Add definitions
-  ase_module_add_definitions(hello_world_mpf_hw NUM_AFUS=1)
-  ase_module_add_definitions(hello_world_mpf_hw FPGA_PLATFORM_INTG_XEON)
-
-  # Include required AFU BBS
-  ase_module_include_bbbs(hello_world_mpf_hw cci_mpf)
-  ase_module_include_bbbs(hello_world_mpf_hw ccip_async)
-
-  # Configure files and finalize target rules
-  ase_module_finalize_modelsim_linking(hello_world_mpf_hw)
+include_directories(${OPAE_INCLUDE_DIR}
+  ${OPAE_SDK_SOURCE}/libopae/src
+  ${MPF_INCLUDE_DIRS})
+add_executable(hello_mpf_afu
+  ${OPAE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
+  hello_mpf_afu.cpp)
+if(BUILD_LIBOPAE_C)
+  target_link_libraries(hello_mpf_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+else()
+  target_link_libraries(hello_mpf_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
-######################################################################
-# Installation files #################################################
-######################################################################
-
-install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
-  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
-  COMPONENT samplesrc)
-
-install(FILES ${PROJECT_SOURCE_DIR}/hw/hello_world_mpf.json
-  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
-  COMPONENT samplesrc)
-
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
-  DESTINATION ${OPAE_SAMPLES}/hello_world_mpf/hw
+install(FILES hello_mpf_afu.cpp
+  DESTINATION ${OPAE_SAMPLES}/hello_mpf_afu/sw
   COMPONENT samplesrc)
