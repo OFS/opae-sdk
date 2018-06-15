@@ -1,8 +1,10 @@
 # Simple AFU example
 
-A simple AFU template that demonstrates the primary CCI-P interface.  The
-RTL satisfies the bare miminum requirements of an AFU, responding to MMIO
-reads to return the device feature header and the AFU's UUID.
+This example is nearly the simplest possible accelerator. The RTL receives an
+address via a memory mapped I/O (MMIO) write and generates a CCI write to the
+memory line at that address, containing the string "Hello World!". The
+software spins, waiting for the line to update. Once available, the software
+prints the string.
 
 Of note in this example:
 
@@ -18,13 +20,48 @@ Of note in this example:
   examples.
 
 - The AFU UUID is declared exactly once in the sources: in the JSON file.
-  The RTL loads the UUID from afu_json_info.vh, which is automatically generated
-  from `hello_afu.json` using `afu_json_mgr`. Similarly, software compilation loads the
+  [hw/hello_afu.json](hw/hello_afu.json) and is extracted by
+  the OPAE `afu_json_mgr` script into both Verilog and C header files.
+  The RTL loads the UUID from afu_json_info.vh. Similarly, software compilation loads the
   UUID from `afu_json_info.h`, which is again automatically generated from `hello_afu.json`.
 
 - The software demonstrates the minimum necessary to attach to an FPGA
   using OPAE.  The RTL demonstrates the minimum necessary to satisfy the
   OPAE driver and the hello_afu software.
+
+## AFU RTL code
+
+The RTL is contained entirely in
+[hw/rtl/cci_hello_afu.sv](hw/rtl/cci_hello_afu.sv) and demonstrates the
+following universal AFU requirements:
+
+- The CCI request and response ports are clocked by pClk.
+
+- Reset (pck_cp2af_softReset) is synchronous with pClk.
+
+- Outgoing request and incoming response wires must be registered.
+
+- All AFUs must implement a read-only device feature header (DFH) in MMIO
+  space at MMIO address 0. The DFH holds a 128 bit AFU ID, mapped to a pair of
+  64 bit MMIO "registers".
+
+## AFU software code
+
+The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
+
+- The AFU ID in the software must match the AFU ID in the hardware's DFH.
+
+- The FPGA-accessible shared memory is mapped explicitly.
+
+- Memory addresses passed to the FIU's CCI request wires are in a
+  physical I/O address space. Since all CCI requests refer to entire 512
+  bit memory lines, the example passes the line-based physical address
+  to which "Hello World!" should be written.
+
+- The code in `connect_to_accel()` is a simplification of the ideal
+  sequence. The code detects at most one accelerator matching the
+  desired UUID.  Later examples detect when multiple instances of the
+  same hardware are available in case one is already in use.
 
 ## Simulation with ASE
 
@@ -87,5 +124,20 @@ Of note in this example:
   This GBS file may be loaded onto a compatible FPGA using OPAE's `fpgaconf`
   tool.
 
-  To run the software connected to an FPGA, run `hello_afu` binary without specifying
-  `LD_PRELOAD=./lib/libopae-c-ase.so`
+## Running the sample on hardware
+
+To run the software connected to an FPGA, compile it as above, but invoke the
+ binary `hello_afu` binary without specifying
+ `LD_PRELOAD=./lib/libopae-c-ase.so`. If you have already run ASE simulation,
+ the binary has already been compiled and make will do nothing:
+
+```console
+# Continue in the build_synth directory where run.sh was invoked...
+
+# Load the AFU into the partial reconfiguration region
+$ sudo <Directory where OPAE repository was built.>/bin/fpgaconf hello_afu.gbs
+
+$ cd <Directory where OPAE repository was built.>
+# sudo may be required to invoke hello_afu, depending on your environment.
+$ ./bin/hello_afu
+```
