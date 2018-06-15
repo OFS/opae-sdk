@@ -12,7 +12,7 @@ Of note in this example:
   identify the AFU when it is loaded on an FPGA.
 
 - The AFU declares that it expects the ccip_std_afu top-level interface by
-  setting "afu-top-interface" to "ccip_std_afu" in hw/hello_afu.json.
+  setting "afu-top-interface" to "ccip_std_afu" in `hw/hello_afu.json`.
   This is the base CCI-P interface with clocks, reset and CCI-P Rx/Tx
   structures.  Other interface options will be described in subsequent
   examples.
