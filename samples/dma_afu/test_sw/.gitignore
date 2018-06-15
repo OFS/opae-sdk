@@ -1,5 +1,0 @@
-*.o
-*.so
-dma_afu_test
-dma_bbb_speed_test
-dma_memtest
