@@ -32,11 +32,12 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-const std::vector<properties> properties::none = {};
+const std::vector<properties::ptr_t> properties::none = {};
 
 properties::properties()
     : props_(nullptr),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
+      num_errors(&props_, fpgaPropertiesGetNumErrors, fpgaPropertiesSetNumErrors),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
       function(&props_, fpgaPropertiesGetFunction, fpgaPropertiesSetFunction),

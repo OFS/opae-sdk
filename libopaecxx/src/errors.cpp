@@ -23,41 +23,28 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/cxx/core/errors.h>
+#include <opae/error.h>
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+namespace opae {
+namespace fpga {
+namespace types {
 
-#include "common_int.h"
-#include "opae/error.h"
+error::error(token::ptr_t token, uint32_t num)
+    : token_(token), error_info_(), error_num_(num) {}
 
-fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(value);
-	return FPGA_NOT_SUPPORTED;
+error::ptr_t error::get(token::ptr_t tok, uint32_t num) {
+  error::ptr_t err(new error(tok, num));
+  ASSERT_FPGA_OK(fpgaGetErrorInfo(*tok, num, &err->error_info_));
+  return err;
 }
 
-fpga_result __FPGA_API__ fpgaClearError(fpga_token token, uint32_t error_num)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	return FPGA_NOT_SUPPORTED;
+uint64_t error::read_value() {
+  uint64_t val;
+  ASSERT_FPGA_OK(fpgaReadError(*token_, error_num_, &val));
+  return val;
 }
 
-fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
-{
-	UNUSED_PARAM(token);
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
-			     uint32_t error_num,
-			     struct fpga_error_info *error_info)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(error_info);
-	return FPGA_NOT_SUPPORTED;
-}
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

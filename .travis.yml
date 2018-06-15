@@ -12,6 +12,30 @@ matrix:
     - pip install --user jinja2
   - script: scripts/test-build.sh
     cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=RelWithDebInfo
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=Debug
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=Release
     addons:
       apt:
         packages:
