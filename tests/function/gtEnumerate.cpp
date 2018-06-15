@@ -29,6 +29,7 @@
 #include "common_test.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
+#include "token_list_int.h"
 
 using namespace common_test;
 
