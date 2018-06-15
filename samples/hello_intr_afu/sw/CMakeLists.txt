@@ -31,7 +31,8 @@
 include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src
   ${MPF_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/sw)
+  ${PROJECT_SOURCE_DIR}/sw
+  ${PROJECT_BINARY_DIR}/hw/include)
 
 add_executable(hello_intr_afu
   hello_intr_afu.c)

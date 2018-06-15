@@ -30,7 +30,10 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src
-  ${MPF_INCLUDE_DIRS})
+  ${MPF_INCLUDE_DIRS}
+  ${PROJECT_BINARY_DIR}/sw
+  ${PROJECT_BINARY_DIR}/hw/include)
+
 add_executable(hello_mpf_afu
   ${OPAE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
   hello_mpf_afu.cpp)
