@@ -31,8 +31,8 @@ Of note in this example:
 
 ## AFU RTL code
 
-The RTL is contained entirely in
-[hw/rtl/cci_hello_afu.sv](hw/rtl/cci_hello_afu.sv) and demonstrates the
+The user-customizable RTL is contained entirely in
+[hw/rtl/afu.sv](hw/rtl/afu.sv) and demonstrates the
 following universal AFU requirements:
 
 - The CCI request and response ports are clocked by pClk.
