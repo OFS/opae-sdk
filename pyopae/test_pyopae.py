@@ -178,6 +178,14 @@ class TestToken(unittest.TestCase):
         toks = opae.fpga.enumerate([props])
         assert toks
 
+    def test_enumerate_kwargs(self):
+        toks = opae.fpga.enumerate(guid=NLB0)
+        assert toks
+
+    def test_enumerate_empty_kwargs(self):
+        toks = opae.fpga.enumerate()
+        assert toks
+
     def test_token_properties(self):
         props = opae.fpga.properties(guid=NLB0)
         toks = opae.fpga.enumerate([props])

@@ -73,6 +73,8 @@ create_python_dist(
 	       pyproperties.cpp
 	       pyhandle.h
 	       pyhandle.cpp
+	       pytoken.h
+	       pytoken.cpp
 	       pyshared_buffer.h
 	       pyshared_buffer.cpp
 	       pyevents.h

@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 #include "pyevents.h"
 #include "pyhandle.h"
+#include "pytoken.h"
 #include "pyproperties.h"
 #include "pyshared_buffer.h"
 
@@ -15,28 +16,6 @@ using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 
-const char *token_doc() {
-  return R"opaedoc(
-    Token for referencing an OPAE resource.
-
-    A token object serves as a reference so a specific resource in the system.
-    Holding a token does not constitute ownership of an OPAE resource.
-    It is used to query information about a resource,
-    or to acquire ownership by calling fpga.open module method.
-  )opaedoc";
-}
-
-const char *token_doc_enumerate() {
-  return R"opaedoc(
-    Get a list of tokens for the given search criteria.
-
-    Args:
-
-      props(list): A list of properties objects that define the search criteria.
-                   All OPAE properties in each properties object make up one filter.
-                   All properties objects are combined in a union.
-  )opaedoc";
-}
 
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
@@ -136,7 +115,8 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_accelerator_state());
 
   // define token class
-  m.def("enumerate", &token::enumerate, token_doc_enumerate());
+  m.def("enumerate", &token::enumerate, token_doc_enumerate())
+    .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());;
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
 
   // define handle class
