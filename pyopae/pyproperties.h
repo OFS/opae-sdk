@@ -103,7 +103,7 @@ const char *properties_doc_bbs_version();
 std::tuple<uint8_t, uint8_t, uint16_t> properties_get_bbs_version(
     opae::fpga::types::properties::ptr_t props);
 void properties_set_bbs_version(opae::fpga::types::properties::ptr_t props,
-                                py::tuple bbs_version);
+                                pybind11::tuple bbs_version);
 
 const char *properties_doc_vendor_id();
 uint32_t properties_get_vendor_id(opae::fpga::types::properties::ptr_t props);
