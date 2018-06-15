@@ -55,8 +55,7 @@ Of note in this example:
 ```
 
   This will run the RTL simulator.  If this step fails it is
-  likely that your RTL simulator is not installed properly.  ModelSim,
-  Questa and VCS are supported.
+  likely that your RTL simulator is not installed properly.
 
   The simulator prints a message that it is ready for simulation.  It also
   prints a message to set the `ASE_WORKDIR` environment variable.  Open
@@ -74,7 +73,8 @@ Of note in this example:
 
   RTL simulation and synthesis are driven by the same `sources.txt`, `hello_afu.json` and
   underlying OPAE scripts.  To construct a Quartus synthesis environment
-  for this AFU, enter following commands in same directory containing this README:
+  for this AFU, enter following commands in same directory containing this
+  `README` file:
 
 ```console
     $ afu_synth_setup --source hw/sources.txt --json hw/hello_afu.json build_synth
