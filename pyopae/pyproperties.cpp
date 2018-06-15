@@ -31,6 +31,16 @@ namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
 
+
+static inline fpga_version pytuple_to_fpga_version(py::tuple tpl){
+    fpga_version version{
+        .major = tpl[0].cast<uint8_t>(),
+        .minor = tpl[1].cast<uint8_t>(),
+        .patch = tpl[2].cast<uint16_t>(),
+    };
+  return version;
+}
+
 const char *properties_doc() {
   return R"opaedoc(
     properties class is a container class for OPAE resource properties.
@@ -108,12 +118,7 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
 
   if (kwargs.contains("bbs_version")) {
     py::tuple version_tuple = kwargs["bbs_version"].cast<py::tuple>();
-    fpga_version version{
-        .major = version_tuple[0].cast<uint8_t>(),
-        .minor = version_tuple[1].cast<uint8_t>(),
-        .patch = version_tuple[2].cast<uint16_t>(),
-    };
-    props->bbs_version = version;
+    props->bbs_version = pytuple_to_fpga_version(version_tuple);
   }
   kwargs_to_props<uint16_t>(props->vendor_id, kwargs, "vendor_id");
 
@@ -320,8 +325,8 @@ std::tuple<uint8_t, uint8_t, uint16_t> properties_get_bbs_version(
 }
 
 void properties_set_bbs_version(properties::ptr_t props,
-                                fpga_version bbs_version) {
-  props->bbs_version = bbs_version;
+                                py::tuple bbs_version) {
+  props->bbs_version = pytuple_to_fpga_version(bbs_version);
 }
 
 // vendor id
