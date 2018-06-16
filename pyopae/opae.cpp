@@ -116,7 +116,7 @@ PYBIND11_MODULE(_opae, m) {
       .def_property("bbs_id", properties_get_bbs_id, properties_set_bbs_id,
                     properties_doc_bbs_id())
       .def_property("bbs_version", properties_get_bbs_version,
-                    properties_set_bbs_id, properties_doc_bbs_id())
+                    properties_set_bbs_version, properties_doc_bbs_version())
       .def_property("vendor_id", properties_get_vendor_id,
                     properties_set_vendor_id, properties_doc_vendor_id())
       .def_property("model", properties_get_model, properties_set_model,
