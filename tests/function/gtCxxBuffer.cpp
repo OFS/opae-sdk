@@ -63,6 +63,27 @@ TEST_F(LibopaecppBufCommonALL_f1, alloc_02) {
 }
 
 /**
+ * @test release_01
+ * Given an open accelerator handle object<br>
+ * And a valid shared_buffer object created with allocate<br>
+ * When I call shared_buffer::release()<br>
+ * Then the shared_buffer object is invalidated<br>
+ */
+TEST_F(LibopaecppBufCommonALL_f1, release_01) {
+  buf_ = shared_buffer::allocate(accel_, 64);
+  ASSERT_NE(nullptr, buf_.get());
+
+  EXPECT_EQ(64, buf_->size());
+  EXPECT_NE(0, buf_->iova());
+  EXPECT_NE(nullptr, buf_->c_type());
+
+  buf_->release();
+  EXPECT_EQ(0, buf_->size());
+  EXPECT_EQ(0, buf_->iova());
+  EXPECT_EQ(0, buf_->c_type());
+}
+
+/**
  * @test alloc_07
  * Given an open accelerator handle object and a pre-allocated buffer<br>
  * When I call shared_buffer::attach() with a length that is a multiple of the page
