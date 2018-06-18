@@ -59,13 +59,13 @@ TEST(LibopaecppExceptCommonALL, except_03) {
  * Then the new object is a copy of the original.<br>
  */
 TEST(LibopaecppExceptCommonALL, except_04) {
-  src_location l1(__FILE__, __func__, __LINE__);
-  src_location l2("someotherfile.txt", "some_other_fn", __LINE__);
+  src_location locA(__FILE__, __func__, __LINE__);
+  src_location locB("someotherfile.txt", "some_other_fn", __LINE__);
 
-  l2 = l1;
-  EXPECT_STREQ(l2.file(), l1.file());
-  EXPECT_STREQ(l2.fn(), l1.fn());
-  EXPECT_EQ(l2.line(), l1.line());
+  locB = locA;
+  EXPECT_STREQ(locB.file(), locA.file());
+  EXPECT_STREQ(locB.fn(), locA.fn());
+  EXPECT_EQ(locB.line(), locA.line());
 }
 
 /**
