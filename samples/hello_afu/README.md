@@ -132,7 +132,10 @@ To run the software connected to an FPGA, compile it as above, but invoke the
  the binary has already been compiled and `make -j` will do nothing:
 
 ```console
-$ sudo opae_build/bin/fpgaconf hello_afu.gbs
-$ cd opae_build
-$ ./bin/hello_afu
+    # Load the AFU into the partial reconfiguration region
+    $ sudo opae_build/bin/fpgaconf hello_afu.gbs
+
+    $ cd opae_build
+    # sudo may be required to invoke hello_afu, depending on your environment.
+    $ ./bin/hello_afu
 ```
