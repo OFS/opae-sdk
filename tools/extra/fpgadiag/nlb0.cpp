@@ -78,7 +78,7 @@ nlb0::nlb0()
     options_.add_option<uint32_t>("timeout-min",          option::with_argument, "Timeout for continuous mode (minutes portion)", 0);
     options_.add_option<uint32_t>("timeout-hour",         option::with_argument, "Timeout for continuous mode (hours portion)", 0);
     options_.add_option<uint8_t>("socket-id",        'S', option::with_argument, "Socket id encoded in BBS");
-    options_.add_option<uint8_t>("bus-number",       'B', option::with_argument, "Bus number of PCIe device");
+    options_.add_option<uint8_t>("bus",              'B', option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",         'F', option::with_argument, "Function number of PCIe device");
     options_.add_option<std::string>("guid",         'G', option::with_argument, "accelerator id to enumerate", afu_id_);
