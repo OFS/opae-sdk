@@ -53,6 +53,22 @@ TEST(LibopaecppExceptCommonALL, except_03) {
 }
 
 /**
+ * @test except_04
+ * Given a src_location<br>
+ * When the object is copy-assigned<br>
+ * Then the new object is a copy of the original.<br>
+ */
+TEST(LibopaecppExceptCommonALL, except_04) {
+  src_location l1(__FILE__, __func__, __LINE__);
+  src_location l2("someotherfile.txt", "some_other_fn", __LINE__);
+
+  l2 = l1;
+  EXPECT_STREQ(l2.file(), l1.file());
+  EXPECT_STREQ(l2.fn(), l1.fn());
+  EXPECT_EQ(l2.line(), l1.line());
+}
+
+/**
  * @test assert_ok_invalid_param
  * Given an assertion macro, ASSERT_FPGA_OK
  * When I use the macro with a result code of FPGA_INVALID_PARAM
