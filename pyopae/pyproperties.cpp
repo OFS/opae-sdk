@@ -73,6 +73,8 @@ const char *properties_doc_get() {
 
       num_slots: Number of slots available in the FPGA.
 
+      num_errors: Number of error registers in the resource.
+
       bbs_id (uint64_t): The BBS ID encoded in the FIM.
 
       bbs_version: The version of the BBS.
@@ -113,6 +115,7 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   kwargs_to_props<uint8_t>(props->device, kwargs, "device");
   kwargs_to_props<uint8_t>(props->function, kwargs, "function");
   kwargs_to_props<uint8_t>(props->socket_id, kwargs, "socket_id");
+  kwargs_to_props<uint32_t>(props->num_errors, kwargs, "num_errors");
   kwargs_to_props<uint32_t>(props->num_slots, kwargs, "num_slots");
   kwargs_to_props<uint64_t>(props->bbs_id, kwargs, "bbs_id");
 
@@ -276,6 +279,21 @@ uint64_t properties_get_object_id(properties::ptr_t props) {
 
 void properties_set_object_id(properties::ptr_t props, uint64_t object_id) {
   props->object_id = object_id;
+}
+
+// num errors
+const char *properties_doc_num_errors() {
+  return R"opaedoc(
+    Get or set the number of error registers in the resource.
+   )opaedoc";
+}
+
+uint32_t properties_get_num_errors(properties::ptr_t props) {
+  return props->num_errors;
+}
+
+void properties_set_num_errors(properties::ptr_t props, uint32_t num_errors) {
+  props->num_errors = num_errors;
 }
 
 // num slots
