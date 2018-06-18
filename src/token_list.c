@@ -186,6 +186,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
  * Clean up remaining entries in linked list
  * Will delete all remaining entries
  */
+/* TODO: re-enable this
 void token_cleanup(void)
 {
 	int err = 0;
@@ -224,4 +225,4 @@ out_unlock:
 		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 }
-
+*/

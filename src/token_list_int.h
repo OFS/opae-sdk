@@ -29,13 +29,12 @@
 
 #include "types_int.h"
 #include "log_int.h"
-#include "token_list_int.h"
 
 /*
  * token list structure manipulation functions
  */
 struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
 struct _fpga_token *token_get_parent(struct _fpga_token *t);
-void token_cleanup(void);
+/* void token_cleanup(void); */
 
 #endif // ___FPGA_TOKEN_LIST_INT_H__
