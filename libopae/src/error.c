@@ -40,7 +40,7 @@
 
 #include "error_int.h"
 
-fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
+fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	struct stat st;
@@ -77,7 +77,7 @@ fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
+fpga_result __FPGA_API__ fpgaClearError(fpga_token token, uint32_t error_num)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	struct stat st;
@@ -123,7 +123,7 @@ fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result fpgaClearAllErrors(fpga_token token)
+fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	uint32_t i = 0;
@@ -151,7 +151,7 @@ fpga_result fpgaClearAllErrors(fpga_token token)
 	return FPGA_OK;
 }
 
-fpga_result fpgaGetErrorInfo(fpga_token token,
+fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
 			     uint32_t error_num,
 			     struct fpga_error_info *error_info)
 {
