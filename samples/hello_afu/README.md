@@ -8,22 +8,23 @@ prints the string.
 
 Of note in this example:
 
-- RTL sources are specified in hw/sources.txt.  In addition to
+- RTL sources are specified in [hw/sources.txt](hw/sources.txt).  In addition to
   SystemVerilog, the AFU's JSON file is included also under 'hw' directory.  The AFU JSON
   describes the interfaces required by the AFU.  It also holds a UUID to
   identify the AFU when it is loaded on an FPGA.
 
 - The AFU declares that it expects the ccip_std_afu top-level interface by
-  setting "afu-top-interface" to "ccip_std_afu" in `hw/hello_afu.json`.
+  setting "afu-top-interface" to "ccip_std_afu" in [hw/hello_afu.json](hw/hello_afu.json).
   This is the base CCI-P interface with clocks, reset and CCI-P Rx/Tx
   structures.  Other interface options will be described in subsequent
   examples.
 
 - The AFU UUID is declared exactly once in the sources: in the JSON file.
   [hw/hello_afu.json](hw/hello_afu.json) and is extracted by
-  the OPAE `afu_json_mgr` script into both Verilog and C header files.
-  The RTL loads the UUID from afu_json_info.vh. Similarly, software compilation loads the
-  UUID from `afu_json_info.h`, which is again automatically generated from `hello_afu.json`.
+  the OPAE `afu_json_mgr` script into both Verilog (`afu_json_info.vh`) and C
+  `afu_json_info.h` header files. The RTL loads the UUID from
+  `afu_json_info.vh`.  Similarly, software compilation loads the
+  UUID from `afu_json_info.h`.
 
 - The software demonstrates the minimum necessary to attach to an FPGA
   using OPAE.  The RTL demonstrates the minimum necessary to satisfy the
@@ -65,7 +66,6 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
 
 ## Simulation with ASE
 
-  Follow the steps in ../README.md for building ASE libraries using default OPAE libraries.
   Ensure your `$QUARTUS_HOME` and `$MTI_HOME` user environment variables point
   to the roots of valid installations of Quartus (17.0 or higher) and Modelsim
   (10.3 or higher). While these steps are also listed in ../README.md, we also list them here:
@@ -80,9 +80,9 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
   Simulation requires two software processes: one for RTL simulation and
   the other to run the connected software.
 
-  `make` will build both the required files for the RTL simulation and the corresponding connected softwre.
-  If `make` failes, confirm that your Python version is at least 2.7 and
-  that the jsonschema Python package is installed
+  `make -j` will build both the required files for the RTL simulation and the
+  corresponding  connected softwre. If `make -j` failes, confirm that your
+  Python version is at least 2.7 and that the jsonschema Python package is installed
   (https://pypi.python.org/pypi/jsonschema).
 
   To launch the RTL simulation execute following steps inside `opae_build` directory:
@@ -100,7 +100,7 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
 
 ```console
     $ <Set ASE_WORKDIR as directed by the simulator>
-    $ LD_PRELOAD=./lib/libopae-c-ase.so ./hello_afu
+    $ LD_PRELOAD=./lib/libopae-c-ase.so ./bin/hello_afu
 ```
 
   The software and simulator should both run quickly, log transactions and
@@ -128,16 +128,16 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
 
 To run the software connected to an FPGA, compile it as above, but invoke the
  binary `hello_afu` binary without specifying
- `LD_PRELOAD=./lib/libopae-c-ase.so`. If you have already run ASE simulation,
- the binary has already been compiled and make will do nothing:
+ `LD_PRELOAD=./lib/libopae-c-ase.so`.  If you have already run ASE simulation,
+ the binary has already been compiled and `make -j` will do nothing:
 
 ```console
 # Continue in the build_synth directory where run.sh was invoked...
 
 # Load the AFU into the partial reconfiguration region
-$ sudo <Directory where OPAE repository was built.>/bin/fpgaconf hello_afu.gbs
+$ sudo opae_build/bin/fpgaconf hello_afu.gbs
 
-$ cd <Directory where OPAE repository was built.>
+$ cd opae_build
 # sudo may be required to invoke hello_afu, depending on your environment.
 $ ./bin/hello_afu
 ```
