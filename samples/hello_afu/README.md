@@ -1,4 +1,4 @@
-# Simple AFU example
+# Simple "Hello World" AFU example
 
 This example is nearly the simplest possible accelerator. The RTL receives an
 address via a memory mapped I/O (MMIO) write and generates a CCI write to the
