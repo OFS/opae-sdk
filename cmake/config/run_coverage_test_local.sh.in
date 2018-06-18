@@ -29,7 +29,7 @@ rm -rf coverage_${target_name}
 mkdir -p coverage_${target_name}
 ${test_command} ${TESTRUNNER_ARGS}
 if [ "@COVERAGE_EXTRA@" = "1" ]; then
-  sleep 55
+  sleep 35
   for i in @COVERAGE_EXTRA_COMPONENTS@
   do
     # add individual element of the array
