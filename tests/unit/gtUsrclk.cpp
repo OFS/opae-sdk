@@ -66,16 +66,15 @@ TEST(LibopaecUsrclkCommonMOCKHW, afu_usrclk_01) {
 	EXPECT_EQ(NULL, !pmsg);
 
 	//Get error string for invlaid index
+	pmsg = NULL;
 	pmsg = fpac_GetErrMsg(17);
-	EXPECT_EQ(NULL, !pmsg);
+	EXPECT_EQ(NULL, pmsg);
 
 	//Get error string for invlaid index
+	pmsg = NULL;
 	pmsg = fpac_GetErrMsg(-1);
-	EXPECT_EQ(NULL, !pmsg);
+	EXPECT_EQ(NULL, pmsg);
 
-	//Get error string for invlaid index
-	pmsg = fpac_GetErrMsg(100);
-	EXPECT_EQ(NULL, !pmsg);
 
 	fv_BugLog(1);
 
