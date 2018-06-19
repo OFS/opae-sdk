@@ -32,9 +32,6 @@ extern "C" {
 #include <opae/properties.h>
 #include "properties_int.h"
 
-/* including "common_int.h" throws error with _Static_assert() definition */
-void aal_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t* guid);
-
 #ifdef __cplusplus
 }
 #endif
@@ -2944,6 +2941,81 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_220) {
 
   // assert it is set to what we set it to above
   EXPECT_EQ(0xAFFE, device_id);
+
+  // now delete the properties object
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    nodrv_prop_221
+ * @brief   Tests: fpgaPropertiesGetObjectID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetObjectID with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_221) {
+  fpga_properties prop = NULL;
+
+  uint64_t object_id;
+  fpga_result result = fpgaPropertiesGetObjectID(prop, &object_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_222
+ * @brief   Tests: fpgaPropertiesSetObjectID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetObjectID with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_222) {
+  fpga_properties prop = NULL;
+  // Call the API to set the object_id on the property
+  fpga_result result = fpgaPropertiesSetObjectID(prop, 0);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_223
+ * @brief   Tests: fpgaPropertiesGetObjectID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          And it has the object_id field set to a known value<br>
+ *          When I call fpgaPropertiesGetObjectID with a pointer to an
+ *          64-bit integer variable<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
+  uint64_t object_id = 0x8000000000000000UL;
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the object type and object ID fields as valid
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
+
+  // set the object type field
+  _prop->objtype = FPGA_ACCELERATOR;
+  // set the object ID to a known value
+  _prop->object_id = object_id;
+
+  // now get the object ID from the prop structure
+  uint64_t tmp_object_id = 0;
+  result = fpgaPropertiesGetObjectID(prop, &tmp_object_id);
+
+  // assert the result was ok
+  EXPECT_EQ(FPGA_OK, result);
+
+  // assert it is set to what we set it to above
+  EXPECT_EQ(object_id, tmp_object_id);
 
   // now delete the properties object
   result = fpgaDestroyProperties(&prop);
