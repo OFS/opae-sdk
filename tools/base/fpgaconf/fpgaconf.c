@@ -435,8 +435,7 @@ int prints_interface_id(fpga_guid actual_interface_id)
 
 	if (num_matches > 0) {
 		retval = (int) num_matches; /* FPGA found */
-	}
-	else {
+	} else {
 		retval = 0; /* no FPGA found */
 	}
 
