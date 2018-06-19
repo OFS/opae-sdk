@@ -46,6 +46,9 @@ endif()
 add_library(commonlib SHARED common_test.h common_test.cpp)
 if(BUILD_ASE_TESTS)
   Build_Test_Target(gtase opae-c-ase)
+  target_compile_definitions(gtase
+    PRIVATE
+    BUILD_ASE)
 endif()
 Build_Test_Target(gtapi opae-c)
 
@@ -95,7 +98,6 @@ list(APPEND gtest_filter_exclude *Properties*._id.*)
 list(APPEND gtest_filter_exclude *Open*.03)
 list(APPEND gtest_filter_exclude *Open*.06)
 list(APPEND gtest_filter_exclude *Open*.open_drv_09)
-list(APPEND gtest_filter_exclude *Open*.open_drv_10)
 list(APPEND gtest_filter_exclude *Open*.07)
 list(APPEND gtest_filter_exclude *Enum*.18)
 list(APPEND gtest_filter_exclude *Enum*.19)
