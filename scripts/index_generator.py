@@ -31,10 +31,10 @@ managing and accessing programmable accelerators (FPGAs). Its main parts
 are:</p>
 
 <ul>
-    <li type="circle">The OPAE Software Development Kit (OPAE SDK),</li>
-    <li>The OPAE Linux driver for Intel(R) Xeon(R) CPU with Integrated
+    <li> - The OPAE Software Development Kit (OPAE SDK),</li>
+    <li> - The OPAE Linux driver for Intel(R) Xeon(R) CPU with Integrated
     FPGAs and Intel(R) PAC with Arria(R) 10 GX FPGA</li>
-    <li>The Basic Building Block (BBB) library for accelerating AFU
+    <li> - The Basic Building Block (BBB) library for accelerating AFU
     development (not part of the OPAE release, but pre-release code is
     available on GitHub:
     <a href="https://github.com/OPAE/intel-fpga-bbb">Intel FPGA BBB</a></li>
