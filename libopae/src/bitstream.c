@@ -112,7 +112,7 @@ static int64_t int64_be_to_le(int64_t val)
 	return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
 }
 
-fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
+fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 {
 	char file_path[SYSFS_PATH_MAX];
 	struct stat astats;
