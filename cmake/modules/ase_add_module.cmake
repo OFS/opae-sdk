@@ -128,11 +128,17 @@ function(ase_add_afu_module name)
 
     # Calculate module locations
     if(ext STREQUAL ".txt"
+        # JSON metadata
+        OR ext STREQUAL ".json"
+        # Verilog files
         OR ext STREQUAL ".sv"
         OR ext STREQUAL ".svh"
         OR ext STREQUAL ".v"
         OR ext STREQUAL ".vh"
-        OR ext STREQUAL ".json")
+        # Quartus files
+        OR ext MATCHES "\\.ip$"
+        OR ext MATCHES "\\.qsys$"
+        OR ext MATCHES "\\.tcl$")
 
       # Categorize sources
       set(source_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
