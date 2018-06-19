@@ -64,6 +64,14 @@ set(ASESW_FILE_LIST
 
 function(ase_module_add_dpic name)
 
+  # Get object properties
+  get_property(platform_name TARGET ${m} PROPERTY ASE_MODULE_PLATFORM_NAME)
+  if(platform_name STREQUAL "intg_xeon")
+    set(used_platform "FPGA_PLATFORM_INTG_XEON")
+  else()
+    set(used_platform "FPGA_PLATFORM_DISCRETE")
+  endif()
+
   add_library(opae-c-ase-server-${name} SHARED
     ${ASESW_FILE_LIST}
     ${CMAKE_CURRENT_BINARY_DIR}/include/afu_json_info.h)
@@ -78,7 +86,7 @@ function(ase_module_add_dpic name)
     _GLIBCXX_USE_CXX11_ABI=0
     SIM_SIDE=1
     SIMULATOR=${ASE_SIMULATOR}
-    ASE_PLATFORM=${ASE_PLATFORM})
+    ${used_platform})
 
   # Define include directories
   target_include_directories(opae-c-ase-server-${name} PUBLIC

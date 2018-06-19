@@ -136,8 +136,8 @@ define_property(TARGET PROPERTY ASE_MODULE_LIBOPAE_LOCATION
 
 # ASE platform name (e.g. intg_xeon, discrete, etc)
 define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_NAME
-  BRIEF_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete, etc)."
-  FULL_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete, etc).")
+  BRIEF_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete_pcie3, etc)."
+  FULL_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete_pcie3, etc).")
 
 # ASE platform fullname (e.g. FPGA_PLATFORM_INTG_XEON, etc)
 define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_FULLNAME

@@ -810,5 +810,4 @@ extern struct ase_capability_t ase_capability;
 #endif
 // ------------------------------------------ //
 
-
-#endif				// End _ASE_COMMON_H_
+#endif	// End _ASE_COMMON_H_
