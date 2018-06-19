@@ -30,6 +30,7 @@ extern "C" {
 #endif
 #include <opae/enum.h>
 #include <opae/properties.h>
+#undef  _GNU_SOURCE
 #include "usrclk/user_clk_pgm_uclock.h"
 
 #ifdef __cplusplus
