@@ -115,7 +115,11 @@ function(ase_add_afu_module name)
   # SystemVerilog source files (.sv)
   set(sverilog_ase_module_sources_abs)
   # SystemVerilog header files (.svh)
-  set(sverilog_headers_abs)
+  set(sverilog_ase_module_headers_abs)
+  # Quartus Qsys files (.qsys)
+  set(qsys_ase_module_sources_abs)
+  # Quartus .ip files (.ip)
+  set(ip_ase_module_sources_abs)
 
   ############################################################################
   ## Categorize sources
