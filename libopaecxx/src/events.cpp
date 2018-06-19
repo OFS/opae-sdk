@@ -49,6 +49,10 @@ event::operator fpga_event_handle() { return event_handle_; }
 
 event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
                                    int flags) {
+  if (!h) {
+    throw std::invalid_argument("handle object is null");
+  }
+
   event::ptr_t evptr;
   fpga_event_handle eh;
   ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
