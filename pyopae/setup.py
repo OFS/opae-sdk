@@ -42,6 +42,7 @@ extensions = [
                        "pyhandle.cpp",
                        "pyshared_buffer.cpp",
                        "pyevents.cpp",
+                       "pyerrors.cpp",
                        "opae.cpp"],
               language="c++",
               extra_compile_args=["-std=c++11"],

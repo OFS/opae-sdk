@@ -8,7 +8,7 @@ The reference documentation for the OPAE Python API
    :local:
 
 .. automodule:: opae.fpga
-        :members: enumerate, open, register_event, allocate_shared_buffer, DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR, EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED, ACCELERATOR_UNASSIGNED, RECONF_FORCE
+        :members: enumerate, open, register_event, allocate_shared_buffer, errors, DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR, EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED, ACCELERATOR_UNASSIGNED, RECONF_FORCE
 
 .. autoclass:: opae.fpga.properties
         :members: __init__, accelerator_state, bbs_id, bbs_version, bus, capabilities, device, function, model, num_interrupts, num_mmio, num_slots, object_id, parent, socket_id, vendor_id
@@ -24,5 +24,8 @@ The reference documentation for the OPAE Python API
 
 .. autoclass:: opae.fpga.shared_buffer
         :members: size, wsid, iova, fill, compare, memoryview
+
+.. autoclass:: opae.fpga.error
+        :members: name, can_clear, read_value
 
 

@@ -23,41 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#pragma once
+#include <Python.h>
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#include <opae/cxx/core/errors.h>
+#include <opae/cxx/core/token.h>
+#include <pybind11/pybind11.h>
+#include <vector>
 
-#include "common_int.h"
-#include "opae/error.h"
+const char *error_doc();
 
-fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(value);
-	return FPGA_NOT_SUPPORTED;
-}
+const char *error_doc_name();
 
-fpga_result __FPGA_API__ fpgaClearError(fpga_token token, uint32_t error_num)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	return FPGA_NOT_SUPPORTED;
-}
+const char *error_doc_can_clear();
 
-fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
-{
-	UNUSED_PARAM(token);
-	return FPGA_NOT_SUPPORTED;
-}
+const char *error_doc_read_value();
 
-fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
-			     uint32_t error_num,
-			     struct fpga_error_info *error_info)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(error_info);
-	return FPGA_NOT_SUPPORTED;
-}
+const char *error_doc_errors();
+
+std::vector<opae::fpga::types::error::ptr_t> error_errors(
+    opae::fpga::types::token::ptr_t tok);

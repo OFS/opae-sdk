@@ -23,41 +23,55 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include "pyerrors.h"
+namespace py = pybind11;
+using opae::fpga::types::error;
+using opae::fpga::types::token;
+using opae::fpga::types::properties;
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#include "common_int.h"
-#include "opae/error.h"
-
-fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(value);
-	return FPGA_NOT_SUPPORTED;
+const char *error_doc() {
+  return R"opaedoc(
+    error object is used to represent an error register in an FPGA resource.
+    It holds two read-only properties, `name` and `can_clear` and it can also
+    be used to read the raw register value from its corresponding error register.
+  )opaedoc";
 }
 
-fpga_result __FPGA_API__ fpgaClearError(fpga_token token, uint32_t error_num)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	return FPGA_NOT_SUPPORTED;
+const char *error_doc_name() {
+  return R"opaedoc(
+    Error register name - read-only property
+  )opaedoc";
 }
 
-fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
-{
-	UNUSED_PARAM(token);
-	return FPGA_NOT_SUPPORTED;
+
+const char *error_doc_can_clear() {
+  return R"opaedoc(
+    Indicates if the error register can be cleared - read-only property
+  )opaedoc";
 }
 
-fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
-			     uint32_t error_num,
-			     struct fpga_error_info *error_info)
-{
-	UNUSED_PARAM(token);
-	UNUSED_PARAM(error_num);
-	UNUSED_PARAM(error_info);
-	return FPGA_NOT_SUPPORTED;
+const char *error_doc_read_value() {
+  return R"opaedoc(
+    Read the raw value from the error register.
+  )opaedoc";
 }
+
+const char *error_doc_errors() {
+  return R"opaedoc(
+    Get a list of error objects in an FPGA resource.
+    Each error object represents an error register contained in the resource.
+
+    Args:
+      tok(token): Token representing an FPGA resource.
+  )opaedoc";
+}
+
+std::vector<error::ptr_t> error_errors(token::ptr_t tok) {
+    auto props = properties::get(tok);
+    std::vector<error::ptr_t> errors(props->num_errors);
+    for (uint32_t i = 0; i < props->num_errors; ++i) {
+      errors[i] = error::get(tok, i);
+    }
+    return errors;
+}
+
