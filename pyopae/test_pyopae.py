@@ -311,11 +311,9 @@ class TestEvent(unittest.TestCase):
         assert self.toks
         self.handle = opae.fpga.open(self.toks[0])
         assert self.handle
-        if not subprocess.call("pgrep fpgad", shell=True):
-            with open("/tmp/fpgad.pid", "r") as fd:
-                pid = fd.read().strip()
-                subprocess.call("kill -9 {}".format(pid), shell=True)
-        time.sleep(1)
+        while subprocess.call("pgrep fpgad", shell=True) == 0:
+            subprocess.call("pkill fpgad", shell=True)
+            time.sleep(1)
         self.fpgad = subprocess.Popen("./bin/fpgad", shell=True)
         time.sleep(1)
 
@@ -324,6 +322,9 @@ class TestEvent(unittest.TestCase):
         trigger_port_error(0)
         self.fpgad.terminate()
         time.sleep(1)
+        if not subprocess.call('pgrep fpgad', shell=True):
+            subprocess.call("pkill fpgad", shell=True)
+            time.sleep(1)
         if not subprocess.call('pgrep fpgad', shell=True):
             print "WARNING: fpgad is still running..."
 
@@ -350,7 +351,8 @@ class TestEvent(unittest.TestCase):
                 break
 
         trigger_error_timer.cancel()
-        assert received_event and not subprocess.call('pgrep fpgad')
+        assert received_event and not subprocess.call('pgrep fpgad',
+                                                      shell=True)
 
 
 class TestError(unittest.TestCase):
