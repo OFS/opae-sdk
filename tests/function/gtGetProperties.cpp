@@ -110,3 +110,55 @@ TEST(LibopaecGetPropertiesCommonALL, device_id_1) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetDeviceID(prop, &x));
   EXPECT_EQ(x, 0xbcc0);
 }
+
+class LibopaecGetPropertiesFCommonMOCKHW : public BaseFixture, public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    m_AFUHandle = NULL;
+    m_FMEHandle = NULL;
+
+    token_for_afu0(&m_AFUToken);
+    ASSERT_EQ(FPGA_OK, fpgaOpen(&m_AFUToken, &m_AFUHandle, 0));
+
+    token_for_fme0(&m_FMEToken);
+    ASSERT_EQ(FPGA_OK, fpgaOpen(&m_FMEToken, &m_FMEHandle, 0));
+  }
+
+  virtual void TearDown() {
+    EXPECT_EQ(FPGA_OK, fpgaClose(m_FMEHandle));
+    EXPECT_EQ(FPGA_OK, fpgaClose(m_AFUHandle));
+  }
+
+  struct _fpga_token m_AFUToken;
+  struct _fpga_token m_FMEToken;
+  fpga_handle m_AFUHandle;
+  fpga_handle m_FMEHandle;
+};
+
+/**
+ * @test       get_01
+ *
+ * @brief      When fpgaGetPropertiesFromHandle is called
+ *             with a valid handle,
+ *             the function returns FPGA_OK, and
+ *             the returned properties are valid for that handle.
+ */
+TEST_F(LibopaecGetPropertiesFCommonMOCKHW, get_01) {
+  fpga_properties prop = NULL;
+  fpga_objtype objtype = FPGA_DEVICE; 
+
+  ASSERT_EQ(FPGA_OK, fpgaGetPropertiesFromHandle(m_AFUHandle, &prop));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetObjectType(prop, &objtype));
+  EXPECT_EQ(FPGA_ACCELERATOR, objtype);
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+
+  prop = NULL;
+  objtype = FPGA_ACCELERATOR;
+
+  ASSERT_EQ(FPGA_OK, fpgaGetPropertiesFromHandle(m_FMEHandle, &prop));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetObjectType(prop, &objtype));
+  EXPECT_EQ(FPGA_DEVICE, objtype);
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+}
