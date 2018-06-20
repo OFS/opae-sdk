@@ -27,7 +27,7 @@ Show total the power in watts that the FPGA hardware consumes.
 
 `temp`
 
- Show FPGA temperature values in degrees Fahrenheit.
+ Show FPGA temperature values in degrees Celcius.
 
 `port`
 
