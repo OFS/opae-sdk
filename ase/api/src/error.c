@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2018, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,70 +28,36 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/access.h>
-#include <opae/utils.h>
 #include "common_int.h"
-#include "types_int.h"
-#include <ase_common.h>
+#include "opae/error.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-
-fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
+fpga_result __FPGA_API__ fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
-	fpga_result result = FPGA_NOT_FOUND;
-	struct _fpga_handle *_handle;
-	struct _fpga_token *_token;
-	if (NULL == token) {
-		FPGA_MSG("token is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	UNUSED_PARAM(value);
+	return FPGA_NOT_SUPPORTED;
+}
 
-	if (NULL == handle) {
-		FPGA_MSG("handle is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+fpga_result __FPGA_API__ fpgaClearError(fpga_token token, uint32_t error_num)
+{
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	return FPGA_NOT_SUPPORTED;
+}
 
-	if (flags & ~FPGA_OPEN_SHARED) {
-		FPGA_MSG("Unrecognized flags");
-		return FPGA_INVALID_PARAM;
-	}
+fpga_result __FPGA_API__ fpgaClearAllErrors(fpga_token token)
+{
+	UNUSED_PARAM(token);
+	return FPGA_NOT_SUPPORTED;
+}
 
-	/* if (flags & FPGA_OPEN_SHARED) { */
-	/* 	FPGA_MSG("Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n"); */
-	/* 	BEGIN_RED_FONTCOLOR; */
-	/* 	printf("  [APP]  Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n"); */
-	/* 	END_RED_FONTCOLOR; */
-	/* 	return FPGA_NOT_SUPPORTED; */
-	/* } */
-
-	_token = (struct _fpga_token *)token;
-
-	if (_token->magic != ASE_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
-		return FPGA_INVALID_PARAM;
-	}
-
-	// ASE Session Initialization
-	session_init();
-
-	_handle = malloc(sizeof(struct _fpga_handle));
-	if (NULL == _handle) {
-		FPGA_MSG("Failed to allocate memory for handle");
-		return FPGA_NO_MEMORY;
-	}
-
-	memset(_handle, 0, sizeof(*_handle));
-
-	_handle->token = token;
-	_handle->magic = FPGA_HANDLE_MAGIC;
-	// Init MMIO table
-	_handle->mmio_root = NULL;
-	// set handle return value
-	*handle = (void *)_handle;
-
-	result = FPGA_OK;
-	return result;
+fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
+			     uint32_t error_num,
+			     struct fpga_error_info *error_info)
+{
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(error_num);
+	UNUSED_PARAM(error_info);
+	return FPGA_NOT_SUPPORTED;
 }
