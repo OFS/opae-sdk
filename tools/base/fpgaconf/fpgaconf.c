@@ -390,7 +390,7 @@ int parse_metadata(struct bitstream_info *info)
 /*
 * Prints Actual and Expected Interface id
 */
-int prints_interface_id(fpga_guid actual_interface_id)
+int print_interface_id(fpga_guid actual_interface_id)
 {
 	fpga_properties   filter = NULL;
 	uint32_t          num_matches = 0;
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "No suitable slots found.\n");
 		retval = 4;
 		if (config.verbosity > 0)
-			prints_interface_id(info.interface_id);
+			print_interface_id(info.interface_id);
 		goto out_free;
 	}
 	if (res > 1) {
