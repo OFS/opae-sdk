@@ -110,7 +110,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 
 	result = read_gbs_metadata(bitstream_guid_invalid4, &gbs_metadata);
-	ASSERT_EQ(result, FPGA_OK);
+	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid5[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
