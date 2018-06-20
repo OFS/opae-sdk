@@ -71,17 +71,17 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid[] = "XeonFPGA稧BSv001S";
+	uint8_t bitstream_guid[] = "XeonFPGA路GBSv001S";
 	result = read_gbs_metadata(bitstream_guid, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid1[] = "XeonFPGA稧BSv001";
+	uint8_t bitstream_guid_invalid1[] = "XeonFPGA路GBSv001";
 	result = read_gbs_metadata(bitstream_guid_invalid1, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid2[] = "XeonFPGA稧BSv001S  {\"version/\": 640, \"afu-image\":  \
+	uint8_t bitstream_guid_invalid2[] = "XeonFPGA路GBSv001S  {\"version/\": 640, \"afu-image\":  \
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\"\
@@ -92,7 +92,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid3[] = "XeonFPGA稧BSv001\53\02\00\00{\"version/\": 640, \"afu-image\": \
+	uint8_t bitstream_guid_invalid3[] = "XeonFPGA路GBSv001\53\02\00\00{\"version/\": 640, \"afu-image\": \
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
@@ -102,7 +102,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_NE(result, FPGA_OK);
 
 	// valid input bitstream
-	uint8_t bitstream_guid_invalid4[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+	uint8_t bitstream_guid_invalid4[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
@@ -113,12 +113,12 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_EQ(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid5[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
+	uint8_t bitstream_guid_invalid5[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid5, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid6[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+	uint8_t bitstream_guid_invalid6[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
 		\"power\": 50,  \"magic-no\": 488605312, \"accelerator-clusters\": \
 		[{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
@@ -127,7 +127,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid7[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+	uint8_t bitstream_guid_invalid7[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\":\
@@ -136,7 +136,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid8[] = "XeonFPGA稧BSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
+	uint8_t bitstream_guid_invalid8[] = "XeonFPGA路GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
@@ -156,7 +156,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_02) {
 	fpga_result result;
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+	uint8_t bitstream_guid_invalid[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no1\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
