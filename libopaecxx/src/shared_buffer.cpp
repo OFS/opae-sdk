@@ -26,6 +26,7 @@
 #include <cstring>
 
 #include <opae/cxx/core/shared_buffer.h>
+#include <exception>
 
 namespace opae {
 namespace fpga {
@@ -35,6 +36,10 @@ shared_buffer::~shared_buffer() { release(); }
 
 shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   ptr_t p;
+
+  if (!handle) {
+    throw std::invalid_argument("handle object is null");
+  }
 
   if (!len) {
     throw except(OPAECXX_HERE);
