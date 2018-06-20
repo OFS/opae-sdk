@@ -24,45 +24,47 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-# - Try to find uuid
+# - Try to find DBus
 # Once done, this will define
 #
-#  libuuid_FOUND - system has libuuid
-#  libuuid_INCLUDE_DIRS - the libuuid include directories
-#  libuuid_LIBRARIES - link these to use libuuid
+#  libdbus_FOUND - system has DBus
+#  libdbus_INCLUDE_DIRS - the DBus include directories
+#  libdbus_LIBRARIES - link these to use DBus
+#
 
 find_package(PkgConfig)
-pkg_check_modules(PC_UUID QUIET uuid)
+pkg_check_modules(PC_DBUS QUIET dbus-1)
 
 # Use pkg-config to get hints about paths
-execute_process(COMMAND pkg-config --cflags uuid --silence-errors
+execute_process(COMMAND pkg-config --cflags dbus-1 --silence-errors
   COMMAND cut -d I -f 2
-  OUTPUT_VARIABLE UUID_PKG_CONFIG_INCLUDE_DIRS)
-set(UUID_PKG_CONFIG_INCLUDE_DIRS "${UUID_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for UUID library")
+  OUTPUT_VARIABLE DBUS_PKG_CONFIG_INCLUDE_DIRS)
+set(DBUS_PKG_CONFIG_INCLUDE_DIRS "${DBUS_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for DBus library")
 
-# Include dir
-find_path(libuuid_INCLUDE_DIRS
-  NAMES uuid/uuid.h
-  PATHS ${LIBUUID_ROOT}/include
-  ${UUID_PKG_CONFIG_INCLUDE_DIRS}
-  /usr/local/include
-  /usr/include
-  ${CMAKE_EXTRA_INCLUDES})
+find_path(libdbus_INCLUDE_DIR
+  NAMES dbus/dbus.h
+  HINTS
+  ${DBUS_PKG_CONFIG_INCLUDE_DIRS}
+  ${PC_DBUS_INCLUDEDIR}
+  ${PC_DBUS_INCLUDE_DIRS})
 
-# The library itself
-find_library(libuuid_LIBRARIES
-  NAMES uuid
-  PATHS ${LIBUUID_ROOT}/lib
-  ${PC_UUID_LIBDIR}
-  ${PC_UUID_LIBRARY_DIRS}
-  /usr/local/lib
-  /usr/lib
-  /lib
-  ${CMAKE_EXTRA_LIBS})
+find_library(libdbus_LIBRARIES
+  NAMES dbus-1
+  HINTS ${PC_DBUS_LIBDIR}
+  ${PC_DBUS_LIBRARY_DIRS})
 
-if(libuuid_LIBRARIES AND libuuid_INCLUDE_DIRS)
-  set(libuuid_FOUND true)
-endif(libuuid_LIBRARIES AND libuuid_INCLUDE_DIRS)
+get_filename_component(_libdbus_LIBRARY_DIR ${libdbus_LIBRARIES} PATH)
+find_path(libdbus_ARCH_INCLUDE_DIR
+  NAMES dbus/dbus-arch-deps.h
+  HINTS ${PC_DBUS_INCLUDEDIR}
+  ${PC_DBUS_INCLUDE_DIRS}
+  ${_libdbus_LIBRARY_DIR}
+  ${libdbus_INCLUDE_DIR}
+  /usr/lib/x86_64-linux-gnu
+  PATH_SUFFIXES include)
+set(libdbus_INCLUDE_DIRS
+  ${libdbus_INCLUDE_DIR}
+  ${libdbus_ARCH_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(libuuid REQUIRED_VARS libuuid_INCLUDE_DIRS libuuid_LIBRARIES)
+find_package_handle_standard_args(libdbus REQUIRED_VARS libdbus_INCLUDE_DIRS libdbus_LIBRARIES)

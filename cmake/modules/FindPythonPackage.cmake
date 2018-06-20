@@ -18,9 +18,6 @@ macro(FIND_PYTHON_PKG PKG_NAME ERR_LEVEL )
 
     if(STATUS_FLAG)
         message(${ERR_LEVEL} "PACKAGER depenency python ${PKG_NAME} package is missing!!!")
-    else(STATUS_FLAG)
-	set(${PKG_NAME}_FOUND TRUE)
     endif(STATUS_FLAG)
-
   endif()  
 endmacro(FIND_PYTHON_PKG)
