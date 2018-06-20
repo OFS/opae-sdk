@@ -17,6 +17,7 @@ lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
 LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d
+sleep 1
 CTEST_OUTPUT_ON_FAILURE=1 make test
 kill $(cat /tmp/fpgad.pid)
 deactivate
