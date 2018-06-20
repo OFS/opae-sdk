@@ -9,7 +9,9 @@ mkdir coverage_report
 
 
 cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Coverage
-make mock gtapi fpgad
+source bin/activate
+make mock gtapi fpgad pyopae
+
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
@@ -17,6 +19,7 @@ lcov -c -i -d . -o coverage.base
 LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d
 CTEST_OUTPUT_ON_FAILURE=1 make test
 kill $(cat /tmp/fpgad.pid)
+deactivate
 
 find */**/opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
 find */**/opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;

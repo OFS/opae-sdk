@@ -202,9 +202,14 @@ class TestHandle(unittest.TestCase):
         self.handle = opae.fpga.open(self.toks[0])
         assert self.handle
 
+    def test_open_null_token(self):
+        with self.assertRaises(ValueError):
+            hndl = opae.fpga.open(None)
+
     def test_open(self):
         assert self.handle
 
+    @unittest.skip("no bitstream in build")
     def test_reconfigure(self):
         with open('m0.gbs', 'r') as fd:
             self.handle.reconfigure(0, fd)
@@ -223,6 +228,12 @@ class TestHandle(unittest.TestCase):
     def test_reset(self):
         self.handle.reset()
 
+    def test_close_reset(self):
+        self.handle.close()
+        assert not self.handle
+        with self.assertRaises(RuntimeError):
+            self.handle.reset()
+
     def test_mmio(self):
         offset = 0x100
         write_value = 10
@@ -239,6 +250,21 @@ class TestHandle(unittest.TestCase):
         self.handle.write_csr64(offset, write_value)
         read_value = self.handle.read_csr64(offset)
         assert read_value == write_value
+
+    def test_close_mmio(self):
+        self.handle.close()
+        assert not self.handle
+        with self.assertRaises(RuntimeError):
+            self.handle.write_csr32(0x100, 0xbeef)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.write_csr64(0x100, 0xbeef)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.read_csr32(0x100)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.read_csr64(0x100)
 
 
 class TestSharedBuffer(unittest.TestCase):
@@ -305,15 +331,11 @@ class TestEvent(unittest.TestCase):
         count = 0
         trigger_error_timer = threading.Timer(1, trigger_port_error)
         trigger_error_timer.start()
-        for _ in range(10):
-            for fileno, ev in epoll.poll(1):
-                print "fileno: {}".format(fileno)
-                if fileno == os_object:
-                    received_event = True
-                    break
-            if received_event:
+        for fileno, ev in epoll.poll(2):
+            print "fileno: {}".format(fileno)
+            if fileno == os_object:
+                received_event = True
                 break
-            time.sleep(1)
 
         trigger_error_timer.cancel()
         assert received_event
@@ -345,14 +367,12 @@ class TestError(unittest.TestCase):
 
     def test_port_errors(self):
         for err in opae.fpga.errors(self.acc_token):
-            print err.name, err.read_value()
             assert self.port_errors[err.name]["can_clear"] == err.can_clear
             self.port_errors.pop(err.name)
         assert not self.port_errors
 
     def test_fme_errors(self):
         for err in opae.fpga.errors(self.dev_token):
-            print err.name, err.can_clear
             assert self.fme_errors[err.name]["can_clear"] == err.can_clear
             self.fme_errors.pop(err.name)
         assert not self.fme_errors
