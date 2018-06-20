@@ -52,13 +52,28 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
+  - script: scripts/coverage-gtapi-mock-drv.sh
+    cache:
+      - ccache
+      - pip
+    addons:
+      apt:
+       packages:
+        - libjson-c-dev
+        - uuid-dev
+        - doxygen
+        - lcov
+    before_install:
+      - pip install --user cpp-coveralls
+    after_success:
+      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned
   - script: scripts/build-documentation.sh
     cache: 
       - ccache
       - pip
     addons:
       apt:
-        packages:
+       packages:
         - libjson-c-dev
         - libhwloc-dev
         - uuid-dev

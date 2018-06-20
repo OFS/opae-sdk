@@ -24,49 +24,60 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/event.h>
+#ifdef __cplusplus
 
-#include <opae/cxx/core/events.h>
-#include <opae/cxx/core/except.h>
+extern "C" {
+#endif
+#include <opae/enum.h>
+#include <opae/properties.h>
+#undef  _GNU_SOURCE
+#include "usrclk/user_clk_pgm_uclock.h"
 
-namespace opae {
-namespace fpga {
-namespace types {
-
-event::~event() {
-  auto res = fpgaUnregisterEvent(*handle_, type_, event_handle_);
-  if (res != FPGA_OK){
-    std::cerr << "Error while calling fpgaUnregisterEvent: " << fpgaErrStr(res) << "\n";
-  }
-
-  res = fpgaDestroyEventHandle(&event_handle_);
-  if (res != FPGA_OK){
-    std::cerr << "Error while calling fpgaDestroyEventHandle: " << fpgaErrStr(res) << "\n";
-  }
+#ifdef __cplusplus
 }
+#endif
 
-event::operator fpga_event_handle() { return event_handle_; }
+#include "common_test.h"
+#include "gtest/gtest.h"
+#include "types_int.h"
 
-event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
-                                   int flags) {
-  if (!h) {
-    throw std::invalid_argument("handle object is null");
-  }
+#define DECLARE_GUID(var, ...) uint8_t var[16] = {__VA_ARGS__};
 
-  event::ptr_t evptr;
-  fpga_event_handle eh;
-  ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
-  ASSERT_FPGA_OK(fpgaRegisterEvent(*h, t, eh, flags));
-  evptr.reset(new event(h, t, eh));
-  ASSERT_FPGA_OK(fpgaGetOSObjectFromEventHandle(eh, &evptr->os_object_));
-  return evptr;
+using namespace common_test;
+
+/**
+* @test    afu_usrclk_01
+* @brief   Tests: fpac_GetErrMsg and fv_BugLog
+* @details fpac_GetErrMsg returns error string
+*          fv_BugLog sets bug log
+*/
+TEST(LibopaecUsrclkCommonMOCKHW, afu_usrclk_01) {
+
+	//Get error string
+	const char * pmsg = fpac_GetErrMsg(1);
+	EXPECT_EQ(NULL, !pmsg);
+
+	//Get error string
+	pmsg = fpac_GetErrMsg(5);
+	EXPECT_EQ(NULL, !pmsg);
+	
+	//Get error string
+	pmsg = fpac_GetErrMsg(16);
+	EXPECT_EQ(NULL, !pmsg);
+
+	//Get error string for invlaid index
+	pmsg = NULL;
+	pmsg = fpac_GetErrMsg(17);
+	EXPECT_EQ(NULL, pmsg);
+
+	//Get error string for invlaid index
+	pmsg = NULL;
+	pmsg = fpac_GetErrMsg(-1);
+	EXPECT_EQ(NULL, pmsg);
+
+
+	fv_BugLog(1);
+
+	fv_BugLog(2);
+
 }
-
-int event::os_object() const { return os_object_; }
-
-event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
-    : handle_(h), type_(t), event_handle_(eh), os_object_(-1) {}
-
-}  // end of namespace types
-}  // end of namespace fpga
-}  // end of namespace opae

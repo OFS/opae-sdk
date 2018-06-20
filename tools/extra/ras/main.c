@@ -637,7 +637,7 @@ fpga_result print_ras_errors(fpga_token token)
 	}
 	printf(" fme error revison : %ld \n", revision);
 
-	// Revision 0
+	// Revision 1
 	if( revision == 1 ) {
 
 		// Non Fatal Error
@@ -661,81 +661,6 @@ fpga_result print_ras_errors(fpga_token token)
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get fme fatal errors");
-			return result;
-		}
-
-		// Injected error
-		printf("\n ------- Injected error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_INJECT_ERROR,
-					RAS_INJECT_ERROR,
-					RAS_INJECT_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme Injected errors");
-			return result;
-		}
-
-		// FME error
-		printf("\n ------- FME error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_FME_ERRORS,
-					FME_ERROR,
-					FME_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme  errors");
-			return result;
-		}
-
-		// PCIe0 error
-		printf("\n ------- PCIe0 error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_PCIE0_ERRORS,
-					PCIE0_ERROR,
-					PCIE0_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get pcie0  errors");
-			return result;
-		}
-
-		// PCIe1 error
-		printf("\n ------- PCIe1 error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_PCIE1_ERRORS,
-					PCIE1_ERROR,
-					PCIE1_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get pcie1  errors");
-			return result;
-		}
-
-	// Revision 0
-	} else if( revision == 0){
-
-		// GBS Error
-		printf("\n ------- GBS error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_GBS_ERRORS,
-					RAS_GBS_ERROR,
-					RAS_GBS_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme gbs errors");
-			return result;
-		}
-
-		// BBS Error
-		printf("\n ------- BBS error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_BBS_ERRORS,
-					RAS_BBS_ERROR,
-					RAS_BBS_ERROR_COUNT);
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme bbs errors");
 			return result;
 		}
 
