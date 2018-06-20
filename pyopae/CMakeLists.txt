@@ -63,12 +63,8 @@ include_directories(${PYBIND_INCLUDE_DIR}
 add_library(test_pybind_compile MODULE test_pybind_compile.cpp)
 set_property(TARGET test_pybind_compile PROPERTY CXX_STANDARD 11)
 set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
-include(create_python_dist)
-create_python_dist(
-    TARGET pyopae
-    BUILD_WHEEL
-    PACKAGE opae
-    COPY_FILES opae.cpp
+
+set(PYOPAE_SRC opae.cpp
                pyproperties.h
 	       pyproperties.cpp
 	       pyhandle.h
@@ -78,7 +74,14 @@ create_python_dist(
 	       pyevents.h
 	       pyevents.cpp
 	       pyerrors.h
-	       pyerrors.cpp
+	       pyerrors.cpp)
+
+include(create_python_dist)
+create_python_dist(
+    TARGET pyopae-dist
+    BUILD_WHEEL
+    PACKAGE opae
+    COPY_FILES ${PYOPAE_SRC}
 	       test_pyopae.py
     BUILD_COMMAND build_ext
     BUILD_INCLUDE_DIRS "${SETUP_INCLUDE_DIRS}"
@@ -89,4 +92,8 @@ create_python_dist(
 
 
 
-
+add_library(_opae MODULE ${PYOPAE_SRC})
+target_link_libraries(_opae opae-c opae-cxx-core)
+set_target_properties(_opae PROPERTIES PREFIX ""
+	                               LIBRARY_OUTPUT_DIRECTORY
+				       ${LIBRARY_OUTPUT_PATH}/opae)
