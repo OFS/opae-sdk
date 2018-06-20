@@ -69,7 +69,7 @@ matrix:
       - pip install --user cpp-coveralls
       - pip install --user nose2
     after_success:
-      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned
+      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned -E ".*include/site/python.*pybind11.*"
   - script: scripts/build-documentation.sh
     cache:
       - ccache
