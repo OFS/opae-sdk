@@ -77,11 +77,18 @@ class shared_buffer {
    * empty smart pointer on failure.
    */
   static shared_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
-                                  size_t len);
+                                     size_t len);
+
+  /**
+   * @brief Disassociate the shared_buffer object from the resource used to
+   * create it. If the buffer was allocated using the allocate function then
+   * the buffer is freed.
+   */
+  void release();
 
   /** Retrieve the virtual address of the buffer base.
    */
-  volatile uint8_t *get() const { return virt_; }
+  volatile uint8_t *c_type() const { return virt_; }
 
   /** Retrieve the handle smart pointer associated with
    * this buffer.
@@ -143,7 +150,7 @@ class shared_buffer {
 
  protected:
   shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
-             uint64_t iova);
+                uint64_t iova);
 
   handle::ptr_t handle_;
   size_t len_;

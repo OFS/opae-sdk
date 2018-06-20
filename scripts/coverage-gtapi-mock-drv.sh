@@ -9,23 +9,29 @@ mkdir coverage_report
 
 
 cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Coverage
-make mock gtapi
+make mock gtapi fpgad
 
 lcov --directory . --zerocounters
+lcov -c -i -d . -o coverage.base
 
-make test
+LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d
+CTEST_OUTPUT_ON_FAILURE=1 make test
+kill $(cat /tmp/fpgad.pid)
 
 find */**/opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
 find */**/opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+find */**/opae-cxx-core.dir -iname "*.gcda" -exec chmod 664 '{}' \;
+find */**/opae-cxx-core.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+
 
 find */**/opae-c.dir -iname "*.gcda" | xargs -i cp {} coverage_files
 find */**/opae-c.dir -iname "*.gcno" | xargs -i cp {} coverage_files
+find */**/opae-cxx-core.dir -iname "*.gcda" | xargs -i cp {} coverage_files
+find */**/opae-cxx-core.dir -iname "*.gcno" | xargs -i cp {} coverage_files
 
-lcov -t test_coverage -o coverage.info -c -d coverage_files
-lcov --remove coverage.info '/usr/**' 'tests/**' '*/**/CMakeFiles*' --output-file coverage.info.cleaned
-genhtml --branch-coverage --function-coverage coverage.info -o coverage_report coverage.info.cleaned
-
-#TODO - Enable coveralls once its integrated with github
-#coveralls -l coverage.info.cleaned
+lcov --directory coverage_files --capture --output-file coverage.info
+lcov -a coverage.base -a coverage.info --output-file coverage.total
+lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/include/c++/**' 'safe_string/**' 'tools/**' --output-file coverage.info.cleaned
+genhtml --function-coverage coverage.info -o coverage_report coverage.info.cleaned
 
 echo "coverage-gtapi-mock-drv build PASSED"

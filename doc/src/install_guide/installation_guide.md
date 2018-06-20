@@ -54,6 +54,7 @@ For building libopae-c, tools and samples, the following dependences are require
 * json-c-devel.x86\_64:    json-c-devel-0.11-4.el7\_0.x86\_64.rpm
 * json-c.x86\_64:          (tested with 0.11-4.el7\_0)
 * cmake.x86\_64:           (tested with 2.8.12.2-2.el7)
+* libhwloc.x86\_64
 
 ## Driver installation with DKMS rpm and deb packages ##
 
@@ -262,6 +263,11 @@ $ sudo yum install opae-devel-<release>.x86_64.rpm
 $ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo yum install opae-*.rpm
+```
 To uninstall:
 
 ```console
@@ -285,6 +291,11 @@ $ sudo dpkg -i opae-devel-<release>.x86_64.deb
 $ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
+```eval_rst
+.. note:
+    If you want to install all the packages, you can also do:
+    $ sudo dpkg -i opae-*.deb
+```
 To uninstall:
 
 ```console
@@ -332,6 +343,15 @@ all users, you can replace `user1` with `*`:
 ```console
 *    hard   memlock           unlimited
 *    soft   memlock           unlimited
+```
+
+Note that settings in the /etc/security/limits.conf file don't apply to
+services.  To increase the locked memory limit for a service you need to
+modify the application's systemd service file and add the line:
+
+```console
+[Service]
+LimitMEMLOCK=infinity
 ```
 
 ## Hupgepage Settings ##

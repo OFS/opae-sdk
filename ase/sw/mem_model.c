@@ -195,7 +195,7 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 	FUNC_CALL_ENTRY;
 
 	char buf_str[ASE_MQ_MSGSIZE];
-	memset(buf_str, 0, ASE_MQ_MSGSIZE);
+	ase_memset(buf_str, 0, ASE_MQ_MSGSIZE);
 
 	// Traversal pointer
 	struct buffer_t *dealloc_ptr;
@@ -243,7 +243,7 @@ void ase_empty_buffer(struct buffer_t *buf)
 {
 	buf->index = 0;
 	buf->valid = ASE_BUFFER_INVALID;
-	memset(buf->memname, 0, ASE_FILENAME_LEN);
+	ase_memset(buf->memname, 0, ASE_FILENAME_LEN);
 	buf->memsize = 0;
 	buf->vbase = 0;
 	buf->pbase = 0;

@@ -63,7 +63,7 @@ struct guid_t {
 
   /** Return a raw pointer to the guid.
    */
-  const uint8_t *get() const { return data_.data(); }
+  const uint8_t *c_type() const { return data_.data(); }
 
   /** Assign from fpga_guid
    * Sets the guid field of the associated properties

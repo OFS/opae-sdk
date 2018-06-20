@@ -40,6 +40,7 @@ set(ASEAPI_SRC
   ${API_DIR}/src/buffer.c
   ${API_DIR}/src/close.c
   ${API_DIR}/src/enum.c
+  ${API_DIR}/src/error.c
   ${API_DIR}/src/event.c
   ${API_DIR}/src/manage.c
   ${API_DIR}/src/reconf.c

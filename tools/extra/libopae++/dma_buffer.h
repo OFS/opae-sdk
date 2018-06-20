@@ -33,6 +33,8 @@
 #include <thread>
 #include <opae/fpga.h>
 
+#include "safe_string/safe_string.h"
+
 namespace intel
 {
 namespace fpga
@@ -107,7 +109,7 @@ public:
 
     void fill(uint32_t value)
     {
-        ::memset(virtual_address_, value, size_);
+        memset_s(virtual_address_, size_, value);
     }
 
     template<typename T>

@@ -23,61 +23,77 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/cxx/core/except.h>
+#pragma once
+
 #include <opae/cxx/core/token.h>
-#include <opae/utils.h>
-#include <algorithm>
+#include <opae/types_enum.h>
+#include <memory>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-std::vector<token::ptr_t> token::enumerate(
-    const std::vector<properties>& props) {
-  std::vector<token::ptr_t> tokens;
-  std::vector<fpga_properties> c_props(props.size());
-  std::transform(props.begin(), props.end(), c_props.begin(),
-                 [](const properties& p) { return p.get(); });
-  uint32_t matches = 0;
-  auto res =
-      fpgaEnumerate(c_props.data(), c_props.size(), nullptr, 0, &matches);
-  if (res == FPGA_OK && matches > 0) {
-    std::vector<fpga_token> c_tokens(matches);
-    tokens.resize(matches);
-    res = fpgaEnumerate(c_props.data(), c_props.size(), c_tokens.data(),
-                        c_tokens.size(), &matches);
+/**
+ * @brief An error object represents an error register for a resource.
+ * This is used to read out the raw value in the register. No parsing is
+ * done by this class.
+ */
+class error {
+ public:
+  typedef std::shared_ptr<error> ptr_t;
 
-    // throw exception (including not_found)
-    ASSERT_FPGA_OK(res);
+  error(const error &e) = delete;
 
-    // create a new c++ token object for each c token struct
-    std::transform(c_tokens.begin(), c_tokens.end(), tokens.begin(),
-                   [](fpga_token t) { return token::ptr_t(new token(t)); });
+  error &operator=(const error &e) = delete;
 
-    // discard our c struct token objects
-    std::for_each(c_tokens.begin(), c_tokens.end(), [](fpga_token t) {
-      auto res = fpgaDestroyToken(&t);
-      ASSERT_FPGA_OK(res);
-    });
-  } else if (res != FPGA_NOT_FOUND) {
-    // throw exception except for not_found
-    // we don't want to throw not_found the frist time we enumerate
-    ASSERT_FPGA_OK(res);
-  }
-  return tokens;
-}
+  /**
+   * @brief Factory function for creating an error object.
+   *
+   * @param tok The token object representing a resource.
+   * @param num The index of the error register. This must be lower than the
+   * num_errors property of the resource.
+   *
+   * @return A shared_ptr containing the error object
+   */
+  static error::ptr_t get(token::ptr_t tok, uint32_t num);
 
-token::~token() {
-  auto res = fpgaDestroyToken(&token_);
-  if (res != FPGA_OK){
-    std::cerr << "Error while calling fpgaDestroyToken: " << fpgaErrStr(res) << "\n";
-  }
-}
+  /**
+   * @brief Get the error register name.
+   *
+   * @return A std::string object set to the error name.
+   */
+  std::string name() { return error_info_.name; }
 
-token::token(fpga_token tok) {
-  auto res = fpgaCloneToken(tok, &token_);
-  ASSERT_FPGA_OK(res);
-}
+  /**
+   * @brief Indicates whether an error register can be cleared.
+   *
+   * @return A boolean value indicating if the error register can be cleared.
+   */
+  bool can_clear() { return error_info_.can_clear; }
+
+  /**
+   * @brief Read the raw value contained in the associated error register.
+   *
+   * @return A 64-bit value (unparsed) read from the error register
+   */
+  uint64_t read_value();
+
+  ~error(){}
+
+  /**
+   * @brief Get the C data structure
+   *
+   * @return The fpga_error_info that contains the name and the can_clear
+   * boolean.
+   */
+  fpga_error_info c_type() const { return error_info_; }
+
+ private:
+  error(token::ptr_t token, uint32_t num);
+  token::ptr_t token_;
+  fpga_error_info error_info_;
+  uint32_t error_num_;
+};
 
 }  // end of namespace types
 }  // end of namespace fpga

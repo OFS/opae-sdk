@@ -129,7 +129,7 @@ endif()
 option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_CXX)
-  add_subdirectory(libopae++)
+  add_subdirectory(libopaecxx)
 endif()
 
 add_subdirectory(platforms)
@@ -274,6 +274,7 @@ define_pkg(devel
   define_pkg(libs
   COMPONENTS
   opaeclib
+  opaecxxcorelib
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"

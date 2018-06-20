@@ -44,10 +44,10 @@
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
+		{"bus",                 required_argument, NULL, 'B'},
+		{"device",              required_argument, NULL, 'D'},
+		{"functionr",           required_argument, NULL, 'F'},
+		{"socket-id",       required_argument, NULL, 'S'},
 		{"port",                required_argument, NULL, 'P'},
 		{"freq-high",           required_argument, NULL, 'H'},
 		{"freq-low",            required_argument, NULL, 'L'},
@@ -77,7 +77,7 @@ void UserClkAppShowHelp()
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>              --socket=<socket NUMBER>     OR  -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR -S=<SOCKET NUMBER>\n");
 	printf("<Port>                --port                       OR  -P=<Port id> \n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high> \n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low> \n");
@@ -129,7 +129,7 @@ int main( int argc, char** argv )
 	printf(" Bus                   : %d\n", userclkCmdLine.bus);
 	printf(" Device                : %d \n", userclkCmdLine.device);
 	printf(" Function              : %d \n", userclkCmdLine.function);
-	printf(" Socket                : %d \n", userclkCmdLine.socket);
+	printf(" Socket-id             : %d \n", userclkCmdLine.socket);
 	printf(" Port                  : %d \n", userclkCmdLine.port);
 	printf(" Freq High             : %d \n", userclkCmdLine.freq_high);
 	printf(" Freq Low              : %d \n", userclkCmdLine.freq_low);

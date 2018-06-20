@@ -12,10 +12,35 @@ matrix:
     - pip install --user jinja2
   - script: scripts/test-build.sh
     cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=RelWithDebInfo
     addons:
       apt:
         packages:
         - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=Debug
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=Release
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
   - script: scripts/test-gtapi-mock-drv.sh
@@ -24,16 +49,33 @@ matrix:
       apt:
         packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
+  - script: scripts/coverage-gtapi-mock-drv.sh
+    cache:
+      - ccache
+      - pip
+    addons:
+      apt:
+       packages:
+        - libjson-c-dev
+        - uuid-dev
+        - doxygen
+        - lcov
+    before_install:
+      - pip install --user cpp-coveralls
+    after_success:
+      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned
   - script: scripts/build-documentation.sh
     cache: 
       - ccache
       - pip
     addons:
       apt:
-        packages:
+       packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
         - pandoc

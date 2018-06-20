@@ -17,12 +17,12 @@ extern "C" {
 
 using namespace opae::fpga::types;
 
-class CxxBuffer_f1 : public ::testing::Test {
+class LibopaecppBufCommonALL_f1 : public ::testing::Test {
  protected:
-  CxxBuffer_f1() {}
+  LibopaecppBufCommonALL_f1() {}
 
   virtual void SetUp() override {
-    tokens_ = token::enumerate({FPGA_ACCELERATOR});
+    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_GT(tokens_.size(), 0);
     accel_ = handle::open(tokens_[0], 0);
     ASSERT_NE(nullptr, accel_.get());
@@ -44,7 +44,7 @@ class CxxBuffer_f1 : public ::testing::Test {
  * When I call shared_buffer::allocate() with a length of 0<br>
  * Then an exception is throw of type opae::fpga::types::except
  */
-TEST_F(CxxBuffer_f1, alloc_01) {
+TEST_F(LibopaecppBufCommonALL_f1, alloc_01) {
   ASSERT_THROW(buf_ = shared_buffer::allocate(accel_, 0), except);
 }
 
@@ -54,7 +54,7 @@ TEST_F(CxxBuffer_f1, alloc_01) {
  * When I call shared_buffer::allocate() with a length greater than 0<br>
  * Then I get a valid shared_buffer pointer.<br>
  */
-TEST_F(CxxBuffer_f1, alloc_02) {
+TEST_F(LibopaecppBufCommonALL_f1, alloc_02) {
   buf_ = shared_buffer::allocate(accel_, 64);
   ASSERT_NE(nullptr, buf_.get());
 
@@ -63,14 +63,35 @@ TEST_F(CxxBuffer_f1, alloc_02) {
 }
 
 /**
+ * @test release_01
+ * Given an open accelerator handle object<br>
+ * And a valid shared_buffer object created with allocate<br>
+ * When I call shared_buffer::release()<br>
+ * Then the shared_buffer object is invalidated<br>
+ */
+TEST_F(LibopaecppBufCommonALL_f1, release_01) {
+  buf_ = shared_buffer::allocate(accel_, 64);
+  ASSERT_NE(nullptr, buf_.get());
+
+  EXPECT_EQ(64, buf_->size());
+  EXPECT_NE(0, buf_->iova());
+  EXPECT_NE(nullptr, buf_->c_type());
+
+  buf_->release();
+  EXPECT_EQ(0, buf_->size());
+  EXPECT_EQ(0, buf_->iova());
+  EXPECT_EQ(0, buf_->c_type());
+}
+
+/**
  * @test alloc_07
  * Given an open accelerator handle object and a pre-allocated buffer<br>
  * When I call shared_buffer::attach() with a length that is a multiple of the page
  * size<br> Then I get a valid shared_buffer pointer.<br>
  */
-TEST_F(CxxBuffer_f1, alloc_07) {
+TEST_F(LibopaecppBufCommonALL_f1, alloc_07) {
   uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
-  uint8_t *buf = (uint8_t *)malloc(pg_size);
+  uint8_t *buf = (uint8_t *)aligned_alloc(pg_size, pg_size);
 
   buf_ = shared_buffer::attach(accel_, buf, pg_size);
   ASSERT_NE(nullptr, buf_.get());
@@ -87,7 +108,7 @@ TEST_F(CxxBuffer_f1, alloc_07) {
  * When I call shared_buffer::compare(),<br>
  * Then a byte-wise comparison is performed.<br>
  */
-TEST_F(CxxBuffer_f1, fill_compare_04) {
+TEST_F(LibopaecppBufCommonALL_f1, fill_compare_04) {
   buf_ = shared_buffer::allocate(accel_, 4);
   ASSERT_NE(nullptr, buf_.get());
 
@@ -107,7 +128,7 @@ TEST_F(CxxBuffer_f1, fill_compare_04) {
  * When I call shared_buffer::read(),<br>
  * Then the requested memory block is returned.<br>
  */
-TEST_F(CxxBuffer_f1, read_write_05) {
+TEST_F(LibopaecppBufCommonALL_f1, read_write_05) {
   buf_ = shared_buffer::allocate(accel_, 4);
   ASSERT_NE(nullptr, buf_.get());
 

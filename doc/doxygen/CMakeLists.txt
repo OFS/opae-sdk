@@ -40,7 +40,7 @@ set(DOX_LAYOUT_FILE            ${CMAKE_CURRENT_SOURCE_DIR}/DoxygenLayout.xml )
 set(DOX_WARNINGS               YES)
 set(DOX_GENERATE_HTML          YES)
 set(DOX_GENERATE_LATEX         YES)
-set(DOX_USE_PDFLATEX           YES)
+set(DOX_USE_PDFLATEX           NO)
 set(DOX_GENERATE_RTF           NO)
 set(DOX_GENERATE_MAN           YES)
 set(DOX_GENERATE_XML           YES)
@@ -59,7 +59,7 @@ endif(DOXYGEN_DOT_FOUND)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
                ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 
-add_custom_target(doxygen ALL
+add_custom_target(doxygen
     ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API docs" VERBATIM

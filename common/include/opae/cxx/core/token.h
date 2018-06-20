@@ -51,13 +51,13 @@ class token {
    * @return A set of known tokens that match the search.
    */
   static std::vector<token::ptr_t> enumerate(
-      const std::vector<properties>& props);
+      const std::vector<properties::ptr_t>& props);
 
   ~token();
 
   /** Retrieve the underlying fpga_token primitive.
    */
-  fpga_token get() const { return token_; }
+  fpga_token c_type() const { return token_; }
 
   /** Retrieve the underlying fpga_token primitive.
    */
