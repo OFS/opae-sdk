@@ -26,11 +26,6 @@
 // **************************************************************************
 /*
  * Module Info: Memory Model operations (C module)
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  * Purpose: Keeping cci_to_mem_translator.c clutter free and modular
  * test and debug. Includes message queue management by DPI.
  * NOTE: These functions must be called by DPI side ONLY.
@@ -195,7 +190,7 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 	FUNC_CALL_ENTRY;
 
 	char buf_str[ASE_MQ_MSGSIZE];
-	ase_memset(buf_str, 0, ASE_MQ_MSGSIZE);
+	memset(buf_str, 0, ASE_MQ_MSGSIZE);
 
 	// Traversal pointer
 	struct buffer_t *dealloc_ptr;
@@ -243,7 +238,7 @@ void ase_empty_buffer(struct buffer_t *buf)
 {
 	buf->index = 0;
 	buf->valid = ASE_BUFFER_INVALID;
-	ase_memset(buf->memname, 0, ASE_FILENAME_LEN);
+	memset(buf->memname, 0, ASE_FILENAME_LEN);
 	buf->memsize = 0;
 	buf->vbase = 0;
 	buf->pbase = 0;

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -59,13 +59,13 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (flags & FPGA_OPEN_SHARED) {
-		FPGA_MSG("Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n");
-		BEGIN_RED_FONTCOLOR;
-		printf("  [APP]  Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n");
-		END_RED_FONTCOLOR;
-		return FPGA_NOT_SUPPORTED;
-	}
+	/* if (flags & FPGA_OPEN_SHARED) { */
+	/* 	FPGA_MSG("Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n"); */
+	/* 	BEGIN_RED_FONTCOLOR; */
+	/* 	printf("  [APP]  Flag \"FPGA_OPEN_SHARED\" is not supported by ASE\n"); */
+	/* 	END_RED_FONTCOLOR; */
+	/* 	return FPGA_NOT_SUPPORTED; */
+	/* } */
 
 	_token = (struct _fpga_token *)token;
 
@@ -83,7 +83,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 		return FPGA_NO_MEMORY;
 	}
 
-	ase_memset(_handle, 0, sizeof(*_handle));
+	memset(_handle, 0, sizeof(*_handle));
 
 	_handle->token = token;
 	_handle->magic = FPGA_HANDLE_MAGIC;

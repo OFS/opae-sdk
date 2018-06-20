@@ -293,7 +293,7 @@ char *ase_malloc(size_t size)
 		exit(1);
 #endif
 	} else {
-		ase_memset(buffer, 0, size);
+		memset(buffer, 0, size);
 		FUNC_CALL_EXIT;
 		return buffer;
 	}
@@ -606,7 +606,7 @@ void print_mmiopkt(FILE *fp, char *activity, struct mmio_t *pkt)
 	FUNC_CALL_ENTRY;
 
 	char mmio_action_type[20];
-	ase_memset(mmio_action_type, 0, 20);
+	memset(mmio_action_type, 0, 20);
 
 	snprintf(mmio_action_type, 20,
 		 "MMIO-%s-%d-%s",
@@ -757,16 +757,6 @@ void ase_memcpy(void *dest, const void *src, size_t n)
 	// Secure implementation
 	ase_memcpy_s(dest, n, src, n);
 }
-
-/*
-* ase_memset - Secure memset abstraction
-*/
-void ase_memset(void *dest, int ch, size_t n)
-{
-	// Secure implementation
-	ase_memset_s(dest, n, ch, n);
-}
-
 
 
 /*

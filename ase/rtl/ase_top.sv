@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright(c) 2011-2016, Intel Corporation
+ * Copyright(c) 2014-2018, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,10 +30,6 @@
  * Module Info: ASE top-level
  *              (hides ASE machinery, makes finding cci_std_afu easy)
  * Language   : System{Verilog}
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  * **************************************************************************/
 
 //
@@ -51,7 +47,6 @@
 
 module ase_top();
 
-
    logic pClkDiv4;
    logic pClkDiv2;
    logic pClk;
@@ -67,7 +62,7 @@ module ase_top();
    logic       pck_cp2af_error;      // CCI-P Protocol Error Detected
 
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
- // Now many memory banks?
+   // Now many memory banks?
  `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
    localparam NUM_LOCAL_MEM_BANKS = 2;
  `else
@@ -81,14 +76,14 @@ module ase_top();
    localparam NUM_ALLOC_MEM_BANKS = (((NUM_LOCAL_MEM_BANKS + 1) >> 1) << 1);
 
    // DDR clock will come from the memory emulator
-   logic ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
+   logic       ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
 
    // Interfaces for all DDR memory banks
    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
-      ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
+   ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
 
-   logic ddr_reset_n;
-   logic ddr_pll_ref_clk;
+   logic       ddr_reset_n;
+   logic       ddr_pll_ref_clk;
 `else
    localparam NUM_LOCAL_MEM_BANKS = 0;
 `endif
@@ -112,19 +107,19 @@ module ase_top();
    // CCIP AFU
    `PLATFORM_SHIM_MODULE_NAME
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-    #(
-      // Avalon memory as a SystemVerilog interface.  The number
-      // of banks is passed as a parameter.  The address size
-      // is part of the type, so not needed here.
-      .NUM_LOCAL_MEM_BANKS(`AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
-     )
+     #(
+       // Avalon memory as a SystemVerilog interface.  The number
+       // of banks is passed as a parameter.  The address size
+       // is part of the type, so not needed here.
+       .NUM_LOCAL_MEM_BANKS(`AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
+       )
 `endif
 `ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM_LEGACY_WIRES_2BANK
-    #(
-      .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
+   #(
+     .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH)
      )
 `endif
-    `PLATFORM_SHIM_MODULE_NAME
+   `PLATFORM_SHIM_MODULE_NAME
      (
       .pClkDiv4               (pClkDiv4            ),
       .pClkDiv2               (pClkDiv2            ),
@@ -186,7 +181,7 @@ module ase_top();
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
    initial begin
       #0     ddr_reset_n = 0;
-             ddr_pll_ref_clk = 0;
+      ddr_pll_ref_clk = 0;
       #10000 ddr_reset_n = 1;
    end
    always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
