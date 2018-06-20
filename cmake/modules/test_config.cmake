@@ -117,20 +117,15 @@ function(Build_Test_Target Target_Name Target_LIB)
     function/gtVersion.cpp
     function/gtOpenClose.cpp)
 
-  if(BUILD_ASE_TESTS)
-    add_definitions(-DBUILD_ASE)
-    set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/ase/api/src)
-    set(TARGET_SRC ${COMMON_SRC})
-  else()
-    list(APPEND COMMON_SRC function/gtGetProperties.cpp)
-    list(APPEND COMMON_SRC unit/gtProperties_base.cpp)
-    set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/libopae/src)
-    set(TARGET_SRC ${COMMON_SRC}
-      function/gtUmsg.cpp
-      function/gtHostif.cpp
-      function/gtEvent.cpp)
-  endif()
+  set(LIB_SRC_PATH ${OPAE_SDK_SOURCE}/libopae/src)
+  list(APPEND COMMON_SRC function/gtGetProperties.cpp)
+  list(APPEND COMMON_SRC unit/gtProperties_base.cpp)
+  set(TARGET_SRC ${COMMON_SRC}
+    function/gtUmsg.cpp
+    function/gtHostif.cpp
+    function/gtEvent.cpp)
 
+  message("target=${Target_LIB} ${GTEST_BOTH_LIBRARIES} ${libjson-c_LIBRARIES}" )
   target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
     ${libjson-c_LIBRARIES})
   target_include_directories(commonlib PUBLIC

@@ -44,10 +44,12 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE_TEST)
+add_library(commonlib SHARED common_test.h common_test.cpp)
+if(BUILD_ASE_TESTS)
      Build_Test_Target(gtase opae-c-ase)
-else()
-    Build_Test_Target(gtapi opae-c)
+endif()
+if(BUILD_LIBOPAE_C)
+     Build_Test_Target(gtapi opae-c)
 endif()
 
 ############################################################################
@@ -60,10 +62,9 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
+
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TEST)
-  Build_MOCk_DRV()
-endif()
+Build_MOCk_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
