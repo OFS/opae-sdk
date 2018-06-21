@@ -95,11 +95,11 @@ int main(__attribute__((unused)) int argc,
   std::fill_n(out->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
 
   accel->reset();
-  accel->write_csr64(CSR_AFU_DSM_BASEL, dsm->iova());
+  accel->write_csr64(CSR_AFU_DSM_BASEL, dsm->io_address());
   accel->write_csr32(CSR_CTL, 0);
   accel->write_csr32(CSR_CTL, 1);
-  accel->write_csr64(CSR_SRC_ADDR, cacheline_aligned_addr(inp->iova()));
-  accel->write_csr64(CSR_DST_ADDR, cacheline_aligned_addr(out->iova()));
+  accel->write_csr64(CSR_SRC_ADDR, cacheline_aligned_addr(inp->io_address()));
+  accel->write_csr64(CSR_DST_ADDR, cacheline_aligned_addr(out->io_address()));
 
   accel->write_csr32(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
   accel->write_csr32(CSR_CFG, 0x42000);
