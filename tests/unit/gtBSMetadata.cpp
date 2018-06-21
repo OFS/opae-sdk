@@ -149,8 +149,9 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 /**
 * @test    bs_metadata_02
 * @brief   Tests: validate_bitstream_metadata
-* @details validate_bitstream_metadata verifies metadata
-*          Then the return value is FPGA_OK<br>
+* @details validate_bitstream_metadata validates BS metadata
+*          Retuns FPGA_OK if metadata is valid
+*          Pass Invalid BS metadata
 */
 TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_02) {
 	fpga_result result;
@@ -164,6 +165,5 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_02) {
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = validate_bitstream_metadata((void*) 1234, bitstream_guid_invalid);
 	EXPECT_NE(result, FPGA_OK);
-
 
 }
