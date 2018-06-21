@@ -79,6 +79,7 @@ TEST(LibopaecErrorCommonALL, error_01) {
  *
  */
 TEST(LibopaecErrorCommonALL, error_02) {
+#ifndef BUILD_ASE
   struct _fpga_token _t;
   fpga_token t = &_t;
   fpga_properties p;
@@ -102,7 +103,7 @@ TEST(LibopaecErrorCommonALL, error_02) {
     EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
-
+#endif
 }
 
 
