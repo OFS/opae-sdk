@@ -34,6 +34,10 @@ error::error(token::ptr_t token, uint32_t num)
     : token_(token), error_info_(), error_num_(num) {}
 
 error::ptr_t error::get(token::ptr_t tok, uint32_t num) {
+  if (!tok) {
+    throw std::invalid_argument("token object is null");
+  }
+
   error::ptr_t err(new error(tok, num));
   ASSERT_FPGA_OK(fpgaGetErrorInfo(*tok, num, &err->error_info_));
   return err;
