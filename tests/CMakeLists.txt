@@ -45,14 +45,15 @@ endif()
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
 add_library(commonlib SHARED common_test.h common_test.cpp)
+
 if(BUILD_ASE_TESTS)
-     Build_Test_Target(gtase opae-c-ase)
+     include(test_config_ase)
 endif()
 if(BUILD_LIBOPAE_C)
      Build_Test_Target(gtapi opae-c)
 endif()
 
-############################################################################
+###########################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
