@@ -54,31 +54,31 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 
 	// Invalid input
 	fpga_result result = read_gbs_metadata(NULL, NULL);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input
 	struct gbs_metadata gbs_metadata ;
 	result = read_gbs_metadata(NULL, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream[10] = "abcd";
 	result = read_gbs_metadata(bitstream, NULL);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	result = read_gbs_metadata(bitstream, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid[] = "XeonFPGA·GBSv001S";
 	result = read_gbs_metadata(bitstream_guid, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid1[] = "XeonFPGA·GBSv001";
 	result = read_gbs_metadata(bitstream_guid_invalid1, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid2[] = "XeonFPGA·GBSv001S  {\"version/\": 640, \"afu-image\":  \
@@ -89,7 +89,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 
 	result = read_gbs_metadata(bitstream_guid_invalid2, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid3[] = "XeonFPGA·GBSv001\53\02\00\00{\"version/\": 640, \"afu-image\": \
@@ -99,7 +99,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";\
 	result = read_gbs_metadata(bitstream_guid_invalid3, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// valid input bitstream
 	uint8_t bitstream_guid_invalid4[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
@@ -110,12 +110,12 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 
 	result = read_gbs_metadata(bitstream_guid_invalid4, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid5[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid5, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid6[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
@@ -124,7 +124,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		[{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid6, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid7[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
@@ -133,7 +133,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"magic-no\": 488605312, \"accelerator-clusters\":\
 		[{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"};
 	result = read_gbs_metadata(bitstream_guid_invalid7, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
 	uint8_t bitstream_guid_invalid8[] = "XeonFPGA·GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
@@ -143,7 +143,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid8, &gbs_metadata);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 }
 
 /**
@@ -163,7 +163,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_02) {
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
 		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = validate_bitstream_metadata((void*) 1234, bitstream_guid_invalid);
-	ASSERT_NE(result, FPGA_OK);
+	EXPECT_NE(result, FPGA_OK);
 
 
 }
