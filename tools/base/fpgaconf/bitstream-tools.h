@@ -76,4 +76,23 @@ static uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 	return ret;
 }
 
+void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
+{
+	uint32_t i;
+	uint32_t s;
+
+	// The function expects the MSB of the GUID at [0] and the LSB at [15].
+	s = 64;
+	for (i = 0; i < 8; ++i) {
+		s -= 8;
+		guid[i] = (uint8_t) ((guidh >> s) & 0xff);
+	}
+
+	s = 64;
+	for (i = 0; i < 8; ++i) {
+		s -= 8;
+		guid[8 + i] = (uint8_t) ((guidl >> s) & 0xff);
+	}
+}
+
 #endif
