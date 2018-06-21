@@ -46,6 +46,7 @@ using namespace common_test;
  * 	       0x8086 is returned.
  */
 TEST(LibopaecGetPropertiesCommonALL, vendor_id_0) {
+#ifndef BUILD_ASE
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_properties prop;
@@ -55,6 +56,7 @@ TEST(LibopaecGetPropertiesCommonALL, vendor_id_0) {
   ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetVendorID(prop, &x));
   EXPECT_EQ(x, 0x8086);
+#endif
 }
 
 /**
@@ -64,6 +66,7 @@ TEST(LibopaecGetPropertiesCommonALL, vendor_id_0) {
  * 	       0x8086 is returned.
  */
 TEST(LibopaecGetPropertiesCommonALL, vendor_id_1) {
+#ifndef BUILD_ASE
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_properties prop;
@@ -73,6 +76,7 @@ TEST(LibopaecGetPropertiesCommonALL, vendor_id_1) {
   ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetVendorID(prop, &x));
   EXPECT_EQ(x, 0x8086);
+#endif
 }
 
 /**
@@ -82,6 +86,7 @@ TEST(LibopaecGetPropertiesCommonALL, vendor_id_1) {
  * 	       0xbcc0 is returned.
  */
 TEST(LibopaecGetPropertiesCommonALL, device_id_0) {
+#ifndef BUILD_ASE
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_properties prop;
@@ -91,6 +96,7 @@ TEST(LibopaecGetPropertiesCommonALL, device_id_0) {
   ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetDeviceID(prop, &x));
   EXPECT_EQ(x, 0xbcc0);
+#endif
 }
 
 /**
@@ -100,6 +106,7 @@ TEST(LibopaecGetPropertiesCommonALL, device_id_0) {
  * 	       0xbcc0 is returned.
  */
 TEST(LibopaecGetPropertiesCommonALL, device_id_1) {
+#ifndef BUILD_ASE
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_properties prop;
@@ -109,6 +116,7 @@ TEST(LibopaecGetPropertiesCommonALL, device_id_1) {
   ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetDeviceID(prop, &x));
   EXPECT_EQ(x, 0xbcc0);
+#endif
 }
 
 class LibopaecGetPropertiesFCommonMOCKHW : public BaseFixture, public ::testing::Test {
@@ -145,7 +153,7 @@ class LibopaecGetPropertiesFCommonMOCKHW : public BaseFixture, public ::testing:
  */
 TEST_F(LibopaecGetPropertiesFCommonMOCKHW, get_01) {
   fpga_properties prop = NULL;
-  fpga_objtype objtype = FPGA_DEVICE; 
+  fpga_objtype objtype = FPGA_DEVICE;
 
   ASSERT_EQ(FPGA_OK, fpgaGetPropertiesFromHandle(m_AFUHandle, &prop));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetObjectType(prop, &objtype));
