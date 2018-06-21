@@ -80,13 +80,13 @@ nlb7::nlb7()
     options_.add_option<std::string>("wrfence-vc",   'f', option::with_argument, "one of {auto, vl0, vh0, vh1}", "auto");
     options_.add_option<std::string>("notice",       'N', option::with_argument, "one of {poll, csr-write, umsg-data, umsg-hint}", "poll");
     options_.add_option<uint64_t>("dsm-timeout-usec",     option::with_argument, "Timeout for test completion", dsm_timeout_.count());
-    options_.add_option<uint8_t>("bus-number",       'B', option::with_argument, "Bus number of PCIe device");
+    options_.add_option<uint8_t>("bus",              'B', option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",         'F', option::with_argument, "Function number of PCIe device");
-    options_.add_option<uint8_t>("socket-id",        's', option::with_argument, "Socket id encoded in BBS");
-    options_.add_option<std::string>("guid",         'g', option::with_argument, "accelerator id to enumerate", afu_id_);
+    options_.add_option<uint8_t>("socket-id",        'S', option::with_argument, "Socket id encoded in BBS");
+    options_.add_option<std::string>("guid",         'G', option::with_argument, "accelerator id to enumerate", afu_id_);
     options_.add_option<uint32_t>("clock-freq",      'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
-    options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_headers_);
+    options_.add_option<bool>("suppress-hdr",             option::no_argument,   "Suppress column headers", suppress_headers_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
     options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stas at end", suppress_stats_);
 }
