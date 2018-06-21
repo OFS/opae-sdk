@@ -86,7 +86,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\"\
 		: [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\": \
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 
 	result = read_gbs_metadata(bitstream_guid_invalid2, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
@@ -97,7 +97,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";\
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";\
 	result = read_gbs_metadata(bitstream_guid_invalid3, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
@@ -107,13 +107,13 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 
 	result = read_gbs_metadata(bitstream_guid_invalid4, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
 	// Invalid input bitstream
-	uint8_t bitstream_guid_invalid5[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
+	uint8_t bitstream_guid_invalid5[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid5, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
@@ -122,7 +122,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
 		\"power\": 50,  \"magic-no\": 488605312, \"accelerator-clusters\": \
 		[{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid6, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
@@ -131,7 +131,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\":\
-		[{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"}";
+		[{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"};
 	result = read_gbs_metadata(bitstream_guid_invalid7, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 
@@ -141,7 +141,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = read_gbs_metadata(bitstream_guid_invalid8, &gbs_metadata);
 	ASSERT_NE(result, FPGA_OK);
 }
@@ -161,7 +161,7 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_02) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no1\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 	result = validate_bitstream_metadata((void*) 1234, bitstream_guid_invalid);
 	ASSERT_NE(result, FPGA_OK);
 
