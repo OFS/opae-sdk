@@ -23,7 +23,7 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
-
+include(coverage)
 add_library(commonlib-ase SHARED common_test.h common_test.cpp)
 set(COMMON_SRC gtmain.cpp jsonParser.cpp
   unit/gtOpenClose_base.cpp
@@ -128,3 +128,11 @@ set_property(TEST ase_all
   APPEND
   PROPERTY
   ENVIRONMENT "LD_PRELOAD=${CMAKE_BINARY_DIR}/lib/libopae-c-ase.so")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  set_target_for_coverage_local(opae-c-ase
+    TESTRUNNER ctest
+    TESTRUNNER_ARGS "-R;ase_all"
+    COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb")
+  add_dependencies(coverage_opae-c-ase gtase)
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
