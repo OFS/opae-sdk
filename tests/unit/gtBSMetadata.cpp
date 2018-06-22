@@ -97,11 +97,11 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
 		\"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
 		\"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";\
+		\"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-99name\": \"MCP\"}";\
 	result = read_gbs_metadata(bitstream_guid_invalid3, &gbs_metadata);
 	EXPECT_NE(result, FPGA_OK);
 
-	// valid input bitstream
+	// Invalid metadata platform
 	uint8_t bitstream_guid_invalid4[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
