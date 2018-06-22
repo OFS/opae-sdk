@@ -50,7 +50,6 @@ using namespace common_test;
 * @brief   Tests: sysfs_deviceid_from_path
 * @details sysfs_deviceid_from_path giver device id
 *          Then the return device id <br>
-
 */
 TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_01) {
 
@@ -68,7 +67,7 @@ TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_01) {
 	result = sysfs_deviceid_from_path(NULL, NULL);
 	ASSERT_NE(result, FPGA_OK);
 
-	//Invalid Valid path
+	//Invalid path
 	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga.0", &deviceid);
 	ASSERT_NE(result, FPGA_OK);
 
@@ -81,4 +80,92 @@ TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_01) {
 	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev/intel-fpga-fme", &deviceid);
 	ASSERT_NE(result, FPGA_OK);
 
+}
+
+/**
+* @test    fpga_sysfs_02
+* @brief   Tests: sysfs_read_int,sysfs_read_u32
+*          sysfs_read_u32_pair,sysfs_read_u64
+*          sysfs_read_u64,sysfs_write_u64
+*..........get_port_sysfs,sysfs_read_guid
+*..........get_fpga_deviceid
+*/
+TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_02) {
+
+	fpga_result result;
+
+	//Invalid input path
+	result = sysfs_read_int("", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters 
+	result = sysfs_read_u32(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_read_u32_pair(NULL, NULL, NULL, '\0');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_read_u32_pair(NULL, NULL, NULL, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	uint32_t u1;
+	uint32_t u2;
+	result = sysfs_read_u32_pair("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u1, &u2, '\0');
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_u32_pair("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &u1, &u2, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_read_u64(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	uint64_t u64;
+	result = sysfs_read_u64("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &u64);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_u64("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u64);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_write_u64(NULL, 0);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_write_u64("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", 0x100);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_write_u64("/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0x100);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
+	fpga_guid guid;
+	result = sysfs_read_guid(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_guid("/sys/class/fpga/intel-fpga-dev.0/intel-fpga.0/", guid);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = get_port_sysfs(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid handle
+	result = get_port_sysfs((void*) 0x123, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid path parameters
+	result = get_fpga_deviceid(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid sturct handle 
+	result = get_fpga_deviceid((void*) 0x123, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	struct _fpga_handle _handle;
+	uint64_t deviceid;
+	//Invalid sturct handle token
+	result = get_fpga_deviceid((void*) &_handle, &deviceid);
+	EXPECT_NE(result, FPGA_OK);
 }
