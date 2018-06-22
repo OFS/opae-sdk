@@ -68,12 +68,12 @@ TEST(LibopaecUsrclkCommonMOCKHW, afu_usrclk_01) {
 	//Get error string for invlaid index
 	pmsg = NULL;
 	pmsg = fpac_GetErrMsg(17);
-	EXPECT_EQ(NULL, pmsg);
+	EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
 
 	//Get error string for invlaid index
 	pmsg = NULL;
 	pmsg = fpac_GetErrMsg(-1);
-	EXPECT_EQ(NULL, pmsg);
+	EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
 
 
 	fv_BugLog(1);
