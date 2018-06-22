@@ -77,3 +77,65 @@ TEST(LibopaecHostifCommonMOCK, Hostif_drv_02) {
   EXPECT_EQ(FPGA_OK, fpgaClose(h));
 }
 
+/**
+ * @test       Hostif_drv_03
+ *
+ * @brief      When the handle parameter to fpgaAssignPortToInterface
+ *             is NULL,
+ *             then the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST(LibopaecHostifCommonMOCKHW, Hostif_drv_03) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaAssignPortToInterface(NULL, 0, 0, 0));
+}
+
+/**
+ * @test       Hostif_drv_04
+ *
+ * @brief      When the handle parameter to fpgaAssignPortToInterface
+ *             has an invalid fddev,
+ *             Then the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST(LibopaecHostifCommonMOCKHW, Hostif_drv_04) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+  struct _fpga_handle *_h;
+
+  // open FME device
+  token_for_fme0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  _h = (struct _fpga_handle *) h;
+
+  int save_fddev = _h->fddev;
+  _h->fddev = -1;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaAssignPortToInterface(h, 0, 0, 0));
+
+  _h->fddev = save_fddev;
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+}
+
+/**
+ * @test       Hostif_drv_05
+ *
+ * @brief      When the interface_num parameter to fpgaAssignPortToInterface
+ *             is greater than FPGA_MAX_INTERFACE_NUM,
+ *             then the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST(LibopaecHostifCommonMOCKHW, Hostif_drv_05) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+
+  // open FME device
+  token_for_fme0(&_tok);
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaAssignPortToInterface(h, 99, 0, 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+}
