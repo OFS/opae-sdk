@@ -75,12 +75,12 @@ TEST(LibopaecBSMetadataCommonMOCKHW, bs_metadata_01) {
 	result = read_gbs_metadata(bitstream_guid, &gbs_metadata);
 	EXPECT_NE(result, FPGA_OK);
 
-	// Zero metadata lenght
+	// Zero metadata length  with no data
 	uint8_t bitstream_guid_invalid1[] = "XeonFPGA·GBSv001";
 	result = read_gbs_metadata(bitstream_guid_invalid1, &gbs_metadata);
 	EXPECT_NE(result, FPGA_OK);
 
-	// Zero metadata length 
+	// Invalid metadata length 
 	uint8_t bitstream_guid_invalid2[] = "XeonFPGA·GBSv001S {\"version/\": 640, \"afu-image\":  \
 		{\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
 		\"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
