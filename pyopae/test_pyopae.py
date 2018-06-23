@@ -257,7 +257,7 @@ class TestSharedBuffer(unittest.TestCase):
         assert buff1.size() == 4096
         assert buff1.wsid() != 0
         assert buff1.iova() != 0
-        mv = buff1.memoryview()
+        mv = memoryview(buff1)
         assert mv
         assert not buff1.compare(buff2, 4096)
         buff1.fill(0xAA)
