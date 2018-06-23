@@ -116,7 +116,7 @@ PYBIND11_MODULE(_opae, m) {
 
   // define token class
   m.def("enumerate", &token::enumerate, token_doc_enumerate())
-    .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());;
+    .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
 
   // define handle class
