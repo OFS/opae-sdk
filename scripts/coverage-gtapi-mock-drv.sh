@@ -16,16 +16,16 @@ function finish {
 	find */**/opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
 	find */**/opae-cxx-core.dir -iname "*.gcda" -exec chmod 664 '{}' \;
 	find */**/opae-cxx-core.dir -iname "*.gcno" -exec chmod 664 '{}' \;
-	find */**/fpga.dir -iname "*.gcda" -exec chmod 664 '{}' \;
-	find */**/fpga.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+	find */**/_opae.dir -iname "*.gcda" -exec chmod 664 '{}' \;
+	find */**/_opae.dir -iname "*.gcno" -exec chmod 664 '{}' \;
 
 
 	find */**/opae-c.dir -iname "*.gcda" | xargs -i cp {} coverage_files
 	find */**/opae-c.dir -iname "*.gcno" | xargs -i cp {} coverage_files
 	find */**/opae-cxx-core.dir -iname "*.gcda" | xargs -i cp {} coverage_files
 	find */**/opae-cxx-core.dir -iname "*.gcno" | xargs -i cp {} coverage_files
-	find */**/fpga.dir -iname "*.gcda" | xargs -i cp {} coverage_files
-	find */**/fpga.dir -iname "*.gcno" | xargs -i cp {} coverage_files
+	find */**/_opae.dir -iname "*.gcda" | xargs -i cp {} coverage_files
+	find */**/_opae.dir -iname "*.gcno" | xargs -i cp {} coverage_files
 
 	lcov --directory coverage_files --capture --output-file coverage.info
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
