@@ -451,14 +451,16 @@ TEST(LibopaecErrorCommonALL, error_14) {
   std::string lpn(FILENAME_MAX+1, 'a');
   std::string exptout("path too long");
 
-  testing::internal::CaptureStdout();
+  char *loglv = secure_getenv("LIBOPAE_LOG");
+  if (loglv && atoi(loglv) > 0) {
+    testing::internal::CaptureStdout();
 
-  build_error_list(lpn.c_str(), &el);
+    build_error_list(lpn.c_str(), &el);
 
-  std::string sout = testing::internal::GetCapturedStdout();
-  std::string actout = sout.substr(sout.length()-14, 13);
+    std::string actout = testing::internal::GetCapturedStdout();
+    EXPECT_NE(std::string::npos, actout.find(exptout));
+  } 
 
-  EXPECT_STREQ(exptout.c_str(), actout.c_str());
   EXPECT_EQ(NULL, el);
 }
 
