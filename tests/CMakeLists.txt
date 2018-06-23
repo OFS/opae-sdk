@@ -103,6 +103,13 @@ add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
 add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
+add_test(NAME pyopae
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND nose2 test_pyopae)
+set_tests_properties(
+            pyopae
+            PROPERTIES
+            ENVIRONMENT "LD_PRELOAD=./lib/libmock.so")
 
 ############################################################################
 ## Add Coverage Analysis ###################################################
