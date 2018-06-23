@@ -6,7 +6,7 @@ pushd mybuild_gtapi_mock_drv
 trap "popd" EXIT
 
 cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
-make mock gtapi fpgad
+make mock gtapi fpgad _opae
 LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d
 CTEST_OUTPUT_ON_FAILURE=1 make test
 kill $(cat /tmp/fpgad.pid)
