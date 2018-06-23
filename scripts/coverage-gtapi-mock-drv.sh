@@ -10,7 +10,7 @@ pushd coverage_gtapi_mock_drv
 set -o xtrace
 
 function finish {
-	kill $(cat /tmp/fpgad.pid)
+	kill $(cat $PWD/fpgad.pid)
 
 	find */**/opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
 	find */**/opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
@@ -42,7 +42,7 @@ make mock gtapi fpgad _opae
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
-LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d
+LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d -D $PWD -l $PWD/fpgad.log -p $PWD/fpgad.pid
 CTEST_OUTPUT_ON_FAILURE=1 make test
 LD_PRELOAD="$PWD/lib/libmock.so" PYTHONPATH="$PWD/lib/python2.7" python -m nose2 test_pyopae
 
