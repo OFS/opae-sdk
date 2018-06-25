@@ -219,7 +219,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		}
 
 		/* round up to nearest page boundary */
-		if (!len || (len & (pg_size - 1))) {
+		if (len & (pg_size - 1)) {
 			len = pg_size + (len & ~(pg_size - 1));
 		}
 
