@@ -216,7 +216,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		if (!len || (len & (pg_size - 1))) {
 			len = pg_size + (len & ~(pg_size - 1));
 		} else {
-			FPGA_MSG("buffer lenght is zero");
+			FPGA_MSG("buffer length is zero");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
