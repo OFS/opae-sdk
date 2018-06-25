@@ -26,24 +26,20 @@
 #include <cstring>
 
 #include <opae/cxx/core/shared_buffer.h>
+#include <exception>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-shared_buffer::~shared_buffer() {
-  // If the allocation was successful.
-  if (virt_) {
-    auto res = fpgaReleaseBuffer(handle_->c_type(), wsid_);
-    if (res != FPGA_OK) {
-      std::cerr << "Error while calling fpgaReleaseBuffer: " << fpgaErrStr(res)
-                << "\n";
-    }
-  }
-}
+shared_buffer::~shared_buffer() { release(); }
 
 shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   ptr_t p;
+
+  if (!handle) {
+    throw std::invalid_argument("handle object is null");
+  }
 
   if (!len) {
     throw except(OPAECXX_HERE);
@@ -81,6 +77,22 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
   p.reset(new shared_buffer(handle, len, virt, wsid, iova));
 
   return p;
+}
+
+void shared_buffer::release() {
+  // If the allocation was successful.
+  if (virt_) {
+    auto res = fpgaReleaseBuffer(handle_->c_type(), wsid_);
+    if (res == FPGA_OK) {
+      virt_ = nullptr;
+      len_ = 0;
+      wsid_ = 0;
+      iova_ = 0;
+    } else {
+      std::cerr << "Error while calling fpgaReleaseBuffer: " << fpgaErrStr(res)
+                << "\n";
+    }
+  }
 }
 
 void shared_buffer::fill(int c) { ::memset(virt_, c, len_); }

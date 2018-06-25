@@ -60,6 +60,17 @@ set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 
+############################################################################
+## Find Python by version     ##############################################
+############################################################################
+set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+
+############################################################################
+## Other setup and dependencies ############################################
+############################################################################
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
@@ -67,8 +78,9 @@ find_package(Doxygen)
 find_package(Threads REQUIRED)
 find_package(Sphinx)
 include(dependency_notifier)
+
 ############################################################################
-## set libs install location ###################################################
+## set libs install location ###############################################
 ############################################################################
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
@@ -114,6 +126,7 @@ if (DOXYGEN_FOUND)
   add_subdirectory(doc)
 endif()
 
+
 ############################################################################
 ## Sub-projects ############################################################
 ############################################################################
@@ -129,7 +142,7 @@ endif()
 option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_CXX)
-  add_subdirectory(libopae++)
+  add_subdirectory(libopaecxx)
 endif()
 
 option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)

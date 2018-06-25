@@ -223,6 +223,47 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_05) {
 }
 
 /**
+ * @test       event_drv_07
+ *
+ * @brief      Unregister events in a different order
+ *             than they were registered in order to
+ *             stress the list code in fpgad.
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_07) {
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                       m_EventHandles[0], 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_ERROR,
+                                       m_EventHandles[1], 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[2], 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_ERROR,
+                                       m_EventHandles[3], 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[4], 0));
+
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
+                                         m_EventHandles[2]));
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_ERROR,
+                                         m_EventHandles[3]));
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
+                                         m_EventHandles[4]));
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                         m_EventHandles[0]));
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_ERROR,
+                                         m_EventHandles[1]));
+}
+
+/**
  * @test       event_drv_06
  *
  * @brief      Test that a power event can be received.

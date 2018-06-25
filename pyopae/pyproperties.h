@@ -89,6 +89,11 @@ uint64_t properties_get_object_id(opae::fpga::types::properties::ptr_t props);
 void properties_set_object_id(opae::fpga::types::properties::ptr_t props,
                               uint64_t object_id);
 
+const char *properties_doc_num_errors();
+uint32_t properties_get_num_errors(opae::fpga::types::properties::ptr_t props);
+void properties_set_num_errors(opae::fpga::types::properties::ptr_t props,
+                              uint32_t num_errors);
+
 const char *properties_doc_num_slots();
 uint32_t properties_get_num_slots(opae::fpga::types::properties::ptr_t props);
 void properties_set_num_slots(opae::fpga::types::properties::ptr_t props,
@@ -103,7 +108,7 @@ const char *properties_doc_bbs_version();
 std::tuple<uint8_t, uint8_t, uint16_t> properties_get_bbs_version(
     opae::fpga::types::properties::ptr_t props);
 void properties_set_bbs_version(opae::fpga::types::properties::ptr_t props,
-                                fpga_version bbs_version);
+                                pybind11::tuple bbs_version);
 
 const char *properties_doc_vendor_id();
 uint32_t properties_get_vendor_id(opae::fpga::types::properties::ptr_t props);

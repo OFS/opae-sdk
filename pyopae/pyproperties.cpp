@@ -31,6 +31,16 @@ namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
 
+
+static inline fpga_version pytuple_to_fpga_version(py::tuple tpl){
+    fpga_version version{
+        .major = tpl[0].cast<uint8_t>(),
+        .minor = tpl[1].cast<uint8_t>(),
+        .patch = tpl[2].cast<uint16_t>(),
+    };
+  return version;
+}
+
 const char *properties_doc() {
   return R"opaedoc(
     properties class is a container class for OPAE resource properties.
@@ -62,6 +72,8 @@ const char *properties_doc_get() {
       socket_id: The socket ID encoded in the FIM.
 
       num_slots: Number of slots available in the FPGA.
+
+      num_errors: Number of error registers in the resource.
 
       bbs_id (uint64_t): The BBS ID encoded in the FIM.
 
@@ -103,17 +115,13 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   kwargs_to_props<uint8_t>(props->device, kwargs, "device");
   kwargs_to_props<uint8_t>(props->function, kwargs, "function");
   kwargs_to_props<uint8_t>(props->socket_id, kwargs, "socket_id");
+  kwargs_to_props<uint32_t>(props->num_errors, kwargs, "num_errors");
   kwargs_to_props<uint32_t>(props->num_slots, kwargs, "num_slots");
   kwargs_to_props<uint64_t>(props->bbs_id, kwargs, "bbs_id");
 
   if (kwargs.contains("bbs_version")) {
     py::tuple version_tuple = kwargs["bbs_version"].cast<py::tuple>();
-    fpga_version version{
-        .major = version_tuple[0].cast<uint8_t>(),
-        .minor = version_tuple[1].cast<uint8_t>(),
-        .patch = version_tuple[2].cast<uint16_t>(),
-    };
-    props->bbs_version = version;
+    props->bbs_version = pytuple_to_fpga_version(version_tuple);
   }
   kwargs_to_props<uint16_t>(props->vendor_id, kwargs, "vendor_id");
 
@@ -273,6 +281,21 @@ void properties_set_object_id(properties::ptr_t props, uint64_t object_id) {
   props->object_id = object_id;
 }
 
+// num errors
+const char *properties_doc_num_errors() {
+  return R"opaedoc(
+    Get or set the number of error registers in the resource.
+   )opaedoc";
+}
+
+uint32_t properties_get_num_errors(properties::ptr_t props) {
+  return props->num_errors;
+}
+
+void properties_set_num_errors(properties::ptr_t props, uint32_t num_errors) {
+  props->num_errors = num_errors;
+}
+
 // num slots
 const char *properties_doc_num_slots() {
   return R"opaedoc(
@@ -320,8 +343,8 @@ std::tuple<uint8_t, uint8_t, uint16_t> properties_get_bbs_version(
 }
 
 void properties_set_bbs_version(properties::ptr_t props,
-                                fpga_version bbs_version) {
-  props->bbs_version = bbs_version;
+                                py::tuple bbs_version) {
+  props->bbs_version = pytuple_to_fpga_version(bbs_version);
 }
 
 // vendor id

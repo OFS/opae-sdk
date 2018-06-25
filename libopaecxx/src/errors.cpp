@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,18 +23,32 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/cxx/core/errors.h>
+#include <opae/error.h>
 
-#ifndef __FPGA_TOKEN_LIST_INT_H__
-#define __FPGA_TOKEN_LIST_INT_H__
+namespace opae {
+namespace fpga {
+namespace types {
 
-#include "types_int.h"
-#include "log_int.h"
+error::error(token::ptr_t token, uint32_t num)
+    : token_(token), error_info_(), error_num_(num) {}
 
-/*
- * token list structure manipulation functions
- */
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
-struct _fpga_token *token_get_parent(struct _fpga_token *t);
-/* void token_cleanup(void); */
+error::ptr_t error::get(token::ptr_t tok, uint32_t num) {
+  if (!tok) {
+    throw std::invalid_argument("token object is null");
+  }
 
-#endif // ___FPGA_TOKEN_LIST_INT_H__
+  error::ptr_t err(new error(tok, num));
+  ASSERT_FPGA_OK(fpgaGetErrorInfo(*tok, num, &err->error_info_));
+  return err;
+}
+
+uint64_t error::read_value() {
+  uint64_t val;
+  ASSERT_FPGA_OK(fpgaReadError(*token_, error_num_, &val));
+  return val;
+}
+
+}  // end of namespace types
+}  // end of namespace fpga
+}  // end of namespace opae

@@ -3,6 +3,7 @@
 #include <opae/cxx/core/token.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "pyerrors.h"
 #include "pyevents.h"
 #include "pyhandle.h"
 #include "pytoken.h"
@@ -15,6 +16,7 @@ using opae::fpga::types::token;
 using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
+using opae::fpga::types::error;
 
 
 PYBIND11_MODULE(_opae, m) {
@@ -90,12 +92,14 @@ PYBIND11_MODULE(_opae, m) {
                     properties_set_socket_id, properties_doc_socket_id())
       .def_property("object_id", properties_get_object_id,
                     properties_set_object_id, properties_doc_object_id())
+      .def_property("num_errors", properties_get_num_errors,
+                    properties_set_num_errors, properties_doc_num_errors())
       .def_property("num_slots", properties_get_num_slots,
                     properties_set_num_slots, properties_doc_num_slots())
       .def_property("bbs_id", properties_get_bbs_id, properties_set_bbs_id,
                     properties_doc_bbs_id())
       .def_property("bbs_version", properties_get_bbs_version,
-                    properties_set_bbs_id, properties_doc_bbs_id())
+                    properties_set_bbs_version, properties_doc_bbs_version())
       .def_property("vendor_id", properties_get_vendor_id,
                     properties_set_vendor_id, properties_doc_vendor_id())
       .def_property("model", properties_get_model, properties_set_model,
@@ -123,8 +127,7 @@ PYBIND11_MODULE(_opae, m) {
   m.def("open", handle_open, handle_doc_open(), py::arg("tok"),
         py::arg("flags") = 0);
   py::class_<handle, handle::ptr_t> pyhandle(m, "handle");
-  pyhandle
-      .def("__enter__", handle_context_enter, handle_doc_context_enter())
+  pyhandle.def("__enter__", handle_context_enter, handle_doc_context_enter())
       .def("__exit__", handle_context_exit, handle_doc_context_exit())
       .def("reconfigure", handle_reconfigure, handle_doc_reconfigure(),
            py::arg("slot"), py::arg("fd"), py::arg("flags") = 0)
@@ -150,17 +153,27 @@ PYBIND11_MODULE(_opae, m) {
       .def("iova", &shared_buffer::iova, shared_buffer_doc_iova())
       .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
       .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
-      .def("memoryview", shared_buffer_to_memoryview,
-           shared_buffer_doc_to_memoryview())
       .def_buffer([](shared_buffer &b) -> py::buffer_info {
-    return py::buffer_info(const_cast<uint8_t *>(b.c_type()), b.size());
-      });
+        return py::buffer_info(
+            const_cast<uint8_t *>(b.c_type()), sizeof(uint8_t),
+            py::format_descriptor<uint8_t>::format(), b.size());
+      })
+      .def("__getitem__", shared_buffer_getitem, shared_buffer_doc_getitem())
+      .def("__getitem__", shared_buffer_getslice, shared_buffer_doc_getslice());
+
 
   // define event class
-  m.def("register_event", event_register_event,
-               event_doc_register_event(), py::arg("handle"),
-               py::arg("event_type"), py::arg("flags") = 0);
+  m.def("register_event", event_register_event, event_doc_register_event(),
+        py::arg("handle"), py::arg("event_type"), py::arg("flags") = 0);
   py::class_<event, event::ptr_t> pyevent(m, "event", event_doc());
 
   pyevent.def("os_object", event_os_object, event_doc_os_object());
+
+  py::class_<error, error::ptr_t> pyerror(m, "error", error_doc());
+  pyerror.def_property_readonly("name", &error::name, error_doc_name())
+      .def_property_readonly("can_clear", &error::can_clear, error_doc_can_clear())
+      .def("read_value", &error::read_value, error_doc_read_value());
+
+  m.def("errors", error_errors, error_doc_errors());
 }
+

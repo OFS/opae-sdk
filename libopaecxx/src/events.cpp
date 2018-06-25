@@ -23,27 +23,49 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/cxx/core/errors.h>
-#include <opae/error.h>
+
+#include <opae/event.h>
+
+#include <opae/cxx/core/events.h>
+#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-error::error(token::ptr_t token, uint32_t num)
-    : token_(token), error_info_(), error_num_(num) {}
+event::~event() {
+  auto res = fpgaUnregisterEvent(*handle_, type_, event_handle_);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaUnregisterEvent: " << fpgaErrStr(res) << "\n";
+  }
 
-error::ptr_t error::get(token::ptr_t tok, uint32_t num) {
-  error::ptr_t err(new error(tok, num));
-  ASSERT_FPGA_OK(fpgaGetErrorInfo(*tok, num, &err->error_info_));
-  return err;
+  res = fpgaDestroyEventHandle(&event_handle_);
+  if (res != FPGA_OK){
+    std::cerr << "Error while calling fpgaDestroyEventHandle: " << fpgaErrStr(res) << "\n";
+  }
 }
 
-uint64_t error::read_value() {
-  uint64_t val;
-  ASSERT_FPGA_OK(fpgaReadError(*token_, error_num_, &val));
-  return val;
+event::operator fpga_event_handle() { return event_handle_; }
+
+event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
+                                   int flags) {
+  if (!h) {
+    throw std::invalid_argument("handle object is null");
+  }
+
+  event::ptr_t evptr;
+  fpga_event_handle eh;
+  ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
+  ASSERT_FPGA_OK(fpgaRegisterEvent(*h, t, eh, flags));
+  evptr.reset(new event(h, t, eh));
+  ASSERT_FPGA_OK(fpgaGetOSObjectFromEventHandle(eh, &evptr->os_object_));
+  return evptr;
 }
+
+int event::os_object() const { return os_object_; }
+
+event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
+    : handle_(h), type_(t), event_handle_(eh), os_object_(-1) {}
 
 }  // end of namespace types
 }  // end of namespace fpga

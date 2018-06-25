@@ -62,6 +62,9 @@ handle::ptr_t handle::open(fpga_token token, int flags) {
 }
 
 handle::ptr_t handle::open(token::ptr_t tok, int flags) {
+  if (!tok) {
+    throw std::invalid_argument("token object is null");
+  }
   return handle::open(*tok, flags);
 }
 

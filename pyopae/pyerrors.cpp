@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,18 +23,55 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include "pyerrors.h"
+namespace py = pybind11;
+using opae::fpga::types::error;
+using opae::fpga::types::token;
+using opae::fpga::types::properties;
 
-#ifndef __FPGA_TOKEN_LIST_INT_H__
-#define __FPGA_TOKEN_LIST_INT_H__
+const char *error_doc() {
+  return R"opaedoc(
+    error object is used to represent an error register in an FPGA resource.
+    It holds two read-only properties, `name` and `can_clear` and it can also
+    be used to read the raw register value from its corresponding error register.
+  )opaedoc";
+}
 
-#include "types_int.h"
-#include "log_int.h"
+const char *error_doc_name() {
+  return R"opaedoc(
+    Error register name - read-only property
+  )opaedoc";
+}
 
-/*
- * token list structure manipulation functions
- */
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
-struct _fpga_token *token_get_parent(struct _fpga_token *t);
-/* void token_cleanup(void); */
 
-#endif // ___FPGA_TOKEN_LIST_INT_H__
+const char *error_doc_can_clear() {
+  return R"opaedoc(
+    Indicates if the error register can be cleared - read-only property
+  )opaedoc";
+}
+
+const char *error_doc_read_value() {
+  return R"opaedoc(
+    Read the raw value from the error register.
+  )opaedoc";
+}
+
+const char *error_doc_errors() {
+  return R"opaedoc(
+    Get a list of error objects in an FPGA resource.
+    Each error object represents an error register contained in the resource.
+
+    Args:
+      tok(token): Token representing an FPGA resource.
+  )opaedoc";
+}
+
+std::vector<error::ptr_t> error_errors(token::ptr_t tok) {
+    auto props = properties::get(tok);
+    std::vector<error::ptr_t> errors(props->num_errors);
+    for (uint32_t i = 0; i < props->num_errors; ++i) {
+      errors[i] = error::get(tok, i);
+    }
+    return errors;
+}
+

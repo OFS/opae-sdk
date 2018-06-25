@@ -105,6 +105,19 @@ Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
 
 ############################################################################
+## pyopae tests ######## ###################################################
+############################################################################
+add_test(NAME pyopae
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} -m nose2 test_pyopae)
+set_tests_properties(
+    pyopae
+    PROPERTIES
+    ENVIRONMENT
+    "LD_PRELOAD=./lib/libmock.so;PYTHONPATH=./lib/python${OPAE_PYTHON_VERSION}")
+
+
+############################################################################
 ## Add Coverage Analysis ###################################################
 ############################################################################
 

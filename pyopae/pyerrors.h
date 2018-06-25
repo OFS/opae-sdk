@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,18 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#pragma once
+#include <Python.h>
 
-#ifndef __FPGA_TOKEN_LIST_INT_H__
-#define __FPGA_TOKEN_LIST_INT_H__
+#include <opae/cxx/core/errors.h>
+#include <opae/cxx/core/token.h>
+#include <pybind11/pybind11.h>
+#include <vector>
 
-#include "types_int.h"
-#include "log_int.h"
+const char *error_doc();
 
-/*
- * token list structure manipulation functions
- */
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
-struct _fpga_token *token_get_parent(struct _fpga_token *t);
-/* void token_cleanup(void); */
+const char *error_doc_name();
 
-#endif // ___FPGA_TOKEN_LIST_INT_H__
+const char *error_doc_can_clear();
+
+const char *error_doc_read_value();
+
+const char *error_doc_errors();
+
+std::vector<opae::fpga::types::error::ptr_t> error_errors(
+    opae::fpga::types::token::ptr_t tok);
