@@ -29,8 +29,8 @@ function finish {
 
 	lcov --directory coverage_files --capture --output-file coverage.info
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'tools/**' 'pyopae/pybind11/*' --output-file coverage.info.cleaned
-	genhtml --function-coverage coverage.info -o coverage_report coverage.info.cleaned
+	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'tools/**' 'pybind11/*' --output-file coverage.info.cleaned
+	genhtml --function-coverage -o coverage_report coverage.info.cleaned
 	popd
 }
 trap "finish" EXIT
