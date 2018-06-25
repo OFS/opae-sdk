@@ -692,7 +692,7 @@ const char * fpac_GetErrMsg(int i_ErrMsgInx)
 
 	// Check index range
 	if (i_ErrMsgInx >= 0
-		|| i_ErrMsgInx  < QUCPU_INT_UCLOCK_NUM_ERROR_MESSAGES) {
+		&& i_ErrMsgInx  < QUCPU_INT_UCLOCK_NUM_ERROR_MESSAGES) {
 	// All okay, set the message string
 		pac_ErrMsgStr = pac_UclockErrorMsg[i_ErrMsgInx];
 	} // All okay, set the message string
