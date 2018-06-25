@@ -47,12 +47,16 @@ execute_process(COMMAND
 include_directories(${PYBIND_INCLUDE_DIR}
 	            ${PYTHON_INCLUDE_DIRS})
 add_library(_opae MODULE ${PYOPAE_SRC})
-target_link_libraries(_opae PUBLIC opae-c opae-cxx-core ${PYTHON_LIBRARIES})
+target_include_directories(_opae
+	PRIVATE ${PYBIND11_INCLUDE_DIR}
+	PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
 set_target_properties(_opae PROPERTIES PREFIX ""
-		                      COMPILE_FLAGS "-std=c++11 -fPIC"
-				      LINK_FLAGS "-std=c++11"
-	                              LIBRARY_OUTPUT_DIRECTORY
-				      ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+				       CXX_VISIBILITY_PRESET "hidden"
+		                       COMPILE_FLAGS "-std=c++11"
+				       LINK_FLAGS "-std=c++11"
+	                               LIBRARY_OUTPUT_DIRECTORY
+				       ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 				      )
 add_custom_command(TARGET _opae
 	POST_BUILD
