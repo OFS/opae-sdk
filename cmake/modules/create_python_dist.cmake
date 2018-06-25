@@ -147,7 +147,7 @@ function(create_python_dist)
         set(depends_list ${depends_list} ${CMAKE_CURRENT_BINARY_DIR}/dist)
     endif (create_python_dist_BUILD_WHEEL)
 
-    add_custom_target(${create_python_dist_TARGET} ALL
+    add_custom_target(${create_python_dist_TARGET}
         DEPENDS ${depends_list})
 
 endfunction(create_python_dist)

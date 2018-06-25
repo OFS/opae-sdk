@@ -6,9 +6,6 @@
 #     FATAL_ERROR    = CMake Error, stop processing and generation
 #
 
-if (NOT PYTHON_EXECUTABLE)
-    find_package(PythonInterp 2.7)
-endif (NOT PYTHON_EXECUTABLE)
 
 macro(FIND_PYTHON_PKG PKG_NAME ERR_LEVEL )
   if(NOT PYTHONINTERP_FOUND)
