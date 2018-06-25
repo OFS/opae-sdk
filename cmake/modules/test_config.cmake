@@ -104,6 +104,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtAnyValue.cpp
                 unit/gtsysfs.cpp
                 unit/gtUsrclk.cpp
+                unit/gtBSMetadata.cpp
                 function/gtCxxEnumerate.cpp
                 function/gtCxxEvents.cpp
                 function/gtCxxOpenClose.cpp
