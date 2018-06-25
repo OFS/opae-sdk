@@ -48,7 +48,6 @@ NLB0_MDATA = {"version": 640,
                                                       "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"}]},
               "platform-name": "MCP"}
 
-
 class TestProperties(unittest.TestCase):
     def test_set_parent(self):
         props = opae.fpga.properties(type=opae.fpga.DEVICE)
@@ -219,6 +218,10 @@ class TestHandle(unittest.TestCase):
             fd.write("XeonFPGA\b7GBSv001\53\02\00\00")
             fd.write(json.dumps(NLB0_MDATA))
 
+    def test_open_null_token(self):
+        with self.assertRaises(ValueError):
+            hndl = opae.fpga.open(None)
+
     def test_open(self):
         assert self.handle
 
@@ -240,6 +243,12 @@ class TestHandle(unittest.TestCase):
     def test_reset(self):
         self.handle.reset()
 
+    def test_close_reset(self):
+        self.handle.close()
+        assert not self.handle
+        with self.assertRaises(RuntimeError):
+            self.handle.reset()
+
     def test_mmio(self):
         offset = 0x100
         write_value = 10
@@ -256,6 +265,21 @@ class TestHandle(unittest.TestCase):
         self.handle.write_csr64(offset, write_value)
         read_value = self.handle.read_csr64(offset)
         assert read_value == write_value
+
+    def test_close_mmio(self):
+        self.handle.close()
+        assert not self.handle
+        with self.assertRaises(RuntimeError):
+            self.handle.write_csr32(0x100, 0xbeef)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.write_csr64(0x100, 0xbeef)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.read_csr32(0x100)
+
+        with self.assertRaises(RuntimeError):
+            self.handle.read_csr64(0x100)
 
 
 class TestSharedBuffer(unittest.TestCase):
@@ -285,7 +309,6 @@ class TestSharedBuffer(unittest.TestCase):
         ba = bytearray(buff1)
         assert ba[0] == 0xaa
 
-
 def trigger_port_error(value=1):
     with open(MOCK_PORT_ERROR, 'w') as fd:
         fd.write('0\n')
@@ -293,7 +316,6 @@ def trigger_port_error(value=1):
         print "Writing {} to {}".format(value, MOCK_PORT_ERROR)
         with open(MOCK_PORT_ERROR, 'w') as fd:
             fd.write('{}\n'.format(value))
-
 
 class TestEvent(unittest.TestCase):
     def setUp(self):
@@ -304,6 +326,7 @@ class TestEvent(unittest.TestCase):
         assert self.toks
         self.handle = opae.fpga.open(self.toks[0])
         assert self.handle
+
 
     def tearDown(self):
         trigger_port_error(0)
@@ -362,21 +385,20 @@ class TestError(unittest.TestCase):
         assert toks
         self.dev_token = toks[0]
 
+
     def test_port_errors(self):
         for err in opae.fpga.errors(self.acc_token):
-            print err.name, err.read_value()
             assert self.port_errors[err.name]["can_clear"] == err.can_clear
             self.port_errors.pop(err.name)
         assert not self.port_errors
 
     def test_fme_errors(self):
         for err in opae.fpga.errors(self.dev_token):
-            print err.name, err.can_clear
             assert self.fme_errors[err.name]["can_clear"] == err.can_clear
             self.fme_errors.pop(err.name)
         assert not self.fme_errors
 
-
 if __name__ == "__main__":
     test = TestEvent('test_events')
     test.run()
+
