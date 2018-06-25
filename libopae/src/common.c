@@ -71,9 +71,13 @@ fpga_result prop_check_and_lock(struct _fpga_properties *prop)
 {
 	ASSERT_NOT_NULL(prop);
 
-	if (pthread_mutex_lock(&prop->lock)) {
-		FPGA_MSG("Failed to lock mutex");
-		return FPGA_EXCEPTION;
+	if (prop->magic != FPGA_PROPERTY_MAGIC) {
+		FPGA_MSG("Invalid properties object");
+		if (pthread_mutex_lock(&prop->lock)) {
+			FPGA_MSG("Failed to lock mutex");
+			return FPGA_EXCEPTION;
+		}
+		return FPGA_INVALID_PARAM;
 	}
 
 	if (prop->magic != FPGA_PROPERTY_MAGIC) {
@@ -96,9 +100,13 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 {
 	ASSERT_NOT_NULL(handle);
 
-	if (pthread_mutex_lock(&handle->lock)) {
-		FPGA_MSG("Failed to lock mutex");
-		return FPGA_EXCEPTION;
+	if (handle->magic != FPGA_HANDLE_MAGIC) {
+		FPGA_MSG("Invalid handle object");
+		if (pthread_mutex_lock(&handle->lock)) {
+			FPGA_MSG("Failed to lock mutex");
+			return FPGA_EXCEPTION;
+		}
+		return FPGA_INVALID_PARAM
 	}
 
 

@@ -205,10 +205,22 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		}
 		addr = *buf_addr;
 	} else {
+
+		if (!buf_addr) {
+			FPGA_MSG("buffer address is NULL");
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
+		}
+
 		/* round up to nearest page boundary */
 		if (!len || (len & (pg_size - 1))) {
 			len = pg_size + (len & ~(pg_size - 1));
+		} else {
+			FPGA_MSG("buffer lenght is zero");
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
 		}
+
 		result = buffer_allocate(&addr, len, flags);
 		if (result != FPGA_OK) {
 			goto out_unlock;
