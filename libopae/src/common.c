@@ -106,7 +106,7 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 			FPGA_MSG("Failed to lock mutex");
 			return FPGA_EXCEPTION;
 		}
-		return FPGA_INVALID_PARAM
+		return FPGA_INVALID_PARAM;
 	}
 
 
