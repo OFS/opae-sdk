@@ -210,10 +210,10 @@ TEST(LibopaecBufCommonALL, Prep0B) {
 
   buf_len = 0;
   flags = 0;
-  EXPECT_EQ(FPGA_OK,
+  EXPECT_EQ(FPGA_INVALID_PARAM,
             fpgaPrepareBuffer(h, buf_len, (void**)&buf_addr, &wsid, flags));
 
-  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(h, wsid));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(h, wsid));
   // Close the device
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
