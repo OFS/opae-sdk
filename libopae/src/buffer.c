@@ -212,13 +212,15 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 			goto out_unlock;
 		}
 
-		/* round up to nearest page boundary */
-		if (!len || (len & (pg_size - 1))) {
-			len = pg_size + (len & ~(pg_size - 1));
-		} else {
+		if (!len) {
 			FPGA_MSG("buffer length is zero");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
+		}
+
+		/* round up to nearest page boundary */
+		if (!len || (len & (pg_size - 1))) {
+			len = pg_size + (len & ~(pg_size - 1));
 		}
 
 		result = buffer_allocate(&addr, len, flags);
