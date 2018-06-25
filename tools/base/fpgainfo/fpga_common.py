@@ -59,13 +59,13 @@ class fpga_command(object):
         self.parser.set_defaults(func=self.run)
 
     def args(self, parser):
-        parser.add_argument('-b', '--bus',
+        parser.add_argument('-B', '--bus',
                             help='pcie bus number of resource')
 
-        parser.add_argument('-d', '--device',
+        parser.add_argument('-D', '--device',
                             help='pcie device number of resource')
 
-        parser.add_argument('-f', '--function',
+        parser.add_argument('-F', '--function',
                             help='pcie function number of resource')
 
         parser.add_argument('--json', action='store_true', default=False,

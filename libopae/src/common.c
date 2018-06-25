@@ -165,6 +165,8 @@ const char __FPGA_API__ *fpgaErrStr(fpga_result e)
 		return "no fpga daemon running";
 	case FPGA_NO_ACCESS:
 		return "insufficient privileges";
+	case FPGA_RECONF_ERROR:
+		return "reconfiguration error";
 	default:
 		return "unknown error";
 	}
