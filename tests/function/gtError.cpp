@@ -267,3 +267,202 @@ TEST(LibopaecErrorCommonMOCK, error_04) {
 
 
 }
+
+/**
+ * @test       error_05
+ *
+ * @brief      When passed an AFU token with invalid magic number
+ *             fpgaReadError() should return FPGA_INVALID_PARAM.
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_05) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  uint64_t val = 0;
+
+  // generate token
+  token_for_afu0(&_t);
+  _t.magic = 0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadError(t, 0, &val));
+}
+
+/**
+ * @test       error_06
+ *
+ * @brief      When passed an invlid error number
+ *             fpgaReadError() should return FPGA_NOT_FOUND
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_06) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  unsigned int i = 6666;
+  uint64_t val = 0;
+
+  // generate token
+  token_for_afu0(&_t);
+
+  EXPECT_EQ(FPGA_NOT_FOUND, fpgaReadError(t, i, &val));
+}
+
+/**
+ * @test       error_07
+ *
+ * @brief      When passed an AFU token with invalid magic number
+ *             fpgaClearError() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_07) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+
+  // generate token
+  token_for_afu0(&_t);
+  _t.magic = 0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaClearError(t, 0));
+}
+
+/**
+ * @test       error_08
+ *
+ * @brief      When attempt to clear an error that is unclearable
+ *             fpgaClearError() should return FPGA_NOT_SUPPORTED
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_08) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+
+  // generate token
+  token_for_afu0(&_t);
+
+  // make error 0 unclearable
+  struct error_list *p = _t.errors;
+  p->info.can_clear = false;
+
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaClearError(t, 0));
+}
+
+/**
+ * @test       error_09
+ *
+ * @brief      When passed an invlid error number
+ *             fpgaClearError() should return FPGA_NOT_FOUND
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_09) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  unsigned int i = 6666;
+
+  // generate token
+  token_for_afu0(&_t);
+
+  EXPECT_EQ(FPGA_NOT_FOUND, fpgaClearError(t, i));
+}
+
+/**
+ * @test       error_10
+ *
+ * @brief      When passed an AFU token with invalid magic number
+ *             fpgaClearAllError() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_10) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+
+  // generate token
+  token_for_afu0(&_t);
+  _t.magic = 0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaClearAllErrors(t));
+}
+
+/**
+ * @test       error_11
+ *
+ * @brief      When passed NULL for error_info
+ *             fpgaGetErrorInfo() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_11) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  unsigned int i = 0;
+  struct fpga_error_info *info = NULL;
+
+  // generate token
+  token_for_afu0(&_t);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetErrorInfo(t, i, info));
+}
+
+/**
+ * @test       error_12
+ *
+ * @brief      When passed an AFU token with invalid magic number
+ *             fpgaGetErrorInfo() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_12) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  unsigned int i = 0;
+  struct fpga_error_info info;
+
+  // generate token
+  token_for_afu0(&_t);
+  _t.magic = 0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetErrorInfo(t, i, &info));
+}
+
+/**
+ * @test       error_13
+ *
+ * @brief      When passed an invlid error number
+ *             fpgaGetErrorInfo() should return FPGA_NOT_FOUND
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_13) {
+  struct _fpga_token _t;
+  fpga_token t = &_t;
+  unsigned int i = 6666;
+  struct fpga_error_info info;
+
+  // generate token
+  token_for_afu0(&_t);
+
+  EXPECT_EQ(FPGA_NOT_FOUND, fpgaGetErrorInfo(t, i, &info));
+}
+
+/**
+ * @test       error_14
+ *
+ * @brief      When passed pathname longer than FILENAME_MAX
+ *             build_error_list() should return and not build anything
+ *
+ *@note        Must set env-variable LIBOPAE_LOG=1 to run this test.
+ *
+ */
+TEST(LibopaecErrorCommonALL, error_14) {
+  struct error_list *el = NULL;
+  std::string lpn(FILENAME_MAX+1, 'a');
+  std::string exptout("path too long");
+
+  char *loglv = secure_getenv("LIBOPAE_LOG");
+  if (loglv && atoi(loglv) > 0) {
+    testing::internal::CaptureStdout();
+
+    build_error_list(lpn.c_str(), &el);
+
+    std::string actout = testing::internal::GetCapturedStdout();
+    EXPECT_NE(std::string::npos, actout.find(exptout));
+  } 
+
+  EXPECT_EQ(NULL, el);
+}
+

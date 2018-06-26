@@ -238,3 +238,36 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
               functor);          // test code
 }
 #endif // BUILD_ASE
+
+/**
+ * @test       04
+ *
+ * @brief      When the handle parameter to fpgaClose has
+ *             an fddev member equal to -1,
+ *             fpgaClose will fail with FPGA_INVALID_PARAM.
+ */
+#ifndef BUILD_ASE
+TEST_F(LibopaecCloseFCommonALL, 04) {
+
+  auto functor = [=]() -> void {
+    fpga_handle h;
+    struct _fpga_handle *p;
+
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    
+    p = (struct _fpga_handle *)h;
+    int save_fddev = p->fddev;
+
+    p->fddev = -1;
+    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaClose(h));
+
+    p->fddev = save_fddev;
+    EXPECT_EQ(FPGA_OK, fpgaClose(h));
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+}
+#endif // BUILD_ASE
