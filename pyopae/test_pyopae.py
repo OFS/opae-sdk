@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import json
 import select
+import struct
 import subprocess
 import threading
 import time
@@ -308,6 +309,8 @@ class TestSharedBuffer(unittest.TestCase):
         assert mv[-1] == '\xaa'
         ba = bytearray(buff1)
         assert ba[0] == 0xaa
+        buff1[42] = int(65536)
+        assert struct.unpack('<L', (bytearray(buff1[42:46])))[0] == 65536
 
 def trigger_port_error(value=1):
     with open(MOCK_PORT_ERROR, 'w') as fd:

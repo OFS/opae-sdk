@@ -48,5 +48,10 @@ const char *shared_buffer_doc_getitem();
 uint8_t shared_buffer_getitem(opae::fpga::types::shared_buffer::ptr_t buf,
                               uint32_t offset);
 
+const char *shared_buffer_doc_setitem();
+void shared_buffer_setitem(opae::fpga::types::shared_buffer::ptr_t buf,
+                           uint32_t offset, pybind11::int_ item);
+
 const char *shared_buffer_doc_getslice();
-pybind11::list shared_buffer_getslice(opae::fpga::types::shared_buffer::ptr_t buf, pybind11::slice slice);
+pybind11::list shared_buffer_getslice(
+    opae::fpga::types::shared_buffer::ptr_t buf, pybind11::slice slice);
