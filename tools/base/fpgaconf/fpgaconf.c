@@ -388,6 +388,85 @@ int parse_metadata(struct bitstream_info *info)
 }
 
 /*
+* Prints Actual and Expected Interface id
+*/
+int print_interface_id(fpga_guid actual_interface_id)
+{
+	fpga_properties   filter = NULL;
+	uint32_t          num_matches = 0;
+	int               retval = -1;
+	uint64_t          intfc_id_l = 0;
+	uint64_t          intfc_id_h = 0;
+	fpga_handle       fpga_handle = NULL;
+	fpga_result       res = -1;
+	fpga_token        fpga_token = NULL;
+	fpga_guid         expt_interface_id = { 0 };
+	char              guid_str[37] = { 0 };
+
+
+	res = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(res, out_err, "creating properties object");
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	ON_ERR_GOTO(res, out_destroy, "setting object type");
+
+	if (-1 != config.target.bus) {
+		res = fpgaPropertiesSetBus(filter, config.target.bus);
+		ON_ERR_GOTO(res, out_destroy, "setting bus");
+	}
+
+	if (-1 != config.target.device) {
+		res = fpgaPropertiesSetDevice(filter, config.target.device);
+		ON_ERR_GOTO(res, out_destroy, "setting device");
+	}
+
+	if (-1 != config.target.function) {
+		res = fpgaPropertiesSetFunction(filter, config.target.function);
+		ON_ERR_GOTO(res, out_destroy, "setting function");
+	}
+
+	if (-1 != config.target.socket) {
+		res = fpgaPropertiesSetSocketID(filter, config.target.socket);
+		ON_ERR_GOTO(res, out_destroy, "setting socket id");
+	}
+
+	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches);
+	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
+
+	if (num_matches > 0) {
+		retval = (int) num_matches; /* FPGA found */
+	} else {
+		retval = 0; /* no FPGA found */
+	}
+
+	res = fpgaOpen(fpga_token, &fpga_handle, 0);
+	ON_ERR_GOTO(res, out_destroy, "opening fpga");
+
+	res = get_interface_id(fpga_handle, &intfc_id_l, &intfc_id_h);
+	ON_ERR_GOTO(res, out_close, "interfaceid get");
+
+	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
+
+	uuid_unparse(expt_interface_id, guid_str);
+	printf("Expected Interface id:  %s\n", guid_str);
+
+	uuid_unparse(actual_interface_id, guid_str);
+	printf("Actual Interface id:    %s\n", guid_str);
+
+
+out_close:
+	res = fpgaClose(fpga_handle);
+	ON_ERR_GOTO(res, out_destroy, "closing fme");
+
+out_destroy:
+	res = fpgaDestroyProperties(&filter); /* not needed anymore */
+	ON_ERR_GOTO(res, out_err, "destroying properties object");
+out_err:
+	return retval;
+}
+
+
+/*
  * Read bitstream from file and populate bitstream_info structure
  */
 //TODO: remove this check when all bitstreams conform to JSON
@@ -613,6 +692,8 @@ int main(int argc, char *argv[])
 	if (res == 0) {
 		fprintf(stderr, "No suitable slots found.\n");
 		retval = 4;
+		if (config.verbosity > 0)
+			print_interface_id(info.interface_id);
 		goto out_free;
 	}
 	if (res > 1) {

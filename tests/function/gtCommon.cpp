@@ -24,49 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/event.h>
+#include <opae/types_enum.h>
+#include <opae/utils.h>
 
-#include <opae/cxx/core/events.h>
-#include <opae/cxx/core/except.h>
+#include "common_test.h"
+#include "gtest/gtest.h"
 
-namespace opae {
-namespace fpga {
-namespace types {
+using namespace common_test;
 
-event::~event() {
-  auto res = fpgaUnregisterEvent(*handle_, type_, event_handle_);
-  if (res != FPGA_OK){
-    std::cerr << "Error while calling fpgaUnregisterEvent: " << fpgaErrStr(res) << "\n";
-  }
-
-  res = fpgaDestroyEventHandle(&event_handle_);
-  if (res != FPGA_OK){
-    std::cerr << "Error while calling fpgaDestroyEventHandle: " << fpgaErrStr(res) << "\n";
-  }
+/**
+ * @test       common_01
+ *
+ * @brief      Verifies the string returned by fpgaErrStr() for each
+ *             fpga_result enumeration value.
+ */
+TEST(LibopaecErrorCommonALL, common_01) {
+  EXPECT_STREQ("success",                 fpgaErrStr(FPGA_OK));
+  EXPECT_STREQ("invalid parameter",       fpgaErrStr(FPGA_INVALID_PARAM));
+  EXPECT_STREQ("resource busy",           fpgaErrStr(FPGA_BUSY));
+  EXPECT_STREQ("exception",               fpgaErrStr(FPGA_EXCEPTION));
+  EXPECT_STREQ("not found",               fpgaErrStr(FPGA_NOT_FOUND));
+  EXPECT_STREQ("no memory",               fpgaErrStr(FPGA_NO_MEMORY));
+  EXPECT_STREQ("not supported",           fpgaErrStr(FPGA_NOT_SUPPORTED));
+  EXPECT_STREQ("no driver available",     fpgaErrStr(FPGA_NO_DRIVER));
+  EXPECT_STREQ("no fpga daemon running",  fpgaErrStr(FPGA_NO_DAEMON));
+  EXPECT_STREQ("insufficient privileges", fpgaErrStr(FPGA_NO_ACCESS));
+  EXPECT_STREQ("reconfiguration error",   fpgaErrStr(FPGA_RECONF_ERROR));
 }
-
-event::operator fpga_event_handle() { return event_handle_; }
-
-event::ptr_t event::register_event(handle::ptr_t h, event::type_t t,
-                                   int flags) {
-  if (!h) {
-    throw std::invalid_argument("handle object is null");
-  }
-
-  event::ptr_t evptr;
-  fpga_event_handle eh;
-  ASSERT_FPGA_OK(fpgaCreateEventHandle(&eh));
-  ASSERT_FPGA_OK(fpgaRegisterEvent(*h, t, eh, flags));
-  evptr.reset(new event(h, t, eh));
-  ASSERT_FPGA_OK(fpgaGetOSObjectFromEventHandle(eh, &evptr->os_object_));
-  return evptr;
-}
-
-int event::os_object() const { return os_object_; }
-
-event::event(handle::ptr_t h, event::type_t t, fpga_event_handle eh)
-    : handle_(h), type_(t), event_handle_(eh), os_object_(-1) {}
-
-}  // end of namespace types
-}  // end of namespace fpga
-}  // end of namespace opae

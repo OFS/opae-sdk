@@ -360,7 +360,7 @@ build_error_list(const char *path, struct error_list **list)
 				free(new_entry);
 				break;
 			}
-}
+		}
 
 		// find end of list
 		while (*el)
@@ -370,6 +370,7 @@ build_error_list(const char *path, struct error_list **list)
 		*el = new_entry;
 		el = &new_entry->next;
 	}
+	closedir(dir);
 
 	return n;
 }

@@ -59,7 +59,7 @@ TEST_F(LibopaecppBufCommonALL_f1, alloc_02) {
   ASSERT_NE(nullptr, buf_.get());
 
   EXPECT_EQ(64, buf_->size());
-  EXPECT_NE(0, buf_->iova());
+  EXPECT_NE(0, buf_->io_address());
 }
 
 /**
@@ -74,12 +74,12 @@ TEST_F(LibopaecppBufCommonALL_f1, release_01) {
   ASSERT_NE(nullptr, buf_.get());
 
   EXPECT_EQ(64, buf_->size());
-  EXPECT_NE(0, buf_->iova());
+  EXPECT_NE(0, buf_->io_address());
   EXPECT_NE(nullptr, buf_->c_type());
 
   buf_->release();
   EXPECT_EQ(0, buf_->size());
-  EXPECT_EQ(0, buf_->iova());
+  EXPECT_EQ(0, buf_->io_address());
   EXPECT_EQ(0, buf_->c_type());
 }
 
@@ -96,7 +96,7 @@ TEST_F(LibopaecppBufCommonALL_f1, alloc_07) {
   buf_ = shared_buffer::attach(accel_, buf, pg_size);
   ASSERT_NE(nullptr, buf_.get());
   EXPECT_EQ(static_cast<shared_buffer::size_t>(pg_size), buf_->size());
-  EXPECT_NE(0, buf_->iova());
+  EXPECT_NE(0, buf_->io_address());
   free(buf);
 }
 

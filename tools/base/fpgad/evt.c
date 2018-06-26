@@ -31,23 +31,6 @@
 
 #include "safe_string/safe_string.h"
 
-static void evt_notify_accelerator_interrupt_callback(struct client_event_registry *r,
-		const struct fpga_err *e)
-{
-	if ((FPGA_EVENT_INTERRUPT == r->event) &&
-		!strncmp(e->sysfsfile, r->device, strnlen_s(r->device, sizeof(r->device)))) {
-		dlog("event: FPGA_EVENT_INTERRUPT\n");
-		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
-			dlog("write: %s\n", strerror(errno));
-		r->data++;
-	}
-}
-
-void evt_notify_accelerator_interrupt(const struct fpga_err *e)
-{
-	for_each_registered_event(evt_notify_accelerator_interrupt_callback, e);
-}
-
 static void evt_notify_error_callback(struct client_event_registry *r,
 			const struct fpga_err *e)
 {
