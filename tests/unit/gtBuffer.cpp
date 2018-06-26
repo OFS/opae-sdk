@@ -57,10 +57,9 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	fpga_handle h;
 	uint64_t buf_len;
 	uint64_t* buf_addr;
-	uint64_t wsid = 1, wsidOld;
+	uint64_t wsid = 1;
 	fpga_handle invalid_handle;
 	int flags = 0;
-	uint64_t* invalid_buf_addr = NULL;
 	uint64_t *ioaddr;
 
 
