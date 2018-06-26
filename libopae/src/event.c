@@ -223,6 +223,10 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 	return FPGA_OK;
 }
 
+/*
+ * Uses driver ioctls to determine whether the driver supports interrupts
+ * on this platform. objtype is an output parameter.
+ */
 static fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
