@@ -54,7 +54,7 @@ loopback_app::loopback_app()
 , ports_(0)
 {
     options_.add_option<uint8_t>("socket-id",      'S', option::with_argument, "Socket id encoded in BBS");
-    options_.add_option<uint8_t>("bus-number",     'B', option::with_argument, "Bus number of PCIe device");
+    options_.add_option<uint8_t>("bus",            'B', option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",         'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",       'F', option::with_argument, "Function number of PCIe device");
     options_.add_option<std::string>("guid",       'G', option::with_argument, "GUID of AFC to open");
