@@ -61,8 +61,8 @@ set(OPAE_SAMPLES src/opae/samples)
 add_subdirectory(intg_xeon_nlb)
 add_subdirectory(hello_afu)
 add_subdirectory(hello_mpf_afu)
-add_subdirectory(hello_intr_afu)
-add_subdirectory(hello_error_afu)
+# add_subdirectory(hello_intr_afu)
+# add_subdirectory(hello_error_afu)
 # add_subdirectory(hello_dma_afu)
 
 ######################################################################
