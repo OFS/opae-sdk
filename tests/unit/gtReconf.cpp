@@ -61,7 +61,6 @@ using namespace common_test;
 */
 TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_01) {
 
-	fpga_result result;
 	fpga_handle h;
 	uint64_t usrlclock_high = 0;
 	uint64_t usrlclock_low = 0;
@@ -96,10 +95,7 @@ TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_01) {
 */
 TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_02) {
 
-	fpga_result result;
 	fpga_handle h;
-	uint64_t usrlclock_high = 0;
-	uint64_t usrlclock_low = 0;
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
 
