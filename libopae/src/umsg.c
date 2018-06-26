@@ -303,7 +303,7 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 }
 
 // Trigger umsg
-fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
+fpga_result __FPGA_API__ fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
