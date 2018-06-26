@@ -262,3 +262,42 @@ TEST(LibopaecUmsgCommonMOCK, Umsg_drv_06) {
 
   EXPECT_EQ(FPGA_OK, fpgaClose(h));
 }
+
+/**
+ * @test       Umsg_07
+ *
+ * @brief      When the handle parameter to fpgaTriggerUmsg<br>
+ *             is NULL, the function returns FPGA_INVALID_PARAM.<br>
+ *
+ */
+TEST(LibopaecUmsgCommonALL, Umsg_07) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaTriggerUmsg(NULL, 0));
+}
+
+/**
+ * @test       Umsg_08
+ *
+ * @brief      When the handle parameter to fpgaTriggerUmsg<br>
+ *             has an invalid fddev,<br>
+ *             Then the function returns FPGA_INVALID_PARAM.<br>
+ *
+ */
+TEST(LibopaecUmsgCommonALL, Umsg_08) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h = NULL;
+  struct _fpga_handle *_h;
+
+  // Open  port device
+  token_for_afu0(&_tok);
+  EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+
+  _h = (struct _fpga_handle *) h;
+  int save_fddev = _h->fddev;
+
+  _h->fddev = -1;
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaTriggerUmsg(h, 0));
+
+  _h->fddev = save_fddev;
+  EXPECT_EQ(FPGA_OK, fpgaClose(h));
+}

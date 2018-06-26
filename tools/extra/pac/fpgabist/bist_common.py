@@ -119,13 +119,13 @@ def global_arguments(parser):
                         type=str,
                         help='Device Id for Intel FPGA default: 09c4')
 
-    parser.add_argument('-b', '--bus', type=str,
+    parser.add_argument('-B', '--bus', type=str,
                         help='Bus number for specific FPGA')
 
-    parser.add_argument('-d', '--device', type=str,
+    parser.add_argument('-D', '--device', type=str,
                         help='Device number for specific FPGA')
 
-    parser.add_argument('-f', '--function', type=str,
+    parser.add_argument('-F', '--function', type=str,
                         help='Function number for specific FPGA')
 
     parser.add_argument('gbs_paths', nargs='+', type=str,

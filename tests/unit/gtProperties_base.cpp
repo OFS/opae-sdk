@@ -1620,6 +1620,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_082) {
   EXPECT_EQ(s1, s2);
   ASSERT_EQ(FPGA_OK, fpgaDestroyProperties(&clone));
   ASSERT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+  ASSERT_EQ(FPGA_INVALID_PARAM, fpgaCloneProperties(NULL, &clone));
 }
 
 /**
@@ -2651,9 +2652,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
 
   ASSERT_EQ(result, FPGA_OK);
   ASSERT_TRUE(NULL != prop);
-
-  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
-
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop; 
   // set the object type to FPGA_AFU
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
   _prop->objtype = FPGA_ACCELERATOR;
@@ -3020,4 +3019,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
   // now delete the properties object
   result = fpgaDestroyProperties(&prop);
   ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    prop_224
+ * @brief   Tests: fpgaDestroyProperties
+ * @details When the fpga_properties* object<br>
+ *          to fpgaDestroyProperties is NULL<br>
+ *          Then the function returns FPGA_INVALID_PARAM<br>
+ *
+ */
+TEST(LibopaecPropertiesCommonALL, prop_224) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyProperties(NULL));
 }

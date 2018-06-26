@@ -123,7 +123,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
                 function/gtOpenClose.cpp
-		function/gtGetProperties.cpp)
+		function/gtGetProperties.cpp
+		function/gtCommon.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)

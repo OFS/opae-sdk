@@ -111,6 +111,19 @@ TEST(LibopaecGetPropertiesCommonALL, device_id_1) {
   EXPECT_EQ(x, 0xbcc0);
 }
 
+/**
+ * @test       get_02
+ *
+ * @brief      When fpgaGetPropertiesFromHandle is called
+ * 	       with a NULL handle,
+ * 	       Then the function returns FPGA_INVALID_PARAM.
+ */
+TEST(LibopaecGetPropertiesCommonALL, get_02) {
+  fpga_properties prop = NULL;
+      
+  ASSERT_EQ(FPGA_INVALID_PARAM, fpgaGetPropertiesFromHandle(NULL, &prop));
+}
+
 class LibopaecGetPropertiesFCommonMOCKHW : public BaseFixture, public ::testing::Test {
  protected:
   virtual void SetUp() {

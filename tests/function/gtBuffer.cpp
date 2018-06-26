@@ -191,8 +191,8 @@ TEST(LibopaecBufCommonALL, PrepPreNotAligned) {
  * @test       Prep0B
  *
  * @brief      When FPGA_BUF_PREALLOCATED is not given and the buffer
- *             len is 0, fpgaPrepareBuffer allocates a one page buffer
- *             and returns FPGA_OK.
+ *             len is 0, fpgaPrepareBuffer doesn't allocates buffer
+ *             and returns FPGA_INVALID_PARAM.
  *
  */
 TEST(LibopaecBufCommonALL, Prep0B) {
