@@ -23,7 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
+#include <Python.h>
 #include "pyhandle.h"
 #include <sstream>
 
@@ -61,10 +61,15 @@ const char *handle_doc_reconfigure() {
 void handle_reconfigure(handle::ptr_t handle, uint32_t slot, py::object file,
                         int flags) {
   PyObject *obj = file.ptr();
+#if PY_MAJOR_VERSION == 3
+  int fd = PyObject_AsFileDescriptor(obj);
+  FILE *fp = fdopen(fd, "r");
+#else
   if (!PyFile_Check(obj)) {
     throw std::invalid_argument("fd argument is not a file object");
   }
   FILE *fp = PyFile_AsFile(obj);
+#endif
   if (!fp) {
     throw std::runtime_error("could not convert fd to FILE*");
   }

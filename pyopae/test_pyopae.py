@@ -30,7 +30,7 @@ import threading
 import time
 import unittest
 import uuid
-
+import sys
 import opae.fpga
 
 NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
@@ -215,8 +215,13 @@ class TestHandle(unittest.TestCase):
         self.handle = opae.fpga.open(self.toks[0])
         assert self.handle
         with open('m0.gbs', 'w+b') as fd:
-            fd.write("XeonFPGA\b7GBSv001\53\02\00\00")
-            fd.write(json.dumps(NLB0_MDATA))
+            if sys.version_info[0] == 3:
+                fd.write(bytes("XeonFPGA\b7GBSv001\53\02\00\00", 'UTF-8'))
+                fd.write(bytes(json.dumps(NLB0_MDATA), 'UTF-8'))
+            else:
+                fd.write("XeonFPGA\b7GBSv001\53\02\00\00")
+                fd.write(json.dumps(NLB0_MDATA))
+
 
     def test_open_null_token(self):
         with self.assertRaises(ValueError):
@@ -304,8 +309,12 @@ class TestSharedBuffer(unittest.TestCase):
         buff1.fill(0xAA)
         buff2.fill(0xEE)
         assert buff1.compare(buff2, 4096)
-        assert mv[0] == '\xaa'
-        assert mv[-1] == '\xaa'
+        if sys.version_info[0] == 2:
+            assert mv[0] == '\xaa'
+            assert mv[-1] == '\xaa'
+        else:
+            assert mv[0] == 0xaa
+            assert mv[-1] == 0xaa
         ba = bytearray(buff1)
         assert ba[0] == 0xaa
 
@@ -313,7 +322,6 @@ def trigger_port_error(value=1):
     with open(MOCK_PORT_ERROR, 'w') as fd:
         fd.write('0\n')
     if value:
-        print "Writing {} to {}".format(value, MOCK_PORT_ERROR)
         with open(MOCK_PORT_ERROR, 'w') as fd:
             fd.write('{}\n'.format(value))
 
@@ -340,7 +348,6 @@ class TestEvent(unittest.TestCase):
         os_object = int(err_ev.os_object())
         assert isinstance(os_object, int)
         assert os_object > -1
-        print "os_object: {}".format(os_object)
         epoll = select.epoll()
         epoll.register(os_object, select.EPOLLIN)
         received_event = False
@@ -349,7 +356,6 @@ class TestEvent(unittest.TestCase):
         trigger_error_timer.start()
         for _ in range(10):
             for fileno, ev in epoll.poll(1):
-                print "fileno: {}".format(fileno)
                 if fileno == os_object:
                     received_event = True
                     break
