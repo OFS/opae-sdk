@@ -59,7 +59,7 @@ using namespace common_test;
 *          Then the return value  FPGA_OK if set or
 *..........Returns error code
 */
-TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_01) {
+TEST(LibopaecReconfCommonMOCK, gbs_reconf_01) {
 
 	fpga_handle h;
 	uint64_t usrlclock_high = 0;
@@ -93,7 +93,7 @@ TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_01) {
 *          Then the return value  FPGA_OK if set or
 *..........Returns error code
 */
-TEST(LibopaecReconfCommonMOCKHW, gbs_reconf_02) {
+TEST(LibopaecReconfCommonMOCK, gbs_reconf_02) {
 
 	fpga_handle h;
 	struct _fpga_token _tok;
