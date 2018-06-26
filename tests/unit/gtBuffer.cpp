@@ -59,7 +59,7 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	uint64_t* buf_addr;
 	uint64_t wsid = 1;
 	int flags = 0;
-	uint64_t *ioaddr;
+	uint64_t *ioaddr = NULL;
 	uint64_t* invalid_buf_addr = NULL;
 
 	// Open port device
@@ -67,7 +67,7 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
 
 	// NULL Handle
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, buf_len, (void**) &buf_addr, &wsid, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**) &buf_addr, &wsid, 0));
 
 	// NULL Workspaceid
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, NULL, 0));
