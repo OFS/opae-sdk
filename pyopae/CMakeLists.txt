@@ -28,6 +28,8 @@ cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
 
 set(PYOPAE_SRC opae.cpp
+	       pycontext.h
+	       pycontext.cpp
                pyproperties.h
 	       pyproperties.cpp
 	       pyhandle.h

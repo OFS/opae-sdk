@@ -24,9 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include "pyshared_buffer.h"
+#include "pycontext.h"
+#include <opae/cxx/core/handle.h>
 
 namespace py = pybind11;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::handle;
 
 const char *shared_buffer_doc() {
   return R"opaedoc(
@@ -43,6 +46,12 @@ const char *shared_buffer_doc_allocate() {
       obect to share the buffer with.
       len: The length in bytes of the requested buffer.
   )opaedoc";
+}
+
+shared_buffer::ptr_t shared_buffer_allocate(handle::ptr_t hndl, size_t size) {
+  auto buf = shared_buffer::allocate(hndl, size);
+  buffer_registry::instance().add_buffer(hndl, buf);
+  return buf;
 }
 
 const char *shared_buffer_doc_size() {

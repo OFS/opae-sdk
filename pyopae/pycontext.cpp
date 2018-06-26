@@ -23,32 +23,36 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#pragma once
-#include <Python.h>
 
-#include <opae/cxx/core/shared_buffer.h>
-#include <pybind11/pybind11.h>
-#include "pyhandle.h"
+#include "pycontext.h"
 
-const char *shared_buffer_doc();
+buffer_registry* buffer_registry::instance_ = nullptr;
 
-const char *shared_buffer_doc_allocate();
-opae::fpga::types::shared_buffer::ptr_t shared_buffer_allocate(
-    opae::fpga::types::handle::ptr_t hndl, size_t size);
-const char *shared_buffer_doc_size();
+buffer_registry::buffer_registry() : buffers_() {}
 
-const char *shared_buffer_doc_wsid();
+buffer_registry& buffer_registry::instance() {
+  if (buffer_registry::instance_ == nullptr) {
+    buffer_registry::instance_ = new buffer_registry();
+  }
+  return *buffer_registry::instance_;
+}
 
-const char *shared_buffer_doc_iova();
+void buffer_registry::register_handle(handle_t handle) {
+  buffers_[handle] = buffer_list_t();
+}
 
-const char *shared_buffer_doc_fill();
+void buffer_registry::add_buffer(handle_t handle, shared_buffer_t buffer) {
+  buffers_[handle].push_back(buffer);
+}
 
-const char *shared_buffer_doc_compare();
-
-const char *shared_buffer_doc_getitem();
-uint8_t shared_buffer_getitem(opae::fpga::types::shared_buffer::ptr_t buf,
-                              uint32_t offset);
-
-const char *shared_buffer_doc_getslice();
-pybind11::list shared_buffer_getslice(
-    opae::fpga::types::shared_buffer::ptr_t buf, pybind11::slice slice);
+void buffer_registry::unregister_handle(handle_t handle) {
+  // find the handle in the internal map
+  // and release all buffers associated with the handle
+  auto it = buffers_.find(handle);
+  if (it != buffers_.end()) {
+    for (auto b : it->second) {
+      b->release();
+    }
+    buffers_.erase(it);
+  }
+}

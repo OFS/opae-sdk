@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "pyhandle.h"
+#include "pycontext.h"
 #include <sstream>
 
 namespace py = pybind11;
@@ -98,7 +99,10 @@ const char *handle_doc_context_enter() {
   )opaedoc";
 }
 
-handle::ptr_t handle_context_enter(handle::ptr_t hnd) { return hnd; }
+handle::ptr_t handle_context_enter(handle::ptr_t hnd) {
+  buffer_registry::instance().register_handle(hnd);
+  return hnd;
+}
 
 const char *handle_doc_context_exit() {
   return R"opaedoc(
@@ -110,6 +114,7 @@ const char *handle_doc_context_exit() {
 void handle_context_exit(opae::fpga::types::handle::ptr_t hnd, py::args args) {
   // TODO: Use args for logging exceptions
   (void)args;
+  buffer_registry::instance().unregister_handle(hnd);
   hnd->close();
 }
 

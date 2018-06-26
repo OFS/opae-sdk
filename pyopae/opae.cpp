@@ -164,7 +164,7 @@ PYBIND11_MODULE(_opae, m) {
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0);
 
   // define shared_buffer class
-  m.def("allocate_shared_buffer", &shared_buffer::allocate,
+  m.def("allocate_shared_buffer", shared_buffer_allocate,
         shared_buffer_doc_allocate());
   py::class_<shared_buffer, shared_buffer::ptr_t> pybuffer(
       m, "shared_buffer", py::buffer_protocol(), shared_buffer_doc());
