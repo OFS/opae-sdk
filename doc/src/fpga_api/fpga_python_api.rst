@@ -23,8 +23,8 @@ complexity.
 
 Implementation
 ==============
-The OPAE Python API is implemented by creating a Python extension using pybind11_.
-.. _pybind11: http://pybind11.readthedocs.io/en/stable
+The OPAE Python API is implemented by creating a Python extension using `pybind11
+<http://pybind11.readthedocs.io/en/stable>`_.
 This extension is created by using the pybind11 API which relies mostly on
 macros and compile time introspection to define the module initialization point
 as well as type converters between OPAE C++ Core types and OPAE Python types.
