@@ -39,11 +39,7 @@ set(PYOPAE_SRC opae.cpp
 	       pyerrors.h
 	       pyerrors.cpp)
 
-execute_process(COMMAND
-		${PYTHON_EXECUTABLE} -c
-		"import pybind11; print pybind11.get_include(True).strip()"
-		OUTPUT_VARIABLE PYBIND_INCLUDE_DIR
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}
 	            ${PYTHON_INCLUDE_DIRS})
 add_library(_opae MODULE ${PYOPAE_SRC})
