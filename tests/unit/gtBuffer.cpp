@@ -55,8 +55,8 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
 	fpga_handle h;
-	uint64_t buf_len;
-	uint64_t* buf_addr = 1024;
+	uint64_t buf_len = 1024;
+	uint64_t* buf_addr ;
 	uint64_t wsid = 1;
 	int flags = 0;
 	uint64_t *ioaddr = NULL;
