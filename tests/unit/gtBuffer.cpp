@@ -56,7 +56,7 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	fpga_token tok = &_tok;
 	fpga_handle h;
 	uint64_t buf_len = 1024;
-	uint64_t* buf_addr ;
+	uint64_t* buf_addr;
 	uint64_t wsid = 1;
 	int flags = 0;
 	uint64_t *ioaddr = NULL;
@@ -72,30 +72,26 @@ TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
 	// NULL Workspaceid
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, NULL, 0));
 
-
 	// Invlaid Flags
 	flags = 0x100;
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, NULL, flags));
-
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, flags));
 
-
-	// Invlaid length
+	// Buffer lenth is zero
 	flags = FPGA_BUF_PREALLOCATED;
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, 0, (void**) &buf_addr, &wsid, flags));
 
-	// Not Page aligned
+	// Not Page aligned buffer
 	buf_len = 11247;
 	flags = FPGA_BUF_PREALLOCATED;
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &invalid_buf_addr, &wsid, flags));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, flags));
 
 	// Invalid input buffer pointer
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &invalid_buf_addr, &wsid, flags));
 
 	// special test case
-	flags = FPGA_BUF_PREALLOCATED;
 	EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(h, 0, (void**) NULL, &wsid, flags));
 
+	// Buffer lenth is zero
 	flags = FPGA_BUF_QUIET;
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, 0, (void**) NULL, &wsid, flags));
 
