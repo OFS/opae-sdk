@@ -255,7 +255,9 @@ int read_bitstream(const char *filename, struct bitstream_info *info)
 	return 0;
 
 out_free:
-	free((void *)info->data);
+	if (info->data)
+		free((void *)info->data);
+	info->data = NULL;
 out_close:
 	fclose(f);
 	return -1;
@@ -274,7 +276,8 @@ void *ap6_thread(void *thread_context)
 	fpga_result res;
 	uint32_t num_matches = 0;
 
-	struct bitstream_info null_gbs_info = {0};
+	struct bitstream_info null_gbs_info ;
+	memset(&null_gbs_info, 0, sizeof(null_gbs_info));
 
 	ON_GOTO(c->config->num_null_gbs == 0, out_exit, "no NULL bitstreams registered.");
 
@@ -285,7 +288,8 @@ void *ap6_thread(void *thread_context)
 		ret = read_bitstream(c->config->null_gbs[i], &null_gbs_info);
 		if (ret < 0) {
 			dlog("ap6[%i]: \tfailed to read bitstream\n", c->socket);
-			free((void *)null_gbs_info.data);
+			if (null_gbs_info.data)
+				free((void *)null_gbs_info.data);
 			null_gbs_info.data = NULL;
 			continue;
 		}
