@@ -81,7 +81,7 @@ static bool matches_filter(const struct dev_list *attr,
 	int err = 0;
 
 	if (pthread_mutex_lock(&_filter->lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+		FPGA_MSG("Failed to lock filter mutex");
 		return false;
 	}
 
@@ -155,11 +155,6 @@ static bool matches_filter(const struct dev_list *attr,
 			goto out_unlock;
 		}
 	}
-
-	// FIXME
-	// if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
-	//
-	// }
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
 		if (0 != memcmp(attr->guid, _filter->guid, sizeof(fpga_guid))) {
@@ -237,34 +232,6 @@ static bool matches_filter(const struct dev_list *attr,
 				goto out_unlock;
 			}
 		}
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_MODEL)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_LOCAL_MEMORY)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_CAPABILITIES)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
 
 	} else if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 		   && (FPGA_ACCELERATOR == _filter->objtype)) {
