@@ -441,7 +441,7 @@ int ioctl(int fd, unsigned long request, ...)
 				goto out_EINVAL;
 			}
 			if (gEnableIRQ) {
-				int32_t i;
+				uint32_t i;
 				uint64_t data = 1;
 				// Write to each eventfd to signal one IRQ event.
 				for (i = 0 ; i < uafu_irq->count ; ++i) {
