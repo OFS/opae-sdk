@@ -48,11 +48,11 @@ using namespace std;
 class LibopaecCommonMOCKERRINJ : public BaseFixture, public ::testing::Test {
 protected:
 	virtual void SetUp() {
-		MOCK_enable_errinj(true);
+		MOCK_enable_ioctl_errinj(true);
 	}
 
 	virtual void TearDown() {
-		MOCK_enable_errinj(false);
+		MOCK_enable_ioctl_errinj(false);
 	}
 };
 
@@ -137,14 +137,14 @@ TEST_F(LibopaecCommonMOCKERRINJ, fpga_mock_errinj_03) {
 
 	// Prepare buffer successful 
 	// Relase buffer fails
-	MOCK_enable_errinj(false);
+	MOCK_enable_ioctl_errinj(false);
 
 	// Allocate a buffer
 	buf_len = 1024;
 	EXPECT_EQ(FPGA_OK,
 		fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, 0));
 
-	MOCK_enable_errinj(true);
+	MOCK_enable_ioctl_errinj(true);
 	// Release buffer
 	EXPECT_NE(FPGA_OK, fpgaReleaseBuffer(h, wsid));
 
