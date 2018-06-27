@@ -2654,7 +2654,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
 
   ASSERT_EQ(result, FPGA_OK);
   ASSERT_TRUE(NULL != prop);
-  struct _fpga_properties* _prop = (struct _fpga_properties*)prop; 
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
   // set the object type to FPGA_AFU
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
   _prop->objtype = FPGA_ACCELERATOR;
@@ -3034,5 +3034,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
  *
  */
 TEST(LibopaecPropertiesCommonALL, prop_224) {
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyProperties(NULL));
+#endif
 }
