@@ -24,6 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
+#include <algorithm>
 
 #include <opae/cxx/core/shared_buffer.h>
 #include <exception>
@@ -95,7 +96,9 @@ void shared_buffer::release() {
   }
 }
 
-void shared_buffer::fill(int c) { ::memset(virt_, c, len_); }
+void shared_buffer::fill(int c) {
+  std::fill(virt_, virt_+len_, c);
+}
 
 int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
   return ::memcmp(virt_, other->virt_, len);

@@ -263,17 +263,20 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_07) {
                                          m_EventHandles[1]));
 }
 
+class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {};
+
 /**
  * @test       event_drv_06
  *
  * @brief      Test that a power event can be received.
  *
  */
-TEST_F(LibopaecEventFCommonMOCKHW, event_drv_06) {
+TEST_F(LibopaecEventFCommonMOCK, event_drv_06) {
   int fd = -1;
   uint64_t error_csr = 1UL << 50; // Ap6Event
   struct pollfd poll_fd;
   int res;
+  int maxpolls = 100;
 
   EXPECT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
                                        m_EventHandles[0], 0));
@@ -290,7 +293,13 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_06) {
   poll_fd.events  = POLLIN | POLLPRI;
   poll_fd.revents = 0;
 
-  res = poll(&poll_fd, 1, 1000);
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
 
   EXPECT_EQ(res, 1);
   EXPECT_NE(poll_fd.revents, 0);
@@ -383,3 +392,226 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_12) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT, bad_handle));
 }
 
+
+class LibopaecEventFCommonMOCKIRQ : public LibopaecEventFCommonMOCK {
+ protected:
+  virtual void SetUp() {
+    MOCK_enable_irq(true);
+    LibopaecEventFCommonMOCKHW::SetUp();
+  }
+
+  virtual void TearDown() {
+    LibopaecEventFCommonMOCKHW::TearDown();
+    MOCK_enable_irq(false);
+  }
+};
+
+/**
+ * @test       irq_event_01
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_DEVICE and FPGA_EVENT_ERROR<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_01) {
+
+  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_ERROR,
+                                       m_EventHandles[0], 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(m_EventHandles[0], &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_ERROR,
+                                         m_EventHandles[0]));
+}
+
+/**
+ * @test       irq_event_02
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_ACCELERATOR and FPGA_EVENT_ERROR<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_02) {
+
+  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_ERROR,
+                                       m_EventHandles[1], 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(m_EventHandles[1], &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_ERROR,
+                                         m_EventHandles[1]));
+}
+
+/**
+ * @test       irq_event_03
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_ACCELERATOR and FPGA_EVENT_INTERRUPT<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_03) {
+
+  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                       m_EventHandles[2], 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(m_EventHandles[2], &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                         m_EventHandles[2]));
+}
+
+/**
+ * @test       irq_event_04
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called with<br>
+ *             an invalid handle<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_04) {
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT,
+                                       m_EventHandles[0], 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(NULL, FPGA_EVENT_INTERRUPT,
+                                         m_EventHandles[0]));
+}
+
+/**
+ * @test       irq_event_05
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called with<br>
+ *             an invalid event handle<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ *             Repeat for fpgaDestroyEventHandle.<br>
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_05) {
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                       NULL, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
+                                         NULL));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(NULL));
+}
+
+/**
+ * @test       irq_event_06
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_DEVICE and FPGA_EVENT_INTERRUPT<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ */
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_06) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_INTERRUPT,
+                                       m_EventHandles[0], 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_INTERRUPT,
+                                       m_EventHandles[0]));
+}
+
+/**
+ * @test       irq_event_07
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             FPGA_EVENT_POWER_THERMAL<br>
+ *             then the call fails with FPGA_NO_DAEMON.<br>
+ *             Repeat for fpgaUnregisterEvent (FPGA_INVALID_PARAM).<br>
+ *             Repeat for FPGA_DEVICE and FPGA_ACCELERATOR.<br>
+ */
+/* This test must be run with mock, but without fpgad.
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_07) {
+  EXPECT_EQ(FPGA_NO_DAEMON, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[0], 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[0]));
+
+  EXPECT_EQ(FPGA_NO_DAEMON, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[0], 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_POWER_THERMAL,
+                                       m_EventHandles[0]));
+}
+*/
