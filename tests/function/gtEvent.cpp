@@ -45,10 +45,10 @@ class LibopaecEventFCommonMOCKHW : public BaseFixture, public ::testing::Test {
     m_FMEHandle = NULL;
 
     token_for_afu0(&m_AFUToken);
-    ASSERT_EQ(FPGA_NO_DRIVER, fpgaOpen(&m_AFUToken, &m_AFUHandle, 0));
+    ASSERT_EQ(FPGA_OK, fpgaOpen(&m_AFUToken, &m_AFUHandle, 0));
 
     token_for_fme0(&m_FMEToken);
-    ASSERT_EQ(FPGA_NO_DRIVER, fpgaOpen(&m_FMEToken, &m_FMEHandle, 0));
+    ASSERT_EQ(FPGA_OK, fpgaOpen(&m_FMEToken, &m_FMEHandle, 0));
 
     unsigned i;
     for (i = 0; i < sizeof(m_EventHandles) / sizeof(m_EventHandles[0]); ++i) {
