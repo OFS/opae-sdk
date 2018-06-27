@@ -263,13 +263,15 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_07) {
                                          m_EventHandles[1]));
 }
 
+class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {};
+
 /**
  * @test       event_drv_06
  *
  * @brief      Test that a power event can be received.
  *
  */
-TEST_F(LibopaecEventFCommonMOCKHW, event_drv_06) {
+TEST_F(LibopaecEventFCommonMOCK, event_drv_06) {
   int fd = -1;
   uint64_t error_csr = 1UL << 50; // Ap6Event
   struct pollfd poll_fd;
@@ -309,7 +311,7 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_06) {
                                          m_EventHandles[0]));
 }
 
-class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {
+class LibopaecEventFCommonMOCKIRQ : public LibopaecEventFCommonMOCK {
  protected:
   virtual void SetUp() {
     MOCK_enable_irq(true);
@@ -333,7 +335,7 @@ class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {
  *             the OS-specific object from the event handle.<br>
  *
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_01) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_01) {
 
   ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_ERROR,
                                        m_EventHandles[0], 0));
@@ -377,7 +379,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_01) {
  *             the OS-specific object from the event handle.<br>
  *
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_02) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_02) {
 
   ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_ERROR,
                                        m_EventHandles[1], 0));
@@ -421,7 +423,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_02) {
  *             the OS-specific object from the event handle.<br>
  *
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_03) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_03) {
 
   ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
                                        m_EventHandles[2], 0));
@@ -464,7 +466,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_03) {
  *             Repeat for fpgaUnregisterEvent.<br>
  *
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_04) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_04) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT,
                                        m_EventHandles[0], 0));
@@ -483,7 +485,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_04) {
  *             Repeat for fpgaDestroyEventHandle.<br>
  *
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_05) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_05) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT,
                                        NULL, 0));
@@ -501,7 +503,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_05) {
  *             then the call fails with FPGA_INVALID_PARAM.<br>
  *             Repeat for fpgaUnregisterEvent.<br>
  */
-TEST_F(LibopaecEventFCommonMOCK, irq_event_06) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_06) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_INTERRUPT,
                                        m_EventHandles[0], 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_INTERRUPT,
@@ -519,7 +521,7 @@ TEST_F(LibopaecEventFCommonMOCK, irq_event_06) {
  *             Repeat for FPGA_DEVICE and FPGA_ACCELERATOR.<br>
  */
 /* This test must be run with mock, but without fpgad.
-TEST_F(LibopaecEventFCommonMOCK, irq_event_07) {
+TEST_F(LibopaecEventFCommonMOCKIRQ, irq_event_07) {
   EXPECT_EQ(FPGA_NO_DAEMON, fpgaRegisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
                                        m_EventHandles[0], 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_FMEHandle, FPGA_EVENT_POWER_THERMAL,
