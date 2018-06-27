@@ -63,8 +63,8 @@ class LibopaecEventFCommonMOCKHW : public BaseFixture, public ::testing::Test {
       EXPECT_EQ(FPGA_OK, fpgaDestroyEventHandle(&m_EventHandles[i]));
     }
 
-    fpgaClose(m_FMEHandle);
-    fpgaClose(m_AFUHandle);
+    EXPECT_EQ(FPGA_OK, fpgaClose(m_FMEHandle));
+    EXPECT_EQ(FPGA_OK, fpgaClose(m_AFUHandle));
   }
 
   struct _fpga_token m_AFUToken;
