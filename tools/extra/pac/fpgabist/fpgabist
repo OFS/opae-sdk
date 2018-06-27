@@ -69,7 +69,7 @@ def main(args):
         if mode_name == 'nlb_mode_3':
             mode = bist_nlb3.Nlb3Mode()
         elif mode_name == 'dma_afu':
-            mode = bist_dma.DmaMode()
+            mode = bist_dma.DmaMode(bdf)
         elif mode_name == 'bist_afu':
             mode = bist_app.BistMode()
         else:
