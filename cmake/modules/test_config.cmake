@@ -139,7 +139,7 @@ function(Build_Test_Target Target_Name Target_LIB)
     endif()         
 
     target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
-                          ${libjson-c_LIBRARIES})
+                          ${libjson-c_LIBRARIES} dl)
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -153,8 +153,8 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
+    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+                              uuid ${GTEST_BOTH_LIBRARIES} dl opae-c++-utils opae-c++ opae-cxx-core)
 	  						
 
     if(CMAKE_THREAD_LIBS_INIT)
