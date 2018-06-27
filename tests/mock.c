@@ -82,11 +82,20 @@ static struct mock_dev {
 	char pathname[MAX_STRLEN];
 } mock_devs[MAX_FD] = {{0}};
 
+
 static bool gEnableIRQ = false;
 bool mock_enable_irq(bool enable)
 {
 	bool res = gEnableIRQ;
 	gEnableIRQ = enable;
+	return res;
+}
+
+static bool gEnableErrInj = false;
+bool mock_enable_errinj(bool enable) {
+
+	bool res = gEnableErrInj;
+	gEnableErrInj = enable;
 	return res;
 }
 
@@ -180,6 +189,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected port ID %u", port_release->port_id);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			errno = 0;
 			break;
@@ -210,6 +227,15 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("buffer address is NULL");
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				pr->status = 0xff;
+				errno = EINVAL;
+				break;
+			}
+
 			pr->status = 0; /* return success */
 			/* TODO: reflect reconfiguration (change afu_id?) */
 			/* generate hash for bitstream data */
@@ -246,6 +272,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected port ID %u", port_assign->port_id);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			errno = 0;
 			break;
@@ -269,6 +303,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected capability %u", fme_info->capability);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			fme_info->capability = gEnableIRQ ? FPGA_FME_CAP_ERR_IRQ : 0;
 			retval = 0;
 			errno = 0;
@@ -324,6 +366,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("mapping size is 0");
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			dma_map->iova = FPGA_MOCK_IOVA; /* return something */
 			retval = 0;
 			errno = 0;
@@ -343,11 +393,27 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected IOVA (0x%llx)", dma_unmap->iova);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			errno = 0;
 			break;
 		case FPGA_PORT_RESET:
 			FPGA_DBG("got FPGA_PORT_RESET");
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			break;
 		case FPGA_PORT_GET_REGION_INFO:
@@ -369,6 +435,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unsupported padding");
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
 			rinfo->size = 0x40000;
 			rinfo->offset = 0;
@@ -386,6 +460,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("wrong structure size");
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			pinfo->flags = 0;
 			pinfo->num_regions = 1;
 			pinfo->num_umsgs = 8;
@@ -416,6 +498,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected flags %u", port_irq->flags);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			if (gEnableIRQ && port_irq->evtfd >= 0) {
 				uint64_t data = 1;
 				// Write to the eventfd to signal one IRQ event.
@@ -440,6 +530,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected flags %u", uafu_irq->flags);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			if (gEnableIRQ) {
 				uint32_t i;
 				uint64_t data = 1;
@@ -467,6 +565,14 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected flags %u", ucfg->flags);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			/* TODO: check hint_bitmap */
 			if (ucfg->hint_bitmap >> FPGA_MOCK_NUM_UMSGS) {
 				FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
@@ -490,16 +596,40 @@ int ioctl(int fd, unsigned long request, ...)
 				FPGA_MSG("unexpected flags %u", ubase->flags);
 				goto out_EINVAL;
 			}
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			/* TODO: check iova */
 			retval = 0;
 			errno = 0;
 			break;
 		case FPGA_PORT_UMSG_ENABLE:
 			FPGA_DBG("got FPGA_PORT_UMSG_ENABLE");
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			break;
 		case FPGA_PORT_UMSG_DISABLE:
 			FPGA_DBG("got FPGA_PORT_UMSG_DISABLE");
+
+			// Returns error when Error injection enabled
+			if (gEnableErrInj) {
+				retval = EINVAL;
+				errno = EINVAL;
+				break;
+			}
+
 			retval = 0;
 			break;
 		default:

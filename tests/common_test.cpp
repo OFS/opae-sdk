@@ -692,4 +692,40 @@ bool MOCK_enable_irq(bool enable)
   return real_mock_enable_irq(enable);
 }
 
+/*
+* The mock environment relies on libmock.so being pre-loaded, so
+* there is no -lmock on the linker command line for the test
+* executable. If we were to reference mock.c:mock_enable_errinj_t()
+* directly in test cases, then the link step for this test executable
+* would fail.
+*
+* Instead, the test cases that use mock rely on libmock.so being
+* preloaded (ie, we expect the below MOCK_enable_errinj() to throw an
+* exception if libmock.so is not actually loaded). This preserves the
+* restriction that we do not hard link against libmock.so, but still
+* allows us to access the mock API when needed.
+*/
+typedef bool(*mock_enable_errinj_t)(bool);
+bool MOCK_enable_errinj(bool enable) {
+
+	dlerror(); // clear errors
+	mock_enable_errinj_t real_mock_enable_errinj =
+		(mock_enable_errinj_t) dlsym(RTLD_DEFAULT, "mock_enable_errinj");
+	char *err = dlerror();
+
+	if (err) {
+		std::cerr << "dlsym(\"MOCK_enable_errinj\") failed: " << err << std::endl;
+		std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+		throw std::logic_error("mock_enable_errinj");
+	}
+
+	if (!real_mock_enable_errinj) {
+		std::cerr << "dlsym(\"MOCK_enable_errinj\") failed: (NULL fn pointer)" << std::endl;
+		std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+		throw std::logic_error("mock_enable_errinj is NULL");
+	}
+
+	return real_mock_enable_errinj(enable);
+}
+
 }  // end namespace common_test
