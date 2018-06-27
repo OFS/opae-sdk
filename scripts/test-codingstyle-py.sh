@@ -5,9 +5,9 @@ pushd $(dirname $0)/..
 PYCODESTYLE=$(which pycodestyle)
 PYLINT=$(which pylint)
 FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*" \
--not -path "./tools/extra/packager/jsonschema-2.3.0/*")
+-not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" )
 FILES+=" "
-FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/doc\/")
+FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 
 if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
     CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
