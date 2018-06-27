@@ -180,8 +180,9 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
 						.flags = 0 };
-	struct fpga_port_uafu_irq_set uafu_irq = {.argsz = sizeof(uafu_irq),
-						.flags = 0};
+	uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)+sizeof(int32_t)];
+	struct fpga_port_uafu_irq_set *uafu_irq =
+		(struct fpga_port_uafu_irq_set *) uafu_irq_buf;
 
 	if (uafu_operation != FPGA_IRQ_ASSIGN && uafu_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid UAFU operation requested");
@@ -200,18 +201,21 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 			return FPGA_INVALID_PARAM;
 		}
 
+		uafu_irq->argsz = sizeof(struct fpga_port_uafu_irq_set);
+		uafu_irq->flags = 0;
+
 		if (uafu_operation == FPGA_IRQ_ASSIGN) {
-			uafu_irq.evtfd[0] = fd;
-			uafu_irq.start = flags;
+			uafu_irq->evtfd[0] = fd;
+			uafu_irq->start = flags;
 			_eh->flags = flags;
 		} else {
-			uafu_irq.start = _eh->flags;
-			uafu_irq.evtfd[0] = -1;
+			uafu_irq->start = _eh->flags;
+			uafu_irq->evtfd[0] = -1;
 		}
 
-		uafu_irq.count = 1;
+		uafu_irq->count = 1;
 
-		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, &uafu_irq) != 0) {
+		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq) != 0) {
 			FPGA_ERR("Could not set eventfd");
 			return FPGA_EXCEPTION;
 		}
