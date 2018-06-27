@@ -377,6 +377,9 @@ class BaseFixture {
                    fpga_guid guid = NULL);
 };
 
+// mock API
+bool MOCK_enable_irq(bool enable);
+
 }  // end namespace
 
 #endif  // __COMMON_STRESS_H__

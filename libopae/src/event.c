@@ -180,8 +180,9 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
 						.flags = 0 };
-	struct fpga_port_uafu_irq_set uafu_irq = {.argsz = sizeof(uafu_irq),
-						.flags = 0};
+	uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)+sizeof(int32_t)];
+	struct fpga_port_uafu_irq_set *uafu_irq =
+		(struct fpga_port_uafu_irq_set *) uafu_irq_buf;
 
 	if (uafu_operation != FPGA_IRQ_ASSIGN && uafu_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid UAFU operation requested");
@@ -200,18 +201,23 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 			return FPGA_INVALID_PARAM;
 		}
 
+		memset_s(uafu_irq_buf, sizeof(uafu_irq_buf), 0);
+
+		uafu_irq->argsz = sizeof(struct fpga_port_uafu_irq_set);
+		uafu_irq->flags = 0;
+
 		if (uafu_operation == FPGA_IRQ_ASSIGN) {
-			uafu_irq.evtfd[0] = fd;
-			uafu_irq.start = flags;
+			uafu_irq->evtfd[0] = fd;
+			uafu_irq->start = flags;
 			_eh->flags = flags;
 		} else {
-			uafu_irq.start = _eh->flags;
-			uafu_irq.evtfd[0] = -1;
+			uafu_irq->start = _eh->flags;
+			uafu_irq->evtfd[0] = -1;
 		}
 
-		uafu_irq.count = 1;
+		uafu_irq->count = 1;
 
-		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, &uafu_irq) != 0) {
+		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq) != 0) {
 			FPGA_ERR("Could not set eventfd");
 			return FPGA_EXCEPTION;
 		}
@@ -223,65 +229,35 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 	return FPGA_OK;
 }
 
-static fpga_result get_handle_objtype(fpga_handle handle, fpga_objtype *objtype)
+/*
+ * Uses driver ioctls to determine whether the driver supports interrupts
+ * on this platform. objtype is an output parameter.
+ */
+static fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	fpga_result destroy_res = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_token *_token;
 	fpga_properties prop = NULL;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
-	/*_handle->lock mutex is not locked since it will be locked
-	  by the calling functions*/
-	_token = (struct _fpga_token *)_handle->token;
-
-	res = fpgaGetProperties(_token, &prop);
-	if (res != FPGA_OK) {
-		FPGA_MSG("Could not get FPGA properties");
-		return res;
-	}
-
-	res = fpgaPropertiesGetObjectType(prop, objtype);
-	if (res != FPGA_OK)
-		FPGA_MSG("Could not determine FPGA object type");
-
-	destroy_res = fpgaDestroyProperties(&prop);
-	if (destroy_res != FPGA_OK)
-		FPGA_MSG("Could not destroy FPGA properties");
-
-	return res;
-}
-
-static fpga_result check_interrupts_supported(fpga_handle handle)
-{
-	fpga_result res = FPGA_OK;
-	fpga_result destroy_res = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_token *_token;
-	fpga_properties prop = NULL;
-	fpga_objtype objtype;
 	struct fpga_fme_info fme_info  = {.argsz = sizeof(fme_info),
 					.flags = 0 };
 	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
 					.flags = 0 };
 
-	/*_handle->lock mutex is not locked since it will be locked
-	  by the calling functions*/
-	_token = (struct _fpga_token *)_handle->token;
-
-	res = fpgaGetProperties(_token, &prop);
+	res = fpgaGetPropertiesFromHandle(handle, &prop);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Could not get FPGA properties");
+		FPGA_MSG("Could not get FPGA properties from handle");
 		return res;
 	}
 
-	res = fpgaPropertiesGetObjectType(prop, &objtype);
+	res = fpgaPropertiesGetObjectType(prop, objtype);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not determine FPGA object type");
 		goto destroy_prop;
 	}
 
-	if (objtype == FPGA_DEVICE) {
+	if (*objtype == FPGA_DEVICE) {
 		if (ioctl(_handle->fddev, FPGA_FME_GET_INFO, &fme_info) != 0) {
 			FPGA_ERR("Could not get FME info: %s", strerror(errno));
 			res = FPGA_EXCEPTION;
@@ -294,7 +270,7 @@ static fpga_result check_interrupts_supported(fpga_handle handle)
 			FPGA_MSG("Interrupts not supported in hw");
 			res = FPGA_NOT_SUPPORTED;
 		}
-	} else if (objtype == FPGA_ACCELERATOR) {
+	} else if (*objtype == FPGA_ACCELERATOR) {
 		if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info) != 0) {
 			FPGA_ERR("Could not get PORT info: %s", strerror(errno));
 			res = FPGA_EXCEPTION;
@@ -327,26 +303,14 @@ static fpga_result driver_register_event(fpga_handle handle,
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
-	res = check_interrupts_supported(handle);
+	res = check_interrupts_supported(handle, &objtype);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	res = get_handle_objtype(handle, &objtype);
-	if (res != FPGA_OK) {
-		FPGA_MSG("Could not determine FPGA object type");
-		return res;
-	}
-
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
-		res = get_handle_objtype(handle, &objtype);
-		if (res != FPGA_OK) {
-			FPGA_MSG("Could not determine FPGA object type");
-			return res;
-		}
-
 		if (objtype == FPGA_DEVICE) {
 			return send_fme_event_request(handle, event_handle, FPGA_IRQ_ASSIGN);
 		} else if (objtype == FPGA_ACCELERATOR) {
@@ -376,16 +340,10 @@ static fpga_result driver_unregister_event(fpga_handle handle,
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
-	res = check_interrupts_supported(handle);
+	res = check_interrupts_supported(handle, &objtype);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
-	}
-
-	res = get_handle_objtype(handle, &objtype);
-	if (res != FPGA_OK) {
-		FPGA_ERR("Could not determine FPGA object type");
-		return res;
 	}
 
 	switch (event_type) {
