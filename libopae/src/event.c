@@ -201,6 +201,8 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
 			return FPGA_INVALID_PARAM;
 		}
 
+		memset_s(uafu_irq_buf, sizeof(uafu_irq_buf), 0);
+
 		uafu_irq->argsz = sizeof(struct fpga_port_uafu_irq_set);
 		uafu_irq->flags = 0;
 

@@ -656,6 +656,19 @@ void BaseFixture::TestAllFPGA(fpga_objtype otype, bool loadbitstream,
   }
 }
 
+/*
+ * The mock environment relies on libmock.so being pre-loaded, so
+ * there is no -lmock on the linker command line for the test
+ * executable. If we were to reference mock.c:mock_enable_irq()
+ * directly in test cases, then the link step for this test executable
+ * would fail.
+ *
+ * Instead, the test cases that use mock rely on libmock.so being
+ * preloaded (ie, we expect the below MOCK_enable_irq() to throw an
+ * exception if libmock.so is not actually loaded). This preserves the
+ * restriction that we do not hard link against libmock.so, but still
+ * allows us to access the mock API when needed.
+ */
 typedef bool (*mock_enable_irq_t)(bool );
 bool MOCK_enable_irq(bool enable)
 {
