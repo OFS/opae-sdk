@@ -255,7 +255,8 @@ build_error_list(const char *path, struct error_list **list)
 			continue;
 
 		// build absolute path
-		err = strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX - len);
+		err = strncpy_s(basedir + len, FILENAME_MAX - len -1,
+				de->d_name, FILENAME_MAX - len -1);
 		if (err != EOK) {
 			FPGA_MSG("strncpy_s() failed with return value %u", err);
 			continue;
@@ -354,7 +355,7 @@ build_error_list(const char *path, struct error_list **list)
 
 		if (!new_entry->info.can_clear) {
 			err = memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
-			if (err != EOK) {
+			if (err) {
 				FPGA_MSG("memset_s() failed with return value %u", err);
 				n--;
 				free(new_entry);
