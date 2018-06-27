@@ -164,7 +164,7 @@ TEST_F(LibopaecCommonMOCKERRINJ, fpga_mock_errinj_04) {
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
 	fpga_handle h;
-	uint64_t *value;
+	uint64_t *value = 0;
 	uint64_t *umsg_ptr;
 
 	// Open port device
