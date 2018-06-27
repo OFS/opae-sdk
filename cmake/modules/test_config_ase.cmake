@@ -46,7 +46,7 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
   function/gtReset.cpp
   function/gtBuffer.cpp
   function/gtEnumerate.cpp
-  function/gtError.cpp
+  # function/gtError.cpp
   function/gtMMIO.cpp
   function/gtVersion.cpp
   function/gtOpenClose.cpp
