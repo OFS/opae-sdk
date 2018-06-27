@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2018, Intel Corporation
+// Copyright(c) 2014-2017, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -64,8 +64,8 @@ int ase_memcpy_s(void *dest, size_t dmax, const void *src, size_t smax)
 	// No NULL pointers, maxima must be non-zero, smax must be less than dmax
 	// and dmax must be less than 256MB.
 	if ((dest == NULL) || (src == NULL) ||
-	    (dmax == 0) || (smax == 0) || (smax > dmax) ||
-	    (dmax > (256UL << 20))) {
+		(dmax == 0) || (smax == 0) || (smax > dmax) ||
+		(dmax > (256UL << 20))) {
 		ASE_DBG("Illegal parameter to ase_memcpy_s");
 		return -1;
 	}
@@ -82,6 +82,25 @@ int ase_memcpy_s(void *dest, size_t dmax, const void *src, size_t smax)
 
 
 /*
+* ase_memset - Secure memset abstraction.  Return 0 on success.
+*/
+int ase_memset_s(void *dest, size_t dmax, int ch, size_t count)
+{
+	// No NULL pointers, maxima must be non-zero, smax must be less than dmax
+	// and dmax must be less than 256MB.
+	if ((dest == NULL) ||
+		(dmax == 0) || (count == 0) || (count > dmax) ||
+		(dmax > (256UL << 20))) {
+		ASE_DBG("Illegal parameter to ase_memset_s");
+		return -1;
+	}
+
+	memset(dest, ch, count);
+	return 0;
+}
+
+
+/*
  * ASE string copy.  Returns 0 on success.
  */
 int ase_strncpy_s(char *dest, size_t dmax, const char *src, size_t slen)
@@ -89,8 +108,8 @@ int ase_strncpy_s(char *dest, size_t dmax, const char *src, size_t slen)
 	// No NULL pointers, maxima must be non-zero, smax must be less than dmax
 	// and dmax must be less than 4KB.
 	if ((dest == NULL) || (src == NULL) ||
-	    (dmax == 0) || (slen == 0) || (slen > dmax) ||
-	    (dmax > 4096)) {
+		(dmax == 0) || (slen == 0) || (slen > dmax) ||
+		(dmax > 4096)) {
 		ASE_DBG("Illegal parameter to ase_strncpy_s");
 		return -1;
 	}
@@ -101,10 +120,7 @@ int ase_strncpy_s(char *dest, size_t dmax, const char *src, size_t slen)
 		return -1;
 	}
 
-	strncpy (dest,
-		 src,
-		 slen);
-
+	strncpy(dest, src, slen);
 	return 0;
 }
 
@@ -116,7 +132,7 @@ int ase_strcmp_s(const char *dest, size_t dmax, const char *src, int *indicator)
 {
 	// Validate parameters
 	if ((dest == NULL) || (src == NULL) || (dmax == 0) || (dmax > 4096) ||
-	    (indicator == NULL)) {
+		(indicator == NULL)) {
 		ASE_DBG("Illegal parameter to ase_strncmp_s");
 		return -1;
 	}
@@ -124,28 +140,3 @@ int ase_strcmp_s(const char *dest, size_t dmax, const char *src, int *indicator)
 	*indicator = strncmp(dest, src, dmax);
 	return 0;
 }
-
-#if !defined(__STDC_LIB_EXT1__)
-int strncpy_s(char *dest, size_t dest_size, const char *src)
-{
-	return (int) g_strlcpy ((gchar *) dest,
-				(const gchar *) src,
-				(gsize) dest_size);
-}
-
-int strcat_s(char *dest, size_t dest_size, const char *src)
-{
-	return (int) g_strlcat ((gchar *) dest,
-				(const gchar *) src,
-				(gsize) dest_size);
-}
-
-int snprintf_s_i(char *dest, size_t dest_size, const char *format, int a)
-{
-
-	return (int) g_snprintf ((gchar *) dest,
-				 (gulong) dest_size,
-				 (gchar const *) format,
-				 a);
-}
-#endif

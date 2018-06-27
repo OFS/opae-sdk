@@ -253,7 +253,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
 	}
-	memset(_prop, 0, sizeof(struct _fpga_properties));
+	ase_memset(_prop, 0, sizeof(struct _fpga_properties));
 	// mark data structure as valid
 	_prop->magic = FPGA_PROPERTY_MAGIC;
 
@@ -344,7 +344,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (ASE_TOKEN_MAGIC != _token->magic)
 		return FPGA_INVALID_PARAM;
 	//clear fpga_properties buffer
-	memset(&_iprop, 0, sizeof(struct _fpga_properties));
+	ase_memset(&_iprop, 0, sizeof(struct _fpga_properties));
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 	result = objectid_for_ase(&_iprop.object_id);
 	if (result == 0)
@@ -1133,6 +1133,26 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 	_prop->object_id = object_id;
 
 	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesGetNumErrors(const fpga_properties prop,
+			   uint32_t *num_errors)
+{
+	UNUSED_PARAM(prop);
+	ASSERT_NOT_NULL(num_errors);
+
+	*num_errors = 0;
+	return FPGA_OK;	     // Errors are not supported in ASE
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetNumErrors(const fpga_properties prop,
+			   uint32_t num_errors)
+{
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(num_errors);
+	return FPGA_OK;		// Errors are not supported in ASE
 }
 
 fpga_result objectid_for_ase(uint64_t *object_id)
