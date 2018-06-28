@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include "pyshared_buffer.h"
-#include "pycontext.h"
 #include <opae/cxx/core/handle.h>
+#include "pycontext.h"
 
 namespace py = pybind11;
 using opae::fpga::types::shared_buffer;
@@ -66,7 +66,7 @@ const char *shared_buffer_doc_wsid() {
   )opaedoc";
 }
 
-const char *shared_buffer_doc_iova() {
+const char *shared_buffer_doc_io_address() {
   return R"opaedoc(
     Get the address of the buffer suitable for programming into the
     accelerator device.
