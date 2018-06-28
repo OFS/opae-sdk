@@ -35,6 +35,10 @@ include_directories(base/sw)
 if(BUILD_ASE_SAMPLES)
   find_package(Quartus)
   find_package(Questa)
+
+  # BBB libraries (MPF, DMA, etc)
+  include(intel_fpga_bbb)
+  Build_Intel_FPGA_BBB()
 endif()
 
 # Prefer GNU99
@@ -46,23 +50,18 @@ elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
 endif ()
 
 ######################################################################
-# MPF library ########################################################
-######################################################################
-
-include(intel_fpga_bbb)
-Build_Intel_FPGA_BBB()
-
-######################################################################
 # Add the samples ####################################################
 ######################################################################
 
 set(OPAE_SAMPLES src/opae/samples)
-add_subdirectory(intg_xeon_nlb)
-add_subdirectory(hello_afu)
-add_subdirectory(hello_mpf_afu)
-# add_subdirectory(hello_intr_afu)
-# add_subdirectory(hello_error_afu)
-# add_subdirectory(hello_dma_afu)
+if(BUILD_ASE_SAMPLES)
+  add_subdirectory(intg_xeon_nlb)
+  add_subdirectory(hello_afu)
+  add_subdirectory(hello_mpf_afu)
+  # add_subdirectory(hello_intr_afu)
+  # add_subdirectory(hello_error_afu)
+  # add_subdirectory(hello_dma_afu)
+endif()
 
 ######################################################################
 # Client application #################################################
@@ -70,14 +69,14 @@ add_subdirectory(hello_mpf_afu)
 
 add_executable(hello_fpga hello_fpga.c)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 elseif(BUILD_ASE)
-  target_link_libraries(hello_fpga json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
 if(BUILD_LIBOPAE_C)
   add_executable(hello_events hello_events.c)
-  target_link_libraries(hello_events json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 endif()
 
 set(SAMPLES_SRC hello_fpga.c hello_events.c)
