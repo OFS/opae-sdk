@@ -47,7 +47,8 @@ set(ASEAPI_SRC
   ${API_DIR}/src/mmio.c
   ${API_DIR}/src/open.c
   ${API_DIR}/src/umsg.c
-  ${API_DIR}/src/version.c)
+  ${API_DIR}/src/version.c
+  ${API_DIR}/src/error.c)
 
 add_library(opae-c-ase SHARED ${ASEAPI_SRC})
 target_link_libraries(opae-c-ase
