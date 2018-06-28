@@ -50,7 +50,7 @@ using namespace common_test;
 * @details Buffer functions returns FPGA_INVALID_PARAM for
 *..........invalid input
 */
-TEST(LibopaecBufferCommonMOCKHW, fpga_buffer_01) {
+TEST(LibopaecBufferCommonMOCK, fpga_buffer_01) {
 
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
