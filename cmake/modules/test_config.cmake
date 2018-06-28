@@ -105,6 +105,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtsysfs.cpp
                 unit/gtUsrclk.cpp
                 unit/gtBSMetadata.cpp
+                unit/gtBuffer.cpp
                 unit/gtReconf.cpp
                 unit/gtMockErrInj.cpp
                 function/gtCxxEnumerate.cpp
