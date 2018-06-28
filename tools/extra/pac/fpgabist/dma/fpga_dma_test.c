@@ -92,7 +92,7 @@ void help(void)
 /*
  * Parse command line arguments
  */
-#define GETOPT_STRING ":hVNB:D:F:S:AIQ"
+#define GETOPT_STRING "B"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
