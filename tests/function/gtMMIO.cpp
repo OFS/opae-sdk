@@ -123,6 +123,8 @@ TEST(LibopaecMmioCommonALL, mmio_drv_negative_map_mmio_02) {
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaMapMMIO(NULL, 0, NULL));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(NULL, 0));
   EXPECT_NE(FPGA_OK, fpgaUnmapMMIO(h, 0));
 #endif
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
@@ -213,6 +215,8 @@ TEST(LibopaecMmioCommonALL, mmio_drv_negative_write_read_01) {
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO64(NULL, 0, CSR_SCRATCHPAD0, &read_value));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO64(NULL, 0, CSR_SCRATCHPAD0, value));
   EXPECT_EQ(FPGA_OK, fpgaUnmapMMIO(h, 0));
 #endif
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
@@ -298,6 +302,8 @@ TEST(LibopaecMmioCommonALL, mmio_drv_negative_write32_read32_02) {
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO32(NULL, 0, CSR_SCRATCHPAD0, &read_value));
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO32(NULL, 0, MMIO_OUT_REGION_ADDRESS, value));
   EXPECT_EQ(FPGA_OK, fpgaUnmapMMIO(h, 0));
 #endif
   ASSERT_EQ(FPGA_OK, fpgaClose(h));

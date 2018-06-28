@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,52 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "errtable.h"
-#include "srv.h"
-#include "log.h"
-#include "ap6.h"
+#include <opae/types_enum.h>
+#include <opae/utils.h>
 
-#include "safe_string/safe_string.h"
+#include "common_test.h"
+#include "gtest/gtest.h"
 
-static void evt_notify_error_callback(struct client_event_registry *r,
-			const struct fpga_err *e)
-{
-	if ((FPGA_EVENT_ERROR == r->event) &&
-		!strncmp(e->sysfsfile, r->device, strnlen_s(r->device, sizeof(r->device)))) {
-		dlog("event: FPGA_EVENT_ERROR\n");
-		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
-			dlog("write: %s\n", strerror(errno));
-		r->data++;
-	}
+using namespace common_test;
+
+/**
+ * @test       common_01
+ *
+ * @brief      Verifies the string returned by fpgaErrStr() for each
+ *             fpga_result enumeration value.
+ */
+TEST(LibopaecErrorCommonALL, common_01) {
+  EXPECT_STREQ("success",                 fpgaErrStr(FPGA_OK));
+  EXPECT_STREQ("invalid parameter",       fpgaErrStr(FPGA_INVALID_PARAM));
+  EXPECT_STREQ("resource busy",           fpgaErrStr(FPGA_BUSY));
+  EXPECT_STREQ("exception",               fpgaErrStr(FPGA_EXCEPTION));
+  EXPECT_STREQ("not found",               fpgaErrStr(FPGA_NOT_FOUND));
+  EXPECT_STREQ("no memory",               fpgaErrStr(FPGA_NO_MEMORY));
+  EXPECT_STREQ("not supported",           fpgaErrStr(FPGA_NOT_SUPPORTED));
+  EXPECT_STREQ("no driver available",     fpgaErrStr(FPGA_NO_DRIVER));
+  EXPECT_STREQ("no fpga daemon running",  fpgaErrStr(FPGA_NO_DAEMON));
+  EXPECT_STREQ("insufficient privileges", fpgaErrStr(FPGA_NO_ACCESS));
+  EXPECT_STREQ("reconfiguration error",   fpgaErrStr(FPGA_RECONF_ERROR));
 }
-
-void evt_notify_error(const struct fpga_err *e)
-{
-	for_each_registered_event(evt_notify_error_callback, e);
-}
-
-static void evt_notify_ap6_callback(struct client_event_registry *r,
-			const struct fpga_err *e)
-{
-	if ((FPGA_EVENT_POWER_THERMAL == r->event) &&
-		!strncmp(e->sysfsfile, r->device, strnlen_s(r->device, sizeof(r->device)))) {
-		dlog("event: FPGA_EVENT_POWER_THERMAL\n");
-		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
-			dlog("write: %s\n", strerror(errno));
-		r->data++;
-	}
-}
-
-void evt_notify_ap6(const struct fpga_err *e)
-{
-	for_each_registered_event(evt_notify_ap6_callback, e);
-}
-
-/* trigger NULL bitstream programming and notify AP6 event clients */
-void evt_notify_ap6_and_null(const struct fpga_err *e)
-{
-	dlog("triggering NULL bitstream programming on socket %i\n", e->socket);
-	sem_post(&ap6_sem[e->socket]);
-	evt_notify_ap6(e);
-}
-

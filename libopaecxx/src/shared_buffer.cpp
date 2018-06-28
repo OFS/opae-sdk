@@ -24,6 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
+#include <algorithm>
 
 #include <opae/cxx/core/shared_buffer.h>
 #include <exception>
@@ -46,15 +47,15 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   }
 
   uint8_t *virt = nullptr;
-  uint64_t iova = 0;
+  uint64_t io_address = 0;
   uint64_t wsid = 0;
 
   fpga_result res = fpgaPrepareBuffer(
       handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
   ASSERT_FPGA_OK(res);
-  res = fpgaGetIOAddress(handle->c_type(), wsid, &iova);
+  res = fpgaGetIOAddress(handle->c_type(), wsid, &io_address);
   ASSERT_FPGA_OK(res);
-  p.reset(new shared_buffer(handle, len, virt, wsid, iova));
+  p.reset(new shared_buffer(handle, len, virt, wsid, io_address));
 
   return p;
 }
@@ -64,7 +65,7 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
   ptr_t p;
 
   uint8_t *virt = base;
-  uint64_t iova = 0;
+  uint64_t io_address = 0;
   uint64_t wsid = 0;
 
   fpga_result res =
@@ -72,9 +73,9 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
                         &wsid, FPGA_BUF_PREALLOCATED);
 
   ASSERT_FPGA_OK(res);
-  res = fpgaGetIOAddress(handle->c_type(), wsid, &iova);
+  res = fpgaGetIOAddress(handle->c_type(), wsid, &io_address);
   ASSERT_FPGA_OK(res);
-  p.reset(new shared_buffer(handle, len, virt, wsid, iova));
+  p.reset(new shared_buffer(handle, len, virt, wsid, io_address));
 
   return p;
 }
@@ -87,7 +88,7 @@ void shared_buffer::release() {
       virt_ = nullptr;
       len_ = 0;
       wsid_ = 0;
-      iova_ = 0;
+      io_address_ = 0;
     } else {
       std::cerr << "Error while calling fpgaReleaseBuffer: " << fpgaErrStr(res)
                 << "\n";
@@ -95,15 +96,17 @@ void shared_buffer::release() {
   }
 }
 
-void shared_buffer::fill(int c) { ::memset(virt_, c, len_); }
+void shared_buffer::fill(int c) {
+  std::fill(virt_, virt_+len_, c);
+}
 
 int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
   return ::memcmp(virt_, other->virt_, len);
 }
 
 shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
-                             uint64_t wsid, uint64_t iova)
-    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), iova_(iova) {}
+                             uint64_t wsid, uint64_t io_address)
+    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), io_address_(io_address) {}
 
 }  // end of namespace types
 }  // end of namespace fpga
