@@ -35,10 +35,6 @@ include_directories(base/sw)
 if(BUILD_ASE_SAMPLES)
   find_package(Quartus)
   find_package(Questa)
-
-  # BBB libraries (MPF, DMA, etc)
-  include(intel_fpga_bbb)
-  Build_Intel_FPGA_BBB()
 endif()
 
 # Prefer GNU99
@@ -55,6 +51,10 @@ endif ()
 
 set(OPAE_SAMPLES src/opae/samples)
 if(BUILD_ASE_SAMPLES)
+  # BBB libraries (MPF, DMA, etc)
+  include(intel_fpga_bbb)
+  Build_Intel_FPGA_BBB()
+
   add_subdirectory(intg_xeon_nlb)
   add_subdirectory(hello_afu)
   add_subdirectory(hello_mpf_afu)
