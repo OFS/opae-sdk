@@ -377,6 +377,12 @@ class BaseFixture {
                    fpga_guid guid = NULL);
 };
 
+// mock API
+bool MOCK_enable_irq(bool enable);
+
+// mock Error API to inject ioctl error
+bool MOCK_enable_ioctl_errinj(bool enable);
+
 }  // end namespace
 
 #endif  // __COMMON_STRESS_H__
