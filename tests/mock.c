@@ -90,6 +90,14 @@ bool mock_enable_irq(bool enable)
 	return res;
 }
 
+static bool gEnableErrInj = false;
+bool mock_enable_errinj(bool enable)
+{
+	bool res = gEnableErrInj;
+	gEnableErrInj = enable;
+	return res;
+}
+
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
 
@@ -157,6 +165,12 @@ int ioctl(int fd, unsigned long request, ...)
 		return -1;
 
 	FPGA_DBG("mock ioctl() called");
+
+	// Returns error when Error injection enabled
+	if (gEnableErrInj) {
+		goto out_EINVAL;
+	}
+
 	switch (mock_devs[fd].objtype) {
 	case FPGA_DEVICE: /* FME */
 		switch (request) {
