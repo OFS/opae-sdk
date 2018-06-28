@@ -26,26 +26,26 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
-
+set(PYOPAE_PYBIND11_VERSION "2.2")
 set(PYOPAE_SRC opae.cpp
 	       pycontext.h
 	       pycontext.cpp
                pyproperties.h
-	       pyproperties.cpp
-	       pyhandle.h
-	       pyhandle.cpp
-	       pytoken.h
-	       pytoken.cpp
-	       pyshared_buffer.h
-	       pyshared_buffer.cpp
-	       pyevents.h
-	       pyevents.cpp
-	       pyerrors.h
-	       pyerrors.cpp)
+	           pyproperties.cpp
+	           pyhandle.h
+	           pyhandle.cpp
+	           pytoken.h
+	           pytoken.cpp
+	           pyshared_buffer.h
+	           pyshared_buffer.cpp
+	           pyevents.h
+	           pyevents.cpp
+	           pyerrors.h
+	           pyerrors.cpp)
 
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}
-	            ${PYTHON_INCLUDE_DIRS})
+	                ${PYTHON_INCLUDE_DIRS})
 add_library(_opae MODULE ${PYOPAE_SRC})
 target_include_directories(_opae
 	PRIVATE ${PYBIND11_INCLUDE_DIR}
@@ -75,61 +75,37 @@ add_custom_command(TARGET _opae
 	${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
 	COMMENT "Copying Python test files")
 
-####################################################
-## TODO: Re-enable building python wheel package
-## Comment out for now
-####################################################
 
-#execute_process(COMMAND
-#		${PYTHON_EXECUTABLE} -c
-#		"import pybind11; print pybind11.get_include().strip()"
-#		OUTPUT_VARIABLE PYBIND_INCLUDE_DIR
-#		OUTPUT_STRIP_TRAILING_WHITESPACE)
-#include_directories(${PYBIND_INCLUDE_DIR}
-#	            ${PYTHON_INCLUDE_DIRS})
-
-#include(FindPythonPackage)
-#option(USE_VIRTUALENV "Install Python virtualenv in build directory" ON)
-#if (USE_VIRTUALENV)
-#    set(VIRTUAL_ENV_PACKAGES "nose2;pybind11" CACHE STRING "List of packages to install in virtualenv")
-#    FIND_PYTHON_PKG(virtualenv WARNING)
-#    if (virtualenv_FOUND AND NOT EXISTS ${CMAKE_BINARY_DIR}/bin/python)
-#        message(STATUS "Installing Python virtualenv in ${CMAKE_BINARY_DIR}")
-#        execute_process(
-#            COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_BINARY_DIR}
-#            OUTPUT_QUIET RESULT_VARIABLE EXIT_CODE)
-#    endif (virtualenv_FOUND AND NOT EXISTS ${CMAKE_BINARY_DIR}/bin/python)
-#    if(EXISTS ${CMAKE_BINARY_DIR}/bin/python)
-#        set(PYTHON_VIRTUALENV ${CMAKE_BINARY_DIR}/bin/python CACHE FILEPATH "Virtual Python Executable")
-#        foreach(pkg ${VIRTUAL_ENV_PACKAGES})
-#            execute_process(
-#                COMMAND ${PYTHON_VIRTUALENV} -m pip install ${pkg}
-#                OUTPUT_QUIET)
-#        endforeach(pkg ${VIRTUAL_ENV_PACKAGES})
-#    else(EXISTS ${CMAKE_BINARY_DIR}/bin/python)
-#	set(PYTHON_VIRTUALENV ${PYTHON_EXECUTABLE} CACHE FILEPATH "Python Executable")
-#    endif(EXISTS ${CMAKE_BINARY_DIR}/bin/python)
-#endif (USE_VIRTUALENV)
+if (BUILD_PYTHON_DIST)
+    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
 
 
-#add_library(test_pybind_compile MODULE test_pybind_compile.cpp)
-#set_property(TARGET test_pybind_compile PROPERTY CXX_STANDARD 11)
-#set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
-#
-#
-#include(create_python_dist)
-#create_python_dist(
-#    TARGET pyopae-dist
-#    BUILD_WHEEL
-#    PACKAGE opae
-#    COPY_FILES ${PYOPAE_SRC}
-#	       test_pyopae.py
-#    BUILD_COMMAND build_ext
-#    BUILD_INCLUDE_DIRS "${SETUP_INCLUDE_DIRS}"
-#    BUILD_LIBRARY_DIRS ${LIBRARY_OUTPUT_PATH}
-#    DEPENDS opae-c opae-cxx-core test_pybind_compile
-#)
+    set(PYFILES
+        setup.py
+        opae/__init__.py
+        opae/fpga/__init__.py
+        test_pyopae.py
+    	)
 
+    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
+    foreach(pyfile ${PYFILES})
+    	configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+    endforeach(pyfile ${PYFILES})
 
+    foreach(cppfile ${PYOPAE_SRC})
+	    file(COPY ${cppfile} DESTINATION ${PYDIST_STAGE_DIR})
+    endforeach(cppfile ${PYOPAE_SRC})
 
+    add_custom_command(
+        TARGET _opae
+        POST_BUILD
+        COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
+        --include-dirs=${OPAE_INCLUDE_DIR}
+        --library-dirs=${LIBRARY_OUTPUT_PATH}
+        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+        DEPENDS ${PYFILES} ${PYOPAE_SRC}
+        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+        COMMENT "Building Python distrubutions")
+endif (BUILD_PYTHON_DIST)

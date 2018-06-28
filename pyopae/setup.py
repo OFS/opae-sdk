@@ -3,6 +3,9 @@ from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
+
+
+
 # get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
 
@@ -10,6 +13,7 @@ original_build_extensions = build_ext.build_extensions
 def override_build_extensions(self):
     if '-Wstrict-prototypes' in self.compiler.compiler_so:
         self.compiler.compiler_so.remove('-Wstrict-prototypes')
+    self.compiler.compiler_so.append('-fvisibility=hidden')
     # call the original build_extensions
     original_build_extensions(self)
 
@@ -18,22 +22,13 @@ def override_build_extensions(self):
 build_ext.build_extensions = override_build_extensions
 
 
-def get_include_dirs(*args):
-    include_dirs = list(set(args))
-    try:
+class pybind_include_dirs(object):
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
         import pybind11
-    except ImportError:
-        print "Couldn't import pybind11"
-        return include_dirs
-    else:
-        pybind_include = pybind11.get_include()
-        if not os.path.exists(os.path.join(pybind_include, 'pybind11')):
-            pybind_include = pybind11.get_include(True)
-        include_dirs.append(pybind_include)
-    if not any([os.path.exists(os.path.join(inc, 'opae'))
-                for inc in include_dirs]):
-        print "Could not find OPAE in any include paths"
-    return include_dirs
+        return pybind11.get_include(self.user)
 
 
 extensions = [
@@ -48,13 +43,18 @@ extensions = [
               language="c++",
               extra_compile_args=["-std=c++11"],
               extra_link_args=["-std=c++11"],
-              include_dirs=get_include_dirs("@CMAKE_INSTALL_PREFIX@/include"),
+              include_dirs=[
+                  "@CMAKE_INSTALL_PREFIX@/include",
+                  pybind_include_dirs(),
+                  pybind_include_dirs(True)
+              ],
               libraries=["opae-c", "opae-cxx-core"],
-              library_dirs=["@CMAKE_INSTALL_PREFIX@/lib"])
+              library_dirs=["@CMAKE_INSTALL_PREFIX@/lib",
+                            "@CMAKE_INSTALL_PREFIX@/lib64"])
 ]
 
 setup(
-    name="pyopae",
+    name="opae.fpga",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
     entry_points={
@@ -62,6 +62,7 @@ setup(
         ]
     },
     ext_modules=extensions,
+    install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
     description="pyopae provides Python bindings around the "
                 "OPAE C API",
     license="BSD3",
