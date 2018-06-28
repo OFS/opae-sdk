@@ -34,6 +34,7 @@ class pybind_include_dirs(object):
 extensions = [
     Extension("opae.fpga._opae",
               sources=["pyproperties.cpp",
+                       "pycontext.cpp",
                        "pyhandle.cpp",
                        "pytoken.cpp",
                        "pyshared_buffer.cpp",
