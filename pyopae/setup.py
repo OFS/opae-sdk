@@ -40,6 +40,7 @@ extensions = [
     Extension("opae.fpga._opae",
               sources=["pyproperties.cpp",
                        "pyhandle.cpp",
+                       "pytoken.cpp",
                        "pyshared_buffer.cpp",
                        "pyevents.cpp",
                        "pyerrors.cpp",
