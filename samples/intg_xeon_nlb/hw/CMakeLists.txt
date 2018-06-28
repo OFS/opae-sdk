@@ -59,7 +59,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
   DESTINATION ${OPAE_SAMPLES}/intg_xeon_nlb/hw
   COMPONENT samplesrc)
 
-install(FILES ${PROJECT_SOURCE_DIR}/hw/ccip_std_afu.json
+install(FILES ${PROJECT_SOURCE_DIR}/hw/intg_xeon_nlb.json
   DESTINATION ${OPAE_SAMPLES}/intg_xeon_nlb/hw
   COMPONENT samplesrc)
 

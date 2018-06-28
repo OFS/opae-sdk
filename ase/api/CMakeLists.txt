@@ -53,8 +53,7 @@ add_library(opae-c-ase SHARED ${ASEAPI_SRC})
 target_link_libraries(opae-c-ase
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
-  ${librt_LIBRARIES}
-  ${GLIB_LIBRARIES})
+  ${librt_LIBRARIES})
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build

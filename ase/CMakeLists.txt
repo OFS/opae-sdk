@@ -27,8 +27,6 @@
 ## Install target for ASE support files
 project(ase)
 include(opae_devpkgs_cmake_install)
-find_package(DBus)
-find_package(GLIB)
 
 ############################################################################
 ## Create config_int.h #####################################################

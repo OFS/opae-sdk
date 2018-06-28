@@ -63,8 +63,6 @@
 #include <uuid/uuid.h>
 #include <pthread.h>
 
-#include <gio/gnetworking.h>
-
 #ifdef SIM_SIDE
 #include "svdpi.h"
 #endif
