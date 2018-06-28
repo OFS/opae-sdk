@@ -35,7 +35,7 @@ class DmaMode(bc.BistMode):
     name = "dma_afu"
 
     def __init__(self, bus_num):
-        self.executables = {'fpga_dma_test': '-B '+ str(bus_num) + ' 0'}
+        self.executables = {'fpga_dma_test': '-B ' + str(bus_num) + ' 0'}
 
     def run(self, gbs_path, bus_num):
         bc.load_gbs(gbs_path, bus_num)
