@@ -107,6 +107,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtBSMetadata.cpp
                 unit/gtBuffer.cpp
                 unit/gtReconf.cpp
+                unit/gtMockErrInj.cpp
                 function/gtCxxEnumerate.cpp
                 function/gtCxxEvents.cpp
                 function/gtCxxOpenClose.cpp
