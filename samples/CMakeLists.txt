@@ -33,7 +33,6 @@ include_directories(${OPAE_INCLUDE_DIR}
 include_directories(base/sw)
 
 if(BUILD_ASE_SAMPLES)
-  find_package(GLIB)
   find_package(Questa)
   include_directories(${GLIB_INCLUDE_DIRS})
 endif()
