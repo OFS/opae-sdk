@@ -95,7 +95,7 @@ int ase_memset_s(void *dest, size_t dmax, int ch, size_t count)
 		return -1;
 	}
 
-	memset(dest, ch, count);
+	ase_memset(dest, ch, count);
 	return 0;
 }
 
