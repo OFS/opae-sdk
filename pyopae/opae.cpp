@@ -159,6 +159,7 @@ PYBIND11_MODULE(_opae, m) {
             py::format_descriptor<uint8_t>::format(), b.size());
       })
       .def("__getitem__", shared_buffer_getitem, shared_buffer_doc_getitem())
+      .def("__setitem__", shared_buffer_setitem, shared_buffer_doc_setitem())
       .def("__getitem__", shared_buffer_getslice, shared_buffer_doc_getslice());
 
 

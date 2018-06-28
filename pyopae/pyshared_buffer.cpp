@@ -99,6 +99,19 @@ uint8_t shared_buffer_getitem(shared_buffer::ptr_t buf, uint32_t offset) {
   return *(buf->c_type() + offset);
 }
 
+const char *shared_buffer_doc_setitem() {
+  return R"opaedoc(
+    Set the bytes at the given offset using all bytes in the argument.
+  )opaedoc";
+}
+
+void shared_buffer_setitem(opae::fpga::types::shared_buffer::ptr_t buf,
+                           uint32_t offset, pybind11::int_ item) {
+  int *ptr =
+      reinterpret_cast<int *>(const_cast<uint8_t *>(buf->c_type() + offset));
+  *ptr = item.cast<int>();
+}
+
 const char *shared_buffer_doc_getslice() {
   return R"opaedoc(
     Get a slice of the bytes as determined by the slice arguments ([start:stop:step])
