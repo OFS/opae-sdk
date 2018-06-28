@@ -76,7 +76,7 @@ function (Build_MOCK_DRV)
     COMMAND tar xzvf /tmp/mock_sys_tmp-1socket-nlb0.tar.gz -C /tmp --strip 1)
 
   # build mock driver
-  add_library(mock SHARED mock.c)
+  add_library(mock SHARED EXCLUDE_FROM_ALL mock.c)
   target_include_directories(mock PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/src>)
@@ -107,6 +107,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtBSMetadata.cpp
                 unit/gtBuffer.cpp
                 unit/gtReconf.cpp
+                unit/gtMockErrInj.cpp
                 function/gtCxxEnumerate.cpp
                 function/gtCxxEvents.cpp
                 function/gtCxxOpenClose.cpp
