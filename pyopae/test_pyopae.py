@@ -326,6 +326,18 @@ class TestSharedBuffer(unittest.TestCase):
         ba = bytearray(buff1)
         assert ba[0] == 0xaa
 
+    def test_conext_release(self):
+        assert self.handle
+        self.handle.close()
+        with opae.fpga.open(self.toks[0]) as h:
+            buff = opae.fpga.allocate_shared_buffer(h, 4096)
+            assert buff
+            assert buff.size() == 4096
+            assert buff.wsid() != 0
+        assert not h
+        assert buff.size() == 0
+        assert buff.wsid() == 0
+
 def trigger_port_error(value=1):
     with open(MOCK_PORT_ERROR, 'w') as fd:
         fd.write('0\n')

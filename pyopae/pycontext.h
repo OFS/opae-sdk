@@ -24,31 +24,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <Python.h>
-
+#include <map>
+#include <vector>
+#include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/shared_buffer.h>
-#include <pybind11/pybind11.h>
-#include "pyhandle.h"
 
-const char *shared_buffer_doc();
+class buffer_registry {
+private:
+  typedef opae::fpga::types::handle::ptr_t handle_t;
+  typedef opae::fpga::types::shared_buffer::ptr_t shared_buffer_t;
+  typedef std::vector<shared_buffer_t> buffer_list_t;
+  typedef std::map<handle_t, buffer_list_t> buffer_map_t;
+public:
+  static buffer_registry & instance();
+  void register_handle(handle_t handle);
+  void add_buffer(handle_t handle, shared_buffer_t buffer);
+  void unregister_handle(handle_t handle);
 
-const char *shared_buffer_doc_allocate();
-opae::fpga::types::shared_buffer::ptr_t shared_buffer_allocate(
-    opae::fpga::types::handle::ptr_t hndl, size_t size);
-const char *shared_buffer_doc_size();
+private:
+  buffer_registry();
+  buffer_map_t buffers_;
+  static buffer_registry *instance_;
 
-const char *shared_buffer_doc_wsid();
+};
 
-const char *shared_buffer_doc_iova();
-
-const char *shared_buffer_doc_fill();
-
-const char *shared_buffer_doc_compare();
-
-const char *shared_buffer_doc_getitem();
-uint8_t shared_buffer_getitem(opae::fpga::types::shared_buffer::ptr_t buf,
-                              uint32_t offset);
-
-const char *shared_buffer_doc_getslice();
-pybind11::list shared_buffer_getslice(
-    opae::fpga::types::shared_buffer::ptr_t buf, pybind11::slice slice);
