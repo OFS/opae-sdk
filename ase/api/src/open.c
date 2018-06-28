@@ -83,7 +83,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 		return FPGA_NO_MEMORY;
 	}
 
-	ase_memset(_handle, 0, sizeof(*_handle));
+	memset(_handle, 0, sizeof(*_handle));
 
 	_handle->token = token;
 	_handle->magic = FPGA_HANDLE_MAGIC;

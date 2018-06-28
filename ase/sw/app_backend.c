@@ -175,7 +175,7 @@ void *mmio_response_watcher(void *arg)
 
 	// start watching for messages
 	while (mmio_exist_status == ESTABLISHED) {
-		ase_memset((void *) mmio_rsp_pkt, 0xbc, sizeof(mmio_t));
+		memset((void *) mmio_rsp_pkt, 0xbc, sizeof(mmio_t));
 
 		// If received, update global message
 		ret = mqueue_recv(sim2app_mmiorsp_rx, (char *) mmio_rsp_pkt,
@@ -317,7 +317,7 @@ void session_init(void)
 		snprintf(tstamp_filepath, ASE_FILEPATH_LEN, "%s/%s", ase_workdir_path, TSTAMP_FILENAME);
 
 		// Craft a .app_lock.pid lock filepath string
-		ase_memset(app_ready_lockpath, 0, ASE_FILEPATH_LEN);
+		memset(app_ready_lockpath, 0, ASE_FILEPATH_LEN);
 		snprintf(app_ready_lockpath, ASE_FILEPATH_LEN, "%s/%s",
 			 ase_workdir_path, APP_LOCK_FILENAME);
 
@@ -1103,7 +1103,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 	// Autogenerate a memname, by defualt the first region id=0 will be
 	// called "/mmio", subsequent regions will be called strcat("/buf", id)
 	// Initially set all characters to NULL
-	ase_memset(mem->memname, 0, sizeof(mem->memname));
+	memset(mem->memname, 0, sizeof(mem->memname));
 	if (mem->is_mmiomap == 1) {
 		snprintf(mem->memname, ASE_FILENAME_LEN, "/mmio.%s",
 			 tstamp_string);
@@ -1530,7 +1530,7 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
 	struct cmsghdr *cmsg;
 	char buf[CMSG_SPACE(sizeof(int))];
 
-	ase_memset(buf, 0x0, sizeof(buf));
+	memset(buf, 0x0, sizeof(buf));
 	struct iovec io = { .iov_base = req, .iov_len = sizeof(req) };
 
 	cmsg = (struct cmsghdr *)buf;

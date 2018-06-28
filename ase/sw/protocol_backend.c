@@ -158,7 +158,7 @@ int ase_instance_running(void)
 void sv2c_config_dex(const char *str)
 {
 	// Allocate memory
-	ase_memset(sv2c_config_filepath, 0, ASE_FILEPATH_LEN);
+	memset(sv2c_config_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Check that input string is not NULL
 	if (str == NULL) {
@@ -181,8 +181,8 @@ void sv2c_config_dex(const char *str)
 			} else {
 				ASE_ERR
 					("** WARNING ** +CONFIG file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_config_filepath, 0,
-					   ASE_FILEPATH_LEN);
+				memset(sv2c_config_filepath, 0,
+				       ASE_FILEPATH_LEN);
 			}
 		}
 	}
@@ -197,7 +197,7 @@ void sv2c_script_dex(const char *str)
 	if (str == NULL) {
 		ASE_MSG("sv2c_script_dex => Input string is unusable\n");
 	} else {
-		ase_memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
+		memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
 		if (sv2c_script_filepath != NULL) {
 			ase_string_copy(sv2c_script_filepath, str,
 					ASE_FILEPATH_LEN);
@@ -211,9 +211,10 @@ void sv2c_script_dex(const char *str)
 				ASE_MSG("+SCRIPT %s file found !\n",
 					sv2c_script_filepath);
 			} else {
-				ASE_MSG("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_script_filepath, 0,
-					   ASE_FILEPATH_LEN);
+				ASE_MSG
+					("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
+				memset(sv2c_script_filepath, 0,
+				       ASE_FILEPATH_LEN);
 			}
 		}
 	}
@@ -491,7 +492,7 @@ int read_fd(int sock_fd)
 	struct cmsghdr *cmsg;
 	int *fdptr;
 
-	ase_memset(buf, '\0', sizeof(buf));
+	memset(buf, '\0', sizeof(buf));
 	msg.msg_iov = &io;
 	msg.msg_iovlen = 1;
 	msg.msg_control = buf;
@@ -822,7 +823,7 @@ int ase_listener(void)
 			}
 
 			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
+			memset(logger_str, 0, ASE_LOGGER_LEN);
 			if (ase_buffer.is_mmiomap) {
 				snprintf(logger_str + strlen(logger_str),
 					 ASE_LOGGER_LEN,
@@ -895,7 +896,7 @@ int ase_listener(void)
 				   sizeof(struct buffer_t));
 
 			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
+			memset(logger_str, 0, ASE_LOGGER_LEN);
 			snprintf(logger_str + strlen(logger_str),
 				 ASE_LOGGER_LEN,
 				 "\nBuffer %d Deallocated =>\n",
@@ -1035,7 +1036,7 @@ int ase_init(void)
 	create_ipc_listfile();
 
 	// Sniffer file stat path
-	ase_memset(ccip_sniffer_file_statpath, 0, ASE_FILEPATH_LEN);
+	memset(ccip_sniffer_file_statpath, 0, ASE_FILEPATH_LEN);
 	snprintf(ccip_sniffer_file_statpath, ASE_FILEPATH_LEN,
 		 "%s/ccip_warning_and_errors.txt", ase_workdir_path);
 

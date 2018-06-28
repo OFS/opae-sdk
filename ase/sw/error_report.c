@@ -130,7 +130,7 @@ void backtrace_handler(int sig)
 	char app_or_sim[16];
 	int cmd_ret;
 
-	ase_memset(app_or_sim, 0, sizeof(app_or_sim));
+	memset(app_or_sim, 0, sizeof(app_or_sim));
 
 #ifdef SIM_SIDE
 	snprintf(app_or_sim, 16, "Simulator ");
