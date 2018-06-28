@@ -39,7 +39,7 @@ const char *shared_buffer_doc_size();
 
 const char *shared_buffer_doc_wsid();
 
-const char *shared_buffer_doc_iova();
+const char *shared_buffer_doc_io_address();
 
 const char *shared_buffer_doc_fill();
 

@@ -6,9 +6,9 @@
 #include "pyerrors.h"
 #include "pyevents.h"
 #include "pyhandle.h"
-#include "pytoken.h"
 #include "pyproperties.h"
 #include "pyshared_buffer.h"
+#include "pytoken.h"
 
 namespace py = pybind11;
 using opae::fpga::types::properties;
@@ -17,7 +17,6 @@ using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
-
 
 PYBIND11_MODULE(_opae, m) {
   py::options opts;
@@ -120,7 +119,7 @@ PYBIND11_MODULE(_opae, m) {
 
   // define token class
   m.def("enumerate", &token::enumerate, token_doc_enumerate())
-    .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
+      .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
 
   // define handle class
@@ -150,7 +149,8 @@ PYBIND11_MODULE(_opae, m) {
       m, "shared_buffer", py::buffer_protocol(), shared_buffer_doc());
   pybuffer.def("size", &shared_buffer::size, shared_buffer_doc_size())
       .def("wsid", &shared_buffer::wsid, shared_buffer_doc_wsid())
-      .def("iova", &shared_buffer::iova, shared_buffer_doc_iova())
+      .def("io_address", &shared_buffer::io_address,
+           shared_buffer_doc_io_address())
       .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
       .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
       .def_buffer([](shared_buffer &b) -> py::buffer_info {
@@ -162,7 +162,6 @@ PYBIND11_MODULE(_opae, m) {
       .def("__setitem__", shared_buffer_setitem, shared_buffer_doc_setitem())
       .def("__getitem__", shared_buffer_getslice, shared_buffer_doc_getslice());
 
-
   // define event class
   m.def("register_event", event_register_event, event_doc_register_event(),
         py::arg("handle"), py::arg("event_type"), py::arg("flags") = 0);
@@ -172,9 +171,9 @@ PYBIND11_MODULE(_opae, m) {
 
   py::class_<error, error::ptr_t> pyerror(m, "error", error_doc());
   pyerror.def_property_readonly("name", &error::name, error_doc_name())
-      .def_property_readonly("can_clear", &error::can_clear, error_doc_can_clear())
+      .def_property_readonly("can_clear", &error::can_clear,
+                             error_doc_can_clear())
       .def("read_value", &error::read_value, error_doc_read_value());
 
   m.def("errors", error_errors, error_doc_errors());
 }
-
