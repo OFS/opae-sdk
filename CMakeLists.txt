@@ -275,6 +275,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
+  fpgadmalib
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
