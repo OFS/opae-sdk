@@ -59,7 +59,6 @@ target_link_libraries(opae-c-ase
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
-include_directories(${GLIB_INCLUDE_DIRS})
 target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
