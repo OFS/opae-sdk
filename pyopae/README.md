@@ -70,6 +70,7 @@ directory found in the user's `.local` directory.
 The following example is an implementation of the sample, hello_fpga.c, which
 is designed to configure the NLB0 diagnostic accelerator for a simple loopback.
 
+
 ```Python
 import time
 from opae import fpga
@@ -85,13 +86,13 @@ DSM_ADDR = 0x0110
 def cl_align(addr):
     return addr >> 6
 
-tokens = opae.enumerate(type=fpga.ACCELERATOR, guid=NLB0)
+tokens = fpga.enumerate(type=fpga.ACCELERATOR, guid=NLB0)
 assert tokens, "Could not enumerate accelerator: {}".format(NlB0)
 
 with fpga.open(tokens[0], fpga.OPEN_SHARED) as handle:
-    src = opae.allocate_shared_buffer(handle, 4096)
-    dst = opae.allocate_shared_buffer(handle, 4096)
-    dsm = opae.allocate_shared_buffer(handle, 4096)
+    src = fpga.allocate_shared_buffer(handle, 4096)
+    dst = fpga.allocate_shared_buffer(handle, 4096)
+    dsm = fpga.allocate_shared_buffer(handle, 4096)
     handle.write_csr32(CTL, 0)
     handle.write_csr32(CTL, 1)
     handle.write_csr64(DSM_ADDR, dsm.io_address())
@@ -105,3 +106,18 @@ with fpga.open(tokens[0], fpga.OPEN_SHARED) as handle:
     handle.write_csr32(CTL, 7)
 
 ```
+
+This example shows how one might reprogram (Partial Reconfiguration) an
+accelerator on a given bus, 0x5e, using a bitstream file, m0.gbs.
+
+```Python
+from opae import fpga
+
+BUS = 0x5e
+GBS = 'm0.gbs'
+tokens = fpga.enumerate(type=fpga.DEVICE, bus=BUS)
+assert tokens, "Could not enumerate device on bus: {}".format(BUS)
+with open(GBS, 'rb') as fd, fpga.open(tokens[0]) as device:
+    device.reconfigure(0, fd)
+```
+
