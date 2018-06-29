@@ -42,7 +42,7 @@ function (Build_GTEST)
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     # Disable install step
     INSTALL_COMMAND "")
-    
+
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
@@ -65,7 +65,7 @@ function (Build_GTEST)
   set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
   set(GTEST_FOUND true PARENT_SCOPE)
   message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
-  
+
 endfunction(Build_GTEST)
 
 function (Build_MOCK_DRV)
@@ -85,7 +85,6 @@ function (Build_MOCK_DRV)
 endfunction(Build_MOCK_DRV)
 
 function(Build_Test_Target Target_Name Target_LIB)
-    add_library(commonlib SHARED common_test.h common_test.cpp)
 
     include_directories(
                     ${OPAE_SDK_SOURCE}/tests
@@ -138,14 +137,14 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()         
+    endif()
 
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
                           ${libjson-c_LIBRARIES} dl)
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-                               $<INSTALL_INTERFACE:include>     
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
     add_executable(${Target_Name} ${TARGET_SRC})
@@ -158,7 +157,6 @@ function(Build_Test_Target Target_Name Target_LIB)
     target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
                               uuid ${GTEST_BOTH_LIBRARIES} dl opae-c++-utils opae-c++ opae-cxx-core)
 	  						
-
     if(CMAKE_THREAD_LIBS_INIT)
        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
@@ -175,11 +173,11 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
    #Filter test list to preload ib/libmock.so
    string(FIND ${Test_To_Be_Exe} "MOCK" pos)
    string(FIND ${Test_To_Be_Exe} "ALL"  pos1)
-   
+
    add_test(NAME ${Test_Name}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
-   
+
   if(${pos} OR ${pos1})
      set_tests_properties(
          ${Test_Name}
@@ -188,4 +186,3 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
    endif()
 
 endfunction(Exe_Tests)
-

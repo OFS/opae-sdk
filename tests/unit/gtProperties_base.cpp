@@ -950,7 +950,9 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_203) {
  *
  */
 TEST(LibopaecPropertiesCommonALL, nodrv_prop_204) {
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetDeviceID(NULL, NULL));
+#endif
 }
 
 /** fpga.num_slots field tests **/
@@ -1307,7 +1309,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_071) {
   // Call the API to set the token on the property
   result = fpgaPropertiesSetBBSID(prop, bbs_id);
   EXPECT_EQ(result, FPGA_OK);
-  
+
 #ifndef BUILD_ASE
   // make sure the FPGA_PROPERTY_BBSID bit is one
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_BBSID) & 1, 1);
@@ -1423,7 +1425,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_075) {
   // assert it is set to what we set it to above
   #ifndef BUILD_ASE
   EXPECT_EQ(0, memcmp(&v, &bbs_version, sizeof(fpga_version)));
-  #endif  
+  #endif
 
   // now delete the properties object
   result = fpgaDestroyProperties(&prop);
@@ -2652,7 +2654,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
 
   ASSERT_EQ(result, FPGA_OK);
   ASSERT_TRUE(NULL != prop);
-  struct _fpga_properties* _prop = (struct _fpga_properties*)prop; 
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
   // set the object type to FPGA_AFU
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
   _prop->objtype = FPGA_ACCELERATOR;
@@ -2895,11 +2897,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_218) {
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
 TEST(LibopaecPropertiesCommonALL, nodrv_prop_219) {
+#ifndef BUILD_ASE
   fpga_properties prop = NULL;
   // Call the API to set the device_id on the property
   fpga_result result = fpgaPropertiesSetDeviceID(prop, 0);
 
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
+#endif
 }
 
 /**
@@ -3030,5 +3034,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
  *
  */
 TEST(LibopaecPropertiesCommonALL, prop_224) {
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyProperties(NULL));
+#endif
 }
