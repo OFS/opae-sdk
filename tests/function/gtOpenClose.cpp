@@ -107,8 +107,10 @@ TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
   fpga_token tok = &_tok;
 
   token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h1, FPGA_OPEN_SHARED));
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h1, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h2, FPGA_OPEN_SHARED));
+  fpgaClose(h1);
+  fpgaClose(h2);
 
 #else
 
@@ -217,7 +219,7 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
     struct _fpga_handle *p;
 
     ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
-    
+
     p = (struct _fpga_handle *)h;
     EXPECT_EQ((void *)NULL, p->mmio_root);
 

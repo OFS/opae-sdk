@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017, 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1143,7 +1143,7 @@ fpgaPropertiesGetNumErrors(const fpga_properties prop,
 	ASSERT_NOT_NULL(num_errors);
 
 	*num_errors = 0;
-	return FPGA_OK;	     // Errors are not supported in ASE
+	return FPGA_OK;                  // Errors are not supported in ASE
 }
 
 fpga_result __FPGA_API__
@@ -1152,7 +1152,7 @@ fpgaPropertiesSetNumErrors(const fpga_properties prop,
 {
 	UNUSED_PARAM(prop);
 	UNUSED_PARAM(num_errors);
-	return FPGA_OK;		// Errors are not supported in ASE
+	return FPGA_OK;                             // Errors are not supported in ASE
 }
 
 fpga_result objectid_for_ase(uint64_t *object_id)

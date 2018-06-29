@@ -1,0 +1,8 @@
+##
+## Base include file includes MPF and the common CCI-P interface and CSR
+## manager used by multiple examples in the tutorial.
+##
+
++incdir+@OPAE_SHARE_DIR@/samples/base/hw/rtl
+@OPAE_SHARE_DIR@/samples/base/hw/rtl/cci_afu_with_mpf.sv
+@OPAE_SHARE_DIR@/samples/base/hw/rtl/csr_mgr.sv
