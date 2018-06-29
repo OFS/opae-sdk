@@ -119,7 +119,7 @@ fpga_result parse_args(int argc, char *argv[])
 				break;
 			endptr = NULL;
 			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
 				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
 				return FPGA_EXCEPTION;
 			}
