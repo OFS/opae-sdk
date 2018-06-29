@@ -31,14 +31,6 @@ extern "C" {
 #include <opae/enum.h>
 #include <opae/properties.h>
 
-
-extern fpga_result set_afu_userclock(fpga_handle handle,
-									uint64_t usrlclock_high,
-									uint64_t usrlclock_low);
-
-extern 	fpga_result set_fpga_pwr_threshold(fpga_handle handle,
-										uint64_t gbs_power);
-
 #ifdef __cplusplus
 }
 #endif
@@ -51,76 +43,69 @@ extern 	fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 
 using namespace common_test;
 
-
 /**
-* @test    gbs_reconf_01
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Then the return value  FPGA_OK if set or
-*..........Returns error code
+* @test    fpga_buffer_01
+* @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
+*          fpgaGetIOAddress
+* @details Buffer functions returns FPGA_INVALID_PARAM for
+*..........invalid input
 */
-TEST(LibopaecReconfCommonMOCK, gbs_reconf_01) {
+TEST(LibopaecBufferCommonMOCK, fpga_buffer_01) {
 
-	fpga_handle h;
-	uint64_t usrlclock_high = 0;
-	uint64_t usrlclock_low = 0;
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
-
-
-	//EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(h, usrlclock_high, usrlclock_low));
-
-	// Open  port device
-	token_for_fme0(&_tok);
-	ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-
-
-		
-	EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(h, usrlclock_high, usrlclock_low));
-
-	usrlclock_high = 300;
-
-	EXPECT_NE(FPGA_OK, set_afu_userclock(h, usrlclock_high, usrlclock_low));
-
-	ASSERT_EQ(FPGA_OK, fpgaClose(h));
-
-}
-
-/**
-* @test    gbs_reconf_02
-* @brief   Tests: set_fpga_pwr_threshold
-* @details set_fpga_pwr_threshold sets power threshold
-*          Then the return value  FPGA_OK if set or
-*..........Returns error code
-*/
-TEST(LibopaecReconfCommonMOCK, gbs_reconf_02) {
-
 	fpga_handle h;
-	struct _fpga_token _tok;
-	fpga_token tok = &_tok;
+	uint64_t buf_len = 1024;
+	uint64_t* buf_addr;
+	uint64_t wsid = 1;
+	int flags = 0;
+	uint64_t *ioaddr = NULL;
+	uint64_t* invalid_buf_addr = NULL;
 
-	uint64_t gbs_power = 40;
-
-	// NULL handle
-	EXPECT_EQ(FPGA_INVALID_PARAM, set_fpga_pwr_threshold(NULL, gbs_power));
-
-	// Open  port device
-	token_for_fme0(&_tok);
+	// Open port device
+	token_for_afu0(&_tok);
 	ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
 
-	// Zero GBS power
-	gbs_power = 0;
-	EXPECT_EQ(FPGA_OK, set_fpga_pwr_threshold(h, gbs_power));
+	// NULL Handle
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**) &buf_addr, &wsid, 0));
 
-	// Max GBS power
-	gbs_power = 200;
-	EXPECT_NE(FPGA_OK, set_fpga_pwr_threshold(h, gbs_power));
+	// NULL Workspaceid
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, NULL, 0));
 
-	gbs_power = 65;
-	EXPECT_NE(FPGA_OK, set_fpga_pwr_threshold(h, gbs_power));
+	// Invlaid Flags
+	flags = 0x100;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, flags));
 
-	gbs_power = 60;
-	EXPECT_EQ(FPGA_OK, set_fpga_pwr_threshold(h, gbs_power));
+	// Buffer lenth is zero
+	flags = FPGA_BUF_PREALLOCATED;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, 0, (void**) &buf_addr, &wsid, flags));
+
+	// Not Page aligned buffer
+	buf_len = 11247;
+	flags = FPGA_BUF_PREALLOCATED;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, flags));
+
+	// Invalid input buffer pointer
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, buf_len, (void**) &invalid_buf_addr, &wsid, flags));
+
+	// special test case
+	EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(h, 0, (void**) NULL, &wsid, flags));
+
+	// Buffer lenth is zero
+	flags = FPGA_BUF_QUIET;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(h, 0, (void**) NULL, &wsid, flags));
+
+	// Invalid Handle
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetIOAddress(NULL, wsid, ioaddr));
+
+	// Invalid workspace id
+	EXPECT_NE(FPGA_OK, fpgaGetIOAddress(h, 0x10000, ioaddr));
+
+	// NULL Handle
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(NULL, wsid));
+
+	// Invalid workspace id
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(h, 0x10001));
 
 	ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }

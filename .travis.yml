@@ -52,6 +52,15 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
+  - script: scripts/build-tests-default.sh
+    cache: ccache
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
   - script: scripts/coverage-gtapi-mock-drv.sh
     cache:
       - ccache

@@ -69,9 +69,9 @@ static int read_event(char *sysfspath, uint64_t *value)
 static int poll_ap_event(struct fpga_ap_event *event)
 {
 	char sysfspath[SYSFS_PATH_MAX];
-	uint64_t ap1_event;
-	uint64_t ap2_event;
-	uint64_t pwr_state;
+	uint64_t ap1_event = 0;
+	uint64_t ap2_event = 0;
+	uint64_t pwr_state = 0;
 
 	if (event == NULL) {
 		return -1;
@@ -86,7 +86,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	if (event->ap1_last_event != AP1_STATE && ap1_event == 1) {
-		dlog("AP1 Triggerd for socket %d\n", event->socket);
+		dlog("AP1 Triggered for socket %d\n", event->socket);
 	}
 
 	// Read AP2 Event
@@ -98,7 +98,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	if (event->ap2_last_event != 1 && ap2_event == 1) {
-		dlog("AP2 Triggerd for socket %d\n", event->socket);
+		dlog("AP2 Triggered for socket %d\n", event->socket);
 	}
 
 	// Read FPGA power state
@@ -110,16 +110,16 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	}
 
 	if (event->pwr_last_state != 1 && pwr_state == AP1_STATE) {
-		dlog(" FPGA Power State changed to AP1 for socket %d \n",
+		dlog(" FPGA Power State changed to AP1 for socket %d\n",
 				event->socket);
 	} else if (event->pwr_last_state != 2 && pwr_state == AP2_STATE) {
-		dlog(" FPGA Power State changed to AP2 for socket %d \n",
+		dlog(" FPGA Power State changed to AP2 for socket %d\n",
 				event->socket);
 	} else if (event->pwr_last_state != 3 && pwr_state == AP6_STATE) {
-		dlog(" FPGA Power State changed to AP6 for socket %d \n",
+		dlog(" FPGA Power State changed to AP6 for socket %d\n",
 				event->socket);
 	} else if (event->pwr_last_state != 0 && pwr_state == 0) {
-		dlog(" FPGA Power State changed to Normal for socket %d \n",
+		dlog(" FPGA Power State changed to Normal for socket %d\n",
 				event->socket);
 	}
 
@@ -149,7 +149,7 @@ void *apevent_thread(void *thread_context)
 	while (c->running) {
 		/* read AP event and power state */
 
-		// AP envent polling
+		// AP event polling
 		if ((poll_ap_event(&apevt_socket1) < 0) ||
 			(poll_ap_event(&apevt_socket2) < 0))
 				return NULL;

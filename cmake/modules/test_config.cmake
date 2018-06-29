@@ -76,7 +76,7 @@ function (Build_MOCK_DRV)
     COMMAND tar xzvf /tmp/mock_sys_tmp-1socket-nlb0.tar.gz -C /tmp --strip 1)
 
   # build mock driver
-  add_library(mock SHARED mock.c)
+  add_library(mock SHARED EXCLUDE_FROM_ALL mock.c)
   target_include_directories(mock PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/src>)
@@ -104,7 +104,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtsysfs.cpp
                 unit/gtUsrclk.cpp
                 unit/gtBSMetadata.cpp
+                unit/gtBuffer.cpp
                 unit/gtReconf.cpp
+                unit/gtMockErrInj.cpp
                 function/gtCxxEnumerate.cpp
                 function/gtCxxEvents.cpp
                 function/gtCxxOpenClose.cpp
@@ -138,7 +140,7 @@ function(Build_Test_Target Target_Name Target_LIB)
     endif()
 
     target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
-                          ${libjson-c_LIBRARIES})
+                          ${libjson-c_LIBRARIES} dl)
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -151,11 +153,10 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
                                $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
-
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES}
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
-
-
+                      
+    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+                              uuid ${GTEST_BOTH_LIBRARIES} dl opae-c++-utils opae-c++ opae-cxx-core)
+	  						
     if(CMAKE_THREAD_LIBS_INIT)
        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()

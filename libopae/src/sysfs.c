@@ -55,6 +55,11 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	char buf[SYSFS_PATH_MAX];
 	int b;
 
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		FPGA_MSG("open(%s) failed", path);
@@ -100,6 +105,11 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	int res;
 	char buf[SYSFS_PATH_MAX];
 	int b;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -153,6 +163,11 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 
 	if (sep == '\0') {
 		FPGA_MSG("invalid separation character");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -216,6 +231,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
 	char buf[SYSFS_PATH_MAX]   = {0};
 	int b                      = 0;
 
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		FPGA_MSG("open(%s) failed", path);
@@ -259,6 +279,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 	int res                    = 0;
 	char buf[SYSFS_PATH_MAX]   = {0};
 	int b                      = 0;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
@@ -306,6 +331,11 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	int i;
 	char tmp;
 	unsigned octet;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
