@@ -80,6 +80,26 @@ int ase_memcpy_s(void *dest, size_t dmax, const void *src, size_t smax)
 	return 0;
 }
 
+/*
+ * ase_memset - Secure memset abstraction.  Return 0 on success.
+ */
+int ase_memset_s(void *dest, size_t dmax, int ch, size_t count)
+{
+	int ret = 0;
+	volatile unsigned char *s = dest;
+	size_t n = count;
+
+	/* Fatal runtime-constraint violations. */
+	if (s == NULL || dmax > (256UL << 20) || count > dmax) {
+		ASE_DBG("Illegal parameter to ase_memset_s");
+		return -1;
+	}
+
+	/* Updating through a volatile pointer should not be optimized away. */
+	while (n--)
+		*s++ = (unsigned char) ch;
+	return ret;
+}
 
 /*
  * ASE string copy.  Returns 0 on success.

@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: ASE Error reporting functions
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- */
 
 #include "ase_common.h"
 
@@ -48,67 +41,67 @@ void ase_error_report(char *err_func, int err_num, int err_code)
 		// CAPCM not initialized
 	case ASE_USR_CAPCM_NOINIT:
 		ASE_ERR
-		    ("QPI-CA private memory has not been initialized.\n");
+			("QPI-CA private memory has not been initialized.\n");
 		break;
 
 		// Message queue error
 	case ASE_OS_MQUEUE_ERR:
 		ASE_ERR
-		    ("There was an error in the POSIX Message Queue subsystem.\n");
+			("There was an error in the POSIX Message Queue subsystem.\n");
 		ASE_ERR
-		    ("Please look up 'man mq_overview' for more information.\n");
+			("Please look up 'man mq_overview' for more information.\n");
 		break;
 
 		// Message queue error
 	case ASE_OS_SHM_ERR:
 		ASE_ERR
-		    ("There was an error in the POSIX Shared Memory subsystem.\n");
+			("There was an error in the POSIX Shared Memory subsystem.\n");
 		break;
 
 		// File open error
 	case ASE_OS_FOPEN_ERR:
 		ASE_ERR
-		    ("File opening failed. This could be due to several reasons: \n");
+			("File opening failed. This could be due to several reasons: \n");
 		ASE_ERR
-		    ("1. ASE is being run from the wrong relative paths, and causing fstat to fail.\n");
+			("1. ASE is being run from the wrong relative paths, and causing fstat to fail.\n");
 		ASE_ERR("2. File system permissions are not optimal\n");
 		break;
 
 		// Memory map/unmap failed
 	case ASE_OS_MEMMAP_ERR:
 		ASE_ERR
-		    ("A problem occured when mapping or unmapping a memory region to a virtual base pointer.\n");
+			("A problem occured when mapping or unmapping a memory region to a virtual base pointer.\n");
 		break;
 
 		// MQ send/receive error
 	case ASE_OS_MQTXRX_ERR:
 		ASE_ERR
-		    ("There was a problem when sending/receiving messages using the POSIX message queues.\n");
+			("There was a problem when sending/receiving messages using the POSIX message queues.\n");
 		ASE_ERR
-		    ("This may be due to sub-optimal message queue attributes.\n");
+			("This may be due to sub-optimal message queue attributes.\n");
 		break;
 
 		// Malloc error
 	case ASE_OS_MALLOC_ERR:
 		ASE_ERR
-		    ("There was a problem with memory allocation system, NULL was returned.\n");
+			("There was a problem with memory allocation system, NULL was returned.\n");
 		ASE_ERR("Simulator will attempt to close down.\n");
 		break;
 
 		// IPCkill catastrophic error
 	case ASE_IPCKILL_CATERR:
 		ASE_ERR
-		    ("There was an ERROR when trying to open IPC local listfile for cleaning.\n");
+			("There was an ERROR when trying to open IPC local listfile for cleaning.\n");
 		ASE_ERR
-		    ("fopen failed, see .ase_ipc_local file, and clean them manually.\n");
+			("fopen failed, see .ase_ipc_local file, and clean them manually.\n");
 		break;
 
 		// Default or unknown error
 	default:
 		ASE_ERR
-		    ("ERROR code is not defined, or cause is unknown.\n");
+			("ERROR code is not defined, or cause is unknown.\n");
 		ASE_ERR
-		    ("If your agreement allows this, please report detailed steps to recreate the error to the developer.\n");
+			("If your agreement allows this, please report detailed steps to recreate the error to the developer.\n");
 	}
 
 	END_RED_FONTCOLOR;
