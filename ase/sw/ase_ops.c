@@ -285,7 +285,7 @@ char *ase_malloc(size_t size)
 		exit(1);
 #endif
 	} else {
-		memset(buffer, 0, size);
+		ase_memset(buffer, 0, size);
 		FUNC_CALL_EXIT;
 		return buffer;
 	}
@@ -598,7 +598,7 @@ void print_mmiopkt(FILE *fp, char *activity, struct mmio_t *pkt)
 	FUNC_CALL_ENTRY;
 
 	char mmio_action_type[20];
-	memset(mmio_action_type, 0, 20);
+	ase_memset(mmio_action_type, 0, 20);
 
 	snprintf(mmio_action_type, 20,
 		 "MMIO-%s-%d-%s",

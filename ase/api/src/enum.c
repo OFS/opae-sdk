@@ -1135,6 +1135,26 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 	return FPGA_OK;
 }
 
+fpga_result __FPGA_API__
+fpgaPropertiesGetNumErrors(const fpga_properties prop,
+			   uint32_t *num_errors)
+{
+	UNUSED_PARAM(prop);
+	ASSERT_NOT_NULL(num_errors);
+
+	*num_errors = 0;
+	return FPGA_OK;                  // Errors are not supported in ASE
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetNumErrors(const fpga_properties prop,
+			   uint32_t num_errors)
+{
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(num_errors);
+	return FPGA_OK;                             // Errors are not supported in ASE
+}
+
 fpga_result objectid_for_ase(uint64_t *object_id)
 {
 	*object_id = ASE_OBJID;
