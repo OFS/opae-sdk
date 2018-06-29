@@ -5,6 +5,9 @@
 #  libjson-c_INCLUDE_DIRS - the libjson-c include directories
 #  libjson-c_LIBRARIES - link these to use libjson-c
 
+find_package(PkgConfig)
+pkg_check_modules(PC_JSON_C QUIET json-c)
+
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags json-c --silence-errors
   COMMAND cut -d I -f 2
@@ -24,6 +27,8 @@ find_path(libjson-c_INCLUDE_DIRS
 find_library(libjson-c_LIBRARIES
   NAMES json-c
   PATHS ${LIBJSON-C_ROOT}/lib
+  ${PC_JSON_C_LIBDIR}
+  ${PC_JSON_C_LIBRARY_DIRS}
   /usr/local/lib
   /usr/lib
   /lib
@@ -33,3 +38,6 @@ find_library(libjson-c_LIBRARIES
 if(libjson-c_LIBRARIES AND libjson-c_INCLUDE_DIRS)
   set(libjson-c_FOUND true)
 endif(libjson-c_LIBRARIES AND libjson-c_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(libjson-c REQUIRED_VARS libjson-c_INCLUDE_DIRS libjson-c_LIBRARIES)

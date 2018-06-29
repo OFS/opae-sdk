@@ -26,11 +26,6 @@
 // **************************************************************************
 /*
  * Module Info: Memory Model operations (C module)
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  * Purpose: Keeping cci_to_mem_translator.c clutter free and modular
  * test and debug. Includes message queue management by DPI.
  * NOTE: These functions must be called by DPI side ONLY.

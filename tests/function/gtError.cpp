@@ -43,6 +43,7 @@ using namespace common_test;
  *
  */
 TEST(LibopaecErrorCommonALL, error_01) {
+#ifndef BUILD_ASE
   struct _fpga_token _t;
   fpga_token t = &_t;
   fpga_properties p;
@@ -59,14 +60,14 @@ TEST(LibopaecErrorCommonALL, error_01) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
   printf("Found %d PORT error registers\n", n);
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
     EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
-
+#endif
 }
 
 /**
@@ -78,6 +79,7 @@ TEST(LibopaecErrorCommonALL, error_01) {
  *
  */
 TEST(LibopaecErrorCommonALL, error_02) {
+#ifndef BUILD_ASE
   struct _fpga_token _t;
   fpga_token t = &_t;
   fpga_properties p;
@@ -94,14 +96,14 @@ TEST(LibopaecErrorCommonALL, error_02) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
   printf("Found %d FME error registers\n", n);
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
     EXPECT_EQ(FPGA_OK, fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
-
+#endif
 }
 
 
@@ -138,7 +140,7 @@ TEST(LibopaecErrorCommonMOCK, error_03) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
   printf("Found %d PORT error registers\n", n);
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
@@ -157,7 +159,7 @@ TEST(LibopaecErrorCommonMOCK, error_03) {
   error_file << "0x42" << std::endl;
   error_file.close();
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
@@ -219,7 +221,7 @@ TEST(LibopaecErrorCommonMOCK, error_04) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(p, &n));
   printf("Found %d PORT error registers\n", n);
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
@@ -238,7 +240,7 @@ TEST(LibopaecErrorCommonMOCK, error_04) {
   error_file << "0x42" << std::endl;
   error_file.close();
 
-  // for each error register, get info and read the current value  
+  // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
     EXPECT_EQ(FPGA_OK, fpgaGetErrorInfo(t, i, &info));
