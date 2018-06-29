@@ -44,7 +44,7 @@ the following:
 > pip install --user opae.fpga
 ```
 
-## Intalling From Source
+## Installing From Source
 In addition to the runtime libraries mentioned above, installing from source
 does require that the OPAE header files be installed as well as those header
 files for pybind11. The former can be installed with the opae-devel package and
