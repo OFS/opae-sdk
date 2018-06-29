@@ -343,8 +343,7 @@ check_integer_format(const char format)
 int sscanf_s_ii(const char *src, const char *format, int *a, int *b)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
-	unsigned int index = 0;
-
+	
 	// Determine the number of format options in the format string
 	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
 
