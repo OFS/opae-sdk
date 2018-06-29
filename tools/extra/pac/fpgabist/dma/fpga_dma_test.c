@@ -65,10 +65,11 @@ static int err_cnt;
  * Global configuration of bus, set during parse_args()
  * */
 struct config{
-  struct target {
-	  int bus;
-  } target;
-} config = {
+	struct target {
+		int bus;
+  	} target;
+} 
+config = {
 	.target = {
 		.bus = -1
 	}
@@ -93,7 +94,7 @@ void help(void)
  * Parse command line arguments
  */
 #define GETOPT_STRING "B"
-int parse_args(int argc, char *argv[])
+fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		
@@ -107,7 +108,7 @@ int parse_args(int argc, char *argv[])
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, 
 						longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
-		
+		/* Checks to see if optarg is null and if not goes to value of optarg */
 		if ((optarg) && ('=' == *tmp_optarg)){
 			++tmp_optarg;
 		}
@@ -120,7 +121,7 @@ int parse_args(int argc, char *argv[])
 			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
-				return -1;
+				return FPGA_EXCEPTION;
 			}
 			break;
 	 	
@@ -132,10 +133,10 @@ int parse_args(int argc, char *argv[])
 	/* first non-option argument as hardware or simulation*/
 	if (optind == argc) {
 		fprintf(stderr, "Hardware (0) or simulation (1)?\n");
-		return -1;
+		return FPGA_EXCEPTION;
 	}
 	
-	return 0;
+	return FPGA_OK;
 }
 
 
@@ -143,12 +144,12 @@ int parse_args(int argc, char *argv[])
 
 
 
-int find_fpga(fpga_guid interface_id, fpga_token *fpga)
+int find_fpga(fpga_guid interface_id, fpga_token *fpga, uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
-	uint32_t	num_matches;
+	//uint32_t	num_matches;
 	fpga_result 	res;
-	int		retval = -1;
+	//int		retval = -1;
 
 	/* Get number of FPGAs in system*/
 	res = fpgaGetProperties(NULL, &filter);
@@ -168,20 +169,23 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 		ON_ERR_GOTO(res, out_destroy, "setting bus");
 	}
 		
-	res= fpgaEnumerate(&filter, 1, fpga, 1, &num_matches);
-	ON_ERR_GOTO(res, out_err, "enumerating FPGAs");
+	res= fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
+	ON_ERR_GOTO(res, out, "enumerating FPGAs");
+
 	
-	if (num_matches > 0) {
+	
+	/*if (num_matches > 0) {
 		retval = (int) num_matches;
 	} else {
 		retval = 0;
-	}
+	}*/
+
 out_destroy:
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out, "destroying properties object");
 
-out_err:
-	return retval;
+//out_err:
+	//return err_cnt;
 
 out:
    return err_cnt;
@@ -305,11 +309,19 @@ fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo){
 	res = fpgaGetProperties(tok, &props);
 	ON_ERR_GOTO(res, out, "reading properties from Token");
 
-        fpgaPropertiesGetBus(props, &finfo->bus);
+	res = fpgaPropertiesGetBus(props, &finfo->bus);
 	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
 	
+	if(res != FPGA_OK){
+		return FPGA_EXCEPTION;
+	}	
+	
+		
+
 	out_destroy:
-		fpgaDestroyProperties(&props);
+		res = fpgaDestroyProperties(&props);
+		ON_ERR_GOTO(res, out, "fpgaDestroyProps");
+
 	out:
 		return res;
 }
@@ -324,7 +336,6 @@ int main(int argc, char *argv[])
    fpga_result res = FPGA_OK;
    fpga_dma_handle dma_h;
    uint64_t count;
-   int retval = 0;
    fpga_token afc_token;
    fpga_handle afc_h;
    fpga_guid guid;
@@ -343,8 +354,7 @@ int main(int argc, char *argv[])
 
    
    res = parse_args(argc, argv);
-   if (res < 0){
-	retval = 1;
+   if (res == FPGA_EXCEPTION){
 	goto out_exit;
    }
    use_ase = atoi(argv[1]);
@@ -356,16 +366,16 @@ int main(int argc, char *argv[])
    
 
    if (uuid_parse(HELLO_AFU_ID, guid) < 0) {
-      return 1;
+      return FPGA_OK;
    }
 
-   res = find_fpga(guid, &afc_token);
+   res = find_fpga(guid, &afc_token, &num_matches);
    
-   if (res == 0) {
+   if (num_matches == 0) {
 	fprintf(stderr, "No suitable slots found.\n");
 	goto out_exit;
 	}
-   if (res > 1) {
+   if (num_matches > 1) {
 	fprintf(stderr, "Found more than one suitable slot. ");
 	res = get_bus_info(afc_token, &info);
         ON_ERR_GOTO(res, out, "getting bus num");
@@ -377,11 +387,8 @@ int main(int argc, char *argv[])
      printf("Error: Number of matches < 1");
      ON_ERR_GOTO(FPGA_INVALID_PARAM, out, "num_matches<1");
   }
-  else if (num_matches > 1) {
-     printf("Please specify bus number");
-     return 1;
-  }
-     
+  
+    
    
 
    // open the AFC
@@ -479,7 +486,7 @@ out_destroy_tok:
    ON_ERR_GOTO(res, out, "fpgaDestroyToken");
 
 out_exit:
-   return retval;
+   return 1;
 out:
-   return err_cnt;
+   return 0;
 }
