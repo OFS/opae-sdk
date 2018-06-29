@@ -73,7 +73,7 @@ target_include_directories(gtase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(gtase commonlib-ase safestr opae-c-ase ${libjson-c_LIBRARIES}
+target_link_libraries(gtase commonlib-ase safestr dl opae-c-ase ${libjson-c_LIBRARIES}
   uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 
 ############################################################################
