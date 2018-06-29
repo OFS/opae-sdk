@@ -205,12 +205,12 @@ void help(void)
 "FPGA configuration utility\n"
 "\n"
 "Usage:\n"
-//"        fpgaconf [-hVNAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
-"        fpgaconf [-hVN] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+//"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+"        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
 "\n"
 "                -h,--help           Print this help\n"
-"                -V,--verbose        Increase verbosity\n"
-"                -N,--dry-run        Don't actually perform actions\n"
+"                -v,--verbose        Increase verbosity\n"
+"                -n,--dry-run        Don't actually perform actions\n"
 "                --force             Don't try to open accelerator resource\n"
 "                -B,--bus            Set target bus number\n"
 "                -D,--device         Set target device number\n"
@@ -229,13 +229,13 @@ void help(void)
  * Parse command line arguments
  * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hVNB:D:F:S:AIQ"
+#define GETOPT_STRING ":hvnB:D:F:S:AIQ"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help",          no_argument,       NULL, 'h'},
-		{"verbose",       no_argument,       NULL, 'V'},
-		{"dry-run",       no_argument,       NULL, 'N'},
+		{"verbose",       no_argument,       NULL, 'v'},
+		{"dry-run",       no_argument,       NULL, 'n'},
 		{"bus",           required_argument, NULL, 'B'},
 		{"device",        required_argument, NULL, 'D'},
 		{"function",      required_argument, NULL, 'F'},
