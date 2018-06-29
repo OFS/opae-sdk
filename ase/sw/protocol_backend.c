@@ -683,7 +683,7 @@ int ase_listener(void)
 	// Simulator is not in lockdown mode (simkill not in progress)
 	if (self_destruct_in_progress == 0) {
 		if (mqueue_recv(app2sim_portctrl_req_rx, (char *)portctrl_msgstr, ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
-			sscanf(portctrl_msgstr, "%d %d", &rx_portctrl_cmd, &portctrl_value);
+			sscanf_s_ii(portctrl_msgstr, "%d %d", &rx_portctrl_cmd, &portctrl_value);
 			if (rx_portctrl_cmd == AFU_RESET) {
 				// AFU Reset control
 				portctrl_value = (portctrl_value != 0) ? 1 : 0 ;

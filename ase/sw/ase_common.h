@@ -474,6 +474,9 @@ int ase_memcpy_s(void *, size_t, const void *, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
 int ase_memset_s(void *, size_t, int, size_t);
+int sscanf_s_ii(const char *, const char *, int *, int *);
+int fscanf_s_i(FILE *, const char *, int *);
+int fscanf_s_u(FILE *, const char *, unsigned *);
 
 // Message queue operations
 void ipc_init(void);
