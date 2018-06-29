@@ -89,6 +89,7 @@ if (BUILD_PYTHON_DIST)
 
     set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
+    configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
     foreach(pyfile ${PYFILES})
         configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
     endforeach(pyfile ${PYFILES})
