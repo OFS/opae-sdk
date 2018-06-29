@@ -86,7 +86,7 @@ def cl_align(addr):
     return addr >> 6
 
 tokens = opae.enumerate(type=fpga.ACCELERATOR, guid=NLB0)
-assert tokens, "Could not enumerage accelerator: {}".format(NlB0)
+assert tokens, "Could not enumerate accelerator: {}".format(NlB0)
 
 with fpga.open(tokens[0], fpga.OPEN_SHARED) as handle:
     src = opae.allocate_shared_buffer(handle, 4096)
