@@ -31,10 +31,10 @@ The following table lists example names for different Python versions and
 platforms.
 
 | Python Version | Python ABI      | Linux Platform | Package Name |
---------------------------------------------------------------------
-| 2.7            | CPython w/ UCS4 | x86_64         | opae.fpga.@INTEL_FPGA_API_VERSION@-cp27-cp27mu-linux_x86_64.whl |
-| 3.4            | CPython w/ UCS4 | x86_64         | opae.fpga.@INTEL_FPGA_API_VERSION@-cp34-cp34mu-linux_x86_64.whl |
-| 3.6            | CPython w/ UCS4 | x86_64         | opae.fpga.@INTEL_FPGA_API_VERSION@-cp36-cp36mu-linux_x86_64.whl |
+|----------------|-----------------|----------------|--------------|
+| 2.7 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp27-cp27mu-linux_x86_64.whl |
+| 3.4 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp34-cp34mu-linux_x86_64.whl |
+| 3.6 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp36-cp36mu-linux_x86_64.whl |
 
 
 opae.fpga is currently not available in the Python Package Index but once it
