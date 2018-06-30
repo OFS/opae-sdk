@@ -53,7 +53,7 @@
 
 #define MAX_FORMAT_ELEMENTS    16
 
-#define CHK_FORMAT(X,Y)   (((X)==(Y))?1:0)
+#define CHK_FORMAT(X, Y)   (((X) == (Y))?1:0)
 
 #define RSIZE_MAX_STR 4096
 #define ESBADFMT -1
@@ -174,14 +174,15 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 	unsigned int  start = 0;
 	char		  lmod = 0;
 
-	while (index < RSIZE_MAX_STR && format[index] != '\0' && numFormats < maxFormats)
-	{
+	while (index < RSIZE_MAX_STR && format[index] != '\0' && numFormats < maxFormats) {
 		if (format[index] == '%') {
 			start = index; // remember where the format string started
 						   // Check for flags
 			switch (format[++index]) {
-			case '\0': continue; // skip - end of format string
-			case '%': continue; // skip - actually a percent character
+			case '\0': 
+				continue; // skip - end of format string
+			case '%': 
+				continue; // skip - actually a percent character
 			case '#': // convert to alternate form
 			case '0': // zero pad
 			case '-': // left adjust
@@ -204,26 +205,30 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			// Check for and skip the optional length modifiers
 			lmod = ' ';
 			switch (format[index]) {
-			case 'h': if (format[++index] == 'h') {
-				++index; //also recognize the 'hh' modifier
-				lmod = 'H'; // for char
-			}
+			case 'h': 
+				if (format[++index] == 'h') {
+				    ++index; //also recognize the 'hh' modifier
+				    lmod = 'H'; // for char
+			    }
 					  else {
 						  lmod = 'h'; // for short
 					  }
 					  break;
-			case 'l': if (format[++index] == 'l') {
-				++index; //also recognize the 'll' modifier
-				lmod = 'd'; // for long long
-			}
+			case 'l': 
+				if (format[++index] == 'l') {
+				    ++index; //also recognize the 'll' modifier
+				    lmod = 'd'; // for long long
+			    }
 					  else {
 						  lmod = 'l'; // for long
 					  }
 					  break;
-			case 'L': lmod = 'L'; break;
+			case 'L':
+				lmod = 'L'; break;
 			case 'j':
 			case 'z':
-			case 't': index++;
+			case 't':
+				index++;
 				break;
 			}
 
@@ -245,14 +250,11 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			case 'x': case 'X': // unsigned
 				if (lmod == 'H') {
 					pformatList[numFormats] = FMT_CHAR; // store the format character
-				}
-				else if (lmod == 'l') {
+				} else if (lmod == 'l') {
 					pformatList[numFormats] = FMT_LONG; // store the format character
-				}
-				else if (lmod == 'h') {
+				} else if (lmod == 'h') {
 					pformatList[numFormats] = FMT_SHORT; // store the format character
-				}
-				else {
+				} else {
 					pformatList[numFormats] = FMT_INT;
 				}
 				numFormats++;
@@ -265,8 +267,7 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			case 'a': case 'A':
 				if (lmod == 'L') {
 					pformatList[numFormats] = FMT_LDOUBLE; // store the format character
-				}
-				else {
+				} else {
 					pformatList[numFormats] = FMT_DOUBLE;
 				}
 				numFormats++;
@@ -276,8 +277,7 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			case 's':
 				if (lmod == 'l' || lmod == 'L') {
 					pformatList[numFormats] = FMT_WSTRING; // store the format character
-				}
-				else {
+				} else {
 					pformatList[numFormats] = FMT_STRING;
 				}
 				numFormats++;
@@ -293,14 +293,11 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			case 'n':
 				if (lmod == 'H') {
 					pformatList[numFormats] = FMT_PCHAR; // store the format character
-				}
-				else if (lmod == 'l') {
+				} else if (lmod == 'l') {
 					pformatList[numFormats] = FMT_PLONG; // store the format character
-				}
-				else if (lmod == 'h') {
+				} else if (lmod == 'h') {
 					pformatList[numFormats] = FMT_PSHORT; // store the format character
-				}
-				else {
+				} else {
 					pformatList[numFormats] = FMT_PINT;
 				}
 				numFormats++;
@@ -312,12 +309,13 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 				continue;
 			default:
 				printf("failed to recognize format string [");
-				for (; start<index; start++) { printf("%c", format[start]); }
+				for (; start < index; start++) { 
+					printf("%c", format[start]); 
+				}
 				puts("]");
 				break;
 			}
-		}
-		else {
+		} else {
 			index++; // move past this character
 		}
 	}
@@ -343,7 +341,7 @@ check_integer_format(const char format)
 int sscanf_s_ii(const char *src, const char *format, int *a, int *b)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
-	
+
 	// Determine the number of format options in the format string
 	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
 
