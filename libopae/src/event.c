@@ -618,13 +618,16 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 	struct _fpga_token *_token;
 	int err;
 
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
+	// lock event handle first as other event API functions only lock the
+	// event handle and not the fpga_handle - this avoids a possible
+	// deadlock
 	result = event_handle_check_and_lock(_eh);
 	if (result)
 		goto out_unlock_handle;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
 
 	_token = (struct _fpga_token *)_handle->token;
 
@@ -680,13 +683,16 @@ fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) event_handle;
 	struct _fpga_token *_token;
 
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
+	// lock event handle first as other event API functions only lock the
+	// event handle and not the fpga_handle - this avoids a possible
+	// deadlock
 	result = event_handle_check_and_lock(_eh);
 	if (result)
 		goto out_unlock_handle;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
 
 	_token = (struct _fpga_token *)_handle->token;
 
