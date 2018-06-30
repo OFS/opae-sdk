@@ -1531,7 +1531,7 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
 	char buf[CMSG_SPACE(sizeof(int))];
 
 	ase_memset(buf, 0x0, sizeof(buf));
-	struct iovec io = { .iov_base = req, .iov_len = sizeof(struct event_request*) };
+	struct iovec io = { .iov_base = req, .iov_len = sizeof(struct event_request *) };
 
 	cmsg = (struct cmsghdr *)buf;
 	cmsg->cmsg_level = SOL_SOCKET;
