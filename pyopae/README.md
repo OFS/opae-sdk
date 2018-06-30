@@ -1,4 +1,4 @@
-# OPAE Python Bindings @INTEL_FPGA_API_VERSION@
+# OPAE Python Bindings
 
 OPAE (Open Programmable Acceleration Engine) now includes Python bindings for
 interacting with FPGA resources. The OPAE Python API is built on top of the
@@ -13,6 +13,23 @@ easy to use framework for FPGA resource interactions that don't rely on software
 algorithms with a high runtime complexity.
 
 Currently, the only Python package that is part of OPAE is `opae.fpga`
+
+# Implementation
+
+The OPAE Python API is implemented by creating a Python extension using `pybind11
+<http://pybind11.readthedocs.io/en/stable>`_.
+This extension is created by using the pybind11 API which relies mostly on
+macros and compile time introspection to define the module initialization point
+as well as type converters between OPAE C++ Core types and OPAE Python types.
+
+# Benefits
+The major benefits of using pybind11 for developing the OPAE Python API
+include, but are not limited to, the following features of pybind11:
+
+* Uses C++ 11 standard library although it can use C++ 14 or C++17.
+* Automatic conversions of shared_ptr types
+* Built-in support for numpy and Eigen numerical libraries
+* Interoperable with the Python C API
 
 # Runtime Requirements
 Because opae.fpga is built on top of the opae-cxx-core API, it does require
@@ -32,9 +49,9 @@ platforms.
 
 | Python Version | Python ABI      | Linux Platform | Package Name |
 |----------------|-----------------|----------------|--------------|
-| 2.7 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp27-cp27mu-linux_x86_64.whl |
-| 3.4 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp34-cp34mu-linux_x86_64.whl |
-| 3.6 | CPython w/ UCS4 | x86_64 | opae.fpga.@INTEL_FPGA_API_VERSION@-cp36-cp36mu-linux_x86_64.whl |
+| 2.7 | CPython w/ UCS4 | x86_64 | opae.fpga.<release>-cp27-cp27mu-linux_x86_64.whl |
+| 3.4 | CPython w/ UCS4 | x86_64 | opae.fpga.<release>-cp34-cp34mu-linux_x86_64.whl |
+| 3.6 | CPython w/ UCS4 | x86_64 | opae.fpga.<release>-cp36-cp36mu-linux_x86_64.whl |
 
 
 opae.fpga is currently not available in the Python Package Index but once it
@@ -55,10 +72,10 @@ The following example shows how to build from source by installing the
 prerequisites before running the setup.py file.
 
 ```shell
->sudo yum install opae-libs-@INTEL_FPGA_API_VERSION@-@INTEL_FPGA_API_RELEASE@.x86_64.rpm
->sudo yum install opae-devel-@INTEL_FPGA_API_VERSION@-@INTEL_FPGA_API_RELEASE@.x86_64.rpm
+>sudo yum install opae-libs-<release>.x86_64.rpm
+>sudo yum install opae-devel-<release>.x86_64.rpm
 >pip install --user pybind11
->pip install --user opae.fpga-@INTEL_FPGA_API_VERSION@.tar.gz
+>pip install --user opae.fpga-<release>.tar.gz
 ```
 
 

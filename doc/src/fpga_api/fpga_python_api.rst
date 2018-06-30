@@ -8,37 +8,6 @@ following sections:
 .. contents::
    :local:
 
-Overview
-========
-The OPAE Python API is built on top of the OPAE C++ Core API and its object
-model. Because of this, developing OPAE applications in Python is very similar
-to developing OPAE applications in C++ which significantly reduces the learning
-curve required to adapt to the Python API. While the object model remains the same,
-some static factory functions in the OPAE C++ Core API have been moved to module
-level methods in the OPAE Python API with the exception of the properties class.
-The goal of the OPAE Python API is to enable fast prototyping, test automation,
-infrastructure managment, and an easy to use framework for FPGA resource
-interactions that don't rely on software algorithms with a high runtime
-complexity.
-
-Implementation
-==============
-The OPAE Python API is implemented by creating a Python extension using `pybind11
-<http://pybind11.readthedocs.io/en/stable>`_.
-This extension is created by using the pybind11 API which relies mostly on
-macros and compile time introspection to define the module initialization point
-as well as type converters between OPAE C++ Core types and OPAE Python types.
-
-Benefits
---------
-The major benefits of using pybind11 for developing the OPAE Python API
-include, but are not limited to, the following features of pybind11:
-
-* Uses C++ 11 standard library although it can use C++ 14 or C++17.
-* Automatic conversions of shared_ptr types
-* Built-in support for numpy and Eigen numerical libraries
-* Interoperable with the Python C API
-
 
 Module Types, Methods, and Constants
 ====================================
