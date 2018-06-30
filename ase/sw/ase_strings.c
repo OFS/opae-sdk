@@ -179,9 +179,9 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			start = index; // remember where the format string started
 						   // Check for flags
 			switch (format[++index]) {
-			case '\0': 
+			case '\0':
 				continue; // skip - end of format string
-			case '%': 
+			case '%':
 				continue; // skip - actually a percent character
 			case '#': // convert to alternate form
 			case '0': // zero pad
@@ -205,7 +205,7 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			// Check for and skip the optional length modifiers
 			lmod = ' ';
 			switch (format[index]) {
-			case 'h': 
+			case 'h':
 				if (format[++index] == 'h') {
 				    ++index; //also recognize the 'hh' modifier
 				    lmod = 'H'; // for char
@@ -214,7 +214,7 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 						  lmod = 'h'; // for short
 					  }
 					  break;
-			case 'l': 
+			case 'l':
 				if (format[++index] == 'l') {
 				    ++index; //also recognize the 'll' modifier
 				    lmod = 'd'; // for long long
@@ -237,8 +237,7 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 			case 'c':
 				if (lmod == 'l') {
 					pformatList[numFormats] = FMT_WCHAR; // store the format character
-				}
-				else {
+				} else {
 					pformatList[numFormats] = FMT_CHAR;
 				}
 				numFormats++;
@@ -309,8 +308,8 @@ parse_format(const char *format, char pformatList[], unsigned int maxFormats)
 				continue;
 			default:
 				printf("failed to recognize format string [");
-				for (; start < index; start++) { 
-					printf("%c", format[start]); 
+				for (; start < index; start++) {
+					printf("%c", format[start]);
 				}
 				puts("]");
 				break;
