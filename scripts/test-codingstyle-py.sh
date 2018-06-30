@@ -4,10 +4,10 @@ pushd $(dirname $0)/..
 
 PYCODESTYLE=$(which pycodestyle)
 PYLINT=$(which pylint)
-FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -path "./doc/*" \
--not -path "./tools/extra/packager/jsonschema-2.3.0/*")
+FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not name "setup.py" -not -path "./doc/*" \
+-not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" )
 FILES+=" "
-FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/doc\/")
+FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 
 if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
     CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
@@ -37,7 +37,7 @@ if [ ! -x "$PYCODESTYLE" ]; then
 fi
 
 echo -e "\n===== pycodestyle ====="
-$PYCODESTYLE $FILES
+$PYCODESTYLE $FILES --exclude=test_*.py
 if [ $? -ne 0 ]; then
 	echo "test-codingstyle-py FAILED"
 	popd
@@ -45,7 +45,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "\n===== pylint -E ====="
-$PYLINT -E -f parseable $FILES
+$PYLINT -E -f parseable --ignore-patterns=__init__.py,test_*.py $FILES
 if [ $? -ne 0 ]; then
 	echo "test-codingstyle-py FAILED"
 	popd
