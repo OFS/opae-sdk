@@ -28,6 +28,7 @@
 #define __FPGA_PROPERTIES_INT_H__
 
 /** Fields common across all object types */
+
 #define FPGA_PROPERTY_PARENT         0
 #define FPGA_PROPERTY_OBJTYPE        1
 #define FPGA_PROPERTY_BUS            2
@@ -46,6 +47,7 @@
 #define FPGA_PROPERTY_MODEL         36
 #define FPGA_PROPERTY_LOCAL_MEMORY  37
 #define FPGA_PROPERTY_CAPABILITIES  38
+
 
 /** Fields for accelerator objects */
 #define FPGA_PROPERTY_ACCELERATOR_STATE 32

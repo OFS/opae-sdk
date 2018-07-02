@@ -5,6 +5,9 @@
 #  librt_INCLUDE_DIRS - the librt include directories
 #  librt_LIBRARIES - link these to use librt
 
+find_package(PkgConfig)
+pkg_check_modules(PC_RT QUIET rt)
+
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags rt --silence-errors
   COMMAND cut -d I -f 2
@@ -24,6 +27,8 @@ find_path(librt_INCLUDE_DIRS
 find_library(librt_LIBRARIES
   NAMES rt
   PATHS ${LIBRT_ROOT}/lib
+  ${PC_RT_LIBDIR}
+  ${PC_RT_LIBRARY_DIRS}
   /usr/local/lib
   /usr/lib
   /lib
@@ -32,3 +37,6 @@ find_library(librt_LIBRARIES
 if(librt_LIBRARIES AND librt_INCLUDE_DIRS)
   set(librt_FOUND true)
 endif(librt_LIBRARIES AND librt_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(librt REQUIRED_VARS librt_INCLUDE_DIRS librt_LIBRARIES)

@@ -100,7 +100,7 @@ on the platform.
 
     Socket ID encoded in FPGA Interface Manager (FIM). The default=0. 
 
-`--bus-number=, -B`
+`--bus=, -B`
 
     Bus number of the PCIe device. The default=0. 
 

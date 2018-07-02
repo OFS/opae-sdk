@@ -35,15 +35,15 @@ If there are multiple devices, use -b, -d, -f to specify the BDF for the specifi
 
    Device ID for Intel FPGA. Deafult is: 0x09c4
 
-`-b bus, --bus bus`
+`-B bus, --bus bus`
 
    Bus number for specific FPGA
 
-`-d device, --device device`
+`-D device, --device device`
 
    Device number for specific FPGA
 
-`-f function, --function function`
+`-F function, --function function`
 
    Function number for specific FPGA
 
