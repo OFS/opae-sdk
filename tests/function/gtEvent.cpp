@@ -263,8 +263,21 @@ TEST_F(LibopaecEventFCommonMOCKHW, event_drv_07) {
                                          m_EventHandles[1]));
 }
 
-class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {};
+class LibopaecEventFCommonMOCK : public LibopaecEventFCommonMOCKHW {
+ protected:
+  virtual void SetUp() {
+    // Write to the mock sysfs node to clear the event.
+    sysfs_write_64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors", 0, DEC);
+    LibopaecEventFCommonMOCKHW::SetUp();
+  }
 
+  virtual void TearDown() {
+    LibopaecEventFCommonMOCKHW::TearDown();
+    // Write to the mock sysfs node to clear the event.
+    sysfs_write_64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors", 0, DEC);
+  }
+
+};
 /**
  * @test       event_drv_06
  *
