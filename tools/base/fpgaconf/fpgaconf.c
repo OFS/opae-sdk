@@ -264,11 +264,11 @@ int parse_args(int argc, char *argv[])
 			help();
 			return -1;
 
-		case 'V':    /* verbose */
+		case 'v':    /* verbose */
 			config.verbosity++;
 			break;
 
-		case 'N':    /* dry-run */
+		case 'n':    /* dry-run */
 			config.dry_run = true;
 			break;
 
