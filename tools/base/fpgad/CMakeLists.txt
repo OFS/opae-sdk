@@ -34,7 +34,7 @@ add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)
 
-target_link_libraries(fpgad opae-c pthread)
+target_link_libraries(fpgad safestr opae-c pthread)
 
 install(TARGETS fpgad
         RUNTIME DESTINATION bin
