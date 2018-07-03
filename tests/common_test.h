@@ -184,9 +184,9 @@ namespace common_test {
 
 inline void token_for_fme0(struct _fpga_token* _tok) {
 #ifdef BUILD_ASE
-         memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
-	    _tok->magic = ASE_TOKEN_MAGIC;
-	    _tok->ase_objtype=FPGA_DEVICE;
+	memcpy(_tok->accelerator_id,FPGA_FME_ID, sizeof(fpga_guid));
+	_tok->magic = ASE_TOKEN_MAGIC;
+	_tok->ase_objtype=FPGA_DEVICE;
 #else
   // slot 0 FME
   strncpy_s(_tok->sysfspath, sizeof(_tok->sysfspath),
@@ -379,6 +379,9 @@ class BaseFixture {
 
 // mock API
 bool MOCK_enable_irq(bool enable);
+
+// mock Error API to inject ioctl error
+bool MOCK_enable_ioctl_errinj(bool enable);
 
 }  // end namespace
 

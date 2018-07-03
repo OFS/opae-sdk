@@ -90,6 +90,14 @@ bool mock_enable_irq(bool enable)
 	return res;
 }
 
+static bool gEnableErrInj = false;
+bool mock_enable_errinj(bool enable)
+{
+	bool res = gEnableErrInj;
+	gEnableErrInj = enable;
+	return res;
+}
+
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
 
@@ -157,6 +165,12 @@ int ioctl(int fd, unsigned long request, ...)
 		return -1;
 
 	FPGA_DBG("mock ioctl() called");
+
+	// Returns error when Error injection enabled
+	if (gEnableErrInj) {
+		goto out_EINVAL;
+	}
+
 	switch (mock_devs[fd].objtype) {
 	case FPGA_DEVICE: /* FME */
 		switch (request) {
@@ -292,7 +306,9 @@ int ioctl(int fd, unsigned long request, ...)
 			if (gEnableIRQ && fme_irq->evtfd >= 0) {
 				uint64_t data = 1;
 				// Write to the eventfd to signal one IRQ event.
-				write(fme_irq->evtfd, &data, sizeof(data));
+				if (write(fme_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+					FPGA_ERR("IRQ write < 8 bytes");
+				}
 			}
 			retval = 0;
 			errno = 0;
@@ -419,7 +435,9 @@ int ioctl(int fd, unsigned long request, ...)
 			if (gEnableIRQ && port_irq->evtfd >= 0) {
 				uint64_t data = 1;
 				// Write to the eventfd to signal one IRQ event.
-				write(port_irq->evtfd, &data, sizeof(data));
+				if (write(port_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+					FPGA_ERR("IRQ write < 8 bytes");
+				}
 			}
 			retval = 0;
 			errno = 0;
@@ -446,7 +464,10 @@ int ioctl(int fd, unsigned long request, ...)
 				// Write to each eventfd to signal one IRQ event.
 				for (i = 0 ; i < uafu_irq->count ; ++i) {
 					if (uafu_irq->evtfd[i] >= 0)
-						write(uafu_irq->evtfd[i], &data, sizeof(data));
+						if (write(uafu_irq->evtfd[i], &data, sizeof(data)) !=
+								sizeof(data)) {
+							FPGA_ERR("IRQ write < 8 bytes");
+						}
 				}
 			}
 			retval = 0;

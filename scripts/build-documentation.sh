@@ -2,6 +2,7 @@
 
 COMMIT_ID="$(git rev-parse HEAD)"
 TEMP=$((git describe --exact-match $COMMIT_ID) 2>&1)
+export PYTHONPATH=$PWD/lib/python2.7:$PWD/lib/python3.6
 
 if [[ $TEMP == *"fatal"* ]]; then
     echo "No new tag detected, hence builiding latest docs from master"

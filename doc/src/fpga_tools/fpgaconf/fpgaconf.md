@@ -23,19 +23,19 @@ the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the
 	Performs enumeration. Skips any operations with side-effects such as the
 	actual AF configuration. 
 
-`-b, --bus`
+`-B, --bus`
 
 	PCIe bus number of the target FPGA.
 
-`-d, --device`
+`-D, --device`
 
 	PCIe device number of the target FPGA. 
 
-`-f, --function`
+`-F, --function`
 
 	PCIe function number of the target FPGA.
 
-`-s, --socket`
+`-S, --socket`
 
 	Socket number of the target FPGA.
 
