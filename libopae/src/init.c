@@ -37,7 +37,7 @@
 
 /* global loglevel */
 static int g_loglevel = FPGA_DEFAULT_LOGLEVEL;
-static FILE *g_logfile = NULL;
+static FILE *g_logfile;
 /* mutex to protect against garbled log output */
 static pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -70,6 +70,8 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 __attribute__((constructor))
 static void fpga_init(void)
 {
+	g_logfile = NULL;
+
 	/* try to read loglevel from environment */
 	char *s = getenv("LIBOPAE_LOG");
 	if (s) {
