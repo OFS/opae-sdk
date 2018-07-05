@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,21 +29,49 @@
 #endif // HAVE_CONFIG_H
 
 #include "common_int.h"
+#include "token_list_int.h"
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
 /* global loglevel */
-static int g_loglevel = FPGA_LOG_UNDEFINED;
+static int g_loglevel = FPGA_DEFAULT_LOGLEVEL;
 static FILE *g_logfile;
 /* mutex to protect against garbled log output */
-pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
+{
+	FILE *fp;
+	int err;
+	va_list argp;
+
+	if (loglevel > g_loglevel)
+		return;
+
+	if (loglevel == FPGA_LOG_ERROR)
+		fp = stderr;
+	else
+		fp = g_logfile == NULL ? stdout : g_logfile;
+
+	va_start(argp, fmt);
+	err = pthread_mutex_lock(&log_lock); /* ignore failure and print anyway */
+	if (err)
+		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
+	vfprintf(fp, fmt, argp);
+	err = pthread_mutex_unlock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
+	va_end(argp);
+}
+
 
 __attribute__((constructor))
-static void init_log(void)
+static void fpga_init(void)
 {
-	pthread_mutexattr_t mattr;
+	g_logfile = NULL;
+
 	/* try to read loglevel from environment */
 	char *s = getenv("LIBOPAE_LOG");
 	if (s) {
@@ -69,51 +97,15 @@ static void init_log(void)
 
 	if (g_logfile == NULL)
 		g_logfile = stdout;
-
-	if (pthread_mutexattr_init(&mattr)) {
-		fprintf(stderr, "Failed to create log mutex attributes\n");
-		return;
-	}
-
-	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
-	    pthread_mutex_init(&log_lock, &mattr)) {
-		fprintf(stderr, "Failed to create log mutex\n");
-	}
-
-	pthread_mutexattr_destroy(&mattr);
 }
 
 __attribute__((destructor))
-static void deinit_log(void)
+static void fpga_release(void)
 {
-	if (g_logfile != NULL)
+	token_cleanup();
+
+	if (g_logfile != NULL && g_logfile != stdout) {
 		fclose(g_logfile);
+	}
+	g_logfile = NULL;
 }
-
-
-void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
-{
-	FILE *fp = g_logfile == NULL ? stdout : g_logfile;
-	int err;
-
-	if (g_loglevel < 0) /* loglevel still not set? */
-		g_loglevel = FPGA_DEFAULT_LOGLEVEL;
-
-	if (loglevel > g_loglevel)
-		return;
-
-	if (loglevel == FPGA_LOG_ERROR)
-		fp = stderr;
-
-	va_list argp;
-	va_start(argp, fmt);
-	err = pthread_mutex_lock(&log_lock); /* ignore failure and print anyway */
-	if (err)
-		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
-	vfprintf(fp, fmt, argp);
-	err = pthread_mutex_unlock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
-	va_end(argp);
-}
-
