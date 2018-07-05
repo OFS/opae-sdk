@@ -186,12 +186,14 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
  * Clean up remaining entries in linked list
  * Will delete all remaining entries
  */
-/* TODO: re-enable this
 void token_cleanup(void)
 {
 	int err = 0;
-	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+	struct error_list *p;
+
+	err = pthread_mutex_lock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_lock() failed: %s", strerror(err));
 		return;
 	}
 
@@ -203,7 +205,7 @@ void token_cleanup(void)
 		token_root = token_root->next;
 
 		// free error list
-		struct error_list *p = tmp->_token.errors;
+		p = tmp->_token.errors;
 		while (p) {
 			struct error_list *q = p->next;
 			free(p);
@@ -215,14 +217,23 @@ void token_cleanup(void)
 		free(tmp);
 	}
 
+	// free error list
+	p = token_root->_token.errors;
+	while (p) {
+		struct error_list *q = p->next;
+		free(p);
+		p = q;
+	}
+
+	// invalidate magic (just in case)
 	token_root->_token.magic = FPGA_INVALID_MAGIC;
 	free(token_root);
+
 	token_root = NULL;
 
 out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 }
-*/
