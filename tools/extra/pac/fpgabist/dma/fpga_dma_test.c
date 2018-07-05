@@ -147,9 +147,7 @@ fpga_result parse_args(int argc, char *argv[])
 int find_fpga(fpga_guid interface_id, fpga_token *fpga, uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
-	//uint32_t	num_matches;
 	fpga_result 	res;
-	//int		retval = -1;
 
 	/* Get number of FPGAs in system*/
 	res = fpgaGetProperties(NULL, &filter);
@@ -172,21 +170,10 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga, uint32_t *num_matches)
 	res= fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
 	ON_ERR_GOTO(res, out, "enumerating FPGAs");
 
-	
-	
-	/*if (num_matches > 0) {
-		retval = (int) num_matches;
-	} else {
-		retval = 0;
-	}*/
-
 out_destroy:
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out, "destroying properties object");
-
-//out_err:
-	//return err_cnt;
-
+	
 out:
    return err_cnt;
 
@@ -316,8 +303,6 @@ fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo){
 		return FPGA_EXCEPTION;
 	}	
 	
-		
-
 	out_destroy:
 		res = fpgaDestroyProperties(&props);
 		ON_ERR_GOTO(res, out, "fpgaDestroyProps");
@@ -345,32 +330,27 @@ int main(int argc, char *argv[])
    uint32_t num_matches = 1;
    struct bus_info info;
   
-
-
    if (argc < 2) {
       help();
       return 1;
    }
-
-   
+ 
    res = parse_args(argc, argv);
    if (res == FPGA_EXCEPTION){
 	goto out_exit;
    }
    use_ase = atoi(argv[1]);
-   if (use_ase) { 
-      printf("Running test in ASE mode\n");
-   } else if (use_ase == 0) {
+   if (use_ase == 0) {
+      printf("Running test in HW mode\n");
+   } else {
       printf("Running test in HW mode\n");
    }
    
-
    if (uuid_parse(HELLO_AFU_ID, guid) < 0) {
-      return FPGA_OK;
+      return FPGA_EXCEPTION;
    }
 
    res = find_fpga(guid, &afc_token, &num_matches);
-   
    if (num_matches == 0) {
 	fprintf(stderr, "No suitable slots found.\n");
 	goto out_exit;
@@ -378,10 +358,9 @@ int main(int argc, char *argv[])
    if (num_matches > 1) {
 	fprintf(stderr, "Found more than one suitable slot. ");
 	res = get_bus_info(afc_token, &info);
-        ON_ERR_GOTO(res, out, "getting bus num");
+	ON_ERR_GOTO(res, out, "getting bus num");
 	print_bus_info(&info);
 	}
-
 	
   if (num_matches < 1) { 
      printf("Error: Number of matches < 1");
@@ -487,6 +466,7 @@ out_destroy_tok:
 
 out_exit:
    return 1;
+
 out:
    return 0;
 }
