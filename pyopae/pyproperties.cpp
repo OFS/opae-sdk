@@ -371,7 +371,7 @@ void properties_set_vendor_id(properties::ptr_t props, uint32_t vendor_id) {
 const char *properties_doc_device_id() {
   return R"opaedoc(
     Get or set the device ID  property of a resource.
-    The device ID is part of the PCI ID and is assibned by the
+    The device ID is part of the PCI ID and is assigned by the
     vendor.
    )opaedoc";
 }
