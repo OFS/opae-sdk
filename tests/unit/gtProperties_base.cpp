@@ -398,6 +398,136 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_019) {
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
+// * Segment field tests *//
+/**
+ * @test    nodrv_prop_225
+ * @brief   Tests: fpgaPropertiesGetSegment
+ * @details Given a non-null fpga_properties* object<br>
+ *          And it has the bus field set<br>
+ *          And it is set to a known value<br>
+ *          When I call fpgaPropertiesGetSegment with a pointer to an integer<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_225) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the segment field
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
+  _prop->segment = 0xc001;
+
+  // now get the segment number using the API
+  uint16_t segment = 0;
+  result = fpgaPropertiesGetSegment(prop, &segment);
+  EXPECT_EQ(result, FPGA_OK);
+  // Assert it is set to what we set it to above
+  // (Get the subfield manually)
+  EXPECT_EQ(0xc001, segment);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    nodrv_prop_226
+ * @brief   Tests: fpgaPropertiesGetSegment
+ * @details Given a non-null fpga_properties* object<br>
+ *          And it does NOT have the bus field set<br>
+ *          When I call fpgaPropertiesGetSegment with a pointer to an integer<br>
+ *          Then the return value is FPGA_NOT_FOUND<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_226) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_TRUE(NULL != prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // make sure the FPGA_PROPERTY_SEGMENT bit is zero
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_SEGMENT) & 1, 0);
+
+  uint16_t segment;
+  result = fpgaPropertiesGetSegment(prop, &segment);
+  EXPECT_EQ(FPGA_NOT_FOUND, result);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    nodrv_prop_227
+ * @brief   Tests: fpgaPropertiesSetSegment
+ * @details Given a non-null fpga_properties* object<br>
+ *          And segment variable set to a known value<br>
+ *          When I call fpgaPropertiesSetSegment with the properties object and
+ *          the segment variable<br>
+ *          Then the segment field in the properties object is the known value<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_227) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  uint16_t segment = 0xc001;
+  // make sure the FPGA_PROPERTY_SEGMENT bit is zero
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_SEGMENT) & 1, 0);
+  // Call the API to set the segment on the property
+  result = fpgaPropertiesSetSegment(prop, segment);
+
+  EXPECT_EQ(result, FPGA_OK);
+
+  // make sure the FPGA_PROPERTY_SEGMENT bit is one
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_SEGMENT) & 1, 1);
+
+  // Assert it is set to what we set it to above
+  EXPECT_EQ(0xc001, _prop->segment);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    nodrv_prop_228
+ * @brief   Tests: fpgaPropertiesGetSegment
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetSegment with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_228) {
+  fpga_properties prop = NULL;
+
+  uint16_t segment;
+  fpga_result result = fpgaPropertiesGetSegment(prop, &segment);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    nodrv_prop_229
+ * @brief   Tests: fpgaPropertiesSetSegment
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetSegment with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(LibopaecPropertiesCommonALL, nodrv_prop_229) {
+  fpga_properties prop = NULL;
+
+  // Call the API to set the segment on the property
+  fpga_result result = fpgaPropertiesSetSegment(prop, 0xc001);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
 // * Bus field tests *//
 /**
  * @test    nodrv_prop_020
