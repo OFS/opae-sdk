@@ -92,7 +92,7 @@ void properties_set_object_id(opae::fpga::types::properties::ptr_t props,
 const char *properties_doc_num_errors();
 uint32_t properties_get_num_errors(opae::fpga::types::properties::ptr_t props);
 void properties_set_num_errors(opae::fpga::types::properties::ptr_t props,
-                              uint32_t num_errors);
+                               uint32_t num_errors);
 
 const char *properties_doc_num_slots();
 uint32_t properties_get_num_slots(opae::fpga::types::properties::ptr_t props);
@@ -114,6 +114,11 @@ const char *properties_doc_vendor_id();
 uint32_t properties_get_vendor_id(opae::fpga::types::properties::ptr_t props);
 void properties_set_vendor_id(opae::fpga::types::properties::ptr_t props,
                               uint32_t vendor_id);
+
+const char *properties_doc_device_id();
+uint32_t properties_get_device_id(opae::fpga::types::properties::ptr_t props);
+void properties_set_device_id(opae::fpga::types::properties::ptr_t props,
+                              uint32_t device_id);
 
 const char *properties_doc_model();
 std::string properties_get_model(opae::fpga::types::properties::ptr_t props);
