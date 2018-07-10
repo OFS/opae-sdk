@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
    if (use_ase == 0) {
       printf("Running test in HW mode\n");
    } else {
-      printf("Running test in HW mode\n");
+      printf("Running test in ASE mode\n");
    }
    
    if (uuid_parse(HELLO_AFU_ID, guid) < 0) {
