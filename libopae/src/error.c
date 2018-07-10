@@ -184,22 +184,22 @@ fpga_result __FPGA_API__ fpgaGetErrorInfo(fpga_token token,
 }
 
 /* files and directories to ignore when looking for errors */
-const char *errors_exclude[] = {
+#define NUM_ERRORS_EXCLUDE 4
+const char *errors_exclude[NUM_ERRORS_EXCLUDE] = {
 	"revision",
 	"uevent",
 	"power",
 	"clear"
 };
-#define NUM_ERRORS_EXCLUDE (sizeof(errors_exclude) / sizeof(char *))
 
 /* files that can be cleared by writing their value to them */
+#define NUM_ERRORS_CLEARABLE 4
 const char *errors_clearable[] = {
 	"pcie0_errors",
 	"pcie1_errors",
 	"warning_errors",
 	"inject_error"
 };
-#define NUM_ERRORS_CLEARABLE (sizeof(errors_clearable) / sizeof(char *))
 
 /* Walks the given directory and adds error entries to `list`.
  * This function is called during enumeration when adding tokens to
@@ -217,22 +217,29 @@ build_error_list(const char *path, struct error_list **list)
 	struct stat st;
 	char basedir[FILENAME_MAX];
 	int len = strlen(path);
+	int subpath_len = 0;
 	uint32_t n = 0;
 	unsigned int i;
 	struct error_list **el = list;
 	errno_t err;
 
-	if (len+1 > FILENAME_MAX) {
+	// add 3 to the len
+	// 1 for the '/' char
+	// 1 for the minimum length of a file appended
+	// 1 for null string to terminate
+	// if we go over now, then leave without doing anything else
+	if (len+3 > FILENAME_MAX) {
 		FPGA_MSG("path too long");
 		return 0;
 	}
 
-	err = strncpy_s(basedir, FILENAME_MAX-1, path, FILENAME_MAX-1);
+	err = strncpy_s(basedir, FILENAME_MAX-3, path, len);
 	if (err != EOK) {
 		FPGA_MSG("strncpy_s() failed with return value %u", err);
 		return 0;
 	}
 	basedir[len++] = '/';
+	// now we've added one to length
 
 	dir = opendir(path);
 	if (!dir) {
@@ -254,10 +261,19 @@ build_error_list(const char *path, struct error_list **list)
 		if (i < NUM_ERRORS_EXCLUDE)
 			continue;
 
+		subpath_len = strlen(de->d_name);
+
+		// check if the result abs path is longer than  our max
+		if (len + subpath_len > FILENAME_MAX) {
+			FPGA_MSG("Error path length is too long");
+			continue;
+		}
+
 		// build absolute path
-		// dmax (arg2) must be at least smax+1 (arg4)
-		err = strncpy_s(basedir + len, FILENAME_MAX - len + 1,
-				de->d_name, FILENAME_MAX - len);
+		// dmax (arg2) is restricted max length of resulting dest,
+		// including null - it must also be at least smax+1 (arg4)
+		err = strncpy_s(basedir + len, FILENAME_MAX - len - 1,
+				de->d_name, subpath_len);
 		if (err != EOK) {
 			FPGA_MSG("strncpy_s() failed with return value %u", err);
 			continue;
