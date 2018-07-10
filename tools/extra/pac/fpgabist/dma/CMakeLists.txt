@@ -27,10 +27,16 @@
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
 file(GLOB CSources *.c)
+add_library(fpga-dma SHARED ${CSources})
 add_executable(fpga_dma_test ${CSources})
 set_install_rpath(fpga_dma_test)
+set_install_rpath(fpga-dma)
 
 target_link_libraries(fpga_dma_test opae-c json-c uuid rt ${CMAKE_THREAD_LIBS_INIT})
+
+install(TARGETS fpga-dma
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+    COMPONENT fpgadmalib)
 
 install(TARGETS fpga_dma_test
         RUNTIME DESTINATION bin
