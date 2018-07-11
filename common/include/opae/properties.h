@@ -221,6 +221,27 @@ fpga_result fpgaPropertiesGetObjectType(const fpga_properties prop,
 fpga_result fpgaPropertiesSetObjectType(fpga_properties prop,
 					fpga_objtype objtype);
 /**
+ * Get the PCI segment number of a resource
+ *
+ * Returns the segment number of the queried resource.
+ *
+ * @param[in]  prop    Properties object to query
+ * @param[out] segment Pointer to a PCI segment variable of the resource 'prop'
+ *                     is associated with
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment);
+
+/**
+ * Set the PCI segment number of a resource
+ *
+ * @param[in]  prop    Properties object to modify
+ * @param[in]  segment PCI segment number of the resource 'prop' is associated with
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment);
+
+/**
  * Get the PCI bus number of a resource
  *
  * Returns the bus number the queried resource.

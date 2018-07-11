@@ -864,6 +864,20 @@ TEST(LibopaecEnumCommonALL, enum_drv_022) {
 }
 
 /**
+ * @test       enum_033
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             segment field set, but that segment does not match any device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_033) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSegment(m_Properties, 0xc001));
+
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+}
+
+/**
  * @test       enum_023
  *
  * @brief      When the filter passed to fpgaEnumerate has a valid
@@ -1024,6 +1038,20 @@ TEST_F(LibopaecEnumFCommonALL, enum_032) {
 
   v.minor = 4;
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
+
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+}
+
+/**
+ * @test       enum_034
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             socket id field set, but that socket id does not match any device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_034) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSocketID(m_Properties, 0xff));
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
