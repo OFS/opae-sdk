@@ -34,14 +34,14 @@ import bist_common as bc
 class DmaMode(bc.BistMode):
     name = "dma_afu"
 
-    def __init__(self, bus_num):
-        self.executables = {'fpga_dma_test': '-B ' + str(bus_num) + ' 0'}
+    def __init__(self):
+        self.executables = {'fpga_dma_test': ' 0'}
 
     def run(self, gbs_path, bus_num):
         bc.load_gbs(gbs_path, bus_num)
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
-            cmd = "{} {}".format(func, param)
+            cmd = "{} {} {}".format(func, param, bus_num)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
