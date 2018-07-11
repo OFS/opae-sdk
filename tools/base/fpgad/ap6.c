@@ -277,7 +277,7 @@ void *ap6_thread(void *thread_context)
 	uint32_t num_matches = 0;
 
 	struct bitstream_info null_gbs_info ;
-	memset(&null_gbs_info, 0, sizeof(null_gbs_info));
+	memset_s(&null_gbs_info, sizeof(null_gbs_info), 0);
 
 	ON_GOTO(c->config->num_null_gbs == 0, out_exit, "no NULL bitstreams registered.");
 

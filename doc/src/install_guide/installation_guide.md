@@ -250,7 +250,7 @@ opae-devel-<release>.x86_64.deb         (headers)
 opae-ase-<release>.x86_64.deb           (libopae-c-ase)
 ```
 
-# OPAE SDK installation with rpm packages #
+## OPAE SDK installation with rpm packages ##
 The rpm packages generated in the previous step can be installed
 using these commands:
 
