@@ -233,7 +233,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	char spath[SYSFS_PATH_MAX];
 	char *p;
-	int b, d, f;
+	int s, b, d, f;
 	int device_instance;
 	int res;
 	errno_t e;
@@ -341,9 +341,12 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 	}
 
-	result = sysfs_bdf_from_path(spath, &b, &d, &f);
+	result = sysfs_sbdf_from_path(spath, &s, &b, &d, &f);
 	if (result)
 		return result;
+
+	_iprop.segment = (uint16_t) s;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SEGMENT);
 
 	_iprop.bus = (uint8_t) b;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BUS);
@@ -380,10 +383,6 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		return result;
 	_iprop.device_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
-
-	// FIXME
-	// _iprop.device_id = ?? ;
-	// SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
 	char errpath[SYSFS_PATH_MAX];
 	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", _token->sysfspath);
@@ -491,6 +490,49 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 
 	_prop->objtype = objtype;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	ASSERT_NOT_NULL(segment);
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT)) {
+		*segment = _prop->segment;
+	} else {
+		FPGA_MSG("No segment");
+		result = FPGA_NOT_FOUND;
+	}
+
+	err = pthread_mutex_unlock(&_prop->lock);
+	if (err)
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+	int err = 0;
+
+	result = prop_check_and_lock(_prop);
+	if (result)
+		return result;
+
+	_prop->segment = segment;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
 
 	err = pthread_mutex_unlock(&_prop->lock);
 	if (err)
