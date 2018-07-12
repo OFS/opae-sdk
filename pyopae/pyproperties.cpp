@@ -63,31 +63,33 @@ const char *properties_doc_get() {
 
       type (fpga_objtype): The object type - DEVICE or ACCELERATOR.
 
-      bus : The PCIe bus numer.
+      bus (uint8_t) : The PCIe bus numer.
 
-      device : The PCIe device number.
+      device (uint8_t) : The PCIe device number.
 
-      function : The PCIe function number.
+      function (uint8_t) : The PCIe function number.
 
-      socket_id: The socket ID encoded in the FIM.
+      socket_id (uint8_t): The socket ID encoded in the FIM.
 
-      num_slots: Number of slots available in the FPGA.
+      num_slots (uint32_t): Number of slots available in the FPGA.
 
-      num_errors: Number of error registers in the resource.
+      num_errors (uint32_t): Number of error registers in the resource.
 
       bbs_id (uint64_t): The BBS ID encoded in the FIM.
 
-      bbs_version: The version of the BBS.
+      bbs_version (tuple): The version of the BBS.
 
-      vendor_id: The vendor ID in PCI config space.
+      vendor_id (uint16_t): The vendor ID in PCI config space.
+
+      device_id (uint16_t): The device ID in PCI config space.
 
       model (str): The model of the FPGA.
 
-      local_memory_size: The size (in bytes) of the FPGA local memory.
+      local_memory_size (uint64_t): The size (in bytes) of the FPGA local memory.
 
-      num_mmio: The numer of mmio spaces.
+      num_mmio (uint32_t): The numer of mmio spaces.
 
-      num_interrupts: The number of interrupts supported by an accelerator.
+      num_interrupts (uint32_t): The number of interrupts supported by an accelerator.
 
       accelerator_state (fpga_accelerator_state): The state of the accelerator - ASSIGNED or UNASSIGNED.
 
@@ -124,6 +126,7 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
     props->bbs_version = pytuple_to_fpga_version(version_tuple);
   }
   kwargs_to_props<uint16_t>(props->vendor_id, kwargs, "vendor_id");
+  kwargs_to_props<uint16_t>(props->device_id, kwargs, "device_id");
 
   if (kwargs.contains("model")) {
     props->model =
@@ -351,7 +354,8 @@ void properties_set_bbs_version(properties::ptr_t props,
 const char *properties_doc_vendor_id() {
   return R"opaedoc(
     Get or set the vendor ID  property of a resource.
-    The vendor ID is part of the PCIe configuration space of the device.
+    The vendor ID is part of the PCI ID and is assigned by the
+    PCI SIG consortium.
    )opaedoc";
 }
 
@@ -361,6 +365,23 @@ uint32_t properties_get_vendor_id(properties::ptr_t props) {
 
 void properties_set_vendor_id(properties::ptr_t props, uint32_t vendor_id) {
   props->vendor_id = vendor_id;
+}
+
+// device id
+const char *properties_doc_device_id() {
+  return R"opaedoc(
+    Get or set the device ID  property of a resource.
+    The device ID is part of the PCI ID and is assigned by the
+    vendor.
+   )opaedoc";
+}
+
+uint32_t properties_get_device_id(properties::ptr_t props) {
+  return props->device_id;
+}
+
+void properties_set_device_id(properties::ptr_t props, uint32_t device_id) {
+  props->device_id = device_id;
 }
 
 // model

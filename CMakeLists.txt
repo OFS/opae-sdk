@@ -393,7 +393,6 @@ endif()
 
 # Ignore following files in the final package
 set(CPACK_SOURCE_IGNORE_FILES
-  "coverage.cmake"
   "/mybuild/"
   "/build/"
   "/.git"
