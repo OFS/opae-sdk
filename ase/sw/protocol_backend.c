@@ -825,42 +825,42 @@ int ase_listener(void)
 			// Format workspace info string
 			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
 			if (ase_buffer.is_mmiomap) {
-				snprintf(logger_str + strlen(logger_str),
+				snprintf(logger_str,
 					 ASE_LOGGER_LEN,
 					 "MMIO map Allocated ");
 				initialize_fme_dfh(&ase_buffer);
 			} else if (ase_buffer.is_umas) {
-				snprintf(logger_str + strlen(logger_str),
+				snprintf(logger_str,
 					 ASE_LOGGER_LEN,
 					 "UMAS Allocated ");
 				update_fme_dfh(&ase_buffer);
 			} else {
-				snprintf(logger_str + strlen(logger_str),
+				snprintf(logger_str,
 					 ASE_LOGGER_LEN,
 					 "Buffer %d Allocated ",
 					 ase_buffer.index);
 			}
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 " (located /dev/shm/%s) =>\n",
 				 ase_buffer.memname);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 "\t\tHost App Virtual Addr  = 0x%" PRIx64
 				 "\n", ase_buffer.vbase);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 "\t\tHW Physical Addr       = 0x%" PRIx64
 				 "\n", ase_buffer.fake_paddr);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 "\t\tHW CacheAligned Addr   = 0x%" PRIx64
 				 "\n", ase_buffer.fake_paddr >> 6);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 "\t\tWorkspace Size (bytes) = %" PRId32
 				 "\n", ase_buffer.memsize);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN, "\n");
 
 			// Inject buffer message
@@ -897,11 +897,11 @@ int ase_listener(void)
 
 			// Format workspace info string
 			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN,
 				 "\nBuffer %d Deallocated =>\n",
 				 ase_buffer.index);
-			snprintf(logger_str + strlen(logger_str),
+			snprintf(logger_str,
 				 ASE_LOGGER_LEN, "\n");
 
 			// Deallocate action
