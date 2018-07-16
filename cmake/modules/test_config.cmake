@@ -107,6 +107,10 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
     set(COMMON_SRC gtmain.cpp jsonParser.cpp
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/fpgainfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/errors.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/fmeinfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/portinfo.c
                 unit/gtOpenClose_base.cpp
                 unit/gtProperties_base.cpp
                 unit/gtOpen.cpp
@@ -129,7 +133,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtCxxReset.cpp
                 function/gtCxxMMIO.cpp
                 function/gtCxxVersion.cpp
-		function/gtCxxErrors.cpp
+                function/gtCxxErrors.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
@@ -138,6 +142,7 @@ function(Build_Test_Target Target_Name Target_LIB)
                 function/gtVersion.cpp
                 function/gtOpenClose.cpp
         		function/gtGetProperties.cpp
+        		function/gtFpgaInfo.cpp
         		function/gtCommon.cpp)
 
     if(BUILD_ASE_TEST)
@@ -168,7 +173,10 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
     target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-                              uuid ${GTEST_BOTH_LIBRARIES} dl opae-c++-utils opae-c++ opae-cxx-core)
+                              uuid ${GTEST_BOTH_LIBRARIES} dl
+                              argsfilter
+                              opae-c++-utils
+                              opae-c++ opae-cxx-core)
 	  						
     if(CMAKE_THREAD_LIBS_INIT)
        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")

@@ -43,12 +43,7 @@
 
 
 const char *supported_verbs[] = {"all", "fme", "port"};
-enum verbs_index {
-	VERB_ALL = 0,
-	VERB_FME,
-	VERB_PORT,
-	VERB_MAX
-};
+enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
 
 /*
  * errors command configuration, set during parse_args()
@@ -61,7 +56,8 @@ struct errors_config {
 // TODO: Move this to a common file for reuse in other fpgainfo files
 static int str_in_list(const char *key, const char *list[], size_t size)
 {
-	for (size_t i = 0; i < size; ++i) {
+	size_t i = 0;
+	for (; i < size; ++i) {
 		if (!strcmp(key, list[i])) {
 			return i;
 		}
@@ -75,7 +71,7 @@ int parse_error_args(int argc, char *argv[])
 {
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
-				    {0, 0, 0, 0}};
+				    {0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;
@@ -104,16 +100,16 @@ int parse_error_args(int argc, char *argv[])
 		}
 	}
 
-	// The word after 'errors' should be what to operate on ("all", "fme", or "port")
+	// The word after 'errors' should be what to operate on ("all", "fme",
+	// or "port")
 	if (optind < argc && !strcmp(argv[optind], "errors")) {
-		char* verb = argv[optind+1];
+		char *verb = argv[optind + 1];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
 		if (idx < VERB_MAX) {
 			errors_config.which = idx;
 		} else {
 			fprintf(stderr,
-				"Not a valid errors resource spec: %s\n",
-				verb);
+				"Not a valid errors resource spec: %s\n", verb);
 			return -1;
 		}
 	}
@@ -125,23 +121,22 @@ fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[])
 {
 	fpga_result res = FPGA_OK;
 	if (0 == parse_error_args(argc, argv)) {
-		switch(errors_config.which)
-		{
+		switch (errors_config.which) {
 		case VERB_FME:
 			res = fpgaPropertiesSetObjectType(*filter, FPGA_DEVICE);
 			ON_FPGAINFO_ERR_GOTO(res, out,
 					     "setting type to FPGA_DEVICE");
 			break;
 		case VERB_PORT:
-			res = fpgaPropertiesSetObjectType(*filter, FPGA_ACCELERATOR);
-			ON_FPGAINFO_ERR_GOTO(res, out,
-					     "setting type to FPGA_ACCELERATOR");
+			res = fpgaPropertiesSetObjectType(*filter,
+							  FPGA_ACCELERATOR);
+			ON_FPGAINFO_ERR_GOTO(
+				res, out, "setting type to FPGA_ACCELERATOR");
 			break;
 		case VERB_ALL:
 		default:
 			break;
 		}
-
 	}
 out:
 	return res;

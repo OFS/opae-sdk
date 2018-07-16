@@ -82,15 +82,6 @@ macro(add_gtfilter test_name gtfilter is_mock)
     endif()
 endmacro()
 
-add_test(NAME test_fpgainfo
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*fpgainfo*)
-
-set_tests_properties(
-  test_fpgainfo
-  PROPERTIES
-  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
-
 ############################################################################
 ## Add testing targets #####################################################
 ############################################################################
@@ -112,6 +103,8 @@ add_gtfilter(CxxEvent     "LibopaecppEvent*" True)
 add_gtfilter(CxxMMIO      "LibopaecppMMIO*" True)
 add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
 add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
+add_gtfilter(argsfilter    "argsfilter*" False)
+add_gtfilter(fpgainfo    "fpgainfo*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
 

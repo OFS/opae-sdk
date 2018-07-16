@@ -71,11 +71,11 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0}};
+				    {0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;
-	if (argc < 2){
+	if (argc < 2) {
 		help();
 		return EX_USAGE;
 	}
@@ -120,9 +120,10 @@ struct command_handler {
 } cmd_array[CMD_SIZE] = {
 	{.command = "errors", .filter = errors_filter, .run = errors_command},
 	{.command = "fme", .filter = fme_filter, .run = fme_command},
-	{.command = "port", .filter = port_filter, .run = port_command}};
+	{.command = "port", .filter = port_filter, .run = port_command} };
 
-struct command_handler* get_command(char* cmd) {
+struct command_handler *get_command(char *cmd)
+{
 	// find the command handler for the command
 	for (int i = 0; i < CMD_SIZE; ++i) {
 		if (!strcmp(cmd, cmd_array[i].command)) {
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
 	ret_value = parse_args(argc, argv);
-	if (ret_value != EX_OK){
+	if (ret_value != EX_OK) {
 		return ret_value;
 	}
 	// start a filter using the first level command line arguments
@@ -153,7 +154,7 @@ int main(int argc, char *argv[])
 		goto out_destroy;
 	}
 	uint32_t num_tokens = 0;
-	struct command_handler* handler = get_command(argv[1]);
+	struct command_handler *handler = get_command(argv[1]);
 	if (handler == NULL) {
 		fprintf(stderr, "Invalid command specified\n");
 		goto out_destroy;
@@ -167,10 +168,8 @@ int main(int argc, char *argv[])
 
 	num_tokens = matches;
 	tokens = (fpga_token *)malloc(num_tokens * sizeof(fpga_token));
-	res = fpgaEnumerate(&filter, 1, tokens,
-			    num_tokens, &matches);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "enumerating resources");
+	res = fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "enumerating resources");
 	if (num_tokens != matches) {
 		ret_value = EX_SOFTWARE;
 		fprintf(stderr,
