@@ -103,8 +103,22 @@ add_gtfilter(CxxEvent     "LibopaecppEvent*" True)
 add_gtfilter(CxxMMIO      "LibopaecppMMIO*" True)
 add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
 add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
+add_gtfilter(argsfilter    "argsfilter*" False)
+add_gtfilter(fpgainfo    "fpgainfo*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
+
+## Is this test still needed or is this covered by another test?
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^##
+add_test(NAME test_get_properties
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMAND gtapi  ${CMAKE_BINARY_DIR} --gtest_filter=*LibopaecGetProperties*)
+
+set_tests_properties(
+  test_get_properties
+  PROPERTIES
+  ENVIRONMENT "LD_PRELOAD=lib/libmock.so")
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^##
 
 ############################################################################
 ## pyopae tests ######## ###################################################
