@@ -517,14 +517,14 @@ int read_fd(int sock_fd)
 	}
 
 	cmsg = CMSG_FIRSTHDR(&msg);
+	if (cmsg == NULL) {
+		ASE_ERR("SIM-C : Null pointer from rcvmsg socket\n");
+		return 1;
+	}
 
 	int vector_id = 0;
 
 	fdptr = (int *)CMSG_DATA(cmsg);
-	if (fdptr == NULL) {
-		ASE_ERR("SIM-C : null pointer from rcvmsg socket\n");
-		return 1;
-	}
 
 	if (req.type == REGISTER_EVENT) {
 		vector_id = req.flags;
