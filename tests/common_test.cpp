@@ -33,6 +33,11 @@
 #include <csignal>
 #include <fstream>
 #include <thread>
+#include <stdexcept>
+#ifndef __USE_GNU
+# define __USE_GNU 1
+#endif
+#include <dlfcn.h>
 #include "gtest/gtest.h"
 #include <opae/access.h>
 #include <opae/enum.h>
@@ -269,8 +274,9 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
   char buf[SYSFS_PATH_MAX] = {0};
   int b = 0;
   fpga_result retval = FPGA_OK;
+  size_t len;
 
-  int fd = open(path, O_WRONLY);
+  int fd = open(path, O_WRONLY|O_TRUNC);
 
   if (fd < 0) {
     printf("open: %s", strerror(errno));
@@ -287,17 +293,19 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
   switch (B) {
     // write hex value
     case HEX:
-      snprintf(buf, sizeof(buf), "%lx", u);
+      snprintf(buf, sizeof(buf), "0x%lx\n", u);
       break;
 
     // write dec value
     case DEC:
-      snprintf(buf, sizeof(buf), "%ld", u);
+      snprintf(buf, sizeof(buf), "%ld\n", u);
       break;
   }
 
+  len = strlen(buf);
+
   do {
-    res = write(fd, buf + b, sizeof(buf) - b);
+    res = write(fd, buf + b, len - b);
 
     if (res <= 0) {
       printf("Failed to write");
@@ -307,13 +315,13 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
 
     b += res;
 
-    if (b > sizeof(buf) || b <= 0) {
-      printf("Unexpected size reading from %s", path);
+    if (b > len || b <= 0) {
+      printf("Unexpected size writing to %s", path);
       retval = FPGA_NOT_FOUND;
       goto out_close;
     }
 
-  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < sizeof(buf));
+  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < len);
 
   retval = FPGA_OK;
   goto out_close;
@@ -321,8 +329,6 @@ fpga_result sysfs_write_64(const char* path, uint64_t u, base B) {
 out_close:
   if (close(fd) < 0) {
     perror("close");
-  } else {
-    fd = -1;
   }
   return retval;
 }
@@ -648,6 +654,78 @@ void BaseFixture::TestAllFPGA(fpga_objtype otype, bool loadbitstream,
     // destroy properties each iteration to avoid a leak
     EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));
   }
+}
+
+/*
+ * The mock environment relies on libmock.so being pre-loaded, so
+ * there is no -lmock on the linker command line for the test
+ * executable. If we were to reference mock.c:mock_enable_irq()
+ * directly in test cases, then the link step for this test executable
+ * would fail.
+ *
+ * Instead, the test cases that use mock rely on libmock.so being
+ * preloaded (ie, we expect the below MOCK_enable_irq() to throw an
+ * exception if libmock.so is not actually loaded). This preserves the
+ * restriction that we do not hard link against libmock.so, but still
+ * allows us to access the mock API when needed.
+ */
+typedef bool (*mock_enable_irq_t)(bool );
+bool MOCK_enable_irq(bool enable)
+{
+  dlerror(); // clear errors
+  mock_enable_irq_t real_mock_enable_irq =
+	  (mock_enable_irq_t) dlsym(RTLD_DEFAULT, "mock_enable_irq");
+  char *err = dlerror();
+
+  if (err) {
+    std::cerr << "dlsym(\"mock_enable_irq\") failed: " << err << std::endl;
+    std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+    throw std::logic_error("mock_enable_irq");
+  }
+
+  if (!real_mock_enable_irq) {
+    std::cerr << "dlsym(\"mock_enable_irq\") failed: (NULL fn pointer)" << std::endl;
+    std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+    throw std::logic_error("mock_enable_irq is NULL");
+  }
+
+  return real_mock_enable_irq(enable);
+}
+
+/*
+* The mock environment relies on libmock.so being pre-loaded, so
+* there is no -lmock on the linker command line for the test
+* executable. If we were to reference mock.c:mock_enable_ioctl_errinj_t()
+* directly in test cases, then the link step for this test executable
+* would fail.
+*
+* Instead, the test cases that use mock rely on libmock.so being
+* preloaded (ie, we expect the below MOCK_enable_ioctl_errinj() to throw an
+* exception if libmock.so is not actually loaded). This preserves the
+* restriction that we do not hard link against libmock.so, but still
+* allows us to access the mock API when needed.
+*/
+typedef bool(*mock_enable_ioctl_errinj_t)(bool);
+bool MOCK_enable_ioctl_errinj(bool enable) {
+
+	dlerror(); // clear errors
+	mock_enable_ioctl_errinj_t real_mock_enable_ioctl_errinj =
+		(mock_enable_ioctl_errinj_t) dlsym(RTLD_DEFAULT, "mock_enable_errinj");
+	char *err = dlerror();
+
+	if (err) {
+		std::cerr << "dlsym(\"MOCK_enable_ioctl_errinj\") failed: " << err << std::endl;
+		std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+		throw std::logic_error("MOCK_enable_ioctl_errinj");
+	}
+
+	if (!real_mock_enable_ioctl_errinj) {
+		std::cerr << "dlsym(\"MOCK_enable_ioctl_errinj\") failed: (NULL fn pointer)" << std::endl;
+		std::cerr << "Be sure that libmock.so is loaded for mock tests." << std::endl;
+		throw std::logic_error("MOCK_enable_ioctl_errinj is NULL");
+	}
+
+	return real_mock_enable_ioctl_errinj(enable);
 }
 
 }  // end namespace common_test

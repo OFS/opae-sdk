@@ -171,6 +171,8 @@ int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData);
 
 int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData);
 
+const char * fpac_GetErrMsg(int i_ErrMsgInx);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

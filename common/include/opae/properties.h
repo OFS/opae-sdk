@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file properties.h
+ * @file opae/properties.h
  * @brief Functions for examining and manipulating `fpga_properties` objects
  *
  * In OPAE, `fpga_properties` objects are used both for obtaining information
@@ -220,6 +220,27 @@ fpga_result fpgaPropertiesGetObjectType(const fpga_properties prop,
  */
 fpga_result fpgaPropertiesSetObjectType(fpga_properties prop,
 					fpga_objtype objtype);
+/**
+ * Get the PCI segment number of a resource
+ *
+ * Returns the segment number of the queried resource.
+ *
+ * @param[in]  prop    Properties object to query
+ * @param[out] segment Pointer to a PCI segment variable of the resource 'prop'
+ *                     is associated with
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment);
+
+/**
+ * Set the PCI segment number of a resource
+ *
+ * @param[in]  prop    Properties object to modify
+ * @param[in]  segment PCI segment number of the resource 'prop' is associated with
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment);
+
 /**
  * Get the PCI bus number of a resource
  *
@@ -688,6 +709,33 @@ fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
  */
 fpga_result fpgaPropertiesSetObjectID(const fpga_properties prop,
 					    uint64_t object_id);
+
+
+/**
+ * Get the number of errors that can be reported by a resource
+ *
+ * Returns the number of error registers understood by a resource.
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[out] num_errors Pointer to a 32 bit memory location to store the
+ *                        number of supported errors in
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetNumErrors(const fpga_properties prop,
+				       uint32_t *num_errors);
+
+
+/**
+ * Set the number of error registers
+ *
+ * Set the number of error registers understood by a resource to enumerate.
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[in]  num_errors Number of errors
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetNumErrors(const fpga_properties prop,
+				       uint32_t num_errors);
 
 #ifdef __cplusplus
 } // extern "C"

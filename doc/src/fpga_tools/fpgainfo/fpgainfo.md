@@ -27,7 +27,7 @@ Show total the power in watts that the FPGA hardware consumes.
 
 `temp`
 
- Show FPGA temperature values in degrees Fahrenheit.
+ Show FPGA temperature values in degrees Celcius.
 
 `port`
 
@@ -45,15 +45,15 @@ Prints help information and exit.
 ## COMMON ARGUMENTS ##
 The following arguments are common to all commands and are optional.
 
-`-b, --bus`
+`-B, --bus`
 
 PCIe bus number of resource.
 
-`-d, --device`
+`-D, --device`
 
 PCIe device number of resource.
 
-`-f, --function`
+`-F, --function`
 
 PCIe function number of resource.
 

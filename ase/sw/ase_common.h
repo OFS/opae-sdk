@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,15 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: ASE common (C header file)
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
- */
-
 
 #ifndef _ASE_COMMON_H_
 #define _ASE_COMMON_H_
@@ -476,11 +467,13 @@ void ase_string_copy(char *, const char *, size_t);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
+void ase_memset(void *, int, size_t);
 
 // Safe string equivalents
 int ase_memcpy_s(void *, size_t, const void *, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
+int ase_memset_s(void *, size_t, int, size_t);
 
 // Message queue operations
 void ipc_init(void);
@@ -816,5 +809,4 @@ extern struct ase_capability_t ase_capability;
 #endif
 // ------------------------------------------ //
 
-
-#endif				// End _ASE_COMMON_H_
+#endif	// End _ASE_COMMON_H_

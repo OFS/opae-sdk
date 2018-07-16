@@ -77,15 +77,15 @@ nlb0::nlb0()
     options_.add_option<uint32_t>("timeout-sec",          option::with_argument, "Timeout for continuous mode (seconds portion)", 1);
     options_.add_option<uint32_t>("timeout-min",          option::with_argument, "Timeout for continuous mode (minutes portion)", 0);
     options_.add_option<uint32_t>("timeout-hour",         option::with_argument, "Timeout for continuous mode (hours portion)", 0);
-    options_.add_option<uint8_t>("socket-id",        's', option::with_argument, "Socket id encoded in BBS");
-    options_.add_option<uint8_t>("bus-number",       'B', option::with_argument, "Bus number of PCIe device");
+    options_.add_option<uint8_t>("socket-id",        'S', option::with_argument, "Socket id encoded in BBS");
+    options_.add_option<uint8_t>("bus",              'B', option::with_argument, "Bus number of PCIe device");
     options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",         'F', option::with_argument, "Function number of PCIe device");
-    options_.add_option<std::string>("guid",         'g', option::with_argument, "accelerator id to enumerate", afu_id_);
-    options_.add_option<uint32_t>("freq",            'T', option::with_argument, "Clock frequence (used for bw measurements)", frequency_);
-    options_.add_option<bool>("suppress-hdr",        'S', option::no_argument,   "Suppress column headers", suppress_header_);
+    options_.add_option<std::string>("guid",         'G', option::with_argument, "accelerator id to enumerate", afu_id_);
+    options_.add_option<uint32_t>("freq",            'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
+    options_.add_option<bool>("suppress-hdr",             option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
-    options_.add_option<bool>("suppress-stats",               option::no_argument,   "Show stas at end", suppress_stats_);
+    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stas at end", suppress_stats_);
 }
 
 nlb0::~nlb0()

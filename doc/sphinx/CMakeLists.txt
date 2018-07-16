@@ -68,6 +68,7 @@ add_custom_target(copy-sample-files ALL
   DEPENDS copy-include-files)
 
 add_custom_target(docs ALL
+  COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}"
   ${SPHINX_EXECUTABLE}
   -q -b html
   -c "${BINARY_BUILD_DIR}"
@@ -81,4 +82,5 @@ add_dependencies(docs
   copy-doxygen-files
   copy-markdown-files
   copy-include-files
-  copy-sample-files)
+  copy-sample-files
+  doxygen)

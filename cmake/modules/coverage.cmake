@@ -108,3 +108,68 @@ function(set_target_for_coverage target_name testrunner)
     COMMENT "Run coverage tests.")
 
 endfunction()
+
+# targetname     The name of original target from which the current target depends on
+# testrunner     The name of the target which runs the tests.
+# Optional third parameter is passed as arguments to testrunner
+# Pass them in list form, e.g.: "-k;1" for -k 1
+function(set_target_for_coverage_local target_name)
+
+  cmake_parse_arguments(set_target_for_coverage_local "" "TESTRUNNER" "TESTRUNNER_ARGS;COVERAGE_EXTRA_COMPONENTS" ${ARGN})
+  set(testrunner ${set_target_for_coverage_local_TESTRUNNER})
+  set(COVERAGE_EXTRA 0)
+  set(COVERAGE_EXTRA_COMPONENTS "")
+  foreach(comp_i ${set_target_for_coverage_local_COVERAGE_EXTRA_COMPONENTS})
+    set(COVERAGE_EXTRA_COMPONENTS "${COVERAGE_EXTRA_COMPONENTS} ${comp_i}")
+    set(COVERAGE_EXTRA 1)
+  endforeach()
+
+  set(TESTRUNNER_ARGS "")
+  foreach(arg_i ${set_target_for_coverage_local_TESTRUNNER_ARGS})
+    set(TESTRUNNER_ARGS "${TESTRUNNER_ARGS} ${arg_i}")
+  endforeach()
+
+  if(NOT LCOV_EXECUTABLE)
+    message(FATAL_ERROR "lcov not found! Aborting...")
+  endif()
+
+  if(NOT GENHTML_EXECUTABLE)
+    message(FATAL_ERROR "genhtml not found! Aborting...")
+  endif()
+
+  message("-- Setting ${target_name} for coverage run.")
+  set(outputfile ${target_name})
+  set(coverage_info "${CMAKE_BINARY_DIR}/coverage_${target_name}/${outputfile}.info")
+  set(coverage_cleaned "${coverage_info}.cleaned")
+  set(coverage_runtest_script "coverage_${target_name}.sh")
+
+  separate_arguments(test_command UNIX_COMMAND "${testrunner}")
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/config/run_coverage_test_local.sh.in
+    ${CMAKE_BINARY_DIR}/${coverage_runtest_script})
+
+  # Setup target
+  set(name "coverage_${target_name}")
+  add_custom_target(${name}
+
+    # Cleanup lcov
+    COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+
+    # Wrap test on script, so coverage files generate even if tests return 1
+    # CMake will stop if this step returns 1
+    COMMAND chmod 755 ${coverage_runtest_script}
+    COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
+
+    # Capturing lcov counters and generating report
+    COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+
+    # Clean coverage file
+    COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+    COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+    COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+
+    # Add dependencies
+    DEPENDS ${target_name}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Run coverage tests.")
+
+endfunction()

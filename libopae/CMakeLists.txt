@@ -40,6 +40,7 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 set(SRC
   src/common.c
   src/enum.c
+  src/error.c
   src/umsg.c
   src/reconf.c
   src/open.c
@@ -51,7 +52,7 @@ set(SRC
   src/hostif.c
   src/event.c
   src/properties.c
-  src/log.c
+  src/init.c
   src/sysfs.c
   src/wsid_list.c
   src/token_list.c
