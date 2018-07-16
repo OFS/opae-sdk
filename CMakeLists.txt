@@ -145,7 +145,7 @@ if(BUILD_LIBOPAE_CXX)
   add_subdirectory(libopaecxx)
 endif()
 
-option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." OFF)
+option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
 mark_as_advanced(BUILD_LIBOPAE_PY)
 if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
   add_subdirectory(pyopae)
