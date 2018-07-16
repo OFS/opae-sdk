@@ -311,6 +311,88 @@ TEST_F(LibopaecEventFCommonMOCK, event_drv_06) {
                                          m_EventHandles[0]));
 }
 
+/**
+ * @test       event_drv_08
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             fpgaDestroyEventHandle() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_08) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+  h->magic=0x0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(&bad_handle));
+}
+
+/**
+ * @test       event_drv_09
+ *
+ * @brief      When passed an event handle with an invalid fd
+ *             fpgaDestroyEventHandle() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_09) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+  h->fd=-1;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(&bad_handle));
+}
+
+/**
+ * @test       event_drv_10
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             fpgaGetOSObjectFromEventHandle() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_10) {
+  fpga_event_handle bad_handle;
+  int fd;
+  EXPECT_EQ(FPGA_OK, fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+  h->magic=0x0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOSObjectFromEventHandle(bad_handle, &fd));
+}
+
+/**
+ * @test       event_drv_11
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             fpgaRegisterEvent() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_11) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+  h->magic=0x0;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT, bad_handle, 0));
+}
+
+/**
+ * @test       event_drv_12
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             fpgaUnregisterEvent() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_F(LibopaecEventFCommonMOCKHW, event_drv_12) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+
+  h->magic=0x0;
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnregisterEvent(m_AFUHandle, FPGA_EVENT_INTERRUPT, bad_handle));
+}
+
+
 class LibopaecEventFCommonMOCKIRQ : public LibopaecEventFCommonMOCK {
  protected:
   virtual void SetUp() {
