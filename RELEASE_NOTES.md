@@ -1,4 +1,4 @@
-Open Programmable Acceleration Engine is a software framework for managing and accessing programmable accelerators (FPGAs). Its main parts are:
+Open Programmable Acceleration Engine (OPAE )is a software framework for managing and accessing programmable accelerators (FPGAs). Its main parts are:
 
 -   OPAE Software Development Kit (OPAE SDK),
 
@@ -55,9 +55,9 @@ Major Changes from 1.0.0 to 1.1.0
 Notes / Known Issues
 --------------------
 
--   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10
+-   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10. Preliminary debug information seems to indicate it may be related to hugepage support in the Linux kernel
 
--   Memory leak detected by Valgrind due to token_cleanup() function not being called for global data structure allocation as part of enumerate. Does not impact memory performance. Will be addressed in next release.
+-   MMemory leak detected by Valgrind points to global data structures used by enumeration routines. This is due to token_cleanup() function not being called when the library is being unloaded. This does not impact memory performance and will be addressed in next release.
 
 -   A different OPN is used in the design examples
 
@@ -85,9 +85,8 @@ Notes / Known Issues
 
 -   When simulating the hello\_intr\_afu sample code, the
     af2cp\_sTxPort.c1.hdr.rsvd2\[5:4\] has a value of X
-
-    This issue will be resolved in the Intel Acceleration Stack 1.1
-    version.
+    
+    This issue will be resolved in a future version of the Intel Acceleration Stack.
 
 - Partial reconfiguration with SR-IOV
 
