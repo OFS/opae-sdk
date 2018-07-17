@@ -45,19 +45,19 @@ Major Changes from 1.0.0 to 1.1.0
   - A Python API which wraps the C++ Core API object model
 - Disabled documentation generation by default in make to speed up development
 - Implemented CMake build-chain for ASE
-- Organized sample directory
+- Organized samples directory
 - Increased test coverage
 - Added Error API
 - Added SUSE support
-- Cleaned up dead legacy code
+- Cleaned up dead/legacy code
 - Various bug fixes
 
 Notes / Known Issues
 --------------------
 
--   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10. Preliminary debug information seems to indicate it may be related to hugepage support in the Linux kernel
+-   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10. Preliminary debug information seems to indicate it may be related to hugepage support in the Linux kernel.
 
--   MMemory leak detected by Valgrind points to global data structures used by enumeration routines. This is due to token_cleanup() function not being called when the library is being unloaded. This does not impact memory performance and will be addressed in next release.
+-   Memory leak detected by Valgrind points to global data structures used by enumeration routines. This is due to token_cleanup() function not being called when the library is being unloaded. This does not impact memory performance and will be addressed in next release.
 
 -   A different OPN is used in the design examples
 
