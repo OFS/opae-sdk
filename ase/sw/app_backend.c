@@ -549,7 +549,7 @@ bool remove_existing_lock_file(void)
 		ASE_ERR("Error opening Application lock file path, EXITING\n");
 		return false;
 	} else {
-		if (fscanf(fp_app_lockfile, "%d\n", &lock) != 0) {
+		if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
 			// Check if PID exists
 			kill(lock, 0);
 			if (errno == ESRCH) {
@@ -1531,7 +1531,7 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
 	char buf[CMSG_SPACE(sizeof(int))];
 
 	ase_memset(buf, 0x0, sizeof(buf));
-	struct iovec io = { .iov_base = req, .iov_len = sizeof(req) };
+	struct iovec io = { .iov_base = req, .iov_len = sizeof(struct event_request *) };
 
 	cmsg = (struct cmsghdr *)buf;
 	cmsg->cmsg_level = SOL_SOCKET;
