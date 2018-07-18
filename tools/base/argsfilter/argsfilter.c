@@ -27,7 +27,13 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define EX_OK 0
+#define EX_USAGE (-1)
+#define EX_SOFTWARE (-2)
+#else
 #include <sysexits.h>
+#endif
 
 #define RETURN_ON_ERR(res, desc)                                               \
 	do {                                                                   \
@@ -40,15 +46,6 @@
 		}                                                              \
 	} while (0)
 
-struct args_filter_config {
-	int bus;
-	int device;
-	int function;
-	int socket_id;
-} args_filter_config = {.bus = -1, .device = -1, .function = -1, .socket_id = -1};
-
-#define SUPPORTED_OPTIONS 4
-
 int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			     int *argc, char *argv[])
 {
@@ -60,16 +57,25 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 				    {"function", required_argument, NULL, 'F'},
 				    {"socket-id", required_argument, NULL, 'S'},
 				    {0, 0, 0, 0}};
-	int getopt_ret;
-	int option_index;
+	int supported_options = sizeof(longopts) / sizeof(longopts[0]) - 1;
+	int getopt_ret = -1;
+	int option_index = 0;
 	char *endptr = NULL;
 	int found_opts[] = {0, 0, 0, 0};
 	int next_found = 0;
 	int old_opterr = opterr;
 	opterr = 0;
+	struct _args_filter_config {
+		int bus;
+		int device;
+		int function;
+		int socket_id;
+	} args_filter_config = {
+		.bus = -1, .device = -1, .function = -1, .socket_id = -1};
 
-	while (-1 != (getopt_ret = getopt_long(*argc, argv, short_opts,
-					       longopts, &option_index))) {
+	while (-1
+	       != (getopt_ret = getopt_long(*argc, argv, short_opts, longopts,
+					    &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg))
@@ -80,7 +86,8 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			args_filter_config.bus = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.bus =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid bus: %s\n",
 					tmp_optarg);
@@ -93,7 +100,8 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			args_filter_config.device = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.device =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid device: %s\n",
 					tmp_optarg);
@@ -106,7 +114,8 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			args_filter_config.function = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.function =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid function: %s\n",
 					tmp_optarg);
@@ -119,7 +128,8 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			args_filter_config.socket_id = (int)strtoul(tmp_optarg, &endptr, 0);
+			args_filter_config.socket_id =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid socket: %s\n",
 					tmp_optarg);
@@ -146,24 +156,27 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		RETURN_ON_ERR(*result, "setting bus");
 	}
 	if (-1 != args_filter_config.device) {
-		*result = fpgaPropertiesSetDevice(filter, args_filter_config.device);
+		*result = fpgaPropertiesSetDevice(filter,
+						  args_filter_config.device);
 		RETURN_ON_ERR(*result, "setting device");
 	}
 
 	if (-1 != args_filter_config.function) {
-		*result = fpgaPropertiesSetFunction(filter, args_filter_config.function);
+		*result = fpgaPropertiesSetFunction(
+			filter, args_filter_config.function);
 		RETURN_ON_ERR(*result, "setting function");
 	}
 
 	if (-1 != args_filter_config.socket_id) {
-		*result = fpgaPropertiesSetSocketID(filter, args_filter_config.socket_id);
+		*result = fpgaPropertiesSetSocketID(
+			filter, args_filter_config.socket_id);
 		RETURN_ON_ERR(*result, "setting socket id");
 	}
 	// using the list of optind values
 	// shorten the argv vector starting with a decrease
 	// of 2 and incrementing that amount by two for each option found
 	int removed = 0;
-	for (int i = 0; i < SUPPORTED_OPTIONS; ++i) {
+	for (int i = 0; i < supported_options; ++i) {
 		if (found_opts[i]) {
 			for (int j = found_opts[i] - removed; j < *argc - 2;
 			     j++) {

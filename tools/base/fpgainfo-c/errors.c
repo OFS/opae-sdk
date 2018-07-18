@@ -33,7 +33,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <sysexits.h>
+//#include <sysexits.h>
 
 #include "fpgainfo.h"
 #include "safe_string/safe_string.h"
@@ -48,7 +48,7 @@ enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
 /*
  * errors command configuration, set during parse_args()
  */
-struct errors_config {
+static struct errors_config {
 	bool clear;
 	enum verbs_index which;
 } errors_config = {.clear = false, .which = VERB_ALL};
@@ -71,13 +71,14 @@ int parse_error_args(int argc, char *argv[])
 {
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;
 
-	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
-					       longopts, &option_index))) {
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
+					    &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg)) {

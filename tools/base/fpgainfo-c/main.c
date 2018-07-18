@@ -27,7 +27,14 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define EX_OK 0
+#define EX_USAGE (-1)
+#define EX_SOFTWARE (-2)
+#define EX_TEMPFAIL (-3)
+#else
 #include <sysexits.h>
+#endif
 
 #include "safe_string/safe_string.h"
 #include "argsfilter.h"
@@ -38,6 +45,8 @@
 #include "errors.h"
 #include "fmeinfo.h"
 #include "portinfo.h"
+#include "tempinfo.h"
+#include "powerinfo.h"
 
 /*
  * Print help
@@ -50,15 +59,14 @@ void help(void)
 	       "FPGA information utility\n"
 	       "\n"
 	       "Usage:\n"
-	       "        fpgainfo [-hv] [-b <bus>] [-d <device>] "
-	       "[-f <function>] [-s <socket>] "
+	       "        fpgainfo [-h] [-B <bus>] [-D <device>] "
+	       "[-F <function>] [-S <socket-id>] "
 	       "{errors,power,temp,fme,port}\n"
 	       "\n"
 	       "                -h,--help           Print this help\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
-	       "                -F,--function       Set target function "
-	       "number\n"
+	       "                -F,--function       Set target function number\n"
 	       "                -S,--socket-id      Set target socket number\n"
 	       "\n");
 }
@@ -71,17 +79,18 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
-	int getopt_ret;
-	int option_index;
+	int getopt_ret = -1;
+	int option_index = 0;
 	if (argc < 2) {
 		help();
 		return EX_USAGE;
 	}
 
-	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
-					       longopts, &option_index))) {
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
+					    &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg))
@@ -90,7 +99,7 @@ int parse_args(int argc, char *argv[])
 		switch (getopt_ret) {
 		case 'h': /* help */
 			help();
-			return EX_USAGE;
+			return EX_TEMPFAIL;
 
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
@@ -110,22 +119,24 @@ int parse_args(int argc, char *argv[])
 typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
 typedef fpga_result (*command_fn)(fpga_token *, int, int, char **);
 
-#define CMD_SIZE 3
 // define a list of command words and
 // function ptrs to the command handler
-struct command_handler {
+static struct command_handler {
 	const char *command;
 	filter_fn filter;
 	command_fn run;
-} cmd_array[CMD_SIZE] = {
+} cmd_array[] = {
 	{.command = "errors", .filter = errors_filter, .run = errors_command},
+	{.command = "power", .filter = power_filter, .run = power_command},
+	{.command = "temp", .filter = temp_filter, .run = temp_command},
 	{.command = "fme", .filter = fme_filter, .run = fme_command},
-	{.command = "port", .filter = port_filter, .run = port_command} };
+	{.command = "port", .filter = port_filter, .run = port_command}};
 
 struct command_handler *get_command(char *cmd)
 {
+	int cmd_size = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	// find the command handler for the command
-	for (int i = 0; i < CMD_SIZE; ++i) {
+	for (int i = 0; i < cmd_size; ++i) {
 		if (!strcmp(cmd, cmd_array[i].command)) {
 			return &cmd_array[i];
 		}
@@ -140,10 +151,12 @@ int main(int argc, char *argv[])
 	uint32_t matches = 0;
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
+
 	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
-		return ret_value;
+		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
+
 	// start a filter using the first level command line arguments
 	res = fpgaGetProperties(NULL, &filter);
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "creating properties object");

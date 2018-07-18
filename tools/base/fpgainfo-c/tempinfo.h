@@ -24,19 +24,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 /*
- * @file errors.h
+ * @file tempinfo.h
  *
- * @brief fpga error reporting
- *
+ * @brief
  */
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef TEMPINFO_H
+#define TEMPINFO_H
 
 #include <opae/fpga.h>
-#include <opae/error.h>
 
-fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
-			   char *argv[]);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif /* !ERRORS_H */
+fpga_result temp_filter(fpga_properties *filter, int argc, char *argv[]);
+fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
+			char *argv[]);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !TEMPINFO_H */

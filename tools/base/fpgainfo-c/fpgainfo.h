@@ -34,18 +34,19 @@
 extern "C" {
 #endif
 
+void fpgainfo_print_common(const char *hdr, fpga_properties props);
 
 void fpgainfo_print_err(const char *s, fpga_result res);
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
  */
-#define ON_FPGAINFO_ERR_GOTO(res, label, desc)             \
-	do {                                               \
-		if ((res) != FPGA_OK) {                    \
-			fpgainfo_print_err((desc), (res)); \
-			goto label;                        \
-		}                                          \
+#define ON_FPGAINFO_ERR_GOTO(res, label, desc)                                 \
+	do {                                                                   \
+		if ((res) != FPGA_OK) {                                        \
+			fpgainfo_print_err((desc), (res));                     \
+			goto label;                                            \
+		}                                                              \
 	} while (0)
 
 

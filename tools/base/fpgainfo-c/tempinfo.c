@@ -24,53 +24,93 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include "fpgainfo.h"
-#include "portinfo.h"
+#include "tempinfo.h"
 #include <opae/fpga.h>
 //#include <uuid/uuid.h>
 
-static void print_port_info(fpga_properties props)
+#include "bmcinfo.h"
+#include "sysinfo.h"
+
+static void print_temp_info(fpga_properties props, struct dev_list *dev)
 {
-	char guid_str[38];
-	fpga_guid guid;
 	fpga_result res = FPGA_OK;
+	char path[SYSFS_PATH_MAX];
+	uint32_t temperature = -1;
 
-	fpgainfo_print_common("//****** PORT ******//", props);
+	fpgainfo_print_common("//****** TEMP ******//", props);
 
-	res = fpgaPropertiesGetGUID(props, &guid);
-	fpgainfo_print_err("reading guid from properties", res);
-	uuid_unparse(guid, guid_str);
+	if (NULL == dev) {
+		printf("  NO THERMAL DATA AVAILABLE\n");
+		return;
+	}
 
-	printf("%-24s : %s\n", "Accelerator GUID", guid_str);
+	snprintf_s_ss(path, sizeof(path), "%s/%s", dev->sysfspath,
+		      "thermal_mgmt/temperature");
+	res = sysfs_read_u32(path, &temperature);
+	fpgainfo_print_err("Failure reading temperature value", res);
+
+	printf("%-24s : %02d\x00b0 C\n", "Temperature", temperature);
+
+	res = bmc_print_values(dev->sysfspath, BMC_THERMAL);
+	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
-fpga_result port_filter(fpga_properties *filter, int argc, char *argv[])
+fpga_result temp_filter(fpga_properties *filter, int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
 	fpga_result res = FPGA_OK;
-	res = fpgaPropertiesSetObjectType(*filter, FPGA_ACCELERATOR);
-	fpgainfo_print_err("setting type to FPGA_ACCELERATOR", res);
+	res = fpgaPropertiesSetObjectType(*filter, FPGA_DEVICE);
+	fpgainfo_print_err("setting type to FPGA_DEVICE", res);
 	return res;
 }
 
-fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
+fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[])
 {
+	(void)tokens;
+	(void)num_tokens;
 	(void)argc;
 	(void)argv;
 
 	fpga_result res = FPGA_OK;
+	struct dev_list head;
+	struct dev_list *lptr;
 	fpga_properties props;
+
+	res = enumerate_devices(&head);
+	ON_FPGAINFO_ERR_GOTO(res, out, "Cannot enumerate devices");
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		uint8_t bus;
+		uint8_t device;
+		uint8_t function;
+
 		res = fpgaGetProperties(tokens[i], &props);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-				     "reading properties from token");
-		print_port_info(props);
+		ON_FPGAINFO_ERR_GOTO(res, out, "reading properties from token");
+
+		res = fpgaPropertiesGetBus(props, &bus);
+		fpgainfo_print_err("reading bus from properties", res);
+
+		res = fpgaPropertiesGetDevice(props, &device);
+		fpgainfo_print_err("reading device from properties", res);
+
+		res = fpgaPropertiesGetFunction(props, &function);
+		fpgainfo_print_err("reading function from properties", res);
+
+		for (lptr = &head; NULL != lptr; lptr = lptr->next) {
+			if ((lptr->bus == bus) && (lptr->device == device)
+			    && (lptr->function == function)) {
+				break;
+			}
+		}
+
+		print_temp_info(props, lptr);
 		fpgaDestroyProperties(&props);
 	}
 
+out:
 	return res;
 
 out_destroy:
