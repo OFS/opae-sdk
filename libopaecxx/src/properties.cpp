@@ -38,6 +38,7 @@ properties::properties()
     : props_(nullptr),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
       num_errors(&props_, fpgaPropertiesGetNumErrors, fpgaPropertiesSetNumErrors),
+      segment(&props_, fpgaPropertiesGetSegment, fpgaPropertiesSetSegment),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
       function(&props_, fpgaPropertiesGetFunction, fpgaPropertiesSetFunction),

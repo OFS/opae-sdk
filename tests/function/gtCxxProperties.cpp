@@ -144,3 +144,16 @@ TEST(LibopaecppPropsCommonALL, get_num_errors) {
   p->num_errors = 9;
   EXPECT_EQ(static_cast<uint32_t>(p->num_errors), 9);
 }
+
+/**
+ * @test segment
+ * Given a properties properties object with the segment property set to a
+ * known value
+ * When I get the segment property
+ * Then the number is the expected value
+ */
+TEST(LibopaecppPropsCommonALL, get_segment) {
+  auto p = properties::get();
+  p->segment = 9090;
+  EXPECT_EQ(static_cast<uint16_t>(p->segment), 9090);
+}

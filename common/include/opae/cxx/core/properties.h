@@ -108,6 +108,7 @@ class properties {
  public:
   pvalue<fpga_objtype> type;
   pvalue<uint32_t> num_errors;
+  pvalue<uint16_t> segment;
   pvalue<uint8_t> bus;
   pvalue<uint8_t> device;
   pvalue<uint8_t> function;
