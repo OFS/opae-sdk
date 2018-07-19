@@ -27,9 +27,11 @@
 #include "tempinfo.h"
 #include <opae/fpga.h>
 //#include <uuid/uuid.h>
+#include <wchar.h>
 
 #include "bmcinfo.h"
 #include "sysinfo.h"
+#include "safe_string/safe_string.h"
 
 static void print_temp_info(fpga_properties props, struct dev_list *dev)
 {
@@ -44,14 +46,14 @@ static void print_temp_info(fpga_properties props, struct dev_list *dev)
 		return;
 	}
 
-	snprintf_s_ss(path, sizeof(path), "%s/%s", dev->sysfspath,
+	snprintf_s_ss(path, sizeof(path), "%s/%s", dev->fme->sysfspath,
 		      "thermal_mgmt/temperature");
-	res = sysfs_read_u32(path, &temperature);
+	res = fpgainfo_sysfs_read_u32(path, &temperature);
 	fpgainfo_print_err("Failure reading temperature value", res);
 
-	printf("%-24s : %02d\x00b0 C\n", "Temperature", temperature);
+	printf("%-24s : %02d%ls\n", "Temperature", temperature, L"\x00b0\x0043");
 
-	res = bmc_print_values(dev->sysfspath, BMC_THERMAL);
+	res = bmc_print_values(dev->fme->sysfspath, BMC_THERMAL);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
@@ -78,17 +80,24 @@ fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
 	struct dev_list *lptr;
 	fpga_properties props;
 
-	res = enumerate_devices(&head);
+	memset_s(&head, sizeof(head), 0);
+
+	res = fpgainfo_enumerate_devices(&head);
 	ON_FPGAINFO_ERR_GOTO(res, out, "Cannot enumerate devices");
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		uint16_t segment;
 		uint8_t bus;
 		uint8_t device;
 		uint8_t function;
 
 		res = fpgaGetProperties(tokens[i], &props);
-		ON_FPGAINFO_ERR_GOTO(res, out, "reading properties from token");
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
+
+		res = fpgaPropertiesGetSegment(props, &segment);
+		fpgainfo_print_err("reading segment from properties", res);
 
 		res = fpgaPropertiesGetBus(props, &bus);
 		fpgainfo_print_err("reading bus from properties", res);
@@ -101,7 +110,8 @@ fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
 
 		for (lptr = &head; NULL != lptr; lptr = lptr->next) {
 			if ((lptr->bus == bus) && (lptr->device == device)
-			    && (lptr->function == function)) {
+			    && (lptr->function == function)
+			    && (lptr->segment == segment)) {
 				break;
 			}
 		}

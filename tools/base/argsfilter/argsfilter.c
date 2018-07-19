@@ -176,9 +176,10 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	// shorten the argv vector starting with a decrease
 	// of 2 and incrementing that amount by two for each option found
 	int removed = 0;
-	for (int i = 0; i < supported_options; ++i) {
+	int i, j;
+	for (i = 0; i < supported_options; ++i) {
 		if (found_opts[i]) {
-			for (int j = found_opts[i] - removed; j < *argc - 2;
+			for (j = found_opts[i] - removed; j < *argc - 2;
 			     j++) {
 				argv[j] = argv[j + 2];
 			}

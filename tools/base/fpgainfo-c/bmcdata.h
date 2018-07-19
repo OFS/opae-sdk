@@ -23,57 +23,38 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "fpgainfo.h"
-#include "portinfo.h"
+/*
+ * @file fmeinfo.h
+ *
+ * @brief
+ */
+#ifndef BMCDATA_H
+#define BMCDATA_H
+
 #include <opae/fpga.h>
-#include <uuid/uuid.h>
+#include <wchar.h>
+#include "bmcinfo.h"
 
-static void print_port_info(fpga_properties props)
-{
-	char guid_str[38];
-	fpga_guid guid;
-	fpga_result res = FPGA_OK;
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
-	fpgainfo_print_common("//****** PORT ******//", props);
+extern uint8_t bcd_plus[];
+extern uint8_t ASCII_6_bit_translation[];
+extern wchar_t *base_units[];
+extern size_t max_base_units;
+extern char *sensor_type_codes[];
+extern size_t max_sensor_type_code;
+extern char *event_reading_type_codes[];
+extern size_t max_event_reading_type_code;
+extern char *entity_id_codes[];
+extern size_t max_entity_id_code;
 
-	res = fpgaPropertiesGetGUID(props, &guid);
-	fpgainfo_print_err("reading guid from properties", res);
-	uuid_unparse(guid, guid_str);
+void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
+		      sdr_body *body);
 
-	printf("%-24s : %s\n", "Accelerator GUID", guid_str);
-}
+//#ifdef __cplusplus
+//}
+//#endif
 
-fpga_result port_filter(fpga_properties *filter, int argc, char *argv[])
-{
-	(void)argc;
-	(void)argv;
-	fpga_result res = FPGA_OK;
-	res = fpgaPropertiesSetObjectType(*filter, FPGA_ACCELERATOR);
-	fpgainfo_print_err("setting type to FPGA_ACCELERATOR", res);
-	return res;
-}
-
-fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
-			 char *argv[])
-{
-	(void)argc;
-	(void)argv;
-
-	fpga_result res = FPGA_OK;
-	fpga_properties props;
-
-	int i = 0;
-	for (i = 0; i < num_tokens; ++i) {
-		res = fpgaGetProperties(tokens[i], &props);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-				     "reading properties from token");
-		print_port_info(props);
-		fpgaDestroyProperties(&props);
-	}
-
-	return res;
-
-out_destroy:
-	fpgaDestroyProperties(&props);
-	return res;
-}
+#endif /* !BMCDATA_H */

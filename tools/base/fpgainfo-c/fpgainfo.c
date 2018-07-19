@@ -26,6 +26,7 @@
 
 #include "fpgainfo.h"
 #include "opae/fpga.h"
+#include <inttypes.h>
 
 /*
  * Print readable error message for fpga_results
@@ -39,13 +40,13 @@ void fpgainfo_print_err(const char *s, fpga_result res)
 void fpgainfo_print_common(const char *hdr, fpga_properties props)
 {
 	fpga_result res = FPGA_OK;
-	unsigned int object_id;
-	unsigned int bus;
-	unsigned int segment;
-	unsigned int device;
-	unsigned int function;
-	unsigned int device_id;
-	unsigned int socket_id;
+	uint64_t object_id;
+	uint8_t bus;
+	uint16_t segment;
+	uint8_t device;
+	uint8_t function;
+	uint16_t device_id;
+	uint8_t socket_id;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -65,7 +66,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	res = fpgaPropertiesGetSocketID(props, &socket_id);
 	fpgainfo_print_err("reading socket_id from properties", res);
 
-	res = fpgaPropertiesGetDeviceId(props, &device_id);
+	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	fpgainfo_print_err("reading device_id from properties", res);
 
 	// TODO: Implement once model and capabilities accessors are
@@ -78,12 +79,13 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	// fpgainfo_print_err("reading capabilities from properties", res);
 
 	printf("%s\n", hdr);
-	printf("%-24s : 0x%2lX\n", "Object Id", object_id);
-	printf("%-24s : 0x%02X\n", "Bus", bus);
-	printf("%-24s : 0x%04X\n", "Segment", segment);
-	printf("%-24s : 0x%02X\n", "Device", device);
-	printf("%-24s : 0x%02X\n", "Function", function);
-	printf("%-24s : 0x%02X\n", "Device Id", device_id);
+	printf("%-24s : 0x%2" PRIX64 "\n", "Object Id", object_id);
+	//printf("%-24s : 0x%04X\n", "Segment", segment);
+	//printf("%-24s : 0x%02X\n", "Bus", bus);
+	//printf("%-24s : 0x%02X\n", "Device", device);
+	//printf("%-24s : 0x%02X\n", "Function", function);
+	printf("%-24s : %04X:%02X:%02X:%01X\n", "PCIe s:b:d:f", segment, bus, device, function);
+	printf("%-24s : 0x%04X\n", "Device Id", device_id);
 	printf("%-24s : 0x%02X\n", "Socket Id", socket_id);
 }
 

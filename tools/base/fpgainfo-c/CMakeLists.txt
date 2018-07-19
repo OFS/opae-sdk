@@ -29,6 +29,11 @@ add_executable(fpgainfo-c main.c
 	          fpgainfo.c
 			  errors.c
 			  fmeinfo.c
+			  sysinfo.c
+			  bmcinfo.c
+			  bmcdata.c
+			  powerinfo.c
+			  tempinfo.c
 			  portinfo.c)
 
 target_link_libraries(fpgainfo-c opae-c argsfilter)
@@ -38,6 +43,11 @@ add_library(fpgainfo-static
     fpgainfo.c
     errors.c
     fmeinfo.c
+    sysinfo.c
+    bmcinfo.c
+    bmcdata.c
+    powerinfo.c
+    tempinfo.c
     portinfo.c)
 set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
 target_link_libraries(fpgainfo-static opae-c argsfilter)

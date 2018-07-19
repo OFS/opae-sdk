@@ -32,6 +32,7 @@
 #define BMCINFO_H
 
 #include <opae/fpga.h>
+#include <wchar.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,33 +72,33 @@ typedef struct _sdr_body {
 
 	union _entity_instance {
 		struct {
-			uint8_t physical_logical : 1;
 			uint8_t instance_number : 7;
+			uint8_t physical_logical : 1;
 		} bits;
 		uint8_t _value;
 	} entity_instance;
 
 	union _sensor_initialization {
 		struct {
-			uint8_t settable_sensor : 1;
-			uint8_t init_scanning : 1;
-			uint8_t init_events : 1;
-			uint8_t init_thresholds : 1;
-			uint8_t init_hysteresis : 1;
-			uint8_t init_sensor_type : 1;
-			uint8_t events_enabled : 1;
 			uint8_t scanning_enabled : 1;
+			uint8_t events_enabled : 1;
+			uint8_t init_sensor_type : 1;
+			uint8_t init_hysteresis : 1;
+			uint8_t init_thresholds : 1;
+			uint8_t init_events : 1;
+			uint8_t init_scanning : 1;
+			uint8_t settable_sensor : 1;
 		} bits;
 		uint8_t _value;
 	} sensor_initialization;
 
 	union _sensor_capabilities {
 		struct {
-			uint8_t ignore_sensor : 1;
-			uint8_t auto_rearm : 1;
-			uint8_t hysteresis_support : 2;
-			uint8_t threshold_access_support : 2;
 			uint8_t msg_control_support : 2;
+			uint8_t threshold_access_support : 2;
+			uint8_t hysteresis_support : 2;
+			uint8_t auto_rearm : 1;
+			uint8_t ignore_sensor : 1;
 		} bits;
 		uint8_t _value;
 	} sensor_capabilities;
@@ -111,163 +112,163 @@ typedef struct _sdr_body {
 
 	union _assertion_event_lower_threshold_mask {
 		struct {
-			uint16_t _reserved : 1;
-			uint16_t event_offset_14 : 1;
-			uint16_t event_offset_13 : 1;
-			uint16_t event_offset_12 : 1;
-			uint16_t event_offset_11 : 1;
-			uint16_t event_offset_10 : 1;
-			uint16_t event_offset_9 : 1;
-			uint16_t event_offset_8 : 1;
-			uint16_t event_offset_7 : 1;
-			uint16_t event_offset_6 : 1;
-			uint16_t event_offset_5 : 1;
-			uint16_t event_offset_4 : 1;
-			uint16_t event_offset_3 : 1;
-			uint16_t event_offset_2 : 1;
-			uint16_t event_offset_1 : 1;
 			uint16_t event_offset_0 : 1;
+			uint16_t event_offset_1 : 1;
+			uint16_t event_offset_2 : 1;
+			uint16_t event_offset_3 : 1;
+			uint16_t event_offset_4 : 1;
+			uint16_t event_offset_5 : 1;
+			uint16_t event_offset_6 : 1;
+			uint16_t event_offset_7 : 1;
+			uint16_t event_offset_8 : 1;
+			uint16_t event_offset_9 : 1;
+			uint16_t event_offset_10 : 1;
+			uint16_t event_offset_11 : 1;
+			uint16_t event_offset_12 : 1;
+			uint16_t event_offset_13 : 1;
+			uint16_t event_offset_14 : 1;
+			uint16_t _reserved : 1;
 		} assertion_event_mask;
 		struct {
-			uint16_t _reserved : 1;
-			uint16_t lower_nr_thresh_comparison : 1;
-			uint16_t lower_c_thresh_comparison : 1;
-			uint16_t lower_nc_thresh_comparison : 1;
 			uint16_t _unused : 12;
+			uint16_t lower_nc_thresh_comparison : 1;
+			uint16_t lower_c_thresh_comparison : 1;
+			uint16_t lower_nr_thresh_comparison : 1;
+			uint16_t _reserved : 1;
 		} lower_threshold_mask;
 		struct {
-			uint16_t _unused : 4;
 			uint16_t
-				assertion_event_upper_nr_going_high_supported : 1;
-			uint16_t
-				assertion_event_upper_nr_going_low_supported : 1;
-			uint16_t
-				assertion_event_upper_c_going_high_supported : 1;
-			uint16_t
-				assertion_event_upper_c_going_low_supported : 1;
-			uint16_t
-				assertion_event_upper_nc_going_high_supported : 1;
-			uint16_t
-				assertion_event_upper_nc_going_low_supported : 1;
-			uint16_t
-				assertion_event_lower_nr_going_high_supported : 1;
-			uint16_t
-				assertion_event_lower_nr_going_low_supported : 1;
-			uint16_t
-				assertion_event_lower_c_going_high_supported : 1;
-			uint16_t
-				assertion_event_lower_c_going_low_supported : 1;
+				assertion_event_lower_nc_going_low_supported : 1;
 			uint16_t
 				assertion_event_lower_nc_going_high_supported : 1;
 			uint16_t
-				assertion_event_lower_nc_going_low_supported : 1;
+				assertion_event_lower_c_going_low_supported : 1;
+			uint16_t
+				assertion_event_lower_c_going_high_supported : 1;
+			uint16_t
+				assertion_event_lower_nr_going_low_supported : 1;
+			uint16_t
+				assertion_event_lower_nr_going_high_supported : 1;
+			uint16_t
+				assertion_event_upper_nc_going_low_supported : 1;
+			uint16_t
+				assertion_event_upper_nc_going_high_supported : 1;
+			uint16_t
+				assertion_event_upper_c_going_low_supported : 1;
+			uint16_t
+				assertion_event_upper_c_going_high_supported : 1;
+			uint16_t
+				assertion_event_upper_nr_going_low_supported : 1;
+			uint16_t
+				assertion_event_upper_nr_going_high_supported : 1;
+			uint16_t _unused : 4;
 		} threshold_assertion_event_mask;
 		uint16_t _value;
 	} assertion_event_lower_threshold_mask;
 
-	union _deassertion_event_lower_threshold_mask {
+	union _deassertion_event_upper_threshold_mask {
 		struct {
-			uint16_t _reserved : 1;
-			uint16_t event_offset_14 : 1;
-			uint16_t event_offset_13 : 1;
-			uint16_t event_offset_12 : 1;
-			uint16_t event_offset_11 : 1;
-			uint16_t event_offset_10 : 1;
-			uint16_t event_offset_9 : 1;
-			uint16_t event_offset_8 : 1;
-			uint16_t event_offset_7 : 1;
-			uint16_t event_offset_6 : 1;
-			uint16_t event_offset_5 : 1;
-			uint16_t event_offset_4 : 1;
-			uint16_t event_offset_3 : 1;
-			uint16_t event_offset_2 : 1;
-			uint16_t event_offset_1 : 1;
 			uint16_t event_offset_0 : 1;
+			uint16_t event_offset_1 : 1;
+			uint16_t event_offset_2 : 1;
+			uint16_t event_offset_3 : 1;
+			uint16_t event_offset_4 : 1;
+			uint16_t event_offset_5 : 1;
+			uint16_t event_offset_6 : 1;
+			uint16_t event_offset_7 : 1;
+			uint16_t event_offset_8 : 1;
+			uint16_t event_offset_9 : 1;
+			uint16_t event_offset_10 : 1;
+			uint16_t event_offset_11 : 1;
+			uint16_t event_offset_12 : 1;
+			uint16_t event_offset_13 : 1;
+			uint16_t event_offset_14 : 1;
+			uint16_t _reserved : 1;
 		} deassertion_event_mask;
 		struct {
-			uint16_t _reserved : 1;
-			uint16_t upper_nr_thresh_comparison : 1;
-			uint16_t upper_c_thresh_comparison : 1;
-			uint16_t upper_nc_thresh_comparison : 1;
 			uint16_t _unused : 12;
+			uint16_t upper_nc_thresh_comparison : 1;
+			uint16_t upper_c_thresh_comparison : 1;
+			uint16_t upper_nr_thresh_comparison : 1;
+			uint16_t _reserved : 1;
 		} upper_threshold_mask;
 		struct {
-			uint16_t _unused : 4;
 			uint16_t
-				deassertion_event_upper_nr_going_high_supported : 1;
-			uint16_t
-				deassertion_event_upper_nr_going_low_supported : 1;
-			uint16_t
-				deassertion_event_upper_c_going_high_supported : 1;
-			uint16_t
-				deassertion_event_upper_c_going_low_supported : 1;
-			uint16_t
-				deassertion_event_upper_nc_going_high_supported : 1;
-			uint16_t
-				deassertion_event_upper_nc_going_low_supported : 1;
-			uint16_t
-				deassertion_event_lower_nr_going_high_supported : 1;
-			uint16_t
-				deassertion_event_lower_nr_going_low_supported : 1;
-			uint16_t
-				deassertion_event_lower_c_going_high_supported : 1;
-			uint16_t
-				deassertion_event_lower_c_going_low_supported : 1;
+				deassertion_event_lower_nc_going_low_supported : 1;
 			uint16_t
 				deassertion_event_lower_nc_going_high_supported : 1;
 			uint16_t
-				deassertion_event_lower_nc_going_low_supported : 1;
+				deassertion_event_lower_c_going_low_supported : 1;
+			uint16_t
+				deassertion_event_lower_c_going_high_supported : 1;
+			uint16_t
+				deassertion_event_lower_nr_going_low_supported : 1;
+			uint16_t
+				deassertion_event_lower_nr_going_high_supported : 1;
+			uint16_t
+				deassertion_event_upper_nc_going_low_supported : 1;
+			uint16_t
+				deassertion_event_upper_nc_going_high_supported : 1;
+			uint16_t
+				deassertion_event_upper_c_going_low_supported : 1;
+			uint16_t
+				deassertion_event_upper_c_going_high_supported : 1;
+			uint16_t
+				deassertion_event_upper_nr_going_low_supported : 1;
+			uint16_t
+				deassertion_event_upper_nr_going_high_supported : 1;
+			uint16_t _unused : 4;
 		} threshold_deassertion_event_mask;
 		uint16_t _value;
-	} deassertion_event_lower_threshold_mask;
+	} deassertion_event_upper_threshold_mask;
 
 	union _discrete_settable_readable_threshold_mask {
 		struct {
-			uint16_t _reserved : 1;
-			uint16_t discrete_state_enable_14 : 1;
-			uint16_t discrete_state_enable_13 : 1;
-			uint16_t discrete_state_enable_12 : 1;
-			uint16_t discrete_state_enable_11 : 1;
-			uint16_t discrete_state_enable_10 : 1;
-			uint16_t discrete_state_enable_9 : 1;
-			uint16_t discrete_state_enable_8 : 1;
-			uint16_t discrete_state_enable_7 : 1;
-			uint16_t discrete_state_enable_6 : 1;
-			uint16_t discrete_state_enable_5 : 1;
-			uint16_t discrete_state_enable_4 : 1;
-			uint16_t discrete_state_enable_3 : 1;
-			uint16_t discrete_state_enable_2 : 1;
-			uint16_t discrete_state_enable_1 : 1;
 			uint16_t discrete_state_enable_0 : 1;
+			uint16_t discrete_state_enable_1 : 1;
+			uint16_t discrete_state_enable_2 : 1;
+			uint16_t discrete_state_enable_3 : 1;
+			uint16_t discrete_state_enable_4 : 1;
+			uint16_t discrete_state_enable_5 : 1;
+			uint16_t discrete_state_enable_6 : 1;
+			uint16_t discrete_state_enable_7 : 1;
+			uint16_t discrete_state_enable_8 : 1;
+			uint16_t discrete_state_enable_9 : 1;
+			uint16_t discrete_state_enable_10 : 1;
+			uint16_t discrete_state_enable_11 : 1;
+			uint16_t discrete_state_enable_12 : 1;
+			uint16_t discrete_state_enable_13 : 1;
+			uint16_t discrete_state_enable_14 : 1;
+			uint16_t _reserved : 1;
 		} discrete_reading_mask;
 		struct {
-			uint16_t _reserved : 2;
-			uint16_t upper_nr_thresh_settable : 1;
-			uint16_t upper_c_thresh_settable : 1;
-			uint16_t upper_nc_thresh_settable : 1;
-			uint16_t lower_nr_thresh_settable : 1;
-			uint16_t lower_c_thresh_settable : 1;
-			uint16_t lower_nc_thresh_settable : 1;
 			uint16_t _unused : 8;
+			uint16_t lower_nc_thresh_settable : 1;
+			uint16_t lower_c_thresh_settable : 1;
+			uint16_t lower_nr_thresh_settable : 1;
+			uint16_t upper_nc_thresh_settable : 1;
+			uint16_t upper_c_thresh_settable : 1;
+			uint16_t upper_nr_thresh_settable : 1;
+			uint16_t _reserved : 2;
 		} settable_threshold_mask;
 		struct {
-			uint16_t _unused : 10;
-			uint16_t upper_nr_thresh_readable : 1;
-			uint16_t upper_c_thresh_readable : 1;
-			uint16_t upper_nc_thresh_readable : 1;
-			uint16_t lower_nr_thresh_readable : 1;
-			uint16_t lower_c_thresh_readable : 1;
 			uint16_t lower_nc_thresh_readable : 1;
+			uint16_t lower_c_thresh_readable : 1;
+			uint16_t lower_nr_thresh_readable : 1;
+			uint16_t upper_nc_thresh_readable : 1;
+			uint16_t upper_c_thresh_readable : 1;
+			uint16_t upper_nr_thresh_readable : 1;
+			uint16_t _unused : 10;
 		} readable_threshold_mask;
 		uint16_t _value;
 	} discrete_settable_readable_threshold_mask;
 
 	union _sensor_units_1 {
 		struct {
-			uint8_t analog_data_format : 2;
-			uint8_t rate_unit : 3;
-			uint8_t modifier_unit : 2;
 			uint8_t percentage : 1;
+			uint8_t modifier_unit : 2;
+			uint8_t rate_unit : 3;
+			uint8_t analog_data_format : 2;
 		} bits;
 		uint8_t _value;
 	} sensor_units_1;
@@ -277,8 +278,8 @@ typedef struct _sdr_body {
 
 	union _linearization {
 		struct {
-			uint8_t _reserved : 1;
 			uint8_t linearity_enum : 7;
+			uint8_t _reserved : 1;
 		} bits;
 		uint8_t _value;
 	} linearization;
@@ -287,8 +288,8 @@ typedef struct _sdr_body {
 
 	union _M_tolerance {
 		struct {
-			uint8_t M_2_msb : 2;
 			uint8_t tolerance : 6;
+			uint8_t M_2_msb : 2;
 		} bits;
 		uint8_t _value;
 	} M_tolerance;
@@ -297,35 +298,35 @@ typedef struct _sdr_body {
 
 	union _B_accuracy {
 		struct {
-			uint8_t B_2_msb : 2;
 			uint8_t accuracy_6_lsb : 6;
+			uint8_t B_2_msb : 2;
 		} bits;
 		uint8_t _value;
 	} B_accuracy;
 
 	union _accuracy_accexp_sensor_direction {
 		struct {
-			uint8_t accuracy_4_msb : 4;
-			uint8_t accuracy_exp : 2;
 			uint8_t sensor_direction : 2;
+			uint8_t accuracy_exp : 2;
+			uint8_t accuracy_4_msb : 4;
 		} bits;
 		uint8_t _value;
 	} accuracy_accexp_sensor_direction;
 
 	union _R_exp_B_exp {
 		struct {
-			uint8_t R_exp : 4;
 			uint8_t B_exp : 4;
+			uint8_t R_exp : 4;
 		} bits;
 		uint8_t _value;
 	} R_exp_B_exp;
 
 	union _analog_characteristic_flags {
 		struct {
-			uint8_t _reserved : 5;
-			uint8_t normal_min_specified : 4;
-			uint8_t normal_max_specified : 2;
 			uint8_t nominal_reading_specified : 2;
+			uint8_t normal_max_specified : 2;
+			uint8_t normal_min_specified : 4;
+			uint8_t _reserved : 5;
 		} bits;
 		uint8_t _value;
 	} analog_characteristic_flags;
@@ -345,16 +346,16 @@ typedef struct _sdr_body {
 	uint8_t neg_going_threshold_hysteresis_val;
 
 	uint8_t _reserved0;
-	uint8_t _reserved1;
+	//	uint8_t _reserved1;
 	uint8_t oem;
 
 	union _id_string_type_length_code {
 		struct {
-			uint8_t format : 2; // using TLC_FORMAT enum
-			uint8_t _reserved : 1;
 			uint8_t len_in_characters : 5; // 11111b reserved,
 						       // 00000b means none
 						       // following
+			uint8_t _reserved : 1;
+			uint8_t format : 2; // using TLC_FORMAT enum
 		} bits;
 		uint8_t _value;
 	} id_string_type_length_code;
@@ -379,32 +380,32 @@ typedef struct _sensor_reading {
 	uint8_t sensor_reading;
 	union {
 		struct {
-			uint8_t event_messages_disabled : 1;
-			uint8_t sensor_scanning_disabled : 1;
-			uint8_t reading_state_unavailable : 1;
 			uint8_t _unused : 5;
+			uint8_t reading_state_unavailable : 1;
+			uint8_t sensor_scanning_disabled : 1;
+			uint8_t event_messages_disabled : 1;
 		} sensor_state;
 		uint8_t _value;
 	} sensor_validity;
 	union {
 		struct {
-			uint8_t _unused : 2;
-			uint8_t at_or_above_upper_nr_threshold : 1;
-			uint8_t at_or_above_upper_c_threshold : 1;
-			uint8_t at_or_above_upper_nc_threshold : 1;
-			uint8_t at_or_below_lower_nr_threshold : 1;
-			uint8_t at_or_below_lower_c_threshold : 1;
 			uint8_t at_or_below_lower_nc_threshold : 1;
+			uint8_t at_or_below_lower_c_threshold : 1;
+			uint8_t at_or_below_lower_nr_threshold : 1;
+			uint8_t at_or_above_upper_nc_threshold : 1;
+			uint8_t at_or_above_upper_c_threshold : 1;
+			uint8_t at_or_above_upper_nr_threshold : 1;
+			uint8_t _unused : 2;
 		} threshold_sensors;
 		struct {
-			uint8_t state_asserted_7 : 1;
-			uint8_t state_asserted_6 : 1;
-			uint8_t state_asserted_5 : 1;
-			uint8_t state_asserted_4 : 1;
-			uint8_t state_asserted_3 : 1;
-			uint8_t state_asserted_2 : 1;
-			uint8_t state_asserted_1 : 1;
 			uint8_t state_asserted_0 : 1;
+			uint8_t state_asserted_1 : 1;
+			uint8_t state_asserted_2 : 1;
+			uint8_t state_asserted_3 : 1;
+			uint8_t state_asserted_4 : 1;
+			uint8_t state_asserted_5 : 1;
+			uint8_t state_asserted_6 : 1;
+			uint8_t state_asserted_7 : 1;
 		} discrete_sensors;
 		uint8_t _value;
 	} threshold_events;
@@ -417,7 +418,7 @@ typedef enum { SENSOR_INT, SENSOR_FLOAT } sensor_value_type;
 typedef struct _Values {
 	struct _Values *next;
 	char *name;
-	char *units;
+	wchar_t *units;
 	char *annotation_1;
 	char *annotation_2;
 	char *annotation_3;

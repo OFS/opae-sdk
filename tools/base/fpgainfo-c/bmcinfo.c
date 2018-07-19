@@ -25,124 +25,27 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include "fpgainfo.h"
 #include "bmcinfo.h"
+#include "bmcdata.h"
+#include "safe_string/safe_string.h"
 #include <opae/fpga.h>
-//#include <uuid/uuid.h>
+#include <unistd.h>
+#include <uuid/uuid.h>
 #include "sysinfo.h"
 #include <fcntl.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
-
-uint8_t bcd_plus[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
-			'8', '9', ' ', '-', '.', ':', ',', '_'};
-
-uint8_t ASCII_6_bit_translation[64] = {
-	' ', '!', '\"', '#', '$', '%', '&', '\'', '(',  ')', '*', '+', ',',
-	'-', '.', '/',  '0', '1', '2', '3', '4',  '5',  '6', '7', '8', '9',
-	':', ';', '<',  '=', '>', '?', '@', 'A',  'B',  'C', 'D', 'E', 'F',
-	'G', 'H', 'I',  'J', 'K', 'L', 'M', 'N',  'O',  'P', 'Q', 'R', 'S',
-	'T', 'U', 'V',  'W', 'X', 'Y', 'Z', '[',  '\\', ']', '^', '_'};
-
-char *base_units[] = {"unspecified",
-		      "\x00b0" "C",
-		      "\x00b0" "F",
-		      "\x00b0" "K",
-		      "Volts",
-		      "Amps",
-		      "Watts",
-		      "Joules",
-		      "Coulombs",
-		      "VA",
-		      "Nits",
-		      "limen",
-		      "lux",
-		      "Candela",
-		      "kPa",
-		      "PSI",
-		      "Newton",
-		      "CFM",
-		      "RPM",
-		      "Hz",
-		      "\u03bc sec",
-		      "millisecond",
-		      "second",
-		      "minute",
-		      "hour",
-		      "day",
-		      "week",
-		      "mil",
-		      "inches",
-		      "feet",
-		      "in\x00b3",
-		      "ft\x00b3",
-		      "mm",
-		      "cm",
-		      "m",
-		      "cm\x00b3",
-		      "m\x00b3",
-		      "liters",
-		      "fluid ounce",
-		      "radians",
-		      "steradians",
-		      "revolutions",
-		      "cycles",
-		      "gravities",
-		      "ounce",
-		      "pound",
-		      "ft-lb",
-		      "oz-in",
-		      "gauss",
-		      "gilberts",
-		      "henry",
-		      "millihenry",
-		      "farad",
-		      "\u03bc farad",
-		      "ohms",
-		      "siemens",
-		      "mole",
-		      "becquerel",
-		      "PPM",
-		      "reserved",
-		      "Decibels",
-		      "DbA",
-		      "DbC",
-		      "gray",
-		      "sievert",
-		      "color temp \x00b0K",
-		      "bit",
-		      "kilobit",
-		      "megabit",
-		      "gigabit",
-		      "byte",
-		      "kilobyte",
-		      "megabyte",
-		      "gigabyte",
-		      "word",
-		      "dword",
-		      "qword",
-		      "line",
-		      "hit",
-		      "miss",
-		      "retry",
-		      "reset",
-		      "overrun / overflow",
-		      "underrun",
-		      "collision",
-		      "packets",
-		      "messages",
-		      "characters",
-		      "error",
-		      "correctable error",
-		      "uncorrectable error",
-		      "fatal error",
-		      "grams"};
-
-#define MAX_UNIT_TYPE (sizeof(base_units) / sizeof(base_units[0]))
+#ifdef DEBUG
+#define DBG_PRINT(...) printf(__VA_ARGS__)
+#else
+#define DBG_PRINT(...)
+#endif
 
 #define MODEL_SIZE 64
 
-typedef struct bmc_info {
+struct bmc_info {
 	fpga_guid guid;
 	uint64_t object_id;
 	uint8_t bus;
@@ -273,16 +176,18 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 {
 	Values *val = (Values *)calloc(1, sizeof(Values));
 
+	(void)header;
+
 	if (NULL == val)
 		return NULL;
 
-	memset(val, 0, sizeof(val));
+	memset(val, 0, sizeof(*val));
 
 	val->is_valid = true;
 
 	if (reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
-		val->annotation_1 = "disabled";
-		val->is_valid = false;
+		val->annotation_1 = "scanning disabled";
+		// val->is_valid = false;
 	} else if (reading->sensor_validity.sensor_state
 			   .reading_state_unavailable) {
 		val->annotation_2 = "reading state unavailable";
@@ -296,14 +201,14 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 		uint8_t len =
 			body->id_string_type_length_code.bits.len_in_characters;
 		if ((len == 0x1f) || (len == 0)) {
-			val->name = "**INVALID**";
+			val->name = strdup("**INVALID**");
 			val->is_valid = false;
 		} else {
-			val->name = &body->string_bytes[0];
+			val->name = strdup((char *)&body->string_bytes[0]);
 		}
 	} else {
-		val->name = "**String type unimplemented**";
-		printf(stderr, "String type other than ASCII8\n");
+		val->name = strdup("**String type unimplemented**");
+		fprintf(stderr, "String type other than ASCII8\n");
 	}
 
 	val->sensor_number = key->sensor_number;
@@ -319,38 +224,43 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 		break;
 	}
 
-	if (body->sensor_units_2 <= MAX_UNIT_TYPE) {
+	if (body->sensor_units_2 < max_base_units) {
 		val->units = base_units[body->sensor_units_2];
 	} else {
-		val->units = "*OUT OF RANGE*";
+		val->units = L"*OUT OF RANGE*";
 	}
 
 	val->value.i_val = (uint64_t)reading->sensor_reading;
 	val->val_type = SENSOR_INT;
+
+	return val;
 }
 
 static int read_struct(int fd, char *data, int *offset, size_t size, char *path)
 {
 	int bytes_read = 0;
+	DBG_PRINT("read_struct: data=%p, offset=%d, size=%d, path='%s'\n", data,
+		  *offset, (int)size, path);
+	int old_offset = *offset;
 	do {
-		bytes_read = read(fd, data + *offset, size - *offset);
+		bytes_read = read(fd, data, size);
+		DBG_PRINT("read_struct: bytes_read=%d\n", bytes_read);
 		if (bytes_read < 0) {
 			FPGA_MSG("Read from %s failed", path);
 			return -1;
 		}
 		*offset += bytes_read;
-		if (((size_t)*offset > size) || (*offset <= 0)) {
+		if (((size_t)*offset > size + old_offset) || (*offset <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			return -1;
 		}
-	} while ((size_t)*offset < size || (bytes_read == 0));
+	} while (((size_t)*offset < (size + old_offset)) && (bytes_read != 0));
 
 	return bytes_read;
 }
 
 static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 {
-	fpga_result res = FPGA_OK;
 	char sdr_path[SYSFS_PATH_MAX];
 	char sensor_path[SYSFS_PATH_MAX];
 	int sdr_fd;
@@ -396,64 +306,62 @@ static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 		return;
 	}
 
+	sdr_header *header = (sdr_header *)&sdr_data[0];
+	sdr_key *key = (sdr_key *)&sdr_data[sizeof(sdr_header)];
+	sdr_body *body =
+		(sdr_body *)&sdr_data[sizeof(sdr_header) + sizeof(sdr_key)];
+	sensor_reading *reading = (sensor_reading *)&sensor_data[0];
+
 	for (num_sensors = 0;; num_sensors++) {
-		int ret_val;
+		int ret;
 
 		// Read each sensor's data
-		sensor_reading *reading =
-			(sensor_reading *)&sensor_data[sensor_offset];
-		ret_val = read_struct(sensor_fd, reading, &sensor_offset,
-				      sizeof(sensor_reading), sensor_path);
+		ret = read_struct(sensor_fd, (char *)reading, &sensor_offset,
+				  sizeof(sensor_reading), sensor_path);
 
-		if (0 == ret_val)
+		if (0 == ret)
 			break;
 
-		if (ret_val < 0) {
+		if (ret < 0) {
 			close(sensor_fd);
 			close(sdr_fd);
 			return;
 		}
 
 		// Read the SDR record for this sensor
-		sdr_header *header = (sdr_header *)&sdr_data[sdr_offset];
-		sdr_key *key =
-			(sdr_key *)&sdr_data[sdr_offset + sizeof(sdr_header)];
-		sdr_body *body =
-			(sdr_body *)&sdr_data[sdr_offset + sizeof(sdr_header)
-					      + sizeof(sdr_key)];
 
-		ret_val = read_struct(sdr_fd, header, &sdr_offset,
-				      sizeof(sdr_header), sdr_path);
+		ret = read_struct(sdr_fd, (char *)header, &sdr_offset,
+				  sizeof(sdr_header), sdr_path);
 
-		if (0 == ret_val)
+		if (0 == ret)
 			break;
 
-		if (ret_val < 0) {
+		if (ret < 0) {
 			close(sensor_fd);
 			close(sdr_fd);
 			return;
 		}
 
-		ret_val = read_struct(sdr_fd, key, &sdr_offset, sizeof(sdr_key),
-				      sdr_path);
+		ret = read_struct(sdr_fd, (char *)key, &sdr_offset,
+				  sizeof(sdr_key), sdr_path);
 
-		if (0 == ret_val)
+		if (0 == ret)
 			break;
 
-		if (ret_val < 0) {
+		if (ret < 0) {
 			close(sensor_fd);
 			close(sdr_fd);
 			return;
 		}
 
-		ret_val = read_struct(sdr_fd, body, &sdr_offset,
-				      header->record_length - sizeof(sdr_key),
-				      sdr_path);
+		ret = read_struct(sdr_fd, (char *)body, &sdr_offset,
+				  header->record_length - sizeof(sdr_key),
+				  sdr_path);
 
-		if (0 == ret_val)
+		if (0 == ret)
 			break;
 
-		if (ret_val < 0) {
+		if (ret < 0) {
 			close(sensor_fd);
 			close(sdr_fd);
 			return;
@@ -474,11 +382,14 @@ static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 			last_val->next = val;
 		}
 		last_val = val;
+
+		bmc_print_detail(reading, header, key, body);
 	}
 }
 
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 {
+	fpga_result res = FPGA_OK;
 	Values *vals = NULL;
 	Values *vptr;
 
@@ -488,13 +399,35 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 	bmc_read_sensor_data(sysfs_path, &vals);
 
 	for (vptr = vals; NULL != vptr; vptr = vptr->next) {
-		if (!SDR_SENSOR_IS_TEMP(vptr))
+		if (!(((BMC_THERMAL == type) && (SDR_SENSOR_IS_TEMP(vptr)))
+		      || ((BMC_POWER == type) && (SDR_SENSOR_IS_POWER(vptr)))))
 			continue;
 		printf("%-24s : ", vptr->name);
-		if (vptr->val_type == SENSOR_INT) {
-			printf("%G %s", vptr->value.f_val, vptr->units);
-		} else if (vptr->val_type == SENSOR_FLOAT) {
-			printf("%lld %s", vptr->value.i_val, vptr->units);
+		if (!vptr->is_valid) {
+			printf("No reading");
+		} else {
+
+			if (vptr->val_type == SENSOR_INT) {
+				printf("%" PRIu64 " %ls", vptr->value.i_val,
+				       vptr->units);
+			} else if (vptr->val_type == SENSOR_FLOAT) {
+				printf("%G %ls", vptr->value.f_val,
+				       vptr->units);
+			}
 		}
+
+		if (vptr->annotation_1) {
+			printf(" (%s)", vptr->annotation_1);
+		}
+		if (vptr->annotation_2) {
+			printf(" (%s)", vptr->annotation_2);
+		}
+		if (vptr->annotation_3) {
+			printf(" (%s)", vptr->annotation_3);
+		}
+
+		printf("\n");
 	}
+
+	return res;
 }

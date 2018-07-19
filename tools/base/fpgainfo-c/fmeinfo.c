@@ -26,7 +26,8 @@
 #include "fpgainfo.h"
 #include "fmeinfo.h"
 #include <opae/fpga.h>
-//#include <uuid/uuid.h>
+#include <uuid/uuid.h>
+#include <inttypes.h>
 
 static void print_fme_info(fpga_properties props)
 {
@@ -55,7 +56,7 @@ static void print_fme_info(fpga_properties props)
 
 	printf("%-24s : %02d\n", "Ports Num", num_slots);
 	printf("%-24s : 0x%lX\n", "Bitstream Id", bbs_id);
-	printf("%-24s : 0x%llX\n", "Bitstream Metadata",
+	printf("%-24s : 0x%" PRIX64 "\n", "Bitstream Metadata",
 	       *(uint64_t *)&bbs_version);
 	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
 	// printf("%-24s : 0x%2lX\n", "Capabilities", capabilities);
@@ -85,7 +86,8 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
 		res = fpgaGetProperties(tokens[i], &props);
-		fpgainfo_print_err("reading properties from token", res);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
 		print_fme_info(props);
 		fpgaDestroyProperties(&props);
 	}

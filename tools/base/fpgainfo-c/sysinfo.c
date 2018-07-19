@@ -32,11 +32,14 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
-//#include <dirent.h>
-//#include <unistd.h>
+#include <dirent.h>
+#include <unistd.h>
 #include <fcntl.h>
-//#include <sys/mman.h>
-//#include <uuid/uuid.h>
+#include <sys/mman.h>
+#include <uuid/uuid.h>
+#include <inttypes.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "safe_string/safe_string.h"
 #include "opae/fpga.h"
@@ -281,7 +284,7 @@ struct RASCommandLine rasCmdLine = {0,     -1,    -1,    -1,    -1,
 				    false, false, false, false, false,
 				    false, false, false, false, false};
 
-fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
+fpga_result fpgainfo_sysfs_read_guid(const char *path, fpga_guid guid)
 {
 	int fd;
 	int res;
@@ -346,7 +349,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result sysfs_read_int(const char *path, int *i)
+fpga_result fpgainfo_sysfs_read_int(const char *path, int *i)
 {
 	int fd;
 	int res;
@@ -398,7 +401,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result sysfs_read_u32(const char *path, uint32_t *u)
+fpga_result fpgainfo_sysfs_read_u32(const char *path, uint32_t *u)
 {
 	int fd;
 	int res;
@@ -450,7 +453,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result sysfs_read_u64(const char *path, uint64_t *u)
+fpga_result fpgainfo_sysfs_read_u64(const char *path, uint64_t *u)
 {
 	int fd = -1;
 	int res = 0;
@@ -555,6 +558,7 @@ fpga_result clear_port_errors(fpga_token token);
 fpga_result page_fault_errors();
 int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[]);
 
+#if 0
 int main(int argc, char **argv)
 {
 	fpga_result result = 0;
@@ -746,7 +750,7 @@ fpga_result print_errors(fpga_token token, const char *err_path,
 		return result;
 	}
 
-	printf(" CSR : 0x%llx \n", value);
+	printf(" CSR : 0x%" PRIx64 "\n", value);
 	for (i = 0; i < FPGA_CSR_LEN; i++) {
 		if ((i < size) && FPGA_BIT_IS_SET(value, i)) {
 			printf("\t %s \n", err_strings[i]);
@@ -782,7 +786,7 @@ fpga_result print_ras_errors(fpga_token token)
 		FPGA_ERR("Failed  to get fme revison");
 		return result;
 	}
-	printf(" fme error revison : %lld \n", revision);
+	printf(" fme error revison : %" PRId64 "\n", revision);
 
 	// Revision 1
 	if (revision == 1) {
@@ -898,7 +902,7 @@ fpga_result print_port_errors(fpga_token token)
 		return result;
 	}
 
-	printf("\n \n Port error CSR : 0x%llx \n", value);
+	printf("\n \n Port error CSR : 0x%" PRIx64 "\n", value);
 
 	size = PORT_ERROR_COUNT;
 
@@ -952,7 +956,7 @@ fpga_result clear_port_errors(fpga_token token)
 		return result;
 	}
 
-	printf("\n \n Port error CSR : 0x%llx \n", value);
+	printf("\n \n Port error CSR : 0x%" PRIx64 "\n", value);
 
 	snprintf_s_iis(sysfs_port, SYSFS_PATH_MAX,
 		       SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT "/%s",
@@ -991,7 +995,7 @@ fpga_result inject_ras_errors(fpga_token token,
 		return result;
 	}
 
-	printf("inj_error.csr: %lld \n", inj_error.csr);
+	printf("inj_error.csr: %" PRId64 "\n", inj_error.csr);
 
 	if (rasCmdLine->catast_error) {
 		inj_error.catastrophicr_error = 1;
@@ -1005,7 +1009,7 @@ fpga_result inject_ras_errors(fpga_token token,
 		inj_error.nonfatal_error = 1;
 	}
 
-	printf("inj_error.csr: %lld \n", inj_error.csr);
+	printf("inj_error.csr: %" PRId64 "\n", inj_error.csr);
 
 	result = sysfs_write_u64(sysfs_path, inj_error.csr);
 	if (result != FPGA_OK) {
@@ -1026,7 +1030,7 @@ fpga_result clear_inject_ras_errors(fpga_token token,
 	char sysfs_path[SYSFS_PATH_MAX] = {0};
 	fpga_result result = FPGA_OK;
 
-	UNUSED_PARAM(rasCmdLine);
+	(void)rasCmdLine;
 
 	_token = (struct _fpga_token *)token;
 	if (_token == NULL) {
@@ -1042,7 +1046,7 @@ fpga_result clear_inject_ras_errors(fpga_token token,
 		return result;
 	}
 
-	printf(" Clear inj_error.csr: 0x%llx \n", inj_error.csr);
+	printf(" Clear inj_error.csr: 0x%" PRIx64 "\n", inj_error.csr);
 
 	result = sysfs_write_u64(sysfs_path, 0x0);
 	if (result != FPGA_OK) {
@@ -1076,7 +1080,7 @@ fpga_result print_pwr_temp(fpga_token token)
 		FPGA_ERR("Failed to get power consumed");
 		return result;
 	}
-	printf(" Power consumed       : %llu watts \n", value);
+	printf(" Power consumed       : %" PRIu64 " watts \n", value);
 
 	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 		      _token->sysfspath, FME_SYSFS_THERMAL_MGMT_TEMP);
@@ -1085,7 +1089,7 @@ fpga_result print_pwr_temp(fpga_token token)
 		FPGA_ERR("Failed to get temperature");
 		return result;
 	}
-	printf(" Temperature          : %llu Centigrade \n", value);
+	printf(" Temperature          : %" PRIu64 " Centigrade \n", value);
 
 	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
 		      _token->sysfspath, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP);
@@ -1094,7 +1098,7 @@ fpga_result print_pwr_temp(fpga_token token)
 		FPGA_ERR("Failed to get temperature");
 		return result;
 	}
-	printf(" Thermal Trip         : %llu Centigrade \n", value);
+	printf(" Thermal Trip         : %" PRIu64 " Centigrade \n", value);
 
 	printf("\n ----------- POWER & THERMAL -------------\n");
 	printf(" ========================================== \n \n");
@@ -1292,7 +1296,8 @@ fpga_result page_fault_errors()
 	memset_s((void *)output_ptr, LPBK1_BUFFER_SIZE, 0xBE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
-	for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+	uint32_t i;
+	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
 		cl_ptr[i].uint[15] =
 			i + 1; /* set the last uint in every cacheline */
 	}
@@ -1384,6 +1389,7 @@ out_destroy_prop:
 out_exit:
 	return res;
 }
+
 // parse Input command line
 int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 {
@@ -1501,9 +1507,11 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 	}
 	return 0;
 }
+#endif
 
-static struct dev_list *add_dev(const char *sysfspath, const char *devpath,
-				struct dev_list *parent)
+static struct dev_list *fpgainfo_add_dev(const char *sysfspath,
+					 const char *devpath,
+					 struct dev_list *parent)
 {
 	struct dev_list *pdev;
 	errno_t e;
@@ -1527,6 +1535,9 @@ static struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 
 	pdev->parent = parent;
 
+	printf("pdev paths: sysfs:'%s' dev:'%s'\n", pdev->sysfspath,
+	       pdev->devpath);
+
 	return pdev;
 
 out_free:
@@ -1534,8 +1545,8 @@ out_free:
 	return NULL;
 }
 
-static fpga_result enum_fme(const char *sysfspath, const char *name,
-			    struct dev_list *parent)
+static fpga_result fpgainfo_enum_fme(const char *sysfspath, const char *name,
+				     struct dev_list *parent)
 {
 	fpga_result result;
 	struct stat stats;
@@ -1555,7 +1566,9 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
-	pdev = add_dev(sysfspath, dpath, parent);
+	printf("fpgainfo_add_dev for %s\n", dpath);
+
+	pdev = fpgainfo_add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
 		FPGA_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
@@ -1574,7 +1587,7 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
 		     sysfspath);
 
-	result = sysfs_read_guid(spath, pdev->guid);
+	result = fpgainfo_sysfs_read_guid(spath, pdev->guid);
 	if (FPGA_OK != result)
 		return result;
 
@@ -1582,19 +1595,19 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_SOCKET_ID,
 		     sysfspath);
 
-	result = sysfs_read_int(spath, &socket_id);
+	result = fpgainfo_sysfs_read_int(spath, &socket_id);
 	if (FPGA_OK != result)
 		return result;
 
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_NUM_SLOTS,
 		     sysfspath);
-	result = sysfs_read_u32(spath, &pdev->fpga_num_slots);
+	result = fpgainfo_sysfs_read_u32(spath, &pdev->fpga_num_slots);
 	if (FPGA_OK != result)
 		return result;
 
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_BITSTREAM_ID,
 		     sysfspath);
-	result = sysfs_read_u64(spath, &pdev->fpga_bitstream_id);
+	result = fpgainfo_sysfs_read_u64(spath, &pdev->fpga_bitstream_id);
 	if (FPGA_OK != result)
 		return result;
 
@@ -1610,7 +1623,8 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
-static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
+static fpga_result fpgainfo_enum_top_dev(const char *sysfspath,
+					 struct dev_list *list)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct stat stats;
@@ -1640,7 +1654,7 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 		return FPGA_NO_DRIVER;
 	}
 
-	pdev = add_dev(sysfspath, "", list);
+	pdev = fpgainfo_add_dev(sysfspath, "", list);
 	if (!pdev) {
 		FPGA_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
@@ -1696,14 +1710,14 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 	uint32_t x = 0;
 	char vendorpath[SYSFS_PATH_MAX];
 	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/device/vendor", sysfspath);
-	result = sysfs_read_u32(vendorpath, &x);
+	result = fpgainfo_sysfs_read_u32(vendorpath, &x);
 	if (result != FPGA_OK)
 		return result;
 	pdev->vendor_id = (uint16_t)x;
 
 	char devicepath[SYSFS_PATH_MAX];
 	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/device/device", sysfspath);
-	result = sysfs_read_u32(devicepath, &x);
+	result = fpgainfo_sysfs_read_u32(devicepath, &x);
 	if (result != FPGA_OK)
 		return result;
 	pdev->device_id = (uint16_t)x;
@@ -1724,8 +1738,11 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
 			      dirent->d_name);
 
+		printf("Considering %s\n", spath);
+
 		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
-			result = enum_fme(spath, dirent->d_name, pdev);
+			printf("Enumerating FME\n");
+			result = fpgainfo_enum_fme(spath, dirent->d_name, pdev);
 			if (result != FPGA_OK)
 				break;
 		}
@@ -1736,7 +1753,7 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list)
 	return result;
 }
 
-fpga_result enumerate_devices(struct dev_list *head)
+fpga_result fpgainfo_enumerate_devices(struct dev_list *head)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 
@@ -1768,7 +1785,7 @@ fpga_result enumerate_devices(struct dev_list *head)
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
 			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
 
-		result = enum_top_dev(sysfspath, &head);
+		result = fpgainfo_enum_top_dev(sysfspath, head);
 		if (result != FPGA_OK)
 			break;
 	}
@@ -1782,8 +1799,6 @@ fpga_result enumerate_devices(struct dev_list *head)
 
 	/* create and populate token data structures */
 	for (lptr = head->next; NULL != lptr; lptr = lptr->next) {
-		struct _fpga_token *_tok;
-
 		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 

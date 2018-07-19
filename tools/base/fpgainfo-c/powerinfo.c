@@ -26,13 +26,16 @@
 #include "fpgainfo.h"
 #include "powerinfo.h"
 #include <opae/fpga.h>
-//#include <uuid/uuid.h>
+#include <uuid/uuid.h>
 
 #include "bmcinfo.h"
+#include "sysinfo.h"
+#include "safe_string/safe_string.h"
 
 #define MODEL_SIZE 64
 
-static struct power_info {
+#if 0
+struct power_info {
 	fpga_guid guid;
 	uint64_t object_id;
 	uint8_t bus;
@@ -108,23 +111,32 @@ out_destroy:
 out:
 	return res;
 }
+#endif
 
-static void print_power_info(struct power_info *info)
+static void print_power_info(fpga_properties props, struct dev_list *dev)
 {
+	fpga_result res = FPGA_OK;
 	char guid_str[38];
-	uuid_unparse(info->guid, guid_str);
-	printf("//****** POWER ******//\n");
-	printf("%-24s : 0x%2lX\n", "Object Id", info->object_id);
-	printf("%-24s : 0x%02X\n", "Bus", info->bus);
-	printf("%-24s : 0x%02X\n", "Device", info->device);
-	printf("%-24s : 0x%02X\n", "Function", info->function);
-	printf("%-24s : 0x%02X\n", "Socket Id", info->socket_id);
-	printf("%-24s : %02d\n", "Ports Num", info->num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", info->bbs_id);
-	printf("%-24s : 0x%lX\n", "Bitstream Metadata",
-	       *(uint64_t *)&info->bbs_version);
+
+	fpgainfo_print_common("//****** POWER ******//", props);
+
+	if ((NULL == dev) || (NULL == dev->fme)) {
+		printf("  NO POWER DATA AVAILABLE\n");
+		return;
+	}
+
+	dev = dev->fme;
+
+	printf("%-24s : %02d\n", "Ports Num", dev->fpga_num_slots);
+	printf("%-24s : 0x%lX\n", "Bitstream Id", dev->fpga_bitstream_id);
+	printf("%-24s : 0x%lX\n", "Bitstream Version",
+	       *(uint64_t *)&dev->fpga_bbs_version);
+	uuid_unparse(dev->guid, guid_str);
 	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
 	// printf("%-24s : 0x%2lX\n", "Capabilities", info->capabilities);
+
+	res = bmc_print_values(dev->fme->sysfspath, BMC_POWER);
+	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
 fpga_result power_filter(fpga_properties *filter, int argc, char *argv[])
@@ -138,7 +150,7 @@ fpga_result power_filter(fpga_properties *filter, int argc, char *argv[])
 }
 
 fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[])
+			  char *argv[])
 {
 	(void)tokens;
 	(void)num_tokens;
@@ -146,14 +158,54 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argv;
 
 	fpga_result res = FPGA_OK;
-	struct power_info info;
+	struct dev_list head;
+	struct dev_list *lptr;
+	fpga_properties props;
+
+	memset_s(&head, sizeof(head), 0);
+
+	res = fpgainfo_enumerate_devices(&head);
+	ON_FPGAINFO_ERR_GOTO(res, out, "Cannot enumerate devices");
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		res = get_power_info(tokens[i], &info);
-		ON_FPGAINFO_ERR_GOTO(res, out, 0);
-		print_power_info(&info);
+		uint16_t segment;
+		uint8_t bus;
+		uint8_t device;
+		uint8_t function;
+
+		res = fpgaGetProperties(tokens[i], &props);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
+
+		res = fpgaPropertiesGetSegment(props, &segment);
+		fpgainfo_print_err("reading segment from properties", res);
+
+		res = fpgaPropertiesGetBus(props, &bus);
+		fpgainfo_print_err("reading bus from properties", res);
+
+		res = fpgaPropertiesGetDevice(props, &device);
+		fpgainfo_print_err("reading device from properties", res);
+
+		res = fpgaPropertiesGetFunction(props, &function);
+		fpgainfo_print_err("reading function from properties", res);
+
+		for (lptr = &head; NULL != lptr; lptr = lptr->next) {
+			if ((lptr->bus == bus) && (lptr->device == device)
+			    && (lptr->function == function)
+			    && (lptr->segment == segment)) {
+				break;
+			}
+		}
+
+		print_power_info(props, lptr);
+		fpgaDestroyProperties(&props);
 	}
+
 out:
+	return res;
+
+out_destroy:
+	fpgaDestroyProperties(&props);
 	return res;
 }

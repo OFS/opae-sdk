@@ -33,6 +33,21 @@
 
 #include <opae/fpga.h>
 
+#define FPGA_MSG(...)                                                          \
+	{                                                                      \
+		printf(__VA_ARGS__);                                           \
+		printf("\n");                                                  \
+	}
+#define FPGA_ERR(...)                                                          \
+	{                                                                      \
+		fprintf(stderr, __VA_ARGS__);                                  \
+		fprintf(stderr, "\n");                                         \
+	}
+#define FPGA_DBG(...)                                                          \
+	{                                                                      \
+		fprintf(stderr, "DEBUG: " __VA_ARGS__);                        \
+		fprintf(stderr, "\n");                                         \
+	}
 
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -179,7 +194,8 @@ struct dev_list {
 extern "C" {
 #endif
 
-fpga_result enumerate_devices(struct dev_list *head);
+fpga_result fpgainfo_enumerate_devices(struct dev_list *head);
+fpga_result fpgainfo_sysfs_read_u32(const char *path, uint32_t *u);
 
 #ifdef __cplusplus
 }
