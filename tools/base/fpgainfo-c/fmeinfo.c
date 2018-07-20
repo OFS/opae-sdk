@@ -31,35 +31,7 @@
 
 static void print_fme_info(fpga_properties props)
 {
-	char guid_str[38];
-	unsigned int num_slots = 0;
-	uint64_t bbs_id = 0;
-	fpga_version bbs_version;
-	fpga_guid guid;
-	fpga_result res = FPGA_OK;
-
 	fpgainfo_print_common("//****** FME ******//", props);
-
-	res = fpgaPropertiesGetNumSlots(props, &num_slots);
-	fpgainfo_print_err("reading num_slots from properties", res);
-
-	res = fpgaPropertiesGetBBSID(props, &bbs_id);
-	fpgainfo_print_err("reading bbs_id from properties", res);
-
-	res = fpgaPropertiesGetBBSVersion(props, &bbs_version);
-	fpgainfo_print_err("reading bbs_version from properties", res);
-
-	res = fpgaPropertiesGetGUID(props, &guid);
-	fpgainfo_print_err("reading guid from properties", res);
-
-	uuid_unparse(guid, guid_str);
-
-	printf("%-24s : %02d\n", "Ports Num", num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", bbs_id);
-	printf("%-24s : 0x%" PRIX64 "\n", "Bitstream Metadata",
-	       *(uint64_t *)&bbs_version);
-	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
-	// printf("%-24s : 0x%2lX\n", "Capabilities", capabilities);
 }
 
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[])

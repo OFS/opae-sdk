@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 //#include <sysexits.h>
 
 #include "fpgainfo.h"
@@ -40,6 +41,8 @@
 #include <opae/properties.h>
 
 #include "errors.h"
+#include "sysinfo.h"
+#include "bmcinfo.h"
 
 
 const char *supported_verbs[] = {"all", "fme", "port"};
@@ -86,7 +89,7 @@ int parse_error_args(int argc, char *argv[])
 		}
 
 		switch (getopt_ret) {
-		case 'c': /* help */
+		case 'c': /* clear */
 			errors_config.clear = true;
 			break;
 
@@ -103,6 +106,12 @@ int parse_error_args(int argc, char *argv[])
 
 	// The word after 'errors' should be what to operate on ("all", "fme",
 	// or "port")
+	optind++;
+	if (argc < optind + 1) {
+		fprintf(stderr, "Not enough parameters\n");
+		return -1;
+	}
+
 	if (optind < argc && !strcmp(argv[optind], "errors")) {
 		char *verb = argv[optind + 1];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
@@ -143,6 +152,53 @@ out:
 	return res;
 }
 
+void print_errors_info(fpga_token token, fpga_properties props,
+		       struct fpga_error_info *errinfos, uint32_t num_errors)
+{
+	int i;
+	fpga_result res = FPGA_OK;
+	fpga_objtype objtype;
+
+	if ((NULL == errinfos) || (0 == num_errors)) {
+		return;
+	}
+
+	if (errors_config.clear) {
+		fpgaClearAllErrors(token);
+	}
+
+	res = fpgaPropertiesGetObjectType(props, &objtype);
+	fpgainfo_print_err("reading objtype from properties", res);
+
+	if (((VERB_ALL == errors_config.which)
+	     || (VERB_FME == errors_config.which))
+	    && (FPGA_DEVICE == objtype)) {
+		fpgainfo_print_common("//****** FME ERRORS ******//", props);
+
+		for (i = 0; i < (int)num_errors; i++) {
+			uint64_t error_value = 0;
+			res = fpgaReadError(token, i, &error_value);
+			fpgainfo_print_err("reading error for FME", res);
+
+			printf("%-24s : 0x%" PRIX64 "\n", errinfos[i].name,
+			       error_value);
+		}
+	} else if (((VERB_ALL == errors_config.which)
+		    || (VERB_PORT == errors_config.which))
+		   && (FPGA_ACCELERATOR == objtype)) {
+		fpgainfo_print_common("//****** PORT ERRORS ******//", props);
+
+		for (i = 0; i < (int)num_errors; i++) {
+			uint64_t error_value = 0;
+			res = fpgaReadError(token, i, &error_value);
+			fpgainfo_print_err("reading error for FME", res);
+
+			printf("%-24s : 0x%" PRIX64 "\n", errinfos[i].name,
+			       error_value);
+		}
+	}
+}
+
 fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 			   char *argv[])
 {
@@ -151,6 +207,51 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argc;
 	(void)argv;
 	fpga_result res = FPGA_OK;
+	fpga_properties props;
+	struct fpga_error_info *errinfos = NULL;
+
+	int i = 0;
+	for (i = 0; i < num_tokens; ++i) {
+		uint32_t num_errors;
+
+		res = fpgaGetProperties(tokens[i], &props);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
+
+		res = fpgaPropertiesGetNumErrors(props, &num_errors);
+		fpgainfo_print_err("reading segment from properties", res);
+
+		if (0 != num_errors) {
+			int j;
+			errinfos = (struct fpga_error_info *)calloc(
+				num_errors, sizeof(*errinfos));
+			if (NULL == errinfos) {
+				fprintf(stderr, "Error allocating memory");
+				goto destroy_and_free;
+			}
+
+			for (j = 0; j < (int)num_errors; j++) {
+				res = fpgaGetErrorInfo(tokens[i], j,
+						       &errinfos[j]);
+				fpgainfo_print_err(
+					"reading error info structure", res);
+				(void)replace_chars(errinfos[j].name, '_', ' ');
+				(void)upcase_pci(errinfos[j].name);
+				(void)upcase_first(errinfos[j].name);
+			}
+		}
+
+		print_errors_info(tokens[i], props, errinfos, num_errors);
+	destroy_and_free:
+		fpgaDestroyProperties(&props);
+		free(errinfos);
+		errinfos = NULL;
+	}
+
+	return res;
+
+out_destroy:
+	fpgaDestroyProperties(&props);
 
 	return res;
 }

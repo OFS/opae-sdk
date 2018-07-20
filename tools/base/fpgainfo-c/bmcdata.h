@@ -49,9 +49,12 @@ extern char *event_reading_type_codes[];
 extern size_t max_event_reading_type_code;
 extern char *entity_id_codes[];
 extern size_t max_entity_id_code;
+extern int bmcdata_verbose;
 
 void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
 		      sdr_body *body);
+void calc_params(sdr_body *body, Values *val);
+double getvalue(Values *val, uint8_t raw);
 
 //#ifdef __cplusplus
 //}

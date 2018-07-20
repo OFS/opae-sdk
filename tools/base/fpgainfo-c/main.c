@@ -48,6 +48,7 @@
 #include "portinfo.h"
 #include "tempinfo.h"
 #include "powerinfo.h"
+#include "bmcdata.h"
 
 /*
  * Print help
@@ -154,6 +155,7 @@ int main(int argc, char *argv[])
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
 
+	bmcdata_verbose = 0;
 	setlocale(LC_ALL, "");
 
 		ret_value = parse_args(argc, argv);

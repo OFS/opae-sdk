@@ -40,7 +40,9 @@
 #ifdef DEBUG
 #define DBG_PRINT(...) printf(__VA_ARGS__)
 #else
-#define DBG_PRINT(...)
+#define DBG_PRINT(...)                                                         \
+	fflush(stdout);                                                        \
+	fflush(stderr)
 #endif
 
 #define MODEL_SIZE 64
@@ -188,12 +190,12 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 	if (reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
 		val->annotation_1 = "scanning disabled";
 		// val->is_valid = false;
-	} else if (reading->sensor_validity.sensor_state
-			   .reading_state_unavailable) {
+	}
+	if (reading->sensor_validity.sensor_state.reading_state_unavailable) {
 		val->annotation_2 = "reading state unavailable";
 		val->is_valid = false;
-	} else if (reading->sensor_validity.sensor_state
-			   .event_messages_disabled) {
+	}
+	if (reading->sensor_validity.sensor_state.event_messages_disabled) {
 		val->annotation_3 = "event messages disabled";
 	}
 
@@ -230,8 +232,17 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 		val->units = L"*OUT OF RANGE*";
 	}
 
-	val->value.i_val = (uint64_t)reading->sensor_reading;
-	val->val_type = SENSOR_INT;
+	int tmp = bmcdata_verbose;
+	bmcdata_verbose = 0;
+	calc_params(body, val);
+	bmcdata_verbose = tmp;
+
+	// val->value.i_val = (uint64_t)reading->sensor_reading;
+	// val->val_type = SENSOR_INT;
+
+	val->raw_value = (uint64_t)reading->sensor_reading;
+	val->val_type = SENSOR_FLOAT;
+	val->value.f_val = getvalue(val, val->raw_value);
 
 	return val;
 }
@@ -411,7 +422,7 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 				printf("%" PRIu64 " %ls", vptr->value.i_val,
 				       vptr->units);
 			} else if (vptr->val_type == SENSOR_FLOAT) {
-				printf("%G %ls", vptr->value.f_val,
+				printf("%.2lf %ls", vptr->value.f_val,
 				       vptr->units);
 			}
 		}
@@ -426,6 +437,9 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 			printf(" (%s)", vptr->annotation_3);
 		}
 
+		// printf("Raw=%d, M=%f, B=%f, R_exp=%d, acc=%f, tol=%d\n",
+		//       vptr->raw_value, vptr->M, vptr->B, vptr->result_exp,
+		//       vptr->accuracy, vptr->tolerance);
 		printf("\n");
 	}
 

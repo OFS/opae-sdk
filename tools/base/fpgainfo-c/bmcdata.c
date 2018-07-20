@@ -42,8 +42,18 @@
 #define DBG_PRINT(...)
 #endif
 
-uint8_t bcd_plus[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
-			'8', '9', ' ', '-', '.', ':', ',', '_'};
+typedef enum {
+	CHIP_RESET_CAUSE_POR = 0x01,
+	CHIP_RESET_CAUSE_EXTRST = 0x02,
+	CHIP_RESET_CAUSE_BOD_IO = 0x04,
+	CHIP_RESET_CAUSE_WDT = 0x08,
+	CHIP_RESET_CAUSE_OCD = 0x10,
+	CHIP_RESET_CAUSE_SOFT = 0x20,
+	CHIP_RESET_CAUSE_SPIKE = 0x40,
+} ResetCauses;
+
+	uint8_t bcd_plus[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
+				'8', '9', ' ', '-', '.', ':', ',', '_'};
 
 uint8_t ASCII_6_bit_translation[64] = {
 	' ', '!', '\"', '#', '$', '%', '&', '\'', '(',  ')', '*', '+', ',',
@@ -284,14 +294,21 @@ size_t max_entity_id_code =
 #define IS_ENTITY_OEM_DEFINED(x) ((x) >= 0xd0)
 #define IS_ENTITY_RESERVED(x) (((x) >= 0x43) && ((x) <= 0x8f))
 
+char *linearity[] = {"linear", "ln",  "log10", "log2", "e",    "exp10",
+		     "exp2",   "1/x", "x^2",   "x^3",  "sqrt", "1/x^3"};
+
+size_t max_linearity = sizeof(linearity) / sizeof(linearity[0]);
+
 // Global for verbose mode
-static int verbose = 1;
+int bmcdata_verbose = 1;
 
 #define PRINT(level, ...)                                                      \
-	if (verbose) {                                                         \
+	if (bmcdata_verbose) {                                                 \
 		printf("%.*s", (level), "\t\t\t\t\t\t\t\t\t\t\t");             \
 		printf(__VA_ARGS__);                                           \
 		printf("\n");                                                  \
+		fflush(stdout);                                                \
+		fflush(stderr);                                                \
 	}
 
 static void print_entity(sdr_body *body, int level);
@@ -346,6 +363,23 @@ static char *data_format[] = {"unsigned", "1's complement signed",
 static char *rate_unit[] = {"none",       "per uS",   "per ms",  "per s",
 			    "per minute", "per hour", "per day", "reserved"};
 
+double getvalue(Values *val, uint8_t raw)
+{
+	int i;
+	double res = val->M * raw + val->B;
+	if (val->result_exp >= 0) {
+		for (i = 0; i < val->result_exp; i++) {
+			res *= 10.0;
+		}
+	} else {
+		for (i = val->result_exp; i; i++) {
+			res /= 10.0;
+		}
+	}
+
+	return res;
+}
+
 static void print_body(sdr_body *body, int level)
 {
 	char *str = NULL;
@@ -371,6 +405,9 @@ static void print_body(sdr_body *body, int level)
 
 	PRINT(level, "Sensor type '%s' (0x%x): %s", str, body->sensor_type,
 	      str2);
+
+	Values val = {0};
+	calc_params(body, &val);
 
 	if (0 != body->sensor_units_1._value) {
 		PRINT(level, "Sensor Units: (0x%x)",
@@ -400,11 +437,45 @@ static void print_body(sdr_body *body, int level)
 		PRINT(level, "Is%s a percentage",
 		      body->sensor_units_1.bits.percentage ? "" : " not");
 		level--;
+	} else {
+		PRINT(level, "No threshold or analog readings provided");
 	}
 	if (body->sensor_units_2 < max_base_units) {
 		PRINT(level, "Sensor base units (0x%x): '%ls'",
 		      body->sensor_units_2, base_units[body->sensor_units_2]);
 	}
+
+	PRINT(level, "Analog characteristic flags: (0x%x)",
+	      body->analog_characteristic_flags._value);
+	if (0 == body->analog_characteristic_flags._value) {
+		PRINT(level + 1, "None specified");
+	} else {
+		level++;
+		if (body->analog_characteristic_flags.bits
+			    .nominal_reading_specified) {
+			PRINT(level, "Nominal reading specified");
+			PRINT(level + 1, "Value: %f",
+			      getvalue(&val, body->nominal_reading));
+		}
+		if (body->analog_characteristic_flags.bits
+			    .normal_max_specified) {
+			PRINT(level, "Normal maximum specified");
+			PRINT(level + 1, "Value: %f",
+			      getvalue(&val, body->normal_maximum));
+		}
+		if (body->analog_characteristic_flags.bits
+			    .normal_min_specified) {
+			PRINT(level, "Normal minimum specified");
+			PRINT(level + 1, "Value: %f",
+			      getvalue(&val, body->normal_minimum));
+		}
+		level--;
+	}
+
+	PRINT(level, "Sensor maximum reading: %f",
+	      getvalue(&val, body->sensor_maximum_reading));
+	PRINT(level, "Sensor minimum reading: %f",
+	      getvalue(&val, body->sensor_minimum_reading));
 
 	PRINT(level, "Initialization: (0x%x)",
 	      body->sensor_initialization._value);
@@ -552,6 +623,66 @@ static void print_body(sdr_body *body, int level)
 	} else {
 		PRINT(level - 1, "Assertion Event Mask");
 	}
+
+	size_t lin_val = body->linearization.bits.linearity_enum;
+	PRINT(level, "Linearization: (0x%x) '%s'", (uint32_t)lin_val,
+	      lin_val < max_linearity
+		      ? linearity[lin_val]
+		      : (lin_val > 0x70 ? "OEM non-linear" : "non-linear"));
+}
+
+void calc_params(sdr_body *body, Values *val)
+{
+	int32_t i;
+	int32_t M_val = 0;
+	int32_t B_val = 0;
+	uint32_t A_val = 0;
+	uint32_t T_val = 0;
+	uint32_t A_exp = 0;
+	int32_t R_exp = 0;
+	int32_t B_exp = 0;
+
+#define SIGN_EXT(val, bitpos) (((val) ^ (1 << (bitpos))) - (1 << (bitpos)))
+
+	B_val = (body->B_accuracy.bits.B_2_msb << 8) | body->B_8_lsb;
+	B_val = SIGN_EXT(B_val, 9);
+
+	M_val = (body->M_tolerance.bits.M_2_msb << 8) | body->M_8_lsb;
+	M_val = SIGN_EXT(M_val, 9);
+
+	A_val = (body->accuracy_accexp_sensor_direction.bits.accuracy_4_msb
+		 << 6)
+		| body->B_accuracy.bits.accuracy_6_lsb;
+
+	T_val = body->M_tolerance.bits.tolerance;
+
+	A_exp = body->accuracy_accexp_sensor_direction.bits.accuracy_exp;
+	R_exp = body->R_exp_B_exp.bits.R_exp;
+	R_exp = SIGN_EXT(R_exp, 3);
+	B_exp = body->R_exp_B_exp.bits.B_exp;
+	B_exp = SIGN_EXT(B_exp, 3);
+
+	// PRINT(4, "M=%d, B=%d * 10^%d, T=%d, A=%d * 10 ^ %d, Rexp=%d", M_val,
+	//      B_val, B_exp, T_val, A_val, A_exp, R_exp);
+
+	val->M = (double)M_val;
+	val->tolerance = (double)T_val;
+	val->B = (double)B_val;
+	val->result_exp = R_exp;
+	if (B_exp >= 0) {
+		for (i = 0; i < B_exp; i++) {
+			val->B *= 10.0;
+		}
+	} else {
+		for (i = B_exp; i; i++) {
+			val->B /= 10.0;
+		}
+	}
+
+	val->accuracy = (double)A_val;
+	for (i = 0; i < (int32_t)A_exp; i++) {
+		val->accuracy *= 10.0;
+	}
 }
 
 static void print_reading(sdr_body *body, sensor_reading *reading, int level)
@@ -560,3 +691,54 @@ static void print_reading(sdr_body *body, sensor_reading *reading, int level)
 	(void)reading;
 	(void)level;
 }
+
+#if 0
+int print_reset_cause()
+{
+	BittWareResetCauseRequest cmd;
+	BittWareResetCauseResponse *pResponse;
+	int ret;
+	uint8_t data[40];
+
+	cmd.header.command = BW_READ_SETTING;
+	cmd.header.netFn_Lun = IPMI_NETFN_OEM_GROUP << 2;
+	cmd.header.sequence = 0;
+	cmd.iana[0] = BITTWARE_IANA_0;
+	cmd.iana[1] = BITTWARE_IANA_1;
+	cmd.iana[2] = BITTWARE_IANA_2;
+	cmd.dev = BW_SETTING_READ_RESET_CAUSE;
+
+	ret = mcu_cmd_binary((uint8_t *)&cmd, (int)sizeof(cmd), data,
+			     (int)sizeof(data));
+
+	if (ret < sizeof(BittWareResetCauseResponse))
+		return -1;
+	pResponse = (BittWareResetCauseResponse *)data;
+	if (pResponse->ccode != 0)
+		return -1;
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_EXTRST)
+		printf(" * External reset\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_BOD_IO)
+		printf(" * Brown-out detected\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_OCD)
+		printf(" * On-chip debug system\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_POR)
+		printf(" * Power-on-reset\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_SOFT)
+		printf(" * Software reset\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_SPIKE)
+		printf(" * Spike detected\n");
+
+	if (pResponse->reset_cause & CHIP_RESET_CAUSE_WDT)
+		printf(" * Watchdog timeout\n");
+
+	return ret;
+}
+#endif
+

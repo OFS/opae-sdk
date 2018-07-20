@@ -37,6 +37,16 @@ extern "C" {
 void fpgainfo_print_common(const char *hdr, fpga_properties props);
 
 void fpgainfo_print_err(const char *s, fpga_result res);
+
+// Replace occurrences of character within string
+char *replace_chars(char *str, char match, char rep);
+
+// Turn all "pcie" into "PCIe"
+char *upcase_pci(char *str);
+
+// Upper-case the first letter of each word in str
+char *upcase_first(char *str);
+
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!

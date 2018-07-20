@@ -106,7 +106,8 @@ typedef struct _sdr_body {
 	uint8_t sensor_type;
 #define SDR_SENSOR_IS_TEMP(psdr) ((psdr)->sensor_type == 0x1)
 #define SDR_SENSOR_IS_POWER(psdr)                                              \
-	(((psdr)->sensor_type == 0x2) || ((psdr)->sensor_type == 0x3))
+	(((psdr)->sensor_type == 0x2) || ((psdr)->sensor_type == 0x3)          \
+	 || ((psdr)->sensor_type == 0x8))
 
 	uint8_t event_reading_type_code;
 
@@ -323,9 +324,9 @@ typedef struct _sdr_body {
 
 	union _analog_characteristic_flags {
 		struct {
-			uint8_t nominal_reading_specified : 2;
-			uint8_t normal_max_specified : 2;
-			uint8_t normal_min_specified : 4;
+			uint8_t nominal_reading_specified : 1;
+			uint8_t normal_max_specified : 1;
+			uint8_t normal_min_specified : 1;
 			uint8_t _reserved : 5;
 		} bits;
 		uint8_t _value;
@@ -346,7 +347,7 @@ typedef struct _sdr_body {
 	uint8_t neg_going_threshold_hysteresis_val;
 
 	uint8_t _reserved0;
-	//	uint8_t _reserved1;
+	uint8_t _reserved1;
 	uint8_t oem;
 
 	union _id_string_type_length_code {
@@ -411,6 +412,65 @@ typedef struct _sensor_reading {
 	} threshold_events;
 } sensor_reading;
 
+typedef struct _device_id {
+	uint8_t _header[3]; // Ignored
+	uint8_t completion_code;
+	uint8_t device_id;
+	union {
+		struct {
+			uint8_t device_revision : 3;
+			uint8_t _unused : 3;
+			uint8_t provides_sdrs : 2;
+		} bits;
+		uint8_t _value;
+	} device_revision;
+	union {
+		struct {
+			uint8_t device_available : 7;
+			uint8_t major_fw_revision : 1;
+		} bits;
+		uint8_t _value;
+	} firmware_revision_1;
+	uint8_t firmware_revision_2;
+	uint8_t ipmi_version;
+	union {
+		struct {
+			uint16_t sensor_device : 1;
+			uint16_t sdr_repository_device : 1;
+			uint16_t sel_device : 1;
+			uint16_t fru_inventory_device : 1;
+			uint16_t ipmb_event_receiver : 1;
+			uint16_t ipmb_event_generator : 1;
+			uint16_t bridge : 1;
+			uint16_t chassis_device : 1;
+		} bits;
+		uint8_t _value;
+	} additional_device_support;
+	uint8_t manufacturer_id_0_7;
+	uint8_t manufacturer_id_8_15;
+	uint8_t manufacturer_id_16_23;
+	uint8_t product_id_0_7;
+	uint8_t product_id_8_15;
+	uint8_t aux_fw_rev_0_7;
+	uint8_t aux_fw_rev_8_15;
+	uint8_t aux_fw_rev_16_23;
+	uint8_t aux_fw_rev_24_31;
+} device_id;
+
+typedef struct _powerdown_cause {
+	uint8_t _header[3]; // Ignored
+	uint8_t completion_code;
+	uint8_t iana[3];
+	uint8_t count;
+	uint8_t message[40];
+} powerdown_cause;
+
+typedef struct _reset_cause {
+	uint8_t _header[3]; // Ignored
+	uint8_t completion_code;
+	uint8_t dev;
+} reset_cause;
+
 #pragma pack(pop)
 
 typedef enum { SENSOR_INT, SENSOR_FLOAT } sensor_value_type;
@@ -422,7 +482,13 @@ typedef struct _Values {
 	char *annotation_1;
 	char *annotation_2;
 	char *annotation_3;
+	uint8_t raw_value;
 	uint8_t is_valid;
+	uint32_t tolerance;
+	double accuracy;
+	double M;
+	double B;
+	int32_t result_exp;
 	union {
 		double f_val;
 		uint64_t i_val;

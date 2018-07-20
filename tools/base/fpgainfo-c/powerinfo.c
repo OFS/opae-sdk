@@ -116,7 +116,6 @@ out:
 static void print_power_info(fpga_properties props, struct dev_list *dev)
 {
 	fpga_result res = FPGA_OK;
-	char guid_str[38];
 
 	fpgainfo_print_common("//****** POWER ******//", props);
 
@@ -124,16 +123,6 @@ static void print_power_info(fpga_properties props, struct dev_list *dev)
 		printf("  NO POWER DATA AVAILABLE\n");
 		return;
 	}
-
-	dev = dev->fme;
-
-	printf("%-24s : %02d\n", "Ports Num", dev->fpga_num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", dev->fpga_bitstream_id);
-	printf("%-24s : 0x%lX\n", "Bitstream Version",
-	       *(uint64_t *)&dev->fpga_bbs_version);
-	uuid_unparse(dev->guid, guid_str);
-	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
-	// printf("%-24s : 0x%2lX\n", "Capabilities", info->capabilities);
 
 	res = bmc_print_values(dev->fme->sysfspath, BMC_POWER);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);

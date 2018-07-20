@@ -1535,8 +1535,8 @@ static struct dev_list *fpgainfo_add_dev(const char *sysfspath,
 
 	pdev->parent = parent;
 
-	printf("pdev paths: sysfs:'%s' dev:'%s'\n", pdev->sysfspath,
-	       pdev->devpath);
+	//printf("pdev paths: sysfs:'%s' dev:'%s'\n", pdev->sysfspath,
+	//       pdev->devpath);
 
 	return pdev;
 
@@ -1566,7 +1566,7 @@ static fpga_result fpgainfo_enum_fme(const char *sysfspath, const char *name,
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
-	printf("fpgainfo_add_dev for %s\n", dpath);
+	//printf("fpgainfo_add_dev for %s\n", dpath);
 
 	pdev = fpgainfo_add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
@@ -1738,10 +1738,10 @@ static fpga_result fpgainfo_enum_top_dev(const char *sysfspath,
 		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
 			      dirent->d_name);
 
-		printf("Considering %s\n", spath);
+		//printf("Considering %s\n", spath);
 
 		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
-			printf("Enumerating FME\n");
+			//printf("Enumerating FME\n");
 			result = fpgainfo_enum_fme(spath, dirent->d_name, pdev);
 			if (result != FPGA_OK)
 				break;
