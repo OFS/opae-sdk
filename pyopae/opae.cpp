@@ -81,6 +81,8 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_guid())
       .def_property("type", properties_get_type, properties_set_type,
                     properties_doc_type())
+      .def_property("segment", properties_get_segment, properties_set_segment,
+                    properties_doc_segment())
       .def_property("bus", properties_get_bus, properties_set_bus,
                     properties_doc_bus())
       .def_property("device", properties_get_device, properties_set_device,

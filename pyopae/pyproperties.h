@@ -64,6 +64,11 @@ fpga_objtype properties_get_type(opae::fpga::types::properties::ptr_t props);
 void properties_set_type(opae::fpga::types::properties::ptr_t props,
                          fpga_objtype type);
 
+const char *properties_doc_segment();
+uint16_t properties_get_segment(opae::fpga::types::properties::ptr_t props);
+void properties_set_segment(opae::fpga::types::properties::ptr_t props,
+                            uint16_t segment);
+
 const char *properties_doc_bus();
 uint8_t properties_get_bus(opae::fpga::types::properties::ptr_t props);
 void properties_set_bus(opae::fpga::types::properties::ptr_t props,
