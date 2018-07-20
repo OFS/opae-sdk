@@ -62,9 +62,9 @@ const char *properties_doc_get() {
 
       type (fpga_objtype): The object type - DEVICE or ACCELERATOR.
 
-      segment (uint16_t) : The PCIe segment (or domain) numer.
+      segment (uint16_t) : The PCIe segment (or domain) number.
 
-      bus (uint8_t) : The PCIe bus numer.
+      bus (uint8_t) : The PCIe bus number.
 
       device (uint8_t) : The PCIe device number.
 
@@ -88,7 +88,7 @@ const char *properties_doc_get() {
 
       local_memory_size (uint64_t): The size (in bytes) of the FPGA local memory.
 
-      num_mmio (uint32_t): The numer of mmio spaces.
+      num_mmio (uint32_t): The number of mmio spaces.
 
       num_interrupts (uint32_t): The number of interrupts supported by an accelerator.
 
