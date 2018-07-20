@@ -81,6 +81,8 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_guid())
       .def_property("type", properties_get_type, properties_set_type,
                     properties_doc_type())
+      .def_property("segment", properties_get_segment, properties_set_segment,
+                    properties_doc_segment())
       .def_property("bus", properties_get_bus, properties_set_bus,
                     properties_doc_bus())
       .def_property("device", properties_get_device, properties_set_device,
@@ -101,6 +103,8 @@ PYBIND11_MODULE(_opae, m) {
                     properties_set_bbs_version, properties_doc_bbs_version())
       .def_property("vendor_id", properties_get_vendor_id,
                     properties_set_vendor_id, properties_doc_vendor_id())
+      .def_property("device_id", properties_get_device_id,
+                    properties_set_device_id, properties_doc_device_id())
       .def_property("model", properties_get_model, properties_set_model,
                     properties_doc_model())
       .def_property("local_memory_size", properties_get_local_memory_size,

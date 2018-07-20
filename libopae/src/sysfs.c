@@ -627,7 +627,7 @@ fpga_result sysfs_deviceid_from_path(const char *sysfspath,
  * The rlpath path is assumed to be of the form:
  * ../../devices/pci0000:5e/0000:5e:00.0/fpga/intel-fpga-dev.0
  */
-fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f)
+fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f)
 {
 	int res;
 	char rlpath[SYSFS_PATH_MAX];
@@ -658,17 +658,21 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f)
 		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
-	p += 6;
+	++p;
 
-	// 0123456
-	// bb:dd.f
-	*f = (int) strtoul(p+6, NULL, 16);
-	*(p + 5) = 0;
+	//           11
+	// 012345678901
+	// ssss:bb:dd.f
+	*f = (int) strtoul(p+11, NULL, 16);
+	*(p + 10) = 0;
 
-	*d = (int) strtoul(p+3, NULL, 16);
-	*(p + 2) = 0;
+	*d = (int) strtoul(p+8, NULL, 16);
+	*(p + 7) = 0;
 
-	*b = (int) strtoul(p, NULL, 16);
+	*b = (int) strtoul(p+5, NULL, 16);
+	*(p + 4) = 0;
+
+	*s = (int) strtoul(p, NULL, 16);
 
 	return FPGA_OK;
 }

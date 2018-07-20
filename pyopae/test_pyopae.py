@@ -85,6 +85,12 @@ class TestProperties(unittest.TestCase):
         props.type = opae.fpga.DEVICE
         assert props.type == opae.fpga.DEVICE
 
+    def test_set_segment(self):
+        props = opae.fpga.properties(segment=0x9090)
+        assert props.segment == 0x9090
+        props.segment = 0xA1A1
+        assert props.segment == 0xA1A1
+
     def test_set_bus(self):
         props = opae.fpga.properties(bus=0x5e)
         assert props.bus == 0x5e
@@ -147,6 +153,12 @@ class TestProperties(unittest.TestCase):
         assert props.vendor_id == 0xfafa
         props.vendor_id = 0xdada
         assert props.vendor_id == 0xdada
+
+    def test_set_device_id(self):
+        props = opae.fpga.properties(device_id=0xfa)
+        assert props.device_id == 0xfa
+        props.device_id = 0xda
+        assert props.device_id == 0xda
 
     @unittest.skip("model not implemented yet")
     def test_set_model(self):
