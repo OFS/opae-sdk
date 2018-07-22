@@ -52,8 +52,8 @@ typedef enum {
 	CHIP_RESET_CAUSE_SPIKE = 0x40,
 } ResetCauses;
 
-	uint8_t bcd_plus[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
-				'8', '9', ' ', '-', '.', ':', ',', '_'};
+uint8_t bcd_plus[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
+			'8', '9', ' ', '-', '.', ':', ',', '_'};
 
 uint8_t ASCII_6_bit_translation[64] = {
 	' ', '!', '\"', '#', '$', '%', '&', '\'', '(',  ')', '*', '+', ',',
@@ -692,53 +692,33 @@ static void print_reading(sdr_body *body, sensor_reading *reading, int level)
 	(void)level;
 }
 
-#if 0
-int print_reset_cause()
+void print_reset_cause(reset_cause *cause)
 {
-	BittWareResetCauseRequest cmd;
-	BittWareResetCauseResponse *pResponse;
-	int ret;
-	uint8_t data[40];
+	if (cause->completion_code != 0) {
+		printf("unavailable (cc = %d)\n", cause->completion_code);
+		return;
+	}
 
-	cmd.header.command = BW_READ_SETTING;
-	cmd.header.netFn_Lun = IPMI_NETFN_OEM_GROUP << 2;
-	cmd.header.sequence = 0;
-	cmd.iana[0] = BITTWARE_IANA_0;
-	cmd.iana[1] = BITTWARE_IANA_1;
-	cmd.iana[2] = BITTWARE_IANA_2;
-	cmd.dev = BW_SETTING_READ_RESET_CAUSE;
+	if (cause->reset_cause & CHIP_RESET_CAUSE_EXTRST)
+		printf("External reset\n");
 
-	ret = mcu_cmd_binary((uint8_t *)&cmd, (int)sizeof(cmd), data,
-			     (int)sizeof(data));
+	if (cause->reset_cause & CHIP_RESET_CAUSE_BOD_IO)
+		printf("Brown-out detected\n");
 
-	if (ret < sizeof(BittWareResetCauseResponse))
-		return -1;
-	pResponse = (BittWareResetCauseResponse *)data;
-	if (pResponse->ccode != 0)
-		return -1;
+	if (cause->reset_cause & CHIP_RESET_CAUSE_OCD)
+		printf("On-chip debug system\n");
 
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_EXTRST)
-		printf(" * External reset\n");
+	if (cause->reset_cause & CHIP_RESET_CAUSE_POR)
+		printf("Power-on-reset\n");
 
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_BOD_IO)
-		printf(" * Brown-out detected\n");
+	if (cause->reset_cause & CHIP_RESET_CAUSE_SOFT)
+		printf("Software reset\n");
 
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_OCD)
-		printf(" * On-chip debug system\n");
+	if (cause->reset_cause & CHIP_RESET_CAUSE_SPIKE)
+		printf("Spike detected\n");
 
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_POR)
-		printf(" * Power-on-reset\n");
+	if (cause->reset_cause & CHIP_RESET_CAUSE_WDT)
+		printf("Watchdog timeout\n");
 
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_SOFT)
-		printf(" * Software reset\n");
-
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_SPIKE)
-		printf(" * Spike detected\n");
-
-	if (pResponse->reset_cause & CHIP_RESET_CAUSE_WDT)
-		printf(" * Watchdog timeout\n");
-
-	return ret;
+	return;
 }
-#endif
-

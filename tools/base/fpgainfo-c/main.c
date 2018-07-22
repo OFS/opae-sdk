@@ -41,6 +41,7 @@
 #include "argsfilter.h"
 #include "opae/fpga.h"
 
+#include "sysinfo.h"
 #include "fpgainfo.h"
 
 #include "errors.h"
@@ -50,34 +51,44 @@
 #include "powerinfo.h"
 #include "bmcdata.h"
 
-/*
- * Print help
- * TODO: uncomment options as they are implemented
- */
-void help(void)
-{
-	printf("\n"
-	       "fpgainfo\n"
-	       "FPGA information utility\n"
-	       "\n"
-	       "Usage:\n"
-	       "        fpgainfo [-h] [-B <bus>] [-D <device>] "
-	       "[-F <function>] [-S <socket-id>] "
-	       "{errors,power,temp,fme,port}\n"
-	       "\n"
-	       "                -h,--help           Print this help\n"
-	       "                -B,--bus            Set target bus number\n"
-	       "                -D,--device         Set target device number\n"
-	       "                -F,--function       Set target function number\n"
-	       "                -S,--socket-id      Set target socket number\n"
-	       "\n");
-}
+void help(void);
 
+typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
+typedef fpga_result (*command_fn)(fpga_token *, int, int, char **);
+typedef void (*help_fn)(void);
+
+// define a list of command words and
+// function ptrs to the command handler
+static struct command_handler {
+	const char *command;
+	filter_fn filter;
+	command_fn run;
+	help_fn help;
+} cmd_array[] = {{.command = "errors",
+		  .filter = errors_filter,
+		  .run = errors_command,
+		  .help = errors_help},
+		 {.command = "power",
+		  .filter = power_filter,
+		  .run = power_command,
+		  .help = power_help},
+		 {.command = "temp",
+		  .filter = temp_filter,
+		  .run = temp_command,
+		  .help = temp_help},
+		 {.command = "fme",
+		  .filter = fme_filter,
+		  .run = fme_command,
+		  .help = fme_help},
+		 {.command = "port",
+		  .filter = port_filter,
+		  .run = port_command,
+		  .help = port_help}};
 
 /*
  * Parse command line arguments
  */
-#define GETOPT_STRING "+h"
+#define MAIN_GETOPT_STRING "+h"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
@@ -91,8 +102,8 @@ int parse_args(int argc, char *argv[])
 	}
 
 	while (-1
-	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
-					    &option_index))) {
+	       != (getopt_ret = getopt_long(argc, argv, MAIN_GETOPT_STRING,
+					    longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg))
@@ -118,22 +129,6 @@ int parse_args(int argc, char *argv[])
 	return EX_OK;
 }
 
-typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
-typedef fpga_result (*command_fn)(fpga_token *, int, int, char **);
-
-// define a list of command words and
-// function ptrs to the command handler
-static struct command_handler {
-	const char *command;
-	filter_fn filter;
-	command_fn run;
-} cmd_array[] = {
-	{.command = "errors", .filter = errors_filter, .run = errors_command},
-	{.command = "power", .filter = power_filter, .run = power_command},
-	{.command = "temp", .filter = temp_filter, .run = temp_command},
-	{.command = "fme", .filter = fme_filter, .run = fme_command},
-	{.command = "port", .filter = port_filter, .run = port_command}};
-
 struct command_handler *get_command(char *cmd)
 {
 	int cmd_size = sizeof(cmd_array) / sizeof(cmd_array[0]);
@@ -147,6 +142,38 @@ struct command_handler *get_command(char *cmd)
 	return NULL;
 }
 
+/*
+ * Print help
+ */
+void help(void)
+{
+	unsigned int i;
+
+	printf("\n"
+	       "fpgainfo\n"
+	       "FPGA information utility\n"
+	       "\n"
+	       "Usage:\n"
+	       "        fpgainfo [-h] [-B <bus>] [-D <device>] "
+	       "[-F <function>] [-S <socket-id>] {");
+	printf("%s", cmd_array[0].command);
+	for (i = 1; i < sizeof(cmd_array) / sizeof(cmd_array[0]); i++) {
+		printf(",%s", cmd_array[i].command);
+	}
+	printf("}\n\n"
+	       "                -h,--help           Print this help\n"
+	       "                -B,--bus            Set target bus number\n"
+	       "                -D,--device         Set target device number\n"
+	       "                -F,--function       Set target function number\n"
+	       "                -S,--socket-id      Set target socket number\n"
+	       "\n");
+
+	printf("Subcommands:\n");
+	for (i = 0; i < sizeof(cmd_array) / sizeof(cmd_array[0]); i++) {
+		cmd_array[i].help();
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	int ret_value = EX_OK;
@@ -154,11 +181,14 @@ int main(int argc, char *argv[])
 	uint32_t matches = 0;
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
+	struct dev_list head;
+
+	memset_s(&head, sizeof(head), 0);
 
 	bmcdata_verbose = 0;
 	setlocale(LC_ALL, "");
 
-		ret_value = parse_args(argc, argv);
+	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
 		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
@@ -176,6 +206,7 @@ int main(int argc, char *argv[])
 	struct command_handler *handler = get_command(argv[1]);
 	if (handler == NULL) {
 		fprintf(stderr, "Invalid command specified\n");
+		help();
 		goto out_destroy;
 	}
 	if (handler->filter) {
@@ -197,6 +228,7 @@ int main(int argc, char *argv[])
 			"calls\n");
 		goto out_destroy;
 	}
+
 	res = handler->run(tokens, matches, argc, argv);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, 0);
 

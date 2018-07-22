@@ -40,13 +40,167 @@
 #include "safe_string/safe_string.h"
 #include <opae/properties.h>
 
-#include "errors.h"
 #include "sysinfo.h"
+#include "errors.h"
 #include "bmcinfo.h"
 
 
 const char *supported_verbs[] = {"all", "fme", "port"};
 enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
+
+static const char *const FME_ERROR[] = {
+	"Fabric error detected",
+	"Fabric fifo under / overflow error detected",
+	"KTI CDC Parity Error detected",
+	"KTI CDC Parity Error detected",
+	"IOMMU Parity error detected",
+	"AFU PF/VF access mismatch detected",
+	"Indicates an MBP event error detected",
+
+};
+#define FME_ERROR_COUNT (sizeof(FME_ERROR) / sizeof(FME_ERROR[0]))
+
+static const char *const PCIE0_ERROR[] = {
+	"TLP format/type error detected",   "TTLP MW address error detected",
+	"TLP MW length error detected",     "TLP MR address error detected",
+	"TLP MR length error detected",     "TLP CPL tag error detected",
+	"TLP CPL status error detected",    "TLP CPL timeout error detected",
+	"CCI bridge parity error detected", "TLP with EP  error  detected",
+
+};
+#define PCIE0_ERROR_COUNT (sizeof(PCIE0_ERROR) / sizeof(PCIE0_ERROR[0]))
+
+static const char *const PCIE1_ERROR[] = {
+	"TLP format/type error detected",   "TTLP MW address error detected",
+	"TLP MW length error detected",     "TLP MR address error detected",
+	"TLP MR length error detected",     "TLP CPL tag error detected",
+	"TLP CPL status error detected",    "TLP CPL timeout error detected",
+	"CCI bridge parity error detected", "TLP with EP  error  detected",
+
+};
+#define PCIE1_ERROR_COUNT (sizeof(PCIE1_ERROR) / sizeof(PCIE1_ERROR[0]))
+
+static const char *const NONFATAL_ERROR[] = {
+	"Temperature threshold triggered AP1 detected",
+	"Temperature threshold triggered AP2 detected",
+	"PCIe error detected",
+	"AFU port Fatal error detected",
+	"ProcHot event error detected",
+	"AFU PF/VF access mismatch error detected",
+	"Injected Warning Error detected",
+	"Reserved",
+	"Reserved",
+	"Temperature threshold triggered AP6 detected",
+	"Power threshold triggered AP1 error detected",
+	"Power threshold triggered AP2 error detected",
+	"MBP event error detected",
+
+};
+#define NONFATAL_ERROR_COUNT                                                   \
+	(sizeof(NONFATAL_ERROR) / sizeof(NONFATAL_ERROR[0]))
+
+static const char *const CATFATAL_ERROR[] = {
+	"KTI link layer error detected.",
+	"tag-n-cache error detected.",
+	"CCI error detected.",
+	"KTI protocol error detected.",
+	"Fatal DRAM error detected",
+	"IOMMU fatal parity error detected.",
+	"Fabric fatal error detected",
+	"Poison error from any of PCIe ports detected",
+	"Injected Fatal Error detected",
+	"Catastrophic CRC error detected",
+	"Catastrophic thermal runaway event detected",
+	"Injected Catastrophic Error detected",
+
+};
+#define CATFATAL_ERROR_COUNT                                                   \
+	(sizeof(CATFATAL_ERROR) / sizeof(CATFATAL_ERROR[0]))
+
+static const char *const INJECT_ERROR[] = {
+	"Set Catastrophic  error .",
+	"Set Fatal error.",
+	"Ser Non-fatal error .",
+
+};
+#define INJECT_ERROR_COUNT (sizeof(INJECT_ERROR) / sizeof(INJECT_ERROR[0]))
+
+static const char *const PORT_ERROR[] = {
+	"Tx Channel 0 overflow error detected.",
+	"Tx Channel 0 invalid request encodingr error detected.",
+	"Tx Channel 0 cl_len=3 not supported error detected.",
+	"Tx Channel 0 request with cl_len=2 does NOT have a 2CL aligned address error detected.",
+	"Tx Channel 0 request with cl_len=4 does NOT have a 4CL aligned address error detected.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"AFU MMIO RD received while PORT is in reset error detected",
+	"AFU MMIO WR received while PORT is in reset error detected",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"Tx Channel 1 invalid request encoding error detected",
+	"Tx Channel 1 cl_len=3 not supported error detected.",
+	"Tx Channel 1 request with cl_len=2 does NOT have a 2CL aligned address error detected",
+	"Tx Channel 1 request with cl_len=4 does NOT have a 4CL aligned address error detected",
+	"Tx Channel 1 insufficient data payload Error detected",
+	"Tx Channel 1 data payload overrun error detected",
+	"Tx Channel 1 incorrect address on subsequent payloads error detected",
+	"Tx Channel 1 Non-zero SOP detected for requests!=WrLine_* error detected",
+	"Tx Channel 1 Illegal VC_SEL. Atomic request is only supported on VL0 error detected",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"MMIO TimedOut error detected",
+	"Tx Channel 2 fifo overflo error detected",
+	"MMIO Read response received, with no matching request pending error detected",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"Number of pending requests: counter overflow error detected",
+	"Request with Address violating SMM range error detected",
+	"Request with Address violating second SMM range error detected",
+	"Request with Address violating ME stolen range",
+	"Request with Address violating Generic protected range error detected ",
+	"Request with Address violating Legacy Range Low error detected",
+	"Request with Address violating Legacy Range High error detected",
+	"Request with Address violating VGA memory range error detected",
+	"Page Fault error detected",
+	"PMR Erro error detected",
+	"AP6 event detected ",
+	"VF FLR detected on port when PORT configured in PF access mode error detected ",
+
+};
+#define PORT_ERROR_COUNT (sizeof(PORT_ERROR) / sizeof(PORT_ERROR[0]))
+
+/*
+ * Print help
+ */
+void errors_help(void)
+{
+	unsigned int i;
+
+	printf("\nPrint and clear errors\n"
+	       "        fpgainfo errors [-h] [-c] {");
+	printf("%s", supported_verbs[0]);
+	for (i = 1; i < sizeof(supported_verbs) / sizeof(supported_verbs[0]);
+	     i++) {
+		printf(",%s", supported_verbs[i]);
+	}
+	printf("}\n\n"
+	       "                -h,--help           Print this help\n"
+	       "                -c,--clear          Clear all errors\n"
+	       "\n");
+}
 
 /*
  * errors command configuration, set during parse_args()
@@ -54,34 +208,23 @@ enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
 static struct errors_config {
 	bool clear;
 	enum verbs_index which;
-} errors_config = {.clear = false, .which = VERB_ALL};
+	int help_only;
+} errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
-// TODO: Move this to a common file for reuse in other fpgainfo files
-static int str_in_list(const char *key, const char *list[], size_t size)
-{
-	size_t i = 0;
-	for (; i < size; ++i) {
-		if (!strcmp(key, list[i])) {
-			return i;
-		}
-	}
-	return VERB_MAX;
-}
-
-#define MAX_VERB_LENGTH 8
-#define GETOPT_STRING ":c"
+#define ERRORS_GETOPT_STRING ":ch"
 int parse_error_args(int argc, char *argv[])
 {
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
+				    {"help", no_argument, NULL, 'h'},
 				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;
 
 	while (-1
-	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
-					    &option_index))) {
+	       != (getopt_ret = getopt_long(argc, argv, ERRORS_GETOPT_STRING,
+					    longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg)) {
@@ -93,13 +236,20 @@ int parse_error_args(int argc, char *argv[])
 			errors_config.clear = true;
 			break;
 
+		case 'h': /* help */
+			errors_help();
+			errors_config.help_only = true;
+			return -1;
+
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
+			errors_help();
 			return -1;
 
 		case '?':
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline options\n");
+			errors_help();
 			return -1;
 		}
 	}
@@ -109,6 +259,7 @@ int parse_error_args(int argc, char *argv[])
 	optind++;
 	if (argc < optind + 1) {
 		fprintf(stderr, "Not enough parameters\n");
+		errors_help();
 		return -1;
 	}
 
@@ -120,6 +271,7 @@ int parse_error_args(int argc, char *argv[])
 		} else {
 			fprintf(stderr,
 				"Not a valid errors resource spec: %s\n", verb);
+			errors_help();
 			return -1;
 		}
 	}
@@ -156,8 +308,11 @@ void print_errors_info(fpga_token token, fpga_properties props,
 		       struct fpga_error_info *errinfos, uint32_t num_errors)
 {
 	int i;
+	int j;
 	fpga_result res = FPGA_OK;
 	fpga_objtype objtype;
+	const char *const *error_string = NULL;
+	int size = 0;
 
 	if ((NULL == errinfos) || (0 == num_errors)) {
 		return;
@@ -177,11 +332,46 @@ void print_errors_info(fpga_token token, fpga_properties props,
 
 		for (i = 0; i < (int)num_errors; i++) {
 			uint64_t error_value = 0;
+
 			res = fpgaReadError(token, i, &error_value);
 			fpgainfo_print_err("reading error for FME", res);
 
 			printf("%-24s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
+
+			if (!strcmp(errinfos[i].name, "Errors")) {
+				size = FME_ERROR_COUNT;
+				error_string = FME_ERROR;
+			} else if (!strcmp(errinfos[i].name, "Next Error")) {
+				size = 0;
+				error_string = NULL;
+			} else if (!strcmp(errinfos[i].name, "First Error")) {
+				size = 0;
+				error_string = NULL;
+			} else if (!strcmp(errinfos[i].name, "PCIe0 Errors")) {
+				size = PCIE0_ERROR_COUNT;
+				error_string = PCIE0_ERROR;
+			} else if (!strcmp(errinfos[i].name, "Inject Error")) {
+				size = INJECT_ERROR_COUNT;
+				error_string = INJECT_ERROR;
+			} else if (!strcmp(errinfos[i].name,
+					   "Catfatal Errors")) {
+				size = CATFATAL_ERROR_COUNT;
+				error_string = CATFATAL_ERROR;
+			} else if (!strcmp(errinfos[i].name,
+					   "Nonfatal Errors")) {
+				size = NONFATAL_ERROR_COUNT;
+				error_string = NONFATAL_ERROR;
+			} else if (!strcmp(errinfos[i].name, "PCIe1 Errors")) {
+				size = PCIE1_ERROR_COUNT;
+				error_string = PCIE1_ERROR;
+			}
+
+			for (j = 0; (j < size) && (NULL != error_string); j++) {
+				if (FPGA_BIT_IS_SET(error_value, j)) {
+					printf("\t %s \n", error_string[j]);
+				}
+			}
 		}
 	} else if (((VERB_ALL == errors_config.which)
 		    || (VERB_PORT == errors_config.which))
@@ -191,10 +381,28 @@ void print_errors_info(fpga_token token, fpga_properties props,
 		for (i = 0; i < (int)num_errors; i++) {
 			uint64_t error_value = 0;
 			res = fpgaReadError(token, i, &error_value);
-			fpgainfo_print_err("reading error for FME", res);
+			fpgainfo_print_err("reading error for PORT", res);
 
 			printf("%-24s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
+
+			if (!strcmp(errinfos[i].name, "Errors")) {
+				size = PORT_ERROR_COUNT;
+				error_string = PORT_ERROR;
+			} else if (!strcmp(errinfos[i].name,
+					   "First Malformed Req")) {
+				size = 0;
+				error_string = NULL;
+			} else if (!strcmp(errinfos[i].name, "First Error")) {
+				size = 0;
+				error_string = NULL;
+			}
+
+			for (j = 0; (j < size) && (NULL != error_string); j++) {
+				if (FPGA_BIT_IS_SET(error_value, j)) {
+					printf("\t %s \n", error_string[j]);
+				}
+			}
 		}
 	}
 }
@@ -210,7 +418,11 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 	fpga_properties props;
 	struct fpga_error_info *errinfos = NULL;
 
-	int i = 0;
+	if (errors_config.help_only) {
+		return res;
+	}
+
+		int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
 		uint32_t num_errors;
 

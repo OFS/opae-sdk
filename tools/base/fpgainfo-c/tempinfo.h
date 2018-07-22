@@ -39,7 +39,8 @@ extern "C" {
 
 fpga_result temp_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[]);
+			 char *argv[]);
+void temp_help(void);
 
 #ifdef __cplusplus
 }

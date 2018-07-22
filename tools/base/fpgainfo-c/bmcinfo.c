@@ -45,103 +45,6 @@
 	fflush(stderr)
 #endif
 
-#define MODEL_SIZE 64
-
-struct bmc_info {
-	fpga_guid guid;
-	uint64_t object_id;
-	uint8_t bus;
-	uint8_t device;
-	uint8_t function;
-	uint8_t socket_id;
-	uint32_t device_id;
-	char model[MODEL_SIZE];
-	uint32_t num_slots;
-	uint64_t bbs_id;
-	fpga_version bbs_version;
-	uint64_t capabilities;
-};
-
-static fpga_result get_bmc_info(fpga_token tok, struct bmc_info *finfo)
-{
-	fpga_result res = FPGA_OK;
-	fpga_properties props;
-	res = fpgaGetProperties(tok, &props);
-	ON_FPGAINFO_ERR_GOTO(res, out, "reading properties from token");
-
-	fpgaPropertiesGetObjectID(props, &finfo->object_id);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading object_id from properties");
-
-	fpgaPropertiesGetGUID(props, &finfo->guid);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading guid from properties");
-
-	fpgaPropertiesGetBus(props, &finfo->bus);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading bus from properties");
-
-	fpgaPropertiesGetDevice(props, &finfo->device);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading device from properties");
-
-	fpgaPropertiesGetFunction(props, &finfo->function);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading function from properties");
-
-	fpgaPropertiesGetSocketID(props, &finfo->socket_id);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading socket_id from properties");
-
-	// TODO: Implement once device_id, model, and capabilities accessors are
-	// implemented
-
-	// fpgaPropertiesGetDeviceId(props, &finfo->device_id);
-	// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading device_id from
-	// properties");
-
-	// fpgaPropertiesGetModel(props, &finfo->model);
-	// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading model from
-	// properties");
-
-	// fpgaPropertiesGetCapabilities(props, &finfo->capabilities);
-	// ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading capabilities from
-	// properties");
-
-	fpgaPropertiesGetNumSlots(props, &finfo->num_slots);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading num_slots from properties");
-
-	fpgaPropertiesGetBBSID(props, &finfo->bbs_id);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading bbs_id from properties");
-
-	fpgaPropertiesGetBBSVersion(props, &finfo->bbs_version);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading bbs_version from properties");
-
-out_destroy:
-	fpgaDestroyProperties(&props);
-out:
-	return res;
-}
-
-static void print_bmc_info(struct bmc_info *info)
-{
-	char guid_str[38];
-	uuid_unparse(info->guid, guid_str);
-	printf("//****** bmc ******//\n");
-	printf("%-24s : 0x%2lX\n", "Object Id", info->object_id);
-	printf("%-24s : 0x%02X\n", "Bus", info->bus);
-	printf("%-24s : 0x%02X\n", "Device", info->device);
-	printf("%-24s : 0x%02X\n", "Function", info->function);
-	printf("%-24s : 0x%02X\n", "Socket Id", info->socket_id);
-	printf("%-24s : %02d\n", "Ports Num", info->num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", info->bbs_id);
-	printf("%-24s : 0x%lX\n", "Bitstream Metadata",
-	       *(uint64_t *)&info->bbs_version);
-	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
-	// printf("%-24s : 0x%2lX\n", "Capabilities", info->capabilities);
-}
-
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])
 {
 	(void)argc;
@@ -149,27 +52,6 @@ fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])
 	fpga_result res = FPGA_OK;
 	res = fpgaPropertiesSetObjectType(*filter, FPGA_DEVICE);
 	fpgainfo_print_err("setting type to FPGA_DEVICE", res);
-	return res;
-}
-
-fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[])
-{
-	(void)tokens;
-	(void)num_tokens;
-	(void)argc;
-	(void)argv;
-
-	fpga_result res = FPGA_OK;
-	struct bmc_info info;
-
-	int i = 0;
-	for (i = 0; i < num_tokens; ++i) {
-		res = get_bmc_info(tokens[i], &info);
-		ON_FPGAINFO_ERR_GOTO(res, out, 0);
-		print_bmc_info(&info);
-	}
-out:
 	return res;
 }
 
@@ -187,16 +69,16 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 
 	val->is_valid = true;
 
-	if (reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
-		val->annotation_1 = "scanning disabled";
+	if (!reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
+		val->annotation_1 = "scanning enabled";
 		// val->is_valid = false;
 	}
 	if (reading->sensor_validity.sensor_state.reading_state_unavailable) {
 		val->annotation_2 = "reading state unavailable";
 		val->is_valid = false;
 	}
-	if (reading->sensor_validity.sensor_state.event_messages_disabled) {
-		val->annotation_3 = "event messages disabled";
+	if (!reading->sensor_validity.sensor_state.event_messages_disabled) {
+		val->annotation_3 = "event messages enabled";
 	}
 
 	if (body->id_string_type_length_code.bits.format == ASCII_8) {
@@ -288,10 +170,10 @@ static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 	*vals = NULL;
 
 	snprintf_s_ss(sdr_path, sizeof(sdr_path), "%s/%s", sysfspath,
-		      "avmmi-bmc.3.auto/bmc_info/sdr");
+		      SYSFS_SDR_FILE);
 
 	snprintf_s_ss(sensor_path, sizeof(sensor_path), "%s/%s", sysfspath,
-		      "avmmi-bmc.3.auto/bmc_info/sensors");
+		      SYSFS_SENSOR_FILE);
 
 	sensor_fd = open(sensor_path, O_RDONLY);
 	if (sensor_fd < 0) {
@@ -444,4 +326,96 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 	}
 
 	return res;
+}
+
+void print_bmc_info(const char *sysfspath)
+{
+	device_id dev;
+	powerdown_cause pd;
+	reset_cause rst;
+	int fd = -1;
+	char path[SYSFS_PATH_MAX];
+	int ret = 0;
+	int off = 0;
+
+	printf("Board Management Controller, microcontroller FW version ");
+
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, SYSFS_DEVID_FILE);
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		printf("unavailable\n");
+	} else {
+		if ((off_t)-1 != lseek(fd, 0, SEEK_SET)) {
+			ret = read_struct(fd, (char *)&dev, &off, sizeof(dev),
+					  path);
+			if (0 == ret) {
+				printf("unavailable (I/O error)\n");
+			} else {
+				int version = dev.aux_fw_rev_0_7
+					      | (dev.aux_fw_rev_8_15 << 8)
+					      | (dev.aux_fw_rev_16_23 << 16)
+					      | (dev.aux_fw_rev_24_31 << 24);
+				printf("%d\n", version);
+			}
+		} else {
+			printf("I/O Error\n");
+		}
+		close(fd);
+	}
+
+	off = 0;
+	printf("Last Power Down Cause: ");
+
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, SYSFS_PWRDN_FILE);
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		printf("unavailable\n");
+	} else {
+		if ((off_t)-1 != lseek(fd, 0, SEEK_SET)) {
+			ret = read_struct(fd, (char *)&pd, &off,
+					  sizeof(pd) - sizeof(pd.message)
+						  - sizeof(pd.count),
+					  path);
+			if (0 == ret) {
+				printf("unavailable (I/O error)\n");
+			} else if (pd.completion_code == 0) {
+				char msg[50];
+				ret = read_struct(fd, (char *)&pd.count, &off,
+						  sizeof(pd.count), path);
+				ret = read_struct(fd, msg, &off, pd.count,
+						  path);
+				msg[pd.count] = '\0';
+				printf("%s\n", ret ? msg : "unavailable");
+			} else {
+				printf("unavailable (cc = %d)\n",
+				       pd.completion_code);
+			}
+		} else {
+			printf("I/O Error\n");
+		}
+		close(fd);
+	}
+
+	printf("Last Reset Cause: ");
+
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, SYSFS_RESET_FILE);
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		printf("unavailable (can't open)\n");
+	} else {
+		if ((off_t)-1 != lseek(fd, 0, SEEK_SET)) {
+			ret = read_struct(fd, (char *)&rst, &off, sizeof(rst),
+					  path);
+			if (0 == ret) {
+				rst.completion_code = -1;
+			}
+			print_reset_cause(&rst);
+		} else {
+			printf("I/O Error\n");
+		}
+		close(fd);
+	}
 }

@@ -23,13 +23,15 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <getopt.h>
 #include "fpgainfo.h"
+#include "sysinfo.h"
 #include "powerinfo.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 
 #include "bmcinfo.h"
-#include "sysinfo.h"
 #include "safe_string/safe_string.h"
 
 #define MODEL_SIZE 64
@@ -113,18 +115,25 @@ out:
 }
 #endif
 
-static void print_power_info(fpga_properties props, struct dev_list *dev)
+/*
+ * Print help
+ */
+void power_help(void)
+{
+	printf("\nPrint power metrics\n"
+	       "        fpgainfo power [-h]\n"
+	       "                -h,--help           Print this help\n"
+	       "\n");
+}
+
+static void print_power_info(fpga_properties props)
 {
 	fpga_result res = FPGA_OK;
 
 	fpgainfo_print_common("//****** POWER ******//", props);
 
-	if ((NULL == dev) || (NULL == dev->fme)) {
-		printf("  NO POWER DATA AVAILABLE\n");
-		return;
-	}
-
-	res = bmc_print_values(dev->fme->sysfspath, BMC_POWER);
+	res = bmc_print_values(get_sysfs_path(props, FPGA_DEVICE, NULL),
+			       BMC_POWER);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
@@ -147,51 +156,52 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argv;
 
 	fpga_result res = FPGA_OK;
-	struct dev_list head;
-	struct dev_list *lptr;
 	fpga_properties props;
 
-	memset_s(&head, sizeof(head), 0);
+	optind = 0;
+	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
+				    {0, 0, 0, 0}};
 
-	res = fpgainfo_enumerate_devices(&head);
-	ON_FPGAINFO_ERR_GOTO(res, out, "Cannot enumerate devices");
+	int getopt_ret;
+	int option_index;
+
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, ":h",
+					    longopts, &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h': /* help */
+			power_help();
+			return res;
+
+		case ':': /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			power_help();
+			return FPGA_INVALID_PARAM;
+
+		case '?':
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			power_help();
+			return FPGA_INVALID_PARAM;
+		}
+	}
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		uint16_t segment;
-		uint8_t bus;
-		uint8_t device;
-		uint8_t function;
-
 		res = fpgaGetProperties(tokens[i], &props);
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
 				     "reading properties from token");
 
-		res = fpgaPropertiesGetSegment(props, &segment);
-		fpgainfo_print_err("reading segment from properties", res);
-
-		res = fpgaPropertiesGetBus(props, &bus);
-		fpgainfo_print_err("reading bus from properties", res);
-
-		res = fpgaPropertiesGetDevice(props, &device);
-		fpgainfo_print_err("reading device from properties", res);
-
-		res = fpgaPropertiesGetFunction(props, &function);
-		fpgainfo_print_err("reading function from properties", res);
-
-		for (lptr = &head; NULL != lptr; lptr = lptr->next) {
-			if ((lptr->bus == bus) && (lptr->device == device)
-			    && (lptr->function == function)
-			    && (lptr->segment == segment)) {
-				break;
-			}
-		}
-
-		print_power_info(props, lptr);
+		print_power_info(props);
 		fpgaDestroyProperties(&props);
 	}
 
-out:
 	return res;
 
 out_destroy:

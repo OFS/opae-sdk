@@ -30,6 +30,8 @@
 #define FPGAINFO_H
 
 #include <opae/fpga.h>
+#include "sysinfo.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,6 +48,9 @@ char *upcase_pci(char *str);
 
 // Upper-case the first letter of each word in str
 char *upcase_first(char *str);
+
+// Find string in list of strings
+int str_in_list(const char *key, const char *list[], size_t size);
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label

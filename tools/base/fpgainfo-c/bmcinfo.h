@@ -38,18 +38,15 @@
 extern "C" {
 #endif
 
-#define SYSFS_BMC_DIR                                                          \
-	"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/avmmi-bmc.3.auto/bmc_info"
+// sysfs file names for power and temperature
+#define SYSFS_SDR_FILE "avmmi-bmc.3.auto/bmc_info/sdr"
+#define SYSFS_SENSOR_FILE "avmmi-bmc.3.auto/bmc_info/sensors"
+#define SYSFS_DEVID_FILE "avmmi-bmc.3.auto/bmc_info/device_id"
+#define SYSFS_RESET_FILE "avmmi-bmc.3.auto/bmc_info/reset_cause"
+#define SYSFS_PWRDN_FILE "avmmi-bmc.3.auto/bmc_info/power_down_cause"
+#define SYSFS_THERMAL_FILE "thermal_mgmt/temperature"
 
 typedef enum { BMC_THERMAL, BMC_POWER } BMC_TYPE;
-
-#ifndef uint16_t
-typedef unsigned short uint16_t;
-#endif
-
-#ifndef uint8_t
-typedef unsigned char uint8_t;
-#endif
 
 #pragma pack(push, 1)
 
@@ -469,6 +466,7 @@ typedef struct _reset_cause {
 	uint8_t _header[3]; // Ignored
 	uint8_t completion_code;
 	uint8_t dev;
+	uint8_t reset_cause; // * TODO: Not sure about this
 } reset_cause;
 
 #pragma pack(pop)
@@ -501,8 +499,7 @@ typedef struct _Values {
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type);
 
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[]);
+void print_bmc_info(const char *sysfspath);
 
 #ifdef __cplusplus
 }

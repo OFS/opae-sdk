@@ -28,11 +28,13 @@
 #include <string.h>
 
 #include "fpgainfo.h"
+#include "bmcinfo.h"
 #include "opae/fpga.h"
 #include <inttypes.h>
 #include <uuid/uuid.h>
 #include "safe_string/safe_string.h"
 #include <ctype.h>
+#include <limits.h>
 
 /*
  * Print readable error message for fpga_results
@@ -138,6 +140,8 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		pprops = props;
 	}
 
+	print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
+
 	printf("%s\n", hdr);
 	printf("%-24s : 0x%2" PRIX64 "\n", "Object Id", object_id);
 	// printf("%-24s : 0x%04X\n", "Segment", segment);
@@ -192,6 +196,18 @@ char *upcase_first(char *str)
 		tmp = strchr(tmp + 1, ' ');
 	}
 	return str;
+}
+
+// TODO: Move this to a common file for reuse in other fpgainfo files
+int str_in_list(const char *key, const char *list[], size_t size)
+{
+	size_t i = 0;
+	for (; i < size; ++i) {
+		if (!strcmp(key, list[i])) {
+			return (int)i;
+		}
+	}
+	return INT_MAX;
 }
 
 

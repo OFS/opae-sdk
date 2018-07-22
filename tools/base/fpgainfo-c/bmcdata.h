@@ -55,6 +55,7 @@ void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
 		      sdr_body *body);
 void calc_params(sdr_body *body, Values *val);
 double getvalue(Values *val, uint8_t raw);
+void print_reset_cause(reset_cause *cause);
 
 //#ifdef __cplusplus
 //}

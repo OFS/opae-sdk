@@ -40,6 +40,7 @@ extern "C" {
 fpga_result port_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[]);
+void port_help(void);
 
 #ifdef __cplusplus
 }

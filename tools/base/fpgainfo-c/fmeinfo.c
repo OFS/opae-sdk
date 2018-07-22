@@ -23,11 +23,25 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <getopt.h>
 #include "fpgainfo.h"
+#include "sysinfo.h"
 #include "fmeinfo.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include <inttypes.h>
+
+/*
+ * Print help
+ */
+void fme_help(void)
+{
+	printf("\nPrint FME information\n"
+	       "        fpgainfo fme [-h]\n"
+	       "                -h,--help           Print this help\n"
+	       "\n");
+}
 
 static void print_fme_info(fpga_properties props)
 {
@@ -54,6 +68,40 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 
 	fpga_result res = FPGA_OK;
 	fpga_properties props;
+
+	optind = 0;
+	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
+				    {0, 0, 0, 0}};
+
+	int getopt_ret;
+	int option_index;
+
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
+					    &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h': /* help */
+			fme_help();
+			return res;
+
+		case ':': /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			fme_help();
+			return FPGA_INVALID_PARAM;
+
+		case '?':
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			fme_help();
+			return FPGA_INVALID_PARAM;
+		}
+	}
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {

@@ -39,7 +39,8 @@ extern "C" {
 
 fpga_result power_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[]);
+			  char *argv[]);
+void power_help(void);
 
 #ifdef __cplusplus
 }
