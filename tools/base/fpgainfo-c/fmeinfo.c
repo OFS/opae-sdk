@@ -70,8 +70,10 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 	fpga_properties props;
 
 	optind = 0;
-	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
 
 	int getopt_ret;
 	int option_index;

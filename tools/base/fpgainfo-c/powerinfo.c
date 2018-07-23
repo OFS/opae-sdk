@@ -159,15 +159,17 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 	fpga_properties props;
 
 	optind = 0;
-	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
 
 	int getopt_ret;
 	int option_index;
 
 	while (-1
-	       != (getopt_ret = getopt_long(argc, argv, ":h",
-					    longopts, &option_index))) {
+	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
+					    &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg)) {

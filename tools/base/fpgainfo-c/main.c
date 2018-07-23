@@ -64,26 +64,28 @@ static struct command_handler {
 	filter_fn filter;
 	command_fn run;
 	help_fn help;
-} cmd_array[] = {{.command = "errors",
-		  .filter = errors_filter,
-		  .run = errors_command,
-		  .help = errors_help},
-		 {.command = "power",
-		  .filter = power_filter,
-		  .run = power_command,
-		  .help = power_help},
-		 {.command = "temp",
-		  .filter = temp_filter,
-		  .run = temp_command,
-		  .help = temp_help},
-		 {.command = "fme",
-		  .filter = fme_filter,
-		  .run = fme_command,
-		  .help = fme_help},
-		 {.command = "port",
-		  .filter = port_filter,
-		  .run = port_command,
-		  .help = port_help} };
+} cmd_array[] = {
+	{.command = "errors",
+	 .filter = errors_filter,
+	 .run = errors_command,
+	 .help = errors_help},
+	{.command = "power",
+	 .filter = power_filter,
+	 .run = power_command,
+	 .help = power_help},
+	{.command = "temp",
+	 .filter = temp_filter,
+	 .run = temp_command,
+	 .help = temp_help},
+	{.command = "fme",
+	 .filter = fme_filter,
+	 .run = fme_command,
+	 .help = fme_help},
+	{.command = "port",
+	 .filter = port_filter,
+	 .run = port_command,
+	 .help = port_help},
+};
 
 /*
  * Parse command line arguments
@@ -91,8 +93,10 @@ static struct command_handler {
 #define MAIN_GETOPT_STRING "+h"
 int parse_args(int argc, char *argv[])
 {
-	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
 
 	int getopt_ret = -1;
 	int option_index = 0;

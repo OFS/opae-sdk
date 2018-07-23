@@ -208,9 +208,11 @@ void errors_help(void)
 int parse_error_args(int argc, char *argv[])
 {
 	optind = 0;
-	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
-				    {"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0}};
+	struct option longopts[] = {
+		{"clear", no_argument, NULL, 'c'},
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
 
 	int getopt_ret;
 	int option_index;

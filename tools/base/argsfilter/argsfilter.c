@@ -52,11 +52,13 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	// prefix the short options with '-' so that unrecognized options are
 	// ignored
 	const char *short_opts = "-:B:D:F:S:";
-	struct option longopts[] = {{"bus", required_argument, NULL, 'B'},
-				    {"device", required_argument, NULL, 'D'},
-				    {"function", required_argument, NULL, 'F'},
-				    {"socket-id", required_argument, NULL, 'S'},
-				    {0, 0, 0, 0}};
+	struct option longopts[] = {
+		{"bus", required_argument, NULL, 'B'},
+		{"device", required_argument, NULL, 'D'},
+		{"function", required_argument, NULL, 'F'},
+		{"socket-id", required_argument, NULL, 'S'},
+		{0, 0, 0, 0},
+	};
 	int supported_options = sizeof(longopts) / sizeof(longopts[0]) - 1;
 	int getopt_ret = -1;
 	int option_index = 0;
@@ -179,8 +181,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	int i, j;
 	for (i = 0; i < supported_options; ++i) {
 		if (found_opts[i]) {
-			for (j = found_opts[i] - removed; j < *argc - 2;
-			     j++) {
+			for (j = found_opts[i] - removed; j < *argc - 2; j++) {
 				argv[j] = argv[j + 2];
 			}
 			removed += 2;
