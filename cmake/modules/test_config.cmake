@@ -92,7 +92,13 @@ add_library(fpgainfo-test STATIC
                 ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
                 ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fpgainfo.c
                 ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/fmeinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/errors.c
                 ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/portinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/bmcdata.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/bmcinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/powerinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/sysinfo.c
+                ${OPAE_SDK_SOURCE}/tools/base/fpgainfo-c/tempinfo.c
                 )
 set_property(TARGET fpgainfo-test PROPERTY C_STANDARD 99)
 
@@ -107,10 +113,16 @@ function(Build_Test_Target Target_Name Target_LIB)
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
     set(COMMON_SRC gtmain.cpp jsonParser.cpp
+                ${CMAKE_SOURCE_DIR}/tools/base/argsfilter/argsfilter.c
                 ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/fpgainfo.c
                 ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/errors.c
                 ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/fmeinfo.c
                 ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/portinfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/bmcdata.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/bmcinfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/powerinfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/sysinfo.c
+                ${CMAKE_SOURCE_DIR}/tools/base/fpgainfo-c/tempinfo.c
                 unit/gtOpenClose_base.cpp
                 unit/gtProperties_base.cpp
                 unit/gtOpen.cpp
