@@ -432,14 +432,14 @@ typedef struct _device_id {
 	uint8_t ipmi_version;
 	union {
 		struct {
-			uint16_t sensor_device : 1;
-			uint16_t sdr_repository_device : 1;
-			uint16_t sel_device : 1;
-			uint16_t fru_inventory_device : 1;
-			uint16_t ipmb_event_receiver : 1;
-			uint16_t ipmb_event_generator : 1;
-			uint16_t bridge : 1;
-			uint16_t chassis_device : 1;
+			uint8_t sensor_device : 1;
+			uint8_t sdr_repository_device : 1;
+			uint8_t sel_device : 1;
+			uint8_t fru_inventory_device : 1;
+			uint8_t ipmb_event_receiver : 1;
+			uint8_t ipmb_event_generator : 1;
+			uint8_t bridge : 1;
+			uint8_t chassis_device : 1;
 		} bits;
 		uint8_t _value;
 	} additional_device_support;

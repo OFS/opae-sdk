@@ -41,21 +41,11 @@
 #include "fpgainfo.h"
 #include "sysinfo.h"
 
-fpga_result fpgainfo_sysfs_read_guid(const char *path, fpga_guid guid)
+static fpga_result read_string(char *buf, unsigned int buf_size, const char *path)
 {
+	int b = 0;
+	int res = 0;
 	int fd;
-	int res;
-	char buf[SYSFS_PATH_MAX];
-	int b;
-
-	int i;
-	char tmp;
-	unsigned octet;
-
-	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
-		return FPGA_INVALID_PARAM;
-	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -68,24 +58,49 @@ fpga_result fpgainfo_sysfs_read_guid(const char *path, fpga_guid guid)
 		goto out_close;
 	}
 
-	b = 0;
-
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = read(fd, buf + b, buf_size - b);
 		if (res <= 0) {
 			FPGA_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
-		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
+		if (((unsigned)b > buf_size) || (b <= 0)) {
 			FPGA_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		 && (unsigned)b < sizeof(buf));
+		 && (unsigned)b < buf_size);
 
 	// erase \n
 	buf[b - 1] = 0;
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_OK;
+}
+
+fpga_result fpgainfo_sysfs_read_guid(const char *path, fpga_guid guid)
+{
+	char buf[SYSFS_PATH_MAX];
+	fpga_result fres = FPGA_OK;
+
+	int i;
+	char tmp;
+	unsigned octet;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fres = read_string(buf, sizeof(buf), path);
+	if (FPGA_OK != fres) {
+		return fres;
+	}
 
 	for (i = 0; i < 32; i += 2) {
 		tmp = buf[i + 2];
@@ -98,166 +113,67 @@ fpga_result fpgainfo_sysfs_read_guid(const char *path, fpga_guid guid)
 		buf[i + 2] = tmp;
 	}
 
-	close(fd);
 	return FPGA_OK;
-
-out_close:
-	close(fd);
-	return FPGA_NOT_FOUND;
 }
 
 fpga_result fpgainfo_sysfs_read_int(const char *path, int *i)
 {
-	int fd;
-	int res;
+	fpga_result fres = FPGA_OK;
 	char buf[SYSFS_PATH_MAX];
-	int b;
 
 	if (path == NULL) {
 		FPGA_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
-		return FPGA_NOT_FOUND;
+	fres = read_string(buf, sizeof(buf), path);
+	if (FPGA_OK != fres) {
+		return fres;
 	}
-
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
-		goto out_close;
-	}
-
-	b = 0;
-
-	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
-		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
-			goto out_close;
-		}
-		b += res;
-		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
-			goto out_close;
-		}
-	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		 && (unsigned)b < sizeof(buf));
-
-	// erase \n
-	buf[b - 1] = 0;
 
 	*i = atoi(buf);
 
-	close(fd);
 	return FPGA_OK;
-
-out_close:
-	close(fd);
-	return FPGA_NOT_FOUND;
 }
 
 fpga_result fpgainfo_sysfs_read_u32(const char *path, uint32_t *u)
 {
-	int fd;
-	int res;
+	fpga_result fres = FPGA_OK;
 	char buf[SYSFS_PATH_MAX];
-	int b;
 
 	if (path == NULL) {
 		FPGA_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
-		return FPGA_NOT_FOUND;
+	fres = read_string(buf, sizeof(buf), path);
+	if (FPGA_OK != fres) {
+		return fres;
 	}
-
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
-		goto out_close;
-	}
-
-	b = 0;
-
-	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
-		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
-			goto out_close;
-		}
-		b += res;
-		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
-			goto out_close;
-		}
-	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		 && (unsigned)b < sizeof(buf));
-
-	// erase \n
-	buf[b - 1] = 0;
 
 	*u = strtoul(buf, NULL, 0);
 
-	close(fd);
 	return FPGA_OK;
-
-out_close:
-	close(fd);
-	return FPGA_NOT_FOUND;
 }
 
 fpga_result fpgainfo_sysfs_read_u64(const char *path, uint64_t *u)
 {
-	int fd = -1;
-	int res = 0;
+	fpga_result fres = FPGA_OK;
 	char buf[SYSFS_PATH_MAX] = {0};
-	int b = 0;
 
 	if (path == NULL) {
 		FPGA_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
-		return FPGA_NOT_FOUND;
+	fres = read_string(buf, sizeof(buf), path);
+	if (FPGA_OK != fres) {
+		return fres;
 	}
-
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
-		goto out_close;
-	}
-
-	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
-		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
-			goto out_close;
-		}
-		b += res;
-		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
-			goto out_close;
-		}
-	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		 && (unsigned)b < sizeof(buf));
-
-	// erase \n
-	buf[b - 1] = 0;
 
 	*u = strtoull(buf, NULL, 0);
 
-	close(fd);
 	return FPGA_OK;
-
-out_close:
-	close(fd);
-	return FPGA_NOT_FOUND;
 }
 
 static struct dev_list *fpgainfo_add_dev(const char *sysfspath,
@@ -574,7 +490,7 @@ const char *get_sysfs_path(fpga_properties props, fpga_objtype type,
 	struct dev_list *lptr = head;
 
 	if (NULL == head) {
-		head = (struct dev_list *) calloc(1, sizeof(struct dev_list));
+		head = (struct dev_list *)calloc(1, sizeof(struct dev_list));
 		res = fpgainfo_enumerate_devices(head);
 		fpgainfo_print_err("enumerating devices for sysfspath", res);
 		if (FPGA_OK != res) {
@@ -597,8 +513,7 @@ const char *get_sysfs_path(fpga_properties props, fpga_objtype type,
 	for (lptr = head->next; NULL != lptr; lptr = lptr->next) {
 		if ((lptr->bus == bus) && (lptr->device == device)
 		    && (lptr->function == function)
-		    && (lptr->segment == segment)
-		    && (lptr->objtype == type)) {
+		    && (lptr->segment == segment) && (lptr->objtype == type)) {
 			break;
 		}
 	}
