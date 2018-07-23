@@ -48,39 +48,40 @@
 const char *supported_verbs[] = {"all", "fme", "port"};
 enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
 
-static const char *const FME_ERROR[] = {
+#define FME_ERROR_COUNT 7
+static const char *const FME_ERROR[FME_ERROR_COUNT] = {
 	"Fabric error detected",
 	"Fabric fifo under / overflow error detected",
 	"KTI CDC Parity Error detected",
 	"KTI CDC Parity Error detected",
 	"IOMMU Parity error detected",
 	"AFU PF/VF access mismatch detected",
-	"Indicates an MBP event error detected",
-
+	"Indicates an MBP event error detected"
 };
-#define FME_ERROR_COUNT (sizeof(FME_ERROR) / sizeof(FME_ERROR[0]))
+//#define FME_ERROR_COUNT (sizeof(FME_ERROR) / sizeof(FME_ERROR[0]))
 
-static const char *const PCIE0_ERROR[] = {
+#define PCIE0_ERROR_COUNT 10
+static const char *const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
 	"TLP format/type error detected",   "TTLP MW address error detected",
 	"TLP MW length error detected",     "TLP MR address error detected",
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected",
-
+	"CCI bridge parity error detected", "TLP with EP  error  detected"
 };
-#define PCIE0_ERROR_COUNT (sizeof(PCIE0_ERROR) / sizeof(PCIE0_ERROR[0]))
+//#define PCIE0_ERROR_COUNT (sizeof(PCIE0_ERROR) / sizeof(PCIE0_ERROR[0]))
 
-static const char *const PCIE1_ERROR[] = {
+#define PCIE1_ERROR_COUNT 10
+static const char *const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
 	"TLP format/type error detected",   "TTLP MW address error detected",
 	"TLP MW length error detected",     "TLP MR address error detected",
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected",
-
+	"CCI bridge parity error detected", "TLP with EP  error  detected"
 };
-#define PCIE1_ERROR_COUNT (sizeof(PCIE1_ERROR) / sizeof(PCIE1_ERROR[0]))
+//#define PCIE1_ERROR_COUNT (sizeof(PCIE1_ERROR) / sizeof(PCIE1_ERROR[0]))
 
-static const char *const NONFATAL_ERROR[] = {
+#define NONFATAL_ERROR_COUNT 13
+static const char *const NONFATAL_ERROR[NONFATAL_ERROR_COUNT] = {
 	"Temperature threshold triggered AP1 detected",
 	"Temperature threshold triggered AP2 detected",
 	"PCIe error detected",
@@ -93,13 +94,13 @@ static const char *const NONFATAL_ERROR[] = {
 	"Temperature threshold triggered AP6 detected",
 	"Power threshold triggered AP1 error detected",
 	"Power threshold triggered AP2 error detected",
-	"MBP event error detected",
-
+	"MBP event error detected"
 };
-#define NONFATAL_ERROR_COUNT                                                   \
-	(sizeof(NONFATAL_ERROR) / sizeof(NONFATAL_ERROR[0]))
+//#define NONFATAL_ERROR_COUNT
+//	(sizeof(NONFATAL_ERROR) / sizeof(NONFATAL_ERROR[0]))
 
-static const char *const CATFATAL_ERROR[] = {
+#define CATFATAL_ERROR_COUNT 12
+static const char *const CATFATAL_ERROR[CATFATAL_ERROR_COUNT] = {
 	"KTI link layer error detected.",
 	"tag-n-cache error detected.",
 	"CCI error detected.",
@@ -111,21 +112,21 @@ static const char *const CATFATAL_ERROR[] = {
 	"Injected Fatal Error detected",
 	"Catastrophic CRC error detected",
 	"Catastrophic thermal runaway event detected",
-	"Injected Catastrophic Error detected",
-
+	"Injected Catastrophic Error detected"
 };
-#define CATFATAL_ERROR_COUNT                                                   \
-	(sizeof(CATFATAL_ERROR) / sizeof(CATFATAL_ERROR[0]))
+//#define CATFATAL_ERROR_COUNT
+//	(sizeof(CATFATAL_ERROR) / sizeof(CATFATAL_ERROR[0]))
 
-static const char *const INJECT_ERROR[] = {
+#define INJECT_ERROR_COUNT 3
+static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
 	"Set Catastrophic  error .",
 	"Set Fatal error.",
-	"Ser Non-fatal error .",
-
+	"Ser Non-fatal error ."
 };
-#define INJECT_ERROR_COUNT (sizeof(INJECT_ERROR) / sizeof(INJECT_ERROR[0]))
+//#define INJECT_ERROR_COUNT (sizeof(INJECT_ERROR) / sizeof(INJECT_ERROR[0]))
 
-static const char *const PORT_ERROR[] = {
+#define PORT_ERROR_COUNT 52
+static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Tx Channel 0 overflow error detected.",
 	"Tx Channel 0 invalid request encodingr error detected.",
 	"Tx Channel 0 cl_len=3 not supported error detected.",
@@ -177,10 +178,9 @@ static const char *const PORT_ERROR[] = {
 	"Page Fault error detected",
 	"PMR Erro error detected",
 	"AP6 event detected ",
-	"VF FLR detected on port when PORT configured in PF access mode error detected ",
-
+	"VF FLR detected on port when PORT configured in PF access mode error detected "
 };
-#define PORT_ERROR_COUNT (sizeof(PORT_ERROR) / sizeof(PORT_ERROR[0]))
+//#define PORT_ERROR_COUNT (sizeof(PORT_ERROR) / sizeof(PORT_ERROR[0]))
 
 /*
  * Print help

@@ -38,11 +38,15 @@
 #include <wchar.h>
 
 #ifdef DEBUG
-#define DBG_PRINT(...) printf(__VA_ARGS__)
-#else
 #define DBG_PRINT(...)                                                         \
 	do {                                                                   \
 		printf(__VA_ARGS__);                                           \
+		fflush(stdout);                                                \
+		fflush(stderr);                                                \
+	} while (0)
+#else
+#define DBG_PRINT(...)                                                         \
+	do {                                                                   \
 		fflush(stdout);                                                \
 		fflush(stderr);                                                \
 	} while (0)

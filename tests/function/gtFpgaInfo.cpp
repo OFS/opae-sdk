@@ -23,9 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include "sysinfo.h"
 #include "fpgainfo.h"
+#include "bmcdata.h"
 #include "fmeinfo.h"
 #include "portinfo.h"
+#include "powerinfo.h"
+#include "tempinfo.h"
+#include "errors.h"
 
 #include "common_test.h"
 #include "gtest/gtest.h"
