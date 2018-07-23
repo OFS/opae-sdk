@@ -49,12 +49,14 @@ void temp_help(void)
 static void print_temp_info(fpga_properties props)
 {
 	fpga_result res = FPGA_OK;
-	char path[SYSFS_PATH_MAX];
-	uint32_t temperature = -1;
 	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
 
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
+	// BMC thermal sensors are more accurate than sysfs - don't print sysfs
+#ifdef PRINT_SYSFS_TEMPERATURE
+	char path[SYSFS_PATH_MAX];
+	uint32_t temperature = -1;
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath,
 		      SYSFS_THERMAL_FILE);
 	res = fpgainfo_sysfs_read_u32(path, &temperature);
@@ -62,6 +64,7 @@ static void print_temp_info(fpga_properties props)
 
 	printf("%-24s : %02d %ls\n", "Temperature", temperature,
 	       L"\x00b0\x0043");
+#endif
 
 	res = bmc_print_values(sysfspath, BMC_THERMAL);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
@@ -90,7 +93,7 @@ fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
 
 	optind = 0;
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;

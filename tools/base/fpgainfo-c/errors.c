@@ -56,8 +56,7 @@ static const char *const FME_ERROR[FME_ERROR_COUNT] = {
 	"KTI CDC Parity Error detected",
 	"IOMMU Parity error detected",
 	"AFU PF/VF access mismatch detected",
-	"Indicates an MBP event error detected"
-};
+	"Indicates an MBP event error detected"};
 //#define FME_ERROR_COUNT (sizeof(FME_ERROR) / sizeof(FME_ERROR[0]))
 
 #define PCIE0_ERROR_COUNT 10
@@ -66,8 +65,7 @@ static const char *const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
 	"TLP MW length error detected",     "TLP MR address error detected",
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected"
-};
+	"CCI bridge parity error detected", "TLP with EP  error  detected"};
 //#define PCIE0_ERROR_COUNT (sizeof(PCIE0_ERROR) / sizeof(PCIE0_ERROR[0]))
 
 #define PCIE1_ERROR_COUNT 10
@@ -76,8 +74,7 @@ static const char *const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
 	"TLP MW length error detected",     "TLP MR address error detected",
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected"
-};
+	"CCI bridge parity error detected", "TLP with EP  error  detected"};
 //#define PCIE1_ERROR_COUNT (sizeof(PCIE1_ERROR) / sizeof(PCIE1_ERROR[0]))
 
 #define NONFATAL_ERROR_COUNT 13
@@ -94,8 +91,7 @@ static const char *const NONFATAL_ERROR[NONFATAL_ERROR_COUNT] = {
 	"Temperature threshold triggered AP6 detected",
 	"Power threshold triggered AP1 error detected",
 	"Power threshold triggered AP2 error detected",
-	"MBP event error detected"
-};
+	"MBP event error detected"};
 //#define NONFATAL_ERROR_COUNT
 //	(sizeof(NONFATAL_ERROR) / sizeof(NONFATAL_ERROR[0]))
 
@@ -112,17 +108,14 @@ static const char *const CATFATAL_ERROR[CATFATAL_ERROR_COUNT] = {
 	"Injected Fatal Error detected",
 	"Catastrophic CRC error detected",
 	"Catastrophic thermal runaway event detected",
-	"Injected Catastrophic Error detected"
-};
+	"Injected Catastrophic Error detected"};
 //#define CATFATAL_ERROR_COUNT
 //	(sizeof(CATFATAL_ERROR) / sizeof(CATFATAL_ERROR[0]))
 
 #define INJECT_ERROR_COUNT 3
 static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
-	"Set Catastrophic  error .",
-	"Set Fatal error.",
-	"Ser Non-fatal error ."
-};
+	"Set Catastrophic  error .", "Set Fatal error.",
+	"Ser Non-fatal error ."};
 //#define INJECT_ERROR_COUNT (sizeof(INJECT_ERROR) / sizeof(INJECT_ERROR[0]))
 
 #define PORT_ERROR_COUNT 52
@@ -178,9 +171,17 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Page Fault error detected",
 	"PMR Erro error detected",
 	"AP6 event detected ",
-	"VF FLR detected on port when PORT configured in PF access mode error detected "
-};
+	"VF FLR detected on port when PORT configured in PF access mode error detected "};
 //#define PORT_ERROR_COUNT (sizeof(PORT_ERROR) / sizeof(PORT_ERROR[0]))
+
+/*
+ * errors command configuration, set during parse_args()
+ */
+static struct errors_config {
+	bool clear;
+	enum verbs_index which;
+	int help_only;
+} errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
 /*
  * Print help
@@ -200,16 +201,8 @@ void errors_help(void)
 	       "                -h,--help           Print this help\n"
 	       "                -c,--clear          Clear all errors\n"
 	       "\n");
+	errors_config.help_only = true;
 }
-
-/*
- * errors command configuration, set during parse_args()
- */
-static struct errors_config {
-	bool clear;
-	enum verbs_index which;
-	int help_only;
-} errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
 #define ERRORS_GETOPT_STRING ":ch"
 int parse_error_args(int argc, char *argv[])
@@ -217,7 +210,7 @@ int parse_error_args(int argc, char *argv[])
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
 				    {"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0} };
+				    {0, 0, 0, 0}};
 
 	int getopt_ret;
 	int option_index;
@@ -238,7 +231,6 @@ int parse_error_args(int argc, char *argv[])
 
 		case 'h': /* help */
 			errors_help();
-			errors_config.help_only = true;
 			return -1;
 
 		case ':': /* missing option argument */
@@ -263,8 +255,8 @@ int parse_error_args(int argc, char *argv[])
 		return -1;
 	}
 
-	if (optind < argc && !strcmp(argv[optind], "errors")) {
-		char *verb = argv[optind + 1];
+	if ((optind < argc) && !strcmp(argv[optind - 1], "errors")) {
+		char *verb = argv[optind];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
 		if (idx < VERB_MAX) {
 			errors_config.which = idx;
@@ -274,6 +266,11 @@ int parse_error_args(int argc, char *argv[])
 			errors_help();
 			return -1;
 		}
+	} else {
+		fprintf(stderr, "Not a valid errors resource spec: %s\n",
+			argv[optind - 1]);
+		errors_help();
+		return -1;
 	}
 
 	return 0;
@@ -304,8 +301,9 @@ out:
 	return res;
 }
 
-void print_errors_info(fpga_token token, fpga_properties props,
-		       struct fpga_error_info *errinfos, uint32_t num_errors)
+static void print_errors_info(fpga_token token, fpga_properties props,
+			      struct fpga_error_info *errinfos,
+			      uint32_t num_errors)
 {
 	int i;
 	int j;
