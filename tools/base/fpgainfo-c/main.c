@@ -83,7 +83,7 @@ static struct command_handler {
 		 {.command = "port",
 		  .filter = port_filter,
 		  .run = port_command,
-		  .help = port_help}};
+		  .help = port_help} };
 
 /*
  * Parse command line arguments
@@ -92,7 +92,7 @@ static struct command_handler {
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0}};
+				    {0, 0, 0, 0} };
 
 	int getopt_ret = -1;
 	int option_index = 0;

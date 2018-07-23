@@ -303,13 +303,15 @@ size_t max_linearity = sizeof(linearity) / sizeof(linearity[0]);
 int bmcdata_verbose = 1;
 
 #define PRINT(level, ...)                                                      \
-	if (bmcdata_verbose) {                                                 \
-		printf("%.*s", (level), "\t\t\t\t\t\t\t\t\t\t\t");             \
-		printf(__VA_ARGS__);                                           \
-		printf("\n");                                                  \
-		fflush(stdout);                                                \
-		fflush(stderr);                                                \
-	}
+	do {                                                                   \
+		if (bmcdata_verbose) {                                         \
+			printf("%.*s", (level), "\t\t\t\t\t\t\t\t\t\t\t");     \
+			printf(__VA_ARGS__);                                   \
+			printf("\n");                                          \
+			fflush(stdout);                                        \
+			fflush(stderr);                                        \
+		}                                                              \
+	} while (0)
 
 static void print_entity(sdr_body *body, int level);
 static void print_body(sdr_body *body, int level);
@@ -518,7 +520,7 @@ static void print_body(sdr_body *body, int level)
 		str = "Fixed, unreadable Hysteresis";
 		break;
 	}
-	PRINT(level, str);
+	PRINT(level, "%s", str);
 
 	switch (body->sensor_capabilities.bits.threshold_access_support) {
 	case 0x0:
@@ -534,7 +536,7 @@ static void print_body(sdr_body *body, int level)
 		str = "Fixed, unreadable thresholds";
 		break;
 	}
-	PRINT(level, str);
+	PRINT(level, "%s", str);
 
 	switch (body->sensor_capabilities.bits.msg_control_support) {
 	case 0x0:
@@ -550,7 +552,7 @@ static void print_body(sdr_body *body, int level)
 		str = "No events from sensor";
 		break;
 	}
-	PRINT(level, str);
+	PRINT(level, "%s", str);
 
 	if (event_type_code == THRESHOLD_TYPE) {
 		PRINT(level - 1, "Lower Threshold Reading Mask (0x%x)",

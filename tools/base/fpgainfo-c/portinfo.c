@@ -78,7 +78,7 @@ fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 
 	optind = 0;
 	struct option longopts[] = {{"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0}};
+				    {0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;

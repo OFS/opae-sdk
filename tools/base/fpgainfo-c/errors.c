@@ -217,7 +217,7 @@ int parse_error_args(int argc, char *argv[])
 	optind = 0;
 	struct option longopts[] = {{"clear", no_argument, NULL, 'c'},
 				    {"help", no_argument, NULL, 'h'},
-				    {0, 0, 0, 0}};
+				    {0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;
@@ -422,7 +422,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 		return res;
 	}
 
-		int i = 0;
+	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
 		uint32_t num_errors;
 

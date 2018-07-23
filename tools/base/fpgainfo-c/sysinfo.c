@@ -477,7 +477,7 @@ fpga_result fpgainfo_enumerate_devices(struct dev_list *head)
 	return result;
 }
 
-static struct dev_list *head = NULL;
+static struct dev_list *head;
 
 const char *get_sysfs_path(fpga_properties props, fpga_objtype type,
 			   struct dev_list **item)

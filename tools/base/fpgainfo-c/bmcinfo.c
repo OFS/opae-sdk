@@ -41,8 +41,11 @@
 #define DBG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DBG_PRINT(...)                                                         \
-	fflush(stdout);                                                        \
-	fflush(stderr)
+	do {                                                                   \
+		printf(__VA_ARGS__);                                           \
+		fflush(stdout);                                                \
+		fflush(stderr);                                                \
+	} while (0)
 #endif
 
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])

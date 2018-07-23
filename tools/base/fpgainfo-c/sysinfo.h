@@ -128,18 +128,10 @@
 #define FPGA_PORT_RES_PATH "/sys/bus/pci/devices/%04x:%02x:%02x.%d/resource2"
 
 
-#define FPGA_SET_BIT(val, index) val |= (1 << index)
-#define FPGA_CLEAR_BIT(val, index) val &= ~(1 << index)
-#define FPGA_TOGGLE_BIT(val, index) val ^= (1 << index)
+#define FPGA_SET_BIT(val, index) (val |= (1 << index))
+#define FPGA_CLEAR_BIT(val, index) (val &= ~(1 << index))
+#define FPGA_TOGGLE_BIT(val, index) (val ^= (1 << index))
 #define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
-
-/* Type definitions */
-typedef struct {
-	uint32_t uint[16];
-} cache_line;
-
-
-int usleep(unsigned);
 
 #ifndef CL
 #define CL(x) ((x)*64)
@@ -164,9 +156,6 @@ int usleep(unsigned);
 #define DSM_STATUS_TEST_COMPLETE 0x40
 #define CSR_AFU_DSM_BASEL 0x0110
 #define CSR_AFU_DSM_BASEH 0x0114
-
-/* SKX-P NLB0 AFU_ID */
-#define SKX_P_NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
 
 struct dev_list {
 	char sysfspath[SYSFS_PATH_MAX];
