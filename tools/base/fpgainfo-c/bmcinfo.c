@@ -72,8 +72,6 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 	if (NULL == val)
 		return NULL;
 
-	memset(val, 0, sizeof(*val));
-
 	val->is_valid = true;
 
 	if (!reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
