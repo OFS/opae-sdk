@@ -85,6 +85,12 @@ class TestProperties(unittest.TestCase):
         props.type = opae.fpga.DEVICE
         assert props.type == opae.fpga.DEVICE
 
+    def test_set_segment(self):
+        props = opae.fpga.properties(segment=0x9090)
+        assert props.segment == 0x9090
+        props.segment = 0xA1A1
+        assert props.segment == 0xA1A1
+
     def test_set_bus(self):
         props = opae.fpga.properties(bus=0x5e)
         assert props.bus == 0x5e
