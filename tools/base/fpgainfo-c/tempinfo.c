@@ -53,18 +53,15 @@ static void print_temp_info(fpga_properties props)
 
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
-	// BMC thermal sensors are more accurate than sysfs - don't print sysfs
-#ifdef PRINT_SYSFS_TEMPERATURE
 	char path[SYSFS_PATH_MAX];
 	uint32_t temperature = -1;
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath,
 		      SYSFS_THERMAL_FILE);
 	res = fpgainfo_sysfs_read_u32(path, &temperature);
-	fpgainfo_print_err("Failure reading temperature value", res);
+	fpgainfo_print_err("Failure reading package temperature value", res);
 
-	printf("%-24s : %02d %ls\n", "Temperature", temperature,
+	printf("%-24s : %02d %ls\n", "Package Temperature", temperature,
 	       L"\x00b0\x0043");
-#endif
 
 	res = bmc_print_values(sysfspath, BMC_THERMAL);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
