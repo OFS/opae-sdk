@@ -31,13 +31,12 @@ namespace py = pybind11;
 using opae::fpga::types::properties;
 using opae::fpga::types::token;
 
-
-static inline fpga_version pytuple_to_fpga_version(py::tuple tpl){
-    fpga_version version{
-        .major = tpl[0].cast<uint8_t>(),
-        .minor = tpl[1].cast<uint8_t>(),
-        .patch = tpl[2].cast<uint16_t>(),
-    };
+static inline fpga_version pytuple_to_fpga_version(py::tuple tpl) {
+  fpga_version version{
+      .major = tpl[0].cast<uint8_t>(),
+      .minor = tpl[1].cast<uint8_t>(),
+      .patch = tpl[2].cast<uint16_t>(),
+  };
   return version;
 }
 
@@ -63,7 +62,9 @@ const char *properties_doc_get() {
 
       type (fpga_objtype): The object type - DEVICE or ACCELERATOR.
 
-      bus (uint8_t) : The PCIe bus numer.
+      segment (uint16_t) : The PCIe segment (or domain) number.
+
+      bus (uint8_t) : The PCIe bus number.
 
       device (uint8_t) : The PCIe device number.
 
@@ -87,7 +88,7 @@ const char *properties_doc_get() {
 
       local_memory_size (uint64_t): The size (in bytes) of the FPGA local memory.
 
-      num_mmio (uint32_t): The numer of mmio spaces.
+      num_mmio (uint32_t): The number of mmio spaces.
 
       num_interrupts (uint32_t): The number of interrupts supported by an accelerator.
 
@@ -113,6 +114,7 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   }
 
   kwargs_to_props<fpga_objtype>(props->type, kwargs, "type");
+  kwargs_to_props<uint16_t>(props->segment, kwargs, "segment");
   kwargs_to_props<uint8_t>(props->bus, kwargs, "bus");
   kwargs_to_props<uint8_t>(props->device, kwargs, "device");
   kwargs_to_props<uint8_t>(props->function, kwargs, "function");
@@ -207,6 +209,20 @@ fpga_objtype properties_get_type(properties::ptr_t props) {
 
 void properties_set_type(properties::ptr_t props, fpga_objtype type) {
   props->type = type;
+}
+// pcie segment
+const char *properties_doc_segment() {
+  return R"opaedoc(
+    Get or set the PCIe segment property of a resource.
+   )opaedoc";
+}
+
+uint16_t properties_get_segment(properties::ptr_t props) {
+  return props->segment;
+}
+
+void properties_set_segment(properties::ptr_t props, uint16_t segment) {
+  props->segment = segment;
 }
 
 // pcie bus
