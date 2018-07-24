@@ -23,42 +23,29 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <getopt.h>
 #include "fpgainfo.h"
+#include "sysinfo.h"
 #include "fmeinfo.h"
 #include <opae/fpga.h>
-//#include <uuid/uuid.h>
+#include <uuid/uuid.h>
+#include <inttypes.h>
+
+/*
+ * Print help
+ */
+void fme_help(void)
+{
+	printf("\nPrint FME information\n"
+	       "        fpgainfo fme [-h]\n"
+	       "                -h,--help           Print this help\n"
+	       "\n");
+}
 
 static void print_fme_info(fpga_properties props)
 {
-	char guid_str[38];
-	unsigned int num_slots = 0;
-	uint64_t bbs_id = 0;
-	fpga_version bbs_version;
-	fpga_guid guid;
-	fpga_result res = FPGA_OK;
-
 	fpgainfo_print_common("//****** FME ******//", props);
-
-	res = fpgaPropertiesGetNumSlots(props, &num_slots);
-	fpgainfo_print_err("reading num_slots from properties", res);
-
-	res = fpgaPropertiesGetBBSID(props, &bbs_id);
-	fpgainfo_print_err("reading bbs_id from properties", res);
-
-	res = fpgaPropertiesGetBBSVersion(props, &bbs_version);
-	fpgainfo_print_err("reading bbs_version from properties", res);
-
-	res = fpgaPropertiesGetGUID(props, &guid);
-	fpgainfo_print_err("reading guid from properties", res);
-
-	uuid_unparse(guid, guid_str);
-
-	printf("%-24s : %02d\n", "Ports Num", num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", bbs_id);
-	printf("%-24s : 0x%llX\n", "Bitstream Metadata",
-	       *(uint64_t *)&bbs_version);
-	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
-	// printf("%-24s : 0x%2lX\n", "Capabilities", capabilities);
 }
 
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[])
@@ -82,10 +69,47 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 	fpga_result res = FPGA_OK;
 	fpga_properties props;
 
+	optind = 0;
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
+
+	int getopt_ret;
+	int option_index;
+
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
+					    &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h': /* help */
+			fme_help();
+			return res;
+
+		case ':': /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			fme_help();
+			return FPGA_INVALID_PARAM;
+
+		case '?':
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			fme_help();
+			return FPGA_INVALID_PARAM;
+		}
+	}
+
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
 		res = fpgaGetProperties(tokens[i], &props);
-		fpgainfo_print_err("reading properties from token", res);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
 		print_fme_info(props);
 		fpgaDestroyProperties(&props);
 	}

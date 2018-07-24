@@ -33,6 +33,21 @@
 
 #include <opae/fpga.h>
 
+#define FPGA_MSG(...)                                                          \
+	{                                                                      \
+		printf(__VA_ARGS__);                                           \
+		printf("\n");                                                  \
+	}
+#define FPGA_ERR(...)                                                          \
+	{                                                                      \
+		fprintf(stderr, __VA_ARGS__);                                  \
+		fprintf(stderr, "\n");                                         \
+	}
+#define FPGA_DBG(...)                                                          \
+	{                                                                      \
+		fprintf(stderr, "DEBUG: " __VA_ARGS__);                        \
+		fprintf(stderr, "\n");                                         \
+	}
 
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -113,18 +128,10 @@
 #define FPGA_PORT_RES_PATH "/sys/bus/pci/devices/%04x:%02x:%02x.%d/resource2"
 
 
-#define FPGA_SET_BIT(val, index) val |= (1 << index)
-#define FPGA_CLEAR_BIT(val, index) val &= ~(1 << index)
-#define FPGA_TOGGLE_BIT(val, index) val ^= (1 << index)
+#define FPGA_SET_BIT(val, index) (val |= (1 << index))
+#define FPGA_CLEAR_BIT(val, index) (val &= ~(1 << index))
+#define FPGA_TOGGLE_BIT(val, index) (val ^= (1 << index))
 #define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
-
-/* Type definitions */
-typedef struct {
-	uint32_t uint[16];
-} cache_line;
-
-
-int usleep(unsigned);
 
 #ifndef CL
 #define CL(x) ((x)*64)
@@ -149,9 +156,6 @@ int usleep(unsigned);
 #define DSM_STATUS_TEST_COMPLETE 0x40
 #define CSR_AFU_DSM_BASEL 0x0110
 #define CSR_AFU_DSM_BASEH 0x0114
-
-/* SKX-P NLB0 AFU_ID */
-#define SKX_P_NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
 
 struct dev_list {
 	char sysfspath[SYSFS_PATH_MAX];
@@ -179,7 +183,10 @@ struct dev_list {
 extern "C" {
 #endif
 
-fpga_result enumerate_devices(struct dev_list *head);
+fpga_result fpgainfo_enumerate_devices(struct dev_list *head);
+fpga_result fpgainfo_sysfs_read_u32(const char *path, uint32_t *u);
+const char *get_sysfs_path(fpga_properties props, fpga_objtype objtype,
+			   struct dev_list **item);
 
 #ifdef __cplusplus
 }

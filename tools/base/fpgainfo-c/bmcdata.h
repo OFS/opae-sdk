@@ -24,48 +24,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 /*
- * fpgainfo.h
+ * @file fmeinfo.h
+ *
+ * @brief
  */
-#ifndef FPGAINFO_H
-#define FPGAINFO_H
+#ifndef BMCDATA_H
+#define BMCDATA_H
 
 #include <opae/fpga.h>
-#include "sysinfo.h"
+#include <wchar.h>
+#include "bmcinfo.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
-void fpgainfo_print_common(const char *hdr, fpga_properties props);
+extern uint8_t bcd_plus[];
+extern uint8_t ASCII_6_bit_translation[];
+extern wchar_t *base_units[];
+extern size_t max_base_units;
+extern char *sensor_type_codes[];
+extern size_t max_sensor_type_code;
+extern char *event_reading_type_codes[];
+extern size_t max_event_reading_type_code;
+extern char *entity_id_codes[];
+extern size_t max_entity_id_code;
+extern int bmcdata_verbose;
 
-void fpgainfo_print_err(const char *s, fpga_result res);
+void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
+		      sdr_body *body);
+void calc_params(sdr_body *body, Values *val);
+double getvalue(Values *val, uint8_t raw);
+void print_reset_cause(reset_cause *cause);
 
-// Replace occurrences of character within string
-char *replace_chars(char *str, char match, char rep);
+//#ifdef __cplusplus
+//}
+//#endif
 
-// Turn all "pcie" into "PCIe"
-char *upcase_pci(char *str);
-
-// Upper-case the first letter of each word in str
-char *upcase_first(char *str);
-
-// Find string in list of strings
-int str_in_list(const char *key, const char *list[], size_t size);
-
-/*
- * macro to check FPGA return codes, print error message, and goto cleanup label
- * NOTE: this changes the program flow (uses goto)!
- */
-#define ON_FPGAINFO_ERR_GOTO(res, label, desc)                                 \
-	do {                                                                   \
-		if ((res) != FPGA_OK) {                                        \
-			fpgainfo_print_err((desc), (res));                     \
-			goto label;                                            \
-		}                                                              \
-	} while (0)
-
-
-#ifdef __cplusplus
-}
-#endif
-#endif /* !FPGAINFO_H */
+#endif /* !BMCDATA_H */

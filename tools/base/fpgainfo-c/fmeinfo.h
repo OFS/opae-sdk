@@ -40,6 +40,7 @@ extern "C" {
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 			char *argv[]);
+void fme_help(void);
 
 #ifdef __cplusplus
 }

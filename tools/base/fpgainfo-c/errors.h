@@ -38,5 +38,6 @@
 fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 			   char *argv[]);
+void errors_help(void);
 
 #endif /* !ERRORS_H */

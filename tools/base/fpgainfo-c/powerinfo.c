@@ -23,16 +23,21 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <getopt.h>
 #include "fpgainfo.h"
+#include "sysinfo.h"
 #include "powerinfo.h"
 #include <opae/fpga.h>
-//#include <uuid/uuid.h>
+#include <uuid/uuid.h>
 
 #include "bmcinfo.h"
+#include "safe_string/safe_string.h"
 
 #define MODEL_SIZE 64
 
-static struct power_info {
+#if 0
+struct power_info {
 	fpga_guid guid;
 	uint64_t object_id;
 	uint8_t bus;
@@ -108,23 +113,28 @@ out_destroy:
 out:
 	return res;
 }
+#endif
 
-static void print_power_info(struct power_info *info)
+/*
+ * Print help
+ */
+void power_help(void)
 {
-	char guid_str[38];
-	uuid_unparse(info->guid, guid_str);
-	printf("//****** POWER ******//\n");
-	printf("%-24s : 0x%2lX\n", "Object Id", info->object_id);
-	printf("%-24s : 0x%02X\n", "Bus", info->bus);
-	printf("%-24s : 0x%02X\n", "Device", info->device);
-	printf("%-24s : 0x%02X\n", "Function", info->function);
-	printf("%-24s : 0x%02X\n", "Socket Id", info->socket_id);
-	printf("%-24s : %02d\n", "Ports Num", info->num_slots);
-	printf("%-24s : 0x%lX\n", "Bitstream Id", info->bbs_id);
-	printf("%-24s : 0x%lX\n", "Bitstream Metadata",
-	       *(uint64_t *)&info->bbs_version);
-	printf("%-24s : %s\n", "Pr Interface Id", guid_str);
-	// printf("%-24s : 0x%2lX\n", "Capabilities", info->capabilities);
+	printf("\nPrint power metrics\n"
+	       "        fpgainfo power [-h]\n"
+	       "                -h,--help           Print this help\n"
+	       "\n");
+}
+
+static void print_power_info(fpga_properties props)
+{
+	fpga_result res = FPGA_OK;
+
+	fpgainfo_print_common("//****** POWER ******//", props);
+
+	res = bmc_print_values(get_sysfs_path(props, FPGA_DEVICE, NULL),
+			       BMC_POWER);
+	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
 fpga_result power_filter(fpga_properties *filter, int argc, char *argv[])
@@ -138,7 +148,7 @@ fpga_result power_filter(fpga_properties *filter, int argc, char *argv[])
 }
 
 fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[])
+			  char *argv[])
 {
 	(void)tokens;
 	(void)num_tokens;
@@ -146,14 +156,57 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argv;
 
 	fpga_result res = FPGA_OK;
-	struct power_info info;
+	fpga_properties props;
+
+	optind = 0;
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
+
+	int getopt_ret;
+	int option_index;
+
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
+					    &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h': /* help */
+			power_help();
+			return res;
+
+		case ':': /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			power_help();
+			return FPGA_INVALID_PARAM;
+
+		case '?':
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			power_help();
+			return FPGA_INVALID_PARAM;
+		}
+	}
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		res = get_power_info(tokens[i], &info);
-		ON_FPGAINFO_ERR_GOTO(res, out, 0);
-		print_power_info(&info);
+		res = fpgaGetProperties(tokens[i], &props);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
+
+		print_power_info(props);
+		fpgaDestroyProperties(&props);
 	}
-out:
+
+	return res;
+
+out_destroy:
+	fpgaDestroyProperties(&props);
 	return res;
 }
