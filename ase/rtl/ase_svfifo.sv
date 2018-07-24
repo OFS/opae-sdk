@@ -56,86 +56,86 @@ module ase_svfifo
     parameter int ALMFULL_THRESH = 5
     )
    (
-    input logic 		  clk,
-    input logic 		  rst,
-    input logic 		  wr_en,
-    input logic [DATA_WIDTH-1:0]  data_in,
-    input logic 		  rd_en,
-    output logic [DATA_WIDTH-1:0] data_out,
-    output logic 		  data_out_v,
-    output logic 		  alm_full,
-    output logic 		  full,
-    output logic 		  empty,
-    output logic [DEPTH_BASE2:0]  count,
-    output logic 		  overflow,
-    output logic 		  underflow
+    input logic                     clk,
+    input logic                     rst,
+    input logic                     wr_en,
+    input logic [DATA_WIDTH-1:0]    data_in,
+    input logic                     rd_en,
+    output logic [DATA_WIDTH-1:0]   data_out,
+    output logic                    data_out_v,
+    output logic                    alm_full,
+    output logic                    full,
+    output logic                    empty,
+    output logic [DEPTH_BASE2:0]    count,
+    output logic                    overflow,
+    output logic                    underflow
     );
 
-   // Calculate depth
-   parameter int 		  DEPTH = 2**DEPTH_BASE2;
+    // Calculate depth
+    parameter int                   DEPTH = 2**DEPTH_BASE2;
 
-   // FIFO instance
-   logic [DATA_WIDTH-1:0] 	  fifo[$:DEPTH-1];
+    // FIFO instance
+    logic [DATA_WIDTH-1:0]          fifo[$:DEPTH-1];
 
-   always @(posedge clk) begin
-      if (wr_en) begin
-	 fifo.push_back(data_in);
-      end
-   end
+    always @(posedge clk) begin
+        if (wr_en) begin
+            fifo.push_back(data_in);
+        end
+    end
 
-   // Empty signal
-   always @(posedge clk) begin
-      if (fifo.size() == 0) begin
-	 empty <= 1;
-      end
-      else begin
-	 empty <= 0;
-      end
-   end
+    // Empty signal
+    always @(posedge clk) begin
+        if (fifo.size() == 0) begin
+            empty <= 1;
+        end
+        else begin
+            empty <= 0;
+        end
+    end
 
-   // Full signal
-   always @(posedge clk) begin
-      if (fifo.size() == (DEPTH-1)) begin
-	 full <= 1;
-      end
-      else begin
-	 full <= 0;
-      end
-   end
+    // Full signal
+    always @(posedge clk) begin
+        if (fifo.size() == (DEPTH-1)) begin
+            full <= 1;
+        end
+        else begin
+           full <= 0;
+        end
+    end
 
-   // Almfull signal
-   always @(posedge clk) begin
-      if (fifo.size() >= (DEPTH - ALMFULL_THRESH)) begin
-	 alm_full <= 1;
-      end
-      else begin
-	 alm_full <= 0;
-      end
-   end
+    // Almfull signal
+    always @(posedge clk) begin
+        if (fifo.size() >= (DEPTH - ALMFULL_THRESH)) begin
+            alm_full <= 1;
+        end
+        else begin
+            alm_full <= 0;
+        end
+    end
 
-   // Read process
-   always @(posedge clk) begin
-      if (rst) begin
-	 data_out_v <= 0;
-      end
-      else if (rd_en && (fifo.size() != 0)) begin
-	 data_out_v <= 1;
-	 data_out <= fifo.pop_front();
-      end
-      else begin
-	 data_out_v <= 0;
-      end
-   end
+    // Read process
+    always @(posedge clk) begin
+        if (rst) begin
+            data_out_v <= 0;
+        end
+        else if (rd_en && (fifo.size() != 0)) begin
+            data_out_v <= 1;
+            data_out <= fifo.pop_front();
+        end
+        else begin
+            data_out_v <= 0;
+        end
+    end
 
-   // Overflow
-   assign overflow = full & wr_en;
+    // Overflow
+    assign overflow = full & wr_en;
 
-   // Underflow
-   assign underflow = empty & rd_en;
+    // Underflow
+    assign underflow = empty & rd_en;
 
-   // Count
-   always @(posedge clk) begin
-      count <= fifo.size();
-   end
+    // Count
+    always @(posedge clk) begin
+        count <= fifo.size();
+    end
 
 endmodule
