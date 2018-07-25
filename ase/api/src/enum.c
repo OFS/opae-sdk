@@ -474,8 +474,8 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
-	fpga_result result = FPGA_OK;
 	fpga_result result = FPGA_INVALID_PARAM;
+
 	if (NULL == _prop || NULL == segment) {
 		FPGA_ERR("Attempting to dereference NULL pointer(s)");
 		return result;
