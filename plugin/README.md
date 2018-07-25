@@ -26,9 +26,19 @@ The following list describes features that are compatible with the Plugin Loader
   * The function takes no arguments
   * The function must return zero (0) upon successful initialization and a non-zero value otherwise. It is up to the plugin developer to define and document return codes.
 
+  The following is an example of the initialization function declaration:
+  ```C
+  int opaePluginInitialize();
+  ```
+
 * It may define an optional finalization routine in a function called `opaePluginFinalize` to provide a mechanism for plugin finalization (or any cleanup routines). It must follow the function signature:
   * The function takes no arguments
   * The function must return zero (0) upon successful initialization and a non-zero value otherwise. It is up to the plugin developer to define and document return codes.
+
+  The following is an example of the finalization function declaration:
+  ```C
+  int opaePluginFinalize();
+  ```
 
 * Any plugin interfaces implemented must have the ABI vislibility set to default. This is implicitly set by not setting the visibility attribute or by explicitly setting it to default as listed in the example below:
   ```C
