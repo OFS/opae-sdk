@@ -95,18 +95,18 @@ list(APPEND gtest_filter_exclude *Open*.open_drv_09)
 list(APPEND gtest_filter_exclude *Open*.07)
 list(APPEND gtest_filter_exclude *Enum*.18)
 list(APPEND gtest_filter_exclude *Enum*.19)
-list(APPEND gtest_filter_exclude *Enum*.enum_023)
-list(APPEND gtest_filter_exclude *Enum*.enum_024)
-list(APPEND gtest_filter_exclude *Enum*.enum_025)
-list(APPEND gtest_filter_exclude *Enum*.enum_028)
-list(APPEND gtest_filter_exclude *Enum*.enum_029)
-list(APPEND gtest_filter_exclude *Enum*.enum_030)
-list(APPEND gtest_filter_exclude *Enum*.enum_031)
-list(APPEND gtest_filter_exclude *Enum*.enum_032)
-list(APPEND gtest_filter_exclude *Enum*.enum_033)
-list(APPEND gtest_filter_exclude *Enum*.enum_034)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_023)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_024)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_025)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_028)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_029)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_030)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_031)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_032)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_033)
+list(APPEND gtest_filter_exclude LibopaecEnumFCommonALL.enum_034)
 list(APPEND gtest_filter_exclude *Buf*.PrepRel2MB01)
-list(APPEND gtest_filter_exclude *Buf*.Prep0B)
+list(APPEND gtest_filter_exclude LibopaecBufCommonALL.Prep0B)
 list(APPEND gtest_filter_exclude *Buf*.Write01)
 list(APPEND gtest_filter_exclude *Buf*.WriteRead01)
 list(APPEND gtest_filter_exclude *Close*.03)
@@ -127,7 +127,7 @@ add_test(NAME ase_all
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
   COMMAND gtase -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
 
-set_tests_properties(ase_all
+set_tests_properties(ase_all:
   PROPERTIES
   ENVIRONMENT "ASE_WORKDIR=${CMAKE_BINARY_DIR}/samples/intg_xeon_nlb/hw")
 
