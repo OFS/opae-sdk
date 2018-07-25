@@ -230,7 +230,7 @@ int ioctl(int fd, unsigned long request, ...)
 			hash = stupid_hash((uint32_t*)pr->buffer_address, pr->buffer_size / 4);
 			/* write hash to file in tmp */
 			strncpy_s(hashfilename, MAX_STRLEN, mock_devs[fd].pathname, strlen(mock_devs[fd].pathname) + 1);
-			strncat_s(hashfilename, MAX_STRLEN, HASH_SUFFIX, sizeof(HASH_SUFFIX));
+			strcat_s(hashfilename, MAX_STRLEN, HASH_SUFFIX);
 
 			FILE* hashfile = fopen(hashfilename, "w");
 			if (hashfile) {
