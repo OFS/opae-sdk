@@ -31,13 +31,16 @@
 
 #define FPGA_PROPERTY_PARENT         0
 #define FPGA_PROPERTY_OBJTYPE        1
-#define FPGA_PROPERTY_BUS            2
-#define FPGA_PROPERTY_DEVICE         3
-#define FPGA_PROPERTY_FUNCTION       4
-#define FPGA_PROPERTY_SOCKETID       5
-#define FPGA_PROPERTY_DEVICEID       6
-#define FPGA_PROPERTY_GUID           7
-#define FPGA_PROPERTY_OBJECTID       8
+#define FPGA_PROPERTY_SEGMENT        2
+#define FPGA_PROPERTY_BUS            3
+#define FPGA_PROPERTY_DEVICE         4
+#define FPGA_PROPERTY_FUNCTION       5
+#define FPGA_PROPERTY_SOCKETID       6
+#define FPGA_PROPERTY_VENDORID       7
+#define FPGA_PROPERTY_DEVICEID       8
+#define FPGA_PROPERTY_GUID           9
+#define FPGA_PROPERTY_OBJECTID       10
+#define FPGA_PROPERTY_NUM_ERRORS     11
 
 /** Fields for FPGA objects */
 #define FPGA_PROPERTY_NUM_SLOTS     32
