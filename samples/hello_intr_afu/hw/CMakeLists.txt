@@ -24,63 +24,44 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-find_package(UUID REQUIRED)
-include(opae_devpkgs_cmake_install)
-include(ase_add_module)
-
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
-include_directories(base/sw)
+######################################################################
+# ASE module definition ##############################################
+######################################################################
 
 if(BUILD_ASE_SAMPLES)
-  find_package(Quartus)
-  find_package(Questa)
-endif()
+  include(ase_add_modelsim)
+  set(hello_intr_afu_hw_SOURCES
+    sources.txt
+    hello_intr_afu.json)
+  ase_add_afu_module(hello_intr_afu_hw
+    ${hello_intr_afu_hw_SOURCES})
+  file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
+    DESTINATION ${PROJECT_BINARY_DIR}/hw)
 
-# Prefer GNU99
-if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
-    set (CMAKE_C_STANDARD_REQUIRED TRUE)
-    set (CMAKE_C_STANDARD "99")
-endif ()
+  # Set platform
+  ase_module_set_platform_name(hello_intr_afu_hw discrete_pcie3)
 
-######################################################################
-# Add the samples ####################################################
-######################################################################
+  # Add definitions
+  ase_module_add_definitions(hello_intr_afu_hw NUM_AFUS=1)
+  ase_module_add_definitions(hello_intr_afu_hw FPGA_PLATFORM_DISCRETE)
 
-set(OPAE_SAMPLES src/opae/samples)
-if(BUILD_ASE_SAMPLES)
-  # BBB libraries (MPF, DMA, etc)
-  include(intel_fpga_bbb)
-  Build_Intel_FPGA_BBB()
+  # Configure files and finalize target rules
+  ase_module_finalize_modelsim_linking(hello_intr_afu_hw)
 
-  add_subdirectory(intg_xeon_nlb)
-  add_subdirectory(hello_afu)
-  add_subdirectory(hello_mpf_afu)
-  add_subdirectory(hello_intr_afu)
-  # add_subdirectory(hello_error_afu)
-  # add_subdirectory(hello_dma_afu)
 endif()
 
 ######################################################################
-# Client application #################################################
+# Installation files #################################################
 ######################################################################
 
-add_executable(hello_fpga hello_fpga.c)
-if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-elseif(BUILD_ASE)
-  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
-endif()
+install(FILES ${PROJECT_SOURCE_DIR}/hw/sources.txt
+  DESTINATION ${OPAE_SAMPLES}/hello_intr_afu/hw
+  COMPONENT samplesrc)
 
-if(BUILD_LIBOPAE_C)
-  add_executable(hello_events hello_events.c)
-  target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-endif()
+install(FILES ${PROJECT_SOURCE_DIR}/hw/hello_intr_afu.json
+  DESTINATION ${OPAE_SAMPLES}/hello_intr_afu/hw
+  COMPONENT samplesrc)
 
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hw/rtl
+  DESTINATION ${OPAE_SAMPLES}/hello_intr_afu/hw
   COMPONENT samplesrc)

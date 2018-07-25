@@ -24,63 +24,24 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-find_package(UUID REQUIRED)
-include(opae_devpkgs_cmake_install)
-include(ase_add_module)
+######################################################################
+# Testing application ################################################
+######################################################################
 
 include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
-include_directories(base/sw)
+  ${OPAE_SDK_SOURCE}/libopae/src
+  ${MPF_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/sw
+  ${PROJECT_BINARY_DIR}/hw/include)
 
-if(BUILD_ASE_SAMPLES)
-  find_package(Quartus)
-  find_package(Questa)
-endif()
-
-# Prefer GNU99
-if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
-    set (CMAKE_C_STANDARD_REQUIRED TRUE)
-    set (CMAKE_C_STANDARD "99")
-endif ()
-
-######################################################################
-# Add the samples ####################################################
-######################################################################
-
-set(OPAE_SAMPLES src/opae/samples)
-if(BUILD_ASE_SAMPLES)
-  # BBB libraries (MPF, DMA, etc)
-  include(intel_fpga_bbb)
-  Build_Intel_FPGA_BBB()
-
-  add_subdirectory(intg_xeon_nlb)
-  add_subdirectory(hello_afu)
-  add_subdirectory(hello_mpf_afu)
-  add_subdirectory(hello_intr_afu)
-  # add_subdirectory(hello_error_afu)
-  # add_subdirectory(hello_dma_afu)
-endif()
-
-######################################################################
-# Client application #################################################
-######################################################################
-
-add_executable(hello_fpga hello_fpga.c)
+add_executable(hello_intr_afu
+  hello_intr_afu.c)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-elseif(BUILD_ASE)
-  target_link_libraries(hello_fpga json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_intr_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+else()
+  target_link_libraries(hello_intr_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
-if(BUILD_LIBOPAE_C)
-  add_executable(hello_events hello_events.c)
-  target_link_libraries(hello_events json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-endif()
-
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(FILES hello_intr_afu.c
+  DESTINATION ${OPAE_SAMPLES}/hello_intr_afu/sw
   COMPONENT samplesrc)
