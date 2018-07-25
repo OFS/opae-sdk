@@ -51,7 +51,7 @@ The following list describes features that are compatible with the Plugin Loader
 #### Loading a Plugin ####
 
 
-#### Plugin Manager ####
+### Plugin Manager ###
 
 
 #### Calling a Function ####
