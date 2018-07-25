@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <opae/fpga.h>
 
+#define UNUSED_PARAM(x) (void) x
 #define MAX_USR_INTRS            4
 
 #define HELLO_AFU_ID              "850ADCC2-6CEB-4B22-9722-D43375B61C66"
@@ -76,6 +77,8 @@ void print_err(const char *s, fpga_result res)
 
 int main(int argc, char *argv[])
 {
+	UNUSED_PARAM(argc);
+	UNUSED_PARAM(argv);
    fpga_properties    filter = NULL;
    fpga_token         afc_token;
    fpga_handle        afc_handle;
