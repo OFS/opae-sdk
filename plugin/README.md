@@ -46,12 +46,39 @@ The following list describes features that are compatible with the Plugin Loader
 
   int DLL_PUBLIC opaePluginConfigure(const char* c);
   ```
-### Plugin Loader ###
-
-#### Loading a Plugin ####
-
 
 ### Plugin Manager ###
+
+The plugin manager parses the plugins section of the configuration file to determine the list of plugins to load.
+The manager then invokes the Plugin Loader to load each plugin. The result of loading a plugin is the adapter table
+for the plugin. The plugin manager maintains the following mappings:
+
+* Each API adapter table is mapped to its plugin.
+* Each enumerated `fpga_token` is mapped to its plugin.
+* Each opened `fpga_handle` is mapped to its plugin.
+
+#### Enumeration ####
+
+When the API's main `fpgaEnumerate` is called, the plugin manager iterates over each loaded plugin,
+using its adapter table to call the plugin's `fpgaEnumerate` entry point. The tokens resulting from an individual
+plugin enumeration are each mapped to the originating plugin. Finally, the tokens are collected into the token
+array for returning to the caller.
+
+#### Opening a device ####
+
+When the API's main `fpgaOpen` is called, the plugin manager resolves the given token to its plugin. The adapter
+table's `fpgaOpen` is then invoked. Finally, the resulting `fpga_handle` is mapped to its originating plugin,
+and the handle is returned to the caller.
+
+### Plugin Loader ###
+
+The plugin loader is responsible for opening each plugin and constructing a plugin adapter table based on the
+contained API entry points. The loader calls opaePluginConfigure(), passing the relevant configuration file contents.
+Once the plugin is configured, the plugin loader calls back into the plugin's opaePluginInitialize() entry point.
+If initialization is successful, the plugin loader begins resolving API entry points.
+Each API entry point from the plugin is placed into the plugin's adapter table. The adapter table for the plugin
+is then returned to the plugin manager, where it is associated with the plugin in the manager's internal data
+structures.
 
 ```mermaid
 sequenceDiagram
