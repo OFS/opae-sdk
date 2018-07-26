@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2017, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,29 +24,30 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+include_directories(${OPAE_SDK_SOURCE}/tools/base/argsfilter)
+add_executable(fpgainfo-c main.c
+	          fpgainfo.c
+			  errors.c
+			  fmeinfo.c
+			  sysinfo.c
+			  bmcinfo.c
+			  bmcdata.c
+			  powerinfo.c
+			  tempinfo.c
+			  portinfo.c)
 
-# base
-add_subdirectory(base/argsfilter)
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgainfo-c)
-add_subdirectory(base/fpgaport)
+target_link_libraries(fpgainfo-c opae-c argsfilter)
+set_property(TARGET fpgainfo-c PROPERTY C_STANDARD 99)
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
-
-# integrated
-add_subdirectory(extra/integrated/hssi)
-
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+add_library(fpgainfo-static
+    fpgainfo.c
+    errors.c
+    fmeinfo.c
+    sysinfo.c
+    bmcinfo.c
+    bmcdata.c
+    powerinfo.c
+    tempinfo.c
+    portinfo.c)
+set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
+target_link_libraries(fpgainfo-static opae-c argsfilter)

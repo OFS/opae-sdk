@@ -37,7 +37,6 @@ class bitmask(object):
         self.mask = value
         self.type = int if bit_hi else bool
         self.bit_lo = bit_lo
-
     def __call__(self, value):
         return self.type(self.mask & value) >> self.bit_lo
 
