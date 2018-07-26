@@ -79,18 +79,29 @@ sequenceDiagram
         PluginManager->>PluginManager: map(Token, PluginA)
     end
     PluginManager->>PluginManager: ExtendTokenList(TokensA)
-    PluginManager->>PluginB: fpgaEnumerate()
-    PluginB-->>PluginManager: ReturnTokenList(PluginB)
-    loop ForEachToken(PluginB)
-        PluginManager->>PluginManager: map(Token, PluginB)
+    PluginManager->>ProxyPlugin: fpgaEnumerate()
+    ProxyPlugin->>RemoteEndpoint: send_msg(enumerate, filter)
+    RemoteEndpoint->>ProxyPlugin: recv_msg(tokens)
+    loop ForEachToken
+        ProxyPlugin->ProxyPlugin:deserialize(messageToken, fpga_token)
+        ProxyPlugin->ProxyPlugin:associate(fpga_token, endpoint_connection)
+    end
+    ProxyPlugin-->>PluginManager: ReturnTokenList(ProxyPlugin)
+    loop ForEachToken(ProxyPlugin)
+        PluginManager->>PluginManager: associate(Token, ProxyPlugin)
     end
     PluginManager->>PluginManager: ExtendTokenList(TokensB)
     PluginManager-->>ClientApp: ReturnAllTokenList
 
     ClientApp->>PluginManager: fpgaOpen(Token)
     PluginManager->>PluginManager: mapLookup(Token, AdapterTableB)
-    PluginManager->>PluginB: fpgaOpen(Token)
-
+    PluginManager->>ProxyPlugin: fpgaOpen(Token)
+    ProxyPlugin->>RemoteEndpoint: send_msg(open, token)
+    RemoteEndpoint-->>ProxyPlugin: recv_msg(handle)
+    ProxyPlugin->>ProxyPlugin: make_fpga_handle(handle)
+    Note over ProxyPlugin: associate handle to endpoint 
+    ProxyPlugin-->>PluginManager: return FPGA_OK, handle
+    Note over PluginManager: associate handle to ProxyPlugin
 ```
 
 
