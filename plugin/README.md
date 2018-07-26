@@ -1,38 +1,55 @@
 # Plugin Architecture #
-An OPAE plugin is a software library that can be loaded dynamically at runtime and is either specific to a given platform or is a proxy for one or more remote endpoints.
-While it is not required that a plugin implements the complete OPAE API, it is required, however, to adhere to the plugin interface. Futhermore, any OPAE API functions implemented by a plugin must follow their corresponding function interfaces as defined in the OPAE API specification.
+An OPAE plugin is a software library that can be loaded dynamically at runtime
+and is either specific to a given platform or is a proxy for one or more remote
+endpoints.  While it is not required that a plugin implements the complete OPAE
+API, it is required, however, to adhere to the plugin interface. Futhermore,
+any OPAE API functions implemented by a plugin must follow their corresponding
+function interfaces as defined in the OPAE API specification.
 
 ## Objective ##
-The objective of this document is to provide architectural details about the plugin interface as well as the plugin manager. While it is possible to use the plugin manager to design a framework for pooling of OPAE resources, it is outside of the scope of this document. Details of how to manage and connect to remote endpoints are also out of scope for the plugin architecture although proxy or remote resources may be mentioned.
+The objective of this document is to provide architectural details about the
+plugin interface as well as the plugin manager. While it is possible to use the
+plugin manager to design a framework for pooling of OPAE resources, it is
+outside of the scope of this document. Details of how to manage and connect to
+remote endpoints are also out of scope for the plugin architecture although
+proxy or remote resources may be mentioned.
 
 An additonal goal of this architecture is to use as much of the existing OPAE
 APIs as possible with few modifications to the API.
 
 ## High Level Design ##
-In order for a plugin design to be scalable and extensible, some data structures and operations should be decoupled and abstracted. Each entity involved in any operation may keep internal data structures to assocate control data it recieves with its origin. Additionaly, any data sent can be associated with data used in assembling it.
+In order for a plugin design to be scalable and extensible, some data
+structures and operations should be decoupled and abstracted. Each entity
+involved in any operation may keep internal data structures to assocate control
+data it recieves with its origin. Additionaly, any data sent can be associated
+with data used in assembling it.
 
 ### Example Use Case ###
-The example below illustrates a case of a client application linking to the plugin manager.
-The plugin manager is responsible for managing plugins and forwarding API function calls to
-any plugins it has configured and initialized. The plugin manager can use an internal data
-structure to associate any API objects it receives from one of its plugin.
-This example shows a plugin manager and two plugins. One of the plugins in this scenario is
-a proxy plugin which acts as a proxy to resources on remote endpoints.
+The example below illustrates a case of a client application linking to the
+plugin manager.  The plugin manager is responsible for managing plugins and
+forwarding API function calls to any plugins it has configured and initialized.
+The plugin manager can use an internal data structure to associate any API
+objects it receives from one of its plugin.  This example shows a plugin
+manager and two plugins. One of the plugins in this scenario is a proxy plugin
+which acts as a proxy to resources on remote endpoints.
 
-The sequence of events shows what happens when the client appliction calls `fpgaEnumerate`.
-The implementation of `fpgaEnumerate` in the plugin manager involves it calling `fpgaEnumerate`
-for each of its plugins. The relationship between tokens it receives and their origin (plugin)
-is stored in some sort of internal data structure and is used in any future operations
-invloling these tokens, like `fpgaOpen`. When the plugin manager receives the `fpgaOpen` call,
-it finds the plugin the token came from, the proxy plugin, and calls `fpgaOpen` in the plugin.
-The proxy plugin then uses its internal data structures to find the endpoint the token came from.
-Next, it sends a message with the request of open and the token information in its payload.
-The receiving endpoint then maps the token information it receives to an fpga_token and calls
-`fpgaOpen` to open the device (local to itself). Upon successfully opening the resource,
-it will send a response indicating success and include the handle information in the payload.
-The proxy plugin receives the response and creates an fpga_handle to assign to its fpga_handle
-variable. Before competing its implementation of `fpgaOpen`, the proxy plugin associates this
-fpga_handle object with the endpoint that sent it.
+The sequence of events shows what happens when the client appliction calls
+`fpgaEnumerate`.  The implementation of `fpgaEnumerate` in the plugin manager
+involves it calling `fpgaEnumerate` for each of its plugins. The relationship
+between tokens it receives and their origin (plugin) is stored in some sort of
+internal data structure and is used in any future operations invloling these
+tokens, like `fpgaOpen`. When the plugin manager receives the `fpgaOpen` call,
+it finds the plugin the token came from, the proxy plugin, and calls `fpgaOpen`
+in the plugin.  The proxy plugin then uses its internal data structures to find
+the endpoint the token came from.  Next, it sends a message with the request of
+open and the token information in its payload.  The receiving endpoint then
+maps the token information it receives to an fpga_token and calls `fpgaOpen` to
+open the device (local to itself). Upon successfully opening the resource, it
+will send a response indicating success and include the handle information in
+the payload.  The proxy plugin receives the response and creates an fpga_handle
+to assign to its fpga_handle variable. Before competing its implementation of
+`fpgaOpen`, the proxy plugin associates this fpga_handle object with the
+endpoint that sent it.
 
 ```mermaid
 sequenceDiagram
@@ -80,7 +97,7 @@ sequenceDiagram
     ProxyPlugin->>RemoteEndpoint: send_msg(open, token)
     RemoteEndpoint-->>ProxyPlugin: recv_msg(handle)
     ProxyPlugin->>ProxyPlugin: make_fpga_handle(handle)
-    Note over ProxyPlugin: associate handle to endpoint 
+    Note over ProxyPlugin: associate handle to endpoint
     ProxyPlugin-->>PluginManager: return FPGA_OK, handle
     Note over PluginManager: associate handle to ProxyPlugin
 ```
@@ -88,14 +105,24 @@ sequenceDiagram
 ## Components ##
 
 ### Plugin Interface ###
-The following list describes features that are compatible with the Plugin Loader:
+The following list describes features that are compatible with the Plugin
+Loader:
 * It must implement at least one OPAE API function
-* Any OPAE API functions it implements must use the same function signature as defined by the OPAE API specification
-* It may define an optional configuration routine in a function called `opaePluginConfigure` to provide a mechanism for configuration of the plugin from external configuration data. It must follow the following function signature:
-  * The function takes one argument of type `const char*` used to pass in any configuration related data.
-  
-    The configuration data will be encoded in a JSON structure. In order to avoid introducing dependencies on other libraries, it will be extected that the JSON structure be serialized. It is up to the plugin on how it will deserialize it.
-  * The function must return zero (0) upon successful configuration and a non-zero value otherwise. It is up to the plugin developer to define and document return codes.
+* Any OPAE API functions it implements must use the same function signature as
+defined by the OPAE API specification
+* It may define an optional configuration routine in a function called
+`opaePluginConfigure` to provide a mechanism for configuration of the plugin
+from external configuration data. It must follow the following function signature:
+  * The function takes one argument of type `const char*` used to pass in any
+  configuration related data.
+
+    The configuration data will be encoded in a JSON structure.
+    In order to avoid introducing dependencies on other libraries, it will be
+    extected that the JSON structure be serialized. It is up to the plugin on
+    how it will deserialize it.
+  * The function must return zero (0) upon successful configuration and a
+  non-zero value otherwise. It is up to the plugin developer to define and
+  document return codes.
 
   The following is an example of the configuration function declaration:
   ```C
