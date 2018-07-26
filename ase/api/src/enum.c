@@ -497,7 +497,6 @@ fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
-	int err = 0;
 
 	if (NULL == _prop) {
 		return FPGA_INVALID_PARAM;
@@ -505,7 +504,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t
 
 	_prop->segment = segment;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
-	return FPGA_OK;
+	return result;
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop,
