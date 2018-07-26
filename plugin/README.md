@@ -5,6 +5,9 @@ While it is not required that a plugin implements the complete OPAE API, it is r
 ## Objective ##
 The objective of this document is to provide architectural details about the plugin interface as well as the plugin manager. While it is possible to use the plugin manager to design a framework for pooling of OPAE resources, it is outside of the scope of this document. Details of how to manage and connect to remote endpoints are also out of scope for the plugin architecture although proxy or remote resources may be mentioned.
 
+An additonal goal of this architecture is to use as much of the existing OPAE
+APIs as possible with few modifications to the API.
+
 ## High Level Design ##
 In order for a plugin design to be scalable and extensible, some data structures and operations should be decoupled and abstracted. Each entity involved in any operation may keep internal data structures to assocate control data it recieves with its origin. Additionaly, any data sent can be associated with data used in assembling it.
 
@@ -26,8 +29,8 @@ The proxy plugin then uses its internal data structures to find the endpoint the
 Next, it sends a message with the request of open and the token information in its payload.
 The receiving endpoint then maps the token information it receives to an fpga_token and calls
 `fpgaOpen` to open the device (local to itself). Upon successfully opening the resource,
-it will send a response indicating success and include the handle information it the payload.
-The proxy plugin receives the response and creates and fpga_handle to assign to its fpga_handle
+it will send a response indicating success and include the handle information in the payload.
+The proxy plugin receives the response and creates an fpga_handle to assign to its fpga_handle
 variable. Before competing its implementation of `fpgaOpen`, the proxy plugin associates this
 fpga_handle object with the endpoint that sent it.
 
@@ -124,7 +127,21 @@ The following list describes features that are compatible with the Plugin Loader
   int DLL_PUBLIC opaePluginConfigure(const char* c);
   ```
 
+#### Required Changes to OPAE API ####
+One change to the API that is needed to for identification and filtering of
+resources based on the location of the resource with respect to the client
+application is the addition of a property called `RemoteStatus` of integer type.
+A value of 0 indicates that a resource is local and any non-zero value is used
+to denote a relative latency. It is currently undetermined how those values
+will be measured or calculated one possibility may involve measuring latency
+for certain operations.
+
 ### Plugin Manager ###
+
+The Plugin Manager is the software component that is linked as a shared library
+and implements the OPAE C API. Because it implements the OPAE C API, it can be
+liked at runtime by any application that links against the API. It will then
+forward API calls to the appropriate plugins that have been loaded.
 
 The plugin manager parses the plugins section of the configuration file to determine the list of plugins to load.
 The manager then invokes the Plugin Loader to load each plugin. The result of loading a plugin is the adapter table
