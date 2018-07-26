@@ -26,11 +26,9 @@
 
 
 # base
-add_subdirectory(base/argsfilter)
 add_subdirectory(base/fpgaconf)
 add_subdirectory(base/fpgad)
 add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgainfo-c)
 add_subdirectory(base/fpgaport)
 
 # extra
