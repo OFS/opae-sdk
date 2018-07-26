@@ -42,7 +42,8 @@ quartus_tag_map = {
 qsys_tag_map = {
     '.qsys': 'QSYS_FILE',
     '.qip':  'QIP_FILE',
-    '.ip':   'IP_FILE'
+    '.ip':   'IP_FILE',
+    '.tcl':  'SOURCE_TCL_SCRIPT_FILE',
 }
 
 # QSYS ipx tag.
