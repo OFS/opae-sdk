@@ -307,6 +307,10 @@ def config_sources(fd, filelist):
 
     return json_file
 
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
 
 #
 # Qsys has a compilation step.  When using case #1 above, detect Qsys
@@ -327,6 +331,7 @@ def config_qsys_sources(filelist, vlog_srcs):
     # the source names.
     qsys_srcs = []
     ip_dirs = []
+    tcl_srcs = []
     srcs = srcs.split('\n')
     for s in srcs:
         if (s):
@@ -337,6 +342,8 @@ def config_qsys_sources(filelist, vlog_srcs):
             if (s.lower().endswith('.qsys')):
                 qsys_srcs.append(s)
 
+            if (s.lower().endswith('.tcl')):
+                tcl_srcs.append(s)
     # Any Qsys files found?
     if (not qsys_srcs):
         return None
@@ -345,17 +352,23 @@ def config_qsys_sources(filelist, vlog_srcs):
     # inside the simulator environment.  We do this to avoid polluting the
     # source tree with Qsys-generated files.
     copied_qsys_dirs = dict()
+    copied_tcl_dirs = dict()
     tgt_idx = 0
     os.mkdir('qsys_sim')
     qsys_srcs_copy = []
+    tcl_srcs_copy = []
     for q in qsys_srcs:
         src_dir = os.path.dirname(q)
+        base_filelist = os.path.dirname(filelist)
+        paths = [src_dir, base_filelist]
+        common_prefix = os.path.commonprefix(paths)     
         # Has the source been copied already? Multiple Qsys files in the same
         # directory are copied together.
         if (src_dir not in copied_qsys_dirs):
-            b = os.path.basename(src_dir)
-            tgt_dir = os.path.join('qsys_sim', b + '_' + str(tgt_idx))
-            tgt_idx += 1
+            src_dir_base = os.path.basename(src_dir)
+            b = remove_prefix(src_dir, common_prefix)
+            b = b.strip("/")
+            tgt_dir = os.path.join('qsys_sim', b)
             copied_qsys_dirs[src_dir] = tgt_dir
             print("Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
@@ -366,6 +379,21 @@ def config_qsys_sources(filelist, vlog_srcs):
 
         # Point to the copy
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
+    for t in tcl_srcs:
+        src_dir = os.path.dirname(t)
+        # Has the source been copied already? Multiple Qsys files in the same
+        # directory are copied together.
+        if (src_dir not in copied_tcl_dirs):
+            b = os.path.basename(src_dir)
+            tgt_dir = os.path.join('qsys_sim', 'QSYS_IPs', b)
+            copied_tcl_dirs[src_dir] = tgt_dir
+            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            try:
+                shutil.copytree(src_dir, tgt_dir)
+            except Exception:
+                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
+                                                                  tgt_dir))
+        tcl_srcs_copy.append(tgt_dir + q[len(src_dir):])
 
     # Second step: now that the trees are copied, update the paths in
     # ip_dirs to point to the copies.
