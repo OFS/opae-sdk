@@ -484,8 +484,7 @@ fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, ui
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT)) {
 		*segment = _prop->segment;
 		result = FPGA_OK;
-	}
-	else {
+	} else {
 		FPGA_MSG("No segment");
 		result = FPGA_NOT_FOUND;
 	}
