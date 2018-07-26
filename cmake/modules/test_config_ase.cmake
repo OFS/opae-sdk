@@ -127,7 +127,7 @@ add_test(NAME ase_all
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
   COMMAND gtase -v --gtest_filter=${gtest_filter_include_str}:-${gtest_filter_exclude_str})
 
-set_tests_properties(ase_all:
+set_tests_properties(ase_all
   PROPERTIES
   ENVIRONMENT "ASE_WORKDIR=${CMAKE_BINARY_DIR}/samples/intg_xeon_nlb/hw")
 
