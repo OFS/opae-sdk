@@ -53,6 +53,46 @@ The following list describes features that are compatible with the Plugin Loader
 
 ### Plugin Manager ###
 
+```mermaid
+sequenceDiagram
+    participant ClientApp
+    ClientApp->PluginManager: initialize(cfile)
+    participant PluginManager
+    PluginManager->PluginManager: parseConfig(cfile)
+    loop ForEachPlugin
+        PluginManager->>PluginLoader: loadPlugin(A)
+        PluginLoader->>PluginA: configure(cdata)
+        PluginLoader->>PluginA: initialize()
+        loop ForEachManagementAPI
+            PluginLoader->>PluginA: LookupAPI
+            PluginLoader-->>PluginA: Return fnPtr
+            PluginLoader->>PluginLoader: Map fnPtr in AdapterTable
+        end
+        PluginLoader-->PluginManager: Return AdapterTable
+        PluginManager->PluginManager: StoreAdapterTable
+    end
+    ClientApp->>PluginManager: fpgaEnumerate
+    Note over PluginManager: ForEachAdapterTable
+    PluginManager->>PluginA: fpgaEnumerate()
+    PluginA-->>PluginManager: ReturnTokenList(PluginA)
+    loop ForEachToken(PluginA)
+        PluginManager->>PluginManager: map(Token, PluginA)
+    end
+    PluginManager->>PluginManager: ExtendTokenList(TokensA)
+    PluginManager->>PluginB: fpgaEnumerate()
+    PluginB-->>PluginManager: ReturnTokenList(PluginB)
+    loop ForEachToken(PluginB)
+        PluginManager->>PluginManager: map(Token, PluginB)
+    end
+    PluginManager->>PluginManager: ExtendTokenList(TokensB)
+    PluginManager-->>ClientApp: ReturnAllTokenList
+
+    ClientApp->>PluginManager: fpgaOpen(Token)
+    PluginManager->>PluginManager: mapLookup(Token, AdapterTableB)
+    PluginManager->>PluginB: fpgaOpen(Token)
+
+```
+
 
 #### Calling a Function ####
 
