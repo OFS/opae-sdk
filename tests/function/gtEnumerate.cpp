@@ -964,9 +964,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_027) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_028) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetVendorID(m_Properties, 0));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -977,8 +978,9 @@ TEST_F(LibopaecEnumFCommonALL, enum_028) {
  *             fpgaEnumerate returns zero matches.
  */
 TEST_F(LibopaecEnumFCommonALL, enum_029) {
-  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDeviceID(m_Properties, 0));
 #ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDeviceID(m_Properties, 0));
+
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
 #endif

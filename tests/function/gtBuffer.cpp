@@ -207,13 +207,14 @@ TEST(LibopaecBufCommonALL, Prep0B) {
   // Open port device
   token_for_afu0(&_tok);
   ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-
+#ifndef BUILD_ASE
   buf_len = 0;
   flags = 0;
   EXPECT_EQ(FPGA_INVALID_PARAM,
             fpgaPrepareBuffer(h, buf_len, (void**)&buf_addr, &wsid, flags));
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(h, wsid));
+#endif
   // Close the device
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
