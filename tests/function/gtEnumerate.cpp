@@ -872,9 +872,10 @@ TEST(LibopaecEnumCommonALL, enum_drv_022) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_033) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSegment(m_Properties, 0xc001));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -886,9 +887,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_033) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_023) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBus(m_Properties, 3));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -900,9 +902,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_023) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_024) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDevice(m_Properties, 3));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -914,9 +917,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_024) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_025) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetFunction(m_Properties, 3));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -960,9 +964,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_027) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_028) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetVendorID(m_Properties, 0));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -973,10 +978,12 @@ TEST_F(LibopaecEnumFCommonALL, enum_028) {
  *             fpgaEnumerate returns zero matches.
  */
 TEST_F(LibopaecEnumFCommonALL, enum_029) {
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDeviceID(m_Properties, 0));
 
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -988,9 +995,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_029) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_030) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetNumErrors(m_Properties, 999));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -1003,9 +1011,10 @@ TEST_F(LibopaecEnumFCommonALL, enum_030) {
 TEST_F(LibopaecEnumFCommonALL, enum_031) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSID(m_Properties, 0));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -1024,23 +1033,24 @@ TEST_F(LibopaecEnumFCommonALL, enum_032) {
   v.patch = 99;
 
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
-
+#endif
 
   v.major = 6;
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
-
+#endif
 
   v.minor = 4;
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
 
 /**
@@ -1052,7 +1062,8 @@ TEST_F(LibopaecEnumFCommonALL, enum_032) {
  */
 TEST_F(LibopaecEnumFCommonALL, enum_034) {
   EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSocketID(m_Properties, 0xff));
-
+#ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
   EXPECT_EQ(0, m_NumMatches);
+#endif
 }
