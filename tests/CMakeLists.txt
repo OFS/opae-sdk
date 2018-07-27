@@ -68,6 +68,15 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 Build_MOCk_DRV()
 
 ############################################################################
+## Mock entry point   ######################################################
+############################################################################
+add_executable(fpgamock fpgamock.c mock.c)
+target_include_directories(fpgamock
+    PUBLIC $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/src>)
+target_link_libraries(fpgamock safestr dl)
+
+############################################################################
 ## add_gtfilter macro  #####################################################
 ############################################################################
 macro(add_gtfilter test_name gtfilter is_mock)
