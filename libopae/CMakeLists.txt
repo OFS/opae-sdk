@@ -57,6 +57,7 @@ set(SRC
   src/wsid_list.c
   src/token_list.c
   src/mmap.c
+  src/sys.c
   src/version.c
   src/usrclk/user_clk_pgm_uclock.c)
 
