@@ -85,6 +85,10 @@ static struct command_handler {
 	 .filter = port_filter,
 	 .run = port_command,
 	 .help = port_help},
+	{.command = "bmc",
+	 .filter = bmc_filter,
+	 .run = bmc_command,
+	 .help = bmc_help},
 };
 
 /*

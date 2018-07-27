@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 #include <wchar.h>
 
@@ -289,13 +290,26 @@ char *entity_id_codes[0x43] = {"Unspecified",
 
 size_t max_entity_id_code =
 	(sizeof(entity_id_codes) / sizeof(entity_id_codes[0]));
+
+static char *str_format[] = {"UNICODE", "BCD+", "6-bit packed ASCII",
+			     "8-bit ASCII"};
+
 #define IS_ENTITY_CHASSIS_SPECIFIC(x) (((x) >= 0x90) && ((x) <= 0xaf))
 #define IS_ENTITY_BOARDSET_SPECIFIC(x) (((x) >= 0xb0) && ((x) <= 0xcf))
 #define IS_ENTITY_OEM_DEFINED(x) ((x) >= 0xd0)
 #define IS_ENTITY_RESERVED(x) (((x) >= 0x43) && ((x) <= 0x8f))
 
-char *linearity[] = {"linear", "ln",  "log10", "log2", "e",    "exp10",
-		     "exp2",   "1/x", "x^2",   "x^3",  "sqrt", "1/x^3"};
+static char *linearity[] = {"linear", "ln",  "log10", "log2", "e",    "exp10",
+			    "exp2",   "1/x", "x^2",   "x^3",  "sqrt", "1/x^3"};
+
+static char *evt_strs[] = {
+	"upper non-recoverable going high", "upper non-recoverable going low",
+	"upper critical going high",	"upper critical going low",
+	"upper non-critical going high",    "upper non-critical going low",
+	"lower non-recoverable going high", "lower non-recoverable going low",
+	"lower critical going high",	"lower critical going low",
+	"lower non-critical going high",    "lower non-critical going low",
+};
 
 size_t max_linearity = sizeof(linearity) / sizeof(linearity[0]);
 
@@ -327,6 +341,16 @@ void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
 	print_body(body, 1);
 	print_reading(body, reading, 1);
 }
+
+void print_assertion_mask(int level, uint32_t mask, char *str)
+{
+	int i;
+	for (i = 11; i >= 0; i--) {
+		PRINT(level, "%s event for %s%s supported", str,
+		      evt_strs[11 - i], (mask & (1 << i)) ? "" : " not");
+	}
+}
+
 
 static void print_entity(sdr_body *body, int level)
 {
@@ -382,6 +406,19 @@ double getvalue(Values *val, uint8_t raw)
 	return res;
 }
 
+static char *thresholds[] = {"Lower non-critical",    "Lower critical",
+			     "Lower non-recoverable", "Upper non-critical",
+			     "Upper critical",	"Upper non-recoverable"};
+
+void print_mask(int level, uint8_t val, const char *str)
+{
+	int i;
+	for (i = 5; i >= 0; i--) {
+		PRINT(level, "%s threshold is %s%s", thresholds[i],
+		      (val & (1 << i)) ? "" : "not ", str);
+	}
+}
+
 static void print_body(sdr_body *body, int level)
 {
 	char *str = NULL;
@@ -389,6 +426,9 @@ static void print_body(sdr_body *body, int level)
 	char *str3 = NULL;
 	wchar_t *wstr = NULL;
 	wchar_t *wstr2 = NULL;
+	int i;
+	uint8_t settable = 0;
+	uint8_t readable = 0;
 
 	if (body->sensor_type < max_sensor_type_code) {
 		str = sensor_type_codes[body->sensor_type];
@@ -410,6 +450,27 @@ static void print_body(sdr_body *body, int level)
 
 	Values val = {0};
 	calc_params(body, &val);
+
+	PRINT(level, "Sensor name:");
+	PRINT(level + 1, "Length is %d bytes",
+	      body->id_string_type_length_code.bits.len_in_characters != 0x1f
+		      ? body->id_string_type_length_code.bits.len_in_characters
+		      : -1);
+	PRINT(level + 1, "String type is %s",
+	      str_format[body->id_string_type_length_code.bits.format]);
+	switch (body->id_string_type_length_code.bits.format) {
+	case ASCII_8:
+		PRINT(level + 1, "Name is '%s'", body->string_bytes);
+		break;
+
+		// TODO: Implement string decoding for other types
+	case ASCII_6:
+	case BCD_plus:
+	case unicode:
+		PRINT(level + 1, "*UNSUPPORTED");
+	default:
+		PRINT(level + 1, "*INVALID*");
+	}
 
 	if (0 != body->sensor_units_1._value) {
 		PRINT(level, "Sensor Units: (0x%x)",
@@ -447,6 +508,33 @@ static void print_body(sdr_body *body, int level)
 		      body->sensor_units_2, base_units[body->sensor_units_2]);
 	}
 
+	PRINT(level, "Raw value conversion parameters:");
+	level++;
+	PRINT(level, "M(x) + B is %f(x) + (%f * 10^%d)", val.M, val.B,
+	      val.B_exp);
+	PRINT(level, "Result exponent is 10^%d", val.result_exp);
+	PRINT(level, "Accuracy is %f%%", val.accuracy / 100.0);
+	PRINT(level, "Tolerance (in +/- 0.5 raw counts) is %d", val.tolerance);
+	level--;
+
+	switch (body->accuracy_accexp_sensor_direction.bits.sensor_direction) {
+	case 0x00:
+		PRINT(level, "Sensor direction unspecified or not applicable");
+		break;
+	case 0x01:
+	case 0x02:
+		PRINT(level, "Sensor is an %s sensor",
+		      body->accuracy_accexp_sensor_direction.bits
+					      .sensor_direction
+				      == 0x1
+			      ? "input"
+			      : "output");
+		break;
+	case 0x03:
+		PRINT(level, "Sensor direction *RESERVED*");
+		break;
+	}
+
 	PRINT(level, "Analog characteristic flags: (0x%x)",
 	      body->analog_characteristic_flags._value);
 	if (0 == body->analog_characteristic_flags._value) {
@@ -473,6 +561,12 @@ static void print_body(sdr_body *body, int level)
 		}
 		level--;
 	}
+
+	settable = (body->discrete_settable_readable_threshold_mask._value
+		    & 0x3f00)
+		   >> 8;
+	readable =
+		body->discrete_settable_readable_threshold_mask._value & 0x003f;
 
 	PRINT(level, "Sensor maximum reading: %f",
 	      getvalue(&val, body->sensor_maximum_reading));
@@ -521,6 +615,14 @@ static void print_body(sdr_body *body, int level)
 		break;
 	}
 	PRINT(level, "%s", str);
+	if (body->sensor_capabilities.bits.hysteresis_support) {
+		PRINT(level + 1,
+		      "Positive-going Threshold Hysteresis value is %f",
+		      getvalue(&val, body->pos_going_threshold_hysteresis_val));
+		PRINT(level + 1,
+		      "Negative-going Threshold Hysteresis value is %f",
+		      getvalue(&val, body->neg_going_threshold_hysteresis_val));
+	}
 
 	switch (body->sensor_capabilities.bits.threshold_access_support) {
 	case 0x0:
@@ -609,28 +711,56 @@ static void print_body(sdr_body *body, int level)
 
 		PRINT(level - 1, "Settable / Readable Threshold Masks (0x%x)",
 		      body->discrete_settable_readable_threshold_mask._value);
-		PRINT(level, "Settable Mask: (0x%x)",
-		      (body->discrete_settable_readable_threshold_mask._value
-		       & 0x3f00)
-			      >> 8);
-		PRINT(level, "Readable Mask: (0x%x)",
-		      body->discrete_settable_readable_threshold_mask._value
-			      & 0x003f);
+
+		PRINT(level, "Settable Mask: (0x%x)", settable);
+		print_mask(level + 1, settable, "settable");
+		PRINT(level, "Readable Mask: (0x%x)", readable);
+		print_mask(level + 1, readable, "readable");
+		uint32_t assert_mask =
+			body->assertion_event_lower_threshold_mask._value
+			& 0x0fff;
 		PRINT(level - 1, "Threshold Assertion Event Mask: (0x%x)",
-		      body->assertion_event_lower_threshold_mask._value
-			      & 0x0fff);
+		      assert_mask);
+		print_assertion_mask(level, assert_mask, "Assertion");
+		uint32_t deassert_mask =
+			body->deassertion_event_upper_threshold_mask._value
+			& 0x0fff;
 		PRINT(level - 1, "Threshold Dessertion Event Mask: (0x%x)",
-		      body->deassertion_event_upper_threshold_mask._value
-			      & 0x0fff);
+		      deassert_mask);
+		print_assertion_mask(level, deassert_mask, "Deassertion");
 	} else {
-		PRINT(level - 1, "Assertion Event Mask");
+		settable = 0;
+		readable = 0;
+		PRINT(level - 1, "No Assertion Event Mask - Discrete sensor");
 	}
+
+	level--;
 
 	size_t lin_val = body->linearization.bits.linearity_enum;
 	PRINT(level, "Linearization: (0x%x) '%s'", (uint32_t)lin_val,
 	      lin_val < max_linearity
 		      ? linearity[lin_val]
 		      : (lin_val > 0x70 ? "OEM non-linear" : "non-linear"));
+
+	PRINT(level, "Threshold values:");
+
+	for (i = 5; i >= 0; i--) {
+		uint8_t t_val =
+			((uint8_t *)body)[offsetof(sdr_body, upper_nr_threshold)
+					  + 5 - i];
+		if (settable & (1 << i)) {
+			PRINT(level + 1, "%s threshold value is %f",
+			      thresholds[i], getvalue(&val, t_val));
+		} else {
+			PRINT(level + 1,
+			      "%s threshold value is IGNORED (raw val is 0x%x)",
+			      thresholds[i], t_val);
+		}
+	}
+
+	PRINT(level, "OEM field is 0x%02x", body->oem);
+
+	PRINT(level, "%s", "");
 }
 
 void calc_params(sdr_body *body, Values *val)
@@ -671,6 +801,8 @@ void calc_params(sdr_body *body, Values *val)
 	val->tolerance = (double)T_val;
 	val->B = (double)B_val;
 	val->result_exp = R_exp;
+	val->B_exp = B_exp;
+	val->A_exp = A_exp;
 	if (B_exp >= 0) {
 		for (i = 0; i < B_exp; i++) {
 			val->B *= 10.0;
@@ -689,9 +821,76 @@ void calc_params(sdr_body *body, Values *val)
 
 static void print_reading(sdr_body *body, sensor_reading *reading, int level)
 {
-	(void)body;
-	(void)reading;
-	(void)level;
+	if (0 != reading->completion_code) {
+		PRINT(level,
+		      "Sensor reading returned non-zero completion code: 0x%02x",
+		      reading->completion_code);
+		return;
+	}
+
+	if (0
+	    != reading->sensor_validity.sensor_state
+		       .reading_state_unavailable) {
+		PRINT(level, "Sensor reading unavailable");
+		return;
+	}
+
+	Values val = {0};
+	calc_params(body, &val);
+
+	PRINT(level, "Sensor reading:");
+	level++;
+	PRINT(level, "Raw value: 0x%02x", reading->sensor_reading);
+	PRINT(level + 1, "Scaled value is %f", getvalue(&val, reading->sensor_reading));
+
+	if (0
+	    != reading->sensor_validity.sensor_state.sensor_scanning_disabled) {
+		PRINT(level, "Sensor scanning disabled");
+	}
+
+	if (0
+	    != reading->sensor_validity.sensor_state.event_messages_disabled) {
+		PRINT(level, "Event messages disabled");
+	}
+
+	if (body->event_reading_type_code == THRESHOLD_TYPE) {
+		if (0 == reading->threshold_events._value) {
+			PRINT(level, "No thresholds tripped");
+		} else {
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_above_upper_nr_threshold) {
+				PRINT(level,
+				      "At or above (>=) upper non-recoverable threshold");
+			}
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_above_upper_c_threshold) {
+				PRINT(level,
+				      "At or above (>=) upper critical threshold");
+			}
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_above_upper_nc_threshold) {
+				PRINT(level,
+				      "At or above (>=) upper non-critical threshold");
+			}
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_below_lower_nr_threshold) {
+				PRINT(level,
+				      "At or below (<=) lower non-recoverable threshold");
+			}
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_below_lower_c_threshold) {
+				PRINT(level,
+				      "At or below (<=) lower critical threshold");
+			}
+			if (reading->threshold_events.threshold_sensors
+				    .at_or_below_lower_nc_threshold) {
+				PRINT(level,
+				      "At or below (<=) lower non-critical threshold");
+			}
+		}
+	} else {
+		PRINT(level, "Discrete sensor not implemented");
+	}
 }
 
 void print_reset_cause(reset_cause *cause)

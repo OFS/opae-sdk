@@ -46,7 +46,7 @@ extern "C" {
 #define SYSFS_PWRDN_FILE "avmmi-bmc.3.auto/bmc_info/power_down_cause"
 #define SYSFS_THERMAL_FILE "thermal_mgmt/temperature"
 
-typedef enum { BMC_THERMAL, BMC_POWER } BMC_TYPE;
+typedef enum { BMC_THERMAL, BMC_POWER, BMC_SENSORS } BMC_TYPE;
 
 #pragma pack(push, 1)
 
@@ -486,6 +486,8 @@ typedef struct _Values {
 	double accuracy;
 	double M;
 	double B;
+	int32_t B_exp;
+	int32_t A_exp;
 	int32_t result_exp;
 	union {
 		double f_val;
@@ -500,6 +502,9 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type);
 
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
 void print_bmc_info(const char *sysfspath);
+fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
+			 char *argv[]);
+void bmc_help(void);
 
 #ifdef __cplusplus
 }

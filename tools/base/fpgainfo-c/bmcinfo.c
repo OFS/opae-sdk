@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include <wchar.h>
 
 #ifdef DEBUG
@@ -51,6 +52,17 @@
 		fflush(stderr);                                                \
 	} while (0)
 #endif
+
+/*
+ * Print help
+ */
+void bmc_help(void)
+{
+	printf("\nPrint detailed Board Management Controller information\n"
+	       "        fpgainfo bmc [-h]\n"
+	       "                -h,--help           Print this help\n"
+	       "\n");
+}
 
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])
 {
@@ -423,4 +435,72 @@ void print_bmc_info(const char *sysfspath)
 		}
 		close(fd);
 	}
+}
+
+
+fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
+			char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
+
+	optind = 0;
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
+
+	int getopt_ret;
+	int option_index;
+
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
+					    &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h': /* help */
+			bmc_help();
+			return res;
+
+		case ':': /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			bmc_help();
+			return FPGA_INVALID_PARAM;
+
+		case '?':
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			bmc_help();
+			return FPGA_INVALID_PARAM;
+		}
+	}
+
+	int i = 0;
+	for (i = 0; i < num_tokens; ++i) {
+		res = fpgaGetProperties(tokens[i], &props);
+		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+				     "reading properties from token");
+		const char *sysfs_path = get_sysfs_path(props, FPGA_DEVICE, NULL);
+		print_bmc_info(sysfs_path);
+		Values *vals = NULL;
+		int tmp = bmcdata_verbose;
+		bmcdata_verbose = 1;
+		bmc_read_sensor_data(sysfs_path, &vals);
+		bmcdata_verbose = tmp;
+		fpgaDestroyProperties(&props);
+	}
+
+	return res;
+
+out_destroy:
+	fpgaDestroyProperties(&props);
+	return res;
 }
