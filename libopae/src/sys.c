@@ -35,9 +35,11 @@
 #include "safe_string/safe_string.h"
 
 #define NULL_CHECK(var)                                                        \
-	if (var == NULL) {                                                     \
-		FPGA_MSG(#var " is NULL");                                     \
-	}
+	do {                                                                   \
+		if (var == NULL) {                                             \
+			FPGA_MSG(#var " is NULL");                             \
+		}                                                              \
+	} while (false);
 
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
