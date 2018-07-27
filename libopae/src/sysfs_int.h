@@ -71,6 +71,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u);
 fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 				 char sep);
 fpga_result sysfs_read_u64(const char *path, uint64_t *u);
+fpga_result sysfs_write_u32(const char *path, uint32_t u);
 fpga_result sysfs_write_u64(const char *path, uint64_t u);
 fpga_result sysfs_read_guid(const char *path, fpga_guid guid);
 fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id);
