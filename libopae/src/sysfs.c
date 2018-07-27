@@ -147,7 +147,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 // read tuple separated by 'sep' character
@@ -221,7 +221,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
@@ -270,7 +270,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u32(const char *path, uint32_t u)
@@ -318,7 +318,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u32(const char *path, uint32_t u)
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
