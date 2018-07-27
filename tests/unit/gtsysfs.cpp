@@ -182,6 +182,17 @@ TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_02) {
 	EXPECT_EQ(result, FPGA_OK);
 
 	//Invalid input parameters
+	result = sysfs_write_u32(NULL, 0);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_write_u32("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", 0x100);
+	EXPECT_NE(result, FPGA_OK);
+
+	//valid path 
+	result = sysfs_write_u32("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
 	result = sysfs_write_u64(NULL, 0);
 	EXPECT_NE(result, FPGA_OK);
 
@@ -191,7 +202,6 @@ TEST(LibopaecsysfsCommonMOCKHW, fpga_sysfs_02) {
 	//valid path 
 	result = sysfs_write_u64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
 	EXPECT_EQ(result, FPGA_OK);
-
 
 	//Invalid input parameters
 	fpga_guid guid;

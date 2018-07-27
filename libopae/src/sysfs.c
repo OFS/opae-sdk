@@ -147,7 +147,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 // read tuple separated by 'sep' character
@@ -221,7 +221,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
 }
 
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
@@ -270,7 +270,55 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
 
 out_close:
 	close(fd);
-	return FPGA_NOT_FOUND;
+	return FPGA_EXCEPTION;
+}
+
+fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u32(const char *path, uint32_t u)
+{
+	int fd                     = -1;
+	int res                    = 0;
+	char buf[SYSFS_PATH_MAX]   = {0};
+	int b                      = 0;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fd = open(path, O_WRONLY);
+	if (fd < 0) {
+		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		FPGA_MSG("seek: %s", strerror(errno));
+		goto out_close;
+	}
+
+	snprintf_s_l(buf, sizeof(buf), "0x%x", u);
+
+	do {
+		res = write(fd, buf + b, sizeof(buf) -b);
+		if (res <= 0) {
+			FPGA_ERR("Failed to write");
+			goto out_close;
+		}
+		b += res;
+
+		if ((unsigned)b > sizeof(buf) || b <= 0) {
+			FPGA_MSG("Unexpected size reading from %s", path);
+			goto out_close;
+		}
+
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && (unsigned)b < sizeof(buf));
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_EXCEPTION;
 }
 
 fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
