@@ -67,8 +67,18 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 # build mock driver and unpack fake sysfs to /tmp folder
 Build_MOCk_DRV()
 
-include_directories(${CMAKE_SOURCE_DIR}/libopae/src)
-add_executable(gtunit gtunit-main.cpp mock.c unit/gtsys.cpp)
+############################################################################
+## unit tests use mock.c  ##################################################
+############################################################################
+
+include_directories(
+    ${GTEST_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/libopae/src)
+set(GTUNIT_TESTS unit/gtsys.cpp)
+add_executable(gtunit
+    gtunit-main.cpp
+    mock.c
+    ${GTUNIT_TESTS})
 target_link_libraries(gtunit ${GTEST_BOTH_LIBRARIES} opae-c dl)
 add_test(NAME gtunit
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
