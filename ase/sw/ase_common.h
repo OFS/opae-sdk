@@ -542,7 +542,7 @@ extern "C" {
 
 	// UMSG functions
 	uint64_t *umsg_get_address(int);
-	void umsg_send(int, uint64_t *);
+	//void umsg_send(int, uint64_t *);
 	void umsg_set_attribute(uint32_t);
 	// Driver activity
 	void ase_portctrl(ase_portctrl_cmd, int);

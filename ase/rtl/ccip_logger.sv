@@ -67,19 +67,18 @@ module ccip_logger
     * - Watch for "*valid", and write transaction to log name
     */
    // Log file descriptor
-   int 		log_fd;
+   int       log_fd;
 
    // Reset management
-   logic 	SoftReset_q;
+   logic     SoftReset_q;
 
    // AlmostFull management
-   logic 	C0TxAlmFull_q;
-   logic 	C1TxAlmFull_q;
-
+   logic     C0TxAlmFull_q;
+   logic     C1TxAlmFull_q;
 
    // Registers for comparing previous states
    always @(posedge clk) begin
-      SoftReset_q	<= SoftReset;
+      SoftReset_q       <= SoftReset;
       C0TxAlmFull_q     <= ccip_rx.c0TxAlmFull;
       C1TxAlmFull_q     <= ccip_rx.c1TxAlmFull;
    end
