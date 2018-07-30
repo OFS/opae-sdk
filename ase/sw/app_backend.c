@@ -420,12 +420,12 @@ void session_init(void)
         io_s.mmio_region->memsize = MMIO_LENGTH;
         io_s.mmio_region->is_mmiomap = 1;
         allocate_buffer(io_s.mmio_region, NULL);
-        io_s.mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
+        mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
                            MMIO_AFU_OFFSET);
         //mmio_exist_status = ESTABLISHED;
 
         ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
-            (void *) io_s.mmio_afu_vbase);
+            (void *) mmio_afu_vbase);
 
 
         // Create UMSG region
@@ -436,11 +436,11 @@ void session_init(void)
         umas_s.umas_region->memsize = UMAS_REGION_MEMSIZE;    //UMAS_LENGTH;
         umas_s.umas_region->is_umas = 1;
         allocate_buffer(umas_s.umas_region, NULL);
-        umas_s.umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_s.umas_region->vbase);
+        umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_region->vbase);
         //umas_exist_status = ESTABLISHED;
         umsg_set_attribute(0x0);
         ASE_MSG("UMAS Virtual Base address = %p\n",
-            (void *) umas_s.umsg_umas_vbase);
+            (void *) umsg_umas_vbase);
 
         // Start MMIO read response watcher watcher thread
         ASE_MSG("Starting MMIO Read Response watcher ... \n");
@@ -839,7 +839,7 @@ void mmio_write32(int offset, uint32_t data)
         // Write to MMIO map
         uint32_t *mmio_vaddr;
         mmio_vaddr =
-            (uint32_t *) ((uint64_t) io_s.mmio_afu_vbase + offset);
+            (uint32_t *) ((uint64_t) mmio_afu_vbase + offset);
         ase_memcpy(mmio_vaddr, (char *) &data, sizeof(uint32_t));
 
         // Display
@@ -900,7 +900,7 @@ void mmio_write64(int offset, uint64_t data)
         // Write to MMIO Map
         uint64_t *mmio_vaddr;
         mmio_vaddr =
-            (uint64_t *) ((uint64_t) io_s.mmio_afu_vbase + offset);
+            (uint64_t *) ((uint64_t) mmio_afu_vbase + offset);
         *mmio_vaddr = data;
 
 
@@ -1407,7 +1407,7 @@ uint64_t *umsg_get_address(int umsg_id)
 {
     uint64_t *ret_vaddr;
     if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
-        ret_vaddr = (uint64_t *) ((uint64_t) umas_s.umsg_umas_vbase +
+        ret_vaddr = (uint64_t *) ((uint64_t) umsg_umas_vbase +
                       (uint64_t) ((uint64_t) umsg_id *
                               (ASE_PAGESIZE + 64)));
     } else {
