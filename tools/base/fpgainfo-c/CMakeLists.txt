@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_SDK_SOURCE}/tools/base/argsfilter)
-add_executable(fpgainfo-c main.c
+add_executable(fpgainfo main.c
 	          fpgainfo.c
 			  errors.c
 			  fmeinfo.c
@@ -36,8 +36,8 @@ add_executable(fpgainfo-c main.c
 			  tempinfo.c
 			  portinfo.c)
 
-target_link_libraries(fpgainfo-c opae-c argsfilter)
-set_property(TARGET fpgainfo-c PROPERTY C_STANDARD 99)
+target_link_libraries(fpgainfo opae-c argsfilter)
+set_property(TARGET fpgainfo PROPERTY C_STANDARD 99)
 
 add_library(fpgainfo-static
     fpgainfo.c
@@ -51,3 +51,7 @@ add_library(fpgainfo-static
     portinfo.c)
 set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
 target_link_libraries(fpgainfo-static opae-c argsfilter)
+
+install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/fpgainfo
+    RUNTIME DESTINATION bin
+    COMPONENT toolfpgainfo)

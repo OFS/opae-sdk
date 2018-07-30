@@ -60,8 +60,10 @@ static void print_temp_info(fpga_properties props)
 	res = fpgainfo_sysfs_read_u32(path, &temperature);
 	fpgainfo_print_err("Failure reading package temperature value", res);
 
+#ifdef PRINT_PKG_TEMP
 	printf("%-24s : %02d %ls\n", "Package Temperature", temperature,
 	       L"\x00b0\x0043");
+#endif
 
 	res = bmc_print_values(sysfspath, BMC_THERMAL);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);

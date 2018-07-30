@@ -77,7 +77,7 @@ include(fpga_functions)
 find_package(Doxygen)
 find_package(Threads REQUIRED)
 find_package(Sphinx)
-include(dependency_notifier)
+#include(dependency_notifier)
 
 ############################################################################
 ## set libs install location ###############################################

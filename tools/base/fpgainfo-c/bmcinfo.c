@@ -58,7 +58,7 @@
  */
 void bmc_help(void)
 {
-	printf("\nPrint detailed Board Management Controller information\n"
+	printf("\nPrint all Board Management Controller sensor values\n"
 	       "        fpgainfo bmc [-h]\n"
 	       "                -h,--help           Print this help\n"
 	       "\n");
@@ -310,7 +310,8 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 
 	for (vptr = vals; NULL != vptr; vptr = vptr->next) {
 		if (!(((BMC_THERMAL == type) && (SDR_SENSOR_IS_TEMP(vptr)))
-		      || ((BMC_POWER == type) && (SDR_SENSOR_IS_POWER(vptr)))))
+		      || ((BMC_POWER == type) && (SDR_SENSOR_IS_POWER(vptr)))
+		      || (BMC_SENSORS == type)))
 			continue;
 		printf("%-24s : ", vptr->name);
 		if (!vptr->is_valid) {
@@ -446,10 +447,12 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 
 	fpga_result res = FPGA_OK;
 	fpga_properties props;
+	int verbose_opt = 0;
 
 	optind = 0;
 	struct option longopts[] = {
 		{"help", no_argument, NULL, 'h'},
+		{"verbose", no_argument, NULL, 'v'}, // **UNDOCUMENTED**
 		{0, 0, 0, 0},
 	};
 
@@ -470,6 +473,10 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			bmc_help();
 			return res;
 
+		case 'v': /* verbose - UNDOCUMENTED */
+			verbose_opt = 1;
+			break;
+
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
 			bmc_help();
@@ -488,13 +495,18 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 		res = fpgaGetProperties(tokens[i], &props);
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
 				     "reading properties from token");
-		const char *sysfs_path = get_sysfs_path(props, FPGA_DEVICE, NULL);
+		const char *sysfs_path =
+			get_sysfs_path(props, FPGA_DEVICE, NULL);
 		print_bmc_info(sysfs_path);
 		Values *vals = NULL;
 		int tmp = bmcdata_verbose;
-		bmcdata_verbose = 1;
-		bmc_read_sensor_data(sysfs_path, &vals);
-		bmcdata_verbose = tmp;
+		if (verbose_opt) {
+			bmcdata_verbose = verbose_opt;
+			bmc_read_sensor_data(sysfs_path, &vals);
+			bmcdata_verbose = tmp;
+		} else {
+			bmc_print_values(sysfs_path, BMC_SENSORS);
+		}
 		fpgaDestroyProperties(&props);
 	}
 

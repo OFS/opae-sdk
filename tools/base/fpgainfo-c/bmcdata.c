@@ -512,7 +512,7 @@ static void print_body(sdr_body *body, int level)
 	level++;
 	PRINT(level, "M(x) + B is %f(x) + (%f * 10^%d)", val.M, val.B,
 	      val.B_exp);
-	PRINT(level, "Result exponent is 10^%d", val.result_exp);
+	PRINT(level, "Result scale is 10^%d", val.result_exp);
 	PRINT(level, "Accuracy is %f%%", val.accuracy / 100.0);
 	PRINT(level, "Tolerance (in +/- 0.5 raw counts) is %d", val.tolerance);
 	level--;
