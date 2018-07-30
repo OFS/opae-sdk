@@ -33,7 +33,7 @@ typedef struct mmio_s {
 	// MMIO Mutex Lock, initilize it here
 	pthread_mutex_t mmio_port_lock;
 
-	struct buffer_t *mmio_region = NULL;   // CSR map storage
+	struct buffer_t *mmio_region;   // CSR map storage
 	uint64_t *mmio_afu_vbase;
 
 	// MMIO Read response watcher
@@ -46,7 +46,7 @@ typedef struct mmio_s {
 typedef struct umas_s {
 	pthread_t umsg_watch_tid;               // UMsg Watch TID
 
-	struct buffer_t *umas_region = NULL;	 // UMAS region
+	struct buffer_t *umas_region;	 // UMAS region
 
 	uint64_t *umsg_umas_vbase;     // Base addresses of required regions
 
