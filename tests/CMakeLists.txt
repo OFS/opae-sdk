@@ -68,6 +68,23 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 Build_MOCk_DRV()
 
 ############################################################################
+## unit tests use mock.c  ##################################################
+############################################################################
+
+include_directories(
+    ${GTEST_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/libopae/src)
+set(GTUNIT_TESTS unit/gtsys.cpp)
+add_executable(gtunit
+    gtunit-main.cpp
+    mock.c
+    ${GTUNIT_TESTS})
+target_link_libraries(gtunit ${GTEST_BOTH_LIBRARIES} opae-c dl)
+add_test(NAME gtunit
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND $<TARGET_FILE:gtunit> )
+
+############################################################################
 ## add_gtfilter macro  #####################################################
 ############################################################################
 macro(add_gtfilter test_name gtfilter is_mock)
