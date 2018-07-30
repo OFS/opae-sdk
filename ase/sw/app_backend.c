@@ -444,7 +444,7 @@ void session_init(void)
 
         // Start MMIO read response watcher watcher thread
         ASE_MSG("Starting MMIO Read Response watcher ... \n");
-        io_s.pthread_mutex_t mmio_port_lock = PTHREAD_MUTEX_INITIALIZER;
+        io_s.mmio_port_lock = PTHREAD_MUTEX_INITIALIZER;
         thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
                      &mmio_response_watcher, NULL);
         if (thr_err != 0) {
