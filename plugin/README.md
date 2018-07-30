@@ -29,13 +29,13 @@ While it is possible to use the Plugin Manager to design a framework
 for pooling of OPAE resources, that is outside of the scope of this document.
 While this document and any samples in this docuemnt may refer to using remote
 resources, details of how to manage and connect to remote endpoints are also
-out of scope for the plugin architecture although proxy or remote resources may
+out of scope for the plugin architecture, although proxy or remote resources may
 be mentioned.
 
 
 ## High Level Design ##
 In order for a plugin design to be scalable and extensible, some data
-structures and operations should be decoupled and abstracted with well defined
+structures and operations should be decoupled and abstracted with well-defined
 interfaces that are used to connect the different components. For OPAE, the
 components that make up the plugin design are the Plugin Manager, Plugin
 Loader, and the Plugin libraries. The following provide brief descriptions of
@@ -43,7 +43,7 @@ these components. More detailed descriptions of these components and their
 interfaces are provided later in this document.
 
 ### The Plugin Manger ###
-  The Plugin Manager implements the OPAE C API and is responsible to delegating
+  The Plugin Manager implements the OPAE C API and is responsible for delegating
   its calls to the appropriate plugin.
 
 ### The Plugin Loader ###
@@ -52,7 +52,7 @@ interfaces are provided later in this document.
 
 ### Plugin ###
   A plugin is a library that implements functions defined in the OPAE API
-  specification. It is called by by the Plugin Manager to discover or operate
+  specification. It is called by the Plugin Manager to discover or operate
   on OPAE resources.
 
 
@@ -73,8 +73,8 @@ from external configuration data. It must follow the following function signatur
 
     The configuration data will be encoded in a JSON structure.
     In order to avoid introducing dependencies on other libraries, it will be
-    extected that the JSON structure be serialized. It is up to the plugin on
-    how it will deserialize it.
+    expected that the JSON structure be serialized. It is up to the plugin to
+    determine how it will deserialize the configuration data.
   * The function must return zero (0) upon successful configuration and a
   non-zero value otherwise. It is up to the plugin developer to define and
   document return codes.
@@ -110,30 +110,30 @@ from external configuration data. It must follow the following function signatur
   ```
 
 #### Required Changes to OPAE API ####
-One change to the API that is needed to for identification and filtering of
+One change to the API that is needed for identification and filtering of
 resources based on the location of the resource with respect to the client
 application is the addition of a property called `RemoteStatus` of integer type.
 A value of 0 indicates that a resource is local and any non-zero value is used
 to denote a relative latency. It is currently undetermined how those values
-will be measured or calculated one possibility may involve measuring latency
+will be measured or calculated. One possibility may involve measuring latency
 for certain operations.
 
 ## Component Designs ##
 
-Becuase the data structures defined in the OPAE API are opaque types, any
+Because the data structures defined in the OPAE API are opaque types, any
 implementation of the API (including the Plugin Manager) is free to define its
 own versions of the concrete types to fit its own implementation.
 
 The Plugin Manager defines its internal versions of these concrete types as
-data structures that compose of both the adapter table and the plugin's instance
+data structures that are composed of both the adapter table and the plugin's instance
 of an opaque type. The Plugin Manager will then use this association to forward
-calls to appropriate functions pointers in the adapter table.
+calls to appropriate function pointers in the adapter table.
 
 ### Plugin Manager ###
 
 The Plugin Manager is the software component that is linked as a shared library
 and implements the OPAE C API. Because it implements the OPAE C API, it can be
-liked at runtime by any application that links against the API. It will then
+linked at runtime by any application that links against the API. It will then
 forward API calls to the appropriate plugins that have been loaded.
 
 The Plugin Manager parses the plugins section of the configuration file to determine the list of plugins to load.
@@ -169,9 +169,6 @@ structures.
 
 
 #### Calling a Function ####
-
-#### Fault Tolerance ####
-
 
 ### Example Use Case ###
 
