@@ -34,7 +34,6 @@ typedef struct mmio_s {
 	pthread_mutex_t mmio_port_lock;
 
 	struct buffer_t *mmio_region;   // CSR map storage
-	uint64_t *mmio_afu_vbase;
 
 	// MMIO Read response watcher
 	int glbl_mmio_tid;       	           // MMIO Tid
@@ -48,8 +47,6 @@ typedef struct umas_s {
 
 	struct buffer_t *umas_region;	 // UMAS region
 
-	uint64_t *umsg_umas_vbase;     // Base addresses of required regions
-
 	char *umsg_addr_array[NUM_UMSG_PER_AFU];  // UMsg address array
 } UMAS_S;
 
@@ -62,6 +59,8 @@ struct mmio_scoreboard_line_t {
 };
 volatile struct mmio_scoreboard_line_t mmio_table[MMIO_MAX_OUTSTANDING];
 
+uint64_t *mmio_afu_vbase;
+uint64_t *umsg_umas_vbase;     // Base addresses of required regions
 // UMsg byte offset
 const int umsg_byteindex_arr[] = {
 	0x0, 0x1040, 0x2080, 0x30C0, 0x4100, 0x5140, 0x6180, 0x71C0
