@@ -1,4 +1,6 @@
 # Plugin Architecture #
+The OPAE Plugin Architecture describes the interfaces and data structures
+involved in designing and building an OPAE application using plugins.
 An OPAE plugin is a software library that can be loaded dynamically at runtime
 and is either specific to a given platform or is a proxy for one or more remote
 endpoints.  While it is not required that a plugin implements the complete OPAE
@@ -8,101 +10,54 @@ function interfaces as defined in the OPAE API specification.
 
 ## Objective ##
 The objective of this document is to provide architectural details about the
-plugin interface as well as the plugin manager. While it is possible to use the
-plugin manager to design a framework for pooling of OPAE resources, it is
-outside of the scope of this document. Details of how to manage and connect to
-remote endpoints are also out of scope for the plugin architecture although
-proxy or remote resources may be mentioned.
+plugin interface as well as the Plugin Manager, the Plugin Loader, and an OPAE
+plugin.
 
-An additonal goal of this architecture is to use as much of the existing OPAE
-APIs as possible with few modifications to the API.
+The requirements for the Plugin Architecture are as follows:
+* Design a C API that applications can link to instead of libopae-c. This API will:
+  * Be a superset of the APIs defined in the existing OPAE C API and any other
+  extension APIs
+  * Define functions that control how the system is configured and initialized
+* Use as much of the existing OPAE APIs as possible with few modifications to the API.
+* Define a configuration schema that can be used to configure:
+  * What plugins to load
+  * Plugin-specific parameters
+  * Policies for how OPAE APIs are enabled and connected at runtime
+  * Policies for error handling
+
+While it is possible to use the Plugin Manager to design a framework
+for pooling of OPAE resources, that is outside of the scope of this document.
+While this document and any samples in this docuemnt may refer to using remote
+resources, details of how to manage and connect to remote endpoints are also
+out of scope for the plugin architecture although proxy or remote resources may
+be mentioned.
+
 
 ## High Level Design ##
 In order for a plugin design to be scalable and extensible, some data
-structures and operations should be decoupled and abstracted. Each entity
-involved in any operation may keep internal data structures to assocate control
-data it recieves with its origin. Additionaly, any data sent can be associated
-with data used in assembling it.
+structures and operations should be decoupled and abstracted with well defined
+interfaces that are used to connect the different components. For OPAE, the
+components that make up the plugin design are the Plugin Manager, Plugin
+Loader, and the Plugin libraries. The following provide brief descriptions of
+these components. More detailed descriptions of these components and their
+interfaces are provided later in this document.
 
-### Example Use Case ###
-The example below illustrates a case of a client application linking to the
-plugin manager.  The plugin manager is responsible for managing plugins and
-forwarding API function calls to any plugins it has configured and initialized.
-The plugin manager can use an internal data structure to associate any API
-objects it receives from one of its plugin.  This example shows a plugin
-manager and two plugins. One of the plugins in this scenario is a proxy plugin
-which acts as a proxy to resources on remote endpoints.
+### The Plugin Manger ###
+  The Plugin Manager implements the OPAE C API and is responsible to delegating
+  its calls to the appropriate plugin.
 
-The sequence of events shows what happens when the client appliction calls
-`fpgaEnumerate`.  The implementation of `fpgaEnumerate` in the plugin manager
-involves it calling `fpgaEnumerate` for each of its plugins. The relationship
-between tokens it receives and their origin (plugin) is stored in some sort of
-internal data structure and is used in any future operations invloling these
-tokens, like `fpgaOpen`. When the plugin manager receives the `fpgaOpen` call,
-it finds the plugin the token came from, the proxy plugin, and calls `fpgaOpen`
-in the plugin.  The proxy plugin then uses its internal data structures to find
-the endpoint the token came from.  Next, it sends a message with the request of
-open and the token information in its payload.  The receiving endpoint then
-maps the token information it receives to an fpga_token and calls `fpgaOpen` to
-open the device (local to itself). Upon successfully opening the resource, it
-will send a response indicating success and include the handle information in
-the payload.  The proxy plugin receives the response and creates an fpga_handle
-to assign to its fpga_handle variable. Before competing its implementation of
-`fpgaOpen`, the proxy plugin associates this fpga_handle object with the
-endpoint that sent it.
+### The Plugin Loader ###
+  The plugin loader can be considered a component of the Plugin Manager.
+  Its job is to load plugins and initialize them.
 
-```mermaid
-sequenceDiagram
-    participant ClientApp
-    ClientApp->PluginManager: initialize(cfile)
-    participant PluginManager
-    PluginManager->PluginManager: parseConfig(cfile)
-    loop ForEachPlugin
-        PluginManager->>PluginLoader: loadPlugin(A)
-        PluginLoader->>PluginA: configure(cdata)
-        PluginLoader->>PluginA: initialize()
-        loop ForEachManagementAPI
-            PluginLoader->>PluginA: LookupAPI
-            PluginLoader-->>PluginA: Return fnPtr
-            PluginLoader->>PluginLoader: Map fnPtr in AdapterTable
-        end
-        PluginLoader-->PluginManager: Return AdapterTable
-        PluginManager->PluginManager: StoreAdapterTable
-    end
-    ClientApp->>PluginManager: fpgaEnumerate
-    Note over PluginManager: ForEachAdapterTable
-    PluginManager->>PluginA: fpgaEnumerate()
-    PluginA-->>PluginManager: ReturnTokenList(PluginA)
-    loop ForEachToken(PluginA)
-        PluginManager->>PluginManager: map(Token, PluginA)
-    end
-    PluginManager->>PluginManager: ExtendTokenList(TokensA)
-    PluginManager->>ProxyPlugin: fpgaEnumerate()
-    ProxyPlugin->>RemoteEndpoint: send_msg(enumerate, filter)
-    RemoteEndpoint->>ProxyPlugin: recv_msg(tokens)
-    loop ForEachToken
-        ProxyPlugin->ProxyPlugin:deserialize(messageToken, fpga_token)
-        ProxyPlugin->ProxyPlugin:associate(fpga_token, endpoint_connection)
-    end
-    ProxyPlugin-->>PluginManager: ReturnTokenList(ProxyPlugin)
-    loop ForEachToken(ProxyPlugin)
-        PluginManager->>PluginManager: associate(Token, ProxyPlugin)
-    end
-    PluginManager->>PluginManager: ExtendTokenList(TokensB)
-    PluginManager-->>ClientApp: ReturnAllTokenList
+### Plugin ###
+  A plugin is a library that implements functions defined in the OPAE API
+  specification. It is called by by the Plugin Manager to discover or operate
+  on OPAE resources.
 
-    ClientApp->>PluginManager: fpgaOpen(Token)
-    PluginManager->>PluginManager: mapLookup(Token, AdapterTableB)
-    PluginManager->>ProxyPlugin: fpgaOpen(Token)
-    ProxyPlugin->>RemoteEndpoint: send_msg(open, token)
-    RemoteEndpoint-->>ProxyPlugin: recv_msg(handle)
-    ProxyPlugin->>ProxyPlugin: make_fpga_handle(handle)
-    Note over ProxyPlugin: associate handle to endpoint
-    ProxyPlugin-->>PluginManager: return FPGA_OK, handle
-    Note over PluginManager: associate handle to ProxyPlugin
-```
 
-## Components ##
+## Interface Design ##
+
 
 ### Plugin Interface ###
 The following list describes features that are compatible with the Plugin
@@ -163,6 +118,17 @@ to denote a relative latency. It is currently undetermined how those values
 will be measured or calculated one possibility may involve measuring latency
 for certain operations.
 
+## Component Designs ##
+
+Becuase the data structures defined in the OPAE API are opaque types, any
+implementation of the API (including the Plugin Manager) is free to define its
+own versions of the concrete types to fit its own implementation.
+
+The Plugin Manager defines its internal versions of these concrete types as
+data structures that compose of both the adapter table and the plugin's instance
+of an opaque type. The Plugin Manager will then use this association to forward
+calls to appropriate functions pointers in the adapter table.
+
 ### Plugin Manager ###
 
 The Plugin Manager is the software component that is linked as a shared library
@@ -170,9 +136,9 @@ and implements the OPAE C API. Because it implements the OPAE C API, it can be
 liked at runtime by any application that links against the API. It will then
 forward API calls to the appropriate plugins that have been loaded.
 
-The plugin manager parses the plugins section of the configuration file to determine the list of plugins to load.
+The Plugin Manager parses the plugins section of the configuration file to determine the list of plugins to load.
 The manager then invokes the Plugin Loader to load each plugin. The result of loading a plugin is the adapter table
-for the plugin. The plugin manager maintains the following mappings:
+for the plugin. The Plugin Manager maintains the following mappings:
 
 * Each API adapter table is mapped to its plugin.
 * Each enumerated `fpga_token` is mapped to its plugin.
@@ -180,14 +146,14 @@ for the plugin. The plugin manager maintains the following mappings:
 
 #### Enumeration ####
 
-When the API's main `fpgaEnumerate` is called, the plugin manager iterates over each loaded plugin,
+When the API's main `fpgaEnumerate` is called, the Plugin Manager iterates over each loaded plugin,
 using its adapter table to call the plugin's `fpgaEnumerate` entry point. The tokens resulting from an individual
 plugin enumeration are each mapped to the originating plugin. Finally, the tokens are collected into the token
 array for returning to the caller.
 
 #### Opening a device ####
 
-When the API's main `fpgaOpen` is called, the plugin manager resolves the given token to its plugin. The adapter
+When the API's main `fpgaOpen` is called, the Plugin Manager resolves the given token to its plugin. The adapter
 table's `fpgaOpen` is then invoked. Finally, the resulting `fpga_handle` is mapped to its originating plugin,
 and the handle is returned to the caller.
 
@@ -198,7 +164,7 @@ contained API entry points. The loader calls opaePluginConfigure(), passing the 
 Once the plugin is configured, the plugin loader calls back into the plugin's opaePluginInitialize() entry point.
 If initialization is successful, the plugin loader begins resolving API entry points.
 Each API entry point from the plugin is placed into the plugin's adapter table. The adapter table for the plugin
-is then returned to the plugin manager, where it is associated with the plugin in the manager's internal data
+is then returned to the Plugin Manager, where it is associated with the plugin in the manager's internal data
 structures.
 
 
@@ -207,74 +173,83 @@ structures.
 #### Fault Tolerance ####
 
 
-```
-# pluginLoader
-load_plugin(name, config, plugin_struct):
-    h = dlopen(name)
-    c = dlsym(h, "configure")
-    if c:
-        c(config)
-    for each plugin_API_func:
-        fp = dlsym(h, plugin_API_func)
-        plugin_struct.plugin_API_func = fp
+### Example Use Case ###
 
+The example below illustrates a case of a client application linking to the
+Plugin Manager.  The Plugin Manager is responsible for managing plugins and
+forwarding API function calls to any plugins it has configured and initialized.
+The Plugin Manager "tags" any API data structures (`fpga_token`, `fpga_handle`)
+when calling API functions in any of its registered plugins by wrapping the
+data structure in its own internal data structure.
+This example shows a Plugin Manager and two plugins. One of the plugins in this
+scenario is a proxy plugin which acts as a proxy to resources on remote
+endpoints.
 
+The sequence of events shows what happens when the client application calls
+`fpgaEnumerate`.  The implementation of `fpgaEnumerate` in the Plugin Manager
+includes calling `fpgaEnumerate` in each of its plugins. Any tokens returned by
+the plugin are then "tagged" with the plugin. This is necessary to call the
+appropriate API functions implemented by the plugin on any future operations
+like `fpgaOpen`. When the Plugin Manager receives the `fpgaOpen` call,
+it gets the plugin the token was "tagged" with, the proxy plugin, and calls
+`fpgaOpen` in the plugin.  The proxy plugin then uses its internal data
+structures to find the endpoint the token came from.  Next, it sends a message
+with the request of open and the token information in its payload.  The
+receiving endpoint then maps the token information it receives to an fpga_token
+and calls `fpgaOpen` to open the device (local to itself). Upon successfully
+opening the resource, it will send a response indicating success and include
+the handle information in the payload.  The proxy plugin receives the response
+and creates an fpga_handle to assign to its fpga_handle variable. In its
+implementation of `fpgaOpen`, the proxy plugin associates this `fpga_handle`
+object with the endpoint that sent it. 
 
-class pluginManger
-    init(config)
-        cd = parse_config(config)
-        for each plugin in cd["plugins"]:
-            plugin_struct ps
-            load_plugin(plugin["name"], config, ps)
-            myplugins.add(ps)
+```mermaid
+sequenceDiagram
+    participant ClientApp
+    ClientApp->PluginManager: initialize(cfile)
+    participant PluginManager
+    PluginManager->PluginManager: parseConfig(cfile)
+    loop ForEachPlugin
+        PluginManager->>PluginLoader: loadPlugin(A)
+        PluginLoader->>PluginA: configure(cdata)
+        PluginLoader->>PluginA: initialize()
+        loop ForEachManagementAPI
+            PluginLoader->>PluginA: LookupAPI
+            PluginLoader-->>PluginA: Return fnPtr
+            PluginLoader->>PluginLoader: Map fnPtr in AdapterTable
+        end
+        PluginLoader-->PluginManager: Return AdapterTable
+        PluginManager->PluginManager: StoreAdapterTable
+    end
+    ClientApp->>PluginManager: fpgaEnumerate
+    Note over PluginManager: ForEachAdapterTable
+    PluginManager->>PluginA: fpgaEnumerate()
+    PluginA-->>PluginManager: ReturnTokenList(PluginA)
+    loop ForEachToken(PluginA)
+        PluginManager->>PluginManager: tag(Token, PluginA)
+    end
+    PluginManager->>PluginManager: ExtendTokenList(TokensA)
+    PluginManager->>ProxyPlugin: fpgaEnumerate()
+    ProxyPlugin->>RemoteEndpoint: send_msg(enumerate, filter)
+    RemoteEndpoint->>ProxyPlugin: recv_msg(tokens)
+    loop ForEachToken
+        ProxyPlugin->ProxyPlugin:deserialize(messageToken, fpga_token)
+        ProxyPlugin->ProxyPlugin:associate(fpga_token, endpoint_connection)
+    end
+    ProxyPlugin-->>PluginManager: ReturnTokenList(ProxyPlugin)
+    loop ForEachToken(ProxyPlugin)
+        PluginManager->>PluginManager: tag(Token, ProxyPlugin)
+    end
+    PluginManager->>PluginManager: ExtendTokenList(TokensB)
+    PluginManager-->>ClientApp: ReturnAllTokenList
 
-fpgaEnumerate(filter, tokens)
-    for each plugin in resourcemanager:
-        plugin.fpgaEnumerate(filter, plugin_tokens)
-        for each plugin_token:
-            tag_token(plugin_token, plugin)
-            tokens.append(plugin_token)
-    return FPGA_OK
-
-fpgaOpen(t, h):
-    p = rm.find_plugin(t.plugin)
-    p.fpgaOpen(t, h)
-    tag_handle(h, p)
-
-
-
-
-```
-
-```
-so_plugin (libopae-c):
-    configure(config): NA
-    init(): NA
-
-    fpgaEnumerate()
-
-so_plugin ()
-
-
-proxy_plugin:
-    configure(config)
-        addr = config[address]
-        c = connect(addr)
-        store connection info
-    init()
-        discover()
-
-    fpgaEnumerate(filter, tokens):
-        c.send_message({"enumerate", [filters]})
-        data = c.recv()
-
-        process_data(data, tokens)
-
-        return FPGA_OK
-
-    fpgaOpen(t, h):
-        c.send_message({"open", toke})
-        data = c.recv()
-        make_handle(data)
-        return FPGA_OK
+    ClientApp->>PluginManager: fpgaOpen(Token)
+    PluginManager->>PluginManager: untag(Token, AdapterTableB)
+    PluginManager->>ProxyPlugin: fpgaOpen(Token)
+    ProxyPlugin->>RemoteEndpoint: send_msg(open, token)
+    RemoteEndpoint-->>ProxyPlugin: recv_msg(handle)
+    ProxyPlugin->>ProxyPlugin: make_fpga_handle(handle)
+    Note over ProxyPlugin: associate handle to endpoint
+    ProxyPlugin-->>PluginManager: return FPGA_OK, handle
+    Note over PluginManager: associate handle to ProxyPlugin
 ```
