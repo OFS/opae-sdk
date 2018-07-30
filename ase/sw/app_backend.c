@@ -420,7 +420,7 @@ void session_init(void)
         io_s.mmio_region->memsize = MMIO_LENGTH;
         io_s.mmio_region->is_mmiomap = 1;
         allocate_buffer(io_s.mmio_region, NULL);
-        mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
+        mmio_afu_vbase = (uint64_t *) ((uint64_t) mmio_region->vbase +
                            MMIO_AFU_OFFSET);
         //mmio_exist_status = ESTABLISHED;
 
@@ -436,7 +436,7 @@ void session_init(void)
         umas_s.umas_region->memsize = UMAS_REGION_MEMSIZE;    //UMAS_LENGTH;
         umas_s.umas_region->is_umas = 1;
         allocate_buffer(umas_s.umas_region, NULL);
-        umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_region->vbase);
+        umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_s.umas_region->vbase);
         //umas_exist_status = ESTABLISHED;
         umsg_set_attribute(0x0);
         ASE_MSG("UMAS Virtual Base address = %p\n",
