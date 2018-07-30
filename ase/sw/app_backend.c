@@ -291,6 +291,7 @@ void send_simkill(int n)
 void session_init(void)
 {
     FUNC_CALL_ENTRY;
+    int rc;
 
     // Start clock
     clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
@@ -444,7 +445,8 @@ void session_init(void)
 
         // Start MMIO read response watcher watcher thread
         ASE_MSG("Starting MMIO Read Response watcher ... \n");
-        io_s.mmio_port_lock = PTHREAD_MUTEX_INITIALIZER;
+        rc = pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
+        assert( rc == 0);
         thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
                      &mmio_response_watcher, NULL);
         if (thr_err != 0) {
