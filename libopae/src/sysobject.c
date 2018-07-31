@@ -171,41 +171,89 @@ fpga_result __FPGA_API__ fpgaWriteObject64(fpga_handle handle, const char *key,
 
 fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 					      const char *key, uint8_t *buffer,
-					      size_t offset, size_t *len)
+					      size_t offset, size_t len)
 {
 	char objpath[SYSFS_PATH_MAX];
 	int fd = -1;
+	off_t fsize = 0;
 	ssize_t count = 0;
 	fpga_result res = FPGA_EXCEPTION;
+	char *rw_buffer = NULL;
 
 	NULL_CHECK(handle);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
-	NULL_CHECK(len);
 
 	res = cat_handle_sysfs_path(objpath, handle, key);
 	if (res) {
 		return res;
 	}
-	fd = open(objpath, O_WRONLY);
+	fd = open(objpath, O_RDWR);
 	if (fd < 0) {
 		return FPGA_NOT_FOUND;
 	}
 
-	count = pwrite(fd, buffer, *len, offset);
-	if (count < (ssize_t)*len) {
+	// According to kernel docs on sysfs:
+	//
+	// When writing sysfs files, userspace processes should first read the
+	// entire file, modify the values it wishes to change, then write the
+	// entire buffer back.
+
+	// Get the file size and allocate a buffer to read its contents into
+	fsize = lseek(fd, 0, SEEK_END);
+	if (fsize < 0){
+		FPGA_ERR("Error with lseek operation: %s",
+			 strerror(errno));
+		res = FPGA_EXCEPTION;
+		goto out_close;
+
+	}
+
+	// rewind the offset to 0
+	if (lseek(fd, 0, SEEK_SET) < 0){
+		FPGA_ERR("Error with lseek operation: %s",
+			 strerror(errno));
+		res = FPGA_EXCEPTION;
+		goto out_close;
+	}
+
+	// check if this operation would go out of bounds
+	if (offset+len > (size_t)fsize){
+		FPGA_ERR("Bytes to write exceed file size");
+		res = FPGA_EXCEPTION;
+		goto out_close;
+	}
+
+
+	rw_buffer = calloc(fsize, sizeof(char));
+	if (rw_buffer == NULL){
+		res = FPGA_NO_MEMORY;
+		goto out_close;
+	}
+
+	// copy bytes to write to rw_write buffer
+	memcpy(rw_buffer+offset, buffer, len);
+
+	// write modified buffer to sysfs object
+	count = write(fd, rw_buffer, fsize);
+	if (count < fsize) {
+		res = FPGA_EXCEPTION;
 		if (count < 0) {
-			FPGA_ERR("Error with pwrite operation: %s",
+			FPGA_ERR("Error with write operation: %s",
 				 strerror(errno));
-			res = FPGA_EXCEPTION;
 		} else {
 			FPGA_MSG(
-				"Bytes written (%d) is less that requested (%d)",
-				count, *len);
+				"Bytes written (%d) is less that object size (%d)",
+				count, fsize);
 		}
-		res = count == 0 ? FPGA_EXCEPTION : FPGA_OK;
+		res = FPGA_EXCEPTION;
+	}else{
+		res = FPGA_OK;
 	}
-	*len = count;
+
+	free(rw_buffer);
+
+out_close:
 	close(fd);
 	return res;
 }

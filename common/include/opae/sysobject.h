@@ -155,7 +155,7 @@ fpga_result fpgaWriteObject64(fpga_handle handle, const char *key,
  * possible race conditions
  */
 fpga_result fpgaWriteObjectBytes(fpga_handle handle, const char *key,
-				 uint8_t *buffer, size_t offset, size_t *len);
+				 uint8_t *buffer, size_t offset, size_t len);
 
 #ifdef __cplusplus
 } // extern "C"
