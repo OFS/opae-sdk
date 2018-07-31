@@ -1,3 +1,6 @@
+`fpga_token` and `fpga_handle` are opaque types. This allows them to be
+easily wrapped at any level of the plugin stack.
+
 ```c
 #ifndef __OPAE_TYPES_H__
 #define __OPAE_TYPES_H__
@@ -7,6 +10,9 @@ typedef void *fpga_handle;
 
 #endif
 ```
+
+The plugin manager tracks each loaded plugin in its list of OPAE
+API adpater tables.
 
 ```c
 #ifndef __OPAE_PLUGIN_MGR_H__
@@ -31,6 +37,12 @@ int opae_plugin_mgr_register_adapter(api_adapter_table *adapter)
 
 #endif
 ```
+
+The plugin loader provides the basic facilities for locating and
+loading OPAE plugins, given a description of the desired plugins
+in a formatted configuration file (JSON). The loader registers
+each loaded plugin with the plugin manager.
+
 
 ```c
 #ifndef __OPAE_PLUGIN_LDR_H__
@@ -111,6 +123,11 @@ int opae_plugin_ldr_load_plugins(json_object *jobj)
 #endif
 ```
 
+The OPAE API consists of the plugin manager, the plugin loader,
+and 'shell' implementations of the superset of library calls.
+Each 'shell' library call uses the adapter table(s) to call through
+to the appropriate plugin implementation.
+
 ```c
 #ifndef __OPAE_API_H__
 #define __OPAE_API_H__
@@ -179,6 +196,10 @@ fpga_result fpgaOpen(fpga_token token,
 
 #endif
 ```
+
+A TCP/IP OPAE plugin uses network sockets to implement the control
+protocol exchange, but may utilize facilities such as RDMA for data
+exchange.
 
 ```c
 #ifndef __MY_TCP_IP_PLUGIN_H__
@@ -294,6 +315,9 @@ fpga_result fpgaOpen(fpga_token token,
 
 #endif
 ```
+
+An RDMA OPAE plugin uses RDMA for both control protocol and
+data exchange.
 
 ```c
 #ifndef __MY_RDMA_PLUGIN_H__
@@ -413,6 +437,9 @@ fpga_result fpgaOpen(fpga_token token,
 #endif
 ```
 
+The 'local' OPAE plugin communicates with the kernel device driver
+via memory-mapped IO and sysfs attributes.
+
 ```c
 #ifndef __MY_LOCAL_PLUGIN_H__
 #define __MY_LOCAL_PLUGIN_H__
@@ -465,6 +492,6 @@ fpga_result fpgaOpen(fpga_token token,
 ```
 
 Other plugins:
-* AFU Simulation Environment
+* AFU Simulation Environment (ASE)
 * virtio-vsock (pool of accelerators assigned to VM's)
 * RSD
