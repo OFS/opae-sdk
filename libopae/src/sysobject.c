@@ -102,15 +102,16 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 					     size_t *len)
 {
 	int fd = -1;
-	off_t seek_pos = 0;
 	char objpath[SYSFS_PATH_MAX];
+	ssize_t count = 0;
+	fpga_result res = FPGA_EXCEPTION;
 
 	NULL_CHECK(token);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
 	NULL_CHECK(len);
 
-	fpga_result res = cat_token_sysfs_path(objpath, token, key);
+	res = cat_token_sysfs_path(objpath, token, key);
 	if (res) {
 		return res;
 	}
@@ -120,19 +121,24 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 		return FPGA_NOT_FOUND;
 	}
 
-	seek_pos = lseek(fd, offset, SEEK_SET);
-	if (seek_pos < (off_t)offset) {
-		if (seek_pos < 0) {
-			FPGA_ERR("Error with lseek operation: %s",
+	count = pread(fd, buffer, *len, offset);
+	if (count < (ssize_t)*len) {
+		if (count < 0) {
+			FPGA_ERR("Error with pread operation: %s",
 				 strerror(errno));
+			res = FPGA_EXCEPTION;
 		} else {
-			FPGA_ERR("Offset after lseek < offset argument");
+			FPGA_MSG("Bytes read (%d) is less that requested (%d)",
+				 count, *len);
+			res = count == 0 ? FPGA_EXCEPTION : FPGA_OK;
 		}
-		return FPGA_EXCEPTION;
+	} else {
+		res = FPGA_OK;
 	}
-	*len = read(fd, buffer, *len);
+	*len = count;
+	close(fd);
 
-	return FPGA_OK;
+	return res;
 }
 
 fpga_result __FPGA_API__ fpgaWriteObject32(fpga_handle handle, const char *key,
@@ -165,18 +171,19 @@ fpga_result __FPGA_API__ fpgaWriteObject64(fpga_handle handle, const char *key,
 
 fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 					      const char *key, uint8_t *buffer,
-					      size_t offset, size_t* len)
+					      size_t offset, size_t *len)
 {
 	char objpath[SYSFS_PATH_MAX];
 	int fd = -1;
-	off_t seek_pos = 0;
+	ssize_t count = 0;
+	fpga_result res = FPGA_EXCEPTION;
 
 	NULL_CHECK(handle);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
 	NULL_CHECK(len);
 
-	fpga_result res = cat_handle_sysfs_path(objpath, handle, key);
+	res = cat_handle_sysfs_path(objpath, handle, key);
 	if (res) {
 		return res;
 	}
@@ -185,17 +192,20 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 		return FPGA_NOT_FOUND;
 	}
 
-	seek_pos = lseek(fd, offset, SEEK_SET);
-	if (seek_pos < (off_t)offset) {
-		if (seek_pos < 0) {
-			FPGA_ERR("Error with lseek operation: %s",
+	count = pwrite(fd, buffer, *len, offset);
+	if (count < (ssize_t)*len) {
+		if (count < 0) {
+			FPGA_ERR("Error with pwrite operation: %s",
 				 strerror(errno));
+			res = FPGA_EXCEPTION;
 		} else {
-			FPGA_ERR("Offset after lseek < offset argument");
+			FPGA_MSG(
+				"Bytes written (%d) is less that requested (%d)",
+				count, *len);
 		}
-		return FPGA_EXCEPTION;
+		res = count == 0 ? FPGA_EXCEPTION : FPGA_OK;
 	}
-	*len = write(fd, buffer, *len);
-
-	return FPGA_OK;
+	*len = count;
+	close(fd);
+	return res;
 }
