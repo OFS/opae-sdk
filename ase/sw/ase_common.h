@@ -83,6 +83,8 @@
 #define OK     0
 #define NOT_OK -1
 
+#define ENABLE_ENTRY_EXIT_WATCH
+
 /* *******************************************************************************
  *
  * SYSTEM FACTS

@@ -336,6 +336,7 @@ void send_simkill(int n)
 void session_init(void)
 {
     FUNC_CALL_ENTRY;
+
     int rc = 0;
     uint32_t mq_exist_status = NOT_ESTABLISHED;
     uint32_t mmio_exist_status = NOT_ESTABLISHED;
@@ -626,7 +627,7 @@ bool remove_existing_lock_file(void)
             } else if (errno == EPERM) {
                 ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
             } else
-                ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
+                ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d getpid=%d\n", lock, getpid() );
         } else {
             ASE_ERR
                 ("Error reading PID of application using ASE, EXITING\n");
