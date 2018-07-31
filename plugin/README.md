@@ -196,7 +196,7 @@ and their individual configuration data.
                         "load_policy" : {}
                 },
                 {
-                        "module" "libopae-net-proxy",
+                        "module": "libopae-net-proxy",
                         "name": "rdma-proxy1",
                         "config": {
                         },
