@@ -201,24 +201,21 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 
 	// Get the file size and allocate a buffer to read its contents into
 	fsize = lseek(fd, 0, SEEK_END);
-	if (fsize < 0){
-		FPGA_ERR("Error with lseek operation: %s",
-			 strerror(errno));
+	if (fsize < 0) {
+		FPGA_ERR("Error with lseek operation: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 		goto out_close;
-
 	}
 
 	// rewind the offset to 0
-	if (lseek(fd, 0, SEEK_SET) < 0){
-		FPGA_ERR("Error with lseek operation: %s",
-			 strerror(errno));
+	if (lseek(fd, 0, SEEK_SET) < 0) {
+		FPGA_ERR("Error with lseek operation: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 		goto out_close;
 	}
 
 	// check if this operation would go out of bounds
-	if (offset+len > (size_t)fsize){
+	if (offset + len > (size_t)fsize) {
 		FPGA_ERR("Bytes to write exceed file size");
 		res = FPGA_EXCEPTION;
 		goto out_close;
@@ -226,13 +223,13 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 
 
 	rw_buffer = calloc(fsize, sizeof(char));
-	if (rw_buffer == NULL){
+	if (rw_buffer == NULL) {
 		res = FPGA_NO_MEMORY;
 		goto out_close;
 	}
 
 	// copy bytes to write to rw_write buffer
-	memcpy(rw_buffer+offset, buffer, len);
+	memcpy(rw_buffer + offset, buffer, len);
 
 	// write modified buffer to sysfs object
 	count = write(fd, rw_buffer, fsize);
@@ -247,7 +244,7 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 				count, fsize);
 		}
 		res = FPGA_EXCEPTION;
-	}else{
+	} else {
 		res = FPGA_OK;
 	}
 
