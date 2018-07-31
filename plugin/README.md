@@ -177,23 +177,33 @@ and their individual configuration data.
 
 ```JSON
 {
-        "plugins": [
-                { "module": "libopae-c.so",
-                  "name": "default",
-                  "config": {},
-                  "load_policy" : {
-                          "limit_instance": 1
-                  }},
-                  { "module": "libopae-net-proxy",
-                    "name": "tcp-proxy1",
-                    "transport": "tcp",
-                    "config": {
-                            "discovery": "none",
-                            "hosts": ["host1", "host2", "host3"]
-                    }}]
+        "plugins":
+        [
+                {
+                        "module": "libopae-c.so",
+                        "name": "default",
+                        "config": {},
+                        "load_policy" : {"limit_instance": 1}
+                },
+                {
+                        "module": "libopae-net-proxy",
+                        "name": "tcp-proxy1",
+                        "config": {
+                                "transport": "tcp",
+                                "discovery": "none",
+                                "hosts": ["host1", "host2", "host3"]
+                        },
+                        "load_policy" : {}
+                },
+                {
+                        "module" "libopae-net-proxy",
+                        "name": "rdma-proxy1",
+                        "config": {
+                        },
+                        "load_policy": {}
+                }
+        ]
 }
-
-
 ```
 
 ### Example Use Case ###
