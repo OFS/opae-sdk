@@ -170,6 +170,32 @@ structures.
 
 #### Calling a Function ####
 
+### Configuration Schema ###
+The OPAE Plugin system will use JSON for defining any runtime configuration
+parameters. This includes the list of plugins to load, their instance names,
+and their individual configuration data.
+
+```JSON
+{
+        "plugins": [
+                { "module": "libopae-c.so",
+                  "name": "default",
+                  "config": {},
+                  "load_policy" : {
+                          "limit_instance": 1
+                  }},
+                  { "module": "libopae-net-proxy",
+                    "name": "tcp-proxy1",
+                    "transport": "tcp",
+                    "config": {
+                            "discovery": "none",
+                            "hosts": ["host1", "host2", "host3"]
+                    }}]
+}
+
+
+```
+
 ### Example Use Case ###
 
 The example below illustrates a case of a client application linking to the
