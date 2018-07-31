@@ -77,8 +77,8 @@ static int sim2app_dealloc_rx;
 static int sim2app_portctrl_rsp_rx;
 static int sim2app_intr_request_rx;
 
-MMIO_S io_s = { 0 };
-UMAS_S umas_s = { 0 };
+MMIO_S io_s;
+UMAS_S umas_s;
 
 volatile int umas_init_flag;	        // UMAS initialized flag
 
@@ -420,7 +420,7 @@ void session_init(void)
         io_s.mmio_region->memsize = MMIO_LENGTH;
         io_s.mmio_region->is_mmiomap = 1;
         allocate_buffer(io_s.mmio_region, NULL);
-        mmio_afu_vbase = (uint64_t *) ((uint64_t) mmio_region->vbase +
+        mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
                            MMIO_AFU_OFFSET);
         //mmio_exist_status = ESTABLISHED;
 
@@ -445,7 +445,8 @@ void session_init(void)
         // Start MMIO read response watcher watcher thread
         ASE_MSG("Starting MMIO Read Response watcher ... \n");
         rc = pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
-        assert( rc == 0);
+        if( rc != 0)
+			ASE_ERR("Failed to initialize the pthread_mutex_lock\n");
         thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
                      &mmio_response_watcher, NULL);
         if (thr_err != 0) {
