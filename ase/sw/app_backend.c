@@ -29,7 +29,7 @@
 
 #include "ase_common.h"
 
-const int TID_DELAY 10000;   // Wait time for generating TID
+const int TID_DELAY = 10000;   // Wait time for generating TID
 
 // UMsg byte offset
 const int umsg_byteindex_arr[] = {
@@ -690,7 +690,7 @@ void session_deinit(void)
 		fclose(fp_pagetable_log);
 		fclose(fp_mmioaccess_log);
 #endif
-		close_mq()
+		close_mq();
 
 		// Lock deinit
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
