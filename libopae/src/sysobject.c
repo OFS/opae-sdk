@@ -28,6 +28,9 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "common_int.h"
 #include "log_int.h"
 #include "sysfs_int.h"
@@ -98,20 +101,38 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 					     uint8_t *buffer, size_t offset,
 					     size_t *len)
 {
+	int fd = -1;
+	off_t seek_pos = 0;
+	char objpath[SYSFS_PATH_MAX];
+
 	NULL_CHECK(token);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
 	NULL_CHECK(len);
-	(void)offset;
 
-	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = cat_token_sysfs_path(objpath, token, key);
 	if (res) {
 		return res;
 	}
 
+	fd = open(objpath, O_RDONLY);
+	if (fd < 0) {
+		return FPGA_NOT_FOUND;
+	}
 
-	return res;
+	seek_pos = lseek(fd, offset, SEEK_SET);
+	if (seek_pos < (off_t)offset) {
+		if (seek_pos < 0) {
+			FPGA_ERR("Error with lseek operation: %s",
+				 strerror(errno));
+		} else {
+			FPGA_ERR("Offset after lseek < offset argument");
+		}
+		return FPGA_EXCEPTION;
+	}
+	*len = read(fd, buffer, *len);
+
+	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ fpgaWriteObject32(fpga_handle handle, const char *key,
@@ -144,17 +165,37 @@ fpga_result __FPGA_API__ fpgaWriteObject64(fpga_handle handle, const char *key,
 
 fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 					      const char *key, uint8_t *buffer,
-					      size_t offset, size_t len)
+					      size_t offset, size_t* len)
 {
+	char objpath[SYSFS_PATH_MAX];
+	int fd = -1;
+	off_t seek_pos = 0;
+
 	NULL_CHECK(handle);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
-	(void)offset;
-	(void)len;
-	char objpath[SYSFS_PATH_MAX];
+	NULL_CHECK(len);
+
 	fpga_result res = cat_handle_sysfs_path(objpath, handle, key);
 	if (res) {
 		return res;
 	}
-	return res;
+	fd = open(objpath, O_WRONLY);
+	if (fd < 0) {
+		return FPGA_NOT_FOUND;
+	}
+
+	seek_pos = lseek(fd, offset, SEEK_SET);
+	if (seek_pos < (off_t)offset) {
+		if (seek_pos < 0) {
+			FPGA_ERR("Error with lseek operation: %s",
+				 strerror(errno));
+		} else {
+			FPGA_ERR("Offset after lseek < offset argument");
+		}
+		return FPGA_EXCEPTION;
+	}
+	*len = write(fd, buffer, *len);
+
+	return FPGA_OK;
 }

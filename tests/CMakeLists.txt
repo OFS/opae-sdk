@@ -80,9 +80,9 @@ add_executable(gtunit
     mock.c
     ${GTUNIT_TESTS})
 target_link_libraries(gtunit ${GTEST_BOTH_LIBRARIES} opae-c dl)
-add_test(NAME gtunit
+add_test(NAME gtunit-sysobject
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND $<TARGET_FILE:gtunit> )
+    COMMAND $<TARGET_FILE:gtunit> "--gtest_filter=sysobject*")
 
 ############################################################################
 ## add_gtfilter macro  #####################################################

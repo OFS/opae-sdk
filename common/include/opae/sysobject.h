@@ -143,7 +143,8 @@ fpga_result fpgaWriteObject64(fpga_handle handle, const char *key,
  * @param[in] key A key identifying the object with respect to the resource
  * @param[in] buffer Pointer to memory to write to the the object
  * @param[in] offset Where to start writing bytes in the object
- * @param[in] len The number of bytes to write
+ * @param[in] len The number of bytes to read. This is updated with the
+ * actual number of bytes read
  *
  *
  * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
@@ -154,7 +155,7 @@ fpga_result fpgaWriteObject64(fpga_handle handle, const char *key,
  * possible race conditions
  */
 fpga_result fpgaWriteObjectBytes(fpga_handle handle, const char *key,
-				 uint8_t *buffer, size_t offset, size_t len);
+				 uint8_t *buffer, size_t offset, size_t *len);
 
 #ifdef __cplusplus
 } // extern "C"
