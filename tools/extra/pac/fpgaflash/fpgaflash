@@ -238,42 +238,7 @@ def normalize_bdf(bdf):
         return "0000:{}".format(bdf)
 
 
-def update_flash(update_type, ifile, bdf):
-
-    bdf_map = get_bdf_mtd_mapping()
-
-    if len(bdf_map) == 0:
-        print "No FPGA devices found"
-        raise Exception
-
-    mtd_dev = None
-    if not bdf:
-        if len(bdf_map) > 1:
-            print "Must specify a bdf. More than one device found."
-        else:
-            mtd_dev = bdf_map[bdf_map.keys()[0]]
-    else:
-        bdf = normalize_bdf(bdf)
-        if not bdf:
-            print "{} is an invalid bdf".format(bdf)
-        elif bdf not in bdf_map.keys():
-            print "Could not find flash device for {}".format(bdf)
-        else:
-            mtd_dev = bdf_map[bdf]
-
-    if not mtd_dev:
-        print_bdf_mtd_mapping(bdf_map)
-        raise Exception
-
-    try:
-        mode = os.stat(mtd_dev).st_mode
-    except Exception as e:
-        print "Couldn't stat {}".format(mtd_dev)
-        raise
-
-    if not stat.S_ISCHR(mode):
-        print "{} is not a device file.".format(mtd_dev)
-        raise Exception
+def update_flash(update_type, ifile, mtd_dev):
 
     flash_size = get_flash_size(mtd_dev)
 
@@ -329,9 +294,44 @@ def update_flash(update_type, ifile, bdf):
         raise Exception
 
 
-if __name__ == "__main__":
-
+def main():
     args = parse_args()
+
+    bdf_map = get_bdf_mtd_mapping()
+
+    if len(bdf_map) == 0:
+        print "No FPGA devices found"
+        raise Exception
+
+    mtd_dev = None
+    bdf = args.bdf
+    if not bdf:
+        if len(bdf_map) > 1:
+            print "Must specify a bdf. More than one device found."
+        else:
+            mtd_dev = bdf_map[bdf_map.keys()[0]]
+    else:
+        bdf = normalize_bdf(bdf)
+        if not bdf:
+            print "{} is an invalid bdf".format(bdf)
+        elif bdf not in bdf_map.keys():
+            print "Could not find flash device for {}".format(bdf)
+        else:
+            mtd_dev = bdf_map[bdf]
+
+    if not mtd_dev:
+        print_bdf_mtd_mapping(bdf_map)
+        raise Exception
+
+    try:
+        mode = os.stat(mtd_dev).st_mode
+    except Exception as e:
+        print "Couldn't stat {}".format(mtd_dev)
+        raise
+
+    if not stat.S_ISCHR(mode):
+        print "{} is not a device file.".format(mtd_dev)
+        raise Exception
 
     if args.type == 'factory':
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
@@ -340,4 +340,8 @@ if __name__ == "__main__":
         if line != "Yes\n":
             sys.exit(1)
 
-    update_flash(args.type, args.file, args.bdf)
+    update_flash(args.type, args.file, mtd_dev)
+
+
+if __name__ == "__main__":
+    main()
