@@ -115,6 +115,8 @@ struct buffer_t *buf_end = (struct buffer_t *) NULL;
 int asebuf_index_count;               // global count/index
 int userbuf_index_count;              // User count/index
 
+// ASE Capability register
+struct ase_capability_t ase_capability;
 
 // Debug logs
 #ifdef ASE_DEBUG
@@ -1667,7 +1669,7 @@ void __attribute__ ((optimize("O0"))) ase_portctrl(ase_portctrl_cmd command, int
     char rx_msg[ASE_MQ_MSGSIZE] = { 0 };
 
 	// ASE Capability register
-	struct ase_capability_t ase_capability;
+	struct ase_capability_t tmp_cap;
 
     // construct message
     snprintf(ctrl_msg, ASE_MQ_MSGSIZE, "%d %d", (int)command, value);
@@ -1679,17 +1681,26 @@ void __attribute__ ((optimize("O0"))) ase_portctrl(ase_portctrl_cmd command, int
     mqueue_recv(sim2app_portctrl_rsp_rx, rx_msg, ASE_MQ_MSGSIZE);
 
     // Copy to ase_capability
-    ase_memcpy(&ase_capability, rx_msg, sizeof(struct ase_capability_t));
+    ase_memcpy(&tmp_cap, rx_msg, sizeof(struct ase_capability_t));
 
     // Check capability register integrity
     if (command == ASE_INIT) {
-        // Make a check for the magic word
-		if (memcmp(ase_capability.magic_word, ASE_UNIQUE_ID, sizeof(ASE_UNIQUE_ID)) == 0) {
-			// Print ASE Capabilities on console
-			ASE_MSG("ASE Capabilities: Base %s %s %s\n",
-				ase_capability.umsg_feature ? "UMsg" : "",
-				ase_capability.intr_feature ? "Intr" : "",
-				ase_capability.mmio_512bit ? "MMIO512" : "");
+	    // Set Capability register only when ASE_INIT is used
+	    ase_memcpy(&ase_capability, &tmp_cap, sizeof(struct ase_capability_t));
+
+	    // Make a check for the magic word
+	    if (memcmp(ase_capability.magic_word, ASE_UNIQUE_ID, sizeof(ASE_UNIQUE_ID)) != 0) {
+		    // Restore defaults
+		    ASE_MSG("ASE Capability register was corrupted, loading defaults\n");
+		    ase_capability.umsg_feature = 0;
+		    ase_capability.intr_feature = 0;
+		    ase_capability.mmio_512bit = 0;
 		}
-    }
+
+	    // Print ASE Capabilities on console
+	    ASE_MSG("ASE Capabilities: Base %s %s %s\n",
+		    ase_capability.umsg_feature ? "UMsg" : "",
+		    ase_capability.intr_feature ? "Intr" : "",
+		    ase_capability.mmio_512bit  ? "MMIO512" : "");
+	}
 }
