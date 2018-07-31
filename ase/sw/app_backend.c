@@ -361,14 +361,9 @@ void session_init(void)
 		ase_workdir_path, APP_LOCK_FILENAME);
 
 	// Check if .app_lock_pid lock already exists or not.
-	if (check_app_lock_file()) {
-		//If .app_lock.pid exists but pid doesnt exist.
-		if (!remove_existing_lock_file()) {
-			ASE_MSG("Application Exiting \n");
-			exit(1);
-		}
+	if (check_app_lock_file() == false) {
+		create_new_lock_file();
 	}
-	create_new_lock_file();
 
     // Shared memory and message queue setup
     if (session_count == 0) {
@@ -570,6 +565,7 @@ void session_init(void)
 void create_new_lock_file(void)
 {
     FILE *fp_app_lockfile;
+
     // Open lock file for writing
     fp_app_lockfile = fopen(app_ready_lockpath, "w");
     if (fp_app_lockfile == NULL) {
@@ -585,7 +581,6 @@ void create_new_lock_file(void)
     fclose(fp_app_lockfile);
 }
 
-
 /*
  * Check for access to .app_lock_pid
  */
@@ -595,7 +590,7 @@ bool check_app_lock_file(void)
 	FILE *fp_app_lockfile;
 
 	// Read the PID of the running application
-	fp_app_lockfile = fopen(app_ready_lockpath, "r");
+	fp_app_lockfile = fopen(app_ready_lockpath, "r+w");
 
 	if (fp_app_lockfile == NULL) {
 		ASE_ERR("Error opening Application lock file path, EXITING\n");
@@ -603,10 +598,10 @@ bool check_app_lock_file(void)
 	}
 
 	if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
-		if (lock != getpid())
-			return false;
-		else
-			return true;
+		if (lock != getpid()) {
+			fprintf(fp_app_lockfile, "%d\n", getpid());
+		}
+		return true;
 	} else {
 		return false;
 	}
