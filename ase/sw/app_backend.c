@@ -591,12 +591,26 @@ void create_new_lock_file(void)
  */
 bool check_app_lock_file(void)
 {
-    if (access(app_ready_lockpath, F_OK) == 0)
-        return true;
-    else
-        return false;
-};
+	pid_t lock;
+	FILE *fp_app_lockfile;
 
+	// Read the PID of the running application
+	fp_app_lockfile = fopen(app_ready_lockpath, "r");
+
+	if (fp_app_lockfile == NULL) {
+		ASE_ERR("Error opening Application lock file path, EXITING\n");
+		return false;
+	}
+
+	if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
+		if (lock != getpid())
+			return false;
+		else
+			return true;
+	} else {
+		return false;
+	}
+};
 
 /*
  * Remove Lock File
@@ -612,34 +626,34 @@ bool remove_existing_lock_file(void)
     if (fp_app_lockfile == NULL) {
         ASE_ERR("Error opening Application lock file path, EXITING\n");
         return false;
+    } 
+
+    if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
+        // Check if PID exists
+        kill(lock, 0);
+        if (errno == ESRCH) {
+            ASE_MSG
+                ("ASE found a stale Application lock with PID = %d -- this will be removed\n",
+                 lock);
+            fclose(fp_app_lockfile);
+            // Delete lock file
+            delete_lock_file();
+            return true;
+        } else if (errno == EPERM) {
+            ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
+        } else
+            ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d getpid=%d\n", lock, getpid() );
     } else {
-        if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
-            // Check if PID exists
-            kill(lock, 0);
-            if (errno == ESRCH) {
-                ASE_MSG
-                    ("ASE found a stale Application lock with PID = %d -- this will be removed\n",
-                     lock);
-                fclose(fp_app_lockfile);
-                // Delete lock file
-                delete_lock_file();
-                return true;
-            } else if (errno == EPERM) {
-                ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
-            } else
-                ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d getpid=%d\n", lock, getpid() );
-        } else {
-            ASE_ERR
-                ("Error reading PID of application using ASE, EXITING\n");
-            ASE_ERR
-                ("ASE was found to be running with another application !\n");
-            ASE_ERR("\n");
-            ASE_ERR("If you think this is in error:\n");
-            ASE_ERR
-                (" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n");
-            ASE_ERR
-                (" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
-        }
+        ASE_ERR
+            ("Error reading PID of application using ASE, EXITING\n");
+        ASE_ERR
+            ("ASE was found to be running with another application !\n");
+        ASE_ERR("\n");
+        ASE_ERR("If you think this is in error:\n");
+        ASE_ERR
+            (" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n");
+        ASE_ERR
+            (" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
     }
     fclose(fp_app_lockfile);
     return false;
