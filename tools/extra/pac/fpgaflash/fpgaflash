@@ -83,23 +83,12 @@ def get_flash_size(dev):
 
     MEMGETINFO = 0x80204d01
 
-    try:
-        fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
-    except Exception as e:
-        print "failed to open " + dev + ": ", e
-        raise
-
     ioctl_data = struct.pack('BIIIIIQ', 0, 0, 0, 0, 0, 0, 0)
 
-    try:
-        ret = fcntl.ioctl(fd, MEMGETINFO, ioctl_data)
-    except Exception as e:
-        print "ioctl failed: ", e
-        raise
+    with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDONLY), 'r') as file_:
+        ret = fcntl.ioctl(file_.fileno(), MEMGETINFO, ioctl_data)
 
     ioctl_odata = struct.unpack_from('BIIIIIQ', ret)
-
-    os.close(fd)
 
     return ioctl_odata[2]
 
@@ -107,76 +96,48 @@ def get_flash_size(dev):
 def flash_erase(dev, start, nbytes):
     MEMERASE = 0x40084d02
 
-    try:
-        fd = os.open(dev, os.O_SYNC | os.O_RDWR)
-    except Exception as e:
-        print "failed to open " + dev + ": ", e
-        raise
-
     ioctl_data = struct.pack('II', start, nbytes)
-
-    try:
-        ret = fcntl.ioctl(fd, MEMERASE, ioctl_data)
-    except Exception as e:
-        print "ioctl failed: ", e
-        raise
-
-    os.close(fd)
+    with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'w') as file_:
+        fcntl.ioctl(file_.fileno(), MEMERASE, ioctl_data)
 
 
 def flash_write(dev, start, nbytes, ifile):
 
-    try:
-        fd = os.open(dev, os.O_SYNC | os.O_RDWR)
-    except Exception as e:
-        print "failed to open " + dev + ": ", e
-        raise
+    with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
+        os.lseek(file_.fileno(), start, os.SEEK_SET)
 
-    os.lseek(fd, start, os.SEEK_SET)
+        while nbytes > 0:
+            if nbytes > 4096:
+                rbytes = 4096
+            else:
+                rbytes = nbytes
 
-    while nbytes > 0:
-        if (nbytes > 4096):
-            rbytes = 4096
-        else:
-            rbytes = nbytes
+            ichunk = ifile.read(rbytes)
 
-        ichunk = ifile.read(rbytes)
+            if not ichunk:
+                raise Exception("read of flash failed")
 
-        if not ichunk:
-            print "read of flash failed"
-            raise Exception
-
-        os.write(fd, ichunk)
-        nbytes -= rbytes
-
-    os.close(fd)
+            os.write(file_.fileno(), ichunk)
+            nbytes -= rbytes
 
 
 def flash_read(dev, start, nbytes, ofile):
-    try:
-        fd = os.open(dev, os.O_SYNC | os.O_RDONLY)
-    except Exception as e:
-        print "failed to open " + dev + ": ", e
-        raise
+    with os.fdopen(os.open(dev, os.O_RDONLY), 'r') as file_:
+        os.lseek(file_.fileno(), start, os.SEEK_SET)
 
-    os.lseek(fd, start, os.SEEK_SET)
+        while nbytes > 0:
+            if nbytes > 4096:
+                rbytes = 4096
+            else:
+                rbytes = nbytes
 
-    while nbytes > 0:
-        if (nbytes > 4096):
-            rbytes = 4096
-        else:
-            rbytes = nbytes
+            ichunk = os.read(file_.fileno(), rbytes)
 
-        ichunk = os.read(fd, rbytes)
+            if not ichunk:
+                raise Exception("read of flash failed")
 
-        if not ichunk:
-            print "read of flash failed"
-            raise Exception
-
-        ofile.write(ichunk)
-        nbytes -= rbytes
-
-    os.close(fd)
+            ofile.write(ichunk)
+            nbytes -= rbytes
 
 
 def parse_args():
@@ -230,11 +191,11 @@ def print_bdf_mtd_mapping(bdf_map):
 
 def normalize_bdf(bdf):
 
-    pat = '[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
+    pat = r'[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
     if re.match(pat, bdf):
         return bdf
 
-    if re.match('[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$', bdf):
+    if re.match(r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$', bdf):
         return "0000:{}".format(bdf)
 
 
