@@ -360,14 +360,14 @@ void session_init(void)
 	snprintf(app_ready_lockpath, ASE_FILEPATH_LEN, "%s/%s",
 		ase_workdir_path, APP_LOCK_FILENAME);
 
-	// Check if .app_lock_pid lock already exists or not.
+	// Check if .app_lock.pid lock already exists or not.
 	if (check_app_lock_file() == false) {
 		create_new_lock_file();
+		ASE_MSG("ASE session_init created .app_lock_pid file\n");
 	}
 
     // Shared memory and message queue setup
     if (session_count == 0) {
-
         // Set loglevel
         set_loglevel(ase_calc_loglevel());
 
@@ -530,7 +530,7 @@ void session_init(void)
 				}
 
 				// Session status
-				session_exist_status = ESTABLISHED;
+				session_exist_status = ESTABLISHED;				
 			}
 		}
     } else {
@@ -538,6 +538,7 @@ void session_init(void)
         ASE_DBG("Session already exists\n");
 #endif		
     }
+	session_count++;
 
 	if (session_exist_status != ESTABLISHED) {
 		if (umas_exist_status == ESTABLISHED) {
@@ -554,7 +555,6 @@ void session_init(void)
 		ASE_ERR("ASE session initialization failed\n");
 		exit(1);
 	}
-	session_count++;
     FUNC_CALL_EXIT;
 }
 
@@ -593,7 +593,7 @@ bool check_app_lock_file(void)
 	fp_app_lockfile = fopen(app_ready_lockpath, "r+w");
 
 	if (fp_app_lockfile == NULL) {
-		ASE_ERR("Error opening Application lock file path, EXITING\n");
+		ASE_MSG("Application lock file was not created yet\n");
 		return false;
 	}
 
@@ -1212,11 +1212,11 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
     mem->next = NULL;
 
     // Message queue must be enabled when using DPI (else debug purposes only)
-    if (session_count == 0) {
+   /* if (session_count == 0) {
         ASE_MSG("Session not started --- STARTING now\n");
 
         session_init();
-    }
+    }*/
     // Form message and transmit to DPI
     ase_buffer_t_to_str(mem, tmp_msg);
     mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
