@@ -85,8 +85,6 @@ volatile struct mmio_scoreboard_line_t mmio_table[MMIO_MAX_OUTSTANDING];
 	unsigned long long runtime_nsec;
 //} SESSION_S;
 
-// Existance check flags
-static uint32_t session_count = 0;
 
 static int app2sim_alloc_tx;           // app2sim mesaage queue in RX mode
 static int sim2app_alloc_rx;           // sim2app mesaage queue in TX mode
@@ -117,6 +115,7 @@ int userbuf_index_count;              // User count/index
 
 // ASE Capability register
 struct ase_capability_t ase_capability;
+static uint32_t session_exist_status;
 static uint32_t mq_exist_status;
 // Debug logs
 #ifdef ASE_DEBUG
@@ -324,6 +323,7 @@ void send_simkill(int n)
     ASE_ERR("CTRL-C was seen... SW application will exit\n");
 
     // Deinitialize session
+    session_exist_status = NOT_ESTABLISHED;
     session_deinit();
 
     exit(0);
@@ -343,7 +343,7 @@ void session_init(void)
     clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
 
     // Session setup
-    if (session_count == 0) {
+    if (session_exist_status != ESTABLISHED) {
 	set_loglevel(ase_calc_loglevel());
 	setvbuf(stdout, NULL, (int) _IONBF, (size_t) 0);
 	ase_eval_session_directory();
@@ -543,7 +543,6 @@ void session_init(void)
         ASE_DBG("Session already exists\n");
 #endif		
     }
-	session_count++;
     FUNC_CALL_EXIT;
 }
 
@@ -649,12 +648,12 @@ void delete_lock_file(void)
 void session_deinit(void)
 {
     FUNC_CALL_ENTRY;
-	session_count--;
 
-	if (session_count == 0) {
+    if (session_exist_status == ESTABLISHED) {
 
 		ASE_INFO("Deinitializing simulation session \n");
 
+		session_exist_status = NOT_ESTABLISHED;
 		ASE_MSG("Closing Watcher threads\n");
 
 		// Close UMsg thread
@@ -676,6 +675,9 @@ void session_deinit(void)
 		fclose(fp_pagetable_log);
 		fclose(fp_mmioaccess_log);
 #endif
+    } else {
+		ASE_MSG("Session already deinitialized, call ignored !\n");
+    }
 		close_mq();
 
 		// Lock deinit
@@ -1495,7 +1497,7 @@ void *umsg_watcher(void *arg)
     umas_init_flag = 1;
 
     // While application is running
-    while (session_count > 0) {
+    while (umas_exist_status == ESTABLISHED) {
         // Walk through each line
         for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
             if (memcmp
