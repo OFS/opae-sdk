@@ -640,24 +640,27 @@ void session_deinit(void)
 
 		ASE_INFO("Deinitializing simulation session \n");
 
+		// Mark session as destroyed
 		session_exist_status = NOT_ESTABLISHED;
+		// Unmap UMAS region
 		if (umas_exist_status == ESTABLISHED) {
-		ASE_MSG("Closing Watcher threads\n");
+			ASE_MSG("Closing Watcher threads\n");
 
 			// Update status
 			umas_exist_status = NOT_ESTABLISHED;
-		// Close UMsg thread
-		pthread_cancel(umas_s.umsg_watch_tid);
-		cleanup_umas();
+			// Close UMsg thread
+			pthread_cancel(umas_s.umsg_watch_tid);
+			cleanup_umas();
+		}
 		// Um-mapping CSR region
 		ASE_MSG("Deallocating MMIO map\n");
 		if (mmio_exist_status == ESTABLISHED) {
-		cleanup_mmio();
+			cleanup_mmio();
 			mmio_exist_status = NOT_ESTABLISHED;
 
-		// Close MMIO Response tracker thread
-		if (pthread_cancel(io_s.mmio_watch_tid) != 0) {
-			printf("MMIO pthread_cancel failed -- Ignoring\n");
+			// Close MMIO Response tracker thread
+			if (pthread_cancel(io_s.mmio_watch_tid) != 0) {
+				printf("MMIO pthread_cancel failed -- Ignoring\n");
 			}
 		}
 		//free memory
@@ -673,6 +676,7 @@ void session_deinit(void)
     } else {
 		ASE_MSG("Session already deinitialized, call ignored !\n");
     }
+	// close message queue
 	close_mq();
 
 	// Lock deinit
@@ -705,7 +709,6 @@ void session_deinit(void)
             ASE_INFO("Session ended \n");
         }
     }
-
     FUNC_CALL_EXIT;
 }
 
