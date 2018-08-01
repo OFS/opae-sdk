@@ -44,6 +44,38 @@
 		}                                                              \
 	} while (false);
 
+static inline ssize_t eintr_read(int fd, void *buf, size_t count)
+{
+	ssize_t bytes_read = 0, total_read = 0;
+	char *ptr = buf;
+	while (total_read < (ssize_t)count) {
+		bytes_read = read(fd, ptr + total_read, count);
+		if (bytes_read < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+		}
+		total_read += bytes_read;
+	}
+	return total_read;
+}
+
+static inline ssize_t eintr_write(int fd, void *buf, size_t count)
+{
+	ssize_t bytes_written = 0, total_written = 0;
+	char *ptr = buf;
+	while (total_written < (ssize_t)count) {
+		bytes_written = read(fd, ptr + total_written, count);
+		if (bytes_written < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+		}
+		total_written += bytes_written;
+	}
+	return total_written;
+}
+
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
@@ -176,7 +208,7 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 	char objpath[SYSFS_PATH_MAX];
 	int fd = -1;
 	off_t fsize = 0;
-	ssize_t count = 0;
+	ssize_t bytes_written = 0, bytes_read = 0;
 	fpga_result res = FPGA_EXCEPTION;
 	char *rw_buffer = NULL;
 
@@ -228,26 +260,41 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 		goto out_close;
 	}
 
+	// read the contents of the sysfs object
+	bytes_read = eintr_read(fd, rw_buffer, fsize);
+	if (bytes_read < fsize) {
+		res = FPGA_EXCEPTION;
+		if (bytes_read < 0) {
+			FPGA_ERR("Error with read operation: %s",
+				 strerror(errno));
+		} else {
+			FPGA_ERR("Bytes read (%d) < object size (%d)",
+				 bytes_read, fsize);
+		}
+		goto out_free;
+	}
+
 	// copy bytes to write to rw_write buffer
-	memcpy(rw_buffer + offset, buffer, len);
+	memcpy_s(rw_buffer + offset, fsize - offset, buffer, len);
 
 	// write modified buffer to sysfs object
-	count = write(fd, rw_buffer, fsize);
-	if (count < fsize) {
+	bytes_written = eintr_write(fd, rw_buffer, fsize);
+	if (bytes_written < fsize) {
 		res = FPGA_EXCEPTION;
-		if (count < 0) {
+		if (bytes_written < 0) {
 			FPGA_ERR("Error with write operation: %s",
 				 strerror(errno));
 		} else {
 			FPGA_MSG(
 				"Bytes written (%d) is less that object size (%d)",
-				count, fsize);
+				bytes_written, fsize);
 		}
-		res = FPGA_EXCEPTION;
-	} else {
-		res = FPGA_OK;
+		goto out_free;
 	}
 
+	res = FPGA_OK;
+
+out_free:
 	free(rw_buffer);
 
 out_close:
