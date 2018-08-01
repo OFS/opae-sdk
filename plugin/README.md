@@ -1,11 +1,14 @@
 # Plugin Architecture #
 The OPAE Plugin Architecture describes the interfaces and data structures
-involved in designing and building an OPAE application using plugins.
-An OPAE plugin is a software library that can be loaded dynamically at runtime
-and is either specific to a given platform or is a proxy for one or more remote
-endpoints.  While it is not required that a plugin implements the complete OPAE
-API, it is required, however, to adhere to the plugin interface. Futhermore,
-any OPAE API functions implemented by a plugin must follow their corresponding
+involved in designing and building the core plugin framework, OPAE compatible
+plugins, and an OPAE application that uses the OPAE API. An OPAE plugin is a
+software library that can be loaded dynamically at runtime and is either
+specific to a given platform or is a proxy for one or more remote endpoints.
+OPAE plugins use the OPAE API for its prototype definitions but are free to
+use any internal data structures and functions in their implementations.
+While it is not required that a plugin implements the complete OPAE API, it
+is required, however, to adhere to the plugin interface. Futhermore, any OPAE
+API functions implemented by a plugin must follow their corresponding
 function interfaces as defined in the OPAE API specification.
 
 ## Objective ##
@@ -14,7 +17,8 @@ plugin interface as well as the Plugin Manager, the Plugin Loader, and an OPAE
 plugin.
 
 The requirements for the Plugin Architecture are as follows:
-* Design a C API that applications can link to instead of libopae-c. This API will:
+* Describe how OPAE API calls are forwarded to an appropriate implementation.
+* Define the C API that applications link to. This API will:
   * Be a superset of the APIs defined in the existing OPAE C API and any other
   extension APIs
   * Define functions that control how the system is configured and initialized
@@ -110,13 +114,14 @@ from external configuration data. It must follow the following function signatur
   ```
 
 #### Required Changes to OPAE API ####
-One change to the API that is needed for identification and filtering of
-resources based on the location of the resource with respect to the client
-application is the addition of a property called `RemoteStatus` of integer type.
-A value of 0 indicates that a resource is local and any non-zero value is used
-to denote a relative latency. It is currently undetermined how those values
-will be measured or calculated. One possibility may involve measuring latency
-for certain operations.
+In order to indicate resources being remote or local, and additional
+property, hostname, will have to be added to the properties API. A local
+resource will have use `localhost` to indicate it is local. A proxy plugin
+for remote endpoints should set the host name of the corresponding endpoint
+here. To aid in filtering for remote resources only, setting the hostname
+property to `^localhost` will indicate the matching criteria exclude local
+resources.
+
 
 ## Component Designs ##
 
@@ -180,12 +185,6 @@ and their individual configuration data.
         "plugins":
         [
                 {
-                        "module": "libopae-c.so",
-                        "name": "default",
-                        "config": {},
-                        "load_policy" : {"limit_instance": 1}
-                },
-                {
                         "module": "libopae-net-proxy",
                         "name": "tcp-proxy1",
                         "config": {
@@ -199,6 +198,9 @@ and their individual configuration data.
                         "module": "libopae-net-proxy",
                         "name": "rdma-proxy1",
                         "config": {
+                                "transport": "rdma",
+                                "discovery": "none",
+                                "hosts": ["host1", "host2", "host3"]
                         },
                         "load_policy": {}
                 }
