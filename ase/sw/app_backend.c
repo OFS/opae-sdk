@@ -678,18 +678,18 @@ void session_deinit(void)
     } else {
 		ASE_MSG("Session already deinitialized, call ignored !\n");
     }
-		close_mq();
+	close_mq();
 
-		// Lock deinit
-		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
-			ASE_MSG("Trying to shutdown mutex unlock\n");
-		}
-		// Stop running threads
-		pthread_cancel(umas_s.umsg_watch_tid);
-		pthread_join(umas_s.umsg_watch_tid, NULL);
-		pthread_cancel(io_s.mmio_watch_tid);
-		pthread_join(io_s.mmio_watch_tid, NULL);
+	// Lock deinit
+	if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+		ASE_MSG("Trying to shutdown mutex unlock\n");
 	}
+	// Stop running threads
+	pthread_cancel(umas_s.umsg_watch_tid);
+	pthread_join(umas_s.umsg_watch_tid, NULL);
+	pthread_cancel(io_s.mmio_watch_tid);
+	pthread_join(io_s.mmio_watch_tid, NULL);
+
     // End Clock snapshot
     clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
     runtime_nsec =
