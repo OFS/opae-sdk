@@ -117,7 +117,7 @@ int userbuf_index_count;              // User count/index
 
 // ASE Capability register
 struct ase_capability_t ase_capability;
-
+static uint32_t mq_exist_status;
 // Debug logs
 #ifdef ASE_DEBUG
 FILE *fp_pagetable_log = (FILE *) NULL;
@@ -338,16 +338,16 @@ void session_init(void)
     FUNC_CALL_ENTRY;
 
     int rc = 0;
-    uint32_t mq_exist_status = NOT_ESTABLISHED;
-    uint32_t mmio_exist_status = NOT_ESTABLISHED;
-    uint32_t umas_exist_status = NOT_ESTABLISHED;
-	uint32_t session_exist_status = NOT_ESTABLISHED;
 
     // Start clock
     clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
 
-	// Evaluate ase_workdir_path
+    // Session setup
+    if (session_count == 0) {
+	set_loglevel(ase_calc_loglevel());
+	setvbuf(stdout, NULL, (int) _IONBF, (size_t) 0);
 	ase_eval_session_directory();
+	ipc_init();
 	// Initialize ase_workdir_path
 	ASE_MSG("ASE Session Directory located at =>\n");
 	ASE_MSG("%s\n", ase_workdir_path);
@@ -361,25 +361,20 @@ void session_init(void)
 		ase_workdir_path, APP_LOCK_FILENAME);
 
 	// Check if .app_lock.pid lock already exists or not.
-	if (check_app_lock_file() == false) {
-		create_new_lock_file();
-		ASE_MSG("ASE session_init created .app_lock_pid file\n");
+	if (check_app_lock_file()) {
+	    //If .app_lock.pid exists but pid doesnt exist.
+	    if (!remove_existing_lock_file()) {
+			ASE_MSG("Application Exiting \n");
+			exit(1);
+	    }
 	}
+	create_new_lock_file();
 
-    // Shared memory and message queue setup
-    if (session_count == 0) {
-        // Set loglevel
-        set_loglevel(ase_calc_loglevel());
-
-        setvbuf(stdout, NULL, (int) _IONBF, (size_t) 0);
-
-        ipc_init();
-
-        // Register kill signals to issue simkill
-        signal(SIGTERM, send_simkill);
-        signal(SIGINT, send_simkill);
-        signal(SIGQUIT, send_simkill);
-        signal(SIGHUP, send_simkill);
+	// Register kill signals to issue simkill
+	signal(SIGTERM, send_simkill);
+	signal(SIGINT, send_simkill);
+	signal(SIGQUIT, send_simkill);
+	signal(SIGHUP, send_simkill);
 
         // When bad stuff happens, print backtrace
         signal(SIGSEGV, backtrace_handler);
@@ -469,7 +464,7 @@ void session_init(void)
         allocate_buffer(io_s.mmio_region, NULL);
         mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
                            MMIO_AFU_OFFSET);
-        mmio_exist_status = ESTABLISHED;
+
 
         ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
             (void *) mmio_afu_vbase);
@@ -484,14 +479,14 @@ void session_init(void)
         umas_s.umas_region->is_umas = 1;
         allocate_buffer(umas_s.umas_region, NULL);
         umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_s.umas_region->vbase);
-        umas_exist_status = ESTABLISHED;
+
         umsg_set_attribute(0x0);
         ASE_MSG("UMAS Virtual Base address = %p\n",
             (void *) umsg_umas_vbase);
 
         // Start MMIO read response watcher watcher thread
         ASE_MSG("Starting MMIO Read Response watcher ... \n");
-        rc = pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
+        pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
         if( rc != 0)
 			ASE_ERR("Failed to initialize the pthread_mutex_lock\n");
         thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
@@ -500,9 +495,14 @@ void session_init(void)
             ASE_ERR("FAILED\n");
             BEGIN_RED_FONTCOLOR;
             perror("pthread_create");
-            END_RED_FONTCOLOR;            
+            END_RED_FONTCOLOR;  
+            cleanup_umas();
+			cleanup_mmio();				
+			close_mq();  
+		    exit(1);
 		} else {
 			ASE_MSG("SUCCESS\n");
+	}
 
 			ASE_MSG("Starting UMsg watcher ... \n");
 
@@ -514,9 +514,13 @@ void session_init(void)
 				BEGIN_RED_FONTCOLOR;
 				perror("pthread_create");
 				END_RED_FONTCOLOR;
-			}
-			else {
+				cleanup_umas();
+				cleanup_mmio();				
+				close_mq();
+	    exit(1);
+	} else {
 				ASE_MSG("SUCCESS\n");
+	}
 				while (umas_init_flag != 1)
 					;
 
@@ -530,31 +534,16 @@ void session_init(void)
 				}
 
 				// Session status
-				session_exist_status = ESTABLISHED;				
-			}
-		}
+				session_exist_status = ESTABLISHED;	
+				
+							
+
     } else {
 #ifdef ASE_DEBUG
         ASE_DBG("Session already exists\n");
 #endif		
     }
 	session_count++;
-
-	if (session_exist_status != ESTABLISHED) {
-		if (umas_exist_status == ESTABLISHED) {
-			cleanup_umas();
-		}
-
-		if (mmio_exist_status == ESTABLISHED) {
-			cleanup_mmio();
-		}
-
-		if (mq_exist_status == ESTABLISHED) {
-			close_mq();
-		}
-		ASE_ERR("ASE session initialization failed\n");
-		exit(1);
-	}
     FUNC_CALL_EXIT;
 }
 
@@ -586,25 +575,10 @@ void create_new_lock_file(void)
  */
 bool check_app_lock_file(void)
 {
-	pid_t lock;
-	FILE *fp_app_lockfile;
-
-	// Read the PID of the running application
-	fp_app_lockfile = fopen(app_ready_lockpath, "r+w");
-
-	if (fp_app_lockfile == NULL) {
-		ASE_MSG("Application lock file was not created yet\n");
-		return false;
-	}
-
-	if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
-		if (lock != getpid()) {
-			fprintf(fp_app_lockfile, "%d\n", getpid());
-		}
+    if (access(app_ready_lockpath, F_OK) == 0)
 		return true;
-	} else {
+    else
 		return false;
-	}
 };
 
 /*
@@ -637,7 +611,7 @@ bool remove_existing_lock_file(void)
         } else if (errno == EPERM) {
             ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
         } else
-            ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d getpid=%d\n", lock, getpid() );
+				ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
     } else {
         ASE_ERR
             ("Error reading PID of application using ASE, EXITING\n");
@@ -1212,11 +1186,11 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
     mem->next = NULL;
 
     // Message queue must be enabled when using DPI (else debug purposes only)
-   /* if (session_count == 0) {
-        ASE_MSG("Session not started --- STARTING now\n");
+    if (mq_exist_status == NOT_ESTABLISHED) {
+		ASE_MSG("Session not started --- STARTING now\n");
 
-        session_init();
-    }*/
+		session_init();
+    }
     // Form message and transmit to DPI
     ase_buffer_t_to_str(mem, tmp_msg);
     mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
