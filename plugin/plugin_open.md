@@ -1,4 +1,3 @@
-```mermaid
 sequenceDiagram
     participant ClientApp
     ClientApp->>opae: fpgaOpen(token)
@@ -9,4 +8,3 @@ sequenceDiagram
     plugin-->>opae: phandle
     opae->>opae: wrap(handle)
     opae-->>ClientApp: handle
-```

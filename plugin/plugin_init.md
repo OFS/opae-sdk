@@ -1,4 +1,3 @@
-```mermaid
 sequenceDiagram
     participant ClientApp
     participant O as opae.PluginManager
@@ -27,4 +26,3 @@ sequenceDiagram
         end
         deactivate P
     end
-```
