@@ -67,24 +67,21 @@ struct mmio_scoreboard_line_t {
 
 volatile struct mmio_scoreboard_line_t mmio_table[MMIO_MAX_OUTSTANDING];
 
-//typedef struct session_s {
-	// Timestamp char array
-	char tstamp_string[20];
+// Timestamp char array
+char tstamp_string[20];
 
-	// Application lock file path
-	char app_ready_lockpath[ASE_FILEPATH_LEN];
+// Application lock file path
+char app_ready_lockpath[ASE_FILEPATH_LEN];
 
-	// Session file path
-	char tstamp_filepath[ASE_FILEPATH_LEN];
+// Session file path
+char tstamp_filepath[ASE_FILEPATH_LEN];
 
-	// work Directory location
-	char *ase_workdir_path;
+// work Directory location
+char *ase_workdir_path;
 
-	// Time taken calc
-	struct timespec start_time_snapshot, end_time_snapshot;
-	unsigned long long runtime_nsec;
-//} SESSION_S;
-
+// Time taken calc
+struct timespec start_time_snapshot, end_time_snapshot;
+unsigned long long runtime_nsec;
 
 static int app2sim_alloc_tx;           // app2sim mesaage queue in RX mode
 static int sim2app_alloc_rx;           // sim2app mesaage queue in TX mode
@@ -117,6 +114,8 @@ int userbuf_index_count;              // User count/index
 struct ase_capability_t ase_capability;
 static uint32_t session_exist_status;
 static uint32_t mq_exist_status;
+static uint32_t mmio_exist_status;
+static uint32_t umas_exist_status;
 // Debug logs
 #ifdef ASE_DEBUG
 FILE *fp_pagetable_log = (FILE *) NULL;
@@ -128,18 +127,10 @@ FILE *fp_mmioaccess_log = (FILE *) NULL;
  */
 void cleanup_umas()
 {
-	// Unmap UMAS region
-	if (umas_s.umas_region != NULL) {
+    // Deallocate the region
+    ASE_MSG("Deallocating UMAS\n");
+    deallocate_buffer(umas_s.umas_region);
 
-		// Deallocate the region
-		ASE_MSG("Deallocating UMAS\n");
-		deallocate_buffer(umas_s.umas_region);
-	}
-#ifdef ASE_DEBUG
-	else {
-		ASE_MSG("No UMAS established\n");
-	}
-#endif
 }
 
 /*
@@ -149,10 +140,8 @@ void cleanup_mmio()
 {
 	// Un-mapping CSR region
 	ASE_MSG("Deallocating MMIO map\n");
-	if (io_s.mmio_region != NULL) {
 
-		deallocate_buffer(io_s.mmio_region);
-	}
+	deallocate_buffer(io_s.mmio_region);
 }
 
 /*
@@ -214,7 +203,7 @@ void *mmio_response_watcher(void *arg)
 #endif
 
     // start watching for messages
-    while (session_count > 0) {
+    while (mmio_exist_status == ESTABLISHED) {
         ase_memset((void *) io_s.mmio_rsp_pkt, 0xbc, sizeof(mmio_t));
 
         // If received, update global message
@@ -376,176 +365,174 @@ void session_init(void)
 	signal(SIGQUIT, send_simkill);
 	signal(SIGHUP, send_simkill);
 
-        // When bad stuff happens, print backtrace
-        signal(SIGSEGV, backtrace_handler);
-        signal(SIGBUS, backtrace_handler);
-        signal(SIGABRT, backtrace_handler);
+	// When bad stuff happens, print backtrace
+	signal(SIGSEGV, backtrace_handler);
+	signal(SIGBUS, backtrace_handler);
+	signal(SIGABRT, backtrace_handler);
+	
+    // Ignore SIGPIPE
+    signal(SIGPIPE, SIG_IGN);
 
-        // Ignore SIGPIPE
-        signal(SIGPIPE, SIG_IGN);
+    ASE_INFO("Initializing simulation session ... \n");
 
-        ASE_INFO("Initializing simulation session ... \n");
+    app2sim_alloc_tx =
+        mqueue_open(mq_array[0].name, mq_array[0].perm_flag);
+    app2sim_mmioreq_tx =
+        mqueue_open(mq_array[1].name, mq_array[1].perm_flag);
+    app2sim_umsg_tx =
+        mqueue_open(mq_array[2].name, mq_array[2].perm_flag);
+    sim2app_alloc_rx =
+        mqueue_open(mq_array[3].name, mq_array[3].perm_flag);
+    sim2app_mmiorsp_rx =
+        mqueue_open(mq_array[4].name, mq_array[4].perm_flag);
+    app2sim_portctrl_req_tx =
+        mqueue_open(mq_array[5].name, mq_array[5].perm_flag);
+    app2sim_dealloc_tx =
+        mqueue_open(mq_array[6].name, mq_array[6].perm_flag);
+    sim2app_dealloc_rx =
+        mqueue_open(mq_array[7].name, mq_array[7].perm_flag);
+    sim2app_portctrl_rsp_rx =
+        mqueue_open(mq_array[8].name, mq_array[8].perm_flag);
+    sim2app_intr_request_rx =
+        mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
 
-        app2sim_alloc_tx =
-            mqueue_open(mq_array[0].name, mq_array[0].perm_flag);
-        app2sim_mmioreq_tx =
-            mqueue_open(mq_array[1].name, mq_array[1].perm_flag);
-        app2sim_umsg_tx =
-            mqueue_open(mq_array[2].name, mq_array[2].perm_flag);
-        sim2app_alloc_rx =
-            mqueue_open(mq_array[3].name, mq_array[3].perm_flag);
-        sim2app_mmiorsp_rx =
-            mqueue_open(mq_array[4].name, mq_array[4].perm_flag);
-        app2sim_portctrl_req_tx =
-            mqueue_open(mq_array[5].name, mq_array[5].perm_flag);
-        app2sim_dealloc_tx =
-            mqueue_open(mq_array[6].name, mq_array[6].perm_flag);
-        sim2app_dealloc_rx =
-            mqueue_open(mq_array[7].name, mq_array[7].perm_flag);
-        sim2app_portctrl_rsp_rx =
-            mqueue_open(mq_array[8].name, mq_array[8].perm_flag);
-        sim2app_intr_request_rx =
-            mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
+    // Message queues have been established
+    mq_exist_status = ESTABLISHED;
 
-        // Message queues have been established
-        mq_exist_status = ESTABLISHED;
+    // Issue soft reset
+    send_swreset();
 
-        // Issue soft reset
-        send_swreset();
-
-        // Page table tracker (optional logger)
+    // Page table tracker (optional logger)
 #ifdef ASE_DEBUG
-        // Create debug log of page table
-        fp_pagetable_log = fopen("app_pagetable.log", "w");
-        if (fp_pagetable_log == NULL) {
-            ASE_ERR
-                ("APP pagetable logger initialization failed !\n");
-        } else {
-            ASE_MSG("APP pagetable logger initialized\n");
-        }
+    // Create debug log of page table
+    fp_pagetable_log = fopen("app_pagetable.log", "w");
+    if (fp_pagetable_log == NULL) {
+        ASE_ERR
+            ("APP pagetable logger initialization failed !\n");
+    } else {
+        ASE_MSG("APP pagetable logger initialized\n");
+    }
 
-        // Debug log of MMIO
-        fp_mmioaccess_log = fopen("app_mmioaccess.log", "w");
-        if (fp_mmioaccess_log == NULL) {
-            ASE_ERR
-                ("APP MMIO access logger initialization failed !\n");
-        } else {
-            ASE_MSG("APP MMIO access logger initialized\n");
-        }
+    // Debug log of MMIO
+    fp_mmioaccess_log = fopen("app_mmioaccess.log", "w");
+    if (fp_mmioaccess_log == NULL) {
+        ASE_ERR
+            ("APP MMIO access logger initialization failed !\n");
+    } else {
+        ASE_MSG("APP MMIO access logger initialized\n");
+    }
 #endif
 
-        // Set MMIO Tid to 0
-        io_s.glbl_mmio_tid = 0;
+    // Set MMIO Tid to 0
+    io_s.glbl_mmio_tid = 0;
 
-        // Thread error integer
-        int thr_err;
+    // Thread error integer
+    int thr_err;
 
-        // Start MSI-X watcher thread
-        // ASE_MSG("Starting Interrupt watcher ... ");
+    // Start MSI-X watcher thread
+    // ASE_MSG("Starting Interrupt watcher ... ");
 
-        // Session start
-        ASE_MSG("Session started\n");
+    // Session start
+    ASE_MSG("Session started\n");
 
-        // Initialize session with PID
-        ase_portctrl(ASE_INIT, getpid());
+    // Initialize session with PID
+    ase_portctrl(ASE_INIT, getpid());
 
-        // Wait till session file is created
-        poll_for_session_id();
+    // Wait till session file is created
+    poll_for_session_id();
 
-        get_timestamp(tstamp_string);
+    get_timestamp(tstamp_string);
 
-        // Creating CSR map
-        ASE_MSG("Creating MMIO ...\n");
+    // Creating CSR map
+    ASE_MSG("Creating MMIO ...\n");
 
-        io_s.mmio_region = (struct buffer_t *)
-            ase_malloc(sizeof(struct buffer_t));
-        io_s.mmio_region->memsize = MMIO_LENGTH;
-        io_s.mmio_region->is_mmiomap = 1;
-        allocate_buffer(io_s.mmio_region, NULL);
-        mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
-                           MMIO_AFU_OFFSET);
+    io_s.mmio_region = (struct buffer_t *)
+        ase_malloc(sizeof(struct buffer_t));
+    io_s.mmio_region->memsize = MMIO_LENGTH;
+    io_s.mmio_region->is_mmiomap = 1;
+    allocate_buffer(io_s.mmio_region, NULL);
+    mmio_afu_vbase = (uint64_t *) ((uint64_t) io_s.mmio_region->vbase +
+                       MMIO_AFU_OFFSET);
+	mmio_exist_status = ESTABLISHED;
+
+    ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
+        (void *) mmio_afu_vbase);
 
 
-        ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
-            (void *) mmio_afu_vbase);
+    // Create UMSG region
+    umas_init_flag = 0;
+    ASE_MSG("Creating UMAS ... \n");
 
+    umas_s.umas_region = (struct buffer_t *)ase_malloc(sizeof(struct buffer_t));
+    umas_s.umas_region->memsize = UMAS_REGION_MEMSIZE;    //UMAS_LENGTH;
+    umas_s.umas_region->is_umas = 1;
+    allocate_buffer(umas_s.umas_region, NULL);
+    umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_s.umas_region->vbase);
+	umas_exist_status = ESTABLISHED;
+    umsg_set_attribute(0x0);
+    ASE_MSG("UMAS Virtual Base address = %p\n",
+        (void *) umsg_umas_vbase);
 
-        // Create UMSG region
-        umas_init_flag = 0;
-        ASE_MSG("Creating UMAS ... \n");
-
-        umas_s.umas_region = (struct buffer_t *)ase_malloc(sizeof(struct buffer_t));
-        umas_s.umas_region->memsize = UMAS_REGION_MEMSIZE;    //UMAS_LENGTH;
-        umas_s.umas_region->is_umas = 1;
-        allocate_buffer(umas_s.umas_region, NULL);
-        umsg_umas_vbase = (uint64_t *) ((uint64_t) umas_s.umas_region->vbase);
-
-        umsg_set_attribute(0x0);
-        ASE_MSG("UMAS Virtual Base address = %p\n",
-            (void *) umsg_umas_vbase);
-
-        // Start MMIO read response watcher watcher thread
-        ASE_MSG("Starting MMIO Read Response watcher ... \n");
-        pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
-        if( rc != 0)
-			ASE_ERR("Failed to initialize the pthread_mutex_lock\n");
-        thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
-                     &mmio_response_watcher, NULL);
-        if (thr_err != 0) {
-            ASE_ERR("FAILED\n");
-            BEGIN_RED_FONTCOLOR;
-            perror("pthread_create");
-            END_RED_FONTCOLOR;  
-            cleanup_umas();
-			cleanup_mmio();				
-			close_mq();  
-		    exit(1);
-		} else {
-			ASE_MSG("SUCCESS\n");
+    // Start MMIO read response watcher watcher thread
+    ASE_MSG("Starting MMIO Read Response watcher ... \n");
+    rc = pthread_mutex_init(&io_s.mmio_port_lock, NULL); 
+    if( rc != 0)
+		ASE_ERR("Failed to initialize the pthread_mutex_lock\n");
+    thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
+                 &mmio_response_watcher, NULL);
+    if (thr_err != 0) {
+        ASE_ERR("FAILED\n");
+        BEGIN_RED_FONTCOLOR;
+        perror("pthread_create");
+        END_RED_FONTCOLOR;  
+        cleanup_umas();
+	    cleanup_mmio();				
+		close_mq();
+		free_buffers();
+		exit(1);
+	} else {
+		ASE_MSG("SUCCESS\n");
 	}
 
-			ASE_MSG("Starting UMsg watcher ... \n");
+	ASE_MSG("Starting UMsg watcher ... \n");
 
-			// Initiate UMsg watcher
-			thr_err = pthread_create(&umas_s.umsg_watch_tid, NULL, &umsg_watcher,
-				NULL);
-			if (thr_err != 0) {
-				ASE_ERR("FAILED\n");
-				BEGIN_RED_FONTCOLOR;
-				perror("pthread_create");
-				END_RED_FONTCOLOR;
-				cleanup_umas();
-				cleanup_mmio();				
-				close_mq();
+	// Initiate UMsg watcher
+	thr_err = pthread_create(&umas_s.umsg_watch_tid, NULL, &umsg_watcher,NULL);
+	if (thr_err != 0) {
+		ASE_ERR("FAILED\n");
+		BEGIN_RED_FONTCOLOR;
+		perror("pthread_create");
+		END_RED_FONTCOLOR;
+		cleanup_umas();
+		cleanup_mmio();				
+		close_mq();
+		free_buffers();
 	    exit(1);
 	} else {
-				ASE_MSG("SUCCESS\n");
+		ASE_MSG("SUCCESS\n");
 	}
-				while (umas_init_flag != 1)
-					;
+	while (umas_init_flag != 1)
+			;
 
-				// MMIO Scoreboard setup
-				int ii;
-				for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
-					mmio_table[ii].tid = 0;
-					mmio_table[ii].data = 0;
-					mmio_table[ii].tx_flag = false;
-					mmio_table[ii].rx_flag = false;
-				}
+	// MMIO Scoreboard setup
+	int ii;
+	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
+		mmio_table[ii].tid = 0;
+		mmio_table[ii].data = 0;
+		mmio_table[ii].tx_flag = false;
+		mmio_table[ii].rx_flag = false;
+	}
 
-				// Session status
-				session_exist_status = ESTABLISHED;	
-				
-							
-
+	// Session status
+	session_exist_status = ESTABLISHED;	
+	
     } else {
 #ifdef ASE_DEBUG
-        ASE_DBG("Session already exists\n");
+    ASE_DBG("Session already exists\n");
 #endif		
     }
     FUNC_CALL_EXIT;
 }
-
 
 /*
  * Create New Lock File
@@ -654,16 +641,24 @@ void session_deinit(void)
 		ASE_INFO("Deinitializing simulation session \n");
 
 		session_exist_status = NOT_ESTABLISHED;
+		if (umas_exist_status == ESTABLISHED) {
 		ASE_MSG("Closing Watcher threads\n");
 
+			// Update status
+			umas_exist_status = NOT_ESTABLISHED;
 		// Close UMsg thread
 		pthread_cancel(umas_s.umsg_watch_tid);
 		cleanup_umas();
+		// Um-mapping CSR region
+		ASE_MSG("Deallocating MMIO map\n");
+		if (mmio_exist_status == ESTABLISHED) {
 		cleanup_mmio();
+			mmio_exist_status = NOT_ESTABLISHED;
 
 		// Close MMIO Response tracker thread
 		if (pthread_cancel(io_s.mmio_watch_tid) != 0) {
 			printf("MMIO pthread_cancel failed -- Ignoring\n");
+			}
 		}
 		//free memory
 		free_buffers();
@@ -713,7 +708,6 @@ void session_deinit(void)
 
     FUNC_CALL_EXIT;
 }
-
 
 /*
  * Get a scoreboard slot
@@ -1083,7 +1077,6 @@ void mmio_read64(int offset, uint64_t *data64)
 
     FUNC_CALL_EXIT;
 }
-
 
 /*
  * allocate_buffer: Shared memory allocation and vbase exchange
