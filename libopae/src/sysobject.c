@@ -150,15 +150,15 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 	}
 
 	fd_stat = stat(objpath, &objstat);
-	if (fd_stat < 0){
+	if (fd_stat < 0) {
 		FPGA_ERR("Error with object path: %s", strerror(errno));
-		if (errno == EACCES){
+		if (errno == EACCES) {
 			return FPGA_NO_ACCESS;
 		}
 		return FPGA_EXCEPTION;
 	}
 
-	if (!buffer){
+	if (!buffer) {
 		*len = objstat.st_size - offset;
 		return FPGA_OK;
 	}
