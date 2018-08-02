@@ -1,4 +1,3 @@
-```mermaid
 sequenceDiagram
     participant ClientApp
     ClientApp->>opae: fpgaEnumerate(filter)
@@ -10,4 +9,3 @@ sequenceDiagram
         end
     opae-->>ClientApp:tokens
     end
-```

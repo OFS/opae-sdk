@@ -1,3 +1,4 @@
+### OPAE API Data Structures ###
 `fpga_token` and `fpga_handle` are opaque types. This allows them to be
 easily wrapped at any level of the plugin stack.
 
@@ -11,6 +12,7 @@ typedef void *fpga_handle;
 #endif
 ```
 
+### Plugin Manager ###
 The plugin manager tracks each loaded plugin in its list of OPAE
 API adpater tables.
 
@@ -38,6 +40,7 @@ int opae_plugin_mgr_register_adapter(api_adapter_table *adapter)
 #endif
 ```
 
+### Plugin Loader ###
 The plugin loader provides the basic facilities for locating and
 loading OPAE plugins, given a description of the desired plugins
 in a formatted configuration file (JSON). The loader registers
@@ -123,6 +126,7 @@ int opae_plugin_ldr_load_plugins(json_object *jobj)
 #endif
 ```
 
+### OPAE Stack ###
 The OPAE API consists of the plugin manager, the plugin loader,
 and 'shell' implementations of the superset of library calls.
 Each 'shell' library call uses the adapter table(s) to call through
@@ -196,7 +200,7 @@ fpga_result fpgaOpen(fpga_token token,
 
 #endif
 ```
-
+### Proxy Plugins ###
 A TCP/IP OPAE plugin uses network sockets to implement the control
 protocol exchange, but may utilize facilities such as RDMA for data
 exchange.
