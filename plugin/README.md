@@ -248,13 +248,14 @@ originating plugin, and the handle is returned to the caller.
 
 The plugin loader is responsible for opening each plugin and constructing a
 plugin adapter table based on the contained API entry points. The loader
-calls opae_plugin_configure(), passing the adapter table and the relevant
-configuration file contents. Once the plugin is configured, the plugin
-loader calls back into the plugin's opae_plugin_initialize() entry point.
-If initialization is successful, the plugin loader begins resolving API entry points. Each API
-entry point from the plugin is placed into the plugin's adapter table. The
-adapter table for the plugin is then returned to the Plugin Manager, where it
-is associated with the plugin in the manager's internal data structures.
+calls opae_plugin_configure(), passing a pre-initialized adapter table object
+and any relevant configuration data. It is expected that the plugin set
+function pointer fields in the adapter table that point to API functions
+implemented by the plugin. The adapter table also has fields for setting
+functions defined in the plugin that can be called by the Plugin Manager for
+non API related functionality. These include initialization, finalization, and
+pre-filtering functions that can be used for plugin selection during
+enumeration.
 
 ### Configuration Schema ###
 The OPAE Plugin system will use JSON for defining any runtime configuration
