@@ -83,7 +83,7 @@ fpga_result fpgaReadObject64(fpga_token token, const char *key,
  * @param[out] buffer Pointer to memory to store the object's bytes - a null
  * pointer indicates a request for the total number of bytes required
  * @param[in] offset Start of byte sequence to read
- * @param[out] len The number of bytes to read. This is updated with the
+ * @param[inout] len The number of bytes to read. This is updated with the
  * actual number of bytes read
  *
  *
