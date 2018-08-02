@@ -175,6 +175,7 @@ uint32_t generate_mmio_tid(void)
 #ifdef ASE_DEBUG
 		ASE_INFO("MMIO TIDs have run out --- waiting !\n");
 #endif
+		usleep(1);
 	}
 
 	// Increment and mask
@@ -511,7 +512,7 @@ void session_init(void)
 		}
 
 		while (umas_init_flag != 1)
-			;
+			usleep(1);
 
 		// MMIO Scoreboard setup
 		int ii;
@@ -1206,7 +1207,8 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 
 	// Receive message from DPI with pbase populated
 	while (mqueue_recv(sim2app_alloc_rx, tmp_msg, ASE_MQ_MSGSIZE) == 0)
-		;
+		usleep(1);
+
 	ase_str_to_buffer_t(tmp_msg, mem);
 
 	// Print out the buffer
