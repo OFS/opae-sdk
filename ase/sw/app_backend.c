@@ -128,9 +128,9 @@ FILE *fp_mmioaccess_log = (FILE *) NULL;
  */
 void cleanup_umas()
 {
-    // Deallocate the region
-    ASE_MSG("Deallocating UMAS\n");
-    deallocate_buffer(umas_s.umas_region);
+	// Deallocate the region
+	ASE_MSG("Deallocating UMAS\n");
+	deallocate_buffer(umas_s.umas_region);
 
 }
 
@@ -168,22 +168,21 @@ void close_mq()
  */
 uint32_t generate_mmio_tid(void)
 {
-    // Return value
-    uint32_t ret_mmio_tid;
+	// Return value
+	uint32_t ret_mmio_tid;
 
-    while (count_mmio_tid_used() == MMIO_MAX_OUTSTANDING) {
+	while (count_mmio_tid_used() == MMIO_MAX_OUTSTANDING) {
 #ifdef ASE_DEBUG
-        ASE_INFO("MMIO TIDs have run out --- waiting !\n");
+		ASE_INFO("MMIO TIDs have run out --- waiting !\n");
 #endif
-        usleep(TID_DELAY);
-    }
+	}
 
-    // Increment and mask
-    ret_mmio_tid = io_s.glbl_mmio_tid & MMIO_TID_BITMASK;
-    io_s.glbl_mmio_tid++;
+	// Increment and mask
+	ret_mmio_tid = io_s.glbl_mmio_tid & MMIO_TID_BITMASK;
+	io_s.glbl_mmio_tid++;
 
-    // Return ID
-    return ret_mmio_tid;
+	// Return ID
+	return ret_mmio_tid;
 }
 
 /*
@@ -191,83 +190,83 @@ uint32_t generate_mmio_tid(void)
  */
 void *mmio_response_watcher(void *arg)
 {
-    UNUSED_PARAM(arg);
-    // Mark as thread that can be cancelled anytime
-    pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
+	UNUSED_PARAM(arg);
+	// Mark as thread that can be cancelled anytime
+	pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 
-    io_s.mmio_rsp_pkt = (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
-    int ret;
-    int slot_idx;
+	io_s.mmio_rsp_pkt = (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+	int ret;
+	int slot_idx;
 
 #ifdef ASE_DEBUG
-    char mmio_type[3];
+	char mmio_type[3];
 #endif
 
-    // start watching for messages
-    while (mmio_exist_status == ESTABLISHED) {
-        ase_memset((void *) io_s.mmio_rsp_pkt, 0xbc, sizeof(mmio_t));
+	// start watching for messages
+	while (mmio_exist_status == ESTABLISHED) {
+		ase_memset((void *) io_s.mmio_rsp_pkt, 0xbc, sizeof(mmio_t));
 
-        // If received, update global message
-        ret = mqueue_recv(sim2app_mmiorsp_rx, (char *) io_s.mmio_rsp_pkt,
-                  sizeof(mmio_t));
-        if (ret == ASE_MSG_PRESENT) {
+		// If received, update global message
+		ret = mqueue_recv(sim2app_mmiorsp_rx, (char *) io_s.mmio_rsp_pkt,
+				sizeof(mmio_t));
+		if (ret == ASE_MSG_PRESENT) {
 #ifdef ASE_DEBUG
-            // Logging event
-            print_mmiopkt(fp_mmioaccess_log, "Got ",
-                      io_s.mmio_rsp_pkt);
-            if (io_s.mmio_rsp_pkt->write_en == MMIO_WRITE_REQ) {
-                ase_string_copy(mmio_type, "WR\0", 3);
-            } else if (io_s.mmio_rsp_pkt->write_en == MMIO_READ_REQ) {
-                ase_string_copy(mmio_type, "RD\0", 3);
-            }
+			// Logging event
+			print_mmiopkt(fp_mmioaccess_log, "Got ",
+						io_s.mmio_rsp_pkt);
+			if (io_s.mmio_rsp_pkt->write_en == MMIO_WRITE_REQ) {
+				ase_string_copy(mmio_type, "WR\0", 3);
+			} else if (io_s.mmio_rsp_pkt->write_en == MMIO_READ_REQ) {
+				ase_string_copy(mmio_type, "RD\0", 3);
+			}
 
-            ASE_DBG("mmio_watcher => %03x, %s, %d, %x, %016llx\n",
-                io_s.mmio_rsp_pkt->tid, mmio_type,
-                io_s.mmio_rsp_pkt->width, io_s.mmio_rsp_pkt->addr,
-                io_s.mmio_rsp_pkt->qword[0]);
+			ASE_DBG("mmio_watcher => %03x, %s, %d, %x, %016llx\n",
+				io_s.mmio_rsp_pkt->tid, mmio_type,
+				io_s.mmio_rsp_pkt->width, io_s.mmio_rsp_pkt->addr,
+				io_s.mmio_rsp_pkt->qword[0]);
 
 #endif
 
-            // Find scoreboard slot number to update
-            slot_idx =
-                get_scoreboard_slot_by_tid(io_s.mmio_rsp_pkt->tid);
+			// Find scoreboard slot number to update
+			slot_idx =
+				get_scoreboard_slot_by_tid(io_s.mmio_rsp_pkt->tid);
 
-            if (slot_idx == 0xFFFF) {
-                ASE_ERR
-                    ("get_scoreboard_slot_by_tid() found a bad slot !");
-                raise(SIGABRT);
-            } else {
-                // MMIO Read response (for credit count only)
-                if (io_s.mmio_rsp_pkt->write_en == MMIO_READ_REQ) {
-                    mmio_table[slot_idx].tid =
-                        io_s.mmio_rsp_pkt->tid;
-                    mmio_table[slot_idx].data =
-                        io_s.mmio_rsp_pkt->qword[0];
-                    mmio_table[slot_idx].tx_flag =
-                        true;
-                    mmio_table[slot_idx].rx_flag =
-                        true;
-                } else if (io_s.mmio_rsp_pkt->write_en == MMIO_WRITE_REQ) {
-                    // MMIO Write response (for credit count only)
-                    mmio_table[slot_idx].tx_flag =
-                        false;
-                    mmio_table[slot_idx].rx_flag =
-                        false;
-                }
+			if (slot_idx == 0xFFFF) {
+				ASE_ERR
+					("get_scoreboard_slot_by_tid() found a bad slot !");
+				raise(SIGABRT);
+			} else {
+				// MMIO Read response (for credit count only)
+				if (io_s.mmio_rsp_pkt->write_en == MMIO_READ_REQ) {
+					mmio_table[slot_idx].tid =
+						io_s.mmio_rsp_pkt->tid;
+					mmio_table[slot_idx].data =
+						io_s.mmio_rsp_pkt->qword[0];
+					mmio_table[slot_idx].tx_flag =
+						true;
+					mmio_table[slot_idx].rx_flag =
+						true;
+				} else if (io_s.mmio_rsp_pkt->write_en == MMIO_WRITE_REQ) {
+					// MMIO Write response (for credit count only)
+					mmio_table[slot_idx].tx_flag =
+						false;
+					mmio_table[slot_idx].rx_flag =
+						false;
+				}
 #ifdef ASE_DEBUG
-                else {
-                    ASE_ERR
-                        ("Illegal MMIO request found -- must not happen !\n");
-                }
+				else {
+					ASE_ERR
+						("Illegal MMIO request found -- must not happen !\n");
+				}
 #endif
-            }
-        }
-    }
+			}
+		}
+	}
 
 	if (io_s.mmio_rsp_pkt) 
 		free(io_s.mmio_rsp_pkt);
 
-    return 0;
+	return 0;
 }
 
 /*
@@ -283,20 +282,20 @@ void *mmio_response_watcher(void *arg)
  */
 void send_swreset(void)
 {
-    ASE_MSG("\n");
-    ASE_MSG("Issuing Soft Reset... \n");
-    while (count_mmio_tid_used() != 0) {
-        sleep(1);
-    }
+	ASE_MSG("\n");
+	ASE_MSG("Issuing Soft Reset... \n");
+	while (count_mmio_tid_used() != 0) {
+		sleep(1);
+	}
 
-    // Reset High
-    ase_portctrl(AFU_RESET, 1);
+	// Reset High
+	ase_portctrl(AFU_RESET, 1);
 
-    // Wait
-    usleep(1);
+	// Wait
+	usleep(1);
 
-    // Reset Low
-    ase_portctrl(AFU_RESET, 0);
+	// Reset Low
+	ase_portctrl(AFU_RESET, 0);
 }
 
 /*
@@ -304,17 +303,17 @@ void send_swreset(void)
  */
 void send_simkill(int n)
 {
-    UNUSED_PARAM(n);
-    // Issue Simkill
-    ase_portctrl(ASE_SIMKILL, 0);
+	UNUSED_PARAM(n);
+	// Issue Simkill
+	ase_portctrl(ASE_SIMKILL, 0);
 
-    ASE_ERR("CTRL-C was seen... SW application will exit\n");
+	ASE_ERR("CTRL-C was seen... SW application will exit\n");
 
-    // Deinitialize session
-    session_exist_status = NOT_ESTABLISHED;
-    session_deinit();
+	// Deinitialize session
+	session_exist_status = NOT_ESTABLISHED;
+	session_deinit();
 
-    exit(0);
+	exit(0);
 }
 
 /*
@@ -323,14 +322,14 @@ void send_simkill(int n)
  */
 void session_init(void)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    int rc = 0;
+	int rc = 0;
 
-    // Start clock
-    clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
+	// Start clock
+	clock_gettime(CLOCK_MONOTONIC, &start_time_snapshot);
 
-    // Session setup
+	// Session setup
 	if (session_exist_status != ESTABLISHED) {
 		set_loglevel(ase_calc_loglevel());
 		setvbuf(stdout, NULL, (int)_IONBF, (size_t)0);
@@ -542,21 +541,21 @@ void session_init(void)
  */
 void create_new_lock_file(void)
 {
-    FILE *fp_app_lockfile;
+	FILE *fp_app_lockfile;
 
-    // Open lock file for writing
-    fp_app_lockfile = fopen(app_ready_lockpath, "w");
-    if (fp_app_lockfile == NULL) {
-        ASE_ERR
-            ("Application lockfile could not opened for writing in env(ASE_WORKDIR) !");
-        exit(1);
-    } else {
-        // Write PID into lockfile
-        fprintf(fp_app_lockfile, "%d\n", getpid());
-    }
+	// Open lock file for writing
+	fp_app_lockfile = fopen(app_ready_lockpath, "w");
+	if (fp_app_lockfile == NULL) {
+		ASE_ERR
+			("Application lockfile could not opened for writing in env(ASE_WORKDIR) !");
+		exit(1);
+	} else {
+		// Write PID into lockfile
+		fprintf(fp_app_lockfile, "%d\n", getpid());
+	}
 
-    // close lockfile
-    fclose(fp_app_lockfile);
+	// close lockfile
+	fclose(fp_app_lockfile);
 }
 
 /*
@@ -564,9 +563,9 @@ void create_new_lock_file(void)
  */
 bool check_app_lock_file(void)
 {
-    if (access(app_ready_lockpath, F_OK) == 0)
+	if (access(app_ready_lockpath, F_OK) == 0)
 		return true;
-    else
+	else
 		return false;
 };
 
@@ -575,60 +574,59 @@ bool check_app_lock_file(void)
  */
 bool remove_existing_lock_file(void)
 {
-    pid_t lock;
-    FILE *fp_app_lockfile;
+	pid_t lock;
+	FILE *fp_app_lockfile;
 
-    // Read the PID of the running application
-    fp_app_lockfile = fopen(app_ready_lockpath, "r");
+	// Read the PID of the running application
+	fp_app_lockfile = fopen(app_ready_lockpath, "r");
 
-    if (fp_app_lockfile == NULL) {
-        ASE_ERR("Error opening Application lock file path, EXITING\n");
-        return false;
-    } 
+	if (fp_app_lockfile == NULL) {
+		ASE_ERR("Error opening Application lock file path, EXITING\n");
+		return false;
+	}
 
-    if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
-        // Check if PID exists
-        kill(lock, 0);
-        if (errno == ESRCH) {
-            ASE_MSG
-                ("ASE found a stale Application lock with PID = %d -- this will be removed\n",
-                 lock);
-            fclose(fp_app_lockfile);
-            // Delete lock file
-            delete_lock_file();
-            return true;
-        } else if (errno == EPERM) {
-            ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
-        } else
+	if (fscanf_s_i(fp_app_lockfile, "%d\n", &lock) != 0) {
+		// Check if PID exists
+		kill(lock, 0);
+		if (errno == ESRCH) {
+			ASE_MSG
+				("ASE found a stale Application lock with PID = %d -- this will be removed\n",
+					lock);
+			fclose(fp_app_lockfile);
+			// Delete lock file
+			delete_lock_file();
+			return true;
+		} else if (errno == EPERM) {
+			ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
+		} else
 				ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
-    } else {
-        ASE_ERR
-            ("Error reading PID of application using ASE, EXITING\n");
-        ASE_ERR
-            ("ASE was found to be running with another application !\n");
-        ASE_ERR("\n");
-        ASE_ERR("If you think this is in error:\n");
-        ASE_ERR
-            (" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n");
-        ASE_ERR
-            (" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
-    }
-    fclose(fp_app_lockfile);
-    return false;
+	} else {
+		ASE_ERR
+			("Error reading PID of application using ASE, EXITING\n");
+		ASE_ERR
+			("ASE was found to be running with another application !\n");
+		ASE_ERR("\n");
+		ASE_ERR("If you think this is in error:\n");
+		ASE_ERR
+			(" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n");
+		ASE_ERR
+			(" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
+	}
+	fclose(fp_app_lockfile);
+	return false;
 }
-
 
 /*
  * Delete app_lock file for non-existent processes.
  */
 void delete_lock_file(void)
 {
-    if (unlink(app_ready_lockpath) == 0)
-        ASE_INFO("Deleted the existing app_lock.pid with Stale pid \n");
-    else {
-        ASE_ERR("Application Lock file could not be removed, please remove manually from $ASE_WORKDIR/.app_lock.pid \n");
-        exit(1);
-    }
+	if (unlink(app_ready_lockpath) == 0)
+		ASE_INFO("Deleted the existing app_lock.pid with Stale pid \n");
+	else {
+		ASE_ERR("Application Lock file could not be removed, please remove manually from $ASE_WORKDIR/.app_lock.pid \n");
+		exit(1);
+	}
 }
 
 /*
@@ -637,9 +635,9 @@ void delete_lock_file(void)
  */
 void session_deinit(void)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    if (session_exist_status == ESTABLISHED) {
+	if (session_exist_status == ESTABLISHED) {
 
 		ASE_INFO("Deinitializing simulation session \n");
 
@@ -681,9 +679,9 @@ void session_deinit(void)
 		fclose(fp_pagetable_log);
 		fclose(fp_mmioaccess_log);
 #endif
-    } else {
+	} else {
 		ASE_MSG("Session already deinitialized, call ignored !\n");
-    }
+	}
 	// close message queue
 	close_mq();
 
@@ -697,27 +695,27 @@ void session_deinit(void)
 	pthread_cancel(io_s.mmio_watch_tid);
 	pthread_join(io_s.mmio_watch_tid, NULL);
 
-    // End Clock snapshot
-    clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
-    runtime_nsec =
-        1e9 * (end_time_snapshot.tv_sec -
-               start_time_snapshot.tv_sec) +
-        (end_time_snapshot.tv_nsec - start_time_snapshot.tv_nsec);
+	// End Clock snapshot
+	clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
+	runtime_nsec =
+		1e9 * (end_time_snapshot.tv_sec -
+				start_time_snapshot.tv_sec) +
+		(end_time_snapshot.tv_nsec - start_time_snapshot.tv_nsec);
 
-    // Set locale, inherit locale, and reset back
-    char *oldLocale = setlocale(LC_NUMERIC, NULL);
-    setlocale(LC_NUMERIC, "");
-    ASE_INFO("\tTook %'llu nsec \n", runtime_nsec);
-    setlocale(LC_NUMERIC, oldLocale);
+	// Set locale, inherit locale, and reset back
+	char *oldLocale = setlocale(LC_NUMERIC, NULL);
+	setlocale(LC_NUMERIC, "");
+	ASE_INFO("\tTook %'llu nsec \n", runtime_nsec);
+	setlocale(LC_NUMERIC, oldLocale);
 
-    // Delete the .app_lock.pid file
-    if (access(app_ready_lockpath, F_OK) == 0) {
-        if (unlink(app_ready_lockpath) == 0) {
-            // Session end, set locale
-            ASE_INFO("Session ended \n");
-        }
-    }
-    FUNC_CALL_EXIT;
+	// Delete the .app_lock.pid file
+	if (access(app_ready_lockpath, F_OK) == 0) {
+		if (unlink(app_ready_lockpath) == 0) {
+			// Session end, set locale
+			ASE_INFO("Session ended \n");
+		}
+	}
+	FUNC_CALL_EXIT;
 }
 
 /*
@@ -725,15 +723,15 @@ void session_deinit(void)
  */
 int find_empty_mmio_scoreboard_slot(void)
 {
-    int ii;
-    int idx;
-    for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
-        idx = ii % MMIO_MAX_OUTSTANDING;
-        if ((mmio_table[idx].tx_flag == false)
-            && (mmio_table[idx].rx_flag == false))
-            return idx;
-    }
-    return 0xFFFF;
+	int ii;
+	int idx;
+	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
+		idx = ii % MMIO_MAX_OUTSTANDING;
+		if ((mmio_table[idx].tx_flag == false)
+			&& (mmio_table[idx].rx_flag == false))
+			return idx;
+	}
+	return 0xFFFF;
 }
 
 
@@ -742,13 +740,13 @@ int find_empty_mmio_scoreboard_slot(void)
  */
 int get_scoreboard_slot_by_tid(int in_tid)
 {
-    int ii;
-    for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
-        if ((mmio_table[ii].tx_flag == true)
-            && (mmio_table[ii].tid == in_tid))
-            return ii;
-    }
-    return 0xFFFF;
+	int ii;
+	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
+		if ((mmio_table[ii].tx_flag == true)
+			&& (mmio_table[ii].tid == in_tid))
+			return ii;
+	}
+	return 0xFFFF;
 }
 
 
@@ -757,14 +755,14 @@ int get_scoreboard_slot_by_tid(int in_tid)
  */
 int count_mmio_tid_used(void)
 {
-    int ii;
-    int cnt = 0;
+	int ii;
+	int cnt = 0;
 
-    for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1)
-        if (mmio_table[ii].tx_flag == true)
-            cnt++;
+	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1)
+		if (mmio_table[ii].tx_flag == true)
+			cnt++;
 
-    return cnt;
+	return cnt;
 }
 
 
@@ -774,38 +772,38 @@ int count_mmio_tid_used(void)
  */
 int mmio_request_put(struct mmio_t *pkt)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
 #ifdef ASE_DEBUG
-    print_mmiopkt(fp_mmioaccess_log, "Sent", pkt);
+	print_mmiopkt(fp_mmioaccess_log, "Sent", pkt);
 #endif
 
-    // Update scoreboard
-    int mmiotable_idx;
-    mmiotable_idx = find_empty_mmio_scoreboard_slot();
-    if (mmiotable_idx != 0xFFFF) {
-        mmio_table[mmiotable_idx].tx_flag = true;
-        mmio_table[mmiotable_idx].rx_flag = false;
-        mmio_table[mmiotable_idx].tid = pkt->tid;
-        mmio_table[mmiotable_idx].data = pkt->qword[0];
-    } else {
-        ASE_ERR
-            ("ASE Error generating MMIO TID, simulation cannot proceed !\n");
-        raise(SIGABRT);
-    }
+	// Update scoreboard
+	int mmiotable_idx;
+	mmiotable_idx = find_empty_mmio_scoreboard_slot();
+	if (mmiotable_idx != 0xFFFF) {
+		mmio_table[mmiotable_idx].tx_flag = true;
+		mmio_table[mmiotable_idx].rx_flag = false;
+		mmio_table[mmiotable_idx].tid = pkt->tid;
+		mmio_table[mmiotable_idx].data = pkt->qword[0];
+	} else {
+		ASE_ERR
+			("ASE Error generating MMIO TID, simulation cannot proceed !\n");
+		raise(SIGABRT);
+	}
 
-    // Send packet
-    mqueue_send(app2sim_mmioreq_tx, (char *) pkt, sizeof(mmio_t));
+	// Send packet
+	mqueue_send(app2sim_mmioreq_tx, (char *) pkt, sizeof(mmio_t));
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 
 #ifdef ASE_DEBUG
-    if (pkt->write_en == MMIO_READ_REQ) {
-        ASE_DBG("mmiotable_idx = %d\n", mmiotable_idx);
-    }
+	if (pkt->write_en == MMIO_READ_REQ) {
+		ASE_DBG("mmiotable_idx = %d\n", mmiotable_idx);
+	}
 #endif
 
-    return mmiotable_idx;
+	return mmiotable_idx;
 }
 
 
@@ -814,62 +812,62 @@ int mmio_request_put(struct mmio_t *pkt)
  */
 void mmio_write32(int offset, uint32_t data)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
 #ifdef ASE_DEBUG
-    int slot_idx;
+	int slot_idx;
 #endif
 
-    if (offset < 0) {
-        ASE_ERR("Requested offset is not in AFU MMIO region\n");
-        ASE_ERR("MMIO Write Error\n");
-        raise(SIGABRT);
-    } else {
-        mmio_t *mmio_pkt;
-        mmio_pkt =
-            (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+	if (offset < 0) {
+		ASE_ERR("Requested offset is not in AFU MMIO region\n");
+		ASE_ERR("MMIO Write Error\n");
+		raise(SIGABRT);
+	} else {
+		mmio_t *mmio_pkt;
+		mmio_pkt =
+			(struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
 
-        mmio_pkt->write_en = MMIO_WRITE_REQ;
-        mmio_pkt->width = MMIO_WIDTH_32;
-        mmio_pkt->addr = offset;
-        ase_memcpy(mmio_pkt->qword, &data, sizeof(uint32_t));
-        mmio_pkt->resp_en = 0;
+		mmio_pkt->write_en = MMIO_WRITE_REQ;
+		mmio_pkt->width = MMIO_WIDTH_32;
+		mmio_pkt->addr = offset;
+		ase_memcpy(mmio_pkt->qword, &data, sizeof(uint32_t));
+		mmio_pkt->resp_en = 0;
 
-        // Critical Section
-        if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		// Critical Section
+		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        mmio_pkt->tid = generate_mmio_tid();
+		mmio_pkt->tid = generate_mmio_tid();
 #ifdef ASE_DEBUG
-        slot_idx = mmio_request_put(mmio_pkt);
+		slot_idx = mmio_request_put(mmio_pkt);
 #else
-        mmio_request_put(mmio_pkt);
+		mmio_request_put(mmio_pkt);
 #endif
 
-        if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR
-                ("Mutex unlock failure ... Application Exit here\n");
+		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR
+				("Mutex unlock failure ... Application Exit here\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        // Write to MMIO map
-        uint32_t *mmio_vaddr;
-        mmio_vaddr =
-            (uint32_t *) ((uint64_t) mmio_afu_vbase + offset);
-        ase_memcpy(mmio_vaddr, (char *) &data, sizeof(uint32_t));
+		// Write to MMIO map
+		uint32_t *mmio_vaddr;
+		mmio_vaddr =
+			(uint32_t *) ((uint64_t) mmio_afu_vbase + offset);
+		ase_memcpy(mmio_vaddr, (char *) &data, sizeof(uint32_t));
 
-        // Display
-        ASE_MSG("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%08x\n",
-            mmio_pkt->tid, mmio_pkt->addr, data);
+		// Display
+		ASE_MSG("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%08x\n",
+			mmio_pkt->tid, mmio_pkt->addr, data);
 
-        free(mmio_pkt);
-    }
+		free(mmio_pkt);
+	}
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 
@@ -878,62 +876,62 @@ void mmio_write32(int offset, uint32_t data)
  */
 void mmio_write64(int offset, uint64_t data)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
 #ifdef ASE_DEBUG
-    int slot_idx;
+	int slot_idx;
 #endif
 
-    if (offset < 0) {
-        ASE_ERR("Requested offset is not in AFU MMIO region\n");
-        ASE_ERR("MMIO Write Error\n");
-        raise(SIGABRT);
-    } else {
-        mmio_t *mmio_pkt;
-        mmio_pkt =
-            (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+	if (offset < 0) {
+		ASE_ERR("Requested offset is not in AFU MMIO region\n");
+		ASE_ERR("MMIO Write Error\n");
+		raise(SIGABRT);
+	} else {
+		mmio_t *mmio_pkt;
+		mmio_pkt =
+			(struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
 
-        mmio_pkt->write_en = MMIO_WRITE_REQ;
-        mmio_pkt->width = MMIO_WIDTH_64;
-        mmio_pkt->addr = offset;
-        ase_memcpy(mmio_pkt->qword, &data, sizeof(uint64_t));
-        mmio_pkt->resp_en = 0;
+		mmio_pkt->write_en = MMIO_WRITE_REQ;
+		mmio_pkt->width = MMIO_WIDTH_64;
+		mmio_pkt->addr = offset;
+		ase_memcpy(mmio_pkt->qword, &data, sizeof(uint64_t));
+		mmio_pkt->resp_en = 0;
 
-        // Critical section
-        if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		// Critical section
+		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        mmio_pkt->tid = generate_mmio_tid();
+		mmio_pkt->tid = generate_mmio_tid();
 #ifdef ASE_DEBUG
-        slot_idx = mmio_request_put(mmio_pkt);
+		slot_idx = mmio_request_put(mmio_pkt);
 #else
-        mmio_request_put(mmio_pkt);
+		mmio_request_put(mmio_pkt);
 #endif
 
-        if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("Mutex unlock failure ... Application Exit here\n");
+		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        // Write to MMIO Map
-        uint64_t *mmio_vaddr;
-        mmio_vaddr =
-            (uint64_t *) ((uint64_t) mmio_afu_vbase + offset);
-        *mmio_vaddr = data;
+		// Write to MMIO Map
+		uint64_t *mmio_vaddr;
+		mmio_vaddr =
+		(uint64_t *) ((uint64_t) mmio_afu_vbase + offset);
+		*mmio_vaddr = data;
 
 
-        ASE_MSG("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%llx\n",
-            mmio_pkt->tid, mmio_pkt->addr,
-            (unsigned long long) data);
+		ASE_MSG("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%llx\n",
+			mmio_pkt->tid, mmio_pkt->addr,
+			(unsigned long long) data);
 
-        free(mmio_pkt);
-    }
+		free(mmio_pkt);
+	}
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /* *********************************************************************
@@ -956,68 +954,68 @@ void mmio_write64(int offset, uint64_t data)
  */
 void mmio_read32(int offset, uint32_t *data32)
 {
-    FUNC_CALL_ENTRY;
-    int slot_idx;
+	FUNC_CALL_ENTRY;
+	int slot_idx;
 
-    if (offset < 0) {
-        ASE_ERR("Requested offset is not in AFU MMIO region\n");
-        ASE_ERR("MMIO Read Error\n");
-        raise(SIGABRT);
-    } else {
-        mmio_t *mmio_pkt;
-        mmio_pkt =
-            (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+	if (offset < 0) {
+		ASE_ERR("Requested offset is not in AFU MMIO region\n");
+		ASE_ERR("MMIO Read Error\n");
+		raise(SIGABRT);
+	} else {
+		mmio_t *mmio_pkt;
+		mmio_pkt =
+			(struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
 
-        mmio_pkt->write_en = MMIO_READ_REQ;
-        mmio_pkt->width = MMIO_WIDTH_32;
-        mmio_pkt->addr = offset;
-        mmio_pkt->resp_en = 0;
+		mmio_pkt->write_en = MMIO_READ_REQ;
+		mmio_pkt->width = MMIO_WIDTH_32;
+		mmio_pkt->addr = offset;
+		mmio_pkt->resp_en = 0;
 
-        // Critical section
-        if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		// Critical section
+		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        mmio_pkt->tid = generate_mmio_tid();
-        slot_idx = mmio_request_put(mmio_pkt);
+		mmio_pkt->tid = generate_mmio_tid();
+		slot_idx = mmio_request_put(mmio_pkt);
 
-        if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("Mutex unlock failure ... Application Exit here\n");
+		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        ASE_MSG("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
-            mmio_pkt->tid, mmio_pkt->addr);
+		ASE_MSG("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
+			mmio_pkt->tid, mmio_pkt->addr);
 
 #ifdef ASE_DEBUG
-        ASE_DBG("slot_idx = %d\n", slot_idx);
+		ASE_DBG("slot_idx = %d\n", slot_idx);
 #endif
 
-        // Wait until correct response found
-        while (mmio_table[slot_idx].rx_flag != true) {
-            usleep(1);
-        }
+		// Wait until correct response found
+		while (mmio_table[slot_idx].rx_flag != true) {
+			usleep(1);
+		}
 
-        // Write data
-        *data32 = (uint32_t) mmio_table[slot_idx].data;
+		// Write data
+		*data32 = (uint32_t) mmio_table[slot_idx].data;
 
-        // Display
+		// Display
 
-        ASE_MSG("MMIO Read Resp : tid = 0x%03x, %08x\n",
-            mmio_table[slot_idx].tid, (uint32_t) *data32);
+		ASE_MSG("MMIO Read Resp : tid = 0x%03x, %08x\n",
+			mmio_table[slot_idx].tid, (uint32_t) *data32);
 
 
-        // Reset scoreboard flags
-        mmio_table[slot_idx].tx_flag = false;
-        mmio_table[slot_idx].rx_flag = false;
+		// Reset scoreboard flags
+		mmio_table[slot_idx].tx_flag = false;
+		mmio_table[slot_idx].rx_flag = false;
 
-        free(mmio_pkt);
-    }
+		free(mmio_pkt);
+	}
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 
@@ -1026,73 +1024,73 @@ void mmio_read32(int offset, uint32_t *data32)
  */
 void mmio_read64(int offset, uint64_t *data64)
 {
-    FUNC_CALL_ENTRY;
-    int slot_idx;
+	FUNC_CALL_ENTRY;
+	int slot_idx;
 
 #ifdef ASE_DEBUG
-    void *retptr;
+	void *retptr;
 #endif
 
-    if (offset < 0) {
-        ASE_ERR("Requested offset is not in AFU MMIO region\n");
-        ASE_ERR("MMIO Read Error\n");
-        raise(SIGABRT);
-    } else {
-        mmio_t *mmio_pkt;
-        mmio_pkt =
-            (struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+	if (offset < 0) {
+		ASE_ERR("Requested offset is not in AFU MMIO region\n");
+		ASE_ERR("MMIO Read Error\n");
+		raise(SIGABRT);
+	} else {
+		mmio_t *mmio_pkt;
+		mmio_pkt =
+			(struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
 
-        mmio_pkt->write_en = MMIO_READ_REQ;
-        mmio_pkt->width = MMIO_WIDTH_64;
-        mmio_pkt->addr = offset;
-        mmio_pkt->resp_en = 0;
+		mmio_pkt->write_en = MMIO_READ_REQ;
+		mmio_pkt->width = MMIO_WIDTH_64;
+		mmio_pkt->addr = offset;
+		mmio_pkt->resp_en = 0;
 
-        // Critical section
-        if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		// Critical section
+		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        mmio_pkt->tid = generate_mmio_tid();
-        slot_idx = mmio_request_put(mmio_pkt);
+		mmio_pkt->tid = generate_mmio_tid();
+		slot_idx = mmio_request_put(mmio_pkt);
 
-        if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
-            ASE_ERR("Mutex unlock failure ... Application Exit here\n");
+		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
 			session_deinit();
-            exit(1);
-        }
+			exit(1);
+		}
 
-        ASE_MSG
-            ("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
-             mmio_pkt->tid, mmio_pkt->addr);
+		ASE_MSG
+			("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
+			mmio_pkt->tid, mmio_pkt->addr);
 
 #ifdef ASE_DEBUG
-        ASE_DBG("slot_idx = %d\n", slot_idx);
+		ASE_DBG("slot_idx = %d\n", slot_idx);
 #endif
 
-        // Wait for correct response to be back
-        while (mmio_table[slot_idx].rx_flag != true) {
-            usleep(1);
-        };
+		// Wait for correct response to be back
+		while (mmio_table[slot_idx].rx_flag != true) {
+			usleep(1);
+		};
 
-        // Write data
-        *data64 = mmio_table[slot_idx].data;
+		// Write data
+		*data64 = mmio_table[slot_idx].data;
 
-        // Display
-        ASE_MSG
-            ("MMIO Read Resp : tid = 0x%03x, data = %llx\n",
-             mmio_table[slot_idx].tid,
-             (unsigned long long) *data64);
+		// Display
+		ASE_MSG
+			("MMIO Read Resp : tid = 0x%03x, data = %llx\n",
+			 mmio_table[slot_idx].tid,
+			 (unsigned long long) *data64);
 
-        // Reset scoreboard flags
-        mmio_table[slot_idx].tx_flag = false;
-        mmio_table[slot_idx].rx_flag = false;
+		// Reset scoreboard flags
+		mmio_table[slot_idx].tx_flag = false;
+		mmio_table[slot_idx].rx_flag = false;
 
-        free(mmio_pkt);
-    }
+		free(mmio_pkt);
+	}
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /*
@@ -1102,145 +1100,145 @@ void mmio_read64(int offset, uint64_t *data64)
  */
 void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    // pthread_mutex_trylock (&app_lock);
-    int fd_alloc;
-    char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
-
-
-    ASE_MSG("Attempting to open a shared memory... \n");
+	// pthread_mutex_trylock (&app_lock);
+	int fd_alloc;
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
 
 
-    // Buffer is invalid until successfully allocated
-    mem->valid = ASE_BUFFER_INVALID;
+	ASE_MSG("Attempting to open a shared memory... \n");
 
-    // If memory size is not set, then exit !!
-    if (mem->memsize <= 0) {
-        ASE_ERR
-            ("Memory requested must be larger than 0 bytes... exiting...\n");
+
+	// Buffer is invalid until successfully allocated
+	mem->valid = ASE_BUFFER_INVALID;
+
+	// If memory size is not set, then exit !!
+	if (mem->memsize <= 0) {
+		ASE_ERR
+			("Memory requested must be larger than 0 bytes... exiting...\n");
 		session_deinit();
-        exit(1);
-    }
-    // Autogenerate a memname, by defualt the first region id=0 will be
-    // called "/mmio", subsequent regions will be called strcat("/buf", id)
-    // Initially set all characters to NULL
-    ase_memset(mem->memname, 0, sizeof(mem->memname));
-    if (mem->is_mmiomap == 1) {
-        snprintf(mem->memname, ASE_FILENAME_LEN, "/mmio.%s",
-             tstamp_string);
-    } else if (mem->is_umas == 1) {
-        snprintf(mem->memname, ASE_FILENAME_LEN, "/umas.%s",
-             tstamp_string);
-    } else {
-        snprintf(mem->memname, ASE_FILENAME_LEN, "/buf%d.%s",
-             userbuf_index_count, tstamp_string);
-        userbuf_index_count++;
-    }
+		exit(1);
+	}
+	// Autogenerate a memname, by defualt the first region id=0 will be
+	// called "/mmio", subsequent regions will be called strcat("/buf", id)
+	// Initially set all characters to NULL
+	ase_memset(mem->memname, 0, sizeof(mem->memname));
+	if (mem->is_mmiomap == 1) {
+		snprintf(mem->memname, ASE_FILENAME_LEN, "/mmio.%s",
+			tstamp_string);
+	} else if (mem->is_umas == 1) {
+		snprintf(mem->memname, ASE_FILENAME_LEN, "/umas.%s",
+			tstamp_string);
+	} else {
+		snprintf(mem->memname, ASE_FILENAME_LEN, "/buf%d.%s",
+			 userbuf_index_count, tstamp_string);
+		userbuf_index_count++;
+	}
 
-    // Disable private memory flag
-    mem->is_privmem = 0;
+	// Disable private memory flag
+	mem->is_privmem = 0;
 
-    // Obtain a file descriptor for the shared memory region
-    // Tue May  5 19:24:21 PDT 2015
-    // https://www.gnu.org/software/libc/manual/html_node/Permission-Bits.html
-    // S_IREAD | S_IWRITE are obselete
-    fd_alloc = shm_open(mem->memname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    if (fd_alloc < 0) {
-        BEGIN_RED_FONTCOLOR;
-        perror("shm_open");
-        END_RED_FONTCOLOR;
+	// Obtain a file descriptor for the shared memory region
+	// Tue May  5 19:24:21 PDT 2015
+	// https://www.gnu.org/software/libc/manual/html_node/Permission-Bits.html
+	// S_IREAD | S_IWRITE are obselete
+	fd_alloc = shm_open(mem->memname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd_alloc < 0) {
+		BEGIN_RED_FONTCOLOR;
+		perror("shm_open");
+		END_RED_FONTCOLOR;
 		session_deinit();
-        exit(1);
-    }
-    // Mmap shared memory region
-    if (suggested_vaddr == (uint64_t *) NULL) {
-        mem->vbase =
-            (uint64_t) mmap(NULL, mem->memsize,
-                    PROT_READ | PROT_WRITE, MAP_SHARED,
-                    fd_alloc, 0);
-    } else {
-        mem->vbase =
-            (uint64_t) mmap(suggested_vaddr, mem->memsize,
-                    PROT_READ | PROT_WRITE,
-                    MAP_SHARED, fd_alloc, 0);
-    }
+		exit(1);
+	}
+	// Mmap shared memory region
+	if (suggested_vaddr == (uint64_t *) NULL) {
+		mem->vbase =
+			(uint64_t) mmap(NULL, mem->memsize,
+					PROT_READ | PROT_WRITE, MAP_SHARED,
+					fd_alloc, 0);
+	} else {
+		mem->vbase =
+			(uint64_t) mmap(suggested_vaddr, mem->memsize,
+					PROT_READ | PROT_WRITE,
+					MAP_SHARED, fd_alloc, 0);
+	}
 
-    // Check
-    if (mem->vbase == (uint64_t) MAP_FAILED) {
-        BEGIN_RED_FONTCOLOR;
-        perror("mmap");
-        END_RED_FONTCOLOR;
-        ASE_ERR("error string %s", strerror(errno));
+	// Check
+	if (mem->vbase == (uint64_t) MAP_FAILED) {
+		BEGIN_RED_FONTCOLOR;
+		perror("mmap");
+		END_RED_FONTCOLOR;
+		ASE_ERR("error string %s", strerror(errno));
 		session_deinit();
-        exit(1);
-    }
+		exit(1);
+	}
 #ifdef ASE_DEBUG
-    // Extend memory to required size
-    int ret;
-    ret = ftruncate(fd_alloc, (off_t) mem->memsize);
-    if (ret != 0) {
-        ASE_DBG("ftruncate failed");
-        BEGIN_RED_FONTCOLOR;
-        perror("ftruncate");
-        END_RED_FONTCOLOR;
+	// Extend memory to required size
+	int ret;
+	ret = ftruncate(fd_alloc, (off_t) mem->memsize);
+	if (ret != 0) {
+		ASE_DBG("ftruncate failed");
+		BEGIN_RED_FONTCOLOR;
+		perror("ftruncate");
+		END_RED_FONTCOLOR;
 
-    }
+	}
 #endif
 
-    // Autogenerate buffer index
-    mem->index = asebuf_index_count;
-    asebuf_index_count++;
-    ASE_MSG("SUCCESS\n");
+	// Autogenerate buffer index
+	mem->index = asebuf_index_count;
+	asebuf_index_count++;
+	ASE_MSG("SUCCESS\n");
 
-    // Set buffer as valid
-    mem->valid = ASE_BUFFER_VALID;
+	// Set buffer as valid
+	mem->valid = ASE_BUFFER_VALID;
 
-    // Send an allocate command to DPI, metadata = ASE_MEM_ALLOC
-    // mem->metadata = HDR_MEM_ALLOC_REQ;
-    mem->next = NULL;
+	// Send an allocate command to DPI, metadata = ASE_MEM_ALLOC
+	// mem->metadata = HDR_MEM_ALLOC_REQ;
+	mem->next = NULL;
 
-    // Message queue must be enabled when using DPI (else debug purposes only)
-    if (mq_exist_status == NOT_ESTABLISHED) {
+	// Message queue must be enabled when using DPI (else debug purposes only)
+	if (mq_exist_status == NOT_ESTABLISHED) {
 		ASE_MSG("Session not started --- STARTING now\n");
 
 		session_init();
-    }
-    // Form message and transmit to DPI
-    ase_buffer_t_to_str(mem, tmp_msg);
-    mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
+	}
+	// Form message and transmit to DPI
+	ase_buffer_t_to_str(mem, tmp_msg);
+	mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
 
-    // Receive message from DPI with pbase populated
-    while (mqueue_recv(sim2app_alloc_rx, tmp_msg, ASE_MQ_MSGSIZE) == 0)
-        ;
-    ase_str_to_buffer_t(tmp_msg, mem);
+	// Receive message from DPI with pbase populated
+	while (mqueue_recv(sim2app_alloc_rx, tmp_msg, ASE_MQ_MSGSIZE) == 0)
+		;
+	ase_str_to_buffer_t(tmp_msg, mem);
 
-    // Print out the buffer
+	// Print out the buffer
 #ifdef ASE_DEBUG
-    ase_buffer_info(mem);
+	ase_buffer_info(mem);
 #endif
 
-    append_buf(mem); // keep records of allocated buffers
+	append_buf(mem); // keep records of allocated buffers
 
 #ifdef ASE_DEBUG
-    if (fp_pagetable_log != NULL) {
-        if (mem->index % 20 == 0) {
-            fprintf(fp_pagetable_log,
-                "Index\tAppVBase\tASEVBase\tBufsize\tBufname\t\tPhysBase\n");
-        }
-        fprintf(fp_pagetable_log,
-            "%d\t%p\t%p\t%x\t%s\t\t%p\n",
-            mem->index,
-            (void *) mem->vbase,
-            (void *) mem->pbase,
-            mem->memsize,
-            mem->memname, (void *) mem->fake_paddr);
-    }
+	if (fp_pagetable_log != NULL) {
+		if (mem->index % 20 == 0) {
+		fprintf(fp_pagetable_log,
+					"Index\tAppVBase\tASEVBase\tBufsize\tBufname\t\tPhysBase\n");
+		}
+		fprintf(fp_pagetable_log,
+			"%d\t%p\t%p\t%x\t%s\t\t%p\n",
+			mem->index,
+			(void *) mem->vbase,
+			(void *) mem->pbase,
+			mem->memsize,
+			mem->memname, (void *) mem->fake_paddr);
+	}
 #endif
 
-    close(fd_alloc);
+	close(fd_alloc);
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 
@@ -1251,38 +1249,38 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
  */
 void deallocate_buffer(struct buffer_t *mem)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    int ret;
-    char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
-    struct buffer_t *mem_next;  // Keep current buffer's pointer to next
+	int ret;
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	struct buffer_t *mem_next;  // Keep current buffer's pointer to next
 
-    ASE_MSG("Deallocating memory %s ... \n", mem->memname);
+	ASE_MSG("Deallocating memory %s ... \n", mem->memname);
 
-    // Send a one way message to request a deallocate
-    mem_next = mem->next;
-    ase_buffer_t_to_str(mem, tmp_msg);
-    mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
-    // Wait for response to deallocate
-    mqueue_recv(sim2app_dealloc_rx, tmp_msg, ASE_MQ_MSGSIZE);
-    ase_str_to_buffer_t(tmp_msg, mem);
-    mem->next = mem_next;
+	// Send a one way message to request a deallocate
+	mem_next = mem->next;
+	ase_buffer_t_to_str(mem, tmp_msg);
+	mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
+	// Wait for response to deallocate
+	mqueue_recv(sim2app_dealloc_rx, tmp_msg, ASE_MQ_MSGSIZE);
+	ase_str_to_buffer_t(tmp_msg, mem);
+	mem->next = mem_next;
 
-    // Unmap the memory accordingly
-    ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
-    if (0 != ret) {
-        BEGIN_RED_FONTCOLOR;
-        perror("munmap");
-        END_RED_FONTCOLOR;
+	// Unmap the memory accordingly
+	ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
+	if (0 != ret) {
+		BEGIN_RED_FONTCOLOR;
+		perror("munmap");
+		END_RED_FONTCOLOR;
 		session_deinit();
-        exit(1);
-    }
-    mem->valid = ASE_BUFFER_INVALID;
+		exit(1);
+	}
+	mem->valid = ASE_BUFFER_INVALID;
 
-    // Print if successful
-    ASE_MSG("SUCCESS\n");
+	// Print if successful
+	ASE_MSG("SUCCESS\n");
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /*
@@ -1291,33 +1289,33 @@ void deallocate_buffer(struct buffer_t *mem)
  */
 void append_buf(struct buffer_t *buf)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    if (buf_head == NULL) {
-        buf_head = buf;
-        buf_end = buf;
-        buf->next = NULL;
-    } else {
+	if (buf_head == NULL) {
+		buf_head = buf;
+		buf_end = buf;
+		buf->next = NULL;
+	} else {
 
-        buf_end->next = buf;
-        buf->next = NULL;
-        buf_end = buf;
-    }
+		buf_end->next = buf;
+		buf->next = NULL;
+		buf_end = buf;
+	}
 #ifdef ASE_DEBUG
 
-    struct buffer_t *ptr;
-    ASE_DBG("Buffer traversal START =>\n");
-    ptr = buf_head;
-    while (ptr != NULL) {
-        ASE_DBG("\t%d %p %d\n", ptr->index,
-            ptr, ptr->valid);
-        ptr = ptr->next;
-    }
-    ASE_DBG("Buffer traversal END\n");
+	struct buffer_t *ptr;
+	ASE_DBG("Buffer traversal START =>\n");
+	ptr = buf_head;
+	while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
+	}
+	ASE_DBG("Buffer traversal END\n");
 
 #endif
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /*
@@ -1326,49 +1324,49 @@ void append_buf(struct buffer_t *buf)
  */
 bool deallocate_buffer_by_index(int search_index)
 {
-    FUNC_CALL_ENTRY;
-    bool value;
-    struct buffer_t *bufptr = (struct buffer_t *) NULL;
-    struct buffer_t *ptr;
+	FUNC_CALL_ENTRY;
+	bool value;
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+	struct buffer_t *ptr;
 
-    ASE_MSG("Deallocate request index = %d ... \n", search_index);
+	ASE_MSG("Deallocate request index = %d ... \n", search_index);
 
-    // Traverse buffer list
-    ptr = buf_head;
-    while (ptr != NULL) {
-        if (ptr->index == search_index) {
-            bufptr = ptr;
-            ASE_DBG("FOUND\n");
-            break;
-        } else {
-            ptr = ptr->next;
-        }
-    }
+	// Traverse buffer list
+	ptr = buf_head;
+	while (ptr != NULL) {
+		if (ptr->index == search_index) {
+			bufptr = ptr;
+			ASE_DBG("FOUND\n");
+			break;
+		} else {
+			ptr = ptr->next;
+		}
+	}
 
-    // Call deallocate
-    if ((bufptr != NULL) && (bufptr->valid == ASE_BUFFER_VALID)) {
-        deallocate_buffer((struct buffer_t *) bufptr);
-        value = true;
-    } else {
-        ASE_MSG("Buffer pointer was returned as NULL\n");
-        value = false;
-    }
+	// Call deallocate
+	if ((bufptr != NULL) && (bufptr->valid == ASE_BUFFER_VALID)) {
+		deallocate_buffer((struct buffer_t *) bufptr);
+		value = true;
+	} else {
+		ASE_MSG("Buffer pointer was returned as NULL\n");
+		value = false;
+	}
 
 #ifdef ASE_DEBUG
 
-    ASE_DBG("Buffer traversal START =>\n");
-    ptr = buf_head;
-    while (ptr != NULL) {
-        ASE_DBG("\t%d %p %d\n", ptr->index,
-            ptr, ptr->valid);
-        ptr = ptr->next;
-    }
-    ASE_DBG("Buffer traversal END\n");
+	ASE_DBG("Buffer traversal START =>\n");
+	ptr = buf_head;
+	while (ptr != NULL) {
+		ASE_DBG("\t%d %p %d\n", ptr->index,
+			ptr, ptr->valid);
+		ptr = ptr->next;
+	}
+	ASE_DBG("Buffer traversal END\n");
 
 #endif
 
-    FUNC_CALL_EXIT;
-    return value;
+	FUNC_CALL_EXIT;
+	return value;
 }
 
 /*
@@ -1376,25 +1374,25 @@ bool deallocate_buffer_by_index(int search_index)
  */
 void free_buffers(void)
 {
-    FUNC_CALL_ENTRY;
+	FUNC_CALL_ENTRY;
 
-    struct buffer_t *bufptr = (struct buffer_t *) NULL;
-    struct buffer_t *ptr;
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+	struct buffer_t *ptr;
 
-    ASE_MSG("Deallocate all buffers ... \n");
+	ASE_MSG("Deallocate all buffers ... \n");
 
-    // Traverse buffer list
-    ptr = buf_head;
-    while (ptr != NULL) {
-        bufptr = ptr;
-        ptr = ptr->next;
-        free(bufptr);
-    }
+	// Traverse buffer list
+	ptr = buf_head;
+	while (ptr != NULL) {
+		bufptr = ptr;
+		ptr = ptr->next;
+		free(bufptr);
+	}
 
-    buf_head = NULL;
-    buf_end = NULL;
+	buf_head = NULL;
+	buf_end = NULL;
 
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /*
