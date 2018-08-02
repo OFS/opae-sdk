@@ -1007,7 +1007,7 @@ The following list of ASE errors and warnings is not comprehensive:
 | ```ase_sources.mk: No such file or directory``` | ASE Environment has not been generated. | Generate an AFU RTL listing (in ```vlog_files.list``` and ``` ase_sources.mk```) configuration. <br> You can use ```ase/scripts/generate_ase_environment.py```to generate these files. |
 | An ASE instance is probably still running in current directory. | An ASE simulation is already running in the ```$ASE_WORKDIR``` directory. | If the simulation process is unusable or unreachable, use the ```ase/scripts/ipc_clean.py``` script to clean the simulation temporary files using: <br>```$ make clean```. <br> Then rebuild the simulator. |
 
-# Revision History ##
+## Revision History ##
 
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
