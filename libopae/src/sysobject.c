@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "common_int.h"
@@ -44,12 +45,12 @@
 		}                                                              \
 	} while (false);
 
-static inline ssize_t eintr_read(int fd, void *buf, size_t count)
+static inline ssize_t eintr_pread(int fd, void *buf, size_t count, size_t offset)
 {
 	ssize_t bytes_read = 0, total_read = 0;
 	char *ptr = buf;
 	while (total_read < (ssize_t)count) {
-		bytes_read = read(fd, ptr + total_read, count);
+		bytes_read = pread(fd, ptr + total_read, count, offset);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				continue;
@@ -65,7 +66,7 @@ static inline ssize_t eintr_write(int fd, void *buf, size_t count)
 	ssize_t bytes_written = 0, total_written = 0;
 	char *ptr = buf;
 	while (total_written < (ssize_t)count) {
-		bytes_written = read(fd, ptr + total_written, count);
+		bytes_written = write(fd, ptr + total_written, count);
 		if (bytes_written < 0) {
 			if (errno == EINTR) {
 				continue;
@@ -133,14 +134,14 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 					     uint8_t *buffer, size_t offset,
 					     size_t *len)
 {
-	int fd = -1;
+	int fd = -1, fd_stat = 0;
 	char objpath[SYSFS_PATH_MAX];
 	ssize_t count = 0;
 	fpga_result res = FPGA_EXCEPTION;
+	struct stat objstat;
 
 	NULL_CHECK(token);
 	NULL_CHECK(key);
-	NULL_CHECK(buffer);
 	NULL_CHECK(len);
 
 	res = cat_token_sysfs_path(objpath, token, key);
@@ -148,12 +149,27 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 		return res;
 	}
 
+	fd_stat = stat(objpath, &objstat);
+	if (fd_stat < 0){
+		FPGA_ERR("Error with object path: %s", strerror(errno));
+		if (errno == EACCES){
+			return FPGA_NO_ACCESS;
+		}
+		return FPGA_EXCEPTION;
+	}
+
+	if (!buffer){
+		*len = objstat.st_size - offset;
+		return FPGA_OK;
+	}
+
+
 	fd = open(objpath, O_RDONLY);
 	if (fd < 0) {
 		return FPGA_NOT_FOUND;
 	}
 
-	count = pread(fd, buffer, *len, offset);
+	count = eintr_pread(fd, buffer, *len, offset);
 	if (count < (ssize_t)*len) {
 		if (count < 0) {
 			FPGA_ERR("Error with pread operation: %s",
@@ -261,7 +277,7 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 	}
 
 	// read the contents of the sysfs object
-	bytes_read = eintr_read(fd, rw_buffer, fsize);
+	bytes_read = eintr_pread(fd, rw_buffer, fsize, 0);
 	if (bytes_read < fsize) {
 		res = FPGA_EXCEPTION;
 		if (bytes_read < 0) {
