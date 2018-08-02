@@ -45,16 +45,19 @@
 		}                                                              \
 	} while (false);
 
-static inline ssize_t eintr_pread(int fd, void *buf, size_t count, size_t offset)
+static inline ssize_t eintr_pread(int fd, void *buf, size_t count,
+				  size_t offset)
 {
 	ssize_t bytes_read = 0, total_read = 0;
 	char *ptr = buf;
 	while (total_read < (ssize_t)count) {
-		bytes_read = pread(fd, ptr + total_read, count, offset);
+		bytes_read = pread(fd, ptr + total_read, count - total_read,
+				   offset + total_read);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				continue;
 			}
+			return bytes_read;
 		}
 		total_read += bytes_read;
 	}
@@ -66,11 +69,13 @@ static inline ssize_t eintr_write(int fd, void *buf, size_t count)
 	ssize_t bytes_written = 0, total_written = 0;
 	char *ptr = buf;
 	while (total_written < (ssize_t)count) {
-		bytes_written = write(fd, ptr + total_written, count);
+		bytes_written =
+			write(fd, ptr + total_written, count - total_written);
 		if (bytes_written < 0) {
 			if (errno == EINTR) {
 				continue;
 			}
+			return bytes_written;
 		}
 		total_written += bytes_written;
 	}
