@@ -215,11 +215,12 @@ out:
 
 	
 /* function to get the bus number when there are multiple buses */
-struct bus_info{
+/* TODO: add device and function information */
+struct bdf_info{
 	uint8_t bus;
 };
 
-fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo){
+fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
 	fpga_result res = FPGA_OK;
 	fpga_properties props;
 	res = fpgaGetProperties(tok, &props);
@@ -235,7 +236,7 @@ out:
 	return res;
 }
 
-void print_bus_info(struct bus_info *info){
+void print_bus_info(struct bdf_info *info){
 	printf("Running on bus 0x%02X. \n", info->bus);
 }
 
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
 	uint64_t        input_wsid;
 	uint64_t        output_wsid;
 	fpga_result     res = FPGA_OK;
-	struct bus_info info;
+	struct bdf_info info;
 
 
 
