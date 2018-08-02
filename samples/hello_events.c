@@ -48,12 +48,15 @@
 #include <getopt.h>
 #include <poll.h>
 #include <errno.h>
+#include <stdbool.h>
+#include <sys/stat.h>
 
 #include "opae/fpga.h"
 #include "types_int.h"
 #include "common_int.h"
 
 int usleep(unsigned);
+static int err_cnt;
 
 #define FME_SYSFS_INJECT_ERROR "errors/inject_error"
 
@@ -87,6 +90,20 @@ struct ras_inject_error {
 	};
 };
 
+// Global configuration of bus, set during parse_args()
+
+struct config{
+	struct target {
+		int bus;
+	} target;
+}
+
+config = {
+	.target = {
+		.bus = -1
+	}
+};
+
 static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
 {
 	struct _fpga_token  *_token           = NULL;
@@ -115,12 +132,120 @@ static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
 	return result;
 }
 
+/*
+ * Parse command line arguments
+ */
+#define GETOPT_STRING "B:"
+fpga_result parse_args(int argc, char *argv[])
+{
+	struct option longopts[] = {
+		{"bus", required_argument, NULL, 'B'}
+	};
+	
+	int getopt_ret;
+	int option_index;
+	char *endptr = NULL;
+
+	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))){
+		const char *tmp_optarg = optarg;
+		/* checks to see if optarg is null and if not goes to value of optarg */
+		if ((optarg) && ('=' == *tmp_optarg)){
+			++tmp_optarg;
+		}
+		
+	switch (getopt_ret) {
+	case 'B': /* bus */
+		if (NULL == tmp_optarg)
+			return FPGA_EXCEPTION;
+		endptr = NULL;
+		config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
+		if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
+			fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
+			return FPGA_EXCEPTION;
+		}
+		break;
+	
+	default: /* invalid option */
+		fprintf(stderr, "Invalid cmdline options\n");
+		return FPGA_EXCEPTION;
+	}
+	}
+	
+	return FPGA_OK;
+}
+
+
+int find_fpga(fpga_token *fpga, uint32_t *num_matches)
+{
+	fpga_properties filter = NULL;
+	fpga_result 	res;
+
+	/* Get number of FPGAs in system*/
+	res = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(res, out_destroy, "creating properties object");
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
+
+
+	if (-1 != config.target.bus) {
+		res = fpgaPropertiesSetBus(filter, config.target.bus);
+		ON_ERR_GOTO(res, out_destroy, "setting bus");
+	}
+		
+	res= fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
+	ON_ERR_GOTO(res, out, "enumerating FPGAs");
+
+out_destroy:
+	res = fpgaDestroyProperties(&filter);
+	ON_ERR_GOTO(res, out, "destroying properties object");
+	
+out:
+   return err_cnt;
+
+}
+
+
+/* functions to get the bus number when there are multiple buses */
+struct bdf_info{
+	uint8_t bus;
+};
+
+fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
+	res = fpgaGetProperties(tok, &props);
+	ON_ERR_GOTO(res, out, "reading properties from Token");
+
+	res = fpgaPropertiesGetBus(props, &finfo->bus);
+	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
+	
+	if(res != FPGA_OK){
+		return FPGA_EXCEPTION;
+	}	
+	
+	out_destroy:
+		res = fpgaDestroyProperties(&props);
+		ON_ERR_GOTO(res, out, "fpgaDestroyProps");
+
+	out:
+		return res;
+}
+
+void print_bus_info(struct bdf_info *info){
+	printf("Running on bus 0x%02X. \n", info->bus);
+}
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
-	fpga_properties    filter = NULL;
 	fpga_token         fpga_device_token;
 	fpga_handle        fpga_device_handle;
-	uint32_t           num_matches;
+	uint32_t           num_matches = 1;
 	fpga_result res;
 	fpga_event_handle eh;
 	uint64_t count = 0;
@@ -129,29 +254,35 @@ int main(int argc, char *argv[])
 	int timeout = 10000;
 	int poll_ret = 0;
 	ssize_t bytes_read = 0;
+	struct bdf_info info;
 
-	UNUSED_PARAM(argc);
-	UNUSED_PARAM(argv);
+	res = parse_args(argc, argv);
+	if (res == FPGA_EXCEPTION){
+		goto out;
+	}
 
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_destroy_prop, "creating properties object");
 
-	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
-	ON_ERR_GOTO(res, out_destroy_prop, "setting object type");
-
-	res = fpgaEnumerate(&filter, 1, &fpga_device_token, 1, &num_matches);
-	ON_ERR_GOTO(res, out_destroy_tok, "enumerating accelerators");
+	res = find_fpga(&fpga_device_token, &num_matches);
+	 
 
 	if (num_matches < 1) {
 		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
-		ON_ERR_GOTO(res, out_destroy_tok, "injecting error");
+		goto out_exit;
 	}
+
+	if (num_matches > 1) {
+		fprintf(stderr, "Found more than one suitable slot. ");
+		res = get_bus_info(fpga_device_token, &info);
+		ON_ERR_GOTO(res, out, "getting bus num");	
+	}
+       
+	res = get_bus_info(fpga_device_token, &info); 
+        print_bus_info(&info);
 
 	pid = fork();
 	if (pid == -1) {
 		printf("Could not create a thread to inject error");
-		goto out_destroy_tok;
+		goto out_exit;
 	}
 	if (pid == 0) {
 		usleep(5000000);
@@ -173,6 +304,7 @@ int main(int argc, char *argv[])
 		ON_ERR_GOTO(res, out_destroy_eh, "registering an FME event");
 
 		printf("Waiting for interrupts now...\n");
+	
 
 		res = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
 		ON_ERR_GOTO(res, out_destroy_eh, "getting file descriptor");
@@ -212,12 +344,11 @@ out_close:
 
 out_destroy_tok:
 	res = fpgaDestroyToken(&fpga_device_token);
-	ON_ERR_GOTO(res, out_destroy_prop, "destroying token");
-
-out_destroy_prop:
-	res = fpgaDestroyProperties(&filter);
-	ON_ERR_GOTO(res, out_exit, "destroying properties object");
+	ON_ERR_GOTO(res, out, "destroying token");
 
 out_exit:
+	return 1;
+
+out:
 	return res;
 }
