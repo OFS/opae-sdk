@@ -45,7 +45,7 @@ typedef struct mmio_s {
 	// MMIO Read response watcher
 	int glbl_mmio_tid;       	       // MMIO Tid
 
-	pthread_t mmio_watch_tid;	       // Tracker thread Id										  
+	pthread_t mmio_watch_tid;	       // Tracker thread Id
 	mmio_t *mmio_rsp_pkt;              // MMIO Response packet handoff control
 } MMIO_S;
 
@@ -126,7 +126,7 @@ FILE *fp_mmioaccess_log = (FILE *) NULL;
 /*
  * Unmap umas region
  */
-void cleanup_umas()
+void cleanup_umas(void)
 {
 	// Deallocate the region
 	ASE_MSG("Deallocating UMAS\n");
@@ -137,7 +137,7 @@ void cleanup_umas()
 /*
  * Unmap mmio regrion
  */
-void cleanup_mmio()
+void cleanup_mmio(void)
 {
 	// Un-mapping CSR region
 	ASE_MSG("Deallocating MMIO map\n");
@@ -148,7 +148,7 @@ void cleanup_mmio()
 /*
  * close message queues
  */
-void close_mq()
+void close_mq(void)
 {
 	// close message queue
 	mqueue_close(app2sim_mmioreq_tx);
@@ -263,7 +263,7 @@ void *mmio_response_watcher(void *arg)
 		}
 	}
 
-	if (io_s.mmio_rsp_pkt) 
+	if (io_s.mmio_rsp_pkt)
 		free(io_s.mmio_rsp_pkt);
 
 	return 0;
@@ -407,8 +407,7 @@ void session_init(void)
 		if (fp_pagetable_log == NULL) {
 			ASE_ERR
 			("APP pagetable logger initialization failed !\n");
-		}
-		else {
+		} else {
 			ASE_MSG("APP pagetable logger initialized\n");
 		}
 
@@ -417,8 +416,7 @@ void session_init(void)
 		if (fp_mmioaccess_log == NULL) {
 			ASE_ERR
 			("APP MMIO access logger initialization failed !\n");
-		}
-		else {
+		} else {
 			ASE_MSG("APP MMIO access logger initialized\n");
 		}
 #endif
@@ -490,8 +488,7 @@ void session_init(void)
 			close_mq();
 			free_buffers();
 			exit(1);
-		}
-		else {
+		} else {
 			ASE_MSG("SUCCESS\n");
 		}
 
@@ -509,12 +506,12 @@ void session_init(void)
 			close_mq();
 			free_buffers();
 			exit(1);
-		}
-		else {
+		} else {
 			ASE_MSG("SUCCESS\n");
 		}
 
-		while (umas_init_flag != 1);
+		while (umas_init_flag != 1)
+			;
 
 		// MMIO Scoreboard setup
 		int ii;
@@ -527,11 +524,10 @@ void session_init(void)
 
 		// Session status
 		session_exist_status = ESTABLISHED;
-	}
-	else {
+	} else {
 #ifdef ASE_DEBUG
 		ASE_DBG("Session already exists\n");
-#endif		
+#endif
 	}
     FUNC_CALL_EXIT;
 }
@@ -1400,25 +1396,25 @@ void free_buffers(void)
  */
 struct buffer_t *find_buffer_by_index(uint64_t wsid)
 {
-    struct buffer_t *bufptr = (struct buffer_t *) NULL;
-    struct buffer_t *trav_ptr;
+	struct buffer_t *bufptr = (struct buffer_t *) NULL;
+	struct buffer_t *trav_ptr;
 
-    trav_ptr = buf_head;
-    while (trav_ptr != NULL) {
-        if ((uint64_t)(trav_ptr->index) == wsid) {
-            bufptr = trav_ptr;
-            break;
-        } else {
-            trav_ptr = trav_ptr->next;
-        }
-    }
+	trav_ptr = buf_head;
+	while (trav_ptr != NULL) {
+		if ((uint64_t)(trav_ptr->index) == wsid) {
+		bufptr = trav_ptr;
+		break;
+		} else {
+			trav_ptr = trav_ptr->next;
+		}
+	}
 
-    if (bufptr == (struct buffer_t *) NULL) {
-        ASE_ERR
-            ("find_buffer_by_index: Couldn't find buffer by WSID\n");
-    }
+	if (bufptr == (struct buffer_t *) NULL) {
+	ASE_ERR
+		("find_buffer_by_index: Couldn't find buffer by WSID\n");
+	}
 
-    return bufptr;
+	return bufptr;
 }
 
 /*
@@ -1427,19 +1423,19 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
  */
 uint64_t *umsg_get_address(int umsg_id)
 {
-    uint64_t *ret_vaddr;
-    if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
-        ret_vaddr = (uint64_t *) ((uint64_t) umsg_umas_vbase +
-                      (uint64_t) ((uint64_t) umsg_id *
-                              (ASE_PAGESIZE + 64)));
-    } else {
-        ret_vaddr = NULL;
-        ASE_ERR
-            ("**ERROR** Requested umsg_id out of range... EXITING\n");
+	uint64_t *ret_vaddr;
+	if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
+		ret_vaddr = (uint64_t *) ((uint64_t) umsg_umas_vbase +
+					(uint64_t) ((uint64_t) umsg_id *
+							(ASE_PAGESIZE + 64)));
+	} else {
+		ret_vaddr = NULL;
+		ASE_ERR
+			("**ERROR** Requested umsg_id out of range... EXITING\n");
 		session_deinit();
-        exit(1);
-    }
-    return ret_vaddr;
+		exit(1);
+	}
+	return ret_vaddr;
 }
 
 
@@ -1448,8 +1444,8 @@ uint64_t *umsg_get_address(int umsg_id)
  */
 /*void umsg_send(int umsg_id, uint64_t *umsg_data)
 {
-    ase_memcpy((char *) umsg_addr_array[umsg_id], (char *) umsg_data,
-           sizeof(uint64_t));
+	ase_memcpy((char *) umsg_addr_array[umsg_id], (char *) umsg_data,
+		   sizeof(uint64_t));
 }*/
 
 
@@ -1458,8 +1454,8 @@ uint64_t *umsg_get_address(int umsg_id)
  */
 void umsg_set_attribute(uint32_t hint_mask)
 {
-    // Send hint transaction
-    ase_portctrl(UMSG_MODE, hint_mask);
+	// Send hint transaction
+	ase_portctrl(UMSG_MODE, hint_mask);
 }
 
 
@@ -1469,77 +1465,77 @@ void umsg_set_attribute(uint32_t hint_mask)
  */
 void *umsg_watcher(void *arg)
 {
-    UNUSED_PARAM(arg);
-    // Mark as thread that can be cancelled anytime
-    pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
+	UNUSED_PARAM(arg);
+	// Mark as thread that can be cancelled anytime
+	pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 
-    // Generic index
-    int cl_index;
+	// Generic index
+	int cl_index;
 
-    // UMsg old data
-    char umsg_old_data[NUM_UMSG_PER_AFU][CL_BYTE_WIDTH];
+	// UMsg old data
+	char umsg_old_data[NUM_UMSG_PER_AFU][CL_BYTE_WIDTH];
 
-    // Declare and Allocate umsgcmd_t packet
-    umsgcmd_t *umsg_pkt;
-    umsg_pkt = (struct umsgcmd_t *) ase_malloc(sizeof(struct umsgcmd_t));
+	// Declare and Allocate umsgcmd_t packet
+	umsgcmd_t *umsg_pkt;
+	umsg_pkt = (struct umsgcmd_t *) ase_malloc(sizeof(struct umsgcmd_t));
 
-    // Patrol each UMSG line
-    for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
-        // Original copy
-        ase_memcpy((char *) umsg_old_data[cl_index],
-               (char *) ((uint64_t) umas_s.umas_region->vbase +
-                     umsg_byteindex_arr[cl_index]),
-               CL_BYTE_WIDTH);
+	// Patrol each UMSG line
+	for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
+		// Original copy
+		ase_memcpy((char *) umsg_old_data[cl_index],
+				(char *) ((uint64_t) umas_s.umas_region->vbase +
+					umsg_byteindex_arr[cl_index]),
+					CL_BYTE_WIDTH);
 
-        // Calculate addres
-        umas_s.umsg_addr_array[cl_index] =
-            (char *) ((uint64_t) umas_s.umas_region->vbase +
-                  umsg_byteindex_arr[cl_index]);
+		// Calculate addres
+		umas_s.umsg_addr_array[cl_index] =
+			(char *) ((uint64_t) umas_s.umas_region->vbase +
+				umsg_byteindex_arr[cl_index]);
 #ifdef ASE_DEBUG
 
-        ASE_DBG("umas_s.umsg_addr_array[%d] = %p\n", cl_index,
-            umas_s.umsg_addr_array[cl_index]);
+		ASE_DBG("umas_s.umsg_addr_array[%d] = %p\n", cl_index,
+			umas_s.umsg_addr_array[cl_index]);
 
 #endif
-    }
+	}
 
-    // Set UMsg initialized flag
-    umas_init_flag = 1;
+	// Set UMsg initialized flag
+	umas_init_flag = 1;
 
-    // While application is running
-    while (umas_exist_status == ESTABLISHED) {
-        // Walk through each line
-        for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
-            if (memcmp
-                (umas_s.umsg_addr_array[cl_index],
-                 umsg_old_data[cl_index],
-                 CL_BYTE_WIDTH) != 0) {
-                // Construct UMsg packet
-                umsg_pkt->id = cl_index;
-                ase_memcpy((char *) umsg_pkt->qword,
-                       (char *)
-                       umas_s.umsg_addr_array[cl_index],
-                       CL_BYTE_WIDTH);
+	// While application is running
+	while (umas_exist_status == ESTABLISHED) {
+		// Walk through each line
+		for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
+			if (memcmp
+				(umas_s.umsg_addr_array[cl_index],
+				 umsg_old_data[cl_index],
+				 CL_BYTE_WIDTH) != 0) {
+				// Construct UMsg packet
+				umsg_pkt->id = cl_index;
+				ase_memcpy((char *) umsg_pkt->qword,
+						(char *)
+						umas_s.umsg_addr_array[cl_index],
+						CL_BYTE_WIDTH);
 
-                // Send UMsg
-                mqueue_send(app2sim_umsg_tx,
-                        (char *) umsg_pkt,
-                        sizeof(struct umsgcmd_t));
+				// Send UMsg
+				mqueue_send(app2sim_umsg_tx,
+						(char *) umsg_pkt,
+						sizeof(struct umsgcmd_t));
 
-                // Update local mirror
-                ase_memcpy((char *)
-                       umsg_old_data[cl_index],
-                       (char *) umsg_pkt->qword,
-                       CL_BYTE_WIDTH);
-            }
-        }
-        usleep(1);
-    }
+				// Update local mirror
+				ase_memcpy((char *)
+						umsg_old_data[cl_index],
+						(char *) umsg_pkt->qword,
+						CL_BYTE_WIDTH);
+			}
+		}
+		usleep(1);
+	}
 
-    // Free memory
-    ase_free_buffer((char *) umsg_pkt);
+	// Free memory
+	ase_free_buffer((char *) umsg_pkt);
 
-    return 0;
+	return 0;
 }
 
 /*
@@ -1547,33 +1543,33 @@ void *umsg_watcher(void *arg)
  */
 static int send_fd(int sock_fd, int fd, struct event_request *req)
 {
-    struct msghdr msg = {0};
-    struct cmsghdr *cmsg;
-    char buf[CMSG_SPACE(sizeof(int))];
+	struct msghdr msg = {0};
+	struct cmsghdr *cmsg;
+	char buf[CMSG_SPACE(sizeof(int))];
 
-    ase_memset(buf, 0x0, sizeof(buf));
-    struct iovec io = { .iov_base = req, .iov_len = sizeof(struct event_request *) };
+	ase_memset(buf, 0x0, sizeof(buf));
+	struct iovec io = { .iov_base = req, .iov_len = sizeof(struct event_request *) };
 
-    cmsg = (struct cmsghdr *)buf;
-    cmsg->cmsg_level = SOL_SOCKET;
-    cmsg->cmsg_type = SCM_RIGHTS;
-    cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg = (struct cmsghdr *)buf;
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
 
-    msg.msg_name = NULL;
-    msg.msg_namelen = 0;
-    msg.msg_iov = &io;
-    msg.msg_iovlen = 1;
-    msg.msg_control = cmsg;
-    msg.msg_controllen = CMSG_LEN(sizeof(int));
-    msg.msg_flags = 0;
-    int *fd_ptr = (int *)CMSG_DATA(cmsg);
-    *fd_ptr = fd;
-    if (sendmsg(sock_fd, &msg, 0) == -1) {
-        ASE_ERR("error sending message. errno = %s\n", strerror(errno));
-        close(sock_fd);
-        return 1;
-    }
-    return 0;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = &io;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
+	msg.msg_flags = 0;
+	int *fd_ptr = (int *)CMSG_DATA(cmsg);
+	*fd_ptr = fd;
+	if (sendmsg(sock_fd, &msg, 0) == -1) {
+		ASE_ERR("error sending message. errno = %s\n", strerror(errno));
+		close(sock_fd);
+		return 1;
+	}
+	return 0;
 }
 
 /*
@@ -1581,36 +1577,36 @@ static int send_fd(int sock_fd, int fd, struct event_request *req)
  */
 int register_event(int event_handle, int flags)
 {
-    struct sockaddr_un saddr;
-    int res;
-    int sock_fd;
+	struct sockaddr_un saddr;
+	int res;
+	int sock_fd;
 
-    saddr.sun_family = AF_UNIX;
-    res = generate_sockname(saddr.sun_path);
-    if (res < 0) {
-        return 1;
-    }
-    /* open socket */
-    sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock_fd < 0) {
-        ASE_ERR("Error opening socket: %s\n", strerror(errno));
-        return 1;
-    }
-    res = connect(sock_fd, (struct sockaddr *) &saddr,
-              sizeof(struct sockaddr_un));
-    if (res < 0) {
-        ASE_ERR("%s: Error connecting to stream socket: %s\n",
-            __func__, strerror(errno));
-    } else {
-        struct event_request req;
+	saddr.sun_family = AF_UNIX;
+	res = generate_sockname(saddr.sun_path);
+	if (res < 0) {
+		return 1;
+	}
+	/* open socket */
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd < 0) {
+		ASE_ERR("Error opening socket: %s\n", strerror(errno));
+		return 1;
+	}
+	res = connect(sock_fd, (struct sockaddr *) &saddr,
+			  sizeof(struct sockaddr_un));
+	if (res < 0) {
+		ASE_ERR("%s: Error connecting to stream socket: %s\n",
+			__func__, strerror(errno));
+	} else {
+		struct event_request req;
 
-        req.type = REGISTER_EVENT;
-        req.flags = flags;
-        res = send_fd(sock_fd, event_handle, &req);
-    }
+		req.type = REGISTER_EVENT;
+		req.flags = flags;
+		res = send_fd(sock_fd, event_handle, &req);
+	}
 
-    close(sock_fd);
-    return res;
+	close(sock_fd);
+	return res;
 }
 
 /*
@@ -1618,85 +1614,85 @@ int register_event(int event_handle, int flags)
  */
 int unregister_event(int event_handle)
 {
-    struct sockaddr_un saddr;
-    int res;
-    struct event_request req;
-    int sock_fd;
+	struct sockaddr_un saddr;
+	int res;
+	struct event_request req;
+	int sock_fd;
 
-    res = generate_sockname(saddr.sun_path);
-    if (res < 0) {
-        return 1;
-    }
+	res = generate_sockname(saddr.sun_path);
+	if (res < 0) {
+		return 1;
+	}
 
-    /* open socket */
-    sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock_fd < 0) {
-        ASE_ERR("Error opening socket: %s\n", strerror(errno));
-        return 1;
-    }
+	/* open socket */
+	sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock_fd < 0) {
+		ASE_ERR("Error opening socket: %s\n", strerror(errno));
+		return 1;
+	}
 
-    saddr.sun_family = AF_UNIX;
-    res =  connect(sock_fd, (struct sockaddr *) &saddr,
-               sizeof(struct sockaddr_un));
-    if (res < 0) {
-        ASE_ERR("%s: Error connecting to stream socket: %s\n",
-            __func__, strerror(errno));
-    } else {
-        req.type = UNREGISTER_EVENT;
-        res = send_fd(sock_fd, event_handle, &req);
-    }
+	saddr.sun_family = AF_UNIX;
+	res =  connect(sock_fd, (struct sockaddr *) &saddr,
+				sizeof(struct sockaddr_un));
+	if (res < 0) {
+		ASE_ERR("%s: Error connecting to stream socket: %s\n",
+			__func__, strerror(errno));
+	} else {
+		req.type = UNREGISTER_EVENT;
+		res = send_fd(sock_fd, event_handle, &req);
+	}
 
-    close(sock_fd);
-    return res;
+	close(sock_fd);
+	return res;
 }
 
 /*
  * ase_portctrl: Send port control message to simulator
  *
- * AFU_RESET   <setting>            | (0,1)
+ * AFU_RESET   <setting>			| (0,1)
  * UMSG_MODE   <mode_nibbles>[31:0] | (0xF0FF0FF0)
- * ASE_INIT    <dummy number>       | (X)
- * ASE_SIMKILL <dummy number>       | (X)
+ * ASE_INIT	<dummy number>	   | (X)
+ * ASE_SIMKILL <dummy number>	   | (X)
  *
  */
 void __attribute__ ((optimize("O0"))) ase_portctrl(ase_portctrl_cmd command, int value)
 {
-    char ctrl_msg[ASE_MQ_MSGSIZE]  = { 0 };
-    char rx_msg[ASE_MQ_MSGSIZE] = { 0 };
+	char ctrl_msg[ASE_MQ_MSGSIZE]  = { 0 };
+	char rx_msg[ASE_MQ_MSGSIZE] = { 0 };
 
 	// ASE Capability register
 	struct ase_capability_t tmp_cap;
 
-    // construct message
-    snprintf(ctrl_msg, ASE_MQ_MSGSIZE, "%d %d", (int)command, value);
+	// construct message
+	snprintf(ctrl_msg, ASE_MQ_MSGSIZE, "%d %d", (int)command, value);
 
-    // Send message
-    mqueue_send(app2sim_portctrl_req_tx, ctrl_msg, ASE_MQ_MSGSIZE);
+	// Send message
+	mqueue_send(app2sim_portctrl_req_tx, ctrl_msg, ASE_MQ_MSGSIZE);
 
-    // Receive message
-    mqueue_recv(sim2app_portctrl_rsp_rx, rx_msg, ASE_MQ_MSGSIZE);
+	// Receive message
+	mqueue_recv(sim2app_portctrl_rsp_rx, rx_msg, ASE_MQ_MSGSIZE);
 
-    // Copy to ase_capability
-    ase_memcpy(&tmp_cap, rx_msg, sizeof(struct ase_capability_t));
+	// Copy to ase_capability
+	ase_memcpy(&tmp_cap, rx_msg, sizeof(struct ase_capability_t));
 
-    // Check capability register integrity
-    if (command == ASE_INIT) {
-	    // Set Capability register only when ASE_INIT is used
-	    ase_memcpy(&ase_capability, &tmp_cap, sizeof(struct ase_capability_t));
+	// Check capability register integrity
+	if (command == ASE_INIT) {
+		// Set Capability register only when ASE_INIT is used
+		ase_memcpy(&ase_capability, &tmp_cap, sizeof(struct ase_capability_t));
 
-	    // Make a check for the magic word
-	    if (memcmp(ase_capability.magic_word, ASE_UNIQUE_ID, sizeof(ASE_UNIQUE_ID)) != 0) {
-		    // Restore defaults
-		    ASE_MSG("ASE Capability register was corrupted, loading defaults\n");
-		    ase_capability.umsg_feature = 0;
-		    ase_capability.intr_feature = 0;
-		    ase_capability.mmio_512bit = 0;
+		// Make a check for the magic word
+		if (memcmp(ase_capability.magic_word, ASE_UNIQUE_ID, sizeof(ASE_UNIQUE_ID)) != 0) {
+			// Restore defaults
+			ASE_MSG("ASE Capability register was corrupted, loading defaults\n");
+			ase_capability.umsg_feature = 0;
+			ase_capability.intr_feature = 0;
+			ase_capability.mmio_512bit = 0;
 		}
 
-	    // Print ASE Capabilities on console
-	    ASE_MSG("ASE Capabilities: Base %s %s %s\n",
-		    ase_capability.umsg_feature ? "UMsg" : "",
-		    ase_capability.intr_feature ? "Intr" : "",
-		    ase_capability.mmio_512bit  ? "MMIO512" : "");
+		// Print ASE Capabilities on console
+		ASE_MSG("ASE Capabilities: Base %s %s %s\n",
+			ase_capability.umsg_feature ? "UMsg" : "",
+			ase_capability.intr_feature ? "Intr" : "",
+			ase_capability.mmio_512bit  ? "MMIO512" : "");
 	}
 }
