@@ -4,7 +4,7 @@ involved in designing and building the core plugin framework, OPAE compatible
 plugins, and an OPAE application that uses the OPAE API. An OPAE plugin is a
 software library that can be loaded dynamically at runtime and is either
 specific to a given platform or is a proxy for one or more remote endpoints.
-OPAE plugins use the OPAE API for its prototype definitions but are free to
+OPAE plugins use the OPAE API for their prototype definitions but are free to
 use any internal data structures and functions in their implementations.
 While it is not required that a plugin implements the complete OPAE API, it
 is required, however, to adhere to the plugin interface. Futhermore, any OPAE
@@ -17,25 +17,25 @@ plugin interface as well as the Plugin Manager, the Plugin Loader, and an OPAE
 plugin.
 
 The requirements for the Plugin Architecture are as follows:
-* Describe plugin types
-* Define the plugin interface
+* Describe plugin types.
+* Define the plugin interface.
   This is how plugins register with the OPAE Plugin Manager and includes
-  defining API functions as well as plugin configuration functions
+  defining API functions as well as plugin configuration functions.
 * Describe how OPAE API calls are forwarded to an appropriate implementation.
 * Define the C API that applications link to. This API will:
   * Be a superset of the APIs defined in the existing OPAE C API and any other
-  extension APIs
-  * Define functions that control how the system is configured and initialized
+  extension APIs.
+  * Define functions that control how the system is configured and initialized.
 * Use as much of the existing OPAE APIs as possible with few modifications to the API.
 * Define a configuration schema that can be used to configure:
-  * What plugins to load
-  * Plugin-specific parameters
-  * Policies for how OPAE APIs are enabled and connected at runtime
-  * Policies for error handling
+  * What plugins to load.
+  * Plugin-specific parameters.
+  * Policies for how OPAE APIs are enabled and connected at runtime.
+  * Policies for error handling.
 
 While it is possible to use the Plugin Manager to design a framework
 for pooling of OPAE resources, that is outside of the scope of this document.
-While this document and any samples in this docuemnt may refer to using remote
+While this document and any samples in this document may refer to using remote
 resources, details of how to manage and connect to remote endpoints are also
 out of scope for the plugin architecture, although proxy or remote resources may
 be mentioned.
@@ -60,10 +60,9 @@ interfaces are provided later in this document.
 
 ### Plugin Types ###
 The OPAE codebase and library will include a set of default or native plugins
-that support should require little to no configuration. The goal of these
-plugins is to:
-* Be backwards compatible with the devices/drivers currently supported by OPAE
-* Support remote resources via RDMA transport
+that require little to no configuration. The goal of these plugins is to:
+* Be backwards compatible with the devices/drivers currently supported by OPAE.
+* Support remote resources via RDMA transport.
 
 ### Plugin ###
   A plugin is a library that implements functions defined in the OPAE API
@@ -82,7 +81,7 @@ The following list describes features that are compatible with the Plugin Manage
   `opae_plugin_configure` to provide a mechanism for any necessary
   configuration of the plugin. It must follow the following function
   signature:
-  * The function takes two arguments of type `struct adapter_table*` and  `const char*`
+  * The function takes two arguments of type `opae_api_adapter_table *` and  `const char *`.
     * The first argument is a pointer to an adapter table structure that the
       Plugin Manager has allocated and pre-initialized. The plugin will set
       both the API function pointers here as well as the function pointers used
@@ -99,68 +98,70 @@ The following list describes features that are compatible with the Plugin Manage
 
   The following is an example of the configuration function declaration:
   ```C
-  int opae_plugin_configure(struct adapter_table* table, const char* jsonConfig);
+  int opae_plugin_configure(opae_api_adapter_table *table, const char *jsonConfig);
   ```
 
 * It may define an optional initialization routine in a function called `opae_plugin_initialize` to provide a mechanism for initialization of the plugin. It must follow the function signature:
-  * The function takes no arguments
+  * The function takes no arguments.
   * The function must return zero (0) upon successful initialization and a non-zero value otherwise. It is up to the plugin developer to define and document return codes.
 
   The following is an example of the initialization function declaration:
   ```C
-  int opae_plugin_initialize();
+  int opae_plugin_initialize(void);
   ```
 
 * It may define an optional finalization routine in a function called `opae_plugin_finalize` to provide a mechanism for plugin finalization (or any cleanup routines). It must follow the function signature:
-  * The function takes no arguments
+  * The function takes no arguments.
   * The function must return zero (0) upon successful initialization and a non-zero value otherwise. It is up to the plugin developer to define and document return codes.
 
   The following is an example of the finalization function declaration:
   ```C
-  int opae_plugin_finalize();
+  int opae_plugin_finalize(void);
   ```
 
 * It may define two optional functions used to indicate if the plugin supports
   devices based on the device type or the device host. Both functions return
-  bool and both functions take one argument of type `char*`. The plugin will
-  use the argment to determine if a device is supported based on this argument
-  and will return either true or false to indicate if the device is supported.
+  bool and both functions take one argument of type `const char*`. The plugin will
+  use the argument to determine if a device is supported, returning true
+  if the device is supported and false otherwise.
   If either of these functions is set in the adapter table, the function will
   be called by the OPAE library during enumeration to determine if
   `fpgaEnumerate` should be called in the plugin.
 
-* The `struct adapter_table` is used to fill out a plugin's API and
+* The `opae_api_adapter_table` is used to fill out a plugin's API and
   initialization/finalization functions. This structure looks something like:
 
   ```C
-  struct adapter_table {
+  struct opae_api_adapter_table {
+    ...
+
     fpga_result (*fpgaEnumerate)(const fpga_properties *, uint32_t, fpga_token *, uint32_t, uint32_t *);
     fpga_result (*fpgaOpen)(fpga_token, fpga_handle *, int);
     fpga_result (*fpgaClose)(fpga_handle);
     // ... Other API functions
 
     // configuration functions
-    int (*initialize)();
-    int (*finalize)();
+    int (*initialize)(void);
+    int (*finalize)(void);
 
-    // first level query
-    bool (*supports_device)(const char* device_type);
-    bool (*supports_host)(const char* hostname);
+    // first-level query
+    bool (*supports_device)(const char *device_type);
+    bool (*supports_host)(const char *hostname);
 
   }
   ```
 
 * Any OPAE API functions it implements must use the same function signature as
-defined by the OPAE API specification
+defined by the OPAE API specification.
 
-* The configuration interfaces implemented must have the ABI vislibility set to
+* The configuration interfaces implemented must have the ABI visibility set to
   default. This allows the Plugin Manager to lookup this symbol and call it.
   It is implicitly set by not setting the visibility attribute or by
   explicitly setting it to default as listed in the example below:
   ```C
   #define DLL_PUBLIC __attribute__((visibility ("default")))
 
-  int DLL_PUBLIC opae_plugin_configure(struct adapter_table* a, const char* c);
+  int DLL_PUBLIC opae_plugin_configure(opae_api_adapter_table *a, const char *c);
   ```
 
 #### Required Changes to OPAE API ####
@@ -180,7 +181,7 @@ two properties are:
       resources on the local host.
      * `^localhost`
        This will be used to indicate that the matching criteria exclude local
-       resources (only inlcude resources from remote hosts).
+       resources (only include resources from remote hosts).
      * `*`
        This is a wildcard used to indicate resources on any host (which can
        be local or remote).
@@ -198,7 +199,7 @@ The accessor methods that will be added to the OPAE API are:
 * `fpgaPropertiesSetHost(const fpga_properties, fpga_token *, char *)`
 * `fpgaPropertiesGetHost(const fpga_properties, fpga_token *, char *)`
 * `fpgaPropertiesSetDeviceType(const fpga_properties, fpga_device_type)`
-* `fpgaPropertiesGetDeviceType(const fpga_properties, fpga_device_type*)`
+* `fpgaPropertiesGetDeviceType(const fpga_properties, fpga_device_type *)`
 
 ## Component Designs ##
 
@@ -218,9 +219,11 @@ and implements the OPAE C API. Because it implements the OPAE C API, it can be
 linked at runtime by any application that links against the API. It will then
 forward API calls to the appropriate plugins that have been loaded.
 
-The Plugin Manager parses the plugins section of the configuration file to determine the list of plugins to load.
-The manager then invokes the Plugin Loader to load each plugin. The result of loading a plugin is the adapter table
-for the plugin. The Plugin Manager maintains the following mappings:
+The Plugin Manager parses the plugins section of the configuration file to
+determine the list of plugins to load.
+The manager then invokes the Plugin Loader to load each plugin. The result of
+loading a plugin is the adapter table for the plugin. The Plugin Manager
+maintains the following mappings:
 
 * Each API adapter table is mapped to its plugin.
 * Each enumerated `fpga_token` is mapped to its plugin.
@@ -228,25 +231,27 @@ for the plugin. The Plugin Manager maintains the following mappings:
 
 #### Enumeration ####
 
-When the API's main `fpgaEnumerate` is called, the Plugin Manager iterates over each loaded plugin,
-using its adapter table to call the plugin's `fpgaEnumerate` entry point. The tokens resulting from an individual
-plugin enumeration are each mapped to the originating plugin. Finally, the tokens are collected into the token
-array for returning to the caller.
+When the API's main `fpgaEnumerate` is called, the Plugin Manager iterates
+over each loaded plugin, using its adapter table to call the plugin's
+`fpgaEnumerate` entry point. The tokens resulting from an individual
+plugin enumeration are each mapped to the originating plugin. Finally,
+the tokens are collected into the token array for returning to the caller.
 
 #### Opening a device ####
 
-When the API's main `fpgaOpen` is called, the Plugin Manager resolves the given token to its plugin. The adapter
-table's `fpgaOpen` is then invoked. Finally, the resulting `fpga_handle` is mapped to its originating plugin,
-and the handle is returned to the caller.
+When the API's main `fpgaOpen` is called, the Plugin Manager resolves
+the given token to its plugin. The adapter table's `fpgaOpen` is then
+invoked. Finally, the resulting `fpga_handle` is mapped to its
+originating plugin, and the handle is returned to the caller.
 
 ### Plugin Loader ###
 
 The plugin loader is responsible for opening each plugin and constructing a
 plugin adapter table based on the contained API entry points. The loader
-calls opae_plugin_configure(), passing the relevant configuration file
-contents. Once the plugin is configured, the plugin loader calls back into
-the plugin's opae_plugin_initialize() entry point. If initialization is
-successful, the plugin loader begins resolving API entry points. Each API
+calls opae_plugin_configure(), passing the adapter table and the relevant
+configuration file contents. Once the plugin is configured, the plugin
+loader calls back into the plugin's opae_plugin_initialize() entry point.
+If initialization is successful, the plugin loader begins resolving API entry points. Each API
 entry point from the plugin is placed into the plugin's adapter table. The
 adapter table for the plugin is then returned to the Plugin Manager, where it
 is associated with the plugin in the manager's internal data structures.
@@ -287,7 +292,7 @@ and their individual configuration data.
 ## Example Use Case ##
 
 The diagrams below illustrate a case of a client application linking to the
-plugin enabled OPAE library. The Plugin Manager in opae is responsible for
+plugin-enabled OPAE library. The Plugin Manager in OPAE is responsible for
 managing plugins and forwarding API function calls to any plugins that have
 been registered. The Plugin Manager wraps any API data structures
 (`fpga_token`, `fpga_handle`) created by API functions in any of its
@@ -307,7 +312,7 @@ Types](#plugin-types) section, native plugins should require little or no
 configuration. However, any configuration parameters that can be overridden
 can be included in the configuration file. See the psuedo-code for the
 [Plugin Manager](cpseudo.md#plugin-manager) and [Plugin
-Loader](cpseudo.md#plugin-loader) for skeleton implementaions.
+Loader](cpseudo.md#plugin-loader) for skeleton implementations.
 ![plugin initialization](plugin_init.svg)
 
 ### OPAE Stack ###
@@ -321,7 +326,7 @@ This next diagram below shows the enumeration flow from a client application
 to an arbitrary plugin, A. The filter, a set of `fpga_properties` objects, is
 passed to the plugin. Upon successful enumeration by the plugin, it returns a
 set of `fpga_token` structures (A_tokens) to the caller (the
-opae.PluginManager). For each token in the returned tokens, the Plugin
+OPAE.PluginManager). For each token in the returned tokens, the Plugin
 Manager wraps these tokens into its own internal token data structure which
 is composed of the token from the plugin and the adapter table that contains
 the plugin's API functions.
@@ -338,7 +343,7 @@ this sequence of events.
 ![opening a resource](plugin_open.svg)
 
 #### Remote Enumeration ####
-The psuedo-code for [Proxy Plugins](cpseudo.md#proxy-plugins) outlines notional
+The pseudo-code for [Proxy Plugins](cpseudo.md#proxy-plugins) outlines notional
 implementations for the two kinds of proxy plugins. The diagram below
 illustrates the general sequence.
 ![remote enumeration](plugin_remote.svg)
