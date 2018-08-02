@@ -152,8 +152,9 @@ fpga_result parse_args(int argc, char *argv[])
 
 		switch (getopt_ret){
 		case 'B': /* bus */
-			if (NULL == tmp_optarg)
-				break;
+			if (NULL == tmp_optarg){
+				return FPGA_EXCEPTION;
+			}
 			endptr = NULL;
 			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
@@ -244,7 +245,6 @@ int main(int argc, char *argv[])
 
 	char               library_version[FPGA_VERSION_STR_MAX];
 	char               library_build[FPGA_BUILD_STR_MAX];
-	fpga_properties    filter = NULL;
 	fpga_token         accelerator_token;
 	fpga_handle        accelerator_handle;
 	fpga_guid          guid;
@@ -286,7 +286,6 @@ int main(int argc, char *argv[])
 	res = find_fpga(guid, &accelerator_token, &num_matches_accelerators, &num_matches_fpga);
 	if (num_matches_accelerators <= 0) {
 		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
 		goto out_exit;
 	}
 	
