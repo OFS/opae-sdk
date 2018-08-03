@@ -40,7 +40,6 @@
 #include <string>
 #include <string.h>
 
-
 #include <json-c/json.h>
 #ifndef BUILD_ASE
 #include <log_int.h>
