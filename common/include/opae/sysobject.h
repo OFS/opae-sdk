@@ -80,15 +80,20 @@ fpga_result fpgaReadObject64(fpga_token token, const char *key,
  *
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[in] key A key identifying the object with respect to the resource
- * @param[out] buffer Pointer to memory to store the object's value
+ * @param[out] buffer Pointer to memory to store the object's bytes - a null
+ * pointer indicates a request for the total number of bytes required
  * @param[in] offset Start of byte sequence to read
- * @param[in] len The number of bytes to read. This is updated with the
+ * @param[inout] len The number of bytes to read. This is updated with the
  * actual number of bytes read
  *
  *
  * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameter is invalid. FPGA_NOT_SUPPORTED if this function is not supported
  * by the current implementation of this API.
+ *
+ * @note A null output buffer can be used to get the total number of bytes the
+ * caller should allocate relative to the offset. A null buffer and an offset
+ * of 0 will get the total number of bytes used by the object.
  */
 fpga_result fpgaReadObjectBytes(fpga_token token, const char *key,
 				uint8_t *buffer, size_t offset, size_t *len);
@@ -143,7 +148,8 @@ fpga_result fpgaWriteObject64(fpga_handle handle, const char *key,
  * @param[in] key A key identifying the object with respect to the resource
  * @param[in] buffer Pointer to memory to write to the the object
  * @param[in] offset Where to start writing bytes in the object
- * @param[in] len The number of bytes to write
+ * @param[in] len The number of bytes to read. This is updated with the
+ * actual number of bytes read
  *
  *
  * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied

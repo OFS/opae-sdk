@@ -28,7 +28,7 @@
 
 extern "C" {
 #endif
-#include <opae/sys.h>
+#include <opae/sysobject.h>
 
 #ifdef __cplusplus
 }
@@ -38,7 +38,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "common_test.h"
 
-TEST(sys, read32) {
+TEST(sysobject, read32) {
 	struct _fpga_token _tok;
 	fpga_token tok = &_tok;
   common_test::token_for_afu0(&_tok);

@@ -28,6 +28,10 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "common_int.h"
 #include "log_int.h"
 #include "sysfs_int.h"
@@ -40,6 +44,43 @@
 			FPGA_MSG(#var " is NULL");                             \
 		}                                                              \
 	} while (false);
+
+static inline ssize_t eintr_pread(int fd, void *buf, size_t count,
+				  size_t offset)
+{
+	ssize_t bytes_read = 0, total_read = 0;
+	char *ptr = buf;
+	while (total_read < (ssize_t)count) {
+		bytes_read = pread(fd, ptr + total_read, count - total_read,
+				   offset + total_read);
+		if (bytes_read < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			return bytes_read;
+		}
+		total_read += bytes_read;
+	}
+	return total_read;
+}
+
+static inline ssize_t eintr_write(int fd, void *buf, size_t count)
+{
+	ssize_t bytes_written = 0, total_written = 0;
+	char *ptr = buf;
+	while (total_written < (ssize_t)count) {
+		bytes_written =
+			write(fd, ptr + total_written, count - total_written);
+		if (bytes_written < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			return bytes_written;
+		}
+		total_written += bytes_written;
+	}
+	return total_written;
+}
 
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
@@ -98,18 +139,57 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 					     uint8_t *buffer, size_t offset,
 					     size_t *len)
 {
+	int fd = -1, fd_stat = 0;
+	char objpath[SYSFS_PATH_MAX];
+	ssize_t count = 0;
+	fpga_result res = FPGA_EXCEPTION;
+	struct stat objstat;
+
 	NULL_CHECK(token);
 	NULL_CHECK(key);
-	NULL_CHECK(buffer);
 	NULL_CHECK(len);
-	(void)offset;
 
-	char objpath[SYSFS_PATH_MAX];
-	fpga_result res = cat_token_sysfs_path(objpath, token, key);
+	res = cat_token_sysfs_path(objpath, token, key);
 	if (res) {
 		return res;
 	}
 
+	fd_stat = stat(objpath, &objstat);
+	if (fd_stat < 0) {
+		FPGA_ERR("Error with object path: %s", strerror(errno));
+		if (errno == EACCES) {
+			return FPGA_NO_ACCESS;
+		}
+		return FPGA_EXCEPTION;
+	}
+
+	if (!buffer) {
+		*len = objstat.st_size - offset;
+		return FPGA_OK;
+	}
+
+
+	fd = open(objpath, O_RDONLY);
+	if (fd < 0) {
+		return FPGA_NOT_FOUND;
+	}
+
+	count = eintr_pread(fd, buffer, *len, offset);
+	if (count < (ssize_t)*len) {
+		if (count < 0) {
+			FPGA_ERR("Error with pread operation: %s",
+				 strerror(errno));
+			res = FPGA_EXCEPTION;
+		} else {
+			FPGA_MSG("Bytes read (%d) is less that requested (%d)",
+				 count, *len);
+			res = count == 0 ? FPGA_EXCEPTION : FPGA_OK;
+		}
+	} else {
+		res = FPGA_OK;
+	}
+	*len = count;
+	close(fd);
 
 	return res;
 }
@@ -146,15 +226,99 @@ fpga_result __FPGA_API__ fpgaWriteObjectBytes(fpga_handle handle,
 					      const char *key, uint8_t *buffer,
 					      size_t offset, size_t len)
 {
+	char objpath[SYSFS_PATH_MAX];
+	int fd = -1;
+	off_t fsize = 0;
+	ssize_t bytes_written = 0, bytes_read = 0;
+	fpga_result res = FPGA_EXCEPTION;
+	char *rw_buffer = NULL;
+
 	NULL_CHECK(handle);
 	NULL_CHECK(key);
 	NULL_CHECK(buffer);
-	(void)offset;
-	(void)len;
-	char objpath[SYSFS_PATH_MAX];
-	fpga_result res = cat_handle_sysfs_path(objpath, handle, key);
+
+	res = cat_handle_sysfs_path(objpath, handle, key);
 	if (res) {
 		return res;
 	}
+	fd = open(objpath, O_RDWR);
+	if (fd < 0) {
+		return FPGA_NOT_FOUND;
+	}
+
+	// According to kernel docs on sysfs:
+	//
+	// When writing sysfs files, userspace processes should first read the
+	// entire file, modify the values it wishes to change, then write the
+	// entire buffer back.
+
+	// Get the file size and allocate a buffer to read its contents into
+	fsize = lseek(fd, 0, SEEK_END);
+	if (fsize < 0) {
+		FPGA_ERR("Error with lseek operation: %s", strerror(errno));
+		res = FPGA_EXCEPTION;
+		goto out_close;
+	}
+
+	// rewind the offset to 0
+	if (lseek(fd, 0, SEEK_SET) < 0) {
+		FPGA_ERR("Error with lseek operation: %s", strerror(errno));
+		res = FPGA_EXCEPTION;
+		goto out_close;
+	}
+
+	// check if this operation would go out of bounds
+	if (offset + len > (size_t)fsize) {
+		FPGA_ERR("Bytes to write exceed file size");
+		res = FPGA_EXCEPTION;
+		goto out_close;
+	}
+
+
+	rw_buffer = calloc(fsize, sizeof(char));
+	if (rw_buffer == NULL) {
+		res = FPGA_NO_MEMORY;
+		goto out_close;
+	}
+
+	// read the contents of the sysfs object
+	bytes_read = eintr_pread(fd, rw_buffer, fsize, 0);
+	if (bytes_read < fsize) {
+		res = FPGA_EXCEPTION;
+		if (bytes_read < 0) {
+			FPGA_ERR("Error with read operation: %s",
+				 strerror(errno));
+		} else {
+			FPGA_ERR("Bytes read (%d) < object size (%d)",
+				 bytes_read, fsize);
+		}
+		goto out_free;
+	}
+
+	// copy bytes to write to rw_write buffer
+	memcpy_s(rw_buffer + offset, fsize - offset, buffer, len);
+
+	// write modified buffer to sysfs object
+	bytes_written = eintr_write(fd, rw_buffer, fsize);
+	if (bytes_written < fsize) {
+		res = FPGA_EXCEPTION;
+		if (bytes_written < 0) {
+			FPGA_ERR("Error with write operation: %s",
+				 strerror(errno));
+		} else {
+			FPGA_MSG(
+				"Bytes written (%d) is less that object size (%d)",
+				bytes_written, fsize);
+		}
+		goto out_free;
+	}
+
+	res = FPGA_OK;
+
+out_free:
+	free(rw_buffer);
+
+out_close:
+	close(fd);
 	return res;
 }
