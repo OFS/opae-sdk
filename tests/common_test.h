@@ -57,6 +57,8 @@
 #include "error_int.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+#define UNUSED_PARAM(x) ((void)x)
+
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
 #ifndef MAP_HUGETLB
