@@ -99,26 +99,6 @@ fpga_result fpgaReadObjectBytes(fpga_token token, const char *key,
 				uint8_t *buffer, size_t offset, size_t *len);
 
 /**
- * @brief Write a 32-bit value to an FPGA resource object as identified by a
- * string key. On Linux, this is equivalent to writing to a sysfs node with
- * 'key' as the path relative to the sysfs directory of the resource identified
- * by the handle.
- *
- * @param[in] handle Handle to an open resource (accelerator or device)
- * @param[in] key A key identifying the object with respect to the resource
- * @param[in] value The 32-bit value to write to the object
- *
- * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
- * parameter is invalid. FPGA_NOT_SUPPORTED if this function is not supported
- * by the current implementation of this API.
- *
- * @note Write operations require a handle to an open resource to avoid
- * possible race conditions
- */
-fpga_result fpgaWriteObject32(fpga_handle handle, const char *key,
-			      uint32_t value);
-
-/**
  * @brief Write a 64-bit value from an FPGA resource object as identified by a
  * string key. On Linux, this is equivalent to writing to a sysfs node with
  * 'key' as the path relative to the sysfs directory of the resource identified
