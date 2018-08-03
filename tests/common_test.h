@@ -40,7 +40,6 @@
 #include <string>
 #include <string.h>
 
-
 #include <json-c/json.h>
 #ifndef BUILD_ASE
 #include <log_int.h>
@@ -57,6 +56,8 @@
 #include "error_int.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+#define UNUSED_PARAM(x) ((void)x)
+
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
 #ifndef MAP_HUGETLB
