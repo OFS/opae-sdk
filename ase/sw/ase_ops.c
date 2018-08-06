@@ -72,10 +72,10 @@ int generate_sockname(char *name)
 
 	return res;
 }
+
 /*
  * Parse strings and remove unnecessary characters
  */
-// Remove spaces
 void remove_spaces(char *in_str)
 {
 	if (in_str == NULL) {
@@ -94,8 +94,9 @@ void remove_spaces(char *in_str)
 	}
 }
 
-
-// Remove tabs
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_tabs(char *in_str)
 {
 	if (in_str == NULL) {
@@ -112,7 +113,9 @@ void remove_tabs(char *in_str)
 	}
 }
 
-// Remove newline
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_newline(char *in_str)
 {
 	if (in_str == NULL) {
@@ -129,6 +132,90 @@ void remove_newline(char *in_str)
 	}
 }
 
+/*
+ * Parse ase config lines
+ */
+void parse_ase_cfg_line(struct ase_cfg_t **a_cfg, char *line)
+{
+	char *parameter;
+	int value;
+	char *pch;
+	char *saveptr;
+
+	// Ignore strings beginning with '#' OR NULL (compound NOR)
+	if ((line[0] != '#') && (line[0] != '\0')) {
+		parameter = strtok_r(line, "=\n", &saveptr);
+		if (parameter != NULL) {
+			if (ase_strncmp(parameter, "ASE_MODE", 8) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->ase_mode = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_TIMEOUT", 11) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->ase_timeout = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_NUM_TESTS", 13) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->ase_num_tests = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ENABLE_REUSE_SEED", 17) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->enable_reuse_seed = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_SEED", 8) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->ase_seed = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ENABLE_CL_VIEW", 14) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					(*a_cfg)->enable_cl_view = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "USR_CLK_MHZ", 11) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					f_usrclk = atof(pch);
+					if (f_usrclk == 0.000000) {
+						ASE_ERR("User Clock Frequency cannot be 0.000 MHz\n");
+						ASE_ERR("        Reverting to %f MHz\n", DEFAULT_USR_CLK_MHZ);
+						f_usrclk = DEFAULT_USR_CLK_MHZ;
+						(*a_cfg)->usr_tps = DEFAULT_USR_CLK_TPS;
+					} else if(f_usrclk == DEFAULT_USR_CLK_MHZ) {
+						(*a_cfg)->usr_tps = DEFAULT_USR_CLK_TPS;
+					} else {
+						(*a_cfg)->usr_tps = (int)(1E+12 /(f_usrclk * pow(1000,2)));
+#ifdef ASE_DEBUG
+						ASE_DBG("usr_tps = %d\n", (*a_cfg)-> usr_tps);
+#endif
+						if (f_usrclk != DEFAULT_USR_CLK_MHZ) {
+							ASE_INFO_2("User clock Frequency was modified from %f to %f MHz\n",
+										DEFAULT_USR_CLK_MHZ,f_usrclk);
+						}
+					}
+				}
+			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					value = atoi(pch);
+					if (value < 0) {
+						ASE_ERR("Physical memory size is negative in %s\n",filename);
+						ASE_ERR("        Reverting to default 256 GB\n");
+					} else {
+						(*a_cfg)->phys_memory_available_gb = value;
+					}
+				}
+			} else {
+				ASE_INFO_2("In config file %s, Parameter type %s is unidentified \n",
+							 filename, parameter);
+			}
+		}
+	}
+}
 
 // -------------------------------------------------------------
 // ase_buffer_info : Print out information about the buffer
@@ -170,10 +257,10 @@ void ase_buffer_oneline(struct buffer_t *mem)
 }
 
 
-// -------------------------------------------------------------------
-// buffer_t_to_str : buffer_t to string conversion
-// Converts buffer_t to string
-// -------------------------------------------------------------------
+/*
+ * buffer_t_to_str : buffer_t to string conversion
+ * Converts buffer_t to string
+ */
 void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 {
 	FUNC_CALL_ENTRY;
@@ -183,11 +270,10 @@ void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 	FUNC_CALL_EXIT;
 }
 
-
-// --------------------------------------------------------------
-// ase_str_to_buffer_t : string to buffer_t conversion
-// All fields are space separated, use strtok to decode
-// --------------------------------------------------------------
+/*
+ * ase_str_to_buffer_t : string to buffer_t conversion
+ * All fields are space separated, use strtok to decode
+ */
 void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 {
 	FUNC_CALL_ENTRY;
@@ -196,7 +282,6 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 
 	FUNC_CALL_EXIT;
 }
-
 
 /*
  * ASE memory barrier
