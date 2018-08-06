@@ -398,3 +398,18 @@ int fscanf_s_u(FILE *file, const char *format, unsigned *a)
 
 	return fscanf(file, format, a);
 }
+
+
+char *parse_ase_config_line(char *line, char *cfg_option)
+{
+	char *parameter;
+	char *pch = NULL;
+	char *saveptr;
+	parameter = strtok_r(line, "=\n", &saveptr);
+	if (parameter != NULL) {
+		if (ase_strncmp(parameter, cfg_option, 8) == 0)
+			pch = strtok_r(NULL, "", &saveptr);
+	}
+	
+	return pch;			
+}
