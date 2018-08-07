@@ -184,7 +184,6 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_ERROR, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_INFO
 #undef ASE_INFO
 #endif
@@ -195,7 +194,6 @@ int generate_sockname(char *);
 #define ASE_INFO(format, ...)					\
 	ase_print(ASE_LOG_INFO, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
-
 
 #ifdef ASE_INFO_2
 #undef ASE_INFO_2
@@ -208,7 +206,6 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_INFO_2, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_MSG
 #undef ASE_MSG
 #endif
@@ -220,13 +217,11 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_MESSAGE, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_DBG
 #undef ASE_DBG
 #endif
 #define ASE_DBG(format, ...)						\
 	ase_print(ASE_LOG_DEBUG, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
-
 
 /*
  * ASE INTERNAL MACROS
@@ -267,7 +262,6 @@ extern char tstamp_filepath[ASE_FILEPATH_LEN];
 #define NOT_ESTABLISHED 0xC0C0
 #define ESTABLISHED     0xBEEF
 
-
 /*
  * Console colors
  */
@@ -285,7 +279,6 @@ extern char tstamp_filepath[ASE_FILEPATH_LEN];
 
 // Wipeout current line in printf
 #define WIPEOUT_LINE           printf("]\n\033[F\033[J");
-
 
 /*
  * ASE Error codes
@@ -315,7 +308,6 @@ typedef enum {
 
 // Test complete separator
 #define TEST_SEPARATOR       "#####################################################"
-
 
 /* *******************************************************************************
  *
@@ -543,7 +535,7 @@ extern "C" {
 
 	// UMSG functions
 	uint64_t *umsg_get_address(int);
-	void umsg_send(int, uint64_t *);
+	//void umsg_send(int, uint64_t *);
 	void umsg_set_attribute(uint32_t);
 	// Driver activity
 	void ase_portctrl(ase_portctrl_cmd, int);

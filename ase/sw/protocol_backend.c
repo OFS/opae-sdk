@@ -1031,6 +1031,8 @@ int ase_init(void)
 	// ase_config_parse(ASE_CONFIG_FILE);
 	ase_config_parse(sv2c_config_filepath);
 
+	// Evaluate ase_workdir_path
+	ase_eval_session_directory();
 	// Evaluate IPCs
 	ipc_init();
 

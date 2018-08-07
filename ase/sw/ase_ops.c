@@ -278,7 +278,6 @@ char *ase_malloc(size_t size)
 		ase_error_report("malloc", errno, ASE_OS_MALLOC_ERR);
 
 		ASE_ERR("Malloc failed\n");
-		ase_free_buffer(buffer);
 		FUNC_CALL_EXIT;
 #ifdef SIM_SIDE
 		start_simkill_countdown();
