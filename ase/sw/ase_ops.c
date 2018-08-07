@@ -27,6 +27,7 @@
 
 #include "ase_common.h"
 
+
 // Ready filepath
 char *ase_ready_filepath;
 
@@ -72,10 +73,10 @@ int generate_sockname(char *name)
 
 	return res;
 }
+
 /*
  * Parse strings and remove unnecessary characters
  */
-// Remove spaces
 void remove_spaces(char *in_str)
 {
 	if (in_str == NULL) {
@@ -94,8 +95,9 @@ void remove_spaces(char *in_str)
 	}
 }
 
-
-// Remove tabs
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_tabs(char *in_str)
 {
 	if (in_str == NULL) {
@@ -112,7 +114,9 @@ void remove_tabs(char *in_str)
 	}
 }
 
-// Remove newline
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_newline(char *in_str)
 {
 	if (in_str == NULL) {
@@ -170,10 +174,10 @@ void ase_buffer_oneline(struct buffer_t *mem)
 }
 
 
-// -------------------------------------------------------------------
-// buffer_t_to_str : buffer_t to string conversion
-// Converts buffer_t to string
-// -------------------------------------------------------------------
+/*
+ * buffer_t_to_str : buffer_t to string conversion
+ * Converts buffer_t to string
+ */
 void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 {
 	FUNC_CALL_ENTRY;
@@ -183,11 +187,10 @@ void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 	FUNC_CALL_EXIT;
 }
 
-
-// --------------------------------------------------------------
-// ase_str_to_buffer_t : string to buffer_t conversion
-// All fields are space separated, use strtok to decode
-// --------------------------------------------------------------
+/*
+ * ase_str_to_buffer_t : string to buffer_t conversion
+ * All fields are space separated, use strtok to decode
+ */
 void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 {
 	FUNC_CALL_ENTRY;
@@ -196,7 +199,6 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 
 	FUNC_CALL_EXIT;
 }
-
 
 /*
  * ASE memory barrier
