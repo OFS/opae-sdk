@@ -1379,26 +1379,26 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 						ASE_ERR("        Reverting to %f MHz\n", DEFAULT_USR_CLK_MHZ);
 						usrclk = DEFAULT_USR_CLK_MHZ;
 						cfg->usr_tps = DEFAULT_USR_CLK_TPS;
-					} else if(usrclk == DEFAULT_USR_CLK_MHZ) {
+					} else if (usrclk == DEFAULT_USR_CLK_MHZ) {
 						cfg->usr_tps = DEFAULT_USR_CLK_TPS;
 					} else {
-						cfg->usr_tps = (int)(1E+12 /(usrclk * pow(1000,2)));
+						cfg->usr_tps = (int)(1E+12 /(usrclk * pow(1000, 2)));
 #ifdef ASE_DEBUG
 						ASE_DBG("usr_tps = %d\n", cfg->usr_tps);
 #endif
 						if (usrclk != DEFAULT_USR_CLK_MHZ) {
 							ASE_INFO_2("User clock Frequency was modified from %f to %f MHz\n",
-										DEFAULT_USR_CLK_MHZ,usrclk);
+										DEFAULT_USR_CLK_MHZ, usrclk);
 						}
 					}
-          *f_usrclk = usrclk;
+					*f_usrclk = usrclk;
 				}
 			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
 					value = atoi(pch);
 					if (value < 0) {
-						ASE_ERR("Physical memory size is negative in %s\n",filename);
+						ASE_ERR("Physical memory size is negative in %s\n", filename);
 						ASE_ERR("        Reverting to default 256 GB\n");
 					} else {
 						cfg->phys_memory_available_gb = value;
@@ -1466,7 +1466,7 @@ void ase_config_parse(char *filename)
 				remove_spaces(line);
 				remove_tabs(line);
 				remove_newline(line);
-				parse_ase_cfg_line(filename, line, &f_usrclk); 
+				parse_ase_cfg_line(filename, line, &f_usrclk);
 			}
 		}
 
