@@ -201,39 +201,6 @@ static const char * const RAS_INJECT_ERROR[RAS_INJECT_ERROR_COUNT] = {
 		"Ser Non-fatal error .", \
 };
 
-#define RAS_GBS_ERROR_COUNT          13
-static const char * const RAS_GBS_ERROR [RAS_GBS_ERROR_COUNT] = {
-		"Temperature threshold triggered AP1 detected", \
-		"Temperature threshold triggered AP2 detected", \
-		"PCIe error detected", \
-		"AFU port Fatal error detected", \
-		"ProcHot event error detected", \
-		"AFU PF/VF access mismatch error detected", \
-		"Injected Warning Error detected", \
-		"Poison error from any of PCIe ports detected", \
-		"GBS CRC errordetected ", \
-		"Temperature threshold triggered AP6 detected", \
-		"Power threshold triggered AP1 error detected", \
-		"Power threshold triggered AP2 error detected", \
-		"MBP event error detected", \
-};
-
-#define RAS_BBS_ERROR_COUNT       12
-static const char * const RAS_BBS_ERROR[RAS_BBS_ERROR_COUNT] = {
-		"KTI link layer error detected.", \
-		"tag-n-cache error detected.", \
-		"CCI error detected.", \
-		"KTI protocol error detected.", \
-		"Fatal DRAM error detected", \
-		"IOMMU fatal parity error detected.", \
-		"Fabric fatal error detected", \
-		"Poison error from any of PCIe ports detected", \
-		"Injected Fatal Error detected", \
-		"Catastrophic CRC error detected", \
-		"Catastrophic thermal runaway event detected", \
-		"Injected Catastrophic Error detected", \
-};
-
 #define PORT_ERROR_COUNT       52
 static const char * const PORT_ERROR[PORT_ERROR_COUNT] = {
 		"Tx Channel 0 overflow error detected.", \
