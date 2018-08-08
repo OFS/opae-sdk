@@ -58,7 +58,6 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	errno_t e;
 	int err = 0;
 	uint32_t num = 0;
-	size_t pathlen = strlen(sysfspath);
 	char *endptr = NULL;
 	const char *ptr = strrchr(sysfspath, '.');
 
