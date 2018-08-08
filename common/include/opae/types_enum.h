@@ -144,4 +144,8 @@ enum fpga_reconf_flags {
 	FPGA_RECONF_FORCE = (1u << 0)
 };
 
+enum fpga_object_flags {
+  FPGA_OBJECT_SYNC = (1u << 0)
+};
+
 #endif // __FPGA_TYPES_ENUM_H__

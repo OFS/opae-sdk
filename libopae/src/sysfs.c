@@ -35,6 +35,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <opae/types.h>
 
 #include "safe_string/safe_string.h"
@@ -43,6 +45,11 @@
 #include "sysfs_int.h"
 #include "log_int.h"
 #include "common_int.h"
+
+int sysfs_filter(const struct dirent *de)
+{
+	return de->d_name[0] != '.';
+}
 
 //
 // sysfs access (read/write) functions
@@ -694,3 +701,190 @@ fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)
 
 	return FPGA_OK;
 }
+
+ssize_t eintr_read(int fd, void *buf, size_t count)
+{
+	ssize_t bytes_read = 0, total_read = 0;
+	char *ptr = buf;
+	while (total_read < (ssize_t)count) {
+		bytes_read = read(fd, ptr + total_read, count - total_read);
+
+		if (bytes_read < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			return bytes_read;
+		} else if (bytes_read == 0) {
+			return lseek(fd, 0, SEEK_CUR);
+		} else {
+			total_read += bytes_read;
+		}
+	}
+	return total_read;
+}
+
+ssize_t eintr_write(int fd, void *buf, size_t count)
+{
+	ssize_t bytes_written = 0, total_written = 0;
+	char *ptr = buf;
+	while (total_written < (ssize_t)count) {
+		bytes_written =
+			write(fd, ptr + total_written, count - total_written);
+		if (bytes_written < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			return bytes_written;
+		}
+		total_written += bytes_written;
+	}
+	return total_written;
+}
+
+fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
+{
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	int len = snprintf_s_ss(dest, SYSFS_PATH_MAX, "%s/%s",
+				_token->sysfspath, path);
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			 _token->sysfspath, path);
+		return FPGA_EXCEPTION;
+	}
+	return FPGA_OK;
+}
+
+
+fpga_result cat_sysfs_path(char *dest, const char *path)
+{
+	errno_t err;
+
+	err = strcat_s(dest, SYSFS_PATH_MAX, path);
+	switch (err) {
+	case EOK:
+		return FPGA_OK;
+	case ESNULLP:
+		FPGA_ERR("NULL pointer in name");
+		return FPGA_INVALID_PARAM;
+		break;
+	case ESZEROL:
+		FPGA_ERR("Zero length");
+		break;
+	case ESLEMAX:
+		FPGA_ERR("Length exceeds max");
+		break;
+	case ESUNTERM:
+		FPGA_ERR("Destination not termindated");
+		break;
+	};
+
+	return FPGA_EXCEPTION;
+}
+
+fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
+				  const char *path)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)(handle);
+	return cat_token_sysfs_path(dest, _handle->token, path);
+}
+
+struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
+{
+	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
+	if (obj) {
+		obj->path = strdup(sysfspath);
+		obj->name = strdup(name);
+		obj->fd = -1;
+		obj->size = 0;
+		obj->buffer = NULL;
+		obj->objects = NULL;
+	}
+	return obj;
+}
+
+
+fpga_result make_sysfs_group(char *sysfspath, const char *name,
+			     fpga_object *object)
+{
+	struct dirent **namelist;
+	int n;
+	size_t pathlen = strlen(sysfspath);
+	char *ptr = NULL;
+	errno_t err;
+	fpga_object subobj;
+
+
+	n = scandir(sysfspath, &namelist, sysfs_filter, alphasort);
+	if (n < 0) {
+		FPGA_ERR("Error calling scandir: %s", strerror(errno));
+		switch (errno) {
+		case ENOMEM:
+			return FPGA_NO_MEMORY;
+		case ENOENT:
+			return FPGA_NOT_FOUND;
+		}
+		return FPGA_EXCEPTION;
+	}
+
+	if (n == 0) {
+		FPGA_ERR("Group is empty");
+		return FPGA_EXCEPTION;
+	}
+	struct _fpga_object *group = alloc_fpga_object(sysfspath, name);
+	group->type = FPGA_SYSFS_DIR;
+	group->size = n;
+	ptr = sysfspath + pathlen;
+	*ptr++ = '/';
+	group->objects = calloc(n, sizeof(fpga_object));
+	group->size = 0;
+	while (n--) {
+		err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
+			       namelist[n]->d_name);
+		if (err == EOK) {
+			if (!make_sysfs_object(sysfspath, namelist[n]->d_name,
+					       &subobj)) {
+				group->objects[group->size++] = subobj;
+			}
+		}
+		free(namelist[n]);
+	}
+	free(namelist);
+
+	*object = (fpga_object)group;
+	return FPGA_OK;
+}
+
+fpga_result make_sysfs_object(char *sysfspath, const char *name,
+			      fpga_object *object)
+{
+	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
+	struct _fpga_object *obj = alloc_fpga_object(sysfspath, name);
+	struct stat objstat;
+	int statres = stat(sysfspath, &objstat);
+	if (statres < 0) {
+		FPGA_ERR("Error accessing %s: %s", sysfspath, strerror(errno));
+		switch (errno) {
+		case ENOENT:
+			return FPGA_NOT_FOUND;
+		case ENOMEM:
+			return FPGA_NO_MEMORY;
+		case EACCES:
+			return FPGA_NO_ACCESS;
+		}
+		return FPGA_EXCEPTION;
+	}
+
+	if (S_ISDIR(objstat.st_mode)) {
+		return make_sysfs_group(sysfspath, name, object);
+	}
+	obj->fd = open(sysfspath, O_RDONLY);
+	if (obj->fd < 0) {
+		FPGA_ERR("Error opening %s", sysfspath);
+		return FPGA_EXCEPTION;
+	}
+	obj->buffer = calloc(pg_size, sizeof(uint8_t));
+	obj->size = eintr_read(obj->fd, obj->buffer, pg_size);
+	*object = (fpga_object)obj;
+	return FPGA_OK;
+}
+

@@ -171,4 +171,12 @@ struct fpga_error_info {
 	bool can_clear;                   /** whether error can be cleared */
 };
 
+/**
+ * A generic FPGA object
+ *
+ * An FPGA object is implementation dependent but can be used to represent
+ * attributes or registers as identified by a some "key"
+ */
+typedef void *fpga_object;
+
 #endif // __FPGA_TYPES_H__

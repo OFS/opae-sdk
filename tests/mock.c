@@ -107,6 +107,9 @@ typedef DIR * (*opendir_func)(const char *name);
 typedef ssize_t (*readlink_func)(const char *pathname, char *buf, size_t bufsiz);
 typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
 
+typedef int (*filter_func)(const struct dirent *);
+typedef int (*compare_func)(const struct dirent **, const struct dirent **);
+typedef int (*scandir_func)(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func compare);
 
 uint32_t stupid_hash(uint32_t *buf, uint32_t len_in_words) {
 
@@ -546,6 +549,28 @@ struct afu_header {
     uint64_t afu_id_h;
 } __attribute__((packed));
 
+
+int scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func compare)
+{
+    char path[MAX_STRLEN];
+    char* err;
+
+    dlerror(); /* clear errors */
+    scandir_func real_scandir = (scandir_func)dlsym(RTLD_NEXT, "scandir");
+
+    assert(real_scandir);
+    err = dlerror();
+    if (err) {
+        FPGA_ERR("dlsym() failed: %s", err);
+        errno = EINVAL;
+        return -1;
+    }
+
+    /* rewrite path */
+    rewrite_sysfs_path(dirp, path, MAX_STRLEN);
+    return real_scandir(path,  namelist, filter, compare);
+}
+
 int open(const char* pathname, int flags, ...) {
     int fd;
     char path[MAX_STRLEN];
@@ -781,7 +806,7 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 
     uint32_t hash = stupid_hash((uint32_t*)bitstream, bitstream_len / 4);
 
-    char* hashfilename  = "/tmp/intel-fpga-fme.0.gbshash";
+    char* hashfilename  = "mock/intel-fpga-fme.0.gbshash";
     FILE* hashfile = fopen(hashfilename, "w");
     if (hashfile) {
         fwrite(&hash, sizeof(hash), 1, hashfile);

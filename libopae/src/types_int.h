@@ -100,6 +100,7 @@
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint64_t magic;
+  uint32_t instance;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
 	struct error_list *errors;
@@ -183,6 +184,22 @@ struct _fpga_event_handle {
 	uint64_t magic;
 	int fd;
 	uint32_t flags;
+};
+
+typedef enum {
+  FPGA_SYSFS_DIR = 0,
+  FPGA_SYSFS_FILE
+} fpga_sysfs_type;
+
+struct _fpga_object {
+  pthread_mutex_t lock;
+  fpga_sysfs_type type;
+  char *path;
+  char *name;
+  int fd;
+  size_t size;
+  uint8_t *buffer;
+  fpga_object *objects;
 };
 
 /*

@@ -46,6 +46,7 @@
 #include <opae/manage.h>
 #include <opae/mmio.h>
 #include <opae/properties.h>
+#include <opae/sysobject.h>
 #include <opae/umsg.h>
 #include <opae/utils.h>
 #include <opae/version.h>
