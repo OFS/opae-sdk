@@ -452,7 +452,7 @@ int ase_read_lock_file(const char *workdir)
 						if (ase_strncmp(parameter, "pid", 3) == 0) {
 							readback_pid = atoi(value);
 						} else if (ase_strncmp(parameter, "host", 4) == 0) {
-							ase_string_copy( readback_hostname, value, ASE_FILENAME_LEN);
+							ase_string_copy(readback_hostname, value, ASE_FILENAME_LEN);
 						} else if (ase_strncmp(parameter, "dir", 3) == 0) {
 							ase_string_copy(readback_workdir_path, value, ASE_FILEPATH_LEN);
 						} else if (ase_strncmp(parameter, "uid", 3) == 0) {

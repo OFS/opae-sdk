@@ -211,8 +211,8 @@ void sv2c_script_dex(const char *str)
 				("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
 			ase_memset(sv2c_script_filepath, 0,
 				      ASE_FILEPATH_LEN);
-		}		
-	}
+		}
+  }
 }
 
 
