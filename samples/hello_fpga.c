@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_exit, "finding FPGA accelerator");
 
 	if (num_matches_accelerators <= 0) {
-		res = FPGA_EXCEPTION;
+		res = FPGA_NOT_FOUND;
 	}
 	ON_ERR_GOTO(res, out_exit, "no matching accelerator");
 
