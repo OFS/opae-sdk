@@ -426,7 +426,6 @@ void ase_dbg_memtest(struct buffer_t *);
 void ase_perror_teardown(void);
 void ase_empty_buffer(struct buffer_t *);
 uint64_t get_range_checked_physaddr(uint32_t);
-void ase_memory_barrier(void);
 #ifdef ASE_DEBUG
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif

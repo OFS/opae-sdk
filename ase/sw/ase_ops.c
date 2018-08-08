@@ -201,16 +201,6 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 }
 
 /*
- * ASE memory barrier
- */
-void ase_memory_barrier(void)
-{
-	// asm volatile("" ::: "memory");
-	__asm__ __volatile__("":::"memory");
-}
-
-
-/*
  * Evaluate Session directory
  * If SIM_SIDE is set, Return "$ASE_WORKDIR/work/"
  *               else, Return "$PWD/work/"
@@ -736,7 +726,7 @@ int ase_calc_loglevel(void)
 
 	// Evaluate env(ASE_LOG)
 	char *str_env;
-	str_env = ase_getenv("ASE_LOG");
+	str_env = getenv("ASE_LOG");
 	if (str_env) {
 		ret_loglevel = atoi(str_env);
 	} else {

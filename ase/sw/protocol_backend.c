@@ -1264,8 +1264,6 @@ void start_simkill_countdown(void)
 		ASE_INFO
 			("        Protocol warning/errors | $ASE_WORKDIR/ccip_warning_and_errors.txt\n");
 	}
-	ASE_INFO
-		("        ASE seed                | $ASE_WORKDIR/ase_seed.txt\n");
 
 	// Display test count
 	ASE_INFO("\n");
