@@ -433,9 +433,9 @@ void ase_free_buffer(char *);
 void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
-bool check_app_lock_file(void);
-void create_new_lock_file(void);
-bool remove_existing_lock_file(void);
+bool check_app_lock_file(char *);
+void create_new_lock_file(char *);
+bool remove_existing_lock_file(char *);
 
 // ASE operations
 #ifdef ASE_DEBUG

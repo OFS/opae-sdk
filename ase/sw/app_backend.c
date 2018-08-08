@@ -349,14 +349,14 @@ void session_init(void)
 			ase_workdir_path, APP_LOCK_FILENAME);
 
 		// Check if .app_lock.pid lock already exists or not.
-		if (check_app_lock_file()) {
+		if (check_app_lock_file(app_ready_lockpath)) {
 			//If .app_lock.pid exists but pid doesnt exist.
-			if (!remove_existing_lock_file()) {
+			if (!remove_existing_lock_file(app_ready_lockpath)) {
 				ASE_MSG("Application Exiting \n");
 				exit(1);
 			}
 		}
-		create_new_lock_file();
+		create_new_lock_file(app_ready_lockpath);
 
 		// Register kill signals to issue simkill
 		signal(SIGTERM, send_simkill);
@@ -536,12 +536,12 @@ void session_init(void)
 /*
  * Create New Lock File
  */
-void create_new_lock_file(void)
+void create_new_lock_file(char *filename)
 {
 	FILE *fp_app_lockfile;
 
 	// Open lock file for writing
-	fp_app_lockfile = fopen(app_ready_lockpath, "w");
+	fp_app_lockfile = fopen(filename, "w");
 	if (fp_app_lockfile == NULL) {
 		ASE_ERR
 			("Application lockfile could not opened for writing in env(ASE_WORKDIR) !");
@@ -558,9 +558,9 @@ void create_new_lock_file(void)
 /*
  * Check for access to .app_lock_pid
  */
-bool check_app_lock_file(void)
+bool check_app_lock_file(char *filename)
 {
-	if (access(app_ready_lockpath, F_OK) == 0)
+	if (access(filename, F_OK) == 0)
 		return true;
 	else
 		return false;
@@ -569,13 +569,13 @@ bool check_app_lock_file(void)
 /*
  * Remove Lock File
  */
-bool remove_existing_lock_file(void)
+bool remove_existing_lock_file(char *filename)
 {
 	pid_t lock;
 	FILE *fp_app_lockfile;
 
 	// Read the PID of the running application
-	fp_app_lockfile = fopen(app_ready_lockpath, "r");
+	fp_app_lockfile = fopen(filename, "r");
 
 	if (fp_app_lockfile == NULL) {
 		ASE_ERR("Error opening Application lock file path, EXITING\n");
