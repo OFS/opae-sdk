@@ -162,28 +162,25 @@ void sv2c_config_dex(const char *str)
 
 	// Check that input string is not NULL
 	if (str == NULL) {
-		ASE_MSG("sv2c_config_dex => Input string is unusable\n");
+		ASE_MSG("sv2c_config_dex => Input string is null\n");
 	} else {
-		// If Malloc fails
-		if (sv2c_config_filepath != NULL) {
-			// Attempt string copy and keep safe
-			ase_string_copy(sv2c_config_filepath, str,
-					ASE_FILEPATH_LEN);
+		// Attempt string copy and keep safe
+		ase_string_copy(sv2c_config_filepath, str,
+				ASE_FILEPATH_LEN);
 #ifdef ASE_DEBUG
-			ASE_DBG("sv2c_config_filepath = %s\n",
-				sv2c_config_filepath);
+		ASE_DBG("sv2c_config_filepath = %s\n",
+			sv2c_config_filepath);
 #endif
 
-			// Check if file exists
-			if (access(sv2c_config_filepath, F_OK) == 0) {
-				ASE_MSG("+CONFIG %s file found !\n",
-					sv2c_config_filepath);
-			} else {
-				ASE_ERR
-					("** WARNING ** +CONFIG file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_config_filepath, 0,
-				       ASE_FILEPATH_LEN);
-			}
+		// Check if file exists
+		if (access(sv2c_config_filepath, F_OK) == 0) {
+			ASE_MSG("+CONFIG %s file found !\n",
+				sv2c_config_filepath);
+		} else {
+			ASE_ERR
+				("** WARNING ** +CONFIG file was not found, will revert to DEFAULTS\n");
+			ase_memset(sv2c_config_filepath, 0,
+				      ASE_FILEPATH_LEN);
 		}
 	}
 }
@@ -195,39 +192,27 @@ void sv2c_config_dex(const char *str)
 void sv2c_script_dex(const char *str)
 {
 	if (str == NULL) {
-		ASE_MSG("sv2c_script_dex => Input string is unusable\n");
+		ASE_MSG("sv2c_script_dex => Input string is null\n");
 	} else {
 		ase_memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
-		if (sv2c_script_filepath != NULL) {
-			ase_string_copy(sv2c_script_filepath, str,
-					ASE_FILEPATH_LEN);
+		ase_string_copy(sv2c_script_filepath, str,
+				ASE_FILEPATH_LEN);
 #ifdef ASE_DEBUG
-			ASE_DBG("sv2c_script_filepath = %s\n",
-				sv2c_script_filepath);
+		ASE_DBG("sv2c_script_filepath = %s\n",
+			sv2c_script_filepath);
 #endif
 
-			// Check for existance of file
-			if (access(sv2c_script_filepath, F_OK) == 0) {
-				ASE_MSG("+SCRIPT %s file found !\n",
-					sv2c_script_filepath);
-			} else {
-				ASE_MSG
-					("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_script_filepath, 0,
-				       ASE_FILEPATH_LEN);
-			}
-		}
+		// Check for existance of file
+		if (access(sv2c_script_filepath, F_OK) == 0) {
+			ASE_MSG("+SCRIPT %s file found !\n",
+				sv2c_script_filepath);
+		} else {
+			ASE_MSG
+				("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
+			ase_memset(sv2c_script_filepath, 0,
+				      ASE_FILEPATH_LEN);
+		}		
 	}
-}
-
-
-/*
- * DPI: Return ASE seed
- */
-uint32_t get_ase_seed(void)
-{
-	// return ase_seed;
-	return 0xFF;
 }
 
 
@@ -1028,7 +1013,6 @@ int ase_init(void)
 		(struct umsgcmd_t *) ase_malloc(sizeof(struct umsgcmd_t));
 
 	// ASE configuration management
-	// ase_config_parse(ASE_CONFIG_FILE);
 	ase_config_parse(sv2c_config_filepath);
 
 	// Evaluate ase_workdir_path
@@ -1113,26 +1097,10 @@ int ase_init(void)
 
 	sockserver_kill = 0;
 
-
-	// Generate Completed message for portctrl
-	/* completed_str_msg = (char*)ase_malloc(ASE_MQ_MSGSIZE); */
-	/* snprintf(completed_str_msg, 10, "COMPLETED"); */
-
 	// Calculate memory map regions
 	ASE_MSG("Calculating memory map...\n");
 	calc_phys_memory_ranges();
 
-	// Random number for csr_pinned_addr
-	/* if (cfg->enable_reuse_seed) */
-	/*   { */
-	/*     ase_seed = ase_read_seed (); */
-	/*   } */
-	/* else */
-	/*   { */
-	/*     ase_seed = generate_ase_seed(); */
-	/*     ase_write_seed ( ase_seed ); */
-	/*   } */
-	ase_write_seed (cfg->ase_seed);
 	srand(cfg->ase_seed);
 
 	// Open Buffer info log
@@ -1316,7 +1284,6 @@ void start_simkill_countdown(void)
 	free(ase_ready_filepath);
 	ase_free_buffer((char *) incoming_mmio_pkt);
 	ase_free_buffer((char *) incoming_umsg_pkt);
-	// ase_free_buffer (ase_workdir_path);
 
 	// Issue Simulation kill
 	simkill();
@@ -1441,7 +1408,7 @@ void ase_config_parse(char *filename)
 	cfg->ase_timeout = 50000;
 	cfg->ase_num_tests = 1;
 	cfg->enable_reuse_seed = 0;
-	cfg->ase_seed = 9876;
+	cfg->ase_seed = generate_ase_seed();
 	cfg->enable_cl_view = 1;
 	cfg->usr_tps = DEFAULT_USR_CLK_TPS;
 	cfg->phys_memory_available_gb = 256;
@@ -1555,7 +1522,7 @@ void ase_config_parse(char *filename)
 		ASE_INFO_2("Reuse simulation seed      ... ENABLED \n");
 	else {
 		ASE_INFO_2
-			("Reuse simulation seed      ... DISABLED (will create one at $ASE_WORKDIR/ase_seed.txt) \n");
+			("Reuse simulation seed      ... DISABLED \n");
 		cfg->ase_seed = generate_ase_seed();
 	}
 
