@@ -184,7 +184,6 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_ERROR, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_INFO
 #undef ASE_INFO
 #endif
@@ -195,7 +194,6 @@ int generate_sockname(char *);
 #define ASE_INFO(format, ...)					\
 	ase_print(ASE_LOG_INFO, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
-
 
 #ifdef ASE_INFO_2
 #undef ASE_INFO_2
@@ -208,7 +206,6 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_INFO_2, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_MSG
 #undef ASE_MSG
 #endif
@@ -220,13 +217,11 @@ int generate_sockname(char *);
 	ase_print(ASE_LOG_MESSAGE, LOG_PREFIX format, ## __VA_ARGS__)
 #endif
 
-
 #ifdef ASE_DBG
 #undef ASE_DBG
 #endif
 #define ASE_DBG(format, ...)						\
 	ase_print(ASE_LOG_DEBUG, LOG_PREFIX "%s:%u:%s()\t" format, __SHORTEN_FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
-
 
 /*
  * ASE INTERNAL MACROS
@@ -267,7 +262,6 @@ extern char tstamp_filepath[ASE_FILEPATH_LEN];
 #define NOT_ESTABLISHED 0xC0C0
 #define ESTABLISHED     0xBEEF
 
-
 /*
  * Console colors
  */
@@ -285,7 +279,6 @@ extern char tstamp_filepath[ASE_FILEPATH_LEN];
 
 // Wipeout current line in printf
 #define WIPEOUT_LINE           printf("]\n\033[F\033[J");
-
 
 /*
  * ASE Error codes
@@ -315,7 +308,6 @@ typedef enum {
 
 // Test complete separator
 #define TEST_SEPARATOR       "#####################################################"
-
 
 /* *******************************************************************************
  *
@@ -434,7 +426,6 @@ void ase_dbg_memtest(struct buffer_t *);
 void ase_perror_teardown(void);
 void ase_empty_buffer(struct buffer_t *);
 uint64_t get_range_checked_physaddr(uint32_t);
-void ase_memory_barrier(void);
 #ifdef ASE_DEBUG
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
@@ -442,11 +433,9 @@ void ase_free_buffer(char *);
 void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
-void ase_write_seed(uint32_t);
-uint32_t ase_read_seed(void);
-bool check_app_lock_file(void);
-void create_new_lock_file(void);
-bool remove_existing_lock_file(void);
+bool check_app_lock_file(char *);
+void create_new_lock_file(char *);
+bool remove_existing_lock_file(char *);
 
 // ASE operations
 #ifdef ASE_DEBUG
@@ -462,12 +451,13 @@ int ase_instance_running(void);
 void remove_spaces(char *);
 void remove_tabs(char *);
 void remove_newline(char *);
+void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
-void ase_memset(void *, int, size_t);
+int ase_memset(void *, int, size_t);
 
 // Safe string equivalents
 int ase_memcpy_s(void *, size_t, const void *, size_t);
@@ -542,7 +532,7 @@ extern "C" {
 
 	// UMSG functions
 	uint64_t *umsg_get_address(int);
-	void umsg_send(int, uint64_t *);
+	//void umsg_send(int, uint64_t *);
 	void umsg_set_attribute(uint32_t);
 	// Driver activity
 	void ase_portctrl(ase_portctrl_cmd, int);
@@ -659,12 +649,6 @@ struct ase_cfg_t {
 };
 extern struct ase_cfg_t *cfg;
 
-// ASE config file
-// #define ASE_CONFIG_FILE "ase.cfg"
-
-// ASE seed file
-#define ASE_SEED_FILE  "ase_seed.txt"
-
 /*
  * Data-exchange functions and structures
  */
@@ -715,9 +699,6 @@ void rd_memline_dex(cci_pkt *pkt);
 
 // Write system memory line
 void wr_memline_dex(cci_pkt *pkt);
-
-// Seed Dex
-uint32_t get_ase_seed(void);
 
 // MMIO request
 void mmio_dispatch(int init, struct mmio_t *mmio_pkt);

@@ -779,7 +779,7 @@ TEST(LibopaecEnumCommonALL, enum_drv_020) {
  *             /home/lab/workspace/rpan1/rtl/121516_skxp_630_pr_hssiE100_7277_sd00_skxnlb400m0.gbs
  *
  */
-TEST_F(LibopaecEnumFCommonALL, DISABLED_enum_drv_021) {
+TEST_F(LibopaecEnumFCommonALL, enum_drv_021) {
   // Should select one AFU.
   const uint8_t socket = 0x0;
 

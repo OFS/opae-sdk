@@ -27,6 +27,7 @@
 
 #include "ase_common.h"
 
+
 // Ready filepath
 char *ase_ready_filepath;
 
@@ -72,10 +73,10 @@ int generate_sockname(char *name)
 
 	return res;
 }
+
 /*
  * Parse strings and remove unnecessary characters
  */
-// Remove spaces
 void remove_spaces(char *in_str)
 {
 	if (in_str == NULL) {
@@ -94,8 +95,9 @@ void remove_spaces(char *in_str)
 	}
 }
 
-
-// Remove tabs
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_tabs(char *in_str)
 {
 	if (in_str == NULL) {
@@ -112,7 +114,9 @@ void remove_tabs(char *in_str)
 	}
 }
 
-// Remove newline
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_newline(char *in_str)
 {
 	if (in_str == NULL) {
@@ -170,10 +174,10 @@ void ase_buffer_oneline(struct buffer_t *mem)
 }
 
 
-// -------------------------------------------------------------------
-// buffer_t_to_str : buffer_t to string conversion
-// Converts buffer_t to string
-// -------------------------------------------------------------------
+/*
+ * buffer_t_to_str : buffer_t to string conversion
+ * Converts buffer_t to string
+ */
 void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 {
 	FUNC_CALL_ENTRY;
@@ -183,11 +187,10 @@ void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 	FUNC_CALL_EXIT;
 }
 
-
-// --------------------------------------------------------------
-// ase_str_to_buffer_t : string to buffer_t conversion
-// All fields are space separated, use strtok to decode
-// --------------------------------------------------------------
+/*
+ * ase_str_to_buffer_t : string to buffer_t conversion
+ * All fields are space separated, use strtok to decode
+ */
 void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 {
 	FUNC_CALL_ENTRY;
@@ -196,17 +199,6 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 
 	FUNC_CALL_EXIT;
 }
-
-
-/*
- * ASE memory barrier
- */
-void ase_memory_barrier(void)
-{
-	// asm volatile("" ::: "memory");
-	__asm__ __volatile__("":::"memory");
-}
-
 
 /*
  * Evaluate Session directory
@@ -224,13 +216,11 @@ void ase_eval_session_directory(void)
 {
 	FUNC_CALL_ENTRY;
 
-	// ase_workdir_path = ase_malloc (ASE_FILEPATH_LEN);
-
 	// Evaluate location of simulator or own location
 #ifdef SIM_SIDE
-	ase_workdir_path = getenv("PWD");
+	ase_workdir_path = ase_getenv("PWD");
 #else
-	ase_workdir_path = getenv("ASE_WORKDIR");
+	ase_workdir_path = ase_getenv("ASE_WORKDIR");
 
 #ifdef ASE_DEBUG
 	ASE_DBG("env(ASE_WORKDIR) = %s\n", ase_workdir_path);
@@ -240,7 +230,7 @@ void ase_eval_session_directory(void)
 		ASE_ERR
 			("**ERROR** Environment variable ASE_WORKDIR could not be evaluated !!\n");
 		ASE_ERR("**ERROR** ASE will exit now !!\n");
-		perror("getenv");
+		perror("ase_getenv");
 		exit(1);
 	} else {
 		// Check if directory exists here
@@ -276,7 +266,6 @@ char *ase_malloc(size_t size)
 		ase_error_report("malloc", errno, ASE_OS_MALLOC_ERR);
 
 		ASE_ERR("Malloc failed\n");
-		ase_free_buffer(buffer);
 		FUNC_CALL_EXIT;
 #ifdef SIM_SIDE
 		start_simkill_countdown();
@@ -437,8 +426,7 @@ int ase_read_lock_file(const char *workdir)
 			} else {
 
 				// Read file line by line
-				while (getline(&line, &len, fp_exp_ready)
-				       != -1) {
+				while (getline(&line, &len, fp_exp_ready) != -1) {
 					// LHS/RHS tokenizing
 					parameter = strtok_r(line, "=", &saveptr);
 					value = strtok_r(NULL, "", &saveptr);
@@ -461,39 +449,17 @@ int ase_read_lock_file(const char *workdir)
 						remove_tabs(value);
 						remove_newline(value);
 						// Line 1/2/3/4 check
-						if (ase_strncmp
-						    (parameter, "pid",
-						     3) == 0) {
-							readback_pid =
-								atoi(value);
-						} else
-							if (ase_strncmp
-							    (parameter, "host",
-							     4) == 0) {
-								ase_string_copy
-									(readback_hostname,
-									 value,
-									 ASE_FILENAME_LEN);
-							} else
-								if (ase_strncmp
-								    (parameter, "dir",
-								     3) == 0) {
-									ase_string_copy
-										(readback_workdir_path,
-										 value,
-										 ASE_FILEPATH_LEN);
-								} else
-									if (ase_strncmp
-									    (parameter, "uid",
-									     3) == 0) {
-										ase_string_copy
-											(readback_uid,
-											 value,
-											 ASE_FILEPATH_LEN);
-									} else {
-										ASE_ERR
-											("** ERROR **: Session parameter could not be deciphered !\n");
-									}
+						if (ase_strncmp(parameter, "pid", 3) == 0) {
+							readback_pid = atoi(value);
+						} else if (ase_strncmp(parameter, "host", 4) == 0) {
+							ase_string_copy(readback_hostname, value, ASE_FILENAME_LEN);
+						} else if (ase_strncmp(parameter, "dir", 3) == 0) {
+							ase_string_copy(readback_workdir_path, value, ASE_FILEPATH_LEN);
+						} else if (ase_strncmp(parameter, "uid", 3) == 0) {
+							ase_string_copy(readback_uid, value, ASE_FILEPATH_LEN);
+						} else {
+							ASE_ERR("** ERROR **: Session parameter could not be deciphered !\n");
+						}
 					}
 				}
 				fclose(fp_exp_ready);
@@ -501,17 +467,13 @@ int ase_read_lock_file(const char *workdir)
 
 			////////////////// Error checks //////////////////
 			// If hostname does not match
-			ret_err =
-				gethostname(curr_hostname, ASE_FILENAME_LEN);
+			ret_err = gethostname(curr_hostname, ASE_FILENAME_LEN);
 			if (ret_err != 0) {
-				ASE_ERR
-					("**ERROR** => Hostname could not be calculated, Exiting\n");
+				ASE_ERR("**ERROR** => Hostname could not be calculated, Exiting\n");
 				exit(1);
 			} else {
 				// Check here
-				if (ase_strncmp
-				    (curr_hostname, readback_hostname,
-				     ASE_FILENAME_LEN) != 0) {
+				if (ase_strncmp(curr_hostname, readback_hostname, ASE_FILENAME_LEN) != 0) {
 					ASE_ERR
 						("** ERROR ** => Hostname specified in ASE lock file (%s) is different as current hostname (%s)\n",
 						 readback_hostname,
@@ -525,16 +487,11 @@ int ase_read_lock_file(const char *workdir)
 #endif
 				} else {
 					// If readback_uid (Readback unique ID from lock file) doesnt match ase_common.h
-					curr_uid =
-						ase_malloc(ASE_FILENAME_LEN);
-					ase_string_copy(curr_uid,
-							ASE_UNIQUE_ID,
-							ASE_FILENAME_LEN);
+					curr_uid = ase_malloc(ASE_FILENAME_LEN);
+					ase_string_copy(curr_uid, ASE_UNIQUE_ID, ASE_FILENAME_LEN);
 
 					// Check
-					if (ase_strncmp
-					    (curr_uid, readback_uid,
-					     ASE_FILENAME_LEN) != 0) {
+					if (ase_strncmp(curr_uid, readback_uid, ASE_FILENAME_LEN) != 0) {
 						ASE_ERR
 							("** ERROR ** => Application UID does not match known release UID\n");
 						ASE_ERR
@@ -754,10 +711,10 @@ void ase_memcpy(void *dest, const void *src, size_t n)
 /*
  * ase_memset - Secure memset abstraction
  */
-void ase_memset(void *dest, int ch, size_t n)
+int ase_memset(void *dest, int ch, size_t n)
 {
 	// Secure implementation
-	ase_memset_s(dest, n, ch, n);
+	return ase_memset_s(dest, n, ch, n);
 }
 
 /*
@@ -798,8 +755,6 @@ void ase_print(int loglevel, char *fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 
-	// glbl_loglevel is sanitized to Either 0, 1, or 2
-
 	if (loglevel == ASE_LOG_ERROR) {
 		BEGIN_RED_FONTCOLOR;
 		vprintf(fmt, args);
@@ -829,7 +784,7 @@ void ase_print(int loglevel, char *fmt, ...)
 		END_YELLOW_FONTCOLOR;
 #endif
 	} else {
-		if (glbl_loglevel != ASE_LOG_SILENT) {
+		if (get_loglevel() != ASE_LOG_SILENT) {
 			BEGIN_YELLOW_FONTCOLOR;
 			vprintf(fmt, args);
 			END_YELLOW_FONTCOLOR;
