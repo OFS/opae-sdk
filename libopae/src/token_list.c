@@ -57,6 +57,22 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	struct token_map *tmp;
 	errno_t e;
 	int err = 0;
+	uint32_t num = 0;
+	char *endptr = NULL;
+	const char *ptr = strrchr(sysfspath, '.');
+
+	/* get the device instance id */
+	if (ptr == NULL) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
+
+	num = strtoul(++ptr, &endptr, 10);
+	/* no digits in path */
+	if (num == 0 && endptr == ptr) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
 
 	if (pthread_mutex_lock(&global_lock)) {
 		FPGA_MSG("Failed to lock global mutex");
@@ -86,6 +102,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		return NULL;
 	}
 
+
 	/* populate error list */
 	tmp->_token.errors = NULL;
 	char errpath[SYSFS_PATH_MAX];
@@ -94,6 +111,9 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	/* mark data structure as valid */
 	tmp->_token.magic = FPGA_TOKEN_MAGIC;
+
+	/* assign the instance num from above */
+	tmp->_token.instance = num;
 
 	/* deep copy token data */
 	e = strncpy_s(tmp->_token.sysfspath, sizeof(tmp->_token.sysfspath),

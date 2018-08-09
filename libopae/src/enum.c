@@ -763,6 +763,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 	}
 
 	_dst->magic = FPGA_TOKEN_MAGIC;
+	_dst->instance = _src->instance;
 
 	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath), _src->sysfspath,
 		      sizeof(_src->sysfspath));
