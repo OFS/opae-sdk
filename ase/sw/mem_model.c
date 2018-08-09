@@ -180,7 +180,6 @@ void ase_alloc_action(struct buffer_t *mem)
 	FUNC_CALL_EXIT;
 }
 
-
 // --------------------------------------------------------------------
 // DPI dealloc buffer action - Deallocate buffer action inside DPI
 // Receive index and invalidates buffer
