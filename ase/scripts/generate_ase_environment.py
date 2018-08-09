@@ -381,11 +381,16 @@ def config_qsys_sources(filelist, vlog_srcs):
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
     for t in tcl_srcs:
         src_dir = os.path.dirname(t)
+        base_filelist = os.path.dirname(filelist)
+        paths = [src_dir, base_filelist]
+        common_prefix = os.path.commonprefix(paths)
         # Has the source been copied already? Multiple Qsys files in the same
         # directory are copied together.
         if (src_dir not in copied_tcl_dirs):
-            b = os.path.basename(src_dir)
-            tgt_dir = os.path.join('qsys_sim', 'QSYS_IPs', b)
+            src_dir_base = os.path.basename(src_dir)
+            b = remove_prefix(src_dir, common_prefix)
+            b = b.strip("/")
+            tgt_dir = os.path.join('qsys_sim', b)
             copied_tcl_dirs[src_dir] = tgt_dir
             print("Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
