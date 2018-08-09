@@ -264,6 +264,7 @@ int main(int argc, char *argv[])
 
 	if (num_matches < 1) {
 		res = FPGA_NOT_FOUND;
+		goto out_exit;
 	}
 
 	if (num_matches > 1) {
