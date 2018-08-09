@@ -56,7 +56,6 @@
 #include "common_int.h"
 
 int usleep(unsigned);
-static int err_cnt;
 
 #define FME_SYSFS_INJECT_ERROR "errors/inject_error"
 
@@ -201,13 +200,13 @@ out_destroy:
 	ON_ERR_GOTO(res, out, "destroying properties object");
 	
 out:
-   return err_cnt;
+   return res;
 
 }
 
 
 /* functions to get the bus number when there are multiple buses */
-struct bdf_info{
+struct bdf_info {
 	uint8_t bus;
 };
 
@@ -257,23 +256,20 @@ int main(int argc, char *argv[])
 	struct bdf_info info;
 
 	res = parse_args(argc, argv);
-	if (res == FPGA_EXCEPTION){
-		goto out;
-	}
+	ON_ERR_GOTO(res, out_exit, "parsing arguments");
 
 
 	res = find_fpga(&fpga_device_token, &num_matches);
-	 
+	ON_ERR_GOTO(res, out_exit, "finding FPGA accelerator");
 
 	if (num_matches < 1) {
-		fprintf(stderr, "accelerator not found.\n");
-		goto out_exit;
+		res = FPGA_NOT_FOUND;
 	}
 
 	if (num_matches > 1) {
 		fprintf(stderr, "Found more than one suitable slot. ");
 		res = get_bus_info(fpga_device_token, &info);
-		ON_ERR_GOTO(res, out, "getting bus num");	
+		ON_ERR_GOTO(res, out_exit, "getting bus num");	
 	}
        
 	res = get_bus_info(fpga_device_token, &info); 
@@ -344,11 +340,8 @@ out_close:
 
 out_destroy_tok:
 	res = fpgaDestroyToken(&fpga_device_token);
-	ON_ERR_GOTO(res, out, "destroying token");
+	ON_ERR_GOTO(res, out_exit, "destroying token");
 
 out_exit:
-	return 1;
-
-out:
-	return res;
+	return (res == FPGA_OK) ? 0: 1;
 }
