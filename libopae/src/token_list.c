@@ -63,14 +63,14 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	/* get the device instance id */
 	if (ptr == NULL) {
-		FPGA_MSG("sysfspath does not meet exptected format");
+		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
 	num = strtoul(ptr, &endptr, 10);
 	/* no digits in path */
 	if (num == 0 && endptr == ptr) {
-		FPGA_MSG("sysfspath does not meet exptected format");
+		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
