@@ -67,7 +67,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		return NULL;
 	}
 
-	num = strtoul(ptr, &endptr, 10);
+	num = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */
 	if (num == 0 && endptr == ptr) {
 		FPGA_MSG("sysfspath does not meet expected format");
