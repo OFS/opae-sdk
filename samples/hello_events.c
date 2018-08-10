@@ -138,7 +138,8 @@ static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus", required_argument, NULL, 'B'}
+		{"bus", required_argument, NULL, 'B'},
+		{NULL, 0, NULL, 0}
 	};
 	
 	int getopt_ret;
@@ -219,16 +220,12 @@ fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
 	res = fpgaPropertiesGetBus(props, &finfo->bus);
 	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
 	
-	if(res != FPGA_OK){
-		return FPGA_EXCEPTION;
-	}	
-	
-	out_destroy:
-		res = fpgaDestroyProperties(&props);
-		ON_ERR_GOTO(res, out, "fpgaDestroyProps");
+out_destroy:
+	res = fpgaDestroyProperties(&props);
+	ON_ERR_GOTO(res, out, "fpgaDestroyProps");
 
-	out:
-		return res;
+out:
+	return res;
 }
 
 void print_bus_info(struct bdf_info *info){
@@ -263,6 +260,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_exit, "finding FPGA accelerator");
 
 	if (num_matches < 1) {
+		fprintf(stderr, "No matches for bus number provided \n");
 		res = FPGA_NOT_FOUND;
 		goto out_exit;
 	}
