@@ -75,14 +75,14 @@ include_directories(
     ${GTEST_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/libopae/src)
 set(GTUNIT_TESTS unit/gtsys.cpp)
-add_executable(gtunit
+add_executable(opae-c-munit
     gtunit-main.cpp
     mock.c
     ${GTUNIT_TESTS})
-target_link_libraries(gtunit ${GTEST_BOTH_LIBRARIES} opae-c dl)
-add_test(NAME gtunit-sysobject
+target_link_libraries(opae-c-munit ${GTEST_BOTH_LIBRARIES} opae-c dl)
+add_test(NAME munit-sysobject
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND $<TARGET_FILE:gtunit> "--gtest_filter=sysobject*")
+    COMMAND $<TARGET_FILE:opae-c-munit> "--gtest_filter=sysobject*")
 
 ############################################################################
 ## add_gtfilter macro  #####################################################

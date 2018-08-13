@@ -37,7 +37,7 @@ trap "finish" EXIT
 
 
 cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Coverage
-make mock gtapi fpgad _opae gtunit
+make mock gtapi fpgad _opae opae-c-munit
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base

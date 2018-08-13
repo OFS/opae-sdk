@@ -11,7 +11,7 @@ function finish() {
 trap "finish" EXIT
 
 cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
-make mock gtapi fpgad _opae gtunit
+make mock gtapi fpgad _opae opae-c-munit
 LD_PRELOAD="$PWD/lib/libmock.so" ./bin/fpgad -d -D $PWD -l $PWD/fpgad.log -p $PWD/fpgad.pid
 CTEST_OUTPUT_ON_FAILURE=1 make test
 result=PASSED

@@ -194,20 +194,6 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 	return res;
 }
 
-fpga_result __FPGA_API__ fpgaWriteObject32(fpga_handle handle, const char *key,
-					   uint32_t value)
-{
-	NULL_CHECK(handle);
-	NULL_CHECK(key);
-	char objpath[SYSFS_PATH_MAX];
-	fpga_result res = cat_handle_sysfs_path(objpath, handle, key);
-	if (res) {
-		return res;
-	}
-
-	return sysfs_write_u32(objpath, value);
-}
-
 fpga_result __FPGA_API__ fpgaWriteObject64(fpga_handle handle, const char *key,
 					   uint64_t value)
 {
