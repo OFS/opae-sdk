@@ -603,15 +603,6 @@ void register_signal(int sig, void *handler)
 
 
 /*
- * ret_random_in_range : Return random number in a range
- */
-uint32_t ret_random_in_range(int low, int high)
-{
-	return (rand() % (high + 1 - low) + low);
-}
-
-
-/*
  * ase_string_copy
  * ASE's own safe string copy insures a null-termination
  * NOTE: dest must be malloc'ed before use (use ase_malloc)
