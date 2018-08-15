@@ -52,22 +52,3 @@ uint64_t ase_rand64(void)
 	random = (random << 32) | rand();
 	return random;
 }
-
-/*
- * Shuffle an array of numbers
- * USAGE: For setting up latency_scoreboard
- */
-void shuffle_int_array(int *array, int num_items)
-{
-	int i, j;
-	int tmp;
-
-	if (num_items > 1) {
-		for (i = 0; i < num_items - 1; i++) {
-			j = i + rand() / (RAND_MAX / (num_items - i) + 1);
-			tmp = array[j];
-			array[j] = array[i];
-			array[i] = tmp;
-		}
-	}
-}
