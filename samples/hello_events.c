@@ -182,7 +182,7 @@ int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 
 	/* Get number of FPGAs in system*/
 	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_destroy, "creating properties object");
+	ON_ERR_GOTO(res, out, "creating properties object");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
@@ -194,7 +194,7 @@ int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 	}
 		
 	res= fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
-	ON_ERR_GOTO(res, out, "enumerating FPGAs");
+	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
 out_destroy:
 	res = fpgaDestroyProperties(&filter);
