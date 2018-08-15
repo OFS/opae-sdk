@@ -326,12 +326,19 @@ def config_qsys_sources(filelist, vlog_srcs):
     except Exception:
         errorExit("failed to read sources from {0}".format(filelist))
 
+    # generate sim sources and filter by .tcl
+    try:
+        tsrcs = commands_list_getoutput(
+            "rtl_src_config --sim --abs".split(" ") + [filelist])
+    except Exception:
+        errorExit("failed to read sources from {0}".format(filelist))
+
+
     # Collect two sets: qsys source files and the names of directories into
     # which generated Verilog will be written.  The directory names match
     # the source names.
     qsys_srcs = []
     ip_dirs = []
-    tcl_srcs = []
     srcs = srcs.split('\n')
     for s in srcs:
         if (s):
@@ -342,8 +349,16 @@ def config_qsys_sources(filelist, vlog_srcs):
             if (s.lower().endswith('.qsys')):
                 qsys_srcs.append(s)
 
+
+    tcl_srcs = []
+    tsrcs = tsrcs.split('\n')
+
+    # filter tcl files
+    for s in tsrcs:
+        if (s):
             if (s.lower().endswith('.tcl')):
                 tcl_srcs.append(s)
+
     # Any Qsys files found?
     if (not qsys_srcs):
         return None
@@ -379,6 +394,7 @@ def config_qsys_sources(filelist, vlog_srcs):
 
         # Point to the copy
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
+
     for t in tcl_srcs:
         src_dir = os.path.dirname(t)
         base_filelist = os.path.dirname(filelist)
