@@ -326,10 +326,14 @@ def config_qsys_sources(filelist, vlog_srcs):
     except Exception:
         errorExit("failed to read sources from {0}".format(filelist))
 
-    # generate sim sources and filter by .tcl
+    # Grab _hw.tcl sources
+    # _hw.tcl sources are used to describe and package
+    # components used in a Qsys system. They must be available
+    # in the simulation dir relative to the path specified in 
+    # components.ipx with Qsys system
     try:
         tsrcs = commands_list_getoutput(
-            "rtl_src_config --sim --abs".split(" ") + [filelist])
+            "rtl_src_config --tcl --abs".split(" ") + [filelist])
     except Exception:
         errorExit("failed to read sources from {0}".format(filelist))
 

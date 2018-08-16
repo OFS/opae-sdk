@@ -100,7 +100,18 @@ def lookupTag(filename, db):
 #
 def emitCfg(opts, cfg):
     # Filtering for specific file types?
-    file_type_filter = opts.qsys or opts.ipx or opts.json or opts.tcl
+    file_type_filter = opts.qsys or opts.ipx or opts.json
+
+    # emit tcl sources
+    # _hw.tcl sources are used to describe and package
+    # components used in a Qsys system. They must be available
+    # in the simulation dir relative to the path specified in 
+    # components.ipx with Qsys system
+    if (opts.tcl):
+        for c in cfg:
+            if (lookupTag(c, tcl_tag_map)):
+                print(c)
+        return
 
     if (not file_type_filter):
         # First emit all preprocessor configuration
@@ -150,14 +161,13 @@ def emitCfg(opts, cfg):
             elif (opts.qsys):
                 if (lookupTag(c, qsys_tag_map)):
                     print(c)
-            elif (opts.tcl):
-                if (lookupTag(c, tcl_tag_map)):
-                    print(c)
             elif (opts.ipx):
                 if (lookupTag(c, qsys_ipx_tag_map)):
                     print(c)
             elif (tag is not None):
-                print('set_global_assignment -name {0} "{1}"'.format(tag, c))
+                # QII flow ignores _hw.tcl
+                if(tag is not 'SOURCE_TCL_SCRIPT_FILE'):
+                    print('set_global_assignment -name {0} "{1}"'.format(tag, c))
 
 
 #
