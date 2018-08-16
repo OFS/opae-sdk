@@ -33,10 +33,6 @@
 
 #include "ase_common.h"
 
-// Base addresses of required regions
-uint64_t *mmio_afu_vbase;
-uint64_t *umsg_umas_vbase;
-
 // ASE error file
 static FILE *error_fp;
 
@@ -153,14 +149,6 @@ void ase_alloc_action(struct buffer_t *mem)
 		ase_dbg_memtest(mem);
 #endif
 
-		if (mem->is_mmiomap == 1) {
-			// Pin CSR address
-			mmio_afu_vbase =
-			    (uint64_t *) (uintptr_t) (mem->pbase +
-						      MMIO_AFU_OFFSET);
-			ASE_DBG("Global CSR Base address = %p\n",
-				(void *) mmio_afu_vbase);
-		}
 #ifdef ASE_DEBUG
 		if (fp_pagetable_log != NULL) {
 			if (mem->index % 20 == 0) {
@@ -179,7 +167,6 @@ void ase_alloc_action(struct buffer_t *mem)
 
 	FUNC_CALL_EXIT;
 }
-
 
 // --------------------------------------------------------------------
 // DPI dealloc buffer action - Deallocate buffer action inside DPI
