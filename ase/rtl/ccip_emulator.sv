@@ -354,10 +354,6 @@ module ccip_emulator
     import "DPI-C" function void rd_memline_dex(inout cci_pkt foo );
     import "DPI-C" function void wr_memline_dex(inout cci_pkt foo );
 
-    // Get ASE seed
-    import "DPI-C" function int get_ase_seed();
-    // int ase_seed;
-
     // MMIO response
     import "DPI-C" function void mmio_response(inout mmio_t mmio_pkt);
     mmio_t mmio_rdrsp_pkt;
