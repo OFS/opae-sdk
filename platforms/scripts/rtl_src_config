@@ -105,7 +105,7 @@ def emitCfg(opts, cfg):
     # emit tcl sources
     # _hw.tcl sources are used to describe and package
     # components used in a Qsys system. They must be available
-    # in the simulation dir relative to the path specified in 
+    # in the simulation dir relative to the path specified in
     # components.ipx with Qsys system
     if (opts.tcl):
         for c in cfg:
@@ -167,7 +167,8 @@ def emitCfg(opts, cfg):
             elif (tag is not None):
                 # QII flow ignores _hw.tcl
                 if(tag is not 'SOURCE_TCL_SCRIPT_FILE'):
-                    print('set_global_assignment -name {0} "{1}"'.format(tag, c))
+                    print('set_global_assignment -name {0} "{1}"'
+                          .format(tag, c))
 
 
 #

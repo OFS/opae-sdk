@@ -307,10 +307,12 @@ def config_sources(fd, filelist):
 
     return json_file
 
+
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
         return text[len(prefix):]
     return text
+
 
 #
 # Qsys has a compilation step.  When using case #1 above, detect Qsys
@@ -329,14 +331,13 @@ def config_qsys_sources(filelist, vlog_srcs):
     # Grab _hw.tcl sources
     # _hw.tcl sources are used to describe and package
     # components used in a Qsys system. They must be available
-    # in the simulation dir relative to the path specified in 
+    # in the simulation dir relative to the path specified in
     # components.ipx with Qsys system
     try:
         tsrcs = commands_list_getoutput(
             "rtl_src_config --tcl --abs".split(" ") + [filelist])
     except Exception:
         errorExit("failed to read sources from {0}".format(filelist))
-
 
     # Collect two sets: qsys source files and the names of directories into
     # which generated Verilog will be written.  The directory names match
@@ -352,7 +353,6 @@ def config_qsys_sources(filelist, vlog_srcs):
             # Collect all qsys files
             if (s.lower().endswith('.qsys')):
                 qsys_srcs.append(s)
-
 
     tcl_srcs = []
     tsrcs = tsrcs.split('\n')
@@ -380,7 +380,7 @@ def config_qsys_sources(filelist, vlog_srcs):
         src_dir = os.path.dirname(q)
         base_filelist = os.path.dirname(filelist)
         paths = [src_dir, base_filelist]
-        common_prefix = os.path.commonprefix(paths)     
+        common_prefix = os.path.commonprefix(paths)
         # Has the source been copied already? Multiple Qsys files in the same
         # directory are copied together.
         if (src_dir not in copied_qsys_dirs):
