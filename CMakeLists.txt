@@ -253,6 +253,7 @@ define_pkg(tools
   toolpachssiconfig
   toolpackager
   jsonschema
+  opaetoolslibs
   opaecxxutils
   opaecxxlib
   opaecxxnlb
