@@ -26,7 +26,7 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif				// HAVE_CONFIG_H
+#endif // HAVE_CONFIG_H
 
 #include "common_int.h"
 #include "opae/properties.h"
@@ -42,7 +42,7 @@
 #endif
 
 fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
-		fpga_properties *prop)
+						     fpga_properties *prop)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result = FPGA_OK;
@@ -63,7 +63,7 @@ fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
 }
 
 fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
-		fpga_properties *prop)
+					   fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
@@ -106,7 +106,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 	}
 
 	pthread_mutexattr_destroy(&mattr);
-	*prop = (fpga_properties) _prop;
+	*prop = (fpga_properties)_prop;
 	return result;
 
 out_mutex_destroy:
@@ -144,7 +144,7 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 }
 
 fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
-		fpga_properties *dst)
+					     fpga_properties *dst)
 {
 	struct _fpga_properties *_src = (struct _fpga_properties *)src;
 	struct _fpga_properties *_dst;
@@ -267,8 +267,8 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
 
-	e = strncpy_s(spath, sizeof(spath),
-		      _token->sysfspath, sizeof(_token->sysfspath));
+	e = strncpy_s(spath, sizeof(spath), _token->sysfspath,
+		      sizeof(_token->sysfspath));
 	if (EOK != e) {
 		FPGA_ERR("strncpy_s failed");
 		return FPGA_EXCEPTION;
@@ -328,15 +328,14 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
 
-		result =
-			sysfs_get_slots(device_instance, &_iprop.u.fpga.num_slots);
+		result = sysfs_get_slots(device_instance,
+					 &_iprop.u.fpga.num_slots);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
 
-		result =
-			sysfs_get_bitstream_id(device_instance,
-					       &_iprop.u.fpga.bbs_id);
+		result = sysfs_get_bitstream_id(device_instance,
+						&_iprop.u.fpga.bbs_id);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
@@ -383,7 +382,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	result = sysfs_read_u32(vendorpath, &x);
 	if (result != FPGA_OK)
 		return result;
-	_iprop.vendor_id = (uint16_t) x;
+	_iprop.vendor_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
 
 	char devicepath[SYSFS_PATH_MAX];
@@ -392,7 +391,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	result = sysfs_read_u32(devicepath, &x);
 	if (result != FPGA_OK)
 		return result;
-	_iprop.device_id = (uint16_t) x;
+	_iprop.device_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
 	// Discover the NUMA node that the device is attached to
@@ -635,7 +634,7 @@ fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesSetDevice(fpga_properties prop,
-		uint8_t device)
+						 uint8_t device)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -822,9 +821,9 @@ fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get num_slots from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to get num_slots from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -850,9 +849,9 @@ fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_SLOTS);
 		_prop->u.fpga.num_slots = num_slots;
 	} else {
-		FPGA_ERR
-		("Attempting to set num_slots from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to set num_slots from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -883,9 +882,9 @@ fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get BBS ID from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to get BBS ID from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -911,9 +910,9 @@ fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSID);
 		_prop->u.fpga.bbs_id = bbs_id;
 	} else {
-		FPGA_ERR
-		("Attempting to set BBS ID from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to set BBS ID from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -945,9 +944,9 @@ fpgaPropertiesGetBBSVersion(const fpga_properties prop,
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get BBS version from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to get BBS version from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -973,9 +972,9 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop, fpga_version bbs_version)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSVERSION);
 		_prop->u.fpga.bbs_version = bbs_version;
 	} else {
-		FPGA_ERR
-		("Attempting to set BBS version from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to set BBS version from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1088,7 +1087,7 @@ fpgaPropertiesSetCapabilities(fpga_properties prop, uint64_t capabilities)
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop,
-		fpga_guid *guid)
+					       fpga_guid *guid)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1101,8 +1100,8 @@ fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop,
 
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_GUID)) {
 		errno_t e;
-		e = memcpy_s(*guid, sizeof(fpga_guid),
-			     _prop->guid, sizeof(fpga_guid));
+		e = memcpy_s(*guid, sizeof(fpga_guid), _prop->guid,
+			     sizeof(fpga_guid));
 		if (EOK != e) {
 			FPGA_ERR("memcpy_s failed");
 			result = FPGA_EXCEPTION;
@@ -1121,7 +1120,7 @@ fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesSetGUID(fpga_properties prop,
-		fpga_guid guid)
+					       fpga_guid guid)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1168,9 +1167,9 @@ fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get number of MMIO spaces from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to get number of MMIO spaces from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1196,9 +1195,9 @@ fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_MMIO);
 		_prop->u.accelerator.num_mmio = mmio_spaces;
 	} else {
-		FPGA_ERR
-		("Attempting to set number of MMIO spaces on invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to set number of MMIO spaces on invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1230,9 +1229,9 @@ fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get number of interrupts from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to get number of interrupts from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1258,9 +1257,9 @@ fpgaPropertiesSetNumInterrupts(fpga_properties prop, uint32_t num_interrupts)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_INTERRUPTS);
 		_prop->u.accelerator.num_interrupts = num_interrupts;
 	} else {
-		FPGA_ERR
-		("Attempting to set number of interrupts from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR(
+			"Attempting to set number of interrupts from invalid object type: %d",
+			_prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1292,9 +1291,8 @@ fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
 			result = FPGA_NOT_FOUND;
 		}
 	} else {
-		FPGA_ERR
-		("Attempting to get state from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR("Attempting to get state from invalid object type: %d",
+			 _prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1321,9 +1319,8 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop,
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_ACCELERATOR_STATE);
 		_prop->u.accelerator.state = state;
 	} else {
-		FPGA_ERR
-		("Attempting to set state from invalid object type: %d",
-		 _prop->objtype);
+		FPGA_ERR("Attempting to set state from invalid object type: %d",
+			 _prop->objtype);
 		result = FPGA_INVALID_PARAM;
 	}
 
@@ -1426,7 +1423,7 @@ fpgaPropertiesSetNumErrors(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesGetNumaNode(const fpga_properties prop,
-		uint32_t *node)
+						   uint32_t *node)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1451,7 +1448,7 @@ fpga_result __FPGA_API__ fpgaPropertiesGetNumaNode(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesSetNumaNode(fpga_properties prop,
-		uint32_t numa)
+						   uint32_t numa)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;

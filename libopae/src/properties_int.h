@@ -63,4 +63,4 @@
 #define CLEAR_FIELD_VALID(P, F)\
 	((P)->valid_fields = (P)->valid_fields & ~((uint64_t)1 << (F)))
 
-#endif				// __FPGA_PROPERTIES_INT_H__
+#endif // __FPGA_PROPERTIES_INT_H__

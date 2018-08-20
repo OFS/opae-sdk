@@ -131,14 +131,14 @@ struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_token token;
-	int fddev;		// file descriptor for the device.
-	int fdfpgad;		// file descriptor for the event daemon.
-	struct wsid_map *wsid_root;	// wsid information (list)
-	struct wsid_map *mmio_root;	// MMIO information (list)
-	void *umsg_virt;	// umsg Virtual Memory pointer
-	uint64_t umsg_size;	// umsg Virtual Memory Size
-	uint64_t *umsg_iova;	// umsg IOVA from driver
-	numa_params *numa;	// For setting / restoring NUMA bindings
+	int fddev;		    // file descriptor for the device.
+	int fdfpgad;		    // file descriptor for the event daemon.
+	struct wsid_map *wsid_root; // wsid information (list)
+	struct wsid_map *mmio_root; // MMIO information (list)
+	void *umsg_virt;	    // umsg Virtual Memory pointer
+	uint64_t umsg_size;	    // umsg Virtual Memory Size
+	uint64_t *umsg_iova;	    // umsg IOVA from driver
+	numa_params *numa;	    // For setting / restoring NUMA bindings
 };
 
 /** Object property struct
@@ -147,7 +147,7 @@ struct _fpga_properties {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	/* Common properties */
-	uint64_t valid_fields;	// bitmap of valid fields
+	uint64_t valid_fields; // bitmap of valid fields
 	// valid here means the field has been set using the API
 	// bit 0x00 - parent field is valid
 	// bit 0x01 - objtype field is valid
@@ -232,4 +232,4 @@ struct token_map {
 	struct token_map *next;
 };
 
-#endif				// __FPGA_TYPES_INT_H__
+#endif // __FPGA_TYPES_INT_H__

@@ -26,7 +26,7 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif				// HAVE_CONFIG_H
+#endif // HAVE_CONFIG_H
 
 #include "safe_string/safe_string.h"
 
@@ -100,7 +100,7 @@ static bool matches_filter(const struct dev_list *attr,
 		int device_instance;
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
-			res = false;	// Only accelerator can have a parent
+			res = false; // Only accelerator can have a parent
 			goto out_unlock;
 		}
 
@@ -297,7 +297,7 @@ static bool matches_filters(const struct dev_list *attr,
 {
 	uint32_t i;
 
-	if (!num_filter)	// no filter == match everything
+	if (!num_filter) // no filter == match everything
 		return true;
 
 	for (i = 0; i < num_filter; ++i) {
@@ -570,7 +570,7 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 	result = sysfs_read_u32(vendorpath, &x);
 	if (result != FPGA_OK)
 		return result;
-	pdev->vendor_id = (uint16_t) x;
+	pdev->vendor_id = (uint16_t)x;
 
 	char devicepath[SYSFS_PATH_MAX];
 	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/device/device", sysfspath);

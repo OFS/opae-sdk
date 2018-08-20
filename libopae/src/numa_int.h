@@ -25,8 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * \file types_int.h
- * \brief Internal type definitions for FPGA API
+ * \file numa_int.h
+ * \brief Internal type definitions for FPGA API NUMA support
  */
 
 #ifndef __FPGA_NUMA_INT_H__
@@ -44,8 +44,11 @@
 #include <numa.h>
 #endif
 
-fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind, bool save_state);
-fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind, bool restore_state);
-fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr, size_t size);
+fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind,
+			  bool save_state);
+fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind,
+			       bool restore_state);
+fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr,
+				size_t size);
 
-#endif				// __FPGA_NUMA_INT_H__
+#endif // __FPGA_NUMA_INT_H__

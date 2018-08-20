@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef HAVE_CONFIG_H
-	#include <config.h>
+#include <config.h>
 #endif // HAVE_CONFIG_H
 
 #include "opae/access.h"
@@ -42,7 +42,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-fpga_result save_and_bind(struct _fpga_handle *_handle, bool bind, bool save_state)
+fpga_result save_and_bind(struct _fpga_handle *_handle, bool bind,
+			  bool save_state)
 {
 #ifndef ENABLE_NUMA
 	UNUSED_PARAM(save_state);
@@ -65,8 +66,10 @@ fpga_result save_and_bind(struct _fpga_handle *_handle, bool bind, bool save_sta
 	}
 
 	if (save_state) {
-		if ((NULL != _handle->numa->saved.membind_mask) || (NULL != _handle->numa->saved.runnode_mask)) {
-			FPGA_MSG("Warning: attempting to save when context already exists");
+		if ((NULL != _handle->numa->saved.membind_mask)
+		    || (NULL != _handle->numa->saved.runnode_mask)) {
+			FPGA_MSG(
+				"Warning: attempting to save when context already exists");
 			numa_free_nodemask(_handle->numa->saved.membind_mask);
 			numa_free_cpumask(_handle->numa->saved.runnode_mask);
 		}
@@ -80,7 +83,8 @@ fpga_result save_and_bind(struct _fpga_handle *_handle, bool bind, bool save_sta
 	return res;
 }
 
-fpga_result restore_and_unbind(struct _fpga_handle *_handle, bool bind, bool restore_state)
+fpga_result restore_and_unbind(struct _fpga_handle *_handle, bool bind,
+			       bool restore_state)
 {
 #ifndef ENABLE_NUMA
 	UNUSED_PARAM(restore_state);
@@ -103,8 +107,10 @@ fpga_result restore_and_unbind(struct _fpga_handle *_handle, bool bind, bool res
 	}
 
 	if (restore_state) {
-		if ((NULL == _handle->numa->saved.membind_mask) || (NULL == _handle->numa->saved.runnode_mask)) {
-			FPGA_MSG("Error: attempting to restore to a NULL context");
+		if ((NULL == _handle->numa->saved.membind_mask)
+		    || (NULL == _handle->numa->saved.runnode_mask)) {
+			FPGA_MSG(
+				"Error: attempting to restore to a NULL context");
 			return FPGA_EXCEPTION;
 		}
 
@@ -124,7 +130,8 @@ fpga_result restore_and_unbind(struct _fpga_handle *_handle, bool bind, bool res
 	return res;
 }
 
-fpga_result move_memory_to_node(struct _fpga_handle *_handle, void *ptr, size_t size)
+fpga_result move_memory_to_node(struct _fpga_handle *_handle, void *ptr,
+				size_t size)
 {
 	fpga_result res = FPGA_OK;
 
@@ -139,11 +146,11 @@ fpga_result move_memory_to_node(struct _fpga_handle *_handle, void *ptr, size_t 
 	return res;
 }
 
-fpga_result __FPGA_API__ fpgaAdviseDmaBuffer(fpga_handle fpga_h, void *buf, uint64_t len,
-					     bool bind_thread)
+fpga_result __FPGA_API__ fpgaAdviseDmaBuffer(fpga_handle fpga_h, void *buf,
+					     uint64_t len, bool bind_thread)
 {
 	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) fpga_h;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)fpga_h;
 	int err;
 
 	result = handle_check_and_lock(_handle);
@@ -195,10 +202,10 @@ fpga_result __FPGA_API__ fpgaAdviseDmaBuffer(fpga_handle fpga_h, void *buf, uint
 	}
 
 	// Tell the kernel we'll need this buffer and it is sequential
-	uint64_t addr = (uint64_t) buf;
+	uint64_t addr = (uint64_t)buf;
 	uint64_t pg_size = (uint64_t)getpagesize();
 	size_t remainder = (pg_size - (addr & (pg_size - 1))) & ~(pg_size - 1);
-	addr = addr & ~(pg_size - 1);   // Align down to page boundary
+	addr = addr & ~(pg_size - 1); // Align down to page boundary
 	madvise((void *)addr, len + remainder, MADV_SEQUENTIAL);
 
 out_unlock:

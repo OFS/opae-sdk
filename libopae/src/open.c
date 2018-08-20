@@ -158,10 +158,10 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	}
 #endif
 
-	pthread_mutexattr_destroy(&mattr);
-
 	// mark data structure as valid
 	_handle->magic = FPGA_HANDLE_MAGIC;
+
+	pthread_mutexattr_destroy(&mattr);
 
 	// set handle return value
 	*handle = (void *)_handle;
