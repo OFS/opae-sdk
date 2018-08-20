@@ -516,7 +516,7 @@ fpga_result fpgaPropertiesSetModel(fpga_properties prop,
  * @note This API is not currently supported.
  */
 fpga_result fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
-                                             uint64_t *lms);
+					     uint64_t *lms);
 
 /**
  * Set the local memory size of an FPGA resource property
@@ -529,7 +529,7 @@ fpga_result fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
  * @note This API is not currently supported.
  */
 fpga_result fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
-                                             uint64_t lms);
+					     uint64_t lms);
 
 /**
  * Get the capabilities FPGA resource property
@@ -546,7 +546,7 @@ fpga_result fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
  * @note This API is not currently supported.
  */
 fpga_result fpgaPropertiesGetCapabilities(const fpga_properties prop,
-                                          uint64_t *capabilities);
+					  uint64_t *capabilities);
 
 /**
  * Set the capabilities of an FPGA resource property
@@ -562,7 +562,7 @@ fpga_result fpgaPropertiesGetCapabilities(const fpga_properties prop,
  * @note This API is not currently supported.
  */
 fpga_result fpgaPropertiesSetCapabilities(fpga_properties prop,
-                                          uint64_t capabilities);
+					  uint64_t capabilities);
 
 /**
  * Get the GUID of a resource
@@ -635,7 +635,7 @@ fpga_result fpgaPropertiesSetNumMMIO(fpga_properties prop,
  * "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
-                                           uint32_t *num_interrupts);
+					   uint32_t *num_interrupts);
 
 /**
  * Set the number of interrupts
@@ -649,7 +649,7 @@ fpga_result fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
  * "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesSetNumInterrupts(fpga_properties prop,
-                                           uint32_t num_interrupts);
+					   uint32_t num_interrupts);
 
 /**
  * Get the state of a accelerator resource property
@@ -662,7 +662,7 @@ fpga_result fpgaPropertiesSetNumInterrupts(fpga_properties prop,
  * "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
-                                              fpga_accelerator_state *state);
+					      fpga_accelerator_state *state);
 
 /**
  * Set the state of an accelerator resource property
@@ -673,7 +673,7 @@ fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
  * "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesSetAcceleratorState(fpga_properties prop,
-                                              fpga_accelerator_state state);
+					      fpga_accelerator_state state);
 
 /**
  * Get the object ID of a resource
