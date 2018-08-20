@@ -1,4 +1,5 @@
-## Copyright(c) 2018, Intel Corporation
+
+## Copyright(c) 2017, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,35 +26,18 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/argsfilter)
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}/libopae/src
+                    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf
+                    ${OPAE_SDK_SOURCE}/tools/include )
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+set(SRC pacd.c daemonize.c log.c enumerate.c sysfs.c bmc_thermal.c reset_bmc.c)
+add_executable(pacd ${SRC})
 
-# libraries
-add_subdirectory(libs/bmc)
+set_install_rpath(pacd)
 
+target_link_libraries(pacd bmc safestr opae-c pthread)
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
-
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
-add_subdirectory(extra/pac/pacd)
-
-# samples
-add_subdirectory(samples/bmc_test)
+install(TARGETS pacd
+        RUNTIME DESTINATION bin
+        COMPONENT toolpacd)

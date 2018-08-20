@@ -246,6 +246,7 @@ define_pkg(tools
   toolcoreidle
   toolfpgadiag
   toolfpgabist
+  toolpacd
   toolfpga_dma_test
   toolbist_app
   toolfpgadiagapps
