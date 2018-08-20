@@ -28,7 +28,11 @@ project(libopae-c)
 
 set(SRC
     pluginmgr.c
+    pluginldr.c
+    api-shell.c
     )
+
+include_directories(${OPAE_INCLUDE_DIR})
 
 add_library(opae-c SHARED ${SRC})
 

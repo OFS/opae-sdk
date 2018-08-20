@@ -24,21 +24,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_PLUGINMGR_H__
-#define __OPAE_PLUGINMGR_H__
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* HAVE_CONFIG_H */
 
-#include "adapter.h"
+#include "pluginldr.h"
 
-typedef struct _opae_plugin {
-	char *path;      // location on file system
-	void *dl_handle; // handle to the loaded library instance
-} opae_plugin;
+int opae_plugin_ldr_load_plugins(/* json_object *jobj */)
+{
 
-
-int opae_plugin_mgr_initialize(const char *cfg_file);
-
-int opae_plugin_mgr_parse_config(/* json_object *jobj */);
-
-int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter);
-
-#endif /* __OPAE_PLUGINMGR_H__ */
+	return 1;
+}

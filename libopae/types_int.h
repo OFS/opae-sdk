@@ -24,21 +24,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_PLUGINMGR_H__
-#define __OPAE_PLUGINMGR_H__
+#ifndef __OPAE_TYPES_INT_H__
+#define __OPAE_TYPES_INT_H__
+
+#include <stdint.h>
+
+#include <opae/types.h>
 
 #include "adapter.h"
 
-typedef struct _opae_plugin {
-	char *path;      // location on file system
-	void *dl_handle; // handle to the loaded library instance
-} opae_plugin;
+typedef struct _opae_api_adapter_table opae_api_adapter_table;
 
+#define OPAE_WRAPPED_TOKEN_MAGIC 0x00000001
 
-int opae_plugin_mgr_initialize(const char *cfg_file);
+typedef struct _opae_wrapped_token {
+	uint32_t magic;
+	fpga_token opae_token;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_token;
 
-int opae_plugin_mgr_parse_config(/* json_object *jobj */);
+inline opae_wrapped_token * opae_validate_wrapped_token(fpga_token t)
+{
+	opae_wrapped_token *wt;
+	if (!t)
+		return NULL;
+	wt = (opae_wrapped_token *) t;
+	return (wt->magic == OPAE_WRAPPED_TOKEN_MAGIC) ? wt : NULL;
+}
 
-int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter);
+#define OPAE_WRAPPED_HANDLE_MAGIC 0x00000002
 
-#endif /* __OPAE_PLUGINMGR_H__ */
+typedef struct _opae_wrapped_handle {
+	uint32_t magic;
+	opae_wrapped_token wrapped_token;
+	fpga_handle opae_handle;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_handle;
+
+inline opae_wrapped_handle * opae_validate_wrapped_handle(fpga_handle h)
+{
+	opae_wrapped_handle *wh;
+	if (!h)
+		return NULL;
+	wh = (opae_wrapped_handle *) h;
+	return (wh->magic == OPAE_WRAPPED_HANDLE_MAGIC) ? wh : NULL;
+}
+
+#endif /* __OPAE_TYPES_INT_H__ */
