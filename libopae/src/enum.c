@@ -375,7 +375,7 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
-        pdev->numa_node = parent->numa_node;
+	pdev->numa_node = parent->numa_node;
 
 	// Discover the FME GUID from sysfs (pr/interface_id)
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
@@ -452,7 +452,7 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
-        pdev->numa_node = parent->numa_node;
+	pdev->numa_node = parent->numa_node;
 
 	res = open(pdev->devpath, O_RDWR);
 	if (-1 == res) {

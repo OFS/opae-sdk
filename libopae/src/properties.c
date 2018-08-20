@@ -366,9 +366,6 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_iprop.function = (uint8_t) f;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
-	_iprop.segment = (uint32_t) seg;
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SEGMENT);
-
 	// only set socket id if we have it on sysfs
 	result = sysfs_get_socket_id(device_instance, &_iprop.socket_id);
 	if (0 == result)
