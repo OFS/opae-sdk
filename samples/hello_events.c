@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 		goto out_destroy_tok;
 	} else {
 		res = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
-		ON_ERR_GOTO(res, out_close, "opening accelerator");
+		ON_ERR_GOTO(res, out_destroy_tok, "opening accelerator");
 
 		res = fpgaCreateEventHandle(&eh);
 		ON_ERR_GOTO(res, out_close, "creating event handle");
