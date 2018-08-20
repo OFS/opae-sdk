@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 project("opae-c-ase")
-find_package(Threads  REQUIRED)
+find_package(Threads REQUIRED)
+
 set(API_DIR ${PROJECT_SOURCE_DIR})
 set(ASEAPI_SRC
   ${API_DIR}/../sw/tstamp_ops.c
@@ -45,20 +46,24 @@ set(ASEAPI_SRC
   ${API_DIR}/src/reconf.c
   ${API_DIR}/src/mmio.c
   ${API_DIR}/src/open.c
+  ${API_DIR}/src/umsg.c
   ${API_DIR}/src/version.c
-  ${API_DIR}/src/umsg.c)
+  ${API_DIR}/src/error.c)
 
 add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase rt safestr)
+target_link_libraries(opae-c-ase
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES}
+  ${librt_LIBRARIES})
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
 target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/../include>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
 
 set_target_properties(opae-c-ase PROPERTIES
@@ -68,6 +73,3 @@ set_target_properties(opae-c-ase PROPERTIES
 install(TARGETS opae-c-ase
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaecase)
-
-configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )

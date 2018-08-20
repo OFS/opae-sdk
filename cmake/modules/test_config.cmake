@@ -42,7 +42,7 @@ function (Build_GTEST)
     CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     # Disable install step
     INSTALL_COMMAND "")
-    
+
   set (gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
   message(STATUS "gtest locatet at: ${gtest_root}")
 
@@ -65,7 +65,7 @@ function (Build_GTEST)
   set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
   set(GTEST_FOUND true PARENT_SCOPE)
   message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
-  
+
 endfunction(Build_GTEST)
 
 function (Build_MOCK_DRV)
@@ -76,7 +76,7 @@ function (Build_MOCK_DRV)
     COMMAND tar xzvf /tmp/mock_sys_tmp-1socket-nlb0.tar.gz -C /tmp --strip 1)
 
   # build mock driver
-  add_library(mock SHARED mock.c)
+  add_library(mock SHARED EXCLUDE_FROM_ALL mock.c)
   target_include_directories(mock PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/src>)
@@ -85,7 +85,6 @@ function (Build_MOCK_DRV)
 endfunction(Build_MOCK_DRV)
 
 function(Build_Test_Target Target_Name Target_LIB)
-    add_library(commonlib SHARED common_test.h common_test.cpp)
 
     include_directories(
                     ${OPAE_SDK_SOURCE}/tests
@@ -102,22 +101,31 @@ function(Build_Test_Target Target_Name Target_LIB)
                 unit/gtEnumerate.cpp
                 unit/gtOptionParser.cpp
                 unit/gtAnyValue.cpp
-                unit/gtCxxEnumerate.cpp
-                unit/gtCxxEvents.cpp
-                unit/gtCxxOpenClose.cpp
-                unit/gtCxxProperties.cpp
-                unit/gtCxxExcept.cpp
-                unit/gtCxxBuffer.cpp
-                unit/gtCxxReset.cpp
-                unit/gtCxxMMIO.cpp
-                unit/gtCxxVersion.cpp
+                unit/gtsysfs.cpp
+                unit/gtUsrclk.cpp
+                unit/gtBSMetadata.cpp
+                unit/gtBuffer.cpp
+                unit/gtReconf.cpp
+                unit/gtMockErrInj.cpp
+                function/gtCxxEnumerate.cpp
+                function/gtCxxEvents.cpp
+                function/gtCxxOpenClose.cpp
+                function/gtCxxProperties.cpp
+                function/gtCxxExcept.cpp
+                function/gtCxxBuffer.cpp
+                function/gtCxxReset.cpp
+                function/gtCxxMMIO.cpp
+                function/gtCxxVersion.cpp
+		function/gtCxxErrors.cpp
                 function/gtReset.cpp
                 function/gtBuffer.cpp
                 function/gtEnumerate.cpp
+                function/gtError.cpp
                 function/gtMMIO.cpp
                 function/gtVersion.cpp
                 function/gtOpenClose.cpp
-		function/gtGetProperties.cpp)
+		function/gtGetProperties.cpp
+		function/gtCommon.cpp)
 
     if(BUILD_ASE_TEST)
         add_definitions(-DBUILD_ASE)
@@ -129,14 +137,14 @@ function(Build_Test_Target Target_Name Target_LIB)
             function/gtUmsg.cpp
             function/gtHostif.cpp
             function/gtEvent.cpp)
-    endif()         
+    endif()
 
-    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES} 
-                          ${libjson-c_LIBRARIES})
+    target_link_libraries(commonlib ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
+                          ${libjson-c_LIBRARIES} dl)
     target_include_directories(commonlib PUBLIC
                                $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-                               $<INSTALL_INTERFACE:include>     
+                               $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
 
     add_executable(${Target_Name} ${TARGET_SRC})
@@ -146,10 +154,9 @@ function(Build_Test_Target Target_Name Target_LIB)
                                $<INSTALL_INTERFACE:include>
                                $<BUILD_INTERFACE:${LIB_SRC_PATH}>)
                       
-	target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
-	                      uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
+    target_link_libraries(${Target_Name} commonlib safestr ${Target_LIB} ${libjson-c_LIBRARIES} 
+                              uuid ${GTEST_BOTH_LIBRARIES} dl opae-c++-utils opae-c++ opae-cxx-core)
 	  						
-
     if(CMAKE_THREAD_LIBS_INIT)
        target_link_libraries(${Target_Name} "${CMAKE_THREAD_LIBS_INIT}")
     endif()
@@ -165,12 +172,13 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
 
    #Filter test list to preload ib/libmock.so
    string(FIND ${Test_To_Be_Exe} "MOCK" pos)
-   
+   string(FIND ${Test_To_Be_Exe} "ALL"  pos1)
+
    add_test(NAME ${Test_Name}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND gtapi  ${CMAKE_BINARY_DIR} -v --gtest_filter=${Test_To_Be_Exe})
-   
-   if(${pos})
+
+  if(${pos} OR ${pos1})
      set_tests_properties(
          ${Test_Name}
          PROPERTIES
@@ -178,4 +186,3 @@ function(Exe_Tests Test_Name Test_To_Be_Exe)
    endif()
 
 endfunction(Exe_Tests)
-

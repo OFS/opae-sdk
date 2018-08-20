@@ -17,9 +17,14 @@
       [
          "Like the same field in CCI-P, this is the recommended number",
          "of times an AFU should register local memory signals before use",
-         "in order to make successful timing closure likely.  For Avalon",
-         "MM interfaces this value is typically zero since registering",
-         "Avalon MM's waitrequest protocol is complex."
+         "in order to make successful timing closure likely.",
+         "",
+         "When a local memory clock crossing is also requested, using",
+         "the 'clock' parameter below, at least the suggested number of",
+         "timing register stages are always inserted between the clock",
+         "crossing and the AFU.  This is done because adding registers",
+         "along with a clock crossing is relatively inexpensive.  See",
+         "'add-timing-reg-stages' below for more detail."
       ],
    "suggested-timing-reg-stages": 0,
 
@@ -27,8 +32,17 @@
       [
          "Like the CCI-P add-timing-reg-stages, this field requests",
          "that the platform add pipeline stages to the local memory",
-         "signals before passing them to the AFU.  Register stages",
-         "are added using an Avalon MM pipeline bridge."
+         "signals before passing them to the AFU.",
+         "",
+         "Register stages are added using one of two methods.  When",
+         "a clock crossing is also requested for local memory, using",
+         "the 'clock' parameter below, register stages are added as",
+         "a simple, synchronous pipeline.  This is possible, despite",
+         "the Avalon waitrequest protocol, because space is left in",
+         "the clock crossing FIFO to drain the pipeline without losing",
+         "requests, even after waitrequest is asserted.  When no clock",
+         "crossing is requested, stages are added using an Avalon MM",
+         "pipeline bridge."
       ],
    "add-timing-reg-stages": 0,
 

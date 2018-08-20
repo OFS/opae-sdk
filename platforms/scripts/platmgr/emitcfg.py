@@ -123,7 +123,18 @@ is_params.add('clock')
 #
 platform_shim_params = set()
 platform_shim_params.add('clock')
+platform_shim_params.add('addr-width')
+platform_shim_params.add('data-width')
 platform_shim_params.add('add-timing-reg-stages')
+
+
+#
+# Some platform_shim_params can be validated here.  These parameters must
+# be less than or equal to the value from the platform.
+#
+platform_shim_le_params = set()
+platform_shim_le_params.add('addr-width')
+platform_shim_le_params.add('data-width')
 
 
 #
@@ -239,6 +250,20 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
                         ('Illegal AFU attempt to override "{0}" ' +
                          'parameter "{1}"').format(key, k))
 
+                # The parameter may be overridden. Is the value legal?
+                if ((k in platform_shim_le_params) and
+                        (afu_port['params'][k] > params[k])):
+                    errorExit(
+                        ('Illegal AFU parameter override value "{0}" ' +
+                         'parameter "{1}" ({2} > {3})').format(
+                             key, k, afu_port['params'][k], params[k]))
+                if ((k in platform_shim_le_params) and
+                        (afu_port['params'][k] <= 0)):
+                    errorExit(
+                        ('Illegal AFU parameter override value "{0}" ' +
+                         'parameter "{1}" ({2} <= 0)').format(
+                             key, k, afu_port['params'][k]))
+
                 params[k] = afu_port['params'][k]
 
         # Add device-specific computed parameters
@@ -260,6 +285,49 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     f.write("\n`endif // __PLATFORM_AFU_TOP_CONFIG_VH__\n")
     f.close()
+
+
+#
+# Emit simulator Makefile/CMake configuration.
+#
+def emitSimMakeConfig(args, afu_ifc_db, platform_db):
+    # Path prefix for emitting configuration files
+    f_prefix = ""
+    if (args.tgt):
+        f_prefix = args.tgt
+
+    #
+    # ase_platform_config.mk and ase_platform_config.cmake hold make and
+    # cmake preprocessor variables describing the configuration.
+    #
+    fn_mk = os.path.join(f_prefix, "ase_platform_config.mk")
+    fn_cm = os.path.join(f_prefix, "ase_platform_config.cmake")
+    if (not args.quiet):
+        print("Writing {0} and {1}".format(fn_mk, fn_cm))
+
+    try:
+        f_mk = open(fn_mk, "w")
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn_mk))
+
+    try:
+        f_cm = open(fn_cm, "w")
+    except Exception:
+        errorExit("failed to open {0} for writing.".format(fn_cm))
+
+    f_mk.write("# This file has been generated automatically by " +
+               "afu_platform_config.\n\n")
+    f_cm.write("# This file has been generated automatically by " +
+               "afu_platform_config.\n\n")
+
+    # Does either the AFU or platform request some preprocessor
+    # definitions?
+    for d in (platform_db['define'] + afu_ifc_db['define']):
+        f_mk.write("{0} = 1\n".format(d))
+        f_cm.write("set({0} 1)\n".format(d))
+
+    f_mk.close()
+    f_cm.close()
 
 
 #
@@ -397,3 +465,8 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         errorExit("failed to open {0} for writing.".format(fn))
 
     f.close()
+
+    #
+    # Emit some preprocessor configuration for the simulator environment.
+    #
+    emitSimMakeConfig(args, afu_ifc_db, platform_db)

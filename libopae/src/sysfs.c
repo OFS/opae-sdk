@@ -55,6 +55,11 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	char buf[SYSFS_PATH_MAX];
 	int b;
 
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		FPGA_MSG("open(%s) failed", path);
@@ -101,6 +106,11 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	int res;
 	char buf[SYSFS_PATH_MAX];
 	int b;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -155,6 +165,11 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 
 	if (sep == '\0') {
 		FPGA_MSG("invalid separation character");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -221,6 +236,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path,
 	char buf[SYSFS_PATH_MAX] = { 0 };
 	int b = 0;
 
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		FPGA_MSG("open(%s) failed", path);
@@ -265,6 +285,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 	int res = 0;
 	char buf[SYSFS_PATH_MAX] = { 0 };
 	int b = 0;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
@@ -313,6 +338,11 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	int i;
 	char tmp;
 	unsigned octet;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -440,10 +470,9 @@ fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 {
 
-	struct _fpga_token *_token;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	char *p = 0;
-	int device_instance = 0;
+	struct _fpga_token  *_token;
+	struct _fpga_handle *_handle  = (struct _fpga_handle *)handle;
+	char *p                       = 0;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -472,11 +501,9 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return FPGA_INVALID_PARAM;
 	}
 
-	device_instance = atoi(p + 1);
-
 	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		      device_instance, device_instance);
+		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
+		_token->instance, _token->instance);
 
 	return FPGA_OK;
 }
@@ -484,13 +511,12 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 // get fpga device id
 fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
 {
-	struct _fpga_token *_token = NULL;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
-	char *p = NULL;
-	int device_instance = 0;
-	fpga_result result = FPGA_OK;
-	int err = 0;
+	struct _fpga_token  *_token      = NULL;
+	struct _fpga_handle  *_handle    = (struct _fpga_handle *)handle;
+	char sysfs_path[SYSFS_PATH_MAX]  = {0};
+	char *p                          = NULL;
+	fpga_result result               = FPGA_OK;
+	int err                          = 0;
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid handle");
@@ -521,19 +547,11 @@ fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
 		goto out_unlock;
 	}
 
-	p = strrchr(_token->sysfspath, '.');
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		result = FPGA_NOT_SUPPORTED;
-		goto out_unlock;
-	}
-
-	device_instance = atoi(p + 1);
-
 	snprintf_s_is(sysfs_path,
-		      SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		      device_instance, FPGA_SYSFS_DEVICEID);
+		 SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
+		 _token->instance,
+		 FPGA_SYSFS_DEVICEID);
 
 	result = sysfs_read_u64(sysfs_path, deviceid);
 	if (result != 0) {
@@ -591,8 +609,7 @@ fpga_result sysfs_deviceid_from_path(const char *sysfspath, uint64_t *deviceid)
  * The rlpath path is assumed to be of the form:
  * ../../devices/pci0000:5e/0000:5e:00.0/fpga/intel-fpga-dev.0
  */
-fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f,
-				int *seg)
+fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f)
 {
 	int res;
 	char rlpath[SYSFS_PATH_MAX];
@@ -622,20 +639,21 @@ fpga_result sysfs_bdf_from_path(const char *sysfspath, int *b, int *d, int *f,
 		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
-	p += 1;
+	++p;
 
+	//           11
 	// 012345678901
 	// ssss:bb:dd.f
-	*f = (int)strtoul(p + 11, NULL, 16);
+	*f = (int) strtoul(p+11, NULL, 16);
 	*(p + 10) = 0;
 
-	*d = (int)strtoul(p + 8, NULL, 16);
+	*d = (int) strtoul(p+8, NULL, 16);
 	*(p + 7) = 0;
 
-	*b = (int)strtoul(p + 5, NULL, 16);
+	*b = (int) strtoul(p+5, NULL, 16);
 	*(p + 4) = 0;
 
-	*seg = (int)strtoul(p, NULL, 16);
+	*s = (int) strtoul(p, NULL, 16);
 
 	return FPGA_OK;
 }

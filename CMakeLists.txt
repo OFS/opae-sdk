@@ -48,9 +48,9 @@ endif(EXISTS ${GIT_EXECUTABLE})
 ## Add 'versioning' library ################################################
 ############################################################################
 
-set(INTEL_FPGA_API_VER_MAJOR 0  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 13 CACHE STRING "Intel FPGA API minor version")
-set(INTEL_FPGA_API_VER_REV   1  CACHE STRING "Intel FPGA API revision version")
+set(INTEL_FPGA_API_VER_MAJOR 1  CACHE STRING "Intel FPGA API major version")
+set(INTEL_FPGA_API_VER_MINOR 1  CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
 set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 
@@ -60,6 +60,17 @@ set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 
+############################################################################
+## Find Python by version     ##############################################
+############################################################################
+set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
+############################################################################
+## Other setup and dependencies ############################################
+############################################################################
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
@@ -67,16 +78,17 @@ find_package(Doxygen)
 find_package(Threads REQUIRED)
 find_package(Sphinx)
 include(dependency_notifier)
+
 ############################################################################
-## set libs install location ###################################################
+## set libs install location ###############################################
 ############################################################################
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 	
 if ("${LIB64}" STREQUAL "TRUE")
     set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
 else()
     set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
-endif() 
+endif()
 
 ############################################################################
 ## Target configuration ####################################################
@@ -114,6 +126,7 @@ if (DOXYGEN_FOUND)
   add_subdirectory(doc)
 endif()
 
+
 ############################################################################
 ## Sub-projects ############################################################
 ############################################################################
@@ -129,8 +142,17 @@ endif()
 option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(BUILD_LIBOPAE_CXX)
 if(BUILD_LIBOPAE_CXX)
-  add_subdirectory(libopae++)
+  add_subdirectory(libopaecxx)
 endif()
+
+option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
+mark_as_advanced(BUILD_LIBOPAE_PY)
+if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
+  add_subdirectory(pyopae)
+endif()
+
+option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+mark_as_advanced(BUILD_PYTHON_DIST)
 
 add_subdirectory(platforms)
 add_subdirectory(tools)
@@ -138,7 +160,6 @@ add_subdirectory(tools)
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
 if(BUILD_ASE)
-  add_subdirectory(ase/api)
   add_subdirectory(ase)
 endif()
 
@@ -160,7 +181,10 @@ add_subdirectory(samples)
 option(BUILD_TESTS "Enable tests compilation" OFF)
 mark_as_advanced(BUILD_TESTS)
 
-if(BUILD_TESTS)
+option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
+mark_as_advanced(BUILD_ASE_TESTS)
+
+if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
   add_subdirectory(tests)
@@ -189,7 +213,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${INTEL_FPGA_API_VER_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${INTEL_FPGA_API_VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
 set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
-set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGE_RELEASE 2)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 #Hashing the package components
@@ -274,6 +298,7 @@ define_pkg(devel
   define_pkg(libs
   COMPONENTS
   opaeclib
+  opaecxxcorelib
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
@@ -368,7 +393,6 @@ endif()
 
 # Ignore following files in the final package
 set(CPACK_SOURCE_IGNORE_FILES
-  "coverage.cmake"
   "/mybuild/"
   "/build/"
   "/.git"

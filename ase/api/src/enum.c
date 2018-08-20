@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017, 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -77,6 +77,7 @@ void api_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
 struct dev_list {
 	fpga_objtype objtype;
 	fpga_guid guid;
+	uint16_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
@@ -253,7 +254,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
 	}
-	memset(_prop, 0, sizeof(struct _fpga_properties));
+	ase_memset(_prop, 0, sizeof(struct _fpga_properties));
 	// mark data structure as valid
 	_prop->magic = FPGA_PROPERTY_MAGIC;
 
@@ -344,7 +345,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (ASE_TOKEN_MAGIC != _token->magic)
 		return FPGA_INVALID_PARAM;
 	//clear fpga_properties buffer
-	memset(&_iprop, 0, sizeof(struct _fpga_properties));
+	ase_memset(&_iprop, 0, sizeof(struct _fpga_properties));
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 	result = objectid_for_ase(&_iprop.object_id);
 	if (result == 0)
@@ -468,6 +469,41 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 	_prop->objtype = objtype;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_INVALID_PARAM;
+
+	if (NULL == _prop || NULL == segment) {
+		FPGA_ERR("Attempting to dereference NULL pointer(s)");
+		return result;
+	}
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT)) {
+		*segment = _prop->segment;
+		result = FPGA_OK;
+	} else {
+		FPGA_MSG("No segment");
+		result = FPGA_NOT_FOUND;
+	}
+
+	return result;
+}
+
+fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
+	fpga_result result = FPGA_OK;
+
+	if (NULL == _prop) {
+		return FPGA_INVALID_PARAM;
+	}
+
+	_prop->segment = segment;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
+	return result;
 }
 
 fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop,
@@ -1133,6 +1169,26 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 	_prop->object_id = object_id;
 
 	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesGetNumErrors(const fpga_properties prop,
+			   uint32_t *num_errors)
+{
+	UNUSED_PARAM(prop);
+	ASSERT_NOT_NULL(num_errors);
+
+	*num_errors = 0;
+	return FPGA_OK;                  // Errors are not supported in ASE
+}
+
+fpga_result __FPGA_API__
+fpgaPropertiesSetNumErrors(const fpga_properties prop,
+			   uint32_t num_errors)
+{
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(num_errors);
+	return FPGA_OK;                             // Errors are not supported in ASE
 }
 
 fpga_result objectid_for_ase(uint64_t *object_id)

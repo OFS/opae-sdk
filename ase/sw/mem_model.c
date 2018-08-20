@@ -26,21 +26,12 @@
 // **************************************************************************
 /*
  * Module Info: Memory Model operations (C module)
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
  * Purpose: Keeping cci_to_mem_translator.c clutter free and modular
  * test and debug. Includes message queue management by DPI.
  * NOTE: These functions must be called by DPI side ONLY.
  */
 
 #include "ase_common.h"
-
-// Base addresses of required regions
-uint64_t *mmio_afu_vbase;
-uint64_t *umsg_umas_vbase;
 
 // ASE error file
 static FILE *error_fp;
@@ -158,14 +149,6 @@ void ase_alloc_action(struct buffer_t *mem)
 		ase_dbg_memtest(mem);
 #endif
 
-		if (mem->is_mmiomap == 1) {
-			// Pin CSR address
-			mmio_afu_vbase =
-			    (uint64_t *) (uintptr_t) (mem->pbase +
-						      MMIO_AFU_OFFSET);
-			ASE_DBG("Global CSR Base address = %p\n",
-				(void *) mmio_afu_vbase);
-		}
 #ifdef ASE_DEBUG
 		if (fp_pagetable_log != NULL) {
 			if (mem->index % 20 == 0) {
@@ -185,7 +168,6 @@ void ase_alloc_action(struct buffer_t *mem)
 	FUNC_CALL_EXIT;
 }
 
-
 // --------------------------------------------------------------------
 // DPI dealloc buffer action - Deallocate buffer action inside DPI
 // Receive index and invalidates buffer
@@ -195,7 +177,7 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 	FUNC_CALL_ENTRY;
 
 	char buf_str[ASE_MQ_MSGSIZE];
-	memset(buf_str, 0, ASE_MQ_MSGSIZE);
+	ase_memset(buf_str, 0, ASE_MQ_MSGSIZE);
 
 	// Traversal pointer
 	struct buffer_t *dealloc_ptr;
@@ -243,7 +225,7 @@ void ase_empty_buffer(struct buffer_t *buf)
 {
 	buf->index = 0;
 	buf->valid = ASE_BUFFER_INVALID;
-	memset(buf->memname, 0, ASE_FILENAME_LEN);
+	ase_memset(buf->memname, 0, ASE_FILENAME_LEN);
 	buf->memsize = 0;
 	buf->vbase = 0;
 	buf->pbase = 0;

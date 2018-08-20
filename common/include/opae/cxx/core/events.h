@@ -89,11 +89,23 @@ class event {
   static event::ptr_t register_event(handle::ptr_t h, event::type_t t,
                                      int flags = 0);
 
+  /**
+   * @brief Get OS Object from the event object
+   *
+   * Get an OS specific object from the event which can be used to subscribe for
+   * events. On Linux, the object corresponds to a file descriptor that can be
+   * used with select/poll/epoll calls.
+   *
+   * @return An integer object representing the OS object
+   */
+  int os_object() const;
+
  private:
   event(handle::ptr_t h, event::type_t t, fpga_event_handle event_h);
   handle::ptr_t handle_;
   event::type_t type_;
   fpga_event_handle event_handle_;
+  int os_object_;
 };
 
 }  // end of namespace types

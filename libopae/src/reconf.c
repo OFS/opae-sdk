@@ -89,8 +89,6 @@ static fpga_result validate_bitstream(fpga_handle handle,
 			const uint8_t *bitstream, size_t bitstream_len,
 			int *header_len)
 {
-	struct bitstream_header bts_hdr = {0};
-
 	if (bitstream == NULL) {
 		FPGA_MSG("Bitstream is NULL");
 		return FPGA_INVALID_PARAM;
@@ -117,20 +115,7 @@ static fpga_result validate_bitstream(fpga_handle handle,
 
 		return FPGA_OK;
 	} else {
-		errno_t e;
-		// TODO: This is needed for legacy bitstreams since they
-		// do not have new metadata with GUID. Remove once
-		// all bitstreams conform to new metadata format.
-		*header_len = sizeof(struct bitstream_header);
-		e = memcpy_s(&bts_hdr, sizeof(struct bitstream_header),
-				bitstream, sizeof(struct bitstream_header));
-		if (EOK != e) {
-			FPGA_ERR("memcpy_s failed");
-			return FPGA_EXCEPTION;
-		}
-
-		return check_interface_id(handle, bts_hdr.magic, bts_hdr.ifid_l,
-						bts_hdr.ifid_h);
+		return FPGA_INVALID_PARAM;
 	}
 }
 
@@ -376,7 +361,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 	if (get_bitstream_json_len(bitstream) > 0) {
 
 		// Read GBS json metadata
-		memset(&metadata, 0, sizeof(metadata));
+		memset_s(&metadata, sizeof(metadata), 0);
 		result = read_gbs_metadata(bitstream, &metadata);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to read metadata");

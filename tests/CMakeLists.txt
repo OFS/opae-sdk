@@ -44,13 +44,16 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE_TEST)
-     Build_Test_Target(gtase opae-c-ase)
-else()
-    Build_Test_Target(gtapi opae-c)
+add_library(commonlib SHARED common_test.h common_test.cpp)
+
+if(BUILD_ASE_TESTS)
+     include(test_config_ase)
+endif()
+if(BUILD_LIBOPAE_C)
+     Build_Test_Target(gtapi opae-c)
 endif()
 
-############################################################################
+###########################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
@@ -60,10 +63,9 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
+
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TEST)
-  Build_MOCk_DRV()
-endif()
+Build_MOCk_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
@@ -92,16 +94,30 @@ set(Ignored_Tests_1 ":-*event_drv_05*:*nodrv*:*Open*.03:*Open*.06:*Open*.open_dr
 set(Ignored_Tests_2 ":*Enum*.19:*Buf*.PrepRel2MB01:*Buf*.Write01:*Buf*.WriteRead01:*Close*.03")
 set(Test_Names "${Test_Names}${Ignored_Tests_1}${Ignored_Tests_2}")
 
-add_gtfilter(CxxProperties "CxxProperties*" False)
-add_gtfilter(CxxEnum "CxxEnum*" True)
-add_gtfilter(CxxOpenClose "CxxOpen*" True)
-add_gtfilter(CxxBuffer "CxxBuffer*" True)
-add_gtfilter(CxxExcept "CxxExcept*" False)
-add_gtfilter(CxxEvent "CxxEvent*" True)
-add_gtfilter(CxxMMIO "CxxMMIO*" True)
-add_gtfilter(CxxVersion "CxxVersion*" False)
+add_gtfilter(CxxProperties "LibopaecppProps*" False)
+add_gtfilter(CxxEnum "LibopaecppEnum*" True)
+add_gtfilter(CxxOpenClose "LibopaecppOpen*" True)
+add_gtfilter(CxxBuffer    "LibopaecppBuffer*" True)
+add_gtfilter(CxxExcept    "LibopaecppExcept*" False)
+add_gtfilter(CxxEvent     "LibopaecppEvent*" True)
+add_gtfilter(CxxMMIO      "LibopaecppMMIO*" True)
+add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
+add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
+
+############################################################################
+## pyopae tests ######## ###################################################
+############################################################################
+add_test(NAME pyopae
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} -m nose2 test_pyopae)
+set_tests_properties(
+    pyopae
+    PROPERTIES
+    ENVIRONMENT
+    "LD_PRELOAD=./lib/libmock.so;PYTHONPATH=./lib/python${OPAE_PYTHON_VERSION}")
+
 
 ############################################################################
 ## Add Coverage Analysis ###################################################

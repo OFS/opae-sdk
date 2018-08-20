@@ -100,7 +100,7 @@ on the platform.
 
     Socket ID encoded in FPGA Interface Manager (FIM). The default=0. 
 
-`--bus-number=, -B`
+`--bus=, -B`
 
     Bus number of the PCIe device. The default=0. 
 
@@ -114,7 +114,11 @@ on the platform.
 
 `--freq=, -T`
 
-    Clock frequency in Hz. The default=400000000 Hz (400 MHz). 
+    Clock frequency (in Hz) used for bandwidth calculation. The default=400000000 Hz (400 MHz). 
+```eval_rst
+.. note::
+    This frequency is used only when the software cannot infer the frequency from the accelerator.
+```
 
 `--suppress-hdr, -S`
 

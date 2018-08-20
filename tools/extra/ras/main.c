@@ -122,7 +122,8 @@ int usleep(unsigned);
 /* SKX-P NLB0 AFU_ID */
 #define SKX_P_NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
 
-static const char * const FME_ERROR[] = {
+#define FME_ERROR_COUNT             7
+static const char * const FME_ERROR[FME_ERROR_COUNT] = {
 		"Fabric error detected", \
 		"Fabric fifo under / overflow error detected", \
 		"KTI CDC Parity Error detected", \
@@ -132,7 +133,8 @@ static const char * const FME_ERROR[] = {
 		"Indicates an MBP event error detected", \
 };
 
-static const char * const PCIE0_ERROR[] = {
+#define PCIE0_ERROR_COUNT            10
+static const char * const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
 		"TLP format/type error detected", \
 		"TTLP MW address error detected", \
 		"TLP MW length error detected", \
@@ -145,7 +147,8 @@ static const char * const PCIE0_ERROR[] = {
 		"TLP with EP  error  detected", \
 };
 
-static const char * const PCIE1_ERROR[] = {
+#define PCIE1_ERROR_COUNT            10
+static const char * const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
 		"TLP format/type error detected", \
 		"TTLP MW address error detected", \
 		"TLP MW length error detected", \
@@ -158,7 +161,8 @@ static const char * const PCIE1_ERROR[] = {
 		"TLP with EP  error  detected", \
 };
 
-static const char * const RAS_NONFATAL_ERROR [] = {
+#define RAS_NONFATAL_ERROR_COUNT            13
+static const char * const RAS_NONFATAL_ERROR [RAS_NONFATAL_ERROR_COUNT] = {
 		"Temperature threshold triggered AP1 detected", \
 		"Temperature threshold triggered AP2 detected", \
 		"PCIe error detected", \
@@ -174,7 +178,8 @@ static const char * const RAS_NONFATAL_ERROR [] = {
 		"MBP event error detected", \
 };
 
-static const char * const RAS_CATFATAL_ERROR[] = {
+#define RAS_CATFATAL_ERROR_COUNT          12
+static const char * const RAS_CATFATAL_ERROR[RAS_CATFATAL_ERROR_COUNT] = {
 		"KTI link layer error detected.", \
 		"tag-n-cache error detected.", \
 		"CCI error detected.", \
@@ -189,44 +194,15 @@ static const char * const RAS_CATFATAL_ERROR[] = {
 		"Injected Catastrophic Error detected", \
 };
 
-static const char * const RAS_INJECT_ERROR[] = {
+#define RAS_INJECT_ERROR_COUNT          3
+static const char * const RAS_INJECT_ERROR[RAS_INJECT_ERROR_COUNT] = {
 		"Set Catastrophic  error .", \
 		"Set Fatal error.", \
 		"Ser Non-fatal error .", \
 };
 
-static const char * const RAS_GBS_ERROR [] = {
-		"Temperature threshold triggered AP1 detected", \
-		"Temperature threshold triggered AP2 detected", \
-		"PCIe error detected", \
-		"AFU port Fatal error detected", \
-		"ProcHot event error detected", \
-		"AFU PF/VF access mismatch error detected", \
-		"Injected Warning Error detected", \
-		"Poison error from any of PCIe ports detected", \
-		"GBS CRC errordetected ", \
-		"Temperature threshold triggered AP6 detected", \
-		"Power threshold triggered AP1 error detected", \
-		"Power threshold triggered AP2 error detected", \
-		"MBP event error detected", \
-};
-
-static const char * const RAS_BBS_ERROR[] = {
-		"KTI link layer error detected.", \
-		"tag-n-cache error detected.", \
-		"CCI error detected.", \
-		"KTI protocol error detected.", \
-		"Fatal DRAM error detected", \
-		"IOMMU fatal parity error detected.", \
-		"Fabric fatal error detected", \
-		"Poison error from any of PCIe ports detected", \
-		"Injected Fatal Error detected", \
-		"Catastrophic CRC error detected", \
-		"Catastrophic thermal runaway event detected", \
-		"Injected Catastrophic Error detected", \
-};
-
-static const char * const PORT_ERROR[] = {
+#define PORT_ERROR_COUNT       52
+static const char * const PORT_ERROR[PORT_ERROR_COUNT] = {
 		"Tx Channel 0 overflow error detected.", \
 		"Tx Channel 0 invalid request encodingr error detected.", \
 		"Tx Channel 0 cl_len=3 not supported error detected.", \
@@ -285,10 +261,10 @@ struct ras_inject_error {
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
-		{"bus-number",          required_argument, NULL, 'B'},
-		{"device-number",       required_argument, NULL, 'D'},
-		{"function-number",     required_argument, NULL, 'F'},
-		{"socket-number",       required_argument, NULL, 'S'},
+		{"bus",                 required_argument, NULL, 'B'},
+		{"device",              required_argument, NULL, 'D'},
+		{"function",            required_argument, NULL, 'F'},
+		{"socket-id",           required_argument, NULL, 'S'},
 		{"print-error",         no_argument,       NULL, 'P'},
 		{"catast-error",        no_argument,       NULL, 'Q'},
 		{"fatal-error",         no_argument,       NULL, 'R'},
@@ -347,8 +323,8 @@ void RASAppShowHelp()
 		"OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>         --function=<FUNCTION NUMBER> "
 		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket>           --socket=<socket NUMBER>    "
-		" OR  -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>        --socket-id=<socket NUMBER>  "
+		"OR  -S=<SOCKET NUMBER>\n");
 	printf("<Print Error>      --print-error                OR  -P \n");
 	printf("<Catast Error>     --catast-error               OR  -Q \n");
 	printf("<Fatal Error>      --fatal-error                OR  -R \n");
@@ -413,7 +389,7 @@ int main( int argc, char** argv )
 	printf(" Bus                   : %d\n", rasCmdLine.bus);
 	printf(" Device                : %d \n", rasCmdLine.device);
 	printf(" Function              : %d \n", rasCmdLine.function);
-	printf(" Socket                : %d \n", rasCmdLine.socket);
+	printf(" Socket-id             : %d \n", rasCmdLine.socket);
 	printf(" Print Error           : %d \n", rasCmdLine.print_error);
 	printf(" Catas Error           : %d \n", rasCmdLine.catast_error);
 	printf(" Fatal Error           : %d \n", rasCmdLine.fatal_error);
@@ -628,7 +604,7 @@ fpga_result print_ras_errors(fpga_token token)
 	}
 	printf(" fme error revison : %ld \n", revision);
 
-	// Revision 0
+	// Revision 1
 	if( revision == 1 ) {
 
 		// Non Fatal Error
@@ -636,7 +612,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 					FME_SYSFS_NONFATAL_ERRORS,
 					RAS_NONFATAL_ERROR,
-					sizeof(RAS_NONFATAL_ERROR) /sizeof(RAS_NONFATAL_ERROR[0]));
+					RAS_NONFATAL_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get fme non fatal errors");
@@ -648,7 +624,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 				FME_SYSFS_CATFATAL_ERRORS,
 				RAS_CATFATAL_ERROR,
-				sizeof(RAS_CATFATAL_ERROR) /sizeof(RAS_CATFATAL_ERROR[0]));
+				RAS_CATFATAL_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get fme fatal errors");
@@ -660,7 +636,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 					FME_SYSFS_INJECT_ERROR,
 					RAS_INJECT_ERROR,
-					sizeof(RAS_INJECT_ERROR) /sizeof(RAS_INJECT_ERROR[0]));
+					RAS_INJECT_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get fme Injected errors");
@@ -672,7 +648,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 					FME_SYSFS_FME_ERRORS,
 					FME_ERROR,
-					sizeof(FME_ERROR) /sizeof(FME_ERROR[0]));
+					FME_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get fme  errors");
@@ -684,7 +660,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 					FME_SYSFS_PCIE0_ERRORS,
 					PCIE0_ERROR,
-					sizeof(PCIE0_ERROR) /sizeof(PCIE0_ERROR[0]));
+					PCIE0_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get pcie0  errors");
@@ -696,82 +672,7 @@ fpga_result print_ras_errors(fpga_token token)
 		result = print_errors(token,
 					FME_SYSFS_PCIE1_ERRORS,
 					PCIE1_ERROR,
-					sizeof(PCIE1_ERROR) /sizeof(PCIE1_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get pcie1  errors");
-			return result;
-		}
-
-	// Revision 0
-	} else if( revision == 0){
-
-		// GBS Error
-		printf("\n ------- GBS error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_GBS_ERRORS,
-					RAS_GBS_ERROR,
-					sizeof(RAS_GBS_ERROR) /sizeof(RAS_GBS_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme gbs errors");
-			return result;
-		}
-
-		// BBS Error
-		printf("\n ------- BBS error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_BBS_ERRORS,
-					RAS_BBS_ERROR,
-					sizeof(RAS_BBS_ERROR) /sizeof(RAS_BBS_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme bbs errors");
-			return result;
-		}
-
-		// Injected error
-		printf("\n ------- Injected error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_INJECT_ERROR,
-					RAS_INJECT_ERROR,
-					sizeof(RAS_INJECT_ERROR) /sizeof(RAS_INJECT_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme Injected errors");
-			return result;
-		}
-
-		// FME error
-		printf("\n ------- FME error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_FME_ERRORS,
-					FME_ERROR,
-					sizeof(FME_ERROR) /sizeof(FME_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get fme  errors");
-			return result;
-		}
-
-		// PCIe0 error
-		printf("\n ------- PCIe0 error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_PCIE0_ERRORS,
-					PCIE0_ERROR,
-					sizeof(PCIE0_ERROR) /sizeof(PCIE0_ERROR[0]));
-
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed  to get pcie0  errors");
-			return result;
-		}
-
-		// PCIe1 error
-		printf("\n ------- PCIe1 error ------------ \n");
-		result = print_errors(token,
-					FME_SYSFS_PCIE1_ERRORS,
-					PCIE1_ERROR,
-					sizeof(PCIE1_ERROR) /sizeof(PCIE1_ERROR[0]));
+					PCIE1_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed  to get pcie1  errors");
@@ -829,7 +730,7 @@ fpga_result print_port_errors(fpga_token token)
 
 	printf("\n \n Port error CSR : 0x%lx \n", value);
 
-	size = sizeof(PORT_ERROR) /sizeof(PORT_ERROR[0]);
+	size = PORT_ERROR_COUNT;
 
 	for (i = 0; i < 64; i++) {
 		if ( FPGA_BIT_IS_SET(value, i) && (i < size)) {
@@ -1219,9 +1120,9 @@ fpga_result page_fault_errors()
 	printf("Running Test\n");
 
 	/* Initialize buffers */
-	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
-	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
-	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+	memset_s((void *)dsm_ptr,    LPBK1_DSM_SIZE,    0);
+	memset_s((void *)input_ptr,  LPBK1_BUFFER_SIZE, 0xAF);
+	memset_s((void *)output_ptr, LPBK1_BUFFER_SIZE, 0xBE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 	for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {

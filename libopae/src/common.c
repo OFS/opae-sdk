@@ -165,6 +165,8 @@ const char __FPGA_API__ *fpgaErrStr(fpga_result e)
 		return "no fpga daemon running";
 	case FPGA_NO_ACCESS:
 		return "insufficient privileges";
+	case FPGA_RECONF_ERROR:
+		return "reconfiguration error";
 	default:
 		return "unknown error";
 	}
@@ -183,30 +185,4 @@ uint64_t wsid_gen(void)
 	id = ((t.tv_sec * 1000 * 1000) + (t.tv_usec * 1000)) << 42;
 	id |= ((unsigned long) getpid() % 16777216) << 24;
 	return id;
-}
-
-/**
- * @brief
- *
- * @param guidh
- * @param guidl
- * @param guid
- */
-void aal_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
-{
-	uint32_t i;
-	uint32_t s;
-
-	// The API expects the MSB of the GUID at [0] and the LSB at [15].
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[i] = (uint8_t) ((guidh >> s) & 0xff);
-	}
-
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[8 + i] = (uint8_t) ((guidl >> s) & 0xff);
-	}
 }

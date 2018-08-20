@@ -107,8 +107,10 @@ TEST_F(LibopaecOpenFCommonALL, open_drv_10) {
   fpga_token tok = &_tok;
 
   token_for_afu0(&_tok);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h1, FPGA_OPEN_SHARED));
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaOpen(tok, &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h1, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h2, FPGA_OPEN_SHARED));
+  fpgaClose(h1);
+  fpgaClose(h2);
 
 #else
 
@@ -217,7 +219,7 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
     struct _fpga_handle *p;
 
     ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
-    
+
     p = (struct _fpga_handle *)h;
     EXPECT_EQ((void *)NULL, p->mmio_root);
 
@@ -228,6 +230,39 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
     EXPECT_EQ(FPGA_OK, fpgaClose(h));
 
     EXPECT_EQ((void *)NULL, p->mmio_root);
+  };
+
+  // pass test code to enumerator
+  TestAllFPGA(FPGA_ACCELERATOR,  // object type
+              true,              // reconfig default NLB0
+              functor);          // test code
+}
+#endif // BUILD_ASE
+
+/**
+ * @test       04
+ *
+ * @brief      When the handle parameter to fpgaClose has
+ *             an fddev member equal to -1,
+ *             fpgaClose will fail with FPGA_INVALID_PARAM.
+ */
+#ifndef BUILD_ASE
+TEST_F(LibopaecCloseFCommonALL, 04) {
+
+  auto functor = [=]() -> void {
+    fpga_handle h;
+    struct _fpga_handle *p;
+
+    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
+    
+    p = (struct _fpga_handle *)h;
+    int save_fddev = p->fddev;
+
+    p->fddev = -1;
+    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaClose(h));
+
+    p->fddev = save_fddev;
+    EXPECT_EQ(FPGA_OK, fpgaClose(h));
   };
 
   // pass test code to enumerator

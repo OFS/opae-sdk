@@ -40,6 +40,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "safe_string/safe_string.h"
+
 fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result result = FPGA_NOT_FOUND;
@@ -77,7 +79,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 		return FPGA_NO_MEMORY;
 	}
 
-	memset(_handle, 0, sizeof(*_handle));
+	memset_s(_handle, sizeof(*_handle), 0);
 
 	_handle->token = token;
 

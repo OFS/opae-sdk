@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,14 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: IPC management functions
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- */
-
 
 #include "ase_common.h"
 
@@ -52,7 +44,7 @@ void create_ipc_listfile(void)
 	FUNC_CALL_ENTRY;
 
 	// Allocate memory, fail if not possible
-    memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
+	ase_memset(ipclist_filepath, 0, ASE_FILEPATH_LEN);
 
 	// Create IPC file path length
 	snprintf(ipclist_filepath, ASE_FILEPATH_LEN, "%s/%s",
@@ -90,7 +82,7 @@ void add_to_ipc_list(char *ipc_type, char *ipc_name)
 
 	if (ret < 0) {
 		ASE_ERR
-		    ("add_to_ipc_list: Failed to update IPC management file, cleanup may be incomplete\n");
+			("add_to_ipc_list: Failed to update IPC management file, cleanup may be incomplete\n");
 		ASE_ERR("                 Simulation will continue\n");
 	}
 
@@ -125,7 +117,7 @@ void final_ipc_cleanup(void)
 	} else {
 		// Parse through list
 		ASE_MSG
-		    ("Removing message queues and buffer handles ... \n");
+			("Removing message queues and buffer handles ... \n");
 		while (getline(&ipc_line, &ipc_line_len, local_ipc_fp) !=
 		       -1) {
 			ipc_type = strtok_r(ipc_line, " \t", &saveptr);

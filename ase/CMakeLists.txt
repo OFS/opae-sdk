@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2014-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,35 +25,74 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ## Install target for ASE support files
-set(ASE_SHARE_DIR share/opae/ase)
+project(ase)
+include(opae_devpkgs_cmake_install)
 
-install(DIRECTORY rtl     DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw      DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+############################################################################
+## Create config_int.h #####################################################
+############################################################################
+
+configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+                "${PROJECT_BINARY_DIR}/include/config_int.h" )
+
+############################################################################
+## Set base directories ####################################################
+############################################################################
+
+# Set root ASE directories correctly now
+set(OPAE_BASE_DIR      ${OPAE_SDK_SOURCE})
+set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE})
+set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE} PARENT_SCOPE) # do not remove, they are not the same
+include(ase_variables_config)
+
+############################################################################
+## Install some directories ################################################
+############################################################################
+
+# Install some directories
+install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
+install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
+install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+
+############################################################################
+## Add sub-project (ASE client, ASE server Verilog code)       #############
+## (Exclude ASE server C code, as it is compiled per each AFU) #############
+############################################################################
+
+# ASE client
+add_subdirectory(api)
+
+# ASE RTL code
+add_subdirectory(rtl)
+
+###########################################################################
+## Extra platform scripts #################################################
+###########################################################################
 
 set(EXTRA_ASE_FILES
-       Makefile
-       ase.cfg
-       ase_regress.sh)
+  Makefile
+  ase.cfg
+  ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-        DESTINATION ${ASE_SHARE_DIR}
-        COMPONENT aseextra)
+  DESTINATION share/opae/ase
+  COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
 set(PLATFORM_SCRIPTS
-        afu_sim_setup)
+  afu_sim_setup
+  with_ase)
 
 foreach(SRC ${PLATFORM_SCRIPTS})
   ## Substitute CMake variables of the form @<var>@ in the source file
   ## and store the file in the build tree's bin directory.
   configure_file(
-          scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
-          @ONLY NEWLINE_STYLE UNIX)
+    scripts/${SRC} ${PROJECT_BINARY_DIR}/bin/${SRC}
+    @ONLY NEWLINE_STYLE UNIX)
   ## This forces the configure_file to be built for all targets
   add_custom_target(${SRC} ALL DEPENDS ${PROJECT_BINARY_DIR}/bin/${SRC})
 
   install(PROGRAMS ${PROJECT_BINARY_DIR}/bin/${SRC}
-          DESTINATION bin
-          COMPONENT asescripts)
+    DESTINATION bin
+    COMPONENT asescripts)
 endforeach(SRC)
