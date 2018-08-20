@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,43 +24,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_PROPERTIES_INT_H__
-#define __FPGA_PROPERTIES_INT_H__
+/**
+ * \file numa_int.h
+ * \brief Internal type definitions for FPGA API NUMA support
+ */
 
-/** Fields common across all object types */
-#define FPGA_PROPERTY_PARENT         0
-#define FPGA_PROPERTY_OBJTYPE        1
-#define FPGA_PROPERTY_SEGMENT        2
-#define FPGA_PROPERTY_BUS            3
-#define FPGA_PROPERTY_DEVICE         4
-#define FPGA_PROPERTY_FUNCTION       5
-#define FPGA_PROPERTY_SOCKETID       6
-#define FPGA_PROPERTY_VENDORID       7
-#define FPGA_PROPERTY_DEVICEID       8
-#define FPGA_PROPERTY_GUID           9
-#define FPGA_PROPERTY_OBJECTID       10
-#define FPGA_PROPERTY_NUM_ERRORS     11
-#define FPGA_PROPERTY_NUMANODE       12
+#ifndef __FPGA_NUMA_INT_H__
+#define __FPGA_NUMA_INT_H__
 
-/** Fields for FPGA objects */
-#define FPGA_PROPERTY_NUM_SLOTS     32
-#define FPGA_PROPERTY_BBSID         33
-#define FPGA_PROPERTY_BBSVERSION    34
-#define FPGA_PROPERTY_MODEL         35
-#define FPGA_PROPERTY_LOCAL_MEMORY  36
-#define FPGA_PROPERTY_CAPABILITIES  37
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <pthread.h>
+#include <opae/types.h>
+#include <opae/types_enum.h>
+#include "types_int.h"
 
-/** Fields for accelerator objects */
-#define FPGA_PROPERTY_ACCELERATOR_STATE 32
-#define FPGA_PROPERTY_NUM_MMIO          33
-#define FPGA_PROPERTY_NUM_INTERRUPTS    34
+#ifdef ENABLE_NUMA
+#include <numa.h>
+#endif
 
-#define FIELD_VALID(P, F) (((P)->valid_fields >> (F)) & 1)
+fpga_result save_and_bind(struct _fpga_handle *fpga_h, bool bind,
+			  bool save_state);
+fpga_result restore_and_unbind(struct _fpga_handle *fpga_h, bool bind,
+			       bool restore_state);
+fpga_result move_memory_to_node(struct _fpga_handle *fpga_h, void *ptr,
+				size_t size);
 
-#define SET_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields | ((uint64_t)1 << (F)))
-
-#define CLEAR_FIELD_VALID(P, F)\
-	((P)->valid_fields = (P)->valid_fields & ~((uint64_t)1 << (F)))
-
-#endif // __FPGA_PROPERTIES_INT_H__
+#endif // __FPGA_NUMA_INT_H__

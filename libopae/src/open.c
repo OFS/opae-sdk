@@ -28,6 +28,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include "safe_string/safe_string.h"
+
 #include "common_int.h"
 #include <opae/access.h>
 #include <opae/utils.h>
@@ -79,9 +81,6 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 
 	memset_s(_handle, sizeof(*_handle), 0);
 
-	// mark data structure as valid
-	_handle->magic = FPGA_HANDLE_MAGIC;
-
 	_handle->token = token;
 
 	_handle->fdfpgad = -1;
@@ -126,6 +125,41 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 		result = FPGA_EXCEPTION;
 		goto out_attr_destroy;
 	}
+
+	_handle->numa = NULL;
+#ifdef ENABLE_NUMA
+	if (-1 != numa_available()) {
+		_handle->numa = (numa_params *)malloc(sizeof(struct _numa_params));
+		if (NULL == _handle) {
+			FPGA_MSG("Failed to allocate memory for handle");
+			result = FPGA_NO_MEMORY;
+			goto out_attr_destroy;
+		}
+		_handle->numa->at_open.membind_mask = numa_get_membind();
+		_handle->numa->at_open.runnode_mask = numa_get_run_node_mask();
+		_handle->numa->saved.membind_mask = NULL;
+		_handle->numa->saved.runnode_mask = NULL;
+
+		char numapath[SYSFS_PATH_MAX];
+		uint32_t x;
+		snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node",
+			     _token->sysfspath);
+		result = sysfs_read_u32(numapath, &x);
+		if (result != FPGA_OK) {
+			numa_free_nodemask(_handle->numa->at_open.membind_mask);
+			numa_free_cpumask(_handle->numa->at_open.runnode_mask);
+			free(_handle->numa);
+			FPGA_MSG("Failed to read numa node for device");
+			result = FPGA_NO_MEMORY;
+			goto out_attr_destroy;
+		}
+		_handle->numa->fpgaNodeMask = numa_allocate_nodemask();
+		numa_bitmask_setbit(_handle->numa->fpgaNodeMask, x);
+	}
+#endif
+
+	// mark data structure as valid
+	_handle->magic = FPGA_HANDLE_MAGIC;
 
 	pthread_mutexattr_destroy(&mattr);
 

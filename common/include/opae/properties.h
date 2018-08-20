@@ -518,7 +518,6 @@ fpga_result fpgaPropertiesSetModel(fpga_properties prop,
 fpga_result fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
 					     uint64_t *lms);
 
-
 /**
  * Set the local memory size of an FPGA resource property
  *
@@ -548,7 +547,6 @@ fpga_result fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
  */
 fpga_result fpgaPropertiesGetCapabilities(const fpga_properties prop,
 					  uint64_t *capabilities);
-
 
 /**
  * Set the capabilities of an FPGA resource property
@@ -666,7 +664,6 @@ fpga_result fpgaPropertiesSetNumInterrupts(fpga_properties prop,
 fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
 					      fpga_accelerator_state *state);
 
-
 /**
  * Set the state of an accelerator resource property
  *
@@ -692,7 +689,7 @@ fpga_result fpgaPropertiesSetAcceleratorState(fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
-					    uint64_t *object_id);
+				      uint64_t *object_id);
 
 
 /**
@@ -708,7 +705,7 @@ fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
  * @returns See "Accessor Return Values" in [properties.h](#properties-h).
  */
 fpga_result fpgaPropertiesSetObjectID(const fpga_properties prop,
-					    uint64_t object_id);
+				      uint64_t object_id);
 
 
 /**

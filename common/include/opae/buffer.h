@@ -129,6 +129,32 @@ fpga_result fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
 fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 			     uint64_t *ioaddr);
 
+/**
+ * Prepare a user-allocated buffer for DMA
+ *
+ * This function is used to provide hints to the operating system that will
+ * tend to increase DMA performance to/from the FPGA and a user-allocated buffer.
+ *
+ * @note This function handles Non-Uniform Memory Architecture (NUMA) considerations
+ * for copying memory to and from the pinned buffers used by the DMA engine.  It will
+ * move the buffer so that it is local to the NUMA node of the FPGA's buffers and
+ * optionally pin the calling thread to the set of CPUs local to the node.
+ *
+ * @note This function effectively does nothing on platforms where NUMA is not supported.
+ *
+ * @param[in]  handle        Handle to previously opened accelerator resource
+ * @param[in]  buf           Buffer intended to be used for DMA transactions
+ * @param[in]  len           The length of the buffer to prepare
+ * @param[in]  bind_thread   If true, the calling thread will have its CPU affinity
+ *                           set to the processors local to the FPGA's NUMA node.
+ *                           If false, only the buffer is moved.
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were
+ * provided, or if the parameter combination is not valid. FPGA_EXCEPTION if an
+ * internal exception occurred while trying to access the handle.
+ */
+fpga_result fpgaAdviseDmaBuffer(fpga_handle handle, void *buf, uint64_t len,
+				uint32_t bind_thread);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

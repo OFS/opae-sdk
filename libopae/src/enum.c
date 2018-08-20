@@ -46,6 +46,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#ifdef ENABLE_NUMA
+#include <numa.h>
+#endif
+
 /* mutex to protect global data structures */
 extern pthread_mutex_t global_lock;
 
@@ -61,6 +65,8 @@ struct dev_list {
 	uint8_t socket_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
+
+	uint32_t numa_node;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -164,6 +170,12 @@ static bool matches_filter(const struct dev_list *attr,
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUMANODE)) {
+		if (_filter->numa_node != attr->numa_node) {
+			res = false;
+			goto out_unlock;
+		}
+	}
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
 		if (0 != memcmp(attr->guid, _filter->guid, sizeof(fpga_guid))) {
 			res = false;
@@ -363,6 +375,7 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
+	pdev->numa_node = parent->numa_node;
 
 	// Discover the FME GUID from sysfs (pr/interface_id)
 	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
@@ -439,6 +452,7 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
+	pdev->numa_node = parent->numa_node;
 
 	res = open(pdev->devpath, O_RDWR);
 	if (-1 == res) {
@@ -503,7 +517,6 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 		FPGA_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
-
 	// Find the BDF from the link path.
 	spath[res] = 0;
 	p = strrchr(spath, '/');
@@ -564,7 +577,21 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 	result = sysfs_read_u32(devicepath, &x);
 	if (result != FPGA_OK)
 		return result;
-	pdev->device_id = (uint16_t)x;
+	pdev->device_id = (uint16_t) x;
+
+	// Discover the NUMA node that the device is attached to
+	pdev->numa_node = (uint32_t) (-1);	// Default is no NUMA
+#ifdef ENABLE_NUMA
+	if (-1 != numa_available()) {
+		char numapath[SYSFS_PATH_MAX];
+		snprintf_s_s(numapath, SYSFS_PATH_MAX, "%s/device/numa_node",
+			     sysfspath);
+		result = sysfs_read_u32(devicepath, &x);
+		if (result != FPGA_OK)
+			return result;
+		pdev->numa_node = (uint16_t) x;
+	}
+#endif
 
 	// Find the FME and AFU devices.
 	dir = opendir(sysfspath);
@@ -700,8 +727,9 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 
-		// propagate the socket_id field.
+		// propagate the socket_id and numa_node fields.
 		lptr->socket_id = lptr->parent->socket_id;
+		lptr->numa_node = lptr->parent->numa_node;
 		lptr->fme = lptr->parent->fme;
 
 		/* FIXME: do we need to keep a global list of tokens? */
@@ -714,7 +742,6 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 			result = FPGA_NO_MEMORY;
 			goto out_free_trash;
 		}
-
 		// FIXME: should check contents of filter for token magic
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
@@ -814,7 +841,6 @@ fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
-
 	// invalidate magic (just in case)
 	_token->magic = FPGA_INVALID_MAGIC;
 
