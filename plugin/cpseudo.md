@@ -1,3 +1,7 @@
+### OPAE API Data Structures ###
+`fpga_token` and `fpga_handle` are opaque types. This allows them to be
+easily wrapped at any level of the plugin stack.
+
 ```c
 #ifndef __OPAE_TYPES_H__
 #define __OPAE_TYPES_H__
@@ -7,6 +11,10 @@ typedef void *fpga_handle;
 
 #endif
 ```
+
+### Plugin Manager ###
+The plugin manager tracks each loaded plugin in its list of OPAE
+API adpater tables.
 
 ```c
 #ifndef __OPAE_PLUGIN_MGR_H__
@@ -24,13 +32,20 @@ int opae_plugin_mgr_parse_config(json_object *jobj)
 	return opae_plugin_ldr_load_plugins(jobj);
 }
 
-int opae_plugin_mgr_register_adapter(api_adapter_table *adapter)
+int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter)
 {
 	(add adapter to plugin mgr's adapter table list)
 }
 
 #endif
 ```
+
+### Plugin Loader ###
+The plugin loader provides the basic facilities for locating and
+loading OPAE plugins, given a description of the desired plugins
+in a formatted configuration file (JSON). The loader registers
+each loaded plugin with the plugin manager.
+
 
 ```c
 #ifndef __OPAE_PLUGIN_LDR_H__
@@ -53,8 +68,17 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaOpen)(fpga_token token,
 				fpga_handle *handle,
 				int flags);
+
         ...
 
+
+	// configuration functions
+	int (*initialize)(void);
+	int (*finalize)(void);
+
+	// first-level query
+	bool (*supports_device(const char *device_type);
+	bool (*supports_host)(const char *hostname);
 } opae_api_adapter_table;
 
 typedef struct _opae_wrapped_token {
@@ -80,28 +104,20 @@ int opae_plugin_ldr_load_plugins(json_object *jobj)
 
 		(open pl)
 
-		(load function pointer for 'opaePluginConfigure')
-		
-		if (!opaePluginConfigure(serialize(jobj_for_pl))) {
+		(load function pointer for 'opae_plugin_configure')
 
-			(load function pointer for 'opaePluginInitialize')
+		(allocate and init adapter to 0)
 
-			if (opaePluginInitialize()) {
-				(fail the current plugin)
+		if (!opae_plugin_configure(adapter, serialize(jobj_for_pl))) {
+
+			if (adapter->initialize) {
+				if (adapter->initialize()) {
+					(fail the current plugin)
+					continue;
+				}
 			}
 
-			(allocate and init adapter to 0)
-
-			for (each OPAE API api) {
-
-				(load function pointer for api)
-				(place api in adapter)
-
-			}
-
-			if (OPAE API count > 0) {
-				opae_plugin_mgr_register_adapter(adapter);
-			}
+			opae_plugin_mgr_register_adapter(adapter);
 
 		}
 
@@ -110,6 +126,12 @@ int opae_plugin_ldr_load_plugins(json_object *jobj)
 
 #endif
 ```
+
+### OPAE Stack ###
+The OPAE API consists of the plugin manager, the plugin loader,
+and 'shell' implementations of the superset of library calls.
+Each 'shell' library call uses the adapter table(s) to call through
+to the appropriate plugin implementation.
 
 ```c
 #ifndef __OPAE_API_H__
@@ -130,6 +152,22 @@ fpga_result fpgaEnumerate(const fpga_properties *filters,
 
 	for (each adapter in plugin_mgr adapter list) {
 		uint32_t pl_matches = 0;
+
+		if (adapter->supports_device) {
+			(use adapter->supports_device to accept/reject
+			adapter, based on filters)
+
+			if (device not supported)
+				continue;
+		}
+
+		if (adapter->supports_host) {
+			(use adapter->supports_host to accept/reject
+			adapter, based on filters)
+
+			if (host not supported)
+				continue;
+		}
 
 		adapter->fpgaEnumerate(filters, num_filters,
 					pl_tokens, max_tokens - *num_matches,
@@ -179,6 +217,10 @@ fpga_result fpgaOpen(fpga_token token,
 
 #endif
 ```
+### Proxy Plugins ###
+A TCP/IP OPAE plugin uses network sockets to implement the control
+protocol exchange, but may utilize facilities such as RDMA for data
+exchange.
 
 ```c
 #ifndef __MY_TCP_IP_PLUGIN_H__
@@ -213,7 +255,7 @@ typedef struct _my_tcp_ip_plugin_handle {
 	my_tcp_ip_open_response *response_handle;
 } my_tcp_ip_plugin_handle;
 
-int opaePluginConfigure(const char *jsonConfig)
+int opae_plugin_configure(opae_api_adapter_table *table, const char *jsonConfig)
 {
 	json_object *jobj;
 
@@ -224,9 +266,20 @@ int opaePluginConfigure(const char *jsonConfig)
 		add_list(&host_list, alloc_host_entry(host.name, host.port));
 
 	}
+
+	for (each OPAE api in this plugin) {
+
+		(add api to table)
+
+	}
+
+	table->initialize = my_tcp_ip_plugin_initialize;
+	table->finalize = my_tcp_ip_plugin_finalize;
+
+	table->supports_host = my_tcp_ip_plugin_supports_host;
 }
 
-int opaePluginInitialize(void)
+int my_tcp_ip_plugin_initialize(void)
 {
 	for (each host in host_list) {
 
@@ -235,7 +288,7 @@ int opaePluginInitialize(void)
 	}
 }
 
-int opaePluginFinalize(void)
+int my_tcp_ip_plugin_finalize(void)
 {
 	for (each host in host_list) {
 
@@ -243,6 +296,17 @@ int opaePluginFinalize(void)
 		free(host);
 	
 	}
+}
+
+bool my_tcp_ip_plugin_supports_host(const char *hostname)
+{
+	for (each host in host_list) {
+
+		if (this plugin supports hostname)
+			return true;
+
+	}
+	return false;
 }
 
 fpga_result fpgaEnumerate(const fpga_properties *filters,
@@ -295,6 +359,9 @@ fpga_result fpgaOpen(fpga_token token,
 #endif
 ```
 
+An RDMA OPAE plugin uses RDMA for both control protocol and
+data exchange.
+
 ```c
 #ifndef __MY_RDMA_PLUGIN_H__
 #define __MY_RDMA_PLUGIN_H__
@@ -331,7 +398,7 @@ typedef struct _my_rdma_plugin_handle {
 	my_rdma_open_response *response_handle;
 } my_rdma_plugin_handle;
 
-int opaePluginConfigure(const char *jsonConfig)
+int opae_plugin_configure(opae_api_adapter_table *table, const char *jsonConfig)
 {
 	json_object *jobj;
 
@@ -342,9 +409,20 @@ int opaePluginConfigure(const char *jsonConfig)
 		add_list(&host_list, alloc_host_entry(host.name, host.port));
 
 	}
+
+	for (each OPAE api in this plugin) {
+
+		(add api to table)
+
+	}
+
+	table->initialize = my_rdma_plugin_initialize;
+	table->finalize = my_rdma_plugin_finalize;
+
+	table->supports_host = my_rdma_plugin_supports_host;
 }
 
-int opaePluginInitialize(void)
+int my_rdma_plugin_initialize(void)
 {
 	for (each host in host_list) {
 
@@ -353,7 +431,7 @@ int opaePluginInitialize(void)
 	}
 }
 
-int opaePluginFinalize(void)
+int my_rdma_plugin_finalize(void)
 {
 	for (each host in host_list) {
 
@@ -361,6 +439,17 @@ int opaePluginFinalize(void)
 		free(host);
 	
 	}
+}
+
+bool my_rdma_plugin_supports_host(const char *hostname)
+{
+	for (each host in host_list) {
+
+		if (this plugin supports hostname)
+			return true;
+
+	}
+	return false;
 }
 
 fpga_result fpgaEnumerate(const fpga_properties *filters,
@@ -413,23 +502,36 @@ fpga_result fpgaOpen(fpga_token token,
 #endif
 ```
 
+The 'local' OPAE plugin communicates with the kernel device driver
+via memory-mapped IO and sysfs attributes.
+
 ```c
 #ifndef __MY_LOCAL_PLUGIN_H__
 #define __MY_LOCAL_PLUGIN_H__
 
-int opaePluginConfigure(const char *jsonConfig)
+int opae_plugin_configure(opae_api_adapter_table *table, const char *jsonConfig)
 {
-	return 0;
+	json_object *jobj;
+
+	jobj = deserialize(jsonConfig);
+
+	(configure the plugin, based on jobj)
+
+	for (each OPAE api in this plugin) {
+
+		(add api to table)
+
+	}
+
+	table->supports_device = my_local_plugin_supports_device;
 }
 
-int opaePluginInitialize(void)
+bool my_local_plugin_supports_device(const char *device_type)
 {
-	return 0;
-}
+	if (this plugin supports device_type)
+		return true;
 
-int opaePluginFinalize(void)
-{
-	return 0;
+	return false;
 }
 
 fpga_result fpgaEnumerate(const fpga_properties *filters,
@@ -465,6 +567,6 @@ fpga_result fpgaOpen(fpga_token token,
 ```
 
 Other plugins:
-* AFU Simulation Environment
+* AFU Simulation Environment (ASE)
 * virtio-vsock (pool of accelerators assigned to VM's)
 * RSD
