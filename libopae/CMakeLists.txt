@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -30,11 +30,14 @@ set(SRC
     pluginmgr.c
     pluginldr.c
     api-shell.c
+    init.c
     )
 
-include_directories(${OPAE_INCLUDE_DIR})
-
 add_library(opae-c SHARED ${SRC})
+
+target_include_directories(opae-c PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(plugins)
 

@@ -58,7 +58,8 @@ set(SRC
   token_list.c
   mmap.c
   version.c
-  usrclk/user_clk_pgm_uclock.c)
+  usrclk/user_clk_pgm_uclock.c
+  plugin.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})
@@ -79,7 +80,8 @@ target_include_directories(xfpga PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")

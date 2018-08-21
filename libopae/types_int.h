@@ -35,7 +35,8 @@
 
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
 
-#define OPAE_WRAPPED_TOKEN_MAGIC 0x00000001
+//                                  k o t w
+#define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477
 
 typedef struct _opae_wrapped_token {
 	uint32_t magic;
@@ -43,30 +44,31 @@ typedef struct _opae_wrapped_token {
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_token;
 
-inline opae_wrapped_token * opae_validate_wrapped_token(fpga_token t)
+inline opae_wrapped_token *opae_validate_wrapped_token(fpga_token t)
 {
 	opae_wrapped_token *wt;
 	if (!t)
 		return NULL;
-	wt = (opae_wrapped_token *) t;
+	wt = (opae_wrapped_token *)t;
 	return (wt->magic == OPAE_WRAPPED_TOKEN_MAGIC) ? wt : NULL;
 }
 
-#define OPAE_WRAPPED_HANDLE_MAGIC 0x00000002
+//                                   n a h w
+#define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
 
 typedef struct _opae_wrapped_handle {
 	uint32_t magic;
-	opae_wrapped_token wrapped_token;
+	opae_wrapped_token *wrapped_token;
 	fpga_handle opae_handle;
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_handle;
 
-inline opae_wrapped_handle * opae_validate_wrapped_handle(fpga_handle h)
+inline opae_wrapped_handle *opae_validate_wrapped_handle(fpga_handle h)
 {
 	opae_wrapped_handle *wh;
 	if (!h)
 		return NULL;
-	wh = (opae_wrapped_handle *) h;
+	wh = (opae_wrapped_handle *)h;
 	return (wh->magic == OPAE_WRAPPED_HANDLE_MAGIC) ? wh : NULL;
 }
 

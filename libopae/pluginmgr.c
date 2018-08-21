@@ -48,4 +48,3 @@ int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter)
 
 	return 1;
 }
-
