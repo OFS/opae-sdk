@@ -179,6 +179,7 @@ int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
 	fpga_result 	res;
+        fpga_result     dres;
 
 	/* Get number of FPGAs in system*/
 	res = fpgaGetProperties(NULL, &filter);
@@ -197,11 +198,11 @@ int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
 out_destroy:
-	res = fpgaDestroyProperties(&filter);
-	ON_ERR_GOTO(res, out, "destroying properties object");
+	dres = fpgaDestroyProperties(&filter);
+	ON_ERR_GOTO(dres, out, "destroying properties object");
 	
 out:
-   return res;
+   return (res == FPGA_OK) ? dres: res;
 
 }
 
