@@ -36,7 +36,7 @@ add_executable(pacd ${SRC})
 
 set_install_rpath(pacd)
 
-target_link_libraries(pacd bmc safestr opae-c pthread)
+target_link_libraries(pacd bmc safestr opae-c pthread rt)
 
 install(TARGETS pacd
         RUNTIME DESTINATION bin

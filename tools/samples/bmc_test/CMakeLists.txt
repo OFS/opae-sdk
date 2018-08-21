@@ -28,7 +28,7 @@ include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/include )
 add_executable(bmc_test main.c)
 
-target_link_libraries(bmc_test opae-c bmc)
+target_link_libraries(bmc_test opae-c bmc rt)
 set_property(TARGET bmc_test PROPERTY C_STANDARD 99)
 
 install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/bmc_test
