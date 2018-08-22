@@ -184,11 +184,18 @@ mark_as_advanced(BUILD_TESTS)
 option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 mark_as_advanced(BUILD_ASE_TESTS)
 
+## TODO: Remove this once this replaces old school tests
+option(NEW_UNITS "Use new testing framework" OFF)
+mark_as_advanced(NEW_UNITS)
+
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
-  add_subdirectory(tests)
-  add_subdirectory(testing)
+  if (NEW_UNITS)
+    add_subdirectory(testing)
+  else(NEW_UNITS)
+    add_subdirectory(tests)
+  endif(NEW_UNITS)
 endif()
 
 ############################################################################
