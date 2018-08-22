@@ -612,7 +612,7 @@ int unregister_event(int event_handle);
 // #define ASE_MSG_VIEW
 
 // Enable debug info from linked lists
-#define ASE_LL_VIEW
+// #define ASE_LL_VIEW
 
 // Print buffers as they are being alloc/dealloc
 // #define ASE_BUFFER_VIEW

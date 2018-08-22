@@ -605,7 +605,9 @@ static void *start_socket_srv(void *args)
 				err_cnt++;
 				break;
 			}
+#ifdef ASE_DEBUG
       ASE_MSG("SIM-C : accept success\n");
+#endif
 		}
 		if (sockserver_kill)
 			break;
