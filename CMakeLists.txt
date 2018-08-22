@@ -188,6 +188,7 @@ if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
   add_subdirectory(tests)
+  add_subdirectory(testing)
 endif()
 
 ############################################################################
