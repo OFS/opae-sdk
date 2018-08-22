@@ -380,12 +380,12 @@ $ grep pse /proc/cpuinfo | uniq
 flags : ... pse ...
 ```
 
-If this commands returns a non-empty string, 2MB pages are supported.
+If this command returns a non-empty string, 2MB pages are supported.
 
 ```console
-$ grep pse /proc/cpuinfo | uniq
+$ grep pdpe1gb /proc/cpuinfo | uniq
 flags : ... pdpe1gb ...
 ```
 
-If this commands returns a non-empty string, 1GB pages are supported.
+If this command returns a non-empty string, 1GB pages are supported.
 
