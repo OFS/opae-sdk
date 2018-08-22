@@ -228,8 +228,8 @@ void ase_eval_session_directory(void)
 
 	if (ase_workdir_path == NULL) {
 		ASE_ERR
-			("**ERROR** Environment variable ASE_WORKDIR could not be evaluated !!\n");
-		ASE_ERR("**ERROR** ASE will exit now !!\n");
+			("**ERROR** Environment variable ASE_WORKDIR could not be evaluated !!\n"
+				"**ERROR** ASE will exit now !!\n");
 		perror("ase_getenv");
 		exit(1);
 	} else {
@@ -238,8 +238,8 @@ void ase_eval_session_directory(void)
 		ase_dir = opendir(ase_workdir_path);
 		if (!ase_dir) {
 			ASE_ERR
-				("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n");
-			ASE_ERR("Cannot continue execution... exiting !");
+				("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n"
+					"Cannot continue execution... exiting !");
 			perror("opendir");
 			exit(1);
 		} else {
@@ -493,17 +493,11 @@ int ase_read_lock_file(const char *workdir)
 					// Check
 					if (ase_strncmp(curr_uid, readback_uid, ASE_FILENAME_LEN) != 0) {
 						ASE_ERR
-							("** ERROR ** => Application UID does not match known release UID\n");
-						ASE_ERR
-							("** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n",
-							 readback_uid,
-							 curr_uid);
-						ASE_ERR
-							("** ERROR ** => Ensure that Simulator process and OPAE SW application are compiled from the same System Release version !\n");
-						ASE_ERR
-							("** ERROR ** => Also, check if env(LD_LIBRARY_PATH) is set to appropriate <prefix> or <DESTDIR> library paths \n");
-						ASE_ERR
-							("** ERROR ** => Simulation cannot proceed ... EXITING\n");
+							("** ERROR ** => Application UID does not match known release UID\n"
+							"** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n"
+							"** ERROR ** => Ensure that Simulator process and OPAE SW application are compiled from the same System Release version !\n"
+							"** ERROR ** => Also, check if env(LD_LIBRARY_PATH) is set to appropriate <prefix> or <DESTDIR> library paths \n"
+							"** ERROR ** => Simulation cannot proceed ... EXITING\n", readback_uid,	curr_uid);
 #ifdef SIM_SIDE
 						start_simkill_countdown();
 #else
@@ -523,12 +517,10 @@ int ase_read_lock_file(const char *workdir)
 			ase_free_buffer(readback_uid);
 		} else {         // File does not exist
 			ASE_ERR
-				("ASE Ready file was not found at env(ASE_WORKDIR) !\n");
-			ASE_ERR
-				("This could be for one of two reasons =>\n");
-			ASE_ERR(" - Simualtor is not running yet  \n");
-			ASE_ERR
-				(" - env(ASE_WORKDIR) is set to the wrong location \n");
+				("ASE Ready file was not found at env(ASE_WORKDIR) !\n"
+					"This could be for one of two reasons =>\n"
+					" - Simualtor is not running yet  \n"
+					" - env(ASE_WORKDIR) is set to the wrong location \n");
 			// Shutdown process
 #ifdef SIM_SIDE
 			start_simkill_countdown();
