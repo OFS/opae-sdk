@@ -109,7 +109,7 @@ void ase_alloc_action(struct buffer_t *mem)
 		    (uintptr_t) mmap(NULL, mem->memsize,
 				     PROT_READ | PROT_WRITE, MAP_SHARED,
 				     fd_alloc, 0);
-		if (mem->pbase == 0) 
+		if (mem->pbase == 0)
 			ase_perror_teardown("mmap", ASE_OS_MEMMAP_ERR);
 
 		if (ftruncate(fd_alloc, (off_t) mem->memsize) != 0) {

@@ -165,7 +165,7 @@ void close_mq(void)
 /*
  * Clean up before exit
  */
-void cleanup()
+void failure_cleanup(void)
 {
   ASE_ERR("FAILED\n");
   BEGIN_RED_FONTCOLOR;
@@ -496,7 +496,7 @@ void session_init(void)
 		thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
 			&mmio_response_watcher, NULL);
 		if (thr_err != 0) {
-			cleanup();
+			failure_cleanup();
 		} else {
 			ASE_MSG("SUCCESS\n");
 		}
@@ -506,7 +506,7 @@ void session_init(void)
 		// Initiate UMsg watcher
 		thr_err = pthread_create(&umas_s.umsg_watch_tid, NULL, &umsg_watcher, NULL);
 		if (thr_err != 0) {
-			cleanup();
+			failure_cleanup();
 		} else {
 			ASE_MSG("SUCCESS\n");
 		}
@@ -807,7 +807,7 @@ int mmio_request_put(struct mmio_t *pkt)
  * Deinitialize before exit
  */
 void exit_cleanup(void)
-{  
+{
   session_deinit();
   exit(1);
 }
@@ -1094,7 +1094,7 @@ void mmio_read64(int offset, uint64_t *data64)
 /*
  * Shared memory mapping error handling
  */
-void shm_error( const char *msg)
+void shm_error(const char *msg)
 {
   BEGIN_RED_FONTCOLOR;
   perror(msg);
@@ -1272,7 +1272,7 @@ void deallocate_buffer(struct buffer_t *mem)
 	// Unmap the memory accordingly
 	ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
 	if (0 != ret) {
-    	shm_error("munmap");
+		shm_error("munmap");
 	}
 	mem->valid = ASE_BUFFER_INVALID;
 

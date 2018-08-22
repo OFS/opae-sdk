@@ -494,7 +494,7 @@ int ase_read_lock_file(const char *workdir)
 					if (ase_strncmp(curr_uid, readback_uid, ASE_FILENAME_LEN) != 0) {
 						ASE_ERR
 							("** ERROR ** => Application UID does not match known release UID\n"
-							"** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n"							 
+							"** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n"
 							"** ERROR ** => Ensure that Simulator process and OPAE SW application are compiled from the same System Release version !\n"
 							"** ERROR ** => Also, check if env(LD_LIBRARY_PATH) is set to appropriate <prefix> or <DESTDIR> library paths \n"
 							"** ERROR ** => Simulation cannot proceed ... EXITING\n", readback_uid,	curr_uid);

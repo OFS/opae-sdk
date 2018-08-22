@@ -36,7 +36,7 @@ void ase_error_report(char *err_func, int err_num, int err_code)
 	ASE_ERR("@ERROR in %s CODE %d | %s\n", err_func, err_num, strerror(err_num));
 
 	// Corrective actions
-	switch (err_code) {		
+	switch (err_code) {
 	case ASE_USR_CAPCM_NOINIT:     // CAPCM not initialized
 		ASE_ERR
 			("QPI-CA private memory has not been initialized.\n");
@@ -48,7 +48,7 @@ void ase_error_report(char *err_func, int err_num, int err_code)
 			 "Please look up 'man mq_overview' for more information.\n");
 		break;
 
-	case ASE_OS_SHM_ERR:          // Message queue error 
+	case ASE_OS_SHM_ERR:          // Message queue error
 		ASE_ERR
 			("There was an error in the POSIX Shared Memory subsystem.\n");
 		break;

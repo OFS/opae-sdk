@@ -32,7 +32,7 @@
  */
 #include "ase_common.h"
 
-//const int NUM_DS = 10; 
+//const int NUM_DS = 10;
 
 struct ase_cfg_t *cfg;
 
@@ -773,7 +773,6 @@ int ase_listener(void)
 					run_clocks(500);
 					self_destruct_in_progress = 1;
 					ase_destroy();
-						
 					start_simkill_countdown();
 				}
 #endif
