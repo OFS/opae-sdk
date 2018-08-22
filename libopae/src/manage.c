@@ -34,6 +34,10 @@
 fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
 				  uint32_t host_interface, int flags)
 {
+	(void)fpga;
+	(void)accelerator;
+	(void)host_interface;
+	(void)flags;
 	FPGA_MSG("fpgaAssignToInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
@@ -42,6 +46,8 @@ fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token acce
 
 fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
 {
+	(void)fpga;
+	(void)accelerator;
 	FPGA_MSG("fpgaReleaseFromInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
