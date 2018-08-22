@@ -33,75 +33,60 @@
 void ase_error_report(char *err_func, int err_num, int err_code)
 {
 	// Report error
-	ASE_ERR("@ERROR in %s CODE %d | %s\n", err_func, err_num,
-		strerror(err_num));
+	ASE_ERR("@ERROR in %s CODE %d | %s\n", err_func, err_num, strerror(err_num));
 
 	// Corrective actions
-	switch (err_code) {
-		// CAPCM not initialized
-	case ASE_USR_CAPCM_NOINIT:
+	switch (err_code) {		
+	case ASE_USR_CAPCM_NOINIT:     // CAPCM not initialized
 		ASE_ERR
 			("QPI-CA private memory has not been initialized.\n");
 		break;
 
-		// Message queue error
-	case ASE_OS_MQUEUE_ERR:
+	case ASE_OS_MQUEUE_ERR:        // Message queue error
 		ASE_ERR
-			("There was an error in the POSIX Message Queue subsystem.\n");
-		ASE_ERR
-			("Please look up 'man mq_overview' for more information.\n");
+			("There was an error in the POSIX Message Queue subsystem. "
+			 "Please look up 'man mq_overview' for more information.\n");
 		break;
 
-		// Message queue error
-	case ASE_OS_SHM_ERR:
+	case ASE_OS_SHM_ERR:          // Message queue error 
 		ASE_ERR
 			("There was an error in the POSIX Shared Memory subsystem.\n");
 		break;
 
-		// File open error
-	case ASE_OS_FOPEN_ERR:
+	case ASE_OS_FOPEN_ERR:       // File open error
 		ASE_ERR
-			("File opening failed. This could be due to several reasons: \n");
-		ASE_ERR
-			("1. ASE is being run from the wrong relative paths, and causing fstat to fail.\n");
-		ASE_ERR("2. File system permissions are not optimal\n");
+			("File opening failed. This could be due to several reasons: \n"
+				"1. ASE is being run from the wrong relative paths, and causing fstat to fail.\n"
+				"2. File system permissions are not optimal\n");
 		break;
 
-		// Memory map/unmap failed
-	case ASE_OS_MEMMAP_ERR:
+	case ASE_OS_MEMMAP_ERR:     // Memory map/unmap failed
 		ASE_ERR
 			("A problem occured when mapping or unmapping a memory region to a virtual base pointer.\n");
 		break;
 
-		// MQ send/receive error
-	case ASE_OS_MQTXRX_ERR:
+	case ASE_OS_MQTXRX_ERR: 	// MQ send/receive error
 		ASE_ERR
-			("There was a problem when sending/receiving messages using the POSIX message queues.\n");
-		ASE_ERR
-			("This may be due to sub-optimal message queue attributes.\n");
+			("There was a problem when sending/receiving messages using the POSIX message queues.\n"
+			 "This may be due to sub-optimal message queue attributes.\n");
 		break;
 
-		// Malloc error
-	case ASE_OS_MALLOC_ERR:
+	case ASE_OS_MALLOC_ERR:		// Malloc error
 		ASE_ERR
-			("There was a problem with memory allocation system, NULL was returned.\n");
-		ASE_ERR("Simulator will attempt to close down.\n");
+			("There was a problem with memory allocation system, NULL was returned.\n"
+			 "Simulator will attempt to close down.\n");
 		break;
 
-		// IPCkill catastrophic error
-	case ASE_IPCKILL_CATERR:
+	case ASE_IPCKILL_CATERR:	// IPCkill catastrophic error
 		ASE_ERR
-			("There was an ERROR when trying to open IPC local listfile for cleaning.\n");
-		ASE_ERR
-			("fopen failed, see .ase_ipc_local file, and clean them manually.\n");
+			("There was an ERROR when trying to open IPC local listfile for cleaning.\n"
+			 "fopen failed, see .ase_ipc_local file, and clean them manually.\n");
 		break;
 
-		// Default or unknown error
-	default:
+	default:					// Default or unknown error
 		ASE_ERR
-			("ERROR code is not defined, or cause is unknown.\n");
-		ASE_ERR
-			("If your agreement allows this, please report detailed steps to recreate the error to the developer.\n");
+			("ERROR code is not defined, or cause is unknown.\n"
+			 "If your agreement allows this, please report detailed steps to recreate the error to the developer.\n");
 	}
 
 	END_RED_FONTCOLOR;

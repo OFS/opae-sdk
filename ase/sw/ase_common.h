@@ -423,7 +423,7 @@ void ase_dealloc_action(struct buffer_t *, int);
 void ase_destroy(void);
 uint64_t *ase_fakeaddr_to_vaddr(uint64_t);
 void ase_dbg_memtest(struct buffer_t *);
-void ase_perror_teardown(void);
+void ase_perror_teardown(char *, int);
 void ase_empty_buffer(struct buffer_t *);
 uint64_t get_range_checked_physaddr(uint32_t);
 #ifdef ASE_DEBUG
@@ -530,7 +530,7 @@ extern "C" {
 	struct buffer_t *find_buffer_by_index(uint64_t);
 
 	// UMSG functions
-	uint64_t *umsg_get_address(int);
+	// uint64_t *umsg_get_address(int);
 	//void umsg_send(int, uint64_t *);
 	void umsg_set_attribute(uint32_t);
 	// Driver activity
@@ -612,7 +612,7 @@ int unregister_event(int event_handle);
 // #define ASE_MSG_VIEW
 
 // Enable debug info from linked lists
-// #define ASE_LL_VIEW
+#define ASE_LL_VIEW
 
 // Print buffers as they are being alloc/dealloc
 // #define ASE_BUFFER_VIEW

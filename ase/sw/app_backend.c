@@ -163,6 +163,22 @@ void close_mq(void)
 }
 
 /*
+ * Clean up before exit
+ */
+void cleanup()
+{
+  ASE_ERR("FAILED\n");
+  BEGIN_RED_FONTCOLOR;
+  perror("pthread_create");
+  END_RED_FONTCOLOR;
+  cleanup_umas();
+  cleanup_mmio();
+  close_mq();
+  free_buffers();
+  exit(1);
+}
+
+/*
  * MMIO Generate TID
  * - Creation of TID must be atomic
  */
@@ -480,15 +496,7 @@ void session_init(void)
 		thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
 			&mmio_response_watcher, NULL);
 		if (thr_err != 0) {
-			ASE_ERR("FAILED\n");
-			BEGIN_RED_FONTCOLOR;
-			perror("pthread_create");
-			END_RED_FONTCOLOR;
-			cleanup_umas();
-			cleanup_mmio();
-			close_mq();
-			free_buffers();
-			exit(1);
+			cleanup();
 		} else {
 			ASE_MSG("SUCCESS\n");
 		}
@@ -498,15 +506,7 @@ void session_init(void)
 		// Initiate UMsg watcher
 		thr_err = pthread_create(&umas_s.umsg_watch_tid, NULL, &umsg_watcher, NULL);
 		if (thr_err != 0) {
-			ASE_ERR("FAILED\n");
-			BEGIN_RED_FONTCOLOR;
-			perror("pthread_create");
-			END_RED_FONTCOLOR;
-			cleanup_umas();
-			cleanup_mmio();
-			close_mq();
-			free_buffers();
-			exit(1);
+			cleanup();
 		} else {
 			ASE_MSG("SUCCESS\n");
 		}
@@ -803,6 +803,14 @@ int mmio_request_put(struct mmio_t *pkt)
 	return mmiotable_idx;
 }
 
+/*
+ * Deinitialize before exit
+ */
+void exit_cleanup(void)
+{  
+  session_deinit();
+  exit(1);
+}
 
 /*
  * MMIO Write 32-bit
@@ -833,8 +841,7 @@ void mmio_write32(int offset, uint32_t data)
 		// Critical Section
 		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
@@ -897,8 +904,7 @@ void mmio_write64(int offset, uint64_t data)
 		// Critical section
 		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
@@ -910,8 +916,7 @@ void mmio_write64(int offset, uint64_t data)
 
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		// Write to MMIO Map
@@ -971,8 +976,7 @@ void mmio_read32(int offset, uint32_t *data32)
 		// Critical section
 		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
@@ -980,8 +984,7 @@ void mmio_read32(int offset, uint32_t *data32)
 
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		ASE_MSG("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
@@ -1045,8 +1048,7 @@ void mmio_read64(int offset, uint64_t *data64)
 		// Critical section
 		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
@@ -1054,8 +1056,7 @@ void mmio_read64(int offset, uint64_t *data64)
 
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
-			session_deinit();
-			exit(1);
+			exit_cleanup();
 		}
 
 		ASE_MSG
@@ -1088,6 +1089,18 @@ void mmio_read64(int offset, uint64_t *data64)
 	}
 
 	FUNC_CALL_EXIT;
+}
+
+/*
+ * Shared memory mapping error handling
+ */
+void shm_error( const char *msg)
+{
+  BEGIN_RED_FONTCOLOR;
+  perror(msg);
+  END_RED_FONTCOLOR;
+  session_deinit();
+  exit(1);
 }
 
 /*
@@ -1142,11 +1155,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 	// S_IREAD | S_IWRITE are obselete
 	fd_alloc = shm_open(mem->memname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd_alloc < 0) {
-		BEGIN_RED_FONTCOLOR;
-		perror("shm_open");
-		END_RED_FONTCOLOR;
-		session_deinit();
-		exit(1);
+		shm_error("shm_open");
 	}
 	// Mmap shared memory region
 	if (suggested_vaddr == (uint64_t *) NULL) {
@@ -1163,12 +1172,8 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 
 	// Check
 	if (mem->vbase == (uint64_t) MAP_FAILED) {
-		BEGIN_RED_FONTCOLOR;
-		perror("mmap");
-		END_RED_FONTCOLOR;
 		ASE_ERR("error string %s", strerror(errno));
-		session_deinit();
-		exit(1);
+		shm_error("mmap");
 	}
 #ifdef ASE_DEBUG
 	// Extend memory to required size
@@ -1267,11 +1272,7 @@ void deallocate_buffer(struct buffer_t *mem)
 	// Unmap the memory accordingly
 	ret = munmap((void *) mem->vbase, (size_t) mem->memsize);
 	if (0 != ret) {
-		BEGIN_RED_FONTCOLOR;
-		perror("munmap");
-		END_RED_FONTCOLOR;
-		session_deinit();
-		exit(1);
+    	shm_error("munmap");
 	}
 	mem->valid = ASE_BUFFER_INVALID;
 
@@ -1423,7 +1424,7 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
  * UMSG Get Address
  * umsg_get_address: Takes in umsg_id, and returns App virtual address
  */
-uint64_t *umsg_get_address(int umsg_id)
+/* uint64_t *umsg_get_address(int umsg_id)
 {
 	uint64_t *ret_vaddr;
 	if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
@@ -1438,7 +1439,7 @@ uint64_t *umsg_get_address(int umsg_id)
 		exit(1);
 	}
 	return ret_vaddr;
-}
+} */
 
 
 /*
