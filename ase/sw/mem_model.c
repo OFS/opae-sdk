@@ -68,14 +68,16 @@ void calc_phys_memory_ranges(void)
 // ASE graceful shutdown - Called if: error() occurs
 // Deallocate & Unlink all shared memories and message queues
 // ---------------------------------------------------------------
-void ase_perror_teardown(void)
+void ase_perror_teardown(char *msg, int ase_err)
 {
 	FUNC_CALL_ENTRY;
 
+	ase_error_report("mmap", errno, ase_err);
 	self_destruct_in_progress = 1;
 
 	ase_destroy();
 
+	start_simkill_countdown();
 	FUNC_CALL_EXIT;
 }
 
@@ -97,9 +99,7 @@ void ase_alloc_action(struct buffer_t *mem)
 	// Obtain a file descriptor
 	fd_alloc = shm_open(mem->memname, O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd_alloc < 0) {
-		ase_error_report("shm_open", errno, ASE_OS_SHM_ERR);
-		ase_perror_teardown();
-		start_simkill_countdown();
+		ase_perror_teardown("shm_open", ASE_OS_SHM_ERR);
 	} else {
 		// Add to IPC list
 		add_to_ipc_list("SHM", mem->memname);
@@ -109,11 +109,9 @@ void ase_alloc_action(struct buffer_t *mem)
 		    (uintptr_t) mmap(NULL, mem->memsize,
 				     PROT_READ | PROT_WRITE, MAP_SHARED,
 				     fd_alloc, 0);
-		if (mem->pbase == 0) {
-			ase_error_report("mmap", errno, ASE_OS_MEMMAP_ERR);
-			ase_perror_teardown();
-			start_simkill_countdown();
-		}
+		if (mem->pbase == 0)
+			ase_perror_teardown("mmap", ASE_OS_MEMMAP_ERR);
+
 		if (ftruncate(fd_alloc, (off_t) mem->memsize) != 0) {
 			ase_error_report("ftruncate", errno,
 					 ASE_OS_SHM_ERR);
@@ -181,7 +179,6 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 
 	// Traversal pointer
 	struct buffer_t *dealloc_ptr;
-	// dealloc_ptr = (struct buffer_t *) ase_malloc(sizeof(struct buffer_t));
 
 	// Search buffer and Invalidate
 	dealloc_ptr = ll_search_buffer(buf->index);
@@ -210,9 +207,6 @@ void ase_dealloc_action(struct buffer_t *buf, int mq_enable)
 		ll_traverse_print();
 #endif
 	}
-
-	// Free dealloc_ptr
-	// free(dealloc_ptr);
 
 	FUNC_CALL_EXIT;
 }
@@ -340,7 +334,6 @@ uint64_t *ase_fakeaddr_to_vaddr(uint64_t req_paddr)
 
 	// Traversal ptr
 	struct buffer_t *trav_ptr = (struct buffer_t *) NULL;
-	// int buffer_found = 0;
 
 	if (req_paddr != 0) {
 		// Clean up address of signed-ness (limit to CCI-P 42 bits)
@@ -387,48 +380,38 @@ uint64_t *ase_fakeaddr_to_vaddr(uint64_t req_paddr)
 				trav_ptr = trav_ptr->next;
 			}
 		}
-	} else {
-		// buffer_found = 0;
-		trav_ptr = NULL;
 	}
+
 
 	// If accesses are correct, ASE should not reach this point
-	if (trav_ptr == NULL) {
-		ASE_ERR
-		    ("@ERROR: ASE has detected a memory operation to an unallocated memory region.\n");
-		ASE_ERR
-		    ("        Simulation cannot continue, please check the code.\n");
-		ASE_ERR("        Failure @ phys_addr = 0x%" PRIx64 "\n",
+	ASE_ERR
+	    ("@ERROR: ASE has detected a memory operation to an unallocated memory region.\n"
+		 "          Simulation cannot continue, please check the code. \n"
+	     "        Failure @ phys_addr = 0x%" PRIx64 ". See ERROR log file => ase_memory_error.log\n"
+	     "@ERROR: Check that previously requested memories have not been deallocated before an AFU transaction could access them\n"
+	     "        NOTE: If your application polls for an AFU completion message, and you deallocate after that, consider using \n"
+		 "        a WriteFence before AFU status message\n"
+	     "        The simulator may be committing AFU transactions out of order\n", req_paddr);
+
+	// Write error to file
+	error_fp = (FILE *) NULL;
+	error_fp = fopen("ase_memory_error.log", "w");
+	if (error_fp != NULL) {
+		fprintf(error_fp,
+			"*** ASE stopped on an illegal memory access ERROR ***\n"
+			"        AFU requested access @ physical memory 0x%"
+			PRIx64 "\n"
+			"        Address not found in requested workspaces\n"
+			"        Timestamped transaction to this address is listed in ccip_transactions.tsv\n"
+			"        Check that previously requested memories have not been deallocated before an AFU transaction could access them"
+			"        NOTE: If your application polls for an AFU completion message, and you deallocate after that, consider using a WriteFence before AFU status message\n"
+			"              The simulator may be committing AFU transactions out of order\n",
 			req_paddr);
-		ASE_ERR
-		    ("        See ERROR log file => ase_memory_error.log\n");
-		ASE_ERR
-		    ("@ERROR: Check that previously requested memories have not been deallocated before an AFU transaction could access them\n");
-		ASE_ERR
-		    ("        NOTE: If your application polls for an AFU completion message, and you deallocate after that, consider using a WriteFence before AFU status message\n");
-		ASE_ERR
-		    ("              The simulator may be committing AFU transactions out of order\n");
 
-		// Write error to file
-		error_fp = (FILE *) NULL;
-		error_fp = fopen("ase_memory_error.log", "w");
-		if (error_fp != NULL) {
-			fprintf(error_fp,
-				"*** ASE stopped on an illegal memory access ERROR ***\n"
-				"        AFU requested access @ physical memory 0x%"
-				PRIx64 "\n"
-				"        Address not found in requested workspaces\n"
-				"        Timestamped transaction to this address is listed in ccip_transactions.tsv\n"
-				"        Check that previously requested memories have not been deallocated before an AFU transaction could access them"
-				"        NOTE: If your application polls for an AFU completion message, and you deallocate after that, consider using a WriteFence before AFU status message\n"
-				"              The simulator may be committing AFU transactions out of order\n",
-				req_paddr);
-
-			fclose(error_fp);
-		}
-		// Request SIMKILL
-		start_simkill_countdown();
+		fclose(error_fp);
 	}
+	// Request SIMKILL
+	start_simkill_countdown();
 
 	return (uint64_t *) NOT_OK;
 
