@@ -74,9 +74,13 @@ struct dev_list {
 	struct dev_list *fme;
 };
 
-static bool matches_filter(const struct dev_list *attr,
-			   const fpga_properties filter)
+bool matches_filter(const struct dev_list *attr, const fpga_properties filter)
 {
+	if (!filter) {
+		FPGA_ERR("filter is NULL");
+		return false;
+	}
+
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
 	bool res = true;
 	int err = 0;
@@ -199,7 +203,8 @@ static bool matches_filter(const struct dev_list *attr,
 		uint32_t errors;
 		char errpath[SYSFS_PATH_MAX];
 
-		snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", attr->sysfspath);
+		snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors",
+			     attr->sysfspath);
 		errors = count_error_files(errpath);
 		if (errors != _filter->num_errors) {
 			res = false;
@@ -280,8 +285,8 @@ out_unlock:
 	return res;
 }
 
-static bool matches_filters(const struct dev_list *attr,
-			    const fpga_properties *filter, uint32_t num_filter)
+bool matches_filters(const struct dev_list *attr, const fpga_properties *filter,
+		     uint32_t num_filter)
 {
 	uint32_t i;
 
@@ -296,8 +301,8 @@ static bool matches_filters(const struct dev_list *attr,
 	return false;
 }
 
-static struct dev_list *add_dev(const char *sysfspath, const char *devpath,
-				struct dev_list *parent)
+struct dev_list *add_dev(const char *sysfspath, const char *devpath,
+			 struct dev_list *parent)
 {
 	struct dev_list *pdev;
 	errno_t e;
@@ -328,8 +333,8 @@ out_free:
 	return NULL;
 }
 
-static fpga_result enum_fme(const char *sysfspath, const char *name,
-			    struct dev_list *parent)
+fpga_result enum_fme(const char *sysfspath, const char *name,
+		     struct dev_list *parent)
 {
 	fpga_result result;
 	struct stat stats;
@@ -404,8 +409,8 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
-static fpga_result enum_afu(const char *sysfspath, const char *name,
-			    struct dev_list *parent)
+fpga_result enum_afu(const char *sysfspath, const char *name,
+		     struct dev_list *parent)
 {
 	fpga_result result;
 	struct stat stats;
@@ -467,8 +472,8 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
-static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
-				bool include_port)
+fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
+			 bool include_port)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct stat stats;
@@ -681,7 +686,8 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
 			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
 
-		result = enum_top_dev(sysfspath, &head, include_afu(filters, num_filters));
+		result = enum_top_dev(sysfspath, &head,
+				      include_afu(filters, num_filters));
 		if (result != FPGA_OK)
 			break;
 	}
