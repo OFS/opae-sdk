@@ -28,7 +28,6 @@ project(libopae-c)
 
 set(SRC
     pluginmgr.c
-    pluginldr.c
     api-shell.c
     init.c
     )
@@ -38,6 +37,9 @@ add_library(opae-c SHARED ${SRC})
 target_include_directories(opae-c PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(opae-c
+  dl)
 
 add_subdirectory(plugins)
 

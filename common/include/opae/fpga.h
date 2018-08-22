@@ -35,9 +35,7 @@
 #ifndef __FPGA_FPGA_H__
 #define __FPGA_FPGA_H__
 
-#define FPGA_API_VERSION_MAJOR 0
-#define FPGA_API_VERSION_MINOR 1
-
+#include <opae/init.h>
 #include <opae/types.h>
 #include <opae/access.h>
 #include <opae/buffer.h>

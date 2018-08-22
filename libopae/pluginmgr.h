@@ -29,12 +29,6 @@
 
 #include "adapter.h"
 
-typedef struct _opae_plugin {
-	char *path;      // location on file system
-	void *dl_handle; // handle to the loaded library instance
-} opae_plugin;
-
-
 int opae_plugin_mgr_initialize(const char *cfg_file);
 
 int opae_plugin_mgr_parse_config(/* json_object *jobj */);

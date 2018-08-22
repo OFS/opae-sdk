@@ -30,7 +30,15 @@
 
 #include <opae/types.h>
 
+typedef struct _opae_plugin {
+	char *path;      // location on file system
+	void *dl_handle; // handle to the loaded library instance
+} opae_plugin;
+
 typedef struct _opae_api_adapter_table {
+
+	struct _opae_api_adapter_table *next;
+	opae_plugin plugin;
 
 	fpga_result (*fpgaOpen)(fpga_token token, fpga_handle *handle,
 				int flags);

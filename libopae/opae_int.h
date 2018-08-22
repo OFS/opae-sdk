@@ -24,9 +24,52 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_PLUGINLDR_H__
-#define __OPAE_PLUGINLDR_H__
+#ifndef __OPAE_OPAE_INT_H__
+#define __OPAE_OPAE_INT_H__
 
-int opae_plugin_ldr_load_plugins(/* json_object *jobj */);
+#include <string.h>
+#include <errno.h>
 
-#endif /* __OPAE_PLUGINLDR_H__ */
+#include "log_int.h"
+
+/* Macro for defining symbol visibility */
+//#define __FPGA_API__ __attribute__((visibility("default")))
+//#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
+
+/*
+ * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
+ */
+#define ASSERT_NOT_NULL_MSG(arg, msg)              \
+	do {                                       \
+		if (!arg) {                        \
+			FPGA_MSG(msg);             \
+			return FPGA_INVALID_PARAM; \
+		}                                  \
+	} while (0)
+
+#define ASSERT_NOT_NULL(arg) \
+	ASSERT_NOT_NULL_MSG(arg, #arg " is NULL")
+
+
+#define UNUSED_PARAM(x) ((void)x)
+
+
+#define opae_mutex_lock(__res, __mtx_ptr)                         \
+	({                                                        \
+		(__res) = pthread_mutex_lock(__mtx_ptr);          \
+		if (__res)                                        \
+			OPAE_ERR("pthread_mutex_lock failed: %s", \
+					strerror(errno));         \
+		__res;                                            \
+	})
+
+#define opae_mutex_unlock(__res, __mtx_ptr)                         \
+	({                                                          \
+		(__res) = pthread_mutex_unlock(__mtx_ptr);          \
+		if (__res)                                          \
+			OPAE_ERR("pthread_mutex_unlock failed: %s", \
+					strerror(errno));           \
+		__res;                                              \
+	})
+
+#endif // ___OPAE_OPAE_INT_H__

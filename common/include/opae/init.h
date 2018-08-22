@@ -24,14 +24,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
+/**
+ * \file init.h
+ * \brief Initialization routine.
+ */
 
-#include "pluginldr.h"
+#ifndef __FPGA_INIT_H__
+#define __FPGA_INIT_H__
 
-int opae_plugin_ldr_load_plugins(/* json_object *jobj */)
-{
+#include <opae/types_enum.h>
 
-	return 1;
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * Initialize the OPAE library.
+ *
+ * Initialize OPAE using the given configuration file path, or
+ * perform default initialization if config_file is NULL.
+ *
+ * @param[in]  config_file   Path to OPAE configuration file.
+ * @returns        Whether OPAE initialized successfully.
+ */
+fpga_result fpgaInitialize(const char *config_file);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // __FPGA_INIT_H__
+

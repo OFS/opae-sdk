@@ -32,6 +32,12 @@
 
 #include "types_int.h"
 #include "log_int.h"
+#include "pluginmgr.h"
+
+fpga_result fpgaInitialize(const char *config_file)
+{
+	return opae_plugin_mgr_initialize(config_file) ? FPGA_EXCEPTION : FPGA_OK;
+}
 
 fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
