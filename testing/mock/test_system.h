@@ -87,8 +87,8 @@ class test_system {
   std::string get_sysfs_path(const std::string &src);
 
   void initialize();
-  std::string prepare_syfs(const test_platform & platform);
   void finalize();
+  std::string prepare_syfs(const test_platform & platform);
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);

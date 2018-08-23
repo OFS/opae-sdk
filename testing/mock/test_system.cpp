@@ -33,35 +33,44 @@
 #include <algorithm>
 #include "c_test_system.h"
 
-int mock_fme::ioctl(int request, va_list argp) {
-  return 0;
-}
+int mock_fme::ioctl(int request, va_list argp) { return 0; }
 
-int mock_port::ioctl(int request, va_list argp) {
-  return 0;
-}
+int mock_port::ioctl(int request, va_list argp) { return 0; }
+
+#define ASSERT_FN(fn)                              \
+  do {                                             \
+    if (fn == nullptr) {                           \
+      throw std::runtime_error(#fn " not loaded"); \
+    }                                              \
+  } while (false);
 
 test_device test_device::unknown() {
-  return test_device{
-    .fme_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
-    .afu_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
-    .segment = 0x1919,
-    .bus = 0x0A,
-    .device = 9,
-    .function = 5,
-    .socket_id = 9,
-    .fme_object_id = 9,
-    .port_object_id = 9,
-    .vendor_id = 0x1234,
-    .device_id = 0x1234,
-    .fme_num_errors = 0x1234
-  };
+  return test_device{.fme_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+                     .afu_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+                     .segment = 0x1919,
+                     .bus = 0x0A,
+                     .device = 9,
+                     .function = 5,
+                     .socket_id = 9,
+                     .fme_object_id = 9,
+                     .port_object_id = 9,
+                     .vendor_id = 0x1234,
+                     .device_id = 0x1234,
+                     .fme_num_errors = 0x1234};
 }
-
 
 test_system *test_system::instance_ = 0;
 
-test_system::test_system() : root_("") {}
+test_system::test_system() : root_("") {
+  open_ = (open_func)dlsym(RTLD_NEXT, "open");
+  open_create_ = (open_create_func)open_;
+  close_ = (close_func)dlsym(RTLD_NEXT, "close");
+  ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
+  opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
+  readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
+  xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
+  lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+}
 
 test_system *test_system::instance() {
   if (test_system::instance_ == nullptr) {
@@ -70,10 +79,10 @@ test_system *test_system::instance() {
   return test_system::instance_;
 }
 
-std::string test_system::prepare_syfs(const test_platform & platform) {
+std::string test_system::prepare_syfs(const test_platform &platform) {
   std::string tmpsysfs = "tmpsysfs-XXXXXX";
   if (platform.mock_sysfs != nullptr) {
-    tmpsysfs = mkdtemp(const_cast<char*>(tmpsysfs.c_str()));
+    tmpsysfs = mkdtemp(const_cast<char *>(tmpsysfs.c_str()));
     std::string cmd = "tar xzf " + std::string(platform.mock_sysfs) + " -C " +
                       tmpsysfs + " --strip 1";
     std::system(cmd.c_str());
@@ -95,14 +104,24 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 }
 
 void test_system::initialize() {
-  open_ = (open_func)dlsym(RTLD_NEXT, "open");
-  open_create_ = (open_create_func)open_;
-  close_ = (close_func)dlsym(RTLD_NEXT, "close");
-  ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
-  opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
-  readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
-  xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
-  lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  ASSERT_FN(open_);
+  ASSERT_FN(open_create_);
+  ASSERT_FN(close_);
+  ASSERT_FN(ioctl_);
+  ASSERT_FN(readlink_);
+  ASSERT_FN(xstat_);
+  ASSERT_FN(lstat_);
+}
+
+void test_system::finalize() {
+  for (auto kv : fds_) {
+    if (kv.second) {
+      delete kv.second;
+      kv.second = nullptr;
+    }
+  }
+  root_ = "";
+  fds_.clear();
 }
 
 int test_system::open(const std::string &path, int flags) {
@@ -134,7 +153,7 @@ int test_system::close(int fd) { return close_(fd); }
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
   auto it = fds_.find(fd);
   if (it == fds_.end()) {
-    char *arg = va_arg(argp, char*);
+    char *arg = va_arg(argp, char *);
     return ioctl_(fd, request, arg);
   }
   return it->second->ioctl(request, argp);

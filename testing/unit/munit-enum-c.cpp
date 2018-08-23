@@ -84,9 +84,12 @@ class enum_c_p : public ::testing::TestWithParam<const char *> {
   }
 
   virtual void TearDown() override {
-    std::string cmd = "rm -rf " + tmpsysfs;
-    std::system(cmd.c_str());
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
+      std::string cmd = "rm -rf " + tmpsysfs;
+      std::system(cmd.c_str());
+    }
+    system_->finalize();
   }
 
   std::string tmpsysfs;
