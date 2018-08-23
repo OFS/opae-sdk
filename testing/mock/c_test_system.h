@@ -26,6 +26,7 @@
 #ifndef _C_TEST_SYSTEM_H
 #define _C_TEST_SYSTEM_H
 
+#include <dirent.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

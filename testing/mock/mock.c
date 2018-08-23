@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,59 +25,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /*
- * Mock up driver interactions for testing
+ * Mock up driver interactions that call into test_system API for testing
  *
  * Involves redefining ioctl(), open(), close(), others?
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 #include <stdarg.h>
-#include <dirent.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <opae/types.h>
-#include "common_int.h"
-#include "intel-fpga.h"
-#include <assert.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <safe_string/safe_string.h>
 #include "c_test_system.h"
-
-#define __USE_GNU
-#include <dlfcn.h>
-
-#define MAX_FD 1024
-#define MAX_STRLEN 256
-#define FPGA_MOCK_IOVA 0xDECAFBADDEADBEEF
-#define FPGA_MOCK_NUM_UMSGS 8
-#define FPGA_MOCK_DEV_PATH "/tmp"
-#define MOCK_SYSFS_FPGA_CLASS_PATH "/tmp/class/fpga"
-#define FPGA_FME_DEV_PREFIX "intel-fpga-fme."
-#define FPGA_PORT_DEV_PREFIX "intel-fpga-port."
-#define HASH_SUFFIX ".gbshash"
-
-#undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
-
-#undef FPGA_ERR
-#define FPGA_ERR(fmt, ...) \
-	printf("MOCK ERROR " fmt "\n", ## __VA_ARGS__)
-
-#undef FPGA_DBG
-#ifdef LIBFPGA_DEBUG
-#define FPGA_DBG(fmt, ...) \
-	printf("MOCK DEBUG " fmt "\n", ## __VA_ARGS__)
-#else
-#define FPGA_DBG(fmt, ...) {}
-#endif
-
-
-
 
 int ioctl(int fd, unsigned long request, ...)
 {
