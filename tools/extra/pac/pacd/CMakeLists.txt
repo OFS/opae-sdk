@@ -31,6 +31,17 @@ include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf
                     ${OPAE_SDK_SOURCE}/tools/include )
 
+set(SERVICE_FILE pacd.service)
+set(SERVICE_FILE_DIR /usr/lib/systemd/system)
+set(SERVICE_CONF_FILE pacd.conf)
+set(SERVICE_CONF_DIR /etc/sysconfig)
+
+set(PACD_ENVIRONMENT_FILE ${SERVICE_CONF_DIR}/${SERVICE_CONF_FILE})
+set(PACD_ROOT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
+set(PACD_BINARY ${PACD_ROOT_DIRECTORY}/pacd)
+
+configure_file(pacd.service.in pacd.service @ONLY NEWLINE_STYLE UNIX)
+
 set(SRC pacd.c daemonize.c log.c enumerate.c sysfs.c bmc_thermal.c reset_bmc.c)
 add_executable(pacd ${SRC})
 
@@ -38,6 +49,14 @@ set_install_rpath(pacd)
 
 target_link_libraries(pacd bmc safestr opae-c pthread rt)
 
+if (IS_DIRECTORY /usr/lib/systemd/system)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} DESTINATION ${SERVICE_FILE_DIR})
+    install(FILES ${SERVICE_CONF_FILE} DESTINATION ${SERVICE_CONF_DIR})
+else()
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} ${SERVICE_CONF_FILE}
+            DESTINATION ${PACD_ROOT_DIRECTORY})
+endif()
+
 install(TARGETS pacd
-        RUNTIME DESTINATION bin
+        RUNTIME DESTINATION ${PACD_ROOT_DIRECTORY}
         COMPONENT toolpacd)
