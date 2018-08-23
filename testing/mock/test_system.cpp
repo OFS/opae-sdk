@@ -33,9 +33,16 @@
 #include <algorithm>
 #include "c_test_system.h"
 
-int mock_fme::ioctl(int request, va_list argp) { return 0; }
+int mock_fme::ioctl(int request, va_list argp) {
+  (void) request;
+  (void) argp;
+  return 0; }
 
-int mock_port::ioctl(int request, va_list argp) { return 0; }
+int mock_port::ioctl(int request, va_list argp) {
+  (void) request;
+  (void) argp;
+  return 0; }
+
 
 #define ASSERT_FN(fn)                              \
   do {                                             \
@@ -56,7 +63,8 @@ test_device test_device::unknown() {
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
-                     .fme_num_errors = 0x1234};
+                     .fme_num_errors = 0x1234,
+                     .port_num_errors = 0x1234};
 }
 
 test_system *test_system::instance_ = 0;

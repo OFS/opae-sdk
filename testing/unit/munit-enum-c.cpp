@@ -394,7 +394,6 @@ TEST_P(enum_c_p, guid) {
 }
 
 TEST_P(enum_c_p, clone_token) {
-  auto device = platform_.devices[0];
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);
@@ -405,7 +404,6 @@ TEST_P(enum_c_p, clone_token) {
 }
 
 TEST_P(enum_c_p, destroy_token) {
-  auto device = platform_.devices[0];
   // null filter
   uint32_t num_matches;
   EXPECT_EQ(

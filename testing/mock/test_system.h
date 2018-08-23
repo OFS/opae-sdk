@@ -38,7 +38,11 @@ class mock_object {
   mock_object(const std::string &devpath, type_t type = sysfs_attr)
       : type_(type), devpath_(devpath) {}
 
-  int ioctl(int request, va_list arg){}
+  int ioctl(int request, va_list arg){
+    (void) request;
+    (void) arg;
+    return 0;
+  }
 
  private:
   type_t type_;
