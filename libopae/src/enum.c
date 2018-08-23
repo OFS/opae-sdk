@@ -76,11 +76,6 @@ struct dev_list {
 
 bool matches_filter(const struct dev_list *attr, const fpga_properties filter)
 {
-	if (!filter) {
-		FPGA_ERR("filter is NULL");
-		return false;
-	}
-
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
 	bool res = true;
 	int err = 0;
