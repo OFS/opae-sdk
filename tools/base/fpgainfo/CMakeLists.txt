@@ -23,17 +23,35 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-include(packaging)
-set(PYTHON_SRC
-     fpga_common.py
-     fpga_fmeinfo.py
-     fpga_portinfo.py
-     fpgaerr.py
-     fpgainfo.py
-     fpgapwr.py
-     fpgatemp.py
-     sysfs.py)
-CREATE_PYTHON_EXE(fpgainfo fpgainfo ${PYTHON_SRC})
-install(PROGRAMS ${PACKAGER_BIN}
+
+include_directories(${OPAE_SDK_SOURCE}/tools/base/argsfilter)
+add_executable(fpgainfo main.c
+	          fpgainfo.c
+			  errors.c
+			  fmeinfo.c
+			  sysinfo.c
+			  bmcinfo.c
+			  bmcdata.c
+			  powerinfo.c
+			  tempinfo.c
+			  portinfo.c)
+
+target_link_libraries(fpgainfo opae-c argsfilter bmc)
+set_property(TARGET fpgainfo PROPERTY C_STANDARD 99)
+
+add_library(fpgainfo-static
+    fpgainfo.c
+    errors.c
+    fmeinfo.c
+    sysinfo.c
+    bmcinfo.c
+    bmcdata.c
+    powerinfo.c
+    tempinfo.c
+    portinfo.c)
+set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
+target_link_libraries(fpgainfo-static opae-c argsfilter)
+
+install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/fpgainfo
     DESTINATION bin
     COMPONENT toolfpgainfo)
