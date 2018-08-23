@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,34 +23,27 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifndef _C_TEST_SYSTEM_H
+#define _C_TEST_SYSTEM_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#include <dirent.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "opae/manage.h"
-#include "common_int.h"
+  int opae_test_open(const char *path, int flags);
+  int opae_test_open_create(const char *path, int flags, mode_t mode);
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-				  uint32_t host_interface, int flags)
-{
-	(void)fpga;
-	(void)accelerator;
-	(void)host_interface;
-	(void)flags;
-	FPGA_MSG("fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+  int opae_test_close(int fd);
+  int opae_test_ioctl(int fd, unsigned long request, va_list argp);
 
-	return result;
+  DIR *opae_test_opendir(const char *name);
+  ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
+  int opae_test_xstat(int ver, const char *path, struct stat *buf);
+  int opae_test_lstat(int ver, const char *path, struct stat *buf);
+
+#ifdef __cplusplus
 }
+#endif
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
-{
-	(void)fpga;
-	(void)accelerator;
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
-
-	return result;
-}
-
+#endif /* !_TEST_SYSTEM_H */

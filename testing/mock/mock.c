@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,33 +24,66 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+/*
+ * Mock up driver interactions that call into test_system API for testing
+ *
+ * Involves redefining ioctl(), open(), close(), others?
+ */
 
-#include "opae/manage.h"
-#include "common_int.h"
+#include <stdarg.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <safe_string/safe_string.h>
+#include "c_test_system.h"
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-				  uint32_t host_interface, int flags)
+int ioctl(int fd, unsigned long request, ...)
 {
-	(void)fpga;
-	(void)accelerator;
-	(void)host_interface;
-	(void)flags;
-	FPGA_MSG("fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
-
-	return result;
+	va_list argp;
+	va_start(argp, request);
+	int res = opae_test_ioctl(fd, request, argp);
+	va_end(argp);
+	return res;
 }
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
+int open(const char* path, int flags, ...)
 {
-	(void)fpga;
-	(void)accelerator;
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	int fd = -1;
+	if (flags & O_CREAT) {
+		va_list argp;
+		va_start(argp, flags);
+		mode_t arg = va_arg(argp, mode_t);
+		fd = opae_test_open_create(path, flags, arg);
+		va_end(argp);
+	}
+	else {
+		fd = opae_test_open(path, flags);
+	}
+	return fd;
+}
 
-	return result;
+int close(int fd)
+{
+	return opae_test_close(fd);
+}
+
+DIR *opendir(const char *name)
+{
+	return opae_test_opendir(name);
+}
+
+ssize_t readlink(const char *pathname, char *buf, size_t bufsiz)
+{
+	return opae_test_readlink(pathname, buf, bufsiz);
+}
+
+int __xstat(int ver, const char *pathname, struct stat *buf)
+{
+	return opae_test_xstat(ver, pathname, buf);
+}
+
+int __lxstat(int ver, const char *pathname, struct stat *buf)
+{
+	return opae_test_xstat(ver, pathname, buf);
 }
 

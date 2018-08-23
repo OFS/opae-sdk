@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,33 +24,79 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#ifdef __cplusplus
 
-#include "opae/manage.h"
-#include "common_int.h"
+extern "C" {
+#endif
+#include <opae/utils.h>
+#include "wsid_list_int.h"
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-				  uint32_t host_interface, int flags)
+#ifdef __cplusplus
+}
+#endif
+
+#include "gtest/gtest.h"
+
+
+TEST(utils_h, fpgaErrStr)
 {
-	(void)fpga;
-	(void)accelerator;
-	(void)host_interface;
-	(void)flags;
-	FPGA_MSG("fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
-
-	return result;
+	fpga_result e = FPGA_OK;
+	auto res = fpgaErrStr(e);
+	(void)res;
 }
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
-{
-	(void)fpga;
-	(void)accelerator;
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
 
-	return result;
+TEST(wsid_list_int_h, wsid_add)
+{
+	struct wsid_map **root = 0;
+	uint64_t wsid = 0;
+	uint64_t addr = 0;
+	uint64_t phys = 0;
+	uint64_t len = 0;
+	uint64_t offset = 0;
+	uint64_t index = 0;
+	int flags = 0;
+	auto res = wsid_add(root, wsid, addr, phys, len, offset, index, flags);
+	EXPECT_EQ(res, 0);
 }
 
+
+TEST(wsid_list_int_h, wsid_del)
+{
+	struct wsid_map **root = 0;
+	uint64_t wsid = 0;
+	auto res = wsid_del(root, wsid);
+	EXPECT_EQ(res, 0);
+}
+
+
+TEST(wsid_list_int_h, wsid_cleanup)
+{
+	struct wsid_map **root = 0;
+	wsid_cleanup(root, NULL);
+}
+
+
+TEST(wsid_list_int_h, wsid_gen)
+{
+	auto res = wsid_gen();
+	(void)res;
+}
+
+
+TEST(wsid_list_int_h, wsid_find)
+{
+	struct wsid_map *root = 0;
+	uint64_t wsid = 0;
+	auto res = wsid_find(root, wsid);
+	(void)res;
+}
+
+
+TEST(wsid_list_int_h, wsid_find_by_index)
+{
+	struct wsid_map *root = 0;
+	uint32_t index = 0;
+	auto res = wsid_find_by_index(root, index);
+	(void)res;
+}
