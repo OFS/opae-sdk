@@ -47,32 +47,14 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
-static std::map<std::string, test_platform> PLATFORMS = {
-    {"skx-p-1s",
-     test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
-                   .devices = {test_device{
-                       .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
-                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
-                       .segment = 0x0,
-                       .bus = 0x5e,
-                       .device = 0,
-                       .function = 0,
-                       .socket_id = 0,
-                       .fme_object_id = 0xf500000,
-                       .port_object_id = 0xf400000,
-                       .vendor_id = 0x8086,
-                       .device_id = 0xbcc0,
-                       .fme_num_errors = 9,
-                       .port_num_errors = 3}}}}};
 
-class enum_c_p : public ::testing::TestWithParam<const char *> {
+class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   enum_c_p() : tmpsysfs("mocksys-XXXXXX") {}
 
   virtual void SetUp() override {
-    auto it = PLATFORMS.find(GetParam());
-    ASSERT_NE(it, PLATFORMS.end());
-    platform_ = it->second;
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
@@ -425,6 +407,4 @@ TEST_P(enum_c_p, destroy_token) {
   delete dummy;
 }
 
-const char *platforms[] = {"skx-p-1s"};
-
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(platforms));
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
