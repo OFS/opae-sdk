@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <float.h>
+#include <math.h>
 #include "bmc_thermal.h"
 #include "config_int.h"
 #include "log.h"
@@ -382,8 +383,8 @@ void *bmc_thermal_thread(void *thread_context)
 				}
 			}
 
-			if ((sensor_value < u_reset_val)
-			    && (sensor_value > l_reset_val)) {
+			if (((sensor_value < u_reset_val) || (fabs(u_reset_val) == DBL_MAX))
+			    && ((sensor_value > l_reset_val) || (fabs(l_reset_val) == DBL_MAX))) {
 				CLEAR_BIT(ctx.s_state.tripped, sens_num);
 				if (BIT_SET(ctx.s_state.last_state, sens_num)) {
 					dlog("pacd[%d]: sensor %d (%s) returned to "

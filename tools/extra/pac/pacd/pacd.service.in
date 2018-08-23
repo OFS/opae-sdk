@@ -1,0 +1,30 @@
+# Intel Programmable Acceleration Card (PAC) daemon.
+# Monitors Baseboard Management Controller (BMC) sensors.
+[Unit]
+Description = PAC BMC sensor monitor
+
+[Service]
+Type=forking
+StandardError=syslog
+EnvironmentFile=-@PACD_ENVIRONMENT_FILE@
+Restart=always
+RestartSec=10s
+SendSIGHUP=yes
+KillSignal=SIGHUP
+ExecStop=/bin/bash -c '[ -e $${PIDFile} ] && kill -s SIGTERM `cat $${PIDFile}`; \
+                       x=0; while [ -e $${PIDFile} -a "$$x" -lt 100 ]; \
+                       do sleep 1; x=$$((x+1)); done'
+ExecStart=@PACD_BINARY@ -d $NullGBSOptions \
+          -P @PACD_ROOT_DIRECTORY@ \
+          -m $UMask \
+          -l $LogFile \
+          -p $PIDFile \
+          -i $PollInterval \
+          -c $CooldownInterval \
+          $BoardPCIAddr \
+          $ThresholdOptions \
+          $ExtraOptions
+RestartPreventExitStatus=1
+
+[Install]
+WantedBy=multi-user.target

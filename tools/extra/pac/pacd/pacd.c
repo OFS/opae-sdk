@@ -55,7 +55,7 @@ static struct timespec wait_for_card_ts = {
 	.tv_nsec = 0,
 };
 
-#define OPT_STR ":hdP:l:p:m:s:B:D:F:n:t:T:i:c:N"
+#define OPT_STR ":hdP:l:p:m:S:B:D:F:n:t:T:i:c:N"
 
 struct option longopts[] = {
 	{"help", no_argument, NULL, 'h'},
@@ -673,6 +673,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_PACs; i++) {
 		context[i].config = &config;
 		context[i].PAC_index = i;
+		context[i].has_been_PRd = 0;
 		res = pthread_create(&bmc_thermal[i], NULL, bmc_thermal_thread,
 				     &context[i]);
 		if (res) {
