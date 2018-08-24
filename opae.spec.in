@@ -141,6 +141,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
+@CMAKE_INSTALL_PREFIX@/bin/pacd
+@CMAKE_INSTALL_PREFIX@/bin/pacd.conf
+@CMAKE_INSTALL_PREFIX@/bin/pacd.service
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
