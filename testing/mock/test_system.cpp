@@ -59,6 +59,47 @@ test_device test_device::unknown() {
                      .fme_num_errors = 0x1234};
 }
 
+typedef std::map<std::string, test_platform> platform_db;
+
+static platform_db PLATFORMS = {
+    {"skx-p-1s",
+     test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
+                   .devices = {test_device{
+                       .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x5e,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0xbcc0,
+                       .fme_num_errors = 9,
+                       .port_num_errors = 3}}}}};
+
+test_platform test_platform::get(const std::string &key) {
+  return PLATFORMS[key];
+}
+
+bool test_platform::exists(const std::string &key) {
+  return PLATFORMS.find(key) != PLATFORMS.end();
+}
+
+std::vector<std::string> test_platform::keys(bool sorted) {
+  std::vector<std::string> keys(PLATFORMS.size());
+  std::transform(PLATFORMS.begin(), PLATFORMS.end(), keys.begin(),
+                 [](const std::pair<std::string, test_platform> &it) {
+                   return it.first;
+                 });
+  if (sorted) {
+    std::sort(keys.begin(), keys.end());
+  }
+
+  return keys;
+}
+
 test_system *test_system::instance_ = 0;
 
 test_system::test_system() : root_("") {

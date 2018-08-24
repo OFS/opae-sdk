@@ -77,6 +77,9 @@ struct test_device {
 struct test_platform {
   const char *mock_sysfs;
   std::vector<test_device> devices;
+  static test_platform get(const std::string &key);
+  static bool exists(const std::string &key);
+  static std::vector<std::string> keys(bool sorted = false);
 };
 
 class test_system {
