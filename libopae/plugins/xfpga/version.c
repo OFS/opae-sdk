@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
 
 #include <string.h>
 
-fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
+fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 {
 	if (!version) {
 		FPGA_MSG("version is NULL");
@@ -49,7 +49,7 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersion(fpga_version *version)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len)
+fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
 	errno_t err = 0;
 
@@ -69,7 +69,7 @@ fpga_result __FPGA_API__ fpgaGetOPAECVersionString(char *version_str, size_t len
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
+fpga_result __FPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
 	errno_t err = 0;
 

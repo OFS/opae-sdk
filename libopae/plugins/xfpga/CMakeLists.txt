@@ -67,6 +67,7 @@ add_library(xfpga MODULE ${SRC})
 target_link_libraries(xfpga
   m
   safestr
+  dl
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})

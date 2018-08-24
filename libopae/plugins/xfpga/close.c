@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@ static void unmap_mmio_region(struct wsid_map *wm)
 	}
 }
 
-fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
+fpga_result __FPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result = FPGA_OK;

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,18 +31,18 @@
 #include "opae/manage.h"
 #include "common_int.h"
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
+fpga_result __FPGA_API__ xfpga_fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
 				  uint32_t host_interface, int flags)
 {
-	FPGA_MSG("fpgaAssignToInterface not supported");
+	FPGA_MSG("xfpga_fpgaAssignToInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
+fpga_result __FPGA_API__ xfpga_fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
 {
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
+	FPGA_MSG("xfpga_fpgaReleaseFromInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
 	return result;

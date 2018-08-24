@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,23 +28,21 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "safe_string/safe_string.h"
-
-#include "common_int.h"
-#include "opae/enum.h"
-#include "opae/properties.h"
-#include "opae/utils.h"
-#include "error_int.h"
-#include "properties_int.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "safe_string/safe_string.h"
+
+#include "xfpga.h"
+#include "common_int.h"
+#include "error_int.h"
+#include "properties_int.h"
 
 /* mutex to protect global data structures */
 extern pthread_mutex_t global_lock;
@@ -626,7 +624,7 @@ bool include_afu(const fpga_properties *filters, uint32_t num_filters)
 	return false;
 }
 
-fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
+fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 				       uint32_t num_filters, fpga_token *tokens,
 				       uint32_t max_tokens,
 				       uint32_t *num_matches)
@@ -705,7 +703,7 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		lptr->fme = lptr->parent->fme;
 
 		/* FIXME: do we need to keep a global list of tokens? */
-		/* For now we do becaue it is used in fpgaUpdateProperties
+		/* For now we do becaue it is used in xfpga_fpgaUpdateProperties
 		 * to lookup a parent from the global list of tokens...*/
 		_tok = token_add(lptr->sysfspath, lptr->devpath);
 
@@ -718,7 +716,7 @@ fpga_result __FPGA_API__ fpgaEnumerate(const fpga_properties *filters,
 		// FIXME: should check contents of filter for token magic
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
-				if (fpgaCloneToken(_tok, &tokens[*num_matches])
+				if (xfpga_fpgaCloneToken(_tok, &tokens[*num_matches])
 				    != FPGA_OK) {
 					// FIXME: should we error out here?
 					FPGA_MSG("Error cloning token");
@@ -739,7 +737,7 @@ out_free_trash:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
+fpga_result __FPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
 	struct _fpga_token *_src = (struct _fpga_token *)src;
 	struct _fpga_token *_dst;
@@ -791,7 +789,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyToken(fpga_token *token)
+fpga_result __FPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 {
 	fpga_result result = FPGA_OK;
 	int err = 0;

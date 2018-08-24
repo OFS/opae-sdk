@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,8 @@
 
 #include "safe_string/safe_string.h"
 
-fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
+fpga_result __FPGA_API__
+xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct _fpga_handle *_handle;

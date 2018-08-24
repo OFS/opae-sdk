@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,17 +28,16 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include "safe_string/safe_string.h"
+
+#include "xfpga.h"
 #include "common_int.h"
-#include "opae/properties.h"
-#include "opae/enum.h"
-#include "opae/utils.h"
 #include "properties_int.h"
 #include "error_int.h"
 
-#include "safe_string/safe_string.h"
 
-
-fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
+fpga_result __FPGA_API__
+xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result = FPGA_OK;
@@ -48,7 +47,7 @@ fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_pr
 	if (result)
 		return result;
 
-	result = fpgaGetProperties(_handle->token, prop);
+	result = xfpga_fpgaGetProperties(_handle->token, prop);
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
@@ -59,7 +58,8 @@ fpga_result __FPGA_API__ fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_pr
 }
 
 
-fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *prop)
+fpga_result __FPGA_API__
+xfpga_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
@@ -96,7 +96,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token, fpga_properties *pr
 	}
 
 	if (token) {
-		result = fpgaUpdateProperties(token, _prop);
+		result = xfpga_fpgaUpdateProperties(token, _prop);
 		if (result != FPGA_OK)
 			goto out_mutex_destroy;
 	}
@@ -120,7 +120,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
+fpga_result __FPGA_API__ xfpga_fpgaClearProperties(fpga_properties prop)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -138,7 +138,7 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
+fpga_result __FPGA_API__ xfpga_fpgaCloneProperties(fpga_properties src,
 					     fpga_properties *dst)
 {
 	struct _fpga_properties *_src = (struct _fpga_properties *)src;
@@ -194,7 +194,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
+fpga_result __FPGA_API__ xfpga_fpgaDestroyProperties(fpga_properties *prop)
 {
 	struct _fpga_properties *_prop;
 	fpga_result result = FPGA_OK;
@@ -224,7 +224,7 @@ fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 }
 
 fpga_result __FPGA_API__
-fpgaUpdateProperties(fpga_token token, fpga_properties prop)
+xfpga_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -406,7 +406,7 @@ fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
+xfpga_fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -418,7 +418,7 @@ fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 		return result;
 
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_PARENT)) {
-		result = fpgaCloneToken(_prop->parent, parent);
+		result = xfpga_fpgaCloneToken(_prop->parent, parent);
 		if (FPGA_OK != result)
 			FPGA_MSG("Error cloning token from property");
 	} else {
@@ -433,7 +433,7 @@ fpgaPropertiesGetParent(const fpga_properties prop, fpga_token *parent)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
+xfpga_fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -453,7 +453,7 @@ fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetObjectType(const fpga_properties prop, fpga_objtype *objtype)
+xfpga_fpgaPropertiesGetObjectType(const fpga_properties prop, fpga_objtype *objtype)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -478,7 +478,7 @@ fpgaPropertiesGetObjectType(const fpga_properties prop, fpga_objtype *objtype)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
+xfpga_fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -497,7 +497,8 @@ fpgaPropertiesSetObjectType(fpga_properties prop, fpga_objtype objtype)
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesGetSegment(const fpga_properties prop, uint16_t *segment)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -521,7 +522,8 @@ fpga_result __FPGA_API__ fpgaPropertiesGetSegment(const fpga_properties prop, ui
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -540,7 +542,8 @@ fpga_result __FPGA_API__ fpgaPropertiesSetSegment(fpga_properties prop, uint16_t
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop, uint8_t *bus)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesGetBus(const fpga_properties prop, uint8_t *bus)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -565,7 +568,8 @@ fpga_result __FPGA_API__ fpgaPropertiesGetBus(const fpga_properties prop, uint8_
 }
 
 
-fpga_result __FPGA_API__ fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -586,7 +590,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
 
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
+xfpga_fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -611,7 +615,8 @@ fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 }
 
 
-fpga_result __FPGA_API__ fpgaPropertiesSetDevice(fpga_properties prop, uint8_t device)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesSetDevice(fpga_properties prop, uint8_t device)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -638,7 +643,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetDevice(fpga_properties prop, uint8_t d
 
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetFunction(const fpga_properties prop, uint8_t *function)
+xfpga_fpgaPropertiesGetFunction(const fpga_properties prop, uint8_t *function)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -664,7 +669,7 @@ fpgaPropertiesGetFunction(const fpga_properties prop, uint8_t *function)
 
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
+xfpga_fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -690,7 +695,7 @@ fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetSocketID(const fpga_properties prop, uint8_t *socket_id)
+xfpga_fpgaPropertiesGetSocketID(const fpga_properties prop, uint8_t *socket_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -715,7 +720,7 @@ fpgaPropertiesGetSocketID(const fpga_properties prop, uint8_t *socket_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
+xfpga_fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -735,7 +740,7 @@ fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetDeviceID(const fpga_properties prop, uint16_t *device_id)
+xfpga_fpgaPropertiesGetDeviceID(const fpga_properties prop, uint16_t *device_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
 	fpga_result result = FPGA_OK;
@@ -760,7 +765,7 @@ fpgaPropertiesGetDeviceID(const fpga_properties prop, uint16_t *device_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
+xfpga_fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
 {
 	int err = 0;
 	fpga_result result = FPGA_OK;
@@ -780,7 +785,7 @@ fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
+xfpga_fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -813,7 +818,7 @@ fpgaPropertiesGetNumSlots(const fpga_properties prop, uint32_t *num_slots)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
+xfpga_fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -841,7 +846,7 @@ fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
+xfpga_fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -874,7 +879,7 @@ fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
+xfpga_fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -903,7 +908,7 @@ fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetBBSVersion(const fpga_properties prop,
+xfpga_fpgaPropertiesGetBBSVersion(const fpga_properties prop,
 			    fpga_version *bbs_version)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -937,7 +942,7 @@ fpgaPropertiesGetBBSVersion(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetBBSVersion(fpga_properties prop,
+xfpga_fpgaPropertiesSetBBSVersion(fpga_properties prop,
 			    fpga_version bbs_version)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -966,7 +971,7 @@ fpgaPropertiesSetBBSVersion(fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
+xfpga_fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *) prop;
 	fpga_result result = FPGA_OK;
@@ -991,7 +996,7 @@ fpgaPropertiesGetVendorID(const fpga_properties prop, uint16_t *vendor_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
+xfpga_fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
 	int err = 0;
 	fpga_result result = FPGA_OK;
@@ -1011,7 +1016,7 @@ fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetModel(const fpga_properties prop, char *model)
+xfpga_fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 {
 	UNUSED_PARAM(prop);
 	UNUSED_PARAM(model);
@@ -1020,7 +1025,7 @@ fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetModel(fpga_properties prop, char *model)
+xfpga_fpgaPropertiesSetModel(fpga_properties prop, char *model)
 {
 	UNUSED_PARAM(prop);
 	UNUSED_PARAM(model);
@@ -1029,7 +1034,7 @@ fpgaPropertiesSetModel(fpga_properties prop, char *model)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
+xfpga_fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
 				 uint64_t *local_memory_size)
 {
 	UNUSED_PARAM(prop);
@@ -1039,7 +1044,7 @@ fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
+xfpga_fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
 				 uint64_t local_memory_size)
 {
 	UNUSED_PARAM(prop);
@@ -1049,7 +1054,7 @@ fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetCapabilities(const fpga_properties prop,
+xfpga_fpgaPropertiesGetCapabilities(const fpga_properties prop,
 			      uint64_t *capabilities)
 {
 	UNUSED_PARAM(prop);
@@ -1059,7 +1064,7 @@ fpgaPropertiesGetCapabilities(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetCapabilities(fpga_properties prop,
+xfpga_fpgaPropertiesSetCapabilities(fpga_properties prop,
 			      uint64_t capabilities)
 {
 	UNUSED_PARAM(prop);
@@ -1068,7 +1073,8 @@ fpgaPropertiesSetCapabilities(fpga_properties prop,
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop, fpga_guid *guid)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesGetGUID(const fpga_properties prop, fpga_guid *guid)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1100,7 +1106,8 @@ fpga_result __FPGA_API__ fpgaPropertiesGetGUID(const fpga_properties prop, fpga_
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid guid)
+fpga_result __FPGA_API__
+xfpga_fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid guid)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1128,7 +1135,7 @@ fpga_result __FPGA_API__ fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid g
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
+xfpga_fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1161,7 +1168,7 @@ fpgaPropertiesGetNumMMIO(const fpga_properties prop, uint32_t *mmio_spaces)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
+xfpga_fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1189,7 +1196,7 @@ fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
+xfpga_fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 			       uint32_t *num_interrupts)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -1223,7 +1230,7 @@ fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetNumInterrupts(fpga_properties prop,
+xfpga_fpgaPropertiesSetNumInterrupts(fpga_properties prop,
 			       uint32_t num_interrupts)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -1252,7 +1259,7 @@ fpgaPropertiesSetNumInterrupts(fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetAcceleratorState(const fpga_properties prop, fpga_accelerator_state *state)
+xfpga_fpgaPropertiesGetAcceleratorState(const fpga_properties prop, fpga_accelerator_state *state)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1285,7 +1292,7 @@ fpgaPropertiesGetAcceleratorState(const fpga_properties prop, fpga_accelerator_s
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state state)
+xfpga_fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state state)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1313,7 +1320,7 @@ fpgaPropertiesSetAcceleratorState(fpga_properties prop, fpga_accelerator_state s
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
+xfpga_fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1338,7 +1345,7 @@ fpgaPropertiesGetObjectID(const fpga_properties prop, uint64_t *object_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
+xfpga_fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 	fpga_result result = FPGA_OK;
@@ -1358,7 +1365,7 @@ fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesGetNumErrors(const fpga_properties prop,
+xfpga_fpgaPropertiesGetNumErrors(const fpga_properties prop,
 			   uint32_t *num_errors)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
@@ -1384,7 +1391,7 @@ fpgaPropertiesGetNumErrors(const fpga_properties prop,
 }
 
 fpga_result __FPGA_API__
-fpgaPropertiesSetNumErrors(const fpga_properties prop,
+xfpga_fpgaPropertiesSetNumErrors(const fpga_properties prop,
 			   uint32_t num_errors)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "common_int.h"
-
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/eventfd.h>
@@ -37,8 +35,8 @@
 
 #include "safe_string/safe_string.h"
 
-#include "opae/access.h"
-#include "opae/properties.h"
+#include "xfpga.h"
+#include "common_int.h"
 #include "types_int.h"
 #include "intel-fpga.h"
 
@@ -245,13 +243,13 @@ static fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *
 	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
 					.flags = 0 };
 
-	res = fpgaGetPropertiesFromHandle(handle, &prop);
+	res = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not get FPGA properties from handle");
 		return res;
 	}
 
-	res = fpgaPropertiesGetObjectType(prop, objtype);
+	res = xfpga_fpgaPropertiesGetObjectType(prop, objtype);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not determine FPGA object type");
 		goto destroy_prop;
@@ -286,7 +284,7 @@ static fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *
 	}
 
 destroy_prop:
-	destroy_res = fpgaDestroyProperties(&prop);
+	destroy_res = xfpga_fpgaDestroyProperties(&prop);
 	if (destroy_res != FPGA_OK) {
 		FPGA_MSG("Could not destroy FPGA properties");
 		return destroy_res;
@@ -485,7 +483,7 @@ out_close_conn:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *event_handle)
+fpga_result __FPGA_API__ xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
 	fpga_result result = FPGA_OK;
@@ -543,7 +541,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *event_handle)
+fpga_result __FPGA_API__ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
 	fpga_result result = FPGA_OK;
@@ -587,7 +585,7 @@ fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
+fpga_result __FPGA_API__ xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
 						int *fd)
 {
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) eh;
@@ -607,7 +605,7 @@ fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle 
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
 					   fpga_event_type event_type,
 					   fpga_event_handle event_handle,
 					   uint32_t flags)
@@ -669,7 +667,7 @@ out_unlock_handle:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaUnregisterEvent(fpga_handle handle,
 					     fpga_event_type event_type,
 					     fpga_event_handle event_handle)
 {

@@ -28,7 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "log_int.h"
+#include "opae_int.h"
 
 #include <stdio.h>
 #include <stdarg.h>

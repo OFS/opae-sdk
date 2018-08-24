@@ -27,10 +27,74 @@
 #ifndef __OPAE_OPAE_INT_H__
 #define __OPAE_OPAE_INT_H__
 
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-#include "log_int.h"
+#include <opae/types.h>
+
+/*
+ * Convenience macros for printing messages and errors.
+ */
+#ifdef __SHORT_FILE__
+#undef __SHORT_FILE__
+#endif // __SHORT_FILE__
+#define __SHORT_FILE__                                                         \
+	({                                                                     \
+		const char *file = __FILE__;                                   \
+		const char *p = file;                                          \
+		while (*p)                                                     \
+			++p;                                                   \
+		while ((p > file) && ('/' != *p) && ('\\' != *p))              \
+			--p;                                                   \
+		if (p > file)                                                  \
+			++p;                                                   \
+		p;                                                             \
+	})
+
+#ifdef OPAE_MSG
+#undef OPAE_MSG
+#endif // OPAE_MSG
+#define OPAE_MSG(format, ...)                                                  \
+	opae_print(OPAE_LOG_MESSAGE, "libopae-c %s:%u:%s() : " format "\n",    \
+		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+
+#ifdef OPAE_ERR
+#undef OPAE_ERR
+#endif // OPAE_ERR
+#define OPAE_ERR(format, ...)                                                  \
+	opae_print(OPAE_LOG_ERROR,                                             \
+		   "libopae-c %s:%u:%s() **ERROR** : " format "\n",            \
+		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+
+#ifdef OPAE_DBG
+#undef OPAE_DBG
+#endif // OPAE_DBG
+#ifdef LIBOPAE_DEBUG
+#define OPAE_DBG(format, ...)                                                  \
+	opae_print(OPAE_LOG_DEBUG,                                             \
+		   "libopae-c %s:%u:%s() *DEBUG* : " format "\n",              \
+		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#else
+#define OPAE_DBG(format, ...)                                                  \
+	{                                                                      \
+	}
+#endif // LIBOPAE_DEBUG
+
+/*
+ * Logging functions
+ */
+enum opae_loglevel {
+	OPAE_LOG_ERROR = 0, /* critical errors (always print) */
+	OPAE_LOG_MESSAGE,   /* information (i.e. explain return code */
+	OPAE_LOG_DEBUG      /* debugging (also needs #define DEBUG 1) */
+};
+#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
+
+void opae_print(int loglevel, char *fmt, ...);
+
+
 
 /* Macro for defining symbol visibility */
 //#define __FPGA_API__ __attribute__((visibility("default")))
@@ -42,7 +106,7 @@
 #define ASSERT_NOT_NULL_MSG(arg, msg)              \
 	do {                                       \
 		if (!arg) {                        \
-			FPGA_MSG(msg);             \
+			OPAE_MSG(msg);             \
 			return FPGA_INVALID_PARAM; \
 		}                                  \
 	} while (0)
@@ -71,5 +135,92 @@
 					strerror(errno));           \
 		__res;                                              \
 	})
+
+
+
+
+typedef struct _opae_api_adapter_table opae_api_adapter_table;
+
+//                                  k o t w
+#define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477
+
+typedef struct _opae_wrapped_token {
+	uint32_t magic;
+	fpga_token opae_token;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_token;
+
+static inline opae_wrapped_token * opae_allocate_wrapped_token(fpga_token token,
+					const opae_api_adapter_table *adapter)
+{
+	opae_wrapped_token *wtok = (opae_wrapped_token *)
+				malloc(sizeof(opae_wrapped_token));
+
+	if (wtok) {
+		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
+		wtok->opae_token = token;
+		wtok->adapter_table = (opae_api_adapter_table *) adapter;
+	}
+
+	return wtok;
+}
+
+static inline opae_wrapped_token *opae_validate_wrapped_token(fpga_token t)
+{
+	opae_wrapped_token *wt;
+	if (!t)
+		return NULL;
+	wt = (opae_wrapped_token *)t;
+	return (wt->magic == OPAE_WRAPPED_TOKEN_MAGIC) ? wt : NULL;
+}
+
+static inline void opae_destroy_wrapped_token(opae_wrapped_token *wt)
+{
+	wt->magic = 0;
+	free(wt);
+}
+
+//                                   n a h w
+#define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
+
+typedef struct _opae_wrapped_handle {
+	uint32_t magic;
+	opae_wrapped_token *wrapped_token;
+	fpga_handle opae_handle;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_handle;
+
+static inline opae_wrapped_handle * opae_allocate_wrapped_handle(
+	opae_wrapped_token *wt,
+	fpga_handle opae_handle,
+	opae_api_adapter_table *adapter)
+{
+	opae_wrapped_handle *whan = (opae_wrapped_handle *)
+				malloc(sizeof(opae_wrapped_handle));
+
+	if (whan) {
+		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
+		whan->wrapped_token = wt;
+		whan->opae_handle = opae_handle;
+		whan->adapter_table = adapter;
+	}
+
+	return whan;
+}
+
+static inline opae_wrapped_handle *opae_validate_wrapped_handle(fpga_handle h)
+{
+	opae_wrapped_handle *wh;
+	if (!h)
+		return NULL;
+	wh = (opae_wrapped_handle *)h;
+	return (wh->magic == OPAE_WRAPPED_HANDLE_MAGIC) ? wh : NULL;
+}
+
+static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
+{
+	wh->magic = 0;
+	free(wh);
+}
 
 #endif // ___OPAE_OPAE_INT_H__

@@ -28,10 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <stdlib.h>
-
-#include "types_int.h"
-#include "log_int.h"
+#include "opae_int.h"
 #include "pluginmgr.h"
 
 fpga_result fpgaInitialize(const char *config_file)
@@ -55,26 +52,26 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	}
 
 	if (wt->adapter_table->fpgaOpen) {
-		opae_wrapped_handle *wh = malloc(sizeof(opae_wrapped_handle));
+		fpga_handle opae_handle = NULL;
+		opae_wrapped_handle *wh;
+
+		res = wt->adapter_table->fpgaOpen(wt->opae_token,
+						  &opae_handle,
+						  flags);
+
+		if (res != FPGA_OK)
+			return res;
+
+		wh = opae_allocate_wrapped_handle(wt,
+						  opae_handle,
+						  wt->adapter_table);
 
 		if (!wh) {
 			OPAE_ERR("malloc() failed");
 			return FPGA_NO_MEMORY;
 		}
 
-		wh->magic = OPAE_WRAPPED_HANDLE_MAGIC;
-		wh->wrapped_token = wt;
-		wh->opae_handle = NULL;
-		wh->adapter_table = wt->adapter_table;
-
-		res = wh->adapter_table->fpgaOpen(wt->opae_token,
-						  &wh->opae_handle, flags);
-
-		if (res != FPGA_OK) {
-			free(wh);
-		} else {
-			*handle = wh;
-		}
+		*handle = wh;
 
 	} else
 		OPAE_MSG("NULL fpgaOpen in adapter");
@@ -97,7 +94,7 @@ fpga_result fpgaClose(fpga_handle handle)
 	else
 		OPAE_MSG("NULL fpgaClose in adapter");
 
-	free(wh);
+	opae_destroy_wrapped_handle(wh);
 
 	return res;
 }
@@ -551,25 +548,205 @@ fpga_result fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 	return res;
 }
 
+typedef struct _opae_enumeration_context {
+	// <verbatim from fpgaEnumerate>
+	const fpga_properties *filters;
+	uint32_t num_filters;
+	fpga_token *wrapped_tokens;
+	uint32_t max_wrapped_tokens;
+	uint32_t *num_matches;
+	// </verbatim from fpgaEnumerate>
+
+	fpga_token *adapter_tokens;
+	uint32_t num_wrapped_tokens;
+	uint32_t errors;
+} opae_enumeration_context;
+
+static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
+{
+	opae_enumeration_context *ctx = (opae_enumeration_context *) context;
+	fpga_result res;
+	uint32_t num_matches = 0;
+	uint32_t i;
+	uint32_t space_remaining;
+
+	// TODO: accept/reject this adapter, based on device support
+	if (adapter->supports_device) {
+
+	}
+
+	// TODO: accept/reject this adapter, based on host support
+	if (adapter->supports_host) {
+
+	}
+
+	space_remaining = ctx->max_wrapped_tokens - ctx->num_wrapped_tokens;
+
+	if (ctx->wrapped_tokens && !space_remaining)
+		return OPAE_ENUM_STOP;
+
+	if (!adapter->fpgaEnumerate) {
+		OPAE_MSG("NULL fpgaEnumerate in adapter \"%s\"",
+				adapter->plugin.path);
+		return OPAE_ENUM_CONTINUE;
+	}
+
+	res = adapter->fpgaEnumerate(ctx->filters,
+				     ctx->num_filters,
+				     ctx->adapter_tokens,
+				     space_remaining,
+				     &num_matches);
+
+	if (res != FPGA_OK) {
+		OPAE_ERR("fpgaEnumerate() failed for \"%s\"",
+				adapter->plugin.path);
+		++ctx->errors;
+		return OPAE_ENUM_CONTINUE;
+	}
+
+	*ctx->num_matches += num_matches;
+
+	if (!ctx->adapter_tokens) {
+		// requesting token count, only.
+		return OPAE_ENUM_CONTINUE;
+	}
+
+	for (i = 0 ; i < space_remaining ; ++i) {
+		opae_wrapped_token *wt =
+			opae_allocate_wrapped_token(ctx->adapter_tokens[i],
+						    adapter);
+		if (!wt) {
+			++ctx->errors;
+			return OPAE_ENUM_STOP;
+		}
+
+		ctx->wrapped_tokens[ctx->num_wrapped_tokens++] = wt;
+	}
+
+	return ctx->num_wrapped_tokens == ctx->max_wrapped_tokens ?
+		OPAE_ENUM_STOP : OPAE_ENUM_CONTINUE;
+}
+
 fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 			  fpga_token *tokens, uint32_t max_tokens,
 			  uint32_t *num_matches)
 {
+	fpga_result res = FPGA_EXCEPTION;
+	fpga_token *adapter_tokens = NULL;
 
-	return FPGA_NOT_SUPPORTED;
+	opae_enumeration_context enum_context;
+
+
+	ASSERT_NOT_NULL(num_matches);
+
+	if ((max_tokens > 0) && !tokens) {
+		OPAE_ERR("max_tokens > 0 with NULL tokens");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if ((num_filters > 0) && !filters) {
+		OPAE_ERR("num_filters > 0 with NULL filters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if ((num_filters == 0) && (filters != NULL)) {
+		OPAE_ERR("num_filters == 0 with non-NULL filters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	*num_matches = 0;
+
+	enum_context.filters = filters;
+	enum_context.num_filters = num_filters;
+	enum_context.wrapped_tokens = tokens;
+	enum_context.max_wrapped_tokens = max_tokens;
+	enum_context.num_matches = num_matches;
+
+	if (tokens) {
+		adapter_tokens = (fpga_token *) calloc(max_tokens, sizeof(fpga_token));
+		if (!adapter_tokens) {
+			OPAE_ERR("out of memory");
+			return FPGA_NO_MEMORY;
+		}
+	}
+
+	enum_context.adapter_tokens = adapter_tokens;
+	enum_context.num_wrapped_tokens = 0;
+	enum_context.errors = 0;
+
+	opae_plugin_mgr_for_each_adapter(opae_enumerate, &enum_context);
+
+	res = (enum_context.errors > 0) ? FPGA_EXCEPTION : FPGA_OK;
+
+	if (adapter_tokens)
+		free(adapter_tokens);
+
+	return res;
 }
 
 fpga_result fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
+	fpga_token cloned_token = NULL;
+	fpga_result res = FPGA_NOT_SUPPORTED;
+	opae_wrapped_token *wt = opae_validate_wrapped_token(src);
 
-	return FPGA_NOT_SUPPORTED;
+	if (!wt) {
+		OPAE_ERR("invalid wrapped token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!dst) {
+		OPAE_ERR("NULL output parameter");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (wt->adapter_table->fpgaCloneToken) {
+		res = wt->adapter_table->fpgaCloneToken(wt->opae_token,
+							&cloned_token);
+
+		if (res != FPGA_OK)
+			return res;
+
+		wt = opae_allocate_wrapped_token(cloned_token,
+						 wt->adapter_table);
+
+		if (!wt) {
+			OPAE_ERR("malloc failed");
+			res = FPGA_NO_MEMORY;
+		} else
+			*dst = wt;
+
+	} else
+		OPAE_MSG("NULL fpgaCloneToken in adapter");
+
+	return res;
 }
 
 fpga_result fpgaDestroyToken(fpga_token *token)
 {
+	fpga_result res = FPGA_NOT_SUPPORTED;
+	opae_wrapped_token *wt;
 
+	if (!token) {
+		OPAE_ERR("NULL wrapped token");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return FPGA_NOT_SUPPORTED;
+	wt = opae_validate_wrapped_token(*token);
+
+	if (!wt) {
+		OPAE_ERR("invalid wrapped token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (wt->adapter_table->fpgaDestroyToken)
+		res = wt->adapter_table->fpgaDestroyToken(&wt->opae_token);
+	else
+		OPAE_MSG("NULL fpgaDestroyToken in adapter");
+
+	opae_destroy_wrapped_token(wt);
+
+	return res;
 }
 
 fpga_result fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)

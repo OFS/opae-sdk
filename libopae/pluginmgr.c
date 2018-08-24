@@ -241,3 +241,29 @@ out_unlock:
 
 	return 0;
 }
+
+int opae_plugin_mgr_for_each_adapter(
+		int (*callback)(const opae_api_adapter_table * , void * ),
+		void *context)
+{
+	int res;
+	int cb_res;
+	opae_api_adapter_table *aptr;
+
+	if (!callback) {
+		OPAE_ERR("NULL callback passed to %s()", __func__);
+		return OPAE_ENUM_STOP;
+	}
+
+	opae_mutex_lock(res, &adapter_list_lock);
+
+	for (aptr = adapter_list ; aptr ; aptr = aptr->next) {
+		cb_res = callback(aptr, context);
+		if (cb_res)
+			break;
+	}
+
+	opae_mutex_unlock(res, &adapter_list_lock);
+
+	return cb_res;
+}

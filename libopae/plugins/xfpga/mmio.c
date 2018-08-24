@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -207,7 +207,7 @@ static fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
 					 uint32_t value)
@@ -247,7 +247,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num,
 					uint64_t offset,
 					uint32_t *value)
@@ -286,7 +286,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
 					 uint64_t value)
@@ -325,7 +325,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num,
 					uint64_t offset,
 					uint64_t *value)
@@ -364,7 +364,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaMapMMIO(fpga_handle handle,
 				     uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
@@ -393,7 +393,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
+fpga_result __FPGA_API__ xfpga_fpgaUnmapMMIO(fpga_handle handle,
 				       uint32_t mmio_num)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;

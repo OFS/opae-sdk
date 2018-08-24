@@ -293,5 +293,4 @@ typedef struct _opae_api_adapter_table {
 
 } opae_api_adapter_table;
 
-
 #endif /* __OPAE_ADAPTER_H__ */

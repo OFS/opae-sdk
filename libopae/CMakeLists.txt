@@ -39,7 +39,10 @@ target_include_directories(opae-c PUBLIC
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(opae-c
-  dl)
+  dl
+  ${CMAKE_THREAD_LIBS_INIT})
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 add_subdirectory(plugins)
 

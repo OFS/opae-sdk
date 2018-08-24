@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,8 @@
 
 
 // Get number of Umsgs
-fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
+fpga_result __FPGA_API__
+xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
@@ -84,7 +85,8 @@ out_unlock:
 }
 
 // Set Umsg Attributes
-fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
+fpga_result __FPGA_API__
+xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle         = (struct _fpga_handle *)handle;
 	fpga_result result                    = FPGA_OK;
@@ -125,7 +127,8 @@ out_unlock:
 }
 
 // Gets Umsg address
-fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
+fpga_result __FPGA_API__
+xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
 	struct _fpga_handle  *_handle           = (struct _fpga_handle *)handle;
 	struct fpga_port_dma_map dma_map         = {0};
@@ -159,7 +162,7 @@ fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	pagesize = sysconf(_SC_PAGESIZE);
 
 	// get umsg count
-	result = fpgaGetNumUmsg(handle, &umsg_count);
+	result = xfpga_fpgaGetNumUmsg(handle, &umsg_count);
 	if (result != FPGA_OK) {
 		FPGA_MSG("Failed to get UMSG count");
 		result = FPGA_EXCEPTION;
@@ -303,7 +306,8 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 }
 
 // Trigger umsg
-fpga_result __FPGA_API__ fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
+fpga_result __FPGA_API__
+xfpga_fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
@@ -320,7 +324,7 @@ fpga_result __FPGA_API__ fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 		goto out_unlock;
 	}
 
-	result = fpgaGetUmsgPtr(handle, &umsg_ptr);
+	result = xfpga_fpgaGetUmsgPtr(handle, &umsg_ptr);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get UMsg buffer");
 		goto out_unlock;

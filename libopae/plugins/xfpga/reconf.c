@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,11 +36,7 @@
 
 #include "safe_string/safe_string.h"
 
-#include "opae/access.h"
-#include "opae/utils.h"
-#include "opae/manage.h"
-#include "opae/enum.h"
-#include "opae/properties.h"
+#include "xfpga.h"
 #include "bitstream_int.h"
 #include "common_int.h"
 #include "intel-fpga.h"
@@ -140,11 +136,11 @@ static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpgaGetProperties(NULL, &props);
+	result = xfpga_fpgaGetProperties(NULL, &props);
 	if (result != FPGA_OK)
 		return result;
 
-	result = fpgaPropertiesSetParent(props, _handle->token);
+	result = xfpga_fpgaPropertiesSetParent(props, _handle->token);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Error setting parent in properties.");
 		goto free_props;
@@ -153,7 +149,7 @@ static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	// TODO: Use slot number as part of filter
 	//       We only want to query for accelerators for the
 	//       slot being reconfigured
-	result = fpgaEnumerate(&props, 1, &token, 1, &matches);
+	result = xfpga_fpgaEnumerate(&props, 1, &token, 1, &matches);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Error enumerating for accelerator to reconfigure");
 		goto free_props;
@@ -165,19 +161,19 @@ static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 		goto destroy_token;
 	}
 
-	result = fpgaOpen(token, accel, 0);
+	result = xfpga_fpgaOpen(token, accel, 0);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Could not open accelerator for given slot");
 		goto destroy_token;
 	}
 
 destroy_token:
-	destroy_result = fpgaDestroyToken(&token);
+	destroy_result = xfpga_fpgaDestroyToken(&token);
 	if (destroy_result != FPGA_OK)
 		FPGA_ERR("Error destroying a token");
 
 free_props:
-	destroy_result = fpgaDestroyProperties(&props);
+	destroy_result = xfpga_fpgaDestroyProperties(&props);
 	if (destroy_result != FPGA_OK)
 		FPGA_ERR("Error destroying properties");
 
@@ -309,7 +305,7 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
+fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 						uint32_t slot,
 						const uint8_t *bitstream,
 						size_t bitstream_len,
@@ -473,7 +469,7 @@ fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
 
 out_unlock:
 	// close the accelerator opened during `open_accel`
-	if (accel && fpgaClose(accel) != FPGA_OK) {
+	if (accel && xfpga_fpgaClose(accel) != FPGA_OK) {
 		FPGA_ERR("Error closing accelerator after reconfiguration");
 		result = FPGA_RECONF_ERROR;
 	}
