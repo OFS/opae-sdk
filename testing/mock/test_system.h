@@ -31,6 +31,20 @@
 #include <string>
 #include <vector>
 
+typedef struct stat stat_t;
+
+namespace opae {
+namespace testing {
+
+constexpr size_t KiB(size_t n){
+  return n*1024;
+}
+constexpr size_t MiB(size_t n){
+  return n*1024*KiB(1);
+}
+
+
+
 class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
@@ -106,8 +120,8 @@ class test_system {
 
   DIR *opendir(const char *name);
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
-  int xstat(int ver, const char *path, struct stat *buf);
-  int lstat(int ver, const char *path, struct stat *buf);
+  int xstat(int ver, const char *path, stat_t *buf);
+  int lstat(int ver, const char *path, stat_t *buf);
 
  private:
   test_system();
@@ -133,5 +147,8 @@ class test_system {
   __xstat_func xstat_;
   __xstat_func lstat_;
 };
+
+} // end of namespace testing
+} // end of namespace opae
 
 #endif /* !_TEST_SYSTEM_H */

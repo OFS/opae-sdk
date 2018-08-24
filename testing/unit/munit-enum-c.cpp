@@ -47,6 +47,8 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
+using namespace opae::testing;
+
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   enum_c_p() : tmpsysfs("mocksys-XXXXXX") {}

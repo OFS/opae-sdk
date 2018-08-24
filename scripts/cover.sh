@@ -14,7 +14,7 @@ function finish {
 
 	lcov --directory coverage_files --capture --output-file coverage.info
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'tools/**' 'pybind11/*' --output-file coverage.info.cleaned
+	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'tools/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
 	genhtml --function-coverage -o coverage_report coverage.info.cleaned
 	popd
 }
@@ -36,5 +36,5 @@ make munit-opae-c
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
-./bin/munit-opae-c --gtest_filter="enum*"
+./bin/munit-opae-c --gtest_filter="enum*:buffer*"
 

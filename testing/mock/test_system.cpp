@@ -33,16 +33,20 @@
 #include <algorithm>
 #include "c_test_system.h"
 
+namespace opae {
+namespace testing {
+
 int mock_fme::ioctl(int request, va_list argp) {
-  (void) request;
-  (void) argp;
-  return 0; }
+  (void)request;
+  (void)argp;
+  return 0;
+}
 
 int mock_port::ioctl(int request, va_list argp) {
-  (void) request;
-  (void) argp;
-  return 0; }
-
+  (void)request;
+  (void)argp;
+  return 0;
+}
 
 #define ASSERT_FN(fn)                              \
   do {                                             \
@@ -81,6 +85,7 @@ static platform_db PLATFORMS = {
                        .device = 0,
                        .function = 0,
                        .socket_id = 0,
+                       .num_slots = 1,
                        .fme_object_id = 0xf500000,
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
@@ -98,10 +103,9 @@ bool test_platform::exists(const std::string &key) {
 
 std::vector<std::string> test_platform::keys(bool sorted) {
   std::vector<std::string> keys(PLATFORMS.size());
-  std::transform(PLATFORMS.begin(), PLATFORMS.end(), keys.begin(),
-                 [](const std::pair<std::string, test_platform> &it) {
-                   return it.first;
-                 });
+  std::transform(
+      PLATFORMS.begin(), PLATFORMS.end(), keys.begin(),
+      [](const std::pair<std::string, test_platform> &it) { return it.first; });
   if (sorted) {
     std::sort(keys.begin(), keys.end());
   }
@@ -229,34 +233,39 @@ int test_system::lstat(int ver, const char *path, struct stat *buf) {
   return lstat_(ver, syspath.c_str(), buf);
 }
 
+}  // end of namespace testing
+}  // end of namespace opae
+
 // C functions
 
 int opae_test_open(const char *path, int flags) {
-  return test_system::instance()->open(path, flags);
+  return opae::testing::test_system::instance()->open(path, flags);
 }
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
-  return test_system::instance()->open(path, flags, mode);
+  return opae::testing::test_system::instance()->open(path, flags, mode);
 }
 
-int opae_test_close(int fd) { return test_system::instance()->close(fd); }
+int opae_test_close(int fd) {
+  return opae::testing::test_system::instance()->close(fd);
+}
 
 int opae_test_ioctl(int fd, unsigned long request, va_list argp) {
-  return test_system::instance()->ioctl(fd, request, argp);
+  return opae::testing::test_system::instance()->ioctl(fd, request, argp);
 }
 
 DIR *opae_test_opendir(const char *name) {
-  return test_system::instance()->opendir(name);
+  return opae::testing::test_system::instance()->opendir(name);
 }
 
 ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize) {
-  return test_system::instance()->readlink(path, buf, bufsize);
+  return opae::testing::test_system::instance()->readlink(path, buf, bufsize);
 }
 
 int opae_test_xstat(int ver, const char *path, struct stat *buf) {
-  return test_system::instance()->xstat(ver, path, buf);
+  return opae::testing::test_system::instance()->xstat(ver, path, buf);
 }
 
 int opae_test_lstat(int ver, const char *path, struct stat *buf) {
-  return test_system::instance()->lstat(ver, path, buf);
+  return opae::testing::test_system::instance()->lstat(ver, path, buf);
 }
