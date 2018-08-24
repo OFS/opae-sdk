@@ -59,6 +59,7 @@ test_device test_device::unknown() {
                      .device = 9,
                      .function = 5,
                      .socket_id = 9,
+                     .num_slots = 9,
                      .fme_object_id = 9,
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
