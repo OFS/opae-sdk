@@ -38,7 +38,11 @@ class mock_object {
   mock_object(const std::string &devpath, type_t type = sysfs_attr)
       : type_(type), devpath_(devpath) {}
 
-  int ioctl(int request, va_list arg){}
+  int ioctl(int request, va_list arg){
+    (void) request;
+    (void) arg;
+    return 0;
+  }
 
  private:
   type_t type_;
@@ -65,6 +69,7 @@ struct test_device {
   uint8_t device;
   uint8_t function;
   uint8_t socket_id;
+  uint32_t num_slots;
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;

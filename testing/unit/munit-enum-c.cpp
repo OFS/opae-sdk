@@ -47,7 +47,6 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
-
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   enum_c_p() : tmpsysfs("mocksys-XXXXXX") {}
@@ -85,14 +84,6 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
 
 // TEST_P(enum_c_p, matches_1filter) {
 //  // null filter
-//  EXPECT_FALSE(matches_filter(devices[0], nullptr));
-//  EXPECT_FALSE(matches_filter(devices[0], filters["acc"]));
-//
-//  EXPECT_TRUE(matches_filter(devices[1], filters["acc"]));
-//  EXPECT_FALSE(matches_filter(devices[2], filters["pcie"]));
-//  EXPECT_FALSE(matches_filter(devices[0], filters["invalid"]));
-//
-//  uint32_t num_matches = 100;
 //  EXPECT_EQ(fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(),
 //                          &num_matches),
 //            FPGA_OK);
@@ -154,7 +145,27 @@ TEST_P(enum_c_p, nullfilter) {
       fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);
   EXPECT_EQ(num_matches, platform_.devices.size()*2);
+
+  EXPECT_EQ(
+      fpgaEnumerate(nullptr, 1, tokens.data(), tokens.size(), &num_matches),
+      FPGA_INVALID_PARAM);
 }
+
+TEST_P(enum_c_p, nullmatches) {
+  EXPECT_EQ(
+      fpgaEnumerate(&filter, 0, tokens.data(), tokens.size(), NULL),
+      FPGA_INVALID_PARAM);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter, 0, tokens.data(), tokens.size(), &num_matches),
+      FPGA_INVALID_PARAM);
+}
+
+TEST_P(enum_c_p, nulltokens) {
+  EXPECT_EQ(
+      fpgaEnumerate(&filter, 0, NULL, tokens.size(), &num_matches),
+      FPGA_INVALID_PARAM);
+}
+
 
 TEST_P(enum_c_p, object_type) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR), FPGA_OK);
@@ -376,7 +387,6 @@ TEST_P(enum_c_p, guid) {
 }
 
 TEST_P(enum_c_p, clone_token) {
-  auto device = platform_.devices[0];
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);
@@ -386,8 +396,28 @@ TEST_P(enum_c_p, clone_token) {
   EXPECT_EQ(fpgaCloneToken(src, &dst), FPGA_OK);
 }
 
+TEST_P(enum_c_p, clone_wo_src_dst) {
+  EXPECT_EQ(
+      fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &num_matches),
+      FPGA_OK);
+  EXPECT_EQ(num_matches, 2);
+  fpga_token src = tokens[0];
+  fpga_token dst;
+  EXPECT_EQ(fpgaCloneToken(NULL, &dst), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaCloneToken(&src, NULL), FPGA_INVALID_PARAM);
+}
+
+TEST_P(enum_c_p, no_token_magic) {
+  EXPECT_EQ(
+      fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &num_matches),
+      FPGA_OK);
+  EXPECT_EQ(num_matches, 2);
+  fpga_token src,dst;
+  EXPECT_NE(fpgaCloneToken(&src, &dst), FPGA_OK);
+}
+
+
 TEST_P(enum_c_p, destroy_token) {
-  auto device = platform_.devices[0];
   // null filter
   uint32_t num_matches;
   EXPECT_EQ(
@@ -405,6 +435,22 @@ TEST_P(enum_c_p, destroy_token) {
   _fpga_token *dummy = new _fpga_token;
   EXPECT_EQ(fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
   delete dummy;
+}
+
+TEST_P(enum_c_p, num_slots) {
+  auto device = platform_.devices[0];
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter, FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter, device.num_slots), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &num_matches),
+      FPGA_OK);
+  EXPECT_EQ(num_matches, 1);
+
+  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter, invalid_device_.num_slots), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &num_matches),
+      FPGA_OK);
+  EXPECT_EQ(num_matches, 0);
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
