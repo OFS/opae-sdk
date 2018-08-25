@@ -44,13 +44,16 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-if(BUILD_ASE_TEST)
-     Build_Test_Target(gtase opae-c-ase)
-else()
-    Build_Test_Target(gtapi opae-c)
+add_library(commonlib SHARED common_test.h common_test.cpp)
+
+if(BUILD_ASE_TESTS)
+     include(test_config_ase)
+endif()
+if(BUILD_LIBOPAE_C)
+     Build_Test_Target(gtapi opae-c)
 endif()
 
-############################################################################
+###########################################################################
 #### COMMON for GTAPI & GTASE ##############################################
 ############################################################################
 configure_file(${PROJECT_SOURCE_DIR}/configuration.json
@@ -60,10 +63,9 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration.json
 ############################################################################
 ## Build MOCK Driver   #####################################################
 ############################################################################
+
 # build mock driver and unpack fake sysfs to /tmp folder
-if (NOT BUILD_ASE_TEST)
-  Build_MOCk_DRV()
-endif()
+Build_MOCk_DRV()
 
 ############################################################################
 ## add_gtfilter macro  #####################################################
@@ -100,8 +102,22 @@ add_gtfilter(CxxExcept    "LibopaecppExcept*" False)
 add_gtfilter(CxxEvent     "LibopaecppEvent*" True)
 add_gtfilter(CxxMMIO      "LibopaecppMMIO*" True)
 add_gtfilter(CxxVersion   "LibopaecppVersion*" False)
+add_gtfilter(CxxErrors    "LibopaecppErrors*" True)
 Exe_Tests("Mock_All" ${Test_Names})
 Exe_tests("Any_Value" "Cxx*any*")
+
+############################################################################
+## pyopae tests ######## ###################################################
+############################################################################
+add_test(NAME pyopae
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} -m nose2 test_pyopae)
+set_tests_properties(
+    pyopae
+    PROPERTIES
+    ENVIRONMENT
+    "LD_PRELOAD=./lib/libmock.so;PYTHONPATH=./lib/python${OPAE_PYTHON_VERSION}")
+
 
 ############################################################################
 ## Add Coverage Analysis ###################################################

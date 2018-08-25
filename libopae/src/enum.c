@@ -54,6 +54,7 @@ struct dev_list {
 	char devpath[DEV_PATH_MAX];
 	fpga_objtype objtype;
 	fpga_guid guid;
+	uint16_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
@@ -81,7 +82,7 @@ static bool matches_filter(const struct dev_list *attr,
 	int err = 0;
 
 	if (pthread_mutex_lock(&_filter->lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+		FPGA_MSG("Failed to lock filter mutex");
 		return false;
 	}
 
@@ -128,6 +129,13 @@ static bool matches_filter(const struct dev_list *attr,
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_SEGMENT)) {
+		if (_filter->segment != attr->segment) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_BUS)) {
 		if (_filter->bus != attr->bus) {
 			res = false;
@@ -155,11 +163,6 @@ static bool matches_filter(const struct dev_list *attr,
 			goto out_unlock;
 		}
 	}
-
-	// FIXME
-	// if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
-	//
-	// }
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
 		if (0 != memcmp(attr->guid, _filter->guid, sizeof(fpga_guid))) {
@@ -237,34 +240,6 @@ static bool matches_filter(const struct dev_list *attr,
 				goto out_unlock;
 			}
 		}
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_MODEL)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_LOCAL_MEMORY)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
-
-		// FIXME
-		// if (FIELD_VALID(_filter, FPGA_PROPERTY_CAPABILITIES)) {
-		//	if (FPGA_DEVICE != attr->objtype)
-		//		return false;
-		//
-		// }
 
 	} else if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 		   && (FPGA_ACCELERATOR == _filter->objtype)) {
@@ -382,6 +357,7 @@ static fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	pdev->objtype = FPGA_DEVICE;
 
+	pdev->segment = parent->segment;
 	pdev->bus = parent->bus;
 	pdev->device = parent->device;
 	pdev->function = parent->function;
@@ -457,6 +433,7 @@ static fpga_result enum_afu(const char *sysfspath, const char *name,
 
 	pdev->objtype = FPGA_ACCELERATOR;
 
+	pdev->segment = parent->segment;
 	pdev->bus = parent->bus;
 	pdev->device = parent->device;
 	pdev->function = parent->function;
@@ -504,7 +481,7 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 	int res;
 	char *p;
 	int f;
-	unsigned b, d;
+	unsigned s, b, d;
 
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
@@ -546,26 +523,32 @@ static fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 		FPGA_MSG("Invalid link");
 		return FPGA_NO_DRIVER;
 	}
-	p += 6;
+	++p;
 
-	// 0123456
-	// bb:dd.f
+	//           11
+	// 012345678901
+	// ssss:bb:dd.f
 	f = 0;
-	sscanf_s_i(p + 6, "%d", &f);
+	sscanf_s_i(p + 11, "%d", &f);
 
 	pdev->function = (uint8_t)f;
-	*(p + 5) = 0;
+	*(p + 10) = 0;
 
 	d = 0;
-	sscanf_s_u(p + 3, "%x", &d);
+	sscanf_s_u(p + 8, "%x", &d);
 
 	pdev->device = (uint8_t)d;
-	*(p + 2) = 0;
+	*(p + 7) = 0;
 
 	b = 0;
-	sscanf_s_u(p, "%x", &b);
+	sscanf_s_u(p + 5, "%x", &b);
 
 	pdev->bus = (uint8_t)b;
+	*(p + 4) = 0;
+
+	s = 0;
+	sscanf_s_u(p, "%x", &s);
+	pdev->segment = (uint16_t)s;
 
 	// read the vendor and device ID from the 'device' path
 	uint32_t x = 0;
@@ -780,6 +763,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 	}
 
 	_dst->magic = FPGA_TOKEN_MAGIC;
+	_dst->instance = _src->instance;
 
 	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath), _src->sysfspath,
 		      sizeof(_src->sysfspath));

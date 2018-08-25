@@ -1,4 +1,4 @@
-// Copyright(c) 2014-2017, Intel Corporation
+// Copyright(c) 2014-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,16 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: ASE operations functions
- * Language   : C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- *
- */
 
 #include "ase_common.h"
+
 
 // Ready filepath
 char *ase_ready_filepath;
@@ -49,7 +42,7 @@ inline int get_loglevel(void)
 inline void set_loglevel(int level)
 {
 	if ((level >= ASE_LOG_ERROR)
-		&& (level <= ASE_LOG_DEBUG))
+	    && (level <= ASE_LOG_DEBUG))
 		glbl_loglevel = level;
 	else
 		ASE_MSG("%s: Illlegal loglevel value.\n", __func__);
@@ -64,7 +57,7 @@ int generate_sockname(char *name)
 	int res;
 
 	res = ase_strncpy_s(name, strlen(SOCKNAME)+1, SOCKNAME, strlen(SOCKNAME)+1);
-    if (res != 0) {
+	if (res != 0) {
 		ASE_ERR("%s: Error ase_strncpy_s\n", __func__);
 		return -1;
 	}
@@ -80,10 +73,10 @@ int generate_sockname(char *name)
 
 	return res;
 }
+
 /*
  * Parse strings and remove unnecessary characters
  */
-// Remove spaces
 void remove_spaces(char *in_str)
 {
 	if (in_str == NULL) {
@@ -102,8 +95,9 @@ void remove_spaces(char *in_str)
 	}
 }
 
-
-// Remove tabs
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_tabs(char *in_str)
 {
 	if (in_str == NULL) {
@@ -120,7 +114,9 @@ void remove_tabs(char *in_str)
 	}
 }
 
-// Remove newline
+/*
+ * Parse strings and remove unnecessary characters
+ */
 void remove_newline(char *in_str)
 {
 	if (in_str == NULL) {
@@ -178,10 +174,10 @@ void ase_buffer_oneline(struct buffer_t *mem)
 }
 
 
-// -------------------------------------------------------------------
-// buffer_t_to_str : buffer_t to string conversion
-// Converts buffer_t to string
-// -------------------------------------------------------------------
+/*
+ * buffer_t_to_str : buffer_t to string conversion
+ * Converts buffer_t to string
+ */
 void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 {
 	FUNC_CALL_ENTRY;
@@ -191,11 +187,10 @@ void ase_buffer_t_to_str(struct buffer_t *buf, char *str)
 	FUNC_CALL_EXIT;
 }
 
-
-// --------------------------------------------------------------
-// ase_str_to_buffer_t : string to buffer_t conversion
-// All fields are space separated, use strtok to decode
-// --------------------------------------------------------------
+/*
+ * ase_str_to_buffer_t : string to buffer_t conversion
+ * All fields are space separated, use strtok to decode
+ */
 void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 {
 	FUNC_CALL_ENTRY;
@@ -204,17 +199,6 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 
 	FUNC_CALL_EXIT;
 }
-
-
-/*
- * ASE memory barrier
- */
-void ase_memory_barrier(void)
-{
-	// asm volatile("" ::: "memory");
-	__asm__ __volatile__("":::"memory");
-}
-
 
 /*
  * Evaluate Session directory
@@ -232,13 +216,11 @@ void ase_eval_session_directory(void)
 {
 	FUNC_CALL_ENTRY;
 
-	// ase_workdir_path = ase_malloc (ASE_FILEPATH_LEN);
-
 	// Evaluate location of simulator or own location
 #ifdef SIM_SIDE
-	ase_workdir_path = getenv("PWD");
+	ase_workdir_path = ase_getenv("PWD");
 #else
-	ase_workdir_path = getenv("ASE_WORKDIR");
+	ase_workdir_path = ase_getenv("ASE_WORKDIR");
 
 #ifdef ASE_DEBUG
 	ASE_DBG("env(ASE_WORKDIR) = %s\n", ase_workdir_path);
@@ -246,9 +228,9 @@ void ase_eval_session_directory(void)
 
 	if (ase_workdir_path == NULL) {
 		ASE_ERR
-		    ("**ERROR** Environment variable ASE_WORKDIR could not be evaluated !!\n");
-		ASE_ERR("**ERROR** ASE will exit now !!\n");
-		perror("getenv");
+			("**ERROR** Environment variable ASE_WORKDIR could not be evaluated !!\n"
+				"**ERROR** ASE will exit now !!\n");
+		perror("ase_getenv");
 		exit(1);
 	} else {
 		// Check if directory exists here
@@ -256,8 +238,8 @@ void ase_eval_session_directory(void)
 		ase_dir = opendir(ase_workdir_path);
 		if (!ase_dir) {
 			ASE_ERR
-			    ("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n");
-			ASE_ERR("Cannot continue execution... exiting !");
+				("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n"
+					"Cannot continue execution... exiting !");
 			perror("opendir");
 			exit(1);
 		} else {
@@ -284,7 +266,6 @@ char *ase_malloc(size_t size)
 		ase_error_report("malloc", errno, ASE_OS_MALLOC_ERR);
 
 		ASE_ERR("Malloc failed\n");
-		ase_free_buffer(buffer);
 		FUNC_CALL_EXIT;
 #ifdef SIM_SIDE
 		start_simkill_countdown();
@@ -335,7 +316,7 @@ void ase_write_lock_file(void)
 	fp_ase_ready = fopen(ase_ready_filepath, "w");
 	if (fp_ase_ready == (FILE *) NULL) {
 		ASE_ERR
-		    ("**ERROR** => ASE lock file could not be written, Exiting\n");
+			("**ERROR** => ASE lock file could not be written, Exiting\n");
 		start_simkill_countdown();
 	} else {
 		// ///////// Write specifics ////////////////
@@ -346,7 +327,7 @@ void ase_write_lock_file(void)
 		ret_err = gethostname(ase_hostname, ASE_FILENAME_LEN);
 		if (ret_err != 0) {
 			ASE_ERR
-			    ("**ERROR** => Hostname could not be calculated, Exiting\n");
+				("**ERROR** => Hostname could not be calculated, Exiting\n");
 
 			// Close file
 			fclose(fp_ase_ready);
@@ -374,7 +355,7 @@ void ase_write_lock_file(void)
 
 			// Notice on stdout
 			ASE_MSG
-			    ("ASE lock file .ase_ready.pid written in work directory\n");
+				("ASE lock file .ase_ready.pid written in work directory\n");
 		}
 	}
 
@@ -410,7 +391,7 @@ int ase_read_lock_file(const char *workdir)
 	// Null check and exit
 	if (workdir == NULL) {
 		ASE_ERR
-		    ("ase_read_lock_file : Input ASE workdir path is NULL \n");
+			("ase_read_lock_file : Input ASE workdir path is NULL \n");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -429,14 +410,14 @@ int ase_read_lock_file(const char *workdir)
 			readback_hostname = ase_malloc(ASE_FILENAME_LEN);
 			readback_uid = ase_malloc(ASE_FILEPATH_LEN);
 			readback_workdir_path =
-			    ase_malloc(ASE_FILEPATH_LEN);
+				ase_malloc(ASE_FILEPATH_LEN);
 			curr_hostname = ase_malloc(ASE_FILENAME_LEN);
 
 			// Open file
 			fp_exp_ready = fopen(exp_ready_filepath, "r");
 			if (fp_exp_ready == NULL) {
 				ASE_ERR
-				    ("Ready file couldn't be opened for reading, Exiting !\n");
+					("Ready file couldn't be opened for reading, Exiting !\n");
 #ifdef SIM_SIDE
 				start_simkill_countdown();
 #else
@@ -445,8 +426,7 @@ int ase_read_lock_file(const char *workdir)
 			} else {
 
 				// Read file line by line
-				while (getline(&line, &len, fp_exp_ready)
-				       != -1) {
+				while (getline(&line, &len, fp_exp_ready) != -1) {
 					// LHS/RHS tokenizing
 					parameter = strtok_r(line, "=", &saveptr);
 					value = strtok_r(NULL, "", &saveptr);
@@ -454,7 +434,7 @@ int ase_read_lock_file(const char *workdir)
 					if ((parameter == NULL)
 					    || (value == NULL)) {
 						ASE_ERR
-						    ("** Error tokenizing paramter in lock file, EXIT !\n");
+							("** Error tokenizing paramter in lock file, EXIT !\n");
 #ifdef SIM_SIDE
 						start_simkill_countdown();
 #else
@@ -469,38 +449,16 @@ int ase_read_lock_file(const char *workdir)
 						remove_tabs(value);
 						remove_newline(value);
 						// Line 1/2/3/4 check
-						if (ase_strncmp
-						    (parameter, "pid",
-						     3) == 0) {
-							readback_pid =
-							    atoi(value);
-						} else
-						    if (ase_strncmp
-							(parameter, "host",
-							 4) == 0) {
-							ase_string_copy
-							    (readback_hostname,
-							     value,
-							     ASE_FILENAME_LEN);
-						} else
-						    if (ase_strncmp
-							(parameter, "dir",
-							 3) == 0) {
-							ase_string_copy
-							    (readback_workdir_path,
-							     value,
-							     ASE_FILEPATH_LEN);
-						} else
-						    if (ase_strncmp
-							(parameter, "uid",
-							 3) == 0) {
-							ase_string_copy
-							    (readback_uid,
-							     value,
-							     ASE_FILEPATH_LEN);
+						if (ase_strncmp(parameter, "pid", 3) == 0) {
+							readback_pid = atoi(value);
+						} else if (ase_strncmp(parameter, "host", 4) == 0) {
+							ase_string_copy(readback_hostname, value, ASE_FILENAME_LEN);
+						} else if (ase_strncmp(parameter, "dir", 3) == 0) {
+							ase_string_copy(readback_workdir_path, value, ASE_FILEPATH_LEN);
+						} else if (ase_strncmp(parameter, "uid", 3) == 0) {
+							ase_string_copy(readback_uid, value, ASE_FILEPATH_LEN);
 						} else {
-							ASE_ERR
-							    ("** ERROR **: Session parameter could not be deciphered !\n");
+							ASE_ERR("** ERROR **: Session parameter could not be deciphered !\n");
 						}
 					}
 				}
@@ -509,23 +467,19 @@ int ase_read_lock_file(const char *workdir)
 
 			////////////////// Error checks //////////////////
 			// If hostname does not match
-			ret_err =
-			    gethostname(curr_hostname, ASE_FILENAME_LEN);
+			ret_err = gethostname(curr_hostname, ASE_FILENAME_LEN);
 			if (ret_err != 0) {
-				ASE_ERR
-				    ("**ERROR** => Hostname could not be calculated, Exiting\n");
+				ASE_ERR("**ERROR** => Hostname could not be calculated, Exiting\n");
 				exit(1);
 			} else {
 				// Check here
-				if (ase_strncmp
-				    (curr_hostname, readback_hostname,
-				     ASE_FILENAME_LEN) != 0) {
+				if (ase_strncmp(curr_hostname, readback_hostname, ASE_FILENAME_LEN) != 0) {
 					ASE_ERR
-					    ("** ERROR ** => Hostname specified in ASE lock file (%s) is different as current hostname (%s)\n",
-					     readback_hostname,
-					     curr_hostname);
+						("** ERROR ** => Hostname specified in ASE lock file (%s) is different as current hostname (%s)\n",
+						 readback_hostname,
+						 curr_hostname);
 					ASE_ERR
-					    ("** ERROR ** => Ensure that Simulator process and OPAE SW application are running on the same host !\n");
+						("** ERROR ** => Ensure that Simulator process and OPAE SW application are running on the same host !\n");
 #ifdef SIM_SIDE
 					start_simkill_countdown();
 #else
@@ -533,28 +487,17 @@ int ase_read_lock_file(const char *workdir)
 #endif
 				} else {
 					// If readback_uid (Readback unique ID from lock file) doesnt match ase_common.h
-					curr_uid =
-					    ase_malloc(ASE_FILENAME_LEN);
-					ase_string_copy(curr_uid,
-							ASE_UNIQUE_ID,
-							ASE_FILENAME_LEN);
+					curr_uid = ase_malloc(ASE_FILENAME_LEN);
+					ase_string_copy(curr_uid, ASE_UNIQUE_ID, ASE_FILENAME_LEN);
 
 					// Check
-					if (ase_strncmp
-					    (curr_uid, readback_uid,
-					     ASE_FILENAME_LEN) != 0) {
+					if (ase_strncmp(curr_uid, readback_uid, ASE_FILENAME_LEN) != 0) {
 						ASE_ERR
-						    ("** ERROR ** => Application UID does not match known release UID\n");
-						ASE_ERR
-						    ("** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n",
-						     readback_uid,
-						     curr_uid);
-						ASE_ERR
-						    ("** ERROR ** => Ensure that Simulator process and OPAE SW application are compiled from the same System Release version !\n");
-						ASE_ERR
-						    ("** ERROR ** => Also, check if env(LD_LIBRARY_PATH) is set to appropriate <prefix> or <DESTDIR> library paths \n");
-						ASE_ERR
-						    ("** ERROR ** => Simulation cannot proceed ... EXITING\n");
+							("** ERROR ** => Application UID does not match known release UID\n"
+							"** ERROR ** => Simulator built with UID=%s, Application built with UID=%s\n"
+							"** ERROR ** => Ensure that Simulator process and OPAE SW application are compiled from the same System Release version !\n"
+							"** ERROR ** => Also, check if env(LD_LIBRARY_PATH) is set to appropriate <prefix> or <DESTDIR> library paths \n"
+							"** ERROR ** => Simulation cannot proceed ... EXITING\n", readback_uid,	curr_uid);
 #ifdef SIM_SIDE
 						start_simkill_countdown();
 #else
@@ -574,12 +517,10 @@ int ase_read_lock_file(const char *workdir)
 			ase_free_buffer(readback_uid);
 		} else {         // File does not exist
 			ASE_ERR
-			    ("ASE Ready file was not found at env(ASE_WORKDIR) !\n");
-			ASE_ERR
-			    ("This could be for one of two reasons =>\n");
-			ASE_ERR(" - Simualtor is not running yet  \n");
-			ASE_ERR
-			    (" - env(ASE_WORKDIR) is set to the wrong location \n");
+				("ASE Ready file was not found at env(ASE_WORKDIR) !\n"
+					"This could be for one of two reasons =>\n"
+					" - Simualtor is not running yet  \n"
+					" - env(ASE_WORKDIR) is set to the wrong location \n");
 			// Shutdown process
 #ifdef SIM_SIDE
 			start_simkill_countdown();
@@ -654,15 +595,6 @@ void register_signal(int sig, void *handler)
 
 
 /*
- * ret_random_in_range : Return random number in a range
- */
-uint32_t ret_random_in_range(int low, int high)
-{
-	return (rand() % (high + 1 - low) + low);
-}
-
-
-/*
  * ase_string_copy
  * ASE's own safe string copy insures a null-termination
  * NOTE: dest must be malloc'ed before use (use ase_malloc)
@@ -676,7 +608,7 @@ void ase_string_copy(char *dest, const char *src, size_t num_bytes)
 	// Allocate memory if not already done
 	if (dest == NULL) {
 		ASE_ERR
-		    ("** ERROR ** => String copy destination not allocated.. Exiting\n");
+			("** ERROR ** => String copy destination not allocated.. Exiting\n");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -694,8 +626,8 @@ void ase_string_copy(char *dest, const char *src, size_t num_bytes)
 			dest[dest_strlen] = '\0';
 		} else {
 			ASE_ERR
-			    ("** Internal Error ** => Invalid null termination during string copy [%d]\n",
-			     dest_strlen);
+				("** Internal Error ** => Invalid null termination during string copy [%d]\n",
+				 dest_strlen);
 #ifdef SIM_SIDE
 			start_simkill_countdown();
 #else
@@ -717,7 +649,7 @@ char *ase_getenv(const char *name)
 
 	if (name == NULL) {
 		ASE_ERR
-		    ("** ERROR **: Input Environment variable is NULL... EXITING");
+			("** ERROR **: Input Environment variable is NULL... EXITING");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -733,8 +665,8 @@ char *ase_getenv(const char *name)
 
 		if (env == NULL) {
 			ASE_ERR
-			    ("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING",
-			     name);
+				("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING",
+				 name);
 #ifdef SIM_SIDE
 			start_simkill_countdown();
 #else
@@ -758,16 +690,15 @@ void ase_memcpy(void *dest, const void *src, size_t n)
 	ase_memcpy_s(dest, n, src, n);
 }
 
+
 /*
-* ase_memset - Secure memset abstraction
-*/
-void ase_memset(void *dest, int ch, size_t n)
+ * ase_memset - Secure memset abstraction
+ */
+int ase_memset(void *dest, int ch, size_t n)
 {
 	// Secure implementation
-	ase_memset_s(dest, n, ch, n);
+	return ase_memset_s(dest, n, ch, n);
 }
-
-
 
 /*
  * Print messages
@@ -807,8 +738,6 @@ void ase_print(int loglevel, char *fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 
-	// glbl_loglevel is sanitized to Either 0, 1, or 2
-
 	if (loglevel == ASE_LOG_ERROR) {
 		BEGIN_RED_FONTCOLOR;
 		vprintf(fmt, args);
@@ -838,7 +767,7 @@ void ase_print(int loglevel, char *fmt, ...)
 		END_YELLOW_FONTCOLOR;
 #endif
 	} else {
-		if (glbl_loglevel != ASE_LOG_SILENT) {
+		if (get_loglevel() != ASE_LOG_SILENT) {
 			BEGIN_YELLOW_FONTCOLOR;
 			vprintf(fmt, args);
 			END_YELLOW_FONTCOLOR;

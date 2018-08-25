@@ -6,10 +6,10 @@ extern "C" {
 }
 #endif
 
-#include "gtest/gtest.h"
-#include <opae/cxx/core/token.h>
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/core/token.h>
 #include <uuid/uuid.h>
+#include "gtest/gtest.h"
 
 using namespace opae::fpga::types;
 const char* TEST_GUID_STR = "ae2878a7-926f-4332-aba1-2b952ad6df8e";
@@ -78,7 +78,7 @@ TEST(LibopaecppPropsCommonALL, get_guid) {
  * When I set compare its guid with the known guid
  * Then the result is true
  */
-TEST(LibopaecppPropsCommonALL, compare_guid){
+TEST(LibopaecppPropsCommonALL, compare_guid) {
   fpga_guid guid_in;
   auto p = properties::get();
   uuid_parse(TEST_GUID_STR, guid_in);
@@ -95,7 +95,7 @@ TEST(LibopaecppPropsCommonALL, compare_guid){
  * When I set compare its guid with the known guid
  * Then the result is true
  */
-TEST(LibopaecppPropsCommonALL, props_ctor_01){
+TEST(LibopaecppPropsCommonALL, props_ctor_01) {
   fpga_guid guid_in;
   uuid_parse(TEST_GUID_STR, guid_in);
   auto p = properties::get(guid_in);
@@ -130,4 +130,30 @@ TEST(LibopaecppPropsCommonALL, get_model) {
   std::string model = "";
   // Model is currently not supported in libopae-c
   EXPECT_THROW(model = p->model, not_supported);
+}
+
+/**
+ * @test set_num_errors
+ * Given a properties properties object with the num_errors property set to a
+ * known value
+ * When I get the num_errors property
+ * Then the number is the expected value
+ */
+TEST(LibopaecppPropsCommonALL, get_num_errors) {
+  auto p = properties::get();
+  p->num_errors = 9;
+  EXPECT_EQ(static_cast<uint32_t>(p->num_errors), 9);
+}
+
+/**
+ * @test segment
+ * Given a properties properties object with the segment property set to a
+ * known value
+ * When I get the segment property
+ * Then the number is the expected value
+ */
+TEST(LibopaecppPropsCommonALL, get_segment) {
+  auto p = properties::get();
+  p->segment = 9090;
+  EXPECT_EQ(static_cast<uint16_t>(p->segment), 9090);
 }

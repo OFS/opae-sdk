@@ -76,12 +76,11 @@
  * Logging functions
  */
 enum fpga_loglevel {
-	FPGA_LOG_UNDEFINED = -1, /* loglevel not set */
 	FPGA_LOG_ERROR = 0,      /* critical errors (always print) */
 	FPGA_LOG_MESSAGE,        /* information (i.e. explain return code */
 	FPGA_LOG_DEBUG           /* debugging (also needs #define DEBUG 1) */
 };
-#define FPGA_DEFAULT_LOGLEVEL 0
+#define FPGA_DEFAULT_LOGLEVEL FPGA_LOG_ERROR
 
 void fpga_print(int loglevel, char *fmt, ...);
 

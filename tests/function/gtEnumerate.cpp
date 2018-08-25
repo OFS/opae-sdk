@@ -779,7 +779,7 @@ TEST(LibopaecEnumCommonALL, enum_drv_020) {
  *             /home/lab/workspace/rpan1/rtl/121516_skxp_630_pr_hssiE100_7277_sd00_skxnlb400m0.gbs
  *
  */
-TEST_F(LibopaecEnumFCommonALL, DISABLED_enum_drv_021) {
+TEST_F(LibopaecEnumFCommonALL, enum_drv_021) {
   // Should select one AFU.
   const uint8_t socket = 0x0;
 
@@ -861,4 +861,209 @@ TEST(LibopaecEnumCommonALL, enum_drv_022) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetGUID(prop, &guid));
   ASSERT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
   ASSERT_EQ(FPGA_OK, fpgaDestroyToken(&tok));
+}
+
+/**
+ * @test       enum_033
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             segment field set, but that segment does not match any device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_033) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSegment(m_Properties, 0xc001));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_023
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             bus field set, but that bus does not match any device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_023) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBus(m_Properties, 3));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_024
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             device field set, but that device does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_024) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDevice(m_Properties, 3));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_025
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             function field set, but that function does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_025) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetFunction(m_Properties, 3));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_026
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             guid field set, but that guid does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_026) {
+  fpga_guid guid;
+
+  memset(&guid, 0, sizeof(fpga_guid));
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetGUID(m_Properties, guid));
+
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+}
+
+/**
+ * @test       enum_027
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             object ID field set, but that object ID does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_027) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectID(m_Properties, 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+}
+
+/**
+ * @test       enum_028
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             vendor ID field set, but that vendor ID does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_028) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetVendorID(m_Properties, 0));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_029
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             device ID field set, but that device ID does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_029) {
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetDeviceID(m_Properties, 0));
+
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_030
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             num errors field set, but that num errors does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_030) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetNumErrors(m_Properties, 999));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_031
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             BBS ID field set, but that BBS ID does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_031) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSID(m_Properties, 0));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_032
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             BBS version field set, but that BBS version does not match any FPGA device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_032) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(m_Properties, FPGA_DEVICE));
+
+  fpga_version v;
+  v.major = 9;
+  v.minor = 9;
+  v.patch = 99;
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+
+  v.major = 6;
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+
+  v.minor = 4;
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetBBSVersion(m_Properties, v));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
+}
+
+/**
+ * @test       enum_034
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             socket id field set, but that socket id does not match any device,
+ *             fpgaEnumerate returns zero matches.
+ */
+TEST_F(LibopaecEnumFCommonALL, enum_034) {
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSocketID(m_Properties, 0xff));
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, fpgaEnumerate(&m_Properties, 1, NULL, 0, &m_NumMatches));
+  EXPECT_EQ(0, m_NumMatches);
+#endif
 }

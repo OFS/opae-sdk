@@ -82,6 +82,22 @@ static struct mock_dev {
 	char pathname[MAX_STRLEN];
 } mock_devs[MAX_FD] = {{0}};
 
+static bool gEnableIRQ = false;
+bool mock_enable_irq(bool enable)
+{
+	bool res = gEnableIRQ;
+	gEnableIRQ = enable;
+	return res;
+}
+
+static bool gEnableErrInj = false;
+bool mock_enable_errinj(bool enable)
+{
+	bool res = gEnableErrInj;
+	gEnableErrInj = enable;
+	return res;
+}
+
 typedef int (*open_func)(const char *pathname, int flags);
 typedef int (*open_mode_func)(const char *pathname, int flags, mode_t m);
 
@@ -149,6 +165,12 @@ int ioctl(int fd, unsigned long request, ...)
 		return -1;
 
 	FPGA_DBG("mock ioctl() called");
+
+	// Returns error when Error injection enabled
+	if (gEnableErrInj) {
+		goto out_EINVAL;
+	}
+
 	switch (mock_devs[fd].objtype) {
 	case FPGA_DEVICE: /* FME */
 		switch (request) {
@@ -203,22 +225,22 @@ int ioctl(int fd, unsigned long request, ...)
 				goto out_EINVAL;
 			}
 			pr->status = 0; /* return success */
-			/* TODO: reflect reconfiguration (chagne afu_id?) */
+			/* TODO: reflect reconfiguration (change afu_id?) */
 			/* generate hash for bitstream data */
-            hash = stupid_hash((uint32_t*)pr->buffer_address, pr->buffer_size / 4);
-            /* write hash to file in tmp */
-            strncpy_s(hashfilename, MAX_STRLEN, mock_devs[fd].pathname, strlen(mock_devs[fd].pathname) + 1);
-            strncat_s(hashfilename, MAX_STRLEN, HASH_SUFFIX, sizeof(HASH_SUFFIX));
+			hash = stupid_hash((uint32_t*)pr->buffer_address, pr->buffer_size / 4);
+			/* write hash to file in tmp */
+			strncpy_s(hashfilename, MAX_STRLEN, mock_devs[fd].pathname, strlen(mock_devs[fd].pathname) + 1);
+			strcat_s(hashfilename, MAX_STRLEN, HASH_SUFFIX);
 
-            FILE* hashfile = fopen(hashfilename, "w");
-            if (hashfile) {
-                fwrite(&hash, sizeof(hash), 1, hashfile);
-                fclose(hashfile);
-            }
-            retval = 0;
-            errno = 0;
-            break;
-        case FPGA_FME_PORT_ASSIGN:
+			FILE* hashfile = fopen(hashfilename, "w");
+			if (hashfile) {
+		                fwrite(&hash, sizeof(hash), 1, hashfile);
+				fclose(hashfile);
+			}
+			retval = 0;
+			errno = 0;
+			break;
+		case FPGA_FME_PORT_ASSIGN:
 			FPGA_DBG("got FPGA_FME_PORT_ASSIGN");
 			struct fpga_fme_port_assign *port_assign =
 				va_arg(argp, struct fpga_fme_port_assign *);
@@ -237,6 +259,56 @@ int ioctl(int fd, unsigned long request, ...)
 			if (port_assign->port_id != 0) {
 				FPGA_MSG("unexpected port ID %u", port_assign->port_id);
 				goto out_EINVAL;
+			}
+			retval = 0;
+			errno = 0;
+			break;
+		case FPGA_FME_GET_INFO:
+			FPGA_DBG("got FPGA_FME_GET_INFO");
+			struct fpga_fme_info *fme_info =
+				va_arg(argp, struct fpga_fme_info *);
+			if (!fme_info) {
+				FPGA_MSG("fme_info is NULL");
+				goto out_EINVAL;
+			}
+			if (fme_info->argsz != sizeof(*fme_info)) {
+				FPGA_MSG("wrong structure size");
+				goto out_EINVAL;
+			}
+			if (fme_info->flags != 0) {
+				FPGA_MSG("unexpected flags %u", fme_info->flags);
+				goto out_EINVAL;
+			}
+			if (fme_info->capability != 0) {
+				FPGA_MSG("unexpected capability %u", fme_info->capability);
+				goto out_EINVAL;
+			}
+			fme_info->capability = gEnableIRQ ? FPGA_FME_CAP_ERR_IRQ : 0;
+			retval = 0;
+			errno = 0;
+			break;
+		case FPGA_FME_ERR_SET_IRQ:
+			FPGA_DBG("got FPGA_FME_ERR_SET_IRQ");
+			struct fpga_fme_err_irq_set *fme_irq =
+				va_arg(argp, struct fpga_fme_err_irq_set *);
+			if (!fme_irq) {
+				FPGA_MSG("fme_irq is NULL");
+				goto out_EINVAL;
+			}
+			if (fme_irq->argsz != sizeof(*fme_irq)) {
+				FPGA_MSG("wrong structure size");
+				goto out_EINVAL;
+			}
+			if (fme_irq->flags != 0) {
+				FPGA_MSG("unexpected flags %u", fme_irq->flags);
+				goto out_EINVAL;
+			}
+			if (gEnableIRQ && fme_irq->evtfd >= 0) {
+				uint64_t data = 1;
+				// Write to the eventfd to signal one IRQ event.
+				if (write(fme_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+					FPGA_ERR("IRQ write < 8 bytes");
+				}
 			}
 			retval = 0;
 			errno = 0;
@@ -333,6 +405,71 @@ int ioctl(int fd, unsigned long request, ...)
 			pinfo->flags = 0;
 			pinfo->num_regions = 1;
 			pinfo->num_umsgs = 8;
+			if (gEnableIRQ) {
+				pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+				pinfo->num_uafu_irqs = 1;
+			} else {
+				pinfo->capability = 0;
+				pinfo->num_uafu_irqs = 0;
+			}
+			retval = 0;
+			errno = 0;
+			break;
+
+		case FPGA_PORT_ERR_SET_IRQ:
+			FPGA_DBG("got FPGA_PORT_ERR_SET_IRQ");
+			struct fpga_port_err_irq_set *port_irq =
+				va_arg(argp, struct fpga_port_err_irq_set *);
+			if (!port_irq) {
+				FPGA_MSG("port_irq is NULL");
+				goto out_EINVAL;
+			}
+			if (port_irq->argsz != sizeof(*port_irq)) {
+				FPGA_MSG("wrong structure size");
+				goto out_EINVAL;
+			}
+			if (port_irq->flags != 0) {
+				FPGA_MSG("unexpected flags %u", port_irq->flags);
+				goto out_EINVAL;
+			}
+			if (gEnableIRQ && port_irq->evtfd >= 0) {
+				uint64_t data = 1;
+				// Write to the eventfd to signal one IRQ event.
+				if (write(port_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+					FPGA_ERR("IRQ write < 8 bytes");
+				}
+			}
+			retval = 0;
+			errno = 0;
+			break;
+		case FPGA_PORT_UAFU_SET_IRQ:
+			FPGA_DBG("got FPGA_PORT_UAFU_SET_IRQ");
+			struct fpga_port_uafu_irq_set *uafu_irq =
+				va_arg(argp, struct fpga_port_uafu_irq_set *);
+			if (!uafu_irq) {
+				FPGA_MSG("uafu_irq is NULL");
+				goto out_EINVAL;
+			}
+			if (uafu_irq->argsz < sizeof(*uafu_irq)) {
+				FPGA_MSG("wrong structure size");
+				goto out_EINVAL;
+			}
+			if (uafu_irq->flags != 0) {
+				FPGA_MSG("unexpected flags %u", uafu_irq->flags);
+				goto out_EINVAL;
+			}
+			if (gEnableIRQ) {
+				uint32_t i;
+				uint64_t data = 1;
+				// Write to each eventfd to signal one IRQ event.
+				for (i = 0 ; i < uafu_irq->count ; ++i) {
+					if (uafu_irq->evtfd[i] >= 0)
+						if (write(uafu_irq->evtfd[i], &data, sizeof(data)) !=
+								sizeof(data)) {
+							FPGA_ERR("IRQ write < 8 bytes");
+						}
+				}
+			}
 			retval = 0;
 			errno = 0;
 			break;

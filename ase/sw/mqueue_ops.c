@@ -24,13 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-/*
- * Module Info: Message queue functions
- * Language   : System{Verilog} | C/C++
- * Owner      : Rahul R Sharma
- *              rahul.r.sharma@intel.com
- *              Intel Corporation
- */
 
 #include "ase_common.h"
 
@@ -124,9 +117,6 @@ void ipc_init(void)
 	FUNC_CALL_ENTRY;
 
 	int ipc_iter;
-
-	// Evaluate ase_workdir_path
-	ase_eval_session_directory();
 
 	// Initialize named pipe array
 	for (ipc_iter = 0; ipc_iter < ASE_MQ_INSTANCES; ipc_iter++) {

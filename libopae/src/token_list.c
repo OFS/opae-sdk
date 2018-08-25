@@ -57,6 +57,22 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	struct token_map *tmp;
 	errno_t e;
 	int err = 0;
+	uint32_t num = 0;
+	char *endptr = NULL;
+	const char *ptr = strrchr(sysfspath, '.');
+
+	/* get the device instance id */
+	if (ptr == NULL) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
+
+	num = strtoul(++ptr, &endptr, 10);
+	/* no digits in path */
+	if (num == 0 && endptr == ptr) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
 
 	if (pthread_mutex_lock(&global_lock)) {
 		FPGA_MSG("Failed to lock global mutex");
@@ -86,6 +102,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		return NULL;
 	}
 
+
 	/* populate error list */
 	tmp->_token.errors = NULL;
 	char errpath[SYSFS_PATH_MAX];
@@ -94,6 +111,9 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	/* mark data structure as valid */
 	tmp->_token.magic = FPGA_TOKEN_MAGIC;
+
+	/* assign the instance num from above */
+	tmp->_token.instance = num;
 
 	/* deep copy token data */
 	e = strncpy_s(tmp->_token.sysfspath, sizeof(tmp->_token.sysfspath),
@@ -189,8 +209,11 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 void token_cleanup(void)
 {
 	int err = 0;
-	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+	struct error_list *p;
+
+	err = pthread_mutex_lock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_lock() failed: %s", strerror(err));
 		return;
 	}
 
@@ -202,7 +225,7 @@ void token_cleanup(void)
 		token_root = token_root->next;
 
 		// free error list
-		struct error_list *p = tmp->_token.errors;
+		p = tmp->_token.errors;
 		while (p) {
 			struct error_list *q = p->next;
 			free(p);
@@ -214,14 +237,23 @@ void token_cleanup(void)
 		free(tmp);
 	}
 
+	// free error list
+	p = token_root->_token.errors;
+	while (p) {
+		struct error_list *q = p->next;
+		free(p);
+		p = q;
+	}
+
+	// invalidate magic (just in case)
 	token_root->_token.magic = FPGA_INVALID_MAGIC;
 	free(token_root);
+
 	token_root = NULL;
 
 out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 }
-

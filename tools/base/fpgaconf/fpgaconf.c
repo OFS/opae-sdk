@@ -205,12 +205,12 @@ void help(void)
 "FPGA configuration utility\n"
 "\n"
 "Usage:\n"
-//"        fpgaconf [-hVNAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
-"        fpgaconf [-hVN] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+//"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+"        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
 "\n"
 "                -h,--help           Print this help\n"
-"                -V,--verbose        Increase verbosity\n"
-"                -N,--dry-run        Don't actually perform actions\n"
+"                -v,--verbose        Increase verbosity\n"
+"                -n,--dry-run        Don't actually perform actions\n"
 "                --force             Don't try to open accelerator resource\n"
 "                -B,--bus            Set target bus number\n"
 "                -D,--device         Set target device number\n"
@@ -229,13 +229,13 @@ void help(void)
  * Parse command line arguments
  * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hVNB:D:F:S:AIQ"
+#define GETOPT_STRING ":hvnB:D:F:S:AIQ"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help",          no_argument,       NULL, 'h'},
-		{"verbose",       no_argument,       NULL, 'V'},
-		{"dry-run",       no_argument,       NULL, 'N'},
+		{"verbose",       no_argument,       NULL, 'v'},
+		{"dry-run",       no_argument,       NULL, 'n'},
 		{"bus",           required_argument, NULL, 'B'},
 		{"device",        required_argument, NULL, 'D'},
 		{"function",      required_argument, NULL, 'F'},
@@ -264,11 +264,11 @@ int parse_args(int argc, char *argv[])
 			help();
 			return -1;
 
-		case 'V':    /* verbose */
+		case 'v':    /* verbose */
 			config.verbosity++;
 			break;
 
-		case 'N':    /* dry-run */
+		case 'n':    /* dry-run */
 			config.dry_run = true;
 			break;
 
@@ -386,6 +386,85 @@ int parse_metadata(struct bitstream_info *info)
 
 	return 0;
 }
+
+/*
+* Prints Actual and Expected Interface id
+*/
+int print_interface_id(fpga_guid actual_interface_id)
+{
+	fpga_properties   filter = NULL;
+	uint32_t          num_matches = 0;
+	int               retval = -1;
+	uint64_t          intfc_id_l = 0;
+	uint64_t          intfc_id_h = 0;
+	fpga_handle       fpga_handle = NULL;
+	fpga_result       res = -1;
+	fpga_token        fpga_token = NULL;
+	fpga_guid         expt_interface_id = { 0 };
+	char              guid_str[37] = { 0 };
+
+
+	res = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(res, out_err, "creating properties object");
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	ON_ERR_GOTO(res, out_destroy, "setting object type");
+
+	if (-1 != config.target.bus) {
+		res = fpgaPropertiesSetBus(filter, config.target.bus);
+		ON_ERR_GOTO(res, out_destroy, "setting bus");
+	}
+
+	if (-1 != config.target.device) {
+		res = fpgaPropertiesSetDevice(filter, config.target.device);
+		ON_ERR_GOTO(res, out_destroy, "setting device");
+	}
+
+	if (-1 != config.target.function) {
+		res = fpgaPropertiesSetFunction(filter, config.target.function);
+		ON_ERR_GOTO(res, out_destroy, "setting function");
+	}
+
+	if (-1 != config.target.socket) {
+		res = fpgaPropertiesSetSocketID(filter, config.target.socket);
+		ON_ERR_GOTO(res, out_destroy, "setting socket id");
+	}
+
+	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches);
+	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
+
+	if (num_matches > 0) {
+		retval = (int) num_matches; /* FPGA found */
+	} else {
+		retval = 0; /* no FPGA found */
+	}
+
+	res = fpgaOpen(fpga_token, &fpga_handle, 0);
+	ON_ERR_GOTO(res, out_destroy, "opening fpga");
+
+	res = get_interface_id(fpga_handle, &intfc_id_l, &intfc_id_h);
+	ON_ERR_GOTO(res, out_close, "interfaceid get");
+
+	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
+
+	uuid_unparse(expt_interface_id, guid_str);
+	printf("Expected Interface id:  %s\n", guid_str);
+
+	uuid_unparse(actual_interface_id, guid_str);
+	printf("Actual Interface id:    %s\n", guid_str);
+
+
+out_close:
+	res = fpgaClose(fpga_handle);
+	ON_ERR_GOTO(res, out_destroy, "closing fme");
+
+out_destroy:
+	res = fpgaDestroyProperties(&filter); /* not needed anymore */
+	ON_ERR_GOTO(res, out_err, "destroying properties object");
+out_err:
+	return retval;
+}
+
 
 /*
  * Read bitstream from file and populate bitstream_info structure
@@ -613,6 +692,8 @@ int main(int argc, char *argv[])
 	if (res == 0) {
 		fprintf(stderr, "No suitable slots found.\n");
 		retval = 4;
+		if (config.verbosity > 0)
+			print_interface_id(info.interface_id);
 		goto out_free;
 	}
 	if (res > 1) {

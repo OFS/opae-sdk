@@ -99,6 +99,7 @@
 
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
+	uint32_t instance;
 	uint64_t magic;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
@@ -129,12 +130,13 @@ struct _fpga_properties {
 	// valid here means the field has been set using the API
 	// bit 0x00 - parent field is valid
 	// bit 0x01 - objtype field is valid
-	// bit 0x02 - bus field is valid
+	// bit 0x02 - segment field is valid
 	// ...
 	// up to bit 0x1F
 	fpga_guid guid;		// Applies only to accelerator types
 	fpga_token parent;
 	fpga_objtype objtype;
+	uint16_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;

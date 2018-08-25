@@ -77,7 +77,14 @@ class shared_buffer {
    * empty smart pointer on failure.
    */
   static shared_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
-                                  size_t len);
+                                     size_t len);
+
+  /**
+   * @brief Disassociate the shared_buffer object from the resource used to
+   * create it. If the buffer was allocated using the allocate function then
+   * the buffer is freed.
+   */
+  void release();
 
   /** Retrieve the virtual address of the buffer base.
    */
@@ -99,7 +106,7 @@ class shared_buffer {
   /** Retrieve the address of the buffer suitable for
    * programming into the accelerator device.
    */
-  uint64_t iova() const { return iova_; }
+  uint64_t io_address() const { return io_address_; }
 
   /** Write c to each byte location in the buffer.
    */
@@ -143,13 +150,13 @@ class shared_buffer {
 
  protected:
   shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid,
-             uint64_t iova);
+                uint64_t io_address);
 
   handle::ptr_t handle_;
   size_t len_;
   uint8_t *virt_;
   uint64_t wsid_;
-  uint64_t iova_;
+  uint64_t io_address_;
 };
 
 }  // end of namespace types
