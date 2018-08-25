@@ -33,10 +33,36 @@
 #define __FPGA_DMA_INT_H__
 
 #include <opae/fpga.h>
+#include "x86-sse2.h"
+
+#ifdef CHECK_DELAYS
+#pragma message "Compiled with -DCHECK_DELAYS.  Not to be used in production"
+#endif
+
+#ifdef FPGA_DMA_DEBUG
+#pragma message "Compiled with -DFPGA_DMA_DEBUG.  Not to be used in production"
+#endif
+
+#ifndef max
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+#endif
+
+#ifndef min
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+#endif
+
+#define FPGA_DMA_TIMEOUT_MSEC (120000)
+
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
-#define IS_ALIGNED_DWORD(addr) (addr%4 == 0)
-#define IS_ALIGNED_QWORD(addr) (addr%8 == 0)
+#define IS_ALIGNED_DWORD(addr) (addr%4==0)
+#define IS_ALIGNED_QWORD(addr) (addr%8==0)
 
 #define FPGA_DMA_UUID_H 0xef82def7f6ec40fc
 #define FPGA_DMA_UUID_L 0xa9149a35bace01ea
@@ -44,7 +70,6 @@
 #define FPGA_DMA_HOST_MASK            0x2000000000000
 #define FPGA_DMA_WF_HOST_MASK         0x3000000000000
 #define FPGA_DMA_WF_ROM_MAGIC_NO_MASK 0x1000000000000
-
 
 #define AFU_DFH_REG 0x0
 #define AFU_DFH_NEXT_OFFSET 16
@@ -73,22 +98,59 @@
 #define FPGA_DMA_DESC_BUFFER_FULL 0x4
 
 #define FPGA_DMA_ALIGN_BYTES 64
-#define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES == 0)
+#define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES==0)
+
+// MIN_SSE2_SIZE is the minimum size in bytes of a memcpy where SSE2 copy benefits over movsb
+#define MIN_SSE2_SIZE 4096
+#define CACHE_LINE_SIZE 64
+#define ALIGN_TO_CL(x) ((uint64_t)(x) & ~(CACHE_LINE_SIZE - 1))
+#define IS_CL_ALIGNED(x) (((uint64_t)(x) & (CACHE_LINE_SIZE - 1)) == 0)
+
+#define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
+#define ASE_DATA_BASE(dma_handle) ((uint64_t)dma_handle->dma_ase_data_base)
+#define ASE_CNTL_BASE(dma_handle) ((uint64_t)dma_handle->dma_ase_cntl_base)
+#define HOST_MMIO_32_ADDR(dma_handle,offset) ((volatile uint32_t *)((uint64_t)(dma_handle)->mmio_va + (uint64_t)(offset)))
+#define HOST_MMIO_64_ADDR(dma_handle,offset) ((volatile uint64_t *)((uint64_t)(dma_handle)->mmio_va + (uint64_t)(offset)))
+#define HOST_MMIO_32(dma_handle,offset) (*HOST_MMIO_32_ADDR(dma_handle,offset))
+#define HOST_MMIO_64(dma_handle,offset) (*HOST_MMIO_64_ADDR(dma_handle,offset))
+
+#define CSR_STATUS(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, status))
+#define CSR_CONTROL(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, ctrl))
+
 // Granularity of DMA transfer (maximum bytes that can be packed
 // in a single descriptor).This value must match configuration of
 // the DMA IP. Larger transfers will be broken down into smaller
 // transactions.
 #define FPGA_DMA_BUF_SIZE (1023*1024)
 #define FPGA_DMA_BUF_ALIGN_SIZE FPGA_DMA_BUF_SIZE
+
 // Convenience macros
 #ifdef FPGA_DMA_DEBUG
-	#define debug_print(fmt, ...) \
-					do { if (FPGA_DMA_DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__); } while (0)
+#define debug_print(fmt, ...) \
+do { \
+	if (FPGA_DMA_DEBUG) {\
+		fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
+		fprintf(stderr, fmt, ##__VA_ARGS__); \
+	} \
+} while (0)
+#define error_print(fmt, ...) \
+do { \
+	fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
+	fprintf(stderr, fmt, ##__VA_ARGS__); \
+	err_cnt++; \
+ } while (0)
 #else
-	#define debug_print(...)
+#define debug_print(...)
+#define error_print(...)
 #endif
 
 #define FPGA_DMA_MAX_BUF 8
+
+typedef struct __attribute__ ((__packed__)) {
+	uint64_t dfh;
+	uint64_t feature_uuid_lo;
+	uint64_t feature_uuid_hi;
+} dfh_feature_t;
 
 typedef union {
 	uint64_t reg;
@@ -108,6 +170,8 @@ struct _dma_handle_t {
 	fpga_handle fpga_h;
 	uint32_t mmio_num;
 	uint64_t mmio_offset;
+	uint64_t mmio_va;
+	uint64_t cur_ase_page;
 	uint64_t dma_base;
 	uint64_t dma_offset;
 	uint64_t dma_csr_base;
@@ -144,7 +208,7 @@ typedef union {
 	};
 } msgdma_desc_ctrl_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct __attribute__ ((__packed__)) {
 	//0x0
 	uint32_t rd_address;
 	//0x4
@@ -220,7 +284,7 @@ typedef union {
 	} seq;
 } msgdma_seq_num_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct __attribute__ ((__packed__)) {
 	// 0x0
 	msgdma_status_t status;
 	// 0x4
@@ -233,4 +297,4 @@ typedef struct __attribute__((__packed__)) {
 	msgdma_seq_num_t seq_num;
 } msgdma_csr_t;
 
-#endif // __FPGA_DMA_INT_H__
+#endif				// __FPGA_DMA_INT_H__
