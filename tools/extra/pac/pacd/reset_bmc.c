@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /*
- * bmc_thermal.c : handles NULL bitstream programming on BMC_THERMAL
+ * reset_bmc.c : Builds and tears down context for bmc_thermal
  */
 
 #include <opae/fpga.h>
@@ -46,9 +46,6 @@ static struct timespec wait_for_card_ts = {
 	.tv_sec = PACD_WAIT_FOR_CARD,
 	.tv_nsec = 0,
 };
-
-// TODO: Fix this once a NULL GBS found matching interface of card
-//#define IGNORE_IFC_ID
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
@@ -282,7 +279,7 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 	memset_s(&ctx->null_gbs_info, sizeof(ctx->null_gbs_info), 0);
 
 	ON_GOTO(c->config->num_null_gbs == 0, out_exit,
-		"no NULL bitstreams registered.");
+		"no default bitstreams registered.");
 
 	res = fpgaGetProperties(NULL, &filter);
 	ON_GOTO(res != FPGA_OK, out_exit, "enumeration failed");
@@ -304,10 +301,8 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 			"enumeration failed");
 
 		res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
-#ifndef IGNORE_IFC_ID
 		res += fpgaPropertiesSetGUID(filter,
 					     ctx->null_gbs_info.interface_id);
-#endif
 		ON_GOTO(res != FPGA_OK, out_destroy_filter,
 			"enumeration failed");
 
@@ -333,7 +328,7 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 	ctx->gbs_index = i;
 
 	/* now, fme_token holds the token for an FPGA on our socket matching the
-	 * interface ID of the NULL GBS */
+	 * interface ID of the default GBS */
 
 	// Load the BMC sensor data
 	uint32_t num_values;

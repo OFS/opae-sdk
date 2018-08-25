@@ -68,7 +68,7 @@ struct option longopts[] = {
 	{"bus", required_argument, NULL, 'B'},
 	{"device", required_argument, NULL, 'D'},
 	{"function", required_argument, NULL, 'F'},
-	{"null-bitstream", required_argument, NULL, 'n'},
+	{"default-bitstream", required_argument, NULL, 'n'},
 	{"upper-sensor-threshold", required_argument, NULL, 'T'},
 	{"lower-sensor-threshold", required_argument, NULL, 't'},
 	{"cooldown-interval", required_argument, NULL, 'c'},
@@ -108,7 +108,7 @@ void show_help(void)
 	fprintf(fp,
 		"\t    If no PCIe address elements are specified, run on all available PACs.\n");
 	fprintf(fp,
-		"\t-n,--null-bitstream <file>    NULL bitstream (for thermal shutdown handling,\n"
+		"\t-n,--default-bitstream <file> Default bitstream (for thermal shutdown handling,\n"
 		"\t                              may be given multiple times).\n");
 	fprintf(fp,
 		"\t-T,--upper-sensor-threshold <sensor>:<trigger_thresh>[:<reset_thresh>]\n"
@@ -126,7 +126,7 @@ void show_help(void)
 		"\t                              Requires at least 1 -t or -T.  Default is add defaults.\n");
 	fprintf(fp,
 		"\t\n--driver-removal-disable      Advanced. Do not reset and remove FPGA device\n"
-		"\t                              driver during cooldown. Load NULL GBS immediately.\n"
+		"\t                              driver during cooldown. Load default GBS immediately.\n"
 		"\t                              Default 0 (remove driver during cooldown).\n");
 }
 
@@ -321,12 +321,12 @@ int main(int argc, char *argv[])
 				if (config.num_null_gbs < MAX_NULL_GBS) {
 					config.null_gbs[config.num_null_gbs++] =
 						tmp_optarg;
-					dlog("registering NULL bitstream \"%s\"\n",
+					dlog("registering default bitstream \"%s\"\n",
 					     tmp_optarg);
 					/* TODO: check NULL bitstream
 					 * compatibility */
 				} else {
-					dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
+					dlog("maximum number of default bitstreams exceeded, ignoring -n option\n");
 				}
 			} else {
 				fprintf(stderr,
