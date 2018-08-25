@@ -235,14 +235,14 @@ void *bmc_thermal_thread(void *thread_context)
 	ctx.c = (struct bmc_thermal_context *)thread_context;
 
 	ON_GOTO(ctx.c->config->num_null_gbs == 0, out_exit,
-		"no NULL bitstreams registered.");
+		"no default bitstreams registered.");
 
 	res = pacd_bmc_reinit(&ctx);
 	ON_GOTO(FPGA_OK != res, out_exit, "Problem initializing.");
 
 	/* if we didn't find a matching FPGA, bail out */
 	if (!ctx.gbs_found) {
-		dlog("pacd[%d]: no suitable NULL bitstream for device\n",
+		dlog("pacd[%d]: no suitable default bitstream for device\n",
 		     ctx.c->PAC_index);
 		goto out_exit;
 	}
@@ -251,7 +251,7 @@ void *bmc_thermal_thread(void *thread_context)
 	setSensorDefaults(&ctx);
 
 	/* fme_token holds the token for an FPGA on our socket matching the
-	 * interface ID of the NULL GBS */
+	 * interface ID of the default GBS */
 	dlog("pacd[%d]: Sensors monitored:\n", ctx.c->PAC_index);
 	unsigned int tnum;
 	for (tnum = 0; tnum < ctx.c->config->num_thresholds; tnum++) {
@@ -426,7 +426,7 @@ void *bmc_thermal_thread(void *thread_context)
 		if (must_PR) {
 			ctx.c->has_been_PRd = 1;
 			/* program NULL bitstream */
-			dlog("pacd[%d]: writing NULL bitstream.\n",
+			dlog("pacd[%d]: writing default bitstream.\n",
 			     ctx.c->PAC_index);
 
 			if (ctx.c->config->remove_driver) {
@@ -442,10 +442,7 @@ void *bmc_thermal_thread(void *thread_context)
 						&ctx.c->config->cooldown_delay,
 						NULL);
 
-				// TODO: Is fme_token still valid?
 				sysfs_write_1(NULL, "/sys/bus/pci/rescan");
-				// sysfs_write_1(ctx.fme_token,
-				// "../device/reset");
 
 				while ((res = pacd_bmc_reinit(&ctx))
 				       != FPGA_OK) {

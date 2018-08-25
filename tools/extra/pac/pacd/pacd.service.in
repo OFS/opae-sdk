@@ -14,7 +14,7 @@ KillSignal=SIGHUP
 ExecStop=/bin/bash -c '[ -e $${PIDFile} ] && kill -s SIGTERM `cat $${PIDFile}`; \
                        x=0; while [ -e $${PIDFile} -a "$$x" -lt 100 ]; \
                        do sleep 1; x=$$((x+1)); done'
-ExecStart=@PACD_BINARY@ -d $NullGBSOptions \
+ExecStart=@PACD_BINARY@ -d $DefaultGBSOptions \
           -P @PACD_ROOT_DIRECTORY@ \
           -m $UMask \
           -l $LogFile \
