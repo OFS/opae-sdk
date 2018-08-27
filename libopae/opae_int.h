@@ -100,19 +100,32 @@ void opae_print(int loglevel, char *fmt, ...);
 //#define __FPGA_API__ __attribute__((visibility("default")))
 //#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
 
+
+#define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __result) \
+	do {                                               \
+		if (!__arg) {                              \
+			OPAE_ERR(__msg);                   \
+			return __result;                   \
+		}                                          \
+	} while (0)
+
+
 /*
  * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
  */
-#define ASSERT_NOT_NULL_MSG(arg, msg)              \
-	do {                                       \
-		if (!arg) {                        \
-			OPAE_MSG(msg);             \
-			return FPGA_INVALID_PARAM; \
-		}                                  \
-	} while (0)
+#define ASSERT_NOT_NULL_MSG(__arg, __msg) \
+ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, FPGA_INVALID_PARAM)
 
-#define ASSERT_NOT_NULL(arg) \
-	ASSERT_NOT_NULL_MSG(arg, #arg " is NULL")
+#define ASSERT_NOT_NULL(__arg) \
+ASSERT_NOT_NULL_MSG(__arg, #__arg " is NULL")
+
+#define ASSERT_NOT_NULL_RESULT(__arg, __result) \
+ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg "is NULL", __result)
+
+#define ASSERT_RESULT(__result)    \
+	if ((__result) != FPGA_OK) \
+		return __result
+
 
 
 #define UNUSED_PARAM(x) ((void)x)
@@ -221,6 +234,88 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 {
 	wh->magic = 0;
 	free(wh);
+}
+
+//                                       o r p w
+#define OPAE_WRAPPED_PROPERTIES_MAGIC 0x6f727077
+
+typedef struct _opae_wrapped_properties {
+	uint32_t magic;
+	fpga_properties opae_properties;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_properties;
+
+static inline opae_wrapped_properties * opae_allocate_wrapped_properties(
+	fpga_properties opae_properties,
+	opae_api_adapter_table *adapter)
+{
+	opae_wrapped_properties *wprop = (opae_wrapped_properties *)
+					malloc(sizeof(opae_wrapped_properties));
+
+	if (wprop) {
+		wprop->magic = OPAE_WRAPPED_PROPERTIES_MAGIC;
+		wprop->opae_properties = opae_properties;
+		wprop->adapter_table = adapter;
+	}
+
+	return wprop;
+}
+
+static inline opae_wrapped_properties *opae_validate_wrapped_properties(
+					fpga_properties p)
+{
+	opae_wrapped_properties *wp;
+	if (!p)
+		return NULL;
+	wp = (opae_wrapped_properties *)p;
+	return (wp->magic == OPAE_WRAPPED_PROPERTIES_MAGIC) ? wp : NULL;
+}
+
+static inline void opae_destroy_wrapped_properties(opae_wrapped_properties *wp)
+{
+	wp->magic = 0;
+	free(wp);
+}
+
+//                                         e v e w
+#define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
+
+typedef struct _opae_wrapped_event_handle {
+	uint32_t magic;
+	fpga_event_handle opae_event_handle;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_event_handle;
+
+static inline opae_wrapped_event_handle * opae_allocate_wrapped_event_handle(
+	fpga_event_handle opae_event_handle,
+	opae_api_adapter_table *adapter)
+{
+	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)
+				malloc(sizeof(opae_wrapped_event_handle));
+
+	if (wevent) {
+		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
+		wevent->opae_event_handle = opae_event_handle;
+		wevent->adapter_table = adapter;
+	}
+
+	return wevent;
+}
+
+static inline opae_wrapped_event_handle *opae_validate_wrapped_event_handle(
+					fpga_event_handle h)
+{
+	opae_wrapped_event_handle *we;
+	if (!h)
+		return NULL;
+	we = (opae_wrapped_event_handle *)h;
+	return (we->magic == OPAE_WRAPPED_EVENT_HANDLE_MAGIC) ? we : NULL;
+}
+
+static inline void opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *we)
+{
+	we->magic = 0;
+	free(we);
 }
 
 #endif // ___OPAE_OPAE_INT_H__

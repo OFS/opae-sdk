@@ -449,3 +449,6 @@ else()
   )
 endif()
 include(CPack)
+
+configure_file("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+               "${PROJECT_BINARY_DIR}/include/config.h")

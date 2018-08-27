@@ -72,14 +72,14 @@ target_link_libraries(xfpga
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
 target_include_directories(xfpga PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
@@ -142,5 +142,5 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 ## Create config_int.h #########################################################
 ############################################################################
 
-configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )
+#configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+#                "${PROJECT_BINARY_DIR}/include/config_int.h" )

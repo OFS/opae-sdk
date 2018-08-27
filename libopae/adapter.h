@@ -231,12 +231,13 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
-
+/*
 	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 
 	fpga_result (*fpgaGetOPAECVersionString)(char *version_str, size_t len);
 
 	fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t len);
+*/
 
 	fpga_result (*fpgaReadError)(fpga_token token, uint32_t error_num,
 				     uint64_t *value);
@@ -248,8 +249,9 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaGetErrorInfo)(fpga_token token, uint32_t error_num,
 					struct fpga_error_info *error_info);
 
-	// do we need this to be pluggable?
+/*
 	const char *(*fpgaErrStr)(fpga_result e);
+*/
 
 	fpga_result (*fpgaCreateEventHandle)(fpga_event_handle *event_handle);
 

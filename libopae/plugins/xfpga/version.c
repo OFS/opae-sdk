@@ -31,9 +31,6 @@
 #include "safe_string/safe_string.h"
 #include "common_int.h"
 #include "types_int.h"
-#include "config_int.h"
-
-#include <string.h>
 
 fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 {

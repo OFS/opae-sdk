@@ -128,9 +128,11 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaPrepareBuffer = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPrepareBuffer");
 	adapter->fpgaReleaseBuffer = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetIOAddress");
+/*
 	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECVersion");
 	adapter->fpgaGetOPAECVersionString = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECVersionString");
 	adapter->fpgaGetOPAECBuildString = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECBuildString");
+*/
 	adapter->fpgaReadError = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadError");
 	adapter->fpgaClearError = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearError");
 	adapter->fpgaClearAllErrors = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearAllErrors");

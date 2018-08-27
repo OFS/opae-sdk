@@ -247,7 +247,7 @@ int opae_plugin_mgr_for_each_adapter(
 		void *context)
 {
 	int res;
-	int cb_res;
+	int cb_res = OPAE_ENUM_CONTINUE;
 	opae_api_adapter_table *aptr;
 
 	if (!callback) {
