@@ -30,7 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include "opae/fpga.h"
 class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
@@ -70,6 +70,10 @@ struct test_device {
   uint8_t function;
   uint8_t socket_id;
   uint32_t num_slots;
+  uint64_t bbs_id;
+  fpga_version bbs_version;
+  fpga_accelerator_state state;
+  uint32_t num_mmio;
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
