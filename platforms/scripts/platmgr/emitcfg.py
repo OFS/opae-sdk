@@ -54,6 +54,26 @@ def emitHeader(f, afu_ifc_db, platform_db, comment="//"):
         afu_ifc_db['file_name'], comment))
 
 
+def getIntendedDevFamily(platform_db):
+    try:
+        f = platform_db['fpga-family']
+    except KeyError:
+        # Older platform databases didn't include fpga-family
+        f = 'A10'
+
+    # Map OPAE platform_db families to megafunction names.
+    families = dict()
+    families['A'] = 'Arria'
+    families['S'] = 'Stratix'
+
+    # Is the encoded fpga-family a single letter followed by a number?
+    if ((f[0] in families) and f[1].isdigit()):
+        # Yes -- return the expanded family and the version number
+        return families[f[0]] + f[1:]
+
+    return "Unknown"
+
+
 #
 # Compute derived parameter values based on the database.  These
 # are typically computations more easily done here in Python than
@@ -176,6 +196,11 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
             platform_db['platform-name'].upper() + "\"\n")
     f.write("`define PLATFORM_CLASS_NAME_IS_" +
             platform_db['platform-name'].upper() + " 1\n\n")
+
+    f.write("// This may be passed as the \"intended_device_family\"\n" +
+            "// parameter to simulated megafunctions.\n")
+    f.write("`define PLATFORM_INTENDED_DEVICE_FAMILY \"" +
+            getIntendedDevFamily(platform_db) + "\"\n\n")
 
     f.write("`define AFU_TOP_MODULE_NAME " +
             afu_ifc_db['module-name'] + "\n")
