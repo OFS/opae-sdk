@@ -33,15 +33,111 @@
 #include <algorithm>
 #include "c_test_system.h"
 
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <opae/types.h>
+#include "intel-fpga.h"
+#include <assert.h>
+#include <stdint.h>
+#include <safe_string/safe_string.h>
+
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+        printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+#undef FPGA_ERR
+#define FPGA_ERR(fmt, ...) \
+        printf("MOCK ERROR " fmt "\n", ## __VA_ARGS__)
+
+#undef FPGA_DBG
+#ifdef LIBFPGA_DEBUG
+#define FPGA_DBG(fmt, ...) \
+        printf("MOCK DEBUG " fmt "\n", ## __VA_ARGS__)
+#else
+#define FPGA_DBG(fmt, ...) {}
+#endif
+
+
+
+
 int mock_fme::ioctl(int request, va_list argp) {
   (void) request;
   (void) argp;
   return 0; }
 
 int mock_port::ioctl(int request, va_list argp) {
-  (void) request;
-  (void) argp;
-  return 0; }
+  int retval = -1;
+  char *err;
+  errno = EINVAL;
+  FPGA_DBG("got FPGA_PORT_GET_REGION_INFO");
+  struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+  if (!rinfo) {
+  	FPGA_MSG("rinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (rinfo->argsz != sizeof(*rinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  if (rinfo->index != 0) {
+  	FPGA_MSG("unsupported MMIO index");
+  	goto out_EINVAL;
+  }
+  if (rinfo->padding != 0) {
+  	FPGA_MSG("unsupported padding");
+  	goto out_EINVAL;
+  }
+  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+  rinfo->size = 0x40000;
+  rinfo->offset = 0;
+  retval = 0;
+  errno = 0;
+ 
+//  switch (request) {
+//    case FPGA_PORT_GET_REGION_INFO:
+//      FPGA_DBG("got FPGA_PORT_GET_REGION_INFO");
+//      struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+//      if (!rinfo) {
+//      	FPGA_MSG("rinfo is NULL");
+//      	goto out_EINVAL;
+//      }
+//      if (rinfo->argsz != sizeof(*rinfo)) {
+//      	FPGA_MSG("wrong structure size");
+//      	goto out_EINVAL;
+//      }
+//      if (rinfo->index != 0) {
+//      	FPGA_MSG("unsupported MMIO index");
+//      	goto out_EINVAL;
+//      }
+//      if (rinfo->padding != 0) {
+//      	FPGA_MSG("unsupported padding");
+//      	goto out_EINVAL;
+//      }
+//      rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+//      rinfo->size = 0x40000;
+//      rinfo->offset = 0;
+//      retval = 0;
+//      errno = 0;
+//      break;
+//    default:
+//       FPGA_DBG("Unknown PORT IOCTL request %lu", request);
+//       break;
+//  }
+out:
+        va_end(argp);
+        return retval;
+
+out_EINVAL:
+        retval = -1;
+        errno = EINVAL;
+        goto out;
+}
 
 
 #define ASSERT_FN(fn)                              \
@@ -64,6 +160,7 @@ test_device test_device::unknown() {
                      .bbs_version = {0xFF,0xFF,0xFF},
                      .state = FPGA_ACCELERATOR_ASSIGNED,
                      .num_mmio = 0,
+                     .num_interrupts = 0xf,
                      .fme_object_id = 9,
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
@@ -90,6 +187,7 @@ static platform_db PLATFORMS = {
                        .bbs_version = {6,3,0},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
+                       .num_interrupts = 1,
                        .fme_object_id = 0xf500000,
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,

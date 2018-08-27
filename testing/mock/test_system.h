@@ -39,8 +39,6 @@ class mock_object {
       : type_(type), devpath_(devpath) {}
 
   int ioctl(int request, va_list arg){
-    (void) request;
-    (void) arg;
     return 0;
   }
 
@@ -74,6 +72,7 @@ struct test_device {
   fpga_version bbs_version;
   fpga_accelerator_state state;
   uint32_t num_mmio;
+  uint32_t num_interrupts; 
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
