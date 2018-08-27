@@ -7,14 +7,18 @@ function finish {
 
 	find */**/munit-opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
 	find */**/munit-opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+	find */**/munit-opae-c-events.dir -iname "*.gcda" -exec chmod 664 '{}' \;
+	find */**/munit-opae-c-events.dir -iname "*.gcno" -exec chmod 664 '{}' \;
 
 
 	find */**/munit-opae-c.dir -iname "*.gcda" | xargs -i cp {} coverage_files
 	find */**/munit-opae-c.dir -iname "*.gcno" | xargs -i cp {} coverage_files
+	find */**/munit-opae-c-events.dir -iname "*.gcda" | xargs -i cp {} coverage_files
+	find */**/munit-opae-c-events.dir -iname "*.gcno" | xargs -i cp {} coverage_files
 
 	lcov --directory coverage_files --capture --output-file coverage.info
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'tools/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
+	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
 	genhtml --function-coverage -o coverage_report coverage.info.cleaned
 	popd
 }
@@ -32,9 +36,10 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make munit-opae-c
+make munit-opae-c munit-opae-c-events
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 ./bin/munit-opae-c --gtest_filter="enum*:buffer*"
+./bin/munit-opae-c-events
 
