@@ -45,7 +45,7 @@ static const char *sysclass_pattern =
 
 
 mock_object::mock_object(const std::string &devpath,
-                         const std::string &sysclass, uint64_t device_id,
+                         const std::string &sysclass, uint32_t device_id,
                          type_t type)
     : devpath_(devpath),
       sysclass_(sysclass),
@@ -194,8 +194,8 @@ void test_system::finalize() {
   fds_.clear();
 }
 
-uint64_t get_device_id(const std::string &sysclass) {
-  uint64_t res(0);
+uint32_t get_device_id(const std::string &sysclass) {
+  uint32_t res(0);
   std::ifstream fs;
   fs.open(sysclass + "/device/device");
   if (fs.is_open()) {

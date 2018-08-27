@@ -43,7 +43,7 @@ class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
   mock_object(const std::string &devpath, const std::string &sysclass,
-              uint64_t device_id, type_t type = sysfs_attr);
+              uint32_t device_id, type_t type = sysfs_attr);
 
   virtual int ioctl(int request, va_list arg) {
     (void)request;
@@ -53,19 +53,19 @@ class mock_object {
   }
 
   std::string sysclass() const { return sysclass_; }
-  uint64_t device_id() const { return device_id_; }
+  uint32_t device_id() const { return device_id_; }
 
  private:
   std::string devpath_;
   std::string sysclass_;
-  uint64_t device_id_;
+  uint32_t device_id_;
   type_t type_;
 };
 
 class mock_fme : public mock_object {
  public:
   mock_fme(const std::string &devpath, const std::string &sysclass,
-           uint64_t device_id)
+           uint32_t device_id)
       : mock_object(devpath, sysclass, device_id, fme) {}
   virtual int ioctl(int request, va_list argp) override;
 };
@@ -73,7 +73,7 @@ class mock_fme : public mock_object {
 class mock_port : public mock_object {
  public:
   mock_port(const std::string &devpath, const std::string &sysclass,
-           uint64_t device_id)
+            uint32_t device_id)
       : mock_object(devpath, sysclass, device_id, fme) {}
   virtual int ioctl(int request, va_list argp) override;
 };
@@ -90,7 +90,7 @@ struct test_device {
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
-  uint16_t device_id;
+  uint32_t device_id;
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
   static test_device unknown();
