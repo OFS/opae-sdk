@@ -32,6 +32,8 @@
  */
 #include "ase_common.h"
 
+//const int NUM_DS = 10;
+
 struct ase_cfg_t *cfg;
 
 static int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
@@ -603,6 +605,9 @@ static void *start_socket_srv(void *args)
 				err_cnt++;
 				break;
 			}
+#ifdef ASE_DEBUG
+      ASE_MSG("SIM-C : accept success\n");
+#endif
 		}
 		if (sockserver_kill)
 			break;
@@ -745,13 +750,15 @@ int ase_listener(void)
 				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
 					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
 					run_clocks (500);
-					ase_perror_teardown();
+					self_destruct_in_progress = 1;
+					ase_destroy();
 					start_simkill_countdown();
 				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
 					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
 						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
 						run_clocks (500);
-						ase_perror_teardown();
+						self_destruct_in_progress = 1;
+						ase_destroy();
 						start_simkill_countdown();
 					} else {
 						ase_reset_trig();
@@ -766,7 +773,8 @@ int ase_listener(void)
 					ASE_ERR
 						("** ERROR ** Transaction counts do not match, something got lost\n");
 					run_clocks(500);
-					ase_perror_teardown();
+					self_destruct_in_progress = 1;
+					ase_destroy();
 					start_simkill_countdown();
 				}
 #endif
