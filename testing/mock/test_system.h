@@ -36,43 +36,46 @@ typedef struct stat stat_t;
 namespace opae {
 namespace testing {
 
-constexpr size_t KiB(size_t n){
-  return n*1024;
-}
-constexpr size_t MiB(size_t n){
-  return n*1024*KiB(1);
-}
-
-
+constexpr size_t KiB(size_t n) { return n * 1024; }
+constexpr size_t MiB(size_t n) { return n * 1024 * KiB(1); }
 
 class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
+  mock_object(const std::string &devpath, const std::string &sysclass,
+              uint64_t device_id, type_t type = sysfs_attr);
 
-  mock_object(const std::string &devpath, type_t type = sysfs_attr)
-      : type_(type), devpath_(devpath) {}
-
-  int ioctl(int request, va_list arg){
-    (void) request;
-    (void) arg;
+  virtual int ioctl(int request, va_list arg) {
+    (void)request;
+    (void)arg;
+    throw std::logic_error("not implemented");
     return 0;
   }
 
+  std::string sysclass() const { return sysclass_; }
+  uint64_t device_id() const { return device_id_; }
+
  private:
-  type_t type_;
   std::string devpath_;
+  std::string sysclass_;
+  uint64_t device_id_;
+  type_t type_;
 };
 
 class mock_fme : public mock_object {
  public:
-  mock_fme(const std::string &devpath) : mock_object(devpath, fme) {}
-  int ioctl(int request, va_list argp);
+  mock_fme(const std::string &devpath, const std::string &sysclass,
+           uint64_t device_id)
+      : mock_object(devpath, sysclass, device_id, fme) {}
+  virtual int ioctl(int request, va_list argp) override;
 };
 
 class mock_port : public mock_object {
  public:
-  mock_port(const std::string &devpath) : mock_object(devpath, afu) {}
-  int ioctl(int request, va_list argp);
+  mock_port(const std::string &devpath, const std::string &sysclass,
+           uint64_t device_id)
+      : mock_object(devpath, sysclass, device_id, fme) {}
+  virtual int ioctl(int request, va_list argp) override;
 };
 
 struct test_device {
@@ -110,7 +113,7 @@ class test_system {
 
   void initialize();
   void finalize();
-  std::string prepare_syfs(const test_platform & platform);
+  std::string prepare_syfs(const test_platform &platform);
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
@@ -148,7 +151,7 @@ class test_system {
   __xstat_func lstat_;
 };
 
-} // end of namespace testing
-} // end of namespace opae
+}  // end of namespace testing
+}  // end of namespace opae
 
 #endif /* !_TEST_SYSTEM_H */

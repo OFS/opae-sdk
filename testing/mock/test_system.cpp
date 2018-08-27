@@ -24,17 +24,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 /*
- * mock-system.cpp
+ * test-system.cpp
  */
 
 #include "test_system.h"
 #include <dlfcn.h>
 #include <stdarg.h>
 #include <algorithm>
+#include <fstream>
 #include "c_test_system.h"
+#include "test_utils.h"
 
 namespace opae {
 namespace testing {
+
+static const char *dev_pattern =
+    R"regex(/dev/intel-fpga-\(fme\|port\)\.\([0-9]\+\))regex";
+static const char *sysclass_pattern =
+    R"regex(/sys/class/fpga/intel-fpga-dev\.\([0-9]\+\))regex";
+
+
+mock_object::mock_object(const std::string &devpath,
+                         const std::string &sysclass, uint64_t device_id,
+                         type_t type)
+    : devpath_(devpath),
+      sysclass_(sysclass),
+      device_id_(device_id),
+      type_(type) {}
 
 int mock_fme::ioctl(int request, va_list argp) {
   (void)request;
@@ -178,16 +194,44 @@ void test_system::finalize() {
   fds_.clear();
 }
 
+uint64_t get_device_id(const std::string &sysclass) {
+  uint64_t res(0);
+  std::ifstream fs;
+  fs.open(sysclass + "/device/device");
+  if (fs.is_open()) {
+    std::string line;
+    std::getline(fs, line);
+    fs.close();
+    return std::stoul(line, 0, 16);
+  }
+  return res;
+}
+
 int test_system::open(const std::string &path, int flags) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_(syspath.c_str(), flags);
-  if (syspath.find(root_) == 0) {
-    if (path.find("/dev/intel-fpga-fme") == 0) {
-      fds_[fd] = new mock_fme(path);
-    } else if (path.find("/dev/intel-fpga-port") == 0) {
-      fds_[fd] = new mock_port(path);
-    } else {
-      fds_[fd] = new mock_object(path);
+  auto r1 = regex<>::create(sysclass_pattern);
+  auto r2 = regex<>::create(dev_pattern);
+  match_t::ptr_t m;
+
+  // check if we are opening a driver attribute file
+  // or a device file to save the fd in an internal map
+  // this can be used later, (especially in ioctl)
+  if (r1 && (m = r1->match(path))) {
+    // path matches /sys/class/fpga/intel-fpga-dev\..*
+    // we are opening a driver attribute file
+    auto sysclass_path = m->group(0);
+    auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    fds_[fd] = new mock_object(path, sysclass_path, device_id);
+  } else if (r2 && (m = r2->match(path))) {
+    // path matches /dev/intel-fpga-(fme|port)\..*
+    // we are opening a device
+    auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
+    auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    if (m->group(1) == "fme") {
+      fds_[fd] = new mock_fme(path, sysclass_path, device_id);
+    } else if (m->group(1) == "port" ) {
+      fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
   }
   return fd;
@@ -197,7 +241,7 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
-    fds_[fd] = new mock_object(path);
+    fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
 }
