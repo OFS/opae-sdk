@@ -87,14 +87,28 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-
-TEST_P(sysfs_c_p, null_device){
+/**
+* @test    null_device_id
+* @brief   Tests: sysfs_c_p
+* @details sysfs_deviceid_from_path giver invalid device id
+*          Then return FPGA_INVALID_PARAM/FPGA_NOT_FOUND
+*/
+TEST_P(sysfs_c_p, null_device_id){
   auto device = platform_.devices[0];
   //ASSERT_EQ(sysfs_deviceid_from_path(tmpsysfs.c_str(),device.device_id),FPGA_OK);
   ASSERT_NE(sysfs_deviceid_from_path(tmpsysfs.c_str(),NULL), FPGA_OK);
   ASSERT_NE(sysfs_deviceid_from_path(NULL,NULL), FPGA_OK);
 }
 
+
+
+/**
+* @test    null_path
+* @brief   Tests: sysfs_c_p
+* @details sysfs_read_int,sysfs_read_u32
+*          sysfs_read_u32_pair,sysfs_read_u64
+*          sysfs_read_u64
+*/
 TEST_P(sysfs_c_p, null_path){
   fpga_result res;
   uint32_t u1;
