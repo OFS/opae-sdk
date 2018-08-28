@@ -106,6 +106,7 @@ struct test_platform {
 
 class test_system {
  public:
+  typedef int (*ioctl_handler_t)(mock_object*, int, va_list);
   static test_system *instance();
 
   void set_root(const char *root);
@@ -126,10 +127,13 @@ class test_system {
   int xstat(int ver, const char *path, stat_t *buf);
   int lstat(int ver, const char *path, stat_t *buf);
 
+  bool register_ioctl_handler(int request, ioctl_handler_t);
+
  private:
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
+  std::map<int, ioctl_handler_t> ioctl_handlers_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
