@@ -30,6 +30,7 @@ set(SRC
     pluginmgr.c
     api-shell.c
     init.c
+    props.c
     )
 
 add_library(opae-c SHARED ${SRC})

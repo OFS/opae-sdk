@@ -280,8 +280,11 @@ static inline void opae_destroy_wrapped_properties(opae_wrapped_properties *wp)
 //                                         e v e w
 #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
 
+#define OPAE_WRAPPED_EVENT_HANDLE_CREATED 0x00000001
+
 typedef struct _opae_wrapped_event_handle {
 	uint32_t magic;
+	uint32_t flags;
 	fpga_event_handle opae_event_handle;
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_event_handle;
@@ -295,6 +298,7 @@ static inline opae_wrapped_event_handle * opae_allocate_wrapped_event_handle(
 
 	if (wevent) {
 		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
+		wevent->flags = 0;
 		wevent->opae_event_handle = opae_event_handle;
 		wevent->adapter_table = adapter;
 	}
