@@ -42,97 +42,94 @@ extern "C" {
 #endif
 
 /*
-* The DMA driver supports host to FPGA, FPGA to host and FPGA
-* to FPGA transfers. The FPGA interface can be streaming
-* or memory-mapped. Streaming interfaces are not currently
-* supported.
-*/
+ * The DMA driver supports host to FPGA, FPGA to host and FPGA
+ * to FPGA transfers. The FPGA interface can be streaming
+ * or memory-mapped. Streaming interfaces are not currently
+ * supported.
+ */
 typedef enum {
-	HOST_TO_FPGA_MM = 0, //Memory mapped FPGA interface
-	FPGA_TO_HOST_MM, //Memory mapped FPGA interface
-	FPGA_TO_FPGA_MM, //Memory mapped FPGA interface
+	HOST_TO_FPGA_MM = 0, // Memory mapped FPGA interface
+	FPGA_TO_HOST_MM,     // Memory mapped FPGA interface
+	FPGA_TO_FPGA_MM,     // Memory mapped FPGA interface
 	FPGA_MAX_TRANSFER_TYPE,
 } fpga_dma_transfer_t;
 
 typedef struct _dma_handle_t *fpga_dma_handle;
 
-
 // Callback for asynchronous DMA transfers
 typedef void (*fpga_dma_transfer_cb)(void *context);
 
-
 /**
-* fpgaDmaOpen
-*
-* @brief           Open a handle to DMA BBB.
-*                  Scans the device feature chain looking for a DMA BBB.
-*
-* @param[in]  fpga Handle to the FPGA AFU object obtained via fpgaOpen()
-* @param[out] dma  DMA object handle
-* @returns         FPGA_OK on success, return code otherwise
-*/
+ * fpgaDmaOpen
+ *
+ * @brief           Open a handle to DMA BBB.
+ *                  Scans the device feature chain looking for a DMA BBB.
+ *
+ * @param[in]  fpga Handle to the FPGA AFU object obtained via fpgaOpen()
+ * @param[out] dma  DMA object handle
+ * @returns         FPGA_OK on success, return code otherwise
+ */
 fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma);
 
 /**
-* fpgaDmaTransferSync
-*
-* @brief             Perform a blocking copy of 'count' bytes from memory area pointed
-*                    by src to memory area pointed by dst where fpga_dma_transfer_t specifies the
-*                    type of memory transfer.
-* @param[in] dma     Handle to the FPGA DMA object
-* @param[in] dst     Address of the destination buffer
-* @param[in] src     Address of the source buffer
-* @param[in] count   Size in bytes
-* @param[in] type    Must be one of the following values:
-*                    HOST_TO_FPGA_MM - Copy data from host memory to memory mapped FPGA interface.
-*                                      User must specify valid src and dst.
-*                    FPGA_TO_HOST_MM - Copy data from memory mapped FPGA interface to host memory
-*                                      User must specify valid src and dst.
-*                    FPGA_TO_FPGA_MM - Copy data between memory mapped FPGA interfaces
-*                                      User must specify valid src and dst.
-* @return fpga_result FPGA_OK on success, return code otherwise
-*
-*/
-fpga_result fpgaDmaTransferSync(fpga_dma_handle dma, uint64_t dst, uint64_t src, size_t count,
-										  fpga_dma_transfer_t type);
+ * fpgaDmaTransferSync
+ *
+ * @brief             Perform a blocking copy of 'count' bytes from memory area
+ * pointed by src to memory area pointed by dst where fpga_dma_transfer_t
+ * specifies the type of memory transfer.
+ * @param[in] dma     Handle to the FPGA DMA object
+ * @param[in] dst     Address of the destination buffer
+ * @param[in] src     Address of the source buffer
+ * @param[in] count   Size in bytes
+ * @param[in] type    Must be one of the following values:
+ *                    HOST_TO_FPGA_MM - Copy data from host memory to memory
+ * mapped FPGA interface. User must specify valid src and dst. FPGA_TO_HOST_MM -
+ * Copy data from memory mapped FPGA interface to host memory User must specify
+ * valid src and dst. FPGA_TO_FPGA_MM - Copy data between memory mapped FPGA
+ * interfaces User must specify valid src and dst.
+ * @return fpga_result FPGA_OK on success, return code otherwise
+ *
+ */
+fpga_result fpgaDmaTransferSync(fpga_dma_handle dma, uint64_t dst, uint64_t src,
+				size_t count, fpga_dma_transfer_t type);
 
 /**
-* fpgaDmaTransferAsync (Not supported)
-*
-* @brief             Perform a non-blocking copy of 'count' bytes from memory area pointed
-*                    by src to memory area pointed by dst where fpga_dma_transfer_t specifies the
-*                    type of memory transfer.
-* @param[in] dma     Handle to the FPGA DMA object
-* @param[in] dst     Address of the destination buffer
-* @param[in] src     Address of the source buffer
-* @param[in] count   Size in bytes
-* @param[in] type    Must be one of the following values:
-*                    HOST_TO_FPGA_MM - Copy data from host memory to memory mapped FPGA interface.
-*                                      User must specify valid src and dst.
-*                    FPGA_TO_HOST_MM - Copy data from memory mapped FPGA interface to host memory
-*                                      User must specify valid src and dst.
-*                    FPGA_TO_FPGA_MM - Copy data between memory mapped FPGA interfaces
-*                                      User must specify valid src and dst.
-* @param[in] cb      Callback to invoke when DMA transfer is complete
-* @param[in] context Pointer to define user-defined context
-* @return fpga_result FPGA_OK on success, return code otherwise
-*
-*/
-fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma, uint64_t dst, uint64_t src, size_t count,
-										fpga_dma_transfer_t type, fpga_dma_transfer_cb cb, void *context);
+ * fpgaDmaTransferAsync (Not supported)
+ *
+ * @brief             Perform a non-blocking copy of 'count' bytes from memory
+ * area pointed by src to memory area pointed by dst where fpga_dma_transfer_t
+ * specifies the type of memory transfer.
+ * @param[in] dma     Handle to the FPGA DMA object
+ * @param[in] dst     Address of the destination buffer
+ * @param[in] src     Address of the source buffer
+ * @param[in] count   Size in bytes
+ * @param[in] type    Must be one of the following values:
+ *                    HOST_TO_FPGA_MM - Copy data from host memory to memory
+ * mapped FPGA interface. User must specify valid src and dst. FPGA_TO_HOST_MM -
+ * Copy data from memory mapped FPGA interface to host memory User must specify
+ * valid src and dst. FPGA_TO_FPGA_MM - Copy data between memory mapped FPGA
+ * interfaces User must specify valid src and dst.
+ * @param[in] cb      Callback to invoke when DMA transfer is complete
+ * @param[in] context Pointer to define user-defined context
+ * @return fpga_result FPGA_OK on success, return code otherwise
+ *
+ */
+fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma, uint64_t dst,
+				 uint64_t src, size_t count,
+				 fpga_dma_transfer_t type,
+				 fpga_dma_transfer_cb cb, void *context);
 
 /**
-* fpgaDmaClose
-*
-* @brief           Close the DMA BBB handle.
-*
-* @param[in] dma   DMA object handle
-* @returns         FPGA_OK on success, return code otherwise
-*/
+ * fpgaDmaClose
+ *
+ * @brief           Close the DMA BBB handle.
+ *
+ * @param[in] dma   DMA object handle
+ * @returns         FPGA_OK on success, return code otherwise
+ */
 fpga_result fpgaDmaClose(fpga_dma_handle dma);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif // __FPGA_DMA_H__
