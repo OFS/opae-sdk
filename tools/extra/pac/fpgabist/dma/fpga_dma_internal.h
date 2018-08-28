@@ -33,18 +33,49 @@
 #define __FPGA_DMA_INT_H__
 
 #include <opae/fpga.h>
+#include "x86-sse2.h"
+
+#ifdef CHECK_DELAYS
+#pragma message "Compiled with -DCHECK_DELAYS.  Not to be used in production"
+#endif
+
+#ifdef FPGA_DMA_DEBUG
+#pragma message "Compiled with -DFPGA_DMA_DEBUG.  Not to be used in production"
+#endif
+
+#ifndef max
+#define max(a, b)                                                              \
+	({                                                                     \
+		__typeof__(a) _a = (a);                                        \
+		__typeof__(b) _b = (b);                                        \
+		_a > _b ? _a : _b;                                             \
+	})
+#endif
+
+#ifndef min
+#define min(a, b)                                                              \
+	({                                                                     \
+		__typeof__(a) _a = (a);                                        \
+		__typeof__(b) _b = (b);                                        \
+		_a < _b ? _a : _b;                                             \
+	})
+#endif
+
+#define DMA_SHUTDOWN_CTL_VAL (0x21)
+
+#define FPGA_DMA_TIMEOUT_MSEC (120000)
+
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
-#define IS_ALIGNED_DWORD(addr) (addr%4 == 0)
-#define IS_ALIGNED_QWORD(addr) (addr%8 == 0)
+#define IS_ALIGNED_DWORD(addr) (addr % 4 == 0)
+#define IS_ALIGNED_QWORD(addr) (addr % 8 == 0)
 
 #define FPGA_DMA_UUID_H 0xef82def7f6ec40fc
 #define FPGA_DMA_UUID_L 0xa9149a35bace01ea
-#define FPGA_DMA_WF_MAGIC_NO          0x5772745F53796E63ULL
-#define FPGA_DMA_HOST_MASK            0x2000000000000
-#define FPGA_DMA_WF_HOST_MASK         0x3000000000000
+#define FPGA_DMA_WF_MAGIC_NO 0x5772745F53796E63ULL
+#define FPGA_DMA_HOST_MASK 0x2000000000000
+#define FPGA_DMA_WF_HOST_MASK 0x3000000000000
 #define FPGA_DMA_WF_ROM_MAGIC_NO_MASK 0x1000000000000
-
 
 #define AFU_DFH_REG 0x0
 #define AFU_DFH_NEXT_OFFSET 16
@@ -63,44 +94,88 @@
 #define FPGA_DMA_ADDR_SPAN_EXT_CNTL 0x200
 #define FPGA_DMA_ADDR_SPAN_EXT_DATA 0x1000
 
-#define DMA_ADDR_SPAN_EXT_WINDOW (4*1024)
-#define DMA_ADDR_SPAN_EXT_WINDOW_MASK ((uint64_t)(DMA_ADDR_SPAN_EXT_WINDOW-1))
+#define DMA_ADDR_SPAN_EXT_WINDOW (4 * 1024)
+#define DMA_ADDR_SPAN_EXT_WINDOW_MASK ((uint64_t)(DMA_ADDR_SPAN_EXT_WINDOW - 1))
 
 #define FPGA_DMA_MASK_32_BIT 0xFFFFFFFF
 
-#define FPGA_DMA_CSR_BUSY (1<<0)
+#define FPGA_DMA_CSR_BUSY (1 << 0)
 #define FPGA_DMA_DESC_BUFFER_EMPTY 0x2
 #define FPGA_DMA_DESC_BUFFER_FULL 0x4
 
 #define FPGA_DMA_ALIGN_BYTES 64
-#define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES == 0)
+#define IS_DMA_ALIGNED(addr) (addr % FPGA_DMA_ALIGN_BYTES == 0)
+
+// MIN_SSE2_SIZE is the minimum size in bytes of a memcpy where SSE2 copy
+// benefits over movsb
+#define MIN_SSE2_SIZE 4096
+#define CACHE_LINE_SIZE 64
+#define ALIGN_TO_CL(x) ((uint64_t)(x) & ~(CACHE_LINE_SIZE - 1))
+#define IS_CL_ALIGNED(x) (((uint64_t)(x) & (CACHE_LINE_SIZE - 1)) == 0)
+
+#define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
+#define ASE_DATA_BASE(dma_handle) ((uint64_t)dma_handle->dma_ase_data_base)
+#define ASE_CNTL_BASE(dma_handle) ((uint64_t)dma_handle->dma_ase_cntl_base)
+#define HOST_MMIO_32_ADDR(dma_handle, offset)                                  \
+	((volatile uint32_t *)((uint64_t)(dma_handle)->mmio_va                 \
+			       + (uint64_t)(offset)))
+#define HOST_MMIO_64_ADDR(dma_handle, offset)                                  \
+	((volatile uint64_t *)((uint64_t)(dma_handle)->mmio_va                 \
+			       + (uint64_t)(offset)))
+#define HOST_MMIO_32(dma_handle, offset)                                       \
+	(*HOST_MMIO_32_ADDR(dma_handle, offset))
+#define HOST_MMIO_64(dma_handle, offset)                                       \
+	(*HOST_MMIO_64_ADDR(dma_handle, offset))
+
+#define CSR_STATUS(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, status))
+#define CSR_CONTROL(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, ctrl))
+
 // Granularity of DMA transfer (maximum bytes that can be packed
 // in a single descriptor).This value must match configuration of
 // the DMA IP. Larger transfers will be broken down into smaller
 // transactions.
-#define FPGA_DMA_BUF_SIZE (1023*1024)
+#define FPGA_DMA_BUF_SIZE (1023 * 1024)
 #define FPGA_DMA_BUF_ALIGN_SIZE FPGA_DMA_BUF_SIZE
+
 // Convenience macros
 #ifdef FPGA_DMA_DEBUG
-	#define debug_print(fmt, ...) \
-					do { if (FPGA_DMA_DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__); } while (0)
+#define debug_print(fmt, ...)                                                  \
+	do {                                                                   \
+		if (FPGA_DMA_DEBUG) {                                          \
+			fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
+			fprintf(stderr, fmt, ##__VA_ARGS__);                   \
+		}                                                              \
+	} while (0)
+#define error_print(fmt, ...)                                                  \
+	do {                                                                   \
+		fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__);         \
+		fprintf(stderr, fmt, ##__VA_ARGS__);                           \
+		err_cnt++;                                                     \
+	} while (0)
 #else
-	#define debug_print(...)
+#define debug_print(...)
+#define error_print(...)
 #endif
 
 #define FPGA_DMA_MAX_BUF 8
 
+typedef struct __attribute__((__packed__)) {
+	uint64_t dfh;
+	uint64_t feature_uuid_lo;
+	uint64_t feature_uuid_hi;
+} dfh_feature_t;
+
 typedef union {
 	uint64_t reg;
 	struct {
-		uint64_t feature_type:4;
-		uint64_t reserved_8:8;
-		uint64_t afu_minor:4;
-		uint64_t reserved_7:7;
-		uint64_t end_dfh:1;
-		uint64_t next_dfh:24;
-		uint64_t afu_major:4;
-		uint64_t feature_id:12;
+		uint64_t feature_type : 4;
+		uint64_t reserved_8 : 8;
+		uint64_t afu_minor : 4;
+		uint64_t reserved_7 : 7;
+		uint64_t end_dfh : 1;
+		uint64_t next_dfh : 24;
+		uint64_t afu_major : 4;
+		uint64_t feature_id : 12;
 	} bits;
 } dfh_reg_t;
 
@@ -108,6 +183,8 @@ struct _dma_handle_t {
 	fpga_handle fpga_h;
 	uint32_t mmio_num;
 	uint64_t mmio_offset;
+	uint64_t mmio_va;
+	uint64_t cur_ase_page;
 	uint64_t dma_base;
 	uint64_t dma_offset;
 	uint64_t dma_csr_base;
@@ -128,95 +205,95 @@ struct _dma_handle_t {
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t tx_channel:8;
-		uint32_t generate_sop:1;
-		uint32_t generate_eop:1;
-		uint32_t park_reads:1;
-		uint32_t park_writes:1;
-		uint32_t end_on_eop:1;
-		uint32_t reserved_1:1;
-		uint32_t transfer_irq_en:1;
-		uint32_t early_term_irq_en:1;
-		uint32_t trans_error_irq_en:8;
-		uint32_t early_done_en:1;
-		uint32_t reserved_2:6;
-		uint32_t go:1;
+		uint32_t tx_channel : 8;
+		uint32_t generate_sop : 1;
+		uint32_t generate_eop : 1;
+		uint32_t park_reads : 1;
+		uint32_t park_writes : 1;
+		uint32_t end_on_eop : 1;
+		uint32_t reserved_1 : 1;
+		uint32_t transfer_irq_en : 1;
+		uint32_t early_term_irq_en : 1;
+		uint32_t trans_error_irq_en : 8;
+		uint32_t early_done_en : 1;
+		uint32_t reserved_2 : 6;
+		uint32_t go : 1;
 	};
 } msgdma_desc_ctrl_t;
 
 typedef struct __attribute__((__packed__)) {
-	//0x0
+	// 0x0
 	uint32_t rd_address;
-	//0x4
+	// 0x4
 	uint32_t wr_address;
-	//0x8
+	// 0x8
 	uint32_t len;
-	//0xC
+	// 0xC
 	uint16_t seq_num;
 	uint8_t rd_burst_count;
 	uint8_t wr_burst_count;
-	//0x10
+	// 0x10
 	uint16_t rd_stride;
 	uint16_t wr_stride;
-	//0x14
+	// 0x14
 	uint32_t rd_address_ext;
-	//0x18
+	// 0x18
 	uint32_t wr_address_ext;
-	//0x1c
+	// 0x1c
 	msgdma_desc_ctrl_t control;
 } msgdma_ext_desc_t;
 
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t busy:1;
-		uint32_t desc_buf_empty:1;
-		uint32_t desc_buf_full:1;
-		uint32_t rsp_buf_empty:1;
-		uint32_t rsp_buf_full:1;
-		uint32_t stopped:1;
-		uint32_t resetting:1;
-		uint32_t stopped_on_errror:1;
-		uint32_t stopped_on_early_term:1;
-		uint32_t irq:1;
-		uint32_t reserved:22;
+		uint32_t busy : 1;
+		uint32_t desc_buf_empty : 1;
+		uint32_t desc_buf_full : 1;
+		uint32_t rsp_buf_empty : 1;
+		uint32_t rsp_buf_full : 1;
+		uint32_t stopped : 1;
+		uint32_t resetting : 1;
+		uint32_t stopped_on_errror : 1;
+		uint32_t stopped_on_early_term : 1;
+		uint32_t irq : 1;
+		uint32_t reserved : 22;
 	} st;
 } msgdma_status_t;
 
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t stop_dispatcher:1;
-		uint32_t reset_dispatcher:1;
-		uint32_t stop_on_error:1;
-		uint32_t stopped_on_early_term:1;
-		uint32_t global_intr_en_mask:1;
-		uint32_t stop_descriptors:1;
-		uint32_t rsvd:22;
+		uint32_t stop_dispatcher : 1;
+		uint32_t reset_dispatcher : 1;
+		uint32_t stop_on_error : 1;
+		uint32_t stopped_on_early_term : 1;
+		uint32_t global_intr_en_mask : 1;
+		uint32_t stop_descriptors : 1;
+		uint32_t rsvd : 22;
 	} ct;
 } msgdma_ctrl_t;
 
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t rd_fill_level:16;
-		uint32_t wr_fill_level:16;
+		uint32_t rd_fill_level : 16;
+		uint32_t wr_fill_level : 16;
 	} fl;
 } msgdma_fill_level_t;
 
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t rsp_fill_level:16;
-		uint32_t rsvd:16;
+		uint32_t rsp_fill_level : 16;
+		uint32_t rsvd : 16;
 	} rsp;
 } msgdma_rsp_level_t;
 
 typedef union {
 	uint32_t reg;
 	struct {
-		uint32_t rd_seq_num:16;
-		uint32_t wr_seq_num:16;
+		uint32_t rd_seq_num : 16;
+		uint32_t wr_seq_num : 16;
 	} seq;
 } msgdma_seq_num_t;
 
