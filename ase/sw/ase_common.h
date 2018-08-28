@@ -441,15 +441,23 @@ bool remove_existing_lock_file(char *);
 #ifdef ASE_DEBUG
 void ase_buffer_info(struct buffer_t *);
 #endif
-void ase_buffer_oneline(struct buffer_t *);
 void ase_buffer_t_to_str(struct buffer_t *, char *);
 void ase_str_to_buffer_t(char *, struct buffer_t *);
 int ase_dump_to_file(struct buffer_t *, char *);
 uint64_t ase_rand64(void);
 void ase_eval_session_directory(void);
 int ase_instance_running(void);
-void remove_spaces(char *);
-void remove_tabs(char *);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void ase_buffer_oneline(struct buffer_t *);
+	void remove_spaces(char *);
+	void remove_tabs(char *);
+	void remove_newline(char *);
+#ifdef __cplusplus
+}
+#endif
 void remove_newline(char *);
 void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
@@ -541,6 +549,8 @@ extern "C" {
 	char *ase_malloc(size_t);
 	void *umsg_watcher();
 	// void *intr_request_watcher();
+	void register_signal(int, void *);
+	void start_simkill_countdown(void);
 #ifdef __cplusplus
 }
 #endif				// __cplusplus

@@ -54,10 +54,16 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
 set(TARGET_SRC_ASE ${COMMON_SRC})
 add_executable(gtase ${TARGET_SRC_ASE})
 
+set(UNIT_SRC unit/ase/gtmain.cpp
+  unit/ase/gtAseOps.cpp
+)
+set(TARGET_UNIT_ASE ${UNIT_SRC})
+add_executable(gtAseU ${TARGET_UNIT_ASE})
+
 set(LIB_SRC_PATH_ASE ${OPAE_SDK_SOURCE}/ase/api/src)
 target_compile_definitions(commonlib-ase PUBLIC BUILD_ASE)
 
-target_link_libraries(commonlib-ase ${Target_LIB} ${GTEST_BOTH_LIBRARIES}
+target_link_libraries(commonlib-ase ${GTEST_BOTH_LIBRARIES}
   ${libjson-c_LIBRARIES})
 target_include_directories(commonlib-ase PUBLIC
   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
@@ -76,6 +82,15 @@ target_include_directories(gtase PUBLIC
 target_link_libraries(gtase commonlib-ase safestr dl opae-c-ase ${libjson-c_LIBRARIES}
   uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 
+target_compile_definitions(gtAseU PUBLIC BUILD_ASE)
+target_include_directories(gtAseU PUBLIC
+  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${LIB_SRC_PATH_ASE}>
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
+target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
+  uuid ${GTEST_BOTH_LIBRARIES} )
 ############################################################################
 ## ASE compatible version of gtapi (gtase)  ################################
 ############################################################################
