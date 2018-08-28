@@ -52,10 +52,9 @@ mock_object::mock_object(const std::string &devpath,
       device_id_(device_id),
       type_(type) {}
 
-int mock_fme::ioctl(int request, va_list argp) {
-  (void)request;
-  (void)argp;
-  return 0;
+  int mock_fme::ioctl(int request, va_list argp) {
+    (void)request;
+    (void)argp;
 }
 
 int mock_port::ioctl(int request, va_list argp) {
@@ -80,6 +79,11 @@ test_device test_device::unknown() {
                      .function = 5,
                      .socket_id = 9,
                      .num_slots = 9,
+                     .bbs_id = 9,
+                     .bbs_version = {0xFF,0xFF,0xFF},
+                     .state = FPGA_ACCELERATOR_ASSIGNED,
+                     .num_mmio = 0,
+                     .num_interrupts = 0xf,
                      .fme_object_id = 9,
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
@@ -102,6 +106,11 @@ static platform_db PLATFORMS = {
                        .function = 0,
                        .socket_id = 0,
                        .num_slots = 1,
+                       .bbs_id = 0x63000023b637277,
+                       .bbs_version = {6,3,0},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 1,
                        .fme_object_id = 0xf500000,
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,

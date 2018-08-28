@@ -87,6 +87,11 @@ struct test_device {
   uint8_t function;
   uint8_t socket_id;
   uint32_t num_slots;
+  uint64_t bbs_id;
+  fpga_version bbs_version;
+  fpga_accelerator_state state;
+  uint32_t num_mmio;
+  uint32_t num_interrupts; 
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
