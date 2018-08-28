@@ -25,7 +25,6 @@ set(MUNIT_SRC mock/mock.c
               ${CMAKE_SOURCE_DIR}/libopae/src/common.c
               ${CMAKE_SOURCE_DIR}/libopae/src/enum.c
               ${CMAKE_SOURCE_DIR}/libopae/src/error.c
-              ${CMAKE_SOURCE_DIR}/libopae/src/event.c
               ${CMAKE_SOURCE_DIR}/libopae/src/hostif.c
               ${CMAKE_SOURCE_DIR}/libopae/src/init.c
               ${CMAKE_SOURCE_DIR}/libopae/src/manage.c
@@ -54,6 +53,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/common/include
     ${PROJECT_BINARY_DIR}/include
     ${CMAKE_SOURCE_DIR}/libopae/src
+    ${CMAKE_SOURCE_DIR}/tools/base
     mock
     ${GTEST_INCLUDE_DIRS}
     {CMAKE_CURRENT_SOURCE_DIR}
@@ -61,9 +61,25 @@ include_directories(
     )
 
 add_executable(munit-opae-c ${MUNIT_SRC})
+add_executable(munit-opae-c-events
+    mock/mock.c
+    unit/events_test.cpp
+    ${CMAKE_SOURCE_DIR}/libopae/src/event.c
+    ${CMAKE_SOURCE_DIR}/tools/base/fpgad/srv.c
+    ${CMAKE_SOURCE_DIR}/tools/base/fpgad/log.c
+    )
 
 target_link_libraries(munit-opae-c
     safestr
+    test_system
+    ${libjson-c_LIBRARIES}
+    ${libuuid_LIBRARIES}
+    ${GTEST_BOTH_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT})
+
+target_link_libraries(munit-opae-c-events
+    safestr
+    opae-c
     test_system
     ${libjson-c_LIBRARIES}
     ${libuuid_LIBRARIES}
