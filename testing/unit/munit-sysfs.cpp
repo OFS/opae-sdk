@@ -41,17 +41,13 @@ extern "C" {
 }
 #endif
 
-
-#include <array>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "common_test.h"
 
 
+using namespace opae::testing;
+using namespace common_test;
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysfs_c_p() : tmpsysfs("mocksys-XXXXXX") {}
@@ -93,11 +89,35 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 * @details sysfs_deviceid_from_path giver invalid device id
 *          Then return FPGA_INVALID_PARAM/FPGA_NOT_FOUND
 */
-TEST_P(sysfs_c_p, null_device_id){
-  auto device = platform_.devices[0];
-  //ASSERT_EQ(sysfs_deviceid_from_path(tmpsysfs.c_str(),device.device_id),FPGA_OK);
-  ASSERT_NE(sysfs_deviceid_from_path(tmpsysfs.c_str(),NULL), FPGA_OK);
-  ASSERT_NE(sysfs_deviceid_from_path(NULL,NULL), FPGA_OK);
+TEST_P(sysfs_c_p, test_deviceid_from_path){
+	uint64_t deviceid;
+	auto device = platform_.devices[0];
+	
+	//Valid path
+	fpga_result result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &deviceid);
+	ASSERT_EQ(result, FPGA_OK);
+	
+	//NULL input
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", NULL);
+	ASSERT_NE(result, FPGA_OK);
+	
+	//NULL input path
+	result = sysfs_deviceid_from_path(NULL, NULL);
+	ASSERT_NE(result, FPGA_OK);
+	
+	//Invalid path to get device id
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga.0", &deviceid);
+	ASSERT_NE(result, FPGA_OK);
+	
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.20/intel-fpga-fme", &deviceid);
+	ASSERT_NE(result, FPGA_OK);
+	
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.20", &deviceid);
+	ASSERT_NE(result, FPGA_OK);
+	
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev/intel-fpga-fme", &deviceid);
+	ASSERT_NE(result, FPGA_OK);
+
 }
 
 
@@ -109,28 +129,175 @@ TEST_P(sysfs_c_p, null_device_id){
 *          sysfs_read_u32_pair,sysfs_read_u64
 *          sysfs_read_u64
 */
-TEST_P(sysfs_c_p, null_path){
-  fpga_result res;
-  uint32_t u1;
-  uint32_t u2;
-  uint64_t u64;
+TEST_P(sysfs_c_p, test_reads){
+	fpga_result result;
+	int i;
+	uint32_t u32;
+	uint32_t u1;
+	uint32_t u2;
+	uint64_t u64;
 
-  EXPECT_NE(res = sysfs_read_int("",NULL), FPGA_OK) << "\tRESULT: [" << fpgaErrStr(res) << "]";
-  EXPECT_NE(sysfs_read_int(NULL,NULL), FPGA_OK);
-  EXPECT_NE(sysfs_read_u32("",NULL), FPGA_OK);
-  EXPECT_NE(sysfs_read_u32(NULL,NULL), FPGA_OK);
 
-  res = sysfs_read_u32_pair(NULL,NULL,NULL,'\0');
-  EXPECT_NE(res, FPGA_OK);
-  res = sysfs_read_u32_pair(NULL,NULL,NULL,'s');
-  EXPECT_NE(res, FPGA_OK);
+	//Empty input path string
+	result = sysfs_read_int("", NULL);
+	EXPECT_NE(result, FPGA_OK);
 
-  EXPECT_NE(sysfs_read_u64("",NULL), FPGA_OK);
-  EXPECT_NE(sysfs_read_u64(NULL,NULL), FPGA_OK);
+	//NULL input parameters
+	result = sysfs_read_int(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path
+	result = sysfs_read_int("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_int("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	// Valid input path
+	result = sysfs_read_int("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &i);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Empty input path string
+	result = sysfs_read_int("", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters 
+	result = sysfs_read_u32(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path
+	result = sysfs_read_u32("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_u32("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	// Valid input path
+	result = sysfs_read_u32("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u32);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_read_u32_pair(NULL, NULL, NULL, '\0');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_read_u32_pair(NULL, NULL, NULL, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input 'sep' character
+	result = sysfs_read_u32_pair("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u1, &u2, '\0');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path value
+	result = sysfs_read_u32_pair("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u1, &u2, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path type
+	result = sysfs_read_u32_pair("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &u1, &u2, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path 
+	result = sysfs_read_u32_pair("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10", &u1, &u2, 'a');
+	EXPECT_NE(result, FPGA_OK);
+
+	//Empty input path string
+	result = sysfs_read_u64("", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//NULL input parameters
+	result = sysfs_read_u64(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid input path
+	result = sysfs_read_u64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10", NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	// Valid input path
+	result = sysfs_read_u64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", &u64);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
+	result = sysfs_write_u64(NULL, 0);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_write_u64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", 0x100);
+	EXPECT_NE(result, FPGA_OK);
+
+	//valid path 
+	result = sysfs_write_u64("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
+	EXPECT_EQ(result, FPGA_OK);
+
+	//Invalid input parameters
+	fpga_guid guid;
+	result = sysfs_read_guid(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	result = sysfs_read_guid("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10/", guid);
+	EXPECT_NE(result, FPGA_OK);
+}
+
+TEST_P(sysfs_c_p, test_port){
+	fpga_result result;
+	fpga_handle h;
+	//NULL input parameters
+	result = get_port_sysfs(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//NULL sysfs path 
+	result = get_port_sysfs(h, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//NULL handle
+	result = get_port_sysfs(NULL, (char*) "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id");
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid handle
+	result = get_port_sysfs(h, (char*)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/");
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid handle
+	//h.token = NULL;
+	//result = get_port_sysfs(h, (char*)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/");
+	//EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
 
 }
 
+
+
+TEST_P(sysfs_c_p, test_device_id){
+	fpga_result result;
+	//fpga_token tok = tokens.front();
+	//fpga_token tok = tokens.back();
+	struct _fpga_token _tok;
+	fpga_token tok = &_tok;
+	fpga_handle h;
+	uint64_t deviceid;
+
+	//NULL handle
+	result = get_fpga_deviceid(NULL, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	//Invalid handle 
+	result = get_fpga_deviceid(h, NULL);
+	EXPECT_NE(result, FPGA_OK);
+
+	// Pass Port handle insted of FME handle
+	result = get_fpga_deviceid(NULL, &deviceid);
+	EXPECT_NE(result, FPGA_OK);
+
+	//result = fpgaOpen(tok, &h, 0);
+	//EXPECT_EQ(FPGA_OK, result) << "This is the result: \t" << result;
+
+	token_for_afu0(&_tok);
+	EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+	// Pass Port handle insted of FME handle
+	result = get_fpga_deviceid(h, &deviceid);
+	EXPECT_NE(result, FPGA_OK);
+	EXPECT_EQ(FPGA_OK, fpgaClose(h));
+
+
+}
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
