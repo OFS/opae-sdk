@@ -36,5 +36,5 @@ make munit-opae-c
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
-./bin/munit-opae-c --gtest_filter="enum*"
+./bin/munit-opae-c --gtest_filter="enum*:sysfs*"
 
