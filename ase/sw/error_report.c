@@ -30,7 +30,7 @@
 // -----------------------------------------------------------------------
 // ASE error report : Prints a verbose report on catastrophic errors
 // -----------------------------------------------------------------------
-void ase_error_report(char *err_func, int err_num, int err_code)
+void ase_error_report(const char *err_func, int err_num, int err_code)
 {
 	// Report error
 	ASE_ERR("@ERROR in %s CODE %d | %s\n", err_func, err_num, strerror(err_num));

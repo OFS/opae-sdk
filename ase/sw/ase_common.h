@@ -28,7 +28,9 @@
 #ifndef _ASE_COMMON_H_
 #define _ASE_COMMON_H_
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -455,6 +457,13 @@ extern "C" {
 	void remove_spaces(char *);
 	void remove_tabs(char *);
 	void remove_newline(char *);
+	int sscanf_s_ii(const char *, const char *, int *, int *);
+	unsigned int parse_format(const char *format, char pformatList[], unsigned int maxFormats);
+	// Error report functions
+	void ase_error_report(const char *, int, int);
+	void backtrace_handler(int);
+	void mqueue_create(char *);
+	void mqueue_destroy(char *);
 #ifdef __cplusplus
 }
 #endif
@@ -472,15 +481,13 @@ int ase_memcpy_s(void *, size_t, const void *, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
 int ase_memset_s(void *, size_t, int, size_t);
-int sscanf_s_ii(const char *, const char *, int *, int *);
 int fscanf_s_i(FILE *, const char *, int *);
 
 // Message queue operations
 void ipc_init(void);
-void mqueue_create(char *);
 int mqueue_open(char *, int);
 void mqueue_close(int);
-void mqueue_destroy(char *);
+
 void mqueue_send(int, const char *, int);
 int mqueue_recv(int, char *, int);
 
@@ -489,10 +496,6 @@ void put_timestamp(void);
 // char* get_timestamp(int);
 void get_timestamp(char *);
 char *generate_tstamp_path(char *);
-
-// Error report functions
-void ase_error_report(char *, int, int);
-void backtrace_handler(int);
 
 // IPC management functions
 void final_ipc_cleanup(void);

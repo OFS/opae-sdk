@@ -56,7 +56,8 @@ add_executable(gtase ${TARGET_SRC_ASE})
 
 set(UNIT_SRC unit/ase/gtmain.cpp
   unit/ase/gtAseOps.cpp
-)
+  # unit/ase/gtAseString.cpp
+ )
 set(TARGET_UNIT_ASE ${UNIT_SRC})
 add_executable(gtAseU ${TARGET_UNIT_ASE})
 
