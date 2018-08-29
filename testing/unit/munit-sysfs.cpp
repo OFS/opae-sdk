@@ -90,9 +90,10 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(sysfs_c_p, test_deviceid_from_path){
 	uint64_t deviceid;
 	auto device = platform_.devices[0];
+	fpga_result result;
 	
 	//Valid path
-	fpga_result result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &deviceid);
+	result = sysfs_deviceid_from_path("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", &deviceid);
 	ASSERT_EQ(result, FPGA_OK);
 	
 	//NULL input
