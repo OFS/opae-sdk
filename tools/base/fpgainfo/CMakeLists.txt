@@ -36,6 +36,7 @@ add_executable(fpgainfo main.c
 			  tempinfo.c
 			  portinfo.c)
 
+set_install_rpath(fpgainfo)
 target_link_libraries(fpgainfo opae-c argsfilter bmc)
 set_property(TARGET fpgainfo PROPERTY C_STANDARD 99)
 
@@ -52,6 +53,6 @@ add_library(fpgainfo-static
 set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
 target_link_libraries(fpgainfo-static opae-c argsfilter)
 
-install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/fpgainfo
-    DESTINATION bin
+install(TARGETS fpgainfo
+    RUNTIME DESTINATION bin
     COMPONENT toolfpgainfo)
