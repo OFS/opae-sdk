@@ -43,11 +43,9 @@ extern "C" {
 
 #include "gtest/gtest.h"
 #include "test_system.h"
-#include "common_test.h"
 
 
 using namespace opae::testing;
-using namespace common_test;
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysfs_c_p() : tmpsysfs("mocksys-XXXXXX") {}
@@ -285,17 +283,6 @@ TEST_P(sysfs_c_p, test_device_id){
 	// Pass Port handle insted of FME handle
 	result = get_fpga_deviceid(NULL, &deviceid);
 	EXPECT_NE(result, FPGA_OK);
-
-	//result = fpgaOpen(tok, &h, 0);
-	//EXPECT_EQ(FPGA_OK, result) << "This is the result: \t" << result;
-
-	token_for_afu0(&_tok);
-	EXPECT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-	// Pass Port handle insted of FME handle
-	result = get_fpga_deviceid(h, &deviceid);
-	EXPECT_NE(result, FPGA_OK);
-	EXPECT_EQ(FPGA_OK, fpgaClose(h));
-
 
 }
 
