@@ -51,6 +51,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
+using namespace opae::testing;
 
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:

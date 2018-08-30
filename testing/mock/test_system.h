@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "opae/fpga.h"
 
 typedef struct stat stat_t;
 
