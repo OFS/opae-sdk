@@ -34,40 +34,54 @@ extern "C" {
 }
 #endif
 
+#include "intel-fpga.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include <opae/access.h>
 #include <opae/mmio.h>
 #include <sys/mman.h>
 #include "types_int.h"
+#include <cstdarg>
+#include <linux/ioctl.h>
 
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
 using namespace opae::testing;
 
-int mmio_ioctl(mock_object * m, int request, va_list arg){
-  struct fpga_port_region_info *rinfo = va_arg(arg, struct fpga_port_region_info *);
-  if (!rinfo) {
-    FPGA_MSG("rinfo is NULL");
-    goto out_EINVAL;
-  }
-  if (rinfo->argsz != sizeof(*rinfo)) {
-    FPGA_MSG("wrong structure size");
-    goto out_EINVAL;
-  }
-  if (rinfo->index != 0) {
-    FPGA_MSG("unsupported MMIO index");
-    goto out_EINVAL;
-  }
-  if (rinfo->padding != 0) {
-    FPGA_MSG("unsupported padding");
-    goto out_EINVAL;
-  }
-  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-  rinfo->size = 0x40000;
-  rinfo->offset = 0;
-  retval = 0;
-  errno = 0;
-    return 0;
+int mmio_ioctl(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+    if (!rinfo) {
+      FPGA_MSG("rinfo is NULL");
+      goto out_EINVAL;
+    }
+    if (rinfo->argsz != sizeof(*rinfo)) {
+      FPGA_MSG("wrong structure size");
+      goto out_EINVAL;
+    }
+    if (rinfo->index != 0) {
+      FPGA_MSG("unsupported MMIO index");
+      goto out_EINVAL;
+    }
+    if (rinfo->padding != 0) {
+      FPGA_MSG("unsupported padding");
+      goto out_EINVAL;
+    }
+    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+    rinfo->size = 0x40000;
+    rinfo->offset = 0;
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
 }
 
 class mmio_c_p
@@ -88,7 +102,7 @@ class mmio_c_p
                             &num_matches_),
               FPGA_OK);
     ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-    system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO,mmio_ioctl);
+    system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
   virtual void TearDown() override {
@@ -110,13 +124,14 @@ class mmio_c_p
   test_system *system_;
 };
 
-TEST_P (mmio_c_p, test_mmio) {
+TEST_P (mmio_c_p, test_map_mmio) {
   uint64_t * mmio_ptr = NULL;
   EXPECT_TRUE(((struct _fpga_handle*)handle_)->mmio_root == NULL);
 
   ASSERT_EQ(FPGA_OK, fpgaMapMMIO(handle_, 0, &mmio_ptr));
   EXPECT_FALSE(mmio_ptr == NULL);
   EXPECT_FALSE(((struct _fpga_handle *)handle_)->mmio_root == NULL);
+  EXPECT_EQ(FPGA_OK, fpgaUnmapMMIO(handle_, 0));
 }
 
 
