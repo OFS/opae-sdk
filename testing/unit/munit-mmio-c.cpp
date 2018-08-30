@@ -62,7 +62,7 @@ int mmio_ioctl(mock_object * m, int request, va_list argp){
       FPGA_MSG("wrong structure size");
       goto out_EINVAL;
     }
-    if (rinfo->index != 0) {
+    if (rinfo->index > 1 ) {
       FPGA_MSG("unsupported MMIO index");
       goto out_EINVAL;
     }
