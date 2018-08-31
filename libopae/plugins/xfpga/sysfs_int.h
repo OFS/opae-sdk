@@ -29,6 +29,7 @@
 
 #include <opae/types.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -96,9 +97,9 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 				  const char *path);
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name);
 fpga_result make_sysfs_group(char *sysfspath, const char *name,
-			     fpga_object *object);
+			     fpga_object *object, int flags, fpga_handle handle);
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
-			      fpga_object *object);
+			      fpga_object *object, int flags, fpga_handle handle);
 
 #ifdef __cplusplus
 }

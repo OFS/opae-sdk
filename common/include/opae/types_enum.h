@@ -144,14 +144,12 @@ enum fpga_reconf_flags {
 	FPGA_RECONF_FORCE = (1u << 0)
 };
 
-/**
- * Object Synchronization flags
- *
- * These flags can be passed to the fpgaObjectRead() function.
- */
 enum fpga_object_read_flags {
-	/** Synchronize the object contents by reading from the underlying object. */
-	FPGA_OBJECT_SYNC = (1u << 0)
+  FPGA_OBJECT_SYNC = (1u << 0),
+  FPGA_OBJECT_GLOB = (1u << 1),
+  FPGA_OBJECT_TEXT = (1u << 2),
+  FPGA_OBJECT_RECURSE_ONE = (1u << 3),
+  FPGA_OBJECT_RECURSE_ALL = (1u << 4)
 };
 
 #endif // __FPGA_TYPES_ENUM_H__
