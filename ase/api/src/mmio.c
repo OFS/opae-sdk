@@ -50,12 +50,13 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 					 uint64_t offset, uint32_t value)
 {
 	UNUSED_PARAM(mmio_num);
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
 	if (NULL == handle) {
 		FPGA_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
+ 
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
 	if (!_handle->fpgaMMIO_is_mapped)
 		_handle->fpgaMMIO_is_mapped = true;

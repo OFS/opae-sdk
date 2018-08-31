@@ -31,7 +31,7 @@
 #include <opae/access.h>
 #include <opae/properties.h>
 #include "common_int.h"
-#include <ase_common.h>
+#include "ase_common.h"
 
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
@@ -51,16 +51,12 @@ fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 	_eh->fd = eventfd(0, 0);
 	if (_eh->fd < 0) {
 		FPGA_ERR("eventfd : %s", strerror(errno));
-		result = FPGA_NOT_FOUND;
-		goto out_free;
+		free(_eh);
+		return FPGA_NOT_FOUND;
 	}
 
 	*handle = (fpga_event_handle)_eh;
 	return FPGA_OK;
-
-out_free:
-	free(_eh);
-	return result;
 }
 
 fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *handle)

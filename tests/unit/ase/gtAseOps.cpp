@@ -24,12 +24,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <opae/access.h>
+#include <opae/fpga.h>
+#include <opae/properties.h>
+#include <opae/types_enum.h>
+#include <opae/error.h>
+#include <pthread.h>
+#include "types_int.h"
 #include "ase_common.h"
 #include "gtest/gtest.h"
 
 #define ASE_UNIT
+#define FPGA_EVENT_INVALID 0x64
 
 const uint HUGE_NUM = 10000000000000000000;
+
+static const fpga_guid ASE_GUID = {
+	0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
+	0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
+};
+
+inline void token_for_afu0(struct _fpga_token* _tok) {
+	memcpy(_tok->accelerator_id, ASE_GUID, sizeof(fpga_guid));
+	_tok->magic = ASE_TOKEN_MAGIC;
+	_tok->ase_objtype = FPGA_ACCELERATOR;
+};
 
 /**
 * @test       ase_rm_sp
@@ -328,7 +347,142 @@ TEST(LibopaecAseStr, ase_str_02) {
 	EXPECT_EQ(0, numformat);
 }
 
+/**
+* @test    ase_buffer_01
+* @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
+*          fpgaGetIOAddress
+* @details Buffer functions returns FPGA_INVALID_PARAM for
+*..........invalid input
+*/
+TEST(LibopaecAseApi, ase_buffer_01) {
+	uint64_t* buf_addr;
+	uint64_t wsid = 1;
+	fpga_handle h = (fpga_handle)0x123;
 
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**)&buf_addr, &wsid, 0));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(NULL, 0x10001));
+	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReleaseBuffer(h, 0));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetIOAddress(NULL, 0x10001, NULL));
+}
+
+/**
+* @test    ase_com_01
+* @brief   Tests: fpgaErrStr
+*
+* @details This function returns different message for
+*          different errors
+*/
+TEST(LibopaecAseApi, ase_com_01) {
+	// NULL Handle
+	EXPECT_STREQ("success", fpgaErrStr(FPGA_OK));
+	EXPECT_STREQ("invalid parameter", fpgaErrStr(FPGA_INVALID_PARAM));
+	EXPECT_STREQ("resource busy", fpgaErrStr(FPGA_BUSY));
+	EXPECT_STREQ("exception", fpgaErrStr(FPGA_EXCEPTION));
+	EXPECT_STREQ("not found", fpgaErrStr(FPGA_NOT_FOUND));
+	EXPECT_STREQ("no memory", fpgaErrStr(FPGA_NO_MEMORY));
+	EXPECT_STREQ("not supported", fpgaErrStr(FPGA_NOT_SUPPORTED));
+	EXPECT_STREQ("no driver available", fpgaErrStr(FPGA_NO_DRIVER));
+	EXPECT_STREQ("insufficient privileges", fpgaErrStr(FPGA_NO_ACCESS));
+}
+
+/**
+* @test    ase_err_01
+* @brief   Tests: fpgaReadError fpgaClearError fpgaClearAllErrors
+*                 fpgaGetErrorInfo
+* @details These functions returns FPGA_NOT_SUPPORTED
+*
+*/
+TEST(LibopaecAseApi, ase_err_01) {
+	struct _fpga_token _token;
+	fpga_token t = &_token;
+
+	// NULL Handle
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaReadError(t, 0, NULL));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaClearError(t, 0));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaClearAllErrors(t));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaGetErrorInfo(t, 0, NULL));
+}
+
+/**
+* @test    ase_eve_01
+* @brief   Tests: fpgaCreateEventHandle fpgaDestroyEventHandle
+*                 fpgaRegisterEvent fpgaUnregisterEvent
+* @details These functions returns FPGA_INVALID_PARAM or FPGA_NOT_SUPPORTED
+*
+*/
+TEST(LibopaecAseApi, ase_eve_01) {
+	int fd;
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaCreateEventHandle(NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(NULL));
+	fpga_event_handle handle = NULL;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(&handle));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOSObjectFromEventHandle(NULL, &fd));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaRegisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL, 1));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT, NULL, MAX_USR_INTRS));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaUnregisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL));
+}
+
+/**
+* @test    ase_mmio_01
+* @brief   Tests: fpgaWriteMMIO32 fpgaReadMMIO32 fpgaWriteMMIO64
+*                 fpgaReadMMIO64 fpgaMapMMIO fpgaUnmapMMIO
+* @details These functions returns FPGA_NOT_SUPPORTED
+*
+*/
+TEST(LibopaecAseApi, ase_mmio_01) {
+	uint64_t *mmio_afu_vbase = NULL;
+	struct _fpga_handle _handle;
+	uint32_t value;
+	uint64_t value1;
+	_handle.fpgaMMIO_is_mapped = 0;
+	fpga_handle handle = &_handle;
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO32(NULL, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_NOT_FOUND, fpgaWriteMMIO32(handle, 0, 0x10, 0));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO32(NULL, 0, 0x10, &value));
+	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReadMMIO32(handle, 0, 0x10, &value));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO64(NULL, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_NOT_FOUND, fpgaWriteMMIO64(handle, 0, 0x10, 0));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO64(NULL, 0, 0x10, &value1));
+	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReadMMIO64(handle, 0, 0x10, &value1));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaMapMMIO(NULL, 0, NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(NULL, 0));
+	_handle.magic = FPGA_HANDLE_MAGIC;
+	EXPECT_EQ(FPGA_OK, fpgaUnmapMMIO(handle, 0));
+	_handle.magic = FPGA_HANDLE_MAGIC - 1;
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(handle, 0));
+}
+
+/**
+* @test    ase_open_01
+* @brief   Tests: fpgaOpen
+* @details These functions returns FPGA_INVALID_PARAM
+*
+*/
+TEST(LibopaecAseApi, ase_open_01) {
+	uint64_t *mmio_afu_vbase = NULL;
+	struct _fpga_handle _handle;
+	struct _fpga_token _token;
+	fpga_token token = (fpga_token)&_token;
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(token, NULL, 0));
+}
+
+
+/**
+* @test       ase_err_021
+*
+* @brief      When the parameters are valid and libopae-ase-c is loaded:
+*             ase_error_report() function should print out the errors
+*
+*/
 TEST(LibopaecAseErr, ase_err_01) {	
 
 	ase_error_report("ase_init", 1, ASE_USR_CAPCM_NOINIT);
