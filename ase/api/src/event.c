@@ -36,7 +36,6 @@
 fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 {
 	struct _fpga_event_handle *_eh;
-	fpga_result result = FPGA_OK;
 
 	if (!handle)
 		return FPGA_INVALID_PARAM;
