@@ -32,9 +32,9 @@ include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/include )
 
 set(SERVICE_FILE pacd.service)
-set(SERVICE_FILE_DIR ${CMAKE_INSTALL_PREFIX}/usr/lib/systemd/system)
+set(SERVICE_FILE_DIR /usr/lib/systemd/system)
 set(SERVICE_CONF_FILE pacd.conf)
-set(SERVICE_CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc/sysconfig)
+set(SERVICE_CONF_DIR /etc/sysconfig)
 
 set(PACD_ENVIRONMENT_FILE ${SERVICE_CONF_DIR}/${SERVICE_CONF_FILE})
 set(PACD_ROOT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
@@ -49,15 +49,8 @@ set_install_rpath(pacd)
 
 target_link_libraries(pacd bmc safestr opae-c pthread rt)
 
-if (IS_DIRECTORY /usr/lib/systemd/system)
-#    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} DESTINATION ${SERVICE_FILE_DIR} COMPONENT toolpacd)
-#    install(FILES ${SERVICE_CONF_FILE} DESTINATION ${SERVICE_CONF_DIR} COMPONENT toolpacd)
-     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} DESTINATION ${PACD_ROOT_DIRECTORY} COMPONENT toolpacd)
-     install(FILES ${SERVICE_CONF_FILE} DESTINATION ${PACD_ROOT_DIRECTORY} COMPONENT toolpacd)
-else()
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} ${SERVICE_CONF_FILE}
-        DESTINATION ${PACD_ROOT_DIRECTORY} COMPONENT toolpacd)
-endif()
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} DESTINATION ${SERVICE_FILE_DIR} COMPONENT toolpacd)
+install(FILES ${SERVICE_CONF_FILE} DESTINATION ${SERVICE_CONF_DIR} COMPONENT toolpacd)
 
 install(TARGETS pacd
         RUNTIME DESTINATION ${PACD_ROOT_DIRECTORY}
