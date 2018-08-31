@@ -165,6 +165,8 @@ typedef void *fpga_event_handle;
  * an accelerator resource. The error API provides functions to retrieve these
  * information structures from a particular resource.
  */
+
+typedef void *fpga_object;
 #define FPGA_ERROR_NAME_MAX 64
 struct fpga_error_info {
 	char name[FPGA_ERROR_NAME_MAX];   /** name of the error */

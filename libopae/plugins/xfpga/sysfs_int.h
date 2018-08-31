@@ -84,5 +84,17 @@ fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 				uint64_t *deviceid);
 fpga_result sysfs_objectid_from_path(const char *sysfspath,
 				     uint64_t *object_id);
+ssize_t eintr_read(int fd, void *buf, size_t count);
+ssize_t eintr_write(int fd, void *buf, size_t count);
+fpga_result cat_token_sysfs_path(char *dest, fpga_token token,
+				 const char *path);
+fpga_result cat_sysfs_path(char *dest, const char *path);
+fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
+				  const char *path);
+struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name);
+fpga_result make_sysfs_group(char *sysfspath, const char *name,
+			     fpga_object *object);
+fpga_result make_sysfs_object(char *sysfspath, const char *name,
+			      fpga_object *object);
 
 #endif // ___FPGA_SYSFS_INT_H__

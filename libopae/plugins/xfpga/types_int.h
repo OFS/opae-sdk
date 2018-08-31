@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <opae/types.h>
+#include <opae/sysobject.h>
 #include <opae/types_enum.h>
 
 #define SYSFS_PATH_MAX 256
@@ -62,16 +63,16 @@
 #define FPGA_SYSFS_BITSTREAM_ID "bitstream_id"
 
 // fpga device path
-#define SYSFS_FPGA_FMT                  "/intel-fpga-dev.%d"
+#define SYSFS_FPGA_FMT "/intel-fpga-dev.%d"
 
 // FPGA device id
-#define FPGA_SYSFS_DEVICEID            "device/device"
+#define FPGA_SYSFS_DEVICEID "device/device"
 
 // Integrated FPGA Device ID
-#define FPGA_INTEGRATED_DEVICEID             0xbcc0
+#define FPGA_INTEGRATED_DEVICEID 0xbcc0
 
 // Discrete FPGA Device ID
-#define FPGA_DISCRETE_DEVICEID               0x09c4
+#define FPGA_DISCRETE_DEVICEID 0x09c4
 
 #define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 #define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
@@ -80,21 +81,21 @@
 #define DEV_PATH_MAX 256
 
 // FPGA token magic (FPGATOKN)
-#define FPGA_TOKEN_MAGIC    0x46504741544f4b4e
+#define FPGA_TOKEN_MAGIC 0x46504741544f4b4e
 // FPGA handle magic (FPGAHNDL)
-#define FPGA_HANDLE_MAGIC   0x46504741484e444c
+#define FPGA_HANDLE_MAGIC 0x46504741484e444c
 // FPGA property magic (FPGAPROP)
 #define FPGA_PROPERTY_MAGIC 0x4650474150524f50
-//FPGA event handle magid (FPGAEVNT)
+// FPGA event handle magid (FPGAEVNT)
 #define FPGA_EVENT_HANDLE_MAGIC 0x4650474145564e54
 // FPGA invalid magic (FPGAINVL)
-#define FPGA_INVALID_MAGIC  0x46504741494e564c
+#define FPGA_INVALID_MAGIC 0x46504741494e564c
 
-//Register/Unregister for interrupts
-#define FPGA_IRQ_ASSIGN    (1 << 0)
-#define FPGA_IRQ_DEASSIGN  (1 << 1)
+// Register/Unregister for interrupts
+#define FPGA_IRQ_ASSIGN (1 << 0)
+#define FPGA_IRQ_DEASSIGN (1 << 1)
 
-//Get file descriptor from event handle
+// Get file descriptor from event handle
 #define FILE_DESCRIPTOR(eh) (((struct _fpga_event_handle *)eh)->fd)
 
 /** System-wide unique FPGA resource identifier */
@@ -110,13 +111,13 @@ struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_token token;
-	int fddev;                  // file descriptor for the device.
-	int fdfpgad;                // file descriptor for the event daemon.
+	int fddev;		    // file descriptor for the device.
+	int fdfpgad;		    // file descriptor for the event daemon.
 	struct wsid_map *wsid_root; // wsid information (list)
 	struct wsid_map *mmio_root; // MMIO information (list)
 	void *umsg_virt;	    // umsg Virtual Memory pointer
-	uint64_t umsg_size;	    // umsg Virtual Memory Size
-	uint64_t *umsg_iova;	    // umsg IOVA from driver
+	uint64_t umsg_size;	 // umsg Virtual Memory Size
+	uint64_t *umsg_iova;	// umsg IOVA from driver
 };
 
 /*
@@ -135,13 +136,13 @@ struct _fpga_event_handle {
  * Global list to store wsid/physptr/length vectors
  */
 struct wsid_map {
-	uint64_t         wsid;
-	uint64_t         addr;
-	uint64_t         phys;
-	uint64_t         len;
-	uint64_t         offset;
-	uint32_t         index;
-	int              flags;
+	uint64_t wsid;
+	uint64_t addr;
+	uint64_t phys;
+	uint64_t len;
+	uint64_t offset;
+	uint32_t index;
+	int flags;
 	struct wsid_map *next;
 };
 
@@ -153,6 +154,19 @@ struct wsid_map {
 struct token_map {
 	struct _fpga_token _token;
 	struct token_map *next;
+};
+
+typedef enum { FPGA_SYSFS_DIR = 0, FPGA_SYSFS_FILE } fpga_sysfs_type;
+
+struct _fpga_object {
+	pthread_mutex_t lock;
+	fpga_sysfs_type type;
+	char *path;
+	char *name;
+	int fd;
+	size_t size;
+	uint8_t *buffer;
+	fpga_object *objects;
 };
 
 

@@ -43,7 +43,6 @@
 #include <pthread.h>
 #undef  _GNU_SOURCE
 
-#include "opae/utils.h"
 #include "types_int.h"
 #include "log_int.h"
 #include "sysfs_int.h"

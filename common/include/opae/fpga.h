@@ -48,6 +48,7 @@
 #include <opae/utils.h>
 #include <opae/error.h>
 #include <opae/version.h>
+#include <opae/sysobject.h>
 
 #endif // __FPGA_FPGA_H__
 
