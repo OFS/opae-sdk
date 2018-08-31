@@ -50,31 +50,15 @@
 #include "wsid_list_int.h"
 #include "token_list_int.h"
 #include "mmap_int.h"
+#include "props.h"
 
 /* Macro for defining symbol visibility */
 #define __FPGA_API__ __attribute__((visibility("default")))
 #define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
 
-/*
- * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
- */
-#define ASSERT_NOT_NULL_MSG(arg, msg)              \
-	do {                                       \
-		if (!arg) {                        \
-			FPGA_MSG(msg);             \
-			return FPGA_INVALID_PARAM; \
-		}                                  \
-	} while (0);
-
-#define ASSERT_NOT_NULL(arg) \
-	ASSERT_NOT_NULL_MSG(arg, #arg " is NULL")
-
-
 /* Check validity of various objects */
 fpga_result prop_check_and_lock(struct _fpga_properties *prop);
 fpga_result handle_check_and_lock(struct _fpga_handle *handle);
 fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
-
-#define UNUSED_PARAM(x) ((void)x)
 
 #endif // ___FPGA_COMMON_INT_H__

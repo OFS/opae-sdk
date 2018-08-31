@@ -28,7 +28,9 @@
 #define __OPAE_PROPS_H__
 
 #include <stdint.h>
-#define __USE_GNU
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif
 #include <pthread.h>
 
 #include <opae/types.h>

@@ -32,7 +32,7 @@
 
 #include "xfpga.h"
 #include "common_int.h"
-#include "properties_int.h"
+#include "props.h"
 #include "error_int.h"
 
 
