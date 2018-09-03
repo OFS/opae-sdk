@@ -45,6 +45,7 @@
 
 #include "user_clk_pgm_uclock.h"
 #include "user_clk_pgm_uclock_freq_template.h"
+#include "user_clk_pgm_uclock_freq_template_322.h"
 #include "user_clk_pgm_uclock_eror_messages.h"
 
 
@@ -99,7 +100,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {
-	uint64_t refClock = userclk_high;
+	uint64_t freq = userclk_high;
 
 	if (sysfs_path == NULL) {
 		FPGA_ERR("Invalid Input parameters");
@@ -121,10 +122,10 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 
 	// set low refclk if only one clock is avalible 
 	if (userclk_high == 0 && userclk_low != 0) {
-		refClock = userclk_low;
+		freq = userclk_low;
 	}
 
-	if (refClock < MIN_FPGA_FREQ){
+	if (freq < MIN_FPGA_FREQ){
 		FPGA_ERR("Invalid Input frequency");
 		return FPGA_INVALID_PARAM;
 	}
@@ -135,10 +136,17 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	FPGA_DBG("User clock: %ld \n", refClock);
+	uint64_t refClk = 0;
+	if ((gQUCPU_Uclock.tInitz_InitialParams.u64i_Version == QUCPU_UI64_STS_1_VER_version_legacy) &&
+		(gQUCPU_Uclock.tInitz_InitialParams.u64i_PLL_ID == QUCPU_UI64_AVMM_FPLL_IPI_200_IDI_RF322M))
+	{ // Use the 322.265625 MHz REFCLK
+		refClk = 1;
+	}
+
+	FPGA_DBG("User clock: %ld \n", freq);
 
 	// set user clock
-	if (fi_SetFreqs(0, refClock) != 0) {
+	if (fi_SetFreqs(refClk, freq) != 0) {
 		FPGA_ERR("Failed to set user clock frequency ");
 		return FPGA_NOT_SUPPORTED;
 	}
@@ -212,7 +220,8 @@ int fi_RunInitz(const char* sysfs_path)
 		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
 
 		gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (u64i_PrtData & QUCPU_UI64_STS_1_VER_b63t60) >> 60;
-		if (gQUCPU_Uclock.tInitz_InitialParams.u64i_Version != QUCPU_UI64_STS_1_VER_version)
+		if ((gQUCPU_Uclock.tInitz_InitialParams.u64i_Version != QUCPU_UI64_STS_1_VER_version) &&
+		    (gQUCPU_Uclock.tInitz_InitialParams.u64i_Version != QUCPU_UI64_STS_1_VER_version_legacy))
 		{ // User Clock wrong version number
 			i_ReturnErr = QUCPU_INT_UCLOCK_RUNINITZ_ERR_VER;
 
@@ -592,9 +601,19 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		for (u64i_MifReg = 0; u64i_MifReg<gQUCPU_Uclock.tInitz_InitialParams.u64i_NumReg; u64i_MifReg++)
 		{ // Write each register in the diff mif
 
-			u64i_AvmmAdr = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk]) >> 16;
-			u64i_AvmmDat = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk] & 0x000000ff);
-			u64i_AvmmMsk = (uint64_t) (scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk] & 0x0000ff00) >> 8;
+			uint32_t tbl_entry;
+			if (u64i_Refclk == 0)
+			{ // 100 MHz table
+				tbl_entry = scu32ia3d_DiffMifTbl[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk];
+			}
+			else
+			{ // 322.265625 MHz table
+				tbl_entry = scu32ia3d_DiffMifTbl_322[(int) u64i_FrqInx][(int) u64i_MifReg][(int) u64i_Refclk];
+			}
+
+			u64i_AvmmAdr = (uint64_t) (tbl_entry) >> 16;
+			u64i_AvmmDat = (uint64_t) (tbl_entry & 0x000000ff);
+			u64i_AvmmMsk = (uint64_t) (tbl_entry & 0x0000ff00) >> 8;
 			i_ReturnErr = fi_AvmmReadModifyWriteVerify(u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk);
 
 			if (i_ReturnErr) break;
