@@ -40,6 +40,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <time.h>
+#include <glob.h>
 
 #include "safe_string/safe_string.h"
 
@@ -47,6 +48,7 @@
 #include "user_clk_pgm_uclock_freq_template.h"
 #include "user_clk_pgm_uclock_freq_template_322.h"
 #include "user_clk_pgm_uclock_eror_messages.h"
+#include "user_clk_s10_freq.h"
 
 
 // user clock sysfs
@@ -54,6 +56,9 @@
 #define  USER_CLOCK_CMD1       "userclk_freqcntrcmd"
 #define  USER_CLOCK_STS0       "userclk_freqsts"
 #define  USER_CLOCK_STS1       "userclk_freqcntrsts"
+#define  IOPLL_CLOCK_FREQ      "intel-pac-iopll.*.auto/userclk/frequency"
+#define  IOPLL_MAX_FREQ         800
+#define  IOPLL_MIN_FREQ         1
 #define  MAX_FPGA_FREQ          1200
 #define  MIN_FPGA_FREQ          25
 
@@ -63,22 +68,43 @@
 
 struct  QUCPU_Uclock   gQUCPU_Uclock;
 
+static int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
+
 //Get fpga user clock
-fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sys_path,
+fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
 					uint64_t* userclk_high,
 					uint64_t* userclk_low)
 {
+	char sysfs_usrpath[SYSFS_PATH_MAX];
 	QUCPU_tFreqs userClock;
+	fpga_result result;
+	uint32_t high, low;
+	int ret;
 
-	if ((sys_path == NULL) ||
+	if ((sysfs_path == NULL) ||
 		(userclk_high == NULL) ||
 		(userclk_low == NULL)) {
 		FPGA_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
+	// Test for the existence of the userclk_frequency file
+	// which indicates an S10 driver
+	ret = using_iopll(sysfs_usrpath, sysfs_path);
+	if (ret == FPGA_OK) {
+		result = sysfs_read_u32_pair(sysfs_usrpath, &low, &high, ' ');
+		if (FPGA_OK != result)
+			return result;
+
+		*userclk_high = high * 1000;	// Adjust to Hz
+		*userclk_low = low * 1000;
+		return FPGA_OK;
+	} else if (ret == FPGA_NO_ACCESS) {
+		return ret;
+	}
+
 	// Initialize
-	if (fi_RunInitz(sys_path) != 0) {
+	if (fi_RunInitz(sysfs_path) != 0) {
 		FPGA_ERR("Failed to initialize user clock ");
 		return FPGA_NOT_SUPPORTED;
 	}
@@ -100,11 +126,50 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {
+	char sysfs_usrpath[SYSFS_PATH_MAX];
 	uint64_t freq = userclk_high;
+	uint64_t refClk = 0;
+	int fd, res;
+	char *bufp;
+	size_t cnt;
+	int ret;
 
 	if (sysfs_path == NULL) {
 		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
+	}
+
+	ret = using_iopll(sysfs_usrpath, sysfs_path);
+	if (ret == FPGA_OK) {
+		// Enforce 1x clock within valid range
+		if ((userclk_low > IOPLL_MAX_FREQ) ||
+		    (userclk_low < IOPLL_MIN_FREQ)) {
+			FPGA_ERR("Invalid Input frequency");
+			return FPGA_INVALID_PARAM;
+		}
+
+		fd = open(sysfs_usrpath, O_WRONLY);
+		if (fd < 0) {
+			FPGA_MSG("open(%s) failed: %s",
+				 sysfs_usrpath, strerror(errno));
+			return FPGA_NOT_FOUND;
+		}
+		bufp = (char *)&pll_freq_config[userclk_low];
+		cnt = sizeof(struct pll_config);
+		do {
+			res = write(fd, bufp, cnt);
+			if (res < 0) {
+				FPGA_ERR("Failed to write");
+				break;
+			}
+			bufp += res;
+			cnt -= res;
+		} while (cnt > 0);
+		close(fd);
+
+		return FPGA_OK;
+	} else if (ret == FPGA_NO_ACCESS) {
+		return ret;
 	}
 
 	// verify user clock freq range (100hz to 1200hz)
@@ -136,7 +201,6 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	uint64_t refClk = 0;
 	if ((gQUCPU_Uclock.tInitz_InitialParams.u64i_Version == QUCPU_UI64_STS_1_VER_version_legacy) &&
 		(gQUCPU_Uclock.tInitz_InitialParams.u64i_PLL_ID == QUCPU_UI64_AVMM_FPLL_IPI_200_IDI_RF322M))
 	{ // Use the 322.265625 MHz REFCLK
@@ -819,3 +883,32 @@ int fi_WaitCalDone(void)
 
 	return(res);
 } // fi_WaitCalDone
+
+// Determine whether or not the IOPLL is serving as the source of
+// the user clock.
+static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
+{
+	glob_t iopll_glob;
+
+	// Test for the existence of the userclk_frequency file
+	// which indicates an S10 driver
+	snprintf_s_ss(sysfs_usrpath, SYSFS_PATH_MAX, "%s/%s",
+		      sysfs_path, IOPLL_CLOCK_FREQ);
+
+	if (glob(sysfs_usrpath, 0, NULL, &iopll_glob))
+		return FPGA_NOT_FOUND;
+
+	if (iopll_glob.gl_pathc > 1)
+		FPGA_MSG("WARNING: Port has multiple sysfs frequency files");
+
+	strncpy(sysfs_usrpath, iopll_glob.gl_pathv[0], SYSFS_PATH_MAX);
+
+	globfree(&iopll_glob);
+
+	if (access(sysfs_usrpath, F_OK | R_OK | W_OK) != 0) {
+		FPGA_ERR("Unable to access sysfs frequency file");
+		return FPGA_NO_ACCESS;
+	}
+
+	return FPGA_OK;
+}
