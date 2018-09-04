@@ -26,6 +26,7 @@
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
 #include <opae/utils.h>
 
 namespace opae {
@@ -85,6 +86,16 @@ properties::ptr_t properties::get(fpga_objtype objtype) {
 properties::ptr_t properties::get(fpga_token tok) {
   ptr_t p(new properties());
   auto res = fpgaGetProperties(tok, &p->props_);
+  if (res != FPGA_OK) {
+    p.reset();
+  }
+  ASSERT_FPGA_OK(res);
+  return p;
+}
+
+properties::ptr_t properties::get(handle::ptr_t h) {
+  ptr_t p(new properties());
+  auto res = fpgaGetPropertiesFromHandle(h->c_type(), &p->props_);
   if (res != FPGA_OK) {
     p.reset();
   }

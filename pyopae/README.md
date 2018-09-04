@@ -14,7 +14,7 @@ algorithms with a high runtime complexity.
 
 Currently, the only Python package that is part of OPAE is `opae.fpga`
 
-# Implementation
+## Implementation
 
 The OPAE Python API is implemented by creating a Python extension using `pybind11
 <http://pybind11.readthedocs.io/en/stable>`_.
@@ -22,7 +22,7 @@ This extension is created by using the pybind11 API which relies mostly on
 macros and compile time introspection to define the module initialization point
 as well as type converters between OPAE C++ Core types and OPAE Python types.
 
-# Benefits
+## Benefits
 The major benefits of using pybind11 for developing the OPAE Python API
 include, but are not limited to, the following features of pybind11:
 
@@ -31,14 +31,14 @@ include, but are not limited to, the following features of pybind11:
 * Built-in support for numpy and Eigen numerical libraries
 * Interoperable with the Python C API
 
-# Runtime Requirements
+## Runtime Requirements
 Because opae.fpga is built on top of the opae-cxx-core API, it does require
 that the runtime libraries for both opae-cxx-core and opae-c be installed on
 the system (as well as any other libraries they depend on). Those libraries can
 be installed using the opae-libs package (from either RPM or DEB format -
 depending on your Linux distribution).
 
-# Installation
+## Installation
 
 ## Python Wheels
 The preferred method of installation is to use a binary wheel package for your

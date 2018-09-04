@@ -102,6 +102,7 @@ struct _fpga_properties {
 	fpga_guid guid;		// Applies only to accelerator types
 	fpga_token parent;
 	fpga_objtype objtype;
+	uint16_t segment;
 	uint8_t bus;
 	uint8_t device;
 	uint8_t function;
