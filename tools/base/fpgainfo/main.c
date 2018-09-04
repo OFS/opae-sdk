@@ -199,11 +199,6 @@ int main(int argc, char *argv[])
 		return EX_SOFTWARE;
 	}
 
-	ret_value = parse_args(argc, argv);
-	if (ret_value != EX_OK) {
-		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
-	}
-
 	// start a filter using the first level command line arguments
 	res = fpgaGetProperties(NULL, &filter);
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "creating properties object");
@@ -213,6 +208,12 @@ int main(int argc, char *argv[])
 	if (ret_value != EX_OK) {
 		goto out_destroy;
 	}
+
+	ret_value = parse_args(argc, argv);
+	if (ret_value != EX_OK) {
+		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
+	}
+
 	uint32_t num_tokens = 0;
 	struct command_handler *handler = get_command(argv[1]);
 	if (handler == NULL) {
@@ -226,6 +227,12 @@ int main(int argc, char *argv[])
 	}
 	res = fpgaEnumerate(&filter, 1, NULL, 0, &matches);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "enumerating resources");
+
+	if (0 == matches) {
+		ret_value = EX_SOFTWARE;
+		fprintf(stderr, "No FPGA resources found.\n");
+		goto out_destroy;
+	}
 
 	num_tokens = matches;
 	tokens = (fpga_token *)malloc(num_tokens * sizeof(fpga_token));
