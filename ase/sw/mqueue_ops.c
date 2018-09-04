@@ -118,9 +118,6 @@ void ipc_init(void)
 
 	int ipc_iter;
 
-	// Evaluate ase_workdir_path
-	ase_eval_session_directory();
-
 	// Initialize named pipe array
 	for (ipc_iter = 0; ipc_iter < ASE_MQ_INSTANCES; ipc_iter++) {
 		// Set name

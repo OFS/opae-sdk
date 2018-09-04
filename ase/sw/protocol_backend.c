@@ -32,6 +32,8 @@
  */
 #include "ase_common.h"
 
+//const int NUM_DS = 10;
+
 struct ase_cfg_t *cfg;
 
 static int app2sim_alloc_rx;		// app2sim mesaage queue in RX mode
@@ -162,28 +164,25 @@ void sv2c_config_dex(const char *str)
 
 	// Check that input string is not NULL
 	if (str == NULL) {
-		ASE_MSG("sv2c_config_dex => Input string is unusable\n");
+		ASE_MSG("sv2c_config_dex => Input string is null\n");
 	} else {
-		// If Malloc fails
-		if (sv2c_config_filepath != NULL) {
-			// Attempt string copy and keep safe
-			ase_string_copy(sv2c_config_filepath, str,
-					ASE_FILEPATH_LEN);
+		// Attempt string copy and keep safe
+		ase_string_copy(sv2c_config_filepath, str,
+				ASE_FILEPATH_LEN);
 #ifdef ASE_DEBUG
-			ASE_DBG("sv2c_config_filepath = %s\n",
-				sv2c_config_filepath);
+		ASE_DBG("sv2c_config_filepath = %s\n",
+			sv2c_config_filepath);
 #endif
 
-			// Check if file exists
-			if (access(sv2c_config_filepath, F_OK) == 0) {
-				ASE_MSG("+CONFIG %s file found !\n",
-					sv2c_config_filepath);
-			} else {
-				ASE_ERR
-					("** WARNING ** +CONFIG file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_config_filepath, 0,
-				       ASE_FILEPATH_LEN);
-			}
+		// Check if file exists
+		if (access(sv2c_config_filepath, F_OK) == 0) {
+			ASE_MSG("+CONFIG %s file found !\n",
+				sv2c_config_filepath);
+		} else {
+			ASE_ERR
+				("** WARNING ** +CONFIG file was not found, will revert to DEFAULTS\n");
+			ase_memset(sv2c_config_filepath, 0,
+				      ASE_FILEPATH_LEN);
 		}
 	}
 }
@@ -195,39 +194,27 @@ void sv2c_config_dex(const char *str)
 void sv2c_script_dex(const char *str)
 {
 	if (str == NULL) {
-		ASE_MSG("sv2c_script_dex => Input string is unusable\n");
+		ASE_MSG("sv2c_script_dex => Input string is null\n");
 	} else {
 		ase_memset(sv2c_script_filepath, 0, ASE_FILEPATH_LEN);
-		if (sv2c_script_filepath != NULL) {
-			ase_string_copy(sv2c_script_filepath, str,
-					ASE_FILEPATH_LEN);
+		ase_string_copy(sv2c_script_filepath, str,
+				ASE_FILEPATH_LEN);
 #ifdef ASE_DEBUG
-			ASE_DBG("sv2c_script_filepath = %s\n",
-				sv2c_script_filepath);
+		ASE_DBG("sv2c_script_filepath = %s\n",
+			sv2c_script_filepath);
 #endif
 
-			// Check for existance of file
-			if (access(sv2c_script_filepath, F_OK) == 0) {
-				ASE_MSG("+SCRIPT %s file found !\n",
-					sv2c_script_filepath);
-			} else {
-				ASE_MSG
-					("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
-				ase_memset(sv2c_script_filepath, 0,
-				       ASE_FILEPATH_LEN);
-			}
+		// Check for existance of file
+		if (access(sv2c_script_filepath, F_OK) == 0) {
+			ASE_MSG("+SCRIPT %s file found !\n",
+				sv2c_script_filepath);
+		} else {
+			ASE_MSG
+				("** WARNING ** +SCRIPT file was not found, will revert to DEFAULTS\n");
+			ase_memset(sv2c_script_filepath, 0,
+				      ASE_FILEPATH_LEN);
 		}
-	}
-}
-
-
-/*
- * DPI: Return ASE seed
- */
-uint32_t get_ase_seed(void)
-{
-	// return ase_seed;
-	return 0xFF;
+  }
 }
 
 
@@ -618,6 +605,9 @@ static void *start_socket_srv(void *args)
 				err_cnt++;
 				break;
 			}
+#ifdef ASE_DEBUG
+      ASE_MSG("SIM-C : accept success\n");
+#endif
 		}
 		if (sockserver_kill)
 			break;
@@ -760,13 +750,15 @@ int ase_listener(void)
 				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
 					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
 					run_clocks (500);
-					ase_perror_teardown();
+					self_destruct_in_progress = 1;
+					ase_destroy();
 					start_simkill_countdown();
 				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
 					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
 						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
 						run_clocks (500);
-						ase_perror_teardown();
+						self_destruct_in_progress = 1;
+						ase_destroy();
 						start_simkill_countdown();
 					} else {
 						ase_reset_trig();
@@ -781,7 +773,8 @@ int ase_listener(void)
 					ASE_ERR
 						("** ERROR ** Transaction counts do not match, something got lost\n");
 					run_clocks(500);
-					ase_perror_teardown();
+					self_destruct_in_progress = 1;
+					ase_destroy();
 					start_simkill_countdown();
 				}
 #endif
@@ -1028,9 +1021,10 @@ int ase_init(void)
 		(struct umsgcmd_t *) ase_malloc(sizeof(struct umsgcmd_t));
 
 	// ASE configuration management
-	// ase_config_parse(ASE_CONFIG_FILE);
 	ase_config_parse(sv2c_config_filepath);
 
+	// Evaluate ase_workdir_path
+	ase_eval_session_directory();
 	// Evaluate IPCs
 	ipc_init();
 
@@ -1111,26 +1105,10 @@ int ase_init(void)
 
 	sockserver_kill = 0;
 
-
-	// Generate Completed message for portctrl
-	/* completed_str_msg = (char*)ase_malloc(ASE_MQ_MSGSIZE); */
-	/* snprintf(completed_str_msg, 10, "COMPLETED"); */
-
 	// Calculate memory map regions
 	ASE_MSG("Calculating memory map...\n");
 	calc_phys_memory_ranges();
 
-	// Random number for csr_pinned_addr
-	/* if (cfg->enable_reuse_seed) */
-	/*   { */
-	/*     ase_seed = ase_read_seed (); */
-	/*   } */
-	/* else */
-	/*   { */
-	/*     ase_seed = generate_ase_seed(); */
-	/*     ase_write_seed ( ase_seed ); */
-	/*   } */
-	ase_write_seed (cfg->ase_seed);
 	srand(cfg->ase_seed);
 
 	// Open Buffer info log
@@ -1294,8 +1272,6 @@ void start_simkill_countdown(void)
 		ASE_INFO
 			("        Protocol warning/errors | $ASE_WORKDIR/ccip_warning_and_errors.txt\n");
 	}
-	ASE_INFO
-		("        ASE seed                | $ASE_WORKDIR/ase_seed.txt\n");
 
 	// Display test count
 	ASE_INFO("\n");
@@ -1314,7 +1290,6 @@ void start_simkill_countdown(void)
 	free(ase_ready_filepath);
 	ase_free_buffer((char *) incoming_mmio_pkt);
 	ase_free_buffer((char *) incoming_umsg_pkt);
-	// ase_free_buffer (ase_workdir_path);
 
 	// Issue Simulation kill
 	simkill();
@@ -1322,6 +1297,93 @@ void start_simkill_countdown(void)
 	FUNC_CALL_EXIT;
 }
 
+/*
+ * Parse ase config lines
+ */
+void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
+{
+	char *parameter;
+	int value;
+	char *pch;
+	char *saveptr;
+	// User clock frequency
+	float usrclk;
+
+	// Ignore strings beginning with '#' OR NULL (compound NOR)
+	if ((line[0] != '#') && (line[0] != '\0')) {
+		parameter = strtok_r(line, "=\n", &saveptr);
+		if (parameter != NULL) {
+			if (ase_strncmp(parameter, "ASE_MODE", 8) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->ase_mode = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_TIMEOUT", 11) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->ase_timeout = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_NUM_TESTS", 13) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->ase_num_tests = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ENABLE_REUSE_SEED", 17) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->enable_reuse_seed = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ASE_SEED", 8) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->ase_seed = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "ENABLE_CL_VIEW", 14) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					cfg->enable_cl_view = atoi(pch);
+				}
+			} else if (ase_strncmp(parameter, "USR_CLK_MHZ", 11) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					usrclk = atof(pch);
+					if (usrclk == 0.000000) {
+						ASE_ERR("User Clock Frequency cannot be 0.000 MHz\n");
+						ASE_ERR("        Reverting to %f MHz\n", DEFAULT_USR_CLK_MHZ);
+						usrclk = DEFAULT_USR_CLK_MHZ;
+						cfg->usr_tps = DEFAULT_USR_CLK_TPS;
+					} else if (usrclk == DEFAULT_USR_CLK_MHZ) {
+						cfg->usr_tps = DEFAULT_USR_CLK_TPS;
+					} else {
+						cfg->usr_tps = (int)(1E+12 /(usrclk * pow(1000, 2)));
+#ifdef ASE_DEBUG
+						ASE_DBG("usr_tps = %d\n", cfg->usr_tps);
+#endif
+						if (usrclk != DEFAULT_USR_CLK_MHZ) {
+							ASE_INFO_2("User clock Frequency was modified from %f to %f MHz\n",
+										DEFAULT_USR_CLK_MHZ, usrclk);
+						}
+					}
+					*f_usrclk = usrclk;
+				}
+			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
+				pch = strtok_r(NULL, "", &saveptr);
+				if (pch != NULL) {
+					value = atoi(pch);
+					if (value < 0) {
+						ASE_ERR("Physical memory size is negative in %s\n", filename);
+						ASE_ERR("        Reverting to default 256 GB\n");
+					} else {
+						cfg->phys_memory_available_gb = value;
+					}
+				}
+			} else {
+				ASE_INFO_2("In config file %s, Parameter type %s is unidentified \n",
+							 filename, parameter);
+			}
+		}
+	}
+}
 
 /*
  * ASE config parsing
@@ -1336,10 +1398,7 @@ void ase_config_parse(char *filename)
 	FILE *fp = (FILE *) NULL;
 	char *line;
 	size_t len = 0;
-	char *parameter;
-	int value;
-	char *pch;
-	char *saveptr;
+
 	// User clock frequency
 	float f_usrclk;
 
@@ -1355,7 +1414,7 @@ void ase_config_parse(char *filename)
 	cfg->ase_timeout = 50000;
 	cfg->ase_num_tests = 1;
 	cfg->enable_reuse_seed = 0;
-	cfg->ase_seed = 9876;
+	cfg->ase_seed = generate_ase_seed();
 	cfg->enable_cl_view = 1;
 	cfg->usr_tps = DEFAULT_USR_CLK_TPS;
 	cfg->phys_memory_available_gb = 256;
@@ -1380,193 +1439,7 @@ void ase_config_parse(char *filename)
 				remove_spaces(line);
 				remove_tabs(line);
 				remove_newline(line);
-				// Ignore strings begining with '#' OR NULL (compound NOR)
-				if ((line[0] != '#') && (line[0] != '\0')) {
-					parameter = strtok_r(line, "=\n", &saveptr);
-					if (parameter != NULL) {
-						if (ase_strncmp
-						    (parameter, "ASE_MODE",
-						     8) == 0) {
-							pch =
-								strtok_r(NULL,
-									 "", &saveptr);
-							if (pch != NULL) {
-								cfg->
-									ase_mode
-									=
-									atoi
-									(pch);
-							}
-						} else
-							if (ase_strncmp
-							    (parameter,
-							     "ASE_TIMEOUT",
-							     11) == 0) {
-								pch =
-									strtok_r(NULL,
-										 "", &saveptr);
-								if (pch != NULL) {
-									cfg->
-										ase_timeout
-										=
-										atoi
-										(pch);
-								}
-							} else
-								if (ase_strncmp
-								    (parameter,
-								     "ASE_NUM_TESTS",
-								     13) == 0) {
-									pch =
-										strtok_r(NULL,
-											 "", &saveptr);
-									if (pch != NULL) {
-										cfg->
-											ase_num_tests
-											=
-											atoi
-											(pch);
-									}
-								} else
-									if (ase_strncmp
-									    (parameter,
-									     "ENABLE_REUSE_SEED",
-									     17) == 0) {
-										pch =
-											strtok_r(NULL,
-												 "", &saveptr);
-										if (pch != NULL) {
-											cfg->
-												enable_reuse_seed
-												=
-												atoi
-												(pch);
-										}
-									} else
-										if (ase_strncmp
-										    (parameter,
-										     "ASE_SEED",
-										     8) == 0) {
-											pch =
-												strtok_r(NULL,
-													 "", &saveptr);
-											if (pch != NULL) {
-												cfg->
-													ase_seed
-													=
-													atoi
-													(pch);
-											}
-										} else
-											if (ase_strncmp
-											    (parameter,
-											     "ENABLE_CL_VIEW",
-											     14) == 0) {
-												pch =
-													strtok_r(NULL,
-														 "", &saveptr);
-												if (pch != NULL) {
-													cfg->
-														enable_cl_view
-														=
-														atoi
-														(pch);
-												}
-											} else
-												if (ase_strncmp
-												    (parameter,
-												     "USR_CLK_MHZ",
-												     11) == 0) {
-													pch =
-														strtok_r(NULL,
-															 "", &saveptr);
-													if (pch != NULL) {
-														f_usrclk =
-															atof
-															(pch);
-														if (f_usrclk == 0.000000) {
-															ASE_ERR
-																("User Clock Frequency cannot be 0.000 MHz\n");
-															ASE_ERR
-																("        Reverting to %f MHz\n",
-																 DEFAULT_USR_CLK_MHZ);
-															f_usrclk
-																=
-																DEFAULT_USR_CLK_MHZ;
-															cfg->
-																usr_tps
-																=
-																DEFAULT_USR_CLK_TPS;
-														} else
-															if
-																(f_usrclk
-																 ==
-																 DEFAULT_USR_CLK_MHZ)
-															{
-																cfg->
-																	usr_tps
-																	=
-																	DEFAULT_USR_CLK_TPS;
-															} else {
-																cfg->
-																	usr_tps
-																	=
-																	(int)
-																	(1E+12
-																	 /
-																	 (f_usrclk
-																	  *
-																	  pow
-																	  (1000,
-																	   2)));
-#ifdef ASE_DEBUG
-																ASE_DBG
-																	("usr_tps = %d\n",
-																	 cfg->
-																	 usr_tps);
-#endif
-																if (f_usrclk != DEFAULT_USR_CLK_MHZ) {
-																	ASE_INFO_2
-																		("User clock Frequency was modified from %f to %f MHz\n",
-																		 DEFAULT_USR_CLK_MHZ,
-																		 f_usrclk);
-																}
-															}
-													}
-												} else
-													if (ase_strncmp
-													    (parameter,
-													     "PHYS_MEMORY_AVAILABLE_GB",
-													     24) == 0) {
-														pch =
-															strtok_r(NULL,
-																 "", &saveptr);
-														if (pch != NULL) {
-															value =
-																atoi
-																(pch);
-															if (value <
-															    0) {
-																ASE_ERR
-																	("Physical memory size is negative in %s\n",
-																	 filename);
-																ASE_ERR
-																	("        Reverting to default 256 GB\n");
-															} else {
-																cfg->
-																	phys_memory_available_gb
-																	=
-																	value;
-															}
-														}
-													} else {
-														ASE_INFO_2
-															("In config file %s, Parameter type %s is unidentified \n",
-															 filename,
-															 parameter);
-													}
-					}
-				}
+				parse_ase_cfg_line(filename, line, &f_usrclk);
 			}
 		}
 
@@ -1655,7 +1528,7 @@ void ase_config_parse(char *filename)
 		ASE_INFO_2("Reuse simulation seed      ... ENABLED \n");
 	else {
 		ASE_INFO_2
-			("Reuse simulation seed      ... DISABLED (will create one at $ASE_WORKDIR/ase_seed.txt) \n");
+			("Reuse simulation seed      ... DISABLED \n");
 		cfg->ase_seed = generate_ase_seed();
 	}
 

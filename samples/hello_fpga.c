@@ -54,6 +54,11 @@
 #include <opae/fpga.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <stdint.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <sys/stat.h>
+#include "safe_string/safe_string.h"
 
 int usleep(unsigned);
 
@@ -84,11 +89,12 @@ int usleep(unsigned);
 /* NLB0 AFU_ID */
 #define NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
 
+
 /*
  * macro to check return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
  */
-#define ON_ERR_GOTO(res, label, desc)                    \
+#define ON_ERR_GOTO(res, label, desc)              \
 	do {                                       \
 		if ((res) != FPGA_OK) {            \
 			print_err((desc), (res));  \
@@ -106,16 +112,139 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
+/*
+ * Global configuration of bus, set during parse_args()
+ * */
+struct config {
+	struct target {
+		int bus;
+		int open_flags;
+	} target;
+}
+
+config = {
+	.target = {
+		.bus = -1,
+		.open_flags = 0
+	}
+};
+
+#define GETOPT_STRING "B:s"
+fpga_result parse_args(int argc, char *argv[])
+{
+	struct option longopts[] = {
+		{"bus",	   required_argument, NULL, 'B'},
+		{"shared", no_argument,       NULL, 's'},
+		{NULL,     0,                 NULL,  0 },
+	};
+	
+	int getopt_ret;
+	int option_index;
+	char *endptr = NULL;
+
+	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
+						longopts, &option_index))) {
+		const char *tmp_optarg = optarg;
+		/* Checks to see if optarg is null and if not it goes to value of optarg */
+		if ((optarg) && ('=' == *tmp_optarg)){
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret){
+		case 'B': /* bus */
+			if (NULL == tmp_optarg){
+				return FPGA_EXCEPTION;
+			}
+			endptr = NULL;
+			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
+				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
+				return FPGA_EXCEPTION;
+			}
+			break;
+		case 's':
+			config.target.open_flags |= FPGA_OPEN_SHARED;
+			break;
+		
+		default: /* invalid option */
+			fprintf(stderr, "Invalid cmdline option \n");
+			return FPGA_EXCEPTION;
+		}
+	}
+	
+	return FPGA_OK;
+}
+
+
+fpga_result find_fpga(fpga_guid interface_id,
+		      fpga_token *accelerator_token,
+		      uint32_t *num_matches_accelerators)
+{
+	fpga_properties filter = NULL;
+	fpga_result res;
+
+	/* Get number of FPGAs in system */
+	res = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(res, out, "creating properties object");
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
+	ON_ERR_GOTO(res, out_destroy, "setting object type");
+
+	res = fpgaPropertiesSetGUID(filter, interface_id);
+	ON_ERR_GOTO(res, out_destroy, "setting GUID");
+
+	if (-1 != config.target.bus) {
+		res = fpgaPropertiesSetBus(filter, config.target.bus);
+		ON_ERR_GOTO(res, out_destroy, "setting bus");
+	}
+
+	res = fpgaEnumerate(&filter, 1, accelerator_token, 1, num_matches_accelerators);
+	ON_ERR_GOTO(res, out_destroy, "enumerating accelerators");
+
+out_destroy:
+	res = fpgaDestroyProperties(&filter);
+	ON_ERR_GOTO(res, out, "destroying properties object");
+out:
+	return res;
+}
+
+	
+/* function to get the bus number when there are multiple buses */
+/* TODO: add device and function information */
+struct bdf_info {
+	uint8_t bus;
+};
+
+fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
+	res = fpgaGetProperties(tok, &props);
+	ON_ERR_GOTO(res, out, "reading properties from Token");
+
+	res = fpgaPropertiesGetBus(props, &finfo->bus);
+	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
+
+out_destroy: 
+	res = fpgaDestroyProperties(&props);
+	ON_ERR_GOTO(res, out, "fpgaDestroyProps");
+out:
+	return res;
+}
+
+void print_bus_info(struct bdf_info *info){
+	printf("Running on bus 0x%02X. \n", info->bus);
+}
+
+
 int main(int argc, char *argv[])
 {
 
 	char               library_version[FPGA_VERSION_STR_MAX];
 	char               library_build[FPGA_BUILD_STR_MAX];
-	fpga_properties    filter = NULL;
 	fpga_token         accelerator_token;
 	fpga_handle        accelerator_handle;
 	fpga_guid          guid;
-	uint32_t           num_matches;
+	uint32_t           num_matches_accelerators = 0;
 
 	volatile uint64_t *dsm_ptr    = NULL;
 	volatile uint64_t *status_ptr = NULL;
@@ -126,21 +255,8 @@ int main(int argc, char *argv[])
 	uint64_t        input_wsid;
 	uint64_t        output_wsid;
 	fpga_result     res = FPGA_OK;
+	struct bdf_info info;
 
-	int opt;
-	int open_flags = 0;
-
-	/* Parse command line for exclusive or shared access */
-	while ((opt = getopt(argc, argv, "s")) != -1) {
-		switch (opt) {
-		case 's':
-			open_flags |= FPGA_OPEN_SHARED;
-			break;
-		default:
-			printf("USAGE: %s [-s]\n", argv[0]);
-			exit(1);
-		}
-	}
 
 	/* Print version information of the underlying library */
 	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
@@ -148,34 +264,34 @@ int main(int argc, char *argv[])
 	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
 	       library_build);
 
+	res = parse_args(argc, argv);
+	ON_ERR_GOTO(res, out_exit, "parsing arguments");
+
 	if (uuid_parse(NLB0_AFUID, guid) < 0) {
-		fprintf(stderr, "Error parsing guid '%s'\n", NLB0_AFUID);
-		goto out_exit;
+		res = FPGA_EXCEPTION;
 	}
+	ON_ERR_GOTO(res, out_exit, "parsing guid");
 
-	/* Look for accelerator with MY_ACCELERATOR_ID */
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_exit, "creating properties object");
 
-	res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
-	ON_ERR_GOTO(res, out_destroy_prop, "setting object type");
 
-	res = fpgaPropertiesSetGUID(filter, guid);
-	ON_ERR_GOTO(res, out_destroy_prop, "setting GUID");
+	/* Look for accelerator with NLB0_AFUID */
+	res = find_fpga(guid, &accelerator_token, &num_matches_accelerators);
+	ON_ERR_GOTO(res, out_exit, "finding FPGA accelerator");
 
-	/* TODO: Add selection via BDF / device ID */
+	if (num_matches_accelerators <= 0) {
+		res = FPGA_NOT_FOUND;
+	}
+	ON_ERR_GOTO(res, out_exit, "no matching accelerator");
 
-	res = fpgaEnumerate(&filter, 1, &accelerator_token, 1, &num_matches);
-	ON_ERR_GOTO(res, out_destroy_prop, "enumerating accelerators");
-
-	if (num_matches < 1) {
-		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
-		return FPGA_INVALID_PARAM;
+	if (num_matches_accelerators > 1) {
+		fprintf(stderr, "Found more than one suitable accelerator. ");
+		res = get_bus_info(accelerator_token, &info); 
+		ON_ERR_GOTO(res, out_exit, "getting bus num");
+		printf("Running on bus 0x%02X. \n", info.bus);
 	}
 
 	/* Open accelerator and map MMIO */
-	res = fpgaOpen(accelerator_token, &accelerator_handle, open_flags);
+	res = fpgaOpen(accelerator_token, &accelerator_handle, config.target.open_flags);
 	ON_ERR_GOTO(res, out_destroy_tok, "opening accelerator");
 
 	res = fpgaMapMMIO(accelerator_handle, 0, NULL);
@@ -195,6 +311,10 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
 
 	printf("Running Test\n");
+
+	res = get_bus_info(accelerator_token, &info); 
+	ON_ERR_GOTO(res, out_free_output, "getting bus num");
+	printf("Running on bus 0x%02X. \n", info.bus);
 
 	/* Initialize buffers */
 	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
@@ -294,14 +414,8 @@ out_close:
 	/* Destroy token */
 out_destroy_tok:
 	res = fpgaDestroyToken(&accelerator_token);
-	ON_ERR_GOTO(res, out_destroy_prop, "destroying token");
-
-	/* Destroy properties object */
-out_destroy_prop:
-	res = fpgaDestroyProperties(&filter);
-	ON_ERR_GOTO(res, out_exit, "destroying properties object");
+	ON_ERR_GOTO(res, out_exit, "destroying token");
 
 out_exit:
-	return res;
-
+	return (res == FPGA_OK) ? 0 : 1;
 }
