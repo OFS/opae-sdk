@@ -155,8 +155,4 @@ TEST_P(openclose_c_p, open_05) {
 
 
 
-
-
-
-
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
