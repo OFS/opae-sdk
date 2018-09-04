@@ -24,28 +24,38 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+cmake_minimum_required(VERSION 2.8.12)
+project(pydiag)
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
+if (BUILD_PYTHON_DIST)
+    set(PYFILES
+        setup.py
+        opae/__init__.py
+        opae/utils/__init__.py
+        opae/utils/utils.py
+        opae/utils/byteutils.py
+        opae/utils/csr.py
+        opae/tools/__init__.py
+        opae/tools/fpgadiag/__init__.py
+        opae/tools/fpgadiag/diagtest.py
+        opae/tools/fpgadiag/nlb.py
+        opae/tools/fpgadiag/nlb0.py
+        opae/tools/fpgadiag/nlb3.py
+        opae/tools/fpgadiag/nlb7.py
+        opae/tools/fpgadiag/fpgadiag.py
+        )
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/pydiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
+    configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
+    foreach(pyfile ${PYFILES})
+        configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+    endforeach(pyfile ${PYFILES})
 
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+    add_custom_target(pydiag-dist
+        COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+        DEPENDS ${PYFILES}
+        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+        COMMENT "Building Python distrubutions of pydiag")
+endif (BUILD_PYTHON_DIST)
