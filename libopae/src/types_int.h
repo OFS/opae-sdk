@@ -99,6 +99,7 @@
 
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
+	uint32_t instance;
 	uint64_t magic;
   uint32_t instance;
 	char sysfspath[SYSFS_PATH_MAX];

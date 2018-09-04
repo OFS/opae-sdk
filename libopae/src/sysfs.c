@@ -482,7 +482,6 @@ fpga_result get_port_sysfs(fpga_handle handle,
 	struct _fpga_token  *_token;
 	struct _fpga_handle *_handle  = (struct _fpga_handle *)handle;
 	char *p                       = 0;
-	int device_instance           = 0;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -511,11 +510,9 @@ fpga_result get_port_sysfs(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	device_instance = atoi(p + 1);
-
 	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		device_instance, device_instance);
+		_token->instance, _token->instance);
 
 	return FPGA_OK;
 }
@@ -528,7 +525,6 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 	struct _fpga_handle  *_handle    = (struct _fpga_handle *)handle;
 	char sysfs_path[SYSFS_PATH_MAX]  = {0};
 	char *p                          = NULL;
-	int device_instance              = 0;
 	fpga_result result               = FPGA_OK;
 	int err                          = 0;
 
@@ -561,19 +557,10 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	p = strrchr(_token->sysfspath, '.');
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		result = FPGA_NOT_SUPPORTED;
-		goto out_unlock;
-	}
-
-	device_instance = atoi(p + 1);
-
 	snprintf_s_is(sysfs_path,
 		 SYSFS_PATH_MAX,
 		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		 device_instance,
+		 _token->instance,
 		 FPGA_SYSFS_DEVICEID);
 
 	result = sysfs_read_u64(sysfs_path, deviceid);
