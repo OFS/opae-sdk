@@ -152,7 +152,7 @@ function(set_target_for_coverage_local target_name)
   add_custom_target(${name}
 
     # Cleanup lcov
-    COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+    # COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
 
     # Wrap test on script, so coverage files generate even if tests return 1
     # CMake will stop if this step returns 1
