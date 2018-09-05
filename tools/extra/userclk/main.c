@@ -40,7 +40,7 @@
 
 #include "usrclk/user_clk_pgm_uclock.h"
 
-#define GETOPT_STRING ":hB:D:F:S:P:H:L"
+#define GETOPT_STRING ":hB:D:F:S:P:H:L:"
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
@@ -114,6 +114,7 @@ int main( int argc, char** argv )
 	uint64_t userclk_high              = 0;
 	uint64_t userclk_low               = 0;
 	fpga_token fme_token               = NULL;
+	int high, low;
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -187,10 +188,20 @@ int main( int argc, char** argv )
 		goto out_destroy_prop;
 	}
 
-	if (userclkCmdLine.freq_high > 0 ) {
+	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0 ) {
+		high = userclkCmdLine.freq_high;
+		low = userclkCmdLine.freq_low;
+		if (low <= 0) {
+			low = userclkCmdLine.freq_high / 2;
+		} else if (high <= 0) {
+			high = userclkCmdLine.freq_low * 2;
+		} else if ((abs(high - (2 * low))) > 1) {
+			FPGA_ERR("High freq must be ~ (2 * Low freq)");
+			return FPGA_INVALID_PARAM;
+		}
 
 		// set user clock
-		result = set_userclock(sysfs_path, userclkCmdLine.freq_high, userclkCmdLine.freq_high);
+		result = set_userclock(sysfs_path, high, low);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to set user clock ");
 			goto out_destroy_prop;
@@ -202,17 +213,12 @@ int main( int argc, char** argv )
 			FPGA_ERR("Failed to get user clock ");
 			goto out_destroy_prop;
 		}
-   
-   
-   FPGA_DBG("\nApproximate frequency:\n"
+	}
+
+	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
-
-
-	}
-
-	printf("Done set and get for user clock values\n");
 
 	/* Destroy properties object */
 out_destroy_prop:
