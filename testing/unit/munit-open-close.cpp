@@ -56,12 +56,10 @@ class openclose_c_p
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    //ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    //if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -72,7 +70,6 @@ class openclose_c_p
   std::string tmpsysfs_;
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
-  //fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -156,8 +153,6 @@ TEST_P(openclose_c_p, open_05) {
   ASSERT_EQ(FPGA_NO_DRIVER, res);
 
 }
-
-
 
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
