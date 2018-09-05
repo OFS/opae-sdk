@@ -37,7 +37,7 @@ namespace fpga {
 namespace types {
 
 class token;
-
+class handle;
 /** Wraps an OPAE fpga_properties object.
  *
  * properties are information describing an
@@ -100,6 +100,12 @@ class properties {
    * @return A properties smart pointer for the given fpga_token.
    */
   static properties::ptr_t get(fpga_token t);
+
+  /** Retrieve the properties for a given handle object.
+   * @param[in] h A handle identifying the accelerator resource.
+   * @return A properties smart pointer for the given handle.
+   */
+  static properties::ptr_t get(std::shared_ptr<handle> h);
 
  private:
   properties();

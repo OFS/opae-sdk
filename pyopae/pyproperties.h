@@ -29,6 +29,7 @@
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/pvalue.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
 #include <pybind11/pybind11.h>
 #include <tuple>
 
@@ -47,6 +48,10 @@ opae::fpga::types::properties::ptr_t properties_get(pybind11::kwargs kwargs);
 const char *properties_doc_get_token();
 opae::fpga::types::properties::ptr_t properties_get_token(
     opae::fpga::types::token::ptr_t tok);
+
+const char *properties_doc_get_handle();
+opae::fpga::types::properties::ptr_t properties_get_handle(
+    opae::fpga::types::handle::ptr_t hndl);
 
 const char *properties_doc_parent();
 opae::fpga::types::token::ptr_t properties_get_parent(
