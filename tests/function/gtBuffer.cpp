@@ -215,6 +215,11 @@ TEST(LibopaecBufCommonALL, Prep0B) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(h, wsid));
 #endif
+  UNUSED_PARAM(buf_len);
+  UNUSED_PARAM(buf_addr);
+  UNUSED_PARAM(wsid);
+  UNUSED_PARAM(flags);
+
   // Close the device
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
