@@ -136,7 +136,7 @@ TEST_P(openclose_c_p, open_04) {
  * @test       open_05
  *
  * @brief      When the flags parameter to fpgaOpen is invalid, the
- *             function returns FPGA_INVALID_PARAM.
+ *             function returns FPGA_INVALID_PARAM and FPGA_NO_DRIVER.
  *
  */
 TEST_P(openclose_c_p, open_05) {
@@ -147,9 +147,14 @@ TEST_P(openclose_c_p, open_05) {
   res = fpgaOpen(tokens_[0], &handle_, 42);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
-  _token->magic = FPGA_HANDLE_MAGIC;
+  _token->magic = FPGA_TOKEN_MAGIC;
   res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
-  ASSERT_EQ(FPGA_INVALID_PARAM, res);
+  ASSERT_EQ(FPGA_OK, res);
+
+  strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
+  res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+  ASSERT_EQ(FPGA_NO_DRIVER, res);
+
 }
 
 
