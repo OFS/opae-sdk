@@ -46,7 +46,7 @@ using namespace opae::testing;
  *             fpgaGetOPAECVersion using a NULL pointer as the return buffer,
  *             the function returns FPGA_INVALID_PARAM.
  */
-TEST(version_c_p, version_01) {
+TEST(version_c, version_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECVersion(NULL));
 }
 
@@ -57,7 +57,7 @@ TEST(version_c_p, version_01) {
  *             fpgaGetOPAECVersion, the returned values match the constants
  *             defined in config_int.h (and the function returns FPGA_OK)
  */
-TEST(version_c_p, version_02) {
+TEST(version_c, version_02) {
   fpga_version version = { 0xFF, 0xFF, 0xFFFF };
   
   EXPECT_EQ(FPGA_OK, fpgaGetOPAECVersion(&version));
@@ -73,7 +73,7 @@ TEST(version_c_p, version_02) {
  *             fpgaGetOPAECVersionString using a NULL pointer as the return
  *             buffer, the function returns FPGA_INVALID_PARAM.
  */
-TEST(version_c_p, version_03) {
+TEST(version_c, version_03) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECVersionString(NULL, 42));
 }
 
@@ -84,7 +84,7 @@ TEST(version_c_p, version_03) {
  *             fpgaGetOPAECVersionString using a size shorter than the minimum
  *             possible (which is 6) the function returns FPGA_EXCEPTION.
  */
-TEST(version_c_p, version_04) {
+TEST(version_c, version_04) {
   char str[80];
 
   EXPECT_EQ(FPGA_EXCEPTION, fpgaGetOPAECVersionString(str, 5));
@@ -98,7 +98,7 @@ TEST(version_c_p, version_04) {
  *             a string comprised of the constants defined in config_int.h
  *             (and the function returns FPGA_OK)
  */
-TEST(version_c_p, version_05) {
+TEST(version_c, version_05) {
   char want[80];
   char have[80];
   
@@ -119,7 +119,7 @@ TEST(version_c_p, version_05) {
  *             fpgaGetOPAECBuildString using a NULL pointer as the return
  *             buffer, the function returns FPGA_INVALID_PARAM.
  */
-TEST(version_c_p, version_06) {
+TEST(version_c, version_06) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECBuildString(NULL, 42));
 }
 
@@ -130,7 +130,7 @@ TEST(version_c_p, version_06) {
  *             fpgaGetOPAECBuildString using a size of 0
  *             the function returns FPGA_EXCEPTION.
  */
-TEST(version_c_p, version_07) {
+TEST(version_c, version_07) {
   char str[80];
  
   EXPECT_EQ(FPGA_EXCEPTION, fpgaGetOPAECBuildString(str, 0));
@@ -144,7 +144,7 @@ TEST(version_c_p, version_07) {
  *             the constant defined in config_int.h (and the
  *             function returns FPGA_OK)
  */
-TEST(version_c_p, version_08) {
+TEST(version_c, version_08) {
   char want[] = INTEL_FPGA_API_HASH;
   char have[80];
   
