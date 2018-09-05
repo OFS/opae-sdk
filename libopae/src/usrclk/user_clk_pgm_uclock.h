@@ -95,6 +95,7 @@
 #define QUCPU_UI64_STS_1_FRQ_b16t00                              ((uint64_t)0x000000000001ffffLLU) // frequency in 10 kHz units
 
 #define QUCPU_UI64_STS_1_VER_version                             ((uint64_t)0x03LLU)               // Expected version number
+#define QUCPU_UI64_STS_1_VER_version_legacy                      ((uint64_t)0x01LLU)               // Expected version number on legacy systems
 
 
 #define QUCPU_UI64_AVMM_FPLL_IPI_200                             ((uint64_t)0x200LLU)              // IP identifer
