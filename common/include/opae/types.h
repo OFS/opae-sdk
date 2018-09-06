@@ -171,4 +171,6 @@ struct fpga_error_info {
 	bool can_clear;                   /** whether error can be cleared */
 };
 
+typedef void *fpga_object;
+
 #endif // __FPGA_TYPES_H__

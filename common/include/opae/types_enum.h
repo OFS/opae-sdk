@@ -137,11 +137,21 @@ enum fpga_open_flags {
 /**
  * Reconfiguration flags
  *
- * These flags can be passed to the fpgaReconfigure() function.
+ * These flags can be passed to the fpgaReconfigureSlot() function.
  */
 enum fpga_reconf_flags {
 	/** Reconfigure the slot without checking if it is in use */
 	FPGA_RECONF_FORCE = (1u << 0)
+};
+
+/**
+ * Object Synchronization flags
+ *
+ * These flags can be passed to the fpgaObjectRead() function.
+ */
+enum fpga_object_read_flags {
+	/** Synchronize the object contents by reading from the underlying object. */
+	FPGA_OBJECT_SYNC = (1u << 0)
 };
 
 #endif // __FPGA_TYPES_ENUM_H__
