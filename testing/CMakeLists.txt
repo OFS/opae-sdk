@@ -19,6 +19,8 @@ set(MUNIT_SRC mock/mock.c
               unit/properties_test.cpp
               unit/munit-wsid_list.cpp
               unit/munit-sysfs.cpp
+              unit/munit-mmio-c.cpp
+              unit/munit-open-close.cpp
               ${CMAKE_SOURCE_DIR}/libopae/src/bitstream.c
               ${CMAKE_SOURCE_DIR}/libopae/src/buffer.c
               ${CMAKE_SOURCE_DIR}/libopae/src/close.c

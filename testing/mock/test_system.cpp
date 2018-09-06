@@ -204,6 +204,12 @@ void test_system::finalize() {
   fds_.clear();
 }
 
+bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
+  bool alhready_registered = ioctl_handlers_.find(request) != ioctl_handlers_.end();
+  ioctl_handlers_[request] = h;
+  return alhready_registered;
+}
+
 uint32_t get_device_id(const std::string &sysclass) {
   uint32_t res(0);
   std::ifstream fs;
@@ -259,12 +265,17 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
 int test_system::close(int fd) { return close_(fd); }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
-  auto it = fds_.find(fd);
-  if (it == fds_.end()) {
+  auto mock_it = fds_.find(fd);
+  if (mock_it == fds_.end()) {
     char *arg = va_arg(argp, char *);
     return ioctl_(fd, request, arg);
   }
-  return it->second->ioctl(request, argp);
+
+  auto handler_it = ioctl_handlers_.find(request);
+  if (handler_it != ioctl_handlers_.end()) {
+    return handler_it->second(mock_it->second, request, argp);
+  }
+  return mock_it->second->ioctl(request, argp);
 }
 
 DIR *test_system::opendir(const char *path) {
