@@ -72,6 +72,7 @@ void ase_perror_teardown(char *msg, int ase_err)
 {
 	FUNC_CALL_ENTRY;
 
+	UNUSED_PARAM(msg);
 	ase_error_report("mmap", errno, ase_err);
 	self_destruct_in_progress = 1;
 

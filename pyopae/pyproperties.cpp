@@ -160,6 +160,19 @@ opae::fpga::types::properties::ptr_t properties_get_token(
   return properties::get(tok);
 }
 
+const char *properties_doc_get_handle() {
+  return R"opaedoc(
+    Get properties from a handle object.
+    Args:
+      h (handle): The handle to read properties from.
+   )opaedoc";
+}
+
+opae::fpga::types::properties::ptr_t properties_get_handle(
+    opae::fpga::types::handle::ptr_t h) {
+  return properties::get(h);
+}
+
 const char *properties_doc_parent() {
   return R"opaedoc(
     Get or set the token representing a parent object of a resource.
