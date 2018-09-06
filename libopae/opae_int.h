@@ -322,4 +322,45 @@ static inline void opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *
 	free(we);
 }
 
+//                                   j b o w
+#define OPAE_WRAPPED_OBJECT_MAGIC 0x6a626f77
+
+typedef struct _opae_wrapped_object {
+	uint32_t magic;
+	fpga_object opae_object;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_object;
+
+static inline opae_wrapped_object * opae_allocate_wrapped_object(
+	fpga_object opae_object,
+	opae_api_adapter_table *adapter)
+{
+	opae_wrapped_object *wobj = (opae_wrapped_object *)
+				malloc(sizeof(opae_wrapped_object));
+
+	if (wobj) {
+		wobj->magic = OPAE_WRAPPED_OBJECT_MAGIC;
+		wobj->opae_object = opae_object;
+		wobj->adapter_table = adapter;
+	}
+
+	return wobj;
+}
+
+static inline opae_wrapped_object *opae_validate_wrapped_object(
+					fpga_object o)
+{
+	opae_wrapped_object *wo;
+	if (!o)
+		return NULL;
+	wo = (opae_wrapped_object *)o;
+	return (wo->magic == OPAE_WRAPPED_OBJECT_MAGIC) ? wo : NULL;
+}
+
+static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
+{
+	wo->magic = 0;
+	free(wo);
+}
+
 #endif // ___OPAE_OPAE_INT_H__

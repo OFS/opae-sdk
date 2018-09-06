@@ -29,8 +29,8 @@
  * @brief Functions to read/write from system objects.
  * On Linux, this is used to access sysfs nodes created by the kernel driver
  */
-#ifndef __SYSOBJECT_H__
-#define __SYSOBJECT_H__
+#ifndef __FPGA_SYSOBJECT_H__
+#define __FPGA_SYSOBJECT_H__
 
 #include <opae/types.h>
 
@@ -86,4 +86,4 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 } // extern "C"
 #endif // __cplusplus
 
-#endif /* !__SYSOBJECT_H__ */
+#endif /* !__FPGA_SYSOBJECT_H__ */

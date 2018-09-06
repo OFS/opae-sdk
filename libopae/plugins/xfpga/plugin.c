@@ -146,6 +146,9 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaAssignToInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaAssignToInterface");
 	adapter->fpgaReleaseFromInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
 	adapter->fpgaReconfigureSlot = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
+	adapter->fpgaGetTokenObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetTokenObject");
+	adapter->fpgaDestroyObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyObject");
+	adapter->fpgaObjectRead = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead");
 
 	adapter->initialize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
 	adapter->finalize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");

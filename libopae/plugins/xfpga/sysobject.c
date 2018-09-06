@@ -39,13 +39,6 @@
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
 
-#define SYSOBJ_ASSERT_NOT_NULL(var)                                            \
-	do {                                                                   \
-		if (var == NULL) {                                             \
-			FPGA_MSG(#var " is NULL");                             \
-		}                                                              \
-	} while (false);
-
 #define FREE_IF(var)                                                           \
 	do {                                                                   \
 		if (var) {                                                     \
@@ -55,75 +48,18 @@
 	} while (false);
 
 
-fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
-					     uint8_t *buffer, size_t offset,
-					     size_t *len)
+fpga_result __FPGA_API__ xfpga_fpgaGetTokenObject(fpga_token token, const char *name,
+						  fpga_object *object, int flags)
 {
-	int fd = -1, fd_stat = 0;
-	char objpath[SYSFS_PATH_MAX];
-	ssize_t count = 0;
-	fpga_result res = FPGA_EXCEPTION;
-	struct stat objstat;
-
-	SYSOBJ_ASSERT_NOT_NULL(token);
-	SYSOBJ_ASSERT_NOT_NULL(key);
-	SYSOBJ_ASSERT_NOT_NULL(len);
-
-	res = cat_token_sysfs_path(objpath, token, key);
-	if (res) {
-		return res;
-	}
-
-	fd_stat = stat(objpath, &objstat);
-	if (fd_stat < 0) {
-		FPGA_ERR("Error with object path: %s", strerror(errno));
-		if (errno == EACCES) {
-			return FPGA_NO_ACCESS;
-		}
-		return FPGA_EXCEPTION;
-	}
-
-	if (!buffer) {
-		*len = objstat.st_size - offset;
-		return FPGA_OK;
-	}
-
-
-	fd = open(objpath, O_RDONLY);
-	if (fd < 0) {
-		return FPGA_NOT_FOUND;
-	}
-
-	count = eintr_read(fd, buffer, *len);
-	if (count < (ssize_t)*len) {
-		if (count < 0) {
-			FPGA_ERR("Error with pread operation: %s",
-				 strerror(errno));
-			res = FPGA_EXCEPTION;
-		} else {
-			FPGA_MSG("Bytes read (%d) is less that requested (%d)",
-				 count, *len);
-			res = count == 0 ? FPGA_EXCEPTION : FPGA_OK;
-		}
-	} else {
-		res = FPGA_OK;
-	}
-	*len = count;
-	close(fd);
-
-	return res;
-}
-
-
-fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
-			       fpga_object *object, int flags)
-{
-	(void)flags;
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
 
-	SYSOBJ_ASSERT_NOT_NULL(token);
-	SYSOBJ_ASSERT_NOT_NULL(name);
+	UNUSED_PARAM(flags);
+
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
+
 	res = cat_token_sysfs_path(objpath, token, name);
 	if (res) {
 		return res;
@@ -133,7 +69,7 @@ fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
 }
 
 
-fpga_result fpgaDestroyObject(fpga_object *obj)
+fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 {
 	if (NULL == obj || NULL == *obj) {
 		FPGA_MSG("Invalid object pointer");
@@ -145,7 +81,7 @@ fpga_result fpgaDestroyObject(fpga_object *obj)
 	FREE_IF(_obj->name);
 	FREE_IF(_obj->buffer);
 	while (_obj->size && _obj->objects) {
-		if (fpgaDestroyObject(&_obj->objects[--_obj->size])) {
+		if (xfpga_fpgaDestroyObject(&_obj->objects[--_obj->size])) {
 			FPGA_ERR("Error freeing subobject");
 		}
 	}
@@ -159,13 +95,15 @@ fpga_result fpgaDestroyObject(fpga_object *obj)
 	return FPGA_OK;
 }
 
-fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
-			   size_t len, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
+					      size_t len, int flags)
 {
-	SYSOBJ_ASSERT_NOT_NULL(obj);
-	SYSOBJ_ASSERT_NOT_NULL(buffer);
 	size_t bytes_read = 0;
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(buffer);
+
 	if (offset + len > _obj->size) {
 		return FPGA_INVALID_PARAM;
 	}

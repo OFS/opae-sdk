@@ -43,6 +43,7 @@ fpga_result fpgaInitialize(const char *config_file)
 fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result res;
+	fpga_result cres = FPGA_OK;
 	opae_wrapped_token *wrapped_token;
 	fpga_handle opae_handle = NULL;
 	opae_wrapped_handle *wrapped_handle;
@@ -52,6 +53,8 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaOpen,
+			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaClose,
 			       FPGA_NOT_SUPPORTED);
 
 	res = wrapped_token->adapter_table->fpgaOpen(wrapped_token->opae_token,
@@ -64,11 +67,15 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 						      opae_handle,
 						      wrapped_token->adapter_table);
 
-	ASSERT_NOT_NULL_RESULT(wrapped_handle, FPGA_NO_MEMORY);
+	if (!wrapped_handle) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		cres = wrapped_token->adapter_table->fpgaClose(opae_handle);
+	}
 
 	*handle = wrapped_handle;
 
-	return res;
+	return res != FPGA_OK ? res : cres;
 }
 
 fpga_result fpgaClose(fpga_handle handle)
@@ -1965,4 +1972,82 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 	return wrapped_handle->adapter_table->fpgaReconfigureSlot(
 			wrapped_handle->opae_handle, slot, bitstream,
 			bitstream_len, flags);
+}
+
+fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
+                               fpga_object *object, int flags)
+{
+	fpga_result res;
+	fpga_result dres = FPGA_OK;
+	fpga_object obj = NULL;
+	opae_wrapped_object *wrapped_object;
+	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
+
+	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaGetTokenObject,
+			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDestroyObject,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_token->adapter_table->fpgaGetTokenObject(
+			wrapped_token->opae_token,
+			name,
+			&obj,
+			flags);
+
+	ASSERT_RESULT(res);
+
+	wrapped_object = opae_allocate_wrapped_object(obj,
+						      wrapped_token->adapter_table);
+
+	if (!wrapped_object) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		dres = wrapped_token->adapter_table->fpgaDestroyObject(&obj);
+	}
+
+	*object = wrapped_object;
+
+	return res != FPGA_OK ? res : dres;
+}
+
+fpga_result fpgaDestroyObject(fpga_object *obj)
+{
+	fpga_result res;
+	opae_wrapped_object *wrapped_object;
+
+	ASSERT_NOT_NULL(obj);
+
+	wrapped_object = opae_validate_wrapped_object(*obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaDestroyObject,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_object->adapter_table->fpgaDestroyObject(
+			&wrapped_object->opae_object);
+
+	opae_destroy_wrapped_object(wrapped_object);
+
+	return res;
+}
+
+fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
+                           size_t len, int flags)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(buffer);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectRead,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectRead(
+			wrapped_object->opae_object,
+			buffer,
+			offset,
+			len,
+			flags);
 }
