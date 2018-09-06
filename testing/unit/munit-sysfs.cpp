@@ -46,7 +46,6 @@ extern "C" {
 
 using namespace opae::testing;
 
-using namespace opae::testing;
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysfs_c_p() : tmpsysfs("mocksys-XXXXXX") {}
