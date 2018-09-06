@@ -199,15 +199,15 @@ TEST(LibopaecBufCommonALL, Prep0B) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
-  uint64_t buf_len;
-  uint64_t* buf_addr;
-  uint64_t wsid = 1;
-  int flags;
-
+  
   // Open port device
   token_for_afu0(&_tok);
   ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
 #ifndef BUILD_ASE
+  uint64_t buf_len;
+  uint64_t* buf_addr;
+  uint64_t wsid = 1;
+  int flags;
   buf_len = 0;
   flags = 0;
   EXPECT_EQ(FPGA_INVALID_PARAM,
@@ -215,6 +215,7 @@ TEST(LibopaecBufCommonALL, Prep0B) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(h, wsid));
 #endif
+  
   // Close the device
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
