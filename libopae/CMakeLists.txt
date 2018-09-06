@@ -58,7 +58,12 @@ set(SRC
   src/token_list.c
   src/mmap.c
   src/version.c
-  src/usrclk/user_clk_pgm_uclock.c)
+  src/usrclk/user_clk_pgm_uclock.c
+  src/metrics/vector.c
+  src/metrics/metrics_utils.c
+  src/metrics/metrics.c
+   src/metrics/bmcdata.c
+   src/metrics/bmcinfo.c)
 
 # Define target
 add_library(opae-c SHARED ${SRC})

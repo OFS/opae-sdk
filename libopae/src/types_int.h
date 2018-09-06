@@ -39,6 +39,8 @@
 #include <opae/types.h>
 #include <opae/types_enum.h>
 
+#include "metrics/vector.h"
+
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 #define FPGA_DEV_PATH "/dev"
@@ -90,6 +92,9 @@
 // FPGA invalid magic (FPGAINVL)
 #define FPGA_INVALID_MAGIC  0x46504741494e564c
 
+// FPGA handle magic (FPGAHNDL)
+#define FPGA_METRICS_FILTER_MAGIC   0x46504741484e444A
+
 //Register/Unregister for interrupts
 #define FPGA_IRQ_ASSIGN    (1 << 0)
 #define FPGA_IRQ_DEASSIGN  (1 << 1)
@@ -106,7 +111,29 @@ struct _fpga_token {
 	struct error_list *errors;
 };
 
-/** Process-wide unique FPGA handle */
+struct _fpga_enum_metrics {
+
+	enum fpga_metrics_datatype  metrics_datatype;
+	enum fpga_hw_type  hw_type;
+	enum fpga_metrics_group  fpga_metrics_group;
+
+	char metrics_class_name[SYSFS_PATH_MAX];
+	char metrics_class_sysfs[SYSFS_PATH_MAX];
+
+	char metrics_name[SYSFS_PATH_MAX];
+	char metrics_sysfs[SYSFS_PATH_MAX];
+};
+
+struct _metrics_filter {
+
+	uint64_t magic;
+	fpga_vector fpga_filter_metrics_vector;
+	fpga_metrics fpga_metrics_values;
+	struct _fpga_handle *fpga_handle;
+
+};
+
+
 struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
@@ -118,7 +145,10 @@ struct _fpga_handle {
 	void *umsg_virt;	    // umsg Virtual Memory pointer
 	uint64_t umsg_size;	    // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	    // umsg IOVA from driver
+
+	fpga_vector fpga_enum_metrics_vector;
 };
+
 
 /** Object property struct
     Intent is for property struct to be created dynamically */

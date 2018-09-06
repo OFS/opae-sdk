@@ -171,4 +171,113 @@ struct fpga_error_info {
 	bool can_clear;                   /** whether error can be cleared */
 };
 
+/** Handle to fpga Metrics filter
+*
+*
+*/
+typedef void *metrics_filter;
+
+
+/** Maximum fpga Metrics  sting size
+*
+*
+*/
+#define  METRICS_NAME_SIZE  256
+
+
+/** Metrics group type
+*
+*
+*/
+enum fpga_metrics_group {
+	FPAG_GROUP_POWER,
+	FPAG_GROUP_TEMP,
+	FPAG_GROUP_PERF,
+	FPAG_GROUP_PERF_CACHE,
+	FPAG_GROUP_PERF_FABRIC,
+	FPAG_GROUP_PERF_IOMMU,
+	FPAG_GROUP_PERF_AFU,
+	FPGA_METRICS_UNKNOWN
+};
+
+
+/** Metrics hardware type
+*
+*
+*/
+enum fpga_hw_type {
+	FPAG_HW_MCP,
+	FPAG_HW_DCP_RC,
+	FPAG_HW_DCP_DC,
+	FPAG_HW_DCP_VC,
+	FPGA_HW_UNKNOWN
+};
+
+
+/** Metrics data type
+*
+*
+*/
+enum fpga_metrics_datatype {
+	FPAG_METRICS_INT,
+	FPAG_METRICS_FLAOT,
+	FPAG_METRICS_DOUBLE,
+	FPAG_METRICS_BOOL,
+	FPAG_METRICS_UNKNOWN
+};
+
+
+/** Metrics units
+*
+*
+*/
+enum fpga_metrics_units {
+	FPAG_UNITS_UNKNOWN,
+	FPAG_UNITS_CENTRIGRADE,
+	FPAG_UNITS_FAHRENHEIT,
+	FPAG_UNITS_KELVIN,
+	FPAG_UNITS_VOLTS,
+	FPAG_UNITS_AMPS,
+	FPAG_UNITS_WATTS
+};
+
+
+/** Metrics values
+*
+*
+*/
+typedef union {
+	uint64_t ivalue;
+	double  dvalue;
+	float  fvalue;
+	bool   bvalue;
+} fpga_values;
+
+
+/** Metrics values struct
+*
+*
+*/
+typedef struct  fpga_metrics_values {
+	char group_name[METRICS_NAME_SIZE];
+	char metrics_name[METRICS_NAME_SIZE];
+	enum fpga_metrics_datatype  metrics_datatype;
+	enum fpga_hw_type  hw_type;
+
+	fpga_values fpga_value;
+	enum fpga_metrics_units metrics_units;
+
+} fpga_metrics_values;
+
+
+/** fpga metcis
+*
+*
+*/
+typedef struct fpga_metrics {
+	uint64_t capacity;
+	uint64_t total;
+	fpga_metrics_values **fpga_metrics_val;
+} fpga_metrics;
+
 #endif // __FPGA_TYPES_H__

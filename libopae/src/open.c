@@ -32,6 +32,7 @@
 #include <opae/access.h>
 #include <opae/utils.h>
 #include "types_int.h"
+#include "metrics/metrics_int.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -113,6 +114,11 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 
 	// Save the file descriptor for close.
 	_handle->fddev = fddev;
+
+	result = enum_fpga_metrics(_handle);
+	if (result != FPGA_OK) {
+		FPGA_MSG("Failed to enum Metrics");
+	}
 
 	if (pthread_mutexattr_init(&mattr)) {
 		FPGA_MSG("Failed to init handle mutex attributes");
