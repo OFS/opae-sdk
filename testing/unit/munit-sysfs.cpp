@@ -46,50 +46,55 @@ extern "C" {
 
 
 using namespace opae::testing;
+
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  sysfs_c_p() : tmpsysfs("mocksys-XXXXXX") {}
+  sysfs_c_p() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr){}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs = system_->prepare_syfs(platform_);
+    tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
-    num_matches = 0xc01a;
-    invalid_device_ = test_device::unknown();
-
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                            &num_matches_),
+              FPGA_OK);
+    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs;
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
+      std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
     }
     system_->finalize();
   }
 
-  std::string tmpsysfs;
-  fpga_properties filter;
-  std::array<fpga_token, 2> tokens;
-  uint32_t num_matches;
+  std::string tmpsysfs_;
+  fpga_properties filter_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  uint32_t num_matches_;
   test_platform platform_;
-  test_device invalid_device_;
   test_system *system_;
+
 };
 
 /**
-* @test    null_device_id
-* @brief   Tests: sysfs_c_p
-* @details sysfs_deviceid_from_path giver invalid device id
-*          Then return FPGA_INVALID_PARAM/FPGA_NOT_FOUND
+* @test    fpga_sysfs_01
+* @brief   Tests: sysfs_deviceid_from_path
+* @details sysfs_deviceid_from_path giver device id
+*          Then the return device id
 */
-TEST_P(sysfs_c_p, test_deviceid_from_path){
+
+TEST_P(sysfs_c_p,fpga_sysfs_01){
   uint64_t deviceid;
-  auto device = platform_.devices[0];
   fpga_result result;
   
   //Valid path
@@ -119,16 +124,15 @@ TEST_P(sysfs_c_p, test_deviceid_from_path){
 
 }
 
-
-
 /**
-* @test    null_path
-* @brief   Tests: sysfs_c_p
-* @details sysfs_read_int,sysfs_read_u32
+* @test    fpga_sysfs_02
+* @brief   Tests: sysfs_read_int,sysfs_read_u32
 *          sysfs_read_u32_pair,sysfs_read_u64
-*          sysfs_read_u64
+*          sysfs_read_u64,sysfs_write_u64
+*..........get_port_sysfs,sysfs_read_guid
+*..........get_fpga_deviceid
 */
-TEST_P(sysfs_c_p, test_reads){
+TEST_P(sysfs_c_p, fpga_sysfs_02){
   fpga_result result;
   int i;
   uint32_t u32;
@@ -233,54 +237,32 @@ TEST_P(sysfs_c_p, test_reads){
   
   result = sysfs_read_guid("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.10/", guid);
   EXPECT_NE(result, FPGA_OK);
-}
-
-TEST_P(sysfs_c_p, test_port){
-  fpga_result result;
-  fpga_handle h;
+  
   //NULL input parameters
   result = get_port_sysfs(NULL, NULL);
-  EXPECT_NE(result, FPGA_OK);
-  
-  //NULL sysfs path 
-  result = get_port_sysfs(h, NULL);
   EXPECT_NE(result, FPGA_OK);
   
   //NULL handle
   result = get_port_sysfs(NULL, (char*) "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id");
   EXPECT_NE(result, FPGA_OK);
   
-  //Invalid handle
-  result = get_port_sysfs(h, (char*)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/");
-  EXPECT_NE(result, FPGA_OK);
-  
-  //Invalid handle
-  //h.token = NULL;
-  //result = get_port_sysfs(h, (char*)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/");
-  //EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
-
-
-TEST_P(sysfs_c_p, test_device_id){
-  fpga_result result;
-  //fpga_token tok = tokens.front();
-  //fpga_token tok = tokens.back();
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-  fpga_handle h;
-  uint64_t deviceid;
-  
   //NULL handle
   result = get_fpga_deviceid(NULL, NULL);
   EXPECT_NE(result, FPGA_OK);
   
-  //Invalid handle 
-  result = get_fpga_deviceid(h, NULL);
-  EXPECT_NE(result, FPGA_OK);
+} 
+
+
+/**
+* @test    fpga_sysfs_03
+* @brief   Tests: get_fpga_deviceid when given a valid handle
+*/
+TEST_P(sysfs_c_p, fpga_sysfs_03){
+  uint64_t deviceid;
+  fpga_result result;
   
   // Pass Port handle insted of FME handle
-  result = get_fpga_deviceid(NULL, &deviceid);
+  result = get_fpga_deviceid(handle_, &deviceid);
   EXPECT_NE(result, FPGA_OK);
 
 }
