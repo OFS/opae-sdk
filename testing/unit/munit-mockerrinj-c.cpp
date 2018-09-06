@@ -36,7 +36,6 @@ extern "C" {
 #endif
 
 #include "intel-fpga.h"
-#include <opae/fpga.h>
 #include "gtest/gtest.h"
 #include "types_int.h"
 #include "test_system.h"
