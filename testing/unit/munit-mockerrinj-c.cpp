@@ -51,7 +51,7 @@ extern "C" {
 using namespace opae::testing;
 
 
-int port_release_ioctl(mock_object * m, int request, va_list argp){
+static int port_release_ioctl(mock_object * m, int request, va_list argp){
   int retval = -1;
   errno = EINVAL;
   struct fpga_fme_port_release *port_release =
@@ -85,7 +85,7 @@ out_EINVAL:
   goto out;
 }
 
-int port_assign_ioctl(mock_object * m, int request, va_list argp){
+static int port_assign_ioctl(mock_object * m, int request, va_list argp){
   int retval = -1;
   errno = EINVAL;
   struct fpga_fme_port_assign *port_assign =
@@ -181,64 +181,45 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_01) {
 * @details fpgaMapMMIO maps fpga afu mmio region
 *          Then the return error code
 */
-//TEST_P(mock_err_inj_c_p, fpga_mock_errinj_02) {
-//  uint32_t mmio_num;
-//  uint64_t *mmio_ptr;
-//  
-//  // Open port device
-//  ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
-//  
-//  // mmap 
-//  mmio_num = 0;
-//  EXPECT_NE(FPGA_OK, fpgaMapMMIO(handle_, mmio_num, &mmio_ptr));
-//  
-//  // close port
-//  ASSERT_EQ(FPGA_OK, fpgaClose(handle_));
-//}
-//
-//
-///**
-//* @test    fpga_mock_errinj_03
-//* @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
-//* @details API allcocats buffer and Release buffer
-//*          Then the return error code
-//*/
-//TEST_P(mock_err_inj_c_p, fpga_mock_errinj_03) {
-//
-//	struct _fpga_token _tok;
-//	fpga_token tok = &_tok;
-//	fpga_handle h;
-//	uint64_t buf_len;
-//	uint64_t* buf_addr;
-//	uint64_t wsid = 1;
-//
-//	// Open port device
-//	token_for_afu0(&_tok);
-//	ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-//
-//	// Allocate a buffer
-//	buf_len = 1024;
-//	EXPECT_NE(FPGA_OK,
-//		fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, 0));
-//
-//	// Release buffer
-//	EXPECT_NE(FPGA_OK, fpgaReleaseBuffer(h, wsid));
-//
-//	// Prepare buffer successful 
-//	// Relase buffer fails
-//	MOCK_enable_ioctl_errinj(false);
-//
-//	// Allocate a buffer
-//	buf_len = 1024;
-//	EXPECT_EQ(FPGA_OK,
-//		fpgaPrepareBuffer(h, buf_len, (void**) &buf_addr, &wsid, 0));
-//
-//	MOCK_enable_ioctl_errinj(true);
-//	// Release buffer
-//	EXPECT_NE(FPGA_OK, fpgaReleaseBuffer(h, wsid));
-//
-//	ASSERT_EQ(FPGA_OK, fpgaClose(h));
-//}
+TEST_P(mock_err_inj_c_p, fpga_mock_errinj_02) {
+  uint32_t mmio_num;
+  uint64_t *mmio_ptr;
+  
+  // Open port device
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  
+  // mmap 
+  mmio_num = 0;
+  EXPECT_EQ(FPGA_OK, fpgaMapMMIO(handle_, mmio_num, &mmio_ptr));
+  
+  // close port
+  ASSERT_EQ(FPGA_OK, fpgaClose(handle_));
+}
+
+
+/**
+* @test    fpga_mock_errinj_03
+* @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
+* @details API allcocats buffer and Release buffer
+*          Then the return error code
+*/
+TEST_P(mock_err_inj_c_p, fpga_mock_errinj_03) {
+  uint64_t buf_len;
+  uint64_t* buf_addr;
+  uint64_t wsid = 1;
+  
+  // Open port device
+  ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  
+  // Allocate a buffer
+  buf_len = 1024;
+  EXPECT_EQ(FPGA_OK,
+  	fpgaPrepareBuffer(handle_, buf_len, (void**) &buf_addr, &wsid, 0));
+  
+  // Release buffer
+  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(handle_, wsid));
+  
+}
 //
 //
 ///**
@@ -293,14 +274,12 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_05) {
 
   system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
   res = fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_NE(FPGA_OK, res) << "\t this is fpga result " << res;
-
+  EXPECT_EQ(FPGA_OK, res);
 
   system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
   res = fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_NE(FPGA_OK, res) << "\t this is fpga result " << res;
-  
-  // Close port handle
+  EXPECT_EQ(FPGA_OK, res);
+
   ASSERT_EQ(FPGA_OK, fpgaClose(handle_));
 }
 
