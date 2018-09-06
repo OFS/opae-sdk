@@ -42,7 +42,7 @@ using namespace opae::testing;
 class openclose_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
-  openclose_c_p() : tmpsysfs_("mocksys-XXXXXX"){}
+  openclose_c_p() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -69,12 +69,12 @@ class openclose_c_p
 
   std::string tmpsysfs_;
   fpga_properties filter_;
+  fpga_handle handle_;
   std::array<fpga_token, 2> tokens_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
 };
-
 
 
 
@@ -85,74 +85,62 @@ class openclose_c_p
  *             function returns FPGA_INVALID_PARAM.
  */
 TEST_P(openclose_c_p, open_01) {
-  fpga_token tok = NULL;
   fpga_result res;
-  res = fpgaOpen(tok, NULL, 0);
+  res = fpgaOpen(NULL, NULL, 0);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 /**
  * @test       open_02
  *
- * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
- *             function returns FPGA_INVALID_PARAM.
- */
-TEST_P(openclose_c_p, open_02) {
-  fpga_token tok;
-  fpga_result res;
-  res = fpgaOpen(tok, NULL, 0);
-  ASSERT_EQ(FPGA_INVALID_PARAM, res);
-}
-
-/**
- * @test       open_03
- *
  * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
  *             function returns FPGA_INVALID_PARAM.
  */
 
-TEST_P(openclose_c_p, open_03) {
+TEST_P(openclose_c_p, open_02) {
   fpga_handle handle_;
   ASSERT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &handle_, 0));
 }
 
 
 /**
- * @test       open_04
+ * @test       open_03
  *
  * @brief      When the flags parameter to fpgaOpen is invalid, the
  *             function returns FPGA_INVALID_PARAM.
  *
  */
-TEST_P(openclose_c_p, open_04) {
-  fpga_handle handle_;
+TEST_P(openclose_c_p, open_03) {
   ASSERT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tokens_[0], &handle_, 42));
 }
 
 /**
- * @test       open_05
+ * @test       open_04
  *
  * @brief      When the flags parameter to fpgaOpen is invalid, the
  *             function returns FPGA_INVALID_PARAM and FPGA_NO_DRIVER.
  *
  */
-TEST_P(openclose_c_p, open_05) {
-  fpga_handle handle_;
-  fpga_result res;
-  struct _fpga_token* _token = (struct _fpga_token*)tokens_[0];
-
-  res = fpgaOpen(tokens_[0], &handle_, 42);
-  ASSERT_EQ(FPGA_INVALID_PARAM, res);
-
-  _token->magic = FPGA_TOKEN_MAGIC;
-  res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
-  ASSERT_EQ(FPGA_OK, res);
-
-  strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
-  res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
-  ASSERT_EQ(FPGA_NO_DRIVER, res);
-
-}
+//TEST_P(openclose_c_p, open_04) {
+//  fpga_result res;
+//  struct _fpga_token* _token = (struct _fpga_token*)tokens_[0];
+//
+//
+//  res = fpgaOpen(tokens_[0], &handle_, 42);
+//  ASSERT_EQ(FPGA_INVALID_PARAM, res);
+//
+//  //_token->magic = FPGA_TOKEN_MAGIC;
+//  *tokens_[0].magic = FPGA_TOKEN_MAGIC;
+//  res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+//  ASSERT_EQ(FPGA_OK, res);
+//  ASSERT_EQ(FPGA_OK, fpgaClose(handle_));
+//  
+//
+//  strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
+//  res = fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+//  ASSERT_EQ(FPGA_NO_DRIVER, res);
+//
+//}
 
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
