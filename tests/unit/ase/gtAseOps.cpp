@@ -36,8 +36,10 @@
 
 #define ASE_UNIT
 #define FPGA_EVENT_INVALID 0x64
+#define ESBADFMT -1
+#define ESFMTTYP -2
 
-const uint HUGE_NUM = 10000000000000000000;
+const uint HUGE_NUM = 1000000000;
 
 static const fpga_guid ASE_GUID = {
 	0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
@@ -130,7 +132,7 @@ TEST(LibopaecAseOps, ase_ops_03) {
 * @test       ase_ops_04
 *
 * @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             ase_read_lock_file(const char *) function should be called
+*             ase_read_lock_file(const char *) function should be calle
 *
 */
 TEST(LibopaecAseOps, ase_ops_04) {
@@ -139,21 +141,11 @@ TEST(LibopaecAseOps, ase_ops_04) {
 	ase_read_lock_file(workdir);
 }
 
-TEST(LibopaecAseStr, ase_str_01) {
-	char str1[128] = "Read two integers 345 234";
-	char format[128] = "Read two integers %d %d";
-	int a, b;
-
-	sscanf_s_ii(str1, format, &a, &b);
-	EXPECT_EQ(a, 345);
-	EXPECT_EQ(b, 234);
-}
-
 /**
 * @test       ase_mq_01
 *
 * @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             mqueue_create()/mqueue_destroy()  function should create the  
+*             mqueue_create()/mqueue_destroy()  function should create the
 *             named pipes
 *
 */
@@ -162,6 +154,23 @@ TEST(LibopaecAseMq, ase_mq_01) {
 
 	mqueue_create(name_suffix);
 	mqueue_destroy(name_suffix);
+}
+
+/**
+* @test       ase_str_01
+*
+* @brief      When the parameters are valid and libopae-ase-c is loaded:
+*            sscanf_s_ii() function should read from a string
+*
+*/
+TEST(LibopaecAseStr, ase_str_01) {
+	char str1[128] = "Read two integers 345 234";
+	char format[128] = "Read two integers %d %d";
+	int a, b;
+
+	sscanf_s_ii(str1, format, &a, &b);
+	EXPECT_EQ(a, 345);
+	EXPECT_EQ(b, 234);
 }
 
 /**
@@ -348,6 +357,27 @@ TEST(LibopaecAseStr, ase_str_02) {
 }
 
 /**
+* @test       ase_str_03
+*
+* @brief      When the parameters are valid and libopae-ase-c is loaded:
+*             fscanf_s_i() function should read an integer from a file
+*
+*/
+TEST(LibopaecAseStr, ase_str_03) {
+	int a = 0;
+	int b = 2018;
+	int ret = 0;
+	FILE *fp = fopen("str_test.txt", "w+");
+	fprintf(fp, "%d ", b);
+
+	rewind(fp);
+	ret = fscanf_s_i(fp, "%d", &a);
+	EXPECT_EQ(2018, a);
+
+	fclose(fp);
+}
+
+/**
 * @test    ase_buffer_01
 * @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
 *          fpgaGetIOAddress
@@ -494,6 +524,23 @@ TEST(LibopaecAseErr, ase_err_01) {
 	ase_error_report("ase_init", 1, ASE_OS_MALLOC_ERR);
 	ase_error_report("ase_init", 1, ASE_IPCKILL_CATERR);
 	ase_error_report("ase_init", 1, 100);
+	backtrace_handler(SIGSEGV);
+}
+
+/**
+* @test       ase_app_01
+*
+* @brief      When the parameters are valid and libopae-ase-c is loaded:
+*             failure_cleanup(const char *) function should be called
+*
+*/
+TEST(LibopaecAseOps, ase_app_01) {
+	FILE *file = fopen("app_test.txt", "w");
+	fprintf(file, "%d\n", getpid() + 1);
+	fclose(file);
+
+	//delete_lock_file();
+	remove_existing_lock_file("app_test.txt");
 
 	backtrace_handler(SIGSEGV);
 }

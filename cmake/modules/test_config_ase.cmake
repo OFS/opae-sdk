@@ -56,7 +56,6 @@ add_executable(gtase ${TARGET_SRC_ASE})
 
 set(UNIT_SRC unit/ase/gtmain.cpp
   unit/ase/gtAseOps.cpp
-  # unit/ase/gtAseString.cpp
  )
 set(TARGET_UNIT_ASE ${UNIT_SRC})
 add_executable(gtAseU ${TARGET_UNIT_ASE})
@@ -92,6 +91,7 @@ target_include_directories(gtAseU PUBLIC
   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
 target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
   uuid ${GTEST_BOTH_LIBRARIES} )
+
 ############################################################################
 ## ASE compatible version of gtapi (gtase)  ################################
 ############################################################################
@@ -162,5 +162,5 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     TESTRUNNER ctest
     TESTRUNNER_ARGS "-R;ase_all"
     COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb")
-  add_dependencies(coverage_opae-c-ase gtase)
+  add_dependencies(coverage_opae-c-ase gtase gtAseU)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

@@ -152,5 +152,5 @@ void backtrace_handler(int sig)
 		}
 	}
 
-	exit(1);
+	ase_exit();
 }

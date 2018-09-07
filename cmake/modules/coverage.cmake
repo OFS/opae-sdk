@@ -149,27 +149,48 @@ function(set_target_for_coverage_local target_name)
 
   # Setup target
   set(name "coverage_${target_name}")
-  add_custom_target(${name}
+  if(NOT BUILD_ASE_TESTS)
+		add_custom_target(${name} 
 
-    # Cleanup lcov
-    # COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+		COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+		# Wrap test on script, so coverage files generate even if tests return 1
+		# CMake will stop if this step returns 1
+		COMMAND chmod 755 ${coverage_runtest_script}
+		COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
 
-    # Wrap test on script, so coverage files generate even if tests return 1
-    # CMake will stop if this step returns 1
-    COMMAND chmod 755 ${coverage_runtest_script}
-    COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
+		# Capturing lcov counters and generating report
+		COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
 
-    # Capturing lcov counters and generating report
-    COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+		# Clean coverage file
+		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+		COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
 
-    # Clean coverage file
-    COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
-    COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
-    COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+		# Add dependencies
+		DEPENDS ${target_name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run coverage tests.")
+  else()
+ 		add_custom_target(${name} 
 
-    # Add dependencies
-    DEPENDS ${target_name}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Run coverage tests.")
+		# Wrap test on script, so coverage files generate even if tests return 1
+		# CMake will stop if this step returns 1
+		COMMAND chmod 755 ${coverage_runtest_script}
+		COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
+
+		# Capturing lcov counters and generating report
+		COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+
+		# Clean coverage file
+		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+		COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+
+		# Add dependencies
+		DEPENDS ${target_name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run coverage tests.")
+  endif()
+
 
 endfunction()

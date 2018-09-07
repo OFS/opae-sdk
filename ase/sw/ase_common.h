@@ -432,12 +432,10 @@ uint64_t get_range_checked_physaddr(uint32_t);
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
 void ase_free_buffer(char *);
-void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
 bool check_app_lock_file(char *);
 void create_new_lock_file(char *);
-bool remove_existing_lock_file(char *);
 
 // ASE operations
 #ifdef ASE_DEBUG
@@ -450,24 +448,6 @@ uint64_t ase_rand64(void);
 void ase_eval_session_directory(void);
 int ase_instance_running(void);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	void ase_buffer_oneline(struct buffer_t *);
-	void remove_spaces(char *);
-	void remove_tabs(char *);
-	void remove_newline(char *);
-	int sscanf_s_ii(const char *, const char *, int *, int *);
-	unsigned int parse_format(const char *format, char pformatList[], unsigned int maxFormats);
-	// Error report functions
-	void ase_error_report(const char *, int, int);
-	void backtrace_handler(int);
-	void mqueue_create(char *);
-	void mqueue_destroy(char *);
-#ifdef __cplusplus
-}
-#endif
-void remove_newline(char *);
 void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
@@ -475,13 +455,12 @@ char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
 int ase_memset(void *, int, size_t);
-
+void ase_exit(void);
 // Safe string equivalents
 int ase_memcpy_s(void *, size_t, const void *, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
 int ase_memset_s(void *, size_t, int, size_t);
-int fscanf_s_i(FILE *, const char *, int *);
 
 // Message queue operations
 void ipc_init(void);
@@ -554,6 +533,21 @@ extern "C" {
 	// void *intr_request_watcher();
 	void register_signal(int, void *);
 	void start_simkill_countdown(void);
+
+	void ase_buffer_oneline(struct buffer_t *);
+	void remove_spaces(char *);
+	void remove_tabs(char *);
+	void remove_newline(char *);
+	int sscanf_s_ii(const char *, const char *, int *, int *);
+	int fscanf_s_i(FILE *, const char *, int *);
+	unsigned int parse_format(const char *format, char pformatList[], unsigned int maxFormats);
+	// Error report functions
+	void ase_error_report(const char *, int, int);
+	void backtrace_handler(int);
+	void mqueue_create(char *);
+	void mqueue_destroy(char *);
+	bool remove_existing_lock_file(const char *);
+	void delete_lock_file(void);
 #ifdef __cplusplus
 }
 #endif				// __cplusplus
