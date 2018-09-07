@@ -46,8 +46,8 @@ struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
 		{"bus",                 required_argument, NULL, 'B'},
 		{"device",              required_argument, NULL, 'D'},
-		{"functionr",           required_argument, NULL, 'F'},
-		{"socket-id",       required_argument, NULL, 'S'},
+		{"function",            required_argument, NULL, 'F'},
+		{"socket-id",           required_argument, NULL, 'S'},
 		{"port",                required_argument, NULL, 'P'},
 		{"freq-high",           required_argument, NULL, 'H'},
 		{"freq-low",            required_argument, NULL, 'L'},
@@ -67,7 +67,7 @@ struct  UserClkCommandLine
 
 };
 
-struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, 0, -1,-1};
+struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, 0, -1, -1};
 
 // User clock Command line input help
 void UserClkAppShowHelp()
@@ -77,7 +77,7 @@ void UserClkAppShowHelp()
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR  -S=<SOCKET NUMBER>\n");
 	printf("<Port>                --port                       OR  -P=<Port id> \n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high> \n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low> \n");
@@ -144,22 +144,22 @@ int main( int argc, char** argv )
 	result = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
-	if (userclkCmdLine.bus >0){
+	if (-1 != userclkCmdLine.bus) {
 		result = fpgaPropertiesSetBus(filter, userclkCmdLine.bus);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
 	}
 
-	if (userclkCmdLine.device >0) {
+	if (-1 != userclkCmdLine.device) {
 		result = fpgaPropertiesSetDevice(filter, userclkCmdLine.device);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (userclkCmdLine.function >0){
+	if (-1 != userclkCmdLine.function){
 		result = fpgaPropertiesSetFunction(filter, userclkCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (userclkCmdLine.socket >0){
+	if (-1 != userclkCmdLine.socket){
 		result = fpgaPropertiesSetSocketID(filter, userclkCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
