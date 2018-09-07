@@ -80,6 +80,17 @@ class reset_c_p
   test_system *system_;
 };
 
+/**
+ * @test       reset_c
+ * @brief      test_port_drv_reset
+ * @details    When the parameters are invalid and the drivers are loaded,
+ *             fpgaReset returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_P(reset_c_p, test_port_drv_reset) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
+}
+
 
 
 /**
@@ -93,6 +104,12 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
   EXPECT_EQ(FPGA_OK, fpgaReset(handle_));
 }
 
+
+
+//////////////////////////////////
+// The following test modifies the
+// handle to improve coverage.
+//////////////////////////////////
 /**
  * @test       reset_c
  * @brief      test_port_drv_reset_02
@@ -100,20 +117,25 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  *             loaded, fpgaReset return error.
  *
  */
-TEST_P(reset_c_p, test_port_drv_reset_02) {
-  int fddev = -1;
+//TEST_P(reset_c_p, test_port_drv_reset_02) {
+//  int fddev = -1;
+//
+//  // Reset slot
+//  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
+//  
+//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+//  _handle->magic = 0x123;
+//
+//  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
+//
+//  _handle->magic = FPGA_HANDLE_MAGIC;
+//}
 
-  // Reset slot
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
 
-  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-  _handle->magic = 0x123;
-
-  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
-
-  _handle->magic = FPGA_HANDLE_MAGIC;
-}
-
+//////////////////////////////////
+// The following test modifies the
+// handle to improve coverage.
+//////////////////////////////////
 /**
  * @test       reset_c
  * @brief      test_port_drv_reset_03
@@ -121,20 +143,20 @@ TEST_P(reset_c_p, test_port_drv_reset_02) {
  *             loaded, fpgaReset return error.
  *
  */
-TEST_P(reset_c_p, test_port_drv_reset_03) {
-  int fddev = -1;
-  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-
-#ifndef BUILD_ASE
-  fddev = _handle->fddev;
-  _handle->fddev = -1;
-
-  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
-#else
-  EXPECT_EQ(FPGA_OK, fpgaReset(handle_));
-#endif
-  _handle->fddev = fddev;
-}
+//TEST_P(reset_c_p, test_port_drv_reset_03) {
+//  int fddev = -1;
+//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+//
+//#ifndef BUILD_ASE
+//  fddev = _handle->fddev;
+//  _handle->fddev = -1;
+//
+//  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
+//#else
+//  EXPECT_EQ(FPGA_OK, fpgaReset(handle_));
+//#endif
+//  _handle->fddev = fddev;
+//}
 
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));
