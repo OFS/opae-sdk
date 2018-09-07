@@ -33,8 +33,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "common_int.h"
+#include <errno.h>
+#include <opae/fpga.h>
 
+#define SYSFS_PATH_MAX 256
+#define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 
 fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 {
@@ -45,12 +48,12 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		fprintf(stderr, "open(%s) failed \n", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		fprintf(stderr, "seek(%s) failed \n", path);
 		goto out_close;
 	}
 
@@ -59,12 +62,12 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	do {
 		res = read(fd, buf+b, sizeof(buf)-b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			fprintf(stderr, "Read from %s failed \n", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			fprintf(stderr, "Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));

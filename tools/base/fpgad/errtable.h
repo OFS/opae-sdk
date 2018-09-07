@@ -41,9 +41,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <opae/fpga.h>
 #undef _GNU_SOURCE
 
-#include "common_int.h"
 
 /* TODO: support variable number of FMEs and PORTs */
 #define SYSFS_FME0  SYSFS_FPGA_CLASS_PATH "/intel-fpga-dev.0/intel-fpga-fme.0"
