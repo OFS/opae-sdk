@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <unistd.h>
 
 void print_err(const char *s, fpga_result res)
 {
@@ -77,7 +78,7 @@ typedef struct {
 	const char *name;
 	fpga_token token;
 	fpga_object object;
-        uint8_t bus;
+	uint8_t bus;
         uint8_t device;
         uint8_t function;
 	named_object objects[MAX_GROUP_OBJECTS];
@@ -88,72 +89,14 @@ typedef struct {
 	fpga_token token;
 	metric_group *groups;
 	size_t count;
-        fpga_object clock;
+	fpga_object clock;
 } token_group;
-
-// ├── cache
-// │   ├── data_write_port_contention
-// │   ├── freeze
-// │   ├── hold_request
-// │   ├── read_hit
-// │   ├── read_miss
-// │   ├── rx_eviction
-// │   ├── rx_req_stall
-// │   ├── tag_write_port_contention
-// │   ├── tx_req_stall
-// │   ├── write_hit
-// │   └── write_miss
-// ├── clock
-// ├── fabric
-// │   ├── enable
-// │   ├── freeze
-// │   ├── mmio_read
-// │   ├── mmio_write
-// │   ├── pcie0_read
-// │   ├── pcie0_write
-// │   ├── pcie1_read
-// │   ├── pcie1_write
-// │   ├── port0
-// │   │   ├── enable
-// │   │   ├── mmio_read
-// │   │   ├── mmio_write
-// │   │   ├── pcie0_read
-// │   │   ├── pcie0_write
-// │   │   ├── pcie1_read
-// │   │   ├── pcie1_write
-// │   │   ├── upi_read
-// │   │   └── upi_write
-// │   ├── upi_read
-// │   └── upi_write
-// ├── iommu
-// │   ├── afu0
-// │   │   ├── devtlb_1g_fill
-// │   │   ├── devtlb_2m_fill
-// │   │   ├── devtlb_4k_fill
-// │   │   ├── devtlb_read_hit
-// │   │   ├── devtlb_write_hit
-// │   │   ├── read_transaction
-// │   │   └── write_transaction
-// │   ├── freeze
-// │   ├── iotlb_1g_hit
-// │   ├── iotlb_1g_miss
-// │   ├── iotlb_2m_hit
-// │   ├── iotlb_2m_miss
-// │   ├── iotlb_4k_hit
-// │   ├── iotlb_4k_miss
-// │   ├── rcc_hit
-// │   ├── rcc_miss
-// │   ├── slpwc_l3_hit
-// │   ├── slpwc_l3_miss
-// │   ├── slpwc_l4_hit
-// │   └── slpwc_l4_miss
-// └── revision
-//
 
 struct {
 	bool freeze;
 	int bus;
-} options = { false, -1 };
+	float interval_sec;
+} options = { false, -1, 1.0 };
 
 metric_group *init_metric_group(fpga_token token, const char *name, metric_group *group)
 {
@@ -163,7 +106,7 @@ metric_group *init_metric_group(fpga_token token, const char *name, metric_group
 	group->token = token;
 	group->name = name;
 	group->count = 0;
-        if (fpgaGetProperties(token, &props) == FPGA_OK) {
+	if (fpgaGetProperties(token, &props) == FPGA_OK) {
 		if ((res = fpgaPropertiesGetBus(props, &group->bus)) != FPGA_OK) {
 			print_err("error reading bus", res);
 		}
@@ -174,7 +117,7 @@ metric_group *init_metric_group(fpga_token token, const char *name, metric_group
 			print_err("error reading function", res);
 		}
 	}
-        
+
 	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB) == FPGA_OK) {
 		return group;
 	}
@@ -198,7 +141,7 @@ fpga_result freeze_group(metric_group *group, uint64_t value)
 	res = fpgaObjectWrite64(object, value, FPGA_OBJECT_TEXT);
 	if ((other_res = fpgaDestroyObject(&object)) != FPGA_OK) {
 		print_err("error destorying object", other_res);
-	};
+	}
 
 out_close:
 	if ((other_res = fpgaClose(handle)) != FPGA_OK) {
@@ -210,7 +153,7 @@ out:
 
 fpga_result add_clock(token_group *t_group)
 {
-	fpga_result res = 
+	fpga_result res =
 		fpgaTokenGetObject(t_group->token, "*perf/clock", &t_group->clock, FPGA_OBJECT_GLOB);
 
 	return res;
@@ -252,7 +195,6 @@ void print_counters(fpga_object clock, metric_group *group)
 			print_err("error reading counter", res);
 		}
 	}
-        
 	printf("device: %02x:%02x.%1d clock %lu: \n\t", group->bus, group->device, group->function, clock_value);
 	for (i = 0; i < count; ++i) {
 		if (group->objects[i].delta > 0)
@@ -298,17 +240,16 @@ fpga_result parse_args(int argc, char *argv[])
 		case 'f':
 			options.freeze = true;
 			break;
-		
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
 			return FPGA_EXCEPTION;
 		}
 	}
-	
+
 	return FPGA_OK;
 }
 
-	
+#define USEC_TO_SEC 1000000
 
 int main(int argc, char *argv[])
 {
@@ -332,7 +273,7 @@ int main(int argc, char *argv[])
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_free, "Setting ObjectType");
 
-	if (options.bus > 0) {
+	if (options.bus >= 0) {
 		res = fpgaPropertiesSetBus(filter, (uint8_t)options.bus);
 		ON_ERR_GOTO(res, out_free, "Setting bus");
 	}
@@ -378,7 +319,7 @@ int main(int argc, char *argv[])
 				print_counters(metrics[i].clock, &metrics[i].groups[j]);
 				freeze_group(&metrics[i].groups[j], 0);
 			}
-			usleep(1E6);
+			usleep((useconds_t)(options.interval_sec * USEC_TO_SEC));
 		}
 	}
 

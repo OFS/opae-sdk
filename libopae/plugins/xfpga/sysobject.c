@@ -39,13 +39,6 @@
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
 
-#define SYSOBJ_ASSERT_NOT_NULL(var)                                            \
-	do {                                                                   \
-		if (var == NULL) {                                             \
-			FPGA_MSG(#var " is NULL");                             \
-		}                                                              \
-	} while (false);
-
 #define FREE_IF(var)                                                           \
 	do {                                                                   \
 		if (var) {                                                     \
@@ -65,9 +58,9 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 	fpga_result res = FPGA_EXCEPTION;
 	struct stat objstat;
 
-	SYSOBJ_ASSERT_NOT_NULL(token);
-	SYSOBJ_ASSERT_NOT_NULL(key);
-	SYSOBJ_ASSERT_NOT_NULL(len);
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(key);
+	ASSERT_NOT_NULL(len);
 
 	res = cat_token_sysfs_path(objpath, token, key);
 	if (res) {
@@ -118,12 +111,11 @@ fpga_result __FPGA_API__ fpgaReadObjectBytes(fpga_token token, const char *key,
 fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags)
 {
-	(void)flags;
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
 
-	SYSOBJ_ASSERT_NOT_NULL(token);
-	SYSOBJ_ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(name);
 	res = cat_token_sysfs_path(objpath, token, name);
 	if (res) {
 		return res;
@@ -136,12 +128,11 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 fpga_result fpgaHandleGetObject(fpga_token handle, const char *name,
 				fpga_object *object, int flags)
 {
-	(void)flags;
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
 
-	SYSOBJ_ASSERT_NOT_NULL(handle);
-	SYSOBJ_ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(name);
 	res = cat_handle_sysfs_path(objpath, handle, name);
 	if (res) {
 		return res;
@@ -154,11 +145,10 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 				const char *name, fpga_object *object,
 				int flags)
 {
-	(void)flags;
 	char objpath[SYSFS_PATH_MAX] = {0};
 	fpga_result res = FPGA_EXCEPTION;
-	SYSOBJ_ASSERT_NOT_NULL(parent);
-	SYSOBJ_ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(parent);
+	ASSERT_NOT_NULL(name);
 	struct _fpga_object *_obj = (struct _fpga_object *)parent;
 	if (_obj->type == FPGA_SYSFS_FILE) {
 		return FPGA_INVALID_PARAM;
@@ -177,13 +167,6 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 		return res;
 	}
 
-	// for (i = 0; i < _obj->size; ++i) {
-	//	const char* oname = ((struct
-	//_fpga_object*)(_obj->objects[i]))->name;
-	//	if (!strcmp(oname, name)) {
-	//		return make_sysfs_object(objpath, name, object, NULL);
-	//	}
-	//}
 
 
 	return make_sysfs_object(objpath, name, object, flags, handle);
@@ -234,8 +217,8 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 			   size_t len, int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
-	SYSOBJ_ASSERT_NOT_NULL(obj);
-	SYSOBJ_ASSERT_NOT_NULL(buffer);
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(buffer);
 	if (offset + len > _obj->size) {
 		return FPGA_INVALID_PARAM;
 	}
@@ -259,8 +242,8 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	size_t bytes_written = 0;
 	fpga_result res;
 	errno_t err;
-	SYSOBJ_ASSERT_NOT_NULL(obj);
-	SYSOBJ_ASSERT_NOT_NULL(_obj->handle);
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(_obj->handle);
 	res = handle_check_and_lock(_obj->handle);
 	if (res != FPGA_OK) {
 		return res;
