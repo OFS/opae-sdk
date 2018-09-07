@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <stddef.h>
 #include <opae/fpga.h>
 
 typedef struct stat stat_t;
@@ -92,7 +93,7 @@ struct test_device {
   fpga_version bbs_version;
   fpga_accelerator_state state;
   uint32_t num_mmio;
-  uint32_t num_interrupts; 
+  uint32_t num_interrupts;
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
@@ -109,6 +110,13 @@ struct test_platform {
   static bool exists(const std::string &key);
   static std::vector<std::string> keys(bool sorted = false);
 };
+
+template<int _R, long _E>
+static int dummy_ioctl(mock_object *, int, va_list)
+{
+  errno = _E;
+  return _R;
+}
 
 class test_system {
  public:
