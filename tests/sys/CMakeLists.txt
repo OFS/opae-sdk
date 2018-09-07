@@ -121,7 +121,7 @@ endif()
 #intra-process tests
 target_link_libraries(commonlib opae-c)
 target_link_libraries(foapp commonlib safestr opae-c uuid ${GTEST_BOTH_LIBRARIES})
-target_link_libraries(gtapi_sys commonlib safestr opae-c json-c uuid ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(gtapi_sys commonlib safestr opae-c ${libjson-c_LIBRARIES} uuid ${GTEST_BOTH_LIBRARIES})
 
 
 #################### Common ###################################################

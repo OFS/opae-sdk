@@ -81,6 +81,8 @@ target_include_directories(opae-c PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
+include_directories(${libjson-c_INCLUDE_DIRS})
+
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
