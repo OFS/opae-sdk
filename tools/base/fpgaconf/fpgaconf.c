@@ -386,6 +386,58 @@ int parse_metadata(struct bitstream_info *info)
 	return 0;
 }
 
+fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l, uint64_t *id_h)
+{
+	fpga_result result = FPGA_OK;
+	char buf_l[INTFC_ID_LOW_LEN + 1] = { 0 };
+	char buf_h[INTFC_ID_HIGH_LEN + 1] = { 0 };
+	uint8_t buffer[INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN] = { 0 };
+
+	fpga_object pr_object;
+	errno_t e;
+
+	result = fpgaGetTokenObject(token, PR_INTERFACE_ID, &pr_object, 0);
+	if (result != FPGA_OK) {
+		fprintf(stderr, "Failed to get Token Object \n");
+		return result;
+	}
+
+	result = fpgaObjectRead(pr_object, buffer, 0, INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN, 0);
+	if (result != FPGA_OK) {
+		fprintf(stderr, "Failed to Read Object \n");
+		return result;
+	}
+
+	// PR Inteface Id h
+	memset_s(buf_h, sizeof(buf_h), 0);
+	e = strncpy_s(buf_h, sizeof(buf_h), (char*) buffer, INTFC_ID_HIGH_LEN);
+	if (EOK != e) {
+		fprintf(stderr, "strncpy_s failed (buf_l)\n");
+		return FPGA_EXCEPTION;
+	}
+
+	*id_h = strtoull(buf_h, NULL, 16);
+
+	// PR Inteface Id l
+	memset_s(buf_l, sizeof(buf_l), 0);
+	e = strncpy_s(buf_l, sizeof(buf_l), (char*) buffer + INTFC_ID_LOW_LEN, INTFC_ID_LOW_LEN);
+	if (EOK != e) {
+		fprintf(stderr, "strncpy_s failed (buf_l)\n");
+		return FPGA_EXCEPTION;
+	}
+
+	*id_l = strtoull(buf_l, NULL, 16);
+
+	result = fpgaDestroyObject(&pr_object);
+	if (result != FPGA_OK) {
+		fprintf(stderr, "Failed to Destroy Object \n");
+		return result;
+	}
+
+	return result;
+}
+
+
 /*
 * Prints Actual and Expected Interface id
 */
@@ -401,7 +453,6 @@ int print_interface_id(fpga_guid actual_interface_id)
 	fpga_token        fpga_token = NULL;
 	fpga_guid         expt_interface_id = { 0 };
 	char              guid_str[37] = { 0 };
-
 
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out_err, "creating properties object");
@@ -441,7 +492,7 @@ int print_interface_id(fpga_guid actual_interface_id)
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
 	ON_ERR_GOTO(res, out_destroy, "opening fpga");
 
-	res = get_interface_id(fpga_handle, &intfc_id_l, &intfc_id_h);
+	res = get_fpga_interface_id(fpga_token, &intfc_id_l, &intfc_id_h);
 	ON_ERR_GOTO(res, out_close, "interfaceid get");
 
 	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
@@ -576,6 +627,9 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	uint32_t           num_matches;
 	fpga_result        res;
 	int                retval = -1;
+
+	res = fpgaInitialize(NULL);
+	ON_ERR_GOTO(res, out_err, "Failed to initilize ");
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);

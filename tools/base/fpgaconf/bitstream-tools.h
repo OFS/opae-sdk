@@ -40,6 +40,10 @@
 #define GBS_AFU_IMAGE "afu-image"
 #define BBS_INTERFACE_ID "interface-uuid"
 
+#define PR_INTERFACE_ID		"pr/interface_id"
+#define INTFC_ID_LOW_LEN	16
+#define INTFC_ID_HIGH_LEN	16
+
 #define PRINT_MSG printf
 #define PRINT_ERR(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
 
@@ -93,6 +97,28 @@ void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
 		s -= 8;
 		guid[8 + i] = (uint8_t) ((guidl >> s) & 0xff);
 	}
+}
+
+fpga_result  check_bitstream_guid(const uint8_t *bitstream)
+{
+	fpga_guid bitstream_guid;
+	fpga_guid expected_guid;
+	errno_t e;
+
+	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid),
+		bitstream, sizeof(fpga_guid));
+	if (EOK != e) {
+		PRINT_ERR("memcpy_s failed");
+		return FPGA_EXCEPTION;
+	}
+
+	if (string_to_guid(METADATA_GUID, &expected_guid) != FPGA_OK)
+		return FPGA_INVALID_PARAM;
+
+	if (uuid_compare(bitstream_guid, expected_guid) != 0)
+		return FPGA_INVALID_PARAM;
+
+	return FPGA_OK;
 }
 
 #endif
