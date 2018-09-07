@@ -145,11 +145,11 @@ enum fpga_reconf_flags {
 };
 
 enum fpga_object_read_flags {
-  FPGA_OBJECT_SYNC = (1u << 0),
-  FPGA_OBJECT_GLOB = (1u << 1),
-  FPGA_OBJECT_TEXT = (1u << 2),
-  FPGA_OBJECT_RECURSE_ONE = (1u << 3),
-  FPGA_OBJECT_RECURSE_ALL = (1u << 4)
+  FPGA_OBJECT_SYNC = (1u << 0), /**< Synchronize data from driver */
+  FPGA_OBJECT_GLOB = (1u << 1), /**< Treat names as glob expressions */
+  FPGA_OBJECT_TEXT = (1u << 2), /**< Parse or convert numeric data as text */
+  FPGA_OBJECT_RECURSE_ONE = (1u << 3), /**< Create subobjects one level down from containers */
+  FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
 };
 
 #endif // __FPGA_TYPES_ENUM_H__

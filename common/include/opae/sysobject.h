@@ -47,7 +47,12 @@ extern "C" {
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
  * @param[out] object Pointer to memory to store the object in
- * @param[in] flags Control behavior of object creation
+ * @param[in] flags Control behavior of object identification and creation.
+ * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
+ * globbing expression.  FPGA_OBJECT_RECURSE_ONE indicates that subobjects be
+ * created for objects one level down from the object identified by name.
+ * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects
+ * below the current object identified by name.
  *
  * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameter is invalid. FPGA_NOT_SUPPORTED if this function is not supported
@@ -57,6 +62,29 @@ extern "C" {
 fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags);
 
+/**
+ * @brief Create an `fpga_object` data structure from a handle.
+ * An `fpga_object` is a handle to an FPGA resource which can be an attribute
+ * or register.  This object has read/write access..
+ *
+ * @param[in] handle Handle identifying a resource (accelerator or device)
+ * @param[in] name A key identifying an object belonging to a resource.
+ * @param[out] object Pointer to memory to store the object in
+ * @param[in] flags Control behavior of object identification and creation
+ * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
+ * globbing expression.  FPGA_OBJECT_RECURSE_ONE indicates that subobjects be
+ * created for objects one level down from the object identified by name.
+ * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects
+ * below the current object identified by name.
+ *
+ * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameter is invalid. FPGA_NOT_FOUND if an object cannot be found with the
+ * given key. FPGA_NOT_SUPPORTED if this function is not supported by the
+ * current implementation of this API.
+ *
+ */
+fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
+				fpga_object *object, int flags);
 
 /**
  * @brief Create an `fpga_obect` data structure from a parent object.
@@ -70,6 +98,11 @@ fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
  * @param[in] name A key identifying a sub-object of the parent container.
  * @param[out] objecta Pointer to memory to store the object in.
  * @param[in] flags Control behavior of object identification and creation.
+ * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
+ * globbing expression.  FPGA_OBJECT_RECURSE_ONE indicates that subobjects be
+ * created for objects one level down from the object identified by name.
+ * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects
+ * below the current object identified by name.
  *
  * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid - this includes a parent object that is not a
@@ -99,6 +132,8 @@ fpga_result fpgaDestroyObject(fpga_object *obj);
  * begin reading bytes from.
  * @param[in]len The length, in bytes, to read from the object.
  * @param[in]flags Flags that control how object is read
+ * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
+ * retrieving the data.
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
@@ -112,6 +147,9 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
  * @param[in] obj An fpga_object instance
  * @param[out] value Pointer to a 64-bit variable to store the value in
  * @param[in] flags Flags that control how the object is read
+ * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
+ * retrieving the data. If FPGA_OBJECT_TEXT is used, then the data will be read
+ * as an ASCII string and converted to a uint64_t.
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
@@ -124,6 +162,8 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
  * @param[in] obj An fpga_object instance.
  * @param[in] value The value to write to the object
  * @param[in] flags Flags that control how the object is read
+ * If FPGA_OBJECT_TEXT is used, then the value will be converted to an ASCII
+ * string before writing it to the object.
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
