@@ -35,7 +35,6 @@
 #include "ap6.h"
 #include "config_int.h"
 #include "log.h"
-#include "bitstream_int.h"
 #include "safe_string/safe_string.h"
 #include "bitstream-tools.h"
 /*
