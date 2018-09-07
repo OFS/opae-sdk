@@ -21,6 +21,8 @@ set(MUNIT_SRC mock/mock.c
               unit/munit-sysfs.cpp
               unit/munit-mmio-c.cpp
               unit/munit-reconf.cpp
+              unit/munit-version.cpp
+              unit/munit-open-close.cpp
               ${CMAKE_SOURCE_DIR}/libopae/src/bitstream.c
               ${CMAKE_SOURCE_DIR}/libopae/src/buffer.c
               ${CMAKE_SOURCE_DIR}/libopae/src/close.c
