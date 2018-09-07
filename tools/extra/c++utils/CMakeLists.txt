@@ -24,6 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+include_directories(${libjson-c_INCLUDE_DIRS})
+
 add_library(opae-c++-utils SHARED
                      utils.h
                      utils.cpp
