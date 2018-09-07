@@ -258,6 +258,7 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	size_t bytes_written = 0;
 	fpga_result res;
+	errno_t err;
 	SYSOBJ_ASSERT_NOT_NULL(obj);
 	SYSOBJ_ASSERT_NOT_NULL(_obj->handle);
 	res = handle_check_and_lock(_obj->handle);
@@ -276,7 +277,10 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	bytes_written = eintr_write(_obj->fd, _obj->buffer, _obj->size);
 	if (bytes_written != _obj->size) {
 		FPGA_ERR("Did not write 64-bit value");
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
-	return FPGA_OK;
+	if ((err = pthread_mutex_unlock(&((struct _fpga_handle*)_obj->handle)->lock))) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
+	}
+	return res;
 }
