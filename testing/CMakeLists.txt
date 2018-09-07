@@ -20,15 +20,12 @@ set(MUNIT_SRC mock/mock.c
               unit/munit-wsid_list.cpp
               unit/munit-sysfs.cpp
               unit/munit-mmio-c.cpp
-<<<<<<< HEAD
               unit/munit-umsg.cpp
-=======
               unit/munit-metadata-c.cpp
               unit/munit-reconf.cpp
               unit/munit-version.cpp
               unit/munit-open-close.cpp
               unit/usrclk_test.cpp
->>>>>>> jelonanx/new_ioctl
               ${CMAKE_SOURCE_DIR}/libopae/src/bitstream.c
               ${CMAKE_SOURCE_DIR}/libopae/src/buffer.c
               ${CMAKE_SOURCE_DIR}/libopae/src/close.c
