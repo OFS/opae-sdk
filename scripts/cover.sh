@@ -43,4 +43,3 @@ lcov -c -i -d . -o coverage.base
 
 ./bin/munit-opae-c --gtest_filter="enum*:buffer*:*properties*:sysfs*:mmio*:version*:openclose*"
 ./bin/munit-opae-c-events
-

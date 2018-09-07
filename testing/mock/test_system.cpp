@@ -55,6 +55,7 @@ mock_object::mock_object(const std::string &devpath,
   int mock_fme::ioctl(int request, va_list argp) {
     (void)request;
     (void)argp;
+    return 0;
 }
 
 int mock_port::ioctl(int request, va_list argp) {
