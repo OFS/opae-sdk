@@ -21,6 +21,7 @@ set(MUNIT_SRC mock/mock.c
               unit/munit-sysfs.cpp
               unit/munit-mmio-c.cpp
               unit/munit-mockerrinj-c.cpp
+              unit/munit-reconf.cpp
               unit/munit-version.cpp
               unit/munit-open-close.cpp
               ${CMAKE_SOURCE_DIR}/libopae/src/bitstream.c
@@ -36,7 +37,7 @@ set(MUNIT_SRC mock/mock.c
               ${CMAKE_SOURCE_DIR}/libopae/src/mmio.c
               ${CMAKE_SOURCE_DIR}/libopae/src/open.c
               ${CMAKE_SOURCE_DIR}/libopae/src/properties.c
-              #${CMAKE_SOURCE_DIR}/libopae/src/reconf.c
+              ${CMAKE_SOURCE_DIR}/libopae/src/reconf.c
               ${CMAKE_SOURCE_DIR}/libopae/src/reset.c
               ${CMAKE_SOURCE_DIR}/libopae/src/sysfs.c
               #${CMAKE_SOURCE_DIR}/libopae/src/sysobject.c
@@ -44,6 +45,7 @@ set(MUNIT_SRC mock/mock.c
               ${CMAKE_SOURCE_DIR}/libopae/src/umsg.c
               ${CMAKE_SOURCE_DIR}/libopae/src/version.c
               ${CMAKE_SOURCE_DIR}/libopae/src/wsid_list.c
+              ${CMAKE_SOURCE_DIR}/libopae/src/usrclk/user_clk_pgm_uclock.c
               )
 
 ############################################################################
