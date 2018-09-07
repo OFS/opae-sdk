@@ -23,17 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifdef __cplusplus
 
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#include <opae/enum.h>
-#include <opae/properties.h>
 #include <bitstream_int.h>
 #include <types_int.h>
 #include "gtest/gtest.h"
@@ -41,10 +31,10 @@ extern "C" {
 
 using namespace opae::testing;
 
-class metadata_c_p
+class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  metadata_c_p() : tmpsysfs("mocksys-XXXXXX"){}
+  metadata_c() : tmpsysfs("mocksys-XXXXXX"){}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -52,8 +42,6 @@ class metadata_c_p
     system_ = test_system::instance();
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
-
-
   }
 
   virtual void TearDown() override {
@@ -65,7 +53,6 @@ class metadata_c_p
   }
 
   std::string tmpsysfs;
-  std::array<fpga_token, 2> tokens;
   test_platform platform_;
   test_system *system_;
 };
@@ -77,7 +64,7 @@ class metadata_c_p
 * @details read_gbs_metadata returns BS metadata
 *          Then the return value is FPGA_OK
 */
-TEST_P(metadata_c_p, bs_metadata_01) {
+TEST_P(metadata_c, bs_metadata_01) {
 
   // Invalid input parameters
   fpga_result result = read_gbs_metadata(NULL, NULL);
@@ -178,7 +165,7 @@ TEST_P(metadata_c_p, bs_metadata_01) {
 * @details validate_bitstream_metadata validates BS metadata
 *          Retuns FPGA_OK if metadata is valid
 */
-TEST_P(metadata_c_p, bs_metadata_02) {
+TEST_P(metadata_c, bs_metadata_02) {
   fpga_result result;
 
   // Invalid input bitstream
@@ -194,4 +181,4 @@ TEST_P(metadata_c_p, bs_metadata_02) {
 }
 
 
-INSTANTIATE_TEST_CASE_P(metadata_c, metadata_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
