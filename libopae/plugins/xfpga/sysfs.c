@@ -865,6 +865,9 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 			err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
 				       namelist[n]->d_name);
 			if (err == EOK) {
+				if (flags & FPGA_OBJECT_RECURSE_ONE) {
+					flags &= ~FPGA_OBJECT_RECURSE_ONE;
+				}
 				if (!make_sysfs_object(
 					    sysfspath, namelist[n]->d_name,
 					    &subobj, flags, handle)) {
