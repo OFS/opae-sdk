@@ -175,8 +175,12 @@ TEST_P(metadata_c, bs_metadata_02) {
       \"magic-no1\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+  result = validate_bitstream_metadata(NULL, bitstream_guid_invalid);
+  EXPECT_NE(result, FPGA_OK);
+
   result = validate_bitstream_metadata((void*) 1234, bitstream_guid_invalid);
   EXPECT_NE(result, FPGA_OK);
+
 
 }
 
