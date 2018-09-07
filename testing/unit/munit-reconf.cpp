@@ -24,21 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
-
-extern "C" {
-#endif
-
 #include <opae/enum.h>
 #include <opae/properties.h>
 #include <opae/access.h>
-
 #include "reconf_int.h"
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "test_system.h" 
 #include "gtest/gtest.h"
 
@@ -61,7 +50,6 @@ class reconf_c
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    //ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
@@ -109,9 +97,7 @@ TEST_P(reconf_c, gbs_reconf_01) {
 
   usrlclock_low = 100;
   
-  EXPECT_EQ(FPGA_OK, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
-
-
+  EXPECT_NE(FPGA_OK, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
 
 }
 
