@@ -5,16 +5,12 @@ set -o xtrace
 function finish {
 	#kill $(cat $PWD/fpgad.pid)
 
-	find */**/munit-opae-c.dir -iname "*.gcda" -exec chmod 664 '{}' \;
-	find */**/munit-opae-c.dir -iname "*.gcno" -exec chmod 664 '{}' \;
-	find */**/munit-opae-c-events.dir -iname "*.gcda" -exec chmod 664 '{}' \;
-	find */**/munit-opae-c-events.dir -iname "*.gcno" -exec chmod 664 '{}' \;
+	find testing -iname "*.gcda" -exec chmod 664 '{}' \;
+	find testing -iname "*.gcno" -exec chmod 664 '{}' \;
 
 
-	find */**/munit-opae-c.dir -iname "*.gcda" | xargs -i cp {} coverage_files
-	find */**/munit-opae-c.dir -iname "*.gcno" | xargs -i cp {} coverage_files
-	find */**/munit-opae-c-events.dir -iname "*.gcda" | xargs -i cp {} coverage_files
-	find */**/munit-opae-c-events.dir -iname "*.gcno" | xargs -i cp {} coverage_files
+	find testing -iname "*.gcda" | xargs -i cp {} coverage_files
+	find testing -iname "*.gcno" | xargs -i cp {} coverage_files
 
 	lcov --directory coverage_files --capture --output-file coverage.info
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
@@ -36,10 +32,9 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make munit-opae-c munit-opae-c-events
+make test_c
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
-./bin/munit-opae-c --gtest_filter="enum*:buffer*:*properties*:sysfs*:mmio*:version*:openclose*:reconf*:usrclk*:metadata*"
-./bin/munit-opae-c-events
+make test
