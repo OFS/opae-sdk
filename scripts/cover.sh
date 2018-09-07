@@ -40,6 +40,6 @@ make munit-opae-c munit-opae-c-events
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
-./bin/munit-opae-c --gtest_filter="enum*:buffer*:*properties*:sysfs*:mmio*:metadata*"
-./bin/munit-opae-c-events
 
+./bin/munit-opae-c --gtest_filter="enum*:buffer*:*properties*:sysfs*:mmio*:version*:openclose*:reconf*:metadata*"
+./bin/munit-opae-c-events
