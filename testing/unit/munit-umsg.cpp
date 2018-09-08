@@ -50,7 +50,7 @@ extern "C" {
 
 using namespace opae::testing;
 
-int umsg_ioctl(mock_object * m, int request, va_list argp){
+int umsg_port_info(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
     static bool gEnableIRQ = false;
@@ -86,8 +86,37 @@ out_EINVAL:
 
 }
 
-int umsg_enable_ioctl(mock_object * m, int request, va_list argp){
-    return 0;
+int umsg_set_mode(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+
+    struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
+    if (!ucfg) {
+    	FPGA_MSG("ucfg is NULL");
+    	goto out_EINVAL;
+    }
+    if (ucfg->argsz != sizeof(*ucfg)) {
+    	FPGA_MSG("wrong structure size");
+    	goto out_EINVAL;
+    }
+    if (ucfg->flags != 0) {
+    	FPGA_MSG("unexpected flags %u", ucfg->flags);
+    	goto out_EINVAL;
+    }
+    /* TODO: check hint_bitmap */
+    if (ucfg->hint_bitmap >> 8) {
+    	FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
+    	goto out_EINVAL;
+    }
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
 }
 
 class umsg_c_p
@@ -103,12 +132,12 @@ class umsg_c_p
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
     ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-    system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_ioctl);
+    system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_port_info);
   }
 
   virtual void TearDown() override {
@@ -220,6 +249,7 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
   uint64_t Umsghit_Disble = 0;
 
   // Set umsg hint
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
   EXPECT_EQ(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
@@ -237,6 +267,7 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   uint64_t Umsghit_Disble = 0;
   int fddev = -1;
 
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
 
@@ -280,10 +311,13 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_06) {
   uint64_t* umsg_ptr = NULL;
+  fpga_result res;
 
   // Get umsg buffer
-  EXPECT_EQ(FPGA_OK, fpgaGetUmsgPtr(handle_, &umsg_ptr));
-  EXPECT_TRUE(umsg_ptr != NULL);
+  //system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
+  res = fpgaGetUmsgPtr(handle_, &umsg_ptr);
+  EXPECT_EQ(FPGA_OK, res);
+  EXPECT_TRUE(umsg_ptr != NULL) << "\t this is umsg:" << res;
   printf("umsg_ptr %p", umsg_ptr);
 }
 
