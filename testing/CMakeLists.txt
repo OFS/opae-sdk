@@ -125,6 +125,11 @@ add_mock_test(test_usrclk_c
     unit/test_usrclk_c.cpp
 )
 
+add_mock_test(test_reset_c
+    unit/test_reset_c.cpp
+)
+
+
 add_mock_test(test_events_c
     unit/test_events_c.cpp
     ${CMAKE_SOURCE_DIR}/libopae/src/event.c
