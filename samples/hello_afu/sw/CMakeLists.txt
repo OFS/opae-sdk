@@ -37,9 +37,9 @@ include_directories(${OPAE_INCLUDE_DIR}
 add_executable(hello_afu
   hello_afu.c)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
 else()
-  target_link_libraries(hello_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
 install(FILES hello_afu.c

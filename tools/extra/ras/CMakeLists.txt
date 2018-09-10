@@ -38,7 +38,7 @@ add_executable(ras ${SRC})
 
 set_install_rpath(ras)
 
-target_link_libraries(ras opae-c pthread uuid json-c ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(ras opae-c pthread uuid ${libjson-c_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS ras
         RUNTIME DESTINATION bin
