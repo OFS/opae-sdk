@@ -42,6 +42,7 @@
 #include "intel-fpga.h"
 #include "usrclk/user_clk_pgm_uclock.h"
 
+#include "reconf_int.h"
 // sysfs attributes
 #define PORT_SYSFS_ERRORS     "errors/errors"
 #define PORT_SYSFS_ERR_CLEAR  "errors/clear"
