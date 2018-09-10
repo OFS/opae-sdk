@@ -24,16 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/fpga.h>
-
-#ifdef __cplusplus
-
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #include <opae/access.h>
 #include <opae/umsg.h>
 #include "types_int.h"
@@ -176,6 +166,34 @@ TEST_P (umsg_c_p, test_umsg_drv_01) {
   EXPECT_GT(Umsg_num, 0);
 }
 
+TEST_P(umsg_c_p, get_num_umsg_ioctl_err) {
+  uint64_t num = 0;
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetNumUmsg(handle_, &num));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetNumUmsg(handle_, &num));
+
+  // register an ioctl handler that will return -1 and set errno to something
+  // else
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, fpgaGetNumUmsg(handle_, &num));
+}
+
+TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
+  uint64_t value = 0;
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaSetUmsgAttributes(handle_, value));
+
+
+  // register an ioctl handler that will return -1 and set errno to something
+  // else
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaSetUmsgAttributes(handle_, value));
+}
 	////////////////////////////////////////
 	// Disable this test because it modifies
 	// handle to gain coverage.
