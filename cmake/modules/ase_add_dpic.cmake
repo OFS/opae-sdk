@@ -46,7 +46,6 @@ set(ASE_SERVER_SRC ${ASE_SHARE_DIR}/sw)
 
 # ASE SW file setup
 set(ASESW_FILE_LIST
-  ${ASE_SERVER_SRC}/app_backend.c
   ${ASE_SERVER_SRC}/tstamp_ops.c
   ${ASE_SERVER_SRC}/ase_ops.c
   ${ASE_SERVER_SRC}/ase_strings.c

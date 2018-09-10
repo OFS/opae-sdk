@@ -591,7 +591,7 @@ bool remove_existing_lock_file(const char *filename)
 					lock);
 			fclose(fp_app_lockfile);
 			// Delete lock file
-			delete_lock_file();
+			delete_lock_file(filename);
 			return true;
 		} else if (errno == EPERM) {
 			ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
@@ -611,9 +611,9 @@ bool remove_existing_lock_file(const char *filename)
 /*
  * Delete app_lock file for non-existent processes.
  */
-void delete_lock_file(void)
+void delete_lock_file(const char *filename)
 {
-	if (unlink(app_ready_lockpath) == 0)
+	if (unlink(filename) == 0)
 		ASE_INFO("Deleted the existing app_lock.pid with Stale pid \n");
 	else {
 		ASE_ERR("Application Lock file could not be removed, please remove manually from $ASE_WORKDIR/.app_lock.pid \n");

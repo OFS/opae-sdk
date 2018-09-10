@@ -539,9 +539,12 @@ TEST(LibopaecAseOps, ase_app_01) {
 	fprintf(file, "%d\n", getpid() + 1);
 	fclose(file);
 
-	//delete_lock_file();
 	remove_existing_lock_file("app_test.txt");
 
-	backtrace_handler(SIGSEGV);
+	file = fopen("app_test2.txt", "w");
+	fprintf(file, "%s\n", "abab");
+	fclose(file);
+
+	remove_existing_lock_file("app_test2.txt");
 }
 
