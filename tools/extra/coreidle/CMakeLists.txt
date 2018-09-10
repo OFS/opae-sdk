@@ -26,6 +26,7 @@
 
 
 include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/libopae/src )
 
 set(SRC main.c
