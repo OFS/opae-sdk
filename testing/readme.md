@@ -18,7 +18,7 @@ allow for calling these functions without calling the kernel driver through
 these interfaces. At a high level, system calls related to `ioctl` and `sysfs`
 files (eg. `ioctl`, `open`) are implemented in a C file called `mock.c` which
 in turn calls into a C++ singleton class called `test_system` using its C
-interface. This C++ singleton can also be used the any google test code to call
+interface. This C++ singleton can also be used by any google test code to call
 any necessary setup and teardown routines. When calls such as `open` are called
 and handled by `test_system`, paths used by the OPAE kernel driver
 (`/dev/intel-fpga-port.0` or `/sys/class/fpga/intel-fpga-port.0`) can be
@@ -35,7 +35,7 @@ called from either C code (by using its C interface) or by using its C++
 `instance()` function. This allows it to be called from both google test tests
 as well as from C functions that are being mocked. Tests that depend on any
 sysfs paths handled by the OPAE kernel driver should be implemented as part of
-a test fixture. This fixture should call `test_system::initialzie` in its setup
+a test fixture. This fixture should call `test_system::initialize` in its setup
 and should also call `test_system::finalize` in its teardown. If a unit test
 does not depend on any sysfs paths used by the OPAE kernel driver, then there
 is no need to call these two functions and those functions should be
