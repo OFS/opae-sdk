@@ -126,6 +126,9 @@ class mmio_c_p
   const uint64_t MMIO_OUT_REGION_ADDRESS = 1024 * 1024 * 256;;
 };
 
+
+
+
 /**
 * @test       mmio_c_p
 * @brief      Tests: test_pos_map_mmio
@@ -181,6 +184,45 @@ TEST_P (mmio_c_p, test_neg_map_mmio) {
   EXPECT_NE(FPGA_OK, fpgaUnmapMMIO(handle_, 0));
 #endif
 }
+
+
+/**
+* @test       mmio_c_p
+* @brief      Tests: test_port_region_err
+* @details    When the parameters are invalid and the drivers are loaded:
+*             FPGA_NO_ACCESS is return when calling fpgaMapMMIO
+*/
+TEST_P (mmio_c_p, test_port_map_region_err) {
+  uint64_t * mmio_ptr = NULL;
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_NO_ACCESS, fpgaMapMMIO(handle_,-1,&mmio_ptr));
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_NO_ACCESS, fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_NO_ACCESS, fpgaMapMMIO(handle_,-1,&mmio_ptr));
+ 
+}
+
+
+TEST_P (mmio_c_p, test_port_unmap_region_err) {
+  uint64_t * mmio_ptr = NULL;
+  EXPECT_NE(FPGA_OK, fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(handle_, 0));
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(handle_, 0));
+ 
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(handle_, 0)); 
+}
+
+
+
 
 /**
 * @test       mmio_c_p
