@@ -13,6 +13,7 @@ endif()
 
 add_subdirectory(mock)
 
+
 add_library(opae-c-static STATIC
               ${CMAKE_SOURCE_DIR}/libopae/src/bitstream.c
               ${CMAKE_SOURCE_DIR}/libopae/src/buffer.c
@@ -123,6 +124,10 @@ add_mock_test(test_open_close_c
 
 add_mock_test(test_usrclk_c
     unit/test_usrclk_c.cpp
+)
+
+add_mock_test(test_umsg_c
+    unit/test_umsg_c.cpp
 )
 
 add_mock_test(test_events_c

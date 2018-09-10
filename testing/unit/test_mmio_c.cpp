@@ -333,8 +333,4 @@ TEST_P (mmio_c_p, test_neg_read_write_64) {
 }
 
 
-
-
-
-
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::keys(true)));
