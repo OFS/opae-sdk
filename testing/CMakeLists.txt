@@ -126,6 +126,10 @@ add_mock_test(test_usrclk_c
     unit/test_usrclk_c.cpp
 )
 
+add_mock_test(test_reset_c
+    unit/test_reset_c.cpp
+)
+
 add_mock_test(test_umsg_c
     unit/test_umsg_c.cpp
 )
