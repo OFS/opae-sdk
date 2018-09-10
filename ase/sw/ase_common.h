@@ -547,7 +547,7 @@ extern "C" {
 	void mqueue_create(char *);
 	void mqueue_destroy(char *);
 	bool remove_existing_lock_file(const char *);
-	void delete_lock_file(void);
+	void delete_lock_file(const char *);
 #ifdef __cplusplus
 }
 #endif				// __cplusplus
