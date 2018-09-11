@@ -45,14 +45,17 @@ set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE})
 set(OPAE_SHARE_DIR     ${OPAE_SDK_SOURCE} PARENT_SCOPE) # do not remove, they are not the same
 include(ase_variables_config)
 
+# This is used in scripts to find the relative installed path to ASE files
+set(ASE_INST_SHARE_DIR share/opae/ase)
+
 ############################################################################
 ## Install some directories ################################################
 ############################################################################
 
 # Install some directories
-install(DIRECTORY rtl          DESTINATION share/opae/ase COMPONENT asertl)
-install(DIRECTORY sw           DESTINATION share/opae/ase COMPONENT asesw)
-install(DIRECTORY scripts      DESTINATION share/opae/ase USE_SOURCE_PERMISSIONS COMPONENT asescripts)
+install(DIRECTORY rtl          DESTINATION ${ASE_INST_SHARE_DIR} COMPONENT asertl)
+install(DIRECTORY sw           DESTINATION ${ASE_INST_SHARE_DIR} COMPONENT asesw)
+install(DIRECTORY scripts      DESTINATION ${ASE_INST_SHARE_DIR} USE_SOURCE_PERMISSIONS COMPONENT asescripts)
 
 ############################################################################
 ## Add sub-project (ASE client, ASE server Verilog code)       #############
@@ -75,7 +78,7 @@ set(EXTRA_ASE_FILES
   ase_regress.sh)
 
 install(FILES ${EXTRA_ASE_FILES}
-  DESTINATION share/opae/ase
+  DESTINATION ${ASE_INST_SHARE_DIR}
   COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
