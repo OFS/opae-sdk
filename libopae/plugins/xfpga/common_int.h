@@ -26,8 +26,9 @@
 
 #ifndef __FPGA_COMMON_INT_H__
 #define __FPGA_COMMON_INT_H__
-
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>   /* bool type */

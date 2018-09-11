@@ -25,21 +25,15 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
-
-extern "C" {
-#endif
-
+#include <sys/types.h>
 #include <opae/enum.h>
 #include <opae/properties.h>
 #include "sysfs_int.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include "types_int.h"
+#include "xfpga.h"
 
-#ifdef __cplusplus
-}
-#endif
 
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -57,17 +51,17 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());

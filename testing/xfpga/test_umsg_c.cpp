@@ -23,10 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/fpga.h>
-#include <opae/access.h>
-#include <opae/umsg.h>
 #include "types_int.h"
+#include "xfpga.h"
 #include "intel-fpga.h"
 #include <cstdarg>
 #include <linux/ioctl.h>
@@ -121,18 +119,18 @@ class umsg_c_p
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_port_info);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -160,9 +158,9 @@ class umsg_c_p
 TEST_P (umsg_c_p, test_umsg_drv_01) {
   uint64_t Umsg_num = 0;
 
-  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(handle_, NULL));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
   // get umsg number
-  EXPECT_EQ(FPGA_OK, fpgaGetNumUmsg(handle_, &Umsg_num));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
   EXPECT_GT(Umsg_num, 0);
 }
 
@@ -170,29 +168,29 @@ TEST_P(umsg_c_p, get_num_umsg_ioctl_err) {
   uint64_t num = 0;
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetNumUmsg(handle_, &num));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetNumUmsg(handle_, &num));
 
   // register an ioctl handler that will return -1 and set errno to EFAULT
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EFAULT>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetNumUmsg(handle_, &num));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetNumUmsg(handle_, &num));
 
   // register an ioctl handler that will return -1 and set errno to something
   // else
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_EXCEPTION, fpgaGetNumUmsg(handle_, &num));
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetNumUmsg(handle_, &num));
 }
 
 TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
   uint64_t value = 0;
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EFAULT>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaSetUmsgAttributes(handle_, value));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
 
 
   // register an ioctl handler that will return -1 and set errno to something
   // else
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaSetUmsgAttributes(handle_, value));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
 }
 	////////////////////////////////////////
 	// Disable this test because it modifies
@@ -211,13 +209,13 @@ TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
 //  int fddev = -1;
 //
 //  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(NULL, &Umsg_num));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
 //
 //
 //  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
 //  _handle->magic = 0x123;
 //
-//  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(_handle, &Umsg_num));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
 //
 //  _handle->magic = FPGA_HANDLE_MAGIC;
 //}
@@ -239,17 +237,17 @@ TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
 //  int fddev = -1;
 //
 //  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(NULL, &Umsg_num));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
 //
 //  // Invlaid Input Paramter
-//  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(handle_, NULL));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
 //
 //  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
 //
 //  fddev = _handle->fddev;
 //  _handle->fddev = -1;
 //
-//  EXPECT_NE(FPGA_OK, fpgaGetNumUmsg(handle_, &Umsg_num));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
 //
 //  _handle->fddev = fddev;
 //
@@ -268,8 +266,8 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
 
   // Set umsg hint
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
-  EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
-  EXPECT_EQ(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
 
 
@@ -287,7 +285,7 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
 
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   // NULL Driver hnadle
-  EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
 
 	////////////////////////////////////////
 	// Disable the following lines because it 
@@ -297,34 +295,34 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   //_handle->magic = 0x123;
 
-  //EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  //EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
   //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, fpgaClose(handle_));
+  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // // Invalid Driver handle
-  // ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   // _handle = (struct _fpga_handle*)handle_;
 
   // fddev = _handle->fddev;
   // _handle->fddev = -1;
 
-  // EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  // EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
   // _handle->fddev = fddev;
-  // EXPECT_EQ(FPGA_OK, fpgaClose(handle_));
+  // EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // // Invlaid Input Paramter
-  // ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
+  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
 
-  EXPECT_NE(FPGA_OK, fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
 }
 
 /**
  * @test       Umsg_drv_06
  *
  * @brief      When the parameters are valid and the drivers are loaded,
- *             fpgaGetUmsgPtr returns umsg address.
+ *             xfpga_fpgaGetUmsgPtr returns umsg address.
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_06) {
@@ -333,7 +331,7 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
 
   // Get umsg buffer
   //system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
-  res = fpgaGetUmsgPtr(handle_, &umsg_ptr);
+  res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
   EXPECT_TRUE(umsg_ptr != NULL) << "\t this is umsg:" << res;
   printf("umsg_ptr %p", umsg_ptr);
@@ -343,7 +341,7 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
  * @test       Umsg_drv_07
  *
  * @brief      When the parameters are invalid and the drivers are
- *             loaded, fpgaGetUmsgPtr returns uerror.
+ *             loaded, xfpga_fpgaGetUmsgPtr returns uerror.
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_07) {
@@ -351,7 +349,7 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
   int fddev = -1;
 
   // NULL Driver hnadle
-  EXPECT_NE(FPGA_OK, fpgaGetUmsgPtr(NULL, &umsg_ptr));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));
 
 	////////////////////////////////////////
 	// Disable the following lines because it 
@@ -359,43 +357,43 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
 	////////////////////////////////////////
 
   //// Invalid Magic Number
-  //ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &h, 0));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h, 0));
 
   //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   //_handle->magic = 0x123;
 
-  //EXPECT_NE(FPGA_OK, fpgaGetUmsgPtr(handle_, &umsg_ptr));
+  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
   //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, fpgaClose(handle_));
+  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   //// Invalid Driver handle
-  //ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   //_handle = (struct _fpga_handle*)handle_;
 
   //fddev = _handle->fddev;
   //_handle->fddev = -1;
 
-  //EXPECT_NE(FPGA_OK, fpgaGetUmsgPtr(handle_, &umsg_ptr));
+  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
   //_handle->fddev = fddev;
-  //EXPECT_EQ(FPGA_OK, fpgaClose(h));
+  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h));
 
   //// Invalid Input Parameter
-  //ASSERT_EQ(FPGA_OK, fpgaOpen(tokend_[0], &handle_, 0));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokend_[0], &handle_, 0));
 
-  EXPECT_NE(FPGA_OK, fpgaGetUmsgPtr(handle_, NULL));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, NULL));
 }
 
 /**
  * @test       Umsg_08
  *
- * @brief      When the handle parameter to fpgaTriggerUmsg<br>
+ * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
  *             is NULL, the function returns FPGA_INVALID_PARAM.<br>
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_08) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaTriggerUmsg(NULL, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(NULL, 0));
 }
 
 
@@ -407,7 +405,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
 /**
  * @test       Umsg_08
  *
- * @brief      When the handle parameter to fpgaTriggerUmsg<br>
+ * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
  *             has an invalid fddev,<br>
  *             Then the function returns FPGA_INVALID_PARAM.<br>
  *
@@ -418,7 +416,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
 //  int save_fddev = _h->fddev;
 //
 //  _h->fddev = -1;
-//  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaTriggerUmsg(h, 0));
+//  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(h, 0));
 //
 //  _h->fddev = save_fddev;
 //}

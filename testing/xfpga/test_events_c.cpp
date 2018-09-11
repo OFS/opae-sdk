@@ -32,7 +32,7 @@ extern "C" {
 #include "fpgad/config_int.h"
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
-
+#include "xfpga.h"
 #ifdef __cplusplus
 }
 #endif
@@ -62,13 +62,13 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-    ASSERT_EQ(fpgaCreateEventHandle(&eh_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
     config_ = {
         .verbosity = 0,
         .poll_interval_usec = 100 * 1000,
@@ -89,9 +89,9 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config_.running = false;
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -116,15 +116,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
 TEST_P(events_p, register_event) {
   fpga_result res;
-  ASSERT_EQ(res = fpgaRegisterEvent(handle_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = fpgaUnregisterEvent(handle_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 
-  ASSERT_EQ(res = fpgaRegisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
             FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = fpgaUnregisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_),
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_),
             FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 }

@@ -24,43 +24,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <opae/fpga.h>
+#include "gtest/gtest.h"
+#include "xfpga.h"
+#include "test_system.h"
 #ifdef __cplusplus
-
 extern "C" {
 #endif
 
-#include <opae/fpga.h>
 #include "config_int.h"
 
 #ifdef __cplusplus
 }
 #endif
-#include "gtest/gtest.h"
-#include "test_system.h"
 
 using namespace opae::testing;
 /**
  * @test       version_01
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECVersion using a NULL pointer as the return buffer,
+ *             xfpga_fpgaGetOPAECVersion using a NULL pointer as the return buffer,
  *             the function returns FPGA_INVALID_PARAM.
  */
 TEST(version_c, version_01) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECVersion(NULL));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOPAECVersion(NULL));
 }
 
 /**
  * @test       version_02
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECVersion, the returned values match the constants
+ *             xfpga_fpgaGetOPAECVersion, the returned values match the constants
  *             defined in config_int.h (and the function returns FPGA_OK)
  */
 TEST(version_c, version_02) {
   fpga_version version = { 0xFF, 0xFF, 0xFFFF };
   
-  EXPECT_EQ(FPGA_OK, fpgaGetOPAECVersion(&version));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECVersion(&version));
   EXPECT_EQ(INTEL_FPGA_API_VER_MAJOR, version.major);
   EXPECT_EQ(INTEL_FPGA_API_VER_MINOR, version.minor);
   EXPECT_EQ(INTEL_FPGA_API_VER_REV, version.patch);
@@ -70,31 +70,31 @@ TEST(version_c, version_02) {
  * @test       version_03
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECVersionString using a NULL pointer as the return
+ *             xfpga_fpgaGetOPAECVersionString using a NULL pointer as the return
  *             buffer, the function returns FPGA_INVALID_PARAM.
  */
 TEST(version_c, version_03) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECVersionString(NULL, 42));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOPAECVersionString(NULL, 42));
 }
 
 /**
  * @test       version_04
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECVersionString using a size shorter than the minimum
+ *             xfpga_fpgaGetOPAECVersionString using a size shorter than the minimum
  *             possible (which is 6) the function returns FPGA_EXCEPTION.
  */
 TEST(version_c, version_04) {
   char str[80];
 
-  EXPECT_EQ(FPGA_EXCEPTION, fpgaGetOPAECVersionString(str, 5));
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetOPAECVersionString(str, 5));
 }
 
 /**
  * @test       version_05
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECVersionString, the returned string represents
+ *             xfpga_fpgaGetOPAECVersionString, the returned string represents
  *             a string comprised of the constants defined in config_int.h
  *             (and the function returns FPGA_OK)
  */
@@ -108,7 +108,7 @@ TEST(version_c, version_05) {
   		INTEL_FPGA_API_VER_REV
   	);
   
-  EXPECT_EQ(FPGA_OK, fpgaGetOPAECVersionString(have, 80));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECVersionString(have, 80));
   EXPECT_STREQ(want, have);
 }
 
@@ -116,31 +116,31 @@ TEST(version_c, version_05) {
  * @test       version_06
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECBuildString using a NULL pointer as the return
+ *             xfpga_fpgaGetOPAECBuildString using a NULL pointer as the return
  *             buffer, the function returns FPGA_INVALID_PARAM.
  */
 TEST(version_c, version_06) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOPAECBuildString(NULL, 42));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOPAECBuildString(NULL, 42));
 }
 
 /**
  * @test       version_07
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECBuildString using a size of 0
+ *             xfpga_fpgaGetOPAECBuildString using a size of 0
  *             the function returns FPGA_EXCEPTION.
  */
 TEST(version_c, version_07) {
   char str[80];
  
-  EXPECT_EQ(FPGA_EXCEPTION, fpgaGetOPAECBuildString(str, 0));
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetOPAECBuildString(str, 0));
 }
 
 /**
  * @test       version_08
  *
  * @brief      When I retrieve fpga_version information using
- *             fpgaGetOPAECBuildString, the returned string equals
+ *             xfpga_fpgaGetOPAECBuildString, the returned string equals
  *             the constant defined in config_int.h (and the
  *             function returns FPGA_OK)
  */
@@ -148,7 +148,7 @@ TEST(version_c, version_08) {
   char want[] = INTEL_FPGA_API_HASH;
   char have[80];
   
-  EXPECT_EQ(FPGA_OK, fpgaGetOPAECBuildString(have, 80));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECBuildString(have, 80));
   EXPECT_STREQ(want, have);
 }
 

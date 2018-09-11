@@ -24,19 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
-
-extern "C" {
-#endif
-
-#include <opae/access.h>
-#include <opae/access.h>
 #include "types_int.h"
-
-#ifdef __cplusplus
-}
-#endif
-
+#include "xfpga.h"
 #include "intel-fpga.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -56,17 +45,17 @@ class reset_c_p
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -87,11 +76,11 @@ class reset_c_p
  * @test       reset_c
  * @brief      test_port_drv_reset
  * @details    When the parameters are invalid and the drivers are loaded,
- *             fpgaReset returns FPGA_INVALID_PARAM.
+ *             xfpga_fpgaReset returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(reset_c_p, test_port_drv_reset) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
 }
 
 
@@ -100,12 +89,12 @@ TEST_P(reset_c_p, test_port_drv_reset) {
  * @test       reset_c
  * @brief      test_port_drv_reset_01
  * @details    When the parameters are valid and the drivers are loaded,
- *             fpgaReset Resets fpga slot.
+ *             xfpga_fpgaReset Resets fpga slot.
  *
  */
 TEST_P(reset_c_p, test_port_drv_reset_01) {
   //system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl(-1,EINVAL));
-  EXPECT_EQ(FPGA_OK, fpgaReset(handle_));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 }
 
 
@@ -118,19 +107,19 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  * @test       reset_c
  * @brief      test_port_drv_reset_02
  * @details    When the parameters are invalid and the drivers are
- *             loaded, fpgaReset return error.
+ *             loaded, xfpga_fpgaReset return error.
  *
  */
 //TEST_P(reset_c_p, test_port_drv_reset_02) {
 //  int fddev = -1;
 //
 //  // Reset slot
-//  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReset(NULL));
+//  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
 //  
 //  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
 //  _handle->magic = 0x123;
 //
-//  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
 //
 //  _handle->magic = FPGA_HANDLE_MAGIC;
 //}
@@ -144,7 +133,7 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  * @test       reset_c
  * @brief      test_port_drv_reset_03
  * @details    When the fddev is invalid and the drivers are
- *             loaded, fpgaReset return error.
+ *             loaded, xfpga_fpgaReset return error.
  *
  */
 //TEST_P(reset_c_p, test_port_drv_reset_03) {
@@ -155,9 +144,9 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
 //  fddev = _handle->fddev;
 //  _handle->fddev = -1;
 //
-//  EXPECT_NE(FPGA_OK, fpgaReset(handle_));
+//  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
 //#else
-//  EXPECT_EQ(FPGA_OK, fpgaReset(handle_));
+//  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 //#endif
 //  _handle->fddev = fddev;
 //}

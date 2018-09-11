@@ -28,8 +28,9 @@
 #include <opae/properties.h>
 #include <opae/access.h>
 #include "reconf_int.h"
-#include "test_system.h" 
+#include "test_system.h"
 #include "gtest/gtest.h"
+#include "xfpga.h"
 
 using namespace opae::testing;
 
@@ -45,16 +46,16 @@ class reconf_c
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -87,7 +88,7 @@ TEST_P(reconf_c, gbs_reconf_01) {
   //EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(h, usrlclock_high, usrlclock_low));
   
   // Open port device
-  ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   
   EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
   
@@ -115,7 +116,7 @@ TEST_P(reconf_c, gbs_reconf_02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, set_fpga_pwr_threshold(NULL, gbs_power));
   
   // Open  port device
-  ASSERT_EQ(FPGA_OK, fpgaOpen(tokens_[0], &handle_, 0));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   
   // Zero GBS power
   gbs_power = 0;
@@ -145,7 +146,7 @@ TEST_P(reconf_c, gbs_reconf_slots) {
   uint8_t* bsbuffer = NULL;
   size_t bitstream_len = 0;
   uint32_t slot = 0;
-  result = fpgaReconfigureSlot(handle_, slot, bsbuffer, bitstream_len, 0);
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bsbuffer, bitstream_len, 0);
   EXPECT_NE(FPGA_OK,result);
 }
 

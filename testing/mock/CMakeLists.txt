@@ -9,4 +9,5 @@ add_library(test_system SHARED EXCLUDE_FROM_ALL
 target_link_libraries(test_system dl)
 target_include_directories(test_system PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/src>)
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae>
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libopae/plugins/xfpga>)
