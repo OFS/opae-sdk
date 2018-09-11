@@ -2,7 +2,7 @@
 
 pushd $(dirname $0)
 
-FILES=$(find ../libopaecxx/src ../libopaecxx/samples \( -iname "*.cpp" -or -iname "*.h" \))
+FILES=$(find ../libopaecxx/src ../libopaecxx/samples ../common/include/opae/cxx/core \( -iname "*.cpp" -or -iname "*.h" \))
 clang-format-3.9 -i -style=Google $FILES
 
 if [ "git diff" != NULL ]; then
