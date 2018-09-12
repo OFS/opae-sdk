@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#include "config_int.h"
+#include "config.h"
 
 #ifdef __cplusplus
 }
