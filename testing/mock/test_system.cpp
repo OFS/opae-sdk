@@ -35,6 +35,18 @@
 #include "c_test_system.h"
 #include "test_utils.h"
 
+// hijack malloc
+static bool _invalidate_malloc = false;
+void *malloc(size_t size)
+{
+  if (_invalidate_malloc) {
+    _invalidate_malloc = false;
+    return nullptr;
+  }
+  return __libc_malloc(size);
+}
+
+
 namespace opae {
 namespace testing {
 
@@ -298,6 +310,10 @@ int test_system::lstat(int ver, const char *path, struct stat *buf) {
   return lstat_(ver, syspath.c_str(), buf);
 }
 
+void test_system::invalidate_malloc() {
+  _invalidate_malloc = true;
+}
+
 }  // end of namespace testing
 }  // end of namespace opae
 
@@ -334,3 +350,4 @@ int opae_test_xstat(int ver, const char *path, struct stat *buf) {
 int opae_test_lstat(int ver, const char *path, struct stat *buf) {
   return opae::testing::test_system::instance()->lstat(ver, path, buf);
 }
+

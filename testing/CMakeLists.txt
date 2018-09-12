@@ -102,10 +102,14 @@ include_directories(
     {CMAKE_CURRENT_SOURCE_DIR}/mock
     )
 
-
 add_mock_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
 )
+
+add_mock_test(test_xfpga_token_list_c xfpga-static
+    xfpga/test_token_list_c.cpp
+)
+
 
 add_mock_test(test_xfpga_properties_c xfpga-static
     xfpga/test_properties_c.cpp
