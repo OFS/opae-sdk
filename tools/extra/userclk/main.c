@@ -40,14 +40,14 @@
 
 #include "usrclk/user_clk_pgm_uclock.h"
 
-#define GETOPT_STRING ":hB:D:F:S:P:H:L"
+#define GETOPT_STRING ":hB:D:F:S:P:H:L:"
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
 		{"bus",                 required_argument, NULL, 'B'},
 		{"device",              required_argument, NULL, 'D'},
-		{"functionr",           required_argument, NULL, 'F'},
-		{"socket-id",       required_argument, NULL, 'S'},
+		{"function",            required_argument, NULL, 'F'},
+		{"socket-id",           required_argument, NULL, 'S'},
 		{"port",                required_argument, NULL, 'P'},
 		{"freq-high",           required_argument, NULL, 'H'},
 		{"freq-low",            required_argument, NULL, 'L'},
@@ -67,7 +67,7 @@ struct  UserClkCommandLine
 
 };
 
-struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, 0, -1,-1};
+struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, 0, -1, -1};
 
 // User clock Command line input help
 void UserClkAppShowHelp()
@@ -77,7 +77,7 @@ void UserClkAppShowHelp()
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR -S=<SOCKET NUMBER>\n");
+	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR  -S=<SOCKET NUMBER>\n");
 	printf("<Port>                --port                       OR  -P=<Port id> \n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high> \n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low> \n");
@@ -114,6 +114,7 @@ int main( int argc, char** argv )
 	uint64_t userclk_high              = 0;
 	uint64_t userclk_low               = 0;
 	fpga_token fme_token               = NULL;
+	int high, low;
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -143,22 +144,22 @@ int main( int argc, char** argv )
 	result = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
-	if (userclkCmdLine.bus >0){
+	if (-1 != userclkCmdLine.bus) {
 		result = fpgaPropertiesSetBus(filter, userclkCmdLine.bus);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
 	}
 
-	if (userclkCmdLine.device >0) {
+	if (-1 != userclkCmdLine.device) {
 		result = fpgaPropertiesSetDevice(filter, userclkCmdLine.device);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (userclkCmdLine.function >0){
+	if (-1 != userclkCmdLine.function){
 		result = fpgaPropertiesSetFunction(filter, userclkCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (userclkCmdLine.socket >0){
+	if (-1 != userclkCmdLine.socket){
 		result = fpgaPropertiesSetSocketID(filter, userclkCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
@@ -187,10 +188,20 @@ int main( int argc, char** argv )
 		goto out_destroy_prop;
 	}
 
-	if (userclkCmdLine.freq_high > 0 ) {
+	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0 ) {
+		high = userclkCmdLine.freq_high;
+		low = userclkCmdLine.freq_low;
+		if (low <= 0) {
+			low = userclkCmdLine.freq_high / 2;
+		} else if (high <= 0) {
+			high = userclkCmdLine.freq_low * 2;
+		} else if ((abs(high - (2 * low))) > 1) {
+			FPGA_ERR("High freq must be ~ (2 * Low freq)");
+			return FPGA_INVALID_PARAM;
+		}
 
 		// set user clock
-		result = set_userclock(sysfs_path, userclkCmdLine.freq_high, userclkCmdLine.freq_high);
+		result = set_userclock(sysfs_path, high, low);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to set user clock ");
 			goto out_destroy_prop;
@@ -202,17 +213,12 @@ int main( int argc, char** argv )
 			FPGA_ERR("Failed to get user clock ");
 			goto out_destroy_prop;
 		}
-   
-   
-   FPGA_DBG("\nApproximate frequency:\n"
+	}
+
+	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
-
-
-	}
-
-	printf("Done set and get for user clock values\n");
 
 	/* Destroy properties object */
 out_destroy_prop:

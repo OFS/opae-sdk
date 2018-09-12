@@ -114,15 +114,27 @@ endfunction()
 # Optional third parameter is passed as arguments to testrunner
 # Pass them in list form, e.g.: "-k;1" for -k 1
 function(set_target_for_coverage_local target_name)
-
-  cmake_parse_arguments(set_target_for_coverage_local "" "TESTRUNNER" "TESTRUNNER_ARGS;COVERAGE_EXTRA_COMPONENTS" ${ARGN})
+  if(BUILD_ASE_INTR)
+    cmake_parse_arguments(set_target_for_coverage_local "" "TESTRUNNER" "TESTRUNNER_ARGS;COVERAGE_EXTRA_COMPONENTS;COVERAGE_EXTRA_COMPONENTS2" ${ARGN})
+  else()
+    cmake_parse_arguments(set_target_for_coverage_local "" "TESTRUNNER" "TESTRUNNER_ARGS;COVERAGE_EXTRA_COMPONENTS" ${ARGN})
+  endif()
   set(testrunner ${set_target_for_coverage_local_TESTRUNNER})
   set(COVERAGE_EXTRA 0)
   set(COVERAGE_EXTRA_COMPONENTS "")
   foreach(comp_i ${set_target_for_coverage_local_COVERAGE_EXTRA_COMPONENTS})
-    set(COVERAGE_EXTRA_COMPONENTS "${COVERAGE_EXTRA_COMPONENTS} ${comp_i}")
-    set(COVERAGE_EXTRA 1)
+	set(COVERAGE_EXTRA_COMPONENTS "${COVERAGE_EXTRA_COMPONENTS} ${comp_i}")
+	set(COVERAGE_EXTRA 1)
   endforeach()
+
+  set(COVERAGE_EXTRA2 0)
+  set(COVERAGE_EXTRA_COMPONENTS2 "")
+  if(BUILD_ASE_INTR)
+    foreach(comp_i ${set_target_for_coverage_local_COVERAGE_EXTRA_COMPONENTS2})
+	  set(COVERAGE_EXTRA_COMPONENTS2 "${COVERAGE_EXTRA_COMPONENTS2} ${comp_i}")
+	  set(COVERAGE_EXTRA2 1)
+    endforeach()
+  endif()
 
   set(TESTRUNNER_ARGS "")
   foreach(arg_i ${set_target_for_coverage_local_TESTRUNNER_ARGS})
@@ -149,27 +161,53 @@ function(set_target_for_coverage_local target_name)
 
   # Setup target
   set(name "coverage_${target_name}")
-  add_custom_target(${name}
+  if(NOT BUILD_ASE_TESTS)
+		add_custom_target(${name} 
 
-    # Cleanup lcov
-    COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+		COMMAND ${LCOV_EXECUTABLE} --directory . --zerocounters
+		# Wrap test on script, so coverage files generate even if tests return 1
+		# CMake will stop if this step returns 1
+		COMMAND chmod 755 ${coverage_runtest_script}
+		COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
 
-    # Wrap test on script, so coverage files generate even if tests return 1
-    # CMake will stop if this step returns 1
-    COMMAND chmod 755 ${coverage_runtest_script}
-    COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}
+		# Capturing lcov counters and generating report
+		COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
 
-    # Capturing lcov counters and generating report
-    COMMAND ${LCOV_EXECUTABLE} -t ${target_name} -o ${coverage_info} -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+		# Clean coverage file
+		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+		COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
 
-    # Clean coverage file
-    COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
-    COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
-    COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+		# Add dependencies
+		DEPENDS ${target_name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run coverage tests.")
+  else()
+ 		add_custom_target(${name} 
 
-    # Add dependencies
-    DEPENDS ${target_name}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Run coverage tests.")
+		# Wrap test on script, so coverage files generate even if tests return 1
+		# CMake will stop if this step returns 1
+		COMMAND chmod 755 ${coverage_runtest_script}
+		COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}	
+
+		# Capturing lcov counters from ASE client, NLB test and interrupt test
+		COMMAND ${LCOV_EXECUTABLE} -o ase_client.info -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+		COMMAND ${LCOV_EXECUTABLE} -o ase_nlb.info 	-c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}/nlb
+		COMMAND ${LCOV_EXECUTABLE} -o ase_intr.info  -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}/intr
+
+		# Capturing lcov counters and generating report
+		COMMAND ${LCOV_EXECUTABLE} -a ase_client.info -a ase_nlb.info -a ase_intr.info -t ${target_name} -o ${coverage_info}
+
+		# Clean coverage file
+		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+		COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+
+		# Add dependencies
+		DEPENDS ${target_name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run coverage tests.")
+  endif()
+
 
 endfunction()
