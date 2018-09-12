@@ -161,6 +161,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   set_target_for_coverage_local(opae-c-ase
     TESTRUNNER ctest
     TESTRUNNER_ARGS "-R;ase_all"
-    COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb")
+    COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb"
+	COVERAGE_EXTRA_COMPONENTS2 "opae-c-ase-server-hello_intr_afu")
   add_dependencies(coverage_opae-c-ase gtase gtAseU)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
