@@ -13,7 +13,18 @@ endif()
 
 add_subdirectory(mock)
 
-
+add_library(opae-c-static
+    ${OPAE_SDK_SOURCE}/libopae/api-shell.c
+    ${OPAE_SDK_SOURCE}/libopae/init.c
+    ${OPAE_SDK_SOURCE}/libopae/pluginmgr.c
+    ${OPAE_SDK_SOURCE}/libopae/props.c
+    )
+target_include_directories(opae-c-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/bitstream.c
@@ -91,6 +102,10 @@ include_directories(
     {CMAKE_CURRENT_SOURCE_DIR}/mock
     )
 
+
+add_mock_test(test_opae_enum_c opae-c-static
+    opae-c/test_enum_c.cpp
+)
 
 add_mock_test(test_xfpga_properties_c xfpga-static
     xfpga/test_properties_c.cpp
