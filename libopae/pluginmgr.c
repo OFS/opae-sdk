@@ -238,9 +238,8 @@ out_unlock:
 	return 0;
 }
 
-int opae_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_api_adapter_table *, void *),
-	void *context)
+int opae_plugin_mgr_for_each_adapter
+	(int (*callback)(const opae_api_adapter_table *, void *), void *context)
 {
 	int res;
 	int cb_res = OPAE_ENUM_CONTINUE;
