@@ -27,12 +27,15 @@
 #define _TEST_SYSTEM_H
 
 #include <dirent.h>
+#include <opae/fpga.h>
+#include <stddef.h>
 #include <map>
 #include <string>
 #include <vector>
-#include <stddef.h>
-#include <opae/fpga.h>
 
+extern "C" {
+extern void *__libc_malloc(size_t size);
+}
 typedef struct stat stat_t;
 
 namespace opae {
@@ -111,16 +114,15 @@ struct test_platform {
   static std::vector<std::string> keys(bool sorted = false);
 };
 
-template<int _R, long _E>
-static int dummy_ioctl(mock_object *, int, va_list)
-{
+template <int _R, long _E>
+static int dummy_ioctl(mock_object *, int, va_list) {
   errno = _E;
   return _R;
 }
 
 class test_system {
  public:
-  typedef int (*ioctl_handler_t)(mock_object*, int, va_list);
+  typedef int (*ioctl_handler_t)(mock_object *, int, va_list);
   static test_system *instance();
 
   void set_root(const char *root);
@@ -140,6 +142,7 @@ class test_system {
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
   int xstat(int ver, const char *path, stat_t *buf);
   int lstat(int ver, const char *path, stat_t *buf);
+  void invalidate_malloc();
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
