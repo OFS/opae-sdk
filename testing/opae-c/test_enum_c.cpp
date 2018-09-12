@@ -32,7 +32,7 @@ extern "C" {
 #include <json-c/json.h>
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
-#include "types_int.h"
+#include "opae_int.h"
 
 #ifdef __cplusplus
 }
@@ -420,6 +420,9 @@ TEST_P(enum_c_p, no_token_magic) {
 
 
 TEST_P(enum_c_p, destroy_token) {
+  opae_wrapped_token *dummy = new opae_wrapped_token;
+  EXPECT_EQ(fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
+  delete dummy;
   // null filter
   uint32_t num_matches;
   EXPECT_EQ(
@@ -434,9 +437,6 @@ TEST_P(enum_c_p, destroy_token) {
   }
 
   EXPECT_EQ(fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
-  _fpga_token *dummy = new _fpga_token;
-  EXPECT_EQ(fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
-  delete dummy;
 }
 
 TEST_P(enum_c_p, num_slots) {
