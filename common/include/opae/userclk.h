@@ -25,31 +25,33 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
+ * @file userclk.h
+ * @brief Functions for setting and get afu user clock
+*/
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#ifndef __FPGA_AFU_USER_CLOCK_H__
+#define __FPGA_AFU_USER_CLOCK_H__
 
-#include <opae/init.h>
 #include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/error.h>
-#include <opae/version.h>
-#include <opae/sysobject.h>
-#include <opae/userclk.h>
 
-#endif // __FPGA_FPGA_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/**
+ * set afu user clock
+ */
+fpga_result fpgaSetUserClock(fpga_handle handle,
+							 uint64_t high_clk, uint64_t low_clk, int flags);
+
+/**
+ * Get afu user clock
+ */
+fpga_result fpgaGetUserClock(fpga_handle handle,
+							uint64_t *high_clk, uint64_t *low_clk, int flags);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // __FPGA_AFU_USER_CLOCK_H__

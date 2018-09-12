@@ -36,9 +36,8 @@
 
 #include "safe_string/safe_string.h"
 #include "opae/fpga.h"
-#include "types_int.h"
 
-#include "usrclk/user_clk_pgm_uclock.h"
+
 
 #define GETOPT_STRING ":hB:D:F:S:P:H:L:"
 
@@ -102,26 +101,28 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
-fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid);
 int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[]);
 
 int main( int argc, char** argv )
 {
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+//	char sysfs_path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result                 = FPGA_OK;
 	uint64_t userclk_high              = 0;
 	uint64_t userclk_low               = 0;
 	fpga_token fme_token               = NULL;
-	int high, low;
+	int high                           = 0;
+	int low                            = 0;
+
+	fpga_handle        accelerator_handle;
 
 	// Parse command line
 	if ( argc < 2 ) {
 		UserClkAppShowHelp();
 	return 1;
 	} else if ( 0!= ParseCmds(&userclkCmdLine, argc, argv) ) {
-		FPGA_ERR( "Error scanning command line \n.");
+	fprintf(stderr, "Error scanning command line \n");
 	return 2;
 	}
 
@@ -137,11 +138,14 @@ int main( int argc, char** argv )
 
 	printf(" ------- Command line Input END ---- \n\n");
 
+	result = fpgaInitialize(NULL);
+	ON_ERR_GOTO(result, out_exit, "Failed to initilize ");
+
 	// Enum FPGA device
 	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
-	result = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
 	if (-1 != userclkCmdLine.bus) {
@@ -172,21 +176,21 @@ int main( int argc, char** argv )
 		result = fpgaDestroyProperties(&filter);
 		return FPGA_INVALID_PARAM;
 	}
-	fprintf(stderr, "FME Resource found.\n");
+	fprintf(stderr, "AFU Resource found.\n");
 
-	// Read port sysfs path
-	result = get_fpga_port_sysfs(fme_token, sysfs_path,userclkCmdLine.port);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed  to get port syfs path");
-		goto out_destroy_prop;
-	}
+	result = fpgaOpen(fme_token, &accelerator_handle, 0);
+	ON_ERR_GOTO(result, out_destroy_prop, "opening accelerator");
 
-	// read user clock
-	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
+	result = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low,0);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get user clock ");
-		goto out_destroy_prop;
+		fprintf(stderr, "Failed to get user clock \n");
+		goto out_close;
 	}
+ 
+ 	printf("\nApproximate frequency:\n"
+		"High clock = %5.1f MHz\n"
+		"Low clock  = %5.1f MHz\n \n",
+		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
 
 	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0 ) {
 		high = userclkCmdLine.freq_high;
@@ -196,29 +200,31 @@ int main( int argc, char** argv )
 		} else if (high <= 0) {
 			high = userclkCmdLine.freq_low * 2;
 		} else if ((abs(high - (2 * low))) > 1) {
-			FPGA_ERR("High freq must be ~ (2 * Low freq)");
-			return FPGA_INVALID_PARAM;
+			fprintf(stderr, "High freq must be ~ (2 * Low freq) \n");
+			goto out_close;
 		}
+	}
 
-		// set user clock
-		result = set_userclock(sysfs_path, high, low);
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to set user clock ");
-			goto out_destroy_prop;
-		}
+	result = fpgaSetUserClock(accelerator_handle, high, low,0);
+	if (result != FPGA_OK) {
+		fprintf(stderr, "Failed to set user clock \n");
+		goto out_close;
+	}
 
-		// read user clock
-		result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to get user clock ");
-			goto out_destroy_prop;
-		}
+	result = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low,0);
+	if (result != FPGA_OK) {
+		fprintf(stderr, "Failed to get user clock\n");
+		goto out_close;
 	}
 
 	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
+
+out_close:
+	result = fpgaClose(accelerator_handle);
+	ON_ERR_GOTO(result, out_destroy_prop, "closing accelerator");
 
 	/* Destroy properties object */
 out_destroy_prop:
@@ -228,55 +234,6 @@ out_destroy_prop:
 out_exit:
 	return result;
 
-}
-// Get port syfs path
-fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid)
-{
-	struct _fpga_token  *_token;
-	char *p                        = 0;
-	int device_id                  = 0;
-
-	if (sysfs_port == NULL) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if (token == NULL) {
-		FPGA_ERR("Invalid fpga token");
-		return FPGA_INVALID_PARAM;
-	}
-
-	_token = (struct _fpga_token*)token;
-
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (NULL == p)
-		return FPGA_INVALID_PARAM;
-	p = strrchr(_token->sysfspath, '.');
-	if (NULL == p)
-		return FPGA_INVALID_PARAM;
-
-	device_id = atoi(p + 1);
-
-	if(device_id < INT_MIN || device_id >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if(portid <INT_MIN || portid >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if(device_id + portid <INT_MIN || device_id + portid >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
-		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		device_id, device_id + portid);
-
-	return FPGA_OK;
 }
 
 // parse Input command line

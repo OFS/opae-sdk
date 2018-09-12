@@ -295,6 +295,12 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,
 				      size_t offset, size_t len, int flags);
 
+	fpga_result (*fpgaSetUserClock) (fpga_handle handle,
+								uint64_t high_clk, uint64_t low_clk, int flags);
+
+	fpga_result (*fpgaGetUserClock)(fpga_handle handle,
+						uint64_t *high_clk, uint64_t *low_clk, int flags);
+
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);
