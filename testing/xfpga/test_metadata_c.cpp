@@ -28,13 +28,14 @@
 #include <types_int.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "xfpga.h"
 
 using namespace opae::testing;
 
 class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  metadata_c() : tmpsysfs("mocksys-XXXXXX"){}
+  metadata_c() : tmpsysfs("mocksys-XXXXXX"), handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -42,9 +43,16 @@ class metadata_c
     system_ = test_system::instance();
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+						&num_matches_),  FPGA_OK);
   }
 
   virtual void TearDown() override {
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs;
       std::system(cmd.c_str());
@@ -53,136 +61,259 @@ class metadata_c
   }
 
   std::string tmpsysfs;
+  fpga_properties filter_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
 };
 
-
-/**
-* @test    bs_metadata_01
-* @brief   Tests: read_gbs_metadata 
-* @details read_gbs_metadata returns BS metadata
-*          Then the return value is FPGA_OK
-*/
-TEST_P(metadata_c, bs_metadata_01) {
-
-  // Invalid input parameters
-  fpga_result result = read_gbs_metadata(NULL, NULL);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid input parameter 
-  struct gbs_metadata gbs_metadata ;
-  result = read_gbs_metadata(NULL, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid input parameter 
-  uint8_t bitstream[10] = "abcd";
-  result = read_gbs_metadata(bitstream, NULL);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid input bitstream 
-  result = read_gbs_metadata(bitstream, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid bitstream metadata  size
-  uint8_t bitstream_guid[] = "XeonFPGA路GBSv001S";
-  result = read_gbs_metadata(bitstream_guid, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Zero metadata length  with no data
-  uint8_t bitstream_guid_invalid1[] = "XeonFPGA路GBSv001";
-  result = read_gbs_metadata(bitstream_guid_invalid1, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid metadata length 
-  uint8_t bitstream_guid_invalid2[] = "XeonFPGA路GBSv001S {\"version/\": 640, \"afu-image\":  \
+uint8_t bitstream_valid[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_null[10] = "abcd";
+uint8_t bitstream_invalid_guid[] = "Xeon稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_metadata_size[] = "XeonFPGA稧BSv001S";
+uint8_t bitstream_empty[] = "XeonFPGA稧BSv001";
+uint8_t bitstream_metadata_length[] = "XeonFPGA稧BSv001S {\"version/\": 640, \"afu-image\":  \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\"\
       : [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\": \
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-  
-  result = read_gbs_metadata(bitstream_guid_invalid2, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid input bitstream
-  uint8_t bitstream_guid_invalid3[] = "XeonFPGA路GBSv001\53\02\00\00{\"version/\": 640, \"afu-image\": \
+uint8_t bitstream_no_gbs_version[] = "XeonFPGA稧BSv001\53\02\00\00{\"version99\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-99name\": \"MCP\"}";\
-  result = read_gbs_metadata(bitstream_guid_invalid3, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid metadata platform
-  uint8_t bitstream_guid_invalid4[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-  result = read_gbs_metadata(bitstream_guid_invalid4, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid metadata afu-image node
-  uint8_t bitstream_guid_invalid5[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
-  result = read_gbs_metadata(bitstream_guid_invalid5, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid metadata interface-uuid
-  uint8_t bitstream_guid_invalid6[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_no_afu_image[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_no_interface_id[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
       \"power\": 50,  \"magic-no\": 488605312, \"accelerator-clusters\": \
       [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-  result = read_gbs_metadata(bitstream_guid_invalid6, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid metadata afu-uuid
-  uint8_t bitstream_guid_invalid7[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_invalid_interface_id[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_mismatch_interface_id[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_error_interface_id[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_no_accelerator_id[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\":\
       [{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"}";
-  result = read_gbs_metadata(bitstream_guid_invalid7, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-  
-  // Invalid input bitstream
-  uint8_t bitstream_guid_invalid8[] = "XeonFPGA路GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
+uint8_t bitstream_invalid_length[] = "XeonFPGA稧BSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-  result = read_gbs_metadata(bitstream_guid_invalid8, &gbs_metadata);
+uint8_t bitstream_no_accelerator[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_no_magic_no[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no99\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_invalid_magic_no[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 000000000, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_invalid_json[] = "XeonFPGA稧BSv001\53\02\00\00{\"version\": \"afu-image\":\
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
+
+/**
+* @test    read_gbs_metadata
+* @brief   Tests: read_gbs_metadata 
+* @details read_gbs_metadata returns BS metadata
+*          Then the return value is FPGA_OK
+*/
+TEST_P(metadata_c, read_gbs_metadata) {
+  struct gbs_metadata gbs_metadata;
+
+  // Invalid input parameters - null bitstream and metadata
+  fpga_result result = read_gbs_metadata(NULL, NULL);
   EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input parameter - null bitstream
+  result = read_gbs_metadata(NULL, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input parameter - null metadata
+  result = read_gbs_metadata(bitstream_null, NULL);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input bitstream
+  result = read_gbs_metadata(bitstream_null, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid bitstream metadata size
+  result = read_gbs_metadata(bitstream_metadata_size, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Zero metadata length with no data
+  result = read_gbs_metadata(bitstream_empty, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid metadata length 
+  result = read_gbs_metadata(bitstream_metadata_length, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input bitstream - no GBS version
+  result = read_gbs_metadata(bitstream_no_gbs_version, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Valid metadata
+  result = read_gbs_metadata(bitstream_valid, &gbs_metadata);
+  EXPECT_EQ(result, FPGA_OK);
+  
+  // Invalid metadata afu-image node
+  result = read_gbs_metadata(bitstream_no_afu_image, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+  
+  // Invalid metadata interface-uuid
+  result = read_gbs_metadata(bitstream_no_interface_id, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+  
+  // Invalid metadata afu-uuid
+  result = read_gbs_metadata(bitstream_no_accelerator_id, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+  
+  // Invalid input bitstream
+  result = read_gbs_metadata(bitstream_invalid_length, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input bitstream - no accelerator clusters
+  result = read_gbs_metadata(bitstream_no_accelerator, &gbs_metadata);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid input bitstream - invalid json
+  result = read_gbs_metadata(bitstream_invalid_json, &gbs_metadata);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 /**
-* @test    bs_metadata_02
+* @test    validate_metadata
 * @brief   Tests: validate_bitstream_metadata
 * @details validate_bitstream_metadata validates BS metadata
-*          Retuns FPGA_OK if metadata is valid
+*          Returns FPGA_OK if metadata is valid
 */
-TEST_P(metadata_c, bs_metadata_02) {
+TEST_P(metadata_c, validate_bitstream_metadata) {
   fpga_result result;
 
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Valid metadata
+  result = validate_bitstream_metadata(handle_, bitstream_valid);
+  EXPECT_EQ(result, FPGA_OK);
+
   // Invalid input bitstream
-  uint8_t bitstream_guid_invalid[] = "XeonFPGA路GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no1\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-  result = validate_bitstream_metadata(NULL, bitstream_guid_invalid);
+  result = validate_bitstream_metadata(handle_, bitstream_invalid_guid);
   EXPECT_NE(result, FPGA_OK);
 
-  result = validate_bitstream_metadata((void*) 1234, bitstream_guid_invalid);
+  // Empty metadata
+  result = validate_bitstream_metadata(handle_, bitstream_empty);
+  EXPECT_EQ(result, FPGA_OK);
+
+  // Invalid metadata size
+  result = validate_bitstream_metadata(handle_, bitstream_metadata_size);
+  EXPECT_EQ(result, FPGA_EXCEPTION);
+
+  // Invalid metadata - no magic-no
+  result = validate_bitstream_metadata(handle_, bitstream_no_magic_no);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Invalid metadata - invalid interface id
+  result = validate_bitstream_metadata(handle_, bitstream_invalid_interface_id);
   EXPECT_NE(result, FPGA_OK);
 
+  // Invalid metadata - interface ID check failed
+  result = validate_bitstream_metadata(handle_, bitstream_mismatch_interface_id);
+  EXPECT_NE(result, FPGA_OK);
 
+  // Invalid metadata - interface ID check failed
+  result = validate_bitstream_metadata(handle_, bitstream_error_interface_id);
+  EXPECT_NE(result, FPGA_OK);
+
+  // Invalid metadata - no afu-image
+  result = validate_bitstream_metadata(handle_, bitstream_no_afu_image);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Invalid metadata - invalid magic-no
+  result = validate_bitstream_metadata(handle_, bitstream_invalid_magic_no);
+  EXPECT_EQ(result, FPGA_NOT_FOUND);
 }
 
+/**
+* @test    get_bitstream_header_len
+* @brief   Tests: get_bitstream_header_len
+* @details get_bitstream_header_len returns bitstream header length.
+*/
+TEST_P(metadata_c, get_bitstream_header_len) {
+  int len;
+
+  // Valid metadata
+  len = get_bitstream_header_len(bitstream_valid);
+  EXPECT_EQ(len, 575);
+
+  // Invalid guid
+  len = get_bitstream_header_len(bitstream_invalid_guid);
+  EXPECT_EQ(len, -1);
+
+  // Null bitstream
+  len = get_bitstream_header_len(NULL);
+  EXPECT_EQ(len, -1);
+}
+
+/**
+* @test    get_bitstream_json_len
+* @brief   Tests: get_bitstream_json_len
+* @details get_bitstream_json_len returns json length.
+*/
+TEST_P(metadata_c, get_bitstream_json_len) {
+  int len;
+
+  // Valid metadata
+  len = get_bitstream_json_len(bitstream_valid);
+  EXPECT_EQ(len, 555);
+
+  // Invalid metadata
+  len = get_bitstream_json_len(bitstream_invalid_guid);
+  EXPECT_EQ(len, -1);
+
+  // Null bitstream
+  len = get_bitstream_json_len(NULL);
+  EXPECT_EQ(len, -1);
+}
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
