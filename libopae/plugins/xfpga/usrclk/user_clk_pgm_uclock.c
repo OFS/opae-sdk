@@ -27,6 +27,9 @@
 // Arthur.Sheiman@Intel.com   Created: 09-08-16
 // Revision: 10-18-16  18:06
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <errno.h>
 #include <malloc.h>    /* malloc */
@@ -68,7 +71,7 @@
 
 struct  QUCPU_Uclock   gQUCPU_Uclock;
 
-static int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
+STATIC int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
 
 //Get fpga user clock
 fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
@@ -886,7 +889,7 @@ int fi_WaitCalDone(void)
 
 // Determine whether or not the IOPLL is serving as the source of
 // the user clock.
-static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
+STATIC int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 {
 	glob_t iopll_glob;
 

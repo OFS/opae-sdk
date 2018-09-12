@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <uuid/uuid.h>
 #include <json-c/json.h>
 #include <sys/types.h>
@@ -73,13 +77,13 @@ fpga_result string_to_guid(const char *guid, fpga_guid *result)
 	return FPGA_OK;
 }
 
-static json_bool get_json_object(json_object **object, json_object **parent,
+STATIC json_bool get_json_object(json_object **object, json_object **parent,
 				char *field_name)
 {
 	return json_object_object_get_ex(*parent, field_name, &(*object));
 }
 
-static uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
+STATIC uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 {
 	uint64_t ret = 0;
 	switch (size) {
@@ -103,7 +107,7 @@ static uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 	return ret;
 }
 
-static int64_t int64_be_to_le(int64_t val)
+STATIC int64_t int64_be_to_le(int64_t val)
 {
 	val = ((val << 8) & 0xFF00FF00FF00FF00ULL) |
 					((val >> 8) & 0x00FF00FF00FF00FFULL);

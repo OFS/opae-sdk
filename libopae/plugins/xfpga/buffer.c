@@ -73,7 +73,7 @@
 /*
  * Allocate (mmap) new buffer
  */
-fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
+STATIC fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 {
 	void *addr_local = NULL;
 
@@ -114,7 +114,7 @@ fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 /*
  * Release (unmap) allocated buffer
  */
-fpga_result buffer_release(void *addr, uint64_t len)
+STATIC fpga_result buffer_release(void *addr, uint64_t len)
 {
 	/* If the buffer allocation was backed by hugepages, then
 	 * len must be rounded up to the nearest hugepage size,

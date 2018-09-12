@@ -82,7 +82,7 @@ struct reconf_error {
 };
 
 
-static fpga_result validate_bitstream(fpga_handle handle,
+STATIC fpga_result validate_bitstream(fpga_handle handle,
 			const uint8_t *bitstream, size_t bitstream_len,
 			int *header_len)
 {
@@ -118,7 +118,7 @@ static fpga_result validate_bitstream(fpga_handle handle,
 
 
 // open child accelerator exclusively - it not, it's busy!
-static fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
+STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 {
 	fpga_result result                = FPGA_OK;
 	fpga_result destroy_result        = FPGA_OK;
@@ -186,7 +186,7 @@ free_props:
 
 
 // clears port errors
-static fpga_result clear_port_errors(fpga_handle handle)
+STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
 	char syfs_path[SYSFS_PATH_MAX]    = {0};
 	char syfs_errpath[SYSFS_PATH_MAX] = {0};

@@ -41,15 +41,20 @@ namespace testing {
 constexpr size_t KiB(size_t n) { return n * 1024; }
 constexpr size_t MiB(size_t n) { return n * 1024 * KiB(1); }
 
+#ifndef UNUSED_PARAM
+#define UNUSED_PARAM(x) ((void)x)
+#endif // UNUSED_PARAM
+
 class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
   mock_object(const std::string &devpath, const std::string &sysclass,
               uint32_t device_id, type_t type = sysfs_attr);
+  virtual ~mock_object() {}
 
   virtual int ioctl(int request, va_list arg) {
-    (void)request;
-    (void)arg;
+    UNUSED_PARAM(request);
+    UNUSED_PARAM(arg);
     throw std::logic_error("not implemented");
     return 0;
   }

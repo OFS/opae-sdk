@@ -37,6 +37,8 @@ namespace testing {
 
 template <typename T>
 static int validate_argp(mock_object* mock, int request, va_list argp) {
+  UNUSED_PARAM(mock);
+  UNUSED_PARAM(request);
   T* ptr = va_arg(argp, T*);
   if (ptr->argsz != sizeof(*ptr)) {
     return -1;

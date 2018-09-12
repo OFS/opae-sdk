@@ -68,7 +68,7 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 
 
 __attribute__((constructor))
-static void fpga_init(void)
+STATIC void fpga_init(void)
 {
 	g_logfile = NULL;
 
@@ -100,7 +100,7 @@ static void fpga_init(void)
 }
 
 __attribute__((destructor))
-static void fpga_release(void)
+STATIC void fpga_release(void)
 {
 	token_cleanup();
 

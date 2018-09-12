@@ -176,6 +176,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	opae_api_adapter_table *adapter;
 
 	// TODO: parse config file
+	UNUSED_PARAM(cfg_file);
 	opae_plugin_mgr_parse_config();
 
 
