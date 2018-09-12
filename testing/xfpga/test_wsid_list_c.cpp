@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,41 +24,79 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_COMMON_INT_H__
-#define __FPGA_COMMON_INT_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+#ifdef __cplusplus
+
+extern "C" {
 #endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdbool.h>   /* bool type */
-#include <malloc.h>    /* malloc */
-#include <stdlib.h>    /* exit */
-#include <stdio.h>     /* printf */
-#include <string.h>    /* memcpy */
-#include <unistd.h>    /* getpid */
-#include <sys/types.h> /* pid_t */
-#include <sys/ioctl.h> /* ioctl */
-#include <sys/mman.h>  /* mmap & munmap */
-#include <sys/time.h>  /* struct timeval */
-#include <pthread.h>
-#undef  _GNU_SOURCE
-
-#include "types_int.h"
-#include "log_int.h"
-#include "sysfs_int.h"
+#include <opae/utils.h>
 #include "wsid_list_int.h"
-#include "token_list_int.h"
-#include "mmap_int.h"
-#include "props.h"
 
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
+#ifdef __cplusplus
+}
+#endif
 
-/* Check validity of various objects */
-fpga_result prop_check_and_lock(struct _fpga_properties *prop);
-fpga_result handle_check_and_lock(struct _fpga_handle *handle);
-fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
+#include "gtest/gtest.h"
 
-#endif // ___FPGA_COMMON_INT_H__
+
+TEST(utils_h, fpgaErrStr)
+{
+	fpga_result e = FPGA_OK;
+	auto res = fpgaErrStr(e);
+	(void)res;
+}
+
+
+TEST(wsid_list_int_h, wsid_add)
+{
+	struct wsid_map **root = 0;
+	uint64_t wsid = 0;
+	uint64_t addr = 0;
+	uint64_t phys = 0;
+	uint64_t len = 0;
+	uint64_t offset = 0;
+	uint64_t index = 0;
+	int flags = 0;
+	auto res = wsid_add(root, wsid, addr, phys, len, offset, index, flags);
+	EXPECT_EQ(res, 0);
+}
+
+
+TEST(wsid_list_int_h, wsid_del)
+{
+	struct wsid_map **root = 0;
+	uint64_t wsid = 0;
+	auto res = wsid_del(root, wsid);
+	EXPECT_EQ(res, 0);
+}
+
+
+TEST(wsid_list_int_h, wsid_cleanup)
+{
+	struct wsid_map **root = 0;
+	wsid_cleanup(root, NULL);
+}
+
+
+TEST(wsid_list_int_h, wsid_gen)
+{
+	auto res = wsid_gen();
+	(void)res;
+}
+
+
+TEST(wsid_list_int_h, wsid_find)
+{
+	struct wsid_map *root = 0;
+	uint64_t wsid = 0;
+	auto res = wsid_find(root, wsid);
+	(void)res;
+}
+
+
+TEST(wsid_list_int_h, wsid_find_by_index)
+{
+	struct wsid_map *root = 0;
+	uint32_t index = 0;
+	auto res = wsid_find_by_index(root, index);
+	(void)res;
+}

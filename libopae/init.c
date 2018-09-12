@@ -44,7 +44,7 @@ static FILE *g_logfile;
 /* mutex to protect against garbled log output */
 static pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, char *fmt, ...)
+void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
 {
 	FILE *fp;
 	int err;

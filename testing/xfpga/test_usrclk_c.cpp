@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,41 +24,58 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_COMMON_INT_H__
-#define __FPGA_COMMON_INT_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+#ifdef __cplusplus
+
+extern "C" {
 #endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdbool.h>   /* bool type */
-#include <malloc.h>    /* malloc */
-#include <stdlib.h>    /* exit */
-#include <stdio.h>     /* printf */
-#include <string.h>    /* memcpy */
-#include <unistd.h>    /* getpid */
-#include <sys/types.h> /* pid_t */
-#include <sys/ioctl.h> /* ioctl */
-#include <sys/mman.h>  /* mmap & munmap */
-#include <sys/time.h>  /* struct timeval */
-#include <pthread.h>
+#include <opae/enum.h>
+#include <opae/properties.h>
 #undef  _GNU_SOURCE
+#include "usrclk/user_clk_pgm_uclock.h"
 
+#ifdef __cplusplus
+}
+#endif
+
+
+#include "gtest/gtest.h"
 #include "types_int.h"
-#include "log_int.h"
-#include "sysfs_int.h"
-#include "wsid_list_int.h"
-#include "token_list_int.h"
-#include "mmap_int.h"
-#include "props.h"
+#include "test_system.h"
 
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
 
-/* Check validity of various objects */
-fpga_result prop_check_and_lock(struct _fpga_properties *prop);
-fpga_result handle_check_and_lock(struct _fpga_handle *handle);
-fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
+using namespace opae::testing;
 
-#endif // ___FPGA_COMMON_INT_H__
+/**
+* @test    afu_usrclk_01
+* @brief   Tests: fpac_GetErrMsg and fv_BugLog
+* @details fpac_GetErrMsg returns error string
+*          fv_BugLog sets bug log
+*/
+TEST(usrclk_c, afu_usrclk_01) {
+  //Get error string
+  const char * pmsg = fpac_GetErrMsg(1);
+  EXPECT_EQ(NULL, !pmsg);
+  
+  //Get error string
+  pmsg = fpac_GetErrMsg(5);
+  EXPECT_EQ(NULL, !pmsg);
+  
+  //Get error string
+  pmsg = fpac_GetErrMsg(16);
+  EXPECT_EQ(NULL, !pmsg);
+  
+  //Get error string for invlaid index
+  pmsg = NULL;
+  pmsg = fpac_GetErrMsg(17);
+  EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
+  
+  //Get error string for invlaid index
+  pmsg = NULL;
+  pmsg = fpac_GetErrMsg(-1);
+  EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
+  
+  fv_BugLog(1);
+  
+  fv_BugLog(2);
+
+}

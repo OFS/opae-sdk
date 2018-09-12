@@ -97,7 +97,9 @@
 
 // Get file descriptor from event handle
 #define FILE_DESCRIPTOR(eh) (((struct _fpga_event_handle *)eh)->fd)
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint32_t instance;
@@ -171,4 +173,7 @@ struct _fpga_object {
 };
 
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __FPGA_TYPES_INT_H__

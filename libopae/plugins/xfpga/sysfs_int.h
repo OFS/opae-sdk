@@ -51,6 +51,9 @@
 // name of the bitstream id sysfs node.
 #define FPGA_SYSFS_BITSTREAM_ID "bitstream_id"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /**
  * @brief Get BBS interface id
  *
@@ -97,4 +100,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object);
 
+#ifdef __cplusplus
+}
+#endif
 #endif // ___FPGA_SYSFS_INT_H__

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,42 +23,27 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifndef _C_TEST_SYSTEM_H
+#define _C_TEST_SYSTEM_H
 
-#ifndef __FPGA_COMMON_INT_H__
-#define __FPGA_COMMON_INT_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+#include <dirent.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdbool.h>   /* bool type */
-#include <malloc.h>    /* malloc */
-#include <stdlib.h>    /* exit */
-#include <stdio.h>     /* printf */
-#include <string.h>    /* memcpy */
-#include <unistd.h>    /* getpid */
-#include <sys/types.h> /* pid_t */
-#include <sys/ioctl.h> /* ioctl */
-#include <sys/mman.h>  /* mmap & munmap */
-#include <sys/time.h>  /* struct timeval */
-#include <pthread.h>
-#undef  _GNU_SOURCE
 
-#include "types_int.h"
-#include "log_int.h"
-#include "sysfs_int.h"
-#include "wsid_list_int.h"
-#include "token_list_int.h"
-#include "mmap_int.h"
-#include "props.h"
+  int opae_test_open(const char *path, int flags);
+  int opae_test_open_create(const char *path, int flags, mode_t mode);
 
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
+  int opae_test_close(int fd);
+  int opae_test_ioctl(int fd, unsigned long request, va_list argp);
 
-/* Check validity of various objects */
-fpga_result prop_check_and_lock(struct _fpga_properties *prop);
-fpga_result handle_check_and_lock(struct _fpga_handle *handle);
-fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
+  DIR *opae_test_opendir(const char *name);
+  ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
+  int opae_test_xstat(int ver, const char *path, struct stat *buf);
+  int opae_test_lstat(int ver, const char *path, struct stat *buf);
 
-#endif // ___FPGA_COMMON_INT_H__
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !_TEST_SYSTEM_H */

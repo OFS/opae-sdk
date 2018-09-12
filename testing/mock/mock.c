@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,41 +24,66 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_COMMON_INT_H__
-#define __FPGA_COMMON_INT_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <errno.h>
+/*
+ * Mock up driver interactions that call into test_system API for testing
+ *
+ * Involves redefining ioctl(), open(), close(), others?
+ */
+
+#include <stdarg.h>
+#include <sys/types.h>
 #include <fcntl.h>
-#include <stdbool.h>   /* bool type */
-#include <malloc.h>    /* malloc */
-#include <stdlib.h>    /* exit */
-#include <stdio.h>     /* printf */
-#include <string.h>    /* memcpy */
-#include <unistd.h>    /* getpid */
-#include <sys/types.h> /* pid_t */
-#include <sys/ioctl.h> /* ioctl */
-#include <sys/mman.h>  /* mmap & munmap */
-#include <sys/time.h>  /* struct timeval */
-#include <pthread.h>
-#undef  _GNU_SOURCE
+#include <stdint.h>
+#include <safe_string/safe_string.h>
+#include "c_test_system.h"
 
-#include "types_int.h"
-#include "log_int.h"
-#include "sysfs_int.h"
-#include "wsid_list_int.h"
-#include "token_list_int.h"
-#include "mmap_int.h"
-#include "props.h"
+int ioctl(int fd, unsigned long request, ...)
+{
+	va_list argp;
+	va_start(argp, request);
+	int res = opae_test_ioctl(fd, request, argp);
+	va_end(argp);
+	return res;
+}
 
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
+int open(const char* path, int flags, ...)
+{
+	int fd = -1;
+	if (flags & O_CREAT) {
+		va_list argp;
+		va_start(argp, flags);
+		mode_t arg = va_arg(argp, mode_t);
+		fd = opae_test_open_create(path, flags, arg);
+		va_end(argp);
+	}
+	else {
+		fd = opae_test_open(path, flags);
+	}
+	return fd;
+}
 
-/* Check validity of various objects */
-fpga_result prop_check_and_lock(struct _fpga_properties *prop);
-fpga_result handle_check_and_lock(struct _fpga_handle *handle);
-fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
+int close(int fd)
+{
+	return opae_test_close(fd);
+}
 
-#endif // ___FPGA_COMMON_INT_H__
+DIR *opendir(const char *name)
+{
+	return opae_test_opendir(name);
+}
+
+ssize_t readlink(const char *pathname, char *buf, size_t bufsiz)
+{
+	return opae_test_readlink(pathname, buf, bufsiz);
+}
+
+int __xstat(int ver, const char *pathname, struct stat *buf)
+{
+	return opae_test_xstat(ver, pathname, buf);
+}
+
+int __lxstat(int ver, const char *pathname, struct stat *buf)
+{
+	return opae_test_xstat(ver, pathname, buf);
+}
+

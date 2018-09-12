@@ -71,7 +71,8 @@ target_link_libraries(xfpga
   dl
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT})
+  ${CMAKE_THREAD_LIBS_INIT}
+  opae-c)
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 

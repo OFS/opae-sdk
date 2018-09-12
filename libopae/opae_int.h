@@ -92,7 +92,7 @@ enum opae_loglevel {
 };
 #define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
 
-void opae_print(int loglevel, char *fmt, ...);
+void opae_print(int loglevel, const char *fmt, ...);
 
 
 

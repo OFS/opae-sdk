@@ -30,7 +30,9 @@
 #include <stdint.h>
 
 #include <opae/types.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 fpga_result xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags);
 fpga_result xfpga_fpgaClose(fpga_handle handle);
 fpga_result xfpga_fpgaReset(fpga_handle handle);
@@ -142,4 +144,7 @@ fpga_result xfpga_fpgaDestroyObject(fpga_object *obj);
 fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
                                  size_t len, int flags);
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __XFPGA_XFPGA_H__
