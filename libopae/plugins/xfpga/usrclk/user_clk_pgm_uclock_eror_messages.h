@@ -28,7 +28,7 @@
 // Revision: 10-18-16  18:06
 
 
-const char * pac_UclockErrorMsg[] = {
+const char *pac_UclockErrorMsg[] = {
 	"QUCPU_Uclock: No error.\0",
 	"RunInitz: RTL versions number incompatible.\0",
 	"RunInitz: PLL RTL has illegal ID.\0",
@@ -45,5 +45,5 @@ const char * pac_UclockErrorMsg[] = {
 	"SetFreqs: Use 322.265625 MHz refclk for ExactFreq mode.\0",
 	"SetFreqs: PLL did unlock during power down.\0",
 	"SetFreqs: Timeout waiting for PLL to lock.\0",
-	"ERROR: MSG INDEX OUT OF RANGE\0"  // "+1" message
+	"ERROR: MSG INDEX OUT OF RANGE\0" // "+1" message
 };

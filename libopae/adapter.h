@@ -231,13 +231,15 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
-/*
-	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
+	/*
+		fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 
-	fpga_result (*fpgaGetOPAECVersionString)(char *version_str, size_t len);
+		fpga_result (*fpgaGetOPAECVersionString)(char *version_str,
+	   size_t len);
 
-	fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t len);
-*/
+		fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t
+	   len);
+	*/
 
 	fpga_result (*fpgaReadError)(fpga_token token, uint32_t error_num,
 				     uint64_t *value);
@@ -249,9 +251,9 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaGetErrorInfo)(fpga_token token, uint32_t error_num,
 					struct fpga_error_info *error_info);
 
-/*
-	const char *(*fpgaErrStr)(fpga_result e);
-*/
+	/*
+		const char *(*fpgaErrStr)(fpga_result e);
+	*/
 
 	fpga_result (*fpgaCreateEventHandle)(fpga_event_handle *event_handle);
 
@@ -286,12 +288,12 @@ typedef struct _opae_api_adapter_table {
 					   size_t bitstream_len, int flags);
 
 	fpga_result (*fpgaGetTokenObject)(fpga_token token, const char *name,
-                                          fpga_object *object, int flags);
+					  fpga_object *object, int flags);
 
 	fpga_result (*fpgaDestroyObject)(fpga_object *obj);
 
-	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer, size_t offset,
-                                      size_t len, int flags);
+	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,
+				      size_t offset, size_t len, int flags);
 
 	// configuration functions
 	int (*initialize)(void);

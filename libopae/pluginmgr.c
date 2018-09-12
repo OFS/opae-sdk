@@ -37,30 +37,29 @@
 #include "opae_int.h"
 
 #define OPAE_PLUGIN_CONFIGURE "opae_plugin_configure"
-typedef int (*opae_plugin_configure_t)(opae_api_adapter_table * , const char * );
+typedef int (*opae_plugin_configure_t)(opae_api_adapter_table *, const char *);
 
-static const char *native_plugins[] = {
-	"libxfpga.so",
-	NULL
-};
+static const char *native_plugins[] = {"libxfpga.so", NULL};
 
 static opae_api_adapter_table *adapter_list = NULL;
-static pthread_mutex_t adapter_list_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t adapter_list_lock =
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-opae_api_adapter_table * opae_plugin_mgr_alloc_adapter(const char *lib_path)
+opae_api_adapter_table *opae_plugin_mgr_alloc_adapter(const char *lib_path)
 {
 	void *dl_handle;
 	opae_api_adapter_table *adapter;
 
-	dl_handle = dlopen(lib_path, RTLD_LAZY|RTLD_LOCAL);
+	dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
 
 	if (!dl_handle) {
 		char *err = dlerror();
-		OPAE_ERR("failed to load \"%s\" %s", lib_path, err ? err:"");
+		OPAE_ERR("failed to load \"%s\" %s", lib_path, err ? err : "");
 		return NULL;
 	}
 
-	adapter = (opae_api_adapter_table *) calloc(1, sizeof(opae_api_adapter_table));
+	adapter = (opae_api_adapter_table *)calloc(
+		1, sizeof(opae_api_adapter_table));
 
 	if (!adapter) {
 		dlclose(dl_handle);
@@ -68,7 +67,7 @@ opae_api_adapter_table * opae_plugin_mgr_alloc_adapter(const char *lib_path)
 		return NULL;
 	}
 
-	adapter->plugin.path = (char *) lib_path;
+	adapter->plugin.path = (char *)lib_path;
 	adapter->plugin.dl_handle = dl_handle;
 
 	return adapter;
@@ -83,7 +82,7 @@ int opae_plugin_mgr_free_adapter(opae_api_adapter_table *adapter)
 
 	if (res) {
 		err = dlerror();
-		OPAE_ERR("dlclose failed with %d %s", res, err ? err:"");
+		OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
 	}
 
 	free(adapter);
@@ -96,13 +95,12 @@ int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 {
 	opae_plugin_configure_t cfg;
 
-	cfg = (opae_plugin_configure_t) dlsym(adapter->plugin.dl_handle,
-						OPAE_PLUGIN_CONFIGURE);
+	cfg = (opae_plugin_configure_t)dlsym(adapter->plugin.dl_handle,
+					     OPAE_PLUGIN_CONFIGURE);
 
 	if (!cfg) {
-		OPAE_ERR("failed to find %s in \"%s\"",
-				OPAE_PLUGIN_CONFIGURE,
-				adapter->plugin.path);
+		OPAE_ERR("failed to find %s in \"%s\"", OPAE_PLUGIN_CONFIGURE,
+			 adapter->plugin.path);
 		return 1;
 	}
 
@@ -117,17 +115,16 @@ int opae_plugin_mgr_initialize_all(void)
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
-	for (aptr = adapter_list ; aptr ; aptr = aptr->next) {
+	for (aptr = adapter_list; aptr; aptr = aptr->next) {
 
 		if (aptr->initialize) {
 			res = aptr->initialize();
 			if (res) {
 				OPAE_MSG("\"%s\" initialize() routine failed",
-						aptr->plugin.path);
+					 aptr->plugin.path);
 				++errors;
 			}
 		}
-
 	}
 
 	opae_mutex_unlock(res, &adapter_list_lock);
@@ -143,14 +140,14 @@ int opae_plugin_mgr_finalize_all(void)
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
-	for (aptr = adapter_list ; aptr ; ) {
+	for (aptr = adapter_list; aptr;) {
 		opae_api_adapter_table *trash;
 
 		if (aptr->finalize) {
 			res = aptr->finalize();
 			if (res) {
 				OPAE_MSG("\"%s\" finalize() routine failed",
-						aptr->plugin.path);
+					 aptr->plugin.path);
 				++errors;
 			}
 		}
@@ -165,8 +162,6 @@ int opae_plugin_mgr_finalize_all(void)
 	opae_mutex_unlock(res, &adapter_list_lock);
 
 	return errors;
-
-
 }
 
 int opae_plugin_mgr_initialize(const char *cfg_file)
@@ -182,7 +177,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 
 	// load each of the native plugins
 
-	for (i = 0 ; native_plugins[i] ; ++i) {
+	for (i = 0; native_plugins[i]; ++i) {
 
 		adapter = opae_plugin_mgr_alloc_adapter(native_plugins[i]);
 
@@ -194,7 +189,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 		if (res) {
 			opae_plugin_mgr_free_adapter(adapter);
 			OPAE_ERR("failed to configure plugin \"%s\"",
-					native_plugins[i]);
+				 native_plugins[i]);
 			continue;
 		}
 
@@ -232,7 +227,7 @@ int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter)
 	}
 
 	// new entries go to the end of the list.
-	for (aptr = adapter_list ; aptr->next ; aptr = aptr->next)
+	for (aptr = adapter_list; aptr->next; aptr = aptr->next)
 		/* find the last entry */;
 
 	aptr->next = adapter;
@@ -244,8 +239,7 @@ out_unlock:
 }
 
 int opae_plugin_mgr_for_each_adapter(
-		int (*callback)(const opae_api_adapter_table * , void * ),
-		void *context)
+	int (*callback)(const opae_api_adapter_table *, void *), void *context)
 {
 	int res;
 	int cb_res = OPAE_ENUM_CONTINUE;
@@ -258,7 +252,7 @@ int opae_plugin_mgr_for_each_adapter(
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
-	for (aptr = adapter_list ; aptr ; aptr = aptr->next) {
+	for (aptr = adapter_list; aptr; aptr = aptr->next) {
 		cb_res = callback(aptr, context);
 		if (cb_res)
 			break;
