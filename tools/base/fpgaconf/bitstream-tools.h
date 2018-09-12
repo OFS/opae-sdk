@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-//TODO: Remove metadata parsing code duplication by using
-//metadata parsing code in FPGA API
+// TODO: Remove metadata parsing code duplication by using
+// metadata parsing code in FPGA API
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,9 +40,9 @@
 #define GBS_AFU_IMAGE "afu-image"
 #define BBS_INTERFACE_ID "interface-uuid"
 
-#define PR_INTERFACE_ID		"pr/interface_id"
-#define INTFC_ID_LOW_LEN	16
-#define INTFC_ID_HIGH_LEN	16
+#define PR_INTERFACE_ID "pr/interface_id"
+#define INTFC_ID_LOW_LEN 16
+#define INTFC_ID_HIGH_LEN 16
 
 #define PRINT_MSG printf
 #define PRINT_ERR(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
@@ -62,16 +62,16 @@ static uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 	uint64_t ret = 0;
 	switch (size) {
 	case sizeof(uint8_t):
-		ret = *((uint8_t *) bitstream);
+		ret = *((uint8_t *)bitstream);
 		break;
 	case sizeof(uint16_t):
-		ret = *((uint16_t *) bitstream);
+		ret = *((uint16_t *)bitstream);
 		break;
 	case sizeof(uint32_t):
-		ret = *((uint32_t *) bitstream);
+		ret = *((uint32_t *)bitstream);
 		break;
 	case sizeof(uint64_t):
-		ret = *((uint64_t *) bitstream);
+		ret = *((uint64_t *)bitstream);
 		break;
 	default:
 		PRINT_ERR("Unknown integer size");
@@ -89,24 +89,24 @@ void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
 	s = 64;
 	for (i = 0; i < 8; ++i) {
 		s -= 8;
-		guid[i] = (uint8_t) ((guidh >> s) & 0xff);
+		guid[i] = (uint8_t)((guidh >> s) & 0xff);
 	}
 
 	s = 64;
 	for (i = 0; i < 8; ++i) {
 		s -= 8;
-		guid[8 + i] = (uint8_t) ((guidl >> s) & 0xff);
+		guid[8 + i] = (uint8_t)((guidl >> s) & 0xff);
 	}
 }
 
-fpga_result  check_bitstream_guid(const uint8_t *bitstream)
+fpga_result check_bitstream_guid(const uint8_t *bitstream)
 {
 	fpga_guid bitstream_guid;
 	fpga_guid expected_guid;
 	errno_t e;
 
-	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid),
-		bitstream, sizeof(fpga_guid));
+	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid), bitstream,
+		     sizeof(fpga_guid));
 	if (EOK != e) {
 		PRINT_ERR("memcpy_s failed");
 		return FPGA_EXCEPTION;
