@@ -72,7 +72,8 @@ void ase_perror_teardown(char *msg, int ase_err)
 {
 	FUNC_CALL_ENTRY;
 
-	ase_error_report(msg, errno, ase_err);
+	if (msg != NULL)
+		ase_error_report(msg, errno, ase_err);
 	self_destruct_in_progress = 1;
 
 	ase_destroy();
