@@ -71,13 +71,8 @@ void put_timestamp(void)
 
 	fp = fopen(tstamp_path, "wb");
 	if (fp == NULL) {
-#ifdef SIM_SIDE
 		ase_error_report("fopen", errno, ASE_OS_FOPEN_ERR);
 		start_simkill_countdown();
-#else
-		perror("fopen");
-		exit(1);
-#endif
 	} else {
 		// rdtsc call
 		rdtsc_out = rdtsc();

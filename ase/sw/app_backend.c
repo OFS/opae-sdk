@@ -175,7 +175,7 @@ void failure_cleanup(void)
   cleanup_mmio();
   close_mq();
   free_buffers();
-  exit(1);
+  ase_exit();
 }
 
 /*
@@ -569,7 +569,7 @@ bool check_app_lock_file(char *filename)
 /*
  * Remove Lock File
  */
-bool remove_existing_lock_file(char *filename)
+bool remove_existing_lock_file(const char *filename)
 {
 	pid_t lock;
 	FILE *fp_app_lockfile;
@@ -591,23 +591,18 @@ bool remove_existing_lock_file(char *filename)
 					lock);
 			fclose(fp_app_lockfile);
 			// Delete lock file
-			delete_lock_file();
+			delete_lock_file(filename);
 			return true;
 		} else if (errno == EPERM) {
 			ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
 		} else
 				ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
 	} else {
-		ASE_ERR
-			("Error reading PID of application using ASE, EXITING\n");
-		ASE_ERR
-			("ASE was found to be running with another application !\n");
-		ASE_ERR("\n");
-		ASE_ERR("If you think this is in error:\n");
-		ASE_ERR
-			(" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n");
-		ASE_ERR
-			(" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
+		ASE_ERR("Error reading PID of application using ASE, EXITING\n"
+				"ASE was found to be running with another application !\n\n"
+				"If you think this is in error:\n"
+				" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n"
+				" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
 	}
 	fclose(fp_app_lockfile);
 	return false;
@@ -616,13 +611,13 @@ bool remove_existing_lock_file(char *filename)
 /*
  * Delete app_lock file for non-existent processes.
  */
-void delete_lock_file(void)
+void delete_lock_file(const char *filename)
 {
-	if (unlink(app_ready_lockpath) == 0)
+	if (unlink(filename) == 0)
 		ASE_INFO("Deleted the existing app_lock.pid with Stale pid \n");
 	else {
 		ASE_ERR("Application Lock file could not be removed, please remove manually from $ASE_WORKDIR/.app_lock.pid \n");
-		exit(1);
+		ase_exit();
 	}
 }
 
@@ -809,7 +804,7 @@ int mmio_request_put(struct mmio_t *pkt)
 void exit_cleanup(void)
 {
   session_deinit();
-  exit(1);
+  ase_exit();
 }
 
 /*
@@ -1100,7 +1095,7 @@ void shm_error(const char *msg)
   perror(msg);
   END_RED_FONTCOLOR;
   session_deinit();
-  exit(1);
+  ase_exit();
 }
 
 /*
