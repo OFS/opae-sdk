@@ -38,9 +38,9 @@ add_executable(hello_mpf_afu
   ${OPAE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
   hello_mpf_afu.cpp)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_mpf_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_mpf_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
 else()
-  target_link_libraries(hello_mpf_afu json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_mpf_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
 install(FILES hello_mpf_afu.cpp

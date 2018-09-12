@@ -27,10 +27,12 @@
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
 
+include_directories(${libjson-c_INCLUDE_DIRS})
+
 add_executable(fpgaconf fpgaconf.c)
 set_install_rpath(fpgaconf)
 
-target_link_libraries(fpgaconf opae-c json-c uuid ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpgaconf opae-c ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS fpgaconf
         RUNTIME DESTINATION bin
