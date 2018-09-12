@@ -41,7 +41,7 @@ typedef int (*opae_plugin_configure_t)(opae_api_adapter_table *, const char *);
 
 static const char *native_plugins[] = {"libxfpga.so", NULL};
 
-static opae_api_adapter_table *adapter_list = NULL;
+static opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -239,7 +239,8 @@ out_unlock:
 }
 
 int opae_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_api_adapter_table *, void *), void *context)
+	int (*callback)(const opae_api_adapter_table *, void *),
+	void *context)
 {
 	int res;
 	int cb_res = OPAE_ENUM_CONTINUE;

@@ -287,8 +287,8 @@ int fi_RunInitz(const char *sysfs_path)
 
 
 	// Read version number
-	if (i_ReturnErr == 0) // This always true; added for future safety
-	{
+	if (i_ReturnErr == 0) { // This always true; added for future safety
+
 		// Verifying User Clock version number
 		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s",
 			      gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
@@ -365,7 +365,7 @@ int fi_RunInitz(const char *sysfs_path)
 	//*ptInitz_retInitz = gQUCPU_Uclock.tInitz_InitialParams;
 	gQUCPU_Uclock.i_InitzState = !i_ReturnErr; // Set InitzState to 0 or 1
 
-	return (i_ReturnErr);
+	return i_ReturnErr;
 } // fi_RunInitz
 
 // fu64i_GetAVMM_seq
@@ -376,7 +376,7 @@ uint64_t fu64i_GetAVMM_seq()
 	gQUCPU_Uclock.u64i_AVMM_seq++;
 	gQUCPU_Uclock.u64i_AVMM_seq &= 0x03LLU;
 
-	return (gQUCPU_Uclock.u64i_AVMM_seq);
+	return gQUCPU_Uclock.u64i_AVMM_seq;
 } // fu64i_GetAVMM_seq
 
 
@@ -437,8 +437,8 @@ int fi_AvmmRWcom(int i_CmdWrite, uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData,
 	// Poll register 0 for completion.
 	// CCI is synchronous and needs only 1 read with matching sequence.
 
-	for (u64i_SlowPoll = 0; u64i_SlowPoll < 100; ++u64i_SlowPoll) // 100 ms
-	{ // Poll 0, slow outer loop with 1 ms sleep
+	for (u64i_SlowPoll = 0; u64i_SlowPoll < 100; ++u64i_SlowPoll) { // 100 ms
+	  // Poll 0, slow outer loop with 1 ms sleep
 		for (u64i_FastPoll = 0; u64i_FastPoll < 100; ++u64i_FastPoll) {
 			// Poll 0, fast inner loop with no sleep
 			sysfs_read_u64(syfs_usrpath, &u64i_DataX);
@@ -461,7 +461,7 @@ GOTO_LABEL_HAVE_RESULT: // No error
 
 	if (i_CmdWrite == 0)
 		*pu64i_ReadData = u64i_DataX;
-	return (i_ReturnErr);
+	return i_ReturnErr;
 
 } // fi_AvmmRWcom
 
@@ -481,7 +481,7 @@ int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData)
 			   pu64i_ReadData);
 
 	// Return error status
-	return (res);
+	return res;
 } // fi_AvmmRead
 
 // fi_AvmmWrite
@@ -498,7 +498,7 @@ int fi_AvmmWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_WriteData)
 			   &u64i_ReadData);
 
 	// Return error status
-	return (res);
+	return res;
 } // fi_AvmmWrite
 
 
@@ -521,8 +521,7 @@ void fv_SleepShort(long int li_sleep_nanoseconds)
 		    && res != -1) { // BUG: unexpected nanosleep return value
 			fv_BugLog((int)QUCPU_INT_UCLOCK_BUG_SLEEP_SHORT);
 		} // BUG: unexpected nanosleep return value
-	}	 // Wait, and retry if wait ended early
-	while (res != 0);
+	} while (res != 0); // Wait, and retry if wait ended early
 
 	return;
 } // fv_SleepShort
@@ -606,7 +605,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 		(ptFreqs_retFreqs->u64i_Frq_DivBy2) / 1.0e6);
 
 
-	return (res);
+	return res;
 } // fi_GetFreqs
 
 // set user clock
@@ -825,7 +824,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk, uint64_t u64i_FrqInx)
 		} // fcr PLL lock error
 	}	 // Verifying fcr PLL is locking
 
-	return (i_ReturnErr);
+	return i_ReturnErr;
 } // fi_SetFreqs
 
 // get error message
@@ -847,7 +846,7 @@ const char *fpac_GetErrMsg(int i_ErrMsgInx)
 		pac_ErrMsgStr = pac_UclockErrorMsg[i_ErrMsgInx];
 	} // All okay, set the message string
 
-	return (pac_ErrMsgStr);
+	return pac_ErrMsgStr;
 } // fpac_GetErrMsg
 
 // fi_AvmmReadModifyWriteVerify
@@ -873,7 +872,7 @@ int fi_AvmmReadModifyWriteVerify(uint64_t u64i_AvmmAdr, uint64_t u64i_AvmmDat,
 		}	 // Perform verify
 	}		  // Read back the data and verify mask-enabled bits
 
-	return (res);
+	return res;
 } // fi_AvmmReadModifyWriteVerify
 
 
@@ -894,7 +893,7 @@ int fi_AvmmReadModifyWrite(uint64_t u64i_AvmmAdr, uint64_t u64i_AvmmDat,
 		res = fi_AvmmWrite(u64i_AvmmAdr, u64i_WriteData);
 	} // Modify the read data and write it
 
-	return (res);
+	return res;
 } // fi_AvmmReadModifyWrite
 
 // fv_BugLog
@@ -944,7 +943,7 @@ int fi_WaitCalDone(void)
 		res = QUCPU_INT_UCLOCK_WAITCALDONE_ERR_BSY_TO;
 	} // ERROR: calibration busy too long
 
-	return (res);
+	return res;
 } // fi_WaitCalDone
 
 // Determine whether or not the IOPLL is serving as the source of

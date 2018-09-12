@@ -121,8 +121,10 @@ void opae_print(int loglevel, const char *fmt, ...);
 	ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg "is NULL", __result)
 
 #define ASSERT_RESULT(__result)                                                \
-	if ((__result) != FPGA_OK)                                             \
-	return __result
+	do {                                                                   \
+		if ((__result) != FPGA_OK)                                     \
+			return __result;                                       \
+	} while (0)
 
 
 #define UNUSED_PARAM(x) ((void)x)

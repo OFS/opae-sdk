@@ -84,7 +84,7 @@ struct config {
 	    .dry_run = false,
 	    .mode = NORMAL,
 	    .flags = 0,
-	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1}};
+	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1} };
 
 struct bitstream_info {
 	char *filename;
@@ -243,7 +243,7 @@ int parse_args(int argc, char *argv[])
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
-		{0, 0, 0, 0}};
+		{0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;
