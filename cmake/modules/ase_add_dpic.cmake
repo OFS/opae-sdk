@@ -86,9 +86,9 @@ if(BUILD_ASE_TESTS)
     SIM_SIDE=1
     SIMULATOR=${ASE_SIMULATOR}
     ${used_platform}
-	ASE_LL_VIEW=1
-	ASE_MSG_VIEW=1
-        ASE_UNIT=1)
+    ASE_LL_VIEW=1
+    ASE_MSG_VIEW=1
+    ASE_UNIT=1)
 else()
   # Add required compilation flags
   target_compile_definitions(opae-c-ase-server-${name}
