@@ -1819,7 +1819,8 @@ TEST(properties, get_capabilities01) {
  *          expected result is FPGA_INVALID_PARAM.<br>
  */
 TEST(properties, fpga_get_properties01) {
-  fpga_token token;
+  char buf[sizeof(_fpga_token)];
+  fpga_token token = buf;
   ((_fpga_token*)token)->magic = 0xbeef;
   fpga_properties prop;
   EXPECT_EQ(xfpga_fpgaGetProperties(token, &prop), FPGA_INVALID_PARAM);
@@ -3127,6 +3128,7 @@ TEST(properties, get_num_errors01)
 {
   fpga_properties prop;
   fpga_result result = xfpga_fpgaGetProperties(NULL, &prop);
+  EXPECT_EQ(result, FPGA_OK);
   auto _prop = (_fpga_properties*)prop;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
   _prop->num_errors = 9;

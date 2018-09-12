@@ -92,7 +92,7 @@ fpga_result send_event_request(int conn_socket, int fd, struct event_request *re
 
 }
 
-static fpga_result send_fme_event_request(fpga_handle handle,
+STATIC fpga_result send_fme_event_request(fpga_handle handle,
 	fpga_event_handle event_handle, int fme_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
@@ -131,7 +131,7 @@ static fpga_result send_fme_event_request(fpga_handle handle,
 	return FPGA_OK;
 }
 
-static fpga_result send_port_event_request(fpga_handle handle,
+STATIC fpga_result send_port_event_request(fpga_handle handle,
 	fpga_event_handle event_handle, int port_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
@@ -170,7 +170,7 @@ static fpga_result send_port_event_request(fpga_handle handle,
 	return FPGA_OK;
 }
 
-static fpga_result send_uafu_event_request(fpga_handle handle,
+STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 	fpga_event_handle event_handle, uint32_t flags, int uafu_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
@@ -231,7 +231,7 @@ static fpga_result send_uafu_event_request(fpga_handle handle,
  * Uses driver ioctls to determine whether the driver supports interrupts
  * on this platform. objtype is an output parameter.
  */
-static fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *objtype)
+STATIC fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	fpga_result destroy_res = FPGA_OK;
@@ -293,7 +293,7 @@ destroy_prop:
 	return res;
 }
 
-static fpga_result driver_register_event(fpga_handle handle,
+STATIC fpga_result driver_register_event(fpga_handle handle,
 	fpga_event_type event_type,
 	fpga_event_handle event_handle,
 	uint32_t flags)
@@ -332,7 +332,7 @@ static fpga_result driver_register_event(fpga_handle handle,
 	}
 }
 
-static fpga_result driver_unregister_event(fpga_handle handle,
+STATIC fpga_result driver_unregister_event(fpga_handle handle,
 	fpga_event_type event_type, fpga_event_handle event_handle)
 {
 	fpga_objtype objtype;
@@ -369,7 +369,7 @@ static fpga_result driver_unregister_event(fpga_handle handle,
 	}
 }
 
-static fpga_result daemon_register_event(fpga_handle handle,
+STATIC fpga_result daemon_register_event(fpga_handle handle,
 					 fpga_event_type event_type,
 					 fpga_event_handle event_handle,
 					 uint32_t flags)
@@ -438,7 +438,7 @@ out_close_conn:
 	return result;
 }
 
-static fpga_result daemon_unregister_event(fpga_handle handle,
+STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 					   fpga_event_type event_type)
 {
 	fpga_result result = FPGA_OK;

@@ -42,7 +42,8 @@ int umsg_port_info(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
     static bool gEnableIRQ = false;
-
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
     struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
     if (!pinfo) {
         FPGA_MSG("pinfo is NULL");
@@ -77,7 +78,8 @@ out_EINVAL:
 int umsg_set_mode(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
-
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
     struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
     if (!ucfg) {
     	FPGA_MSG("ucfg is NULL");
@@ -281,7 +283,7 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_05) {
   uint64_t Umsghit_Disble = 0;
-  int fddev = -1;
+//  int fddev = -1;
 
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   // NULL Driver hnadle
@@ -346,7 +348,7 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_07) {
   uint64_t* umsg_ptr = NULL;
-  int fddev = -1;
+//  int fddev = -1;
 
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));

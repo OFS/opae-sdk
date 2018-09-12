@@ -60,7 +60,8 @@ set(SRC
   version.c
   usrclk/user_clk_pgm_uclock.c
   plugin.c
-  sysobject.c)
+  sysobject.c
+  manage.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})

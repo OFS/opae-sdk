@@ -47,6 +47,8 @@ using namespace opae::testing;
 int mmio_ioctl(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
     struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
     if (!rinfo) {
       FPGA_MSG("rinfo is NULL");

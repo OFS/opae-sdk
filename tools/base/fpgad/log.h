@@ -27,14 +27,15 @@
 #ifndef __FPGAD_LOG_H__
 #define __FPGAD_LOG_H__
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif // _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <pthread.h>
 #include <string.h>
 #include <errno.h>
-#undef _GNU_SOURCE
 
 extern FILE *fLog;
 int open_log(const char *);

@@ -36,7 +36,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-static void unmap_mmio_region(struct wsid_map *wm)
+STATIC void unmap_mmio_region(struct wsid_map *wm)
 {
 	if (munmap((void *)wm->offset, wm->len)) {
 		FPGA_MSG("munmap failed: %s",

@@ -51,13 +51,13 @@ endfunction(SET_CACHED_VARIABLE)
 # Should come before enabling language.
 
 
-set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra -Werror -Wno-unused-parameter")
+set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra -Werror")
 
 set(CMAKE_C_FLAGS_RELEASE          "-O2 -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -Wall -Wextra -Werror")
 
-set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -O2 -Wall -Wextra -Werror -Wno-unused-parameter")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-g -O2 -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra -Werror")
 
 set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror")

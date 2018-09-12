@@ -48,19 +48,21 @@ int __FPGA_API__ xfpga_plugin_finalize(void)
 
 bool __FPGA_API__ xfpga_plugin_supports_device(const char *device_type)
 {
-
+	UNUSED_PARAM(device_type);
 	return true;
 }
 
 bool __FPGA_API__ xfpga_plugin_supports_host(const char *hostname)
 {
-
+	UNUSED_PARAM(hostname);
 	return true;
 }
 
 int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 				       const char *jsonConfig)
 {
+	UNUSED_PARAM(jsonConfig);
+
 	adapter->fpgaOpen = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaOpen");
 	adapter->fpgaClose = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClose");
 	adapter->fpgaReset = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReset");
