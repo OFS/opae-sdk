@@ -217,14 +217,18 @@ TEST_P(umsg_c_p, get_num_umsg_ioctl_err) {
 TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
   uint64_t value = 0;
   // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
 
 
   // register an ioctl handler that will return -1 and set errno to something
   // else
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaSetUmsgAttributes(handle_, value));
 }
 
 
@@ -267,10 +271,6 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
 }
 
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
 
 /**
  * @test       umsg_c_p
@@ -279,27 +279,23 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
  *             fpgaUmsgGetNumber returns error.
  *
  */
-//TEST_P (umsg_c_p, test_umsg_drv_02) {
-//  uint64_t Umsg_num = 0;
-//  int fddev = -1;
-//
-//  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
-//
-//
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//  _handle->magic = 0x123;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
-//
-//  _handle->magic = FPGA_HANDLE_MAGIC;
-//}
+TEST_P (umsg_c_p, test_umsg_drv_02) {
+  uint64_t Umsg_num = 0;
+  int fddev = -1;
+
+  // NULL Driver hnadle
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
 
 
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
+
+  _handle->magic = FPGA_HANDLE_MAGIC;
+}
+
+
 /**
  * @test       umsg_c_p
  * @brief      test_umsg_drv_03
@@ -307,25 +303,25 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
  *             fpgaUmsgGetNumber returns error.
  *
  */
-//TEST_P (umsg_c_p, test_umsg_drv_03) {
-//  uint64_t Umsg_num = 0;
-//  int fddev = -1;
-//
-//  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
-//
-//  // Invlaid Input Paramter
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
-//
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//
-//  fddev = _handle->fddev;
-//  _handle->fddev = -1;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
-//
-//  _handle->fddev = fddev;
-//
+TEST_P (umsg_c_p, test_umsg_drv_03) {
+  uint64_t Umsg_num = 0;
+  int fddev = -1;
+
+  // NULL Driver hnadle
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
+
+  // Invlaid Input Paramter
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
+
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
+
+  _handle->fddev = fddev;
+}
 
 
 /**
@@ -356,39 +352,34 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_05) {
   uint64_t Umsghit_Disble = 0;
-//  int fddev = -1;
+  int fddev = -1;
 
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
 
-	////////////////////////////////////////
-	// Disable the following lines because it 
-	// modifies handle to gain coverage.
-	////////////////////////////////////////
-  
-  //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-  //_handle->magic = 0x123;
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
-  //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  _handle->magic = FPGA_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  // // Invalid Driver handle
-  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  // _handle = (struct _fpga_handle*)handle_;
+  // Invalid Driver handle
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  _handle = (struct _fpga_handle*)handle_;
 
-  // fddev = _handle->fddev;
-  // _handle->fddev = -1;
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
 
-  // EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
-  // _handle->fddev = fddev;
-  // EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  _handle->fddev = fddev;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  // // Invlaid Input Paramter
-  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
+  // Invlaid Input Paramter
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
 }
@@ -422,41 +413,36 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_07) {
   uint64_t* umsg_ptr = NULL;
-//  int fddev = -1;
+  int fddev = -1;
 
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));
 
-	////////////////////////////////////////
-	// Disable the following lines because it 
-	// modifies handle to gain coverage.
-	////////////////////////////////////////
+  // Invalid Magic Number
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
-  //// Invalid Magic Number
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h, 0));
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
 
-  //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-  //_handle->magic = 0x123;
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
+  _handle->magic = FPGA_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  // Invalid Driver handle
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  _handle = (struct _fpga_handle*)handle_;
 
-  //// Invalid Driver handle
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  //_handle = (struct _fpga_handle*)handle_;
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
 
-  //fddev = _handle->fddev;
-  //_handle->fddev = -1;
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
+  _handle->fddev = fddev;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  //_handle->fddev = fddev;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h));
-
-  //// Invalid Input Parameter
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokend_[0], &handle_, 0));
+  // Invalid Input Parameter
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, NULL));
 }
@@ -469,7 +455,19 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_08) {
+  int fddev = -1;
+  auto _handle = (struct _fpga_handle*)handle_;
+ 
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(NULL, 0));
+
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));
+  _handle->fddev = fddev;
+ 
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
+
 }
 
 
