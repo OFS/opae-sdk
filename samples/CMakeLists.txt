@@ -71,9 +71,9 @@ endif()
 
 add_executable(hello_fpga hello_fpga.c)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga ${lib${libjson-c_LIBRARIES}_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_fpga ${libson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 elseif(BUILD_ASE)
-  target_link_libraries(hello_fpga ${lib${libjson-c_LIBRARIES}_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
 if(BUILD_LIBOPAE_C)
@@ -84,7 +84,7 @@ if(BUILD_LIBOPAE_C)
   target_link_libraries(object_api ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 endif()
 
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
+set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
 
 install(FILES ${SAMPLES_SRC}
   DESTINATION ${OPAE_SAMPLES}
