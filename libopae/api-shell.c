@@ -2098,7 +2098,7 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 
 
 fpga_result fpgaSetUserClock(fpga_handle handle,
-							uint64_t high_clk, uint64_t low_clk, int flags)
+			uint64_t high_clk, uint64_t low_clk, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -2113,7 +2113,7 @@ fpga_result fpgaSetUserClock(fpga_handle handle,
 
 
 fpga_result fpgaGetUserClock(fpga_handle handle,
-							uint64_t *high_clk, uint64_t *low_clk, int flags)
+			uint64_t *high_clk, uint64_t *low_clk, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
