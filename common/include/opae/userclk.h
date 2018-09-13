@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,13 +39,29 @@ extern "C" {
 #endif
 
 /**
- * set afu user clock
+ * set afu user clock high and low 
+ * @param[in]  handle       Handle to previously opened accelerator resource.
+ * @param[in]  high_clk     AFU High user clock frequency in MHz.
+ * @param[in]  low_clk      AFU Low user clock frequency in MHz.
+ * @param[in]  flags        Flags Rreasverd 
+ *
+.*@returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or
+ * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
+ * exception occurred while trying to access the handle.
  */
 fpga_result fpgaSetUserClock(fpga_handle handle,
-							 uint64_t high_clk, uint64_t low_clk, int flags);
+							uint64_t high_clk, uint64_t low_clk, int flags);
 
 /**
- * Get afu user clock
+ * Get afu user clock high and low 
+ * @param[in]   handle       Handle to previously opened accelerator resource.
+ * @param[out]  high_clk     AFU High user clock frequency in MHz.
+ * @param[out]  low_clk      AFU Low user clock frequency in MHz.
+ * @param[in]   flags        Flags  Reasverd.
+ *
+ .*@returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or
+ * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
+ * exception occurred while trying to access the handle.
  */
 fpga_result fpgaGetUserClock(fpga_handle handle,
 							uint64_t *high_clk, uint64_t *low_clk, int flags);

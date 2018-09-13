@@ -35,6 +35,7 @@
 #ifndef __FPGA_FPGA_H__
 #define __FPGA_FPGA_H__
 
+#include <opae/log.h>
 #include <opae/init.h>
 #include <opae/types.h>
 #include <opae/access.h>

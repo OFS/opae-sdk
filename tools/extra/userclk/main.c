@@ -35,7 +35,7 @@
 #include <limits.h>
 
 #include "safe_string/safe_string.h"
-#include "opae/fpga.h"
+#include <opae/fpga.h>
 
 
 
@@ -107,7 +107,6 @@ int main( int argc, char** argv )
 {
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
-//	char sysfs_path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result                 = FPGA_OK;
 	uint64_t userclk_high              = 0;
 	uint64_t userclk_low               = 0;
@@ -122,7 +121,7 @@ int main( int argc, char** argv )
 		UserClkAppShowHelp();
 	return 1;
 	} else if ( 0!= ParseCmds(&userclkCmdLine, argc, argv) ) {
-	fprintf(stderr, "Error scanning command line \n");
+		OPAE_ERR("Error scanning command line \n");
 	return 2;
 	}
 
@@ -172,18 +171,18 @@ int main( int argc, char** argv )
 	ON_ERR_GOTO(result, out_destroy_prop, "enumerating FPGAs");
 
 	if (num_matches < 1) {
-		fprintf(stderr, "FPGA Resource not found.\n");
+		OPAE_ERR("FPGA Resource not found.");
 		result = fpgaDestroyProperties(&filter);
 		return FPGA_INVALID_PARAM;
 	}
-	fprintf(stderr, "AFU Resource found.\n");
+	printf("AFU Resource found.\n");
 
 	result = fpgaOpen(fme_token, &accelerator_handle, 0);
 	ON_ERR_GOTO(result, out_destroy_prop, "opening accelerator");
 
 	result = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low,0);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to get user clock \n");
+		OPAE_ERR("Failed to get user clock");
 		goto out_close;
 	}
  
@@ -200,20 +199,20 @@ int main( int argc, char** argv )
 		} else if (high <= 0) {
 			high = userclkCmdLine.freq_low * 2;
 		} else if ((abs(high - (2 * low))) > 1) {
-			fprintf(stderr, "High freq must be ~ (2 * Low freq) \n");
+			OPAE_ERR("High freq must be ~ (2 * Low freq)");
 			goto out_close;
 		}
 	}
 
 	result = fpgaSetUserClock(accelerator_handle, high, low,0);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to set user clock \n");
+		OPAE_ERR("Failed to set user clock ");
 		goto out_close;
 	}
 
 	result = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low,0);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to get user clock\n");
+		OPAE_ERR("Failed to get user clock");
 		goto out_close;
 	}
 
