@@ -171,6 +171,21 @@ struct fpga_error_info {
 	bool can_clear;                   /** whether error can be cleared */
 };
 
+/** Object pertaining to an FPGA resource as identified by a unique name
+ *
+ * An `fpga_object` represents either a device attribute or a container of
+ * attributes. Similar to filesystems, a '/' may be used to seperate objects in
+ * an object hierarchy. Once on object is acquired, it may be used to read or
+ * write data in a resource attribute or to query sub-objects if the object is
+ * a container object. The data in an object is buffered and will be kept
+ * around until the object is destroyed. Additionally, the data in an attribute
+ * can by synchronized from the owning resource using the FPGA_OBJECT_SYNC flag
+ * during read operations.  The name identifying the object is unique with
+ * respect to the resource that owns it. A parent resource may be identified by
+ * an `fpga_token` object, by an `fpga_handle` object, or another `fpga_object`
+ * object. If a handle object is used when opening the object, then the object
+ * is opened with read-write access. Otherwise, the object is read-only.
+ */
 typedef void *fpga_object;
 
 #endif // __FPGA_TYPES_H__

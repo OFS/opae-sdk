@@ -180,12 +180,20 @@ fpga_result xfpga_fpgaReleaseFromInterface(fpga_handle fpga,
 					   fpga_token accelerator);
 fpga_result xfpga_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      const uint8_t *bitstream,
-				      size_t bitstream_len, int flags);
-fpga_result xfpga_fpgaGetTokenObject(fpga_token token, const char *name,
+				      size_t bitstream_len,
+				      int flags);
+fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
+fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
+				      fpga_object *object, int flags);
+fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
+				      const char *name, fpga_object *object,
+				      int flags);
 fpga_result xfpga_fpgaDestroyObject(fpga_object *obj);
 fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 				 size_t offset, size_t len, int flags);
+fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
+fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
 
 fpga_result xfpga_fpgaSetUserClock(fpga_handle handle,
 				uint64_t low_clk, uint64_t high_clk, int flags);
