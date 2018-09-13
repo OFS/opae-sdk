@@ -406,7 +406,7 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h, uint64_t ptr_align,
 
 	printf("DDR Sweep Host to FPGA\n");
 
-#define ITERS 32
+#define ITERS 1
 
 #ifdef CHECK_DELAYS
 	poll_wait_count = 0;
