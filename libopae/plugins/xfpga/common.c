@@ -46,7 +46,7 @@
 #ifndef MAP_HUGE_SHIFT
 #define MAP_HUGE_SHIFT 26
 #endif
-#define MAP_1G_HUGEPAGE	(0x1e << MAP_HUGE_SHIFT)
+#define MAP_1G_HUGEPAGE (0x1e << MAP_HUGE_SHIFT)
 
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
@@ -80,7 +80,8 @@ fpga_result prop_check_and_lock(struct _fpga_properties *prop)
 		FPGA_MSG("Invalid properties object");
 		int err = pthread_mutex_unlock(&prop->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
 	}
@@ -106,7 +107,8 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 		FPGA_MSG("Invalid handle object");
 		int err = pthread_mutex_unlock(&handle->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
 	}
@@ -116,7 +118,8 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 
 /*
  * Check event handle object for validity and lock its mutex
- * If event_handle_check_and_lock() returns FPGA_OK, assume the mutex to be locked.
+ * If event_handle_check_and_lock() returns FPGA_OK, assume the mutex to be
+ * locked.
  */
 fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 {
@@ -131,7 +134,8 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 		FPGA_MSG("Invalid event handle object");
 		int err = pthread_mutex_unlock(&eh->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
 	}
@@ -142,7 +146,7 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 /* mutex to protect global data structures */
 pthread_mutex_t global_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-const char __FPGA_API__ * xfpga_fpgaErrStr(fpga_result e)
+const char __FPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
 {
 	switch (e) {
 	case FPGA_OK:
@@ -183,6 +187,6 @@ uint64_t wsid_gen(void)
 	uint64_t id = 0;
 	gettimeofday(&t, NULL);
 	id = ((t.tv_sec * 1000 * 1000) + (t.tv_usec * 1000)) << 42;
-	id |= ((unsigned long) getpid() % 16777216) << 24;
+	id |= ((unsigned long)getpid() % 16777216) << 24;
 	return id;
 }

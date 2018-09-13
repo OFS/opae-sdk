@@ -46,7 +46,6 @@ set(ASE_SERVER_SRC ${ASE_SHARE_DIR}/sw)
 
 # ASE SW file setup
 set(ASESW_FILE_LIST
-  ${ASE_SERVER_SRC}/app_backend.c
   ${ASE_SERVER_SRC}/tstamp_ops.c
   ${ASE_SERVER_SRC}/ase_ops.c
   ${ASE_SERVER_SRC}/ase_strings.c
@@ -80,6 +79,17 @@ function(ase_module_add_dpic name)
   # Assure position indenpendent code
   set_property(TARGET opae-c-ase-server-${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+if(BUILD_ASE_TESTS)
+  target_compile_definitions(opae-c-ase-server-${name} 
+	PRIVATE
+	_GLIBCXX_USE_CXX11_ABI=0
+    SIM_SIDE=1
+    SIMULATOR=${ASE_SIMULATOR}
+    ${used_platform}
+    ASE_LL_VIEW=1
+    ASE_MSG_VIEW=1
+    ASE_UNIT=1)
+else()
   # Add required compilation flags
   target_compile_definitions(opae-c-ase-server-${name}
     PRIVATE
@@ -87,6 +97,7 @@ function(ase_module_add_dpic name)
     SIM_SIDE=1
     SIMULATOR=${ASE_SIMULATOR}
     ${used_platform})
+endif()
 
   # Define include directories
   target_include_directories(opae-c-ase-server-${name} PUBLIC

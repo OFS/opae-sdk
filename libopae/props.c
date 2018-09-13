@@ -38,14 +38,14 @@
 
 #include "props.h"
 
-struct _fpga_properties * opae_properties_create(void)
+struct _fpga_properties *opae_properties_create(void)
 {
 	struct _fpga_properties *props;
 	pthread_mutexattr_t mattr;
 	int err;
 
-	props = (struct _fpga_properties *)
-		calloc(1, sizeof(struct _fpga_properties));
+	props = (struct _fpga_properties *)calloc(
+		1, sizeof(struct _fpga_properties));
 
 	if (!props)
 		return NULL;
@@ -74,7 +74,8 @@ struct _fpga_properties * opae_properties_create(void)
 out_destroy_attr:
 	err = pthread_mutexattr_destroy(&mattr);
 	if (err)
-		OPAE_ERR("pthread_mutexattr_destroy() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutexattr_destroy() failed: %s",
+			 strerror(err));
 out_free:
 	free(props);
 	return NULL;
@@ -98,7 +99,7 @@ void opae_properties_destroy(struct _fpga_properties *props)
 	free(props);
 }
 
-struct _fpga_properties * opae_properties_clone(fpga_properties props)
+struct _fpga_properties *opae_properties_clone(fpga_properties props)
 {
 	int err;
 	struct _fpga_properties *clone;
@@ -138,7 +139,8 @@ fpga_result opae_properties_clear(fpga_properties props)
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_parent(fpga_properties props, fpga_token *parent)
+fpga_result opae_properties_get_parent(fpga_properties props,
+				       fpga_token *parent)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -181,7 +183,8 @@ fpga_result opae_properties_set_parent(fpga_properties props, fpga_token parent)
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_object_type(fpga_properties props, fpga_objtype *objtype)
+fpga_result opae_properties_get_object_type(fpga_properties props,
+					    fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -205,7 +208,8 @@ fpga_result opae_properties_get_object_type(fpga_properties props, fpga_objtype 
 	return res;
 }
 
-fpga_result opae_properties_set_object_type(fpga_properties props, fpga_objtype objtype)
+fpga_result opae_properties_set_object_type(fpga_properties props,
+					    fpga_objtype objtype)
 {
 	int err;
 	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
@@ -220,7 +224,8 @@ fpga_result opae_properties_set_object_type(fpga_properties props, fpga_objtype 
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_segment(fpga_properties props, uint16_t *segment)
+fpga_result opae_properties_get_segment(fpga_properties props,
+					uint16_t *segment)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -339,7 +344,8 @@ fpga_result opae_properties_set_device(fpga_properties props, uint8_t device)
 	return res;
 }
 
-fpga_result opae_properties_get_function(fpga_properties props, uint8_t *function)
+fpga_result opae_properties_get_function(fpga_properties props,
+					 uint8_t *function)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -363,7 +369,8 @@ fpga_result opae_properties_get_function(fpga_properties props, uint8_t *functio
 	return res;
 }
 
-fpga_result opae_properties_set_function(fpga_properties props, uint8_t function)
+fpga_result opae_properties_set_function(fpga_properties props,
+					 uint8_t function)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -379,7 +386,8 @@ fpga_result opae_properties_set_function(fpga_properties props, uint8_t function
 	return res;
 }
 
-fpga_result opae_properties_get_socket_id(fpga_properties props, uint8_t *socket_id)
+fpga_result opae_properties_get_socket_id(fpga_properties props,
+					  uint8_t *socket_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -403,7 +411,8 @@ fpga_result opae_properties_get_socket_id(fpga_properties props, uint8_t *socket
 	return res;
 }
 
-fpga_result opae_properties_set_socket_id(fpga_properties props, uint8_t socket_id)
+fpga_result opae_properties_set_socket_id(fpga_properties props,
+					  uint8_t socket_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -419,7 +428,8 @@ fpga_result opae_properties_set_socket_id(fpga_properties props, uint8_t socket_
 	return res;
 }
 
-fpga_result opae_properties_get_device_id(fpga_properties props, uint16_t *device_id)
+fpga_result opae_properties_get_device_id(fpga_properties props,
+					  uint16_t *device_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -443,7 +453,8 @@ fpga_result opae_properties_get_device_id(fpga_properties props, uint16_t *devic
 	return res;
 }
 
-fpga_result opae_properties_set_device_id(fpga_properties props, uint16_t device_id)
+fpga_result opae_properties_set_device_id(fpga_properties props,
+					  uint16_t device_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -459,7 +470,8 @@ fpga_result opae_properties_set_device_id(fpga_properties props, uint16_t device
 	return res;
 }
 
-fpga_result opae_properties_get_num_slots(fpga_properties props, uint32_t *num_slots)
+fpga_result opae_properties_get_num_slots(fpga_properties props,
+					  uint32_t *num_slots)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -471,8 +483,8 @@ fpga_result opae_properties_get_num_slots(fpga_properties props, uint32_t *num_s
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_NUM_SLOTS)) {
 			*num_slots = p->u.fpga.num_slots;
 		} else {
@@ -480,8 +492,9 @@ fpga_result opae_properties_get_num_slots(fpga_properties props, uint32_t *num_s
 			res = FPGA_NOT_FOUND;
 		}
 	} else {
-		OPAE_ERR("Attempting to get num_slots from invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to get num_slots from invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -490,7 +503,8 @@ fpga_result opae_properties_get_num_slots(fpga_properties props, uint32_t *num_s
 	return res;
 }
 
-fpga_result opae_properties_set_num_slots(fpga_properties props, uint32_t num_slots)
+fpga_result opae_properties_set_num_slots(fpga_properties props,
+					  uint32_t num_slots)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -498,13 +512,14 @@ fpga_result opae_properties_set_num_slots(fpga_properties props, uint32_t num_sl
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
-		SET_FIELD_VALID(p, FPGA_PROPERTY_NUM_SLOTS);	
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
+		SET_FIELD_VALID(p, FPGA_PROPERTY_NUM_SLOTS);
 		p->u.fpga.num_slots = num_slots;
 	} else {
-		OPAE_ERR("Attempting to set num slots on invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to set num slots on invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -525,8 +540,8 @@ fpga_result opae_properties_get_bbs_id(fpga_properties props, uint64_t *bbs_id)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_BBSID)) {
 			*bbs_id = p->u.fpga.bbs_id;
 		} else {
@@ -534,8 +549,9 @@ fpga_result opae_properties_get_bbs_id(fpga_properties props, uint64_t *bbs_id)
 			res = FPGA_NOT_FOUND;
 		}
 	} else {
-		OPAE_ERR("Attempting to get BBS ID from invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to get BBS ID from invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -552,13 +568,13 @@ fpga_result opae_properties_set_bbs_id(fpga_properties props, uint64_t bbs_id)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
 		SET_FIELD_VALID(p, FPGA_PROPERTY_BBSID);
 		p->u.fpga.bbs_id = bbs_id;
 	} else {
 		OPAE_ERR("Attempting to set BBS ID on invalid object type: %d",
-				p->objtype);
+			 p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -567,7 +583,8 @@ fpga_result opae_properties_set_bbs_id(fpga_properties props, uint64_t bbs_id)
 	return res;
 }
 
-fpga_result opae_properties_get_bbs_version(fpga_properties props, fpga_version *bbs_version)
+fpga_result opae_properties_get_bbs_version(fpga_properties props,
+					    fpga_version *bbs_version)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -579,8 +596,8 @@ fpga_result opae_properties_get_bbs_version(fpga_properties props, fpga_version 
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_BBSVERSION)) {
 			*bbs_version = p->u.fpga.bbs_version;
 		} else {
@@ -588,8 +605,9 @@ fpga_result opae_properties_get_bbs_version(fpga_properties props, fpga_version 
 			res = FPGA_NOT_FOUND;
 		}
 	} else {
-		OPAE_ERR("Attempting to get BBS version from invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to get BBS version from invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -598,7 +616,8 @@ fpga_result opae_properties_get_bbs_version(fpga_properties props, fpga_version 
 	return res;
 }
 
-fpga_result opae_properties_set_bbs_version(fpga_properties props, fpga_version bbs_version)
+fpga_result opae_properties_set_bbs_version(fpga_properties props,
+					    fpga_version bbs_version)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -606,13 +625,14 @@ fpga_result opae_properties_set_bbs_version(fpga_properties props, fpga_version 
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_DEVICE == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_DEVICE == p->objtype) {
 		SET_FIELD_VALID(p, FPGA_PROPERTY_BBSVERSION);
 		p->u.fpga.bbs_version = bbs_version;
 	} else {
-		OPAE_ERR("Attempting to set BBS version on invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to set BBS version on invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -621,7 +641,8 @@ fpga_result opae_properties_set_bbs_version(fpga_properties props, fpga_version 
 	return res;
 }
 
-fpga_result opae_properties_get_vendor_id(fpga_properties props, uint16_t *vendor_id)
+fpga_result opae_properties_get_vendor_id(fpga_properties props,
+					  uint16_t *vendor_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -645,7 +666,8 @@ fpga_result opae_properties_get_vendor_id(fpga_properties props, uint16_t *vendo
 	return res;
 }
 
-fpga_result opae_properties_set_vendor_id(fpga_properties props, uint16_t vendor_id)
+fpga_result opae_properties_set_vendor_id(fpga_properties props,
+					  uint16_t vendor_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -677,7 +699,8 @@ fpga_result opae_properties_set_model(fpga_properties props, char *model)
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_get_local_memory_size(fpga_properties props, uint64_t *lms)
+fpga_result opae_properties_get_local_memory_size(fpga_properties props,
+						  uint64_t *lms)
 {
 	UNUSED_PARAM(props);
 	UNUSED_PARAM(lms);
@@ -685,7 +708,8 @@ fpga_result opae_properties_get_local_memory_size(fpga_properties props, uint64_
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_set_local_memory_size(fpga_properties props, uint64_t lms)
+fpga_result opae_properties_set_local_memory_size(fpga_properties props,
+						  uint64_t lms)
 {
 	UNUSED_PARAM(props);
 	UNUSED_PARAM(lms);
@@ -693,7 +717,8 @@ fpga_result opae_properties_set_local_memory_size(fpga_properties props, uint64_
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_get_capabilities(fpga_properties props, uint64_t *capabilities)
+fpga_result opae_properties_get_capabilities(fpga_properties props,
+					     uint64_t *capabilities)
 {
 	UNUSED_PARAM(props);
 	UNUSED_PARAM(capabilities);
@@ -701,7 +726,8 @@ fpga_result opae_properties_get_capabilities(fpga_properties props, uint64_t *ca
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_set_capabilities(fpga_properties props, uint64_t capabilities)
+fpga_result opae_properties_set_capabilities(fpga_properties props,
+					     uint64_t capabilities)
 {
 	UNUSED_PARAM(props);
 	UNUSED_PARAM(capabilities);
@@ -723,8 +749,8 @@ fpga_result opae_properties_get_guid(fpga_properties props, fpga_guid *guid)
 
 	if (FIELD_VALID(p, FPGA_PROPERTY_GUID)) {
 		errno_t e;
-		e = memcpy_s(*guid, sizeof(fpga_guid),
-				p->guid, sizeof(fpga_guid));
+		e = memcpy_s(*guid, sizeof(fpga_guid), p->guid,
+			     sizeof(fpga_guid));
 		if (EOK != e) {
 			OPAE_ERR("memcpy_s failed");
 			res = FPGA_EXCEPTION;
@@ -749,8 +775,7 @@ fpga_result opae_properties_set_guid(fpga_properties props, fpga_guid guid)
 	ASSERT_NOT_NULL(p);
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_GUID);
-	e = memcpy_s(p->guid, sizeof(fpga_guid),
-			guid, sizeof(fpga_guid));
+	e = memcpy_s(p->guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
 		res = FPGA_EXCEPTION;
@@ -761,7 +786,8 @@ fpga_result opae_properties_set_guid(fpga_properties props, fpga_guid guid)
 	return res;
 }
 
-fpga_result opae_properties_get_num_mmio(fpga_properties props, uint32_t *mmio_spaces)
+fpga_result opae_properties_get_num_mmio(fpga_properties props,
+					 uint32_t *mmio_spaces)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -773,8 +799,8 @@ fpga_result opae_properties_get_num_mmio(fpga_properties props, uint32_t *mmio_s
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_NUM_MMIO)) {
 			*mmio_spaces = p->u.accelerator.num_mmio;
 		} else {
@@ -782,8 +808,9 @@ fpga_result opae_properties_get_num_mmio(fpga_properties props, uint32_t *mmio_s
 			res = FPGA_NOT_FOUND;
 		}
 	} else {
-		OPAE_ERR("Attempting to get number of MMIO spaces from invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to get number of MMIO spaces from invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -792,7 +819,8 @@ fpga_result opae_properties_get_num_mmio(fpga_properties props, uint32_t *mmio_s
 	return res;
 }
 
-fpga_result opae_properties_set_num_mmio(fpga_properties props, uint32_t mmio_spaces)
+fpga_result opae_properties_set_num_mmio(fpga_properties props,
+					 uint32_t mmio_spaces)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -800,13 +828,14 @@ fpga_result opae_properties_set_num_mmio(fpga_properties props, uint32_t mmio_sp
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		SET_FIELD_VALID(p, FPGA_PROPERTY_NUM_MMIO);
 		p->u.accelerator.num_mmio = mmio_spaces;
 	} else {
-		OPAE_ERR("Attempting to set number of MMIO spaces on invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to set number of MMIO spaces on invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -815,7 +844,8 @@ fpga_result opae_properties_set_num_mmio(fpga_properties props, uint32_t mmio_sp
 	return res;
 }
 
-fpga_result opae_properties_get_num_interrupts(fpga_properties props, uint32_t *num_interrupts)
+fpga_result opae_properties_get_num_interrupts(fpga_properties props,
+					       uint32_t *num_interrupts)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -827,8 +857,8 @@ fpga_result opae_properties_get_num_interrupts(fpga_properties props, uint32_t *
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_NUM_INTERRUPTS)) {
 			*num_interrupts = p->u.accelerator.num_interrupts;
 		} else {
@@ -836,8 +866,9 @@ fpga_result opae_properties_get_num_interrupts(fpga_properties props, uint32_t *
 			res = FPGA_NOT_FOUND;
 		}
 	} else {
-		OPAE_ERR("Attempting to get number of interrupts from invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to get number of interrupts from invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -846,7 +877,8 @@ fpga_result opae_properties_get_num_interrupts(fpga_properties props, uint32_t *
 	return res;
 }
 
-fpga_result opae_properties_set_num_interrupts(fpga_properties props, uint32_t num_interrupts)
+fpga_result opae_properties_set_num_interrupts(fpga_properties props,
+					       uint32_t num_interrupts)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -854,13 +886,14 @@ fpga_result opae_properties_set_num_interrupts(fpga_properties props, uint32_t n
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		SET_FIELD_VALID(p, FPGA_PROPERTY_NUM_INTERRUPTS);
 		p->u.accelerator.num_interrupts = num_interrupts;
 	} else {
-		OPAE_ERR("Attempting to set number of interrupts on invalid object type: %d",
-				p->objtype);
+		OPAE_ERR(
+			"Attempting to set number of interrupts on invalid object type: %d",
+			p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -870,7 +903,7 @@ fpga_result opae_properties_set_num_interrupts(fpga_properties props, uint32_t n
 }
 
 fpga_result opae_properties_get_accelerator_state(fpga_properties props,
-                                                  fpga_accelerator_state *state)
+						  fpga_accelerator_state *state)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -882,8 +915,8 @@ fpga_result opae_properties_get_accelerator_state(fpga_properties props,
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		if (FIELD_VALID(p, FPGA_PROPERTY_ACCELERATOR_STATE)) {
 			*state = p->u.accelerator.state;
 		} else {
@@ -892,7 +925,7 @@ fpga_result opae_properties_get_accelerator_state(fpga_properties props,
 		}
 	} else {
 		OPAE_ERR("Attempting to get state from invalid object type: %d",
-				p->objtype);
+			 p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -902,7 +935,7 @@ fpga_result opae_properties_get_accelerator_state(fpga_properties props,
 }
 
 fpga_result opae_properties_set_accelerator_state(fpga_properties props,
-                                                  fpga_accelerator_state state)
+						  fpga_accelerator_state state)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -910,13 +943,13 @@ fpga_result opae_properties_set_accelerator_state(fpga_properties props,
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE) &&
-	    FPGA_ACCELERATOR == p->objtype) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && FPGA_ACCELERATOR == p->objtype) {
 		SET_FIELD_VALID(p, FPGA_PROPERTY_ACCELERATOR_STATE);
 		p->u.accelerator.state = state;
 	} else {
 		OPAE_ERR("Attempting to set state from invalid object type: %d",
-				p->objtype);
+			 p->objtype);
 		res = FPGA_INVALID_PARAM;
 	}
 
@@ -925,7 +958,8 @@ fpga_result opae_properties_set_accelerator_state(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_object_id(fpga_properties props, uint64_t *object_id)
+fpga_result opae_properties_get_object_id(fpga_properties props,
+					  uint64_t *object_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -949,7 +983,8 @@ fpga_result opae_properties_get_object_id(fpga_properties props, uint64_t *objec
 	return res;
 }
 
-fpga_result opae_properties_set_object_id(fpga_properties props, uint64_t object_id)
+fpga_result opae_properties_set_object_id(fpga_properties props,
+					  uint64_t object_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -965,7 +1000,8 @@ fpga_result opae_properties_set_object_id(fpga_properties props, uint64_t object
 	return res;
 }
 
-fpga_result opae_properties_get_num_errors(fpga_properties props, uint32_t *num_errors)
+fpga_result opae_properties_get_num_errors(fpga_properties props,
+					   uint32_t *num_errors)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -989,7 +1025,8 @@ fpga_result opae_properties_get_num_errors(fpga_properties props, uint32_t *num_
 	return res;
 }
 
-fpga_result opae_properties_set_num_errors(fpga_properties props, uint32_t num_errors)
+fpga_result opae_properties_set_num_errors(fpga_properties props,
+					   uint32_t num_errors)
 {
 	fpga_result res = FPGA_OK;
 	int err;

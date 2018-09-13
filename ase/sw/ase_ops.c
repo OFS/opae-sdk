@@ -133,6 +133,15 @@ void remove_newline(char *in_str)
 	}
 }
 
+/*
+* ASE exit function for unit tests
+*/
+void ase_exit(void)
+{
+#ifndef ASE_UNIT
+	exit(1);
+#endif
+}
 
 // -------------------------------------------------------------
 // ase_buffer_info : Print out information about the buffer

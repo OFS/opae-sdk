@@ -35,6 +35,16 @@
 #include "c_test_system.h"
 #include "test_utils.h"
 
+// hijack malloc
+static bool _invalidate_malloc = false;
+void *malloc(size_t size) {
+  if (_invalidate_malloc) {
+    _invalidate_malloc = false;
+    return nullptr;
+  }
+  return __libc_malloc(size);
+}
+
 namespace opae {
 namespace testing {
 
@@ -304,6 +314,8 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   std::string syspath = get_sysfs_path(dirp);
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
+
+void test_system::invalidate_malloc() { _invalidate_malloc = true; }
 
 }  // end of namespace testing
 }  // end of namespace opae

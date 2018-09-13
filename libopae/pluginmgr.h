@@ -36,10 +36,9 @@ int opae_plugin_mgr_parse_config(/* json_object *jobj */);
 int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter);
 
 // iteration stops if callback returns non-zero.
-#define OPAE_ENUM_STOP     1
+#define OPAE_ENUM_STOP 1
 #define OPAE_ENUM_CONTINUE 0
 int opae_plugin_mgr_for_each_adapter(
-		int (*callback)(const opae_api_adapter_table * , void * ),
-		void *context);
+	int (*callback)(const opae_api_adapter_table *, void *), void *context);
 
 #endif /* __OPAE_PLUGINMGR_H__ */
