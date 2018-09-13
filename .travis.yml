@@ -69,7 +69,7 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
-  - script: scripts/coverage-gtapi-mock-drv.sh
+  - script: scripts/cover.sh
     install:
     - pip install --user pybind11 nose2
     cache:
@@ -85,7 +85,7 @@ matrix:
     before_install:
       - pip install --user cpp-coveralls
     after_success:
-      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned -E .*pybind11.*
+      - coveralls -l $TRAVIS_BUILD_DIR/unittests/coverage.info.cleaned -E .*pybind11.*
   - script: scripts/build-documentation.sh
     cache: 
       - ccache
