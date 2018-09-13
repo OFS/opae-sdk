@@ -30,60 +30,54 @@
  * Involves redefining ioctl(), open(), close(), others?
  */
 
-#include <stdarg.h>
-#include <sys/types.h>
 #include <fcntl.h>
-#include <stdint.h>
 #include <safe_string/safe_string.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <sys/types.h>
 #include "c_test_system.h"
 
-int ioctl(int fd, unsigned long request, ...)
-{
-	va_list argp;
-	va_start(argp, request);
-	int res = opae_test_ioctl(fd, request, argp);
-	va_end(argp);
-	return res;
+int ioctl(int fd, unsigned long request, ...) {
+  va_list argp;
+  va_start(argp, request);
+  int res = opae_test_ioctl(fd, request, argp);
+  va_end(argp);
+  return res;
 }
 
-int open(const char* path, int flags, ...)
-{
-	int fd = -1;
-	if (flags & O_CREAT) {
-		va_list argp;
-		va_start(argp, flags);
-		mode_t arg = va_arg(argp, mode_t);
-		fd = opae_test_open_create(path, flags, arg);
-		va_end(argp);
-	}
-	else {
-		fd = opae_test_open(path, flags);
-	}
-	return fd;
+int open(const char *path, int flags, ...) {
+  int fd = -1;
+  if (flags & O_CREAT) {
+    va_list argp;
+    va_start(argp, flags);
+    mode_t arg = va_arg(argp, mode_t);
+    fd = opae_test_open_create(path, flags, arg);
+    va_end(argp);
+  } else {
+    fd = opae_test_open(path, flags);
+  }
+  return fd;
 }
 
-int close(int fd)
-{
-	return opae_test_close(fd);
+int close(int fd) { return opae_test_close(fd); }
+
+DIR *opendir(const char *name) { return opae_test_opendir(name); }
+
+ssize_t readlink(const char *pathname, char *buf, size_t bufsiz) {
+  return opae_test_readlink(pathname, buf, bufsiz);
 }
 
-DIR *opendir(const char *name)
-{
-	return opae_test_opendir(name);
+int __xstat(int ver, const char *pathname, struct stat *buf) {
+  return opae_test_xstat(ver, pathname, buf);
 }
 
-ssize_t readlink(const char *pathname, char *buf, size_t bufsiz)
-{
-	return opae_test_readlink(pathname, buf, bufsiz);
+int __lxstat(int ver, const char *pathname, struct stat *buf) {
+  return opae_test_xstat(ver, pathname, buf);
 }
 
-int __xstat(int ver, const char *pathname, struct stat *buf)
-{
-	return opae_test_xstat(ver, pathname, buf);
+int scandir(const char *__restrict __dir,
+            struct dirent ***__restrict __namelist,
+            int (*__selector)(const struct dirent *),
+            int (*__cmp)(const struct dirent **, const struct dirent **)) {
+  return opae_test_scandir(__dir, __namelist, __selector, __cmp);
 }
-
-int __lxstat(int ver, const char *pathname, struct stat *buf)
-{
-	return opae_test_xstat(ver, pathname, buf);
-}
-

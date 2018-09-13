@@ -43,7 +43,6 @@ static const char *dev_pattern =
 static const char *sysclass_pattern =
     R"regex(/sys/class/fpga/intel-fpga-dev\.\([0-9]\+\))regex";
 
-
 mock_object::mock_object(const std::string &devpath,
                          const std::string &sysclass, uint32_t device_id,
                          type_t type)
@@ -52,10 +51,10 @@ mock_object::mock_object(const std::string &devpath,
       device_id_(device_id),
       type_(type) {}
 
-  int mock_fme::ioctl(int request, va_list argp) {
-    (void)request;
-    (void)argp;
-    return 0;
+int mock_fme::ioctl(int request, va_list argp) {
+  (void)request;
+  (void)argp;
+  return 0;
 }
 
 int mock_port::ioctl(int request, va_list argp) {
@@ -81,7 +80,7 @@ test_device test_device::unknown() {
                      .socket_id = 9,
                      .num_slots = 9,
                      .bbs_id = 9,
-                     .bbs_version = {0xFF,0xFF,0xFF},
+                     .bbs_version = {0xFF, 0xFF, 0xFF},
                      .state = FPGA_ACCELERATOR_ASSIGNED,
                      .num_mmio = 0,
                      .num_interrupts = 0xf,
@@ -108,7 +107,7 @@ static platform_db PLATFORMS = {
                        .socket_id = 0,
                        .num_slots = 1,
                        .bbs_id = 0x63000023b637277,
-                       .bbs_version = {6,3,0},
+                       .bbs_version = {6, 3, 0},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 1,
@@ -150,6 +149,7 @@ test_system::test_system() : root_("") {
   readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
 }
 
 test_system *test_system::instance() {
@@ -205,7 +205,8 @@ void test_system::finalize() {
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
-  bool alhready_registered = ioctl_handlers_.find(request) != ioctl_handlers_.end();
+  bool alhready_registered =
+      ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
   return alhready_registered;
 }
@@ -246,7 +247,7 @@ int test_system::open(const std::string &path, int flags) {
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
       fds_[fd] = new mock_fme(path, sysclass_path, device_id);
-    } else if (m->group(1) == "port" ) {
+    } else if (m->group(1) == "port") {
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
   }
@@ -298,6 +299,12 @@ int test_system::lstat(int ver, const char *path, struct stat *buf) {
   return lstat_(ver, syspath.c_str(), buf);
 }
 
+int test_system::scandir(const char *dirp, struct dirent ***namelist,
+                         filter_func filter, compare_func cmp) {
+  std::string syspath = get_sysfs_path(dirp);
+  return scandir_(syspath.c_str(), namelist, filter, cmp);
+}
+
 }  // end of namespace testing
 }  // end of namespace opae
 
@@ -333,4 +340,10 @@ int opae_test_xstat(int ver, const char *path, struct stat *buf) {
 
 int opae_test_lstat(int ver, const char *path, struct stat *buf) {
   return opae::testing::test_system::instance()->lstat(ver, path, buf);
+}
+
+int opae_test_scandir(const char *dirp, struct dirent ***namelist,
+                      filter_func filter, compare_func cmp) {
+  return opae::testing::test_system::instance()->scandir(dirp, namelist, filter,
+                                                         cmp);
 }

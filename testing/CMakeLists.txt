@@ -43,7 +43,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reconf.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reset.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/sysfs.c
-              #${OPAE_SDK_SOURCE}/libopaeplugins/xfpga//sysobject.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga//sysobject.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/token_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/umsg.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
@@ -109,6 +109,10 @@ add_mock_test(test_opae_enum_c opae-c-static
 
 add_mock_test(test_xfpga_properties_c xfpga-static
     xfpga/test_properties_c.cpp
+)
+
+add_mock_test(test_xfpga_object_c xfpga-static
+    xfpga/test_object_c.cpp
 )
 
 add_mock_test(test_xfpga_enum_c xfpga-static

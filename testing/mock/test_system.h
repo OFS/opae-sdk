@@ -27,13 +27,15 @@
 #define _TEST_SYSTEM_H
 
 #include <dirent.h>
+#include <opae/fpga.h>
+#include <stddef.h>
 #include <map>
 #include <string>
 #include <vector>
-#include <stddef.h>
-#include <opae/fpga.h>
 
 typedef struct stat stat_t;
+typedef int (*filter_func)(const struct dirent *);
+typedef int (*compare_func)(const struct dirent **, const struct dirent **);
 
 namespace opae {
 namespace testing {
@@ -43,7 +45,7 @@ constexpr size_t MiB(size_t n) { return n * 1024 * KiB(1); }
 
 #ifndef UNUSED_PARAM
 #define UNUSED_PARAM(x) ((void)x)
-#endif // UNUSED_PARAM
+#endif  // UNUSED_PARAM
 
 class mock_object {
  public:
@@ -116,16 +118,15 @@ struct test_platform {
   static std::vector<std::string> keys(bool sorted = false);
 };
 
-template<int _R, long _E>
-static int dummy_ioctl(mock_object *, int, va_list)
-{
+template <int _R, long _E>
+static int dummy_ioctl(mock_object *, int, va_list) {
   errno = _E;
   return _R;
 }
 
 class test_system {
  public:
-  typedef int (*ioctl_handler_t)(mock_object*, int, va_list);
+  typedef int (*ioctl_handler_t)(mock_object *, int, va_list);
   static test_system *instance();
 
   void set_root(const char *root);
@@ -145,6 +146,8 @@ class test_system {
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
   int xstat(int ver, const char *path, stat_t *buf);
   int lstat(int ver, const char *path, stat_t *buf);
+  int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
+              compare_func cmp);
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
@@ -163,6 +166,8 @@ class test_system {
   typedef ssize_t (*readlink_func)(const char *pathname, char *buf,
                                    size_t bufsiz);
   typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
+  typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
+                              compare_func);
 
   open_func open_;
   open_create_func open_create_;
@@ -172,6 +177,7 @@ class test_system {
   readlink_func readlink_;
   __xstat_func xstat_;
   __xstat_func lstat_;
+  scandir_func scandir_;
 };
 
 }  // end of namespace testing
