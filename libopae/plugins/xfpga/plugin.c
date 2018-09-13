@@ -152,6 +152,9 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaDestroyObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyObject");
 	adapter->fpgaObjectRead = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead");
 
+	adapter->fpgaSetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUserClock");
+	adapter->fpgaGetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUserClock");
+
 	adapter->initialize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
 	adapter->finalize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");
 
