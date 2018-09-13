@@ -23,15 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifdef __cplusplus
 extern "C" {
-#endif
 #include <opae/utils.h>
 const char * xfpga_fpgaErrStr(fpga_result);
-
-#ifdef __cplusplus
 }
-#endif
 
 #include "test_system.h"
 #include "gtest/gtest.h"
@@ -45,7 +40,7 @@ using namespace opae::testing;
  * @brief      Verifies the string returned by fpgaErrStr() for each
  *             fpga_result enumeration value.
  */
-TEST(LibopaecErrorCommonALL, common_01) {
+TEST(common, fpgaErrStr) {
   EXPECT_STREQ("success",                 xfpga_fpgaErrStr(FPGA_OK));
   EXPECT_STREQ("invalid parameter",       xfpga_fpgaErrStr(FPGA_INVALID_PARAM));
   EXPECT_STREQ("resource busy",           xfpga_fpgaErrStr(FPGA_BUSY));
