@@ -109,6 +109,38 @@ out_EINVAL:
     goto out;
 }
 
+
+int umsg_set_base_addr(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
+    struct fpga_port_umsg_base_addr *ubase = va_arg(argp, struct fpga_port_umsg_base_addr *);
+    if (!ubase) {
+    	FPGA_MSG("ubase is NULL");
+    	goto out_EINVAL;
+    }
+    if (ubase->argsz != sizeof(*ubase)) {
+    	FPGA_MSG("wrong structure size");
+    	goto out_EINVAL;
+    }
+    if (ubase->flags != 0) {
+    	FPGA_MSG("unexpected flags %u", ubase->flags);
+    	goto out_EINVAL;
+    }
+    /* TODO: check iova */
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
+}
+
+
 class umsg_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
@@ -194,6 +226,47 @@ TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
 }
+
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err) {
+  uint64_t *value = 0;
+
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_02) {
+  uint64_t *value = 0;
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
+  uint64_t *value = 0;
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_DISABLE, dummy_ioctl<0,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
 	////////////////////////////////////////
 	// Disable this test because it modifies
 	// handle to gain coverage.
@@ -332,7 +405,8 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
   fpga_result res;
 
   // Get umsg buffer
-  //system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
   EXPECT_TRUE(umsg_ptr != NULL) << "\t this is umsg:" << res;
@@ -399,28 +473,32 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
 }
 
 
-
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
 /**
  * @test       Umsg_08
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
- *             has an invalid fddev,<br>
- *             Then the function returns FPGA_INVALID_PARAM.<br>
+ *             is valid,<br>
+ *             Then the function returns FPGA_OK.<br>
  *
  */
-//TEST(umsg_c_p, test_umsg_08) {
-//  struct _fpga_handle *_h = (struct _fpga_handle *) handle_;
-//
-//  int save_fddev = _h->fddev;
-//
-//  _h->fddev = -1;
-//  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(h, 0));
-//
-//  _h->fddev = save_fddev;
-//}
+TEST_P(umsg_c_p, test_umsg_08) {
+  auto res = xfpga_fpgaTriggerUmsg(handle_, 0);
+  EXPECT_EQ(FPGA_OK, res) << "\t return value is " << res;
+}
+
+/**
+ * @test       Umsg_09
+ *
+ * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
+ *             is invalid,<br>
+ *             Then the function returns FPGA_OK.<br>
+ *
+ */
+TEST_P(umsg_c_p, test_umsg_09) {
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  EXPECT_NE(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
+}
+
+
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::keys(true)));
