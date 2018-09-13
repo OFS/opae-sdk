@@ -46,7 +46,7 @@ import subprocess
 def getASESrcPath():
     # CMake will update any variables marked by @ with the proper values.
     project_src_dir = '@CMAKE_CURRENT_SOURCE_DIR@'
-    ase_share_dir = '@ASE_SHARE_DIR@'
+    ase_share_dir = '@ASE_INST_SHARE_DIR@'
 
     # Parent directory of the running script
     parent_dir = os.path.dirname(

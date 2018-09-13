@@ -750,16 +750,12 @@ int ase_listener(void)
 				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
 					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
 					run_clocks (500);
-					self_destruct_in_progress = 1;
-					ase_destroy();
-					start_simkill_countdown();
+					ase_perror_teardown(NULL, 0);
 				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
 					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
 						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
 						run_clocks (500);
-						self_destruct_in_progress = 1;
-						ase_destroy();
-						start_simkill_countdown();
+						ase_perror_teardown(NULL, 0);
 					} else {
 						ase_reset_trig();
 					}
