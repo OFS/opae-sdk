@@ -287,13 +287,24 @@ typedef struct _opae_api_adapter_table {
 					   const uint8_t *bitstream,
 					   size_t bitstream_len, int flags);
 
-	fpga_result (*fpgaGetTokenObject)(fpga_token token, const char *name,
+	fpga_result (*fpgaTokenGetObject)(fpga_token token, const char *name,
 					  fpga_object *object, int flags);
+
+	fpga_result (*fpgaHandleGetObject)(fpga_handle handle, const char *name,
+					   fpga_object *object, int flags);
+
+	fpga_result (*fpgaObjectGetObject)(fpga_object parent,
+					   fpga_handle handle, const char *name,
+					   fpga_object *object, int flags);
 
 	fpga_result (*fpgaDestroyObject)(fpga_object *obj);
 
 	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,
 				      size_t offset, size_t len, int flags);
+	fpga_result (*fpgaObjectRead64)(fpga_object obj, uint64_t *value,
+					int flags);
+	fpga_result (*fpgaObjectWrite64)(fpga_object obj, uint64_t value,
+					 int flags);
 
 	// configuration functions
 	int (*initialize)(void);

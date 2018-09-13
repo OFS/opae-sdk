@@ -60,7 +60,7 @@ extern "C" {
  * current implementation of this API.
  *
  */
-fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
+fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags);
 
 /**
