@@ -27,8 +27,8 @@
 #ifndef __FPGA_TOKEN_LIST_INT_H__
 #define __FPGA_TOKEN_LIST_INT_H__
 
+#include <opae/log.h>
 #include "types_int.h"
-#include "log_int.h"
 
 /*
  * token list structure manipulation functions

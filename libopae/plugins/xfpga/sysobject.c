@@ -32,12 +32,12 @@
 #include <sys/stat.h>
 
 #include "common_int.h"
-#include "log_int.h"
 #include "sysfs_int.h"
 #include "types_int.h"
 #include "safe_string/safe_string.h"
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
+#include <opae/log.h>
 
 #define FREE_IF(var)                                                           \
 	do {                                                                   \

@@ -28,8 +28,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <opae/log.h>
 #include "mmap_int.h"
-#include "log_int.h"
 
 #include <sys/mman.h>
 

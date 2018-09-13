@@ -39,13 +39,13 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <opae/types.h>
+#include <opae/log.h>
 #include <opae/types_enum.h>
 
 #include "safe_string/safe_string.h"
 
 #include "types_int.h"
 #include "sysfs_int.h"
-#include "log_int.h"
 #include "common_int.h"
 
 int sysfs_filter(const struct dirent *de)

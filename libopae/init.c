@@ -29,13 +29,16 @@
 #endif // HAVE_CONFIG_H
 
 #include "opae_int.h"
+#undef __USE_GNU
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifndef __USE_GNU
 #define __USE_GNU
+#endif // __USE_GNU
 #include <pthread.h>
 
 /* global loglevel */
