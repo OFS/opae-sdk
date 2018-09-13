@@ -43,6 +43,8 @@ using namespace opae::testing;
 
 
 int port_release_ioctl(mock_object * m, int request, va_list argp){
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
   int retval = -1;
   errno = EINVAL;
   struct fpga_fme_port_release *port_release =
@@ -77,6 +79,8 @@ out_EINVAL:
 }
 
 int port_assign_ioctl(mock_object * m, int request, va_list argp){
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
   int retval = -1;
   errno = EINVAL;
   struct fpga_fme_port_assign *port_assign =
@@ -212,7 +216,7 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_03) {
   
   // Release buffer
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
-  
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 }
 
 
