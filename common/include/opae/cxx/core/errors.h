@@ -78,7 +78,7 @@ class error {
    */
   uint64_t read_value();
 
-  ~error(){}
+  ~error() {}
 
   /**
    * @brief Get the C data structure
