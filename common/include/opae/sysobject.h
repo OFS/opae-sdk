@@ -42,7 +42,7 @@ extern "C" {
 /**
  * @brief Create an `fpga_object` data structures. An `fpga_object`
  * is a handle to an FPGA resource which can be an attribute or register or
- * drvier attribute. This object is read-only.
+ * driver attribute. This object is read-only.
  *
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
