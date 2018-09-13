@@ -50,7 +50,7 @@ extern "C" {
  * exception occurred while trying to access the handle.
  */
 fpga_result fpgaSetUserClock(fpga_handle handle,
-							uint64_t high_clk, uint64_t low_clk, int flags);
+			uint64_t high_clk, uint64_t low_clk, int flags);
 
 /**
  * Get afu user clock high and low 
@@ -64,7 +64,7 @@ fpga_result fpgaSetUserClock(fpga_handle handle,
  * exception occurred while trying to access the handle.
  */
 fpga_result fpgaGetUserClock(fpga_handle handle,
-							uint64_t *high_clk, uint64_t *low_clk, int flags);
+			uint64_t *high_clk, uint64_t *low_clk, int flags);
 
 #ifdef __cplusplus
 } // extern "C"
