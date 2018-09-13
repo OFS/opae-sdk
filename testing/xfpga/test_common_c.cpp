@@ -24,10 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #ifdef __cplusplus
-
 extern "C" {
 #endif
-#include <opae/fpga.h>
 #include <opae/utils.h>
 const char * xfpga_fpgaErrStr(fpga_result);
 
