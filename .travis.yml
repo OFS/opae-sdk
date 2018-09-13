@@ -3,6 +3,11 @@ compiler: gcc
 matrix:
   include:
   - script: scripts/test-codingstyle.sh
+  - script: scripts/test-codingstyle-cpp.sh
+    addons:
+      apt:
+        packages:
+          - clang-format-3.9
   - script: scripts/test-codingstyle-py.sh
     cache: pip
     install:

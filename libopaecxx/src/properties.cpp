@@ -24,9 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/cxx/core/except.h>
+#include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
-#include <opae/cxx/core/handle.h>
 #include <opae/utils.h>
 
 namespace opae {
@@ -38,7 +38,8 @@ const std::vector<properties::ptr_t> properties::none = {};
 properties::properties()
     : props_(nullptr),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
-      num_errors(&props_, fpgaPropertiesGetNumErrors, fpgaPropertiesSetNumErrors),
+      num_errors(&props_, fpgaPropertiesGetNumErrors,
+                 fpgaPropertiesSetNumErrors),
       segment(&props_, fpgaPropertiesGetSegment, fpgaPropertiesSetSegment),
       bus(&props_, fpgaPropertiesGetBus, fpgaPropertiesSetBus),
       device(&props_, fpgaPropertiesGetDevice, fpgaPropertiesSetDevice),
