@@ -90,7 +90,9 @@ TEST(sysfs_c, cat_token_sysfs_path)
 {
   _fpga_token tok;
   std::copy(single_sysfs_fme.begin(), single_sysfs_fme.end(), &tok.sysfspath[0]);
+  tok.sysfspath[single_sysfs_fme.size()] = '\0';
   std::copy(single_dev_fme.begin(), single_dev_fme.end(), &tok.devpath[0]);
+  tok.devpath[single_dev_fme.size()] = '\0';
   std::vector<char> buffer(256);
   EXPECT_EQ(cat_token_sysfs_path(buffer.data(), &tok, "bitstream_id"), FPGA_OK);
   EXPECT_STREQ(buffer.data(), std::string(single_sysfs_fme + "/bitstream_id").c_str());
@@ -104,7 +106,9 @@ TEST(sysfs_c, cat_handle_sysfs_path)
   _fpga_token tok;
   _fpga_handle hnd;
   std::copy(single_sysfs_fme.begin(), single_sysfs_fme.end(), &tok.sysfspath[0]);
+  tok.sysfspath[single_sysfs_fme.size()] = '\0';
   std::copy(single_dev_fme.begin(), single_dev_fme.end(), &tok.devpath[0]);
+  tok.devpath[single_dev_fme.size()] = '\0';
   hnd.token = &tok;
   std::vector<char> buffer(256);
   EXPECT_EQ(cat_handle_sysfs_path(buffer.data(), &hnd, "bitstream_id"), FPGA_OK);
