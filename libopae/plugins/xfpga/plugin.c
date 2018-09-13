@@ -148,9 +148,13 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaAssignToInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaAssignToInterface");
 	adapter->fpgaReleaseFromInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
 	adapter->fpgaReconfigureSlot = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
-	adapter->fpgaGetTokenObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetTokenObject");
+	adapter->fpgaTokenGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenGetObject");
+	adapter->fpgaHandleGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaHandleGetObject");
+	adapter->fpgaObjectGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetObject");
 	adapter->fpgaDestroyObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyObject");
 	adapter->fpgaObjectRead = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead");
+	adapter->fpgaObjectRead64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead64");
+	adapter->fpgaObjectWrite64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectWrite64");
 
 	adapter->fpgaSetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUserClock");
 	adapter->fpgaGetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUserClock");
