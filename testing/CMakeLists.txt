@@ -7,8 +7,20 @@ find_package(GTest)
 If(${GTest_FOUND})
   message(STATUS Found GTest)
 else()
-  include(test_config)
-  Build_GTEST()
+    configure_file(CMakeLists.txt.in ${CMAKE_BINARY_DIR}/googletest-dl/CMakeLists.txt)
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-dl)
+    if (result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+                     ${CMAKE_BINARY_DIR}/googletest-build
+                     EXCLUDE_FROM_ALL)
+    if (CMAKE_VERSION VERSION_LESS 2.8.11)
+        include_directories("${gtest_SOURCE_DIR}/include")
+    endif()
 endif()
 
 add_subdirectory(mock)
