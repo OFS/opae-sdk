@@ -732,8 +732,8 @@ ssize_t eintr_write(int fd, void *buf, size_t count)
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
 	if (!dest) {
-	               FPGA_ERR("destination str is NULL");
-	               return FPGA_EXCEPTION;
+		FPGA_ERR("destination str is NULL");
+		return FPGA_EXCEPTION;
 	}
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	int len = snprintf_s_ss(dest, SYSFS_PATH_MAX, "%s/%s",

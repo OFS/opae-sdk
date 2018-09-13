@@ -49,7 +49,7 @@
 
 
 fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
-			       fpga_object *object, int flags)
+				     fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
@@ -66,7 +66,7 @@ fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 
 
 fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
-				fpga_object *object, int flags)
+				      fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
@@ -82,8 +82,8 @@ fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 }
 
 fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
-				const char *name, fpga_object *object,
-				int flags)
+				      const char *name, fpga_object *object,
+				      int flags)
 {
 	char objpath[SYSFS_PATH_MAX] = {0};
 	fpga_result res = FPGA_EXCEPTION;
@@ -106,7 +106,6 @@ fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 	if (res) {
 		return res;
 	}
-
 
 
 	return make_sysfs_object(objpath, name, object, flags, handle);
@@ -148,13 +147,13 @@ fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 	if (flags & FPGA_OBJECT_TEXT) {
 		*value = strtoull((char *)_obj->buffer, NULL, 0);
 	} else {
-		*value = *(uint64_t*)_obj->buffer;
+		*value = *(uint64_t *)_obj->buffer;
 	}
 	return FPGA_OK;
 }
 
-fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
-			   size_t len, int flags)
+fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
+				 size_t offset, size_t len, int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	ASSERT_NOT_NULL(obj);
@@ -190,11 +189,12 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	}
 	memset32_s((uint32_t *)_obj->buffer, _obj->size, 0);
 	if (flags & FPGA_OBJECT_TEXT) {
-		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "%lux", value);
-		_obj->size = (size_t)strlen((const char*)_obj->buffer);
+		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "%lux",
+			     value);
+		_obj->size = (size_t)strlen((const char *)_obj->buffer);
 	} else {
 		_obj->size = sizeof(uint64_t);
-		*(uint64_t*)_obj->buffer = value;
+		*(uint64_t *)_obj->buffer = value;
 	}
 	lseek(_obj->fd, 0, SEEK_SET);
 	bytes_written = eintr_write(_obj->fd, _obj->buffer, _obj->size);
@@ -202,7 +202,8 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		FPGA_ERR("Did not write 64-bit value");
 		res = FPGA_EXCEPTION;
 	}
-	if ((err = pthread_mutex_unlock(&((struct _fpga_handle*)_obj->handle)->lock))) {
+	if ((err = pthread_mutex_unlock(
+		     &((struct _fpga_handle *)_obj->handle)->lock))) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
 	}
 	return res;
