@@ -491,12 +491,12 @@ TEST_P(umsg_c_p, test_umsg_08) {
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
  *             is invalid,<br>
- *             Then the function returns FPGA_OK.<br>
+ *             Then the function returns FPGA_EXCEPTION.<br>
  *
  */
 TEST_P(umsg_c_p, test_umsg_09) {
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
-  EXPECT_NE(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaTriggerUmsg(handle_, 0));
 }
 
 
