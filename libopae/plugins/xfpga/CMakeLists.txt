@@ -58,6 +58,7 @@ set(SRC
   token_list.c
   mmap.c
   version.c
+  userclk.c
   usrclk/user_clk_pgm_uclock.c
   plugin.c
   sysobject.c

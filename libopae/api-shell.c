@@ -2196,3 +2196,34 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	return wrapped_object->adapter_table->fpgaObjectWrite64(
 		wrapped_object->opae_object, value, flags);
 }
+
+fpga_result fpgaSetUserClock(fpga_handle handle,
+				uint64_t high_clk, uint64_t low_clk, int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
+						FPGA_NOT_SUPPORTED);
+
+	return 	wrapped_handle->adapter_table->fpgaSetUserClock(
+		wrapped_handle->opae_handle, high_clk, low_clk, flags);
+}
+
+
+fpga_result fpgaGetUserClock(fpga_handle handle,
+				uint64_t *high_clk, uint64_t *low_clk, int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(low_clk);
+	ASSERT_NOT_NULL(high_clk);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
+							FPGA_NOT_SUPPORTED);
+
+	return 	wrapped_handle->adapter_table->fpgaGetUserClock(
+		wrapped_handle->opae_handle, high_clk, low_clk, flags);
+}
