@@ -50,7 +50,7 @@ void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
 	if (loglevel > g_loglevel)
 		return;
 
-	if (loglevel == FPGA_LOG_ERROR)
+	if (loglevel == OPAE_LOG_ERROR)
 		fp = stderr;
 	else
 		fp = g_logfile == NULL ? stdout : g_logfile;
@@ -77,7 +77,7 @@ STATIC void fpga_init(void)
 	if (s) {
 		g_loglevel = atoi(s);
 #ifndef LIBFGPA_DEBUG
-		if (g_loglevel >= FPGA_LOG_DEBUG)
+		if (g_loglevel >= OPAE_LOG_DEBUG)
 			fprintf(stderr,
 				"WARNING: Environment variable LIBOPAE_LOG is "
 				"set to output debug\nmessages, "

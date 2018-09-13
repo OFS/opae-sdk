@@ -33,67 +33,12 @@
 #include <errno.h>
 
 #include <opae/types.h>
+#include <opae/log.h>
 
-/*
- * Convenience macros for printing messages and errors.
- */
-#ifdef __SHORT_FILE__
-#undef __SHORT_FILE__
-#endif // __SHORT_FILE__
-#define __SHORT_FILE__                                                         \
-	({                                                                     \
-		const char *file = __FILE__;                                   \
-		const char *p = file;                                          \
-		while (*p)                                                     \
-			++p;                                                   \
-		while ((p > file) && ('/' != *p) && ('\\' != *p))              \
-			--p;                                                   \
-		if (p > file)                                                  \
-			++p;                                                   \
-		p;                                                             \
-	})
-
-#ifdef OPAE_MSG
-#undef OPAE_MSG
-#endif // OPAE_MSG
-#define OPAE_MSG(format, ...)                                                  \
-	opae_print(OPAE_LOG_MESSAGE, "libopae-c %s:%u:%s() : " format "\n",    \
-		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
-
-#ifdef OPAE_ERR
-#undef OPAE_ERR
-#endif // OPAE_ERR
-#define OPAE_ERR(format, ...)                                                  \
-	opae_print(OPAE_LOG_ERROR,                                             \
-		   "libopae-c %s:%u:%s() **ERROR** : " format "\n",            \
-		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
-
-#ifdef OPAE_DBG
-#undef OPAE_DBG
-#endif // OPAE_DBG
-#ifdef LIBOPAE_DEBUG
-#define OPAE_DBG(format, ...)                                                  \
-	opae_print(OPAE_LOG_DEBUG,                                             \
-		   "libopae-c %s:%u:%s() *DEBUG* : " format "\n",              \
-		   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
-#else
-#define OPAE_DBG(format, ...)                                                  \
-	{                                                                      \
-	}
-#endif // LIBOPAE_DEBUG
-
-/*
- * Logging functions
- */
-enum opae_loglevel {
-	OPAE_LOG_ERROR = 0, /* critical errors (always print) */
-	OPAE_LOG_MESSAGE,   /* information (i.e. explain return code */
-	OPAE_LOG_DEBUG      /* debugging (also needs #define DEBUG 1) */
-};
-#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
-
-void opae_print(int loglevel, const char *fmt, ...);
-
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif // __USE_GNU
+#include <pthread.h>
 
 /* Macro for defining symbol visibility */
 //#define __FPGA_API__ __attribute__((visibility("default")))
@@ -107,7 +52,6 @@ void opae_print(int loglevel, const char *fmt, ...);
 			return __result;                                       \
 		}                                                              \
 	} while (0)
-
 
 /*
  * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
@@ -281,6 +225,7 @@ static inline void opae_destroy_wrapped_properties(opae_wrapped_properties *wp)
 
 typedef struct _opae_wrapped_event_handle {
 	uint32_t magic;
+	pthread_mutex_t lock;
 	uint32_t flags;
 	fpga_event_handle opae_event_handle;
 	opae_api_adapter_table *adapter_table;
@@ -294,6 +239,23 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 		sizeof(opae_wrapped_event_handle));
 
 	if (wevent) {
+		pthread_mutexattr_t mattr;
+
+		if (pthread_mutexattr_init(&mattr)) {
+			OPAE_ERR("pthread_mutexattr_init() failed");
+			goto out_free;
+		}
+		if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE)) {
+			OPAE_ERR("pthread_mutexattr_settype() failed");
+			goto out_free;
+		}
+		if (pthread_mutex_init(&wevent->lock, &mattr)) {
+			OPAE_ERR("pthread_mutex_init() failed");
+			goto out_free;
+		}
+
+		pthread_mutexattr_destroy(&mattr);
+
 		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
 		wevent->flags = 0;
 		wevent->opae_event_handle = opae_event_handle;
@@ -301,6 +263,9 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 	}
 
 	return wevent;
+out_free:
+	free(wevent);
+	return NULL;
 }
 
 static inline opae_wrapped_event_handle *
@@ -316,7 +281,11 @@ opae_validate_wrapped_event_handle(fpga_event_handle h)
 static inline void
 opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *we)
 {
+	int err;
+	opae_mutex_lock(err, &we->lock);
 	we->magic = 0;
+	opae_mutex_unlock(err, &we->lock);
+	pthread_mutex_destroy(&we->lock);
 	free(we);
 }
 

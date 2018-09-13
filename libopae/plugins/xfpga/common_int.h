@@ -44,8 +44,8 @@
 #include <pthread.h>
 #undef  _GNU_SOURCE
 
+#include <opae/log.h>
 #include "types_int.h"
-#include "log_int.h"
 #include "sysfs_int.h"
 #include "wsid_list_int.h"
 #include "token_list_int.h"

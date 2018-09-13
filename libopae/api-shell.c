@@ -1835,6 +1835,7 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	fpga_result res = FPGA_OK;
 	opae_wrapped_event_handle *wrapped_event_handle;
+	int ires;
 
 	ASSERT_NOT_NULL(event_handle);
 
@@ -1843,16 +1844,29 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 
 	ASSERT_NOT_NULL(wrapped_event_handle);
 
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
+
 	if (wrapped_event_handle->flags & OPAE_WRAPPED_EVENT_HANDLE_CREATED) {
-		ASSERT_NOT_NULL_RESULT(wrapped_event_handle->adapter_table
-					       ->fpgaDestroyEventHandle,
-				       FPGA_NOT_SUPPORTED);
-		ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
+
+		if (!wrapped_event_handle->adapter_table
+					       ->fpgaDestroyEventHandle) {
+			OPAE_ERR("NULL fpgaDestroyEventHandle() in adapter.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_NOT_SUPPORTED;
+		}
+
+		if (!wrapped_event_handle->opae_event_handle) {
+			OPAE_ERR("NULL fpga_event_handle in wrapper.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_INVALID_PARAM;
+		}
 
 		res = wrapped_event_handle->adapter_table
 			      ->fpgaDestroyEventHandle(
 				      &wrapped_event_handle->opae_event_handle);
 	}
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 
 	opae_destroy_wrapped_event_handle(wrapped_event_handle);
 
@@ -1861,27 +1875,44 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 
 fpga_result fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 {
+	fpga_result res;
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(eh);
+	int ires;
 
 	ASSERT_NOT_NULL(fd);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		OPAE_ERR(
 			"Attempting to query OS event object before event handle is registered.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 		return FPGA_INVALID_PARAM;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_event_handle->adapter_table
-				       ->fpgaGetOSObjectFromEventHandle,
-			       FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle in wrapper.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table
+	if (!wrapped_event_handle->adapter_table
+				       ->fpgaGetOSObjectFromEventHandle) {
+		OPAE_ERR("NULL fpgaGetOSObjectFromEventHandle in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table
 		->fpgaGetOSObjectFromEventHandle(
 			wrapped_event_handle->opae_event_handle, fd);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
@@ -1892,23 +1923,31 @@ fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 		opae_validate_wrapped_handle(handle);
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(event_handle);
+	int ires;
 
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		// Now that we have an adapter table, store the adapter in
 		// the wrapped_event_handle, and create the event handle.
 
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_handle->adapter_table->fpgaCreateEventHandle,
-			FPGA_NOT_SUPPORTED);
+		if (!wrapped_handle->adapter_table->fpgaCreateEventHandle) {
+			OPAE_ERR("NULL fpgaCreateEventHandle() in adapter.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_NOT_SUPPORTED;
+		}
 
 		res = wrapped_handle->adapter_table->fpgaCreateEventHandle(
 			&wrapped_event_handle->opae_event_handle);
 
-		ASSERT_RESULT(res);
+		if (res != FPGA_OK) {
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return res;
+		}
 
 		// The event_handle is now created.
 		wrapped_event_handle->adapter_table =
@@ -1917,43 +1956,75 @@ fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 			OPAE_WRAPPED_EVENT_HANDLE_CREATED;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL(wrapped_event_handle->adapter_table);
-	ASSERT_NOT_NULL_RESULT(
-		wrapped_event_handle->adapter_table->fpgaRegisterEvent,
-		FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table->fpgaRegisterEvent(
+	if (!wrapped_event_handle->adapter_table) {
+		OPAE_ERR("NULL adapter table in wrapped event handle.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!wrapped_event_handle->adapter_table->fpgaRegisterEvent) {
+		OPAE_ERR("NULL fpgaRegisterEvent() in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table->fpgaRegisterEvent(
 		wrapped_handle->opae_handle, event_type,
 		wrapped_event_handle->opae_event_handle, flags);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 				fpga_event_handle event_handle)
 {
+	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(event_handle);
+	int ires;
 
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		OPAE_ERR(
 			"Attempting to unregister event object before registering it.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 		return FPGA_INVALID_PARAM;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL_RESULT(
-		wrapped_event_handle->adapter_table->fpgaUnregisterEvent,
-		FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle in wrapper.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table->fpgaUnregisterEvent(
+	if (!wrapped_event_handle->adapter_table->fpgaUnregisterEvent) {
+		OPAE_ERR("NULL fpgaUnregisterEvent() in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table->fpgaUnregisterEvent(
 		wrapped_handle->opae_handle, event_type,
 		wrapped_event_handle->opae_event_handle);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaAssignPortToInterface(fpga_handle fpga, uint32_t interface_num,
