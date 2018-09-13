@@ -33,7 +33,7 @@
 #include "usrclk/user_clk_pgm_uclock.h"
 
 fpga_result xfpga_fpgaSetUserClock(fpga_handle handle,
-					uint64_t high_clk, uint64_t low_clk, int flags)
+				uint64_t high_clk, uint64_t low_clk, int flags)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
@@ -85,7 +85,7 @@ out_unlock:
 }
 
 fpga_result xfpga_fpgaGetUserClock(fpga_handle handle,
-							uint64_t *high_clk, uint64_t *low_clk, int flags)
+				uint64_t *high_clk, uint64_t *low_clk, int flags)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
