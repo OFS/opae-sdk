@@ -110,6 +110,9 @@ add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
 )
 
+add_mock_test(test_xfpga_error_c xfpga-static
+    xfpga/test_error_c.cpp
+)
 
 add_mock_test(test_xfpga_properties_c xfpga-static
     xfpga/test_properties_c.cpp
