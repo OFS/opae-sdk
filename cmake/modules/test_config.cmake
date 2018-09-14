@@ -48,7 +48,9 @@ function (Build_GTEST)
 
   # Create a libgtest target to be used as a dependency by test programs
   add_library(libgtest IMPORTED STATIC GLOBAL)
+  add_library(libgtest_main IMPORTED STATIC GLOBAL)
   add_dependencies(libgtest gtest)
+  add_dependencies(libgtest_main gtest)
 
   # Get GTest source and binary directories from CMake project
   ExternalProject_Get_Property(gtest source_dir binary_dir)
