@@ -27,10 +27,10 @@
 #ifndef __OPAE_LOG_H__
 #define __OPAE_LOG_H__
 
+#include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include <opae/types.h>
 
@@ -39,75 +39,70 @@
 */
 #ifdef __SHORT_FILE__
 #undef __SHORT_FILE__
-#endif // __SHORT_FILE__
-#define __SHORT_FILE__                                         \
-	({                                                     \
-	const char *file = __FILE__;                           \
-	const char *p = file;                                  \
-while (*p)                                                     \
-	++p;                                                   \
-while ((p > file) && ('/' != *p) && ('\\' != *p))              \
-	--p;                                                   \
-if (p > file)                                                  \
-	++p;                                                   \
-	p;                                                     \
-})
+#endif  // __SHORT_FILE__
+#define __SHORT_FILE__                                     \
+  ({                                                       \
+    const char *file = __FILE__;                           \
+    const char *p = file;                                  \
+    while (*p) ++p;                                        \
+    while ((p > file) && ('/' != *p) && ('\\' != *p)) --p; \
+    if (p > file) ++p;                                     \
+    p;                                                     \
+  })
 
 #ifdef OPAE_MSG
 #undef OPAE_MSG
-#endif // OPAE_MSG
-#define OPAE_MSG(format, ...)                                     \
-	opae_print(OPAE_LOG_MESSAGE, "%s:%u:%s() : " format "\n", \
-	__SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#endif  // OPAE_MSG
+#define OPAE_MSG(format, ...)                                               \
+  opae_print(OPAE_LOG_MESSAGE, "%s:%u:%s() : " format "\n", __SHORT_FILE__, \
+             __LINE__, __func__, ##__VA_ARGS__)
 
 #ifdef OPAE_ERR
 #undef OPAE_ERR
-#endif // OPAE_ERR
-#define OPAE_ERR(format, ...)                                     \
-	opae_print(OPAE_LOG_ERROR,                                \
-	"%s:%u:%s() **ERROR** : " format "\n",                    \
-	__SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#endif  // OPAE_ERR
+#define OPAE_ERR(format, ...)                                       \
+  opae_print(OPAE_LOG_ERROR, "%s:%u:%s() **ERROR** : " format "\n", \
+             __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #ifdef OPAE_DBG
 #undef OPAE_DBG
-#endif // OPAE_DBG
+#endif  // OPAE_DBG
 #ifdef LIBOPAE_DEBUG
-#define OPAE_DBG(format, ...)                                    \
-	opae_print(OPAE_LOG_DEBUG,                               \
-	"%s:%u:%s() *DEBUG* : " format "\n",                     \
-	__SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define OPAE_DBG(format, ...)                                     \
+  opae_print(OPAE_LOG_DEBUG, "%s:%u:%s() *DEBUG* : " format "\n", \
+             __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #else
-#define OPAE_DBG(format, ...)                                    \
-{	}
-#endif // LIBOPAE_DEBUG
+#define OPAE_DBG(format, ...) \
+  {}
+#endif  // LIBOPAE_DEBUG
 
 #ifndef FPGA_MSG
 #define FPGA_MSG OPAE_MSG
-#endif // FPGA_MSG
+#endif  // FPGA_MSG
 
 #ifndef FPGA_ERR
 #define FPGA_ERR OPAE_ERR
-#endif // FPGA_ERR
+#endif  // FPGA_ERR
 
 #ifndef FPGA_DBG
 #define FPGA_DBG OPAE_DBG
-#endif // FPGA_DBG
+#endif  // FPGA_DBG
 
 /*
 * Logging functions
 */
 enum opae_loglevel {
-	OPAE_LOG_ERROR = 0, /* critical errors (always print) */
-	OPAE_LOG_MESSAGE,   /* information (i.e. explain return code */
-	OPAE_LOG_DEBUG      /* debugging (also needs #define DEBUG 1) */
+  OPAE_LOG_ERROR = 0, /* critical errors (always print) */
+  OPAE_LOG_MESSAGE,   /* information (i.e. explain return code */
+  OPAE_LOG_DEBUG      /* debugging (also needs #define DEBUG 1) */
 };
 
-#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR 
+#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
 
 #ifndef FPGA_DEFAULT_LOGLEVEL
-#define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL 
-#endif // FPGA_DEFAULT_LOGLEVEL
+#define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL
+#endif  // FPGA_DEFAULT_LOGLEVEL
 
 void opae_print(int loglevel, const char *fmt, ...);
 
-#endif // __OPAE_LOG_H__
+#endif  // __OPAE_LOG_H__
