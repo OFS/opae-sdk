@@ -28,8 +28,60 @@
 #include "test_system.h"
 #include "xfpga.h"
 #include "types_int.h"
+#include "opae/mmio.h"
+#include "intel-fpga.h"
+#include "opae/access.h"
+#include "linux/ioctl.h"
+#include "cstdarg"
 
+extern "C"{
+#include "token_list_int.h"
+}
 using namespace opae::testing;
+
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+int mmio_ioctl(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
+    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+    if (!rinfo) {
+      FPGA_MSG("rinfo is NULL");
+      goto out_EINVAL;
+    }
+    if (rinfo->argsz != sizeof(*rinfo)) {
+      FPGA_MSG("wrong structure size");
+      goto out_EINVAL;
+    }
+    if (rinfo->index > 1 ) {
+      FPGA_MSG("unsupported MMIO index");
+      goto out_EINVAL;
+    }
+    if (rinfo->padding != 0) {
+      FPGA_MSG("unsupported padding");
+      goto out_EINVAL;
+    }
+    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+    rinfo->size = 0x40000;
+    rinfo->offset = 0;
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
+}
+
+
+
+
 
 class openclose_c_p
     : public ::testing::TestWithParam<std::string> {
@@ -103,6 +155,7 @@ TEST_P(openclose_c_p, open_02) {
  *
  */
 TEST_P(openclose_c_p, open_03) {
+  ASSERT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaOpen(tokens_[0], NULL, 42));
   ASSERT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaOpen(tokens_[0], &handle_, 42));
 }
 
@@ -110,29 +163,125 @@ TEST_P(openclose_c_p, open_03) {
  * @test       open_04
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is invalid, the
+ *             function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_P(openclose_c_p, open_04) {
+  auto _token = (struct _fpga_token*)tokens_[0];
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
+  ASSERT_EQ(FPGA_INVALID_PARAM, res);
+
+  _token->magic = 0x123;
+  res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+  ASSERT_EQ(FPGA_INVALID_PARAM, res);
+
+}
+
+/**
+ * @test       open_05
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is invalid, the
  *             function returns FPGA_INVALID_PARAM and FPGA_NO_DRIVER.
  *
  */
-//TEST_P(openclose_c_p, open_04) {
-//  fpga_result res;
-//  struct _fpga_token* _token = (struct _fpga_token*)tokens_[0];
-//
-//
-//  res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
-//  ASSERT_EQ(FPGA_INVALID_PARAM, res);
-//
-//  //_token->magic = FPGA_TOKEN_MAGIC;
-//  *tokens_[0].magic = FPGA_TOKEN_MAGIC;
-//  res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+TEST_P(openclose_c_p, open_05) {
+  fpga_result res;
+  struct _fpga_token* _token = (struct _fpga_token*)tokens_[0];
+
+  res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
+  ASSERT_EQ(FPGA_INVALID_PARAM, res);
+
+  _token->magic = FPGA_TOKEN_MAGIC;
+  res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+  ASSERT_EQ(FPGA_OK, res);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+
+  strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
+  res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+  ASSERT_EQ(FPGA_NO_DRIVER, res);
+
+}
+
+/**
+ * @test       open_06
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_P(openclose_c_p, open_06) {
+  system_->invalidate_malloc();
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
+  ASSERT_EQ(FPGA_NO_MEMORY, res);
+}
+
+/**
+ * @test       close_01 
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_P(openclose_c_p, close_01) {
+  int fddev = -1;
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
+  ASSERT_EQ(FPGA_OK, res);
+
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+  res = xfpga_fpgaClose(handle_);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+
+  _handle->fddev = fddev;
+   res = xfpga_fpgaClose(handle_);
+  EXPECT_EQ(res, FPGA_OK);
+ 
+}
+
+
+
+
+/**
+ * @test       open_07
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_P(openclose_c_p, close_02) {
+  uint64_t * mmio_ptr = NULL;
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
+  ASSERT_EQ(FPGA_OK, res);
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+  EXPECT_EQ(((struct _fpga_handle*)handle_)->mmio_root,nullptr);
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_NE(mmio_ptr,nullptr);
+
+  res = xfpga_fpgaClose(handle_);
+  EXPECT_EQ(res, FPGA_OK);
+
+
+}
+
+/**
+ * @test       open_07
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ *
+ */
+//TEST_P(openclose_c_p, open_07) {
+//  fpga_handle h2 = NULL;
+//  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
 //  ASSERT_EQ(FPGA_OK, res);
-//  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
-//  
-//
-//  strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
-//  res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
-//  ASSERT_EQ(FPGA_NO_DRIVER, res);
+//  res = xfpga_fpgaOpen(tokens_[0], &h2, 0);
+//  ASSERT_EQ(FPGA_BUSY, res);
+//  ASSERT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
 //
 //}
-
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
