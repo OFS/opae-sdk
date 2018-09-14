@@ -39,11 +39,11 @@ extern "C" {
 #endif
 
 /**
- * set afu user clock high and low 
+ * set afu user clock high and low
  * @param[in]  handle       Handle to previously opened accelerator resource.
  * @param[in]  high_clk     AFU High user clock frequency in MHz.
  * @param[in]  low_clk      AFU Low user clock frequency in MHz.
- * @param[in]  flags        Flags Rreasverd 
+ * @param[in]  flags        Flags Rreasverd.
  *
 .*@returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or
  * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
@@ -53,7 +53,7 @@ fpga_result fpgaSetUserClock(fpga_handle handle,
 				uint64_t high_clk, uint64_t low_clk, int flags);
 
 /**
- * Get afu user clock high and low 
+ * Get afu user clock high and low
  * @param[in]   handle       Handle to previously opened accelerator resource.
  * @param[out]  high_clk     AFU High user clock frequency in MHz.
  * @param[out]  low_clk      AFU Low user clock frequency in MHz.
