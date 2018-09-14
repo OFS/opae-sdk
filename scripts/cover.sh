@@ -37,4 +37,4 @@ make test_unit
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test

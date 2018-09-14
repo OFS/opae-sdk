@@ -73,7 +73,6 @@ macro(add_mock_test test_name static_lib)
         test_system
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
-        ${GTEST_MAIN_LIBRARY}
         ${GTEST_BOTH_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT})
     add_test(
