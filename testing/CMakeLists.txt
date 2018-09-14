@@ -7,6 +7,7 @@ find_package(GTest)
 If(${GTest_FOUND})
   message(STATUS Found GTest)
 else()
+    include(test_config)
     Build_GTEST()
 endif()
 
