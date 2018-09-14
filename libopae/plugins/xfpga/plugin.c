@@ -64,106 +64,111 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	UNUSED_PARAM(jsonConfig);
 
 	adapter->fpgaOpen = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaOpen");
-	adapter->fpgaClose = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClose");
-	adapter->fpgaReset = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReset");
-	adapter->fpgaGetPropertiesFromHandle = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetPropertiesFromHandle");
-	adapter->fpgaGetProperties = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetProperties");
-	adapter->fpgaUpdateProperties = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUpdateProperties");
-	adapter->fpgaClearProperties = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearProperties");
-	adapter->fpgaCloneProperties = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaCloneProperties");
-	adapter->fpgaDestroyProperties = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyProperties");
-	adapter->fpgaPropertiesGetParent = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetParent");
-	adapter->fpgaPropertiesSetParent = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetParent");
-	adapter->fpgaPropertiesGetObjectType = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetObjectType");
-	adapter->fpgaPropertiesSetObjectType = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetObjectType");
-	adapter->fpgaPropertiesGetSegment = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetSegment");
-	adapter->fpgaPropertiesSetSegment = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetSegment");
-	adapter->fpgaPropertiesGetBus = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetBus");
-	adapter->fpgaPropertiesSetBus = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetBus");
-	adapter->fpgaPropertiesGetDevice = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetDevice");
-	adapter->fpgaPropertiesSetDevice = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetDevice");
-	adapter->fpgaPropertiesGetFunction = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetFunction");
-	adapter->fpgaPropertiesSetFunction = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetFunction");
-	adapter->fpgaPropertiesGetSocketID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetSocketID");
-	adapter->fpgaPropertiesSetSocketID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetSocketID");
-	adapter->fpgaPropertiesGetDeviceID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetDeviceID");
-	adapter->fpgaPropertiesSetDeviceID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetDeviceID");
-	adapter->fpgaPropertiesGetNumSlots = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetNumSlots");
-	adapter->fpgaPropertiesSetNumSlots = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetNumSlots");
-	adapter->fpgaPropertiesGetBBSID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetBBSID");
-	adapter->fpgaPropertiesSetBBSID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetBBSID");
-	adapter->fpgaPropertiesGetBBSVersion = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetBBSVersion");
-	adapter->fpgaPropertiesSetBBSVersion = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetBBSVersion");
-	adapter->fpgaPropertiesGetVendorID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetVendorID");
-	adapter->fpgaPropertiesSetVendorID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetVendorID");
-	adapter->fpgaPropertiesGetModel = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetModel");
-	adapter->fpgaPropertiesSetModel = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetModel");
-	adapter->fpgaPropertiesGetLocalMemorySize = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetLocalMemorySize");
-	adapter->fpgaPropertiesSetLocalMemorySize = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetLocalMemorySize");
-	adapter->fpgaPropertiesGetCapabilities = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetCapabilities");
-	adapter->fpgaPropertiesSetCapabilities = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetCapabilities");
-	adapter->fpgaPropertiesGetGUID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetGUID");
-	adapter->fpgaPropertiesSetGUID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetGUID");
-	adapter->fpgaPropertiesGetNumMMIO = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetNumMMIO");
-	adapter->fpgaPropertiesSetNumMMIO = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetNumMMIO");
-	adapter->fpgaPropertiesGetNumInterrupts = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetNumInterrupts");
-	adapter->fpgaPropertiesSetNumInterrupts = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetNumInterrupts");
-	adapter->fpgaPropertiesGetAcceleratorState = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetAcceleratorState");
-	adapter->fpgaPropertiesSetAcceleratorState = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetAcceleratorState");
-	adapter->fpgaPropertiesGetObjectID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetObjectID");
-	adapter->fpgaPropertiesSetObjectID = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetObjectID");
-	adapter->fpgaPropertiesGetNumErrors = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesGetNumErrors");
-	adapter->fpgaPropertiesSetNumErrors = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPropertiesSetNumErrors");
-	adapter->fpgaWriteMMIO64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaWriteMMIO64");
-	adapter->fpgaReadMMIO64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadMMIO64");
-	adapter->fpgaWriteMMIO32 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaWriteMMIO32");
-	adapter->fpgaReadMMIO32 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadMMIO32");
-	adapter->fpgaMapMMIO = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaMapMMIO");
-	adapter->fpgaUnmapMMIO = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUnmapMMIO");
-	adapter->fpgaEnumerate = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaEnumerate");
-	adapter->fpgaCloneToken = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaCloneToken");
-	adapter->fpgaDestroyToken = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyToken");
-	adapter->fpgaGetNumUmsg = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetNumUmsg");
-	adapter->fpgaSetUmsgAttributes = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUmsgAttributes");
-	adapter->fpgaTriggerUmsg = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTriggerUmsg");
-	adapter->fpgaGetUmsgPtr = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUmsgPtr");
-	adapter->fpgaPrepareBuffer = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPrepareBuffer");
-	adapter->fpgaReleaseBuffer = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseBuffer");
-	adapter->fpgaGetIOAddress = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetIOAddress");
-/*
-	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECVersion");
-	adapter->fpgaGetOPAECVersionString = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECVersionString");
-	adapter->fpgaGetOPAECBuildString = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECBuildString");
-*/
-	adapter->fpgaReadError = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadError");
-	adapter->fpgaClearError = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearError");
-	adapter->fpgaClearAllErrors = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearAllErrors");
-	adapter->fpgaGetErrorInfo = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetErrorInfo");
-	adapter->fpgaCreateEventHandle = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaCreateEventHandle");
-	adapter->fpgaDestroyEventHandle = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyEventHandle");
-	adapter->fpgaGetOSObjectFromEventHandle = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOSObjectFromEventHandle");
-	adapter->fpgaRegisterEvent = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaRegisterEvent");
-	adapter->fpgaUnregisterEvent = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUnregisterEvent");
-	adapter->fpgaAssignPortToInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaAssignPortToInterface");
-	adapter->fpgaAssignToInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaAssignToInterface");
-	adapter->fpgaReleaseFromInterface = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
-	adapter->fpgaReconfigureSlot = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
-	adapter->fpgaTokenGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenGetObject");
-	adapter->fpgaHandleGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaHandleGetObject");
-	adapter->fpgaObjectGetObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetObject");
-	adapter->fpgaDestroyObject = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyObject");
-	adapter->fpgaObjectRead = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead");
-	adapter->fpgaObjectRead64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead64");
-	adapter->fpgaObjectWrite64 = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectWrite64");
+	adapter->fpgaClose =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClose");
+	adapter->fpgaReset =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReset");
+	adapter->fpgaGetPropertiesFromHandle = dlsym(
+		adapter->plugin.dl_handle, "xfpga_fpgaGetPropertiesFromHandle");
+	adapter->fpgaGetProperties =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetProperties");
+	adapter->fpgaUpdateProperties =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUpdateProperties");
+	adapter->fpgaWriteMMIO64 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaWriteMMIO64");
+	adapter->fpgaReadMMIO64 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadMMIO64");
+	adapter->fpgaWriteMMIO32 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaWriteMMIO32");
+	adapter->fpgaReadMMIO32 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadMMIO32");
+	adapter->fpgaMapMMIO =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaMapMMIO");
+	adapter->fpgaUnmapMMIO =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUnmapMMIO");
+	adapter->fpgaEnumerate =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaEnumerate");
+	adapter->fpgaCloneToken =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaCloneToken");
+	adapter->fpgaDestroyToken =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyToken");
+	adapter->fpgaGetNumUmsg =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetNumUmsg");
+	adapter->fpgaSetUmsgAttributes =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUmsgAttributes");
+	adapter->fpgaTriggerUmsg =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTriggerUmsg");
+	adapter->fpgaGetUmsgPtr =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUmsgPtr");
+	adapter->fpgaPrepareBuffer =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaPrepareBuffer");
+	adapter->fpgaReleaseBuffer =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseBuffer");
+	adapter->fpgaGetIOAddress =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetIOAddress");
+	/*
+	**	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle,
+	*"xfpga_fpgaGetOPAECVersion");
+	**	adapter->fpgaGetOPAECVersionString =
+	*dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetOPAECVersionString"); *
+	*adapter->fpgaGetOPAECBuildString = dlsym(adapter->plugin.dl_handle,
+	*"xfpga_fpgaGetOPAECBuildString");
+	*/
+	adapter->fpgaReadError =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReadError");
+	adapter->fpgaClearError =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearError");
+	adapter->fpgaClearAllErrors =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaClearAllErrors");
+	adapter->fpgaGetErrorInfo =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetErrorInfo");
+	adapter->fpgaCreateEventHandle =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaCreateEventHandle");
+	adapter->fpgaDestroyEventHandle = dlsym(adapter->plugin.dl_handle,
+						"xfpga_fpgaDestroyEventHandle");
+	adapter->fpgaGetOSObjectFromEventHandle =
+		dlsym(adapter->plugin.dl_handle,
+		      "xfpga_fpgaGetOSObjectFromEventHandle");
+	adapter->fpgaRegisterEvent =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaRegisterEvent");
+	adapter->fpgaUnregisterEvent =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaUnregisterEvent");
+	adapter->fpgaAssignPortToInterface = dlsym(
+		adapter->plugin.dl_handle, "xfpga_fpgaAssignPortToInterface");
+	adapter->fpgaAssignToInterface =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaAssignToInterface");
+	adapter->fpgaReleaseFromInterface = dlsym(
+		adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
+	adapter->fpgaReconfigureSlot =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
+	adapter->fpgaTokenGetObject =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenGetObject");
+	adapter->fpgaHandleGetObject =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaHandleGetObject");
+	adapter->fpgaObjectGetObject =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetObject");
+	adapter->fpgaDestroyObject =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyObject");
+	adapter->fpgaObjectRead =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead");
+	adapter->fpgaObjectRead64 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectRead64");
+	adapter->fpgaObjectWrite64 =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectWrite64");
+	adapter->fpgaSetUserClock =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUserClock");
+	adapter->fpgaGetUserClock =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUserClock");
 
-	adapter->fpgaSetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaSetUserClock");
-	adapter->fpgaGetUserClock = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUserClock");
+	adapter->initialize =
+		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
+	adapter->finalize =
+		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");
 
-	adapter->initialize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
-	adapter->finalize = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");
-
-	adapter->supports_device = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_supports_device");
-	adapter->supports_host = dlsym(adapter->plugin.dl_handle, "xfpga_plugin_supports_host");
+	adapter->supports_device = dlsym(adapter->plugin.dl_handle,
+					 "xfpga_plugin_supports_device");
+	adapter->supports_host =
+		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_supports_host");
 
 	return 0;
 }

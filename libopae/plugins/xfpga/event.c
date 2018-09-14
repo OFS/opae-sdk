@@ -35,19 +35,17 @@
 
 #include "safe_string/safe_string.h"
 
+#include <opae/properties.h>
 #include "xfpga.h"
 #include "common_int.h"
 #include "types_int.h"
 #include "intel-fpga.h"
 
-#define EVENT_SOCKET_NAME     "/tmp/fpga_event_socket"
+#define EVENT_SOCKET_NAME "/tmp/fpga_event_socket"
 #define EVENT_SOCKET_NAME_LEN 23
 #define MAX_PATH_LEN 256
 
-enum request_type {
-	REGISTER_EVENT = 0,
-	UNREGISTER_EVENT = 1
-};
+enum request_type { REGISTER_EVENT = 0, UNREGISTER_EVENT = 1 };
 
 struct event_request {
 	enum request_type type;
@@ -55,7 +53,8 @@ struct event_request {
 	char device[MAX_PATH_LEN];
 };
 
-fpga_result send_event_request(int conn_socket, int fd, struct event_request *req)
+fpga_result send_event_request(int conn_socket, int fd,
+			       struct event_request *req)
 {
 	struct msghdr mh;
 	struct cmsghdr *cmh;
@@ -89,20 +88,20 @@ fpga_result send_event_request(int conn_socket, int fd, struct event_request *re
 	}
 
 	return FPGA_OK;
-
 }
 
 STATIC fpga_result send_fme_event_request(fpga_handle handle,
-	fpga_event_handle event_handle, int fme_operation)
+					  fpga_event_handle event_handle,
+					  int fme_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_fme_info fme_info  = {.argsz = sizeof(fme_info),
-						.flags = 0 };
+	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
 	struct fpga_fme_err_irq_set fme_irq = {.argsz = sizeof(fme_irq),
-						.flags = 0};
+					       .flags = 0};
 
-	if (fme_operation != FPGA_IRQ_ASSIGN && fme_operation != FPGA_IRQ_DEASSIGN) {
+	if (fme_operation != FPGA_IRQ_ASSIGN
+	    && fme_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid FME operation requested");
 		return FPGA_INVALID_PARAM;
 	}
@@ -119,7 +118,8 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 		else
 			fme_irq.evtfd = -1;
 
-		if (ioctl(_handle->fddev, FPGA_FME_ERR_SET_IRQ, &fme_irq) != 0) {
+		if (ioctl(_handle->fddev, FPGA_FME_ERR_SET_IRQ, &fme_irq)
+		    != 0) {
 			FPGA_ERR("Could not set eventfd %s", strerror(errno));
 			return FPGA_EXCEPTION;
 		}
@@ -132,16 +132,18 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 }
 
 STATIC fpga_result send_port_event_request(fpga_handle handle,
-	fpga_event_handle event_handle, int port_operation)
+					   fpga_event_handle event_handle,
+					   int port_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
-						.flags = 0 };
+	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
+					   .flags = 0};
 	struct fpga_port_err_irq_set port_irq = {.argsz = sizeof(port_irq),
-						.flags = 0};
+						 .flags = 0};
 
-	if (port_operation != FPGA_IRQ_ASSIGN && port_operation != FPGA_IRQ_DEASSIGN) {
+	if (port_operation != FPGA_IRQ_ASSIGN
+	    && port_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid PORT operation requested");
 		return FPGA_INVALID_PARAM;
 	}
@@ -158,7 +160,8 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 		else
 			port_irq.evtfd = -1;
 
-		if (ioctl(_handle->fddev, FPGA_PORT_ERR_SET_IRQ, &port_irq) != 0) {
+		if (ioctl(_handle->fddev, FPGA_PORT_ERR_SET_IRQ, &port_irq)
+		    != 0) {
 			FPGA_ERR("Could not set eventfd");
 			return FPGA_EXCEPTION;
 		}
@@ -171,18 +174,22 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 }
 
 STATIC fpga_result send_uafu_event_request(fpga_handle handle,
-	fpga_event_handle event_handle, uint32_t flags, int uafu_operation)
+					   fpga_event_handle event_handle,
+					   uint32_t flags, int uafu_operation)
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
-	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *)event_handle;
+	struct _fpga_event_handle *_eh =
+		(struct _fpga_event_handle *)event_handle;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
-						.flags = 0 };
-	uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)+sizeof(int32_t)];
+	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
+					   .flags = 0};
+	uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)
+			     + sizeof(int32_t)];
 	struct fpga_port_uafu_irq_set *uafu_irq =
-		(struct fpga_port_uafu_irq_set *) uafu_irq_buf;
+		(struct fpga_port_uafu_irq_set *)uafu_irq_buf;
 
-	if (uafu_operation != FPGA_IRQ_ASSIGN && uafu_operation != FPGA_IRQ_DEASSIGN) {
+	if (uafu_operation != FPGA_IRQ_ASSIGN
+	    && uafu_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid UAFU operation requested");
 		return FPGA_INVALID_PARAM;
 	}
@@ -215,7 +222,8 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 
 		uafu_irq->count = 1;
 
-		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq) != 0) {
+		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq)
+		    != 0) {
 			FPGA_ERR("Could not set eventfd");
 			return FPGA_EXCEPTION;
 		}
@@ -231,17 +239,17 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
  * Uses driver ioctls to determine whether the driver supports interrupts
  * on this platform. objtype is an output parameter.
  */
-STATIC fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *objtype)
+STATIC fpga_result check_interrupts_supported(fpga_handle handle,
+					      fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	fpga_result destroy_res = FPGA_OK;
 	fpga_properties prop = NULL;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 
-	struct fpga_fme_info fme_info  = {.argsz = sizeof(fme_info),
-					.flags = 0 };
-	struct fpga_port_info port_info  = {.argsz = sizeof(port_info),
-					.flags = 0 };
+	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
+	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
+					   .flags = 0};
 
 	res = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
 	if (res != FPGA_OK) {
@@ -249,7 +257,7 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *
 		return res;
 	}
 
-	res = xfpga_fpgaPropertiesGetObjectType(prop, objtype);
+	res = fpgaPropertiesGetObjectType(prop, objtype);
 	if (res != FPGA_OK) {
 		FPGA_MSG("Could not determine FPGA object type");
 		goto destroy_prop;
@@ -269,8 +277,10 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *
 			res = FPGA_NOT_SUPPORTED;
 		}
 	} else if (*objtype == FPGA_ACCELERATOR) {
-		if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info) != 0) {
-			FPGA_ERR("Could not get PORT info: %s", strerror(errno));
+		if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info)
+		    != 0) {
+			FPGA_ERR("Could not get PORT info: %s",
+				 strerror(errno));
 			res = FPGA_EXCEPTION;
 			goto destroy_prop;
 		}
@@ -284,7 +294,7 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle, fpga_objtype *
 	}
 
 destroy_prop:
-	destroy_res = xfpga_fpgaDestroyProperties(&prop);
+	destroy_res = fpgaDestroyProperties(&prop);
 	if (destroy_res != FPGA_OK) {
 		FPGA_MSG("Could not destroy FPGA properties");
 		return destroy_res;
@@ -294,25 +304,28 @@ destroy_prop:
 }
 
 STATIC fpga_result driver_register_event(fpga_handle handle,
-	fpga_event_type event_type,
-	fpga_event_handle event_handle,
-	uint32_t flags)
+					 fpga_event_type event_type,
+					 fpga_event_handle event_handle,
+					 uint32_t flags)
 {
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
 	res = check_interrupts_supported(handle, &objtype);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Could not determine whether interrupts are supported");
+		FPGA_MSG(
+			"Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
 	}
 
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
 		if (objtype == FPGA_DEVICE) {
-			return send_fme_event_request(handle, event_handle, FPGA_IRQ_ASSIGN);
+			return send_fme_event_request(handle, event_handle,
+						      FPGA_IRQ_ASSIGN);
 		} else if (objtype == FPGA_ACCELERATOR) {
-			return send_port_event_request(handle, event_handle, FPGA_IRQ_ASSIGN);
+			return send_port_event_request(handle, event_handle,
+						       FPGA_IRQ_ASSIGN);
 		}
 		FPGA_ERR("Invalid objtype: %d", objtype);
 		return FPGA_EXCEPTION;
@@ -322,7 +335,8 @@ STATIC fpga_result driver_register_event(fpga_handle handle,
 			return FPGA_INVALID_PARAM;
 		}
 
-		return send_uafu_event_request(handle, event_handle, flags, FPGA_IRQ_ASSIGN);
+		return send_uafu_event_request(handle, event_handle, flags,
+					       FPGA_IRQ_ASSIGN);
 	case FPGA_EVENT_POWER_THERMAL:
 		FPGA_MSG("Thermal interrupts not supported");
 		return FPGA_NOT_SUPPORTED;
@@ -333,23 +347,27 @@ STATIC fpga_result driver_register_event(fpga_handle handle,
 }
 
 STATIC fpga_result driver_unregister_event(fpga_handle handle,
-	fpga_event_type event_type, fpga_event_handle event_handle)
+					   fpga_event_type event_type,
+					   fpga_event_handle event_handle)
 {
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
 	res = check_interrupts_supported(handle, &objtype);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Could not determine whether interrupts are supported");
+		FPGA_MSG(
+			"Could not determine whether interrupts are supported");
 		return FPGA_NOT_SUPPORTED;
 	}
 
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
 		if (objtype == FPGA_DEVICE) {
-			return send_fme_event_request(handle, event_handle, FPGA_IRQ_DEASSIGN);
+			return send_fme_event_request(handle, event_handle,
+						      FPGA_IRQ_DEASSIGN);
 		} else if (objtype == FPGA_ACCELERATOR) {
-			return send_port_event_request(handle, event_handle, FPGA_IRQ_DEASSIGN);
+			return send_port_event_request(handle, event_handle,
+						       FPGA_IRQ_DEASSIGN);
 		}
 		FPGA_ERR("Invalid objtype: %d", objtype);
 		return FPGA_EXCEPTION;
@@ -359,7 +377,8 @@ STATIC fpga_result driver_unregister_event(fpga_handle handle,
 			return FPGA_INVALID_PARAM;
 		}
 
-		return send_uafu_event_request(handle, event_handle, 0, FPGA_IRQ_DEASSIGN);
+		return send_uafu_event_request(handle, event_handle, 0,
+					       FPGA_IRQ_DEASSIGN);
 	case FPGA_EVENT_POWER_THERMAL:
 		FPGA_MSG("Thermal interrupts not supported");
 		return FPGA_NOT_SUPPORTED;
@@ -395,33 +414,34 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 
 		addr.sun_family = AF_UNIX;
 		e = strncpy_s(addr.sun_path, sizeof(addr.sun_path),
-				EVENT_SOCKET_NAME, EVENT_SOCKET_NAME_LEN);
+			      EVENT_SOCKET_NAME, EVENT_SOCKET_NAME_LEN);
 		if (EOK != e) {
 			FPGA_ERR("strncpy_s failed");
 			return FPGA_EXCEPTION;
 		}
 
-		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr,
+			    sizeof(addr))
+		    < 0) {
 			FPGA_DBG("connect: %s", strerror(errno));
 			result = FPGA_NO_DAEMON;
 			goto out_close_conn;
 		}
-
 	}
 
 	/* create event registration request */
 	req.type = REGISTER_EVENT;
 	req.event = event_type;
 
-	e = strncpy_s(req.device, sizeof(req.device),
-			_token->sysfspath, sizeof(_token->sysfspath));
+	e = strncpy_s(req.device, sizeof(req.device), _token->sysfspath,
+		      sizeof(_token->sysfspath));
 	if (EOK != e) {
 		FPGA_ERR("strncpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_close_conn;
 	}
 
-	req.device[sizeof(req.device)-1] = '\0';
+	req.device[sizeof(req.device) - 1] = '\0';
 
 	/* send event packet */
 	result = send_event_request(_handle->fdfpgad, fd, &req);
@@ -458,15 +478,15 @@ STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 	req.type = UNREGISTER_EVENT;
 	req.event = event_type;
 
-	e = strncpy_s(req.device, sizeof(req.device),
-			_token->sysfspath, sizeof(_token->sysfspath));
+	e = strncpy_s(req.device, sizeof(req.device), _token->sysfspath,
+		      sizeof(_token->sysfspath));
 	if (EOK != e) {
 		FPGA_ERR("strncpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_close_conn;
 	}
 
-	req.device[sizeof(req.device)-1] = '\0';
+	req.device[sizeof(req.device) - 1] = '\0';
 
 	n = send(_handle->fdfpgad, &req, sizeof(req), 0);
 	if (n < 0) {
@@ -483,7 +503,8 @@ out_close_conn:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)
+fpga_result __FPGA_API__
+xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
 	fpga_result result = FPGA_OK;
@@ -534,25 +555,27 @@ fpga_result __FPGA_API__ xfpga_fpgaCreateEventHandle(fpga_event_handle *event_ha
 out_attr_destroy:
 	err = pthread_mutexattr_destroy(&mattr);
 	if (err)
-		FPGA_ERR("pthread_mutexatr_destroy() failed: %s", strerror(err));
+		FPGA_ERR("pthread_mutexatr_destroy() failed: %s",
+			 strerror(err));
 
 out_free:
 	free(_eh);
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
+fpga_result __FPGA_API__
+xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
 	fpga_result result = FPGA_OK;
 	int err = 0;
 
-	//sanity check
+	// sanity check
 	if (!event_handle) {
 		return FPGA_INVALID_PARAM;
 	}
 
-	_eh = (struct _fpga_event_handle *) *event_handle;
+	_eh = (struct _fpga_event_handle *)*event_handle;
 
 	result = event_handle_check_and_lock(_eh);
 	if (result)
@@ -562,7 +585,8 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_h
 		FPGA_ERR("eventfd : %s", strerror(errno));
 		err = pthread_mutex_unlock(&_eh->lock);
 		if (err)
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				 strerror(err));
 
 		if (errno == EBADF)
 			return FPGA_INVALID_PARAM;
@@ -585,10 +609,10 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_h
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
-						int *fd)
+fpga_result __FPGA_API__
+xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 {
-	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) eh;
+	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *)eh;
 	fpga_result result = FPGA_OK;
 	int err = 0;
 
@@ -606,13 +630,14 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_h
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
-					   fpga_event_type event_type,
-					   fpga_event_handle event_handle,
-					   uint32_t flags)
+						 fpga_event_type event_type,
+						 fpga_event_handle event_handle,
+						 uint32_t flags)
 {
 	fpga_result result = FPGA_OK;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) event_handle;
+	struct _fpga_event_handle *_eh =
+		(struct _fpga_event_handle *)event_handle;
 	struct _fpga_token *_token;
 	int err;
 
@@ -650,8 +675,8 @@ fpga_result __FPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
 	/* try driver first */
 	result = driver_register_event(handle, event_type, event_handle, flags);
 	if (result == FPGA_NOT_SUPPORTED) {
-		result = daemon_register_event(handle, event_type,
-					       event_handle, flags);
+		result = daemon_register_event(handle, event_type, event_handle,
+					       flags);
 	}
 
 out_unlock:
@@ -667,15 +692,16 @@ out_unlock_handle:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaUnregisterEvent(fpga_handle handle,
-					     fpga_event_type event_type,
-					     fpga_event_handle event_handle)
+fpga_result __FPGA_API__
+xfpga_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
+			  fpga_event_handle event_handle)
 {
 	fpga_result result = FPGA_OK;
 	int err;
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) event_handle;
+	struct _fpga_event_handle *_eh =
+		(struct _fpga_event_handle *)event_handle;
 	struct _fpga_token *_token;
 
 	result = handle_check_and_lock(_handle);

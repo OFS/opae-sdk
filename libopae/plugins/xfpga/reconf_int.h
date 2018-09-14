@@ -34,9 +34,10 @@
 
 #include <stdint.h>
 
-#include "opae/access.h"
-#include "opae/utils.h"
-#include "opae/manage.h"
+#include <opae/access.h>
+#include <opae/utils.h>
+#include <opae/manage.h>
+#include <opae/properties.h>
 #include "common_int.h"
 
 #ifdef __cplusplus
