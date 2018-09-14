@@ -406,7 +406,7 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 	fpga_object pr_object;
 	errno_t e;
 
-	result = fpgaGetTokenObject(token, PR_INTERFACE_ID, &pr_object, 0);
+	result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, 0);
 	if (result != FPGA_OK) {
 		fprintf(stderr, "Failed to get Token Object \n");
 		return result;
