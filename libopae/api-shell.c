@@ -1032,7 +1032,7 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 	fpga_result dres = FPGA_OK;
 	fpga_object obj = NULL;
 	opae_wrapped_object *wrapped_object =
-		opae_validate_wrapped_object(object);
+		opae_validate_wrapped_object(parent);
 
 	UNUSED_PARAM(parent);
 
