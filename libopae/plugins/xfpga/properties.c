@@ -28,6 +28,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <opae/properties.h>
+
 #include "safe_string/safe_string.h"
 
 #include "xfpga.h"
@@ -60,60 +62,25 @@ xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 fpga_result __FPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
 						 fpga_properties *prop)
 {
-	struct _fpga_properties *_prop;
+	struct _fpga_properties *_prop = NULL;
 	fpga_result result = FPGA_OK;
 	pthread_mutexattr_t mattr;
 	int err = 0;
 
 	ASSERT_NOT_NULL(prop);
 
-	_prop = malloc(sizeof(struct _fpga_properties));
-	if (NULL == _prop) {
-		FPGA_MSG("Failed to allocate memory for properties");
-		return FPGA_NO_MEMORY;
-	}
-	memset_s(_prop, sizeof(struct _fpga_properties), 0);
-	// mark data structure as valid
-	_prop->magic = FPGA_PROPERTY_MAGIC;
+	result = fpgaGetProperties(NULL, (fpga_properties *)&_prop);
 
-	if (pthread_mutexattr_init(&mattr)) {
-		FPGA_MSG("Failed to initialized property mutex attributes");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
-
-	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE)) {
-		FPGA_MSG("Failed to initialize property mutex attributes");
-		result = FPGA_EXCEPTION;
-		goto out_attr_destroy;
-	}
-
-	if (pthread_mutex_init(&_prop->lock, &mattr)) {
-		FPGA_MSG("Failed to initialize property mutex");
-		result = FPGA_EXCEPTION;
-		goto out_attr_destroy;
-	}
+	ASSERT_RESULT(result);
 
 	if (token) {
 		result = xfpga_fpgaUpdateProperties(token, _prop);
 		if (result != FPGA_OK)
-			goto out_mutex_destroy;
+			goto out_free;
 	}
 
-	pthread_mutexattr_destroy(&mattr);
 	*prop = (fpga_properties)_prop;
 	return result;
-
-out_mutex_destroy:
-	err = pthread_mutex_destroy(&_prop->lock);
-	if (err)
-		FPGA_ERR("pthread_mutex_destroy() failed: %s", strerror(err));
-
-out_attr_destroy:
-	err = pthread_mutexattr_destroy(&mattr);
-	if (err)
-		FPGA_ERR("pthread_mutexatr_destroy() failed: %s",
-			 strerror(err));
 
 out_free:
 	free(_prop);

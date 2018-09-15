@@ -167,6 +167,8 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 	} else {
 		fpga_token parent = NULL;
 
+		ASSERT_NOT_NULL(wrapped_token);
+
 		ASSERT_NOT_NULL_RESULT(
 			wrapped_token->adapter_table->fpgaGetProperties,
 			FPGA_NOT_SUPPORTED);
@@ -376,6 +378,14 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 
 	opae_enumeration_context enum_context;
 
+	typedef struct _parent_token_fixup {
+		struct _parent_token_fixup *next;
+		fpga_properties prop;
+		opae_wrapped_token *wrapped_token;
+	} parent_token_fixup;
+
+	parent_token_fixup *ptf_list = NULL;
+	uint32_t i;
 
 	ASSERT_NOT_NULL(num_matches);
 
@@ -415,13 +425,71 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	enum_context.num_wrapped_tokens = 0;
 	enum_context.errors = 0;
 
+	// If any of the input filters has a parent token set,
+	// then it will be wrapped. We need to unwrap it here,
+	// then re-wrap below.
+	for (i = 0 ; i < num_filters ; ++i) {
+		fpga_token parent = NULL;
+
+		if (fpgaPropertiesGetParent(filters[i], &parent) == FPGA_OK) {
+			parent_token_fixup *fixup;
+			opae_wrapped_token *wrapped_parent =
+				opae_validate_wrapped_token(parent);
+
+			if (!wrapped_parent) {
+				OPAE_ERR("Invalid wrapped parent in filter");
+				res = FPGA_INVALID_PARAM;
+				goto out_free_tokens;
+			}
+
+			fixup = (parent_token_fixup *)
+				malloc(sizeof(parent_token_fixup));
+
+			if (!fixup) {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+				goto out_free_tokens;
+			}
+
+			fixup->next = NULL;
+			fixup->prop = filters[i];
+			fixup->wrapped_token = wrapped_parent;
+
+			if (!ptf_list)
+				ptf_list = fixup;
+			else {
+				fixup->next = ptf_list;
+				ptf_list = fixup;
+			}
+
+			// Set the unwrapped parent token.
+			res = fpgaPropertiesSetParent(filters[i],
+					wrapped_parent->opae_token);
+
+			if (res != FPGA_OK)
+				goto out_free_tokens;
+
+		}
+
+	}
+
 	// perform the enumeration.
 	opae_plugin_mgr_for_each_adapter(opae_enumerate, &enum_context);
 
 	res = (enum_context.errors > 0) ? FPGA_EXCEPTION : FPGA_OK;
 
+out_free_tokens:
 	if (adapter_tokens)
 		free(adapter_tokens);
+
+	// Re-establish any wrapped parent tokens.
+	while (ptf_list) {
+		parent_token_fixup *trash = ptf_list;
+		ptf_list = ptf_list->next;
+		fpgaPropertiesSetParent(trash->prop,
+				trash->wrapped_token);
+		free(trash);
+	}
 
 	return res;
 }
