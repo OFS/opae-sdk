@@ -64,8 +64,6 @@ fpga_result __FPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
 {
 	struct _fpga_properties *_prop = NULL;
 	fpga_result result = FPGA_OK;
-	pthread_mutexattr_t mattr;
-	int err = 0;
 
 	ASSERT_NOT_NULL(prop);
 

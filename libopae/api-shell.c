@@ -114,7 +114,6 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 					fpga_properties *prop)
 {
 	fpga_result res;
-	fpga_result sres = FPGA_OK;
 	fpga_token parent = NULL;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -128,6 +127,8 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 	res = wrapped_handle->adapter_table->fpgaGetPropertiesFromHandle(
 		wrapped_handle->opae_handle, prop);
 
+	ASSERT_RESULT(res);
+
 	// If the output properties has a parent token set,
 	// then it will be a raw token. We need to wrap it.
 	if (fpgaPropertiesGetParent(*prop, &parent) == FPGA_OK) {
@@ -137,32 +138,33 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 
 		if (!wrapped_parent) {
 			OPAE_ERR("malloc failed");
-			res = FPGA_NO_MEMORY;
-		} else {
-			sres = fpgaPropertiesSetParent(*prop, wrapped_parent);
+			return FPGA_NO_MEMORY;
 		}
+
+		return fpgaPropertiesSetParent(*prop, wrapped_parent);
 	}
 
-	return res != FPGA_OK ? res : sres;
+	return res;
 }
 
 fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
 	fpga_result res = FPGA_OK;
-	fpga_result sres = FPGA_OK;
-	fpga_properties pr = NULL;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
 	ASSERT_NOT_NULL(prop);
 
 	if (!token) {
+		fpga_properties pr;
 
 		pr = opae_properties_create();
 
 		if (!pr) {
 			OPAE_ERR("malloc failed");
-			res = FPGA_NO_MEMORY;
+			return FPGA_NO_MEMORY;
 		}
+
+		*prop = pr;
 
 	} else {
 		fpga_token parent = NULL;
@@ -174,32 +176,33 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 			FPGA_NOT_SUPPORTED);
 
 		res = wrapped_token->adapter_table->fpgaGetProperties(
-			wrapped_token->opae_token, &pr);
+			wrapped_token->opae_token, prop);
+
+		ASSERT_RESULT(res);
 
 		// If the output properties has a parent token set,
 		// then it will be a raw token. We need to wrap it.
-		if (fpgaPropertiesGetParent(pr, &parent) == FPGA_OK) {
+		if (fpgaPropertiesGetParent(*prop, &parent) == FPGA_OK) {
 			opae_wrapped_token *wrapped_parent =
 				opae_allocate_wrapped_token(
 					parent, wrapped_token->adapter_table);
 
 			if (!wrapped_parent) {
 				OPAE_ERR("malloc failed");
-				res = FPGA_NO_MEMORY;
-			} else {
-				sres = fpgaPropertiesSetParent(pr,
-							       wrapped_parent);
+				return FPGA_NO_MEMORY;
 			}
+
+			return fpgaPropertiesSetParent(*prop, wrapped_parent);
 		}
 	}
 
-	*prop = pr;
-
-	return res != FPGA_OK ? res : sres;
+	return res;
 }
 
 fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
+	fpga_result res;
+	fpga_token parent = NULL;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
 	ASSERT_NOT_NULL(wrapped_token);
@@ -207,8 +210,27 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		wrapped_token->adapter_table->fpgaUpdateProperties,
 		FPGA_NOT_SUPPORTED);
 
-	return wrapped_token->adapter_table->fpgaUpdateProperties(
+	res = wrapped_token->adapter_table->fpgaUpdateProperties(
 		wrapped_token->opae_token, prop);
+
+	ASSERT_RESULT(res);
+
+	// If the output properties has a parent token set,
+	// then it will be a raw token. We need to wrap it.
+	if (fpgaPropertiesGetParent(prop, &parent) == FPGA_OK) {
+		opae_wrapped_token *wrapped_parent =
+			opae_allocate_wrapped_token(
+				parent, wrapped_token->adapter_table);
+
+		if (!wrapped_parent) {
+			OPAE_ERR("malloc failed");
+			return FPGA_NO_MEMORY;
+		}
+
+		return fpgaPropertiesSetParent(prop, wrapped_parent);
+	}
+
+	return res;
 }
 
 fpga_result fpgaWriteMMIO64(fpga_handle handle, uint32_t mmio_num,
