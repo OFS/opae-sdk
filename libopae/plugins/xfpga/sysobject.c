@@ -202,9 +202,9 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		FPGA_ERR("Did not write 64-bit value");
 		res = FPGA_EXCEPTION;
 	}
-	if ((err = pthread_mutex_unlock(
-		     &((struct _fpga_handle *)_obj->handle)->lock))) {
+	err = pthread_mutex_unlock(
+		     &((struct _fpga_handle *)_obj->handle)->lock);
+	if (err)
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
-	}
 	return res;
 }

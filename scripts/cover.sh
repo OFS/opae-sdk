@@ -16,7 +16,6 @@ function finish {
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
 	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
 	genhtml --function-coverage -o coverage_report coverage.info.cleaned
-	popd
 }
 trap "finish" EXIT
 
@@ -32,9 +31,10 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make test_unit -j 4
+make -j test_unit xfpga
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
-CTEST_OUTPUT_ON_FAILURE=1 make test
+
+LD_LIBRARY_PATH=${PWD}/lib CTEST_OUTPUT_ON_FAILURE=1 make test

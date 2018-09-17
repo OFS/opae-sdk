@@ -28,6 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <opae/init.h>
 #include "opae_int.h"
 #undef __USE_GNU
 
@@ -106,12 +107,12 @@ __attribute__((constructor)) static void opae_init(void)
 
 	if (g_logfile == NULL)
 		g_logfile = stdout;
+
+	fpgaInitialize(NULL);
 }
 
 __attribute__((destructor)) static void opae_release(void)
 {
-	// token_cleanup();
-
 	if (g_logfile != NULL && g_logfile != stdout) {
 		fclose(g_logfile);
 	}

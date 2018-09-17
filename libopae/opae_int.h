@@ -177,47 +177,6 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 	free(wh);
 }
 
-//                                       o r p w
-#define OPAE_WRAPPED_PROPERTIES_MAGIC 0x6f727077
-
-typedef struct _opae_wrapped_properties {
-	uint32_t magic;
-	fpga_properties opae_properties;
-	opae_api_adapter_table *adapter_table;
-} opae_wrapped_properties;
-
-static inline opae_wrapped_properties *
-opae_allocate_wrapped_properties(fpga_properties opae_properties,
-				 opae_api_adapter_table *adapter)
-{
-	opae_wrapped_properties *wprop = (opae_wrapped_properties *)malloc(
-		sizeof(opae_wrapped_properties));
-
-	if (wprop) {
-		wprop->magic = OPAE_WRAPPED_PROPERTIES_MAGIC;
-		wprop->opae_properties = opae_properties;
-		wprop->adapter_table = adapter;
-	}
-
-	return wprop;
-}
-
-static inline opae_wrapped_properties *
-opae_validate_wrapped_properties(fpga_properties p)
-{
-	opae_wrapped_properties *wp;
-	if (!p)
-		return NULL;
-	wp = (opae_wrapped_properties *)p;
-	return (wp->magic == OPAE_WRAPPED_PROPERTIES_MAGIC) ? wp : NULL;
-}
-
-static inline void opae_destroy_wrapped_properties(opae_wrapped_properties *wp)
-{
-	wp->magic = 0;
-	free(wp);
-}
-
 //                                         e v e w
 #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
 
@@ -245,7 +204,8 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 			OPAE_ERR("pthread_mutexattr_init() failed");
 			goto out_free;
 		}
-		if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE)) {
+		if (pthread_mutexattr_settype(&mattr,
+					      PTHREAD_MUTEX_RECURSIVE)) {
 			OPAE_ERR("pthread_mutexattr_settype() failed");
 			goto out_free;
 		}
