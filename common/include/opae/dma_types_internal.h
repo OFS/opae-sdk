@@ -44,28 +44,8 @@
 #define IS_ALIGNED_DWORD(addr) (addr%4==0)
 #define IS_ALIGNED_QWORD(addr) (addr%8==0)
 
-#define M2S_DMA_UUID_H                0xfee69b442f7743ed
-#define M2S_DMA_UUID_L                0x9ff49b8cf9ee6335
-#define S2M_DMA_UUID_H                0xf118209ad59a4b3f
-#define S2M_DMA_UUID_L                0xa66cd700a658a015
-#define FPGA_DMA_HOST_MASK            0x2000000000000
-
-#define AFU_DFH_REG 0x0
-#define AFU_DFH_NEXT_OFFSET 16
-#define AFU_DFH_EOL_OFFSET 40
-#define AFU_DFH_TYPE_OFFSET 60
-
 // BBB Feature ID (refer CCI-P spec)
 #define FPGA_DMA_BBB 0x2
-
-// Feature ID for DMA BBB
-#define FPGA_DMA_BBB_FEATURE_ID 0x765
-
-// DMA Register offsets from base
-#define FPGA_DMA_CSR 0x40
-#define FPGA_DMA_DESC 0x60
-#define FPGA_DMA_RESPONSE 0x80
-#define FPGA_DMA_STREAMING_VALVE 0xA0
 
 #define FPGA_DMA_CSR_BUSY (1<<0)
 #define FPGA_DMA_DESC_BUFFER_EMPTY 0x2

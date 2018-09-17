@@ -1,0 +1,24 @@
+This tree holds MPF software libraries for controlling MPF shims on FPGAs.
+
+The library build is configured by CMake.  Starting in the directory
+holding this README:
+    
+    mkdir build
+    cd build
+    cmake ../
+    make
+    make install
+
+The build directory may be anywhere -- just adjust the path of this sw
+source directory passed to CMake.
+
+To select an installation directory other than CMake's default, set
+-DCMAKE_INSTALL_PREFIX=<dir> on the CMake command line.  The MPF library
+and header file installation paths are layed out so they may be embedded
+in the standard Intel-provided FPGA library and header file trees.
+
+Set -DCMAKE_BUILD_TYPE=Debug on the CMake command line to emit symbols and
+eliminate optimization.
+
+Warning: the CMake "Release" build type causes errors and is not currently
+supported.

@@ -1,0 +1,15 @@
+# Ignore everything but Qsys source files
+
+/ip/stream_to_memory_dma_bbb/*
+!/ip/stream_to_memory_dma_bbb/*.ip
+/stream_to_memory_dma_bbb/
+
+/ip/streaming_dma_test_system/*
+!/ip/streaming_dma_test_system/*.ip
+/streaming_dma_test_system/
+
+/ip/memory_to_stream_dma_bbb/*
+!/ip/memory_to_stream_dma_bbb/*.ip
+/memory_to_stream_dma_bbb/
+
+.qsys_edit

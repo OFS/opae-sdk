@@ -1,0 +1,17 @@
+##
+## Common configuration for synthesizing MPF tests.
+##
+
+## Find the root of the BBB source tree (6 levels up the directory tree)
+set this_script [dict get [ info frame 0 ] file]
+set BBB_CCI_SRC [file join {*}[lrange [file split $this_script] 0 end-7]]
+
+## MPF and async FIFO libraries
+source $BBB_CCI_SRC/BBB_cci_mpf/hw/par/qsf_cci_mpf_PAR_files.qsf
+source $BBB_CCI_SRC/BBB_ccip_async/hw/par/ccip_async_addenda.qsf
+
+## Base test sources
+set_global_assignment -name SEARCH_PATH $CCI_MPF_SRC/test/test-mpf/base/hw/rtl
+
+set_global_assignment -name SYSTEMVERILOG_FILE $CCI_MPF_SRC/test/test-mpf/base/hw/rtl/cci_test_afu.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $CCI_MPF_SRC/test/test-mpf/base/hw/rtl/cci_test_csrs.sv

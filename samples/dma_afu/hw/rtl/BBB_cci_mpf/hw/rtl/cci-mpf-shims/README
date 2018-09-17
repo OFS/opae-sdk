@@ -1,0 +1,66 @@
+The features provided by MPF are implemented as shims that have an FIU and
+an AFU connection and transform the messages flowing between them.
+
+Many shims are provided:
+
+* cci_mpf_shim_rsp_order implements a reorder buffer (ROB) on read responses.
+  It also preserves the MDATA values set by the AFU and overwrites MDATA values
+  for use inside MPF.  Many MPF shims depend on the low bits of MDATA being
+  dynamically unique in order to use them as table indices.
+
+* cci_mpf_shim_vc_map implements an address-based mapping from the eVC_VA channel
+  to specific physical channels.  While eVC_VA is the most efficient mapping,
+  some applications are unable to use it because they depend on the ability to
+  read back values written previously by the FPGA.  When using eVC_VA a
+  write fence must be generated to guarantee that writes are visible on all
+  channels.  Write fences are expensive and should only be used infrequently.
+  The VC mapping shim guarantees consistent mapping from a given address
+  to a physical channel, making it possible to synchronize writes and reads
+  by monitoring write responses either in cci_mpf_shim_wro or in the AFU.
+
+  Mapping to physical channels is complicated.  A correct ratio of channels
+  must be chosen in order to approach the performance of eVC_VA.  The optimal
+  ratio varies with the ratio of reads to writes and the number of lines
+  in requests.  The VC mapping shim uses multiple strategies for optimizing
+  throughput, including address hashing and dynamic adjustment of channel
+  ratios based on observed traffic.
+
+* cci_mpf_shim_wro uses CAMs to guarantee the order of reads and writes
+  within a line.  Conflicting reads and writes are delayed until the
+  conflict is resolved.  No guarantees are provided across lines.
+
+* cci_mpf_shim_vtp translates virtual addresses to physical addresses.
+  Pages allocated using the VTP software service are entered into a private
+  page table that has structure similar the standard x86 hierarchical page
+  tables.  Both 2MB and 4KB pages are supported.  New mappings may be added
+  any time during execution.
+
+  The VTP hardware caches translations in multiple levels.  Each request
+  pipeline has a private L1 translation cache with 512 2MB entries and 512
+  4KB entries.  L1 misses are forwarded to the TLB, a shared 4 way set
+  associative structure with 512 2MB sets and 1024 4KB sets.  Both the L1
+  and TLB sizes are configurable, both are fully pipelined, and both support
+  hit under miss.  Misses in the TLB invoke the page table walker.  The
+  page table walker has its own small direct mapped cache, designed to
+  take advantage of there being 8 translation pointers per CCI line.  The
+  page table cache reduces the latency of translations when streaming
+  through large, virtually contiguous address spaces.
+
+* cci_mpf_detect_eop tracks RX traffic and tags the last response in
+  a multi-line response with an EOP bit.  It also converts all unpacked
+  write responses to packed, single beat responses.
+
+* cci_mpf_shim_mux maps a pair of CCI clients to a single pipeline.
+
+* cci_mpf_shim_null is a pass-through NULL MPF shim.  It may be used in
+  place of conditionally instantiated shims to connect a pair of MPF
+  interface objects.
+
+* cci_mpf_shim_buffer_* shims add FIFOs to CCI TX ports in order to add
+  flow control.  They may also add register stages to RX ports.
+
+* cci_mpf_shim_csr implements MMIO space for all of MPF.
+
+* cci_mpf_dbg_history adds the ability to record history of some event in
+  block RAM and read it back using MMIO.  It is similar to signal tap but
+  implemented inside CCI.

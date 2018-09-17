@@ -1,0 +1,14 @@
+##
+## Base include file for describing MPF tests.
+##
+
+# Include MPF
+-F ../../../../../hw/sim/cci_mpf_sim_addenda.txt
+
+# Include async FIFO
+-F ../../../../../../BBB_ccip_async/hw/sim/ccip_async_sim_addenda.txt
+
++incdir+../rtl
+
+../rtl/cci_test_afu.sv
+../rtl/cci_test_csrs.sv

@@ -1,0 +1,37 @@
+##
+## To build this AFU, start with the standard sample Quartus configuration
+## for the target platform.  In the directory with the <platform>_synth.qsf
+## and <platform>.qsf files, add a new qsf file afu_config.qsf.
+## afu_config.qsf will be used to set parameters and then import this file.
+##
+## Edit the two standard QSF files to use afu_config.qsf:
+##
+##   1. In <platform>_synth.qsf, replace the AFU user RTL section with:
+##
+##        source afu_config.qsf
+##
+##   2. Do the same in the AFU SDC section of <platform>.qsf.
+##
+## In afu_config.qsf, first define configuration macros and then source
+## this file.  At least one macro is required: the MPF platform, which
+## must match the target platform.
+##
+## The following example afu_config.qsf selects a 200 MHz clock and
+## sets the platform to BDX:
+##
+##   set_global_assignment -name VERILOG_MACRO "AFU_CLOCK_FREQ=200"
+##   set_global_assignment -name VERILOG_MACRO "MPF_PLATFORM_BDX=1"
+##   source <path to MPF>/test/test-mpf/test_random/hw/par/sources_PAR_files.qsf
+##
+
+## Find the root of the test-mpf tree (3 levels up the directory tree)
+set this_script [dict get [ info frame 0 ] file]
+set MPF_TEST_SRC [file join {*}[lrange [file split $this_script] 0 end-4]]
+
+## Base test sources
+source $MPF_TEST_SRC/base/hw/par/cci_mpf_test_base_PAR_files.qsf
+
+## This test's sources
+set_global_assignment -name SEARCH_PATH $MPF_TEST_SRC/test_random/hw/rtl
+
+set_global_assignment -name SYSTEMVERILOG_FILE $MPF_TEST_SRC/test_random/hw/rtl/test_random.sv

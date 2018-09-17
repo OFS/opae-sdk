@@ -1,0 +1,18 @@
+{
+   "version": 1,
+   "afu-image": {
+      "power": 0,
+      "afu-top-interface":
+         {
+            "class": "ccip_std_afu_avalon_mm_legacy_wires"
+         },
+      "accelerator-clusters":
+         [
+            {
+               "name": "streaming_dma_test_afu",
+               "total-contexts": 1,
+               "accelerator-type-uuid": "eb59bf9d-b211-4a4e-b3e3-753ce68634ba"
+            }
+         ]
+   }
+}

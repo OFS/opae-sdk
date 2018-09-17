@@ -1,0 +1,19 @@
+test_mem_perf RTL is the basis for several tests.  On the HW side it is a
+simple engine that generates sequential read and/or write traffic of varying
+buffer sizes, run lengths and offered loads.  Software tests can configure
+the hardware for a variety of studies.
+
+sw/test_mem_latency computes a variety of latency vs. bandwidth data points.
+Scripts for generating and plotting results are stored in sw/scripts.
+The checked-in configuration assumes that test_mem_perf is built in two
+configurations: one with and one without MPF's ROB (the MPF SORT_READ_RESPONSES
+configuration option).  It is run in the sw directory by:
+
+    < load the version with SORT_READ_RESPONSES enabled >
+    ./scripts/run_lat.sh ord
+    < load the default version (SORT_READ_RESPONSES disabled) >
+    ./scripts/run_lat.sh
+    ./scripts/plot_lat.sh
+
+A graph will be stored in bw-lat.pdf.
+

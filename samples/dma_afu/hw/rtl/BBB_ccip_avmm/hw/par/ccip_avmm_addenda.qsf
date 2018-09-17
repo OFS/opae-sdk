@@ -1,0 +1,25 @@
+##
+## This ccip/avalon shim library is imported into Quartus with:
+##
+##   source <path to BBBs>/BBB_ccip_avmm/hw/par/ccip_avmm_addenda.qsf
+##
+
+## Find the source tree relative to this script
+set this_script [dict get [ info frame 0 ] file]
+# Pop 3 levels (including the script name) off the path to find the root
+set CCIP_AVMM_SRC [file join {*}[lrange [file split $this_script] 0 end-3]]
+
+## include directories
+set_global_assignment -name SEARCH_PATH $CCIP_AVMM_SRC/hw/rtl
+
+## Type and interface Packages and header files
+set_global_assignment -name SYSTEMVERILOG_FILE $CCIP_AVMM_SRC/hw/rtl/ccip_avmm_pkg.sv
+
+## Sources
+set_global_assignment -name SYSTEMVERILOG_FILE $CCIP_AVMM_SRC/hw/rtl/avmm_ccip_host_rd.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $CCIP_AVMM_SRC/hw/rtl/avmm_ccip_host_wr.sv
+set_global_assignment -name SYSTEMVERILOG_FILE $CCIP_AVMM_SRC/hw/rtl/ccip_avmm_mmio.sv
+
+## Constraints
+#no timing contraints
+
