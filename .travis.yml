@@ -50,6 +50,8 @@ matrix:
         - uuid-dev
         - doxygen
   - script: scripts/cover.sh
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
     install:
     - pip install --user pybind11 nose2
     cache:
