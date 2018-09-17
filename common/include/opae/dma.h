@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,30 +35,31 @@
 
 #include <opae/fpga.h>
 #include <opae/types.h>
+#include <opae/dma_types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_handle *dma_handle, uint64_t dma_channel);
+  fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_handle *dma_handle, uint64_t dma_channel);
 
-fpga_result fpgaDmaTransferSync(fpga_dma_handle handle, fpga_dma_transfer dma_transfer);
+  fpga_result fpgaDmaTransferSync(fpga_dma_handle handle, fpga_dma_transfer dma_transfer);
 
-fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma_handle, fpga_dma_transfer dma_transfer, int *fd);
+  fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma_handle, fpga_dma_transfer dma_transfer, int *fd);
 
-fpga_result fpgaDmaClose(fpga_dma_handle dma_handle);
+  fpga_result fpgaDmaClose(fpga_dma_handle dma_handle);
 
-fpga_result fpgaDMATransferInit(fpga_dma_transfer *dma_transfer);
+  fpga_result fpgaDMATransferInit(fpga_dma_transfer *dma_transfer);
 
-fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
+  fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
 
-fpga_result fpgaDMATransferGetBytesTransferred(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
+  fpga_result fpgaDMATransferGetBytesTransferred(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
 
-fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer, fpga_dma_transfer_cb cb, void* ctxt);
+  fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer, fpga_dma_transfer_cb cb, void* ctxt);
 
-fpga_result fpgaDMATransferSetTxControl(fpga_dma_transfer dma_transfer, fpga_dma_tx_ctrl tx_ctrl);
+  fpga_result fpgaDMATransferSetTxControl(fpga_dma_transfer dma_transfer, fpga_dma_tx_ctrl tx_ctrl);
 
-fpga_result fpgaDMATransferSetRxControl(fpga_dma_transfer transfer, fpga_dma_rx_ctrl rx_ctrl);
+  fpga_result fpgaDMATransferSetRxControl(fpga_dma_transfer transfer, fpga_dma_rx_ctrl rx_ctrl);
 
 #ifdef __cplusplus
 }

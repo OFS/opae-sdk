@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,10 +34,10 @@
 #include <semaphore.h>
 #include "x86-sse2.h"
 
-#define FPGA_DMA_ST_ERR(msg_str) \
-		fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);
-
-#define MIN(X,Y) (X<Y)?X:Y
+#define FPGA_DMA_ST_ERR(msg_str)					\
+	fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);	\
+									\
+#define MIN(X,Y) (X<Y)?X:Y					        \
 
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
@@ -67,6 +67,15 @@
 #define FPGA_DMA_RESPONSE 0x80
 #define FPGA_DMA_STREAMING_VALVE 0xA0
 
+#define FPGA_DMA_CSR_BUSY (1<<0)
+#define FPGA_DMA_DESC_BUFFER_EMPTY 0x2
+#define FPGA_DMA_DESC_BUFFER_FULL 0x4
+
+#define FPGA_DMA_ALIGN_BYTES 64
+#define FPGA_DMA_BUF_SIZE (2*1024*1024)
+#define MIN_SSE2_SIZE 4096
+#define CACHE_LINE_SIZE 64
+
 #define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
 #define RSP_BASE(dma_handle) ((uint64_t)dma_handle->dma_rsp_base)
 #define ST_VALVE_BASE(dma_handle) ((uint64_t)dma_handle->dma_streaming_valve_base)
@@ -85,41 +94,33 @@
 #define ST_VALVE_STATUS(dma_h) (ST_VALVE_BASE(dma_h) + offsetof(msgdma_st_valve_t, status))
 #define FPGA_DMA_MASK_32_BIT 0xFFFFFFFF
 
-#define FPGA_DMA_CSR_BUSY (1<<0)
-#define FPGA_DMA_DESC_BUFFER_EMPTY 0x2
-#define FPGA_DMA_DESC_BUFFER_FULL 0x4
-
-#define FPGA_DMA_ALIGN_BYTES 64
 #define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES==0)
 // Granularity of DMA transfer (maximum bytes that can be packed
 // in a single descriptor).This value must match configuration of
 // the DMA IP. Larger transfers will be broken down into smaller
 // transactions.
-#define FPGA_DMA_BUF_SIZE (2*1024*1024)
 #define FPGA_DMA_BUF_ALIGN_SIZE FPGA_DMA_BUF_SIZE
 
-#define MIN_SSE2_SIZE 4096
-#define CACHE_LINE_SIZE 64
 #define ALIGN_TO_CL(x) ((uint64_t)(x) & ~(CACHE_LINE_SIZE - 1))
 #define IS_CL_ALIGNED(x) (((uint64_t)(x) & (CACHE_LINE_SIZE - 1)) == 0)
 
 // Convenience macros
 #ifdef FPGA_DMA_DEBUG
-#define debug_print(fmt, ...) \
-do { \
-	if (FPGA_DMA_DEBUG) {\
-		fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
-		fprintf(stderr, fmt, ##__VA_ARGS__); \
-	} \
-} while (0)
-#define error_print(fmt, ...) \
-do { \
-	fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
-	fprintf(stderr, fmt, ##__VA_ARGS__); \
-	err_cnt++; \
- } while (0)
-#else
-#define debug_print(...)
+#define debug_print(fmt, ...)						\
+	do {								\
+		if (FPGA_DMA_DEBUG) {					\
+			fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
+			fprintf(stderr, fmt, ##__VA_ARGS__);		\
+		}							\
+	} while (0)							\
+		#define error_print(fmt, ...)				\
+			do {						\
+				fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
+				fprintf(stderr, fmt, ##__VA_ARGS__);	\
+				err_cnt++;				\
+			} while (0)					\
+				#else					\
+				#define debug_print(...)
 #define error_print(...)
 #endif
 
@@ -128,253 +129,263 @@ do { \
 // Max. async transfers in progress
 #define FPGA_DMA_MAX_INFLIGHT_TRANSACTIONS 1024
 
-// Channel types
+// Transfer status
 typedef enum {
-    TRANSFER_IN_PROGRESS = 0,
-    TRANSFER_NOT_IN_PROGRESS = 1
+	TRANSFER_IN_PROGRESS = 0,
+	TRANSFER_NOT_IN_PROGRESS = 1
 } fpga_transf_status_t;
 
+struct fpga_dma_cap {
+	int   max_channel_num;
+	int   max_ring_size;
+	int   max_sg_buffer_size;
+	int   dma_alignment;
+	bool sg_support;
+	bool interrupts_support;
+	bool streaming_support;
+};
+
 struct fpga_dma_transfer {
-    uint64_t src;
-    uint64_t dst;
-    uint64_t len;
-    fpga_dma_transfer_type_t transfer_type;
-    fpga_dma_tx_ctrl_t tx_ctrl;
-    fpga_dma_rx_ctrl_t rx_ctrl;
-    fpga_dma_transfer_cb cb;
-    bool eop_status;
-    void *context;
-    size_t rx_bytes;
-    pthread_mutex_t tf_mutex;
-    sem_t tf_status; // When locked, the transfer in progress
+	uint64_t src;
+	uint64_t dst;
+	uint64_t len;
+	fpga_dma_transfer_type_t transfer_type;
+	fpga_dma_tx_ctrl_t tx_ctrl;
+	fpga_dma_rx_ctrl_t rx_ctrl;
+	fpga_dma_transfer_cb cb;
+	bool eop_status;
+	void *context;
+	size_t rx_bytes;
+	pthread_mutex_t tf_mutex;
+	sem_t tf_status; // When locked, the transfer in progress
 };
 
 typedef struct __attribute__ ((__packed__)) {
-    uint64_t dfh;
-    uint64_t feature_uuid_lo;
-    uint64_t feature_uuid_hi;
+	uint64_t dfh;
+	uint64_t feature_uuid_lo;
+	uint64_t feature_uuid_hi;
 } dfh_feature_t;
 
 typedef union {
-    uint64_t reg;
-    struct {
-        uint64_t feature_type:4;
-        uint64_t reserved_8:8;
-        uint64_t afu_minor:4;
-        uint64_t reserved_7:7;
-        uint64_t end_dfh:1;
-        uint64_t next_dfh:24;
-        uint64_t afu_major:4;
-        uint64_t feature_id:12;
-    } bits;
+	uint64_t reg;
+	struct {
+		uint64_t feature_type:4;
+		uint64_t reserved_8:8;
+		uint64_t afu_minor:4;
+		uint64_t reserved_7:7;
+		uint64_t end_dfh:1;
+		uint64_t next_dfh:24;
+		uint64_t afu_major:4;
+		uint64_t feature_id:12;
+	} bits;
 } dfh_reg_t;
 
 typedef struct qinfo {
-    int read_index;
-    int write_index;
-    fpga_dma_transfer_t queue[FPGA_DMA_MAX_INFLIGHT_TRANSACTIONS];
-    sem_t entries; // Counting semaphore, count represents available entries in queue
-    pthread_mutex_t qmutex; // Gain exclusive access before queue operations
+	int read_index;
+	int write_index;
+	fpga_dma_transfer_t queue[FPGA_DMA_MAX_INFLIGHT_TRANSACTIONS];
+	sem_t entries; // Counting semaphore, count represents available entries in queue
+	pthread_mutex_t qmutex; // Gain exclusive access before queue operations
 } qinfo_t;
 
 struct fpga_dma_handle {
-    fpga_handle fpga_h;
-    uint32_t mmio_num;
-    uint64_t mmio_offset;
-    uint64_t mmio_va;
-    uint64_t dma_base;
-    uint64_t dma_offset;
-    uint64_t dma_csr_base;
-    uint64_t dma_desc_base;
-    uint64_t dma_rsp_base;
-    uint64_t dma_streaming_valve_base;
-    uint64_t dma_ase_cntl_base;
-    uint64_t dma_ase_data_base;
-    // Index of the next available descriptor in the dispatcher queue
-    uint64_t next_avail_desc_idx;
-    // Total number of unused descriptors in the dispatcher queue
-    // Leftover descriptors are reused for subsequent transfers
-    // Note: Count includes the next available descriptor in
-    // the dispatcher queue indexed by next_avail_desc_idx
-    uint64_t unused_desc_count;
-    // Interrupt event handle
-    fpga_event_handle eh;
-    uint64_t *dma_buf_ptr[FPGA_DMA_MAX_BUF];
-    uint64_t dma_buf_wsid[FPGA_DMA_MAX_BUF];
-    uint64_t dma_buf_iova[FPGA_DMA_MAX_BUF];
-    // channel type
-    fpga_dma_channel_type_t ch_type;
+	fpga_handle fpga_h;
+	uint32_t mmio_num;
+	uint64_t mmio_offset;
+	uint64_t mmio_va;
+	uint64_t dma_base;
+	uint64_t dma_offset;
+	uint64_t dma_csr_base;
+	uint64_t dma_desc_base;
+	uint64_t dma_rsp_base;
+	uint64_t dma_streaming_valve_base;
+	uint64_t dma_ase_cntl_base;
+	uint64_t dma_ase_data_base;
+	// Index of the next available descriptor in the dispatcher queue
+	uint64_t next_avail_desc_idx;
+	// Total number of unused descriptors in the dispatcher queue
+	// Leftover descriptors are reused for subsequent transfers
+	// Note: Count includes the next available descriptor in
+	// the dispatcher queue indexed by next_avail_desc_idx
+	uint64_t unused_desc_count;
+	// Interrupt event handle
+	fpga_event_handle eh;
+	uint64_t *dma_buf_ptr[FPGA_DMA_MAX_BUF];
+	uint64_t dma_buf_wsid[FPGA_DMA_MAX_BUF];
+	uint64_t dma_buf_iova[FPGA_DMA_MAX_BUF];
+	// channel type
+	fpga_dma_channel_type_t ch_type;
 #define INVALID_CHANNEL (0x7fffffffffffffffULL)
-    uint64_t dma_channel;
-    pthread_t thread_id;
-    // Transaction queue (model as a fixed-size circular buffer)
-    qinfo_t qinfo;
+	uint64_t dma_channel;
+	pthread_t thread_id;
+	// Transaction queue (model as a fixed-size circular buffer)
+	qinfo_t qinfo;
 };
 
 // Data structures from DMA MM implementation
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t tx_channel:8;
-        uint32_t generate_sop:1;
-        uint32_t generate_eop:1;
-        uint32_t park_reads:1;
-        uint32_t park_writes:1;
-        uint32_t end_on_eop:1;
-        uint32_t eop_rvcd_irq_en:1;
-        uint32_t transfer_irq_en:1;
-        uint32_t early_term_irq_en:1;
-        uint32_t trans_error_irq_en:8;
-        uint32_t early_done_en:1;
-        uint32_t wait_for_wr_rsp:1;
-        uint32_t reserved_2:5;
-        uint32_t go:1;
-    };
+	uint32_t reg;
+	struct {
+		uint32_t tx_channel:8;
+		uint32_t generate_sop:1;
+		uint32_t generate_eop:1;
+		uint32_t park_reads:1;
+		uint32_t park_writes:1;
+		uint32_t end_on_eop:1;
+		uint32_t eop_rvcd_irq_en:1;
+		uint32_t transfer_irq_en:1;
+		uint32_t early_term_irq_en:1;
+		uint32_t trans_error_irq_en:8;
+		uint32_t early_done_en:1;
+		uint32_t wait_for_wr_rsp:1;
+		uint32_t reserved_2:5;
+		uint32_t go:1;
+	};
 } msgdma_desc_ctrl_t;
 
 typedef struct __attribute__((__packed__)) {
-    //0x0
-    uint32_t rd_address;
-    //0x4
-    uint32_t wr_address;
-    //0x8
-    uint32_t len;
-    //0xC
-    uint16_t seq_num;
-    uint8_t rd_burst_count;
-    uint8_t wr_burst_count;
-    //0x10
-    uint16_t rd_stride;
-    uint16_t wr_stride;
-    //0x14
-    uint32_t rd_address_ext;
-    //0x18
-    uint32_t wr_address_ext;
-    //0x1c
-    msgdma_desc_ctrl_t control;
+	//0x0
+	uint32_t rd_address;
+	//0x4
+	uint32_t wr_address;
+	//0x8
+	uint32_t len;
+	//0xC
+	uint16_t seq_num;
+	uint8_t rd_burst_count;
+	uint8_t wr_burst_count;
+	//0x10
+	uint16_t rd_stride;
+	uint16_t wr_stride;
+	//0x14
+	uint32_t rd_address_ext;
+	//0x18
+	uint32_t wr_address_ext;
+	//0x1c
+	msgdma_desc_ctrl_t control;
 } msgdma_ext_desc_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t busy:1;
-        uint32_t desc_buf_empty:1;
-        uint32_t desc_buf_full:1;
-        uint32_t rsp_buf_empty:1;
-        uint32_t rsp_buf_full:1;
-        uint32_t stopped:1;
-        uint32_t resetting:1;
-        uint32_t stopped_on_errror:1;
-        uint32_t stopped_on_early_term:1;
-        uint32_t irq:1;
-        uint32_t reserved:22;
-    } st;
+	uint32_t reg;
+	struct {
+		uint32_t busy:1;
+		uint32_t desc_buf_empty:1;
+		uint32_t desc_buf_full:1;
+		uint32_t rsp_buf_empty:1;
+		uint32_t rsp_buf_full:1;
+		uint32_t stopped:1;
+		uint32_t resetting:1;
+		uint32_t stopped_on_errror:1;
+		uint32_t stopped_on_early_term:1;
+		uint32_t irq:1;
+		uint32_t reserved:22;
+	} st;
 } msgdma_status_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t stop_dispatcher:1;
-        uint32_t reset_dispatcher:1;
-        uint32_t stop_on_error:1;
-        uint32_t stopped_on_early_term:1;
-        uint32_t global_intr_en_mask:1;
-        uint32_t stop_descriptors:1;
-        uint32_t flush_descriptors:1;
-        uint32_t flush_rd_master:1;
-        uint32_t flush_wr_master:1;
-        uint32_t rsvd:19;
-    } ct;
+	uint32_t reg;
+	struct {
+		uint32_t stop_dispatcher:1;
+		uint32_t reset_dispatcher:1;
+		uint32_t stop_on_error:1;
+		uint32_t stopped_on_early_term:1;
+		uint32_t global_intr_en_mask:1;
+		uint32_t stop_descriptors:1;
+		uint32_t flush_descriptors:1;
+		uint32_t flush_rd_master:1;
+		uint32_t flush_wr_master:1;
+		uint32_t rsvd:19;
+	} ct;
 } msgdma_ctrl_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t rd_fill_level:16;
-        uint32_t wr_fill_level:16;
-    } fl;
+	uint32_t reg;
+	struct {
+		uint32_t rd_fill_level:16;
+		uint32_t wr_fill_level:16;
+	} fl;
 } msgdma_fill_level_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t rsp_fill_level:16;
-        uint32_t rsvd:16;
-    } rsp;
+	uint32_t reg;
+	struct {
+		uint32_t rsp_fill_level:16;
+		uint32_t rsvd:16;
+	} rsp;
 } msgdma_rsp_level_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t rd_seq_num:16;
-        uint32_t wr_seq_num:16;
-    } seq;
+	uint32_t reg;
+	struct {
+		uint32_t rd_seq_num:16;
+		uint32_t wr_seq_num:16;
+	} seq;
 } msgdma_seq_num_t;
 
 typedef struct __attribute__((__packed__)) {
-    // 0x0
-    msgdma_status_t status;
-    // 0x4
-    msgdma_ctrl_t ctrl;
-    // 0x8
-    msgdma_fill_level_t fill_level;
-    // 0xc
-    msgdma_rsp_level_t rsp_level;
-    // 0x10
-    msgdma_seq_num_t seq_num;
+	// 0x0
+	msgdma_status_t status;
+	// 0x4
+	msgdma_ctrl_t ctrl;
+	// 0x8
+	msgdma_fill_level_t fill_level;
+	// 0xc
+	msgdma_rsp_level_t rsp_level;
+	// 0x10
+	msgdma_seq_num_t seq_num;
 } msgdma_csr_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t error:8;
-        uint32_t early_termination:1;
-        uint32_t eop_arrived:1;
-        uint32_t err_irq_mask:8;
-        uint32_t early_termination_irq_mask:1;
-        uint32_t desc_buffer_full:1;
-        uint32_t rsvd:12;
-    } rsp;
+	uint32_t reg;
+	struct {
+		uint32_t error:8;
+		uint32_t early_termination:1;
+		uint32_t eop_arrived:1;
+		uint32_t err_irq_mask:8;
+		uint32_t early_termination_irq_mask:1;
+		uint32_t desc_buffer_full:1;
+		uint32_t rsvd:12;
+	} rsp;
 } msgdma_rsp_status_t;
 
 typedef struct __attribute__((__packed__)) {
-    // 0x0
-    uint32_t actual_bytes_tf;
-    // 0x4
-    msgdma_rsp_status_t rsp_status;
+	// 0x0
+	uint32_t actual_bytes_tf;
+	// 0x4
+	msgdma_rsp_status_t rsp_status;
 } msgdma_rsp_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t en_data_flow:1;
-        uint32_t en_det_tf:1;
-        uint32_t en_non_det_tf:1;
-        uint32_t clr_bytes_transferred:1;
-        uint32_t rsvd:28;
-    } ct;
+	uint32_t reg;
+	struct {
+		uint32_t en_data_flow:1;
+		uint32_t en_det_tf:1;
+		uint32_t en_non_det_tf:1;
+		uint32_t clr_bytes_transferred:1;
+		uint32_t rsvd:28;
+	} ct;
 } msgdma_st_valve_ctrl_t;
 
 typedef union {
-    uint32_t reg;
-    struct {
-        uint32_t det_tf_occurred:1;
-        uint32_t non_det_tf_occurred:1;
-        uint32_t rsvd:30;
-    } st;
+	uint32_t reg;
+	struct {
+		uint32_t det_tf_occurred:1;
+		uint32_t non_det_tf_occurred:1;
+		uint32_t rsvd:30;
+	} st;
 } msgdma_st_valve_status_t;
 
 typedef struct __attribute__((__packed__)) {
-    // 0x0
-    uint32_t bytes_transferred_l32;
-    // 0x4
-    uint32_t bytes_transferred_u32;
-    // 0x8
-    uint32_t bytes_to_transfer;
-    // 0xc
-    msgdma_st_valve_ctrl_t control;
-    // 0x10
-    msgdma_st_valve_status_t status;
+	// 0x0
+	uint32_t bytes_transferred_l32;
+	// 0x4
+	uint32_t bytes_transferred_u32;
+	// 0x8
+	uint32_t bytes_to_transfer;
+	// 0xc
+	msgdma_st_valve_ctrl_t control;
+	// 0x10
+	msgdma_st_valve_status_t status;
 } msgdma_st_valve_t;
 
 #endif //__FPGA__DMA_TYPES_INTERNAL_H__
