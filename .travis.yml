@@ -49,6 +49,8 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
+  - before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
   - script: scripts/cover.sh
     install:
     - pip install --user pybind11 nose2
