@@ -36,10 +36,10 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE),
+    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
+    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
               FPGA_OK);
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
