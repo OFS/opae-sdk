@@ -37,9 +37,9 @@
 #include <fcntl.h>
 
 #include "safe_string/safe_string.h"
-#include "opae/fpga.h"
-#include "bitstream_int.h"
+#include <opae/fpga.h>
 
+#include "../../base/fpgaconf/bitstream-tools.h"
 
 #define GETOPT_STRING ":hB:D:F:S:G"
 
@@ -117,6 +117,10 @@ int main( int argc, char** argv )
 	fpga_handle  fme_handle            = NULL;
 	struct gbs_metadata  metadata;
 	fpga_result res                    = FPGA_OK;
+	uint64_t intfc_id_l                = 0;
+	uint64_t intfc_id_h                = 0;
+	fpga_guid expt_interface_id        = { 0 };
+	fpga_guid act_interface_id         = { 0 };
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -143,6 +147,9 @@ int main( int argc, char** argv )
 	}
 
 	// Enum FPGA device
+	res = fpgaInitialize(NULL);
+	ON_ERR_GOTO(res, out_exit, "Failed to initilize ");
+
 	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
@@ -187,21 +194,28 @@ int main( int argc, char** argv )
 	result = check_bitstream_guid(coreidleCmdLine.gbs_data);
 	ON_ERR_GOTO(result, out_close, "closing FME");
 
-	// Verify bitstream metadata
-	result = validate_bitstream_metadata(fme_handle,
-					coreidleCmdLine.gbs_data) ;
+	// Read bitstream meata data
+	memset_s(&metadata, sizeof(metadata), 0);
+	result = read_gbs_metadata(coreidleCmdLine.gbs_data, &metadata);
 	ON_ERR_GOTO(result, out_close, "closing FME");
 
-	// Verify bitstream length
-	memset_s(&metadata, sizeof(metadata), 0);
-	if (get_bitstream_json_len(coreidleCmdLine.gbs_data) > 0) {
+	// Read FPGA Interafce id
+	res = get_fpga_interface_id(fme_token, &intfc_id_l, &intfc_id_h);
+	ON_ERR_GOTO(res, out_close, "interfaceid get");
+	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
 
-		// Read GBS json metadata
-		result = read_gbs_metadata(coreidleCmdLine.gbs_data, &metadata);
-		ON_ERR_GOTO(result, out_close, "closing FME");
-
-		printf(" GBS Power :%d watts \n", metadata.afu_image.power);
+	// Verify bitstream metadata
+	if (uuid_parse(metadata.afu_image.interface_uuid, act_interface_id) < 0) {
+		res = FPGA_EXCEPTION;
 	}
+	ON_ERR_GOTO(res, out_close, "parsing guid");
+
+	if (uuid_compare(act_interface_id, expt_interface_id) < 0) {
+		res = FPGA_EXCEPTION;
+	}
+	ON_ERR_GOTO(res, out_close, "Interface id doesn't match");
+
+	printf(" GBS Power :%d watts \n", metadata.afu_image.power);
 
 	// Idle CPU cores
 	if ( metadata.afu_image.power >=0 ) {
