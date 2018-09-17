@@ -522,7 +522,7 @@ TEST_P(enum_c_p, num_interrupts) {
       FPGA_OK);
   EXPECT_EQ(num_matches, 1);
 
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_INVALID_PARAM);
+  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);
