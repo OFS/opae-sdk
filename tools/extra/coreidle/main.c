@@ -39,7 +39,7 @@
 #include "safe_string/safe_string.h"
 #include <opae/fpga.h>
 
-#include "../../base/fpgaconf/bitstream-tools.h"
+#include "bitstream-tools.h"
 
 #define GETOPT_STRING ":hB:D:F:S:G"
 

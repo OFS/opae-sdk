@@ -64,10 +64,6 @@
 #define GBS_ACCELERATOR_TOTAL_CONTEXTS              "total-contexts"
 
 
-#define PRINT_MSG printf
-#define PRINT_ERR(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
-
-
 // GBS Metadata format /json
 struct gbs_metadata {
 
@@ -101,7 +97,7 @@ json_bool get_json_object(json_object **object, json_object **parent,
 static fpga_result string_to_guid(const char *guid, fpga_guid *result)
 {
 	if (uuid_parse(guid, *result) < 0) {
-		PRINT_MSG("Error parsing guid %s\n", guid);
+		OPAE_ERR("Error parsing guid %s\n", guid);
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -125,7 +121,7 @@ uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 		ret = *((uint64_t *)bitstream);
 		break;
 	default:
-		PRINT_ERR("Unknown integer size");
+		OPAE_ERR("Unknown integer size");
 	}
 
 	return ret;
@@ -159,7 +155,7 @@ fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid), bitstream,
 		     sizeof(fpga_guid));
 	if (EOK != e) {
-		PRINT_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed");
 		return FPGA_EXCEPTION;
 	}
 
@@ -185,14 +181,14 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 
 	result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, 0);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to get Token Object \n");
+		OPAE_ERR("Failed to get Token Object \n");
 		return result;
 	}
 
 	result = fpgaObjectRead(pr_object, buffer, 0,
 		INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN, 0);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to Read Object \n");
+		OPAE_ERR("Failed to Read Object \n");
 		return result;
 	}
 
@@ -200,7 +196,7 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 	memset_s(buf_h, sizeof(buf_h), 0);
 	e = strncpy_s(buf_h, sizeof(buf_h), (char *) buffer, INTFC_ID_HIGH_LEN);
 	if (EOK != e) {
-		fprintf(stderr, "strncpy_s failed (buf_l)\n");
+		OPAE_ERR("strncpy_s failed (buf_l)\n");
 		return FPGA_EXCEPTION;
 	}
 
@@ -211,7 +207,7 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 	e = strncpy_s(buf_l, sizeof(buf_l), (char *) buffer + INTFC_ID_LOW_LEN,
 		INTFC_ID_LOW_LEN);
 	if (EOK != e) {
-		fprintf(stderr, "strncpy_s failed (buf_l)\n");
+		OPAE_ERR("strncpy_s failed (buf_l)\n");
 		return FPGA_EXCEPTION;
 	}
 
@@ -219,7 +215,7 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 
 	result = fpgaDestroyObject(&pr_object);
 	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to Destroy Object \n");
+		OPAE_ERR("Failed to Destroy Object \n");
 		return result;
 	}
 
@@ -250,37 +246,37 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 	errno_t e;
 
 	if (gbs_metadata == NULL) {
-		FPGA_ERR("Invalid input metadata");
+		OPAE_ERR("Invalid input metadata");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (bitstream == NULL) {
-		FPGA_ERR("Invalid input bitstream");
+		OPAE_ERR("Invalid input bitstream");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (check_bitstream_guid(bitstream) != FPGA_OK) {
-		FPGA_ERR("Failed to read GUID");
+		OPAE_ERR("Failed to read GUID");
 		return FPGA_INVALID_PARAM;
 	}
 
 	json_len = *((uint32_t *) (bitstream + METADATA_GUID_LEN));
 	if (!json_len) {
-		FPGA_ERR("Bitstream has no metadata");
+		OPAE_ERR("Bitstream has no metadata");
 		return FPGA_INVALID_PARAM;
 	}
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
 	json_metadata = (char *) malloc(json_len + 1);
 	if (!json_metadata) {
-		FPGA_ERR("Could not allocate memory for metadata");
+		OPAE_ERR("Could not allocate memory for metadata");
 		return FPGA_NO_MEMORY;
 	}
 
 	e = memcpy_s(json_metadata, json_len + 1,
 		json_metadata_ptr, json_len);
 	if (EOK != e) {
-		FPGA_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -295,7 +291,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 
 			gbs_metadata->version = json_object_get_double(version);
 		} else {
-			FPGA_ERR("No GBS version");
+			OPAE_ERR("No GBS version");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -315,13 +311,13 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 					json_object_get_string(interface_id),
 					GUID_LEN);
 				if (EOK != e) {
-					FPGA_ERR("memcpy_s failed");
+					OPAE_ERR("memcpy_s failed");
 					result = FPGA_EXCEPTION;
 					goto out_free;
 				}
 				gbs_metadata->afu_image.interface_uuid[GUID_LEN] = '\0';
 			} else {
-				FPGA_ERR("No interface ID found in JSON metadata");
+				OPAE_ERR("No interface ID found in JSON metadata");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
@@ -342,7 +338,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 			}
 
 		} else {
-			FPGA_ERR("No AFU image in metadata");
+			OPAE_ERR("No AFU image in metadata");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -360,13 +356,13 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 					json_object_get_string(uuid),
 					GUID_LEN);
 				if (EOK != e) {
-					FPGA_ERR("memcpy_s failed");
+					OPAE_ERR("memcpy_s failed");
 					result = FPGA_EXCEPTION;
 					goto out_free;
 				}
 				gbs_metadata->afu_image.afu_clusters.afu_uuid[GUID_LEN] = '\0';
 			} else {
-				FPGA_ERR("No accelerator-type-uuid in JSON metadata");
+				OPAE_ERR("No accelerator-type-uuid in JSON metadata");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
@@ -378,7 +374,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 					json_object_get_string(name),
 					json_object_get_string_len(name));
 				if (EOK != e) {
-					FPGA_ERR("memcpy_s failed");
+					OPAE_ERR("memcpy_s failed");
 					result = FPGA_EXCEPTION;
 					goto out_free;
 				}
@@ -390,12 +386,12 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 			}
 
 		} else {
-			FPGA_ERR("No accelerator clusters in metadata");
+			OPAE_ERR("No accelerator clusters in metadata");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
 	} else {
-		FPGA_ERR("Invalid JSON in metadata");
+		OPAE_ERR("Invalid JSON in metadata");
 		result = FPGA_INVALID_PARAM;
 		goto out_free;
 	}

@@ -26,7 +26,8 @@
 
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${libjson-c_INCLUDE_DIRS})
+                    ${libjson-c_INCLUDE_DIRS}
+                    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf)
 
 set(SRC main.c
         coreidle.c)
