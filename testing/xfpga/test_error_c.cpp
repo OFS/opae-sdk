@@ -36,20 +36,22 @@ extern "C" {
 #include "types_int.h"
 #include "xfpga.h"
 #include <fstream>
+#include <string.h>
+#include <string>
 #include "props.h"
 
+#include "safe_string/safe_string.h"
 
 using namespace opae::testing;
-const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-const char *dev_fme = "/dev/intel-fpga-fme.0";
-const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-const char *dev_port = "/dev/intel-fpga-port.0";
+const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
+const std::string dev_fme = "/dev/intel-fpga-fme.0";
+const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+const std::string dev_port = "/dev/intel-fpga-port.0";
  
-
-
-
 class error_c_p 
     : public ::testing::TestWithParam<std::string> {
+ public:
+  void delete_errors(std::string);
  protected:
   error_c_p() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr) {}
 
@@ -59,6 +61,17 @@ class error_c_p
     system_ = test_system::instance();
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
+
+    strncpy_s(fake_port_token_.sysfspath,sizeof(fake_port_token_.sysfspath),sysfs_port.c_str(),sysfs_port.size());
+    strncpy_s(fake_port_token_.devpath,sizeof(fake_port_token_.devpath),dev_port.c_str(),dev_port.size());
+    fake_port_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_port_token_.errors = nullptr;
+
+    strncpy_s(fake_fme_token_.sysfspath,sizeof(fake_fme_token_.sysfspath),sysfs_fme.c_str(),sysfs_fme.size());
+    strncpy_s(fake_fme_token_.devpath,sizeof(fake_fme_token_.devpath),dev_fme.c_str(),dev_fme.size());
+    fake_fme_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_fme_token_.errors = nullptr;
+ 
   }
 
   virtual void TearDown() override {
@@ -66,7 +79,7 @@ class error_c_p
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
+      //std::system(cmd.c_str());
     }
     system_->finalize();
   }
@@ -77,10 +90,22 @@ class error_c_p
   fpga_handle handle_;
   test_platform platform_;
   test_system *system_;
+  _fpga_token fake_fme_token_;
+  _fpga_token fake_port_token_;
 };
 
-
-
+void error_c_p::delete_errors(std::string fpga_type) {
+  if (fpga_type.compare("fme") == 0){
+    auto path = tmpsysfs_ + "/" + sysfs_fme + "/errors";
+    auto cmd = "rm -rf " + path;
+    std::system(cmd.c_str());
+  } else if (fpga_type.compare("port") == 0){
+    auto path = tmpsysfs_ + "/" + sysfs_port + "/errors";
+    auto cmd = "rm -rf " + path;
+    std::system(cmd.c_str());
+  }
+  else {return;}
+}
 
 /**
  * @test       error_01
@@ -96,24 +121,284 @@ TEST_P(error_c_p, error_01) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
+  fpga_token t = &fake_port_token_;
+  
+  std::string errpath = sysfs_port + "/errors";
+  //build_error_list(const_cast<char*>(errpath.c_str()), &tok.errors);
+  build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
   // get number of error registers
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(nullptr, &filter_));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
   ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
+  }
+
+  delete_errors("port");
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReadError(t, i, &val));
+    printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
+  }
+
+ 
+#endif
+}
+
+
+/**
+ * @test       error_02
+ *
+ * @brief      When passed a valid FME token, the combination of fpgaGetProperties()
+ *             fpgaPropertiesGetNumErrors(), fpgaPropertiesGetErrorInfo() and
+ *             fpgaReadError() is able to print the status of all error registers.
+ *
+ */
+TEST_P(error_c_p, error_02) {
+#ifndef BUILD_ASE
+  fpga_error_info info;
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_fme_token_;
+  
+  std::string errpath = sysfs_fme + "/errors";
+  //build_error_list(const_cast<char*>(errpath.c_str()), &tok.errors);
+  build_error_list(errpath.c_str(), &fake_fme_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d FME error registers\n", n);
+
 
   // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
-    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(tokens_[0], i, &info));
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(tokens_[0], i, &val));
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
+
+
+  delete_errors("fme");
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_NE(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
+  }
+
 #endif
+
 }
+
+/**
+ * @test       error_03
+ *
+ * @brief      When passed a valid AFU token for an AFU with PORT errors,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+ */
+TEST_P(error_c_p, error_03) {
+  std::fstream clear_file;
+  std::ofstream error_file;
+  std::string clear_name = sysfs_port + "/errors/clear";
+  std::string error_name = sysfs_port + "/errors/errors";
+  uint64_t clear_val = 0x0;
+
+  fpga_error_info info;
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_port_token_;
+  
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &fake_port_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    ASSERT_EQ(val, 0);
+  }
+
+  // ------------- Truncate and INJECT PORT ERROR ------------
+  clear_file.open(clear_name.c_str(), std::ios::out | std::fstream::trunc);
+  clear_file << std::hex << clear_val << std::endl;
+  clear_file.close();
+
+  // ------------- INJECT PORT ERROR --------------------
+  error_file.open(error_name);
+  error_file << "0x42" <<std::endl;
+  error_file.close();
+
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    // if error, try to clear it (and check result)
+    if (val != 0) {
+      printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
+      EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, i));
+      // check if value was written to clear file
+      clear_file.open(clear_name.c_str());
+      clear_file >> std::hex >> clear_val;
+      clear_file.close();
+      ASSERT_EQ(clear_val, val);
+    }
+  }
+
+  // --------------- WRITE 0 TO CLEAR AND ERROR FILES (CLEAN UP) -------------
+  error_file.open(error_name);
+  error_file << "0x0" << std::endl;
+  error_file.close();
+  clear_file.open(clear_name);
+  clear_file << "0x0" << std::endl;
+  clear_file.close();
+
+}
+
+
+
+/**
+ * @test       error_04
+ *
+ * @brief      When passed a valid AFU token for an AFU with PORT errors,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+ */
+TEST_P(error_c_p, error_04) {
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_port_token_;
+  
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &fake_port_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
+  delete_errors("port");
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
+}
+
+
+
+/**
+ * @test       error_05
+ *
+ * @brief      When passed a valid FME token,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+
+TEST_P(error_c_p, error_05) {
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_fme_token_;
+  
+  std::string errpath = sysfs_fme + "/errors";
+  build_error_list(errpath.c_str(), &fake_fme_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
+  delete_errors("fme");
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
+}
+
+/**
+ * @test       error_06
+ *
+ * @brief      When passed a valid AFU tokens,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+ */
+TEST_P(error_c_p, error_06) {
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_port_token_;
+  
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &fake_port_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
+}
+
+/**
+ * @test       error_07
+ *
+ * @brief      When passed a valid FME token,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+ */
+TEST_P(error_c_p, error_07) {
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_fme_token_;
+  
+  std::string errpath = sysfs_fme + "/errors";
+  build_error_list(errpath.c_str(), &fake_fme_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
+}
+
+
+
 
 /**
  * @test       error_01
@@ -144,9 +429,9 @@ TEST(error_c, error_01) {
  *
  */
 TEST(error_c, error_02) {
-  auto fme = token_add(sysfs_fme, dev_fme);
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
@@ -174,9 +459,9 @@ TEST(error_c, error_02) {
  *
  */
 TEST(error_c, error_03) {
-  auto fme = token_add(sysfs_fme, dev_fme);
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
@@ -196,9 +481,9 @@ TEST(error_c, error_03) {
  *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
  */
 TEST(error_c, error_04) {
-  auto fme = token_add(sysfs_fme, dev_fme);
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
@@ -219,9 +504,9 @@ TEST(error_c, error_04) {
  *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
  */
 TEST(error_c, error_05) {
-  auto fme = token_add(sysfs_fme, dev_fme);
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
@@ -234,11 +519,21 @@ TEST(error_c, error_05) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent,0,&info));
 }
 
-
-
-
-
-
-
-
+/**
+ * @test       error_06
+ *
+ * @brief      
+ *
+ */
+TEST(error_c, error_06) {
+  struct _fpga_token _t;
+  strncpy_s(_t.sysfspath,sizeof(_t.sysfspath),sysfs_port.c_str(),sysfs_port.size());
+  strncpy_s(_t.devpath,sizeof(_t.devpath),dev_port.c_str(),dev_port.size());
+  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.errors = nullptr;
+ 
+  std::string invalid_errpath = sysfs_port + "/errorss";
+  auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
+  EXPECT_EQ(result,0); 
+}
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
