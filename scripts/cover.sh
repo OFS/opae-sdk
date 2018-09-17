@@ -32,7 +32,7 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make test_unit
+make test_unit -j 4
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
