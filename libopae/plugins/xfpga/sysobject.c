@@ -189,7 +189,7 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	}
 	memset32_s((uint32_t *)_obj->buffer, _obj->size, 0);
 	if (flags & FPGA_OBJECT_TEXT) {
-		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "%lux",
+		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "0x%" PRIx64,
 			     value);
 		_obj->size = (size_t)strlen((const char *)_obj->buffer);
 	} else {
