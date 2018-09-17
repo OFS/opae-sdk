@@ -51,9 +51,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 
-#include "opae/fpga.h"
-#include "types_int.h"
-#include "common_int.h"
+#include <opae/fpga.h>
 
 int usleep(unsigned);
 
@@ -103,31 +101,46 @@ config = {
 	}
 };
 
-static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
+static fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err)
 {
-	struct _fpga_token  *_token           = NULL;
-	struct ras_inject_error  inj_error    = { {0} };
-	char sysfs_path[SYSFS_PATH_MAX]       = {0};
 	fpga_result result                    = FPGA_OK;
+	fpga_handle fme_handle                = NULL;
+	struct ras_inject_error  inj_error    = { {0} };
+	fpga_object inj_err_object;
 
-	_token = (struct _fpga_token *)token;
-	if (_token == NULL) {
-		printf("Token not found\n");
-		return FPGA_INVALID_PARAM;
-	}
-
-	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
-			_token->sysfspath,
-			FME_SYSFS_INJECT_ERROR);
-
-	inj_error.fatal_error = err;
-
-	result = sysfs_write_u64(sysfs_path, inj_error.csr);
+	result = fpgaOpen(fme_token, &fme_handle, FPGA_OPEN_SHARED);
 	if (result != FPGA_OK) {
-		printf("Failed to write RAS inject errors\n");
+		OPAE_ERR("Failed to open FPGA");
 		return result;
 	}
 
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_err_object, FPGA_OBJECT_TEXT);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Handle Object");
+		goto out_close;
+	}
+
+	// Inject fatal error
+	inj_error.fatal_error = err;
+
+	result = fpgaObjectWrite64(inj_err_object, inj_error.csr, FPGA_OBJECT_TEXT);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to Read Object ");
+		goto out_destroy_obj;
+	}
+
+out_destroy_obj:
+	result = fpgaDestroyObject(&inj_err_object);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to Destroy Object");
+		goto out_close;
+	}
+
+out_close:
+	result = fpgaClose(fme_handle);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to close FPGA");
+	}
 	return result;
 }
 
@@ -178,16 +191,18 @@ fpga_result parse_args(int argc, char *argv[])
 int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
-	fpga_result 	res;
-        fpga_result     dres;
+	fpga_result res        = FPGA_OK;
+	fpga_result dres       = FPGA_OK;
 
 	/* Get number of FPGAs in system*/
+	res = fpgaInitialize(NULL);
+	ON_ERR_GOTO(res, out, "Failed to initilize ");
+
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out, "creating properties object");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
-
 
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);
@@ -202,8 +217,7 @@ out_destroy:
 	ON_ERR_GOTO(dres, out, "destroying properties object");
 	
 out:
-   return (res == FPGA_OK) ? dres: res;
-
+	return (res == FPGA_OK) ? dres: res;
 }
 
 

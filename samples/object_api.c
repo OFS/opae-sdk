@@ -331,7 +331,6 @@ out_free:
 			print_err("Error destroying structure: ", res);
 		}
 	}
-	free(metrics);
 
 out:
 	return exit_code;
