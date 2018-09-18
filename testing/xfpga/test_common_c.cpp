@@ -25,14 +25,68 @@
 // POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #include <opae/utils.h>
+#include <token_list_int.h>
+#include "props.h"
 const char * xfpga_fpgaErrStr(fpga_result);
+fpga_result prop_check_and_lock(_fpga_properties*);
+fpga_result handle_check_and_lock(_fpga_handle*);
+fpga_result event_handle_check_and_lock(_fpga_event_handle*);
 }
-
+#include <opae/properties.h>
 #include "test_system.h"
 #include "gtest/gtest.h"
+#include "types_int.h"
+#include "intel-fpga.h"
+#include <opae/fpga.h>
 #include "xfpga.h"
+#include <cstdarg>
 
 using namespace opae::testing;
+
+class common_c_p
+    : public ::testing::TestWithParam<std::string> {
+ protected:
+  common_c_p() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr) {}
+
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    tmpsysfs_ = system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    //ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                            &num_matches_),
+              FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
+  }
+
+  virtual void TearDown() override {
+    //EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
+      std::string cmd = "rm -rf " + tmpsysfs_;
+      std::system(cmd.c_str());
+    }
+    system_->finalize();
+  }
+
+  std::string tmpsysfs_;
+  fpga_properties filter_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+  fpga_event_handle eh_;
+};
+
 
 /**
  * @test       common_01
@@ -53,3 +107,50 @@ TEST(common, fpgaErrStr) {
   EXPECT_STREQ("insufficient privileges", xfpga_fpgaErrStr(FPGA_NO_ACCESS));
   EXPECT_STREQ("reconfiguration error",   xfpga_fpgaErrStr(FPGA_RECONF_ERROR));
 }
+
+/**
+ * @test       prop_check_and_lock 
+ *
+ * @brief      When fpga_properties magic is invalid
+ *             fpga_result returns FPGA_INVALID_PARAM 
+ */
+
+TEST(common, prop_check_and_lock) {
+  struct _fpga_properties *prop;
+  prop = opae_properties_create();
+  prop->magic = 0x123;
+  auto res = prop_check_and_lock(prop);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+}
+
+/**
+ * @test       handle_check_and_lock 
+ *
+ * @brief      When fpga_handle magic is invalid
+ *             fpga_result returns FPGA_INVALID_PARAM 
+ */
+TEST_P(common_c_p, handle_check_and_lock) {
+  struct _fpga_handle *h = (struct _fpga_handle*)handle_;
+  h->magic = 0x123;
+  auto res = handle_check_and_lock(h);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  h->magic = FPGA_HANDLE_MAGIC;
+}
+
+/**
+ * @test       event_handle_check_and_lock 
+ *
+ * @brief      When event_fpga_handle magic is invalid
+ *             fpga_result returns FPGA_INVALID_PARAM 
+ */
+
+TEST_P(common_c_p, event_handle_check_and_lock) {
+  struct _fpga_event_handle *eh = (struct _fpga_event_handle*)eh_;
+  eh->magic = 0x123;
+  auto res = event_handle_check_and_lock(eh);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  eh->magic = FPGA_EVENT_HANDLE_MAGIC;
+}
+
+
+INSTANTIATE_TEST_CASE_P(common_c, common_c_p, ::testing::ValuesIn(test_platform::keys(true)));
