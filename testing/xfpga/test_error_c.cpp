@@ -36,9 +36,8 @@ extern "C" {
 #include "types_int.h"
 #include "xfpga.h"
 #include <fstream>
-#include <string.h>
 #include <string>
-#include "props.h"
+#include <props.h>
 
 #include "safe_string/safe_string.h"
 
@@ -216,8 +215,8 @@ TEST_P(error_c_p, error_02) {
 TEST_P(error_c_p, error_03) {
   std::fstream clear_file;
   std::ofstream error_file;
-  std::string clear_name = sysfs_port + "/errors/clear";
-  std::string error_name = sysfs_port + "/errors/errors";
+  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
+  std::string error_name = tmpsysfs_ + sysfs_port + "/errors/errors";
   uint64_t clear_val = 0x0;
 
   fpga_error_info info;
@@ -243,15 +242,17 @@ TEST_P(error_c_p, error_03) {
     EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     ASSERT_EQ(val, 0);
   }
-
-  // ------------- Truncate and INJECT PORT ERROR ------------
-  clear_file.open(clear_name.c_str(), std::ios::out | std::fstream::trunc);
-  clear_file << std::hex << clear_val << std::endl;
+  // ------------- MAKE SURE CLEAR FILE IS 0 ------------
+  clear_file.open(clear_name);
+  ASSERT_EQ(1,clear_file.is_open());
+  clear_file >> clear_val;
   clear_file.close();
+  ASSERT_EQ(clear_val, 0);
 
   // ------------- INJECT PORT ERROR --------------------
   error_file.open(error_name);
-  error_file << "0x42" <<std::endl;
+  ASSERT_EQ(1,error_file.is_open());
+  error_file << "0x42" << std::endl;
   error_file.close();
 
   // for each error register, get info and read the current value
@@ -321,7 +322,7 @@ TEST_P(error_c_p, error_04) {
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
-
+ */
 TEST_P(error_c_p, error_05) {
   unsigned int n = 0;
   unsigned int i = 0;
@@ -396,8 +397,6 @@ TEST_P(error_c_p, error_07) {
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
 }
-
-
 
 
 /**
@@ -536,4 +535,7 @@ TEST(error_c, error_06) {
   auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
   EXPECT_EQ(result,0); 
 }
+
+
+
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
