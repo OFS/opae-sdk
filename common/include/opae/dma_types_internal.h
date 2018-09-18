@@ -27,11 +27,12 @@
 #ifndef __FPGA__DMA_TYPES_INTERNAL_H__
 #define __FPGA__DMA_TYPES_INTERNAL_H__
 
-#include <opae/fpga.h>
-#include "dma_types.h"
 #include <stdbool.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+#include <opae/fpga.h>
+#include "dma_types.h"
 
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
@@ -52,6 +53,15 @@
 #define MIN_SSE2_SIZE 4096
 #define CACHE_LINE_SIZE 64
 
+// Granularity of DMA transfer (maximum bytes that can be packed
+// in a single descriptor).This value must match configuration of
+// the DMA IP. Larger transfers will be broken down into smaller
+// transactions.
+#define FPGA_DMA_BUF_ALIGN_SIZE FPGA_DMA_BUF_SIZE
+
+// Architecture specific masks
+#define FPGA_DMA_MASK_32_BIT 0xFFFFFFFF
+
 // Helper functions
 #define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
 #define RSP_BASE(dma_handle) ((uint64_t)dma_handle->dma_rsp_base)
@@ -69,14 +79,8 @@
 #define RSP_STATUS(dma_h) (RSP_BASE(dma_h) + offsetof(msgdma_rsp_t, rsp_status))
 #define ST_VALVE_CONTROL(dma_h) (ST_VALVE_BASE(dma_h) + offsetof(msgdma_st_valve_t, control))
 #define ST_VALVE_STATUS(dma_h) (ST_VALVE_BASE(dma_h) + offsetof(msgdma_st_valve_t, status))
-#define FPGA_DMA_MASK_32_BIT 0xFFFFFFFF
 
 #define IS_DMA_ALIGNED(addr) (addr%FPGA_DMA_ALIGN_BYTES==0)
-// Granularity of DMA transfer (maximum bytes that can be packed
-// in a single descriptor).This value must match configuration of
-// the DMA IP. Larger transfers will be broken down into smaller
-// transactions.
-#define FPGA_DMA_BUF_ALIGN_SIZE FPGA_DMA_BUF_SIZE
 
 #define ALIGN_TO_CL(x) ((uint64_t)(x) & ~(CACHE_LINE_SIZE - 1))
 #define IS_CL_ALIGNED(x) (((uint64_t)(x) & (CACHE_LINE_SIZE - 1)) == 0)
@@ -300,16 +304,12 @@ typedef union {
 } msgdma_seq_num_t;
 
 typedef struct __attribute__((__packed__)) {
-	// 0x0
-	msgdma_status_t status;
-	// 0x4
-	msgdma_ctrl_t ctrl;
-	// 0x8
-	msgdma_fill_level_t fill_level;
-	// 0xc
-	msgdma_rsp_level_t rsp_level;
-	// 0x10
-	msgdma_seq_num_t seq_num;
+
+	msgdma_status_t status; // 0x0
+	msgdma_ctrl_t ctrl; 	// 0x4
+	msgdma_fill_level_t fill_level; // 0x8
+	msgdma_rsp_level_t rsp_level; 	// 0xc
+	msgdma_seq_num_t seq_num; 	// 0x10
 } msgdma_csr_t;
 
 typedef union {

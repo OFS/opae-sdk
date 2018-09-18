@@ -53,7 +53,7 @@ extern "C" {
 
   fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
 
-  fpga_result fpgaDMATransferGetBytesTransferred(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
+  fpga_result fpgaDMATransferPoll(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
 
   fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer, fpga_dma_transfer_cb cb, void* ctxt);
 
