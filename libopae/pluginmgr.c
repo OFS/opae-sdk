@@ -63,6 +63,8 @@ static platform_data platform_data_table[] = {
 	{      0,      0,          NULL, 0 },
 };
 
+static int initialized = 0;
+
 static opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -177,6 +179,9 @@ int opae_plugin_mgr_finalize_all(void)
 			++errors;
 	}
 
+	adapter_list = NULL;
+	initialized = 0;
+
 	opae_mutex_unlock(res, &adapter_list_lock);
 
 	return errors;
@@ -226,13 +231,14 @@ STATIC void opae_plugin_mgr_detect_platform(uint16_t vendor, uint16_t device)
 	}
 }
 
-STATIC void opae_plugin_mgr_detect_platforms(void)
+STATIC int opae_plugin_mgr_detect_platforms(void)
 {
 	DIR *dir;
 	char base_dir[PATH_MAX];
 	char file_path[PATH_MAX];
 	struct dirent *dirent;
 	int res;
+	int errors = 0;
 
 	// Iterate over the directories in /sys/bus/pci/devices.
 	// This directory contains symbolic links to device directories
@@ -244,7 +250,7 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 	dir = opendir(base_dir);
 	if (!dir) {
 		OPAE_ERR("Failed to open %s. Aborting platform detection.", base_dir);
-		return;
+		return 1;
 	}
 
 	while ((dirent = readdir(dir)) != NULL) {
@@ -255,6 +261,7 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 		if (EOK != strcmp_s(dirent->d_name, sizeof(dirent->d_name),
 					".", &res)) {
 			OPAE_ERR("strcmp_s failed");
+			++errors;
 			goto out_close;
 		}
 
@@ -264,6 +271,7 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 		if (EOK != strcmp_s(dirent->d_name, sizeof(dirent->d_name),
 					"..", &res)) {
 			OPAE_ERR("strcmp_s failed");
+			++errors;
 			goto out_close;
 		}
 
@@ -277,12 +285,14 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 		fp = fopen(file_path, "r");
 		if (!fp) {
 			OPAE_ERR("Failed to open %s. Aborting platform detection.", file_path);
+			++errors;
 			goto out_close;
 		}
 
 		if (EOF == fscanf(fp, "%x", &vendor)) {
 			OPAE_ERR("Failed to read %s. Aborting platform detection.", file_path);
 			fclose(fp);
+			++errors;
 			goto out_close;
 		}
 
@@ -295,12 +305,14 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 		fp = fopen(file_path, "r");
 		if (!fp) {
 			OPAE_ERR("Failed to open %s. Aborting platform detection.", file_path);
+			++errors;
 			goto out_close;
 		}
 
 		if (EOF == fscanf(fp, "%x", &device)) {
 			OPAE_ERR("Failed to read %s. Aborting platform detection.", file_path);
 			fclose(fp);
+			++errors;
 			goto out_close;
 		}
 
@@ -312,6 +324,7 @@ STATIC void opae_plugin_mgr_detect_platforms(void)
 
 out_close:
 	closedir(dir);
+	return errors;
 }
 
 int opae_plugin_mgr_initialize(const char *cfg_file)
@@ -328,7 +341,14 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
-	opae_plugin_mgr_detect_platforms();
+	if (initialized) { // prevent multiple init.
+		opae_mutex_unlock(res, &adapter_list_lock);
+		return 0;
+	}
+
+	errors = opae_plugin_mgr_detect_platforms();
+	if (errors)
+		goto out_unlock;
 
 	// Load each of the native plugins that were detected.
 
@@ -396,6 +416,9 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 
 	// Call each plugin's initialization routine.
 	errors += opae_plugin_mgr_initialize_all();
+
+	if (!errors)
+		initialized = 1;
 
 out_unlock:
 	opae_mutex_unlock(res, &adapter_list_lock);

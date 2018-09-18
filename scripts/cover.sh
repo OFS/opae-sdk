@@ -37,4 +37,7 @@ lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
 
 
-LD_LIBRARY_PATH=${PWD}/lib CTEST_OUTPUT_ON_FAILURE=1 make test
+LD_LIBRARY_PATH=${PWD}/lib \
+CTEST_OUTPUT_ON_FAILURE=1 \
+OPAE_EXPLICIT_INITIALIZE=1 \
+ make test

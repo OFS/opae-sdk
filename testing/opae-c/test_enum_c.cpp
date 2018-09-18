@@ -60,6 +60,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
     num_matches = 0xc01a;
     invalid_device_ = test_device::unknown();

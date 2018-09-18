@@ -26,6 +26,7 @@
 #ifndef _C_TEST_SYSTEM_H
 #define _C_TEST_SYSTEM_H
 
+#include <stdio.h>
 #include <dirent.h>
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,8 @@ extern "C" {
   typedef int (*compare_func)(const struct dirent **, const struct dirent **);
   int opae_test_open(const char *path, int flags);
   int opae_test_open_create(const char *path, int flags, mode_t mode);
+
+  FILE * opae_test_fopen(const char *path, const char *mode);
 
   int opae_test_close(int fd);
   int opae_test_ioctl(int fd, unsigned long request, va_list argp);
