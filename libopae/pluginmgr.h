@@ -29,11 +29,11 @@
 
 #include "adapter.h"
 
+// non-zero on failure.
 int opae_plugin_mgr_initialize(const char *cfg_file);
 
-int opae_plugin_mgr_parse_config(/* json_object *jobj */);
-
-int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter);
+// non-zero on failure.
+int opae_plugin_mgr_finalize_all(void);
 
 // iteration stops if callback returns non-zero.
 #define OPAE_ENUM_STOP 1
