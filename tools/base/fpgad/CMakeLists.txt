@@ -27,7 +27,6 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
-                    ${OPAE_SDK_SOURCE}/libopae/src
                     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf )
 
 set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)

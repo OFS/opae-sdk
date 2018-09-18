@@ -24,8 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR} )
 
 include_directories(${libjson-c_INCLUDE_DIRS})
 
