@@ -32,12 +32,6 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include "x86-sse2.h"
-
-#define FPGA_DMA_ST_ERR(msg_str)					\
-	fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);	\
-									\
-#define MIN(X,Y) (X<Y)?X:Y					        \
 
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
@@ -47,15 +41,18 @@
 // BBB Feature ID (refer CCI-P spec)
 #define FPGA_DMA_BBB 0x2
 
+// Reuse following values
 #define FPGA_DMA_CSR_BUSY (1<<0)
 #define FPGA_DMA_DESC_BUFFER_EMPTY 0x2
 #define FPGA_DMA_DESC_BUFFER_FULL 0x4
 
+// Alignment byte sizes
 #define FPGA_DMA_ALIGN_BYTES 64
 #define FPGA_DMA_BUF_SIZE (2*1024*1024)
 #define MIN_SSE2_SIZE 4096
 #define CACHE_LINE_SIZE 64
 
+// Helper functions
 #define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
 #define RSP_BASE(dma_handle) ((uint64_t)dma_handle->dma_rsp_base)
 #define ST_VALVE_BASE(dma_handle) ((uint64_t)dma_handle->dma_streaming_valve_base)
