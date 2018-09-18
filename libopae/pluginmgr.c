@@ -63,7 +63,7 @@ static platform_data platform_data_table[] = {
 	{      0,      0,          NULL, 0 },
 };
 
-static int initialized = 0;
+static int initialized;
 
 static opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
