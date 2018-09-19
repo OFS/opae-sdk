@@ -26,6 +26,7 @@
 #ifndef _TEST_SYSTEM_H
 #define _TEST_SYSTEM_H
 
+#include <stdio.h>
 #include <dirent.h>
 #include <opae/fpga.h>
 #include <stddef.h>
@@ -142,6 +143,8 @@ class test_system {
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
 
+  FILE * fopen(const std::string &path, const std::string &mode);
+
   int close(int fd);
   int ioctl(int fd, unsigned long request, va_list argp);
 
@@ -164,6 +167,7 @@ class test_system {
 
   typedef int (*open_func)(const char *pathname, int flags);
   typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
+  typedef FILE * (*fopen_func)(const char *path, const char *mode);
   typedef int (*close_func)(int fd);
   typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
   typedef DIR *(*opendir_func)(const char *name);
@@ -175,6 +179,7 @@ class test_system {
 
   open_func open_;
   open_create_func open_create_;
+  fopen_func fopen_;
   close_func close_;
   ioctl_func ioctl_;
   opendir_func opendir_;
