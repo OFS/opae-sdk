@@ -24,6 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <bitstream_int.h>
 #include <opae/enum.h>
 #include <opae/properties.h>
 #include <opae/access.h>
@@ -31,6 +32,7 @@
 #include "test_system.h"
 #include "gtest/gtest.h"
 #include "xfpga.h"
+#include "intel-fpga.h"
 
 using namespace opae::testing;
 
@@ -55,6 +57,13 @@ class reconf_c
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
@@ -65,7 +74,7 @@ class reconf_c
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -75,80 +84,141 @@ class reconf_c
 
 
 /**
-* @test    reconf_c
-* @brief   Tests: gbs_reconf_01
+* @test    set_afu_userclock
+* @brief   Tests: set_afu_userclock
 * @details set_afu_userclock sets afu user clock
-*          Then the return value  FPGA_OK if set or
-*..........Returns error code
+*          Returns FPGA_OK if parameters are valid. Returns
+*          error code if invalid user clock or handle. 
 */
-TEST_P(reconf_c, gbs_reconf_01) {
-  uint64_t usrlclock_high = 0;
-  uint64_t usrlclock_low = 0;
-  
-  //EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(h, usrlclock_high, usrlclock_low));
-  
+TEST_P(reconf_c, set_afu_userclock) {
+  fpga_result result;
+
   // Open port device
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  
-  EXPECT_EQ(FPGA_INVALID_PARAM, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
-  
-  usrlclock_high = 300;
-  
-  EXPECT_NE(FPGA_OK, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
 
-  usrlclock_low = 100;
-  
-  EXPECT_NE(FPGA_OK, set_afu_userclock(handle_, usrlclock_high, usrlclock_low));
+  // Null handle
+  result = set_afu_userclock(NULL, 0, 0);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
+  // Invalid params
+  result = set_afu_userclock(handle_, 0, 0);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Valid params
+  result = set_afu_userclock(handle_, 312, 156);
+  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 }
 
 /**
-* @test    reconf_c
-* @brief   Tests: gbs_reconf_02
+* @test    set_fpga_pwr_threshold
+* @brief   Tests: set_fpga_pwr_threshold
 * @details set_fpga_pwr_threshold sets power threshold
-*          Then the return value  FPGA_OK if set or
-*..........Returns error code
+*          Returns FPGA_OK if parameters are valid. Returns 
+*          error code if invalid power threshold or handle.
 */
-TEST_P(reconf_c, gbs_reconf_02) {
-  uint64_t gbs_power = 40;
-  
-  // NULL handle
-  EXPECT_EQ(FPGA_INVALID_PARAM, set_fpga_pwr_threshold(NULL, gbs_power));
-  
-  // Open  port device
+TEST_P(reconf_c, set_fpga_pwr_threshold) {
+  fpga_result result;
+
+  // Open port device
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  
+
+  // NULL handle
+  result = set_fpga_pwr_threshold(NULL, 0);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
   // Zero GBS power
-  gbs_power = 0;
-  EXPECT_EQ(FPGA_OK, set_fpga_pwr_threshold(handle_, gbs_power));
-  
-  // Max GBS power
-  gbs_power = 200;
-  EXPECT_NE(FPGA_OK, set_fpga_pwr_threshold(handle_, gbs_power));
-  
-  gbs_power = 65;
-  EXPECT_NE(FPGA_OK, set_fpga_pwr_threshold(handle_, gbs_power));
-  
-  gbs_power = 60;
-  EXPECT_EQ(FPGA_OK, set_fpga_pwr_threshold(handle_, gbs_power));
+  result = set_fpga_pwr_threshold(handle_, 0);
+  EXPECT_EQ(result, FPGA_OK);
+
+  // Exceed FPGA_GBS_MAX_POWER
+  result = set_fpga_pwr_threshold(handle_, 65);
+  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
+
+  // Valid power threshold
+  result = set_fpga_pwr_threshold(handle_, 60);
+  EXPECT_EQ(result, FPGA_OK);
 }
 
 /**
-* @test    reconf_c
-* @brief   Tests: gbs_reconf_slots
-* @details 
-*..........Returns error code
+* @test    fpga_reconf_slot
+* @brief   Tests: fpgaReconfigureSlot
+* @details Returns FPGA_OK if bitstream is valid and is able
+*          to reconfigure fpga. Returns error code if
+*          bitstream, handle, or parameters are invalid.
 */
-TEST_P(reconf_c, gbs_reconf_slots) {
-  fpga_result result;  // return of reconf API
-
-  // fill bitstream buffer
-  uint8_t* bsbuffer = NULL;
-  size_t bitstream_len = 0;
+TEST_P(reconf_c, validate_bitstream) {
+  fpga_result result;
+  uint8_t bitstream_empty[] = "";
+  uint8_t bitstream_valid[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+  uint8_t bitstream_valid_no_clk[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 0, \"clock-frequency-low\": 0, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+  uint8_t bitstream_invalid_guid[] = "Xeon·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
+  uint8_t bitstream_invalid_json[] = "XeonFPGA·GBSv001\53\02{\"version\": \"afu-image\"}";
+  size_t bitstream_valid_len = get_bitstream_header_len(bitstream_valid);
   uint32_t slot = 0;
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bsbuffer, bitstream_len, 0);
-  EXPECT_NE(FPGA_OK,result);
-}
+  int flags = 0;
 
+  // Open port device
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Invalid bitstream - null
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, NULL, 0, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Invalid bitstream - empty
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_empty, 0, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Invalid bitstream - invalid guid
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_invalid_guid,
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Invalid bitstream - invalid json
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_invalid_json, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Null handle
+  result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Valid bitstream - clk
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
+
+  // Valid bitstream - no clk
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_OK);
+
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1,EINVAL>);
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1,ENOTSUP>);
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_EXCEPTION);
+}
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c, ::testing::ValuesIn(test_platform::keys(true)));
