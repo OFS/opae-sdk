@@ -37,6 +37,93 @@
 #include "props.h"
 
 
+opae_wrapped_token *
+opae_allocate_wrapped_token(fpga_token token,
+			    const opae_api_adapter_table *adapter)
+{
+	opae_wrapped_token *wtok =
+		(opae_wrapped_token *)malloc(sizeof(opae_wrapped_token));
+
+	if (wtok) {
+		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
+		wtok->opae_token = token;
+		wtok->adapter_table = (opae_api_adapter_table *)adapter;
+	}
+
+	return wtok;
+}
+
+opae_wrapped_handle *
+opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
+			     opae_api_adapter_table *adapter)
+{
+	opae_wrapped_handle *whan =
+		(opae_wrapped_handle *)malloc(sizeof(opae_wrapped_handle));
+
+	if (whan) {
+		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
+		whan->wrapped_token = wt;
+		whan->opae_handle = opae_handle;
+		whan->adapter_table = adapter;
+	}
+
+	return whan;
+}
+
+opae_wrapped_event_handle *
+opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
+				   opae_api_adapter_table *adapter)
+{
+	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(
+		sizeof(opae_wrapped_event_handle));
+
+	if (wevent) {
+		pthread_mutexattr_t mattr;
+
+		if (pthread_mutexattr_init(&mattr)) {
+			OPAE_ERR("pthread_mutexattr_init() failed");
+			goto out_free;
+		}
+		if (pthread_mutexattr_settype(&mattr,
+					      PTHREAD_MUTEX_RECURSIVE)) {
+			OPAE_ERR("pthread_mutexattr_settype() failed");
+			goto out_free;
+		}
+		if (pthread_mutex_init(&wevent->lock, &mattr)) {
+			OPAE_ERR("pthread_mutex_init() failed");
+			goto out_free;
+		}
+
+		pthread_mutexattr_destroy(&mattr);
+
+		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
+		wevent->flags = 0;
+		wevent->opae_event_handle = opae_event_handle;
+		wevent->adapter_table = adapter;
+	}
+
+	return wevent;
+out_free:
+	free(wevent);
+	return NULL;
+}
+
+opae_wrapped_object *
+opae_allocate_wrapped_object(fpga_object opae_object,
+			     opae_api_adapter_table *adapter)
+{
+	opae_wrapped_object *wobj =
+		(opae_wrapped_object *)malloc(sizeof(opae_wrapped_object));
+
+	if (wobj) {
+		wobj->magic = OPAE_WRAPPED_OBJECT_MAGIC;
+		wobj->opae_object = opae_object;
+		wobj->adapter_table = adapter;
+	}
+
+	return wobj;
+}
+
 fpga_result fpgaInitialize(const char *config_file)
 {
 	return opae_plugin_mgr_initialize(config_file) ? FPGA_EXCEPTION
