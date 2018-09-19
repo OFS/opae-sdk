@@ -74,7 +74,14 @@ class error_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
@@ -85,7 +92,7 @@ class error_c_p
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   test_platform platform_;
   test_system *system_;
@@ -123,7 +130,6 @@ TEST_P(error_c_p, error_01) {
   fpga_token t = &fake_port_token_;
   
   std::string errpath = sysfs_port + "/errors";
-  //build_error_list(const_cast<char*>(errpath.c_str()), &tok.errors);
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
   // get number of error registers
@@ -172,7 +178,6 @@ TEST_P(error_c_p, error_02) {
   fpga_token t = &fake_fme_token_;
   
   std::string errpath = sysfs_fme + "/errors";
-  //build_error_list(const_cast<char*>(errpath.c_str()), &tok.errors);
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
 
   // get number of error registers
@@ -217,7 +222,7 @@ TEST_P(error_c_p, error_03) {
   std::ofstream error_file;
   std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
   std::string error_name = tmpsysfs_ + sysfs_port + "/errors/errors";
-  uint64_t clear_val = 0x0;
+  uint64_t clear_val;
 
   fpga_error_info info;
   unsigned int n = 0;
