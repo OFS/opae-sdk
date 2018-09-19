@@ -28,9 +28,9 @@ extern "C" {
 #include <token_list_int.h>
 #include "props.h"
 const char * xfpga_fpgaErrStr(fpga_result);
-fpga_result prop_check_and_lock(_fpga_properties*);
-fpga_result handle_check_and_lock(_fpga_handle*);
-fpga_result event_handle_check_and_lock(_fpga_event_handle*);
+fpga_result prop_check_and_lock(struct _fpga_properties*);
+fpga_result handle_check_and_lock(struct _fpga_handle*);
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle*);
 }
 #include <opae/properties.h>
 #include "test_system.h"
@@ -40,6 +40,7 @@ fpga_result event_handle_check_and_lock(_fpga_event_handle*);
 #include <opae/fpga.h>
 #include "xfpga.h"
 #include <cstdarg>
+
 
 using namespace opae::testing;
 
@@ -56,7 +57,7 @@ class common_c_p
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -84,7 +85,6 @@ class common_c_p
   test_system *system_;
   fpga_event_handle eh_;
 };
-
 
 /**
  * @test       common_01
@@ -116,8 +116,12 @@ TEST(common, fpgaErrStr) {
 TEST(common, prop_check_and_lock) {
   struct _fpga_properties *prop;
   prop = opae_properties_create();
-  prop->magic = 0x123;
+
   auto res = prop_check_and_lock(prop);
+  EXPECT_EQ(FPGA_OK,res);
+
+  prop->magic = 0x123;
+  res = prop_check_and_lock(prop);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
@@ -130,9 +134,11 @@ TEST(common, prop_check_and_lock) {
 TEST_P(common_c_p, handle_check_and_lock) {
   struct _fpga_handle *h = (struct _fpga_handle*)handle_;
   h->magic = 0x123;
-  auto res = handle_check_and_lock(h);
+  auto res = handle_check_and_lock((struct _fpga_handle*)handle_);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
   h->magic = FPGA_HANDLE_MAGIC;
+  res = handle_check_and_lock((struct _fpga_handle*)handle_);
+  EXPECT_EQ(FPGA_OK,res);
 }
 
 /**
@@ -143,11 +149,17 @@ TEST_P(common_c_p, handle_check_and_lock) {
  */
 
 TEST_P(common_c_p, event_handle_check_and_lock) {
+  auto res = event_handle_check_and_lock((struct _fpga_event_handle*)eh_);
+  EXPECT_EQ(FPGA_OK,res);
   struct _fpga_event_handle *eh = (struct _fpga_event_handle*)eh_;
+
   eh->magic = 0x123;
-  auto res = event_handle_check_and_lock(eh);
+  res = event_handle_check_and_lock((struct _fpga_event_handle*)eh_);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
   eh->magic = FPGA_EVENT_HANDLE_MAGIC;
+  res = event_handle_check_and_lock((struct _fpga_event_handle*)eh_);
+  EXPECT_EQ(FPGA_OK,res);
 }
 
 
