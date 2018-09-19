@@ -102,10 +102,10 @@ enum opae_loglevel {
 	OPAE_LOG_DEBUG      /* debugging (also needs #define DEBUG 1) */
 };
 
-#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR 
+#define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
 
 #ifndef FPGA_DEFAULT_LOGLEVEL
-#define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL 
+#define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL
 #endif // FPGA_DEFAULT_LOGLEVEL
 
 void opae_print(int loglevel, const char *fmt, ...);

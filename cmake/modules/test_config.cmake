@@ -48,7 +48,9 @@ function (Build_GTEST)
 
   # Create a libgtest target to be used as a dependency by test programs
   add_library(libgtest IMPORTED STATIC GLOBAL)
+  add_library(libgtest_main IMPORTED STATIC GLOBAL)
   add_dependencies(libgtest gtest)
+  add_dependencies(libgtest_main gtest)
 
   # Get GTest source and binary directories from CMake project
   ExternalProject_Get_Property(gtest source_dir binary_dir)
@@ -57,12 +59,17 @@ function (Build_GTEST)
   set_target_properties(libgtest PROPERTIES
       "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
       "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
+  # Set libgtest_main properties
+  set_target_properties(libgtest_main PROPERTIES
+      "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest_main.a"
+      "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
   # Export gtest variables
   set(GTEST_ROOT ${gtest_root} PARENT_SCOPE)
   set(GTEST_INCLUDE_DIRS ${gtest_root}/include PARENT_SCOPE)
-  set(GTEST_MAIN_LIBRARY gtest_main PARENT_SCOPE)
-  set(GTEST_BOTH_LIBRARIES libgtest PARENT_SCOPE)
+  set(GTEST_MAIN_LIBRARY libgtest_main PARENT_SCOPE)
+  set(GTEST_LIBRARIES libgtest PARENT_SCOPE)
+  set(GTEST_BOTH_LIBRARIES libgtest_main libgtest PARENT_SCOPE)
   set(GTEST_FOUND true PARENT_SCOPE)
   message(STATUS "gtest include dir: ${GTEST_INCLUDE_DIRS}")
 

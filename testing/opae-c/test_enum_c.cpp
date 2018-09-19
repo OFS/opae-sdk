@@ -60,6 +60,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
     num_matches = 0xc01a;
     invalid_device_ = test_device::unknown();
@@ -529,7 +530,7 @@ TEST_P(enum_c_p, num_interrupts) {
       FPGA_OK);
   EXPECT_EQ(num_matches, 1);
 
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_INVALID_PARAM);
+  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);

@@ -35,68 +35,134 @@ extern "C" {
 }
 #endif
 
+#include <chrono>
+#include <thread>
 #include "gtest/gtest.h"
 
+// define some operators to alter index consistently
+constexpr uint64_t index_to_wsid(uint64_t i) { return i * 6; }
+constexpr uint64_t index_to_addr(uint64_t i) { return i * 5; }
+constexpr uint64_t index_to_phys(uint64_t i) { return i * 4; }
+constexpr uint64_t index_to_len(uint64_t i) { return i * 3; }
+constexpr uint64_t index_to_offset(uint64_t i) { return i * 2; }
+constexpr uint64_t index_to_index(uint64_t i) { return i * 1; }
+constexpr uint64_t index_to_flags(uint64_t i) { return i * i; }
 
-TEST(utils_h, fpgaErrStr)
-{
-	fpga_result e = FPGA_OK;
-	auto res = fpgaErrStr(e);
-	(void)res;
+static uint64_t stress_count = 0;
+
+void cleanup_cb(wsid_map *ws) { stress_count--; }
+
+class wsid_list_f : public ::testing::Test {
+ protected:
+  wsid_list_f() : wsid_root_(nullptr) {}
+  virtual void SetUp() override {
+    count_ = 100;
+    distribution_ = std::uniform_int_distribution<int>(0, count_);
+    for (uint64_t i = 0; i < count_; ++i) {
+      EXPECT_TRUE(wsid_add(&wsid_root_, index_to_wsid(i), index_to_addr(i),
+                           index_to_phys(i), index_to_len(i),
+                           index_to_offset(i), index_to_index(i),
+                           index_to_flags(i)));
+    }
+  }
+
+  virtual void TearDown() override {
+    if (wsid_root_) {
+      wsid_cleanup(&wsid_root_, nullptr);
+      EXPECT_EQ(wsid_root_, nullptr);
+    }
+  }
+
+  wsid_map *wsid_root_;
+  uint32_t count_;
+  std::default_random_engine generator_;
+  std::uniform_int_distribution<int> distribution_;
+};
+
+TEST_F(wsid_list_f, wsid_add) {
+  // the setup adds, now we just confirm that it added the right data
+
+  wsid_map *it = wsid_root_;
+  int i = count_;
+  while (--i >= 0 && it != nullptr) {
+    EXPECT_EQ(it->wsid, index_to_wsid(i));
+    EXPECT_EQ(it->addr, index_to_addr(i));
+    EXPECT_EQ(it->phys, index_to_phys(i));
+    EXPECT_EQ(it->len, index_to_len(i));
+    EXPECT_EQ(it->offset, index_to_offset(i));
+    EXPECT_EQ(it->index, index_to_index(i));
+    ASSERT_EQ(it->flags, index_to_flags(i));
+    it = it->next;
+  }
 }
 
-
-TEST(wsid_list_int_h, wsid_add)
-{
-	struct wsid_map **root = 0;
-	uint64_t wsid = 0;
-	uint64_t addr = 0;
-	uint64_t phys = 0;
-	uint64_t len = 0;
-	uint64_t offset = 0;
-	uint64_t index = 0;
-	int flags = 0;
-	auto res = wsid_add(root, wsid, addr, phys, len, offset, index, flags);
-	EXPECT_EQ(res, 0);
+TEST_F(wsid_list_f, wsid_del) {
+  uint64_t wsid = index_to_wsid(distribution_(generator_));
+  EXPECT_TRUE(wsid_del(&wsid_root_, wsid));
+  wsid_map *it = wsid_root_;
+  // now look for the wsid in the list
+  while (it != nullptr) {
+    if (it->wsid == wsid) {
+      break;
+    }
+    it = it->next;
+  }
+  // it is null when we've looked at whole list without finding wsid
+  EXPECT_EQ(it, nullptr);
+  // it isn't there so we shouldn't be able to delete it again
+  EXPECT_FALSE(wsid_del(&wsid_root_, wsid));
 }
 
-
-TEST(wsid_list_int_h, wsid_del)
-{
-	struct wsid_map **root = 0;
-	uint64_t wsid = 0;
-	auto res = wsid_del(root, wsid);
-	EXPECT_EQ(res, 0);
+TEST_F(wsid_list_f, wsid_cleanup) {
+  auto cleanup = [](wsid_map *w) -> void {
+    EXPECT_EQ(w->wsid, index_to_wsid(w->index));
+  };
+  wsid_cleanup(&wsid_root_, cleanup);
+  EXPECT_EQ(wsid_root_, nullptr);
 }
 
-
-TEST(wsid_list_int_h, wsid_cleanup)
-{
-	struct wsid_map **root = 0;
-	wsid_cleanup(root, NULL);
+//
+TEST_F(wsid_list_f, wsid_gen) {
+  std::vector<uint64_t> wsids;
+  for (uint64_t i = 0; i < count_; ++i) {
+    auto wsid = wsid_gen();
+    auto it = std::find(wsids.begin(), wsids.end(), wsid);
+    ASSERT_TRUE(it == wsids.end()) << "duplicate wsid after " << wsids.size();
+    wsids.push_back(wsid);
+    // FIXME: wsid_gen uses gettimeofday in its calculation of an id Because of
+    // that, it may generate duplicate ids if the time in between calls is less
+    // than one usec. wsid_gen should be fixed
+    std::this_thread::sleep_for(std::chrono::microseconds(1));
+  }
 }
 
-
-TEST(wsid_list_int_h, wsid_gen)
-{
-	auto res = wsid_gen();
-	(void)res;
+TEST_F(wsid_list_f, wsid_find) {
+  uint32_t index = distribution_(generator_);
+  wsid_map *ws = wsid_find_by_index(wsid_root_, index);
+  ASSERT_NE(ws, nullptr);
+  EXPECT_EQ(ws->wsid, index_to_wsid(index));
 }
 
-
-TEST(wsid_list_int_h, wsid_find)
-{
-	struct wsid_map *root = 0;
-	uint64_t wsid = 0;
-	auto res = wsid_find(root, wsid);
-	(void)res;
+TEST_F(wsid_list_f, wsid_find_by_index) {
+  uint32_t index = distribution_(generator_);
+  wsid_map *ws = wsid_find(wsid_root_, index_to_wsid(index));
+  ASSERT_NE(ws, nullptr);
+  EXPECT_EQ(ws->index, index);
 }
 
-
-TEST(wsid_list_int_h, wsid_find_by_index)
-{
-	struct wsid_map *root = 0;
-	uint32_t index = 0;
-	auto res = wsid_find_by_index(root, index);
-	(void)res;
+TEST_F(wsid_list_f, stress) {
+  int count = count_;
+  // FIXME: wsid_add can result in process being killed (out of memory) if it's
+  // called too many times.
+  uint64_t count_max = 1024;
+  for (count = count_; count < count_max; ++count) {
+    EXPECT_TRUE(wsid_add(&wsid_root_, index_to_wsid(count),
+                         index_to_addr(count), index_to_phys(count),
+                         index_to_len(count), index_to_offset(count),
+                         index_to_index(count), index_to_flags(count)));
+  }
+  stress_count = count;
+  wsid_cleanup(&wsid_root_, cleanup_cb);
+  EXPECT_EQ(stress_count, 0);
+  EXPECT_EQ(wsid_root_, nullptr);
 }
