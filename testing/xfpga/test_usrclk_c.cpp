@@ -71,6 +71,19 @@ class usrclk_c
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+
+    for (auto t : tokens_dev_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
+    for (auto t : tokens_accel_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_dev_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
     if (handle_accel_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
@@ -83,8 +96,8 @@ class usrclk_c
   std::string tmpsysfs_;
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_dev_;
-  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_dev_ = {};
+  std::array<fpga_token, 2> tokens_accel_ = {};
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
   uint32_t num_matches_;
