@@ -66,7 +66,7 @@ void *malloc(size_t size) {
         dladdr(caller, &info);
         if (!info.dli_sname)
             res = 1;
-	else
+        else
             res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
 
         if (!_invalidate_malloc_after && !res) {
