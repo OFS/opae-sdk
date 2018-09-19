@@ -80,9 +80,6 @@ out_EINVAL:
 }
 
 
-
-
-
 class openclose_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
@@ -104,6 +101,13 @@ class openclose_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_){
+      if (t != nullptr){
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -114,7 +118,7 @@ class openclose_c_p
   std::string tmpsysfs_;
   fpga_properties filter_;
   fpga_handle handle_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -175,6 +179,7 @@ TEST_P(openclose_c_p, open_04) {
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
+  _token->magic = FPGA_TOKEN_MAGIC;
 }
 
 /**
