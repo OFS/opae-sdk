@@ -106,6 +106,10 @@ add_mock_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
 )
 
+add_mock_test(test_opae_open_c opae-c-static
+    opae-c/test_open_c.cpp
+)
+
 add_mock_test(test_opae_props_c opae-c-static
     opae-c/test_props_c.cpp
 )

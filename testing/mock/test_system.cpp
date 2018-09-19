@@ -28,19 +28,56 @@
  */
 
 #include "test_system.h"
-#include <dlfcn.h>
 #include <stdarg.h>
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 #include "c_test_system.h"
 #include "test_utils.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#include <dlfcn.h>
+
+void * __builtin_return_address(unsigned level);
+
 // hijack malloc
 static bool _invalidate_malloc = false;
+static uint32_t _invalidate_malloc_after = 0;
+static const char * _invalidate_malloc_when_called_from = nullptr;
 void *malloc(size_t size) {
   if (_invalidate_malloc) {
-    _invalidate_malloc = false;
-    return nullptr;
+
+    if (!_invalidate_malloc_when_called_from) {
+
+        if (!_invalidate_malloc_after) {
+          _invalidate_malloc = false;
+          return nullptr;
+        }
+
+        --_invalidate_malloc_after;
+
+    } else {
+        void *caller = __builtin_return_address(0);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+	else
+            res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+
+        if (!_invalidate_malloc_after && !res) {
+          _invalidate_malloc = false;
+          _invalidate_malloc_when_called_from = nullptr;
+          return nullptr;
+        } else if (!res)
+            --_invalidate_malloc_after;
+
+    }
+
   }
   return __libc_malloc(size);
 }
@@ -323,7 +360,11 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
-void test_system::invalidate_malloc() { _invalidate_malloc = true; }
+void test_system::invalidate_malloc(uint32_t after, const char *when_called_from) {
+  _invalidate_malloc = true;
+  _invalidate_malloc_after = after;
+  _invalidate_malloc_when_called_from = when_called_from;
+}
 
 }  // end of namespace testing
 }  // end of namespace opae
