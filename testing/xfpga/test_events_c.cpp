@@ -33,6 +33,7 @@ extern "C" {
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
 fpga_result send_fme_event_request(fpga_handle,fpga_event_handle,int);
+fpga_result send_port_event_request(fpga_handle,fpga_event_handle,int);
 
 #ifdef __cplusplus
 }
@@ -54,13 +55,93 @@ fpga_result send_fme_event_request(fpga_handle,fpga_event_handle,int);
 #include <opae/access.h>
 #include <linux/ioctl.h>
 
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+#undef FPGA_ERR
+#define FPGA_ERR(fmt, ...) \
+	printf("MOCK ERROR " fmt "\n", ## __VA_ARGS__)
+
 using namespace opae::testing;
 
 const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
 const std::string dev_fme = "/dev/intel-fpga-fme.0";
 const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
 const std::string dev_port = "/dev/intel-fpga-port.0";
+static bool gEnableIRQ = false;
 
+int fme_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_fme_info *fme_info = va_arg(argp, struct fpga_fme_info *);
+  if (!fme_info) {
+  	FPGA_MSG("fme_info is NULL");
+  	goto out_EINVAL;
+  }
+  if (fme_info->argsz != sizeof(*fme_info)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  if (fme_info->flags != 0) {
+  	FPGA_MSG("unexpected flags %u", fme_info->flags);
+  	goto out_EINVAL;
+  }
+  if (fme_info->capability != 0) {
+  	FPGA_MSG("unexpected capability %u", fme_info->capability);
+  	goto out_EINVAL;
+  }
+  fme_info->capability = gEnableIRQ ? FPGA_FME_CAP_ERR_IRQ : 0;
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
+int set_irq(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_fme_err_irq_set *fme_irq = va_arg(argp, struct fpga_fme_err_irq_set *);
+  if (!fme_irq) {
+  	FPGA_MSG("fme_irq is NULL");
+  	goto out_EINVAL;
+  }
+  if (fme_irq->argsz != sizeof(*fme_irq)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  if (fme_irq->flags != 0) {
+  	FPGA_MSG("unexpected flags %u", fme_irq->flags);
+  	goto out_EINVAL;
+  }
+  if (gEnableIRQ && fme_irq->evtfd >= 0) {
+  	uint64_t data = 1;
+  	// Write to the eventfd to signal one IRQ event.
+  	if (write(fme_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+  		FPGA_ERR("IRQ write < 8 bytes");
+  	}
+  }
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
 
 class events_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -321,6 +402,22 @@ TEST(events, event_drv_10) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOSObjectFromEventHandle(bad_handle, &fd));
 }
 
+/**
+ * @test       send_fme_event_request
+ *
+ * @brief      When passed a valid event handle, handle and fme_operation
+ *             the function return FPGA_OK
+ *
+ */
+TEST_P(events_p, valid_fme_event_request){
+  int fme_op = FPGA_IRQ_ASSIGN;
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  auto res = send_fme_event_request(handle_,eh_,fme_op);
+  EXPECT_EQ(FPGA_OK,res);
+}
+
 
 /**
  * @test       send_fme_event_request
@@ -329,23 +426,29 @@ TEST(events, event_drv_10) {
  *             It should return FPGA_INVALID_PARAM, or FPGA_EXCEPTION
  *
  */
-TEST_P(events_p, test_fme_event_request){
+TEST_P(events_p, invalid_fme_event_request_01){
   int fme_op = 0;
   auto res = send_fme_event_request(handle_,eh_,fme_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   fme_op = FPGA_IRQ_ASSIGN;
-  res = send_fme_event_request(handle_,eh_,fme_op);
-  EXPECT_NE(FPGA_OK,res);
-
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
   res = send_fme_event_request(handle_,eh_,fme_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
 }
 
+TEST_P(events_p, invalid_fme_event_request_02){
+  int fme_op = FPGA_IRQ_ASSIGN;
+  auto res = send_fme_event_request(handle_,eh_,fme_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
 
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  res = send_fme_event_request(handle_,eh_,fme_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
 
+}
 
 /**
  * @test       event_drv_11
@@ -403,13 +506,6 @@ TEST_P(events_p, register_event) {
   ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
   EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
-      << "\tRESULT: " << fpgaErrStr(res);
-
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_INTERRUPT, eh_, 0),
-            FPGA_OK)
-      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_INTERRUPT, eh_),
-            FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 
   ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
