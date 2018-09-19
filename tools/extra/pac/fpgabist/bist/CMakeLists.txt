@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_INCLUDE_DIR})
+
 add_executable(bist_app bist_afu.c)
 set_install_rpath(bist_app)
 

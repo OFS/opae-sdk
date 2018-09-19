@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_INCLUDE_DIR})
+
 file(GLOB CSources *.c)
 add_executable(fpga_dma_test ${CSources})
 set_install_rpath(fpga_dma_test)

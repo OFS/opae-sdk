@@ -24,9 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR})
-
-include_directories(${libjson-c_INCLUDE_DIRS})
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS})
 
 add_executable(fpgaconf fpgaconf.c)
 set_install_rpath(fpgaconf)
