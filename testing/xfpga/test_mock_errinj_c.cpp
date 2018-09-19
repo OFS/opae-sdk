@@ -127,14 +127,21 @@ class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -144,7 +151,7 @@ class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -281,7 +288,31 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_05) {
 
 
 /**
-* @test    fpga_mock_errinj_05
+* @test    fpga_mock_errinj_06
+* @brief   Tests:fpgaAssignPortToInterface
+* @details fpgaAssignPortToInterface given invalid param
+*          Then the return error code
+*/
+
+TEST_P(mock_err_inj_c_p, fpga_mock_errinj_06) {
+  int fddev = -1;
+  // Open port device
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
+  ASSERT_EQ(FPGA_OK, res);
+
+  struct _fpga_handle* h = (struct _fpga_handle*)handle_;
+  fddev = h->fddev;
+  h->fddev = -1;
+
+  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
+
+  h->fddev = fddev;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+}
+
+/**
+* @test    port_to_interface_err
 * @brief   Tests:fpgaAssignPortToInterface
 * @details fpgaAssignPortToInterface Assign and Release port
 *          Then the return error code
