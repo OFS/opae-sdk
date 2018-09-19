@@ -141,7 +141,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	if (result != FPGA_OK)
 		return result;
 
-	result = xfpga_fpgaPropertiesSetParent(props, _handle->token);
+	result = fpgaPropertiesSetParent(props, _handle->token);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Error setting parent in properties.");
 		goto free_props;
@@ -174,7 +174,7 @@ destroy_token:
 		FPGA_ERR("Error destroying a token");
 
 free_props:
-	destroy_result = xfpga_fpgaDestroyProperties(&props);
+	destroy_result = fpgaDestroyProperties(&props);
 	if (destroy_result != FPGA_OK)
 		FPGA_ERR("Error destroying properties");
 

@@ -160,7 +160,7 @@ int main( int argc, char** argv )
 	signal(SIGINT, mmlink_sig_handler);
 
 	// Enum FPGA device
- 	result = fpgaGetProperties(NULL, &filter);
+	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
 	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);

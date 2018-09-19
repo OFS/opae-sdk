@@ -26,13 +26,18 @@
 #ifndef _C_TEST_SYSTEM_H
 #define _C_TEST_SYSTEM_H
 
+#include <stdio.h>
 #include <dirent.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+  typedef int (*filter_func)(const struct dirent *);
+  typedef int (*compare_func)(const struct dirent **, const struct dirent **);
   int opae_test_open(const char *path, int flags);
   int opae_test_open_create(const char *path, int flags, mode_t mode);
+
+  FILE * opae_test_fopen(const char *path, const char *mode);
 
   int opae_test_close(int fd);
   int opae_test_ioctl(int fd, unsigned long request, va_list argp);
@@ -41,6 +46,7 @@ extern "C" {
   ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
   int opae_test_xstat(int ver, const char *path, struct stat *buf);
   int opae_test_lstat(int ver, const char *path, struct stat *buf);
+  int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
 
 #ifdef __cplusplus
 }

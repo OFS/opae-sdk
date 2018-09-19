@@ -93,7 +93,7 @@ class mmio_c_p
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -102,7 +102,7 @@ class mmio_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;

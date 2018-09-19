@@ -32,7 +32,7 @@ add_subdirectory(base/fpgainfo)
 add_subdirectory(base/fpgaport)
 
 # extra
-#add_subdirectory(extra/coreidle)
+add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 add_subdirectory(extra/packager)
 add_subdirectory(extra/c++utils)

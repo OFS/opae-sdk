@@ -28,7 +28,9 @@
 #ifndef _ASE_COMMON_H_
 #define _ASE_COMMON_H_
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -430,27 +432,22 @@ uint64_t get_range_checked_physaddr(uint32_t);
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
 void ase_free_buffer(char *);
-void delete_lock_file(void);
 
 uint32_t generate_ase_seed(void);
 bool check_app_lock_file(char *);
 void create_new_lock_file(char *);
-bool remove_existing_lock_file(char *);
 
 // ASE operations
 #ifdef ASE_DEBUG
 void ase_buffer_info(struct buffer_t *);
 #endif
-void ase_buffer_oneline(struct buffer_t *);
 void ase_buffer_t_to_str(struct buffer_t *, char *);
 void ase_str_to_buffer_t(char *, struct buffer_t *);
 int ase_dump_to_file(struct buffer_t *, char *);
 uint64_t ase_rand64(void);
 void ase_eval_session_directory(void);
 int ase_instance_running(void);
-void remove_spaces(char *);
-void remove_tabs(char *);
-void remove_newline(char *);
+
 void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
@@ -458,21 +455,18 @@ char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
 int ase_memset(void *, int, size_t);
-
+void ase_exit(void);
 // Safe string equivalents
 int ase_memcpy_s(void *, size_t, const void *, size_t);
 int ase_strncpy_s(char *, size_t, const char *, size_t);
 int ase_strcmp_s(const char *, size_t, const char *, int *);
 int ase_memset_s(void *, size_t, int, size_t);
-int sscanf_s_ii(const char *, const char *, int *, int *);
-int fscanf_s_i(FILE *, const char *, int *);
 
 // Message queue operations
 void ipc_init(void);
-void mqueue_create(char *);
 int mqueue_open(char *, int);
 void mqueue_close(int);
-void mqueue_destroy(char *);
+
 void mqueue_send(int, const char *, int);
 int mqueue_recv(int, char *, int);
 
@@ -481,10 +475,6 @@ void put_timestamp(void);
 // char* get_timestamp(int);
 void get_timestamp(char *);
 char *generate_tstamp_path(char *);
-
-// Error report functions
-void ase_error_report(char *, int, int);
-void backtrace_handler(int);
 
 // IPC management functions
 void final_ipc_cleanup(void);
@@ -541,6 +531,23 @@ extern "C" {
 	char *ase_malloc(size_t);
 	void *umsg_watcher();
 	// void *intr_request_watcher();
+	void register_signal(int, void *);
+	void start_simkill_countdown(void);
+
+	void ase_buffer_oneline(struct buffer_t *);
+	void remove_spaces(char *);
+	void remove_tabs(char *);
+	void remove_newline(char *);
+	int sscanf_s_ii(const char *, const char *, int *, int *);
+	int fscanf_s_i(FILE *, const char *, int *);
+	unsigned int parse_format(const char *format, char pformatList[], unsigned int maxFormats);
+	// Error report functions
+	void ase_error_report(const char *, int, int);
+	void backtrace_handler(int);
+	void mqueue_create(char *);
+	void mqueue_destroy(char *);
+	bool remove_existing_lock_file(const char *);
+	void delete_lock_file(const char *);
 #ifdef __cplusplus
 }
 #endif				// __cplusplus

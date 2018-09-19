@@ -26,6 +26,7 @@
 #ifndef _TEST_SYSTEM_H
 #define _TEST_SYSTEM_H
 
+#include <stdio.h>
 #include <dirent.h>
 #include <opae/fpga.h>
 #include <stddef.h>
@@ -37,6 +38,8 @@ extern "C" {
 extern void *__libc_malloc(size_t size);
 }
 typedef struct stat stat_t;
+typedef int (*filter_func)(const struct dirent *);
+typedef int (*compare_func)(const struct dirent **, const struct dirent **);
 
 namespace opae {
 namespace testing {
@@ -46,7 +49,7 @@ constexpr size_t MiB(size_t n) { return n * 1024 * KiB(1); }
 
 #ifndef UNUSED_PARAM
 #define UNUSED_PARAM(x) ((void)x)
-#endif // UNUSED_PARAM
+#endif  // UNUSED_PARAM
 
 class mock_object {
  public:
@@ -140,6 +143,8 @@ class test_system {
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
 
+  FILE * fopen(const std::string &path, const std::string &mode);
+
   int close(int fd);
   int ioctl(int fd, unsigned long request, va_list argp);
 
@@ -147,7 +152,9 @@ class test_system {
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
   int xstat(int ver, const char *path, stat_t *buf);
   int lstat(int ver, const char *path, stat_t *buf);
-  void invalidate_malloc();
+  int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
+              compare_func cmp);
+  void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
@@ -160,21 +167,26 @@ class test_system {
 
   typedef int (*open_func)(const char *pathname, int flags);
   typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
+  typedef FILE * (*fopen_func)(const char *path, const char *mode);
   typedef int (*close_func)(int fd);
   typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
   typedef DIR *(*opendir_func)(const char *name);
   typedef ssize_t (*readlink_func)(const char *pathname, char *buf,
                                    size_t bufsiz);
   typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
+  typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
+                              compare_func);
 
   open_func open_;
   open_create_func open_create_;
+  fopen_func fopen_;
   close_func close_;
   ioctl_func ioctl_;
   opendir_func opendir_;
   readlink_func readlink_;
   __xstat_func xstat_;
   __xstat_func lstat_;
+  scandir_func scandir_;
 };
 
 }  // end of namespace testing
