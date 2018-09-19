@@ -203,19 +203,6 @@ TEST_P(openclose_c_p, open_05) {
 }
 
 /**
- * @test       open_06
- *
- * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
- *             but malloc fails. the function returns FPGA_INVALID_PARAM.
- *
- */
-TEST_P(openclose_c_p, open_06) {
-  system_->invalidate_malloc();
-  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
-  ASSERT_EQ(FPGA_NO_MEMORY, res);
-}
-
-/**
  * @test       close_01 
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
@@ -237,20 +224,18 @@ TEST_P(openclose_c_p, close_01) {
   _handle->fddev = fddev;
    res = xfpga_fpgaClose(handle_);
   EXPECT_EQ(res, FPGA_OK);
- 
 }
 
 
 
-
 /**
- * @test       open_07
+ * @test       close_03
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
  *             but malloc fails. the function returns FPGA_INVALID_PARAM.
  *
  */
-TEST_P(openclose_c_p, close_02) {
+TEST_P(openclose_c_p, close_03) {
   uint64_t * mmio_ptr = NULL;
   auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
   ASSERT_EQ(FPGA_OK, res);
@@ -267,20 +252,13 @@ TEST_P(openclose_c_p, close_02) {
 
 }
 
-/**
- * @test       open_07
- *
- * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
- *             but malloc fails. the function returns FPGA_INVALID_PARAM.
- *
- */
 //TEST_P(openclose_c_p, open_07) {
-//  fpga_handle h2 = NULL;
-//  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
+//  fpga_handle h1,h2;
+//  auto res = xfpga_fpgaOpen(tokens_[0], &h1, 0);
 //  ASSERT_EQ(FPGA_OK, res);
 //  res = xfpga_fpgaOpen(tokens_[0], &h2, 0);
 //  ASSERT_EQ(FPGA_BUSY, res);
-//  ASSERT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+//  ASSERT_EQ(xfpga_fpgaClose(h1), FPGA_OK);
 //
 //}
 
