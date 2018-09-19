@@ -48,7 +48,7 @@
 #include "user_clk_pgm_uclock_freq_template.h"
 #include "user_clk_pgm_uclock_freq_template_322.h"
 #include "user_clk_pgm_uclock_eror_messages.h"
-#include "user_clk_s10_freq.h"
+#include "user_clk_iopll_freq.h"
 
 
 // user clock sysfs
@@ -57,8 +57,6 @@
 #define  USER_CLOCK_STS0       "userclk_freqsts"
 #define  USER_CLOCK_STS1       "userclk_freqcntrsts"
 #define  IOPLL_CLOCK_FREQ      "intel-pac-iopll.*.auto/userclk/frequency"
-#define  IOPLL_MAX_FREQ         800
-#define  IOPLL_MIN_FREQ         1
 #define  MAX_FPGA_FREQ          1200
 #define  MIN_FPGA_FREQ          25
 
@@ -154,8 +152,8 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 				 sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}
-		bufp = (char *)&pll_freq_config[userclk_low];
-		cnt = sizeof(struct pll_config);
+		bufp = (char *)&iopll_freq_config[userclk_low];
+		cnt = sizeof(struct iopll_config);
 		do {
 			res = write(fd, bufp, cnt);
 			if (res < 0) {
@@ -183,11 +181,6 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		&& userclk_low > userclk_high) {
 		FPGA_ERR("Invalid Input low frequency");
 		return FPGA_INVALID_PARAM;
-	}
-
-	// set low refclk if only one clock is avalible 
-	if (userclk_high == 0 && userclk_low != 0) {
-		freq = userclk_low;
 	}
 
 	if (freq < MIN_FPGA_FREQ){
