@@ -46,6 +46,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/sysobject.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/token_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/umsg.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/userclk.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/wsid_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c)
