@@ -222,9 +222,82 @@ TEST_P(properties_p1, set_parent01) {
   }
 }
 
-TEST_P(properties_p1, from_handle) {
+TEST_P(properties_p1, from_handle01) {
   fpga_properties props = nullptr;
   EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_OK);
+  // props will have a cloned parent token.
+  EXPECT_EQ(fpgaDestroyToken(&((struct _fpga_properties *)props)->parent), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    from_handle02
+ * @brief   Tests: fpgaGetPropertiesFromHandle
+ * @details When the call to opae_allocate_wrapped_token() fails<br>
+ *          fpgaGetPropertiesFromHandle returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_p1, from_handle02) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    from_token01
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is NULL<br>
+ *          and the call to opae_properties_create() fails,<br>
+ *          fpgaGetProperties returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_p1, from_token01) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the properties object.
+  system_->invalidate_calloc(0, "opae_properties_create");
+  EXPECT_EQ(fpgaGetProperties(NULL, &props), FPGA_NO_MEMORY);
+}
+
+/**
+ * @test    from_token02
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call to opae_allocate_wrapped_token() fails,<br>
+ *          fpgaGetProperties returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_p1, from_token02) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    from_token03
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call to opae_allocate_wrapped_token() fails,<br>
+ *          fpgaGetProperties returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_p1, from_token03) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    from_token04
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call is successful,<br>
+ *          fpgaGetProperties returns FPGA_OK.<br>
+ */
+TEST_P(properties_p1, from_token04) {
+  fpga_properties props = nullptr;
+  EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_OK);
   // props will have a cloned parent token.
   EXPECT_EQ(fpgaDestroyToken(&((struct _fpga_properties *)props)->parent), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);

@@ -214,6 +214,9 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 	ASSERT_NOT_NULL_RESULT(
 		wrapped_handle->adapter_table->fpgaCloneToken,
 		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_handle->adapter_table->fpgaDestroyToken,
+		FPGA_NOT_SUPPORTED);
 
 	res = wrapped_handle->adapter_table->fpgaGetPropertiesFromHandle(
 		wrapped_handle->opae_handle, prop);
@@ -241,6 +244,8 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 			if (wrapped_parent) {
 				p->parent = wrapped_parent;
 			} else {
+				wrapped_handle->adapter_table->fpgaDestroyToken(
+						&parent);
 				OPAE_ERR("malloc failed");
 				res = FPGA_NO_MEMORY;
 			}
@@ -284,6 +289,9 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		ASSERT_NOT_NULL_RESULT(
 			wrapped_token->adapter_table->fpgaCloneToken,
 			FPGA_NOT_SUPPORTED);
+		ASSERT_NOT_NULL_RESULT(
+			wrapped_token->adapter_table->fpgaDestroyToken,
+			FPGA_NOT_SUPPORTED);
 
 		res = wrapped_token->adapter_table->fpgaGetProperties(
 			wrapped_token->opae_token, prop);
@@ -311,6 +319,8 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 				if (wrapped_parent) {
 					p->parent = wrapped_parent;
 				} else {
+					wrapped_token->adapter_table->fpgaDestroyToken(
+							&parent);
 					OPAE_ERR("malloc failed");
 					res = FPGA_NO_MEMORY;
 				}
@@ -337,6 +347,9 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(
 		wrapped_token->adapter_table->fpgaCloneToken,
+		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_token->adapter_table->fpgaDestroyToken,
 		FPGA_NOT_SUPPORTED);
 
 	res = wrapped_token->adapter_table->fpgaUpdateProperties(
@@ -365,6 +378,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 			if (wrapped_parent) {
 				p->parent = wrapped_parent;
 			} else {
+				wrapped_token->adapter_table->fpgaDestroyToken(
+						&parent);
 				OPAE_ERR("malloc failed");
 				res = FPGA_NO_MEMORY;
 			}
