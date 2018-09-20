@@ -462,6 +462,9 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 		return OPAE_ENUM_CONTINUE;
 	}
 
+	if (space_remaining > num_matches)
+		space_remaining = num_matches;
+
 	for (i = 0; i < space_remaining; ++i) {
 		opae_wrapped_token *wt = opae_allocate_wrapped_token(
 			ctx->adapter_tokens[i], adapter);

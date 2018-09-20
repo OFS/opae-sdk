@@ -56,10 +56,9 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+    ASSERT_EQ(num_matches_, platform_.devices.size());
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
-    num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
   }
 
@@ -67,6 +66,10 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&props_), FPGA_OK);
     EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+    uint32_t i;
+    for (i = 0 ; i < num_matches_ ; ++i) {
+        EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
+    }
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -99,25 +102,38 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
  *          And the field in the token object is set to the known value<br>
  * */
 TEST_P(properties_p1, get_parent01) {
+  std::array<fpga_token, 2> toks = {};
+  fpga_token parent = nullptr;
+  uint32_t matches = 0;
+
   EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      fpgaEnumerate(&filter_, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
+  EXPECT_EQ(matches, platform_.devices.size());
 
   // set the token to a known value
   auto _prop = (_fpga_properties*)props_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
-  _prop->parent = tokens_[0];
+  _prop->parent = toks[0];
 
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesGetParent(props_, &tokens_[1]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesGetParent(props_, &parent), FPGA_OK);
   // GetParent clones the token so compare object_id of the two
-  fpga_properties p1, p2;
-  ASSERT_EQ(fpgaGetProperties(tokens_[0], &p1), FPGA_OK);
-  ASSERT_EQ(fpgaGetProperties(tokens_[1], &p2), FPGA_OK);
+  fpga_properties p1 = nullptr, p2 = nullptr;
+  ASSERT_EQ(fpgaGetProperties(toks[0], &p1), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent,  &p2), FPGA_OK);
   EXPECT_EQ(((_fpga_properties*)p1)->object_id,
             ((_fpga_properties*)p2)->object_id);
+
+  EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
+  uint32_t i;
+  for (i = 0 ; i < matches ; ++i) {
+    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  }
 }
 
 /**
@@ -131,11 +147,13 @@ TEST_P(properties_p1, get_parent01) {
  * */
 TEST_P(properties_p1, get_parent02) {
   struct _fpga_properties* _prop = (struct _fpga_properties*)props_;
+  fpga_token tok = nullptr;
 
   // make sure the FPGA_PROPERTY_PARENT bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_PARENT) & 1, 0);
 
-  EXPECT_EQ(fpgaPropertiesGetParent(_prop, &tokens_[0]), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaPropertiesGetParent(_prop, &tok), FPGA_NOT_FOUND);
+  EXPECT_EQ(tok, nullptr);
 }
 
 /**
@@ -148,29 +166,41 @@ TEST_P(properties_p1, get_parent02) {
  *          Then the parent object in the properties object is the token<br>
  */
 TEST_P(properties_p1, set_parent01) {
+  std::array<fpga_token, 2> toks = {};
+  uint32_t matches = 0;
+  fpga_token parent = nullptr;
+
   EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      fpgaEnumerate(&filter_, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
+  EXPECT_EQ(matches, platform_.devices.size());
 
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesSetParent(props_, tokens_[0]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetParent(props_, toks[0]), FPGA_OK);
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesGetParent(props_, &tokens_[1]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesGetParent(props_, &parent), FPGA_OK);
   // GetParent clones the token so compare object_id of the two
   fpga_properties p1 = nullptr, p2 = nullptr;
-  ASSERT_EQ(fpgaGetProperties(tokens_[0], &p1), FPGA_OK);
-  ASSERT_EQ(fpgaGetProperties(tokens_[1], &p2), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(toks[0], &p1), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent, &p2), FPGA_OK);
   EXPECT_EQ(((_fpga_properties*)p1)->object_id,
             ((_fpga_properties*)p2)->object_id);
 
   EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
+  uint32_t i;
+  for (i = 0 ; i < matches ; ++i) {
+    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  }
 }
 
 TEST_P(properties_p1, from_handle) {
-  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
+  fpga_properties props = nullptr;
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
 
 /**
@@ -199,7 +229,7 @@ TEST(properties, set_parent_null_token) {
   fpga_properties prop = NULL;
 
   // Call the API to set the token on the property
-  fpga_token token;
+  fpga_token token = nullptr;
   fpga_result result = fpgaPropertiesSetParent(prop, &token);
 
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
