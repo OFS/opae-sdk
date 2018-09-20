@@ -25,6 +25,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+extern "C"{
+#include <opae/utils.h>
+    fpga_result cat_token_sysfs_path(char*,fpga_token,const char*);
+    fpga_result get_port_sysfs(fpga_handle,char*);
+//    fpga_result get_fpga_deviceid(fpga_handle,uint64_t*);
+    fpga_result sysfs_get_pr_id(int,fpga_guid);
+    fpga_result sysfs_get_slots(int,uint32_t*);
+    fpga_result sysfs_get_bitstream_id(int,uint64_t*);
+    fpga_result sysfs_sbdf_from_path(const char*,int*,int*,int*,int*);
+    fpga_result opae_glob_path(char *);
+    fpga_result make_sysfs_group(char *,const char*, fpga_object*,int,fpga_handle);
+    ssize_t eintr_write(int,void*,size_t);
+}
+
 #include <sys/types.h>
 #include <opae/enum.h>
 #include <opae/properties.h>
@@ -35,7 +49,6 @@
 #include <vector>
 #include <string>
 #include "xfpga.h"
-
 
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -59,7 +72,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -68,17 +81,25 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for ( auto i : tokens_)
+    {
+        if (i != nullptr){
+            EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&i));
+        } 
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
+      //std::system(cmd.c_str());
     }
     system_->finalize();
   }
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -86,6 +107,107 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 
 };
 
+/**
+* @test    eintr_write_tests
+* @details 
+*/
+TEST(sysfs_c, eintr_write_tests){
+  int fd = 0;
+  size_t count = 1024;
+  EXPECT_NE(0,eintr_write(fd,NULL,count)); 
+}
+
+
+/**
+* @test    sysfs_invalid_tests
+* @details When calling get_port_sysfs with invalid params
+*          the functino returns FPGA_INVALID_PARAM
+*/
+TEST_P(sysfs_c_p, sysfs_invalid_tests){
+  const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
+  auto h = (struct _fpga_handle*)handle_;
+  auto t = (struct _fpga_token*)h->token;
+
+  strncpy(t->sysfspath,sysfs_fme.c_str(),sizeof(t->sysfspath));
+  auto res = get_port_sysfs(handle_,const_cast<char*>(sysfs_fme.c_str()));
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  char invalid_string[] = "...";
+  strncpy(t->sysfspath,invalid_string,sizeof(t->sysfspath));
+  res = get_port_sysfs(handle_,const_cast<char*>(sysfs_fme.c_str()));
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  h->token = NULL;
+  res = get_port_sysfs(handle_,const_cast<char*>(sysfs_fme.c_str()));
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+}
+
+
+
+/**
+* @test    device_invalid_test
+* @details 
+*/
+TEST_P(sysfs_c_p, deviceid_invalid_tests){
+  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev/intel-fpga-port";
+  auto h = (struct _fpga_handle*)handle_;
+  auto t = (struct _fpga_token*)h->token;
+  uint64_t device_id;
+  fpga_token tok;
+ 
+  auto res = get_fpga_deviceid(handle_,NULL);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  tok = h->token;
+  h->token = NULL;
+  res = get_fpga_deviceid(handle_,&device_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  h->token = tok;
+  res = get_fpga_deviceid(handle_,&device_id);
+  EXPECT_EQ(FPGA_OK,res);
+
+  strncpy(t->sysfspath,sysfs_port.c_str(),sizeof(t->sysfspath));
+  res = get_fpga_deviceid(handle_,&device_id);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
+}
+
+
+/**
+* @test    glob_test
+* @details 
+*/
+TEST_P(sysfs_c_p, glob_tests){
+  _fpga_token *tok = static_cast<_fpga_token*>(tokens_[0]);
+  std::string invalid_filename = "opae";
+
+  auto res = opae_glob_path(nullptr);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  res = opae_glob_path(const_cast<char*>(invalid_filename.c_str()));
+  EXPECT_EQ(FPGA_NOT_FOUND,res);
+}
+
+
+/**
+* @test    cat_sysfs_path_errors
+* @details 
+*/
+TEST(sysfs_c, cat_sysfs_path_errors)
+{
+  std::vector<char> buffer(256);
+  std::string emptystring = "";
+  EXPECT_EQ(FPGA_OK, cat_sysfs_path(buffer.data(),single_sysfs_port.c_str()));
+  EXPECT_EQ(FPGA_INVALID_PARAM, cat_sysfs_path(buffer.data(),nullptr));
+  EXPECT_EQ(FPGA_INVALID_PARAM, cat_sysfs_path(nullptr,single_sysfs_port.c_str()));
+  EXPECT_EQ(FPGA_INVALID_PARAM, cat_sysfs_path(nullptr, nullptr));
+}
+
+/**
+* @test   cat_token_sysfs_path 
+* @details 
+*/
 TEST(sysfs_c, cat_token_sysfs_path)
 {
   _fpga_token tok;
@@ -101,6 +223,10 @@ TEST(sysfs_c, cat_token_sysfs_path)
   EXPECT_EQ(cat_token_sysfs_path(nullptr, &tok, "bitstream_id"), FPGA_EXCEPTION);
 }
 
+/**
+* @test    cat_handle_sysfs_path
+* @details 
+*/
 TEST(sysfs_c, cat_handle_sysfs_path)
 {
   _fpga_token tok;
@@ -118,14 +244,53 @@ TEST(sysfs_c, cat_handle_sysfs_path)
   EXPECT_EQ(cat_handle_sysfs_path(nullptr, &hnd, "bitstream_id"), FPGA_EXCEPTION);
 }
 
+
+/**
+* @test    make_sysfs_group
+* @details 
+*/
+TEST_P(sysfs_c_p, make_sysfs)
+{
+  const std::string invalid_path = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
+  _fpga_token *tok = static_cast<_fpga_token*>(tokens_[0]);
+  fpga_object obj;
+  auto res = make_sysfs_group(tok->sysfspath,"errors",&obj,0,handle_);
+  EXPECT_EQ(res, FPGA_OK);
+
+  res = make_sysfs_group(tok->sysfspath,"errors",&obj,FPGA_OBJECT_GLOB,handle_);
+  EXPECT_NE(res, FPGA_OK);
+
+  res = make_sysfs_group(const_cast<char*>(invalid_path.c_str()),"errors",&obj,0,handle_);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
+
+  res = make_sysfs_group(tok->sysfspath,"errors",&obj,FPGA_OBJECT_RECURSE_ONE,handle_);
+  EXPECT_EQ(res, FPGA_OK);
+
+}
+
+
+/**
+* @test    make_object
+* @details 
+*/
 TEST_P(sysfs_c_p, make_object)
 {
   _fpga_token *tok = static_cast<_fpga_token*>(tokens_[0]);
   fpga_object object;
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 0, 0), FPGA_OK);
+}
 
-
+/**
+* @test   make_object_glob 
+* @details 
+*/
+TEST_P(sysfs_c_p, make_object_glob)
+{
+  _fpga_token *tok = static_cast<_fpga_token*>(tokens_[0]);
+  fpga_object object;
+  // errors is a sysfs directory - this should call make_sysfs_group()
+  ASSERT_NE(make_sysfs_object(tok->sysfspath, "errors", &object, FPGA_OBJECT_GLOB, 0), FPGA_OK);
 }
 
 /**
@@ -294,178 +459,76 @@ TEST_P(sysfs_c_p, fpga_sysfs_02){
   
 } 
 
+/**
+* @test    sysfs_get_pr_id
+* @details sysfs_get_pr_id given a valid bitstream
+*          return FPGA_NOT_FOUND from sysfs_read_guid
+*/
+TEST(sysfs_c, sysfs_get_pr_id)
+{
+  int dev = 0;
+  fpga_guid guid;
+  auto res = sysfs_get_pr_id(dev,guid);
+  EXPECT_NE(res, FPGA_OK);
+}
+
 
 /**
-* @test    fpga_sysfs_03
-* @brief   Tests: get_fpga_deviceid when given a valid handle
+* @test    sysfs_get_slots
+* @details sysfs_get_slots given a valid parameters
+*          return FPGA_NOT_FOUND from sysfs_read_u32
 */
-TEST_P(sysfs_c_p, fpga_sysfs_03){
-  uint64_t deviceid;
-  fpga_result result;
-  
-  // Pass Port handle insted of FME handle
-  result = get_fpga_deviceid(handle_, &deviceid);
-  EXPECT_NE(result, FPGA_OK);
+TEST(sysfs_c, sysfs_get_slots)
+{
+  int dev = 0;
+  uint32_t u32;
+  auto res = sysfs_get_slots(dev,&u32);
+  EXPECT_NE(res, FPGA_OK);
+}
+
+
+/**
+* @test    sysfs_get_bitstream_id
+* @details sysfs_get_bitstream_id given a valid parameters
+*          return FPGA_NOT_FOUND from sysfs_read_u64
+*/
+TEST(sysfs_c, sysfs_get_bitstream_id)
+{
+  int dev = 0;
+  uint64_t u64;
+  auto res = sysfs_get_bitstream_id(dev,&u64);
+  EXPECT_NE(res, FPGA_OK);
+}
+
+
+
+/**
+* @test    sysfs_sbdf_invalid_tests
+* @details When calling sysfs_sbdf_from path with invalid params
+*          the function returns FPGA_NO_DRIVER
+*/
+TEST(sysfs_c, sysfs_sbdf_invalid_tests){
+  std::string sysfs_dev = "/sys/devices/pci0000:5e/0000:5e:00.0/fpga/intel-fpga-dev.0";
+
+  int s = 0, b = 0, d = 0, f = 0; 
+  auto res = sysfs_sbdf_from_path(sysfs_dev.c_str(),&s,&b,&d,&f);
+  EXPECT_EQ(FPGA_NO_DRIVER,res);
+}
+
+
+
+/**
+* @test    get_fpga_deviceid
+* @details get_fpga_device given a valid parameters
+*          return FPGA_OK 
+*/
+TEST_P(sysfs_c_p, get_fpga_deviceid)
+{
+  uint64_t deviceid = 0xbcc0;
+  auto res = get_fpga_deviceid(handle_,&deviceid);
+  EXPECT_EQ(res, FPGA_OK);
 
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
-
-//TEST(sysfs_int_h, get_interface_id)
-//{
-//  fpga_handle handle = 0;
-//  uint64_t * id_l = 0;
-//  uint64_t * id_h = 0;
-//  auto res = get_interface_id(handle,id_l,id_h);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_sbdf_from_path)
-//{
-//  const char * sysfspath = 0;
-//  int * s = 0;
-//  int * b = 0;
-//  int * d = 0;
-//  int * f = 0;
-//  auto res = sysfs_sbdf_from_path(sysfspath,s,b,d,f);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_read_int)
-//{
-//  const char * path = 0;
-//  int * i = 0;
-//  auto res = sysfs_read_int(path,i);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_read_u32)
-//{
-//  const char * path = 0;
-//  uint32_t * u = 0;
-//  auto res = sysfs_read_u32(path,u);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_read_u32_pair)
-//{
-//  const char * path = 0;
-//  uint32_t * u1 = 0;
-//  uint32_t * u2 = 0;
-//  char sep = 0;
-//  auto res = sysfs_read_u32_pair(path,u1,u2,sep);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_read_u64)
-//{
-//  const char * path = 0;
-//  uint64_t * u = 0;
-//  auto res = sysfs_read_u64(path,u);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_write_u64)
-//{
-//  const char * path = 0;
-//  uint64_t u = 0;
-//  auto res = sysfs_write_u64(path,u);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_read_guid)
-//{
-//  const char * path = 0;
-//  fpga_guid guid;
-//  auto res = sysfs_read_guid(path,guid);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_get_socket_id)
-//{
-//  int dev = 0;
-//  uint8_t * socket_id = 0;
-//  auto res = sysfs_get_socket_id(dev,socket_id);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_get_afu_id)
-//{
-//  int dev = 0;
-//  fpga_guid guid;
-//  auto res = sysfs_get_afu_id(dev,guid);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_get_pr_id)
-//{
-//  int dev = 0;
-//  fpga_guid guid;
-//  auto res = sysfs_get_pr_id(dev,guid);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_get_slots)
-//{
-//  int dev = 0;
-//  uint32_t * slots = 0;
-//  auto res = sysfs_get_slots(dev,slots);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_get_bitstream_id)
-//{
-//  int dev = 0;
-//  uint64_t * id = 0;
-//  auto res = sysfs_get_bitstream_id(dev,id);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, get_port_sysfs)
-//{
-//  fpga_handle handle = 0;
-//  char * sysfs_port = 0;
-//  auto res = get_port_sysfs(handle,sysfs_port);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, get_fpga_deviceid)
-//{
-//  fpga_handle handle = 0;
-//  uint64_t * deviceid = 0;
-//  auto res = get_fpga_deviceid(handle,deviceid);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_deviceid_from_path)
-//{
-//  const char * sysfspath = 0;
-//  uint64_t * deviceid = 0;
-//  auto res = sysfs_deviceid_from_path(sysfspath,deviceid);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-//
-//TEST(sysfs_int_h, sysfs_objectid_from_path)
-//{
-//  const char * sysfspath = 0;
-//  uint64_t * object_id = 0;
-//  auto res = sysfs_objectid_from_path(sysfspath,object_id);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
