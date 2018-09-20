@@ -29,9 +29,10 @@
 
 #include "test_system.h"
 #include <stdarg.h>
+#include <unistd.h>
 #include <algorithm>
-#include <fstream>
 #include <cstring>
+#include <fstream>
 #include "c_test_system.h"
 #include "test_utils.h"
 
@@ -40,44 +41,40 @@
 #endif
 #include <dlfcn.h>
 
-void * __builtin_return_address(unsigned level);
+void *__builtin_return_address(unsigned level);
 
 // hijack malloc
 static bool _invalidate_malloc = false;
 static uint32_t _invalidate_malloc_after = 0;
-static const char * _invalidate_malloc_when_called_from = nullptr;
+static const char *_invalidate_malloc_when_called_from = nullptr;
 void *malloc(size_t size) {
   if (_invalidate_malloc) {
-
     if (!_invalidate_malloc_when_called_from) {
+      if (!_invalidate_malloc_after) {
+        _invalidate_malloc = false;
+        return nullptr;
+      }
 
-        if (!_invalidate_malloc_after) {
-          _invalidate_malloc = false;
-          return nullptr;
-        }
-
-        --_invalidate_malloc_after;
+      --_invalidate_malloc_after;
 
     } else {
-        void *caller = __builtin_return_address(0);
-        int res;
-        Dl_info info;
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
 
-        if (!_invalidate_malloc_after && !res) {
-          _invalidate_malloc = false;
-          _invalidate_malloc_when_called_from = nullptr;
-          return nullptr;
-        } else if (!res)
-            --_invalidate_malloc_after;
-
+      if (!_invalidate_malloc_after && !res) {
+        _invalidate_malloc = false;
+        _invalidate_malloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_malloc_after;
     }
-
   }
   return __libc_malloc(size);
 }
@@ -223,6 +220,10 @@ std::string test_system::prepare_syfs(const test_platform &platform) {
 void test_system::set_root(const char *root) { root_ = root; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
+  auto it = registered_files_.find(src);
+  if (it != registered_files_.end()) {
+    return it->second;
+  }
   if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0) {
     if (!root_.empty() && root_.size() > 1) {
       return root_ + src;
@@ -252,6 +253,9 @@ void test_system::finalize() {
   }
   root_ = "";
   fds_.clear();
+  for (auto kv : registered_files_) {
+    unlink(kv.second.c_str());
+  }
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
@@ -259,6 +263,17 @@ bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
       ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
   return alhready_registered;
+}
+
+FILE *test_system::register_file(const std::string &path) {
+  auto it = registered_files_.find(path);
+  if (it == registered_files_.end()) {
+    registered_files_[path] =
+        "/tmp/testfile" + std::to_string(registered_files_.size());
+  }
+
+  auto fptr = fopen(path.c_str(), "w+");
+  return fptr;
 }
 
 uint32_t get_device_id(const std::string &sysclass) {
@@ -360,7 +375,8 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
-void test_system::invalidate_malloc(uint32_t after, const char *when_called_from) {
+void test_system::invalidate_malloc(uint32_t after,
+                                    const char *when_called_from) {
   _invalidate_malloc = true;
   _invalidate_malloc_after = after;
   _invalidate_malloc_when_called_from = when_called_from;
@@ -379,7 +395,7 @@ int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
 }
 
-FILE * opae_test_fopen(const char *path, const char *mode) {
+FILE *opae_test_fopen(const char *path, const char *mode) {
   return opae::testing::test_system::instance()->fopen(path, mode);
 }
 

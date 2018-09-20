@@ -158,11 +158,14 @@ class test_system {
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
+  FILE *register_file(const std::string &path);
+
  private:
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
+  std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
