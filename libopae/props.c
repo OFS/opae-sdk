@@ -81,38 +81,48 @@ out_free:
 	return NULL;
 }
 
-void opae_properties_destroy(struct _fpga_properties *props)
+fpga_result fpgaDestroyProperties(fpga_properties *prop)
 {
+	struct _fpga_properties *p;
 	int err;
 
-	if (!props)
-		return;
+	ASSERT_NOT_NULL(prop);
 
-	opae_mutex_lock(err, &props->lock);
-	props->magic = 0;
-	opae_mutex_unlock(err, &props->lock);
+	p = opae_validate_and_lock_properties(*prop);
 
-	err = pthread_mutex_destroy(&props->lock);
+	ASSERT_NOT_NULL(p);
+
+	p->magic = 0;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	err = pthread_mutex_destroy(&p->lock);
 	if (err)
 		OPAE_ERR("pthread_mutex_destroy() failed: %s", strerror(err));
 
-	free(props);
+	free(p);
+	*prop = NULL;
+
+	return FPGA_OK;
 }
 
-struct _fpga_properties *opae_properties_clone(fpga_properties props)
+fpga_result fpgaCloneProperties(fpga_properties src, fpga_properties *dst)
 {
 	int err;
 	struct _fpga_properties *clone;
 	pthread_mutex_t save_lock;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p;
 
-	if (!p)
-		return NULL;
+	ASSERT_NOT_NULL(dst);
+
+	p = opae_validate_and_lock_properties(src);
+
+	ASSERT_NOT_NULL(p);
 
 	clone = opae_properties_create();
 	if (!clone) {
 		opae_mutex_unlock(err, &p->lock);
-		return NULL;
+		return FPGA_EXCEPTION;
 	}
 
 	save_lock = clone->lock;
@@ -120,12 +130,14 @@ struct _fpga_properties *opae_properties_clone(fpga_properties props)
 	*clone = *p;
 	clone->lock = save_lock;
 
+	*dst = clone;
+
 	opae_mutex_unlock(err, &p->lock);
 
-	return clone;
+	return FPGA_OK;
 }
 
-fpga_result opae_properties_clear(fpga_properties props)
+fpga_result fpgaClearProperties(fpga_properties props)
 {
 	int err;
 	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
@@ -139,8 +151,8 @@ fpga_result opae_properties_clear(fpga_properties props)
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_parent(fpga_properties props,
-				       fpga_token *parent)
+fpga_result fpgaPropertiesGetParent(const fpga_properties prop,
+				    fpga_token *parent)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -148,12 +160,14 @@ fpga_result opae_properties_get_parent(fpga_properties props,
 
 	ASSERT_NOT_NULL(parent);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
 	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		*parent = p->parent;
+		res = fpgaCloneToken(p->parent, parent);
+		if (res != FPGA_OK)
+			OPAE_ERR("cloning token from property");
 	} else {
 		OPAE_MSG("No parent");
 		res = FPGA_NOT_FOUND;
@@ -164,14 +178,14 @@ fpga_result opae_properties_get_parent(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_parent(fpga_properties props, fpga_token parent)
+fpga_result fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
 {
 	int err;
 	struct _fpga_properties *p;
 
 	ASSERT_NOT_NULL(parent);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -183,8 +197,8 @@ fpga_result opae_properties_set_parent(fpga_properties props, fpga_token parent)
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_object_type(fpga_properties props,
-					    fpga_objtype *objtype)
+fpga_result fpgaPropertiesGetObjectType(const fpga_properties prop,
+					fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -192,7 +206,7 @@ fpga_result opae_properties_get_object_type(fpga_properties props,
 
 	ASSERT_NOT_NULL(objtype);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -208,11 +222,11 @@ fpga_result opae_properties_get_object_type(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_object_type(fpga_properties props,
-					    fpga_objtype objtype)
+fpga_result fpgaPropertiesSetObjectType(fpga_properties prop,
+					fpga_objtype objtype)
 {
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -224,8 +238,8 @@ fpga_result opae_properties_set_object_type(fpga_properties props,
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_segment(fpga_properties props,
-					uint16_t *segment)
+fpga_result fpgaPropertiesGetSegment(const fpga_properties prop,
+				     uint16_t *segment)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -233,7 +247,7 @@ fpga_result opae_properties_get_segment(fpga_properties props,
 
 	ASSERT_NOT_NULL(segment);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -249,10 +263,10 @@ fpga_result opae_properties_get_segment(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_segment(fpga_properties props, uint16_t segment)
+fpga_result fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
 {
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -264,7 +278,7 @@ fpga_result opae_properties_set_segment(fpga_properties props, uint16_t segment)
 	return FPGA_OK;
 }
 
-fpga_result opae_properties_get_bus(fpga_properties props, uint8_t *bus)
+fpga_result fpgaPropertiesGetBus(const fpga_properties prop, uint8_t *bus)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -272,7 +286,7 @@ fpga_result opae_properties_get_bus(fpga_properties props, uint8_t *bus)
 
 	ASSERT_NOT_NULL(bus);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -288,11 +302,11 @@ fpga_result opae_properties_get_bus(fpga_properties props, uint8_t *bus)
 	return res;
 }
 
-fpga_result opae_properties_set_bus(fpga_properties props, uint8_t bus)
+fpga_result fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -304,7 +318,7 @@ fpga_result opae_properties_set_bus(fpga_properties props, uint8_t bus)
 	return res;
 }
 
-fpga_result opae_properties_get_device(fpga_properties props, uint8_t *device)
+fpga_result fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -312,7 +326,7 @@ fpga_result opae_properties_get_device(fpga_properties props, uint8_t *device)
 
 	ASSERT_NOT_NULL(device);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -328,11 +342,11 @@ fpga_result opae_properties_get_device(fpga_properties props, uint8_t *device)
 	return res;
 }
 
-fpga_result opae_properties_set_device(fpga_properties props, uint8_t device)
+fpga_result fpgaPropertiesSetDevice(fpga_properties prop, uint8_t device)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -344,8 +358,8 @@ fpga_result opae_properties_set_device(fpga_properties props, uint8_t device)
 	return res;
 }
 
-fpga_result opae_properties_get_function(fpga_properties props,
-					 uint8_t *function)
+fpga_result fpgaPropertiesGetFunction(const fpga_properties prop,
+				      uint8_t *function)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -353,7 +367,7 @@ fpga_result opae_properties_get_function(fpga_properties props,
 
 	ASSERT_NOT_NULL(function);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -369,13 +383,19 @@ fpga_result opae_properties_get_function(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_function(fpga_properties props,
-					 uint8_t function)
+fpga_result fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p;
 
+	// PCIe supports 8 functions per device.
+	if (function > 7) {
+		FPGA_MSG("Invalid function number");
+		return FPGA_INVALID_PARAM;
+	}
+
+	p = opae_validate_and_lock_properties(prop);
 	ASSERT_NOT_NULL(p);
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_FUNCTION);
@@ -386,8 +406,8 @@ fpga_result opae_properties_set_function(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_socket_id(fpga_properties props,
-					  uint8_t *socket_id)
+fpga_result fpgaPropertiesGetSocketID(const fpga_properties prop,
+				      uint8_t *socket_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -395,7 +415,7 @@ fpga_result opae_properties_get_socket_id(fpga_properties props,
 
 	ASSERT_NOT_NULL(socket_id);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -411,12 +431,11 @@ fpga_result opae_properties_get_socket_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_socket_id(fpga_properties props,
-					  uint8_t socket_id)
+fpga_result fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -428,8 +447,8 @@ fpga_result opae_properties_set_socket_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_device_id(fpga_properties props,
-					  uint16_t *device_id)
+fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
+				      uint16_t *device_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -437,7 +456,7 @@ fpga_result opae_properties_get_device_id(fpga_properties props,
 
 	ASSERT_NOT_NULL(device_id);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -453,12 +472,11 @@ fpga_result opae_properties_get_device_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_device_id(fpga_properties props,
-					  uint16_t device_id)
+fpga_result fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -470,8 +488,8 @@ fpga_result opae_properties_set_device_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_num_slots(fpga_properties props,
-					  uint32_t *num_slots)
+fpga_result fpgaPropertiesGetNumSlots(const fpga_properties prop,
+				      uint32_t *num_slots)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -479,7 +497,7 @@ fpga_result opae_properties_get_num_slots(fpga_properties props,
 
 	ASSERT_NOT_NULL(num_slots);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -503,12 +521,11 @@ fpga_result opae_properties_get_num_slots(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_num_slots(fpga_properties props,
-					  uint32_t num_slots)
+fpga_result fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -528,7 +545,7 @@ fpga_result opae_properties_set_num_slots(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_bbs_id(fpga_properties props, uint64_t *bbs_id)
+fpga_result fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -536,7 +553,7 @@ fpga_result opae_properties_get_bbs_id(fpga_properties props, uint64_t *bbs_id)
 
 	ASSERT_NOT_NULL(bbs_id);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -560,11 +577,11 @@ fpga_result opae_properties_get_bbs_id(fpga_properties props, uint64_t *bbs_id)
 	return res;
 }
 
-fpga_result opae_properties_set_bbs_id(fpga_properties props, uint64_t bbs_id)
+fpga_result fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -583,8 +600,8 @@ fpga_result opae_properties_set_bbs_id(fpga_properties props, uint64_t bbs_id)
 	return res;
 }
 
-fpga_result opae_properties_get_bbs_version(fpga_properties props,
-					    fpga_version *bbs_version)
+fpga_result fpgaPropertiesGetBBSVersion(const fpga_properties prop,
+					fpga_version *bbs_version)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -592,7 +609,7 @@ fpga_result opae_properties_get_bbs_version(fpga_properties props,
 
 	ASSERT_NOT_NULL(bbs_version);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -616,12 +633,12 @@ fpga_result opae_properties_get_bbs_version(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_bbs_version(fpga_properties props,
-					    fpga_version bbs_version)
+fpga_result fpgaPropertiesSetBBSVersion(fpga_properties prop,
+					fpga_version bbs_version)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -641,8 +658,8 @@ fpga_result opae_properties_set_bbs_version(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_vendor_id(fpga_properties props,
-					  uint16_t *vendor_id)
+fpga_result fpgaPropertiesGetVendorID(const fpga_properties prop,
+				      uint16_t *vendor_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -650,7 +667,7 @@ fpga_result opae_properties_get_vendor_id(fpga_properties props,
 
 	ASSERT_NOT_NULL(vendor_id);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -666,12 +683,11 @@ fpga_result opae_properties_get_vendor_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_vendor_id(fpga_properties props,
-					  uint16_t vendor_id)
+fpga_result fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -683,59 +699,59 @@ fpga_result opae_properties_set_vendor_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_model(fpga_properties props, char *model)
+fpga_result fpgaPropertiesGetModel(const fpga_properties prop, char *model)
 {
-	UNUSED_PARAM(props);
+	UNUSED_PARAM(prop);
 	UNUSED_PARAM(model);
 	OPAE_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_set_model(fpga_properties props, char *model)
+fpga_result fpgaPropertiesSetModel(fpga_properties prop, char *model)
 {
-	UNUSED_PARAM(props);
+	UNUSED_PARAM(prop);
 	UNUSED_PARAM(model);
 	OPAE_MSG("Model not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_get_local_memory_size(fpga_properties props,
-						  uint64_t *lms)
+fpga_result fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
+					     uint64_t *local_memory_size)
 {
-	UNUSED_PARAM(props);
-	UNUSED_PARAM(lms);
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
 	OPAE_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_set_local_memory_size(fpga_properties props,
-						  uint64_t lms)
+fpga_result fpgaPropertiesSetLocalMemorySize(fpga_properties prop,
+					     uint64_t local_memory_size)
 {
-	UNUSED_PARAM(props);
-	UNUSED_PARAM(lms);
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(local_memory_size);
 	OPAE_MSG("Local memory not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_get_capabilities(fpga_properties props,
-					     uint64_t *capabilities)
+fpga_result fpgaPropertiesGetCapabilities(const fpga_properties prop,
+					  uint64_t *capabilities)
 {
-	UNUSED_PARAM(props);
+	UNUSED_PARAM(prop);
 	UNUSED_PARAM(capabilities);
 	OPAE_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_set_capabilities(fpga_properties props,
-					     uint64_t capabilities)
+fpga_result fpgaPropertiesSetCapabilities(fpga_properties prop,
+					  uint64_t capabilities)
 {
-	UNUSED_PARAM(props);
+	UNUSED_PARAM(prop);
 	UNUSED_PARAM(capabilities);
 	OPAE_MSG("Capabilities not supported");
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result opae_properties_get_guid(fpga_properties props, fpga_guid *guid)
+fpga_result fpgaPropertiesGetGUID(const fpga_properties prop, fpga_guid *guid)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -743,7 +759,7 @@ fpga_result opae_properties_get_guid(fpga_properties props, fpga_guid *guid)
 
 	ASSERT_NOT_NULL(guid);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -765,12 +781,12 @@ fpga_result opae_properties_get_guid(fpga_properties props, fpga_guid *guid)
 	return res;
 }
 
-fpga_result opae_properties_set_guid(fpga_properties props, fpga_guid guid)
+fpga_result fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid guid)
 {
 	fpga_result res = FPGA_OK;
 	int err;
 	errno_t e;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -786,8 +802,8 @@ fpga_result opae_properties_set_guid(fpga_properties props, fpga_guid guid)
 	return res;
 }
 
-fpga_result opae_properties_get_num_mmio(fpga_properties props,
-					 uint32_t *mmio_spaces)
+fpga_result fpgaPropertiesGetNumMMIO(const fpga_properties prop,
+				     uint32_t *mmio_spaces)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -795,7 +811,7 @@ fpga_result opae_properties_get_num_mmio(fpga_properties props,
 
 	ASSERT_NOT_NULL(mmio_spaces);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -819,12 +835,11 @@ fpga_result opae_properties_get_num_mmio(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_num_mmio(fpga_properties props,
-					 uint32_t mmio_spaces)
+fpga_result fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -844,8 +859,8 @@ fpga_result opae_properties_set_num_mmio(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_num_interrupts(fpga_properties props,
-					       uint32_t *num_interrupts)
+fpga_result fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
+					   uint32_t *num_interrupts)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -853,7 +868,7 @@ fpga_result opae_properties_get_num_interrupts(fpga_properties props,
 
 	ASSERT_NOT_NULL(num_interrupts);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -877,12 +892,12 @@ fpga_result opae_properties_get_num_interrupts(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_num_interrupts(fpga_properties props,
-					       uint32_t num_interrupts)
+fpga_result fpgaPropertiesSetNumInterrupts(fpga_properties prop,
+					   uint32_t num_interrupts)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -902,8 +917,8 @@ fpga_result opae_properties_set_num_interrupts(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_accelerator_state(fpga_properties props,
-						  fpga_accelerator_state *state)
+fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
+					      fpga_accelerator_state *state)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -911,7 +926,7 @@ fpga_result opae_properties_get_accelerator_state(fpga_properties props,
 
 	ASSERT_NOT_NULL(state);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -934,12 +949,12 @@ fpga_result opae_properties_get_accelerator_state(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_accelerator_state(fpga_properties props,
-						  fpga_accelerator_state state)
+fpga_result fpgaPropertiesSetAcceleratorState(fpga_properties prop,
+					      fpga_accelerator_state state)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -958,8 +973,8 @@ fpga_result opae_properties_set_accelerator_state(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_object_id(fpga_properties props,
-					  uint64_t *object_id)
+fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
+				      uint64_t *object_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -967,7 +982,7 @@ fpga_result opae_properties_get_object_id(fpga_properties props,
 
 	ASSERT_NOT_NULL(object_id);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -983,12 +998,11 @@ fpga_result opae_properties_get_object_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_object_id(fpga_properties props,
-					  uint64_t object_id)
+fpga_result fpgaPropertiesSetObjectID(fpga_properties prop, uint64_t object_id)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -1000,8 +1014,8 @@ fpga_result opae_properties_set_object_id(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_get_num_errors(fpga_properties props,
-					   uint32_t *num_errors)
+fpga_result fpgaPropertiesGetNumErrors(const fpga_properties prop,
+				       uint32_t *num_errors)
 {
 	fpga_result res = FPGA_OK;
 	int err;
@@ -1009,7 +1023,7 @@ fpga_result opae_properties_get_num_errors(fpga_properties props,
 
 	ASSERT_NOT_NULL(num_errors);
 
-	p = opae_validate_and_lock_properties(props);
+	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
@@ -1025,12 +1039,12 @@ fpga_result opae_properties_get_num_errors(fpga_properties props,
 	return res;
 }
 
-fpga_result opae_properties_set_num_errors(fpga_properties props,
-					   uint32_t num_errors)
+fpga_result fpgaPropertiesSetNumErrors(const fpga_properties prop,
+				       uint32_t num_errors)
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	struct _fpga_properties *p = opae_validate_and_lock_properties(props);
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 

@@ -7,8 +7,8 @@ find_package(GTest)
 If(${GTest_FOUND})
   message(STATUS Found GTest)
 else()
-  include(test_config)
-  Build_GTEST()
+    include(test_config)
+    Build_GTEST()
 endif()
 
 add_subdirectory(mock)
@@ -46,6 +46,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/sysobject.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/token_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/umsg.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/userclk.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/wsid_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c)
@@ -106,12 +107,25 @@ add_mock_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
 )
 
+add_mock_test(test_opae_open_c opae-c-static
+    opae-c/test_open_c.cpp
+)
+
+add_mock_test(test_opae_props_c opae-c-static
+    opae-c/test_props_c.cpp
+)
+
 add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
 )
 
 add_mock_test(test_xfpga_error_c xfpga-static
     xfpga/test_error_c.cpp
+)
+
+add_mock_test(test_xfpga_common_c xfpga-static
+    xfpga/test_common_c.cpp
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
 )
 
 add_mock_test(test_xfpga_properties_c xfpga-static

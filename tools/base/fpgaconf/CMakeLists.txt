@@ -25,9 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
-
-include_directories(${libjson-c_INCLUDE_DIRS})
+                    ${libjson-c_INCLUDE_DIRS})
 
 add_executable(fpgaconf fpgaconf.c)
 set_install_rpath(fpgaconf)

@@ -104,21 +104,9 @@ typedef struct _opae_wrapped_token {
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_token;
 
-static inline opae_wrapped_token *
+opae_wrapped_token *
 opae_allocate_wrapped_token(fpga_token token,
-			    const opae_api_adapter_table *adapter)
-{
-	opae_wrapped_token *wtok =
-		(opae_wrapped_token *)malloc(sizeof(opae_wrapped_token));
-
-	if (wtok) {
-		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
-		wtok->opae_token = token;
-		wtok->adapter_table = (opae_api_adapter_table *)adapter;
-	}
-
-	return wtok;
-}
+			    const opae_api_adapter_table *adapter);
 
 static inline opae_wrapped_token *opae_validate_wrapped_token(fpga_token t)
 {
@@ -145,22 +133,9 @@ typedef struct _opae_wrapped_handle {
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_handle;
 
-static inline opae_wrapped_handle *
+opae_wrapped_handle *
 opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
-			     opae_api_adapter_table *adapter)
-{
-	opae_wrapped_handle *whan =
-		(opae_wrapped_handle *)malloc(sizeof(opae_wrapped_handle));
-
-	if (whan) {
-		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
-		whan->wrapped_token = wt;
-		whan->opae_handle = opae_handle;
-		whan->adapter_table = adapter;
-	}
-
-	return whan;
-}
+			     opae_api_adapter_table *adapter);
 
 static inline opae_wrapped_handle *opae_validate_wrapped_handle(fpga_handle h)
 {
@@ -177,47 +152,6 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 	free(wh);
 }
 
-//                                       o r p w
-#define OPAE_WRAPPED_PROPERTIES_MAGIC 0x6f727077
-
-typedef struct _opae_wrapped_properties {
-	uint32_t magic;
-	fpga_properties opae_properties;
-	opae_api_adapter_table *adapter_table;
-} opae_wrapped_properties;
-
-static inline opae_wrapped_properties *
-opae_allocate_wrapped_properties(fpga_properties opae_properties,
-				 opae_api_adapter_table *adapter)
-{
-	opae_wrapped_properties *wprop = (opae_wrapped_properties *)malloc(
-		sizeof(opae_wrapped_properties));
-
-	if (wprop) {
-		wprop->magic = OPAE_WRAPPED_PROPERTIES_MAGIC;
-		wprop->opae_properties = opae_properties;
-		wprop->adapter_table = adapter;
-	}
-
-	return wprop;
-}
-
-static inline opae_wrapped_properties *
-opae_validate_wrapped_properties(fpga_properties p)
-{
-	opae_wrapped_properties *wp;
-	if (!p)
-		return NULL;
-	wp = (opae_wrapped_properties *)p;
-	return (wp->magic == OPAE_WRAPPED_PROPERTIES_MAGIC) ? wp : NULL;
-}
-
-static inline void opae_destroy_wrapped_properties(opae_wrapped_properties *wp)
-{
-	wp->magic = 0;
-	free(wp);
-}
-
 //                                         e v e w
 #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
 
@@ -231,42 +165,9 @@ typedef struct _opae_wrapped_event_handle {
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_event_handle;
 
-static inline opae_wrapped_event_handle *
+opae_wrapped_event_handle *
 opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
-				   opae_api_adapter_table *adapter)
-{
-	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(
-		sizeof(opae_wrapped_event_handle));
-
-	if (wevent) {
-		pthread_mutexattr_t mattr;
-
-		if (pthread_mutexattr_init(&mattr)) {
-			OPAE_ERR("pthread_mutexattr_init() failed");
-			goto out_free;
-		}
-		if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE)) {
-			OPAE_ERR("pthread_mutexattr_settype() failed");
-			goto out_free;
-		}
-		if (pthread_mutex_init(&wevent->lock, &mattr)) {
-			OPAE_ERR("pthread_mutex_init() failed");
-			goto out_free;
-		}
-
-		pthread_mutexattr_destroy(&mattr);
-
-		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
-		wevent->flags = 0;
-		wevent->opae_event_handle = opae_event_handle;
-		wevent->adapter_table = adapter;
-	}
-
-	return wevent;
-out_free:
-	free(wevent);
-	return NULL;
-}
+				   opae_api_adapter_table *adapter);
 
 static inline opae_wrapped_event_handle *
 opae_validate_wrapped_event_handle(fpga_event_handle h)
@@ -298,21 +199,9 @@ typedef struct _opae_wrapped_object {
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_object;
 
-static inline opae_wrapped_object *
+opae_wrapped_object *
 opae_allocate_wrapped_object(fpga_object opae_object,
-			     opae_api_adapter_table *adapter)
-{
-	opae_wrapped_object *wobj =
-		(opae_wrapped_object *)malloc(sizeof(opae_wrapped_object));
-
-	if (wobj) {
-		wobj->magic = OPAE_WRAPPED_OBJECT_MAGIC;
-		wobj->opae_object = opae_object;
-		wobj->adapter_table = adapter;
-	}
-
-	return wobj;
-}
+			     opae_api_adapter_table *adapter);
 
 static inline opae_wrapped_object *opae_validate_wrapped_object(fpga_object o)
 {

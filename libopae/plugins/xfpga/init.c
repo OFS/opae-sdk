@@ -35,77 +35,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-/* global loglevel */
-static int g_loglevel = FPGA_DEFAULT_LOGLEVEL;
-static FILE *g_logfile;
-/* mutex to protect against garbled log output */
-static pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-
-void __FIXME_MAKE_VISIBLE__ fpga_print(int loglevel, char *fmt, ...)
-{
-	FILE *fp;
-	int err;
-	va_list argp;
-
-	if (loglevel > g_loglevel)
-		return;
-
-	if (loglevel == OPAE_LOG_ERROR)
-		fp = stderr;
-	else
-		fp = g_logfile == NULL ? stdout : g_logfile;
-
-	va_start(argp, fmt);
-	err = pthread_mutex_lock(&log_lock); /* ignore failure and print anyway */
-	if (err)
-		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
-	vfprintf(fp, fmt, argp);
-	err = pthread_mutex_unlock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
-	va_end(argp);
-}
-
-
 __attribute__((constructor))
 STATIC void fpga_init(void)
 {
-	g_logfile = NULL;
-
-	/* try to read loglevel from environment */
-	char *s = getenv("LIBOPAE_LOG");
-	if (s) {
-		g_loglevel = atoi(s);
-#ifndef LIBFGPA_DEBUG
-		if (g_loglevel >= OPAE_LOG_DEBUG)
-			fprintf(stderr,
-				"WARNING: Environment variable LIBOPAE_LOG is "
-				"set to output debug\nmessages, "
-				"but libopae-c was not built with debug "
-				"information.\n");
-#endif
-	}
-
-	s = getenv("LIBOPAE_LOGFILE");
-	if (s) {
-		g_logfile = fopen(s, "w");
-		if (g_logfile == NULL) {
-			fprintf(stderr, "Could not open log file for writing: %s. ", s);
-			fprintf(stderr, "Error is: %s\n", strerror(errno));
-		}
-	}
-
-	if (g_logfile == NULL)
-		g_logfile = stdout;
 }
 
 __attribute__((destructor))
 STATIC void fpga_release(void)
 {
 	token_cleanup();
-
-	if (g_logfile != NULL && g_logfile != stdout) {
-		fclose(g_logfile);
-	}
-	g_logfile = NULL;
 }

@@ -28,19 +28,56 @@
  */
 
 #include "test_system.h"
-#include <dlfcn.h>
 #include <stdarg.h>
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 #include "c_test_system.h"
 #include "test_utils.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#include <dlfcn.h>
+
+void * __builtin_return_address(unsigned level);
+
 // hijack malloc
 static bool _invalidate_malloc = false;
+static uint32_t _invalidate_malloc_after = 0;
+static const char * _invalidate_malloc_when_called_from = nullptr;
 void *malloc(size_t size) {
   if (_invalidate_malloc) {
-    _invalidate_malloc = false;
-    return nullptr;
+
+    if (!_invalidate_malloc_when_called_from) {
+
+        if (!_invalidate_malloc_after) {
+          _invalidate_malloc = false;
+          return nullptr;
+        }
+
+        --_invalidate_malloc_after;
+
+    } else {
+        void *caller = __builtin_return_address(0);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+        else
+            res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+
+        if (!_invalidate_malloc_after && !res) {
+          _invalidate_malloc = false;
+          _invalidate_malloc_when_called_from = nullptr;
+          return nullptr;
+        } else if (!res)
+            --_invalidate_malloc_after;
+
+    }
+
   }
   return __libc_malloc(size);
 }
@@ -120,7 +157,7 @@ static platform_db PLATFORMS = {
                        .bbs_version = {6, 3, 0},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
-                       .num_interrupts = 1,
+                       .num_interrupts = 0,
                        .fme_object_id = 0xf500000,
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
@@ -153,6 +190,7 @@ test_system *test_system::instance_ = 0;
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
+  fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
@@ -185,7 +223,7 @@ std::string test_system::prepare_syfs(const test_platform &platform) {
 void test_system::set_root(const char *root) { root_ = root; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
-  if (src.find("/sys/class/fpga") == 0 || src.find("/dev/intel-fpga") == 0) {
+  if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0) {
     if (!root_.empty() && root_.size() > 1) {
       return root_ + src;
     }
@@ -196,11 +234,13 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
+  ASSERT_FN(fopen_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
+  ASSERT_FN(scandir_);
 }
 
 void test_system::finalize() {
@@ -273,6 +313,11 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   return fd;
 }
 
+FILE *test_system::fopen(const std::string &path, const std::string &mode) {
+  std::string syspath = get_sysfs_path(path);
+  return fopen_(syspath.c_str(), mode.c_str());
+}
+
 int test_system::close(int fd) { return close_(fd); }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
@@ -315,7 +360,11 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
-void test_system::invalidate_malloc() { _invalidate_malloc = true; }
+void test_system::invalidate_malloc(uint32_t after, const char *when_called_from) {
+  _invalidate_malloc = true;
+  _invalidate_malloc_after = after;
+  _invalidate_malloc_when_called_from = when_called_from;
+}
 
 }  // end of namespace testing
 }  // end of namespace opae
@@ -328,6 +377,10 @@ int opae_test_open(const char *path, int flags) {
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+FILE * opae_test_fopen(const char *path, const char *mode) {
+  return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
 int opae_test_close(int fd) {
