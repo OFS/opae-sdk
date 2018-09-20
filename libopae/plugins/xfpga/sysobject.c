@@ -200,7 +200,7 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		*(uint64_t *)_obj->buffer = value;
 	}
 	fd = open(_obj->path, _obj->perm);
-	if (fd < 0 ) {
+	if (fd < 0) {
 		FPGA_ERR("Error opening %s: %s", _obj->path, strerror(errno));
 		return FPGA_EXCEPTION;
 	}
@@ -216,7 +216,6 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 	}
-out_close:
 	close(fd);
 	return res;
 }

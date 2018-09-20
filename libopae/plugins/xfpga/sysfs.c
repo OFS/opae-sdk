@@ -922,8 +922,6 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	struct _fpga_object *obj = NULL;
 	struct stat objstat;
 	int statres;
-	int fd = -1;
-	ssize_t bytes_read = 0;
 	fpga_result res = FPGA_OK;
 	if (flags & FPGA_OBJECT_GLOB) {
 		res = opae_glob_path(sysfspath);
