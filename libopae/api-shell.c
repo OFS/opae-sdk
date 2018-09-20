@@ -273,7 +273,6 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		*prop = pr;
 
 	} else {
-		fpga_token parent = NULL;
 		struct _fpga_properties *p;
 		int err;
 
@@ -328,7 +327,6 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
 	fpga_result res;
-	fpga_token parent = NULL;
 	struct _fpga_properties *p;
 	int err;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
