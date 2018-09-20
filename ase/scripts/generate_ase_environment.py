@@ -472,7 +472,8 @@ def config_qsys_sources(filelist, vlog_srcs):
             for dir, subdirs, files in os.walk(d):
                 for fn in files:
                     if ((os.path.basename(dir) == 'synth') and
-                            (fn.endswith('.v') or fn.endswith('.sv'))):
+                            (fn.endswith('.v') or fn.endswith('.vhd')
+                             or fn.endswith('.sv'))):
                         full_path = os.path.join(dir, fn)
                         # Is the module (file) name new?
                         if (fn not in sim_files_found and
