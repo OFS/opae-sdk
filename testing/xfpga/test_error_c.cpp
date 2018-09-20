@@ -52,7 +52,7 @@ class error_c_p
  public:
   void delete_errors(std::string);
  protected:
-  error_c_p() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr) {}
+  error_c_p() : tmpsysfs_("mocksys-XXXXXX") {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -74,15 +74,8 @@ class error_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for (auto t : tokens_) {
-      if (t != nullptr) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-      }
-    }
-
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -92,8 +85,6 @@ class error_c_p
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
-  fpga_handle handle_;
   test_platform platform_;
   test_system *system_;
   _fpga_token fake_fme_token_;
