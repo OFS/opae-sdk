@@ -74,7 +74,7 @@ class error_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
