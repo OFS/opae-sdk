@@ -28,6 +28,7 @@
  */
 
 #include "test_system.h"
+#include <iostream>
 #include <stdarg.h>
 #include <algorithm>
 #include <fstream>
@@ -185,7 +186,7 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return keys;
 }
 
-test_system *test_system::instance_ = 0;
+test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
@@ -308,6 +309,9 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
+    std::map<int, mock_object *>::iterator it = fds_.find(fd);
+    if (it != fds_.end())
+        delete it->second;          
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
@@ -318,7 +322,15 @@ FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   return fopen_(syspath.c_str(), mode.c_str());
 }
 
-int test_system::close(int fd) { return close_(fd); }
+int test_system::close(int fd)
+{
+  std::map<int, mock_object *>::iterator it = fds_.find(fd);
+  if (it != fds_.end()) {
+    delete it->second;
+    fds_.erase(it);
+  }
+  return close_(fd);
+}
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
   auto mock_it = fds_.find(fd);
