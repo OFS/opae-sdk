@@ -154,7 +154,7 @@ class umsg_c_p
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -163,7 +163,14 @@ class umsg_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
@@ -174,7 +181,7 @@ class umsg_c_p
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -285,7 +292,6 @@ TEST_P (umsg_c_p, test_umsg_drv_02) {
 
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
-
 
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
@@ -403,6 +409,7 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
   EXPECT_TRUE(umsg_ptr != NULL) << "\t this is umsg:" << res;
   printf("umsg_ptr %p", umsg_ptr);
 }
+
 
 /**
  * @test       Umsg_drv_07
