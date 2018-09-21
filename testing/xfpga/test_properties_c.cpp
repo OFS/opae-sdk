@@ -62,10 +62,6 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&props_), FPGA_OK);
     EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 

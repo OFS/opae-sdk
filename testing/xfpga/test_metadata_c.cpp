@@ -53,10 +53,6 @@ class metadata_c
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 

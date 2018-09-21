@@ -40,6 +40,7 @@
 #define _GNU_SOURCE 1
 #endif
 #include <dlfcn.h>
+#include <sys/stat.h>
 
 void * __builtin_return_address(unsigned level);
 
@@ -221,6 +222,21 @@ std::string test_system::prepare_syfs(const test_platform &platform) {
   return "/";
 }
 
+void test_system::remove_sysfs() {
+  if (root_.find("tmpsysfs") != std::string::npos) {
+    struct stat st;
+    if (stat(root_.c_str(), &st)) {
+      std::cerr << "Error stat'ing root dir (" << root_ << "):" << strerror(errno) << "\n";
+      return;
+    }
+    if (S_ISDIR(st.st_mode)){
+      auto cmd = "rm -rf " + root_;
+      std::system(cmd.c_str());
+    }
+  }
+}
+
+
 void test_system::set_root(const char *root) { root_ = root; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
@@ -251,6 +267,7 @@ void test_system::finalize() {
       kv.second = nullptr;
     }
   }
+  remove_sysfs();
   root_ = "";
   fds_.clear();
 }
