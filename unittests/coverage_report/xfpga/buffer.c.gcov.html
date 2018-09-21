@@ -1,0 +1,463 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info.cleaned - xfpga/buffer.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">xfpga</a> - buffer.c<span style="font-size: 80%;"> (source / <a href="buffer.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info.cleaned</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">111</td>
+            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntryLo">74.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-09-20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright(c) 2017-2018, Intel Corporation</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+<span class="lineNum">       4 </span>            : // modification, are permitted provided that the following conditions are met:
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // * Redistributions of  source code  must retain the  above copyright notice,
+<span class="lineNum">       7 </span>            : //   this list of conditions and the following disclaimer.
+<span class="lineNum">       8 </span>            : // * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">       9 </span>            : //   this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      10 </span>            : //   and/or other materials provided with the distribution.
+<span class="lineNum">      11 </span>            : // * Neither the name  of Intel Corporation  nor the names of its contributors
+<span class="lineNum">      12 </span>            : //   may be used to  endorse or promote  products derived  from this  software
+<span class="lineNum">      13 </span>            : //   without specific prior written permission.
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+<span class="lineNum">      16 </span>            : // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+<span class="lineNum">      17 </span>            : // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+<span class="lineNum">      18 </span>            : // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+<span class="lineNum">      19 </span>            : // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+<span class="lineNum">      20 </span>            : // CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+<span class="lineNum">      21 </span>            : // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+<span class="lineNum">      22 </span>            : // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+<span class="lineNum">      23 </span>            : // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+<span class="lineNum">      24 </span>            : // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+<span class="lineNum">      25 </span>            : // POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef HAVE_CONFIG_H
+<span class="lineNum">      28 </span>            : #include &lt;config.h&gt;
+<span class="lineNum">      29 </span>            : #endif // HAVE_CONFIG_H
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &quot;opae/access.h&quot;
+<span class="lineNum">      32 </span>            : #include &quot;opae/utils.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;common_int.h&quot;
+<span class="lineNum">      34 </span>            : #include &quot;intel-fpga.h&quot;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      37 </span>            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">      38 </span>            : #include &lt;sys/ioctl.h&gt;
+<span class="lineNum">      39 </span>            : #include &lt;sys/mman.h&gt;
+<span class="lineNum">      40 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      41 </span>            : #include &lt;stdbool.h&gt;
+<span class="lineNum">      42 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : /* Others */
+<span class="lineNum">      45 </span>            : #define KB 1024
+<span class="lineNum">      46 </span>            : #define MB (1024 * KB)
+<span class="lineNum">      47 </span>            : #define GB (1024UL * MB)
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #define PROTECTION (PROT_READ | PROT_WRITE)
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : #ifndef MAP_HUGETLB
+<span class="lineNum">      52 </span>            : #define MAP_HUGETLB 0x40000
+<span class="lineNum">      53 </span>            : #endif
+<span class="lineNum">      54 </span>            : #ifndef MAP_HUGE_SHIFT
+<span class="lineNum">      55 </span>            : #define MAP_HUGE_SHIFT 26
+<span class="lineNum">      56 </span>            : #endif
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : #define MAP_1G_HUGEPAGE (0x1e &lt;&lt; MAP_HUGE_SHIFT) /* 2 ^ 0x1e = 1G */
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : #ifdef __ia64__
+<span class="lineNum">      61 </span>            : #define ADDR (void *)(0x8000000000000000UL)
+<span class="lineNum">      62 </span>            : #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
+<span class="lineNum">      63 </span>            : #define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
+<span class="lineNum">      64 </span>            : #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+<span class="lineNum">      65 </span>            : #else
+<span class="lineNum">      66 </span>            : #define ADDR (void *)(0x0UL)
+<span class="lineNum">      67 </span>            : #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
+<span class="lineNum">      68 </span>            : #define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
+<span class="lineNum">      69 </span>            : #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+<span class="lineNum">      70 </span>            : #endif
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : /*
+<a name="74"><span class="lineNum">      74 </span>            :  * Allocate (mmap) new buffer</a>
+<span class="lineNum">      75 </span>            :  */
+<span class="lineNum">      76 </span><span class="lineCov">          4 : STATIC fpga_result buffer_allocate(void **addr, uint64_t len, int flags)</span>
+<span class="lineNum">      77 </span>            : {
+<span class="lineNum">      78 </span><span class="lineCov">          4 :         void *addr_local = NULL;</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :         UNUSED_PARAM(flags);
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">          4 :         ASSERT_NOT_NULL(addr);</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :         /* ! FPGA_BUF_PREALLOCATED, allocate memory using huge pages
+<span class="lineNum">      85 </span>            :            For buffer &gt; 2M, use 1G-hugepage to ensure pages are
+<span class="lineNum">      86 </span>            :            contiguous */
+<span class="lineNum">      87 </span><span class="lineCov">          4 :         if (len &gt; 2 * MB)</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 addr_local = mmap(ADDR, len, PROTECTION, FLAGS_1G, 0, 0);</span>
+<span class="lineNum">      89 </span><span class="lineCov">          4 :         else if (len &gt; 4 * KB)</span>
+<span class="lineNum">      90 </span><span class="lineCov">          2 :                 addr_local = mmap(ADDR, len, PROTECTION, FLAGS_2M, 0, 0);</span>
+<span class="lineNum">      91 </span>            :         else
+<span class="lineNum">      92 </span><span class="lineCov">          2 :                 addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);</span>
+<span class="lineNum">      93 </span><span class="lineCov">          4 :         if (addr_local == MAP_FAILED) {</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 if (errno == ENOMEM) {</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                         if (len &gt; 2 * MB)</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                 FPGA_MSG(&quot;Could not allocate buffer (no free 1 &quot;</span>
+<span class="lineNum">      97 </span>            :                                          &quot;GiB huge pages)&quot;);
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         if (len &gt; 4 * KB)</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                                 FPGA_MSG(&quot;Could not allocate buffer (no free 2 &quot;</span>
+<span class="lineNum">     100 </span>            :                                          &quot;MiB huge pages)&quot;);
+<span class="lineNum">     101 </span>            :                         else
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                                 FPGA_MSG(&quot;Could not allocate buffer (out of &quot;</span>
+<span class="lineNum">     103 </span>            :                                          &quot;memory)&quot;);
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         return FPGA_NO_MEMORY;</span>
+<span class="lineNum">     105 </span>            :                 }
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;FPGA buffer mmap failed: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     108 </span>            :         }
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          4 :         *addr = addr_local;</span>
+<span class="lineNum">     111 </span><span class="lineCov">          4 :         return FPGA_OK;</span>
+<span class="lineNum">     112 </span>            : }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : /*
+<a name="115"><span class="lineNum">     115 </span>            :  * Release (unmap) allocated buffer</a>
+<span class="lineNum">     116 </span>            :  */
+<span class="lineNum">     117 </span><span class="lineCov">          4 : STATIC fpga_result buffer_release(void *addr, uint64_t len)</span>
+<span class="lineNum">     118 </span>            : {
+<span class="lineNum">     119 </span>            :         /* If the buffer allocation was backed by hugepages, then
+<span class="lineNum">     120 </span>            :          * len must be rounded up to the nearest hugepage size,
+<span class="lineNum">     121 </span>            :          * otherwise munmap will fail.
+<span class="lineNum">     122 </span>            :          *
+<span class="lineNum">     123 </span>            :          * Buffer with size larger than 2MB is backed by 1GB page(s),
+<span class="lineNum">     124 </span>            :          * round up the size to the nearest GB boundary.
+<span class="lineNum">     125 </span>            :          *
+<span class="lineNum">     126 </span>            :          * Buffer with size smaller than 2MB but larger than 4KB is
+<span class="lineNum">     127 </span>            :          * backed by a 2MB pages, round up the size to 2MB.
+<span class="lineNum">     128 </span>            :          *
+<span class="lineNum">     129 </span>            :          * Buffer with size smaller than 4KB is backed by a 4KB page,
+<span class="lineNum">     130 </span>            :          * and its size is already 4KB aligned.
+<span class="lineNum">     131 </span>            :          */
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">          4 :         if (len &gt; 2 * MB)</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 len = (len + (1 * GB - 1)) &amp; (~(1 * GB - 1));</span>
+<span class="lineNum">     135 </span><span class="lineCov">          4 :         else if (len &gt; 4 * KB)</span>
+<span class="lineNum">     136 </span><span class="lineCov">          2 :                 len = 2 * MB;</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">          4 :         if (munmap(addr, len)) {</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;FPGA buffer munmap failed: %s&quot;,</span>
+<span class="lineNum">     140 </span>            :                          strerror(errno));
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">          4 :         return FPGA_OK;</span>
+<a name="145"><span class="lineNum">     145 </span>            : }</a>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">         54 : fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,</span>
+<span class="lineNum">     148 </span>            :                                            void **buf_addr, uint64_t *wsid,
+<span class="lineNum">     149 </span>            :                                            int flags)
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineCov">         54 :         void *addr = NULL;</span>
+<span class="lineNum">     152 </span><span class="lineCov">         54 :         fpga_result result = FPGA_OK;</span>
+<span class="lineNum">     153 </span><span class="lineCov">         54 :         struct _fpga_handle *_handle = (struct _fpga_handle *) handle;</span>
+<span class="lineNum">     154 </span>            :         int err;
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineCov">         54 :         bool preallocated = (flags &amp; FPGA_BUF_PREALLOCATED);</span>
+<span class="lineNum">     157 </span><span class="lineCov">         54 :         bool quiet = (flags &amp; FPGA_BUF_QUIET);</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            :         uint64_t pg_size;
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineCov">         54 :         result = handle_check_and_lock(_handle);</span>
+<span class="lineNum">     162 </span><span class="lineCov">         54 :         if (result)</span>
+<span class="lineNum">     163 </span><span class="lineCov">          6 :                 return result;</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            :         /* Assure wsid is a valid pointer */
+<span class="lineNum">     166 </span><span class="lineCov">         48 :         if (!wsid) {</span>
+<span class="lineNum">     167 </span><span class="lineCov">          6 :                 FPGA_MSG(&quot;WSID is NULL&quot;);</span>
+<span class="lineNum">     168 </span><span class="lineCov">          6 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     169 </span><span class="lineCov">          6 :                 goto out_unlock;</span>
+<span class="lineNum">     170 </span>            :         }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">         42 :         if (flags &amp; (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET))) {</span>
+<span class="lineNum">     173 </span><span class="lineCov">          6 :                 FPGA_MSG(&quot;Unrecognized flags&quot;);</span>
+<span class="lineNum">     174 </span><span class="lineCov">          6 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     175 </span><span class="lineCov">          6 :                 goto out_unlock;</span>
+<span class="lineNum">     176 </span>            :         }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineCov">         36 :         pg_size = (uint64_t) sysconf(_SC_PAGE_SIZE);</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">         36 :         if (preallocated) {</span>
+<span class="lineNum">     181 </span>            :                 /* A special case: respond FPGA_OK when !buf_addr and !len
+<span class="lineNum">     182 </span>            :                  * as an indication that FPGA_BUF_PREALLOCATED is supported
+<span class="lineNum">     183 </span>            :                  * by the library. */
+<span class="lineNum">     184 </span><span class="lineCov">         25 :                 if (!buf_addr &amp;&amp; !len) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">          6 :                         result = FPGA_OK;</span>
+<span class="lineNum">     186 </span><span class="lineCov">          6 :                         goto out_unlock;</span>
+<span class="lineNum">     187 </span>            :                 }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :                 /* buffer is already allocated, check addresses */
+<span class="lineNum">     190 </span><span class="lineCov">         19 :                 if (!buf_addr) {</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;No preallocated buffer address given&quot;);</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     194 </span>            :                 }
+<span class="lineNum">     195 </span><span class="lineCov">         19 :                 if (!(*buf_addr)) {</span>
+<span class="lineNum">     196 </span><span class="lineCov">          9 :                         FPGA_MSG(&quot;Preallocated buffer address is NULL&quot;);</span>
+<span class="lineNum">     197 </span><span class="lineCov">          9 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          9 :                         goto out_unlock;</span>
+<span class="lineNum">     199 </span>            :                 }
+<span class="lineNum">     200 </span>            :                 /* check length */
+<span class="lineNum">     201 </span><span class="lineCov">         10 :                 if (!len || (len &amp; (pg_size - 1))) {</span>
+<span class="lineNum">     202 </span><span class="lineCov">         10 :                         FPGA_MSG(&quot;Preallocated buffer size is not a non-zero multiple of page size&quot;);</span>
+<span class="lineNum">     203 </span><span class="lineCov">         10 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     204 </span><span class="lineCov">         10 :                         goto out_unlock;</span>
+<span class="lineNum">     205 </span>            :                 }
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 addr = *buf_addr;</span>
+<span class="lineNum">     207 </span>            :         } else {
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">         11 :                 if (!buf_addr) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">          6 :                         FPGA_MSG(&quot;buffer address is NULL&quot;);</span>
+<span class="lineNum">     211 </span><span class="lineCov">          6 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     212 </span><span class="lineCov">          6 :                         goto out_unlock;</span>
+<span class="lineNum">     213 </span>            :                 }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineCov">          5 :                 if (!len) {</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;buffer length is zero&quot;);</span>
+<span class="lineNum">     217 </span><span class="lineCov">          1 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     218 </span><span class="lineCov">          1 :                         goto out_unlock;</span>
+<span class="lineNum">     219 </span>            :                 }
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            :                 /* round up to nearest page boundary */
+<span class="lineNum">     222 </span><span class="lineCov">          4 :                 if (len &amp; (pg_size - 1)) {</span>
+<span class="lineNum">     223 </span><span class="lineCov">          1 :                         len = pg_size + (len &amp; ~(pg_size - 1));</span>
+<span class="lineNum">     224 </span>            :                 }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">          4 :                 result = buffer_allocate(&amp;addr, len, flags);</span>
+<span class="lineNum">     227 </span><span class="lineCov">          4 :                 if (result != FPGA_OK) {</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     229 </span>            :                 }
+<span class="lineNum">     230 </span>            :         }
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            :         /* Set ioctl fpga_port_dma_map struct parameters */
+<span class="lineNum">     233 </span><span class="lineCov">          8 :         struct fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),</span>
+<span class="lineNum">     234 </span>            :                                             .flags = 0,
+<span class="lineNum">     235 </span><span class="lineCov">          4 :                                             .user_addr = (__u64) addr,</span>
+<span class="lineNum">     236 </span>            :                                             .length = (__u64) len,
+<span class="lineNum">     237 </span>            :                                             .iova = 0};
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            :         /* Dispatch ioctl command */
+<span class="lineNum">     240 </span><span class="lineCov">          4 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_DMA_MAP, &amp;dma_map) != 0) {</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 if (!preallocated) {</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                         buffer_release(addr, len);</span>
+<span class="lineNum">     243 </span>            :                 }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 if (!quiet) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;FPGA_PORT_DMA_MAP ioctl failed: %s&quot;,</span>
+<span class="lineNum">     247 </span>            :                                  strerror(errno));
+<span class="lineNum">     248 </span>            :                 }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     252 </span>            :         }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         /* Generate unique workspace ID */
+<span class="lineNum">     255 </span><span class="lineCov">          4 :         *wsid = wsid_gen();</span>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :         /* Add to workspace id in order to store buffer length */
+<span class="lineNum">     258 </span><span class="lineCov">          4 :         if (!wsid_add(&amp;_handle-&gt;wsid_root,</span>
+<span class="lineNum">     259 </span>            :                       *wsid,
+<span class="lineNum">     260 </span><span class="lineCov">          4 :                       dma_map.user_addr,</span>
+<span class="lineNum">     261 </span><span class="lineCov">          4 :                       dma_map.iova,</span>
+<span class="lineNum">     262 </span>            :                       len,
+<span class="lineNum">     263 </span>            :                       0,
+<span class="lineNum">     264 </span>            :                       0,
+<span class="lineNum">     265 </span>            :                       flags)) {
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 if (!preallocated) {</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                         buffer_release(addr, len);</span>
+<span class="lineNum">     268 </span>            :                 }
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to add workspace id %lu&quot;, *wsid);</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 result = FPGA_NO_MEMORY;</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     273 </span>            :         }
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :         /* Update buf_addr */
+<span class="lineNum">     276 </span><span class="lineCov">          4 :         if (buf_addr)</span>
+<span class="lineNum">     277 </span><span class="lineCov">          4 :                 *buf_addr = addr;</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            :         /* Return */
+<span class="lineNum">     280 </span><span class="lineCov">          4 :         result = FPGA_OK;</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span>            : out_unlock:
+<span class="lineNum">     283 </span><span class="lineCov">         48 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
+<span class="lineNum">     284 </span><span class="lineCov">         48 :         if (err) {</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
+<span class="lineNum">     286 </span>            :         }
+<span class="lineNum">     287 </span><span class="lineCov">         48 :         return result;</span>
+<span class="lineNum">     288 </span>            : }
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<span class="lineNum">     290 </span>            : fpga_result __FPGA_API__
+<span class="lineNum">     291 </span><span class="lineCov">         16 : xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)</span>
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span>            :         void *buf_addr;
+<span class="lineNum">     294 </span>            :         uint64_t iova;
+<span class="lineNum">     295 </span>            :         uint64_t len;
+<span class="lineNum">     296 </span>            :         int err;
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineCov">         16 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     299 </span><span class="lineCov">         16 :         fpga_result result = FPGA_NOT_FOUND;</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineCov">         16 :         result = handle_check_and_lock(_handle);</span>
+<span class="lineNum">     302 </span><span class="lineCov">         16 :         if (result)</span>
+<span class="lineNum">     303 </span><span class="lineCov">          6 :                 return result;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span>            :         /* Fetch the buffer physical address and length */
+<span class="lineNum">     306 </span><span class="lineCov">         10 :         struct wsid_map *wm = wsid_find(_handle-&gt;wsid_root, wsid);</span>
+<span class="lineNum">     307 </span><span class="lineCov">         10 :         if (!wm) {</span>
+<span class="lineNum">     308 </span><span class="lineCov">          6 :                 FPGA_MSG(&quot;WSID not found&quot;);</span>
+<span class="lineNum">     309 </span><span class="lineCov">          6 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     310 </span><span class="lineCov">          6 :                 goto out_unlock;</span>
+<span class="lineNum">     311 </span>            :         }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">          4 :         buf_addr = (void *) wm-&gt;addr;</span>
+<span class="lineNum">     314 </span><span class="lineCov">          4 :         iova = wm-&gt;phys;</span>
+<span class="lineNum">     315 </span><span class="lineCov">          4 :         len = wm-&gt;len;</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">          4 :         bool preallocated = (wm-&gt;flags &amp; FPGA_BUF_PREALLOCATED);</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :         /* Set ioctl fpga_port_dma_unmap struct parameters */
+<span class="lineNum">     320 </span><span class="lineCov">          4 :         struct fpga_port_dma_unmap dma_unmap = {.argsz = sizeof(dma_unmap),</span>
+<span class="lineNum">     321 </span>            :                                                 .flags = 0,
+<span class="lineNum">     322 </span>            :                                                 .iova = iova};
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :         /* Dispatch ioctl command */
+<span class="lineNum">     325 </span><span class="lineCov">          4 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_DMA_UNMAP, &amp;dma_unmap) != 0) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 if (!preallocated) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                         buffer_release(buf_addr, len);</span>
+<span class="lineNum">     328 </span>            :                 }
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;FPGA_PORT_DMA_UNMAP ioctl failed: %s&quot;,</span>
+<span class="lineNum">     331 </span>            :                          strerror(errno));
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         goto ws_free;</span>
+<span class="lineNum">     334 </span>            :         }
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :         /* If the buffer was allocated in xfpga_fpgaPrepareBuffer() (i.e. it was not
+<span class="lineNum">     337 </span>            :          * preallocated), we need to unmap it here. Otherwise (if it was
+<span class="lineNum">     338 </span>            :          * preallocated) the mapping needs to stay intact. */
+<span class="lineNum">     339 </span><span class="lineCov">          4 :         if (!preallocated) {</span>
+<span class="lineNum">     340 </span><span class="lineCov">          4 :                 result = buffer_release(buf_addr, len);</span>
+<span class="lineNum">     341 </span><span class="lineCov">          4 :                 if (result != FPGA_OK) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Buffer release failed&quot;);</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :                         goto ws_free;</span>
+<span class="lineNum">     344 </span>            :                 }
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :         /* Return */
+<span class="lineNum">     348 </span><span class="lineCov">          4 :         result = FPGA_OK;</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            : ws_free:
+<span class="lineNum">     351 </span>            :         /* Remove workspace */
+<span class="lineNum">     352 </span><span class="lineCov">          4 :         wsid_del(&amp;_handle-&gt;wsid_root, wsid);</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            : out_unlock:
+<span class="lineNum">     355 </span><span class="lineCov">         10 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
+<span class="lineNum">     356 </span><span class="lineCov">         10 :         if (err) {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
+<span class="lineNum">     358 </span>            :         }
+<span class="lineNum">     359 </span><span class="lineCov">         10 :         return result;</span>
+<a name="360"><span class="lineNum">     360 </span>            : }</a>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span><span class="lineCov">         16 : fpga_result __FPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,</span>
+<span class="lineNum">     363 </span>            :                                           uint64_t *ioaddr)
+<span class="lineNum">     364 </span>            : {
+<span class="lineNum">     365 </span><span class="lineCov">         16 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     366 </span>            :         struct wsid_map *wm;
+<span class="lineNum">     367 </span><span class="lineCov">         16 :         fpga_result result = FPGA_OK;</span>
+<span class="lineNum">     368 </span>            :         int err;
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineCov">         16 :         result = handle_check_and_lock(_handle);</span>
+<span class="lineNum">     371 </span><span class="lineCov">         16 :         if (result)</span>
+<span class="lineNum">     372 </span><span class="lineCov">          6 :                 return result;</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineCov">         10 :         wm = wsid_find(_handle-&gt;wsid_root, wsid);</span>
+<span class="lineNum">     375 </span><span class="lineCov">         10 :         if (!wm) {</span>
+<span class="lineNum">     376 </span><span class="lineCov">          6 :                 FPGA_MSG(&quot;WSID not found&quot;);</span>
+<span class="lineNum">     377 </span><span class="lineCov">          6 :                 result = FPGA_NOT_FOUND;</span>
+<span class="lineNum">     378 </span>            :         } else {
+<span class="lineNum">     379 </span><span class="lineCov">          4 :                 *ioaddr = wm-&gt;phys;</span>
+<span class="lineNum">     380 </span>            :         }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineCov">         10 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
+<span class="lineNum">     383 </span><span class="lineCov">         10 :         if (err) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
+<span class="lineNum">     385 </span>            :         }
+<span class="lineNum">     386 </span><span class="lineCov">         10 :         return result;</span>
+<span class="lineNum">     387 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

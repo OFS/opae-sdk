@@ -1,0 +1,558 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info.cleaned - xfpga/reconf.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">xfpga</a> - reconf.c<span style="font-size: 80%;"> (source / <a href="reconf.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info.cleaned</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">212</td>
+            <td class="headerCovTableEntryLo">21.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-09-20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright(c) 2017-2018, Intel Corporation</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+<span class="lineNum">       4 </span>            : // modification, are permitted provided that the following conditions are met:
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // * Redistributions of  source code  must retain the  above copyright notice,
+<span class="lineNum">       7 </span>            : //   this list of conditions and the following disclaimer.
+<span class="lineNum">       8 </span>            : // * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">       9 </span>            : //   this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      10 </span>            : //   and/or other materials provided with the distribution.
+<span class="lineNum">      11 </span>            : // * Neither the name  of Intel Corporation  nor the names of its contributors
+<span class="lineNum">      12 </span>            : //   may be used to  endorse or promote  products derived  from this  software
+<span class="lineNum">      13 </span>            : //   without specific prior written permission.
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+<span class="lineNum">      16 </span>            : // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+<span class="lineNum">      17 </span>            : // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+<span class="lineNum">      18 </span>            : // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+<span class="lineNum">      19 </span>            : // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+<span class="lineNum">      20 </span>            : // CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+<span class="lineNum">      21 </span>            : // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+<span class="lineNum">      22 </span>            : // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+<span class="lineNum">      23 </span>            : // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+<span class="lineNum">      24 </span>            : // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+<span class="lineNum">      25 </span>            : // POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef HAVE_CONFIG_H
+<span class="lineNum">      28 </span>            : #include &lt;config.h&gt;
+<span class="lineNum">      29 </span>            : #endif // HAVE_CONFIG_H
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;ctype.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : #include &quot;safe_string/safe_string.h&quot;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #include &quot;xfpga.h&quot;
+<span class="lineNum">      40 </span>            : #include &quot;bitstream_int.h&quot;
+<span class="lineNum">      41 </span>            : #include &quot;common_int.h&quot;
+<span class="lineNum">      42 </span>            : #include &quot;intel-fpga.h&quot;
+<span class="lineNum">      43 </span>            : #include &quot;usrclk/user_clk_pgm_uclock.h&quot;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #include &quot;reconf_int.h&quot;
+<span class="lineNum">      46 </span>            : // sysfs attributes
+<span class="lineNum">      47 </span>            : #define PORT_SYSFS_ERRORS     &quot;errors/errors&quot;
+<span class="lineNum">      48 </span>            : #define PORT_SYSFS_ERR_CLEAR  &quot;errors/clear&quot;
+<span class="lineNum">      49 </span>            : #define PWRMGMT_THRESHOLD1    &quot;power_mgmt/threshold1&quot;
+<span class="lineNum">      50 </span>            : #define PWRMGMT_THRESHOLD2    &quot;power_mgmt/threshold2&quot;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : // Max power values
+<span class="lineNum">      53 </span>            : #define FPGA_BBS_IDLE_POWER   30            // watts
+<span class="lineNum">      54 </span>            : #define FPGA_MAX_POWER        90            // watts
+<span class="lineNum">      55 </span>            : #define FPGA_GBS_MAX_POWER    60            // watts
+<span class="lineNum">      56 </span>            : #define FPGA_THRESHOLD2(x)    ((x*10)/100)  // threshold1 + 10%
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : #pragma pack(push, 1)
+<span class="lineNum">      59 </span>            : // GBS Header
+<span class="lineNum">      60 </span>            : struct bitstream_header {
+<span class="lineNum">      61 </span>            :         uint32_t magic;
+<span class="lineNum">      62 </span>            :         uint64_t ifid_l;
+<span class="lineNum">      63 </span>            :         uint64_t ifid_h;
+<span class="lineNum">      64 </span>            : };
+<span class="lineNum">      65 </span>            : #pragma pack(pop)
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : // Reconnfigure Error CSR
+<span class="lineNum">      68 </span>            : struct reconf_error {
+<span class="lineNum">      69 </span>            :         union {
+<span class="lineNum">      70 </span>            :                 uint64_t csr;
+<span class="lineNum">      71 </span>            :                 struct {
+<span class="lineNum">      72 </span>            :                         uint64_t  reconf_operation_error:1;                   /* PR operation error detected */
+<span class="lineNum">      73 </span>            :                         uint64_t  reconf_CRC_error:1;                         /* PR CRC error detected*/
+<span class="lineNum">      74 </span>            :                         uint64_t  reconf_incompatible_bitstream_error:1;      /* PR incompatible bitstream error detected */
+<span class="lineNum">      75 </span>            :                         uint64_t  reconf_IP_protocol_error:1;                 /* PR IP protocol error detected */
+<span class="lineNum">      76 </span>            :                         uint64_t  reconf_FIFO_overflow_error:1;               /* PR FIFO overflow error detected */
+<span class="lineNum">      77 </span>            :                         uint64_t  reconf_timeout_error:1;                     /* PR timeout error detected */
+<span class="lineNum">      78 </span>            :                         uint64_t  reconf_secure_load_error:1;                 /* PR secure load error detected */
+<span class="lineNum">      79 </span>            :                         uint64_t  rsvd:57;                                    /* Reserved */
+<span class="lineNum">      80 </span>            :                 };
+<span class="lineNum">      81 </span>            :         };
+<span class="lineNum">      82 </span>            : };
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 : STATIC fpga_result validate_bitstream(fpga_handle handle,</span>
+<span class="lineNum">      86 </span>            :                         const uint8_t *bitstream, size_t bitstream_len,
+<span class="lineNum">      87 </span>            :                         int *header_len)
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         if (bitstream == NULL) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Bitstream is NULL&quot;);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">      92 </span>            :         }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :         if (bitstream_len &lt;= 0 ||</span>
+<span class="lineNum">      95 </span>            :                 bitstream_len &lt;= sizeof(struct bitstream_header)) {
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid bitstream size&quot;);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">      98 </span>            :         }
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         if (check_bitstream_guid(bitstream) == FPGA_OK) {</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 *header_len = get_bitstream_header_len(bitstream);</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                 if (*header_len &lt; 0) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Invalid bitstream header length&quot;);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
+<span class="lineNum">     106 </span>            :                 }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 if (validate_bitstream_metadata(handle, bitstream) != FPGA_OK) {</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Invalid JSON data&quot;);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
+<span class="lineNum">     111 </span>            :                 }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 return FPGA_OK;</span>
+<span class="lineNum">     114 </span>            :         } else {
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     116 </span>            :         }
+<span class="lineNum">     117 </span>            : }
+<span class="lineNum">     118 </span>            : 
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<span class="lineNum">     120 </span>            : // open child accelerator exclusively - it not, it's busy!
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 : STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)</span>
+<span class="lineNum">     122 </span>            : {
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         fpga_result result                = FPGA_OK;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         fpga_result destroy_result        = FPGA_OK;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     126 </span>            :         fpga_token token;
+<span class="lineNum">     127 </span>            :         fpga_properties props;
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         uint32_t matches = 0;</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         if (_handle == NULL) {</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid handle&quot;);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     133 </span>            :         }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         if (_handle-&gt;token == NULL) {</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid token within handle&quot;);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         result = xfpga_fpgaGetProperties(NULL, &amp;props);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK)</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         result = fpgaPropertiesSetParent(props, _handle-&gt;token);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Error setting parent in properties.&quot;);</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 goto free_props;</span>
+<span class="lineNum">     148 </span>            :         }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :         // TODO: Use slot number as part of filter
+<span class="lineNum">     151 </span>            :         //       We only want to query for accelerators for the
+<span class="lineNum">     152 </span>            :         //       slot being reconfigured
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         result = xfpga_fpgaEnumerate(&amp;props, 1, &amp;token, 1, &amp;matches);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Error enumerating for accelerator to reconfigure&quot;);</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 goto free_props;</span>
+<span class="lineNum">     157 </span>            :         }
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         if (matches == 0) {</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;No accelerator found to reconfigure&quot;);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 result = FPGA_BUSY;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 goto destroy_token;</span>
+<span class="lineNum">     163 </span>            :         }
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         result = xfpga_fpgaOpen(token, accel, 0);</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Could not open accelerator for given slot&quot;);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 goto destroy_token;</span>
+<span class="lineNum">     169 </span>            :         }
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : destroy_token:
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         destroy_result = xfpga_fpgaDestroyToken(&amp;token);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         if (destroy_result != FPGA_OK)</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Error destroying a token&quot;);</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            : free_props:
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         destroy_result = fpgaDestroyProperties(&amp;props);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         if (destroy_result != FPGA_OK)</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Error destroying properties&quot;);</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK || destroy_result != FPGA_OK)</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 return result != FPGA_OK ? result : destroy_result;</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         return FPGA_OK;</span>
+<span class="lineNum">     185 </span>            : }
+<span class="lineNum">     186 </span>            : 
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<span class="lineNum">     188 </span>            : // clears port errors
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 : STATIC fpga_result clear_port_errors(fpga_handle handle)</span>
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :         char syfs_path[SYSFS_PATH_MAX]    = {0};</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         char syfs_errpath[SYSFS_PATH_MAX] = {0};</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :         fpga_result result                = FPGA_OK;</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         uint64_t error                    = 0 ;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         result = get_port_sysfs(handle, syfs_path);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to get port syfs path&quot;);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), &quot;%s/%s&quot;, syfs_path, PORT_SYSFS_ERRORS);</span>
+<span class="lineNum">     203 </span>            :         // Read port error.
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         result = sysfs_read_u64(syfs_errpath, &amp;error);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to get port errors&quot;);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     208 </span>            :         }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), &quot;%s/%s&quot;, syfs_path, PORT_SYSFS_ERR_CLEAR);</span>
+<span class="lineNum">     211 </span>            :         // Clear port error.
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         result = sysfs_write_u64(syfs_errpath, error);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to clear port errors&quot;);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     216 </span>            :         }
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     219 </span>            : }
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<span class="lineNum">     221 </span>            : // set afu user clock
+<span class="lineNum">     222 </span><span class="lineCov">          3 : fpga_result set_afu_userclock(fpga_handle handle,</span>
+<span class="lineNum">     223 </span>            :                                 uint64_t usrlclock_high,
+<span class="lineNum">     224 </span>            :                                 uint64_t usrlclock_low)
+<span class="lineNum">     225 </span>            : {
+<span class="lineNum">     226 </span><span class="lineCov">          3 :         char syfs_path[SYSFS_PATH_MAX]    = {0};</span>
+<span class="lineNum">     227 </span><span class="lineCov">          3 :         fpga_result result                = FPGA_OK;</span>
+<span class="lineNum">     228 </span><span class="lineCov">          3 :         uint64_t userclk_high             = 0;</span>
+<span class="lineNum">     229 </span><span class="lineCov">          3 :         uint64_t userclk_low              = 0;</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :         // Read port sysfs path
+<span class="lineNum">     232 </span><span class="lineCov">          3 :         result = get_port_sysfs(handle, syfs_path);</span>
+<span class="lineNum">     233 </span><span class="lineCov">          3 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to get port syfs path&quot;);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     236 </span>            :         }
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :         // set user clock
+<span class="lineNum">     239 </span><span class="lineCov">          3 :         result = set_userclock(syfs_path, usrlclock_high, usrlclock_low);</span>
+<span class="lineNum">     240 </span><span class="lineCov">          3 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     241 </span><span class="lineCov">          3 :                 FPGA_ERR(&quot;Failed to set user clock&quot;);</span>
+<span class="lineNum">     242 </span><span class="lineCov">          3 :                 return result;</span>
+<span class="lineNum">     243 </span>            :         }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :         // read user clock
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         result = get_userclock(syfs_path, &amp;userclk_high, &amp;userclk_low);</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to get user clock&quot;);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     250 </span>            :         }
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     253 </span>            : }
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<span class="lineNum">     255 </span>            : // Sets FPGA threshold power values
+<span class="lineNum">     256 </span><span class="lineCov">          5 : fpga_result set_fpga_pwr_threshold(fpga_handle handle,</span>
+<span class="lineNum">     257 </span>            :                                         uint64_t gbs_power)
+<span class="lineNum">     258 </span>            : {
+<span class="lineNum">     259 </span><span class="lineCov">          5 :         char sysfs_path[SYSFS_PATH_MAX]   = {0};</span>
+<span class="lineNum">     260 </span><span class="lineCov">          5 :         fpga_result result                = FPGA_OK;</span>
+<span class="lineNum">     261 </span><span class="lineCov">          5 :         uint64_t fpga_power               = 0;</span>
+<span class="lineNum">     262 </span><span class="lineCov">          5 :         struct _fpga_token  *_token       = NULL;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          5 :         struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">          5 :         if (_handle == NULL) {</span>
+<span class="lineNum">     266 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid handle&quot;);</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     268 </span>            :         }
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">          4 :         _token = (struct _fpga_token *)_handle-&gt;token;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          4 :         if (_token == NULL) {</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid token within handle&quot;);</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     274 </span>            :         }
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            :         // Set max power if not specified by gbs
+<span class="lineNum">     277 </span><span class="lineCov">          4 :         if (gbs_power == 0) {</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :                 gbs_power = FPGA_GBS_MAX_POWER;</span>
+<span class="lineNum">     279 </span>            :         }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :         // verify gbs power limits
+<span class="lineNum">     282 </span><span class="lineCov">          4 :         if (gbs_power &gt; FPGA_GBS_MAX_POWER) {</span>
+<span class="lineNum">     283 </span><span class="lineCov">          2 :                 FPGA_ERR(&quot;Invalid GBS power value&quot;);</span>
+<span class="lineNum">     284 </span><span class="lineCov">          2 :                 result = FPGA_NOT_SUPPORTED;</span>
+<span class="lineNum">     285 </span><span class="lineCov">          2 :                 return result;</span>
+<span class="lineNum">     286 </span>            :         }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :         // FPGA threshold1 = BBS Idle power + GBS power
+<span class="lineNum">     289 </span><span class="lineCov">          2 :         fpga_power = gbs_power + FPGA_BBS_IDLE_POWER;</span>
+<span class="lineNum">     290 </span><span class="lineCov">          2 :         if (fpga_power &gt; FPGA_MAX_POWER) {</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Total power requirements exceed FPGA maximum&quot;);</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                 result = FPGA_NOT_SUPPORTED;</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     294 </span>            :         }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            :         // set fpga threshold 1
+<span class="lineNum">     297 </span><span class="lineCov">          2 :         snprintf_s_ss(sysfs_path, sizeof(sysfs_path), &quot;%s/%s&quot;,  _token-&gt;sysfspath, PWRMGMT_THRESHOLD1);</span>
+<span class="lineNum">     298 </span>            :         FPGA_DBG(&quot; FPGA Threshold1             :%ld watts\n&quot;, fpga_power);
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">          2 :         result = sysfs_write_u64(sysfs_path, fpga_power);</span>
+<span class="lineNum">     301 </span><span class="lineCov">          2 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to write power threshold 1&quot;);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     304 </span>            :         }
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineCov">          2 :         return result;</span>
+<a name="307"><span class="lineNum">     307 </span>            : }</a>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineCov">          1 : fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,</span>
+<span class="lineNum">     310 </span>            :                                                 uint32_t slot,
+<span class="lineNum">     311 </span>            :                                                 const uint8_t *bitstream,
+<span class="lineNum">     312 </span>            :                                                 size_t bitstream_len,
+<span class="lineNum">     313 </span>            :                                                 int flags)
+<span class="lineNum">     314 </span>            : {
+<span class="lineNum">     315 </span><span class="lineCov">          1 :         struct _fpga_handle *_handle    = (struct _fpga_handle *)fpga;</span>
+<span class="lineNum">     316 </span><span class="lineCov">          1 :         fpga_result result              = FPGA_OK;</span>
+<span class="lineNum">     317 </span><span class="lineCov">          1 :         struct fpga_fme_port_pr port_pr = {0};</span>
+<span class="lineNum">     318 </span><span class="lineCov">          1 :         struct reconf_error  error      = { {0} };</span>
+<span class="lineNum">     319 </span>            :         struct gbs_metadata  metadata;
+<span class="lineNum">     320 </span><span class="lineCov">          1 :         int bitstream_header_len        = 0;</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :         uint64_t deviceid               = 0;</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :         int err                         = 0;</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :         fpga_handle accel               = NULL;</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineCov">          1 :         result = handle_check_and_lock(_handle);</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :         if (result)</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :                 return result;</span>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         if (_handle-&gt;fddev &lt; 0) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid handle file descriptor&quot;);</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     333 </span>            :         }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         if (validate_bitstream(fpga, bitstream, bitstream_len,</span>
+<span class="lineNum">     336 </span>            :                                 &amp;bitstream_header_len) != FPGA_OK) {
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid bitstream&quot;);</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     340 </span>            :         }
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            :         // error out if &quot;force&quot; flag is NOT indicated
+<span class="lineNum">     343 </span>            :         // and the resource is in use
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         if (!(flags &amp; FPGA_RECONF_FORCE)) {</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 result = open_accel(fpga, &amp;accel);</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 if (result != FPGA_OK) {</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Accelerator in use or not found&quot;);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     349 </span>            :                 }
+<span class="lineNum">     350 </span>            :         }
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :         // Clear port errors
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         result = clear_port_errors(fpga);</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to clear port errors.&quot;);</span>
+<span class="lineNum">     356 </span>            :         }
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         if (get_bitstream_json_len(bitstream) &gt; 0) {</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            :                 // Read GBS json metadata
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 memset_s(&amp;metadata, sizeof(metadata), 0);</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 result = read_gbs_metadata(bitstream, &amp;metadata);</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 if (result != FPGA_OK) {</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Failed to read metadata&quot;);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     366 </span>            :                 }
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            :                 FPGA_DBG(&quot; Version                  :%f\n&quot;, metadata.version);
+<span class="lineNum">     369 </span>            :                 FPGA_DBG(&quot; Magic Num                :%ld\n&quot;,
+<span class="lineNum">     370 </span>            :                          metadata.afu_image.magic_num);
+<span class="lineNum">     371 </span>            :                 FPGA_DBG(&quot; Interface Id             :%s\n&quot;,
+<span class="lineNum">     372 </span>            :                          metadata.afu_image.interface_uuid);
+<span class="lineNum">     373 </span>            :                 FPGA_DBG(&quot; Clock_frequency_high     :%d\n&quot;,
+<span class="lineNum">     374 </span>            :                          metadata.afu_image.clock_frequency_high);
+<span class="lineNum">     375 </span>            :                 FPGA_DBG(&quot; Clock_frequency_low      :%d\n&quot;,
+<span class="lineNum">     376 </span>            :                          metadata.afu_image.clock_frequency_low);
+<span class="lineNum">     377 </span>            :                 FPGA_DBG(&quot; Power                    :%d\n&quot;,
+<span class="lineNum">     378 </span>            :                          metadata.afu_image.power);
+<span class="lineNum">     379 </span>            :                 FPGA_DBG(&quot; Name                     :%s\n&quot;,
+<span class="lineNum">     380 </span>            :                          metadata.afu_image.afu_clusters.name);
+<span class="lineNum">     381 </span>            :                 FPGA_DBG(&quot; Total_contexts           :%d\n&quot;,
+<span class="lineNum">     382 </span>            :                          metadata.afu_image.afu_clusters.total_contexts);
+<span class="lineNum">     383 </span>            :                 FPGA_DBG(&quot; AFU_uuid                 :%s\n&quot;,
+<span class="lineNum">     384 </span>            :                          metadata.afu_image.afu_clusters.afu_uuid);
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :                 // Set AFU user clock
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                 if (metadata.afu_image.clock_frequency_high &gt; 0 || metadata.afu_image.clock_frequency_low &gt; 0) {</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                         result = set_afu_userclock(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                         if (result != FPGA_OK) {</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                                 FPGA_ERR(&quot;Failed to set user clock&quot;);</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                                 goto out_unlock;</span>
+<span class="lineNum">     392 </span>            :                         }
+<span class="lineNum">     393 </span>            :                 }
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            :                 // get fpga device id.
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 result = get_fpga_deviceid(fpga, &amp;deviceid);</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                 if (result != FPGA_OK) {</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Failed to read device id.&quot;);</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     400 </span>            :                 }
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span>            :                 // Set power threshold for integrated fpga.
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                 if (deviceid == FPGA_INTEGRATED_DEVICEID) {</span>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                         result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                         if (result != FPGA_OK) {</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                 FPGA_ERR(&quot;Failed to set threshold.&quot;);</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :                                 goto out_unlock;</span>
+<span class="lineNum">     409 </span>            :                         }
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :                 } // device id
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span>            :         }
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :         port_pr.flags                 = 0;</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :         port_pr.argsz                 = sizeof(struct fpga_fme_port_pr);</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         port_pr.buffer_address        = (__u64)bitstream + bitstream_header_len;</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         port_pr.buffer_size           = (__u32) bitstream_len - bitstream_header_len;</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :         port_pr.port_id               = slot;</span>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         result = ioctl(_handle-&gt;fddev, FPGA_FME_PORT_PR, &amp;port_pr);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :         if (result != 0) {</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Failed to reconfigure bitstream: %s&quot;,</span>
+<span class="lineNum">     424 </span>            :                           strerror(errno));
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 if ((errno == EINVAL) || (errno == EFAULT)) {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                         result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     428 </span>            :                 } else {
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                         result = FPGA_EXCEPTION;</span>
+<span class="lineNum">     430 </span>            :                 }
+<span class="lineNum">     431 </span>            :         }
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :         // PR error
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         error.csr = port_pr.status;</span>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         if (error.reconf_operation_error == 0x1) {</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR operation error detected&quot;);</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     439 </span>            :         }
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :         if (error.reconf_CRC_error == 0x1) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR CRC error detected&quot;);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     444 </span>            :         }
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         if (error.reconf_incompatible_bitstream_error == 0x1) {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR incompatible bitstream error detected&quot;);</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     449 </span>            :         }
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :         if (error.reconf_IP_protocol_error == 0x1) {</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR IP protocol error detected&quot;);</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     454 </span>            :         }
+<span class="lineNum">     455 </span>            : 
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         if (error.reconf_FIFO_overflow_error == 0x1) {</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR FIFO overflow error detected&quot;);</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     459 </span>            :         }
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         if (error.reconf_timeout_error == 0x1) {</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR timeout error detected&quot;);</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     464 </span>            :         }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         if (error.reconf_secure_load_error == 0x1) {</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;PR secure load error detected&quot;);</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     469 </span>            :         }
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            : out_unlock:
+<span class="lineNum">     472 </span>            :         // close the accelerator opened during `open_accel`
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :         if (accel &amp;&amp; xfpga_fpgaClose(accel) != FPGA_OK) {</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Error closing accelerator after reconfiguration&quot;);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                 result = FPGA_RECONF_ERROR;</span>
+<span class="lineNum">     476 </span>            :         }
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     482 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

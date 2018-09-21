@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info.cleaned - xfpga/common.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">xfpga</a> - common.c<span style="font-size: 80%;"> (source / <a href="common.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info.cleaned</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-09-20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright(c) 2017-2018, Intel Corporation</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+<span class="lineNum">       4 </span>            : // modification, are permitted provided that the following conditions are met:
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // * Redistributions of  source code  must retain the  above copyright notice,
+<span class="lineNum">       7 </span>            : //   this list of conditions and the following disclaimer.
+<span class="lineNum">       8 </span>            : // * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">       9 </span>            : //   this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      10 </span>            : //   and/or other materials provided with the distribution.
+<span class="lineNum">      11 </span>            : // * Neither the name  of Intel Corporation  nor the names of its contributors
+<span class="lineNum">      12 </span>            : //   may be used to  endorse or promote  products derived  from this  software
+<span class="lineNum">      13 </span>            : //   without specific prior written permission.
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+<span class="lineNum">      16 </span>            : // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+<span class="lineNum">      17 </span>            : // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+<span class="lineNum">      18 </span>            : // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+<span class="lineNum">      19 </span>            : // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+<span class="lineNum">      20 </span>            : // CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+<span class="lineNum">      21 </span>            : // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+<span class="lineNum">      22 </span>            : // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+<span class="lineNum">      23 </span>            : // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+<span class="lineNum">      24 </span>            : // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+<span class="lineNum">      25 </span>            : // POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef HAVE_CONFIG_H
+<span class="lineNum">      28 </span>            : #include &lt;config.h&gt;
+<span class="lineNum">      29 </span>            : #endif // HAVE_CONFIG_H
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &quot;common_int.h&quot;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &lt;sys/mman.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      36 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : // Buffer Allocation constants
+<span class="lineNum">      39 </span>            : #define KB 1024
+<span class="lineNum">      40 </span>            : #define MB (1024 * KB)
+<span class="lineNum">      41 </span>            : #define GB (1024 * MB)
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #ifndef MAP_HUGETLB
+<span class="lineNum">      44 </span>            : #define MAP_HUGETLB 0x40000
+<span class="lineNum">      45 </span>            : #endif
+<span class="lineNum">      46 </span>            : #ifndef MAP_HUGE_SHIFT
+<span class="lineNum">      47 </span>            : #define MAP_HUGE_SHIFT 26
+<span class="lineNum">      48 </span>            : #endif
+<span class="lineNum">      49 </span>            : #define MAP_1G_HUGEPAGE (0x1e &lt;&lt; MAP_HUGE_SHIFT)
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : #define PROTECTION (PROT_READ | PROT_WRITE)
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : #ifdef __ia64__
+<span class="lineNum">      54 </span>            : #define ADDR (void *)(0x8000000000000000UL)
+<span class="lineNum">      55 </span>            : #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
+<span class="lineNum">      56 </span>            : #define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
+<span class="lineNum">      57 </span>            : #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+<span class="lineNum">      58 </span>            : #else
+<span class="lineNum">      59 </span>            : #define ADDR (void *)(0x0UL)
+<span class="lineNum">      60 </span>            : #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
+<span class="lineNum">      61 </span>            : #define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
+<span class="lineNum">      62 </span>            : #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+<span class="lineNum">      63 </span>            : #endif
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : /*
+<span class="lineNum">      67 </span>            :  * Check properties object for validity and lock its mutex
+<a name="68"><span class="lineNum">      68 </span>            :  * If prop_check_and_lock() returns FPGA_OK, assume the mutex to be locked.</a>
+<span class="lineNum">      69 </span>            :  */
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : fpga_result prop_check_and_lock(struct _fpga_properties *prop)</span>
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         ASSERT_NOT_NULL(prop);</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         if (pthread_mutex_lock(&amp;prop-&gt;lock)) {</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to lock mutex&quot;);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">      77 </span>            :         }
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         if (prop-&gt;magic != FPGA_PROPERTY_MAGIC) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid properties object&quot;);</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                 int err = pthread_mutex_unlock(&amp;prop-&gt;lock);</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 if (err) {</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;,</span>
+<span class="lineNum">      84 </span>            :                                  strerror(err));
+<span class="lineNum">      85 </span>            :                 }
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">      87 </span>            :         }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         return FPGA_OK;</span>
+<span class="lineNum">      90 </span>            : }
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : /*
+<span class="lineNum">      93 </span>            :  * Check handle object for validity and lock its mutex
+<a name="94"><span class="lineNum">      94 </span>            :  * If handle_check_and_lock() returns FPGA_OK, assume the mutex to be locked.</a>
+<span class="lineNum">      95 </span>            :  */
+<span class="lineNum">      96 </span><span class="lineCov">        363 : fpga_result handle_check_and_lock(struct _fpga_handle *handle)</span>
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span><span class="lineCov">        363 :         ASSERT_NOT_NULL(handle);</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">        331 :         if (pthread_mutex_lock(&amp;handle-&gt;lock)) {</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to lock mutex&quot;);</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">     103 </span>            :         }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">        331 :         if (handle-&gt;magic != FPGA_HANDLE_MAGIC) {</span>
+<span class="lineNum">     107 </span><span class="lineCov">          3 :                 FPGA_MSG(&quot;Invalid handle object&quot;);</span>
+<span class="lineNum">     108 </span><span class="lineCov">          3 :                 int err = pthread_mutex_unlock(&amp;handle-&gt;lock);</span>
+<span class="lineNum">     109 </span><span class="lineCov">          3 :                 if (err) {</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;,</span>
+<span class="lineNum">     111 </span>            :                                  strerror(err));
+<span class="lineNum">     112 </span>            :                 }
+<span class="lineNum">     113 </span><span class="lineCov">          3 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     114 </span>            :         }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">        328 :         return FPGA_OK;</span>
+<span class="lineNum">     117 </span>            : }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : /*
+<span class="lineNum">     120 </span>            :  * Check event handle object for validity and lock its mutex
+<span class="lineNum">     121 </span>            :  * If event_handle_check_and_lock() returns FPGA_OK, assume the mutex to be
+<a name="122"><span class="lineNum">     122 </span>            :  * locked.</a>
+<span class="lineNum">     123 </span>            :  */
+<span class="lineNum">     124 </span><span class="lineCov">         31 : fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)</span>
+<span class="lineNum">     125 </span>            : {
+<span class="lineNum">     126 </span><span class="lineCov">         31 :         ASSERT_NOT_NULL(eh);</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">         31 :         if (pthread_mutex_lock(&amp;eh-&gt;lock)) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to lock mutex&quot;);</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">     131 </span>            :         }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">         31 :         if (eh-&gt;magic != FPGA_EVENT_HANDLE_MAGIC) {</span>
+<span class="lineNum">     134 </span><span class="lineCov">          4 :                 FPGA_MSG(&quot;Invalid event handle object&quot;);</span>
+<span class="lineNum">     135 </span><span class="lineCov">          4 :                 int err = pthread_mutex_unlock(&amp;eh-&gt;lock);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          4 :                 if (err) {</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;,</span>
+<span class="lineNum">     138 </span>            :                                  strerror(err));
+<span class="lineNum">     139 </span>            :                 }
+<span class="lineNum">     140 </span><span class="lineCov">          4 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">         27 :         return FPGA_OK;</span>
+<span class="lineNum">     144 </span>            : }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : /* mutex to protect global data structures */
+<a name="147"><span class="lineNum">     147 </span>            : pthread_mutex_t global_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;</a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 : const char __FPGA_API__ *xfpga_fpgaErrStr(fpga_result e)</span>
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         switch (e) {</span>
+<span class="lineNum">     152 </span>            :         case FPGA_OK:
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 return &quot;success&quot;;</span>
+<span class="lineNum">     154 </span>            :         case FPGA_INVALID_PARAM:
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 return &quot;invalid parameter&quot;;</span>
+<span class="lineNum">     156 </span>            :         case FPGA_BUSY:
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                 return &quot;resource busy&quot;;</span>
+<span class="lineNum">     158 </span>            :         case FPGA_EXCEPTION:
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                 return &quot;exception&quot;;</span>
+<span class="lineNum">     160 </span>            :         case FPGA_NOT_FOUND:
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 return &quot;not found&quot;;</span>
+<span class="lineNum">     162 </span>            :         case FPGA_NO_MEMORY:
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                 return &quot;no memory&quot;;</span>
+<span class="lineNum">     164 </span>            :         case FPGA_NOT_SUPPORTED:
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                 return &quot;not supported&quot;;</span>
+<span class="lineNum">     166 </span>            :         case FPGA_NO_DRIVER:
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 return &quot;no driver available&quot;;</span>
+<span class="lineNum">     168 </span>            :         case FPGA_NO_DAEMON:
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 return &quot;no fpga daemon running&quot;;</span>
+<span class="lineNum">     170 </span>            :         case FPGA_NO_ACCESS:
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 return &quot;insufficient privileges&quot;;</span>
+<span class="lineNum">     172 </span>            :         case FPGA_RECONF_ERROR:
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 return &quot;reconfiguration error&quot;;</span>
+<span class="lineNum">     174 </span>            :         default:
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 return &quot;unknown error&quot;;</span>
+<span class="lineNum">     176 </span>            :         }
+<span class="lineNum">     177 </span>            : }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : /**
+<span class="lineNum">     180 </span>            :  * @brief Generate unique workspace ID number
+<span class="lineNum">     181 </span>            :  *
+<a name="182"><span class="lineNum">     182 </span>            :  * @return id identifier</a>
+<span class="lineNum">     183 </span>            :  */
+<span class="lineNum">     184 </span><span class="lineCov">        109 : uint64_t wsid_gen(void)</span>
+<span class="lineNum">     185 </span>            : {
+<span class="lineNum">     186 </span>            :         struct timeval t;
+<span class="lineNum">     187 </span><span class="lineCov">        109 :         uint64_t id = 0;</span>
+<span class="lineNum">     188 </span><span class="lineCov">        109 :         gettimeofday(&amp;t, NULL);</span>
+<span class="lineNum">     189 </span><span class="lineCov">        109 :         id = ((t.tv_sec * 1000 * 1000) + (t.tv_usec * 1000)) &lt;&lt; 42;</span>
+<span class="lineNum">     190 </span><span class="lineCov">        109 :         id |= ((unsigned long)getpid() % 16777216) &lt;&lt; 24;</span>
+<span class="lineNum">     191 </span><span class="lineCov">        109 :         return id;</span>
+<span class="lineNum">     192 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info.cleaned - /home/workspace/jelonanx/opae-sdk/libopae/opae_int.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/workspace/jelonanx/opae-sdk/libopae</a> - opae_int.h<span style="font-size: 80%;"> (source / <a href="opae_int.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info.cleaned</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">81</td>
+            <td class="headerCovTableEntryLo">39.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-09-20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright(c) 2018, Intel Corporation</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+<span class="lineNum">       4 </span>            : // modification, are permitted provided that the following conditions are met:
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // * Redistributions of  source code  must retain the  above copyright notice,
+<span class="lineNum">       7 </span>            : //   this list of conditions and the following disclaimer.
+<span class="lineNum">       8 </span>            : // * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">       9 </span>            : //   this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      10 </span>            : //   and/or other materials provided with the distribution.
+<span class="lineNum">      11 </span>            : // * Neither the name  of Intel Corporation  nor the names of its contributors
+<span class="lineNum">      12 </span>            : //   may be used to  endorse or promote  products derived  from this  software
+<span class="lineNum">      13 </span>            : //   without specific prior written permission.
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+<span class="lineNum">      16 </span>            : // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+<span class="lineNum">      17 </span>            : // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+<span class="lineNum">      18 </span>            : // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+<span class="lineNum">      19 </span>            : // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+<span class="lineNum">      20 </span>            : // CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+<span class="lineNum">      21 </span>            : // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+<span class="lineNum">      22 </span>            : // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+<span class="lineNum">      23 </span>            : // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+<span class="lineNum">      24 </span>            : // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+<span class="lineNum">      25 </span>            : // POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifndef __OPAE_OPAE_INT_H__
+<span class="lineNum">      28 </span>            : #define __OPAE_OPAE_INT_H__
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #include &lt;opae/types.h&gt;
+<span class="lineNum">      36 </span>            : #include &lt;opae/log.h&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : #ifndef __USE_GNU
+<span class="lineNum">      39 </span>            : #define __USE_GNU
+<span class="lineNum">      40 </span>            : #endif // __USE_GNU
+<span class="lineNum">      41 </span>            : #include &lt;pthread.h&gt;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* Macro for defining symbol visibility */
+<span class="lineNum">      44 </span>            : //#define __FPGA_API__ __attribute__((visibility(&quot;default&quot;)))
+<span class="lineNum">      45 </span>            : //#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility(&quot;default&quot;)))
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : #define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __result)                     \
+<span class="lineNum">      49 </span>            :         do {                                                                   \
+<span class="lineNum">      50 </span>            :                 if (!__arg) {                                                  \
+<span class="lineNum">      51 </span>            :                         OPAE_ERR(__msg);                                       \
+<span class="lineNum">      52 </span>            :                         return __result;                                       \
+<span class="lineNum">      53 </span>            :                 }                                                              \
+<span class="lineNum">      54 </span>            :         } while (0)
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : /*
+<span class="lineNum">      57 </span>            :  * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
+<span class="lineNum">      58 </span>            :  */
+<span class="lineNum">      59 </span>            : #define ASSERT_NOT_NULL_MSG(__arg, __msg)                                      \
+<span class="lineNum">      60 </span>            :         ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, FPGA_INVALID_PARAM)
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : #define ASSERT_NOT_NULL(__arg) ASSERT_NOT_NULL_MSG(__arg, #__arg &quot; is NULL&quot;)
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : #define ASSERT_NOT_NULL_RESULT(__arg, __result)                                \
+<span class="lineNum">      65 </span>            :         ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg &quot;is NULL&quot;, __result)
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : #define ASSERT_RESULT(__result)                                                \
+<span class="lineNum">      68 </span>            :         do {                                                                   \
+<span class="lineNum">      69 </span>            :                 if ((__result) != FPGA_OK)                                     \
+<span class="lineNum">      70 </span>            :                         return __result;                                       \
+<span class="lineNum">      71 </span>            :         } while (0)
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : #define UNUSED_PARAM(x) ((void)x)
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            : #define opae_mutex_lock(__res, __mtx_ptr)                                      \
+<span class="lineNum">      78 </span>            :         ({                                                                     \
+<span class="lineNum">      79 </span>            :                 (__res) = pthread_mutex_lock(__mtx_ptr);                       \
+<span class="lineNum">      80 </span>            :                 if (__res)                                                     \
+<span class="lineNum">      81 </span>            :                         OPAE_ERR(&quot;pthread_mutex_lock failed: %s&quot;,              \
+<span class="lineNum">      82 </span>            :                                  strerror(errno));                             \
+<span class="lineNum">      83 </span>            :                 __res;                                                         \
+<span class="lineNum">      84 </span>            :         })
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : #define opae_mutex_unlock(__res, __mtx_ptr)                                    \
+<span class="lineNum">      87 </span>            :         ({                                                                     \
+<span class="lineNum">      88 </span>            :                 (__res) = pthread_mutex_unlock(__mtx_ptr);                     \
+<span class="lineNum">      89 </span>            :                 if (__res)                                                     \
+<span class="lineNum">      90 </span>            :                         OPAE_ERR(&quot;pthread_mutex_unlock failed: %s&quot;,            \
+<span class="lineNum">      91 </span>            :                                  strerror(errno));                             \
+<span class="lineNum">      92 </span>            :                 __res;                                                         \
+<span class="lineNum">      93 </span>            :         })
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : typedef struct _opae_api_adapter_table opae_api_adapter_table;
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : //                                  k o t w
+<span class="lineNum">      99 </span>            : #define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : typedef struct _opae_wrapped_token {
+<span class="lineNum">     102 </span>            :         uint32_t magic;
+<span class="lineNum">     103 </span>            :         fpga_token opae_token;
+<span class="lineNum">     104 </span>            :         opae_api_adapter_table *adapter_table;
+<span class="lineNum">     105 </span>            : } opae_wrapped_token;
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<span class="lineNum">     107 </span>            : static inline opae_wrapped_token *
+<span class="lineNum">     108 </span><span class="lineCov">        106 : opae_allocate_wrapped_token(fpga_token token,</span>
+<span class="lineNum">     109 </span>            :                             const opae_api_adapter_table *adapter)
+<span class="lineNum">     110 </span>            : {
+<span class="lineNum">     111 </span><span class="lineCov">        106 :         opae_wrapped_token *wtok =</span>
+<span class="lineNum">     112 </span>            :                 (opae_wrapped_token *)malloc(sizeof(opae_wrapped_token));
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">        106 :         if (wtok) {</span>
+<span class="lineNum">     115 </span><span class="lineCov">        106 :                 wtok-&gt;magic = OPAE_WRAPPED_TOKEN_MAGIC;</span>
+<span class="lineNum">     116 </span><span class="lineCov">        106 :                 wtok-&gt;opae_token = token;</span>
+<span class="lineNum">     117 </span><span class="lineCov">        106 :                 wtok-&gt;adapter_table = (opae_api_adapter_table *)adapter;</span>
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">        106 :         return wtok;</span>
+<a name="121"><span class="lineNum">     121 </span>            : }</a>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">        126 : static inline opae_wrapped_token *opae_validate_wrapped_token(fpga_token t)</span>
+<span class="lineNum">     124 </span>            : {
+<span class="lineNum">     125 </span>            :         opae_wrapped_token *wt;
+<span class="lineNum">     126 </span><span class="lineCov">        126 :         if (!t)</span>
+<span class="lineNum">     127 </span><span class="lineCov">        107 :                 return NULL;</span>
+<span class="lineNum">     128 </span><span class="lineCov">         19 :         wt = (opae_wrapped_token *)t;</span>
+<span class="lineNum">     129 </span><span class="lineCov">         19 :         return (wt-&gt;magic == OPAE_WRAPPED_TOKEN_MAGIC) ? wt : NULL;</span>
+<a name="130"><span class="lineNum">     130 </span>            : }</a>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">          2 : static inline void opae_destroy_wrapped_token(opae_wrapped_token *wt)</span>
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span><span class="lineCov">          2 :         wt-&gt;magic = 0;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          2 :         free(wt);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : //                                   n a h w
+<span class="lineNum">     139 </span>            : #define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : typedef struct _opae_wrapped_handle {
+<span class="lineNum">     142 </span>            :         uint32_t magic;
+<span class="lineNum">     143 </span>            :         opae_wrapped_token *wrapped_token;
+<span class="lineNum">     144 </span>            :         fpga_handle opae_handle;
+<span class="lineNum">     145 </span>            :         opae_api_adapter_table *adapter_table;
+<span class="lineNum">     146 </span>            : } opae_wrapped_handle;
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<span class="lineNum">     148 </span>            : static inline opae_wrapped_handle *
+<span class="lineNum">     149 </span><span class="lineCov">          4 : opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,</span>
+<span class="lineNum">     150 </span>            :                              opae_api_adapter_table *adapter)
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span><span class="lineCov">          4 :         opae_wrapped_handle *whan =</span>
+<span class="lineNum">     153 </span>            :                 (opae_wrapped_handle *)malloc(sizeof(opae_wrapped_handle));
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineCov">          4 :         if (whan) {</span>
+<span class="lineNum">     156 </span><span class="lineCov">          4 :                 whan-&gt;magic = OPAE_WRAPPED_HANDLE_MAGIC;</span>
+<span class="lineNum">     157 </span><span class="lineCov">          4 :                 whan-&gt;wrapped_token = wt;</span>
+<span class="lineNum">     158 </span><span class="lineCov">          4 :                 whan-&gt;opae_handle = opae_handle;</span>
+<span class="lineNum">     159 </span><span class="lineCov">          4 :                 whan-&gt;adapter_table = adapter;</span>
+<span class="lineNum">     160 </span>            :         }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineCov">          4 :         return whan;</span>
+<a name="163"><span class="lineNum">     163 </span>            : }</a>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineCov">          5 : static inline opae_wrapped_handle *opae_validate_wrapped_handle(fpga_handle h)</span>
+<span class="lineNum">     166 </span>            : {
+<span class="lineNum">     167 </span>            :         opae_wrapped_handle *wh;
+<span class="lineNum">     168 </span><span class="lineCov">          5 :         if (!h)</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     170 </span><span class="lineCov">          5 :         wh = (opae_wrapped_handle *)h;</span>
+<span class="lineNum">     171 </span><span class="lineCov">          5 :         return (wh-&gt;magic == OPAE_WRAPPED_HANDLE_MAGIC) ? wh : NULL;</span>
+<a name="172"><span class="lineNum">     172 </span>            : }</a>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">          4 : static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)</span>
+<span class="lineNum">     175 </span>            : {
+<span class="lineNum">     176 </span><span class="lineCov">          4 :         wh-&gt;magic = 0;</span>
+<span class="lineNum">     177 </span><span class="lineCov">          4 :         free(wh);</span>
+<span class="lineNum">     178 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            : //                                         e v e w
+<span class="lineNum">     181 </span>            : #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : #define OPAE_WRAPPED_EVENT_HANDLE_CREATED 0x00000001
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : typedef struct _opae_wrapped_event_handle {
+<span class="lineNum">     186 </span>            :         uint32_t magic;
+<span class="lineNum">     187 </span>            :         pthread_mutex_t lock;
+<span class="lineNum">     188 </span>            :         uint32_t flags;
+<span class="lineNum">     189 </span>            :         fpga_event_handle opae_event_handle;
+<span class="lineNum">     190 </span>            :         opae_api_adapter_table *adapter_table;
+<span class="lineNum">     191 </span>            : } opae_wrapped_event_handle;
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            : static inline opae_wrapped_event_handle *
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 : opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,</span>
+<span class="lineNum">     195 </span>            :                                    opae_api_adapter_table *adapter)
+<span class="lineNum">     196 </span>            : {
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(</span>
+<span class="lineNum">     198 </span>            :                 sizeof(opae_wrapped_event_handle));
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         if (wevent) {</span>
+<span class="lineNum">     201 </span>            :                 pthread_mutexattr_t mattr;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 if (pthread_mutexattr_init(&amp;mattr)) {</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                         OPAE_ERR(&quot;pthread_mutexattr_init() failed&quot;);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                         goto out_free;</span>
+<span class="lineNum">     206 </span>            :                 }
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                 if (pthread_mutexattr_settype(&amp;mattr,</span>
+<span class="lineNum">     208 </span>            :                                               PTHREAD_MUTEX_RECURSIVE)) {
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                         OPAE_ERR(&quot;pthread_mutexattr_settype() failed&quot;);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                         goto out_free;</span>
+<span class="lineNum">     211 </span>            :                 }
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 if (pthread_mutex_init(&amp;wevent-&gt;lock, &amp;mattr)) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                         OPAE_ERR(&quot;pthread_mutex_init() failed&quot;);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                         goto out_free;</span>
+<span class="lineNum">     215 </span>            :                 }
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 pthread_mutexattr_destroy(&amp;mattr);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                 wevent-&gt;magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                 wevent-&gt;flags = 0;</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 wevent-&gt;opae_event_handle = opae_event_handle;</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                 wevent-&gt;adapter_table = adapter;</span>
+<span class="lineNum">     223 </span>            :         }
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         return wevent;</span>
+<span class="lineNum">     226 </span>            : out_free:
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         free(wevent);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     229 </span>            : }
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<span class="lineNum">     231 </span>            : static inline opae_wrapped_event_handle *
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 : opae_validate_wrapped_event_handle(fpga_event_handle h)</span>
+<span class="lineNum">     233 </span>            : {
+<span class="lineNum">     234 </span>            :         opae_wrapped_event_handle *we;
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         if (!h)</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         we = (opae_wrapped_event_handle *)h;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         return (we-&gt;magic == OPAE_WRAPPED_EVENT_HANDLE_MAGIC) ? we : NULL;</span>
+<span class="lineNum">     239 </span>            : }
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<span class="lineNum">     241 </span>            : static inline void
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 : opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *we)</span>
+<span class="lineNum">     243 </span>            : {
+<span class="lineNum">     244 </span>            :         int err;
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         opae_mutex_lock(err, &amp;we-&gt;lock);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         we-&gt;magic = 0;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         opae_mutex_unlock(err, &amp;we-&gt;lock);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         pthread_mutex_destroy(&amp;we-&gt;lock);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         free(we);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            : //                                   j b o w
+<span class="lineNum">     253 </span>            : #define OPAE_WRAPPED_OBJECT_MAGIC 0x6a626f77
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : typedef struct _opae_wrapped_object {
+<span class="lineNum">     256 </span>            :         uint32_t magic;
+<span class="lineNum">     257 </span>            :         fpga_object opae_object;
+<span class="lineNum">     258 </span>            :         opae_api_adapter_table *adapter_table;
+<span class="lineNum">     259 </span>            : } opae_wrapped_object;
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<span class="lineNum">     261 </span>            : static inline opae_wrapped_object *
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 : opae_allocate_wrapped_object(fpga_object opae_object,</span>
+<span class="lineNum">     263 </span>            :                              opae_api_adapter_table *adapter)
+<span class="lineNum">     264 </span>            : {
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         opae_wrapped_object *wobj =</span>
+<span class="lineNum">     266 </span>            :                 (opae_wrapped_object *)malloc(sizeof(opae_wrapped_object));
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         if (wobj) {</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 wobj-&gt;magic = OPAE_WRAPPED_OBJECT_MAGIC;</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 wobj-&gt;opae_object = opae_object;</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 wobj-&gt;adapter_table = adapter;</span>
+<span class="lineNum">     272 </span>            :         }
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         return wobj;</span>
+<a name="275"><span class="lineNum">     275 </span>            : }</a>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 : static inline opae_wrapped_object *opae_validate_wrapped_object(fpga_object o)</span>
+<span class="lineNum">     278 </span>            : {
+<span class="lineNum">     279 </span>            :         opae_wrapped_object *wo;
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         if (!o)</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :         wo = (opae_wrapped_object *)o;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         return (wo-&gt;magic == OPAE_WRAPPED_OBJECT_MAGIC) ? wo : NULL;</span>
+<a name="284"><span class="lineNum">     284 </span>            : }</a>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 : static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)</span>
+<span class="lineNum">     287 </span>            : {
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :         wo-&gt;magic = 0;</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         free(wo);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : #endif // ___OPAE_OPAE_INT_H__
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

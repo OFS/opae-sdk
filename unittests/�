@@ -1,0 +1,67 @@
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+----- MARK -----
+server: created server socket.
+server: bind success.
+server: listening for connections.
+server: accepting connection 32.
+server: registered event 32:33(1 /sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0)
+server: registered event 32:33(2 /sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0)

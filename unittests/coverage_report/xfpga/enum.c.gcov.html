@@ -1,0 +1,905 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info.cleaned - xfpga/enum.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">xfpga</a> - enum.c<span style="font-size: 80%;"> (source / <a href="enum.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info.cleaned</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">342</td>
+            <td class="headerCovTableEntry">417</td>
+            <td class="headerCovTableEntryMed">82.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-09-20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright(c) 2017-2018, Intel Corporation</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+<span class="lineNum">       4 </span>            : // modification, are permitted provided that the following conditions are met:
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // * Redistributions of  source code  must retain the  above copyright notice,
+<span class="lineNum">       7 </span>            : //   this list of conditions and the following disclaimer.
+<span class="lineNum">       8 </span>            : // * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">       9 </span>            : //   this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      10 </span>            : //   and/or other materials provided with the distribution.
+<span class="lineNum">      11 </span>            : // * Neither the name  of Intel Corporation  nor the names of its contributors
+<span class="lineNum">      12 </span>            : //   may be used to  endorse or promote  products derived  from this  software
+<span class="lineNum">      13 </span>            : //   without specific prior written permission.
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+<span class="lineNum">      16 </span>            : // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+<span class="lineNum">      17 </span>            : // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+<span class="lineNum">      18 </span>            : // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+<span class="lineNum">      19 </span>            : // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+<span class="lineNum">      20 </span>            : // CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+<span class="lineNum">      21 </span>            : // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+<span class="lineNum">      22 </span>            : // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+<span class="lineNum">      23 </span>            : // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+<span class="lineNum">      24 </span>            : // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+<span class="lineNum">      25 </span>            : // POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef HAVE_CONFIG_H
+<span class="lineNum">      28 </span>            : #include &lt;config.h&gt;
+<span class="lineNum">      29 </span>            : #endif // HAVE_CONFIG_H
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">      36 </span>            : #include &lt;dirent.h&gt;
+<span class="lineNum">      37 </span>            : #include &lt;fcntl.h&gt;
+<span class="lineNum">      38 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : #include &quot;safe_string/safe_string.h&quot;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : #include &quot;xfpga.h&quot;
+<span class="lineNum">      43 </span>            : #include &quot;common_int.h&quot;
+<span class="lineNum">      44 </span>            : #include &quot;error_int.h&quot;
+<span class="lineNum">      45 </span>            : #include &quot;props.h&quot;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : /* mutex to protect global data structures */
+<span class="lineNum">      48 </span>            : extern pthread_mutex_t global_lock;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : struct dev_list {
+<span class="lineNum">      51 </span>            :         char sysfspath[SYSFS_PATH_MAX];
+<span class="lineNum">      52 </span>            :         char devpath[DEV_PATH_MAX];
+<span class="lineNum">      53 </span>            :         fpga_objtype objtype;
+<span class="lineNum">      54 </span>            :         fpga_guid guid;
+<span class="lineNum">      55 </span>            :         uint16_t segment;
+<span class="lineNum">      56 </span>            :         uint8_t bus;
+<span class="lineNum">      57 </span>            :         uint8_t device;
+<span class="lineNum">      58 </span>            :         uint8_t function;
+<span class="lineNum">      59 </span>            :         uint8_t socket_id;
+<span class="lineNum">      60 </span>            :         uint16_t vendor_id;
+<span class="lineNum">      61 </span>            :         uint16_t device_id;
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :         uint32_t fpga_num_slots;
+<span class="lineNum">      64 </span>            :         uint64_t fpga_bitstream_id;
+<span class="lineNum">      65 </span>            :         fpga_version fpga_bbs_version;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :         fpga_accelerator_state accelerator_state;
+<span class="lineNum">      68 </span>            :         uint32_t accelerator_num_mmios;
+<span class="lineNum">      69 </span>            :         uint32_t accelerator_num_irqs;
+<span class="lineNum">      70 </span>            :         struct dev_list *next;
+<span class="lineNum">      71 </span>            :         struct dev_list *parent;
+<span class="lineNum">      72 </span>            :         struct dev_list *fme;
+<a name="73"><span class="lineNum">      73 </span>            : };</a>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">        204 : STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties filter)</span>
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span><span class="lineCov">        204 :         struct _fpga_properties *_filter = (struct _fpga_properties *)filter;</span>
+<span class="lineNum">      78 </span><span class="lineCov">        204 :         bool res = true;</span>
+<span class="lineNum">      79 </span><span class="lineCov">        204 :         int err = 0;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">        204 :         if (pthread_mutex_lock(&amp;_filter-&gt;lock)) {</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to lock filter mutex&quot;);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">      84 </span>            :         }
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineCov">        204 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">          2 :                 struct _fpga_token *_parent_tok =</span>
+<span class="lineNum">      88 </span>            :                         (struct _fpga_token *)_filter-&gt;parent;
+<span class="lineNum">      89 </span>            :                 char spath[SYSFS_PATH_MAX];
+<span class="lineNum">      90 </span>            :                 char *p;
+<span class="lineNum">      91 </span>            :                 int device_instance;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          2 :                 if (FPGA_ACCELERATOR != attr-&gt;objtype) {</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :                         res = false; // Only accelerator can have a parent</span>
+<span class="lineNum">      95 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">      96 </span>            :                 }
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span><span class="lineCov">          1 :                 if (NULL == _parent_tok) {</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                         res = false; // Reject search based on NULL parent token</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     101 </span>            :                 }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineCov">          1 :                 p = strrchr(attr-&gt;sysfspath, '.');</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">          1 :                 if (NULL == p) {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                         res = false;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     108 </span>            :                 }
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          1 :                 device_instance = (int)strtoul(p + 1, NULL, 10);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineCov">          1 :                 snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     113 </span>            :                               SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
+<span class="lineNum">     114 </span>            :                               device_instance, device_instance);
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">          1 :                 if (strcmp(spath, _parent_tok-&gt;sysfspath)) {</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                         res = false;</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         goto out_unlock;</span>
+<span class="lineNum">     119 </span>            :                 }
+<span class="lineNum">     120 </span>            :         }
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">        203 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {</span>
+<span class="lineNum">     123 </span><span class="lineCov">        154 :                 if (_filter-&gt;objtype != attr-&gt;objtype) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">         59 :                         res = false;</span>
+<span class="lineNum">     125 </span><span class="lineCov">         59 :                         goto out_unlock;</span>
+<span class="lineNum">     126 </span>            :                 }
+<span class="lineNum">     127 </span>            :         }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">        144 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_SEGMENT)) {</span>
+<span class="lineNum">     130 </span><span class="lineCov">          4 :                 if (_filter-&gt;segment != attr-&gt;segment) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     132 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     133 </span>            :                 }
+<span class="lineNum">     134 </span>            :         }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">        142 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_BUS)) {</span>
+<span class="lineNum">     137 </span><span class="lineCov">          4 :                 if (_filter-&gt;bus != attr-&gt;bus) {</span>
+<span class="lineNum">     138 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     139 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     140 </span>            :                 }
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">        140 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICE)) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">          4 :                 if (_filter-&gt;device != attr-&gt;device) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     146 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     147 </span>            :                 }
+<span class="lineNum">     148 </span>            :         }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">        138 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_FUNCTION)) {</span>
+<span class="lineNum">     151 </span><span class="lineCov">          4 :                 if (_filter-&gt;function != attr-&gt;function) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     153 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     154 </span>            :                 }
+<span class="lineNum">     155 </span>            :         }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">        136 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_SOCKETID)) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">          4 :                 if (_filter-&gt;socket_id != attr-&gt;socket_id) {</span>
+<span class="lineNum">     159 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     160 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     161 </span>            :                 }
+<span class="lineNum">     162 </span>            :         }
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineCov">        134 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {</span>
+<span class="lineNum">     165 </span><span class="lineCov">          6 :                 if (0 != memcmp(attr-&gt;guid, _filter-&gt;guid, sizeof(fpga_guid))) {</span>
+<span class="lineNum">     166 </span><span class="lineCov">          4 :                         res = false;</span>
+<span class="lineNum">     167 </span><span class="lineCov">          4 :                         goto out_unlock;</span>
+<span class="lineNum">     168 </span>            :                 }
+<span class="lineNum">     169 </span>            :         }
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineCov">        130 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJECTID)) {</span>
+<span class="lineNum">     172 </span>            :                 uint64_t objid;
+<span class="lineNum">     173 </span>            :                 fpga_result result;
+<span class="lineNum">     174 </span><span class="lineCov">          8 :                 result = sysfs_objectid_from_path(attr-&gt;sysfspath, &amp;objid);</span>
+<span class="lineNum">     175 </span><span class="lineCov">          8 :                 if (result != FPGA_OK || _filter-&gt;object_id != objid) {</span>
+<span class="lineNum">     176 </span><span class="lineCov">          6 :                         res = false;</span>
+<span class="lineNum">     177 </span><span class="lineCov">          6 :                         goto out_unlock;</span>
+<span class="lineNum">     178 </span>            :                 }
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineCov">        124 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">          4 :                 if (_filter-&gt;vendor_id != attr-&gt;vendor_id) {</span>
+<span class="lineNum">     183 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     184 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     185 </span>            :                 }
+<span class="lineNum">     186 </span>            :         }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">        122 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {</span>
+<span class="lineNum">     189 </span><span class="lineCov">          4 :                 if (_filter-&gt;device_id != attr-&gt;device_id) {</span>
+<span class="lineNum">     190 </span><span class="lineCov">          2 :                         res = false;</span>
+<span class="lineNum">     191 </span><span class="lineCov">          2 :                         goto out_unlock;</span>
+<span class="lineNum">     192 </span>            :                 }
+<span class="lineNum">     193 </span>            :         }
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineCov">        120 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_ERRORS)) {</span>
+<span class="lineNum">     196 </span>            :                 uint32_t errors;
+<span class="lineNum">     197 </span>            :                 char errpath[SYSFS_PATH_MAX];
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">          6 :                 snprintf_s_s(errpath, SYSFS_PATH_MAX, &quot;%s/errors&quot;,</span>
+<span class="lineNum">     200 </span><span class="lineCov">          6 :                              attr-&gt;sysfspath);</span>
+<span class="lineNum">     201 </span><span class="lineCov">          6 :                 errors = count_error_files(errpath);</span>
+<span class="lineNum">     202 </span><span class="lineCov">          6 :                 if (errors != _filter-&gt;num_errors) {</span>
+<span class="lineNum">     203 </span><span class="lineCov">          4 :                         res = false;</span>
+<span class="lineNum">     204 </span><span class="lineCov">          4 :                         goto out_unlock;</span>
+<span class="lineNum">     205 </span>            :                 }
+<span class="lineNum">     206 </span>            :         }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">        116 :         if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)</span>
+<span class="lineNum">     209 </span><span class="lineCov">         95 :             &amp;&amp; (FPGA_DEVICE == _filter-&gt;objtype)) {</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">         36 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_SLOTS)) {</span>
+<span class="lineNum">     212 </span><span class="lineCov">          2 :                         if ((FPGA_DEVICE != attr-&gt;objtype)</span>
+<span class="lineNum">     213 </span><span class="lineCov">          4 :                             || (attr-&gt;fpga_num_slots</span>
+<span class="lineNum">     214 </span><span class="lineCov">          2 :                                 != _filter-&gt;u.fpga.num_slots)) {</span>
+<span class="lineNum">     215 </span><span class="lineCov">          1 :                                 res = false;</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :                                 goto out_unlock;</span>
+<span class="lineNum">     217 </span>            :                         }
+<span class="lineNum">     218 </span>            :                 }
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">         35 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSID)) {</span>
+<span class="lineNum">     221 </span><span class="lineCov">          3 :                         if ((FPGA_DEVICE != attr-&gt;objtype)</span>
+<span class="lineNum">     222 </span><span class="lineCov">          6 :                             || (attr-&gt;fpga_bitstream_id</span>
+<span class="lineNum">     223 </span><span class="lineCov">          3 :                                 != _filter-&gt;u.fpga.bbs_id)) {</span>
+<span class="lineNum">     224 </span><span class="lineCov">          2 :                                 res = false;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          2 :                                 goto out_unlock;</span>
+<span class="lineNum">     226 </span>            :                         }
+<span class="lineNum">     227 </span>            :                 }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">         65 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSVERSION)) {</span>
+<span class="lineNum">     230 </span><span class="lineCov">          2 :                         if ((FPGA_DEVICE != attr-&gt;objtype)</span>
+<span class="lineNum">     231 </span><span class="lineCov">          4 :                             || (attr-&gt;fpga_bbs_version.major</span>
+<span class="lineNum">     232 </span><span class="lineCov">          2 :                                 != _filter-&gt;u.fpga.bbs_version.major)</span>
+<span class="lineNum">     233 </span><span class="lineCov">          2 :                             || (attr-&gt;fpga_bbs_version.minor</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :                                 != _filter-&gt;u.fpga.bbs_version.minor)</span>
+<span class="lineNum">     235 </span><span class="lineCov">          2 :                             || (attr-&gt;fpga_bbs_version.patch</span>
+<span class="lineNum">     236 </span><span class="lineCov">          1 :                                 != _filter-&gt;u.fpga.bbs_version.patch)) {</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 :                                 res = false;</span>
+<span class="lineNum">     238 </span><span class="lineCov">          1 :                                 goto out_unlock;</span>
+<span class="lineNum">     239 </span>            :                         }
+<span class="lineNum">     240 </span>            :                 }
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span><span class="lineCov">         80 :         } else if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)</span>
+<span class="lineNum">     243 </span><span class="lineCov">         59 :                    &amp;&amp; (FPGA_ACCELERATOR == _filter-&gt;objtype)) {</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">         59 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_ACCELERATOR_STATE)) {</span>
+<span class="lineNum">     246 </span><span class="lineCov">          2 :                         if ((FPGA_ACCELERATOR != attr-&gt;objtype)</span>
+<span class="lineNum">     247 </span><span class="lineCov">          4 :                             || (attr-&gt;accelerator_state</span>
+<span class="lineNum">     248 </span><span class="lineCov">          2 :                                 != _filter-&gt;u.accelerator.state)) {</span>
+<span class="lineNum">     249 </span><span class="lineCov">          1 :                                 res = false;</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 :                                 goto out_unlock;</span>
+<span class="lineNum">     251 </span>            :                         }
+<span class="lineNum">     252 </span>            :                 }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineCov">         58 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_MMIO)) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">          1 :                         if ((FPGA_ACCELERATOR != attr-&gt;objtype)</span>
+<span class="lineNum">     256 </span><span class="lineCov">          2 :                             || (attr-&gt;accelerator_num_mmios</span>
+<span class="lineNum">     257 </span><span class="lineCov">          1 :                                 != _filter-&gt;u.accelerator.num_mmio)) {</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                                 res = false;</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                                 goto out_unlock;</span>
+<span class="lineNum">     260 </span>            :                         }
+<span class="lineNum">     261 </span>            :                 }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineCov">         58 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_INTERRUPTS)) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">          2 :                         if ((FPGA_ACCELERATOR != attr-&gt;objtype)</span>
+<span class="lineNum">     265 </span><span class="lineCov">          4 :                             || (attr-&gt;accelerator_num_irqs</span>
+<span class="lineNum">     266 </span><span class="lineCov">          2 :                                 != _filter-&gt;u.accelerator.num_interrupts)) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :                                 res = false;</span>
+<span class="lineNum">     268 </span><span class="lineCov">          1 :                                 goto out_unlock;</span>
+<span class="lineNum">     269 </span>            :                         }
+<span class="lineNum">     270 </span>            :                 }
+<span class="lineNum">     271 </span>            :         }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            : out_unlock:
+<span class="lineNum">     274 </span><span class="lineCov">        204 :         err = pthread_mutex_unlock(&amp;_filter-&gt;lock);</span>
+<span class="lineNum">     275 </span><span class="lineCov">        204 :         if (err) {</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;, strerror(err));</span>
+<span class="lineNum">     277 </span>            :         }
+<span class="lineNum">     278 </span><span class="lineCov">        204 :         return res;</span>
+<a name="279"><span class="lineNum">     279 </span>            : }</a>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineCov">        214 : STATIC bool matches_filters(const struct dev_list *attr, const fpga_properties *filter,</span>
+<span class="lineNum">     282 </span>            :                      uint32_t num_filter)
+<span class="lineNum">     283 </span>            : {
+<span class="lineNum">     284 </span>            :         uint32_t i;
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineCov">        214 :         if (!num_filter) // no filter == match everything</span>
+<span class="lineNum">     287 </span><span class="lineCov">         10 :                 return true;</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineCov">        298 :         for (i = 0; i &lt; num_filter; ++i) {</span>
+<span class="lineNum">     290 </span><span class="lineCov">        204 :                 if (matches_filter(attr, filter[i])) {</span>
+<span class="lineNum">     291 </span><span class="lineCov">        110 :                         return true;</span>
+<span class="lineNum">     292 </span>            :                 }
+<span class="lineNum">     293 </span>            :         }
+<span class="lineNum">     294 </span><span class="lineCov">         94 :         return false;</span>
+<a name="295"><span class="lineNum">     295 </span>            : }</a>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">        339 : STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,</span>
+<span class="lineNum">     298 </span>            :                          struct dev_list *parent)
+<span class="lineNum">     299 </span>            : {
+<span class="lineNum">     300 </span>            :         struct dev_list *pdev;
+<span class="lineNum">     301 </span>            :         errno_t e;
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">        339 :         pdev = (struct dev_list *)malloc(sizeof(*pdev));</span>
+<span class="lineNum">     304 </span><span class="lineCov">        339 :         if (NULL == pdev)</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineCov">        339 :         e = strncpy_s(pdev-&gt;sysfspath, sizeof(pdev-&gt;sysfspath), sysfspath,</span>
+<span class="lineNum">     308 </span>            :                       SYSFS_PATH_MAX);
+<span class="lineNum">     309 </span><span class="lineCov">        339 :         if (EOK != e)</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">        339 :         e = strncpy_s(pdev-&gt;devpath, sizeof(pdev-&gt;devpath), devpath,</span>
+<span class="lineNum">     313 </span>            :                       DEV_PATH_MAX);
+<span class="lineNum">     314 </span><span class="lineCov">        339 :         if (EOK != e)</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">        339 :         pdev-&gt;next = parent-&gt;next;</span>
+<span class="lineNum">     318 </span><span class="lineCov">        339 :         parent-&gt;next = pdev;</span>
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span><span class="lineCov">        339 :         pdev-&gt;parent = parent;</span>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">        339 :         return pdev;</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            : out_free:
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         free(pdev);</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="327"><span class="lineNum">     327 </span>            : }</a>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineCov">        125 : STATIC fpga_result enum_fme(const char *sysfspath, const char *name,</span>
+<span class="lineNum">     330 </span>            :                      struct dev_list *parent)
+<span class="lineNum">     331 </span>            : {
+<span class="lineNum">     332 </span>            :         fpga_result result;
+<span class="lineNum">     333 </span>            :         struct stat stats;
+<span class="lineNum">     334 </span>            :         struct dev_list *pdev;
+<span class="lineNum">     335 </span>            :         char spath[SYSFS_PATH_MAX];
+<span class="lineNum">     336 </span>            :         char dpath[DEV_PATH_MAX];
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            :         // Make sure it's a directory.
+<span class="lineNum">     339 </span><span class="lineCov">        125 :         if (stat(sysfspath, &amp;stats) != 0) {</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;stat failed: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 return FPGA_NOT_FOUND;</span>
+<span class="lineNum">     342 </span>            :         }
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineCov">        125 :         if (!S_ISDIR(stats.st_mode))</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 return FPGA_OK;</span>
+<span class="lineNum">     346 </span><span class="lineCov">        125 :         int socket_id = 0;</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineCov">        125 :         snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH &quot;/%s&quot;, name);</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">        125 :         pdev = add_dev(sysfspath, dpath, parent);</span>
+<span class="lineNum">     351 </span><span class="lineCov">        125 :         if (!pdev) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to allocate device&quot;);</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                 return FPGA_NO_MEMORY;</span>
+<span class="lineNum">     354 </span>            :         }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineCov">        125 :         pdev-&gt;objtype = FPGA_DEVICE;</span>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span><span class="lineCov">        125 :         pdev-&gt;segment = parent-&gt;segment;</span>
+<span class="lineNum">     359 </span><span class="lineCov">        125 :         pdev-&gt;bus = parent-&gt;bus;</span>
+<span class="lineNum">     360 </span><span class="lineCov">        125 :         pdev-&gt;device = parent-&gt;device;</span>
+<span class="lineNum">     361 </span><span class="lineCov">        125 :         pdev-&gt;function = parent-&gt;function;</span>
+<span class="lineNum">     362 </span><span class="lineCov">        125 :         pdev-&gt;vendor_id = parent-&gt;vendor_id;</span>
+<span class="lineNum">     363 </span><span class="lineCov">        125 :         pdev-&gt;device_id = parent-&gt;device_id;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :         // Discover the FME GUID from sysfs (pr/interface_id)
+<span class="lineNum">     366 </span><span class="lineCov">        125 :         snprintf_s_s(spath, sizeof(spath), &quot;%s/&quot; FPGA_SYSFS_FME_INTERFACE_ID,</span>
+<span class="lineNum">     367 </span>            :                      sysfspath);
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span><span class="lineCov">        125 :         result = sysfs_read_guid(spath, pdev-&gt;guid);</span>
+<span class="lineNum">     370 </span><span class="lineCov">        125 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            :         // Discover the socket id from the FME's sysfs entry.
+<span class="lineNum">     374 </span><span class="lineCov">        125 :         snprintf_s_s(spath, sizeof(spath), &quot;%s/&quot; FPGA_SYSFS_SOCKET_ID,</span>
+<span class="lineNum">     375 </span>            :                      sysfspath);
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineCov">        125 :         result = sysfs_read_int(spath, &amp;socket_id);</span>
+<span class="lineNum">     378 </span><span class="lineCov">        125 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineCov">        125 :         snprintf_s_s(spath, sizeof(spath), &quot;%s/&quot; FPGA_SYSFS_NUM_SLOTS,</span>
+<span class="lineNum">     382 </span>            :                      sysfspath);
+<span class="lineNum">     383 </span><span class="lineCov">        125 :         result = sysfs_read_u32(spath, &amp;pdev-&gt;fpga_num_slots);</span>
+<span class="lineNum">     384 </span><span class="lineCov">        125 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineCov">        125 :         snprintf_s_s(spath, sizeof(spath), &quot;%s/&quot; FPGA_SYSFS_BITSTREAM_ID,</span>
+<span class="lineNum">     388 </span>            :                      sysfspath);
+<span class="lineNum">     389 </span><span class="lineCov">        125 :         result = sysfs_read_u64(spath, &amp;pdev-&gt;fpga_bitstream_id);</span>
+<span class="lineNum">     390 </span><span class="lineCov">        125 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineCov">        125 :         pdev-&gt;fpga_bbs_version.major =</span>
+<span class="lineNum">     394 </span><span class="lineCov">        125 :                 FPGA_BBS_VER_MAJOR(pdev-&gt;fpga_bitstream_id);</span>
+<span class="lineNum">     395 </span><span class="lineCov">        125 :         pdev-&gt;fpga_bbs_version.minor =</span>
+<span class="lineNum">     396 </span><span class="lineCov">        125 :                 FPGA_BBS_VER_MINOR(pdev-&gt;fpga_bitstream_id);</span>
+<span class="lineNum">     397 </span><span class="lineCov">        125 :         pdev-&gt;fpga_bbs_version.patch =</span>
+<span class="lineNum">     398 </span><span class="lineCov">        125 :                 FPGA_BBS_VER_PATCH(pdev-&gt;fpga_bitstream_id);</span>
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineCov">        125 :         parent-&gt;socket_id = socket_id;</span>
+<span class="lineNum">     401 </span><span class="lineCov">        125 :         parent-&gt;fme = pdev;</span>
+<span class="lineNum">     402 </span><span class="lineCov">        125 :         return FPGA_OK;</span>
+<a name="403"><span class="lineNum">     403 </span>            : }</a>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span><span class="lineCov">         89 : STATIC fpga_result enum_afu(const char *sysfspath, const char *name,</span>
+<span class="lineNum">     406 </span>            :                      struct dev_list *parent)
+<span class="lineNum">     407 </span>            : {
+<span class="lineNum">     408 </span>            :         fpga_result result;
+<span class="lineNum">     409 </span>            :         struct stat stats;
+<span class="lineNum">     410 </span>            :         struct dev_list *pdev;
+<span class="lineNum">     411 </span>            :         char spath[SYSFS_PATH_MAX];
+<span class="lineNum">     412 </span>            :         char dpath[DEV_PATH_MAX];
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :         // Make sure it's a directory.
+<span class="lineNum">     415 </span><span class="lineCov">         89 :         if (stat(sysfspath, &amp;stats) != 0) {</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;stat failed: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 return FPGA_NOT_FOUND;</span>
+<span class="lineNum">     418 </span>            :         }
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineCov">         89 :         if (!S_ISDIR(stats.st_mode))</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 return FPGA_OK;</span>
+<span class="lineNum">     422 </span>            :         int res;
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineCov">         89 :         snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH &quot;/%s&quot;, name);</span>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineCov">         89 :         pdev = add_dev(sysfspath, dpath, parent);</span>
+<span class="lineNum">     427 </span><span class="lineCov">         89 :         if (!pdev) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to allocate device&quot;);</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                 return FPGA_NO_MEMORY;</span>
+<span class="lineNum">     430 </span>            :         }
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineCov">         89 :         pdev-&gt;objtype = FPGA_ACCELERATOR;</span>
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">         89 :         pdev-&gt;segment = parent-&gt;segment;</span>
+<span class="lineNum">     435 </span><span class="lineCov">         89 :         pdev-&gt;bus = parent-&gt;bus;</span>
+<span class="lineNum">     436 </span><span class="lineCov">         89 :         pdev-&gt;device = parent-&gt;device;</span>
+<span class="lineNum">     437 </span><span class="lineCov">         89 :         pdev-&gt;function = parent-&gt;function;</span>
+<span class="lineNum">     438 </span><span class="lineCov">         89 :         pdev-&gt;vendor_id = parent-&gt;vendor_id;</span>
+<span class="lineNum">     439 </span><span class="lineCov">         89 :         pdev-&gt;device_id = parent-&gt;device_id;</span>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span><span class="lineCov">         89 :         res = open(pdev-&gt;devpath, O_RDWR);</span>
+<span class="lineNum">     442 </span><span class="lineCov">         89 :         if (-1 == res) {</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 pdev-&gt;accelerator_state = FPGA_ACCELERATOR_ASSIGNED;</span>
+<span class="lineNum">     444 </span>            :         } else {
+<span class="lineNum">     445 </span><span class="lineCov">         89 :                 close(res);</span>
+<span class="lineNum">     446 </span><span class="lineCov">         89 :                 pdev-&gt;accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;</span>
+<span class="lineNum">     447 </span>            :         }
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span>            :         // FIXME: not to rely on hard-coded constants.
+<span class="lineNum">     450 </span><span class="lineCov">         89 :         pdev-&gt;accelerator_num_mmios = 2;</span>
+<span class="lineNum">     451 </span><span class="lineCov">         89 :         pdev-&gt;accelerator_num_irqs = 0;</span>
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :         // Discover the AFU GUID from sysfs.
+<span class="lineNum">     454 </span><span class="lineCov">         89 :         snprintf_s_s(spath, sizeof(spath), &quot;%s/&quot; FPGA_SYSFS_AFU_GUID,</span>
+<span class="lineNum">     455 </span>            :                      sysfspath);
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span><span class="lineCov">         89 :         result = sysfs_read_guid(spath, pdev-&gt;guid);</span>
+<span class="lineNum">     458 </span>            :         /* if we can't read the afu_id, remove device from list */
+<span class="lineNum">     459 </span><span class="lineCov">         89 :         if (FPGA_OK != result) {</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Could not read afu_id from '%s', ignoring&quot;, spath);</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                 parent-&gt;next = pdev-&gt;next;</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 free(pdev);</span>
+<span class="lineNum">     463 </span>            :         }
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">         89 :         return FPGA_OK;</span>
+<a name="466"><span class="lineNum">     466 </span>            : }</a>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineCov">        125 : STATIC fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,</span>
+<span class="lineNum">     469 </span>            :                          bool include_port)
+<span class="lineNum">     470 </span>            : {
+<span class="lineNum">     471 </span><span class="lineCov">        125 :         fpga_result result = FPGA_NOT_FOUND;</span>
+<span class="lineNum">     472 </span>            :         struct stat stats;
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            :         struct dev_list *pdev;
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            :         DIR *dir;
+<span class="lineNum">     477 </span>            :         struct dirent *dirent;
+<span class="lineNum">     478 </span>            :         char spath[SYSFS_PATH_MAX];
+<span class="lineNum">     479 </span>            :         int res;
+<span class="lineNum">     480 </span>            :         char *p;
+<span class="lineNum">     481 </span>            :         int f;
+<span class="lineNum">     482 </span>            :         unsigned s, b, d;
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span>            :         // Make sure it's a directory.
+<span class="lineNum">     485 </span><span class="lineCov">        125 :         if (stat(sysfspath, &amp;stats) != 0) {</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;stat failed: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     488 </span>            :         }
+<span class="lineNum">     489 </span>            : 
+<span class="lineNum">     490 </span><span class="lineCov">        125 :         if (!S_ISDIR(stats.st_mode))</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                 return FPGA_OK;</span>
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span><span class="lineCov">        125 :         res = readlink(sysfspath, spath, sizeof(spath));</span>
+<span class="lineNum">     494 </span><span class="lineCov">        125 :         if (-1 == res) {</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Can't read link&quot;);</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     497 </span>            :         }
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span><span class="lineCov">        125 :         pdev = add_dev(sysfspath, &quot;&quot;, list);</span>
+<span class="lineNum">     500 </span><span class="lineCov">        125 :         if (!pdev) {</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to allocate device&quot;);</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 return FPGA_NO_MEMORY;</span>
+<span class="lineNum">     503 </span>            :         }
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span>            :         // Find the BDF from the link path.
+<span class="lineNum">     506 </span><span class="lineCov">        125 :         spath[res] = 0;</span>
+<span class="lineNum">     507 </span><span class="lineCov">        125 :         p = strrchr(spath, '/');</span>
+<span class="lineNum">     508 </span><span class="lineCov">        125 :         if (!p) {</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link&quot;);</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     511 </span>            :         }
+<span class="lineNum">     512 </span><span class="lineCov">        125 :         *p = 0;</span>
+<span class="lineNum">     513 </span><span class="lineCov">        125 :         p = strrchr(spath, '/');</span>
+<span class="lineNum">     514 </span><span class="lineCov">        125 :         if (!p) {</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link&quot;);</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     517 </span>            :         }
+<span class="lineNum">     518 </span><span class="lineCov">        125 :         *p = 0;</span>
+<span class="lineNum">     519 </span><span class="lineCov">        125 :         p = strrchr(spath, '/');</span>
+<span class="lineNum">     520 </span><span class="lineCov">        125 :         if (!p) {</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link&quot;);</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     523 </span>            :         }
+<span class="lineNum">     524 </span><span class="lineCov">        125 :         ++p;</span>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span>            :         //           11
+<span class="lineNum">     527 </span>            :         // 012345678901
+<span class="lineNum">     528 </span>            :         // ssss:bb:dd.f
+<span class="lineNum">     529 </span><span class="lineCov">        125 :         f = 0;</span>
+<span class="lineNum">     530 </span><span class="lineCov">        125 :         sscanf_s_i(p + 11, &quot;%d&quot;, &amp;f);</span>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span><span class="lineCov">        125 :         pdev-&gt;function = (uint8_t)f;</span>
+<span class="lineNum">     533 </span><span class="lineCov">        125 :         *(p + 10) = 0;</span>
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineCov">        125 :         d = 0;</span>
+<span class="lineNum">     536 </span><span class="lineCov">        125 :         sscanf_s_u(p + 8, &quot;%x&quot;, &amp;d);</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineCov">        125 :         pdev-&gt;device = (uint8_t)d;</span>
+<span class="lineNum">     539 </span><span class="lineCov">        125 :         *(p + 7) = 0;</span>
+<span class="lineNum">     540 </span>            : 
+<span class="lineNum">     541 </span><span class="lineCov">        125 :         b = 0;</span>
+<span class="lineNum">     542 </span><span class="lineCov">        125 :         sscanf_s_u(p + 5, &quot;%x&quot;, &amp;b);</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">        125 :         pdev-&gt;bus = (uint8_t)b;</span>
+<span class="lineNum">     545 </span><span class="lineCov">        125 :         *(p + 4) = 0;</span>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span><span class="lineCov">        125 :         s = 0;</span>
+<span class="lineNum">     548 </span><span class="lineCov">        125 :         sscanf_s_u(p, &quot;%x&quot;, &amp;s);</span>
+<span class="lineNum">     549 </span><span class="lineCov">        125 :         pdev-&gt;segment = (uint16_t)s;</span>
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span>            :         // read the vendor and device ID from the 'device' path
+<span class="lineNum">     552 </span><span class="lineCov">        125 :         uint32_t x = 0;</span>
+<span class="lineNum">     553 </span>            :         char vendorpath[SYSFS_PATH_MAX];
+<span class="lineNum">     554 </span><span class="lineCov">        125 :         snprintf_s_s(vendorpath, SYSFS_PATH_MAX, &quot;%s/device/vendor&quot;, sysfspath);</span>
+<span class="lineNum">     555 </span><span class="lineCov">        125 :         result = sysfs_read_u32(vendorpath, &amp;x);</span>
+<span class="lineNum">     556 </span><span class="lineCov">        125 :         if (result != FPGA_OK)</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     558 </span><span class="lineCov">        125 :         pdev-&gt;vendor_id = (uint16_t)x;</span>
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            :         char devicepath[SYSFS_PATH_MAX];
+<span class="lineNum">     561 </span><span class="lineCov">        125 :         snprintf_s_s(devicepath, SYSFS_PATH_MAX, &quot;%s/device/device&quot;, sysfspath);</span>
+<span class="lineNum">     562 </span><span class="lineCov">        125 :         result = sysfs_read_u32(devicepath, &amp;x);</span>
+<span class="lineNum">     563 </span><span class="lineCov">        125 :         if (result != FPGA_OK)</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     565 </span><span class="lineCov">        125 :         pdev-&gt;device_id = (uint16_t)x;</span>
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            :         // Find the FME and AFU devices.
+<span class="lineNum">     568 </span><span class="lineCov">        125 :         dir = opendir(sysfspath);</span>
+<span class="lineNum">     569 </span><span class="lineCov">        125 :         if (NULL == dir) {</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Can't open directory: %s&quot;, sysfspath);</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     572 </span>            :         }
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineCov">       1250 :         while ((dirent = readdir(dir)) != NULL) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">       1000 :                 if (!strcmp(dirent-&gt;d_name, &quot;.&quot;))</span>
+<span class="lineNum">     576 </span><span class="lineCov">        125 :                         continue;</span>
+<span class="lineNum">     577 </span><span class="lineCov">        875 :                 if (!strcmp(dirent-&gt;d_name, &quot;..&quot;))</span>
+<span class="lineNum">     578 </span><span class="lineCov">        125 :                         continue;</span>
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span><span class="lineCov">        750 :                 snprintf_s_ss(spath, sizeof(spath), &quot;%s/%s&quot;, sysfspath,</span>
+<span class="lineNum">     581 </span><span class="lineCov">        750 :                               dirent-&gt;d_name);</span>
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span><span class="lineCov">        750 :                 if (strstr(dirent-&gt;d_name, FPGA_SYSFS_FME)) {</span>
+<span class="lineNum">     584 </span><span class="lineCov">        125 :                         result = enum_fme(spath, dirent-&gt;d_name, pdev);</span>
+<span class="lineNum">     585 </span><span class="lineCov">        125 :                         if (result != FPGA_OK)</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     587 </span><span class="lineCov">        625 :                 } else if (include_port</span>
+<span class="lineNum">     588 </span><span class="lineCov">        445 :                            &amp;&amp; strstr(dirent-&gt;d_name, FPGA_SYSFS_AFU)) {</span>
+<span class="lineNum">     589 </span><span class="lineCov">         89 :                         result = enum_afu(spath, dirent-&gt;d_name, pdev);</span>
+<span class="lineNum">     590 </span><span class="lineCov">         89 :                         if (result != FPGA_OK)</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     592 </span>            :                 }
+<span class="lineNum">     593 </span>            :         }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">        125 :         closedir(dir);</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span><span class="lineCov">        125 :         return result;</span>
+<span class="lineNum">     598 </span>            : }
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            : /// Determine if filters require reading AFUs
+<span class="lineNum">     602 </span>            : ///
+<span class="lineNum">     603 </span>            : /// Return true if any of the following conditions are met:
+<span class="lineNum">     604 </span>            : /// * The number of filters is zero
+<span class="lineNum">     605 </span>            : /// * At least one filter specifies FPGA_ACCELERATOR as object type
+<a name="606"><span class="lineNum">     606 </span>            : /// * At least one filter does NOT specify an object type</a>
+<span class="lineNum">     607 </span>            : /// Return false otherwise
+<span class="lineNum">     608 </span><span class="lineCov">        125 : bool include_afu(const fpga_properties *filters, uint32_t num_filters)</span>
+<span class="lineNum">     609 </span>            : {
+<span class="lineNum">     610 </span><span class="lineCov">        125 :         size_t i = 0;</span>
+<span class="lineNum">     611 </span><span class="lineCov">        125 :         if (!num_filters)</span>
+<span class="lineNum">     612 </span><span class="lineCov">          5 :                 return true;</span>
+<span class="lineNum">     613 </span><span class="lineCov">        156 :         for (i = 0; i &lt; num_filters; ++i) {</span>
+<span class="lineNum">     614 </span><span class="lineCov">        120 :                 struct _fpga_properties *_filter =</span>
+<span class="lineNum">     615 </span><span class="lineCov">        120 :                         (struct _fpga_properties *)filters[i];</span>
+<span class="lineNum">     616 </span><span class="lineCov">        120 :                 if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {</span>
+<span class="lineNum">     617 </span><span class="lineCov">         95 :                         if (_filter-&gt;objtype == FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     618 </span><span class="lineCov">         59 :                                 return true;</span>
+<span class="lineNum">     619 </span>            :                         }
+<span class="lineNum">     620 </span>            :                 } else {
+<span class="lineNum">     621 </span><span class="lineCov">         25 :                         return true;</span>
+<span class="lineNum">     622 </span>            :                 }
+<span class="lineNum">     623 </span>            :         }
+<span class="lineNum">     624 </span><span class="lineCov">         36 :         return false;</span>
+<a name="625"><span class="lineNum">     625 </span>            : }</a>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineCov">        129 : fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,</span>
+<span class="lineNum">     628 </span>            :                                        uint32_t num_filters, fpga_token *tokens,
+<span class="lineNum">     629 </span>            :                                        uint32_t max_tokens,
+<span class="lineNum">     630 </span>            :                                        uint32_t *num_matches)
+<span class="lineNum">     631 </span>            : {
+<span class="lineNum">     632 </span><span class="lineCov">        129 :         fpga_result result = FPGA_NOT_FOUND;</span>
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span><span class="lineCov">        129 :         DIR *dir = NULL;</span>
+<span class="lineNum">     635 </span><span class="lineCov">        129 :         struct dirent *dirent = NULL;</span>
+<span class="lineNum">     636 </span>            :         char sysfspath[SYSFS_PATH_MAX];
+<span class="lineNum">     637 </span>            :         struct dev_list head;
+<span class="lineNum">     638 </span>            :         struct dev_list *lptr;
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineCov">        129 :         if (NULL == num_matches) {</span>
+<span class="lineNum">     641 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;num_matches is NULL&quot;);</span>
+<span class="lineNum">     642 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     643 </span>            :         }
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span>            :         /* requiring a max number of tokens, but not providing a pointer to
+<span class="lineNum">     646 </span>            :          * return them through is invalid */
+<span class="lineNum">     647 </span><span class="lineCov">        128 :         if ((max_tokens &gt; 0) &amp;&amp; (NULL == tokens)) {</span>
+<span class="lineNum">     648 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;max_tokens &gt; 0 with NULL tokens&quot;);</span>
+<span class="lineNum">     649 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     650 </span>            :         }
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span><span class="lineCov">        127 :         if ((num_filters &gt; 0) &amp;&amp; (NULL == filters)) {</span>
+<span class="lineNum">     653 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;num_filters &gt; 0 with NULL filters&quot;);</span>
+<span class="lineNum">     654 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     655 </span>            :         }
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span><span class="lineCov">        126 :         if (!num_filters &amp;&amp; (NULL != filters)) {</span>
+<span class="lineNum">     658 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;num_filters == 0 with non-NULL filters&quot;);</span>
+<span class="lineNum">     659 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     660 </span>            :         }
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineCov">        125 :         *num_matches = 0;</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">        125 :         memset_s(&amp;head, sizeof(head), 0);</span>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span>            :         // Find the top-level FPGA devices.
+<span class="lineNum">     667 </span><span class="lineCov">        125 :         dir = opendir(SYSFS_FPGA_CLASS_PATH);</span>
+<span class="lineNum">     668 </span><span class="lineCov">        125 :         if (NULL == dir) {</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;can't find %s (no driver?)&quot;, SYSFS_FPGA_CLASS_PATH);</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
+<span class="lineNum">     671 </span>            :         }
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span><span class="lineCov">        625 :         while ((dirent = readdir(dir)) != NULL) {</span>
+<span class="lineNum">     674 </span><span class="lineCov">        375 :                 if (!strcmp(dirent-&gt;d_name, &quot;.&quot;))</span>
+<span class="lineNum">     675 </span><span class="lineCov">        125 :                         continue;</span>
+<span class="lineNum">     676 </span><span class="lineCov">        250 :                 if (!strcmp(dirent-&gt;d_name, &quot;..&quot;))</span>
+<span class="lineNum">     677 </span><span class="lineCov">        125 :                         continue;</span>
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">        125 :                 snprintf_s_ss(sysfspath, sizeof(sysfspath), &quot;%s/%s&quot;,</span>
+<span class="lineNum">     680 </span><span class="lineCov">        125 :                               SYSFS_FPGA_CLASS_PATH, dirent-&gt;d_name);</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">        125 :                 result = enum_top_dev(sysfspath, &amp;head,</span>
+<span class="lineNum">     683 </span><span class="lineCov">        125 :                                       include_afu(filters, num_filters));</span>
+<span class="lineNum">     684 </span><span class="lineCov">        125 :                 if (result != FPGA_OK)</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     686 </span>            :         }
+<span class="lineNum">     687 </span>            : 
+<span class="lineNum">     688 </span><span class="lineCov">        125 :         closedir(dir);</span>
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span><span class="lineCov">        125 :         if (result != FPGA_OK) {</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;No FPGA resources found&quot;);</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                 return result;</span>
+<span class="lineNum">     693 </span>            :         }
+<span class="lineNum">     694 </span>            : 
+<span class="lineNum">     695 </span>            :         /* create and populate token data structures */
+<span class="lineNum">     696 </span><span class="lineCov">        464 :         for (lptr = head.next; NULL != lptr; lptr = lptr-&gt;next) {</span>
+<span class="lineNum">     697 </span>            :                 struct _fpga_token *_tok;
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineCov">        339 :                 if (!strnlen_s(lptr-&gt;devpath, sizeof(lptr-&gt;devpath)))</span>
+<span class="lineNum">     700 </span><span class="lineCov">        125 :                         continue;</span>
+<span class="lineNum">     701 </span>            : 
+<span class="lineNum">     702 </span>            :                 // propagate the socket_id field.
+<span class="lineNum">     703 </span><span class="lineCov">        214 :                 lptr-&gt;socket_id = lptr-&gt;parent-&gt;socket_id;</span>
+<span class="lineNum">     704 </span><span class="lineCov">        214 :                 lptr-&gt;fme = lptr-&gt;parent-&gt;fme;</span>
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span>            :                 /* FIXME: do we need to keep a global list of tokens? */
+<span class="lineNum">     707 </span>            :                 /* For now we do becaue it is used in xfpga_fpgaUpdateProperties
+<span class="lineNum">     708 </span>            :                  * to lookup a parent from the global list of tokens...*/
+<span class="lineNum">     709 </span><span class="lineCov">        214 :                 _tok = token_add(lptr-&gt;sysfspath, lptr-&gt;devpath);</span>
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span><span class="lineCov">        214 :                 if (NULL == _tok) {</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Failed to allocate memory for token&quot;);</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                         result = FPGA_NO_MEMORY;</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                         goto out_free_trash;</span>
+<span class="lineNum">     715 </span>            :                 }
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            :                 // FIXME: should check contents of filter for token magic
+<span class="lineNum">     718 </span><span class="lineCov">        214 :                 if (matches_filters(lptr, filters, num_filters)) {</span>
+<span class="lineNum">     719 </span><span class="lineCov">        120 :                         if (*num_matches &lt; max_tokens) {</span>
+<span class="lineNum">     720 </span><span class="lineCov">        120 :                                 if (xfpga_fpgaCloneToken(_tok, &amp;tokens[*num_matches])</span>
+<span class="lineNum">     721 </span>            :                                     != FPGA_OK) {
+<span class="lineNum">     722 </span>            :                                         // FIXME: should we error out here?
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                                         FPGA_MSG(&quot;Error cloning token&quot;);</span>
+<span class="lineNum">     724 </span>            :                                 }
+<span class="lineNum">     725 </span>            :                         }
+<span class="lineNum">     726 </span><span class="lineCov">        120 :                         ++(*num_matches);</span>
+<span class="lineNum">     727 </span>            :                 }
+<span class="lineNum">     728 </span>            :         }
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span>            : out_free_trash:
+<span class="lineNum">     731 </span>            :         /* FIXME: should this live in a separate function? */
+<span class="lineNum">     732 </span><span class="lineCov">        589 :         for (lptr = head.next; NULL != lptr;) {</span>
+<span class="lineNum">     733 </span><span class="lineCov">        339 :                 struct dev_list *trash = lptr;</span>
+<span class="lineNum">     734 </span><span class="lineCov">        339 :                 lptr = lptr-&gt;next;</span>
+<span class="lineNum">     735 </span><span class="lineCov">        339 :                 free(trash);</span>
+<span class="lineNum">     736 </span>            :         }
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span><span class="lineCov">        125 :         return result;</span>
+<a name="739"><span class="lineNum">     739 </span>            : }</a>
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineCov">        124 : fpga_result __FPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)</span>
+<span class="lineNum">     742 </span>            : {
+<span class="lineNum">     743 </span><span class="lineCov">        124 :         struct _fpga_token *_src = (struct _fpga_token *)src;</span>
+<span class="lineNum">     744 </span>            :         struct _fpga_token *_dst;
+<span class="lineNum">     745 </span>            :         fpga_result result;
+<span class="lineNum">     746 </span>            :         errno_t e;
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span><span class="lineCov">        124 :         if (NULL == src || NULL == dst) {</span>
+<span class="lineNum">     749 </span><span class="lineCov">          2 :                 FPGA_MSG(&quot;src or dst in NULL&quot;);</span>
+<span class="lineNum">     750 </span><span class="lineCov">          2 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     751 </span>            :         }
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineCov">        122 :         if (_src-&gt;magic != FPGA_TOKEN_MAGIC) {</span>
+<span class="lineNum">     754 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;Invalid src&quot;);</span>
+<span class="lineNum">     755 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     756 </span>            :         }
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span><span class="lineCov">        121 :         _dst = malloc(sizeof(struct _fpga_token));</span>
+<span class="lineNum">     759 </span><span class="lineCov">        121 :         if (NULL == _dst) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to allocate memory for token&quot;);</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 return FPGA_NO_MEMORY;</span>
+<span class="lineNum">     762 </span>            :         }
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span><span class="lineCov">        121 :         _dst-&gt;magic = FPGA_TOKEN_MAGIC;</span>
+<span class="lineNum">     765 </span><span class="lineCov">        121 :         _dst-&gt;instance = _src-&gt;instance;</span>
+<span class="lineNum">     766 </span>            : 
+<span class="lineNum">     767 </span><span class="lineCov">        121 :         e = strncpy_s(_dst-&gt;sysfspath, sizeof(_dst-&gt;sysfspath), _src-&gt;sysfspath,</span>
+<span class="lineNum">     768 </span>            :                       sizeof(_src-&gt;sysfspath));
+<span class="lineNum">     769 </span><span class="lineCov">        121 :         if (EOK != e) {</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;strncpy_s failed&quot;);</span>
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
+<span class="lineNum">     773 </span>            :         }
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span><span class="lineCov">        121 :         e = strncpy_s(_dst-&gt;devpath, sizeof(_dst-&gt;devpath), _src-&gt;devpath,</span>
+<span class="lineNum">     776 </span>            :                       sizeof(_src-&gt;devpath));
+<span class="lineNum">     777 </span><span class="lineCov">        121 :         if (EOK != e) {</span>
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;strncpy_s failed&quot;);</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
+<span class="lineNum">     781 </span>            :         }
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            :         // shallow-copy error list
+<span class="lineNum">     784 </span><span class="lineCov">        121 :         _dst-&gt;errors = _src-&gt;errors;</span>
+<span class="lineNum">     785 </span>            : 
+<span class="lineNum">     786 </span><span class="lineCov">        121 :         *dst = _dst;</span>
+<span class="lineNum">     787 </span><span class="lineCov">        121 :         return FPGA_OK;</span>
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span>            : out_free:
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :         free(_dst);</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :         return result;</span>
+<a name="792"><span class="lineNum">     792 </span>            : }</a>
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span><span class="lineCov">         36 : fpga_result __FPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)</span>
+<span class="lineNum">     795 </span>            : {
+<span class="lineNum">     796 </span><span class="lineCov">         36 :         fpga_result result = FPGA_OK;</span>
+<span class="lineNum">     797 </span><span class="lineCov">         36 :         int err = 0;</span>
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span><span class="lineCov">         36 :         if (NULL == token || NULL == *token) {</span>
+<span class="lineNum">     800 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;Invalid token pointer&quot;);</span>
+<span class="lineNum">     801 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     802 </span>            :         }
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span><span class="lineCov">         35 :         struct _fpga_token *_token = (struct _fpga_token *)*token;</span>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineCov">         35 :         if (pthread_mutex_lock(&amp;global_lock)) {</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to lock global mutex&quot;);</span>
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">     809 </span>            :         }
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span><span class="lineCov">         35 :         if (_token-&gt;magic != FPGA_TOKEN_MAGIC) {</span>
+<span class="lineNum">     812 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;Invalid token&quot;);</span>
+<span class="lineNum">     813 </span><span class="lineCov">          1 :                 result = FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     814 </span><span class="lineCov">          1 :                 goto out_unlock;</span>
+<span class="lineNum">     815 </span>            :         }
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            :         // invalidate magic (just in case)
+<span class="lineNum">     818 </span><span class="lineCov">         34 :         _token-&gt;magic = FPGA_INVALID_MAGIC;</span>
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span><span class="lineCov">         34 :         free(*token);</span>
+<span class="lineNum">     821 </span><span class="lineCov">         34 :         *token = NULL;</span>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span>            : out_unlock:
+<span class="lineNum">     824 </span><span class="lineCov">         35 :         err = pthread_mutex_unlock(&amp;global_lock);</span>
+<span class="lineNum">     825 </span><span class="lineCov">         35 :         if (err) {</span>
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;, strerror(err));</span>
+<span class="lineNum">     827 </span>            :         }
+<span class="lineNum">     828 </span><span class="lineCov">         35 :         return result;</span>
+<span class="lineNum">     829 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
