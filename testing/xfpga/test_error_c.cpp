@@ -127,7 +127,8 @@ TEST_P(error_c_p, error_01) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   // for each error register, get info and read the current value
@@ -175,7 +176,8 @@ TEST_P(error_c_p, error_02) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d FME error registers\n", n);
 
 
@@ -228,7 +230,8 @@ TEST_P(error_c_p, error_03) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   // for each error register, get info and read the current value
@@ -301,7 +304,8 @@ TEST_P(error_c_p, error_04) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
@@ -332,7 +336,8 @@ TEST_P(error_c_p, error_05) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
@@ -361,7 +366,8 @@ TEST_P(error_c_p, error_06) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
@@ -388,7 +394,8 @@ TEST_P(error_c_p, error_07) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
