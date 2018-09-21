@@ -28,12 +28,101 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <opae/properties.h>
+
 #include "safe_string/safe_string.h"
 
 #include "opae_int.h"
 #include "pluginmgr.h"
 #include "props.h"
 
+
+opae_wrapped_token *
+opae_allocate_wrapped_token(fpga_token token,
+			    const opae_api_adapter_table *adapter)
+{
+	opae_wrapped_token *wtok =
+		(opae_wrapped_token *)malloc(sizeof(opae_wrapped_token));
+
+	if (wtok) {
+		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
+		wtok->opae_token = token;
+		wtok->adapter_table = (opae_api_adapter_table *)adapter;
+	}
+
+	return wtok;
+}
+
+opae_wrapped_handle *
+opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
+			     opae_api_adapter_table *adapter)
+{
+	opae_wrapped_handle *whan =
+		(opae_wrapped_handle *)malloc(sizeof(opae_wrapped_handle));
+
+	if (whan) {
+		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
+		whan->wrapped_token = wt;
+		whan->opae_handle = opae_handle;
+		whan->adapter_table = adapter;
+	}
+
+	return whan;
+}
+
+opae_wrapped_event_handle *
+opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
+				   opae_api_adapter_table *adapter)
+{
+	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(
+		sizeof(opae_wrapped_event_handle));
+
+	if (wevent) {
+		pthread_mutexattr_t mattr;
+
+		if (pthread_mutexattr_init(&mattr)) {
+			OPAE_ERR("pthread_mutexattr_init() failed");
+			goto out_free;
+		}
+		if (pthread_mutexattr_settype(&mattr,
+					      PTHREAD_MUTEX_RECURSIVE)) {
+			OPAE_ERR("pthread_mutexattr_settype() failed");
+			goto out_free;
+		}
+		if (pthread_mutex_init(&wevent->lock, &mattr)) {
+			OPAE_ERR("pthread_mutex_init() failed");
+			goto out_free;
+		}
+
+		pthread_mutexattr_destroy(&mattr);
+
+		wevent->magic = OPAE_WRAPPED_EVENT_HANDLE_MAGIC;
+		wevent->flags = 0;
+		wevent->opae_event_handle = opae_event_handle;
+		wevent->adapter_table = adapter;
+	}
+
+	return wevent;
+out_free:
+	free(wevent);
+	return NULL;
+}
+
+opae_wrapped_object *
+opae_allocate_wrapped_object(fpga_object opae_object,
+			     opae_api_adapter_table *adapter)
+{
+	opae_wrapped_object *wobj =
+		(opae_wrapped_object *)malloc(sizeof(opae_wrapped_object));
+
+	if (wobj) {
+		wobj->magic = OPAE_WRAPPED_OBJECT_MAGIC;
+		wobj->opae_object = opae_object;
+		wobj->adapter_table = adapter;
+	}
+
+	return wobj;
+}
 
 fpga_result fpgaInitialize(const char *config_file)
 {
@@ -112,11 +201,10 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 					fpga_properties *prop)
 {
 	fpga_result res;
-	fpga_result dres = FPGA_OK;
-	fpga_properties pr = NULL;
-	opae_wrapped_properties *wrapped_properties;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
+	struct _fpga_properties *p;
+	int err;
 
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
@@ -124,1163 +212,169 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 		wrapped_handle->adapter_table->fpgaGetPropertiesFromHandle,
 		FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(
-		wrapped_handle->adapter_table->fpgaDestroyProperties,
+		wrapped_handle->adapter_table->fpgaCloneToken,
 		FPGA_NOT_SUPPORTED);
 
 	res = wrapped_handle->adapter_table->fpgaGetPropertiesFromHandle(
-		wrapped_handle->opae_handle, &pr);
+		wrapped_handle->opae_handle, prop);
 
 	ASSERT_RESULT(res);
 
-	wrapped_properties = opae_allocate_wrapped_properties(
-		pr, wrapped_handle->adapter_table);
+	// If the output properties has a parent token set,
+	// then it will be a raw token. We need to wrap it.
 
-	if (!wrapped_properties) {
-		OPAE_ERR("malloc failed");
-		res = FPGA_NO_MEMORY;
-		dres = wrapped_handle->adapter_table->fpgaDestroyProperties(
-			&pr);
+	p = opae_validate_and_lock_properties(*prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+		fpga_token parent = NULL;
+
+		res = wrapped_handle->adapter_table->fpgaCloneToken(
+			p->parent, &parent);
+
+		if (res == FPGA_OK) {
+			opae_wrapped_token *wrapped_parent =
+				opae_allocate_wrapped_token(
+					parent, wrapped_handle->adapter_table);
+
+			if (wrapped_parent) {
+				p->parent = wrapped_parent;
+			} else {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+			}
+
+		}
 	}
 
-	*prop = wrapped_properties;
+	opae_mutex_unlock(err, &p->lock);
 
-	return res != FPGA_OK ? res : dres;
+	return res;
 }
 
 fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
 	fpga_result res = FPGA_OK;
-	fpga_result dres = FPGA_OK;
-	fpga_properties pr = NULL;
-	opae_wrapped_properties *wrapped_properties = NULL;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
 	ASSERT_NOT_NULL(prop);
 
 	if (!token) {
+		fpga_properties pr;
 
 		pr = opae_properties_create();
 
 		if (!pr) {
 			OPAE_ERR("malloc failed");
-			res = FPGA_NO_MEMORY;
-		} else {
-			// NULL adapter_table, so the properties will be a
-			// filter properties only.
-			wrapped_properties =
-				opae_allocate_wrapped_properties(pr, NULL);
-
-			if (!wrapped_properties) {
-				OPAE_ERR("malloc failed");
-				res = FPGA_NO_MEMORY;
-				opae_properties_destroy(pr);
-			}
+			return FPGA_NO_MEMORY;
 		}
 
+		*prop = pr;
+
 	} else {
+		struct _fpga_properties *p;
+		int err;
+
+		ASSERT_NOT_NULL(wrapped_token);
 
 		ASSERT_NOT_NULL_RESULT(
 			wrapped_token->adapter_table->fpgaGetProperties,
 			FPGA_NOT_SUPPORTED);
 		ASSERT_NOT_NULL_RESULT(
-			wrapped_token->adapter_table->fpgaDestroyProperties,
+			wrapped_token->adapter_table->fpgaCloneToken,
 			FPGA_NOT_SUPPORTED);
 
 		res = wrapped_token->adapter_table->fpgaGetProperties(
-			wrapped_token->opae_token, &pr);
+			wrapped_token->opae_token, prop);
 
 		ASSERT_RESULT(res);
 
-		wrapped_properties = opae_allocate_wrapped_properties(
-			pr, wrapped_token->adapter_table);
+		// If the output properties has a parent token set,
+		// then it will be a raw token. We need to wrap it.
 
-		if (!wrapped_properties) {
-			OPAE_ERR("malloc failed");
-			res = FPGA_NO_MEMORY;
-			dres = wrapped_token->adapter_table
-				       ->fpgaDestroyProperties(&pr);
+		p = opae_validate_and_lock_properties(*prop);
+
+		ASSERT_NOT_NULL(p);
+
+		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+			fpga_token parent = NULL;
+
+			res = wrapped_token->adapter_table->fpgaCloneToken(
+				p->parent, &parent);
+
+			if (res == FPGA_OK) {
+				opae_wrapped_token *wrapped_parent =
+					opae_allocate_wrapped_token(
+						parent, wrapped_token->adapter_table);
+
+				if (wrapped_parent) {
+					p->parent = wrapped_parent;
+				} else {
+					OPAE_ERR("malloc failed");
+					res = FPGA_NO_MEMORY;
+				}
+
+			}
 		}
+
+		opae_mutex_unlock(err, &p->lock);
 	}
 
-	*prop = wrapped_properties;
-
-	return res != FPGA_OK ? res : dres;
+	return res;
 }
 
 fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
+	fpga_result res;
+	struct _fpga_properties *p;
+	int err;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
 
 	ASSERT_NOT_NULL(wrapped_token);
-	ASSERT_NOT_NULL(wrapped_properties);
 	ASSERT_NOT_NULL_RESULT(
 		wrapped_token->adapter_table->fpgaUpdateProperties,
 		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_token->adapter_table->fpgaCloneToken,
+		FPGA_NOT_SUPPORTED);
 
-	return wrapped_token->adapter_table->fpgaUpdateProperties(
-		wrapped_token->opae_token, wrapped_properties->opae_properties);
-}
-
-fpga_result fpgaClearProperties(fpga_properties prop)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table->fpgaClearProperties,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table->fpgaClearProperties(
-			wrapped_properties->opae_properties);
-	}
-
-	return opae_properties_clear(wrapped_properties->opae_properties);
-}
-
-fpga_result fpgaCloneProperties(fpga_properties src, fpga_properties *dst)
-{
-	fpga_result res;
-	fpga_result dres = FPGA_OK;
-	fpga_properties cloned_properties = NULL;
-	opae_wrapped_properties *wrapped_dst_properties;
-	opae_wrapped_properties *wrapped_src_properties =
-		opae_validate_wrapped_properties(src);
-
-	ASSERT_NOT_NULL(wrapped_src_properties);
-	ASSERT_NOT_NULL(dst);
-
-	if (wrapped_src_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_src_properties->adapter_table
-					       ->fpgaCloneProperties,
-				       FPGA_NOT_SUPPORTED);
-		ASSERT_NOT_NULL_RESULT(wrapped_src_properties->adapter_table
-					       ->fpgaDestroyProperties,
-				       FPGA_NOT_SUPPORTED);
-
-		res = wrapped_src_properties->adapter_table
-			      ->fpgaCloneProperties(
-				      wrapped_src_properties->opae_properties,
-				      &cloned_properties);
-
-		ASSERT_RESULT(res);
-	} else {
-		cloned_properties = opae_properties_clone(
-			wrapped_src_properties->opae_properties);
-		if (!cloned_properties) {
-			OPAE_ERR("malloc failed");
-			return FPGA_NO_MEMORY;
-		}
-	}
-
-	wrapped_dst_properties = opae_allocate_wrapped_properties(
-		cloned_properties, wrapped_src_properties->adapter_table);
-
-	if (!wrapped_dst_properties) {
-		OPAE_ERR("malloc failed");
-		res = FPGA_NO_MEMORY;
-		if (wrapped_src_properties->adapter_table) {
-			dres = wrapped_src_properties->adapter_table
-				       ->fpgaDestroyProperties(
-					       &cloned_properties);
-		} else {
-			opae_properties_destroy(
-				(struct _fpga_properties *)cloned_properties);
-		}
-	}
-
-	*dst = wrapped_dst_properties;
-
-	return res != FPGA_OK ? res : dres;
-}
-
-fpga_result fpgaDestroyProperties(fpga_properties *prop)
-{
-	fpga_result res;
-	opae_wrapped_properties *wrapped_properties;
-
-	ASSERT_NOT_NULL(prop);
-
-	wrapped_properties = opae_validate_wrapped_properties(*prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaDestroyProperties,
-				       FPGA_NOT_SUPPORTED);
-
-		res = wrapped_properties->adapter_table->fpgaDestroyProperties(
-			&wrapped_properties->opae_properties);
-	} else {
-		opae_properties_destroy(wrapped_properties->opae_properties);
-		res = FPGA_OK;
-	}
-
-	opae_destroy_wrapped_properties(wrapped_properties);
-
-	return res;
-}
-
-fpga_result fpgaPropertiesGetParent(const fpga_properties prop,
-				    fpga_token *parent)
-{
-	fpga_result res;
-	fpga_token tok = NULL;
-	opae_wrapped_token *wrapped_token;
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(parent);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetParent,
-				       FPGA_NOT_SUPPORTED);
-
-		res = wrapped_properties->adapter_table
-			      ->fpgaPropertiesGetParent(
-				      wrapped_properties->opae_properties,
-				      &tok);
-	} else
-		res = opae_properties_get_parent(
-			wrapped_properties->opae_properties, &tok);
+	res = wrapped_token->adapter_table->fpgaUpdateProperties(
+		wrapped_token->opae_token, prop);
 
 	ASSERT_RESULT(res);
 
-	wrapped_token = opae_allocate_wrapped_token(
-		tok, wrapped_properties->adapter_table);
+	// If the output properties has a parent token set,
+	// then it will be a raw token. We need to wrap it.
 
-	if (!wrapped_token) {
-		OPAE_ERR("malloc failed");
-		res = FPGA_NO_MEMORY;
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+		fpga_token parent = NULL;
+
+		res = wrapped_token->adapter_table->fpgaCloneToken(
+			p->parent, &parent);
+
+		if (res == FPGA_OK) {
+			opae_wrapped_token *wrapped_parent =
+				opae_allocate_wrapped_token(
+					parent, wrapped_token->adapter_table);
+
+			if (wrapped_parent) {
+				p->parent = wrapped_parent;
+			} else {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+			}
+
+		}
 	}
 
-	*parent = wrapped_token;
+	opae_mutex_unlock(err, &p->lock);
 
 	return res;
-}
-
-fpga_result fpgaPropertiesSetParent(fpga_properties prop, fpga_token parent)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(parent);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(wrapped_token);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetParent,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetParent(
-				wrapped_properties->opae_properties,
-				wrapped_token->opae_token);
-	}
-
-	return opae_properties_set_parent(wrapped_properties->opae_properties,
-					  wrapped_token->opae_token);
-}
-
-fpga_result fpgaPropertiesGetObjectType(const fpga_properties prop,
-					fpga_objtype *objtype)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(objtype);
-
-	if (wrapped_properties->adapter_table) {
-
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetObjectType,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetObjectType(
-				wrapped_properties->opae_properties, objtype);
-	}
-
-	return opae_properties_get_object_type(
-		wrapped_properties->opae_properties, objtype);
-}
-
-fpga_result fpgaPropertiesSetObjectType(fpga_properties prop,
-					fpga_objtype objtype)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetObjectType,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetObjectType(
-				wrapped_properties->opae_properties, objtype);
-	}
-
-	return opae_properties_set_object_type(
-		wrapped_properties->opae_properties, objtype);
-}
-
-fpga_result fpgaPropertiesGetSegment(const fpga_properties prop,
-				     uint16_t *segment)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(segment);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetSegment,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetSegment(
-				wrapped_properties->opae_properties, segment);
-	}
-
-	return opae_properties_get_segment(wrapped_properties->opae_properties,
-					   segment);
-}
-
-fpga_result fpgaPropertiesSetSegment(fpga_properties prop, uint16_t segment)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetSegment,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetSegment(
-				wrapped_properties->opae_properties, segment);
-	}
-
-	return opae_properties_set_segment(wrapped_properties->opae_properties,
-					   segment);
-}
-
-fpga_result fpgaPropertiesGetBus(const fpga_properties prop, uint8_t *bus)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(bus);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table->fpgaPropertiesGetBus,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table->fpgaPropertiesGetBus(
-			wrapped_properties->opae_properties, bus);
-	}
-
-	return opae_properties_get_bus(wrapped_properties->opae_properties,
-				       bus);
-}
-
-fpga_result fpgaPropertiesSetBus(fpga_properties prop, uint8_t bus)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table->fpgaPropertiesSetBus,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table->fpgaPropertiesSetBus(
-			wrapped_properties->opae_properties, bus);
-	}
-
-	return opae_properties_set_bus(wrapped_properties->opae_properties,
-				       bus);
-}
-
-fpga_result fpgaPropertiesGetDevice(const fpga_properties prop, uint8_t *device)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(device);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetDevice,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetDevice(
-				wrapped_properties->opae_properties, device);
-	}
-
-	return opae_properties_get_device(wrapped_properties->opae_properties,
-					  device);
-}
-
-fpga_result fpgaPropertiesSetDevice(fpga_properties prop, uint8_t device)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetDevice,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetDevice(
-				wrapped_properties->opae_properties, device);
-	}
-
-	return opae_properties_set_device(wrapped_properties->opae_properties,
-					  device);
-}
-
-fpga_result fpgaPropertiesGetFunction(const fpga_properties prop,
-				      uint8_t *function)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(function);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetFunction,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetFunction(
-				wrapped_properties->opae_properties, function);
-	}
-
-	return opae_properties_get_function(wrapped_properties->opae_properties,
-					    function);
-}
-
-fpga_result fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetFunction,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetFunction(
-				wrapped_properties->opae_properties, function);
-	}
-
-	return opae_properties_set_function(wrapped_properties->opae_properties,
-					    function);
-}
-
-fpga_result fpgaPropertiesGetSocketID(const fpga_properties prop,
-				      uint8_t *socket_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(socket_id);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetSocketID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetSocketID(
-				wrapped_properties->opae_properties, socket_id);
-	}
-
-	return opae_properties_get_socket_id(
-		wrapped_properties->opae_properties, socket_id);
-}
-
-fpga_result fpgaPropertiesSetSocketID(fpga_properties prop, uint8_t socket_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetSocketID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetSocketID(
-				wrapped_properties->opae_properties, socket_id);
-	}
-
-	return opae_properties_set_socket_id(
-		wrapped_properties->opae_properties, socket_id);
-}
-
-fpga_result fpgaPropertiesGetDeviceID(const fpga_properties prop,
-				      uint16_t *device_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(device_id);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetDeviceID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetDeviceID(
-				wrapped_properties->opae_properties, device_id);
-	}
-
-	return opae_properties_get_device_id(
-		wrapped_properties->opae_properties, device_id);
-}
-
-fpga_result fpgaPropertiesSetDeviceID(fpga_properties prop, uint16_t device_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetDeviceID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetDeviceID(
-				wrapped_properties->opae_properties, device_id);
-	}
-
-	return opae_properties_set_device_id(
-		wrapped_properties->opae_properties, device_id);
-}
-
-fpga_result fpgaPropertiesGetNumSlots(const fpga_properties prop,
-				      uint32_t *num_slots)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(num_slots);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetNumSlots,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetNumSlots(
-				wrapped_properties->opae_properties, num_slots);
-	}
-
-	return opae_properties_get_num_slots(
-		wrapped_properties->opae_properties, num_slots);
-}
-
-fpga_result fpgaPropertiesSetNumSlots(fpga_properties prop, uint32_t num_slots)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetNumSlots,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetNumSlots(
-				wrapped_properties->opae_properties, num_slots);
-	}
-
-	return opae_properties_set_num_slots(
-		wrapped_properties->opae_properties, num_slots);
-}
-
-fpga_result fpgaPropertiesGetBBSID(const fpga_properties prop, uint64_t *bbs_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(bbs_id);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetBBSID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetBBSID(
-				wrapped_properties->opae_properties, bbs_id);
-	}
-
-	return opae_properties_get_bbs_id(wrapped_properties->opae_properties,
-					  bbs_id);
-}
-
-fpga_result fpgaPropertiesSetBBSID(fpga_properties prop, uint64_t bbs_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetBBSID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetBBSID(
-				wrapped_properties->opae_properties, bbs_id);
-	}
-
-	return opae_properties_set_bbs_id(wrapped_properties->opae_properties,
-					  bbs_id);
-}
-
-fpga_result fpgaPropertiesGetBBSVersion(const fpga_properties prop,
-					fpga_version *bbs_version)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(bbs_version);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetBBSVersion,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetBBSVersion(
-				wrapped_properties->opae_properties,
-				bbs_version);
-	}
-
-	return opae_properties_get_bbs_version(
-		wrapped_properties->opae_properties, bbs_version);
-}
-
-fpga_result fpgaPropertiesSetBBSVersion(fpga_properties prop,
-					fpga_version version)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetBBSVersion,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetBBSVersion(
-				wrapped_properties->opae_properties, version);
-	}
-
-	return opae_properties_set_bbs_version(
-		wrapped_properties->opae_properties, version);
-}
-
-fpga_result fpgaPropertiesGetVendorID(const fpga_properties prop,
-				      uint16_t *vendor_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(vendor_id);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetVendorID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetVendorID(
-				wrapped_properties->opae_properties, vendor_id);
-	}
-
-	return opae_properties_get_vendor_id(
-		wrapped_properties->opae_properties, vendor_id);
-}
-
-fpga_result fpgaPropertiesSetVendorID(fpga_properties prop, uint16_t vendor_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetVendorID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetVendorID(
-				wrapped_properties->opae_properties, vendor_id);
-	}
-
-	return opae_properties_set_vendor_id(
-		wrapped_properties->opae_properties, vendor_id);
-}
-
-fpga_result fpgaPropertiesGetModel(const fpga_properties prop, char *model)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(model);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetModel,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetModel(
-				wrapped_properties->opae_properties, model);
-	}
-
-	return opae_properties_get_model(wrapped_properties->opae_properties,
-					 model);
-}
-
-fpga_result fpgaPropertiesSetModel(fpga_properties prop, char *model)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(model);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetModel,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetModel(
-				wrapped_properties->opae_properties, model);
-	}
-
-	return opae_properties_set_model(wrapped_properties->opae_properties,
-					 model);
-}
-
-fpga_result fpgaPropertiesGetLocalMemorySize(const fpga_properties prop,
-					     uint64_t *lms)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(lms);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table
-				->fpgaPropertiesGetLocalMemorySize,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetLocalMemorySize(
-				wrapped_properties->opae_properties, lms);
-	}
-
-	return opae_properties_get_local_memory_size(
-		wrapped_properties->opae_properties, lms);
-}
-
-fpga_result fpgaPropertiesSetLocalMemorySize(fpga_properties prop, uint64_t lms)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table
-				->fpgaPropertiesSetLocalMemorySize,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetLocalMemorySize(
-				wrapped_properties->opae_properties, lms);
-	}
-
-	return opae_properties_set_local_memory_size(
-		wrapped_properties->opae_properties, lms);
-}
-
-fpga_result fpgaPropertiesGetCapabilities(const fpga_properties prop,
-					  uint64_t *capabilities)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(capabilities);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetCapabilities,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetCapabilities(
-				wrapped_properties->opae_properties,
-				capabilities);
-	}
-
-	return opae_properties_get_capabilities(
-		wrapped_properties->opae_properties, capabilities);
-}
-
-fpga_result fpgaPropertiesSetCapabilities(fpga_properties prop,
-					  uint64_t capabilities)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetCapabilities,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetCapabilities(
-				wrapped_properties->opae_properties,
-				capabilities);
-	}
-
-	return opae_properties_set_capabilities(
-		wrapped_properties->opae_properties, capabilities);
-}
-
-fpga_result fpgaPropertiesGetGUID(const fpga_properties prop, fpga_guid *guid)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(guid);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetGUID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table->fpgaPropertiesGetGUID(
-			wrapped_properties->opae_properties, guid);
-	}
-
-	return opae_properties_get_guid(wrapped_properties->opae_properties,
-					guid);
-}
-
-fpga_result fpgaPropertiesSetGUID(fpga_properties prop, fpga_guid guid)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetGUID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table->fpgaPropertiesSetGUID(
-			wrapped_properties->opae_properties, guid);
-	}
-
-	return opae_properties_set_guid(wrapped_properties->opae_properties,
-					guid);
-}
-
-fpga_result fpgaPropertiesGetNumMMIO(const fpga_properties prop,
-				     uint32_t *mmio_spaces)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(mmio_spaces);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetNumMMIO,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetNumMMIO(
-				wrapped_properties->opae_properties,
-				mmio_spaces);
-	}
-
-	return opae_properties_get_num_mmio(wrapped_properties->opae_properties,
-					    mmio_spaces);
-}
-
-fpga_result fpgaPropertiesSetNumMMIO(fpga_properties prop, uint32_t mmio_spaces)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetNumMMIO,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetNumMMIO(
-				wrapped_properties->opae_properties,
-				mmio_spaces);
-	}
-
-	return opae_properties_set_num_mmio(wrapped_properties->opae_properties,
-					    mmio_spaces);
-}
-
-fpga_result fpgaPropertiesGetNumInterrupts(const fpga_properties prop,
-					   uint32_t *num_interrupts)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(num_interrupts);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetNumInterrupts,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetNumInterrupts(
-				wrapped_properties->opae_properties,
-				num_interrupts);
-	}
-
-	return opae_properties_get_num_interrupts(
-		wrapped_properties->opae_properties, num_interrupts);
-}
-
-fpga_result fpgaPropertiesSetNumInterrupts(fpga_properties prop,
-					   uint32_t num_interrupts)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetNumInterrupts,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetNumInterrupts(
-				wrapped_properties->opae_properties,
-				num_interrupts);
-	}
-
-	return opae_properties_set_num_interrupts(
-		wrapped_properties->opae_properties, num_interrupts);
-}
-
-fpga_result fpgaPropertiesGetAcceleratorState(const fpga_properties prop,
-					      fpga_accelerator_state *state)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(state);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table
-				->fpgaPropertiesGetAcceleratorState,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetAcceleratorState(
-				wrapped_properties->opae_properties, state);
-	}
-
-	return opae_properties_get_accelerator_state(
-		wrapped_properties->opae_properties, state);
-}
-
-fpga_result fpgaPropertiesSetAcceleratorState(fpga_properties prop,
-					      fpga_accelerator_state state)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_properties->adapter_table
-				->fpgaPropertiesSetAcceleratorState,
-			FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetAcceleratorState(
-				wrapped_properties->opae_properties, state);
-	}
-
-	return opae_properties_set_accelerator_state(
-		wrapped_properties->opae_properties, state);
-}
-
-fpga_result fpgaPropertiesGetObjectID(const fpga_properties prop,
-				      uint64_t *object_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(object_id);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetObjectID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetObjectID(
-				wrapped_properties->opae_properties, object_id);
-	}
-
-	return opae_properties_get_object_id(
-		wrapped_properties->opae_properties, object_id);
-}
-
-fpga_result fpgaPropertiesSetObjectID(const fpga_properties prop,
-				      uint64_t object_id)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetObjectID,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetObjectID(
-				wrapped_properties->opae_properties, object_id);
-	}
-
-	return opae_properties_set_object_id(
-		wrapped_properties->opae_properties, object_id);
-}
-
-fpga_result fpgaPropertiesGetNumErrors(const fpga_properties prop,
-				       uint32_t *num_errors)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-	ASSERT_NOT_NULL(num_errors);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesGetNumErrors,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesGetNumErrors(
-				wrapped_properties->opae_properties,
-				num_errors);
-	}
-
-	return opae_properties_get_num_errors(
-		wrapped_properties->opae_properties, num_errors);
-}
-
-fpga_result fpgaPropertiesSetNumErrors(const fpga_properties prop,
-				       uint32_t num_errors)
-{
-	opae_wrapped_properties *wrapped_properties =
-		opae_validate_wrapped_properties(prop);
-
-	ASSERT_NOT_NULL(wrapped_properties);
-
-	if (wrapped_properties->adapter_table) {
-		ASSERT_NOT_NULL_RESULT(wrapped_properties->adapter_table
-					       ->fpgaPropertiesSetNumErrors,
-				       FPGA_NOT_SUPPORTED);
-
-		return wrapped_properties->adapter_table
-			->fpgaPropertiesSetNumErrors(
-				wrapped_properties->opae_properties,
-				num_errors);
-	}
-
-	return opae_properties_set_num_errors(
-		wrapped_properties->opae_properties, num_errors);
 }
 
 fpga_result fpgaWriteMMIO64(fpga_handle handle, uint32_t mmio_num,
@@ -1368,7 +462,7 @@ fpga_result fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 
 typedef struct _opae_enumeration_context {
 	// <verbatim from fpgaEnumerate>
-	const fpga_properties *adapter_filters;
+	const fpga_properties *filters;
 	uint32_t num_filters;
 	fpga_token *wrapped_tokens;
 	uint32_t max_wrapped_tokens;
@@ -1407,7 +501,7 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 		return OPAE_ENUM_CONTINUE;
 	}
 
-	res = adapter->fpgaEnumerate(ctx->adapter_filters, ctx->num_filters,
+	res = adapter->fpgaEnumerate(ctx->filters, ctx->num_filters,
 				     ctx->adapter_tokens, space_remaining,
 				     &num_matches);
 
@@ -1424,6 +518,9 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 		// requesting token count, only.
 		return OPAE_ENUM_CONTINUE;
 	}
+
+	if (space_remaining > num_matches)
+		space_remaining = num_matches;
 
 	for (i = 0; i < space_remaining; ++i) {
 		opae_wrapped_token *wt = opae_allocate_wrapped_token(
@@ -1447,10 +544,17 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 {
 	fpga_result res = FPGA_EXCEPTION;
 	fpga_token *adapter_tokens = NULL;
-	fpga_properties *adapter_filters = NULL;
 
 	opae_enumeration_context enum_context;
 
+	typedef struct _parent_token_fixup {
+		struct _parent_token_fixup *next;
+		fpga_properties prop;
+		opae_wrapped_token *wrapped_token;
+	} parent_token_fixup;
+
+	parent_token_fixup *ptf_list = NULL;
+	uint32_t i;
 
 	ASSERT_NOT_NULL(num_matches);
 
@@ -1471,33 +575,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 
 	*num_matches = 0;
 
-	if (filters) {
-		uint32_t i;
-		// filters will be an array of opae_wrapped_properties.
-		// We need to unwrap them before handing them down a layer.
-
-		adapter_filters = (fpga_properties *)malloc(
-			num_filters * sizeof(fpga_properties));
-		if (!adapter_filters) {
-			OPAE_ERR("out of memory");
-			return FPGA_NO_MEMORY;
-		}
-
-		for (i = 0; i < num_filters; ++i) {
-			opae_wrapped_properties *wrapped_properties =
-				opae_validate_wrapped_properties(filters[i]);
-			if (wrapped_properties) {
-				adapter_filters[i] =
-					wrapped_properties->opae_properties;
-			} else {
-				OPAE_ERR(
-					"invalid opae_wrapped_properties in enum filter");
-				--num_filters;
-			}
-		}
-	}
-
-	enum_context.adapter_filters = adapter_filters;
+	enum_context.filters = filters;
 	enum_context.num_filters = num_filters;
 	enum_context.wrapped_tokens = tokens;
 	enum_context.max_wrapped_tokens = max_tokens;
@@ -1508,8 +586,6 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 			(fpga_token *)calloc(max_tokens, sizeof(fpga_token));
 		if (!adapter_tokens) {
 			OPAE_ERR("out of memory");
-			if (adapter_filters)
-				free(adapter_filters);
 			return FPGA_NO_MEMORY;
 		}
 	}
@@ -1518,16 +594,71 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	enum_context.num_wrapped_tokens = 0;
 	enum_context.errors = 0;
 
+	// If any of the input filters has a parent token set,
+	// then it will be wrapped. We need to unwrap it here,
+	// then re-wrap below.
+	for (i = 0 ; i < num_filters ; ++i) {
+		fpga_token parent = NULL;
+
+		if (fpgaPropertiesGetParent(filters[i], &parent) == FPGA_OK) {
+			parent_token_fixup *fixup;
+			opae_wrapped_token *wrapped_parent =
+				opae_validate_wrapped_token(parent);
+
+			if (!wrapped_parent) {
+				OPAE_ERR("Invalid wrapped parent in filter");
+				res = FPGA_INVALID_PARAM;
+				goto out_free_tokens;
+			}
+
+			fixup = (parent_token_fixup *)
+				malloc(sizeof(parent_token_fixup));
+
+			if (!fixup) {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+				goto out_free_tokens;
+			}
+
+			fixup->next = NULL;
+			fixup->prop = filters[i];
+			fixup->wrapped_token = wrapped_parent;
+
+			if (!ptf_list)
+				ptf_list = fixup;
+			else {
+				fixup->next = ptf_list;
+				ptf_list = fixup;
+			}
+
+			// Set the unwrapped parent token.
+			res = fpgaPropertiesSetParent(filters[i],
+					wrapped_parent->opae_token);
+
+			if (res != FPGA_OK)
+				goto out_free_tokens;
+
+		}
+
+	}
+
 	// perform the enumeration.
 	opae_plugin_mgr_for_each_adapter(opae_enumerate, &enum_context);
 
 	res = (enum_context.errors > 0) ? FPGA_EXCEPTION : FPGA_OK;
 
+out_free_tokens:
 	if (adapter_tokens)
 		free(adapter_tokens);
 
-	if (adapter_filters)
-		free(adapter_filters);
+	// Re-establish any wrapped parent tokens.
+	while (ptf_list) {
+		parent_token_fixup *trash = ptf_list;
+		ptf_list = ptf_list->next;
+		fpgaPropertiesSetParent(trash->prop,
+				trash->wrapped_token);
+		free(trash);
+	}
 
 	return res;
 }
@@ -1835,6 +966,7 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	fpga_result res = FPGA_OK;
 	opae_wrapped_event_handle *wrapped_event_handle;
+	int ires;
 
 	ASSERT_NOT_NULL(event_handle);
 
@@ -1843,16 +975,29 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 
 	ASSERT_NOT_NULL(wrapped_event_handle);
 
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
+
 	if (wrapped_event_handle->flags & OPAE_WRAPPED_EVENT_HANDLE_CREATED) {
-		ASSERT_NOT_NULL_RESULT(wrapped_event_handle->adapter_table
-					       ->fpgaDestroyEventHandle,
-				       FPGA_NOT_SUPPORTED);
-		ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
+
+		if (!wrapped_event_handle->adapter_table
+			     ->fpgaDestroyEventHandle) {
+			OPAE_ERR("NULL fpgaDestroyEventHandle() in adapter.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_NOT_SUPPORTED;
+		}
+
+		if (!wrapped_event_handle->opae_event_handle) {
+			OPAE_ERR("NULL fpga_event_handle in wrapper.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_INVALID_PARAM;
+		}
 
 		res = wrapped_event_handle->adapter_table
 			      ->fpgaDestroyEventHandle(
 				      &wrapped_event_handle->opae_event_handle);
 	}
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 
 	opae_destroy_wrapped_event_handle(wrapped_event_handle);
 
@@ -1861,27 +1006,44 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 
 fpga_result fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 {
+	fpga_result res;
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(eh);
+	int ires;
 
 	ASSERT_NOT_NULL(fd);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		OPAE_ERR(
 			"Attempting to query OS event object before event handle is registered.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 		return FPGA_INVALID_PARAM;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_event_handle->adapter_table
-				       ->fpgaGetOSObjectFromEventHandle,
-			       FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle in wrapper.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table
-		->fpgaGetOSObjectFromEventHandle(
-			wrapped_event_handle->opae_event_handle, fd);
+	if (!wrapped_event_handle->adapter_table
+		     ->fpgaGetOSObjectFromEventHandle) {
+		OPAE_ERR("NULL fpgaGetOSObjectFromEventHandle in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table
+		      ->fpgaGetOSObjectFromEventHandle(
+			      wrapped_event_handle->opae_event_handle, fd);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
@@ -1892,23 +1054,31 @@ fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 		opae_validate_wrapped_handle(handle);
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(event_handle);
+	int ires;
 
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		// Now that we have an adapter table, store the adapter in
 		// the wrapped_event_handle, and create the event handle.
 
-		ASSERT_NOT_NULL_RESULT(
-			wrapped_handle->adapter_table->fpgaCreateEventHandle,
-			FPGA_NOT_SUPPORTED);
+		if (!wrapped_handle->adapter_table->fpgaCreateEventHandle) {
+			OPAE_ERR("NULL fpgaCreateEventHandle() in adapter.");
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return FPGA_NOT_SUPPORTED;
+		}
 
 		res = wrapped_handle->adapter_table->fpgaCreateEventHandle(
 			&wrapped_event_handle->opae_event_handle);
 
-		ASSERT_RESULT(res);
+		if (res != FPGA_OK) {
+			opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+			return res;
+		}
 
 		// The event_handle is now created.
 		wrapped_event_handle->adapter_table =
@@ -1917,43 +1087,75 @@ fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 			OPAE_WRAPPED_EVENT_HANDLE_CREATED;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL(wrapped_event_handle->adapter_table);
-	ASSERT_NOT_NULL_RESULT(
-		wrapped_event_handle->adapter_table->fpgaRegisterEvent,
-		FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table->fpgaRegisterEvent(
+	if (!wrapped_event_handle->adapter_table) {
+		OPAE_ERR("NULL adapter table in wrapped event handle.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!wrapped_event_handle->adapter_table->fpgaRegisterEvent) {
+		OPAE_ERR("NULL fpgaRegisterEvent() in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table->fpgaRegisterEvent(
 		wrapped_handle->opae_handle, event_type,
 		wrapped_event_handle->opae_event_handle, flags);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 				fpga_event_handle event_handle)
 {
+	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 	opae_wrapped_event_handle *wrapped_event_handle =
 		opae_validate_wrapped_event_handle(event_handle);
+	int ires;
 
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(wrapped_event_handle);
+
+	opae_mutex_lock(ires, &wrapped_event_handle->lock);
 
 	if (!(wrapped_event_handle->flags
 	      & OPAE_WRAPPED_EVENT_HANDLE_CREATED)) {
 		OPAE_ERR(
 			"Attempting to unregister event object before registering it.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
 		return FPGA_INVALID_PARAM;
 	}
 
-	ASSERT_NOT_NULL(wrapped_event_handle->opae_event_handle);
-	ASSERT_NOT_NULL_RESULT(
-		wrapped_event_handle->adapter_table->fpgaUnregisterEvent,
-		FPGA_NOT_SUPPORTED);
+	if (!wrapped_event_handle->opae_event_handle) {
+		OPAE_ERR("NULL fpga_event_handle in wrapper.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return wrapped_event_handle->adapter_table->fpgaUnregisterEvent(
+	if (!wrapped_event_handle->adapter_table->fpgaUnregisterEvent) {
+		OPAE_ERR("NULL fpgaUnregisterEvent() in adapter.");
+		opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_event_handle->adapter_table->fpgaUnregisterEvent(
 		wrapped_handle->opae_handle, event_type,
 		wrapped_event_handle->opae_event_handle);
+
+	opae_mutex_unlock(ires, &wrapped_event_handle->lock);
+
+	return res;
 }
 
 fpga_result fpgaAssignPortToInterface(fpga_handle fpga, uint32_t interface_num,
@@ -2025,7 +1227,7 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 		flags);
 }
 
-fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
+fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags)
 {
 	fpga_result res;
@@ -2037,12 +1239,12 @@ fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(name);
 	ASSERT_NOT_NULL(object);
-	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaGetTokenObject,
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaTokenGetObject,
 			       FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDestroyObject,
 			       FPGA_NOT_SUPPORTED);
 
-	res = wrapped_token->adapter_table->fpgaGetTokenObject(
+	res = wrapped_token->adapter_table->fpgaTokenGetObject(
 		wrapped_token->opae_token, name, &obj, flags);
 
 	ASSERT_RESULT(res);
@@ -2054,6 +1256,84 @@ fpga_result fpgaGetTokenObject(fpga_token token, const char *name,
 		OPAE_ERR("malloc failed");
 		res = FPGA_NO_MEMORY;
 		dres = wrapped_token->adapter_table->fpgaDestroyObject(&obj);
+	}
+
+	*object = wrapped_object;
+
+	return res != FPGA_OK ? res : dres;
+}
+
+fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
+				fpga_object *object, int flags)
+{
+	fpga_result res;
+	fpga_result dres = FPGA_OK;
+	fpga_object obj = NULL;
+	opae_wrapped_object *wrapped_object;
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_handle->adapter_table->fpgaHandleGetObject,
+		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDestroyObject,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_handle->adapter_table->fpgaHandleGetObject(
+		wrapped_handle->opae_handle, name, &obj, flags);
+
+	ASSERT_RESULT(res);
+
+	wrapped_object = opae_allocate_wrapped_object(
+		obj, wrapped_handle->adapter_table);
+
+	if (!wrapped_object) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		dres = wrapped_handle->adapter_table->fpgaDestroyObject(&obj);
+	}
+
+	*object = wrapped_object;
+
+	return res != FPGA_OK ? res : dres;
+}
+
+fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
+				const char *name, fpga_object *object,
+				int flags)
+{
+	fpga_result res;
+	fpga_result dres = FPGA_OK;
+	fpga_object obj = NULL;
+	opae_wrapped_object *wrapped_object =
+		opae_validate_wrapped_object(parent);
+
+	UNUSED_PARAM(parent);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_object->adapter_table->fpgaObjectGetObject,
+		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaDestroyObject,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_object->adapter_table->fpgaObjectGetObject(
+		wrapped_object->opae_object, handle, name, &obj, flags);
+
+	ASSERT_RESULT(res);
+
+	wrapped_object = opae_allocate_wrapped_object(
+		obj, wrapped_object->adapter_table);
+
+	if (!wrapped_object) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		dres = wrapped_object->adapter_table->fpgaDestroyObject(&obj);
 	}
 
 	*object = wrapped_object;
@@ -2094,4 +1374,60 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 
 	return wrapped_object->adapter_table->fpgaObjectRead(
 		wrapped_object->opae_object, buffer, offset, len, flags);
+}
+
+fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(value);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectRead64,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectRead64(
+		wrapped_object->opae_object, value, flags);
+}
+
+fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectWrite64,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectWrite64(
+		wrapped_object->opae_object, value, flags);
+}
+
+fpga_result fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
+			     uint64_t low_clk, int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaSetUserClock(
+		wrapped_handle->opae_handle, high_clk, low_clk, flags);
+}
+
+
+fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
+			     uint64_t *low_clk, int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(low_clk);
+	ASSERT_NOT_NULL(high_clk);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaGetUserClock(
+		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }

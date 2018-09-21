@@ -113,7 +113,7 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN,
 					   sizeof(uint32_t));
 	if (json_len == 0) {
-		PRINT_MSG("Bitstream has no metadata");
+		OPAE_MSG("Bitstream has no metadata");
 		result = FPGA_OK;
 		goto out_free;
 	}
@@ -122,13 +122,13 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 
 	json_metadata = (char *)malloc(json_len + 1);
 	if (json_metadata == NULL) {
-		PRINT_ERR("Could not allocate memory for metadata!");
+		OPAE_ERR("Could not allocate memory for metadata!");
 		return FPGA_NO_MEMORY;
 	}
 
 	e = memcpy_s(json_metadata, json_len + 1, json_metadata_ptr, json_len);
 	if (EOK != e) {
-		PRINT_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -143,7 +143,7 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 						  &interface_id);
 
 			if (interface_id == NULL) {
-				PRINT_ERR("Invalid metadata");
+				OPAE_ERR("Invalid metadata");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
@@ -151,11 +151,11 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 			result = string_to_guid(
 				json_object_get_string(interface_id), guid);
 			if (result != FPGA_OK) {
-				PRINT_ERR("Invalid BBS interface id ");
+				OPAE_ERR("Invalid BBS interface id ");
 				goto out_free;
 			}
 		} else {
-			PRINT_ERR("Invalid metadata");
+			OPAE_ERR("Invalid metadata");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -395,61 +395,6 @@ int parse_metadata(struct bitstream_info *info)
 	return 0;
 }
 
-fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
-				  uint64_t *id_h)
-{
-	fpga_result result = FPGA_OK;
-	char buf_l[INTFC_ID_LOW_LEN + 1] = {0};
-	char buf_h[INTFC_ID_HIGH_LEN + 1] = {0};
-	uint8_t buffer[INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN] = {0};
-
-	fpga_object pr_object;
-	errno_t e;
-
-	result = fpgaGetTokenObject(token, PR_INTERFACE_ID, &pr_object, 0);
-	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to get Token Object \n");
-		return result;
-	}
-
-	result = fpgaObjectRead(pr_object, buffer, 0,
-				INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN, 0);
-	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to Read Object \n");
-		return result;
-	}
-
-	// PR Inteface Id h
-	memset_s(buf_h, sizeof(buf_h), 0);
-	e = strncpy_s(buf_h, sizeof(buf_h), (char *)buffer, INTFC_ID_HIGH_LEN);
-	if (EOK != e) {
-		fprintf(stderr, "strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
-	}
-
-	*id_h = strtoull(buf_h, NULL, 16);
-
-	// PR Inteface Id l
-	memset_s(buf_l, sizeof(buf_l), 0);
-	e = strncpy_s(buf_l, sizeof(buf_l), (char *)buffer + INTFC_ID_LOW_LEN,
-		      INTFC_ID_LOW_LEN);
-	if (EOK != e) {
-		fprintf(stderr, "strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
-	}
-
-	*id_l = strtoull(buf_l, NULL, 16);
-
-	result = fpgaDestroyObject(&pr_object);
-	if (result != FPGA_OK) {
-		fprintf(stderr, "Failed to Destroy Object \n");
-		return result;
-	}
-
-	return result;
-}
-
-
 /*
  * Prints Actual and Expected Interface id
  */
@@ -638,9 +583,6 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	uint32_t num_matches;
 	fpga_result res;
 	int retval = -1;
-
-	res = fpgaInitialize(NULL);
-	ON_ERR_GOTO(res, out_err, "Failed to initilize ");
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);

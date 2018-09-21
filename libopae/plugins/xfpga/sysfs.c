@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <pthread.h>
+#include <glob.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
@@ -38,12 +39,13 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <opae/types.h>
+#include <opae/log.h>
+#include <opae/types_enum.h>
 
 #include "safe_string/safe_string.h"
 
 #include "types_int.h"
 #include "sysfs_int.h"
-#include "log_int.h"
 #include "common_int.h"
 
 int sysfs_filter(const struct dirent *de)
@@ -729,6 +731,10 @@ ssize_t eintr_write(int fd, void *buf, size_t count)
 
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
+	if (!dest) {
+		FPGA_ERR("destination str is NULL");
+		return FPGA_EXCEPTION;
+	}
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	int len = snprintf_s_ss(dest, SYSFS_PATH_MAX, "%s/%s",
 				_token->sysfspath, path);
@@ -778,19 +784,51 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
+		obj->handle = NULL;
 		obj->path = strdup(sysfspath);
 		obj->name = strdup(name);
 		obj->fd = -1;
 		obj->size = 0;
+		obj->max_size = 0;
 		obj->buffer = NULL;
 		obj->objects = NULL;
 	}
 	return obj;
 }
 
+fpga_result opae_glob_path(char *path)
+{
+	fpga_result res = FPGA_OK;
+	glob_t pglob;
+	int globres = glob(path, 0, NULL, &pglob);
+	if (!globres) {
+		if (pglob.gl_pathc > 1) {
+			FPGA_MSG(
+				"Ambiguous object key - using first one");
+		}
+		if (strcpy_s(path, FILENAME_MAX,
+			      pglob.gl_pathv[0])) {
+			FPGA_ERR("Could not copy globbed path");
+			res = FPGA_EXCEPTION;
+		}
+		globfree(&pglob);
+	} else {
+		switch (globres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+	}
+	return res;
+}
 
 fpga_result make_sysfs_group(char *sysfspath, const char *name,
-			     fpga_object *object)
+			     fpga_object *object, int flags, fpga_handle handle)
 {
 	struct dirent **namelist;
 	int n;
@@ -798,6 +836,13 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	char *ptr = NULL;
 	errno_t err;
 	fpga_object subobj;
+	fpga_result res = FPGA_OK;
+	if (flags & FPGA_OBJECT_GLOB) {
+		res = opae_glob_path(sysfspath);
+	}
+	if (res != FPGA_OK) {
+		return res;
+	}
 
 
 	n = scandir(sysfspath, &namelist, sysfs_filter, alphasort);
@@ -818,35 +863,56 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	}
 	struct _fpga_object *group = alloc_fpga_object(sysfspath, name);
 	group->type = FPGA_SYSFS_DIR;
-	group->size = n;
-	ptr = sysfspath + pathlen;
-	*ptr++ = '/';
-	group->objects = calloc(n, sizeof(fpga_object));
-	group->size = 0;
-	while (n--) {
-		err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
-			       namelist[n]->d_name);
-		if (err == EOK) {
-			if (!make_sysfs_object(sysfspath, namelist[n]->d_name,
-					       &subobj)) {
-				group->objects[group->size++] = subobj;
+	if (flags & FPGA_OBJECT_RECURSE_ONE
+	    || flags & FPGA_OBJECT_RECURSE_ALL) {
+		ptr = sysfspath + pathlen;
+		*ptr++ = '/';
+		group->objects = calloc(n, sizeof(fpga_object));
+		group->size = 0;
+		while (n--) {
+			err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
+				       namelist[n]->d_name);
+			if (err == EOK) {
+				if (flags & FPGA_OBJECT_RECURSE_ONE) {
+					flags &= ~FPGA_OBJECT_RECURSE_ONE;
+				}
+				if (!make_sysfs_object(
+					    sysfspath, namelist[n]->d_name,
+					    &subobj, flags, handle)) {
+					group->objects[group->size++] = subobj;
+				}
 			}
+			free(namelist[n]);
 		}
-		free(namelist[n]);
+		free(namelist);
+	} else {
+		while (n--) {
+			free(namelist[n]);
+		}
+		free(namelist);
 	}
-	free(namelist);
 
 	*object = (fpga_object)group;
 	return FPGA_OK;
 }
 
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
-			      fpga_object *object)
+			      fpga_object *object, int flags,
+			      fpga_handle handle)
 {
 	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
-	struct _fpga_object *obj = alloc_fpga_object(sysfspath, name);
+	struct _fpga_object *obj = NULL;
 	struct stat objstat;
-	int statres = stat(sysfspath, &objstat);
+	int statres;
+	fpga_result res = FPGA_OK;
+	if (flags & FPGA_OBJECT_GLOB) {
+		res = opae_glob_path(sysfspath);
+	}
+	obj = alloc_fpga_object(sysfspath, name);
+	if (res != FPGA_OK) {
+		return res;
+	}
+	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
 		FPGA_ERR("Error accessing %s: %s", sysfspath, strerror(errno));
 		switch (errno) {
@@ -861,14 +927,17 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 
 	if (S_ISDIR(objstat.st_mode)) {
-		return make_sysfs_group(sysfspath, name, object);
+		return make_sysfs_group(sysfspath, name, object, flags, handle);
 	}
-	obj->fd = open(sysfspath, O_RDONLY);
+	obj->handle = handle;
+	obj->type = FPGA_SYSFS_FILE;
+	obj->fd = open(sysfspath, handle == NULL ? O_RDONLY : O_RDWR);
 	if (obj->fd < 0) {
 		FPGA_ERR("Error opening %s", sysfspath);
 		return FPGA_EXCEPTION;
 	}
 	obj->buffer = calloc(pg_size, sizeof(uint8_t));
+	obj->max_size = pg_size;
 	obj->size = eintr_read(obj->fd, obj->buffer, pg_size);
 	*object = (fpga_object)obj;
 	return FPGA_OK;

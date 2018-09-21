@@ -163,11 +163,13 @@ typedef enum { FPGA_SYSFS_DIR = 0, FPGA_SYSFS_FILE } fpga_sysfs_type;
 
 struct _fpga_object {
 	pthread_mutex_t lock;
+	fpga_handle handle;
 	fpga_sysfs_type type;
 	char *path;
 	char *name;
 	int fd;
 	size_t size;
+	size_t max_size;
 	uint8_t *buffer;
 	fpga_object *objects;
 };

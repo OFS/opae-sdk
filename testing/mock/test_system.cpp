@@ -28,24 +28,60 @@
  */
 
 #include "test_system.h"
-#include <dlfcn.h>
+#include <iostream>
 #include <stdarg.h>
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 #include "c_test_system.h"
 #include "test_utils.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#include <dlfcn.h>
+
+void * __builtin_return_address(unsigned level);
+
 // hijack malloc
 static bool _invalidate_malloc = false;
-void *malloc(size_t size)
-{
+static uint32_t _invalidate_malloc_after = 0;
+static const char * _invalidate_malloc_when_called_from = nullptr;
+void *malloc(size_t size) {
   if (_invalidate_malloc) {
-    _invalidate_malloc = false;
-    return nullptr;
+
+    if (!_invalidate_malloc_when_called_from) {
+
+        if (!_invalidate_malloc_after) {
+          _invalidate_malloc = false;
+          return nullptr;
+        }
+
+        --_invalidate_malloc_after;
+
+    } else {
+        void *caller = __builtin_return_address(0);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+        else
+            res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+
+        if (!_invalidate_malloc_after && !res) {
+          _invalidate_malloc = false;
+          _invalidate_malloc_when_called_from = nullptr;
+          return nullptr;
+        } else if (!res)
+            --_invalidate_malloc_after;
+
+    }
+
   }
   return __libc_malloc(size);
 }
-
 
 namespace opae {
 namespace testing {
@@ -55,7 +91,6 @@ static const char *dev_pattern =
 static const char *sysclass_pattern =
     R"regex(/sys/class/fpga/intel-fpga-dev\.\([0-9]\+\))regex";
 
-
 mock_object::mock_object(const std::string &devpath,
                          const std::string &sysclass, uint32_t device_id,
                          type_t type)
@@ -64,10 +99,10 @@ mock_object::mock_object(const std::string &devpath,
       device_id_(device_id),
       type_(type) {}
 
-  int mock_fme::ioctl(int request, va_list argp) {
-    (void)request;
-    (void)argp;
-    return 0;
+int mock_fme::ioctl(int request, va_list argp) {
+  (void)request;
+  (void)argp;
+  return 0;
 }
 
 int mock_port::ioctl(int request, va_list argp) {
@@ -93,7 +128,7 @@ test_device test_device::unknown() {
                      .socket_id = 9,
                      .num_slots = 9,
                      .bbs_id = 9,
-                     .bbs_version = {0xFF,0xFF,0xFF},
+                     .bbs_version = {0xFF, 0xFF, 0xFF},
                      .state = FPGA_ACCELERATOR_ASSIGNED,
                      .num_mmio = 0,
                      .num_interrupts = 0xf,
@@ -120,10 +155,10 @@ static platform_db PLATFORMS = {
                        .socket_id = 0,
                        .num_slots = 1,
                        .bbs_id = 0x63000023b637277,
-                       .bbs_version = {6,3,0},
+                       .bbs_version = {6, 3, 0},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
-                       .num_interrupts = 1,
+                       .num_interrupts = 0,
                        .fme_object_id = 0xf500000,
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
@@ -151,17 +186,19 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return keys;
 }
 
-test_system *test_system::instance_ = 0;
+test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
+  fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
   readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
 }
 
 test_system *test_system::instance() {
@@ -187,7 +224,7 @@ std::string test_system::prepare_syfs(const test_platform &platform) {
 void test_system::set_root(const char *root) { root_ = root; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
-  if (src.find("/sys/class/fpga") == 0 || src.find("/dev/intel-fpga") == 0) {
+  if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0) {
     if (!root_.empty() && root_.size() > 1) {
       return root_ + src;
     }
@@ -198,11 +235,13 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
+  ASSERT_FN(fopen_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
+  ASSERT_FN(scandir_);
 }
 
 void test_system::finalize() {
@@ -217,7 +256,8 @@ void test_system::finalize() {
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
-  bool alhready_registered = ioctl_handlers_.find(request) != ioctl_handlers_.end();
+  bool alhready_registered =
+      ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
   return alhready_registered;
 }
@@ -258,7 +298,7 @@ int test_system::open(const std::string &path, int flags) {
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
       fds_[fd] = new mock_fme(path, sysclass_path, device_id);
-    } else if (m->group(1) == "port" ) {
+    } else if (m->group(1) == "port") {
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
   }
@@ -269,12 +309,28 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
+    std::map<int, mock_object *>::iterator it = fds_.find(fd);
+    if (it != fds_.end())
+        delete it->second;          
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
 }
 
-int test_system::close(int fd) { return close_(fd); }
+FILE *test_system::fopen(const std::string &path, const std::string &mode) {
+  std::string syspath = get_sysfs_path(path);
+  return fopen_(syspath.c_str(), mode.c_str());
+}
+
+int test_system::close(int fd)
+{
+  std::map<int, mock_object *>::iterator it = fds_.find(fd);
+  if (it != fds_.end()) {
+    delete it->second;
+    fds_.erase(it);
+  }
+  return close_(fd);
+}
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
   auto mock_it = fds_.find(fd);
@@ -310,8 +366,16 @@ int test_system::lstat(int ver, const char *path, struct stat *buf) {
   return lstat_(ver, syspath.c_str(), buf);
 }
 
-void test_system::invalidate_malloc() {
+int test_system::scandir(const char *dirp, struct dirent ***namelist,
+                         filter_func filter, compare_func cmp) {
+  std::string syspath = get_sysfs_path(dirp);
+  return scandir_(syspath.c_str(), namelist, filter, cmp);
+}
+
+void test_system::invalidate_malloc(uint32_t after, const char *when_called_from) {
   _invalidate_malloc = true;
+  _invalidate_malloc_after = after;
+  _invalidate_malloc_when_called_from = when_called_from;
 }
 
 }  // end of namespace testing
@@ -325,6 +389,10 @@ int opae_test_open(const char *path, int flags) {
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+FILE * opae_test_fopen(const char *path, const char *mode) {
+  return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
 int opae_test_close(int fd) {
@@ -351,3 +419,8 @@ int opae_test_lstat(int ver, const char *path, struct stat *buf) {
   return opae::testing::test_system::instance()->lstat(ver, path, buf);
 }
 
+int opae_test_scandir(const char *dirp, struct dirent ***namelist,
+                      filter_func filter, compare_func cmp) {
+  return opae::testing::test_system::instance()->scandir(dirp, namelist, filter,
+                                                         cmp);
+}

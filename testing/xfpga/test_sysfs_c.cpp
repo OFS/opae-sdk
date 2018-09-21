@@ -32,11 +32,18 @@
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include "types_int.h"
+#include <vector>
+#include <string>
 #include "xfpga.h"
 
 
 #include "gtest/gtest.h"
 #include "test_system.h"
+
+const std::string single_sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
+const std::string single_sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+const std::string single_dev_fme = "/dev/intel-fpga-fme.0";
+const std::string single_dev_port = "/dev/intel-fpga-port.0";
 
 using namespace opae::testing;
 
@@ -52,7 +59,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -60,7 +67,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
@@ -78,6 +85,48 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 
 };
+
+TEST(sysfs_c, cat_token_sysfs_path)
+{
+  _fpga_token tok;
+  std::copy(single_sysfs_fme.begin(), single_sysfs_fme.end(), &tok.sysfspath[0]);
+  tok.sysfspath[single_sysfs_fme.size()] = '\0';
+  std::copy(single_dev_fme.begin(), single_dev_fme.end(), &tok.devpath[0]);
+  tok.devpath[single_dev_fme.size()] = '\0';
+  std::vector<char> buffer(256);
+  EXPECT_EQ(cat_token_sysfs_path(buffer.data(), &tok, "bitstream_id"), FPGA_OK);
+  EXPECT_STREQ(buffer.data(), std::string(single_sysfs_fme + "/bitstream_id").c_str());
+
+  // null destination
+  EXPECT_EQ(cat_token_sysfs_path(nullptr, &tok, "bitstream_id"), FPGA_EXCEPTION);
+}
+
+TEST(sysfs_c, cat_handle_sysfs_path)
+{
+  _fpga_token tok;
+  _fpga_handle hnd;
+  std::copy(single_sysfs_fme.begin(), single_sysfs_fme.end(), &tok.sysfspath[0]);
+  tok.sysfspath[single_sysfs_fme.size()] = '\0';
+  std::copy(single_dev_fme.begin(), single_dev_fme.end(), &tok.devpath[0]);
+  tok.devpath[single_dev_fme.size()] = '\0';
+  hnd.token = &tok;
+  std::vector<char> buffer(256);
+  EXPECT_EQ(cat_handle_sysfs_path(buffer.data(), &hnd, "bitstream_id"), FPGA_OK);
+  EXPECT_STREQ(buffer.data(), std::string(single_sysfs_fme + "/bitstream_id").c_str());
+
+  // null destination
+  EXPECT_EQ(cat_handle_sysfs_path(nullptr, &hnd, "bitstream_id"), FPGA_EXCEPTION);
+}
+
+TEST_P(sysfs_c_p, make_object)
+{
+  _fpga_token *tok = static_cast<_fpga_token*>(tokens_[0]);
+  fpga_object object;
+  // errors is a sysfs directory - this should call make_sysfs_group()
+  ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 0, 0), FPGA_OK);
+
+
+}
 
 /**
 * @test    fpga_sysfs_01

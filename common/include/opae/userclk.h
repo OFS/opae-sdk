@@ -24,21 +24,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_PLUGINMGR_H__
-#define __OPAE_PLUGINMGR_H__
+/**
+ * @file userclk.h
+ * @brief Functions for setting and get afu user clock
+*/
 
-#include "adapter.h"
+#ifndef __FPGA_AFU_USER_CLOCK_H__
+#define __FPGA_AFU_USER_CLOCK_H__
 
-// non-zero on failure.
-int opae_plugin_mgr_initialize(const char *cfg_file);
+#include <opae/types.h>
 
-// non-zero on failure.
-int opae_plugin_mgr_finalize_all(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// iteration stops if callback returns non-zero.
-#define OPAE_ENUM_STOP 1
-#define OPAE_ENUM_CONTINUE 0
-int opae_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_api_adapter_table *, void *), void *context);
+/**
+ * set afu user clock high and low
+ * @param[in]  handle       Handle to previously opened accelerator resource.
+ * @param[in]  high_clk     AFU High user clock frequency in MHz.
+ * @param[in]  low_clk      AFU Low user clock frequency in MHz.
+ * @param[in]  flags        Flags Reserved.
+ *
+.*@returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or
+ * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
+ * exception occurred while trying to access the handle.
+ */
+fpga_result fpgaSetUserClock(fpga_handle handle,
+				uint64_t high_clk, uint64_t low_clk, int flags);
 
-#endif /* __OPAE_PLUGINMGR_H__ */
+/**
+ * Get afu user clock high and low
+ * @param[in]   handle       Handle to previously opened accelerator resource.
+ * @param[out]  high_clk     AFU High user clock frequency in MHz.
+ * @param[out]  low_clk      AFU Low user clock frequency in MHz.
+ * @param[in]   flags        Flags  Reserved.
+ *
+ .*@returns FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or
+ * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
+ * exception occurred while trying to access the handle.
+ */
+fpga_result fpgaGetUserClock(fpga_handle handle,
+				uint64_t *high_clk, uint64_t *low_clk, int flags);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // __FPGA_AFU_USER_CLOCK_H__

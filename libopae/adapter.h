@@ -56,138 +56,6 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaUpdateProperties)(fpga_token token,
 					    fpga_properties prop);
 
-	fpga_result (*fpgaClearProperties)(fpga_properties prop);
-
-	fpga_result (*fpgaCloneProperties)(fpga_properties src,
-					   fpga_properties *dst);
-
-	fpga_result (*fpgaDestroyProperties)(fpga_properties *prop);
-
-	fpga_result (*fpgaPropertiesGetParent)(const fpga_properties prop,
-					       fpga_token *parent);
-
-	fpga_result (*fpgaPropertiesSetParent)(fpga_properties prop,
-					       fpga_token parent);
-
-	fpga_result (*fpgaPropertiesGetObjectType)(const fpga_properties prop,
-						   fpga_objtype *objtype);
-
-	fpga_result (*fpgaPropertiesSetObjectType)(fpga_properties prop,
-						   fpga_objtype objtype);
-
-	fpga_result (*fpgaPropertiesGetSegment)(const fpga_properties prop,
-						uint16_t *segment);
-
-	fpga_result (*fpgaPropertiesSetSegment)(fpga_properties prop,
-						uint16_t segment);
-
-	fpga_result (*fpgaPropertiesGetBus)(const fpga_properties prop,
-					    uint8_t *bus);
-
-	fpga_result (*fpgaPropertiesSetBus)(fpga_properties prop, uint8_t bus);
-
-	fpga_result (*fpgaPropertiesGetDevice)(const fpga_properties prop,
-					       uint8_t *device);
-
-	fpga_result (*fpgaPropertiesSetDevice)(fpga_properties prop,
-					       uint8_t device);
-
-	fpga_result (*fpgaPropertiesGetFunction)(const fpga_properties prop,
-						 uint8_t *function);
-
-	fpga_result (*fpgaPropertiesSetFunction)(fpga_properties prop,
-						 uint8_t function);
-
-	fpga_result (*fpgaPropertiesGetSocketID)(const fpga_properties prop,
-						 uint8_t *socket_id);
-
-	fpga_result (*fpgaPropertiesSetSocketID)(fpga_properties prop,
-						 uint8_t socket_id);
-
-	fpga_result (*fpgaPropertiesGetDeviceID)(const fpga_properties prop,
-						 uint16_t *device_id);
-
-	fpga_result (*fpgaPropertiesSetDeviceID)(fpga_properties prop,
-						 uint16_t device_id);
-
-	fpga_result (*fpgaPropertiesGetNumSlots)(const fpga_properties prop,
-						 uint32_t *num_slots);
-
-	fpga_result (*fpgaPropertiesSetNumSlots)(fpga_properties prop,
-						 uint32_t num_slots);
-
-	fpga_result (*fpgaPropertiesGetBBSID)(const fpga_properties prop,
-					      uint64_t *bbs_id);
-
-	fpga_result (*fpgaPropertiesSetBBSID)(fpga_properties prop,
-					      uint64_t bbs_id);
-
-	fpga_result (*fpgaPropertiesGetBBSVersion)(const fpga_properties prop,
-						   fpga_version *bbs_version);
-
-	fpga_result (*fpgaPropertiesSetBBSVersion)(fpga_properties prop,
-						   fpga_version version);
-
-	fpga_result (*fpgaPropertiesGetVendorID)(const fpga_properties prop,
-						 uint16_t *vendor_id);
-
-	fpga_result (*fpgaPropertiesSetVendorID)(fpga_properties prop,
-						 uint16_t vendor_id);
-
-	fpga_result (*fpgaPropertiesGetModel)(const fpga_properties prop,
-					      char *model);
-
-	fpga_result (*fpgaPropertiesSetModel)(fpga_properties prop,
-					      char *model);
-
-	fpga_result (*fpgaPropertiesGetLocalMemorySize)(
-		const fpga_properties prop, uint64_t *lms);
-
-	fpga_result (*fpgaPropertiesSetLocalMemorySize)(fpga_properties prop,
-							uint64_t lms);
-
-	fpga_result (*fpgaPropertiesGetCapabilities)(const fpga_properties prop,
-						     uint64_t *capabilities);
-
-	fpga_result (*fpgaPropertiesSetCapabilities)(fpga_properties prop,
-						     uint64_t capabilities);
-
-	fpga_result (*fpgaPropertiesGetGUID)(const fpga_properties prop,
-					     fpga_guid *guid);
-
-	fpga_result (*fpgaPropertiesSetGUID)(fpga_properties prop,
-					     fpga_guid guid);
-
-	fpga_result (*fpgaPropertiesGetNumMMIO)(const fpga_properties prop,
-						uint32_t *mmio_spaces);
-
-	fpga_result (*fpgaPropertiesSetNumMMIO)(fpga_properties prop,
-						uint32_t mmio_spaces);
-
-	fpga_result (*fpgaPropertiesGetNumInterrupts)(
-		const fpga_properties prop, uint32_t *num_interrupts);
-
-	fpga_result (*fpgaPropertiesSetNumInterrupts)(fpga_properties prop,
-						      uint32_t num_interrupts);
-
-	fpga_result (*fpgaPropertiesGetAcceleratorState)(
-		const fpga_properties prop, fpga_accelerator_state *state);
-
-	fpga_result (*fpgaPropertiesSetAcceleratorState)(
-		fpga_properties prop, fpga_accelerator_state state);
-
-	fpga_result (*fpgaPropertiesGetObjectID)(const fpga_properties prop,
-						 uint64_t *object_id);
-
-	fpga_result (*fpgaPropertiesSetObjectID)(const fpga_properties prop,
-						 uint64_t object_id);
-
-	fpga_result (*fpgaPropertiesGetNumErrors)(const fpga_properties prop,
-						  uint32_t *num_errors);
-
-	fpga_result (*fpgaPropertiesSetNumErrors)(const fpga_properties prop,
-						  uint32_t num_errors);
-
 	fpga_result (*fpgaWriteMMIO64)(fpga_handle handle, uint32_t mmio_num,
 				       uint64_t offset, uint64_t value);
 
@@ -232,13 +100,13 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
 	/*
-		fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
-
-		fpga_result (*fpgaGetOPAECVersionString)(char *version_str,
-	   size_t len);
-
-		fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t
-	   len);
+	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
+	**
+	**	fpga_result (*fpgaGetOPAECVersionString)(char *version_str,
+	**  size_t len);
+	**
+	**	fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t
+	**   len);
 	*/
 
 	fpga_result (*fpgaReadError)(fpga_token token, uint32_t error_num,
@@ -252,7 +120,7 @@ typedef struct _opae_api_adapter_table {
 					struct fpga_error_info *error_info);
 
 	/*
-		const char *(*fpgaErrStr)(fpga_result e);
+	**	const char *(*fpgaErrStr)(fpga_result e);
 	*/
 
 	fpga_result (*fpgaCreateEventHandle)(fpga_event_handle *event_handle);
@@ -287,13 +155,32 @@ typedef struct _opae_api_adapter_table {
 					   const uint8_t *bitstream,
 					   size_t bitstream_len, int flags);
 
-	fpga_result (*fpgaGetTokenObject)(fpga_token token, const char *name,
+	fpga_result (*fpgaTokenGetObject)(fpga_token token, const char *name,
 					  fpga_object *object, int flags);
+
+	fpga_result (*fpgaHandleGetObject)(fpga_handle handle, const char *name,
+					   fpga_object *object, int flags);
+
+	fpga_result (*fpgaObjectGetObject)(fpga_object parent,
+					   fpga_handle handle, const char *name,
+					   fpga_object *object, int flags);
 
 	fpga_result (*fpgaDestroyObject)(fpga_object *obj);
 
 	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,
 				      size_t offset, size_t len, int flags);
+
+	fpga_result (*fpgaObjectRead64)(fpga_object obj, uint64_t *value,
+					int flags);
+
+	fpga_result (*fpgaObjectWrite64)(fpga_object obj, uint64_t value,
+					 int flags);
+
+	fpga_result (*fpgaSetUserClock)(fpga_handle handle, uint64_t high_clk,
+					uint64_t low_clk, int flags);
+
+	fpga_result (*fpgaGetUserClock)(fpga_handle handle, uint64_t *high_clk,
+					uint64_t *low_clk, int flags);
 
 	// configuration functions
 	int (*initialize)(void);
