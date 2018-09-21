@@ -327,8 +327,9 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) &&
 	    (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
-		wrapped_parent = (opae_wrapped_token *) p->parent;
-		p->parent = wrapped_parent->opae_token;
+		wrapped_parent = opae_validate_wrapped_token(p->parent);
+		if (wrapped_parent)
+			p->parent = wrapped_parent->opae_token;
 	}
 
 	res = wrapped_token->adapter_table->fpgaUpdateProperties(
@@ -361,8 +362,10 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 			wrapped_parent->opae_token = p->parent;
 			wrapped_parent->adapter_table = wrapped_token->adapter_table;
 			p->parent = wrapped_parent;
+			p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
 		}
-	}
+	} else if (wrapped_parent)
+		opae_destroy_wrapped_token(wrapped_parent);
 
 	opae_mutex_unlock(err, &p->lock);
 

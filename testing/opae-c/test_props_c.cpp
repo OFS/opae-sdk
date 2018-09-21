@@ -285,6 +285,46 @@ TEST_P(properties_p1, from_token03) {
 }
 
 /**
+ * @test    update01
+ * @brief   Tests: fpgaUpdateProperties
+ * @details When the input properties object has a parent token set,<br>
+ *          fpgaUpdateProperties re-uses the wrapper object.<br>
+ *          If a subsequent call to fpgaUpdateProperties results in a properites<br>
+ *          object without a parent token,<br>
+ *          then the wrapper object is freed.<br>
+ */
+TEST_P(properties_p1, update01) {
+  fpga_properties props = nullptr;
+  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
+  // The output properties for the accelerator will have a parent token.
+
+  // Updating the properties again (accelerator) will re-use the existing token wrapper. 
+  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
+
+  // Updating the properties for a device token will not result in
+  // a parent token. The token wrapper will be destroyed.
+  EXPECT_EQ(fpgaUpdateProperties(tokens_device_[0], props), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    update02
+ * @brief   Tests: fpgaUpdateProperties
+ * @details When the resulting properties object has a parent token set,<br>
+ *          but malloc fails during wrapper allocation,<br>
+ *          fpgaUpdateProperties returns FPGA_NO_MEMORY.<br>
+ */
+TEST_P(properties_p1, update02) {
+  fpga_properties props = nullptr;
+  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
  * @test    get_parent_null_props
  * @brief   Tests: fpgaPropertiesGetParent
  * @details Given a null fpga_properties* object<br>
