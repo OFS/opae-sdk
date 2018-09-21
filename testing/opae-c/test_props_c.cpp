@@ -225,8 +225,6 @@ TEST_P(properties_p1, set_parent01) {
 TEST_P(properties_p1, from_handle01) {
   fpga_properties props = nullptr;
   EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_OK);
-  // props will have a cloned parent token.
-  EXPECT_EQ(fpgaDestroyToken(&((struct _fpga_properties *)props)->parent), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
 
@@ -283,8 +281,6 @@ TEST_P(properties_p1, from_token02) {
 TEST_P(properties_p1, from_token03) {
   fpga_properties props = nullptr;
   EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_OK);
-  // props will have a cloned parent token.
-  EXPECT_EQ(fpgaDestroyToken(&((struct _fpga_properties *)props)->parent), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
 
