@@ -108,10 +108,6 @@ class openclose_c_p
       }
     }
 
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
