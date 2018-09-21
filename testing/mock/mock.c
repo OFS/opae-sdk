@@ -30,6 +30,7 @@
  * Involves redefining ioctl(), open(), close(), others?
  */
 
+#include <stdio.h>
 #include <fcntl.h>
 #include <safe_string/safe_string.h>
 #include <stdarg.h>
@@ -57,6 +58,10 @@ int open(const char *path, int flags, ...) {
     fd = opae_test_open(path, flags);
   }
   return fd;
+}
+
+FILE * fopen(const char *path, const char *mode) {
+  return opae_test_fopen(path, mode);
 }
 
 int close(int fd) { return opae_test_close(fd); }

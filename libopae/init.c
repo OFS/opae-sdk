@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/init.h>
+#include "pluginmgr.h"
 #include "opae_int.h"
 #undef __USE_GNU
 
@@ -108,11 +109,17 @@ __attribute__((constructor)) static void opae_init(void)
 	if (g_logfile == NULL)
 		g_logfile = stdout;
 
-	fpgaInitialize(NULL);
+	// If the environment hasn't requested explicit initialization,
+	// perform the initialization implicitly here.
+	if (getenv("OPAE_EXPLICIT_INITIALIZE") == NULL)
+		fpgaInitialize(NULL);
 }
 
 __attribute__((destructor)) static void opae_release(void)
 {
+	if (opae_plugin_mgr_finalize_all())
+		OPAE_ERR("opae_plugin_mgr_finalize_all");
+
 	if (g_logfile != NULL && g_logfile != stdout) {
 		fclose(g_logfile);
 	}

@@ -60,6 +60,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs = system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
     num_matches = 0xc01a;
     invalid_device_ = test_device::unknown();
@@ -68,10 +69,6 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 

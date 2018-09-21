@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-include_directories(${CMAKE_SOURCE_DIR} )
+include_directories(${OPAE_INCLUDE_DIR})
 
 set(SRC mm_debug_link_linux.cpp
 		mmlink_connection.cpp

@@ -261,6 +261,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
     }
+
     system_->finalize();
     fpgad_.join();
   }
