@@ -281,17 +281,22 @@ TEST_P(error_c_p, error_03) {
 
 }
 
-
-
 /**
  * @test       error_04
  *
  * @brief      When passed a valid AFU token for an AFU with PORT errors,
  *             fpgaReadError() will report the correct error, and
- *             fpgaClearError() will clear it.
+ *             fpgaClearAllErrors() will clear it.
  *
  */
 TEST_P(error_c_p, error_04) {
+  std::fstream clear_file;
+  std::ofstream error_file;
+  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
+  std::string error_name = tmpsysfs_ + sysfs_port + "/errors/errors";
+  uint64_t clear_val;
+
+  fpga_error_info info;
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
@@ -308,7 +313,82 @@ TEST_P(error_c_p, error_04) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    ASSERT_EQ(val, 0);
+  }
+  // ------------- MAKE SURE CLEAR FILE IS 0 ------------
+  clear_file.open(clear_name);
+  ASSERT_EQ(1,clear_file.is_open());
+  clear_file >> clear_val;
+  clear_file.close();
+  ASSERT_EQ(clear_val, 0);
+
+  // ------------- INJECT PORT ERROR --------------------
+  error_file.open(error_name);
+  ASSERT_EQ(1,error_file.is_open());
+  error_file << "0x42" << std::endl;
+  error_file.close();
+
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
+    // if error, try to clear it (and check result)
+    if (val != 0) {
+      printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
+      EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
+      // check if value was written to clear file
+      clear_file.open(clear_name);
+      clear_file >> std::hex >> clear_val;
+      clear_file.close();
+      EXPECT_EQ(clear_val, val);
+    }
+  }
+
+  // --------------- WRITE 0 TO CLEAR AND ERROR FILES (CLEAN UP) -------------
+  error_file.open(error_name);
+  error_file << "0x0" << std::endl;
+  error_file.close();
+  clear_file.open(clear_name);
+  clear_file << "0x0" << std::endl;
+  clear_file.close();
+
+}
+
+
+
+
+/**
+ * @test       error_05
+ *
+ * @brief      When passed a valid AFU token for an AFU with PORT errors,
+ *             fpgaReadError() will report the correct error, and
+ *             fpgaClearError() will clear it.
+ *
+ */
+TEST_P(error_c_p, error_05) {
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_port_token_;
+  
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &fake_port_token_.errors);
+
+  // get number of error registers
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  auto _prop = (_fpga_properties*)filter_;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
+  printf("Found %d PORT error registers\n", n);
+
+  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
   delete_errors("port");
   EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
 }
@@ -316,14 +396,14 @@ TEST_P(error_c_p, error_04) {
 
 
 /**
- * @test       error_05
+ * @test       error_06
  *
  * @brief      When passed a valid FME token,
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_05) {
+TEST_P(error_c_p, error_06) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
@@ -338,22 +418,22 @@ TEST_P(error_c_p, error_05) {
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
   //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
-  printf("Found %d PORT error registers\n", n);
+  printf("Found %d FME error registers\n", n);
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
+  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
   delete_errors("fme");
   EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
 }
 
 /**
- * @test       error_06
+ * @test       error_07
  *
  * @brief      When passed a valid AFU tokens,
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_06) {
+TEST_P(error_c_p, error_07) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
@@ -374,14 +454,14 @@ TEST_P(error_c_p, error_06) {
 }
 
 /**
- * @test       error_07
+ * @test       error_08
  *
  * @brief      When passed a valid FME token,
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_07) {
+TEST_P(error_c_p, error_08) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
