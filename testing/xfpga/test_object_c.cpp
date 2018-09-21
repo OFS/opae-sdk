@@ -36,7 +36,8 @@ const std::string DATA =
 
 class sysobject_p : public ::testing::TestWithParam<std::string> {
  protected:
-  sysobject_p() : tmpsysfs_("mocksys-XXXXXX"), tokens_{nullptr} {}
+  sysobject_p()
+      : tmpsysfs_("mocksys-XXXXXX"), tokens_{nullptr}, handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -57,6 +58,10 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
       }
+    }
+    if (handle_) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
     }
     system_->finalize();
   }
@@ -101,7 +106,7 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   const char *name = "bitstream_id";
   fpga_object object;
   int flags = 0;
-  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, name, &object, flags), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, name, &object, flags), FPGA_OK);
   uint64_t bitstream_id = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, FPGA_OBJECT_TEXT),
             FPGA_OK);
@@ -109,7 +114,6 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaClose(&handle_), FPGA_OK);
 }
 
 TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
@@ -174,7 +178,9 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   uint64_t value = 0;
   fwrite(c0c0str.c_str(), c0c0str.size(), 1, fp);
   fflush(fp);
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value, FPGA_OBJECT_TEXT | FPGA_OBJECT_SYNC), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value,
+                                   FPGA_OBJECT_TEXT | FPGA_OBJECT_SYNC),
+            FPGA_OK);
   EXPECT_EQ(value, 0xc0c0cafe);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
@@ -185,21 +191,21 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
                                 &num_matches),
             FPGA_OK);
   ASSERT_GT(num_matches, 0);
+  ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
   _fpga_token *tok = static_cast<_fpga_token *>(h->token);
   std::string syspath(tok->sysfspath);
   syspath += "/testdata";
   auto fp = system_->register_file(syspath);
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   fpga_object object;
-  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0),
+            FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, FPGA_OBJECT_TEXT),
             FPGA_OK);
   rewind(fp);
   std::vector<char> buffer(256);
   fread(buffer.data(), buffer.size(), 1, fp);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaClose(&handle_), FPGA_OK);
 }
 //
 // TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
