@@ -142,10 +142,6 @@ class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
