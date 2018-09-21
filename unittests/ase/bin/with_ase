@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Run a binary using the ASE simulation library instead of the standard libopae-c.
-env LD_PRELOAD="libopae-c-ase.so${LD_PRELOAD:+:$LD_PRELOAD}" "$@"
