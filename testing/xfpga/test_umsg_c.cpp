@@ -370,7 +370,7 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
   _handle->magic = FPGA_HANDLE_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // Invalid Driver handle
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
@@ -382,7 +382,7 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
   _handle->fddev = fddev;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // Invlaid Input Paramter
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
@@ -425,16 +425,13 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));
 
-  // Invalid Magic Number
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
   _handle->magic = FPGA_HANDLE_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // Invalid Driver handle
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
@@ -446,7 +443,7 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
   _handle->fddev = fddev;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
   // Invalid Input Parameter
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
