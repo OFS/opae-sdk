@@ -319,18 +319,18 @@
 <span class="lineNum">     257 </span><span class="lineNoCov">          0 :         return result;</span>
 <a name="258"><span class="lineNum">     258 </span>            : }</a>
 <span class="lineNum">     259 </span>            : 
-<span class="lineNum">     260 </span><span class="lineCov">         72 : fpga_result free_umsg_buffer(fpga_handle handle)</span>
+<span class="lineNum">     260 </span><span class="lineCov">         86 : fpga_result free_umsg_buffer(fpga_handle handle)</span>
 <span class="lineNum">     261 </span>            : {
-<span class="lineNum">     262 </span><span class="lineCov">         72 :         fpga_result result                = FPGA_OK;</span>
-<span class="lineNum">     263 </span><span class="lineCov">         72 :         struct _fpga_handle  *_handle     = (struct _fpga_handle *)handle;</span>
-<span class="lineNum">     264 </span><span class="lineCov">         72 :         int err                           = 0;</span>
+<span class="lineNum">     262 </span><span class="lineCov">         86 :         fpga_result result                = FPGA_OK;</span>
+<span class="lineNum">     263 </span><span class="lineCov">         86 :         struct _fpga_handle  *_handle     = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     264 </span><span class="lineCov">         86 :         int err                           = 0;</span>
 <span class="lineNum">     265 </span>            : 
 <span class="lineNum">     266 </span>            : 
-<span class="lineNum">     267 </span><span class="lineCov">         72 :         result = handle_check_and_lock(_handle);</span>
-<span class="lineNum">     268 </span><span class="lineCov">         72 :         if (result)</span>
+<span class="lineNum">     267 </span><span class="lineCov">         86 :         result = handle_check_and_lock(_handle);</span>
+<span class="lineNum">     268 </span><span class="lineCov">         86 :         if (result)</span>
 <span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 return result;</span>
 <span class="lineNum">     270 </span>            : 
-<span class="lineNum">     271 </span><span class="lineCov">         72 :         if (_handle-&gt;umsg_virt != NULL) {</span>
+<span class="lineNum">     271 </span><span class="lineCov">         86 :         if (_handle-&gt;umsg_virt != NULL) {</span>
 <span class="lineNum">     272 </span>            :                 struct fpga_port_umsg_base_addr baseaddr;
 <span class="lineNum">     273 </span>            :                 struct fpga_port_dma_unmap dma_unmap;
 <span class="lineNum">     274 </span>            : 
@@ -361,10 +361,10 @@
 <span class="lineNum">     299 </span><span class="lineCov">          1 :                 _handle-&gt;umsg_iova = NULL;</span>
 <span class="lineNum">     300 </span>            :         }
 <span class="lineNum">     301 </span>            : 
-<span class="lineNum">     302 </span><span class="lineCov">         72 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
-<span class="lineNum">     303 </span><span class="lineCov">         72 :         if (err)</span>
+<span class="lineNum">     302 </span><span class="lineCov">         86 :         err = pthread_mutex_unlock(&amp;_handle-&gt;lock);</span>
+<span class="lineNum">     303 </span><span class="lineCov">         86 :         if (err)</span>
 <span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
-<span class="lineNum">     305 </span><span class="lineCov">         72 :         return result;</span>
+<span class="lineNum">     305 </span><span class="lineCov">         86 :         return result;</span>
 <span class="lineNum">     306 </span>            : }
 <span class="lineNum">     307 </span>            : 
 <a name="308"><span class="lineNum">     308 </span>            : // Trigger umsg</a>

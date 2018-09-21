@@ -178,10 +178,10 @@
 <span class="lineNum">     116 </span>            :  *
 <a name="117"><span class="lineNum">     117 </span>            :  * @param root</a>
 <span class="lineNum">     118 </span>            :  */
-<span class="lineNum">     119 </span><span class="lineCov">        151 : void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))</span>
+<span class="lineNum">     119 </span><span class="lineCov">        179 : void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))</span>
 <span class="lineNum">     120 </span>            : {
-<span class="lineNum">     121 </span><span class="lineCov">        151 :         if (!*root)</span>
-<span class="lineNum">     122 </span><span class="lineCov">        295 :                 return;</span>
+<span class="lineNum">     121 </span><span class="lineCov">        179 :         if (!*root)</span>
+<span class="lineNum">     122 </span><span class="lineCov">        351 :                 return;</span>
 <span class="lineNum">     123 </span>            : 
 <span class="lineNum">     124 </span><span class="lineCov">       1630 :         while ((*root)-&gt;next) {</span>
 <span class="lineNum">     125 </span><span class="lineCov">       1616 :                 struct wsid_map *tmp = *root;</span>

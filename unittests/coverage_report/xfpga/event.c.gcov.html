@@ -31,9 +31,9 @@
             <td class="headerValue">coverage.info.cleaned</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">271</td>
+            <td class="headerCovTableEntry">303</td>
             <td class="headerCovTableEntry">374</td>
-            <td class="headerCovTableEntryLo">72.5 %</td>
+            <td class="headerCovTableEntryMed">81.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -152,194 +152,194 @@
 <span class="lineNum">      90 </span><span class="lineCov">          2 :         return FPGA_OK;</span>
 <a name="91"><span class="lineNum">      91 </span>            : }</a>
 <span class="lineNum">      92 </span>            : 
-<span class="lineNum">      93 </span><span class="lineCov">          5 : STATIC fpga_result send_fme_event_request(fpga_handle handle,</span>
+<span class="lineNum">      93 </span><span class="lineCov">          9 : STATIC fpga_result send_fme_event_request(fpga_handle handle,</span>
 <span class="lineNum">      94 </span>            :                                           fpga_event_handle event_handle,
 <span class="lineNum">      95 </span>            :                                           int fme_operation)
 <span class="lineNum">      96 </span>            : {
-<span class="lineNum">      97 </span><span class="lineCov">          5 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
-<span class="lineNum">      98 </span><span class="lineCov">          5 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
-<span class="lineNum">      99 </span><span class="lineCov">          5 :         struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};</span>
-<span class="lineNum">     100 </span><span class="lineCov">          5 :         struct fpga_fme_err_irq_set fme_irq = {.argsz = sizeof(fme_irq),</span>
+<span class="lineNum">      97 </span><span class="lineCov">          9 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
+<span class="lineNum">      98 </span><span class="lineCov">          9 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">      99 </span><span class="lineCov">          9 :         struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};</span>
+<span class="lineNum">     100 </span><span class="lineCov">          9 :         struct fpga_fme_err_irq_set fme_irq = {.argsz = sizeof(fme_irq),</span>
 <span class="lineNum">     101 </span>            :                                                .flags = 0};
 <span class="lineNum">     102 </span>            : 
-<span class="lineNum">     103 </span><span class="lineCov">          5 :         if (fme_operation != FPGA_IRQ_ASSIGN</span>
-<span class="lineNum">     104 </span><span class="lineCov">          1 :             &amp;&amp; fme_operation != FPGA_IRQ_DEASSIGN) {</span>
+<span class="lineNum">     103 </span><span class="lineCov">          9 :         if (fme_operation != FPGA_IRQ_ASSIGN</span>
+<span class="lineNum">     104 </span><span class="lineCov">          3 :             &amp;&amp; fme_operation != FPGA_IRQ_DEASSIGN) {</span>
 <span class="lineNum">     105 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid FME operation requested&quot;);</span>
 <span class="lineNum">     106 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     107 </span>            :         }
 <span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span><span class="lineCov">          4 :         if (ioctl(_handle-&gt;fddev, FPGA_FME_GET_INFO, &amp;fme_info) != 0) {</span>
-<span class="lineNum">     110 </span><span class="lineCov">          2 :                 FPGA_ERR(&quot;Could not get FME info: %s&quot;, strerror(errno));</span>
-<span class="lineNum">     111 </span><span class="lineCov">          2 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">     109 </span><span class="lineCov">          8 :         if (ioctl(_handle-&gt;fddev, FPGA_FME_GET_INFO, &amp;fme_info) != 0) {</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Could not get FME info: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     112 </span>            :         }
 <span class="lineNum">     113 </span>            : 
 <span class="lineNum">     114 </span>            :         /*capability field is set to 1 if the platform supports interrupts*/
-<span class="lineNum">     115 </span><span class="lineCov">          2 :         if (fme_info.capability &amp; FPGA_FME_CAP_ERR_IRQ) {</span>
-<span class="lineNum">     116 </span><span class="lineCov">          1 :                 if (fme_operation == FPGA_IRQ_ASSIGN)</span>
-<span class="lineNum">     117 </span><span class="lineCov">          1 :                         fme_irq.evtfd = fd;</span>
+<span class="lineNum">     115 </span><span class="lineCov">          7 :         if (fme_info.capability &amp; FPGA_FME_CAP_ERR_IRQ) {</span>
+<span class="lineNum">     116 </span><span class="lineCov">          6 :                 if (fme_operation == FPGA_IRQ_ASSIGN)</span>
+<span class="lineNum">     117 </span><span class="lineCov">          4 :                         fme_irq.evtfd = fd;</span>
 <span class="lineNum">     118 </span>            :                 else
-<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                         fme_irq.evtfd = -1;</span>
+<span class="lineNum">     119 </span><span class="lineCov">          2 :                         fme_irq.evtfd = -1;</span>
 <span class="lineNum">     120 </span>            : 
-<span class="lineNum">     121 </span><span class="lineCov">          1 :                 if (ioctl(_handle-&gt;fddev, FPGA_FME_ERR_SET_IRQ, &amp;fme_irq)</span>
+<span class="lineNum">     121 </span><span class="lineCov">          6 :                 if (ioctl(_handle-&gt;fddev, FPGA_FME_ERR_SET_IRQ, &amp;fme_irq)</span>
 <span class="lineNum">     122 </span>            :                     != 0) {
-<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Could not set eventfd %s&quot;, strerror(errno));</span>
-<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
+<span class="lineNum">     123 </span><span class="lineCov">          4 :                         FPGA_ERR(&quot;Could not set eventfd %s&quot;, strerror(errno));</span>
+<span class="lineNum">     124 </span><span class="lineCov">          4 :                         return FPGA_EXCEPTION;</span>
 <span class="lineNum">     125 </span>            :                 }
 <span class="lineNum">     126 </span>            :         } else {
 <span class="lineNum">     127 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;FME interrupts not supported in hw&quot;);</span>
 <span class="lineNum">     128 </span><span class="lineCov">          1 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     129 </span>            :         }
 <span class="lineNum">     130 </span>            : 
-<span class="lineNum">     131 </span><span class="lineCov">          1 :         return FPGA_OK;</span>
+<span class="lineNum">     131 </span><span class="lineCov">          2 :         return FPGA_OK;</span>
 <a name="132"><span class="lineNum">     132 </span>            : }</a>
 <span class="lineNum">     133 </span>            : 
-<span class="lineNum">     134 </span><span class="lineCov">          5 : STATIC fpga_result send_port_event_request(fpga_handle handle,</span>
+<span class="lineNum">     134 </span><span class="lineCov">          9 : STATIC fpga_result send_port_event_request(fpga_handle handle,</span>
 <span class="lineNum">     135 </span>            :                                            fpga_event_handle event_handle,
 <span class="lineNum">     136 </span>            :                                            int port_operation)
 <span class="lineNum">     137 </span>            : {
-<span class="lineNum">     138 </span><span class="lineCov">          5 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
-<span class="lineNum">     139 </span><span class="lineCov">          5 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
-<span class="lineNum">     140 </span><span class="lineCov">          5 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
+<span class="lineNum">     138 </span><span class="lineCov">          9 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
+<span class="lineNum">     139 </span><span class="lineCov">          9 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     140 </span><span class="lineCov">          9 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
 <span class="lineNum">     141 </span>            :                                            .flags = 0};
-<span class="lineNum">     142 </span><span class="lineCov">          5 :         struct fpga_port_err_irq_set port_irq = {.argsz = sizeof(port_irq),</span>
+<span class="lineNum">     142 </span><span class="lineCov">          9 :         struct fpga_port_err_irq_set port_irq = {.argsz = sizeof(port_irq),</span>
 <span class="lineNum">     143 </span>            :                                                  .flags = 0};
 <span class="lineNum">     144 </span>            : 
-<span class="lineNum">     145 </span><span class="lineCov">          5 :         if (port_operation != FPGA_IRQ_ASSIGN</span>
-<span class="lineNum">     146 </span><span class="lineCov">          1 :             &amp;&amp; port_operation != FPGA_IRQ_DEASSIGN) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">          9 :         if (port_operation != FPGA_IRQ_ASSIGN</span>
+<span class="lineNum">     146 </span><span class="lineCov">          3 :             &amp;&amp; port_operation != FPGA_IRQ_DEASSIGN) {</span>
 <span class="lineNum">     147 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid PORT operation requested&quot;);</span>
 <span class="lineNum">     148 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     149 </span>            :         }
 <span class="lineNum">     150 </span>            : 
-<span class="lineNum">     151 </span><span class="lineCov">          4 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info) != 0) {</span>
-<span class="lineNum">     152 </span><span class="lineCov">          2 :                 FPGA_ERR(&quot;Could not get PORT info&quot;);</span>
-<span class="lineNum">     153 </span><span class="lineCov">          2 :                 return FPGA_EXCEPTION;</span>
+<span class="lineNum">     151 </span><span class="lineCov">          8 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info) != 0) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Could not get PORT info&quot;);</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     154 </span>            :         }
 <span class="lineNum">     155 </span>            : 
 <span class="lineNum">     156 </span>            :         /*capability field is set to 1 if the platform supports interrupts*/
-<span class="lineNum">     157 </span><span class="lineCov">          2 :         if (port_info.capability &amp; FPGA_PORT_CAP_ERR_IRQ) {</span>
-<span class="lineNum">     158 </span><span class="lineCov">          1 :                 if (port_operation == FPGA_IRQ_ASSIGN)</span>
-<span class="lineNum">     159 </span><span class="lineCov">          1 :                         port_irq.evtfd = fd;</span>
+<span class="lineNum">     157 </span><span class="lineCov">          7 :         if (port_info.capability &amp; FPGA_PORT_CAP_ERR_IRQ) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">          6 :                 if (port_operation == FPGA_IRQ_ASSIGN)</span>
+<span class="lineNum">     159 </span><span class="lineCov">          4 :                         port_irq.evtfd = fd;</span>
 <span class="lineNum">     160 </span>            :                 else
-<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         port_irq.evtfd = -1;</span>
+<span class="lineNum">     161 </span><span class="lineCov">          2 :                         port_irq.evtfd = -1;</span>
 <span class="lineNum">     162 </span>            : 
-<span class="lineNum">     163 </span><span class="lineCov">          1 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_ERR_SET_IRQ, &amp;port_irq)</span>
+<span class="lineNum">     163 </span><span class="lineCov">          6 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_ERR_SET_IRQ, &amp;port_irq)</span>
 <span class="lineNum">     164 </span>            :                     != 0) {
-<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Could not set eventfd&quot;);</span>
-<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
+<span class="lineNum">     165 </span><span class="lineCov">          4 :                         FPGA_ERR(&quot;Could not set eventfd&quot;);</span>
+<span class="lineNum">     166 </span><span class="lineCov">          4 :                         return FPGA_EXCEPTION;</span>
 <span class="lineNum">     167 </span>            :                 }
 <span class="lineNum">     168 </span>            :         } else {
 <span class="lineNum">     169 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;PORT interrupts not supported in hw&quot;);</span>
 <span class="lineNum">     170 </span><span class="lineCov">          1 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     171 </span>            :         }
 <span class="lineNum">     172 </span>            : 
-<span class="lineNum">     173 </span><span class="lineCov">          1 :         return FPGA_OK;</span>
+<span class="lineNum">     173 </span><span class="lineCov">          2 :         return FPGA_OK;</span>
 <a name="174"><span class="lineNum">     174 </span>            : }</a>
 <span class="lineNum">     175 </span>            : 
-<span class="lineNum">     176 </span><span class="lineCov">          6 : STATIC fpga_result send_uafu_event_request(fpga_handle handle,</span>
+<span class="lineNum">     176 </span><span class="lineCov">         10 : STATIC fpga_result send_uafu_event_request(fpga_handle handle,</span>
 <span class="lineNum">     177 </span>            :                                            fpga_event_handle event_handle,
 <span class="lineNum">     178 </span>            :                                            uint32_t flags, int uafu_operation)
 <span class="lineNum">     179 </span>            : {
-<span class="lineNum">     180 </span><span class="lineCov">          6 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
-<span class="lineNum">     181 </span><span class="lineCov">          6 :         struct _fpga_event_handle *_eh =</span>
+<span class="lineNum">     180 </span><span class="lineCov">         10 :         int fd = FILE_DESCRIPTOR(event_handle);</span>
+<span class="lineNum">     181 </span><span class="lineCov">         10 :         struct _fpga_event_handle *_eh =</span>
 <span class="lineNum">     182 </span>            :                 (struct _fpga_event_handle *)event_handle;
-<span class="lineNum">     183 </span><span class="lineCov">          6 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
-<span class="lineNum">     184 </span><span class="lineCov">          6 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
+<span class="lineNum">     183 </span><span class="lineCov">         10 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     184 </span><span class="lineCov">         10 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
 <span class="lineNum">     185 </span>            :                                            .flags = 0};
 <span class="lineNum">     186 </span>            :         uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)
 <span class="lineNum">     187 </span>            :                              + sizeof(int32_t)];
-<span class="lineNum">     188 </span><span class="lineCov">          6 :         struct fpga_port_uafu_irq_set *uafu_irq =</span>
+<span class="lineNum">     188 </span><span class="lineCov">         10 :         struct fpga_port_uafu_irq_set *uafu_irq =</span>
 <span class="lineNum">     189 </span>            :                 (struct fpga_port_uafu_irq_set *)uafu_irq_buf;
 <span class="lineNum">     190 </span>            : 
-<span class="lineNum">     191 </span><span class="lineCov">          6 :         if (uafu_operation != FPGA_IRQ_ASSIGN</span>
-<span class="lineNum">     192 </span><span class="lineCov">          1 :             &amp;&amp; uafu_operation != FPGA_IRQ_DEASSIGN) {</span>
+<span class="lineNum">     191 </span><span class="lineCov">         10 :         if (uafu_operation != FPGA_IRQ_ASSIGN</span>
+<span class="lineNum">     192 </span><span class="lineCov">          3 :             &amp;&amp; uafu_operation != FPGA_IRQ_DEASSIGN) {</span>
 <span class="lineNum">     193 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid UAFU operation requested&quot;);</span>
 <span class="lineNum">     194 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     195 </span>            :         }
 <span class="lineNum">     196 </span>            : 
-<span class="lineNum">     197 </span><span class="lineCov">          5 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info) != 0) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">          9 :         if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info) != 0) {</span>
 <span class="lineNum">     198 </span><span class="lineCov">          2 :                 FPGA_ERR(&quot;Could not get PORT info&quot;);</span>
 <span class="lineNum">     199 </span><span class="lineCov">          2 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     200 </span>            :         }
 <span class="lineNum">     201 </span>            : 
 <span class="lineNum">     202 </span>            :         /*capability field is set to 1 if the platform supports interrupts*/
-<span class="lineNum">     203 </span><span class="lineCov">          3 :         if (port_info.capability &amp; FPGA_PORT_CAP_UAFU_IRQ) {</span>
-<span class="lineNum">     204 </span><span class="lineCov">          2 :                 if (flags &gt;= port_info.num_uafu_irqs) {</span>
-<span class="lineNum">     205 </span><span class="lineCov">          1 :                         FPGA_ERR(&quot;Invalid User Interrupt vector id&quot;);</span>
-<span class="lineNum">     206 </span><span class="lineCov">          1 :                         return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     203 </span><span class="lineCov">          7 :         if (port_info.capability &amp; FPGA_PORT_CAP_UAFU_IRQ) {</span>
+<span class="lineNum">     204 </span><span class="lineCov">          6 :                 if (flags &gt;= port_info.num_uafu_irqs) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">          2 :                         FPGA_ERR(&quot;Invalid User Interrupt vector id&quot;);</span>
+<span class="lineNum">     206 </span><span class="lineCov">          2 :                         return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     207 </span>            :                 }
 <span class="lineNum">     208 </span>            : 
-<span class="lineNum">     209 </span><span class="lineCov">          1 :                 memset_s(uafu_irq_buf, sizeof(uafu_irq_buf), 0);</span>
+<span class="lineNum">     209 </span><span class="lineCov">          4 :                 memset_s(uafu_irq_buf, sizeof(uafu_irq_buf), 0);</span>
 <span class="lineNum">     210 </span>            : 
-<span class="lineNum">     211 </span><span class="lineCov">          1 :                 uafu_irq-&gt;argsz = sizeof(struct fpga_port_uafu_irq_set);</span>
-<span class="lineNum">     212 </span><span class="lineCov">          1 :                 uafu_irq-&gt;flags = 0;</span>
+<span class="lineNum">     211 </span><span class="lineCov">          4 :                 uafu_irq-&gt;argsz = sizeof(struct fpga_port_uafu_irq_set);</span>
+<span class="lineNum">     212 </span><span class="lineCov">          4 :                 uafu_irq-&gt;flags = 0;</span>
 <span class="lineNum">     213 </span>            : 
-<span class="lineNum">     214 </span><span class="lineCov">          1 :                 if (uafu_operation == FPGA_IRQ_ASSIGN) {</span>
-<span class="lineNum">     215 </span><span class="lineCov">          1 :                         uafu_irq-&gt;evtfd[0] = fd;</span>
-<span class="lineNum">     216 </span><span class="lineCov">          1 :                         uafu_irq-&gt;start = flags;</span>
-<span class="lineNum">     217 </span><span class="lineCov">          1 :                         _eh-&gt;flags = flags;</span>
+<span class="lineNum">     214 </span><span class="lineCov">          4 :                 if (uafu_operation == FPGA_IRQ_ASSIGN) {</span>
+<span class="lineNum">     215 </span><span class="lineCov">          2 :                         uafu_irq-&gt;evtfd[0] = fd;</span>
+<span class="lineNum">     216 </span><span class="lineCov">          2 :                         uafu_irq-&gt;start = flags;</span>
+<span class="lineNum">     217 </span><span class="lineCov">          2 :                         _eh-&gt;flags = flags;</span>
 <span class="lineNum">     218 </span>            :                 } else {
-<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                         uafu_irq-&gt;start = _eh-&gt;flags;</span>
-<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                         uafu_irq-&gt;evtfd[0] = -1;</span>
+<span class="lineNum">     219 </span><span class="lineCov">          2 :                         uafu_irq-&gt;start = _eh-&gt;flags;</span>
+<span class="lineNum">     220 </span><span class="lineCov">          2 :                         uafu_irq-&gt;evtfd[0] = -1;</span>
 <span class="lineNum">     221 </span>            :                 }
 <span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span><span class="lineCov">          1 :                 uafu_irq-&gt;count = 1;</span>
+<span class="lineNum">     223 </span><span class="lineCov">          4 :                 uafu_irq-&gt;count = 1;</span>
 <span class="lineNum">     224 </span>            : 
-<span class="lineNum">     225 </span><span class="lineCov">          1 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq)</span>
+<span class="lineNum">     225 </span><span class="lineCov">          4 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq)</span>
 <span class="lineNum">     226 </span>            :                     != 0) {
-<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                         FPGA_ERR(&quot;Could not set eventfd&quot;);</span>
-<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
+<span class="lineNum">     227 </span><span class="lineCov">          2 :                         FPGA_ERR(&quot;Could not set eventfd&quot;);</span>
+<span class="lineNum">     228 </span><span class="lineCov">          2 :                         return FPGA_EXCEPTION;</span>
 <span class="lineNum">     229 </span>            :                 }
 <span class="lineNum">     230 </span>            :         } else {
 <span class="lineNum">     231 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;UAFU interrupts not supported in hw&quot;);</span>
 <span class="lineNum">     232 </span><span class="lineCov">          1 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     233 </span>            :         }
 <span class="lineNum">     234 </span>            : 
-<span class="lineNum">     235 </span><span class="lineCov">          1 :         return FPGA_OK;</span>
+<span class="lineNum">     235 </span><span class="lineCov">          2 :         return FPGA_OK;</span>
 <span class="lineNum">     236 </span>            : }
 <span class="lineNum">     237 </span>            : 
 <span class="lineNum">     238 </span>            : /*
 <span class="lineNum">     239 </span>            :  * Uses driver ioctls to determine whether the driver supports interrupts
 <a name="240"><span class="lineNum">     240 </span>            :  * on this platform. objtype is an output parameter.</a>
 <span class="lineNum">     241 </span>            :  */
-<span class="lineNum">     242 </span><span class="lineCov">         12 : STATIC fpga_result check_interrupts_supported(fpga_handle handle,</span>
+<span class="lineNum">     242 </span><span class="lineCov">         22 : STATIC fpga_result check_interrupts_supported(fpga_handle handle,</span>
 <span class="lineNum">     243 </span>            :                                               fpga_objtype *objtype)
 <span class="lineNum">     244 </span>            : {
-<span class="lineNum">     245 </span><span class="lineCov">         12 :         fpga_result res = FPGA_OK;</span>
-<span class="lineNum">     246 </span><span class="lineCov">         12 :         fpga_result destroy_res = FPGA_OK;</span>
-<span class="lineNum">     247 </span><span class="lineCov">         12 :         fpga_properties prop = NULL;</span>
-<span class="lineNum">     248 </span><span class="lineCov">         12 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
+<span class="lineNum">     245 </span><span class="lineCov">         22 :         fpga_result res = FPGA_OK;</span>
+<span class="lineNum">     246 </span><span class="lineCov">         22 :         fpga_result destroy_res = FPGA_OK;</span>
+<span class="lineNum">     247 </span><span class="lineCov">         22 :         fpga_properties prop = NULL;</span>
+<span class="lineNum">     248 </span><span class="lineCov">         22 :         struct _fpga_handle *_handle = (struct _fpga_handle *)handle;</span>
 <span class="lineNum">     249 </span>            : 
-<span class="lineNum">     250 </span><span class="lineCov">         12 :         struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};</span>
-<span class="lineNum">     251 </span><span class="lineCov">         12 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
+<span class="lineNum">     250 </span><span class="lineCov">         22 :         struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};</span>
+<span class="lineNum">     251 </span><span class="lineCov">         22 :         struct fpga_port_info port_info = {.argsz = sizeof(port_info),</span>
 <span class="lineNum">     252 </span>            :                                            .flags = 0};
 <span class="lineNum">     253 </span>            : 
-<span class="lineNum">     254 </span><span class="lineCov">         12 :         res = xfpga_fpgaGetPropertiesFromHandle(handle, &amp;prop);</span>
-<span class="lineNum">     255 </span><span class="lineCov">         12 :         if (res != FPGA_OK) {</span>
+<span class="lineNum">     254 </span><span class="lineCov">         22 :         res = xfpga_fpgaGetPropertiesFromHandle(handle, &amp;prop);</span>
+<span class="lineNum">     255 </span><span class="lineCov">         22 :         if (res != FPGA_OK) {</span>
 <span class="lineNum">     256 </span><span class="lineCov">          2 :                 FPGA_MSG(&quot;Could not get FPGA properties from handle&quot;);</span>
 <span class="lineNum">     257 </span><span class="lineCov">          2 :                 return res;</span>
 <span class="lineNum">     258 </span>            :         }
 <span class="lineNum">     259 </span>            : 
-<span class="lineNum">     260 </span><span class="lineCov">         10 :         res = fpgaPropertiesGetObjectType(prop, objtype);</span>
-<span class="lineNum">     261 </span><span class="lineCov">         10 :         if (res != FPGA_OK) {</span>
+<span class="lineNum">     260 </span><span class="lineCov">         20 :         res = fpgaPropertiesGetObjectType(prop, objtype);</span>
+<span class="lineNum">     261 </span><span class="lineCov">         20 :         if (res != FPGA_OK) {</span>
 <span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Could not determine FPGA object type&quot;);</span>
 <span class="lineNum">     263 </span><span class="lineNoCov">          0 :                 goto destroy_prop;</span>
 <span class="lineNum">     264 </span>            :         }
 <span class="lineNum">     265 </span>            : 
-<span class="lineNum">     266 </span><span class="lineCov">         10 :         if (*objtype == FPGA_DEVICE) {</span>
-<span class="lineNum">     267 </span><span class="lineCov">          7 :                 if (ioctl(_handle-&gt;fddev, FPGA_FME_GET_INFO, &amp;fme_info) != 0) {</span>
-<span class="lineNum">     268 </span><span class="lineCov">          5 :                         FPGA_ERR(&quot;Could not get FME info: %s&quot;, strerror(errno));</span>
-<span class="lineNum">     269 </span><span class="lineCov">          5 :                         res = FPGA_EXCEPTION;</span>
-<span class="lineNum">     270 </span><span class="lineCov">          5 :                         goto destroy_prop;</span>
+<span class="lineNum">     266 </span><span class="lineCov">         20 :         if (*objtype == FPGA_DEVICE) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">         11 :                 if (ioctl(_handle-&gt;fddev, FPGA_FME_GET_INFO, &amp;fme_info) != 0) {</span>
+<span class="lineNum">     268 </span><span class="lineCov">          1 :                         FPGA_ERR(&quot;Could not get FME info: %s&quot;, strerror(errno));</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 :                         res = FPGA_EXCEPTION;</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :                         goto destroy_prop;</span>
 <span class="lineNum">     271 </span>            :                 }
 <span class="lineNum">     272 </span>            : 
-<span class="lineNum">     273 </span><span class="lineCov">          2 :                 if (fme_info.capability &amp; FPGA_FME_CAP_ERR_IRQ) {</span>
-<span class="lineNum">     274 </span><span class="lineCov">          1 :                         res = FPGA_OK;</span>
+<span class="lineNum">     273 </span><span class="lineCov">         10 :                 if (fme_info.capability &amp; FPGA_FME_CAP_ERR_IRQ) {</span>
+<span class="lineNum">     274 </span><span class="lineCov">          5 :                         res = FPGA_OK;</span>
 <span class="lineNum">     275 </span>            :                 } else {
-<span class="lineNum">     276 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;Interrupts not supported in hw&quot;);</span>
-<span class="lineNum">     277 </span><span class="lineCov">          1 :                         res = FPGA_NOT_SUPPORTED;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          5 :                         FPGA_MSG(&quot;Interrupts not supported in hw&quot;);</span>
+<span class="lineNum">     277 </span><span class="lineCov">          5 :                         res = FPGA_NOT_SUPPORTED;</span>
 <span class="lineNum">     278 </span>            :                 }
-<span class="lineNum">     279 </span><span class="lineCov">          3 :         } else if (*objtype == FPGA_ACCELERATOR) {</span>
-<span class="lineNum">     280 </span><span class="lineCov">          3 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info)</span>
+<span class="lineNum">     279 </span><span class="lineCov">          9 :         } else if (*objtype == FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">          9 :                 if (ioctl(_handle-&gt;fddev, FPGA_PORT_GET_INFO, &amp;port_info)</span>
 <span class="lineNum">     281 </span>            :                     != 0) {
 <span class="lineNum">     282 </span><span class="lineCov">          1 :                         FPGA_ERR(&quot;Could not get PORT info: %s&quot;,</span>
 <span class="lineNum">     283 </span>            :                                  strerror(errno));
@@ -347,8 +347,8 @@
 <span class="lineNum">     285 </span><span class="lineCov">          1 :                         goto destroy_prop;</span>
 <span class="lineNum">     286 </span>            :                 }
 <span class="lineNum">     287 </span>            : 
-<span class="lineNum">     288 </span><span class="lineCov">          2 :                 if (port_info.capability &amp; FPGA_PORT_CAP_ERR_IRQ) {</span>
-<span class="lineNum">     289 </span><span class="lineCov">          1 :                         res = FPGA_OK;</span>
+<span class="lineNum">     288 </span><span class="lineCov">          8 :                 if (port_info.capability &amp; FPGA_PORT_CAP_ERR_IRQ) {</span>
+<span class="lineNum">     289 </span><span class="lineCov">          7 :                         res = FPGA_OK;</span>
 <span class="lineNum">     290 </span>            :                 } else {
 <span class="lineNum">     291 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;Interrupts not supported in hw&quot;);</span>
 <span class="lineNum">     292 </span><span class="lineCov">          1 :                         res = FPGA_NOT_SUPPORTED;</span>
@@ -356,94 +356,94 @@
 <span class="lineNum">     294 </span>            :         }
 <span class="lineNum">     295 </span>            : 
 <span class="lineNum">     296 </span>            : destroy_prop:
-<span class="lineNum">     297 </span><span class="lineCov">         10 :         destroy_res = fpgaDestroyProperties(&amp;prop);</span>
-<span class="lineNum">     298 </span><span class="lineCov">         10 :         if (destroy_res != FPGA_OK) {</span>
+<span class="lineNum">     297 </span><span class="lineCov">         20 :         destroy_res = fpgaDestroyProperties(&amp;prop);</span>
+<span class="lineNum">     298 </span><span class="lineCov">         20 :         if (destroy_res != FPGA_OK) {</span>
 <span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Could not destroy FPGA properties&quot;);</span>
 <span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 return destroy_res;</span>
 <span class="lineNum">     301 </span>            :         }
 <span class="lineNum">     302 </span>            : 
-<span class="lineNum">     303 </span><span class="lineCov">         10 :         return res;</span>
+<span class="lineNum">     303 </span><span class="lineCov">         20 :         return res;</span>
 <a name="304"><span class="lineNum">     304 </span>            : }</a>
 <span class="lineNum">     305 </span>            : 
-<span class="lineNum">     306 </span><span class="lineCov">          2 : STATIC fpga_result driver_register_event(fpga_handle handle,</span>
+<span class="lineNum">     306 </span><span class="lineCov">          7 : STATIC fpga_result driver_register_event(fpga_handle handle,</span>
 <span class="lineNum">     307 </span>            :                                          fpga_event_type event_type,
 <span class="lineNum">     308 </span>            :                                          fpga_event_handle event_handle,
 <span class="lineNum">     309 </span>            :                                          uint32_t flags)
 <span class="lineNum">     310 </span>            : {
 <span class="lineNum">     311 </span>            :         fpga_objtype objtype;
-<span class="lineNum">     312 </span><span class="lineCov">          2 :         fpga_result res = FPGA_OK;</span>
+<span class="lineNum">     312 </span><span class="lineCov">          7 :         fpga_result res = FPGA_OK;</span>
 <span class="lineNum">     313 </span>            : 
-<span class="lineNum">     314 </span><span class="lineCov">          2 :         res = check_interrupts_supported(handle, &amp;objtype);</span>
-<span class="lineNum">     315 </span><span class="lineCov">          2 :         if (res != FPGA_OK) {</span>
+<span class="lineNum">     314 </span><span class="lineCov">          7 :         res = check_interrupts_supported(handle, &amp;objtype);</span>
+<span class="lineNum">     315 </span><span class="lineCov">          7 :         if (res != FPGA_OK) {</span>
 <span class="lineNum">     316 </span><span class="lineCov">          2 :                 FPGA_MSG(</span>
 <span class="lineNum">     317 </span>            :                         &quot;Could not determine whether interrupts are supported&quot;);
 <span class="lineNum">     318 </span><span class="lineCov">          2 :                 return FPGA_NOT_SUPPORTED;</span>
 <span class="lineNum">     319 </span>            :         }
 <span class="lineNum">     320 </span>            : 
-<span class="lineNum">     321 </span><span class="lineNoCov">          0 :         switch (event_type) {</span>
+<span class="lineNum">     321 </span><span class="lineCov">          5 :         switch (event_type) {</span>
 <span class="lineNum">     322 </span>            :         case FPGA_EVENT_ERROR:
-<span class="lineNum">     323 </span><span class="lineNoCov">          0 :                 if (objtype == FPGA_DEVICE) {</span>
-<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                         return send_fme_event_request(handle, event_handle,</span>
+<span class="lineNum">     323 </span><span class="lineCov">          2 :                 if (objtype == FPGA_DEVICE) {</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 :                         return send_fme_event_request(handle, event_handle,</span>
 <span class="lineNum">     325 </span>            :                                                       FPGA_IRQ_ASSIGN);
-<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 } else if (objtype == FPGA_ACCELERATOR) {</span>
-<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                         return send_port_event_request(handle, event_handle,</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :                 } else if (objtype == FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :                         return send_port_event_request(handle, event_handle,</span>
 <span class="lineNum">     328 </span>            :                                                        FPGA_IRQ_ASSIGN);
 <span class="lineNum">     329 </span>            :                 }
 <span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid objtype: %d&quot;, objtype);</span>
 <span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     332 </span>            :         case FPGA_EVENT_INTERRUPT:
-<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 if (objtype != FPGA_ACCELERATOR) {</span>
-<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;User events need an accelerator object&quot;);</span>
-<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                         return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     333 </span><span class="lineCov">          2 :                 if (objtype != FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     334 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;User events need an accelerator object&quot;);</span>
+<span class="lineNum">     335 </span><span class="lineCov">          1 :                         return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     336 </span>            :                 }
 <span class="lineNum">     337 </span>            : 
-<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 return send_uafu_event_request(handle, event_handle, flags,</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 :                 return send_uafu_event_request(handle, event_handle, flags,</span>
 <span class="lineNum">     339 </span>            :                                                FPGA_IRQ_ASSIGN);
 <span class="lineNum">     340 </span>            :         case FPGA_EVENT_POWER_THERMAL:
-<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Thermal interrupts not supported&quot;);</span>
-<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 return FPGA_NOT_SUPPORTED;</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;Thermal interrupts not supported&quot;);</span>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :                 return FPGA_NOT_SUPPORTED;</span>
 <span class="lineNum">     343 </span>            :         default:
 <span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid event type&quot;);</span>
 <span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     346 </span>            :         }
 <a name="347"><span class="lineNum">     347 </span>            : }</a>
 <span class="lineNum">     348 </span>            : 
-<span class="lineNum">     349 </span><span class="lineCov">          2 : STATIC fpga_result driver_unregister_event(fpga_handle handle,</span>
+<span class="lineNum">     349 </span><span class="lineCov">          7 : STATIC fpga_result driver_unregister_event(fpga_handle handle,</span>
 <span class="lineNum">     350 </span>            :                                            fpga_event_type event_type,
 <span class="lineNum">     351 </span>            :                                            fpga_event_handle event_handle)
 <span class="lineNum">     352 </span>            : {
 <span class="lineNum">     353 </span>            :         fpga_objtype objtype;
-<span class="lineNum">     354 </span><span class="lineCov">          2 :         fpga_result res = FPGA_OK;</span>
+<span class="lineNum">     354 </span><span class="lineCov">          7 :         fpga_result res = FPGA_OK;</span>
 <span class="lineNum">     355 </span>            : 
-<span class="lineNum">     356 </span><span class="lineCov">          2 :         res = check_interrupts_supported(handle, &amp;objtype);</span>
-<span class="lineNum">     357 </span><span class="lineCov">          2 :         if (res != FPGA_OK) {</span>
+<span class="lineNum">     356 </span><span class="lineCov">          7 :         res = check_interrupts_supported(handle, &amp;objtype);</span>
+<span class="lineNum">     357 </span><span class="lineCov">          7 :         if (res != FPGA_OK) {</span>
 <span class="lineNum">     358 </span><span class="lineCov">          2 :                 FPGA_MSG(</span>
 <span class="lineNum">     359 </span>            :                         &quot;Could not determine whether interrupts are supported&quot;);
 <span class="lineNum">     360 </span><span class="lineCov">          2 :                 return FPGA_NOT_SUPPORTED;</span>
 <span class="lineNum">     361 </span>            :         }
 <span class="lineNum">     362 </span>            : 
-<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         switch (event_type) {</span>
+<span class="lineNum">     363 </span><span class="lineCov">          5 :         switch (event_type) {</span>
 <span class="lineNum">     364 </span>            :         case FPGA_EVENT_ERROR:
-<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 if (objtype == FPGA_DEVICE) {</span>
-<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                         return send_fme_event_request(handle, event_handle,</span>
+<span class="lineNum">     365 </span><span class="lineCov">          2 :                 if (objtype == FPGA_DEVICE) {</span>
+<span class="lineNum">     366 </span><span class="lineCov">          1 :                         return send_fme_event_request(handle, event_handle,</span>
 <span class="lineNum">     367 </span>            :                                                       FPGA_IRQ_DEASSIGN);
-<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 } else if (objtype == FPGA_ACCELERATOR) {</span>
-<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                         return send_port_event_request(handle, event_handle,</span>
+<span class="lineNum">     368 </span><span class="lineCov">          1 :                 } else if (objtype == FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     369 </span><span class="lineCov">          1 :                         return send_port_event_request(handle, event_handle,</span>
 <span class="lineNum">     370 </span>            :                                                        FPGA_IRQ_DEASSIGN);
 <span class="lineNum">     371 </span>            :                 }
 <span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid objtype: %d&quot;, objtype);</span>
 <span class="lineNum">     373 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
 <span class="lineNum">     374 </span>            :         case FPGA_EVENT_INTERRUPT:
-<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 if (objtype != FPGA_ACCELERATOR) {</span>
-<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;User events need an Accelerator object&quot;);</span>
-<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                         return FPGA_INVALID_PARAM;</span>
+<span class="lineNum">     375 </span><span class="lineCov">          2 :                 if (objtype != FPGA_ACCELERATOR) {</span>
+<span class="lineNum">     376 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;User events need an Accelerator object&quot;);</span>
+<span class="lineNum">     377 </span><span class="lineCov">          1 :                         return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     378 </span>            :                 }
 <span class="lineNum">     379 </span>            : 
-<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                 return send_uafu_event_request(handle, event_handle, 0,</span>
+<span class="lineNum">     380 </span><span class="lineCov">          1 :                 return send_uafu_event_request(handle, event_handle, 0,</span>
 <span class="lineNum">     381 </span>            :                                                FPGA_IRQ_DEASSIGN);
 <span class="lineNum">     382 </span>            :         case FPGA_EVENT_POWER_THERMAL:
-<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Thermal interrupts not supported&quot;);</span>
-<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 return FPGA_NOT_SUPPORTED;</span>
+<span class="lineNum">     383 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;Thermal interrupts not supported&quot;);</span>
+<span class="lineNum">     384 </span><span class="lineCov">          1 :                 return FPGA_NOT_SUPPORTED;</span>
 <span class="lineNum">     385 </span>            :         default:
 <span class="lineNum">     386 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;Invalid event type&quot;);</span>
 <span class="lineNum">     387 </span><span class="lineNoCov">          0 :                 return FPGA_EXCEPTION;</span>
@@ -566,53 +566,53 @@
 <span class="lineNum">     504 </span>            : }
 <a name="505"><span class="lineNum">     505 </span>            : </a>
 <span class="lineNum">     506 </span>            : fpga_result __FPGA_API__
-<span class="lineNum">     507 </span><span class="lineCov">         26 : xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)</span>
+<span class="lineNum">     507 </span><span class="lineCov">         33 : xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)</span>
 <span class="lineNum">     508 </span>            : {
 <span class="lineNum">     509 </span>            :         struct _fpga_event_handle *_eh;
-<span class="lineNum">     510 </span><span class="lineCov">         26 :         fpga_result result = FPGA_OK;</span>
+<span class="lineNum">     510 </span><span class="lineCov">         33 :         fpga_result result = FPGA_OK;</span>
 <span class="lineNum">     511 </span>            :         pthread_mutexattr_t mattr;
-<span class="lineNum">     512 </span><span class="lineCov">         26 :         int err = 0;</span>
+<span class="lineNum">     512 </span><span class="lineCov">         33 :         int err = 0;</span>
 <span class="lineNum">     513 </span>            : 
-<span class="lineNum">     514 </span><span class="lineCov">         26 :         ASSERT_NOT_NULL(event_handle);</span>
+<span class="lineNum">     514 </span><span class="lineCov">         33 :         ASSERT_NOT_NULL(event_handle);</span>
 <span class="lineNum">     515 </span>            : 
-<span class="lineNum">     516 </span><span class="lineCov">         25 :         _eh = malloc(sizeof(struct _fpga_event_handle));</span>
-<span class="lineNum">     517 </span><span class="lineCov">         25 :         if (NULL == _eh) {</span>
+<span class="lineNum">     516 </span><span class="lineCov">         32 :         _eh = malloc(sizeof(struct _fpga_event_handle));</span>
+<span class="lineNum">     517 </span><span class="lineCov">         32 :         if (NULL == _eh) {</span>
 <span class="lineNum">     518 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Could not allocate memory for event handle&quot;);</span>
 <span class="lineNum">     519 </span><span class="lineCov">          1 :                 return FPGA_NO_MEMORY;</span>
 <span class="lineNum">     520 </span>            :         }
 <span class="lineNum">     521 </span>            : 
-<span class="lineNum">     522 </span><span class="lineCov">         24 :         _eh-&gt;magic = FPGA_EVENT_HANDLE_MAGIC;</span>
+<span class="lineNum">     522 </span><span class="lineCov">         31 :         _eh-&gt;magic = FPGA_EVENT_HANDLE_MAGIC;</span>
 <span class="lineNum">     523 </span>            : 
 <span class="lineNum">     524 </span>            :         /* create eventfd */
-<span class="lineNum">     525 </span><span class="lineCov">         24 :         _eh-&gt;fd = eventfd(0, 0);</span>
-<span class="lineNum">     526 </span><span class="lineCov">         24 :         if (_eh-&gt;fd &lt; 0) {</span>
+<span class="lineNum">     525 </span><span class="lineCov">         31 :         _eh-&gt;fd = eventfd(0, 0);</span>
+<span class="lineNum">     526 </span><span class="lineCov">         31 :         if (_eh-&gt;fd &lt; 0) {</span>
 <span class="lineNum">     527 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;eventfd : %s&quot;, strerror(errno));</span>
 <span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
 <span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
 <span class="lineNum">     530 </span>            :         }
 <span class="lineNum">     531 </span>            : 
-<span class="lineNum">     532 </span><span class="lineCov">         24 :         if (pthread_mutexattr_init(&amp;mattr)) {</span>
+<span class="lineNum">     532 </span><span class="lineCov">         31 :         if (pthread_mutexattr_init(&amp;mattr)) {</span>
 <span class="lineNum">     533 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to initialized event handle mutex attributes&quot;);</span>
 <span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
 <span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 goto out_free;</span>
 <span class="lineNum">     536 </span>            :         }
 <span class="lineNum">     537 </span>            : 
-<span class="lineNum">     538 </span><span class="lineCov">         24 :         if (pthread_mutexattr_settype(&amp;mattr, PTHREAD_MUTEX_RECURSIVE)) {</span>
+<span class="lineNum">     538 </span><span class="lineCov">         31 :         if (pthread_mutexattr_settype(&amp;mattr, PTHREAD_MUTEX_RECURSIVE)) {</span>
 <span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to initialize event handle mutex attributes&quot;);</span>
 <span class="lineNum">     540 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
 <span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 goto out_attr_destroy;</span>
 <span class="lineNum">     542 </span>            :         }
 <span class="lineNum">     543 </span>            : 
-<span class="lineNum">     544 </span><span class="lineCov">         24 :         if (pthread_mutex_init(&amp;_eh-&gt;lock, &amp;mattr)) {</span>
+<span class="lineNum">     544 </span><span class="lineCov">         31 :         if (pthread_mutex_init(&amp;_eh-&gt;lock, &amp;mattr)) {</span>
 <span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Failed to initialize event handle mutex&quot;);</span>
 <span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 result = FPGA_EXCEPTION;</span>
 <span class="lineNum">     547 </span><span class="lineNoCov">          0 :                 goto out_attr_destroy;</span>
 <span class="lineNum">     548 </span>            :         }
 <span class="lineNum">     549 </span>            : 
-<span class="lineNum">     550 </span><span class="lineCov">         24 :         pthread_mutexattr_destroy(&amp;mattr);</span>
+<span class="lineNum">     550 </span><span class="lineCov">         31 :         pthread_mutexattr_destroy(&amp;mattr);</span>
 <span class="lineNum">     551 </span>            : 
-<span class="lineNum">     552 </span><span class="lineCov">         24 :         *event_handle = (fpga_event_handle)_eh;</span>
-<span class="lineNum">     553 </span><span class="lineCov">         24 :         return FPGA_OK;</span>
+<span class="lineNum">     552 </span><span class="lineCov">         31 :         *event_handle = (fpga_event_handle)_eh;</span>
+<span class="lineNum">     553 </span><span class="lineCov">         31 :         return FPGA_OK;</span>
 <span class="lineNum">     554 </span>            : 
 <span class="lineNum">     555 </span>            : out_attr_destroy:
 <span class="lineNum">     556 </span><span class="lineNoCov">          0 :         err = pthread_mutexattr_destroy(&amp;mattr);</span>
@@ -626,24 +626,24 @@
 <span class="lineNum">     564 </span>            : }
 <a name="565"><span class="lineNum">     565 </span>            : </a>
 <span class="lineNum">     566 </span>            : fpga_result __FPGA_API__
-<span class="lineNum">     567 </span><span class="lineCov">         21 : xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)</span>
+<span class="lineNum">     567 </span><span class="lineCov">         28 : xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)</span>
 <span class="lineNum">     568 </span>            : {
 <span class="lineNum">     569 </span>            :         struct _fpga_event_handle *_eh;
-<span class="lineNum">     570 </span><span class="lineCov">         21 :         fpga_result result = FPGA_OK;</span>
-<span class="lineNum">     571 </span><span class="lineCov">         21 :         int err = 0;</span>
+<span class="lineNum">     570 </span><span class="lineCov">         28 :         fpga_result result = FPGA_OK;</span>
+<span class="lineNum">     571 </span><span class="lineCov">         28 :         int err = 0;</span>
 <span class="lineNum">     572 </span>            : 
 <span class="lineNum">     573 </span>            :         // sanity check
-<span class="lineNum">     574 </span><span class="lineCov">         21 :         if (!event_handle) {</span>
+<span class="lineNum">     574 </span><span class="lineCov">         28 :         if (!event_handle) {</span>
 <span class="lineNum">     575 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     576 </span>            :         }
 <span class="lineNum">     577 </span>            : 
-<span class="lineNum">     578 </span><span class="lineCov">         20 :         _eh = (struct _fpga_event_handle *)*event_handle;</span>
+<span class="lineNum">     578 </span><span class="lineCov">         27 :         _eh = (struct _fpga_event_handle *)*event_handle;</span>
 <span class="lineNum">     579 </span>            : 
-<span class="lineNum">     580 </span><span class="lineCov">         20 :         result = event_handle_check_and_lock(_eh);</span>
-<span class="lineNum">     581 </span><span class="lineCov">         20 :         if (result)</span>
+<span class="lineNum">     580 </span><span class="lineCov">         27 :         result = event_handle_check_and_lock(_eh);</span>
+<span class="lineNum">     581 </span><span class="lineCov">         27 :         if (result)</span>
 <span class="lineNum">     582 </span><span class="lineCov">          1 :                 return result;</span>
 <span class="lineNum">     583 </span>            : 
-<span class="lineNum">     584 </span><span class="lineCov">         19 :         if (close(_eh-&gt;fd) &lt; 0) {</span>
+<span class="lineNum">     584 </span><span class="lineCov">         26 :         if (close(_eh-&gt;fd) &lt; 0) {</span>
 <span class="lineNum">     585 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;eventfd : %s&quot;, strerror(errno));</span>
 <span class="lineNum">     586 </span><span class="lineCov">          1 :                 err = pthread_mutex_unlock(&amp;_eh-&gt;lock);</span>
 <span class="lineNum">     587 </span><span class="lineCov">          1 :                 if (err)</span>
@@ -656,19 +656,19 @@
 <span class="lineNum">     594 </span><span class="lineNoCov">          0 :                         return FPGA_EXCEPTION;</span>
 <span class="lineNum">     595 </span>            :         }
 <span class="lineNum">     596 </span>            : 
-<span class="lineNum">     597 </span><span class="lineCov">         18 :         _eh-&gt;magic = FPGA_INVALID_MAGIC;</span>
+<span class="lineNum">     597 </span><span class="lineCov">         25 :         _eh-&gt;magic = FPGA_INVALID_MAGIC;</span>
 <span class="lineNum">     598 </span>            : 
-<span class="lineNum">     599 </span><span class="lineCov">         18 :         err = pthread_mutex_unlock(&amp;_eh-&gt;lock);</span>
-<span class="lineNum">     600 </span><span class="lineCov">         18 :         if (err)</span>
+<span class="lineNum">     599 </span><span class="lineCov">         25 :         err = pthread_mutex_unlock(&amp;_eh-&gt;lock);</span>
+<span class="lineNum">     600 </span><span class="lineCov">         25 :         if (err)</span>
 <span class="lineNum">     601 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_unlock() failed: %S&quot;, strerror(err));</span>
 <span class="lineNum">     602 </span>            : 
-<span class="lineNum">     603 </span><span class="lineCov">         18 :         err = pthread_mutex_destroy(&amp;_eh-&gt;lock);</span>
-<span class="lineNum">     604 </span><span class="lineCov">         18 :         if (err)</span>
+<span class="lineNum">     603 </span><span class="lineCov">         25 :         err = pthread_mutex_destroy(&amp;_eh-&gt;lock);</span>
+<span class="lineNum">     604 </span><span class="lineCov">         25 :         if (err)</span>
 <span class="lineNum">     605 </span><span class="lineNoCov">          0 :                 FPGA_ERR(&quot;pthread_mutex_destroy() failed: %S&quot;, strerror(err));</span>
 <span class="lineNum">     606 </span>            : 
-<span class="lineNum">     607 </span><span class="lineCov">         18 :         free(*event_handle);</span>
-<span class="lineNum">     608 </span><span class="lineCov">         18 :         *event_handle = NULL;</span>
-<span class="lineNum">     609 </span><span class="lineCov">         18 :         return FPGA_OK;</span>
+<span class="lineNum">     607 </span><span class="lineCov">         25 :         free(*event_handle);</span>
+<span class="lineNum">     608 </span><span class="lineCov">         25 :         *event_handle = NULL;</span>
+<span class="lineNum">     609 </span><span class="lineCov">         25 :         return FPGA_OK;</span>
 <span class="lineNum">     610 </span>            : }
 <a name="611"><span class="lineNum">     611 </span>            : </a>
 <span class="lineNum">     612 </span>            : fpga_result __FPGA_API__

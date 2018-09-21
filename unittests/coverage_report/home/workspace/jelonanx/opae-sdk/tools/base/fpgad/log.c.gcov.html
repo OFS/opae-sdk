@@ -94,51 +94,51 @@
 <span class="lineNum">      32 </span>            : 
 <a name="33"><span class="lineNum">      33 </span>            : static pthread_mutex_t log_lock = PTHREAD_MUTEX_INITIALIZER;</a>
 <span class="lineNum">      34 </span>            : FILE *fLog;
-<span class="lineNum">      35 </span><span class="lineCov">         16 : int open_log(const char *filename)</span>
+<span class="lineNum">      35 </span><span class="lineCov">         23 : int open_log(const char *filename)</span>
 <span class="lineNum">      36 </span>            : {
 <span class="lineNum">      37 </span>            :         int res;
 <span class="lineNum">      38 </span>            :         int err;
 <span class="lineNum">      39 </span>            : 
-<span class="lineNum">      40 </span><span class="lineCov">         16 :         err = pthread_mutex_lock(&amp;log_lock);</span>
-<span class="lineNum">      41 </span><span class="lineCov">         16 :         if (err)</span>
+<span class="lineNum">      40 </span><span class="lineCov">         23 :         err = pthread_mutex_lock(&amp;log_lock);</span>
+<span class="lineNum">      41 </span><span class="lineCov">         23 :         if (err)</span>
 <span class="lineNum">      42 </span><span class="lineNoCov">          0 :                 fprintf(stderr, &quot;pthread_mutex_lock() failed: %s&quot;, strerror(err));</span>
 <span class="lineNum">      43 </span>            : 
-<span class="lineNum">      44 </span><span class="lineCov">         16 :         fLog = fopen(filename, &quot;a&quot;);</span>
-<span class="lineNum">      45 </span><span class="lineCov">         16 :         if (fLog) {</span>
-<span class="lineNum">      46 </span><span class="lineCov">         16 :                 res = fprintf(fLog, &quot;----- MARK -----\n&quot;);</span>
-<span class="lineNum">      47 </span><span class="lineCov">         16 :                 fflush(fLog);</span>
+<span class="lineNum">      44 </span><span class="lineCov">         23 :         fLog = fopen(filename, &quot;a&quot;);</span>
+<span class="lineNum">      45 </span><span class="lineCov">         23 :         if (fLog) {</span>
+<span class="lineNum">      46 </span><span class="lineCov">         23 :                 res = fprintf(fLog, &quot;----- MARK -----\n&quot;);</span>
+<span class="lineNum">      47 </span><span class="lineCov">         23 :                 fflush(fLog);</span>
 <span class="lineNum">      48 </span>            :         } else {
 <span class="lineNum">      49 </span><span class="lineNoCov">          0 :                 res = -1;</span>
 <span class="lineNum">      50 </span>            :         }
 <span class="lineNum">      51 </span>            : 
-<span class="lineNum">      52 </span><span class="lineCov">         16 :         err = pthread_mutex_unlock(&amp;log_lock);</span>
-<span class="lineNum">      53 </span><span class="lineCov">         16 :         if (err)</span>
+<span class="lineNum">      52 </span><span class="lineCov">         23 :         err = pthread_mutex_unlock(&amp;log_lock);</span>
+<span class="lineNum">      53 </span><span class="lineCov">         23 :         if (err)</span>
 <span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 fprintf(stderr, &quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
-<span class="lineNum">      55 </span><span class="lineCov">         16 :         return res;</span>
+<span class="lineNum">      55 </span><span class="lineCov">         23 :         return res;</span>
 <a name="56"><span class="lineNum">      56 </span>            : }</a>
 <span class="lineNum">      57 </span>            : 
-<span class="lineNum">      58 </span><span class="lineCov">         51 : int dlog(const char *fmt, ...)</span>
+<span class="lineNum">      58 </span><span class="lineCov">         73 : int dlog(const char *fmt, ...)</span>
 <span class="lineNum">      59 </span>            : {
 <span class="lineNum">      60 </span>            :         va_list l;
 <span class="lineNum">      61 </span>            :         int res;
 <span class="lineNum">      62 </span>            :         int err;
 <span class="lineNum">      63 </span>            : 
-<span class="lineNum">      64 </span><span class="lineCov">         51 :         va_start(l, fmt);</span>
+<span class="lineNum">      64 </span><span class="lineCov">         73 :         va_start(l, fmt);</span>
 <span class="lineNum">      65 </span>            : 
-<span class="lineNum">      66 </span><span class="lineCov">         51 :         err = pthread_mutex_lock(&amp;log_lock);</span>
-<span class="lineNum">      67 </span><span class="lineCov">         51 :         if (err)</span>
+<span class="lineNum">      66 </span><span class="lineCov">         73 :         err = pthread_mutex_lock(&amp;log_lock);</span>
+<span class="lineNum">      67 </span><span class="lineCov">         73 :         if (err)</span>
 <span class="lineNum">      68 </span><span class="lineNoCov">          0 :                 fprintf(stderr, &quot;pthread_mutex_lock() failed: %s&quot;, strerror(err));</span>
 <span class="lineNum">      69 </span>            : 
-<span class="lineNum">      70 </span><span class="lineCov">         51 :         res = vfprintf(fLog, fmt, l);</span>
-<span class="lineNum">      71 </span><span class="lineCov">         51 :         fflush(fLog);</span>
+<span class="lineNum">      70 </span><span class="lineCov">         73 :         res = vfprintf(fLog, fmt, l);</span>
+<span class="lineNum">      71 </span><span class="lineCov">         73 :         fflush(fLog);</span>
 <span class="lineNum">      72 </span>            : 
-<span class="lineNum">      73 </span><span class="lineCov">         51 :         err = pthread_mutex_unlock(&amp;log_lock);</span>
-<span class="lineNum">      74 </span><span class="lineCov">         51 :         if (err)</span>
+<span class="lineNum">      73 </span><span class="lineCov">         73 :         err = pthread_mutex_unlock(&amp;log_lock);</span>
+<span class="lineNum">      74 </span><span class="lineCov">         73 :         if (err)</span>
 <span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 fprintf(stderr, &quot;pthread_mutex_unlock() failed: %s&quot;, strerror(err));</span>
 <span class="lineNum">      76 </span>            : 
-<span class="lineNum">      77 </span><span class="lineCov">         51 :         va_end(l);</span>
+<span class="lineNum">      77 </span><span class="lineCov">         73 :         va_end(l);</span>
 <span class="lineNum">      78 </span>            : 
-<span class="lineNum">      79 </span><span class="lineCov">         51 :         return res;</span>
+<span class="lineNum">      79 </span><span class="lineCov">         73 :         return res;</span>
 <a name="80"><span class="lineNum">      80 </span>            : }</a>
 <span class="lineNum">      81 </span>            : 
 <span class="lineNum">      82 </span><span class="lineNoCov">          0 : void close_log(void)</span>

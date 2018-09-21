@@ -224,7 +224,7 @@
 #define INTEL_FPGA_API_VER_REV   0
 
 #define INTEL_FPGA_API_VERSION "1.1.0"
-#define INTEL_FPGA_API_HASH    "0096ea6"
+#define INTEL_FPGA_API_HASH    "8aeff44"
 
 #ifndef STATIC
 #define STATIC static

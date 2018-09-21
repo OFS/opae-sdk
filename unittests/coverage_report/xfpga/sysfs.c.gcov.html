@@ -118,102 +118,102 @@
 <span class="lineNum">      56 </span>            : // sysfs access (read/write) functions
 <a name="57"><span class="lineNum">      57 </span>            : //</a>
 <span class="lineNum">      58 </span>            : 
-<span class="lineNum">      59 </span><span class="lineCov">        142 : fpga_result sysfs_read_int(const char *path, int *i)</span>
+<span class="lineNum">      59 </span><span class="lineCov">        166 : fpga_result sysfs_read_int(const char *path, int *i)</span>
 <span class="lineNum">      60 </span>            : {
 <span class="lineNum">      61 </span>            :         int fd;
 <span class="lineNum">      62 </span>            :         int res;
 <span class="lineNum">      63 </span>            :         char buf[SYSFS_PATH_MAX];
 <span class="lineNum">      64 </span>            :         int b;
 <span class="lineNum">      65 </span>            : 
-<span class="lineNum">      66 </span><span class="lineCov">        142 :         if (path == NULL) {</span>
+<span class="lineNum">      66 </span><span class="lineCov">        166 :         if (path == NULL) {</span>
 <span class="lineNum">      67 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid input path&quot;);</span>
 <span class="lineNum">      68 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">      69 </span>            :         }
 <span class="lineNum">      70 </span>            : 
-<span class="lineNum">      71 </span><span class="lineCov">        141 :         fd = open(path, O_RDONLY);</span>
-<span class="lineNum">      72 </span><span class="lineCov">        141 :         if (fd &lt; 0) {</span>
+<span class="lineNum">      71 </span><span class="lineCov">        165 :         fd = open(path, O_RDONLY);</span>
+<span class="lineNum">      72 </span><span class="lineCov">        165 :         if (fd &lt; 0) {</span>
 <span class="lineNum">      73 </span><span class="lineCov">          3 :                 FPGA_MSG(&quot;open(%s) failed&quot;, path);</span>
 <span class="lineNum">      74 </span><span class="lineCov">          3 :                 return FPGA_NOT_FOUND;</span>
 <span class="lineNum">      75 </span>            :         }
 <span class="lineNum">      76 </span>            : 
-<span class="lineNum">      77 </span><span class="lineCov">        138 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
+<span class="lineNum">      77 </span><span class="lineCov">        162 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
 <span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;seek failed&quot;);</span>
 <span class="lineNum">      79 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">      80 </span>            :         }
 <span class="lineNum">      81 </span>            : 
-<span class="lineNum">      82 </span><span class="lineCov">        138 :         b = 0;</span>
+<span class="lineNum">      82 </span><span class="lineCov">        162 :         b = 0;</span>
 <span class="lineNum">      83 </span>            : 
 <span class="lineNum">      84 </span>            :         do {
-<span class="lineNum">      85 </span><span class="lineCov">        138 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
-<span class="lineNum">      86 </span><span class="lineCov">        138 :                 if (res &lt;= 0) {</span>
+<span class="lineNum">      85 </span><span class="lineCov">        162 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
+<span class="lineNum">      86 </span><span class="lineCov">        162 :                 if (res &lt;= 0) {</span>
 <span class="lineNum">      87 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;Read from %s failed&quot;, path);</span>
 <span class="lineNum">      88 </span><span class="lineCov">          1 :                         goto out_close;</span>
 <span class="lineNum">      89 </span>            :                 }
-<span class="lineNum">      90 </span><span class="lineCov">        137 :                 b += res;</span>
-<span class="lineNum">      91 </span><span class="lineCov">        137 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
+<span class="lineNum">      90 </span><span class="lineCov">        161 :                 b += res;</span>
+<span class="lineNum">      91 </span><span class="lineCov">        161 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
 <span class="lineNum">      92 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Unexpected size reading from %s&quot;, path);</span>
 <span class="lineNum">      93 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">      94 </span>            :                 }
-<span class="lineNum">      95 </span><span class="lineCov">        137 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
+<span class="lineNum">      95 </span><span class="lineCov">        161 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
 <span class="lineNum">      96 </span>            : 
 <span class="lineNum">      97 </span>            :         // erase \n
-<span class="lineNum">      98 </span><span class="lineCov">        137 :         buf[b-1] = 0;</span>
+<span class="lineNum">      98 </span><span class="lineCov">        161 :         buf[b-1] = 0;</span>
 <span class="lineNum">      99 </span>            : 
-<span class="lineNum">     100 </span><span class="lineCov">        137 :         *i = atoi(buf);</span>
+<span class="lineNum">     100 </span><span class="lineCov">        161 :         *i = atoi(buf);</span>
 <span class="lineNum">     101 </span>            : 
-<span class="lineNum">     102 </span><span class="lineCov">        137 :         close(fd);</span>
-<span class="lineNum">     103 </span><span class="lineCov">        137 :         return FPGA_OK;</span>
+<span class="lineNum">     102 </span><span class="lineCov">        161 :         close(fd);</span>
+<span class="lineNum">     103 </span><span class="lineCov">        161 :         return FPGA_OK;</span>
 <span class="lineNum">     104 </span>            : 
 <span class="lineNum">     105 </span>            : out_close:
 <span class="lineNum">     106 </span><span class="lineCov">          1 :         close(fd);</span>
 <span class="lineNum">     107 </span><span class="lineCov">          1 :         return FPGA_NOT_FOUND;</span>
 <a name="108"><span class="lineNum">     108 </span>            : }</a>
 <span class="lineNum">     109 </span>            : 
-<span class="lineNum">     110 </span><span class="lineCov">        408 : fpga_result sysfs_read_u32(const char *path, uint32_t *u)</span>
+<span class="lineNum">     110 </span><span class="lineCov">        474 : fpga_result sysfs_read_u32(const char *path, uint32_t *u)</span>
 <span class="lineNum">     111 </span>            : {
 <span class="lineNum">     112 </span>            :         int fd;
 <span class="lineNum">     113 </span>            :         int res;
 <span class="lineNum">     114 </span>            :         char buf[SYSFS_PATH_MAX];
 <span class="lineNum">     115 </span>            :         int b;
 <span class="lineNum">     116 </span>            : 
-<span class="lineNum">     117 </span><span class="lineCov">        408 :         if (path == NULL) {</span>
+<span class="lineNum">     117 </span><span class="lineCov">        474 :         if (path == NULL) {</span>
 <span class="lineNum">     118 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid input path&quot;);</span>
 <span class="lineNum">     119 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     120 </span>            :         }
 <span class="lineNum">     121 </span>            : 
-<span class="lineNum">     122 </span><span class="lineCov">        407 :         fd = open(path, O_RDONLY);</span>
-<span class="lineNum">     123 </span><span class="lineCov">        407 :         if (fd &lt; 0) {</span>
+<span class="lineNum">     122 </span><span class="lineCov">        473 :         fd = open(path, O_RDONLY);</span>
+<span class="lineNum">     123 </span><span class="lineCov">        473 :         if (fd &lt; 0) {</span>
 <span class="lineNum">     124 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;open(%s) failed&quot;, path);</span>
 <span class="lineNum">     125 </span><span class="lineCov">          1 :                 return FPGA_NOT_FOUND;</span>
 <span class="lineNum">     126 </span>            :         }
 <span class="lineNum">     127 </span>            : 
-<span class="lineNum">     128 </span><span class="lineCov">        406 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
+<span class="lineNum">     128 </span><span class="lineCov">        472 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
 <span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;seek failed&quot;);</span>
 <span class="lineNum">     130 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">     131 </span>            :         }
 <span class="lineNum">     132 </span>            : 
-<span class="lineNum">     133 </span><span class="lineCov">        406 :         b = 0;</span>
+<span class="lineNum">     133 </span><span class="lineCov">        472 :         b = 0;</span>
 <span class="lineNum">     134 </span>            : 
 <span class="lineNum">     135 </span>            :         do {
-<span class="lineNum">     136 </span><span class="lineCov">        406 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
-<span class="lineNum">     137 </span><span class="lineCov">        406 :                 if (res &lt;= 0) {</span>
+<span class="lineNum">     136 </span><span class="lineCov">        472 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
+<span class="lineNum">     137 </span><span class="lineCov">        472 :                 if (res &lt;= 0) {</span>
 <span class="lineNum">     138 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;Read from %s failed&quot;, path);</span>
 <span class="lineNum">     139 </span><span class="lineCov">          1 :                         goto out_close;</span>
 <span class="lineNum">     140 </span>            :                 }
-<span class="lineNum">     141 </span><span class="lineCov">        405 :                 b += res;</span>
-<span class="lineNum">     142 </span><span class="lineCov">        405 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
+<span class="lineNum">     141 </span><span class="lineCov">        471 :                 b += res;</span>
+<span class="lineNum">     142 </span><span class="lineCov">        471 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
 <span class="lineNum">     143 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Unexpected size reading from %s&quot;, path);</span>
 <span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     145 </span>            :                 }
-<span class="lineNum">     146 </span><span class="lineCov">        405 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
+<span class="lineNum">     146 </span><span class="lineCov">        471 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
 <span class="lineNum">     147 </span>            : 
 <span class="lineNum">     148 </span>            :         // erase \n
-<span class="lineNum">     149 </span><span class="lineCov">        405 :         buf[b-1] = 0;</span>
+<span class="lineNum">     149 </span><span class="lineCov">        471 :         buf[b-1] = 0;</span>
 <span class="lineNum">     150 </span>            : 
-<span class="lineNum">     151 </span><span class="lineCov">        405 :         *u = strtoul(buf, NULL, 0);</span>
+<span class="lineNum">     151 </span><span class="lineCov">        471 :         *u = strtoul(buf, NULL, 0);</span>
 <span class="lineNum">     152 </span>            : 
-<span class="lineNum">     153 </span><span class="lineCov">        405 :         close(fd);</span>
-<span class="lineNum">     154 </span><span class="lineCov">        405 :         return FPGA_OK;</span>
+<span class="lineNum">     153 </span><span class="lineCov">        471 :         close(fd);</span>
+<span class="lineNum">     154 </span><span class="lineCov">        471 :         return FPGA_OK;</span>
 <span class="lineNum">     155 </span>            : 
 <span class="lineNum">     156 </span>            : out_close:
 <span class="lineNum">     157 </span><span class="lineCov">          1 :         close(fd);</span>
@@ -221,7 +221,7 @@
 <span class="lineNum">     159 </span>            : }
 <a name="160"><span class="lineNum">     160 </span>            : </a>
 <span class="lineNum">     161 </span>            : // read tuple separated by 'sep' character
-<span class="lineNum">     162 </span><span class="lineCov">         25 : fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,</span>
+<span class="lineNum">     162 </span><span class="lineCov">         35 : fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,</span>
 <span class="lineNum">     163 </span>            :                                  char sep)
 <span class="lineNum">     164 </span>            : {
 <span class="lineNum">     165 </span>            :         int fd;
@@ -231,112 +231,112 @@
 <span class="lineNum">     169 </span>            :         char *c;
 <span class="lineNum">     170 </span>            :         uint32_t x1, x2;
 <span class="lineNum">     171 </span>            : 
-<span class="lineNum">     172 </span><span class="lineCov">         25 :         if (sep == '\0') {</span>
+<span class="lineNum">     172 </span><span class="lineCov">         35 :         if (sep == '\0') {</span>
 <span class="lineNum">     173 </span><span class="lineCov">          2 :                 FPGA_MSG(&quot;invalid separation character&quot;);</span>
 <span class="lineNum">     174 </span><span class="lineCov">          2 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     175 </span>            :         }
 <span class="lineNum">     176 </span>            : 
-<span class="lineNum">     177 </span><span class="lineCov">         23 :         if (path == NULL) {</span>
+<span class="lineNum">     177 </span><span class="lineCov">         33 :         if (path == NULL) {</span>
 <span class="lineNum">     178 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid input path&quot;);</span>
 <span class="lineNum">     179 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     180 </span>            :         }
 <span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span><span class="lineCov">         22 :         fd = open(path, O_RDONLY);</span>
-<span class="lineNum">     183 </span><span class="lineCov">         22 :         if (fd &lt; 0) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">         32 :         fd = open(path, O_RDONLY);</span>
+<span class="lineNum">     183 </span><span class="lineCov">         32 :         if (fd &lt; 0) {</span>
 <span class="lineNum">     184 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;open(%s) failed&quot;, path);</span>
 <span class="lineNum">     185 </span><span class="lineCov">          1 :                 return FPGA_NOT_FOUND;</span>
 <span class="lineNum">     186 </span>            :         }
 <span class="lineNum">     187 </span>            : 
-<span class="lineNum">     188 </span><span class="lineCov">         21 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
+<span class="lineNum">     188 </span><span class="lineCov">         31 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
 <span class="lineNum">     189 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;seek failed&quot;);</span>
 <span class="lineNum">     190 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">     191 </span>            :         }
 <span class="lineNum">     192 </span>            : 
-<span class="lineNum">     193 </span><span class="lineCov">         21 :         b = 0;</span>
+<span class="lineNum">     193 </span><span class="lineCov">         31 :         b = 0;</span>
 <span class="lineNum">     194 </span>            : 
 <span class="lineNum">     195 </span>            :         do {
-<span class="lineNum">     196 </span><span class="lineCov">         21 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
-<span class="lineNum">     197 </span><span class="lineCov">         21 :                 if (res &lt;= 0) {</span>
+<span class="lineNum">     196 </span><span class="lineCov">         31 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
+<span class="lineNum">     197 </span><span class="lineCov">         31 :                 if (res &lt;= 0) {</span>
 <span class="lineNum">     198 </span><span class="lineCov">          1 :                         FPGA_MSG(&quot;Read from %s failed&quot;, path);</span>
 <span class="lineNum">     199 </span><span class="lineCov">          1 :                         goto out_close;</span>
 <span class="lineNum">     200 </span>            :                 }
-<span class="lineNum">     201 </span><span class="lineCov">         20 :                 b += res;</span>
-<span class="lineNum">     202 </span><span class="lineCov">         20 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
+<span class="lineNum">     201 </span><span class="lineCov">         30 :                 b += res;</span>
+<span class="lineNum">     202 </span><span class="lineCov">         30 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
 <span class="lineNum">     203 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Unexpected size reading from %s&quot;, path);</span>
 <span class="lineNum">     204 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     205 </span>            :                 }
-<span class="lineNum">     206 </span><span class="lineCov">         20 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
+<span class="lineNum">     206 </span><span class="lineCov">         30 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
 <span class="lineNum">     207 </span>            : 
 <span class="lineNum">     208 </span>            :         // erase \n
-<span class="lineNum">     209 </span><span class="lineCov">         20 :         buf[b-1] = 0;</span>
+<span class="lineNum">     209 </span><span class="lineCov">         30 :         buf[b-1] = 0;</span>
 <span class="lineNum">     210 </span>            : 
 <span class="lineNum">     211 </span>            :         // read first value
-<span class="lineNum">     212 </span><span class="lineCov">         20 :         x1 = strtoul(buf, &amp;c, 0);</span>
-<span class="lineNum">     213 </span><span class="lineCov">         20 :         if (*c != sep) {</span>
+<span class="lineNum">     212 </span><span class="lineCov">         30 :         x1 = strtoul(buf, &amp;c, 0);</span>
+<span class="lineNum">     213 </span><span class="lineCov">         30 :         if (*c != sep) {</span>
 <span class="lineNum">     214 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;couldn't find separation character '%c' in '%s'&quot;, sep, path);</span>
 <span class="lineNum">     215 </span><span class="lineCov">          1 :                 goto out_close;</span>
 <span class="lineNum">     216 </span>            :         }
 <span class="lineNum">     217 </span>            :         // read second value
-<span class="lineNum">     218 </span><span class="lineCov">         19 :         x2 = strtoul(c+1, &amp;c, 0);</span>
-<span class="lineNum">     219 </span><span class="lineCov">         19 :         if (*c != '\0') {</span>
+<span class="lineNum">     218 </span><span class="lineCov">         29 :         x2 = strtoul(c+1, &amp;c, 0);</span>
+<span class="lineNum">     219 </span><span class="lineCov">         29 :         if (*c != '\0') {</span>
 <span class="lineNum">     220 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;unexpected character '%c' in '%s'&quot;, *c, path);</span>
 <span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">     222 </span>            :         }
 <span class="lineNum">     223 </span>            : 
-<span class="lineNum">     224 </span><span class="lineCov">         19 :         *u1 = x1;</span>
-<span class="lineNum">     225 </span><span class="lineCov">         19 :         *u2 = x2;</span>
+<span class="lineNum">     224 </span><span class="lineCov">         29 :         *u1 = x1;</span>
+<span class="lineNum">     225 </span><span class="lineCov">         29 :         *u2 = x2;</span>
 <span class="lineNum">     226 </span>            : 
-<span class="lineNum">     227 </span><span class="lineCov">         19 :         close(fd);</span>
-<span class="lineNum">     228 </span><span class="lineCov">         19 :         return FPGA_OK;</span>
+<span class="lineNum">     227 </span><span class="lineCov">         29 :         close(fd);</span>
+<span class="lineNum">     228 </span><span class="lineCov">         29 :         return FPGA_OK;</span>
 <span class="lineNum">     229 </span>            : 
 <span class="lineNum">     230 </span>            : out_close:
 <span class="lineNum">     231 </span><span class="lineCov">          2 :         close(fd);</span>
 <span class="lineNum">     232 </span><span class="lineCov">          2 :         return FPGA_NOT_FOUND;</span>
 <a name="233"><span class="lineNum">     233 </span>            : }</a>
 <span class="lineNum">     234 </span>            : 
-<span class="lineNum">     235 </span><span class="lineCov">      20147 : fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)</span>
+<span class="lineNum">     235 </span><span class="lineCov">      20165 : fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)</span>
 <span class="lineNum">     236 </span>            : {
-<span class="lineNum">     237 </span><span class="lineCov">      20147 :         int fd                     = -1;</span>
-<span class="lineNum">     238 </span><span class="lineCov">      20147 :         int res                    = 0;</span>
-<span class="lineNum">     239 </span><span class="lineCov">      20147 :         char buf[SYSFS_PATH_MAX]   = {0};</span>
-<span class="lineNum">     240 </span><span class="lineCov">      20147 :         int b                      = 0;</span>
+<span class="lineNum">     237 </span><span class="lineCov">      20165 :         int fd                     = -1;</span>
+<span class="lineNum">     238 </span><span class="lineCov">      20165 :         int res                    = 0;</span>
+<span class="lineNum">     239 </span><span class="lineCov">      20165 :         char buf[SYSFS_PATH_MAX]   = {0};</span>
+<span class="lineNum">     240 </span><span class="lineCov">      20165 :         int b                      = 0;</span>
 <span class="lineNum">     241 </span>            : 
-<span class="lineNum">     242 </span><span class="lineCov">      20147 :         if (path == NULL) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">      20165 :         if (path == NULL) {</span>
 <span class="lineNum">     243 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid input path&quot;);</span>
 <span class="lineNum">     244 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     245 </span>            :         }
 <span class="lineNum">     246 </span>            : 
-<span class="lineNum">     247 </span><span class="lineCov">      20146 :         fd = open(path, O_RDONLY);</span>
-<span class="lineNum">     248 </span><span class="lineCov">      20146 :         if (fd &lt; 0) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">      20164 :         fd = open(path, O_RDONLY);</span>
+<span class="lineNum">     248 </span><span class="lineCov">      20164 :         if (fd &lt; 0) {</span>
 <span class="lineNum">     249 </span><span class="lineCov">          4 :                 FPGA_MSG(&quot;open(%s) failed&quot;, path);</span>
 <span class="lineNum">     250 </span><span class="lineCov">          4 :                 return FPGA_NOT_FOUND;</span>
 <span class="lineNum">     251 </span>            :         }
 <span class="lineNum">     252 </span>            : 
-<span class="lineNum">     253 </span><span class="lineCov">      20142 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
+<span class="lineNum">     253 </span><span class="lineCov">      20160 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
 <span class="lineNum">     254 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;seek failed&quot;);</span>
 <span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">     256 </span>            :         }
 <span class="lineNum">     257 </span>            : 
 <span class="lineNum">     258 </span>            :         do {
-<span class="lineNum">     259 </span><span class="lineCov">      20142 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
-<span class="lineNum">     260 </span><span class="lineCov">      20142 :                 if (res &lt;= 0) {</span>
+<span class="lineNum">     259 </span><span class="lineCov">      20160 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
+<span class="lineNum">     260 </span><span class="lineCov">      20160 :                 if (res &lt;= 0) {</span>
 <span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Read from %s failed&quot;, path);</span>
 <span class="lineNum">     262 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     263 </span>            :                 }
-<span class="lineNum">     264 </span><span class="lineCov">      20142 :                 b += res;</span>
-<span class="lineNum">     265 </span><span class="lineCov">      20142 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">      20160 :                 b += res;</span>
+<span class="lineNum">     265 </span><span class="lineCov">      20160 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
 <span class="lineNum">     266 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Unexpected size reading from %s&quot;, path);</span>
 <span class="lineNum">     267 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     268 </span>            :                 }
-<span class="lineNum">     269 </span><span class="lineCov">      20142 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
+<span class="lineNum">     269 </span><span class="lineCov">      20160 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
 <span class="lineNum">     270 </span>            : 
 <span class="lineNum">     271 </span>            :         // erase \n
-<span class="lineNum">     272 </span><span class="lineCov">      20142 :         buf[b-1] = 0;</span>
+<span class="lineNum">     272 </span><span class="lineCov">      20160 :         buf[b-1] = 0;</span>
 <span class="lineNum">     273 </span>            : 
-<span class="lineNum">     274 </span><span class="lineCov">      20142 :         *u = strtoull(buf, NULL, 0);</span>
+<span class="lineNum">     274 </span><span class="lineCov">      20160 :         *u = strtoull(buf, NULL, 0);</span>
 <span class="lineNum">     275 </span>            : 
-<span class="lineNum">     276 </span><span class="lineCov">      20142 :         close(fd);</span>
-<span class="lineNum">     277 </span><span class="lineCov">      20142 :         return FPGA_OK;</span>
+<span class="lineNum">     276 </span><span class="lineCov">      20160 :         close(fd);</span>
+<span class="lineNum">     277 </span><span class="lineCov">      20160 :         return FPGA_OK;</span>
 <span class="lineNum">     278 </span>            : 
 <span class="lineNum">     279 </span>            : out_close:
 <span class="lineNum">     280 </span><span class="lineNoCov">          0 :         close(fd);</span>
@@ -391,7 +391,7 @@
 <span class="lineNum">     329 </span><span class="lineNoCov">          0 :         return FPGA_NOT_FOUND;</span>
 <a name="330"><span class="lineNum">     330 </span>            : }</a>
 <span class="lineNum">     331 </span>            : 
-<span class="lineNum">     332 </span><span class="lineCov">        227 : fpga_result sysfs_read_guid(const char *path, fpga_guid guid)</span>
+<span class="lineNum">     332 </span><span class="lineCov">        258 : fpga_result sysfs_read_guid(const char *path, fpga_guid guid)</span>
 <span class="lineNum">     333 </span>            : {
 <span class="lineNum">     334 </span>            :         int fd;
 <span class="lineNum">     335 </span>            :         int res;
@@ -402,53 +402,53 @@
 <span class="lineNum">     340 </span>            :         char tmp;
 <span class="lineNum">     341 </span>            :         unsigned octet;
 <span class="lineNum">     342 </span>            : 
-<span class="lineNum">     343 </span><span class="lineCov">        227 :         if (path == NULL) {</span>
+<span class="lineNum">     343 </span><span class="lineCov">        258 :         if (path == NULL) {</span>
 <span class="lineNum">     344 </span><span class="lineCov">          1 :                 FPGA_ERR(&quot;Invalid input path&quot;);</span>
 <span class="lineNum">     345 </span><span class="lineCov">          1 :                 return FPGA_INVALID_PARAM;</span>
 <span class="lineNum">     346 </span>            :         }
 <span class="lineNum">     347 </span>            : 
-<span class="lineNum">     348 </span><span class="lineCov">        226 :         fd = open(path, O_RDONLY);</span>
-<span class="lineNum">     349 </span><span class="lineCov">        226 :         if (fd &lt; 0) {</span>
+<span class="lineNum">     348 </span><span class="lineCov">        257 :         fd = open(path, O_RDONLY);</span>
+<span class="lineNum">     349 </span><span class="lineCov">        257 :         if (fd &lt; 0) {</span>
 <span class="lineNum">     350 </span><span class="lineCov">          1 :                 FPGA_MSG(&quot;open(%s) failed&quot;, path);</span>
 <span class="lineNum">     351 </span><span class="lineCov">          1 :                 return FPGA_NOT_FOUND;</span>
 <span class="lineNum">     352 </span>            :         }
 <span class="lineNum">     353 </span>            : 
-<span class="lineNum">     354 </span><span class="lineCov">        225 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
+<span class="lineNum">     354 </span><span class="lineCov">        256 :         if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {</span>
 <span class="lineNum">     355 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;seek failed&quot;);</span>
 <span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 goto out_close;</span>
 <span class="lineNum">     357 </span>            :         }
 <span class="lineNum">     358 </span>            : 
-<span class="lineNum">     359 </span><span class="lineCov">        225 :         b = 0;</span>
+<span class="lineNum">     359 </span><span class="lineCov">        256 :         b = 0;</span>
 <span class="lineNum">     360 </span>            : 
 <span class="lineNum">     361 </span>            :         do {
-<span class="lineNum">     362 </span><span class="lineCov">        225 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
-<span class="lineNum">     363 </span><span class="lineCov">        225 :                 if (res &lt;= 0) {</span>
+<span class="lineNum">     362 </span><span class="lineCov">        256 :                 res = read(fd, buf+b, sizeof(buf)-b);</span>
+<span class="lineNum">     363 </span><span class="lineCov">        256 :                 if (res &lt;= 0) {</span>
 <span class="lineNum">     364 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Read from %s failed&quot;, path);</span>
 <span class="lineNum">     365 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     366 </span>            :                 }
-<span class="lineNum">     367 </span><span class="lineCov">        225 :                 b += res;</span>
-<span class="lineNum">     368 </span><span class="lineCov">        225 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
+<span class="lineNum">     367 </span><span class="lineCov">        256 :                 b += res;</span>
+<span class="lineNum">     368 </span><span class="lineCov">        256 :                 if (((unsigned)b &gt; sizeof(buf)) || (b &lt;= 0)) {</span>
 <span class="lineNum">     369 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Unexpected size reading from %s&quot;, path);</span>
 <span class="lineNum">     370 </span><span class="lineNoCov">          0 :                         goto out_close;</span>
 <span class="lineNum">     371 </span>            :                 }
-<span class="lineNum">     372 </span><span class="lineCov">        225 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
+<span class="lineNum">     372 </span><span class="lineCov">        256 :         } while (buf[b-1] != '\n' &amp;&amp; buf[b-1] != '\0' &amp;&amp; (unsigned)b &lt; sizeof(buf));</span>
 <span class="lineNum">     373 </span>            : 
 <span class="lineNum">     374 </span>            :         // erase \n
-<span class="lineNum">     375 </span><span class="lineCov">        225 :         buf[b-1] = 0;</span>
+<span class="lineNum">     375 </span><span class="lineCov">        256 :         buf[b-1] = 0;</span>
 <span class="lineNum">     376 </span>            : 
-<span class="lineNum">     377 </span><span class="lineCov">       3825 :         for (i = 0 ; i &lt; 32 ; i += 2) {</span>
-<span class="lineNum">     378 </span><span class="lineCov">       3600 :                 tmp = buf[i+2];</span>
-<span class="lineNum">     379 </span><span class="lineCov">       3600 :                 buf[i+2] = 0;</span>
+<span class="lineNum">     377 </span><span class="lineCov">       4352 :         for (i = 0 ; i &lt; 32 ; i += 2) {</span>
+<span class="lineNum">     378 </span><span class="lineCov">       4096 :                 tmp = buf[i+2];</span>
+<span class="lineNum">     379 </span><span class="lineCov">       4096 :                 buf[i+2] = 0;</span>
 <span class="lineNum">     380 </span>            : 
-<span class="lineNum">     381 </span><span class="lineCov">       3600 :                 octet = 0;</span>
-<span class="lineNum">     382 </span><span class="lineCov">       3600 :                 sscanf_s_u(&amp;buf[i], &quot;%x&quot;, &amp;octet);</span>
-<span class="lineNum">     383 </span><span class="lineCov">       3600 :                 guid[i/2] = (uint8_t) octet;</span>
+<span class="lineNum">     381 </span><span class="lineCov">       4096 :                 octet = 0;</span>
+<span class="lineNum">     382 </span><span class="lineCov">       4096 :                 sscanf_s_u(&amp;buf[i], &quot;%x&quot;, &amp;octet);</span>
+<span class="lineNum">     383 </span><span class="lineCov">       4096 :                 guid[i/2] = (uint8_t) octet;</span>
 <span class="lineNum">     384 </span>            : 
-<span class="lineNum">     385 </span><span class="lineCov">       3600 :                 buf[i+2] = tmp;</span>
+<span class="lineNum">     385 </span><span class="lineCov">       4096 :                 buf[i+2] = tmp;</span>
 <span class="lineNum">     386 </span>            :         }
 <span class="lineNum">     387 </span>            : 
-<span class="lineNum">     388 </span><span class="lineCov">        225 :         close(fd);</span>
-<span class="lineNum">     389 </span><span class="lineCov">        225 :         return FPGA_OK;</span>
+<span class="lineNum">     388 </span><span class="lineCov">        256 :         close(fd);</span>
+<span class="lineNum">     389 </span><span class="lineCov">        256 :         return FPGA_OK;</span>
 <span class="lineNum">     390 </span>            : 
 <span class="lineNum">     391 </span>            : out_close:
 <span class="lineNum">     392 </span><span class="lineNoCov">          0 :         close(fd);</span>
@@ -460,81 +460,81 @@
 <span class="lineNum">     398 </span>            : //
 <a name="399"><span class="lineNum">     399 </span>            : </a>
 <span class="lineNum">     400 </span>            : // FIXME: uses same number for device and FME (may not be true in future)
-<span class="lineNum">     401 </span><span class="lineCov">         11 : fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id)</span>
+<span class="lineNum">     401 </span><span class="lineCov">         21 : fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id)</span>
 <span class="lineNum">     402 </span>            : {
 <span class="lineNum">     403 </span>            :         fpga_result result;
 <span class="lineNum">     404 </span>            :         char spath[SYSFS_PATH_MAX];
 <span class="lineNum">     405 </span>            :         int i;
 <span class="lineNum">     406 </span>            : 
-<span class="lineNum">     407 </span><span class="lineCov">         11 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     407 </span><span class="lineCov">         21 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
 <span class="lineNum">     408 </span>            :                  SYSFS_FPGA_CLASS_PATH
 <span class="lineNum">     409 </span>            :                  SYSFS_FME_PATH_FMT &quot;/&quot;
 <span class="lineNum">     410 </span>            :                  FPGA_SYSFS_SOCKET_ID,
 <span class="lineNum">     411 </span>            :                  dev, dev);
 <span class="lineNum">     412 </span>            : 
-<span class="lineNum">     413 </span><span class="lineCov">         11 :         i = 0;</span>
-<span class="lineNum">     414 </span><span class="lineCov">         11 :         result = sysfs_read_int(spath, &amp;i);</span>
-<span class="lineNum">     415 </span><span class="lineCov">         11 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     413 </span><span class="lineCov">         21 :         i = 0;</span>
+<span class="lineNum">     414 </span><span class="lineCov">         21 :         result = sysfs_read_int(spath, &amp;i);</span>
+<span class="lineNum">     415 </span><span class="lineCov">         21 :         if (FPGA_OK != result)</span>
 <span class="lineNum">     416 </span><span class="lineNoCov">          0 :                 return result;</span>
 <span class="lineNum">     417 </span>            : 
-<span class="lineNum">     418 </span><span class="lineCov">         11 :         *socket_id = (uint8_t) i;</span>
+<span class="lineNum">     418 </span><span class="lineCov">         21 :         *socket_id = (uint8_t) i;</span>
 <span class="lineNum">     419 </span>            : 
-<span class="lineNum">     420 </span><span class="lineCov">         11 :         return FPGA_OK;</span>
+<span class="lineNum">     420 </span><span class="lineCov">         21 :         return FPGA_OK;</span>
 <span class="lineNum">     421 </span>            : }
 <a name="422"><span class="lineNum">     422 </span>            : </a>
 <span class="lineNum">     423 </span>            : // FIXME: uses same number for device and PORT (may not be true in future)
-<span class="lineNum">     424 </span><span class="lineCov">          4 : fpga_result sysfs_get_afu_id(int dev, fpga_guid guid)</span>
+<span class="lineNum">     424 </span><span class="lineCov">         10 : fpga_result sysfs_get_afu_id(int dev, fpga_guid guid)</span>
 <span class="lineNum">     425 </span>            : {
 <span class="lineNum">     426 </span>            :         char spath[SYSFS_PATH_MAX];
 <span class="lineNum">     427 </span>            : 
-<span class="lineNum">     428 </span><span class="lineCov">          4 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     428 </span><span class="lineCov">         10 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
 <span class="lineNum">     429 </span>            :                  SYSFS_FPGA_CLASS_PATH
 <span class="lineNum">     430 </span>            :                  SYSFS_AFU_PATH_FMT &quot;/&quot;
 <span class="lineNum">     431 </span>            :                  FPGA_SYSFS_AFU_GUID,
 <span class="lineNum">     432 </span>            :                  dev, dev);
 <span class="lineNum">     433 </span>            : 
-<span class="lineNum">     434 </span><span class="lineCov">          4 :         return sysfs_read_guid(spath, guid);</span>
+<span class="lineNum">     434 </span><span class="lineCov">         10 :         return sysfs_read_guid(spath, guid);</span>
 <a name="435"><span class="lineNum">     435 </span>            : }</a>
 <span class="lineNum">     436 </span>            : 
-<span class="lineNum">     437 </span><span class="lineCov">          7 : fpga_result sysfs_get_pr_id(int dev, fpga_guid guid)</span>
+<span class="lineNum">     437 </span><span class="lineCov">         11 : fpga_result sysfs_get_pr_id(int dev, fpga_guid guid)</span>
 <span class="lineNum">     438 </span>            : {
 <span class="lineNum">     439 </span>            :         char spath[SYSFS_PATH_MAX];
 <span class="lineNum">     440 </span>            : 
-<span class="lineNum">     441 </span><span class="lineCov">          7 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     441 </span><span class="lineCov">         11 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
 <span class="lineNum">     442 </span>            :                  SYSFS_FPGA_CLASS_PATH
 <span class="lineNum">     443 </span>            :                  SYSFS_FME_PATH_FMT &quot;/&quot;
 <span class="lineNum">     444 </span>            :                  FPGA_SYSFS_FME_INTERFACE_ID,
 <span class="lineNum">     445 </span>            :                  dev, dev);
 <span class="lineNum">     446 </span>            : 
-<span class="lineNum">     447 </span><span class="lineCov">          7 :         return sysfs_read_guid(spath, guid);</span>
+<span class="lineNum">     447 </span><span class="lineCov">         11 :         return sysfs_read_guid(spath, guid);</span>
 <span class="lineNum">     448 </span>            : }
 <a name="449"><span class="lineNum">     449 </span>            : </a>
 <span class="lineNum">     450 </span>            : // FIXME: uses same number for device and FME (may not be true in future)
-<span class="lineNum">     451 </span><span class="lineCov">          7 : fpga_result sysfs_get_slots(int dev, uint32_t *slots)</span>
+<span class="lineNum">     451 </span><span class="lineCov">         11 : fpga_result sysfs_get_slots(int dev, uint32_t *slots)</span>
 <span class="lineNum">     452 </span>            : {
 <span class="lineNum">     453 </span>            :         char spath[SYSFS_PATH_MAX];
 <span class="lineNum">     454 </span>            : 
-<span class="lineNum">     455 </span><span class="lineCov">          7 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     455 </span><span class="lineCov">         11 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
 <span class="lineNum">     456 </span>            :                  SYSFS_FPGA_CLASS_PATH
 <span class="lineNum">     457 </span>            :                  SYSFS_FME_PATH_FMT &quot;/&quot;
 <span class="lineNum">     458 </span>            :                  FPGA_SYSFS_NUM_SLOTS,
 <span class="lineNum">     459 </span>            :                  dev, dev);
 <span class="lineNum">     460 </span>            : 
-<span class="lineNum">     461 </span><span class="lineCov">          7 :         return sysfs_read_u32(spath, slots);</span>
+<span class="lineNum">     461 </span><span class="lineCov">         11 :         return sysfs_read_u32(spath, slots);</span>
 <span class="lineNum">     462 </span>            : }
 <a name="463"><span class="lineNum">     463 </span>            : </a>
 <span class="lineNum">     464 </span>            : // FIXME: uses same number for device and FME (may not be true in future)
-<span class="lineNum">     465 </span><span class="lineCov">          7 : fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)</span>
+<span class="lineNum">     465 </span><span class="lineCov">         11 : fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)</span>
 <span class="lineNum">     466 </span>            : {
 <span class="lineNum">     467 </span>            :         char spath[SYSFS_PATH_MAX];
 <span class="lineNum">     468 </span>            : 
-<span class="lineNum">     469 </span><span class="lineCov">          7 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
+<span class="lineNum">     469 </span><span class="lineCov">         11 :         snprintf_s_ii(spath, SYSFS_PATH_MAX,</span>
 <span class="lineNum">     470 </span>            :                  SYSFS_FPGA_CLASS_PATH
 <span class="lineNum">     471 </span>            :                  SYSFS_FME_PATH_FMT &quot;/&quot;
 <span class="lineNum">     472 </span>            :                  FPGA_SYSFS_BITSTREAM_ID,
 <span class="lineNum">     473 </span>            :                  dev, dev);
 <span class="lineNum">     474 </span>            : 
-<span class="lineNum">     475 </span><span class="lineCov">          7 :         return sysfs_read_u64(spath, id);</span>
+<span class="lineNum">     475 </span><span class="lineCov">         11 :         return sysfs_read_u64(spath, id);</span>
 <span class="lineNum">     476 </span>            : }
 <a name="477"><span class="lineNum">     477 </span>            : </a>
 <span class="lineNum">     478 </span>            : // Get port syfs path
@@ -684,72 +684,72 @@
 <span class="lineNum">     622 </span>            :  * The rlpath path is assumed to be of the form:
 <a name="623"><span class="lineNum">     623 </span>            :  * ../../devices/pci0000:5e/0000:5e:00.0/fpga/intel-fpga-dev.0</a>
 <span class="lineNum">     624 </span>            :  */
-<span class="lineNum">     625 </span><span class="lineCov">         11 : fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f)</span>
+<span class="lineNum">     625 </span><span class="lineCov">         21 : fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f)</span>
 <span class="lineNum">     626 </span>            : {
 <span class="lineNum">     627 </span>            :         int res;
 <span class="lineNum">     628 </span>            :         char rlpath[SYSFS_PATH_MAX];
 <span class="lineNum">     629 </span>            :         char *p;
 <span class="lineNum">     630 </span>            : 
-<span class="lineNum">     631 </span><span class="lineCov">         11 :         res = readlink(sysfspath, rlpath, sizeof(rlpath));</span>
-<span class="lineNum">     632 </span><span class="lineCov">         11 :         if (-1 == res) {</span>
+<span class="lineNum">     631 </span><span class="lineCov">         21 :         res = readlink(sysfspath, rlpath, sizeof(rlpath));</span>
+<span class="lineNum">     632 </span><span class="lineCov">         21 :         if (-1 == res) {</span>
 <span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Can't read link %s (no driver?)&quot;, sysfspath);</span>
 <span class="lineNum">     634 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
 <span class="lineNum">     635 </span>            :         }
 <span class="lineNum">     636 </span>            : 
 <span class="lineNum">     637 </span>            :         // Find the BDF from the link path.
-<span class="lineNum">     638 </span><span class="lineCov">         11 :         rlpath[res] = 0;</span>
-<span class="lineNum">     639 </span><span class="lineCov">         11 :         p = strrchr(rlpath, '/');</span>
-<span class="lineNum">     640 </span><span class="lineCov">         11 :         if (!p) {</span>
+<span class="lineNum">     638 </span><span class="lineCov">         21 :         rlpath[res] = 0;</span>
+<span class="lineNum">     639 </span><span class="lineCov">         21 :         p = strrchr(rlpath, '/');</span>
+<span class="lineNum">     640 </span><span class="lineCov">         21 :         if (!p) {</span>
 <span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link %s (no driver?)&quot;, rlpath);</span>
 <span class="lineNum">     642 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
 <span class="lineNum">     643 </span>            :         }
-<span class="lineNum">     644 </span><span class="lineCov">         11 :         *p = 0;</span>
-<span class="lineNum">     645 </span><span class="lineCov">         11 :         p = strrchr(rlpath, '/');</span>
-<span class="lineNum">     646 </span><span class="lineCov">         11 :         if (!p) {</span>
+<span class="lineNum">     644 </span><span class="lineCov">         21 :         *p = 0;</span>
+<span class="lineNum">     645 </span><span class="lineCov">         21 :         p = strrchr(rlpath, '/');</span>
+<span class="lineNum">     646 </span><span class="lineCov">         21 :         if (!p) {</span>
 <span class="lineNum">     647 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link %s (no driver?)&quot;, rlpath);</span>
 <span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
 <span class="lineNum">     649 </span>            :         }
-<span class="lineNum">     650 </span><span class="lineCov">         11 :         *p = 0;</span>
-<span class="lineNum">     651 </span><span class="lineCov">         11 :         p = strrchr(rlpath, '/');</span>
-<span class="lineNum">     652 </span><span class="lineCov">         11 :         if (!p) {</span>
+<span class="lineNum">     650 </span><span class="lineCov">         21 :         *p = 0;</span>
+<span class="lineNum">     651 </span><span class="lineCov">         21 :         p = strrchr(rlpath, '/');</span>
+<span class="lineNum">     652 </span><span class="lineCov">         21 :         if (!p) {</span>
 <span class="lineNum">     653 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;Invalid link %s (no driver?)&quot;, rlpath);</span>
 <span class="lineNum">     654 </span><span class="lineNoCov">          0 :                 return FPGA_NO_DRIVER;</span>
 <span class="lineNum">     655 </span>            :         }
-<span class="lineNum">     656 </span><span class="lineCov">         11 :         ++p;</span>
+<span class="lineNum">     656 </span><span class="lineCov">         21 :         ++p;</span>
 <span class="lineNum">     657 </span>            : 
 <span class="lineNum">     658 </span>            :         //           11
 <span class="lineNum">     659 </span>            :         // 012345678901
 <span class="lineNum">     660 </span>            :         // ssss:bb:dd.f
-<span class="lineNum">     661 </span><span class="lineCov">         11 :         *f = (int) strtoul(p+11, NULL, 16);</span>
-<span class="lineNum">     662 </span><span class="lineCov">         11 :         *(p + 10) = 0;</span>
+<span class="lineNum">     661 </span><span class="lineCov">         21 :         *f = (int) strtoul(p+11, NULL, 16);</span>
+<span class="lineNum">     662 </span><span class="lineCov">         21 :         *(p + 10) = 0;</span>
 <span class="lineNum">     663 </span>            : 
-<span class="lineNum">     664 </span><span class="lineCov">         11 :         *d = (int) strtoul(p+8, NULL, 16);</span>
-<span class="lineNum">     665 </span><span class="lineCov">         11 :         *(p + 7) = 0;</span>
+<span class="lineNum">     664 </span><span class="lineCov">         21 :         *d = (int) strtoul(p+8, NULL, 16);</span>
+<span class="lineNum">     665 </span><span class="lineCov">         21 :         *(p + 7) = 0;</span>
 <span class="lineNum">     666 </span>            : 
-<span class="lineNum">     667 </span><span class="lineCov">         11 :         *b = (int) strtoul(p+5, NULL, 16);</span>
-<span class="lineNum">     668 </span><span class="lineCov">         11 :         *(p + 4) = 0;</span>
+<span class="lineNum">     667 </span><span class="lineCov">         21 :         *b = (int) strtoul(p+5, NULL, 16);</span>
+<span class="lineNum">     668 </span><span class="lineCov">         21 :         *(p + 4) = 0;</span>
 <span class="lineNum">     669 </span>            : 
-<span class="lineNum">     670 </span><span class="lineCov">         11 :         *s = (int) strtoul(p, NULL, 16);</span>
+<span class="lineNum">     670 </span><span class="lineCov">         21 :         *s = (int) strtoul(p, NULL, 16);</span>
 <span class="lineNum">     671 </span>            : 
-<span class="lineNum">     672 </span><span class="lineCov">         11 :         return FPGA_OK;</span>
+<span class="lineNum">     672 </span><span class="lineCov">         21 :         return FPGA_OK;</span>
 <a name="673"><span class="lineNum">     673 </span>            : }</a>
 <span class="lineNum">     674 </span>            : 
-<span class="lineNum">     675 </span><span class="lineCov">         19 : fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)</span>
+<span class="lineNum">     675 </span><span class="lineCov">         29 : fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)</span>
 <span class="lineNum">     676 </span>            : {
 <span class="lineNum">     677 </span>            :         char sdevpath[SYSFS_PATH_MAX];
-<span class="lineNum">     678 </span><span class="lineCov">         19 :         uint32_t major = 0;</span>
-<span class="lineNum">     679 </span><span class="lineCov">         19 :         uint32_t minor = 0;</span>
+<span class="lineNum">     678 </span><span class="lineCov">         29 :         uint32_t major = 0;</span>
+<span class="lineNum">     679 </span><span class="lineCov">         29 :         uint32_t minor = 0;</span>
 <span class="lineNum">     680 </span>            :         fpga_result result;
 <span class="lineNum">     681 </span>            : 
-<span class="lineNum">     682 </span><span class="lineCov">         19 :         snprintf_s_s(sdevpath, SYSFS_PATH_MAX, &quot;%s/dev&quot;, sysfspath);</span>
+<span class="lineNum">     682 </span><span class="lineCov">         29 :         snprintf_s_s(sdevpath, SYSFS_PATH_MAX, &quot;%s/dev&quot;, sysfspath);</span>
 <span class="lineNum">     683 </span>            : 
-<span class="lineNum">     684 </span><span class="lineCov">         19 :         result = sysfs_read_u32_pair(sdevpath, &amp;major, &amp;minor, ':');</span>
-<span class="lineNum">     685 </span><span class="lineCov">         19 :         if (FPGA_OK != result)</span>
+<span class="lineNum">     684 </span><span class="lineCov">         29 :         result = sysfs_read_u32_pair(sdevpath, &amp;major, &amp;minor, ':');</span>
+<span class="lineNum">     685 </span><span class="lineCov">         29 :         if (FPGA_OK != result)</span>
 <span class="lineNum">     686 </span><span class="lineNoCov">          0 :                 return result;</span>
 <span class="lineNum">     687 </span>            : 
-<span class="lineNum">     688 </span><span class="lineCov">         19 :         *object_id = ((major &amp; 0xFFF) &lt;&lt; 20) | (minor &amp; 0xFFFFF);</span>
+<span class="lineNum">     688 </span><span class="lineCov">         29 :         *object_id = ((major &amp; 0xFFF) &lt;&lt; 20) | (minor &amp; 0xFFFFF);</span>
 <span class="lineNum">     689 </span>            : 
-<span class="lineNum">     690 </span><span class="lineCov">         19 :         return FPGA_OK;</span>
+<span class="lineNum">     690 </span><span class="lineCov">         29 :         return FPGA_OK;</span>
 <a name="691"><span class="lineNum">     691 </span>            : }</a>
 <span class="lineNum">     692 </span>            : 
 <span class="lineNum">     693 </span><span class="lineCov">          1 : ssize_t eintr_read(int fd, void *buf, size_t count)</span>

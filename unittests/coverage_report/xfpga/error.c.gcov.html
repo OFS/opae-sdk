@@ -272,17 +272,17 @@
 <span class="lineNum">     210 </span>            :  * called again on the same list, it will add all found errors again.
 <a name="211"><span class="lineNum">     211 </span>            :  * Returns the number of error entries added to `list` */</a>
 <span class="lineNum">     212 </span>            : uint32_t __FIXME_MAKE_VISIBLE__
-<span class="lineNum">     213 </span><span class="lineCov">         65 : build_error_list(const char *path, struct error_list **list)</span>
+<span class="lineNum">     213 </span><span class="lineCov">         79 : build_error_list(const char *path, struct error_list **list)</span>
 <span class="lineNum">     214 </span>            : {
 <span class="lineNum">     215 </span>            :         struct dirent *de;
 <span class="lineNum">     216 </span>            :         DIR *dir;
 <span class="lineNum">     217 </span>            :         struct stat st;
 <span class="lineNum">     218 </span>            :         char basedir[FILENAME_MAX];
-<span class="lineNum">     219 </span><span class="lineCov">         65 :         int len = strlen(path);</span>
-<span class="lineNum">     220 </span><span class="lineCov">         65 :         int subpath_len = 0;</span>
-<span class="lineNum">     221 </span><span class="lineCov">         65 :         uint32_t n = 0;</span>
+<span class="lineNum">     219 </span><span class="lineCov">         79 :         int len = strlen(path);</span>
+<span class="lineNum">     220 </span><span class="lineCov">         79 :         int subpath_len = 0;</span>
+<span class="lineNum">     221 </span><span class="lineCov">         79 :         uint32_t n = 0;</span>
 <span class="lineNum">     222 </span>            :         unsigned int i;
-<span class="lineNum">     223 </span><span class="lineCov">         65 :         struct error_list **el = list;</span>
+<span class="lineNum">     223 </span><span class="lineCov">         79 :         struct error_list **el = list;</span>
 <span class="lineNum">     224 </span>            :         errno_t err;
 <span class="lineNum">     225 </span>            : 
 <span class="lineNum">     226 </span>            :         // add 3 to the len
@@ -290,43 +290,43 @@
 <span class="lineNum">     228 </span>            :         // 1 for the minimum length of a file appended
 <span class="lineNum">     229 </span>            :         // 1 for null string to terminate
 <span class="lineNum">     230 </span>            :         // if we go over now, then leave without doing anything else
-<span class="lineNum">     231 </span><span class="lineCov">         65 :         if (len+3 &gt; FILENAME_MAX) {</span>
+<span class="lineNum">     231 </span><span class="lineCov">         79 :         if (len+3 &gt; FILENAME_MAX) {</span>
 <span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;path too long&quot;);</span>
 <span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 return 0;</span>
 <span class="lineNum">     234 </span>            :         }
 <span class="lineNum">     235 </span>            : 
-<span class="lineNum">     236 </span><span class="lineCov">         65 :         err = strncpy_s(basedir, FILENAME_MAX-3, path, len);</span>
-<span class="lineNum">     237 </span><span class="lineCov">         65 :         if (err != EOK) {</span>
+<span class="lineNum">     236 </span><span class="lineCov">         79 :         err = strncpy_s(basedir, FILENAME_MAX-3, path, len);</span>
+<span class="lineNum">     237 </span><span class="lineCov">         79 :         if (err != EOK) {</span>
 <span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 FPGA_MSG(&quot;strncpy_s() failed with return value %u&quot;, err);</span>
 <span class="lineNum">     239 </span><span class="lineNoCov">          0 :                 return 0;</span>
 <span class="lineNum">     240 </span>            :         }
-<span class="lineNum">     241 </span><span class="lineCov">         65 :         basedir[len++] = '/';</span>
+<span class="lineNum">     241 </span><span class="lineCov">         79 :         basedir[len++] = '/';</span>
 <span class="lineNum">     242 </span>            :         // now we've added one to length
 <span class="lineNum">     243 </span>            : 
-<span class="lineNum">     244 </span><span class="lineCov">         65 :         dir = opendir(path);</span>
-<span class="lineNum">     245 </span><span class="lineCov">         65 :         if (!dir) {</span>
+<span class="lineNum">     244 </span><span class="lineCov">         79 :         dir = opendir(path);</span>
+<span class="lineNum">     245 </span><span class="lineCov">         79 :         if (!dir) {</span>
 <span class="lineNum">     246 </span><span class="lineCov">          6 :                 FPGA_MSG(&quot;unable to open %s&quot;, path);</span>
 <span class="lineNum">     247 </span><span class="lineCov">          6 :                 return 0;</span>
 <span class="lineNum">     248 </span>            :         }
 <span class="lineNum">     249 </span>            : 
-<span class="lineNum">     250 </span><span class="lineCov">        597 :         while ((de = readdir(dir))) {</span>
+<span class="lineNum">     250 </span><span class="lineCov">        735 :         while ((de = readdir(dir))) {</span>
 <span class="lineNum">     251 </span>            :                 // skip hidden ('.*') files (includes &quot;.&quot; and &quot;..&quot;)
-<span class="lineNum">     252 </span><span class="lineCov">        479 :                 if (de-&gt;d_name[0] == '.')</span>
-<span class="lineNum">     253 </span><span class="lineCov">        118 :                         continue;</span>
+<span class="lineNum">     252 </span><span class="lineCov">        589 :                 if (de-&gt;d_name[0] == '.')</span>
+<span class="lineNum">     253 </span><span class="lineCov">        146 :                         continue;</span>
 <span class="lineNum">     254 </span>            : 
 <span class="lineNum">     255 </span>            :                 // skip names on blacklist
-<span class="lineNum">     256 </span><span class="lineCov">       1532 :                 for (i = 0; i &lt; NUM_ERRORS_EXCLUDE; i++) {</span>
-<span class="lineNum">     257 </span><span class="lineCov">       1267 :                         if (strcmp(de-&gt;d_name, errors_exclude[i]) == 0) {</span>
-<span class="lineNum">     258 </span><span class="lineCov">         96 :                                 break;</span>
+<span class="lineNum">     256 </span><span class="lineCov">       1876 :                 for (i = 0; i &lt; NUM_ERRORS_EXCLUDE; i++) {</span>
+<span class="lineNum">     257 </span><span class="lineCov">       1553 :                         if (strcmp(de-&gt;d_name, errors_exclude[i]) == 0) {</span>
+<span class="lineNum">     258 </span><span class="lineCov">        120 :                                 break;</span>
 <span class="lineNum">     259 </span>            :                         }
 <span class="lineNum">     260 </span>            :                 }
-<span class="lineNum">     261 </span><span class="lineCov">        361 :                 if (i &lt; NUM_ERRORS_EXCLUDE)</span>
-<span class="lineNum">     262 </span><span class="lineCov">         96 :                         continue;</span>
+<span class="lineNum">     261 </span><span class="lineCov">        443 :                 if (i &lt; NUM_ERRORS_EXCLUDE)</span>
+<span class="lineNum">     262 </span><span class="lineCov">        120 :                         continue;</span>
 <span class="lineNum">     263 </span>            : 
-<span class="lineNum">     264 </span><span class="lineCov">        265 :                 subpath_len = strlen(de-&gt;d_name);</span>
+<span class="lineNum">     264 </span><span class="lineCov">        323 :                 subpath_len = strlen(de-&gt;d_name);</span>
 <span class="lineNum">     265 </span>            : 
 <span class="lineNum">     266 </span>            :                 // check if the result abs path is longer than  our max
-<span class="lineNum">     267 </span><span class="lineCov">        265 :                 if (len + subpath_len &gt; FILENAME_MAX) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">        323 :                 if (len + subpath_len &gt; FILENAME_MAX) {</span>
 <span class="lineNum">     268 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;Error path length is too long&quot;);</span>
 <span class="lineNum">     269 </span><span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     270 </span>            :                 }
@@ -334,33 +334,33 @@
 <span class="lineNum">     272 </span>            :                 // build absolute path
 <span class="lineNum">     273 </span>            :                 // dmax (arg2) is restricted max length of resulting dest,
 <span class="lineNum">     274 </span>            :                 // including null - it must also be at least smax+1 (arg4)
-<span class="lineNum">     275 </span><span class="lineCov">        530 :                 err = strncpy_s(basedir + len, FILENAME_MAX - len - 1,</span>
-<span class="lineNum">     276 </span><span class="lineCov">        265 :                                 de-&gt;d_name, subpath_len);</span>
-<span class="lineNum">     277 </span><span class="lineCov">        265 :                 if (err != EOK) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">        646 :                 err = strncpy_s(basedir + len, FILENAME_MAX - len - 1,</span>
+<span class="lineNum">     276 </span><span class="lineCov">        323 :                                 de-&gt;d_name, subpath_len);</span>
+<span class="lineNum">     277 </span><span class="lineCov">        323 :                 if (err != EOK) {</span>
 <span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;strncpy_s() failed with return value %u&quot;, err);</span>
 <span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     280 </span>            :                 }
 <span class="lineNum">     281 </span>            : 
 <span class="lineNum">     282 </span>            :                 // try accessing file/dir
-<span class="lineNum">     283 </span><span class="lineCov">        265 :                 if (lstat(basedir, &amp;st) == -1) {</span>
+<span class="lineNum">     283 </span><span class="lineCov">        323 :                 if (lstat(basedir, &amp;st) == -1) {</span>
 <span class="lineNum">     284 </span><span class="lineNoCov">          0 :                         FPGA_MSG(&quot;can't stat %s&quot;, basedir);</span>
 <span class="lineNum">     285 </span><span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     286 </span>            :                 }
 <span class="lineNum">     287 </span>            : 
 <span class="lineNum">     288 </span>            :                 // skip symlinks
-<span class="lineNum">     289 </span><span class="lineCov">        265 :                 if (S_ISLNK(st.st_mode))</span>
+<span class="lineNum">     289 </span><span class="lineCov">        323 :                 if (S_ISLNK(st.st_mode))</span>
 <span class="lineNum">     290 </span><span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     291 </span>            : 
 <span class="lineNum">     292 </span>            :                 // recursively dive into subdirectories
-<span class="lineNum">     293 </span><span class="lineCov">        265 :                 if (S_ISDIR(st.st_mode)) {</span>
-<span class="lineNum">     294 </span><span class="lineCov">         22 :                         n += build_error_list(basedir, el);</span>
-<span class="lineNum">     295 </span><span class="lineCov">         22 :                         continue;</span>
+<span class="lineNum">     293 </span><span class="lineCov">        323 :                 if (S_ISDIR(st.st_mode)) {</span>
+<span class="lineNum">     294 </span><span class="lineCov">         26 :                         n += build_error_list(basedir, el);</span>
+<span class="lineNum">     295 </span><span class="lineCov">         26 :                         continue;</span>
 <span class="lineNum">     296 </span>            :                 }
 <span class="lineNum">     297 </span>            : 
 <span class="lineNum">     298 </span>            :                 // not blacklisted, not hidden, accessible, no symlink, no dir -&gt; count and append it!
-<span class="lineNum">     299 </span><span class="lineCov">        243 :                 n++;</span>
-<span class="lineNum">     300 </span><span class="lineCov">        243 :                 if (!el)        // no list</span>
-<span class="lineNum">     301 </span><span class="lineCov">        111 :                         continue;</span>
+<span class="lineNum">     299 </span><span class="lineCov">        297 :                 n++;</span>
+<span class="lineNum">     300 </span><span class="lineCov">        297 :                 if (!el)        // no list</span>
+<span class="lineNum">     301 </span><span class="lineCov">        165 :                         continue;</span>
 <span class="lineNum">     302 </span>            : 
 <span class="lineNum">     303 </span>            :                 // append error info to list
 <span class="lineNum">     304 </span><span class="lineCov">        132 :                 struct error_list *new_entry = malloc(sizeof(struct error_list));</span>
@@ -446,15 +446,15 @@
 <span class="lineNum">     384 </span><span class="lineCov">        132 :                 *el = new_entry;</span>
 <span class="lineNum">     385 </span><span class="lineCov">        132 :                 el = &amp;new_entry-&gt;next;</span>
 <span class="lineNum">     386 </span>            :         }
-<span class="lineNum">     387 </span><span class="lineCov">         59 :         closedir(dir);</span>
+<span class="lineNum">     387 </span><span class="lineCov">         73 :         closedir(dir);</span>
 <span class="lineNum">     388 </span>            : 
-<span class="lineNum">     389 </span><span class="lineCov">         59 :         return n;</span>
+<span class="lineNum">     389 </span><span class="lineCov">         73 :         return n;</span>
 <span class="lineNum">     390 </span>            : }
 <a name="391"><span class="lineNum">     391 </span>            : </a>
 <span class="lineNum">     392 </span>            : 
-<span class="lineNum">     393 </span><span class="lineCov">         17 : uint32_t count_error_files(const char *path)</span>
+<span class="lineNum">     393 </span><span class="lineCov">         27 : uint32_t count_error_files(const char *path)</span>
 <span class="lineNum">     394 </span>            : {
-<span class="lineNum">     395 </span><span class="lineCov">         17 :         return build_error_list(path, NULL);</span>
+<span class="lineNum">     395 </span><span class="lineCov">         27 :         return build_error_list(path, NULL);</span>
 <span class="lineNum">     396 </span>            : }
 </pre>
       </td>
