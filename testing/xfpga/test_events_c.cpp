@@ -32,10 +32,12 @@ extern "C" {
 #include "fpgad/config_int.h"
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
-fpga_result send_fme_event_request(fpga_handle,fpga_event_handle,int);
-fpga_result send_port_event_request(fpga_handle,fpga_event_handle,int);
-fpga_result send_uafu_event_request(fpga_handle,fpga_event_handle,uint32_t,int);
-fpga_result check_interrupts_supported(fpga_handle,fpga_objtype*);
+fpga_result send_fme_event_request(fpga_handle, fpga_event_handle, int);
+fpga_result send_port_event_request(fpga_handle, fpga_event_handle, int);
+fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, int);
+fpga_result check_interrupts_supported(fpga_handle, fpga_objtype*);
+fpga_result driver_register_event(fpga_handle, fpga_event_type, fpga_event_handle, uint32_t);
+fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_handle);
 
 #ifdef __cplusplus
 }
@@ -188,7 +190,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
       : tmpsysfs_("mocksys-XXXXXX"),
         tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
         tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
-        handle_dev_(nullptr), handle_accel_(nullptr) {}
+        handle_dev_(nullptr), 
+        handle_accel_(nullptr) {}
 
   virtual void SetUp() override {
     tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
@@ -241,19 +244,19 @@ class events_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
     for (auto t : tokens_dev_) {
-      if (t != nullptr) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
       }
     }
 
     for (auto t : tokens_accel_) {
-      if (t != nullptr) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
       }
     }
 
-    if (handle_dev_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
-    if (handle_accel_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
+    if (handle_dev_) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
+    if (handle_accel_) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
@@ -279,6 +282,21 @@ class events_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle eh_;
 };
 
+
+TEST_P(events_p, register_event) {
+  fpga_result res;
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
+      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
+      << "\tRESULT: " << fpgaErrStr(res);
+
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
+            FPGA_OK)
+      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_),
+            FPGA_OK)
+      << "\tRESULT: " << fpgaErrStr(res);
+}
 
 /**
  * @test       event_01
@@ -471,7 +489,8 @@ TEST(events, event_drv_10) {
 /**
  * @test       send_fme_event_request
  *
- * @brief      When passed a valid event handle, handle and fme_operation
+ * @brief      When passed a valid event handle, handle
+ *             with FPGA_IRQ_ASSIGN flag
  *             the function return FPGA_OK
  *
  */
@@ -484,7 +503,22 @@ TEST_P(events_p, valid_fme_event_request){
   EXPECT_EQ(FPGA_OK,res);
 }
 
+/**
+ * @test       send_fme_event_request
+ *
+ * @brief      When passed a valid event handle, handle
+ *             with FPGA_IRQ_DEASSIGN flag
+ *             the function return FPGA_OK
+ *
+ */
+TEST_P(events_p, valid_fme_event_request_01){
+  int fme_op = FPGA_IRQ_DEASSIGN;
 
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_OK,res);
+}
 /**
  * @test       send_fme_event_request
  * @brief      When passed a valid event handle but invalid fme params
@@ -498,6 +532,12 @@ TEST_P(events_p, invalid_fme_event_request_01){
   fme_op = FPGA_IRQ_ASSIGN;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
+  res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
 }
@@ -522,11 +562,27 @@ TEST_P(events_p, invalid_fme_event_request_02){
 
 /**
  * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle and port_operation
+ * @brief      When passed a valid event handle, handle 
+ *             with FPGA_IRQ_ASSIGN flag 
  *             the function return FPGA_OK
  */
 TEST_P(events_p, valid_port_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  auto res = send_port_event_request(handle_dev_,eh_,port_op);
+  EXPECT_EQ(FPGA_OK,res);
+}
+
+/**
+ * @test       send_port_event_request
+ * @brief      When passed a valid event handle, handle
+ *             with FPGA_IRQ_DEASSIGN flag 
+ *             the function return FPGA_OK
+ */
+TEST_P(events_p, valid_port_event_request_01){
+  int port_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
@@ -551,6 +607,13 @@ TEST_P(events_p, invalid_port_event_request_01){
 
   res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  res = send_port_event_request(handle_dev_,eh_,port_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
 }
 
 /**
@@ -572,11 +635,27 @@ TEST_P(events_p, invalid_port_event_request_02){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle, handle and port_operation
+ * @brief      When passed a valid event handle, handle
+ *             with FPGA_IRQ_ASSIGN flag 
  *             the function return FPGA_OK
  */
 TEST_P(events_p, valid_uafu_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
+  EXPECT_EQ(FPGA_OK,res);
+}
+
+/**
+ * @test       send_uafu_event_request
+ * @brief      When passed a valid event handle, handle
+ *             with FPGA_IRQ_DEASSIGN flag 
+ *             the function return FPGA_OK
+ */
+TEST_P(events_p, valid_uafu_event_request_01){
+  int port_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
@@ -591,13 +670,14 @@ TEST_P(events_p, valid_uafu_event_request){
  *             it returns FPGA_EXCEPTION
  */
 TEST_P(events_p, invalid_uafu_event_request_01){
+  // invalid port operation
   int port_op = 0;
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
+  // Invalid ioctl
   port_op = FPGA_IRQ_ASSIGN;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
-
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
 }
@@ -614,6 +694,12 @@ TEST_P(events_p, invalid_uafu_event_request_02){
 
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
 }
@@ -647,7 +733,7 @@ TEST_P(events_p, fme_interrupts_check){
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   auto res = check_interrupts_supported(handle_dev_,&obj);
-  EXPECT_EQ(FPGA_OK,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Value input 
   gEnableIRQ = true;
@@ -680,7 +766,7 @@ TEST_P(events_p, afu_interrupts_check){
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   auto res = check_interrupts_supported(handle_accel_,&obj);
-  EXPECT_EQ(FPGA_OK,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Value input 
   gEnableIRQ = true;
@@ -700,6 +786,79 @@ TEST_P(events_p, afu_interrupts_check){
 
 }
 
+/**
+ * @test       afu_driver_register_event
+ * @brief      
+ */
+TEST_P(events_p, afu_driver_register_event){
+  int port_op = FPGA_IRQ_ASSIGN;
+
+  //Invalid oioctl
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  auto res = driver_register_event(handle_accel_,FPGA_EVENT_ERROR,eh_,0);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  res = driver_register_event(handle_accel_,FPGA_EVENT_INTERRUPT,eh_,port_op);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  // Not supported event type
+  res = driver_register_event(handle_accel_,FPGA_EVENT_POWER_THERMAL,eh_,0);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
+}
+
+/**
+ * @test       fme_driver_register_event
+ * @brief      
+ */
+TEST_P(events_p, fme_driver_register_event){
+  // Invalid ioctl
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  auto res = driver_register_event(handle_dev_,FPGA_EVENT_ERROR,eh_,0);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  res = driver_register_event(handle_dev_,FPGA_EVENT_INTERRUPT,eh_,0);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+}
+
+/**
+ * @test       afu_driver_unregister_event
+ * @brief      
+ */
+TEST_P(events_p, afu_driver_unregister_event){
+  // Invalid ioctl
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  auto res = driver_unregister_event(handle_accel_,FPGA_EVENT_ERROR,eh_);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  res = driver_unregister_event(handle_accel_,FPGA_EVENT_INTERRUPT,eh_);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  // Not supported event_type
+  res = driver_unregister_event(handle_accel_,FPGA_EVENT_POWER_THERMAL,eh_);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
+}
+
+/**
+ * @test       afu_driver_unregister_event
+ * @brief      
+ */
+TEST_P(events_p, fme_driver_unregister_event){
+  // Invalid ioctl
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  auto res = driver_unregister_event(handle_dev_,FPGA_EVENT_ERROR,eh_);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
+
+  // Not supported event_type
+  res = driver_unregister_event(handle_dev_,FPGA_EVENT_INTERRUPT,eh_);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+} 
 
 /**
  * @test       event_drv_11
@@ -747,21 +906,6 @@ TEST_P(events_p, create_destory_invalid) {
   auto res = xfpga_fpgaCreateEventHandle(&eh_);
   EXPECT_EQ(FPGA_NO_MEMORY,res);
   ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
-}
-
-TEST_P(events_p, register_event) {
-  fpga_result res;
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
-      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
-      << "\tRESULT: " << fpgaErrStr(res);
-
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
-            FPGA_OK)
-      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_),
-            FPGA_OK)
-      << "\tRESULT: " << fpgaErrStr(res);
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
