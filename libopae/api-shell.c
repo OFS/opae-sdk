@@ -285,7 +285,7 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		ASSERT_NOT_NULL(p);
 
 		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-			opae_wrapped_token *wrapped_parent = 
+			opae_wrapped_token *wrapped_parent =
 				opae_allocate_wrapped_token(
 					p->parent, wrapped_token->adapter_table);
 
