@@ -109,6 +109,38 @@ out_EINVAL:
     goto out;
 }
 
+
+int umsg_set_base_addr(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
+    struct fpga_port_umsg_base_addr *ubase = va_arg(argp, struct fpga_port_umsg_base_addr *);
+    if (!ubase) {
+    	FPGA_MSG("ubase is NULL");
+    	goto out_EINVAL;
+    }
+    if (ubase->argsz != sizeof(*ubase)) {
+    	FPGA_MSG("wrong structure size");
+    	goto out_EINVAL;
+    }
+    if (ubase->flags != 0) {
+    	FPGA_MSG("unexpected flags %u", ubase->flags);
+    	goto out_EINVAL;
+    }
+    /* TODO: check iova */
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
+}
+
+
 class umsg_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
@@ -132,13 +164,21 @@ class umsg_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     system_->finalize();
   }
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -181,19 +221,60 @@ TEST_P(umsg_c_p, get_num_umsg_ioctl_err) {
 TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
   uint64_t value = 0;
   // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
 
 
   // register an ioctl handler that will return -1 and set errno to something
   // else
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaSetUmsgAttributes(handle_, value));
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaSetUmsgAttributes(handle_, value));
 }
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
+
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err) {
+  uint64_t *value = 0;
+
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_02) {
+  uint64_t *value = 0;
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,ENOTSUP>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetUmsgPtr(handle_, &value));
+
+  // register an ioctl handler that will return -1 and set errno to EFAULT
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EFAULT>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
+TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
+  uint64_t *value = 0;
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_DISABLE, dummy_ioctl<0,EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetUmsgPtr(handle_, &value));
+}
+
 
 /**
  * @test       umsg_c_p
@@ -202,27 +283,22 @@ TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
  *             fpgaUmsgGetNumber returns error.
  *
  */
-//TEST_P (umsg_c_p, test_umsg_drv_02) {
-//  uint64_t Umsg_num = 0;
-//  int fddev = -1;
-//
-//  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
-//
-//
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//  _handle->magic = 0x123;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
-//
-//  _handle->magic = FPGA_HANDLE_MAGIC;
-//}
+TEST_P (umsg_c_p, test_umsg_drv_02) {
+  uint64_t Umsg_num = 0;
+  int fddev = -1;
+
+  // NULL Driver hnadle
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
+
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
+
+  _handle->magic = FPGA_HANDLE_MAGIC;
+}
 
 
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
 /**
  * @test       umsg_c_p
  * @brief      test_umsg_drv_03
@@ -230,25 +306,25 @@ TEST_P(umsg_c_p, set_umsg_attr_ioctl_err) {
  *             fpgaUmsgGetNumber returns error.
  *
  */
-//TEST_P (umsg_c_p, test_umsg_drv_03) {
-//  uint64_t Umsg_num = 0;
-//  int fddev = -1;
-//
-//  // NULL Driver hnadle
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
-//
-//  // Invlaid Input Paramter
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
-//
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//
-//  fddev = _handle->fddev;
-//  _handle->fddev = -1;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
-//
-//  _handle->fddev = fddev;
-//
+TEST_P (umsg_c_p, test_umsg_drv_03) {
+  uint64_t Umsg_num = 0;
+  int fddev = -1;
+
+  // NULL Driver hnadle
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
+
+  // Invlaid Input Paramter
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
+
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
+
+  _handle->fddev = fddev;
+}
 
 
 /**
@@ -279,39 +355,34 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_05) {
   uint64_t Umsghit_Disble = 0;
-//  int fddev = -1;
+  int fddev = -1;
 
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
 
-	////////////////////////////////////////
-	// Disable the following lines because it 
-	// modifies handle to gain coverage.
-	////////////////////////////////////////
-  
-  //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-  //_handle->magic = 0x123;
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
-  //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  _handle->magic = FPGA_HANDLE_MAGIC;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  // // Invalid Driver handle
-  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  // _handle = (struct _fpga_handle*)handle_;
+  // Invalid Driver handle
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  _handle = (struct _fpga_handle*)handle_;
 
-  // fddev = _handle->fddev;
-  // _handle->fddev = -1;
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
 
-  // EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
-  // _handle->fddev = fddev;
-  // EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  _handle->fddev = fddev;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  // // Invlaid Input Paramter
-  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
+  // Invlaid Input Paramter
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
 }
@@ -328,12 +399,14 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
   fpga_result res;
 
   // Get umsg buffer
-  //system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
   EXPECT_TRUE(umsg_ptr != NULL) << "\t this is umsg:" << res;
   printf("umsg_ptr %p", umsg_ptr);
 }
+
 
 /**
  * @test       Umsg_drv_07
@@ -344,41 +417,33 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
  */
 TEST_P(umsg_c_p, test_umsg_drv_07) {
   uint64_t* umsg_ptr = NULL;
-//  int fddev = -1;
+  int fddev = -1;
 
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));
 
-	////////////////////////////////////////
-	// Disable the following lines because it 
-	// modifies handle to gain coverage.
-	////////////////////////////////////////
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
 
-  //// Invalid Magic Number
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h, 0));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
-  //struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-  //_handle->magic = 0x123;
+  _handle->magic = FPGA_HANDLE_MAGIC;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
+  // Invalid Driver handle
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  _handle = (struct _fpga_handle*)handle_;
 
-  //_handle->magic = FPGA_HANDLE_MAGIC;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
 
-  //// Invalid Driver handle
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  //_handle = (struct _fpga_handle*)handle_;
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
-  //fddev = _handle->fddev;
-  //_handle->fddev = -1;
+  _handle->fddev = fddev;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  //EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
-
-  //_handle->fddev = fddev;
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h));
-
-  //// Invalid Input Parameter
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokend_[0], &handle_, 0));
+  // Invalid Input Parameter
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, NULL));
 }
@@ -391,32 +456,48 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_08) {
+  int fddev = -1;
+  auto _handle = (struct _fpga_handle*)handle_;
+ 
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(NULL, 0));
+
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));
+  _handle->fddev = fddev;
+ 
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
+
 }
 
 
-
-	////////////////////////////////////////
-	// Disable this test because it modifies
-	// handle to gain coverage.
-	////////////////////////////////////////
 /**
  * @test       Umsg_08
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
- *             has an invalid fddev,<br>
- *             Then the function returns FPGA_INVALID_PARAM.<br>
+ *             is valid,<br>
+ *             Then the function returns FPGA_OK.<br>
  *
  */
-//TEST(umsg_c_p, test_umsg_08) {
-//  struct _fpga_handle *_h = (struct _fpga_handle *) handle_;
-//
-//  int save_fddev = _h->fddev;
-//
-//  _h->fddev = -1;
-//  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(h, 0));
-//
-//  _h->fddev = save_fddev;
-//}
+TEST_P(umsg_c_p, test_umsg_08) {
+  auto res = xfpga_fpgaTriggerUmsg(handle_, 0);
+  EXPECT_EQ(FPGA_OK, res) << "\t return value is " << res;
+}
+
+/**
+ * @test       Umsg_09
+ *
+ * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
+ *             is invalid,<br>
+ *             Then the function returns FPGA_EXCEPTION.<br>
+ *
+ */
+TEST_P(umsg_c_p, test_umsg_09) {
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaTriggerUmsg(handle_, 0));
+}
+
+
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::keys(true)));
