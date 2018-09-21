@@ -92,7 +92,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
-      //std::system(cmd.c_str());
+      std::system(cmd.c_str());
     }
     system_->finalize();
   }
@@ -524,9 +524,11 @@ TEST(sysfs_c, sysfs_sbdf_invalid_tests){
 */
 TEST_P(sysfs_c_p, get_fpga_deviceid)
 {
-  uint64_t deviceid = 0xbcc0;
+  uint64_t deviceid;
+  uint64_t real_deviceid = 0xbcc0;
   auto res = get_fpga_deviceid(handle_,&deviceid);
   EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(real_deviceid,deviceid);
 
 }
 
