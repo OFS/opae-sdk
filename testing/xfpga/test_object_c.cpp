@@ -36,7 +36,7 @@ const std::string DATA =
 
 class sysobject_p : public ::testing::TestWithParam<std::string> {
  protected:
-  sysobject_p() : tmpsysfs_("mocksys-XXXXXX") {}
+  sysobject_p() : tmpsysfs_("mocksys-XXXXXX"), tokens_{nullptr} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -56,6 +56,11 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
       std::system(cmd.c_str());
+    }
+    for (auto t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+      }
     }
     system_->finalize();
   }
@@ -108,6 +113,7 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaClose(&handle_), FPGA_OK);
 }
 
 TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
@@ -197,6 +203,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   std::vector<char> buffer(256);
   fread(buffer.data(), buffer.size(), 1, fp);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaClose(&handle_), FPGA_OK);
 }
 //
 // TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
