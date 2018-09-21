@@ -184,6 +184,10 @@ add_mock_test(test_xfpga_umsg_c xfpga-static
     xfpga/test_umsg_c.cpp
 )
 
+add_mock_test(test_xfpga_manage_c xfpga-static
+    xfpga/test_manage_c.cpp
+)
+
 add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
