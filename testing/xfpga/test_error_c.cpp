@@ -388,9 +388,9 @@ TEST_P(error_c_p, error_05) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
-  delete_errors("port");
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
+  struct error_list *p = fake_port_token_.errors;
+  p->info.can_clear = false;
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaClearError(t, 0));
 }
 
 
