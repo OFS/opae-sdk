@@ -37,7 +37,7 @@ const std::string DATA =
 class sysobject_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysobject_p()
-      : tmpsysfs_("mocksys-XXXXXX"), tokens_{nullptr}, handle_(nullptr) {}
+      : tokens_{nullptr}, handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -49,7 +49,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
     invalid_device_ = test_device::unknown();
   }
 
@@ -66,7 +66,6 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  std::string tmpsysfs_;
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;

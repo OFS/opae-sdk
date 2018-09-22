@@ -138,7 +138,7 @@ class test_system {
 
   void initialize();
   void finalize();
-  std::string prepare_syfs(const test_platform &platform);
+  void prepare_syfs(const test_platform &platform);
   void remove_sysfs();
 
   int open(const std::string &path, int flags);

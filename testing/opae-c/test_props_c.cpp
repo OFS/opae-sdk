@@ -40,14 +40,14 @@ using namespace opae::testing;
 
 class properties_p1 : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_p1() : tmpsysfs_("mocksys-XXXXXX") {}
+  properties_p1() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
@@ -82,7 +82,6 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  std::string tmpsysfs_;
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_device_;
   std::array<fpga_token, 2> tokens_accel_;
