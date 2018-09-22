@@ -44,7 +44,7 @@ using namespace opae::testing;
 
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  enum_c_p() {}
+  enum_c_p() : tokens_ {nullptr} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,9 +66,10 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   void DestroyTokens() {
-    for (auto t : tokens_) {
+    for (auto & t : tokens_) {
       if (t != nullptr) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
       }
     }
   }
@@ -350,6 +351,7 @@ TEST_P(enum_c_p, num_errors) {
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
+  SCOPED_TRACE("num_errors: DestroyTokens()");
   DestroyTokens();
 
   // invalid
@@ -427,11 +429,8 @@ TEST_P(enum_c_p, destroy_token) {
       FPGA_OK);
   EXPECT_EQ(num_matches_, 2);
   num_matches_ = 100;
-  for (auto t : tokens_) {
-    if (t != nullptr) {
-      EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-    }
-  }
+  SCOPED_TRACE("destroy_token: DestroyTokens()");
+  DestroyTokens();
 
   EXPECT_EQ(xfpga_fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
   _fpga_token *dummy = new _fpga_token;
