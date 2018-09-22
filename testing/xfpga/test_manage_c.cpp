@@ -49,7 +49,7 @@ using namespace opae::testing;
  */
 TEST(manage_c, manage_01) {
   auto res = xfpga_fpgaAssignToInterface(NULL,NULL,0,0);
-  EXPECT_EQ(res,FPGA_OK);
+  EXPECT_EQ(res,FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -60,5 +60,5 @@ TEST(manage_c, manage_01) {
  */
 TEST(manage_c, manage_02) {
   auto res = xfpga_fpgaReleaseFromInterface(NULL,NULL);
-  EXPECT_EQ(res,FPGA_OK);
+  EXPECT_EQ(res,FPGA_NOT_SUPPORTED);
 }
