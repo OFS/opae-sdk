@@ -140,6 +140,7 @@ class test_system {
   void initialize();
   void finalize();
   std::string prepare_syfs(const test_platform &platform);
+  void remove_sysfs();
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
@@ -160,11 +161,14 @@ class test_system {
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
+  FILE *register_file(const std::string &path);
+
  private:
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
+  std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
