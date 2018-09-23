@@ -115,6 +115,30 @@ add_mock_test(test_opae_props_c opae-c-static
     opae-c/test_props_c.cpp
 )
 
+add_mock_test(test_opae_reset_c opae-c-static
+    opae-c/test_reset_c.cpp
+)
+
+add_mock_test(test_opae_mmio_c opae-c-static
+    opae-c/test_mmio_c.cpp
+)
+
+add_mock_test(test_opae_umsg_c opae-c-static
+    opae-c/test_umsg_c.cpp
+)
+
+add_mock_test(test_opae_buffer_c opae-c-static
+    opae-c/test_buffer_c.cpp
+)
+
+add_mock_test(test_opae_version_c opae-c-static
+    opae-c/test_version_c.cpp
+)
+
+add_mock_test(test_opae_error_c opae-c-static
+    opae-c/test_error_c.cpp
+)
+
 add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
 )

@@ -593,16 +593,25 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	// then it will be wrapped. We need to unwrap it here,
 	// then re-wrap below.
 	for (i = 0 ; i < num_filters ; ++i) {
-		fpga_token parent = NULL;
+		int err;
+		struct _fpga_properties *p =
+			opae_validate_and_lock_properties(filters[i]);
 
-		if (fpgaPropertiesGetParent(filters[i], &parent) == FPGA_OK) {
+		if (!p) {
+			OPAE_ERR("Invalid input filter");
+			res = FPGA_INVALID_PARAM;
+			goto out_free_tokens;
+		}
+
+		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
 			parent_token_fixup *fixup;
 			opae_wrapped_token *wrapped_parent =
-				opae_validate_wrapped_token(parent);
+				opae_validate_wrapped_token(p->parent);
 
 			if (!wrapped_parent) {
 				OPAE_ERR("Invalid wrapped parent in filter");
 				res = FPGA_INVALID_PARAM;
+				opae_mutex_unlock(err, &p->lock);
 				goto out_free_tokens;
 			}
 
@@ -612,6 +621,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 			if (!fixup) {
 				OPAE_ERR("malloc failed");
 				res = FPGA_NO_MEMORY;
+				opae_mutex_unlock(err, &p->lock);
 				goto out_free_tokens;
 			}
 
@@ -627,14 +637,10 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 			}
 
 			// Set the unwrapped parent token.
-			res = fpgaPropertiesSetParent(filters[i],
-					wrapped_parent->opae_token);
-
-			if (res != FPGA_OK)
-				goto out_free_tokens;
-
+			p->parent = wrapped_parent->opae_token;
 		}
 
+		opae_mutex_unlock(err, &p->lock);
 	}
 
 	// perform the enumeration.
@@ -648,10 +654,17 @@ out_free_tokens:
 
 	// Re-establish any wrapped parent tokens.
 	while (ptf_list) {
+		int err;
 		parent_token_fixup *trash = ptf_list;
+		struct _fpga_properties *p =
+			opae_validate_and_lock_properties(trash->prop);
 		ptf_list = ptf_list->next;
-		fpgaPropertiesSetParent(trash->prop,
-				trash->wrapped_token);
+
+		if (p) {
+			p->parent = trash->wrapped_token;
+			opae_mutex_unlock(err, &p->lock);
+		}
+
 		free(trash);
 	}
 
@@ -1420,7 +1433,7 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 	ASSERT_NOT_NULL(handle);
 	ASSERT_NOT_NULL(low_clk);
 	ASSERT_NOT_NULL(high_clk);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetUserClock,
 			       FPGA_NOT_SUPPORTED);
 
 	return wrapped_handle->adapter_table->fpgaGetUserClock(
