@@ -167,7 +167,7 @@ struct _fpga_object {
 	fpga_sysfs_type type;
 	char *path;
 	char *name;
-	int fd;
+	int perm;
 	size_t size;
 	size_t max_size;
 	uint8_t *buffer;

@@ -79,10 +79,6 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     for (i = 0 ; i < num_matches_device_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_device_[i]), FPGA_OK);
     }
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
