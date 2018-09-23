@@ -139,6 +139,20 @@ add_mock_test(test_opae_error_c opae-c-static
     opae-c/test_error_c.cpp
 )
 
+add_mock_test(test_opae_event_c opae-c-static
+    opae-c/test_event_c.cpp
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
+)
+
+add_mock_test(test_opae_hostif_c opae-c-static
+    opae-c/test_hostif_c.cpp
+)
+
+add_mock_test(test_opae_reconf_c opae-c-static
+    opae-c/test_reconf_c.cpp
+)
+
 add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
 )
