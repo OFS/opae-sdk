@@ -64,7 +64,6 @@ static platform_data platform_data_table[] = {
 };
 
 static int initialized;
-static int platforms_detected;
 
 static opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
@@ -182,7 +181,6 @@ int opae_plugin_mgr_finalize_all(void)
 
 	adapter_list = NULL;
 	initialized = 0;
-	platforms_detected = 0;
 
 	opae_mutex_unlock(res, &adapter_list_lock);
 
@@ -223,7 +221,6 @@ STATIC void opae_plugin_mgr_detect_platform(uint16_t vendor, uint16_t device)
 
 		if (platform_data_table[i].vendor_id == vendor &&
 		    platform_data_table[i].device_id == device) {
-			platforms_detected++;
 			OPAE_DBG("platform detected: vid=0x%04x did=0x%04x -> %s",
 					vendor, device,
 					platform_data_table[i].native_plugin);
@@ -336,6 +333,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int j;
 	int res;
 	int errors = 0;
+	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
 
 	// TODO: parse config file
@@ -363,6 +361,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 			continue; // This platform was not detected.
 
 		native_plugin = platform_data_table[i].native_plugin;
+		platforms_detected++;
 
 		// Iterate over the table again to prevent multiple loads
 		// of the same native plugin.
