@@ -257,10 +257,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     if (handle_dev_) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
     if (handle_accel_) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
     fpgad_.join();
   }
@@ -896,7 +892,7 @@ TEST_P(events_p, event_drv_12) {
 /**
  * @test       create_destory_invalid
  * 
- * @brief      When the fpga_event_handle pointer to
+ * @brief      
  */
 TEST_P(events_p, create_destory_invalid) {
   // fail malloc to check edge case
