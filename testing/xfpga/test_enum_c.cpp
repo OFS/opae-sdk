@@ -61,10 +61,6 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
@@ -522,7 +518,7 @@ TEST_P(enum_c_p, num_interrupts) {
       FPGA_OK);
   EXPECT_EQ(num_matches, 1);
 
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_INVALID_PARAM);
+  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter, invalid_device_.num_interrupts), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &num_matches),
       FPGA_OK);

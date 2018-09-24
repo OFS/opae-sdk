@@ -49,37 +49,46 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     tmpsysfs_ = system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &props_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
+                            &num_matches_device_),
               FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
-    num_matches_ = 0xc01a;
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
+                            &num_matches_accel_),
+              FPGA_OK);
+    ASSERT_EQ(num_matches_accel_, platform_.devices.size());
+
+    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
+    ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
     invalid_device_ = test_device::unknown();
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&props_), FPGA_OK);
     EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
+    uint32_t i;
+    for (i = 0 ; i < num_matches_accel_ ; ++i) {
+        EXPECT_EQ(fpgaDestroyToken(&tokens_accel_[i]), FPGA_OK);
+    }
+    for (i = 0 ; i < num_matches_device_ ; ++i) {
+        EXPECT_EQ(fpgaDestroyToken(&tokens_device_[i]), FPGA_OK);
     }
     system_->finalize();
   }
 
   std::string tmpsysfs_;
   fpga_properties filter_;
-  fpga_properties props_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_device_;
+  std::array<fpga_token, 2> tokens_accel_;
   fpga_handle accel_;
-  uint32_t num_matches_;
+  uint32_t num_matches_device_;
+  uint32_t num_matches_accel_;
   test_platform platform_;
   test_device invalid_device_;
   test_system* system_;
@@ -98,25 +107,43 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
  *          And the field in the token object is set to the known value<br>
  * */
 TEST_P(properties_p1, get_parent01) {
-  EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+  fpga_properties prop = nullptr;
+  std::array<fpga_token, 2> toks = {};
+  fpga_token parent = nullptr;
+  uint32_t matches = 0;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
+  EXPECT_EQ(matches, platform_.devices.size());
+
+  EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
   // set the token to a known value
-  auto _prop = (_fpga_properties*)props_;
+  auto _prop = (_fpga_properties*)prop;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
-  _prop->parent = tokens_[0];
+  _prop->parent = toks[0];
 
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesGetParent(props_, &tokens_[1]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesGetParent(prop, &parent), FPGA_OK);
   // GetParent clones the token so compare object_id of the two
-  fpga_properties p1, p2;
-  ASSERT_EQ(fpgaGetProperties(tokens_[0], &p1), FPGA_OK);
-  ASSERT_EQ(fpgaGetProperties(tokens_[1], &p2), FPGA_OK);
+  fpga_properties p1 = nullptr, p2 = nullptr;
+  ASSERT_EQ(fpgaGetProperties(toks[0], &p1), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent,  &p2), FPGA_OK);
   EXPECT_EQ(((_fpga_properties*)p1)->object_id,
             ((_fpga_properties*)p2)->object_id);
+
+  EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
+  uint32_t i;
+  for (i = 0 ; i < matches ; ++i) {
+    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  }
 }
 
 /**
@@ -129,12 +156,20 @@ TEST_P(properties_p1, get_parent01) {
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
 TEST_P(properties_p1, get_parent02) {
-  struct _fpga_properties* _prop = (struct _fpga_properties*)props_;
+  fpga_properties prop = nullptr;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+  fpga_token tok = nullptr;
 
   // make sure the FPGA_PROPERTY_PARENT bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_PARENT) & 1, 0);
 
-  EXPECT_EQ(fpgaPropertiesGetParent(_prop, &tokens_[0]), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaPropertiesGetParent(_prop, &tok), FPGA_NOT_FOUND);
+  EXPECT_EQ(tok, nullptr);
+
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 /**
@@ -147,26 +182,48 @@ TEST_P(properties_p1, get_parent02) {
  *          Then the parent object in the properties object is the token<br>
  */
 TEST_P(properties_p1, set_parent01) {
-  EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+  fpga_properties prop = nullptr;
+  std::array<fpga_token, 2> toks = {};
+  uint32_t matches = 0;
+  fpga_token parent = nullptr;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
+  EXPECT_EQ(matches, platform_.devices.size());
+
+  EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesSetParent(props_, tokens_[0]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetParent(prop, toks[0]), FPGA_OK);
   // now get the parent token from the prop structure
-  EXPECT_EQ(fpgaPropertiesGetParent(props_, &tokens_[1]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesGetParent(prop, &parent), FPGA_OK);
   // GetParent clones the token so compare object_id of the two
-  fpga_properties p1, p2;
-  ASSERT_EQ(fpgaGetProperties(tokens_[0], &p1), FPGA_OK);
-  ASSERT_EQ(fpgaGetProperties(tokens_[1], &p2), FPGA_OK);
+  fpga_properties p1 = nullptr, p2 = nullptr;
+  ASSERT_EQ(fpgaGetProperties(toks[0], &p1), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent, &p2), FPGA_OK);
   EXPECT_EQ(((_fpga_properties*)p1)->object_id,
             ((_fpga_properties*)p2)->object_id);
+
+  EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
+  uint32_t i;
+  for (i = 0 ; i < matches ; ++i) {
+    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  }
 }
 
 TEST_P(properties_p1, from_handle) {
-  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
+  fpga_properties props = nullptr;
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_OK);
+  // props will have a cloned parent token.
+  EXPECT_EQ(fpgaDestroyToken(&((struct _fpga_properties *)props)->parent), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
 
 /**
@@ -195,7 +252,7 @@ TEST(properties, set_parent_null_token) {
   fpga_properties prop = NULL;
 
   // Call the API to set the token on the property
-  fpga_token token;
+  fpga_token token = nullptr;
   fpga_result result = fpgaPropertiesSetParent(prop, &token);
 
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
@@ -209,7 +266,7 @@ TEST(properties, set_parent_null_token) {
  *          Then the return value is FPGA_OK<br>
  *          And the fpga_properties object is non-null<br>
  */
-TEST(properties, create) {
+TEST_P(properties_p1, create) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -226,7 +283,7 @@ TEST(properties, create) {
  *          Then the result is FPGA_OK<br>
  *          And that object is null<br>
  */
-TEST(properties, destroy01) {
+TEST_P(properties_p1, destroy01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -261,7 +318,7 @@ TEST(properties, destroy02) {
  *          Then the result is FPGA_OK<br>
  *          And the properties object is cleared<br>
  */
-TEST(properties, clear01) {
+TEST_P(properties_p1, clear01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -310,7 +367,7 @@ TEST(properties, clear02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_object_type01) {
+TEST_P(properties_p1, get_object_type01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -343,7 +400,7 @@ TEST(properties, get_object_type01) {
  *          fpga_objtype<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_object_type02) {
+TEST_P(properties_p1, get_object_type02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -373,7 +430,7 @@ TEST(properties, get_object_type02) {
  *          and the objtype<br>
  *          Then the objtype in the properties object is the known value<br>
  */
-TEST(properties, set_object_type01) {
+TEST_P(properties_p1, set_object_type01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -436,7 +493,7 @@ TEST(properties, set_object_type02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  */
-TEST(properties, get_segment01) {
+TEST_P(properties_p1, get_segment01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -470,7 +527,7 @@ TEST(properties, get_segment01) {
  integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_segment02) {
+TEST_P(properties_p1, get_segment02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -501,7 +558,7 @@ TEST(properties, get_segment02) {
  *          Then the segment field in the properties object is the known
  value<br>
  */
-TEST(properties, set_segment01) {
+TEST_P(properties_p1, set_segment01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -569,7 +626,7 @@ TEST(properties, set_segment02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_bus01) {
+TEST_P(properties_p1, get_bus01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -602,7 +659,7 @@ TEST(properties, get_bus01) {
  *          When I call fpgaPropertiesGetBus with a pointer to an integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_bus02) {
+TEST_P(properties_p1, get_bus02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -632,7 +689,7 @@ TEST(properties, get_bus02) {
  *          Then the bus field in the properties object is the known
  value<br>
  */
-TEST(properties, set_bus01) {
+TEST_P(properties_p1, set_bus01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -701,7 +758,7 @@ TEST(properties, set_bus02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_device01) {
+TEST_P(properties_p1, get_device01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -735,7 +792,7 @@ TEST(properties, get_device01) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_device02) {
+TEST_P(properties_p1, get_device02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -765,7 +822,7 @@ TEST(properties, get_device02) {
  *          Then the device field in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_device01) {
+TEST_P(properties_p1, set_device01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -836,7 +893,7 @@ TEST(properties, set_device02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_function01) {
+TEST_P(properties_p1, get_function01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -870,7 +927,7 @@ TEST(properties, get_function01) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_function02) {
+TEST_P(properties_p1, get_function02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -900,7 +957,7 @@ TEST(properties, get_function02) {
  *          Then the function field in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_function01) {
+TEST_P(properties_p1, set_function01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -971,7 +1028,7 @@ TEST(properties, set_function02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_socket_id01) {
+TEST_P(properties_p1, get_socket_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1005,7 +1062,7 @@ TEST(properties, get_socket_id01) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_socket_id02) {
+TEST_P(properties_p1, get_socket_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1035,7 +1092,7 @@ TEST(properties, get_socket_id02) {
  *          Then the socket_id field in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_socket_id01) {
+TEST_P(properties_p1, set_socket_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1107,7 +1164,7 @@ TEST(properties, set_socket_id02) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_num_slots01) {
+TEST_P(properties_p1, get_num_slots01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1151,7 +1208,7 @@ TEST(properties, get_num_slots01) {
  *          variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_num_slots02) {
+TEST_P(properties_p1, get_num_slots02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1183,7 +1240,7 @@ TEST(properties, get_num_slots02) {
  *          and a pointer to bool variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_num_slots03) {
+TEST_P(properties_p1, get_num_slots03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1217,7 +1274,7 @@ TEST(properties, get_num_slots03) {
  *          Then the return value is FPGA_OK
  *          And the num_slots in the properties object is the known value<br>
  */
-TEST(properties, set_num_slots01) {
+TEST_P(properties_p1, set_num_slots01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1258,7 +1315,7 @@ TEST(properties, set_num_slots01) {
  *          and a num_slots variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(properties, set_num_slots02) {
+TEST_P(properties_p1, set_num_slots02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1321,7 +1378,7 @@ TEST(properties, set_num_slots03) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_bbs_id01) {
+TEST_P(properties_p1, get_bbs_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1364,7 +1421,7 @@ TEST(properties, get_bbs_id01) {
  *          variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_bbs_id02) {
+TEST_P(properties_p1, get_bbs_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1396,7 +1453,7 @@ TEST(properties, get_bbs_id02) {
  *          and a pointer to bool variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_bbs_id03) {
+TEST_P(properties_p1, get_bbs_id03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1430,7 +1487,7 @@ TEST(properties, get_bbs_id03) {
  *          Then the return value is FPGA_OK
  *          And the bbs_id in the properties object is the known value<br>
  */
-TEST(properties, set_bbs_id01) {
+TEST_P(properties_p1, set_bbs_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1472,7 +1529,7 @@ TEST(properties, set_bbs_id01) {
  *          and a bbs_id variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  */
-TEST(properties, set_bbs_id02) {
+TEST_P(properties_p1, set_bbs_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1536,7 +1593,7 @@ TEST(properties, set_bbs_id03) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_bbs_version01) {
+TEST_P(properties_p1, get_bbs_version01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1582,7 +1639,7 @@ TEST(properties, get_bbs_version01) {
  *          fpga_version variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_bbs_version02) {
+TEST_P(properties_p1, get_bbs_version02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1614,7 +1671,7 @@ TEST(properties, get_bbs_version02) {
  *          and a pointer to an fpga_version variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_bbs_version03) {
+TEST_P(properties_p1, get_bbs_version03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1650,7 +1707,7 @@ TEST(properties, get_bbs_version03) {
  *          And the bbs_version in the properties object is the known
  value<br>
  */
-TEST(properties, set_bbs_version01) {
+TEST_P(properties_p1, set_bbs_version01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1693,7 +1750,7 @@ TEST(properties, set_bbs_version01) {
  *          and a bbs_version variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(properties, set_bbs_version02) {
+TEST_P(properties_p1, set_bbs_version02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1756,7 +1813,7 @@ TEST(properties, set_bbs_version03) {
  *          Then the result is FPGA_OK<br>
  *          And the properties object is destroyed appropriately<br>
  */
-TEST(properties, fpga_clone_poperties01) {
+TEST_P(properties_p1, fpga_clone_poperties01) {
   fpga_properties prop = NULL;
   fpga_properties clone = NULL;
   uint8_t s1 = 0xEF, s2 = 0;
@@ -1822,7 +1879,7 @@ TEST(properties, get_capabilities01) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_guid01) {
+TEST_P(properties_p1, get_guid01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1865,7 +1922,7 @@ TEST(properties, get_guid01) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_guid02) {
+TEST_P(properties_p1, get_guid02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1909,7 +1966,7 @@ TEST(properties, get_guid02) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_guid03) {
+TEST_P(properties_p1, get_guid03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1943,7 +2000,7 @@ TEST(properties, get_guid03) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_guid04) {
+TEST_P(properties_p1, get_guid04) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1977,7 +2034,7 @@ TEST(properties, get_guid04) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_guid05) {
+TEST_P(properties_p1, get_guid05) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2013,7 +2070,7 @@ TEST(properties, get_guid05) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_guid01) {
+TEST_P(properties_p1, set_guid01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2056,7 +2113,7 @@ TEST(properties, set_guid01) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_guid02) {
+TEST_P(properties_p1, set_guid02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2100,7 +2157,7 @@ TEST(properties, set_guid02) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_guid03) {
+TEST_P(properties_p1, set_guid03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2153,7 +2210,7 @@ TEST(properties, get_guid06) {
  *          When I call fpgaPropertiesGetGUID with a null guid parameter<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_guid07) {
+TEST_P(properties_p1, get_guid07) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2195,7 +2252,7 @@ TEST(properties, set_guid04) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_num_mmio01) {
+TEST_P(properties_p1, get_num_mmio01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2237,7 +2294,7 @@ TEST(properties, get_num_mmio01) {
  *          integer variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_num_mmio02) {
+TEST_P(properties_p1, get_num_mmio02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2269,7 +2326,7 @@ TEST(properties, get_num_mmio02) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_num_mmio03) {
+TEST_P(properties_p1, get_num_mmio03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2304,7 +2361,7 @@ TEST(properties, get_num_mmio03) {
  *          And the mmio_spaces in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_num_mmio01) {
+TEST_P(properties_p1, set_num_mmio01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2343,7 +2400,7 @@ TEST(properties, set_num_mmio01) {
  *          object<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(properties, set_num_mmio02) {
+TEST_P(properties_p1, set_num_mmio02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2407,7 +2464,7 @@ TEST(properties, set_num_mmio03) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_accelerator_state01) {
+TEST_P(properties_p1, get_accelerator_state01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2450,7 +2507,7 @@ TEST(properties, get_accelerator_state01) {
  *          fpga_accelerator_state variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_accelerator_state02) {
+TEST_P(properties_p1, get_accelerator_state02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2482,7 +2539,7 @@ TEST(properties, get_accelerator_state02) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_accelerator_state03) {
+TEST_P(properties_p1, get_accelerator_state03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2517,7 +2574,7 @@ TEST(properties, get_accelerator_state03) {
  *          And the state in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_accelerator_state01) {
+TEST_P(properties_p1, set_accelerator_state01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2556,7 +2613,7 @@ TEST(properties, set_accelerator_state01) {
  *          object and a state variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(properties, set_accelerator_state02) {
+TEST_P(properties_p1, set_accelerator_state02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2602,7 +2659,7 @@ TEST(properties, get_accelerator_state04) {
  * pointer<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_accelerator_state05) {
+TEST_P(properties_p1, get_accelerator_state05) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2610,6 +2667,7 @@ TEST(properties, get_accelerator_state05) {
 
   result = fpgaPropertiesGetAcceleratorState(prop, NULL);
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 /**
@@ -2641,7 +2699,7 @@ TEST(properties, set_accelerator_state03) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_num_interrupts01) {
+TEST_P(properties_p1, get_num_interrupts01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2683,7 +2741,7 @@ TEST(properties, get_num_interrupts01) {
  *          integer variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(properties, get_num_interrupts02) {
+TEST_P(properties_p1, get_num_interrupts02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2715,7 +2773,7 @@ TEST(properties, get_num_interrupts02) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(properties, get_num_interrupts03) {
+TEST_P(properties_p1, get_num_interrupts03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2748,7 +2806,7 @@ TEST(properties, get_num_interrupts03) {
  *          And the num_interrupts in the properties object is the known
  *          value<br>
  */
-TEST(properties, set_num_interrupts01) {
+TEST_P(properties_p1, set_num_interrupts01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2787,7 +2845,7 @@ TEST(properties, set_num_interrupts01) {
  *          object<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(properties, set_num_interrupts02) {
+TEST_P(properties_p1, set_num_interrupts02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2846,7 +2904,7 @@ TEST(properties, set_num_interrupts03) {
  * @details When creating a properties object<br>
  *          Then the internal magic should be set to FPGA_PROPERTY_MAGIC<br>
  */
-TEST(properties, prop_213) {
+TEST_P(properties_p1, prop_213) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   EXPECT_EQ(FPGA_OK, result);
@@ -2854,6 +2912,7 @@ TEST(properties, prop_213) {
   struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
 
   EXPECT_EQ(FPGA_PROPERTY_MAGIC, _prop->magic);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 /**
@@ -2910,7 +2969,7 @@ TEST(properties, set_vendor_id01) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_vendor_id02) {
+TEST_P(properties_p1, get_vendor_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2986,7 +3045,7 @@ TEST(properties, set_device_id01) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_device_id02) {
+TEST_P(properties_p1, get_device_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -3060,7 +3119,7 @@ TEST(properties, set_object_id01) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(properties, get_object_id02) {
+TEST_P(properties_p1, get_object_id02) {
   uint64_t object_id = 0x8000000000000000UL;
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
@@ -3108,9 +3167,9 @@ TEST(properties, fpga_destroy_properties01) {
 #endif
 }
 
-TEST(properties, get_num_errors01)
+TEST_P(properties_p1, get_num_errors01)
 {
-  fpga_properties prop;
+  fpga_properties prop = nullptr;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   EXPECT_EQ(result, FPGA_OK);
   auto _prop = (_fpga_properties*)prop;
@@ -3119,6 +3178,7 @@ TEST(properties, get_num_errors01)
   uint32_t num_errors = 0;
   // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesGetNumErrors(prop, &num_errors), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(test_platforms, properties_p1,
