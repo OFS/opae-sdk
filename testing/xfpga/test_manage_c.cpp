@@ -26,18 +26,6 @@
 #include "test_system.h"
 #include "xfpga.h"
 #include "gtest/gtest.h"
-#include <opae/utils.h>
-#include <opae/fpga.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-fpga_result xfpga_fpgaAssignToInterface(fpga_handle, fpga_token, uint32_t, int);
-fpga_result xfpga_fpgaReleaseFromInterface(fpga_handle, fpga_token);
-
-#ifdef __cplusplus
-}
-#endif
 
 using namespace opae::testing;
 
