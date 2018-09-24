@@ -36,6 +36,7 @@
 
 extern "C" {
 extern void *__libc_malloc(size_t size);
+extern void *__libc_calloc(size_t nmemb, size_t size);
 }
 typedef struct stat stat_t;
 typedef int (*filter_func)(const struct dirent *);
@@ -156,6 +157,7 @@ class test_system {
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
+  void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
 

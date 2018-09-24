@@ -135,21 +135,11 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&err_object), FPGA_OK);
 }
-//
-// TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
-//   fpga_object *obj = 0;
-//   auto res = xfpga_fpgaDestroyObject(obj);
-//   EXPECT_EQ(res, FPGA_OK);
-// }
-//
-// TEST_P(sysobject_p, xfpga_fpgaObjectRead64) {
-//   fpga_object obj = 0;
-//   uint64_t *value = 0;
-//   int flags = 0;
-//   auto res = xfpga_fpgaObjectRead64(obj, value, flags);
-//   EXPECT_EQ(res, FPGA_OK);
-// }
-//
+
+TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
+  EXPECT_EQ(xfpga_fpgaDestroyObject(NULL), FPGA_INVALID_PARAM);
+}
+
 TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
@@ -168,7 +158,10 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
             FPGA_OK);
   std::vector<uint8_t> buffer(DATA.size());
-  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, 0), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, DATA.size() + 1, 0),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, FPGA_OBJECT_SYNC), 
+            FPGA_OK);
   buffer[10] = '\0';
   EXPECT_STREQ(reinterpret_cast<const char *>(buffer.data()),
                DATA.substr(0, 10).c_str());
@@ -199,21 +192,29 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   fpga_object object;
   ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0),
             FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, FPGA_OBJECT_TEXT),
             FPGA_OK);
+
+  _fpga_object *obj = static_cast<_fpga_object *>(object);
+  char *path = obj->path;
+  std::string invalid_path = "test";
+
+  char *inv_path = new char[invalid_path.length() + 1];
+  strcpy(inv_path, invalid_path.c_str());
+
+  obj->path = inv_path;
+
+  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_EXCEPTION);
+
+  obj->path = path;
+  delete [] inv_path;
+
   rewind(fp);
   std::vector<char> buffer(256);
   fread(buffer.data(), buffer.size(), 1, fp);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
-//
-// TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
-//   fpga_object obj = 0;
-//   uint64_t value = 0;
-//   int flags = 0;
-//   auto res = xfpga_fpgaObjectWrite64(obj, value, flags);
-//   EXPECT_EQ(res, FPGA_OK);
-// }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
                         ::testing::ValuesIn(test_platform::keys(true)));

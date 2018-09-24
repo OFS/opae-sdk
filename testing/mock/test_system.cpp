@@ -81,6 +81,46 @@ void *malloc(size_t size) {
   return __libc_malloc(size);
 }
 
+// hijack calloc
+static bool _invalidate_calloc = false;
+static uint32_t _invalidate_calloc_after = 0;
+static const char * _invalidate_calloc_when_called_from = nullptr;
+void *calloc(size_t nmemb, size_t size) {
+  if (_invalidate_calloc) {
+
+    if (!_invalidate_calloc_when_called_from) {
+
+        if (!_invalidate_calloc_after) {
+          _invalidate_calloc = false;
+          return nullptr;
+        }
+
+        --_invalidate_calloc_after;
+
+    } else {
+        void *caller = __builtin_return_address(0);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+        else
+            res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
+
+        if (!_invalidate_calloc_after && !res) {
+          _invalidate_calloc = false;
+          _invalidate_calloc_when_called_from = nullptr;
+          return nullptr;
+        } else if (!res)
+            --_invalidate_calloc_after;
+
+    }
+
+  }
+  return __libc_calloc(nmemb, size);
+}
+
 namespace opae {
 namespace testing {
 
@@ -411,6 +451,12 @@ void test_system::invalidate_malloc(uint32_t after,
   _invalidate_malloc = true;
   _invalidate_malloc_after = after;
   _invalidate_malloc_when_called_from = when_called_from;
+}
+
+void test_system::invalidate_calloc(uint32_t after, const char *when_called_from) {
+  _invalidate_calloc = true;
+  _invalidate_calloc_after = after;
+  _invalidate_calloc_when_called_from = when_called_from;
 }
 
 }  // end of namespace testing
