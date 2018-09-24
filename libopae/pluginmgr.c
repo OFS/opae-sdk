@@ -182,6 +182,7 @@ int opae_plugin_mgr_finalize_all(void)
 
 	adapter_list = NULL;
 	initialized = 0;
+	platforms_detected = 0;
 
 	opae_mutex_unlock(res, &adapter_list_lock);
 

@@ -208,7 +208,7 @@ test_system *test_system::instance() {
 }
 
 void test_system::prepare_syfs(const test_platform &platform) {
-  char tmpsysfs[]{ "tmpsysfs-XXXXXX\0" };
+  char tmpsysfs[]{ "tmpsysfs-XXXXXX" };
   if (platform.mock_sysfs != nullptr) {
     char* tmp = mkdtemp(tmpsysfs);
     if (tmp == nullptr) {
