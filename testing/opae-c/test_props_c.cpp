@@ -218,6 +218,23 @@ TEST_P(properties_p1, set_parent01) {
   }
 }
 
+/**
+ * @test    set_parent02
+ * @brief   Tests: fpgaPropertiesSetParent
+ * @details When setting the parent token in a properties object<br>
+ *          that has a wrapped parent token resulting from fpgaGetProperties[FromParent]<br>
+ *          or fpgaUpdateProperties,<br>
+ *          fpgaPropertiesSetParent will free the token wrapper.<br>
+ */
+TEST_P(properties_p1, set_parent02) {
+  fpga_properties prop = nullptr;
+  // The accelerator token will have a parent token set.
+  ASSERT_EQ(fpgaGetProperties(tokens_accel_[0], &prop), FPGA_OK);
+  // When this parent is set explicitly, the parent token wrapper is freed.
+  EXPECT_EQ(fpgaPropertiesSetParent(prop, tokens_device_[0]), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
 TEST_P(properties_p1, from_handle01) {
   fpga_properties props = nullptr;
   EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_OK);
@@ -1110,6 +1127,18 @@ TEST(properties, set_function02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
+/**
+ * @test    set_function03
+ * @brief   Tests: fpgaPropertiesSetFunction
+ * @details When fpgaPropertiesSetFunction is called with an invalid<br>
+ *          PCIe function number,<br>
+ *          Then the result is FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(properties_p1, set_function03) {
+  // Call the API to set the objtype on the property
+  EXPECT_EQ(fpgaPropertiesSetFunction(filter_, 8), FPGA_INVALID_PARAM);
+}
+
 // * SocketID field tests *//
 /**
  * @test    get_socket_id01
@@ -1899,7 +1928,7 @@ TEST(properties, set_bbs_version03) {
 }
 
 /**
- * @test    fpga_clone_poperties01
+ * @test    fpga_clone_properties01
  * @brief   Tests: fpgaClonePoperties
  * @details Given a fpga_properties object cloned with
  fpgaCloneProperties<br>
@@ -1907,7 +1936,7 @@ TEST(properties, set_bbs_version03) {
  *          Then the result is FPGA_OK<br>
  *          And the properties object is destroyed appropriately<br>
  */
-TEST_P(properties_p1, fpga_clone_poperties01) {
+TEST_P(properties_p1, fpga_clone_properties01) {
   fpga_properties prop = NULL;
   fpga_properties clone = NULL;
   uint8_t s1 = 0xEF, s2 = 0;
@@ -1919,6 +1948,18 @@ TEST_P(properties_p1, fpga_clone_poperties01) {
   ASSERT_EQ(FPGA_OK, fpgaDestroyProperties(&clone));
   ASSERT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
   ASSERT_EQ(FPGA_INVALID_PARAM, fpgaCloneProperties(NULL, &clone));
+}
+
+/**
+ * @test    fpga_clone_properties02
+ * @brief   Tests: fpgaCloneProperties
+ * @details When calloc fails to allocate the new properties object,<br>
+ *          fpgaClonePropeties returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(properties_p1, fpga_clone_properties02) {
+  fpga_properties clone = NULL;
+  system_->invalidate_calloc(0, "opae_properties_create");
+  ASSERT_EQ(fpgaCloneProperties(filter_, &clone), FPGA_EXCEPTION);
 }
 
 /**
@@ -1939,6 +1980,26 @@ TEST(properties, set_model01) {
  */
 TEST(properties, get_model01) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetModel(NULL, NULL));
+}
+
+/**
+ * @test    get_lms01
+ * @brief   Tests: fpgaPropertiesGetLocalMemorySize
+ * @details fpgaPropertiesGetLocalMemorySize is not currently supported.
+ *
+ */
+TEST(properties, get_lms01) {
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetLocalMemorySize(NULL, NULL));
+}
+
+/**
+ * @test    set_lms01
+ * @brief   Tests: fpgaPropertiesSetLocalMemorySize
+ * @details fpgaPropertiesSetLocalMemorySize is not currently supported.
+ *
+ */
+TEST(properties, set_lms01) {
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesSetLocalMemorySize(NULL, 0));
 }
 
 /**
@@ -3097,6 +3158,21 @@ TEST_P(properties_p1, get_vendor_id02) {
 }
 
 /**
+ * @test    get_vendor_id03
+ * @brief   Tests: fpgaPropertiesGetVendorID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the vendor_id field is not set,<br>
+ *          When I call fpgaPropertiesGetVendorID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_P(properties_p1, get_vendor_id03) {
+  uint16_t vendor = 0;
+  EXPECT_EQ(fpgaPropertiesGetVendorID(filter_, &vendor), FPGA_NOT_FOUND);
+}
+
+/**
  * @test    get_device_id01
  * @brief   Tests: fpgaPropertiesGetDeviceID
  * @details Given a null fpga_properties* object<br>
@@ -3170,6 +3246,21 @@ TEST_P(properties_p1, get_device_id02) {
   // now delete the properties object
   result = fpgaDestroyProperties(&prop);
   ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    get_device_id03
+ * @brief   Tests: fpgaPropertiesGetDeviceID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the device_id field is not set,<br>
+ *          When I call fpgaPropertiesGetDeviceID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_P(properties_p1, get_device_id03) {
+  uint16_t devid = 0;
+  EXPECT_EQ(fpgaPropertiesGetDeviceID(filter_, &devid), FPGA_NOT_FOUND);
 }
 
 /**
@@ -3248,6 +3339,21 @@ TEST_P(properties_p1, get_object_id02) {
 }
 
 /**
+ * @test    get_object_id03
+ * @brief   Tests: fpgaPropertiesGetObjectID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But it has no object_id field set,<br>
+ *          When I call fpgaPropertiesGetObjectID with a pointer to an
+ *          64-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_P(properties_p1, get_object_id03) {
+  uint64_t objid = 0;
+  EXPECT_EQ(fpgaPropertiesGetObjectID(filter_, &objid), FPGA_NOT_FOUND);
+}
+
+/**
  * @test    fpga_destroy_properties01
  * @brief   Tests: fpgaDestroyProperties
  * @details When the fpga_properties* object<br>
@@ -3273,6 +3379,35 @@ TEST_P(properties_p1, get_num_errors01)
   // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesGetNumErrors(prop, &num_errors), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    get_num_errors02
+ * @brief   Tests: fpgaPropertiesGetNumErrors
+ * @details When the number of errors field is not set<br>
+ *          in the properties object,<br>
+ *          Then fpgaPropertiesGetNumErrors returns FPGA_NOT_FOUND.<br>
+ *
+ */
+TEST_P(properties_p1, get_num_errors02) {
+  uint32_t errors = 0;
+  EXPECT_EQ(fpgaPropertiesGetNumErrors(filter_, &errors), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    validate01
+ * @brief   Tests: opae_validate_and_lock_properties
+ * @details When opae_validate_and_lock_properties is called with<br>
+ *          a properties object that has an invalid magic field,<br>
+ *          Then opae_validate_and_lock_properties returns NULL.<br>
+ *
+ */
+TEST_P(properties_p1, validate01) {
+  struct _fpga_properties *p = (struct _fpga_properties *) filter_;
+  ASSERT_EQ(p->magic, FPGA_PROPERTY_MAGIC);
+  p->magic = 0;
+  EXPECT_EQ(NULL, opae_validate_and_lock_properties(filter_));
+  p->magic = FPGA_PROPERTY_MAGIC;
 }
 
 INSTANTIATE_TEST_CASE_P(test_platforms, properties_p1,
