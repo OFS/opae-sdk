@@ -53,10 +53,6 @@ class metadata_c
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-    if (!tmpsysfs.empty() && tmpsysfs.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
@@ -196,6 +192,12 @@ TEST_P(metadata_c, read_gbs_metadata) {
   // Valid metadata
   result = read_gbs_metadata(bitstream_valid, &gbs_metadata);
   EXPECT_EQ(result, FPGA_OK);
+
+  test_system::instance()->invalidate_malloc();
+
+  // Valid metadata - malloc fail
+  result = read_gbs_metadata(bitstream_valid, &gbs_metadata);
+  EXPECT_EQ(result, FPGA_NO_MEMORY);
   
   // Invalid metadata afu-image node
   result = read_gbs_metadata(bitstream_no_afu_image, &gbs_metadata);
@@ -236,6 +238,12 @@ TEST_P(metadata_c, validate_bitstream_metadata) {
   // Valid metadata
   result = validate_bitstream_metadata(handle_, bitstream_valid);
   EXPECT_EQ(result, FPGA_OK);
+
+  test_system::instance()->invalidate_malloc();
+
+  // Valid metadata - malloc fail
+  result = validate_bitstream_metadata(handle_, bitstream_valid);
+  EXPECT_EQ(result, FPGA_NO_MEMORY);
 
   // Invalid input bitstream
   result = validate_bitstream_metadata(handle_, bitstream_invalid_guid);

@@ -26,6 +26,7 @@
 #ifndef _TEST_SYSTEM_H
 #define _TEST_SYSTEM_H
 
+#include <stdio.h>
 #include <dirent.h>
 #include <opae/fpga.h>
 #include <stddef.h>
@@ -138,9 +139,12 @@ class test_system {
   void initialize();
   void finalize();
   std::string prepare_syfs(const test_platform &platform);
+  void remove_sysfs();
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
+
+  FILE * fopen(const std::string &path, const std::string &mode);
 
   int close(int fd);
   int ioctl(int fd, unsigned long request, va_list argp);
@@ -151,19 +155,23 @@ class test_system {
   int lstat(int ver, const char *path, stat_t *buf);
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
-  void invalidate_malloc();
+  void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
 
   bool register_ioctl_handler(int request, ioctl_handler_t);
+
+  FILE *register_file(const std::string &path);
 
  private:
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
+  std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
   typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
+  typedef FILE * (*fopen_func)(const char *path, const char *mode);
   typedef int (*close_func)(int fd);
   typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
   typedef DIR *(*opendir_func)(const char *name);
@@ -175,6 +183,7 @@ class test_system {
 
   open_func open_;
   open_create_func open_create_;
+  fopen_func fopen_;
   close_func close_;
   ioctl_func ioctl_;
   opendir_func opendir_;

@@ -108,6 +108,14 @@ enum opae_loglevel {
 #define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL
 #endif // FPGA_DEFAULT_LOGLEVEL
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 void opae_print(int loglevel, const char *fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // __OPAE_LOG_H__

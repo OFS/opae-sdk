@@ -28,19 +28,55 @@
  */
 
 #include "test_system.h"
-#include <dlfcn.h>
+#include <iostream>
 #include <stdarg.h>
+#include <unistd.h>
 #include <algorithm>
+#include <cstring>
 #include <fstream>
 #include "c_test_system.h"
 #include "test_utils.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#include <dlfcn.h>
+#include <sys/stat.h>
+
+void *__builtin_return_address(unsigned level);
+
 // hijack malloc
 static bool _invalidate_malloc = false;
+static uint32_t _invalidate_malloc_after = 0;
+static const char *_invalidate_malloc_when_called_from = nullptr;
 void *malloc(size_t size) {
   if (_invalidate_malloc) {
-    _invalidate_malloc = false;
-    return nullptr;
+    if (!_invalidate_malloc_when_called_from) {
+      if (!_invalidate_malloc_after) {
+        _invalidate_malloc = false;
+        return nullptr;
+      }
+
+      --_invalidate_malloc_after;
+
+    } else {
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+
+      if (!_invalidate_malloc_after && !res) {
+        _invalidate_malloc = false;
+        _invalidate_malloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_malloc_after;
+    }
   }
   return __libc_malloc(size);
 }
@@ -148,11 +184,12 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return keys;
 }
 
-test_system *test_system::instance_ = 0;
+test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
+  fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
@@ -182,10 +219,29 @@ std::string test_system::prepare_syfs(const test_platform &platform) {
   return "/";
 }
 
+void test_system::remove_sysfs() {
+  if (root_.find("tmpsysfs") != std::string::npos) {
+    struct stat st;
+    if (stat(root_.c_str(), &st)) {
+      std::cerr << "Error stat'ing root dir (" << root_ << "):" << strerror(errno) << "\n";
+      return;
+    }
+    if (S_ISDIR(st.st_mode)){
+      auto cmd = "rm -rf " + root_;
+      std::system(cmd.c_str());
+    }
+  }
+}
+
+
 void test_system::set_root(const char *root) { root_ = root; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
-  if (src.find("/sys/class/fpga") == 0 || src.find("/dev/intel-fpga") == 0) {
+  auto it = registered_files_.find(src);
+  if (it != registered_files_.end()) {
+    return it->second;
+  }
+  if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0) {
     if (!root_.empty() && root_.size() > 1) {
       return root_ + src;
     }
@@ -196,11 +252,13 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
+  ASSERT_FN(fopen_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
+  ASSERT_FN(scandir_);
 }
 
 void test_system::finalize() {
@@ -210,8 +268,12 @@ void test_system::finalize() {
       kv.second = nullptr;
     }
   }
+  remove_sysfs();
   root_ = "";
   fds_.clear();
+  for (auto kv : registered_files_) {
+    unlink(kv.second.c_str());
+  }
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
@@ -219,6 +281,17 @@ bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
       ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
   return alhready_registered;
+}
+
+FILE *test_system::register_file(const std::string &path) {
+  auto it = registered_files_.find(path);
+  if (it == registered_files_.end()) {
+    registered_files_[path] =
+        "/tmp/testfile" + std::to_string(registered_files_.size());
+  }
+
+  auto fptr = fopen(path.c_str(), "w+");
+  return fptr;
 }
 
 uint32_t get_device_id(const std::string &sysclass) {
@@ -268,12 +341,28 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
+    std::map<int, mock_object *>::iterator it = fds_.find(fd);
+    if (it != fds_.end())
+        delete it->second;          
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
 }
 
-int test_system::close(int fd) { return close_(fd); }
+FILE *test_system::fopen(const std::string &path, const std::string &mode) {
+  std::string syspath = get_sysfs_path(path);
+  return fopen_(syspath.c_str(), mode.c_str());
+}
+
+int test_system::close(int fd)
+{
+  std::map<int, mock_object *>::iterator it = fds_.find(fd);
+  if (it != fds_.end()) {
+    delete it->second;
+    fds_.erase(it);
+  }
+  return close_(fd);
+}
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
   auto mock_it = fds_.find(fd);
@@ -315,7 +404,12 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
-void test_system::invalidate_malloc() { _invalidate_malloc = true; }
+void test_system::invalidate_malloc(uint32_t after,
+                                    const char *when_called_from) {
+  _invalidate_malloc = true;
+  _invalidate_malloc_after = after;
+  _invalidate_malloc_when_called_from = when_called_from;
+}
 
 }  // end of namespace testing
 }  // end of namespace opae
@@ -328,6 +422,10 @@ int opae_test_open(const char *path, int flags) {
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+FILE *opae_test_fopen(const char *path, const char *mode) {
+  return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
 int opae_test_close(int fd) {
