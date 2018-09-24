@@ -109,6 +109,37 @@ out_EINVAL:
     goto out;
 }
 
+int umsg_set_base_addr(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
+    struct fpga_port_umsg_base_addr *ubase = va_arg(argp, struct fpga_port_umsg_base_addr *);
+    if (!ubase) {
+    	FPGA_MSG("ubase is NULL");
+    	goto out_EINVAL;
+    }
+    if (ubase->argsz != sizeof(*ubase)) {
+    	FPGA_MSG("wrong structure size");
+    	goto out_EINVAL;
+    }
+    if (ubase->flags != 0) {
+    	FPGA_MSG("unexpected flags %u", ubase->flags);
+    	goto out_EINVAL;
+    }
+    /* TODO: check iova */
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
+}
+
+
 class umsg_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
@@ -132,6 +163,14 @@ class umsg_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto t : tokens_) {
+      if (t != nullptr) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      }
+    }
+
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
       std::string cmd = "rm -rf " + tmpsysfs_;
@@ -314,9 +353,8 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   // _handle->fddev = fddev;
   // EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
-  // // Invlaid Input Paramter
-  // ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
-
+  // Invlaid Input Paramter
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
 }
 
