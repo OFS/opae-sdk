@@ -587,4 +587,12 @@ TEST_P(enum_c_p, num_interrupts) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+TEST(wrapper, validate)
+{
+  EXPECT_EQ(NULL, opae_validate_wrapped_token(NULL));
+  EXPECT_EQ(NULL, opae_validate_wrapped_handle(NULL));
+  EXPECT_EQ(NULL, opae_validate_wrapped_event_handle(NULL));
+  EXPECT_EQ(NULL, opae_validate_wrapped_object(NULL));
+}
+
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
