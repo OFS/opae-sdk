@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,22 +23,30 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include "test_system.h"
+#include "xfpga.h"
+#include "gtest/gtest.h"
 
-#ifndef __OPAE_PLUGINMGR_H__
-#define __OPAE_PLUGINMGR_H__
+using namespace opae::testing;
 
-#include "adapter.h"
+/**
+ * @test       manage_01
+ *
+ * @brief      Verifies xfpga_fpgaAssignToInterface returns
+ *             FPGA_NOT_SUPPORTED
+ */
+TEST(manage_c, manage_01) {
+  auto res = xfpga_fpgaAssignToInterface(NULL,NULL,0,0);
+  EXPECT_EQ(res,FPGA_NOT_SUPPORTED);
+}
 
-// non-zero on failure.
-int opae_plugin_mgr_initialize(const char *cfg_file);
-
-// non-zero on failure.
-int opae_plugin_mgr_finalize_all(void);
-
-// iteration stops if callback returns non-zero.
-#define OPAE_ENUM_STOP 1
-#define OPAE_ENUM_CONTINUE 0
-int opae_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_api_adapter_table *, void *), void *context);
-
-#endif /* __OPAE_PLUGINMGR_H__ */
+/**
+ * @test       manage_02
+ *
+ * @brief      Verifies xfpga_fpgaReleaseFromInterface returns
+ *             FPGA_NOT_SUPPORTED
+ */
+TEST(manage_c, manage_02) {
+  auto res = xfpga_fpgaReleaseFromInterface(NULL,NULL);
+  EXPECT_EQ(res,FPGA_NOT_SUPPORTED);
+}

@@ -56,10 +56,6 @@ class reset_c_p
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-    if (!tmpsysfs_.empty() && tmpsysfs_.size() > 1) {
-      std::string cmd = "rm -rf " + tmpsysfs_;
-      std::system(cmd.c_str());
-    }
     system_->finalize();
   }
 
@@ -89,20 +85,16 @@ TEST_P(reset_c_p, test_port_drv_reset) {
  * @test       reset_c
  * @brief      test_port_drv_reset_01
  * @details    When the parameters are valid and the drivers are loaded,
- *             xfpga_fpgaReset Resets fpga slot.
+ *             xfpga_fpgaReset returns FPGA_EXCEPTION.
  *
  */
 TEST_P(reset_c_p, test_port_drv_reset_01) {
-  //system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl(-1,EINVAL));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+  system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
 }
 
 
 
-//////////////////////////////////
-// The following test modifies the
-// handle to improve coverage.
-//////////////////////////////////
 /**
  * @test       reset_c
  * @brief      test_port_drv_reset_02
@@ -110,25 +102,21 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  *             loaded, xfpga_fpgaReset return error.
  *
  */
-//TEST_P(reset_c_p, test_port_drv_reset_02) {
-//  int fddev = -1;
-//
-//  // Reset slot
-//  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
-//  
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//  _handle->magic = 0x123;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
-//
-//  _handle->magic = FPGA_HANDLE_MAGIC;
-//}
+TEST_P(reset_c_p, test_port_drv_reset_02) {
+  int fddev = -1;
+
+  // Reset slot
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
+  
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  _handle->magic = 0x123;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
+
+  _handle->magic = FPGA_HANDLE_MAGIC;
+}
 
 
-//////////////////////////////////
-// The following test modifies the
-// handle to improve coverage.
-//////////////////////////////////
 /**
  * @test       reset_c
  * @brief      test_port_drv_reset_03
@@ -136,20 +124,20 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  *             loaded, xfpga_fpgaReset return error.
  *
  */
-//TEST_P(reset_c_p, test_port_drv_reset_03) {
-//  int fddev = -1;
-//  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
-//
-//#ifndef BUILD_ASE
-//  fddev = _handle->fddev;
-//  _handle->fddev = -1;
-//
-//  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
-//#else
-//  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
-//#endif
-//  _handle->fddev = fddev;
-//}
+TEST_P(reset_c_p, test_port_drv_reset_03) {
+  int fddev = -1;
+  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+
+#ifndef BUILD_ASE
+  fddev = _handle->fddev;
+  _handle->fddev = -1;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
+#else
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+#endif
+  _handle->fddev = fddev;
+}
 
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));

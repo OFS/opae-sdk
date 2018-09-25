@@ -6,6 +6,6 @@ pushd mybuild
 trap "popd" EXIT
 
 cmake .. -DBUILD_ASE=1 -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE
-make opae-c xfpga opae-cxx-core pyopae
+make -j
 
 echo "test-build PASSED"
