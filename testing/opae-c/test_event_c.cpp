@@ -51,10 +51,9 @@ using namespace opae::testing;
 class event_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   event_c_p()
-    : tmpsysfs_("mocksys-XXXXXX"),
-      tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+    : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
       tmpfpgad_pid_("tmpfpgad-XXXXXX.pid") {}
- 
+
   virtual void SetUp() override {
     tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
     tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
@@ -62,7 +61,7 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
     invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
@@ -113,7 +112,6 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     fpgad_.join();
   }
 
-  std::string tmpsysfs_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
   struct config config_;
