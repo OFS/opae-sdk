@@ -35,14 +35,14 @@ using namespace opae::testing;
 class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  metadata_c() : tmpsysfs("mocksys-XXXXXX"), handle_(nullptr) {}
+  metadata_c() : handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
@@ -56,7 +56,6 @@ class metadata_c
     system_->finalize();
   }
 
-  std::string tmpsysfs;
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;

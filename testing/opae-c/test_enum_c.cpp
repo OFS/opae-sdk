@@ -51,14 +51,14 @@ using namespace opae::testing;
 
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  enum_c_p() : tmpsysfs("mocksys-XXXXXX") {}
+  enum_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
     invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
@@ -81,7 +81,6 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  std::string tmpsysfs;
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
   uint32_t num_matches_;

@@ -224,6 +224,7 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return keys;
 }
 
+
 test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : root_("") {
@@ -246,17 +247,18 @@ test_system *test_system::instance() {
   return test_system::instance_;
 }
 
-std::string test_system::prepare_syfs(const test_platform &platform) {
-  std::string tmpsysfs = "tmpsysfs-XXXXXX";
+void test_system::prepare_syfs(const test_platform &platform) {
+  char tmpsysfs[]{ "tmpsysfs-XXXXXX" };
   if (platform.mock_sysfs != nullptr) {
-    tmpsysfs = mkdtemp(const_cast<char *>(tmpsysfs.c_str()));
+    char* tmp = mkdtemp(tmpsysfs);
+    if (tmp == nullptr) {
+      throw std::runtime_error("error making tmpsysfs");
+    }
+    root_ = std::string(tmp);
     std::string cmd = "tar xzf " + std::string(platform.mock_sysfs) + " -C " +
-                      tmpsysfs + " --strip 1";
+                      root_ + " --strip 1";
     std::system(cmd.c_str());
-    root_ = tmpsysfs;
-    return tmpsysfs;
   }
-  return "/";
 }
 
 void test_system::remove_sysfs() {

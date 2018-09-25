@@ -44,7 +44,7 @@ using namespace opae::testing;
 class buffer_prepare
     : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
-  buffer_prepare() : tmpsysfs_("mocksys-XXXXXX"), handle_(nullptr) {}
+  buffer_prepare() : handle_(nullptr) {}
 
   virtual void SetUp() override {
     auto tpl = GetParam();
@@ -53,7 +53,7 @@ class buffer_prepare
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -69,7 +69,6 @@ class buffer_prepare
     system_->finalize();
   }
 
-  std::string tmpsysfs_;
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;

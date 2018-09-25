@@ -47,8 +47,7 @@ using namespace opae::testing;
 class events_p : public ::testing::TestWithParam<std::string> {
  protected:
   events_p()
-      : tmpsysfs_("mocksys-XXXXXX"),
-        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+      : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
         tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
         handle_(nullptr) {}
 
@@ -60,12 +59,12 @@ class events_p : public ::testing::TestWithParam<std::string> {
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
+                                  &num_matches_),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
@@ -96,7 +95,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
     fpgad_.join();
   }
 
-  std::string tmpsysfs_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
   struct config config_;
@@ -112,16 +110,20 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
 TEST_P(events_p, register_event) {
   fpga_result res;
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_ERROR, eh_, 0),
+            FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_ERROR, eh_),
+            FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
-            FPGA_OK)
+  ASSERT_EQ(
+      res = xfpga_fpgaRegisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
+      FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_),
-            FPGA_OK)
+  EXPECT_EQ(
+      res = xfpga_fpgaUnregisterEvent(handle_, FPGA_EVENT_POWER_THERMAL, eh_),
+      FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 }
 
