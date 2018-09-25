@@ -187,8 +187,7 @@ out_EINVAL:
 class events_p : public ::testing::TestWithParam<std::string> {
  protected:
   events_p()
-      : tmpsysfs_("mocksys-XXXXXX"),
-        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+      : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
         tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
         handle_dev_(nullptr), 
         handle_accel_(nullptr) {}
@@ -201,13 +200,18 @@ class events_p : public ::testing::TestWithParam<std::string> {
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
+
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
-                            &num_matches_),
-              FPGA_OK);
+                            &num_matches_), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
@@ -261,7 +265,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
     fpgad_.join();
   }
 
-  std::string tmpsysfs_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
   struct config config_;
@@ -281,6 +284,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
 TEST_P(events_p, register_event) {
   fpga_result res;
+
   ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
   EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_), FPGA_OK)

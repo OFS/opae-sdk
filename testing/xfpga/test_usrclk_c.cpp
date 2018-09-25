@@ -48,14 +48,14 @@ using namespace opae::testing;
 class usrclk_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  usrclk_c() : tmpsysfs_("mocksys-XXXXXX"), handle_dev_(nullptr), handle_accel_(nullptr) {}
+  usrclk_c() : handle_dev_(nullptr), handle_accel_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
@@ -89,7 +89,6 @@ class usrclk_c
     system_->finalize();
   }
 
-  std::string tmpsysfs_;
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
   std::array<fpga_token, 2> tokens_dev_ = {};

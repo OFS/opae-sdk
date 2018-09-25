@@ -36,18 +36,20 @@ extern "C" {
 
 #include <array>
 #include <cstdlib>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class buffer_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  open_c_p() {}
+  buffer_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,32 +68,66 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
               FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
     accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+    pg_size_ = (size_t) sysconf(_SC_PAGE_SIZE);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (accel_) {
+        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+        accel_ = nullptr;
+    }
     uint32_t i;
     for (i = 0 ; i < num_matches_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
     }
-
     system_->finalize();
   }
 
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
   fpga_handle accel_;
+  size_t pg_size_;
   test_platform platform_;
   uint32_t num_matches_;
   test_device invalid_device_;
   test_system *system_;
 };
 
-TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+/**
+ * @test       prep_rel
+ * @brief      Test: fpgaPrepareBuffer, fpgaReleaseBuffer
+ * @details    When fpgaPrepareBuffer retrieves a valid buffer pointer and wsid,<br>
+ *             then a subsequent call to fpgaReleaseBuffer with the wsid,<br>
+ *             also returns FPGA_OK.<br>
+ */
+TEST_P(buffer_c_p, prep_rel) {
+  void *buf_addr = nullptr;
+  uint64_t wsid = 0;
+  ASSERT_EQ(fpgaPrepareBuffer(accel_, (uint64_t) pg_size_,
+                              &buf_addr, &wsid, 0), FPGA_OK);
+  EXPECT_NE(buf_addr, nullptr);
+  EXPECT_NE(wsid, 0);
+  EXPECT_EQ(fpgaReleaseBuffer(accel_, wsid), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test       ioaddr
+ * @brief      Test: fpgaGetIOAddress
+ * @details    When called with a valid wsid,<br>
+ *             fpgaGetIOAddress retrieves the IO address for the wsid<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(buffer_c_p, ioaddr) {
+  void *buf_addr = nullptr;
+  uint64_t wsid = 0;
+  uint64_t io = 0xdecafbadbeefdead;
+  ASSERT_EQ(fpgaPrepareBuffer(accel_, (uint64_t) pg_size_,
+                              &buf_addr, &wsid, 0), FPGA_OK);
+  EXPECT_EQ(fpgaGetIOAddress(accel_, wsid, &io), FPGA_OK);
+  EXPECT_NE(io, 0xdecafbadbeefdead);
+  EXPECT_EQ(fpgaReleaseBuffer(accel_, wsid), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_p, ::testing::ValuesIn(test_platform::keys(true)));

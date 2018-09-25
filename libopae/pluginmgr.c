@@ -333,6 +333,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int j;
 	int res;
 	int errors = 0;
+	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
 
 	// TODO: parse config file
@@ -360,6 +361,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 			continue; // This platform was not detected.
 
 		native_plugin = platform_data_table[i].native_plugin;
+		platforms_detected++;
 
 		// Iterate over the table again to prevent multiple loads
 		// of the same native plugin.
@@ -417,7 +419,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// Call each plugin's initialization routine.
 	errors += opae_plugin_mgr_initialize_all();
 
-	if (!errors)
+	if (!errors && platforms_detected)
 		initialized = 1;
 
 out_unlock:

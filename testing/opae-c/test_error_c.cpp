@@ -45,9 +45,9 @@ extern "C" {
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class error_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  open_c_p() {}
+  error_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -65,7 +65,6 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
                             &num_matches_),
               FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
-    accel_ = nullptr;
   }
 
   virtual void TearDown() override {
@@ -74,24 +73,75 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
     for (i = 0 ; i < num_matches_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
     }
-
     system_->finalize();
   }
 
   fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
-  fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
   test_device invalid_device_;
   test_system *system_;
 };
 
-TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+/**
+ * @test       read
+ * @brief      Test: fpgaReadError
+ * @details    When fpgaReadError is called with valid params,<br>
+ *             it retrieves the value of the requested error,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(error_c_p, read) {
+  uint64_t val = 0xdeadbeefdecafbad;
+  EXPECT_EQ(fpgaReadError(tokens_[0], 0, &val), FPGA_OK);
+  EXPECT_EQ(val, 0);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test       get_info
+ * @brief      Test: fpgaGetErrorInfo
+ * @details    When fpgaGetErrorInfo is called with valid params,<br>
+ *             it retrieves the info of the requested error,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(error_c_p, get_info) {
+  fpga_error_info info;
+  EXPECT_EQ(fpgaGetErrorInfo(tokens_[0], 0, &info), FPGA_OK);
+  EXPECT_STREQ(info.name, "first_error");
+  EXPECT_EQ(info.can_clear, false);
+}
+
+/**
+ * @test       clear
+ * @brief      Test: fpgaClearError
+ * @details    When fpgaClearError is called with valid params,<br>
+ *             it clears the requested error,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(error_c_p, clear) {
+  fpga_error_info info;
+  uint32_t e = 0;
+  bool cleared = false;
+  while (fpgaGetErrorInfo(tokens_[0], e, &info) == FPGA_OK) {
+    if (info.can_clear) {
+      EXPECT_EQ(fpgaClearError(tokens_[0], e), FPGA_OK);
+      cleared = true;
+      break;
+    }
+    ++e;
+  }
+  EXPECT_EQ(cleared, true);
+}
+
+/**
+ * @test       clear
+ * @brief      Test: fpgaClearAllErrors
+ * @details    When fpgaClearAllErrors is called with valid params,<br>
+ *             it clears the requested errors,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(error_c_p, clear_all) {
+  EXPECT_EQ(fpgaClearAllErrors(tokens_[0]), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));

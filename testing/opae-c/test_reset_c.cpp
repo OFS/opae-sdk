@@ -45,9 +45,9 @@ extern "C" {
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class reset_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  open_c_p() {}
+  reset_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,15 +66,19 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
               FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
     accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (accel_) {
+        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+        accel_ = nullptr;
+    }
     uint32_t i;
     for (i = 0 ; i < num_matches_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
     }
-
     system_->finalize();
   }
 
@@ -87,11 +91,8 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+TEST_P(reset_c_p, success) {
+    EXPECT_EQ(fpgaReset(accel_), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));

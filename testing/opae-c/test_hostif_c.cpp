@@ -33,9 +33,12 @@ extern "C" {
 }
 
 #include <opae/fpga.h>
+#include "intel-fpga.h"
+#include <linux/ioctl.h>
 
 #include <array>
 #include <cstdlib>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>
@@ -45,9 +48,9 @@ extern "C" {
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class hostif_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  open_c_p() {}
+  hostif_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,15 +69,19 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
               FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
     accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (accel_) {
+        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+        accel_ = nullptr;
+    }
     uint32_t i;
     for (i = 0 ; i < num_matches_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
     }
-
     system_->finalize();
   }
 
@@ -87,11 +94,37 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+/**
+ * @test       assign_port
+ * @brief      Test: fpgaAssignPortToInterface
+ * @details    When fpgaAssignPortToInterface is called with valid params,<br>
+ *             then the fn returns FPGA_OK.<br>
+ */
+TEST_P(hostif_c_p, assign_port) {
+  EXPECT_EQ(fpgaAssignPortToInterface(accel_, 0,
+			  0, 0), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test       assign_to_ifc
+ * @brief      Test: fpgaAssignToInterface
+ * @details    fpgaAssignToInterface is currently unsupported,<br>
+ *             and returns FPGA_NOT_SUPPORTED.<br>
+ */
+TEST_P(hostif_c_p, assign_to_ifc) {
+  EXPECT_EQ(fpgaAssignToInterface(accel_, tokens_[0],
+		    0, 0), FPGA_NOT_SUPPORTED);
+}
+
+/**
+ * @test       release_from_ifc
+ * @brief      Test: fpgaReleaseFromInterface
+ * @details    fpgaReleaseFromInterface is currently unsupported,<br>
+ *             and returns FPGA_NOT_SUPPORTED.<br>
+ */
+TEST_P(hostif_c_p, release_from_ifc) {
+  EXPECT_EQ(fpgaReleaseFromInterface(accel_, tokens_[0]),
+		     FPGA_NOT_SUPPORTED);
+}
+
+INSTANTIATE_TEST_CASE_P(hostif_c, hostif_c_p, ::testing::ValuesIn(test_platform::keys(true)));

@@ -33,9 +33,12 @@ extern "C" {
 }
 
 #include <opae/fpga.h>
+#include "intel-fpga.h"
+#include <linux/ioctl.h>
 
 #include <array>
 #include <cstdlib>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>
@@ -45,9 +48,9 @@ extern "C" {
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class reconf_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  open_c_p() {}
+  reconf_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,15 +69,19 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
               FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
     accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (accel_) {
+        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+        accel_ = nullptr;
+    }
     uint32_t i;
     for (i = 0 ; i < num_matches_ ; ++i) {
         EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
     }
-
     system_->finalize();
   }
 
@@ -87,11 +94,16 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+/**
+ * @test       pr
+ * @brief      Test: fpgaReconfigureSlot
+ * @details    When fpgaReconfigureSlot is called with invalid params,<br>
+ *             then the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(reconf_c_p, pr) {
+  uint8_t bitstream[] = { 'b', 'i', 't', 's', 0 };
+  EXPECT_EQ(fpgaReconfigureSlot(accel_, 0,
+		  bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p, ::testing::ValuesIn(test_platform::keys(true)));
