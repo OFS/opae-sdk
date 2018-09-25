@@ -78,7 +78,7 @@ void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
 }
 
 
-__attribute__((constructor)) static void opae_init(void)
+__attribute__((constructor)) STATIC void opae_init(void)
 {
 	g_logfile = NULL;
 
@@ -115,7 +115,7 @@ __attribute__((constructor)) static void opae_init(void)
 		fpgaInitialize(NULL);
 }
 
-__attribute__((destructor)) static void opae_release(void)
+__attribute__((destructor)) STATIC void opae_release(void)
 {
 	if (opae_plugin_mgr_finalize_all())
 		OPAE_ERR("opae_plugin_mgr_finalize_all");
