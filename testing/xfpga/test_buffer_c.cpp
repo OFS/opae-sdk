@@ -25,14 +25,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <opae/fpga.h>
 
-#ifdef __cplusplus
 extern "C" {
-#include "error_int.h"
     fpga_result buffer_allocate(void*,uint64_t,int);
     fpga_result buffer_release(void*,uint64_t);
 }
-#endif
 
+#include "error_int.h"
 #include <tuple>
 #include "xfpga.h"
 #include "gtest/gtest.h"
@@ -45,7 +43,6 @@ extern "C" {
 #include <opae/buffer.h>
 #include <opae/mmio.h>
 #include "safe_string/safe_string.h"
-
 
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
