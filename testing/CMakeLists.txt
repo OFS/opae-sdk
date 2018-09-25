@@ -157,12 +157,21 @@ add_mock_test(test_opae_object_c opae-c-static
     opae-c/test_object_c.cpp
 )
 
+add_mock_test(test_opae_usrclk_c opae-c-static
+    opae-c/test_usrclk_c.cpp
+)
+
 add_mock_test(test_opae_init_c opae-c-static
     opae-c/test_init_c.cpp
 )
 
 add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
+)
+
+
+add_mock_test(test_xfpga_error_c xfpga-static
+    xfpga/test_error_c.cpp
 )
 
 add_mock_test(test_xfpga_mock_errinj_c xfpga-static
