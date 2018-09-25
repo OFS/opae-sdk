@@ -162,7 +162,6 @@ class umsg_c_p
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
     for (auto t : tokens_) {
