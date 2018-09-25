@@ -153,6 +153,10 @@ add_mock_test(test_opae_reconf_c opae-c-static
     opae-c/test_reconf_c.cpp
 )
 
+add_mock_test(test_opae_object_c opae-c-static
+    opae-c/test_object_c.cpp
+)
+
 add_mock_test(test_opae_usrclk_c opae-c-static
     opae-c/test_usrclk_c.cpp
 )
