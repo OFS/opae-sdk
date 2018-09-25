@@ -243,13 +243,13 @@ class events_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
-    for (auto t : tokens_dev_) {
+    for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
       }
     }
 
-    for (auto t : tokens_accel_) {
+    for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
       }
@@ -428,6 +428,8 @@ TEST(events, event_04) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM,
             xfpga_fpgaUnregisterEvent(&_h, FPGA_EVENT_INTERRUPT, eh));
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
 
 
@@ -443,9 +445,14 @@ TEST(events, event_drv_08) {
   fpga_event_handle bad_handle;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
-  h->magic=0x0;
 
+  // Invalid Event Handle magic
+  h->magic=0x0;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaDestroyEventHandle(&bad_handle));
+
+  // reset event handle magic and destroy
+  h->magic=FPGA_EVENT_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&bad_handle));
 }
 
 /**
@@ -459,11 +466,16 @@ TEST(events, event_drv_09) {
   fpga_event_handle bad_handle;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
-  h->fd=-1;
 
+  // Invalid fd
+  auto fddev = h->fd;
+  h->fd = -1;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaDestroyEventHandle(&bad_handle));
-}
 
+  // Reset fd to destroy event handle
+  h->fd = fddev;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&bad_handle));
+}
 
 /**
  * @test       event_drv_10
@@ -477,9 +489,67 @@ TEST(events, event_drv_10) {
   int fd;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+ 
+  // Invalid event handle magic
   h->magic=0x0;
-
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOSObjectFromEventHandle(bad_handle, &fd));
+
+  // Reset event handle magic
+  h->magic=FPGA_EVENT_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(bad_handle, &fd));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&bad_handle));
+}
+
+/**
+ * @test       event_drv_11
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             xfpga_fpgaUnregisterEvent() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_P(events_p, event_drv_11) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+
+  // Invalid event handle magic
+  h->magic=0x0;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
+
+  // Valid magic and ioctl
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  h->magic=FPGA_EVENT_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
+
+  // Destory event handle
+  auto res = xfpga_fpgaDestroyEventHandle(&bad_handle);
+  EXPECT_EQ(FPGA_OK, res);
+}
+
+/**
+ * @test       event_drv_12
+ *
+ * @brief      When passed an event handle with an invalid magic
+ *             xfpga_fpgaRegisterEvent() should return FPGA_INVALID_PARAM
+ *
+ */
+TEST_P(events_p, event_drv_12) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+
+  // Invalid event handle magic
+  h->magic=0x0;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
+
+  // Reset event handle magic
+  h->magic=FPGA_EVENT_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
+
+  // Destroy event handle
+  auto res = xfpga_fpgaDestroyEventHandle(&bad_handle);
+  EXPECT_EQ(FPGA_OK, res);
 }
 
 /**
@@ -515,6 +585,7 @@ TEST_P(events_p, valid_fme_event_request_01){
   auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_OK,res);
 }
+
 /**
  * @test       send_fme_event_request
  * @brief      When passed a valid event handle but invalid fme params
@@ -553,7 +624,6 @@ TEST_P(events_p, invalid_fme_event_request_02){
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
-
 }
 
 /**
@@ -609,7 +679,6 @@ TEST_P(events_p, invalid_port_event_request_01){
   system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
-
 }
 
 /**
@@ -723,7 +792,6 @@ TEST_P(events_p, fme_interrupts_check){
   fpga_objtype obj;
   auto h = (struct _fpga_handle*)handle_dev_;
   auto t = (struct _fpga_token*)h->token;
-  //auto p = (struct _fpga_properties*)t->properties;
 
   // no fme_info capability
   gEnableIRQ = false;
@@ -746,7 +814,6 @@ TEST_P(events_p, fme_interrupts_check){
   strncpy(t->sysfspath,"null",sizeof(t->sysfspath));
   res = check_interrupts_supported(handle_dev_,&obj);
   EXPECT_NE(FPGA_OK,res);
-
 }
 
 /**
@@ -779,7 +846,6 @@ TEST_P(events_p, afu_interrupts_check){
   strncpy(t->sysfspath,"null",sizeof(t->sysfspath));
   res = check_interrupts_supported(handle_accel_,&obj);
   EXPECT_NE(FPGA_OK,res);
-
 }
 
 /**
@@ -855,38 +921,6 @@ TEST_P(events_p, fme_driver_unregister_event){
   res = driver_unregister_event(handle_dev_,FPGA_EVENT_INTERRUPT,eh_);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 } 
-
-/**
- * @test       event_drv_11
- *
- * @brief      When passed an event handle with an invalid magic
- *             fpgaRegisterEvent() should return FPGA_INVALID_PARAM
- *
- */
-TEST_P(events_p, event_drv_11) {
-  fpga_event_handle bad_handle;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
-  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
-  h->magic=0x0;
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
-}
-
-/**
- * @test       event_drv_12
- *
- * @brief      When passed an event handle with an invalid magic
- *             fpgaUnregisterEvent() should return FPGA_INVALID_PARAM
- *
- */
-TEST_P(events_p, event_drv_12) {
-  fpga_event_handle bad_handle;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
-  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
-
-  h->magic=0x0;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT, bad_handle));
-}
 
 
 /**
