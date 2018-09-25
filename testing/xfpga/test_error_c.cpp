@@ -61,7 +61,6 @@ class error_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
     tmpsysfs_ = system_->get_root();
-    //tmpsysfs_ = "";
 
     strncpy_s(fake_port_token_.sysfspath,sizeof(fake_port_token_.sysfspath),sysfs_port.c_str(),sysfs_port.size());
     strncpy_s(fake_port_token_.devpath,sizeof(fake_port_token_.devpath),dev_port.c_str(),dev_port.size());
@@ -177,7 +176,6 @@ TEST_P(error_c_p, error_02) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d FME error registers\n", n);
 
-
   // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
@@ -185,7 +183,6 @@ TEST_P(error_c_p, error_02) {
     EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
-
 
   delete_errors("fme");
   for (i = 0; i < n; i++) {
@@ -275,7 +272,6 @@ TEST_P(error_c_p, error_03) {
   clear_file.open(clear_name);
   clear_file << "0x0" << std::endl;
   clear_file.close();
-
 }
 
 /**
@@ -317,6 +313,7 @@ TEST_P(error_c_p, error_04) {
     EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     ASSERT_EQ(val, 0);
   }
+
   // ------------- MAKE SURE CLEAR FILE IS 0 ------------
   clear_file.open(clear_name);
   ASSERT_EQ(1,clear_file.is_open());
@@ -354,11 +351,7 @@ TEST_P(error_c_p, error_04) {
   clear_file.open(clear_name);
   clear_file << "0x0" << std::endl;
   clear_file.close();
-
 }
-
-
-
 
 /**
  * @test       error_05
@@ -389,8 +382,6 @@ TEST_P(error_c_p, error_05) {
   p->info.can_clear = false;
   EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaClearError(t, 0));
 }
-
-
 
 /**
  * @test       error_06
@@ -478,7 +469,6 @@ TEST_P(error_c_p, error_08) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
 }
 
-
 /**
  * @test       error_01
  *
@@ -527,7 +517,6 @@ TEST(error_c, error_02) {
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 100, &val));
 }
 
-
 /**
  * @test       error_03
  *
@@ -574,7 +563,6 @@ TEST(error_c, error_04) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
 }
 
-
 /**
  * @test       error_05
  * @brief      When passed an invalid token magic,
@@ -615,7 +603,5 @@ TEST(error_c, error_06) {
   auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
   EXPECT_EQ(result,0); 
 }
-
-
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
