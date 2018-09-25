@@ -135,6 +135,7 @@ class test_system {
   static test_system *instance();
 
   void set_root(const char *root);
+  std::string get_root();
   std::string get_sysfs_path(const std::string &src);
 
   void initialize();

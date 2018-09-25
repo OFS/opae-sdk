@@ -27,6 +27,7 @@
 extern "C" {
 #include "token_list_int.h"
 #include "error_int.h"
+#include "safe_string/safe_string.h"
 }
 
 #include <opae/error.h>
@@ -39,7 +40,6 @@ extern "C" {
 #include <string>
 #include <props.h>
 
-#include "safe_string/safe_string.h"
 
 using namespace opae::testing;
 const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
@@ -52,14 +52,16 @@ class error_c_p
  public:
   void delete_errors(std::string);
  protected:
-  error_c_p() : tmpsysfs_("mocksys-XXXXXX") {}
+  error_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
-    tmpsysfs_ = system_->prepare_syfs(platform_);
+    system_->prepare_syfs(platform_);
+    tmpsysfs_ = system_->get_root();
+    //tmpsysfs_ = "";
 
     strncpy_s(fake_port_token_.sysfspath,sizeof(fake_port_token_.sysfspath),sysfs_port.c_str(),sysfs_port.size());
     strncpy_s(fake_port_token_.devpath,sizeof(fake_port_token_.devpath),dev_port.c_str(),dev_port.size());
@@ -75,7 +77,6 @@ class error_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
     system_->finalize();
   }
 

@@ -277,6 +277,7 @@ void test_system::remove_sysfs() {
 
 
 void test_system::set_root(const char *root) { root_ = root; }
+std::string test_system::get_root() { return root_; }
 
 std::string test_system::get_sysfs_path(const std::string &src) {
   auto it = registered_files_.find(src);
