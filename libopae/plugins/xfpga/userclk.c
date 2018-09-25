@@ -33,7 +33,9 @@
 #include "usrclk/user_clk_pgm_uclock.h"
 
 fpga_result xfpga_fpgaSetUserClock(fpga_handle handle,
-				uint64_t high_clk, uint64_t low_clk, int flags)
+				   uint64_t high_clk,
+				   uint64_t low_clk,
+				   int flags)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
@@ -56,26 +58,27 @@ fpga_result xfpga_fpgaSetUserClock(fpga_handle handle,
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		FPGA_ERR("Token not found");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL == p) {
 		FPGA_ERR("Invalid sysfspath in token");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 	p = strrchr(_token->sysfspath, '.');
 	if (NULL == p) {
 		FPGA_ERR("Invalid sysfspath in token");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	result = set_userclock(_token->sysfspath, high_clk, low_clk);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to set user clock");
-		return result;
 	}
-
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -85,7 +88,9 @@ out_unlock:
 }
 
 fpga_result xfpga_fpgaGetUserClock(fpga_handle handle,
-				uint64_t *high_clk, uint64_t *low_clk, int flags)
+				   uint64_t *high_clk,
+				   uint64_t *low_clk,
+				   int flags)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
@@ -108,25 +113,27 @@ fpga_result xfpga_fpgaGetUserClock(fpga_handle handle,
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		FPGA_ERR("Token not found");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL == p) {
 		FPGA_ERR("Invalid sysfspath in token");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	p = strrchr(_token->sysfspath, '.');
 	if (NULL == p) {
 		FPGA_ERR("Invalid sysfspath in token");
-		return FPGA_INVALID_PARAM;
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	result = get_userclock(_token->sysfspath, high_clk, low_clk);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to set user clock");
-		return result;
 	}
 
 out_unlock:
