@@ -82,9 +82,9 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for ( auto i : tokens_)
+    for ( auto &i : tokens_)
     {
-        if (i != nullptr){
+        if (i) {
             EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&i));
         } 
     }
