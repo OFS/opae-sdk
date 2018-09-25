@@ -113,9 +113,9 @@ TEST_P(usrclk_c_p, get) {
  * @details    When fpgaSetUserClock is called with valid parameters,<br>
  *             the fn returns FPGA_OK.<br>
  */
-TEST_P(usrclk_c_p, set) {
-  uint64_t low = 400000000;
-  uint64_t high = 400000000;
+TEST_P(usrclk_c_p, DISABLED_set) {
+  uint64_t low = 25;
+  uint64_t high = 1200;
   EXPECT_EQ(fpgaSetUserClock(accel_, high, low, 0), FPGA_OK);
 }
 
