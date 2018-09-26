@@ -59,7 +59,7 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
 
@@ -159,6 +159,10 @@ add_mock_test(test_opae_object_c opae-c-static
 
 add_mock_test(test_opae_usrclk_c opae-c-static
     opae-c/test_usrclk_c.cpp
+)
+
+add_mock_test(test_opae_init_c opae-c-static
+    opae-c/test_init_c.cpp
 )
 
 add_mock_test(test_xfpga_token_list_c xfpga-static
