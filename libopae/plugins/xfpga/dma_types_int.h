@@ -68,13 +68,13 @@
 #define FPGA_DMA_MASK_32_BIT 0xFFFFFFFF
 
 // Helper functions
-#define CSR_BASE(dma_handle) ((uint64_t)dma_handle->dma_csr_base)
-#define RSP_BASE(dma_handle) ((uint64_t)dma_handle->dma_rsp_base)
-#define ST_VALVE_BASE(dma_handle) ((uint64_t)dma_handle->dma_streaming_valve_base)
-#define HOST_MMIO_32_ADDR(dma_handle,offset) ((volatile uint32_t *)((uint64_t)(dma_handle)->mmio_va + (uint64_t)(offset)))
-#define HOST_MMIO_64_ADDR(dma_handle,offset) ((volatile uint64_t *)((uint64_t)(dma_handle)->mmio_va + (uint64_t)(offset)))
-#define HOST_MMIO_32(dma_handle,offset) (*HOST_MMIO_32_ADDR(dma_handle,offset))
-#define HOST_MMIO_64(dma_handle,offset) (*HOST_MMIO_64_ADDR(dma_handle,offset))
+#define CSR_BASE(dma_channel_handle) ((uint64_t)dma_channel_handle->dma_csr_base)
+#define RSP_BASE(dma_channel_handle) ((uint64_t)dma_channel_handle->dma_rsp_base)
+#define ST_VALVE_BASE(dma_channel_handle) ((uint64_t)dma_channel_handle->dma_streaming_valve_base)
+#define HOST_MMIO_32_ADDR(dma_channel_handle,offset) ((volatile uint32_t *)((uint64_t)(dma_channel_handle)->mmio_va + (uint64_t)(offset)))
+#define HOST_MMIO_64_ADDR(dma_channel_handle,offset) ((volatile uint64_t *)((uint64_t)(dma_channel_handle)->mmio_va + (uint64_t)(offset)))
+#define HOST_MMIO_32(dma_channel_handle,offset) (*HOST_MMIO_32_ADDR(dma_channel_handle,offset))
+#define HOST_MMIO_64(dma_channel_handle,offset) (*HOST_MMIO_64_ADDR(dma_channel_handle,offset))
 
 #define CSR_STATUS(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, status))
 #define CSR_CONTROL(dma_h) (CSR_BASE(dma_h) + offsetof(msgdma_csr_t, ctrl))
@@ -89,26 +89,6 @@
 
 #define ALIGN_TO_CL(x) ((uint64_t)(x) & ~(CACHE_LINE_SIZE - 1))
 #define IS_CL_ALIGNED(x) (((uint64_t)(x) & (CACHE_LINE_SIZE - 1)) == 0)
-
-typedef struct __attribute__ ((__packed__)) {
-	uint64_t dfh;
-	uint64_t feature_uuid_lo;
-	uint64_t feature_uuid_hi;
-} dfh_feature_t;
-
-typedef union {
-	uint64_t reg;
-	struct {
-		uint64_t feature_type:4;
-		uint64_t reserved_8:8;
-		uint64_t afu_minor:4;
-		uint64_t reserved_7:7;
-		uint64_t end_dfh:1;
-		uint64_t next_dfh:24;
-		uint64_t afu_major:4;
-		uint64_t feature_id:12;
-	} bits;
-} dfh_reg_t;
 
 // DMA transfer
 typedef enum {
@@ -163,26 +143,27 @@ struct fpga_dma_mmio {
 	uint64_t mmio_va;
 }
 
-struct fpga_dma_handle {
+struct fpga_dma_channel_handle {
 	fpga_handle fpga_h;
 	// DMA CSRs
 	uint64_t dma_base;
-	uint64_t dma_offset;
-	uint64_t dma_csr_base;
-	uint64_t dma_desc_base;
-	uint64_t dma_rsp_base;
-	uint64_t dma_streaming_valve_base;
-	// for ASE
-	uint64_t dma_ase_cntl_base;
-	uint64_t dma_ase_data_base;
+	uint64_t channel_offset;
+	uint64_t channel_csr_base;
+	uint64_t channel_desc_base;
+	uint64_t channel_status_base;
+	// for throttling sending descriptors in ST channels
+	uint64_t channel_st_valve_base;
+	// for address span extender
+	uint64_t channel_ase_cntl_base;
+	uint64_t channel_ase_data_base;
 	// Interrupt event handle
 	fpga_event_handle eh;
 	// Managed buffers
-	fpga_dma_buffer *buffer;
+	fpga_dma_buffer *channel_buffer;
 	// FPGA DMA mmio region
-	fpga_dma_mmio mmio;
+	fpga_dma_mmio channel_mmio;
 	// FPGA DMA channel
-	fpga_dma_channel channel;
+	fpga_dma_channel dma_channel;
 	// Worker thread
 	pthread_t thread_id;
 	// Transaction queue (model as a fixed-size circular buffer)
