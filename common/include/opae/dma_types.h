@@ -41,11 +41,15 @@ extern "C" {
 
 	// Supported Streaming DMA transfers
 	typedef enum {
-                HOST_MM_TO_FPGA_ST = 0, // host to AFU sreaming
-                FPGA_ST_TO_HOST_MM,     // AFU to host streaming
-                FPGA_MM_TO_FPGA_ST,     // local mem to AFU streaming
-                FPGA_ST_TO_FPGA_MM,     // AFU to local mem streaming
-                FPGA_MAX_TRANSFER_TYPE
+		HOST_MM_TO_FPGA_ST = 0, // host to AFU sreaming
+		FPGA_ST_TO_HOST_MM,     // AFU to host streaming
+		FPGA_MM_TO_FPGA_ST,     // local mem to AFU streaming
+		FPGA_ST_TO_FPGA_MM,     // AFU to local mem streaming
+		HOST_TO_FPGA_MM,	// Memory mapped FPGA interface
+		FPGA_TO_HOST_MM,	// Memory mapped FPGA interface
+		FPGA_TO_FPGA_MM,	// Memory mapped FPGA interface
+		TERMINATE_THREAD,	// Cause the thread to exit
+		FPGA_MAX_TRANSFER_TYPE
 	} fpga_dma_transfer_type_t;
 
 	// Supported TX control values
@@ -63,13 +67,6 @@ extern "C" {
                 END_ON_EOP,
                 FPGA_MAX_RX_CTRL
 	} fpga_dma_rx_ctrl_t;
-
-	// Channel types
-	typedef enum {
-                TX_ST = 0,
-                RX_ST,
-                MM
-	} fpga_dma_channel_type_t;
 
 	// Opaque object that describes a DMA transfer
 	typedef void *fpga_dma_transfer_t;
