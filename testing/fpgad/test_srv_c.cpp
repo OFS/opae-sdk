@@ -31,6 +31,7 @@ extern "C" {
 
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
+#include "fpgad/errtable.h"
 
 extern client_event_registry *event_registry_list;
 
@@ -39,12 +40,14 @@ struct client_event_registry *register_event(int conn_socket, int fd,
 
 void unregister_event(int conn_socket, fpga_event_type e, const char *device);
 
-// FPGA_EVENT_INTERRUPT
-// FPGA_EVENT_ERROR
-// FPGA_EVENT_POWER_THERMAL
+void unregister_all_events_for(int conn_socket);
 
+void for_each_registered_event(void (*cb)(struct client_event_registry *,
+					  const struct fpga_err *),
+			       const struct fpga_err *e);
 
 void unregister_all_events(void);
+
 }
 
 #include <config.h>
@@ -116,7 +119,7 @@ TEST_P(fpgad_srv_c_p, unregister01) {
  *             list in a valid state.<br>
  */
 TEST_P(fpgad_srv_c_p, unregister02) {
-  int conn_sockets[3] = { 1, 2, 3 };
+  int conn_sockets[3] = { 0, 1, 2 };
   const char *devs[3] = { "deva", "devb", "devc" }; 
 
   ASSERT_EQ(nullptr, event_registry_list);
@@ -126,28 +129,132 @@ TEST_P(fpgad_srv_c_p, unregister02) {
 
   client_event_registry *r = event_registry_list;
   ASSERT_NE(nullptr, r);
-  // New entries are placed onto the front of the list, so we should have 1, 2, 3..
+  // New entries are placed onto the front of the list, so we should have 0, 1, 2..
+  EXPECT_EQ(0, r->conn_socket);
+  r = r->next;
   EXPECT_EQ(1, r->conn_socket);
   r = r->next;
   EXPECT_EQ(2, r->conn_socket);
-  r = r->next;
-  EXPECT_EQ(3, r->conn_socket);
   EXPECT_EQ(nullptr, r->next);
 
   // Remove the middle entry from the list.
   unregister_event(conn_sockets[1], FPGA_EVENT_INTERRUPT, devs[1]);
   r = event_registry_list;
   ASSERT_NE(nullptr, r);
-  EXPECT_EQ(1, r->conn_socket);
+  EXPECT_EQ(0, r->conn_socket);
   r = r->next;
-  EXPECT_EQ(3, r->conn_socket);
+  EXPECT_EQ(2, r->conn_socket);
   EXPECT_EQ(nullptr, r->next);
  
+  // Remove the last entry from the list.
+  unregister_event(conn_sockets[2], FPGA_EVENT_INTERRUPT, devs[2]);
+  r = event_registry_list;
+  ASSERT_NE(nullptr, r);
+  EXPECT_EQ(0, r->conn_socket);
+  EXPECT_EQ(nullptr, r->next);
 
+  // Try to remove a non-existent entry.
+  unregister_event(99, FPGA_EVENT_INTERRUPT, "blah");
+  r = event_registry_list;
+  ASSERT_NE(nullptr, r);
+  EXPECT_EQ(0, r->conn_socket);
+  EXPECT_EQ(nullptr, r->next);
+
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], 0, FPGA_EVENT_INTERRUPT, devs[1]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[2], 0, FPGA_EVENT_INTERRUPT, devs[2]));
+
+  // The list now has 2, 1, 0. Remove the end (0).
+  unregister_event(conn_sockets[0], FPGA_EVENT_INTERRUPT, devs[0]);
+  r = event_registry_list;
+  ASSERT_NE(nullptr, r);
+  EXPECT_EQ(2, r->conn_socket);
+  r = r->next; 
+  EXPECT_EQ(1, r->conn_socket);
+  EXPECT_EQ(nullptr, r->next);
+}
+
+/**
+ * @test       unregister_all_for
+ * @brief      Test: unregister_all_events_for
+ * @details    unregister_all_events_for removes all event entries<br>
+ *             matching the given socket from the event_registry_list.<br>
+ */
+TEST_P(fpgad_srv_c_p, unregister_all_for) {
+  int conn_sockets[3] = { 0, 1, 2 };
+  const char *devs[3] = { "deva", "devb", "devc" }; 
+
+  ASSERT_EQ(nullptr, event_registry_list);
+  EXPECT_NE(nullptr, register_event(conn_sockets[2], 0, FPGA_EVENT_INTERRUPT, devs[2]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], 0, FPGA_EVENT_INTERRUPT, devs[1]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[0], 0, FPGA_EVENT_INTERRUPT, devs[0]));
+  // The list contains 0, 1, 2.
+ 
+  unregister_all_events_for(conn_sockets[2]);
+
+  client_event_registry *r = event_registry_list;
+  ASSERT_NE(nullptr, r);
+  EXPECT_EQ(0, r->conn_socket);
+  r = r->next;
+  EXPECT_EQ(1, r->conn_socket);
+  EXPECT_EQ(nullptr, r->next);
+
+  unregister_all_events_for(conn_sockets[0]);
+  r = event_registry_list;
+  ASSERT_NE(nullptr, r);
+  EXPECT_EQ(1, r->conn_socket);
+  EXPECT_EQ(nullptr, r->next);
+}
+
+static char *callback_devs[3] = { nullptr, nullptr, nullptr };
+
+extern "C" {
+
+void test_event_registry_callback(struct client_event_registry *r,
+				  const struct fpga_err *e)
+{
+  EXPECT_STREQ(e->sysfsfile, "sysfsfile");
+  callback_devs[r->conn_socket] = r->device;
+}
 
 }
 
+/**
+ * @test       for_each
+ * @brief      Test: for_each_registered_event
+ * @details    for_each_registered_event invokes the given callback for<br>
+ *             each client_event_registry in event_registry_list, passing
+ *             the given fpga_err.<tbr>
+ */
+TEST_P(fpgad_srv_c_p, for_each) {
+  int conn_sockets[3] = { 0, 1, 2 };
+  const char *devs[3] = { "deva", "devb", "devc" }; 
 
+  ASSERT_EQ(nullptr, event_registry_list);
+  EXPECT_NE(nullptr, register_event(conn_sockets[2], 0, FPGA_EVENT_INTERRUPT, devs[2]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], 0, FPGA_EVENT_INTERRUPT, devs[1]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[0], 0, FPGA_EVENT_INTERRUPT, devs[0]));
+  // The list contains 0, 1, 2.
+ 
+  struct fpga_err err = {
+    .socket = -1,
+    .sysfsfile = "sysfsfile",
+    .reg_field = "reg_field",
+    .lowbit = 0,
+    .highbit = 1,
+    .occurred = true,
+    .callback = nullptr
+  };
+
+  for_each_registered_event(test_event_registry_callback, &err);
+
+  EXPECT_STREQ(callback_devs[0], devs[0]);
+  EXPECT_STREQ(callback_devs[1], devs[1]);
+  EXPECT_STREQ(callback_devs[2], devs[2]);
+
+  callback_devs[0] =
+  callback_devs[1] =
+  callback_devs[2] = nullptr;
+}
 
 INSTANTIATE_TEST_CASE_P(fpgad_srv_c, fpgad_srv_c_p,
                         ::testing::ValuesIn(test_platform::keys()));
