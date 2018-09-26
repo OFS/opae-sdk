@@ -160,9 +160,8 @@ add_mock_test(test_opae_error_c opae-c-static
 
 add_mock_test(test_opae_event_c opae-c-static
     opae-c/test_event_c.cpp
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+target_link_libraries(test_opae_event_c fpgad-static safestr)
 
 add_mock_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
@@ -272,9 +271,8 @@ add_mock_test(test_xfpga_manage_c xfpga-static
 add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+target_link_libraries(test_xfpga_events_c fpgad-static safestr)
 
 ############################################################################
 # fpgad tests ##############################################################
