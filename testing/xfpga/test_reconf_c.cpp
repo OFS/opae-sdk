@@ -34,6 +34,11 @@
 #include "xfpga.h"
 #include "intel-fpga.h"
 
+extern "C" {
+fpga_result open_accel(fpga_handle handle, fpga_handle *accel);
+fpga_result clear_port_errors(fpga_handle handle);
+}
+
 using namespace opae::testing;
 
 class reconf_c
@@ -132,6 +137,14 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
   // Valid power threshold
   result = set_fpga_pwr_threshold(handle_, 60);
   EXPECT_EQ(result, FPGA_OK);
+
+  // Invalid token within handle
+  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
+
+  handle->token = NULL;
+
+  result = set_fpga_pwr_threshold(handle_, 60);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 /**
@@ -141,7 +154,7 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
 *          to reconfigure fpga. Returns error code if
 *          bitstream, handle, or parameters are invalid.
 */
-TEST_P(reconf_c, validate_bitstream) {
+TEST_P(reconf_c, fpga_reconf_slot) {
   fpga_result result;
   uint8_t bitstream_empty[] = "";
   uint8_t bitstream_valid[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
@@ -203,17 +216,101 @@ TEST_P(reconf_c, validate_bitstream) {
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_OK);
 
+  // Invalid handle file descriptor
+  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
+  uint32_t fddev = handle->fddev;
+
+  handle->fddev = -1;
+
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk,
+                                     bitstream_valid_len, flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  handle->fddev = fddev;
+
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1,EINVAL>);
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // register an ioctl handler that will return -1 and set errno to ENOTSUP
   system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1,ENOTSUP>);
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_EXCEPTION);
+}
+
+/**
+* @test    open_accel
+* @brief   Tests: open_accel
+* @details Returns FPGA_OK if handle is valid and
+*          the accelerator can be opened.
+*/
+TEST_P(reconf_c, open_accel) {
+  fpga_result result;
+  fpga_handle accel;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Null handle
+  result = open_accel(NULL, &accel);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  // Valid handle
+  result = open_accel(handle_, &accel);
+  EXPECT_EQ(result, FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaClose(accel), FPGA_OK);
+
+  // Invalid object type
+  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
+  struct _fpga_token *token = (struct _fpga_token *)&handle->token;
+
+  handle->token = NULL;
+
+  result = open_accel(handle_, &accel);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  handle->token = token;
+
+  fpga_properties filter_accel;
+  std::array<fpga_token, 2> tokens_accel = {};
+  fpga_handle handle_accel;
+  uint32_t num_matches_accel;
+  uint32_t i;
+
+  ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel, FPGA_ACCELERATOR), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel, 1, tokens_accel.data(),
+            tokens_accel.size(), &num_matches_accel), FPGA_OK);
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_accel[0], &handle_accel, 0));
+
+  result = open_accel(handle_, &accel);
+  EXPECT_EQ(result, FPGA_BUSY);
+
+  EXPECT_EQ(xfpga_fpgaClose(handle_accel), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&filter_accel), FPGA_OK);
+
+  for (auto t : tokens_accel) {
+    if (t != nullptr) {
+      EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+    }
+  }
+}
+
+/**
+* @test    clear_port_errors
+* @brief   Tests: clear_port_errors
+* @details Returns FPGA_OK if handle is valid and
+*          can clear port errors.
+*/
+TEST_P(reconf_c, clear_port_errors) {
+  fpga_result result;
+
+  // Null handle
+  result = clear_port_errors(NULL);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c, ::testing::ValuesIn(test_platform::keys(true)));
