@@ -1,5 +1,0 @@
-cci-if contains structures and functions that describe and operate on a
-variety of CCI versions.
-
-Over time, variations of these modules may become part of the standard
-CCI release.
