@@ -110,6 +110,7 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     }
     system_->finalize();
     fpgad_.join();
+    close_log();
   }
 
   std::string tmpfpgad_log_;
