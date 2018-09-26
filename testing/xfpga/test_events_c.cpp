@@ -408,46 +408,6 @@ TEST_P(events_p, irq_event_01) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
 
-/*t       irq_event_02
- *
- * @brief      Given a driver with IRQ support<br>
- *             when fpgaRegisterEvent is called for<br>
- *             an FPGA_DEVICE and FPGA_EVENT_ERROR<br>
- *             then the call is successful and<br>
- *             we can receive interrupt events on<br>
- *             the OS-specific object from the event handle.<br>
- *
- */
-TEST_P(events_p, irq_event_02) {
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0));
-
-  int res;
-  int fd = -1;
-
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
-  EXPECT_GE(fd, 0);
-
-  struct pollfd poll_fd;
-  int maxpolls = 100;
-
-  poll_fd.fd      = fd;
-  poll_fd.events  = POLLIN | POLLPRI;
-  poll_fd.revents = 0;
-
-  do
-  {
-    res = poll(&poll_fd, 1, 1000);
-    ASSERT_GE(res, 0);
-    --maxpolls;
-    ASSERT_GT(maxpolls, 0);
-  } while(res == 0);
-
-  EXPECT_EQ(res, 1);
-  EXPECT_NE(poll_fd.revents, 0);
-
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_));
-}
-
 /*
  * @test       event_01
  *
