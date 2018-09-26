@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,42 +24,62 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_LOG_H__
-#define __FPGAD_LOG_H__
+extern "C" {
 
-#include "opae_int.h"
+#include <json-c/json.h>
+#include <uuid/uuid.h>
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif // _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <string.h>
-#include <errno.h>
+#include "fpgad/log.h"
 
-extern FILE *fLog;
-int open_log(const char *);
-int dlog(const char *, ...);
-void close_log(void);
+}
 
-#define fpgad_mutex_lock(__res, __mtx_ptr)                                     \
-	({                                                                     \
-		(__res) = pthread_mutex_lock(__mtx_ptr);                       \
-		if (__res)                                                     \
-			dlog("pthread_mutex_lock failed: %s",                  \
-				strerror(errno));                              \
-		__res;                                                         \
-	})
+#include <config.h>
+#include <opae/fpga.h>
 
-#define fpgad_mutex_unlock(__res, __mtx_ptr)                                   \
-	({                                                                     \
-		(__res) = pthread_mutex_unlock(__mtx_ptr);                     \
-		if (__res)                                                     \
-			dlog("pthread_mutex_unlock failed: %s",                \
-					strerror(errno));                      \
-		__res;                                                         \
-	})
+#include <array>
+#include <cstdlib>
+#include "gtest/gtest.h"
+#include "test_system.h"
 
-#endif
+using namespace opae::testing;
+
+class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  fpgad_log_c_p()
+      : tmpfpgad_log_("tmpfpgad-XXXXXX.log") {}
+
+  virtual void SetUp() override {
+    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    open_log(tmpfpgad_log_.c_str());
+  }
+
+  virtual void TearDown() override {
+    close_log();
+
+    system_->finalize();
+  }
+
+  std::string tmpfpgad_log_;
+  test_platform platform_;
+  test_system *system_;
+};
+
+/**
+ * @test       log01
+ * @brief      Test: open_log, dlog, close_log
+ * @details    dlog sends the formatted output string to the log file<br>
+ *             and returns the number of bytes written.<br>
+ */
+TEST_P(fpgad_log_c_p, log01) {
+  EXPECT_EQ(3, dlog("abc"));
+}
+
+INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
+                        ::testing::ValuesIn(test_platform::keys()));

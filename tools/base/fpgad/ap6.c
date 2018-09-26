@@ -36,7 +36,7 @@
 #include "config_int.h"
 #include "log.h"
 #include "safe_string/safe_string.h"
-#include "bitstream-tools.h"
+#include "fpgaconf/bitstream-tools.h"
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
