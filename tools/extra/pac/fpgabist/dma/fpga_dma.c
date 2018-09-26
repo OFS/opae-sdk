@@ -612,7 +612,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma_p)
 #endif
 
 	uint64_t offset = dma_h->mmio_offset;
-	dfh_feature_t dfh;
+	dfh_feature_t dfh = { 0 };
 	do {
 		// Read the next feature header
 		res = MMIORead64Blk(dma_h, offset, (uint64_t)&dfh, sizeof(dfh));

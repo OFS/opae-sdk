@@ -251,6 +251,8 @@ static inline void fill_buffer(char *buf, size_t size)
 	if (verify_buf_size < size) {
 		free(verify_buf);
 		verify_buf = (char *)malloc(size);
+		if (!verify_buf)
+			return;
 		verify_buf_size = size;
 		char *buf = verify_buf;
 
@@ -642,7 +644,7 @@ int main(int argc, char *argv[])
 
 	if (use_advise) {
 		int rr = madvise(dma_buf_ptr, count, MADV_SEQUENTIAL);
-		ON_ERR_GOTO((rr == 0) ? FPGA_OK : FPGA_EXCEPTION, out_dma_close,
+		ON_ERR_GOTO((rr == 0) ? FPGA_OK : FPGA_EXCEPTION, out_free_buff,
 			    "Error madvise");
 	}
 
@@ -669,7 +671,7 @@ int main(int argc, char *argv[])
 	res = fpgaDmaTransferSync(dma_h, 0x0 /*dst */,
 				  (uint64_t)dma_buf_ptr /*src */, count,
 				  HOST_TO_FPGA_MM);
-	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync HOST_TO_FPGA_MM");
+	ON_ERR_GOTO(res, out_free_buff, "fpgaDmaTransferSync HOST_TO_FPGA_MM");
 	clear_buffer((char *)dma_buf_ptr, count);
 
 #ifdef CHECK_DELAYS
@@ -681,7 +683,7 @@ int main(int argc, char *argv[])
 	// copy from fpga to host
 	res = fpgaDmaTransferSync(dma_h, (uint64_t)dma_buf_ptr /*dst */,
 				  0x0 /*src */, count, FPGA_TO_HOST_MM);
-	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
+	ON_ERR_GOTO(res, out_free_buff, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
 
 #ifdef CHECK_DELAYS
 	printf("F->H size 0x%lx, %s\n", count, showDelays(cbuf));
@@ -690,14 +692,14 @@ int main(int argc, char *argv[])
 #endif
 
 	res = verify_buffer((char *)dma_buf_ptr, count);
-	ON_ERR_GOTO(res, out_dma_close, "verify_buffer");
+	ON_ERR_GOTO(res, out_free_buff, "verify_buffer");
 
 	clear_buffer((char *)dma_buf_ptr, count);
 
 	// copy from fpga to fpga
 	res = fpgaDmaTransferSync(dma_h, count /*dst */, 0x0 /*src */, count,
 				  FPGA_TO_FPGA_MM);
-	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_FPGA_MM");
+	ON_ERR_GOTO(res, out_free_buff, "fpgaDmaTransferSync FPGA_TO_FPGA_MM");
 
 #ifdef CHECK_DELAYS
 	printf("F->F size 0x%lx, %s\n", count, showDelays(cbuf));
@@ -708,7 +710,7 @@ int main(int argc, char *argv[])
 	// copy from fpga to host
 	res = fpgaDmaTransferSync(dma_h, (uint64_t)dma_buf_ptr /*dst */,
 				  count /*src */, count, FPGA_TO_HOST_MM);
-	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
+	ON_ERR_GOTO(res, out_free_buff, "fpgaDmaTransferSync FPGA_TO_HOST_MM");
 
 #ifdef CHECK_DELAYS
 	printf("F->H size 0x%lx, %s\n", count, showDelays(cbuf));
@@ -717,7 +719,7 @@ int main(int argc, char *argv[])
 #endif
 
 	res = verify_buffer((char *)dma_buf_ptr, count);
-	ON_ERR_GOTO(res, out_dma_close, "verify_buffer");
+	ON_ERR_GOTO(res, out_free_buff, "verify_buffer");
 
 	if (!use_ase) {
 		printf("Running DDR sweep test\n");
@@ -729,13 +731,15 @@ int main(int argc, char *argv[])
 		res |= ddr_sweep(dma_h, 0, 3);
 		res |= ddr_sweep(dma_h, 0, 61);
 		res |= ddr_sweep(dma_h, 0, 7);
-		ON_ERR_GOTO(res, out_dma_close, "ddr_sweep");
+		ON_ERR_GOTO(res, out_free_buff, "ddr_sweep");
 	}
 
 	free(verify_buf);
 
-out_dma_close:
+out_free_buff:
 	free_aligned(dma_buf_ptr);
+
+out_dma_close:
 	if (dma_h)
 		res = fpgaDmaClose(dma_h);
 	ON_ERR_GOTO(res, out_unmap, "fpgaDmaClose");

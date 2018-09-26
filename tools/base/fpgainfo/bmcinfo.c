@@ -230,11 +230,13 @@ static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 	sdr_fd = open(sdr_path, O_RDONLY);
 	if (sdr_fd < 0) {
 		FPGA_MSG("open(%s) failed", sdr_path);
+		close(sensor_fd);
 		return;
 	}
 
 	if ((off_t)-1 == lseek(sdr_fd, 0, SEEK_SET)) {
 		FPGA_MSG("seek failed");
+		close(sensor_fd);
 		close(sdr_fd);
 		return;
 	}
@@ -318,6 +320,8 @@ static void bmc_read_sensor_data(const char *sysfspath, Values **vals)
 
 		bmc_print_detail(reading, header, key, body);
 	}
+	close(sensor_fd);
+	close(sdr_fd);
 }
 
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
@@ -364,6 +368,10 @@ fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type)
 		//       vptr->raw_value, vptr->M, vptr->B, vptr->result_exp,
 		//       vptr->accuracy, vptr->tolerance);
 		printf("\n");
+	}
+
+	if (vals) {
+		free(vals);
 	}
 
 	return res;
@@ -564,6 +572,9 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 		if (verbose_opt) {
 			bmcdata_verbose = verbose_opt;
 			bmc_read_sensor_data(sysfs_path, &vals);
+			if (vals) {
+				free(vals);
+			}
 			bmcdata_verbose = tmp;
 		} else {
 			bmc_print_values(sysfs_path, BMC_SENSORS);

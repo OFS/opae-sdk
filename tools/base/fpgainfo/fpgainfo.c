@@ -104,7 +104,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		fpgainfo_print_err("reading objtype from properties", res);
 
 		if (pprops != props) {
-			res = fpgaDestroyProperties(pprops);
+			res = fpgaDestroyProperties(&pprops);
 			fpgainfo_print_err("destroying parent properties", res);
 			pprops = props;
 		}
@@ -158,6 +158,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	if (has_parent) {
 		print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
 	}
+
+	res = fpgaDestroyProperties(&pprops);
+	fpgainfo_print_err("destroying parent properties", res);
 
 	printf("%s\n", hdr);
 	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);

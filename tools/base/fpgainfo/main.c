@@ -211,6 +211,8 @@ int main(int argc, char *argv[])
 
 	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
+		ret_value = fpgaDestroyProperties(&filter);
+		fpgainfo_print_err("destroying filter", res);
 		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
 
@@ -255,6 +257,8 @@ out_destroy:
 		ret_value = EX_SOFTWARE;
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "destroying properties object");
+
+	free(tokens);
 out_err:
 	return ret_value;
 }
