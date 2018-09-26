@@ -40,6 +40,7 @@ extern "C" {
 
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <string>
@@ -473,7 +474,8 @@ TEST_P(enum_c_p, no_token_magic) {
 
 TEST_P(enum_c_p, destroy_token) {
   opae_wrapped_token *dummy = new opae_wrapped_token;
-  EXPECT_EQ(fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
+  memset(dummy, 0, sizeof(opae_wrapped_token));
+  EXPECT_EQ(fpgaDestroyToken((fpga_token *)&dummy), FPGA_INVALID_PARAM);
   delete dummy;
   EXPECT_EQ(fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
 }
