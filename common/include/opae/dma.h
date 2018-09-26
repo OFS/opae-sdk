@@ -41,25 +41,29 @@
 extern "C" {
 #endif
 
-  fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_handle *dma_handle, uint64_t dma_channel);
+	fpga_result fpgaDmaEnumerateChannels(fpga_handle fpga, fpga_dma_channel_desc *descriptors, uint32_t *num_descriptors);
 
-  fpga_result fpgaDmaTransferSync(fpga_dma_handle handle, fpga_dma_transfer dma_transfer);
+	fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_handle *dma_handle, uint64_t dma_channel_idx);
 
-  fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma_handle, fpga_dma_transfer dma_transfer, int *fd);
+	fpga_result fpgaDmaTransferSync(fpga_dma_handle handle, const fpga_dma_transfer dma_transfer);
 
-  fpga_result fpgaDmaClose(fpga_dma_handle dma_handle);
+	fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma_handle, const fpga_dma_transfer dma_transfer, int *fd);
 
-  fpga_result fpgaDMATransferInit(fpga_dma_transfer *dma_transfer);
+	fpga_result fpgaDmaClose(fpga_dma_handle dma_handle);
 
-  fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
+	fpga_result fpgaDMATransferInit(fpga_dma_transfer *dma_transfer);
 
-  fpga_result fpgaDMATransferPoll(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
+	fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
 
-  fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer, fpga_dma_transfer_cb cb, void* ctxt);
+	fpga_result fpgaDMAPoll(fpga_dma_transfer dma_transfer, size_t *rx_bytes);
 
-  fpga_result fpgaDMATransferSetTxControl(fpga_dma_transfer dma_transfer, fpga_dma_tx_ctrl tx_ctrl);
+	fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer, fpga_dma_transfer_cb cb, void* ctxt);
 
-  fpga_result fpgaDMATransferSetRxControl(fpga_dma_transfer transfer, fpga_dma_rx_ctrl rx_ctrl);
+	fpga_result fpgaDMATransferSetTxControl(fpga_dma_transfer dma_transfer, fpga_dma_tx_ctrl tx_ctrl);
+
+	fpga_result fpgaDMATransferSetRxControl(fpga_dma_transfer transfer, fpga_dma_rx_ctrl rx_ctrl);
+
+	fpga_result fpgaDMATransferCheckEopArrived(fpga_dma_transfer transfer, bool *eop_arrived);
 
 #ifdef __cplusplus
 }
