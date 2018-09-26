@@ -407,16 +407,19 @@ TEST_P(error_c_p, error_06) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d FME error registers\n", n);
 
-  //EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, 0));
-  auto ret = delete_errors("fme","errors");
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
+  struct error_list *p = fake_fme_token_.errors;
+  if (p->info.can_clear){
+    auto ret = delete_errors("fme","errors");
+    EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
 
-  fake_fme_token_.errors = nullptr;
-  build_error_list(errpath.c_str(), &fake_fme_token_.errors);
-  ret = delete_errors("fme","clear");
-  if (ret){ 
-    EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(t, 0));
+    fake_fme_token_.errors = nullptr;
+    build_error_list(errpath.c_str(), &fake_fme_token_.errors);
+    ret = delete_errors("fme","clear");
+    if (ret){ 
+      EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(t, 0));
+    }
   }
+ 
 }
 
 /**
