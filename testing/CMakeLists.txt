@@ -161,6 +161,10 @@ add_mock_test(test_opae_usrclk_c opae-c-static
     opae-c/test_usrclk_c.cpp
 )
 
+add_mock_test(test_opae_init_c opae-c-static
+    opae-c/test_init_c.cpp
+)
+
 add_mock_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
