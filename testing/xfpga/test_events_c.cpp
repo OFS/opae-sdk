@@ -58,7 +58,10 @@ fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_han
 #include <opae/properties.h>
 #include <opae/access.h>
 #include <linux/ioctl.h>
+#include <poll.h>
 
+#define SYSFS_PATH_MAX 256
+enum base {HEX, DEC};
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
@@ -185,6 +188,8 @@ out_EINVAL:
 }
 
 class events_p : public ::testing::TestWithParam<std::string> {
+ public:
+    fpga_result sysfs_write_64(const char*, uint64_t, base);
  protected:
   events_p()
       : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
@@ -201,6 +206,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+    
 
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
@@ -276,6 +282,70 @@ class events_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle eh_;
 };
 
+fpga_result events_p::sysfs_write_64(const char* path, uint64_t u, base B)
+{
+  int res = 0;
+  char buf[SYSFS_PATH_MAX] = {0};
+  int b = 0;
+  fpga_result retval = FPGA_OK;
+  size_t len;
+
+  int fd = open(path, O_WRONLY|O_TRUNC);
+
+  if (fd < 0) {
+    printf("open: %s", strerror(errno));
+    retval = FPGA_NOT_FOUND;
+    goto out_close;
+  }
+
+  if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+    printf("seek: %s", strerror(errno));
+    retval = FPGA_NOT_FOUND;
+    goto out_close;
+  }
+
+  switch (B) {
+    // write hex value
+    case HEX:
+      snprintf(buf, sizeof(buf), "0x%lx\n", u);
+      break;
+
+    // write dec value
+    case DEC:
+      snprintf(buf, sizeof(buf), "%ld\n", u);
+      break;
+  }
+
+  len = strlen(buf);
+
+  do {
+    res = write(fd, buf + b, len - b);
+
+    if (res <= 0) {
+      printf("Failed to write");
+      retval = FPGA_NOT_FOUND;
+      goto out_close;
+    }
+
+    b += res;
+
+    if (b > len || b <= 0) {
+      printf("Unexpected size writing to %s", path);
+      retval = FPGA_NOT_FOUND;
+      goto out_close;
+    }
+
+  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < len);
+
+  retval = FPGA_OK;
+  goto out_close;
+
+out_close:
+  if (close(fd) < 0) {
+    perror("close");
+  }
+  return retval;
+}
 
 TEST_P(events_p, register_event) {
   fpga_result res;
@@ -293,7 +363,92 @@ TEST_P(events_p, register_event) {
       << "\tRESULT: " << fpgaErrStr(res);
 }
 
+
+
+
 /**
+ * @test       irq_event_01
+ *
+ * @brief      
+ *
+ */
+TEST_P(events_p, irq_event_01) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
+  uint64_t error_csr = 1UL << 50; //Ap6Event
+  int res;
+  int fd = -1;
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  // Write to error file
+  std::string path = sysfs_port + "/errors/errors";
+
+  // Write to the mock sysfs node to generate the event.
+  ASSERT_EQ(FPGA_OK, sysfs_write_64(path.c_str(), error_csr, HEX));
+
+  poll_fd.fd = fd;
+  poll_fd.events = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  ASSERT_EQ(FPGA_OK, sysfs_write_64(path.c_str(), 0, DEC));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_));
+}
+
+/*t       irq_event_02
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_DEVICE and FPGA_EVENT_ERROR<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_P(events_p, irq_event_02) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_));
+}
+
+/*
  * @test       event_01
  *
  * @brief      When the fpga_event_handle pointer to
