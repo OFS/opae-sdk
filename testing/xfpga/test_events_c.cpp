@@ -208,11 +208,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
 
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
@@ -932,7 +927,7 @@ TEST_P(events_p, fme_driver_unregister_event){
  * 
  * @brief      
  */
-TEST_P(events_p, create_destory_invalid) {
+TEST_P(events_p, create_destroy_invalid) {
   // fail malloc to check edge case
   EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
   test_system::instance()->invalidate_malloc();
