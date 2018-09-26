@@ -60,8 +60,6 @@ fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_han
 #include <linux/ioctl.h>
 #include <poll.h>
 
-#define SYSFS_PATH_MAX 256
-enum base {HEX, DEC};
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
@@ -188,8 +186,6 @@ out_EINVAL:
 }
 
 class events_p : public ::testing::TestWithParam<std::string> {
- public:
-    fpga_result sysfs_write_64(const char*, uint64_t, base);
  protected:
   events_p()
       : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
@@ -282,71 +278,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle eh_;
 };
 
-fpga_result events_p::sysfs_write_64(const char* path, uint64_t u, base B)
-{
-  int res = 0;
-  char buf[SYSFS_PATH_MAX] = {0};
-  int b = 0;
-  fpga_result retval = FPGA_OK;
-  size_t len;
-
-  int fd = open(path, O_WRONLY|O_TRUNC);
-
-  if (fd < 0) {
-    printf("open: %s", strerror(errno));
-    retval = FPGA_NOT_FOUND;
-    goto out_close;
-  }
-
-  if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-    printf("seek: %s", strerror(errno));
-    retval = FPGA_NOT_FOUND;
-    goto out_close;
-  }
-
-  switch (B) {
-    // write hex value
-    case HEX:
-      snprintf(buf, sizeof(buf), "0x%lx\n", u);
-      break;
-
-    // write dec value
-    case DEC:
-      snprintf(buf, sizeof(buf), "%ld\n", u);
-      break;
-  }
-
-  len = strlen(buf);
-
-  do {
-    res = write(fd, buf + b, len - b);
-
-    if (res <= 0) {
-      printf("Failed to write");
-      retval = FPGA_NOT_FOUND;
-      goto out_close;
-    }
-
-    b += res;
-
-    if (b > len || b <= 0) {
-      printf("Unexpected size writing to %s", path);
-      retval = FPGA_NOT_FOUND;
-      goto out_close;
-    }
-
-  } while (buf[b - 1] != '\n' && buf[b - 1] != '\0' && b < len);
-
-  retval = FPGA_OK;
-  goto out_close;
-
-out_close:
-  if (close(fd) < 0) {
-    perror("close");
-  }
-  return retval;
-}
-
 TEST_P(events_p, register_event) {
   fpga_result res;
 
@@ -362,9 +293,6 @@ TEST_P(events_p, register_event) {
             FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 }
-
-
-
 
 /**
  * @test       irq_event_01
@@ -387,7 +315,7 @@ TEST_P(events_p, irq_event_01) {
   std::string path = sysfs_port + "/errors/errors";
 
   // Write to the mock sysfs node to generate the event.
-  ASSERT_EQ(FPGA_OK, sysfs_write_64(path.c_str(), error_csr, HEX));
+  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
 
   poll_fd.fd = fd;
   poll_fd.events = POLLIN | POLLPRI;
@@ -404,7 +332,8 @@ TEST_P(events_p, irq_event_01) {
   EXPECT_EQ(res, 1);
   EXPECT_NE(poll_fd.revents, 0);
 
-  ASSERT_EQ(FPGA_OK, sysfs_write_64(path.c_str(), 0, DEC));
+  error_csr = 0x0;
+  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
 
@@ -432,7 +361,6 @@ TEST(events, event_01) {
 TEST(events, event_02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaDestroyEventHandle(NULL));
 }
-
 
 /**
  * @test       event_03
