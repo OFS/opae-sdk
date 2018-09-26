@@ -1418,7 +1418,7 @@ fpga_result fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
-	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaSetUserClock,
 			       FPGA_NOT_SUPPORTED);
 
@@ -1433,7 +1433,7 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
-	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(low_clk);
 	ASSERT_NOT_NULL(high_clk);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetUserClock,
