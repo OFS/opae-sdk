@@ -288,7 +288,7 @@ void *bmc_thermal_thread(void *thread_context)
 		}
 
 		dlog("pacd[%d]:\tSensor %3d '%-20s': UNR %7s:%7s, LNR %7s:%7s\n",
-		     ctx.c->PAC_index, snum, ctx.sensor_names[tnum], ut, ur, lt,
+		     ctx.c->PAC_index, snum, ctx.sensor_names[snum], ut, ur, lt,
 		     lr);
 	}
 

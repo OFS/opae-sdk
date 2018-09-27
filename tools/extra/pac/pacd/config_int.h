@@ -38,7 +38,7 @@
 #define DISABLE_THRESHOLD 20
 
 // Wait interval when no driver installed - 30 seconds
-#define PACD_WAIT_FOR_CARD (0)
+#define PACD_WAIT_FOR_CARD (30)
 
 // Constant adjustment for thermal trigger (added)
 #define PACD_THERMAL_INCREMENT (5.0)

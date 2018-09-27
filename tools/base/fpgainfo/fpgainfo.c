@@ -159,9 +159,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
 	}
 
-	res = fpgaDestroyProperties(&pprops);
-	fpgainfo_print_err("destroying parent properties", res);
-
 	printf("%s\n", hdr);
 	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);
 	printf("%-29s : %04X:%02X:%02X:%01X\n", "PCIe s:b:d:f", segment, bus,
