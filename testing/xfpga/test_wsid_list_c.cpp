@@ -34,7 +34,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
+#include <random>
 #include <chrono>
 #include <thread>
 #include "gtest/gtest.h"

@@ -65,7 +65,7 @@ static platform_data platform_data_table[] = {
 
 static int initialized;
 
-static opae_api_adapter_table *adapter_list = (void *)0;
+STATIC opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
