@@ -41,9 +41,9 @@
 extern "C" {
 #endif
 
-fpga_result fpgaDmaEnumerateChannels(fpga_handle fpga, fpga_dma_channel_desc *descriptors, uint32_t *num_descriptors);
+fpga_result fpgaDmaEnumerateChannels(fpga_handle fpga, fpga_dma_token *dma_tokens, uint32_t *num_tokens);
 
-fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_channel_handle *dma_channel_handle, uint64_t dma_channel_idx);
+fpga_result fpgaDmaOpen(fpga_handle* handle, fpga_dma_channel_handle *dma_channel_handle, fpga_dma_token* token);
 
 fpga_result fpgaDmaTransferSync(fpga_dma_channel_handle handle, const fpga_dma_transfer dma_transfer);
 

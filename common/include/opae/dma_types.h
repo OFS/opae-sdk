@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,10 +36,7 @@ extern "C" {
 // Callback for asynchronous DMA transfers
 typedef void (*fpga_dma_transfer_cb)(void *context);
 
-// Callback for asynchronous DMA transfers
-typedef void (*fpga_dma_transfer_cb)(void *context);
-
-// Supported Streaming DMA transfers
+// DMA transfer type
 typedef enum {
 	HOST_MM_TO_FPGA_ST = 0, // host to AFU sreaming
 	FPGA_ST_TO_HOST_MM,     // AFU to host streaming
@@ -51,6 +48,20 @@ typedef enum {
 	TERMINATE_THREAD,	// Cause the thread to exit
 	FPGA_MAX_TRANSFER_TYPE
 } fpga_dma_transfer_type;
+
+// DMA transfer status
+typedef enum {
+	TRANSFER_IN_PROGRESS = 0,
+	TRANSFER_NOT_IN_PROGRESS = 1
+} fpga_dma_transfer_status;
+
+
+// DMA channel type
+typedef enum {
+	TX_ST = 0,
+	RX_ST,
+	MM
+} fpga_dma_channel_type;
 
 // Supported TX control values
 typedef enum {
@@ -71,8 +82,11 @@ typedef enum {
 // Opaque object that describes a DMA transfer
 typedef void *fpga_dma_transfer;
 
-// Opaque object that describes DMA channel
+// Opaque object that describes DMA channel handle
 typedef void *fpga_dma_channel_handle;
+
+// Opaque object that describes a DMA channel token
+typedef void *fpga_dma_token;
 
 #ifdef __cplusplus
 }
