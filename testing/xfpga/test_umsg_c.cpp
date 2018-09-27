@@ -171,7 +171,6 @@ class umsg_c_p
     }
 
     if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
     system_->finalize();
   }
 
