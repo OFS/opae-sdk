@@ -65,6 +65,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
 	int is_accelerator = 0;
+	bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -91,7 +92,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpgainfo_print_err("reading objtype from properties", res);
 
 	if (objtype != FPGA_DEVICE) {
-		res = fpgaPropertiesGetGUID(pprops, &port_guid);
+		res = fpgaPropertiesGetGUID(props, &port_guid);
 		fpgainfo_print_err("reading guid from properties", res);
 		is_accelerator = 1;
 	}
@@ -99,6 +100,10 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	// Go up the tree until we find the device
 	while (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetParent(pprops, &par);
+		if (FPGA_NOT_FOUND == res) {
+			has_parent = false;
+			break;
+		}
 		fpgainfo_print_err("reading objtype from properties", res);
 
 		if (pprops != props) {
@@ -148,7 +153,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		pprops = props;
 	}
 
-	print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
+	if (has_parent) {
+		print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
+	}
 
 	printf("%s\n", hdr);
 	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);

@@ -381,6 +381,10 @@ void print_bmc_info(const char *sysfspath)
 	glob_t pglob;
 	int gres = 0;
 
+	if (!sysfspath) {
+		return;
+	}
+
 	off = 0;
 	fd = -1;
 	printf("Board Management Controller, microcontroller FW version ");
