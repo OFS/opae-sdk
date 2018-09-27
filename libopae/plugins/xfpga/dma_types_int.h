@@ -33,6 +33,7 @@
 
 #include <opae/fpga.h>
 #include "dma_types.h"
+#include "scatterlist.h"
 
 #define QWORD_BYTES 8
 #define DWORD_BYTES 4
@@ -42,70 +43,64 @@
 // BBB Feature ID (refer CCI-P spec)
 #define FPGA_DMA_BBB 0x2
 
-// Reuse following values
-#define FPGA_DMA_CSR_BUSY          (1<<0)
-#define FPGA_DMA_DESC_BUFFER_EMPTY 0x2
-#define FPGA_DMA_DESC_BUFFER_FULL  0x4
-
-// Alignment byte sizes
-#define FPGA_DMA_ALIGN_BYTES 64
-#define CACHE_LINE_SIZE 64
-
 // DMA transfer
 struct _fpga_dma_transfer {
+	fpga_dma_transfer_type type;
 	uint64_t	       src;
 	uint64_t	       dst;
 	uint64_t	       len;
-	fpga_dma_transfer_type type;
 	fpga_dma_tx_ctrl       tx_ctrl;
 	fpga_dma_rx_ctrl       rx_ctrl;
-	fpga_dma_transfer_cb   cb;
+
+	struct scatterlist*    sg_list;
+	fpga_dma_transfer_cb   dma_transfer_cb;
+	void		       *completion_context;
+
 	bool		       eop_status;
-	void		       *context;
 	size_t		       rx_bytes;
 	pthread_mutex_t	       tf_mutex;
 	sem_t		       tf_status;
 };
 
-typedef struct _dma_channel_desc {
+typedef struct _dma_csr_desc {
 	uint32_t               mmio_num;
 	uint64_t               mmio_offset;
 	uint64_t               mmio_va;
 	uint64_t               dma_base;
 	uint64_t               dma_csr_base;
 	uint64_t               dma_desc_base;
-};
-
-// DMA channel capabilities
-struct _fpga_dma_token {
-	fpga_token	       parent_token;
-	_dma_channel_desc      desc;
-	uint32_t	       index;
-	fpga_dma_channel_type  type;
-	int		       ring_size;
-	int		       max_sg_buffer_size;
-	int		       dma_alignment;
-	bool		       sg_support;
-	bool		       interrupts_support;
-	bool		       streaming_support;
 	uint64_t	       dma_ase_cntl_base;
 	uint64_t	       dma_ase_data_base;
 };
 
+// DMA channel token
+struct _fpga_dma_token {
+	uint64_t	      magic;
+	fpga_token	      parent_token;
+	fpga_dma_channel_type type;
+	_dma_csr_desc         csr_desc;
+	int		      ring_size;
+	int		      max_sg_buffer_size;
+	int		      dma_alignment;
+	bool		      sg_support;
+	bool		      interrupts_support;
+	bool		      streaming_support;
+	uint64_t	      desc_location;
+};
+
 // DMA handle
-struct fpga_dma_buffer {
-	void     *dma_buf_ptr;
-	uint64_t dma_buf_wsid;
-	uint64_t dma_buf_iova;
+struct fpga_dma_pinned_buffer {
+	void                   *dma_buf_ptr;
+	uint64_t               dma_buf_wsid;
+	uint64_t               dma_buf_iova;
 };
 
 struct _fpga_dma_channel_handle {
-	_fpga_dma_token	  token;
-	uint64_t	  cur_ase_page;
-	fpga_event_handle eh;
-	fpga_dma_buffer	  *buffer;
-	pthread_t	  thread_id;
-	qinfo_t		  qinfo;
+	_fpga_dma_token	       token;
+	fpga_event_handle      eh;
+	fpga_dma_pinned_buffer *buffer_pool;
+	pthread_t	       thread_id;
+	qinfo_t		       qinfo;
 };
 
 #endif //__FPGA__DMA_TYPES_INTERNAL_H__
