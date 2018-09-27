@@ -42,6 +42,7 @@ extern "C" {
 #include <sys/mman.h>
 #include <opae/buffer.h>
 #include <opae/mmio.h>
+#include <string>
 #include "safe_string/safe_string.h"
 
 #define PROTECTION (PROT_READ | PROT_WRITE)
@@ -163,7 +164,7 @@ class buffer_prepare
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for (auto t : tokens_){
+    for (auto &t : tokens_){
         if (t) {
             EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
         }
@@ -193,7 +194,6 @@ TEST(buffer, test_buffer_allocate){
   EXPECT_EQ(res, FPGA_INVALID_PARAM); 
 }
 
-
 /**
  * @test       PrepPre2MB01
  *
@@ -203,39 +203,24 @@ TEST(buffer, test_buffer_allocate){
  *             release a shared memory buffer.
  *
  */
-//TEST(buffer, PrepPre2MB01) {
-//  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-//  const std::string dev_port = "/dev/intel-fpga-port.0";
-//  struct _fpga_token _tok;
-//  fpga_token tok = &_tok;
-//  fpga_handle h;
-//  uint64_t buf_len;
-//  uint64_t* buf_addr;
-//  uint64_t wsid = 1;
-//
-//  // Open port device
-//  strncpy_s(_tok.sysfspath,sizeof(_tok.sysfspath),sysfs_port.c_str(),sysfs_port.size());
-//  strncpy_s(_tok.devpath,sizeof(_tok.devpath),dev_port.c_str(),dev_port.size());
-//  _tok.magic = FPGA_TOKEN_MAGIC;
-//  _tok.errors = nullptr;
-//
-//  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
-//
-//  // Allocate buffer in MB range
-//  buf_len = 2 * 1024 * 1024;
-//  buf_addr = (uint64_t*)mmap(ADDR, buf_len, PROTECTION, FLAGS_2M, 0, 0);
-//  EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(h, buf_len, (void**)&buf_addr, &wsid,
-//                                       FPGA_BUF_PREALLOCATED));
-//
-//  // Release buffer in MB range
-//  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(h, wsid));
-//
-//  // buf_addr was preallocated, do not touch it
-//  ASSERT_NE(buf_addr, (void*)NULL);
-//  munmap(buf_addr, buf_len);
-//  ASSERT_EQ(FPGA_OK, fpgaClose(h));
-//}
+TEST_P(buffer_prepare, PrepPre2MB01) {
+  uint64_t buf_len;
+  uint64_t* buf_addr;
+  uint64_t wsid = 1;
 
+  // Allocate buffer in MB range
+  buf_len = 2 * 1024 * 1024;
+  buf_addr = (uint64_t*)mmap(ADDR, buf_len, PROTECTION, FLAGS_2M, 0, 0);
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**)&buf_addr, &wsid,
+                                       FPGA_BUF_PREALLOCATED));
+
+  // Release buffer in MB range
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
+
+  // buf_addr was preallocated, do not touch it
+  ASSERT_NE(buf_addr, (void*)NULL);
+  munmap(buf_addr, buf_len);
+}
 
 TEST_P(buffer_prepare, prepare_buf_err) {
   uint64_t buf_len = 1024;
@@ -303,18 +288,6 @@ TEST_P(buffer_prepare, xfpga_fpgaPrepareBuffer) {
         << "result is " << fpgaErrStr(res);
   }
 }
-
-//TEST_P(buffer_prepare, allocate_buf) {
-//  void *buf_addr = 0;
-//  uint64_t wsid = 0;
-//  uint64_t ioaddr = 0;
-//  uint64_t buf_len = KiB(4);
-//  void *preallocate = new char[KiB(1)];
-//  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len-1, &preallocate, &wsid, FPGA_BUF_PREALLOCATED);
-//  EXPECT_EQ(res, FPGA_OK);
-//
-//  delete[] preallocate;
-//}
 
 TEST_P(buffer_prepare, port_dma_unmap) {
   void *buf_addr = 0;
