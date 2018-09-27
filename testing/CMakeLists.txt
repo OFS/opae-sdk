@@ -66,7 +66,6 @@ add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/sysfs.c
     )
 
 target_include_directories(fpgad-static PUBLIC
@@ -284,6 +283,10 @@ add_mock_test(test_fpgad_log_c fpgad-static
 
 add_mock_test(test_fpgad_srv_c fpgad-static
     fpgad/test_srv_c.cpp
+)
+
+add_mock_test(test_fpgad_evt_c fpgad-static
+    fpgad/test_evt_c.cpp
 )
 
 add_custom_command(TARGET test_unit

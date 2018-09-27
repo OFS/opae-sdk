@@ -30,7 +30,7 @@ include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/base
 		    ${OPAE_SDK_SOURCE}/libopae)
 
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
+set(SRC fpgad.c daemonize.c log.c errtable.c srv.c evt.c ap6.c ap_event.c)
 add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)
