@@ -50,6 +50,7 @@ void evt_notify_ap6_and_null(const struct fpga_err *e);
 
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <sys/eventfd.h>
 #include <poll.h>
@@ -60,11 +61,11 @@ using namespace opae::testing;
 
 class fpgad_evt_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_evt_c_p()
-      : tmpfpgad_log_("tmpfpgad-XXXXXX.log") {}
+  fpgad_evt_c_p() {}
 
   virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -72,7 +73,7 @@ class fpgad_evt_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    open_log(tmpfpgad_log_.c_str());
+    open_log(tmpfpgad_log_);
     int i;
     for (i = 0 ; i < MAX_SOCKETS ; ++i)
       sem_init(&ap6_sem[i], 0, 0);
@@ -98,10 +99,12 @@ class fpgad_evt_c_p : public ::testing::TestWithParam<std::string> {
       sem_destroy(&ap6_sem[i]);
 
     close_log();
+    close(tmpfpgad_log_fd_);
     system_->finalize();
   }
 
-  std::string tmpfpgad_log_;
+  char tmpfpgad_log_[20];
+  int tmpfpgad_log_fd_;
   test_platform platform_;
   test_system *system_;
 };
@@ -171,4 +174,4 @@ TEST_P(fpgad_evt_c_p, notify_ap6) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_evt_c, fpgad_evt_c_p,
-                        ::testing::ValuesIn(test_platform::keys()));
+                        ::testing::Values(std::string("skx-p-1s")));

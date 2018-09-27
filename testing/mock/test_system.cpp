@@ -230,6 +230,7 @@ test_system *test_system::instance_ = nullptr;
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
+  read_ = (read_func)dlsym(RTLD_NEXT, "read");
   fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
@@ -295,6 +296,7 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
+  ASSERT_FN(read_);
   ASSERT_FN(fopen_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
@@ -392,6 +394,55 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   return fd;
 }
 
+static bool _invalidate_read = false;
+static uint32_t _invalidate_read_after = 0;
+static const char * _invalidate_read_when_called_from = nullptr;
+void test_system::invalidate_read(uint32_t after, const char *when_called_from) {
+  _invalidate_read = true;
+  _invalidate_read_after = after;
+  _invalidate_read_when_called_from = when_called_from;
+}
+
+ssize_t test_system::read(int fd, void *buf, size_t count) {
+  if (_invalidate_read) {
+
+    if (!_invalidate_read_when_called_from) {
+
+        if (!_invalidate_read_after) {
+          _invalidate_read = false;
+          return -1;
+        }
+
+        --_invalidate_read_after;
+
+    } else {
+        // 2 here, because we were called through..
+	// 0 test_system.cpp:opae_test_read()
+	// 1 mock.c:read()
+	// 2 <caller>
+        void *caller = __builtin_return_address(2);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+        else
+            res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+
+        if (!_invalidate_read_after && !res) {
+          _invalidate_read = false;
+          _invalidate_read_when_called_from = nullptr;
+          return -1;
+        } else if (!res)
+            --_invalidate_read_after;
+
+    }
+
+  }
+  return read_(fd, buf, count);
+}
+
 FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   std::string syspath = get_sysfs_path(path);
   return fopen_(syspath.c_str(), mode.c_str());
@@ -471,6 +522,10 @@ int opae_test_open(const char *path, int flags) {
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+ssize_t opae_test_read(int fd, void *buf, size_t count) {
+  return opae::testing::test_system::instance()->read(fd, buf, count);
 }
 
 FILE *opae_test_fopen(const char *path, const char *mode) {

@@ -287,7 +287,7 @@ struct fpga_err fme_error_table_rev_1[] = {
 	TABLE_TERMINATOR
 };
 
-static int log_fpga_error(struct fpga_err *e)
+int log_fpga_error(struct fpga_err *e)
 {
 	if (!e->occurred) {
 		e->occurred = true;
@@ -303,7 +303,7 @@ static int log_fpga_error(struct fpga_err *e)
 	return 0;
 }
 
-static int poll_error(struct fpga_err *e)
+int poll_error(struct fpga_err *e)
 {
 	int i;
 	int count = 0;
@@ -343,7 +343,7 @@ static int poll_error(struct fpga_err *e)
  *
  * @returns number of (new) errors that were found
  */
-static int poll_errors(struct fpga_err error_table[])
+int poll_errors(struct fpga_err error_table[])
 {
 	unsigned i;
 	int errors = 0;

@@ -38,6 +38,7 @@ extern "C" {
 
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -45,11 +46,11 @@ using namespace opae::testing;
 
 class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_log_c_p()
-      : tmpfpgad_log_("tmpfpgad-XXXXXX.log") {}
+  fpgad_log_c_p() {}
 
   virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -57,16 +58,18 @@ class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    open_log(tmpfpgad_log_.c_str());
+    open_log(tmpfpgad_log_);
   }
 
   virtual void TearDown() override {
     close_log();
 
+    close(tmpfpgad_log_fd_);
     system_->finalize();
   }
 
-  std::string tmpfpgad_log_;
+  char tmpfpgad_log_[20];
+  int tmpfpgad_log_fd_;
   test_platform platform_;
   test_system *system_;
 };
@@ -82,4 +85,4 @@ TEST_P(fpgad_log_c_p, log01) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
-                        ::testing::ValuesIn(test_platform::keys()));
+                        ::testing::Values(std::string("skx-p-1s")));
