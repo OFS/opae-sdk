@@ -41,32 +41,37 @@
 extern "C" {
 #endif
 
-fpga_result fpgaDmaEnumerateChannels(fpga_handle fpga,
-				     fpga_dma_token *dma_tokens,
-				     uint32_t *num_tokens);
+fpga_result fpgaDmaEnumerate(fpga_handle fpga,
+			     fpga_dma_token *dma_tokens,
+			     uint32_t *num_tokens);
 
-fpga_result fpgaDmaOpen(fpga_dma_channel_handle *dma_channel_handle,
+fpga_result fpgaDmaOpen(fpga_dma_handle *dma_handle,
 			fpga_dma_token dma_token,
 			int flags);
 
-fpga_result fpgaDmaTransferSync(fpga_dma_channel_handle dma_channel_handle,
+fpga_result fpgaDmaClose(fpga_dma_handle dma_handle);
+
+fpga_result fpgaDmaTokenDestroy(fpga_dma_token *dma_token);
+
+fpga_result fpgaDmaTransferSync(fpga_dma_handle dma_handle,
 				const fpga_dma_transfer dma_transfer);
 
-fpga_result fpgaDmaTransferAsync(fpga_dma_channel_handle dma_channel_handle,
+fpga_result fpgaDmaTransferAsync(fpga_dma_handle dma_handle,
 				 const fpga_dma_transfer dma_transfer,
 				 int *fd);
-
-fpga_result fpgaDmaClose(fpga_dma_channel_handle dma_channel_handle);
 
 fpga_result fpgaDMATransferInit(fpga_dma_transfer *dma_transfer);
 
 fpga_result fpgaDMATransferDestroy(fpga_dma_transfer dma_transfer);
 
-fpga_result fpgaDMATransferSetSrc(fpga_dma_transfer dma_transfer, uint64_t src);
+fpga_result fpgaDMATransferSetSrc(fpga_dma_transfer dma_transfer,
+				  uint64_t src);
 
-fpga_result fpgaDMATransferSetDst(fpga_dma_transfer dma_transfer, uint64_t dst);
+fpga_result fpgaDMATransferSetDst(fpga_dma_transfer dma_transfer,
+				  uint64_t dst);
 
-fpga_result fpgaDMATransferSetLen(fpga_dma_transfer dma_transfer, uint64_t len);
+fpga_result fpgaDMATransferSetLen(fpga_dma_transfer dma_transfer,
+				  uint64_t len);
 
 fpga_result fpgaDMATransferSetTransferType(fpga_dma_transfer dma_transfer,
 					   fpga_dma_transfer_type type);
@@ -80,12 +85,11 @@ fpga_result fpgaDMATransferSetTxControl(fpga_dma_transfer dma_transfer,
 fpga_result fpgaDMATransferSetTransferCallback(fpga_dma_transfer dma_transfer,
 					       fpga_dma_transfer_cb cb,
 					       void* ctxt);
+fpga_result fpgaDMAGetBytesTransferred(fpga_dma_transfer dma_transfer,
+				       size_t *rx_bytes);
 
 fpga_result fpgaDMATransferCheckEopArrived(fpga_dma_transfer transfer,
 					   bool *eop_arrived);
-
-fpga_result fpgaDMAGetBytesTransferred(fpga_dma_transfer dma_transfer,
-				       size_t *rx_bytes);
 
 #ifdef __cplusplus
 }

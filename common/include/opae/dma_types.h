@@ -38,38 +38,37 @@ typedef void (*fpga_dma_transfer_cb)(void *context);
 
 // DMA transfer type
 typedef enum {
-	HOST_MM_TO_FPGA_ST = 0, // host to AFU sreaming
-	FPGA_ST_TO_HOST_MM,     // AFU to host streaming
-	FPGA_MM_TO_FPGA_ST,     // local mem to AFU streaming
-	FPGA_ST_TO_FPGA_MM,     // AFU to local mem streaming
-	HOST_TO_FPGA_MM,	// Memory mapped FPGA interface
-	FPGA_TO_HOST_MM,	// Memory mapped FPGA interface
-	FPGA_TO_FPGA_MM,	// Memory mapped FPGA interface
-	TERMINATE_THREAD,	// Cause the thread to exit
-	FPGA_MAX_TRANSFER_TYPE
+	OPAE_HOST_MM_TO_FPGA_ST = 0, // host to AFU sreaming
+	OPAE_FPGA_ST_TO_HOST_MM,     // AFU to host streaming
+	OPAE_FPGA_MM_TO_FPGA_ST,     // local mem to AFU streaming
+	OPAE_FPGA_ST_TO_FPGA_MM,     // AFU to local mem streaming
+	OPAE_HOST_TO_FPGA_MM,	// Memory mapped FPGA interface
+	OPAE_FPGA_TO_HOST_MM,	// Memory mapped FPGA interface
+	OPAE_FPGA_TO_FPGA_MM,	// Memory mapped FPGA interface
+	OPAE_TERMINATE_THREAD,	// Cause the thread to exit
+	OPAE_FPGA_MAX_TRANSFER_TYPE
 } fpga_dma_transfer_type;
 
 // DMA transfer status
 typedef enum {
-	TRANSFER_IN_PROGRESS = 0,
-	TRANSFER_NOT_IN_PROGRESS = 1
+	OPAE_TRANSFER_IN_PROGRESS = 0,
+	OPAE_TRANSFER_NOT_IN_PROGRESS = 1
 } fpga_dma_transfer_status;
-
 
 // DMA channel type
 typedef enum {
-	TX_ST = 0,
-	RX_ST,
-	MM
+	OPAE_TX_ST = 0,
+	OPAE_RX_ST,
+	OPAE_MM
 } fpga_dma_channel_type;
 
 // Supported TX control values
 typedef enum {
-	TX_NO_PACKET = 0, // deterministic length transfer
-	GENERATE_SOP,
-	GENERATE_EOP,
-	GENERATE_SOP_AND_EOP,
-	FPGA_MAX_TX_CTRL
+	OPAE_TX_NO_PACKET = 0, // deterministic length transfer
+	OPAE_GENERATE_SOP,
+	OPAE_GENERATE_EOP,
+	OPAE_GENERATE_SOP_AND_EOP,
+	OPAE_FPGA_MAX_TX_CTRL
 } fpga_dma_tx_ctrl;
 
 // Supported RX control values
@@ -83,7 +82,7 @@ typedef enum {
 typedef void *fpga_dma_transfer;
 
 // Opaque object that describes DMA channel handle
-typedef void *fpga_dma_channel_handle;
+typedef void *fpga_dma_handle;
 
 // Opaque object that describes a DMA channel token
 typedef void *fpga_dma_token;
