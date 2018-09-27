@@ -145,7 +145,6 @@ TEST_P(error_c_p, error_01) {
     EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReadError(t, i, &val));
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
- 
 #endif
 }
 
@@ -391,6 +390,7 @@ TEST_P(error_c_p, error_05) {
  *
  */
 TEST_P(error_c_p, error_06) {
+  fpga_error_info info;
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
@@ -407,29 +407,53 @@ TEST_P(error_c_p, error_06) {
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d FME error registers\n", n);
 
-  struct error_list *p = fake_fme_token_.errors;
-  if (p->info.can_clear){
-    auto ret = delete_errors("fme","errors");
-    EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0));
-
-    fake_fme_token_.errors = nullptr;
-    build_error_list(errpath.c_str(), &fake_fme_token_.errors);
-    ret = delete_errors("fme","clear");
-    if (ret){ 
-      EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(t, 0));
+  // for each error register, get info and read the current value
+  for (i = 0; i < n; i++) {
+    // get info struct for error register
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
+    // if error, try to clear it (and check result)
+    if (info.can_clear) {
+      EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, i));
     }
   }
- 
+  
+  // set error list to null
+  fake_fme_token_.errors = nullptr;
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(t, 0));
+}
+/**
+ * @test       error_07
+ *
+ * @brief      When passed a valid FME token,
+ *             and delete error removes errors dir
+ *             fpgaReadError() and fpgaClearError will 
+ *             returns FPGA_EXCEPTION
+ *
+ */
+TEST_P(error_c_p, error_07) {
+  fpga_error_info info;
+  unsigned int n = 0;
+  unsigned int i = 0;
+  uint64_t val = 0;
+  fpga_token t = &fake_fme_token_;
+  
+  std::string errpath = sysfs_fme + "/errors";
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+
+  // build errors and immediately remove errors dir
+  build_error_list(errpath.c_str(), &fake_fme_token_.errors);
+  auto ret = delete_errors("fme","errors");
+  if (ret) { EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0)); }
 }
 
 /**
- * @test       error_07
+ * @test       error_08
 
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_07) {
+TEST_P(error_c_p, error_08) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
@@ -450,14 +474,14 @@ TEST_P(error_c_p, error_07) {
 }
 
 /**
- * @test       error_08
+ * @test       error_09
  *
  * @brief      When passed a valid FME token,
  *             fpgaReadError() will report the correct error, and
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_08) {
+TEST_P(error_c_p, error_09) {
   unsigned int n = 0;
   unsigned int i = 0;
   uint64_t val = 0;
