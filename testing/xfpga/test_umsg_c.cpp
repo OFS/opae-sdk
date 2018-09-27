@@ -109,7 +109,6 @@ out_EINVAL:
     goto out;
 }
 
-
 int umsg_set_base_addr(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
@@ -164,7 +163,6 @@ class umsg_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
 
     for (auto t : tokens_) {
       if (t != nullptr) {
@@ -325,7 +323,6 @@ TEST_P (umsg_c_p, test_umsg_drv_03) {
   _handle->fddev = fddev;
 }
 
-
 /**
  * @test       Umsg_drv_04
  *
@@ -342,8 +339,6 @@ TEST_P(umsg_c_p, test_umsg_drv_04) {
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
-
-
 
 /**
  * @test       Umsg_drv_04
@@ -382,7 +377,6 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
 
   // Invlaid Input Paramter
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0xFFFFFFFF));
 }
 
@@ -470,7 +464,6 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
 
 }
 
-
 /**
  * @test       Umsg_08
  *
@@ -496,7 +489,5 @@ TEST_P(umsg_c_p, test_umsg_09) {
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaTriggerUmsg(handle_, 0));
 }
-
-
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::keys(true)));
