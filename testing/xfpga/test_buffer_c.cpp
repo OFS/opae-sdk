@@ -182,17 +182,17 @@ class buffer_prepare
   test_system *system_;
 };
 
-TEST(buffer, test_buffer_allocate){
-  uint64_t len;
-  uint64_t* buf_addr;
-  int flags = 0;
-
-  auto res = buffer_allocate(buf_addr, 3 * MB, flags);
-  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
-
-  res = buffer_release(&buf_addr, 3 * MB);
-  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
-}
+//TEST(buffer, test_buffer_allocate){
+//  uint64_t len;
+//  uint64_t* buf_addr;
+//  int flags = 0;
+//
+//  auto res = buffer_allocate(buf_addr, 3 * MB, flags);
+//  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
+//
+//  res = buffer_release(&buf_addr, 3 * MB);
+//  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
+//}
 
 /**
  * @test       PrepPre2MB01
