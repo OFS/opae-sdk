@@ -174,6 +174,25 @@ struct _fpga_object {
 	fpga_object *objects;
 };
 
+typedef struct __attribute__ ((__packed__)) {
+	uint64_t dfh;
+	uint64_t feature_uuid_lo;
+	uint64_t feature_uuid_hi;
+} dfh_feature_t;
+
+typedef union {
+	uint64_t reg;
+	struct {
+		uint64_t feature_type:4;
+		uint64_t reserved_8:8;
+		uint64_t afu_minor:4;
+		uint64_t reserved_7:7;
+		uint64_t end_dfh:1;
+		uint64_t next_dfh:24;
+		uint64_t afu_major:4;
+		uint64_t feature_id:12;
+	} bits;
+} dfh_reg_t;
 
 #ifdef __cplusplus
 }
