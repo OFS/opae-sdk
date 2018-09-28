@@ -180,6 +180,7 @@ void wsid_tracker_cleanup(struct wsid_tracker *root,
 		}
 	}
 
+	free(root->table);
 	free(root);
 }
 
