@@ -901,7 +901,7 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 	if (iopll_glob.gl_pathc > 1)
 		FPGA_MSG("WARNING: Port has multiple sysfs frequency files");
 
-	strncpy(sysfs_usrpath, iopll_glob.gl_pathv[0], SYSFS_PATH_MAX);
+	strcpy_s(sysfs_usrpath, SYSFS_PATH_MAX, iopll_glob.gl_pathv[0]);
 
 	globfree(&iopll_glob);
 
