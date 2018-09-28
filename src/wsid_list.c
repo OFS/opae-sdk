@@ -33,12 +33,54 @@
 #include <pthread.h>
 #include "wsid_list_int.h"
 
-/* mutex to protect global data structures */
-extern pthread_mutex_t global_lock;
+/*
+ * The code here assumes the caller handles any required mutexes.
+ * The logic here is not thread safe on its own.
+ */
 
 /**
- * @brief Add entry to linked list for WSIDs
- *        Will allocate memory (which is freed by wsid_del() or wsid_cleanup())
+ * @brief Initialize a wsid tracker hash table
+ * @param n_hash_buckets
+ *
+ * @return
+ */
+struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets)
+{
+	if (!n_hash_buckets || (n_hash_buckets > 16384))
+		return NULL;
+
+	struct wsid_tracker *root = malloc(sizeof(struct wsid_tracker));
+	if (!root)
+		return NULL;
+
+	root->n_hash_buckets = n_hash_buckets;
+	root->table = calloc(n_hash_buckets, sizeof(struct wsid_map *));
+	if (!root->table) {
+		free(root);
+		return NULL;
+	}
+
+	return root;
+}
+
+/**
+ * @brief Map WSID to hash bucket index
+ * @param root
+ * @param wsid
+ *
+ * @return bucket index
+ */
+static inline uint32_t wsid_hash(struct wsid_tracker *root, uint64_t wsid)
+{
+	uint64_t h = wsid % 17659;
+	return h % root->n_hash_buckets;
+}
+
+
+/**
+ * @brief Add entry to WSID tracker
+ *        Will allocate memory (which is freed by wsid_del() or
+ *        wsid_tracker_cleanup())
  * @param root
  * @param wsid
  * @param addr
@@ -48,7 +90,7 @@ extern pthread_mutex_t global_lock;
  *
  * @return true if success, false otherwise
  */
-bool wsid_add(struct wsid_map **root,
+bool wsid_add(struct wsid_tracker *root,
 	      uint64_t wsid,
 	      uint64_t addr,
 	      uint64_t phys,
@@ -57,6 +99,7 @@ bool wsid_add(struct wsid_map **root,
 	      uint64_t index,
 	      int flags)
 {
+	uint32_t idx = wsid_hash(root, wsid);
 	struct wsid_map *tmp = malloc(sizeof(struct wsid_map));
 
 	if (!tmp)
@@ -69,29 +112,30 @@ bool wsid_add(struct wsid_map **root,
 	tmp->offset = offset;
 	tmp->index  = index;
 	tmp->flags  = flags;
-	tmp->next   = *root;
+	tmp->next   = root->table[idx];
 
-	*root = tmp;
+	root->table[idx] = tmp;
 	return true;
 }
 
 /**
- * @brief Remove entry from linked list
+ * @brief Remove entry from tracker
  *
  * @param root
  * @param wsid
  *
  * @return true if success, false otherwise
  */
-bool wsid_del(struct wsid_map **root, uint64_t wsid)
+bool wsid_del(struct wsid_tracker *root, uint64_t wsid)
 {
-	struct wsid_map *tmp = *root;
+	uint32_t idx = wsid_hash(root, wsid);
+	struct wsid_map *tmp = root->table[idx];
 
-	if (!*root)
+	if (!tmp)
 		return false; /* empty list */
 
-	if ((*root)->wsid == wsid) { /* first entry */
-		*root = (*root)->next;
+	if (tmp->wsid == wsid) { /* first entry */
+		root->table[idx] = root->table[idx]->next;
 		free(tmp);
 		return true;
 	}
@@ -116,23 +160,28 @@ bool wsid_del(struct wsid_map **root, uint64_t wsid)
  *
  * @param root
  */
-void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))
+void wsid_tracker_cleanup(struct wsid_tracker *root,
+			  void (*clean)(struct wsid_map *))
 {
-	if (!*root)
+	uint32_t idx;
+
+	if (!root)
 		return;
 
-	while ((*root)->next) {
-		struct wsid_map *tmp = *root;
-		*root = (*root)->next;
-		if (clean)
-			clean(tmp);
-		free(tmp);
+	for (idx = 0; idx < root->n_hash_buckets; idx += 1) {
+		struct wsid_map *tmp = root->table[idx];
+
+		while (tmp) {
+			struct wsid_map *tmp2 = tmp->next;
+			if (clean)
+				clean(tmp);
+			free(tmp);
+			tmp = tmp2;
+		}
 	}
 
-	if (clean)
-		clean(*root);
-	free(*root);
-	*root = NULL;
+	free(root->table);
+	free(root);
 }
 
 /**
@@ -143,9 +192,10 @@ void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *))
  *
  * @return
  */
-struct wsid_map *wsid_find(struct wsid_map *root, uint64_t wsid)
+struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid)
 {
-	struct wsid_map *tmp = root;
+	uint32_t idx = wsid_hash(root, wsid);
+	struct wsid_map *tmp = root->table[idx];
 
 	while (tmp && tmp->wsid != wsid)
 		tmp = tmp->next;
@@ -161,13 +211,23 @@ struct wsid_map *wsid_find(struct wsid_map *root, uint64_t wsid)
  *
  * @return
  */
-struct wsid_map *wsid_find_by_index(struct wsid_map *root, uint32_t index)
+struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index)
 {
-	struct wsid_map *tmp = root;
+    /*
+     * The hash table isn't set up for finding by index, but this search is
+     * used only for MMIO spaces, which should have a small number of entries.
+     */
+	uint32_t idx;
+	for (idx = 0; idx < root->n_hash_buckets; idx += 1) {
+		struct wsid_map *tmp = root->table[idx];
 
-	while (tmp && tmp->index != index)
-		tmp = tmp->next;
+		while (tmp && tmp->index != index)
+			tmp = tmp->next;
 
-	return tmp;
+		if (tmp)
+			return tmp;
+	}
+
+	return NULL;
 }
 
