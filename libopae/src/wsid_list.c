@@ -163,10 +163,12 @@ bool wsid_del(struct wsid_tracker *root, uint64_t wsid)
 void wsid_tracker_cleanup(struct wsid_tracker *root,
 			  void (*clean)(struct wsid_map *))
 {
+	uint32_t idx;
+
 	if (!root)
 		return;
 
-	for (uint32_t idx = 0; idx < root->n_hash_buckets; idx += 1) {
+	for (idx = 0; idx < root->n_hash_buckets; idx += 1) {
 		struct wsid_map *tmp = root->table[idx];
 
 		while (tmp) {
@@ -214,7 +216,8 @@ struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index)
      * The hash table isn't set up for finding by index, but this search is
      * used only for MMIO spaces, which should have a small number of entries.
      */
-	for (uint32_t idx = 0; idx < root->n_hash_buckets; idx += 1) {
+	uint32_t idx;
+	for (idx = 0; idx < root->n_hash_buckets; idx += 1) {
 		struct wsid_map *tmp = root->table[idx];
 
 		while (tmp && tmp->index != index)
