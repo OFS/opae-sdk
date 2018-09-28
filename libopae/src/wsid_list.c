@@ -54,7 +54,7 @@ struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets)
 		return NULL;
 
 	root->n_hash_buckets = n_hash_buckets;
-	root->table = calloc(n_hash_buckets, sizeof(struct wsid_map*));
+	root->table = calloc(n_hash_buckets, sizeof(struct wsid_map *));
 	if (!root->table) {
 		free(root);
 		return NULL;
@@ -161,7 +161,7 @@ bool wsid_del(struct wsid_tracker *root, uint64_t wsid)
  * @param root
  */
 void wsid_tracker_cleanup(struct wsid_tracker *root,
-                          void (*clean)(struct wsid_map *))
+			  void (*clean)(struct wsid_map *))
 {
 	if (!root)
 		return;
