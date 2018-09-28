@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <stdatomic.h>
 
 // Buffer Allocation constants
 #define KB 1024
@@ -180,9 +179,9 @@ const char __FPGA_API__ *fpgaErrStr(fpga_result e)
  */
 uint64_t wsid_gen(void)
 {
-	static atomic_uint_fast64_t ctr = 0;
+	static uint64_t ctr = 0;
 
-	uint64_t id = atomic_fetch_add(&ctr, 1);
+	uint64_t id = __sync_fetch_and_add(&ctr, 1);
 	id ^= ((unsigned long) getpid() % 16777216) << 40;
 	return id;
 }
