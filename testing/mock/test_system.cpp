@@ -313,7 +313,7 @@ std::string test_system::get_sysfs_path(const std::string &src) {
 std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
   std::vector<uint8_t> gbs_header(20, 0);
   if (uuid_parse(td.gbs_guid, gbs_header.data())) {
-    std::string msg = "unsable to parse UUID: ";
+    std::string msg = "unable to parse UUID: ";
     msg.append(td.gbs_guid);
     throw std::runtime_error(msg);
   }
