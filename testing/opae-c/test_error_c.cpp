@@ -74,6 +74,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
       }
     }
     system_->finalize();
@@ -116,7 +117,7 @@ TEST_P(error_c_p, get_info) {
   ASSERT_EQ(num_errors, platform_.devices[0].port_num_errors);
   std::map<std::string, bool> knows_errors = {{"errors", true},
                                               {"first_error", false},
-                                              {"first_matformed_req", false}};
+                                              {"first_malformed_req", false}};
   std::vector<fpga_error_info> info_list(num_errors);
   for (int i = 0; i < num_errors; ++i) {
     fpga_error_info & info = info_list[i];
