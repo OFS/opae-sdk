@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdatomic.h>
 
 // Buffer Allocation constants
 #define KB 1024
@@ -179,10 +180,9 @@ const char __FPGA_API__ *fpgaErrStr(fpga_result e)
  */
 uint64_t wsid_gen(void)
 {
-	struct timeval t;
-	uint64_t id = 0;
-	gettimeofday(&t, NULL);
-	id = ((t.tv_sec * 1000 * 1000) + (t.tv_usec * 1000)) << 42;
-	id |= ((unsigned long) getpid() % 16777216) << 24;
+	static atomic_uint_fast64_t ctr = 0;
+
+	uint64_t id = atomic_fetch_add(&ctr, 1);
+	id ^= ((unsigned long) getpid() % 16777216) << 40;
 	return id;
 }
