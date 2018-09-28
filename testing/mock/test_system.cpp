@@ -28,12 +28,12 @@
  */
 
 #include "test_system.h"
-#include <iostream>
 #include <stdarg.h>
 #include <unistd.h>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include "c_test_system.h"
 #include "test_utils.h"
 
@@ -42,6 +42,7 @@
 #endif
 #include <dlfcn.h>
 #include <sys/stat.h>
+#include <uuid/uuid.h>
 
 void *__builtin_return_address(unsigned level);
 
@@ -84,39 +85,35 @@ void *malloc(size_t size) {
 // hijack calloc
 static bool _invalidate_calloc = false;
 static uint32_t _invalidate_calloc_after = 0;
-static const char * _invalidate_calloc_when_called_from = nullptr;
+static const char *_invalidate_calloc_when_called_from = nullptr;
 void *calloc(size_t nmemb, size_t size) {
   if (_invalidate_calloc) {
-
     if (!_invalidate_calloc_when_called_from) {
+      if (!_invalidate_calloc_after) {
+        _invalidate_calloc = false;
+        return nullptr;
+      }
 
-        if (!_invalidate_calloc_after) {
-          _invalidate_calloc = false;
-          return nullptr;
-        }
-
-        --_invalidate_calloc_after;
+      --_invalidate_calloc_after;
 
     } else {
-        void *caller = __builtin_return_address(0);
-        int res;
-        Dl_info info;
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
 
-        if (!_invalidate_calloc_after && !res) {
-          _invalidate_calloc = false;
-          _invalidate_calloc_when_called_from = nullptr;
-          return nullptr;
-        } else if (!res)
-            --_invalidate_calloc_after;
-
+      if (!_invalidate_calloc_after && !res) {
+        _invalidate_calloc = false;
+        _invalidate_calloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_calloc_after;
     }
-
   }
   return __libc_calloc(nmemb, size);
 }
@@ -180,6 +177,26 @@ test_device test_device::unknown() {
 
 typedef std::map<std::string, test_platform> platform_db;
 
+const char *skx_mdata =
+    R"mdata({"version": 640,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "power": 50,
+     "interface-uuid": "1a422218-6dba-448e-b302-425cbcde1406",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb_400",
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
+        }
+      ]
+     },
+     "platform-name": "MCP"}";
+)mdata";
+
 static platform_db PLATFORMS = {
     {"skx-p-1s",
      test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
@@ -202,7 +219,9 @@ static platform_db PLATFORMS = {
                        .vendor_id = 0x8086,
                        .device_id = 0xbcc0,
                        .fme_num_errors = 9,
-                       .port_num_errors = 3}}}}};
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = skx_mdata}}}}};
 
 test_platform test_platform::get(const std::string &key) {
   return PLATFORMS[key];
@@ -223,7 +242,6 @@ std::vector<std::string> test_platform::keys(bool sorted) {
 
   return keys;
 }
-
 
 test_system *test_system::instance_ = nullptr;
 
@@ -248,9 +266,9 @@ test_system *test_system::instance() {
 }
 
 void test_system::prepare_syfs(const test_platform &platform) {
-  char tmpsysfs[]{ "tmpsysfs-XXXXXX" };
+  char tmpsysfs[]{"tmpsysfs-XXXXXX"};
   if (platform.mock_sysfs != nullptr) {
-    char* tmp = mkdtemp(tmpsysfs);
+    char *tmp = mkdtemp(tmpsysfs);
     if (tmp == nullptr) {
       throw std::runtime_error("error making tmpsysfs");
     }
@@ -265,16 +283,16 @@ void test_system::remove_sysfs() {
   if (root_.find("tmpsysfs") != std::string::npos) {
     struct stat st;
     if (stat(root_.c_str(), &st)) {
-      std::cerr << "Error stat'ing root dir (" << root_ << "):" << strerror(errno) << "\n";
+      std::cerr << "Error stat'ing root dir (" << root_
+                << "):" << strerror(errno) << "\n";
       return;
     }
-    if (S_ISDIR(st.st_mode)){
+    if (S_ISDIR(st.st_mode)) {
       auto cmd = "rm -rf " + root_;
       std::system(cmd.c_str());
     }
   }
 }
-
 
 void test_system::set_root(const char *root) { root_ = root; }
 std::string test_system::get_root() { return root_; }
@@ -290,6 +308,19 @@ std::string test_system::get_sysfs_path(const std::string &src) {
     }
   }
   return src;
+}
+
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
+  std::vector<uint8_t> gbs_header(20, 0);
+  if (uuid_parse(td.gbs_guid, gbs_header.data())) {
+    std::string msg = "unsable to parse UUID: ";
+    msg.append(td.gbs_guid);
+    throw std::runtime_error(msg);
+  }
+  uint32_t len = strlen(td.mdata);
+  *reinterpret_cast<uint32_t *>(gbs_header.data() + 16) = len;
+  std::copy(&td.mdata[0], &td.mdata[len], std::back_inserter(gbs_header));
+  return gbs_header;
 }
 
 void test_system::initialize() {
@@ -385,8 +416,7 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
     std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end())
-        delete it->second;          
+    if (it != fds_.end()) delete it->second;
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
@@ -397,8 +427,7 @@ FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   return fopen_(syspath.c_str(), mode.c_str());
 }
 
-int test_system::close(int fd)
-{
+int test_system::close(int fd) {
   std::map<int, mock_object *>::iterator it = fds_.find(fd);
   if (it != fds_.end()) {
     delete it->second;
@@ -454,7 +483,8 @@ void test_system::invalidate_malloc(uint32_t after,
   _invalidate_malloc_when_called_from = when_called_from;
 }
 
-void test_system::invalidate_calloc(uint32_t after, const char *when_called_from) {
+void test_system::invalidate_calloc(uint32_t after,
+                                    const char *when_called_from) {
   _invalidate_calloc = true;
   _invalidate_calloc_after = after;
   _invalidate_calloc_when_called_from = when_called_from;
