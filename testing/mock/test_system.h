@@ -160,6 +160,7 @@ class test_system {
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
+  bool default_ioctl_handler(int request, ioctl_handler_t);
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
   FILE *register_file(const std::string &path);
@@ -168,6 +169,7 @@ class test_system {
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
+  std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
