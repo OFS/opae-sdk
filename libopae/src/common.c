@@ -179,7 +179,7 @@ const char __FPGA_API__ *fpgaErrStr(fpga_result e)
  */
 uint64_t wsid_gen(void)
 {
-	static uint64_t ctr = 0;
+	static uint64_t ctr;
 
 	uint64_t id = __sync_fetch_and_add(&ctr, 1);
 	id ^= ((unsigned long) getpid() % 16777216) << 40;
