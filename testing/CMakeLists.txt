@@ -293,6 +293,10 @@ add_mock_test(test_fpgad_errtable_c fpgad-static
     fpgad/test_errtable_c.cpp
 )
 
+add_mock_test(test_fpgad_ap_event_c fpgad-static
+    fpgad/test_ap_event_c.cpp
+)
+
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy

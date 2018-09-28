@@ -111,7 +111,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     struct pollfd pollfd;
 
     pollfd.fd = fd;
-    pollfd.events = POLL_IN;
+    pollfd.events = POLLIN;
 
     int res = poll(&pollfd, 1, 1000);
 
