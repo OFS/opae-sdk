@@ -59,6 +59,22 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 
+add_library(fpgad-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
+    )
+
+target_include_directories(fpgad-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -87,7 +103,7 @@ endmacro(add_mock_test test_name)
 
 
 ############################################################################
-## Create config_int.h #########################################################
+############################################################################
 ############################################################################
 
 
@@ -102,6 +118,10 @@ include_directories(
     {CMAKE_CURRENT_SOURCE_DIR}
     {CMAKE_CURRENT_SOURCE_DIR}/mock
     )
+
+############################################################################
+# opae-c tests #############################################################
+############################################################################
 
 add_mock_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
@@ -141,9 +161,8 @@ add_mock_test(test_opae_error_c opae-c-static
 
 add_mock_test(test_opae_event_c opae-c-static
     opae-c/test_event_c.cpp
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+target_link_libraries(test_opae_event_c fpgad-static safestr)
 
 add_mock_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
@@ -249,9 +268,8 @@ add_mock_test(test_xfpga_manage_c xfpga-static
 add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+target_link_libraries(test_xfpga_events_c fpgad-static safestr)
 
 add_custom_command(TARGET test_unit
     PRE_BUILD
