@@ -68,6 +68,7 @@ class mock_object {
 
   std::string sysclass() const { return sysclass_; }
   uint32_t device_id() const { return device_id_; }
+  type_t type() const { return type_; }
 
  private:
   std::string devpath_;
@@ -112,6 +113,8 @@ struct test_device {
   uint32_t device_id;
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
+  const char *gbs_guid;
+  const char *mdata;
   static test_device unknown();
 };
 
@@ -137,6 +140,7 @@ class test_system {
   void set_root(const char *root);
   std::string get_root();
   std::string get_sysfs_path(const std::string &src);
+  std::vector<uint8_t> assemble_gbs_header(const test_device &td);
 
   void initialize();
   void finalize();
