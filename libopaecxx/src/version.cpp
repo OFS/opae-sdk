@@ -27,7 +27,7 @@
 #include <opae/cxx/core/version.h>
 #include <opae/types.h>
 
-#include "config_int.h"
+#include "config.h"
 
 namespace opae {
 namespace fpga {
