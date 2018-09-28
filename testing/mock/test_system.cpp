@@ -302,6 +302,9 @@ void test_system::initialize() {
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
+  for (const auto &kv : default_ioctl_handlers_) {
+    register_ioctl_handler(kv.first, kv.second);
+  }
 }
 
 void test_system::finalize() {
@@ -317,13 +320,21 @@ void test_system::finalize() {
   for (auto kv : registered_files_) {
     unlink(kv.second.c_str());
   }
+  ioctl_handlers_.clear();
+}
+
+bool test_system::default_ioctl_handler(int request, ioctl_handler_t h) {
+  bool already_registered =
+      default_ioctl_handlers_.find(request) != default_ioctl_handlers_.end();
+  default_ioctl_handlers_[request] = h;
+  return already_registered;
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
-  bool alhready_registered =
+  bool already_registered =
       ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
-  return alhready_registered;
+  return already_registered;
 }
 
 FILE *test_system::register_file(const std::string &path) {
