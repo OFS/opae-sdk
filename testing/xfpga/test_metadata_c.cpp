@@ -24,6 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+extern "C" {
+#include "token_list_int.h"
+    fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+}
+
+
 #include <bitstream_int.h>
 #include <types_int.h>
 #include "gtest/gtest.h"
@@ -322,5 +328,62 @@ TEST_P(metadata_c, get_bitstream_json_len) {
   len = get_bitstream_json_len(NULL);
   EXPECT_EQ(len, -1);
 }
+
+/**
+* @test    get_interface_id_01
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+*/
+TEST_P(metadata_c, get_interface_id_01) {
+  uint64_t id_l;
+  uint64_t id_h;
+  auto _token = (struct _fpga_token *)tokens_[0];
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Invalid object type
+  _token->magic = 0x123;
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+
+  _token->magic = FPGA_TOKEN_MAGIC;
+
+  res = get_interface_id(handle_, nullptr, nullptr);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+}
+
+/**
+* @test    get_interface_id_02
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+*/
+TEST_P(metadata_c, get_interface_id_02) {
+  uint64_t id_l;
+  uint64_t id_h;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
+
+  handle->token = NULL;
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+}
+
+/**
+* @test    get_interface_id_03
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+*/
+TEST_P(metadata_c, get_interface_id_03) {
+  std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.01";
+  uint64_t id_l;
+  uint64_t id_h;
+  auto _token = (struct _fpga_token *)tokens_[0];
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // invalid file
+  strncpy(_token->sysfspath, sysfs_fme.c_str(), SYSFS_PATH_MAX);
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_EXCEPTION);
+}
+
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
