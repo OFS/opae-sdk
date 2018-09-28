@@ -19,6 +19,7 @@ add_library(opae-c-static
     ${OPAE_SDK_SOURCE}/libopae/pluginmgr.c
     ${OPAE_SDK_SOURCE}/libopae/props.c
     )
+
 target_include_directories(opae-c-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
@@ -57,6 +58,16 @@ target_include_directories(xfpga-static PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
+
+add_library(xfpgacxx-static STATIC
+              ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp)
+
+target_include_directories(xfpgacxx-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopaeccx/src
+  PRIVATE ${OPAE_SDK_SOURCE}/libopaeccx)
 
 
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
@@ -252,6 +263,11 @@ add_mock_test(test_xfpga_events_c xfpga-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+
+add_mock_test(test_xfpga_version_cxx xfpgacxx-static
+    xfpgacxx/test_version_cxx.cpp
+)
+
 
 add_custom_command(TARGET test_unit
     PRE_BUILD
