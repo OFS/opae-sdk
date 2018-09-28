@@ -14,7 +14,7 @@ check_c () {
             echo "directory as this script."
             popd
             C_CODE_OK=1
-            echo "test-codingstyle FAILED"
+            echo "test-codingstyle-c FAILED"
             return "$C_CODE_OK"
         fi
     fi
@@ -24,11 +24,11 @@ check_c () {
 
 
     if [ $? -eq 0 ]; then
-        echo "test-codingstyle FAILED"
+        echo "test-codingstyle-c FAILED"
         popd
         C_CODE_OK=1
     else
-        echo "test-codingstyle PASSED"
+        echo "test-codingstyle-c PASSED"
         popd
         C_CODE_OK=0
     fi
