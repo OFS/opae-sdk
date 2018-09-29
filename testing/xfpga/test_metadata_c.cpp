@@ -26,7 +26,7 @@
 
 extern "C" {
 #include "token_list_int.h"
-    fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
 }
 
 
