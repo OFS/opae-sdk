@@ -209,7 +209,7 @@ TEST_P(openclose_c_p, open_05) {
  *
  */
 TEST_P(openclose_c_p, open_06) {
-  test_system::instance()->invalidate_malloc();
+  system_->invalidate_malloc();
   auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
   ASSERT_EQ(FPGA_NO_MEMORY, res);
 }
