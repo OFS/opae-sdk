@@ -49,6 +49,32 @@ class LibopaecOpenFCommonALL : public common_test::BaseFixture,
 class LibopaecCloseFCommonALL : public common_test::BaseFixture,
                                 public ::testing::Test {};
 
+#ifndef BUILD_ASE
+
+/*
+ * On hardware, the mmio map is a hash table.
+ */
+static bool mmio_map_is_empty(struct wsid_tracker *root) {
+  if (!root || (root->n_hash_buckets == 0))
+    return true;
+   for (uint32_t i = 0; i < root->n_hash_buckets; i += 1) {
+    if (root->table[i])
+      return false;
+  }
+   return true;
+}
+
+#else
+
+/*
+ * In ASE, the mmio map is a list.
+ */
+static bool mmio_map_is_empty(struct wsid_map *root) {
+  return !root;
+}
+
+#endif
+
 /**
  * @test       07
  *
@@ -229,7 +255,7 @@ TEST_F(LibopaecCloseFCommonALL, 03) {
 
     EXPECT_EQ(FPGA_OK, fpgaClose(h));
 
-    EXPECT_EQ((void *)NULL, p->mmio_root);
+    EXPECT_FALSE(mmio_map_is_empty(p->mmio_root));
   };
 
   // pass test code to enumerator
