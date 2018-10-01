@@ -97,7 +97,7 @@ int parse_metadata(struct bitstream_info *info)
 /*
  * Read inferface id from bistream
  */
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;

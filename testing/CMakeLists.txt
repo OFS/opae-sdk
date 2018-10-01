@@ -66,7 +66,10 @@ add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
     )
+
+target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
 target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -299,6 +302,14 @@ add_mock_test(test_fpgad_ap_event_c fpgad-static
 
 add_mock_test(test_fpgad_daemonize_c fpgad-static
     fpgad/test_daemonize_c.cpp
+)
+
+add_mock_test(test_fpgad_fpgad_c fpgad-static
+    fpgad/test_fpgad_c.cpp
+)
+
+add_mock_test(test_fpgad_ap6_c fpgad-static
+    fpgad/test_ap6_c.cpp
 )
 
 add_custom_command(TARGET test_unit
