@@ -143,7 +143,7 @@ TEST_P(handle_cxx_core, reconfigure_null) {
   handle_ = handle::open(tokens_[0], flags);
   ASSERT_NE(nullptr, handle_.get());
 
-  EXPECT_THROW(handle_->reconfigure(slot, bitstream, size, flags), std::exception);
+  EXPECT_THROW(handle_->reconfigure(slot, bitstream, size, flags), invalid_param);
 }
 
 /**
