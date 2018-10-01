@@ -58,7 +58,7 @@ static int read_event(char *sysfspath, uint64_t *value)
 		return 0;
 	}
 
-	res = sysfs_read_u64(sysfspath, value);
+	res = fpgad_sysfs_read_u64(sysfspath, value);
 	if (res != FPGA_OK) {
 		return -1;
 	}

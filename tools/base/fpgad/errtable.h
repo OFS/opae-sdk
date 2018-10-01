@@ -66,7 +66,8 @@ struct fpga_err {
 
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
 
-fpga_result sysfs_read_u64(const char *path, uint64_t *u);
+fpga_result fpgad_sysfs_read_u64(const char *path, uint64_t *u); 
+//fpga_result sysfs_read_u64(const char *path, uint64_t *u) __attribute__ ((weak, alias ("fpgad_sysfs_read_u64"))); 
 
 void *logger_thread(void *);
 
