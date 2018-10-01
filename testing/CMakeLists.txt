@@ -76,22 +76,6 @@ target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-add_library(fpgad-static
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    )
-
-target_include_directories(fpgad-static PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-
-
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -290,7 +274,8 @@ add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr)
+target_link_libraries(test_xfpga_events_c fpgad-static safestr 
+        ${libjson-c_LIBRARIES})
 
 ############################################################################
 # fpgad tests ##############################################################
@@ -327,7 +312,6 @@ add_mock_test(test_fpgad_fpgad_c fpgad-static
 add_mock_test(test_fpgad_ap6_c fpgad-static
     fpgad/test_ap6_c.cpp
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr)
 
 add_custom_command(TARGET test_unit
     PRE_BUILD
