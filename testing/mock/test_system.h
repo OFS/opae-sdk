@@ -69,6 +69,7 @@ class mock_object {
 
   std::string sysclass() const { return sysclass_; }
   uint32_t device_id() const { return device_id_; }
+  type_t type() const { return type_; }
 
  private:
   std::string devpath_;
@@ -113,6 +114,8 @@ struct test_device {
   uint32_t device_id;
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
+  const char *gbs_guid;
+  const char *mdata;
   static test_device unknown();
 };
 
@@ -138,6 +141,7 @@ class test_system {
   void set_root(const char *root);
   std::string get_root();
   std::string get_sysfs_path(const std::string &src);
+  std::vector<uint8_t> assemble_gbs_header(const test_device &td);
 
   void initialize();
   void finalize();
@@ -163,6 +167,7 @@ class test_system {
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
+  bool default_ioctl_handler(int request, ioctl_handler_t);
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
   FILE *register_file(const std::string &path);
@@ -171,6 +176,7 @@ class test_system {
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
+  std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
