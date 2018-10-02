@@ -320,7 +320,7 @@ int poll_error(struct fpga_err *e)
 		return 0;
 
 	err = 0;
-	res = sysfs_read_u64(e->sysfsfile, &err);
+	res = fpgad_sysfs_read_u64(e->sysfsfile, &err);
 	if (res != FPGA_OK) {
 		return -1;
 	}
@@ -377,7 +377,7 @@ void *logger_thread(void *thread_context)
 			"%s/errors/revision", SYSFS_PORT0);
 
 	if (!stat(sysfspath, &stats)) {
-		if (FPGA_OK == sysfs_read_u64(sysfspath, &err_rev)) {
+		if (FPGA_OK == fpgad_sysfs_read_u64(sysfspath, &err_rev)) {
 			switch (err_rev) {
 			case 1ULL:
 				port_error_table = port_error_table_rev_1;
@@ -404,7 +404,7 @@ void *logger_thread(void *thread_context)
 			"%s/errors/revision", SYSFS_FME0);
 
 	if (!stat(sysfspath, &stats)) {
-		if (FPGA_OK == sysfs_read_u64(sysfspath, &err_rev)) {
+		if (FPGA_OK == fpgad_sysfs_read_u64(sysfspath, &err_rev)) {
 			switch (err_rev) {
 			case 1ULL:
 				fme_error_table = fme_error_table_rev_1;
@@ -436,7 +436,7 @@ out_exit:
 }
 
 #define SYSFS_PATH_MAX 256
-fpga_result sysfs_read_u64(const char *path, uint64_t *u)
+fpga_result fpgad_sysfs_read_u64(const char *path, uint64_t *u)
 {
 	int fd;
 	int res;
