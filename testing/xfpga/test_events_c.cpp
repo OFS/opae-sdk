@@ -30,6 +30,8 @@ extern "C" {
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
 #include "fpgad/errtable.h"
+
+void *logger_thread(void *thread_context);
 fpga_result send_fme_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_port_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, int);
@@ -107,7 +109,6 @@ out_EINVAL:
   errno = EINVAL;
   goto out;
 }
-
 
 int fme_info(mock_object * m, int request, va_list argp){
   int retval = -1;
@@ -1033,7 +1034,8 @@ TEST_P(events_handle_p, irq_event_01) {
   EXPECT_GE(fd, 0);
 
   // Write to error file
-  std::string path = sysfs_port + "/errors/errors";
+  std::string tmpsysfs = system_->get_root();
+  std::string path = tmpsysfs + sysfs_port + "/errors/errors";
 
   // Write to the mock sysfs node to generate the event.
   ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
@@ -1060,4 +1062,3 @@ TEST_P(events_handle_p, irq_event_01) {
 
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
                         ::testing::ValuesIn(test_platform::keys()));
-
