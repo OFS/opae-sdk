@@ -23,8 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 
 #include <opae/cxx/core/shared_buffer.h>
 #include <exception>
@@ -96,9 +96,7 @@ void shared_buffer::release() {
   }
 }
 
-void shared_buffer::fill(int c) {
-  std::fill(virt_, virt_+len_, c);
-}
+void shared_buffer::fill(int c) { std::fill(virt_, virt_ + len_, c); }
 
 int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
   return ::memcmp(virt_, other->virt_, len);
@@ -106,7 +104,11 @@ int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
 
 shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,
                              uint64_t wsid, uint64_t io_address)
-    : handle_(handle), len_(len), virt_(virt), wsid_(wsid), io_address_(io_address) {}
+    : handle_(handle),
+      len_(len),
+      virt_(virt),
+      wsid_(wsid),
+      io_address_(io_address) {}
 
 }  // end of namespace types
 }  // end of namespace fpga

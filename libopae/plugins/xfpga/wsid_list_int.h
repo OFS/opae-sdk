@@ -31,9 +31,12 @@
 #include "types_int.h"
 
 /*
- * WSID list structure manipulation functions
+ * WSID tracking structure manipulation functions
  */
-bool wsid_add(struct wsid_map **root,
+struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
+void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
+
+bool wsid_add(struct wsid_tracker *root,
 	      uint64_t wsid,
 	      uint64_t addr,
 	      uint64_t phys,
@@ -41,11 +44,10 @@ bool wsid_add(struct wsid_map **root,
 	      uint64_t offset,
 	      uint64_t index,
 	      int      flags);
-bool wsid_del(struct wsid_map **root, uint64_t wsid);
-void wsid_cleanup(struct wsid_map **root, void (*clean)(struct wsid_map *));
+bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
 uint64_t wsid_gen(void);
 
-struct wsid_map *wsid_find(struct wsid_map *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_map *root, uint32_t index);
+struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
+struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
 
 #endif // ___FPGA_COMMON_INT_H__

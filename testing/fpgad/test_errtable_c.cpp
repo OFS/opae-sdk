@@ -124,7 +124,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     uint64_t ap6_bit = ((uint64_t)1 << 50);
     FILE *fp = fopen(fname.c_str(), "w");    
     ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%" PRIx64 "\n", ap6_bit), 0);
+    EXPECT_GT(fprintf(fp, "0x%lx\n", ap6_bit), 0);
     fclose(fp);
   }
 
@@ -143,7 +143,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     uint64_t ktilinkfatal_bit = 1;
     FILE *fp = fopen(fname.c_str(), "w");    
     ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%" PRIx64 "\n", ktilinkfatal_bit), 0);
+    EXPECT_GT(fprintf(fp, "0x%lx\n", ktilinkfatal_bit), 0);
     fclose(fp);
   }
 

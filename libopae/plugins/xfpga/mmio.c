@@ -164,7 +164,7 @@ STATIC fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 
 	/* Add to MMIO list */
 	wsid = wsid_gen();
-	if (!wsid_add(&_handle->mmio_root,
+	if (!wsid_add(_handle->mmio_root,
 		      wsid,
 		      (uint64_t) addr,
 		      (uint64_t) NULL,
@@ -423,7 +423,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUnmapMMIO(fpga_handle handle,
 	}
 
 	/* Remove MMIO */
-	wsid_del(&_handle->mmio_root, wm->wsid);
+	wsid_del(_handle->mmio_root, wm->wsid);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

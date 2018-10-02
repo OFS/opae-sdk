@@ -114,13 +114,13 @@ struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_token token;
-	int fddev;		    // file descriptor for the device.
-	int fdfpgad;		    // file descriptor for the event daemon.
-	struct wsid_map *wsid_root; // wsid information (list)
-	struct wsid_map *mmio_root; // MMIO information (list)
-	void *umsg_virt;	    // umsg Virtual Memory pointer
-	uint64_t umsg_size;	 // umsg Virtual Memory Size
-	uint64_t *umsg_iova;	// umsg IOVA from driver
+	int fddev;                      // file descriptor for the device.
+	int fdfpgad;                    // file descriptor for the event daemon.
+	struct wsid_tracker *wsid_root; // wsid information (list)
+	struct wsid_tracker *mmio_root; // MMIO information (list)
+	void *umsg_virt;	        // umsg Virtual Memory pointer
+	uint64_t umsg_size;	        // umsg Virtual Memory Size
+	uint64_t *umsg_iova;	        // umsg IOVA from driver
 };
 
 /*
@@ -147,6 +147,14 @@ struct wsid_map {
 	uint32_t index;
 	int flags;
 	struct wsid_map *next;
+};
+
+/*
+ * Hash table to store wsid_maps
+ */
+struct wsid_tracker {
+	uint64_t          n_hash_buckets;
+	struct wsid_map **table;
 };
 
 /*
