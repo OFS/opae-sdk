@@ -436,14 +436,27 @@ TEST_P(error_c_p, error_07) {
   unsigned int i = 0;
   uint64_t val = 0;
   fpga_token t = &fake_fme_token_;
+  uint32_t num_errors = 0;
   
   std::string errpath = sysfs_fme + "/errors";
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
-
   // build errors and immediately remove errors dir
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
-  auto ret = delete_errors("fme","errors");
-  if (ret) { EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, 0)); }
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
+  ASSERT_EQ(fpgaPropertiesGetNumErrors(filter_, &num_errors), FPGA_OK);
+  ASSERT_NE(num_errors, 0) << "No errors to clear";
+  for (i = 0; i < num_errors; i++) {
+    ASSERT_EQ(xfpga_fpgaGetErrorInfo(t, i, &info), FPGA_OK);
+    if (info.can_clear) {
+      auto ret = delete_errors("fme","errors");
+      // get the clearable error
+      if (ret) {
+        EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaClearError(t, i));
+      }
+      break;
+    }
+  }
+  EXPECT_NE(i, num_errors) << "Did not attempt to clear errors";
 }
 
 /**
