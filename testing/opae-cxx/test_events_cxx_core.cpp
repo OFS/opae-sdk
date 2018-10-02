@@ -29,10 +29,9 @@ extern "C" {
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
 #include "fpgad/errtable.h"
-
-void *logger_thread(void *thread_context);
 }
 
+#include <chrono>
 #include <thread>
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -48,9 +47,9 @@ using namespace opae::fpga::types;
 
 class events_cxx_core : public ::testing::TestWithParam<std::string> {
  protected:
-  events_cxx_core() 
+  events_cxx_core()
         : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
-          tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"), 
+          tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
           handle_(nullptr) {}
 
   virtual void SetUp() override {
@@ -66,6 +65,9 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
 
     tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_TRUE(tokens_.size() > 0);
+
+    handle_= handle::open(tokens_[0], 0);
+    ASSERT_NE(nullptr, handle_.get());
 
     config_ = {
         .verbosity = 0,
@@ -83,13 +85,14 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     open_log(tmpfpgad_log_.c_str());
     fpgad_ = std::thread(server_thread, &config_);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
   }
 
   virtual void TearDown() override {
+    config_.running = false;
     handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
     system_->finalize();
+    fpgad_.join();
   }
 
   std::string tmpfpgad_log_;
@@ -105,15 +108,59 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
 /**
  * @test register_event_01
  * Given an open accelerator handle object<br>
+ * When I call event::register_event() with nullptr handle<br>
+ * And event type of FPGA_EVENT_ERROR
+ * Then exception is thrown<br>
+ * And I get a std invalid_argument<br>
+ */
+TEST_P(events_cxx_core, register_event_01) {
+  event::ptr_t ev;
+  ASSERT_THROW(ev = event::register_event(nullptr, FPGA_EVENT_ERROR), std::invalid_argument);
+  ASSERT_EQ(nullptr, ev.get());
+}
+
+/**
+ * @test register_event_02
+ * Given an open handleerator handle object<br>
  * When I call event::register_event() with that handle<br>
  * And event type of event::type_t::error
  * Then no exception is thrown<br>
  * And I get a non-null event shared pointer<br>
  */
-TEST_P(events_cxx_core, register_event_01) {
+TEST_P(events_cxx_core, register_event_02) {
   event::ptr_t ev;
   ASSERT_NO_THROW(ev = event::register_event(handle_, event::type_t::error));
   ASSERT_NE(nullptr, ev.get());
+}
+
+/**
+ * @test register_event_03
+ * Given an open handleerator handle object<br>
+ * When I call event::register_event() with that handle<br>
+ * And event type of FPGA_EVENT_ERROR
+ * Then no exception is thrown<br>
+ * And I get a non-null event shared pointer<br>
+ */
+TEST_P(events_cxx_core, register_event_03) {
+  event::ptr_t ev;
+  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR););
+  ASSERT_NE(nullptr, ev.get());
+}
+
+/**
+ * @test get_os_object
+ * Given an open handleerator handle object<br>
+ * And an event object created with event::register_event()<br>
+ * When I call event::os_object using the event object<br>
+ * Then I get a valid file descriptor for polling on the event<br>
+ */
+TEST_P(events_cxx_core, get_os_object) {
+  event::ptr_t ev;
+  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR););
+  ASSERT_NE(nullptr, ev.get());
+  auto fd = ev->os_object();
+  auto res = fcntl(fd, F_GETFL);
+  ASSERT_NE(res, -1);
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
