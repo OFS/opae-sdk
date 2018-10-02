@@ -368,7 +368,7 @@ TEST_P(metadata_c, get_interface_id_02) {
 /**
 * @test    get_interface_id_03
 * @brief   Tests: get_interface_id
-* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+* @details Given invalid params, the function returns FPGA_EXCEPTION
 */
 TEST_P(metadata_c, get_interface_id_03) {
   std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.01";
