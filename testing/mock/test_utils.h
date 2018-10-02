@@ -27,8 +27,10 @@
  * test_utils.h
  */
 #pragma once
-#include <memory>
+#include <json-c/json.h>
 #include <regex.h>
+#include <memory>
+#include <string>
 
 namespace opae {
 namespace testing {
@@ -90,6 +92,57 @@ class regex {
   regex_t regex_;
   std::array<regmatch_t, _M> matches_;
 };
+
+class jobject {
+ public:
+  jobject() { obj_ = json_object_new_object(); }
+
+  jobject(json_object *obj) { obj_ = obj; }
+
+  jobject(int32_t v) : jobject(json_object_new_int(v)) {}
+  jobject(int64_t v) : jobject(json_object_new_int64(v)) {}
+  jobject(double v) : jobject(json_object_new_double(v)) {}
+  jobject(const char *v) : jobject(json_object_new_string(v)) {}
+  jobject(const std::string &v) : jobject(json_object_new_string(v.c_str())) {}
+  jobject(const std::string &k, jobject o) : jobject() {
+    json_object_object_add(obj_, k.c_str(), o.obj_);
+  }
+  jobject(std::initializer_list<jobject> arr) {
+    obj_ = json_object_new_array();
+    for (auto &o : arr) {
+      json_object_array_add(obj_, o.obj_);
+    }
+  }
+
+  jobject(const jobject &other) {
+    if (&other != this) {
+      obj_ = other.obj_;
+    }
+  }
+
+  jobject &operator=(const jobject &other) {
+    if (&other != this) {
+      obj_ = other.obj_;
+    }
+  }
+
+  virtual ~jobject() {}
+
+  void put() { json_object_put(obj_); }
+
+  void get() { json_object_get(obj_); }
+
+  virtual jobject &operator()(const std::string &key, jobject j) {
+    json_object_object_add(obj_, key.c_str(), j.obj_);
+    return *this;
+  }
+
+  virtual const char *c_str() { return json_object_to_json_string(obj_); }
+
+ protected:
+  json_object *obj_;
+};
+
 
 }  // end of namespace testing
 }  // end of namespace opae
