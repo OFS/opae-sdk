@@ -29,7 +29,6 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
 #include <opae/fpga.h>
@@ -47,7 +46,7 @@ using namespace opae::testing;
 
 class error_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  error_c_p() {}
+  error_c_p() : filter_(nullptr), tokens_{{nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -68,10 +67,15 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (filter_ != nullptr) {
+      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    }
     uint32_t i;
-    for (i = 0 ; i < num_matches_ ; ++i) {
-        EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
     system_->finalize();
   }
@@ -105,10 +109,22 @@ TEST_P(error_c_p, read) {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(error_c_p, get_info) {
-  fpga_error_info info;
-  EXPECT_EQ(fpgaGetErrorInfo(tokens_[0], 0, &info), FPGA_OK);
-  EXPECT_STREQ(info.name, "first_error");
-  EXPECT_EQ(info.can_clear, false);
+  fpga_properties props;
+  uint32_t num_errors = 0;
+  ASSERT_EQ(fpgaGetProperties(tokens_[0], &props), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetNumErrors(props, &num_errors), FPGA_OK);
+  // this is a port, which only has three error registers
+  ASSERT_EQ(num_errors, platform_.devices[0].port_num_errors);
+  std::map<std::string, bool> knows_errors = {{"errors", true},
+                                              {"first_error", false},
+                                              {"first_malformed_req", false}};
+  std::vector<fpga_error_info> info_list(num_errors);
+  for (int i = 0; i < num_errors; ++i) {
+    fpga_error_info & info = info_list[i];
+    EXPECT_EQ(fpgaGetErrorInfo(tokens_[0], i, &info), FPGA_OK);
+    EXPECT_EQ(info.can_clear, knows_errors[info.name]);
+  }
+
 }
 
 /**
@@ -144,4 +160,5 @@ TEST_P(error_c_p, clear_all) {
   EXPECT_EQ(fpgaClearAllErrors(tokens_[0]), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));
