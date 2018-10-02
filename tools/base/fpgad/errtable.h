@@ -27,7 +27,9 @@
 #ifndef __FPGAD_ERRTABLE_H__
 #define __FPGAD_ERRTABLE_H__
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

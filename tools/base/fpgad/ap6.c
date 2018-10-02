@@ -36,7 +36,7 @@
 #include "config_int.h"
 #include "log.h"
 #include "safe_string/safe_string.h"
-#include "bitstream-tools.h"
+#include "fpgaconf/bitstream-tools.h"
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
@@ -97,7 +97,7 @@ int parse_metadata(struct bitstream_info *info)
 /*
  * Read inferface id from bistream
  */
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;

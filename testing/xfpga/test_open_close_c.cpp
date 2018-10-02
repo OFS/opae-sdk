@@ -199,14 +199,27 @@ TEST_P(openclose_c_p, open_05) {
   strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_NO_DRIVER, res);
+}
 
+/**
+ * @test       open_06
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_NO_MEMORY.
+ *
+ */
+TEST_P(openclose_c_p, open_06) {
+  system_->invalidate_malloc();
+  auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
+  ASSERT_EQ(FPGA_NO_MEMORY, res);
 }
 
 /**
  * @test       close_01 
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
- *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ *             but handle fd is invalid. the function returns 
+ *             FPGA_INVALID_PARAM.
  *
  */
 TEST_P(openclose_c_p, close_01) {
@@ -225,8 +238,6 @@ TEST_P(openclose_c_p, close_01) {
    res = xfpga_fpgaClose(handle_);
   EXPECT_EQ(res, FPGA_OK);
 }
-
-
 
 /**
  * @test       close_03
@@ -248,18 +259,6 @@ TEST_P(openclose_c_p, close_03) {
 
   res = xfpga_fpgaClose(handle_);
   EXPECT_EQ(res, FPGA_OK);
-
-
 }
-
-//TEST_P(openclose_c_p, open_07) {
-//  fpga_handle h1,h2;
-//  auto res = xfpga_fpgaOpen(tokens_[0], &h1, 0);
-//  ASSERT_EQ(FPGA_OK, res);
-//  res = xfpga_fpgaOpen(tokens_[0], &h2, 0);
-//  ASSERT_EQ(FPGA_BUSY, res);
-//  ASSERT_EQ(xfpga_fpgaClose(h1), FPGA_OK);
-//
-//}
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));

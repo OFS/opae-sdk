@@ -38,6 +38,8 @@ extern "C" {
 #include "test_system.h"
 #include "gtest/gtest.h"
 
+extern pthread_mutex_t global_lock;
+
 using namespace opae::testing;
 
 TEST(token_list_c, simple_case)
@@ -62,6 +64,37 @@ TEST(token_list_c, simple_case)
   EXPECT_EQ(nullptr, parent);
 }
 
+TEST(token_list_c, invalid_mutex)
+{
+  const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
+  const char *dev_fme = "/dev/intel-fpga-fme.0";
+  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+  const char *dev_port = "/dev/intel-fpga-port.0";
+
+  pthread_mutex_destroy(&global_lock);
+  auto fme = token_add(sysfs_fme, dev_fme);
+  EXPECT_EQ(fme, nullptr);
+  pthread_mutex_init(&global_lock, NULL);
+
+  auto port = token_add(sysfs_port, dev_port);
+  ASSERT_NE(port, nullptr);
+
+  pthread_mutex_destroy(&global_lock);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(nullptr, parent);
+  pthread_mutex_init(&global_lock, NULL);
+
+  pthread_mutex_destroy(&global_lock);
+  token_cleanup();
+  pthread_mutex_init(&global_lock, NULL);
+  parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+
+  token_cleanup();
+
+  parent = token_get_parent(port);
+  EXPECT_EQ(nullptr, parent);
+}
 
 TEST(token_list_c, invalid_paths)
 {
