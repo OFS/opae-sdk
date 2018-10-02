@@ -36,6 +36,7 @@ extern "C" {
   typedef int (*compare_func)(const struct dirent **, const struct dirent **);
   int opae_test_open(const char *path, int flags);
   int opae_test_open_create(const char *path, int flags, mode_t mode);
+  ssize_t opae_test_read(int fd, void *buf, size_t count);
 
   FILE * opae_test_fopen(const char *path, const char *mode);
 

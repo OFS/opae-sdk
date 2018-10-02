@@ -122,8 +122,9 @@ int main(int argc, char *argv[])
 		if (optarg && ('=' == *tmp_optarg))
 			++tmp_optarg;
 
-		if (!optarg && (NULL != argv[optind]) &&
-						('-' != argv[optind][0]))
+		if (!optarg && (optind < argc) &&
+			(NULL != argv[optind]) &&
+			('-' != argv[optind][0]))
 			tmp_optarg = argv[optind++];
 
 		switch (getopt_ret) {

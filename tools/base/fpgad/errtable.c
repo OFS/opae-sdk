@@ -287,7 +287,7 @@ struct fpga_err fme_error_table_rev_1[] = {
 	TABLE_TERMINATOR
 };
 
-static int log_fpga_error(struct fpga_err *e)
+int log_fpga_error(struct fpga_err *e)
 {
 	if (!e->occurred) {
 		e->occurred = true;
@@ -303,7 +303,7 @@ static int log_fpga_error(struct fpga_err *e)
 	return 0;
 }
 
-static int poll_error(struct fpga_err *e)
+int poll_error(struct fpga_err *e)
 {
 	int i;
 	int count = 0;
@@ -343,7 +343,7 @@ static int poll_error(struct fpga_err *e)
  *
  * @returns number of (new) errors that were found
  */
-static int poll_errors(struct fpga_err error_table[])
+int poll_errors(struct fpga_err error_table[])
 {
 	unsigned i;
 	int errors = 0;
@@ -435,3 +435,49 @@ out_exit:
 	return NULL;
 }
 
+#define SYSFS_PATH_MAX 256
+fpga_result sysfs_read_u64(const char *path, uint64_t *u)
+{
+	int fd;
+	int res;
+	char buf[SYSFS_PATH_MAX];
+	int b;
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr, "open(%s) failed \n", path);
+		return FPGA_NOT_FOUND;
+	}
+
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		fprintf(stderr, "seek(%s) failed \n", path);
+		goto out_close;
+	}
+
+	b = 0;
+
+	do {
+		res = read(fd, buf+b, sizeof(buf)-b);
+		if (res <= 0) {
+			fprintf(stderr, "Read from %s failed \n", path);
+			goto out_close;
+		}
+		b += res;
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
+			fprintf(stderr, "Unexpected size reading from %s", path);
+			goto out_close;
+		}
+	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
+
+	// erase \n
+	buf[b-1] = 0;
+
+	*u = strtoull(buf, NULL, 0);
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_NOT_FOUND;
+}
