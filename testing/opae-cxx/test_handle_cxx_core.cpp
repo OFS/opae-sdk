@@ -184,4 +184,22 @@ TEST_P(handle_cxx_core, mmio_64) {
   EXPECT_EQ(value, 10);
 }
 
+/**
+ * @test mmio_ptr
+ * Verify that handle::mmio_ptr is able to map mmio and retrieve
+ * the pointer.
+ */
+TEST_P(handle_cxx_core, mmio_ptr) {
+  int flags = 0;
+  uint64_t offset = 0x100;
+  uint32_t csr_space = 0;
+  uint8_t *h;
+
+  handle_ = handle::open(tokens_[0], flags);
+  ASSERT_NE(nullptr, handle_.get());
+
+  ASSERT_NO_THROW(h = handle_->mmio_ptr(offset, csr_space));
+  ASSERT_NE(nullptr, h);
+}
+
 INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
