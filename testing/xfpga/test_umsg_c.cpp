@@ -286,7 +286,7 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err) {
  * @brief      get_umsg_ptr_ioctl_err_02
  * @details    When the parameters are valid and the drivers are loaded,
  *             but the ioctl fails on FPGA_PORT_UMSG_SET_BASE_ADDR
- *             and FPGA_PORT_DMA_UNMAP. fpgaGetUmsgPtr returns 
+ *             and FPGA_PORT_DMA_UNMAP. fpgaGetUmsgPtr returns
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
@@ -308,7 +308,7 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_02) {
  * @test       umsg_c_p
  * @brief      get_umsg_ptr_ioctl_err_03
  * @details    When the parameters are valid and the drivers are loaded,
- *             but the ioctl fails on FPGA_PORT_DMA_MAP. fpgaGetUmsgPtr returns 
+ *             but the ioctl fails on FPGA_PORT_DMA_MAP. fpgaGetUmsgPtr returns
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
@@ -336,12 +336,11 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
  */
 TEST_P(umsg_c_p, invalid_free_umsg_buffer) {
   uint64_t* umsg_ptr = NULL;
-  uint64_t *value = 0;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   auto res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
- 
+
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_UMSG_DISABLE, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_OK, free_umsg_buffer(handle_));
@@ -364,12 +363,11 @@ TEST_P(umsg_c_p, invalid_free_umsg_buffer) {
  */
 TEST_P(umsg_c_p, invalid_free_umsg_buffer_02) {
   uint64_t* umsg_ptr = NULL;
-  uint64_t *value = 0;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   auto res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
- 
+
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_OK, free_umsg_buffer(handle_));
