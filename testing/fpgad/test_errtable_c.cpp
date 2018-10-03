@@ -113,7 +113,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     pollfd.fd = fd;
     pollfd.events = POLLIN;
 
-    int res = poll(&pollfd, 1, 1000);
+    int res = poll(&pollfd, 1, 2000);
 
     return (res == 1) && ((pollfd.revents & POLLIN) != 0);
   }
