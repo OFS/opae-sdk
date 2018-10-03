@@ -152,4 +152,23 @@ enum fpga_object_read_flags {
   FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
 };
 
+/**
+ * fpga dma transfer typeSemantic version
+ *
+ * Indicate the required transfer type.
+ * For streaming: host to AFU, AFU to host, FPGA local mem to AFU, AFU to FPGA local mem
+ * memory to memory: host to fpga, fpga to host, fpga internal  memory copy
+ */
+enum fpga_dma_transfer_type{
+    HOST_MM_TO_FPGA_ST = 0, // sreaming, host to AFU
+    FPGA_ST_TO_HOST_MM,     // streaming, AFU to host
+    FPGA_MM_TO_FPGA_ST,     // streaming, FPGA local mem to AFU
+    FPGA_ST_TO_FPGA_MM,     // streaming, AFU to FPGA local mem
+    HOST_TO_FPGA_MM,    // Memory mapped FPGA interface
+    FPGA_TO_HOST_MM,    // Memory mapped FPGA interface
+    FPGA_TO_FPGA_MM,    // Memory mapped FPGA interface
+    FPGA_MAX_TRANSFER_TYPE
+};
+
+
 #endif // __FPGA_TYPES_ENUM_H__
