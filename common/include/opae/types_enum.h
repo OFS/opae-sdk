@@ -159,7 +159,7 @@ enum fpga_object_read_flags {
  * For streaming: host to AFU, AFU to host, FPGA local mem to AFU, AFU to FPGA local mem
  * memory to memory: host to fpga, fpga to host, fpga internal  memory copy
  */
-enum fpga_dma_transfer_type{
+typedef enum {
     HOST_MM_TO_FPGA_ST = 0, // sreaming, host to AFU
     FPGA_ST_TO_HOST_MM,     // streaming, AFU to host
     FPGA_MM_TO_FPGA_ST,     // streaming, FPGA local mem to AFU
@@ -168,7 +168,7 @@ enum fpga_dma_transfer_type{
     FPGA_TO_HOST_MM,    // Memory mapped FPGA interface
     FPGA_TO_FPGA_MM,    // Memory mapped FPGA interface
     FPGA_MAX_TRANSFER_TYPE
-};
+}fpga_dma_transfer_type;
 
 
 #endif // __FPGA_TYPES_ENUM_H__
