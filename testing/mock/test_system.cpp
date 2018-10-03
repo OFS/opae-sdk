@@ -172,7 +172,9 @@ test_device test_device::unknown() {
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
                      .fme_num_errors = 0x1234,
-                     .port_num_errors = 0x1234};
+                     .port_num_errors = 0x1234,
+                     .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+		     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
