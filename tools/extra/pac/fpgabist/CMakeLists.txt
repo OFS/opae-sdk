@@ -32,7 +32,7 @@ set(PYTHON_SRC
      bist_nlb3.py
      fpgabist)
 
- add_subdirectory(dma)
+ ##add_subdirectory(dma)
  add_subdirectory(bist)
 
 install(PROGRAMS ${PYTHON_SRC}
