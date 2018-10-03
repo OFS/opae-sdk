@@ -35,6 +35,7 @@
 #include <safe_string/safe_string.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include "c_test_system.h"
 
@@ -58,6 +59,10 @@ int open(const char *path, int flags, ...) {
     fd = opae_test_open(path, flags);
   }
   return fd;
+}
+
+ssize_t read(int fd, void *buf, size_t count) {
+  return opae_test_read(fd, buf, count);
 }
 
 FILE * fopen(const char *path, const char *mode) {

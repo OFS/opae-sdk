@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <opae/fpga.h>
 #include <stddef.h>
 #include <map>
@@ -68,6 +69,7 @@ class mock_object {
 
   std::string sysclass() const { return sysclass_; }
   uint32_t device_id() const { return device_id_; }
+  type_t type() const { return type_; }
 
  private:
   std::string devpath_;
@@ -112,6 +114,8 @@ struct test_device {
   uint32_t device_id;
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
+  const char *gbs_guid;
+  const char *mdata;
   static test_device unknown();
 };
 
@@ -137,6 +141,7 @@ class test_system {
   void set_root(const char *root);
   std::string get_root();
   std::string get_sysfs_path(const std::string &src);
+  std::vector<uint8_t> assemble_gbs_header(const test_device &td);
 
   void initialize();
   void finalize();
@@ -145,6 +150,8 @@ class test_system {
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
+  void invalidate_read(uint32_t after=0, const char *when_called_from=nullptr);
+  ssize_t read(int fd, void *buf, size_t count);
 
   FILE * fopen(const std::string &path, const std::string &mode);
 
@@ -160,6 +167,7 @@ class test_system {
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
+  bool default_ioctl_handler(int request, ioctl_handler_t);
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
   FILE *register_file(const std::string &path);
@@ -168,12 +176,14 @@ class test_system {
   test_system();
   std::string root_;
   std::map<int, mock_object *> fds_;
+  std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
   typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
+  typedef ssize_t (*read_func)(int fd, void *buf, size_t count);
   typedef FILE * (*fopen_func)(const char *path, const char *mode);
   typedef int (*close_func)(int fd);
   typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
@@ -186,6 +196,7 @@ class test_system {
 
   open_func open_;
   open_create_func open_create_;
+  read_func read_;
   fopen_func fopen_;
   close_func close_;
   ioctl_func ioctl_;
