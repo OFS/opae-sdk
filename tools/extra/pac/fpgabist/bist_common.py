@@ -35,9 +35,6 @@ BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 
-ROOT_PATH = '/sys/class/fpga'
-FPGA_DEVICE = os.path.join(ROOT_PATH, 'intel-fpga-dev.{instance_id}')
-
 def find_exec(cmd, paths):
     for p in paths:
         f = os.path.join(p, cmd)
