@@ -228,7 +228,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result)
+	if (result || (NULL == wm))
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -267,7 +267,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result)
+	if (result || (NULL == wm))
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -306,7 +306,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result)
+	if (result || (NULL == wm))
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -345,7 +345,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result)
+	if (result || (NULL == wm))
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -378,7 +378,7 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result)
+	if (result || (NULL == wm))
 		goto out_unlock;
 
 	/* Store return value only if return pointer has allocated memory */
