@@ -70,7 +70,6 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     if (filter_ != nullptr) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     }
-    uint32_t i;
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);

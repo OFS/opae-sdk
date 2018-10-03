@@ -55,7 +55,7 @@ class reset_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
@@ -102,11 +102,10 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  *
  */
 TEST_P(reset_c_p, test_port_drv_reset_02) {
-  int fddev = -1;
 
   // Reset slot
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
-  
+
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
 
