@@ -54,6 +54,8 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&dev_filter_), FPGA_OK); 
+    EXPECT_EQ(fpgaDestroyProperties(&acc_filter_), FPGA_OK); 
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
