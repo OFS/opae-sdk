@@ -54,7 +54,7 @@ class metadata_c
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
@@ -147,7 +147,7 @@ uint8_t bitstream_invalid_json[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": \"
 
 /**
 * @test    read_gbs_metadata
-* @brief   Tests: read_gbs_metadata 
+* @brief   Tests: read_gbs_metadata
 * @details read_gbs_metadata returns BS metadata
 *          Then the return value is FPGA_OK
 */
@@ -178,7 +178,7 @@ TEST_P(metadata_c, read_gbs_metadata) {
   result = read_gbs_metadata(bitstream_empty, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
 
-  // Invalid metadata length 
+  // Invalid metadata length
   result = read_gbs_metadata(bitstream_metadata_length, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
 
@@ -195,19 +195,19 @@ TEST_P(metadata_c, read_gbs_metadata) {
   // Valid metadata - malloc fail
   result = read_gbs_metadata(bitstream_valid_.data(), &gbs_metadata);
   EXPECT_EQ(result, FPGA_NO_MEMORY);
-  
+
   // Invalid metadata afu-image node
   result = read_gbs_metadata(bitstream_no_afu_image, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid metadata interface-uuid
   result = read_gbs_metadata(bitstream_no_interface_id, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid metadata afu-uuid
   result = read_gbs_metadata(bitstream_no_accelerator_id, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid input bitstream
   result = read_gbs_metadata(bitstream_invalid_length, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
