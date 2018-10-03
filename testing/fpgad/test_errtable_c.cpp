@@ -143,10 +143,9 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
   void cause_ktilinkfatal_fme0()
   {
     std::string fname = fme0_ + "/errors/fatal_errors";
-    uint64_t ktilinkfatal_bit = 1;
     FILE *fp = fopen(fname.c_str(), "w");    
     ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%" PRIx64 "\n", ktilinkfatal_bit), 0);
+    EXPECT_GT(fprintf(fp, "0x1\n"), 0);
     fclose(fp);
   }
 
