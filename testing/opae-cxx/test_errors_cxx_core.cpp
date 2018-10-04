@@ -74,6 +74,7 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
 TEST_P(errors_cxx_core, get_error) {
   for (auto &t : tokens_) {
     auto props = properties::get(t);
+    ASSERT_NE(props, nullptr);
     for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
       auto err = error::get(t, i);
       std::cout << "Error [" << err->name() << "]: " << err->read_value() << "\n";
