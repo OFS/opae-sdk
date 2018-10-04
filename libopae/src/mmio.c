@@ -201,6 +201,10 @@ static fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 			return result;
 		}
 		wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
+		if(!wm) {
+			FPGA_ERR("unable to map wsid for mmio region %d", mmio_num);
+			return FPGA_NO_MEMORY;
+		}
 	}
 
 	*wm_out = wm;
@@ -228,7 +232,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result || (NULL == wm))
+	if (result)
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -267,7 +271,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result || (NULL == wm))
+	if (result)
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -306,7 +310,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result || (NULL == wm))
+	if (result)
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -345,7 +349,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result || (NULL == wm))
+	if (result)
 		goto out_unlock;
 
 	if (offset > wm->len) {
@@ -378,7 +382,7 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle,
 		return result;
 
 	result = find_or_map_wm(handle, mmio_num, &wm);
-	if (result || (NULL == wm))
+	if (result)
 		goto out_unlock;
 
 	/* Store return value only if return pointer has allocated memory */
