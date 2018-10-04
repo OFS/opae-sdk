@@ -62,7 +62,9 @@ using namespace opae::testing;
 
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  sysfs_c_p() : handle_(nullptr){}
+  sysfs_c_p()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr){}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -82,10 +84,10 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for ( auto &i : tokens_)
-    {
-        if (i) {
-            EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&i));
+    for (auto &t : tokens_) {
+        if (t) {
+            EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+            t = nullptr;
         }
     }
 
@@ -93,13 +95,12 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
-
 };
 
 /**
