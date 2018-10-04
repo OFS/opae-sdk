@@ -142,7 +142,9 @@ out_EINVAL:
 class buffer_prepare
     : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
-  buffer_prepare() : handle_(nullptr) {}
+  buffer_prepare()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     auto tpl = GetParam();
@@ -167,6 +169,7 @@ class buffer_prepare
     for (auto &t : tokens_) {
         if (t) {
             EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
+            t = nullptr;
         }
     }
 
@@ -174,9 +177,9 @@ class buffer_prepare
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {nullptr, nullptr};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
