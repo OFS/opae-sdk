@@ -26,6 +26,22 @@ target_include_directories(opae-c-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
+add_library(opae-cxx-core-static
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/errors.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/events.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/except.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/handle.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/properties.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/shared_buffer.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/token.cpp
+#    ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
+    )
+target_include_directories(opae-cxx-core-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopaecxx)
+
 add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/bitstream.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/buffer.c
@@ -188,6 +204,13 @@ add_mock_test(test_opae_init_c opae-c-static
 
 add_mock_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
+)
+
+############################################################################
+# cxx core tests ###########################################################
+############################################################################
+add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
+    opae-cxx/test_handle_cxx_core.cpp
 )
 
 ############################################################################
