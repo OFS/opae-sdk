@@ -109,7 +109,7 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
     token_cleanup();
   }
@@ -237,12 +237,12 @@ TEST_P(reconf_c, fpga_reconf_slot) {
 
   // Null handle
   result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid_.data(),
-                                     bitstream_valid_len, flags);
+                                     bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid bitstream - clk
   result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
-                                     bitstream_valid_len, flags);
+                                     bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
   auto &no_clk_arr = bitstream_valid_no_clk_;

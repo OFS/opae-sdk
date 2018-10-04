@@ -90,7 +90,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 

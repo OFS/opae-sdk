@@ -159,9 +159,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   std::vector<uint8_t> buffer(DATA.size());
   EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, DATA.size() + 1, 0),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(
-      xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, FPGA_OBJECT_SYNC),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, FPGA_OBJECT_SYNC),
+            FPGA_OK);
   buffer[10] = '\0';
   EXPECT_STREQ(reinterpret_cast<const char *>(buffer.data()),
                DATA.substr(0, 10).c_str());
@@ -212,7 +211,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
 
   rewind(fp);
   std::vector<char> buffer(256);
-  fread(buffer.data(), buffer.size(), 1, fp);
+  auto result = fread(buffer.data(), buffer.size(), 1, fp);
+  (void) result;
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 

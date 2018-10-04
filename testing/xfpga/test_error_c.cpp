@@ -46,8 +46,8 @@ const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0
 const std::string dev_fme = "/dev/intel-fpga-fme.0";
 const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
 const std::string dev_port = "/dev/intel-fpga-port.0";
- 
-class error_c_p 
+
+class error_c_p
     : public ::testing::TestWithParam<std::string> {
  public:
   int delete_errors(std::string,std::string);
@@ -71,7 +71,7 @@ class error_c_p
     strncpy_s(fake_fme_token_.devpath,sizeof(fake_fme_token_.devpath),dev_fme.c_str(),dev_fme.size());
     fake_fme_token_.magic = FPGA_TOKEN_MAGIC;
     fake_fme_token_.errors = nullptr;
- 
+
   }
 
   virtual void TearDown() override {
@@ -88,15 +88,18 @@ class error_c_p
 };
 
 int error_c_p::delete_errors(std::string fpga_type, std::string filename) {
+  int result;
   std::string fme_sysfspath = tmpsysfs_ + "/" + sysfs_fme + "/" + filename;
   std::string port_sysfspath = tmpsysfs_ + "/" + sysfs_port + "/" + filename;
   if (fpga_type.compare("fme") == 0){
     auto cmd = "rm -rf " + fme_sysfspath;
-    std::system(cmd.c_str());
+    result = std::system(cmd.c_str());
+    (void) result;
     return 1;
   } else if (fpga_type.compare("port") == 0){
     auto cmd = "rm -rf " + port_sysfspath;
-    std::system(cmd.c_str());
+    result = std::system(cmd.c_str());
+    (void) result;
     return 1;
   }
   else {return -1;}
@@ -117,7 +120,7 @@ TEST_P(error_c_p, error_01) {
   unsigned int i = 0;
   uint64_t val = 0;
   fpga_token t = &fake_port_token_;
-  
+
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
@@ -137,7 +140,8 @@ TEST_P(error_c_p, error_01) {
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
 
-  auto ret = delete_errors("port","errors");
+  auto result = delete_errors("port","errors");
+  (void) result;
   // for each error register, get info and read the current value
   for (i = 0; i < n; i++) {
     // get info struct for error register
@@ -164,7 +168,7 @@ TEST_P(error_c_p, error_02) {
   unsigned int i = 0;
   uint64_t val = 0;
   fpga_token t = &fake_fme_token_;
-  
+
   std::string errpath = sysfs_fme + "/errors";
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
 
@@ -184,7 +188,8 @@ TEST_P(error_c_p, error_02) {
     printf("[%u] %s: 0x%016lX%s\n", i, info.name, val, info.can_clear ? " (can clear)" : "");
   }
 
-  auto ret = delete_errors("fme","errors");
+  auto result = delete_errors("fme","errors");
+  (void) result;
   for (i = 0; i < n; i++) {
     // get info struct for error register
     ASSERT_EQ(FPGA_OK, xfpga_fpgaGetErrorInfo(t, i, &info));
@@ -214,7 +219,7 @@ TEST_P(error_c_p, error_03) {
   unsigned int i = 0;
   uint64_t val = 0;
   fpga_token t = &fake_port_token_;
-  
+
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
@@ -292,7 +297,7 @@ TEST_P(error_c_p, error_04) {
   unsigned int i = 0;
   uint64_t val = 0;
   fpga_token t = &fake_port_token_;
-  
+
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
@@ -361,10 +366,8 @@ TEST_P(error_c_p, error_04) {
  */
 TEST_P(error_c_p, error_05) {
   unsigned int n = 0;
-  unsigned int i = 0;
-  uint64_t val = 0;
   fpga_token t = &fake_port_token_;
-  
+
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
@@ -393,9 +396,8 @@ TEST_P(error_c_p, error_06) {
   fpga_error_info info;
   unsigned int n = 0;
   unsigned int i = 0;
-  uint64_t val = 0;
   fpga_token t = &fake_fme_token_;
-  
+
   std::string errpath = sysfs_fme + "/errors";
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
 
@@ -416,7 +418,7 @@ TEST_P(error_c_p, error_06) {
       EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, i));
     }
   }
-  
+
   // set error list to null
   fake_fme_token_.errors = nullptr;
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(t, 0));
@@ -426,18 +428,15 @@ TEST_P(error_c_p, error_06) {
  *
  * @brief      When passed a valid FME token,
  *             and delete error removes errors dir
- *             fpgaReadError() and fpgaClearError will 
+ *             fpgaReadError() and fpgaClearError will
  *             returns FPGA_EXCEPTION
  *
  */
 TEST_P(error_c_p, error_07) {
   fpga_error_info info;
-  unsigned int n = 0;
-  unsigned int i = 0;
-  uint64_t val = 0;
   fpga_token t = &fake_fme_token_;
   uint32_t num_errors = 0;
-  
+
   std::string errpath = sysfs_fme + "/errors";
   // build errors and immediately remove errors dir
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
@@ -445,7 +444,7 @@ TEST_P(error_c_p, error_07) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   ASSERT_EQ(fpgaPropertiesGetNumErrors(filter_, &num_errors), FPGA_OK);
   ASSERT_NE(num_errors, 0) << "No errors to clear";
-  for (i = 0; i < num_errors; i++) {
+  for (int i = 0; i < num_errors; i++) {
     ASSERT_EQ(xfpga_fpgaGetErrorInfo(t, i, &info), FPGA_OK);
     if (info.can_clear) {
       auto ret = delete_errors("fme","errors");
@@ -468,10 +467,8 @@ TEST_P(error_c_p, error_07) {
  */
 TEST_P(error_c_p, error_08) {
   unsigned int n = 0;
-  unsigned int i = 0;
-  uint64_t val = 0;
   fpga_token t = &fake_port_token_;
-  
+
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &fake_port_token_.errors);
 
@@ -496,10 +493,8 @@ TEST_P(error_c_p, error_08) {
  */
 TEST_P(error_c_p, error_09) {
   unsigned int n = 0;
-  unsigned int i = 0;
-  uint64_t val = 0;
   fpga_token t = &fake_fme_token_;
-  
+
   std::string errpath = sysfs_fme + "/errors";
   build_error_list(errpath.c_str(), &fake_fme_token_.errors);
 
@@ -580,7 +575,6 @@ TEST(error_c, error_03) {
   EXPECT_EQ(parent, fme);
   auto tok = (struct _fpga_token*)parent;
 
-  uint64_t val = 0;
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 10));
   tok->magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
@@ -634,7 +628,7 @@ TEST(error_c, error_05) {
 /**
  * @test       error_06
  *
- * @brief      
+ * @brief
  *
  */
 TEST(error_c, error_06) {
@@ -643,10 +637,10 @@ TEST(error_c, error_06) {
   strncpy_s(_t.devpath,sizeof(_t.devpath),dev_port.c_str(),dev_port.size());
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
- 
+
   std::string invalid_errpath = sysfs_port + "/errorss";
   auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
-  EXPECT_EQ(result,0); 
+  EXPECT_EQ(result,0);
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
