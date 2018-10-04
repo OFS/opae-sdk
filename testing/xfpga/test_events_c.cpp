@@ -258,8 +258,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
     fpgad_.join();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_dev_;
@@ -1002,9 +1002,9 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     }
 
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
-    fpgad_.join();
     logger_thread_.join();
+    fpgad_.join();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_accel_;

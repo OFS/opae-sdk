@@ -348,6 +348,7 @@ void test_system::initialize() {
 }
 
 void test_system::finalize() {
+  std::lock_guard<std::mutex> guard(fds_mutex_);
   for (auto kv : fds_) {
     if (kv.second) {
       delete kv.second;
@@ -416,6 +417,7 @@ int test_system::open(const std::string &path, int flags) {
     // we are opening a driver attribute file
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    std::lock_guard<std::mutex> guard(fds_mutex_);
     fds_[fd] = new mock_object(path, sysclass_path, device_id);
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
@@ -423,8 +425,10 @@ int test_system::open(const std::string &path, int flags) {
     auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_fme(path, sysclass_path, device_id);
     } else if (m->group(1) == "port") {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
   }
@@ -435,6 +439,7 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
     std::map<int, mock_object *>::iterator it = fds_.find(fd);
     if (it != fds_.end()) { delete it->second; }
     fds_[fd] = new mock_object(path, "", 0);
@@ -497,6 +502,7 @@ FILE *test_system::fopen(const std::string &path, const std::string &mode) {
 }
 
 int test_system::close(int fd) {
+  std::lock_guard<std::mutex> guard(fds_mutex_);
   std::map<int, mock_object *>::iterator it = fds_.find(fd);
   if (it != fds_.end()) {
     delete it->second;
@@ -506,17 +512,27 @@ int test_system::close(int fd) {
 }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
-  auto mock_it = fds_.find(fd);
-  if (mock_it == fds_.end()) {
-    char *arg = va_arg(argp, char *);
-    return ioctl_(fd, request, arg);
+  mock_object *mo  = nullptr;
+  {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+      auto mi = fds_.find(fd);
+      if (mi != fds_.end()) {
+          mo = mi->second;
+      }
   }
-
+  
+  if (mo == nullptr) {
+      char *arg = va_arg(argp, char *);
+      return ioctl_(fd, request, arg);
+  }
+  
+  // replace mock_it->second with mo
   auto handler_it = ioctl_handlers_.find(request);
   if (handler_it != ioctl_handlers_.end()) {
-    return handler_it->second(mock_it->second, request, argp);
+      return handler_it->second(mo, request, argp);
   }
-  return mock_it->second->ioctl(request, argp);
+  return mo->ioctl(request, argp);
+
 }
 
 DIR *test_system::opendir(const char *path) {
