@@ -142,7 +142,7 @@ out_EINVAL:
 class buffer_prepare
     : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
-  buffer_prepare() : handle_(nullptr) {}
+  buffer_prepare() : handle_(nullptr), tokens_{{nullptr, nullptr}}{}
 
   virtual void SetUp() override {
     auto tpl = GetParam();
@@ -175,7 +175,7 @@ class buffer_prepare
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {nullptr, nullptr};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;

@@ -435,7 +435,7 @@ TEST_P(error_c_p, error_06) {
 TEST_P(error_c_p, error_07) {
   fpga_error_info info;
   fpga_token t = &fake_fme_token_;
-  uint32_t num_errors = 0;
+  uint32_t num_errors = 0, i = 0;
 
   std::string errpath = sysfs_fme + "/errors";
   // build errors and immediately remove errors dir
@@ -444,7 +444,7 @@ TEST_P(error_c_p, error_07) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   ASSERT_EQ(fpgaPropertiesGetNumErrors(filter_, &num_errors), FPGA_OK);
   ASSERT_NE(num_errors, 0) << "No errors to clear";
-  for (int i = 0; i < num_errors; i++) {
+  for (i = 0; i < num_errors; i++) {
     ASSERT_EQ(xfpga_fpgaGetErrorInfo(t, i, &info), FPGA_OK);
     if (info.can_clear) {
       auto ret = delete_errors("fme","errors");
