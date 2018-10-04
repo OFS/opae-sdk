@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 #include <json-c/json.h>
+#include <thread>
+#include <mutex>
 
 extern "C" {
 extern void *__libc_malloc(size_t size);
@@ -176,6 +178,7 @@ class test_system {
 
  private:
   test_system();
+  std::mutex fds_mutex_;
   std::string root_;
   std::map<int, mock_object *> fds_;
   std::map<int, ioctl_handler_t> default_ioctl_handlers_;
