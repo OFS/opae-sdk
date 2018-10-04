@@ -213,6 +213,10 @@ add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
     opae-cxx/test_handle_cxx_core.cpp
 )
 
+add_mock_test(test_opae_properties_cxx_core opae-cxx-core-static
+    opae-cxx/test_properties_cxx_core.cpp
+)
+
 add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
     opae-cxx/test_version_cxx_core.cpp
 )
