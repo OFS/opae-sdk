@@ -995,7 +995,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_accel_) { ASSERT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
     logger_thread_.join();
     fpgad_.join();
     system_->finalize();
