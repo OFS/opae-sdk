@@ -201,7 +201,7 @@ static fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 			return result;
 		}
 		wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
-		if(!wm) {
+		if (!wm) {
 			FPGA_ERR("unable to map wsid for mmio region %d", mmio_num);
 			return FPGA_NO_MEMORY;
 		}
