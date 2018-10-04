@@ -139,7 +139,7 @@ TEST_P(properties_cxx_core, set_guid) {
   fpga_guid guid_in, guid_out;
   auto p = properties::get();
   // set the guid to an fpga_guid
-  uuid_parse(TEST_GUID_STR, guid_in);
+  ASSERT_EQ(0, uuid_parse(TEST_GUID_STR, guid_in));
   p->guid = guid_in;
 
   // now check we set the guid using C APIs
@@ -195,7 +195,7 @@ TEST_P(properties_cxx_core, get_guid) {
 TEST_P(properties_cxx_core, compare_guid) {
   fpga_guid guid_in;
   auto p = properties::get();
-  uuid_parse(TEST_GUID_STR, guid_in);
+  ASSERT_EQ(0, uuid_parse(TEST_GUID_STR, guid_in));
   EXPECT_FALSE(p->guid == guid_in);
   p->guid = guid_in;
   ASSERT_EQ(memcmp(p->guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
@@ -211,7 +211,7 @@ TEST_P(properties_cxx_core, compare_guid) {
  */
 TEST_P(properties_cxx_core, props_ctor_01) {
   fpga_guid guid_in;
-  uuid_parse(TEST_GUID_STR, guid_in);
+  ASSERT_EQ(0, uuid_parse(TEST_GUID_STR, guid_in));
   auto p = properties::get(guid_in);
   ASSERT_EQ(memcmp(p->guid.c_type(), guid_in, sizeof(fpga_guid)), 0);
   EXPECT_TRUE(p->guid == guid_in);
