@@ -24,53 +24,54 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "gtest/gtest.h"
-#include "test_system.h"
-#include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/token.h>
+#include "gtest/gtest.h"
+#include "test_system.h"
 
-#include "intel-fpga.h"
-#include <cstdarg>
 #include <linux/ioctl.h>
+#include <cstdarg>
+#include "intel-fpga.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-int mmio_ioctl(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
-    if (!rinfo) {
-      FPGA_MSG("rinfo is NULL");
-      goto out_EINVAL;
-    }
-    if (rinfo->argsz != sizeof(*rinfo)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-    }
-    if (rinfo->index > 1 ) {
-      FPGA_MSG("unsupported MMIO index");
-      goto out_EINVAL;
-    }
-    if (rinfo->padding != 0) {
-      FPGA_MSG("unsupported padding");
-      goto out_EINVAL;
-    }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-    rinfo->size = 0x40000;
-    rinfo->offset = 0;
-    retval = 0;
-    errno = 0;
+int mmio_ioctl(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_region_info *rinfo =
+      va_arg(argp, struct fpga_port_region_info *);
+  if (!rinfo) {
+    FPGA_MSG("rinfo is NULL");
+    goto out_EINVAL;
+  }
+  if (rinfo->argsz != sizeof(*rinfo)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  if (rinfo->index > 1) {
+    FPGA_MSG("unsupported MMIO index");
+    goto out_EINVAL;
+  }
+  if (rinfo->padding != 0) {
+    FPGA_MSG("unsupported padding");
+    goto out_EINVAL;
+  }
+  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+  rinfo->size = 0x40000;
+  rinfo->offset = 0;
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
 class handle_cxx_core : public ::testing::TestWithParam<std::string> {
@@ -92,9 +93,7 @@ class handle_cxx_core : public ::testing::TestWithParam<std::string> {
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
-  virtual void TearDown() override {
-    system_->finalize();
-  }
+  virtual void TearDown() override { system_->finalize(); }
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
@@ -143,7 +142,8 @@ TEST_P(handle_cxx_core, reconfigure_null) {
   handle_ = handle::open(tokens_[0], flags);
   ASSERT_NE(nullptr, handle_.get());
 
-  EXPECT_THROW(handle_->reconfigure(slot, bitstream, size, flags), std::exception);
+  EXPECT_THROW(handle_->reconfigure(slot, bitstream, size, flags),
+               invalid_param);
 }
 
 /**
@@ -184,4 +184,23 @@ TEST_P(handle_cxx_core, mmio_64) {
   EXPECT_EQ(value, 10);
 }
 
-INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test mmio_ptr
+ * Verify that handle::mmio_ptr is able to map mmio and retrieve
+ * the pointer.
+ */
+TEST_P(handle_cxx_core, mmio_ptr) {
+  int flags = 0;
+  uint64_t offset = 0x100;
+  uint32_t csr_space = 0;
+  uint8_t *h;
+
+  handle_ = handle::open(tokens_[0], flags);
+  ASSERT_NE(nullptr, handle_.get());
+
+  ASSERT_NO_THROW(h = handle_->mmio_ptr(offset, csr_space));
+  ASSERT_NE(nullptr, h);
+}
+
+INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,
+                        ::testing::ValuesIn(test_platform::keys(true)));

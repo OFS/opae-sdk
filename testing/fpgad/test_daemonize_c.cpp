@@ -24,77 +24,114 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <signal.h>
+#include "test_system.h"
+
 extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
+
+int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir);
+
+void test_sig_handler(int sig, siginfo_t *info, void *unused)
+{
+  UNUSED_PARAM(sig);
+  UNUSED_PARAM(info);
+  UNUSED_PARAM(unused);
+}
 
 }
 
+#include <config.h>
 #include <opae/fpga.h>
 
-#include <array>
+#include <cstdio>
 #include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+#include <cstring>
+#include <errno.h>
+#include <thread>
+#include <chrono>
+#include <unistd.h>
+#include <linux/limits.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
 
 using namespace opae::testing;
 
-class reset_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_daemonize_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  reset_c_p() : tokens_{{nullptr, nullptr}} {}
+  fpgad_daemonize_c_p() {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
+    strcpy(daemonize_result_, "daem-XXXXXX.pid");
+    close(mkstemps(daemonize_result_, 4));
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
     system_->finalize();
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
+  char daemonize_result_[20];
   test_platform platform_;
-  uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
-TEST_P(reset_c_p, success) {
-    EXPECT_EQ(fpgaReset(accel_), FPGA_OK);
+/**
+ * @test       test
+ * @brief      Test: daemonize
+ * @details    daemonize places the process in daemon mode.<br>
+ */
+TEST_P(fpgad_daemonize_c_p, test) {
+  pid_t pid = fork();
+
+  ASSERT_NE(-1, pid);
+
+  if (!pid) {
+    // child
+    int res;
+    char cwd[PATH_MAX];
+
+    res = daemonize(test_sig_handler, 0, getcwd(cwd, sizeof(cwd)));
+
+    // pass the result of daemonize to the parent proc via the tmp file.
+    FILE *fp = fopen(daemonize_result_, "w");
+    if (fp) {
+      fprintf(fp, "%d\n", res);
+      fclose(fp);
+    }
+
+    exit(0);
+
+  } else {
+    // parent
+    int res = -1;
+    int timeout = 15;
+
+    FILE *fp = fopen(daemonize_result_, "r");
+    ASSERT_NE(nullptr, fp);
+
+    while (fscanf(fp, "%d", &res) != 1) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      rewind(fp);
+      timeout--;
+      if (!timeout)
+	      fclose(fp);
+      ASSERT_GT(timeout, 0);
+    }
+    fclose(fp);
+
+    EXPECT_EQ(res, 0);
+  }
+
 }
 
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
+                        ::testing::Values(std::string("skx-p-1s")));

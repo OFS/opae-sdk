@@ -47,10 +47,10 @@ static int validate_argp(mock_object* mock, int request, va_list argp) {
   return 0;
 }
 
-#define DEFAULT_IOCTL_HANDLER(_REQ, _S)                               \
-  namespace {                                                          \
-  static bool r##_S = test_system::instance()->register_ioctl_handler( \
-      _REQ, validate_argp<_S>);                                        \
+#define DEFAULT_IOCTL_HANDLER(_REQ, _S)                                        \
+  namespace {                                                                  \
+  static bool r##_S =                                                          \
+      test_system::instance()->default_ioctl_handler(_REQ, validate_argp<_S>); \
   }
 
 // FPGA DEVICE
@@ -63,15 +63,15 @@ DEFAULT_IOCTL_HANDLER(FPGA_FME_ERR_SET_IRQ, fpga_fme_err_irq_set);
 // FPGA ACCELERATOR
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_DMA_MAP, fpga_port_dma_map);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_DMA_UNMAP, fpga_port_dma_unmap);
-//DEFAULT_IOCTL_HANDLER(FPGA_PORT_RESET);
+// DEFAULT_IOCTL_HANDLER(FPGA_PORT_RESET);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_GET_REGION_INFO, fpga_port_region_info);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_GET_INFO, fpga_port_info);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_ERR_SET_IRQ, fpga_port_err_irq_set);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_UAFU_SET_IRQ, fpga_port_uafu_irq_set);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_SET_MODE, fpga_port_umsg_cfg);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_SET_BASE_ADDR, fpga_port_umsg_base_addr);
-//DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_ENABLE);
-//DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_DISABLE);
+// DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_ENABLE);
+// DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_DISABLE);
 
 }  // end of namespace testing
 }  // end of namespace opae

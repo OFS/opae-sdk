@@ -36,7 +36,9 @@ using namespace opae::testing;
 class reset_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
-  reset_c_p() : handle_(nullptr) {}
+  reset_c_p()
+  : handle_(nullptr),
+    tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -55,13 +57,19 @@ class reset_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -102,11 +110,10 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
  *
  */
 TEST_P(reset_c_p, test_port_drv_reset_02) {
-  int fddev = -1;
 
   // Reset slot
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
-  
+
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
 

@@ -44,7 +44,9 @@ using namespace opae::testing;
 class reconf_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  reconf_c() : handle_(nullptr) {}
+  reconf_c()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -62,21 +64,19 @@ class reconf_c
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
-    for (auto & t : tokens_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_) {
+      if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -89,7 +89,7 @@ class reconf_c
 * @brief   Tests: set_afu_userclock
 * @details set_afu_userclock sets afu user clock
 *          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle. 
+*          error code if invalid user clock or handle.
 */
 TEST_P(reconf_c, set_afu_userclock) {
   fpga_result result;
@@ -114,7 +114,7 @@ TEST_P(reconf_c, set_afu_userclock) {
 * @test    set_fpga_pwr_threshold
 * @brief   Tests: set_fpga_pwr_threshold
 * @details set_fpga_pwr_threshold sets power threshold
-*          Returns FPGA_OK if parameters are valid. Returns 
+*          Returns FPGA_OK if parameters are valid. Returns
 *          error code if invalid power threshold or handle.
 */
 TEST_P(reconf_c, set_fpga_pwr_threshold) {
@@ -198,22 +198,22 @@ TEST_P(reconf_c, fpga_reconf_slot) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Invalid bitstream - invalid json
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_invalid_json, 
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_invalid_json,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Null handle
-  result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid, 
+  result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid bitstream - clk
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid, 
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
   // Valid bitstream - no clk
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk, 
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_no_clk,
                                      bitstream_valid_len, flags);
   EXPECT_EQ(result, FPGA_OK);
 
@@ -276,10 +276,9 @@ TEST_P(reconf_c, open_accel) {
   handle->token = token;
 
   fpga_properties filter_accel;
-  std::array<fpga_token, 2> tokens_accel = {};
+  std::array<fpga_token, 2> tokens_accel = {{nullptr,nullptr}};
   fpga_handle handle_accel;
   uint32_t num_matches_accel;
-  uint32_t i;
 
   ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel, FPGA_ACCELERATOR), FPGA_OK);

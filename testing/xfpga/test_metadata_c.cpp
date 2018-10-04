@@ -24,6 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+extern "C" {
+#include "token_list_int.h"
+fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+}
+
+
 #include <bitstream_int.h>
 #include <types_int.h>
 #include "gtest/gtest.h"
@@ -35,7 +41,9 @@ using namespace opae::testing;
 class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  metadata_c() : handle_(nullptr) {}
+  metadata_c()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -48,28 +56,32 @@ class metadata_c
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 						&num_matches_),  FPGA_OK);
+    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+    mdata_ = platform_.devices[0].mdata;
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
+  std::string mdata_;
+  std::vector<uint8_t> bitstream_valid_;
 };
 
-uint8_t bitstream_valid[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
 uint8_t bitstream_null[10] = "abcd";
 uint8_t bitstream_invalid_guid[] = "Xeon·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
@@ -149,7 +161,7 @@ uint8_t bitstream_invalid_json[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": \"
 
 /**
 * @test    read_gbs_metadata
-* @brief   Tests: read_gbs_metadata 
+* @brief   Tests: read_gbs_metadata
 * @details read_gbs_metadata returns BS metadata
 *          Then the return value is FPGA_OK
 */
@@ -180,7 +192,7 @@ TEST_P(metadata_c, read_gbs_metadata) {
   result = read_gbs_metadata(bitstream_empty, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
 
-  // Invalid metadata length 
+  // Invalid metadata length
   result = read_gbs_metadata(bitstream_metadata_length, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
 
@@ -189,27 +201,27 @@ TEST_P(metadata_c, read_gbs_metadata) {
   EXPECT_NE(result, FPGA_OK);
 
   // Valid metadata
-  result = read_gbs_metadata(bitstream_valid, &gbs_metadata);
+  result = read_gbs_metadata(bitstream_valid_.data(), &gbs_metadata);
   EXPECT_EQ(result, FPGA_OK);
 
   test_system::instance()->invalidate_malloc();
 
   // Valid metadata - malloc fail
-  result = read_gbs_metadata(bitstream_valid, &gbs_metadata);
+  result = read_gbs_metadata(bitstream_valid_.data(), &gbs_metadata);
   EXPECT_EQ(result, FPGA_NO_MEMORY);
-  
+
   // Invalid metadata afu-image node
   result = read_gbs_metadata(bitstream_no_afu_image, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid metadata interface-uuid
   result = read_gbs_metadata(bitstream_no_interface_id, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid metadata afu-uuid
   result = read_gbs_metadata(bitstream_no_accelerator_id, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
-  
+
   // Invalid input bitstream
   result = read_gbs_metadata(bitstream_invalid_length, &gbs_metadata);
   EXPECT_NE(result, FPGA_OK);
@@ -235,13 +247,13 @@ TEST_P(metadata_c, validate_bitstream_metadata) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   // Valid metadata
-  result = validate_bitstream_metadata(handle_, bitstream_valid);
+  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_OK);
 
   test_system::instance()->invalidate_malloc();
 
   // Valid metadata - malloc fail
-  result = validate_bitstream_metadata(handle_, bitstream_valid);
+  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_NO_MEMORY);
 
   // Invalid input bitstream
@@ -290,8 +302,8 @@ TEST_P(metadata_c, get_bitstream_header_len) {
   int len;
 
   // Valid metadata
-  len = get_bitstream_header_len(bitstream_valid);
-  EXPECT_EQ(len, 575);
+  len = get_bitstream_header_len(bitstream_valid_.data());
+  EXPECT_EQ(len, mdata_.size() + sizeof(fpga_guid) + sizeof(uint32_t));
 
   // Invalid guid
   len = get_bitstream_header_len(bitstream_invalid_guid);
@@ -311,8 +323,8 @@ TEST_P(metadata_c, get_bitstream_json_len) {
   int len;
 
   // Valid metadata
-  len = get_bitstream_json_len(bitstream_valid);
-  EXPECT_EQ(len, 555);
+  len = get_bitstream_json_len(bitstream_valid_.data());
+  EXPECT_EQ(len, mdata_.size());
 
   // Invalid metadata
   len = get_bitstream_json_len(bitstream_invalid_guid);
@@ -322,5 +334,62 @@ TEST_P(metadata_c, get_bitstream_json_len) {
   len = get_bitstream_json_len(NULL);
   EXPECT_EQ(len, -1);
 }
+
+/**
+* @test    get_interface_id_01
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+*/
+TEST_P(metadata_c, get_interface_id_01) {
+  uint64_t id_l;
+  uint64_t id_h;
+  auto _token = (struct _fpga_token *)tokens_[0];
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Invalid object type
+  _token->magic = 0x123;
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+
+  _token->magic = FPGA_TOKEN_MAGIC;
+
+  res = get_interface_id(handle_, nullptr, nullptr);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+}
+
+/**
+* @test    get_interface_id_02
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_INVALID_PARAM
+*/
+TEST_P(metadata_c, get_interface_id_02) {
+  uint64_t id_l;
+  uint64_t id_h;
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
+
+  handle->token = NULL;
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM);
+}
+
+/**
+* @test    get_interface_id_03
+* @brief   Tests: get_interface_id
+* @details Given invalid params, the function returns FPGA_EXCEPTION
+*/
+TEST_P(metadata_c, get_interface_id_03) {
+  std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.01";
+  uint64_t id_l;
+  uint64_t id_h;
+  auto _token = (struct _fpga_token *)tokens_[0];
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // invalid file
+  strncpy(_token->sysfspath, sysfs_fme.c_str(), SYSFS_PATH_MAX);
+  auto res = get_interface_id(handle_, &id_l, &id_h);
+  EXPECT_EQ(res, FPGA_EXCEPTION);
+}
+
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));

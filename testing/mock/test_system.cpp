@@ -28,12 +28,12 @@
  */
 
 #include "test_system.h"
-#include <iostream>
 #include <stdarg.h>
 #include <unistd.h>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include "c_test_system.h"
 #include "test_utils.h"
 
@@ -42,6 +42,7 @@
 #endif
 #include <dlfcn.h>
 #include <sys/stat.h>
+#include <uuid/uuid.h>
 
 void *__builtin_return_address(unsigned level);
 
@@ -84,39 +85,35 @@ void *malloc(size_t size) {
 // hijack calloc
 static bool _invalidate_calloc = false;
 static uint32_t _invalidate_calloc_after = 0;
-static const char * _invalidate_calloc_when_called_from = nullptr;
+static const char *_invalidate_calloc_when_called_from = nullptr;
 void *calloc(size_t nmemb, size_t size) {
   if (_invalidate_calloc) {
-
     if (!_invalidate_calloc_when_called_from) {
+      if (!_invalidate_calloc_after) {
+        _invalidate_calloc = false;
+        return nullptr;
+      }
 
-        if (!_invalidate_calloc_after) {
-          _invalidate_calloc = false;
-          return nullptr;
-        }
-
-        --_invalidate_calloc_after;
+      --_invalidate_calloc_after;
 
     } else {
-        void *caller = __builtin_return_address(0);
-        int res;
-        Dl_info info;
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
 
-        if (!_invalidate_calloc_after && !res) {
-          _invalidate_calloc = false;
-          _invalidate_calloc_when_called_from = nullptr;
-          return nullptr;
-        } else if (!res)
-            --_invalidate_calloc_after;
-
+      if (!_invalidate_calloc_after && !res) {
+        _invalidate_calloc = false;
+        _invalidate_calloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_calloc_after;
     }
-
   }
   return __libc_calloc(nmemb, size);
 }
@@ -175,10 +172,32 @@ test_device test_device::unknown() {
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
                      .fme_num_errors = 0x1234,
-                     .port_num_errors = 0x1234};
+                     .port_num_errors = 0x1234,
+                     .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+		     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
+
+const char *skx_mdata =
+    R"mdata({"version": 640,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "power": 50,
+     "interface-uuid": "1a422218-6dba-448e-b302-425cbcde1406",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb_400",
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
+        }
+      ]
+     },
+     "platform-name": "MCP"}";
+)mdata";
 
 static platform_db PLATFORMS = {
     {"skx-p-1s",
@@ -202,7 +221,9 @@ static platform_db PLATFORMS = {
                        .vendor_id = 0x8086,
                        .device_id = 0xbcc0,
                        .fme_num_errors = 9,
-                       .port_num_errors = 3}}}}};
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = skx_mdata}}}}};
 
 test_platform test_platform::get(const std::string &key) {
   return PLATFORMS[key];
@@ -224,12 +245,12 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return keys;
 }
 
-
 test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
+  read_ = (read_func)dlsym(RTLD_NEXT, "read");
   fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
@@ -248,33 +269,38 @@ test_system *test_system::instance() {
 }
 
 void test_system::prepare_syfs(const test_platform &platform) {
-  char tmpsysfs[]{ "tmpsysfs-XXXXXX" };
+  int result = 0;
+  char tmpsysfs[]{"tmpsysfs-XXXXXX"};
+
   if (platform.mock_sysfs != nullptr) {
-    char* tmp = mkdtemp(tmpsysfs);
+    char *tmp = mkdtemp(tmpsysfs);
     if (tmp == nullptr) {
       throw std::runtime_error("error making tmpsysfs");
     }
     root_ = std::string(tmp);
     std::string cmd = "tar xzf " + std::string(platform.mock_sysfs) + " -C " +
                       root_ + " --strip 1";
-    std::system(cmd.c_str());
+    result = std::system(cmd.c_str());
   }
+  return (void) result;
 }
 
 void test_system::remove_sysfs() {
+  int result = 0;
   if (root_.find("tmpsysfs") != std::string::npos) {
     struct stat st;
     if (stat(root_.c_str(), &st)) {
-      std::cerr << "Error stat'ing root dir (" << root_ << "):" << strerror(errno) << "\n";
+      std::cerr << "Error stat'ing root dir (" << root_
+                << "):" << strerror(errno) << "\n";
       return;
     }
-    if (S_ISDIR(st.st_mode)){
+    if (S_ISDIR(st.st_mode)) {
       auto cmd = "rm -rf " + root_;
-      std::system(cmd.c_str());
+      result = std::system(cmd.c_str());
     }
   }
+  return (void) result;
 }
-
 
 void test_system::set_root(const char *root) { root_ = root; }
 std::string test_system::get_root() { return root_; }
@@ -292,9 +318,23 @@ std::string test_system::get_sysfs_path(const std::string &src) {
   return src;
 }
 
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
+  std::vector<uint8_t> gbs_header(20, 0);
+  if (uuid_parse(td.gbs_guid, gbs_header.data())) {
+    std::string msg = "unable to parse UUID: ";
+    msg.append(td.gbs_guid);
+    throw std::runtime_error(msg);
+  }
+  uint32_t len = strlen(td.mdata);
+  *reinterpret_cast<uint32_t *>(gbs_header.data() + 16) = len;
+  std::copy(&td.mdata[0], &td.mdata[len], std::back_inserter(gbs_header));
+  return gbs_header;
+}
+
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
+  ASSERT_FN(read_);
   ASSERT_FN(fopen_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
@@ -302,9 +342,13 @@ void test_system::initialize() {
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
+  for (const auto &kv : default_ioctl_handlers_) {
+    register_ioctl_handler(kv.first, kv.second);
+  }
 }
 
 void test_system::finalize() {
+  std::lock_guard<std::mutex> guard(fds_mutex_);
   for (auto kv : fds_) {
     if (kv.second) {
       delete kv.second;
@@ -317,13 +361,21 @@ void test_system::finalize() {
   for (auto kv : registered_files_) {
     unlink(kv.second.c_str());
   }
+  ioctl_handlers_.clear();
+}
+
+bool test_system::default_ioctl_handler(int request, ioctl_handler_t h) {
+  bool already_registered =
+      default_ioctl_handlers_.find(request) != default_ioctl_handlers_.end();
+  default_ioctl_handlers_[request] = h;
+  return already_registered;
 }
 
 bool test_system::register_ioctl_handler(int request, ioctl_handler_t h) {
-  bool alhready_registered =
+  bool already_registered =
       ioctl_handlers_.find(request) != ioctl_handlers_.end();
   ioctl_handlers_[request] = h;
-  return alhready_registered;
+  return already_registered;
 }
 
 FILE *test_system::register_file(const std::string &path) {
@@ -365,6 +417,7 @@ int test_system::open(const std::string &path, int flags) {
     // we are opening a driver attribute file
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    std::lock_guard<std::mutex> guard(fds_mutex_);
     fds_[fd] = new mock_object(path, sysclass_path, device_id);
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
@@ -372,8 +425,10 @@ int test_system::open(const std::string &path, int flags) {
     auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_fme(path, sysclass_path, device_id);
     } else if (m->group(1) == "port") {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
   }
@@ -384,12 +439,61 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
     std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end())
-        delete it->second;          
+    if (it != fds_.end()) { delete it->second; }
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
+}
+
+static bool _invalidate_read = false;
+static uint32_t _invalidate_read_after = 0;
+static const char * _invalidate_read_when_called_from = nullptr;
+void test_system::invalidate_read(uint32_t after, const char *when_called_from) {
+  _invalidate_read = true;
+  _invalidate_read_after = after;
+  _invalidate_read_when_called_from = when_called_from;
+}
+
+ssize_t test_system::read(int fd, void *buf, size_t count) {
+  if (_invalidate_read) {
+
+    if (!_invalidate_read_when_called_from) {
+
+        if (!_invalidate_read_after) {
+          _invalidate_read = false;
+          return -1;
+        }
+
+        --_invalidate_read_after;
+
+    } else {
+        // 2 here, because we were called through..
+	// 0 test_system.cpp:opae_test_read()
+	// 1 mock.c:read()
+	// 2 <caller>
+        void *caller = __builtin_return_address(2);
+        int res;
+        Dl_info info;
+
+        dladdr(caller, &info);
+        if (!info.dli_sname)
+            res = 1;
+        else
+            res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+
+        if (!_invalidate_read_after && !res) {
+          _invalidate_read = false;
+          _invalidate_read_when_called_from = nullptr;
+          return -1;
+        } else if (!res)
+            --_invalidate_read_after;
+
+    }
+
+  }
+  return read_(fd, buf, count);
 }
 
 FILE *test_system::fopen(const std::string &path, const std::string &mode) {
@@ -397,8 +501,8 @@ FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   return fopen_(syspath.c_str(), mode.c_str());
 }
 
-int test_system::close(int fd)
-{
+int test_system::close(int fd) {
+  std::lock_guard<std::mutex> guard(fds_mutex_);
   std::map<int, mock_object *>::iterator it = fds_.find(fd);
   if (it != fds_.end()) {
     delete it->second;
@@ -408,17 +512,27 @@ int test_system::close(int fd)
 }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
-  auto mock_it = fds_.find(fd);
-  if (mock_it == fds_.end()) {
-    char *arg = va_arg(argp, char *);
-    return ioctl_(fd, request, arg);
+  mock_object *mo  = nullptr;
+  {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+      auto mi = fds_.find(fd);
+      if (mi != fds_.end()) {
+          mo = mi->second;
+      }
   }
-
+  
+  if (mo == nullptr) {
+      char *arg = va_arg(argp, char *);
+      return ioctl_(fd, request, arg);
+  }
+  
+  // replace mock_it->second with mo
   auto handler_it = ioctl_handlers_.find(request);
   if (handler_it != ioctl_handlers_.end()) {
-    return handler_it->second(mock_it->second, request, argp);
+      return handler_it->second(mo, request, argp);
   }
-  return mock_it->second->ioctl(request, argp);
+  return mo->ioctl(request, argp);
+
 }
 
 DIR *test_system::opendir(const char *path) {
@@ -454,7 +568,8 @@ void test_system::invalidate_malloc(uint32_t after,
   _invalidate_malloc_when_called_from = when_called_from;
 }
 
-void test_system::invalidate_calloc(uint32_t after, const char *when_called_from) {
+void test_system::invalidate_calloc(uint32_t after,
+                                    const char *when_called_from) {
   _invalidate_calloc = true;
   _invalidate_calloc_after = after;
   _invalidate_calloc_when_called_from = when_called_from;
@@ -471,6 +586,10 @@ int opae_test_open(const char *path, int flags) {
 
 int opae_test_open_create(const char *path, int flags, mode_t mode) {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+ssize_t opae_test_read(int fd, void *buf, size_t count) {
+  return opae::testing::test_system::instance()->read(fd, buf, count);
 }
 
 FILE *opae_test_fopen(const char *path, const char *mode) {

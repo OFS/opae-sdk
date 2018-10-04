@@ -49,6 +49,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/common.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/enum.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/error.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/hostif.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/init.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/manage.c
@@ -74,6 +75,23 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
+add_library(fpgad-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
+    )
+
+target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
+
+target_include_directories(fpgad-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
@@ -103,7 +121,7 @@ endmacro(add_mock_test test_name)
 
 
 ############################################################################
-## Create config_int.h #########################################################
+############################################################################
 ############################################################################
 
 
@@ -118,6 +136,10 @@ include_directories(
     {CMAKE_CURRENT_SOURCE_DIR}
     {CMAKE_CURRENT_SOURCE_DIR}/mock
     )
+
+############################################################################
+# opae-c tests #############################################################
+############################################################################
 
 add_mock_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
@@ -157,9 +179,8 @@ add_mock_test(test_opae_error_c opae-c-static
 
 add_mock_test(test_opae_event_c opae-c-static
     opae-c/test_event_c.cpp
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
 )
+target_link_libraries(test_opae_event_c fpgad-static safestr)
 
 add_mock_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
@@ -185,6 +206,9 @@ add_mock_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
 
+############################################################################
+# cxx core tests ###########################################################
+############################################################################
 add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
     opae-cxx/test_handle_cxx_core.cpp
 )
@@ -192,6 +216,9 @@ add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
 add_mock_test(test_opae_errors_cxx_core opae-cxx-core-static
     opae-cxx/test_errors_cxx_core.cpp
 )
+############################################################################
+# xfpga tests ##############################################################
+############################################################################
 
 add_mock_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
@@ -207,7 +234,6 @@ add_mock_test(test_xfpga_mock_errinj_c xfpga-static
 
 add_mock_test(test_xfpga_common_c xfpga-static
     xfpga/test_common_c.cpp
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
 )
 
 add_mock_test(test_xfpga_properties_c xfpga-static
@@ -272,9 +298,44 @@ add_mock_test(test_xfpga_manage_c xfpga-static
 
 add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
+)
+target_link_libraries(test_xfpga_events_c fpgad-static safestr 
+        ${libjson-c_LIBRARIES})
+
+############################################################################
+# fpgad tests ##############################################################
+############################################################################
+
+add_mock_test(test_fpgad_log_c fpgad-static
+    fpgad/test_log_c.cpp
+)
+
+add_mock_test(test_fpgad_srv_c fpgad-static
+    fpgad/test_srv_c.cpp
+)
+
+add_mock_test(test_fpgad_evt_c fpgad-static
+    fpgad/test_evt_c.cpp
+)
+
+add_mock_test(test_fpgad_errtable_c fpgad-static
+    fpgad/test_errtable_c.cpp
+)
+
+add_mock_test(test_fpgad_ap_event_c fpgad-static
+    fpgad/test_ap_event_c.cpp
+)
+
+add_mock_test(test_fpgad_daemonize_c fpgad-static
+    fpgad/test_daemonize_c.cpp
+)
+
+add_mock_test(test_fpgad_fpgad_c fpgad-static
+    fpgad/test_fpgad_c.cpp
+)
+
+add_mock_test(test_fpgad_ap6_c fpgad-static
+    fpgad/test_ap6_c.cpp
 )
 
 add_custom_command(TARGET test_unit

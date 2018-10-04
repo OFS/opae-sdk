@@ -27,7 +27,9 @@
 #ifndef __FPGAD_ERRTABLE_H__
 #define __FPGAD_ERRTABLE_H__
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -64,7 +66,7 @@ struct fpga_err {
 
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
 
-fpga_result sysfs_read_u64(const char *path, uint64_t *u);
+fpga_result fpgad_sysfs_read_u64(const char *path, uint64_t *u);
 
 void *logger_thread(void *);
 
