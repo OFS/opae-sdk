@@ -34,7 +34,7 @@ add_library(opae-cxx-core-static
     ${OPAE_SDK_SOURCE}/libopaecxx/src/properties.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/shared_buffer.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/token.cpp
-#    ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
     )
 target_include_directories(opae-cxx-core-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -218,6 +218,18 @@ add_mock_test(test_opae_events_cxx_core opae-cxx-core-static
 )
 target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
         ${libjson-c_LIBRARIES})
+
+add_mock_test(test_opae_properties_cxx_core opae-cxx-core-static
+    opae-cxx/test_properties_cxx_core.cpp
+)
+
+add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
+    opae-cxx/test_version_cxx_core.cpp
+)
+
+add_mock_test(test_opae_except_cxx_core opae-cxx-core-static
+    opae-cxx/test_except_cxx_core.cpp
+)
 
 ############################################################################
 # xfpga tests ##############################################################

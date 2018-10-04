@@ -24,39 +24,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/cxx/core/except.h>
+#include "test_system.h"
+#include "gtest/gtest.h"
 #include <opae/cxx/core/version.h>
-#include <opae/types.h>
-#include <opae/version.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#include "config.h"
 
-namespace opae {
-namespace fpga {
-namespace types {
+#ifdef __cplusplus
+}
+#endif
 
-fpga_version version::as_struct() {
-  fpga_version version_struct;
-  ASSERT_FPGA_OK(fpgaGetOPAECVersion(&version_struct));
-  return version_struct;
+using namespace opae::testing;
+using namespace opae::fpga::types;
+
+/**
+ * @test       as_struct
+ *
+ * @brief      When I retrieve fpga_version information using
+ *             version::as_struct() then the struct values match the
+ *             constants defined in config.h
+ */
+TEST(version_cxx_core, as_struct) {
+  auto v = version::as_struct();
+  EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
+  EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
+  EXPECT_EQ(v.patch, INTEL_FPGA_API_VER_REV);
 }
 
-std::string version::as_string() {
-  char ver_arr[32];
-  ASSERT_FPGA_OK(fpgaGetOPAECVersionString(ver_arr, sizeof(ver_arr)));
-  std::string ver_str(ver_arr);
-  return ver_str;
+/**
+ * @test       as_string
+ *
+ * @brief      When I retrieve version information using
+ *             version::as_string() then the value returned matches
+ *             the string constant defined in config.h
+ */
+TEST(version_cxx_core, as_string) {
+  auto v = version::as_string();
+  EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_VERSION);
 }
 
-std::string version::build() {
-  char build_arr[32];
-  ASSERT_FPGA_OK(fpgaGetOPAECBuildString(build_arr, sizeof(build_arr)));
-  std::string build_str(build_arr);
-  return build_str;
+/**
+ * @test       build
+ *
+ * @brief      When I retrieve version information using
+ *             version::build() then the value returned matches
+ *             the string constant defined in config.h
+ */
+TEST(version_cxx_core, build) {
+  auto v = version::build();
+  EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_HASH);
 }
-
-}  // end of namespace types
-}  // end of namespace fpga
-}  // end of namespace opae
