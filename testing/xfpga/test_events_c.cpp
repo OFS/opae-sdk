@@ -254,8 +254,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
     fpgad_.join();
+    system_->finalize();
   }
 
   std::string tmpfpgad_log_;
