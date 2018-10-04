@@ -217,6 +217,10 @@ add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
     opae-cxx/test_version_cxx_core.cpp
 )
 
+add_mock_test(test_opae_except_cxx_core opae-cxx-core-static
+    opae-cxx/test_except_cxx_core.cpp
+)
+
 ############################################################################
 # xfpga tests ##############################################################
 ############################################################################
