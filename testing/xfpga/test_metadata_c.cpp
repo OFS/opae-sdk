@@ -41,7 +41,9 @@ using namespace opae::testing;
 class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  metadata_c() : handle_(nullptr) {}
+  metadata_c()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -70,9 +72,9 @@ class metadata_c
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;

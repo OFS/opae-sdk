@@ -36,7 +36,7 @@ using namespace opae::testing;
 
 class properties_p1 : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_p1() {}
+  properties_p1() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -71,9 +71,9 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
   fpga_properties props_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
   fpga_handle accel_;
   uint32_t num_matches_;

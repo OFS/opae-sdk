@@ -36,7 +36,9 @@ using namespace opae::testing;
 class reset_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
-  reset_c_p() : handle_(nullptr) {}
+  reset_c_p()
+  : handle_(nullptr),
+    tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -65,9 +67,9 @@ class reset_c_p
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;

@@ -50,7 +50,9 @@ using namespace opae::testing;
 
 class object_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  object_c_p() {}
+  object_c_p()
+  : tokens_accel_{{nullptr, nullptr}},
+    tokens_device_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -107,13 +109,13 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_device_;
   fpga_object token_obj_;
   fpga_object handle_obj_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_accel_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   uint32_t num_matches_accel_;
-  std::array<fpga_token, 2> tokens_device_ = {{nullptr,nullptr}};
   uint32_t num_matches_device_;
   test_platform platform_;
   test_device invalid_device_;

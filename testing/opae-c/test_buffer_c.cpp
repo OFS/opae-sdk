@@ -49,7 +49,7 @@ using namespace opae::testing;
 
 class buffer_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  buffer_c_p() {}
+  buffer_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -87,8 +87,8 @@ class buffer_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   size_t pg_size_;
   test_platform platform_;

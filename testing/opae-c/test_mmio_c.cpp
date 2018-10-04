@@ -86,7 +86,7 @@ out_EINVAL:
 
 class mmio_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  mmio_c_p() {}
+  mmio_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -130,8 +130,8 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   uint32_t which_mmio_;
   const uint64_t CSR_SCRATCHPAD0 = 0x100;

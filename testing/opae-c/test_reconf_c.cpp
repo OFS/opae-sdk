@@ -50,7 +50,7 @@ using namespace opae::testing;
 
 class reconf_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  reconf_c_p() {}
+  reconf_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -87,8 +87,8 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;

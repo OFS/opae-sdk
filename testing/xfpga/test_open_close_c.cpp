@@ -83,7 +83,9 @@ out_EINVAL:
 class openclose_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
-  openclose_c_p() : handle_(nullptr) {}
+  openclose_c_p()
+  : handle_(nullptr),
+    tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -112,9 +114,9 @@ class openclose_c_p
     system_->finalize();
   }
 
-  fpga_properties filter_;
   fpga_handle handle_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;

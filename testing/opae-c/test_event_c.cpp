@@ -51,7 +51,8 @@ using namespace opae::testing;
 class event_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   event_c_p()
-    : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+    : tokens_{{nullptr, nullptr}},
+      tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
       tmpfpgad_pid_("tmpfpgad-XXXXXX.pid") {}
 
   virtual void SetUp() override {
@@ -115,12 +116,12 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     close_log();
   }
 
+  std::array<fpga_token, 2> tokens_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
   struct config config_;
   std::thread fpgad_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   fpga_event_handle event_handle_;
   test_platform platform_;

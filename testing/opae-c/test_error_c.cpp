@@ -46,7 +46,7 @@ using namespace opae::testing;
 
 class error_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  error_c_p() : filter_(nullptr), tokens_{{nullptr}} {}
+  error_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -80,7 +80,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
+  std::array<fpga_token, 2> tokens_;
   test_platform platform_;
   uint32_t num_matches_;
   test_device invalid_device_;
