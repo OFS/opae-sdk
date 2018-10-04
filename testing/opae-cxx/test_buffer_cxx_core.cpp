@@ -127,13 +127,14 @@ TEST_P(buffer_cxx_core, allocate_valid) {
  */
 TEST_P(buffer_cxx_core, attach_no_len) {
   size_t length = 4096;
-  uint8_t *buf_addr;
+  uint8_t *buf_addr = nullptr;
   shared_buffer::ptr_t buf;
 
   ASSERT_NO_THROW(buf = shared_buffer::allocate(handle_, length));
   ASSERT_NE(nullptr, buf.get());
 
   buf_addr = (uint8_t *)mmap(ADDR, length, PROTECTION, FLAGS_2M, 0, 0);
+  ASSERT_NE(nullptr, buf_addr);
 
   EXPECT_THROW(buf->attach(handle_, buf_addr, 0), invalid_param);
 
@@ -150,6 +151,8 @@ TEST_P(buffer_cxx_core, attach_valid) {
   shared_buffer::ptr_t buf;
   uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
   uint8_t *base_addr = (uint8_t *)aligned_alloc(pg_size, pg_size);
+
+  ASSERT_NE(nullptr, base_addr);
 
   buf = shared_buffer::attach(handle_, base_addr, pg_size);
   ASSERT_NE(nullptr, buf.get());
