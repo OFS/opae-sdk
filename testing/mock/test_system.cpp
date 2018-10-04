@@ -512,21 +512,27 @@ int test_system::close(int fd) {
 }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
-  std::map<int, mock_object *>::iterator mock_it;
+  mock_object *mo  = nullptr;
   {
-    std::lock_guard<std::mutex> guard(fds_mutex_);
-    mock_it = fds_.find(fd);
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+      auto mi = fds_.find(fd);
+      if (mi != fds_.end()) {
+          mo = mi->second;
+      }
   }
-  if (mock_it == fds_.end()) {
-    char *arg = va_arg(argp, char *);
-    return ioctl_(fd, request, arg);
+  
+  if (mo == nullptr) {
+      char *arg = va_arg(argp, char *);
+      return ioctl_(fd, request, arg);
   }
-
+  
+  // replace mock_it->second with mo
   auto handler_it = ioctl_handlers_.find(request);
   if (handler_it != ioctl_handlers_.end()) {
-    return handler_it->second(mock_it->second, request, argp);
+      return handler_it->second(mo, request, argp);
   }
-  return mock_it->second->ioctl(request, argp);
+  return mo->ioctl(request, argp);
+
 }
 
 DIR *test_system::opendir(const char *path) {
