@@ -142,7 +142,9 @@ out_EINVAL:
 class buffer_prepare
     : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
-  buffer_prepare() : handle_(nullptr) {}
+  buffer_prepare()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     auto tpl = GetParam();
@@ -164,19 +166,20 @@ class buffer_prepare
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for (auto &t : tokens_){
+    for (auto &t : tokens_) {
         if (t) {
             EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
+            t = nullptr;
         }
     }
 
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -188,10 +191,10 @@ class buffer_prepare
 //  int flags = 0;
 //
 //  auto res = buffer_allocate(buf_addr, 3 * MB, flags);
-//  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
+//  EXPECT_EQ(res, FPGA_INVALID_PARAM);
 //
 //  res = buffer_release(&buf_addr, 3 * MB);
-//  EXPECT_EQ(res, FPGA_INVALID_PARAM); 
+//  EXPECT_EQ(res, FPGA_INVALID_PARAM);
 //}
 
 /**
@@ -229,17 +232,17 @@ TEST_P(buffer_prepare, prepare_buf_err) {
   int flags = 0;
   uint64_t *ioaddr = NULL;
   uint64_t* invalid_buf_addr = NULL;
-  
+
   // NULL Handle
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(NULL, 0, (void**) &buf_addr, &wsid, 0));
 
-  // NULL wsid 
+  // NULL wsid
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) &buf_addr, NULL, flags));
 
   // Invlaid Flags
   flags = 0x100;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**) &buf_addr, &wsid, flags));
-  
+
   // Buffer lenth is zero
   flags = FPGA_BUF_PREALLOCATED;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) &buf_addr, &wsid, flags));
@@ -248,26 +251,26 @@ TEST_P(buffer_prepare, prepare_buf_err) {
   buf_len = 11247;
   flags = FPGA_BUF_PREALLOCATED;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**) &buf_addr, &wsid, flags));
-  
+
   // Invalid input buffer pointer
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**) &invalid_buf_addr, &wsid, flags));
 
   // special test case
   EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) NULL, &wsid, flags));
-  
+
   // Buffer lenth is zero
   flags = FPGA_BUF_QUIET;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) NULL, &wsid, flags));
-  
+
   // Invalid Handle
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetIOAddress(NULL, wsid, ioaddr));
-  
+
   // Invalid workspace id
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetIOAddress(handle_, 0x10000, ioaddr));
-  
+
   // NULL Handle
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReleaseBuffer(NULL, wsid));
-  
+
   // Invalid workspace id
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReleaseBuffer(handle_, 0x10001));
 
@@ -292,7 +295,6 @@ TEST_P(buffer_prepare, xfpga_fpgaPrepareBuffer) {
 TEST_P(buffer_prepare, port_dma_unmap) {
   void *buf_addr = 0;
   uint64_t wsid = 0;
-  uint64_t ioaddr = 0;
   uint64_t buf_len = KiB(1);
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_OK);
@@ -305,7 +307,6 @@ TEST_P(buffer_prepare, port_dma_unmap) {
 TEST_P(buffer_prepare, port_dma_map) {
   void *buf_addr = 0;
   uint64_t wsid = 0;
-  uint64_t ioaddr = 0;
   uint64_t buf_len = KiB(1);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_MAP,dummy_ioctl<-1,EINVAL>);

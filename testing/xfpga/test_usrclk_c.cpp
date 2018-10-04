@@ -48,7 +48,11 @@ using namespace opae::testing;
 class usrclk_c
     : public ::testing::TestWithParam<std::string> {
  protected:
-  usrclk_c() : handle_dev_(nullptr), handle_accel_(nullptr) {}
+  usrclk_c()
+  : handle_dev_(nullptr),
+    handle_accel_(nullptr),
+    tokens_dev_{{nullptr, nullptr}},
+    tokens_accel_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -59,7 +63,7 @@ class usrclk_c
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), 
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
               tokens_dev_.size(), &num_matches_), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
@@ -72,29 +76,31 @@ class usrclk_c
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
-    for (auto t : tokens_dev_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_dev_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
-    for (auto t : tokens_accel_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_accel_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
-    if (handle_dev_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
-    if (handle_accel_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
+    if (handle_dev_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
+    if (handle_accel_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
     system_->finalize();
   }
 
-  fpga_properties filter_dev_;
-  fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_dev_ = {};
-  std::array<fpga_token, 2> tokens_accel_ = {};
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
+  std::array<fpga_token, 2> tokens_dev_;
+  std::array<fpga_token, 2> tokens_accel_;
+  fpga_properties filter_dev_;
+  fpga_properties filter_accel_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -110,27 +116,27 @@ TEST(usrclk_c, afu_usrclk_01) {
   //Get error string
   const char * pmsg = fpac_GetErrMsg(1);
   EXPECT_EQ(NULL, !pmsg);
-  
+
   //Get error string
   pmsg = fpac_GetErrMsg(5);
   EXPECT_EQ(NULL, !pmsg);
-  
+
   //Get error string
   pmsg = fpac_GetErrMsg(16);
   EXPECT_EQ(NULL, !pmsg);
-  
+
   //Get error string for invlaid index
   pmsg = NULL;
   pmsg = fpac_GetErrMsg(17);
   EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
-  
+
   //Get error string for invlaid index
   pmsg = NULL;
   pmsg = fpac_GetErrMsg(-1);
   EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
-  
+
   fv_BugLog(1);
-  
+
   fv_BugLog(2);
 
 }
@@ -191,7 +197,7 @@ TEST_P(usrclk_c, fpga_set_user_clock) {
 
   // Invalid clk
   result = xfpga_fpgaSetUserClock(handle_dev_, 0, 0, flags);
-  EXPECT_EQ(result, FPGA_INVALID_PARAM);  
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid clk
   result = xfpga_fpgaSetUserClock(handle_dev_, 312, 156, flags);

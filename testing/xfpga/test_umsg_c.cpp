@@ -148,7 +148,9 @@ out_EINVAL:
 class umsg_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
-  umsg_c_p() : handle_(nullptr) {}
+  umsg_c_p()
+  : handle_(nullptr),
+    tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -172,16 +174,17 @@ class umsg_c_p
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
-    if (handle_) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -285,7 +288,7 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err) {
  * @brief      get_umsg_ptr_ioctl_err_02
  * @details    When the parameters are valid and the drivers are loaded,
  *             but the ioctl fails on FPGA_PORT_UMSG_SET_BASE_ADDR
- *             and FPGA_PORT_DMA_UNMAP. fpgaGetUmsgPtr returns 
+ *             and FPGA_PORT_DMA_UNMAP. fpgaGetUmsgPtr returns
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
@@ -307,7 +310,7 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_02) {
  * @test       umsg_c_p
  * @brief      get_umsg_ptr_ioctl_err_03
  * @details    When the parameters are valid and the drivers are loaded,
- *             but the ioctl fails on FPGA_PORT_DMA_MAP. fpgaGetUmsgPtr returns 
+ *             but the ioctl fails on FPGA_PORT_DMA_MAP. fpgaGetUmsgPtr returns
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
@@ -335,12 +338,11 @@ TEST_P(umsg_c_p, get_umsg_ptr_ioctl_err_03) {
  */
 TEST_P(umsg_c_p, invalid_free_umsg_buffer) {
   uint64_t* umsg_ptr = NULL;
-  uint64_t *value = 0;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   auto res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
- 
+
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_UMSG_DISABLE, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_OK, free_umsg_buffer(handle_));
@@ -363,12 +365,11 @@ TEST_P(umsg_c_p, invalid_free_umsg_buffer) {
  */
 TEST_P(umsg_c_p, invalid_free_umsg_buffer_02) {
   uint64_t* umsg_ptr = NULL;
-  uint64_t *value = 0;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
   auto res = xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr);
   EXPECT_EQ(FPGA_OK, res);
- 
+
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_OK, free_umsg_buffer(handle_));
@@ -382,7 +383,6 @@ TEST_P(umsg_c_p, invalid_free_umsg_buffer_02) {
  */
 TEST_P (umsg_c_p, test_umsg_drv_02) {
   uint64_t Umsg_num = 0;
-  int fddev = -1;
 
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
@@ -550,7 +550,7 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
 TEST_P(umsg_c_p, test_umsg_drv_08) {
   int fddev = -1;
   auto _handle = (struct _fpga_handle*)handle_;
- 
+
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(NULL, 0));
 
   fddev = _handle->fddev;
@@ -558,7 +558,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));
   _handle->fddev = fddev;
- 
+
   EXPECT_EQ(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
 
 }

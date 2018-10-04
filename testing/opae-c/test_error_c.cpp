@@ -46,7 +46,7 @@ using namespace opae::testing;
 
 class error_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  error_c_p() : filter_(nullptr), tokens_{{nullptr}} {}
+  error_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -70,7 +70,6 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     if (filter_ != nullptr) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     }
-    uint32_t i;
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);

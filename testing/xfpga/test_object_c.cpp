@@ -37,7 +37,8 @@ const std::string DATA =
 class sysobject_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysobject_p()
-      : tokens_{nullptr}, handle_(nullptr) {}
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -54,9 +55,10 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    for (auto t : tokens_) {
+    for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
       }
     }
     if (handle_) {
@@ -66,11 +68,11 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
   fpga_properties dev_filter_;
   fpga_properties acc_filter_;
 };
@@ -160,7 +162,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   std::vector<uint8_t> buffer(DATA.size());
   EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, DATA.size() + 1, 0),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, FPGA_OBJECT_SYNC), 
+  EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, 10, FPGA_OBJECT_SYNC),
             FPGA_OK);
   buffer[10] = '\0';
   EXPECT_STREQ(reinterpret_cast<const char *>(buffer.data()),
@@ -212,7 +214,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
 
   rewind(fp);
   std::vector<char> buffer(256);
-  fread(buffer.data(), buffer.size(), 1, fp);
+  auto result = fread(buffer.data(), buffer.size(), 1, fp);
+  (void) result;
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 

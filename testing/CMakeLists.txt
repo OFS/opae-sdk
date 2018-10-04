@@ -49,6 +49,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/common.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/enum.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/error.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/hostif.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/init.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/manage.c
@@ -216,6 +217,13 @@ target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
         ${libjson-c_LIBRARIES})
 
 ############################################################################
+# cxx core tests ###########################################################
+############################################################################
+add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
+    opae-cxx/test_handle_cxx_core.cpp
+)
+
+############################################################################
 # xfpga tests ##############################################################
 ############################################################################
 
@@ -233,7 +241,6 @@ add_mock_test(test_xfpga_mock_errinj_c xfpga-static
 
 add_mock_test(test_xfpga_common_c xfpga-static
     xfpga/test_common_c.cpp
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
 )
 
 add_mock_test(test_xfpga_properties_c xfpga-static
@@ -298,9 +305,9 @@ add_mock_test(test_xfpga_manage_c xfpga-static
 
 add_mock_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/event.c
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr)
+target_link_libraries(test_xfpga_events_c fpgad-static safestr 
+        ${libjson-c_LIBRARIES})
 
 ############################################################################
 # fpgad tests ##############################################################
