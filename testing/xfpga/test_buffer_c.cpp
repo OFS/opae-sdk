@@ -175,7 +175,7 @@ class buffer_prepare
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_ = {nullptr, nullptr};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
