@@ -48,11 +48,11 @@ using namespace opae::testing;
 class reconf_c : public ::testing::TestWithParam<std::string> {
  protected:
   reconf_c()
-      : tokens_{},
-        handle_(nullptr),
-        power_mgmt_(
-            "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/power_mgmt"),
-        have_powermgmt_(true) {}
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr),
+    power_mgmt_(
+        "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/power_mgmt"),
+    have_powermgmt_(true) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -101,22 +101,20 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
     for (auto &t : tokens_) {
-      if (t != nullptr) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-
     if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
     token_cleanup();
   }
 
-  fpga_properties filter_;
   std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -308,7 +306,7 @@ TEST_P(reconf_c, open_accel) {
   handle->token = token;
 
   fpga_properties filter_accel;
-  std::array<fpga_token, 2> tokens_accel{};
+  std::array<fpga_token, 2> tokens_accel = {{nullptr,nullptr}};
   fpga_handle handle_accel;
   uint32_t num_matches_accel;
 

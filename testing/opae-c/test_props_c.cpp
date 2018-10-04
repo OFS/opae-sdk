@@ -40,7 +40,9 @@ using namespace opae::testing;
 
 class properties_p1 : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_p1() {}
+  properties_p1()
+  : tokens_device_{{nullptr, nullptr}},
+    tokens_accel_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -72,19 +74,24 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-    uint32_t i;
-    for (i = 0 ; i < num_matches_accel_ ; ++i) {
-        EXPECT_EQ(fpgaDestroyToken(&tokens_accel_[i]), FPGA_OK);
+    for (auto &t : tokens_accel_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
-    for (i = 0 ; i < num_matches_device_ ; ++i) {
-        EXPECT_EQ(fpgaDestroyToken(&tokens_device_[i]), FPGA_OK);
+    for (auto &t : tokens_device_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
     system_->finalize();
   }
 
-  fpga_properties filter_;
   std::array<fpga_token, 2> tokens_device_;
   std::array<fpga_token, 2> tokens_accel_;
+  fpga_properties filter_;
   fpga_handle accel_;
   uint32_t num_matches_device_;
   uint32_t num_matches_accel_;
@@ -107,7 +114,7 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
  * */
 TEST_P(properties_p1, get_parent01) {
   fpga_properties prop = nullptr;
-  std::array<fpga_token, 2> toks = {nullptr, nullptr};
+  std::array<fpga_token, 2> toks = {{nullptr, nullptr}};
   fpga_token parent = nullptr;
   uint32_t matches = 0;
 
@@ -182,7 +189,7 @@ TEST_P(properties_p1, get_parent02) {
  */
 TEST_P(properties_p1, set_parent01) {
   fpga_properties prop = nullptr;
-  std::array<fpga_token, 2> toks = {nullptr, nullptr};
+  std::array<fpga_token, 2> toks = {{nullptr, nullptr}};
   uint32_t matches = 0;
   fpga_token parent = nullptr;
 
