@@ -206,6 +206,9 @@ add_mock_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
 
+############################################################################
+# cxx core tests ###########################################################
+############################################################################
 add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
     opae-cxx/test_handle_cxx_core.cpp
 )
@@ -215,13 +218,6 @@ add_mock_test(test_opae_events_cxx_core opae-cxx-core-static
 )
 target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
         ${libjson-c_LIBRARIES})
-
-############################################################################
-# cxx core tests ###########################################################
-############################################################################
-add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
-    opae-cxx/test_handle_cxx_core.cpp
-)
 
 ############################################################################
 # xfpga tests ##############################################################
