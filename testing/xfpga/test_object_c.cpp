@@ -37,7 +37,8 @@ const std::string DATA =
 class sysobject_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysobject_p()
-      : tokens_{nullptr}, handle_(nullptr) {}
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -59,6 +60,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
       }
     }
     if (handle_) {
@@ -68,11 +70,11 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
   fpga_properties dev_filter_;
   fpga_properties acc_filter_;
 };

@@ -117,7 +117,7 @@ out_EINVAL:
 
 class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-   mock_err_inj_c_p() {}
+   mock_err_inj_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -136,17 +136,18 @@ class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for (auto t : tokens_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
     system_->finalize();
   }
 
+  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;

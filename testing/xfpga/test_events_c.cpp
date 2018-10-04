@@ -185,7 +185,9 @@ out_EINVAL:
 class events_p : public ::testing::TestWithParam<std::string> {
  protected:
   events_p()
-      : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+      : tokens_dev_{{nullptr, nullptr}},
+        tokens_accel_{{nullptr, nullptr}},
+        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
         tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
         handle_dev_(nullptr),
         handle_accel_(nullptr) {}
@@ -243,12 +245,14 @@ class events_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
     for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -258,15 +262,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
     fpgad_.join();
   }
 
+  std::array<fpga_token, 2> tokens_dev_;
+  std::array<fpga_token, 2> tokens_accel_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
+  fpga_handle handle_dev_;
+  fpga_handle handle_accel_;
   struct config config_;
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_dev_ = {};
-  std::array<fpga_token, 2> tokens_accel_ = {};
-  fpga_handle handle_dev_;
-  fpga_handle handle_accel_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -942,7 +946,8 @@ INSTANTIATE_TEST_CASE_P(events, events_p,
 class events_handle_p : public ::testing::TestWithParam<std::string> {
  protected:
   events_handle_p()
-      : tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+      : tokens_accel_{{nullptr, nullptr}},
+        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
         tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
         handle_accel_(nullptr) {}
 
@@ -992,6 +997,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -1001,12 +1007,12 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     logger_thread_.join();
   }
 
+  std::array<fpga_token, 2> tokens_accel_;
   std::string tmpfpgad_log_;
   std::string tmpfpgad_pid_;
+  fpga_handle handle_accel_;
   struct config config_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_accel_ = {};
-  fpga_handle handle_accel_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
