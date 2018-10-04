@@ -40,26 +40,6 @@ extern "C" {
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-class version_cxx_core : public ::testing::TestWithParam<std::string> {
-protected:
-  version_cxx_core() {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
-  }
-
-  virtual void TearDown() override { system_->finalize(); }
-
-  test_platform platform_;
-  test_system *system_;
-};
-
 /**
  * @test       as_struct
  *
@@ -97,6 +77,3 @@ TEST(version_cxx_core, build) {
   auto v = version::build();
   EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_HASH);
 }
-
-INSTANTIATE_TEST_CASE_P(version, version_cxx_core,
-                        ::testing::ValuesIn(test_platform::keys(true)));
