@@ -75,7 +75,7 @@ class common_c_p
     }
 
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
@@ -109,10 +109,10 @@ TEST(common, fpgaErrStr) {
 }
 
 /**
- * @test       prop_check_and_lock 
+ * @test       prop_check_and_lock
  *
  * @brief      When fpga_properties magic is invalid
- *             fpga_result returns FPGA_INVALID_PARAM 
+ *             fpga_result returns FPGA_INVALID_PARAM
  */
 
 TEST(common, prop_check_and_lock) {
@@ -128,10 +128,10 @@ TEST(common, prop_check_and_lock) {
 }
 
 /**
- * @test       handle_check_and_lock 
+ * @test       handle_check_and_lock
  *
  * @brief      When fpga_handle magic is invalid
- *             fpga_result returns FPGA_INVALID_PARAM 
+ *             fpga_result returns FPGA_INVALID_PARAM
  */
 TEST_P(common_c_p, handle_check_and_lock) {
   struct _fpga_handle *h = (struct _fpga_handle*)handle_;
@@ -144,10 +144,10 @@ TEST_P(common_c_p, handle_check_and_lock) {
 }
 
 /**
- * @test       event_handle_check_and_lock 
+ * @test       event_handle_check_and_lock
  *
  * @brief      When event_fpga_handle magic is invalid
- *             fpga_result returns FPGA_INVALID_PARAM 
+ *             fpga_result returns FPGA_INVALID_PARAM
  */
 
 TEST_P(common_c_p, event_handle_check_and_lock) {

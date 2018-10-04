@@ -73,7 +73,7 @@ constexpr uint64_t index_to_flags(uint64_t i) { return i * i; }
 
 static uint64_t stress_count = 0;
 
-void cleanup_cb(wsid_map *ws) { stress_count--; };
+void cleanup_cb(wsid_map *ws) { (void) ws; stress_count--; }
 
 class wsid_list_f : public ::testing::Test {
  protected:
@@ -161,7 +161,7 @@ TEST_F(wsid_list_f, wsid_find_by_index) {
 
 
 TEST_F(wsid_list_f, stress) {
-  int count = count_;
+  uint64_t count = count_;
   // FIXME: wsid_add can result in process being killed (out of memory) if it's
   // called too many times.
   uint64_t count_max = 1024;

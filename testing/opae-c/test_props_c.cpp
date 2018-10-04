@@ -107,7 +107,7 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
  * */
 TEST_P(properties_p1, get_parent01) {
   fpga_properties prop = nullptr;
-  std::array<fpga_token, 2> toks = {};
+  std::array<fpga_token, 2> toks = {nullptr, nullptr};
   fpga_token parent = nullptr;
   uint32_t matches = 0;
 
@@ -182,7 +182,7 @@ TEST_P(properties_p1, get_parent02) {
  */
 TEST_P(properties_p1, set_parent01) {
   fpga_properties prop = nullptr;
-  std::array<fpga_token, 2> toks = {};
+  std::array<fpga_token, 2> toks = {nullptr, nullptr};
   uint32_t matches = 0;
   fpga_token parent = nullptr;
 
@@ -311,7 +311,7 @@ TEST_P(properties_p1, update01) {
   EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
   // The output properties for the accelerator will have a parent token.
 
-  // Updating the properties again (accelerator) will re-use the existing token wrapper. 
+  // Updating the properties again (accelerator) will re-use the existing token wrapper.
   EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
 
   // Updating the properties for a device token will not result in

@@ -172,7 +172,9 @@ test_device test_device::unknown() {
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
                      .fme_num_errors = 0x1234,
-                     .port_num_errors = 0x1234};
+                     .port_num_errors = 0x1234,
+                     .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+		     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
@@ -267,7 +269,9 @@ test_system *test_system::instance() {
 }
 
 void test_system::prepare_syfs(const test_platform &platform) {
+  int result = 0;
   char tmpsysfs[]{"tmpsysfs-XXXXXX"};
+
   if (platform.mock_sysfs != nullptr) {
     char *tmp = mkdtemp(tmpsysfs);
     if (tmp == nullptr) {
@@ -276,11 +280,13 @@ void test_system::prepare_syfs(const test_platform &platform) {
     root_ = std::string(tmp);
     std::string cmd = "tar xzf " + std::string(platform.mock_sysfs) + " -C " +
                       root_ + " --strip 1";
-    std::system(cmd.c_str());
+    result = std::system(cmd.c_str());
   }
+  return (void) result;
 }
 
 void test_system::remove_sysfs() {
+  int result = 0;
   if (root_.find("tmpsysfs") != std::string::npos) {
     struct stat st;
     if (stat(root_.c_str(), &st)) {
@@ -290,9 +296,10 @@ void test_system::remove_sysfs() {
     }
     if (S_ISDIR(st.st_mode)) {
       auto cmd = "rm -rf " + root_;
-      std::system(cmd.c_str());
+      result = std::system(cmd.c_str());
     }
   }
+  return (void) result;
 }
 
 void test_system::set_root(const char *root) { root_ = root; }
@@ -429,7 +436,7 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
     std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end()) delete it->second;
+    if (it != fds_.end()) { delete it->second; }
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;

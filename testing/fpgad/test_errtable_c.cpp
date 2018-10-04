@@ -215,21 +215,21 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
 
 /**
  * @test       sysfs_read_err02
- * @brief      Test: sysfs_read_u64
+ * @brief      Test: fpgad_sysfs_read_u64
  * @details    When read fails<br>
- *             sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
+ *             fpgad_sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
  */
 TEST_P(fpgad_errtable_c_p, sysfs_read_err02) {
   uint64_t u;
-  system_->invalidate_read(0, "sysfs_read_u64");
+  system_->invalidate_read(0, "fpgad_sysfs_read_u64");
   std::string fname = port0_ + "/errors/errors";
-  EXPECT_EQ(sysfs_read_u64(fname.c_str(), &u), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgad_sysfs_read_u64(fname.c_str(), &u), FPGA_NOT_FOUND);
 }
 
 /**
  * @test       sysfs_read_err03
  * @brief      Test: poll_error
- * @details    When sysfs_read_u64 fails,<br>
+ * @details    When fpgad_sysfs_read_u64 fails,<br>
  *             poll_error returns -1.<br>
  */
 TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
@@ -243,7 +243,7 @@ TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
     .occurred = true,
     .callback = nullptr
   };
-  system_->invalidate_read(0, "sysfs_read_u64");
+  system_->invalidate_read(0, "fpgad_sysfs_read_u64");
   EXPECT_EQ(-1, poll_error(&err));
 }
 
@@ -272,11 +272,11 @@ TEST(errtable_c, log_fpga_err) {
 
 /**
  * @test       sysfs_read_err01
- * @brief      Test: sysfs_read_u64
+ * @brief      Test: fpgad_sysfs_read_u64
  * @details    When the named file does not exist,<br>
- *             sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
+ *             fpgad_sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
  */
 TEST(errtable_c, sysfs_read_err01) {
   uint64_t u;
-  EXPECT_EQ(sysfs_read_u64("/doesnt/exist", &u), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgad_sysfs_read_u64("/doesnt/exist", &u), FPGA_NOT_FOUND);
 }

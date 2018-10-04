@@ -133,7 +133,7 @@ class mmio_c_p
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
@@ -220,25 +220,25 @@ TEST_P (mmio_c_p, test_port_map_region_err) {
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
-  
+
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
   EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
- 
+
 }
 
 
 TEST_P (mmio_c_p, test_port_unmap_region_err) {
   uint64_t * mmio_ptr = NULL;
   EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
-  
+
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
- 
+
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
 }
 
 
@@ -317,8 +317,8 @@ TEST_P (mmio_c_p, test_neg_read_write_32) {
 }
 
 
-/** 
-*  @test      mmio_c_p 
+/**
+*  @test      mmio_c_p
 *  @brief     Test: test_pos_read_write_64
 *  @details   When the parameters are valid and the drivers are loaded:
 *             xfpga_fpgaWriteMMIO64 must write correct value at given MMIO
@@ -354,7 +354,7 @@ TEST_P (mmio_c_p, test_mmio_read_write_64) {
 #ifndef BUILD_ASE
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
 #endif
-} 
+}
 
 /**
 * @test       mmio_c_p
