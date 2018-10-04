@@ -30,6 +30,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int enumerate(struct config *config);
+int enumerate(struct bmc_thermal_context *context);
 
 #endif

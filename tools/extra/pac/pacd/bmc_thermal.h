@@ -46,6 +46,20 @@ struct bmc_thermal_context {
 	struct config *config;
 	int PAC_index;
 	uint32_t has_been_PRd;
+	fpga_token fme_token;
+
+	uint16_t segment;
+	uint8_t bus;
+	uint8_t device;
+	uint8_t function;
+
+	uint32_t num_thresholds;
+	int32_t sensor_number[MAX_SENSORS_TO_MONITOR];
+	double upper_trigger_value[MAX_SENSORS_TO_MONITOR];
+	double upper_reset_value[MAX_SENSORS_TO_MONITOR];
+	double lower_trigger_value[MAX_SENSORS_TO_MONITOR];
+	double lower_reset_value[MAX_SENSORS_TO_MONITOR];
+	uint32_t invalid_count[MAX_SENSORS_TO_MONITOR];
 };
 
 void *bmc_thermal_thread(void *thread_context);

@@ -167,8 +167,10 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 out_free:
 	if (root)
 		json_object_put(root);
-	if (json_metadata)
+	if (json_metadata) {
 		free(json_metadata);
+		json_metadata = NULL;
+	}
 
 	return result;
 }
@@ -238,7 +240,7 @@ int read_bitstream(const char *filename, struct bitstream_info *info)
 	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
 
-//		printf(" 	skip_header_checks = true;\n");
+		//		printf(" 	skip_header_checks = true;\n");
 
 		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
 		    != FPGA_OK) {
@@ -274,7 +276,8 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 
 	fpga_properties filter = NULL;
 	fpga_result res = FPGA_OK;
-	uint32_t num_matches = 0;
+	fpga_guid fme_guid;
+	uint32_t matches;
 
 	memset_s(&ctx->null_gbs_info, sizeof(ctx->null_gbs_info), 0);
 
@@ -282,7 +285,21 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 		"no default bitstreams registered.");
 
 	res = fpgaGetProperties(NULL, &filter);
-	ON_GOTO(res != FPGA_OK, out_exit, "enumeration failed");
+	res += fpgaPropertiesSetSegment(filter, c->segment);
+	res += fpgaPropertiesSetBus(filter, c->bus);
+	res += fpgaPropertiesSetDevice(filter, c->device);
+	res += fpgaPropertiesSetFunction(filter, c->function);
+	res += fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	ON_GOTO(res != FPGA_OK, out_exit, "fpgaGetProperties failed");
+
+	res = fpgaEnumerate(&filter, 1, &c->fme_token, 1, &matches);
+	ON_GOTO(matches != 1, out_exit, "fpgaEnumerate failed");
+
+	res = fpgaClearProperties(filter);
+	res += fpgaGetProperties(c->fme_token, &filter);
+
+	res += fpgaPropertiesGetGUID(filter, &fme_guid);
+	ON_GOTO(res != FPGA_OK, out_exit, "fpgaPropertiesGetGUID failed");
 
 	for (i = 0; i < c->config->num_null_gbs; i++) {
 		ret = read_bitstream(c->config->null_gbs[i],
@@ -290,33 +307,21 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 		if (ret < 0) {
 			dlog("pacd[%d]: \tfailed to read bitstream\n",
 			     c->PAC_index);
-			if (ctx->null_gbs_info.data)
+			if (ctx->null_gbs_info.data) {
 				free((void *)ctx->null_gbs_info.data);
-			ctx->null_gbs_info.data = NULL;
+				ctx->null_gbs_info.data = NULL;
+			}
 			continue;
 		}
 
-		res = fpgaClearProperties(filter);
-		ON_GOTO(res != FPGA_OK, out_destroy_filter,
-			"enumeration failed");
-
-		res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
-		res += fpgaPropertiesSetGUID(filter,
-					     ctx->null_gbs_info.interface_id);
-		ON_GOTO(res != FPGA_OK, out_destroy_filter,
-			"enumeration failed");
-
-		res = fpgaEnumerate(&filter, 1, &ctx->fme_token, 1,
-				    &num_matches);
-		ON_GOTO(res != FPGA_OK, out_destroy_filter,
-			"enumeration failed");
-
-		if (num_matches > 0)
+		if (!memcmp(fme_guid, ctx->null_gbs_info.interface_id,
+			    sizeof(fme_guid))) {
 			break;
+		}
 	}
 
 	res = fpgaDestroyProperties(&filter);
-	ON_GOTO(res != FPGA_OK, out_exit, "enumeration failed");
+	ON_GOTO(res != FPGA_OK, out_exit, "fpgaDestroyProperties failed");
 
 	/* if we didn't find a matching FPGA, bail out */
 	if (i == c->config->num_null_gbs) {
@@ -335,7 +340,7 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 	int done = 1;
 	int first_msg = 0;
 	do {
-		res = bmcLoadSDRs(ctx->fme_token, &ctx->records,
+		res = bmcLoadSDRs(ctx->c->fme_token, &ctx->records,
 				  &ctx->num_sensors);
 		if (!c->config->daemon) {
 			ON_GOTO(res != FPGA_OK, out_destroy_filter,
@@ -358,21 +363,20 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 		dlog("pacd[%d]: SDRs loaded.\n", c->PAC_index);
 	}
 
-	for (i = 0; i < c->config->num_thresholds; i++) {
-		if (c->config->sensor_number[i]
-		    > (int32_t)ctx->num_sensors - 1) {
+	for (i = 0; i < c->num_thresholds; i++) {
+		if (c->sensor_number[i] > (int32_t)ctx->num_sensors - 1) {
 			dlog("pacd[%d]: Invalid sensor number: %d.\n",
-			     c->PAC_index, c->config->sensor_number[i]);
+			     c->PAC_index, c->sensor_number[i]);
 			if (!c->config->daemon) {
 				goto out_destroy_sdr;
 			} else {
 				dlog("pacd[%d]: Sensor number %d ignored.\n",
-				     c->PAC_index, c->config->sensor_number[i]);
-				c->config->sensor_number[i] = 0;
-				c->config->upper_trigger_value[i] = DBL_MAX;
-				c->config->upper_reset_value[i] = -DBL_MAX;
-				c->config->lower_trigger_value[i] = -DBL_MAX;
-				c->config->lower_reset_value[i] = DBL_MAX;
+				     c->PAC_index, c->sensor_number[i]);
+				c->sensor_number[i] = 0;
+				c->upper_trigger_value[i] = DBL_MAX;
+				c->upper_reset_value[i] = -DBL_MAX;
+				c->lower_trigger_value[i] = -DBL_MAX;
+				c->lower_reset_value[i] = DBL_MAX;
 			}
 		}
 	}
@@ -395,8 +399,10 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 	return res;
 
 out_exit:
-	if (ctx->null_gbs_info.data)
+	if (ctx->null_gbs_info.data) {
 		free(ctx->null_gbs_info.data);
+		ctx->null_gbs_info.data = NULL;
+	}
 
 	for (x = 0; x < ctx->num_sensors; x++) {
 		if (ctx->sensor_names[x]) {
@@ -405,6 +411,7 @@ out_exit:
 	}
 
 	free(ctx->sensor_names);
+	ctx->sensor_names = NULL;
 
 	return res;
 
@@ -432,8 +439,10 @@ fpga_result pacd_bmc_shutdown(pacd_bmc_reset_context *ctx)
 		res += bmcDestroySDRs(&ctx->records);
 	}
 
-	if (ctx->null_gbs_info.data)
+	if (ctx->null_gbs_info.data) {
 		free(ctx->null_gbs_info.data);
+		ctx->null_gbs_info.data = NULL;
+	}
 
 	for (x = 0; x < ctx->num_sensors; x++) {
 		if (ctx->sensor_names[x]) {
@@ -444,10 +453,10 @@ fpga_result pacd_bmc_shutdown(pacd_bmc_reset_context *ctx)
 	free(ctx->sensor_names);
 	ctx->sensor_names = NULL;
 
-	if (ctx->fme_token != NULL) {
-		fpgaDestroyToken(&ctx->fme_token);
+	if (ctx->c->fme_token != NULL) {
+		fpgaDestroyToken(&ctx->c->fme_token);
 	}
-	ctx->fme_token = NULL;
+	ctx->c->fme_token = NULL;
 	ctx->gbs_found = 0;
 	ctx->gbs_index = 0;
 	ctx->num_sensors = 0;

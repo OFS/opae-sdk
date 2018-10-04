@@ -42,6 +42,9 @@
 #include "bmc/bmc.h"
 #include "reset_bmc.h"
 
+// Log verbosity reducing constant
+#define TRIM_LOG_MODULUS 20
+
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
@@ -92,13 +95,13 @@ static void setUpperTrigger(int sens_num, pacd_bmc_reset_context *ctx,
 			    double UNR, int thresh_ndx, sdr_details *details)
 {
 	if (!details->thresholds.upper_nr_thresh.is_valid) {
-		ctx->c->config->upper_trigger_value[thresh_ndx] = DBL_MAX;
-		ctx->c->config->upper_reset_value[thresh_ndx] = -DBL_MAX;
+		ctx->c->upper_trigger_value[thresh_ndx] = DBL_MAX;
+		ctx->c->upper_reset_value[thresh_ndx] = -DBL_MAX;
 		return;
 	}
 
-	ctx->c->config->upper_trigger_value[thresh_ndx] = UNR;
-	ctx->c->config->upper_reset_value[thresh_ndx] = UNR;
+	ctx->c->upper_trigger_value[thresh_ndx] = UNR;
+	ctx->c->upper_reset_value[thresh_ndx] = UNR;
 
 	if (details->type == BMC_THERMAL) {
 		setBMCUNR(ctx->records, sens_num, UNR + PACD_THERMAL_INCREMENT);
@@ -113,13 +116,13 @@ static void setLowerTrigger(int sens_num, pacd_bmc_reset_context *ctx,
 			    double LNR, int thresh_ndx, sdr_details *details)
 {
 	if (!details->thresholds.lower_nr_thresh.is_valid) {
-		ctx->c->config->lower_trigger_value[thresh_ndx] = -DBL_MAX;
-		ctx->c->config->lower_reset_value[thresh_ndx] = DBL_MAX;
+		ctx->c->lower_trigger_value[thresh_ndx] = -DBL_MAX;
+		ctx->c->lower_reset_value[thresh_ndx] = DBL_MAX;
 		return;
 	}
 
-	ctx->c->config->lower_trigger_value[thresh_ndx] = LNR;
-	ctx->c->config->lower_reset_value[thresh_ndx] = LNR;
+	ctx->c->lower_trigger_value[thresh_ndx] = LNR;
+	ctx->c->lower_reset_value[thresh_ndx] = LNR;
 
 	if (details->type == BMC_THERMAL) {
 		setBMCLNR(ctx->records, sens_num, LNR - PACD_THERMAL_INCREMENT);
@@ -135,7 +138,7 @@ static void setSensorDefaults(pacd_bmc_reset_context *ctx)
 	int sens_num = 0;
 	int thresh_ndx = 0;
 	uint32_t num_sensors = ctx->num_sensors;
-	uint32_t num_thresh = ctx->c->config->num_thresholds;
+	uint32_t num_thresh = ctx->c->num_thresholds;
 	struct config *cfg = ctx->c->config;
 	sdr_details details;
 	fpga_result res = FPGA_OK;
@@ -184,19 +187,19 @@ static void setSensorDefaults(pacd_bmc_reset_context *ctx)
 			continue;
 		}
 
-		num_thresh = ctx->c->config->num_thresholds;
+		num_thresh = ctx->c->num_thresholds;
 		for (thresh_ndx = 0; thresh_ndx < (int)num_thresh;
 		     thresh_ndx++) {
-			if (cfg->sensor_number[thresh_ndx] == sens_num) {
+			if (ctx->c->sensor_number[thresh_ndx] == sens_num) {
 				// Value specified on command-line
 				if ((UNR != DBL_MAX)
-				    && (cfg->upper_trigger_value[thresh_ndx]
+				    && (ctx->c->upper_trigger_value[thresh_ndx]
 					== DBL_MAX)) {
 					setUpperTrigger(sens_num, ctx, UNR,
 							thresh_ndx, &details);
 				}
 				if ((LNR != DBL_MAX)
-				    && (cfg->lower_trigger_value[thresh_ndx]
+				    && (ctx->c->lower_trigger_value[thresh_ndx]
 					== -DBL_MAX)) {
 					setLowerTrigger(sens_num, ctx, LNR,
 							thresh_ndx, &details);
@@ -214,8 +217,8 @@ static void setSensorDefaults(pacd_bmc_reset_context *ctx)
 				setLowerTrigger(sens_num, ctx, LNR, num_thresh,
 						&details);
 			}
-			ctx->c->config->sensor_number[num_thresh] = sens_num;
-			ctx->c->config->num_thresholds++;
+			ctx->c->sensor_number[num_thresh] = sens_num;
+			ctx->c->num_thresholds++;
 		}
 	}
 
@@ -229,6 +232,7 @@ void *bmc_thermal_thread(void *thread_context)
 
 	fpga_handle fme_handle;
 	fpga_result res;
+	fpga_properties filter = NULL;
 
 	memset_s(&ctx, sizeof(ctx), 0);
 
@@ -237,11 +241,22 @@ void *bmc_thermal_thread(void *thread_context)
 	ON_GOTO(ctx.c->config->num_null_gbs == 0, out_exit,
 		"no default bitstreams registered.");
 
+	res = fpgaGetProperties(ctx.c->fme_token, &filter);
+	res += fpgaPropertiesGetSegment(filter, &ctx.c->segment);
+	res += fpgaPropertiesGetBus(filter, &ctx.c->bus);
+	res += fpgaPropertiesGetDevice(filter, &ctx.c->device);
+	res += fpgaPropertiesGetFunction(filter, &ctx.c->function);
+	res += fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	ON_GOTO(FPGA_OK != res, out_exit,
+		"fpgaGetProperties: Problem initializing.");
+	res = fpgaDestroyProperties(&filter);
+	ON_GOTO(FPGA_OK != res, out_exit,
+		"fpgaDestroyProperties: Problem initializing.");
+
 	res = pacd_bmc_reinit(&ctx);
-	ON_GOTO(FPGA_OK != res, out_exit, "Problem initializing.");
 
 	/* if we didn't find a matching FPGA, bail out */
-	if (!ctx.gbs_found) {
+	if ((!ctx.gbs_found) || (res != FPGA_OK)) {
 		dlog("pacd[%d]: no suitable default bitstream for device\n",
 		     ctx.c->PAC_index);
 		goto out_exit;
@@ -254,35 +269,35 @@ void *bmc_thermal_thread(void *thread_context)
 	 * interface ID of the default GBS */
 	dlog("pacd[%d]: Sensors monitored:\n", ctx.c->PAC_index);
 	unsigned int tnum;
-	for (tnum = 0; tnum < ctx.c->config->num_thresholds; tnum++) {
+	for (tnum = 0; tnum < ctx.c->num_thresholds; tnum++) {
 		char ut[512];
 		char ur[512];
 		char lt[512];
 		char lr[512];
 
-		int32_t snum = ctx.c->config->sensor_number[tnum];
+		int32_t snum = ctx.c->sensor_number[tnum];
 
-		if (ctx.c->config->upper_trigger_value[tnum] != DBL_MAX) {
+		if (ctx.c->upper_trigger_value[tnum] != DBL_MAX) {
 			snprintf(ut, 512, "%7.2f",
-				 ctx.c->config->upper_trigger_value[tnum]);
+				 ctx.c->upper_trigger_value[tnum]);
 		} else {
 			strcpy_s(ut, 4, "N/A");
 		}
-		if (ctx.c->config->upper_reset_value[tnum] != -DBL_MAX) {
+		if (ctx.c->upper_reset_value[tnum] != -DBL_MAX) {
 			snprintf(ur, 512, "%7.2f",
-				 ctx.c->config->upper_reset_value[tnum]);
+				 ctx.c->upper_reset_value[tnum]);
 		} else {
 			strcpy_s(ur, 4, "N/A");
 		}
-		if (ctx.c->config->lower_trigger_value[tnum] != -DBL_MAX) {
+		if (ctx.c->lower_trigger_value[tnum] != -DBL_MAX) {
 			snprintf(lt, 512, "%7.2f",
-				 ctx.c->config->lower_trigger_value[tnum]);
+				 ctx.c->lower_trigger_value[tnum]);
 		} else {
 			strcpy_s(lt, 4, "N/A");
 		}
-		if (ctx.c->config->lower_reset_value[tnum] != DBL_MAX) {
+		if (ctx.c->lower_reset_value[tnum] != DBL_MAX) {
 			snprintf(lr, 512, "%7.2f",
-				 ctx.c->config->lower_reset_value[tnum]);
+				 ctx.c->lower_reset_value[tnum]);
 		} else {
 			strcpy_s(lr, 4, "N/A");
 		}
@@ -301,6 +316,8 @@ void *bmc_thermal_thread(void *thread_context)
 	ctx.s_state.last_state = (uint8_t *)calloc((num_sensors + 7) / 8, 1);
 	ctx.s_state.tripped = (uint8_t *)calloc((num_sensors + 7) / 8, 1);
 
+	uint32_t tripped_count = 0;
+
 	while (ctx.c->config->running) {
 		uint32_t i;
 		double sensor_value;
@@ -314,23 +331,19 @@ void *bmc_thermal_thread(void *thread_context)
 						  &num_values))
 		       != FPGA_OK) {
 			retries++;
-			if ((retries % 20) == 0) {
+			if ((retries % TRIM_LOG_MODULUS) == 0) {
 				dlog("pacd[%d]: Sensor reading failed.  Retries: %d.\n",
 				     ctx.c->PAC_index, retries);
 				usleep(900 * 1000);
 			}
 		}
 
-		for (i = 0; i < ctx.c->config->num_thresholds; i++) {
-			int32_t sens_num = ctx.c->config->sensor_number[i];
-			double u_trig_val =
-				ctx.c->config->upper_trigger_value[i];
-			double u_reset_val =
-				ctx.c->config->upper_reset_value[i];
-			double l_trig_val =
-				ctx.c->config->lower_trigger_value[i];
-			double l_reset_val =
-				ctx.c->config->lower_reset_value[i];
+		for (i = 0; i < ctx.c->num_thresholds; i++) {
+			int32_t sens_num = ctx.c->sensor_number[i];
+			double u_trig_val = ctx.c->upper_trigger_value[i];
+			double u_reset_val = ctx.c->upper_reset_value[i];
+			double l_trig_val = ctx.c->lower_trigger_value[i];
+			double l_reset_val = ctx.c->lower_reset_value[i];
 			uint32_t is_valid = 0;
 
 			// Check if sensor disabled due to too many invalid
@@ -350,15 +363,15 @@ void *bmc_thermal_thread(void *thread_context)
 				dlog("pacd[%d]: WARNING: Sensor reading for "
 				     "sensor %d invalid\n",
 				     ctx.c->PAC_index, sens_num);
-				ctx.c->config->invalid_count[i]++;
-				if (ctx.c->config->invalid_count[i]
+				ctx.c->invalid_count[i]++;
+				if (ctx.c->invalid_count[i]
 				    > DISABLE_THRESHOLD) {
 					dlog("pacd[%d]: ERROR: Invalid sensor reading "
 					     "threshold for sensor %d exceeded\n",
 					     ctx.c->PAC_index, sens_num);
 					dlog("pacd[%d]: ERROR: Sensor %d **DISABLED**\n",
 					     ctx.c->PAC_index, sens_num);
-					ctx.c->config->sensor_number[i] = -1;
+					ctx.c->sensor_number[i] = -1;
 				}
 				continue;
 			}
@@ -383,8 +396,10 @@ void *bmc_thermal_thread(void *thread_context)
 				}
 			}
 
-			if (((sensor_value < u_reset_val) || (fabs(u_reset_val) == DBL_MAX))
-			    && ((sensor_value > l_reset_val) || (fabs(l_reset_val) == DBL_MAX))) {
+			if (((sensor_value < u_reset_val)
+			     || (fabs(u_reset_val) == DBL_MAX))
+			    && ((sensor_value > l_reset_val)
+				|| (fabs(l_reset_val) == DBL_MAX))) {
 				CLEAR_BIT(ctx.s_state.tripped, sens_num);
 				if (BIT_SET(ctx.s_state.last_state, sens_num)) {
 					dlog("pacd[%d]: sensor %d (%s) returned to "
@@ -398,10 +413,14 @@ void *bmc_thermal_thread(void *thread_context)
 
 			if (BIT_SET(ctx.s_state.last_state, sens_num)
 			    && BIT_SET(ctx.s_state.tripped, sens_num)) {
-				dlog("pacd[%d]: sensor %d (%s) still tripped - "
-				     "value is (%f).\n",
-				     ctx.c->PAC_index, sens_num,
-				     ctx.sensor_names[sens_num], sensor_value);
+				if ((tripped_count % TRIM_LOG_MODULUS) == 0) {
+					dlog("pacd[%d]: sensor %d (%s) still tripped - "
+					     "value is (%f).\n",
+					     ctx.c->PAC_index, sens_num,
+					     ctx.sensor_names[sens_num],
+					     sensor_value);
+				}
+				tripped_count++;
 			}
 		}
 
@@ -420,6 +439,7 @@ void *bmc_thermal_thread(void *thread_context)
 			if (i == num_sensors) { // No remaining tripped sensors
 				must_PR = 0;
 				ctx.c->has_been_PRd = 0;
+				tripped_count = 0;
 			}
 		}
 
@@ -431,8 +451,15 @@ void *bmc_thermal_thread(void *thread_context)
 
 			if (ctx.c->config->remove_driver) {
 				int tries = 100;
-				sysfs_write_1(ctx.fme_token, "../device/reset");
-				sysfs_write_1(ctx.fme_token,
+				if (pthread_mutex_lock(
+					    &ctx.c->config->reload_mtx)) {
+					dlog("pacd[%d]: PANIC: pthread_mutex_lock failure.\n",
+					     ctx.c->PAC_index);
+					goto out_exit;
+				}
+				sysfs_write_1(ctx.c->fme_token,
+					      "../device/reset");
+				sysfs_write_1(ctx.c->fme_token,
 					      "../device/remove");
 				while ((res = pacd_bmc_shutdown(&ctx))
 				       != FPGA_OK) {
@@ -443,17 +470,23 @@ void *bmc_thermal_thread(void *thread_context)
 						NULL);
 
 				sysfs_write_1(NULL, "/sys/bus/pci/rescan");
+				if (pthread_mutex_unlock(
+					    &ctx.c->config->reload_mtx)) {
+					dlog("pacd[%d]: PANIC: pthread_mutex_unlock failure.\n",
+					     ctx.c->PAC_index);
+					goto out_exit;
+				}
 
 				while ((res = pacd_bmc_reinit(&ctx))
 				       != FPGA_OK) {
 					usleep(1000 * 1000);
 				}
 
-				while (((res = fpgaOpen(ctx.fme_token,
+				while (((res = fpgaOpen(ctx.c->fme_token,
 							&fme_handle, 0))
 					!= FPGA_OK)
 				       && (tries >= 0)) {
-					if (0 == (tries % 20)) {
+					if (0 == (tries % TRIM_LOG_MODULUS)) {
 						dlog("pacd[%d]: waiting for pci rescan.\n",
 						     ctx.c->PAC_index);
 					}
@@ -464,10 +497,12 @@ void *bmc_thermal_thread(void *thread_context)
 				if (FPGA_OK != res) {
 					dlog("pacd[%d]: PANIC: driver not reloaded.\n",
 					     ctx.c->PAC_index);
+					goto out_exit;
 				}
 			} else {
 
-				res = fpgaOpen(ctx.fme_token, &fme_handle, 0);
+				res = fpgaOpen(ctx.c->fme_token, &fme_handle,
+					       0);
 				if (res != FPGA_OK) {
 					dlog("pacd[%d]: failed to open FPGA.\n",
 					     ctx.c->PAC_index);

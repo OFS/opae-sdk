@@ -54,12 +54,12 @@ fpga_result sysfs_write_1(fpga_token token, const char *path)
 
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
-		dlog("open(%s) failed", buf);
+		dlog("open(%s) failed\n", buf);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		dlog("seek failed");
+		dlog("seek failed\n");
 		goto out_close;
 	}
 

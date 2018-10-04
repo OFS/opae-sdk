@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
+#include <pthread.h>
 
 #define MAX_NULL_GBS 16
 #define MAX_PAC_DEVICES 32
@@ -54,6 +55,10 @@ struct config {
 	struct timespec poll_interval;
 	struct timespec cooldown_delay;
 
+	pthread_mutex_t reload_mtx;
+
+	fpga_token tokens[MAX_PAC_DEVICES];
+
 	int daemon;	    // whether to daemonize
 	const char *directory; // working directory when daemonizing
 	const char *logfile;   // location of log file
@@ -62,24 +67,11 @@ struct config {
 
 	bool running;
 
-	uint16_t segment;
-	uint8_t bus;
-	uint8_t device;
-	uint8_t function;
-
 	const char *null_gbs[MAX_NULL_GBS];
 	unsigned int num_null_gbs;
 
 	unsigned int num_PACs;
 	uint32_t no_defaults;
-
-	unsigned int num_thresholds;
-	int32_t sensor_number[MAX_SENSORS_TO_MONITOR];
-	double upper_trigger_value[MAX_SENSORS_TO_MONITOR];
-	double upper_reset_value[MAX_SENSORS_TO_MONITOR];
-	double lower_trigger_value[MAX_SENSORS_TO_MONITOR];
-	double lower_reset_value[MAX_SENSORS_TO_MONITOR];
-	uint32_t invalid_count[MAX_SENSORS_TO_MONITOR];
 
 	int remove_driver;
 };

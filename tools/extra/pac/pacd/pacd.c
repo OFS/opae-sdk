@@ -35,6 +35,8 @@
 
 #include <unistd.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "opae/fpga.h"
 #include "bmc_thermal.h"
 #include "config_int.h"
@@ -49,6 +51,8 @@
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
 
 #define UNUSED_PARAM(x) ((void)x)
+
+#define PACD_LOCKFILE "/tmp/pacd.lock"
 
 static struct timespec wait_for_card_ts = {
 	.tv_sec = PACD_WAIT_FOR_CARD,
@@ -148,16 +152,10 @@ struct config config = {
 	.pidfile = "/tmp/pacd.pid",
 	.filemode = 0,
 	.running = true,
-	.segment = -1,
-	.bus = -1,
-	.device = -1,
-	.function = -1,
 	.null_gbs = {0},
 	.num_null_gbs = 0,
 	.num_PACs = 0,
 	.no_defaults = 0,
-	.num_thresholds = 0,
-	.invalid_count = {0},
 	.remove_driver = 1,
 };
 
@@ -186,17 +184,46 @@ int main(int argc, char *argv[])
 	int res;
 	int i;
 	int j;
-	config.num_thresholds = 0;
 	pthread_t bmc_thermal[MAX_PAC_DEVICES]; /* one per device */
 	struct bmc_thermal_context context[MAX_PAC_DEVICES];
+	context[0].num_thresholds = 0;
+
+	FILE *fp = fopen(PACD_LOCKFILE, "r");
+	if (NULL != fp) {
+		pid_t pid;
+		int kret = 0;
+		if (fscanf(fp, "%d", &pid) == 1) {
+			errno = 0;
+			kret = kill(pid, 0);
+		}
+
+		if ((0 == kret) || (EPERM == errno)) {
+			fprintf(stderr,
+				"%s: Already running, or invalid permissions\n",
+				argv[0]);
+			fclose(fp);
+			return 1;
+		}
+
+		fclose(fp);
+		fp = NULL;
+		remove(PACD_LOCKFILE);
+	}
+
+	pthread_mutex_init(&config.reload_mtx, NULL);
 
 	for (i = 0; i < MAX_SENSORS_TO_MONITOR; i++) {
-		config.sensor_number[i] = -1;
-		config.upper_trigger_value[i] = DBL_MAX;
-		config.upper_reset_value[i] = -DBL_MAX;
-		config.lower_trigger_value[i] = -DBL_MAX;
-		config.lower_reset_value[i] = DBL_MAX;
+		context[0].sensor_number[i] = -1;
+		context[0].upper_trigger_value[i] = DBL_MAX;
+		context[0].upper_reset_value[i] = -DBL_MAX;
+		context[0].lower_trigger_value[i] = -DBL_MAX;
+		context[0].lower_reset_value[i] = DBL_MAX;
 	}
+
+	context[0].segment = -1;
+	context[0].bus = -1;
+	context[0].device = -1;
+	context[0].function = -1;
 
 	fLog = stdout;
 
@@ -385,7 +412,8 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			if (config.num_thresholds >= MAX_SENSORS_TO_MONITOR) {
+			if (context[0].num_thresholds
+			    >= MAX_SENSORS_TO_MONITOR) {
 				dlog("Max thresholds exceeded.\n");
 				return 1;
 			}
@@ -393,18 +421,19 @@ int main(int argc, char *argv[])
 			unsigned int ii;
 			int set_thresh = 0;
 			int thresh_ndx = -1;
-			for (ii = 0; ii < config.num_thresholds; ii++) {
-				int32_t snum = config.sensor_number[ii];
+			for (ii = 0; ii < context[0].num_thresholds; ii++) {
+				int32_t snum = context[0].sensor_number[ii];
 				if ((int32_t)lval1 == snum) {
 					thresh_ndx = ii;
-					if (config.upper_trigger_value[ii]
+					if (context[0].upper_trigger_value[ii]
 					    != DBL_MAX) {
 						dlog("WARNING: Multiple upper threshold values for "
 						     "sensor %d - using %f : %f.\n",
 						     snum, val2, val3);
-						config.upper_trigger_value[ii] =
-							val2;
-						config.upper_reset_value[ii] =
+						context[0].upper_trigger_value
+							[ii] = val2;
+						context[0]
+							.upper_reset_value[ii] =
 							val3;
 						set_thresh = 1;
 					}
@@ -414,17 +443,21 @@ int main(int argc, char *argv[])
 
 			if (!set_thresh) {
 				if (thresh_ndx == -1) {
-					config.sensor_number
-						[config.num_thresholds] = lval1;
-					config.upper_trigger_value
-						[config.num_thresholds] = val2;
-					config.upper_reset_value
-						[config.num_thresholds] = val3;
-					config.num_thresholds++;
-				} else {
-					config.upper_trigger_value[thresh_ndx] =
+					context[0].sensor_number
+						[context[0].num_thresholds] =
+						lval1;
+					context[0].upper_trigger_value
+						[context[0].num_thresholds] =
 						val2;
-					config.upper_reset_value[thresh_ndx] =
+					context[0].upper_reset_value
+						[context[0].num_thresholds] =
+						val3;
+					context[0].num_thresholds++;
+				} else {
+					context[0].upper_trigger_value
+						[thresh_ndx] = val2;
+					context[0]
+						.upper_reset_value[thresh_ndx] =
 						val3;
 				}
 				dlog("sensor %d upper thresholds set to %f (trip) %f (reset)\n",
@@ -483,7 +516,8 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			if (config.num_thresholds >= MAX_SENSORS_TO_MONITOR) {
+			if (context[0].num_thresholds
+			    >= MAX_SENSORS_TO_MONITOR) {
 				dlog("Max thresholds exceeded.\n");
 				return 1;
 			}
@@ -491,18 +525,19 @@ int main(int argc, char *argv[])
 			unsigned int ii;
 			int set_thresh = 0;
 			int thresh_ndx = -1;
-			for (ii = 0; ii < config.num_thresholds; ii++) {
-				int32_t snum = config.sensor_number[ii];
+			for (ii = 0; ii < context[0].num_thresholds; ii++) {
+				int32_t snum = context[0].sensor_number[ii];
 				if ((int32_t)lval1 == snum) {
 					thresh_ndx = ii;
-					if (config.lower_trigger_value[ii]
-					    != DBL_MAX) {
+					if (context[0].lower_trigger_value[ii]
+					    != -DBL_MAX) {
 						dlog("WARNING: Multiple lower threshold values for "
 						     "sensor %d - using %f : %f.\n",
 						     snum, val2, val3);
-						config.lower_trigger_value[ii] =
-							val2;
-						config.lower_reset_value[ii] =
+						context[0].lower_trigger_value
+							[ii] = val2;
+						context[0]
+							.lower_reset_value[ii] =
 							val3;
 						set_thresh = 1;
 					}
@@ -512,17 +547,21 @@ int main(int argc, char *argv[])
 
 			if (!set_thresh) {
 				if (thresh_ndx == -1) {
-					config.sensor_number
-						[config.num_thresholds] = lval1;
-					config.lower_trigger_value
-						[config.num_thresholds] = val2;
-					config.lower_reset_value
-						[config.num_thresholds] = val3;
-					config.num_thresholds++;
-				} else {
-					config.lower_trigger_value[thresh_ndx] =
+					context[0].sensor_number
+						[context[0].num_thresholds] =
+						lval1;
+					context[0].lower_trigger_value
+						[context[0].num_thresholds] =
 						val2;
-					config.lower_reset_value[thresh_ndx] =
+					context[0].lower_reset_value
+						[context[0].num_thresholds] =
+						val3;
+					context[0].num_thresholds++;
+				} else {
+					context[0].lower_trigger_value
+						[thresh_ndx] = val2;
+					context[0]
+						.lower_reset_value[thresh_ndx] =
 						val3;
 				}
 				dlog("sensor %ld lower thresholds set to %f (trip) %f (reset)\n",
@@ -533,9 +572,10 @@ int main(int argc, char *argv[])
 
 		case 'S':
 			if (tmp_optarg) {
-				config.segment = strtoul(tmp_optarg, NULL, 0);
+				context[0].segment =
+					strtoul(tmp_optarg, NULL, 0);
 				dlog("PAC PCIe segment is 0x%04x\n",
-				     config.segment);
+				     context[0].segment);
 			} else {
 				fprintf(stderr, "missing segment parameter.\n");
 				return 1;
@@ -544,8 +584,9 @@ int main(int argc, char *argv[])
 
 		case 'B':
 			if (tmp_optarg) {
-				config.bus = strtoul(tmp_optarg, NULL, 0);
-				dlog("PAC PCIe bus is 0x%02x\n", config.bus);
+				context[0].bus = strtoul(tmp_optarg, NULL, 0);
+				dlog("PAC PCIe bus is 0x%02x\n",
+				     context[0].bus);
 			} else {
 				fprintf(stderr, "missing bus parameter.\n");
 				return 1;
@@ -554,9 +595,10 @@ int main(int argc, char *argv[])
 
 		case 'D':
 			if (tmp_optarg) {
-				config.device = strtoul(tmp_optarg, NULL, 0);
+				context[0].device =
+					strtoul(tmp_optarg, NULL, 0);
 				dlog("PAC PCIe device is 0x%02x\n",
-				     config.device);
+				     context[0].device);
 			} else {
 				fprintf(stderr, "missing device parameter.\n");
 				return 1;
@@ -565,9 +607,10 @@ int main(int argc, char *argv[])
 
 		case 'F':
 			if (tmp_optarg) {
-				config.function = strtoul(tmp_optarg, NULL, 0);
+				context[0].function =
+					strtoul(tmp_optarg, NULL, 0);
 				dlog("PAC PCIe function is 0x%1x\n",
-				     config.function);
+				     context[0].function);
 			} else {
 				fprintf(stderr,
 					"missing function parameter.\n");
@@ -593,7 +636,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((1 == config.no_defaults) && (0 == config.num_thresholds)) {
+	if ((1 == config.no_defaults) && (0 == context[0].num_thresholds)) {
 		dlog("ERROR: No sensor thresholds specified and no-defaults option specified.\n");
 		return 1;
 	}
@@ -602,8 +645,9 @@ int main(int argc, char *argv[])
 	// for each
 	int num_PACs = 0;
 	int initial_msg = 0;
+	context[0].config = &config;
 	do {
-		num_PACs = enumerate(&config);
+		num_PACs = enumerate(&context[0]);
 
 		if ((num_PACs < 1) && (!config.daemon)) {
 			fprintf(stderr, "No PAC cards found.\n");
@@ -616,8 +660,14 @@ int main(int argc, char *argv[])
 			}
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &wait_for_card_ts,
 					NULL);
+			initial_msg++;
 		}
-	} while (num_PACs < 1);
+	} while ((num_PACs < 1) && (initial_msg < 1000));
+
+	if (initial_msg >= 1000) {
+		dlog("PAC card not found - terminating");
+		goto out;
+	}
 
 	if (initial_msg) {
 		dlog("PAC card / driver found - continuing");
@@ -670,10 +720,23 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	fp = fopen(PACD_LOCKFILE, "w");
+	if (NULL == fp) {
+		return 1;
+	}
+	fprintf(fp, "%d\n", getpid());
+	fclose(fp);
+
+	for (i = 1; i < num_PACs; i++) {
+		memcpy_s(&context[i], sizeof(context[i]), &context[0],
+			 sizeof(context[0]));
+	}
+
 	for (i = 0; i < num_PACs; i++) {
 		context[i].config = &config;
 		context[i].PAC_index = i;
 		context[i].has_been_PRd = 0;
+		context[i].fme_token = config.tokens[i];
 		res = pthread_create(&bmc_thermal[i], NULL, bmc_thermal_thread,
 				     &context[i]);
 		if (res) {
@@ -688,14 +751,18 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_PACs; i++)
 		pthread_join(bmc_thermal[i], NULL);
 
-	if (stdout != fLog)
+	if (stdout != fLog) {
 		close_log();
+	}
 
-	if (config.daemon)
+	if (config.daemon) {
 		remove(config.pidfile);
+	}
 
-	// if (config.tokens)
-	//	fpgaDestroyToken(config.tokens);
+out:
+	remove(PACD_LOCKFILE);
+
+	pthread_mutex_destroy(&config.reload_mtx);
 
 	return 0;
 }

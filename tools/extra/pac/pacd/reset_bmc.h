@@ -47,7 +47,6 @@ typedef struct {
 
 typedef struct {
 	struct bmc_thermal_context *c;
-	fpga_token fme_token;
 	struct bitstream_info null_gbs_info;
 	uint32_t gbs_found;
 	uint32_t gbs_index;

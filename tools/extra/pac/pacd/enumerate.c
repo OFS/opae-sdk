@@ -48,33 +48,35 @@
 		}                                                              \
 	} while (0)
 
-int enumerate(struct config *config)
+int enumerate(struct bmc_thermal_context *context)
 {
 	fpga_result res = FPGA_OK;
 	uint32_t matches = 0;
 	fpga_properties filter = NULL;
 	uint32_t result = 0;
+	struct config *config = context->config;
+	uint32_t i;
 
 	// start a filter using the first level command line arguments
 	res = fpgaGetProperties(NULL, &filter);
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "creating properties object");
 
-	if ((uint16_t)-1 != config->segment) {
-		res += fpgaPropertiesSetSegment(filter, config->segment);
+	if ((uint16_t)-1 != context->segment) {
+		res += fpgaPropertiesSetSegment(filter, context->segment);
 		PRINT_ERR("setting segment", res);
 	}
 
-	if ((uint8_t)-1 != config->bus) {
-		res += fpgaPropertiesSetBus(filter, config->bus);
+	if ((uint8_t)-1 != context->bus) {
+		res += fpgaPropertiesSetBus(filter, context->bus);
 		PRINT_ERR("setting bus", res);
 	}
-	if ((uint8_t)-1 != config->device) {
-		res += fpgaPropertiesSetDevice(filter, config->device);
+	if ((uint8_t)-1 != context->device) {
+		res += fpgaPropertiesSetDevice(filter, context->device);
 		PRINT_ERR("setting device", res);
 	}
 
-	if ((uint8_t)-1 != config->function) {
-		res += fpgaPropertiesSetFunction(filter, config->function);
+	if ((uint8_t)-1 != context->function) {
+		res += fpgaPropertiesSetFunction(filter, context->function);
 		PRINT_ERR("setting function", res);
 	}
 
@@ -89,21 +91,21 @@ int enumerate(struct config *config)
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "enumerating resources");
 
 	num_tokens = matches;
-	fpga_token tokens[100];
-	res = fpgaEnumerate(&filter, 1, &tokens[0], num_tokens, &matches);
-	ON_FPGAINFO_ERR_GOTO(res, out_free, "enumerating resources");
+	res = fpgaEnumerate(&filter, 1, &config->tokens[0], num_tokens,
+			    &matches);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "enumerating resources");
 
 	if (num_tokens != matches) {
 		fprintf(stderr,
 			"token list changed in between enumeration calls\n");
-		goto out_free;
+		for (i = 0; i < matches; i++) {
+			fpgaDestroyToken(&config->tokens[i]);
+		}
+		goto out_destroy;
 	}
 
 	result = num_tokens;
 	config->num_PACs = num_tokens;
-
-out_free:
-	fpgaDestroyToken(&tokens[0]);
 
 out_destroy:
 	res = fpgaDestroyProperties(&filter);
