@@ -92,12 +92,17 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
         EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
         accel_ = nullptr;
     }
-    uint32_t i;
-    for (i = 0 ; i < num_matches_accel_ ; ++i) {
-        EXPECT_EQ(fpgaDestroyToken(&tokens_accel_[i]), FPGA_OK);
+    for (auto &t : tokens_accel_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
-    for (i = 0 ; i < num_matches_device_ ; ++i) {
-        EXPECT_EQ(fpgaDestroyToken(&tokens_device_[i]), FPGA_OK);
+    for (auto &t : tokens_device_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
     system_->finalize();
   }
@@ -105,10 +110,10 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
   fpga_object token_obj_;
   fpga_object handle_obj_;
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_accel_ = {{nullptr,nullptr}};
   fpga_handle accel_;
   uint32_t num_matches_accel_;
-  std::array<fpga_token, 2> tokens_device_;
+  std::array<fpga_token, 2> tokens_device_ = {{nullptr,nullptr}};
   uint32_t num_matches_device_;
   test_platform platform_;
   test_device invalid_device_;

@@ -62,12 +62,18 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&props_), FPGA_OK);
     EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
     system_->finalize();
   }
 
   fpga_properties filter_;
   fpga_properties props_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
   fpga_handle accel_;
   uint32_t num_matches_;

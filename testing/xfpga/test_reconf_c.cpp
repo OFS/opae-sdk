@@ -62,20 +62,18 @@ class reconf_c
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
-    for (auto & t : tokens_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_) {
+      if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-
     if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -276,7 +274,7 @@ TEST_P(reconf_c, open_accel) {
   handle->token = token;
 
   fpga_properties filter_accel;
-  std::array<fpga_token, 2> tokens_accel = {};
+  std::array<fpga_token, 2> tokens_accel = {{nullptr,nullptr}};
   fpga_handle handle_accel;
   uint32_t num_matches_accel;
 

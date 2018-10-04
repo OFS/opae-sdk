@@ -69,9 +69,11 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   void DestroyTokens() {
-    uint32_t i;
-    for (i = 0 ; i < num_matches_ ; ++i) {
-      EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
     num_matches_ = 0;
   }
@@ -83,7 +85,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   uint32_t num_matches_;
   test_platform platform_;
   test_device invalid_device_;

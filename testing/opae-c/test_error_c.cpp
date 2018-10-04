@@ -80,7 +80,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   test_platform platform_;
   uint32_t num_matches_;
   test_device invalid_device_;

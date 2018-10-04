@@ -54,9 +54,10 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    for (auto t : tokens_) {
+    for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
       }
     }
     if (handle_) {
@@ -69,7 +70,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
-  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
   fpga_properties dev_filter_;
   fpga_properties acc_filter_;

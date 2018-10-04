@@ -72,15 +72,17 @@ class usrclk_c
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
-    for (auto t : tokens_dev_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_dev_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
-    for (auto t : tokens_accel_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_accel_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -91,8 +93,8 @@ class usrclk_c
 
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_dev_ = {};
-  std::array<fpga_token, 2> tokens_accel_ = {};
+  std::array<fpga_token, 2> tokens_dev_ = {{nullptr,nullptr}};
+  std::array<fpga_token, 2> tokens_accel_ = {{nullptr,nullptr}};
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
   uint32_t num_matches_;

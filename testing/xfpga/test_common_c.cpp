@@ -68,9 +68,10 @@ class common_c_p
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 
-    for (auto t : tokens_) {
-      if (t != nullptr) {
+    for (auto &t : tokens_) {
+      if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -80,7 +81,7 @@ class common_c_p
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_ = {{nullptr, nullptr}};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;

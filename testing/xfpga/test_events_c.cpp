@@ -243,12 +243,14 @@ class events_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
     for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -263,8 +265,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
   struct config config_;
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_dev_ = {};
-  std::array<fpga_token, 2> tokens_accel_ = {};
+  std::array<fpga_token, 2> tokens_dev_ = {{nullptr,nullptr}};
+  std::array<fpga_token, 2> tokens_accel_ = {{nullptr,nullptr}};
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
   uint32_t num_matches_;
@@ -992,6 +994,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
 
@@ -1005,7 +1008,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
   std::string tmpfpgad_pid_;
   struct config config_;
   fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_accel_ = {};
+  std::array<fpga_token, 2> tokens_accel_ = {{nullptr,nullptr}};
   fpga_handle handle_accel_;
   uint32_t num_matches_;
   test_platform platform_;

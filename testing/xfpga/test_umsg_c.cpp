@@ -172,16 +172,16 @@ class umsg_c_p
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
       }
     }
-
 
     if (handle_) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {};
+  std::array<fpga_token, 2> tokens_ = {{nullptr,nullptr}};
   fpga_handle handle_;
   uint32_t num_matches_;
   test_platform platform_;
