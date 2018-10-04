@@ -52,7 +52,6 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
 
     tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_TRUE(tokens_.size() > 0);
-
   }
 
   virtual void TearDown() override {
@@ -73,7 +72,7 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
  * And I am able to read information about the error
  */
 TEST_P(errors_cxx_core, get_error) {
-  for (auto t : tokens_) {
+  for (auto &t : tokens_) {
     auto props = properties::get(t);
     for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
       auto err = error::get(t, i);
