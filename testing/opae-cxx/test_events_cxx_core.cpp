@@ -89,10 +89,10 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config_.running = false;
+    fpgad_.join();
     handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
     system_->finalize();
-    fpgad_.join();
   }
 
   std::string tmpfpgad_log_;
