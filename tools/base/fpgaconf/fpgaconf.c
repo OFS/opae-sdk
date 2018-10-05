@@ -84,7 +84,8 @@ struct config {
 	    .dry_run = false,
 	    .mode = NORMAL,
 	    .flags = 0,
-	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1} };
+	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1},
+	    .filename = NULL };
 
 struct bitstream_info {
 	char *filename;
@@ -95,8 +96,8 @@ struct bitstream_info {
 	fpga_guid interface_id;
 };
 
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
-					fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
+				 fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;
@@ -232,14 +233,14 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"help", no_argument, NULL, 'h'},
-		{"verbose", no_argument, NULL, 'v'},
-		{"dry-run", no_argument, NULL, 'n'},
-		{"bus", required_argument, NULL, 'B'},
-		{"device", required_argument, NULL, 'D'},
-		{"function", required_argument, NULL, 'F'},
+		{"help",      no_argument,       NULL, 'h'},
+		{"verbose",   no_argument,       NULL, 'v'},
+		{"dry-run",   no_argument,       NULL, 'n'},
+		{"bus",       required_argument, NULL, 'B'},
+		{"device",    required_argument, NULL, 'D'},
+		{"function",  required_argument, NULL, 'F'},
 		{"socket-id", required_argument, NULL, 'S'},
-		{"force", no_argument, NULL, 0xf},
+		{"force",     no_argument,       NULL, 0xf},
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
@@ -444,6 +445,7 @@ int print_interface_id(fpga_guid actual_interface_id)
 		retval = (int)num_matches; /* FPGA found */
 	} else {
 		retval = 0; /* no FPGA found */
+		goto out_destroy;
 	}
 
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
