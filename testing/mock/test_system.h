@@ -34,6 +34,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <json-c/json.h>
 #include <thread>
 #include <mutex>
 
@@ -144,6 +145,7 @@ class test_system {
   std::string get_root();
   std::string get_sysfs_path(const std::string &src);
   std::vector<uint8_t> assemble_gbs_header(const test_device &td);
+  std::vector<uint8_t> assemble_gbs_header(const test_device &td, const char* mdata);
 
   void initialize();
   void finalize();

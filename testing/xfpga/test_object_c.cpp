@@ -128,8 +128,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
             FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaObjectGetObject(err_object, nullptr, "bbs_errors",
-                                      &object, flags),
+  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, nullptr, "revision", &object,
+                                      flags),
             FPGA_OK);
   uint64_t bbs_errors = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, FPGA_OBJECT_TEXT),
@@ -210,7 +210,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_EXCEPTION);
 
   obj->path = path;
-  delete [] inv_path;
+  delete[] inv_path;
 
   rewind(fp);
   std::vector<char> buffer(256);

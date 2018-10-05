@@ -84,6 +84,18 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
 		    FPGA_OK);
     EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0),
 		    FPGA_OK);
+    std::string  afu_guid = platform_.devices[0].afu_guid;
+    auto f = afu_guid.find("-");
+    while (f != std::string::npos) {
+      afu_guid.erase(f, 1);
+      f = afu_guid.find("-");
+    }
+    afu_guid_.resize(afu_guid.size());
+    std::locale lc;
+    std::transform(afu_guid.begin(), afu_guid.end(), afu_guid_.begin(), [&lc](char c) -> char {
+        return std::tolower(c, lc);
+        });
+
   }
 
   virtual void TearDown() override {
@@ -120,9 +132,9 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
+  std::string afu_guid_;
 };
 
-static const char * NLB0_AFU_ID = "d8424dc4a4a3c413f89e433683f9040b";
 
 /**
  * @test       obj_read
@@ -136,7 +148,7 @@ TEST_P(object_c_p, obj_read) {
   EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *) afu_id, 0,
                            32, 0), FPGA_OK);
   afu_id[32] = 0;
-  EXPECT_STREQ(afu_id, NLB0_AFU_ID);
+  EXPECT_STREQ(afu_id, afu_guid_.c_str());
 }
 
 /**
@@ -149,7 +161,7 @@ TEST_P(object_c_p, obj_read) {
 TEST_P(object_c_p, obj_read64) {
   uint64_t val = 0;
   EXPECT_EQ(fpgaObjectRead64(token_obj_, &val, FPGA_OBJECT_TEXT), FPGA_OK);
-  EXPECT_EQ(val, 1);
+  EXPECT_EQ(val, 1ul);
 }
 
 /**

@@ -174,7 +174,7 @@ test_device test_device::unknown() {
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
-		     .mdata = ""};
+                     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
@@ -197,6 +197,25 @@ const char *skx_mdata =
       ]
      },
      "platform-name": "MCP"}";
+)mdata";
+
+const char *rc_mdata =
+    R"mdata({"version": 112,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "bb0023cf-0bd2-579a-90ef-97fe743a6c63",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "f7df405c-bd7a-cf72-22f1-44b0b93acd18"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
 )mdata";
 
 static platform_db PLATFORMS = {
@@ -223,7 +242,32 @@ static platform_db PLATFORMS = {
                        .fme_num_errors = 9,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
-                       .mdata = skx_mdata}}}}};
+                       .mdata = skx_mdata}}}},
+    {"dcp-rc",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
+                   .devices = {test_device{
+                       .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
+                       .afu_guid = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x112000200000159,
+                       .bbs_version = {1, 1, 2},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x09c4,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = rc_mdata}}}},
+};
 
 test_platform test_platform::get(const std::string &key) {
   return PLATFORMS[key];
@@ -329,6 +373,15 @@ std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
   *reinterpret_cast<uint32_t *>(gbs_header.data() + 16) = len;
   std::copy(&td.mdata[0], &td.mdata[len], std::back_inserter(gbs_header));
   return gbs_header;
+}
+
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td, const char *mdata) {
+  if (mdata) {
+    test_device copy = td;
+    copy.mdata = mdata;
+    return assemble_gbs_header(copy);
+  }
+  return std::vector<uint8_t>(0);
 }
 
 void test_system::initialize() {
@@ -449,8 +502,9 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
 
 static bool _invalidate_read = false;
 static uint32_t _invalidate_read_after = 0;
-static const char * _invalidate_read_when_called_from = nullptr;
-void test_system::invalidate_read(uint32_t after, const char *when_called_from) {
+static const char *_invalidate_read_when_called_from = nullptr;
+void test_system::invalidate_read(uint32_t after,
+                                  const char *when_called_from) {
   _invalidate_read = true;
   _invalidate_read_after = after;
   _invalidate_read_when_called_from = when_called_from;
@@ -458,40 +512,36 @@ void test_system::invalidate_read(uint32_t after, const char *when_called_from) 
 
 ssize_t test_system::read(int fd, void *buf, size_t count) {
   if (_invalidate_read) {
-
     if (!_invalidate_read_when_called_from) {
+      if (!_invalidate_read_after) {
+        _invalidate_read = false;
+        return -1;
+      }
 
-        if (!_invalidate_read_after) {
-          _invalidate_read = false;
-          return -1;
-        }
-
-        --_invalidate_read_after;
+      --_invalidate_read_after;
 
     } else {
-        // 2 here, because we were called through..
-	// 0 test_system.cpp:opae_test_read()
-	// 1 mock.c:read()
-	// 2 <caller>
-        void *caller = __builtin_return_address(2);
-        int res;
-        Dl_info info;
+      // 2 here, because we were called through..
+      // 0 test_system.cpp:opae_test_read()
+      // 1 mock.c:read()
+      // 2 <caller>
+      void *caller = __builtin_return_address(2);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
 
-        if (!_invalidate_read_after && !res) {
-          _invalidate_read = false;
-          _invalidate_read_when_called_from = nullptr;
-          return -1;
-        } else if (!res)
-            --_invalidate_read_after;
-
+      if (!_invalidate_read_after && !res) {
+        _invalidate_read = false;
+        _invalidate_read_when_called_from = nullptr;
+        return -1;
+      } else if (!res)
+        --_invalidate_read_after;
     }
-
   }
   return read_(fd, buf, count);
 }
