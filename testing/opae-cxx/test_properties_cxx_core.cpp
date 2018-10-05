@@ -54,7 +54,7 @@ protected:
 
   void string_to_guid(const char *guid, fpga_guid *result)
   {
-    ASSERT_GE(0, uuid_parse(guid, *result));
+    ASSERT_EQ(0, uuid_parse(guid, *result));
     ASSERT_NE(nullptr, result);
   }
 
