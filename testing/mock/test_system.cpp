@@ -443,6 +443,9 @@ FILE *test_system::register_file(const std::string &path) {
 }
 
 void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
+  // normalizing a guid string can make it easier to compare guid strings
+  // and can also put the string in a format that can be parsed into actual
+  // guid bytes (uuid_parse expects the string to include hyphens).
   const size_t std_guid_str_size = 36;
   const size_t char_guid_str_size = 32;
   if (guid_str.back() == '\n') {
@@ -451,6 +454,7 @@ void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
   std::locale lc;
   auto c_idx = guid_str.find('-');
   if (with_hyphens && c_idx == std::string::npos) {
+    // if we want the standard UUID format with hyphens (8-4-4-4-12)
     if (guid_str.size() == char_guid_str_size) {
       int idx = 20;
       while (c_idx != 8) {
@@ -459,16 +463,17 @@ void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
         c_idx = guid_str.find('-');
       }
     } else {
-      throw std::runtime_error("invalid guid string");
+      throw std::invalid_argument("invalid guid string");
     }
   } else if (!with_hyphens && c_idx == 8) {
+    // we want the hex characters only, no other extra chars
     if (guid_str.size() == std_guid_str_size) {
       while (c_idx != std::string::npos) {
         guid_str.erase(c_idx, 1);
         c_idx = guid_str.find('-');
       }
     } else {
-      throw std::runtime_error("invalid guid string");
+      throw std::invalid_argument("invalid guid string");
     }
   }
 
