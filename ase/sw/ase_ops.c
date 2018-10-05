@@ -248,7 +248,7 @@ void ase_eval_session_directory(void)
 		if (!ase_dir) {
 			ASE_ERR
 				("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n"
-					"Cannot continue execution... exiting !");
+					"Cannot continue execution... exiting !\n");
 			perror("opendir");
 			exit(1);
 		} else {
@@ -658,7 +658,7 @@ char *ase_getenv(const char *name)
 
 	if (name == NULL) {
 		ASE_ERR
-			("** ERROR **: Input Environment variable is NULL... EXITING");
+			("** ERROR **: Input Environment variable is NULL... EXITING\n");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -674,7 +674,7 @@ char *ase_getenv(const char *name)
 
 		if (env == NULL) {
 			ASE_ERR
-				("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING",
+				("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING\n",
 				 name);
 #ifdef SIM_SIDE
 			start_simkill_countdown();
