@@ -158,8 +158,7 @@ void ase_buffer_info(struct buffer_t *mem)
 	ASE_MSG("\tSIMVirtBase = 0x%" PRIx64 "\n", mem->pbase);
 	ASE_MSG("\tBufferSize  = 0x%" PRIx32 " \n", mem->memsize);
 	ASE_MSG("\tBufferName  = \"%s\"\n", mem->memname);
-	ASE_MSG("\tPhysAddr LO = 0x%" PRIx64 "\n", mem->fake_paddr);
-	ASE_MSG("\tPhysAddr HI = 0x%" PRIx64 "\n", mem->fake_paddr_hi);
+	ASE_MSG("\tPhysAddr    = 0x%" PRIx64 "\n", mem->fake_paddr);
 	ASE_MSG("\tisMMIOMap   = %s\n",
 		(mem->is_mmiomap == 1) ? "YES" : "NO");
 	ASE_MSG("\tisUMAS      = %s\n",

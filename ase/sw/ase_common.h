@@ -145,8 +145,6 @@ enum ase_loglevel {
 int get_loglevel(void);
 void set_loglevel(int level);
 
-void calc_phys_memory_ranges(void);
-
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
 int generate_sockname(char *);
@@ -326,8 +324,7 @@ struct buffer_t			//  Descriptiion                    Computed by
 	int32_t valid;		// Valid buffer indicator          | INTERNAL
 	uint64_t vbase;		// SW virtual address              |   APP
 	uint64_t pbase;		// SIM virtual address             |   SIM
-	uint64_t fake_paddr;	// unique low FPGA_ADDR_WIDTH addr |   SIM
-	uint64_t fake_paddr_hi;	// unique hi FPGA_ADDR_WIDTH addr  |   SIM
+	uint64_t fake_paddr;	// Simulated physical address      |   APP
 	int32_t is_privmem;	// Flag memory as a private memory |
 	int32_t is_mmiomap;	// Flag memory as CSR map          |
 	int32_t is_umas;	// Flag memory as UMAS region      |
@@ -415,19 +412,15 @@ void ll_print_info(struct buffer_t *);
 void ll_traverse_print(void);
 void ll_append_buffer(struct buffer_t *);
 void ll_remove_buffer(struct buffer_t *);
-uint32_t check_if_physaddr_used(uint64_t);
 struct buffer_t *ll_search_buffer(int);
 
 // Mem-ops functions
 int ase_recv_msg(struct buffer_t *);
-void ase_alloc_action(struct buffer_t *);
-void ase_dealloc_action(struct buffer_t *, int);
-void ase_destroy(void);
-uint64_t *ase_fakeaddr_to_vaddr(uint64_t);
+void ase_shmem_alloc_action(struct buffer_t *);
+void ase_shmem_dealloc_action(struct buffer_t *, int);
+void ase_shmem_destroy(void);
 void ase_dbg_memtest(struct buffer_t *);
-void ase_perror_teardown(char *, int);
-void ase_empty_buffer(struct buffer_t *);
-uint64_t get_range_checked_physaddr(uint32_t);
+void ase_shmem_perror_teardown(char *, int);
 #ifdef ASE_DEBUG
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
@@ -560,7 +553,7 @@ extern "C" {
 #define ASE_MQ_MAXMSG     8
 #define ASE_MQ_MSGSIZE    1024
 #define ASE_MQ_NAME_LEN   64
-#define ASE_MQ_INSTANCES  10
+#define ASE_MQ_INSTANCES  14
 // Message presence setting
 #define ASE_MSG_PRESENT 0xD33D
 #define ASE_MSG_ABSENT  0xDEAD
@@ -701,10 +694,12 @@ void ase_reset_trig(void);
 void sw_reset_response(void);
 
 // Read system memory line
-void rd_memline_dex(cci_pkt *pkt);
+void rd_memline_req_dex(cci_pkt *pkt);
+void rd_memline_rsp_dex(cci_pkt *pkt);
 
 // Write system memory line
-void wr_memline_dex(cci_pkt *pkt);
+void wr_memline_req_dex(cci_pkt *pkt);
+void wr_memline_rsp_dex(cci_pkt *pkt);
 
 // MMIO request
 void mmio_dispatch(int init, struct mmio_t *mmio_pkt);

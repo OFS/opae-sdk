@@ -31,6 +31,7 @@
  * - Interface to page table
  */
 #include "ase_common.h"
+#include "ase_host_memory.h"
 
 //const int NUM_DS = 10;
 
@@ -46,12 +47,16 @@ static int app2sim_dealloc_rx;
 int sim2app_dealloc_tx;
 static int sim2app_portctrl_rsp_tx;
 static int sim2app_intr_request_tx;
+static int sim2app_membus_rd_req_tx;
+static int app2sim_membus_rd_rsp_rx;
+static int sim2app_membus_wr_req_tx;
+static int app2sim_membus_wr_rsp_rx;
 static int intr_event_fds[MAX_USR_INTRS];
 
 int glbl_test_cmplt_cnt;                // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
-pthread_t socket_srv_tid;
+static pthread_t socket_srv_tid;
 
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
@@ -219,35 +224,69 @@ void sv2c_script_dex(const char *str)
 
 
 /*
- * DPI: WriteLine Data exchange
+ * Print an error for accesses to illegal (unpinned) addresses.
  */
-void wr_memline_dex(cci_pkt *pkt)
+static void memline_addr_error(const char *access_type, uint64_t pa, void* va)
+{
+	FUNC_CALL_ENTRY;
+
+	#define MEMLINE_ADDR_ERROR_MSG \
+		"@ERROR: ASE has detected a memory %s to an unallocated memory region.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n" \
+		"@ERROR: Check that previously requested memories have not been deallocated\n" \
+		"        before an AFU transaction could access them.\n" \
+		"        NOTE: If your application polls for an AFU completion message,\n" \
+		"              and you deallocate after that, consider using a\n" \
+		"              write fence before AFU status message. The simulator may\n" \
+		"              be committing AFU transactions out of order.\n"
+
+	ASE_ERR("\n" MEMLINE_ADDR_ERROR_MSG, access_type, pa, pa >> 6);
+
+	// Write error to file
+	FILE *error_fp = fopen("ase_memory_error.log", "w");
+	if (error_fp != NULL) {
+		fprintf(error_fp, MEMLINE_ADDR_ERROR_MSG, access_type, pa, pa >> 6);
+		fclose(error_fp);
+	}
+
+	#undef MEMLINE_ADDR_ERROR_MSG
+
+	// Request SIMKILL
+	start_simkill_countdown();
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Write line request (sent to application)
+ */
+void wr_memline_req_dex(cci_pkt *pkt)
 {
 	FUNC_CALL_ENTRY;
 
 	uint64_t phys_addr;
-	uint64_t *wr_target_vaddr = (uint64_t *) NULL;
 	int intr_id;
-	//int ret_fd;
-	/* #ifndef DEFEATURE_ATOMICS */
-	/*   uint64_t *rd_target_vaddr = (uint64_t*)NULL; */
-	/*   long long cmp_qword;  // Data to be compared */
-	/*   long long new_qword;  // Data to be writen if compare passes */
-	/* #endif */
+
+	ase_host_memory_write_req wr_req;
 
 	if (pkt->mode == CCIPKT_WRITE_MODE) {
 		/*
 		 * Normal write operation
 		 * Takes Write request and performs verbatim
 		 */
-		// Get cl_addr, deduce wr_target_vaddr
 		phys_addr = (uint64_t) pkt->cl_addr << 6;
-		wr_target_vaddr =
-			ase_fakeaddr_to_vaddr((uint64_t) phys_addr);
 
 		// Write to memory
-		ase_memcpy(wr_target_vaddr, (char *) pkt->qword,
-			   CL_BYTE_WIDTH);
+		wr_req.req = HOST_MEM_REQ_WRITE_LINE;
+		wr_req.addr = phys_addr;
+		ase_memcpy(wr_req.data, (char *) pkt->qword, CL_BYTE_WIDTH);
+
+		mqueue_send(sim2app_membus_wr_req_tx, (char *) &wr_req, sizeof(wr_req));
 
 		// Success
 		pkt->success = 1;
@@ -262,59 +301,73 @@ void wr_memline_dex(cci_pkt *pkt)
 		// Success
 		pkt->success = 1;
 	}
-	/* #ifndef DEFEATURE_ATOMICS */
-	/*   else if (pkt->mode == CCIPKT_ATOMIC_MODE) */
-	/*     { */
-	/*       /\* */
-	/*        * This is a special mode in which read response goes back */
-	/*        * WRITE request is responded with a READ response */
-	/*        *\/ */
-	/*       // Specifics of the requested compare operation */
-	/*       cmp_qword = pkt->qword[0]; */
-	/*       new_qword = pkt->qword[4]; */
-
-	/*       // Get cl_addr, deduce rd_target_vaddr */
-	/*       phys_addr = (uint64_t)pkt->cl_addr << 6; */
-	/*       rd_target_vaddr = ase_fakeaddr_to_vaddr((uint64_t)phys_addr); */
-
-	/*       // Perform read first and set response packet accordingly */
-	/*       ase_memcpy((char*)pkt->qword, rd_target_vaddr, CL_BYTE_WIDTH); */
-
-	/*       // Get cl_addr, deduct wr_target, use qw_start to determine exact qword */
-	/*       wr_target_vaddr = (uint64_t*)( (uint64_t)rd_target_vaddr + pkt->qw_start*8 ); */
-
-	/*       // CmpXchg output */
-	/*       pkt->success = (int)__sync_bool_compare_and_swap (wr_target_vaddr, cmp_qword, new_qword); */
-
-	/*       // Debug output */
-	/* #ifdef ASE_DEBUG */
-	/*        */
-	/*       ASE_DBG("CmpXchg_op=%d\n", pkt->success); */
-	/*        */
-	/* #endif */
-	/*     } */
-	/* #endif */
 
 	FUNC_CALL_EXIT;
 }
 
 
 /*
- * DPI: ReadLine Data exchange
+ * DPI: Write line response (from application)
  */
-void rd_memline_dex(cci_pkt *pkt)
+void wr_memline_rsp_dex(cci_pkt *pkt)
+{
+	FUNC_CALL_ENTRY;
+
+	ase_host_memory_write_rsp wr_rsp;
+
+	// The only task required here is to consume the response from the application.
+	// triggered by wr_memline_req_dex. The response indicates whether the address
+	// was valid.  Raise an error for invalid addresses.
+
+	if (pkt->mode == CCIPKT_WRITE_MODE) {
+		while (mqueue_recv(app2sim_membus_wr_rsp_rx, (char *) &wr_rsp, sizeof(wr_rsp)) != ASE_MSG_PRESENT) ;
+		if (! wr_rsp.valid) {
+			memline_addr_error("WRITE", wr_rsp.pa, wr_rsp.va);
+			pkt->success = 0;
+		}
+	}
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Read line request
+ */
+void rd_memline_req_dex(cci_pkt *pkt)
 {
 	FUNC_CALL_ENTRY;
 
 	uint64_t phys_addr;
-	uint64_t *rd_target_vaddr = (uint64_t *) NULL;
+	ase_host_memory_read_req rd_req;
 
-	// Get cl_addr, deduce rd_target_vaddr
 	phys_addr = (uint64_t) pkt->cl_addr << 6;
-	rd_target_vaddr = ase_fakeaddr_to_vaddr((uint64_t) phys_addr);
+
+	rd_req.req = HOST_MEM_REQ_READ_LINE;
+	rd_req.addr = phys_addr;
+
+	mqueue_send(sim2app_membus_rd_req_tx, (char *) &rd_req, sizeof(rd_req));
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Read line data response
+ */
+void rd_memline_rsp_dex(cci_pkt *pkt)
+{
+	FUNC_CALL_ENTRY;
+
+	ase_host_memory_read_rsp rd_rsp;
+
+	while (mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp)) != ASE_MSG_PRESENT) ;
+	if (! rd_rsp.valid) {
+		memline_addr_error("READ", rd_rsp.pa, rd_rsp.va);
+	}
 
 	// Read from memory
-	ase_memcpy((char *) pkt->qword, rd_target_vaddr, CL_BYTE_WIDTH);
+	ase_memcpy((char *) pkt->qword, rd_rsp.data, CL_BYTE_WIDTH);
 
 	FUNC_CALL_EXIT;
 }
@@ -606,7 +659,7 @@ static void *start_socket_srv(void *args)
 				break;
 			}
 #ifdef ASE_DEBUG
-      ASE_MSG("SIM-C : accept success\n");
+			ASE_MSG("SIM-C : accept success\n");
 #endif
 		}
 		if (sockserver_kill)
@@ -741,7 +794,7 @@ int ase_listener(void)
 					ASE_MSG("ASE running in daemon mode (see ase.cfg)\n");
 					ASE_MSG("Reseting buffers ... Simulator RUNNING\n");
 					ase_reset_trig();
-					ase_destroy();
+					ase_shmem_destroy();
 					ASE_INFO("Ready to run next test\n");
 					session_empty = 1;
 					buffer_msg_inject(0, TEST_SEPARATOR);
@@ -750,12 +803,12 @@ int ase_listener(void)
 				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
 					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
 					run_clocks (500);
-					ase_perror_teardown(NULL, 0);
+					ase_shmem_perror_teardown(NULL, 0);
 				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
 					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
 						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
 						run_clocks (500);
-						ase_perror_teardown(NULL, 0);
+						ase_shmem_perror_teardown(NULL, 0);
 					} else {
 						ase_reset_trig();
 					}
@@ -770,7 +823,7 @@ int ase_listener(void)
 						("** ERROR ** Transaction counts do not match, something got lost\n");
 					run_clocks(500);
 					self_destruct_in_progress = 1;
-					ase_destroy();
+					ase_shmem_destroy();
 					start_simkill_countdown();
 				}
 #endif
@@ -798,7 +851,6 @@ int ase_listener(void)
 		 * Buffer Allocation Replicator
 		 */
 		// Receive a DPI message and get information from replicated buffer
-		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
 		    (app2sim_alloc_rx, (char *) incoming_alloc_msgstr,
 		     ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
@@ -808,7 +860,7 @@ int ase_listener(void)
 				   sizeof(struct buffer_t));
 
 			// Allocate action
-			ase_alloc_action(&ase_buffer);
+			ase_shmem_alloc_action(&ase_buffer);
 			ase_buffer.is_privmem = 0;
 			if (ase_buffer.index == 0) {
 				ase_buffer.is_mmiomap = 1;
@@ -880,7 +932,6 @@ int ase_listener(void)
 		}
 
 		// ------------------------------------------------------------------------------- //
-		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
 		    (app2sim_dealloc_rx, (char *) incoming_dealloc_msgstr,
 		     ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
@@ -899,7 +950,7 @@ int ase_listener(void)
 				 ASE_LOGGER_LEN, "\n");
 
 			// Deallocate action
-			ase_dealloc_action(&ase_buffer, 1);
+			ase_shmem_dealloc_action(&ase_buffer, 1);
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);
@@ -1094,16 +1145,23 @@ int ase_init(void)
 	sim2app_intr_request_tx =
 		mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
 
+	// Memory read/write requests.	All simulated references to shared memory are
+	// handled by the application.
+	sim2app_membus_rd_req_tx =
+		mqueue_open(mq_array[10].name, mq_array[10].perm_flag);
+	app2sim_membus_rd_rsp_rx =
+		mqueue_open(mq_array[11].name, mq_array[11].perm_flag);
+	sim2app_membus_wr_req_tx =
+		mqueue_open(mq_array[12].name, mq_array[12].perm_flag);
+	app2sim_membus_wr_rsp_rx =
+		mqueue_open(mq_array[13].name, mq_array[13].perm_flag);
+
 	int i;
 
 	for (i = 0; i < MAX_USR_INTRS; i++)
 		intr_event_fds[i] = -1;
 
 	sockserver_kill = 0;
-
-	// Calculate memory map regions
-	ASE_MSG("Calculating memory map...\n");
-	calc_phys_memory_ranges();
 
 	srand(cfg->ase_seed);
 
@@ -1216,14 +1274,14 @@ void start_simkill_countdown(void)
 	mqueue_close(sim2app_dealloc_tx);
 	mqueue_close(sim2app_portctrl_rsp_tx);
 	mqueue_close(sim2app_intr_request_tx);
+	mqueue_close(sim2app_membus_rd_req_tx);
+	mqueue_close(app2sim_membus_rd_rsp_rx);
+	mqueue_close(sim2app_membus_wr_req_tx);
+	mqueue_close(app2sim_membus_wr_rsp_rx);
 
 	int ipc_iter;
 	for (ipc_iter = 0; ipc_iter < ASE_MQ_INSTANCES; ipc_iter++)
 		mqueue_destroy(mq_array[ipc_iter].name);
-
-	// Destroy all open shared memory regions
-	ASE_MSG("Unlinking Shared memory regions.... \n");
-	// ase_destroy();
 
 	if (unlink(tstamp_filepath) == -1) {
 		ASE_MSG
@@ -1236,6 +1294,7 @@ void start_simkill_countdown(void)
 	final_ipc_cleanup();
 
 	// wait for server shutdown
+	pthread_cancel(socket_srv_tid);
 	pthread_join(socket_srv_tid, NULL);
 
 	// Close workspace log

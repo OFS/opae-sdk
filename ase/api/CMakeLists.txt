@@ -34,6 +34,7 @@ set(ASEAPI_SRC
   ${API_DIR}/../sw/tstamp_ops.c
   ${API_DIR}/../sw/ase_ops.c
   ${API_DIR}/../sw/ase_strings.c
+  ${API_DIR}/../sw/ase_host_memory.c
   ${API_DIR}/../sw/app_backend.c
   ${API_DIR}/../sw/mqueue_ops.c
   ${API_DIR}/../sw/error_report.c
