@@ -174,6 +174,24 @@ struct _fpga_object {
 	fpga_object *objects;
 };
 
+/** Device-wide unique FPGA feature resource identifier */
+struct _fpga_feature_token {
+	uint64_t magic;
+	uint64_t feature_type;
+	uint64_t feature_uuid_lo;
+	uint64_t feature_uuid_hi;
+	fpga_token token;
+	struct _fpga_feature_token *next;
+};
+
+/** Process-wide unique FPGA feature handle */
+struct _fpga_feature_handle {
+    fpga_handle fpga_h;
+	pthread_mutex_t lock;
+	uint64_t magic;
+	fpga_feature_token token;
+    fpga_event_handle *eh_root;
+};
 
 #ifdef __cplusplus
 }
