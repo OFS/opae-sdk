@@ -150,7 +150,7 @@ TEST_P(object_c_p, obj_read) {
  */
 TEST_P(object_c_p, obj_read64) {
   uint64_t val = 0;
-  EXPECT_EQ(fpgaObjectRead64(token_obj_, &val, FPGA_OBJECT_TEXT), FPGA_OK);
+  EXPECT_EQ(fpgaObjectRead64(token_obj_, &val, 0), FPGA_OK);
   EXPECT_EQ(val, 1ul);
 }
 
@@ -168,13 +168,13 @@ TEST_P(object_c_p, obj_write64) {
   // read the port errors
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectRead64(obj, &errors, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 
   // clear the port errors
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(obj, errors, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
@@ -221,7 +221,7 @@ TEST_P(object_c_p, obj_get_obj) {
 		    FPGA_OK);
   ASSERT_EQ(fpgaObjectGetObject(errors_obj, accel_, "clear",
                                 &clear_obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }

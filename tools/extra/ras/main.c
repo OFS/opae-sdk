@@ -606,13 +606,13 @@ fpga_result print_errors(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpgaTokenGetObject(token, err_path, &err_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, err_path, &err_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(err_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(err_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -641,13 +641,13 @@ fpga_result print_ras_errors(fpga_token token)
 	uint64_t revision          = 0;
 	fpga_object rev_object;
 
-	result = fpgaTokenGetObject(token, FME_SYSFS_ERR_REVISION, &rev_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_ERR_REVISION, &rev_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(rev_object, &revision, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(rev_object, &revision, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -760,13 +760,13 @@ fpga_result print_port_errors(fpga_token token)
 	printf("\n ==========================================\n");
 	printf(" ----------- PRINT PORT ERROR  START--------  \n");
 
-	result = fpgaTokenGetObject(token, PORT_SYSFS_ERR, &err_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, PORT_SYSFS_ERR, &err_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(err_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(err_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -801,13 +801,13 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 
 	printf(" ----------- Clear port error-------- \n \n");
 	// Power
-	result = fpgaHandleGetObject(afu_handle, PORT_SYSFS_ERR_CLEAR, &port_error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(afu_handle, PORT_SYSFS_ERR_CLEAR, &port_error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(port_error_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(port_error_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -815,7 +815,7 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 
 	printf("\n \n Port error CSR : 0x%lx \n", value);
 
-	result = fpgaObjectWrite64(port_error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(port_error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -841,13 +841,13 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 
 	printf("----------- INJECT ERROR START -------- \n \n");
 	// Power
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(inj_error_object, &inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(inj_error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -869,7 +869,7 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 
 	printf("Injected inj_error.csr: %ld \n", inj_error.csr);
 
-	result = fpgaObjectWrite64(inj_error_object, inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(inj_error_object, inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -895,13 +895,13 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 
 	printf("----------- INJECT ERROR START -------- \n \n");
 	// Clear Inject error
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(error_object, &inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -909,7 +909,7 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 
 	printf(" Clear inj_error.csr: 0x%lx \n", inj_error.csr);;
 
-	result = fpgaObjectWrite64(error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
 		return result;
@@ -925,13 +925,13 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 	printf("----------- FME ERROR START --------- \n \n");
 
 	// Clear FME error
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_CLEAR_ERRORS, &error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_CLEAR_ERRORS, &error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get handle Object");
 		return result;
 	}
 
-	result = fpgaObjectWrite64(error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
 		return result;
@@ -957,13 +957,13 @@ fpga_result print_pwr_temp(fpga_token token)
 	printf("\n ----------- POWER & THERMAL START-----------\n");
 	printf(" ========================================== \n \n");
 	// Power
-	result = fpgaTokenGetObject(token, FME_SYSFS_POWER_MGMT_CONSUMED, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_POWER_MGMT_CONSUMED, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(pwr_temp_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(pwr_temp_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -978,7 +978,7 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 
 	// Thermal
-	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_TEMP, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_TEMP, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
@@ -999,13 +999,13 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 
 
-	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(pwr_temp_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(pwr_temp_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -1052,13 +1052,13 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	if ( rasCmdLine->function >0 )
 		function = rasCmdLine->bus;
 
-	result = fpgaHandleGetObject(afu_handle, FPAG_DEVICEID_PATH, &dev_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(afu_handle, FPAG_DEVICEID_PATH, &dev_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(dev_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(dev_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
