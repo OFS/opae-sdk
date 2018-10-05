@@ -125,6 +125,20 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 fpga_result fpgaDestroyObject(fpga_object *obj);
 
 /**
+ * @brief Retrieve the size of the object.
+ *
+ * @param[in] obj An fpga_object instance.
+ * @param[out] size Pointer to variable to store size in.
+ * @param[in] flags Flags that control how the object is read
+ * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
+ * retrieving the size.
+ *
+ * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of supplied paramters
+ * is invalid. FPGA_EXCEPTION if error occurred.
+ */
+fpga_result fpgaObjectGetSize(fpga_object obj, uint32_t *value, int flags);
+
+/**
  * @brief Read bytes from an FPGA object
  *
  * @param[in]obj An fpga_object instance.
@@ -172,7 +186,6 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
  * @notes The object must have been created using a handle to a resource.
  */
 fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
-
 
 #ifdef __cplusplus
 } // extern "C"

@@ -211,7 +211,7 @@ const char *rc_mdata =
         {
           "total-contexts": 1,
           "name": "nlb3",
-          "accelerator-type-uuid": "f7df405c-bd7a-cf72-22f1-44b0b93acd18"
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
         }
       ]
      },
@@ -247,7 +247,7 @@ static platform_db PLATFORMS = {
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
                    .devices = {test_device{
                        .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
-                       .afu_guid = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
                        .segment = 0x0,
                        .bus = 0x05,
                        .device = 0,
@@ -440,6 +440,46 @@ FILE *test_system::register_file(const std::string &path) {
 
   auto fptr = fopen(path.c_str(), "w+");
   return fptr;
+}
+
+void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
+  // normalizing a guid string can make it easier to compare guid strings
+  // and can also put the string in a format that can be parsed into actual
+  // guid bytes (uuid_parse expects the string to include hyphens).
+  const size_t std_guid_str_size = 36;
+  const size_t char_guid_str_size = 32;
+  if (guid_str.back() == '\n') {
+    guid_str.erase(guid_str.end()-1);
+  }
+  std::locale lc;
+  auto c_idx = guid_str.find('-');
+  if (with_hyphens && c_idx == std::string::npos) {
+    // if we want the standard UUID format with hyphens (8-4-4-4-12)
+    if (guid_str.size() == char_guid_str_size) {
+      int idx = 20;
+      while (c_idx != 8) {
+        guid_str.insert(idx, 1, '-');
+        idx -= 4;
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  } else if (!with_hyphens && c_idx == 8) {
+    // we want the hex characters only, no other extra chars
+    if (guid_str.size() == std_guid_str_size) {
+      while (c_idx != std::string::npos) {
+        guid_str.erase(c_idx, 1);
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  }
+
+  for (auto & c : guid_str) {
+    c = std::tolower(c, lc);
+  }
 }
 
 uint32_t get_device_id(const std::string &sysclass) {

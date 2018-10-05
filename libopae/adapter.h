@@ -173,6 +173,9 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaObjectRead64)(fpga_object obj, uint64_t *value,
 					int flags);
 
+	fpga_result (*fpgaObjectGetSize)(fpga_object obj, uint64_t *value,
+					 int flags);
+
 	fpga_result (*fpgaObjectWrite64)(fpga_object obj, uint64_t value,
 					 int flags);
 

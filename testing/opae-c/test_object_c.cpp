@@ -84,18 +84,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
 		    FPGA_OK);
     EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0),
 		    FPGA_OK);
-    std::string  afu_guid = platform_.devices[0].afu_guid;
-    auto f = afu_guid.find("-");
-    while (f != std::string::npos) {
-      afu_guid.erase(f, 1);
-      f = afu_guid.find("-");
-    }
-    afu_guid_.resize(afu_guid.size());
-    std::locale lc;
-    std::transform(afu_guid.begin(), afu_guid.end(), afu_guid_.begin(), [&lc](char c) -> char {
-        return std::tolower(c, lc);
-        });
-
+    afu_guid_ = platform_.devices[0].afu_guid;
+    system_->normalize_guid(afu_guid_, false);
   }
 
   virtual void TearDown() override {
@@ -237,6 +227,20 @@ TEST_P(object_c_p, obj_get_obj) {
 }
 
 /**
+ * @test       obj_get_size
+ * @brief      Test: fpgaObjectGetSize
+ * @details    Given an object created using name afu_id<br>
+ *             When fpgaObjectGetSize is called with that object<br>
+ *             Then the size retrieved equals the length of the afu_id
+ *             string + one for the new line character<br>
+ */
+TEST_P(object_c_p, obj_get_size) {
+  uint32_t value = 0;
+  EXPECT_EQ(fpgaObjectGetSize(handle_obj_, &value, FPGA_OBJECT_SYNC), FPGA_OK);
+  EXPECT_EQ(value, afu_guid_.size() + 1);
+}
+
+/**
  * @test       obj_get_obj_err
  * @brief      Test: fpgaObjectGetObject
  * @details    When opae_allocate_wrapped_object fails,<br>
@@ -256,5 +260,7 @@ TEST_P(object_c_p, obj_get_obj_err) {
 
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
+
+
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p, ::testing::ValuesIn(test_platform::keys(true)));

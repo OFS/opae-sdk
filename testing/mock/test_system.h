@@ -176,6 +176,8 @@ class test_system {
 
   FILE *register_file(const std::string &path);
 
+  void normalize_guid(std::string &guid_str, bool with_hyphens = true);
+
  private:
   test_system();
   std::mutex fds_mutex_;
