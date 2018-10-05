@@ -61,7 +61,7 @@ extern "C" {
  *
  */
 fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
-                               fpga_object *object, int flags);
+			       fpga_object *object, int flags);
 
 /**
  * @brief Create an `fpga_object` data structure from a handle.
@@ -85,7 +85,7 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
  *
  */
 fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
-                                fpga_object *object, int flags);
+				fpga_object *object, int flags);
 
 /**
  * @brief Create an `fpga_object` data structure from a parent object.
@@ -112,8 +112,8 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
  * implementation of this API.
  */
 fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
-                                const char *name, fpga_object *object,
-                                int flags);
+				const char *name, fpga_object *object,
+				int flags);
 /**
  * @brief Free memory used for the fpga_object data structure
  *
@@ -154,7 +154,7 @@ fpga_result fpgaObjectGetSize(fpga_object obj, uint32_t *value, int flags);
  * parameters is invalid
  */
 fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
-                           size_t len, int flags);
+			   size_t len, int flags);
 
 /**
  * @brief Read a 64-bit value from an FPGA object
@@ -188,7 +188,7 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
 fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
 
 #ifdef __cplusplus
-}  // extern "C"
-#endif  // __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
 #endif /* !__FPGA_SYSOBJECT_H__ */
