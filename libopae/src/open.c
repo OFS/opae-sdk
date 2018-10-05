@@ -138,6 +138,8 @@ out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
 
 out_free:
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
+	wsid_tracker_cleanup(_handle->mmio_root, NULL);
 	free(_handle);
 
 	if (-1 != fddev) {
