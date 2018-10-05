@@ -143,7 +143,7 @@ TEST_P(events_cxx_core, register_event_02) {
  */
 TEST_P(events_cxx_core, register_event_03) {
   event::ptr_t ev;
-  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR););
+  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR));
   ASSERT_NE(nullptr, ev.get());
 }
 
@@ -156,7 +156,7 @@ TEST_P(events_cxx_core, register_event_03) {
  */
 TEST_P(events_cxx_core, get_os_object) {
   event::ptr_t ev;
-  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR););
+  ASSERT_NO_THROW(ev = event::register_event(handle_, FPGA_EVENT_ERROR));
   ASSERT_NE(nullptr, ev.get());
   auto fd = ev->os_object();
   auto res = fcntl(fd, F_GETFL);
