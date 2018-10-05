@@ -106,6 +106,7 @@ fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 				      const char *name, fpga_object *object,
 				      int flags);
 fpga_result xfpga_fpgaDestroyObject(fpga_object *obj);
+fpga_result xfpga_fpgaObjectGetSize(fpga_object obj, uint32_t *value, int flags);
 fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 				 size_t offset, size_t len, int flags);
 fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);

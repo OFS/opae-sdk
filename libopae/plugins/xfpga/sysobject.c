@@ -133,6 +133,22 @@ fpga_result xfpga_fpgaDestroyObject(fpga_object *obj)
 	return FPGA_OK;
 }
 
+fpga_result xfpga_fpgaObjectGetSize(fpga_object obj, uint32_t *size, int flags)
+{
+	fpga_result res = FPGA_OK;
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(size);
+	if (flags & FPGA_OBJECT_SYNC) {
+		res = sync_object(obj);
+		if (res) {
+			return res;
+		}
+	}
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	*size = _obj->size;
+	return res;
+}
+
 fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;

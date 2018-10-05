@@ -1387,6 +1387,19 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 		wrapped_object->opae_object, buffer, offset, len, flags);
 }
 
+fpga_result fpgaObjectGetSize(fpga_object obj, uint64_t *value, int flags)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(value);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectGetSize,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectGetSize(
+		wrapped_object->opae_object, value, flags);
+}
+
 fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
