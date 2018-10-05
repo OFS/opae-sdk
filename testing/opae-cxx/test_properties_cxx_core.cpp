@@ -52,14 +52,17 @@ protected:
 
   virtual void TearDown() override { system_->finalize(); }
 
+  void string_to_guid(const char *guid, fpga_guid *result)
+  {
+    ASSERT_GE(0, uuid_parse(guid, *result));
+    ASSERT_NE(nullptr, result);
+  }
+
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
   test_platform platform_;
   test_system *system_;
 };
-
-fpga_guid guid_valid = {0xd8, 0x42, 0x4d, 0xc4, 0xa4, 0xa3, 0xc4, 0x13,
-                        0xf8, 0x9e, 0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b};
 
 fpga_guid guid_invalid = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
                           0xf8, 0x9e, 0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b};
@@ -85,8 +88,19 @@ TEST_P(properties_cxx_core, get_no_filter) {
  */
 TEST_P(properties_cxx_core, get_guid_valid) {
   std::vector<token::ptr_t> tokens;
+  const char *guid = nullptr;
+  fpga_guid valid_guid;
 
-  tokens = token::enumerate({properties::get(guid_valid)});
+  // Retrieve first platform device afu guid.
+  for (auto device : platform_.devices) {
+    guid = device.afu_guid;
+    break;
+  }
+
+  ASSERT_NE(guid, nullptr);
+  string_to_guid(guid, &valid_guid);
+
+  tokens = token::enumerate({properties::get(valid_guid)});
   EXPECT_GT(tokens.size(), 0);
 }
 
