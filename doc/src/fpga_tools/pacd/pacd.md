@@ -6,8 +6,9 @@
 `pacd [--default-bitstream=<file>] [--segment=<PCIeSegment>] [--bus=<bus>] [--device=<device>] [--function=<function>] [--upper-sensor-threshold=<sensor>:<threshold>[:<reset_thresh>]] [--lower-sensor-threshold=<sensor>:<threshold>[:<reset_thresh>]] [--poll-interval <sec>] [--cooldown-interval <sec>] [--no-defaults] [--driver-removal-disable]`
 
 ## DESCRIPTION ##
-`pacd` periodically monitors the sensors on the PAC Baseboard Management Controller (BMC) and programs a default bitstream
-in response to a sensor's value exceeding a specified threshold. pacd is only available on the PCIe Accelerator Card (PAC).
+`pacd` periodically monitors the sensors on the Intel Intel&reg Programmable Acceleration Card (PAC)  Board Management Controller (BMC)
+and programs a default bitstream in response to a sensor's value exceeding a specified threshold. pacd is only available on the PCIe\*
+Accelerator Card (PAC).
 
 On systems with multiple PACs, `pacd` will monitor the sensors for all cards in the system using the specified
 sensor threshold values.  If the PCIe address is specified (i.e., `-S`, `-B`, `-D`, `-F`), `pacd` will monitor all PACs
