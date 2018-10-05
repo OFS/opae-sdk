@@ -92,12 +92,7 @@ TEST_P(properties_cxx_core, get_guid_valid) {
   fpga_guid valid_guid;
 
   // Retrieve first platform device afu guid.
-  for (auto device : platform_.devices) {
-    guid = device.afu_guid;
-    break;
-  }
-
-  ASSERT_NE(guid, nullptr);
+  guid = platform_.devices[0].afu_guid;
   string_to_guid(guid, &valid_guid);
 
   tokens = token::enumerate({properties::get(valid_guid)});
