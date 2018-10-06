@@ -73,6 +73,53 @@
 
 
 /*
+ * In simulation the physical page assignment is synthetic. We can afford to
+ * be more lenient about the availability of huge pages on the host that
+ * is running a simulation. This function first tries to use real huge pages.
+ * If unavailable, it instead allocates a virtual region that is properly
+ * aligned. The virtual region may actually be composed of smaller physical
+ * pages but those page mappings are never exposed to the simulator. The
+ * simulation will behave as though the underlying physical pages are huge.
+ */
+static void *sim_huge_mmap(void *addr, size_t length, int prot, int flags)
+{
+	void *addr_local;
+	addr_local = mmap(addr, length, prot, flags, 0, 0);
+
+	if (addr_local != MAP_FAILED) {
+		// The huge mapping worked
+		return addr_local;
+	}
+
+	// Try again without huge pages but with extra space for alignment
+	size_t length_extra = (flags & MAP_1G_HUGEPAGE) ? GB : 2 * MB;
+	addr_local = mmap(addr, length + length_extra, prot,
+			  flags & ~(MAP_HUGETLB | MAP_1G_HUGEPAGE), 0, 0);
+	if (addr_local == MAP_FAILED) {
+		// Give up
+		return MAP_FAILED;
+	}
+
+	// Extra alignment space not needed at the end
+	size_t unaligned_extra_end = (size_t) addr_local & (length_extra - 1);
+	// Extra alignment space to skip at the beginning
+	size_t unaligned_extra_begin = length_extra - unaligned_extra_end;
+
+	// Drop the unaligned extra parts of the buffer
+	munmap(addr_local, unaligned_extra_begin);
+
+	// Aligned start of the buffer
+	addr_local = addr_local + unaligned_extra_begin;
+
+	if (unaligned_extra_end)
+	{
+		munmap(addr_local + length, unaligned_extra_end);
+	}
+
+	return addr_local;
+}
+
+/*
  * Allocate (mmap) new buffer
  */
 static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
@@ -87,9 +134,9 @@ static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	   For buffer > 2M, use 1G-hugepage to ensure pages are
 	   contiguous */
 	if (len > 2 * MB)
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_1G, 0, 0);
+		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_1G);
 	else if (len > 4 * KB)
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_2M, 0, 0);
+		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_2M);
 	else
 		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);
 	if (addr_local == MAP_FAILED) {
