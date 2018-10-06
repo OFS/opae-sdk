@@ -693,15 +693,15 @@ int ase_listener(void)
 {
 	// Buffer management variables
 	static struct buffer_t ase_buffer;
-	char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
-	char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
+	static char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
+	static char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
 	int  rx_portctrl_cmd;
 	int  portctrl_value;
 
 	// Portctrl variables
-	char portctrl_msgstr[ASE_MQ_MSGSIZE];
-	char logger_str[ASE_LOGGER_LEN];
-	char umsg_mapstr[ASE_MQ_MSGSIZE];
+	static char portctrl_msgstr[ASE_MQ_MSGSIZE];
+	static char logger_str[ASE_LOGGER_LEN];
+	static char umsg_mapstr[ASE_MQ_MSGSIZE];
 
 	// Session status
 	static int   session_empty;
@@ -859,55 +859,57 @@ int ase_listener(void)
 				   incoming_alloc_msgstr,
 				   sizeof(struct buffer_t));
 
-			// Allocate action
-			ase_shmem_alloc_action(&ase_buffer);
-			ase_buffer.is_privmem = 0;
-			if (ase_buffer.index == 0) {
-				ase_buffer.is_mmiomap = 1;
-			} else {
-				ase_buffer.is_mmiomap = 0;
+			if (ase_buffer.is_pinned) {
+				// Pinned buffer (host memory) messages are sent only for
+				// logging. The actual buffer is not shared with the simulator.
+				// The simulator will send read/write memory requests to the
+				// application.
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Pinned host memory page =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tPage size (bytes)       = %" PRId32 "\n",
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 			}
+			else {
+				// Allocate action
+				ase_shmem_alloc_action(&ase_buffer);
+				ase_buffer.is_privmem = 0;
+				if (ase_buffer.index == 0) {
+					ase_buffer.is_mmiomap = 1;
+				} else {
+					ase_buffer.is_mmiomap = 0;
+				}
 
-			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
-			if (ase_buffer.is_mmiomap) {
+				char *buffer_class = "Buffer";
+				if (ase_buffer.is_mmiomap) {
+					buffer_class = "MMIO map";
+					initialize_fme_dfh(&ase_buffer);
+				} else if (ase_buffer.is_umas) {
+					buffer_class = "UMAS";
+					update_fme_dfh(&ase_buffer);
+				}
+
 				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "MMIO map Allocated ");
-				initialize_fme_dfh(&ase_buffer);
-			} else if (ase_buffer.is_umas) {
-				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "UMAS Allocated ");
-				update_fme_dfh(&ase_buffer);
-			} else {
-				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "Buffer %d Allocated ",
-					 ase_buffer.index);
+						 ASE_LOGGER_LEN,
+						 "%s allocated, index %d (located /dev/shm%s) =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tWorkspace size (bytes)  = %" PRId32 "\n",
+						 buffer_class,
+						 ase_buffer.index,
+						 ase_buffer.memname,
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 			}
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 " (located /dev/shm/%s) =>\n",
-				 ase_buffer.memname);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHost App Virtual Addr  = 0x%" PRIx64
-				 "\n", ase_buffer.vbase);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHW Physical Addr       = 0x%" PRIx64
-				 "\n", ase_buffer.fake_paddr);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHW CacheAligned Addr   = 0x%" PRIx64
-				 "\n", ase_buffer.fake_paddr >> 6);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tWorkspace Size (bytes) = %" PRId32
-				 "\n", ase_buffer.memsize);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN, "\n");
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);
@@ -916,16 +918,11 @@ int ase_listener(void)
 			ase_buffer_oneline(&ase_buffer);
 
 			// Write buffer information to file
-			if ((ase_buffer.is_mmiomap == 0)
-			    || (ase_buffer.is_privmem == 0)) {
-				// Flush info to file
-				if (fp_workspace_log != NULL) {
-					fprintf(fp_workspace_log, "%s",
-						logger_str);
-					fflush(fp_workspace_log);
-				}
+			if (fp_workspace_log != NULL) {
+				fprintf(fp_workspace_log, "%s", logger_str);
+				fflush(fp_workspace_log);
 			}
-			// Debug only
+
 #ifdef ASE_DEBUG
 			ase_buffer_info(&ase_buffer);
 #endif
@@ -940,17 +937,38 @@ int ase_listener(void)
 				   incoming_dealloc_msgstr,
 				   sizeof(struct buffer_t));
 
-			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\nBuffer %d Deallocated =>\n",
-				 ase_buffer.index);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN, "\n");
+			if (ase_buffer.is_pinned) {
+				// Pinned buffer (host memory) messages are sent only for
+				// logging.
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Unpinned host memory page =>\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tPage size (bytes)       = %" PRId32 "\n",
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
+			}
+			else {
+				// Format workspace info string
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Buffer deallocated, index %d (located /dev/shm%s) =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tWorkspace size (bytes)  = %" PRId32 "\n",
+						 ase_buffer.index,
+						 ase_buffer.memname,
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 
-			// Deallocate action
-			ase_shmem_dealloc_action(&ase_buffer, 1);
+				// Deallocate action
+				ase_shmem_dealloc_action(&ase_buffer, 1);
+            }
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);
@@ -958,6 +976,12 @@ int ase_listener(void)
 			// Standard oneline message ---> Hides internal info
 			ase_buffer.valid = ASE_BUFFER_INVALID;
 			ase_buffer_oneline(&ase_buffer);
+
+			// Write buffer information to file
+			if (fp_workspace_log != NULL) {
+				fprintf(fp_workspace_log, "%s", logger_str);
+				fflush(fp_workspace_log);
+			}
 
 			// Debug only
 #ifdef ASE_DEBUG
@@ -1297,19 +1321,6 @@ void start_simkill_countdown(void)
 	pthread_cancel(socket_srv_tid);
 	pthread_join(socket_srv_tid, NULL);
 
-	// Close workspace log
-	if (fp_workspace_log != NULL) {
-		fclose(fp_workspace_log);
-	}
-#ifdef ASE_DEBUG
-	if (fp_memaccess_log != NULL) {
-		fclose(fp_memaccess_log);
-	}
-	if (fp_pagetable_log != NULL) {
-		fclose(fp_pagetable_log);
-	}
-#endif
-
 	// Remove session files
 	ASE_MSG("Cleaning session files...\n");
 	if (unlink(ase_ready_filepath) == -1) {
@@ -1348,6 +1359,19 @@ void start_simkill_countdown(void)
 
 	// Issue Simulation kill
 	simkill();
+
+	// Close workspace log
+	if (fp_workspace_log != NULL) {
+		fclose(fp_workspace_log);
+	}
+#ifdef ASE_DEBUG
+	if (fp_memaccess_log != NULL) {
+		fclose(fp_memaccess_log);
+	}
+	if (fp_pagetable_log != NULL) {
+		fclose(fp_pagetable_log);
+	}
+#endif
 
 	FUNC_CALL_EXIT;
 }

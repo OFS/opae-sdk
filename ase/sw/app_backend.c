@@ -1148,6 +1148,37 @@ void shm_error(const char *msg)
 }
 
 /*
+ * Note pinned pages. This is used only for logging in the simulator.
+ */
+void note_pinned_page(void *va, uint64_t iova, uint64_t length)
+{
+	struct buffer_t mem;
+	ase_memset(&mem, 0, sizeof(mem));
+	mem.is_pinned = true;
+	mem.valid = true;
+	mem.vbase = (uint64_t) va;
+	mem.fake_paddr = iova;
+	mem.memsize = length;
+
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	ase_buffer_t_to_str(&mem, tmp_msg);
+	mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
+}
+
+void note_unpinned_page(uint64_t iova, uint64_t length)
+{
+	struct buffer_t mem;
+	ase_memset(&mem, 0, sizeof(mem));
+	mem.is_pinned = true;
+	mem.fake_paddr = iova;
+	mem.memsize = length;
+
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	ase_buffer_t_to_str(&mem, tmp_msg);
+	mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
+}
+
+/*
  * allocate_buffer: Shared memory allocation and vbase exchange
  * Instantiate a buffer_t structure with given parameters
  * Must be called by ASE_APP

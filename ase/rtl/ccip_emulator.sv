@@ -308,7 +308,7 @@ module ccip_emulator
      * DPI import/export functions
      */
     // Scope function
-    import "DPI-C" function void scope_function();
+    import "DPI-C" context function void scope_function();
 
     // ASE Initialize function
     import "DPI-C" context task ase_init();

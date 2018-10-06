@@ -98,6 +98,12 @@ typedef struct {
 
 #ifndef SIM_SIDE
 
+// Pin a page at specified virtual address.  Returns the corresponding
+// I/O address (simulated host physical address).
+int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length);
+// Unpin the page at iova.
+int ase_host_memory_unpin(uint64_t iova, uint64_t length);
+
 //
 // Translate to/from simulated physical address space.
 //

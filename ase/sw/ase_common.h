@@ -325,11 +325,12 @@ struct buffer_t			//  Descriptiion                    Computed by
 	uint64_t vbase;		// SW virtual address              |   APP
 	uint64_t pbase;		// SIM virtual address             |   SIM
 	uint64_t fake_paddr;	// Simulated physical address      |   APP
-	int32_t is_privmem;	// Flag memory as a private memory |
-	int32_t is_mmiomap;	// Flag memory as CSR map          |
-	int32_t is_umas;	// Flag memory as UMAS region      |
+	bool is_privmem;	// Flag memory as a private memory |
+	bool is_mmiomap;	// Flag memory as CSR map          |
+	bool is_umas;		// Flag memory as UMAS region      |
+	bool is_pinned;		// Flag standard pinned region     |   APP
 	uint32_t memsize;	// Memory size                     |   APP
-	char memname[ASE_FILENAME_LEN];	// Shared memory name              | INTERNAL
+	char memname[ASE_FILENAME_LEN];	// Shared memory name      | INTERNAL
 	struct buffer_t *next;
 };
 
@@ -492,6 +493,9 @@ extern "C" {
 	int ase_read_lock_file(const char *);
 	void send_simkill(int);
 	void send_swreset(void);
+	// Note pinned/unpinned pages
+	void note_pinned_page(void *, uint64_t, uint64_t);
+	void note_unpinned_page(uint64_t, uint64_t);
 	// Shared memory alloc/dealloc operations
 	void allocate_buffer(struct buffer_t *, uint64_t *);
 	void deallocate_buffer(struct buffer_t *);
