@@ -314,16 +314,35 @@ void wr_memline_rsp_dex(cci_pkt *pkt)
 	FUNC_CALL_ENTRY;
 
 	ase_host_memory_write_rsp wr_rsp;
+	int status;
+	static int err_cnt;
 
 	// The only task required here is to consume the response from the application.
 	// triggered by wr_memline_req_dex. The response indicates whether the address
 	// was valid.  Raise an error for invalid addresses.
 
 	if (pkt->mode == CCIPKT_WRITE_MODE) {
-		while (mqueue_recv(app2sim_membus_wr_rsp_rx, (char *) &wr_rsp, sizeof(wr_rsp)) != ASE_MSG_PRESENT) ;
-		if (! wr_rsp.valid) {
-			memline_addr_error("WRITE", wr_rsp.pa, wr_rsp.va);
-			pkt->success = 0;
+		while (true) {
+			status = mqueue_recv(app2sim_membus_wr_rsp_rx, (char *) &wr_rsp, sizeof(wr_rsp));
+
+			if (status == ASE_MSG_PRESENT) {
+				if (! wr_rsp.valid) {
+					memline_addr_error("WRITE", wr_rsp.pa, wr_rsp.va);
+					pkt->success = 0;
+				}
+				break;
+			}
+
+			// Error?  Probably channel closed and the simulator will be closing
+			// soon.  Allow a few errors but give up if it keeps happening.
+			if (status == ASE_MSG_ERROR) {
+				if (err_cnt++ > 10)
+				{
+					ASE_ERR("Error receiving memory write line response\n");
+					start_simkill_countdown();
+				}
+				break;
+			}
 		}
 	}
 
@@ -360,14 +379,33 @@ void rd_memline_rsp_dex(cci_pkt *pkt)
 	FUNC_CALL_ENTRY;
 
 	ase_host_memory_read_rsp rd_rsp;
+	int status;
+	static int err_cnt;
 
-	while (mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp)) != ASE_MSG_PRESENT) ;
-	if (! rd_rsp.valid) {
-		memline_addr_error("READ", rd_rsp.pa, rd_rsp.va);
+	while (true) {
+		status = mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp));
+
+		if (status == ASE_MSG_PRESENT) {
+			if (! rd_rsp.valid) {
+				memline_addr_error("READ", rd_rsp.pa, rd_rsp.va);
+			}
+
+			// Read from memory
+			ase_memcpy((char *) pkt->qword, rd_rsp.data, CL_BYTE_WIDTH);
+			break;
+		}
+
+		// Error?  Probably channel closed and the simulator will be closing
+		// soon.  Allow a few errors but give up if it keeps happening.
+		if (status == ASE_MSG_ERROR) {
+			if (err_cnt++ > 10)
+			{
+				ASE_ERR("Error receiving memory read line response\n");
+				start_simkill_countdown();
+			}
+			break;
+		}
 	}
-
-	// Read from memory
-	ase_memcpy((char *) pkt->qword, rd_rsp.data, CL_BYTE_WIDTH);
 
 	FUNC_CALL_EXIT;
 }
@@ -968,7 +1006,7 @@ int ase_listener(void)
 
 				// Deallocate action
 				ase_shmem_dealloc_action(&ase_buffer, 1);
-            }
+			}
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);

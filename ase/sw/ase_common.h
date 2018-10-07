@@ -561,6 +561,7 @@ extern "C" {
 // Message presence setting
 #define ASE_MSG_PRESENT 0xD33D
 #define ASE_MSG_ABSENT  0xDEAD
+#define ASE_MSG_ERROR   -1
 // Message queue controls
 struct ipc_t {
 	char name[ASE_MQ_NAME_LEN];
