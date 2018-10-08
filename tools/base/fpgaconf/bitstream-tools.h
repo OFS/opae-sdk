@@ -94,7 +94,7 @@ json_bool get_json_object(json_object **object, json_object **parent,
 	return json_object_object_get_ex(*parent, field_name, &(*object));
 }
 
-static fpga_result string_to_guid(const char *guid, fpga_guid *result)
+fpga_result string_to_guid(const char *guid, fpga_guid *result)
 {
 	if (uuid_parse(guid, *result) < 0) {
 		OPAE_ERR("Error parsing guid %s\n", guid);

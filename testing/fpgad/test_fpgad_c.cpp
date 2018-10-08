@@ -70,6 +70,7 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     fLog = stdout;
+    optind = 0;
     config_ = config;
   }
 
@@ -117,7 +118,6 @@ TEST_P(fpgad_fpgad_c_p, main_help) {
   strcpy(zero, "fpgad");
   strcpy(one, "-h");
   char *argv[] = { zero, one };
-  optind = 1;
   EXPECT_EQ(fpgad_main(2, argv), 0);
 }
 
@@ -163,7 +163,6 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
                    five, six, seven, eight, nine,
                    ten, eleven, twelve, thirteen, fourteen };
 
-  optind = 1;
   EXPECT_EQ(fpgad_main(15, argv), 0);
   EXPECT_NE(config.daemon, 0);
   EXPECT_STREQ(config.directory, "dir");
@@ -189,7 +188,6 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
 
   char *argv[] = { zero, one };
 
-  optind = 1;
   EXPECT_NE(fpgad_main(2, argv), 0);
 }
 
