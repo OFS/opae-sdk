@@ -89,7 +89,7 @@ TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &object, flags),
             FPGA_OK);
   uint64_t bitstream_id = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "invalid_name", &object, 0),
@@ -109,7 +109,7 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   int flags = 0;
   ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, name, &object, flags), FPGA_OK);
   uint64_t bitstream_id = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
@@ -132,7 +132,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
                                       flags),
             FPGA_OK);
   uint64_t bbs_errors = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&err_object), FPGA_OK);
@@ -172,9 +172,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   uint64_t value = 0;
   fwrite(c0c0str.c_str(), c0c0str.size(), 1, fp);
   fflush(fp);
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value,
-                                   FPGA_OBJECT_TEXT | FPGA_OBJECT_SYNC),
-            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value, FPGA_OBJECT_SYNC), FPGA_OK);
   EXPECT_EQ(value, 0xc0c0cafe);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
@@ -195,7 +193,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0),
             FPGA_OK);
 
   _fpga_object *obj = static_cast<_fpga_object *>(object);

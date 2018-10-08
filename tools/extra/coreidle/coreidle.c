@@ -168,13 +168,13 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	fpga_object fpga_object;
 
 	// XEON PWR LIMIT
-	result = fpgaHandleGetObject(handle, XEON_PWR_LIMIT, &fpga_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(handle, XEON_PWR_LIMIT, &fpga_object, 0);
 	if (result != FPGA_OK) {
 		fprintf(stderr, "Failed to get Handle Object \n");
 		return result;
 	}
 
-	result = fpgaObjectRead64(fpga_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(fpga_object, &value, 0);
 	if (result != FPGA_OK) {
 		fprintf(stderr, "Failed to Read Object \n");
 		fpgaDestroyObject(&fpga_object);
@@ -190,13 +190,13 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	}
 
 	// FPGA PWR LIMIT
-	result = fpgaHandleGetObject(handle, FPGA_PWR_LIMIT, &fpga_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(handle, FPGA_PWR_LIMIT, &fpga_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object \n");
 		return result;
 	}
 
-	result = fpgaObjectRead64(fpga_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(fpga_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object \n");
 		fpgaDestroyObject(&fpga_object);
@@ -213,13 +213,13 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 
 
 	// Socke id
-	result = fpgaHandleGetObject(handle, FPGA_SYSFS_SOCKET_ID, &fpga_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(handle, FPGA_SYSFS_SOCKET_ID, &fpga_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object \n");
 		return result;
 	}
 
-	result = fpgaObjectRead64(fpga_object, &socketid, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(fpga_object, &socketid, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object \n");
 		fpgaDestroyObject(&fpga_object);

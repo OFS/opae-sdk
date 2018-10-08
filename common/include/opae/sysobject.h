@@ -157,14 +157,16 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 			   size_t len, int flags);
 
 /**
- * @brief Read a 64-bit value from an FPGA object
+ * @brief Read a 64-bit value from an FPGA object.
+ * The value is assumed to be in string format and will be parsed. See flags
+ * below for changing that behavior.
  *
  * @param[in] obj An fpga_object instance
  * @param[out] value Pointer to a 64-bit variable to store the value in
  * @param[in] flags Flags that control how the object is read
  * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
- * retrieving the data. If FPGA_OBJECT_TEXT is used, then the data will be read
- * as an ASCII string and converted to a uint64_t.
+ * retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read
+ * as raw bytes into the uint64_t pointer variable.
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
@@ -172,13 +174,14 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
 
 /**
- * @brief Write 64-bit value to an FPGA object
+ * @brief Write 64-bit value to an FPGA object.
+ * The value will be converted to string before writing. See flags below for
+ * changing that behavior.
  *
  * @param[in] obj An fpga_object instance.
  * @param[in] value The value to write to the object
  * @param[in] flags Flags that control how the object is written
- * If FPGA_OBJECT_TEXT is used, then the value will be converted to an ASCII
- * string before writing it to the object.
+ * If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes.
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
