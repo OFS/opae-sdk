@@ -1630,6 +1630,7 @@ static void *membus_rd_watcher(void *arg)
 
 	ase_host_memory_read_req rd_req;
 	ase_host_memory_read_rsp rd_rsp;
+	ase_memset(&rd_rsp, 0, sizeof(rd_rsp));
 
 	// While application is running
 	while (membus_exist_status == ESTABLISHED) {
@@ -1656,6 +1657,7 @@ static void *membus_wr_watcher(void *arg)
 
 	ase_host_memory_write_req wr_req;
 	ase_host_memory_write_rsp wr_rsp;
+	ase_memset(&wr_rsp, 0, sizeof(wr_rsp));
 
 	// While application is running
 	while (membus_exist_status == ESTABLISHED) {
@@ -1774,6 +1776,7 @@ int unregister_event(int event_handle)
 		ASE_ERR("%s: Error connecting to stream socket: %s\n",
 			__func__, strerror(errno));
 	} else {
+		ase_memset(&req, 0, sizeof(req));
 		req.type = UNREGISTER_EVENT;
 		res = send_fd(sock_fd, event_handle, &req);
 	}

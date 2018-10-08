@@ -333,6 +333,6 @@ int mqueue_recv(int mq, char *str, int size)
 	if (ret > 0) {
 		return ASE_MSG_PRESENT;
 	} else {
-		return (ret == 0) ? ASE_MSG_ABSENT : ASE_MSG_ERROR;
+		return ((ret == 0) || (errno == EAGAIN)) ? ASE_MSG_ABSENT : ASE_MSG_ERROR;
 	}
 }
