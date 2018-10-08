@@ -53,7 +53,9 @@ int poll_error(struct fpga_err *e);
 #include <opae/fpga.h>
 
 #include <array>
+#include <fstream>
 #include <thread>
+#include <future>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -143,11 +145,10 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
   void cause_ktilinkfatal_fme0()
   {
     std::string fname = fme0_ + "/errors/fatal_errors";
-    uint64_t ktilinkfatal_bit = 1;
-    FILE *fp = fopen(fname.c_str(), "w");    
-    ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%" PRIx64 "\n", ktilinkfatal_bit), 0);
-    fclose(fp);
+    std::ofstream err(system_->get_sysfs_path(fname));
+    ASSERT_TRUE(err.is_open());
+    err << "0x1\n";
+    err.close();
   }
 
   void clear_errors_fme0()
@@ -208,8 +209,12 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   ASSERT_TRUE(do_poll(evt_fds[0]));
   clear_errors_port0();
 
-  cause_ktilinkfatal_fme0();
+  auto fv = std::async(std::launch::async, [this](){
+      cause_ktilinkfatal_fme0();
+      return true;
+      });
   ASSERT_TRUE(do_poll(evt_fds[1]));
+  fv.wait();
   clear_errors_fme0();
 
   close(evt_fds[0]);
