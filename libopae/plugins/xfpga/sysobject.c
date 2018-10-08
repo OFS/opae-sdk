@@ -159,10 +159,10 @@ fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 	if (res) {
 		return res;
 	}
-	if (flags & FPGA_OBJECT_TEXT) {
-		*value = strtoull((char *)_obj->buffer, NULL, 0);
-	} else {
+	if (flags & FPGA_OBJECT_RAW) {
 		*value = *(uint64_t *)_obj->buffer;
+	} else {
+		*value = strtoull((char *)_obj->buffer, NULL, 0);
 	}
 	return FPGA_OK;
 }
@@ -209,13 +209,13 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	if (_obj->max_size) {
 		memset_s(_obj->buffer, _obj->max_size, 0);
 	}
-	if (flags & FPGA_OBJECT_TEXT) {
+	if (flags & FPGA_OBJECT_RAW) {
+		_obj->size = sizeof(uint64_t);
+		*(uint64_t *)_obj->buffer = value;
+	} else {
 		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "0x%" PRIx64,
 			     value);
 		_obj->size = (size_t)strlen((const char *)_obj->buffer);
-	} else {
-		_obj->size = sizeof(uint64_t);
-		*(uint64_t *)_obj->buffer = value;
 	}
 	fd = open(_obj->path, _obj->perm);
 	if (fd < 0) {

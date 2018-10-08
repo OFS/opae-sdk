@@ -88,17 +88,26 @@ add_library(fpgad-static
 
 target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
-add_library(ras-static
-    ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
-
-target_compile_definitions(ras-static PRIVATE main=ras_main)
-
-
-
 target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+
+add_library(fpgaconf-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
+    )
+
+target_compile_definitions(fpgaconf-static PRIVATE main=fpgaconf_main)
+
+target_include_directories(fpgaconf-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(ras-static
+    ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
+
+target_compile_definitions(ras-static PRIVATE main=ras_main)
 
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
@@ -360,6 +369,14 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
 
 add_mock_test(test_ras_c ras-static
     ras/test_ras_c.cpp
+)
+
+############################################################################
+# fpgaconf tests ###########################################################
+############################################################################
+
+add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
+    fpgaconf/test_fpgaconf_c.cpp
 )
 
 add_custom_command(TARGET test_unit
