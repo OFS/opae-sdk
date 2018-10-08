@@ -91,6 +91,12 @@
 // FPGA invalid magic (FPGAINVL)
 #define FPGA_INVALID_MAGIC 0x46504741494e564c
 
+#define FEATURE_TOKEN_MAGIC 0x46504741564f4b4e
+
+#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
+
+#define DMA_MAX_CHANNEL 32
+
 // Register/Unregister for interrupts
 #define FPGA_IRQ_ASSIGN (1 << 0)
 #define FPGA_IRQ_DEASSIGN (1 << 1)
@@ -177,7 +183,7 @@ struct _fpga_object {
 /** Device-wide unique FPGA feature resource identifier */
 struct _fpga_feature_token {
 	uint64_t magic;
-	uint64_t feature_type;
+	uint32_t feature_type;
 	uint64_t feature_uuid_lo;
 	uint64_t feature_uuid_hi;
 	fpga_token token;
@@ -186,11 +192,17 @@ struct _fpga_feature_token {
 
 /** Process-wide unique FPGA feature handle */
 struct _fpga_feature_handle {
-    fpga_handle fpga_h;
+  fpga_handle fpga_h;
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_feature_token token;
-    fpga_event_handle *eh_root;
+	uint32_t mmio_num;
+	uint64_t mmio_offset;
+	uint64_t feature_base;
+	uint64_t feature_offset;
+  fpga_sub_feature * capability;
+	
+  fpga_event_handle *eh_root;
 };
 
 #ifdef __cplusplus

@@ -229,6 +229,12 @@ typedef void *fpga_feature_properties;
 typedef void *fpga_feature_token;
 
 /**
+ * Sub feature such as DMA engine, HSSI etc.
+ *
+ */
+typedef void *fpga_sub_feature;
+
+/**
  * Handle to an DMA resource
  *
  * A valid `fpga_dma_handle` object, as populated by fpgaDMAOpen(), denotes ownership
@@ -237,6 +243,7 @@ typedef void *fpga_feature_token;
  * calling fpgaDMAClose(), which will render the underlying handle invalid.
  */
 typedef void *fpga_dma_handle;
+typedef void *fpga_feature_handle;
 
 /**
  * Handle to an DMA transfer
