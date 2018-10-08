@@ -124,6 +124,7 @@ class jobject {
     if (&other != this) {
       obj_ = other.obj_;
     }
+    return *this;
   }
 
   virtual ~jobject() {}
