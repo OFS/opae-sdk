@@ -159,15 +159,14 @@ void print_counters(fpga_object clock, metric_group *group)
 	size_t count = group->count;
 	size_t i;
 	uint64_t value = 0, clock_value = 0;
-	fpga_result res = fpgaObjectRead64(clock, &clock_value,
-					   FPGA_OBJECT_SYNC | FPGA_OBJECT_TEXT);
+	fpga_result res = fpgaObjectRead64(clock, &clock_value, FPGA_OBJECT_SYNC);
 	if (res != FPGA_OK) {
 		print_err("Error reading clock", res);
 		return;
 	}
 	for (i = 0; i < count; ++i) {
 		res = fpgaObjectRead64(group->objects[i].object, &value,
-				       FPGA_OBJECT_SYNC | FPGA_OBJECT_TEXT);
+				       FPGA_OBJECT_SYNC);
 		if (res == FPGA_OK) {
 			group->objects[i].delta =
 				value - group->objects[i].value;

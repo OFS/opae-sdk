@@ -86,8 +86,8 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
+  std::array<fpga_token, 2> tokens_;
   uint32_t num_matches_;
   test_platform platform_;
   test_device invalid_device_;
