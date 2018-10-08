@@ -94,6 +94,7 @@
 
 
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
+typedef struct _opae_dma_adapter_table opae_dma_adapter_table;
 
 //                                  k o t w
 #define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477
@@ -225,7 +226,7 @@ typedef struct _opae_wrapped_feature_token {
 	uint32_t magic;
   opae_wrapped_token *wrapped_token;
 	fpga_feature_token feature_token;
-	//opae_feature_adapter_table *fea_adapter_table;
+	opae_dma_adapter_table *dma_adapter_table;
 } opae_wrapped_feature_token;
 
 //                                           f e a h 
@@ -235,7 +236,7 @@ typedef struct _opae_wrapped_feature_handle {
 	uint32_t magic;
   opae_wrapped_handle *wrapped_handle;
 	fpga_feature_handle feature_handle;
-	//opae_feature_adapter_table *fea_adapter_table;
+	opae_dma_adapter_table *dma_adapter_table;
 } opae_wrapped_feature_handle;
 
 #endif // ___OPAE_OPAE_INT_H__

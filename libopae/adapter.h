@@ -192,4 +192,30 @@ typedef struct _opae_api_adapter_table {
 
 } opae_api_adapter_table;
 
+typedef struct _opae_dma_adapter_table {
+
+	struct _opae_dma_adapter_table *next;
+	opae_plugin plugin;
+
+	fpga_result (*fpgaDMAOpen)(fpga_feature_token feature_token,
+                int channel_index,
+                fpga_dma_transfer_type type,
+                int flags,
+                void *dma_priv_config,
+                fpga_dma_handle *dma_handle,
+                int *fd);;
+
+	fpga_result (*fpgaDmaClose)(fpga_dma_handle dma_handle);
+ 
+  fpga_result (*fpgaDMATransferSync)(fpga_dma_handle dma_handle, fpga_dma_transfer dma_xfer);
+  
+  fpga_result (*fpgaDMATransferPoll)(fpga_dma_handle dma_handle, fpga_dma_transfer dma_xfer);
+  
+  fpga_result (*fpgaDMATransferCB)(fpga_dma_handle dma,
+                        fpga_dma_transfer dma_xfer,
+                        fpga_dma_transfer_cb cb,
+                        void *context);
+                        
+} opae_dma_adapter_table;
+
 #endif /* __OPAE_ADAPTER_H__ */

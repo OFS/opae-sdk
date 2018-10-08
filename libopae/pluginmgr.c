@@ -63,6 +63,28 @@ static platform_data platform_data_table[] = {
 	{      0,      0,          NULL, 0 },
 };
 
+typedef struct _feature_data {
+	uint64_t  feature_id_L;
+  uint64_t  feature_id_H;
+	const char *feature_plugin;
+	uint32_t flags;
+#define OPAE_FEATURE_DATA_DETECTED 0x00000001
+#define OPAE_FEATURE_DATA_LOADED   0x00000002
+} feature_data;
+
+/*
+static const fpga_guid FPGA_DMA_GUID = {
+  0xef, 0x82, 0xde, 0xf7, 0xf6, 0xec, 0x40, 0xfc, 0xa9, 0x14,
+  0x9a, 0x35, 0xba, 0xce, 0x01, 0xea
+};
+
+static feature_data dma_data_table[] = {
+	{ 0xef82def7f6ec40fc, 0xa9149a35bace01ea, "libdfhdma.so", 0 },
+
+	{ 0,   0,       NULL, 0 },
+};
+*/
+
 static int initialized;
 
 STATIC opae_api_adapter_table *adapter_list = (void *)0;
