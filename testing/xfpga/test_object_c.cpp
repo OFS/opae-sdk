@@ -128,7 +128,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
             FPGA_OK);
-  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, nullptr, "revision", &object,
+  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "revision", &object,
                                       flags),
             FPGA_OK);
   uint64_t bbs_errors = 0;

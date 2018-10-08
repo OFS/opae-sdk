@@ -64,7 +64,6 @@ fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 	return make_sysfs_object(objpath, name, object, flags, NULL);
 }
 
-
 fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 				      fpga_object *object, int flags)
 {
@@ -81,9 +80,8 @@ fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 	return make_sysfs_object(objpath, name, object, flags, handle);
 }
 
-fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
-				      const char *name, fpga_object *object,
-				      int flags)
+fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
+				      fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX] = {0};
 	fpga_result res = FPGA_EXCEPTION;
@@ -108,7 +106,7 @@ fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 	}
 
 
-	return make_sysfs_object(objpath, name, object, flags, handle);
+	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
 
 fpga_result xfpga_fpgaDestroyObject(fpga_object *obj)
