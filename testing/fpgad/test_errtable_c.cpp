@@ -55,7 +55,6 @@ int poll_error(struct fpga_err *e);
 #include <array>
 #include <fstream>
 #include <thread>
-#include <future>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -209,12 +208,8 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   ASSERT_TRUE(do_poll(evt_fds[0]));
   clear_errors_port0();
 
-  auto fv = std::async(std::launch::async, [this](){
-      cause_ktilinkfatal_fme0();
-      return true;
-      });
+  cause_ktilinkfatal_fme0();
   ASSERT_TRUE(do_poll(evt_fds[1]));
-  fv.wait();
   clear_errors_fme0();
 
   close(evt_fds[0]);
