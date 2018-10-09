@@ -107,8 +107,11 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length);
 //
 // Translate to/from simulated physical address space.
 //
-uint64_t ase_host_memory_va_to_pa(void* va);
-void* ase_host_memory_pa_to_va(uint64_t pa);
+uint64_t ase_host_memory_va_to_pa(void* va, uint64_t length);
+void* ase_host_memory_pa_to_va(uint64_t pa, bool lock);
+
+void ase_host_memory_unlock();
+void ase_host_memory_terminate();
 
 #endif // not SIM_SIDE
 

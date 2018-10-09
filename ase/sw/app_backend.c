@@ -1264,7 +1264,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 #endif
 
 	// Assign a simulated physical address
-	mem->fake_paddr = ase_host_memory_va_to_pa((void*)mem->vbase);
+	mem->fake_paddr = ase_host_memory_va_to_pa((void*)mem->vbase, mem->memsize);
 
 	// Autogenerate buffer index
 	mem->index = asebuf_index_count;
@@ -1469,6 +1469,8 @@ void free_buffers(void)
 	buf_head = NULL;
 	buf_end = NULL;
 
+    ase_host_memory_terminate();
+
 	FUNC_CALL_EXIT;
 }
 
@@ -1636,9 +1638,12 @@ static void *membus_rd_watcher(void *arg)
 	while (membus_exist_status == ESTABLISHED) {
 		if (mqueue_recv(sim2app_membus_rd_req_rx, (char*) &rd_req, sizeof(rd_req)) == ASE_MSG_PRESENT) {
 			rd_rsp.pa = rd_req.addr;
-			rd_rsp.va = ase_host_memory_pa_to_va(rd_req.addr);
-			rd_rsp.valid = true;
-			ase_memcpy(rd_rsp.data, (char *) rd_rsp.va, CL_BYTE_WIDTH);
+			rd_rsp.va = ase_host_memory_pa_to_va(rd_req.addr, true);
+			rd_rsp.valid = (rd_rsp.va != NULL);
+			if (rd_rsp.valid) {
+				ase_memcpy(rd_rsp.data, (char *) rd_rsp.va, CL_BYTE_WIDTH);
+				ase_host_memory_unlock();
+			}
 
 			mqueue_send(app2sim_membus_rd_rsp_tx, (char*) &rd_rsp, sizeof(rd_rsp));
 		}
@@ -1663,9 +1668,12 @@ static void *membus_wr_watcher(void *arg)
 	while (membus_exist_status == ESTABLISHED) {
 		if (mqueue_recv(sim2app_membus_wr_req_rx, (char *) &wr_req, sizeof(wr_req)) == ASE_MSG_PRESENT) {
 			wr_rsp.pa = wr_req.addr;
-			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr);
-			wr_rsp.valid = true;
-			ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
+			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr, true);
+			wr_rsp.valid = (wr_rsp.va != NULL);
+			if (wr_rsp.valid) {
+				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
+				ase_host_memory_unlock();
+			}
 
 			mqueue_send(app2sim_membus_wr_rsp_tx, (char *) &wr_rsp, sizeof(wr_rsp));
 		}

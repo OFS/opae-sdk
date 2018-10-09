@@ -1,12 +1,12 @@
 // Copyright(c) 2018, Intel Corporation
 //
-// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// Redistribution  and	use	 in source	and	 binary	 forms,	 with  or  without
 // modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of  source code  must retain the  above copyright notice,
-//   this list of conditions and the following disclaimer.
+// * Redistributions of	 source code  must retain the  above copyright notice,
+//	 this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimer in the documentation
+//	 this list of conditions and the following disclaimer in the documentation
 //   and/or other materials provided with the distribution.
 // * Neither the name  of Intel Corporation  nor the names of its contributors
 //   may be used to  endorse or promote  products derived  from this  software
@@ -35,65 +35,407 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <sys/mman.h>
+#include <assert.h>
+#include <pthread.h>
 
 #include "ase_common.h"
 #include "ase_host_memory.h"
 
-// Pin a page at specified virtual address.  Returns the corresponding
-// I/O address (simulated host physical address).
+#define KB 1024
+#define MB (1024 * KB)
+#define GB (1024UL * MB)
+
+static pthread_mutex_t ase_pt_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static uint64_t **ase_pt_root;
+
+static int ase_pt_length_to_level(uint64_t length);
+static void ase_pt_delete_tree(uint64_t **pt, int pt_level);
+static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
+static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level);
+static int ase_pt_unpin_page(uint64_t iova, int pt_level);
+
+
+/*
+ * Pin a page at specified virtual address. Returns the corresponding
+ * I/O address (simulated host physical address).
+ */
 int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 {
-    *iova = ase_host_memory_va_to_pa(va);
-    note_pinned_page(va, *iova, length);
+	pthread_mutex_lock(&ase_pt_lock);
 
-    return 0;
+	// Map buffer length to a level in the page table. The length must correspond
+	// to exactly one page. The real FPGA driver requires this, too, since multi-
+	// physical page mappings are unlikely to be contiguous.
+	int pt_level = ase_pt_length_to_level(length);
+	if (pt_level == -1) return -1;
+
+	int status = ase_pt_pin_page(va, iova, pt_level);
+	if (status == 0) {
+		note_pinned_page(va, *iova, length);
+	}
+
+	pthread_mutex_unlock(&ase_pt_lock);
+	return status;
 }
 
 
-// Unpin the page at iova.
+/*
+ * Unpin the page at iova.
+ */
 int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 {
-    note_unpinned_page(iova, length);
+	int status = 0;
 
-    return 0;
+	pthread_mutex_lock(&ase_pt_lock);
+
+	if (ase_pt_root != NULL) {
+		int pt_level = ase_pt_length_to_level(length);
+		if (pt_level == -1) return -1;
+
+		status = ase_pt_unpin_page(iova, pt_level);
+	}
+
+	pthread_mutex_unlock(&ase_pt_lock);
+
+	note_unpinned_page(iova, length);
+	return status;
 }
 
 
-//
-// Translate to simulated physical address space.
-//
-uint64_t ase_host_memory_va_to_pa(void* va)
+/*
+ * Translate to simulated physical address space.
+ */
+uint64_t ase_host_memory_va_to_pa(void* va, uint64_t length)
 {
-    // We use a simple transformation to generate a fake physical space, merely
-    // inverting bits [47:30], which correspond to the first and second indices
-    // in a usual x86_64 page table. The second index is the 1GB pages, so the
-    // inversion guarantees we will have no physical address clashes with
-    // page sizes up to 1GB. Inverting these bits forces AFUs to translate
-    // addresses but avoids wasting simulator memory on complex page
-    // mappings.
+	// We use a simple transformation to generate a fake physical space, merely
+	// inverting bits of the page address. Inverting these bits forces AFUs to
+	// translate addresses but avoids wasting simulator memory on complex page
+	// mappings.
 
-    // Confirm that the top virtual bits are 0.  They should be non-zero only
-    // for kernel addresses.  This simulation is user space.
-    if ((uint64_t) va >> 48) {
-        ASE_ERR("Unexpected virtual address (0x" PRIx64 "), high bits set!", va);
+	// Confirm that the top virtual bits are 0. They should be non-zero only
+	// for kernel addresses.  This simulation is user space.
+	if ((uint64_t) va >> 48) {
+		ASE_ERR("Unexpected virtual address (0x" PRIx64 "), high bits set!", va);
 		raise(SIGABRT);
-    }
+	}
 
-    uint64_t mask = (uint64_t) 0x3ffff << 30;
-    return (uint64_t) va ^ mask;
+	int pt_level = ase_pt_length_to_level(length);
+	uint64_t mask = 0xffffffffffffUL & (~0UL << (12 + 9 * pt_level));
+	return (uint64_t) va ^ mask;
 }
 
-//
-// Translate from simulated physical address space.
-//
-void* ase_host_memory_pa_to_va(uint64_t pa)
+/*
+ * Translate from simulated physical address space. Optionally hold the lock
+ * after successful translation so that the buffer remains pinned.
+ */
+void* ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 {
-    // The inverse of ase_host_memory_va_to_pa.
-    if (pa >> 48) {
-        ASE_ERR("Unexpected physical address (0x" PRIx64 "), high bits set!", pa);
+	// The inverse of ase_host_memory_va_to_pa.
+	if (pa >> 48) {
+		ASE_ERR("Unexpected physical address (0x" PRIx64 "), high bits set!", pa);
 		raise(SIGABRT);
-    }
+	}
 
-    uint64_t mask = (uint64_t) 0x3ffff << 30;
-    return (void*) (pa ^ mask);
+	// Is the page pinned?
+	int pt_level;
+	pthread_mutex_lock(&ase_pt_lock);
+	if (! ase_pt_check_addr(pa, &pt_level)) {
+		pthread_mutex_unlock(&ase_pt_lock);
+		return NULL;
+	}
+
+	if (! lock) {
+		pthread_mutex_unlock(&ase_pt_lock);
+	}
+
+	uint64_t mask = 0xffffffffffffUL & (~0UL << (12 + 9 * pt_level));
+	return (void*) (pa ^ mask);
+}
+
+
+void ase_host_memory_unlock()
+{
+	pthread_mutex_unlock(&ase_pt_lock);
+}
+
+
+void ase_host_memory_terminate()
+{
+	pthread_mutex_lock(&ase_pt_lock);
+
+	ase_pt_delete_tree(ase_pt_root, 3);
+	ase_pt_root = NULL;
+
+	pthread_mutex_unlock(&ase_pt_lock);
+}
+
+
+// ========================================================================
+//
+//	Maintain a simulated page table in order to track pinned pages.
+//
+// ========================================================================
+
+/*
+ * The page table here has a single job: indicate whether a given physical
+ * address (iova) is pinned. Since the simulator uses a simple XOR function
+ * for mapping virtual to physical addresses, the table is not needed for
+ * actual translation.
+ *
+ * The table is physically indexed but the internal pointers are simple
+ * virtual addresses. At the lowest level (the 4KB pages), the table uses
+ * a 512 entry bit vector to indicate whether a page is pinned. This saves
+ * space and is, once again, possible since the table isn't used for
+ * actual translation.
+ *
+ * A pointer value of -1 at higher levels in the table indicates the
+ * presence of a pinned huge page.
+ */
+
+/*
+ * Page size to level in the table. Level 3 is the root.
+ */
+static int ase_pt_length_to_level(uint64_t length)
+{
+	int pt_level;
+
+	switch (length) {
+	  case GB:
+		pt_level = 2;
+		break;
+	  case 2 * MB:
+		pt_level = 1;
+		break;
+	  case 4 * KB:
+		pt_level = 0;
+		break;
+	  default:
+		pt_level = -1;
+	}
+
+	return pt_level;
+}
+
+/*
+ * Index of a 512 entry set of page pointers in the table, given a level.
+ */
+static inline int ase_pt_idx(uint64_t iova, int pt_level)
+{
+	// The low 12 bits are the 4KB page offset. Groups of 9 bits above that
+	// correspond to increasing levels in the page table hierarchy.
+	assert(pt_level <= 3);
+	return 0x1ff & (iova >> (12 + pt_level * 9));
+}
+
+/*
+ * Dump the page table for debugging.
+ */
+static void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
+{
+	if (pt == NULL) return;
+
+	if (pt == (uint64_t **) -1) {
+		printf("  0x%016lx	  %ld\n", iova, 4096 * (1UL << (9 * (pt_level + 1))));
+		return;
+	}
+
+	int idx;
+	for (idx = 0; idx < 512; idx++) {
+		if (pt_level > 0) {
+			ase_pt_dump((uint64_t **)pt[idx], iova | ((uint64_t)idx << (12 + 9 * pt_level)),
+						pt_level - 1);
+		}
+		else {
+			if ((uint64_t)pt[idx / 64] & (1UL << (idx & 63))) {
+				printf("  0x%016lx	  4096\n", iova | (idx << 12));
+			}
+		}
+	}
+}
+
+
+/*
+ * Delete a sub-tree in the table.
+ */
+static void ase_pt_delete_tree(uint64_t **pt, int pt_level)
+{
+	if ((pt == NULL) || (pt == (uint64_t **) -1)) return;
+
+	if (pt_level) {
+		// Drop sub-trees and then release this node.
+		int idx;
+		for (idx = 0; idx < 512; idx++) {
+			ase_pt_delete_tree((uint64_t **)pt[idx], pt_level -1);
+		}
+		munmap(pt, 4096);
+	}
+	else {
+		// Terminal node of flags for 4KB pages.
+		free(pt);
+	}
+}
+
+
+/*
+ * Is iova in the table? The level at which it is found is stored
+ * in *pt_level.
+ */
+static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
+{
+	*pt_level = -1;
+
+	int level = 3;
+	uint64_t **pt = ase_pt_root;
+
+	while (level > 0)
+	{
+		if (pt == NULL) {
+			// Not found
+			return false;
+		}
+
+		// Walk down to the next level. Unlike a normal page table, addresses
+		// here are simple virtual pointers. We can do this since the table
+		// isn't actually translating -- it is simply indicating whether a
+		// physical address is pinned.
+		pt = (uint64_t **) pt[ase_pt_idx(iova, level)];
+		if (pt == (uint64_t **) -1) {
+			// -1 indicates a valid huge page mapping at this level.
+			*pt_level = level;
+			return true;
+		}
+
+		level -= 1;
+	}
+
+	// The last level mapping is a simple 512 entry bit vector -- not a set
+	// of pointers. We do this to save space since the table only has to
+	// indicate whether a page is valid.
+	int idx = ase_pt_idx(iova, 0);
+	if (pt && ((uint64_t)pt[idx / 64] & (1UL << (idx & 63)))) {
+		*pt_level = 0;
+		return true;
+	}
+
+	// Not found
+	ase_pt_dump(ase_pt_root, 0, 3);
+	return false;
+}
+
+static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
+{
+	assert((pt_level >= 0) && (pt_level < 3));
+
+	// Virtual to physical mapping is just an XOR
+	*iova = ase_host_memory_va_to_pa(va, 4096 * (1UL << (9 * pt_level)));
+
+	ASE_MSG("Add pinned page VA %p, IOVA %" PRIx64 ", level %d\n", va, *iova, pt_level);
+
+	int idx;
+	int level = 3;
+	uint64_t **pt = ase_pt_root;
+
+	if (pt == NULL) {
+		ase_pt_root = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
+						   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		pt = ase_pt_root;
+		if (ase_pt_root == MAP_FAILED) {
+			ASE_ERR("Simulated page table out of memory!\n");
+			return -1;
+		}
+		ase_memset(pt, 0, 4096);
+	}
+
+	while (level != pt_level) {
+		idx = ase_pt_idx(*iova, level);
+		if (pt[idx] == NULL) {
+			if (level > 1) {
+				pt[idx] = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
+							   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+			}
+			else {
+				pt[idx] = malloc(64);
+			}
+			if ((pt[idx] == NULL) || (pt[idx] == MAP_FAILED)) {
+				ASE_ERR("Simulated page table out of memory!\n");
+				pt[idx] = NULL;
+				return -1;
+			}
+
+			ase_memset(pt[idx], 0, (level > 1) ? 4096 : 64);
+		}
+
+		if (pt == (uint64_t **) -1) {
+			ASE_ERR("Attempt to map smaller page inside existing huge page\n");
+			return -1;
+		}
+
+		pt = (uint64_t **) pt[idx];
+		level -= 1;
+	}
+
+	idx = ase_pt_idx(*iova, level);
+	if (level) {
+		if (pt[idx] != NULL) {
+			// The page is already pinned. What should we do? mmap() allows overwriting
+			// existing mappings, so we behave like it for now.
+			ase_pt_delete_tree((uint64_t **)pt[idx], level);
+		}
+
+		pt[idx] = (uint64_t *) -1;
+	}
+	else {
+		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] | (1UL << (idx & 63)));
+	}
+
+//	ase_pt_dump(ase_pt_root, 0, 3);
+
+	return 0;
+}
+
+static int ase_pt_unpin_page(uint64_t iova, int pt_level)
+{
+	assert((pt_level >= 0) && (pt_level < 3));
+
+	ASE_MSG("Remove pinned page IOVA %" PRIx64 ", level %d\n", iova, pt_level);
+
+	int idx;
+	int level = 3;
+	uint64_t **pt = ase_pt_root;
+
+	while (level != pt_level) {
+		idx = ase_pt_idx(iova, level);
+		if (pt[idx] == NULL) {
+			ASE_ERR("Attempt to unpin non-existent page.\n");
+			return -1;
+		}
+
+		if (pt == (uint64_t **) -1) {
+			ASE_ERR("Attempt to unpin smaller page inside existing huge page\n");
+			return -1;
+		}
+
+		pt = (uint64_t **) pt[idx];
+		level -= 1;
+	}
+
+	idx = ase_pt_idx(iova, level);
+	if (level) {
+		// Drop a huge page
+		if (pt[idx] != (uint64_t *) -1) {
+			ASE_ERR("Attempt to unpin non-existent page.\n");
+			return -1;
+		}
+		pt[idx] = NULL;
+	}
+	else if (pt) {
+		// Drop a 4KB page
+		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] & ~(1UL << (idx & 63)));
+	}
+
+//	ase_pt_dump(ase_pt_root, 0, 3);
+
+	return 0;
 }
