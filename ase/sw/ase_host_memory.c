@@ -65,9 +65,7 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 {
 	pthread_mutex_lock(&ase_pt_lock);
 
-	// Map buffer length to a level in the page table. The length must correspond
-	// to exactly one page. The real FPGA driver requires this, too, since multi-
-	// physical page mappings are unlikely to be contiguous.
+	// Map buffer length to a level in the page table.
 	int pt_level = ase_pt_length_to_level(length);
 	if (pt_level == -1) return -1;
 
@@ -201,19 +199,12 @@ static int ase_pt_length_to_level(uint64_t length)
 {
 	int pt_level;
 
-	switch (length) {
-	  case GB:
-		pt_level = 2;
-		break;
-	  case 2 * MB:
-		pt_level = 1;
-		break;
-	  case 4 * KB:
+	if (length > 2 * MB)
+		pt_level = (length == GB) ? 2 : -1;
+	else if (length > 4 * KB)
+		pt_level = (length <= 2 * MB) ? 1 : -1;
+	else
 		pt_level = 0;
-		break;
-	  default:
-		pt_level = -1;
-	}
 
 	return pt_level;
 }

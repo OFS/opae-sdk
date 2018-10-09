@@ -91,8 +91,11 @@ static void *sim_huge_mmap(void *addr, size_t length, int prot, int flags)
 		return addr_local;
 	}
 
-	// Try again without huge pages but with extra space for alignment
+	// Try again without huge pages but with extra space for alignment.
+	// Start by forcing the size to be a multiple of the desired pages.
 	size_t length_extra = (flags & MAP_1G_HUGEPAGE) ? GB : 2 * MB;
+	length = (length + length_extra - 1) & ~(length_extra - 1);
+
 	addr_local = mmap(addr, length + length_extra, prot,
 			  flags & ~(MAP_HUGETLB | MAP_1G_HUGEPAGE), 0, 0);
 	if (addr_local == MAP_FAILED) {
