@@ -323,7 +323,7 @@ TEST_P(mock_err_inj_c_p, port_to_interface_err) {
 }
 
 /**
- * @test       Hostif_drv_05
+ * @test       invalid_max_interface_num
  *
  * @brief      When the interface_num parameter to fpgaAssignPortToInterface
  *             is greater than FPGA_MAX_INTERFACE_NUM,
