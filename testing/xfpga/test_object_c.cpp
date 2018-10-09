@@ -89,7 +89,7 @@ TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &object, flags),
             FPGA_OK);
   uint64_t bitstream_id = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "invalid_name", &object, 0),
@@ -109,7 +109,7 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   int flags = 0;
   ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, name, &object, flags), FPGA_OK);
   uint64_t bitstream_id = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
@@ -128,11 +128,11 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
             FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaObjectGetObject(err_object, nullptr, "bbs_errors",
-                                      &object, flags),
+  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, nullptr, "revision", &object,
+                                      flags),
             FPGA_OK);
   uint64_t bbs_errors = 0;
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&err_object), FPGA_OK);
@@ -172,9 +172,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   uint64_t value = 0;
   fwrite(c0c0str.c_str(), c0c0str.size(), 1, fp);
   fflush(fp);
-  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value,
-                                   FPGA_OBJECT_TEXT | FPGA_OBJECT_SYNC),
-            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value, FPGA_OBJECT_SYNC), FPGA_OK);
   EXPECT_EQ(value, 0xc0c0cafe);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
@@ -195,7 +193,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, FPGA_OBJECT_TEXT),
+  EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0),
             FPGA_OK);
 
   _fpga_object *obj = static_cast<_fpga_object *>(object);
@@ -210,13 +208,35 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_EXCEPTION);
 
   obj->path = path;
-  delete [] inv_path;
+  delete[] inv_path;
 
   rewind(fp);
   std::vector<char> buffer(256);
   auto result = fread(buffer.data(), buffer.size(), 1, fp);
   (void) result;
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+}
+
+TEST_P(sysobject_p, xfpga_fpgaGetSize) {
+  uint32_t num_matches = 0;
+  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches),
+            FPGA_OK);
+  ASSERT_GT(num_matches, 0);
+  _fpga_token *tk = static_cast<_fpga_token *>(tokens_[0]);
+  std::string syspath(tk->sysfspath);
+  syspath += "/testdata";
+  auto fp = system_->register_file(syspath);
+  ASSERT_NE(fp, nullptr) << strerror(errno);
+  fwrite(DATA.c_str(), DATA.size(), 1, fp);
+  fflush(fp);
+  fpga_object object;
+  int flags = 0;
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
+            FPGA_OK);
+  uint32_t value = 0;
+  EXPECT_EQ(xfpga_fpgaObjectGetSize(object, &value, 0), FPGA_OK);
+  EXPECT_EQ(value, DATA.size());
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
