@@ -729,6 +729,15 @@ fpga_result fpgaDestroyToken(fpga_token *token)
 	return res;
 }
 
+/*
+fpga_result fpgaFeatureEnumerate(fpga_handle handle, feature_properties *filter, uint32_t num_filters,
+			  feature_token *tokens, uint32_t max_tokens,
+			  uint32_t *num_matches)
+{
+
+}
+*/
+
 fpga_result fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	opae_wrapped_handle *wrapped_handle =
