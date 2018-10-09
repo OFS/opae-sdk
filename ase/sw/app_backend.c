@@ -27,6 +27,9 @@
 
 #define _GNU_SOURCE
 
+#include <unistd.h>
+#include <sys/mman.h>
+
 #include "ase_common.h"
 #include "ase_host_memory.h"
 
@@ -1621,6 +1624,47 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
+static ase_host_memory_status membus_op_status(void* va, uint64_t pa)
+{
+	ase_host_memory_status st;
+
+	static uint64_t page_mask;
+	if (! page_mask) {
+		page_mask = sysconf(_SC_PAGESIZE);
+		page_mask = ~(page_mask - 1);
+	}
+
+	if (pa & 0x3f) {
+		// Not line-aligned address
+		st = HOST_MEM_STATUS_ILLEGAL;
+	}
+	else if (va == NULL) {
+		st = HOST_MEM_STATUS_NOT_PINNED;
+	}
+	else
+	{
+		// We use mincore to detect whether the virtual address is mapped.
+		// mincore returns an error when it isn't. This will detect most cases
+		// where the user code pins a page and subsequently unmaps the
+		// page without unpinnning it with fpgaReleaseBuffer() first.
+		//
+		// There is still a race here. The user code could unmap the page
+		// after this check and before the simulator reads or writes the
+		// location. The race is short and there isn't much we can do other
+		// than raise a SEGV.
+		unsigned char vec[8];
+		if (mincore((void *)((uint64_t)va & page_mask), CL_BYTE_WIDTH, vec)) {
+			st = HOST_MEM_STATUS_NOT_MAPPED;
+		}
+		else {
+			st = HOST_MEM_STATUS_VALID;
+		}
+	}
+
+	return st;
+}
+
+
 /*
  * Service simulator memory read/write requests.
  */
@@ -1639,8 +1683,8 @@ static void *membus_rd_watcher(void *arg)
 		if (mqueue_recv(sim2app_membus_rd_req_rx, (char*) &rd_req, sizeof(rd_req)) == ASE_MSG_PRESENT) {
 			rd_rsp.pa = rd_req.addr;
 			rd_rsp.va = ase_host_memory_pa_to_va(rd_req.addr, true);
-			rd_rsp.valid = (rd_rsp.va != NULL);
-			if (rd_rsp.valid) {
+			rd_rsp.status = membus_op_status(rd_rsp.va, rd_rsp.pa);
+			if (rd_rsp.status == HOST_MEM_STATUS_VALID) {
 				ase_memcpy(rd_rsp.data, (char *) rd_rsp.va, CL_BYTE_WIDTH);
 				ase_host_memory_unlock();
 			}
@@ -1669,8 +1713,8 @@ static void *membus_wr_watcher(void *arg)
 		if (mqueue_recv(sim2app_membus_wr_req_rx, (char *) &wr_req, sizeof(wr_req)) == ASE_MSG_PRESENT) {
 			wr_rsp.pa = wr_req.addr;
 			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr, true);
-			wr_rsp.valid = (wr_rsp.va != NULL);
-			if (wr_rsp.valid) {
+			wr_rsp.status = membus_op_status(wr_rsp.va, wr_rsp.pa);
+			if (wr_rsp.status == HOST_MEM_STATUS_VALID) {
 				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
 				ase_host_memory_unlock();
 			}

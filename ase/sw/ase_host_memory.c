@@ -223,7 +223,7 @@ static inline int ase_pt_idx(uint64_t iova, int pt_level)
 /*
  * Dump the page table for debugging.
  */
-static void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
+void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
 {
 	if (pt == NULL) return;
 
@@ -311,7 +311,7 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	}
 
 	// Not found
-	ase_pt_dump(ase_pt_root, 0, 3);
+//	ase_pt_dump(ase_pt_root, 0, 3);
 	return false;
 }
 

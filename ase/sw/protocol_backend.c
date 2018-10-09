@@ -226,12 +226,22 @@ void sv2c_script_dex(const char *str)
 /*
  * Print an error for accesses to illegal (unpinned) addresses.
  */
-static void memline_addr_error(const char *access_type, uint64_t pa, void* va)
+static void memline_addr_error(const char *access_type,
+			       ase_host_memory_status status,
+			       uint64_t pa, void* va)
 {
 	FUNC_CALL_ENTRY;
 
-	#define MEMLINE_ADDR_ERROR_MSG \
-		"@ERROR: ASE has detected a memory %s to an unallocated memory region.\n" \
+	#define MEMLINE_ADDR_ILLEGAL_MSG \
+		"@ERROR: ASE has detected a memory %s to an ILLEGAL memory address.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n"
+
+	#define MEMLINE_ADDR_UNPINNED_MSG \
+		"@ERROR: ASE has detected a memory %s to an UNPINNED memory region.\n" \
 		"        Simulation cannot continue, please check the code.\n" \
 		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
 		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
@@ -244,16 +254,48 @@ static void memline_addr_error(const char *access_type, uint64_t pa, void* va)
 		"              write fence before AFU status message. The simulator may\n" \
 		"              be committing AFU transactions out of order.\n"
 
-	ASE_ERR("\n" MEMLINE_ADDR_ERROR_MSG, access_type, pa, pa >> 6);
+	#define MEMLINE_ADDR_UNMAPPED_MSG \
+		"@ERROR: ASE has detected a memory %s to an UNMAPPED memory region.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level virtual_addr = %p\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n" \
+		"@ERROR: This most often happens when the application munmaps or frees\n" \
+		"        a region before calling fpgaReleaseBuffer().\n"
 
-	// Write error to file
 	FILE *error_fp = fopen("ase_memory_error.log", "w");
+
+	if (status == HOST_MEM_STATUS_ILLEGAL) {
+		ASE_ERR("\n" MEMLINE_ADDR_ILLEGAL_MSG, access_type, pa, pa >> 6);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_ILLEGAL_MSG, access_type, pa, pa >> 6);
+		}
+	}
+	else if (status == HOST_MEM_STATUS_NOT_PINNED) {
+		ASE_ERR("\n" MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
+		}
+	}
+	else if (status == HOST_MEM_STATUS_NOT_MAPPED) {
+		ASE_ERR("\n" MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
+		}
+	}
+	else {
+		ASE_ERR("\n @ERROR: Unknown memory reference error.\n");
+	}
+
 	if (error_fp != NULL) {
-		fprintf(error_fp, MEMLINE_ADDR_ERROR_MSG, access_type, pa, pa >> 6);
 		fclose(error_fp);
 	}
 
-	#undef MEMLINE_ADDR_ERROR_MSG
+	#undef MEMLINE_ADDR_ILLEGAL_MSG
+	#undef MEMLINE_ADDR_UNPINNED_MSG
+	#undef MEMLINE_ADDR_UNMAPPED_MSG
 
 	// Request SIMKILL
 	start_simkill_countdown();
@@ -326,8 +368,8 @@ void wr_memline_rsp_dex(cci_pkt *pkt)
 			status = mqueue_recv(app2sim_membus_wr_rsp_rx, (char *) &wr_rsp, sizeof(wr_rsp));
 
 			if (status == ASE_MSG_PRESENT) {
-				if (! wr_rsp.valid) {
-					memline_addr_error("WRITE", wr_rsp.pa, wr_rsp.va);
+				if (wr_rsp.status != HOST_MEM_STATUS_VALID) {
+					memline_addr_error("WRITE", wr_rsp.status, wr_rsp.pa, wr_rsp.va);
 					pkt->success = 0;
 				}
 				break;
@@ -386,8 +428,8 @@ void rd_memline_rsp_dex(cci_pkt *pkt)
 		status = mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp));
 
 		if (status == ASE_MSG_PRESENT) {
-			if (! rd_rsp.valid) {
-				memline_addr_error("READ", rd_rsp.pa, rd_rsp.va);
+			if (rd_rsp.status != HOST_MEM_STATUS_VALID) {
+				memline_addr_error("READ", rd_rsp.status, rd_rsp.pa, rd_rsp.va);
 			}
 
 			// Read from memory

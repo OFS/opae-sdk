@@ -46,59 +46,70 @@
 // Requests types that may be sent from simulator to application.
 //
 typedef enum {
-    HOST_MEM_REQ_READ_LINE,
-    HOST_MEM_REQ_WRITE_LINE
+	HOST_MEM_REQ_READ_LINE,
+	HOST_MEM_REQ_WRITE_LINE
 } ase_host_memory_req;
+
+typedef enum {
+	HOST_MEM_STATUS_VALID,
+	// Reference to illegal address
+	HOST_MEM_STATUS_ILLEGAL,
+	// Reference to address that isn't pinned for I/O
+	HOST_MEM_STATUS_NOT_PINNED,
+	// Address is pinned but the page is unmapped. This state most likely
+	// happens when the program unmaps a page that is still pinned.
+	HOST_MEM_STATUS_NOT_MAPPED
+} ase_host_memory_status;
 
 //
 // Read request, simulator to application.
 //
 typedef struct {
-    ase_host_memory_req req;
-    uint64_t addr;
+	ase_host_memory_req req;
+	uint64_t addr;
 } ase_host_memory_read_req;
 
 //
 // Read response, application to simulator.
 //
 typedef struct {
-    uint8_t data[CL_BYTE_WIDTH];
+	uint8_t data[CL_BYTE_WIDTH];
 
-    // Simulated host physical address
-    uint64_t pa;
-    // Virtual address in application space
-    void *va;
+	// Simulated host physical address
+	uint64_t pa;
+	// Virtual address in application space
+	void *va;
 
-    // Does the response hold valid data? Was the request to a valid address?
-    bool valid;
+	// Does the response hold valid data?
+	ase_host_memory_status status;
 } ase_host_memory_read_rsp;
 
 //
 // Write request, simulator to application.
 //
 typedef struct {
-    ase_host_memory_req req;
-    uint64_t addr;
-    uint8_t data[CL_BYTE_WIDTH];
+	ase_host_memory_req req;
+	uint64_t addr;
+	uint8_t data[CL_BYTE_WIDTH];
 } ase_host_memory_write_req;
 
 //
 // Write response, application to simulator.
 //
 typedef struct {
-    // Simulated host physical address
-    uint64_t pa;
-    // Virtual address in application space
-    void *va;
+	// Simulated host physical address
+	uint64_t pa;
+	// Virtual address in application space
+	void *va;
 
-    // Was the request to a valid address?
-    bool valid;
+	// Was the request to a valid address?
+	ase_host_memory_status status;
 } ase_host_memory_write_rsp;
 
 
 #ifndef SIM_SIDE
 
-// Pin a page at specified virtual address.  Returns the corresponding
+// Pin a page at specified virtual address. Returns the corresponding
 // I/O address (simulated host physical address).
 int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length);
 // Unpin the page at iova.
