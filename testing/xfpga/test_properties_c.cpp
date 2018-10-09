@@ -23,7 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #include <opae/fpga.h>
 #include <algorithm>
 #include "gtest/gtest.h"
@@ -34,9 +33,9 @@
 
 using namespace opae::testing;
 
-class properties_p1 : public ::testing::TestWithParam<std::string> {
+class properties_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_p1() : tokens_{{nullptr, nullptr}} {}
+  properties_c_p () : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -74,7 +73,6 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
   std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
   fpga_properties props_;
-  fpga_handle handle_;
   fpga_handle accel_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -82,9 +80,67 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
   test_system* system_;
 };
 
-TEST_P(properties_p1, from_handle) {
+/**
+ * @test    from_handle
+ * @brief   Tests: xfpga_fpgaGetPropertiesFromHandle
+ * @details Given a null fpga_properties* object<br>
+ *          When I call xfpga_fpgaGetPropertiesFromHandle with an valid handle,
+ *          expected result is FPGA_OK.<br>
+ */
+TEST_P(properties_c_p, from_handle) {
   EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
 }
+
+/**
+ * @test       vendor_id
+ *
+ * @brief      When querying the vendor ID of an AFU,
+ * 	       0x8086 is returned.
+ */
+TEST_P(properties_c_p, vendor_id) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetVendorID(props_, &x));
+  EXPECT_EQ(x, device.vendor_id);
+#endif
+}
+
+/**
+ * @test       device_id
+ *
+ * @brief      When querying the device ID of an AFU,
+ * 	       0xbcc0 is returned.
+ */
+TEST_P(properties_c_p, device_id) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetDeviceID(props_, &x));
+  EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
+#endif
+}
+
+/**
+ * @test       valid_get
+ *
+ * @brief      When fpgaGetPropertiesFromHandle is called
+ *             with a valid handle,
+ *             the function returns FPGA_OK, and
+ *             the returned properties are valid for that handle.
+ */
+TEST_P(properties_c_p, valid_gets) {
+  fpga_objtype objtype;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaGetPropertiesFromHandle(accel_, &props_));
+  ASSERT_EQ(FPGA_OK, fpgaPropertiesGetObjectType(props_, &objtype));
+  EXPECT_EQ(FPGA_ACCELERATOR, objtype);
+}
+
+INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));
 
 /**
  * @test    fpga_get_properties01
@@ -93,7 +149,7 @@ TEST_P(properties_p1, from_handle) {
  *          When I call xfpga_fpgaGetProperties with an invalid token,
  *          expected result is FPGA_INVALID_PARAM.<br>
  */
-TEST(properties, fpga_get_properties01) {
+TEST(properties_c, fpga_get_properties01) {
   char buf[sizeof(_fpga_token)];
   fpga_token token = buf;
   ((_fpga_token*)token)->magic = 0xbeef;
@@ -101,5 +157,14 @@ TEST(properties, fpga_get_properties01) {
   EXPECT_EQ(xfpga_fpgaGetProperties(token, &prop), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(test_platforms, properties_p1,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test    invalid_handle
+ * @brief   Tests: xfpga_fpgaGetPropertiesFromHandle
+ * @details Given a null fpga_properties* object<br>
+ *          When I call xfpga_fpgaGetPropertiesFromHandle with an null handle,
+ *          expected result is FPGA_INVALID_PARAM.<br>
+ */
+TEST(properties_c, invalid_handle) {
+  fpga_properties prop = NULL;
+  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(nullptr, &prop), FPGA_INVALID_PARAM);
+}
