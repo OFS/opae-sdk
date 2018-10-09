@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+extern "C"{
+#include "token_list_int.h"
+}
 
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -34,9 +37,9 @@
 #include "linux/ioctl.h"
 #include "cstdarg"
 
-extern "C"{
-#include "token_list_int.h"
-}
+#include "safe_string/safe_string.h"
+#include "error_int.h"
+
 using namespace opae::testing;
 
 #undef FPGA_MSG
@@ -243,6 +246,16 @@ TEST_P(openclose_c_p, close_01) {
 }
 
 /**
+ * @test       invalid_close
+ *
+ * @brief      When the fpga_handle parameter to fpgaClose is NULL, the
+ *             function returns FPGA_INVALID_PARAM.
+ */
+TEST_P(openclose_c_p, invalid_close) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClose(NULL));
+}
+
+/**
  * @test       close_03
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
@@ -264,4 +277,70 @@ TEST_P(openclose_c_p, close_03) {
   EXPECT_EQ(res, FPGA_OK);
 }
 
+/**
+ * @test       open_share
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
+ *             already opened token returns FPGA_OK.
+ */
+TEST_P(openclose_c_p, open_share) {
+  fpga_handle h1, h2;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
+}
+
+ /**
+ * @test       open_fpga_busy
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             and the flag FPGA_OPEN_SHARED is not given, fpgaOpen on
+ *             an already opened token returns FPGA_BUSY.
+ */
+//TEST_P(openclose_c_p, open_fpga_busy) {
+//  fpga_handle h1;
+//  fpga_handle h2;
+//
+//  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, 0));
+//  EXPECT_EQ(FPGA_BUSY, xfpga_fpgaOpen(tokens_[0], &h2, 0));
+//  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
+//}
+
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
+/**
+ * @test       invalid_open_close
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but drive is not loaded. the function returns FPGA_NO_DRIVER.
+ *
+ */
+TEST(openclose_c, invalid_open_close) {
+  fpga_properties filter;
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+  uint32_t num_matches = 0;
+
+  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+  const std::string dev_port = "/dev/intel-fpga-port.0";
+
+  // token setup
+  strncpy_s(_tok.sysfspath,sizeof(_tok.sysfspath),sysfs_port.c_str(),sysfs_port.size());
+  strncpy_s(_tok.devpath,sizeof(_tok.devpath),dev_port.c_str(),dev_port.size());
+  _tok.magic = FPGA_TOKEN_MAGIC;
+  _tok.errors = nullptr;
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &_tok.errors);
+
+#ifdef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
+#else
+  EXPECT_EQ(FPGA_NO_DRIVER, xfpga_fpgaOpen(tok, &h, 0));
+#endif
+}
+
+
