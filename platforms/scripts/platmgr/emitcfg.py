@@ -413,7 +413,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f.write('}\n\n')
 
     f.write(
-        "source {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+        "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
     f.close()
 
 
