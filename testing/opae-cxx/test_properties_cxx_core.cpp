@@ -52,12 +52,6 @@ protected:
 
   virtual void TearDown() override { system_->finalize(); }
 
-  void string_to_guid(const char *guid, fpga_guid *result)
-  {
-    ASSERT_EQ(0, uuid_parse(guid, *result));
-    ASSERT_NE(nullptr, result);
-  }
-
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
   test_platform platform_;
@@ -93,7 +87,7 @@ TEST_P(properties_cxx_core, get_guid_valid) {
 
   // Retrieve first platform device afu guid.
   guid = platform_.devices[0].afu_guid;
-  string_to_guid(guid, &valid_guid);
+  ASSERT_EQ(0, uuid_parse(guid, valid_guid));
 
   tokens = token::enumerate({properties::get(valid_guid)});
   EXPECT_GT(tokens.size(), 0);
