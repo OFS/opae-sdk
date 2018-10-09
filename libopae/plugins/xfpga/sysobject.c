@@ -192,7 +192,7 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 		FPGA_ERR("Bytes requested exceed object size");
 		return FPGA_INVALID_PARAM;
 	}
-	memcpy_s(buffer, _obj->max_size, _obj->buffer + offset, len);
+	memcpy_s(buffer, len, _obj->buffer + offset, len);
 
 	return FPGA_OK;
 }

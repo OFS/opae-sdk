@@ -89,7 +89,7 @@ std::vector<uint8_t> sysobject::bytes(int flags) const {
 
 std::vector<uint8_t> sysobject::bytes(uint32_t offset, uint32_t size,
                                       int flags) const {
-  std::vector<uint8_t> bytes(size - offset);
+  std::vector<uint8_t> bytes(size);
   ASSERT_FPGA_OK(fpgaObjectRead(sysobject_, bytes.data(), offset, size, flags));
   return bytes;
 }
