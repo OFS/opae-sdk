@@ -880,6 +880,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 		return FPGA_EXCEPTION;
 	}
 	struct _fpga_object *group = alloc_fpga_object(sysfspath, name);
+	group->handle = handle;
 	group->type = FPGA_SYSFS_DIR;
 	if (flags & FPGA_OBJECT_RECURSE_ONE
 	    || flags & FPGA_OBJECT_RECURSE_ALL) {
