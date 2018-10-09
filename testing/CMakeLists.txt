@@ -228,6 +228,12 @@ add_mock_test(test_opae_errors_cxx_core opae-cxx-core-static
     opae-cxx/test_errors_cxx_core.cpp
 )
 
+add_mock_test(test_opae_events_cxx_core opae-cxx-core-static
+    opae-cxx/test_events_cxx_core.cpp
+)
+target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
+        ${libjson-c_LIBRARIES})
+
 add_mock_test(test_opae_properties_cxx_core opae-cxx-core-static
     opae-cxx/test_properties_cxx_core.cpp
 )

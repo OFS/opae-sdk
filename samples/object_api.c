@@ -79,8 +79,8 @@ typedef struct {
 	fpga_token token;
 	fpga_object object;
 	uint8_t bus;
-        uint8_t device;
-        uint8_t function;
+	uint8_t device;
+	uint8_t function;
 	named_object objects[MAX_GROUP_OBJECTS];
 	size_t count;
 } metric_group;
@@ -93,12 +93,12 @@ typedef struct {
 } token_group;
 
 struct {
-	bool freeze;
 	int bus;
 	float interval_sec;
-} options = { false, -1, 1.0 };
+} options = { -1, 1.0};
 
-metric_group *init_metric_group(fpga_token token, const char *name, metric_group *group)
+metric_group *init_metric_group(fpga_token token, const char *name,
+				metric_group *group)
 {
 	fpga_properties props;
 	fpga_result res;
@@ -107,54 +107,32 @@ metric_group *init_metric_group(fpga_token token, const char *name, metric_group
 	group->name = name;
 	group->count = 0;
 	if (fpgaGetProperties(token, &props) == FPGA_OK) {
-		if ((res = fpgaPropertiesGetBus(props, &group->bus)) != FPGA_OK) {
+		if ((res = fpgaPropertiesGetBus(props, &group->bus))
+		    != FPGA_OK) {
 			print_err("error reading bus", res);
 		}
-		if ((res = fpgaPropertiesGetDevice(props, &group->device)) != FPGA_OK) {
+		if ((res = fpgaPropertiesGetDevice(props, &group->device))
+		    != FPGA_OK) {
 			print_err("error reading device", res);
 		}
-		if ((res = fpgaPropertiesGetFunction(props, &group->function)) != FPGA_OK) {
+		if ((res = fpgaPropertiesGetFunction(props, &group->function))
+		    != FPGA_OK) {
 			print_err("error reading function", res);
 		}
 	}
 
-	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB) == FPGA_OK) {
+	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB)
+	    == FPGA_OK) {
 		return group;
 	}
 	return NULL;
 }
 
-fpga_result freeze_group(metric_group *group, uint64_t value)
-{
-	if (!options.freeze) return FPGA_OK;
-	fpga_handle handle = NULL;
-	fpga_object object = NULL;
-	fpga_result other_res;
-	fpga_result res = fpgaOpen(group->token, &handle, FPGA_OPEN_SHARED);
-	if (res != FPGA_OK) {
-		goto out;
-	}
-	res = fpgaObjectGetObject(group->object, handle, "freeze", &object, 0);
-	if (res != FPGA_OK) {
-		goto out_close;
-	}
-	res = fpgaObjectWrite64(object, value, 0);
-	if ((other_res = fpgaDestroyObject(&object)) != FPGA_OK) {
-		print_err("error destorying object", other_res);
-	}
-
-out_close:
-	if ((other_res = fpgaClose(handle)) != FPGA_OK) {
-		print_err("error closing handle", other_res);
-	}
-out:
-	return res;
-}
 
 fpga_result add_clock(token_group *t_group)
 {
-	fpga_result res =
-		fpgaTokenGetObject(t_group->token, "*perf/clock", &t_group->clock, FPGA_OBJECT_GLOB);
+	fpga_result res = fpgaTokenGetObject(t_group->token, "*perf/clock",
+					     &t_group->clock, FPGA_OBJECT_GLOB);
 
 	return res;
 }
@@ -163,8 +141,9 @@ fpga_result add_counter(metric_group *group, const char *name)
 {
 	fpga_result res = FPGA_EXCEPTION;
 	size_t count = group->count;
-	res = fpgaObjectGetObject(group->object, NULL, name,
-				  &group->objects[count].object, FPGA_OBJECT_GLOB);
+	res = fpgaObjectGetObject(group->object, name,
+				  &group->objects[count].object,
+				  FPGA_OBJECT_GLOB);
 	if (res == FPGA_OK) {
 		group->objects[count].value = 0;
 		group->objects[count].name = name;
@@ -189,16 +168,19 @@ void print_counters(fpga_object clock, metric_group *group)
 		res = fpgaObjectRead64(group->objects[i].object, &value,
 				       FPGA_OBJECT_SYNC);
 		if (res == FPGA_OK) {
-			group->objects[i].delta = value - group->objects[i].value;
+			group->objects[i].delta =
+				value - group->objects[i].value;
 			group->objects[i].value = value;
 		} else {
 			print_err("error reading counter", res);
 		}
 	}
-	printf("device: %02x:%02x.%1d clock %lu: \n\t", group->bus, group->device, group->function, clock_value);
+	printf("device: %02x:%02x.%1d clock %lu: \n\t", group->bus,
+	       group->device, group->function, clock_value);
 	for (i = 0; i < count; ++i) {
 		if (group->objects[i].delta > 0)
-			printf("%16s : %10lu, ", group->objects[i].name, group->objects[i].delta);
+			printf("%16s : %10lu, ", group->objects[i].name,
+			       group->objects[i].delta);
 	}
 
 	printf("\n");
@@ -209,36 +191,34 @@ void print_counters(fpga_object clock, metric_group *group)
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{ "bus", required_argument, NULL, 'B'},
-		{ "freeze", no_argument, NULL, 'f'},
-		{ NULL,	0, NULL, 0},
+		{"bus", required_argument, NULL, 'B'},
+		{NULL, 0, NULL, 0},
 	};
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
 
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
-						longopts, &option_index))) {
+					       longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
-		/* Checks to see if optarg is null and if not it goes to value of optarg */
-		if ((optarg) && ('=' == *tmp_optarg)){
+		/* Checks to see if optarg is null and if not it goes to value
+		 * of optarg */
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		switch (getopt_ret){
+		switch (getopt_ret) {
 		case 'B': /* bus */
-			if (NULL == tmp_optarg){
+			if (NULL == tmp_optarg) {
 				return FPGA_EXCEPTION;
 			}
 			endptr = NULL;
-			options.bus = (int) strtoul(tmp_optarg, &endptr, 0);
+			options.bus = (int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
-				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
+				fprintf(stderr, "invalid bus: %s\n",
+					tmp_optarg);
 				return FPGA_EXCEPTION;
 			}
-			break;
-		case 'f':
-			options.freeze = true;
 			break;
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
@@ -288,22 +268,22 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < num_matches; ++i) {
 		metrics[i].token = tokens[i];
-                add_clock(&metrics[i]);
+		add_clock(&metrics[i]);
 		metrics[i].groups = calloc(3, sizeof(metric_group));
 		metrics[i].count = 3;
-		metric_group *g_cache =
-			init_metric_group(tokens[i], "*perf/cache", &metrics[i].groups[0]);
+		metric_group *g_cache = init_metric_group(
+			tokens[i], "*perf/cache", &metrics[i].groups[0]);
 		add_counter(g_cache, "read_hit");
 		add_counter(g_cache, "read_miss");
 		add_counter(g_cache, "write_hit");
 		add_counter(g_cache, "write_miss");
 		add_counter(g_cache, "hold_request");
-		metric_group *g_fabric =
-			init_metric_group(tokens[i], "*perf/fabric", &metrics[i].groups[1]);
+		metric_group *g_fabric = init_metric_group(
+			tokens[i], "*perf/fabric", &metrics[i].groups[1]);
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
-		metric_group *g_iommu =
-			init_metric_group(tokens[i], "*perf/iommu", &metrics[i].groups[2]);
+		metric_group *g_iommu = init_metric_group(
+			tokens[i], "*perf/iommu", &metrics[i].groups[2]);
 		add_counter(g_iommu, "iotlb_4k_hit");
 		add_counter(g_iommu, "iotlb_4k_miss");
 		add_counter(g_iommu, "iotlb_2m_hit");
@@ -315,19 +295,20 @@ int main(int argc, char *argv[])
 	while (--count > 0) {
 		for (i = 0; i < num_matches; ++i) {
 			for (j = 0; j < metrics[i].count; ++j) {
-				freeze_group(&metrics[i].groups[j], 1);
-				print_counters(metrics[i].clock, &metrics[i].groups[j]);
-				freeze_group(&metrics[i].groups[j], 0);
+				print_counters(metrics[i].clock,
+					       &metrics[i].groups[j]);
 			}
-			usleep((useconds_t)(options.interval_sec * USEC_TO_SEC));
+			usleep((useconds_t)(options.interval_sec
+					    * USEC_TO_SEC));
 		}
 	}
 
 
 out_free:
 	while (--cleanup_size > 0) {
-		if ((res = cleanup[cleanup_size].fn(cleanup[cleanup_size].param))
-			  != FPGA_OK) {
+		if ((res = cleanup[cleanup_size].fn(
+			     cleanup[cleanup_size].param))
+		    != FPGA_OK) {
 			print_err("Error destroying structure: ", res);
 		}
 	}
