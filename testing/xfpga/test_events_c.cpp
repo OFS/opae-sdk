@@ -1067,5 +1067,7 @@ TEST_P(events_handle_p, irq_event_01) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
 
+//INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+//                        ::testing::ValuesIn(test_platform::keys()));
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::ValuesIn(test_platform::keys()));
+                        ::testing::Values("skx-p-1s"));

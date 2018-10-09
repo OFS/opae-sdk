@@ -93,6 +93,17 @@ target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(fpgaconf-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
+    )
+
+target_compile_definitions(fpgaconf-static PRIVATE main=fpgaconf_main)
+
+target_include_directories(fpgaconf-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -351,8 +362,23 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
     fpgad/test_ap6_c.cpp
 )
 
+############################################################################
+# fpgaconf tests ###########################################################
+############################################################################
+
+add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
+    fpgaconf/test_fpgaconf_c.cpp
+)
+
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz
     ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )

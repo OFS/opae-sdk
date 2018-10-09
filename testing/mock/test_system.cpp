@@ -174,7 +174,7 @@ test_device test_device::unknown() {
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
-		     .mdata = ""};
+                     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
@@ -197,6 +197,25 @@ const char *skx_mdata =
       ]
      },
      "platform-name": "MCP"}";
+)mdata";
+
+const char *rc_mdata =
+    R"mdata({"version": 112,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "bb0023cf-0bd2-579a-90ef-97fe743a6c63",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
 )mdata";
 
 static platform_db PLATFORMS = {
@@ -223,7 +242,32 @@ static platform_db PLATFORMS = {
                        .fme_num_errors = 9,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
-                       .mdata = skx_mdata}}}}};
+                       .mdata = skx_mdata}}}},
+    {"dcp-rc",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
+                   .devices = {test_device{
+                       .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x112000200000159,
+                       .bbs_version = {1, 1, 2},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x09c4,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = rc_mdata}}}},
+};
 
 test_platform test_platform::get(const std::string &key) {
   return PLATFORMS[key];
@@ -331,6 +375,15 @@ std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
   return gbs_header;
 }
 
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td, const char *mdata) {
+  if (mdata) {
+    test_device copy = td;
+    copy.mdata = mdata;
+    return assemble_gbs_header(copy);
+  }
+  return std::vector<uint8_t>(0);
+}
+
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
@@ -387,6 +440,46 @@ FILE *test_system::register_file(const std::string &path) {
 
   auto fptr = fopen(path.c_str(), "w+");
   return fptr;
+}
+
+void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
+  // normalizing a guid string can make it easier to compare guid strings
+  // and can also put the string in a format that can be parsed into actual
+  // guid bytes (uuid_parse expects the string to include hyphens).
+  const size_t std_guid_str_size = 36;
+  const size_t char_guid_str_size = 32;
+  if (guid_str.back() == '\n') {
+    guid_str.erase(guid_str.end()-1);
+  }
+  std::locale lc;
+  auto c_idx = guid_str.find('-');
+  if (with_hyphens && c_idx == std::string::npos) {
+    // if we want the standard UUID format with hyphens (8-4-4-4-12)
+    if (guid_str.size() == char_guid_str_size) {
+      int idx = 20;
+      while (c_idx != 8) {
+        guid_str.insert(idx, 1, '-');
+        idx -= 4;
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  } else if (!with_hyphens && c_idx == 8) {
+    // we want the hex characters only, no other extra chars
+    if (guid_str.size() == std_guid_str_size) {
+      while (c_idx != std::string::npos) {
+        guid_str.erase(c_idx, 1);
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  }
+
+  for (auto & c : guid_str) {
+    c = std::tolower(c, lc);
+  }
 }
 
 uint32_t get_device_id(const std::string &sysclass) {
@@ -449,8 +542,9 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
 
 static bool _invalidate_read = false;
 static uint32_t _invalidate_read_after = 0;
-static const char * _invalidate_read_when_called_from = nullptr;
-void test_system::invalidate_read(uint32_t after, const char *when_called_from) {
+static const char *_invalidate_read_when_called_from = nullptr;
+void test_system::invalidate_read(uint32_t after,
+                                  const char *when_called_from) {
   _invalidate_read = true;
   _invalidate_read_after = after;
   _invalidate_read_when_called_from = when_called_from;
@@ -458,40 +552,36 @@ void test_system::invalidate_read(uint32_t after, const char *when_called_from) 
 
 ssize_t test_system::read(int fd, void *buf, size_t count) {
   if (_invalidate_read) {
-
     if (!_invalidate_read_when_called_from) {
+      if (!_invalidate_read_after) {
+        _invalidate_read = false;
+        return -1;
+      }
 
-        if (!_invalidate_read_after) {
-          _invalidate_read = false;
-          return -1;
-        }
-
-        --_invalidate_read_after;
+      --_invalidate_read_after;
 
     } else {
-        // 2 here, because we were called through..
-	// 0 test_system.cpp:opae_test_read()
-	// 1 mock.c:read()
-	// 2 <caller>
-        void *caller = __builtin_return_address(2);
-        int res;
-        Dl_info info;
+      // 2 here, because we were called through..
+      // 0 test_system.cpp:opae_test_read()
+      // 1 mock.c:read()
+      // 2 <caller>
+      void *caller = __builtin_return_address(2);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
 
-        if (!_invalidate_read_after && !res) {
-          _invalidate_read = false;
-          _invalidate_read_when_called_from = nullptr;
-          return -1;
-        } else if (!res)
-            --_invalidate_read_after;
-
+      if (!_invalidate_read_after && !res) {
+        _invalidate_read = false;
+        _invalidate_read_when_called_from = nullptr;
+        return -1;
+      } else if (!res)
+        --_invalidate_read_after;
     }
-
   }
   return read_(fd, buf, count);
 }

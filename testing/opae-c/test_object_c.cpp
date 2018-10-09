@@ -84,6 +84,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
 		    FPGA_OK);
     EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0),
 		    FPGA_OK);
+    afu_guid_ = platform_.devices[0].afu_guid;
+    system_->normalize_guid(afu_guid_, false);
   }
 
   virtual void TearDown() override {
@@ -120,9 +122,9 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
+  std::string afu_guid_;
 };
 
-static const char * NLB0_AFU_ID = "d8424dc4a4a3c413f89e433683f9040b";
 
 /**
  * @test       obj_read
@@ -136,7 +138,7 @@ TEST_P(object_c_p, obj_read) {
   EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *) afu_id, 0,
                            32, 0), FPGA_OK);
   afu_id[32] = 0;
-  EXPECT_STREQ(afu_id, NLB0_AFU_ID);
+  EXPECT_STREQ(afu_id, afu_guid_.c_str());
 }
 
 /**
@@ -148,8 +150,8 @@ TEST_P(object_c_p, obj_read) {
  */
 TEST_P(object_c_p, obj_read64) {
   uint64_t val = 0;
-  EXPECT_EQ(fpgaObjectRead64(token_obj_, &val, FPGA_OBJECT_TEXT), FPGA_OK);
-  EXPECT_EQ(val, 1);
+  EXPECT_EQ(fpgaObjectRead64(token_obj_, &val, 0), FPGA_OK);
+  EXPECT_EQ(val, 1ul);
 }
 
 /**
@@ -166,13 +168,13 @@ TEST_P(object_c_p, obj_write64) {
   // read the port errors
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectRead64(obj, &errors, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 
   // clear the port errors
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(obj, errors, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
@@ -219,9 +221,23 @@ TEST_P(object_c_p, obj_get_obj) {
 		    FPGA_OK);
   ASSERT_EQ(fpgaObjectGetObject(errors_obj, accel_, "clear",
                                 &clear_obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, FPGA_OBJECT_TEXT), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_size
+ * @brief      Test: fpgaObjectGetSize
+ * @details    Given an object created using name afu_id<br>
+ *             When fpgaObjectGetSize is called with that object<br>
+ *             Then the size retrieved equals the length of the afu_id
+ *             string + one for the new line character<br>
+ */
+TEST_P(object_c_p, obj_get_size) {
+  uint32_t value = 0;
+  EXPECT_EQ(fpgaObjectGetSize(handle_obj_, &value, FPGA_OBJECT_SYNC), FPGA_OK);
+  EXPECT_EQ(value, afu_guid_.size() + 1);
 }
 
 /**
@@ -244,5 +260,7 @@ TEST_P(object_c_p, obj_get_obj_err) {
 
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
+
+
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p, ::testing::ValuesIn(test_platform::keys(true)));
