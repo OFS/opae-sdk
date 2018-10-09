@@ -316,6 +316,20 @@ TEST_P(buffer_prepare, port_dma_map) {
 }
 
 /**
+ * @test       release_neg
+ *
+ * @brief      When the parameters are valid and the drivers are loaded:
+ *             fpgaReleaseBuffer must fail if fpga_buffer was not
+ *             prepared.
+ *
+ */
+TEST_P(buffer_prepare, release_neg) {
+  uint64_t wsid = 1;
+
+  EXPECT_EQ(xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM);
+}
+
+/**
  * @test       not_aligned
  *
  * @brief      When FPGA_BUF_PREALLOCATED is not given and the buffer
