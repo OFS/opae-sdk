@@ -42,6 +42,7 @@
 #include <opae/buffer.h>
 #include <opae/enum.h>
 #include <opae/dma.h>
+#include <opae/feature.h>
 #include <opae/event.h>
 #include <opae/manage.h>
 #include <opae/mmio.h>

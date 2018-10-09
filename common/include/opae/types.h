@@ -188,30 +188,6 @@ struct fpga_error_info {
  */
 typedef void *fpga_object;
 
-/**
- * Object for expressing FPGA feature resource properties
- *
- * A valid `fpga_feature_properties` object, as populated by fpgaFtrGetProperties()
- * `fpga_feature_properties` objects encapsulate all enumerable information about an
- * feature FPGA resources. They can be used for two purposes: selective enumeration
- * (discovery) and querying information about existing resources.
- *
- * For selective enumeration, usually an empty `fpga_feature properties` object is
- * created (using fpgaFtrGetProperties()) and then populated with the desired
- * criteria for enumeration. An array of `fpga_feature_properties` can then be passed
- * to fpgaFeatureEnumerate(), which will return a list of `fpga_feature_token` objects
- * matching these criteria.
- *
- * For querying properties of existing FPGA resources, fpgaGetProperties() can
- * also take an `fpga_feature_token` and will return an `fpga_feature_properties` object
- * populated with information about the resource referenced by that token.
- *
- * To Set and Get values use fpgaFtrPropertiesSetxxxxx and fpgaFtrPropertiesGetxxxxx
- * After use, `fpga_feature_properties` objects should be destroyed using
- * fpga_destroyProperties() to free backing memory used by the
- * `fpga_feature_properties` object.
- */
-typedef void *fpga_feature_properties;
 
 /**
  * Token for referencing FPGA featire resources
@@ -229,33 +205,19 @@ typedef void *fpga_feature_properties;
 typedef void *fpga_feature_token;
 
 /**
- * Sub feature such as DMA engine, HSSI etc.
+ * Handle to a feature resource
  *
+ * A valid `fpga_feature_handle` object, as populated by fpgaFeatureOpen(), denotes ownership
+ * of a resource. Note that ownership can be exclusive or shared,
+ * depending on the flags used in fpgaFeatureOpen(). Ownership can be released by
+ * calling fpgaFeatureClose(), which will render the underlying handle invalid.
  */
-typedef void *fpga_sub_feature;
-
-/**
- * Handle to an DMA resource
- *
- * A valid `fpga_dma_handle` object, as populated by fpgaDMAOpen(), denotes ownership
- * of an DMA resource. Note that ownership can be exclusive or shared,
- * depending on the flags used in fpgaDMAOpen(). Ownership can be released by
- * calling fpgaDMAClose(), which will render the underlying handle invalid.
- */
-typedef void *fpga_dma_handle;
+typedef void *fpga_dma_handle;  ////////// need to remote - do not use
+typedef void *fpga_dma_transfer;////////// need to remote - do not use
+typedef void *fpga_sub_feature;////////// need to remote - do not use
 typedef void *fpga_feature_handle;
 
-/**
- * Handle to an DMA transfer
- *
- * A valid `fpga_dma_transfer` object, as populated by fpgaDMATransferInit()
- * the `fpga_dma_transfer` objects encapsulate all the information about an transfer
- * Set/Get values with fpgaDMATransferSetxxxxx and fpgaDMATransferGetxxxxx
- *
- */
-typedef void *fpga_dma_transfer;
-
-// Callback for asynchronous DMA transfers
+/* Callback for asynchronous DMA transfers */
 typedef void (*fpga_dma_transfer_cb)(void *context);
 
 

@@ -129,53 +129,6 @@ fpga_result fpgaCloneToken(fpga_token src, fpga_token *dst);
 fpga_result fpgaDestroyToken(fpga_token *token);
 
 
-/**
- * Enumerate DMA resources present in a FPGA device
- *
- * fpgaFeatureEnumerate() will create a number of `feature_token`s to represent the
- * matching resources and populate the array `feature_tokens` with these tokens. The
- * `max_tokens` argument can be used to limit the number of tokens
- * allocated/returned by fpgaFeatuerEnumerate(); i.e., the number of tokens in the
- * returned `tokens` array will be either `max_tokens` or `num_matches`,
- *  whichever is smaller.
- *  Use fpgaFeatureDestroyToken() to destroy tokens that are no longer needed.
- *
-  * @note fpgaFeatureEnumerate() will allocate memory for the created tokens returned
- * in `tokens`. It is the responsibility of the using application to free this
- * memory after use by calling fpgaFeatureDestroyToken() for each of the returned
- * tokens.
- *
- * @param[in]   fpga            Handle to previously opened accelerator resource
- * @param[out]  feature_token   Pointer to token identifying resource to acquire
- * @param[in]   max_tokens      Maximum number of tokens that fpgaDMA Enumerate() shall
- *                              return (length of `tokens` array). There may be more
- *                              or fewer matches than this number; `num_matches` is
- *                              set to the number of actual matches.
- * @param[out]                  num_matches Number of DMA resources
- *
- * @returns                FPGA_OK on success.
- *                         FPGA_INVALID_PARAM if invalid pointers or objects
- *                         are passed into the function.
- *                         FPGA_NO_MEMORY if there was not enough memory to
- *                         create tokens.
- */
-fpga_result fpgaFeatureEnumerate(fpga_handle fpga,
-                fpga_feature_token *feature_tokens,
-                uint32_t max_tokens,
-                uint32_t *num_tokens);
-
-/**
- * Destroy a feature Token
- *
- * This function destroys a feature token created by fpgaFeatureEnumerate() and frees the
- * associated memory.
- *
- * @param[in] feature_token     fpga_feature_token to destroy
- * @returns                     FPGA_OK on success
- */
-fpga_result fpgaFeatureDestroytoken(fpga_feature_token *feature_token);
-
-
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
