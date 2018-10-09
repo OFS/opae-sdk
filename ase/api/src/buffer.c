@@ -114,8 +114,7 @@ static void *sim_huge_mmap(void *addr, size_t length, int prot, int flags)
 	// Aligned start of the buffer
 	addr_local = addr_local + unaligned_extra_begin;
 
-	if (unaligned_extra_end)
-	{
+	if (unaligned_extra_end) {
 		munmap(addr_local + length, unaligned_extra_end);
 	}
 

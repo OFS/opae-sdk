@@ -718,17 +718,13 @@ void session_deinit(void)
 
 			if (pthread_cancel(membus_s.membus_rd_watch_tid) != 0) {
 				fprintf(stderr, "Memory bus pthread_cancel failed -- Ignoring\n");
-			}
-			else
-			{
+			} else {
 				pthread_join(membus_s.membus_rd_watch_tid, NULL);
 			}
 
 			if (pthread_cancel(membus_s.membus_wr_watch_tid) != 0) {
 				fprintf(stderr, "Memory bus pthread_cancel failed -- Ignoring\n");
-			}
-			else
-			{
+			} else {
 				pthread_join(membus_s.membus_wr_watch_tid, NULL);
 			}
 		}
@@ -1267,7 +1263,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 #endif
 
 	// Assign a simulated physical address
-	mem->fake_paddr = ase_host_memory_va_to_pa((void*)mem->vbase, mem->memsize);
+	mem->fake_paddr = ase_host_memory_va_to_pa((void *)mem->vbase, mem->memsize);
 
 	// Autogenerate buffer index
 	mem->index = asebuf_index_count;
@@ -1624,12 +1620,12 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
-static ase_host_memory_status membus_op_status(void* va, uint64_t pa)
+static ase_host_memory_status membus_op_status(void *va, uint64_t pa)
 {
 	ase_host_memory_status st;
 
 	static uint64_t page_mask;
-	if (! page_mask) {
+	if (!page_mask) {
 		page_mask = sysconf(_SC_PAGESIZE);
 		page_mask = ~(page_mask - 1);
 	}
@@ -1637,12 +1633,9 @@ static ase_host_memory_status membus_op_status(void* va, uint64_t pa)
 	if (pa & 0x3f) {
 		// Not line-aligned address
 		st = HOST_MEM_STATUS_ILLEGAL;
-	}
-	else if (va == NULL) {
+	} else if (va == NULL) {
 		st = HOST_MEM_STATUS_NOT_PINNED;
-	}
-	else
-	{
+	} else {
 		// We use mincore to detect whether the virtual address is mapped.
 		// mincore returns an error when it isn't. This will detect most cases
 		// where the user code pins a page and subsequently unmaps the
@@ -1655,8 +1648,7 @@ static ase_host_memory_status membus_op_status(void* va, uint64_t pa)
 		unsigned char vec[8];
 		if (mincore((void *)((uint64_t)va & page_mask), CL_BYTE_WIDTH, vec)) {
 			st = HOST_MEM_STATUS_NOT_MAPPED;
-		}
-		else {
+		} else {
 			st = HOST_MEM_STATUS_VALID;
 		}
 	}
@@ -1680,7 +1672,7 @@ static void *membus_rd_watcher(void *arg)
 
 	// While application is running
 	while (membus_exist_status == ESTABLISHED) {
-		if (mqueue_recv(sim2app_membus_rd_req_rx, (char*) &rd_req, sizeof(rd_req)) == ASE_MSG_PRESENT) {
+		if (mqueue_recv(sim2app_membus_rd_req_rx, (char *) &rd_req, sizeof(rd_req)) == ASE_MSG_PRESENT) {
 			rd_rsp.pa = rd_req.addr;
 			rd_rsp.va = ase_host_memory_pa_to_va(rd_req.addr, true);
 			rd_rsp.status = membus_op_status(rd_rsp.va, rd_rsp.pa);
@@ -1689,7 +1681,7 @@ static void *membus_rd_watcher(void *arg)
 				ase_host_memory_unlock();
 			}
 
-			mqueue_send(app2sim_membus_rd_rsp_tx, (char*) &rd_rsp, sizeof(rd_rsp));
+			mqueue_send(app2sim_membus_rd_rsp_tx, (char *) &rd_rsp, sizeof(rd_rsp));
 		}
 	}
 

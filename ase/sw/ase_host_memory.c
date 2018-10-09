@@ -67,7 +67,8 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 
 	// Map buffer length to a level in the page table.
 	int pt_level = ase_pt_length_to_level(length);
-	if (pt_level == -1) return -1;
+	if (pt_level == -1)
+		return -1;
 
 	int status = ase_pt_pin_page(va, iova, pt_level);
 	if (status == 0) {
@@ -90,7 +91,8 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 
 	if (ase_pt_root != NULL) {
 		int pt_level = ase_pt_length_to_level(length);
-		if (pt_level == -1) return -1;
+		if (pt_level == -1)
+			return -1;
 
 		status = ase_pt_unpin_page(iova, pt_level);
 	}
@@ -105,7 +107,7 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 /*
  * Translate to simulated physical address space.
  */
-uint64_t ase_host_memory_va_to_pa(void* va, uint64_t length)
+uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
 {
 	// We use a simple transformation to generate a fake physical space, merely
 	// inverting bits of the page address. Inverting these bits forces AFUs to
@@ -128,7 +130,7 @@ uint64_t ase_host_memory_va_to_pa(void* va, uint64_t length)
  * Translate from simulated physical address space. Optionally hold the lock
  * after successful translation so that the buffer remains pinned.
  */
-void* ase_host_memory_pa_to_va(uint64_t pa, bool lock)
+void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 {
 	// The inverse of ase_host_memory_va_to_pa.
 	if (pa >> 48) {
@@ -139,27 +141,27 @@ void* ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 	// Is the page pinned?
 	int pt_level;
 	pthread_mutex_lock(&ase_pt_lock);
-	if (! ase_pt_check_addr(pa, &pt_level)) {
+	if (!ase_pt_check_addr(pa, &pt_level)) {
 		pthread_mutex_unlock(&ase_pt_lock);
 		return NULL;
 	}
 
-	if (! lock) {
+	if (!lock) {
 		pthread_mutex_unlock(&ase_pt_lock);
 	}
 
 	uint64_t mask = 0xffffffffffffUL & (~0UL << (12 + 9 * pt_level));
-	return (void*) (pa ^ mask);
+	return (void *) (pa ^ mask);
 }
 
 
-void ase_host_memory_unlock()
+void ase_host_memory_unlock(void)
 {
 	pthread_mutex_unlock(&ase_pt_lock);
 }
 
 
-void ase_host_memory_terminate()
+void ase_host_memory_terminate(void)
 {
 	pthread_mutex_lock(&ase_pt_lock);
 
@@ -225,7 +227,8 @@ static inline int ase_pt_idx(uint64_t iova, int pt_level)
  */
 void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
 {
-	if (pt == NULL) return;
+	if (pt == NULL)
+		return;
 
 	if (pt == (uint64_t **) -1) {
 		printf("  0x%016lx	  %ld\n", iova, 4096 * (1UL << (9 * (pt_level + 1))));
@@ -237,8 +240,7 @@ void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
 		if (pt_level > 0) {
 			ase_pt_dump((uint64_t **)pt[idx], iova | ((uint64_t)idx << (12 + 9 * pt_level)),
 						pt_level - 1);
-		}
-		else {
+		} else {
 			if ((uint64_t)pt[idx / 64] & (1UL << (idx & 63))) {
 				printf("  0x%016lx	  4096\n", iova | (idx << 12));
 			}
@@ -252,7 +254,8 @@ void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
  */
 static void ase_pt_delete_tree(uint64_t **pt, int pt_level)
 {
-	if ((pt == NULL) || (pt == (uint64_t **) -1)) return;
+	if ((pt == NULL) || (pt == (uint64_t **) -1))
+		return;
 
 	if (pt_level) {
 		// Drop sub-trees and then release this node.
@@ -261,8 +264,7 @@ static void ase_pt_delete_tree(uint64_t **pt, int pt_level)
 			ase_pt_delete_tree((uint64_t **)pt[idx], pt_level -1);
 		}
 		munmap(pt, 4096);
-	}
-	else {
+	} else {
 		// Terminal node of flags for 4KB pages.
 		free(pt);
 	}
@@ -280,8 +282,7 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	int level = 3;
 	uint64_t **pt = ase_pt_root;
 
-	while (level > 0)
-	{
+	while (level > 0) {
 		if (pt == NULL) {
 			// Not found
 			return false;
@@ -345,8 +346,7 @@ static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
 			if (level > 1) {
 				pt[idx] = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
 							   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-			}
-			else {
+			} else {
 				pt[idx] = malloc(64);
 			}
 			if ((pt[idx] == NULL) || (pt[idx] == MAP_FAILED)) {
@@ -376,8 +376,7 @@ static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
 		}
 
 		pt[idx] = (uint64_t *) -1;
-	}
-	else {
+	} else {
 		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] | (1UL << (idx & 63)));
 	}
 
@@ -420,8 +419,7 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 			return -1;
 		}
 		pt[idx] = NULL;
-	}
-	else if (pt) {
+	} else if (pt) {
 		// Drop a 4KB page
 		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] & ~(1UL << (idx & 63)));
 	}

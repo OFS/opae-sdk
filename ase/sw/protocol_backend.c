@@ -228,7 +228,7 @@ void sv2c_script_dex(const char *str)
  */
 static void memline_addr_error(const char *access_type,
 			       ase_host_memory_status status,
-			       uint64_t pa, void* va)
+			       uint64_t pa, void *va)
 {
 	FUNC_CALL_ENTRY;
 
@@ -272,20 +272,17 @@ static void memline_addr_error(const char *access_type,
 		if (error_fp != NULL) {
 			fprintf(error_fp, MEMLINE_ADDR_ILLEGAL_MSG, access_type, pa, pa >> 6);
 		}
-	}
-	else if (status == HOST_MEM_STATUS_NOT_PINNED) {
+	} else if (status == HOST_MEM_STATUS_NOT_PINNED) {
 		ASE_ERR("\n" MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
 		if (error_fp != NULL) {
 			fprintf(error_fp, MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
 		}
-	}
-	else if (status == HOST_MEM_STATUS_NOT_MAPPED) {
+	} else if (status == HOST_MEM_STATUS_NOT_MAPPED) {
 		ASE_ERR("\n" MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
 		if (error_fp != NULL) {
 			fprintf(error_fp, MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
 		}
-	}
-	else {
+	} else {
 		ASE_ERR("\n @ERROR: Unknown memory reference error.\n");
 	}
 
@@ -378,8 +375,7 @@ void wr_memline_rsp_dex(cci_pkt *pkt)
 			// Error?  Probably channel closed and the simulator will be closing
 			// soon.  Allow a few errors but give up if it keeps happening.
 			if (status == ASE_MSG_ERROR) {
-				if (err_cnt++ > 10)
-				{
+				if (err_cnt++ > 10) {
 					ASE_ERR("Error receiving memory write line response\n");
 					start_simkill_countdown();
 				}
@@ -440,8 +436,7 @@ void rd_memline_rsp_dex(cci_pkt *pkt)
 		// Error?  Probably channel closed and the simulator will be closing
 		// soon.  Allow a few errors but give up if it keeps happening.
 		if (status == ASE_MSG_ERROR) {
-			if (err_cnt++ > 10)
-			{
+			if (err_cnt++ > 10) {
 				ASE_ERR("Error receiving memory read line response\n");
 				start_simkill_countdown();
 			}
@@ -955,8 +950,7 @@ int ase_listener(void)
 						 ase_buffer.fake_paddr,
 						 ase_buffer.fake_paddr >> 6,
 						 ase_buffer.memsize);
-			}
-			else {
+			} else {
 				// Allocate action
 				ase_shmem_alloc_action(&ase_buffer);
 				ase_buffer.is_privmem = 0;
@@ -1029,8 +1023,7 @@ int ase_listener(void)
 						 ase_buffer.fake_paddr,
 						 ase_buffer.fake_paddr >> 6,
 						 ase_buffer.memsize);
-			}
-			else {
+			} else {
 				// Format workspace info string
 				snprintf(logger_str,
 						 ASE_LOGGER_LEN,

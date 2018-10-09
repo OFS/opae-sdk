@@ -174,7 +174,8 @@ void ase_buffer_info(struct buffer_t *mem)
  */
 void ase_buffer_oneline(struct buffer_t *mem)
 {
-	if (mem->is_pinned) return;
+	if (mem->is_pinned)
+		return;
 
 	if (mem->valid == ASE_BUFFER_VALID) {
 		ASE_MSG("%d\tADDED   \t%5s\n", mem->index, mem->memname);
