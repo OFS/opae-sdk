@@ -57,6 +57,8 @@ fpga_result cpuset_setaffinity(int socket, int split_point,
 #include <errno.h>
 #include <unistd.h>
 #include <array>
+#include <string>
+#include <fstream>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -64,7 +66,9 @@ using namespace opae::testing;
 
 class coreidle_coreidle_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  coreidle_coreidle_c_p() : tokens_{{nullptr, nullptr}} {}
+  coreidle_coreidle_c_p()
+  : tokens_{{nullptr, nullptr}},
+    fme0_("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0") {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -86,6 +90,24 @@ class coreidle_coreidle_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaOpen(tokens_[0], &device_, 0), FPGA_OK);
   }
 
+  uint64_t get_xeon_limit() {
+    std::string fname = fme0_ + "/power_mgmt/xeon_limit";
+    uint64_t xeon_limit = 0;
+    std::ifstream fin(system_->get_sysfs_path(fname));
+    //ASSERT_TRUE(fin.is_open());
+    fin >> xeon_limit;
+    fin.close();
+    return xeon_limit;
+  }
+
+  void set_xeon_limit(uint64_t xeon_limit) {
+    std::string fname = fme0_ + "/power_mgmt/xeon_limit";
+    std::ofstream fout(system_->get_sysfs_path(fname));
+    ASSERT_TRUE(fout.is_open());
+    fout << "0x" << std::hex << xeon_limit << std::endl;
+    fout.close();
+  }
+
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (device_) {
@@ -103,6 +125,7 @@ class coreidle_coreidle_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   std::array<fpga_token, 2> tokens_;
+  std::string fme0_;
   fpga_handle device_;
   fpga_properties filter_;
   uint32_t num_matches_;
@@ -176,7 +199,20 @@ TEST_P(coreidle_coreidle_c_p, set_cpu1) {
   EXPECT_EQ(set_cpu_core_idle(device_, 9999), FPGA_INVALID_PARAM);
 }
 
-
+/**
+ * @test       set_cpu2
+ * @brief      Test: set_cpu_core_idle
+ * @details    When the xeon_pwr_limit + fpga_pwr_limit > total_power,<br>
+ *             (indicating shared TDP SKU),<br>
+ *             set_cpu_core_idle sets the CPU affinity appropriately,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(coreidle_coreidle_c_p, set_cpu2) {
+  uint64_t xeon_limit = get_xeon_limit();
+  set_xeon_limit(9999);
+  EXPECT_EQ(set_cpu_core_idle(device_, 25), FPGA_OK);
+  set_xeon_limit(xeon_limit);
+}
 
 /**
  * @test       pkg_pow0
