@@ -67,6 +67,15 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
+/**
+ * @btest token_object
+ * Given an enumerated token object
+ * When I get the afui_id as an object from
+ * the token
+ * And I  get the object's buffer using the bytes function
+ * Then the normalized GUID is the same as the normalized GUID of the test
+ * platform.
+ */
 TEST_P(sysobject_cxx_p, token_object) {
   auto obj = sysobject::get(tokens_[0], "afu_id");
   ASSERT_NE(obj.get(), nullptr);
@@ -79,6 +88,15 @@ TEST_P(sysobject_cxx_p, token_object) {
   ASSERT_STREQ(afu_guid.c_str(), guid_read.c_str());
 }
 
+/**
+ * @btest handle_object
+ * Given an open handle object
+ * When I get the afui_id as an object from
+ * the handle
+ * And I  get the object's buffer using the bytes function
+ * Then the normalized GUID is the same as the normalized GUID of the test
+ * platform.
+ */
 TEST_P(sysobject_cxx_p, handle_object) {
   auto obj = sysobject::get(handle_, "afu_id");
   ASSERT_NE(obj.get(), nullptr);
@@ -89,11 +107,28 @@ TEST_P(sysobject_cxx_p, handle_object) {
   system_->normalize_guid(guid_read);
   system_->normalize_guid(afu_guid);
   ASSERT_STREQ(afu_guid.c_str(), guid_read.c_str());
-  obj = sysobject::get(handle_, "errors/errors");
+}
+
+/**
+ * @btest handle_object_write
+ * Given an open handle object
+ * When I get a suboject from the handle
+ * And I  write a 64-bit value to it using its write64 function
+ * Then no exceptions are thrown
+ */
+TEST_P(sysobject_cxx_p, handle_object_write) {
+  auto obj = sysobject::get(handle_, "errors/errors");
   ASSERT_NE(obj.get(), nullptr);
   EXPECT_NO_THROW(obj->write64((0x1UL << 50)));
 }
 
+/**
+ * @btest object_object
+ * Given an object from an enumerated token
+ * And an object from an open handle
+ * When I use read64 from both objects
+ * Then the values are the same
+ */
 TEST_P(sysobject_cxx_p, object_object) {
   auto t_obj = sysobject::get(tokens_[0], "errors");
   ASSERT_NE(t_obj.get(), nullptr);
@@ -102,22 +137,73 @@ TEST_P(sysobject_cxx_p, object_object) {
   ASSERT_NE(h_obj.get(), nullptr);
   auto h_value = h_obj->get("errors")->read64();
   EXPECT_EQ(t_value, h_value);
-  EXPECT_THROW(t_obj->get("errors")->write64(0x100),
-               opae::fpga::types::invalid_param);
-  ASSERT_NO_THROW(h_obj->get("errors")->write64(0x100));
-  h_value = h_obj->get("errors")->read64(FPGA_OBJECT_SYNC);
-  EXPECT_NE(t_value, h_value);
 }
 
+/**
+ * @btest token_subobject_write
+ * Given an object from an enumerated token
+ * And a suboject from that object
+ * When I use write64 from the token subobject
+ * Then an invalid_param exception is thrown
+ */
+TEST_P(sysobject_cxx_p, token_subobject_write) {
+  auto t_obj = sysobject::get(tokens_[0], "errors");
+  ASSERT_NE(t_obj.get(), nullptr);
+  EXPECT_THROW(t_obj->get("errors")->write64(0x100),
+               opae::fpga::types::invalid_param);
+}
+
+/**
+ * @btest handle_subobject_write
+ * Given an object from an open handle
+ * And a suboject from that object
+ * When I use write64 from the token subobject
+ * Then no exceptions are thrown
+ * And the value has changed from its original value
+ */
+TEST_P(sysobject_cxx_p, handle_subobject_write) {
+  auto h_obj = sysobject::get(handle_, "errors");
+  ASSERT_NE(h_obj.get(), nullptr);
+  auto h_value1 = h_obj->get("errors")->read64(FPGA_OBJECT_SYNC);
+  ASSERT_NO_THROW(h_obj->get("errors")->write64(0x100));
+  auto h_value2 = h_obj->get("errors")->read64(FPGA_OBJECT_SYNC);
+  EXPECT_NE(h_value1, h_value2);
+}
+
+/**
+ * @btest read_bytes
+ * Given an enumerated token object
+ * And its afu_id as an object from the token
+ * And I  read an arbitrary number of bytes from an arbitrary offset
+ * Then the string made from those bytes are equal to the string made
+ * from the test_platform afu_id using the same size and offset
+ */
 TEST_P(sysobject_cxx_p, read_bytes) {
-  auto obj = sysobject::get(tokens_[0], "afu_id");
-  auto bytes = obj->bytes(3, 4);
-  auto str1 = std::string(bytes.begin(), bytes.end());
-  auto str2 = std::string(platform_.devices[0].afu_guid, 3, 4);
-  ASSERT_TRUE(std::equal(str1.begin(), str1.end(), str2.begin(),
-                         [](char lhs, char rhs) {
-                           return std::tolower(lhs) == std::tolower(rhs);
-                         }));
+  // get the test platform GUID and normalize it to exclude hyphens
+  std::string test_guid(platform_.devices[0].afu_guid);
+  system_->normalize_guid(test_guid, false);
+
+  for (int i = 0; i < test_guid.size(); ++i) {
+    for (int  j = 1; j < test_guid.size() - i; j++) {
+      int offset = i;
+      int size = j;
+      ASSERT_LE(offset + size, test_guid.size());
+
+      auto obj = sysobject::get(tokens_[0], "afu_id");
+      // get size bytes starting form the offset
+      auto bytes = obj->bytes(offset, size);
+      // make this a string
+      auto str1 = std::string(bytes.begin(), bytes.end());
+      // make substring from the offset and size used before
+      auto str2 = std::string(test_guid, offset, size);
+      ASSERT_TRUE(std::equal(str1.begin(), str1.end(), str2.begin(),
+                             [](char lhs, char rhs) {
+                               return std::tolower(lhs) == std::tolower(rhs);
+                             }));
+
+    }
+
+  }
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,

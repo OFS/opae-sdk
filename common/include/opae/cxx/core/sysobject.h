@@ -52,15 +52,13 @@ class sysobject {
    *
    * @param t[in] Token object representing a resource.
    * @param name[in] An identifier representing an object belonging to a
-   * resource
-   * represented by the token.
+   * resource represented by the token.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
    * globbing expression.  FPGA_OBJECT_RECURSE_ONE indicates that subobjects be
    * created for objects one level down from the object identified by name.
    * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all
-   * objects
-   * below the current object identified by name.
+   * objects below the current object identified by name.
    *
    * @return A shared_ptr to a sysobject instance.
    */
@@ -72,15 +70,13 @@ class sysobject {
    *
    * @param h[in] Handle object representing an open resource.
    * @param name[in] An identifier representing an object belonging to a
-   * resource
-   * represented by the handle.
+   * resource represented by the handle.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
    * globbing expression.  FPGA_OBJECT_RECURSE_ONE indicates that subobjects be
    * created for objects one level down from the object identified by name.
    * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all
-   * objects
-   * below the current object identified by name.
+   * objects below the current object identified by name.
    *
    * @return A shared_ptr to a sysobject instance.
    */
@@ -88,10 +84,10 @@ class sysobject {
                               int flags = 0);
 
   /**
-   * @brief Get a sysobject from a object. This will be read-write if its
-   * parent has created from a handle..
+   * @brief Get a sysobject froman object. This will be read-write if its
+   * parent was created from a handle..
    *
-   * @param name[in] An identifier representing an object belonging this
+   * @param name[in] An identifier representing an object belonging to this
    * object.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
@@ -99,7 +95,6 @@ class sysobject {
    * created for objects one level down from the object identified by name.
    * FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all
    * objects. Flags are defaulted to 0 meaning no flags.
-   * below the current object identified by name.
    *
    * @return A shared_ptr to a sysobject instance.
    */
@@ -128,7 +123,7 @@ class sysobject {
    * The value will be converted to string before writing. See flags below for
    * changing that behavior.
    *
-   * @param value The value to write to the object.
+   * @param[in] value The value to write to the object.
    * @param[in] flags Flags that control how the object is written
    * If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes.
    * Flags are defaulted to 0 meaning no flags.
