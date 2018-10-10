@@ -108,7 +108,7 @@ int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine);
 int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine, int argc, char *argv[]);
 extern fpga_result set_cpu_core_idle(fpga_handle handle,uint64_t gbs_power);
 
-int main( int argc, char** argv )
+int main(int argc, char *argv[])
 {
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
@@ -125,15 +125,14 @@ int main( int argc, char** argv )
 	// Parse command line
 	if ( argc < 2 ) {
 		CoreidleAppShowHelp();
-	return 1;
+		return 1;
 	} else if ( 0!= ParseCmds(&coreidleCmdLine, argc, argv) ) {
-		fprintf(stderr, "Error scanning command line \n.");
-	return 2;
+		return 2;
 	}
 
 	printf(" ------- Command line Input START ---- \n \n");
 
-	printf(" Bus                   : %d \n",  coreidleCmdLine.bus);
+	printf(" Bus                   : %d \n", coreidleCmdLine.bus);
 	printf(" Device                : %d \n", coreidleCmdLine.device);
 	printf(" Function              : %d \n", coreidleCmdLine.function);
 	printf(" Socket                : %d \n", coreidleCmdLine.socket);
@@ -181,8 +180,9 @@ int main( int argc, char** argv )
 
 	if (num_matches < 1) {
 		fprintf(stderr, "FPGA Resource not found.\n");
-		result = fpgaDestroyProperties(&filter);
-		return FPGA_INVALID_PARAM;
+		fpgaDestroyProperties(&filter);
+		res = FPGA_NOT_FOUND;
+		goto out_destroy_tok;
 	}
 	fprintf(stderr, "FME Resource found.\n");
 
@@ -241,7 +241,7 @@ out_destroy_prop:
 out_exit:
 	if (coreidleCmdLine.gbs_data)
 		free(coreidleCmdLine.gbs_data);
-	return res;
+	return res != FPGA_OK ? res : result;
 }
 
 // Read file name
