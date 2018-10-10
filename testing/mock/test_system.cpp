@@ -41,6 +41,7 @@
 #define _GNU_SOURCE 1
 #endif
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <uuid/uuid.h>
 
@@ -497,7 +498,7 @@ uint32_t get_device_id(const std::string &sysclass) {
 
 int test_system::open(const std::string &path, int flags) {
   std::string syspath = get_sysfs_path(path);
-  int fd = open_(syspath.c_str(), flags);
+  int fd;
   auto r1 = regex<>::create(sysclass_pattern);
   auto r2 = regex<>::create(dev_pattern);
   match_t::ptr_t m;
@@ -508,6 +509,13 @@ int test_system::open(const std::string &path, int flags) {
   if (r1 && (m = r1->match(path))) {
     // path matches /sys/class/fpga/intel-fpga-dev\..*
     // we are opening a driver attribute file
+
+    if (flags == O_WRONLY) {
+      // truncate the file to zero to emulate the sysfs behavior.
+      flags |= O_TRUNC;
+    }
+
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     std::lock_guard<std::mutex> guard(fds_mutex_);
@@ -515,6 +523,7 @@ int test_system::open(const std::string &path, int flags) {
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
     // we are opening a device
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
@@ -524,6 +533,8 @@ int test_system::open(const std::string &path, int flags) {
       std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
+  } else {
+    fd = open_(syspath.c_str(), flags);
   }
   return fd;
 }
