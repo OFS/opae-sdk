@@ -66,6 +66,7 @@ You can use the single letter or the full parameter name for the command line ar
 
 | Date | Intel Acceleration Stack Version | Changes Made |
 |:------|----------------------------|:--------------|
+|2018.10.15 | 1.2. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | No changes from previous release. |
 |2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) | Made the following changes: <br>Expanded descriptions of `nlb_mode_3` and`dma_afu` tests. <br> Added a second example command. |
 
 

@@ -60,4 +60,5 @@ socket number or a PCIe BDF.
 
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
+ |2018.10.15 | 1.2. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | No changes from previous release. |
  |2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | Corrected typos. |

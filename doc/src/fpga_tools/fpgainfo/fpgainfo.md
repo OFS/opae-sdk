@@ -117,4 +117,5 @@ This command shows information of the FME on bus 0x5e
 
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
+  |2018.10.15 | 1.2. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | Added information for the Board Management Controller (BMC). |
  | 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the `fme` command | 

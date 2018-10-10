@@ -6,24 +6,29 @@
 `pacd [--default-bitstream=<file>] [--segment=<PCIeSegment>] [--bus=<bus>] [--device=<device>] [--function=<function>] [--upper-sensor-threshold=<sensor>:<threshold>[:<reset_thresh>]] [--lower-sensor-threshold=<sensor>:<threshold>[:<reset_thresh>]] [--poll-interval <sec>] [--cooldown-interval <sec>] [--no-defaults] [--driver-removal-disable]`
 
 ## DESCRIPTION ##
-`pacd` periodically monitors the sensors on the PAC Baseboard Management Controller (BMC) and programs a default bitstream
-in response to a sensor's value exceeding a specified threshold. pacd is only available on the PCIe Accelerator Card (PAC).
+`pacd` periodically monitors the sensors on the Intel&reg; Programmable Acceleration Card (PAC)  Board Management Controller (BMC)
+and programs a default bitstream in response to a sensor's value exceeding a specified threshold. pacd is only available on the PCIe\*
+Accelerator Card (PAC).
 
-On systems with multiple PACs, `pacd` will monitor the sensors for all cards in the system using the specified
-sensor threshold values.  If the PCIe address is specified (i.e., `-S`, `-B`, `-D`, `-F`), `pacd` will monitor all PACs
-matching the PCIe address components specified.  For example, if the user specifies `-B 5` only, all PACs on
-PCIe bus `5` will be monitored.  The sensor thresholds are global, so specifying `-T 11:95.0:93.0` will monitor sensor
-`11` on all selected PACs and trigger if its value exceeds `95.0` and reset its trigger at `93.0`.
+On systems with multiple PACs, `pacd` monitors the sensors for all cards in the system using the specified
+sensor threshold values.  If you specify the PCIe\* address  using the `-S`, `-B`, `-D`, `-F` parameters, `pacd` monitors all PACs
+matching the PCIe\* address components that you specify.  For example, if you specify `-B 5` only, `pacd` monitors all PACs on
+PCIe\* bus `5`.  The sensor thresholds are global. Specifying `-T 11:95.0:93.0` monitors sensor
+`11` on all selected PACs. `pacd` triggers if its value exceeds `95.0` and resets its trigger at `93.0`.
 
-Use SIGINT or SIGTERM to stop `pacd`, either in daemon mode (``kill -2 `cat /tmp/pacd.pid` `` or ``kill -15 `cat /tmp/pacd.pid` ``)
-or `^C` when run as a regular process.
+Use SIGINT or SIGTERM to stop `pacd`. In daemon mode, run one of the following commands: 
+
+``kill -2 `cat /tmp/pacd.pid` `` or 
+``kill -15 `cat /tmp/pacd.pid` ``
+
+In a regular process, type `^C`.
 
 
 ## INSTALLING AS A SYSTEM SERVICE ##
-The tools installation process will install all the necessary files required to make `pacd` a `systemd` service, capable of
-automatically starting on boot if desired.
+The tools installation process installs all the necessary files required to make `pacd` a `systemd` service, capable of
+automatically starting on boot.
 
-In order to start `pacd` as a `systemd` service, first edit the file `/etc/sysconfig/pacd.conf` as root.  This file is shown
+In order to start `pacd` as a `systemd` service, first edit the `/etc/sysconfig/pacd.conf` as root.  This file is shown
 below.
 
 ```
@@ -34,8 +39,9 @@ below.
 
 PIDFile=/tmp/pacd.pid
 
-# Specify default GBS files to consider for PR.  Include '-n' for each.
-# ex.: DefaultGBSOptions=-n <Default_GBS_Path> -n <Default_GBS_PATH_2>
+# Specify default Accelerator Function (AF now, formerly GBS) files to consider for partial reconfiguration (PR).
+# Include '-n' for each.
+# For example: DefaultGBSOptions=-n <Default_GBS_Path> -n <Default_GBS_PATH_2>
 DefaultGBSOptions=-n <Default_GBS_Path>
 UMask=0
 LogFile=/tmp/pacd.log
@@ -44,11 +50,11 @@ CooldownInterval=0
 
 ############## OPTIONAL OPTIONS ################
 
-# Uncomment and specify specific PAC PCI address to monitor.
+# Uncomment and specify specific PAC PCIe\* addresses to monitor.
 # Default is to monitor all PACs
 #BoardPCIAddr=-S 0 -B 5 -D 0 -F 0
 
-# Specify threshold values. -T for UNR, -t for LNR.
+# Specify threshold values. -T for upper non-recoverable threshold (UNR), -t for lower non-recoverable threshold (LNR).
 # ex.: ThresholdOptions=-T 4:12.5 -t 7:2.25:2.3
 ThresholdOptions=
 
@@ -57,16 +63,19 @@ ThresholdOptions=
 ExtraOptions=
 ```
 
-Edit the `DefaultGBSOptions=` line, specifying the absolute path(s) of the GBS files to be loaded into the device when a
-threshold has been exceeded.  Prefix each GBS file name with `-n`.
+Edit the `DefaultGBSOptions=` line, specifying the absolute path(s) of the AF files to load into the device when a
+threshold is exceeded.  Prefix each AF file name with `-n`.
 
-To start the service, first tell `systemd` to rescan for services using the command `sudo systemctl daemon-reload`,
-then issue the command `sudu systemctl start pacd`.  This will start `pacd` as a service, and it
-will persist until the next boot.  To stop the service, use `sudu systemctl stop pacd`.  In order for `pacd`
-to persist across boots, issue `sudo systemctl enable pacd`; `sudo systemctl disable pacd` will reverse this effect.
+Here are commands to start, stop and monitor the `pacd` service:
 
-To ensure that the service has been started, use either the `sudo systemctl status pacd -l` or `sudo journalctl -xe`.
-Using `systemctl`, successful startup will display something similar to the following:
+1. To rescan for services run the following command: `sudo systemctl daemon-reload`
+2. To start `pacd` as a service that persists until the next boot, run the following command: `sudu systemctl start pacd`.  
+3. To stop the service, run the following command: `sudu systemctl stop pacd`  
+4. To have the `pacd` service persist across boots, run the following command:`sudo systemctl enable pacd`
+5. To stop the persistent `pacd` service run the following command: `sudo systemctl disable pacd` will reverse this effect.
+6.  To ensure that the service has started, use one of the following commands: `sudo systemctl status pacd -l` or `sudo journalctl -xe`
+
+After a successful startup, the `systemctl` command displays current status information similar to the status information shown here:
 
 ```
 sudo systemctl status pacd -l
@@ -90,7 +99,7 @@ Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: Cooldow
 Aug 23 09:34:59 sj-avl-d15-mc.avl systemd[1]: Started PAC BMC sensor monitor.
 ```
 
-The `journalctl` output will look similar to:
+The `journalctl` command displays status information similar to the output shown here:
 
 ```
 Aug 23 09:34:59 sj-avl-d15-mc.avl systemd[1]: Starting PAC BMC sensor monitor...
@@ -140,25 +149,25 @@ If omitted when daemonizing, `/tmp/pacd.pid` is used.
 
 `-m, --umask <mode>`
 
-When running in daemon mode, use the mode value as the file mode creation mask passed to umask.
+When running in daemon mode, use the mode value as the file mode creation mask to pass to umask.
 If omitted when daemonizing, `0` is used.
 
 `-i, --poll-interval <secs>`
 
-`pacd` will poll and check the sensor values every `secs` seconds.  This is a real number, so a
-floating-point number can be specified (i.e., `2.5` for two and a half second poll interval).
+`pacd` polls and checks the sensor values every `secs` seconds.  This is a real number. Consequently,
+you may specify a floating-point number such as `2.5` for a  2 1/2 poll interval.
 
 `-c, --cooldown-interval <secs>`
 
-Specifies the time in seconds that `pacd` will wait after removing the FPGA driver before
-re-enabling the driver.  This is the time that the host will not be able to access the PAC for
+Specifies the time in seconds that `pacd` waits after removing the FPGA driver before
+re-enabling the driver. The `cooldown-interval` is the time that the host is not able to access the PAC for
 any reason.  Not valid in conjunction with `--driver-removal-disable`.
 
 `-n, --default-bitstream <file>`
 
 Specify the default bitstream to program when a sensor value exceeds the specified threshold.
-This option may be specified multiple times. The AF, if any, that matches the FPGA's PR interface
-ID is programmed when the sensor's value exceeds the threshold.
+You can specify this option multiple times. `pacd` reconfigures using the AF that matches the FPGA's PR interface
+ID when the sensor's value exceeds the threshold.
 
 `-S, --segment <PCIe segment>`
 
@@ -179,62 +188,66 @@ Specify the PCIe function of the PAC of interest.
 `-T, --upper-sensor-threshold <sensor>:<trigger_threshold>[:<reset_threshold>]`
 
 Specify the threshold value for a sensor that, when exceeded (sensor value strictly greater than
-`<trigger_threshold>`), will cause the default bitstream specified with `-n` that matches the FPGA's PR
-Interface ID to be programmed into the FPGA.  The sensor will be considered triggered (and no PR
-performed) until its value drops below `<reset_threshold>`.
+`<trigger_threshold>`), causes device reconfiguration. `pacd` reconfigures the FPGA with the default configuration bitstream 
+you specify with `-n` that matches the FPGA's PR Interface ID.  The sensor is considered triggered (and no PR
+performed) until the sensor value drops below `<reset_threshold>`.
 
-This option can be specified multiple times.
+You can specify this option multiple times.
 
-The sensors specified will be monitored for all specified PACs.  There is no mechanism for specifying
+The sensors specified are monitored for all of the PACs you specify. There is no mechanism for specifying
 per-PAC sensor thresholds.
 
 `-t, --lower-sensor-threshold <sensor>:<trigger_threshold>[:<reset_threshold>]`
 
 Specify the threshold value for a sensor that, when exceeded (sensor value strictly less than
-`<trigger_threshold>`), will cause the default bitstream specified with `-n` that matches the FPGA's PR
-Interface ID to be programmed into the FPGA.  The sensor will be considered triggered (and no PR
-performed) until its value goes above `<reset_threshold>`.
+`<trigger_threshold>`), causes the default configuration bitstream specified with `-n` that matches the FPGA's PR
+Interface ID to be programmed into the FPGA.  The sensor is considered triggered (and no PR
+performed) until the sensor value goes above `<reset_threshold>`.
 
-This option can be specified multiple times.
+You can specify this option multiple times.
 
-The sensors specified will be monitored for all specified PACs.  There is no mechanism for specifying
+The `pacd` command monitors the sensors you specify for all the PACs you specify. There is no mechanism for specifying
 per-PAC sensor thresholds.
 
 `-N, --no-defaults`
 
-`pacd` will by default monitor the same set of sensors that the BMC monitors that could trigger
-a machine re-boot.  This set is typically all settable non-recoverable thresholds.  Specifying
-this option tells `pacd` not to monitor these sensors.  This option requires at least one of `-T`
-or `-t` to be specified.
+By default, `pacd` monitors the same set of sensors that the BMC monitors that could trigger
+a machine reboot.  This sensor set typically includes all settable non-recoverable thresholds.  Specifying
+this option tells `pacd` not to monitor these sensors.  This option requires you to specify at least one of `-T`
+or `-t` options.
 
 `--driver-removal-disable`
 
-This is an advanced option with the default being to disable the driver.  When a sensor is initially
-tripped requiring a PR of the FPGA, `pacd` will remove the FPGA device driver for the device, wait
-for a period of time, re-enable the driver and then PR the default bitstream into the device.
+The `--driver-removal-disable` option is an advanced option. The default value of this option is to disable the driver.
+When a sensor initially trips requiring a PR of the FPGA, `pacd` performs the following actions: 
 
-If this option is specified, `pacd` will skip disabling the driver and just PR the default bitstream
+1. Removes the FPGA device driver for the device.
+2. Waits for a period of time.
+3. Re-enables the driver.
+4. Reconfigures the default bitstream into the device.
+
+If you specify this option, `pacd` skips disabling the driver and just reconfigures the default bitstream
 into the device.
 
 ## NOTES ##
 
-`pacd` is intended to prevent an over-temperature or power "non-recoverable" event from causing the
-FPGA's BMC to shut down the PAC.  Shutting down the PAC results in a PCIe "surprise removal"
-which will cause the host to ultimately reboot.
+`pacd` intends to prevent an over-temperature or power "non-recoverable" event from causing the
+FPGA's BMC to shut down the PAC.  Shutting down the PAC results in a PCIe `surprise removal`
+which ultimately causes the host to reboot.
 
-There are several issues that need to be taken into consideration when enabling `pacd`:
+There are several issues that you should consider when enabling `pacd`:
 
-1. The application being accelerated needs to be able to respond appropriately when the device
-driver disappears from the system.  The application will receive a SIGHUP signal when the driver
-shuts itself down.  On receipt of SIGHUP, the app should clean up and exit as soon as possible.
-2. There is a window in which the running system will reboot if a PR is in progress when
-a sensor's threshold is tripped.
+1. The application being accelerated should respond appropriately when the device
+driver disappears from the system. The application receives a SIGHUP signal when the driver
+shuts itself down. On receipt of SIGHUP, the application should clean up and exit as soon as possible.
+2. There is a window in which the running system reboots if a PR is in progress when
+a sensor's threshold trips.
 3. The OS and driver cannot invalidate any pointers that the application has to FPGA MMIO
-space.  Utilization of the OPAE API to access the MMIO region is strongly recommended
+space.  Intel strongly recommends using the OPAE API to access the MMIO region 
 to avoid unanticipated reboots.
-4. The OS and driver cannot prevent direct access of host memory from the FPGA, as in
-the case of a DMA operation from the AFU to the host.  There is a high probability of
-a reboot if a PR is attempted by `pacd` due to a threshold trip event during a DMA operation.
+4. The OS and driver cannot prevent direct access of host memory from the FPGA, such as
+a DMA operation from the AFU to the host. There is a high probability of a reboot if
+the `pacd` attempts to PR the FPGA due to a threshold trip event during a DMA operation.
 
 ## TROUBLESHOOTING ##
 
@@ -245,12 +258,12 @@ If you encounter any issues, you can get debug information in two ways:
 
 ## EXAMPLES ##
 
-The following command will start `pacd` as a daemon process, programming `my_null_bits.gbs` when
-any BMC-triggerable threshold is tripped.
+The following command starts `pacd` as a daemon process, programming `my_null_bits.gbs` when
+any BMC-triggerable threshold 0trips.
 
 `pacd --daemon --null-bitstream=my_null_bits.gbs`
 
-The following command will start `pacd` as a regular process, programming `idle.gbs` when
+The following command starts `pacd` as a regular process, programming `idle.gbs` when
 sensor 11 (FPGA Core TEMP) exceeds 92.35 degrees C or sensor 0 (Total Input Power) goes
 out of the range [9.2 - 19.9] Watts.
 
@@ -260,5 +273,6 @@ out of the range [9.2 - 19.9] Watts.
 
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
- | 2018.08.08 | 1.2 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Initial revision.  | 
- | 2018.08.17 | 1.2 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated to include new options.  | 
+ | 2018.10.15 | DCP 1.2. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1) | Edits for clarity and style.  | 
+ | 2018.08.17 | DCP 1.2 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1) | Updated to include new options.  | 
+ | 2018.08.08 | DCP 1.2 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1) | Initial revision.  | 
