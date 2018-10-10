@@ -309,11 +309,9 @@ INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_pla
  *
  */
 TEST(openclose_c, invalid_open_close) {
-  fpga_properties filter;
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
-  uint32_t num_matches = 0;
 
   const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
   const std::string dev_port = "/dev/intel-fpga-port.0";
