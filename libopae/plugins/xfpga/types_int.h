@@ -200,7 +200,6 @@ struct _fpga_feature_handle {
 	uint64_t mmio_offset;
 	uint64_t feature_base;
 	uint64_t feature_offset;
-  fpga_sub_feature * capability;
 	
   fpga_event_handle *eh_root;
 };

@@ -212,9 +212,6 @@ typedef void *fpga_feature_token;
  * depending on the flags used in fpgaFeatureOpen(). Ownership can be released by
  * calling fpgaFeatureClose(), which will render the underlying handle invalid.
  */
-typedef void *fpga_dma_handle;  ////////// need to remote - do not use
-typedef void *fpga_dma_transfer;////////// need to remote - do not use
-typedef void *fpga_sub_feature;////////// need to remote - do not use
 typedef void *fpga_feature_handle;
 
 /* Callback for asynchronous DMA transfers */

@@ -82,7 +82,7 @@ typedef struct {    void        *priv_data;
                     uint64_t    *rx_len;
                     bool        *rx_eop;
                     uint64_t    reserved[8];
-}fpga_dma_transfer_t;
+}fpga_dma_transfer;
 
 /**
  * Start a blocking transfer.
@@ -96,7 +96,7 @@ typedef struct {    void        *priv_data;
  * @returns FPGA_OK on success.
  */
 fpga_result
-fpgaDMATransferSync(fpga_feature_handle dma_h, fpga_dma_transfer_t *dma_xfer);
+fpgaDMATransferSync(fpga_feature_handle dma_h, fpga_dma_transfer *dma_xfer);
 
 /**
  * Start a none blocking transfer (callback).
@@ -113,7 +113,7 @@ fpgaDMATransferSync(fpga_feature_handle dma_h, fpga_dma_transfer_t *dma_xfer);
  */
 fpga_result
 fpgaDMATransferCB(fpga_feature_handle dma_h,
-                fpga_dma_transfer_t *dma_xfer,
+                fpga_dma_transfer *dma_xfer,
                 fpga_dma_transfer_cb cb,
                 void *context);
 

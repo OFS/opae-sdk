@@ -177,7 +177,7 @@ typedef enum {
     HOST_TO_FPGA_MM = (1u << 4),    // Memory mapped FPGA interface
     FPGA_TO_HOST_MM = (1u << 5),    // Memory mapped FPGA interface
     FPGA_TO_FPGA_MM = (1u << 6),    // Memory mapped FPGA interface
-    FPGA_MAX_TRANSFER_TYPE
+    FPGA_MAX_TRANSFER_TYPE = FPGA_TO_FPGA_MM,
 }fpga_dma_transfer_type;
 
 

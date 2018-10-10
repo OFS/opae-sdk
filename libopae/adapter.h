@@ -29,6 +29,7 @@
 #include <stdbool.h>
 
 #include <opae/types.h>
+#include <opae/dma.h>
 
 typedef struct _opae_plugin {
 	char *path;      // location on file system
@@ -198,23 +199,18 @@ typedef struct _opae_dma_adapter_table {
 	opae_plugin plugin;
 
 	fpga_result (*fpgaDMAOpen)(fpga_feature_token feature_token,
-                int channel_index,
-                fpga_dma_transfer_type type,
                 int flags,
                 void *dma_priv_config,
-                fpga_dma_handle *dma_handle,
-                int *fd);;
+                fpga_feature_handle *dma_handle);
 
-	fpga_result (*fpgaDmaClose)(fpga_dma_handle dma_handle);
+	fpga_result (*fpgaDMAClose)(fpga_feature_handle dma_handle);
  
-  fpga_result (*fpgaDMATransferSync)(fpga_dma_handle dma_handle, fpga_dma_transfer dma_xfer);
+	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle, fpga_dma_transfer dma_xfer);
   
-  fpga_result (*fpgaDMATransferPoll)(fpga_dma_handle dma_handle, fpga_dma_transfer dma_xfer);
-  
-  fpga_result (*fpgaDMATransferCB)(fpga_dma_handle dma,
-                        fpga_dma_transfer dma_xfer,
-                        fpga_dma_transfer_cb cb,
-                        void *context);
+	fpga_result (*fpgaDMATransferCB)(fpga_feature_handle dma,
+	                                 fpga_dma_transfer dma_xfer,
+	                                 fpga_dma_transfer_cb cb,
+	                                 void *context);
                         
 } opae_dma_adapter_table;
 
