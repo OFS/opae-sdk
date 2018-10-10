@@ -190,7 +190,7 @@ typedef void *fpga_object;
 
 
 /**
- * Token for referencing FPGA featire resources
+ * Token for referencing FPGA feature resources
  *
  * A valid `fpga_feature_token` object, as populated by fpgaFeatureEnumerate()
  * An `fpga_feature_token` serves as a reference to a specific FPGA feature resource present in
@@ -199,8 +199,6 @@ typedef void *fpga_object;
  * a resource, or to use the feature open function to acquire ownership.
  *
  * Used by feature open function to acquire ownership and yield a handle to the resource.
- *
- * In case of DMA feature, a token represent a "physical" DMA device as represented by a DFH
  */
 typedef void *fpga_feature_token;
 
@@ -214,8 +212,9 @@ typedef void *fpga_feature_token;
  */
 typedef void *fpga_feature_handle;
 
-/* Callback for asynchronous DMA transfers */
-typedef void (*fpga_dma_transfer_cb)(void *context);
+/* Callback for asynchronous operation */
+typedef void (*fpga_cb)(void *context);
+
 
 
 #endif // __FPGA_TYPES_H__

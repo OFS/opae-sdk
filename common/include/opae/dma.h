@@ -28,13 +28,16 @@
  * @file dma.h
  * @brief APIs for DMA feature
  *
- * These APIs come after a feature DMA was discovered
+ * User should use the feature API to discover features which are DMA type.
+ * With the feature token from the enumeration user can open the feature.
+ * With the feature handle user can access and transfer data using the DMA.
  */
 
 #ifndef __FPGA_DMA_H__
 #define __FPGA_DMA_H__
 
 #include <opae/types.h>
+#include <opae/feature.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,16 +47,17 @@ extern "C" {
  * DMA properties
  *
  * Common properties for all DMA engines.
+ * Output of fpgaDMAPropertiesGet.
  */
-typedef struct {uint64_t    maxChannelNum;
-                uint64_t    maxRingSize;
-                uint64_t    maxBufferSize;
-                uint64_t    addrAlignmentForDMA;
-                uint64_t    minimumXferSizeForDMA;
-                uint64_t    capabilities_mask;      // Bit mask of fpga_dma_transfer_type
+typedef struct {uint64_t    maxChannelNum;  /**< Max number of channels that the DMA engine support */
+                uint64_t    maxRingSize;    /**< Max number of buffers that the DMA can hold */
+                uint64_t    maxBufferSize;  /**< Max size of one buffer */
+                uint64_t    addrAlignmentForDMA;    /**< The DMA will be used only when reaching this alignment */
+                uint64_t    minimumXferSizeForDMA;  /**< DMA will be used only at a multiplication of this size */
+                uint64_t    capabilities_mask;      /**< Bit mask of fpga_dma_transfer_type */
                 uint64_t    reserved [32];
-                fpga_guid   *txEndPGuid;     // Pointer to a table of Guid of the connected IP to a Tx channels
-                fpga_guid   *rxEndPGuid;     // Pointer to a table of Guid of the connected IP to a Rx channels
+                fpga_guid   *txEndPGuid;     /**< Pointer to a table of Guid of the connected IP to a Tx channels */
+                fpga_guid   *rxEndPGuid;     /**< Pointer to a table of Guid of the connected IP to a Rx channels */
 }fpgaDMAProperties;
 
 /**
@@ -62,7 +66,7 @@ typedef struct {uint64_t    maxChannelNum;
  * Get DMA properties from a feature token (DMA feature type)
  *
  * @param[in]   token   Feature token
- * @param[out]  prop    fpgaDMAProperties structure to fill
+ * @param[out]  prop    pre allocated fpgaDMAProperties structure to write information into
  * @param[in]   max_ch  Entry number in the Tx/Rx end point GUID array
  *
  * @returns FPGA_OK on success.
@@ -71,16 +75,22 @@ typedef struct {uint64_t    maxChannelNum;
 fpga_result
 fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop, int max_ch);
 
-typedef struct {    void        *priv_data;
-                    uint64_t    src;
-                    uint64_t    dst;
-                    uint64_t    len;
-                    uint64_t    wsid;           // For pre allocated host memory
-                    fpga_dma_transfer_type  type;
-                    int         ch_index;
-                    /* For Rx streaming */
-                    uint64_t    *rx_len;
-                    bool        *rx_eop;
+/**
+ * DMA transfer
+ *
+ * Holds a DMA transaction information
+ *
+ * @note N/A fields should be set to 0xFF (-1) to indicate that they are not valid.
+ */
+typedef struct {    void        *priv_data; /**< Private data for internal use - must be first */
+                    uint64_t    src;        /**< Source address */
+                    uint64_t    dst;        /**< Destination address */
+                    uint64_t    len;        /**< Transactions  length */
+                    uint64_t    wsid;       /**< wsid of the host memory if it was allocated with prepareBuffer */
+                    fpga_dma_transfer_type  type;   /**< Direction and streaming or memory */
+                    int         ch_index;   /**< in case of multi channel DMA, which channel to use */
+                    uint64_t    *rx_len;    /**< Rx streaming - length of Rx data */
+                    bool        *rx_eop;    /**< Rx streaming - Set is end of packet was received */
                     uint64_t    reserved[8];
 }fpga_dma_transfer;
 
@@ -89,9 +99,8 @@ typedef struct {    void        *priv_data;
  *
  * Start a sync transfer and return only all the data was copied.
  *
- * @param[in]   dma_handle      as populated by fpgaDMAOpen()
- * @param[in]   dma_xfer        encapsulation of all the information about the transfer
- *                              as populated by fpgaDMATransferInit and set by fpgaDMATransferSet functions
+ * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
+ * @param[in]   dma_xfer        transfer information
  *
  * @returns FPGA_OK on success.
  */
@@ -105,17 +114,21 @@ fpgaDMATransferSync(fpga_feature_handle dma_h, fpga_dma_transfer *dma_xfer);
  * Callback will be invoke when the transfer is completed.
  *
  * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
- * @param[in]   dma_xfer        information about the transfer
- * @param[in]   cb              Function to call when the transfer is completed
- * @param[in]   context         value to pass to the callback function
+ * @param[in]   dma_xfer        transfer information
+ * @param[in]   cb              Call back function to call when the transfer is completed
+ * @param[in]   context         argument to pass to the callback function
+ *
+ * @note For posting receive buffers to the DMA in Rx streaming mode,
+ *       call this function with NULL back.
  *
  * @returns FPGA_OK on success.
  */
 fpga_result
 fpgaDMATransferCB(fpga_feature_handle dma_h,
                 fpga_dma_transfer *dma_xfer,
-                fpga_dma_transfer_cb cb,
+                fpga_cb cb,
                 void *context);
+
 
 
 #ifdef __cplusplus
