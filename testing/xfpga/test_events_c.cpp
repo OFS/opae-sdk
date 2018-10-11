@@ -268,14 +268,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
   events_p()
       : tokens_dev_{{nullptr, nullptr}},
         tokens_accel_{{nullptr, nullptr}},
-        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
-        tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
         handle_dev_(nullptr),
         handle_accel_(nullptr) {}
 
   virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
-    tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
+    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
+    tmpfpgad_pid_fd_ = mkstemps(tmpfpgad_pid_, 4);
+
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -303,15 +304,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
         .poll_interval_usec = 100 * 1000,
         .daemon = 0,
         .directory = ".",
-        .logfile = tmpfpgad_log_.c_str(),
-        .pidfile = tmpfpgad_pid_.c_str(),
+        .logfile = tmpfpgad_log_,
+        .pidfile = tmpfpgad_pid_,
         .filemode = 0,
         .running = true,
         .socket = "/tmp/fpga_event_socket",
         .null_gbs = {0},
         .num_null_gbs = 0,
     };
-    open_log(tmpfpgad_log_.c_str());
+    open_log(tmpfpgad_log_);
     fpgad_ = std::thread(server_thread, &config_);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
@@ -340,13 +341,18 @@ class events_p : public ::testing::TestWithParam<std::string> {
     if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
     fpgad_.join();
+    close_log();
+    close(tmpfpgad_log_fd_);
+    close(tmpfpgad_pid_fd_);
     system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_dev_;
   std::array<fpga_token, 2> tokens_accel_;
-  std::string tmpfpgad_log_;
-  std::string tmpfpgad_pid_;
+  char tmpfpgad_log_[20];
+  char tmpfpgad_pid_[20];
+  int tmpfpgad_log_fd_;
+  int tmpfpgad_pid_fd_;
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
   struct config config_;
@@ -364,7 +370,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
  *
  * @brief      When a valid fpga_event_handle and event types
  *             are passed to fpgaRegisterEvent and fpgaUnregisterEvent.
- *             both API calls return FPGA_OK
+ *             both API calls return FPGA_OK.
  */
 TEST_P(events_p, register_event) {
   fpga_result res;
@@ -529,7 +535,7 @@ TEST(events, event_04) {
  * @test       event_drv_08
  *
  * @brief      When passed an event handle with an invalid magic
- *             fpgaDestroyEventHandle() should return FPGA_INVALID_PARAM
+ *             fpgaDestroyEventHandle() returns FPGA_INVALID_PARAM.
  *
  */
 TEST(events, event_drv_08) {
@@ -550,7 +556,7 @@ TEST(events, event_drv_08) {
  * @test       event_drv_09
  *
  * @brief      When passed an event handle with an invalid fd
- *             fpgaDestroyEventHandle() should return FPGA_INVALID_PARAM
+ *             fpgaDestroyEventHandle() returns FPGA_INVALID_PARAM.
  *
  */
 TEST(events, event_drv_09) {
@@ -572,7 +578,7 @@ TEST(events, event_drv_09) {
  * @test       event_drv_10
  *
  * @brief      When passed an event handle with an invalid magic
- *             fpgaGetOSObjectFromEventHandle() should return FPGA_INVALID_PARAM
+ *             fpgaGetOSObjectFromEventHandle() returns FPGA_INVALID_PARAM.
  *
  */
 TEST(events, event_drv_10) {
@@ -595,7 +601,7 @@ TEST(events, event_drv_10) {
  * @test       event_drv_11
  *
  * @brief      When passed an event handle with an invalid magic
- *             xfpga_fpgaUnregisterEvent() should return FPGA_INVALID_PARAM
+ *             xfpga_fpgaUnregisterEvent() returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(events_p, event_drv_11) {
@@ -622,7 +628,7 @@ TEST_P(events_p, event_drv_11) {
  * @test       event_drv_12
  *
  * @brief      When passed an event handle with an invalid magic
- *             xfpga_fpgaRegisterEvent() should return FPGA_INVALID_PARAM
+ *             xfpga_fpgaRegisterEvent() returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(events_p, event_drv_12) {
@@ -647,8 +653,8 @@ TEST_P(events_p, event_drv_12) {
  * @test       send_fme_event_request
  *
  * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_ASSIGN flag
- *             the function return FPGA_OK
+ *             with FPGA_IRQ_ASSIGN flag.
+ *             The function return FPGA_OK.
  *
  */
 TEST_P(events_p, valid_fme_event_request){
@@ -663,9 +669,9 @@ TEST_P(events_p, valid_fme_event_request){
 /**
  * @test       send_fme_event_request
  *
- * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_DEASSIGN flag
- *             the function return FPGA_OK
+ * @brief      When passed a valid event handle and handle
+ *             with FPGA_IRQ_DEASSIGN flag. The function 
+ *             returns FPGA_OK.
  *
  */
 TEST_P(events_p, valid_fme_event_request_01){
@@ -679,8 +685,8 @@ TEST_P(events_p, valid_fme_event_request_01){
 
 /**
  * @test       send_fme_event_request
- * @brief      When passed a valid event handle but invalid fme params
- *             It returns FPGA_INVALID_PARAM, or FPGA_EXCEPTION
+ * @brief      When passed a valid event handle but invalid fme params.
+ *             It returns FPGA_INVALID_PARAM, or FPGA_EXCEPTION.
  */
 TEST_P(events_p, invalid_fme_event_request_01){
   int fme_op = 0;
@@ -702,7 +708,7 @@ TEST_P(events_p, invalid_fme_event_request_01){
 
 /**
  * @test       send_fme_event_request
- * @brief      When passed a valid event handle, handle, flag
+ * @brief      When passed a valid event handle, handle and flag.
  *             It returns FPGA_EXCEPTION if interrupt is not
  *             supported or ioctl fails.
  */
@@ -719,9 +725,9 @@ TEST_P(events_p, invalid_fme_event_request_02){
 
 /**
  * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_ASSIGN flag
- *             the function return FPGA_OK
+ * @brief      When passed a valid event handle and handle
+ *             with FPGA_IRQ_ASSIGN flag. The function 
+ *             returns FPGA_OK.
  */
 TEST_P(events_p, valid_port_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
@@ -734,9 +740,9 @@ TEST_P(events_p, valid_port_event_request){
 
 /**
  * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_DEASSIGN flag
- *             the function return FPGA_OK
+ * @brief      When passed a valid event handle and handle
+ *             with FPGA_IRQ_DEASSIGN flag. The function 
+ *             returns FPGA_OK.
  */
 TEST_P(events_p, valid_port_event_request_01){
   int port_op = FPGA_IRQ_DEASSIGN;
@@ -750,8 +756,8 @@ TEST_P(events_p, valid_port_event_request_01){
 /**
  * @test       send_port_event_request
  *
- * @brief      When passed a valid event handle but invalid port params
- *             It returns FPGA_INVALID_PARAM, or FPGA_EXCEPTION
+ * @brief      When passed a valid event handle but invalid port params.
+ *             It returns FPGA_INVALID_PARAM or FPGA_EXCEPTION.
  *
  */
 TEST_P(events_p, invalid_port_event_request_01){
@@ -774,7 +780,7 @@ TEST_P(events_p, invalid_port_event_request_01){
 
 /**
  * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle, flag
+ * @brief      When passed a valid event handle, handle and flag.
  *             It returns FPGA_EXCEPTION if interrupt is not
  *             supported or ioctl fails.
  */
@@ -791,9 +797,9 @@ TEST_P(events_p, invalid_port_event_request_02){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_ASSIGN flag
- *             the function return FPGA_OK
+ * @brief      When passed a valid event handle and handle
+ *             with FPGA_IRQ_ASSIGN flag. The function 
+ *             returns FPGA_OK.
  */
 TEST_P(events_p, valid_uafu_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
@@ -806,9 +812,9 @@ TEST_P(events_p, valid_uafu_event_request){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle, handle
- *             with FPGA_IRQ_DEASSIGN flag
- *             the function return FPGA_OK
+ * @brief      When passed a valid event handle and handle
+ *             with FPGA_IRQ_DEASSIGN flag. The function
+ *             returns FPGA_OK.
  */
 TEST_P(events_p, valid_uafu_event_request_01){
   int port_op = FPGA_IRQ_DEASSIGN;
@@ -821,9 +827,9 @@ TEST_P(events_p, valid_uafu_event_request_01){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle but invalid port params
- *             It should return FPGA_INVALID_PARAM, when ioctl fails,
- *             it returns FPGA_EXCEPTION
+ * @brief      When passed a valid event handle but invalid port params.
+ *             It returns FPGA_INVALID_PARAM. When ioctl fails,
+ *             it returns FPGA_EXCEPTION.
  */
 TEST_P(events_p, invalid_uafu_event_request_01){
   // invalid port operation
@@ -840,8 +846,8 @@ TEST_P(events_p, invalid_uafu_event_request_01){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle, handle, port params
- *             it returns FPGA_EXCEPTION on ioctl fails and
+ * @brief      When passed a valid event handle, handle and port params.
+ *             It returns FPGA_EXCEPTION when ioctl fails.
  */
 TEST_P(events_p, invalid_uafu_event_request_02){
   int port_op = FPGA_IRQ_ASSIGN;
@@ -862,8 +868,8 @@ TEST_P(events_p, invalid_uafu_event_request_02){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle, handle, port params
- *             but invalid interrupt num, it returns FPGA_INVALID_PARAM
+ * @brief      When passed a valid event handle, handle and port params
+ *             but an invalid interrupt num. It returns FPGA_INVALID_PARAM.
  */
 TEST_P(events_p, invalid_uafu_event_request_03){
   int port_op = FPGA_IRQ_ASSIGN;
@@ -876,7 +882,9 @@ TEST_P(events_p, invalid_uafu_event_request_03){
 
 /**
  * @test       fme_interrupts_check
- * @brief
+ * @brief      When irq is not supported and register invalid ioctl,
+ *             check_interrupts_supported returns FPGA_NOT_SUPPORTED 
+ *             or FPGA_EXCEPTION.
  */
 TEST_P(events_p, fme_interrupts_check){
   fpga_objtype obj;
@@ -908,7 +916,9 @@ TEST_P(events_p, fme_interrupts_check){
 
 /**
  * @test       afu_interrupts_check
- * @brief
+ * @brief      When irq is not supported and register invalid ioctl,
+ *             check_interrupts_supported returns FPGA_NOT_SUPPORTED 
+ *             or FPGA_EXCEPTION.
  */
 TEST_P(events_p, afu_interrupts_check){
   fpga_objtype obj;
@@ -940,7 +950,9 @@ TEST_P(events_p, afu_interrupts_check){
 
 /**
  * @test       afu_driver_register_event
- * @brief
+ * @brief      Given invalid flags to driver_register_event, it
+ *             returns FPGA_INVALID_PARAM. FPGA_EVENT_POWER_THERMAL 
+ *             is not supported. 
  */
 TEST_P(events_p, afu_driver_register_event){
   int port_op = FPGA_IRQ_ASSIGN;
@@ -963,7 +975,8 @@ TEST_P(events_p, afu_driver_register_event){
 
 /**
  * @test       fme_driver_register_event
- * @brief
+ * @brief      Given invalid flags to driver_register_event, it
+ *             returns FPGA_INVALID_PARAM. 
  */
 TEST_P(events_p, fme_driver_register_event){
   // Invalid ioctl
@@ -978,7 +991,8 @@ TEST_P(events_p, fme_driver_register_event){
 
 /**
  * @test       afu_driver_unregister_event
- * @brief
+ * @brief      Given invalid ioctls, driver_unregister_event returns
+ *             FPGA_EXCEPTION.
  */
 TEST_P(events_p, afu_driver_unregister_event){
   // Invalid ioctl
@@ -999,10 +1013,10 @@ TEST_P(events_p, afu_driver_unregister_event){
 
 /**
  * @test       fme_driver_unregister_event
- * @brief
+ * @brief      Given invalid event type to fme, driver_unregister_event
+ *             returns FPGA_INVALID_PARAM.
  */
 TEST_P(events_p, fme_driver_unregister_event){
-  // Invalid ioctl
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   auto res = driver_unregister_event(handle_dev_, FPGA_EVENT_ERROR, eh_);
@@ -1015,8 +1029,8 @@ TEST_P(events_p, fme_driver_unregister_event){
 
 /**
  * @test       create_destory_invalid
- *
- * @brief
+ * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
+ *             FPGA_NO_MEMORY.
  */
 TEST_P(events_p, create_destroy_invalid) {
   // fail malloc to check edge case
@@ -1028,233 +1042,6 @@ TEST_P(events_p, create_destroy_invalid) {
   ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::keys()));
-
-class events_handle_p : public ::testing::TestWithParam<std::string> {
- protected:
-  events_handle_p()
-      : tokens_accel_{{nullptr, nullptr}},
-        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
-        tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
-        handle_accel_(nullptr) {}
-
-  virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
-    tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
-              tokens_accel_.size(), &num_matches_), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
-
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = ".",
-        .logfile = tmpfpgad_log_.c_str(),
-        .pidfile = tmpfpgad_pid_.c_str(),
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    open_log(tmpfpgad_log_.c_str());
-    fpgad_ = std::thread(server_thread, &config_);
-    logger_thread_ = std::thread(logger_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  }
-
-  virtual void TearDown() override {
-    config_.running = false;
-    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    logger_thread_.join();
-    fpgad_.join();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_accel_;
-  std::string tmpfpgad_log_;
-  std::string tmpfpgad_pid_;
-  fpga_handle handle_accel_;
-  struct config config_;
-  fpga_properties filter_accel_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  std::thread fpgad_;
-  std::thread logger_thread_;
-  fpga_event_handle eh_;
-};
-
-/**
- * @test       irq_event_01
- *
- * @brief      given valid event handle and event type, this tests for
- *             triggering the FPGA_EVENT_POWER_THERMAL event by mannually
- *             writing Ap6Event to erriors.
- *
- */
-TEST_P(events_handle_p, irq_event_01) {
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
-  uint64_t error_csr = 1UL << 50; //Ap6Event
-  int res;
-  int fd = -1;
-  struct pollfd poll_fd;
-  int maxpolls = 20;
-
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
-  EXPECT_GE(fd, 0);
-
-  // Write to error file
-  std::string tmpsysfs = system_->get_root();
-  std::string path = tmpsysfs + sysfs_port + "/errors/errors";
-
-  // Write to the mock sysfs node to generate the event.
-  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
-
-  poll_fd.fd = fd;
-  poll_fd.events = POLLIN | POLLPRI;
-  poll_fd.revents = 0;
-
-  do
-  {
-    res = poll(&poll_fd, 1, 1000);
-    ASSERT_GE(res, 0);
-    --maxpolls;
-    ASSERT_GT(maxpolls, 0);
-  } while(res == 0);
-
-  EXPECT_EQ(res, 1);
-  EXPECT_NE(poll_fd.revents, 0);
-
-  error_csr = 0x0;
-  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
-}
-INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::Values("skx-p-1s"));
-
-class mock_events_handle_p : public testing::TestWithParam<std::string> {
- protected:
-  mock_events_handle_p()
-      : tokens_accel_{{nullptr, nullptr}},
-        tokens_dev_{{nullptr, nullptr}},
-        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
-        tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
-        handle_accel_(nullptr),
-        handle_dev_(nullptr) {}
-
-  virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
-    tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
-              tokens_accel_.size(), &num_matches_), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
-              tokens_dev_.size(), &num_matches_), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
-
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = ".",
-        .logfile = tmpfpgad_log_.c_str(),
-        .pidfile = tmpfpgad_pid_.c_str(),
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    open_log(tmpfpgad_log_.c_str());
-    fpgad_ = std::thread(server_thread, &config_);
-    logger_thread_ = std::thread(logger_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  }
-
-  virtual void TearDown() override {
-    config_.running = false;
-    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
-
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    for (auto &t : tokens_dev_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
-    logger_thread_.join();
-    fpgad_.join();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_accel_;
-  std::array<fpga_token, 2> tokens_dev_;
-  std::string tmpfpgad_log_;
-  std::string tmpfpgad_pid_;
-  fpga_handle handle_accel_;
-  fpga_handle handle_dev_;
-  struct config config_;
-  fpga_properties filter_accel_;
-  fpga_properties filter_dev_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  std::thread fpgad_;
-  std::thread logger_thread_;
-  fpga_event_handle eh_;
-};
-
 /**
  * @test       irq_event_01
  *
@@ -1265,7 +1052,7 @@ class mock_events_handle_p : public testing::TestWithParam<std::string> {
  *             we can receive interrupt events on<br>
  *             the OS-specific object from the event handle.<br>
  */
-TEST_P(mock_events_handle_p, irq_event_01) {
+TEST_P(events_p, irq_event_01) {
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, set_fme_irq);
@@ -1311,7 +1098,7 @@ TEST_P(mock_events_handle_p, irq_event_01) {
  *             the OS-specific object from the event handle.<br>
  *
  */
-TEST_P(mock_events_handle_p, irq_event_02) {
+TEST_P(events_p, irq_event_02) {
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, set_port_irq);
@@ -1356,7 +1143,7 @@ TEST_P(mock_events_handle_p, irq_event_02) {
  *             the OS-specific object from the event handle.<br>
  *
  */
-TEST_P(mock_events_handle_p, irq_event_03) {
+TEST_P(events_p, irq_event_03) {
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, set_uport_irq);
@@ -1402,7 +1189,7 @@ TEST_P(mock_events_handle_p, irq_event_03) {
  *             Repeat for fpgaUnregisterEvent.<br>
  *
  */
-TEST_P(mock_events_handle_p, irq_event_04) {
+TEST_P(events_p, irq_event_04) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT,
                                        eh_, 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(NULL, FPGA_EVENT_INTERRUPT,
@@ -1420,7 +1207,7 @@ TEST_P(mock_events_handle_p, irq_event_04) {
  *             Repeat for fpgaDestroyEventHandle.<br>
  *
  */
-TEST_P(mock_events_handle_p, irq_event_05) {
+TEST_P(events_p, irq_event_05) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
                                        NULL, 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
@@ -1437,12 +1224,144 @@ TEST_P(mock_events_handle_p, irq_event_05) {
  *             then the call fails with FPGA_INVALID_PARAM.<br>
  *             Repeat for fpgaUnregisterEvent.<br>
  */
-TEST_P(mock_events_handle_p, irq_event_06) {
+TEST_P(events_p, irq_event_06) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT,
                                        eh_, 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT,
                                        eh_));
 }
 
-INSTANTIATE_TEST_CASE_P(events, mock_events_handle_p,
-                                ::testing::Values("skx-p-1s"));
+INSTANTIATE_TEST_CASE_P(events, events_p,
+                        ::testing::ValuesIn(test_platform::keys()));
+
+class events_handle_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  events_handle_p()
+      : tokens_accel_{{nullptr, nullptr}},
+        handle_accel_(nullptr) {}
+
+  virtual void SetUp() override {
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
+    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
+    tmpfpgad_pid_fd_ = mkstemps(tmpfpgad_pid_, 4);
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
+              tokens_accel_.size(), &num_matches_), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
+
+    config_ = {
+        .verbosity = 0,
+        .poll_interval_usec = 100 * 1000,
+        .daemon = 0,
+        .directory = ".",
+        .logfile = tmpfpgad_log_,
+        .pidfile = tmpfpgad_pid_,
+        .filemode = 0,
+        .running = true,
+        .socket = "/tmp/fpga_event_socket",
+        .null_gbs = {0},
+        .num_null_gbs = 0,
+    };
+    open_log(tmpfpgad_log_);
+    fpgad_ = std::thread(server_thread, &config_);
+    logger_thread_ = std::thread(logger_thread, &config_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  }
+
+  virtual void TearDown() override {
+    config_.running = false;
+    logger_thread_.join();
+    fpgad_.join();
+
+    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+
+    for (auto &t : tokens_accel_) {
+      if (t) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
+      }
+    }
+
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    close_log();
+    close(tmpfpgad_log_fd_);
+    close(tmpfpgad_pid_fd_);
+    system_->finalize();
+  }
+
+  std::array<fpga_token, 2> tokens_accel_;
+  char tmpfpgad_log_[20];
+  char tmpfpgad_pid_[20];
+  int tmpfpgad_log_fd_;
+  int tmpfpgad_pid_fd_;
+  fpga_handle handle_accel_;
+  struct config config_;
+  fpga_properties filter_accel_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+  std::thread fpgad_;
+  std::thread logger_thread_;
+  fpga_event_handle eh_;
+};
+
+/**
+ * @test       manual_irq
+ *
+ * @brief      Given valid event handle and event type, this tests for
+ *             triggering the FPGA_EVENT_POWER_THERMAL event by manually
+ *             writing Ap6Event to errors.
+ *
+ */
+TEST_P(events_handle_p, manual_irq) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
+  uint64_t error_csr = 1UL << 50; //Ap6Event
+  int res;
+  int fd = -1;
+  struct pollfd poll_fd;
+  int maxpolls = 20;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  // Write to error file
+  std::string tmpsysfs = system_->get_root();
+  std::string path = tmpsysfs + sysfs_port + "/errors/errors";
+
+  // Write to the mock sysfs node to generate the event.
+  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
+
+  poll_fd.fd = fd;
+  poll_fd.events = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  error_csr = 0x0;
+  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
+}
+INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+                        ::testing::Values("skx-p-1s"));
