@@ -258,8 +258,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
     fpgad_.join();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_dev_;
@@ -1002,9 +1002,9 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     }
 
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
-    fpgad_.join();
     logger_thread_.join();
+    fpgad_.join();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_accel_;
@@ -1067,5 +1067,7 @@ TEST_P(events_handle_p, irq_event_01) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
 
+//INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+//                        ::testing::ValuesIn(test_platform::keys()));
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::ValuesIn(test_platform::keys()));
+                        ::testing::Values("skx-p-1s"));

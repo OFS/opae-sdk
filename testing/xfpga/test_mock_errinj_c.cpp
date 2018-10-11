@@ -41,7 +41,6 @@
 
 using namespace opae::testing;
 
-
 int port_release_ioctl(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(m);
   UNUSED_PARAM(request);
@@ -113,8 +112,6 @@ out_EINVAL:
   goto out;
 }
 
-
-
 class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
  protected:
    mock_err_inj_c_p() : tokens_{{nullptr, nullptr}} {}
@@ -153,7 +150,6 @@ class mock_err_inj_c_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_system *system_;
 };
-
 
 /**
 * @test    fpga_mock_errinj_01
@@ -197,7 +193,6 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_02) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 }
 
-
 /**
 * @test    fpga_mock_errinj_03
 * @brief   Tests: fpgaPrepareBuffer and fpgaReleaseBuffer
@@ -221,7 +216,6 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_03) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 }
-
 
 /**
 * @test    fpga_mock_errinj_04
@@ -282,14 +276,12 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_05) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 }
 
-
 /**
 * @test    fpga_mock_errinj_06
 * @brief   Tests:fpgaAssignPortToInterface
 * @details fpgaAssignPortToInterface given invalid param
 *          Then the return error code
 */
-
 TEST_P(mock_err_inj_c_p, fpga_mock_errinj_06) {
   int fddev = -1;
   // Open port device
@@ -313,7 +305,6 @@ TEST_P(mock_err_inj_c_p, fpga_mock_errinj_06) {
 * @details fpgaAssignPortToInterface Assign and Release port
 *          Then the return error code
 */
-
 TEST_P(mock_err_inj_c_p, port_to_interface_err) {
   fpga_result res;
   // Open port device
@@ -331,4 +322,31 @@ TEST_P(mock_err_inj_c_p, port_to_interface_err) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 }
 
+/**
+ * @test       invalid_max_interface_num
+ *
+ * @brief      When the interface_num parameter to fpgaAssignPortToInterface
+ *             is greater than FPGA_MAX_INTERFACE_NUM,
+ *             then the function returns FPGA_INVALID_PARAM.
+ */
+TEST_P(mock_err_inj_c_p, invalid_max_interface_num) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaAssignPortToInterface(handle_, 99, 0, 0));
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
+}
+
 INSTANTIATE_TEST_CASE_P(mock_err_c, mock_err_inj_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
+/**
+ * @test       invalid_handle
+ *
+ * @brief      When the handle parameter to fpgaAssignPortToInterface
+ *             is NULL,
+ *             then the function returns FPGA_INVALID_PARAM.
+ */
+TEST(mock_err_inj_c, invalid_handle) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaAssignPortToInterface(NULL, 0, 0, 0));
+}
+

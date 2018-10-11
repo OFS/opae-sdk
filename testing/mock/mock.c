@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sched.h>
 #include "c_test_system.h"
 
 int ioctl(int fd, unsigned long request, ...) {
@@ -69,6 +70,14 @@ FILE * fopen(const char *path, const char *mode) {
   return opae_test_fopen(path, mode);
 }
 
+FILE * popen(const char *cmd, const char *type) {
+  return opae_test_popen(cmd, type);
+}
+
+int pclose(FILE *stream) {
+  return opae_test_pclose(stream);
+}
+
 int close(int fd) { return opae_test_close(fd); }
 
 DIR *opendir(const char *name) { return opae_test_opendir(name); }
@@ -90,4 +99,8 @@ int scandir(const char *__restrict __dir,
             int (*__selector)(const struct dirent *),
             int (*__cmp)(const struct dirent **, const struct dirent **)) {
   return opae_test_scandir(__dir, __namelist, __selector, __cmp);
+}
+
+int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask) {
+  return opae_test_sched_setaffinity(pid, cpusetsize, mask);
 }

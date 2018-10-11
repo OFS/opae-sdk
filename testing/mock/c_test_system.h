@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <dirent.h>
+#include <sched.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +41,9 @@ extern "C" {
 
   FILE * opae_test_fopen(const char *path, const char *mode);
 
+  FILE * opae_test_popen(const char *cmd, const char *type);
+  int opae_test_pclose(FILE *stream);
+
   int opae_test_close(int fd);
   int opae_test_ioctl(int fd, unsigned long request, va_list argp);
 
@@ -48,6 +52,8 @@ extern "C" {
   int opae_test_xstat(int ver, const char *path, struct stat *buf);
   int opae_test_lstat(int ver, const char *path, struct stat *buf);
   int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
+
+  int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);
 
 #ifdef __cplusplus
 }

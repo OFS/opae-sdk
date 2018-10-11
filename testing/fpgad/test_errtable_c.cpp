@@ -53,6 +53,7 @@ int poll_error(struct fpga_err *e);
 #include <opae/fpga.h>
 
 #include <array>
+#include <fstream>
 #include <thread>
 #include <chrono>
 #include <cstdio>
@@ -143,11 +144,10 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
   void cause_ktilinkfatal_fme0()
   {
     std::string fname = fme0_ + "/errors/fatal_errors";
-    uint64_t ktilinkfatal_bit = 1;
-    FILE *fp = fopen(fname.c_str(), "w");    
-    ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%lx\n", ktilinkfatal_bit), 0);
-    fclose(fp);
+    std::ofstream err(system_->get_sysfs_path(fname));
+    ASSERT_TRUE(err.is_open());
+    err << "0x1\n";
+    err.close();
   }
 
   void clear_errors_fme0()
@@ -195,7 +195,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
  * @details    Verify logger_thread's ability to signal an eventfd<br>
  *             for an AP6 and for a KtiLinkFatalErr.<br>
  */
-TEST_P(fpgad_errtable_c_p, DISABLED_logger_ap6_ktilinkfatal) {
+TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   int conn_sockets[2] = { 0, 1 };
   int evt_fds[2]      = { eventfd(0, 0), eventfd(0, 0) };
   const char *devs[2] = { port0_.c_str(),  // for AP6

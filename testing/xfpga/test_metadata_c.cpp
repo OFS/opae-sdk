@@ -42,8 +42,8 @@ class metadata_c
     : public ::testing::TestWithParam<std::string> {
  protected:
   metadata_c()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr) {}
+  : handle_(nullptr),
+    tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
