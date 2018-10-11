@@ -36,8 +36,8 @@ using namespace opae::testing;
 class properties_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   properties_c_p () 
-    : accel_tokens_{{nullptr, nullptr}},
-      dev_tokens_{{nullptr, nullptr}} {}
+    : tokens_accel_{{nullptr, nullptr}},
+      tokens_dev_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -46,42 +46,41 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &prop_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &accel_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(accel_filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&accel_filter_, 1, accel_tokens_.data(), accel_tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
-    ASSERT_EQ(xfpga_fpgaOpen(accel_tokens_[0], &accel_, 0), FPGA_OK);
-    ASSERT_EQ(fpgaClearProperties(accel_filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
+    ASSERT_EQ(fpgaClearProperties(filter_accel_), FPGA_OK);
 
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, dev_tokens_.data(), dev_tokens_.size(),
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
-    ASSERT_EQ(xfpga_fpgaOpen(dev_tokens_[0], &dev_, 0), FPGA_OK);
-    ASSERT_EQ(fpgaClearProperties(dev_filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
+    ASSERT_EQ(fpgaClearProperties(filter_dev_), FPGA_OK);
 
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&accel_filter_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&dev_filter_), FPGA_OK);
-    EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
-    EXPECT_EQ(xfpga_fpgaClose(dev_), FPGA_OK);
+    if (prop_) { EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK); };
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
 
-    for (auto &t : accel_tokens_) {
+    for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
 
-    for (auto &t : dev_tokens_) {
+    for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
@@ -91,13 +90,13 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
-  std::array<fpga_token, 2> accel_tokens_;
-  std::array<fpga_token, 2> dev_tokens_;
+  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_dev_;
   fpga_properties prop_;
-  fpga_properties accel_filter_;
-  fpga_properties dev_filter_;
-  fpga_handle accel_;
-  fpga_handle dev_;
+  fpga_properties filter_accel_;
+  fpga_properties filter_dev_;
+  fpga_handle handle_accel_;
+  fpga_handle handle_dev_;
   uint32_t num_matches_;
   test_platform platform_;
   test_device invalid_device_;
@@ -112,7 +111,7 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
  *          expected result is FPGA_OK.<br>
  */
 TEST_P(properties_c_p, from_handle) {
-  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &prop_), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
 }
 
 /**
@@ -125,7 +124,7 @@ TEST_P(properties_c_p, vendor_id_afu) {
 #ifndef BUILD_ASE
   auto device = platform_.devices[0];
   uint16_t x = 0;
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetVendorID(prop_, &x), FPGA_OK);
   EXPECT_EQ(x, device.vendor_id);
 #endif
@@ -141,7 +140,7 @@ TEST_P(properties_c_p, vendor_id_fme) {
 #ifndef BUILD_ASE
   auto device = platform_.devices[0];
   uint16_t x = 0;
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetVendorID(prop_, &x), FPGA_OK);
   EXPECT_EQ(x, device.vendor_id);
 #endif
@@ -157,7 +156,7 @@ TEST_P(properties_c_p, device_id_afu) {
 #ifndef BUILD_ASE
   auto device = platform_.devices[0];
   uint16_t x = 0;
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
   EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
 #endif
@@ -173,7 +172,7 @@ TEST_P(properties_c_p, device_id_fme) {
 #ifndef BUILD_ASE
   auto device = platform_.devices[0];
   uint16_t x = 0;
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
   EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
 #endif
@@ -183,27 +182,24 @@ TEST_P(properties_c_p, device_id_fme) {
  * @test       valid_gets
  *
  * @brief      When fpgaGetPropertiesFromHandle is called
- *             with a valid handle,
- *             the function returns FPGA_OK, and
- *             the returned properties are valid for that handle.
+ *             with a valid handle.
+ *             The function returns FPGA_OK with the
+ *             returned valid properties for that handle.
  */
 TEST_P(properties_c_p, valid_gets) {
-  fpga_properties prop = NULL;
   fpga_objtype objtype = FPGA_DEVICE;
 
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &prop), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesGetObjectType(prop, &objtype), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetObjectType(prop_, &objtype), FPGA_OK);
   EXPECT_EQ(objtype, FPGA_ACCELERATOR);
-  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK);
 
-  prop = NULL;
+  prop_ = NULL;
   objtype = FPGA_ACCELERATOR;
 
-  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(dev_, &prop), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesGetObjectType(prop, &objtype), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetObjectType(prop_, &objtype), FPGA_OK);
   EXPECT_EQ(objtype, FPGA_DEVICE);
-
-  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
