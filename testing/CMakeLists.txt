@@ -409,6 +409,7 @@ add_mock_test(test_coreidle_coreidle_c coreidle-static
 
 add_mock_test(test_coreidle_main_c coreidle-static
     coreidle/test_main_c.cpp
+)
 
 ############################################################################
 # userclk tests ############################################################
