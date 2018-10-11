@@ -255,10 +255,12 @@ int main(int argc, char *argv[])
 out_destroy:
 	if (res != FPGA_OK)
 		ret_value = EX_SOFTWARE;
+
+	if (tokens)
+		free(tokens);
+
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "destroying properties object");
-
-	free(tokens);
 out_err:
 	return ret_value;
 }

@@ -423,7 +423,7 @@ static void print_body(sdr_body *body, int level)
 {
 	char *str = NULL;
 	char *str2 = NULL;
-	char *str3 = NULL;
+	char *str3 = "";
 	wchar_t *wstr = NULL;
 	wchar_t *wstr2 = NULL;
 	int i;

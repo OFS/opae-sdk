@@ -762,7 +762,8 @@ int main(int argc, char *argv[])
 out:
 	remove(PACD_LOCKFILE);
 
-	pthread_mutex_destroy(&config.reload_mtx);
+	if (pthread_mutex_destroy(&config.reload_mtx))
+		dlog("pthread_mutex_destroy failed\n");
 
 	return 0;
 }

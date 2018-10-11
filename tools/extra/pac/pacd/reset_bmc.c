@@ -290,16 +290,16 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 	res += fpgaPropertiesSetDevice(filter, c->device);
 	res += fpgaPropertiesSetFunction(filter, c->function);
 	res += fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
-	ON_GOTO(res != FPGA_OK, out_exit, "fpgaGetProperties failed");
+	ON_GOTO(res != FPGA_OK, out_destroy_filter, "fpgaGetProperties failed");
 
 	res = fpgaEnumerate(&filter, 1, &c->fme_token, 1, &matches);
-	ON_GOTO(matches != 1, out_exit, "fpgaEnumerate failed");
+	ON_GOTO(matches != 1, out_destroy_filter, "fpgaEnumerate failed");
 
 	res = fpgaClearProperties(filter);
 	res += fpgaGetProperties(c->fme_token, &filter);
 
 	res += fpgaPropertiesGetGUID(filter, &fme_guid);
-	ON_GOTO(res != FPGA_OK, out_exit, "fpgaPropertiesGetGUID failed");
+	ON_GOTO(res != FPGA_OK, out_destroy_filter, "fpgaPropertiesGetGUID failed");
 
 	for (i = 0; i < c->config->num_null_gbs; i++) {
 		ret = read_bitstream(c->config->null_gbs[i],
@@ -343,7 +343,7 @@ fpga_result pacd_bmc_reinit(pacd_bmc_reset_context *ctx)
 		res = bmcLoadSDRs(ctx->c->fme_token, &ctx->records,
 				  &ctx->num_sensors);
 		if (!c->config->daemon) {
-			ON_GOTO(res != FPGA_OK, out_destroy_filter,
+			ON_GOTO(res != FPGA_OK, out_exit,
 				"BMC Sensors could not be loaded");
 		} else if (res != FPGA_OK) {
 			if (!first_msg) {
