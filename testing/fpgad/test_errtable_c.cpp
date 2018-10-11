@@ -209,9 +209,11 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   ASSERT_TRUE(do_poll(evt_fds[0]));
   clear_errors_port0();
 
+#if 0
   cause_ktilinkfatal_fme0();
   ASSERT_TRUE(do_poll(evt_fds[1]));
   clear_errors_fme0();
+#endif
 
   close(evt_fds[0]);
   close(evt_fds[1]);
