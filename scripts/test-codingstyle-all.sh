@@ -82,6 +82,7 @@ check_py () {
 
     if [ "$FILES" == "" ]; then
         PY_CODE_OK=0
+        echo "No Python files in this change. Python code checker not needed."
         return "$PY_CODE_OK"
     fi
 
