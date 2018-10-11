@@ -1480,27 +1480,25 @@ static void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
   char id_lo[18];
   char id_hi[18];
   
-  snprintf_s_l(id_lo, 16, "%lx", uuid_lo);
-  snprintf_s_l(id_hi, 16, "%lx", uuid_hi);
+  snprintf_s_l(id_lo, 18, "%lx", uuid_lo);
+  snprintf_s_l(id_hi, 18, "%lx", uuid_hi);
   
-  char *p = id_lo + 14;
+  char *p = NULL;
   int i = 0;
   uint32_t tmp;
-  for (i = 14; i>=0; i-=2) {
-    sscanf_s_u(p,"%u", &tmp);
-    (*guid)[i/2 + 8] = tmp;
-    p[0] = '\0';
+  for (i = 14; i>=0; i-=2){
     p = id_lo + i;
+    sscanf_s_u(p,"%2x", &tmp);
+    (*guid)[7-i/2 ] = tmp;
+    p[0] = '\0';
   }
   
-  p = id_hi + 14;
   for (i = 14; i>=0; i-=2) {
-    sscanf_s_u(p,"%u", &tmp);
-    (*guid)[i/2] = tmp;
+    p = id_hi + i;
+    sscanf_s_u(p,"%2x", &tmp);
+    (*guid)[15-i/2 ] = tmp;
     p[0] = '\0';
-    p = id_lo + i;
-  }
- 
+  } 
 }
 
 fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
