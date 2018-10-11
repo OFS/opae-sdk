@@ -397,7 +397,6 @@ TEST_P(events_p, register_event) {
  *             FPGA_INVALID_PARAM.
  *
  */
-
 TEST(events, event_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaCreateEventHandle(NULL));
 }
@@ -525,8 +524,6 @@ TEST(events, event_04) {
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
-
-
 
 /**
  * @test       event_drv_08
@@ -877,7 +874,6 @@ TEST_P(events_p, invalid_uafu_event_request_03){
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
-
 /**
  * @test       fme_interrupts_check
  * @brief
@@ -1017,7 +1013,6 @@ TEST_P(events_p, fme_driver_unregister_event){
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
-
 /**
  * @test       create_destory_invalid
  *
@@ -1035,8 +1030,6 @@ TEST_P(events_p, create_destroy_invalid) {
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
                         ::testing::ValuesIn(test_platform::keys()));
-
-
 
 class events_handle_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -1119,8 +1112,9 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
 /**
  * @test       irq_event_01
  *
- * @brief      given valid event handle and event type, the tests for 
- *             triggering the FPGA_EVENT_POWER_THERMAL event.
+ * @brief      given valid event handle and event type, this tests for
+ *             triggering the FPGA_EVENT_POWER_THERMAL event by mannually
+ *             writing Ap6Event to erriors.
  *
  */
 TEST_P(events_handle_p, irq_event_01) {
@@ -1129,7 +1123,7 @@ TEST_P(events_handle_p, irq_event_01) {
   int res;
   int fd = -1;
   struct pollfd poll_fd;
-  int maxpolls = 100;
+  int maxpolls = 20;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
   EXPECT_GE(fd, 0);
@@ -1278,7 +1272,6 @@ TEST_P(mock_events_handle_p, irq_event_01) {
  
   ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR,
                                        eh_, 0));
-
   int res;
   int fd = -1;
 
@@ -1378,7 +1371,7 @@ TEST_P(mock_events_handle_p, irq_event_03) {
   EXPECT_GE(fd, 0);
 
   struct pollfd poll_fd;
-  int maxpolls = 100;
+  int maxpolls = 20;
 
   poll_fd.fd      = fd;
   poll_fd.events  = POLLIN | POLLPRI;
@@ -1452,4 +1445,4 @@ TEST_P(mock_events_handle_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, mock_events_handle_p,
-                        ::testing::Values("skx-p-1s"));
+                                ::testing::Values("skx-p-1s"));
