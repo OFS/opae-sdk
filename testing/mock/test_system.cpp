@@ -716,6 +716,9 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
 
 int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
                                    const cpu_set_t *mask) {
+  UNUSED_PARAM(pid);
+  UNUSED_PARAM(cpusetsize);
+  UNUSED_PARAM(mask);
   if (hijack_sched_setaffinity_) {
     if (!hijack_sched_setaffinity_caller_) {
       if (!hijack_sched_setaffinity_after_) {
