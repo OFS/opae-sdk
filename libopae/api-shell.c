@@ -36,9 +36,7 @@
 #include "opae_int.h"
 #include "pluginmgr.h"
 #include "props.h"
-
-
-
+#include "feature_token_list_int.h"
 
 
 opae_wrapped_token *
@@ -1560,29 +1558,16 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 
     get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
     
-    if (feature_type == prop->type) {
-      _ftoken = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
-      uuid_clear(_ftoken->feature_guid);
-      _ftoken->feature_type = feature_type;
-      _ftoken->magic = OPAE_FEATURE_TOKEN_MAGIC;
-      _ftoken->dma_plugin[0] = '\0';
-      _ftoken->wrapped_handle = wrapped_handle;
-
-      if (!uuid_is_null(guid) && (uuid_compare(prop->guid, guid) == 0)) {
-        errno_t e;
-		    e = memcpy_s(_ftoken->feature_guid, sizeof(fpga_guid), guid,
-			       sizeof(fpga_guid));
-                                   
-		    if (EOK != e) {
-			    OPAE_ERR("memcpy_s failed");
-			    res = FPGA_EXCEPTION;
-		    }
+    _ftoken = feature_token_add(feature_type, guid, wrapped_handle);
     
+    if (_ftoken->feature_type == prop->type) {
+      if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
+          || (uuid_is_null(prop->guid))) {      
+        tokens[*num_matches] = _ftoken;
+        ++(*num_matches);
       }
-      tokens[*num_matches] = _ftoken;
-      ++(*num_matches);
     }
-    
+ 
     // End of the list? 
     end_of_list = _fpga_dfh_feature_eol(dfh); 
  

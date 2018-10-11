@@ -31,6 +31,7 @@ set(SRC
     api-shell.c
     init.c
     props.c
+    feature_token_list.c
     )
 
 add_library(opae-c SHARED ${SRC})
