@@ -63,6 +63,7 @@ target_link_libraries(opae-c
   dl
   ${CMAKE_THREAD_LIBS_INIT}
   safestr
+  ${libuuid_LIBRARIES}
   ${libjson-c_LIBRARIES})
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")

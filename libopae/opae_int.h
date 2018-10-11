@@ -34,6 +34,7 @@
 
 #include <opae/types.h>
 #include <opae/log.h>
+#include <opae/feature.h>
 
 #ifndef __USE_GNU
 #define __USE_GNU
@@ -92,6 +93,21 @@
 		__res;                                                         \
 	})
 
+
+/** Process-wide unique FPGA feature handle */
+struct _fpga_feature_handle {
+  fpga_handle fpga_h;
+	pthread_mutex_t lock;
+	uint64_t magic;
+	fpga_feature_token token;
+	uint32_t mmio_num;
+	uint64_t mmio_offset;
+	uint64_t feature_base;
+	uint64_t feature_offset;
+  //fpgaDMAProperties * dma_prop;
+	
+  fpga_event_handle *eh_root;
+};
 
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
 typedef struct _opae_dma_adapter_table opae_dma_adapter_table;
@@ -152,6 +168,19 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 	wh->magic = 0;
 	free(wh);
 }
+
+#define FEATURE_TOKEN_MAGIC 0x46504741564f4b4e
+
+#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
+/** Device-wide unique FPGA feature resource identifier */
+struct _fpga_feature_token {
+	uint64_t magic;
+	uint32_t feature_type;
+	fpga_guid feature_guid;
+  char dma_plugin[256];
+	opae_wrapped_token *wrapped_token;
+	//struct _fpga_feature_token *next;
+};
 
 //                                         e v e w
 #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
