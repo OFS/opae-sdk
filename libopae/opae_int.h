@@ -169,19 +169,6 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 	free(wh);
 }
 
-#define FEATURE_TOKEN_MAGIC 0x46504741564f4b4e
-
-#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
-/** Device-wide unique FPGA feature resource identifier */
-struct _fpga_feature_token {
-	uint64_t magic;
-	uint32_t feature_type;
-	fpga_guid feature_guid;
-  char dma_plugin[256];
-	opae_wrapped_token *wrapped_token;
-	//struct _fpga_feature_token *next;
-};
-
 //                                         e v e w
 #define OPAE_WRAPPED_EVENT_HANDLE_MAGIC 0x65766577
 
@@ -249,14 +236,19 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 }
 
 //                                          f e a t    
-#define OPAE_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
+#define OPAE_FEATURE_TOKEN_MAGIC 0x66656174
 
-typedef struct _opae_wrapped_feature_token {
-	uint32_t magic;
-  opae_wrapped_token *wrapped_token;
-	fpga_feature_token feature_token;
-	opae_dma_adapter_table *dma_adapter_table;
-} opae_wrapped_feature_token;
+#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
+
+/** Device-wide unique FPGA feature resource identifier */
+struct _fpga_feature_token {
+	uint64_t magic;
+	uint32_t feature_type;
+	fpga_guid feature_guid;
+  char dma_plugin[256];
+  opae_wrapped_handle *wrapped_handle;
+	//struct _fpga_feature_token *next;
+};
 
 //                                           f e a h 
 #define OPAE_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
@@ -264,6 +256,7 @@ typedef struct _opae_wrapped_feature_token {
 typedef struct _opae_wrapped_feature_handle {
 	uint32_t magic;
   opae_wrapped_handle *wrapped_handle;
+  fpga_feature_token feature_token;
 	fpga_feature_handle feature_handle;
 	opae_dma_adapter_table *dma_adapter_table;
 } opae_wrapped_feature_handle;

@@ -733,152 +733,6 @@ fpga_result fpgaDestroyToken(fpga_token *token)
 	return res;
 }
 
-// BBB Feature ID (refer CCI-P spec)
-#define FPGA_DMA_BBB 0x2
-
-#define AFU_DFH_REG 0x0
-#define AFU_DFH_NEXT_OFFSET 16
-#define AFU_DFH_EOL_OFFSET 40
-#define AFU_DFH_TYPE_OFFSET 60
-static const fpga_guid INVALID_GUID = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-}; 
-
-static inline bool _fpga_dfh_feature_eol(uint64_t dfh) 
-{ 
-  return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
-} 
-
-// Feature type is BBB 
-static inline bool _fpga_dfh_feature_is_dma(uint64_t dfh) 
-{ 
-  // BBB is type 2 
-  return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
-} 
- 
-// Offset to the next feature header 
-static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh) 
-{ 
-  return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
-}
-
-static void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
-{
-  char id_lo[18];
-  char id_hi[18];
-  
-  snprintf_s_l(id_lo, 16, "%lx", uuid_lo);
-  snprintf_s_l(id_hi, 16, "%lx", uuid_hi);
-  
-  char *p = id_lo + 14;
-  int i = 0;
-  uint32_t tmp;
-  for (i = 14; i>=0; i-=2) {
-    sscanf_s_u(p,"%u", &tmp);
-    (*guid)[i/2 + 8] = tmp;
-    p[0] = '\0';
-    p = id_lo + i;
-  }
-  
-  p = id_hi + 14;
-  for (i = 14; i>=0; i-=2) {
-    sscanf_s_u(p,"%u", &tmp);
-    (*guid)[i/2] = tmp;
-    p[0] = '\0';
-    p = id_lo + i;
-  }
- 
-}
-
-fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
-                      fpga_feature_token *tokens, uint32_t max_tokens,
-                      uint32_t *num_matches)
-{
-  opae_wrapped_handle *wrapped_handle = 
-    opae_validate_wrapped_handle(handle);
-  fpga_result res = FPGA_OK;
-  
-	ASSERT_NOT_NULL(wrapped_handle);
-  ASSERT_NOT_NULL(prop);
-    
-  if ((max_tokens > 0) && !tokens) {
-    OPAE_ERR("max_tokens > 0 with NULL tokens");
-    return FPGA_INVALID_PARAM;
-  }
-  
-  *num_matches = 0;
-  
-  // Discover feature BBB by traversing the device feature list 
-  bool end_of_list = false; 
-  uint64_t dfh = 0;
-  uint32_t mmio_num = 0;
-  uint64_t offset = 0;
-  fpga_guid guid;
-  struct _fpga_feature_token *_ftoken;
-  
-  do { 
-    uint64_t feature_uuid_lo, feature_uuid_hi;
-    uint32_t feature_type;
-    
-    // Read the next feature header 
-    res = fpgaReadMMIO64(handle, mmio_num, offset, &dfh); 
-    if (res != FPGA_OK) {
-      OPAE_ERR("fpgaReadMMIO64() failed");
-      return res;
-    }
-    feature_type = (dfh >> AFU_DFH_TYPE_OFFSET) & 0xf;
-    
-    // Read the current feature's UUID     
-    res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
-                        &feature_uuid_lo);
-    if (res != FPGA_OK) {
-      OPAE_ERR("fpgaReadMMIO64() failed");
-      return res;
-    }
- 
-    res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
-            						&feature_uuid_hi); 
-    if (res != FPGA_OK) {
-      OPAE_ERR("fpgaReadMMIO64() failed");
-      return res;
-    }
-
-    get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
-    
-    if (feature_type == prop->type) {
-      _ftoken = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
-      uuid_clear(_ftoken->feature_guid);
-      _ftoken->feature_type = feature_type;
-      _ftoken->magic = FEATURE_TOKEN_MAGIC;
-      _ftoken->dma_plugin[0] = '\0';
-      _ftoken->wrapped_token = wrapped_handle->wrapped_token;
-
-      if (!uuid_is_null(guid) && (uuid_compare(prop->guid, guid) == 0)) {
-        errno_t e;
-		    e = memcpy_s(_ftoken->feature_guid, sizeof(fpga_guid), guid,
-			       sizeof(fpga_guid));
-                                   
-		    if (EOK != e) {
-			    OPAE_ERR("memcpy_s failed");
-			    res = FPGA_EXCEPTION;
-		    }
-    
-      }
-      tokens[*num_matches] = _ftoken;
-      ++(*num_matches);
-    }
-    
-    // End of the list? 
-    end_of_list = _fpga_dfh_feature_eol(dfh); 
- 
-    // Move to the next feature header 
-    offset = offset + _fpga_dfh_feature_next(dfh); 
-  } while (!end_of_list); 
-  
-  return res;
-}
-
 fpga_result fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	opae_wrapped_handle *wrapped_handle =
@@ -1591,4 +1445,150 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 
 	return wrapped_handle->adapter_table->fpgaGetUserClock(
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
+}
+
+// BBB Feature ID (refer CCI-P spec)
+#define FPGA_DMA_BBB 0x2
+
+#define AFU_DFH_REG 0x0
+#define AFU_DFH_NEXT_OFFSET 16
+#define AFU_DFH_EOL_OFFSET 40
+#define AFU_DFH_TYPE_OFFSET 60
+static const fpga_guid INVALID_GUID = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+}; 
+
+static inline bool _fpga_dfh_feature_eol(uint64_t dfh) 
+{ 
+  return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
+} 
+
+// Feature type is BBB 
+static inline bool _fpga_dfh_feature_is_dma(uint64_t dfh) 
+{ 
+  // BBB is type 2 
+  return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
+} 
+ 
+// Offset to the next feature header 
+static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh) 
+{ 
+  return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
+}
+
+static void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
+{
+  char id_lo[18];
+  char id_hi[18];
+  
+  snprintf_s_l(id_lo, 16, "%lx", uuid_lo);
+  snprintf_s_l(id_hi, 16, "%lx", uuid_hi);
+  
+  char *p = id_lo + 14;
+  int i = 0;
+  uint32_t tmp;
+  for (i = 14; i>=0; i-=2) {
+    sscanf_s_u(p,"%u", &tmp);
+    (*guid)[i/2 + 8] = tmp;
+    p[0] = '\0';
+    p = id_lo + i;
+  }
+  
+  p = id_hi + 14;
+  for (i = 14; i>=0; i-=2) {
+    sscanf_s_u(p,"%u", &tmp);
+    (*guid)[i/2] = tmp;
+    p[0] = '\0';
+    p = id_lo + i;
+  }
+ 
+}
+
+fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
+                      fpga_feature_token *tokens, uint32_t max_tokens,
+                      uint32_t *num_matches)
+{
+  opae_wrapped_handle *wrapped_handle = 
+    opae_validate_wrapped_handle(handle);
+  fpga_result res = FPGA_OK;
+  
+	ASSERT_NOT_NULL(wrapped_handle);
+  ASSERT_NOT_NULL(prop);
+    
+  if ((max_tokens > 0) && !tokens) {
+    OPAE_ERR("max_tokens > 0 with NULL tokens");
+    return FPGA_INVALID_PARAM;
+  }
+  
+  *num_matches = 0;
+  
+  // Discover feature BBB by traversing the device feature list 
+  bool end_of_list = false; 
+  uint64_t dfh = 0;
+  uint32_t mmio_num = 0;
+  uint64_t offset = 0;
+  fpga_guid guid;
+  struct _fpga_feature_token *_ftoken;
+  
+  do { 
+    uint64_t feature_uuid_lo, feature_uuid_hi;
+    uint32_t feature_type;
+    
+    // Read the next feature header 
+    res = fpgaReadMMIO64(handle, mmio_num, offset, &dfh); 
+    if (res != FPGA_OK) {
+      OPAE_ERR("fpgaReadMMIO64() failed");
+      return res;
+    }
+    feature_type = (dfh >> AFU_DFH_TYPE_OFFSET) & 0xf;
+    
+    // Read the current feature's UUID     
+    res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
+                        &feature_uuid_lo);
+    if (res != FPGA_OK) {
+      OPAE_ERR("fpgaReadMMIO64() failed");
+      return res;
+    }
+ 
+    res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
+            						&feature_uuid_hi); 
+    if (res != FPGA_OK) {
+      OPAE_ERR("fpgaReadMMIO64() failed");
+      return res;
+    }
+
+    get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
+    
+    if (feature_type == prop->type) {
+      _ftoken = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
+      uuid_clear(_ftoken->feature_guid);
+      _ftoken->feature_type = feature_type;
+      _ftoken->magic = OPAE_FEATURE_TOKEN_MAGIC;
+      _ftoken->dma_plugin[0] = '\0';
+      _ftoken->wrapped_handle = wrapped_handle;
+
+      if (!uuid_is_null(guid) && (uuid_compare(prop->guid, guid) == 0)) {
+        errno_t e;
+		    e = memcpy_s(_ftoken->feature_guid, sizeof(fpga_guid), guid,
+			       sizeof(fpga_guid));
+                                   
+		    if (EOK != e) {
+			    OPAE_ERR("memcpy_s failed");
+			    res = FPGA_EXCEPTION;
+		    }
+    
+      }
+      tokens[*num_matches] = _ftoken;
+      ++(*num_matches);
+    }
+    
+    // End of the list? 
+    end_of_list = _fpga_dfh_feature_eol(dfh); 
+ 
+    // Move to the next feature header 
+    offset = offset + _fpga_dfh_feature_next(dfh); 
+  } while (!end_of_list); 
+  
+  return res;
 }
