@@ -104,6 +104,18 @@ target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(coreidle-static
+    ${OPAE_SDK_SOURCE}/tools/extra/coreidle/coreidle.c
+    ${OPAE_SDK_SOURCE}/tools/extra/coreidle/main.c
+    )
+
+target_compile_definitions(coreidle-static PRIVATE main=coreidle_main)
+
+target_include_directories(coreidle-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 add_library(userclk-static
     ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
     )
@@ -385,6 +397,18 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
 
 add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
     fpgaconf/test_fpgaconf_c.cpp
+)
+
+############################################################################
+# coreidle tests ###########################################################
+############################################################################
+
+add_mock_test(test_coreidle_coreidle_c coreidle-static
+    coreidle/test_coreidle_c.cpp
+)
+
+add_mock_test(test_coreidle_main_c coreidle-static
+    coreidle/test_main_c.cpp
 )
 
 ############################################################################
