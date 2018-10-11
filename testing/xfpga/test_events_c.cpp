@@ -57,6 +57,7 @@ fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_han
 #include <opae/access.h>
 #include <linux/ioctl.h>
 #include <poll.h>
+#include <dlfcn.h>
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
@@ -145,7 +146,44 @@ out_EINVAL:
   goto out;
 }
 
-int set_irq(mock_object * m, int request, va_list argp){
+int set_port_irq(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_err_irq_set *port_irq = va_arg(argp, struct fpga_port_err_irq_set *);
+  if (!port_irq) {
+  	FPGA_MSG("port_irq is NULL");
+  	goto out_EINVAL;
+  }
+  if (port_irq->argsz != sizeof(*port_irq)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  if (port_irq->flags != 0) {
+  	FPGA_MSG("unexpected flags %u", port_irq->flags);
+  	goto out_EINVAL;
+  }
+  if (gEnableIRQ && port_irq->evtfd >= 0) {
+  	uint64_t data = 1;
+  	// Write to the eventfd to signal one IRQ event.
+  	if (write(port_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
+  		FPGA_ERR("IRQ write < 8 bytes");
+  	}
+  }
+  retval = 0;
+  errno = 0; 
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
+int set_fme_irq(mock_object * m, int request, va_list argp){
   int retval = -1;
   errno = EINVAL;
   UNUSED_PARAM(m);
@@ -168,6 +206,49 @@ int set_irq(mock_object * m, int request, va_list argp){
   	// Write to the eventfd to signal one IRQ event.
   	if (write(fme_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
   		FPGA_ERR("IRQ write < 8 bytes");
+  	}
+  }
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
+int set_uport_irq(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_uafu_irq_set *uafu_irq =
+  	va_arg(argp, struct fpga_port_uafu_irq_set *);
+  if (!uafu_irq) {
+  	FPGA_MSG("uafu_irq is NULL");
+  	goto out_EINVAL;
+  }
+  if (uafu_irq->argsz < sizeof(*uafu_irq)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  if (uafu_irq->flags != 0) {
+  	FPGA_MSG("unexpected flags %u", uafu_irq->flags);
+  	goto out_EINVAL;
+  }
+  if (gEnableIRQ) {
+  	uint32_t i;
+  	uint64_t data = 1;
+  	// Write to each eventfd to signal one IRQ event.
+  	for (i = 0 ; i < uafu_irq->count ; ++i) {
+  		if (uafu_irq->evtfd[i] >= 0)
+  			if (write(uafu_irq->evtfd[i], &data, sizeof(data)) !=
+  					sizeof(data)) {
+  				FPGA_ERR("IRQ write < 8 bytes");
+  			}
   	}
   }
   retval = 0;
@@ -278,6 +359,13 @@ class events_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle eh_;
 };
 
+/**
+ * @test       register_event
+ *
+ * @brief      When a valid fpga_event_handle and event types
+ *             are passed to fpgaRegisterEvent and fpgaUnregisterEvent.
+ *             both API calls return FPGA_OK
+ */
 TEST_P(events_p, register_event) {
   fpga_result res;
 
@@ -290,6 +378,13 @@ TEST_P(events_p, register_event) {
             FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
   EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_),
+            FPGA_OK)
+      << "\tRESULT: " << fpgaErrStr(res);
+
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, eh_, 0),
+            FPGA_OK)
+      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, eh_),
             FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 }
@@ -1021,12 +1116,11 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle eh_;
 };
 
-
-
 /**
  * @test       irq_event_01
  *
- * @brief
+ * @brief      given valid event handle and event type, the tests for 
+ *             triggering the FPGA_EVENT_POWER_THERMAL event.
  *
  */
 TEST_P(events_handle_p, irq_event_01) {
@@ -1066,8 +1160,296 @@ TEST_P(events_handle_p, irq_event_01) {
   ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
-
-//INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-//                        ::testing::ValuesIn(test_platform::keys()));
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+                        ::testing::Values("skx-p-1s"));
+
+class mock_events_handle_p : public testing::TestWithParam<std::string> {
+ protected:
+  mock_events_handle_p()
+      : tokens_accel_{{nullptr, nullptr}},
+        tokens_dev_{{nullptr, nullptr}},
+        tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
+        tmpfpgad_pid_("tmpfpgad-XXXXXX.pid"),
+        handle_accel_(nullptr),
+        handle_dev_(nullptr) {}
+
+  virtual void SetUp() override {
+    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
+    tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
+              tokens_accel_.size(), &num_matches_), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
+              tokens_dev_.size(), &num_matches_), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
+
+    config_ = {
+        .verbosity = 0,
+        .poll_interval_usec = 100 * 1000,
+        .daemon = 0,
+        .directory = ".",
+        .logfile = tmpfpgad_log_.c_str(),
+        .pidfile = tmpfpgad_pid_.c_str(),
+        .filemode = 0,
+        .running = true,
+        .socket = "/tmp/fpga_event_socket",
+        .null_gbs = {0},
+        .num_null_gbs = 0,
+    };
+    open_log(tmpfpgad_log_.c_str());
+    fpgad_ = std::thread(server_thread, &config_);
+    logger_thread_ = std::thread(logger_thread, &config_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  }
+
+  virtual void TearDown() override {
+    config_.running = false;
+    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+
+    for (auto &t : tokens_accel_) {
+      if (t) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
+      }
+    }
+
+    for (auto &t : tokens_dev_) {
+      if (t) {
+        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
+      }
+    }
+
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
+    logger_thread_.join();
+    fpgad_.join();
+    system_->finalize();
+  }
+
+  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_dev_;
+  std::string tmpfpgad_log_;
+  std::string tmpfpgad_pid_;
+  fpga_handle handle_accel_;
+  fpga_handle handle_dev_;
+  struct config config_;
+  fpga_properties filter_accel_;
+  fpga_properties filter_dev_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+  std::thread fpgad_;
+  std::thread logger_thread_;
+  fpga_event_handle eh_;
+};
+
+/**
+ * @test       irq_event_01
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_DEVICE and FPGA_EVENT_ERROR<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ */
+TEST_P(mock_events_handle_p, irq_event_01) {
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, set_fme_irq);
+ 
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR,
+                                       eh_, 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 20;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR,
+                                         eh_));
+}
+
+/**
+ * @test       irq_event_02
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_ACCELERATOR and FPGA_EVENT_ERROR<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_P(mock_events_handle_p, irq_event_02) {
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, set_port_irq);
+ 
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_ERROR, eh_, 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 20;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_ERROR, eh_));
+}
+
+/**
+ * @test       irq_event_03
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_ACCELERATOR and FPGA_EVENT_INTERRUPT<br>
+ *             then the call is successful and<br>
+ *             we can receive interrupt events on<br>
+ *             the OS-specific object from the event handle.<br>
+ *
+ */
+TEST_P(mock_events_handle_p, irq_event_03) {
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, set_uport_irq);
+ 
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
+                                       eh_, 0));
+
+  int res;
+  int fd = -1;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  struct pollfd poll_fd;
+  int maxpolls = 100;
+
+  poll_fd.fd      = fd;
+  poll_fd.events  = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
+                                         eh_));
+}
+
+/**
+ * @test       irq_event_04
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called with<br>
+ *             an invalid handle<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ *
+ */
+TEST_P(mock_events_handle_p, irq_event_04) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT,
+                                       eh_, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(NULL, FPGA_EVENT_INTERRUPT,
+                                       eh_));
+}
+
+/**
+ * @test       irq_event_05
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called with<br>
+ *             an invalid event handle<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ *             Repeat for fpgaDestroyEventHandle.<br>
+ *
+ */
+TEST_P(mock_events_handle_p, irq_event_05) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
+                                       NULL, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
+                                         NULL));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaDestroyEventHandle(NULL));
+}
+
+/**
+ * @test       irq_event_06
+ *
+ * @brief      Given a driver with IRQ support<br>
+ *             when fpgaRegisterEvent is called for<br>
+ *             an FPGA_DEVICE and FPGA_EVENT_INTERRUPT<br>
+ *             then the call fails with FPGA_INVALID_PARAM.<br>
+ *             Repeat for fpgaUnregisterEvent.<br>
+ */
+TEST_P(mock_events_handle_p, irq_event_06) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT,
+                                       eh_, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_INTERRUPT,
+                                       eh_));
+}
+
+INSTANTIATE_TEST_CASE_P(events, mock_events_handle_p,
                         ::testing::Values("skx-p-1s"));
