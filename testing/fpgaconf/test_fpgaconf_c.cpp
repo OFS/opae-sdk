@@ -166,6 +166,10 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     config = config_;
 
     system_->finalize();
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmp_gbs_);
+    }
   }
 
   char tmp_gbs_[20];
