@@ -33,7 +33,7 @@ extern "C" {
 
 struct  CoreIdleCommandLine
 {
-	int      segment;
+        int      segment;
         int      bus;
         int      device;
         int      function;
