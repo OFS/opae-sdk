@@ -94,10 +94,10 @@ TEST_P(buffer_cxx_core, allocate_null) {
  * invalid_param.
  */
 TEST_P(buffer_cxx_core, allocate_no_len) {
-  size_t length = 4096;
+  size_t length = 0;
   shared_buffer::ptr_t buf;
 
-  EXPECT_THROW(shared_buffer::allocate(handle_, 0), std::exception);
+  EXPECT_THROW(shared_buffer::allocate(handle_, length), std::exception);
 }
 
 /**
