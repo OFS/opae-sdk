@@ -36,7 +36,7 @@ install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/libraries_config.cmake
   COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/Findjson-c.cmake
   DESTINATION src/opae/cmake/modules
-  COMPONENT samplesrasescriptsc)
+  COMPONENT samplesrc)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/cmake/modules/FindRT.cmake
   DESTINATION src/opae/cmake/modules
   COMPONENT samplesrc)
