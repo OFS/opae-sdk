@@ -115,13 +115,20 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length);
 // Unpin the page at iova.
 int ase_host_memory_unpin(uint64_t iova, uint64_t length);
 
-//
-// Translate to/from simulated physical address space.
-//
+// Translate to simulated physical address space.
 uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length);
-void *ase_host_memory_pa_to_va(uint64_t pa, bool lock);
 
+// Translate from simulated physical address space.  By setting "lock"
+// in the request, the internal page table lock is not released on
+// return. This allows a caller to be sure that a page will remain
+// in the table long enough to access the data to which pa points.
+// Callers using "lock" must call ase_host_memory_unlock() to
+// release the page table lock and avoid deadlocks.
+void *ase_host_memory_pa_to_va(uint64_t pa, bool lock);
 void ase_host_memory_unlock(void);
+
+// Initialize/terminate page address translation.
+int ase_host_memory_initialize(void);
 void ase_host_memory_terminate(void);
 
 #endif // not SIM_SIDE

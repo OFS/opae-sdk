@@ -354,7 +354,6 @@ void wr_memline_rsp_dex(cci_pkt *pkt)
 
 	ase_host_memory_write_rsp wr_rsp;
 	int status;
-	static int err_cnt;
 
 	// The only task required here is to consume the response from the application.
 	// triggered by wr_memline_req_dex. The response indicates whether the address
@@ -373,12 +372,9 @@ void wr_memline_rsp_dex(cci_pkt *pkt)
 			}
 
 			// Error?  Probably channel closed and the simulator will be closing
-			// soon.  Allow a few errors but give up if it keeps happening.
+			// soon.
 			if (status == ASE_MSG_ERROR) {
-				if (err_cnt++ > 10) {
-					ASE_ERR("Error receiving memory write line response\n");
-					start_simkill_countdown();
-				}
+				pkt->success = 0;
 				break;
 			}
 		}
@@ -418,7 +414,6 @@ void rd_memline_rsp_dex(cci_pkt *pkt)
 
 	ase_host_memory_read_rsp rd_rsp;
 	int status;
-	static int err_cnt;
 
 	while (true) {
 		status = mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp));
@@ -434,12 +429,9 @@ void rd_memline_rsp_dex(cci_pkt *pkt)
 		}
 
 		// Error?  Probably channel closed and the simulator will be closing
-		// soon.  Allow a few errors but give up if it keeps happening.
+		// soon.
 		if (status == ASE_MSG_ERROR) {
-			if (err_cnt++ > 10) {
-				ASE_ERR("Error receiving memory read line response\n");
-				start_simkill_countdown();
-			}
+			pkt->success = 0;
 			break;
 		}
 	}

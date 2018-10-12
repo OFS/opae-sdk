@@ -445,6 +445,8 @@ int ase_instance_running(void);
 void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
+// Is environment variable defined?
+bool ase_checkenv(const char *);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);

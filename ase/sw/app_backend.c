@@ -451,8 +451,11 @@ void session_init(void)
 		send_swreset();
 
 		// Page table tracker (optional logger)
+		if (ase_host_memory_initialize()) {
+			ASE_ERR("Error initializing simulated host memory.\n");
+		}
 #ifdef ASE_DEBUG
-	// Create debug log of page table
+		// Create debug log of page table
 		fp_pagetable_log = fopen("app_pagetable.log", "w");
 		if (fp_pagetable_log == NULL) {
 			ASE_ERR
@@ -1468,7 +1471,7 @@ void free_buffers(void)
 	buf_head = NULL;
 	buf_end = NULL;
 
-    ase_host_memory_terminate();
+	ase_host_memory_terminate();
 
 	FUNC_CALL_EXIT;
 }
@@ -1678,8 +1681,8 @@ static void *membus_rd_watcher(void *arg)
 			rd_rsp.status = membus_op_status(rd_rsp.va, rd_rsp.pa);
 			if (rd_rsp.status == HOST_MEM_STATUS_VALID) {
 				ase_memcpy(rd_rsp.data, (char *) rd_rsp.va, CL_BYTE_WIDTH);
-				ase_host_memory_unlock();
 			}
+			ase_host_memory_unlock();
 
 			mqueue_send(app2sim_membus_rd_rsp_tx, (char *) &rd_rsp, sizeof(rd_rsp));
 		}
@@ -1708,8 +1711,8 @@ static void *membus_wr_watcher(void *arg)
 			wr_rsp.status = membus_op_status(wr_rsp.va, wr_rsp.pa);
 			if (wr_rsp.status == HOST_MEM_STATUS_VALID) {
 				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
-				ase_host_memory_unlock();
 			}
+			ase_host_memory_unlock();
 
 			mqueue_send(app2sim_membus_wr_rsp_tx, (char *) &wr_rsp, sizeof(wr_rsp));
 		}

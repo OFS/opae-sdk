@@ -652,6 +652,28 @@ void ase_string_copy(char *dest, const char *src, size_t num_bytes)
 
 
 /*
+ * ase_checkenv : Is environment variable defined?
+ */
+bool ase_checkenv(const char *name)
+{
+	char *env;
+
+	if (name != NULL) {
+		// GLIBC check before getenv call (check if GLIBC >= 2.17)
+#if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ > 17)
+		env = secure_getenv(name);
+#else
+		env = getenv(name);
+#endif
+
+		return (env != NULL);
+	}
+
+	return false;
+}
+
+
+/*
  * ase_getenv : Secure getenv abstraction
  */
 char *ase_getenv(const char *name)
