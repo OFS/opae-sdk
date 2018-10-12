@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+extern "C"{
+#include "token_list_int.h"
+}
 
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -34,9 +37,9 @@
 #include "linux/ioctl.h"
 #include "cstdarg"
 
-extern "C"{
-#include "token_list_int.h"
-}
+#include "safe_string/safe_string.h"
+#include "error_int.h"
+
 using namespace opae::testing;
 
 #undef FPGA_MSG
@@ -148,7 +151,6 @@ TEST_P(openclose_c_p, open_02) {
   ASSERT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaOpen(NULL, &handle_, 0));
 }
 
-
 /**
  * @test       open_03
  *
@@ -173,10 +175,12 @@ TEST_P(openclose_c_p, open_04) {
   auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
+  // Invalid token magic
   _token->magic = 0x123;
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
+  // Reset token magic
   _token->magic = FPGA_TOKEN_MAGIC;
 }
 
@@ -191,14 +195,16 @@ TEST_P(openclose_c_p, open_05) {
   fpga_result res;
   struct _fpga_token* _token = (struct _fpga_token*)tokens_[0];
 
+  // Invalid flag
   res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
-
-  _token->magic = FPGA_TOKEN_MAGIC;
+  
+  // Valid flag
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_OK, res);
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
+  // Invalid token path
   strcpy(_token->devpath,"/dev/intel-fpga-fme.01");
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_NO_DRIVER, res);
@@ -232,14 +238,26 @@ TEST_P(openclose_c_p, close_01) {
 
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
 
+  // Invalid handle fd
   fddev = _handle->fddev;
   _handle->fddev = -1;
   res = xfpga_fpgaClose(handle_);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
 
+  // Valid handle fd
   _handle->fddev = fddev;
    res = xfpga_fpgaClose(handle_);
   EXPECT_EQ(res, FPGA_OK);
+}
+
+/**
+ * @test       invalid_close
+ *
+ * @brief      When the fpga_handle parameter to fpgaClose is NULL, the
+ *             function returns FPGA_INVALID_PARAM.
+ */
+TEST_P(openclose_c_p, invalid_close) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClose(NULL));
 }
 
 /**
@@ -254,6 +272,7 @@ TEST_P(openclose_c_p, close_03) {
   auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
   ASSERT_EQ(FPGA_OK, res);
 
+  // Register valid ioctl
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   EXPECT_EQ(((struct _fpga_handle*)handle_)->mmio_root,nullptr);
 
@@ -264,4 +283,54 @@ TEST_P(openclose_c_p, close_03) {
   EXPECT_EQ(res, FPGA_OK);
 }
 
+/**
+ * @test       open_share
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
+ *             already opened token returns FPGA_OK.
+ */
+TEST_P(openclose_c_p, open_share) {
+  fpga_handle h1, h2;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
+}
+
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
+/**
+ * @test       invalid_open_close
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but driver is not loaded. the function returns FPGA_NO_DRIVER.
+ *
+ */
+TEST(openclose_c, invalid_open_close) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+
+  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+  const std::string dev_port = "/dev/intel-fpga-port.0";
+
+  // token setup
+  strncpy_s(_tok.sysfspath,sizeof(_tok.sysfspath),sysfs_port.c_str(),sysfs_port.size());
+  strncpy_s(_tok.devpath,sizeof(_tok.devpath),dev_port.c_str(),dev_port.size());
+  _tok.magic = FPGA_TOKEN_MAGIC;
+  _tok.errors = nullptr;
+  std::string errpath = sysfs_port + "/errors";
+  build_error_list(errpath.c_str(), &_tok.errors);
+
+#ifdef BUILD_ASE
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tok, &h, 0));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(h));
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&tok));
+#else
+  EXPECT_EQ(FPGA_NO_DRIVER, xfpga_fpgaOpen(tok, &h, 0));
+#endif
+}
+

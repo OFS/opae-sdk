@@ -76,7 +76,7 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
     strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
+    close(mkstemps(tmpfpgad_log_, 4));
     close(mkstemps(tmpnull_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
@@ -130,9 +130,13 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
 
     close_log();
 
-    close(tmpfpgad_log_fd_);
-
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+      unlink(tmpnull_gbs_);
+    }
   }
 
   std::string port0_;
@@ -141,7 +145,6 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
   struct ap6_context context_;
   char tmpfpgad_log_[20];
   char tmpnull_gbs_[20];
-  int tmpfpgad_log_fd_;
   std::vector<uint8_t> null_gbs_;
   std::thread ap6_thread_;
   test_platform platform_;

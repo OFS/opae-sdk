@@ -219,7 +219,7 @@ TEST_P(object_c_p, obj_get_obj) {
 
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, accel_, "clear",
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
                                 &clear_obj, 0), FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
@@ -255,7 +255,7 @@ TEST_P(object_c_p, obj_get_obj_err) {
 		    FPGA_OK);
 
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, accel_, "clear",
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
                                 &clear_obj, 0), FPGA_NO_MEMORY);
 
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);

@@ -24,68 +24,74 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
-#include "fpgad/log.h"
-
-}
-
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <array>
-#include <cstdlib>
-#include <cstring>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/errors.h>
+
+#include "intel-fpga.h"
 
 using namespace opae::testing;
+using namespace opae::fpga::types;
 
-class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
+
+class errors_cxx_core : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_log_c_p() {}
+  errors_cxx_core() : handle_(nullptr) {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    close(mkstemps(tmpfpgad_log_, 4));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    open_log(tmpfpgad_log_);
+    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+
+    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
+    ASSERT_TRUE(tokens_.size() > 0);
   }
 
   virtual void TearDown() override {
-    close_log();
-
     system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-    }
   }
 
-  char tmpfpgad_log_[20];
+  std::vector<token::ptr_t> tokens_;
+  handle::ptr_t handle_;
   test_platform platform_;
   test_system *system_;
 };
 
 /**
- * @test       log01
- * @brief      Test: open_log, dlog, close_log
- * @details    dlog sends the formatted output string to the log file<br>
- *             and returns the number of bytes written.<br>
+ * @test get_errors
+ * Given an OPAE resource token<br>
+ * When I call error::get() with that token<br>
+ * Then I get a non-null
+ * And I am able to read information about the error
  */
-TEST_P(fpgad_log_c_p, log01) {
-  EXPECT_EQ(3, dlog("abc"));
+TEST_P(errors_cxx_core, get_error) {
+  for (auto &t : tokens_) {
+    auto props = properties::get(t);
+    ASSERT_NE(props, nullptr);
+    for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
+      auto err = error::get(t, i);
+      std::cout << "Error [" << err->name() << "]: " << err->read_value() << "\n";
+    }
+  }
 }
 
-INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+/**
+ * @test get_errors
+ * Given an OPAE resource token<br>
+ * When I call error::get() with nullptr <br>
+ * Then I get a invalid_argument
+ */
+TEST_P(errors_cxx_core, throw_error) {
+  ASSERT_THROW(error::get(nullptr, 0), std::invalid_argument);
+}
+
+
+
+INSTANTIATE_TEST_CASE_P(error, errors_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));

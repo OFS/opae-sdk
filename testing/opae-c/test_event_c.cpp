@@ -41,8 +41,10 @@ extern "C" {
 
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -51,13 +53,13 @@ using namespace opae::testing;
 class event_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   event_c_p()
-    : tokens_{{nullptr, nullptr}},
-      tmpfpgad_log_("tmpfpgad-XXXXXX.log"),
-      tmpfpgad_pid_("tmpfpgad-XXXXXX.pid") {}
+    : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
-    tmpfpgad_log_ = mkstemp(const_cast<char *>(tmpfpgad_log_.c_str()));
-    tmpfpgad_pid_ = mkstemp(const_cast<char *>(tmpfpgad_pid_.c_str()));
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
+    close(mkstemps(tmpfpgad_log_, 4));
+    close(mkstemps(tmpfpgad_pid_, 4));
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
@@ -84,15 +86,15 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
         .poll_interval_usec = 100 * 1000,
         .daemon = 0,
         .directory = ".",
-        .logfile = tmpfpgad_log_.c_str(),
-        .pidfile = tmpfpgad_pid_.c_str(),
+        .logfile = tmpfpgad_log_,
+        .pidfile = tmpfpgad_pid_,
         .filemode = 0,
         .running = true,
         .socket = "/tmp/fpga_event_socket",
         .null_gbs = {0},
         .num_null_gbs = 0,
     };
-    open_log(tmpfpgad_log_.c_str());
+    open_log(tmpfpgad_log_);
     fpgad_ = std::thread(server_thread, &config_);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
@@ -114,11 +116,16 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
     fpgad_.join();
     close_log();
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+      unlink(tmpfpgad_pid_);
+    }
   }
 
   std::array<fpga_token, 2> tokens_;
-  std::string tmpfpgad_log_;
-  std::string tmpfpgad_pid_;
+  char tmpfpgad_log_[20];
+  char tmpfpgad_pid_[20];
   struct config config_;
   std::thread fpgad_;
   fpga_properties filter_;

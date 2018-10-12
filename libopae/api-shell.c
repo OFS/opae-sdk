@@ -287,7 +287,8 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
 			opae_wrapped_token *wrapped_parent =
 				opae_allocate_wrapped_token(
-					p->parent, wrapped_token->adapter_table);
+					p->parent,
+					wrapped_token->adapter_table);
 
 			if (wrapped_parent) {
 				p->parent = wrapped_parent;
@@ -325,8 +326,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) &&
-	    (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)
+	    && (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
 		wrapped_parent = opae_validate_wrapped_token(p->parent);
 		if (wrapped_parent)
 			p->parent = wrapped_parent->opae_token;
@@ -346,8 +347,7 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
 		if (!wrapped_parent) {
 			// We need to allocate a wrapper.
-			wrapped_parent =
-			opae_allocate_wrapped_token(
+			wrapped_parent = opae_allocate_wrapped_token(
 				p->parent, wrapped_token->adapter_table);
 
 			if (wrapped_parent) {
@@ -360,7 +360,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		} else {
 			// We are re-using the wrapper from above.
 			wrapped_parent->opae_token = p->parent;
-			wrapped_parent->adapter_table = wrapped_token->adapter_table;
+			wrapped_parent->adapter_table =
+				wrapped_token->adapter_table;
 			p->parent = wrapped_parent;
 			p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
 		}
@@ -592,7 +593,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	// If any of the input filters has a parent token set,
 	// then it will be wrapped. We need to unwrap it here,
 	// then re-wrap below.
-	for (i = 0 ; i < num_filters ; ++i) {
+	for (i = 0; i < num_filters; ++i) {
 		int err;
 		struct _fpga_properties *p =
 			opae_validate_and_lock_properties(filters[i]);
@@ -615,8 +616,8 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 				goto out_free_tokens;
 			}
 
-			fixup = (parent_token_fixup *)
-				malloc(sizeof(parent_token_fixup));
+			fixup = (parent_token_fixup *)malloc(
+				sizeof(parent_token_fixup));
 
 			if (!fixup) {
 				OPAE_ERR("malloc failed");
@@ -1309,9 +1310,8 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
 	return res != FPGA_OK ? res : dres;
 }
 
-fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
-				const char *name, fpga_object *object,
-				int flags)
+fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
+				fpga_object *object, int flags)
 {
 	fpga_result res;
 	fpga_result dres = FPGA_OK;
@@ -1319,11 +1319,8 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 	opae_wrapped_object *wrapped_child_object;
 	opae_wrapped_object *wrapped_object =
 		opae_validate_wrapped_object(parent);
-	opae_wrapped_handle *wrapped_handle =
-		opae_validate_wrapped_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_object);
-	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(name);
 	ASSERT_NOT_NULL(object);
 	ASSERT_NOT_NULL_RESULT(
@@ -1333,8 +1330,7 @@ fpga_result fpgaObjectGetObject(fpga_object parent, fpga_handle handle,
 			       FPGA_NOT_SUPPORTED);
 
 	res = wrapped_object->adapter_table->fpgaObjectGetObject(
-		wrapped_object->opae_object, wrapped_handle->opae_handle,
-		name, &obj, flags);
+		wrapped_object->opae_object, name, &obj, flags);
 
 	ASSERT_RESULT(res);
 

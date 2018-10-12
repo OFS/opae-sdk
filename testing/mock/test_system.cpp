@@ -41,6 +41,7 @@
 #define _GNU_SOURCE 1
 #endif
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <uuid/uuid.h>
 
@@ -296,6 +297,8 @@ test_system::test_system() : root_("") {
   open_create_ = (open_create_func)open_;
   read_ = (read_func)dlsym(RTLD_NEXT, "read");
   fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
+  popen_ = (popen_func)dlsym(RTLD_NEXT, "popen");
+  pclose_ = (pclose_func)dlsym(RTLD_NEXT, "pclose");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
@@ -303,6 +306,12 @@ test_system::test_system() : root_("") {
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
+  sched_setaffinity_ = (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
+
+  hijack_sched_setaffinity_ = false;
+  hijack_sched_setaffinity_return_val_ = 0;
+  hijack_sched_setaffinity_after_ = 0;
+  hijack_sched_setaffinity_caller_ = nullptr;
 }
 
 test_system *test_system::instance() {
@@ -389,12 +398,15 @@ void test_system::initialize() {
   ASSERT_FN(open_create_);
   ASSERT_FN(read_);
   ASSERT_FN(fopen_);
+  ASSERT_FN(popen_);
+  ASSERT_FN(pclose_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
+  ASSERT_FN(sched_setaffinity_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -497,7 +509,7 @@ uint32_t get_device_id(const std::string &sysclass) {
 
 int test_system::open(const std::string &path, int flags) {
   std::string syspath = get_sysfs_path(path);
-  int fd = open_(syspath.c_str(), flags);
+  int fd;
   auto r1 = regex<>::create(sysclass_pattern);
   auto r2 = regex<>::create(dev_pattern);
   match_t::ptr_t m;
@@ -508,6 +520,13 @@ int test_system::open(const std::string &path, int flags) {
   if (r1 && (m = r1->match(path))) {
     // path matches /sys/class/fpga/intel-fpga-dev\..*
     // we are opening a driver attribute file
+
+    if (flags == O_WRONLY) {
+      // truncate the file to zero to emulate the sysfs behavior.
+      flags |= O_TRUNC;
+    }
+
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     std::lock_guard<std::mutex> guard(fds_mutex_);
@@ -515,6 +534,7 @@ int test_system::open(const std::string &path, int flags) {
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
     // we are opening a device
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
@@ -524,6 +544,8 @@ int test_system::open(const std::string &path, int flags) {
       std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
+  } else {
+    fd = open_(syspath.c_str(), flags);
   }
   return fd;
 }
@@ -591,6 +613,48 @@ FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   return fopen_(syspath.c_str(), mode.c_str());
 }
 
+FILE *test_system::popen(const std::string &cmd, const std::string &type) {
+  // Is this something we're interested in?
+  if (0 == cmd.compare(0, 5, "rdmsr")) {
+    char tmpfile[20];
+    strcpy(tmpfile, "popen-XXXXXX.tmp");
+    close(mkstemps(tmpfile, 4));
+
+    FILE *fp = fopen(tmpfile, "w+");
+
+    size_t last_spc = cmd.find_last_of(' ');
+    std::string msr(cmd.substr(last_spc+1));
+
+    if (0 == msr.compare("0x35")) {
+      fprintf(fp, "0x0000000000180030");
+    } else if (0 == msr.compare("0x610")) {
+      fprintf(fp, "0x000388d000148758");
+    } else if (0 == msr.compare("0x606")) {
+      fprintf(fp, "0x00000000000a0e03");
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    popen_requests_.insert(std::make_pair(fp, tmpfile));
+
+    return fp;
+  } else {
+    return popen_(cmd.c_str(), type.c_str());
+  }
+}
+
+int test_system::pclose(FILE *stream) {
+  // Is this something we intercepted?
+  std::map<FILE *, std::string>::iterator it =
+	  popen_requests_.find(stream);
+  if (it != popen_requests_.end()) {
+    unlink(it->second.c_str());
+    popen_requests_.erase(it);
+    fclose(stream);
+    return 0; // process exit status
+  }
+  return pclose_(stream);
+}
+
 int test_system::close(int fd) {
   std::lock_guard<std::mutex> guard(fds_mutex_);
   std::map<int, mock_object *>::iterator it = fds_.find(fd);
@@ -651,6 +715,59 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
+int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
+                                   const cpu_set_t *mask) {
+  UNUSED_PARAM(pid);
+  UNUSED_PARAM(cpusetsize);
+  UNUSED_PARAM(mask);
+  if (hijack_sched_setaffinity_) {
+    if (!hijack_sched_setaffinity_caller_) {
+      if (!hijack_sched_setaffinity_after_) {
+        hijack_sched_setaffinity_ = false;
+        int res = hijack_sched_setaffinity_return_val_;
+        hijack_sched_setaffinity_return_val_ = 0;
+	return res;
+      }
+
+      --hijack_sched_setaffinity_after_;
+
+    } else {
+      // 2 here, because we were called through..
+      // 0 test_system.cpp:opae_test_sched_setaffinity()
+      // 1 mock.c:sched_setaffinity()
+      // 2 <caller>
+      void *caller = __builtin_return_address(2);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, hijack_sched_setaffinity_caller_);
+
+      if (!hijack_sched_setaffinity_after_ && !res) {
+        hijack_sched_setaffinity_ = false;
+        hijack_sched_setaffinity_caller_ = nullptr;
+        res = hijack_sched_setaffinity_return_val_;
+        hijack_sched_setaffinity_return_val_ = 0;
+	return res;
+      } else if (!res)
+        --hijack_sched_setaffinity_after_;
+    }
+  }
+  return 0; // return success - we don't actually
+            // want to change the affinity.
+}
+
+void test_system::hijack_sched_setaffinity(int return_val, uint32_t after,
+                                           const char *when_called_from) {
+  hijack_sched_setaffinity_ = true;
+  hijack_sched_setaffinity_return_val_ = return_val;
+  hijack_sched_setaffinity_after_ = after;
+  hijack_sched_setaffinity_caller_ = when_called_from;
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
@@ -686,6 +803,14 @@ FILE *opae_test_fopen(const char *path, const char *mode) {
   return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
+FILE *opae_test_popen(const char *cmd, const char *type) {
+  return opae::testing::test_system::instance()->popen(cmd, type);
+}
+
+int opae_test_pclose(FILE *stream) {
+  return opae::testing::test_system::instance()->pclose(stream);
+}
+
 int opae_test_close(int fd) {
   return opae::testing::test_system::instance()->close(fd);
 }
@@ -714,4 +839,9 @@ int opae_test_scandir(const char *dirp, struct dirent ***namelist,
                       filter_func filter, compare_func cmp) {
   return opae::testing::test_system::instance()->scandir(dirp, namelist, filter,
                                                          cmp);
+}
+
+int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize,
+                                const cpu_set_t *mask) {
+  return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
 }

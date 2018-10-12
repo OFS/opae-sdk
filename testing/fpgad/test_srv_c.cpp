@@ -67,7 +67,7 @@ class fpgad_srv_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
+    close(mkstemps(tmpfpgad_log_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -82,12 +82,15 @@ class fpgad_srv_c_p : public ::testing::TestWithParam<std::string> {
     unregister_all_events();
 
     close_log();
-    close(tmpfpgad_log_fd_);
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+    }
   }
 
   char tmpfpgad_log_[20];
-  int tmpfpgad_log_fd_;
   test_platform platform_;
   test_system *system_;
 };

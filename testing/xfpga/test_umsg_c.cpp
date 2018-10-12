@@ -451,14 +451,16 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   int fddev = -1;
 
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
-  // NULL Driver hnadle
+  // NULL Driver handle
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(NULL, Umsghit_Disble));
 
+  // Invalid handle magic
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
+  // Valid handle magic
   _handle->magic = FPGA_HANDLE_MAGIC;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
@@ -466,11 +468,13 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   _handle = (struct _fpga_handle*)handle_;
 
+  // Invalid handle fd
   fddev = _handle->fddev;
   _handle->fddev = -1;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 
+  // Valid handle fd
   _handle->fddev = fddev;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
@@ -504,7 +508,7 @@ TEST_P(umsg_c_p, test_umsg_drv_06) {
  * @test       Umsg_drv_07
  *
  * @brief      When the parameters are invalid and the drivers are
- *             loaded, xfpga_fpgaGetUmsgPtr returns uerror.
+ *             loaded, xfpga_fpgaGetUmsgPtr returns fpga error.
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_07) {
@@ -514,11 +518,13 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
   // NULL Driver hnadle
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(NULL, &umsg_ptr));
 
+  // Invalid handle magic
   struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
   _handle->magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
+  // Valid handle magic
   _handle->magic = FPGA_HANDLE_MAGIC;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
@@ -526,11 +532,13 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   _handle = (struct _fpga_handle*)handle_;
 
+  // Invalid handle fd
   fddev = _handle->fddev;
   _handle->fddev = -1;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
 
+  // Valid handle fd
   _handle->fddev = fddev;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_));
 
@@ -543,22 +551,25 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
 /**
  * @test       Umsg_08
  *
- * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
- *             is NULL, the function returns FPGA_INVALID_PARAM.<br>
+ * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg
+ *             is NULL, the function returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(umsg_c_p, test_umsg_drv_08) {
   int fddev = -1;
   auto _handle = (struct _fpga_handle*)handle_;
 
+  // Null handle
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(NULL, 0));
 
+  // Invalid handle fd
   fddev = _handle->fddev;
   _handle->fddev = -1;
 
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));
-  _handle->fddev = fddev;
 
+  // Valid handle fd
+  _handle->fddev = fddev;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
 
 }
@@ -567,8 +578,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
  * @test       Umsg_08
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
- *             is valid,<br>
- *             Then the function returns FPGA_OK.<br>
+ *             is valid, Then the function returns FPGA_OK.<br>
  *
  */
 TEST_P(umsg_c_p, test_umsg_08) {
@@ -580,8 +590,7 @@ TEST_P(umsg_c_p, test_umsg_08) {
  * @test       Umsg_09
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
- *             is invalid,<br>
- *             Then the function returns FPGA_EXCEPTION.<br>
+ *             is invalid, Then the function returns FPGA_EXCEPTION.<br>
  *
  */
 TEST_P(umsg_c_p, test_umsg_09) {
