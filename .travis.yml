@@ -2,14 +2,17 @@ language: c
 compiler: gcc
 matrix:
   include:
-  - script: scripts/test-codingstyle.sh
-  - script: scripts/test-codingstyle-py.sh
+  - script: scripts/test-codingstyle-all.sh
     cache: pip
     install:
     - pip install --user pylint
     - pip install --user pycodestyle
     - pip install --user jsonschema
     - pip install --user jinja2
+    addons:
+      apt:
+        packages:
+          - clang-format-3.9    
   - script: scripts/test-build.sh
     install:
     - pip install --user pybind11 nose2
