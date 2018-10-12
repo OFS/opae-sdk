@@ -368,7 +368,7 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
 ############################################################################
 
 add_mock_test(test_ras_c ras-static
-    ras/test_ras_c.cpp
+    ras/test_main_c.cpp
 )
 
 ############################################################################
