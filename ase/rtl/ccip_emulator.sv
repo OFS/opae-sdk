@@ -308,7 +308,7 @@ module ccip_emulator
      * DPI import/export functions
      */
     // Scope function
-    import "DPI-C" function void scope_function();
+    import "DPI-C" context function void scope_function();
 
     // ASE Initialize function
     import "DPI-C" context task ase_init();
@@ -351,8 +351,15 @@ module ccip_emulator
     import "DPI-C" function void sv2c_script_dex(string str);
 
     // Data exchange for READ, WRITE system
-    import "DPI-C" function void rd_memline_dex(inout cci_pkt foo );
-    import "DPI-C" function void wr_memline_dex(inout cci_pkt foo );
+    import "DPI-C" function void rd_memline_req_dex(inout cci_pkt pkg);
+    import "DPI-C" function void rd_memline_rsp_dex(inout cci_pkt pkg);
+    logic rd_memline_active;
+    cci_pkt Rx0_pkt;
+    RxHdr_t Rx0_hdr;
+
+    import "DPI-C" function void wr_memline_req_dex(inout cci_pkt pkg);
+    import "DPI-C" function void wr_memline_rsp_dex(inout cci_pkt pkg);
+    cci_pkt Rx1_pkt;
 
     // MMIO response
     import "DPI-C" function void mmio_response(inout mmio_t mmio_pkt);
@@ -373,10 +380,6 @@ module ccip_emulator
 
     // cci_logger buffer message
     export "DPI-C" task buffer_msg_inject;
-
-    // Page table called status
-    logic            rd_memline_dex_called;
-    logic            wr_memline_dex_called;
 
     // Scope generator
     initial          scope_function();
@@ -1801,30 +1804,57 @@ module ccip_emulator
         end
     end
 
-    // TASK: cf2as_ch0_to_rdrsp_fifo
-    task cf2as_ch0_to_rdrsp_fifo();
+    // TASK: cf2as_ch0_rdreq -- send read request to the application (host memory)
+    task cf2as_ch0_rdreq();
         cci_pkt Tx0_pkt;
     begin
         // Cast ccipkt from txhdr
-        cast_txhdr_to_ccipkt( Tx0_pkt, cf2as_latbuf_tx0hdr, {CCIP_DATA_WIDTH{1'b0}} );
-
-        // Read line fulfillment
-        rd_memline_dex(Tx0_pkt);
-
-        // Write to rdrsp_fifo
-        rdrsp_data_in         <= unpack_ccipkt_to_vector(Tx0_pkt);
-        rdrsp_hdr_in          <= cf2as_latbuf_rx0hdr;
+        cast_txhdr_to_ccipkt(Tx0_pkt, cf2as_latbuf_tx0hdr, {CCIP_DATA_WIDTH{1'b0}});
         // $display(" ** DEBUG **: %d => cf2as_latbuf_rx0hdr.mdata = %x", $time, cf2as_latbuf_rx0hdr);
+
+        // Read line request
+        rd_memline_req_dex(Tx0_pkt);
+
+        // Preserve intermediate request packet.  It will be completed by
+        // the response in cf2as_ch0_rdrsp_to_rdrsp_fifo.
+        Rx0_pkt <= Tx0_pkt;
+        Rx0_hdr <= cf2as_latbuf_rx0hdr;
     end
     endtask
 
-    // Glue process
+    // TASK: cf2as_ch0_rdrsp_to_rdrsp_fifo -- receive read response from application
+    task cf2as_ch0_rdrsp_to_rdrsp_fifo();
+    begin
+        // Read line fulfillment
+        rd_memline_rsp_dex(Rx0_pkt);
+
+        // Write to rdrsp_fifo
+        rdrsp_data_in <= unpack_ccipkt_to_vector(Rx0_pkt);
+        rdrsp_hdr_in <= Rx0_hdr;
+    end
+    endtask
+
+    // Read request glue process
+    always @(posedge clk) begin
+        if (ase_reset) begin
+            rd_memline_active <= 0;
+        end
+        else if (cf2as_latbuf_ch0_valid) begin
+            cf2as_ch0_rdreq();
+            rd_memline_active <= 1;
+        end
+        else begin
+            rd_memline_active <= 0;
+        end
+    end
+
+    // Read response glue process
     always @(posedge clk) begin
         if (ase_reset) begin
             rdrsp_write <= 0;
         end
-        else if (cf2as_latbuf_ch0_valid) begin
-            cf2as_ch0_to_rdrsp_fifo();
+        else if (rd_memline_active) begin
+            cf2as_ch0_rdrsp_to_rdrsp_fifo();
             rdrsp_write <= 1;
         end
         else begin
@@ -1891,10 +1921,20 @@ module ccip_emulator
         // Cast ccipkt from txhdr
         cast_txhdr_to_ccipkt(Tx1_pkt, cf2as_latbuf_tx1hdr, cf2as_latbuf_tx1data);
         // Write memory
-        wr_memline_dex(Tx1_pkt);
+        wr_memline_req_dex(Tx1_pkt);
         // Write to wrrsp_fifo
+        Rx1_pkt <= Tx1_pkt;
         pp_wrrsp_hdr           = cf2as_latbuf_rx1hdr;
         // $display(" ** DEBUG **: %d => cf2as_latbuf_rx1hdr.mdata = %x", $time, cf2as_latbuf_rx1hdr);
+    end
+    endtask
+
+    // TASK: wr_memline_rsp_chk
+    task wr_memline_rsp_chk();
+    begin
+        // Memory write response confirms that the address is valid and raises an
+        // error in the C code if it is not.
+        wr_memline_rsp_dex(Rx1_pkt);
     end
     endtask
 
@@ -2105,6 +2145,13 @@ module ccip_emulator
         end
         else begin
             pp_wrrsp_write <= 0;
+        end
+    end
+
+    // Consume write line response
+    always @(posedge clk) begin
+        if (! ase_reset && pp_wrrsp_write) begin
+            wr_memline_rsp_chk();
         end
     end
 
