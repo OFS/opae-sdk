@@ -42,6 +42,7 @@
 #define __USE_GNU
 #endif // __USE_GNU
 #include <pthread.h>
+#include "feature_token_list_int.h"
 
 /* global loglevel */
 static int g_loglevel = OPAE_DEFAULT_LOGLEVEL;
@@ -124,4 +125,5 @@ __attribute__((destructor)) STATIC void opae_release(void)
 		fclose(g_logfile);
 	}
 	g_logfile = NULL;
+  feature_token_cleanup();
 }

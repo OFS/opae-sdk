@@ -32,6 +32,7 @@ set(SRC
     init.c
     props.c
     feature_token_list.c
+    feature_pluginmgr.c
     )
 
 add_library(opae-c SHARED ${SRC})
@@ -70,4 +71,5 @@ target_link_libraries(opae-c
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_subdirectory(plugins)
+add_subdirectory(feature_plugins/dma)
 

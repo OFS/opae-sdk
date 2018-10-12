@@ -211,7 +211,10 @@ typedef struct _opae_dma_adapter_table {
 	                                 fpga_dma_transfer dma_xfer,
 	                                 fpga_cb cb,
 	                                 void *context);
-                        
+	// configuration functions
+	int (*initialize)(void);
+	int (*finalize)(void);
+                       
 } opae_dma_adapter_table;
 
 #endif /* __OPAE_ADAPTER_H__ */

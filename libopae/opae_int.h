@@ -35,6 +35,7 @@
 #include <opae/types.h>
 #include <opae/log.h>
 #include <opae/feature.h>
+#include <opae/mmio.h>
 
 #ifndef __USE_GNU
 #define __USE_GNU
