@@ -40,11 +40,15 @@
 
 
 module platform_shim_ccip_std_afu
-`ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
   #(
-    parameter NUM_LOCAL_MEM_BANKS = `AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
-    )
+    `PLATFORM_ARG_LIST_BEGIN
+`ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
+    `PLATFORM_ARG_APPEND(parameter NUM_LOCAL_MEM_BANKS = `AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
 `endif
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+    `PLATFORM_ARG_APPEND(parameter NUM_HSSI_RAW_PR_IFCS = `AFU_TOP_REQUIRES_HSSI_RAW_PR)
+`endif
+    )
    (
     // CCI-P Clocks and Resets
     input  logic        pClk,                 // Primary CCI-P interface clock.
@@ -67,7 +71,12 @@ module platform_shim_ccip_std_afu
 `endif
 
 `ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+  `ifdef PLATFORM_PARAM_HSSI_RAW_PR_IS_VECTOR
+    pr_hssi_if.to_fiu   hssi[NUM_HSSI_RAW_PR_IFCS],
+  `else
+    // Legacy hssi interface on a platform with only one HSSI port
     pr_hssi_if.to_fiu   hssi,
+  `endif
 `endif
 
     // CCI-P structures
@@ -159,11 +168,17 @@ module platform_shim_ccip_std_afu
     // ====================================================================
 
     `AFU_TOP_MODULE_NAME
-`ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
       #(
-        .NUM_LOCAL_MEM_BANKS(`AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM)
-        )
+        `PLATFORM_ARG_LIST_BEGIN
+`ifdef AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM
+        `PLATFORM_ARG_APPEND(.NUM_LOCAL_MEM_BANKS(NUM_LOCAL_MEM_BANKS))
 `endif
+`ifdef AFU_TOP_REQUIRES_HSSI_RAW_PR
+  `ifdef PLATFORM_PARAM_HSSI_RAW_PR_IS_VECTOR
+        `PLATFORM_ARG_APPEND(.NUM_HSSI_RAW_PR_IFCS(NUM_HSSI_RAW_PR_IFCS))
+  `endif
+`endif
+        )
       `AFU_TOP_MODULE_NAME
        (
         // All the clocks are still passed in as usual.  It is the responsibility
