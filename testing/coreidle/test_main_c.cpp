@@ -101,6 +101,11 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
     coreidleCmdLine = cmd_line_;
 
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmp_gbs_);
+    }
   }
 
   struct CoreIdleCommandLine cmd_line_;
