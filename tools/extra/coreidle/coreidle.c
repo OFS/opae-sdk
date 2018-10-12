@@ -114,7 +114,7 @@ out_close:
 }
 
 
-static int readmsr(int split_point, uint64_t msr, uint64_t *value)
+int readmsr(int split_point, uint64_t msr, uint64_t *value)
 {
 	FILE *fp                        = NULL;
 	char data[MSR_MAX_BUF_SIZE]     = {0};
@@ -212,7 +212,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	}
 
 
-	// Socke id
+	// Socket id
 	result = fpgaHandleGetObject(handle, FPGA_SYSFS_SOCKET_ID, &fpga_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object \n");
@@ -254,7 +254,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	if (cores_num > 0) {
 		threads_per_core = threads_num / cores_num;
 	} else {
-		OPAE_ERR("Invalid coure count");
+		OPAE_ERR("Invalid core count");
 		result = FPGA_NOT_SUPPORTED;
 		return result;
 	}
@@ -266,7 +266,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	if (cores_num > 0  && threads_per_core >0 ) {
 		socket_num = cpu_num / threads_per_core / cores_num;
 	} else  {
-		OPAE_ERR("Invalid socket count ");
+		OPAE_ERR("Invalid socket count");
 		result = FPGA_NOT_SUPPORTED;
 		return result;
 	}
@@ -286,7 +286,7 @@ fpga_result set_cpu_core_idle(fpga_handle handle,
 	printf("Split_point        : %d \n", split_point);
 
 	// Get Package power
-	result = get_package_power( split_point, &total_power);
+	result = get_package_power(split_point, &total_power);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to read Package power");
 		return result;
@@ -439,7 +439,7 @@ fpga_result setaffinity(cpu_set_t * idle_set,
 			goto setafy_exit;
 		}
 
-		OPAE_ERR("sched_setaffnity failure for pid: %d\n", pid);
+		OPAE_ERR("sched_setaffinity failure for pid: %d\n", pid);
 		result = FPGA_NOT_SUPPORTED;
 		goto setafy_exit;
 	}
@@ -494,7 +494,7 @@ fpga_result cpuset_setaffinity(int socket,
 	// Set affinity of pid 1
 	result = setaffinity(&idle_set,socket,1,split_point);
 	if (result != FPGA_OK) {
-		OPAE_ERR(" sched_setaffnity failure for pid: 1\n");
+		OPAE_ERR(" sched_setaffinity failure for pid: 1\n");
 		return result;
 	}
 
@@ -503,7 +503,7 @@ fpga_result cpuset_setaffinity(int socket,
 	// Set affinity of pid 2
 	result = setaffinity(&idle_set,socket,2,split_point);
 	if (result != FPGA_OK) {
-		OPAE_ERR(" sched_setaffnity failure for pid: 1\n");
+		OPAE_ERR(" sched_setaffinity failure for pid: 1\n");
 		return result;
 	}
 

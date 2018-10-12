@@ -42,9 +42,11 @@ fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_han
 
 #include "intel-fpga.h"
 #include <stdlib.h>
+#include <unistd.h>
 #include <chrono>
 #include <thread>
 #include <string>
+#include <cstring>
 #include "types_int.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -273,10 +275,9 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
     strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    tmpfpgad_pid_fd_ = mkstemps(tmpfpgad_pid_, 4);
-
+    close(mkstemps(tmpfpgad_log_, 4));
+    close(mkstemps(tmpfpgad_pid_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -342,19 +343,21 @@ class events_p : public ::testing::TestWithParam<std::string> {
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
     fpgad_.join();
     close_log();
-    close(tmpfpgad_log_fd_);
-    close(tmpfpgad_pid_fd_);
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+      unlink(tmpfpgad_pid_);
+    }
   }
 
   std::array<fpga_token, 2> tokens_dev_;
   std::array<fpga_token, 2> tokens_accel_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
-  int tmpfpgad_log_fd_;
-  int tmpfpgad_pid_fd_;
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
+  char tmpfpgad_log_[20];
+  char tmpfpgad_pid_[20];
   struct config config_;
   fpga_properties filter_dev_;
   fpga_properties filter_accel_;
@@ -1242,9 +1245,9 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
     strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    tmpfpgad_pid_fd_ = mkstemps(tmpfpgad_pid_, 4);
+    close(mkstemps(tmpfpgad_log_, 4));
+    close(mkstemps(tmpfpgad_pid_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -1300,14 +1303,18 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     close(tmpfpgad_log_fd_);
     close(tmpfpgad_pid_fd_);
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+      unlink(tmpfpgad_pid_);
+    }
   }
 
   std::array<fpga_token, 2> tokens_accel_;
+  fpga_handle handle_accel_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
-  int tmpfpgad_log_fd_;
-  int tmpfpgad_pid_fd_;
-  fpga_handle handle_accel_;
   struct config config_;
   fpga_properties filter_accel_;
   uint32_t num_matches_;
