@@ -89,8 +89,10 @@ typedef struct {    void        *priv_data; /**< Private data for internal use -
                     uint64_t    wsid;       /**< wsid of the host memory if it was allocated with prepareBuffer */
                     fpga_dma_transfer_type  type;   /**< Direction and streaming or memory */
                     int         ch_index;   /**< in case of multi channel DMA, which channel to use */
-                    uint64_t    *rx_len;    /**< Rx streaming - length of Rx data */
-                    bool        *rx_eop;    /**< Rx streaming - Set is end of packet was received */
+                    void        *meta_data; /**< Tx stream - user meta data for the receiving IP */
+                    uint64_t    meta_data_len; /**< Tx stream - length of the meta data */
+                    uint64_t    *rx_len;    /**< Rx stream - length of Rx data */
+                    bool        *rx_eop;    /**< Rx stream - Set is end of packet was received */
                     uint64_t    reserved[8];
 }fpga_dma_transfer;
 
