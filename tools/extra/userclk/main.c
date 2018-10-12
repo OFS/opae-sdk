@@ -43,6 +43,7 @@
 
 struct option longopts[] = {
 	{ "help",      no_argument,       NULL, 'h' },
+	{ "segment",   required_argument, NULL, 0xe },
 	{ "bus",       required_argument, NULL, 'B' },
 	{ "device",    required_argument, NULL, 'D' },
 	{ "function",  required_argument, NULL, 'F' },
@@ -55,6 +56,7 @@ struct option longopts[] = {
 // User clock Command line struct
 struct  UserClkCommandLine
 {
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -64,13 +66,14 @@ struct  UserClkCommandLine
 
 };
 
-struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, -1, -1 };
+struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, -1, -1, -1 };
 
 // User clock Command line input help
 void UserClkAppShowHelp(void)
 {
 	printf("Usage:\n");
 	printf("userclk\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
@@ -122,8 +125,9 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
-	printf(" ------- Command line Input START ---- \n \n");
+	printf(" ------- Command line Input START ----\n \n");
 
+	printf(" Segment               : %d\n", userclkCmdLine.segment);
 	printf(" Bus                   : %d\n", userclkCmdLine.bus);
 	printf(" Device                : %d\n", userclkCmdLine.device);
 	printf(" Function              : %d\n", userclkCmdLine.function);
@@ -131,7 +135,7 @@ int main(int argc, char *argv[])
 	printf(" Freq High             : %d\n", userclkCmdLine.freq_high);
 	printf(" Freq Low              : %d\n", userclkCmdLine.freq_low);
 
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
 
 	result = fpgaInitialize(NULL);
 	ON_ERR_GOTO(result, out_exit, "Failed to initilize ");
@@ -142,6 +146,11 @@ int main(int argc, char *argv[])
 
 	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
+
+	if (-1 != userclkCmdLine.segment) {
+		result = fpgaPropertiesSetSegment(filter, userclkCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
 
 	if (-1 != userclkCmdLine.bus) {
 		result = fpgaPropertiesSetBus(filter, userclkCmdLine.bus);
@@ -254,6 +263,14 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 			return -2;
 			break;
 
+		case 0xe:
+			// segment number
+			if (!tmp_optarg)
+				return -1;
+			endptr = NULL;
+			userclkCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
+			break;
+
 		case 'B':
 			// bus number
 			if (!tmp_optarg)
@@ -311,4 +328,3 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 
 	return 0;
 }
-
