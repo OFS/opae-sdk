@@ -31,7 +31,6 @@ extern "C" {
 }
 
 #include <opae/error.h>
-
 #include "test_system.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
@@ -39,7 +38,6 @@ extern "C" {
 #include <fstream>
 #include <string>
 #include <props.h>
-
 
 using namespace opae::testing;
 const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
@@ -236,6 +234,7 @@ TEST_P(error_c_p, error_03) {
     EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     ASSERT_EQ(val, 0);
   }
+
   // ------------- MAKE SURE CLEAR FILE IS 0 ------------
   clear_file.open(clear_name);
   ASSERT_EQ(1,clear_file.is_open());
@@ -373,7 +372,6 @@ TEST_P(error_c_p, error_05) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -500,7 +498,6 @@ TEST_P(error_c_p, error_09) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -508,6 +505,7 @@ TEST_P(error_c_p, error_09) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
 /**
  * @test       error_01
  *
@@ -640,7 +638,6 @@ TEST(error_c, error_06) {
   auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
   EXPECT_EQ(result,0);
 }
-
 
 /**
  * @test       error_07
