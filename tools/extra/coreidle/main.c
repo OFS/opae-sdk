@@ -39,7 +39,7 @@
 #include "safe_string/safe_string.h"
 #include <opae/fpga.h>
 
-#include "bitstream-tools.h"
+#include "fpgaconf/bitstream-tools.h"
 
 #define GETOPT_STRING ":hB:D:F:S:G"
 
@@ -79,10 +79,10 @@ void CoreidleAppShowHelp()
 			" OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> "
 			"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>           --socket-id=<socket NUMBER>    "
+	printf("<Socket-id>           --socket-id=<SOCKET NUMBER> "
 			" OR  -S=<SOCKET NUMBER>\n");
-	printf("<GBS Bitstream>       --gbs                      "
-			"  OR  -G \n");
+	printf("<GBS Bitstream>       --gbs=<GBS FILE>            "
+			" OR  -G=<GBS FILE>\n");
 	printf("\n");
 
 }
@@ -108,7 +108,7 @@ int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine);
 int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine, int argc, char *argv[]);
 extern fpga_result set_cpu_core_idle(fpga_handle handle,uint64_t gbs_power);
 
-int main( int argc, char** argv )
+int main(int argc, char *argv[])
 {
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
@@ -125,15 +125,14 @@ int main( int argc, char** argv )
 	// Parse command line
 	if ( argc < 2 ) {
 		CoreidleAppShowHelp();
-	return 1;
+		return 1;
 	} else if ( 0!= ParseCmds(&coreidleCmdLine, argc, argv) ) {
-		fprintf(stderr, "Error scanning command line \n.");
-	return 2;
+		return 2;
 	}
 
 	printf(" ------- Command line Input START ---- \n \n");
 
-	printf(" Bus                   : %d \n",  coreidleCmdLine.bus);
+	printf(" Bus                   : %d \n", coreidleCmdLine.bus);
 	printf(" Device                : %d \n", coreidleCmdLine.device);
 	printf(" Function              : %d \n", coreidleCmdLine.function);
 	printf(" Socket                : %d \n", coreidleCmdLine.socket);
@@ -181,8 +180,9 @@ int main( int argc, char** argv )
 
 	if (num_matches < 1) {
 		fprintf(stderr, "FPGA Resource not found.\n");
-		result = fpgaDestroyProperties(&filter);
-		return FPGA_INVALID_PARAM;
+		fpgaDestroyProperties(&filter);
+		res = FPGA_NOT_FOUND;
+		goto out_destroy_tok;
 	}
 	fprintf(stderr, "FME Resource found.\n");
 
@@ -222,7 +222,6 @@ int main( int argc, char** argv )
 		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
 	}
 
-
 out_close:
 	/* Close file handle */
 	result = fpgaClose(fme_handle);
@@ -240,8 +239,9 @@ out_destroy_prop:
 	ON_ERR_GOTO(result, out_exit, "destroying properties object");
 
 out_exit:
-	return res;
-
+	if (coreidleCmdLine.gbs_data)
+		free(coreidleCmdLine.gbs_data);
+	return res != FPGA_OK ? res : result;
 }
 
 // Read file name
@@ -303,6 +303,7 @@ int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine)
 
 out_free:
 	free((void*)coreidleCmdLine->gbs_data);
+	coreidleCmdLine->gbs_data = NULL;
 out_close:
 	fclose(f);
 	return -1;
@@ -323,18 +324,15 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 		const char *tmp_optarg = optarg;
 
 		if((optarg) &&
-				('=' == *tmp_optarg)){
+		   ('=' == *tmp_optarg)){
 			++tmp_optarg;
 		}
 
-		if((!optarg) &&
-				(NULL != argv[optind]) &&
-				('-' != argv[optind][0]) ) {
+		if((!optarg) && (optind < argc) &&
+		   (NULL != argv[optind]) &&
+		   ('-' != argv[optind][0]) ) {
 			tmp_optarg = argv[optind++];
 		}
-
-		if(tmp_optarg == NULL )
-			break;
 
 		switch(getopt_ret){
 		case 'h':
@@ -345,24 +343,32 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 
 		case 'B':
 			// bus number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			coreidleCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'D':
 			// Device number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			coreidleCmdLine->device = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'F':
 			// Function number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			coreidleCmdLine->function = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'S':
 			// Socket number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			coreidleCmdLine->socket = strtol(tmp_optarg, &endptr, 0);
 			break;
@@ -370,6 +376,8 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 		case 'G': {
 			errno_t e;
 			// Bitstream GBS
+			if (!tmp_optarg)
+				return -1;
 			e = strncpy_s(coreidleCmdLine->filename,
 					sizeof(coreidleCmdLine->filename),
 					tmp_optarg,
