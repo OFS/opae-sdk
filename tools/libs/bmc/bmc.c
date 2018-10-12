@@ -194,7 +194,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 		goto out;
 	}
 
-	sensor_reading *tmp = NULL;
+	sensor_reading *tmp = malloc(sizeof(*tmp));
 	uint32_t tot_bytes;
 
 	res = read_sysfs_file(sdr->token, SYSFS_SENSOR_FILE, (void **)&tmp,
