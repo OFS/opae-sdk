@@ -34,6 +34,7 @@ add_library(opae-cxx-core-static
     ${OPAE_SDK_SOURCE}/libopaecxx/src/properties.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/shared_buffer.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/token.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/sysobject.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
     )
 target_include_directories(opae-cxx-core-static PUBLIC
@@ -243,8 +244,13 @@ add_mock_test(test_opae_pluginmgr_c opae-c-static
 ############################################################################
 # cxx core tests ###########################################################
 ############################################################################
+
 add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
     opae-cxx/test_handle_cxx_core.cpp
+)
+
+add_mock_test(test_opae_buffer_cxx_core opae-cxx-core-static
+    opae-cxx/test_buffer_cxx_core.cpp
 )
 
 add_mock_test(test_opae_errors_cxx_core opae-cxx-core-static
@@ -267,6 +273,10 @@ add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
 
 add_mock_test(test_opae_except_cxx_core opae-cxx-core-static
     opae-cxx/test_except_cxx_core.cpp
+)
+
+add_mock_test(test_opae_object_cxx_core opae-cxx-core-static
+    opae-cxx/test_object_cxx_core.cpp
 )
 
 ############################################################################

@@ -634,7 +634,7 @@ FILE *test_system::popen(const std::string &cmd, const std::string &type) {
     }
 
     fseek(fp, 0, SEEK_SET);
-    popen_requests_.insert(std::make_pair(fp, cmd));
+    popen_requests_.insert(std::make_pair(fp, tmpfile));
 
     return fp;
   } else {
@@ -647,6 +647,7 @@ int test_system::pclose(FILE *stream) {
   std::map<FILE *, std::string>::iterator it =
 	  popen_requests_.find(stream);
   if (it != popen_requests_.end()) {
+    unlink(it->second.c_str());
     popen_requests_.erase(it);
     fclose(stream);
     return 0; // process exit status

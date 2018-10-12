@@ -66,7 +66,7 @@ fpga_result send_event_request(int conn_socket, int fd,
 	/* set up ancillary data message header */
 	iov[0].iov_base = req;
 	iov[0].iov_len = sizeof(*req);
-	memset_s(buf, sizeof(buf), 0x0);
+	memset_s(buf, sizeof(buf), 0);
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
@@ -430,6 +430,8 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 	}
 
 	/* create event registration request */
+	memset_s(&req, sizeof(req), 0);
+
 	req.type = REGISTER_EVENT;
 	req.event = event_type;
 
@@ -475,6 +477,7 @@ STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
+	memset_s(&req, sizeof(req), 0);
 	req.type = UNREGISTER_EVENT;
 	req.event = event_type;
 
