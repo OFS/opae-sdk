@@ -77,6 +77,11 @@ class fpgad_daemonize_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(daemonize_result_);
+    }
   }
 
   char daemonize_result_[20];
