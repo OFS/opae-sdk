@@ -224,7 +224,11 @@ int main(int argc, char *argv[])
 
 out_close:
 	result = fpgaClose(accelerator_handle);
-	ON_ERR_GOTO(result, out_destroy_prop, "closing accelerator");
+	ON_ERR_GOTO(result, out_destroy_tok, "closing accelerator");
+
+out_destroy_tok:
+	result = fpgaDestroyToken(&accel_token);
+	ON_ERR_GOTO(result, out_destroy_prop, "destroying token object");
 
 	/* Destroy properties object */
 out_destroy_prop:
