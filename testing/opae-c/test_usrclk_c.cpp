@@ -121,4 +121,6 @@ TEST_P(usrclk_c_p, DISABLED_set) {
   EXPECT_EQ(fpgaSetUserClock(accel_, high, low, 0), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+// TODO: Fix user clock test for DCP
+//INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p, ::testing::Values("skx-p-1s"));

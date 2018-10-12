@@ -114,7 +114,7 @@ static fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err)
 		return result;
 	}
 
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_err_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_err_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object");
 		goto out_close;
@@ -123,7 +123,7 @@ static fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err)
 	// Inject fatal error
 	inj_error.fatal_error = err;
 
-	result = fpgaObjectWrite64(inj_err_object, inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(inj_err_object, inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		goto out_destroy_obj;

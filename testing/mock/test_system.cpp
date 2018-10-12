@@ -41,6 +41,7 @@
 #define _GNU_SOURCE 1
 #endif
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <uuid/uuid.h>
 
@@ -174,7 +175,7 @@ test_device test_device::unknown() {
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
-		     .mdata = ""};
+                     .mdata = ""};
 }
 
 typedef std::map<std::string, test_platform> platform_db;
@@ -197,6 +198,25 @@ const char *skx_mdata =
       ]
      },
      "platform-name": "MCP"}";
+)mdata";
+
+const char *rc_mdata =
+    R"mdata({"version": 112,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "bb0023cf-0bd2-579a-90ef-97fe743a6c63",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
 )mdata";
 
 static platform_db PLATFORMS = {
@@ -223,7 +243,32 @@ static platform_db PLATFORMS = {
                        .fme_num_errors = 9,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
-                       .mdata = skx_mdata}}}}};
+                       .mdata = skx_mdata}}}},
+    {"dcp-rc",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
+                   .devices = {test_device{
+                       .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x112000200000159,
+                       .bbs_version = {1, 1, 2},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x09c4,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = rc_mdata}}}},
+};
 
 test_platform test_platform::get(const std::string &key) {
   return PLATFORMS[key];
@@ -252,6 +297,8 @@ test_system::test_system() : root_("") {
   open_create_ = (open_create_func)open_;
   read_ = (read_func)dlsym(RTLD_NEXT, "read");
   fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
+  popen_ = (popen_func)dlsym(RTLD_NEXT, "popen");
+  pclose_ = (pclose_func)dlsym(RTLD_NEXT, "pclose");
   close_ = (close_func)dlsym(RTLD_NEXT, "close");
   ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
@@ -259,6 +306,12 @@ test_system::test_system() : root_("") {
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
+  sched_setaffinity_ = (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
+
+  hijack_sched_setaffinity_ = false;
+  hijack_sched_setaffinity_return_val_ = 0;
+  hijack_sched_setaffinity_after_ = 0;
+  hijack_sched_setaffinity_caller_ = nullptr;
 }
 
 test_system *test_system::instance() {
@@ -331,17 +384,29 @@ std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
   return gbs_header;
 }
 
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td, const char *mdata) {
+  if (mdata) {
+    test_device copy = td;
+    copy.mdata = mdata;
+    return assemble_gbs_header(copy);
+  }
+  return std::vector<uint8_t>(0);
+}
+
 void test_system::initialize() {
   ASSERT_FN(open_);
   ASSERT_FN(open_create_);
   ASSERT_FN(read_);
   ASSERT_FN(fopen_);
+  ASSERT_FN(popen_);
+  ASSERT_FN(pclose_);
   ASSERT_FN(close_);
   ASSERT_FN(ioctl_);
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
+  ASSERT_FN(sched_setaffinity_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -389,6 +454,46 @@ FILE *test_system::register_file(const std::string &path) {
   return fptr;
 }
 
+void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
+  // normalizing a guid string can make it easier to compare guid strings
+  // and can also put the string in a format that can be parsed into actual
+  // guid bytes (uuid_parse expects the string to include hyphens).
+  const size_t std_guid_str_size = 36;
+  const size_t char_guid_str_size = 32;
+  if (guid_str.back() == '\n') {
+    guid_str.erase(guid_str.end()-1);
+  }
+  std::locale lc;
+  auto c_idx = guid_str.find('-');
+  if (with_hyphens && c_idx == std::string::npos) {
+    // if we want the standard UUID format with hyphens (8-4-4-4-12)
+    if (guid_str.size() == char_guid_str_size) {
+      int idx = 20;
+      while (c_idx != 8) {
+        guid_str.insert(idx, 1, '-');
+        idx -= 4;
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  } else if (!with_hyphens && c_idx == 8) {
+    // we want the hex characters only, no other extra chars
+    if (guid_str.size() == std_guid_str_size) {
+      while (c_idx != std::string::npos) {
+        guid_str.erase(c_idx, 1);
+        c_idx = guid_str.find('-');
+      }
+    } else {
+      throw std::invalid_argument("invalid guid string");
+    }
+  }
+
+  for (auto & c : guid_str) {
+    c = std::tolower(c, lc);
+  }
+}
+
 uint32_t get_device_id(const std::string &sysclass) {
   uint32_t res(0);
   std::ifstream fs;
@@ -404,7 +509,7 @@ uint32_t get_device_id(const std::string &sysclass) {
 
 int test_system::open(const std::string &path, int flags) {
   std::string syspath = get_sysfs_path(path);
-  int fd = open_(syspath.c_str(), flags);
+  int fd;
   auto r1 = regex<>::create(sysclass_pattern);
   auto r2 = regex<>::create(dev_pattern);
   match_t::ptr_t m;
@@ -415,6 +520,13 @@ int test_system::open(const std::string &path, int flags) {
   if (r1 && (m = r1->match(path))) {
     // path matches /sys/class/fpga/intel-fpga-dev\..*
     // we are opening a driver attribute file
+
+    if (flags == O_WRONLY) {
+      // truncate the file to zero to emulate the sysfs behavior.
+      flags |= O_TRUNC;
+    }
+
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     std::lock_guard<std::mutex> guard(fds_mutex_);
@@ -422,6 +534,7 @@ int test_system::open(const std::string &path, int flags) {
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
     // we are opening a device
+    fd = open_(syspath.c_str(), flags);
     auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(1) == "fme") {
@@ -431,6 +544,8 @@ int test_system::open(const std::string &path, int flags) {
       std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
+  } else {
+    fd = open_(syspath.c_str(), flags);
   }
   return fd;
 }
@@ -449,8 +564,9 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
 
 static bool _invalidate_read = false;
 static uint32_t _invalidate_read_after = 0;
-static const char * _invalidate_read_when_called_from = nullptr;
-void test_system::invalidate_read(uint32_t after, const char *when_called_from) {
+static const char *_invalidate_read_when_called_from = nullptr;
+void test_system::invalidate_read(uint32_t after,
+                                  const char *when_called_from) {
   _invalidate_read = true;
   _invalidate_read_after = after;
   _invalidate_read_when_called_from = when_called_from;
@@ -458,40 +574,36 @@ void test_system::invalidate_read(uint32_t after, const char *when_called_from) 
 
 ssize_t test_system::read(int fd, void *buf, size_t count) {
   if (_invalidate_read) {
-
     if (!_invalidate_read_when_called_from) {
+      if (!_invalidate_read_after) {
+        _invalidate_read = false;
+        return -1;
+      }
 
-        if (!_invalidate_read_after) {
-          _invalidate_read = false;
-          return -1;
-        }
-
-        --_invalidate_read_after;
+      --_invalidate_read_after;
 
     } else {
-        // 2 here, because we were called through..
-	// 0 test_system.cpp:opae_test_read()
-	// 1 mock.c:read()
-	// 2 <caller>
-        void *caller = __builtin_return_address(2);
-        int res;
-        Dl_info info;
+      // 2 here, because we were called through..
+      // 0 test_system.cpp:opae_test_read()
+      // 1 mock.c:read()
+      // 2 <caller>
+      void *caller = __builtin_return_address(2);
+      int res;
+      Dl_info info;
 
-        dladdr(caller, &info);
-        if (!info.dli_sname)
-            res = 1;
-        else
-            res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
 
-        if (!_invalidate_read_after && !res) {
-          _invalidate_read = false;
-          _invalidate_read_when_called_from = nullptr;
-          return -1;
-        } else if (!res)
-            --_invalidate_read_after;
-
+      if (!_invalidate_read_after && !res) {
+        _invalidate_read = false;
+        _invalidate_read_when_called_from = nullptr;
+        return -1;
+      } else if (!res)
+        --_invalidate_read_after;
     }
-
   }
   return read_(fd, buf, count);
 }
@@ -499,6 +611,48 @@ ssize_t test_system::read(int fd, void *buf, size_t count) {
 FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   std::string syspath = get_sysfs_path(path);
   return fopen_(syspath.c_str(), mode.c_str());
+}
+
+FILE *test_system::popen(const std::string &cmd, const std::string &type) {
+  // Is this something we're interested in?
+  if (0 == cmd.compare(0, 5, "rdmsr")) {
+    char tmpfile[20];
+    strcpy(tmpfile, "popen-XXXXXX.tmp");
+    close(mkstemps(tmpfile, 4));
+
+    FILE *fp = fopen(tmpfile, "w+");
+
+    size_t last_spc = cmd.find_last_of(' ');
+    std::string msr(cmd.substr(last_spc+1));
+
+    if (0 == msr.compare("0x35")) {
+      fprintf(fp, "0x0000000000180030");
+    } else if (0 == msr.compare("0x610")) {
+      fprintf(fp, "0x000388d000148758");
+    } else if (0 == msr.compare("0x606")) {
+      fprintf(fp, "0x00000000000a0e03");
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    popen_requests_.insert(std::make_pair(fp, tmpfile));
+
+    return fp;
+  } else {
+    return popen_(cmd.c_str(), type.c_str());
+  }
+}
+
+int test_system::pclose(FILE *stream) {
+  // Is this something we intercepted?
+  std::map<FILE *, std::string>::iterator it =
+	  popen_requests_.find(stream);
+  if (it != popen_requests_.end()) {
+    unlink(it->second.c_str());
+    popen_requests_.erase(it);
+    fclose(stream);
+    return 0; // process exit status
+  }
+  return pclose_(stream);
 }
 
 int test_system::close(int fd) {
@@ -561,6 +715,59 @@ int test_system::scandir(const char *dirp, struct dirent ***namelist,
   return scandir_(syspath.c_str(), namelist, filter, cmp);
 }
 
+int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
+                                   const cpu_set_t *mask) {
+  UNUSED_PARAM(pid);
+  UNUSED_PARAM(cpusetsize);
+  UNUSED_PARAM(mask);
+  if (hijack_sched_setaffinity_) {
+    if (!hijack_sched_setaffinity_caller_) {
+      if (!hijack_sched_setaffinity_after_) {
+        hijack_sched_setaffinity_ = false;
+        int res = hijack_sched_setaffinity_return_val_;
+        hijack_sched_setaffinity_return_val_ = 0;
+	return res;
+      }
+
+      --hijack_sched_setaffinity_after_;
+
+    } else {
+      // 2 here, because we were called through..
+      // 0 test_system.cpp:opae_test_sched_setaffinity()
+      // 1 mock.c:sched_setaffinity()
+      // 2 <caller>
+      void *caller = __builtin_return_address(2);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, hijack_sched_setaffinity_caller_);
+
+      if (!hijack_sched_setaffinity_after_ && !res) {
+        hijack_sched_setaffinity_ = false;
+        hijack_sched_setaffinity_caller_ = nullptr;
+        res = hijack_sched_setaffinity_return_val_;
+        hijack_sched_setaffinity_return_val_ = 0;
+	return res;
+      } else if (!res)
+        --hijack_sched_setaffinity_after_;
+    }
+  }
+  return 0; // return success - we don't actually
+            // want to change the affinity.
+}
+
+void test_system::hijack_sched_setaffinity(int return_val, uint32_t after,
+                                           const char *when_called_from) {
+  hijack_sched_setaffinity_ = true;
+  hijack_sched_setaffinity_return_val_ = return_val;
+  hijack_sched_setaffinity_after_ = after;
+  hijack_sched_setaffinity_caller_ = when_called_from;
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
@@ -596,6 +803,14 @@ FILE *opae_test_fopen(const char *path, const char *mode) {
   return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
+FILE *opae_test_popen(const char *cmd, const char *type) {
+  return opae::testing::test_system::instance()->popen(cmd, type);
+}
+
+int opae_test_pclose(FILE *stream) {
+  return opae::testing::test_system::instance()->pclose(stream);
+}
+
 int opae_test_close(int fd) {
   return opae::testing::test_system::instance()->close(fd);
 }
@@ -624,4 +839,9 @@ int opae_test_scandir(const char *dirp, struct dirent ***namelist,
                       filter_func filter, compare_func cmp) {
   return opae::testing::test_system::instance()->scandir(dirp, namelist, filter,
                                                          cmp);
+}
+
+int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize,
+                                const cpu_set_t *mask) {
+  return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
 }

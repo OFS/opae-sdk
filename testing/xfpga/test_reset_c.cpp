@@ -86,8 +86,6 @@ TEST_P(reset_c_p, test_port_drv_reset) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
 }
 
-
-
 /**
  * @test       reset_c
  * @brief      test_port_drv_reset_01
@@ -99,8 +97,6 @@ TEST_P(reset_c_p, test_port_drv_reset_01) {
   system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
 }
-
-
 
 /**
  * @test       reset_c
@@ -121,7 +117,6 @@ TEST_P(reset_c_p, test_port_drv_reset_02) {
 
   _handle->magic = FPGA_HANDLE_MAGIC;
 }
-
 
 /**
  * @test       reset_c
@@ -145,5 +140,15 @@ TEST_P(reset_c_p, test_port_drv_reset_03) {
   _handle->fddev = fddev;
 }
 
+/**
+ * @test       reset_c
+ * @brief      valid_port_reset
+ * @details    When the handle is valid and the drivers are
+ *             loaded, xfpga_fpgaReset return FPGA_OK.
+ *
+ */
+TEST_P(reset_c_p, valid_port_reset) {
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+} 
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));

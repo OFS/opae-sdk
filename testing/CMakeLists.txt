@@ -34,7 +34,8 @@ add_library(opae-cxx-core-static
     ${OPAE_SDK_SOURCE}/libopaecxx/src/properties.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/shared_buffer.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/token.cpp
-#    ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/sysobject.cpp
+    ${OPAE_SDK_SOURCE}/libopaecxx/src/version.cpp
     )
 target_include_directories(opae-cxx-core-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -89,6 +90,40 @@ add_library(fpgad-static
 target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
 target_include_directories(fpgad-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(fpgaconf-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
+    )
+
+target_compile_definitions(fpgaconf-static PRIVATE main=fpgaconf_main)
+
+target_include_directories(fpgaconf-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(coreidle-static
+    ${OPAE_SDK_SOURCE}/tools/extra/coreidle/coreidle.c
+    ${OPAE_SDK_SOURCE}/tools/extra/coreidle/main.c
+    )
+
+target_compile_definitions(coreidle-static PRIVATE main=coreidle_main)
+
+target_include_directories(coreidle-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
+add_library(userclk-static
+    ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
+    )
+
+target_compile_definitions(userclk-static PRIVATE main=userclk_main)
+
+target_include_directories(userclk-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -218,6 +253,32 @@ add_mock_test(test_opae_buffer_cxx_core opae-cxx-core-static
     opae-cxx/test_buffer_cxx_core.cpp
 )
 
+add_mock_test(test_opae_errors_cxx_core opae-cxx-core-static
+    opae-cxx/test_errors_cxx_core.cpp
+)
+
+add_mock_test(test_opae_events_cxx_core opae-cxx-core-static
+    opae-cxx/test_events_cxx_core.cpp
+)
+target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
+        ${libjson-c_LIBRARIES})
+
+add_mock_test(test_opae_properties_cxx_core opae-cxx-core-static
+    opae-cxx/test_properties_cxx_core.cpp
+)
+
+add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
+    opae-cxx/test_version_cxx_core.cpp
+)
+
+add_mock_test(test_opae_except_cxx_core opae-cxx-core-static
+    opae-cxx/test_except_cxx_core.cpp
+)
+
+add_mock_test(test_opae_object_cxx_core opae-cxx-core-static
+    opae-cxx/test_object_cxx_core.cpp
+)
+
 ############################################################################
 # xfpga tests ##############################################################
 ############################################################################
@@ -340,8 +401,43 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
     fpgad/test_ap6_c.cpp
 )
 
+############################################################################
+# fpgaconf tests ###########################################################
+############################################################################
+
+add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
+    fpgaconf/test_fpgaconf_c.cpp
+)
+
+############################################################################
+# coreidle tests ###########################################################
+############################################################################
+
+add_mock_test(test_coreidle_coreidle_c coreidle-static
+    coreidle/test_coreidle_c.cpp
+)
+
+add_mock_test(test_coreidle_main_c coreidle-static
+    coreidle/test_main_c.cpp
+)
+
+############################################################################
+# userclk tests ############################################################
+############################################################################
+
+add_mock_test(test_userclk_c userclk-static
+    userclk/test_userclk_c.cpp
+)
+
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0.tar.gz
     ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )

@@ -535,5 +535,92 @@ TEST_P(enum_c_p, num_interrupts) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+/**
+ * @test       num_filter_neg
+ *
+ * @brief      When the num_filter parameter to fpgaEnumerate is zero,
+ *             but the filter parameter is non-NULL, the function
+ *             returns FPGA_INVALID_PARAM.
+ */
+TEST_P(enum_c_p, num_filter_neg) {
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 0, tokens_.data(), 0, &num_matches_),
+            FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       max_tokens
+ *
+ * @brief      fpgaEnumerate honors the input max_tokens value by
+ *             limiting the number of output entries written to the
+ *             memory at match, even though more may exist.
+ */
+TEST_P(enum_c_p, max_tokens) {
+  uint32_t max_tokens = 1;
+
+  EXPECT_EQ(xfpga_fpgaEnumerate(NULL, 0, tokens_.data(), max_tokens, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(2 * platform_.devices.size(), num_matches_);
+
+  EXPECT_NE(tokens_[0], nullptr);
+  EXPECT_EQ(tokens_[1], nullptr);
+}
+
+/**
+ * @test       filter
+ *
+ * @brief      fpgaEnumerate honors a "don't care" properties filter by
+ *             returning all available tokens.
+ */
+TEST_P(enum_c_p, filter) {
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaEnumerate(&filter_, 1, NULL, 0, &num_matches_));
+  EXPECT_EQ(2 * platform_.devices.size(), num_matches_);
+}
+
+/**
+ * @test       parent_neg
+ *
+ * @brief      When the filter passed to fpgaEnumerate has a valid
+ *             parent field set, but that parent is not found to be the
+ *             parent of any device, fpgaEnumerate returns zero matches.
+ */
+TEST_P(enum_c_p, parent_neg) {
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), 0, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 1);
+
+  EXPECT_EQ(fpgaPropertiesSetParent(filter_, &tokens_[0]), FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, NULL, 0, &num_matches_), FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
+/**
+ * @test       get_guid
+ *
+ * @brief      Given I have a system with at least one FPGA And I
+ *             enumerate with a filter of objtype of FPGA_DEVICE When I
+ *             get properties from the resulting token And I query the
+ *             GUID from the properties Then the GUID is returned and
+ *             the result is FPGA_OK.
+ *
+ */
+TEST_P(enum_c_p, get_guid) {
+  fpga_properties prop;
+  fpga_guid guid;
+  fpga_properties filterp = NULL;
+
+  ASSERT_EQ(xfpga_fpgaGetProperties(NULL, &filterp), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(filterp, FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(fpgaDestroyProperties(&filterp), FPGA_OK);
+
+  ASSERT_EQ(xfpga_fpgaGetProperties(tokens_[0], &prop), FPGA_OK);
+
+  EXPECT_EQ(fpgaPropertiesGetGUID(prop, &guid), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
