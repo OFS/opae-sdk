@@ -277,4 +277,4 @@ TEST_P(usrclk_c, fpga_get_user_clock) {
 
 // TODO: Fix user clock test for DCP
 //INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c, ::testing::ValuesIn(test_platform::keys(true)));
-INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c, ::testing::Values("skx-p-1s"));
+INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c, ::testing::Values("skx-p"));
