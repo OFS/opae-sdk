@@ -55,7 +55,7 @@ pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
  *
  * @return
  */
-struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, opae_wrapped_handle *wrapped_handle)
+struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpga_handle handle)
 {
 	struct _fpga_feature_token *tmp;
 	errno_t e;
@@ -84,7 +84,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, opa
   tmp->feature_type = type;
 
   tmp->dma_plugin[0] = '\0';
-  tmp->wrapped_handle = wrapped_handle;
+  tmp->handle = handle;
 
   e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,
 			       sizeof(fpga_guid));
@@ -135,7 +135,7 @@ void feature_token_cleanup(void)
 		current = current->next;
 
 		// invalidate magic (just in case)
-		tmp->magic = FEATURE_INVALID_MAGIC;
+		tmp->magic = OPAE_FEATURE_INVALID_MAGIC;
 		free(tmp);
     tmp = NULL;
 	}

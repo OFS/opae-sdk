@@ -33,11 +33,11 @@
 #include <stdlib.h>
 
 __attribute__((constructor))
-STATIC void fpga_init(void)
+STATIC void fpga_dma_init(void)
 {
 }
 
 __attribute__((destructor))
-STATIC void fpga_release(void)
+STATIC void fpga_dma_release(void)
 {
 }

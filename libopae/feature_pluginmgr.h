@@ -31,16 +31,12 @@
 
 // BBB Feature ID (refer CCI-P spec)
 #define FPGA_DMA_BBB 0x2
+#define DMA_ID1 "EA01CEBA-359A-14A9-FC40-ECF6F7DE82EF"
 
 #define AFU_DFH_REG 0x0
 #define AFU_DFH_NEXT_OFFSET 16
 #define AFU_DFH_EOL_OFFSET 40
 #define AFU_DFH_TYPE_OFFSET 60
-
-static const fpga_guid INVALID_GUID = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-}; 
 
 static inline bool _fpga_dfh_feature_eol(uint64_t dfh) 
 { 
@@ -69,8 +65,7 @@ int feature_plugin_mgr_finalize_all(void);
 // iteration stops if callback returns non-zero.
 #define OPAE_ENUM_STOP 1
 #define OPAE_ENUM_CONTINUE 0
-int dma_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_dma_adapter_table *, void *), void *context);
+opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid);
 
 void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid);
 int dma_plugin_mgr_initialize(fpga_handle handle);

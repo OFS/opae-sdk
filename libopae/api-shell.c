@@ -1502,7 +1502,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 
     get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
     
-    _ftoken = feature_token_add(feature_type, guid, wrapped_handle);
+    _ftoken = feature_token_add(feature_type, guid, handle);
     
     if (_ftoken->feature_type == prop->type) {
       if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
@@ -1520,4 +1520,66 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
   } while (!end_of_list); 
   
   return res;
+}
+
+fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
+                            void *priv_config, fpga_feature_handle *handle)
+{
+  UNUSED_PARAM(priv_config);
+  fpga_result res = FPGA_OK;
+  int errors = 0;
+  struct _fpga_feature_token *_ftoken;
+  struct _fpga_feature_handle *_fhandle;
+  opae_dma_adapter_table *adapter;
+
+  ASSERT_NOT_NULL(token);
+  ASSERT_NOT_NULL(handle);
+  ASSERT_NOT_NULL(handle);
+
+	if (flags & ~FPGA_OPEN_SHARED) {
+		OPAE_ERR("unrecognized flags");
+		res = FPGA_INVALID_PARAM;
+	}
+    
+  _ftoken = (struct _fpga_feature_token *)token;
+  
+  if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
+    OPAE_ERR("Invalid feature token");
+    res = FPGA_INVALID_PARAM;
+	}  
+
+  errors = dma_plugin_mgr_initialize(_ftoken->handle);
+  if (errors) {
+    OPAE_ERR("Feature token initialize errors");
+    res = FPGA_EXCEPTION;
+  }
+  
+  _fhandle = malloc(sizeof(struct _fpga_feature_handle));
+	if (NULL == _fhandle) {
+		OPAE_ERR("Failed to allocate memory for fhandle");
+		res = FPGA_NO_MEMORY;
+	}
+
+  memset_s(_fhandle, sizeof(*_fhandle), 0);
+
+  adapter = get_dma_plugin_adapter(_ftoken->feature_guid);
+	// mark data structure as valid
+	_fhandle->magic = OPAE_FEATURE_HANDLE_MAGIC;
+	_fhandle->feature_token = token;
+  _fhandle->dma_adapter_table = adapter;
+  
+  // res = adapter->fpgaDMAOpen();
+  //_fhandle->dma_prop = 
+  
+  // Increment feature token ref_count at success
+  
+  *handle = (void *)_fhandle;
+  return res;
+}
+
+fpga_result fpgaFeatureClose(fpga_feature_handle handle)
+{
+    UNUSED_PARAM(handle);
+    return FPGA_OK;
+
 }

@@ -197,6 +197,7 @@ typedef struct _opae_dma_adapter_table {
 
 	struct _opae_dma_adapter_table *next;
 	opae_plugin plugin;
+  fpga_guid guid;
 
 	fpga_result (*fpgaDMAOpen)(fpga_handle handle,
                                uint64_t dma_mmio_base,

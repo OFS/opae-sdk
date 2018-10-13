@@ -91,12 +91,6 @@
 // FPGA invalid magic (FPGAINVL)
 #define FPGA_INVALID_MAGIC 0x46504741494e564c
 
-#define FEATURE_TOKEN_MAGIC 0x46504741564f4b4e
-
-#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
-
-#define DMA_MAX_CHANNEL 32
-
 // Register/Unregister for interrupts
 #define FPGA_IRQ_ASSIGN (1 << 0)
 #define FPGA_IRQ_DEASSIGN (1 << 1)

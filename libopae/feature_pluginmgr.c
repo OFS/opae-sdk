@@ -55,8 +55,6 @@ typedef struct _feature_data {
 #define OPAE_FEATURE_DATA_LOADED   0x00000002
 } feature_data;
 
-#define DMA_ID1 "EA01CEBA-359A-14A9-FC40-ECF6F7DE82EF"
-
 static feature_data feature_data_table[] = {
 	{ DMA_ID1, "libintel-dma.so", 0 },
 	{ NULL, NULL, 0 },
@@ -68,10 +66,11 @@ STATIC opae_dma_adapter_table *dma_adapter_list = (void *)0;
 static pthread_mutex_t dma_adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path)
+STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path, fpga_guid guid)
 {
 	void *dl_handle;
 	opae_dma_adapter_table *adapter;
+  errno_t e;
 
 	dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
 
@@ -90,6 +89,11 @@ STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path
 		return NULL;
 	}
 
+	e = memcpy_s(adapter->guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
+	if (EOK != e) {
+		OPAE_ERR("memcpy_s failed");
+		return NULL;
+	}
 	adapter->plugin.path = (char *)lib_path;
 	adapter->plugin.dl_handle = dl_handle;
 
@@ -321,6 +325,7 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 	int features_detected = 0;
 	opae_dma_adapter_table *adapter;
 	int i,j;
+  fpga_guid guid;
  
 	opae_mutex_lock(res, &dma_adapter_list_lock);
 
@@ -366,7 +371,8 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 		if (already_loaded)
 			continue;
 
-		adapter = dma_plugin_mgr_alloc_adapter(feature_plugin);
+    uuid_parse(feature_plugin, guid);
+		adapter = dma_plugin_mgr_alloc_adapter(feature_plugin, guid);
 
 		if (!adapter) {
 			OPAE_ERR("malloc failed");
@@ -409,27 +415,22 @@ out_unlock:
 	return errors;
 }
 
-int dma_plugin_mgr_for_each_adapter
-	(int (*callback)(const opae_dma_adapter_table *, void *), void *context)
+opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid)
 {
 	int res;
-	int cb_res = OPAE_ENUM_CONTINUE;
+  opae_dma_adapter_table *adapter = NULL;
 	opae_dma_adapter_table *aptr;
-
-	if (!callback) {
-		OPAE_ERR("NULL callback passed to %s()", __func__);
-		return OPAE_ENUM_STOP;
-	}
 
 	opae_mutex_lock(res, &dma_adapter_list_lock);
 
 	for (aptr = dma_adapter_list; aptr; aptr = aptr->next) {
-		cb_res = callback(aptr, context);
-		if (cb_res)
-			break;
-	}
-
+		res = uuid_compare(aptr->guid, guid);
+		if (!res) {
+      adapter = aptr;
+      break;
+    }
+  }
 	opae_mutex_unlock(res, &dma_adapter_list_lock);
 
-	return cb_res;
+	return adapter;
 }

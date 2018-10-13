@@ -36,6 +36,7 @@
 #include <opae/log.h>
 #include <opae/feature.h>
 #include <opae/mmio.h>
+#include <opae/dma.h>
 
 #ifndef __USE_GNU
 #define __USE_GNU
@@ -93,22 +94,6 @@
 				 strerror(errno));                             \
 		__res;                                                         \
 	})
-
-
-/** Process-wide unique FPGA feature handle */
-struct _fpga_feature_handle {
-  fpga_handle fpga_h;
-	pthread_mutex_t lock;
-	uint64_t magic;
-	fpga_feature_token token;
-	uint32_t mmio_num;
-	uint64_t mmio_offset;
-	uint64_t feature_base;
-	uint64_t feature_offset;
-  //fpgaDMAProperties * dma_prop;
-	
-  fpga_event_handle *eh_root;
-};
 
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
 typedef struct _opae_dma_adapter_table opae_dma_adapter_table;
@@ -238,9 +223,7 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 
 //                                  f e a t    
 #define OPAE_FEATURE_TOKEN_MAGIC 0x66656174
-#define FEATURE_INVALID_MAGIC 0x46504741494e564c
-#define FEATURE_HANDLE_MAGIC 0x46504741584e444c
-
+#define OPAE_FEATURE_INVALID_MAGIC 0x46504741494e564c
 /** Device-wide unique FPGA feature resource identifier */
 struct _fpga_feature_token {
 	uint64_t magic;
@@ -248,19 +231,25 @@ struct _fpga_feature_token {
 	uint32_t feature_type;
 	fpga_guid feature_guid;
   char dma_plugin[256];
-  opae_wrapped_handle *wrapped_handle;
+  fpga_handle handle;
 	struct _fpga_feature_token *next;
 };
 
-//                                           f e a h 
-#define OPAE_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
+//                                   f e a h 
+#define OPAE_FEATURE_HANDLE_MAGIC 0x66656168
 
-typedef struct _opae_wrapped_feature_handle {
+/** Process-wide unique FPGA feature handle */
+struct _fpga_feature_handle {
+  pthread_mutex_t lock;
 	uint32_t magic;
-  opae_wrapped_handle *wrapped_handle;
   fpga_feature_token feature_token;
-	fpga_feature_handle feature_handle;
+	uint32_t mmio_num;
+	uint64_t mmio_offset;
+	uint64_t feature_base;
+	uint64_t feature_offset;
+  fpgaDMAProperties dma_prop;
 	opae_dma_adapter_table *dma_adapter_table;
-} opae_wrapped_feature_handle;
+  fpga_event_handle *eh_root;
+};
 
 #endif // ___OPAE_OPAE_INT_H__
