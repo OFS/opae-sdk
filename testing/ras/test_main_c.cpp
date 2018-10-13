@@ -33,30 +33,22 @@ extern "C" {
 // RAS Command line struct
 struct  RASCommandLine
 {
-  uint32_t          flags;
-  #define RASAPP_CMD_FLAG_HELP      0x00000001
-  #define RASAPP_CMD_FLAG_VERSION   0x00000002
-  #define RASAPP_CMD_PARSE_ERROR    0x00000003
-  
-  #define RASAPP_CMD_FLAG_BUS       0x00000008
-  #define RASAPP_CMD_FLAG_DEV       0x00000010
-  #define RASAPP_CMD_FLAG_FUNC      0x00000020
-  #define RASAPP_CMD_FLAG_SOCKET    0x00000040
-  
-  int      bus;
-  int      device;
-  int      function;
-  int      socket;
-  bool     print_error;
-  bool     catast_error;
-  bool     fatal_error;
-  bool     nonfatal_error;
-  bool     clear_injerror;
-  bool     mwaddress_error;
-  bool     mraddress_error;
-  bool     mwlength_error;
-  bool     mrlength_error;
-  bool     pagefault_error;
+  uint32_t flags;
+  int segment;
+  int bus;
+  int device;
+  int function;
+  int socket;
+  bool print_error;
+  bool catast_error;
+  bool fatal_error;
+  bool nonfatal_error;
+  bool clear_injerror;
+  bool mwaddress_error;
+  bool mraddress_error;
+  bool mwlength_error;
+  bool mrlength_error;
+  bool pagefault_error;
 };
 
 extern struct RASCommandLine rasCmdLine;
@@ -90,8 +82,6 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
   ras_c_p() {}
 
   virtual void SetUp() override {
-    strcpy(tmp_gbs_, "tmp-XXXXXX.gbs");
-    close(mkstemps(tmp_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -105,6 +95,7 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     gbs.write((const char *) gbs_file.data(), gbs_file.size());
     gbs.close();
 
+    optind = 0;
     cmd_line_ = rasCmdLine;
   }
 
@@ -116,7 +107,6 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmp_gbs_);
     }
-
   }
 
   struct RASCommandLine cmd_line_;
@@ -164,20 +154,10 @@ TEST_P(ras_c_p, invalid_print_token_errors){
   fpga_properties filter = NULL;
   uint32_t num_matches = 0;
   fpga_token tok = nullptr;
-  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.01/errors/errors";
+  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
 
   EXPECT_EQ(FPGA_INVALID_PARAM, print_errors(tok, sysfs_port.c_str(), nullptr, 0)); 
-
-  EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
-  EXPECT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-  EXPECT_EQ(fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR), FPGA_OK);
-  EXPECT_EQ(fpgaEnumerate(&filter, 1, &tok, 1, &num_matches), FPGA_OK);
-
-  // Inject invalid error path
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_errors(tok, sysfs_port.c_str(), nullptr, 0)); 
-
-  EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&tok));  
-  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&filter));  
+  
 }
 
 /**
@@ -233,6 +213,7 @@ TEST_P(ras_c_p, invalid_mmio_errors){
 TEST_P(ras_c_p, invalid_ras_errors){
   fpga_token tok = nullptr;
   EXPECT_EQ(FPGA_INVALID_PARAM, print_ras_errors(tok));
+  //EXPECT_EQ(FPGA_OK, print_ras_errors(tokens_dev_[0]));
 }
 
 /**
@@ -260,8 +241,8 @@ TEST_P(ras_c_p, invalid_clear_port_errors){
 /**
  * @test       main_params_01
  * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command option,<br>
- *             it returns zero.<br>
+ * @details    When ras_main is called with an valid command,<br>
+ *             injecting cast error option, ras_main returns zero.<br>
  */
 TEST_P(ras_c_p, main_params_01){
   char zero[20];
@@ -272,36 +253,41 @@ TEST_P(ras_c_p, main_params_01){
   char five[20];
   char six[20];
   char seven[20];
-  //char eight[20];
-  //char nine[20];
-  //char ten[20];
-  //char eleven[20];
-  //char twelve[20];
-  //char thirteen[20];
-  //char fourteen[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
 
   strcpy(zero, "ras");
-  strcpy(one, "-B");
-  strcpy(two, "0x5e");
-  strcpy(three, "-D");
-  strcpy(four, "0x0");
-  strcpy(five, "-P");
-  strcpy(six, "-Q");
-  strcpy(seven, "-C");
-  //strcpy(eight, "-O");
-  //strcpy(nine, "-N");
-  //strcpy(ten, "-C");
-  //strcpy(eleven, "-E");
-  //strcpy(twelve, "-G");
-  //strcpy(thirteen, "-H");
-  //strcpy(fourteen, "I");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-Q");
+  strcpy(thirteen, "-C");
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven };
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen };
 
-  EXPECT_EQ(ras_main(8, argv), 0);
+  EXPECT_EQ(ras_main(14, argv), 0);
 }
 
+/**
+ * @test       main_params_02
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting fatal error option, ras_main returns zero.<br>
+ */
 TEST_P(ras_c_p, main_params_02){
   char zero[20];
   char one[20];
@@ -314,39 +300,172 @@ TEST_P(ras_c_p, main_params_02){
   char eight[20];
   char nine[20];
   char ten[20];
-  //char eleven[20];
-  //char twelve[20];
-  //char thirteen[20];
-  //char fourteen[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+
   strcpy(zero, "ras");
-  strcpy(one, "-B");
-  strcpy(two, "0x5e");
-  strcpy(three, "-D");
-  strcpy(four, "0x0");
-  strcpy(five, "-F");
-  strcpy(six, "0x0");
-  strcpy(seven, "-S");
-  strcpy(eight, "0x0");
-  strcpy(nine, "-P");
-  strcpy(ten, "-N");
-  //strcpy(eleven, "-h");
-  //strcpy(twelve, "-H");
-  //strcpy(thirteen, "-I");
-  //strcpy(fourteen, "");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-R");
+  strcpy(thirteen, "-C");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten }; 
-  EXPECT_EQ(ras_main(11, argv), 0);
+                   ten, eleven, twelve, thirteen };
+
+  EXPECT_EQ(ras_main(14, argv), 0);
 }
 
 /**
- * @test       main_invalid
+ * @test       main_params_03
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting page fault error option, ras_main returns zero.<br>
+ */
+TEST_P(ras_c_p, main_params_03){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-O");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  EXPECT_EQ(ras_main(13, argv), 0);
+}
+
+/**
+ * @test       main_params_04
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting non fatal error, ras_main retunrs zeros.<br>
+ */
+TEST_P(ras_c_p, main_params_04){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-N");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  EXPECT_EQ(ras_main(13, argv), 0);
+}
+
+/**
+ * @test       main_params_05
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting mmio error, ras_main retunrs zeros.<br>
+ */
+TEST_P(ras_c_p, main_params_05){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+  strcpy(three, "-P");
+  strcpy(four, "-E");
+  strcpy(five, "-G");
+  strcpy(six, "-H");
+  strcpy(seven, "-I");
+  strcpy(eight, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight };
+
+  EXPECT_EQ(ras_main(9, argv), 0);
+}
+
+/**
+ * @test       invalid_cmd_01
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with only 1 arg,<br>
+ *             main returns 1.<br>
+ */
+TEST_P(ras_c_p, invalid_cmd_01){
+  char zero[20];
+  strcpy(zero, "ras");
+
+  char *argv[] = { zero }; 
+  EXPECT_EQ(ras_main(1, argv), 1);
+}
+
+/**
+ * @test       invalid_cmd_02
  * @brief      Test: ras_main
  * @details    When ras_main is called with an invalid command option,<br>
- *             it returns non-zero.<br>
+ *             main returns 2.<br>
  */
-TEST_P(ras_c_p, test_main){
+TEST_P(ras_c_p, invalid_cmd_02){
   char zero[20];
   char one[20];
   
@@ -354,9 +473,7 @@ TEST_P(ras_c_p, test_main){
   strcpy(one, "-h");
 
   char *argv[] = { zero, one };
-  EXPECT_NE(ras_main(2, argv), 0);
- 
-  EXPECT_EQ(ras_main(1, argv), 1);
+  EXPECT_EQ(ras_main(2, argv), 2);
 }
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
