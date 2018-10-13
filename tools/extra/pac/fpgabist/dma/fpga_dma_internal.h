@@ -160,9 +160,9 @@
 #define FPGA_DMA_MAX_BUF 8
 
 typedef struct __attribute__((__packed__)) {
-	uint64_t dfh;
-	uint64_t feature_uuid_lo;
-	uint64_t feature_uuid_hi;
+	volatile uint64_t dfh;
+	volatile uint64_t feature_uuid_lo;
+	volatile uint64_t feature_uuid_hi;
 } dfh_feature_t;
 
 typedef union {

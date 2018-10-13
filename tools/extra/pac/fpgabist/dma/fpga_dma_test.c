@@ -556,23 +556,23 @@ int main(int argc, char *argv[])
 	res = fpgaOpen(afc_token, &afc_h, 0);
 	ON_ERR_GOTO(res, out_destroy_tok, "fpgaOpen");
 
+	fpga_properties props = NULL;
 #ifndef USE_ASE
 	// Set up proper affinity if requested
 	if (cpu_affinity || memory_affinity) {
 		unsigned dom = 0, bus = 0, dev = 0, func = 0;
-		fpga_properties props;
 		int retval;
 #ifdef FPGA_DMA_DEBUG
 		char str[4096];
 #endif
 		res = fpgaGetProperties(afc_token, &props);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaGetProperties");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaGetProperties");
 		res = fpgaPropertiesGetBus(props, (uint8_t *)&bus);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetBus");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaPropertiesGetBus");
 		res = fpgaPropertiesGetDevice(props, (uint8_t *)&dev);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetDevice");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaPropertiesGetDevice");
 		res = fpgaPropertiesGetFunction(props, (uint8_t *)&func);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetFunction");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaPropertiesGetFunction");
 
 		// Find the device from the topology
 		hwloc_topology_t topology;
@@ -604,13 +604,13 @@ int main(int argc, char *argv[])
 				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
 				HWLOC_MEMBIND_MIGRATE);
 #endif
-			ON_ERR_GOTO(retval, out_destroy_tok,
+			ON_ERR_GOTO(retval, out_destroy_prop,
 				    "hwloc_set_membind");
 		}
 		if (cpu_affinity) {
 			retval = hwloc_set_cpubind(topology, obj2->cpuset,
 						   HWLOC_CPUBIND_STRICT);
-			ON_ERR_GOTO(retval, out_destroy_tok,
+			ON_ERR_GOTO(retval, out_destroy_prop,
 				    "hwloc_set_cpubind");
 		}
 	}
@@ -626,10 +626,6 @@ int main(int argc, char *argv[])
 
 	res = fpgaDmaOpen(afc_h, &dma_h);
 	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaOpen");
-	if (!dma_h) {
-		res = FPGA_EXCEPTION;
-		ON_ERR_GOTO(res, out_dma_close, "Invaid DMA Handle");
-	}
 
 	if (use_ase)
 		count = ASE_TEST_BUF_SIZE;
@@ -751,8 +747,13 @@ out_unmap:
 	}
 out_close:
 	res = fpgaClose(afc_h);
-	ON_ERR_GOTO(res, out_destroy_tok, "fpgaClose");
+	ON_ERR_GOTO(res, out_destroy_prop, "fpgaClose");
 
+out_destroy_prop:
+	if (props) {
+		res = fpgaDestroyProperties(&props);
+		ON_ERR_GOTO(res, out_destroy_tok, "destroying properties");
+	}
 out_destroy_tok:
 	res = fpgaDestroyToken(&afc_token);
 	ON_ERR_GOTO(res, out, "fpgaDestroyToken");

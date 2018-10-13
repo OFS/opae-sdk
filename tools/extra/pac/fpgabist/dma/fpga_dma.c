@@ -604,7 +604,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma_p)
 
 	// Discover DMA BBB by traversing the device feature list
 	bool end_of_list = false;
-	bool dma_found = false;
+	volatile bool dma_found = false;
 
 #ifndef USE_ASE
 	res = fpgaMapMMIO(dma_h->fpga_h, 0, (uint64_t **)&dma_h->mmio_va);
