@@ -33,6 +33,7 @@ extern "C" {
 
 struct  CoreIdleCommandLine
 {
+        int      segment;
         int      bus;
         int      device;
         int      function;
@@ -101,6 +102,11 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
     coreidleCmdLine = cmd_line_;
 
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmp_gbs_);
+    }
   }
 
   struct CoreIdleCommandLine cmd_line_;
@@ -177,23 +183,27 @@ TEST_P(coreidle_main_c_p, main_err1) {
   char eight[20];
   char nine[20];
   char ten[20];
+  char eleven[20];
+  char twelve[20];
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
   strcpy(two, tmp_gbs_);
-  strcpy(three, "-B");
-  strcpy(four, "99");
-  strcpy(five, "-D");
+  strcpy(three, "--segment");
+  strcpy(four, "0x9999");
+  strcpy(five, "-B");
   strcpy(six, "99");
-  strcpy(seven, "-F");
-  strcpy(eight, "7");
-  strcpy(nine, "-S");
-  strcpy(ten, "99");
+  strcpy(seven, "-D");
+  strcpy(eight, "99");
+  strcpy(nine, "-F");
+  strcpy(ten, "7");
+  strcpy(eleven, "-S");
+  strcpy(twelve, "99");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten };
+                   ten, eleven, twelve };
 
-  EXPECT_NE(coreidle_main(11, argv), 0);
+  EXPECT_NE(coreidle_main(13, argv), 0);
 }
 
 /**
@@ -253,25 +263,30 @@ TEST_P(coreidle_main_c_p, parse1) {
   char eight[20];
   char nine[20];
   char ten[20];
+  char eleven[20];
+  char twelve[20];
   strcpy(zero, "coreidle");
-  strcpy(one, "-B");
-  strcpy(two, "0x5e");
-  strcpy(three, "-D");
-  strcpy(four, "0xab");
-  strcpy(five, "-F");
-  strcpy(six, "0xba");
-  strcpy(seven, "-S");
-  strcpy(eight, "3");
-  strcpy(nine, "-G");
-  strcpy(ten, "file.gbs");
+  strcpy(one, "--segment");
+  strcpy(two, "0x1234");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+  strcpy(five, "-D");
+  strcpy(six, "0xab");
+  strcpy(seven, "-F");
+  strcpy(eight, "0xba");
+  strcpy(nine, "-S");
+  strcpy(ten, "3");
+  strcpy(eleven, "-G");
+  strcpy(twelve, "file.gbs");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten };
+                   ten, eleven, twelve };
 
-  struct CoreIdleCommandLine cmd = { -1, -1, -1, -1, {0,}, NULL, 0 };
-  EXPECT_EQ(ParseCmds(&cmd, 11, argv), 0);
+  struct CoreIdleCommandLine cmd = { -1, -1, -1, -1, -1, {0,}, NULL, 0 };
+  EXPECT_EQ(ParseCmds(&cmd, 13, argv), 0);
 
+  EXPECT_EQ(cmd.segment, 0x1234);
   EXPECT_EQ(cmd.bus, 0x5e);
   EXPECT_EQ(cmd.device, 0xab);
   EXPECT_EQ(cmd.function, 0xba);
@@ -345,7 +360,6 @@ TEST_P(coreidle_main_c_p, read_bits3) {
   EXPECT_EQ(read_bitstream(&cmd), 0);
   free(cmd.gbs_data);
 }
-
 
 INSTANTIATE_TEST_CASE_P(coreidle_main_c, coreidle_main_c_p,
                         ::testing::Values(std::string("skx-p-1s")));

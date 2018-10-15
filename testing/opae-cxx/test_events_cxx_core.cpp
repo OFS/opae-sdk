@@ -33,6 +33,7 @@ extern "C" {
 
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include <opae/cxx/core/events.h>
@@ -48,15 +49,15 @@ using namespace opae::fpga::types;
 class events_cxx_core : public ::testing::TestWithParam<std::string> {
  protected:
   events_cxx_core()
-        : tokens_({nullptr, nullptr}),
+        : tokens_({nullptr}),
           handle_(nullptr) {}
+
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
     strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-
-    tmpfpgad_log_fd_ = mkstemps(tmpfpgad_log_, 4);
-    tmpfpgad_pid_fd_ = mkstemps(tmpfpgad_pid_, 4);
+    close(mkstemps(tmpfpgad_log_, 4));
+    close(mkstemps(tmpfpgad_pid_, 4));
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
@@ -98,15 +99,20 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     close(tmpfpgad_log_fd_);
     close(tmpfpgad_pid_fd_);
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpfpgad_log_);
+      unlink(tmpfpgad_pid_);
+    }
   }
 
+
+  handle::ptr_t handle_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
-  int tmpfpgad_log_fd_;
-  int tmpfpgad_pid_fd_;
   struct config config_;
   std::vector<token::ptr_t> tokens_;
-  handle::ptr_t handle_;
   test_platform platform_;
   std::thread fpgad_;
   test_system *system_;

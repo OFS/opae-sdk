@@ -44,18 +44,20 @@
 #define GETOPT_STRING ":hB:D:F:S:G"
 
 struct option longopts[] = {
-		{"help",                no_argument,       NULL, 'h'},
-		{"bus",                 required_argument, NULL, 'B'},
-		{"device",              required_argument, NULL, 'D'},
-		{"function",            required_argument, NULL, 'F'},
-		{"socket-id",           required_argument, NULL, 'S'},
-		{"gbs",                 required_argument, NULL, 'G'},
-		{0,0,0,0}
+	{ "help",      no_argument,       NULL, 'h' },
+	{ "segment",   required_argument, NULL, 0xe },
+	{ "bus",       required_argument, NULL, 'B' },
+	{ "device",    required_argument, NULL, 'D' },
+	{ "function",  required_argument, NULL, 'F' },
+	{ "socket-id", required_argument, NULL, 'S' },
+	{ "gbs",       required_argument, NULL, 'G' },
+	{ NULL, 0, NULL, 0 }
 };
 
 // coreidle Command line struct
 struct  CoreIdleCommandLine
 {
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -66,13 +68,14 @@ struct  CoreIdleCommandLine
 
 };
 
-struct CoreIdleCommandLine coreidleCmdLine = { -1, -1, -1, -1, "",NULL, 0};
+struct CoreIdleCommandLine coreidleCmdLine = { -1, -1, -1, -1, -1, "", NULL, 0 };
 
 // core idle Command line input help
 void CoreidleAppShowHelp()
 {
 	printf("Usage:\n");
-	printf("./coreidle \n");
+	printf("coreidle\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>          "
 			" OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>    "
@@ -130,16 +133,16 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
-	printf(" ------- Command line Input START ---- \n \n");
+	printf(" ------- Command line Input START ----\n\n");
 
+	printf(" Segment               : %d \n", coreidleCmdLine.segment);
 	printf(" Bus                   : %d \n", coreidleCmdLine.bus);
 	printf(" Device                : %d \n", coreidleCmdLine.device);
 	printf(" Function              : %d \n", coreidleCmdLine.function);
 	printf(" Socket                : %d \n", coreidleCmdLine.socket);
 	printf(" Filename              : %s \n", coreidleCmdLine.filename);
 
-
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
 
 	if(read_bitstream(&coreidleCmdLine) !=0) {
 		ON_ERR_GOTO(FPGA_INVALID_PARAM, out_exit, "Invalid Input bitstream");
@@ -155,22 +158,27 @@ int main(int argc, char *argv[])
 	result = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
-	if (coreidleCmdLine.bus >0){
+	if (coreidleCmdLine.segment > 0) {
+		result = fpgaPropertiesSetSegment(filter, coreidleCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
+
+	if (coreidleCmdLine.bus > 0){
 		result = fpgaPropertiesSetBus(filter, coreidleCmdLine.bus);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
 	}
 
-	if (coreidleCmdLine.device >0) {
+	if (coreidleCmdLine.device > 0) {
 		result = fpgaPropertiesSetDevice(filter, coreidleCmdLine.device);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (coreidleCmdLine.function >0){
+	if (coreidleCmdLine.function > 0){
 		result = fpgaPropertiesSetFunction(filter, coreidleCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (coreidleCmdLine.socket >0){
+	if (coreidleCmdLine.socket > 0){
 		result = fpgaPropertiesSetSocketID(filter, coreidleCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
@@ -218,7 +226,7 @@ int main(int argc, char *argv[])
 	printf(" GBS Power :%d watts \n", metadata.afu_image.power);
 
 	// Idle CPU cores
-	if ( metadata.afu_image.power >=0 ) {
+	if (metadata.afu_image.power >= 0) {
 		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
 	}
 
@@ -339,6 +347,14 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 			// Command line help
 			CoreidleAppShowHelp();
 			return -2;
+			break;
+
+		case 0xe:
+			// segment number
+			if (!tmp_optarg)
+				return -1;
+			endptr = NULL;
+			coreidleCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'B':
