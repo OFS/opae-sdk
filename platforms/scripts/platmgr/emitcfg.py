@@ -230,15 +230,18 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
         f.write("// {0}\n".format(afu_port['class']))
 
-        name = "AFU_TOP_REQUIRES_" + \
-            afu_port['class'].upper() + "_" + afu_port['interface'].upper()
+        name = afu_port['class'].upper() + "_" + \
+            afu_port['interface'].upper()
         name = illegal_chars.sub('_', name)
 
-        f.write("`define " + name + " ")
+        f.write("`define AFU_TOP_REQUIRES_" + name + " ")
         if ('num-entries' not in port):
             f.write("1\n")
         else:
             f.write("{0}\n".format(port['num-entries']))
+
+        if (afu_port['vector']):
+            f.write("`define PLATFORM_PARAM_" + name + "_IS_VECTOR 1\n")
 
         # Does either the AFU or platform request some preprocessor
         # definitions?
@@ -413,7 +416,8 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f.write('}\n\n')
 
     f.write(
-        "source {0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+        "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
+        "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
     f.close()
 
 

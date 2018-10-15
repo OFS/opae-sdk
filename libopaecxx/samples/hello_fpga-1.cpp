@@ -30,9 +30,9 @@
 
 #include <uuid/uuid.h>
 
-#include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/version.h>
 
@@ -61,10 +61,8 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
 
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) char* argv[]) {
-
-  std::cout << "Using OPAE C++ Core library version '"
-            << version::as_string() << "' build '"
-            << version::build() << "'\n";
+  std::cout << "Using OPAE C++ Core library version '" << version::as_string()
+            << "' build '" << version::build() << "'\n";
   // look for accelerator with NLB0_AFUID
   auto filter = properties::get();
   filter->guid.parse(NLB0_AFUID);
@@ -118,8 +116,8 @@ int main(__attribute__((unused)) int argc,
   accel->write_csr32(CSR_CTL, 7);
 
   // check output buffer contents
-  auto mm =
-      std::mismatch(inp->c_type(), inp->c_type() + LPBK1_BUFFER_SIZE, out->c_type());
+  auto mm = std::mismatch(inp->c_type(), inp->c_type() + LPBK1_BUFFER_SIZE,
+                          out->c_type());
   if (mm.second < out->c_type() + LPBK1_BUFFER_SIZE) {
     std::cerr << "output does NOT match input at offset: "
               << (mm.second - out->c_type()) << "\n";

@@ -183,10 +183,9 @@ const char __FPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
  */
 uint64_t wsid_gen(void)
 {
-	struct timeval t;
-	uint64_t id = 0;
-	gettimeofday(&t, NULL);
-	id = ((t.tv_sec * 1000 * 1000) + (t.tv_usec * 1000)) << 42;
-	id |= ((unsigned long)getpid() % 16777216) << 24;
+	static uint64_t ctr;
+
+	uint64_t id = __sync_fetch_and_add(&ctr, 1);
+	id ^= ((unsigned long) getpid() % 16777216) << 40;
 	return id;
 }

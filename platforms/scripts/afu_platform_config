@@ -149,23 +149,16 @@ def matchAfuPorts(args, afu_ifc_db, platform_db):
                 None
             elif (port['vector'] and not plat_match['vector']):
                 # AFU wants a vector, but the platform doesn't offer one.
-                # If the AFU can accept a single entry we're ok.
-                if (port['min-entries'] > 1):
-                    errorExit(("{0} port {1}:{2} requires more vector " +
-                               "entries than {3} provides!").format(
-                                   afu_name, port['class'],
-                                   port['interface'], plat_name))
-                if (args.verbose):
-                    print("  {0} vector length is 1".format(plat_key))
+                errorExit(("{0} port {1}:{2} expects a vector but the " +
+                           "platform {3} offers only a non-vector!").format(
+                               afu_name, port['class'],
+                               port['interface'], plat_name))
             elif (not port['vector'] and plat_match['vector']):
                 # Platform provides a vector, but the AFU doesn't want one
-                if (plat_match['min-entries'] > 1):
-                    errorExit(("{0} port {1}:{2} requires fewer vector " +
-                               "entries than {3} provides!").format(
-                                   afu_name, port['class'],
-                                   port['interface'], plat_name))
-                # Tell the platform to provide 1 entry
-                match['num-entries'] = 1
+                errorExit(("{0} port {1}:{2} expects a non-vector but the " +
+                           "platform {3} offers only a vector!").format(
+                               afu_name, port['class'],
+                               port['interface'], plat_name))
             else:
                 # Both are vectors.  Pick a size, starting with either the most
                 # the platform will offer or the default number, depending on
@@ -254,9 +247,13 @@ def getAfuIfc(args):
             print("Loading AFU interface from {0}".format(afu_json))
 
         with open(afu_json) as f:
-            data = json.load(f)
-        f.close()
-
+            try:
+                data = json.load(f)
+                f.close()
+            except Exception:
+                sys.stderr.write("\nError parsing JSON file {0}\n\n".format(
+                    afu_json))
+                raise
         try:
             afu_ifc = data['afu-image']['afu-top-interface']
 
