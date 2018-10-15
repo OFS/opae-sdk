@@ -393,7 +393,7 @@ extern uint8_t ASCII_6_bit_translation[];
 typedef struct _sensor_reading {
 	uint8_t _header[3]; // Ignored
 	uint8_t completion_code;
-	uint8_t sensor_reading;
+	uint8_t sens_reading;
 	union {
 		struct {
 			uint8_t _unused : 5;
