@@ -163,6 +163,60 @@ std::vector<std::string> test_platform::keys(bool sorted) {
   return fpga_db::instance()->keys();
 }
 
+std::vector<std::string> test_platform::platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  // from the list of platform names requested, remove the ones not found in
+  // the platform db
+  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n);
+  });
+  if (keys.empty()) {
+    throw std::invalid_argument("names requested not found in known platforms");
+  }
+  return keys;
+}
+
+std::vector<std::string> test_platform::mock_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  // from the list of platform names requested, remove the ones not found in
+  // the platform db or the ones that do exist but do not have a mock archive
+  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n) || db->exists(n) && db->get(n).mock_sysfs == nullptr;
+  });
+  if (keys.empty()) {
+    throw std::invalid_argument("names requested not found in known platforms");
+  }
+  return keys;
+}
+
+std::vector<std::string> test_platform::hw_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  // from the list of platform names requested, remove the ones not found in
+  // the platform db or the ones that do exist but do have a mock archive
+  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n) || db->exists(n) && db->get(n).mock_sysfs != nullptr;
+  });
+  if (keys.empty()) {
+    throw std::invalid_argument("names requested not found in known platforms");
+  }
+  return keys;
+}
+
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
 
 typedef std::pair<uint16_t, uint64_t> ven_dev_id;
@@ -337,4 +391,3 @@ bool fpga_db::exists(const std::string &key) {
 
 }  // end of namespace testing
 }  // end of namespace opae
-

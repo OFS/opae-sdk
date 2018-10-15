@@ -86,6 +86,9 @@ struct test_platform {
   static test_platform get(const std::string &key);
   static bool exists(const std::string &key);
   static std::vector<std::string> keys(bool sorted = false);
+  static std::vector<std::string> platforms(std::initializer_list<std::string> names);
+  static std::vector<std::string> mock_platforms(std::initializer_list<std::string> names);
+  static std::vector<std::string> hw_platforms(std::initializer_list<std::string> names);
   template<class P>
   int count_devices(P op) {
     int count = 0;
