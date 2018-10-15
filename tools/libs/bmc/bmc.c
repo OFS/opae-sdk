@@ -199,7 +199,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 
 	res = read_sysfs_file(sdr->token, SYSFS_SENSOR_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
+	if ((NULL == *tmp) || (FPGA_OK != res)) {
 		goto out;
 	}
 
