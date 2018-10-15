@@ -292,6 +292,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 	int res = 0;
 	char buf[SYSFS_PATH_MAX] = {0};
 	int b = 0;
+	int len;
 
 	if (path == NULL) {
 		FPGA_ERR("Invalid input path");
@@ -309,23 +310,23 @@ fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
 		goto out_close;
 	}
 
-	snprintf_s_l(buf, sizeof(buf), "0x%lx", u);
+	len = snprintf_s_l(buf, sizeof(buf), "0x%lx\n", u);
 
 	do {
-		res = write(fd, buf + b, sizeof(buf) - b);
+		res = write(fd, buf + b, len - b);
 		if (res <= 0) {
 			FPGA_ERR("Failed to write");
 			goto out_close;
 		}
 		b += res;
 
-		if ((unsigned)b > sizeof(buf) || b <= 0) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+		if (b > len || b <= 0) {
+			FPGA_MSG("Unexpected size writing to %s", path);
 			goto out_close;
 		}
 
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		 && (unsigned)b < sizeof(buf));
+		 && b < len);
 
 	close(fd);
 	return FPGA_OK;

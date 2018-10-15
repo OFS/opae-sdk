@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <opae/fpga.h>
 #include <stddef.h>
+#include <sched.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -159,6 +160,9 @@ class test_system {
 
   FILE * fopen(const std::string &path, const std::string &mode);
 
+  FILE * popen(const std::string &cmd, const std::string &type);
+  int pclose(FILE *stream);
+
   int close(int fd);
   int ioctl(int fd, unsigned long request, va_list argp);
 
@@ -168,6 +172,11 @@ class test_system {
   int lstat(int ver, const char *path, stat_t *buf);
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
+  int sched_setaffinity(pid_t pid, size_t cpusetsize,
+                        const cpu_set_t *mask);
+  void hijack_sched_setaffinity(int return_val, uint32_t after=0,
+                                const char *when_called_from=nullptr);
+
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
@@ -186,12 +195,15 @@ class test_system {
   std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
+  std::map<FILE * , std::string> popen_requests_;
   static test_system *instance_;
 
   typedef int (*open_func)(const char *pathname, int flags);
   typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
   typedef ssize_t (*read_func)(int fd, void *buf, size_t count);
   typedef FILE * (*fopen_func)(const char *path, const char *mode);
+  typedef FILE * (*popen_func)(const char *cmd, const char *type);
+  typedef int (*pclose_func)(FILE *stream);
   typedef int (*close_func)(int fd);
   typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
   typedef DIR *(*opendir_func)(const char *name);
@@ -200,11 +212,15 @@ class test_system {
   typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
   typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
                               compare_func);
+  typedef int (*sched_setaffinity_func)(pid_t pid, size_t cpusetsize,
+                                        const cpu_set_t *mask);
 
   open_func open_;
   open_create_func open_create_;
   read_func read_;
   fopen_func fopen_;
+  popen_func popen_;
+  pclose_func pclose_;
   close_func close_;
   ioctl_func ioctl_;
   opendir_func opendir_;
@@ -212,6 +228,12 @@ class test_system {
   __xstat_func xstat_;
   __xstat_func lstat_;
   scandir_func scandir_;
+  sched_setaffinity_func sched_setaffinity_;
+
+  bool hijack_sched_setaffinity_;
+  int hijack_sched_setaffinity_return_val_;
+  uint32_t hijack_sched_setaffinity_after_;
+  const char * hijack_sched_setaffinity_caller_;
 };
 
 }  // end of namespace testing

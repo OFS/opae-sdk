@@ -40,6 +40,7 @@ struct config {
        } mode;
   int flags;
   struct target {
+    int segment;
     int bus;
     int device;
     int function;
@@ -165,6 +166,10 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     config = config_;
 
     system_->finalize();
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmp_gbs_);
+    }
   }
 
   char tmp_gbs_[20];
@@ -402,30 +407,36 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char twelve[20];
   char thirteen[20];
   char fourteen[20];
+  char fifteen[20];
+  char sixteen[20];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-v");
   strcpy(two, "-n");
   strcpy(three, "--force");
-  strcpy(four, "-B");
-  strcpy(five, "0x5e");
-  strcpy(six, "-D");
-  strcpy(seven, "0xab");
-  strcpy(eight, "-F");
-  strcpy(nine, "3");
-  strcpy(ten, "-S");
-  strcpy(eleven, "2");
-  strcpy(twelve, "-A");
-  strcpy(thirteen, "-I");
-  strcpy(fourteen, "file.gbs");
+  strcpy(four, "--segment");
+  strcpy(five, "0x1234");
+  strcpy(six, "-B");
+  strcpy(seven, "0x5e");
+  strcpy(eight, "-D");
+  strcpy(nine, "0xab");
+  strcpy(ten, "-F");
+  strcpy(eleven, "3");
+  strcpy(twelve, "-S");
+  strcpy(thirteen, "2");
+  strcpy(fourteen, "-A");
+  strcpy(fifteen, "-I");
+  strcpy(sixteen, "file.gbs");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+                   ten, eleven, twelve, thirteen, fourteen,
+                   fifteen, sixteen };
 
-  EXPECT_EQ(parse_args(15, argv), 0);
+  EXPECT_EQ(parse_args(17, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
   EXPECT_NE(config.dry_run, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_FORCE, 0);
+  EXPECT_EQ(config.target.segment, 0x1234);
   EXPECT_EQ(config.target.bus, 0x5e);
   EXPECT_EQ(config.target.device, 0xab);
   EXPECT_EQ(config.target.function, 3);
@@ -461,6 +472,7 @@ TEST_P(fpgaconf_c_p, parse_args2) {
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_p, ifc_id0) {
+  config.target.segment = platform_.devices[0].segment;
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
@@ -502,6 +514,7 @@ TEST_P(fpgaconf_c_p, find_fpga0) {
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_p, find_fpga1) {
+  config.target.segment = platform_.devices[0].segment;
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
@@ -524,6 +537,7 @@ TEST_P(fpgaconf_c_p, find_fpga1) {
  *             and the fn returns 1.<br>
  */
 TEST_P(fpgaconf_c_p, prog_bs0) {
+  config.target.segment = platform_.devices[0].segment;
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
@@ -556,6 +570,7 @@ TEST_P(fpgaconf_c_p, prog_bs0) {
  *             causing the function to return -1.<br>
  */
 TEST_P(fpgaconf_c_p, prog_bs1) {
+  config.target.segment = platform_.devices[0].segment;
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
@@ -614,20 +629,25 @@ TEST_P(fpgaconf_c_p, main1) {
   char six[20];
   char seven[20];
   char eight[20];
+  char nine[20];
+  char ten[20];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-n");
-  strcpy(two, "-B");
-  sprintf(three, "%d", platform_.devices[0].bus);
-  strcpy(four, "-D");
-  sprintf(five, "%d", platform_.devices[0].device);
-  strcpy(six, "-F");
-  sprintf(seven, "%d", platform_.devices[0].function);
-  strcpy(eight, tmp_gbs_);
+  strcpy(two, "--segment");
+  sprintf(three, "%d", platform_.devices[0].segment);
+  strcpy(four, "-B");
+  sprintf(five, "%d", platform_.devices[0].bus);
+  strcpy(six, "-D");
+  sprintf(seven, "%d", platform_.devices[0].device);
+  strcpy(eight, "-F");
+  sprintf(nine, "%d", platform_.devices[0].function);
+  strcpy(ten, tmp_gbs_);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight };
+                   five, six, seven, eight, nine,
+		   ten };
 
-  EXPECT_EQ(fpgaconf_main(9, argv), 0);
+  EXPECT_EQ(fpgaconf_main(11, argv), 0);
 }
 
 /**

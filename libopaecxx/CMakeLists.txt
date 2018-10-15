@@ -53,7 +53,8 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/shared_buffer.cpp
                     src/events.cpp
                     src/except.cpp
-		    src/errors.cpp
+                    src/errors.cpp
+                    src/sysobject.cpp
                     src/version.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})

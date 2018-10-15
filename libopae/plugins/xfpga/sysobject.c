@@ -151,6 +151,9 @@ fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	fpga_result res = FPGA_OK;
+	if (_obj->type != FPGA_SYSFS_FILE) {
+		return FPGA_INVALID_PARAM;
+	}
 	if (flags & FPGA_OBJECT_SYNC) {
 		res = sync_object(obj);
 	}
@@ -172,6 +175,9 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 	fpga_result res = FPGA_OK;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(buffer);
+	if (_obj->type != FPGA_SYSFS_FILE) {
+		return FPGA_INVALID_PARAM;
+	}
 	if (offset + len > _obj->size) {
 		return FPGA_INVALID_PARAM;
 	}
@@ -186,7 +192,7 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 		FPGA_ERR("Bytes requested exceed object size");
 		return FPGA_INVALID_PARAM;
 	}
-	memcpy_s(buffer, _obj->max_size, _obj->buffer + offset, len);
+	memcpy_s(buffer, len, _obj->buffer + offset, len);
 
 	return FPGA_OK;
 }
@@ -200,6 +206,9 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	errno_t err;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(_obj->handle);
+	if (_obj->type != FPGA_SYSFS_FILE) {
+		return FPGA_INVALID_PARAM;
+	}
 	res = handle_check_and_lock(_obj->handle);
 	if (res != FPGA_OK) {
 		return res;
