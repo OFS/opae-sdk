@@ -227,11 +227,11 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 /** Device-wide unique FPGA feature resource identifier */
 struct _fpga_feature_token {
 	uint64_t magic;
-  uint32_t ref_count;
+	uint32_t ref_count;
 	uint32_t feature_type;
 	fpga_guid feature_guid;
-  char dma_plugin[256];
-  fpga_handle handle;
+	char dma_plugin[256];
+	fpga_handle handle;
 	struct _fpga_feature_token *next;
 };
 
@@ -240,16 +240,16 @@ struct _fpga_feature_token {
 
 /** Process-wide unique FPGA feature handle */
 struct _fpga_feature_handle {
-  pthread_mutex_t lock;
+	pthread_mutex_t lock;
 	uint32_t magic;
-  fpga_feature_token feature_token;
+	fpga_feature_token feature_token;
 	uint32_t mmio_num;
 	uint64_t mmio_offset;
 	uint64_t feature_base;
 	uint64_t feature_offset;
-  fpgaDMAProperties dma_prop;
+	fpgaDMAProperties dma_prop;
 	opae_dma_adapter_table *dma_adapter_table;
-  fpga_event_handle *eh_root;
+	fpga_event_handle *eh_root;
 };
 
 #endif // ___OPAE_OPAE_INT_H__

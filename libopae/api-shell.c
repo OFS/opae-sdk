@@ -290,8 +290,7 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
 			opae_wrapped_token *wrapped_parent =
 				opae_allocate_wrapped_token(
-					p->parent,
-					wrapped_token->adapter_table);
+					p->parent, wrapped_token->adapter_table);
 
 			if (wrapped_parent) {
 				p->parent = wrapped_parent;
@@ -329,8 +328,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)
-	    && (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) 
+		&& (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
 		wrapped_parent = opae_validate_wrapped_token(p->parent);
 		if (wrapped_parent)
 			p->parent = wrapped_parent->opae_token;
@@ -596,7 +595,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	// If any of the input filters has a parent token set,
 	// then it will be wrapped. We need to unwrap it here,
 	// then re-wrap below.
-	for (i = 0; i < num_filters; ++i) {
+	for (i = 0 ; i < num_filters ; ++i) {
 		int err;
 		struct _fpga_properties *p =
 			opae_validate_and_lock_properties(filters[i]);
@@ -619,8 +618,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 				goto out_free_tokens;
 			}
 
-			fixup = (parent_token_fixup *)malloc(
-				sizeof(parent_token_fixup));
+			fixup = (parent_token_fixup *)malloc(sizeof(parent_token_fixup));
 
 			if (!fixup) {
 				OPAE_ERR("malloc failed");
@@ -1540,6 +1538,7 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
   struct _fpga_feature_token *_ftoken;
   struct _fpga_feature_handle *_fhandle;
   opae_dma_adapter_table *adapter;
+  pthread_mutexattr_t mattr;
 
   ASSERT_NOT_NULL(token);
   ASSERT_NOT_NULL(handle);
@@ -1547,26 +1546,28 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 
 	if (flags & ~FPGA_OPEN_SHARED) {
 		OPAE_ERR("unrecognized flags");
-		res = FPGA_INVALID_PARAM;
+		return FPGA_INVALID_PARAM;
 	}
     
   _ftoken = (struct _fpga_feature_token *)token;
   
   if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
     OPAE_ERR("Invalid feature token");
-    res = FPGA_INVALID_PARAM;
+    return FPGA_INVALID_PARAM;
 	}  
 
   errors = dma_plugin_mgr_initialize(_ftoken->handle);
   if (errors) {
     OPAE_ERR("Feature token initialize errors");
     res = FPGA_EXCEPTION;
+    goto out_finalize;
   }
   
   _fhandle = malloc(sizeof(struct _fpga_feature_handle));
 	if (NULL == _fhandle) {
 		OPAE_ERR("Failed to allocate memory for fhandle");
 		res = FPGA_NO_MEMORY;
+    goto out_free;
 	}
 
   memset_s(_fhandle, sizeof(*_fhandle), 0);
@@ -1579,16 +1580,44 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
   
   // res = adapter->fpgaDMAOpen();
   //_fhandle->dma_prop = 
-  
-  // Increment feature token ref_count at success
-  
+
+  if (pthread_mutexattr_init(&mattr)) {
+    OPAE_MSG("Failed to init feature handle mutex attributes");
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
+
+	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
+	    pthread_mutex_init(&_fhandle->lock, &mattr)) {
+		OPAE_MSG("Failed to init feature handle mutex");
+		res = FPGA_EXCEPTION;
+		goto out_attr_destroy;
+	}
+	pthread_mutexattr_destroy(&mattr);
+
+  // Increment feature token ref_count at success    
+  _ftoken->ref_count++;
   *handle = (void *)_fhandle;
+
+out_attr_destroy:
+  pthread_mutexattr_destroy(&mattr);
+
+out_free:
+  free(_fhandle);
+
+out_finalize:
+  dma_plugin_mgr_finalize_all();
   return res;
 }
 
 fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 {
-    UNUSED_PARAM(handle);
-    return FPGA_OK;
-
+  UNUSED_PARAM(handle);
+  //struct _fpga_feature_handle *_fhandle =(struct _fpga_feature_handle *)handle;
+  //fpga_result res = FPGA_OK;
+  //int errors = 0;
+  
+  
+   
+  return FPGA_OK;
 }

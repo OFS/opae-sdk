@@ -125,5 +125,5 @@ __attribute__((destructor)) STATIC void opae_release(void)
 		fclose(g_logfile);
 	}
 	g_logfile = NULL;
-  feature_token_cleanup();
+	feature_token_cleanup();
 }

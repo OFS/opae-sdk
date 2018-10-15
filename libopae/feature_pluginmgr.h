@@ -57,10 +57,10 @@ static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh)
 }
 
 // non-zero on failure.
-int feature_plugin_mgr_initialize(void);
+int dma_plugin_mgr_initialize(fpga_handle handle);
 
 // non-zero on failure.
-int feature_plugin_mgr_finalize_all(void);
+int dma_plugin_mgr_finalize_all(void);
 
 // iteration stops if callback returns non-zero.
 #define OPAE_ENUM_STOP 1
@@ -68,5 +68,5 @@ int feature_plugin_mgr_finalize_all(void);
 opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid);
 
 void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid);
-int dma_plugin_mgr_initialize(fpga_handle handle);
+
 #endif /* __OPAE_FEATURE_PLUGINMGR_H__ */
