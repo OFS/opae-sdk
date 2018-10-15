@@ -64,10 +64,12 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
 
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
+    prop_ = nullptr;
   }
 
   virtual void TearDown() override {
     if (prop_) { EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK); };
+
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
