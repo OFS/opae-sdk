@@ -35,6 +35,7 @@ BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 
+
 def find_exec(cmd, paths):
     for p in paths:
         f = os.path.join(p, cmd)
@@ -60,7 +61,7 @@ def get_all_fpga_bdfs():
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, hex(int(v,16)).lstrip("0x"))
+            bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
                             for (k, v) in data.iteritems()]))
     return bdf_list
 
