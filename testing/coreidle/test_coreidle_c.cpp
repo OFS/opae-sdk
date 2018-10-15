@@ -302,4 +302,4 @@ TEST_P(coreidle_coreidle_c_p, cpu_setaff3) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));

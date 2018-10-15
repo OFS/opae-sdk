@@ -362,4 +362,4 @@ TEST_P(coreidle_main_c_p, read_bits3) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_main_c, coreidle_main_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));

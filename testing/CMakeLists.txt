@@ -11,7 +11,7 @@ else()
     Build_GTEST()
 endif()
 
-
+add_subdirectory(platform)
 add_subdirectory(mock)
 
 add_library(opae-c-static
@@ -137,6 +137,9 @@ macro(add_mock_test test_name static_lib)
     add_executable(${test_name}
         mock/mock.c
         ${ARGN})
+    target_include_directories(${test_name} PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        )
     target_link_libraries(${test_name}
         ${static_lib}
         opae-c

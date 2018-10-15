@@ -88,4 +88,4 @@ TEST_P(fpgad_log_c_p, log01) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));
