@@ -290,7 +290,8 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
 			opae_wrapped_token *wrapped_parent =
 				opae_allocate_wrapped_token(
-					p->parent, wrapped_token->adapter_table);
+					p->parent,
+					wrapped_token->adapter_table);
 
 			if (wrapped_parent) {
 				p->parent = wrapped_parent;
@@ -328,8 +329,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) 
-		&& (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)
+	    && (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
 		wrapped_parent = opae_validate_wrapped_token(p->parent);
 		if (wrapped_parent)
 			p->parent = wrapped_parent->opae_token;
@@ -595,7 +596,7 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	// If any of the input filters has a parent token set,
 	// then it will be wrapped. We need to unwrap it here,
 	// then re-wrap below.
-	for (i = 0 ; i < num_filters ; ++i) {
+	for (i = 0; i < num_filters; ++i) {
 		int err;
 		struct _fpga_properties *p =
 			opae_validate_and_lock_properties(filters[i]);
@@ -618,7 +619,8 @@ fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 				goto out_free_tokens;
 			}
 
-			fixup = (parent_token_fixup *)malloc(sizeof(parent_token_fixup));
+			fixup = (parent_token_fixup *)malloc(
+				sizeof(parent_token_fixup));
 
 			if (!fixup) {
 				OPAE_ERR("malloc failed");
