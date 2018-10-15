@@ -88,10 +88,10 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	_handle->fdfpgad = -1;
 
 	// Init MMIO table
-	_handle->mmio_root = NULL;
+	_handle->mmio_root = wsid_tracker_init(4);
 
 	// Init workspace table
-	_handle->wsid_root = NULL;
+	_handle->wsid_root = wsid_tracker_init(16384);
 
 	// Open resources in exclusive mode unless FPGA_OPEN_SHARED is given
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
@@ -139,6 +139,8 @@ out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
 
 out_free:
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
+	wsid_tracker_cleanup(_handle->mmio_root, NULL);
 	free(_handle);
 
 	if (-1 != fddev) {

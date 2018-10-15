@@ -94,7 +94,6 @@ class coreidle_coreidle_c_p : public ::testing::TestWithParam<std::string> {
     std::string fname = fme0_ + "/power_mgmt/xeon_limit";
     uint64_t xeon_limit = 0;
     std::ifstream fin(system_->get_sysfs_path(fname));
-    //ASSERT_TRUE(fin.is_open());
     fin >> xeon_limit;
     fin.close();
     return xeon_limit;
@@ -301,8 +300,6 @@ TEST_P(coreidle_coreidle_c_p, cpu_setaff2) {
 TEST_P(coreidle_coreidle_c_p, cpu_setaff3) {
   EXPECT_EQ(cpuset_setaffinity(0, 0, 0), FPGA_OK);
 }
-
-
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_p,
                         ::testing::Values(std::string("skx-p")));

@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2017, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/cxx/core/except.h>
-#include <opae/cxx/core/version.h>
-#include <opae/types.h>
-#include <opae/version.h>
+#ifndef __FPGA_WSID_LIST_INT_H__
+#define __FPGA_WSID_LIST_INT_H__
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif  // HAVE_CONFIG_H
+#include "opae/utils.h"
+#include "types_int.h"
 
-namespace opae {
-namespace fpga {
-namespace types {
+/*
+ * WSID tracking structure manipulation functions
+ */
+struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
+void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
 
-fpga_version version::as_struct() {
-  fpga_version version_struct;
-  ASSERT_FPGA_OK(fpgaGetOPAECVersion(&version_struct));
-  return version_struct;
-}
+bool wsid_add(struct wsid_tracker *root,
+	      uint64_t wsid,
+	      uint64_t addr,
+	      uint64_t phys,
+	      uint64_t len,
+	      uint64_t offset,
+	      uint64_t index,
+	      int      flags);
+bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
+uint64_t wsid_gen(void);
 
-std::string version::as_string() {
-  char ver_arr[32];
-  ASSERT_FPGA_OK(fpgaGetOPAECVersionString(ver_arr, sizeof(ver_arr)));
-  std::string ver_str(ver_arr);
-  return ver_str;
-}
+struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
+struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
 
-std::string version::build() {
-  char build_arr[32];
-  ASSERT_FPGA_OK(fpgaGetOPAECBuildString(build_arr, sizeof(build_arr)));
-  std::string build_str(build_arr);
-  return build_str;
-}
-
-}  // end of namespace types
-}  // end of namespace fpga
-}  // end of namespace opae
+#endif // ___FPGA_COMMON_INT_H__

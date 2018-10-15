@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017, Intel Corporation
+// Copyright (c) 2018, Intel Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+`ifndef __PLATFORM_IF_MACROS_VH__
+`define __PLATFORM_IF_MACROS_VH__
+
+// ========================================================================
 //
-// Wrapper module to include all platform interface header files.
+// The set of parameters passed to top-level modules may vary, depending on
+// both the needs of an AFU and the interfaces offered by individual
+// platforms. The problem with this variable number of parameters is
+// syntactic. It is difficult to know when commas have to be inserted
+// between parameters. These macros maintain state that properly inserts
+// commas between parameters that may or may not be set, based on
+// preprocessor macros.
 //
+// ========================================================================
 
-`ifndef __PLATFORM_IF_VH__
-`define __PLATFORM_IF_VH__
+// Begin a list of parameters with `PLATFORM_ARG_LIST_BEGIN
+`define PLATFORM_ARG_LIST_BEGIN \
+    `undef PLATFORM_ARG_LIST_SEPARATOR \
+    `define PLATFORM_ARG_LIST_SEPARATOR
 
-// Include the AFU/platform configuration file emitted by afu_platform_config.
-`include "platform_afu_top_config.vh"
+// Add a parameter with `PLATFORM_ARG_APPEND(parameter text)
+`define PLATFORM_ARG_APPEND(arg) \
+    `PLATFORM_ARG_LIST_SEPARATOR arg \
+    `undef PLATFORM_ARG_LIST_SEPARATOR \
+    `define PLATFORM_ARG_LIST_SEPARATOR ,
 
-`include "platform_if_macros.vh"
-`include "device_if.vh"
-
-`endif // __PLATFORM_IF_VH__
+`endif // __PLATFORM_IF_MACROS_VH__

@@ -158,8 +158,7 @@ void ase_buffer_info(struct buffer_t *mem)
 	ASE_MSG("\tSIMVirtBase = 0x%" PRIx64 "\n", mem->pbase);
 	ASE_MSG("\tBufferSize  = 0x%" PRIx32 " \n", mem->memsize);
 	ASE_MSG("\tBufferName  = \"%s\"\n", mem->memname);
-	ASE_MSG("\tPhysAddr LO = 0x%" PRIx64 "\n", mem->fake_paddr);
-	ASE_MSG("\tPhysAddr HI = 0x%" PRIx64 "\n", mem->fake_paddr_hi);
+	ASE_MSG("\tPhysAddr    = 0x%" PRIx64 "\n", mem->fake_paddr);
 	ASE_MSG("\tisMMIOMap   = %s\n",
 		(mem->is_mmiomap == 1) ? "YES" : "NO");
 	ASE_MSG("\tisUMAS      = %s\n",
@@ -175,6 +174,9 @@ void ase_buffer_info(struct buffer_t *mem)
  */
 void ase_buffer_oneline(struct buffer_t *mem)
 {
+	if (mem->is_pinned)
+		return;
+
 	if (mem->valid == ASE_BUFFER_VALID) {
 		ASE_MSG("%d\tADDED   \t%5s\n", mem->index, mem->memname);
 	} else {
@@ -248,7 +250,7 @@ void ase_eval_session_directory(void)
 		if (!ase_dir) {
 			ASE_ERR
 				("ASE workdir path pointed by env(ASE_WORKDIR) does not exist !\n"
-					"Cannot continue execution... exiting !");
+					"Cannot continue execution... exiting !\n");
 			perror("opendir");
 			exit(1);
 		} else {
@@ -650,6 +652,28 @@ void ase_string_copy(char *dest, const char *src, size_t num_bytes)
 
 
 /*
+ * ase_checkenv : Is environment variable defined?
+ */
+bool ase_checkenv(const char *name)
+{
+	char *env;
+
+	if (name != NULL) {
+		// GLIBC check before getenv call (check if GLIBC >= 2.17)
+#if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ > 17)
+		env = secure_getenv(name);
+#else
+		env = getenv(name);
+#endif
+
+		return (env != NULL);
+	}
+
+	return false;
+}
+
+
+/*
  * ase_getenv : Secure getenv abstraction
  */
 char *ase_getenv(const char *name)
@@ -658,7 +682,7 @@ char *ase_getenv(const char *name)
 
 	if (name == NULL) {
 		ASE_ERR
-			("** ERROR **: Input Environment variable is NULL... EXITING");
+			("** ERROR **: Input Environment variable is NULL... EXITING\n");
 #ifdef SIM_SIDE
 		start_simkill_countdown();
 #else
@@ -674,7 +698,7 @@ char *ase_getenv(const char *name)
 
 		if (env == NULL) {
 			ASE_ERR
-				("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING",
+				("** ERROR **: Environment variable env(%s) could not be evaluated... EXITING\n",
 				 name);
 #ifdef SIM_SIDE
 			start_simkill_countdown();

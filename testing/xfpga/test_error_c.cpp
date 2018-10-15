@@ -31,7 +31,6 @@ extern "C" {
 }
 
 #include <opae/error.h>
-
 #include "test_system.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
@@ -39,7 +38,6 @@ extern "C" {
 #include <fstream>
 #include <string>
 #include <props.h>
-
 
 using namespace opae::testing;
 const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
@@ -152,7 +150,6 @@ TEST_P(error_c_p, error_01) {
 #endif
 }
 
-
 /**
  * @test       error_02
  *
@@ -176,7 +173,6 @@ TEST_P(error_c_p, error_02) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d FME error registers\n", n);
 
@@ -238,6 +234,7 @@ TEST_P(error_c_p, error_03) {
     EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(t, i, &val));
     ASSERT_EQ(val, 0);
   }
+
   // ------------- MAKE SURE CLEAR FILE IS 0 ------------
   clear_file.open(clear_name);
   ASSERT_EQ(1,clear_file.is_open());
@@ -375,7 +372,6 @@ TEST_P(error_c_p, error_05) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -502,12 +498,13 @@ TEST_P(error_c_p, error_09) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
 }
+
+INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
 /**
  * @test       error_01
@@ -554,7 +551,7 @@ TEST(error_c, error_02) {
   build_error_list(_errpath, &tok->errors);
   tok->magic = FPGA_TOKEN_MAGIC;
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 0, &val));
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 100, &val));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 1000, &val));
 }
 
 /**
@@ -575,7 +572,7 @@ TEST(error_c, error_03) {
   EXPECT_EQ(parent, fme);
   auto tok = (struct _fpga_token*)parent;
 
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 10));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 1000));
   tok->magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
 }
@@ -584,8 +581,6 @@ TEST(error_c, error_03) {
  * @test       error_04
  * @brief      When passed an invalid token magic,
  *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
- *             when token doesn't have errpath
- *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
  */
 TEST(error_c, error_04) {
   auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
@@ -620,15 +615,16 @@ TEST(error_c, error_05) {
 
   struct fpga_error_info info;
   tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(parent,0,&info));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(parent, 1000, &info));
   tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent,0,&info));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
 }
 
 /**
  * @test       error_06
  *
- * @brief
+ * @brief      When passed in invalid errors path to build_error_list,
+ *             the function returns 0 for file doesn't exist.
  *
  */
 TEST(error_c, error_06) {
@@ -643,4 +639,29 @@ TEST(error_c, error_06) {
   EXPECT_EQ(result,0);
 }
 
-INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test       error_07
+ *
+ * @brief      When passed pathname longer than FILENAME_MAX
+ *             build_error_list() should return and not build anything
+ *
+ *@note        Must set env-variable LIBOPAE_LOG=1 to run this test.
+ *
+ */
+TEST(error_c, error_07) {
+  struct error_list *el = NULL;
+  std::string lpn(FILENAME_MAX+1, 'a');
+  std::string exptout("path too long");
+
+  char *loglv = secure_getenv("LIBOPAE_LOG");
+  if (loglv && atoi(loglv) > 0) {
+    testing::internal::CaptureStdout();
+
+    build_error_list(lpn.c_str(), &el);
+
+    std::string actout = testing::internal::GetCapturedStdout();
+    EXPECT_NE(std::string::npos, actout.find(exptout));
+  } 
+
+  EXPECT_EQ(NULL, el);
+}

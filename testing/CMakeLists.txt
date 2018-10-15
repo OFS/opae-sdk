@@ -296,6 +296,9 @@ add_mock_test(test_xfpga_error_c xfpga-static
     xfpga/test_error_c.cpp
 )
 
+set_tests_properties(test_xfpga_error_c
+    PROPERTIES ENVIRONMENT "LIBOPAE_LOG=1")
+                     
 add_mock_test(test_xfpga_mock_errinj_c xfpga-static
     xfpga/test_mock_errinj_c.cpp
 )

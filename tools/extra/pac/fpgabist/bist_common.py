@@ -61,7 +61,7 @@ def get_all_fpga_bdfs():
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, v)
+            bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
                             for (k, v) in data.iteritems()]))
     return bdf_list
 
@@ -69,7 +69,6 @@ def get_all_fpga_bdfs():
 def get_bdf_from_args(args):
     pattern = (r'(?P<bus>[a-fA-F0-9]{2}):'
                r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
-    pattern += vars(args)['device_id']
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     param = ':{}:{}.{}'.format(

@@ -100,7 +100,6 @@ class sysobject {
    */
   sysobject::ptr_t get(const std::string &name, int flags = 0);
 
-
   virtual ~sysobject();
 
   /**
@@ -109,10 +108,10 @@ class sysobject {
    * below for changing that behavior.
    *
    * @param[in] flags Flags that control how the object is read
-   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
-   * retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read
-   * as raw bytes into the uint64_t pointer variable. Flags are defaulted to 0
-   * meaning no flags.
+   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy
+   * before retrieving the data. If FPGA_OBJECT_RAW is used, then the data
+   * will be read as raw bytes into the uint64_t pointer variable. Flags
+   * are defaulted to 0 meaning no flags.
    *
    * @return A 64-bit value from the object.
    */
@@ -134,8 +133,8 @@ class sysobject {
    * @brief Get all raw bytes from the object.
    *
    * @param[in]flags Flags that control how object is read
-   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
-   * retrieving the data.
+   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy
+   * before retrieving the data.
    *
    * @return A vector of all bytes in the object.
    */
@@ -145,8 +144,8 @@ class sysobject {
    * @brief Get a subset of raw bytes from the object.
    *
    * @param[in]flags Flags that control how object is read
-   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
-   * retrieving the data.
+   * If FPGA_OBJECT_SYNC is used then object will update its buffered copy
+   * before retrieving the data.
    *
    * @return A vector of size bytes in the object starting at offset.
    */
