@@ -155,7 +155,6 @@ macro(add_mock_test test_name static_lib)
         COMMAND $<TARGET_FILE:${test_name}>
         )
     add_dependencies(test_unit ${test_name})
-    #set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
 
 endmacro(add_mock_test test_name)
 

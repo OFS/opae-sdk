@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -165,16 +165,16 @@ std::vector<std::string> test_platform::keys(bool sorted) {
 
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
 
-
-std::map<uint16_t, std::vector<std::string>> known_devices = {
-  { 0xbcc0, std::vector<std::string>() },
-  { 0xbcc1, std::vector<std::string>() },
-  { 0x09c4, std::vector<std::string>() },
-  { 0x09c5, std::vector<std::string>() }
+typedef std::pair<uint16_t, uint64_t> ven_dev_id;
+std::map<ven_dev_id, std::vector<std::string>> known_devices = {
+  { { 0x8086, 0xbcc0}, std::vector<std::string>() },
+  { { 0x8086, 0xbcc1}, std::vector<std::string>() },
+  { { 0x8086, 0x09c4}, std::vector<std::string>() },
+  { { 0x8086, 0x09c5}, std::vector<std::string>() }
 };
 
-static std::vector<uint16_t> supported_devices() {
-  std::vector<uint16_t> devs;
+static std::vector<ven_dev_id> supported_devices() {
+  std::vector<ven_dev_id> devs;
   for (auto kv : known_devices) {
     devs.push_back(kv.first);
   }
@@ -199,7 +199,18 @@ static T parse_file(const std::string &path) {
 static uint16_t read_device_id(const std::string &pci_dir) {
   std::string device_path = pci_dir + "/device";
   struct stat st;
-  
+
+  if (stat(device_path.c_str(), &st)) {
+    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
+    return 0;
+  }
+  return parse_file<uint16_t>(device_path);
+}
+
+static uint16_t read_vendor_id(const std::string &pci_dir) {
+  std::string device_path = pci_dir + "/vendor";
+  struct stat st;
+
   if (stat(device_path.c_str(), &st)) {
     std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
     return 0;
@@ -214,13 +225,14 @@ int filter_fpga(const struct dirent *ent) {
   }
   std::string pci_path = PCI_DEVICES + "/" + ename;
   auto did = read_device_id(pci_path);
+  auto vid = read_vendor_id(pci_path);
 
   auto devices = supported_devices();
-  std::vector<uint16_t>::const_iterator it = std::find(devices.begin(), devices.end(), did);
+  std::vector<ven_dev_id>::const_iterator it = std::find(devices.begin(), devices.end(), ven_dev_id(vid, did));
   if (it == devices.end()) {
     return 0;
   }
-  known_devices[did].push_back(pci_path);
+  known_devices[ven_dev_id(vid, did)].push_back(pci_path);
   return 1;
 }
 
@@ -255,16 +267,16 @@ fpga_db *fpga_db::instance() {
   return fpga_db::instance_;
 }
 
-static std::map<uint16_t, std::string> devid_name = {
-  { 0xbcc0, "skx-p" },
-  { 0xbcc1, "skx-p-v" },
-  { 0x09c4, "dcp-rc" },
-  { 0x09c5, "dcp-rc-v" }
+static std::map<ven_dev_id, std::string> devid_name = {
+  { { 0x8086, 0xbcc0}, "skx-p" },
+  { { 0x8086, 0xbcc1}, "skx-p-v" },
+  { { 0x8086, 0x09c4}, "dcp-rc" },
+  { { 0x8086, 0x09c5}, "dcp-rc-v" }
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
 
-test_device make_device(uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
+test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
   test_device dev = MOCK_PLATFORMS[platform].devices[0];
   auto r = regex<>::create(PCI_DEV_PATTERN);
 
@@ -273,19 +285,19 @@ test_device make_device(uint16_t dev_id, const std::string &platform, const std:
   dev.bus = std::stoi(m->group(2), nullptr, 16);
   dev.device = std::stoi(m->group(3), nullptr, 10);
   dev.function = std::stoi(m->group(4), nullptr, 10);
+  dev.vendor_id = ven_id;
   dev.device_id = dev_id;
   return dev;
 }
 
-std::pair<std::string, test_platform> make_platform(uint16_t dev_id, const std::vector<std::string> &pci_paths) {
-  std::string name = devid_name[dev_id];
+std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t dev_id, const std::vector<std::string> &pci_paths) {
+  std::string name = devid_name[{ven_id, dev_id}];
   test_platform platform;
   platform.mock_sysfs = nullptr;
-  //platform.devices.push_back(make_device(dev_id, name, pci_paths[0]));
   for (auto p : pci_paths) {
-    platform.devices.push_back(make_device(dev_id, name, p));
+    platform.devices.push_back(make_device(ven_id, dev_id, name, p));
   }
-  return std::make_pair(name, platform);  
+  return std::make_pair(name, platform);
 }
 
 void fpga_db::discover_hw() {
@@ -296,7 +308,8 @@ void fpga_db::discover_hw() {
   } else {
     for (auto kv : known_devices) {
       if (!kv.second.empty()) {
-        platforms_.insert(make_platform(kv.first, kv.second));
+        ven_dev_id id = kv.first;
+        platforms_.insert(make_platform(id.first, id.second, kv.second));
       }
     }
   }
