@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -74,6 +74,7 @@ struct config {
 	} mode;
 	int flags;
 	struct target {
+		int segment;
 		int bus;
 		int device;
 		int function;
@@ -84,7 +85,8 @@ struct config {
 	    .dry_run = false,
 	    .mode = NORMAL,
 	    .flags = 0,
-	    .target = {.bus = -1, .device = -1, .function = -1, .socket = -1} };
+	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1, .socket = -1},
+	    .filename = NULL };
 
 struct bitstream_info {
 	char *filename;
@@ -95,8 +97,8 @@ struct bitstream_info {
 	fpga_guid interface_id;
 };
 
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
-					fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
+				 fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;
@@ -207,6 +209,7 @@ void help(void)
 	       "                -v,--verbose        Increase verbosity\n"
 	       "                -n,--dry-run        Don't actually perform actions\n"
 	       "                --force             Don't try to open accelerator resource\n"
+	       "                --segment           Set target segment number\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
@@ -232,14 +235,15 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"help", no_argument, NULL, 'h'},
-		{"verbose", no_argument, NULL, 'v'},
-		{"dry-run", no_argument, NULL, 'n'},
-		{"bus", required_argument, NULL, 'B'},
-		{"device", required_argument, NULL, 'D'},
-		{"function", required_argument, NULL, 'F'},
+		{"help",      no_argument,       NULL, 'h'},
+		{"verbose",   no_argument,       NULL, 'v'},
+		{"dry-run",   no_argument,       NULL, 'n'},
+		{"segment",   required_argument, NULL, 0xe},
+		{"bus",       required_argument, NULL, 'B'},
+		{"device",    required_argument, NULL, 'D'},
+		{"function",  required_argument, NULL, 'F'},
 		{"socket-id", required_argument, NULL, 'S'},
-		{"force", no_argument, NULL, 0xf},
+		{"force",     no_argument,       NULL, 0xf},
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
@@ -273,6 +277,19 @@ int parse_args(int argc, char *argv[])
 
 		case 0xf: /* force */
 			config.flags |= FPGA_RECONF_FORCE;
+			break;
+
+		case 0xe: /* segment */
+			if (NULL == tmp_optarg)
+				break;
+			endptr = NULL;
+			config.target.segment =
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "invalid segment: %s\n",
+					tmp_optarg);
+				return -1;
+			}
 			break;
 
 		case 'B': /* bus */
@@ -417,6 +434,11 @@ int print_interface_id(fpga_guid actual_interface_id)
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting object type");
 
+	if (-1 != config.target.segment) {
+		res = fpgaPropertiesSetSegment(filter, config.target.segment);
+		ON_ERR_GOTO(res, out_destroy, "setting segment");
+	}
+
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);
 		ON_ERR_GOTO(res, out_destroy, "setting bus");
@@ -444,6 +466,7 @@ int print_interface_id(fpga_guid actual_interface_id)
 		retval = (int)num_matches; /* FPGA found */
 	} else {
 		retval = 0; /* no FPGA found */
+		goto out_destroy;
 	}
 
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
@@ -594,6 +617,10 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	res = fpgaPropertiesSetGUID(filter, interface_id);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
 
+	if (-1 != config.target.segment) {
+		res = fpgaPropertiesSetSegment(filter, config.target.segment);
+		ON_ERR_GOTO(res, out_destroy, "setting segment");
+	}
 
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);

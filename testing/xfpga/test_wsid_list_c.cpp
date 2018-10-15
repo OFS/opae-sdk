@@ -39,6 +39,29 @@ extern "C" {
 #include <thread>
 #include "gtest/gtest.h"
 
+#ifndef BUILD_ASE
+ /*
+ * On hardware, the mmio map is a hash table.
+ */
+static bool mmio_map_is_empty(struct wsid_tracker *root) {
+  if (!root || (root->n_hash_buckets == 0))
+    return true;
+   for (uint32_t i = 0; i < root->n_hash_buckets; i += 1) {
+    if (root->table[i])
+      return false;
+  }
+   return true;
+}
+ #else
+ /*
+ * In ASE, the mmio map is a list.
+ */
+static bool mmio_map_is_empty(struct wsid_map *root) {
+  return !root;
+}
+ #endif
+
+
 // define some operators to alter index consistently
 constexpr uint64_t index_to_wsid(uint64_t i) { return i * 6; }
 constexpr uint64_t index_to_addr(uint64_t i) { return i * 5; }
@@ -54,12 +77,15 @@ void cleanup_cb(wsid_map *ws) { (void) ws; stress_count--; }
 
 class wsid_list_f : public ::testing::Test {
  protected:
-  wsid_list_f() : wsid_root_(nullptr) {}
+  wsid_list_f() 
+       : wsid_root_(nullptr) {}
+
   virtual void SetUp() override {
+    wsid_root_ = wsid_tracker_init(1000);
     count_ = 100;
     distribution_ = std::uniform_int_distribution<int>(0, count_);
     for (uint64_t i = 0; i < count_; ++i) {
-      EXPECT_TRUE(wsid_add(&wsid_root_, index_to_wsid(i), index_to_addr(i),
+      EXPECT_TRUE(wsid_add(wsid_root_, index_to_wsid(i), index_to_addr(i),
                            index_to_phys(i), index_to_len(i),
                            index_to_offset(i), index_to_index(i),
                            index_to_flags(i)));
@@ -67,13 +93,18 @@ class wsid_list_f : public ::testing::Test {
   }
 
   virtual void TearDown() override {
-    if (wsid_root_) {
-      wsid_cleanup(&wsid_root_, nullptr);
-      EXPECT_EQ(wsid_root_, nullptr);
-    }
+      auto cleanup = [](struct wsid_map *w) -> void {
+           EXPECT_EQ(w->wsid, index_to_wsid(w->index));};
+    
+      bool empty = mmio_map_is_empty(wsid_root_);
+      if ( !empty ) {
+        wsid_tracker_cleanup(wsid_root_, cleanup);
+        EXPECT_TRUE(mmio_map_is_empty(wsid_root_));
+      }
   }
 
-  wsid_map *wsid_root_;
+  struct wsid_tracker *wsid_root_;
+  struct wsid_map_;
   uint32_t count_;
   std::default_random_engine generator_;
   std::uniform_int_distribution<int> distribution_;
@@ -81,25 +112,26 @@ class wsid_list_f : public ::testing::Test {
 
 TEST_F(wsid_list_f, wsid_add) {
   // the setup adds, now we just confirm that it added the right data
-
-  wsid_map *it = wsid_root_;
+  wsid_map *it = nullptr;
   int i = count_;
-  while (--i >= 0 && it != nullptr) {
-    EXPECT_EQ(it->wsid, index_to_wsid(i));
-    EXPECT_EQ(it->addr, index_to_addr(i));
-    EXPECT_EQ(it->phys, index_to_phys(i));
-    EXPECT_EQ(it->len, index_to_len(i));
-    EXPECT_EQ(it->offset, index_to_offset(i));
-    EXPECT_EQ(it->index, index_to_index(i));
-    ASSERT_EQ(it->flags, index_to_flags(i));
-    it = it->next;
+  while (--i >= 1) {
+    it = wsid_find_by_index(wsid_root_, i);
+    if (it) {
+      EXPECT_EQ(it->wsid, index_to_wsid(i));
+      EXPECT_EQ(it->addr, index_to_addr(i));
+      EXPECT_EQ(it->phys, index_to_phys(i));
+      EXPECT_EQ(it->len, index_to_len(i));
+      EXPECT_EQ(it->offset, index_to_offset(i));
+      EXPECT_EQ(it->index, index_to_index(i));
+      ASSERT_EQ(it->flags, index_to_flags(i));
+    }
   }
 }
 
 TEST_F(wsid_list_f, wsid_del) {
   uint64_t wsid = index_to_wsid(distribution_(generator_));
-  EXPECT_TRUE(wsid_del(&wsid_root_, wsid));
-  wsid_map *it = wsid_root_;
+  EXPECT_TRUE(wsid_del(wsid_root_, wsid));
+  wsid_map *it = wsid_find(wsid_root_, wsid);
   // now look for the wsid in the list
   while (it != nullptr) {
     if (it->wsid == wsid) {
@@ -110,30 +142,7 @@ TEST_F(wsid_list_f, wsid_del) {
   // it is null when we've looked at whole list without finding wsid
   EXPECT_EQ(it, nullptr);
   // it isn't there so we shouldn't be able to delete it again
-  EXPECT_FALSE(wsid_del(&wsid_root_, wsid));
-}
-
-TEST_F(wsid_list_f, wsid_cleanup) {
-  auto cleanup = [](wsid_map *w) -> void {
-    EXPECT_EQ(w->wsid, index_to_wsid(w->index));
-  };
-  wsid_cleanup(&wsid_root_, cleanup);
-  EXPECT_EQ(wsid_root_, nullptr);
-}
-
-//
-TEST_F(wsid_list_f, wsid_gen) {
-  std::vector<uint64_t> wsids;
-  for (uint64_t i = 0; i < count_; ++i) {
-    auto wsid = wsid_gen();
-    auto it = std::find(wsids.begin(), wsids.end(), wsid);
-    ASSERT_TRUE(it == wsids.end()) << "duplicate wsid after " << wsids.size();
-    wsids.push_back(wsid);
-    // FIXME: wsid_gen uses gettimeofday in its calculation of an id Because of
-    // that, it may generate duplicate ids if the time in between calls is less
-    // than one usec. wsid_gen should be fixed
-    std::this_thread::sleep_for(std::chrono::microseconds(1));
-  }
+  EXPECT_FALSE(wsid_del(wsid_root_, wsid));
 }
 
 TEST_F(wsid_list_f, wsid_find) {
@@ -150,19 +159,20 @@ TEST_F(wsid_list_f, wsid_find_by_index) {
   EXPECT_EQ(ws->index, index);
 }
 
+
 TEST_F(wsid_list_f, stress) {
   uint64_t count = count_;
   // FIXME: wsid_add can result in process being killed (out of memory) if it's
   // called too many times.
   uint64_t count_max = 1024;
   for (count = count_; count < count_max; ++count) {
-    EXPECT_TRUE(wsid_add(&wsid_root_, index_to_wsid(count),
+    EXPECT_TRUE(wsid_add(wsid_root_, index_to_wsid(count),
                          index_to_addr(count), index_to_phys(count),
                          index_to_len(count), index_to_offset(count),
                          index_to_index(count), index_to_flags(count)));
   }
   stress_count = count;
-  wsid_cleanup(&wsid_root_, cleanup_cb);
+  wsid_tracker_cleanup(wsid_root_, cleanup_cb);
   EXPECT_EQ(stress_count, 0);
-  EXPECT_EQ(wsid_root_, nullptr);
+  EXPECT_TRUE(mmio_map_is_empty(wsid_root_));
 }

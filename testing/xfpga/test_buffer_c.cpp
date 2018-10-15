@@ -59,6 +59,7 @@ extern "C" {
 #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
 #endif
 
+#define NLB_DSM_SIZE (2 * 1024 * 1024)
 #define KB 1024
 #define MB (1024 * KB)
 #define GB (1024UL * MB)
@@ -142,7 +143,9 @@ out_EINVAL:
 class buffer_prepare
     : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
-  buffer_prepare() : handle_(nullptr) {}
+  buffer_prepare()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     auto tpl = GetParam();
@@ -167,6 +170,7 @@ class buffer_prepare
     for (auto &t : tokens_) {
         if (t) {
             EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
+            t = nullptr;
         }
     }
 
@@ -174,9 +178,9 @@ class buffer_prepare
     system_->finalize();
   }
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_ = {nullptr, nullptr};
+  std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
+  fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -309,6 +313,74 @@ TEST_P(buffer_prepare, port_dma_map) {
   system_->register_ioctl_handler(FPGA_PORT_DMA_MAP,dummy_ioctl<-1,EINVAL>);
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
+}
+
+/**
+ * @test       release_neg
+ *
+ * @brief      When the parameters are valid and the drivers are loaded:
+ *             fpgaReleaseBuffer must fail if fpga_buffer was not
+ *             prepared.
+ *
+ */
+TEST_P(buffer_prepare, release_neg) {
+  uint64_t wsid = 1;
+
+  EXPECT_EQ(xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       not_aligned
+ *
+ * @brief      When FPGA_BUF_PREALLOCATED is not given and the buffer
+ *             len is not a multiple of the page size, fpgaPrepareBuffer
+ *             allocates the next multiple of page size and returns
+ *             FPGA_OK.
+ *
+ */
+TEST_P(buffer_prepare, not_aligned) {
+  uint64_t buf_len = (4 * 1024) - 1;
+  void *buf_addr = 0;
+  uint64_t wsid = 1;
+  int flags = 0;
+
+  EXPECT_EQ(xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, flags),
+            FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_OK);
+}
+
+/**
+ * @test       write_read
+ *
+ * @brief      When the parameters are valid and the drivers are loaded:
+ *             Test writing and reading to/from a shared memory buffer.
+ *
+ */
+TEST_P(buffer_prepare, write_read) {
+  uint64_t buf_len = NLB_DSM_SIZE;
+  void *buf_addr = 0;
+  uint64_t wsid = 2;
+  int flags = 0;
+  uint64_t offset;
+  uint64_t value;
+
+  // Allocate buffer
+  ASSERT_EQ(xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, flags),
+            FPGA_OK);
+
+  // Write test
+  memset(buf_addr, 0, buf_len);
+
+  for (offset = 0; offset < buf_len - sizeof(uint64_t);
+       offset += sizeof(uint64_t)) {
+    value = offset;
+    *((volatile uint64_t*)((uint64_t)buf_addr + offset)) = value;
+    EXPECT_EQ(*((volatile uint64_t*)((uint64_t)buf_addr + offset)), offset);
+  }
+
+  // Release buffer
+  EXPECT_EQ(xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_OK);
 }
 
 namespace {

@@ -52,7 +52,7 @@ using namespace opae::testing;
 
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  enum_c_p() {}
+  enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -69,16 +69,20 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   void DestroyTokens() {
-    uint32_t i;
-    for (i = 0 ; i < num_matches_ ; ++i) {
-      EXPECT_EQ(fpgaDestroyToken(&tokens_[i]), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
     }
     num_matches_ = 0;
   }
 
   virtual void TearDown() override {
     DestroyTokens();
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (filter_ != nullptr) {
+      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    }
     system_->finalize();
   }
 
@@ -152,29 +156,25 @@ TEST_P(enum_c_p, nullfilter) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size()*2);
+  EXPECT_EQ(num_matches_, platform_.devices.size() * 2);
 
   uint32_t matches = 0;
-  EXPECT_EQ(
-      fpgaEnumerate(nullptr, 1, tokens_.data(), tokens_.size(), &matches),
-      FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaEnumerate(nullptr, 1, tokens_.data(), tokens_.size(), &matches),
+            FPGA_INVALID_PARAM);
 }
 
 TEST_P(enum_c_p, nullmatches) {
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 0, tokens_.data(), tokens_.size(), NULL),
-      FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaEnumerate(&filter_, 0, tokens_.data(), tokens_.size(), NULL),
+            FPGA_INVALID_PARAM);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 0, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_INVALID_PARAM);
 }
 
 TEST_P(enum_c_p, nulltokens) {
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 0, NULL, tokens_.size(), &num_matches_),
-      FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaEnumerate(&filter_, 0, NULL, tokens_.size(), &num_matches_),
+            FPGA_INVALID_PARAM);
 }
-
 
 TEST_P(enum_c_p, object_type) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -223,7 +223,8 @@ TEST_P(enum_c_p, segment) {
 
   DestroyTokens();
 
-  ASSERT_EQ(fpgaPropertiesSetSegment(filter_, invalid_device_.segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter_, invalid_device_.segment),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -373,7 +374,8 @@ TEST_P(enum_c_p, object_id) {
 TEST_P(enum_c_p, num_errors) {
   auto device = platform_.devices[0];
   // fme num_errors
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -392,8 +394,9 @@ TEST_P(enum_c_p, num_errors) {
   DestroyTokens();
 
   // invalid
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
-            FPGA_OK);
+  ASSERT_EQ(
+      fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
+      FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -471,7 +474,6 @@ TEST_P(enum_c_p, no_token_magic) {
   EXPECT_NE(fpgaCloneToken(&src, &dst), FPGA_OK);
 }
 
-
 TEST_P(enum_c_p, destroy_token) {
   opae_wrapped_token *dummy = new opae_wrapped_token;
   memset(dummy, 0, sizeof(opae_wrapped_token));
@@ -491,7 +493,8 @@ TEST_P(enum_c_p, num_slots) {
 
   DestroyTokens();
 
-  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter_, invalid_device_.num_slots), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter_, invalid_device_.num_slots),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -527,7 +530,8 @@ TEST_P(enum_c_p, bbs_version) {
 
   DestroyTokens();
 
-  ASSERT_EQ(fpgaPropertiesSetBBSVersion(filter_, invalid_device_.bbs_version), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBBSVersion(filter_, invalid_device_.bbs_version),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -545,7 +549,8 @@ TEST_P(enum_c_p, state) {
 
   DestroyTokens();
 
-  ASSERT_EQ(fpgaPropertiesSetAcceleratorState(filter_, invalid_device_.state), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetAcceleratorState(filter_, invalid_device_.state),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -564,7 +569,8 @@ TEST_P(enum_c_p, num_mmio) {
   DestroyTokens();
 
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio), FPGA_INVALID_PARAM);
+  ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio),
+            FPGA_INVALID_PARAM);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -574,7 +580,8 @@ TEST_P(enum_c_p, num_mmio) {
 TEST_P(enum_c_p, num_interrupts) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, device.num_interrupts), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, device.num_interrupts),
+            FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -582,19 +589,21 @@ TEST_P(enum_c_p, num_interrupts) {
 
   DestroyTokens();
 
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, invalid_device_.num_interrupts), FPGA_OK);
+  ASSERT_EQ(
+      fpgaPropertiesSetNumInterrupts(filter_, invalid_device_.num_interrupts),
+      FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
-TEST(wrapper, validate)
-{
+TEST(wrapper, validate) {
   EXPECT_EQ(NULL, opae_validate_wrapped_token(NULL));
   EXPECT_EQ(NULL, opae_validate_wrapped_handle(NULL));
   EXPECT_EQ(NULL, opae_validate_wrapped_event_handle(NULL));
   EXPECT_EQ(NULL, opae_validate_wrapped_object(NULL));
 }
 
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));

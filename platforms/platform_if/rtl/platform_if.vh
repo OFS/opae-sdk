@@ -38,6 +38,7 @@
 // Include the AFU/platform configuration file emitted by afu_platform_config.
 `include "platform_afu_top_config.vh"
 
+`include "platform_if_macros.vh"
 `include "device_if.vh"
 
 `endif // __PLATFORM_IF_VH__

@@ -164,7 +164,7 @@ STATIC fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 
 	/* Add to MMIO list */
 	wsid = wsid_gen();
-	if (!wsid_add(&_handle->mmio_root,
+	if (!wsid_add(_handle->mmio_root,
 		      wsid,
 		      (uint64_t) addr,
 		      (uint64_t) NULL,
@@ -201,6 +201,10 @@ STATIC fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 			return result;
 		}
 		wm = wsid_find_by_index(_handle->mmio_root, mmio_num);
+		if (!wm) {
+			FPGA_ERR("unable to map wsid for mmio region %d", mmio_num);
+			return FPGA_NO_MEMORY;
+		}
 	}
 
 	*wm_out = wm;
@@ -423,7 +427,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUnmapMMIO(fpga_handle handle,
 	}
 
 	/* Remove MMIO */
-	wsid_del(&_handle->mmio_root, wm->wsid);
+	wsid_del(_handle->mmio_root, wm->wsid);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

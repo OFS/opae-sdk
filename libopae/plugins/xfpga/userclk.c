@@ -133,7 +133,7 @@ fpga_result xfpga_fpgaGetUserClock(fpga_handle handle,
 
 	result = get_userclock(_token->sysfspath, high_clk, low_clk);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to set user clock");
+		FPGA_ERR("Failed to get user clock");
 	}
 
 out_unlock:

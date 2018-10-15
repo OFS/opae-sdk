@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -265,6 +265,7 @@ struct ras_inject_error {
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
+		{"segment",             required_argument, NULL, 0xe},
 		{"bus",                 required_argument, NULL, 'B'},
 		{"device",              required_argument, NULL, 'D'},
 		{"function",            required_argument, NULL, 'F'},
@@ -296,6 +297,7 @@ struct  RASCommandLine
 #define RASAPP_CMD_FLAG_FUNC      0x00000020
 #define RASAPP_CMD_FLAG_SOCKET    0x00000040
 
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -312,7 +314,7 @@ struct  RASCommandLine
 	bool     pagefault_error;
 };
 
-struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, false,
+struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, -1, false,
 				false, false, false,false,
 				false, false, false, false, false};
 
@@ -320,14 +322,15 @@ struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, false,
 void RASAppShowHelp()
 {
 	printf("Usage:\n");
-	printf("./ras \n");
+	printf("ras\n");
+	printf("<Segment>          --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>              --bus=<BUS NUMBER>           "
 		"OR  -B=<BUS NUMBER>\n");
 	printf("<Device>           --device=<DEVICE NUMBER>     "
 		"OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>         --function=<FUNCTION NUMBER> "
 		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>        --socket-id=<socket NUMBER>  "
+	printf("<Socket-id>        --socket-id=<SOCKET NUMBER>  "
 		"OR  -S=<SOCKET NUMBER>\n");
 	printf("<Print Error>      --print-error                OR  -P \n");
 	printf("<Catast Error>     --catast-error               OR  -Q \n");
@@ -399,24 +402,25 @@ int main( int argc, char** argv )
 	return 2;
 	}
 
-	printf(" ------- Command line Input Start ---- \n \n");
+	printf(" ------- Command line Input Start ----\n\n");
 
+	printf(" Segment               : %d\n", rasCmdLine.segment);
 	printf(" Bus                   : %d\n", rasCmdLine.bus);
-	printf(" Device                : %d \n", rasCmdLine.device);
-	printf(" Function              : %d \n", rasCmdLine.function);
-	printf(" Socket-id             : %d \n", rasCmdLine.socket);
-	printf(" Print Error           : %d \n", rasCmdLine.print_error);
-	printf(" Catas Error           : %d \n", rasCmdLine.catast_error);
-	printf(" Fatal Error           : %d \n", rasCmdLine.fatal_error);
-	printf(" NonFatal Error        : %d \n", rasCmdLine.nonfatal_error);
-	printf(" Clear Error           : %d \n", rasCmdLine.clear_injerror);
- 	printf(" MW Address Error      : %d \n", rasCmdLine.mwaddress_error);
-	printf(" MR Address Error      : %d \n", rasCmdLine.mraddress_error);
-	printf(" MW Length Error       : %d \n", rasCmdLine.mwlength_error);
-	printf(" MR Length Error       : %d \n", rasCmdLine.mrlength_error);
-	printf(" Page Fault Error      : %d \n", rasCmdLine.pagefault_error);
+	printf(" Device                : %d\n", rasCmdLine.device);
+	printf(" Function              : %d\n", rasCmdLine.function);
+	printf(" Socket-id             : %d\n", rasCmdLine.socket);
+	printf(" Print Error           : %d\n", rasCmdLine.print_error);
+	printf(" Catas Error           : %d\n", rasCmdLine.catast_error);
+	printf(" Fatal Error           : %d\n", rasCmdLine.fatal_error);
+	printf(" NonFatal Error        : %d\n", rasCmdLine.nonfatal_error);
+	printf(" Clear Error           : %d\n", rasCmdLine.clear_injerror);
+ 	printf(" MW Address Error      : %d\n", rasCmdLine.mwaddress_error);
+	printf(" MR Address Error      : %d\n", rasCmdLine.mraddress_error);
+	printf(" MW Length Error       : %d\n", rasCmdLine.mwlength_error);
+	printf(" MR Length Error       : %d\n", rasCmdLine.mrlength_error);
+	printf(" Page Fault Error      : %d\n", rasCmdLine.pagefault_error);
 
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
 
 	// Enum FPGA device
 	result = fpgaInitialize(NULL);
@@ -431,22 +435,27 @@ int main( int argc, char** argv )
 	result = fpgaPropertiesSetObjectType(fpga_filter, FPGA_DEVICE);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
-	if (rasCmdLine.bus >0){
+	if (rasCmdLine.segment > 0) {
+		result = fpgaPropertiesSetSegment(fpga_filter, rasCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
+
+	if (rasCmdLine.bus > 0) {
 		result = fpgaPropertiesSetBus(fpga_filter, rasCmdLine.bus);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
 	}
 
-	if (rasCmdLine.device >0) {
+	if (rasCmdLine.device > 0) {
 		result = fpgaPropertiesSetDevice(fpga_filter, rasCmdLine.device);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (rasCmdLine.function >0){
+	if (rasCmdLine.function > 0) {
 		result = fpgaPropertiesSetFunction(fpga_filter, rasCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (rasCmdLine.socket >0){
+	if (rasCmdLine.socket > 0) {
 		result = fpgaPropertiesSetSocketID(fpga_filter, rasCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
@@ -606,13 +615,13 @@ fpga_result print_errors(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpgaTokenGetObject(token, err_path, &err_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, err_path, &err_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(err_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(err_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -641,13 +650,13 @@ fpga_result print_ras_errors(fpga_token token)
 	uint64_t revision          = 0;
 	fpga_object rev_object;
 
-	result = fpgaTokenGetObject(token, FME_SYSFS_ERR_REVISION, &rev_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_ERR_REVISION, &rev_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(rev_object, &revision, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(rev_object, &revision, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -760,13 +769,13 @@ fpga_result print_port_errors(fpga_token token)
 	printf("\n ==========================================\n");
 	printf(" ----------- PRINT PORT ERROR  START--------  \n");
 
-	result = fpgaTokenGetObject(token, PORT_SYSFS_ERR, &err_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, PORT_SYSFS_ERR, &err_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(err_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(err_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -801,13 +810,13 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 
 	printf(" ----------- Clear port error-------- \n \n");
 	// Power
-	result = fpgaHandleGetObject(afu_handle, PORT_SYSFS_ERR_CLEAR, &port_error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(afu_handle, PORT_SYSFS_ERR_CLEAR, &port_error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(port_error_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(port_error_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -815,7 +824,7 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 
 	printf("\n \n Port error CSR : 0x%lx \n", value);
 
-	result = fpgaObjectWrite64(port_error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(port_error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -841,13 +850,13 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 
 	printf("----------- INJECT ERROR START -------- \n \n");
 	// Power
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(inj_error_object, &inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(inj_error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -869,7 +878,7 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 
 	printf("Injected inj_error.csr: %ld \n", inj_error.csr);
 
-	result = fpgaObjectWrite64(inj_error_object, inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(inj_error_object, inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -895,13 +904,13 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 
 	printf("----------- INJECT ERROR START -------- \n \n");
 	// Clear Inject error
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(error_object, &inj_error.csr, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -909,7 +918,7 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 
 	printf(" Clear inj_error.csr: 0x%lx \n", inj_error.csr);;
 
-	result = fpgaObjectWrite64(error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
 		return result;
@@ -925,13 +934,13 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 	printf("----------- FME ERROR START --------- \n \n");
 
 	// Clear FME error
-	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_CLEAR_ERRORS, &error_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(fme_handle, FME_SYSFS_CLEAR_ERRORS, &error_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get handle Object");
 		return result;
 	}
 
-	result = fpgaObjectWrite64(error_object, 0x0, FPGA_OBJECT_TEXT);
+	result = fpgaObjectWrite64(error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
 		return result;
@@ -957,13 +966,13 @@ fpga_result print_pwr_temp(fpga_token token)
 	printf("\n ----------- POWER & THERMAL START-----------\n");
 	printf(" ========================================== \n \n");
 	// Power
-	result = fpgaTokenGetObject(token, FME_SYSFS_POWER_MGMT_CONSUMED, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_POWER_MGMT_CONSUMED, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(pwr_temp_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(pwr_temp_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -978,7 +987,7 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 
 	// Thermal
-	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_TEMP, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_TEMP, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
@@ -999,13 +1008,13 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 
 
-	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP, &pwr_temp_object, FPGA_OBJECT_TEXT);
+	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP, &pwr_temp_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(pwr_temp_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(pwr_temp_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -1052,13 +1061,13 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	if ( rasCmdLine->function >0 )
 		function = rasCmdLine->bus;
 
-	result = fpgaHandleGetObject(afu_handle, FPAG_DEVICEID_PATH, &dev_object, FPGA_OBJECT_TEXT);
+	result = fpgaHandleGetObject(afu_handle, FPAG_DEVICEID_PATH, &dev_object, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Handle Object");
 		return result;
 	}
 
-	result = fpgaObjectRead64(dev_object, &value, FPGA_OBJECT_TEXT);
+	result = fpgaObjectRead64(dev_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		return result;
@@ -1338,6 +1347,13 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 			// Command line help
 			RASAppShowHelp();
 			return -2;
+			break;
+
+		case 0xe:
+			// segment number
+			if (tmp_optarg == NULL ) break;
+			endptr = NULL;
+			rasCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'B':
