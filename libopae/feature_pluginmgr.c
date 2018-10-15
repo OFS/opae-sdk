@@ -92,19 +92,21 @@ STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path
 	e = memcpy_s(adapter->guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
-		return NULL;
+		goto out_free;
 	}
 	adapter->plugin.path = (char *)lib_path;
 	adapter->plugin.dl_handle = dl_handle;
 
 	return adapter;
+
+out_free:
+  free(adapter);
+  return NULL;
+  
 }
 
 STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
 {
-  UNUSED_PARAM(adapter);
-  return 0;
-  /*
 	int res;
 	char *err;
 
@@ -117,16 +119,14 @@ STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
 
 	free(adapter);
 
-	return res; */
+	return res;
 }
 
 STATIC int dma_plugin_mgr_configure_plugin(opae_dma_adapter_table *adapter,
 					    const char *config)
 {
-  UNUSED_PARAM(adapter);
   UNUSED_PARAM(config);
-  return 0;
-/*	dma_plugin_configure_t cfg;
+	dma_plugin_configure_t cfg;
 
 	cfg = (dma_plugin_configure_t)dlsym(adapter->plugin.dl_handle,
 					     DMA_PLUGIN_CONFIGURE);
@@ -138,7 +138,6 @@ STATIC int dma_plugin_mgr_configure_plugin(opae_dma_adapter_table *adapter,
 	}
 
 	return cfg(adapter, config);
-*/
 }
 
 STATIC int dma_plugin_mgr_initialize_all(void)
@@ -380,11 +379,10 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 			goto out_unlock;
 		}
 
-		// TODO: pass serialized json for native plugin
 		ret = dma_plugin_mgr_configure_plugin(adapter, "");
 		if (ret) {
 			dma_plugin_mgr_free_adapter(adapter);
-			OPAE_ERR("failed to configure plugin \"%s\"",
+			OPAE_ERR("Failed to configure plugin \"%s\"",
 				 feature_plugin);
 			++errors;
 			continue; // Keep going.

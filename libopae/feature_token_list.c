@@ -62,7 +62,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	int err = 0;
 
 	if (pthread_mutex_lock(&ftoken_lock)) {
-		FPGA_MSG("Failed to lock feature token mutex");
+		OPAE_ERR("Failed to lock feature token mutex");
 		return NULL;
 	}
 
@@ -78,6 +78,11 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	}
 
   tmp = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
+  if (NULL == tmp) {
+		OPAE_ERR("Failed to allocate memory for fhandle");
+		return NULL;
+  }
+
   uuid_clear(tmp->feature_guid);
   tmp->magic = OPAE_FEATURE_TOKEN_MAGIC;
   tmp->ref_count = 0;
@@ -99,7 +104,8 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+    goto out_free;
 	}
 
 	return tmp;
@@ -108,7 +114,7 @@ out_free:
 	free(tmp);
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	return NULL;
 }
@@ -123,7 +129,7 @@ void feature_token_cleanup(void)
   struct _fpga_feature_token * current = ftoken_root;
 	err = pthread_mutex_lock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_lock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_lock() failed: %s", strerror(err));
 		return;
 	}
 
@@ -145,6 +151,6 @@ void feature_token_cleanup(void)
 out_unlock:
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 }
