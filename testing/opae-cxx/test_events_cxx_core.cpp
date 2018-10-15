@@ -96,8 +96,6 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
     close_log();
-    close(tmpfpgad_log_fd_);
-    close(tmpfpgad_pid_fd_);
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
