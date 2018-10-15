@@ -109,7 +109,7 @@ Aug 23 09:34:59 sj-avl-d15-mc.avl systemd[1]: Starting PAC BMC sensor monitor...
 -- 
 -- Unit pacd.service has begun starting up.
 Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: daemon requested
-Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: registering NULL bitstream "/etc/GBSs/NULL.gbs"
+Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: registering default bitstream "/etc/GBSs/nlb_mode_3.gbs"
 Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: daemon path is /usr/local/bin
 Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: daemon umask is 0x0
 Aug 23 09:34:59 sj-avl-d15-mc.avl pacd[15694]: Thu Aug 23 09:34:59 2018: daemon log file is /tmp/pacd.log
@@ -258,12 +258,12 @@ If you encounter any issues, you can get debug information in two ways:
 
 ## EXAMPLES ##
 
-The following command starts `pacd` as a daemon process, programming `my_null_bits.gbs` when
-any BMC-triggerable threshold 0trips.
+The following command starts `pacd` as a daemon process, programming `nlb_mode_3.gbs` when
+any BMC-triggerable threshold trips.
 
-`pacd --daemon --null-bitstream=my_null_bits.gbs`
+`pacd --daemon --default-bitstream=nlb_mode_3.gbs`
 
-The following command starts `pacd` as a regular process, programming `idle.gbs` when
+The following command starts `pacd` as a regular process, programming `nlb_mode_3.gbs` when
 sensor 11 (FPGA Core TEMP) exceeds 92.35 degrees C or sensor 0 (Total Input Power) goes
 out of the range [9.2 - 19.9] Watts.
 
