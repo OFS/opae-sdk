@@ -48,10 +48,7 @@ using namespace opae::fpga::types;
 
 class events_cxx_core : public ::testing::TestWithParam<std::string> {
  protected:
-  events_cxx_core()
-        : tokens_({nullptr}),
-          handle_(nullptr) {}
-
+  events_cxx_core() : handle_(nullptr) {}
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
@@ -105,12 +102,11 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     }
   }
 
-
+  std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
   struct config config_;
-  std::vector<token::ptr_t> tokens_;
   test_platform platform_;
   std::thread fpgad_;
   test_system *system_;
