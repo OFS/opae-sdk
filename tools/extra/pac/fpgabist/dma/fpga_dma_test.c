@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
 
 	if (!use_ase) {
 		res = fpgaMapMMIO(afc_h, 0, (uint64_t **)&mmio_ptr);
-		ON_ERR_GOTO(res, out_close, "fpgaMapMMIO");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaMapMMIO");
 	}
 	// reset AFC
 	res = fpgaReset(afc_h);
