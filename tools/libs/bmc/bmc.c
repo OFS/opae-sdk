@@ -180,6 +180,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 
 	NULL_CHECK(records);
 	struct _sdr_rec *sdr = (struct _sdr_rec *)records;
+	struct _sensor_reading *tmp = NULL;
 
 	if (BMC_SDR_MAGIC != sdr->magic) {
 		res = FPGA_INVALID_PARAM;
@@ -194,8 +195,6 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 		goto out;
 	}
 
-	struct _sensor_reading *tmp = NULL;
-	tmp = NULL;
 	uint32_t tot_bytes;
 
 	res = read_sysfs_file(sdr->token, SYSFS_SENSOR_FILE, (void **)&tmp,
