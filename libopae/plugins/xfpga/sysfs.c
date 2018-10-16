@@ -777,7 +777,7 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
-STATIC char* cstr_dup(const char *str)
+STATIC char *cstr_dup(const char *str)
 {
 	size_t s = strlen(str);
 	char *p = malloc(s+1);
