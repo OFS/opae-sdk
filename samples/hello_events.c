@@ -272,11 +272,13 @@ int main(int argc, char *argv[])
 	if (pid == 0) {
 		usleep(5000000);
 		res1 = inject_ras_fatal_error(fpga_device_token, 1);
-		ON_ERR_GOTO(res1, out_destroy_tok, "setting inject error register");
+		if (res1 != FPGA_OK)
+			print_err("setting inject error register", res1);
 
 		usleep(2000000);
 		res1 = inject_ras_fatal_error(fpga_device_token, 0);
-		ON_ERR_GOTO(res1, out_destroy_tok, "unsetting inject error register");
+		if (res1 != FPGA_OK)
+			print_err("clearing inject error register", res1);
 
 		exit(0);
 	} else {
