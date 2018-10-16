@@ -123,9 +123,9 @@ namespace opae {
 namespace testing {
 
 static const char *dev_pattern =
-    R"regex(/dev/intel-fpga-\(fme\|port\)\.\([0-9]\+\))regex";
+    R"regex(/dev/intel-fpga-(fme|port)\.([0-9]+))regex";
 static const char *sysclass_pattern =
-    R"regex(/sys/class/fpga/intel-fpga-dev\.\([0-9]\+\))regex";
+    R"regex(/sys/class/fpga/intel-fpga-dev\.([0-9]+))regex";
 
 mock_object::mock_object(const std::string &devpath,
                          const std::string &sysclass, uint32_t device_id,
