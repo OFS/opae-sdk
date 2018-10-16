@@ -743,7 +743,7 @@ out_dma_close:
 out_unmap:
 	if (!use_ase) {
 		res = fpgaUnmapMMIO(afc_h, 0);
-		ON_ERR_GOTO(res, out_close, "fpgaUnmapMMIO");
+		ON_ERR_GOTO(res, out_destroy_prop, "fpgaUnmapMMIO");
 	}
 
 out_destroy_prop:

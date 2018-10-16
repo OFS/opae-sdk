@@ -543,7 +543,7 @@ out_exit:
 	pacd_bmc_shutdown(&ctx);
 
 	if (filter) {
-		fpgaDestroyProperties(filter);
+		fpgaDestroyProperties(&filter);
 	}
 
 	if (ctx.s_state.last_state) {
