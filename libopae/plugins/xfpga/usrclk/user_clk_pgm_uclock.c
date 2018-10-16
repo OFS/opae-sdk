@@ -124,7 +124,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {
-	char sysfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0, };
 	uint64_t freq = userclk_high;
 	uint64_t refClk = 0;
 	int fd, res;
@@ -894,7 +894,7 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 	if (iopll_glob.gl_pathc > 1)
 		FPGA_MSG("WARNING: Port has multiple sysfs frequency files");
 
-	strncpy(sysfs_usrpath, iopll_glob.gl_pathv[0], SYSFS_PATH_MAX);
+	strcpy_s(sysfs_usrpath, SYSFS_PATH_MAX, iopll_glob.gl_pathv[0]);
 
 	globfree(&iopll_glob);
 
