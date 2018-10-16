@@ -797,6 +797,8 @@ fpga_result opae_glob_path(char *path)
 {
 	fpga_result res = FPGA_OK;
 	glob_t pglob;
+	pglob.gl_pathc = 0;
+	pglob.gl_pathv = NULL;
 	int globres = glob(path, 0, NULL, &pglob);
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
@@ -817,6 +819,9 @@ fpga_result opae_glob_path(char *path)
 			break;
 		default:
 			res = FPGA_EXCEPTION;
+		}
+		if (pglob.gl_pathc && pglob.gl_pathv) {
+			globfree(&pglob);
 		}
 	}
 	return res;
