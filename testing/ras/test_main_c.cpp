@@ -67,16 +67,61 @@ fpga_result inject_ras_errors(fpga_token, struct RASCommandLine*);
 fpga_result clear_inject_ras_errors(fpga_token); 
 }
 
-#include <types_int.h>
+#include "intel-fpga.h"
+#include "types_int.h"
 #include <iostream>
 #include <fstream>
 #include <opae/mmio.h>
 #include <sys/mman.h>
+#include <linux/ioctl.h>
 #include <string>
+#include <cstdarg>
 #include "gtest/gtest.h"
 #include "test_system.h"
 #define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
 using namespace opae::testing;
+
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+        printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+using namespace opae::testing;
+
+int mmio_ioctl(mock_object * m, int request, va_list argp){
+    int retval = -1;
+    errno = EINVAL;
+    UNUSED_PARAM(m);
+    UNUSED_PARAM(request);
+    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+    if (!rinfo) {
+      FPGA_MSG("rinfo is NULL");
+      goto out_EINVAL;
+    }
+    if (rinfo->argsz != sizeof(*rinfo)) {
+      FPGA_MSG("wrong structure size");
+      goto out_EINVAL;
+    }
+    if (rinfo->index > 1 ) {
+      FPGA_MSG("unsupported MMIO index");
+      goto out_EINVAL;
+    }
+    if (rinfo->padding != 0) {
+      FPGA_MSG("unsupported padding");
+      goto out_EINVAL;
+    }
+    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+    rinfo->size = 0x40000;
+    rinfo->offset = 0;
+    retval = 0;
+    errno = 0;
+out:
+    return retval;
+
+out_EINVAL:
+    retval = -1;
+    errno = EINVAL;
+    goto out;
+}
 
 class ras_c_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -195,9 +240,20 @@ TEST(ras_c, invalid_print_error){
 
 /**
  * @test       page_fault_errors
+ * @brief      Test: test_page_fault_errors
+ * @details    When mmio ioctl FPGA_PORT_GET_REGION_INFO is valid, 
+ *             page_fault_errors returns FPGA_OK.<br>
+ */
+TEST_P(ras_c_p, test_page_fault_errors){
+  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+  EXPECT_EQ(FPGA_OK, page_fault_errors());
+}
+
+/**
+ * @test       page_fault_errors
  * @brief      Test: invalid_page_fault_errors
- * @details    When fpga_token is invalid, page_fault_errors returns 
- *             FPGA_INVALID_PARAM.<br>
+ * @details    When mmio ioctl fails on FPGA_PORT_GET_REGION_INFO, 
+ *             page_fault_errors returns FPGA_INVALID_PARAM.<br>
  */
 TEST(ras_c, invalid_page_fault_errors){
   EXPECT_EQ(FPGA_INVALID_PARAM, page_fault_errors());
@@ -259,6 +315,20 @@ TEST_P(ras_c_p, invalid_print_pwr_temp){
   EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(nullptr)); 
 
   EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_dev_[0])); 
+}
+
+/**
+ * @test       test_mmio_error
+ * @brief      Test: mmio_error 
+ * @details    When mmio_erro is called with an valid afu handle,<br>
+ *             injecting mmio errors, it returns FPGA_EXCEPTION because<br>
+ *             FPGA PCIE BAR2 doesn't exist.<br>
+ */
+TEST_P(ras_c_p, test_mmio_error){
+  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
+                false, false, false,false,
+                false, false, true, true, false};
+  EXPECT_EQ(FPGA_OK, mmio_error(handle_accel_, &cmd_line_));
 }
 
 /**
@@ -353,92 +423,6 @@ TEST_P(ras_c_p, main_params_01){
   EXPECT_EQ(ras_main(17, argv), 0);
 }
 
-///**
-// * @test       main_params_03
-// * @brief      Test: ras_main
-// * @details    When ras_main is called with an valid command option,<br>
-// *             injecting page fault error option, ras_main returns zero.<br>
-// */
-//TEST_P(ras_c_p, main_params_03){
-//  char zero[20];
-//  char one[20];
-//  char two[20];
-//  char three[20];
-//  char four[20];
-//  char five[20];
-//  char six[20];
-//  char seven[20];
-//  char eight[20];
-//  char nine[20];
-//  char ten[20];
-//  char eleven[20];
-//  char twelve[20];
-//  char thirteen[20];
-//
-//  strcpy(zero, "ras");
-//  strcpy(one, "--segment");
-//  sprintf(two, "%d", platform_.devices[0].segment);
-//  strcpy(three, "-B");
-//  sprintf(four, "%d", platform_.devices[0].bus);
-//  strcpy(five, "-D");
-//  sprintf(six, "%d", platform_.devices[0].device);
-//  strcpy(seven, "-F");
-//  sprintf(eight, "%d", platform_.devices[0].function);
-//  strcpy(nine, "-S");
-//  sprintf(ten, "%d", platform_.devices[0].socket_id);
-//  strcpy(eleven, "-P");
-//  strcpy(twelve, "-O");
-//
-//  char *argv[] = { zero, one, two, three, four,
-//                   five, six, seven, eight, nine,
-//                   ten, eleven, twelve };
-//
-//  EXPECT_EQ(ras_main(13, argv), 0);
-//}
-//
-///**
-// * @test       main_params_04
-// * @brief      Test: ras_main
-// * @details    When ras_main is called with an valid command option,<br>
-// *             injecting non fatal error, ras_main retunrs zeros.<br>
-// */
-//TEST_P(ras_c_p, main_params_04){
-//  char zero[20];
-//  char one[20];
-//  char two[20];
-//  char three[20];
-//  char four[20];
-//  char five[20];
-//  char six[20];
-//  char seven[20];
-//  char eight[20];
-//  char nine[20];
-//  char ten[20];
-//  char eleven[20];
-//  char twelve[20];
-//  char thirteen[20];
-//
-//  strcpy(zero, "ras");
-//  strcpy(one, "--segment");
-//  sprintf(two, "%d", platform_.devices[0].segment);
-//  strcpy(three, "-B");
-//  sprintf(four, "%d", platform_.devices[0].bus);
-//  strcpy(five, "-D");
-//  sprintf(six, "%d", platform_.devices[0].device);
-//  strcpy(seven, "-F");
-//  sprintf(eight, "%d", platform_.devices[0].function);
-//  strcpy(nine, "-S");
-//  sprintf(ten, "%d", platform_.devices[0].socket_id);
-//  strcpy(eleven, "-P");
-//  strcpy(twelve, "-N");
-//
-//  char *argv[] = { zero, one, two, three, four,
-//                   five, six, seven, eight, nine,
-//                   ten, eleven, twelve };
-//
-//  EXPECT_EQ(ras_main(13, argv), 0);
-//}
-
 /**
  * @test       main_params_05
  * @brief      Test: ras_main
@@ -501,20 +485,6 @@ TEST_P(ras_c_p, invalid_cmd_02){
 
   char *argv[] = { zero, one };
   EXPECT_EQ(ras_main(2, argv), 2);
-}
-
-/**
- * @test       test_mmio_error
- * @brief      Test: mmio_error 
- * @details    When mmio_erro is called with an valid afu handle,<br>
- *             injecting mmio errors, it returns FPGA_EXCEPTION because<br>
- *             FPGA PCIE BAR2 doesn't exist.<br>
- */
-TEST_P(ras_c_p, test_mmio_error){
-  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
-                false, false, false,false,
-                true, true, true, true, false};
-  EXPECT_EQ(FPGA_EXCEPTION, mmio_error(handle_accel_, &cmd_line_));
 }
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
