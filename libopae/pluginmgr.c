@@ -255,8 +255,8 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 
 	while ((dirent = readdir(dir)) != NULL) {
 		FILE *fp;
-		int vendor = 0;
-		int device = 0;
+		unsigned vendor = 0;
+		unsigned device = 0;
 
 		if (EOK != strcmp_s(dirent->d_name, sizeof(dirent->d_name),
 					".", &res)) {
