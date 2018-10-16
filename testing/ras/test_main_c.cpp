@@ -61,12 +61,13 @@ fpga_result print_ras_errors(fpga_token);
 fpga_result print_port_errors(fpga_token);
 fpga_result clear_port_errors(fpga_token);
 fpga_result print_pwr_temp(fpga_token);
-fpga_result mmio_error(struct RASCommandLine*);
+fpga_result mmio_error(fpga_handle, struct RASCommandLine*);
 fpga_result page_fault_errors();
 fpga_result inject_ras_errors(fpga_token, struct RASCommandLine*);
 fpga_result clear_inject_ras_errors(fpga_token, struct RASCommandLine*); 
 }
 
+#include <types_int.h>
 #include <iostream>
 #include <fstream>
 #include <opae/mmio.h>
@@ -74,12 +75,13 @@ fpga_result clear_inject_ras_errors(fpga_token, struct RASCommandLine*);
 #include <string>
 #include "gtest/gtest.h"
 #include "test_system.h"
-
+#define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
 using namespace opae::testing;
 
 class ras_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  ras_c_p() {}
+  ras_c_p()
+      : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -97,9 +99,33 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
 
     optind = 0;
     cmd_line_ = rasCmdLine;
+
+    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                            &num_matches_),
+                            FPGA_OK);
+    EXPECT_EQ(num_matches_, platform_.devices.size());
+    device_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &device_, 0), FPGA_OK);
+
   }
 
   virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (device_) {
+      EXPECT_EQ(fpgaClose(device_), FPGA_OK);
+      device_ = nullptr;
+    }
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+
     rasCmdLine = cmd_line_;
     system_->finalize();
 
@@ -109,10 +135,15 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle device_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
   struct RASCommandLine cmd_line_;
   char tmp_gbs_[20];
   test_platform platform_;
   test_system *system_;
+
 };
 
 /**
@@ -120,7 +151,7 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
  * @brief      Test: show_help
  * @details    RASAppShowHelp displays the application help message.<br>
  */
-TEST_P(ras_c_p, show_help){
+TEST(ras_c, show_help){
   RASAppShowHelp();
 }
 
@@ -129,7 +160,7 @@ TEST_P(ras_c_p, show_help){
  * @brief      Test: invalid_print_error
  * @details    When params to print_err is valid, it displays the std error.<br>
  */
-TEST_P(ras_c_p, invalid_print_error){
+TEST(ras_c, invalid_print_error){
   const std::string des = "/sys/class/fpga/intel-fpga-dev.01";
   print_err(des.c_str(), FPGA_INVALID_PARAM);
 }
@@ -140,7 +171,7 @@ TEST_P(ras_c_p, invalid_print_error){
  * @details    When fpga_token is invalid, page_fault_errors returns 
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_p, invalid_page_fault_errors){
+TEST(ras_c, invalid_page_fault_errors){
   EXPECT_EQ(FPGA_INVALID_PARAM, page_fault_errors());
 }
 
@@ -157,40 +188,49 @@ TEST_P(ras_c_p, invalid_print_token_errors){
   const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
 
   EXPECT_EQ(FPGA_INVALID_PARAM, print_errors(tok, sysfs_port.c_str(), nullptr, 0)); 
-  
 }
 
 /**
  * @test       inject_ras_errors
- * @brief      Test: invalid_inject_ras_errors
+ * @brief      Test: test_inject_ras_errors
  * @details    When fpga_token is invalid, inject_ras_error returns 
- *             FPGA_INVALID_PARAM.<br>
+ *             FPGA_INVALID_PARAM. Else, it returns FPGA_OK.<br>
  */
-TEST_P(ras_c_p, invalid_inject_ras_errors){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, inject_ras_errors(tok, &rasCmdLine)); 
+TEST_P(ras_c_p, test_inject_ras_errors){
+  EXPECT_EQ(FPGA_INVALID_PARAM, inject_ras_errors(nullptr, &rasCmdLine)); 
+
+  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
+               false, false, true, false,
+               false, false, false, false, true};
+  struct _fpga_token * tok = static_cast<_fpga_token*>(tokens_[0]);
+
+  auto current_magic = tok->magic;
+  tok->magic = OPAE_WRAPPED_HANDLE_MAGIC;
+  EXPECT_EQ(FPGA_OK, inject_ras_errors(device_, &cmd_line_)); 
+
+  tok->magic = current_magic;
 }
 
 /**
  * @test       clear_inject_ras_errors
  * @brief      Test: invalid_clear_inject_ras_errors
  * @details    When fpga_token is invalid, clear_inject_ras_error returns 
- *             FPGA_INVALID_PARAM.<br>
+ *             FPGA_INVALID_PARAM. Else, it returns FPGA_OK.<br>
  */
 TEST_P(ras_c_p, invalid_clear_inject_ras_errors){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(tok, &rasCmdLine)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(nullptr, &rasCmdLine)); 
 }
 
 /**
  * @test       print_pwr_temp
- * @brief      Test: invalid_print_pwr_temp
+ * @brief      Test: test_print_pwr_temp
  * @details    When fpga_token is invalid, print_pwr_temp returns 
- *             FPGA_INVALID_PARAM.<br>
+ *             FPGA_INVALID_PARAM. Else, it returns FPGA_OK.<br>
  */
 TEST_P(ras_c_p, invalid_print_pwr_temp){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(tok)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(nullptr)); 
+
+  EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_[0])); 
 }
 
 /**
@@ -201,7 +241,7 @@ TEST_P(ras_c_p, invalid_print_pwr_temp){
  */
 TEST_P(ras_c_p, invalid_mmio_errors){
   struct RASCommandLine invalid_rasCmdLine;
-  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(&invalid_rasCmdLine)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(nullptr, &invalid_rasCmdLine)); 
 }
 
 /**
@@ -211,9 +251,7 @@ TEST_P(ras_c_p, invalid_mmio_errors){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_ras_errors){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_ras_errors(tok));
-  //EXPECT_EQ(FPGA_OK, print_ras_errors(tokens_dev_[0]));
+  EXPECT_EQ(FPGA_INVALID_PARAM, print_ras_errors(nullptr));
 }
 
 /**
@@ -223,8 +261,7 @@ TEST_P(ras_c_p, invalid_ras_errors){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_print_port_errors){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_port_errors(tok));
+  EXPECT_EQ(FPGA_INVALID_PARAM, print_port_errors(nullptr));
 }
 
 /**
@@ -234,8 +271,7 @@ TEST_P(ras_c_p, invalid_print_port_errors){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_clear_port_errors){
-  fpga_token tok = nullptr;
-  EXPECT_EQ(FPGA_INVALID_PARAM, clear_port_errors(tok));
+  EXPECT_EQ(FPGA_INVALID_PARAM, clear_port_errors(nullptr));
 }
 
 /**
