@@ -455,7 +455,7 @@ add_unit_test(test_userclk_c userclk-static
 # hello_fpga tests #########################################################
 ############################################################################
 
-add_mock_test(test_hello_fpga_c hello_fpga-static
+add_unit_test(test_hello_fpga_c hello_fpga-static
     hello_fpga/test_hello_fpga_c.cpp
 )
 
