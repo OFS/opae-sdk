@@ -2,20 +2,6 @@
 
 set -o xtrace
 
-function finish {
-	#kill $(cat $PWD/fpgad.pid)
-
-	find testing -iname "*.gcda" -exec chmod 664 '{}' \;
-	find testing -iname "*.gcno" -exec chmod 664 '{}' \;
-
-	lcov --directory testing --capture --output-file coverage.info
-
-	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
-	genhtml --function-coverage -o coverage_report coverage.info.cleaned
-}
-trap "finish" EXIT
-
 mkdir -p unittests
 cd unittests
 
@@ -35,4 +21,12 @@ lcov -c -i -d . -o coverage.base
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \
 OPAE_EXPLICIT_INITIALIZE=1 \
- make test
+ctest -j3 --timeout 60
+find testing -iname "*.gcda" -exec chmod 664 '{}' \;
+find testing -iname "*.gcno" -exec chmod 664 '{}' \;
+
+lcov --directory testing --capture --output-file coverage.info
+
+lcov -a coverage.base -a coverage.info --output-file coverage.total
+lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
+genhtml --function-coverage -o coverage_report coverage.info.cleaned
