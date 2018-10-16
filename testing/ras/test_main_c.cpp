@@ -64,7 +64,7 @@ fpga_result print_pwr_temp(fpga_token);
 fpga_result mmio_error(fpga_handle, struct RASCommandLine*);
 fpga_result page_fault_errors();
 fpga_result inject_ras_errors(fpga_token, struct RASCommandLine*);
-fpga_result clear_inject_ras_errors(fpga_token, struct RASCommandLine*); 
+fpga_result clear_inject_ras_errors(fpga_token); 
 }
 
 #include <types_int.h>
@@ -81,7 +81,8 @@ using namespace opae::testing;
 class ras_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   ras_c_p()
-      : tokens_{{nullptr, nullptr}} {}
+      : tokens_dev_{{nullptr, nullptr}},
+        tokens_accel_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -101,25 +102,49 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     cmd_line_ = rasCmdLine;
 
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+    ASSERT_EQ(fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_),
                             FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
-    device_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &device_, 0), FPGA_OK);
+    handle_dev_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
+
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_DEVICE), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
+                            &num_matches_),
+                            FPGA_OK);
+    EXPECT_EQ(num_matches_, platform_.devices.size());
+    handle_accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
 
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (device_) {
-      EXPECT_EQ(fpgaClose(device_), FPGA_OK);
-      device_ = nullptr;
+    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    if (handle_dev_) {
+      EXPECT_EQ(fpgaClose(handle_dev_), FPGA_OK);
+      handle_dev_ = nullptr;
     }
-    for (auto &t : tokens_) {
+
+    if (handle_accel_) {
+      EXPECT_EQ(fpgaClose(handle_accel_), FPGA_OK);
+      handle_accel_ = nullptr;
+    }
+ 
+    for (auto &t : tokens_dev_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+
+    for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
@@ -135,9 +160,12 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle device_;
-  fpga_properties filter_;
+  fpga_properties filter_dev_;
+  fpga_properties filter_accel_;
+  std::array<fpga_token, 2> tokens_dev_;
+  std::array<fpga_token, 2> tokens_accel_;
+  fpga_handle handle_dev_;
+  fpga_handle handle_accel_;
   uint32_t num_matches_;
   struct RASCommandLine cmd_line_;
   char tmp_gbs_[20];
@@ -202,11 +230,11 @@ TEST_P(ras_c_p, test_inject_ras_errors){
   cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
                false, false, true, false,
                false, false, false, false, true};
-  struct _fpga_token * tok = static_cast<_fpga_token*>(tokens_[0]);
+  struct _fpga_token * tok = static_cast<_fpga_token*>(tokens_dev_[0]);
 
   auto current_magic = tok->magic;
   tok->magic = OPAE_WRAPPED_HANDLE_MAGIC;
-  EXPECT_EQ(FPGA_OK, inject_ras_errors(device_, &cmd_line_)); 
+  EXPECT_EQ(FPGA_OK, inject_ras_errors(handle_dev_, &cmd_line_)); 
 
   tok->magic = current_magic;
 }
@@ -218,7 +246,7 @@ TEST_P(ras_c_p, test_inject_ras_errors){
  *             FPGA_INVALID_PARAM. Else, it returns FPGA_OK.<br>
  */
 TEST_P(ras_c_p, invalid_clear_inject_ras_errors){
-  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(nullptr, &rasCmdLine)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(nullptr)); 
 }
 
 /**
@@ -230,7 +258,7 @@ TEST_P(ras_c_p, invalid_clear_inject_ras_errors){
 TEST_P(ras_c_p, invalid_print_pwr_temp){
   EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(nullptr)); 
 
-  EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_[0])); 
+  EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_dev_[0])); 
 }
 
 /**
@@ -295,6 +323,9 @@ TEST_P(ras_c_p, main_params_01){
   char eleven[20];
   char twelve[20];
   char thirteen[20];
+  char fourteen[20];
+  char fifteen[20];
+  char sixteen[20];
 
   strcpy(zero, "ras");
   strcpy(one, "--segment");
@@ -309,144 +340,104 @@ TEST_P(ras_c_p, main_params_01){
   sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-P");
   strcpy(twelve, "-Q");
-  strcpy(thirteen, "-C");
+  strcpy(thirteen, "-R");
+  strcpy(fourteen, "-O");
+  strcpy(fifteen, "-N");
+  strcpy(sixteen, "-C");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen };
+                   ten, eleven, twelve, thirteen,
+                   fourteen, fifteen, sixteen };
 
-  EXPECT_EQ(ras_main(14, argv), 0);
+  EXPECT_EQ(ras_main(17, argv), 0);
 }
 
-/**
- * @test       main_params_02
- * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command option,<br>
- *             injecting fatal error option, ras_main returns zero.<br>
- */
-TEST_P(ras_c_p, main_params_02){
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-
-  strcpy(zero, "ras");
-  strcpy(one, "--segment");
-  sprintf(two, "%d", platform_.devices[0].segment);
-  strcpy(three, "-B");
-  sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(five, "-D");
-  sprintf(six, "%d", platform_.devices[0].device);
-  strcpy(seven, "-F");
-  sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-P");
-  strcpy(twelve, "-R");
-  strcpy(thirteen, "-C");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen };
-
-  EXPECT_EQ(ras_main(14, argv), 0);
-}
-
-/**
- * @test       main_params_03
- * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command option,<br>
- *             injecting page fault error option, ras_main returns zero.<br>
- */
-TEST_P(ras_c_p, main_params_03){
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-
-  strcpy(zero, "ras");
-  strcpy(one, "--segment");
-  sprintf(two, "%d", platform_.devices[0].segment);
-  strcpy(three, "-B");
-  sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(five, "-D");
-  sprintf(six, "%d", platform_.devices[0].device);
-  strcpy(seven, "-F");
-  sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-P");
-  strcpy(twelve, "-O");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve };
-
-  EXPECT_EQ(ras_main(13, argv), 0);
-}
-
-/**
- * @test       main_params_04
- * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command option,<br>
- *             injecting non fatal error, ras_main retunrs zeros.<br>
- */
-TEST_P(ras_c_p, main_params_04){
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-
-  strcpy(zero, "ras");
-  strcpy(one, "--segment");
-  sprintf(two, "%d", platform_.devices[0].segment);
-  strcpy(three, "-B");
-  sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(five, "-D");
-  sprintf(six, "%d", platform_.devices[0].device);
-  strcpy(seven, "-F");
-  sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-P");
-  strcpy(twelve, "-N");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve };
-
-  EXPECT_EQ(ras_main(13, argv), 0);
-}
+///**
+// * @test       main_params_03
+// * @brief      Test: ras_main
+// * @details    When ras_main is called with an valid command option,<br>
+// *             injecting page fault error option, ras_main returns zero.<br>
+// */
+//TEST_P(ras_c_p, main_params_03){
+//  char zero[20];
+//  char one[20];
+//  char two[20];
+//  char three[20];
+//  char four[20];
+//  char five[20];
+//  char six[20];
+//  char seven[20];
+//  char eight[20];
+//  char nine[20];
+//  char ten[20];
+//  char eleven[20];
+//  char twelve[20];
+//  char thirteen[20];
+//
+//  strcpy(zero, "ras");
+//  strcpy(one, "--segment");
+//  sprintf(two, "%d", platform_.devices[0].segment);
+//  strcpy(three, "-B");
+//  sprintf(four, "%d", platform_.devices[0].bus);
+//  strcpy(five, "-D");
+//  sprintf(six, "%d", platform_.devices[0].device);
+//  strcpy(seven, "-F");
+//  sprintf(eight, "%d", platform_.devices[0].function);
+//  strcpy(nine, "-S");
+//  sprintf(ten, "%d", platform_.devices[0].socket_id);
+//  strcpy(eleven, "-P");
+//  strcpy(twelve, "-O");
+//
+//  char *argv[] = { zero, one, two, three, four,
+//                   five, six, seven, eight, nine,
+//                   ten, eleven, twelve };
+//
+//  EXPECT_EQ(ras_main(13, argv), 0);
+//}
+//
+///**
+// * @test       main_params_04
+// * @brief      Test: ras_main
+// * @details    When ras_main is called with an valid command option,<br>
+// *             injecting non fatal error, ras_main retunrs zeros.<br>
+// */
+//TEST_P(ras_c_p, main_params_04){
+//  char zero[20];
+//  char one[20];
+//  char two[20];
+//  char three[20];
+//  char four[20];
+//  char five[20];
+//  char six[20];
+//  char seven[20];
+//  char eight[20];
+//  char nine[20];
+//  char ten[20];
+//  char eleven[20];
+//  char twelve[20];
+//  char thirteen[20];
+//
+//  strcpy(zero, "ras");
+//  strcpy(one, "--segment");
+//  sprintf(two, "%d", platform_.devices[0].segment);
+//  strcpy(three, "-B");
+//  sprintf(four, "%d", platform_.devices[0].bus);
+//  strcpy(five, "-D");
+//  sprintf(six, "%d", platform_.devices[0].device);
+//  strcpy(seven, "-F");
+//  sprintf(eight, "%d", platform_.devices[0].function);
+//  strcpy(nine, "-S");
+//  sprintf(ten, "%d", platform_.devices[0].socket_id);
+//  strcpy(eleven, "-P");
+//  strcpy(twelve, "-N");
+//
+//  char *argv[] = { zero, one, two, three, four,
+//                   five, six, seven, eight, nine,
+//                   ten, eleven, twelve };
+//
+//  EXPECT_EQ(ras_main(13, argv), 0);
+//}
 
 /**
  * @test       main_params_05
@@ -510,6 +501,20 @@ TEST_P(ras_c_p, invalid_cmd_02){
 
   char *argv[] = { zero, one };
   EXPECT_EQ(ras_main(2, argv), 2);
+}
+
+/**
+ * @test       test_mmio_error
+ * @brief      Test: mmio_error 
+ * @details    When mmio_erro is called with an valid afu handle,<br>
+ *             injecting mmio errors, it returns FPGA_EXCEPTION because<br>
+ *             FPGA PCIE BAR2 doesn't exist.<br>
+ */
+TEST_P(ras_c_p, test_mmio_error){
+  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
+                false, false, false,false,
+                true, true, true, true, false};
+  EXPECT_EQ(FPGA_EXCEPTION, mmio_error(handle_accel_, &cmd_line_));
 }
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
