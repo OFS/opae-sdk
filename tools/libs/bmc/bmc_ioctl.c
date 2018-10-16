@@ -253,6 +253,7 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 				&sdr->contents[sensor].body);
 
 	if (NULL == vals) {
+		close(fd);
 		return FPGA_NO_MEMORY;
 	}
 

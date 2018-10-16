@@ -542,6 +542,10 @@ void *bmc_thermal_thread(void *thread_context)
 out_exit:
 	pacd_bmc_shutdown(&ctx);
 
+	if (filter) {
+		fpgaDestroyProperties(filter);
+	}
+
 	if (ctx.s_state.last_state) {
 		free(ctx.s_state.last_state);
 	}

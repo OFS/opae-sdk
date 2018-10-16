@@ -745,15 +745,17 @@ out_unmap:
 		res = fpgaUnmapMMIO(afc_h, 0);
 		ON_ERR_GOTO(res, out_close, "fpgaUnmapMMIO");
 	}
-out_close:
-	res = fpgaClose(afc_h);
-	ON_ERR_GOTO(res, out_destroy_prop, "fpgaClose");
 
 out_destroy_prop:
 	if (props) {
 		res = fpgaDestroyProperties(&props);
-		ON_ERR_GOTO(res, out_destroy_tok, "destroying properties");
+		ON_ERR_GOTO(res, out_close, "closing accelerator");
 	}
+
+out_close:
+	res = fpgaClose(afc_h);
+	ON_ERR_GOTO(res, out_destroy_tok, "fpgaClose");
+
 out_destroy_tok:
 	res = fpgaDestroyToken(&afc_token);
 	ON_ERR_GOTO(res, out, "fpgaDestroyToken");
