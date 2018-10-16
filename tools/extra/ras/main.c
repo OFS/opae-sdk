@@ -500,7 +500,7 @@ int main( int argc, char** argv )
 		result = inject_ras_errors(fme_handle, &rasCmdLine);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print fme errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -513,7 +513,7 @@ int main( int argc, char** argv )
 		result = mmio_error(afu_handle, &rasCmdLine);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed set MMIO errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 	}
@@ -525,14 +525,14 @@ int main( int argc, char** argv )
 		result = clear_inject_ras_errors(fme_handle);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to clear inject errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// clear Port ERROR
 		result = clear_port_errors(afu_handle);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to clear port errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -541,7 +541,7 @@ int main( int argc, char** argv )
 		result = page_fault_errors();
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to trigger page fault errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -554,37 +554,41 @@ int main( int argc, char** argv )
 		result = print_ras_errors(fme_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print fme errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// Print port Error
 		result = print_port_errors(afu_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print port errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// Print power and temp
 		result = print_pwr_temp(fme_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to get power and temp");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
 out_close:
-	result = fpgaClose(fme_handle);
-	ON_ERR_GOTO(result, out_destroy_prop, "closing fme");
+	if (fme_handle) {
+		result = fpgaClose(fme_handle);
+		if (result != FPGA_OK)
+			OPAE_ERR("closing fme");
+	}
 
-	result = fpgaClose(afu_handle);
-	ON_ERR_GOTO(result, out_destroy_prop, "closing afu");
+	if (afu_handle) {
+		result = fpgaClose(afu_handle);
+		ON_ERR_GOTO(result, out_destroy_prop, "closing afu");
+	}
 
-	/* Destroy properties object */
 out_destroy_prop:
-
 	if (afu_filter) {
 		result = fpgaDestroyProperties(&afu_filter);
-		ON_ERR_GOTO(result, out_exit, "destroying properties object");
+		if (result != FPGA_OK)
+			OPAE_ERR("destroying properties object");
 	}
 
 	if (fpga_filter) {
@@ -594,7 +598,6 @@ out_destroy_prop:
 
 out_exit:
 	return result;
-
 }
 
 // Print Error
