@@ -197,7 +197,6 @@ TEST_P(hello_fpga_c_p, parse_args2) {
   char one[20];
   char two[20];
   char three[20];
-  char four[20];
   strcpy(zero, "hello_fpga");
   strcpy(one, "-B");
   strcpy(two, "3");
