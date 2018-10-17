@@ -494,4 +494,4 @@ TEST_P(ras_c_p, invalid_clear_port_errors){
 }
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));
