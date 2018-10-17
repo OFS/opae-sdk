@@ -32,9 +32,9 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
   unit/gtEnumerate.cpp
   unit/gtOptionParser.cpp
   unit/gtAnyValue.cpp
-  unit/gtsysfs.cpp
+  # unit/gtsysfs.cpp
   function/gtCxxEnumerate.cpp
-  function/gtCxxEvents.cpp
+  # function/gtCxxEvents.cpp
   function/gtCxxOpenClose.cpp
   function/gtCxxProperties.cpp
   function/gtCxxExcept.cpp
