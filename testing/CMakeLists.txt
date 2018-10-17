@@ -112,6 +112,16 @@ target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(ras-static
+    ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
+
+target_compile_definitions(ras-static PRIVATE main=ras_main)
+
+target_include_directories(ras-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 add_library(coreidle-static
     ${OPAE_SDK_SOURCE}/tools/extra/coreidle/coreidle.c
     ${OPAE_SDK_SOURCE}/tools/extra/coreidle/main.c
@@ -434,6 +444,14 @@ add_mock_test(test_fpgad_fpgad_c fpgad-static
 
 add_mock_test(test_fpgad_ap6_c fpgad-static
     fpgad/test_ap6_c.cpp
+)
+
+############################################################################
+# RAS tests ##############################################################
+############################################################################
+
+add_mock_test(test_ras_c ras-static
+    ras/test_main_c.cpp
 )
 
 ############################################################################
