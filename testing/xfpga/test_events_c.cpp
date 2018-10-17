@@ -327,6 +327,9 @@ class events_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
+    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+ 
     for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
@@ -341,9 +344,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    system_->finalize();
+   system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
@@ -352,6 +353,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  fpga_properties filter_dev_;
+  fpga_properties filter_accel_;
   std::array<fpga_token, 2> tokens_dev_;
   std::array<fpga_token, 2> tokens_accel_;
   fpga_handle handle_dev_;
@@ -359,8 +362,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
   struct config config_;
-  fpga_properties filter_dev_;
-  fpga_properties filter_accel_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -1287,9 +1288,12 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     config_.running = false;
     logger_thread_.join();
     fpgad_.join();
+    close_log();
 
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
 
     for (auto &t : tokens_accel_) {
       if (t) {
@@ -1298,10 +1302,6 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    close_log();
-    close(tmpfpgad_log_fd_);
-    close(tmpfpgad_pid_fd_);
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
@@ -1311,12 +1311,12 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  fpga_properties filter_accel_;
   std::array<fpga_token, 2> tokens_accel_;
   fpga_handle handle_accel_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
   struct config config_;
-  fpga_properties filter_accel_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
@@ -1370,5 +1370,6 @@ TEST_P(events_handle_p, manual_irq) {
   ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
 }
+
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::Values("skx-p-1s"));
+                        ::testing::Values("skx-p"));
