@@ -137,12 +137,6 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    std::vector<uint8_t> gbs_file = system_->assemble_gbs_header(platform_.devices[0]);
-    std::ofstream gbs;
-    gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
-    gbs.write((const char *) gbs_file.data(), gbs_file.size());
-    gbs.close();
-
     optind = 0;
     cmd_line_ = rasCmdLine;
 
@@ -198,11 +192,6 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
 
     rasCmdLine = cmd_line_;
     system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmp_gbs_);
-    }
   }
 
   fpga_properties filter_dev_;
@@ -213,7 +202,6 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle handle_accel_;
   uint32_t num_matches_;
   struct RASCommandLine cmd_line_;
-  char tmp_gbs_[20];
   test_platform platform_;
   test_system *system_;
 };
@@ -382,8 +370,7 @@ TEST_P(ras_c_p, test_mmio_error){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_mmio_errors){
-  struct RASCommandLine invalid_rasCmdLine;
-  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(nullptr, &invalid_rasCmdLine)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(nullptr, &cmd_line_)); 
 }
 
 /**
