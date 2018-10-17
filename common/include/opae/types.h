@@ -212,9 +212,6 @@ typedef void *fpga_feature_token;
  */
 typedef void *fpga_feature_handle;
 
-/* Callback for asynchronous operation */
-typedef void (*fpga_cb)(void *context);
-
 
 
 #endif // __FPGA_TYPES_H__
