@@ -254,7 +254,7 @@ TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_errtable_c, fpgad_errtable_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));
 
 /**
  * @test       log_fpga_err

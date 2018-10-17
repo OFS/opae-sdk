@@ -177,4 +177,4 @@ TEST_P(fpgad_evt_c_p, notify_ap6) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_evt_c, fpgad_evt_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));

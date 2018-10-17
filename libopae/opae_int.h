@@ -189,7 +189,8 @@ opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *we)
 	opae_mutex_lock(err, &we->lock);
 	we->magic = 0;
 	opae_mutex_unlock(err, &we->lock);
-	pthread_mutex_destroy(&we->lock);
+	if (pthread_mutex_destroy(&we->lock))
+		OPAE_ERR("pthread_mutex_destroy() failed");
 	free(we);
 }
 
