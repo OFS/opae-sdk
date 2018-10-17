@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 	}
 
 	res1 = get_bus(fpga_device_token, &bus);
-	ON_ERR_GOTO(res1, out_exit, "getting bus num");	
+	ON_ERR_GOTO(res1, out_destroy_tok, "getting bus num");	
 
 	if (num_matches > 1) {
 		fprintf(stderr, "Found more than one suitable slot. ");
