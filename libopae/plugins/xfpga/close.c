@@ -63,8 +63,8 @@ fpga_result __FPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 		return FPGA_INVALID_PARAM;
 	}
 
-	wsid_cleanup(&_handle->wsid_root, NULL);
-	wsid_cleanup(&_handle->mmio_root, unmap_mmio_region);
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
+	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
 	free_umsg_buffer(handle);
 	close(_handle->fddev);
 	if (_handle->fdfpgad >= 0)

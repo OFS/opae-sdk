@@ -128,7 +128,7 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     uint64_t ap6_bit = ((uint64_t)1 << 50);
     FILE *fp = fopen(fname.c_str(), "w");    
     ASSERT_NE(nullptr, fp);
-    EXPECT_GT(fprintf(fp, "0x%" PRIx64 "\n", ap6_bit), 0);
+    EXPECT_GT(fprintf(fp, "0x%lx\n", ap6_bit), 0);
     fclose(fp);
   }
 
@@ -254,7 +254,7 @@ TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_errtable_c, fpgad_errtable_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));
 
 /**
  * @test       log_fpga_err

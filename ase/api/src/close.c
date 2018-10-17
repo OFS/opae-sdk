@@ -46,9 +46,10 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
-
 	// ASE Release
 	session_deinit();
+
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
 
 	free(_handle);
 	result = FPGA_OK;

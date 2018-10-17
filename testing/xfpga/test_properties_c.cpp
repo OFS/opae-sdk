@@ -23,7 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #include <opae/fpga.h>
 #include <algorithm>
 #include "gtest/gtest.h"
@@ -34,9 +33,11 @@
 
 using namespace opae::testing;
 
-class properties_p1 : public ::testing::TestWithParam<std::string> {
+class properties_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_p1() : tokens_{{nullptr, nullptr}} {}
+  properties_c_p () 
+    : tokens_accel_{{nullptr, nullptr}},
+      tokens_dev_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -45,55 +46,175 @@ class properties_p1 : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &props_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
+                            &num_matches_), FPGA_OK);
     EXPECT_EQ(num_matches_, platform_.devices.size());
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-    ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
+    ASSERT_EQ(fpgaClearProperties(filter_accel_), FPGA_OK);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
+                            &num_matches_), FPGA_OK);
+    EXPECT_EQ(num_matches_, platform_.devices.size());
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
+    ASSERT_EQ(fpgaClearProperties(filter_dev_), FPGA_OK);
+
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
+    prop_ = nullptr;
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&props_), FPGA_OK);
-    EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
-    for (auto &t : tokens_) {
+    if (prop_) { EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK); };
+
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
+
+    for (auto &t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
+
+    for (auto &t : tokens_dev_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+
     system_->finalize();
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_properties props_;
-  fpga_handle handle_;
-  fpga_handle accel_;
+  std::array<fpga_token, 2> tokens_accel_;
+  std::array<fpga_token, 2> tokens_dev_;
+  fpga_properties prop_;
+  fpga_properties filter_accel_;
+  fpga_properties filter_dev_;
+  fpga_handle handle_accel_;
+  fpga_handle handle_dev_;
   uint32_t num_matches_;
   test_platform platform_;
   test_device invalid_device_;
   test_system* system_;
 };
 
-TEST_P(properties_p1, from_handle) {
-  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &props_), FPGA_OK);
+/**
+ * @test    from_handle
+ * @brief   Tests: xfpga_fpgaGetPropertiesFromHandle
+ * @details Given a null fpga_properties* object<br>
+ *          When I call xfpga_fpgaGetPropertiesFromHandle with an valid handle,
+ *          expected result is FPGA_OK.<br>
+ */
+TEST_P(properties_c_p, from_handle) {
+  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
 }
 
 /**
- * @test    fpga_get_properties01
+ * @test       vendor_id_afu
+ *
+ * @brief      When querying the vendor ID of an AFU,
+ * 	       0x8086 is returned.
+ */
+TEST_P(properties_c_p, vendor_id_afu) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetVendorID(prop_, &x), FPGA_OK);
+  EXPECT_EQ(x, device.vendor_id);
+#endif
+}
+
+/**
+ * @test       vendor_id_fme
+ *
+ * @brief      When querying the vendor ID of an FME,
+ * 	       0x8086 is returned.
+ */
+TEST_P(properties_c_p, vendor_id_fme) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetVendorID(prop_, &x), FPGA_OK);
+  EXPECT_EQ(x, device.vendor_id);
+#endif
+}
+
+/**
+ * @test       device_id_afu
+ *
+ * @brief      When querying the device ID of an AFU,
+ * 	       0xbcc0 is returned.
+ */
+TEST_P(properties_c_p, device_id_afu) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
+  EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
+#endif
+}
+
+/**
+ * @test       device_id_fme
+ *
+ * @brief      When querying the device ID of an FME,
+ * 	       0xbcc0 is returned.
+ */
+TEST_P(properties_c_p, device_id_fme) {
+#ifndef BUILD_ASE
+  auto device = platform_.devices[0];
+  uint16_t x = 0;
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
+  EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
+#endif
+}
+
+/**
+ * @test       valid_gets
+ *
+ * @brief      When fpgaGetPropertiesFromHandle is called
+ *             with a valid handle.
+ *             The function returns FPGA_OK with the
+ *             returned valid properties for that handle.
+ */
+TEST_P(properties_c_p, valid_gets) {
+  fpga_objtype objtype = FPGA_DEVICE;
+
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetObjectType(prop_, &objtype), FPGA_OK);
+  EXPECT_EQ(objtype, FPGA_ACCELERATOR);
+  EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK);
+
+  prop_ = NULL;
+  objtype = FPGA_ACCELERATOR;
+
+  ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_dev_, &prop_), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesGetObjectType(prop_, &objtype), FPGA_OK);
+  EXPECT_EQ(objtype, FPGA_DEVICE);
+}
+
+INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));
+
+/**
+ * @test    fpga_get_properties
  * @brief   Tests: xfpga_fpgaGetProperties
  * @details Given a null fpga_properties* object<br>
  *          When I call xfpga_fpgaGetProperties with an invalid token,
  *          expected result is FPGA_INVALID_PARAM.<br>
  */
-TEST(properties, fpga_get_properties01) {
+TEST(properties_c, fpga_get_properties) {
   char buf[sizeof(_fpga_token)];
   fpga_token token = buf;
   ((_fpga_token*)token)->magic = 0xbeef;
@@ -101,5 +222,15 @@ TEST(properties, fpga_get_properties01) {
   EXPECT_EQ(xfpga_fpgaGetProperties(token, &prop), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(test_platforms, properties_p1,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test    invalid_handle
+ * @brief   Tests: xfpga_fpgaGetPropertiesFromHandle
+ * @details Given a null fpga_properties* object<br>
+ *          When I call xfpga_fpgaGetPropertiesFromHandle with an null handle,
+ *          expected result is FPGA_INVALID_PARAM.<br>
+ */
+TEST(properties_c, invalid_handle) {
+  fpga_properties prop = NULL;
+  EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(nullptr, &prop), FPGA_INVALID_PARAM);
+}
+

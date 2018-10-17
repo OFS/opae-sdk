@@ -205,41 +205,6 @@ TEST_F(LibopaecCloseFCommonALL, 02) {
 }
 
 /**
- * @test       03
- *
- * @brief      When MMIO spaces have been mapped by an open handle,
- *             and there is no explicit call to unmap them,
- *             fpgaClose will unmap all MMIO spaces.
-*/
-#ifndef BUILD_ASE
-TEST_F(LibopaecCloseFCommonALL, 03) {
-
-  auto functor = [=]() -> void {
-    fpga_handle h;
-    struct _fpga_handle *p;
-
-    ASSERT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h, 0));
-
-    p = (struct _fpga_handle *)h;
-    EXPECT_EQ((void *)NULL, p->mmio_root);
-
-    EXPECT_EQ(FPGA_OK, fpgaMapMMIO(h, 0, NULL));
-
-    EXPECT_NE((void *)NULL, p->mmio_root);
-
-    EXPECT_EQ(FPGA_OK, fpgaClose(h));
-
-    EXPECT_EQ((void *)NULL, p->mmio_root);
-  };
-
-  // pass test code to enumerator
-  TestAllFPGA(FPGA_ACCELERATOR,  // object type
-              true,              // reconfig default NLB0
-              functor);          // test code
-}
-#endif // BUILD_ASE
-
-/**
  * @test       04
  *
  * @brief      When the handle parameter to fpgaClose has

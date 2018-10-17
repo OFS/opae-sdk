@@ -777,13 +777,25 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
+STATIC char *cstr_dup(const char *str)
+{
+	size_t s = strlen(str);
+	char *p = malloc(s+1);
+	if (strncpy_s(p, s+1, str, s)) {
+		FPGA_ERR("Error copying string");
+		return NULL;
+	}
+	p[s] = '\0';
+	return p;
+}
+
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
 		obj->handle = NULL;
-		obj->path = strdup(sysfspath);
-		obj->name = strdup(name);
+		obj->path = cstr_dup(sysfspath);
+		obj->name = cstr_dup(name);
 		obj->perm = 0;
 		obj->size = 0;
 		obj->max_size = 0;
@@ -797,6 +809,8 @@ fpga_result opae_glob_path(char *path)
 {
 	fpga_result res = FPGA_OK;
 	glob_t pglob;
+	pglob.gl_pathc = 0;
+	pglob.gl_pathv = NULL;
 	int globres = glob(path, 0, NULL, &pglob);
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
@@ -817,6 +831,9 @@ fpga_result opae_glob_path(char *path)
 			break;
 		default:
 			res = FPGA_EXCEPTION;
+		}
+		if (pglob.gl_pathc && pglob.gl_pathv) {
+			globfree(&pglob);
 		}
 	}
 	return res;
@@ -929,21 +946,25 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		res = opae_glob_path(sysfspath);
 	}
 	obj = alloc_fpga_object(sysfspath, name);
-	if (res != FPGA_OK) {
-		return res;
+	if (!obj) {
+		return FPGA_NO_MEMORY;
 	}
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
 		FPGA_ERR("Error accessing %s: %s", sysfspath, strerror(errno));
 		switch (errno) {
 		case ENOENT:
-			return FPGA_NOT_FOUND;
+			res = FPGA_NOT_FOUND;
+			goto out_free;
 		case ENOMEM:
-			return FPGA_NO_MEMORY;
+			res = FPGA_NO_MEMORY;
+			goto out_free;
 		case EACCES:
-			return FPGA_NO_ACCESS;
+			res = FPGA_NO_ACCESS;
+			goto out_free;
 		}
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
+		goto out_free;
 	}
 
 	if (S_ISDIR(objstat.st_mode)) {
@@ -968,4 +989,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 
 	return FPGA_OK;
+
+out_free:
+	free(obj);
+	return res;
 }

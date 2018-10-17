@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -265,6 +265,7 @@ struct ras_inject_error {
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
+		{"segment",             required_argument, NULL, 0xe},
 		{"bus",                 required_argument, NULL, 'B'},
 		{"device",              required_argument, NULL, 'D'},
 		{"function",            required_argument, NULL, 'F'},
@@ -296,6 +297,7 @@ struct  RASCommandLine
 #define RASAPP_CMD_FLAG_FUNC      0x00000020
 #define RASAPP_CMD_FLAG_SOCKET    0x00000040
 
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -312,7 +314,7 @@ struct  RASCommandLine
 	bool     pagefault_error;
 };
 
-struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, false,
+struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, -1, false,
 				false, false, false,false,
 				false, false, false, false, false};
 
@@ -320,14 +322,15 @@ struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, false,
 void RASAppShowHelp()
 {
 	printf("Usage:\n");
-	printf("./ras \n");
+	printf("ras\n");
+	printf("<Segment>          --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>              --bus=<BUS NUMBER>           "
 		"OR  -B=<BUS NUMBER>\n");
 	printf("<Device>           --device=<DEVICE NUMBER>     "
 		"OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>         --function=<FUNCTION NUMBER> "
 		"OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>        --socket-id=<socket NUMBER>  "
+	printf("<Socket-id>        --socket-id=<SOCKET NUMBER>  "
 		"OR  -S=<SOCKET NUMBER>\n");
 	printf("<Print Error>      --print-error                OR  -P \n");
 	printf("<Catast Error>     --catast-error               OR  -Q \n");
@@ -399,24 +402,25 @@ int main( int argc, char** argv )
 	return 2;
 	}
 
-	printf(" ------- Command line Input Start ---- \n \n");
+	printf(" ------- Command line Input Start ----\n\n");
 
+	printf(" Segment               : %d\n", rasCmdLine.segment);
 	printf(" Bus                   : %d\n", rasCmdLine.bus);
-	printf(" Device                : %d \n", rasCmdLine.device);
-	printf(" Function              : %d \n", rasCmdLine.function);
-	printf(" Socket-id             : %d \n", rasCmdLine.socket);
-	printf(" Print Error           : %d \n", rasCmdLine.print_error);
-	printf(" Catas Error           : %d \n", rasCmdLine.catast_error);
-	printf(" Fatal Error           : %d \n", rasCmdLine.fatal_error);
-	printf(" NonFatal Error        : %d \n", rasCmdLine.nonfatal_error);
-	printf(" Clear Error           : %d \n", rasCmdLine.clear_injerror);
- 	printf(" MW Address Error      : %d \n", rasCmdLine.mwaddress_error);
-	printf(" MR Address Error      : %d \n", rasCmdLine.mraddress_error);
-	printf(" MW Length Error       : %d \n", rasCmdLine.mwlength_error);
-	printf(" MR Length Error       : %d \n", rasCmdLine.mrlength_error);
-	printf(" Page Fault Error      : %d \n", rasCmdLine.pagefault_error);
+	printf(" Device                : %d\n", rasCmdLine.device);
+	printf(" Function              : %d\n", rasCmdLine.function);
+	printf(" Socket-id             : %d\n", rasCmdLine.socket);
+	printf(" Print Error           : %d\n", rasCmdLine.print_error);
+	printf(" Catas Error           : %d\n", rasCmdLine.catast_error);
+	printf(" Fatal Error           : %d\n", rasCmdLine.fatal_error);
+	printf(" NonFatal Error        : %d\n", rasCmdLine.nonfatal_error);
+	printf(" Clear Error           : %d\n", rasCmdLine.clear_injerror);
+ 	printf(" MW Address Error      : %d\n", rasCmdLine.mwaddress_error);
+	printf(" MR Address Error      : %d\n", rasCmdLine.mraddress_error);
+	printf(" MW Length Error       : %d\n", rasCmdLine.mwlength_error);
+	printf(" MR Length Error       : %d\n", rasCmdLine.mrlength_error);
+	printf(" Page Fault Error      : %d\n", rasCmdLine.pagefault_error);
 
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
 
 	// Enum FPGA device
 	result = fpgaInitialize(NULL);
@@ -431,22 +435,27 @@ int main( int argc, char** argv )
 	result = fpgaPropertiesSetObjectType(fpga_filter, FPGA_DEVICE);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
 
-	if (rasCmdLine.bus >0){
+	if (rasCmdLine.segment > 0) {
+		result = fpgaPropertiesSetSegment(fpga_filter, rasCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
+
+	if (rasCmdLine.bus > 0) {
 		result = fpgaPropertiesSetBus(fpga_filter, rasCmdLine.bus);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
 	}
 
-	if (rasCmdLine.device >0) {
+	if (rasCmdLine.device > 0) {
 		result = fpgaPropertiesSetDevice(fpga_filter, rasCmdLine.device);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (rasCmdLine.function >0){
+	if (rasCmdLine.function > 0) {
 		result = fpgaPropertiesSetFunction(fpga_filter, rasCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (rasCmdLine.socket >0){
+	if (rasCmdLine.socket > 0) {
 		result = fpgaPropertiesSetSocketID(fpga_filter, rasCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
@@ -491,7 +500,7 @@ int main( int argc, char** argv )
 		result = inject_ras_errors(fme_handle, &rasCmdLine);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print fme errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -504,7 +513,7 @@ int main( int argc, char** argv )
 		result = mmio_error(afu_handle, &rasCmdLine);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed set MMIO errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 	}
@@ -516,14 +525,14 @@ int main( int argc, char** argv )
 		result = clear_inject_ras_errors(fme_handle);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to clear inject errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// clear Port ERROR
 		result = clear_port_errors(afu_handle);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to clear port errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -532,7 +541,7 @@ int main( int argc, char** argv )
 		result = page_fault_errors();
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to trigger page fault errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
@@ -545,37 +554,41 @@ int main( int argc, char** argv )
 		result = print_ras_errors(fme_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print fme errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// Print port Error
 		result = print_port_errors(afu_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to print port errors");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 
 		// Print power and temp
 		result = print_pwr_temp(fme_token);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed  to get power and temp");
-			goto out_destroy_prop;
+			goto out_close;
 		}
 	}
 
 out_close:
-	result = fpgaClose(fme_handle);
-	ON_ERR_GOTO(result, out_destroy_prop, "closing fme");
+	if (fme_handle) {
+		result = fpgaClose(fme_handle);
+		if (result != FPGA_OK)
+			OPAE_ERR("closing fme");
+	}
 
-	result = fpgaClose(afu_handle);
-	ON_ERR_GOTO(result, out_destroy_prop, "closing afu");
+	if (afu_handle) {
+		result = fpgaClose(afu_handle);
+		ON_ERR_GOTO(result, out_destroy_prop, "closing afu");
+	}
 
-	/* Destroy properties object */
 out_destroy_prop:
-
 	if (afu_filter) {
 		result = fpgaDestroyProperties(&afu_filter);
-		ON_ERR_GOTO(result, out_exit, "destroying properties object");
+		if (result != FPGA_OK)
+			OPAE_ERR("destroying properties object");
 	}
 
 	if (fpga_filter) {
@@ -585,7 +598,6 @@ out_destroy_prop:
 
 out_exit:
 	return result;
-
 }
 
 // Print Error
@@ -1338,6 +1350,13 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 			// Command line help
 			RASAppShowHelp();
 			return -2;
+			break;
+
+		case 0xe:
+			// segment number
+			if (tmp_optarg == NULL ) break;
+			endptr = NULL;
+			rasCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'B':

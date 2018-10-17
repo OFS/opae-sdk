@@ -33,6 +33,7 @@ extern "C" {
 
 struct UserClkCommandLine
 {
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -171,6 +172,10 @@ TEST_P(userclk_c_p, parse_cmd2) {
 
   char *argv[] = { zero, one };
 
+  strcpy(one, "--segment");
+  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
+
+  optind = 0;
   strcpy(one, "-B");
   EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
 
@@ -222,25 +227,30 @@ TEST_P(userclk_c_p, parse_cmd3) {
   char ten[20];
   char eleven[20];
   char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
   strcpy(zero, "userclk");
-  strcpy(one, "-B");
-  strcpy(two, "3");
-  strcpy(three, "-D");
-  strcpy(four, "4");
-  strcpy(five, "-F");
-  strcpy(six, "5");
-  strcpy(seven, "-S");
-  strcpy(eight, "6");
-  strcpy(nine, "-H");
-  strcpy(ten, "8");
-  strcpy(eleven, "-L");
-  strcpy(twelve, "9");
+  strcpy(one, "--segment");
+  strcpy(two, "0x1234");
+  strcpy(three, "-B");
+  strcpy(four, "3");
+  strcpy(five, "-D");
+  strcpy(six, "4");
+  strcpy(seven, "-F");
+  strcpy(eight, "5");
+  strcpy(nine, "-S");
+  strcpy(ten, "6");
+  strcpy(eleven, "-H");
+  strcpy(twelve, "8");
+  strcpy(thirteen, "-L");
+  strcpy(fourteen, "9");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, eleven, twelve, thirteen, fourteen };
 
-  EXPECT_EQ(ParseCmds(&cmd, 13, argv), 0);
+  EXPECT_EQ(ParseCmds(&cmd, 15, argv), 0);
+  EXPECT_EQ(cmd.segment, 0x1234);
   EXPECT_EQ(cmd.bus, 3);
   EXPECT_EQ(cmd.device, 4);
   EXPECT_EQ(cmd.function, 5);
@@ -324,21 +334,25 @@ TEST_P(userclk_c_p, main3) {
   char eight[20];
   char nine[20];
   char ten[20];
+  char eleven[20];
+  char twelve[20];
   strcpy(zero, "userclk");
-  strcpy(one, "-B");
-  sprintf(two, "%d", platform_.devices[0].bus);
-  strcpy(three, "-D");
-  sprintf(four, "%d", platform_.devices[0].device);
-  strcpy(five, "-F");
-  sprintf(six, "%d", platform_.devices[0].function);
-  strcpy(seven, "-S");
-  sprintf(eight, "%d", platform_.devices[0].socket_id);
-  strcpy(nine, "-H");
-  strcpy(ten, "400");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-H");
+  strcpy(twelve, "400");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten };
+                   ten, eleven, twelve };
 
   /*
   ** FIXME: main should return zero in this case, but
@@ -346,9 +360,9 @@ TEST_P(userclk_c_p, main3) {
   ** timeout. Because the sysfs file never updates in
   ** a mock environment, the API will time out and return
   ** FPGA_NOT_SUPPORTED.
-  EXPECT_EQ(userclk_main(11, argv), 0);
+  EXPECT_EQ(userclk_main(13, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(13, argv), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -371,21 +385,25 @@ TEST_P(userclk_c_p, main4) {
   char eight[20];
   char nine[20];
   char ten[20];
+  char eleven[20];
+  char twelve[20];
   strcpy(zero, "userclk");
-  strcpy(one, "-B");
-  sprintf(two, "%d", platform_.devices[0].bus);
-  strcpy(three, "-D");
-  sprintf(four, "%d", platform_.devices[0].device);
-  strcpy(five, "-F");
-  sprintf(six, "%d", platform_.devices[0].function);
-  strcpy(seven, "-S");
-  sprintf(eight, "%d", platform_.devices[0].socket_id);
-  strcpy(nine, "-L");
-  strcpy(ten, "200");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-L");
+  strcpy(twelve, "200");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten };
+                   ten, eleven, twelve };
 
   /*
   ** FIXME: main should return zero in this case, but
@@ -393,9 +411,9 @@ TEST_P(userclk_c_p, main4) {
   ** timeout. Because the sysfs file never updates in
   ** a mock environment, the API will time out and return
   ** FPGA_NOT_SUPPORTED.
-  EXPECT_EQ(userclk_main(11, argv), 0);
+  EXPECT_EQ(userclk_main(13, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(13, argv), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -420,25 +438,29 @@ TEST_P(userclk_c_p, main5) {
   char ten[20];
   char eleven[20];
   char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
   strcpy(zero, "userclk");
-  strcpy(one, "-B");
-  sprintf(two, "%d", platform_.devices[0].bus);
-  strcpy(three, "-D");
-  sprintf(four, "%d", platform_.devices[0].device);
-  strcpy(five, "-F");
-  sprintf(six, "%d", platform_.devices[0].function);
-  strcpy(seven, "-S");
-  sprintf(eight, "%d", platform_.devices[0].socket_id);
-  strcpy(nine, "-H");
-  strcpy(ten, "300");
-  strcpy(eleven, "-L");
-  strcpy(twelve, "100");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-H");
+  strcpy(twelve, "300");
+  strcpy(thirteen, "-L");
+  strcpy(fourteen, "100");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, eleven, twelve, thirteen, fourteen };
 
-  EXPECT_EQ(userclk_main(13, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(15, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -459,20 +481,25 @@ TEST_P(userclk_c_p, main6) {
   char six[20];
   char seven[20];
   char eight[20];
+  char nine[20];
+  char ten[20];
   strcpy(zero, "userclk");
-  strcpy(one, "-B");
-  sprintf(two, "%d", platform_.devices[0].bus);
-  strcpy(three, "-D");
-  sprintf(four, "%d", platform_.devices[0].device);
-  strcpy(five, "-F");
-  sprintf(six, "%d", platform_.devices[0].function);
-  strcpy(seven, "-S");
-  sprintf(eight, "%d", platform_.devices[0].socket_id);
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight };
+                   five, six, seven, eight, nine,
+                   ten };
 
-  EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
