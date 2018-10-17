@@ -175,26 +175,3 @@ struct buffer_t *ll_search_buffer(int search_index)
 
 	FUNC_CALL_EXIT;
 }
-
-
-/*
- * Check if physical address is used
- * RETURN 0 if not found, 1 if found
- */
-uint32_t check_if_physaddr_used(uint64_t paddr)
-{
-	struct buffer_t *search_ptr;
-	int flag = 0;
-
-	search_ptr = head;
-	while (search_ptr != NULL) {
-		if ((paddr >= search_ptr->fake_paddr)
-		    && (paddr < search_ptr->fake_paddr_hi)) {
-			flag = 1;
-			break;
-		} else {
-			search_ptr = search_ptr->next;
-		}
-	}
-	return flag;
-}

@@ -24,34 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif				// HAVE_CONFIG_H
+#ifndef __FPGA_WSID_LIST_INT_H__
+#define __FPGA_WSID_LIST_INT_H__
 
-#include <opae/access.h>
-#include "common_int.h"
-#include <ase_common.h>
+#include "opae/utils.h"
+#include "types_int.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+/*
+ * WSID tracking structure manipulation functions
+ */
+struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
+void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
 
-fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
-{
-	fpga_result result;
-	if (NULL == handle) {
-		FPGA_MSG("Handle is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+bool wsid_add(struct wsid_tracker *root,
+	      uint64_t wsid,
+	      uint64_t addr,
+	      uint64_t phys,
+	      uint64_t len,
+	      uint64_t offset,
+	      uint64_t index,
+	      int      flags);
+bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
+uint64_t wsid_gen(void);
 
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
+struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
 
-	// ASE Release
-	session_deinit();
-
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-
-	free(_handle);
-	result = FPGA_OK;
-	return result;
-}
+#endif // ___FPGA_COMMON_INT_H__

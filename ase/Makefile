@@ -173,7 +173,7 @@ ASESW_FILE_LIST = \
 	$(ASE_SRCDIR)/sw/ase_ops.c \
 	$(ASE_SRCDIR)/sw/ase_strings.c \
 	$(ASE_SRCDIR)/sw/ipc_mgmt_ops.c \
-	$(ASE_SRCDIR)/sw/mem_model.c \
+	$(ASE_SRCDIR)/sw/ase_shbuf.c \
 	$(ASE_SRCDIR)/sw/protocol_backend.c \
 	$(ASE_SRCDIR)/sw/tstamp_ops.c \
 	$(ASE_SRCDIR)/sw/mqueue_ops.c \
