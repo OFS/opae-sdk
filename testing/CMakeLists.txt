@@ -11,6 +11,7 @@ else()
     Build_GTEST()
 endif()
 
+add_subdirectory(platform)
 add_subdirectory(mock)
 
 add_library(opae-c-static
@@ -138,6 +139,17 @@ target_include_directories(userclk-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(hello_fpga-static
+    ${OPAE_SDK_SOURCE}/samples/hello_fpga.c
+    )
+
+target_compile_definitions(hello_fpga-static PRIVATE main=hello_fpga_main)
+
+target_include_directories(hello_fpga-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -146,6 +158,9 @@ macro(add_mock_test test_name static_lib)
     add_executable(${test_name}
         mock/mock.c
         ${ARGN})
+    target_include_directories(${test_name} PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        )
     target_link_libraries(${test_name}
         ${static_lib}
         opae-c
@@ -301,6 +316,9 @@ add_mock_test(test_xfpga_error_c xfpga-static
     xfpga/test_error_c.cpp
 )
 
+set_tests_properties(test_xfpga_error_c
+    PROPERTIES ENVIRONMENT "LIBOPAE_LOG=1")
+                     
 add_mock_test(test_xfpga_mock_errinj_c xfpga-static
     xfpga/test_mock_errinj_c.cpp
 )
@@ -445,6 +463,14 @@ add_mock_test(test_coreidle_main_c coreidle-static
 
 add_mock_test(test_userclk_c userclk-static
     userclk/test_userclk_c.cpp
+)
+
+############################################################################
+# hello_fpga tests #########################################################
+############################################################################
+
+add_mock_test(test_hello_fpga_c hello_fpga-static
+    hello_fpga/test_hello_fpga_c.cpp
 )
 
 add_custom_command(TARGET test_unit

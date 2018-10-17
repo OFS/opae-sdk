@@ -42,6 +42,31 @@ extern "C"{
 
 using namespace opae::testing;
 
+#ifndef BUILD_ASE
+/*
+ * On hardware, the mmio map is a hash table.
+ */
+static bool mmio_map_is_empty(struct wsid_tracker *root) {
+  if (!root || (root->n_hash_buckets == 0))
+    return true;
+
+  for (uint32_t i = 0; i < root->n_hash_buckets; i += 1) {
+    if (root->table[i])
+      return false;
+  }
+
+  return true;
+}
+
+#else
+/*
+ * In ASE, the mmio map is a list.
+ */
+static bool mmio_map_is_empty(struct wsid_map *root) {
+  return !root;
+}
+#endif
+
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
@@ -274,7 +299,7 @@ TEST_P(openclose_c_p, close_03) {
 
   // Register valid ioctl
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
-  EXPECT_EQ(((struct _fpga_handle*)handle_)->mmio_root,nullptr);
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);

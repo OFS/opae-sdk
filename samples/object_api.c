@@ -239,6 +239,8 @@ int main(int argc, char *argv[])
 	int exit_code = -1;
 	uint32_t num_matches = 0;
 	uint32_t i = 0, j = 0;
+	token_group *metrics = NULL;
+
 	if ((res = parse_args(argc, argv)) != FPGA_OK) {
 		print_err("error parsing arguments", res);
 		return -1;
@@ -264,7 +266,7 @@ int main(int argc, char *argv[])
 		ADD_TO_CLEANUP(fpgaDestroyToken, &tokens[i]);
 	}
 
-	token_group *metrics = calloc(num_matches, sizeof(token_group));
+	metrics = calloc(num_matches, sizeof(token_group));
 
 	for (i = 0; i < num_matches; ++i) {
 		metrics[i].token = tokens[i];
@@ -273,6 +275,8 @@ int main(int argc, char *argv[])
 		metrics[i].count = 3;
 		metric_group *g_cache = init_metric_group(
 			tokens[i], "*perf/cache", &metrics[i].groups[0]);
+		if (!g_cache)
+			goto out_free;
 		add_counter(g_cache, "read_hit");
 		add_counter(g_cache, "read_miss");
 		add_counter(g_cache, "write_hit");
@@ -280,10 +284,14 @@ int main(int argc, char *argv[])
 		add_counter(g_cache, "hold_request");
 		metric_group *g_fabric = init_metric_group(
 			tokens[i], "*perf/fabric", &metrics[i].groups[1]);
+		if (!g_fabric)
+			goto out_free;
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
 		metric_group *g_iommu = init_metric_group(
 			tokens[i], "*perf/iommu", &metrics[i].groups[2]);
+		if (!g_iommu)
+			goto out_free;
 		add_counter(g_iommu, "iotlb_4k_hit");
 		add_counter(g_iommu, "iotlb_4k_miss");
 		add_counter(g_iommu, "iotlb_2m_hit");
@@ -303,8 +311,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	exit_code = 0;
 
 out_free:
+	if (metrics)
+		free(metrics);
+
 	while (--cleanup_size > 0) {
 		if ((res = cleanup[cleanup_size].fn(
 			     cleanup[cleanup_size].param))

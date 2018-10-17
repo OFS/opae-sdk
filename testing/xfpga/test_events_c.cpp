@@ -1084,4 +1084,4 @@ TEST_P(events_handle_p, irq_event_01) {
 //INSTANTIATE_TEST_CASE_P(events, events_handle_p,
 //                        ::testing::ValuesIn(test_platform::keys()));
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::Values("skx-p-1s"));
+                        ::testing::Values("skx-p"));

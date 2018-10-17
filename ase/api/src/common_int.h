@@ -39,8 +39,9 @@
 #include <sys/mman.h>  /* mmap & munmap */
 #include <sys/time.h>  /* struct timeval */
 
-#include <opae/utils.h>
+#include "opae/utils.h"
 #include "types_int.h"
+#include "wsid_list_int.h"
 
 /* Macro for defining symbol visibility */
 #define __FPGA_API__ __attribute__((visibility("default")))
@@ -114,6 +115,11 @@ enum fpga_loglevel {
 #else
 #define FPGA_DBG(format, ...) {}
 #endif // LIBFPGA_DEBUG
+
+/* Check validity of various objects */
+fpga_result prop_check_and_lock(struct _fpga_properties *prop);
+fpga_result handle_check_and_lock(struct _fpga_handle *handle);
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
 
 #define UNUSED_PARAM(x) ((void)x)
 

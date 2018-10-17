@@ -227,7 +227,8 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 	fd = open(_obj->path, _obj->perm);
 	if (fd < 0) {
 		FPGA_ERR("Error opening %s: %s", _obj->path, strerror(errno));
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
+		goto out_unlock;
 	}
 	lseek(fd, 0, SEEK_SET);
 	bytes_written = eintr_write(fd, _obj->buffer, _obj->size);
@@ -235,6 +236,7 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		FPGA_ERR("Did not write 64-bit value: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 	}
+out_unlock:
 	err = pthread_mutex_unlock(
 		&((struct _fpga_handle *)_obj->handle)->lock);
 	if (err) {

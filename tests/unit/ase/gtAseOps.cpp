@@ -392,7 +392,6 @@ TEST(LibopaecAseApi, ase_buffer_01) {
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**)&buf_addr, &wsid, 0));
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(NULL, 0x10001));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReleaseBuffer(h, 0));
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetIOAddress(NULL, 0x10001, NULL));
 }

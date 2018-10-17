@@ -38,6 +38,7 @@
 #include <json-c/json.h>
 #include <thread>
 #include <mutex>
+#include "platform/fpga_hw.h"
 
 extern "C" {
 extern void *__libc_malloc(size_t size);
@@ -96,39 +97,6 @@ class mock_port : public mock_object {
             uint32_t device_id)
       : mock_object(devpath, sysclass, device_id, fme) {}
   virtual int ioctl(int request, va_list argp) override;
-};
-
-struct test_device {
-  const char *fme_guid;
-  const char *afu_guid;
-  uint16_t segment;
-  uint8_t bus;
-  uint8_t device;
-  uint8_t function;
-  uint8_t socket_id;
-  uint32_t num_slots;
-  uint64_t bbs_id;
-  fpga_version bbs_version;
-  fpga_accelerator_state state;
-  uint32_t num_mmio;
-  uint32_t num_interrupts;
-  uint64_t fme_object_id;
-  uint64_t port_object_id;
-  uint16_t vendor_id;
-  uint32_t device_id;
-  uint32_t fme_num_errors;
-  uint32_t port_num_errors;
-  const char *gbs_guid;
-  const char *mdata;
-  static test_device unknown();
-};
-
-struct test_platform {
-  const char *mock_sysfs;
-  std::vector<test_device> devices;
-  static test_platform get(const std::string &key);
-  static bool exists(const std::string &key);
-  static std::vector<std::string> keys(bool sorted = false);
 };
 
 template <int _R, long _E>

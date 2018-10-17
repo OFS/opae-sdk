@@ -74,12 +74,11 @@ opae_wrapped_event_handle *
 opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 				   opae_api_adapter_table *adapter)
 {
+	pthread_mutexattr_t mattr;
 	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(
 		sizeof(opae_wrapped_event_handle));
 
 	if (wevent) {
-		pthread_mutexattr_t mattr;
-
 		if (pthread_mutexattr_init(&mattr)) {
 			OPAE_ERR("pthread_mutexattr_init() failed");
 			goto out_free;
@@ -87,11 +86,11 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 		if (pthread_mutexattr_settype(&mattr,
 					      PTHREAD_MUTEX_RECURSIVE)) {
 			OPAE_ERR("pthread_mutexattr_settype() failed");
-			goto out_free;
+			goto out_destroy;
 		}
 		if (pthread_mutex_init(&wevent->lock, &mattr)) {
 			OPAE_ERR("pthread_mutex_init() failed");
-			goto out_free;
+			goto out_destroy;
 		}
 
 		pthread_mutexattr_destroy(&mattr);
@@ -103,6 +102,9 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 	}
 
 	return wevent;
+
+out_destroy:
+	pthread_mutexattr_destroy(&mattr);
 out_free:
 	free(wevent);
 	return NULL;

@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,6 +26,7 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS})
+
 
 add_executable(fpgaconf fpgaconf.c)
 set_install_rpath(fpgaconf)

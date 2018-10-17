@@ -192,4 +192,4 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,
-                        ::testing::Values(std::string("skx-p-1s")));
+                        ::testing::Values(std::string("skx-p")));

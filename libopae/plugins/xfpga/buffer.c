@@ -255,7 +255,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 	*wsid = wsid_gen();
 
 	/* Add to workspace id in order to store buffer length */
-	if (!wsid_add(&_handle->wsid_root,
+	if (!wsid_add(_handle->wsid_root,
 		      *wsid,
 		      dma_map.user_addr,
 		      dma_map.iova,
@@ -349,7 +349,7 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 
 ws_free:
 	/* Remove workspace */
-	wsid_del(&_handle->wsid_root, wsid);
+	wsid_del(_handle->wsid_root, wsid);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

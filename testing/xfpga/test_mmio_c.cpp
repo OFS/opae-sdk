@@ -44,6 +44,36 @@
 
 using namespace opae::testing;
 
+#ifndef BUILD_ASE
+
+/*
+ * On hardware, the mmio map is a hash table.
+ */
+static bool mmio_map_is_empty(struct wsid_tracker *root) {
+  if (!root || (root->n_hash_buckets == 0))
+    return true;
+
+  for (uint32_t i = 0; i < root->n_hash_buckets; i += 1) {
+    if (root->table[i])
+      return false;
+  }
+
+  return true;
+}
+
+#else
+
+/*
+ * In ASE, the mmio map is a list.
+ */
+static bool mmio_map_is_empty(struct wsid_map *root) {
+  return !root;
+}
+
+#endif
+
+
+
 int mmio_ioctl(mock_object * m, int request, va_list argp){
     int retval = -1;
     errno = EINVAL;
@@ -137,20 +167,20 @@ class mmio_c_p
 */
 TEST_P (mmio_c_p, test_pos_map_mmio) {
   uint64_t * mmio_ptr = NULL;
-  EXPECT_EQ(((struct _fpga_handle*)handle_)->mmio_root,nullptr);
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
   // Open  port device
 #ifndef BUILD_ASE
   ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
-  EXPECT_NE(((struct _fpga_handle *)handle_)->mmio_root,nullptr);
+  EXPECT_FALSE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
 #else
   // ASE
   ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
-  EXPECT_EQ(((struct _fpga_handle *)handle_)->mmio_root,nullptr);
-  EXPECT_EQ(mmio_ptr,nullptr);
-#endif
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
+  EXPECT_NE(mmio_ptr,nullptr);
+#endif 
 }
 
 
@@ -163,7 +193,7 @@ TEST_P (mmio_c_p, test_pos_map_mmio) {
 */
 TEST_P (mmio_c_p, test_neg_map_mmio) {
   uint64_t * mmio_ptr = NULL;
-  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
   // Open  port device
 #ifndef BUILD_ASE
@@ -173,8 +203,7 @@ TEST_P (mmio_c_p, test_neg_map_mmio) {
 #endif
 
   // Do not modify mmio_ptr and mmio_root
-  EXPECT_EQ(mmio_ptr,nullptr);
-  EXPECT_EQ(((struct _fpga_handle*)handle_)->mmio_root,nullptr);
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
