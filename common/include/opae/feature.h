@@ -105,7 +105,7 @@ fpgaFeatureEnumerate(fpga_handle fpga_h,
  * @returns                     FPGA_OK on success
  */
 fpga_result
-fpgaFeatureTokenDestroy(fpga_feature_token feature_token);
+fpgaFeatureTokenDestroy(fpga_feature_token *feature_token);
 
 /**
  * Get feature properties from a feature token

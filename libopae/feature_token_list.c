@@ -43,7 +43,7 @@
 
 /* global list of tokens we've seen */
 static struct _fpga_feature_token *ftoken_root = NULL;
-/* mutex to protect feature tokens */
+/** Mutex to protect feature tokens */
 pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /**
@@ -77,27 +77,24 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 		}
 	}
 
-  tmp = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
-  if (NULL == tmp) {
+	tmp = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
+	if (NULL == tmp) {
 		OPAE_ERR("Failed to allocate memory for fhandle");
 		return NULL;
-  }
+	}
 
-  uuid_clear(tmp->feature_guid);
-  tmp->magic = OPAE_FEATURE_TOKEN_MAGIC;
-  tmp->ref_count = 0;
-  tmp->feature_type = type;
+	uuid_clear(tmp->feature_guid);
+	tmp->magic = OPAE_FEATURE_TOKEN_MAGIC;
+	tmp->feature_type = type;
+	tmp->handle = handle;
 
-  tmp->dma_plugin[0] = '\0';
-  tmp->handle = handle;
-
-  e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,
+	e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,
 			       sizeof(fpga_guid));
                                  
-  if (EOK != e) {
-    OPAE_ERR("memcpy_s failed");
-    goto out_free;
-  }	
+	if (EOK != e) {
+		OPAE_ERR("memcpy_s failed");
+		goto out_free;
+	}	
 
 	tmp->next = ftoken_root;
 	ftoken_root = tmp;
@@ -105,7 +102,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
 		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-    goto out_free;
+		goto out_free;
 	}
 
 	return tmp;
@@ -126,7 +123,7 @@ out_free:
 void feature_token_cleanup(void)
 {
 	int err = 0;
-  struct _fpga_feature_token * current = ftoken_root;
+	struct _fpga_feature_token * current = ftoken_root;
 	err = pthread_mutex_lock(&ftoken_lock);
 	if (err) {
 		OPAE_ERR("pthread_mutex_lock() failed: %s", strerror(err));
@@ -143,7 +140,7 @@ void feature_token_cleanup(void)
 		// invalidate magic (just in case)
 		tmp->magic = OPAE_FEATURE_INVALID_MAGIC;
 		free(tmp);
-    tmp = NULL;
+		tmp = NULL;
 	}
 
 	ftoken_root = NULL;

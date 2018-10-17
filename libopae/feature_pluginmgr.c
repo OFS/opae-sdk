@@ -48,7 +48,7 @@
 typedef int (*dma_plugin_configure_t)(opae_dma_adapter_table *, const char *);
 
 typedef struct _feature_data {
-  char *feature_id;
+	char *feature_id;
 	const char *feature_plugin;
 	uint32_t flags;
 #define OPAE_FEATURE_DATA_DETECTED 0x00000001
@@ -70,7 +70,7 @@ STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path
 {
 	void *dl_handle;
 	opae_dma_adapter_table *adapter;
-  errno_t e;
+	errno_t e;
 
 	dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
 
@@ -100,9 +100,8 @@ STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path
 	return adapter;
 
 out_free:
-  free(adapter);
-  return NULL;
-  
+	free(adapter);
+	return NULL;  
 }
 
 STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
@@ -125,7 +124,7 @@ STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
 STATIC int dma_plugin_mgr_configure_plugin(opae_dma_adapter_table *adapter,
 					    const char *config)
 {
-  UNUSED_PARAM(config);
+	UNUSED_PARAM(config);
 	dma_plugin_configure_t cfg;
 
 	cfg = (dma_plugin_configure_t)dlsym(adapter->plugin.dl_handle,
@@ -220,21 +219,21 @@ STATIC int dma_plugin_mgr_register_adapter(opae_dma_adapter_table *adapter)
 static int opae_plugin_mgr_detect_feature(fpga_guid guid)
 {
 	int i;
-  int res, errors;
-  char feature_id[40];
-  uuid_unparse_upper(guid, feature_id);
-  errors = 0;  
+	int res, errors;
+	char feature_id[40];
+	uuid_unparse_upper(guid, feature_id);
+	errors = 0;  
 
 	for (i = 0 ; feature_data_table[i].feature_plugin ; ++i) {
 
 		if (EOK != strcmp_s(feature_data_table[i].feature_id, 
-                  strnlen_s(feature_data_table[i].feature_id, 256), feature_id, &res)) {
+			strnlen_s(feature_data_table[i].feature_id, 256), feature_id, &res)) {
 			OPAE_ERR("strcmp_s failed");
 			++errors;
 			goto out_close;
 		}
                   
-    if (0 == res) {
+		if (0 == res) {
 			OPAE_DBG("platform detected: feature_id=%s -> %s", feature_id
 					feature_data_table[i].feature_plugin);
 
@@ -243,88 +242,88 @@ static int opae_plugin_mgr_detect_feature(fpga_guid guid)
 	}
  
 out_close:
-  return errors;
+	return errors;
 }
 
 void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
 {
-  char id_lo[18];
-  char id_hi[18];
+	char id_lo[18];
+	char id_hi[18];
   
-  snprintf_s_l(id_lo, 18, "%lx", uuid_lo);
-  snprintf_s_l(id_hi, 18, "%lx", uuid_hi);
+	snprintf_s_l(id_lo, 18, "%lx", uuid_lo);
+	snprintf_s_l(id_hi, 18, "%lx", uuid_hi);
   
-  char *p = NULL;
-  int i = 0;
-  uint32_t tmp;
-  for (i = 14; i>=0; i-=2){
-    p = id_lo + i;
-    sscanf_s_u(p,"%2x", &tmp);
-    (*guid)[7-i/2 ] = tmp;
-    p[0] = '\0';
-  }
+	char *p = NULL;
+	int i = 0;
+	uint32_t tmp;
+	for (i = 14; i>=0; i-=2){
+		p = id_lo + i;
+		sscanf_s_u(p,"%2x", &tmp);
+		(*guid)[7-i/2 ] = tmp;
+		p[0] = '\0';
+	}
   
-  for (i = 14; i>=0; i-=2) {
-    p = id_hi + i;
-    sscanf_s_u(p,"%2x", &tmp);
-    (*guid)[15-i/2 ] = tmp;
-    p[0] = '\0';
-  } 
+	for (i = 14; i>=0; i-=2) {
+		p = id_hi + i;
+		sscanf_s_u(p,"%2x", &tmp);
+		(*guid)[15-i/2 ] = tmp;
+		p[0] = '\0';
+	} 
 }
 
 
 static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 { 
-  fpga_result res = FPGA_OK;
-  // Discover feature BBB by traversing the device feature list 
-  bool end_of_list = false; 
-  uint64_t dfh = 0;
-  uint32_t mmio_num = 0;
-  uint64_t offset = 0;
-  fpga_guid guid;
+	fpga_result res = FPGA_OK;
+	// Discover feature BBB by traversing the device feature list 
+	bool end_of_list = false; 
+	uint64_t dfh = 0;
+	uint32_t mmio_num = 0;
+	uint64_t offset = 0;
+	fpga_guid guid;
   
-  do { 
-    uint64_t feature_uuid_lo, feature_uuid_hi;
+	do { 
+		uint64_t feature_uuid_lo, feature_uuid_hi;
     
-    // Read the current feature's UUID     
-    res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
+		// Read the current feature's UUID     
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
                         &feature_uuid_lo);
-    if (res != FPGA_OK) {
-      OPAE_ERR("fpgaReadMMIO64() failed");
-      return res;
-    }
+		if (res != FPGA_OK) {
+			OPAE_ERR("fpgaReadMMIO64() failed");
+			return res;
+		}
  
-    res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
             						&feature_uuid_hi); 
-    if (res != FPGA_OK) {
-      OPAE_ERR("fpgaReadMMIO64() failed");
-      return res;
-    }
+		if (res != FPGA_OK) {
+			OPAE_ERR("fpgaReadMMIO64() failed");
+			return res;
+		}
 
-    get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
-    
+		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
+
 		// Detect feature for this guid.
 		opae_plugin_mgr_detect_feature(guid);
  
-    // End of the list? 
-    end_of_list = _fpga_dfh_feature_eol(dfh); 
+		// End of the list? 
+		end_of_list = _fpga_dfh_feature_eol(dfh); 
  
-    // Move to the next feature header 
-    offset = offset + _fpga_dfh_feature_next(dfh); 
-  } while (!end_of_list);
+		// Move to the next feature header 
+		offset = offset + _fpga_dfh_feature_next(dfh); 
+	} while (!end_of_list);
 
 	return res;
 }
 
 int dma_plugin_mgr_initialize(fpga_handle handle)
 {
-  fpga_result res = FPGA_OK;
+	fpga_result res = FPGA_OK;
 	int ret;
 	int errors = 0;
 	int features_detected = 0;
 	opae_dma_adapter_table *adapter;
 	int i,j;
-  fpga_guid guid;
+	fpga_guid guid;
  
 	opae_mutex_lock(res, &dma_adapter_list_lock);
 
@@ -370,7 +369,7 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 		if (already_loaded)
 			continue;
 
-    uuid_parse(feature_plugin, guid);
+		uuid_parse(feature_plugin, guid);
 		adapter = dma_plugin_mgr_alloc_adapter(feature_plugin, guid);
 
 		if (!adapter) {
@@ -416,7 +415,7 @@ out_unlock:
 opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid)
 {
 	int res;
-  opae_dma_adapter_table *adapter = NULL;
+	opae_dma_adapter_table *adapter = NULL;
 	opae_dma_adapter_table *aptr;
 
 	opae_mutex_lock(res, &dma_adapter_list_lock);
@@ -424,10 +423,10 @@ opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid)
 	for (aptr = dma_adapter_list; aptr; aptr = aptr->next) {
 		res = uuid_compare(aptr->guid, guid);
 		if (!res) {
-      adapter = aptr;
-      break;
-    }
-  }
+			adapter = aptr;
+			break;
+		}
+	}
 	opae_mutex_unlock(res, &dma_adapter_list_lock);
 
 	return adapter;

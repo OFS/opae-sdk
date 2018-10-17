@@ -39,7 +39,7 @@
 #include "feature_token_list_int.h"
 #include "feature_pluginmgr.h"
 
-
+extern pthread_mutex_t ftoken_lock;
 opae_wrapped_token *
 opae_allocate_wrapped_token(fpga_token token,
 			    const opae_api_adapter_table *adapter)
@@ -1455,6 +1455,47 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }
 
+fpga_result fpgaCloneFeatureToken(fpga_feature_token src, fpga_feature_token *dst)
+{
+	struct _fpga_feature_token *_src = (struct _fpga_feature_token *)src;
+	struct _fpga_feature_token *_dst;
+	fpga_result res;
+	errno_t e;
+
+	if (NULL == src || NULL == dst) {
+		OPAE_MSG("src or dst in NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_src->magic != OPAE_FEATURE_TOKEN_MAGIC) {
+		OPAE_MSG("Invalid src");
+		return FPGA_INVALID_PARAM;
+	}
+
+	_dst = malloc(sizeof(struct _fpga_feature_token));
+	if (NULL == _dst) {
+		OPAE_MSG("Failed to allocate memory for token");
+		return FPGA_NO_MEMORY;
+	}
+
+	_dst->magic = OPAE_FEATURE_TOKEN_MAGIC;
+	_dst->feature_type = _src->feature_type;
+	_dst->handle = _src->handle;
+	e = memcpy_s(_dst->feature_guid, sizeof(fpga_guid), _src->feature_guid,
+		sizeof(fpga_guid));
+	if (EOK != e) {
+		OPAE_ERR("memcpy_s failed");
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
+
+	*dst = _dst;
+	return FPGA_OK;
+
+out_free:
+	free(_dst);
+	return res;
+}
 
 fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
                       fpga_feature_token *tokens, uint32_t max_tokens,
@@ -1462,6 +1503,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 {
 	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
 	fpga_result res = FPGA_OK;
+	int errors;
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
@@ -1480,6 +1522,12 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 	uint64_t offset = 0;
 	fpga_guid guid;
 	struct _fpga_feature_token *_ftoken;
+	
+	errors = dma_plugin_mgr_initialize(handle);
+	if (errors) {
+		OPAE_ERR("Feature token initialize errors");
+		res = FPGA_EXCEPTION;
+	}
 
 	do { 
 		uint64_t feature_uuid_lo, feature_uuid_hi;
@@ -1514,8 +1562,14 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 
 		if (_ftoken->feature_type == prop->type) {
 			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
-				|| (uuid_is_null(prop->guid))) {      
-				tokens[*num_matches] = _ftoken;
+				|| (uuid_is_null(prop->guid))) { 
+				if (*num_matches < max_tokens) {
+					res = fpgaCloneFeatureToken(_ftoken, &tokens[*num_matches]);
+					if (res	!= FPGA_OK) {
+						// FIXME: should we error out here?
+						OPAE_MSG("Error cloning token");
+					}
+				}
 				++(*num_matches);
 			}
 		}
@@ -1525,9 +1579,48 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 
 		// Move to the next feature header 
 		offset = offset + _fpga_dfh_feature_next(dfh); 
-	} while (!end_of_list); 
-  
-  return res;
+	} while (!end_of_list);
+
+	return res;
+}
+
+fpga_result fpgaFeatureTokenDestroy(fpga_feature_token *feature_token)
+{
+	fpga_result res = FPGA_OK;
+	int err = 0;
+
+	if (NULL == feature_token || NULL == *feature_token) {
+		OPAE_MSG("Invalid token pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	struct _fpga_feature_token *_ftoken = (struct _fpga_feature_token *)*feature_token;
+
+	if (pthread_mutex_lock(&ftoken_lock)) {
+		OPAE_MSG("Failed to lock feature token mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
+		OPAE_MSG("Invalid feature token");
+		res = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	// invalidate magic (just in case)
+	_ftoken->magic = OPAE_FEATURE_INVALID_MAGIC;
+
+	free(*feature_token);
+	*feature_token = NULL;
+
+out_unlock:
+	err = pthread_mutex_unlock(&ftoken_lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed for feature lock %S", strerror(err));
+	}
+
+	dma_plugin_mgr_finalize_all();
+	return res;
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
@@ -1535,7 +1628,6 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 {
 	UNUSED_PARAM(priv_config);
 	fpga_result res = FPGA_OK;
-	int errors = 0;
 	struct _fpga_feature_token *_ftoken;
 	struct _fpga_feature_handle *_fhandle;
 	opae_dma_adapter_table *adapter;
@@ -1555,13 +1647,6 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 	if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
 		OPAE_ERR("Invalid feature token");
 		return FPGA_INVALID_PARAM;
-	}  
-
-	errors = dma_plugin_mgr_initialize(_ftoken->handle);
-	if (errors) {
-		OPAE_ERR("Feature token initialize errors");
-		res = FPGA_EXCEPTION;
-		goto out_finalize;
 	}
 
 	_fhandle = malloc(sizeof(struct _fpga_feature_handle));
@@ -1594,11 +1679,12 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 		res = FPGA_EXCEPTION;
 		goto out_attr_destroy;
 	}
+
 	pthread_mutexattr_destroy(&mattr);
 
-	// Increment feature token ref_count at success    
-	_ftoken->ref_count++;
 	*handle = (void *)_fhandle;
+	
+	return res;
 
 out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
@@ -1606,19 +1692,30 @@ out_attr_destroy:
 out_free:
 	free(_fhandle);
 
-out_finalize:
-	dma_plugin_mgr_finalize_all();
 	return res;
 }
 
 fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 {
-	UNUSED_PARAM(handle);
-	//struct _fpga_feature_handle *_fhandle =(struct _fpga_feature_handle *)handle;
-	//fpga_result res = FPGA_OK;
-	//int errors = 0;
-  
-  
-   
-	return FPGA_OK;
+	fpga_result res = FPGA_OK;
+	int err = 0;
+	struct _fpga_feature_handle *_fhandle;
+
+	_fhandle =(struct _fpga_feature_handle *)handle;
+
+	// invalidate magic (just in case)
+	_fhandle->magic = OPAE_FEATURE_INVALID_MAGIC;
+
+	err = pthread_mutex_unlock(&_fhandle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
+	err = pthread_mutex_destroy(&_fhandle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
+
+	free(_fhandle);
+
+	return res;
 }

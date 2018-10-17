@@ -40,20 +40,20 @@
 
 static inline bool _fpga_dfh_feature_eol(uint64_t dfh) 
 { 
-  return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
+	return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
 } 
 
 // Feature type is BBB 
 static inline bool _fpga_dfh_feature_is_dma(uint64_t dfh) 
 { 
-  // BBB is type 2 
-  return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
+	// BBB is type 2 
+	return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
 } 
  
 // Offset to the next feature header 
 static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh) 
 { 
-  return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
+	return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
 }
 
 // non-zero on failure.
