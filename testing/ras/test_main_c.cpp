@@ -283,9 +283,53 @@ TEST_P(ras_c_p, main_params_01){
                    ten, eleven, twelve, thirteen,
                    fourteen, fifteen, sixteen };
 
-  EXPECT_EQ(ras_main(17, argv), 0);
+  EXPECT_EQ(ras_main(17, argv), FPGA_OK);
 }
 
+/**
+ * @test       main_params_02
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command,<br>
+ *             that includes errors injection, ras_main returns<br>
+ *             FPGA_INVALID_PARAM for fpga not found.<br>
+ */
+TEST_P(ras_c_p, main_params_02){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segment");
+  strcpy(two, "0x1");
+  strcpy(three, "-B");
+  strcpy(four, "0x1");
+  strcpy(five, "-D");
+  strcpy(six, "0x1");
+  strcpy(seven, "-F");
+  strcpy(eight, "0x1");
+  strcpy(nine, "-S");
+  strcpy(ten, "0x1");
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-N");
+  strcpy(thirteen, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen };
+
+  EXPECT_EQ(ras_main(14, argv), FPGA_INVALID_PARAM);
+}
 /**
  * @test       main_params_05
  * @brief      Test: ras_main
@@ -316,28 +360,28 @@ TEST_P(ras_c_p, main_params_05){
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight };
 
-  EXPECT_EQ(ras_main(9, argv), 0);
+  EXPECT_EQ(ras_main(9, argv), FPGA_OK);
 }
 
 /**
  * @test       invalid_cmd_01
  * @brief      Test: ras_main
  * @details    When ras_main is called with only 1 arg,<br>
- *             main returns 1.<br>
+ *             ras_main returns 1.<br>
  */
 TEST_P(ras_c_p, invalid_cmd_01){
   char zero[20];
   strcpy(zero, "ras");
 
   char *argv[] = { zero }; 
-  EXPECT_EQ(ras_main(1, argv), 1);
+  EXPECT_EQ(ras_main(1, argv), FPGA_INVALID_PARAM);
 }
 
 /**
  * @test       invalid_cmd_02
  * @brief      Test: ras_main
  * @details    When ras_main is called with an invalid command option,<br>
- *             main returns 2.<br>
+ *             ras_main returns 2.<br>
  */
 TEST_P(ras_c_p, invalid_cmd_02){
   char zero[20];
@@ -351,15 +395,36 @@ TEST_P(ras_c_p, invalid_cmd_02){
 }
 
 /**
+ * @test       invalid_cmd_03
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an invalid command option,<br>
+ *             ras_main returns 2.<br>
+ */
+TEST_P(ras_c_p, invalid_cmd_03){
+  char zero[20];
+  char one[20];
+  char two[20];
+  
+  strcpy(zero, "ras");
+  strcpy(one, "-h");
+  strcpy(one, "-Z");
+
+  char *argv[] = { zero, one, two };
+  EXPECT_EQ(ras_main(3, argv), 2);
+}
+/**
  * @test       mmio_error
  * @brief      Test: test_mmio_error 
- * @details    When mmio_error is called with an valid afu handle,<br>
- *             injecting mmio errors, it returns FPGA_OK.<br>
+ * @details    When mmio_error is called with an valid afu handle<br>
+ *             and RAS command to inject, it returns FPGA_OK.<br>
  */
 TEST_P(ras_c_p, test_mmio_error){
   cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
                 false, false, false,false,
                 false, false, true, true, false};
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(handle_accel_, nullptr));
+
   EXPECT_EQ(FPGA_OK, mmio_error(handle_accel_, &cmd_line_));
 }
 
@@ -391,7 +456,6 @@ TEST_P(ras_c_p, test_page_fault_errors){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_print_token_errors){
-  fpga_properties filter = NULL;
   uint32_t num_matches = 0;
   fpga_token tok = nullptr;
   const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
