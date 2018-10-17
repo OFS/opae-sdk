@@ -320,6 +320,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config_.running = false;
+    fpgad_.join();
+    close_log();
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
 
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
@@ -341,8 +343,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    fpgad_.join();
-    close_log();
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
