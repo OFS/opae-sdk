@@ -52,10 +52,11 @@ extern "C" {
  *
  * @note Initialize the fields in this structure to 0xFF to indicate value is not set.
  */
-typedef struct {fpga_feature_type   type;
-                fpga_guid           guid;
-                uint64_t            reserved[32];
-}fpga_feature_properties;
+typedef struct {
+	fpga_feature_type type;
+	fpga_guid guid;
+	uint64_t reserved[32];
+} fpga_feature_properties;
 
 /**
  * Enumerate feature resources present in a FPGA device (discovery)
@@ -67,7 +68,7 @@ typedef struct {fpga_feature_type   type;
  * returned `tokens` array will be either `max_tokens` or `num_matches`,
  *  whichever is smaller.
  *
-  * @note fpgaFeatureEnumerate() will allocate memory for the created tokens returned
+ * @note fpgaFeatureEnumerate() will allocate memory for the created tokens returned
  * in `tokens`. It is the responsibility of the using application to free this
  * memory after use by calling fpgaFeatureDestroyToken() for each of the returned
  * tokens.
@@ -88,11 +89,9 @@ typedef struct {fpga_feature_type   type;
  *                         create tokens.
  */
 fpga_result
-fpgaFeatureEnumerate(fpga_handle fpga_h,
-                        fpga_feature_properties *prop,
-                        fpga_feature_token      *tokens,
-                        uint32_t                max_tokens,
-                        uint32_t                *num_matches);
+fpgaFeatureEnumerate(fpga_handle fpga_h, fpga_feature_properties *prop,
+		fpga_feature_token *tokens, uint32_t max_tokens,
+		uint32_t *num_matches);
 
 /**
  * Destroy a feature Token
@@ -119,7 +118,7 @@ fpgaFeatureTokenDestroy(fpga_feature_token *feature_token);
  */
 fpga_result
 fpgaFeaturePropertiesGet(fpga_feature_token token,
-                        fpga_feature_properties *prop);
+		fpga_feature_properties *prop);
 
 /**
  * Open a feature object
@@ -141,10 +140,8 @@ fpgaFeaturePropertiesGet(fpga_feature_token token,
  *
  * @returns             FPGA_OK on success.
  */
-fpga_result fpgaFeatureOpen(fpga_feature_token feature_token,
-                int flags,
-                void *priv_config,
-                fpga_feature_handle *handle);
+fpga_result fpgaFeatureOpen(fpga_feature_token feature_token, int flags,
+		void *priv_config, fpga_feature_handle *handle);
 
 /**
  * Close a previously opened feature object
@@ -157,8 +154,6 @@ fpga_result fpgaFeatureOpen(fpga_feature_token feature_token,
  * @returns FPGA_OK on success.
  */
 fpga_result fpgaFeatureClose(fpga_feature_handle handle);
-
-
 
 #ifdef __cplusplus
 } // extern "C"
