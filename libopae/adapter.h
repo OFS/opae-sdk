@@ -42,42 +42,41 @@ typedef struct _opae_api_adapter_table {
 	opae_plugin plugin;
 
 	fpga_result (*fpgaOpen)(fpga_token token, fpga_handle *handle,
-				int flags);
+			int flags);
 
 	fpga_result (*fpgaClose)(fpga_handle handle);
 
 	fpga_result (*fpgaReset)(fpga_handle handle);
 
 	fpga_result (*fpgaGetPropertiesFromHandle)(fpga_handle handle,
-						   fpga_properties *prop);
+			fpga_properties *prop);
 
 	fpga_result (*fpgaGetProperties)(fpga_token token,
-					 fpga_properties *prop);
+			fpga_properties *prop);
 
 	fpga_result (*fpgaUpdateProperties)(fpga_token token,
-					    fpga_properties prop);
+			fpga_properties prop);
 
 	fpga_result (*fpgaWriteMMIO64)(fpga_handle handle, uint32_t mmio_num,
-				       uint64_t offset, uint64_t value);
+			uint64_t offset, uint64_t value);
 
 	fpga_result (*fpgaReadMMIO64)(fpga_handle handle, uint32_t mmio_num,
-				      uint64_t offset, uint64_t *value);
+			uint64_t offset, uint64_t *value);
 
 	fpga_result (*fpgaWriteMMIO32)(fpga_handle handle, uint32_t mmio_num,
-				       uint64_t offset, uint32_t value);
+			uint64_t offset, uint32_t value);
 
 	fpga_result (*fpgaReadMMIO32)(fpga_handle handle, uint32_t mmio_num,
-				      uint64_t offset, uint32_t *value);
+			uint64_t offset, uint32_t *value);
 
 	fpga_result (*fpgaMapMMIO)(fpga_handle handle, uint32_t mmio_num,
-				   uint64_t **mmio_ptr);
+			uint64_t **mmio_ptr);
 
 	fpga_result (*fpgaUnmapMMIO)(fpga_handle handle, uint32_t mmio_num);
 
 	fpga_result (*fpgaEnumerate)(const fpga_properties *filters,
-				     uint32_t num_filters, fpga_token *tokens,
-				     uint32_t max_tokens,
-				     uint32_t *num_matches);
+			uint32_t num_filters, fpga_token *tokens,
+			uint32_t max_tokens, uint32_t *num_matches);
 
 	fpga_result (*fpgaCloneToken)(fpga_token src, fpga_token *dst);
 
@@ -86,104 +85,100 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaGetNumUmsg)(fpga_handle handle, uint64_t *value);
 
 	fpga_result (*fpgaSetUmsgAttributes)(fpga_handle handle,
-					     uint64_t value);
+			uint64_t value);
 
 	fpga_result (*fpgaTriggerUmsg)(fpga_handle handle, uint64_t value);
 
 	fpga_result (*fpgaGetUmsgPtr)(fpga_handle handle, uint64_t **umsg_ptr);
 
 	fpga_result (*fpgaPrepareBuffer)(fpga_handle handle, uint64_t len,
-					 void **buf_addr, uint64_t *wsid,
-					 int flags);
+			void **buf_addr, uint64_t *wsid, int flags);
 
 	fpga_result (*fpgaReleaseBuffer)(fpga_handle handle, uint64_t wsid);
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
-					uint64_t *ioaddr);
+			uint64_t *ioaddr);
 	/*
-	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
-	**
-	**	fpga_result (*fpgaGetOPAECVersionString)(char *version_str,
-	**  size_t len);
-	**
-	**	fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t
-	**   len);
-	*/
+	 **	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
+	 **
+	 **	fpga_result (*fpgaGetOPAECVersionString)(char *version_str,
+	 **  size_t len);
+	 **
+	 **	fpga_result (*fpgaGetOPAECBuildString)(char *build_str, size_t
+	 **   len);
+	 */
 
 	fpga_result (*fpgaReadError)(fpga_token token, uint32_t error_num,
-				     uint64_t *value);
+			uint64_t *value);
 
 	fpga_result (*fpgaClearError)(fpga_token token, uint32_t error_num);
 
 	fpga_result (*fpgaClearAllErrors)(fpga_token token);
 
 	fpga_result (*fpgaGetErrorInfo)(fpga_token token, uint32_t error_num,
-					struct fpga_error_info *error_info);
+			struct fpga_error_info *error_info);
 
 	/*
-	**	const char *(*fpgaErrStr)(fpga_result e);
-	*/
+	 **	const char *(*fpgaErrStr)(fpga_result e);
+	 */
 
 	fpga_result (*fpgaCreateEventHandle)(fpga_event_handle *event_handle);
 
 	fpga_result (*fpgaDestroyEventHandle)(fpga_event_handle *event_handle);
 
 	fpga_result (*fpgaGetOSObjectFromEventHandle)(
-		const fpga_event_handle eh, int *fd);
+			const fpga_event_handle eh, int *fd);
 
 	fpga_result (*fpgaRegisterEvent)(fpga_handle handle,
-					 fpga_event_type event_type,
-					 fpga_event_handle event_handle,
-					 uint32_t flags);
+			fpga_event_type event_type,
+			fpga_event_handle event_handle, uint32_t flags);
 
 	fpga_result (*fpgaUnregisterEvent)(fpga_handle handle,
-					   fpga_event_type event_type,
-					   fpga_event_handle event_handle);
+			fpga_event_type event_type,
+			fpga_event_handle event_handle);
 
 	fpga_result (*fpgaAssignPortToInterface)(fpga_handle fpga,
-						 uint32_t interface_num,
-						 uint32_t slot_num, int flags);
+			uint32_t interface_num, uint32_t slot_num, int flags);
 
 	fpga_result (*fpgaAssignToInterface)(fpga_handle fpga,
-					     fpga_token accelerator,
-					     uint32_t host_interface,
-					     int flags);
+			fpga_token accelerator, uint32_t host_interface,
+			int flags);
 
 	fpga_result (*fpgaReleaseFromInterface)(fpga_handle fpga,
-						fpga_token accelerator);
+			fpga_token accelerator);
 
 	fpga_result (*fpgaReconfigureSlot)(fpga_handle fpga, uint32_t slot,
-					   const uint8_t *bitstream,
-					   size_t bitstream_len, int flags);
+			const uint8_t *bitstream, size_t bitstream_len,
+			int flags);
 
 	fpga_result (*fpgaTokenGetObject)(fpga_token token, const char *name,
-					  fpga_object *object, int flags);
+			fpga_object *object, int flags);
 
 	fpga_result (*fpgaHandleGetObject)(fpga_handle handle, const char *name,
-					   fpga_object *object, int flags);
+			fpga_object *object, int flags);
 
 	fpga_result (*fpgaObjectGetObject)(fpga_object parent, const char *name,
-					   fpga_object *object, int flags);
+			fpga_object *object, int flags);
 
 	fpga_result (*fpgaDestroyObject)(fpga_object *obj);
 
 	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,
-				      size_t offset, size_t len, int flags);
+			size_t offset, size_t len, int flags);
 
 	fpga_result (*fpgaObjectRead64)(fpga_object obj, uint64_t *value,
-					int flags);
+			int flags);
 
 	fpga_result (*fpgaObjectGetSize)(fpga_object obj, uint64_t *value,
-					 int flags);
+			int flags);
 
 	fpga_result (*fpgaObjectWrite64)(fpga_object obj, uint64_t value,
-					 int flags);
+			int flags);
 
 	fpga_result (*fpgaSetUserClock)(fpga_handle handle, uint64_t high_clk,
-					uint64_t low_clk, int flags);
+			uint64_t low_clk, int flags);
 
 	fpga_result (*fpgaGetUserClock)(fpga_handle handle, uint64_t *high_clk,
-					uint64_t *low_clk, int flags);
+			uint64_t *low_clk, int flags);
 
 	// configuration functions
 	int (*initialize)(void);
@@ -201,21 +196,17 @@ typedef struct _opae_dma_adapter_table {
 	opae_plugin plugin;
 	fpga_guid guid;
 
-	fpga_result (*fpgaDMAOpen)(fpga_handle handle,
-                               uint64_t dma_mmio_base,
-                               void *dma_priv_config,
-                               fpga_feature_handle *dma_handle);
-
+	fpga_result (*fpgaDMAOpen)(fpga_handle handle, uint64_t dma_mmio_base,
+			void *dma_priv_config, fpga_feature_handle *dma_handle);
 	fpga_result (*fpgaDMAClose)(fpga_feature_handle dma_handle);
-	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle, transfer_list *dma_xfer);
+	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
+			transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferCB)(fpga_feature_handle dma,
-	                                 transfer_list *dma_xfer,
-	                                 fpga_dma_cb cb,
-	                                 void *context);
+			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);
-                       
+
 } opae_dma_adapter_table;
 
 #endif /* __OPAE_ADAPTER_H__ */
