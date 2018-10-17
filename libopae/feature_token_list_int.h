@@ -31,7 +31,7 @@
 #include "opae_int.h"
 
 /*
- * feature token list structure manipulation functions
+ * Feature token list structure manipulation functions
  */
 struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid,
 												fpga_handle handle);

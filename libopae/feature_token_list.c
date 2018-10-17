@@ -52,6 +52,7 @@ pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
  *
  * @param type
  * @param guid
+ * @param handle
  *
  * @return
  */
@@ -71,7 +72,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 		if ((uuid_compare(guid, tmp->feature_guid)) == 0) {
 			err = pthread_mutex_unlock(&ftoken_lock);
 			if (err) {
-				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 			}
 			return tmp;
 		}
@@ -138,7 +139,7 @@ void feature_token_cleanup(void)
 		current = current->next;
 
 		// invalidate magic (just in case)
-		tmp->magic = OPAE_FEATURE_INVALID_MAGIC;
+		tmp->magic = OPAE_INVALID_MAGIC;
 		free(tmp);
 		tmp = NULL;
 	}

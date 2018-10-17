@@ -1608,7 +1608,7 @@ fpga_result fpgaFeatureTokenDestroy(fpga_feature_token *feature_token)
 	}
 
 	// invalidate magic (just in case)
-	_ftoken->magic = OPAE_FEATURE_INVALID_MAGIC;
+	_ftoken->magic = OPAE_INVALID_MAGIC;
 
 	free(*feature_token);
 	*feature_token = NULL;
@@ -1704,7 +1704,7 @@ fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 	_fhandle =(struct _fpga_feature_handle *)handle;
 
 	// invalidate magic (just in case)
-	_fhandle->magic = OPAE_FEATURE_INVALID_MAGIC;
+	_fhandle->magic = OPAE_INVALID_MAGIC;
 
 	err = pthread_mutex_unlock(&_fhandle->lock);
 	if (err) {

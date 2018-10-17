@@ -43,26 +43,26 @@ static inline bool _fpga_dfh_feature_eol(uint64_t dfh)
 	return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
 } 
 
-// Feature type is BBB 
+/* Check feature type is BBB  */
 static inline bool _fpga_dfh_feature_is_dma(uint64_t dfh) 
 { 
 	// BBB is type 2 
 	return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
 } 
  
-// Offset to the next feature header 
+/* Offset to the next feature header */
 static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh) 
 { 
 	return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
 }
 
-// non-zero on failure.
+/* Non-zero on failure */
 int dma_plugin_mgr_initialize(fpga_handle handle);
 
-// non-zero on failure.
+/* Non-zero on failure */
 int dma_plugin_mgr_finalize_all(void);
 
-// iteration stops if callback returns non-zero.
+/* Iteration stops if callback returns non-zero */
 #define OPAE_ENUM_STOP 1
 #define OPAE_ENUM_CONTINUE 0
 opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid);

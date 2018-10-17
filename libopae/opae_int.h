@@ -223,7 +223,7 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 
 //                                  f e a t    
 #define OPAE_FEATURE_TOKEN_MAGIC 0x66656174
-#define OPAE_FEATURE_INVALID_MAGIC 0x46504741
+#define OPAE_INVALID_MAGIC 0x46504741
 /** Device-wide unique FPGA feature resource identifier */
 struct _fpga_feature_token {
 	uint64_t magic;
