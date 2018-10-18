@@ -97,6 +97,12 @@ target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+target_link_libraries(fpgad-static
+    safestr
+    ${libjson-c_LIBRARIES}
+    ${libuuid_LIBRARIES}
+    )
+
 add_library(fpgaconf-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
     )
@@ -107,6 +113,16 @@ target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+
+add_library(ras-static
+    ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
+
+target_compile_definitions(ras-static PRIVATE main=ras_main)
+
+target_include_directories(ras-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 add_library(coreidle-static
     ${OPAE_SDK_SOURCE}/tools/extra/coreidle/coreidle.c
@@ -138,6 +154,17 @@ add_library(hello_fpga-static
 target_compile_definitions(hello_fpga-static PRIVATE main=hello_fpga_main)
 
 target_include_directories(hello_fpga-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(hello_events-static
+    ${OPAE_SDK_SOURCE}/samples/hello_events.c
+    )
+
+target_compile_definitions(hello_events-static PRIVATE main=hello_events_main)
+
+target_include_directories(hello_events-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -422,6 +449,14 @@ add_mock_test(test_fpgad_ap6_c fpgad-static
 )
 
 ############################################################################
+# RAS tests ##############################################################
+############################################################################
+
+add_mock_test(test_ras_c ras-static
+    ras/test_main_c.cpp
+)
+
+############################################################################
 # fpgaconf tests ###########################################################
 ############################################################################
 
@@ -456,6 +491,15 @@ add_mock_test(test_userclk_c userclk-static
 add_mock_test(test_hello_fpga_c hello_fpga-static
     hello_fpga/test_hello_fpga_c.cpp
 )
+
+############################################################################
+# hello_events tests #######################################################
+############################################################################
+
+add_mock_test(test_hello_events_c hello_events-static
+    hello_events/test_hello_events_c.cpp
+)
+target_link_libraries(test_hello_events_c fpgad-static safestr)
 
 add_custom_command(TARGET test_unit
     PRE_BUILD

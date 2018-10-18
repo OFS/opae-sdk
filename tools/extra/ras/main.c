@@ -1237,7 +1237,8 @@ fpga_result page_fault_errors()
 	memset_s((void *)output_ptr, LPBK1_BUFFER_SIZE, 0xBE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
-	for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+	uint32_t i;
+	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
 		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
 	}
 
