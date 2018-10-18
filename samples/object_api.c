@@ -35,7 +35,6 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
-#include <unistd.h>
 
 void print_err(const char *s, fpga_result res)
 {

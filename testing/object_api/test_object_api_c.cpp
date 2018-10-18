@@ -1,0 +1,253 @@
+// Copyright(c) 2018, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
+#include <opae/fpga.h>
+extern "C"{
+
+#define MAX_GROUP_OBJECTS 32
+typedef struct {
+  const char *name;
+  fpga_object object;
+  uint64_t value;
+  uint64_t delta;
+} named_object;
+
+typedef struct {
+  const char *name;
+  fpga_token token;
+  fpga_object object;
+  uint8_t bus;
+  uint8_t device;
+  uint8_t function;
+  named_object objects[MAX_GROUP_OBJECTS];
+  size_t count;
+} metric_group;
+
+typedef struct {
+  fpga_token token;
+  metric_group *groups;
+  size_t count;
+  fpga_object clock;
+} token_group;
+
+void print_err(const char*, fpga_result);
+fpga_result add_clock(token_group*);
+fpga_result add_counter(metric_group*, const char*);
+void print_counters(fpga_object, metric_group*);
+fpga_result parse_args(int argc, char* argv[]);
+int object_api_main(int argc, char* argv[]);
+}
+
+#include <intel-fpga.h>
+#include <getopt.h>
+#include <test_system.h>
+#include <gtest/gtest.h>
+using namespace opae::testing;
+
+
+class object_api_c_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  object_api_c_p()
+      : tokens_dev_{{nullptr, nullptr}} {}
+
+  virtual void SetUp() override {
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    optind = 0;
+
+    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
+                            &num_matches_),
+                            FPGA_OK);
+    EXPECT_EQ(num_matches_, platform_.devices.size());
+    handle_dev_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
+  }
+
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+    if (handle_dev_) {
+      EXPECT_EQ(fpgaClose(handle_dev_), FPGA_OK);
+      handle_dev_ = nullptr;
+    }
+ 
+    for (auto &t : tokens_dev_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+
+    system_->finalize();
+  }
+
+  fpga_properties filter_dev_;
+  std::array<fpga_token, 2> tokens_dev_;
+  fpga_handle handle_dev_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+};
+
+/**
+ * @test       test_print_error
+ * @brief      Test: print_erro
+ * @details    When params to print_err is valid, it displays the std error.<br>
+ */
+TEST(object_api_c, test_print_err){
+  const std::string str = "Invalid string";
+  print_err(str.c_str(), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       parse_args0
+ * @brief      Test: parse_args
+ * @details    When passed an invalid command option,<br>
+ *             parse_args prints a message and<br>
+ *             returns a value other than FPGA_OK.<br>
+ */
+TEST_P(object_api_c_p, parse_args0) {
+  char zero[20];
+  char one[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-Y");
+
+  char *argv[] = { zero, one };
+
+  EXPECT_NE(parse_args(2, argv), FPGA_OK);
+}
+
+/**
+ * @test       parse_args1
+ * @brief      Test: parse_args
+ * @details    When given a command option that requires a param,<br>
+ *             omitting the required param causes parse_args to<br>
+ *             return a value other than FPGA_OK.<br>
+ */
+TEST_P(object_api_c_p, parse_args1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(parse_args(3, argv), FPGA_OK);
+}
+
+/**
+ * @test       parse_args2
+ * @brief      Test: parse_args
+ * @details    When given invalid command options,<br>
+ *             parse_args returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(object_api_c_p, parse_args2) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+  strcpy(two, "3");
+  strcpy(three, "-s");
+
+  char *argv[] = { zero, one, two, three };
+
+  EXPECT_EQ(parse_args(4, argv), FPGA_EXCEPTION);
+}
+
+/**
+ * @test       parse_args3
+ * @brief      Test: parse_args
+ * @details    When given valid command options,<br>
+ *             parse_args populates the global config struct,<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_api_c_p, parse_args3) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+  strcpy(two, "3");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_EQ(parse_args(3, argv), FPGA_OK);
+}
+
+/**
+ * @test       main0
+ * @brief      Test: hello_fpga_main
+ * @details    When given an invalid command option,<br>
+ *             hello_fpga_main displays an error message,<br>
+ *             and the fn returns non-zero.<br>
+ */
+TEST_P(object_api_c_p, main0) {
+  char zero[20];
+  char one[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-Y");
+
+  char *argv[] = { zero, one };
+
+  EXPECT_NE(object_api_main(2, argv), 0);
+}
+
+/**
+ * @test       main1
+ * @brief      Test: hello_fpga_main
+ * @details    When given a valid command line,<br>
+ *             hello_fpga_main runs the NLB0 workload.<br>
+ *             The workload times out in a mock environment,<br>
+ *             causing hello_fpga_main to return FPGA_EXCEPTION.<br>
+ */
+//TEST_P(object_api_c_p, main1) {
+//  char zero[20];
+//  char one[20];
+//  char two[20];
+//  strcpy(zero, "object_api");
+//  strcpy(one, "-B");
+//  sprintf(two, "%d", platform_.devices[0].bus);
+//
+//  char *argv[] = { zero, one, two };
+//
+//  EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
+//}
+
+
+INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_p,
+                        ::testing::Values(std::string("skx-p")));
