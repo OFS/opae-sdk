@@ -45,6 +45,7 @@ extern opae_dma_adapter_table *dma_adapter_list;
 
 #include <config.h>
 #include <opae/fpga.h>
+#include "intel-fpga.h"
 
 #include <array>
 #include <cstdlib>
@@ -138,7 +139,7 @@ static int test_feature_plugin_bad_finalize(void)
 
 class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  feature_pluginmgr_c_p() {}
+  feature_pluginmgr_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -149,6 +150,20 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                            &num_matches_),
+              FPGA_OK);
+    EXPECT_EQ(num_matches_, platform_.devices.size());
+    accel_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+	num_matches_ = 0;
+	feature_filter_.type = 2;
+	feature_filter_.guid = {  };    // TODO: Fill in DMA guid id here
+	ASSERT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), &num_matches_), FPGA_OK);
+	
     // save the global adapter list.
     dma_adapter_list_ = dma_adapter_list;
     dma_adapter_list = nullptr;
@@ -174,14 +189,29 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     // restore the global adapter list.
     dma_adapter_list = adapter_list_;
-    
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (accel_) {
+        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+        accel_ = nullptr;
+    }
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
     system_->finalize();
   }
-
+  std::array<fpga_token, 2> tokens_;
+  std::array<fpga_feature_token, 2> ftokens_;
+  fpga_properties filter_;  
+  fpga_handle accel_;
+  fpga_feature_properties feature_filter_;
   opae_dma_adapter_table *dma_adapter_list_;
   opae_dma_adapter_table *faux_adapter0_;
   opae_dma_adapter_table *faux_adapter1_;
   test_platform platform_;
+  uint32_t num_matches_;
   test_device invalid_device_;
   test_system *system_;
 };
