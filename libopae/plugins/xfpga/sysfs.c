@@ -777,13 +777,25 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
+STATIC char *cstr_dup(const char *str)
+{
+	size_t s = strlen(str);
+	char *p = malloc(s+1);
+	if (strncpy_s(p, s+1, str, s)) {
+		FPGA_ERR("Error copying string");
+		return NULL;
+	}
+	p[s] = '\0';
+	return p;
+}
+
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
 		obj->handle = NULL;
-		obj->path = strdup(sysfspath);
-		obj->name = strdup(name);
+		obj->path = cstr_dup(sysfspath);
+		obj->name = cstr_dup(name);
 		obj->perm = 0;
 		obj->size = 0;
 		obj->max_size = 0;

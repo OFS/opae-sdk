@@ -37,6 +37,7 @@ fpga_result opae_glob_path(char *);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
+char* cstr_dup(const char *str);
 }
 
 #include <opae/enum.h>
@@ -540,6 +541,17 @@ TEST_P(sysfs_c_p, get_fpga_deviceid) {
   auto res = get_fpga_deviceid(handle_, &deviceid);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(real_deviceid, deviceid);
+}
+
+/**
+* @test    cstr_dup
+* @details Duplicate an input string
+*/
+TEST(sysfs_c, cstr_dup) {
+  std::string inp("this is an input string");
+  char *dup = cstr_dup(inp.c_str());
+  EXPECT_STREQ(dup, inp.c_str());
+  free(dup);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
