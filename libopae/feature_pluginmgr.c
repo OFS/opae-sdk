@@ -339,12 +339,14 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 	// Load each of the native plugins that were detected.
 	for (i = 0 ; feature_data_table[i].feature_plugin ; ++i) {
 		const char *feature_plugin;
+    const char *feature_id;
 		int already_loaded;
 
 		if (!(feature_data_table[i].flags & OPAE_FEATURE_DATA_DETECTED))
 			continue; // This platform was not detected.
 
 		feature_plugin = feature_data_table[i].feature_plugin;
+		feature_id = feature_data_table[i].feature_id;
 		features_detected++;
 
 		// Iterate over the table again to prevent multiple loads
@@ -369,7 +371,7 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 		if (already_loaded)
 			continue;
 
-		uuid_parse(feature_plugin, guid);
+		uuid_parse(feature_id, guid);
 		adapter = dma_plugin_mgr_alloc_adapter(feature_plugin, guid);
 
 		if (!adapter) {

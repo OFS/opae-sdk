@@ -1621,7 +1621,6 @@ out_unlock:
 		OPAE_ERR("pthread_mutex_unlock() failed for feature lock %S", strerror(err));
 	}
 
-	dma_plugin_mgr_finalize_all();
 	return res;
 }
 

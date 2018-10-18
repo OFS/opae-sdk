@@ -43,6 +43,7 @@
 #endif // __USE_GNU
 #include <pthread.h>
 #include "feature_token_list_int.h"
+#include "feature_pluginmgr.h"
 
 /* global loglevel */
 static int g_loglevel = OPAE_DEFAULT_LOGLEVEL;
@@ -126,4 +127,6 @@ __attribute__((destructor)) STATIC void opae_release(void)
 	}
 	g_logfile = NULL;
 	feature_token_cleanup();
+	if (dma_plugin_mgr_finalize_all())
+		OPAE_ERR("dma_plugin_mgr_finalize_all");
 }
