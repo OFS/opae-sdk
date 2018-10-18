@@ -245,7 +245,7 @@ out_close:
 	return errors;
 }
 
-void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
+static void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
 {
 	char id_lo[18];
 	char id_hi[18];
@@ -419,6 +419,11 @@ opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid)
 	int res;
 	opae_dma_adapter_table *adapter = NULL;
 	opae_dma_adapter_table *aptr;
+
+	if (!guid) {
+		OPAE_ERR("NULL guid passed to %s()", __func__);
+		return OPAE_ENUM_STOP;
+	}
 
 	opae_mutex_lock(res, &dma_adapter_list_lock);
 
