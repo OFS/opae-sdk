@@ -19,6 +19,8 @@ add_library(opae-c-static
     ${OPAE_SDK_SOURCE}/libopae/init.c
     ${OPAE_SDK_SOURCE}/libopae/pluginmgr.c
     ${OPAE_SDK_SOURCE}/libopae/props.c
+	${OPAE_SDK_SOURCE}/libopae/feature_pluginmgr.c
+	${OPAE_SDK_SOURCE}/libopae/feature_token_list.c
     )
 target_include_directories(opae-c-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
