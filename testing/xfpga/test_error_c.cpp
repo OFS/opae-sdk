@@ -63,17 +63,25 @@ class error_c_p
     strncpy_s(fake_port_token_.sysfspath,sizeof(fake_port_token_.sysfspath),sysfs_port.c_str(),sysfs_port.size());
     strncpy_s(fake_port_token_.devpath,sizeof(fake_port_token_.devpath),dev_port.c_str(),dev_port.size());
     fake_port_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_port_token_.device_instance = 0;
+    fake_port_token_.subdev_instance = 0;
     fake_port_token_.errors = nullptr;
 
     strncpy_s(fake_fme_token_.sysfspath,sizeof(fake_fme_token_.sysfspath),sysfs_fme.c_str(),sysfs_fme.size());
     strncpy_s(fake_fme_token_.devpath,sizeof(fake_fme_token_.devpath),dev_fme.c_str(),dev_fme.size());
     fake_fme_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_fme_token_.device_instance = 0;
+    fake_fme_token_.subdev_instance = 0;
     fake_fme_token_.errors = nullptr;
 
+    filter_ = nullptr;
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (filter_) {
+      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    }
+    token_cleanup();
     system_->finalize();
   }
 
@@ -504,6 +512,100 @@ TEST_P(error_c_p, error_09) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
 }
 
+/**
+ * @test       error_10
+ *
+ * @brief      When passed an invalid token magic,
+ *             xfpga_fpgaReadError() should return FPGA_INVALID_PARAM.
+ *             when token doesn't have errpath
+ *             xfpga_fpgaReadError() should return FPGA_NOT_FOUND.
+ *
+ */
+TEST_P(error_c_p, error_10) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  ASSERT_NE(fme, nullptr);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+  ASSERT_NE(port, nullptr);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+  auto tok = (struct _fpga_token*)parent;
+
+  uint64_t val = 0;
+  tok->magic = 0x123;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadError(parent, 0, &val));
+
+  tok->magic = FPGA_TOKEN_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(parent, 0, &val));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 1000, &val));
+}
+
+/**
+ * @test       error_11
+ *
+ * @brief      When passed an invalid token magic,
+ *             xfpga_fpgaClearError() should return FPGA_INVALID_PARAM.
+ *             when token doesn't have errpath
+ *             xfpga_fpgaClearError() should return FPGA_NOT_FOUND.
+ *
+ */
+TEST_P(error_c_p, error_11) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  ASSERT_NE(fme, nullptr);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+  ASSERT_NE(port, nullptr);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+  auto tok = (struct _fpga_token*)parent;
+
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 1000));
+  tok->magic = 0x123;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
+}
+
+/**
+ * @test       error_12
+ * @brief      When passed an invalid token magic,
+ *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
+ */
+TEST_P(error_c_p, error_12) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  ASSERT_NE(fme, nullptr);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+  ASSERT_NE(port, nullptr);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+  auto tok = (struct _fpga_token*)parent;
+
+  tok->magic = FPGA_TOKEN_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(parent));
+  tok->magic = 0x123;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
+}
+
+/**
+ * @test       error_13
+ * @brief      When passed an invalid token magic,
+ *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
+ *             when token doesn't have errpath
+ *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
+ */
+TEST_P(error_c_p, error_13) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  ASSERT_NE(fme, nullptr);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+  ASSERT_NE(port, nullptr);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+  auto tok = (struct _fpga_token*)parent;
+
+  struct fpga_error_info info;
+  tok->magic = FPGA_TOKEN_MAGIC;
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(parent, 1000, &info));
+  tok->magic = 0x123;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
+}
+
+
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
 /**
@@ -523,101 +625,6 @@ TEST(error_c, error_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(tok, 0));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(tok));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(tok,0,NULL));
-}
-
-/**
- * @test       error_02
- *
- * @brief      When passed an invalid token magic,
- *             xfpga_fpgaReadError() should return FPGA_INVALID_PARAM.
- *             when token doesn't have errpath
- *             xfpga_fpgaReadError() should return FPGA_NOT_FOUND.
- *
- */
-TEST(error_c, error_02) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
-  ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
-  ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token*)parent;
-
-  uint64_t val = 0;
-  tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadError(parent, 0, &val));
-
-  char _errpath[SYSFS_PATH_MAX];
-  build_error_list(_errpath, &tok->errors);
-  tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 0, &val));
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 1000, &val));
-}
-
-/**
- * @test       error_03
- *
- * @brief      When passed an invalid token magic,
- *             xfpga_fpgaClearError() should return FPGA_INVALID_PARAM.
- *             when token doesn't have errpath
- *             xfpga_fpgaClearError() should return FPGA_NOT_FOUND.
- *
- */
-TEST(error_c, error_03) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
-  ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
-  ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token*)parent;
-
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 1000));
-  tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
-}
-
-/**
- * @test       error_04
- * @brief      When passed an invalid token magic,
- *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
- */
-TEST(error_c, error_04) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
-  ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
-  ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token*)parent;
-
-  tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(parent));
-  tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
-}
-
-/**
- * @test       error_05
- * @brief      When passed an invalid token magic,
- *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
- *             when token doesn't have errpath
- *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
- */
-TEST(error_c, error_05) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
-  ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
-  ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token*)parent;
-
-  struct fpga_error_info info;
-  tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(parent, 1000, &info));
-  tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
 }
 
 /**

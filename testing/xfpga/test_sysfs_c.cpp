@@ -29,9 +29,9 @@ extern "C" {
 fpga_result cat_token_sysfs_path(char *, fpga_token, const char *);
 fpga_result get_port_sysfs(fpga_handle, char *);
 //    fpga_result get_fpga_deviceid(fpga_handle,uint64_t*);
-fpga_result sysfs_get_pr_id(int, fpga_guid);
-fpga_result sysfs_get_slots(int, uint32_t *);
-fpga_result sysfs_get_bitstream_id(int, uint64_t *);
+fpga_result sysfs_get_pr_id(int, int, fpga_guid);
+fpga_result sysfs_get_slots(int, int, uint32_t *);
+fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
 fpga_result opae_glob_path(char *);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
@@ -126,17 +126,16 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   auto h = (struct _fpga_handle *)handle_;
   auto t = (struct _fpga_token *)h->token;
 
-  strncpy(t->sysfspath, sysfs_fme.c_str(), sizeof(t->sysfspath));
-  auto res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
+  char spath[SYSFS_PATH_MAX];
+  fpga_result res;
 
   char invalid_string[] = "...";
   strncpy(t->sysfspath, invalid_string, sizeof(t->sysfspath));
-  res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
+  res = get_port_sysfs(handle_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->token = NULL;
-  res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
+  res = get_port_sysfs(handle_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
@@ -327,10 +326,6 @@ TEST_P(sysfs_c_p, fpga_sysfs_01) {
   ASSERT_NE(result, FPGA_OK);
 
   result = sysfs_deviceid_from_path(
-      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.20", &deviceid);
-  ASSERT_NE(result, FPGA_OK);
-
-  result = sysfs_deviceid_from_path(
       "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme", &deviceid);
   ASSERT_NE(result, FPGA_OK);
 }
@@ -487,8 +482,9 @@ TEST_P(sysfs_c_p, fpga_sysfs_02) {
 */
 TEST(sysfs_c, sysfs_get_pr_id) {
   int dev = 0;
+  int subdev = 0;
   fpga_guid guid;
-  auto res = sysfs_get_pr_id(dev, guid);
+  auto res = sysfs_get_pr_id(dev, subdev, guid);
   EXPECT_NE(res, FPGA_OK);
 }
 
@@ -499,8 +495,9 @@ TEST(sysfs_c, sysfs_get_pr_id) {
 */
 TEST(sysfs_c, sysfs_get_slots) {
   int dev = 0;
+  int subdev = 0;
   uint32_t u32;
-  auto res = sysfs_get_slots(dev, &u32);
+  auto res = sysfs_get_slots(dev, subdev, &u32);
   EXPECT_NE(res, FPGA_OK);
 }
 
@@ -511,8 +508,9 @@ TEST(sysfs_c, sysfs_get_slots) {
 */
 TEST(sysfs_c, sysfs_get_bitstream_id) {
   int dev = 0;
+  int subdev = 0;
   uint64_t u64;
-  auto res = sysfs_get_bitstream_id(dev, &u64);
+  auto res = sysfs_get_bitstream_id(dev, subdev, &u64);
   EXPECT_NE(res, FPGA_OK);
 }
 
