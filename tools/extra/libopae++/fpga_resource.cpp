@@ -215,6 +215,7 @@ std::string fpga_resource::sysfs_path_from_token(fpga_token t)
 {
    struct _fpga_token
    {
+       uint32_t instance;
        uint64_t magic;
        char sysfspath[256];
        char devpath[256];
