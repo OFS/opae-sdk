@@ -59,7 +59,7 @@ class regex {
 
   static regex::ptr_t create(const std::string &pattern, int flags = 0) {
     regex::ptr_t m(new regex(pattern));
-    if (regcomp(&m->regex_, pattern.c_str(), flags)) {
+    if (regcomp(&m->regex_, pattern.c_str(), flags | REG_EXTENDED)) {
       m.reset();
     }
     return m;
@@ -81,15 +81,20 @@ class regex {
         }
       }
       m.reset(new match_t(str, matches));
+    } else {
+      regerror(res, &regex_, err_, 128);
     }
     return m;
   }
+
+  std::string error() { return std::string(err_); }
 
  private:
   regex() = delete;
   regex(const std::string &pattern) : pattern_(pattern) {}
   std::string pattern_;
   regex_t regex_;
+  char err_[128];
   std::array<regmatch_t, _M> matches_;
 };
 

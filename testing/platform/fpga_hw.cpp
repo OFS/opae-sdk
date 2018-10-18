@@ -160,7 +160,52 @@ bool test_platform::exists(const std::string &key) {
 }
 
 std::vector<std::string> test_platform::keys(bool sorted) {
-  return fpga_db::instance()->keys();
+  return fpga_db::instance()->keys(sorted);
+}
+
+std::vector<std::string> test_platform::platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  // from the list of platform names requested, remove the ones not found in
+  // the platform db
+  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n);
+  });
+  return keys;
+}
+
+std::vector<std::string> test_platform::mock_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  std::vector<std::string> want;
+  std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
+    [](const std::string &k) {
+      auto db = fpga_db::instance();
+      return db->exists(k) && db->get(k).mock_sysfs != nullptr;
+    });
+  return want;
+}
+
+std::vector<std::string> test_platform::hw_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  std::vector<std::string> want;
+  std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
+    [](const std::string &k) {
+      auto db = fpga_db::instance();
+      return db->exists(k) && db->get(k).mock_sysfs == nullptr;
+    });
+  return want;
 }
 
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
@@ -281,12 +326,16 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
   auto r = regex<>::create(PCI_DEV_PATTERN);
 
   auto m = r->match(pci_path);
-  dev.segment = std::stoi(m->group(1), nullptr, 16);
-  dev.bus = std::stoi(m->group(2), nullptr, 16);
-  dev.device = std::stoi(m->group(3), nullptr, 10);
-  dev.function = std::stoi(m->group(4), nullptr, 10);
-  dev.vendor_id = ven_id;
-  dev.device_id = dev_id;
+  if (m) {
+    dev.segment = std::stoi(m->group(1), nullptr, 16);
+    dev.bus = std::stoi(m->group(2), nullptr, 16);
+    dev.device = std::stoi(m->group(3), nullptr, 10);
+    dev.function = std::stoi(m->group(4), nullptr, 10);
+    dev.vendor_id = ven_id;
+    dev.device_id = dev_id;
+  } else {
+    std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
+  }
   return dev;
 }
 
@@ -337,4 +386,3 @@ bool fpga_db::exists(const std::string &key) {
 
 }  // end of namespace testing
 }  // end of namespace opae
-
