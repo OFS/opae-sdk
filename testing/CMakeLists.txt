@@ -454,7 +454,7 @@ add_unit_test(test_fpgad_ap6_c fpgad-static
 # RAS tests ##############################################################
 ############################################################################
 
-add_mock_test(test_ras_c ras-static
+add_unit_test(test_ras_c ras-static
     ras/test_main_c.cpp
 )
 
@@ -498,7 +498,7 @@ add_unit_test(test_hello_fpga_c hello_fpga-static
 # hello_events tests #######################################################
 ############################################################################
 
-add_mock_test(test_hello_events_c hello_events-static
+add_unit_test(test_hello_events_c hello_events-static
     hello_events/test_hello_events_c.cpp
 )
 target_link_libraries(test_hello_events_c fpgad-static safestr)
