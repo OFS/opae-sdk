@@ -27,11 +27,19 @@
 #include <opae/fpga.h>
 extern "C"{
 
+struct options{
+   int bus;
+   float interval_sec;
+};
+
+extern struct options options;
+
 void print_err(const char*, fpga_result);
 fpga_result parse_args(int argc, char* argv[]);
 int object_api_main(int argc, char* argv[]);
 }
 
+#include <config.h>
 #include <intel-fpga.h>
 #include <getopt.h>
 #include <string.h>
@@ -52,13 +60,17 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
+
     optind = 0;
+    opts_ = options;
   }
 
   virtual void TearDown() override {
+    options = opts_;
     system_->finalize();
   }
 
+  struct options opts_;
   test_platform platform_;
   test_system *system_;
 };
@@ -101,13 +113,12 @@ TEST_P(object_api_c_p, parse_args0) {
 TEST_P(object_api_c_p, parse_args1) {
   char zero[20];
   char one[20];
-  char two[20];
   strcpy(zero, "object_api");
   strcpy(one, "-B");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one };
 
-  EXPECT_NE(parse_args(3, argv), FPGA_OK);
+  EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
 
 /**
@@ -142,7 +153,6 @@ TEST_P(object_api_c_p, parse_args3) {
   char zero[20];
   char one[20];
   char two[20];
-  char three[20];
   strcpy(zero, "object_api");
   strcpy(one, "-B");
   strcpy(two, "3");
@@ -150,6 +160,7 @@ TEST_P(object_api_c_p, parse_args3) {
   char *argv[] = { zero, one, two };
 
   EXPECT_EQ(parse_args(3, argv), FPGA_OK);
+  EXPECT_EQ(opts_.bus, 3);
 }
 
 /**
@@ -171,31 +182,12 @@ TEST_P(object_api_c_p, main0) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 
-class object_api_c_mock_p : public ::testing::TestWithParam<std::string> {
+class object_api_c_mock_p : public object_api_c_p {
  protected:
   object_api_c_mock_p() {}
-
-  virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    optind = 0;
-  }
-
-  virtual void TearDown() override {
-    system_->finalize();
-  }
-
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -227,4 +219,34 @@ TEST_P(object_api_c_mock_p, main1) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+
+
+class object_api_c_hw_p : public object_api_c_p {
+ protected:
+  object_api_c_hw_p() {}
+};
+
+/**
+ * @test       main1
+ * @brief      Test: object_api_main
+ * @details    When given a valid command line,<br>
+ *             object_api_main checks *perf directories.<br>
+ *             to add counter, print counters and<br>
+ *             return FPGA_OK.<br>
+ */
+TEST_P(object_api_c_hw_p, main1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({})));
