@@ -115,6 +115,11 @@ fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
 /**
  * @brief Free memory used for the fpga_object data structure
  *
+ * @note fpgaDestroyObject() requires the address of an fpga_object
+ * as created by fpgaTokenGetObject(), fpgaHandleGetObject(),
+ * or fpgaObjectGetObject(). Passing any other value results in
+ * undefind behavior.
+ *
  * @param obj Pointer to the fpga_object instance to destroy
  *
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if the object is NULL,

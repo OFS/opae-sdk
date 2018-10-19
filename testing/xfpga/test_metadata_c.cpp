@@ -29,7 +29,7 @@ extern "C" {
 fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
 }
 
-
+#include <uuid/uuid.h>
 #include <bitstream_int.h>
 #include <types_int.h>
 #include "gtest/gtest.h"
@@ -52,7 +52,11 @@ class metadata_c
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    fpga_guid fme_guid;
+
+    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 						&num_matches_),  FPGA_OK);

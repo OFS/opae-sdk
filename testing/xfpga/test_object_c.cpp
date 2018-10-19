@@ -23,6 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <uuid/uuid.h>
 #include <fstream>
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -42,16 +44,21 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
-              FPGA_OK);
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
     invalid_device_ = test_device::unknown();
+
+    fpga_guid fme_guid;
+
+    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetGUID(dev_filter_, fme_guid), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
+              FPGA_OK);
   }
 
   virtual void TearDown() override {
@@ -78,6 +85,10 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
   fpga_properties dev_filter_;
   fpga_properties acc_filter_;
 };
+
+
+class mock_sysobject_p : public sysobject_p{};
+class hw_sysobject_p : public sysobject_p{};
 
 TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   uint32_t num_matches = 0;
@@ -144,7 +155,7 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
   EXPECT_EQ(xfpga_fpgaDestroyObject(NULL), FPGA_INVALID_PARAM);
 }
 
-TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
+TEST_P(mock_sysobject_p, xfpga_fpgaObjectRead) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -159,7 +170,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   fflush(fp);
   fpga_object object;
   int flags = 0;
-  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
             FPGA_OK);
   std::vector<uint8_t> buffer(DATA.size());
   EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, DATA.size() + 1, 0),
@@ -179,7 +190,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectRead) {
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
-TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
+TEST_P(mock_sysobject_p, xfpga_fpgaObjectWrite64) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -219,7 +230,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectWrite64) {
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
-TEST_P(sysobject_p, xfpga_fpgaGetSize) {
+TEST_P(mock_sysobject_p, xfpga_fpgaGetSize) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -241,5 +252,8 @@ TEST_P(sysobject_p, xfpga_fpgaGetSize) {
   EXPECT_EQ(value, DATA.size());
 }
 
+
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms()));
+INSTANTIATE_TEST_CASE_P(sysobject_c, mock_sysobject_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
