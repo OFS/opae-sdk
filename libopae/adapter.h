@@ -196,9 +196,8 @@ typedef struct _opae_dma_adapter_table {
 	opae_plugin plugin;
 	fpga_guid guid;
 
-	fpga_result (*fpgaDMAOpen)(fpga_handle handle, uint64_t dma_mmio_base,
-			void *dma_priv_config, fpga_feature_handle *dma_handle);
-	fpga_result (*fpgaDMAClose)(fpga_feature_handle dma_handle);
+	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token, fpgaDMAProperties *prop,
+				int max_ch);
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
 			transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferCB)(fpga_feature_handle dma,

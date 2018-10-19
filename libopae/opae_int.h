@@ -222,6 +222,9 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 	free(wo);
 }
 
+union _fpgaSubFeatureProperty {
+	fpgaDMAProperties dma_prop;
+};
 //                                  f e a t    
 #define OPAE_FEATURE_TOKEN_MAGIC 0x66656174
 #define OPAE_INVALID_MAGIC 0x46504741
@@ -231,6 +234,7 @@ struct _fpga_feature_token {
 	uint32_t feature_type;
 	fpga_guid feature_guid;
 	fpga_handle handle;
+	opae_dma_adapter_table *dma_adapter_table;
 	pthread_mutex_t lock;
 	struct _fpga_feature_token *next;
 };
@@ -247,7 +251,6 @@ struct _fpga_feature_handle {
 	uint64_t mmio_offset;
 	uint64_t feature_base;
 	uint64_t feature_offset;
-	fpgaDMAProperties dma_prop;
 	opae_dma_adapter_table *dma_adapter_table;
 	fpga_event_handle *eh_root;
 };

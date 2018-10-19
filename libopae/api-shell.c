@@ -1509,7 +1509,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
-    
+ 
 	if ((max_tokens > 0) && !tokens) {
 		OPAE_ERR("max_tokens > 0 with NULL tokens");
 		return FPGA_INVALID_PARAM;
@@ -1624,6 +1624,34 @@ out_unlock:
 	return res;
 }
 
+fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
+	fpga_feature_properties *prop)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_feature_token *_ftoken;
+	errno_t e;
+
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(prop);
+
+	_ftoken = (struct _fpga_feature_token *)token;
+
+	if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
+		OPAE_ERR("Invalid feature token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	prop->type = (fpga_feature_type )_ftoken->feature_type;
+	e = memcpy_s(prop->guid, sizeof(fpga_guid), _ftoken->feature_guid,
+		sizeof(fpga_guid));
+
+	if (EOK != e) {
+		OPAE_ERR("memcpy_s failed");
+	}
+
+	return res;
+}
+
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
                             void *priv_config, fpga_feature_handle *handle)
 {
@@ -1636,9 +1664,8 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(handle);
-	ASSERT_NOT_NULL(handle);
 
-	if (flags & ~FPGA_OPEN_SHARED) {
+	if (flags & ~FPGA_OPEN_SHARED) {    // TODO: check flag
 		OPAE_ERR("unrecognized flags");
 		return FPGA_INVALID_PARAM;
 	}
@@ -1660,13 +1687,17 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 	memset_s(_fhandle, sizeof(*_fhandle), 0);
 
 	adapter = get_dma_plugin_adapter(_ftoken->feature_guid);
-	// mark data structure as valid
+
+	if (NULL == adapter) {
+		OPAE_ERR("Failed to find the feature plugin library");
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
+
 	_fhandle->magic = OPAE_FEATURE_HANDLE_MAGIC;
+	_ftoken->dma_adapter_table = adapter;
 	_fhandle->feature_token = token;
 	_fhandle->dma_adapter_table = adapter;
-
-	// res = adapter->fpgaDMAOpen();
-	//_fhandle->dma_prop = 
 
 	if (pthread_mutexattr_init(&mattr)) {
 		OPAE_MSG("Failed to init feature handle mutex attributes");
@@ -1719,4 +1750,44 @@ fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 	free(_fhandle);
 
 	return res;
+}
+
+fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+									int max_ch)
+{
+	struct _fpga_feature_token *_ftoken;
+
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(prop);
+
+	_ftoken = (struct _fpga_feature_token *)token;
+
+	return _ftoken->dma_adapter_table->fpgaDMAPropertiesGet(token, prop, max_ch);
+
+}
+
+fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
+{
+	struct _fpga_feature_handle *_fhandle;
+
+	ASSERT_NOT_NULL(dma_h);
+	ASSERT_NOT_NULL(xfer_list);
+
+	_fhandle = (struct _fpga_feature_handle *)dma_h;
+	return _fhandle->dma_adapter_table->fpgaDMATransferSync(dma_h, xfer_list);
+
+}
+
+fpga_result fpgaDMATransferCB(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+								fpga_dma_cb cb, void *context)
+{
+	struct _fpga_feature_handle *_fhandle;
+
+	ASSERT_NOT_NULL(dma_h);
+	ASSERT_NOT_NULL(dma_xfer);
+	ASSERT_NOT_NULL(context);
+
+	_fhandle = (struct _fpga_feature_handle *)dma_h;
+	return _fhandle->dma_adapter_table->fpgaDMATransferCB(dma_h, dma_xfer, cb, context);
+
 }

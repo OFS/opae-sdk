@@ -95,7 +95,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
 		goto out_free;
-	}	
+	}
 
 	tmp->next = ftoken_root;
 	ftoken_root = tmp;
