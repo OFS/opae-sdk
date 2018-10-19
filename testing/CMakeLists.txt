@@ -520,7 +520,7 @@ target_link_libraries(test_hello_events_c fpgad-static safestr)
 # object_api tests #######################################################
 ############################################################################
 
-add_mock_test(test_object_api_c object_api-static
+add_unit_test(test_object_api_c object_api-static
     object_api/test_object_api_c.cpp
 )
 
