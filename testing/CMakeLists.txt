@@ -518,9 +518,10 @@ add_custom_command(TARGET test_unit
 
 
 
- ############################################################################
- # pyopae tests #############################################################
- ############################################################################
+############################################################################
+# pyopae tests #############################################################
+############################################################################
+if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
  add_executable(test_pyopae
      ${MOCK_C}
      pyopae/test_pyopae.cpp
@@ -549,7 +550,7 @@ add_library(embed INTERFACE)
 target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
      test_system ${PYTHON_LIBRARIES}
      PRIVATE embed)
- add_dependencies(test_unit test_pyopae)
+add_dependencies(test_unit test_pyopae)
 
 macro(add_pyopae_test pytest)
     add_custom_command(TARGET test_pyopae
@@ -567,3 +568,5 @@ endmacro(add_pyopae_test pytest)
 
 add_pyopae_test(test_properties.py)
 add_pyopae_test(test_shared_buffers.py)
+
+endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
