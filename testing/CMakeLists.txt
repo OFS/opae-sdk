@@ -521,7 +521,7 @@ add_custom_command(TARGET test_unit
 ############################################################################
 # pyopae tests #############################################################
 ############################################################################
-if (PYTHONLIBS_VERSION_STRING GREATER "3.0.0")
+if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
  add_executable(test_pyopae
      ${MOCK_C}
      pyopae/test_pyopae.cpp
@@ -569,4 +569,4 @@ endmacro(add_pyopae_test pytest)
 add_pyopae_test(test_properties.py)
 add_pyopae_test(test_shared_buffers.py)
 
-endif(PYTHONLIBS_VERSION_STRING GREATER "3.0.0")
+endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
