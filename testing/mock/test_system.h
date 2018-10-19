@@ -38,6 +38,7 @@
 #include <json-c/json.h>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include "platform/fpga_hw.h"
 
 extern "C" {
@@ -158,6 +159,7 @@ class test_system {
  private:
   test_system();
   std::mutex fds_mutex_;
+  std::atomic_bool initialized_;
   std::string root_;
   std::map<int, mock_object *> fds_;
   std::map<int, ioctl_handler_t> default_ioctl_handlers_;

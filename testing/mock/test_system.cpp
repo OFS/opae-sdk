@@ -180,7 +180,7 @@ test_device test_device::unknown() {
 
 test_system *test_system::instance_ = nullptr;
 
-test_system::test_system() : root_("") {
+test_system::test_system() : initialized_(false), root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
   open_create_ = (open_create_func)open_;
   read_ = (read_func)dlsym(RTLD_NEXT, "read");
@@ -298,9 +298,14 @@ void test_system::initialize() {
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
+  initialized_ = true;
 }
 
 void test_system::finalize() {
+  if (!initialized_) {
+    return;
+  }
+  initialized_ = false;
   std::lock_guard<std::mutex> guard(fds_mutex_);
   for (auto kv : fds_) {
     if (kv.second) {
@@ -396,6 +401,9 @@ uint32_t get_device_id(const std::string &sysclass) {
 }
 
 int test_system::open(const std::string &path, int flags) {
+  if (!initialized_) {
+    return open_(path.c_str(), flags);
+  }
   std::string syspath = get_sysfs_path(path);
   int fd;
   auto r1 = regex<>::create(sysclass_pattern);
@@ -439,6 +447,10 @@ int test_system::open(const std::string &path, int flags) {
 }
 
 int test_system::open(const std::string &path, int flags, mode_t mode) {
+  if (!initialized_) {
+    return open_create_(path.c_str(), flags, mode);
+  }
+
   std::string syspath = get_sysfs_path(path);
   int fd = open_create_(syspath.c_str(), flags, mode);
   if (syspath.find(root_) == 0) {
@@ -544,11 +556,13 @@ int test_system::pclose(FILE *stream) {
 }
 
 int test_system::close(int fd) {
-  std::lock_guard<std::mutex> guard(fds_mutex_);
-  std::map<int, mock_object *>::iterator it = fds_.find(fd);
-  if (it != fds_.end()) {
-    delete it->second;
-    fds_.erase(it);
+  if (initialized_) {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    std::map<int, mock_object *>::iterator it = fds_.find(fd);
+    if (it != fds_.end()) {
+      delete it->second;
+      fds_.erase(it);
+    }
   }
   return close_(fd);
 }
