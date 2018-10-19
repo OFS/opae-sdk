@@ -26,6 +26,8 @@
 import struct
 import sys
 
+# pylint: disable=E0602, E0603
+
 class TestSharedBuffer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

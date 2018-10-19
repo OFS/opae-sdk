@@ -27,6 +27,8 @@ import uuid
 import unittest
 NLB0 = "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
+# pylint: disable=E0602, E0603
+
 class TestProperties(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
