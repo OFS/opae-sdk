@@ -91,7 +91,7 @@ typedef struct {
 	fpga_object clock;
 } token_group;
 
-struct {
+struct config {
 	int bus;
 	float interval_sec;
 } options = { -1, 1.0};

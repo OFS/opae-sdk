@@ -27,12 +27,11 @@
 #include <opae/fpga.h>
 extern "C"{
 
-struct options{
-   int bus;
-   float interval_sec;
+struct config {
+  int bus;
+  float interval_sec;
 };
-
-extern struct options options;
+extern struct config options;
 
 void print_err(const char*, fpga_result);
 fpga_result parse_args(int argc, char* argv[]);
@@ -62,15 +61,15 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
     optind = 0;
-    opts_ = options;
+    options_ = options;
   }
 
   virtual void TearDown() override {
-    options = opts_;
+    options = options_;
     system_->finalize();
   }
 
-  struct options opts_;
+  struct config options_;
   test_platform platform_;
   test_system *system_;
 };
@@ -159,8 +158,9 @@ TEST_P(object_api_c_p, parse_args3) {
 
   char *argv[] = { zero, one, two };
 
+  EXPECT_EQ(options.bus, -1);
   EXPECT_EQ(parse_args(3, argv), FPGA_OK);
-  EXPECT_EQ(opts_.bus, 3);
+  EXPECT_EQ(options.bus, 3);
 }
 
 /**
@@ -220,7 +220,6 @@ TEST_P(object_api_c_mock_p, main1) {
 
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
-
 
 class object_api_c_hw_p : public object_api_c_p {
  protected:
