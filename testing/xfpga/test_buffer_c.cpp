@@ -186,18 +186,6 @@ class buffer_prepare
   test_system *system_;
 };
 
-//TEST(buffer, test_buffer_allocate){
-//  uint64_t len;
-//  uint64_t* buf_addr;
-//  int flags = 0;
-//
-//  auto res = buffer_allocate(buf_addr, 3 * MB, flags);
-//  EXPECT_EQ(res, FPGA_INVALID_PARAM);
-//
-//  res = buffer_release(&buf_addr, 3 * MB);
-//  EXPECT_EQ(res, FPGA_INVALID_PARAM);
-//}
-
 /**
  * @test       PrepPre2MB01
  *
@@ -293,28 +281,6 @@ TEST_P(buffer_prepare, xfpga_fpgaPrepareBuffer) {
   }
 }
 
-TEST_P(buffer_prepare, port_dma_unmap) {
-  void *buf_addr = 0;
-  uint64_t wsid = 0;
-  uint64_t buf_len = KiB(1);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
-  EXPECT_EQ(res, FPGA_OK);
-
-  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP,dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
-        << "result is " << fpgaErrStr(res);
-}
-
-TEST_P(buffer_prepare, port_dma_map) {
-  void *buf_addr = 0;
-  uint64_t wsid = 0;
-  uint64_t buf_len = KiB(1);
-
-  system_->register_ioctl_handler(FPGA_PORT_DMA_MAP,dummy_ioctl<-1,EINVAL>);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
-  EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
-}
-
 /**
  * @test       release_neg
  *
@@ -397,3 +363,72 @@ INSTANTIATE_TEST_CASE_P(
     buffer_c, buffer_prepare,
     ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
                        ::testing::ValuesIn(params)));
+
+class buffer_c_mock_p
+    : public ::testing::TestWithParam<std::string> {
+ protected:
+  buffer_c_mock_p()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
+
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                            &num_matches_),
+              FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  }
+
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
+        t = nullptr;
+      }
+    }
+
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    system_->finalize();
+  }
+
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+};
+
+TEST_P(buffer_c_mock_p, port_dma_unmap) {
+  void *buf_addr = 0;
+  uint64_t wsid = 0;
+  uint64_t buf_len = KiB(1);
+  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
+  EXPECT_EQ(res, FPGA_OK);
+
+  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
+        << "result is " << fpgaErrStr(res);
+}
+
+TEST_P(buffer_c_mock_p, port_dma_map) {
+  void *buf_addr = 0;
+  uint64_t wsid = 0;
+  uint64_t buf_len = KiB(1);
+
+  system_->register_ioctl_handler(FPGA_PORT_DMA_MAP, dummy_ioctl<-1,EINVAL>);
+  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
+  EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
+}
+
+INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
