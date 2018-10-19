@@ -50,7 +50,7 @@ class error_c_p
  public:
   int delete_errors(std::string,std::string);
  protected:
-  error_c_p() {}
+  error_c_p() : filter_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -73,20 +73,19 @@ class error_c_p
     fake_fme_token_.device_instance = 0;
     fake_fme_token_.subdev_instance = 0;
     fake_fme_token_.errors = nullptr;
-
-    filter_ = nullptr;
   }
 
   virtual void TearDown() override {
     if (filter_) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+      filter_ = nullptr;
     }
     token_cleanup();
     system_->finalize();
   }
 
-  std::string tmpsysfs_;
   fpga_properties filter_;
+  std::string tmpsysfs_;
   test_platform platform_;
   test_system *system_;
   _fpga_token fake_fme_token_;
