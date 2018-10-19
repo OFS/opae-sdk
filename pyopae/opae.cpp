@@ -1,5 +1,6 @@
 #include <Python.h>
 
+#include <opae/fpga.h>
 #include <opae/cxx/core/token.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -18,7 +19,15 @@ using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
 
+#ifdef OPAE_EMBEDDED
+#include <pybind11/embed.h>
+PYBIND11_EMBEDDED_MODULE(_opae, m) {
+  m.def("initialize", &fpgaInitialize);
+#else
 PYBIND11_MODULE(_opae, m) {
+  fpgaInitialize(nullptr);
+#endif
+
   py::options opts;
   // opts.disable_function_signatures();
 
@@ -181,4 +190,5 @@ PYBIND11_MODULE(_opae, m) {
       .def("read_value", &error::read_value, error_doc_read_value());
 
   m.def("errors", error_errors, error_doc_errors());
+
 }

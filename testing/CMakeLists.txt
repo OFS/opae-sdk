@@ -170,7 +170,7 @@ target_include_directories(hello_events-static PUBLIC
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
-
+add_dependencies(test_unit xfpga)
 if (ENABLE_MOCK)
     set(MOCK_C mock/mock.c)
 endif(ENABLE_MOCK)
@@ -214,8 +214,8 @@ include_directories(
     ${OPAE_SDK_SOURCE}/tools/base
     mock
     ${GTEST_INCLUDE_DIRS}
-    {CMAKE_CURRENT_SOURCE_DIR}
-    {CMAKE_CURRENT_SOURCE_DIR}/mock
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock
     )
 
 ############################################################################
@@ -515,3 +515,55 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
     ${CMAKE_BINARY_DIR}
     )
+
+
+
+ ############################################################################
+ # pyopae tests #############################################################
+ ############################################################################
+ add_executable(test_pyopae
+     ${MOCK_C}
+     pyopae/test_pyopae.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/opae.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pycontext.h
+     ${OPAE_SDK_SOURCE}/pyopae/pycontext.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pytoken.h
+     ${OPAE_SDK_SOURCE}/pyopae/pytoken.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp)
+target_compile_definitions(test_pyopae PRIVATE
+    OPAE_EMBEDDED)
+target_include_directories(test_pyopae
+     PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
+     PRIVATE ${PYTHON_INCLUDE_DIRS}
+     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(embed INTERFACE)
+target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
+     test_system ${PYTHON_LIBRARIES}
+     PRIVATE embed)
+ add_dependencies(test_unit test_pyopae)
+
+macro(add_pyopae_test pytest)
+    add_custom_command(TARGET test_pyopae
+       POST_BUILD
+       COMMAND ${CMAKE_COMMAND} -E copy
+       ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/${pytest}
+       ${CMAKE_BINARY_DIR}
+       )
+    add_test(
+        NAME ${pytest}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:test_pyopae> test ${pytest}
+    )
+endmacro(add_pyopae_test pytest)
+
+add_pyopae_test(test_properties.py)
+add_pyopae_test(test_shared_buffers.py)
