@@ -135,6 +135,12 @@ fpga_result fpgaInitialize(const char *config_file)
 						       : FPGA_OK;
 }
 
+fpga_result fpgaFinalize(void)
+{
+	return opae_plugin_mgr_finalize_all() ? FPGA_EXCEPTION
+					      : FPGA_OK;
+}
+
 fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result res;

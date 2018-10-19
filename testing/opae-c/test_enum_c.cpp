@@ -209,17 +209,20 @@ TEST_P(enum_c_p, parent) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
+  EXPECT_EQ(num_matches_, 1);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
 }
 
 TEST_P(enum_c_p, segment) {
   auto device = platform_.devices[0];
+  auto seg = device.segment;
+  auto count = COUNT_DEVICES(platform_, segment, seg);
   ASSERT_EQ(fpgaPropertiesSetSegment(filter_, device.segment), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  // multiply by two to account for port/fme devices
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -231,13 +234,17 @@ TEST_P(enum_c_p, segment) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+
 TEST_P(enum_c_p, bus) {
   auto device = platform_.devices[0];
+  auto bus = device.bus;
+  auto count = COUNT_DEVICES(platform_, bus, bus);
   ASSERT_EQ(fpgaPropertiesSetBus(filter_, device.bus), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  // multiply by two to account for port/fme devices
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -250,11 +257,13 @@ TEST_P(enum_c_p, bus) {
 
 TEST_P(enum_c_p, device) {
   auto device = platform_.devices[0];
+  auto devnum = device.device;
+  auto count = COUNT_DEVICES(platform_, device, devnum);
   ASSERT_EQ(fpgaPropertiesSetDevice(filter_, device.device), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -267,11 +276,13 @@ TEST_P(enum_c_p, device) {
 
 TEST_P(enum_c_p, function) {
   auto device = platform_.devices[0];
+  auto function = device.function;
+  auto count = COUNT_DEVICES(platform_, function, function);
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, device.function), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -303,11 +314,13 @@ TEST_P(enum_c_p, socket_id) {
 
 TEST_P(enum_c_p, vendor_id) {
   auto device = platform_.devices[0];
+  auto vendor_id = device.vendor_id;
+  auto count = COUNT_DEVICES(platform_, vendor_id, vendor_id);
   ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, device.vendor_id), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -321,11 +334,13 @@ TEST_P(enum_c_p, vendor_id) {
 
 TEST_P(enum_c_p, device_id) {
   auto device = platform_.devices[0];
+  auto device_id = device.device_id;
+  auto count = COUNT_DEVICES(platform_, device_id, device_id);
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  EXPECT_EQ(num_matches_, count*2);
 
   DestroyTokens();
 
@@ -373,23 +388,26 @@ TEST_P(enum_c_p, object_id) {
 
 TEST_P(enum_c_p, num_errors) {
   auto device = platform_.devices[0];
+  auto fme_num_err = device.fme_num_errors;
+  auto count = COUNT_DEVICES(platform_, fme_num_errors, fme_num_err);
   // fme num_errors
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
             FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, count);
 
   DestroyTokens();
-
+  auto port_num_err = device.port_num_errors;
+  count = COUNT_DEVICES(platform_, port_num_errors, port_num_err);
   // afu num_errors
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
             FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, count);
 
   DestroyTokens();
 
@@ -414,7 +432,7 @@ TEST_P(enum_c_p, guid) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -423,7 +441,7 @@ TEST_P(enum_c_p, guid) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -439,7 +457,7 @@ TEST_P(enum_c_p, clone_token01) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  ASSERT_EQ(num_matches_, 2);
+  ASSERT_EQ(num_matches_, platform_.devices.size()*2);
   fpga_token src = tokens_[0];
   fpga_token dst = nullptr;
   EXPECT_EQ(fpgaCloneToken(src, &dst), FPGA_OK);
@@ -450,7 +468,7 @@ TEST_P(enum_c_p, clone_token02) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  ASSERT_EQ(num_matches_, 2);
+  ASSERT_EQ(num_matches_, platform_.devices.size()*2);
   fpga_token src = tokens_[0];
   fpga_token dst = nullptr;
   // Invalidate the allocation of the wrapped token.
@@ -462,7 +480,7 @@ TEST_P(enum_c_p, clone_wo_src_dst) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 2);
+  EXPECT_EQ(num_matches_, platform_.devices.size()*2);
   fpga_token src = tokens_[0];
   fpga_token dst;
   EXPECT_EQ(fpgaCloneToken(NULL, &dst), FPGA_INVALID_PARAM);
@@ -489,7 +507,7 @@ TEST_P(enum_c_p, num_slots) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -508,7 +526,7 @@ TEST_P(enum_c_p, bbs_id) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -526,7 +544,7 @@ TEST_P(enum_c_p, bbs_version) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -545,7 +563,7 @@ TEST_P(enum_c_p, state) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -564,7 +582,7 @@ TEST_P(enum_c_p, num_mmio) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 
@@ -585,7 +603,7 @@ TEST_P(enum_c_p, num_interrupts) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
 
   DestroyTokens();
 

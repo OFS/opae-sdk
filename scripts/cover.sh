@@ -6,14 +6,14 @@ mkdir -p unittests
 cd unittests
 
 if [ ! -f CMakeCache.txt ]; then
-	cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DNEW_UNITS=ON -DBUILD_LIBOPAE_PY=OFF
+	cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DNEW_UNITS=ON -DBUILD_LIBOPAE_PY=ON
 fi
 
 mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make -j 4 test_unit xfpga
+make -j4 test_unit xfpga
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base

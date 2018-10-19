@@ -163,6 +163,11 @@ fpga_result fpgaCloneProperties(fpga_properties src, fpga_properties *dst);
  * Destroys an existing fpga_properties object that the caller has previously
  * created using fpgaGetProperties() or fpgaCloneProperties().
  *
+ * @note fpgaDestroyProperties() requires the address of an fpga_properties
+ * object, similar to fpgaGetPropertiesFromHandle(), fpgaGetProperties(),
+ * and fpgaCloneProperties(). Passing any other value results in undefined
+ * behavior.
+ *
  * @param[inout]  prop    Pointer to the fpga_properties object to destroy
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM is `prop` is not a valid
  * object. FPGA_EXCEPTION if an internal exception occurrred while trying to

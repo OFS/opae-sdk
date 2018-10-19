@@ -456,7 +456,6 @@ TEST_P(ras_c_p, test_page_fault_errors){
  *             FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_p, invalid_print_token_errors){
-  uint32_t num_matches = 0;
   fpga_token tok = nullptr;
   const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
 
