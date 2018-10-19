@@ -23,6 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <uuid/uuid.h>
 #include <fstream>
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -42,16 +44,21 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
-              FPGA_OK);
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
     invalid_device_ = test_device::unknown();
+
+    fpga_guid fme_guid;
+
+    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetGUID(dev_filter_, fme_guid), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
+              FPGA_OK);
   }
 
   virtual void TearDown() override {
