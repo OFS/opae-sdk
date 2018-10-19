@@ -49,6 +49,13 @@ extern "C" {
  */
 fpga_result fpgaInitialize(const char *config_file);
 
+/**
+ * Finalize the OPAE library.
+ *
+ * @returns Whether OPAE finalized successfully.
+ */
+fpga_result fpgaFinalize(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
