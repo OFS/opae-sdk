@@ -325,7 +325,8 @@ TEST_P(openclose_c_p, open_share) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
 }
 
-INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 /**
  * @test       invalid_open_close
@@ -382,4 +383,4 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
 }
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
