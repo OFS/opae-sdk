@@ -85,7 +85,7 @@ const char *rc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "bb0023cf-0bd2-579a-90ef-97fe743a6c63",
+     "interface-uuid": "9926ab6d-6c92-5a68-aabc-a7d84c545738",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -127,7 +127,7 @@ static platform_db MOCK_PLATFORMS = {
     {"dcp-rc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
                    .devices = {test_device{
-                       .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
+                       .fme_guid = "9926AB6D-6C92-5A68-AABC-A7D84C545738",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
                        .segment = 0x0,
                        .bus = 0x05,
