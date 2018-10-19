@@ -112,6 +112,16 @@ target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(ras-static
+    ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
+
+target_compile_definitions(ras-static PRIVATE main=ras_main)
+
+target_include_directories(ras-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 add_library(coreidle-static
     ${OPAE_SDK_SOURCE}/tools/extra/coreidle/coreidle.c
     ${OPAE_SDK_SOURCE}/tools/extra/coreidle/main.c
@@ -160,10 +170,14 @@ target_include_directories(hello_events-static PUBLIC
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
+add_dependencies(test_unit xfpga)
+if (ENABLE_MOCK)
+    set(MOCK_C mock/mock.c)
+endif(ENABLE_MOCK)
 
-macro(add_mock_test test_name static_lib)
+macro(add_unit_test test_name static_lib)
     add_executable(${test_name}
-        mock/mock.c
+        ${MOCK_C}
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -184,7 +198,7 @@ macro(add_mock_test test_name static_lib)
         )
     add_dependencies(test_unit ${test_name})
 
-endmacro(add_mock_test test_name)
+endmacro(add_unit_test test_name)
 
 
 ############################################################################
@@ -200,76 +214,76 @@ include_directories(
     ${OPAE_SDK_SOURCE}/tools/base
     mock
     ${GTEST_INCLUDE_DIRS}
-    {CMAKE_CURRENT_SOURCE_DIR}
-    {CMAKE_CURRENT_SOURCE_DIR}/mock
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock
     )
 
 ############################################################################
 # opae-c tests #############################################################
 ############################################################################
 
-add_mock_test(test_opae_enum_c opae-c-static
+add_unit_test(test_opae_enum_c opae-c-static
     opae-c/test_enum_c.cpp
 )
 
-add_mock_test(test_opae_open_c opae-c-static
+add_unit_test(test_opae_open_c opae-c-static
     opae-c/test_open_c.cpp
 )
 
-add_mock_test(test_opae_props_c opae-c-static
+add_unit_test(test_opae_props_c opae-c-static
     opae-c/test_props_c.cpp
 )
 
-add_mock_test(test_opae_reset_c opae-c-static
+add_unit_test(test_opae_reset_c opae-c-static
     opae-c/test_reset_c.cpp
 )
 
-add_mock_test(test_opae_mmio_c opae-c-static
+add_unit_test(test_opae_mmio_c opae-c-static
     opae-c/test_mmio_c.cpp
 )
 
-add_mock_test(test_opae_umsg_c opae-c-static
+add_unit_test(test_opae_umsg_c opae-c-static
     opae-c/test_umsg_c.cpp
 )
 
-add_mock_test(test_opae_buffer_c opae-c-static
+add_unit_test(test_opae_buffer_c opae-c-static
     opae-c/test_buffer_c.cpp
 )
 
-add_mock_test(test_opae_version_c opae-c-static
+add_unit_test(test_opae_version_c opae-c-static
     opae-c/test_version_c.cpp
 )
 
-add_mock_test(test_opae_error_c opae-c-static
+add_unit_test(test_opae_error_c opae-c-static
     opae-c/test_error_c.cpp
 )
 
-add_mock_test(test_opae_event_c opae-c-static
+add_unit_test(test_opae_event_c opae-c-static
     opae-c/test_event_c.cpp
 )
 target_link_libraries(test_opae_event_c fpgad-static safestr)
 
-add_mock_test(test_opae_hostif_c opae-c-static
+add_unit_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
 )
 
-add_mock_test(test_opae_reconf_c opae-c-static
+add_unit_test(test_opae_reconf_c opae-c-static
     opae-c/test_reconf_c.cpp
 )
 
-add_mock_test(test_opae_object_c opae-c-static
+add_unit_test(test_opae_object_c opae-c-static
     opae-c/test_object_c.cpp
 )
 
-add_mock_test(test_opae_usrclk_c opae-c-static
+add_unit_test(test_opae_usrclk_c opae-c-static
     opae-c/test_usrclk_c.cpp
 )
 
-add_mock_test(test_opae_init_c opae-c-static
+add_unit_test(test_opae_init_c opae-c-static
     opae-c/test_init_c.cpp
 )
 
-add_mock_test(test_opae_pluginmgr_c opae-c-static
+add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
 
@@ -277,37 +291,37 @@ add_mock_test(test_opae_pluginmgr_c opae-c-static
 # cxx core tests ###########################################################
 ############################################################################
 
-add_mock_test(test_opae_handle_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_handle_cxx_core opae-cxx-core-static
     opae-cxx/test_handle_cxx_core.cpp
 )
 
-add_mock_test(test_opae_buffer_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_buffer_cxx_core opae-cxx-core-static
     opae-cxx/test_buffer_cxx_core.cpp
 )
 
-add_mock_test(test_opae_errors_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_errors_cxx_core opae-cxx-core-static
     opae-cxx/test_errors_cxx_core.cpp
 )
 
-add_mock_test(test_opae_events_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_events_cxx_core opae-cxx-core-static
     opae-cxx/test_events_cxx_core.cpp
 )
 target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
         ${libjson-c_LIBRARIES})
 
-add_mock_test(test_opae_properties_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_properties_cxx_core opae-cxx-core-static
     opae-cxx/test_properties_cxx_core.cpp
 )
 
-add_mock_test(test_opae_version_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_version_cxx_core opae-cxx-core-static
     opae-cxx/test_version_cxx_core.cpp
 )
 
-add_mock_test(test_opae_except_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_except_cxx_core opae-cxx-core-static
     opae-cxx/test_except_cxx_core.cpp
 )
 
-add_mock_test(test_opae_object_cxx_core opae-cxx-core-static
+add_unit_test(test_opae_object_cxx_core opae-cxx-core-static
     opae-cxx/test_object_cxx_core.cpp
 )
 
@@ -315,86 +329,86 @@ add_mock_test(test_opae_object_cxx_core opae-cxx-core-static
 # xfpga tests ##############################################################
 ############################################################################
 
-add_mock_test(test_xfpga_token_list_c xfpga-static
+add_unit_test(test_xfpga_token_list_c xfpga-static
     xfpga/test_token_list_c.cpp
 )
 
-add_mock_test(test_xfpga_error_c xfpga-static
+add_unit_test(test_xfpga_error_c xfpga-static
     xfpga/test_error_c.cpp
 )
 
 set_tests_properties(test_xfpga_error_c
     PROPERTIES ENVIRONMENT "LIBOPAE_LOG=1")
                      
-add_mock_test(test_xfpga_mock_errinj_c xfpga-static
+add_unit_test(test_xfpga_mock_errinj_c xfpga-static
     xfpga/test_mock_errinj_c.cpp
 )
 
-add_mock_test(test_xfpga_common_c xfpga-static
+add_unit_test(test_xfpga_common_c xfpga-static
     xfpga/test_common_c.cpp
 )
 
-add_mock_test(test_xfpga_properties_c xfpga-static
+add_unit_test(test_xfpga_properties_c xfpga-static
     xfpga/test_properties_c.cpp
 )
 
-add_mock_test(test_xfpga_object_c xfpga-static
+add_unit_test(test_xfpga_object_c xfpga-static
     xfpga/test_object_c.cpp
 )
 
-add_mock_test(test_xfpga_enum_c xfpga-static
+add_unit_test(test_xfpga_enum_c xfpga-static
     xfpga/test_enum_c.cpp
 )
 
-add_mock_test(test_xfpga_buffer_c xfpga-static
+add_unit_test(test_xfpga_buffer_c xfpga-static
     xfpga/test_buffer_c.cpp
 )
 
-add_mock_test(test_xfpga_wsid_list_c xfpga-static
+add_unit_test(test_xfpga_wsid_list_c xfpga-static
     xfpga/test_wsid_list_c.cpp
 )
 
-add_mock_test(test_xfpga_sysfs_c xfpga-static
+add_unit_test(test_xfpga_sysfs_c xfpga-static
     xfpga/test_sysfs_c.cpp
 )
 
-add_mock_test(test_xfpga_mmio_c xfpga-static
+add_unit_test(test_xfpga_mmio_c xfpga-static
     xfpga/test_mmio_c.cpp
 )
 
-add_mock_test(test_xfpga_metadata_c xfpga-static
+add_unit_test(test_xfpga_metadata_c xfpga-static
     xfpga/test_metadata_c.cpp
 )
 
-add_mock_test(test_xfpga_reconf_c xfpga-static
+add_unit_test(test_xfpga_reconf_c xfpga-static
     xfpga/test_reconf_c.cpp
 )
 
-add_mock_test(test_xfpga_version_c xfpga-static
+add_unit_test(test_xfpga_version_c xfpga-static
     xfpga/test_version_c.cpp
 )
 
-add_mock_test(test_xfpga_open_close_c xfpga-static
+add_unit_test(test_xfpga_open_close_c xfpga-static
     xfpga/test_open_close_c.cpp
 )
 
-add_mock_test(test_xfpga_usrclk_c xfpga-static
+add_unit_test(test_xfpga_usrclk_c xfpga-static
     xfpga/test_usrclk_c.cpp
 )
 
-add_mock_test(test_xfpga_reset_c xfpga-static
+add_unit_test(test_xfpga_reset_c xfpga-static
     xfpga/test_reset_c.cpp
 )
 
-add_mock_test(test_xfpga_umsg_c xfpga-static
+add_unit_test(test_xfpga_umsg_c xfpga-static
     xfpga/test_umsg_c.cpp
 )
 
-add_mock_test(test_xfpga_manage_c xfpga-static
+add_unit_test(test_xfpga_manage_c xfpga-static
     xfpga/test_manage_c.cpp
 )
 
-add_mock_test(test_xfpga_events_c xfpga-static
+add_unit_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
 )
 target_link_libraries(test_xfpga_events_c fpgad-static safestr 
@@ -404,43 +418,51 @@ target_link_libraries(test_xfpga_events_c fpgad-static safestr
 # fpgad tests ##############################################################
 ############################################################################
 
-add_mock_test(test_fpgad_log_c fpgad-static
+add_unit_test(test_fpgad_log_c fpgad-static
     fpgad/test_log_c.cpp
 )
 
-add_mock_test(test_fpgad_srv_c fpgad-static
+add_unit_test(test_fpgad_srv_c fpgad-static
     fpgad/test_srv_c.cpp
 )
 
-add_mock_test(test_fpgad_evt_c fpgad-static
+add_unit_test(test_fpgad_evt_c fpgad-static
     fpgad/test_evt_c.cpp
 )
 
-add_mock_test(test_fpgad_errtable_c fpgad-static
+add_unit_test(test_fpgad_errtable_c fpgad-static
     fpgad/test_errtable_c.cpp
 )
 
-add_mock_test(test_fpgad_ap_event_c fpgad-static
+add_unit_test(test_fpgad_ap_event_c fpgad-static
     fpgad/test_ap_event_c.cpp
 )
 
-add_mock_test(test_fpgad_daemonize_c fpgad-static
+add_unit_test(test_fpgad_daemonize_c fpgad-static
     fpgad/test_daemonize_c.cpp
 )
 
-add_mock_test(test_fpgad_fpgad_c fpgad-static
+add_unit_test(test_fpgad_fpgad_c fpgad-static
     fpgad/test_fpgad_c.cpp
 )
 
-add_mock_test(test_fpgad_ap6_c fpgad-static
+add_unit_test(test_fpgad_ap6_c fpgad-static
     fpgad/test_ap6_c.cpp
+)
+
+############################################################################
+# RAS tests ##############################################################
+############################################################################
+
+add_unit_test(test_ras_c ras-static
+    ras/test_main_c.cpp
 )
 
 ############################################################################
 # fpgaconf tests ###########################################################
 ############################################################################
 
-add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
+add_unit_test(test_fpgaconf_fpgaconf_c fpgaconf-static
     fpgaconf/test_fpgaconf_c.cpp
 )
 
@@ -448,11 +470,11 @@ add_mock_test(test_fpgaconf_fpgaconf_c fpgaconf-static
 # coreidle tests ###########################################################
 ############################################################################
 
-add_mock_test(test_coreidle_coreidle_c coreidle-static
+add_unit_test(test_coreidle_coreidle_c coreidle-static
     coreidle/test_coreidle_c.cpp
 )
 
-add_mock_test(test_coreidle_main_c coreidle-static
+add_unit_test(test_coreidle_main_c coreidle-static
     coreidle/test_main_c.cpp
 )
 
@@ -460,7 +482,7 @@ add_mock_test(test_coreidle_main_c coreidle-static
 # userclk tests ############################################################
 ############################################################################
 
-add_mock_test(test_userclk_c userclk-static
+add_unit_test(test_userclk_c userclk-static
     userclk/test_userclk_c.cpp
 )
 
@@ -468,7 +490,7 @@ add_mock_test(test_userclk_c userclk-static
 # hello_fpga tests #########################################################
 ############################################################################
 
-add_mock_test(test_hello_fpga_c hello_fpga-static
+add_unit_test(test_hello_fpga_c hello_fpga-static
     hello_fpga/test_hello_fpga_c.cpp
 )
 
@@ -476,7 +498,7 @@ add_mock_test(test_hello_fpga_c hello_fpga-static
 # hello_events tests #######################################################
 ############################################################################
 
-add_mock_test(test_hello_events_c hello_events-static
+add_unit_test(test_hello_events_c hello_events-static
     hello_events/test_hello_events_c.cpp
 )
 target_link_libraries(test_hello_events_c fpgad-static safestr)
@@ -493,3 +515,58 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
     ${CMAKE_BINARY_DIR}
     )
+
+
+
+############################################################################
+# pyopae tests #############################################################
+############################################################################
+if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
+ add_executable(test_pyopae
+     ${MOCK_C}
+     pyopae/test_pyopae.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/opae.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pycontext.h
+     ${OPAE_SDK_SOURCE}/pyopae/pycontext.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pytoken.h
+     ${OPAE_SDK_SOURCE}/pyopae/pytoken.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp)
+target_compile_definitions(test_pyopae PRIVATE
+    OPAE_EMBEDDED)
+target_include_directories(test_pyopae
+     PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
+     PRIVATE ${PYTHON_INCLUDE_DIRS}
+     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(embed INTERFACE)
+target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
+     test_system ${PYTHON_LIBRARIES}
+     PRIVATE embed)
+add_dependencies(test_unit test_pyopae)
+
+macro(add_pyopae_test pytest)
+    add_custom_command(TARGET test_pyopae
+       POST_BUILD
+       COMMAND ${CMAKE_COMMAND} -E copy
+       ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/${pytest}
+       ${CMAKE_BINARY_DIR}
+       )
+    add_test(
+        NAME ${pytest}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:test_pyopae> test ${pytest}
+    )
+endmacro(add_pyopae_test pytest)
+
+add_pyopae_test(test_properties.py)
+add_pyopae_test(test_shared_buffers.py)
+
+endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")

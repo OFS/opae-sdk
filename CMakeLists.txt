@@ -188,6 +188,8 @@ mark_as_advanced(BUILD_ASE_TESTS)
 ## TODO: Remove this once this replaces old school tests
 option(NEW_UNITS "Use new testing framework" OFF)
 mark_as_advanced(NEW_UNITS)
+option(ENABLE_MOCK "Enable mock driver for testing." ON)
+mark_as_advanced(ENABLE_MOCK)
 
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()

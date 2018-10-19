@@ -85,7 +85,7 @@ const char *rc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "bb0023cf-0bd2-579a-90ef-97fe743a6c63",
+     "interface-uuid": "9926ab6d-6c92-5a68-aabc-a7d84c545738",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -120,14 +120,14 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0xbcc0,
-                       .fme_num_errors = 9,
+                       .fme_num_errors = 12,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = skx_mdata}}}},
     {"dcp-rc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
                    .devices = {test_device{
-                       .fme_guid = "BB0023CF-0BD2-579A-90EF-97FE743A6C63",
+                       .fme_guid = "9926AB6D-6C92-5A68-AABC-A7D84C545738",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
                        .segment = 0x0,
                        .bus = 0x05,
@@ -135,8 +135,8 @@ static platform_db MOCK_PLATFORMS = {
                        .function = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x112000200000159,
-                       .bbs_version = {1, 1, 2},
+                       .bbs_id = 0x113000200000177,
+                       .bbs_version = {1, 1, 3},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -160,7 +160,52 @@ bool test_platform::exists(const std::string &key) {
 }
 
 std::vector<std::string> test_platform::keys(bool sorted) {
-  return fpga_db::instance()->keys();
+  return fpga_db::instance()->keys(sorted);
+}
+
+std::vector<std::string> test_platform::platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  // from the list of platform names requested, remove the ones not found in
+  // the platform db
+  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n);
+  });
+  return keys;
+}
+
+std::vector<std::string> test_platform::mock_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  std::vector<std::string> want;
+  std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
+    [](const std::string &k) {
+      auto db = fpga_db::instance();
+      return db->exists(k) && db->get(k).mock_sysfs != nullptr;
+    });
+  return want;
+}
+
+std::vector<std::string> test_platform::hw_platforms(
+    std::initializer_list<std::string> names) {
+  std::vector<std::string> keys(names);
+  if (keys.empty()) {
+    keys = fpga_db::instance()->keys();
+  }
+  std::vector<std::string> want;
+  std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
+    [](const std::string &k) {
+      auto db = fpga_db::instance();
+      return db->exists(k) && db->get(k).mock_sysfs == nullptr;
+    });
+  return want;
 }
 
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
@@ -281,12 +326,16 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
   auto r = regex<>::create(PCI_DEV_PATTERN);
 
   auto m = r->match(pci_path);
-  dev.segment = std::stoi(m->group(1), nullptr, 16);
-  dev.bus = std::stoi(m->group(2), nullptr, 16);
-  dev.device = std::stoi(m->group(3), nullptr, 10);
-  dev.function = std::stoi(m->group(4), nullptr, 10);
-  dev.vendor_id = ven_id;
-  dev.device_id = dev_id;
+  if (m) {
+    dev.segment = std::stoi(m->group(1), nullptr, 16);
+    dev.bus = std::stoi(m->group(2), nullptr, 16);
+    dev.device = std::stoi(m->group(3), nullptr, 10);
+    dev.function = std::stoi(m->group(4), nullptr, 10);
+    dev.vendor_id = ven_id;
+    dev.device_id = dev_id;
+  } else {
+    std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
+  }
   return dev;
 }
 
@@ -337,4 +386,3 @@ bool fpga_db::exists(const std::string &key) {
 
 }  // end of namespace testing
 }  // end of namespace opae
-
