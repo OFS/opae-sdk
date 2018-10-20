@@ -340,20 +340,20 @@ class openclose_c_mock_p
  protected:
   openclose_c_mock_p() {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-  }
-
-  virtual void TearDown() override {
-    system_->finalize();
-  }
-
-  test_platform platform_;
-  test_system *system_;
+//  virtual void SetUp() override {
+//    ASSERT_TRUE(test_platform::exists(GetParam()));
+//    platform_ = test_platform::get(GetParam());
+//    system_ = test_system::instance();
+//    system_->initialize();
+//    system_->prepare_syfs(platform_);
+//  }
+//
+//  virtual void TearDown() override {
+//    system_->finalize();
+//  }
+//
+//  test_platform platform_;
+//  test_system *system_;
 };
 
 TEST_P(openclose_c_mock_p, invalid_open_close) {
