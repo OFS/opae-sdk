@@ -62,7 +62,11 @@ set(SRC
   usrclk/user_clk_pgm_uclock.c
   plugin.c
   sysobject.c
-  manage.c)
+  manage.c
+  metrics/metrics.c
+  metrics/metrics_utils.c
+  metrics/afu_metrics.c
+  metrics/vector.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})
@@ -74,7 +78,7 @@ target_link_libraries(xfpga
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
-  opae-c)
+  opae-c )
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 

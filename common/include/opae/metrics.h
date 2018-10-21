@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -13,7 +13,6 @@
 //   without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
 // IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 // ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
 // LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
@@ -21,37 +20,66 @@
 // SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
 // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
+* @file metrifcs.h
+* @brief Functions for reading and clearing errors in resources
+*
+* Many FPGA resources have the ability to track the occurrence of errors.
+* This file provides functions to retrieve information about errors within
+* resources.
+*/
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#ifndef __FPGA_METRICS_H__
+#define __FPGA_METRICS_H__
 
-#include <opae/log.h>
-#include <opae/init.h>
 #include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/error.h>
-#include <opae/version.h>
-#include <opae/sysobject.h>
-#include <opae/userclk.h>
-#include <opae/metrics.h>
 
-#endif // __FPGA_FPGA_H__
+#define FPGA_METRICS_STR_SIZE   256
 
+
+
+
+/**
+* OPAE C API Enumurate FPGA Metrics
+*
+*/
+
+
+fpga_result  fpgaGetNumMetrics(fpga_handle handle,
+							uint64_t *num_metrics);
+
+
+fpga_result  fpgaGetMetricsInfo(fpga_handle handle,
+								struct fpga_metric_t  *metric_info,
+								uint64_t num_metrics);
+
+
+fpga_result  fpgaGetMetricsByIds(fpga_handle handle,
+								uint64_t * metric_id,
+								uint64_t  num_metric_ids,
+								struct fpga_metric_t  *metrics);
+
+fpga_result  fpgaGetMetricsByStrings(fpga_handle handle,
+									char ** metrics_serach_string,
+									uint64_t  serach_string_size,
+									struct fpga_metric_t  *metrics);
+
+
+//////////////////
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // __FPGA_METRICS_H__

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,35 +23,52 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-/**
- * \file fpga.h
- * \brief FPGA API
+/*
+ * @file bmcdata.h
  *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
+ * @brief
  */
+#ifndef BMCDATA_H
+#define BMCDATA_H
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#include <opae/fpga.h>
+#include <wchar.h>
+#include "bmcinfo.h"
 
-#include <opae/log.h>
-#include <opae/init.h>
-#include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/error.h>
-#include <opae/version.h>
-#include <opae/sysobject.h>
-#include <opae/userclk.h>
-#include <opae/metrics.h>
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
-#endif // __FPGA_FPGA_H__
+typedef enum {
+	CHIP_RESET_CAUSE_POR = 0x01,
+	CHIP_RESET_CAUSE_EXTRST = 0x02,
+	CHIP_RESET_CAUSE_BOD_IO = 0x04,
+	CHIP_RESET_CAUSE_WDT = 0x08,
+	CHIP_RESET_CAUSE_OCD = 0x10,
+	CHIP_RESET_CAUSE_SOFT = 0x20,
+	CHIP_RESET_CAUSE_SPIKE = 0x40,
+} ResetCauses;
 
+//extern uint8_t bcd_plus[];
+//extern uint8_t ASCII_6_bit_translation[];
+//extern wchar_t *base_units[];
+//extern size_t max_base_units;
+//extern char *sensor_type_codes[];
+//extern size_t max_sensor_type_code;
+//extern char *event_reading_type_codes[];
+//extern size_t max_event_reading_type_code;
+//extern char *entity_id_codes[];
+//extern size_t max_entity_id_code;
+//extern int bmcdata_verbose;
+
+//void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
+//		      sdr_body *body);
+void calc_params(sdr_body *body, Values *val);
+double getvalue(Values *val, uint8_t raw);
+//void print_reset_cause(reset_cause *cause);
+
+//#ifdef __cplusplus
+//}
+//#endif
+
+#endif /* !BMCDATA_H */
