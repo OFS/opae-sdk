@@ -39,6 +39,8 @@
 #include <opae/types.h>
 #include <opae/sysobject.h>
 #include <opae/types_enum.h>
+#include <opae/metrics.h>
+#include "metrics/vector.h"
 
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -109,6 +111,51 @@ struct _fpga_token {
 	struct error_list *errors;
 };
 
+enum fpga_hw_type {
+	FPGA_HW_MCP,
+	FPGA_HW_DCP_RC,
+	FPGA_HW_DCP_DC,
+	FPGA_HW_DCP_VC,
+	FPGA_HW_UNKNOWN
+};
+
+enum fpga_metric_units {
+	FPGA_METRICS_UNITS_UNKNOWN,
+	FPGA_METRICS_UNITS_CENTRIGRADE,
+	FPGA_METRICS_UNITS_FAHRENHEIT,
+	FPGA_METRICS_UNITS_KELVIN,
+	FPGA_METRICS_UNITS_VOLTS,
+	FPGA_METRICS_UNITS_AMPS,
+	FPGA_METRICS_UNITS_WATTS
+};
+
+
+// FPGA enum metrics struct
+struct _fpga_enum_metric {
+
+	char group_name[FPGA_METRICS_STR_SIZE];						// Metrics Group name
+	char group_sysfs[FPGA_METRICS_STR_SIZE];					// Metrics Group sysfs path
+
+	char metric_name[FPGA_METRICS_STR_SIZE];					// Metrics  name
+	char metric_sysfs[FPGA_METRICS_STR_SIZE];					// Metrics  sysfs path
+
+	char qualifier_name[FPGA_METRICS_STR_SIZE];					// Metrics qualifier name
+
+	char metric_units[FPGA_METRICS_STR_SIZE];					// Metrics  units
+
+	uint64_t						metric_id;					// Metrics ID
+
+	enum fpga_metric_datatype		metric_datatype;			// Metrics datatype
+
+	enum fpga_metric_type			metric_type;				// Hardware type
+
+	enum fpga_hw_type				hw_type;
+
+	enum fpga_metric_units			metric_unit_type;
+
+	uint64_t						mmio_offset;
+
+};
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
 	pthread_mutex_t lock;
@@ -121,6 +168,11 @@ struct _fpga_handle {
 	void *umsg_virt;	    // umsg Virtual Memory pointer
 	uint64_t umsg_size;	 // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	// umsg IOVA from driver
+ 
+	// Metric enum vector
+	bool metric_enum_status;
+	fpga_metric_vector fpga_enum_metric_vector;
+    void* dl_handle;
 };
 
 /*

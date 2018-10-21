@@ -152,4 +152,35 @@ enum fpga_object_read_flags {
   FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
 };
 
+
+/** Metrics type
+*
+*
+*/
+enum fpga_metric_type {
+	FPGA_METRIC_TYPE_POWER,
+	FPGA_METRIC_TYPE_THERMAL,
+	FPGA_METRIC_TYPE_PERF,
+	FPGA_METRIC_TYPE_PERF_CACHE,
+	FPGA_METRIC_TYPE_PERF_FABRIC,
+	FPGA_METRIC_TYPE_PERF_IOMMU,
+	FPGA_METRIC_TYPE_AFU,
+	FPGA_METRIC_TYPE_BMC,
+	FPGA_METRIC_TYPE_MAX10,
+	FPGA_METRIC_TYPE_UNKNOWN
+};
+
+/** Metrics data type
+*
+*
+*/
+enum fpga_metric_datatype {
+	FPGA_METRIC_DATATYPE_INT,
+	FPGA_METRIC_DATATYPE_FLAOT,
+	FPGA_METRIC_DATATYPE_DOUBLE,
+	FPGA_METRIC_DATATYPE_BOOL,
+	FPGA_METRIC_DATATYPE_UNKNOWN
+};
+
+
 #endif // __FPGA_TYPES_ENUM_H__
