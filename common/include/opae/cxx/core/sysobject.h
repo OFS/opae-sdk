@@ -103,6 +103,13 @@ class sysobject {
   virtual ~sysobject();
 
   /**
+   * @brief Get the size (in bytes) of the object.
+   *
+   * @return The number of bytes that the object occupies in memory.
+   */
+  uint32_t size() const;
+
+  /**
    * @brief Read a 64-bit value from an FPGA object.
    * The value is assumed to be in string format and will be parsed. See flags
    * below for changing that behavior.
@@ -126,8 +133,11 @@ class sysobject {
    * @param[in] flags Flags that control how the object is written
    * If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes.
    * Flags are defaulted to 0 meaning no flags.
+   *
+   * @note This operation will force a sync operation to update its cached
+   * buffer
    */
-  void write64(uint64_t value, int flags = 0);
+  void write64(uint64_t value, int flags = 0) const;
 
   /**
    * @brief Get all raw bytes from the object.
@@ -156,13 +166,13 @@ class sysobject {
    */
   fpga_object c_type() const { return sysobject_; }
 
+
   /** Retrieve the underlying fpga_object primitive.
    */
   operator fpga_object() const { return sysobject_; }
 
  private:
   sysobject();
-
   fpga_object sysobject_;
   token::ptr_t token_;
   handle::ptr_t handle_;

@@ -31,13 +31,21 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-sysobject::sysobject() : sysobject_(nullptr), handle_(0) {}
+sysobject::sysobject() : sysobject_(nullptr), token_(0), handle_(0) {}
 sysobject::~sysobject() {
-  auto res = fpgaDestroyObject(&sysobject_);
-  if (res != FPGA_OK) {
-    std::cerr << "Error while calling fpgaDestroyObject: " << fpgaErrStr(res)
-              << "\n";
+  if (sysobject_ != nullptr) {
+    auto res = fpgaDestroyObject(&sysobject_);
+    if (res != FPGA_OK) {
+      std::cerr << "Error while calling fpgaDestroyObject: " << fpgaErrStr(res)
+                << "\n";
+    }
   }
+}
+
+uint32_t sysobject::size() const {
+  uint32_t size;
+  ASSERT_FPGA_OK(fpgaObjectGetSize(sysobject_, &size, FPGA_OBJECT_SYNC));
+  return size;
 }
 
 sysobject::ptr_t sysobject::get(token::ptr_t tok, const std::string &path,
@@ -45,6 +53,9 @@ sysobject::ptr_t sysobject::get(token::ptr_t tok, const std::string &path,
   sysobject::ptr_t obj(new sysobject());
   auto res =
       fpgaTokenGetObject(tok->c_type(), path.c_str(), &obj->sysobject_, flags);
+  if (res) {
+    obj.reset();
+  }
   ASSERT_FPGA_OK(res);
   obj->token_ = tok;
   return obj;
@@ -56,6 +67,9 @@ sysobject::ptr_t sysobject::get(handle::ptr_t hnd, const std::string &path,
   obj->handle_ = hnd;
   auto res =
       fpgaHandleGetObject(hnd->c_type(), path.c_str(), &obj->sysobject_, flags);
+  if (res) {
+    obj.reset();
+  }
   ASSERT_FPGA_OK(res);
   obj->handle_ = hnd;
   return obj;
@@ -65,6 +79,9 @@ sysobject::ptr_t sysobject::get(const std::string &path, int flags) {
   sysobject::ptr_t obj(new sysobject());
   auto res =
       fpgaObjectGetObject(sysobject_, path.c_str(), &obj->sysobject_, flags);
+  if (res) {
+    obj.reset();
+  }
   ASSERT_FPGA_OK(res);
   return obj;
 }
@@ -75,7 +92,7 @@ uint64_t sysobject::read64(int flags) const {
   return value;
 }
 
-void sysobject::write64(uint64_t value, int flags) {
+void sysobject::write64(uint64_t value, int flags) const {
   ASSERT_FPGA_OK(fpgaObjectWrite64(sysobject_, value, flags));
 }
 

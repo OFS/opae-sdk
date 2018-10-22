@@ -539,7 +539,9 @@ if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
      ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
      ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
      ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp)
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.h
+     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.cpp)
 target_compile_definitions(test_pyopae PRIVATE
     OPAE_EMBEDDED)
 target_include_directories(test_pyopae
@@ -568,5 +570,6 @@ endmacro(add_pyopae_test pytest)
 
 add_pyopae_test(test_properties.py)
 add_pyopae_test(test_shared_buffers.py)
+add_pyopae_test(test_sysobject.py)
 
 endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
