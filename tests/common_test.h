@@ -43,7 +43,7 @@
 
 #include <json-c/json.h>
 #ifndef BUILD_ASE
-#include <log_int.h>
+#include "common_int.h"
 #endif
 #include <opae/access.h>
 #include <opae/fpga.h>
@@ -51,10 +51,8 @@
 #include <opae/types_enum.h>
 #include "types_int.h"
 #include <sys/mman.h>
-#include <types_int.h>
-
 #include "safe_string/safe_string.h"
-#include "libopae/plugins/xfpga/error_int.h"
+#include "error_int.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #define UNUSED_PARAM(x) ((void)x)
