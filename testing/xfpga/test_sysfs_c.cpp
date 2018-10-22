@@ -253,6 +253,7 @@ TEST_P(sysfs_c_p, make_object) {
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 0, 0),
             FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 /**
@@ -491,6 +492,7 @@ TEST_P(sysfs_c_hw_p, make_sysfs) {
   fpga_object obj;
   auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
   EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
                          handle_);
@@ -503,6 +505,7 @@ TEST_P(sysfs_c_hw_p, make_sysfs) {
   res = make_sysfs_group(tok->sysfspath, "errors", &obj,
                          FPGA_OBJECT_RECURSE_ONE, handle_);
   EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 }
 
 /**
@@ -516,6 +519,7 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object,
                               FPGA_OBJECT_GLOB, 0),
             FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
@@ -535,8 +539,10 @@ TEST_P(sysfs_c_mock_p, make_sysfs) {
       "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
   _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
   fpga_object obj;
+
   auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
   EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
                          handle_);
@@ -547,8 +553,11 @@ TEST_P(sysfs_c_mock_p, make_sysfs) {
   EXPECT_EQ(res, FPGA_NOT_FOUND);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj,
+//                         0, handle_);
                          FPGA_OBJECT_RECURSE_ONE, handle_);
   EXPECT_EQ(res, FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 }
 
 /**
