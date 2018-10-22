@@ -553,7 +553,6 @@ TEST_P(sysfs_c_mock_p, make_sysfs) {
   EXPECT_EQ(res, FPGA_NOT_FOUND);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj,
-//                         0, handle_);
                          FPGA_OBJECT_RECURSE_ONE, handle_);
   EXPECT_EQ(res, FPGA_OK);
 
