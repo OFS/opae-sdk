@@ -383,6 +383,11 @@ add_mock_test(test_xfpga_events_c xfpga-static
 target_link_libraries(test_xfpga_events_c fpgad-static safestr 
         ${libjson-c_LIBRARIES})
 
+set_tests_properties(
+    test_xfpga_events_c
+    PROPERTIES TIMEOUT 70
+)
+
 ############################################################################
 # fpgad tests ##############################################################
 ############################################################################
