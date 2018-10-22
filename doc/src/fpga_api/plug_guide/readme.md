@@ -215,7 +215,7 @@ adapter table's `finalize` entry point as shown:
 If a plugin does not implement an `opae_plugin_finalize` entry point, then
 the `finalize` member of the adapter table should be left uninitialized.
 During plugin cleanup, if a plugin has no `opae_plugin_finalize` entry
-point in its adapter table, the plugin finalize step will be skipped, and]
+point in its adapter table, the plugin finalize step will be skipped, and
 the plugin will be considered to have finalized successfully.
 
 In addition to `initialize` and `finalize`, an OPAE C API plugin has two
