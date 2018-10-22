@@ -62,6 +62,8 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
+              platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                                   &num_matches_),
@@ -243,12 +245,8 @@ TEST_P(reconf_c, fpga_reconf_slot) {
                                      bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
-  auto &no_clk_arr = bitstream_valid_no_clk_;
-  result =
-      xfpga_fpgaReconfigureSlot(handle_, slot, no_clk_arr.data(), no_clk_arr.size(), flags);
-  EXPECT_EQ(result, FPGA_OK);
-
   // Invalid handle file descriptor
+  auto &no_clk_arr = bitstream_valid_no_clk_;
   struct _fpga_handle *handle = (struct _fpga_handle *)handle_;
   uint32_t fddev = handle->fddev;
 
@@ -259,17 +257,6 @@ TEST_P(reconf_c, fpga_reconf_slot) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   handle->fddev = fddev;
-
-  // register an ioctl handler that will return -1 and set errno to EINVAL
-  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
-  result =
-      xfpga_fpgaReconfigureSlot(handle_, slot, no_clk_arr.data(), no_clk_arr.size(), flags);
-  EXPECT_EQ(result, FPGA_INVALID_PARAM);
-  // register an ioctl handler that will return -1 and set errno to ENOTSUP
-  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
-  result =
-      xfpga_fpgaReconfigureSlot(handle_, slot, no_clk_arr.data(), no_clk_arr.size(), flags);
-  EXPECT_EQ(result, FPGA_EXCEPTION);
 }
 
 /**
@@ -348,3 +335,128 @@ TEST_P(reconf_c, clear_port_errors) {
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
                         ::testing::ValuesIn(test_platform::keys(true)));
+
+class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  reconf_c_mock_p()
+  : tokens_{{nullptr, nullptr}},
+    handle_(nullptr) {}
+
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
+              platform_.devices[0].device_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_),
+              FPGA_OK);
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+    // assemble valid bitstream header
+    auto fme_guid = platform_.devices[0].fme_guid;
+    auto afu_guid = platform_.devices[0].afu_guid;
+
+    auto bitstream_j = jobject
+    ("version", "640")
+    ("afu-image", jobject
+                  ("interface-uuid", fme_guid)
+                  ("magic-no", int32_t(488605312))
+                  ("accelerator-clusters", {
+                                             jobject
+                                             ("total-contexts", int32_t(1))
+                                             ("name", "nlb")
+                                             ("accelerator-type-uuid", afu_guid)
+                                            }
+                  )
+    )
+    ("platform-name", "");
+
+    bitstream_valid_ =
+          system_->assemble_gbs_header(platform_.devices[0], bitstream_j.c_str());
+    bitstream_j.put();
+  }
+
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    system_->finalize();
+    token_cleanup();
+  }
+
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+  std::vector<uint8_t> bitstream_valid_;
+};
+
+/**
+ * @test    fpga_reconf_slot
+ * @brief   Tests: fpgaReconfigureSlot
+ * @details Returns FPGA_OK if bitstream is valid and is able
+ *          to reconfigure the fpga.
+ */
+TEST_P(reconf_c_mock_p, fpga_reconf_slot) {
+  fpga_result result;
+  uint32_t slot = 0;
+  int flags = 0;
+
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
+                                     bitstream_valid_.size(), flags);
+  EXPECT_EQ(result, FPGA_OK);
+}
+
+/**
+ * @test    fpga_reconf_slot_einval
+ * @brief   Tests: fpgaReconfigureSlot
+ * @details Register an ioctl handler that returns -1 and sets
+ *          errno to EINVAL. fpgaReconfigureSlot should return
+ *          FPGA_INVALID_PARAM.
+ */
+TEST_P(reconf_c_mock_p, fpga_reconf_slot_einval) {
+  fpga_result result;
+  uint32_t slot = 0;
+  int flags = 0;
+
+  // register an ioctl handler that will return -1 and set errno to EINVAL
+  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
+                                     bitstream_valid_.size(), flags);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test    fpga_reconf_slot_enotsup
+ * @brief   Tests: fpgaReconfigureSlot
+ * @details Register an ioctl handler that returns -1 and sets
+ *          errno to ENOTSUP. fpgaReconfigureSlot should return
+ *          FPGA_EXCEPTION.
+ */
+TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
+  fpga_result result;
+  uint32_t slot = 0;
+  int flags = 0;
+
+  // register an ioctl handler that will return -1 and set errno to ENOTSUP
+  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
+  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
+                                     bitstream_valid_.size(), flags);
+  EXPECT_EQ(result, FPGA_EXCEPTION);
+}
+
+INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));

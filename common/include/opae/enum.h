@@ -123,6 +123,10 @@ fpga_result fpgaCloneToken(fpga_token src, fpga_token *dst);
  * This function destroys a token created by fpgaEnumerate() and frees the
  * associated memory.
  *
+ * @note fpgaDestroyToken() requires the address of an fpga_token as
+ * previously created by fpgaEnumerate() or fpgaCloneToken(). Passing
+ * any other value results in undefined behavior.
+ *
  * @param[in] token      fpga_token to destroy
  * @returns              FPGA_OK on success
  */

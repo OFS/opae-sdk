@@ -113,9 +113,9 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    system_->finalize();
     fpgad_.join();
     close_log();
+    system_->finalize();
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmpfpgad_log_);

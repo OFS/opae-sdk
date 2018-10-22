@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/init.h>
+#include <opae/utils.h>
 #include "pluginmgr.h"
 #include "opae_int.h"
 #undef __USE_GNU
@@ -117,8 +118,11 @@ __attribute__((constructor)) STATIC void opae_init(void)
 
 __attribute__((destructor)) STATIC void opae_release(void)
 {
-	if (opae_plugin_mgr_finalize_all())
-		OPAE_ERR("opae_plugin_mgr_finalize_all");
+	fpga_result res;
+
+	res = fpgaFinalize();
+	if (res != FPGA_OK)
+		OPAE_ERR("fpgaFinalize: %s", fpgaErrStr(res));
 
 	if (g_logfile != NULL && g_logfile != stdout) {
 		fclose(g_logfile);
