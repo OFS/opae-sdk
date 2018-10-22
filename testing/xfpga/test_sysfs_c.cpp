@@ -497,6 +497,7 @@ TEST_P(sysfs_c_hw_p, make_sysfs) {
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
                          handle_);
   EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
                          &obj, 0, handle_);
