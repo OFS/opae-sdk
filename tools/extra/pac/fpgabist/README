@@ -8,12 +8,30 @@ The following binaries must be able to be found in your system path
 - bist_app
 - fpgaconf
 - fpgainfo
+- lspci
 
 Accepted gbs files:
 - bist_afu.gbs
 - dma_afu.gbs
 - nlb_mode_3.gbs
 
-Usage:
-fpgabist -b <bus_num> <path to gbs file>
-eg. fpgabist -b 0x06 ../../../dcp_1.1/samples/nlb_mode_3/bin/nlb_mode_3.gbs
+Help:
+usage: fpgabist [-h] [-i DEVICE_ID] [-B BUS] [-D DEVICE] [-F FUNCTION]
+                [gbs_paths [gbs_paths ...]]
+                
+positional arguments:
+  gbs_paths             Paths for the gbs files for BIST
+                  
+optional arguments:
+  -h, --help            show this help message and exit
+  -i DEVICE_ID, --device-id DEVICE_ID
+                        Device Id for Intel FPGA default: 09c4
+  -B BUS, --bus BUS     Bus number for specific FPGA
+  -D DEVICE, --device DEVICE
+                        Device number for specific FPGA
+  -F FUNCTION, --function FUNCTION
+                        Function number for specific FPGA
+
+Example Use:
+fpgabist -B <bus_num> <path to gbs file>
+eg. fpgabist -B 0x06 $OPAE_PLATFORM_ROOT/hw/samples/nlb_mode_3/bin/nlb_mode_3.gbs
