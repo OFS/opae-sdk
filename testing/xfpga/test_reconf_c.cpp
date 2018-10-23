@@ -146,10 +146,6 @@ TEST_P(reconf_c, set_afu_userclock) {
   // Invalid params
   result = set_afu_userclock(handle_, 0, 0);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-
-  // Valid params
-  result = set_afu_userclock(handle_, 312, 156);
-  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -239,11 +235,6 @@ TEST_P(reconf_c, fpga_reconf_slot) {
   result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-
-  // Valid bitstream - clk
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
-                                     bitstream_valid_.size(), flags);
-  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
   // Invalid handle file descriptor
   auto &no_clk_arr = bitstream_valid_no_clk_;
@@ -405,6 +396,17 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
 };
 
 /**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details When given valid parameters, set_afu_userclock
+ *          returns FPGA_NOT_SUPPORTED on mock platforms.
+ */
+TEST_P(reconf_c_mock_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
+}
+
+/**
  * @test    fpga_reconf_slot
  * @brief   Tests: fpgaReconfigureSlot
  * @details Returns FPGA_OK if bitstream is valid and is able
@@ -460,3 +462,35 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class reconf_c_hw_skx_p : public reconf_c {};
+
+/**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details Given valid parameters set_afu_userlock returns
+ *          FPGA_OK on hw platforms.
+ */
+TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+
+class reconf_c_hw_dcp_p : public reconf_c {};
+
+/**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details Given valid parameters set_afu_userlock returns
+ *          FPGA_OK on hw platforms.
+ */
+TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-p"})));
