@@ -1536,7 +1536,8 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 		OPAE_ERR("Feature token initialize errors");
 		res = FPGA_EXCEPTION;
 	}
-
+    // Tracy-Debug:
+	OPAE_MSG("Tracy-Debug: dma_plugin_mgr_initialize compeleted\n");
 	do { 
 		uint64_t feature_uuid_lo, feature_uuid_hi;
 		uint32_t feature_type;
