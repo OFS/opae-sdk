@@ -192,23 +192,6 @@ class umsg_c_p
 
 /**
  * @test       umsg_c_p
- * @brief      test_umsg_drv_01
- * @details    When the parameters are valid and the drivers are loaded,
- *             fpgaUmsgGetNumber returns number of umsgs supported by
- *             slot.
- *
- */
-TEST_P (umsg_c_p, test_umsg_drv_01) {
-  uint64_t Umsg_num = 0;
-
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
-  // Get umsg number
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
-  EXPECT_GT(Umsg_num, 0);
-}
-
-/**
- * @test       umsg_c_p
  * @brief      test_umsg_drv_02
  * @details    When the parameters are invalid and the drivers are loaded,
  *             fpgaUmsgGetNumber returns error.
@@ -255,23 +238,6 @@ TEST_P (umsg_c_p, test_umsg_drv_03) {
 
   // Reset handle fd
   _handle->fddev = fddev;
-}
-
-/**
- * @test       Umsg_drv_04
- *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             fpgaUmsgSetAttributes sets umsg hit  Enable / Disable.
- *
- */
-TEST_P(umsg_c_p, test_umsg_drv_04) {
-  uint64_t Umsghit_Enable = 0xffff;
-  uint64_t Umsghit_Disble = 0;
-
-  // Set umsg hint
-  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
-  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
 
 /**
@@ -386,6 +352,45 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
   _handle->fddev = fddev;
 }
 
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({})));
+
+class umsg_c_mcp_p : public umsg_c_p {
+};
+
+/**
+ * @test       umsg_c_p
+ * @brief      test_umsg_drv_01
+ * @details    When the parameters are valid and the drivers are loaded,
+ *             fpgaUmsgGetNumber returns number of umsgs supported by
+ *             slot.
+ *
+ */
+TEST_P (umsg_c_mcp_p, test_umsg_drv_01) {
+  uint64_t Umsg_num = 0;
+
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
+  // Get umsg number
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, &Umsg_num));
+  EXPECT_GT(Umsg_num, 0);
+}
+
+/**
+ * @test       Umsg_drv_04
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             fpgaUmsgSetAttributes sets umsg hit  Enable / Disable.
+ *
+ */
+TEST_P(umsg_c_mcp_p, test_umsg_drv_04) {
+  uint64_t Umsghit_Enable = 0xffff;
+  uint64_t Umsghit_Disble = 0;
+
+  // Set umsg hint
+  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE,umsg_set_mode);
+  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Enable));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
+}
+
 /**
  * @test       Umsg_08
  *
@@ -394,12 +399,12 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
  *             hugepages is allocated. <br>
  *
  */
-TEST_P(umsg_c_p, test_umsg_08) {
+TEST_P(umsg_c_mcp_p, test_umsg_08) {
   auto res = xfpga_fpgaTriggerUmsg(handle_, 0);
   EXPECT_EQ(FPGA_OK, res) << "\t return value is " << res;
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({})));
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mcp_p, ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
 class umsg_c_mock_p : public umsg_c_p {
 };
