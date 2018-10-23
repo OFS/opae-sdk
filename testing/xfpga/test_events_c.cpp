@@ -286,11 +286,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_, 
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
               tokens_accel_.size(), &num_matches_), FPGA_OK);
@@ -1236,7 +1240,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::keys()));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 class events_handle_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -1257,12 +1261,13 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
               tokens_accel_.size(), &num_matches_), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
-
     ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
 
     config_ = {
@@ -1372,4 +1377,4 @@ TEST_P(events_handle_p, manual_irq) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::Values("skx-p"));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
