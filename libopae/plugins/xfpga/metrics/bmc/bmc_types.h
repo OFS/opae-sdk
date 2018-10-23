@@ -90,7 +90,7 @@ typedef struct _thresholds {
 	per_thresh lower_nr_thresh;
 	per_thresh lower_c_thresh;
 	per_thresh lower_nc_thresh;
-}threshold_list;
+} threshold_list;
 
 typedef struct _sdr_details {
 	uint32_t sensor_number;

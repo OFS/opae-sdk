@@ -29,15 +29,9 @@
 * \brief fpga metrics API
 */
 
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
-
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <stdint.h>
 
 
 #include "safe_string/safe_string.h"
@@ -50,14 +44,12 @@
 #include "metrics/vector.h"
 #include "metrics/metrics_int.h"
 
-
-
 fpga_result  __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
-											uint64_t *num_metrics)
+												uint64_t *num_metrics)
 {
-	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	int err = 0;
+	fpga_result result					= FPGA_OK;
+	struct _fpga_handle *_handle		= (struct _fpga_handle *)handle;
+	int err								= 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -75,8 +67,6 @@ fpga_result  __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 		goto out_unlock;
 	}
 
-
-
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to Discover Metrics");
@@ -86,8 +76,6 @@ fpga_result  __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 
 	*num_metrics = fpga_vector_total(&(_handle->fpga_enum_metric_vector));
 
-	printf(" ----------------------- num_enun_metrics =%d\n", *num_metrics);
-
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
@@ -95,21 +83,19 @@ out_unlock:
 	}
 
 	return result;
-
-
 }
 
-
-fpga_result __FPGA_API__  xfpga_fpgaGetMetricsInfo(fpga_handle handle,
-								struct fpga_metric_t  *fpga_metric,
-								uint64_t num_metrics)
+fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
+												struct fpga_metric_info_t *metric_info,
+												uint64_t *num_metrics)
 {
 
-	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	int err = 0;
-	uint64_t i = 0;
-	uint64_t num_enun_metrics;
+	fpga_result result								= FPGA_OK;
+	struct _fpga_handle *_handle					= (struct _fpga_handle *)handle;
+	int err											= 0;
+	uint64_t i										= 0;
+	uint64_t num_enun_metrics						= 0;
+	struct _fpga_enum_metric	*fpga_enum_metric	= NULL;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -121,7 +107,8 @@ fpga_result __FPGA_API__  xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (fpga_metric == NULL) {
+	if (metric_info == NULL ||
+		num_metrics == NULL) {
 		FPGA_ERR("Invlaid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
@@ -136,17 +123,17 @@ fpga_result __FPGA_API__  xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 
 	num_enun_metrics = fpga_vector_total(&(_handle->fpga_enum_metric_vector));
 
+	// get metric info
+	for (i = 0; i < *num_metrics; i++) {
 
+		if (*num_metrics <= num_enun_metrics) {
 
-	for (i = 0; i < num_metrics; i++) {
+			fpga_enum_metric = (struct _fpga_enum_metric *)	fpga_vector_get(&(_handle->fpga_enum_metric_vector), i);
+			result = add_metric_info(fpga_enum_metric, &metric_info[i]);
+			if (result != FPGA_OK) {
+				FPGA_MSG("Failed to add metric info");
+			}
 
-		if (num_metrics <= num_enun_metrics) {
-
-			struct _fpga_enum_metric* fpga_enum_metric = NULL;
-			fpga_enum_metric = (struct _fpga_enum_metric*)	fpga_vector_get(&(_handle->fpga_enum_metric_vector), i);
-			 
-			add_metric_info(fpga_enum_metric, &fpga_metric[i]);
-			
 		}
 	}
 
@@ -157,21 +144,20 @@ out_unlock:
 	}
 
 	return result;
-
 }
 
 
-
-fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIds(fpga_handle handle,
-												uint64_t * metric_id,
-												uint64_t  num_metric_ids,
-													struct fpga_metric_t  *metrics)
+fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
+													uint64_t *metric_num,
+													uint64_t num_metric_indexs,
+													struct fpga_metric_t *metrics)
 {
-	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	int err = 0;
-	uint64_t i = 0;
+	fpga_result result						= FPGA_OK;
+	struct _fpga_handle *_handle			= (struct _fpga_handle *)handle;
+	int err									= 0;
+	uint64_t i								= 0;
 	fpga_objtype objtype;
+
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
@@ -183,19 +169,18 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIds(fpga_handle handle,
 	}
 
 	if (metrics == NULL ||
-		metric_id == NULL) {
+		metric_num == NULL) {
 		FPGA_ERR("Invlaid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
-	/*
+
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to Discover Metrics");
 		result = FPGA_NOT_FOUND;
 		goto out_unlock;
 	}
-	*/
 
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
@@ -205,47 +190,35 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIds(fpga_handle handle,
 	}
 
 	if (objtype == FPGA_ACCELERATOR) {
-
-
 		// enum AFU
-		for (i = 0; i < num_metric_ids; i++) {
+		for (i = 0; i < num_metric_indexs; i++) {
 
-			result = get_afu_metric_value(handle, &(_handle->fpga_enum_metric_vector),
-				metric_id[i],
-				&metrics[i]);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value");
-				continue;
-			}
-
-	
-		}
-	}
-	else	if (objtype == FPGA_DEVICE) {
-
-		for (i = 0; i < num_metric_ids; i++) {
-
-			result = get_metric_value_byid(_handle->token, &(_handle->fpga_enum_metric_vector),
-				metric_id[i],
-				&metrics[i]);
+			result = get_afu_metric_value(handle,
+										&(_handle->fpga_enum_metric_vector),
+										metric_num[i],
+										&metrics[i]);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to get metric value");
 				continue;
 			}
 		}
-	}
-	else {
+	} else	if (objtype == FPGA_DEVICE) {
+
+		for (i = 0; i < num_metric_indexs; i++) {
+
+			result = get_fme_metric_value(handle,
+										&(_handle->fpga_enum_metric_vector),
+										metric_num[i],
+										&metrics[i]);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to get metric value");
+				continue;
+			}
+		}
+	} else {
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
-
-	
-
-
-
-
-
-
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -256,18 +229,16 @@ out_unlock:
 	return result;
 
 }
-
-fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByStrings(fpga_handle handle,
-										char ** metrics_serach_string,
-										uint64_t  serach_string_size,
-										struct fpga_metric_t  *metrics)
+fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
+													char **metrics_names,
+													uint64_t num_metric_names,
+													struct fpga_metric_t *metrics)
 {
-
-	fpga_result result = FPGA_OK;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	int err = 0;
-	uint64_t i = 0;
-	uint64_t metric_id;
+	fpga_result result								= FPGA_OK;
+	struct _fpga_handle *_handle					= (struct _fpga_handle *)handle;
+	int err											= 0;
+	uint64_t i										= 0;
+	uint64_t metric_num								= 0;
 	fpga_objtype objtype;
 
 	result = handle_check_and_lock(_handle);
@@ -280,14 +251,14 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByStrings(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (metrics_serach_string == NULL  ||
+	if (metrics_names == NULL  ||
 		metrics == NULL) {
 		FPGA_ERR("Invlaid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
-	if (serach_string_size == 0) {
+	if (num_metric_names == 0) {
 		FPGA_ERR("Invlaid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
@@ -301,20 +272,18 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByStrings(fpga_handle handle,
 	}
 
 	if (objtype == FPGA_ACCELERATOR) {
-
-
 		// enum AFU
 
-		for (i = 0; i < serach_string_size; i++) {
+		for (i = 0; i < num_metric_names; i++) {
 
-			result = get_metricid_from_serach_string(metrics_serach_string[i], &(_handle->fpga_enum_metric_vector), &metric_id);
+			result = get_metric_num_serach_string(metrics_names[i], &(_handle->fpga_enum_metric_vector), &metric_num);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid Input Metrics string");
 				continue;
 			}
 
 			result = get_afu_metric_value(handle, &(_handle->fpga_enum_metric_vector),
-				metric_id,
+				metric_num,
 				&metrics[i]);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to get metric value");
@@ -322,36 +291,32 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByStrings(fpga_handle handle,
 			}
 
 		}
-	}
-	else	if (objtype == FPGA_DEVICE) {
+	} else	if (objtype == FPGA_DEVICE) {
 
+		for (i = 0; i < num_metric_names; i++) {
 
-		for (i = 0; i < serach_string_size; i++) {
-
-			result = get_metricid_from_serach_string(metrics_serach_string[i], &(_handle->fpga_enum_metric_vector), &metric_id);
+			result = get_metric_num_serach_string(metrics_names[i],
+													&(_handle->fpga_enum_metric_vector),
+													&metric_num);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid Input Metrics string");
 				continue;
 			}
 
-			result = get_metric_value_byid(_handle->token, &(_handle->fpga_enum_metric_vector),
-				metric_id,
-				&metrics[i]);
+			result = get_fme_metric_value(handle,
+											&(_handle->fpga_enum_metric_vector),
+				metric_num,
+											&metrics[i]);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to get metric value");
 				goto out_unlock;
 			}
 
 		}
-	}
-	else {
+	} else {
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
-
-
-
-
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -360,4 +325,3 @@ out_unlock:
 	}
 	return result;
 }
-

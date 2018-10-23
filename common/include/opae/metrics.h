@@ -38,39 +38,51 @@
 
 #include <opae/types.h>
 
-#define FPGA_METRICS_STR_SIZE   256
-
-
-
 
 /**
 * OPAE C API Enumurate FPGA Metrics
 *
 */
-
-
-fpga_result  fpgaGetNumMetrics(fpga_handle handle,
+/*
+fpga_result fpgaGetNumMetrics(fpga_handle handle,
 							uint64_t *num_metrics);
 
 
-fpga_result  fpgaGetMetricsInfo(fpga_handle handle,
-								struct fpga_metric_t  *metric_info,
+fpga_result fpgaGetMetricsInfo(fpga_handle handle,
+								struct fpga_metric_t *metric_info,
 								uint64_t num_metrics);
 
 
-fpga_result  fpgaGetMetricsByIds(fpga_handle handle,
-								uint64_t * metric_id,
-								uint64_t  num_metric_ids,
-								struct fpga_metric_t  *metrics);
+fpga_result fpgaGetMetricsByIds(fpga_handle handle,
+								uint64_t * metric_num,
+								uint64_t num_metric_indexs,
+								struct fpga_metric_t *metrics);
 
-fpga_result  fpgaGetMetricsByStrings(fpga_handle handle,
+
+
+fpga_result fpgaGetMetricsByStrings(fpga_handle handle,
 									char ** metrics_serach_string,
-									uint64_t  serach_string_size,
-									struct fpga_metric_t  *metrics);
+									uint64_t serach_string_size,
+									struct fpga_metric_t *metrics);
+									*/
 
 
-//////////////////
+fpga_result fpgaGetNumMetrics(fpga_handle handle,
+							uint64_t *num_metrics);
 
+fpga_result fpgaGetMetricsInfo(fpga_handle handle,
+								struct fpga_metric_info_t *metric_info,
+								uint64_t *num_metrics);
+
+fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
+								uint64_t *metric_num,
+								uint64_t num_metric_indexs,
+								struct fpga_metric_t *metrics);
+
+fpga_result fpgaGetMetricsByName(fpga_handle handle,
+									char **metrics_names,
+									uint64_t num_metric_names,
+									struct fpga_metric_t *metrics);
 
 
 #ifdef __cplusplus

@@ -115,25 +115,23 @@ fpga_result xfpga_fpgaSetUserClock(fpga_handle handle, uint64_t low_clk,
 				   uint64_t high_clk, int flags);
 fpga_result xfpga_fpgaGetUserClock(fpga_handle handle, uint64_t *low_clk,
 				   uint64_t *high_clk, int flags);
-                                  
-fpga_result  xfpga_fpgaGetNumMetrics(fpga_handle handle,
-							uint64_t *num_metrics);
 
+fpga_result xfpga_fpgaGetNumMetrics(fpga_handle handle,
+								uint64_t *num_metrics);
 
-fpga_result  xfpga_fpgaGetMetricsInfo(fpga_handle handle,
-								struct fpga_metric_t  *metric_info,
-								uint64_t num_metrics);
+fpga_result xfpga_fpgaGetMetricsInfo(fpga_handle handle,
+								struct fpga_metric_info_t *metric_info,
+								uint64_t *num_metrics);
 
+fpga_result xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
+									uint64_t *metric_num,
+									uint64_t num_metric_indexs,
+									struct fpga_metric_t *metrics);
 
-fpga_result  xfpga_fpgaGetMetricsByIds(fpga_handle handle,
-								uint64_t * metric_id,
-								uint64_t  num_metric_ids,
-								struct fpga_metric_t  *metrics);
-
-fpga_result  xfpga_fpgaGetMetricsByStrings(fpga_handle handle,
-									char ** metrics_serach_string,
-									uint64_t  serach_string_size,
-									struct fpga_metric_t  *metrics);
+fpga_result xfpga_fpgaGetMetricsByName(fpga_handle handle,
+									char **metrics_names,
+									uint64_t num_metric_names,
+									struct fpga_metric_t *metrics);
 
 #ifdef __cplusplus
 }

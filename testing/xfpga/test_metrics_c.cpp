@@ -111,7 +111,7 @@ protected:
 	test_system *system_;
 
 };
-
+#if 0
 /**
 * @test    set_afu_userclock
 * @brief   Tests: set_afu_userclock
@@ -296,3 +296,4 @@ TEST_P(metics_c_p, test_metric_04) {
 INSTANTIATE_TEST_CASE_P(metics_c, metics_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
 
+#endif

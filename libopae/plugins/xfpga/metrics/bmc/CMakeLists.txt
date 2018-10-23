@@ -45,6 +45,8 @@ set_install_rpath(bmc)
 
 set_property(TARGET staticbmc PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+target_link_libraries(bmc safestr m rt ${CMAKE_THREAD_LIBS_INIT})
+
 set_target_properties(bmc PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})

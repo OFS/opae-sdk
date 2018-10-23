@@ -133,17 +133,17 @@ enum fpga_metric_units {
 // FPGA enum metrics struct
 struct _fpga_enum_metric {
 
-	char group_name[FPGA_METRICS_STR_SIZE];						// Metrics Group name
-	char group_sysfs[FPGA_METRICS_STR_SIZE];					// Metrics Group sysfs path
+	char group_name[FPGA_METRIC_STR_SIZE];						// Metrics Group name
+	char group_sysfs[FPGA_METRIC_STR_SIZE];					// Metrics Group sysfs path
 
-	char metric_name[FPGA_METRICS_STR_SIZE];					// Metrics  name
-	char metric_sysfs[FPGA_METRICS_STR_SIZE];					// Metrics  sysfs path
+	char metric_name[FPGA_METRIC_STR_SIZE];					// Metrics  name
+	char metric_sysfs[FPGA_METRIC_STR_SIZE];					// Metrics  sysfs path
 
-	char qualifier_name[FPGA_METRICS_STR_SIZE];					// Metrics qualifier name
+	char qualifier_name[FPGA_METRIC_STR_SIZE];					// Metrics qualifier name
 
-	char metric_units[FPGA_METRICS_STR_SIZE];					// Metrics  units
+	char metric_units[FPGA_METRIC_STR_SIZE];					// Metrics  units
 
-	uint64_t						metric_id;					// Metrics ID
+	uint64_t						metric_num;					// Metrics ID
 
 	enum fpga_metric_datatype		metric_datatype;			// Metrics datatype
 
@@ -156,6 +156,16 @@ struct _fpga_enum_metric {
 	uint64_t						mmio_offset;
 
 };
+
+
+struct _fpga_bmc_metric {
+
+	char group_name[FPGA_METRIC_STR_SIZE];		// Metrics Group name
+	char metric_name[FPGA_METRIC_STR_SIZE];	// Metrics  name
+	struct fpga_metric_t  fpga_metric;			// Metric value
+
+};
+
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
 	pthread_mutex_t lock;
@@ -168,11 +178,13 @@ struct _fpga_handle {
 	void *umsg_virt;	    // umsg Virtual Memory pointer
 	uint64_t umsg_size;	 // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	// umsg IOVA from driver
- 
+
 	// Metric enum vector
 	bool metric_enum_status;
 	fpga_metric_vector fpga_enum_metric_vector;
-    void* dl_handle;
+	void *dl_handle;
+	struct _fpga_bmc_metric *_bmc_metric_value;
+	uint64_t num_bmc_metric;
 };
 
 /*

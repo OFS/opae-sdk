@@ -6,20 +6,25 @@
 #include <string.h>
 #include "opae/fpga.h"
 
-typedef struct fpga_metric_metadata_t
-{
-	char group_name[256];
-	char metric_name[256];
-	enum fpga_metric_datatype data_type;
-	char metric_units[256];
-	int offset;
+typedef struct fpga_metric_metadata_t {
+	char group_name[FPGA_METRIC_STR_SIZE];
+	char metric_name[FPGA_METRIC_STR_SIZE];
+	char qualifier_name[FPGA_METRIC_STR_SIZE];
 
-}fpga_metric_metadata;
+	enum fpga_metric_datatype data_type;
+	enum fpga_metric_type metric_type;
+	char metric_units[FPGA_METRIC_STR_SIZE];
+	uint64_t mmio_offset;
+
+	uint32_t range_start;
+	uint32_t range_end;
+
+} fpga_metric_metadata;
 
 #define MCP_MDATA_SIZE 62
 
-fpga_metric_metadata mcp_metric_metadata[] =
-{
+fpga_metric_metadata mcp_metric_metadata[] = {
+
 	{ .group_name = "power_mgmt", .metric_name = "consumed", .data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
 	{ .group_name = "power_mgmt", .metric_name = "threshold1", .data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
 	{ .group_name = "power_mgmt", .metric_name = "threshold2", .data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
