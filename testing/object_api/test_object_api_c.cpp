@@ -222,8 +222,6 @@ INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 
 class object_api_c_hw_p : public object_api_c_p {
- protected:
-  object_api_c_hw_p() {}
 };
 
 /**
