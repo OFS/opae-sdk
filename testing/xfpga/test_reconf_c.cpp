@@ -469,7 +469,7 @@ class reconf_c_hw_skx_p : public reconf_c {};
  * @test    set_afu_userclock
  * @brief   Tests: set_afu_userclock
  * @details Given valid parameters set_afu_userlock returns
- *          FPGA_OK on hw platforms.
+ *          FPGA_OK on mcp hw platforms.
  */
 TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
@@ -485,7 +485,7 @@ class reconf_c_hw_dcp_p : public reconf_c {};
  * @test    set_afu_userclock
  * @brief   Tests: set_afu_userclock
  * @details Given valid parameters set_afu_userlock returns
- *          FPGA_OK on hw platforms.
+ *          FPGA_NOT_SUPPORTED on dcp hw platforms.
  */
 TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
