@@ -489,7 +489,7 @@ class reconf_c_hw_dcp_p : public reconf_c {};
  */
 TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_OK);
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
