@@ -166,7 +166,6 @@ class sysobject {
    */
   fpga_object c_type() const { return sysobject_; }
 
-
   /** Retrieve the underlying fpga_object primitive.
    */
   operator fpga_object() const { return sysobject_; }
