@@ -633,7 +633,6 @@ TEST_P(events_p, event_drv_12) {
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
 
   // Invalid event handle magic
-  auto valid_magic = h->magic;
   h->magic = 0x0;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
 }
@@ -1079,7 +1078,6 @@ TEST_P(events_mock_p, register_event_02) {
 TEST_P(events_mock_p, event_drv_13) {
   fpga_event_handle bad_handle;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
-  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
 
   // Reset event handle magic
   EXPECT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
