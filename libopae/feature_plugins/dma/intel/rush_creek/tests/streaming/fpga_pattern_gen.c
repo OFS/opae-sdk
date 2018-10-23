@@ -43,7 +43,7 @@
 			goto label;                                            \
 		}                                                              \
 	} while (0)
-static int err_cnt = 0;
+static int err_cnt;
 
 fpga_result populate_pattern_generator(fpga_handle fpga_h)
 {

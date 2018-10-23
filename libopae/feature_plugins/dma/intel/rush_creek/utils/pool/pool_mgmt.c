@@ -442,8 +442,8 @@ static inline void destroyMutexes(handle_common *comm, bool free_only)
 		mutex_pool_item *tmp = curr->next;
 
 #if 1
-		int err = 0;
-		if ((err = pthread_mutex_trylock(&curr->m_mutex))) {
+		int err = pthread_mutex_trylock(&curr->m_mutex);
+		if (err) {
 			switch (err) {
 			case EBUSY:
 				perror("Mutex still locked!!");

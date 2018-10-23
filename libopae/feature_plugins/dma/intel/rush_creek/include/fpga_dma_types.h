@@ -51,7 +51,7 @@ typedef enum {
 	HOST_TO_FPGA_MM,	// Memory mapped FPGA interface
 	FPGA_TO_HOST_MM,	// Memory mapped FPGA interface
 	FPGA_TO_FPGA_MM,	// Memory mapped FPGA interface
-	TERMINATE_THREAD,	// Cause the thread to exit
+	TERMINATE_THREAD,       // Cause the thread to exit
 	FPGA_MAX_TRANSFER_TYPE
 } fpga_dma_transfer_type_t;
 
@@ -82,7 +82,7 @@ typedef enum {
 typedef struct _fpga_dma_channel_desc {
 	uint32_t index;
 	fpga_dma_channel_type_t ch_type;
-}fpga_dma_channel_desc;
+} fpga_dma_channel_desc;
 
 // Opaque object that describes a DMA transfer
 typedef void *fpga_dma_transfer;

@@ -52,12 +52,12 @@ typedef struct _feature_data {
 	const char *feature_plugin;
 	uint32_t flags;
 #define OPAE_FEATURE_DATA_DETECTED 0x00000001
-#define OPAE_FEATURE_DATA_LOADED   0x00000002
+#define OPAE_FEATURE_DATA_LOADED 0x00000002
 } feature_data;
 
 static feature_data feature_data_table[] = {
-	{ DMA_ID1, "libintel-dma.so", 0 },
-	{ NULL, NULL, 0 },
+	{DMA_ID1, "libintel-dma.so", 0},
+	{NULL, NULL, 0},
 };
 
 static int initialized;
@@ -66,7 +66,8 @@ STATIC opae_dma_adapter_table *dma_adapter_list = (void *)0;
 static pthread_mutex_t dma_adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path, fpga_guid guid)
+STATIC opae_dma_adapter_table *
+dma_plugin_mgr_alloc_adapter(const char *lib_path, fpga_guid guid)
 {
 	void *dl_handle;
 	opae_dma_adapter_table *adapter;
@@ -101,7 +102,7 @@ STATIC opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path
 
 out_free:
 	free(adapter);
-	return NULL;  
+	return NULL;
 }
 
 STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
@@ -122,13 +123,13 @@ STATIC int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter)
 }
 
 STATIC int dma_plugin_mgr_configure_plugin(opae_dma_adapter_table *adapter,
-					    const char *config)
+					   const char *config)
 {
 	UNUSED_PARAM(config);
 	dma_plugin_configure_t cfg;
 
 	cfg = (dma_plugin_configure_t)dlsym(adapter->plugin.dl_handle,
-					     DMA_PLUGIN_CONFIGURE);
+					    DMA_PLUGIN_CONFIGURE);
 
 	if (!cfg) {
 		OPAE_ERR("failed to find %s in \"%s\"", DMA_PLUGIN_CONFIGURE,
@@ -222,25 +223,30 @@ static int opae_plugin_mgr_detect_feature(fpga_guid guid)
 	int res, errors;
 	char feature_id[40];
 	uuid_unparse_upper(guid, feature_id);
-	errors = 0;  
+	errors = 0;
 
-	for (i = 0 ; feature_data_table[i].feature_plugin ; ++i) {
+	for (i = 0; feature_data_table[i].feature_plugin; ++i) {
 
-		if (EOK != strcmp_s(feature_data_table[i].feature_id, 
-			strnlen_s(feature_data_table[i].feature_id, 256), feature_id, &res)) {
+		if (EOK
+		    != strcmp_s(
+			       feature_data_table[i].feature_id,
+			       strnlen_s(feature_data_table[i].feature_id, 256),
+			       feature_id, &res)) {
 			OPAE_ERR("strcmp_s failed");
 			++errors;
 			goto out_close;
 		}
-                  
-		if (0 == res) {
-			OPAE_DBG("platform detected: feature_id=%s -> %s", feature_id
-					feature_data_table[i].feature_plugin);
 
-			feature_data_table[i].flags |= OPAE_FEATURE_DATA_DETECTED;
+		if (0 == res) {
+			OPAE_DBG("platform detected: feature_id=%s -> %s",
+				 feature_id feature_data_table[i]
+					 .feature_plugin);
+
+			feature_data_table[i].flags |=
+				OPAE_FEATURE_DATA_DETECTED;
 		}
 	}
- 
+
 out_close:
 	return errors;
 }
@@ -249,67 +255,71 @@ void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
 {
 	char id_lo[18];
 	char id_hi[18];
-  
+
 	snprintf_s_l(id_lo, 18, "%lx", uuid_lo);
 	snprintf_s_l(id_hi, 18, "%lx", uuid_hi);
-  
+
 	char *p = NULL;
 	int i = 0;
 	uint32_t tmp;
-	for (i = 14; i>=0; i-=2){
+	for (i = 14; i >= 0; i -= 2) {
 		p = id_lo + i;
-		sscanf_s_u(p,"%2x", &tmp);
-		(*guid)[7-i/2 ] = tmp;
+		sscanf_s_u(p, "%2x", &tmp);
+		(*guid)[7 - i / 2] = tmp;
 		p[0] = '\0';
 	}
-  
-	for (i = 14; i>=0; i-=2) {
+
+	for (i = 14; i >= 0; i -= 2) {
 		p = id_hi + i;
-		sscanf_s_u(p,"%2x", &tmp);
-		(*guid)[15-i/2 ] = tmp;
+		sscanf_s_u(p, "%2x", &tmp);
+		(*guid)[15 - i / 2] = tmp;
 		p[0] = '\0';
-	} 
+	}
 }
 
 
 static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
-{ 
+{
 	fpga_result res = FPGA_OK;
-	// Discover feature BBB by traversing the device feature list 
-	bool end_of_list = false; 
+	// Discover feature BBB by traversing the device feature list
+	bool end_of_list = false;
 	uint64_t dfh = 0;
 	uint32_t mmio_num = 0;
 	uint64_t offset = 0;
 	fpga_guid guid;
-  
-	do { 
+
+	do {
 		uint64_t feature_uuid_lo, feature_uuid_hi;
-    
-		// Read the current feature's UUID     
-		res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
-                        &feature_uuid_lo);
+
+		// Read the current feature's UUID
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 8,
+				     &feature_uuid_lo);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
- OPAE_MSG("Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_lo=%lx\n",feature_uuid_lo );
-		res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
-            						&feature_uuid_hi); 
+		OPAE_MSG(
+			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_lo=%lx\n",
+			feature_uuid_lo);
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 16,
+				     &feature_uuid_hi);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
-OPAE_MSG("Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_hi=%lx\n",feature_uuid_hi );
+		OPAE_MSG(
+			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_hi=%lx\n",
+			feature_uuid_hi);
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
 
 		// Detect feature for this guid.
 		opae_plugin_mgr_detect_feature(guid);
- 
-		// End of the list? 
-		end_of_list = _fpga_dfh_feature_eol(dfh); 
- 
-		// Move to the next feature header 
-		offset = offset + _fpga_dfh_feature_next(dfh); 
+
+		// End of the list?
+		end_of_list = _fpga_dfh_feature_eol(dfh);
+
+		// Move to the next feature header
+		offset = offset + _fpga_dfh_feature_next(dfh);
 	} while (!end_of_list);
 
 	return res;
@@ -322,9 +332,9 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 	int errors = 0;
 	int features_detected = 0;
 	opae_dma_adapter_table *adapter;
-	int i,j;
+	int i, j;
 	fpga_guid guid;
- 
+
 	opae_mutex_lock(res, &dma_adapter_list_lock);
 
 	if (initialized) { // prevent multiple init.
@@ -337,9 +347,9 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 		goto out_unlock;
 
 	// Load each of the native plugins that were detected.
-	for (i = 0 ; feature_data_table[i].feature_plugin ; ++i) {
+	for (i = 0; feature_data_table[i].feature_plugin; ++i) {
 		const char *feature_plugin;
-    const char *feature_id;
+		const char *feature_id;
 		int already_loaded;
 
 		if (!(feature_data_table[i].flags & OPAE_FEATURE_DATA_DETECTED))
@@ -352,17 +362,21 @@ int dma_plugin_mgr_initialize(fpga_handle handle)
 		// Iterate over the table again to prevent multiple loads
 		// of the same native plugin.
 		already_loaded = 0;
-		for (j = 0 ; feature_data_table[j].feature_plugin ; ++j) {
+		for (j = 0; feature_data_table[j].feature_plugin; ++j) {
 
-			if (EOK != strcmp_s(feature_plugin, strnlen_s(feature_plugin, 256),
-						feature_data_table[j].feature_plugin, &ret)) {
+			if (EOK
+			    != strcmp_s(feature_plugin,
+					strnlen_s(feature_plugin, 256),
+					feature_data_table[j].feature_plugin,
+					&ret)) {
 				OPAE_ERR("strcmp_s failed");
 				++errors;
 				goto out_unlock;
 			}
 
-			if (!ret &&
-			    (feature_data_table[j].flags & OPAE_FEATURE_DATA_LOADED)) {
+			if (!ret
+			    && (feature_data_table[j].flags
+				& OPAE_FEATURE_DATA_LOADED)) {
 				already_loaded = 1;
 				break;
 			}

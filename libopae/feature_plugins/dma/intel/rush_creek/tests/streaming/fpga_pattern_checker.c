@@ -43,7 +43,7 @@
 			goto label;                                            \
 		}                                                              \
 	} while (0)
-static int err_cnt = 0;
+static int err_cnt;
 /* Helper functions for Pattern Checker  */
 fpga_result populate_pattern_checker(fpga_handle fpga_h)
 {

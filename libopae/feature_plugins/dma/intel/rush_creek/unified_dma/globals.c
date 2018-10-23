@@ -36,11 +36,11 @@
 #include <stddef.h>
 #include "globals.h"
 
-int err_cnt = 0;
-int fpgaDMAIsOpen = 0;
+int err_cnt;
+int fpgaDMAIsOpen;
 
 #ifdef CHECK_DELAYS_MM
-uint64_t buf_full_count = 0;
+uint64_t buf_full_count;
 
 counts delayz[NUM_DELAYZ];
 #endif

@@ -54,10 +54,10 @@
 // No. of Patterns
 #define PATTERN_LENGTH 32
 
-static uint32_t count = 0;
+static uint32_t count;
 static sem_t rx_cb_status;
 static sem_t tx_cb_status;
-static int err_cnt = 0;
+static int err_cnt;
 
 void do_mm_test(fpga_handle afc_h, uint32_t channel, uint32_t use_ase);
 

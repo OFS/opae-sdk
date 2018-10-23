@@ -55,7 +55,7 @@ extern int err_cnt;
 		if ((res) != FPGA_OK) {                                        \
 			error_print("Error %s: %s\n", (desc),                  \
 				    fpgaErrStr(res));                          \
-			return (res);                                          \
+			return res;                                            \
 		}                                                              \
 	} while (0)
 

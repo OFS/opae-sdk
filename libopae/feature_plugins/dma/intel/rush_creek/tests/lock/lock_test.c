@@ -55,7 +55,7 @@
 // No. of Patterns
 #define PATTERN_LENGTH 32
 
-int err_cnt = 0;
+int err_cnt;
 
 /*
  * macro for checking return codes

@@ -249,8 +249,7 @@ fpga_result fpgaDMAOpen(fpga_feature_token token, int flags, void *priv_config,
 	struct _fpga_feature_handle *handle_ =
 		(struct _fpga_feature_handle *)*handle;
 
-	if (fpgaDMAIsOpen)
-	{
+	if (fpgaDMAIsOpen) {
 		FPGA_DMA_ST_ERR("Attempt to open DMA multiple times");
 		return FPGA_BUSY;
 	}

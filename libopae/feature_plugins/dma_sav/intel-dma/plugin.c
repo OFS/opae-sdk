@@ -50,20 +50,20 @@ int __FPGA_API__ dma_plugin_finalize(void)
 }
 
 int __FPGA_API__ dma_plugin_configure(opae_dma_adapter_table *adapter,
-				       const char *jsonConfig)
+				      const char *jsonConfig)
 {
 	UNUSED_PARAM(jsonConfig);
 
-	/*adapter->fpgaDMAOpen = dlsym(adapter->plugin.dl_handle, "dma_plugin_open");
-	adapter->fpgaDMAClose =
+	/*adapter->fpgaDMAOpen = dlsym(adapter->plugin.dl_handle,
+	"dma_plugin_open"); adapter->fpgaDMAClose =
 		dlsym(adapter->plugin.dl_handle, "dma_plugin_close");
 		*/
-	adapter->fpgaDMAPropertiesGet = 
+	adapter->fpgaDMAPropertiesGet =
 		dlsym(adapter->plugin.dl_handle, "dma_plugin_propertiesGet");
 	adapter->fpgaDMATransferSync =
 		dlsym(adapter->plugin.dl_handle, "dma_plugin_transferSync");
-	adapter->fpgaDMATransferCB = dlsym(
-		adapter->plugin.dl_handle, "dma_plugin_transferCB");
+	adapter->fpgaDMATransferCB =
+		dlsym(adapter->plugin.dl_handle, "dma_plugin_transferCB");
 
 	adapter->initialize =
 		dlsym(adapter->plugin.dl_handle, "dma_plugin_initialize");

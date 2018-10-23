@@ -65,12 +65,12 @@ extern double buf_full_count;
 char cbuf[2048];
 #endif
 
-static char *verify_buf = NULL;
-static uint64_t verify_buf_size = 0;
+static char *verify_buf;
+static uint64_t verify_buf_size;
 
-static int err_cnt = 0;
+static int err_cnt;
 
-static volatile uint32_t async_buf_count = 0;
+static volatile uint32_t async_buf_count;
 
 /*
  * macro for checking return codes
@@ -94,7 +94,9 @@ struct config {
 	} target;
 }
 
-config = {.target = {.bus = -1}};
+config = {
+	.target = {.bus = -1},
+};
 
 /*
  *  *  * Parse command line arguments

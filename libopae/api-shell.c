@@ -137,8 +137,7 @@ fpga_result fpgaInitialize(const char *config_file)
 
 fpga_result fpgaFinalize(void)
 {
-	return opae_plugin_mgr_finalize_all() ? FPGA_EXCEPTION
-					      : FPGA_OK;
+	return opae_plugin_mgr_finalize_all() ? FPGA_EXCEPTION : FPGA_OK;
 }
 
 fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
@@ -1463,7 +1462,8 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }
 
-fpga_result fpgaCloneFeatureToken(fpga_feature_token src, fpga_feature_token *dst)
+fpga_result fpgaCloneFeatureToken(fpga_feature_token src,
+				  fpga_feature_token *dst)
 {
 	struct _fpga_feature_token *_src = (struct _fpga_feature_token *)src;
 	struct _fpga_feature_token *_dst;
@@ -1490,7 +1490,7 @@ fpga_result fpgaCloneFeatureToken(fpga_feature_token src, fpga_feature_token *ds
 	_dst->feature_type = _src->feature_type;
 	_dst->handle = _src->handle;
 	e = memcpy_s(_dst->feature_guid, sizeof(fpga_guid), _src->feature_guid,
-		sizeof(fpga_guid));
+		     sizeof(fpga_guid));
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
 		res = FPGA_EXCEPTION;
@@ -1505,61 +1505,63 @@ out_free:
 	return res;
 }
 
-fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
-                      fpga_feature_token *tokens, uint32_t max_tokens,
-                      uint32_t *num_matches)
+fpga_result fpgaFeatureEnumerate(fpga_handle handle,
+				 fpga_feature_properties *prop,
+				 fpga_feature_token *tokens,
+				 uint32_t max_tokens, uint32_t *num_matches)
 {
-	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
 	fpga_result res = FPGA_OK;
 	int errors;
-  
+
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
- 
+
 	if ((max_tokens > 0) && !tokens) {
 		OPAE_ERR("max_tokens > 0 with NULL tokens");
 		return FPGA_INVALID_PARAM;
 	}
-  
+
 	*num_matches = 0;
 
-	// Discover feature BBB by traversing the device feature list 
-	bool end_of_list = false; 
+	// Discover feature BBB by traversing the device feature list
+	bool end_of_list = false;
 	uint64_t dfh = 0;
 	uint32_t mmio_num = 0;
 	uint64_t offset = 0;
 	fpga_guid guid;
 	struct _fpga_feature_token *_ftoken;
-	
+
 	errors = dma_plugin_mgr_initialize(handle);
 	if (errors) {
 		OPAE_ERR("Feature token initialize errors");
 		res = FPGA_EXCEPTION;
 	}
-    // Tracy-Debug:
+	// Tracy-Debug:
 	OPAE_MSG("Tracy-Debug: dma_plugin_mgr_initialize compeleted\n");
-	do { 
+	do {
 		uint64_t feature_uuid_lo, feature_uuid_hi;
 		uint32_t feature_type;
 
-		// Read the next feature header 
-		res = fpgaReadMMIO64(handle, mmio_num, offset, &dfh); 
+		// Read the next feature header
+		res = fpgaReadMMIO64(handle, mmio_num, offset, &dfh);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
 		feature_type = (dfh >> AFU_DFH_TYPE_OFFSET) & 0xf;
 
-		// Read the current feature's UUID     
-		res = fpgaReadMMIO64(handle, mmio_num, offset + 8, 
-                        &feature_uuid_lo);
+		// Read the current feature's UUID
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 8,
+				     &feature_uuid_lo);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
 
-		res = fpgaReadMMIO64(handle, mmio_num, offset + 16, 
-            						&feature_uuid_hi); 
+		res = fpgaReadMMIO64(handle, mmio_num, offset + 16,
+				     &feature_uuid_hi);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
@@ -1570,12 +1572,15 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 		_ftoken = feature_token_add(feature_type, guid, handle);
 
 		if (_ftoken->feature_type == prop->type) {
-			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
-				|| (uuid_is_null(prop->guid))) { 
+			if ((!uuid_is_null(prop->guid)
+			     && (uuid_compare(prop->guid, guid) == 0))
+			    || (uuid_is_null(prop->guid))) {
 				if (*num_matches < max_tokens) {
-					res = fpgaCloneFeatureToken(_ftoken, &tokens[*num_matches]);
-					if (res	!= FPGA_OK) {
-						// FIXME: should we error out here?
+					res = fpgaCloneFeatureToken(
+						_ftoken, &tokens[*num_matches]);
+					if (res != FPGA_OK) {
+						// FIXME: should we error out
+						// here?
 						OPAE_MSG("Error cloning token");
 					}
 				}
@@ -1583,11 +1588,11 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 			}
 		}
 
-		// End of the list? 
-		end_of_list = _fpga_dfh_feature_eol(dfh); 
+		// End of the list?
+		end_of_list = _fpga_dfh_feature_eol(dfh);
 
-		// Move to the next feature header 
-		offset = offset + _fpga_dfh_feature_next(dfh); 
+		// Move to the next feature header
+		offset = offset + _fpga_dfh_feature_next(dfh);
 	} while (!end_of_list);
 
 	return res;
@@ -1603,7 +1608,8 @@ fpga_result fpgaFeatureTokenDestroy(fpga_feature_token *feature_token)
 		return FPGA_INVALID_PARAM;
 	}
 
-	struct _fpga_feature_token *_ftoken = (struct _fpga_feature_token *)*feature_token;
+	struct _fpga_feature_token *_ftoken =
+		(struct _fpga_feature_token *)*feature_token;
 
 	if (pthread_mutex_lock(&ftoken_lock)) {
 		OPAE_MSG("Failed to lock feature token mutex");
@@ -1625,14 +1631,15 @@ fpga_result fpgaFeatureTokenDestroy(fpga_feature_token *feature_token)
 out_unlock:
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed for feature lock %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed for feature lock %S",
+			 strerror(err));
 	}
 
 	return res;
 }
 
 fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
-	fpga_feature_properties *prop)
+				     fpga_feature_properties *prop)
 {
 	fpga_result res = FPGA_OK;
 	struct _fpga_feature_token *_ftoken;
@@ -1648,9 +1655,9 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	prop->type = (fpga_feature_type )_ftoken->feature_type;
+	prop->type = (fpga_feature_type)_ftoken->feature_type;
 	e = memcpy_s(prop->guid, sizeof(fpga_guid), _ftoken->feature_guid,
-		sizeof(fpga_guid));
+		     sizeof(fpga_guid));
 
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
@@ -1660,7 +1667,7 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
-                            void *priv_config, fpga_feature_handle *handle)
+			    void *priv_config, fpga_feature_handle *handle)
 {
 	UNUSED_PARAM(priv_config);
 	fpga_result res = FPGA_OK;
@@ -1672,13 +1679,13 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(handle);
 
-	if (flags & ~FPGA_OPEN_SHARED) {    // TODO: check flag
+	if (flags & ~FPGA_OPEN_SHARED) { // TODO: check flag
 		OPAE_ERR("unrecognized flags");
 		return FPGA_INVALID_PARAM;
 	}
-    
+
 	_ftoken = (struct _fpga_feature_token *)token;
-  
+
 	if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
 		OPAE_ERR("Invalid feature token");
 		return FPGA_INVALID_PARAM;
@@ -1688,7 +1695,7 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 	if (NULL == _fhandle) {
 		OPAE_ERR("Failed to allocate memory for fhandle");
 		res = FPGA_NO_MEMORY;
-    	goto out_free;
+		goto out_free;
 	}
 
 	memset_s(_fhandle, sizeof(*_fhandle), 0);
@@ -1712,8 +1719,8 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 		goto out_free;
 	}
 
-	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
-		pthread_mutex_init(&_fhandle->lock, &mattr)) {
+	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE)
+	    || pthread_mutex_init(&_fhandle->lock, &mattr)) {
 		OPAE_MSG("Failed to init feature handle mutex");
 		res = FPGA_EXCEPTION;
 		goto out_attr_destroy;
@@ -1722,7 +1729,7 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 	pthread_mutexattr_destroy(&mattr);
 
 	*handle = (void *)_fhandle;
-	
+
 	return res;
 
 out_attr_destroy:
@@ -1740,7 +1747,7 @@ fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 	int err = 0;
 	struct _fpga_feature_handle *_fhandle;
 
-	_fhandle =(struct _fpga_feature_handle *)handle;
+	_fhandle = (struct _fpga_feature_handle *)handle;
 
 	// invalidate magic (just in case)
 	_fhandle->magic = OPAE_INVALID_MAGIC;
@@ -1759,8 +1766,8 @@ fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 	return res;
 }
 
-fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
-									int max_ch)
+fpga_result fpgaDMAPropertiesGet(fpga_feature_token token,
+				 fpgaDMAProperties *prop, int max_ch)
 {
 	struct _fpga_feature_token *_ftoken;
 
@@ -1769,11 +1776,12 @@ fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *pr
 
 	_ftoken = (struct _fpga_feature_token *)token;
 
-	return _ftoken->dma_adapter_table->fpgaDMAPropertiesGet(token, prop, max_ch);
-
+	return _ftoken->dma_adapter_table->fpgaDMAPropertiesGet(token, prop,
+								max_ch);
 }
 
-fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
+fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h,
+				transfer_list *xfer_list)
 {
 	struct _fpga_feature_handle *_fhandle;
 
@@ -1781,12 +1789,13 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_l
 	ASSERT_NOT_NULL(xfer_list);
 
 	_fhandle = (struct _fpga_feature_handle *)dma_h;
-	return _fhandle->dma_adapter_table->fpgaDMATransferSync(dma_h, xfer_list);
-
+	return _fhandle->dma_adapter_table->fpgaDMATransferSync(dma_h,
+								xfer_list);
 }
 
-fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
-								fpga_dma_cb cb, void *context)
+fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h,
+				 transfer_list *dma_xfer, fpga_dma_cb cb,
+				 void *context)
 {
 	struct _fpga_feature_handle *_fhandle;
 
@@ -1795,6 +1804,6 @@ fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_x
 	ASSERT_NOT_NULL(context);
 
 	_fhandle = (struct _fpga_feature_handle *)dma_h;
-	return _fhandle->dma_adapter_table->fpgaDMATransferAsync(dma_h, dma_xfer, cb, context);
-
+	return _fhandle->dma_adapter_table->fpgaDMATransferAsync(
+		dma_h, dma_xfer, cb, context);
 }
