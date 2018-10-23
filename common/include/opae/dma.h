@@ -148,7 +148,7 @@ typedef void (*fpga_dma_cb)(transfer_list *xfer_list, void *context);
  * @returns FPGA_OK on success.
  */
 fpga_result
-fpgaDMATransferCB(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
 		fpga_dma_cb cb, void *context);
 
 #ifdef __cplusplus

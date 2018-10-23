@@ -253,6 +253,7 @@ struct _fpga_feature_handle {
 	uint64_t feature_offset;
 	opae_dma_adapter_table *dma_adapter_table;
 	fpga_event_handle *eh_root;
+	void *feature_private; // Data unique to feature implementation
 };
 
 #endif // ___OPAE_OPAE_INT_H__

@@ -1784,7 +1784,7 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_l
 
 }
 
-fpga_result fpgaDMATransferCB(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
 								fpga_dma_cb cb, void *context)
 {
 	struct _fpga_feature_handle *_fhandle;
@@ -1794,6 +1794,6 @@ fpga_result fpgaDMATransferCB(fpga_feature_handle dma_h, transfer_list *dma_xfer
 	ASSERT_NOT_NULL(context);
 
 	_fhandle = (struct _fpga_feature_handle *)dma_h;
-	return _fhandle->dma_adapter_table->fpgaDMATransferCB(dma_h, dma_xfer, cb, context);
+	return _fhandle->dma_adapter_table->fpgaDMATransferAsync(dma_h, dma_xfer, cb, context);
 
 }

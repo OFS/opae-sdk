@@ -200,8 +200,12 @@ typedef struct _opae_dma_adapter_table {
 				int max_ch);
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
 			transfer_list *dma_xfer);
-	fpga_result (*fpgaDMATransferCB)(fpga_feature_handle dma,
+	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
 			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
+	fpga_result (*fpgaDMAOpen)(feature_token token, int flags,
+				   void *priv_config,
+				   fpga_feature_handle *handle);
+	fpga_result (*fpgaDMAClose)(fpga_feature_handle *_dma_h);
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);

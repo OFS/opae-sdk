@@ -208,6 +208,7 @@ cscope.po.out
 
 # Studio Code
 .vscode/
+.vs/
 
 # Idea
 .idea/
