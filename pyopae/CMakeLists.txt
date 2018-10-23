@@ -42,7 +42,10 @@ set(PYOPAE_SRC opae.cpp
                pyevents.h
                pyevents.cpp
                pyerrors.h
-               pyerrors.cpp)
+               pyerrors.cpp
+               pysysobject.h
+               pysysobject.cpp
+               )
 
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}
