@@ -54,7 +54,7 @@ extern "C" {
 
 using namespace opae::testing;
 
-
+#if 0
 
 /**
  * @test       opaec
@@ -571,3 +571,4 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
 
 INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_dcp_c_p, ::testing::Values(std::string("dcp-rc")));
 
+#endif

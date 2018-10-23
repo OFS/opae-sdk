@@ -71,18 +71,8 @@ static fpga_result read_sysfs_file(fpga_token token, const char *file,
 		return FPGA_INVALID_PARAM;
 	}
 
- printf(" ----------bmcLoadSDRs read_sysfs_file tok->sysfspath =%s\n",tok->sysfspath);
- printf(" ----------bmcLoadSDRs read_sysfs_file SYSFS_SDR_FILE =%s\n",SYSFS_SDR_FILE);
- 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath,
-		      file);
-        
-        
-        
-  printf(" ----------bmcLoadSDRs read_sysfs_file sysfs =%s\n",sysfspath);
-        
+	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath, file);
 
-  
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
@@ -90,8 +80,6 @@ static fpga_result read_sysfs_file(fpga_token token, const char *file,
 		return FPGA_NOT_FOUND;
 	}
 
- printf(" ----------bmcLoadSDRs read_sysfs_file pglob.gl_pathv[0 =%s\n",pglob.gl_pathv[0]);
-  
 	fd = open(pglob.gl_pathv[0], O_RDONLY);
 	globfree(&pglob);
 	if (fd < 0) {
@@ -148,8 +136,6 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 	struct _sdr_content *tmp;
 	uint32_t tot_bytes;
 
- printf(" ----------bmcLoadSDRs before sysfs ----------------\n");
- 
 	res = read_sysfs_file(token, SYSFS_SDR_FILE, (void **)&tmp, &tot_bytes);
 	if (FPGA_OK != res) {
 		if (tmp) {
@@ -157,8 +143,6 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 		}
 		goto out;
 	}
- 
- printf(" ----------bmcLoadSDRs after sysfs ----------------\n");
 
 	uint32_t sz = sizeof(sdr_header) + sizeof(sdr_key) + sizeof(sdr_body);
 	uint32_t num_of_sensors = (tot_bytes + sz - 1) / sz;
@@ -176,8 +160,6 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 
 	recs->magic = BMC_SDR_MAGIC;
 	recs->num_records = num_of_sensors;
- 
-   printf(" ----------bmcReadSensorValues num_of_sensors = %d\n",num_of_sensors );
 
 	// TODO: Remove need for this
 	struct _fpga_token *tok = (struct _fpga_token *)token;
@@ -197,8 +179,6 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 
 	NULL_CHECK(records);
 	struct _sdr_rec *sdr = (struct _sdr_rec *)records;
- 
- // printf(" ----------bmcReadSensorValues enter ----------------\n");
 
 	if (BMC_SDR_MAGIC != sdr->magic) {
 		res = FPGA_INVALID_PARAM;
@@ -224,9 +204,6 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 		}
 		goto out;
 	}
- 
-  // printf(" ----------bmcReadSensorValues after read sysfs ----------------\n");
-   // printf(" ----------bmcReadSensorValues *num_values = %d\n",*num_values );
 
 	if (tot_bytes != (sdr->num_records * sizeof(sensor_reading))) {
 		fprintf(stderr,
@@ -239,8 +216,6 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	}
 
 	*num_values = sdr->num_records;
- 
-   //printf(" ----------bmcReadSensorValues *num_values = %d\n",*num_values );
 
 	*values = (bmc_values_handle)calloc(1, sizeof(struct _bmc_values));
 	vals = (struct _bmc_values *)*values;

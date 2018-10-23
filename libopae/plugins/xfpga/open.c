@@ -93,9 +93,10 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	// Init workspace table
 	_handle->wsid_root = wsid_tracker_init(16384);
 
-	// Init metric enum status 
+	// Init metric enum
 	_handle->metric_enum_status = false;
 	_handle->dl_handle = NULL;
+	_handle->_bmc_metric_value = NULL;
 
 	// Open resources in exclusive mode unless FPGA_OPEN_SHARED is given
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);

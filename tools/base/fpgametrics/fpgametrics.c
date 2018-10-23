@@ -61,11 +61,6 @@
 #include "safe_string/safe_string.h"
 
 
-
-/* NLB0 AFU_ID */
-#define NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
-
-
 /*
  * macro to check return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
@@ -189,12 +184,14 @@ int main(int argc, char *argv[])
 	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_token         fpga_token;
 	fpga_handle        fpga_handle;
-	fpga_guid          guid;
 	uint32_t           num_matches_fpgas = 0;
  	uint64_t           num_metrics = 0;
-
 	fpga_result     res = FPGA_OK;
 	struct bdf_info info;
+	uint64_t *id_array = NULL;
+	uint64_t i = 0;
+	struct fpga_metric_info_t  *metric_info = NULL;
+	struct fpga_metric_t  *metric_array = NULL;
 
 
   fpga_properties filter = NULL;
@@ -208,11 +205,6 @@ int main(int argc, char *argv[])
 	res = parse_args(argc, argv);
 	ON_ERR_GOTO(res, out_exit, "parsing arguments");
 
-	if (uuid_parse(NLB0_AFUID, guid) < 0) {
-		res = FPGA_EXCEPTION;
-	}
-	ON_ERR_GOTO(res, out_exit, "parsing guid");
-
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);
@@ -222,18 +214,16 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_destroy, "setting object type");
 
 
-  
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);
 		ON_ERR_GOTO(res, out_destroy, "setting bus");
 	}
 
-    
 	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches_fpgas);
 	ON_ERR_GOTO(res, out_destroy, "enumerating fpga");
 
 
-  if (num_matches_fpgas <= 0) {
+	if (num_matches_fpgas <= 0) {
 		res = FPGA_NOT_FOUND;
 	}
 	ON_ERR_GOTO(res, out_exit, "no matching fpga");
@@ -250,70 +240,93 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_destroy_tok, "opening fpga");
  
 
-	uint64_t i = 0;
-	fpgaGetNumMetrics(fpga_handle, &num_metrics);
-	printf(" num_metrics =%ld \n", num_metrics);
-	
-	struct fpga_metric_t  *metric = calloc(sizeof(struct fpga_metric_t), num_metrics);
 
-	fpgaGetMetricsInfo(fpga_handle, metric, num_metrics);
+	res = fpgaGetNumMetrics(fpga_handle, &num_metrics);
+	ON_ERR_GOTO(res, out_close, "get num of metrics");
+	printf("\n\n ------Number of Metrics Discoverd = %ld ------- \n\n\n", num_metrics);
+	
+	metric_info = calloc(sizeof(struct fpga_metric_info_t), num_metrics);
+	if (metric_info == NULL) {
+		printf(" Failed to allocate memroy \n");
+		goto out_close;
+	}
+
+	res = fpgaGetMetricsInfo(fpga_handle, metric_info, &num_metrics);
+	ON_ERR_GOTO(res, out_close, "get num of metrics info");
+
+	id_array = calloc(sizeof(uint64_t), num_metrics);
+	if (id_array == NULL) {
+		printf(" Failed to allocate memroy \n");
+		goto out_close;
+	}
+
+
+	printf("---------------------------------------------------------------------------------------------------\n");
+	printf("metric_num              qualifier_name      group_name             metric_name            metric_units\n");
+	printf("---------------------------------------------------------------------------------------------------\n");
+
 	for (i = 0; i < num_metrics; i++){
 
-		printf("%-20ld  | %-30s  | %-20s  | %-30s  | %-20s \n",
-						metric[i].mertic_info.metric_id,
-						metric[i].mertic_info.qualifier_name,
-						metric[i].mertic_info.group_name,
-						metric[i].mertic_info.metric_name,
-						metric[i].mertic_info.metric_units);
+		printf("%-3ld  | %-30s  | %-15s  | %-30s  | %-10s \n",
+						metric_info[i].metric_num,
+						metric_info[i].qualifier_name,
+						metric_info[i].group_name,
+						metric_info[i].metric_name,
+						metric_info[i].metric_units);
+		id_array[i] = i;
+	}
 
+	metric_array = calloc(sizeof(struct fpga_metric_t), num_metrics);
+	if (metric_array == NULL) {
+		printf(" Failed to allocate memroy \n");
+		goto out_close;
 	}
 
 
-	uint64_t id_array[] = { 1, 5, 30, 35, 10 };
+	res = fpgaGetMetricsByIndex(fpga_handle, id_array, num_metrics, metric_array);
+	ON_ERR_GOTO(res, out_close, "get num of metrics value by index");
 
-	struct fpga_metric_t  *metric_array = calloc(sizeof(struct fpga_metric_t), 5);
+	printf("\n\n\n");
+	printf("-------------------------------------------------------------------------------------------------\n ");
+	printf("    metric_num              qualifier_name                    metric_name              value     \n ");
+	printf("-------------------------------------------------------------------------------------------------\n ");
 
-	fpgaGetMetricsByIds(fpga_handle, id_array,5, metric_array);
+	for (i = 0; i < num_metrics; i++){
 
-	for (i = 0; i < 5; i++){
+		uint64_t num = metric_array[i].metric_num;
+		if (metric_info[num].metric_datatype == FPGA_METRIC_DATATYPE_INT) {
 
-		printf("%-20ld  | %-30s  | %-20s  | %-30s  | %-20s \n",
-			metric_array[i].mertic_info.metric_id,
-			metric_array[i].mertic_info.qualifier_name,
-			metric_array[i].mertic_info.group_name,
-			metric_array[i].mertic_info.metric_name,
-			metric_array[i].mertic_info.metric_units);
-		printf("value   = %ld \n", metric_array[i].value.ivalue);
+				printf("%-20ld  | %-30s   | %-25s  | %ld %-20s \n ",
+					metric_info[num].metric_num,
+					metric_info[num].qualifier_name,
+					metric_info[num].metric_name,
+					metric_array[i].value.ivalue,
+					metric_info[num].metric_units);
+		} else if (metric_info[num].metric_datatype == FPGA_METRIC_DATATYPE_DOUBLE) {
 
-	}
-	
-	char* metric_string[] = { "power_mgmt:consumed","performance:fabric:mmio_read" };
-	uint64_t  array_size = 2;
-
-	struct fpga_metric_t  *metric_array_serach = calloc(sizeof(struct fpga_metric_t), array_size);
-
-
-	 fpgaGetMetricsByStrings(fpga_handle,
-		metric_string,
-		array_size,
-		metric_array_serach);
-
-	
-	for (i = 0; i < array_size; i++){
-
-		printf("%-20ld  | %-30s  | %-20s  | %-30s  | %-20s \n",
-			metric_array[i].mertic_info.metric_id,
-			metric_array[i].mertic_info.qualifier_name,
-			metric_array[i].mertic_info.group_name,
-			metric_array[i].mertic_info.metric_name,
-			metric_array[i].mertic_info.metric_units);
-		printf("value   = %ld \n", metric_array[i].value.ivalue);
+			printf("%-20ld  | %-30s   | %-25s  | %0.2f %-20s \n ",
+				metric_info[num].metric_num,
+				metric_info[num].qualifier_name,
+				metric_info[num].metric_name,
+				metric_array[i].value.dvalue,
+				metric_info[num].metric_units);
+		}
 
 
 	}
+
 
 	/* Release fpga */
-//out_close:
+out_close:
+	if (metric_array)
+		free(metric_array);
+
+	if (metric_info)
+		free(metric_info);
+
+	if (id_array)
+		free(id_array);
+
 	res = fpgaClose(fpga_handle);
 	ON_ERR_GOTO(res, out_destroy_tok, "closing fpga");
 
