@@ -50,7 +50,7 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/tests
 	${CMAKE_SOURCE_DIR}/tools/extra/libopae++
 	${CMAKE_SOURCE_DIR}/tools/extra/c++utils
-	)        
+	)
 
 if(BUILD_ASE_TESTS)
      include(test_config_ase)

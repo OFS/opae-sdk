@@ -80,7 +80,7 @@ function(ase_module_add_dpic name)
   set_property(TARGET opae-c-ase-server-${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(BUILD_ASE_TESTS)
-  target_compile_definitions(opae-c-ase-server-${name} 
+  target_compile_definitions(opae-c-ase-server-${name}
 	PRIVATE
 	_GLIBCXX_USE_CXX11_ABI=0
     SIM_SIDE=1

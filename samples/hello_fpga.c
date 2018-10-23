@@ -136,7 +136,7 @@ fpga_result parse_args(int argc, char *argv[])
 		{ "shared", no_argument,       NULL, 's' },
 		{ NULL,     0,                 NULL,  0  }
 	};
-	
+
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
@@ -164,13 +164,13 @@ fpga_result parse_args(int argc, char *argv[])
 		case 's':
 			config.open_flags |= FPGA_OPEN_SHARED;
 			break;
-		
+
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
 			return FPGA_EXCEPTION;
 		}
 	}
-	
+
 	return FPGA_OK;
 }
 
@@ -205,7 +205,7 @@ out_destroy:
 out:
 	return res1 != FPGA_OK ? res1 : res2;
 }
-	
+
 /* function to get the bus number when there are multiple accelerators */
 fpga_result get_bus(fpga_token tok, uint8_t *bus)
 {
@@ -219,7 +219,7 @@ fpga_result get_bus(fpga_token tok, uint8_t *bus)
 	res1 = fpgaPropertiesGetBus(props, bus);
 	ON_ERR_GOTO(res1, out_destroy, "Reading bus from properties");
 
-out_destroy: 
+out_destroy:
 	res2 = fpgaDestroyProperties(&props);
 	ON_ERR_GOTO(res2, out, "fpgaDestroyProps");
 out:
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
 	if (num_matches_accelerators > 1) {
 		printf("Found more than one suitable accelerator. ");
-		res1 = get_bus(accelerator_token, &bus); 
+		res1 = get_bus(accelerator_token, &bus);
 		ON_ERR_GOTO(res1, out_exit, "getting bus num");
 		printf("Running on bus 0x%02x.\n", bus);
 	}
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 	printf("Running Test\n");
 
 	bus = 0xff;
-	res1 = get_bus(accelerator_token, &bus); 
+	res1 = get_bus(accelerator_token, &bus);
 	ON_ERR_GOTO(res1, out_free_output, "getting bus num");
 	printf("Running on bus 0x%02x.\n", bus);
 
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
-	timeout = 30000;
+	timeout = 130000000;
 	while (0 == ((*status_ptr) & 0x1)) {
 		usleep(100);
 		if (--timeout == 0) {
@@ -376,6 +376,7 @@ int main(int argc, char *argv[])
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
+	/* asm volatile("" ::: "memory"); */
 
 	/* Check output buffer contents */
 	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
@@ -387,6 +388,7 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Done Running Test\n");
+
 
 	/* Release buffers */
 out_free_output:
