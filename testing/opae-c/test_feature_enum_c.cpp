@@ -35,6 +35,9 @@ extern "C" {
 #include "opae_int.h"
 #include "safe_string/safe_string.h"
 
+#include "types_int.h"
+#include "xfpga.h"
+#include "intel-fpga.h"
 
 #ifdef __cplusplus
 }
@@ -43,14 +46,62 @@ extern "C" {
 #include <array>
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "test_opae_c.h"
+#include <opae/access.h>
+#include <opae/mmio.h>
+#include <linux/ioctl.h>
 
 using namespace opae::testing;
+
+/**
+ * @test       opaec
+ * @brief      Tests: feature_enum_c
+ * @details    When fpgaFeatureEnumerate() is called with a valid param,<br>
+ *             then it enumerates the accelerateor's DFH to find specific<br>
+ *             type of BBB specified in the feature filter<br>
+ */
+
+int mmio_ioctl(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+	struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+	if (!rinfo) {
+		FPGA_MSG("rinfo is NULL");
+		goto out_EINVAL;
+	}
+	if (rinfo->argsz != sizeof(*rinfo)) {
+		FPGA_MSG("wrong structure size");
+		goto out_EINVAL;
+	}
+	if (rinfo->index > 1) {
+		FPGA_MSG("unsupported MMIO index");
+		goto out_EINVAL;
+	}
+	if (rinfo->padding != 0) {
+		FPGA_MSG("unsupported padding");
+		goto out_EINVAL;
+	}
+	rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+	rinfo->size = 0x40000;
+	rinfo->offset = 0;
+	retval = 0;
+	errno = 0;
+out:
+	return retval;
+
+out_EINVAL:
+	retval = -1;
+	errno = EINVAL;
+}
 
 class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -75,8 +126,16 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	EXPECT_EQ(num_matches_, platform_.devices.size());
 	accel_ = nullptr;
 	ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+	system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+	which_mmio_ = 0;
+	uint64_t *mmio_ptr = nullptr;
+	EXPECT_EQ(fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
+	EXPECT_NE(mmio_ptr, nullptr);
+
 	feature_filter_.type = DMA;     // TODO: 
-	memset_s(feature_filter_.guid, sizeof(fpga_guid), 0);
+	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };  // TODO: replace with DMA guid
+	memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 
   }
 
@@ -105,6 +164,7 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  uint32_t which_mmio_;
   std::array<fpga_feature_token, 2> ftokens_;
   fpga_handle accel_;
   fpga_feature_properties feature_filter_;
@@ -117,7 +177,47 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
+TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
+	uint64_t* mmio_ptr = NULL;
 
+	struct DFH dfh ;
+	dfh.id = 0x1;
+	dfh.revision = 0;
+	dfh.next_header_offset = 0x100;
+	dfh.eol = 1;
+	dfh.reserved = 0;
+	dfh.type = 0x1;
+
+	uint64_t offset;
+	printf("------dfh.csr = %lx \n", dfh.csr);
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x0, dfh.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, 0, 0x10, 0xd8424dc4a4a3c413));
+
+
+	struct DFH dfh_bbb = { 0 };
+
+	dfh_bbb.type = 0x2;
+	dfh_bbb.id = 0x2;
+	dfh_bbb.revision = 0;
+	dfh_bbb.next_header_offset = 0x000;
+	dfh_bbb.eol = 1;
+	dfh_bbb.reserved = 0;
+	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
+		
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x100, dfh_bbb.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x110, 0x87816958C1484CE0));
+	printf("Before featureEnumerate\n");
+
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+		ftokens_.size(), &num_matches_), FPGA_OK);
+	printf("test done\n");
+}
+/*
 TEST_P(feature_enum_c_p, nullfilter) {
   EXPECT_EQ(
       fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
@@ -138,6 +238,6 @@ TEST_P(feature_enum_c_p, nulltokens) {
   EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
-
+*/
 INSTANTIATE_TEST_CASE_P(feature_enum_c, feature_enum_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
