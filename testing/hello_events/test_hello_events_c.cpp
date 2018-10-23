@@ -74,7 +74,7 @@ using namespace opae::testing;
 
 class hello_events_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  hello_events_c_p() {}
+  hello_events_c_p() : token_(nullptr) {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -86,8 +86,6 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
 
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
-    token_ = nullptr;
-
     optind = 0;
     events_config_ = events_config;
   }
@@ -96,12 +94,13 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
     events_config = events_config_;
     if (token_) {
       EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
+      token_ = nullptr;
     }
     system_->finalize();
   }
 
-  struct events_config events_config_;
   fpga_token token_;
+  struct events_config events_config_;
   std::thread fpgad_;
   test_platform platform_;
   test_system *system_;
@@ -267,9 +266,9 @@ INSTANTIATE_TEST_CASE_P(hello_events_c, hello_events_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
 
-class hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
+class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
  protected:
-  hello_events_c_fpgad_p() {}
+  mock_hello_events_c_fpgad_p() : token_(nullptr) {}
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
@@ -284,8 +283,6 @@ class hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
-
-    token_ = nullptr;
 
     optind = 0;
     events_config_ = events_config;
@@ -316,6 +313,7 @@ class hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
 
     if (token_) {
       EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
+      token_ = nullptr;
     }
 
     fpgad_srv_.join();
@@ -329,11 +327,11 @@ class hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  fpga_token token_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
   struct events_config events_config_;
   struct config config_;
-  fpga_token token_;
   std::thread fpgad_srv_;
   std::thread fpgad_log_;
   test_platform platform_;
@@ -344,10 +342,10 @@ class hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
  * @test       main2
  * @brief      Test: hello_events_main
  * @details    When a suitable accelerator device is found,<br>
- *             hello_events_main runs to completion,<br>
- *             and the fn returns zero.<br>
+ *             hello_events_main (mock) times out,<br>
+ *             and the fn returns non-zero.<br>
  */
-TEST_P(hello_events_c_fpgad_p, main2) {
+TEST_P(mock_hello_events_c_fpgad_p, main2) {
   char zero[20];
   char one[20];
   char two[20];
@@ -357,13 +355,37 @@ TEST_P(hello_events_c_fpgad_p, main2) {
 
   char *argv[] = { zero, one, two };
 
-  /* FIXME: hello_events_main will time out here for
-  ** a mock environment, because there is no hardware
-  ** behind the error injection register.
-  EXPECT_EQ(hello_events_main(3, argv), 0);
-  */
   EXPECT_NE(hello_events_main(3, argv), 0);
 }
 
-INSTANTIATE_TEST_CASE_P(hello_events_c_fpgad, hello_events_c_fpgad_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
+
+
+class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {
+ protected:
+  hw_hello_events_c_fpgad_p() {}
+};
+
+/**
+ * @test       main2
+ * @brief      Test: hello_events_main
+ * @details    When a suitable accelerator device is found,<br>
+ *             hello_events_main (hw) runs to completion,<br>
+ *             and the fn returns zero.<br>
+ */
+TEST_P(hw_hello_events_c_fpgad_p, main2) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "hello_events");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_EQ(hello_events_main(3, argv), 0);
+}
+
+INSTANTIATE_TEST_CASE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms()));
