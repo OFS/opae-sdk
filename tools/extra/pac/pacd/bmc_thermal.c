@@ -457,8 +457,8 @@ void *bmc_thermal_thread(void *thread_context)
 					     ctx.c->PAC_index);
 					goto out_exit;
 				}
-				sysfs_write_1(ctx.c->fme_token,
-					      "../device/reset");
+				sysfs_write_1(ctx.c->fme_token, "../intel-fpga-port.*/afu_reset");
+				usleep(1000);
 				sysfs_write_1(ctx.c->fme_token,
 					      "../device/remove");
 				while ((res = pacd_bmc_shutdown(&ctx))

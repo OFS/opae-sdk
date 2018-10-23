@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include "common_int.h"
 #include "opae/fpga.h"
 #include "log.h"
@@ -43,13 +44,28 @@ fpga_result sysfs_write_1(fpga_token token, const char *path)
 {
 	int fd;
 	char buf[SYSFS_PATH_MAX];
+	char buf2[SYSFS_PATH_MAX] = {'\0'};
 	struct _fpga_token *tok = (struct _fpga_token *)token;
 
 	if (*path == '/') {
 		snprintf_s_s(buf, SYSFS_PATH_MAX, "%s", path);
 	} else {
-		snprintf_s_ss(buf, SYSFS_PATH_MAX, "%s/%s", tok->sysfspath,
-			      path);
+		char *star = strchr(path, '*');
+		if (!star) {
+			snprintf_s_ss(buf, SYSFS_PATH_MAX, "%s/%s",
+				      tok->sysfspath, path);
+		} else {
+			strcpy_s(buf2, SYSFS_PATH_MAX, path);
+			star = strchr(buf2, '*');
+			char *numb = strrchr(tok->sysfspath, '.');
+			if (!numb || !isxdigit(numb[1])) {
+				dlog("sysfs path corrupt!\n");
+				return FPGA_NOT_FOUND;
+			}
+			*star = numb[1];
+			snprintf_s_ss(buf, SYSFS_PATH_MAX, "%s/%s",
+				      tok->sysfspath, buf2);
+		}
 	}
 
 	fd = open(buf, O_WRONLY);
