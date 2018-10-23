@@ -123,7 +123,7 @@ class openclose_c_p
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
@@ -149,8 +149,6 @@ class openclose_c_p
   test_platform platform_;
   test_system *system_;
 };
-
-
 
 /**
  * @test       open_01
@@ -223,7 +221,8 @@ TEST_P(openclose_c_p, open_05) {
   // Invalid flag
   res = xfpga_fpgaOpen(tokens_[0], &handle_, 42);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
-  
+ 
+  handle_ = nullptr; 
   // Valid flag
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_OK, res);
@@ -288,12 +287,13 @@ TEST_P(openclose_c_p, invalid_close) {
 /**
  * @test       close_03
  *
- * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
- *             but malloc fails. the function returns FPGA_INVALID_PARAM.
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, it 
+ *             returns FPGA_OK.  
+ *             the function returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(openclose_c_p, close_03) {
-  uint64_t * mmio_ptr = NULL;
+  uint64_t * mmio_ptr = nullptr;
   auto res = xfpga_fpgaOpen(tokens_[0], &handle_, 0);
   ASSERT_EQ(FPGA_OK, res);
 
@@ -316,7 +316,8 @@ TEST_P(openclose_c_p, close_03) {
  *             already opened token returns FPGA_OK.
  */
 TEST_P(openclose_c_p, open_share) {
-  fpga_handle h1, h2;
+  fpga_handle h1 = nullptr;
+  fpga_handle h2 = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, FPGA_OPEN_SHARED));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
@@ -324,7 +325,8 @@ TEST_P(openclose_c_p, open_share) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
 }
 
-INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 /**
  * @test       invalid_open_close
@@ -333,7 +335,14 @@ INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, ::testing::ValuesIn(test_pla
  *             but driver is not loaded. the function returns FPGA_NO_DRIVER.
  *
  */
-TEST(openclose_c, invalid_open_close) {
+class openclose_c_mock_p
+    : public ::testing::TestWithParam<std::string> {
+ protected:
+  openclose_c_mock_p() {}
+
+};
+
+TEST_P(openclose_c_mock_p, invalid_open_close) {
   struct _fpga_token _tok;
   fpga_token tok = &_tok;
   fpga_handle h;
@@ -359,3 +368,5 @@ TEST(openclose_c, invalid_open_close) {
 #endif
 }
 
+INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_mock_p, 
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
