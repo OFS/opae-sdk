@@ -584,17 +584,12 @@ TEST(events, event_drv_10) {
  */
 TEST_P(events_p, register_event) {
   fpga_result res;
+  gEnableIRQ = true;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
  
   ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
   EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_), FPGA_OK)
-      << "\tRESULT: " << fpgaErrStr(res);
-
-  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
-            FPGA_OK)
-      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
-  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_),
-            FPGA_OK)
       << "\tRESULT: " << fpgaErrStr(res);
 }
 
@@ -641,15 +636,8 @@ TEST_P(events_p, event_drv_12) {
   auto valid_magic = h->magic;
   h->magic = 0x0;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
-
-  // Reset event handle magic
-  h->magic = FPGA_EVENT_HANDLE_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
-
-  // Destroy event handle
-  auto res = xfpga_fpgaDestroyEventHandle(&bad_handle);
-  EXPECT_EQ(FPGA_OK, res);
 }
+
 
 /**
  * @test       send_fme_event_request
@@ -1063,6 +1051,43 @@ INSTANTIATE_TEST_CASE_P(events, events_p,
 
 class events_mock_p : public events_p {
 };
+
+/**
+ * @test       register_event_02
+ *
+ * @brief      When a valid fpga_event_handle and event types
+ *             are passed to fpgaRegisterEvent and fpgaUnregisterEvent.
+ *             both API calls return FPGA_OK.
+ */
+TEST_P(events_mock_p, register_event_02) {
+  fpga_result res;
+  ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_, 0),
+            FPGA_OK)
+      << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
+  EXPECT_EQ(res = xfpga_fpgaUnregisterEvent(handle_dev_, FPGA_EVENT_POWER_THERMAL, eh_),
+            FPGA_OK)
+      << "\tRESULT: " << fpgaErrStr(res);
+}
+
+/**
+ * @test       event_drv_12
+ *
+ * @brief      When register a valid event handle, FPGA_EVENT_INTERRUPT
+ *             xfpga_fpgaRegisterEvent() returns FPGA_OK.
+ *
+ */
+TEST_P(events_mock_p, event_drv_13) {
+  fpga_event_handle bad_handle;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
+  struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
+
+  // Reset event handle magic
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
+
+  // Destroy event handle
+  auto res = xfpga_fpgaDestroyEventHandle(&bad_handle);
+  EXPECT_EQ(FPGA_OK, res);
+}
 
 /**
  * @test       send_fme_event_request
