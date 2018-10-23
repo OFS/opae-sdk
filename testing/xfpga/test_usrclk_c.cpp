@@ -62,11 +62,15 @@ class usrclk_c
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_,
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
               tokens_dev_.size(), &num_matches_), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
               tokens_accel_.size(), &num_matches_), FPGA_OK);
@@ -147,7 +151,7 @@ TEST(usrclk_c, afu_usrclk_01) {
 * @details When the sysfs path is NULL, set_userclock
 *          returns FPGA_INVALID_PARAM.
 */
-TEST(usrclk_c, set_userclock) {
+TEST(usrclk_c, set_userclock_null) {
   fpga_result result;
 
   // Null handle
@@ -161,7 +165,7 @@ TEST(usrclk_c, set_userclock) {
 * @details When the sysfs path is NULL, get_userclock
 *          returns FPGA_INVALID_PARAM.
 */
-TEST(usrclk_c, get_userclock) {
+TEST(usrclk_c, get_userclock_null) {
   fpga_result result;
 
   // Null handle
@@ -184,7 +188,7 @@ TEST(usrclk_c, fi_run_initz) {
 * @brief   Tests: fpgaSetUserClock
 * @details fpgaSetUserClock
 */
-TEST_P(usrclk_c, fpga_set_user_clock) {
+TEST_P(usrclk_c, set_user_clock_neg) {
   fpga_result result;
   int flags = 0;
 
@@ -210,10 +214,6 @@ TEST_P(usrclk_c, fpga_set_user_clock) {
   result = xfpga_fpgaSetUserClock(handle_accel_, 0, 0, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
-  // Valid clk
-  result = xfpga_fpgaSetUserClock(handle_accel_, 312, 156, flags);
-  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
-
   struct _fpga_handle  *_handle = (struct _fpga_handle *)handle_accel_;
   int fddev = _handle->fddev;
 
@@ -235,7 +235,7 @@ TEST_P(usrclk_c, fpga_set_user_clock) {
 * @brief   Tests: fpgaGetUserClock
 * @details fpgaGetUserClock
 */
-TEST_P(usrclk_c, fpga_get_user_clock) {
+TEST_P(usrclk_c, get_user_clock_neg) {
   fpga_result result;
   uint64_t high;
   uint64_t low;
@@ -255,10 +255,6 @@ TEST_P(usrclk_c, fpga_get_user_clock) {
   // Valid object type
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0));
 
-  // Valid params, valid object type
-  result = xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags);
-  EXPECT_EQ(result, FPGA_OK);
-
   struct _fpga_handle  *_handle = (struct _fpga_handle *)handle_accel_;
   int fddev = _handle->fddev;
 
@@ -275,6 +271,45 @@ TEST_P(usrclk_c, fpga_get_user_clock) {
   _handle->fddev = fddev;
 }
 
-// TODO: Fix user clock test for DCP
-//INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c, ::testing::ValuesIn(test_platform::keys(true)));
-INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c, ::testing::Values("skx-p"));
+/**
+ * @test    get_user_clock
+ * @brief   Tests: xfpga_fpgaGetUserClock()
+ * @details When the parameters are valid, fpgaGetUserClock returns
+ *          FPGA_OK.
+ */
+TEST_P(usrclk_c, get_user_clock) {
+  uint64_t high = 999;
+  uint64_t low = 999;
+  int flags = 0;
+
+  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
+            FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags),
+            FPGA_OK);
+
+  EXPECT_NE(high, 999);
+  EXPECT_NE(low, 999);
+}
+
+/**
+ * @test    set_user_clock
+ * @brief   Tests: xfpga_fpgaSetUserClock()
+ * @details When the parameters are valid, fpgaGetUserClock returns
+ *          FPGA_NOT_SUPPORTED on mock platforms, DCP platforms, and
+ *          MCP platforms if root privileges are not given.
+ */
+TEST_P(usrclk_c, set_user_clock) {
+  uint64_t high = 312;
+  uint64_t low = 156;
+  int flags = 0;
+
+  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
+            FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaSetUserClock(handle_accel_, high, low, flags),
+            FPGA_NOT_SUPPORTED);
+}
+
+INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
+                        ::testing::ValuesIn(test_platform::platforms()));
