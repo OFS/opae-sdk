@@ -202,7 +202,7 @@ typedef struct _opae_dma_adapter_table {
 			transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
 			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
-	fpga_result (*fpgaDMAOpen)(feature_token token, int flags,
+	fpga_result (*fpgaDMAOpen)(fpga_feature_token token, int flags,
 				   void *priv_config,
 				   fpga_feature_handle *handle);
 	fpga_result (*fpgaDMAClose)(fpga_feature_handle *_dma_h);
