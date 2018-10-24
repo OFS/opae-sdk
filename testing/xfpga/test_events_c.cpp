@@ -645,23 +645,6 @@ TEST_P(events_p, event_drv_12) {
 }
 
 /**
- * @test       send_fme_event_request
- * @brief      When passed a valid event handle, handle and flag.
- *             It returns FPGA_EXCEPTION if interrupt is not
- *             supported or ioctl fails.
- */
-TEST_P(events_p, invalid_fme_event_request_02){
-  int fme_op = FPGA_IRQ_ASSIGN;
-  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
-
-  gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
-}
-
-/**
  * @test       send_port_event_request
  * @brief      When passed a valid event handle, handle and flag.
  *             It returns FPGA_EXCEPTION if interrupt is not
@@ -814,6 +797,23 @@ TEST_P(events_mock_p, valid_port_event_request_01){
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   auto res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_OK,res);
+}
+
+/**
+ * @test       send_fme_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_EXCEPTION if interrupt is not
+ *             supported or ioctl fails.
+ */
+TEST_P(events_mock_p, invalid_fme_event_request_02){
+  int fme_op = FPGA_IRQ_ASSIGN;
+  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_EXCEPTION,res);
 }
 
 /**
