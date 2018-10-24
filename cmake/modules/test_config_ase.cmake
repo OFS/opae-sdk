@@ -52,11 +52,11 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
 set(TARGET_SRC_ASE ${COMMON_SRC})
 add_executable(gtase ${TARGET_SRC_ASE})
 
-#set(UNIT_SRC unit/ase/gtmain.cpp
-#  unit/ase/gtAseOps.cpp
-# )
-#set(TARGET_UNIT_ASE ${UNIT_SRC})
-#add_executable(gtAseU ${TARGET_UNIT_ASE})
+set(UNIT_SRC unit/ase/gtmain.cpp
+  unit/ase/gtAseOps.cpp
+ )
+set(TARGET_UNIT_ASE ${UNIT_SRC})
+add_executable(gtAseU ${TARGET_UNIT_ASE})
 
 set(LIB_SRC_PATH_ASE ${OPAE_SDK_SOURCE}/ase/api/src)
 target_compile_definitions(commonlib-ase PUBLIC BUILD_ASE)
@@ -80,15 +80,15 @@ target_include_directories(gtase PUBLIC
 target_link_libraries(gtase commonlib-ase safestr dl opae-c-ase ${libjson-c_LIBRARIES}
   uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 
-# target_compile_definitions(gtAseU PUBLIC BUILD_ASE)
-# target_include_directories(gtAseU PUBLIC
-#   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-#   $<INSTALL_INTERFACE:include>
-#   $<BUILD_INTERFACE:${LIB_SRC_PATH_ASE}>
-#   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-#   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
-# target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
-#   uuid ${GTEST_BOTH_LIBRARIES} )
+ target_compile_definitions(gtAseU PUBLIC BUILD_ASE)
+ target_include_directories(gtAseU PUBLIC
+   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+   $<INSTALL_INTERFACE:include>
+   $<BUILD_INTERFACE:${LIB_SRC_PATH_ASE}>
+   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
+ target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
+   uuid ${GTEST_BOTH_LIBRARIES} )
 
 ############################################################################
 ## ASE compatible version of gtapi (gtase)  ################################
@@ -161,5 +161,5 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     TESTRUNNER_ARGS "-R;ase_all"
     COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb"
 	COVERAGE_EXTRA_COMPONENTS2 "opae-c-ase-server-hello_intr_afu")
-  add_dependencies(coverage_opae-c-ase gtase)
+  add_dependencies(coverage_opae-c-ase gtase gtAseU)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

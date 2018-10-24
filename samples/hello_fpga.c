@@ -376,7 +376,6 @@ int main(int argc, char *argv[])
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
-	/* asm volatile("" ::: "memory"); */
 
 	/* Check output buffer contents */
 	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
