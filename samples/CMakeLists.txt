@@ -68,7 +68,9 @@ endif()
 ######################################################################
 # Client application #################################################
 ######################################################################
-
+if(BUILD_ASE)
+  add_definitions(-DTEST_TIMEOUT=130000000)
+endif()
 add_executable(hello_fpga hello_fpga.c)
 if(BUILD_LIBOPAE_C)
   target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
