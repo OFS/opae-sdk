@@ -153,7 +153,7 @@ enum fpga_object_read_flags {
 };
 
 
-/** Metrics type
+/** Metrics  group type
 *
 *
 */
