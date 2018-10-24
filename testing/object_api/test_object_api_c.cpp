@@ -221,7 +221,7 @@ TEST_P(object_api_c_mock_p, main1) {
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 
-class object_api_c_hw_p : public object_api_c_p {
+class object_api_c_mcp_hw_p : public object_api_c_p {
 };
 
 /**
@@ -232,7 +232,7 @@ class object_api_c_hw_p : public object_api_c_p {
  *             to add counter, print counters and<br>
  *             return FPGA_OK.<br>
  */
-TEST_P(object_api_c_hw_p, main1) {
+TEST_P(object_api_c_mcp_hw_p, main1) {
   char zero[20];
   char one[20];
   char two[20];
@@ -245,5 +245,33 @@ TEST_P(object_api_c_hw_p, main1) {
   EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({})));
+INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mcp_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+
+
+class object_api_c_dcp_hw_p : public object_api_c_p {
+};
+
+/**
+ * @test       main1
+ * @brief      Test: object_api_main
+ * @details    When given a valid command line,<br>
+ *             object_api_main checks *perf directories.<br>
+ *             to add counter, print counters. DCP machines<br>
+ *             does not have dperf/cache. So it returns -1.<br>
+ */
+TEST_P(object_api_c_dcp_hw_p, main1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(object_api_main(3, argv), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_dcp_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc"})));
