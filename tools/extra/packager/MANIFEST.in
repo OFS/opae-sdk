@@ -1,0 +1,4 @@
+recursive-include metadata *
+recursive-include test *
+recursive-include schema *
+include packager.py gbs.py afu.py afu_json_mgr.py utils.py README
