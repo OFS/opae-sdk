@@ -32,7 +32,6 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
   unit/gtEnumerate.cpp
   unit/gtOptionParser.cpp
   unit/gtAnyValue.cpp
-  unit/gtsysfs.cpp
   function/gtCxxEnumerate.cpp
   function/gtCxxEvents.cpp
   function/gtCxxOpenClose.cpp
@@ -46,7 +45,6 @@ set(COMMON_SRC gtmain.cpp jsonParser.cpp
   function/gtReset.cpp
   function/gtBuffer.cpp
   function/gtEnumerate.cpp
-  # function/gtError.cpp
   function/gtMMIO.cpp
   function/gtVersion.cpp
   function/gtOpenClose.cpp
@@ -82,15 +80,15 @@ target_include_directories(gtase PUBLIC
 target_link_libraries(gtase commonlib-ase safestr dl opae-c-ase ${libjson-c_LIBRARIES}
   uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-c++ opae-cxx-core)
 
-target_compile_definitions(gtAseU PUBLIC BUILD_ASE)
-target_include_directories(gtAseU PUBLIC
-  $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${LIB_SRC_PATH_ASE}>
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
-target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
-  uuid ${GTEST_BOTH_LIBRARIES} )
+ target_compile_definitions(gtAseU PUBLIC BUILD_ASE)
+ target_include_directories(gtAseU PUBLIC
+   $<BUILD_INTERFACE:${GTEST_INCLUDE_DIRS}>
+   $<INSTALL_INTERFACE:include>
+   $<BUILD_INTERFACE:${LIB_SRC_PATH_ASE}>
+   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
+ target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
+   uuid ${GTEST_BOTH_LIBRARIES} )
 
 ############################################################################
 ## ASE compatible version of gtapi (gtase)  ################################
