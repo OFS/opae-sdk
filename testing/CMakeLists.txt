@@ -167,6 +167,19 @@ target_include_directories(hello_events-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(object_api-static
+    ${OPAE_SDK_SOURCE}/samples/object_api.c
+    )
+
+target_compile_definitions(object_api-static PRIVATE main=object_api_main)
+
+target_include_directories(object_api-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+
+
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -502,6 +515,14 @@ add_unit_test(test_hello_events_c hello_events-static
     hello_events/test_hello_events_c.cpp
 )
 target_link_libraries(test_hello_events_c fpgad-static safestr)
+
+############################################################################
+# object_api tests #######################################################
+############################################################################
+
+add_unit_test(test_object_api_c object_api-static
+    object_api/test_object_api_c.cpp
+)
 
 add_custom_command(TARGET test_unit
     PRE_BUILD
