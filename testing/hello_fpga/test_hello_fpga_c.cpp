@@ -304,7 +304,6 @@ TEST_P(mock_hello_fpga_c_p, main1) {
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_EXCEPTION);
 }
 
-// Causes ASE to crash because of timeout
 INSTANTIATE_TEST_CASE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
 

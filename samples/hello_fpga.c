@@ -61,6 +61,10 @@
 
 int usleep(unsigned);
 
+#ifndef TEST_TIMEOUT
+#define TEST_TIMEOUT 30000
+#endif // TEST_TIMEOUT
+
 #ifndef CL
 # define CL(x)                       ((x) * 64)
 #endif // CL
@@ -363,7 +367,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
-	timeout = 130000000;
+	timeout = TEST_TIMEOUT;
 	while (0 == ((*status_ptr) & 0x1)) {
 		usleep(100);
 		if (--timeout == 0) {
