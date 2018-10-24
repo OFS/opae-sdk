@@ -65,7 +65,7 @@ check_py () {
 
     PYCODESTYLE=$(which pycodestyle)
     PYLINT=$(which pylint)
-    FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" )
+    FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" -and \( ! -name "__init__.py" \))
     FILES+=" "
     FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 

@@ -26,8 +26,7 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
-set(PYOPAE_PYBIND11_VERSION "2.2")
-
+set(PYOPAE_PYBIND11_VERSION "2.2.4")
 set(PYOPAE_SRC opae.cpp
                pycontext.h
                pycontext.cpp
