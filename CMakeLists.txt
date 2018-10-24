@@ -105,9 +105,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
 set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
 
-#add_custom_target(copy-common-opae-header-files ALL
-#  COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
-
 # Install common header files
 install(DIRECTORY common/include/opae
   DESTINATION include
@@ -185,20 +182,17 @@ mark_as_advanced(BUILD_TESTS)
 option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 mark_as_advanced(BUILD_ASE_TESTS)
 
-## TODO: Remove this once this replaces old school tests
-option(NEW_UNITS "Use new testing framework" OFF)
-mark_as_advanced(NEW_UNITS)
 option(ENABLE_MOCK "Enable mock driver for testing." ON)
 mark_as_advanced(ENABLE_MOCK)
 
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
-  if (NEW_UNITS)
-    add_subdirectory(testing)
-  else(NEW_UNITS)
+  if (BUILD_ASE_TESTS)
     add_subdirectory(tests)
-  endif(NEW_UNITS)
+  else(BUILD_ASE_TESTS)
+    add_subdirectory(testing)
+  endif(BUILD_ASE_TESTS)
 endif()
 
 ############################################################################
