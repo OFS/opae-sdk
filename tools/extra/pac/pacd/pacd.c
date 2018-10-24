@@ -184,6 +184,9 @@ int main(int argc, char *argv[])
 	int res;
 	int i;
 	int j;
+	int result = 0;
+	void *thread_result = NULL;
+
 	pthread_t bmc_thermal[MAX_PAC_DEVICES]; /* one per device */
 	struct bmc_thermal_context context[MAX_PAC_DEVICES];
 	context[0].num_thresholds = 0;
@@ -666,6 +669,7 @@ int main(int argc, char *argv[])
 
 	if (initial_msg >= 1000) {
 		dlog("PAC card not found - terminating");
+		result = -1;
 		goto out;
 	}
 
@@ -742,14 +746,17 @@ int main(int argc, char *argv[])
 		if (res) {
 			dlog("failed to create BMC_THERMAL thread #%i.\n", i);
 			config.running = false;
-			for (j = 0; j < i; j++)
+			for (j = 0; j < i; j++) {
 				pthread_join(bmc_thermal[j], NULL);
+			}
 			return 1;
 		}
 	}
 
-	for (i = 0; i < num_PACs; i++)
-		pthread_join(bmc_thermal[i], NULL);
+	for (i = 0; i < num_PACs; i++) {
+		pthread_join(bmc_thermal[i], &thread_result);
+		result |= (thread_result != NULL);
+	}
 
 	if (stdout != fLog) {
 		close_log();
@@ -762,8 +769,9 @@ int main(int argc, char *argv[])
 out:
 	remove(PACD_LOCKFILE);
 
-	if (pthread_mutex_destroy(&config.reload_mtx))
+	if (pthread_mutex_destroy(&config.reload_mtx)) {
 		dlog("pthread_mutex_destroy failed\n");
+	}
 
-	return 0;
+	return result;
 }

@@ -52,6 +52,7 @@
 #define ON_GOTO(cond, label, desc, ...)                                        \
 	do {                                                                   \
 		if (cond) {                                                    \
+			retval = (void *)((uint64_t)retval + 1);               \
 			dlog("pacd[%d]: " desc "\n", ctx.c->PAC_index,         \
 			     ##__VA_ARGS__);                                   \
 			goto label;                                            \
@@ -233,6 +234,7 @@ void *bmc_thermal_thread(void *thread_context)
 	fpga_handle fme_handle;
 	fpga_result res;
 	fpga_properties filter = NULL;
+	void *retval = NULL;
 
 	memset_s(&ctx, sizeof(ctx), 0);
 
@@ -259,6 +261,7 @@ void *bmc_thermal_thread(void *thread_context)
 	if ((!ctx.gbs_found) || (res != FPGA_OK)) {
 		dlog("pacd[%d]: no suitable default bitstream for device\n",
 		     ctx.c->PAC_index);
+		retval = (void *)((uint64_t)retval + 1);
 		goto out_exit;
 	}
 
@@ -455,10 +458,10 @@ void *bmc_thermal_thread(void *thread_context)
 					    &ctx.c->config->reload_mtx)) {
 					dlog("pacd[%d]: PANIC: pthread_mutex_lock failure.\n",
 					     ctx.c->PAC_index);
+					retval = (void *)((uint64_t)retval + 1);
 					goto out_exit;
 				}
-				sysfs_write_1(ctx.c->fme_token, "../intel-fpga-port.*/afu_reset");
-				usleep(1000);
+
 				sysfs_write_1(ctx.c->fme_token,
 					      "../device/remove");
 				while ((res = pacd_bmc_shutdown(&ctx))
@@ -474,6 +477,7 @@ void *bmc_thermal_thread(void *thread_context)
 					    &ctx.c->config->reload_mtx)) {
 					dlog("pacd[%d]: PANIC: pthread_mutex_unlock failure.\n",
 					     ctx.c->PAC_index);
+					retval = (void *)((uint64_t)retval + 1);
 					goto out_exit;
 				}
 
@@ -497,6 +501,7 @@ void *bmc_thermal_thread(void *thread_context)
 				if (FPGA_OK != res) {
 					dlog("pacd[%d]: PANIC: driver not reloaded.\n",
 					     ctx.c->PAC_index);
+					retval = (void *)((uint64_t)retval + 1);
 					goto out_exit;
 				}
 			} else {
@@ -561,7 +566,7 @@ out_exit:
 		bmcDestroySDRs(&ctx.records);
 	}
 
-	return NULL;
+	return retval;
 
 out_destroy_values:
 	bmcDestroySensorValues(&ctx.values);
