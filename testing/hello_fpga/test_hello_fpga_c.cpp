@@ -273,15 +273,23 @@ TEST_P(hello_fpga_c_p, main0) {
   EXPECT_NE(hello_fpga_main(2, argv), 0);
 }
 
+INSTANTIATE_TEST_CASE_P(hello_fpga_c, hello_fpga_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));
+
+class mock_hello_fpga_c_p : public hello_fpga_c_p {
+ protected:
+  mock_hello_fpga_c_p() {}
+};
+
 /**
  * @test       main1
  * @brief      Test: hello_fpga_main
  * @details    When given a valid command line,<br>
- *             hello_fpga_main runs the NLB0 workload.<br>
+ *             hello_fpga_main (mock) runs the NLB0 workload.<br>
  *             The workload times out in a mock environment,<br>
  *             causing hello_fpga_main to return FPGA_EXCEPTION.<br>
  */
-TEST_P(hello_fpga_c_p, main1) {
+TEST_P(mock_hello_fpga_c_p, main1) {
   char zero[20];
   char one[20];
   char two[20];
@@ -293,13 +301,36 @@ TEST_P(hello_fpga_c_p, main1) {
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
-  /*
-  ** FIXME hello_fpga_main will timeout in a mock environment,
-  ** but this test should run to successful completion
-  ** on hardware, and the fn should return FPGA_OK.
-  */
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_EXCEPTION);
 }
 
-INSTANTIATE_TEST_CASE_P(hello_fpga_c, hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class hw_hello_fpga_c_p : public mock_hello_fpga_c_p {
+ protected:
+  hw_hello_fpga_c_p() {}
+};
+
+/**
+ * @test       main1
+ * @brief      Test: hello_fpga_main
+ * @details    When given a valid command line,<br>
+ *             hello_fpga_main (hw) runs the NLB0 workload,<br>
+ *             and the fn returns FPGA_OK.<br>
+ */
+TEST_P(hw_hello_fpga_c_p, main1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "hello_fpga");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_EQ(hello_fpga_main(3, argv), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms()));
