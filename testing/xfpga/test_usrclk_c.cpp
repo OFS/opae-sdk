@@ -292,14 +292,18 @@ TEST_P(usrclk_c, get_user_clock) {
   EXPECT_NE(low, 999);
 }
 
+INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
+                        ::testing::ValuesIn(test_platform::platforms()));
+
+class usrclk_mock_c : public usrclk_c {};
+
 /**
  * @test    set_user_clock
  * @brief   Tests: xfpga_fpgaSetUserClock()
  * @details When the parameters are valid, fpgaGetUserClock returns
- *          FPGA_NOT_SUPPORTED on mock platforms, DCP platforms, and
- *          MCP platforms if root privileges are not given.
+ *          FPGA_NOT_SUPPORTED on mock platforms.
  */
-TEST_P(usrclk_c, set_user_clock) {
+TEST_P(usrclk_mock_c, set_user_clock) {
   uint64_t high = 312;
   uint64_t low = 156;
   int flags = 0;
@@ -311,5 +315,28 @@ TEST_P(usrclk_c, set_user_clock) {
             FPGA_NOT_SUPPORTED);
 }
 
-INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms()));
+INSTANTIATE_TEST_CASE_P(usrclk, usrclk_mock_c,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class usrclk_hw_c : public usrclk_c {};
+
+/**
+ * @test    set_user_clock
+ * @brief   Tests: xfpga_fpgaSetUserClock()
+ * @details When the parameters are valid, fpgaGetUserClock returns
+ *          FPGA_OK.
+ */
+TEST_P(usrclk_hw_c, set_user_clock) {
+  uint64_t high = 312;
+  uint64_t low = 156;
+  int flags = 0;
+
+  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
+            FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaSetUserClock(handle_accel_, high, low, flags),
+            FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(usrclk, usrclk_hw_c,
+                        ::testing::ValuesIn(test_platform::hw_platforms()));
