@@ -16,7 +16,7 @@ add_library(test_system SHARED EXCLUDE_FROM_ALL
 if (CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
   set_target_properties(test_system PROPERTIES COMPILE_FLAGS "-Wno-error=frame-address")
 endif()
-target_link_libraries(test_system fpga_db dl)
+target_link_libraries(test_system fpga_db dl uuid)
 target_include_directories(test_system PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/testing>

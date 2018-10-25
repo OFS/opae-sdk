@@ -31,41 +31,37 @@
 
 // BBB Feature ID (refer CCI-P spec)
 #define FPGA_DMA_BBB 0x2
-#define DMA_ID1 "EA01CEBA-359A-14A9-FC40-ECF6F7DE82EF"
+#define DMA_ID1 "E7E3E958-F2E8-739D-E04C-48C158698187"
 
 #define AFU_DFH_REG 0x0
 #define AFU_DFH_NEXT_OFFSET 16
 #define AFU_DFH_EOL_OFFSET 40
 #define AFU_DFH_TYPE_OFFSET 60
 
-static inline bool _fpga_dfh_feature_eol(uint64_t dfh) 
-{ 
-	return ((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1; 
-} 
-
-/* Check feature type is BBB  */
-static inline bool _fpga_dfh_feature_is_dma(uint64_t dfh) 
-{ 
-	// BBB is type 2 
-	return ((dfh >> AFU_DFH_TYPE_OFFSET) & 0xf) == FPGA_DMA_BBB; 
-} 
- 
-/* Offset to the next feature header */
-static inline uint64_t _fpga_dfh_feature_next(uint64_t dfh) 
-{ 
-	return (dfh >> AFU_DFH_NEXT_OFFSET) & 0xffffff; 
-}
+struct DFH {
+	union {
+		uint64_t csr;
+		struct {
+			uint64_t id : 12;
+			uint64_t  revision : 4;
+			uint64_t next_header_offset : 24;
+			uint64_t eol : 1;
+			uint64_t reserved : 19;
+			uint64_t  type : 4;
+		};
+	};
+};
 
 /* Non-zero on failure */
-int dma_plugin_mgr_initialize(fpga_handle handle);
+int feature_plugin_mgr_initialize(fpga_handle handle);
 
 /* Non-zero on failure */
-int dma_plugin_mgr_finalize_all(void);
+int feature_plugin_mgr_finalize_all(void);
 
 /* Iteration stops if callback returns non-zero */
 #define OPAE_ENUM_STOP 1
 #define OPAE_ENUM_CONTINUE 0
-opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid);
+opae_feature_adapter_table *get_feature_plugin_adapter(fpga_guid guid);
 
 void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid);
 

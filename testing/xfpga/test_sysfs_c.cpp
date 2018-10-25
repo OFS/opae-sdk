@@ -29,9 +29,9 @@ extern "C" {
 fpga_result cat_token_sysfs_path(char *, fpga_token, const char *);
 fpga_result get_port_sysfs(fpga_handle, char *);
 //    fpga_result get_fpga_deviceid(fpga_handle,uint64_t*);
-fpga_result sysfs_get_pr_id(int, fpga_guid);
-fpga_result sysfs_get_slots(int, uint32_t *);
-fpga_result sysfs_get_bitstream_id(int, uint64_t *);
+fpga_result sysfs_get_pr_id(int, int, fpga_guid);
+fpga_result sysfs_get_slots(int, int, uint32_t *);
+fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
 fpga_result opae_glob_path(char *);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
@@ -77,6 +77,8 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
+                                        platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                                   &num_matches_),
@@ -126,17 +128,16 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   auto h = (struct _fpga_handle *)handle_;
   auto t = (struct _fpga_token *)h->token;
 
-  strncpy(t->sysfspath, sysfs_fme.c_str(), sizeof(t->sysfspath));
-  auto res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
+  char spath[SYSFS_PATH_MAX];
+  fpga_result res;
 
   char invalid_string[] = "...";
   strncpy(t->sysfspath, invalid_string, sizeof(t->sysfspath));
-  res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
+  res = get_port_sysfs(handle_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->token = NULL;
-  res = get_port_sysfs(handle_, const_cast<char *>(sysfs_fme.c_str()));
+  res = get_port_sysfs(handle_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
@@ -243,31 +244,6 @@ TEST(sysfs_c, cat_handle_sysfs_path) {
 }
 
 /**
-* @test    make_sysfs_group
-* @details
-*/
-TEST_P(sysfs_c_p, make_sysfs) {
-  const std::string invalid_path =
-      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
-  fpga_object obj;
-  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
-  EXPECT_EQ(res, FPGA_OK);
-
-  res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
-                         handle_);
-  EXPECT_NE(res, FPGA_OK);
-
-  res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
-                         &obj, 0, handle_);
-  EXPECT_EQ(res, FPGA_NOT_FOUND);
-
-  res = make_sysfs_group(tok->sysfspath, "errors", &obj,
-                         FPGA_OBJECT_RECURSE_ONE, handle_);
-  EXPECT_EQ(res, FPGA_OK);
-}
-
-/**
 * @test    make_object
 * @details
 */
@@ -277,19 +253,7 @@ TEST_P(sysfs_c_p, make_object) {
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 0, 0),
             FPGA_OK);
-}
-
-/**
-* @test   make_object_glob
-* @details
-*/
-TEST_P(sysfs_c_p, make_object_glob) {
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
-  fpga_object object;
-  // errors is a sysfs directory - this should call make_sysfs_group()
-  ASSERT_NE(
-      make_sysfs_object(tok->sysfspath, "errors", &object, FPGA_OBJECT_GLOB, 0),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 /**
@@ -324,10 +288,6 @@ TEST_P(sysfs_c_p, fpga_sysfs_01) {
 
   result = sysfs_deviceid_from_path(
       "/sys/class/fpga/intel-fpga-dev.20/intel-fpga-fme", &deviceid);
-  ASSERT_NE(result, FPGA_OK);
-
-  result = sysfs_deviceid_from_path(
-      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.20", &deviceid);
   ASSERT_NE(result, FPGA_OK);
 
   result = sysfs_deviceid_from_path(
@@ -451,11 +411,6 @@ TEST_P(sysfs_c_p, fpga_sysfs_02) {
                            0x100);
   EXPECT_NE(result, FPGA_OK);
 
-  // valid path
-  result = sysfs_write_u64(
-      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
-  EXPECT_EQ(result, FPGA_OK);
-
   // Invalid input parameters
   fpga_guid guid;
   result = sysfs_read_guid(NULL, NULL);
@@ -478,42 +433,6 @@ TEST_P(sysfs_c_p, fpga_sysfs_02) {
   // NULL handle
   result = get_fpga_deviceid(NULL, NULL);
   EXPECT_NE(result, FPGA_OK);
-}
-
-/**
-* @test    sysfs_get_pr_id
-* @details sysfs_get_pr_id given a valid bitstream
-*          return FPGA_NOT_FOUND from sysfs_read_guid
-*/
-TEST(sysfs_c, sysfs_get_pr_id) {
-  int dev = 0;
-  fpga_guid guid;
-  auto res = sysfs_get_pr_id(dev, guid);
-  EXPECT_NE(res, FPGA_OK);
-}
-
-/**
-* @test    sysfs_get_slots
-* @details sysfs_get_slots given a valid parameters
-*          return FPGA_NOT_FOUND from sysfs_read_u32
-*/
-TEST(sysfs_c, sysfs_get_slots) {
-  int dev = 0;
-  uint32_t u32;
-  auto res = sysfs_get_slots(dev, &u32);
-  EXPECT_NE(res, FPGA_OK);
-}
-
-/**
-* @test    sysfs_get_bitstream_id
-* @details sysfs_get_bitstream_id given a valid parameters
-*          return FPGA_NOT_FOUND from sysfs_read_u64
-*/
-TEST(sysfs_c, sysfs_get_bitstream_id) {
-  int dev = 0;
-  uint64_t u64;
-  auto res = sysfs_get_bitstream_id(dev, &u64);
-  EXPECT_NE(res, FPGA_OK);
 }
 
 /**
@@ -556,3 +475,162 @@ TEST(sysfs_c, cstr_dup) {
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
+
+class sysfs_c_hw_p : public sysfs_c_p {
+ protected:
+  sysfs_c_hw_p() {}
+};
+
+/**
+ * @test    make_sysfs_group
+ * @details
+ */
+TEST_P(sysfs_c_hw_p, make_sysfs) {
+  const std::string invalid_path =
+      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  fpga_object obj;
+  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
+  EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
+
+  res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
+                         handle_);
+  EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
+
+  res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
+                         &obj, 0, handle_);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
+
+  res = make_sysfs_group(tok->sysfspath, "errors", &obj,
+                         FPGA_OBJECT_RECURSE_ONE, handle_);
+  EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test   make_object_glob
+ * @details
+ */
+TEST_P(sysfs_c_hw_p, make_object_glob) {
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  fpga_object object;
+  // errors is a sysfs directory - this should call make_sysfs_group()
+  ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object,
+                              FPGA_OBJECT_GLOB, 0),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms()));
+
+class sysfs_c_mock_p : public sysfs_c_p {
+ protected:
+  sysfs_c_mock_p() {}
+};
+
+/**
+ * @test    make_sysfs_group
+ * @details
+ */
+TEST_P(sysfs_c_mock_p, make_sysfs) {
+  const std::string invalid_path =
+      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  fpga_object obj;
+
+  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
+  EXPECT_EQ(res, FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
+
+  res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
+                         handle_);
+  EXPECT_NE(res, FPGA_OK);
+
+  res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
+                         &obj, 0, handle_);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
+
+  res = make_sysfs_group(tok->sysfspath, "errors", &obj,
+                         FPGA_OBJECT_RECURSE_ONE, handle_);
+  EXPECT_EQ(res, FPGA_OK);
+
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test   make_object_glob
+ * @details
+ */
+TEST_P(sysfs_c_mock_p, make_object_glob) {
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  fpga_object object;
+  // errors is a sysfs directory - this should call make_sysfs_group()
+  ASSERT_NE(make_sysfs_object(tok->sysfspath, "errors", &object, 
+                              FPGA_OBJECT_GLOB, 0),
+            FPGA_OK);
+}
+
+/**
+ * @test    fpga_sysfs_02
+ *          sysfs_write_u64
+ */
+TEST_P(sysfs_c_mock_p, fpga_sysfs_02) {
+  fpga_result result;
+  // valid path
+  result = sysfs_write_u64(
+           "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
+  EXPECT_EQ(result, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  sysfs_c_mock_no_drv_p() {}
+};
+
+/**
+ * @test    sysfs_get_pr_id
+ * @details sysfs_get_pr_id given a valid bitstream
+ *          return FPGA_NOT_FOUND from sysfs_read_guid
+ */
+TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_pr_id) {
+  int dev = 0;
+  int subdev = 0;
+  fpga_guid guid;
+  auto res = sysfs_get_pr_id(dev, subdev, guid);
+  EXPECT_NE(res, FPGA_OK);
+}
+
+/**
+ * @test    sysfs_get_slots
+ * @details sysfs_get_slots given a valid parameters
+ *          return FPGA_NOT_FOUND from sysfs_read_u32
+ */
+TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_slots) {
+  int dev = 0;
+  int subdev = 0;
+  uint32_t u32;
+  auto res = sysfs_get_slots(dev, subdev, &u32);
+  EXPECT_NE(res, FPGA_OK);
+}
+
+/**
+ * @test    sysfs_get_bitstream_id
+ * @details sysfs_get_bitstream_id given a valid parameters
+ *          return FPGA_NOT_FOUND from sysfs_read_u64
+ */
+TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_bitstream_id) {
+  int dev = 0;
+  int subdev = 0;
+  uint64_t u64;
+  auto res = sysfs_get_bitstream_id(dev, subdev, &u64);
+  EXPECT_NE(res, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_no_drv_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));

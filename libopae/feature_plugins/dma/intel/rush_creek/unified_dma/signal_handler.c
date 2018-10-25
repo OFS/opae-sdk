@@ -24,51 +24,80 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+/**
+ * \signal_handler.c
+ * \brief FPGA DMA User-mode driver
+ */
 
-#include <dlfcn.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <opae/fpga.h>
+#include <stddef.h>
+#include <poll.h>
+#include <errno.h>
+#include <unistd.h>
+#include <assert.h>
+#include <inttypes.h>
+#include <signal.h>
+#include "fpga_dma_internal.h"
+#include "fpga_dma.h"
 
-#include "adapter.h"
+// For signal handler - need to properly handle HUP
+static void sig_handler(int sig, siginfo_t *signfo, void *unused);
+static volatile uint32_t *CsrControl;
 
-#define UNUSED_PARAM(x) ((void)x)
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-//#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
-
-int __FPGA_API__ dma_plugin_initialize(void)
+int fpgaDMA_setup_sig_handler(fpga_dma_handle_t *dma_h)
 {
+	struct sigaction sa;
+	int sigres;
+
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
+	sa.sa_sigaction = sig_handler;
+
+	sigres = sigaction(SIGHUP, &sa, &dma_h->old_action);
+	if (sigres < 0) {
+		CsrControl = NULL;
+		return sigres;
+	}
+	CsrControl = HOST_MMIO_32_ADDR(dma_h, CSR_CONTROL(dma_h));
 
 	return 0;
 }
 
-int __FPGA_API__ dma_plugin_finalize(void)
+void fpgaDMA_restore_sig_handler(fpga_dma_handle_t *dma_h)
 {
+	int sigres;
 
-	return 0;
+	if (CsrControl) {
+		sigres = sigaction(SIGHUP, &dma_h->old_action, NULL);
+		if (sigres < 0) {
+			error_print(
+				"Error: failed to unregister signal handler.\n");
+		}
+		CsrControl = NULL;
+	}
 }
 
-int __FPGA_API__ dma_plugin_configure(opae_dma_adapter_table *adapter,
-				       const char *jsonConfig)
+static void sig_handler(int sig, siginfo_t *info, void *unused)
 {
-	UNUSED_PARAM(jsonConfig);
+	(void)(info);
+	(void)(unused);
 
-	/*adapter->fpgaDMAOpen = dlsym(adapter->plugin.dl_handle, "dma_plugin_open");
-	adapter->fpgaDMAClose =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_close");
-		*/
-	adapter->fpgaDMAPropertiesGet = 
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_propertiesGet");
-	adapter->fpgaDMATransferSync =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_transferSync");
-	adapter->fpgaDMATransferCB = dlsym(
-		adapter->plugin.dl_handle, "dma_plugin_transferCB");
+	if (CsrControl == NULL) {
+		return;
+	}
 
-	adapter->initialize =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_initialize");
-	adapter->finalize =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_finalize");
-
-	return 0;
+	switch (sig) {
+	case SIGHUP: {
+		// Driver removed - shut down!
+		*CsrControl = DMA_SHUTDOWN_CTL_VAL;
+		fprintf(stderr, "Got SIGHUP. Exiting.\n");
+		*CsrControl = DMA_SHUTDOWN_CTL_VAL;
+		_exit(-1);
+	} break;
+	default:
+		break;
+	}
 }

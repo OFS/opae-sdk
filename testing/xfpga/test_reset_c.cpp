@@ -88,18 +88,6 @@ TEST_P(reset_c_p, test_port_drv_reset) {
 
 /**
  * @test       reset_c
- * @brief      test_port_drv_reset_01
- * @details    When the parameters are valid and the drivers are loaded,
- *             xfpga_fpgaReset returns FPGA_EXCEPTION.
- *
- */
-TEST_P(reset_c_p, test_port_drv_reset_01) {
-  system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
-}
-
-/**
- * @test       reset_c
  * @brief      test_port_drv_reset_02
  * @details    When the parameters are invalid and the drivers are
  *             loaded, xfpga_fpgaReset return error.
@@ -152,3 +140,23 @@ TEST_P(reset_c_p, valid_port_reset) {
 } 
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
+class reset_c_mock_p : public reset_c_p {
+ protected:
+  reset_c_mock_p() {}
+};
+
+/**
+ * @test       reset_c
+ * @brief      test_port_drv_reset_01
+ * @details    When the parameters are valid and the drivers are loaded,
+ *             xfpga_fpgaReset returns FPGA_EXCEPTION.
+ *
+ */
+TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
+  system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
+}
+
+INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));

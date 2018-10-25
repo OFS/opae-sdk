@@ -131,6 +131,6 @@ __attribute__((destructor)) STATIC void opae_release(void)
 	}
 	g_logfile = NULL;
 	feature_token_cleanup();
-	if (dma_plugin_mgr_finalize_all())
-		OPAE_ERR("dma_plugin_mgr_finalize_all");
+	if (feature_plugin_mgr_finalize_all())
+		OPAE_ERR("feature_plugin_mgr_finalize_all");
 }

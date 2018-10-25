@@ -26,8 +26,7 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
-set(PYOPAE_PYBIND11_VERSION "2.2")
-
+set(PYOPAE_PYBIND11_VERSION "2.2.4")
 set(PYOPAE_SRC opae.cpp
                pycontext.h
                pycontext.cpp
@@ -42,7 +41,10 @@ set(PYOPAE_SRC opae.cpp
                pyevents.h
                pyevents.cpp
                pyerrors.h
-               pyerrors.cpp)
+               pyerrors.cpp
+               pysysobject.h
+               pysysobject.cpp
+               )
 
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}

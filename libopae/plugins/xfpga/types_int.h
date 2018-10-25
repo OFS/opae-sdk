@@ -102,7 +102,8 @@ extern "C" {
 #endif
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
-	uint32_t instance;
+	uint32_t device_instance;
+	uint32_t subdev_instance;
 	uint64_t magic;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];

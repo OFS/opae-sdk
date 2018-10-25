@@ -42,7 +42,7 @@
 #include "feature_token_list_int.h"
 
 /* global list of tokens we've seen */
-static struct _fpga_feature_token *ftoken_root = NULL;
+static struct _fpga_feature_token *ftoken_root;
 /** Mutex to protect feature tokens */
 pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -56,7 +56,8 @@ pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
  *
  * @return
  */
-struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpga_handle handle)
+struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid,
+					      fpga_handle handle)
 {
 	struct _fpga_feature_token *tmp;
 	errno_t e;
@@ -68,17 +69,19 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	}
 
 	/* Prevent duplicate entries. */
-	for (tmp = ftoken_root ; NULL != tmp ; tmp = tmp->next) {
+	for (tmp = ftoken_root; NULL != tmp; tmp = tmp->next) {
 		if ((uuid_compare(guid, tmp->feature_guid)) == 0) {
 			err = pthread_mutex_unlock(&ftoken_lock);
 			if (err) {
-				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+				OPAE_ERR("pthread_mutex_unlock() failed: %S",
+					 strerror(err));
 			}
 			return tmp;
 		}
 	}
 
-	tmp = (struct _fpga_feature_token *)malloc(sizeof(struct _fpga_feature_token));
+	tmp = (struct _fpga_feature_token *)malloc(
+		sizeof(struct _fpga_feature_token));
 	if (NULL == tmp) {
 		OPAE_ERR("Failed to allocate memory for fhandle");
 		return NULL;
@@ -90,8 +93,8 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid, fpg
 	tmp->handle = handle;
 
 	e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,
-			       sizeof(fpga_guid));
-                                 
+		     sizeof(fpga_guid));
+
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
 		goto out_free;
@@ -124,7 +127,7 @@ out_free:
 void feature_token_cleanup(void)
 {
 	int err = 0;
-	struct _fpga_feature_token * current = ftoken_root;
+	struct _fpga_feature_token *current = ftoken_root;
 	err = pthread_mutex_lock(&ftoken_lock);
 	if (err) {
 		OPAE_ERR("pthread_mutex_lock() failed: %s", strerror(err));
