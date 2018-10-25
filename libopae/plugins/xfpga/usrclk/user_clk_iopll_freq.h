@@ -58,7 +58,7 @@ struct iopll_config {
 };
 
 // Reference frequency: 100MHz
-const struct iopll_config const iopll_freq_config[] = {
+const struct iopll_config iopll_freq_config[] = {
 	{ 0 }, // Freq 0 not configured
 	{ 0 }, // Freq 1 not configured
 	{ 0 }, // Freq 2 not configured

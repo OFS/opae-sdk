@@ -42,7 +42,27 @@ extern pthread_mutex_t global_lock;
 
 using namespace opae::testing;
 
-TEST(token_list_c, simple_case)
+class token_list_c_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  token_list_c_p() {}
+
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+  }
+
+  virtual void TearDown() override {
+    system_->finalize();
+  }
+
+  test_platform platform_;
+  test_system *system_;
+};
+
+TEST_P(token_list_c_p, simple_case)
 {
   const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
   const char *dev_fme = "/dev/intel-fpga-fme.0";
@@ -64,7 +84,7 @@ TEST(token_list_c, simple_case)
   EXPECT_EQ(nullptr, parent);
 }
 
-TEST(token_list_c, invalid_mutex)
+TEST_P(token_list_c_p, invalid_mutex)
 {
   const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
   const char *dev_fme = "/dev/intel-fpga-fme.0";
@@ -96,7 +116,7 @@ TEST(token_list_c, invalid_mutex)
   EXPECT_EQ(nullptr, parent);
 }
 
-TEST(token_list_c, invalid_paths)
+TEST_P(token_list_c_p, invalid_paths)
 {
   // paths missing dot
   std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
@@ -127,7 +147,8 @@ TEST(token_list_c, invalid_paths)
   fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_EQ(fme, nullptr);
 
-
-
   token_cleanup();
 }
+
+INSTANTIATE_TEST_CASE_P(token_list_c, token_list_c_p,
+                        ::testing::ValuesIn(test_platform::keys(true)));

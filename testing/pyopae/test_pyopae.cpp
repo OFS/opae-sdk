@@ -2,6 +2,7 @@
 
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <fstream>
 #include <iostream>
 #include "mock/test_system.h"
@@ -16,10 +17,19 @@ PYBIND11_EMBEDDED_MODULE(mopae, m) {
 
 PYBIND11_EMBEDDED_MODULE(mockopae, m) {
   py::class_<test_platform> pytp(m, "test_platform");
-  pytp.def_static("platforms", &test_platform::platforms);
-  pytp.def_static("get", &test_platform::get);
+  pytp.def_static("platforms", &test_platform::platforms)
+      .def_static("get", &test_platform::get)
+      .def_static("exists", &test_platform::exists)
+      .def("is_mock", [](test_platform &p) { return p.mock_sysfs != nullptr; })
+      .def_property_readonly("devices",
+                             [](test_platform &p) { return p.devices; });
+  ;
 
   py::class_<test_device> pytd(m, "test_device");
+  pytd.def_property_readonly("afu_guid",
+                             [](test_device &td) { return td.afu_guid; })
+      .def_property_readonly("fme_guid",
+                             [](test_device &td) { return td.fme_guid; });
   py::class_<test_system> pyts(m, "test_system");
 
   pyts.def(py::init(&test_system::instance))
@@ -44,8 +54,10 @@ int run_unittest(const char *testpy, py::module pymain) {
     auto runner = unit.attr("TextTestRunner")(**kwargs);
     auto result = runner.attr("run")(suite);
     return result.attr("wasSuccessful")().cast<bool>() ? 0 : 1;
-  } catch (const py::error_already_set &ex) {
+  } catch (py::error_already_set &ex) {
+    test_system::instance()->finalize();
     std::cerr << "error executing: " << testpy << " - " << ex.what() << "\n";
+    ex.restore();
   }
   return EXIT_FAILURE;
 }

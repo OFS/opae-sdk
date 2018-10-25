@@ -96,7 +96,6 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	char spath[SYSFS_PATH_MAX];
 	char *p;
 	int s, b, d, f;
-	int device_instance;
 	int res;
 	errno_t e;
 	int err = 0;
@@ -136,16 +135,12 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 
 	*p = 0;
 
-	// Isolate the dev number.
-	p = strrchr(spath, '.');
-	ASSERT_NOT_NULL_MSG(p, "Invalid token sysfs path");
-
-	device_instance = atoi(p + 1);
-
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL != p) {
 		// AFU
-		result = sysfs_get_afu_id(device_instance, _iprop.guid);
+		result = sysfs_get_afu_id(_token->device_instance,
+					  _token->subdev_instance,
+					  _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
@@ -180,18 +175,22 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		_iprop.objtype = FPGA_DEVICE;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 		// get bitstream id
-		result = sysfs_get_pr_id(device_instance, _iprop.guid);
+		result = sysfs_get_pr_id(_token->device_instance,
+					 _token->subdev_instance,
+					 _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
 
-		result = sysfs_get_slots(device_instance,
+		result = sysfs_get_slots(_token->device_instance,
+					 _token->subdev_instance,
 					 &_iprop.u.fpga.num_slots);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
 
-		result = sysfs_get_bitstream_id(device_instance,
+		result = sysfs_get_bitstream_id(_token->device_instance,
+						_token->subdev_instance,
 						&_iprop.u.fpga.bbs_id);
 		if (FPGA_OK != result)
 			return result;
@@ -223,7 +222,9 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
 	// only set socket id if we have it on sysfs
-	result = sysfs_get_socket_id(device_instance, &_iprop.socket_id);
+	result = sysfs_get_socket_id(_token->device_instance,
+				     _token->subdev_instance,
+				     &_iprop.socket_id);
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 

@@ -169,6 +169,19 @@ target_include_directories(hello_events-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(object_api-static
+    ${OPAE_SDK_SOURCE}/samples/object_api.c
+    )
+
+target_compile_definitions(object_api-static PRIVATE main=object_api_main)
+
+target_include_directories(object_api-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+
+
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
@@ -520,6 +533,14 @@ add_unit_test(test_hello_events_c hello_events-static
 )
 target_link_libraries(test_hello_events_c fpgad-static safestr)
 
+############################################################################
+# object_api tests #######################################################
+############################################################################
+
+add_unit_test(test_object_api_c object_api-static
+    object_api/test_object_api_c.cpp
+)
+
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -556,7 +577,9 @@ if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
      ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
      ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
      ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp)
+     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp
+     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.h
+     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.cpp)
 target_compile_definitions(test_pyopae PRIVATE
     OPAE_EMBEDDED)
 target_include_directories(test_pyopae
@@ -585,5 +608,6 @@ endmacro(add_pyopae_test pytest)
 
 add_pyopae_test(test_properties.py)
 add_pyopae_test(test_shared_buffers.py)
+add_pyopae_test(test_sysobject.py)
 
 endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
