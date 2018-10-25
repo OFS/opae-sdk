@@ -803,15 +803,15 @@ fpga_result fpgaPrepareBuffer(fpga_handle handle, uint64_t len, void **buf_addr,
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
-	// A special case: respond FPGA_OK when !buf_addr and !len
-	// as an indication that FPGA_BUF_PREALLOCATED is supported
-	// by the library.
-	if ((flags & FPGA_BUF_PREALLOCATED) && !buf_addr && !len) {
-		return FPGA_OK;
+	// A special case: allow each plugin to respond FPGA_OK
+	// when !buf_addr and !len as an indication that
+	// FPGA_BUF_PREALLOCATED is supported by the plugin.
+	if (!(flags & FPGA_BUF_PREALLOCATED) || (len > 0)) {
+		// Assert only if not the special case described above.
+		ASSERT_NOT_NULL(buf_addr);
 	}
 
 	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL(buf_addr);
 	ASSERT_NOT_NULL(wsid);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaPrepareBuffer,
 			       FPGA_NOT_SUPPORTED);
