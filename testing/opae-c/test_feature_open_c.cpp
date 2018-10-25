@@ -179,7 +179,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 };
 
 
-TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
+TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 	uint64_t* mmio_ptr = NULL;
 
 	struct DFH dfh ;
