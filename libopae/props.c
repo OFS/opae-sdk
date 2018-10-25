@@ -28,6 +28,10 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif // _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
