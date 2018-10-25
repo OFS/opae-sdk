@@ -401,7 +401,7 @@ add_mock_test(test_xfpga_metrics_c xfpga-static
     xfpga/test_metrics_c.cpp
 )
 
-target_link_libraries(test_xfpga_events_c fpgad-static safestr 
+target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
         ${libjson-c_LIBRARIES})
 
 ############################################################################

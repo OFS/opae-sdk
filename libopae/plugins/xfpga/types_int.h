@@ -119,51 +119,37 @@ enum fpga_hw_type {
 	FPGA_HW_UNKNOWN
 };
 
-enum fpga_metric_units {
-	FPGA_METRICS_UNITS_UNKNOWN,
-	FPGA_METRICS_UNITS_CENTRIGRADE,
-	FPGA_METRICS_UNITS_FAHRENHEIT,
-	FPGA_METRICS_UNITS_KELVIN,
-	FPGA_METRICS_UNITS_VOLTS,
-	FPGA_METRICS_UNITS_AMPS,
-	FPGA_METRICS_UNITS_WATTS
-};
-
-
 // FPGA enum metrics struct
 struct _fpga_enum_metric {
 
-	char group_name[FPGA_METRIC_STR_SIZE];						// Metrics Group name
-	char group_sysfs[FPGA_METRIC_STR_SIZE];					// Metrics Group sysfs path
+	char group_name[FPGA_METRIC_STR_SIZE];            // Metrics Group name
+	char group_sysfs[FPGA_METRIC_STR_SIZE];           // Metrics Group sysfs path
 
-	char metric_name[FPGA_METRIC_STR_SIZE];					// Metrics  name
-	char metric_sysfs[FPGA_METRIC_STR_SIZE];					// Metrics  sysfs path
+	char metric_name[FPGA_METRIC_STR_SIZE];           // Metrics name
+	char metric_sysfs[FPGA_METRIC_STR_SIZE];          // Metrics sysfs path
 
-	char qualifier_name[FPGA_METRIC_STR_SIZE];					// Metrics qualifier name
+	char qualifier_name[FPGA_METRIC_STR_SIZE];        // Metrics qualifier name
 
-	char metric_units[FPGA_METRIC_STR_SIZE];					// Metrics  units
+	char metric_units[FPGA_METRIC_STR_SIZE];          // Metrics units
 
-	uint64_t						metric_num;					// Metrics ID
+	uint64_t metric_num;                              // Metrics ID
 
-	enum fpga_metric_datatype		metric_datatype;			// Metrics datatype
+	enum fpga_metric_datatype metric_datatype;        // Metrics datatype
 
-	enum fpga_metric_type			metric_type;				// Hardware type
+	enum fpga_metric_type metric_type;                // Metric type
 
-	enum fpga_hw_type				hw_type;
+	enum fpga_hw_type hw_type;                       // Hardware type
 
-	enum fpga_metric_units			metric_unit_type;
-
-	uint64_t						mmio_offset;
+	uint64_t mmio_offset;                            // AFU Metric BBS mmio offset
 
 };
 
 
 struct _fpga_bmc_metric {
 
-	char group_name[FPGA_METRIC_STR_SIZE];		// Metrics Group name
-	char metric_name[FPGA_METRIC_STR_SIZE];	// Metrics  name
-	struct fpga_metric_t  fpga_metric;			// Metric value
-
+	char group_name[FPGA_METRIC_STR_SIZE];     // Metrics Group name
+	char metric_name[FPGA_METRIC_STR_SIZE];    // Metrics  name
+	struct fpga_metric fpga_metric;             // Metric value
 };
 
 /** Process-wide unique FPGA handle */
@@ -179,12 +165,12 @@ struct _fpga_handle {
 	uint64_t umsg_size;	 // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	// umsg IOVA from driver
 
-	// Metric enum vector
-	bool metric_enum_status;
-	fpga_metric_vector fpga_enum_metric_vector;
-	void *dl_handle;
-	struct _fpga_bmc_metric *_bmc_metric_value;
-	uint64_t num_bmc_metric;
+	// Metric
+	bool metric_enum_status;                             // metric enum status
+	fpga_metric_vector fpga_enum_metric_vector;          // metric enum vector
+	void *bmc_handle;                                    // bmc module handle
+	struct _fpga_bmc_metric *_bmc_metric_cache_value;    // bmc cache values
+	uint64_t num_bmc_metric;                             // num of bmc values
 };
 
 /*

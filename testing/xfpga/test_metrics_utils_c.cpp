@@ -51,51 +51,132 @@ extern "C" {
 #include "token_list_int.h"
 #include <dlfcn.h>
 #include "test_utils.h"
-
+#include "safe_string/safe_string.h"
+//#include "metrics/metrics_metadata.h"
 using namespace opae::testing;
 
-#if 0
+
+
+class metics_uitls_c_p : public ::testing::TestWithParam<std::string> {
+protected:
+	metics_uitls_c_p()
+		: tokens_{ {nullptr, nullptr} },
+		handle_(nullptr) {}
+
+	virtual void SetUp() override {
+
+		ASSERT_TRUE(test_platform::exists(GetParam()));
+		platform_ = test_platform::get(GetParam());
+		system_ = test_system::instance();
+		system_->initialize();
+		system_->prepare_syfs(platform_);
+
+		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+			&num_matches_),
+			FPGA_OK);
+
+		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+
+
+	}
+
+	virtual void TearDown() override {
+		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+		for (auto &t : tokens_) {
+			if (t) {
+				EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+				t = nullptr;
+			}
+		}
+		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+		system_->finalize();
+	}
+
+	std::array<fpga_token, 2> tokens_;
+	fpga_handle handle_;
+	fpga_properties filter_;
+	uint32_t num_matches_;
+	test_platform platform_;
+	test_system *system_;
+
+};
+
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: sysfs_path_is_dir
+ * @details    Validates input path as directory <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_01) {
+TEST_P(metics_uitls_c_p, test_metric_utils_100) {
 
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { 0 };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 
-	EXPECT_NE(FPGA_OK, sysfs_path_is_dir(NULL));
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir(NULL));
 
-	EXPECT_NE(FPGA_OK, sysfs_path_is_dir(group_sysfs));
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir(group_sysfs));
 
-	EXPECT_NE(FPGA_OK, sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id"));
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id"));
 
-	EXPECT_NE(FPGA_OK, sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id1"));
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id1"));
 
-	EXPECT_EQ(FPGA_OK, sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"));
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	//printf("sysclass_path %s \n", sysclass_path.c_str());
+
+	EXPECT_EQ(FPGA_OK, metric_sysfs_path_is_dir((const char*)sysclass_path.c_str()));
 
 }
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: sysfs_path_is_file
+ * @details    Validates input path as directory <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_02) {
+TEST_P(metics_uitls_c_p, test_metric_utils_101) {
 
-	char group_name[FPGA_METRICS_STR_SIZE] = { "power_mgmt" };
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { "tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/" };
+	char metric_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 
-	char metrics_name[FPGA_METRICS_STR_SIZE] = { "consumed" };
-	char metrics_sysfs[FPGA_METRICS_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/" };
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file(NULL));
 
-	char qualifier_name[FPGA_METRICS_STR_SIZE] = { "power_mgmt" };
-	char metric_units[FPGA_METRICS_STR_SIZE] = { "watts" };
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file(metric_sysfs));
+
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"));
+
+	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id1"));
+
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+
+	snprintf_s_ss(metric_sysfs, sizeof(metric_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/bitstream_id");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", metric_sysfs);
+
+	EXPECT_EQ(FPGA_OK, metric_sysfs_path_is_file((const char*)metric_sysfs));
+
+}
+
+
+/**
+ * @test       opaec
+ * @brief      Tests: add_metric_vector
+ * @details    Validates add to metric vector <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_102) {
+
+	char group_name[FPGA_METRIC_STR_SIZE] = { "power_mgmt" };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/" };
+
+	char metrics_name[FPGA_METRIC_STR_SIZE] = { "consumed" };
+	char metrics_sysfs[FPGA_METRIC_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/" };
+
+	char qualifier_name[FPGA_METRIC_STR_SIZE] = { "power_mgmt" };
+	char metric_units[FPGA_METRIC_STR_SIZE] = { "watts" };
 
 	fpga_metric_vector metric_vector;
 
@@ -138,15 +219,15 @@ TEST(metrics_utils, test_metric_utils_02) {
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: enum_thermalmgmt_metrics
+ * @details    Validates enumeration of thermal metrics <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_03) {
+TEST_P(metics_uitls_c_p, test_metric_utils_103) {
 
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
-	char group_sysfs_invalid[FPGA_METRICS_STR_SIZE] = { 0 };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
+	char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = { 0 };
 
 	fpga_metric_vector vector;
 	uint64_t metric_id = 0;
@@ -161,6 +242,12 @@ TEST(metrics_utils, test_metric_utils_03) {
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+
 	EXPECT_EQ(FPGA_OK, enum_thermalmgmt_metrics(&vector, &metric_id, group_sysfs, FPGA_HW_MCP));
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
@@ -171,15 +258,15 @@ TEST(metrics_utils, test_metric_utils_03) {
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: enum_powermgmt_metrics
+ * @details    Validates enumeration of power metrics <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_04) {
+TEST_P(metics_uitls_c_p, test_metric_utils_104) {
 
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
-	char group_sysfs_invalid[FPGA_METRICS_STR_SIZE] = { 0 };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
+	char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = { 0 };
 	uint64_t metric_id = 0;
 	fpga_metric_vector vector;
 
@@ -194,53 +281,68 @@ TEST(metrics_utils, test_metric_utils_04) {
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+
 	EXPECT_EQ(FPGA_OK, enum_powermgmt_metrics(&vector, &metric_id, group_sysfs, FPGA_HW_MCP));
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-
-
-
 }
+
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: enum_perf_counter_items
+* @details    Validates enumeration performance counters metrics <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_05) {
+TEST_P(metics_uitls_c_p, test_metric_utils_105) {
 
-	char qualifier_name[FPGA_METRICS_STR_SIZE] = { 0 };
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { 0 };
-	char sysfs_name[FPGA_METRICS_STR_SIZE] = { 0 };
+	char qualifier_name[FPGA_METRIC_STR_SIZE] = { 0 };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
+	char sysfs_name[FPGA_METRIC_STR_SIZE] = { 0 };
 	uint64_t metric_id = 0;
 	fpga_metric_vector vector;
 
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(NULL, &metric_id, qualifier_name, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(NULL, &metric_id, qualifier_name, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, NULL, qualifier_name, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, NULL, qualifier_name, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, NULL, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, NULL, group_sysfs, sysfs_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, NULL, sysfs_name, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, NULL, sysfs_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, group_sysfs, NULL, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
-
-
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, group_sysfs, NULL, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
-
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)"/tmp/class/fpga/intel-fpga-dev.1", sysfs_name, FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, group_sysfs, NULL, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
 
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, group_sysfs, NULL, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
+
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)"/tmp/class/fpga/intel-fpga-dev.1", sysfs_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-	EXPECT_EQ(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/iperf/", (char*)"fabric", FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
 
-	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/iperf/perf", (char*)"port0", FPGA_METRIC_TYPE_PERF_FABRIC, FPGA_HW_MCP));
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/iperf/");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+
+	EXPECT_EQ(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)group_sysfs,
+		(char*)"fabric", FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
+
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/perf/");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+	EXPECT_NE(FPGA_OK, enum_perf_counter_items(&vector, &metric_id, qualifier_name, (char*)group_sysfs,
+		(char*)"port0", FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 
@@ -250,14 +352,14 @@ TEST(metrics_utils, test_metric_utils_05) {
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: enum_perf_counter_metrics
+* @details    Validates enumeration performance counters metrics <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_06) {
+TEST_P(metics_uitls_c_p, test_metric_utils_106) {
 
-	char group_sysfs[FPGA_METRICS_STR_SIZE] = { 0 };
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 	fpga_metric_vector vector;
 	uint64_t metric_id = 0;
 
@@ -269,7 +371,14 @@ TEST(metrics_utils, test_metric_utils_06) {
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-	EXPECT_EQ(FPGA_OK, enum_perf_counter_metrics(&vector, &metric_id, (char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", FPGA_HW_MCP));
+
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+
+	EXPECT_EQ(FPGA_OK, enum_perf_counter_metrics(&vector, &metric_id, (char*)group_sysfs, FPGA_HW_MCP));
 
 	EXPECT_NE(FPGA_OK, enum_perf_counter_metrics(&vector, &metric_id, (char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", FPGA_HW_MCP));
 
@@ -280,12 +389,12 @@ TEST(metrics_utils, test_metric_utils_06) {
 
 /**
  * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @brief      Tests: add_metric_info
+* @details    Validates add metrics info <br>
+ *
+ *
  */
-TEST(metrics_utils, test_metric_utils_07) {
+TEST_P(metics_uitls_c_p, test_metric_utils_107) {
 
 
 	struct _fpga_enum_metric _enum_metric = {
@@ -302,76 +411,31 @@ TEST(metrics_utils, test_metric_utils_07) {
 	};
 
 
-	struct fpga_metric_t  fpga_metric;
+	struct fpga_metric_info  fpga_metric_info;
 
-	EXPECT_NE(FPGA_OK, add_metric_info(NULL, &fpga_metric));
+	EXPECT_NE(FPGA_OK, add_metric_info(NULL, &fpga_metric_info));
 	EXPECT_NE(FPGA_OK, add_metric_info(&_enum_metric, NULL));
 
-	EXPECT_EQ(FPGA_OK, add_metric_info(&_enum_metric, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, add_metric_info(&_enum_metric, &fpga_metric_info));
 
 }
 
 
-class metics_uitls_c_p : public ::testing::TestWithParam<std::string>{
- protected:
-	 metics_uitls_c_p()
-  : tokens_{{nullptr, nullptr}},
-	handle_(nullptr) {}
-
-  virtual void SetUp() override {
-
-	ASSERT_TRUE(test_platform::exists(GetParam()));
-	platform_ = test_platform::get(GetParam());
-	system_ = test_system::instance();
-	system_->initialize();
-	system_->prepare_syfs(platform_);
-
-	ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-	ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-	ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-								  &num_matches_),
-			  FPGA_OK);
-
-	ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-	}
-
-  virtual void TearDown() override {
-	EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-	for (auto &t : tokens_) {
-	  if (t) {
-		EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-		t = nullptr;
-	  }
-	}
-	if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-	system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-
-};
-
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
-*/
-TEST_P(metics_uitls_c_p, test_metric_utils_08) {
+ * @test       opaec
+ * @brief      Tests: enum_fpga_metrics
+* @details    Validates enumeration fpga metrics <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_109) {
 	fpga_result result;
-	struct _fpga_handle _handle_invlaid;
 
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(_handle));
 
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(_handle));
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
 	EXPECT_NE(FPGA_OK, enum_fpga_metrics(NULL));
 
@@ -382,58 +446,58 @@ TEST_P(metics_uitls_c_p, test_metric_utils_08) {
 }
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
-*/
-TEST_P(metics_uitls_c_p, test_metric_utils_09) {
+ * @test       opaec
+ * @brief      Tests: enum_fpga_metrics
+* @details    Validates enumeration fpga metrics <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_10) {
 	fpga_result result;
 
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(_handle));
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
-	struct fpga_metric_t  fpga_metric;
+	struct fpga_metric  fpga_metric;
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle,&(_handle->fpga_enum_metric_vector), 1, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_,&(_handle->fpga_enum_metric_vector), 1, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 5, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 5, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 10, &fpga_metric));
-
-
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 15, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 10, &fpga_metric));
 
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 20, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 15, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 25, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 30, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 20, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 34, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 25, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 31, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 30, &fpga_metric));
 
-	EXPECT_EQ(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 32, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 34, &fpga_metric));
 
-	EXPECT_NE(FPGA_OK, get_metric_value_byid(_handle, NULL, 1, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 31, &fpga_metric));
 
-	EXPECT_NE(FPGA_OK, get_metric_value_byid(_handle, &(_handle->fpga_enum_metric_vector), 1, NULL));
+	EXPECT_EQ(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 32, &fpga_metric));
+
+	EXPECT_NE(FPGA_OK, get_fme_metric_value(handle_, NULL, 1, &fpga_metric));
+
+	EXPECT_NE(FPGA_OK, get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector), 1, NULL));
 
 }
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
-*/
-TEST_P(metics_uitls_c_p, test_metric_utils_10) {
+ * @test       opaec
+ * @brief      Tests: parse_metric_num_name
+* @details    Validates parse metric string <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_11) {
 	fpga_result result;
 
 
@@ -443,46 +507,126 @@ TEST_P(metics_uitls_c_p, test_metric_utils_10) {
 
 	char serach_string[] = { "power_mgmt:consumed" };
 	uint64_t metric_id;
-	EXPECT_EQ(FPGA_OK, get_metricid_from_serach_string((const char*)serach_string, &(_handle->fpga_enum_metric_vector), &metric_id));
+	EXPECT_EQ(FPGA_OK, parse_metric_num_name((const char*)serach_string, &(_handle->fpga_enum_metric_vector), &metric_id));
 
 
-	EXPECT_NE(FPGA_OK, get_metricid_from_serach_string(NULL, &(_handle->fpga_enum_metric_vector), &metric_id));
+	EXPECT_NE(FPGA_OK, parse_metric_num_name(NULL, &(_handle->fpga_enum_metric_vector), &metric_id));
 
-	EXPECT_NE(FPGA_OK, get_metricid_from_serach_string((const char*)serach_string, &(_handle->fpga_enum_metric_vector), NULL));
+	EXPECT_NE(FPGA_OK, parse_metric_num_name((const char*)serach_string, &(_handle->fpga_enum_metric_vector), NULL));
 
-	EXPECT_NE(FPGA_OK, get_metricid_from_serach_string((const char*)serach_string, NULL, &metric_id));
+	EXPECT_NE(FPGA_OK, parse_metric_num_name((const char*)serach_string, NULL, &metric_id));
 
-	EXPECT_NE(FPGA_OK, get_metricid_from_serach_string((const char*) "power_mgmt consumed", &(_handle->fpga_enum_metric_vector), &metric_id));
+	EXPECT_NE(FPGA_OK, parse_metric_num_name((const char*) "power_mgmt consumed", &(_handle->fpga_enum_metric_vector), &metric_id));
 
 }
 
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
-*/
-TEST_P(metics_uitls_c_p, test_metric_utils_11) {
+ * @test       opaec
+ * @brief      Tests: enum_fpga_metrics
+* @details    Validates delete enum metric <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_12) {
 	fpga_result result;
 
 
+
+
+	//EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(_handle));
+	//EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(_handle));
 
-	EXPECT_EQ(FPGA_OK, delete_fpga_enum_metrics_vector(_handle));
-
-	EXPECT_NE(FPGA_OK, delete_fpga_enum_metrics_vector(NULL));
+	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(NULL));
 
 	struct _fpga_handle _handle_invalid;
 
-	EXPECT_NE(FPGA_OK, delete_fpga_enum_metrics_vector(&_handle_invalid));
+	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(&_handle_invalid));
 
 }
 
-INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+/**
+ * @test       opaec
+ * @brief      Tests: enum_fpga_metrics
+* @details    Validates delete enum metric <br>
+ *
+ *
+ */
+TEST_P(metics_uitls_c_p, test_metric_utils_13) {
+	fpga_result result;
+	uint64_t  value;
+
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
+
+	EXPECT_NE(FPGA_OK, get_pwr_thermal_value(group_sysfs,NULL));
+	EXPECT_NE(FPGA_OK, get_pwr_thermal_value(NULL, &value));
+
+	EXPECT_NE(FPGA_OK, get_pwr_thermal_value((char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", &value));
+
+
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/power_mgmt/fpga_limit");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+	EXPECT_EQ(FPGA_OK, get_pwr_thermal_value(group_sysfs, &value));
+
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/power_mgmt/xeon_limit");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+	EXPECT_EQ(FPGA_OK, get_pwr_thermal_value(group_sysfs, &value));
+
+
+}
+
+TEST_P(metics_uitls_c_p, test_metric_utils_14) {
+	fpga_result result;
+	uint64_t  value;
+
+	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
+	char metric_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
+
+	EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, metric_sysfs, NULL));
+	EXPECT_NE(FPGA_OK, get_performance_counter_value(NULL, metric_sysfs, &value));
+	EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, NULL, &value));
+
+
+	EXPECT_NE(FPGA_OK, get_performance_counter_value((char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", metric_sysfs, &value));
+
+
+	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+	snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/power_mgmt/iperf/cache");
+	printf("sysclass_path %s \n", sysclass_path.c_str());
+	printf("metric_sysfs %s \n", group_sysfs);
+
+	snprintf_s_ss(metric_sysfs, sizeof(metric_sysfs), "%s/%s", sysclass_path.c_str(), "intel-fpga-fme.0/power_mgmt/iperf/cache/read_miss1");
+	printf("metric_sysfs %s \n", metric_sysfs);
+
+	EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, metric_sysfs, &value));
+
+
+
+}
+
+TEST_P(metics_uitls_c_p, test_metric_utils_15) {
+	fpga_result result;
+
+	
+	fpga_objtype objtype;
+	EXPECT_NE(FPGA_OK, get_fpga_object_type(NULL, &objtype));
+
+	EXPECT_NE(FPGA_OK, get_fpga_object_type(handle_,NULL));
+
+	
+
+
+}
+
+//INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::Values(std::string("skx-p-1s")));
 
 
 class metics_uitls_dcp_c_p : public ::testing::TestWithParam<std::string> {
@@ -535,25 +679,24 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 	fpga_metric_vector vector;
-	_handle->dl_handle = dlopen("libbmc.so", RTLD_LAZY | RTLD_LOCAL);
 
-	if (!_handle->dl_handle) {
+	_handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+
+	if (!_handle->bmc_handle) {
 		OPAE_ERR("--------------------------failed to load ");
 
 	}
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-	
-
-	enum_bmc_metrics_info(_handle, _handle->token,  &vector, &metric_id, FPGA_HW_DCP_RC);
+	EXPECT_EQ(FPGA_OK, enum_bmc_metrics_info(_handle,  &vector, &metric_id, FPGA_HW_DCP_RC));
 
 	//EXPECT_NE(FPGA_OK, enum_fpga_metrics(&_handle_invlaid));
 
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 
-	dlclose(_handle->dl_handle);
+	dlclose(_handle->bmc_handle);
 
 }
 
@@ -563,12 +706,39 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(_handle));
+	_handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+
+	if (!_handle->bmc_handle) {
+		OPAE_ERR("--------------------------failed to load ");
+
+	}
+
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+
+}
+
+TEST_P(metics_uitls_dcp_c_p, test_metric_utils_14) {
+	fpga_result result;
 
 
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
+
+	_handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+
+	if (!_handle->bmc_handle) {
+		OPAE_ERR("--------------------------failed to load ");
+
+	}
+
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+
+	struct _fpga_enum_metric _fpga_enum_metric;
+	struct fpga_metric fpga_metric;
+
+	get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric);
+	get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric);
 
 }
 
 INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_dcp_c_p, ::testing::Values(std::string("dcp-rc")));
 
-#endif

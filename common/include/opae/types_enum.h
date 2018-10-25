@@ -153,16 +153,16 @@ enum fpga_object_read_flags {
 };
 
 
-/** Metrics  group type
-*
-*
+/** fpga metrics types
+* opae defines power,theraml, performance counter 
+* and afu metric types
 */
 enum fpga_metric_type {
-	FPGA_METRIC_TYPE_POWER,
-	FPGA_METRIC_TYPE_THERMAL,
-	FPGA_METRIC_TYPE_PERF,
-	FPGA_METRIC_TYPE_AFU,
-	FPGA_METRIC_TYPE_UNKNOWN
+	FPGA_METRIC_TYPE_POWER,             // Metric power
+	FPGA_METRIC_TYPE_THERMAL,           // Metric Theraml
+	FPGA_METRIC_TYPE_PERFORMANCE_CTR,   // Metric Performance counter
+	FPGA_METRIC_TYPE_AFU,               // Metric AFU 
+	FPGA_METRIC_TYPE_UNKNOWN            // Unknown
 };
 
 /** Metrics data type
@@ -170,12 +170,11 @@ enum fpga_metric_type {
 *
 */
 enum fpga_metric_datatype {
-	FPGA_METRIC_DATATYPE_INT,
-	FPGA_METRIC_DATATYPE_FLAOT,
-	FPGA_METRIC_DATATYPE_DOUBLE,
-	FPGA_METRIC_DATATYPE_BOOL,
-	FPGA_METRIC_DATATYPE_UNKNOWN
+	FPGA_METRIC_DATATYPE_INT,       // Metric datatype integer
+	FPGA_METRIC_DATATYPE_FLOAT,     // Metric datatype float
+	FPGA_METRIC_DATATYPE_DOUBLE,    // Metric datatype double
+	FPGA_METRIC_DATATYPE_BOOL,      // Metric datatype bool
+	FPGA_METRIC_DATATYPE_UNKNOWN    // Metric datatype unknown
 };
-
 
 #endif // __FPGA_TYPES_ENUM_H__

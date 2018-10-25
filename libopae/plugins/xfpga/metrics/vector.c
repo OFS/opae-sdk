@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@
 #include "common_int.h"
 #include "safe_string/safe_string.h"
 
-#define FPGA_VECTOR_CAPACITY 20
+#define FPGA_VECTOR_CAPACITY     20
 
 fpga_result fpga_vector_init(fpga_metric_vector *vector)
 {
@@ -64,7 +64,8 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 		FPGA_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
-	free(vector->fpga_metric_item);
+	if(vector->fpga_metric_item)
+		free(vector->fpga_metric_item);
 
 	vector->fpga_metric_item = NULL;
 
@@ -101,7 +102,6 @@ fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity)
 		vector->capacity = capacity;
 	}
 	return result;
-
 }
 
 fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item)
@@ -124,20 +124,6 @@ fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item)
 
 
 	return result;
-
-}
-
-void *fpga_vector_pop(fpga_metric_vector *vector, uint64_t index)
-{
-	if (vector == NULL) {
-		FPGA_ERR("Invalid parm");
-		return NULL;
-	}
-
-	if (index < vector->total)
-		return vector->fpga_metric_item[index];
-
-	return NULL;
 }
 
 
@@ -150,9 +136,11 @@ fpga_result fpga_vector_delete(fpga_metric_vector *vector, uint64_t index)
 		FPGA_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
-
 	if (index >= vector->total)
 		return FPGA_INVALID_PARAM;
+
+	if(vector->fpga_metric_item[index])
+		free(vector->fpga_metric_item[index]);
 
 	vector->fpga_metric_item[index] = NULL;
 

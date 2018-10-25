@@ -115,6 +115,9 @@ protected:
 		: handle_(nullptr),
 		tokens_{ {nullptr, nullptr} } {}
 
+	void create_metric_bbb_dfh();
+	void create_metric_bbb_csr();
+
 	virtual void SetUp() override {
 		ASSERT_TRUE(test_platform::exists(GetParam()));
 		platform_ = test_platform::get(GetParam());
@@ -161,57 +164,10 @@ protected:
 	uint32_t num_matches_;
 	test_platform platform_;
 	test_system *system_;
+
 };
 
-TEST_P(afu_metrics_c_p, test_afu_metrics_01) {
-	uint64_t* mmio_ptr = NULL;
-
-	struct DFH dfh ;
-	dfh.id = 0x1;
-	dfh.revision = 0;
-	dfh.next_header_offset = 0x100;
-	dfh.eol = 1;
-	dfh.reserved = 0;
-	dfh.type = 0x1;
-
-	uint64_t offset;
-	printf("------dfh.csr = %llx \n", dfh.csr);
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(handle_, 0, 0x10, 0xd8424dc4a4a3c413));
-
-
-	struct DFH dfh_bbb = { 0 };
-
-	dfh_bbb.type = 0x2;
-	dfh_bbb.id = 0x1;
-	dfh_bbb.revision = 0;
-	dfh_bbb.next_header_offset = 0x000;
-	dfh_bbb.eol = 1;
-	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %llx \n", dfh_bbb.csr);
-		
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x100, dfh_bbb.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
-	
-	//
-	EXPECT_EQ(FPGA_OK, discover_afu_metrics_feature(handle_, &offset));
-
-	// NULL Input parameters
-	EXPECT_NE(FPGA_OK, discover_afu_metrics_feature(handle_, NULL));
-
-	// NULL Input parameters
-	EXPECT_NE(FPGA_OK, discover_afu_metrics_feature(NULL, &offset));
-
-}
-
-
-TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
-	uint64_t* mmio_ptr = NULL;
+void afu_metrics_c_p::create_metric_bbb_dfh() {
 
 	struct DFH dfh;
 	dfh.id = 0x1;
@@ -221,11 +177,8 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	uint64_t metric_id = 0;
-	fpga_metric_vector vector;
 
-	uint64_t offset;
-	printf("------dfh_bbb.csr = %llx \n", dfh.csr);
+	printf("------dfh.csr = %llx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
@@ -247,11 +200,13 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
 
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
+}
+
+void afu_metrics_c_p::create_metric_bbb_csr() {
 
 
-
-	struct metric_group_csr group_csr = { 0 };
-	struct metric_value_csr value_csr = { 0 };
+	struct metric_bbb_group group_csr = { 0 };
+	struct metric_bbb_value value_csr = { 0 };
 
 	group_csr.eol = 0;
 	group_csr.group_id = 0x2;
@@ -298,6 +253,34 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
 
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x40, value_csr.csr));
 	printf("------value_csr.csr = %llx \n", value_csr.csr);
+
+}
+
+TEST_P(afu_metrics_c_p, test_afu_metrics_01) {
+
+	create_metric_bbb_dfh();
+	uint64_t offset;
+	//
+	EXPECT_EQ(FPGA_OK, discover_afu_metrics_feature(handle_, &offset));
+
+	// NULL Input parameters
+	EXPECT_NE(FPGA_OK, discover_afu_metrics_feature(handle_, NULL));
+
+	// NULL Input parameters
+	EXPECT_NE(FPGA_OK, discover_afu_metrics_feature(NULL, &offset));
+
+}
+
+
+TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
+
+	uint64_t metric_id = 0;
+	fpga_metric_vector vector;
+
+	uint64_t offset;
+	create_metric_bbb_dfh();
+	create_metric_bbb_csr();
+
 
 
 
@@ -323,94 +306,13 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_02) {
 
 
 TEST_P(afu_metrics_c_p, test_afu_metrics_03) {
-	uint64_t* mmio_ptr = NULL;
-
-	struct DFH dfh;
-	dfh.id = 0x1;
-	dfh.revision = 0;
-	dfh.next_header_offset = 0x100;
-	dfh.eol = 1;
-	dfh.reserved = 0;
-	dfh.type = 0x1;
-
+	
 	uint64_t metric_id = 0;
 	fpga_metric_vector vector;
 
 	uint64_t offset;
-	printf("------dfh_bbb.csr = %llx \n", dfh.csr);
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x10, 0xd8424dc4a4a3c413));
-
-
-	struct DFH dfh_bbb = { 0 };
-
-	dfh_bbb.type = 0x2;
-	dfh_bbb.id = 0x1;
-	dfh_bbb.revision = 0;
-	dfh_bbb.next_header_offset = 0x000;
-	dfh_bbb.eol = 1;
-	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %llx \n", dfh_bbb.csr);
-
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x100, dfh_bbb.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
-
-
-
-	struct metric_group_csr group_csr = { 0 };
-	struct metric_value_csr value_csr = { 0 };
-
-	group_csr.eol = 0;
-	group_csr.group_id = 0x2;
-	group_csr.units = 0x2;
-	group_csr.next_group_offset = 0x30;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120, group_csr.csr));
-	printf("------group_csr.csr = %llx \n", group_csr.csr);
-
-	value_csr.eol = 0x0;
-	value_csr.counter_id = 0xa;
-	value_csr.value = 0x99;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x128, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-	value_csr.eol = 0x1;
-	value_csr.counter_id = 0xb;
-	value_csr.value = 0x89;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x130, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-
-	// second group
-	group_csr.eol = 1;
-	group_csr.group_id = 0x3;
-	group_csr.units = 0x3;
-	group_csr.next_group_offset = 0x0;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x30, group_csr.csr));
-	printf("------group_csr.csr = %llx \n", group_csr.csr);
-	// second value
-	value_csr.eol = 0x0;
-	value_csr.counter_id = 0xc;
-	value_csr.value = 0x79;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x38, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-	value_csr.eol = 0x1;
-	value_csr.counter_id = 0xd;
-	value_csr.value = 0x69;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x40, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
+	create_metric_bbb_dfh();
+	create_metric_bbb_csr();
 
 	EXPECT_EQ(FPGA_OK, discover_afu_metrics_feature(handle_, &offset));
 
@@ -431,95 +333,20 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_03) {
 
 
 TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
-	uint64_t* mmio_ptr = NULL;
 
-	struct DFH dfh;
-	dfh.id = 0x1;
-	dfh.revision = 0;
-	dfh.next_header_offset = 0x100;
-	dfh.eol = 1;
-	dfh.reserved = 0;
-	dfh.type = 0x1;
 
 	uint64_t metric_id = 0;
 	fpga_metric_vector vector;
 
 	uint64_t offset;
-	printf("------dfh_bbb.csr = %llx \n", dfh.csr);
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x10, 0xd8424dc4a4a3c413));
 
 
-	struct DFH dfh_bbb = { 0 };
-
-	dfh_bbb.type = 0x2;
-	dfh_bbb.id = 0x1;
-	dfh_bbb.revision = 0;
-	dfh_bbb.next_header_offset = 0x000;
-	dfh_bbb.eol = 1;
-	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %llx \n", dfh_bbb.csr);
-
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x100, dfh_bbb.csr));
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
+	create_metric_bbb_dfh();
+	create_metric_bbb_csr();
 
 
 
-	struct metric_group_csr group_csr = { 0 };
-	struct metric_value_csr value_csr = { 0 };
-
-	group_csr.eol = 0;
-	group_csr.group_id = 0x2;
-	group_csr.units = 0x2;
-	group_csr.next_group_offset = 0x30;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120, group_csr.csr));
-	printf("------group_csr.csr = %llx \n", group_csr.csr);
-
-	value_csr.eol = 0x0;
-	value_csr.counter_id = 0xa;
-	value_csr.value = 0x99;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x128, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-	value_csr.eol = 0x1;
-	value_csr.counter_id = 0xb;
-	value_csr.value = 0x89;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x130, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-
-	// second group
-	group_csr.eol = 1;
-	group_csr.group_id = 0x3;
-	group_csr.units = 0x3;
-	group_csr.next_group_offset = 0x0;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x30, group_csr.csr));
-	printf("------group_csr.csr = %llx \n", group_csr.csr);
-	// second value
-	value_csr.eol = 0x0;
-	value_csr.counter_id = 0xc;
-	value_csr.value = 0x79;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x38, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-	value_csr.eol = 0x1;
-	value_csr.counter_id = 0xd;
-	value_csr.value = 0x69;
-
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(handle_, 0, 0x120 + 0x40, value_csr.csr));
-	printf("------value_csr.csr = %llx \n", value_csr.csr);
-
-	struct fpga_metric_t  fpga_metric;
+	struct fpga_metric  fpga_metric;
 
 	EXPECT_EQ(FPGA_OK, discover_afu_metrics_feature(handle_, &offset));
 

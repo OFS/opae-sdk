@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
-* \file metrics_utils.c
-* \brief fpga metrics API
+* \file afu_metrics.c
+* \brief Enumerates AFU Metrics BBB & retrives afu metrics values
 */
 
 #ifdef HAVE_CONFIG_H
@@ -40,31 +40,38 @@
 #include <dirent.h>
 #include <uuid/uuid.h>
 
+#include "xfpga.h"
 #include "common_int.h"
 #include "metrics_int.h"
 #include "types_int.h"
 #include "opae/metrics.h"
 #include "metrics/vector.h"
-#include "metrics/bmc/bmc.h"
 #include "safe_string/safe_string.h"
 
-#define FEATURE_TYPE_BBB	         0x2
+// AFU BBB GUID
 #define METRICS_BBB_GUID            "87816958-C148-4CD0-9D73-E8F258E9E3D7"
 #define METRICS_BBB_ID_H            0x87816958C1484CD0
 #define METRICS_BBB_ID_L            0x9D73E8F258E9E3D7
 
+#define FEATURE_TYPE_BBB            0x2
+
+#define METRIC_CSR_OFFSET           0x20
+#define METRIC_NEXT_CSR             0x8
+
 
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 {
-	fpga_result result					= FPGA_OK;
-	feature_definition feature_def		= {0};
-	uint64_t bbs_offset					= 0;
+	fpga_result result               = FPGA_OK;
+	feature_definition feature_def   = {0};
+	uint64_t bbs_offset              = 0;
+
 
 	if (offset == NULL) {
 		FPGA_ERR("Invlaid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
+	// Read AFU DFH 
 	result = fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
 	if (result != FPGA_OK) {
 		FPGA_ERR("Invalid handle file descriptor");
@@ -72,9 +79,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 		return result;
 	}
 
-	//printf("feature_def.dfh.next_header_offset =%llx \n", feature_def.dfh.next_header_offset);
-
-	// Serach for mertics BBB
+	// Serach for AFU Metrics BBB DFH
 	while (feature_def.dfh.eol != 0 && feature_def.dfh.next_header_offset != 0) {
 
 		bbs_offset = feature_def.dfh.next_header_offset;
@@ -86,11 +91,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 			return result;
 		}
 
-		//printf("feature_def.dfh.next_header_offset =%llx \n", feature_def.dfh.next_header_offset);
-
 		if (feature_def.dfh.type == FEATURE_TYPE_BBB) {
-
-			//printf("feature_def.dfh.next_header_offset =%llx \n", feature_def.dfh.next_header_offset);
 
 			result = fpgaReadMMIO64(handle, 0, bbs_offset +0x8, &(feature_def.guid[0]));
 			if (result != FPGA_OK) {
@@ -99,41 +100,39 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 				return result;
 			}
 
-			result = fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
+			result =fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
 				return result;
 			}
-			//printf("feature_def.guid[0] =%llx \n", feature_def.guid[0]);
-			//printf("feature_def.guid[1] =%llx \n", feature_def.guid[1]);
-			//printf("feature_def.dfh.next_header_offset =%llx \n", feature_def.dfh.next_header_offset);
+
 			if (feature_def.guid[0] == METRICS_BBB_ID_L &&
 				feature_def.guid[1] == METRICS_BBB_ID_H) {
-
 				*offset = bbs_offset;
-				printf("Metics BBS FOUND \n ");
 				return FPGA_OK;
 			} else	{
-				FPGA_ERR(" Metrics BBS Not Found \n ");
+				FPGA_ERR(" Metrics BBB Not Found \n ");
 			}
 
 		}
 
 	}
+
+	FPGA_ERR("AFU Metrics BBB Not Found \n ");
 	return FPGA_NOT_FOUND;
 }
 
 
-fpga_result  get_afu_metric_value(fpga_handle handle,
-								fpga_metric_vector *enum_vector,
-								uint64_t metric_num,
-								struct fpga_metric_t *fpga_metric)
+fpga_result get_afu_metric_value(fpga_handle handle,
+				fpga_metric_vector *enum_vector,
+				uint64_t metric_num,
+				struct fpga_metric *fpga_metric)
 {
-	fpga_result result								= FPGA_OK;
-	uint64_t index									= 0;
-	struct metric_value_csr value_csr				= { 0 };
-	struct _fpga_enum_metric	*_fpga_enum_metric	= NULL;
+	fpga_result result                           = FPGA_OK;
+	uint64_t index                               = 0;
+	struct metric_bbb_value metric_csr           = { 0 };
+	struct _fpga_enum_metric *_fpga_enum_metric  = NULL;
 
 	if (handle == NULL ||
 		enum_vector == NULL ||
@@ -148,32 +147,30 @@ fpga_result  get_afu_metric_value(fpga_handle handle,
 
 		if (metric_num == _fpga_enum_metric->metric_num) {
 
-			result = fpgaReadMMIO64(handle, 0, _fpga_enum_metric->mmio_offset, &value_csr.csr);
+			result = fpgaReadMMIO64(handle, 0, _fpga_enum_metric->mmio_offset, &metric_csr.csr);
 
-				//printf("get_afu_metric_value_byid value_csr.csr =%llx \n", value_csr.csr);
-				fpga_metric->value.ivalue = value_csr.value;
+				fpga_metric->value.ivalue = metric_csr.value;
 
 		}
 
 	}
-//
 
 	return result;
 }
 
 fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									uint64_t group_value,
-									uint64_t metric_value,
-									uint64_t metric_offset)
+				  uint64_t *metric_id,
+				  uint64_t group_value,
+				  uint64_t metric_value,
+				  uint64_t metric_offset)
 {
-	fpga_result result						= FPGA_OK;
-	struct metric_group_csr group_csr		= { 0 };
-	struct metric_value_csr metric_csr		= { 0 };
-	char group_name[SYSFS_PATH_MAX]			= { 0 };
-	char metric_name[SYSFS_PATH_MAX]		= { 0 };
-	char qualifier_name[SYSFS_PATH_MAX]		= { 0 };
-	char metric_units[SYSFS_PATH_MAX]		= { 0 };
+	fpga_result result                      = FPGA_OK;
+	struct metric_bbb_group group_csr       = { 0 };
+	struct metric_bbb_value metric_csr      = { 0 };
+	char group_name[SYSFS_PATH_MAX]         = { 0 };
+	char metric_name[SYSFS_PATH_MAX]        = { 0 };
+	char qualifier_name[SYSFS_PATH_MAX]     = { 0 };
+	char metric_units[SYSFS_PATH_MAX]       = { 0 };
 
 	if (metric_id == NULL ||
 		vector == NULL) {
@@ -200,15 +197,15 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 
 
 fpga_result enum_afu_metrics(fpga_handle handle,
-							fpga_metric_vector *vector,
-							uint64_t *metric_id,
-							uint64_t metrics_offset)
+			    fpga_metric_vector *vector,
+			    uint64_t *metric_id,
+			    uint64_t metrics_offset)
 {
-	fpga_result result					= FPGA_NOT_FOUND;
-	struct metric_group_csr group_csr	= { 0 };
-	struct metric_value_csr metric_csr	= { 0 };
-	uint64_t value_offset				= 0;
-	uint64_t group_offset				= 0;
+	fpga_result result                    = FPGA_NOT_FOUND;
+	struct metric_bbb_group group_csr     = { 0 };
+	struct metric_bbb_value metric_csr    = { 0 };
+	uint64_t value_offset                 = 0;
+	uint64_t group_offset                 = 0;
 
 	if (handle == NULL ||
 		vector == NULL ||
@@ -217,21 +214,16 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	value_offset = metrics_offset + 0x20;
-	group_offset = metrics_offset + 0x20;
+	group_offset = metrics_offset + METRIC_CSR_OFFSET;
 
 	while (true) {
 
 			result = fpgaReadMMIO64(handle, 0, group_offset, &group_csr.csr);
 
-			//printf("group_csr.csr =%llx \n", group_csr.csr);
-
 			if (group_csr.group_id != 0) {
 
-				value_offset = group_offset + 0x8;
+				value_offset = group_offset + METRIC_NEXT_CSR;
 				result = fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
-
-				//printf("value_csr.csr =%llx \n", metric_csr.csr);
 
 				while (metric_csr.counter_id != 0) {
 
@@ -243,11 +235,9 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 
 
 					if (metric_csr.eol == 0) {
-						value_offset = value_offset + 0x8;
+						value_offset = value_offset + METRIC_NEXT_CSR;
 						result = fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
-						//printf("value_csr.csr =%llx \n", metric_csr.csr);
 					} else {
-						//printf("VALUE Break \n");
 						break;
 					}
 
@@ -258,16 +248,11 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 
 				group_offset = group_offset + group_csr.next_group_offset;
 
-				//printf("offset = %llx\n", group_offset);
-
 			} else {
-				//printf("group Break \n");
 				break;
 			}
 
 	} // end while
-
-	//printf(" ----------------value =%llx \n", value);
 
 	return result;
 }
