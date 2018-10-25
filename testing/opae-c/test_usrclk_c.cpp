@@ -109,18 +109,26 @@ TEST_P(usrclk_c_p, get) {
   EXPECT_NE(high, 999);
 }
 
+// TODO: Fix user clock test for DCP
+INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+
+class usrclk_c_hw_p : public usrclk_c_p{
+  protected:
+    usrclk_c_hw_p() {};
+};
 /**
  * @test       set
  * @brief      Test: fpgaSetUserClock
  * @details    When fpgaSetUserClock is called with valid parameters,<br>
  *             the fn returns FPGA_OK.<br>
  */
-TEST_P(usrclk_c_p, set) {
+TEST_P(usrclk_c_hw_p, set) {
   uint64_t low = 25;
-  uint64_t high = 1200;
+  uint64_t high = 600;
   EXPECT_EQ(fpgaSetUserClock(accel_, high, low, 0), FPGA_OK);
 }
 
-// TODO: Fix user clock test for DCP
-INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({})));
+
