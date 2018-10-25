@@ -60,8 +60,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -120,7 +120,6 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
   uint32_t num_matches_accel_;
   uint32_t num_matches_device_;
   test_platform platform_;
-  test_device invalid_device_;
   test_system *system_;
   std::string afu_guid_;
 };
@@ -179,34 +178,6 @@ TEST_P(object_c_p, obj_write64) {
 }
 
 /**
- * @test       tok_get_err
- * @brief      Test: fpgaTokenGetObject
- * @details    When the call to opae_allocate_wrapped_object fails,<br>
- *             fpgaTokenGetObject destroys the underlying object<br>
- *             and returns FPGA_NO_MEMORY.<br>
- */
-TEST_P(object_c_p, tok_get_err) {
-  fpga_object obj = nullptr;
-  system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num",
-                               &obj, 0), FPGA_NO_MEMORY);
-}
-
-/**
- * @test       handle_get_err
- * @brief      Test: fpgaHandleGetObject
- * @details    When the call to opae_allocate_wrapped_object fails,<br>
- *             fpgaHandleGetObject destroys the underlying object<br>
- *             and returns FPGA_NO_MEMORY.<br>
- */
-TEST_P(object_c_p, handle_get_err) {
-  fpga_object obj = nullptr;
-  system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  EXPECT_EQ(fpgaHandleGetObject(accel_, "id",
-                               &obj, 0), FPGA_NO_MEMORY);
-}
-
-/**
  * @test       obj_get_obj
  * @brief      Test: fpgaObjectGetObject
  * @details    When fpgaObjectGetObject is called with valid parameters,<br>
@@ -240,6 +211,42 @@ TEST_P(object_c_p, obj_get_size) {
   EXPECT_EQ(value, afu_guid_.size() + 1);
 }
 
+INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({})));
+
+class object_c_mock_p : public object_c_p {
+  protected:
+    object_c_mock_p() {};
+};
+
+/**
+ * @test       tok_get_err
+ * @brief      Test: fpgaTokenGetObject
+ * @details    When the call to opae_allocate_wrapped_object fails,<br>
+ *             fpgaTokenGetObject destroys the underlying object<br>
+ *             and returns FPGA_NO_MEMORY.<br>
+ */
+TEST_P(object_c_mock_p, tok_get_err) {
+  fpga_object obj = nullptr;
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num",
+                               &obj, 0), FPGA_NO_MEMORY);
+}
+
+/**
+ * @test       handle_get_err
+ * @brief      Test: fpgaHandleGetObject
+ * @details    When the call to opae_allocate_wrapped_object fails,<br>
+ *             fpgaHandleGetObject destroys the underlying object<br>
+ *             and returns FPGA_NO_MEMORY.<br>
+ */
+TEST_P(object_c_mock_p, handle_get_err) {
+  fpga_object obj = nullptr;
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
+  EXPECT_EQ(fpgaHandleGetObject(accel_, "id",
+                               &obj, 0), FPGA_NO_MEMORY);
+}
+
 /**
  * @test       obj_get_obj_err
  * @brief      Test: fpgaObjectGetObject
@@ -247,7 +254,7 @@ TEST_P(object_c_p, obj_get_size) {
  *             fpgaObjectGetObject frees the underlying object<br>
  *             and returns FPGA_NO_MEMORY.<br>
  */
-TEST_P(object_c_p, obj_get_obj_err) {
+TEST_P(object_c_mock_p, obj_get_obj_err) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
@@ -261,6 +268,6 @@ TEST_P(object_c_p, obj_get_obj_err) {
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
 
+INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
 
-
-INSTANTIATE_TEST_CASE_P(object_c, object_c_p, ::testing::ValuesIn(test_platform::keys(true)));
