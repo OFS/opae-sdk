@@ -26,7 +26,7 @@
 
 /**
 * @file metrics.h
-* @brief Functions for discover/ enumurate mertrics and retrieve values
+* @brief Functions for Discover/ Enumerates metrics and retrieves values
 *
 *
 *
@@ -38,19 +38,22 @@
 
 #include <opae/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
- * Enumurates number of  metrics
+ * Enumerates number of metrics
  *
-  * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] num_metrics number of metrics are disoverd in 
+ * @param[in]  handle     Handle to previously opened fpga resource
+ * @param[inout] num_metrics number of metrics are disoverd in
  *                        fpga resource
- * * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metircs are not 
- * discovered 
+ * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
+ * discovered
  *
  */
 fpga_result fpgaGetNumMetrics(fpga_handle handle,
-							uint64_t *num_metrics);
+				uint64_t *num_metrics);
 
 /**
  * Retrieve metrics information
@@ -60,13 +63,13 @@ fpga_result fpgaGetNumMetrics(fpga_handle handle,
  *                        user allocates metrics info array
  * @param[inout] num_metrics size of metric info array
  *
- * * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metircs are not
+ * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
  * found
  *
  */
 fpga_result fpgaGetMetricsInfo(fpga_handle handle,
-								struct fpga_metric_info_t *metric_info,
-								uint64_t *num_metrics);
+				struct fpga_metric_info *metric_info,
+				uint64_t *num_metrics);
 
 /**
  * Retrieve metrics values by index
@@ -76,36 +79,31 @@ fpga_result fpgaGetMetricsInfo(fpga_handle handle,
  *                        user allocates metric array
  * @param[inout] num_metric_indexs size of metric array
  * @param[inout] metrics pointer to array of metric struct
- * * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metircs are not
+ * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
  * found
  *
  */
 fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
-								uint64_t *metric_num,
-								uint64_t num_metric_indexs,
-								struct fpga_metric_t *metrics);
+				uint64_t *metric_num,
+				uint64_t num_metric_indexes,
+				struct fpga_metric *metrics);
 
 /**
- * Retrieve metrics values by names
+ * Retrieve metric values by names
  *
  * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] metrics_names pointer to array of metric name
- *                        user allocates metric name array
+ * @param[inout] metrics_names pointer to array of metrics name
+ *                        user allocates metrics name array
  * @param[inout] num_metric_names size of metric name array
  * @param[inout] metrics pointer to array of metric struct
- * * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metircs are not
+ * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
  * found
  *
  */
 fpga_result fpgaGetMetricsByName(fpga_handle handle,
-									char **metrics_names,
-									uint64_t num_metric_names,
-									struct fpga_metric_t *metrics);
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+				char **metrics_names,
+				uint64_t num_metric_names,
+				struct fpga_metric *metrics);
 
 
 #ifdef __cplusplus

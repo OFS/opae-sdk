@@ -1471,92 +1471,72 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }
 
-
-
-
-// Metric
-
 fpga_result fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(num_metrics);
 
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetNumMetrics,
-							FPGA_NOT_SUPPORTED);
+			     FPGA_NOT_SUPPORTED);
 
 	return wrapped_handle->adapter_table->fpgaGetNumMetrics(
 		wrapped_handle->opae_handle, num_metrics);
 }
 
 fpga_result fpgaGetMetricsInfo(fpga_handle handle,
-								struct fpga_metric_info_t *metric_info,
-								uint64_t *num_metrics)
+				struct fpga_metric_info *metric_info,
+				uint64_t *num_metrics)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(metric_info);
+	ASSERT_NOT_NULL(num_metrics);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetMetricsInfo,
-							FPGA_NOT_SUPPORTED);
+			    FPGA_NOT_SUPPORTED);
 
 	return wrapped_handle->adapter_table->fpgaGetMetricsInfo(
 		wrapped_handle->opae_handle, metric_info, num_metrics);
 }
 
 fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
-									uint64_t *metric_num,
-									uint64_t num_metric_indexs,
-									struct fpga_metric_t *metrics)
+				uint64_t *metric_num,
+				uint64_t num_metric_indexes,
+				struct fpga_metric *metrics)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(num_metric_indexes);
+	ASSERT_NOT_NULL(metrics);
 
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetMetricsByIndex,
-						FPGA_NOT_SUPPORTED);
+			   FPGA_NOT_SUPPORTED);
 
 	return wrapped_handle->adapter_table->fpgaGetMetricsByIndex(
-		wrapped_handle->opae_handle, metric_num, num_metric_indexs, metrics);
+		wrapped_handle->opae_handle, metric_num, num_metric_indexes, metrics);
 }
 
 fpga_result fpgaGetMetricsByName(fpga_handle handle,
-								char **metrics_names,
-								uint64_t num_metric_names,
-								struct fpga_metric_t *metrics)
+				char **metrics_names,
+				uint64_t num_metric_names,
+				struct fpga_metric *metrics)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(metrics_names);
+	ASSERT_NOT_NULL(metrics);
 
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetMetricsByName,
-						FPGA_NOT_SUPPORTED);
+			   FPGA_NOT_SUPPORTED);
 
 	return wrapped_handle->adapter_table->fpgaGetMetricsByName(
 		wrapped_handle->opae_handle, metrics_names, num_metric_names, metrics);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

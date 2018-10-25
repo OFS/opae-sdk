@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,13 +42,11 @@
 #include <stdint.h>
 
 
-struct fpga_metric_vector_t {
+typedef struct fpga_metric_vector {
 	void **fpga_metric_item;
 	uint64_t capacity;
 	uint64_t total;
-};
-
-typedef struct fpga_metric_vector_t fpga_metric_vector;
+} fpga_metric_vector;
 
 
 fpga_result fpga_vector_init(fpga_metric_vector *vector);
@@ -61,13 +59,8 @@ fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity);
 
 fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item);
 
-void *fpga_vector_pop(fpga_metric_vector *vector, uint64_t index);
-
 void *fpga_vector_get(fpga_metric_vector *vector, uint64_t value);
 
 fpga_result fpga_vector_delete(fpga_metric_vector *v, uint64_t index);
-
-
-
 
 #endif // __FPGA_METRICS_VECTOR_H__

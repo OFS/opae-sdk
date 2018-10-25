@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,12 +25,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
-* \file metrics_uitls.h
-* \brief fpga metrics API
+* \file metrics_int.h
+* \brief fpga metrics utils functions
 */
 
-#ifndef __FPGA_METRICS_INIT_H__
-#define __FPGA_METRICS_INIT_H__
+#ifndef __FPGA_METRICS_INT_H__
+#define __FPGA_METRICS_INT_H__
 
 #include "vector.h"
 #include "opae/metrics.h"
@@ -52,6 +52,9 @@
 #define FPGA_LIMIT                           "fpga_limit"
 #define XEON_LIMIT                           "xeon_limit"
 #define TEMP                                 "Centigrade"
+
+
+#define BMC_LIB                              "libbmc.so"
 
 // AFU DFH Struct
 struct DFH {
@@ -84,8 +87,8 @@ typedef struct {
 	struct NEXT_AFU next_afu;
 } feature_definition;
 
-
-struct metric_group_csr {
+// metric group csr
+struct metric_bbb_group {
 	union {
 		uint64_t csr;
 		struct {
@@ -100,7 +103,8 @@ struct metric_group_csr {
 	};
 };
 
-struct metric_value_csr {
+// metric value csr
+struct metric_bbb_value {
 	union {
 		uint64_t csr;
 		struct {
@@ -113,92 +117,101 @@ struct metric_value_csr {
 };
 
 // Metrics utils functions
-fpga_result sysfs_path_is_file(const char *path);
+fpga_result metric_sysfs_path_is_file(const char *path);
 
-fpga_result sysfs_path_is_dir(const char *path);
+fpga_result metric_sysfs_path_is_dir(const char *path);
 
 fpga_result add_metric_vector(fpga_metric_vector *vector,
-								uint64_t metric_id,
-								const char *qualifier_name,
-								const char *group_name,
-								const char *group_sysfs,
-								const char *metric_name,
-								const char *metric_sysfs,
-								const char *metric_units,
-								enum fpga_metric_datatype metric_datatype,
-								enum fpga_metric_type	metric_type,
-								enum fpga_hw_type	hw_type,
-								uint64_t mmio_offset);
+				uint64_t metric_id,
+				const char *qualifier_name,
+				const char *group_name,
+				const char *group_sysfs,
+				const char *metric_name,
+				const char *metric_sysfs,
+				const char *metric_units,
+				enum fpga_metric_datatype metric_datatype,
+				enum fpga_metric_type	metric_type,
+				enum fpga_hw_type	hw_type,
+				uint64_t mmio_offset);
 
 fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									const char *sysfspath,
-									enum fpga_hw_type hw_type);
+					uint64_t *metric_id,
+					const char *sysfspath,
+					enum fpga_hw_type hw_type);
 
 fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									const char *sysfspath,
-									enum fpga_hw_type hw_type);
+					uint64_t *metric_id,
+					const char *sysfspath,
+					enum fpga_hw_type hw_type);
 
 fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									const char *qualifier_name,
-									const char *sysfspath,
-									const char *sysfs_name,
-									enum fpga_metric_type metric_type,
-									enum fpga_hw_type hw_type);
+					uint64_t *metric_id,
+					const char *qualifier_name,
+					const char *sysfspath,
+					const char *sysfs_name,
+					enum fpga_metric_type metric_type,
+					enum fpga_hw_type hw_type);
 
 fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
-										uint64_t *metric_id,
-										const char *sysfspath,
-										enum fpga_hw_type  hw_type);
+					uint64_t *metric_id,
+					const char *sysfspath,
+					enum fpga_hw_type  hw_type);
 
 fpga_result enum_fpga_metrics(fpga_handle handle);
 
 
 fpga_result get_fme_metric_value(fpga_handle handle,
-								fpga_metric_vector *enum_vector,
-								uint64_t metric_id,
-								struct fpga_metric_t *fpga_metric);
+				fpga_metric_vector *enum_vector,
+				uint64_t metric_id,
+				struct fpga_metric *fpga_metric);
 
 fpga_result add_metric_info(struct _fpga_enum_metric *_enum_metrics,
-							struct fpga_metric_info_t *fpga_metric_info);
+				struct fpga_metric_info *fpga_metric_info);
 
 fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle);
 
 
-fpga_result get_metric_num_serach_string(const char *serach_string,
-										fpga_metric_vector *fpga_enum_metrics_vecotr,
-										uint64_t *metric_num);
+fpga_result parse_metric_num_name(const char *serach_string,
+				fpga_metric_vector *fpga_enum_metrics_vecotr,
+				uint64_t *metric_num);
 
 fpga_result enum_bmc_metrics_info(struct _fpga_handle *_handle,
-									fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									enum fpga_hw_type hw_type);
+				fpga_metric_vector *vector,
+				uint64_t *metric_id,
+				enum fpga_hw_type hw_type);
 
 fpga_result get_fpga_object_type(fpga_handle handle, fpga_objtype *objtype);
 
-fpga_result  get_pwr_thermal_value(const char *sysfs_path, uint64_t *value);
+fpga_result get_pwr_thermal_value(const char *sysfs_path, uint64_t *value);
 
-fpga_result  clear_bmc_values(fpga_handle handle);
+fpga_result clear_cahced_values(fpga_handle handle);
+
+
+fpga_result get_performance_counter_value(const char *group_sysfs,
+					const char *metric_sysfs,
+					uint64_t *value);
+
+fpga_result get_bmc_metrics_values(fpga_handle handle,
+				struct _fpga_enum_metric *_fpga_enum_metric,
+				struct fpga_metric *fpga_metric);
 
 // AFU Metric
 fpga_result enum_afu_metrics(fpga_handle handle,
-							fpga_metric_vector *vector,
-							uint64_t *metric_id,
-							uint64_t metrics_offset);
+				fpga_metric_vector *vector,
+				uint64_t *metric_id,
+				uint64_t metrics_offset);
 
-fpga_result  get_afu_metric_value(fpga_handle handle,
-								fpga_metric_vector	*enum_vector,
-								uint64_t metric_num,
-								struct fpga_metric_t *fpga_metric);
+fpga_result get_afu_metric_value(fpga_handle handle,
+				fpga_metric_vector	*enum_vector,
+				uint64_t metric_num,
+				struct fpga_metric *fpga_metric);
 
 fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
-									uint64_t *metric_id,
-									uint64_t group_value,
-									uint64_t metric_value,
-									uint64_t metric_offset);
+				uint64_t *metric_id,
+				uint64_t group_value,
+				uint64_t metric_value,
+				uint64_t metric_offset);
 
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset);
 
-#endif // __FPGA_METRICS_H__
+#endif // __FPGA_METRICS_INT_H__

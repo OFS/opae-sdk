@@ -89,6 +89,8 @@ void print_err(const char *s, fpga_result res)
 struct config {
 	struct target {
 		int bus;
+		bool fme_metrics;
+		bool afu_metrics;
 		int open_flags;
 	} target;
 }
@@ -96,15 +98,33 @@ struct config {
 config = {
 	.target = {
 		.bus = -1,
+		.fme_metrics = true,
+		.afu_metrics = false,
 		.open_flags = 0
 	}
 };
 
-#define GETOPT_STRING "B:s"
+// Metric Command line input help
+void FpgaMetricsAppShowHelp()
+{
+	printf("Usage:\n");
+	printf("fpgametrics\n");
+	printf("<Bus>               --bus=<BUS NUMBER>           "
+		"OR  -B=<BUS NUMBER>\n");
+	printf("<FME metrics>       --fme-metrics               OR  -F \n");
+	printf("<AFU metrics>       --afu-metrics               OR  -A \n");
+
+	printf("\n");
+
+}
+
+#define GETOPT_STRING "B:FAs"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"bus",	   required_argument, NULL, 'B'},
+		{"fme-metrics"  ,no_argument, NULL, 'F'},
+		{"afu-metrics"  ,no_argument, NULL, 'A'},
 		{"shared", no_argument,       NULL, 's'},
 		{NULL,     0,                 NULL,  0 },
 	};
@@ -136,7 +156,15 @@ fpga_result parse_args(int argc, char *argv[])
 		case 's':
 			config.target.open_flags |= FPGA_OPEN_SHARED;
 			break;
+		case 'F':
+			config.target.fme_metrics = true;
+			break;
 		
+		case 'A':
+			config.target.afu_metrics = true;
+			config.target.fme_metrics = false;
+			break;
+
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
 			return FPGA_EXCEPTION;
@@ -190,8 +218,8 @@ int main(int argc, char *argv[])
 	struct bdf_info info;
 	uint64_t *id_array = NULL;
 	uint64_t i = 0;
-	struct fpga_metric_info_t  *metric_info = NULL;
-	struct fpga_metric_t  *metric_array = NULL;
+	struct fpga_metric_info  *metric_info = NULL;
+	struct fpga_metric  *metric_array = NULL;
 
 
   fpga_properties filter = NULL;
@@ -202,16 +230,32 @@ int main(int argc, char *argv[])
 	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
 	       library_build);
 
-	res = parse_args(argc, argv);
-	ON_ERR_GOTO(res, out_exit, "parsing arguments");
+	if (argc < 2) {
+		FpgaMetricsAppShowHelp();
+		return 1;
+	}
+	else if (0 != parse_args(argc, argv)) {
+		OPAE_ERR("Error scanning command line \n.");
+		return 2;
+	}
+
+	//res = parse_args(argc, argv);
+	//ON_ERR_GOTO(res, out_exit, "parsing arguments");
 
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out_exit, "creating properties object");
 
-	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
-	ON_ERR_GOTO(res, out_destroy, "setting object type");
+	if (config.target.fme_metrics) {
+		res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+		ON_ERR_GOTO(res, out_destroy, "setting object type");
+
+	} else if (config.target.afu_metrics) {
+
+		res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
+		ON_ERR_GOTO(res, out_destroy, "setting object type");
+	}
 
 
 	if (-1 != config.target.bus) {
@@ -245,7 +289,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_close, "get num of metrics");
 	printf("\n\n ------Number of Metrics Discoverd = %ld ------- \n\n\n", num_metrics);
 	
-	metric_info = calloc(sizeof(struct fpga_metric_info_t), num_metrics);
+	metric_info = calloc(sizeof(struct fpga_metric_info), num_metrics);
 	if (metric_info == NULL) {
 		printf(" Failed to allocate memroy \n");
 		goto out_close;
@@ -276,7 +320,7 @@ int main(int argc, char *argv[])
 		id_array[i] = i;
 	}
 
-	metric_array = calloc(sizeof(struct fpga_metric_t), num_metrics);
+	metric_array = calloc(sizeof(struct fpga_metric), num_metrics);
 	if (metric_array == NULL) {
 		printf(" Failed to allocate memroy \n");
 		goto out_close;

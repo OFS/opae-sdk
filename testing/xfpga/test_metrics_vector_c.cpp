@@ -81,8 +81,6 @@ TEST(metric_vector, test_metric_vector_01) {
 	// NULL Input parameters 
 	EXPECT_NE(FPGA_OK, fpga_vector_push(NULL, NULL));
 
-	// pop NULL item from vector
-	fpga_vector_pop(NULL, 0);
 
 	// Delete with NULL
 	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
@@ -106,13 +104,6 @@ TEST(metric_vector, test_metric_vector_02) {
 
 	// push item to vector
 	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
-
-	// pop item from vector
-	fpga_vector_pop(&metric_vector, 0);
-	EXPECT_EQ(NULL, fpga_vector_pop(&metric_vector, 200));
-
-	// pop NULL item from vector
-	fpga_vector_pop(NULL, 0);
 
 	// Delete vector
 	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
