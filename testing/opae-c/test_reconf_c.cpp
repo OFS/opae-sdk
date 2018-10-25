@@ -58,7 +58,6 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
     filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
@@ -91,7 +90,6 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
