@@ -57,7 +57,6 @@ class buffer_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
@@ -94,7 +93,6 @@ class buffer_c_p : public ::testing::TestWithParam<std::string> {
   size_t pg_size_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
