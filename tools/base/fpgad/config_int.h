@@ -32,6 +32,10 @@
 #define MAX_NULL_GBS 16
 #define MAX_SOCKETS 2
 
+#define UNUSED_PARAM(x) ((void)x)
+
+#define SYSFS_PATH_MAX 256
+#define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 /*
  * Global configuration, set during parse_args()
  */

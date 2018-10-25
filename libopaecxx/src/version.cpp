@@ -24,25 +24,38 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <opae/cxx/core/except.h>
 #include <opae/cxx/core/version.h>
 #include <opae/types.h>
+#include <opae/version.h>
 
-#include "config_int.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif  // HAVE_CONFIG_H
 
 namespace opae {
 namespace fpga {
 namespace types {
 
 fpga_version version::as_struct() {
-  fpga_version version_struct = {.major = INTEL_FPGA_API_VER_MAJOR,
-                                 .minor = INTEL_FPGA_API_VER_MINOR,
-                                 .patch = INTEL_FPGA_API_VER_REV};
+  fpga_version version_struct;
+  ASSERT_FPGA_OK(fpgaGetOPAECVersion(&version_struct));
   return version_struct;
 }
 
-std::string version::as_string() { return INTEL_FPGA_API_VERSION; }
+std::string version::as_string() {
+  char ver_arr[32];
+  ASSERT_FPGA_OK(fpgaGetOPAECVersionString(ver_arr, sizeof(ver_arr)));
+  std::string ver_str(ver_arr);
+  return ver_str;
+}
 
-std::string version::build() { return INTEL_FPGA_API_HASH; }
+std::string version::build() {
+  char build_arr[32];
+  ASSERT_FPGA_OK(fpgaGetOPAECBuildString(build_arr, sizeof(build_arr)));
+  std::string build_str(build_arr);
+  return build_str;
+}
 
 }  // end of namespace types
 }  // end of namespace fpga

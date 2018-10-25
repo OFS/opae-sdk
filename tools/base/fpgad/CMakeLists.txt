@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,15 +27,15 @@
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
-                    ${OPAE_SDK_SOURCE}/libopae/src
-                    ${OPAE_SDK_SOURCE}/tools/base/fpgaconf )
+                    ${OPAE_SDK_SOURCE}/tools/base
+		    ${OPAE_SDK_SOURCE}/libopae)
 
-set(SRC fpgad.c daemonize.c log.c errtable.c sysfs.c srv.c evt.c ap6.c ap_event.c)
+set(SRC fpgad.c daemonize.c log.c errtable.c srv.c evt.c ap6.c ap_event.c)
 add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)
 
-target_link_libraries(fpgad safestr opae-c pthread)
+target_link_libraries(fpgad safestr opae-c pthread ${libjson-c_LIBRARIES} uuid)
 
 install(TARGETS fpgad
         RUNTIME DESTINATION bin

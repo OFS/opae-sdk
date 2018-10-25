@@ -1,13 +1,15 @@
 #include <Python.h>
-
 #include <opae/cxx/core/token.h>
+#include <opae/fpga.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <exception>
 #include "pyerrors.h"
 #include "pyevents.h"
 #include "pyhandle.h"
 #include "pyproperties.h"
 #include "pyshared_buffer.h"
+#include "pysysobject.h"
 #include "pytoken.h"
 
 namespace py = pybind11;
@@ -17,8 +19,17 @@ using opae::fpga::types::handle;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
+using opae::fpga::types::sysobject;
 
+#ifdef OPAE_EMBEDDED
+#include <pybind11/embed.h>
+PYBIND11_EMBEDDED_MODULE(_opae, m) {
+  m.def("initialize", &fpgaInitialize);
+#else
 PYBIND11_MODULE(_opae, m) {
+  fpgaInitialize(nullptr);
+#endif
+
   py::options opts;
   // opts.disable_function_signatures();
 
@@ -62,6 +73,15 @@ PYBIND11_MODULE(_opae, m) {
                                     py::arithmetic(), "OPAE accelerator_state")
       .value("ACCELERATOR_ASSIGNED", FPGA_ACCELERATOR_ASSIGNED)
       .value("ACCELERATOR_UNASSIGNED", FPGA_ACCELERATOR_UNASSIGNED)
+      .export_values();
+
+  py::enum_<fpga_sysobject_flags>(m, "fpga_sysobject_flags", py::arithmetic(),
+                                  "OPAE sysobject API flags.")
+      .value("SYSOBJECT_SYNC", FPGA_OBJECT_SYNC)
+      .value("SYSOBJECT_RAW", FPGA_OBJECT_RAW)
+      .value("SYSOBJECT_GLOB", FPGA_OBJECT_GLOB)
+      .value("SYSOBJECT_RECURSE_ONE", FPGA_OBJECT_RECURSE_ONE)
+      .value("SYSOBJECT_RECURSE_ALL", FPGA_OBJECT_RECURSE_ALL)
       .export_values();
 
   py::enum_<fpga_reconf_flags>(
@@ -126,6 +146,11 @@ PYBIND11_MODULE(_opae, m) {
   m.def("enumerate", &token::enumerate, token_doc_enumerate())
       .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
+  pytoken
+      .def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
+      .def("__getitem__", token_get_sysobject, sysobject_doc_token_get())
+      .def("find", token_find_sysobject, sysobject_doc_token_find(),
+           py::arg("name"), py::arg("flags") = 0);
 
   // define handle class
   m.def("open", handle_open, handle_doc_open(), py::arg("tok"),
@@ -145,7 +170,11 @@ PYBIND11_MODULE(_opae, m) {
       .def("write_csr32", &handle::write_csr32, handle_doc_write_csr32(),
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
       .def("write_csr64", &handle::write_csr64, handle_doc_write_csr64(),
-           py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0);
+           py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
+      .def("__getattr__", handle_get_sysobject, sysobject_doc_handle_get())
+      .def("__getitem__", handle_get_sysobject, sysobject_doc_handle_get())
+      .def("find", token_find_sysobject, sysobject_doc_handle_find(),
+           py::arg("name"), py::arg("flags") = 0);
 
   // define shared_buffer class
   m.def("allocate_shared_buffer", shared_buffer_allocate,
@@ -181,4 +210,20 @@ PYBIND11_MODULE(_opae, m) {
       .def("read_value", &error::read_value, error_doc_read_value());
 
   m.def("errors", error_errors, error_doc_errors());
+
+  // define object class
+  py::class_<sysobject, sysobject::ptr_t> pysysobject(m, "sysobject",
+                                                      sysobject_doc());
+  pysysobject
+      .def("__getattr__", sysobject_get_sysobject, sysobject_doc_object_get())
+      .def("__getitem__", sysobject_get_sysobject, sysobject_doc_object_get())
+      .def("find", sysobject_find_sysobject, sysobject_doc_object_find(),
+           py::arg("name"), py::arg("flags") = 0)
+      .def("read64",
+           [](sysobject::ptr_t obj) { return obj->read64(FPGA_OBJECT_SYNC); })
+      .def("write64", &sysobject::write64)
+      .def("size", &sysobject::size)
+      .def("bytes", sysobject_bytes, sysobject_doc_bytes())
+      .def("__getitem__", sysobject_getitem, sysobject_doc_getitem())
+      .def("__getitem__", sysobject_getslice, sysobject_doc_getslice());
 }

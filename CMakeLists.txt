@@ -104,8 +104,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 
 set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
 set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
-add_custom_target(copy-common-opae-header-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
 
 # Install common header files
 install(DIRECTORY common/include/opae
@@ -184,10 +182,17 @@ mark_as_advanced(BUILD_TESTS)
 option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 mark_as_advanced(BUILD_ASE_TESTS)
 
+option(ENABLE_MOCK "Enable mock driver for testing." ON)
+mark_as_advanced(ENABLE_MOCK)
+
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
-  add_subdirectory(tests)
+  if (BUILD_ASE_TESTS)
+    add_subdirectory(tests)
+  else(BUILD_ASE_TESTS)
+    add_subdirectory(testing)
+  endif(BUILD_ASE_TESTS)
 endif()
 
 ############################################################################
@@ -448,3 +453,6 @@ else()
   )
 endif()
 include(CPack)
+
+configure_file("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+               "${PROJECT_BINARY_DIR}/include/config.h")

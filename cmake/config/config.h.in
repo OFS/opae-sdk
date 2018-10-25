@@ -225,3 +225,7 @@
 
 #cmakedefine INTEL_FPGA_API_VERSION "@INTEL_FPGA_API_VERSION@"
 #cmakedefine INTEL_FPGA_API_HASH    "@INTEL_FPGA_API_HASH@"
+
+#ifndef STATIC
+#define STATIC static
+#endif

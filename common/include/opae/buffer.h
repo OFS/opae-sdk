@@ -56,7 +56,7 @@ extern "C" {
  * Prepare a shared memory buffer
  *
  * Prepares a memory buffer for shared access between an accelerator and the calling
- * process. This may either include allocation of physcial memory, or
+ * process. This may either include allocation of physical memory, or
  * preparation of already allocated memory for sharing. The latter case is
  * indicated by supplying the FPGA_BUF_PREALLOCATED flag.
  *
@@ -87,6 +87,11 @@ extern "C" {
  * not be allocated. FPGA_INVALID_PARAM if invalid parameters were provided, or
  * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
  * exception occurred while trying to access the handle.
+ *
+ * @note As a special case, when FPGA_BUF_PREALLOCATED is present in flags,
+ * if len == 0 and buf_addr == NULL, then the function returns FPGA_OK if
+ * pre-allocated buffers are supported. In this case, a return value other
+ * than FPGA_OK indicates that pre-allocated buffers are not supported.
  */
 fpga_result fpgaPrepareBuffer(fpga_handle handle,
 			      uint64_t len,

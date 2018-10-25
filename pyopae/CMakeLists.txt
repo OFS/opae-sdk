@@ -41,7 +41,10 @@ set(PYOPAE_SRC opae.cpp
                pyevents.h
                pyevents.cpp
                pyerrors.h
-               pyerrors.cpp)
+               pyerrors.cpp
+               pysysobject.h
+               pysysobject.cpp
+               )
 
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}
@@ -53,7 +56,6 @@ target_include_directories(_opae
 target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
 set_target_properties(_opae PROPERTIES PREFIX ""
                        CXX_VISIBILITY_PRESET "hidden"
-                       COMPILE_FLAGS "-std=c++11"
                        LINK_FLAGS "-std=c++11"
                        LIBRARY_OUTPUT_DIRECTORY
                        ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
@@ -74,7 +76,6 @@ add_custom_command(TARGET _opae
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pyopae.py
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
     COMMENT "Copying Python test files")
-
 
 if (BUILD_PYTHON_DIST)
     set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")

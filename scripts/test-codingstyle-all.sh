@@ -5,7 +5,7 @@ check_c () {
     pushd $(dirname $0)
 
     CHECKPATCH=checkpatch.pl
-    FILES=$(find ../libopae ../common/include/opae ../ase/api/src ../ase/sw ../tools/base/fpgaconf ../tools/base/fpgad \( -iname "*.c" -or -iname "*.h" \) -and \( ! -name "srv.c" \) -and \( ! -path "../libopae/src/usrclk/*" \) -and \( ! -path "../common/include/opae/cxx/*" \) )
+    FILES=$(find ../libopae ../common/include/opae ../ase/api/src ../ase/sw ../tools/base/fpgaconf ../tools/base/fpgad \( -iname "*.c" -or -iname "*.h" \) -and \( ! -name "srv.c" \) -and \( ! -path "../libopae/plugins/xfpga/usrclk/*" \) -and \( ! -path "../common/include/opae/cxx/*" \) )
 
     if [ ! -f $CHECKPATCH ]; then
         wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/master/scripts/checkpatch.pl
@@ -82,7 +82,6 @@ check_py () {
 
     if [ "$FILES" == "" ]; then
         PY_CODE_OK=0
-        echo "No Python files in this change. Python code checker not needed."
         return "$PY_CODE_OK"
     fi
 

@@ -36,7 +36,7 @@
 #include "safe_string/safe_string.h"
 
 enum fpga_power_state {
-	NORAML_PWR = 0,
+	NORMAL_PWR = 0,
 	AP1_STATE,
 	AP2_STATE,
 	AP6_STATE
@@ -58,7 +58,7 @@ static int read_event(char *sysfspath, uint64_t *value)
 		return 0;
 	}
 
-	res = sysfs_read_u64(sysfspath, value);
+	res = fpgad_sysfs_read_u64(sysfspath, value);
 	if (res != FPGA_OK) {
 		return -1;
 	}
@@ -118,7 +118,7 @@ static int poll_ap_event(struct fpga_ap_event *event)
 	} else if (event->pwr_last_state != 3 && pwr_state == AP6_STATE) {
 		dlog(" FPGA Power State changed to AP6 for socket %d\n",
 				event->socket);
-	} else if (event->pwr_last_state != 0 && pwr_state == 0) {
+	} else if (event->pwr_last_state != 0 && pwr_state == NORMAL_PWR) {
 		dlog(" FPGA Power State changed to Normal for socket %d\n",
 				event->socket);
 	}

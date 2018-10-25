@@ -52,6 +52,32 @@ matrix:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
+    - TRAVIS_BUILD_TYPE=Release
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    install:
+    - pip install --user pybind11 nose2
+    cache: ccache
+    env:
+    - TRAVIS_BUILD_TYPE=Debug
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    install:
+    - pip install --user pybind11 nose2
+    cache: ccache
+    env:
     - TRAVIS_BUILD_TYPE=Debug
     addons:
       apt:
@@ -73,27 +99,9 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
-  - script: scripts/test-gtapi-mock-drv.sh
-    install:
-    - pip install --user pybind11 nose2
-    cache: ccache
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/build-tests-default.sh
-    cache: ccache
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/coverage-gtapi-mock-drv.sh
+  - script: scripts/cover.sh
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
     install:
     - pip install --user pybind11 nose2
     cache:
@@ -109,9 +117,9 @@ matrix:
     before_install:
       - pip install --user cpp-coveralls
     after_success:
-      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned -E .*pybind11.*
+      - coveralls -l $TRAVIS_BUILD_DIR/unittests/coverage.info.cleaned -E .*pybind11.*
   - script: scripts/build-documentation.sh
-    cache: 
+    cache:
       - ccache
       - pip
     addons:

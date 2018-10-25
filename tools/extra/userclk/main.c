@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,52 +35,51 @@
 #include <limits.h>
 
 #include "safe_string/safe_string.h"
-#include "opae/fpga.h"
-#include "types_int.h"
+#include <opae/fpga.h>
 
-#include "usrclk/user_clk_pgm_uclock.h"
 
-#define GETOPT_STRING ":hB:D:F:S:P:H:L:"
+
+#define GETOPT_STRING ":hB:D:F:S:H:L:"
 
 struct option longopts[] = {
-		{"help",                no_argument,       NULL, 'h'},
-		{"bus",                 required_argument, NULL, 'B'},
-		{"device",              required_argument, NULL, 'D'},
-		{"function",            required_argument, NULL, 'F'},
-		{"socket-id",           required_argument, NULL, 'S'},
-		{"port",                required_argument, NULL, 'P'},
-		{"freq-high",           required_argument, NULL, 'H'},
-		{"freq-low",            required_argument, NULL, 'L'},
-		{0,0,0,0}
+	{ "help",      no_argument,       NULL, 'h' },
+	{ "segment",   required_argument, NULL, 0xe },
+	{ "bus",       required_argument, NULL, 'B' },
+	{ "device",    required_argument, NULL, 'D' },
+	{ "function",  required_argument, NULL, 'F' },
+	{ "socket-id", required_argument, NULL, 'S' },
+	{ "freq-high", required_argument, NULL, 'H' },
+	{ "freq-low",  required_argument, NULL, 'L' },
+	{ NULL, 0, NULL, 0 }
 };
 
 // User clock Command line struct
 struct  UserClkCommandLine
 {
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
 	int      socket;
-	int      port;
 	int      freq_high;
 	int      freq_low;
 
 };
 
-struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, 0, -1, -1};
+struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, -1, -1, -1 };
 
 // User clock Command line input help
-void UserClkAppShowHelp()
+void UserClkAppShowHelp(void)
 {
 	printf("Usage:\n");
-	printf("./userclk \n");
+	printf("userclk\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
 	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR  -S=<SOCKET NUMBER>\n");
-	printf("<Port>                --port                       OR  -P=<Port id> \n");
-	printf("<freq high>           --freq-high                  OR  -H=<User clock high> \n");
-	printf("<freq low>            --freq-low                   OR  -L=<User clock low> \n");
+	printf("<freq high>           --freq-high                  OR  -H=<User clock high>\n");
+	printf("<freq low>            --freq-low                   OR  -L=<User clock low>\n");
 	printf("\n");
 
 }
@@ -102,47 +101,56 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
-fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid);
 int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[]);
 
-int main( int argc, char** argv )
+int main(int argc, char *argv[])
 {
 	fpga_properties filter             = NULL;
 	uint32_t num_matches               = 1;
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result                 = FPGA_OK;
+	fpga_result res                    = FPGA_OK;
 	uint64_t userclk_high              = 0;
 	uint64_t userclk_low               = 0;
-	fpga_token fme_token               = NULL;
-	int high, low;
+	fpga_token accel_token             = NULL;
+	int high                           = 0;
+	int low                            = 0;
+
+	fpga_handle        accelerator_handle;
 
 	// Parse command line
 	if ( argc < 2 ) {
 		UserClkAppShowHelp();
-	return 1;
+		return 1;
 	} else if ( 0!= ParseCmds(&userclkCmdLine, argc, argv) ) {
-		FPGA_ERR( "Error scanning command line \n.");
-	return 2;
+		return 2;
 	}
 
-	printf(" ------- Command line Input START ---- \n \n");
+	printf(" ------- Command line Input START ----\n \n");
 
+	printf(" Segment               : %d\n", userclkCmdLine.segment);
 	printf(" Bus                   : %d\n", userclkCmdLine.bus);
-	printf(" Device                : %d \n", userclkCmdLine.device);
-	printf(" Function              : %d \n", userclkCmdLine.function);
-	printf(" Socket-id             : %d \n", userclkCmdLine.socket);
-	printf(" Port                  : %d \n", userclkCmdLine.port);
-	printf(" Freq High             : %d \n", userclkCmdLine.freq_high);
-	printf(" Freq Low              : %d \n", userclkCmdLine.freq_low);
+	printf(" Device                : %d\n", userclkCmdLine.device);
+	printf(" Function              : %d\n", userclkCmdLine.function);
+	printf(" Socket-id             : %d\n", userclkCmdLine.socket);
+	printf(" Freq High             : %d\n", userclkCmdLine.freq_high);
+	printf(" Freq Low              : %d\n", userclkCmdLine.freq_low);
 
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
+
+	result = fpgaInitialize(NULL);
+	ON_ERR_GOTO(result, out_exit, "Failed to initilize ");
 
 	// Enum FPGA device
 	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
-	result = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
+
+	if (-1 != userclkCmdLine.segment) {
+		result = fpgaPropertiesSetSegment(filter, userclkCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
 
 	if (-1 != userclkCmdLine.bus) {
 		result = fpgaPropertiesSetBus(filter, userclkCmdLine.bus);
@@ -164,29 +172,26 @@ int main( int argc, char** argv )
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
 
-	result = fpgaEnumerate(&filter, 1, &fme_token,1, &num_matches);
+	result = fpgaEnumerate(&filter, 1, &accel_token,1, &num_matches);
 	ON_ERR_GOTO(result, out_destroy_prop, "enumerating FPGAs");
 
 	if (num_matches < 1) {
-		fprintf(stderr, "FPGA Resource not found.\n");
-		result = fpgaDestroyProperties(&filter);
-		return FPGA_INVALID_PARAM;
-	}
-	fprintf(stderr, "FME Resource found.\n");
-
-	// Read port sysfs path
-	result = get_fpga_port_sysfs(fme_token, sysfs_path,userclkCmdLine.port);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed  to get port syfs path");
+		OPAE_ERR("FPGA Resource not found.");
+		res = FPGA_NOT_FOUND;
 		goto out_destroy_prop;
 	}
+	printf("AFU Resource found.\n");
 
-	// read user clock
-	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get user clock ");
-		goto out_destroy_prop;
-	}
+	result = fpgaOpen(accel_token, &accelerator_handle, 0);
+	ON_ERR_GOTO(result, out_destroy_prop, "opening accelerator");
+
+	res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
+	ON_ERR_GOTO(res, out_close, "Failed to get user clock");
+
+ 	printf("\nApproximate frequency:\n"
+		"High clock = %5.1f MHz\n"
+		"Low clock  = %5.1f MHz\n \n",
+		userclk_high / 1.0e6, userclk_low / 1.0e6);
 
 	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0 ) {
 		high = userclkCmdLine.freq_high;
@@ -196,29 +201,34 @@ int main( int argc, char** argv )
 		} else if (high <= 0) {
 			high = userclkCmdLine.freq_low * 2;
 		} else if ((abs(high - (2 * low))) > 1) {
-			FPGA_ERR("High freq must be ~ (2 * Low freq)");
-			return FPGA_INVALID_PARAM;
+			res = FPGA_INVALID_PARAM;
+			OPAE_ERR("High freq must be ~ (2 * Low freq)");
+			goto out_close;
 		}
-
-		// set user clock
-		result = set_userclock(sysfs_path, high, low);
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to set user clock ");
-			goto out_destroy_prop;
-		}
-
-		// read user clock
-		result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
-		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to get user clock ");
-			goto out_destroy_prop;
-		}
+	} else {
+		res = FPGA_INVALID_PARAM;
+		OPAE_ERR("Please specify one or both of -H and -L");
+		goto out_close;
 	}
+
+	res = fpgaSetUserClock(accelerator_handle, high, low, 0);
+	ON_ERR_GOTO(res, out_close, "Failed to set user clock");
+
+	res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
+	ON_ERR_GOTO(res, out_close, "Failed to get user clock");
 
 	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
-		userclk_high / 1.0e6, (userclk_low) / 1.0e6);
+		userclk_high / 1.0e6, userclk_low / 1.0e6);
+
+out_close:
+	result = fpgaClose(accelerator_handle);
+	ON_ERR_GOTO(result, out_destroy_tok, "closing accelerator");
+
+out_destroy_tok:
+	result = fpgaDestroyToken(&accel_token);
+	ON_ERR_GOTO(result, out_destroy_prop, "destroying token object");
 
 	/* Destroy properties object */
 out_destroy_prop:
@@ -226,57 +236,7 @@ out_destroy_prop:
 	ON_ERR_GOTO(result, out_exit, "destroying properties object");
 
 out_exit:
-	return result;
-
-}
-// Get port syfs path
-fpga_result get_fpga_port_sysfs(fpga_token token,char* sysfs_port,int portid)
-{
-	struct _fpga_token  *_token;
-	char *p                        = 0;
-	int device_id                  = 0;
-
-	if (sysfs_port == NULL) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if (token == NULL) {
-		FPGA_ERR("Invalid fpga token");
-		return FPGA_INVALID_PARAM;
-	}
-
-	_token = (struct _fpga_token*)token;
-
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (NULL == p)
-		return FPGA_INVALID_PARAM;
-	p = strrchr(_token->sysfspath, '.');
-	if (NULL == p)
-		return FPGA_INVALID_PARAM;
-
-	device_id = atoi(p + 1);
-
-	if(device_id < INT_MIN || device_id >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if(portid <INT_MIN || portid >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if(device_id + portid <INT_MIN || device_id + portid >INT_MAX) {
-		FPGA_ERR("Invalid Input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
-		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		device_id, device_id + portid);
-
-	return FPGA_OK;
+	return (res != FPGA_OK) ? res : result;
 }
 
 // parse Input command line
@@ -290,18 +250,15 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 		const char *tmp_optarg = optarg;
 
 		if((optarg) &&
-				('=' == *tmp_optarg)){
+		   ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		if((!optarg) &&
-				(NULL != argv[optind]) &&
-				('-' != argv[optind][0]) ) {
+		if((!optarg) && (optind < argc) &&
+		   (NULL != argv[optind]) &&
+	 	   ('-' != argv[optind][0]) ) {
 			tmp_optarg = argv[optind++];
 		}
-
-		if(tmp_optarg == NULL )
-			break;
 
 		switch(getopt_ret){
 		case 'h':
@@ -310,44 +267,58 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 			return -2;
 			break;
 
+		case 0xe:
+			// segment number
+			if (!tmp_optarg)
+				return -1;
+			endptr = NULL;
+			userclkCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
+			break;
+
 		case 'B':
 			// bus number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'D':
 			// Device number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->device = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'F':
 			// Function number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->function = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'S':
 			// Socket number
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->socket = strtol(tmp_optarg, &endptr, 0);
 			break;
 
-		case 'P':
-			// Port id
-			endptr = NULL;
-			userclkCmdLine->port = strtol(tmp_optarg, &endptr, 0);
-			break;
-
 		case 'H':
 			// User clock High
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->freq_high = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'L':
 			// User clock low
+			if (!tmp_optarg)
+				return -1;
 			endptr = NULL;
 			userclkCmdLine->freq_low = strtol(tmp_optarg, &endptr, 0);
 			break;
@@ -358,6 +329,6 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 			return -1;
 		}
 	}
+
 	return 0;
 }
-
