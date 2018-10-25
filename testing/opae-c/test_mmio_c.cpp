@@ -94,8 +94,8 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -103,7 +103,7 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
@@ -137,7 +137,6 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
   const uint64_t CSR_SCRATCHPAD0 = 0x100;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -175,4 +174,5 @@ TEST_P(mmio_c_p, mmio32) {
   EXPECT_EQ(val_written, val_read);
 }
 
-INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({})));
