@@ -56,6 +56,7 @@ typedef struct _platform_data {
 } platform_data;
 
 static platform_data platform_data_table[] = {
+	{ 0x8086, 0xbcbd, "libxfpga.so", 0 },
 	{ 0x8086, 0xbcc0, "libxfpga.so", 0 },
 	{ 0x8086, 0xbcc1, "libxfpga.so", 0 },
 	{ 0x8086, 0x09c4, "libxfpga.so", 0 },
