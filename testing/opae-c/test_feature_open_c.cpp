@@ -216,7 +216,6 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
-	printf("num_matches for feature enumeration ftoken.size = \n", ftokens_.size());
 	EXPECT_EQ(fpgaFeatureOpen(ftokens_[0], 0, &feature_h), FPGA_OK);
 	printf("test done\n");
 }
@@ -230,13 +229,51 @@ TEST_P(feature_open_c_p, nullhandle) {
   EXPECT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr),
 	  FPGA_INVALID_PARAM);
 }
-/*
+
 TEST_P(feature_open_c_p, mallocfail) {
-  system_->invalidate_malloc(0, "fpgaFeatureOpen");
-  ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, &feature_h),
+	system_->invalidate_malloc(0, "opae_allocate_wrapped_feature_handle");
+	uint64_t* mmio_ptr = NULL;
+
+	struct DFH dfh ;
+	dfh.id = 0x1;
+	dfh.revision = 0;
+	dfh.next_header_offset = 0x100;
+	dfh.eol = 1;
+	dfh.reserved = 0;
+	dfh.type = 0x1;
+
+	uint64_t offset;
+	printf("------dfh.csr = %lx \n", dfh.csr);
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+
+	struct DFH dfh_bbb = { 0 };
+
+	dfh_bbb.type = 0x2;
+	dfh_bbb.id = 0x2;
+	dfh_bbb.revision = 0;
+	dfh_bbb.next_header_offset = 0x000;
+	dfh_bbb.eol = 1;
+	dfh_bbb.reserved = 0;
+	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
+		
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+	printf("Before featureEnumerate\n");
+
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+		ftokens_.size(), &num_matches_), FPGA_OK);
+
+
+	ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, &feature_h),
 	  FPGA_NO_MEMORY);
-  EXPECT_EQ(feature_h, nullptr);
-} */
+	EXPECT_EQ(feature_h, nullptr);
+}
 
 INSTANTIATE_TEST_CASE_P(feature_open_c, feature_open_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
