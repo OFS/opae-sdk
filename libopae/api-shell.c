@@ -1571,15 +1571,13 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 		OPAE_ERR("Feature token initialize errors");
 		res = FPGA_EXCEPTION;
 	}
-    // Tracy-Debug:
-	OPAE_MSG("Tracy-Debug: dma_plugin_mgr_initialize completed\n");
 	
 	res = fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (res != FPGA_OK) {
 		OPAE_ERR("fpgaReadMMIO64() failed");
 		return res;
 	}
-	printf("api-shell: dfh.next_header_offset=0x%x\n", dfh.next_header_offset);
+
 	offset = dfh.next_header_offset;
 	
 	do {
@@ -1600,18 +1598,14 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
-		OPAE_MSG(
-			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_lo=%lx\n",
-			feature_uuid_lo);
+
 		res = fpgaReadMMIO64(handle, mmio_num, offset + 16,
 				     &feature_uuid_hi);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
-		OPAE_MSG(
-			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_hi=%lx\n",
-			feature_uuid_hi);
+
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
 
 		_ftoken = feature_token_add(feature_type, guid, handle);
