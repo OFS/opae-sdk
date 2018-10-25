@@ -195,7 +195,6 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, 0, 0x10, 0xd8424dc4a4a3c413));
 
-
 	struct DFH dfh_bbb = { 0 };
 
 	dfh_bbb.type = 0x2;

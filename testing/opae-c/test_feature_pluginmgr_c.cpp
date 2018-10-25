@@ -32,16 +32,16 @@ extern "C" {
 #include "opae_int.h"
 #include "feature_pluginmgr.h"
 
-int dma_plugin_mgr_initialize_all(void);
-opae_dma_adapter_table *dma_plugin_mgr_alloc_adapter(const char *lib_path);
-int dma_plugin_mgr_free_adapter(opae_dma_adapter_table *adapter);
-int dma_plugin_mgr_register_adapter(opae_dma_adapter_table *adapter);
-opae_dma_adapter_table *get_dma_plugin_adapter(fpga_guid guid);
-int dma_plugin_mgr_configure_plugin(opae_dma_adapter_table *adapter,
+int feature_plugin_mgr_initialize_all(void);
+opae_feature_adapter_table *feature_plugin_mgr_alloc_adapter(const char *lib_path);
+int feature_plugin_mgr_free_adapter(opae_feature_adapter_table *adapter);
+int feature_plugin_mgr_register_adapter(opae_feature_adapter_table *adapter);
+opae_feature_adapter_table *get_feature_plugin_adapter(fpga_guid guid);
+int feature_plugin_mgr_configure_plugin(opae_feature_adapter_table *adapter,
 				     const char *config);
-int dma_plugin_mgr_finalize_all(void);
+int feature_plugin_mgr_finalize_all(void);
 
-extern opae_dma_adapter_table *dma_adapter_list;
+extern opae_feature_adapter_table *feature_adapter_list;
 }
 
 #include <config.h>
@@ -66,7 +66,7 @@ using namespace opae::testing;
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter01) {
-  EXPECT_EQ(NULL, dma_plugin_mgr_alloc_adapter("libthatdoesntexist.so"));
+  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libthatdoesntexist.so"));
 }
 
 /**
@@ -76,8 +76,8 @@ TEST(feature_pluginmgr, alloc_adapter01) {
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter02) {
-  test_system::instance()->invalidate_calloc(0, "dma_plugin_mgr_alloc_adapter");
-  EXPECT_EQ(NULL, dma_plugin_mgr_alloc_adapter("libintel-dma.so"));
+  test_system::instance()->invalidate_calloc(0, "feature_plugin_mgr_alloc_adapter");
+  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libintel-dma.so"));
 }
 
 /**
@@ -87,10 +87,10 @@ TEST(feature_pluginmgr, alloc_adapter02) {
  *             and returns 0 on success.<br>
  */
 TEST(feature_pluginmgr, free_adapter) {
-  opae_dma_adapter_table *at;
-  at = dma_plugin_mgr_alloc_adapter("libintel-dma.so");
+  opae_feature_adapter_table *at;
+  at = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
   ASSERT_NE(nullptr, at);
-  EXPECT_EQ(0, dma_plugin_mgr_free_adapter(at));
+  EXPECT_EQ(0, feature_plugin_mgr_free_adapter(at));
 }
 
 /**
@@ -101,11 +101,11 @@ TEST(feature_pluginmgr, free_adapter) {
  *             then the fn returns non-zero.<br>
  */
 TEST(feature_pluginmgr, config_err) {
-  opae_dma_adapter_table *at;
-  at = dma_plugin_mgr_alloc_adapter("libopae-c.so");  // TODO: checking
+  opae_feature_adapter_table *at;
+  at = feature_plugin_mgr_alloc_adapter("libopae-c.so");  // TODO: checking
   ASSERT_NE(nullptr, at);
-  EXPECT_NE(0, dma_plugin_mgr_configure_plugin(at, ""));
-  EXPECT_EQ(0, dma_plugin_mgr_free_adapter(at));
+  EXPECT_NE(0, feature_plugin_mgr_configure_plugin(at, ""));
+  EXPECT_EQ(0, feature_plugin_mgr_free_adapter(at));
 }
 
 extern "C" {
@@ -166,30 +166,30 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 	ASSERT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), &num_matches_), FPGA_OK);
 	
     // save the global adapter list.
-    dma_adapter_list_ = dma_adapter_list;
-    dma_adapter_list = nullptr;
+    feature_adapter_list_ = feature_adapter_list;
+    feature_adapter_list = nullptr;
 
     test_feature_plugin_initialize_called = 0;
     test_feature_plugin_finalize_called = 0;
 
-    faux_adapter0_ = dma_plugin_mgr_alloc_adapter("libintel-dma.so");
+    faux_adapter0_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
     ASSERT_NE(nullptr, faux_adapter0_);
 
     faux_adapter0_->initialize = test_feature_plugin_initialize;
     faux_adapter0_->finalize = test_feature_plugin_finalize;
-    EXPECT_EQ(0, dma_plugin_mgr_register_adapter(faux_adapter0_));
+    EXPECT_EQ(0, feature_plugin_mgr_register_adapter(faux_adapter0_));
 
-    faux_adapter1_ = dma_plugin_mgr_alloc_adapter("libintel-dma.so");
+    faux_adapter1_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
     ASSERT_NE(nullptr, faux_adapter1_);
 
     faux_adapter1_->initialize = test_feature_plugin_initialize;
     faux_adapter1_->finalize = test_feature_plugin_finalize;
-    EXPECT_EQ(0, dma_plugin_mgr_register_adapter(faux_adapter1_));
+    EXPECT_EQ(0, feature_plugin_mgr_register_adapter(faux_adapter1_));
   }
 
   virtual void TearDown() override {
     // restore the global adapter list.
-    dma_adapter_list = dma_adapter_list_;
+    feature_adapter_list = feature_adapter_list_;
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
         EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
@@ -208,9 +208,9 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
   fpga_properties filter_;  
   fpga_handle accel_;
   fpga_feature_properties feature_filter_;
-  opae_dma_adapter_table *dma_adapter_list_;
-  opae_dma_adapter_table *faux_adapter0_;
-  opae_dma_adapter_table *faux_adapter1_;
+  opae_feature_adapter_table *feature_adapter_list_;
+  opae_feature_adapter_table *faux_adapter0_;
+  opae_feature_adapter_table *faux_adapter1_;
   test_platform platform_;
   uint32_t num_matches_;
   test_device invalid_device_;
@@ -235,7 +235,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(feature_pluginmgr_c_p, bad_init_all) {
   faux_adapter1_->initialize = test_feature_plugin_bad_initialize;
-  EXPECT_NE(0, dma_plugin_mgr_initialize_all());
+  EXPECT_NE(0, feature_plugin_mgr_initialize_all());
   EXPECT_EQ(2, test_feature_plugin_initialize_called); //TODO: checking
  }
 
@@ -248,8 +248,8 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 TEST_P(feature_pluginmgr_c_p, bad_final_all) {
   faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
 
-  EXPECT_NE(0, dma_plugin_mgr_finalize_all());
-  EXPECT_EQ(nullptr, dma_adapter_list);
+  EXPECT_NE(0, feature_plugin_mgr_finalize_all());
+  EXPECT_EQ(nullptr, feature_adapter_list);
   EXPECT_EQ(2, test_feature_plugin_finalize_called); //TODO: checking
 }
 

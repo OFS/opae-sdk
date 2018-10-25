@@ -190,9 +190,9 @@ typedef struct _opae_api_adapter_table {
 
 } opae_api_adapter_table;
 
-typedef struct _opae_dma_adapter_table {
+typedef struct _opae_feature_adapter_table {
 
-	struct _opae_dma_adapter_table *next;
+	struct _opae_feature_adapter_table *next;
 	opae_plugin plugin;
 	fpga_guid guid;
 
@@ -202,14 +202,13 @@ typedef struct _opae_dma_adapter_table {
 			transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
 			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
-	fpga_result (*fpgaDMAOpen)(fpga_feature_token token, int flags,
-				   void *priv_config,
+	fpga_result (*fpgaFeatureOpen)(fpga_feature_token token, int flags,
 				   fpga_feature_handle *handle);
-	fpga_result (*fpgaDMAClose)(fpga_feature_handle *_dma_h);
+	fpga_result (*fpgaFeatureClose)(fpga_feature_handle *_dma_h);
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);
 
-} opae_dma_adapter_table;
+} opae_feature_adapter_table;
 
 #endif /* __OPAE_ADAPTER_H__ */

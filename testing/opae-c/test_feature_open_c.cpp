@@ -122,7 +122,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 
 TEST_P(feature_open_c_p, mallocfail) {
   system_->invalidate_malloc(0, "fpgaFeatureOpen");
-  ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
+  ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, &feature_h),
 	  FPGA_NO_MEMORY);
   EXPECT_EQ(feature_h, nullptr);
 }

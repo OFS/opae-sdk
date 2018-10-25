@@ -96,7 +96,7 @@
 	})
 
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
-typedef struct _opae_dma_adapter_table opae_dma_adapter_table;
+typedef struct _opae_feature_adapter_table opae_feature_adapter_table;
 
 //                                  k o t w
 #define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477
@@ -226,34 +226,74 @@ union _fpgaSubFeatureProperty {
 	fpgaDMAProperties dma_prop;
 };
 //                                  f e a t    
-#define OPAE_FEATURE_TOKEN_MAGIC 0x66656174
+#define OPAE_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
+#define OPAE_FEATURE_TOKEN_MAGIC 0x66656178
 #define OPAE_INVALID_MAGIC 0x46504741
+//typedef void *opae_feature_adapter_table;
 /** Device-wide unique FPGA feature resource identifier */
-struct _fpga_feature_token {
+struct _fpga_feature_token {   // This should be defined int plugin layer as well
 	uint64_t magic;
 	uint32_t feature_type;
 	fpga_guid feature_guid;
 	fpga_handle handle;
-	opae_dma_adapter_table *dma_adapter_table;
 	pthread_mutex_t lock;
 	struct _fpga_feature_token *next;
 };
 
+typedef struct _opae_wrapped_feature_token {
+	uint64_t magic;
+	fpga_feature_token feature_token;
+	opae_feature_adapter_table *adapter_table;
+} opae_wrapped_feature_token;
+
+opae_wrapped_feature_token *
+opae_allocate_wrapped_feature_token(fpga_feature_token token,
+			    const opae_feature_adapter_table *adapter);
+
+static inline opae_wrapped_feature_token *opae_validate_wrapped_feature_token(fpga_feature_token t)
+{
+	opae_wrapped_feature_token *wt;
+	if (!t)
+		return NULL;
+	wt = (opae_wrapped_feature_token *)t;
+	return (wt->magic == OPAE_WRAPPED_FEATURE_TOKEN_MAGIC) ? wt : NULL;
+}
+
+static inline void opae_destroy_wrapped_feature_token(opae_wrapped_feature_token *wt)
+{
+	wt->magic = 0;
+	free(wt);
+}
 //                                   f e a h 
-#define OPAE_FEATURE_HANDLE_MAGIC 0x66656168
+#define OPAE_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
+#define OPAE_FEATURE_HANDLE_MAGIC 0x66656170
+
 
 /** Process-wide unique FPGA feature handle */
-struct _fpga_feature_handle {
-	pthread_mutex_t lock;
+typedef struct _opae_wrapped_feature_handle {
 	uint32_t magic;
-	fpga_feature_token feature_token;
-	uint32_t mmio_num;
-	uint64_t mmio_offset;
-	uint64_t feature_base;
-	uint64_t feature_offset;
-	opae_dma_adapter_table *dma_adapter_table;
-	fpga_event_handle *eh_root;
-	void *feature_private; // Data unique to feature implementation
-};
+	opae_wrapped_feature_token *wrapped_feature_token;
+	fpga_feature_handle feature_handle;
+	opae_feature_adapter_table *adapter_table;	
+} opae_wrapped_feature_handle;
+
+opae_wrapped_feature_handle *
+opae_allocate_wrapped_feature_handle(opae_wrapped_feature_token *t, fpga_feature_handle opae_feature_handle,
+			     opae_feature_adapter_table *adapter);
+
+static inline opae_wrapped_feature_handle *opae_validate_wrapped_feature_handle(fpga_feature_handle h)
+{
+	opae_wrapped_feature_handle *wh;
+	if (!h)
+		return NULL;
+	wh = (opae_wrapped_feature_handle *)h;
+	return (wh->magic == OPAE_WRAPPED_FEATURE_HANDLE_MAGIC) ? wh : NULL;
+}
+
+static inline void opae_destroy_wrapped_feature_handle(opae_wrapped_feature_handle *wh)
+{
+	wh->magic = 0;
+	free(wh);
+}
 
 #endif // ___OPAE_OPAE_INT_H__

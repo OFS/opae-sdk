@@ -141,7 +141,7 @@ fpgaFeaturePropertiesGet(fpga_feature_token token,
  * @returns             FPGA_OK on success.
  */
 fpga_result fpgaFeatureOpen(fpga_feature_token feature_token, int flags,
-		void *priv_config, fpga_feature_handle *handle);
+							fpga_feature_handle *handle);
 
 /**
  * Close a previously opened feature object
