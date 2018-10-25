@@ -46,7 +46,7 @@ using namespace opae::testing;
 
 class error_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  error_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
+  error_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -54,8 +54,8 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -67,7 +67,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    if (filter_ != nullptr) {
+    if (filter_) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     }
     for (auto &t : tokens_) {
@@ -83,7 +83,6 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
   std::array<fpga_token, 2> tokens_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -160,4 +159,4 @@ TEST_P(error_c_p, clear_all) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({})));
