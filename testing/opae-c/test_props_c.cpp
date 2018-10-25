@@ -56,15 +56,12 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_),
-              FPGA_OK);
+                            &num_matches_device_), FPGA_OK);
 
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_),
-              FPGA_OK);
-    ASSERT_EQ(num_matches_accel_, platform_.devices.size());
+                            &num_matches_accel_), FPGA_OK);
 
     ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
@@ -120,7 +117,6 @@ TEST_P(properties_c_p, get_parent01) {
   ASSERT_EQ(
       fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(matches, platform_.devices.size());
 
   EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
