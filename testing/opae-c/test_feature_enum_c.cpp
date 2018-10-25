@@ -147,12 +147,12 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-	for (auto &t : ftokens_) {
+/*	for (auto &t : ftokens_) {
 		if (t) {
 			EXPECT_EQ(fpgaFeatureTokenDestroy(&t), FPGA_OK);
 			t = nullptr;
 		}
-	}
+	} */
     num_matches_ = 0;
   }
 
@@ -190,10 +190,10 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 
 	uint64_t offset;
 	printf("------dfh.csr = %lx \n", dfh.csr);
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x0, dfh.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, 0, 0x10, 0xd8424dc4a4a3c413));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
 	struct DFH dfh_bbb = { 0 };
 
@@ -206,25 +206,20 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
 		
 
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x100, dfh_bbb.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x108, 0x9D73E8F258E9E3E7));
-	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, 0, 0x110, 0x87816958C1484CE0));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 	printf("Before featureEnumerate\n");
 
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
 	printf("test done\n");
 }
-/*
-TEST_P(feature_enum_c_p, nullfilter) {
-  EXPECT_EQ(
-      fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
-      FPGA_OK);
-  //EXPECT_EQ(num_matches_, platform_.devices.size() * 2);  // TODO: 
 
-  uint32_t matches = 0;
-  EXPECT_EQ(fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &matches),
+TEST_P(feature_enum_c_p, nullfilter) {
+ 
+  EXPECT_EQ(fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
 
@@ -237,6 +232,6 @@ TEST_P(feature_enum_c_p, nulltokens) {
   EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
-*/
+
 INSTANTIATE_TEST_CASE_P(feature_enum_c, feature_enum_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));

@@ -1548,6 +1548,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
+	ASSERT_NOT_NULL(num_matches);
  
 	if ((max_tokens > 0) && !tokens) {
 		OPAE_ERR("max_tokens > 0 with NULL tokens");
