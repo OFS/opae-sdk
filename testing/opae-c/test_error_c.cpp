@@ -63,7 +63,6 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
   }
 
   virtual void TearDown() override {
