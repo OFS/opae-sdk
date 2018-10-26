@@ -231,12 +231,13 @@ union _fpgaSubFeatureProperty {
 #define OPAE_INVALID_MAGIC 0x46504741
 //typedef void *opae_feature_adapter_table;
 /** Device-wide unique FPGA feature resource identifier */
-struct _fpga_feature_token {   // This should be defined int plugin layer as well
+struct _fpga_feature_token {
 	uint64_t magic;
 	uint32_t feature_type;
+	uint32_t mmio_num;
 	fpga_guid feature_guid;
+	uint64_t csr_offset;
 	fpga_handle handle;
-	pthread_mutex_t lock;
 	struct _fpga_feature_token *next;
 };
 

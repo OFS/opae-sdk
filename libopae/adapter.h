@@ -203,7 +203,7 @@ typedef struct _opae_feature_adapter_table {
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
 			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
 	fpga_result (*fpgaFeatureOpen)(fpga_feature_token token, int flags,
-				   fpga_feature_handle *handle);
+				   void *priv_config, fpga_feature_handle *handle);
 	fpga_result (*fpgaFeatureClose)(fpga_feature_handle *_dma_h);
 	// configuration functions
 	int (*initialize)(void);

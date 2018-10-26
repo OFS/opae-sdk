@@ -56,8 +56,8 @@ pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
  *
  * @return
  */
-struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid,
-					      fpga_handle handle)
+struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, fpga_guid guid,
+					      uint64_t offset, fpga_handle handle)
 {
 	struct _fpga_feature_token *tmp;
 	errno_t e;
@@ -90,6 +90,8 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid,
 	uuid_clear(tmp->feature_guid);
 	tmp->magic = OPAE_FEATURE_TOKEN_MAGIC;
 	tmp->feature_type = type;
+	tmp->mmio_num = mmio_num;
+	tmp->csr_offset = offset;
 	tmp->handle = handle;
 
 	e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,

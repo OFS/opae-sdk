@@ -33,8 +33,8 @@
 /*
  * Feature token list structure manipulation functions
  */
-struct _fpga_feature_token *feature_token_add(uint32_t type, fpga_guid guid,
-												fpga_handle handle);
+struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
+			fpga_guid guid, uint64_t offset, fpga_handle handle);
 void feature_token_cleanup(void);
 
 #endif // ___FEATURE_TOKEN_LIST_INT_H__

@@ -1542,9 +1542,17 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
                       fpga_feature_token *tokens, uint32_t max_tokens,
                       uint32_t *num_matches)
 {
-	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
 	fpga_result res = FPGA_OK;
+	uint32_t mmio_num = 0;
+	fpga_properties accel_prop;
+	uint64_t offset = 0;
+	fpga_guid guid;
+	struct _fpga_feature_token *_ftoken;
+	struct DFH dfh;
+	errno_t e;
 	int errors;
+	
+	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
@@ -1556,28 +1564,32 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 	}
   
 	*num_matches = 0;
-
-	// Discover feature BBB by traversing the device feature list 
-	bool end_of_list = false; 
-	uint32_t mmio_num = 0;   // TODO: check where to get it
-	uint64_t offset = 0;
-	fpga_guid guid;
-	struct _fpga_feature_token *_ftoken;
-	struct DFH dfh;
-	errno_t e;
 	
 	errors = feature_plugin_mgr_initialize(handle);
 	if (errors) {
 		OPAE_ERR("Feature token initialize errors");
 		res = FPGA_EXCEPTION;
+	}	
+	
+	/*res = fpgaGetProperties(wrapped_handle->wrapped_token, &accel_prop);
+	if (res != FPGA_OK) {
+		OPAE_ERR("fpgaGetProperties() failed");
+		return res;
 	}
 	
+	res = fpgaPropertiesGetNumMMIO(accel_prop, &mmio_num);
+	if (res != FPGA_OK) {
+		OPAE_ERR("fpgaPropertiesGetNumMMIO() failed");
+		return res;
+	} */
+	mmio_num = 0;  // TODO : debug above
 	res = fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (res != FPGA_OK) {
 		OPAE_ERR("fpgaReadMMIO64() failed");
 		return res;
 	}
-
+	
+	// Discover feature BBB by traversing the device feature list 
 	offset = dfh.next_header_offset;
 	
 	do {
@@ -1608,7 +1620,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
 
-		_ftoken = feature_token_add(feature_type, guid, handle);
+		_ftoken = feature_token_add(feature_type, mmio_num, guid, offset, handle);
 
 		if (_ftoken->feature_type == prop->type) {
 			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
@@ -1690,7 +1702,7 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
-                            fpga_feature_handle *handle)
+                            void *priv_config, fpga_feature_handle *handle)
 {
 	fpga_result res;
 	fpga_result cres = FPGA_OK;
@@ -1702,13 +1714,14 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(priv_config);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureOpen,
 			       FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureClose,
 			       FPGA_NOT_SUPPORTED);
 
 	res = wrapped_token->adapter_table->fpgaFeatureOpen(wrapped_token->feature_token,
-						    flags, &feature_handle);
+						    flags, priv_config, &feature_handle);
 
 	ASSERT_RESULT(res);
 
