@@ -2,11 +2,14 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name="opae.fpga.packager",
+    name="opae.tools.packager",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
+    package_data={
+        'opae.tools.packager' : ['schema/*.json'],
+    },
     entry_points={
-        'console_scripts': ['packager = opae.fpga.packager:main'],
+        'console_scripts': ['packager = opae.tools.packager:main'],
     },
     install_requires=['jsonschema'],
     description="packager tool ",

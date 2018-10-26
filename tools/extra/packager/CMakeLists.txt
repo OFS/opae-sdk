@@ -34,12 +34,12 @@ include(packaging)
 
 ################# Create Staging directory ##########################
 set(PACKTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
-
+file(COPY opae DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+set(PACKGER_DIR ${PACKTOOLSDIST_STAGE_DIR}/opae/tools/packager)
 
 ################# Configure files ###################
 set(PACKCONFIGFILES
         setup.py
-        packager.py
         README
         )
 
@@ -47,25 +47,36 @@ foreach(packconfigfile ${PACKCONFIGFILES})
         configure_file(${packconfigfile} ${PACKTOOLSDIST_STAGE_DIR}/${packconfigfile} @ONLY)
 endforeach(packconfigfile ${PACKCONFIGFILES})
 
+configure_file(packager.py ${PACKGER_DIR}/packager.py @ONLY)
 ################# Copy files and directories ###################
 set(PACKCOPYFILES
         afu_json_mgr.py
         afu.py
         gbs.py
         utils.py
-        MANIFEST.in)
+        )
 
 foreach(packcopyfile ${PACKCOPYFILES})
-        file(COPY ${packcopyfile} DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+        file(COPY ${packcopyfile} DESTINATION ${PACKGER_DIR})
 endforeach(packcopyfile ${PACKCOPYFILES})
         
-file(COPY test DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
-file(COPY opae DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
-file(COPY metadata DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
-file(COPY schema DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+file(COPY MANIFEST.in DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+file(COPY test DESTINATION ${PACKGER_DIR})
+file(COPY metadata DESTINATION ${PACKGER_DIR})
+file(COPY schema DESTINATION ${PACKGER_DIR})
+
+##################add target to build packager distribution################
+add_custom_target(packager-dist
+                COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
                 WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})       
+
+################# install tool with pip  ######################## 
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/*
+                WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})"
+        COMPONENT toolpackager)
+
+    
 ################# Add version to packager.py ########################
 #configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/stage/packager.py @ONLY)
 
