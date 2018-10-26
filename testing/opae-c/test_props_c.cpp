@@ -139,9 +139,11 @@ TEST_P(properties_c_p, get_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
-  uint32_t i;
-  for (i = 0 ; i < matches ; ++i) {
-    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  for (auto &t : toks) {
+    if (t) {
+      EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+      t = nullptr;
+    }
   }
 }
 
@@ -191,7 +193,7 @@ TEST_P(properties_c_p, set_parent01) {
   ASSERT_EQ(
       fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
       FPGA_OK);
-  EXPECT_EQ(matches, platform_.devices.size());
+  EXPECT_GT(matches, 0);
 
   EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
@@ -211,9 +213,11 @@ TEST_P(properties_c_p, set_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
-  uint32_t i;
-  for (i = 0 ; i < matches ; ++i) {
-    EXPECT_EQ(fpgaDestroyToken(&toks[i]), FPGA_OK);
+  for (auto &t : toks) {
+    if (t) {
+      EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+      t = nullptr;
+    }
   }
 }
 
