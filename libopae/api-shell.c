@@ -1714,7 +1714,6 @@ fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
 
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
-	ASSERT_NOT_NULL(priv_config);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureOpen,
 			       FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureClose,

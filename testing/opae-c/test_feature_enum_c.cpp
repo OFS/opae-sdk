@@ -38,6 +38,7 @@ extern "C" {
 #include "types_int.h"
 #include "xfpga.h"
 #include "intel-fpga.h"
+#include "feature_pluginmgr.h"
 
 #ifdef __cplusplus
 }
@@ -53,7 +54,7 @@ extern "C" {
 #include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
-#include "test_opae_c.h"
+
 #include <opae/access.h>
 #include <opae/mmio.h>
 #include <linux/ioctl.h>
