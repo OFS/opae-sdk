@@ -314,9 +314,9 @@ add_unit_test(test_opae_feature_pluginmgr_c opae-c-static
     opae-c/test_feature_pluginmgr_c.cpp
 )
 
-#add_unit_test(test_opae_feature_token_list_c opae-c-static
-#    opae-c/test_feature_token_list_c.cpp
-#)
+add_unit_test(test_opae_feature_token_list_c opae-c-static
+    opae-c/test_feature_token_list_c.cpp
+)
 ############################################################################
 # cxx core tests ###########################################################
 ############################################################################

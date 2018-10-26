@@ -93,6 +93,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 	tmp->mmio_num = mmio_num;
 	tmp->csr_offset = offset;
 	tmp->handle = handle;
+	tmp->next = NULL;
 
 	e = memcpy_s(tmp->feature_guid, sizeof(fpga_guid), guid,
 		     sizeof(fpga_guid));

@@ -33,7 +33,7 @@ extern "C" {
 #include "feature_pluginmgr.h"
 
 int feature_plugin_mgr_initialize_all(void);
-opae_feature_adapter_table *feature_plugin_mgr_alloc_adapter(const char *lib_path);
+opae_feature_adapter_table *feature_plugin_mgr_alloc_adapter(const char *lib_path, fpga_guid guid);
 int feature_plugin_mgr_free_adapter(opae_feature_adapter_table *adapter);
 int feature_plugin_mgr_register_adapter(opae_feature_adapter_table *adapter);
 opae_feature_adapter_table *get_feature_plugin_adapter(fpga_guid guid);
@@ -66,7 +66,9 @@ using namespace opae::testing;
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter01) {
-  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libthatdoesntexist.so"));
+  fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libthatdoesntexist.so", guid));
 }
 
 /**
@@ -76,8 +78,10 @@ TEST(feature_pluginmgr, alloc_adapter01) {
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter02) {
+  fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
   test_system::instance()->invalidate_calloc(0, "feature_plugin_mgr_alloc_adapter");
-  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libintel-dma.so"));
+  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libintel-dma.so", guid));
 }
 
 /**
@@ -87,8 +91,10 @@ TEST(feature_pluginmgr, alloc_adapter02) {
  *             and returns 0 on success.<br>
  */
 TEST(feature_pluginmgr, free_adapter) {
+  fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
   opae_feature_adapter_table *at;
-  at = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
+  at = feature_plugin_mgr_alloc_adapter("libintel-dma.so", guid);
   ASSERT_NE(nullptr, at);
   EXPECT_EQ(0, feature_plugin_mgr_free_adapter(at));
 }
@@ -101,8 +107,10 @@ TEST(feature_pluginmgr, free_adapter) {
  *             then the fn returns non-zero.<br>
  */
 TEST(feature_pluginmgr, config_err) {
+  fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
   opae_feature_adapter_table *at;
-  at = feature_plugin_mgr_alloc_adapter("libopae-c.so");  // TODO: checking
+  at = feature_plugin_mgr_alloc_adapter("libopae-c.so", guid);  // TODO: checking
   ASSERT_NE(nullptr, at);
   EXPECT_NE(0, feature_plugin_mgr_configure_plugin(at, ""));
   EXPECT_EQ(0, feature_plugin_mgr_free_adapter(at));
@@ -162,7 +170,9 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 	num_matches_ = 0;
 	feature_filter_.type = DMA;
-	memset_s(feature_filter_.guid, sizeof(fpga_guid), 0);   // TODO: Fill in DMA guid id here
+	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+	memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 	ASSERT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), &num_matches_), FPGA_OK);
 	
     // save the global adapter list.
@@ -172,14 +182,14 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     test_feature_plugin_initialize_called = 0;
     test_feature_plugin_finalize_called = 0;
 
-    faux_adapter0_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
+    faux_adapter0_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so", guid);
     ASSERT_NE(nullptr, faux_adapter0_);
 
     faux_adapter0_->initialize = test_feature_plugin_initialize;
     faux_adapter0_->finalize = test_feature_plugin_finalize;
     EXPECT_EQ(0, feature_plugin_mgr_register_adapter(faux_adapter0_));
 
-    faux_adapter1_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so");
+    faux_adapter1_ = feature_plugin_mgr_alloc_adapter("libintel-dma.so", guid);
     ASSERT_NE(nullptr, faux_adapter1_);
 
     faux_adapter1_->initialize = test_feature_plugin_initialize;
