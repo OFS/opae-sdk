@@ -3,6 +3,7 @@
 #include <opae/fpga.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <atomic>
 #include <exception>
 #include "pyerrors.h"
 #include "pyevents.h"
@@ -20,6 +21,10 @@ using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
 using opae::fpga::types::sysobject;
+
+const char *memory_barrier_doc = R"opaedoc(
+  Place a memory barrier or fence to ensure that all preceding memory operations have completed before continuing.
+)opaedoc";
 
 #ifdef OPAE_EMBEDDED
 #include <pybind11/embed.h>
@@ -142,12 +147,15 @@ PYBIND11_MODULE(_opae, m) {
                     properties_set_accelerator_state,
                     properties_doc_accelerator_state());
 
+  // memory fence
+  m.def("memory_barrier",
+        []() { std::atomic_thread_fence(std::memory_order_release); },
+        memory_barrier_doc);
   // define token class
   m.def("enumerate", &token::enumerate, token_doc_enumerate())
       .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
-  pytoken
-      .def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
+  pytoken.def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
       .def("__getitem__", token_get_sysobject, sysobject_doc_token_get())
       .def("find", token_find_sysobject, sysobject_doc_token_find(),
            py::arg("name"), py::arg("flags") = 0);
@@ -173,7 +181,7 @@ PYBIND11_MODULE(_opae, m) {
            py::arg("offset"), py::arg("value"), py::arg("csr_space") = 0)
       .def("__getattr__", handle_get_sysobject, sysobject_doc_handle_get())
       .def("__getitem__", handle_get_sysobject, sysobject_doc_handle_get())
-      .def("find", token_find_sysobject, sysobject_doc_handle_find(),
+      .def("find", handle_find_sysobject, sysobject_doc_handle_find(),
            py::arg("name"), py::arg("flags") = 0);
 
   // define shared_buffer class
@@ -186,12 +194,30 @@ PYBIND11_MODULE(_opae, m) {
       .def("io_address", &shared_buffer::io_address,
            shared_buffer_doc_io_address())
       .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
+      .def("poll", shared_buffer_poll<uint8_t>,
+           "Poll for an 8-bit value being set at given offset",
+           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
+      .def("poll32", shared_buffer_poll<uint32_t>,
+           "Poll for a 32-bit value being set at given offset",
+           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
+      .def("poll64", shared_buffer_poll<uint64_t>,
+           "Poll for a 64-bit value being set at given offset",
+           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
       .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
+      .def("copy", shared_buffer_copy, shared_buffer_doc_copy(),
+           py::arg("other"), py::arg("size") = 0)
       .def_buffer([](shared_buffer &b) -> py::buffer_info {
         return py::buffer_info(
             const_cast<uint8_t *>(b.c_type()), sizeof(uint8_t),
             py::format_descriptor<uint8_t>::format(), b.size());
       })
+      .def("read32", &shared_buffer::read<uint32_t>, shared_buffer_doc_read32())
+      .def("read64", &shared_buffer::read<uint64_t>, shared_buffer_doc_read64())
+      .def("write32", &shared_buffer::write<uint32_t>,
+           shared_buffer_doc_write32())
+      .def("write64", &shared_buffer::write<uint64_t>,
+           shared_buffer_doc_write64())
+      .def("split", shared_buffer_split, shared_buffer_doc_split())
       .def("__getitem__", shared_buffer_getitem, shared_buffer_doc_getitem())
       .def("__setitem__", shared_buffer_setitem, shared_buffer_doc_setitem())
       .def("__getitem__", shared_buffer_getslice, shared_buffer_doc_getslice());
