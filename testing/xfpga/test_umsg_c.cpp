@@ -23,7 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 extern "C"{
 #include "types_int.h"
 fpga_result free_umsg_buffer(fpga_handle);
@@ -143,7 +142,6 @@ out_EINVAL:
     goto out;
 }
 
-
 class umsg_c_p
     : public ::testing::TestWithParam<std::string> {
  protected:
@@ -158,6 +156,7 @@ class umsg_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    filter_ = nullptr;
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
@@ -391,7 +390,13 @@ TEST_P(umsg_c_mcp_p, test_umsg_drv_04) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
 
-/**
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+
+class umsg_c_mock_p : public umsg_c_p {
+};
+
+ /**
  * @test       Umsg_08
  *
  * @brief      When the handle parameter to xfpga_fpgaTriggerUmsg<br>
@@ -399,16 +404,11 @@ TEST_P(umsg_c_mcp_p, test_umsg_drv_04) {
  *             hugepages is allocated. <br>
  *
  */
-TEST_P(umsg_c_mcp_p, test_umsg_08) {
+TEST_P(umsg_c_mock_p, test_umsg_08) {
   auto res = xfpga_fpgaTriggerUmsg(handle_, 0);
   EXPECT_EQ(FPGA_OK, res) << "\t return value is " << res;
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mcp_p, ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
-
-class umsg_c_mock_p : public umsg_c_p {
-};
- 
 /**
  * @test       umsg_c_mock_p
  * @brief      get_num_umsg_ioctl_err
@@ -609,5 +609,6 @@ TEST_P(umsg_c_mock_p, test_umsg_09) {
   EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaTriggerUmsg(handle_, 0));
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, ::testing::ValuesIn(test_platform::mock_platforms({})));
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
 
