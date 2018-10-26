@@ -30,8 +30,6 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
-#include "opae_int.h"
-#include "token_list_int.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
