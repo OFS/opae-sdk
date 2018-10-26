@@ -219,9 +219,17 @@ TEST_P(hello_events_c_p, get_bus) {
   ASSERT_NE(token_, nullptr);
   EXPECT_GT(matches, 0);
 
+  fpga_properties prop = nullptr;
+  ASSERT_EQ(fpgaGetProperties(token_, &prop), FPGA_OK);
+  ASSERT_NE(prop, nullptr);
+  uint8_t expected_bus = 99;
+
+  ASSERT_EQ(fpgaPropertiesGetBus(prop, &expected_bus), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+
   uint8_t bus = 99;
   EXPECT_EQ(get_bus(token_, &bus), FPGA_OK);
-  EXPECT_EQ(platform_.devices[0].bus, bus);
+  EXPECT_EQ(expected_bus, bus);
 }
 
 /**
