@@ -25,12 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-include(packaging)
 
-## Install target for jsonschema files
-#set(JSONSCHEMA_SHARE_DIR share/opae/python)
-#set(JSONSCHEMA_BIN_DIR ${PROJECT_BINARY_DIR}/share/opae/jsonschema-2.3.0)
-#set(JSONSCHEMA_DIR ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0)
 
 ################# Create Staging directory ##########################
 set(PACKTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
@@ -75,36 +70,4 @@ add_custom_target(packager-dist
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/*
                 WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})"
         COMPONENT toolpackager)
-
-    
-################# Add version to packager.py ########################
-#configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/stage/packager.py @ONLY)
-
-#set(PKG_PATH_MODULE ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
-
-################# generate executable python zip files ########################
-#set(METADATA_FILES metadata/constants.py metadata/__init__.py metadata/metadata.py)
-#set(SCHEMA_FILES schema/afu_schema_v01.json)
-
-#set(PKG_COMMON_FILES afu.py gbs.py utils.py ${METADATA_FILES} ${SCHEMA_FILES})
-
-#set(PKG_PYTHON_FILES PKG_PATH_MODULE ${PKG_COMMON_FILES} README)
-#CREATE_PYTHON_EXE(packager packager ${PKG_PYTHON_FILES})
-#set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
-
-#set(AFU_JSON_MGR_FILES afu_json_mgr.py ${PKG_COMMON_FILES} schema/afu_template.json)
-#CREATE_PYTHON_EXE(afu_json_mgr afu_json_mgr ${AFU_JSON_MGR_FILES})
-#list(APPEND PACKAGER_BIN_LIST ${PACKAGER_BIN})
-
-#file(COPY ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0/ DESTINATION ${JSONSCHEMA_BIN_DIR})
-
-################# install executable python zip files  ######################## 
-#install(PROGRAMS ${PACKAGER_BIN_LIST}
-#        DESTINATION bin
-#        COMPONENT toolpackager)
-
-################# install jsonschema files  ######################## 
-#install(DIRECTORY ${JSONSCHEMA_DIR}
-#        DESTINATION ${JSONSCHEMA_SHARE_DIR}
-#        COMPONENT jsonschema)
 
