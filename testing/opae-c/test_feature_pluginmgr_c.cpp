@@ -24,10 +24,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
+#include <opae/fpga.h>
+#include "intel-fpga.h"
 #include "safe_string/safe_string.h"
 #include "opae_int.h"
 #include "feature_pluginmgr.h"
@@ -42,20 +46,25 @@ int feature_plugin_mgr_configure_plugin(opae_feature_adapter_table *adapter,
 int feature_plugin_mgr_finalize_all(void);
 
 extern opae_feature_adapter_table *feature_adapter_list;
+#ifdef __cplusplus
 }
-
+#endif
 #include <config.h>
-#include <opae/fpga.h>
-#include "intel-fpga.h"
 
 #include <array>
 #include <cstdlib>
+#include <cstring>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "test_opae_c.h"
+#include <opae/access.h>
+#include <opae/mmio.h>
+#include <linux/ioctl.h>
 
 using namespace opae::testing;
 
@@ -145,7 +154,40 @@ static int test_feature_plugin_bad_finalize(void)
 }
 
 }
+int mmio_ioctl(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+	struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+	if (!rinfo) {
+		FPGA_MSG("rinfo is NULL");
+		goto out_EINVAL;
+	}
+	if (rinfo->argsz != sizeof(*rinfo)) {
+		FPGA_MSG("wrong structure size");
+		goto out_EINVAL;
+	}
+	if (rinfo->index > 1) {
+		FPGA_MSG("unsupported MMIO index");
+		goto out_EINVAL;
+	}
+	if (rinfo->padding != 0) {
+		FPGA_MSG("unsupported padding");
+		goto out_EINVAL;
+	}
+	rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+	rinfo->size = 0x40000;
+	rinfo->offset = 0;
+	retval = 0;
+	errno = 0;
+out:
+	return retval;
 
+out_EINVAL:
+	retval = -1;
+	errno = EINVAL;
+}
 class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   feature_pluginmgr_c_p() : tokens_{{nullptr, nullptr}} {}
@@ -168,6 +210,8 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(num_matches_, platform_.devices.size());
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+	system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+	which_mmio_ = 0;
 	num_matches_ = 0;
 	feature_filter_.type = DMA;
 	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
@@ -196,8 +240,27 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     faux_adapter1_->finalize = test_feature_plugin_finalize;
     EXPECT_EQ(0, feature_plugin_mgr_register_adapter(faux_adapter1_));
   }
+  void DestroyTokens() {
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
 
+/*	for (auto &t : ftokens_) {
+		if (t) {
+			EXPECT_EQ(fpgaFeatureTokenDestroy(&t), FPGA_OK);
+			t = nullptr;
+		}
+	} */
+    num_matches_ = 0;
+  }
   virtual void TearDown() override {
+    DestroyTokens();
+    if (filter_ != nullptr) {
+      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    }
     // restore the global adapter list.
     feature_adapter_list = feature_adapter_list_;
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
@@ -214,6 +277,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
   std::array<fpga_token, 2> tokens_;
+  uint32_t which_mmio_;
   std::array<fpga_feature_token, 2> ftokens_;
   fpga_properties filter_;  
   fpga_handle accel_;
@@ -221,21 +285,56 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
   opae_feature_adapter_table *feature_adapter_list_;
   opae_feature_adapter_table *faux_adapter0_;
   opae_feature_adapter_table *faux_adapter1_;
-  test_platform platform_;
   uint32_t num_matches_;
+  test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
 };
+TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
+	uint64_t* mmio_ptr = NULL;
 
-/**
- * @test       foreach_err
- * @brief      Test: opae_plugin_mgr_for_each_adapter
- * @details    When opae_plugin_mgr_for_each_adapter is passed a NULL callback,<br>
- *             then the fn returns OPAE_ENUM_STOP.<br>
- */
-/*TEST_P(feature_pluginmgr_c_p, get_adapter_err) {
-  EXPECT_EQ(OPAE_ENUM_STOP, get_dma_plugin_adapter( guid_dma));    //TODO: check
- } */
+	struct DFH dfh ;
+	dfh.id = 0x1;
+	dfh.revision = 0;
+	dfh.next_header_offset = 0x100;
+	dfh.eol = 1;
+	dfh.reserved = 0;
+	dfh.type = 0x1;
+
+	uint64_t offset;
+	printf("------dfh.csr = %lx \n", dfh.csr);
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+
+	struct DFH dfh_bbb = { 0 };
+
+	dfh_bbb.type = 0x2;
+	dfh_bbb.id = 0x2;
+	dfh_bbb.revision = 0;
+	dfh_bbb.next_header_offset = 0x000;
+	dfh_bbb.eol = 1;
+	dfh_bbb.reserved = 0;
+	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
+		
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+
+
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+		ftokens_.size(), &num_matches_), FPGA_OK);
+
+	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+ 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
+	
+	
+	printf("test done\n");
+}
 
 /**
  * @test       bad_init_all
@@ -245,22 +344,54 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(feature_pluginmgr_c_p, bad_init_all) {
   faux_adapter1_->initialize = test_feature_plugin_bad_initialize;
+	uint64_t* mmio_ptr = NULL;
+
+	struct DFH dfh ;
+	dfh.id = 0x1;
+	dfh.revision = 0;
+	dfh.next_header_offset = 0x100;
+	dfh.eol = 1;
+	dfh.reserved = 0;
+	dfh.type = 0x1;
+
+	uint64_t offset;
+	printf("------dfh.csr = %lx \n", dfh.csr);
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+
+	struct DFH dfh_bbb = { 0 };
+
+	dfh_bbb.type = 0x2;
+	dfh_bbb.id = 0x2;
+	dfh_bbb.revision = 0;
+	dfh_bbb.next_header_offset = 0x000;
+	dfh_bbb.eol = 1;
+	dfh_bbb.reserved = 0;
+	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
+		
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+
+
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+		ftokens_.size(), &num_matches_), FPGA_OK);
+
   EXPECT_NE(0, feature_plugin_mgr_initialize_all());
   EXPECT_EQ(2, test_feature_plugin_initialize_called); //TODO: checking
- }
-
-/**
- * @test       bad_final_all
- * @brief      Test: opae_plugin_mgr_finalize_all
- * @details    When any of the registered adapters' finalize fn returns non-zero,<br>
- *             then opae_plugin_mgr_finalize_all returns non-zero.<br>
- */
-TEST_P(feature_pluginmgr_c_p, bad_final_all) {
-  faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
+  
+    faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
 
   EXPECT_NE(0, feature_plugin_mgr_finalize_all());
-  EXPECT_EQ(nullptr, feature_adapter_list);
+  
+    EXPECT_EQ(nullptr, feature_adapter_list);
   EXPECT_EQ(2, test_feature_plugin_finalize_called); //TODO: checking
-}
+ }
+
+
 
 INSTANTIATE_TEST_CASE_P(feature_pluginmgr_c, feature_pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
