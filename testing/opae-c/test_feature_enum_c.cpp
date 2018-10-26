@@ -105,77 +105,68 @@ out_EINVAL:
 }
 
 class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  feature_enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
+	protected:
+	feature_enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
-  virtual void SetUp() override {
+	virtual void SetUp() override {
 
-	ASSERT_TRUE(test_platform::exists(GetParam()));
-	platform_ = test_platform::get(GetParam());
-	system_ = test_system::instance();
-	system_->initialize();
-	system_->prepare_syfs(platform_);
-	invalid_device_ = test_device::unknown();
+		ASSERT_TRUE(test_platform::exists(GetParam()));
+		platform_ = test_platform::get(GetParam());
+		system_ = test_system::instance();
+		system_->initialize();
+		system_->prepare_syfs(platform_);
+		invalid_device_ = test_device::unknown();
 
-	ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-	ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-	ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-	num_matches_ = 0;
-	ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-		  &num_matches_),
-		  FPGA_OK);
-	EXPECT_EQ(num_matches_, platform_.devices.size());
-	accel_ = nullptr;
-	ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-	system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
-	which_mmio_ = 0;
-	uint64_t *mmio_ptr = nullptr;
-	EXPECT_EQ(fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
-	EXPECT_NE(mmio_ptr, nullptr);
+		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+		num_matches_ = 0;
+		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+		  &num_matches_), FPGA_OK);
+		EXPECT_EQ(num_matches_, platform_.devices.size());
+		accel_ = nullptr;
+		ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+		which_mmio_ = 0;
+		uint64_t *mmio_ptr = nullptr;
+		EXPECT_EQ(fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
+		EXPECT_NE(mmio_ptr, nullptr);
 
-	feature_filter_.type = DMA;     // TODO: 
-	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+		feature_filter_.type = DMA;     // TODO: 
+		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };  // TODO: replace with DMA guid
-	memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
+		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
+	}
 
-  }
-
-  void DestroyTokens() {
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-
-/*	for (auto &t : ftokens_) {
-		if (t) {
-			EXPECT_EQ(fpgaFeatureTokenDestroy(&t), FPGA_OK);
-			t = nullptr;
+	void DestroyTokens() {
+		for (auto &t : tokens_) {
+			if (t) {
+				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+				t = nullptr;
+			}
 		}
-	} */
-    num_matches_ = 0;
-  }
+		num_matches_ = 0;
+	}
 
-  virtual void TearDown() override {
-    DestroyTokens();
-    if (filter_ != nullptr) {
-      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    }
-    system_->finalize();
-  }
+	virtual void TearDown() override {
+		DestroyTokens();
+		if (filter_ != nullptr) {
+			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+		}
+		system_->finalize();
+	}
 
-  uint32_t which_mmio_;
-  std::array<fpga_feature_token, 2> ftokens_;
-  fpga_handle accel_;
-  fpga_feature_properties feature_filter_;
+	uint32_t which_mmio_;
+	std::array<fpga_feature_token, 2> ftokens_;
+	fpga_handle accel_;
+	fpga_feature_properties feature_filter_;
 
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
+	fpga_properties filter_;
+	std::array<fpga_token, 2> tokens_;
+	uint32_t num_matches_;
+	test_platform platform_;
+	test_device invalid_device_;
+	test_system *system_;
 };
 
 TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
@@ -218,19 +209,18 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 	printf("test done\n");
 }
 
-TEST_P(feature_enum_c_p, nullfilter) {
- 
-  EXPECT_EQ(fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
+TEST_P(feature_enum_c_p, nullfilter) { 
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
 
 TEST_P(feature_enum_c_p, nullmatches) {
-  EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
             FPGA_INVALID_PARAM);
 }
 
 TEST_P(feature_enum_c_p, nulltokens) {
-  EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
 

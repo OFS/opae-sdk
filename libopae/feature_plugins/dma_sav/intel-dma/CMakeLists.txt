@@ -97,25 +97,25 @@ install(TARGETS intel-dma
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
 
-#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-#if ("${LIB64}" STREQUAL "TRUE")
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib64
-#      COMPONENT opaeclib)
-#else()
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib
-#      COMPONENT opaeclib)
-#endif() 
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+    install(TARGETS intel-dma
+      LIBRARY DESTINATION lib64
+      COMPONENT opaeclib)
+else()
+    install(TARGETS intel-dma
+      LIBRARY DESTINATION lib
+      COMPONENT opaeclib)
+endif() 
 
 
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
 
-#if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-#  if(BUILD_TESTS AND GTEST_FOUND)
-#    set_target_for_coverage(intel-dma bin/gtapi -p)
-#    add_dependencies(coverage_intel-dma gtapi)
-#  endif(BUILD_TESTS AND GTEST_FOUND)
-#endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  if(BUILD_TESTS AND GTEST_FOUND)
+    set_target_for_coverage(intel-dma bin/gtapi -p)
+    add_dependencies(coverage_intel-dma gtapi)
+  endif(BUILD_TESTS AND GTEST_FOUND)
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

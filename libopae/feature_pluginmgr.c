@@ -311,23 +311,16 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
-		OPAE_MSG(
-			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_lo=%lx\n",
-			feature_uuid_lo);
+
 		res = fpgaReadMMIO64(handle, mmio_num, offset + 16,
 				     &feature_uuid_hi);
 		if (res != FPGA_OK) {
 			OPAE_ERR("fpgaReadMMIO64() failed");
 			return res;
 		}
-		OPAE_MSG(
-			"Tracy-Debug: opae_plugin_mgr_detect_features feature_uuid_hi=%lx\n",
-			feature_uuid_hi);
+
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
 		
-		for(i=0; i<16; i++)
-			printf("0x%02x ", guid[i]);   // Tracy debug
-
 		// Detect feature for this guid.
 		opae_plugin_mgr_detect_feature(guid);
 

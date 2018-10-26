@@ -75,9 +75,9 @@ using namespace opae::testing;
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter01) {
-  fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
-  EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libthatdoesntexist.so", guid));
+	EXPECT_EQ(NULL, feature_plugin_mgr_alloc_adapter("libthatdoesntexist.so", guid));
 }
 
 /**
@@ -217,9 +217,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
-		ASSERT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), 
-					ftokens_.size(), &num_matches_), FPGA_OK);
-		printf("Succesfully enumerated the fetures\n");
+
 		// save the global adapter list.
 		feature_adapter_list_ = feature_adapter_list;
 		feature_adapter_list = nullptr;
@@ -242,31 +240,14 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		EXPECT_EQ(0, feature_plugin_mgr_register_adapter(faux_adapter1_));
 	} 
 
-	void DestroyTokens() {
-		for (auto &t : tokens_) {
-			if (t) {
-				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-			t = nullptr;
-			}
-		}
-
-		/*	for (auto &t : ftokens_) {
-			if (t) {
-				EXPECT_EQ(fpgaFeatureTokenDestroy(&t), FPGA_OK);
-				t = nullptr;
-			}
-		} */
-		num_matches_ = 0;
-	}
-
 	virtual void TearDown() override {
-		DestroyTokens();
+
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		}
 		// restore the global adapter list.
 		feature_adapter_list = feature_adapter_list_;
-		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+
 		if (accel_) {
 			EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
 			accel_ = nullptr;
@@ -296,15 +277,6 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 };
 
 TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
-	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
-					
-	printf(" Start of test case test_feature_mmio_setup\n");
-	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));	
-}
-
-/*TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
-	uint64_t* mmio_ptr = NULL;
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -343,7 +315,7 @@ TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
 
 	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
- 	//EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));	
+ 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));	
 	
 	printf("test done\n");
 } 
@@ -355,10 +327,9 @@ TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
  *             then opae_plugin_mgr_initialize_all returns non-zero.<br>
  */
  
-/* 
+
 TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	faux_adapter1_->initialize = test_feature_plugin_bad_initialize;
-	uint64_t* mmio_ptr = NULL;
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -383,8 +354,7 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
-		
+	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);		
 
 	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
@@ -395,17 +365,17 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
 
+	test_feature_plugin_initialize_called = 0;
 	EXPECT_NE(0, feature_plugin_mgr_initialize_all());
-	EXPECT_EQ(2, test_feature_plugin_initialize_called); //TODO: checking
+	EXPECT_EQ(2, test_feature_plugin_initialize_called);
   
     faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
 
 	EXPECT_NE(0, feature_plugin_mgr_finalize_all());
   
 	EXPECT_EQ(nullptr, feature_adapter_list);
-	EXPECT_EQ(2, test_feature_plugin_finalize_called); //TODO: checking
-	
+	EXPECT_EQ(2, test_feature_plugin_finalize_called);
  }
-*/
+
 
 INSTANTIATE_TEST_CASE_P(feature_pluginmgr_c, feature_pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));

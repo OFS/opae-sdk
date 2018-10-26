@@ -45,29 +45,29 @@ using namespace opae::testing;
 
 TEST(feature_token_list_c, simple_case)
 {
-  fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 
-  struct _fpga_feature_token *ftoken = 
+	struct _fpga_feature_token *ftoken = 
 		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr); 
 
-  ASSERT_NE(ftoken, nullptr);
+	ASSERT_NE(ftoken, nullptr);
   
-  feature_token_cleanup();
+	feature_token_cleanup();
 }
 
 TEST(feature_token_list_c, invalid_mutex)
 {
-  pthread_mutex_destroy(&ftoken_lock);
-  fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+	pthread_mutex_destroy(&ftoken_lock);
+	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
-  struct _fpga_feature_token *ftoken = 
+	struct _fpga_feature_token *ftoken = 
 		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr );
-  EXPECT_EQ(ftoken, nullptr);
+	EXPECT_EQ(ftoken, nullptr);
 
-  pthread_mutex_init(&ftoken_lock, NULL);
+	pthread_mutex_init(&ftoken_lock, NULL);
  
-  feature_token_cleanup();
+	feature_token_cleanup();
 }
 
 
