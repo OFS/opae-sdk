@@ -37,38 +37,70 @@
 #define __FPGA_API__ __attribute__((visibility("default")))
 //#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
 
-int __FPGA_API__ dma_plugin_initialize(void)
+int __FPGA_API__ feature_initialize(void)
 {
 
 	return 0;
 }
 
-int __FPGA_API__ dma_plugin_finalize(void)
+int __FPGA_API__ feature_finalize(void)
 {
 
 	return 0;
 }
 
-int __FPGA_API__ dma_plugin_configure(opae_dma_adapter_table *adapter,
+fpga_result __FPGA_API__ feature_open(fpga_feature_token token, int flags,
+				   fpga_feature_handle *handle)
+{
+
+	return FPGA_OK;
+}
+fpga_result __FPGA_API__ feature_close(fpga_feature_handle *_dma_h)
+{
+
+	return FPGA_OK;
+}
+fpga_result __FPGA_API__ dma_propertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+				int max_ch)
+{
+
+	return FPGA_OK;
+}
+
+fpga_result __FPGA_API__ dma_transferSync(fpga_feature_handle dma_handle,
+			transfer_list *dma_xfer)
+{
+
+	return FPGA_OK;
+}
+fpga_result __FPGA_API__ dma_transferAsync(fpga_feature_handle dma,
+			transfer_list *dma_xfer, fpga_dma_cb cb, void *context)
+{
+
+	return FPGA_OK;
+}
+
+int __FPGA_API__ feature_plugin_configure(opae_feature_adapter_table *adapter,
 				      const char *jsonConfig)
 {
 	UNUSED_PARAM(jsonConfig);
 
-	/*adapter->fpgaDMAOpen = dlsym(adapter->plugin.dl_handle,
-	"dma_plugin_open"); adapter->fpgaDMAClose =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_close");
-		*/
+	adapter->fpgaFeatureOpen =
+		dlsym(adapter->plugin.dl_handle, "feature_open"); 
+	adapter->fpgaFeatureClose =
+		dlsym(adapter->plugin.dl_handle, "feature_close");
+		
 	adapter->fpgaDMAPropertiesGet =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_propertiesGet");
+		dlsym(adapter->plugin.dl_handle, "dma_propertiesGet");
 	adapter->fpgaDMATransferSync =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_transferSync");
-	adapter->fpgaDMATransferCB =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_transferCB");
+		dlsym(adapter->plugin.dl_handle, "dma_transferSync");
+	adapter->fpgaDMATransferAsync =
+		dlsym(adapter->plugin.dl_handle, "dma_transferAsync");
 
 	adapter->initialize =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_initialize");
+		dlsym(adapter->plugin.dl_handle, "feature_initialize");
 	adapter->finalize =
-		dlsym(adapter->plugin.dl_handle, "dma_plugin_finalize");
+		dlsym(adapter->plugin.dl_handle, "feature_finalize");
 
 	return 0;
 }

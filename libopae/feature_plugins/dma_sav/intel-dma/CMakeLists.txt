@@ -79,7 +79,7 @@ set_target_properties(intel-dma PROPERTIES
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(xfpga ${GCOV_LINK_FLAGS})
+  target_link_libraries(intel-dma ${GCOV_LINK_FLAGS})
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Set debug flags, if required
