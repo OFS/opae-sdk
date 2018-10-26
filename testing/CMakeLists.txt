@@ -447,19 +447,19 @@ add_unit_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
 )
 
-add_mock_test(test_xfpga_metrics_vector_c xfpga-static
+add_unit_test(test_xfpga_metrics_vector_c xfpga-static
     xfpga/test_metrics_vector_c.cpp
 )
 
-add_mock_test(test_xfpga_metrics_utils_c xfpga-static
+add_unit_test(test_xfpga_metrics_utils_c xfpga-static
     xfpga/test_metrics_utils_c.cpp
 )
 
-add_mock_test(test_xfpga_afu_metrics_c xfpga-static
+add_unit_test(test_xfpga_afu_metrics_c xfpga-static
     xfpga/test_afu_metrics_c.cpp
 )
 
-add_mock_test(test_xfpga_metrics_c xfpga-static
+add_unit_test(test_xfpga_metrics_c xfpga-static
     xfpga/test_metrics_c.cpp
 )
 

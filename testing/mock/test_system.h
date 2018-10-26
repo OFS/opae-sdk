@@ -38,13 +38,10 @@
 #include <json-c/json.h>
 #include <thread>
 #include <mutex>
-<<<<<<< HEAD
 #include <atomic>
 #include "platform/fpga_hw.h"
-
-=======
 #include <glob.h>
->>>>>>> 3bce4eb... libopae: add Metrics api
+
 extern "C" {
 extern void *__libc_malloc(size_t size);
 extern void *__libc_calloc(size_t nmemb, size_t size);

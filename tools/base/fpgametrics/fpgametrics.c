@@ -25,25 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file hello_fpga.c
- * @brief A code sample illustrates the basic usage of the OPAE C API.
+ * @file fpgametrics.c
+ * @brief A code sample illustrates the basic usage metric API.
  *
- * The sample is a host application that demonstrates the basic steps of
- * interacting with FPGA using the OPAE library. These steps include:
- *
- *  - FPGA enumeration
- *  - Resource acquiring and releasing
- *  - Managing shared memory buffer
- *  - MMIO read and write
- *
- * The sample also demonstrates OPAE's object model, such as tokens, handles,
- * and properties.
- *
- * The sample requires a native loopback mode (NLB) test image to be loaded on
- * the FPGA. Refer to
- * <a href="https://opae.github.io/docs/fpga_api/quick_start/readme.html">Quick
- * Start Guide</a> for full instructions on building, configuring, and running
- * this code sample.
  *
  */
 
@@ -238,10 +222,6 @@ int main(int argc, char *argv[])
 		OPAE_ERR("Error scanning command line \n.");
 		return 2;
 	}
-
-	//res = parse_args(argc, argv);
-	//ON_ERR_GOTO(res, out_exit, "parsing arguments");
-
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);

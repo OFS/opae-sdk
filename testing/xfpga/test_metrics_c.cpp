@@ -293,7 +293,4 @@ TEST_P(metics_c_p, test_metric_04) {
 
 
 
-
-
-
 INSTANTIATE_TEST_CASE_P(metics_c, metics_c_p, ::testing::ValuesIn(test_platform::keys(true)));

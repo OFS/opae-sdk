@@ -167,22 +167,12 @@ struct _fpga_handle {
 	uint64_t umsg_size;	        // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	        // umsg IOVA from driver
 
-<<<<<<< HEAD
-	// Metric enum vector
-	bool metric_enum_status;
-	fpga_metric_vector fpga_enum_metric_vector;
-	void *dl_handle;
-	struct _fpga_bmc_metric *_bmc_metric_value;
-	uint64_t num_bmc_metric;
-
-=======
 	// Metric
 	bool metric_enum_status;                             // metric enum status
 	fpga_metric_vector fpga_enum_metric_vector;          // metric enum vector
 	void *bmc_handle;                                    // bmc module handle
 	struct _fpga_bmc_metric *_bmc_metric_cache_value;    // bmc cache values
 	uint64_t num_bmc_metric;                             // num of bmc values
->>>>>>> 4107378... libopae: metrics api
 };
 
 /*

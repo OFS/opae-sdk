@@ -62,9 +62,10 @@
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 {
 	fpga_result result               = FPGA_OK;
-	feature_definition feature_def   = {0};
+	feature_definition feature_def;
 	uint64_t bbs_offset              = 0;
 
+	memset(&feature_def, 0, sizeof(feature_def));
 
 	if (offset == NULL) {
 		FPGA_ERR("Invlaid Input Paramters");
@@ -131,8 +132,10 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 {
 	fpga_result result                           = FPGA_OK;
 	uint64_t index                               = 0;
-	struct metric_bbb_value metric_csr           = { 0 };
+	struct metric_bbb_value metric_csr;
 	struct _fpga_enum_metric *_fpga_enum_metric  = NULL;
+
+	memset(&metric_csr, 0, sizeof(metric_csr));
 
 	if (handle == NULL ||
 		enum_vector == NULL ||
@@ -165,12 +168,15 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 				  uint64_t metric_offset)
 {
 	fpga_result result                      = FPGA_OK;
-	struct metric_bbb_group group_csr       = { 0 };
-	struct metric_bbb_value metric_csr      = { 0 };
+	struct metric_bbb_group group_csr;
+	struct metric_bbb_value metric_csr;
 	char group_name[SYSFS_PATH_MAX]         = { 0 };
 	char metric_name[SYSFS_PATH_MAX]        = { 0 };
 	char qualifier_name[SYSFS_PATH_MAX]     = { 0 };
 	char metric_units[SYSFS_PATH_MAX]       = { 0 };
+
+	memset(&group_csr, 0, sizeof(group_csr));
+	memset(&metric_csr, 0, sizeof(metric_csr));
 
 	if (metric_id == NULL ||
 		vector == NULL) {
@@ -202,10 +208,13 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 			    uint64_t metrics_offset)
 {
 	fpga_result result                    = FPGA_NOT_FOUND;
-	struct metric_bbb_group group_csr     = { 0 };
-	struct metric_bbb_value metric_csr    = { 0 };
+	struct metric_bbb_group group_csr;
+	struct metric_bbb_value metric_csr;
 	uint64_t value_offset                 = 0;
 	uint64_t group_offset                 = 0;
+
+	memset(&group_csr, 0, sizeof(group_csr));
+	memset(&metric_csr, 0, sizeof(metric_csr));
 
 	if (handle == NULL ||
 		vector == NULL ||

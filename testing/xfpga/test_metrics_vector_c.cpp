@@ -145,9 +145,7 @@ TEST(metric_vector, test_metric_vector_03) {
 	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
 	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
 
-	// delete vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_delete(&metric_vector, 0));
-
+	
 	// Get vector
 	fpga_vector_get(&metric_vector, 0);
 

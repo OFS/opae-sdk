@@ -337,7 +337,7 @@ out_close:
 }
 
 
-fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64_int(const char *path, uint64_t u)
+fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64_decimal(const char *path, uint64_t u)
 {
 	int fd = -1;
 	int res = 0;
