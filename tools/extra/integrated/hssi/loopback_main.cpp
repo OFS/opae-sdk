@@ -31,7 +31,7 @@
 #include "utils.h"
 #include "option.h"
 #include "option_parser.h"
-#include "accelerator.h"
+#include <opae/cxx/core/token.h>
 #include "e10.h"
 #include "e40.h"
 #include "e100.h"
@@ -58,7 +58,7 @@ std::map<std::string, loopback::ptr_t(*)(const std::string &)> app_factory =
 };
 
 
-loopback::ptr_t find_app(const std::vector<accelerator::ptr_t> accelerator_list)
+loopback::ptr_t find_app(const std::vector<opae::fpga::types::token::ptr_t> accelerator_list)
 {
     loopback::ptr_t lpbk;
     for (auto & app : app_factory)
@@ -66,15 +66,27 @@ loopback::ptr_t find_app(const std::vector<accelerator::ptr_t> accelerator_list)
         for ( auto & accelerator_ptr : accelerator_list)
         {
             lpbk = app.second(app.first);
-            if (uuid_equal(lpbk->afu_id(), accelerator_ptr->guid()))
+
+            opae::fpga::types::properties::ptr_t prop_ptr =
+		    opae::fpga::types::properties::get(accelerator_ptr);
+
+            char guid_str[37] = { 0, };
+            uuid_unparse(prop_ptr->guid, guid_str);
+
+            if (uuid_equal(lpbk->afu_id(), guid_str))
             {
-                if (accelerator_ptr->open(true))
+                opae::fpga::types::handle::ptr_t handle_ptr =
+			opae::fpga::types::handle::open(accelerator_ptr, FPGA_OPEN_SHARED);
+
+                if (handle_ptr)
                 {
                     std::cout << "Found " << lpbk->name() << std::endl;
-                    lpbk->assign(accelerator_ptr);
+                    lpbk->assign(handle_ptr);
                     return lpbk;
                 }
             }
+
+	    prop_ptr.reset();
             lpbk.reset();
         }
     }
@@ -111,7 +123,8 @@ int main(int argc, char* argv[])
     opts.get_value<std::string>("mode", mode);
     if ( mode == "auto")
     {
-        std::vector<accelerator::ptr_t> accelerator_list = accelerator::enumerate({filter});
+        std::vector<opae::fpga::types::token::ptr_t> accelerator_list =
+          opae::fpga::types::token::enumerate({filter});
         if (accelerator_list.size() == 0)
         {
             log.error("main") << "Could not find any suitable accelerator on the system" << std::endl;
