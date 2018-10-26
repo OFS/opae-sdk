@@ -61,8 +61,8 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
+                            &num_matches_), FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
   }
 
   virtual void TearDown() override {
