@@ -49,10 +49,7 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
  protected:
   reconf_c()
   : tokens_{{nullptr, nullptr}},
-    handle_(nullptr),
-    power_mgmt_(
-        "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/power_mgmt"),
-    have_powermgmt_(true) {}
+    handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -68,10 +65,6 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                                   &num_matches_),
               FPGA_OK);
-    // Check if power attribute exists in sysfs tree
-    auto power_mgmt = system_->get_root() + power_mgmt_;
-    struct stat _st;
-    have_powermgmt_ = stat(power_mgmt.c_str(), &_st) == 0;
 
     bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
     // Valid bitstream - no clk
@@ -122,8 +115,6 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
   test_system *system_;
   std::vector<uint8_t> bitstream_valid_;
   std::vector<uint8_t> bitstream_valid_no_clk_;
-  std::string power_mgmt_;
-  bool have_powermgmt_;
 };
 
 /**
@@ -146,10 +137,6 @@ TEST_P(reconf_c, set_afu_userclock) {
   // Invalid params
   result = set_afu_userclock(handle_, 0, 0);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-
-  // Valid params
-  result = set_afu_userclock(handle_, 312, 156);
-  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -161,9 +148,17 @@ TEST_P(reconf_c, set_afu_userclock) {
 */
 TEST_P(reconf_c, set_fpga_pwr_threshold) {
   fpga_result result;
+  bool have_powermgmt;
+  struct stat _st;
 
   // Open port device
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Check if power attribute exists in sysfs tree
+  struct _fpga_token *token = (struct _fpga_token *)tokens_[0];
+  std::string sysfspath(token->sysfspath);
+  auto power_mgmt = sysfspath + "/power_mgmt";
+  have_powermgmt = stat(power_mgmt.c_str(), &_st) == 0;
 
   // NULL handle
   result = set_fpga_pwr_threshold(NULL, 0);
@@ -171,7 +166,7 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
 
   // Zero GBS power
   result = set_fpga_pwr_threshold(handle_, 0);
-  EXPECT_EQ(result, have_powermgmt_ ? FPGA_OK : FPGA_NOT_FOUND);
+  EXPECT_EQ(result, have_powermgmt ? FPGA_OK : FPGA_NOT_FOUND);
 
   // Exceed FPGA_GBS_MAX_POWER
   result = set_fpga_pwr_threshold(handle_, 65);
@@ -179,7 +174,7 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
 
   // Valid power threshold
   result = set_fpga_pwr_threshold(handle_, 60);
-  EXPECT_EQ(result, have_powermgmt_ ? FPGA_OK : FPGA_NOT_FOUND);
+  EXPECT_EQ(result, have_powermgmt ? FPGA_OK : FPGA_NOT_FOUND);
 
   // Invalid token within handle
   struct _fpga_handle *handle = (struct _fpga_handle *)handle_;
@@ -239,11 +234,6 @@ TEST_P(reconf_c, fpga_reconf_slot) {
   result = xfpga_fpgaReconfigureSlot(NULL, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-
-  // Valid bitstream - clk
-  result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
-                                     bitstream_valid_.size(), flags);
-  EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
   // Invalid handle file descriptor
   auto &no_clk_arr = bitstream_valid_no_clk_;
@@ -405,6 +395,17 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
 };
 
 /**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details When given valid parameters, set_afu_userclock
+ *          returns FPGA_NOT_SUPPORTED on mock platforms.
+ */
+TEST_P(reconf_c_mock_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
+}
+
+/**
  * @test    fpga_reconf_slot
  * @brief   Tests: fpgaReconfigureSlot
  * @details Returns FPGA_OK if bitstream is valid and is able
@@ -460,3 +461,35 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class reconf_c_hw_skx_p : public reconf_c {};
+
+/**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details Given valid parameters set_afu_userlock returns
+ *          FPGA_OK on mcp hw platforms.
+ */
+TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+
+class reconf_c_hw_dcp_p : public reconf_c {};
+
+/**
+ * @test    set_afu_userclock
+ * @brief   Tests: set_afu_userclock
+ * @details Given valid parameters set_afu_userlock returns
+ *          FPGA_NOT_SUPPORTED on dcp hw platforms.
+ */
+TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
+}
+
+INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-p"})));
