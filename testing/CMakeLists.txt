@@ -14,6 +14,10 @@ endif()
 add_subdirectory(platform)
 add_subdirectory(mock)
 
+add_library(intel-dma-static
+    ${OPAE_SDK_SOURCE}/libopae/feature_plugins/dma_sav/intel-dma/plugin.c
+    ${OPAE_SDK_SOURCE}/libopae/feature_plugins/dma_sav/intel-dma/init.c)
+
 add_library(opae-c-static
     ${OPAE_SDK_SOURCE}/libopae/api-shell.c
     ${OPAE_SDK_SOURCE}/libopae/init.c
@@ -179,8 +183,6 @@ target_include_directories(object_api-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-
-
 
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
