@@ -67,7 +67,7 @@ TEST(metric_vector, test_metric_vector_01) {
 	EXPECT_NE(FPGA_OK, fpga_vector_free(NULL));
 
 	// NULL Input parameters 
-	EXPECT_EQ(FPGA_OK, fpga_vector_total(NULL));
+	EXPECT_EQ(FPGA_OK, fpga_vector_total(NULL,NULL));
 
 	// NULL Input parameters 
 	EXPECT_NE(FPGA_OK, fpga_vector_resize(NULL,20));
@@ -131,13 +131,13 @@ TEST(metric_vector, test_metric_vector_03) {
 
 	fpga_metric_vector metric_vector;
 	struct _fpga_enum_metric fpga_metric;
-
+	uint64_t  total;
 	// Init vector
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
 
-	EXPECT_EQ(1, fpga_vector_total(&metric_vector));
+	EXPECT_EQ(FPGA_OK, fpga_vector_total(&metric_vector,&total));
 
 	// push item to vector
 	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));

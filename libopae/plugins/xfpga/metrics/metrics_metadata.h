@@ -76,7 +76,7 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 
 	{ .group_name = "power_mgmt", .metric_name = "fpga_limit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
-	
+
 	{ .group_name = "power_mgmt", .metric_name = "xeon_limit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
 
@@ -136,7 +136,7 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 	{ .group_name = "performance:cache", .metric_name = "write_miss",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
-	// pef pabric
+	// pef fabric
 
 	{ .group_name = "performance:fabric", .metric_name = "mmio_read",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
@@ -162,7 +162,7 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 	{ .group_name = "performance:fabric", .metric_name = "upi_write",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
-	// pef fabric port0
+	// perf fabric port0
 
 	{ .group_name = "performance:fabric:port0", .metric_name = "mmio_read",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
@@ -189,7 +189,7 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
 
-	// pef iommu
+	// perf iommu
 	{ .group_name = "performance:iommu", .metric_name = "iotlb_1g_hit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
@@ -227,7 +227,7 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
 
-	// pef iommu afu0
+	// perf iommu afu0
 	{ .group_name = "performance:iommu:afu0", .metric_name = "devtlb_1g_fill",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 

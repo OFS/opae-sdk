@@ -53,7 +53,7 @@ fpga_result fpga_vector_init(fpga_metric_vector *vector);
 
 fpga_result fpga_vector_free(fpga_metric_vector *vector);
 
-uint64_t fpga_vector_total(fpga_metric_vector *vector);
+fpga_result fpga_vector_total(fpga_metric_vector *vector, uint64_t *total);
 
 fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity);
 

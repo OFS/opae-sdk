@@ -49,6 +49,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 	fpga_result result               = FPGA_OK;
 	struct _fpga_handle *_handle     = (struct _fpga_handle *)handle;
 	int err                          = 0;
+	uint64_t num_enun_metrics        = 0;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -73,10 +74,17 @@ fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	*num_metrics = fpga_vector_total(&(_handle->fpga_enum_metric_vector));
+	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get metric total");
+		goto out_unlock;
+	}
 
-	if (*num_metrics == 0)
+
+	if (num_enun_metrics == 0)
 		result = FPGA_NOT_FOUND;
+
+	*num_metrics = num_enun_metrics;
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -123,7 +131,11 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	num_enun_metrics = fpga_vector_total(&(_handle->fpga_enum_metric_vector));
+	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get metric total");
+		goto out_unlock;
+	}
 
 	// get metric info
 	for (i = 0; i < *num_metrics; i++) {
@@ -224,7 +236,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 
 out_unlock:
 
-	clear_cahced_values(_handle);
+	clear_cached_values(_handle);
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
@@ -324,7 +336,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 
 out_unlock:
 
-	clear_cahced_values(_handle);
+	clear_cached_values(_handle);
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
