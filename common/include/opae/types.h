@@ -188,7 +188,7 @@ struct fpga_error_info {
  */
 typedef void *fpga_object;
 
-/** FPAG Metric string size
+/** FPGA Metric string size
  *
  *
  */

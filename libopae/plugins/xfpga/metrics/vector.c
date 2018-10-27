@@ -64,7 +64,7 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 		FPGA_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
-	if(vector->fpga_metric_item)
+	if (vector->fpga_metric_item)
 		free(vector->fpga_metric_item);
 
 	vector->fpga_metric_item = NULL;
@@ -72,13 +72,17 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 	return result;
 }
 
-uint64_t fpga_vector_total(fpga_metric_vector *vector)
+fpga_result fpga_vector_total(fpga_metric_vector *vector, uint64_t *total)
 {
-	if (vector == NULL) {
+
+	if (vector == NULL ||
+		total == NULL) {
 		FPGA_ERR("Invalid parm");
-		return 0;
+		return FPGA_EXCEPTION;
 	}
-	return vector->total;
+	*total =  vector->total;
+
+	return FPGA_OK;
 }
 
 fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity)
@@ -139,7 +143,7 @@ fpga_result fpga_vector_delete(fpga_metric_vector *vector, uint64_t index)
 	if (index >= vector->total)
 		return FPGA_INVALID_PARAM;
 
-	if(vector->fpga_metric_item[index])
+	if (vector->fpga_metric_item[index])
 		free(vector->fpga_metric_item[index]);
 
 	vector->fpga_metric_item[index] = NULL;

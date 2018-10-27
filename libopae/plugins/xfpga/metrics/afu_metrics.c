@@ -65,14 +65,14 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	feature_definition feature_def;
 	uint64_t bbs_offset              = 0;
 
-	memset(&feature_def, 0, sizeof(feature_def));
+	memset_s(&feature_def, 0, sizeof(feature_def));
 
 	if (offset == NULL) {
 		FPGA_ERR("Invlaid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
-	// Read AFU DFH 
+	// Read AFU DFH
 	result = fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
 	if (result != FPGA_OK) {
 		FPGA_ERR("Invalid handle file descriptor");
@@ -101,7 +101,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 				return result;
 			}
 
-			result =fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
+			result = fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
@@ -134,8 +134,9 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	uint64_t index                               = 0;
 	struct metric_bbb_value metric_csr;
 	struct _fpga_enum_metric *_fpga_enum_metric  = NULL;
+	uint64_t num_enun_metrics                    = 0;
 
-	memset(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&metric_csr, 0, sizeof(metric_csr));
 
 	if (handle == NULL ||
 		enum_vector == NULL ||
@@ -144,7 +145,14 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	for (index = 0; index < fpga_vector_total(enum_vector); index++) {
+	result = fpga_vector_total(enum_vector, &num_enun_metrics);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get metric total");
+		return FPGA_NOT_FOUND;
+	}
+
+
+	for (index = 0; index < num_enun_metrics; index++) {
 
 		_fpga_enum_metric = (struct _fpga_enum_metric *)	fpga_vector_get(enum_vector, index);
 
@@ -175,8 +183,8 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	char qualifier_name[SYSFS_PATH_MAX]     = { 0 };
 	char metric_units[SYSFS_PATH_MAX]       = { 0 };
 
-	memset(&group_csr, 0, sizeof(group_csr));
-	memset(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&group_csr, 0, sizeof(group_csr));
+	memset_s(&metric_csr, 0, sizeof(metric_csr));
 
 	if (metric_id == NULL ||
 		vector == NULL) {
@@ -187,11 +195,11 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	group_csr.csr = group_value;
 	metric_csr.csr = metric_value;
 
-	sprintf(group_name, "%x", group_csr.group_id);
-	sprintf(metric_name, "%x", metric_csr.counter_id);
+	snprintf_s_i(group_name, sizeof(group_name), "%x", group_csr.group_id);
+	snprintf_s_i(metric_name, sizeof(metric_name), "%x", metric_csr.counter_id);
 
 	sprintf(qualifier_name, "%s:%x:%x", "AFU", group_csr.group_id, metric_csr.counter_id);
-	sprintf(metric_units, "%x", group_csr.units);
+	snprintf_s_i(metric_units, sizeof(metric_units), "%x", group_csr.units);
 
 	*metric_id = *metric_id + 1;
 

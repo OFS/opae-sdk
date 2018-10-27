@@ -61,12 +61,12 @@ struct DFH {
 	union {
 		uint64_t csr;
 		struct {
-			uint64_t id : 12;
-			uint64_t  revision : 4;
-			uint64_t next_header_offset : 24;
-			uint64_t eol : 1;
-			uint64_t reserved : 19;
-			uint64_t  type : 4;
+			uint64_t id:12;
+			uint64_t  revision:4;
+			uint64_t next_header_offset:24;
+			uint64_t eol:1;
+			uint64_t reserved:19;
+			uint64_t  type:4;
 		};
 	};
 };
@@ -75,8 +75,8 @@ struct NEXT_AFU {
 	union {
 		uint64_t csr;
 		struct {
-			uint32_t next_afu : 24;
-			uint64_t reserved : 40;
+			uint32_t next_afu:24;
+			uint64_t reserved:40;
 		};
 	};
 };
@@ -92,13 +92,13 @@ struct metric_bbb_group {
 	union {
 		uint64_t csr;
 		struct {
-			uint64_t reserved : 28;
-			uint64_t units : 8;
-			uint64_t group_id : 8;
-			uint64_t eol : 1;
-			uint64_t next_group_offset : 16;
-			uint64_t reset : 1;
-			uint64_t reset_access : 2;
+			uint64_t reserved:28;
+			uint64_t units:8;
+			uint64_t group_id:8;
+			uint64_t eol:1;
+			uint64_t next_group_offset:16;
+			uint64_t reset:1;
+			uint64_t reset_access:2;
 		};
 	};
 };
@@ -108,10 +108,10 @@ struct metric_bbb_value {
 	union {
 		uint64_t csr;
 		struct {
-			uint64_t reserved : 7;
-			uint64_t eol : 1;
-			uint64_t counter_id : 8;
-			uint64_t value : 48;
+			uint64_t reserved:7;
+			uint64_t eol:1;
+			uint64_t counter_id:8;
+			uint64_t value:48;
 		};
 	};
 };
@@ -171,8 +171,8 @@ fpga_result add_metric_info(struct _fpga_enum_metric *_enum_metrics,
 fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle);
 
 
-fpga_result parse_metric_num_name(const char *serach_string,
-				fpga_metric_vector *fpga_enum_metrics_vecotr,
+fpga_result parse_metric_num_name(const char *search_string,
+				fpga_metric_vector *fpga_enum_metrics_vector,
 				uint64_t *metric_num);
 
 fpga_result enum_bmc_metrics_info(struct _fpga_handle *_handle,
@@ -184,7 +184,7 @@ fpga_result get_fpga_object_type(fpga_handle handle, fpga_objtype *objtype);
 
 fpga_result get_pwr_thermal_value(const char *sysfs_path, uint64_t *value);
 
-fpga_result clear_cahced_values(fpga_handle handle);
+fpga_result clear_cached_values(fpga_handle handle);
 
 
 fpga_result get_performance_counter_value(const char *group_sysfs,

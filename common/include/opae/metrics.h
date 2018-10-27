@@ -46,9 +46,9 @@ extern "C" {
  * Enumerates number of metrics
  *
  * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] num_metrics number of metrics are disoverd in
+ * @param[inout] num_metrics number of metrics are discovered in
  *                        fpga resource
- * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * discovered
  *
  */
@@ -63,7 +63,7 @@ fpga_result fpgaGetNumMetrics(fpga_handle handle,
  *                        user allocates metrics info array
  * @param[inout] num_metrics size of metric info array
  *
- * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * found
  *
  */
@@ -79,7 +79,7 @@ fpga_result fpgaGetMetricsInfo(fpga_handle handle,
  *                        user allocates metric array
  * @param[inout] num_metric_indexs size of metric array
  * @param[inout] metrics pointer to array of metric struct
- * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * found
  *
  */
@@ -96,7 +96,7 @@ fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
  *                        user allocates metrics name array
  * @param[inout] num_metric_names size of metric name array
  * @param[inout] metrics pointer to array of metric struct
- * @returns FPGA_OK on success. FPGA_NO_FOUND if the Metrics are not
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * found
  *
  */
