@@ -625,8 +625,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_15) {
 
 }
 
-//INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::ValuesIn(test_platform::keys(true)));
-INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::Values(std::string("skx-p-1s")));
+INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})) );
 
 
 class metics_uitls_dcp_c_p : public ::testing::TestWithParam<std::string> {
@@ -740,5 +739,5 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_14) {
 
 }
 
-INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_dcp_c_p, ::testing::Values(std::string("dcp-rc")));
+INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_dcp_c_p, ::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 

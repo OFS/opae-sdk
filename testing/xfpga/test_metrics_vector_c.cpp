@@ -67,7 +67,7 @@ TEST(metric_vector, test_metric_vector_01) {
 	EXPECT_NE(FPGA_OK, fpga_vector_free(NULL));
 
 	// NULL Input parameters 
-	EXPECT_EQ(FPGA_OK, fpga_vector_total(NULL,NULL));
+	EXPECT_NE(FPGA_OK, fpga_vector_total(NULL,NULL));
 
 	// NULL Input parameters 
 	EXPECT_NE(FPGA_OK, fpga_vector_resize(NULL,20));
