@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import logging
+import sys
 import time
 import nlb
 from datetime import timedelta
@@ -48,8 +49,15 @@ class diagtest(object):
     SRC_ADDR = 0x0120
     DST_ADDR = 0x0128
     DSM_ADDR = 0x0110
+    STATUS2 = 0x0170
     DSM_COMPLETE = 0x40
     DSM_TIMEOUT = 1.0
+    MODE_LPBK1 = "lpbk1"
+    MODE_READ = "read"
+    MODE_WRITE = "write"
+    MODE_TRPUT = "trput"
+    MODE_SW = "sw"
+
     cache_policy = csr.f_enum({"wrline-M": 0,
                                "wrline-I": 1,
                                "wrpush-I": 1})
@@ -71,10 +79,19 @@ class diagtest(object):
                            "vl0": 1,
                            "vh0": 2,
                            "vh1": 3})
+    modes = csr.f_enum(name="mode", lbpk1=0, read=1, write=2, trput=3, sw=7)
 
     def __init__(self, mode, parser):
         self._mode = mode
+        self.cfg = nlb.CFG(width=32)
+        self.ctl = nlb.CTL(width=32)
         self._parser = parser
+        self.logger = logging.getLogger(self.__class__.__name__)
+        stream_handler = logging.StreamHandler(stream=sys.stderr)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s: [%(name)s][%(levelname)s] - %(message)s'))
+        self.logger.addHandler(stream_handler)
+
         parser.add_argument(
             "-c",
             "--config",
@@ -111,17 +128,15 @@ class diagtest(object):
         prop_names = ['bus', 'device', 'function', 'socket_id', 'guid']
         filt = dict([(p, getattr(args, p))
                      for p in prop_names if getattr(args, p)])
-
         tokens = fpga.enumerate(type=fpga.ACCELERATOR, **filt)
         if not tokens:
-            logging.error("could not find resources")
+            self.logger.error("could not find resources")
             return None
         if len(tokens) > 1:
-            logging.warn("found more than one accelerator")
+            self.logger.warn("found more than one accelerator")
         return tokens
 
-    def setup(self):
-        parser = self._parser.add_argument_group(self._mode)
+    def add_arguments(self, parser):
         parser.add_argument("-b", "--begin",
                             default=1,
                             type=int,
@@ -180,7 +195,7 @@ class diagtest(object):
                             type=int, default=0,
                             help="Timeout for continuous mode (hours portion)")
         parser.add_argument("-T", "--freq",
-                            type=int,
+                            type=int, default=400000000,
                             help="Clock frequency (used for bw measurements)")
         parser.add_argument("-V", "--csv",
                             default=False,
@@ -194,7 +209,15 @@ class diagtest(object):
                             default=False,
                             action='store_true',
                             help="Show stas at end")
+        parser.add_argument(
+            "--mem-timeout", default=0.5, type=float,
+            help="seconds to wait before timeing out on memory poll")
 
+    def setup(self):
+        """setup is called to validate arguments and will return True
+           if arguments are valid, False otherwise."""
+        parser = self._parser.add_argument_group(self._mode)
+        self.add_arguments(parser)
         self.args, _ = self._parser.parse_known_args()
         if self.args.help:
             self._parser.print_help()
@@ -203,71 +226,182 @@ class diagtest(object):
             self.args.end = self.args.begin
         return True
 
-    def run(self, handle, args=None):
-        if args is None:
-            args = self.args
-        dsm_csr = csr.csr(offset=self.DSM_ADDR, width=64)
-        src_csr = csr.csr(offset=self.SRC_ADDR, width=64)
-        dst_csr = csr.csr(offset=self.DST_ADDR, width=64)
-        nl_csr = csr.csr(offset=self.NUM_LINES, width=64)
-        cfg = nlb.CFG(width=32)
-        ctl = nlb.CTL(width=32)
+    def configure_test(self):
+        """configure_test is used to configure the configuration register
+           and to perform any other test configuration steps before the test
+           starts"""
+        args = self.args
+        if self.args.target == 'ase':
+            self.DSM_TIMEOUT = 10.0
+
+        self.cfg["mode"] = int(self.modes(args.mode))
+
         if str(args.cache_policy) == "wrpush-I":
-            cfg["wrpush_i"] = int(args.cache_policy)
+            self.cfg["wrpush_i"] = int(args.cache_policy)
         else:
-            cfg["wrthru_en"] = int(args.cache_policy)
-        cfg["rdsel"] = int(args.cache_hint)
-        cfg["rd_chsel"] = int(args.read_vc)
-        cfg["wr_chsel"] = int(args.write_vc)
+            self.cfg["wrthru_en"] = int(args.cache_policy)
+        self.cfg["rdsel"] = int(args.cache_hint)
+        self.cfg["rd_chsel"] = int(args.read_vc)
+        self.cfg["wr_chsel"] = int(args.write_vc)
         if args.wrfence_vc is None:
-            cfg["wf_chsel"] = int(self.wf_chsel[str(args.write_vc)])
+            self.cfg["wf_chsel"] = int(self.wf_chsel[str(args.write_vc)])
         else:
-            cfg["wf_chsel"] = int(args.wrfence_vc)
+            self.cfg["wf_chsel"] = int(args.wrfence_vc)
+
+        if args.cont:
+            self.cfg["cont"] = 1
+
+    def buffer_size(self):
+        """buffer_size is used to get the number of bytes necessary for each
+           test buffer (src and dst)."""
+        return self.args.end*CACHELINE_BYTES
+
+    def get_buffers(self, handle):
+        """get_buffers get the three basic buffers needed for test.
+           dsm (device status memory), src (source or input),
+           and dst (destination or output).
+
+        :param handle: Use given handle for allocating buffers and preparing
+                       for use with accelerator
+        """
+        bsize = self.buffer_size()
         dsm = fpga.allocate_shared_buffer(handle, int(KiB(4)))
         # allocate the smallest possible workspace for DSM, SRC, DST
-        bsize = args.end*CACHELINE_BYTES
         scratch = None
+
         if KiB(2) >= bsize or(
                 KiB(4) < bsize and MiB(1) >= bsize) or(
                 MiB(2) < bsize and MiB(512) > bsize):
             scratch = fpga.allocate_shared_buffer(handle, bsize*2)
-            src = scratch[:bsize]
-            dst = scratch[bsize:]
-            src_io_addr = scratch.io_address()
-            dst_io_addr = src_io_addr+bsize
+            src, dst = scratch.split(bsize, bsize)
         else:
             src = fpga.allocate_shared_buffer(handle, bsize)
             dst = fpga.allocate_shared_buffer(handle, bsize)
-            src_io_addr = src.io_address()
-            dst_io_addr = dst.io_address()
+        return (dsm, src, dst)
+
+    def run(self, handle, device):
+        """run Run the test flow which consists of:
+            1. Allocating buffers
+            2. Initializing or priming the buffers
+            3. Telling the accelerator about the buffers' io addresses
+            4. Setting up the configuration register based on mode/arguments
+            5. Writing the configuration data to the register
+            6. Begin iterating on the number of cachelines as indicated by
+               begin and end arguments. Each iteration will write to the
+               control register to start and then test/wait on buffers like
+               DSM before continuing to the next iteration. Counters will also
+               be read at the beginning and at the end of the iteration and
+               their deltas will be used when printing out statistics.
+
+        :param handle: A handle to an accelerator
+        :param device: A handle to the device object
+        """
+        args = self.args
+        ctl = self.ctl
+        # TODO: replace with get_user_clocks API
+        status2 = handle.read_csr64(self.STATUS2)
+        freq = (status2 >> 32) & 0xffff
+        if freq > 0:
+            args.freq = freq * 1E6
+
+        (dsm, src, dst) = self.get_buffers(handle)
+
+        self.logger.info("setup buffers")
+        self.setup_buffers(handle, dsm, src, dst)
+
+        handle.write_csr64(self.DSM_ADDR, dsm.io_address())
 
         ctl.write(handle, reset=0)
         ctl.write(handle, reset=1)
-        dsm_csr.write(handle, value=dsm.io_address())
-        src_csr.write(handle, value=cl_align(src_io_addr))
-        dst_csr.write(handle, value=cl_align(dst_io_addr))
-        if args.cont:
-            cfg["cont"] = 1
-        cfg.write(handle)
 
+        handle.write_csr64(self.SRC_ADDR, cl_align(src.io_address()))
+        handle.write_csr64(self.DST_ADDR, cl_align(dst.io_address()))
+
+        self.configure_test()
+        self.logger.debug("Writing 0x{:04X}".format(self.cfg.value()))
+        self.cfg.write(handle)
+
+        c_counters = nlb.cache_counters(device)
+        f_counters = nlb.fabric_counters(device)
+
+        dsm_tpl = nlb.dsm_tuple()
         for i in range(args.begin, args.end+1, args.multi_cl):
+            self.logger.debug("running test with cl: %s", i)
+            dsm.fill(0)
             ctl.write(handle, reset=0)
             ctl.write(handle, reset=1)
-            nl_csr.write(handle, value=i)
-            ctl.write(handle, reset=1, start=1)
-            if args.cont:
-                time.sleep(to_seconds(args))
-            else:
-                self.wait_for_dsm(dsm)
-            ctl.write(handle, stop=1)
 
-        return dsm
+            handle.write_csr64(self.NUM_LINES, i)
+
+            with c_counters.reader() as r:
+                begin_cache = r.read()
+
+            with f_counters.reader() as r:
+                begin_fabric = r.read()
+
+            self.logger.debug("starting test")
+            ctl.write(handle, reset=1, start=1)
+
+            self.test_buffers(handle, i, dsm, src, dst)
+
+            ctl.write(handle, stop=1, reset=1, start=1)
+
+            with c_counters.reader() as r:
+                end_cache = r.read()
+
+            with f_counters.reader() as r:
+                end_fabric = r.read()
+
+            if args.suppress_stats:
+                dsm_tpl += nlb.dsm_tuple(dsm)
+            else:
+                self.display_stats(i,
+                                   nlb.dsm_tuple(dsm),
+                                   end_cache-begin_cache,
+                                   end_fabric-begin_fabric)
+            self.validate_results(i, dsm, src, dst)
+
+    def test_buffers(self, handle, cachelines, dsm, src, dst):
+        """test_buffers The base version of test_buffers only waits for the
+                         DSM complete bit to be set or for the timeout period
+                         if continuous mode is selected.
+
+        :param handle: A handle to the accelerator being tested
+        :param cachelines: The number of cachelines for the current iteration.
+        :param dsm: The DSM buffer
+        :param src: The source or input buffer
+        :param dst: The destination or output buffer
+        """
+        if self.args.cont:
+            time.sleep(to_seconds(self.args))
+        else:
+            self.wait_for_dsm(dsm)
+
+    def setup_buffers(self, handle, dsm, src, dst):
+        src.fill(0xAE)
+        dst.fill(0x00)
+
+    def validate_results(self, num_cl, dsm, src, dst):
+        pass
 
     def wait_for_dsm(self, dsm):
         begin = time.time()
         while dsm[self.DSM_COMPLETE] & 0x1 == 0:
             if time.time() - begin > self.DSM_TIMEOUT:
-                logging.error("Timeout waiting for DSM")
+                self.logger.error("Timeout waiting for DSM")
                 return False
             time.sleep(0.001)
         return True
+
+    def display_stats(self, cachelines, dsm, cache, fabric):
+        stats = nlb.nlb_stats(
+            cachelines,
+            dsm,
+            cache,
+            fabric,
+            frequency=self.args.freq,
+            cont=self.args.cont)
+        if self.args.csv:
+            print(stats.to_csv(not self.args.suppress_hdr))
+        else:
+            print(stats.to_str())

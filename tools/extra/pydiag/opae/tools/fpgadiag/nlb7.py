@@ -24,7 +24,76 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from diagtest import diagtest
+from opae import fpga
+from opae.utils import CACHELINE_BYTES
+
+HIGH = 0xffffffff
+LOW = 0x0
 
 
 class nlb7(diagtest):
-    guid = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18"
+    guid = "7BAF4DEA-A57C-E91E-168A-455D9BDA88A3"
+
+    SW_NOTICE = 0x0158
+    NOTICE_VALUE = 0x10101010
+
+    def setup(self):
+        if super(nlb7, self).setup():
+            if "usmg" in self.args.notice:
+                self.logger.error("Not implemented")
+                return False
+            return True
+        return False
+
+    def add_arguments(self, parser):
+        super(nlb7, self).add_arguments(parser)
+        parser.add_argument(
+            '-N',
+            '--notice',
+            choices=[
+                'poll',
+                'csr-write',
+                'umsg-data',
+                'umsg-hint'],
+            default='poll',
+            help='Mechanism to get notice from fpga')
+
+    def configure_test(self):
+        super(nlb7, self).configure_test()
+        if self.args.notice == "csr-write":
+            self.cfg |= (1 << 26)
+
+    def buffer_size(self):
+        return (self.args.end+1)*CACHELINE_BYTES
+
+    def setup_buffers(self, handle, dsm, src, dst):
+        dst.fill(0)
+        src.fill(0xdeca)
+        # TODO: set umsg mas when it is implemented
+        # fpga.umsg_set_mask(handle, LOW) # Not a real API
+
+    def test_buffers(self, handle, cachelines, dsm, src, dst):
+        self.logger.debug("test_buffers")
+        sz = cachelines*CACHELINE_BYTES
+        # test flow
+        # 1. CPU polls on address N+1
+        self.logger.debug("poll_buffers: {} {}".format(dst.size(), sz))
+        if not dst.poll32(sz, HIGH):
+            raise RuntimeError(
+                "Polling failed for buffer at offset {}".format(sz))
+
+        # 2. CPU copies dest to src
+        self.logger.debug("copying dst to src: {}".format(sz))
+        dst.copy(src, sz)
+        self.logger.debug("dst copied {} bytes to src".format(sz))
+
+        # fence operation
+        fpga.memory_barrier()
+        if self.args.notice == "csr-write":
+            handle.write_csr32(self.SW_NOTICE, self.NOTICE_VALUE)
+        else:  # poll
+            src.write32(HIGH, sz)
+            src.write32(HIGH, sz+4)
+            src.write32(HIGH, sz+8)
+
+        self.wait_for_dsm(dsm)

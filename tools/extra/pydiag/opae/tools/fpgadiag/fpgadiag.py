@@ -26,7 +26,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import argparse
 import logging
+import sys
 from collections import OrderedDict
+
 from opae import fpga
 from nlb0 import nlb0
 from nlb3 import nlb3
@@ -34,11 +36,11 @@ from nlb7 import nlb7
 
 
 class fpgadiag(object):
-    modes = OrderedDict({'lpbk1': nlb0,
-                         'read': nlb3,
-                         'write': nlb3,
-                         'trput': nlb3,
-                         'sw': nlb7})
+    mode_class = OrderedDict({'lpbk1': nlb0,
+                              'read': nlb3,
+                              'write': nlb3,
+                              'trput': nlb3,
+                              'sw': nlb7})
 
     @classmethod
     def create(cls):
@@ -46,8 +48,18 @@ class fpgadiag(object):
         parser.add_argument(
             '-m',
             '--mode',
-            choices=cls.modes.keys(),
+            choices=cls.mode_class.keys(),
             default='lpbk1')
+        parser.add_argument(
+            '--loglevel',
+            choices=[
+                'exception',
+                'error',
+                'warning',
+                'info',
+                'debug'],
+            default='warning',
+            help='error level to set')
         parser.add_argument('-h', '--help',
                             action='store_true',
                             default=False,
@@ -55,14 +67,32 @@ class fpgadiag(object):
 
         args, _ = parser.parse_known_args()
 
-        test = cls.modes[args.mode](args.mode, parser)
+        test = cls.mode_class[args.mode](args.mode, parser)
+        test.logger.setLevel(getattr(logging, args.loglevel.upper()))
         return test
 
 
-if __name__ == '__main__':
-    logging.info("starting up")
+def main():
     test = fpgadiag.create()
     if test.setup():
         tokens = test.enumerate()
+        if not tokens:
+            test.logger.error("Could not find suitable accelerator")
+            sys.exit(100)
         with fpga.open(tokens[0]) as handle:
-            dsm = test.run(handle)
+            parent = fpga.properties(handle).parent
+            with fpga.open(parent, fpga.OPEN_SHARED) as device:
+                try:
+                    test.run(handle, device)
+                except KeyboardInterrupt:
+                    test.logger.info(
+                        "User requested interrupt - ending execution")
+                except RuntimeError as e:
+                    test.logger.error("Error running test: %s", e)
+                else:
+                    return 0
+        return 100
+
+
+if __name__ == '__main__':
+    main()

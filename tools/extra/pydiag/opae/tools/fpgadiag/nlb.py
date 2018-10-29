@@ -23,7 +23,11 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from opae.utils import CACHELINE_BYTES
+from opae.utils.byteutils import GiB
 from opae.utils.csr import csr, f_enum
+import opae.fpga as fpga
+import logging
 
 
 class CFG(csr):
@@ -68,3 +72,284 @@ class CTL(csr):
         ("stop", (2, 2))
     ]
 
+
+class null_counter(object):
+    def read64(self):
+        return 0
+
+    def write64(self, v):
+        pass
+
+
+class null_group(object):
+    def __getattr__(self, name):
+        return null_counter()
+
+    def __getitem__(self, name):
+        return null_counter()
+
+    def find(self, name, *args):
+        return null_counter()
+
+
+class counter_values(object):
+    def __init__(self, values):
+        self._values = values
+
+    def __getitem__(self, key):
+        return self._values[key]
+
+    def __sub__(self, other):
+        return counter_values(
+                              dict(
+                                  [(c, (self[c] - other[c]))
+                                   for c in self._values.keys()]))
+
+    def __repr__(self):
+        return repr(self._values)
+
+
+class null_values(object):
+    def __init__(self, name):
+        self._name = name
+
+    def __getitem__(self, key):
+        return None
+
+    def __sub__(self, other):
+        return null_values(self._name)
+
+    def __repr__(self):
+        return "null ({})".format(self._name)
+
+
+class perf_counters(object):
+    _name = "_UNDEFINED_"
+    _counters = []
+    _values = dict()
+
+    def __init__(self, handle):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self._handle = handle
+        try:
+            self._group = handle.find(self._name, fpga.SYSOBJECT_GLOB)
+        except RuntimeError:
+            self.logger.warn("Could not find group with name: %s", self._name)
+            self._group = None
+        else:
+            self._values = dict([(k, 0) for k in self._counters])
+
+    def read(self, *args):
+        if self._group is None:
+            values = null_values(self._name)
+        else:
+            values = counter_values(
+                dict([(c, self._group[c].read64())
+                      for c in args or self._counters]))
+        return values
+
+    def reader(self):
+        return counters_reader(self)
+
+
+class cache_counters(perf_counters):
+    _name = "*perf/cache"
+    _counters = ["read_hit",
+                 "write_hit",
+                 "read_miss",
+                 "write_miss",
+                 "hold_request",
+                 "data_write_port_contention",
+                 "tag_write_port_contention",
+                 "tx_req_stall",
+                 "rx_req_stall",
+                 "rx_eviction"]
+
+
+class fabric_counters(perf_counters):
+    _name = "*perf/fabric"
+    _counters = ["mmio_read",
+                 "mmio_write",
+                 "pcie0_read",
+                 "pcie0_write",
+                 "pcie1_read",
+                 "pcie1_write",
+                 "upi_read",
+                 "upi_write"]
+
+
+class counters_reader(object):
+    def __init__(self, group, freeze=True):
+        self._group = group
+        self._freeze = freeze
+
+    def __enter__(self):
+        if self._freeze:
+            self._group.freeze = 1
+            return self
+
+    def __exit__(self, t, v, tb):
+        if self._freeze:
+            self._group.freeze = 0
+        return True
+
+    def read(self, *args):
+        return self._group.read(*args)
+
+
+class dsm_tuple(object):
+    NUM_CLOCKS = 0x0048
+    NUM_READS = 0x0050
+    NUM_WRITES = 0x0054
+    START_OVERHEAD = 0x0058
+    END_OVERHEAD = 0x005c
+
+    def __init__(self, mem=None):
+        if mem:
+            self.get(mem)
+        else:
+            self._num_clocks = 0
+            self._start_overhead = 0
+            self._end_overhead = 0
+            self._num_reads = 0
+            self._num_writes = 0
+
+    def get(self, mem):
+        self._num_clocks = mem.read32(self.NUM_CLOCKS)
+        self._start_overhead = mem.read32(self.START_OVERHEAD)
+        self._end_overhead = mem.read32(self.END_OVERHEAD)
+        self._num_reads = mem.read32(self.NUM_READS)
+        self._num_writes = mem.read32(self.NUM_WRITES)
+
+    def put(self, mem):
+        mem.write32(self.NUM_CLOCKS, self._num_clocks)
+        mem.write32(self.START_OVERHEAD, self._start_overhead)
+        mem.write32(self.END_OVERHEAD, self._end_overhead)
+        mem.write32(self.NUM_READS, self._num_writes)
+        mem.write32(self.NUM_WRITES, self._num_writes)
+
+    def __add__(self, other):
+        self._num_clocks = self._num_clocks + other._num_clocks
+        self._start_overhead = self._start_overhead + other._start_overhead
+        self._end_overhead = self._end_overhead + other._end_overhead
+        self._num_reads = self._num_reads + other._num_reads
+        self._num_writes = self._num_writes + other._num_writes
+
+    @property
+    def num_clocks(self):
+        return self._num_clocks
+
+    @property
+    def start_overhead(self):
+        return self._start_overhead
+
+    @property
+    def end_overhead(self):
+        return self._end_overhead
+
+    @property
+    def num_reads(self):
+        return self._num_reads
+
+    @property
+    def num_writes(self):
+        return self._num_writes
+
+
+class units(object):
+    def __init__(self, value, **kwargs):
+        self._value = value
+        self._format = kwargs.get('format')
+
+    def __format__(self, fs):
+        if self._format is not None:
+            return self._format.format(self._value)
+        else:
+            return fs.format(self._value)
+
+    def __str__(self):
+        return str(self._value)
+
+
+class stats_printer(object):
+    def __init__(self):
+        self._data = []
+
+    def register(self, *args):
+        line = []
+        for (k, v) in args:
+            if v is not None:
+                line.append((k, v))
+        self._data.append(line)
+
+    def to_str(self):
+        s = ''
+        for line in self._data:
+            headers = [h for (h, v) in line]
+            values = [format(v) for (h, v) in line]
+            fmt = ' '.join(['{{:{}}}'.format(len(h)) for h in headers])
+            s += fmt.format(*headers) + '\n'
+            s += fmt.format(*values) + '\n\n'
+        return s
+
+    def to_csv(self, with_header=True):
+        s = ''
+        header = []
+        values = []
+        for line in self._data:
+            for (h, v) in line:
+                header.append(h)
+                values.append(str(v))
+        if with_header:
+            s += ','.join(header) + '\n'
+        s += ','.join(values)
+        if with_header:
+            s += '\n'
+        return s
+
+
+def normalize_frequency(freq):
+    units = [(1E9, 'GHz'),
+             (1E6, 'MHz'),
+             (1E3, 'KHz'),
+             (0, 'Hz')]
+    for (v, s) in units:
+        if freq >= v:
+            return '{:2} {}'.format(freq/v, s)
+
+
+class nlb_stats(stats_printer):
+    def __init__(self, cachelines, dsm, cache, fabric, **kwargs):
+        super(nlb_stats, self).__init__()
+        freq = kwargs.get('frequency', 400000000)
+        freq_str = normalize_frequency(freq)
+        is_cont = kwargs.get("cont", False)
+        raw_ticks = dsm.num_clocks
+        if is_cont:
+            ticks = raw_ticks - dsm.start_overhead
+        else:
+            ticks = raw_ticks - (dsm.start_overhead + dsm.end_overhead)
+
+        rd_bw = (dsm.num_reads * CACHELINE_BYTES * freq)/ticks
+        rd_bw /= GiB(1).count()
+
+        wr_bw = (dsm.num_writes * CACHELINE_BYTES * freq)/ticks
+        wr_bw /= GiB(1).count()
+
+        self.register(('Cachelines', cachelines),
+                      ('Read_Count', dsm.num_reads),
+                      ('Write_Count', dsm.num_writes),
+                      ('Cache_Rd_Hit', cache['read_hit']),
+                      ('Cache_Wr_Hit', cache['write_hit']),
+                      ('Cache_Rd_Miss', cache['read_miss']),
+                      ('Cache_Wr_Miss', cache['write_miss']),
+                      ('Eviction', cache['rx_eviction']),
+                      ('Clocks(@{})'.format(freq_str), ticks),
+                      ('Rd_Bandwidth', units(rd_bw, format='{:.4} GB/s')),
+                      ('Wr_Bandwidth', units(wr_bw, format='{:.4} GB/s')))
+        self.register(('VH0_Rd_Count', fabric['pcie0_read']),
+                      ('VH0_Wr_Count', fabric['pcie0_write']),
+                      ('VH1_Rd_Count', fabric['pcie1_read']),
+                      ('VH1_Wr_Count', fabric['pcie1_write']),
+                      ('VL0_Rd_Count', fabric['upi_read']),
+                      ('VL0_Wr_Count', fabric['upi_write']))

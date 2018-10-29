@@ -4,8 +4,10 @@ setup(
     name="opae.diag",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
+    install_requires=['opae.fpga'],
     entry_points={
         'console_scripts': [
+            "fpgadiag=opae.tools.fpgadiag.fpgadiag:main"
         ]
     },
     description="pydiag includes fpgadiag and related utility libraries",

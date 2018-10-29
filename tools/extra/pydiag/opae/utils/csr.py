@@ -160,9 +160,11 @@ class csr(object):
 
     def __or__(self, value):
         self._union.value |= value
+        return self
 
     def __and__(self, value):
         self._union.value &= value
+        return self
 
     def offset(self):
         return self._offset
