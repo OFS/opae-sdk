@@ -176,7 +176,10 @@ void shared_buffer_copy(shared_buffer::ptr_t self, shared_buffer::ptr_t other,
 const char *shared_buffer_doc_split() {
   return R"opaedoc(
     Split the buffer into other shared_buffer objects.
-    The arguments to this method is a list of sizes to use when splitting the buffer.
+    The arguments to this method make up a list of sizes to use when splitting the buffer.
+    For example, say a shared_buffer object is 1024 bytes and split is called with sizes
+    256, 256, 512 then the result is a list of shared_buffer objects with those sizes
+    respectively.
   )opaedoc";
 }
 
