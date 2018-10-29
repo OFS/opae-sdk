@@ -56,16 +56,17 @@ class usrclk_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
+                                        platform_.devices[0].device_id), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+                            &num_matches_), FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
@@ -90,7 +91,6 @@ class usrclk_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -102,25 +102,33 @@ class usrclk_c_p : public ::testing::TestWithParam<std::string> {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(usrclk_c_p, get) {
-  uint64_t low = 0;
-  uint64_t high = 0;
+  uint64_t low = 999;
+  uint64_t high = 999;
   EXPECT_EQ(fpgaGetUserClock(accel_, &high, &low, 0), FPGA_OK);
-  EXPECT_NE(low, 0);
-  EXPECT_NE(high, 0);
+  EXPECT_NE(low, 999);
+  EXPECT_NE(high, 999);
 }
 
+// TODO: Fix user clock test for DCP
+INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+
+class usrclk_c_hw_p : public usrclk_c_p{
+  protected:
+    usrclk_c_hw_p() {};
+};
 /**
  * @test       set
  * @brief      Test: fpgaSetUserClock
  * @details    When fpgaSetUserClock is called with valid parameters,<br>
  *             the fn returns FPGA_OK.<br>
  */
-TEST_P(usrclk_c_p, DISABLED_set) {
+TEST_P(usrclk_c_hw_p, set) {
   uint64_t low = 25;
-  uint64_t high = 1200;
+  uint64_t high = 600;
   EXPECT_EQ(fpgaSetUserClock(accel_, high, low, 0), FPGA_OK);
 }
 
-// TODO: Fix user clock test for DCP
-//INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p, ::testing::ValuesIn(test_platform::keys(true)));
-INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p, ::testing::Values("skx-p"));
+INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({})));
+
