@@ -45,12 +45,12 @@ const std::string dev_fme = "/dev/intel-fpga-fme.0";
 const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
 const std::string dev_port = "/dev/intel-fpga-port.0";
 
-class error_c_p
+class error_c_mock_p
     : public ::testing::TestWithParam<std::string> {
  public:
   int delete_errors(std::string,std::string);
  protected:
-  error_c_p() : filter_(nullptr) {}
+  error_c_mock_p() : filter_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -92,22 +92,34 @@ class error_c_p
   _fpga_token fake_port_token_;
 };
 
-int error_c_p::delete_errors(std::string fpga_type, std::string filename) {
+int error_c_mock_p::delete_errors(std::string fpga_type, std::string filename) {
   int result;
-  std::string fme_sysfspath = tmpsysfs_ + "/" + sysfs_fme + "/" + filename;
-  std::string port_sysfspath = tmpsysfs_ + "/" + sysfs_port + "/" + filename;
+  std::string fme_sysfspath;
+  std::string port_sysfspath; 
+  std::string cmd;
+ 
+  if (tmpsysfs_.length() < 2) {
+    fme_sysfspath = tmpsysfs_ + sysfs_fme + "/" + filename;
+    port_sysfspath = tmpsysfs_ + sysfs_port + "/" + filename;
+  }
+  else {
+    fme_sysfspath = tmpsysfs_ + "/" + sysfs_fme + "/" + filename;
+    port_sysfspath = tmpsysfs_ + "/" + sysfs_port + "/" + filename;
+  }
+
   if (fpga_type.compare("fme") == 0){
-    auto cmd = "rm -rf " + fme_sysfspath;
-    result = std::system(cmd.c_str());
-    (void) result;
-    return 1;
+    cmd = "rm -rf " + fme_sysfspath;
+    goto remove;
   } else if (fpga_type.compare("port") == 0){
-    auto cmd = "rm -rf " + port_sysfspath;
-    result = std::system(cmd.c_str());
-    (void) result;
-    return 1;
+    cmd = "rm -rf " + port_sysfspath;
+    goto remove;
   }
   else {return -1;}
+
+remove:
+  result = std::system(cmd.c_str());
+  (void) result;
+  return 1;
 }
 
 /**
@@ -118,7 +130,7 @@ int error_c_p::delete_errors(std::string fpga_type, std::string filename) {
  *             fpgaReadError() is able to print the status of all error registers.
  *
  */
-TEST_P(error_c_p, error_01) {
+TEST_P(error_c_mock_p, error_01) {
 #ifndef BUILD_ASE
   fpga_error_info info;
   unsigned int n = 0;
@@ -133,7 +145,6 @@ TEST_P(error_c_p, error_01) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -165,7 +176,7 @@ TEST_P(error_c_p, error_01) {
  *             fpgaReadError() is able to print the status of all error registers.
  *
  */
-TEST_P(error_c_p, error_02) {
+TEST_P(error_c_mock_p, error_02) {
 #ifndef BUILD_ASE
   fpga_error_info info;
   unsigned int n = 0;
@@ -210,7 +221,7 @@ TEST_P(error_c_p, error_02) {
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_03) {
+TEST_P(error_c_mock_p, error_03) {
   std::fstream clear_file;
   std::ofstream error_file;
   std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
@@ -230,7 +241,6 @@ TEST_P(error_c_p, error_03) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -289,7 +299,7 @@ TEST_P(error_c_p, error_03) {
  *             fpgaClearAllErrors() will clear it.
  *
  */
-TEST_P(error_c_p, error_04) {
+TEST_P(error_c_mock_p, error_04) {
   std::fstream clear_file;
   std::ofstream error_file;
   std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
@@ -309,7 +319,6 @@ TEST_P(error_c_p, error_04) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -368,7 +377,7 @@ TEST_P(error_c_p, error_04) {
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_05) {
+TEST_P(error_c_mock_p, error_05) {
   unsigned int n = 0;
   fpga_token t = &fake_port_token_;
 
@@ -395,7 +404,7 @@ TEST_P(error_c_p, error_05) {
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_06) {
+TEST_P(error_c_mock_p, error_06) {
   fpga_error_info info;
   unsigned int n = 0;
   unsigned int i = 0;
@@ -435,7 +444,7 @@ TEST_P(error_c_p, error_06) {
  *             returns FPGA_EXCEPTION
  *
  */
-TEST_P(error_c_p, error_07) {
+TEST_P(error_c_mock_p, error_07) {
   fpga_error_info info;
   fpga_token t = &fake_fme_token_;
   uint32_t num_errors = 0, i = 0;
@@ -468,7 +477,7 @@ TEST_P(error_c_p, error_07) {
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_08) {
+TEST_P(error_c_mock_p, error_08) {
   unsigned int n = 0;
   fpga_token t = &fake_port_token_;
 
@@ -479,7 +488,6 @@ TEST_P(error_c_p, error_08) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaGetProperties(t, &filter_));
   auto _prop = (_fpga_properties*)filter_;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
-  //ASSERT_EQ(FPGA_OK, xfpga_fpgaPropertiesGetNumErrors(filter_, &n));
   ASSERT_EQ(FPGA_OK, fpgaPropertiesGetNumErrors(filter_, &n));
   printf("Found %d PORT error registers\n", n);
 
@@ -494,7 +502,7 @@ TEST_P(error_c_p, error_08) {
  *             fpgaClearError() will clear it.
  *
  */
-TEST_P(error_c_p, error_09) {
+TEST_P(error_c_mock_p, error_09) {
   unsigned int n = 0;
   fpga_token t = &fake_fme_token_;
 
@@ -510,6 +518,31 @@ TEST_P(error_c_p, error_09) {
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(t));
 }
+
+/**
+ * @test       error_12
+ * @brief      When passed an invalid token magic,
+ *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
+ */
+TEST_P(error_c_mock_p, error_12) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  ASSERT_NE(fme, nullptr);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+  ASSERT_NE(port, nullptr);
+  auto parent = token_get_parent(port);
+  EXPECT_EQ(parent, fme);
+  auto tok = (struct _fpga_token*)parent;
+
+  tok->magic = FPGA_TOKEN_MAGIC;
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(parent));
+  tok->magic = 0x123;
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
+}
+
+INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p, ::testing::ValuesIn(test_platform::mock_platforms({})));
+
+class error_c_p: public error_c_mock_p {
+};
 
 /**
  * @test       error_10
@@ -561,25 +594,7 @@ TEST_P(error_c_p, error_11) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
 }
 
-/**
- * @test       error_12
- * @brief      When passed an invalid token magic,
- *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
- */
-TEST_P(error_c_p, error_12) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
-  ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
-  ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token*)parent;
 
-  tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(parent));
-  tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
-}
 
 /**
  * @test       error_13
@@ -604,8 +619,7 @@ TEST_P(error_c_p, error_13) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
 }
 
-
-INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(error_c, error_c_p, ::testing::ValuesIn(test_platform::platforms({})));
 
 /**
  * @test       error_01
