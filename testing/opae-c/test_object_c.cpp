@@ -67,8 +67,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_accel_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_),
-              FPGA_OK);
+                            &num_matches_accel_), FPGA_OK);
+    EXPECT_GT(num_matches_accel_, 0);
 
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
@@ -76,8 +76,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     num_matches_device_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_),
-              FPGA_OK);
+                            &num_matches_device_), FPGA_OK);
+    EXPECT_GT(num_matches_device_, 0);
 
     EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num", &token_obj_, 0),
 		    FPGA_OK);
