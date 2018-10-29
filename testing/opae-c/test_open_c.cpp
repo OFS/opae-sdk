@@ -55,8 +55,8 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -84,7 +84,6 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -95,4 +94,5 @@ TEST_P(open_c_p, mallocfails) {
     EXPECT_EQ(accel_, nullptr);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(open_c, open_c_p, 
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
