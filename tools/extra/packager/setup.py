@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name="opae.tools.packager",
+    name="opae.packager",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
     package_data={
