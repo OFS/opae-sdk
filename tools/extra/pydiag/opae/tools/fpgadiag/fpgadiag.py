@@ -83,6 +83,9 @@ def main():
             parent = fpga.properties(handle).parent
             with fpga.open(parent, fpga.OPEN_SHARED) as device:
                 try:
+                    test.logger.info(
+                        "fpgadiag OPAE {} build {}".format(
+                            fpga.version(), fpga.build()))
                     test.run(handle, device)
                 except KeyboardInterrupt:
                     test.logger.info(
