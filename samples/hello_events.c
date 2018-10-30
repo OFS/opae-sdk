@@ -46,6 +46,7 @@
 #include <poll.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <pthread.h>
 
 #include <opae/fpga.h>
 #include <safe_string/safe_string.h>
@@ -131,6 +132,26 @@ out_close:
 	}
 
 	return res1 != FPGA_OK ? res1 : res2;
+}
+
+void * error_thread(void *arg)
+{
+	fpga_token token = (fpga_token) arg;
+	fpga_result res;
+
+	usleep(5000000);
+	printf("injecting error\n");
+	res = inject_ras_fatal_error(token, 1);
+	if (res != FPGA_OK)
+		print_err("setting inject error register", res);
+
+	usleep(5000000);
+	printf("clearing error\n");
+	res = inject_ras_fatal_error(token, 0);
+	if (res != FPGA_OK)
+		print_err("clearing inject error register", res);
+
+	return NULL;
 }
 
 /*
@@ -234,12 +255,13 @@ int main(int argc, char *argv[])
 	fpga_result        res2 = FPGA_OK;
 	fpga_event_handle  eh;
 	uint64_t           count = 0;
-	pid_t              pid;
+	int                res;
 	struct pollfd      pfd;
 	int                timeout = 10000;
 	int                poll_ret = 0;
 	ssize_t            bytes_read = 0;
 	uint8_t            bus = 0xff;
+	pthread_t          errthr;
 
 	res1 = parse_args(argc, argv);
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
@@ -262,65 +284,54 @@ int main(int argc, char *argv[])
        
 	printf("Running on bus 0x%02x.\n", bus);
 
-	pid = fork();
-	if (pid == -1) {
-		printf("Could not create a thread to inject error");
-		res1 = FPGA_EXCEPTION;
-		goto out_exit;
-	}
+	res1 = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
+	ON_ERR_GOTO(res1, out_destroy_tok, "opening accelerator");
 
-	if (pid == 0) {
-		usleep(5000000);
-		res1 = inject_ras_fatal_error(fpga_device_token, 1);
-		if (res1 != FPGA_OK)
-			print_err("setting inject error register", res1);
+	res1 = fpgaCreateEventHandle(&eh);
+	ON_ERR_GOTO(res1, out_close, "creating event handle");
 
-		usleep(2000000);
-		res1 = inject_ras_fatal_error(fpga_device_token, 0);
-		if (res1 != FPGA_OK)
-			print_err("clearing inject error register", res1);
+	res1 = fpgaRegisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh, 0);
+	ON_ERR_GOTO(res1, out_destroy_eh, "registering an FME event");
 
-		exit(0);
-	} else {
-		res1 = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
-		ON_ERR_GOTO(res1, out_destroy_tok, "opening accelerator");
-
-		res1 = fpgaCreateEventHandle(&eh);
-		ON_ERR_GOTO(res1, out_close, "creating event handle");
-
-		res1 = fpgaRegisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh, 0);
-		ON_ERR_GOTO(res1, out_destroy_eh, "registering an FME event");
-
-		printf("Waiting for interrupts now...\n");
+	printf("Waiting for interrupts now...\n");
 	
-
-		res1 = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
-		ON_ERR_GOTO(res1, out_destroy_eh, "getting file descriptor");
-
-		pfd.events = POLLIN;
-		poll_ret = poll(&pfd, 1, timeout);
-
-		if (poll_ret < 0) {
-			printf("Poll error errno = %s\n", strerror(errno));
-			res1 = FPGA_EXCEPTION;
-			goto out_destroy_eh;
-		} else if (poll_ret == 0) {
-			 printf("Poll timeout occurred\n");
-			 res1 = FPGA_EXCEPTION;
-			 goto out_destroy_eh;
-		} else {
-			 printf("FME Interrupt occurred\n");
-			 bytes_read = read(pfd.fd, &count, sizeof(count));
-			 if (bytes_read <= 0)
-				 printf("WARNING: error reading from poll fd: %s\n",
-						 bytes_read < 0 ? strerror(errno) : "zero bytes read");
-		}
-
-		res1 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
-		ON_ERR_GOTO(res1, out_destroy_eh, "unregistering an FME event");
-
-		printf("Successfully tested Register/Unregister for FME events!\n");
+	res = pthread_create(&errthr, NULL, error_thread, fpga_device_token);
+	if (res) {
+		printf("Failed to create error_thread.\n");
+		res1 = FPGA_EXCEPTION;
+		goto out_destroy_eh;
 	}
+
+
+	res1 = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
+	ON_ERR_GOTO(res1, out_join, "getting file descriptor");
+
+	pfd.events = POLLIN;
+	poll_ret = poll(&pfd, 1, timeout);
+
+	if (poll_ret < 0) {
+		printf("Poll error errno = %s\n", strerror(errno));
+		res1 = FPGA_EXCEPTION;
+		goto out_join;
+	} else if (poll_ret == 0) {
+		 printf("Poll timeout occurred\n");
+		 res1 = FPGA_EXCEPTION;
+		 goto out_join;
+	} else {
+		 printf("FME Interrupt occurred\n");
+		 bytes_read = read(pfd.fd, &count, sizeof(count));
+		 if (bytes_read <= 0)
+			 printf("WARNING: error reading from poll fd: %s\n",
+					 bytes_read < 0 ? strerror(errno) : "zero bytes read");
+	}
+
+	res1 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
+	ON_ERR_GOTO(res1, out_join, "unregistering an FME event");
+
+	printf("Successfully tested Register/Unregister for FME events!\n");
+
+out_join:
+	pthread_join(errthr, NULL);
 
 out_destroy_eh:
 	res2 = fpgaDestroyEventHandle(&eh);
