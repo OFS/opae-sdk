@@ -58,16 +58,15 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+                            &num_matches_), FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
   }
@@ -92,7 +91,6 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -108,4 +106,5 @@ TEST_P(reconf_c_p, pr) {
 		  bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({})));
