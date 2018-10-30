@@ -215,12 +215,21 @@ std::string fpga_resource::sysfs_path_from_token(fpga_token t)
 {
    struct _fpga_token
    {
-       uint32_t instance;
+       uint32_t device_instance;
+       uint32_t subdev_instance;
        uint64_t magic;
        char sysfspath[256];
        char devpath[256];
+       void *errors;
    };
-   struct _fpga_token *_t = (struct _fpga_token *)t;
+   struct _opae_wrapped_token {
+       uint32_t magic;
+       fpga_token opae_token;
+       //opae_api_adapter_table *adapter_table;
+   };
+
+   struct _opae_wrapped_token *_wt = (_opae_wrapped_token *) t;
+   struct _fpga_token *_t = (struct _fpga_token *)_wt->opae_token;
    return std::string(_t ? _t->sysfspath : "");
 }
 
