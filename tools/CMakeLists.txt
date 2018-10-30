@@ -34,6 +34,7 @@ add_subdirectory(base/fpgaport)
 # extra
 add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
+add_subdirectory(extra/packager)
 add_subdirectory(extra/c++utils)
 add_subdirectory(extra/fpgadiag)
 add_subdirectory(extra/libopae++)
@@ -44,5 +45,6 @@ add_subdirectory(extra/ras)
 add_subdirectory(extra/integrated/hssi)
 
 # pac
+add_subdirectory(extra/pac/fpgaflash)
 add_subdirectory(extra/pac/pac_hssi_config)
 add_subdirectory(extra/pac/fpgabist)

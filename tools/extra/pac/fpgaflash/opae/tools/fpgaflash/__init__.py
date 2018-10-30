@@ -1,2 +1,2 @@
-from fpgaflash import (main)
+from fpgaflash import main
 __all__=['main']

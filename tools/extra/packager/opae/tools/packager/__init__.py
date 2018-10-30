@@ -1,2 +1,2 @@
-from packager import (main)
+from packager import main
 __all__=['main']
