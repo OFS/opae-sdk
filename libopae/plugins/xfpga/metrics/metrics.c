@@ -51,6 +51,11 @@ fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 	int err                          = 0;
 	uint64_t num_enun_metrics        = 0;
 
+	if (_handle == NULL) {
+		FPGA_ERR("NULL fpga handle");
+		return FPGA_INVALID_PARAM;
+	}
+
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
@@ -106,6 +111,11 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 	uint64_t i                                      = 0;
 	uint64_t num_enun_metrics                       = 0;
 	struct _fpga_enum_metric	*fpga_enum_metric   = NULL;
+
+	if (_handle == NULL) {
+		FPGA_ERR("NULL fpga handle");
+		return FPGA_INVALID_PARAM;
+	}
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -172,6 +182,11 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 	int err                                 = 0;
 	uint64_t i                              = 0;
 	fpga_objtype objtype;
+
+	if (_handle == NULL) {
+		FPGA_ERR("NULL fpga handle");
+		return FPGA_INVALID_PARAM;
+	}
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -256,6 +271,11 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 	uint64_t i                             = 0;
 	uint64_t metric_num                    = 0;
 	fpga_objtype objtype;
+
+	if (_handle == NULL) {
+		FPGA_ERR("NULL fpga handle");
+		return FPGA_INVALID_PARAM;
+	}
 
 	result = handle_check_and_lock(_handle);
 	if (result)
