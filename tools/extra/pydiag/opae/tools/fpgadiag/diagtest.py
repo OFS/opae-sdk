@@ -304,21 +304,27 @@ class diagtest(object):
         if freq > 0:
             args.freq = freq * 1E6
 
+        self.logger.info("allocating bufers")
         (dsm, src, dst) = self.get_buffers(handle)
 
         self.logger.info("setup buffers")
         self.setup_buffers(handle, dsm, src, dst)
 
+        self.logger.info("writing dsm address")
         self.write_csr64(handle, self.DSM_ADDR, dsm.io_address())
 
+        self.logger.info("deassert/assert reset bit")
         self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
         self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
 
+        self.logger.info(
+            "writing src/dst buffer addresses (cacheline aligned)")
         self.write_csr64(handle, self.SRC_ADDR, cl_align(src.io_address()))
         self.write_csr64(handle, self.DST_ADDR, cl_align(dst.io_address()))
 
+        self.logger.info("configuring test values to write")
         self.configure_test()
-        self.logger.debug("Writing 0x{:04X}".format(self.cfg.value()))
+        self.logger.info("writing cfg register")
         self.write_csr32(handle, self.cfg.offset(), self.cfg.value())
 
         c_counters = nlb.cache_counters(device)
@@ -328,11 +334,14 @@ class diagtest(object):
         for i in range(args.begin, args.end+1, args.multi_cl):
             self.logger.debug("running test with cl: %s", i)
             dsm.fill(0)
+            self.logger.info("deassert/assert reset bit")
             self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
             self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
 
+            self.logger.info("writing number of cachelines")
             self.write_csr64(handle, self.NUM_LINES, i)
 
+            self.logger.info("getting begin counters")
             with c_counters.reader() as r:
                 begin_cache = r.read()
 
@@ -342,12 +351,15 @@ class diagtest(object):
             self.logger.debug("starting test")
             self.write_csr32(handle, ctl.offset(), ctl.value(reset=1, start=1))
 
+            self.logger.info("testing buffers")
             self.test_buffers(handle, i, dsm, src, dst)
+            self.logger.info("stopping test")
 
             handle.write_csr32(
                 ctl.offset(), ctl.value(
                     stop=1, reset=1, start=1))
 
+            self.logger.info("getting end counters")
             with c_counters.reader() as r:
                 end_cache = r.read()
 
@@ -361,6 +373,8 @@ class diagtest(object):
                                    nlb.dsm_tuple(dsm),
                                    end_cache-begin_cache,
                                    end_fabric-begin_fabric)
+
+            self.logger.info("validating results")
             self.validate_results(i, dsm, src, dst)
 
     def test_buffers(self, handle, cachelines, dsm, src, dst):
