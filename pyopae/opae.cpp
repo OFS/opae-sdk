@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/version.h>
 #include <opae/fpga.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -20,6 +21,7 @@ using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
 using opae::fpga::types::sysobject;
+using opae::fpga::types::version;
 
 #ifdef OPAE_EMBEDDED
 #include <pybind11/embed.h>
@@ -90,6 +92,11 @@ PYBIND11_MODULE(_opae, m) {
       .value("RECONF_FORCE", FPGA_RECONF_FORCE)
       .export_values();
 
+  // version method
+  m.def("version", &version::as_string,
+        "Get the OPAE runtime version as a string");
+  m.def("build", &version::build, "Get the OPAE runtime build hash");
+
   // define properties class
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties",
                                                          properties_doc());
@@ -146,8 +153,7 @@ PYBIND11_MODULE(_opae, m) {
   m.def("enumerate", &token::enumerate, token_doc_enumerate())
       .def("enumerate", token_enumerate_kwargs, token_doc_enumerate_kwargs());
   py::class_<token, token::ptr_t> pytoken(m, "token", token_doc());
-  pytoken
-      .def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
+  pytoken.def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
       .def("__getitem__", token_get_sysobject, sysobject_doc_token_get())
       .def("find", token_find_sysobject, sysobject_doc_token_find(),
            py::arg("name"), py::arg("flags") = 0);
