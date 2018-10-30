@@ -134,3 +134,92 @@ py::list shared_buffer_getslice(shared_buffer::ptr_t buf, py::slice slice) {
   }
   return list;
 }
+
+const char *shared_buffer_doc_read32() {
+  return R"opaedoc(
+    Cast the memory at the given offset into a 32-bit integer
+  )opaedoc";
+}
+
+const char *shared_buffer_doc_read64() {
+  return R"opaedoc(
+    Cast the memory at the given offset into a 64-bit integer
+  )opaedoc";
+}
+
+const char *shared_buffer_doc_write32() {
+  return R"opaedoc(
+    Write a 32-bit integer at the memory at the given offset
+  )opaedoc";
+}
+
+const char *shared_buffer_doc_write64() {
+  return R"opaedoc(
+    Write a 64-bit integer at the memory at the given offset
+  )opaedoc";
+}
+
+const char *shared_buffer_doc_copy() {
+  return R"opaedoc(
+    Copy the given number of bytes from the current buffer to the buffer in the argument.
+  )opaedoc";
+}
+
+void shared_buffer_copy(shared_buffer::ptr_t self, shared_buffer::ptr_t other,
+                        size_t size) {
+  uint8_t *src = const_cast<uint8_t *>(self->c_type());
+  uint8_t *dst = const_cast<uint8_t *>(other->c_type());
+
+  std::copy(src, src + (size ? size : self->size()), dst);
+}
+
+const char *shared_buffer_doc_split() {
+  return R"opaedoc(
+    Split the buffer into other shared_buffer objects.
+    The arguments to this method make up a list of sizes to use when splitting the buffer.
+    For example, say a shared_buffer object is 1024 bytes and split is called with sizes
+    256, 256, 512 then the result is a list of shared_buffer objects with those sizes
+    respectively.
+  )opaedoc";
+}
+
+class split_buffer : public shared_buffer {
+ public:
+  typedef std::shared_ptr<split_buffer> ptr_t;
+  split_buffer(const split_buffer &) = delete;
+  split_buffer &operator=(const split_buffer &) = delete;
+
+  split_buffer(shared_buffer::ptr_t parent, size_t len, uint8_t *virt,
+               uint64_t wsid, uint64_t io_address)
+      : shared_buffer(nullptr, len, virt, wsid, io_address), parent_(parent) {}
+
+  virtual ~split_buffer() { parent_.reset(); }
+
+ private:
+  shared_buffer::ptr_t parent_;
+};
+
+std::vector<shared_buffer::ptr_t> shared_buffer_split(shared_buffer::ptr_t buf,
+                                                      py::args args) {
+  std::vector<shared_buffer::ptr_t> buffers;
+  if (!args || py::len(args) == 1) {
+    buffers.push_back(buf);
+  } else {
+    size_t offset = 0;
+    uint8_t *virt = const_cast<uint8_t *>(buf->c_type());
+    auto wsid = buf->wsid();
+    auto io_address = buf->io_address();
+    for (auto a : args) {
+      auto len = a.cast<size_t>();
+      if (offset + len > buf->size()) {
+        throw std::invalid_argument("buffer not big enough to split this way");
+      }
+      buffers.push_back(
+          std::make_shared<split_buffer>(buf, len, virt, wsid, io_address));
+      offset += len;
+      io_address += len;
+      virt += len;
+    }
+  }
+  return buffers;
+}
