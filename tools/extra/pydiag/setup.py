@@ -7,7 +7,7 @@ setup(
     install_requires=['opae.fpga'],
     entry_points={
         'console_scripts': [
-            "fpgadiag=opae.tools.fpgadiag.fpgadiag:main"
+            "fpgadiag=opae.tools.fpgadiag:main"
         ]
     },
     description="pydiag includes fpgadiag and related utility libraries",
