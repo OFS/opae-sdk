@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <opae/cxx/core/token.h>
+#include <opae/cxx/core/version.h>
 #include <opae/fpga.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -21,6 +22,7 @@ using opae::fpga::types::shared_buffer;
 using opae::fpga::types::event;
 using opae::fpga::types::error;
 using opae::fpga::types::sysobject;
+using opae::fpga::types::version;
 
 const char *memory_barrier_doc = R"opaedoc(
   Place a memory barrier or fence to ensure that all preceding memory operations have completed before continuing.
@@ -94,6 +96,11 @@ PYBIND11_MODULE(_opae, m) {
       "Flags that define how an accelerator is opened.")
       .value("RECONF_FORCE", FPGA_RECONF_FORCE)
       .export_values();
+
+  // version method
+  m.def("version", &version::as_string,
+        "Get the OPAE runtime version as a string");
+  m.def("build", &version::build, "Get the OPAE runtime build hash");
 
   // define properties class
   py::class_<properties, properties::ptr_t> pyproperties(m, "properties",
