@@ -120,18 +120,18 @@ fpga_result xfpga_fpgaGetNumMetrics(fpga_handle handle,
 				   uint64_t *num_metrics);
 
 fpga_result xfpga_fpgaGetMetricsInfo(fpga_handle handle,
-				   struct fpga_metric_info *metric_info,
+				   fpga_metric_info *metric_info,
 				   uint64_t *num_metrics);
 
 fpga_result xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 				    uint64_t *metric_num,
 				    uint64_t num_metric_indexes,
-				    struct fpga_metric *metrics);
+				    fpga_metric *metrics);
 
 fpga_result xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				    char **metrics_names,
 				    uint64_t num_metric_names,
-				    struct fpga_metric *metrics);
+				    fpga_metric *metrics);
 
 #ifdef __cplusplus
 }
