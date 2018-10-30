@@ -13,7 +13,7 @@ setup(
 							'afu_json_mgr = opae.tools.packager.afu_json_mgr:main',
 		],
     },
-    install_requires=['jsonschema'],
+    install_requires=['jsonschema>=2.3.0'],
     description="packager tool ",
     license="BSD3",
     keywords="OPAE tools extra packager",
