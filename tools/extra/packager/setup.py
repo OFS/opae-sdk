@@ -9,7 +9,9 @@ setup(
         'opae.tools.packager' : ['schema/*.json'],
     },
     entry_points={
-        'console_scripts': ['packager = opae.tools.packager:main'],
+        'console_scripts': ['packager = opae.tools.packager:main',
+							'afu_json_mgr = opae.tools.packager.afu_json_mgr:main',
+		],
     },
     install_requires=['jsonschema'],
     description="packager tool ",
