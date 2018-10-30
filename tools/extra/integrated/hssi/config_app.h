@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <sstream>
-#include "mmio.h"
 #include "przone.h"
 #include "i2c.h"
 #include "mdio.h"
@@ -116,7 +115,7 @@ private:
     std::ostringstream        header_stream_;
     std::string               input_file_;
     intel::utils::logger      log_;
-    mmio::ptr_t               mmio_;
+    opae::fpga::types::handle::ptr_t handle_;
     przone_interface::ptr_t   przone_;
     i2c::ptr_t                i2c_;
     mdio::ptr_t               mdio_;

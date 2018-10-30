@@ -2,7 +2,7 @@
 
 #include "fme.h"
 #include "hssi_przone.h"
-#include "mmio.h"
+#include <opae/cxx/core/handle.h>
 
 #include <vector>
 
@@ -21,7 +21,7 @@ class nios {
 
  private:
   hssi_przone::ptr_t przone_;
-  mmio::ptr_t mmio_;
+  opae::fpga::types::handle::ptr_t handle_;
 };
 
 }  // end of namespace hssi

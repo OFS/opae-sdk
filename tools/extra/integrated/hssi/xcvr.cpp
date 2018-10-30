@@ -1,3 +1,28 @@
+// Copyright(c) 2017-2018, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 #include "xcvr.h"
 
 #include "hssi_msg.h"
@@ -7,7 +32,7 @@ namespace fpga {
 namespace hssi {
 
 xcvr::xcvr(hssi_przone::ptr_t przone)
-    : przone_{przone}, mmio_{przone->get_mmio()} {}
+    : przone_{przone}, handle_{przone->get_handle()} {}
 
 bool xcvr::write(uint32_t lane, uint32_t reg_addr, uint32_t value) {
   // 1. Provide the data to be written into reconf register to the AUX bus
@@ -19,7 +44,7 @@ bool xcvr::write(uint32_t lane, uint32_t reg_addr, uint32_t value) {
   msg.set_address(controller::aux_bus::local_din);
   msg.set_data(static_cast<uint32_t>(value));
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -33,7 +58,7 @@ bool xcvr::write(uint32_t lane, uint32_t reg_addr, uint32_t value) {
   msg.set_bus_command(controller::bus_cmd::local_write,
                       controller::aux_bus::local_dout);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -45,7 +70,7 @@ bool xcvr::write(uint32_t lane, uint32_t reg_addr, uint32_t value) {
   msg.set_address(controller::aux_bus::local_din);
   msg.set_bus_command(controller::bus_cmd::local_write, reconfig_addr);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -58,7 +83,7 @@ bool xcvr::write(uint32_t lane, uint32_t reg_addr, uint32_t value) {
   msg.set_bus_command(controller::bus_cmd::local_write,
                       controller::aux_bus::local_din);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -81,7 +106,7 @@ bool xcvr::read(uint32_t lane, uint32_t reg_addr, uint32_t& value) {
   msg.set_address(controller::aux_bus::local_din);
   msg.set_bus_command(controller::bus_cmd::rcfg_read, reconfig_addr);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -97,7 +122,7 @@ bool xcvr::read(uint32_t lane, uint32_t reg_addr, uint32_t& value) {
   msg.set_bus_command(controller::bus_cmd::local_write,
                       controller::local_bus::recfg_cmd_addr);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -111,7 +136,7 @@ bool xcvr::read(uint32_t lane, uint32_t reg_addr, uint32_t& value) {
   msg.set_bus_command(controller::bus_cmd::local_read,
                       controller::local_bus::recfg_cmd_rddata);
   msg.set_command(controller::hssi_cmd::aux_write);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -122,16 +147,13 @@ bool xcvr::read(uint32_t lane, uint32_t reg_addr, uint32_t& value) {
   msg.clear();
   msg.set_address(controller::aux_bus::local_dout);
   msg.set_command(controller::hssi_cmd::aux_read);
-  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
+  handle_->write_csr64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
   }
 
-  uint64_t hssi_value;
-  if (!mmio_->read_mmio64(przone_->get_stat(), hssi_value)) {
-    return false;
-  }
+  uint64_t hssi_value = handle_->read_csr64(przone_->get_stat());
 
   value = static_cast<uint32_t>(hssi_value & 0x00000000FFFFFFFF);
   return true;

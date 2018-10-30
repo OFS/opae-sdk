@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
-#include "accelerator.h"
 #include "accelerator_app.h"
 #include <vector>
 #include <iostream>

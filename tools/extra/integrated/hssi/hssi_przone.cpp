@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,8 +40,8 @@ using namespace intel::fpga::hssi::controller;
 using namespace std;
 using namespace std::chrono;
 
-hssi_przone::hssi_przone(mmio::ptr_t mmio, uint32_t ctrl, uint32_t stat)
-: mmio_(mmio)
+hssi_przone::hssi_przone(opae::fpga::types::handle::ptr_t h, uint32_t ctrl, uint32_t stat)
+: handle_(h)
 , ctrl_(ctrl)
 , stat_(stat)
 {
@@ -55,7 +55,7 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     msg.set_address(aux_bus::prmgmt_cmd);
     msg.set_data(address);
     msg.set_command(hssi_cmd::aux_write);
-    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
+    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -67,7 +67,7 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     msg.set_address(aux_bus::prmgmt_dout);
     msg.set_bus_command(bus_cmd::prmgmt_write, address);
     msg.set_command(hssi_cmd::aux_read);
-    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
+    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -75,13 +75,10 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     }
 
 
-    uint64_t hssi_value;
-    if (!mmio_->read_mmio64(static_cast<uint32_t>(stat_), hssi_value))
-    {
-        return false;
-    }
+    uint64_t hssi_value = handle_->read_csr64(static_cast<uint32_t>(stat_));
 
     value = static_cast<uint32_t>(hssi_value & 0x00000000FFFFFFFF);
+
     return true;
 }
 
@@ -93,7 +90,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
     msg.set_address(aux_bus::prmgmt_din);
     msg.set_data(static_cast<uint32_t>(value));
     msg.set_command(hssi_cmd::aux_write);
-    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
+    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -105,7 +102,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
     msg.set_address(aux_bus::prmgmt_cmd);
     msg.set_bus_command(bus_cmd::prmgmt_write, address);
     msg.set_command(hssi_cmd::aux_write);
-    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
+    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -129,7 +126,8 @@ bool hssi_przone::wait_for_ack(ack_t response, uint32_t timeout_usec, uint32_t *
     auto delta = high_resolution_clock::now() - begin;
     while (delta < microseconds(timeout_usec))
     {
-        if (mmio_->read_mmio64(static_cast<uint32_t>(stat_), value) && check_ack(value))
+        value = handle_->read_csr64(static_cast<uint32_t>(stat_));
+        if (check_ack(value))
         {
             if (duration)
             {
@@ -151,7 +149,7 @@ bool hssi_przone::hssi_ack(uint32_t timeout_usec, uint32_t * duration)
     {
         return false;
     }
-    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), 0UL);
+    handle_->write_csr64(static_cast<uint32_t>(ctrl_), 0UL);
     if (!wait_for_ack(ack_t::nack, timeout_usec, duration))
     {
         return false;
@@ -162,7 +160,7 @@ bool hssi_przone::hssi_ack(uint32_t timeout_usec, uint32_t * duration)
 uint32_t hssi_przone::get_ctrl() const { return ctrl_; }
 uint32_t hssi_przone::get_stat() const { return stat_; }
 
-mmio::ptr_t hssi_przone::get_mmio() const { return mmio_; };
+opae::fpga::types::handle::ptr_t hssi_przone::get_handle() const { return handle_; };
 
 } // end of namespace hssi
 } // end of namespace fpga

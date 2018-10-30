@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -118,13 +118,33 @@ int main(int argc, char* argv[])
     }
 
     option_map::ptr_t filter(new option_map(opts));
+    opae::fpga::types::properties::ptr_t props =
+	    opae::fpga::types::properties::get();
+
+    uint8_t bus = 0;
+    if (filter->get_value<uint8_t>("bus", bus)) {
+        props->bus = bus;
+    }
+    uint8_t device = 0;
+    if (filter->get_value<uint8_t>("device", device)) {
+        props->device = device;
+    }
+    uint8_t function = 0;
+    if (filter->get_value<uint8_t>("function", function)) {
+        props->function = function;
+    }
+    uint8_t socket_id = 0;
+    if (filter->get_value<uint8_t>("socket-id", socket_id)) {
+        props->socket_id = socket_id;
+    }
+
     loopback::ptr_t lpbk;
     std::string mode = "auto";
     opts.get_value<std::string>("mode", mode);
     if ( mode == "auto")
     {
         std::vector<opae::fpga::types::token::ptr_t> accelerator_list =
-          opae::fpga::types::token::enumerate({filter});
+          opae::fpga::types::token::enumerate({props});
         if (accelerator_list.size() == 0)
         {
             log.error("main") << "Could not find any suitable accelerator on the system" << std::endl;
@@ -142,18 +162,31 @@ int main(int argc, char* argv[])
         }
         lpbk = it->second(mode);
         *(*filter)["guid"] = lpbk->afu_id();
-        std::vector<accelerator::ptr_t> accelerator_list = accelerator::enumerate({filter});
+
+	std::string guid_str;
+        if (filter->get_value<std::string>("guid", guid_str)) {
+            fpga_guid g;
+	    if (!uuid_parse(guid_str.c_str(), g))
+                props->guid = g;
+	}
+
+        std::vector<opae::fpga::types::token::ptr_t> accelerator_list =
+		opae::fpga::types::token::enumerate({props});
         if (accelerator_list.size() == 0)
         {
             log.error("main") << "Could not find any suitable accelerator on the system" << std::endl;
             return EXIT_FAILURE;
         }
-        if (!accelerator_list[0]->open(true))
+
+        opae::fpga::types::handle::ptr_t h =
+		opae::fpga::types::handle::open(accelerator_list[0], FPGA_OPEN_SHARED);
+
+        if (!h)
         {
             log.error("main") << "Could not open accelerator" << std::endl;
             return EXIT_FAILURE;
         }
-        lpbk->assign(accelerator_list[0]);
+        lpbk->assign(h);
     }
     if (!lpbk)
     {

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,14 +30,14 @@
 #include <string>
 #include <cstdint>
 #include <ostream>
-#include "mmio.h"
+#include <opae/cxx/core/handle.h>
 
 namespace intel
 {
 namespace fpga
 {
 
-class fme : public mmio
+class fme
 {
 public:
     typedef std::shared_ptr<fme> ptr_t;

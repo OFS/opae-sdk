@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "przone.h"
-#include "mmio.h"
+#include <opae/cxx/core/handle.h>
 
 namespace intel
 {
@@ -53,7 +53,7 @@ public:
     };
 
 
-    hssi_przone(mmio::ptr_t mmio, uint32_t ctrl, uint32_t stat);
+    hssi_przone(opae::fpga::types::handle::ptr_t h, uint32_t ctrl, uint32_t stat);
     virtual ~hssi_przone(){}
 
     virtual bool read(uint32_t address, uint32_t & value);
@@ -69,13 +69,13 @@ public:
 
     uint32_t get_ctrl() const;
     uint32_t get_stat() const;
-    mmio::ptr_t get_mmio() const;
+    opae::fpga::types::handle::ptr_t get_handle() const;
 
 private:
 
     static const uint32_t ack_bit = 32;
 
-    mmio::ptr_t mmio_;
+    opae::fpga::types::handle::ptr_t handle_;
     uint32_t ctrl_;
     uint32_t stat_;
 
