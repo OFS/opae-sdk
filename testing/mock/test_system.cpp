@@ -677,10 +677,27 @@ int test_system::glob(const char *pattern, int flags,
                 int (*errfunc) (const char *epath, int eerrno),
                 glob_t *pglob)
 {
+  if (pattern == nullptr) {
+  	return glob_(pattern, flags, errfunc, pglob);
+  }
+	
   auto path= get_sysfs_path(pattern);
   
-  return glob_(path.c_str(),flags,errfunc,pglob);
-
+  auto res = glob_(path.c_str(),flags,errfunc,pglob);
+  if (!res) {
+  	for (int i = 0; i < pglob->gl_pathc; ++i) {
+		std::string tmppath(pglob->gl_pathv[i]);
+		if (tmppath.find(get_root()) == 0) {
+		  auto p = pglob->gl_pathv[i];
+		  auto root_len = get_root().size();
+		  auto new_len = tmppath.size() - root_len;
+		  std::copy(tmppath.begin()+root_len, tmppath.end(), p);
+		  p[new_len] = '\0';
+		}
+	}
+  }
+ 
+ return res;
 }
 
 void test_system::invalidate_malloc(uint32_t after,

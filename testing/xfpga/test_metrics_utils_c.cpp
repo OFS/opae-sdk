@@ -56,7 +56,6 @@ extern "C" {
 using namespace opae::testing;
 
 
-
 class metics_uitls_c_p : public ::testing::TestWithParam<std::string> {
 protected:
 	metics_uitls_c_p()
