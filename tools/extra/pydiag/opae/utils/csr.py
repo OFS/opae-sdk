@@ -93,28 +93,56 @@ class f_enum(object):
 
 
 class csr(object):
+    """csr class is used to dynamically generate bitfield structs based
+    on the __bits__ class member variable. It is designed so that classes that
+    derive from it define their bitfields at the class level.
+    __bits__ is a list of two-element tuples with the first elment being the
+    the name of the bitfield and the second elment being the bitrange
+    in the format of (hi, lo).
+    __types__ is a cache of csr derived types that have already been
+    generated"""
     _bits_ = []
-    _types_ = {}
     _offset_ = 0x0000
+    _types_ = {}
     _enums_ = []
 
     def __init__(self, value=0, offset=None, **kwargs):
+        """__init_ Create a new csr object and initialize it with the given
+        value and offset
+
+        :param value: Value to initialize the csr object
+        :param offset: Offset to use to override offset value defined in class
+        variable
+        :param **kwargs: See below
+
+        :Keyword Arguments:
+            * *width* (``int``) --
+            Either 32 or 64
+        """
         self._offset = self._offset_ if offset is None else offset
         type_name = self.__class__.__name__
         if type_name in self._types_:
             union_t = self._types_[type_name]
         else:
-            if self._bits_ and sorted(
-                    self._bits_, key=lambda b: b[1])[-1][1][0] >= 32:
-                c_inttype = ctypes.c_ulong
-                self._width = 64
-            else:
-                c_inttype = ctypes.c_uint
-                self._width = 32
+            self._width = kwargs.get('width', 64)
+            # if the class has defined bitfields
+            if self._bits_:
+                # sort the bitfields by the second element, bit bit range
+                self._bits_ = sorted(self._bits_, key=lambda b: b[1])
+                # the smallest bit is the last bitfield in the sorted list
+                # the bitfield is make of of the name, bitrange
+                # first element in the bitrange is the hi bit
+                smallest_bit = self._bits_[-1][1][0]
+                if smallest_bit < 32 and self._width not in [32, 64]:
+                    c_inttype = ctypes.c_uint
+                    self._width = 32
+                else:
+                    c_inttype = ctypes.c_ulong
+                    self._width = 64
 
             fields = []
             next_bit = 0
-            for b in sorted(self._bits_, key=lambda b: b[1]):
+            for b in self._bits_:
                 field_name = b[0]
                 field_bits = b[1]
                 hi = field_bits[0]
@@ -172,7 +200,16 @@ class csr(object):
     def width(self):
         return self._width
 
-    def value(self):
+    def value(self, value=None, **kwargs):
+        if value is not None:
+            self.reset_value(value)
+        if kwargs:
+            self.reset_value()
+            for k, v in kwargs.iteritems():
+                try:
+                    self[k] = int(v)
+                except BaseException:
+                    logging.warn("Unrecognized field %s in CSR", k)
         return self._union.value
 
     def set_value(self, value):
@@ -206,18 +243,3 @@ class csr(object):
     def to_dict(self):
         data = dict([(b[0], self[b[0]]) for b in self._bits_ if self[b[0]]])
         return data
-
-    def write(self, handle, **kwargs):
-        if kwargs:
-            value = kwargs.pop('value', 0)
-            self.reset_value(value)
-            for k, v in kwargs.iteritems():
-                try:
-                    self[k] = int(v)
-                except BaseException:
-                    logging.warn("Unrecognized field %s in CSR", k)
-        if self._c_inttype is ctypes.c_uint:
-            write_method = handle.write_csr32
-        else:
-            write_method = handle.write_csr64
-        write_method(self.offset(), self.value())

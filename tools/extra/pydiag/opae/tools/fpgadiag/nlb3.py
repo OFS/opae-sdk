@@ -89,17 +89,18 @@ class nlb3(diagtest):
         handle.write_csr64(self.SRC_ADDR, cl_align(src.io_address()))
         handle.write_csr64(self.DST_ADDR, cl_align(dst.io_address()))
         handle.write_csr32(self.NUM_LINES, src.size()/CACHELINE_BYTES)
+        cfg_offset = cfg.offset()
         if self.args.mode == "read":
-            cfg.write(handle, mode=int(self.modes("read")),
-                      rd_chsel=int(self.rd_chsel("vl0")))
+            cfg_value = cfg.value(mode=int(self.modes("read")),
+                                  rd_chsel=int(self.rd_chsel("vl0")))
         else:
-            cfg.write(handle, mode=int(self.modes("write")),
-                      rd_chsel=int(self.wr_chsel("vl0")))
-
-        ctl.write(handle, reset=1, start=1)
+            cfg_value = cfg.value(mode=int(self.modes("write")),
+                                  rd_chsel=int(self.wr_chsel("vl0")))
+        handle.write_csr32(cfg_offset, cfg_value)
+        handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
         if not self.wait_for_dsm(dsm):
             raise RuntimeError("DSM Complete timeout during warm fpga cache")
-        ctl.write(handle, stop=1, reset=1, start=1)
+        handle.write_csr32(ctl.offset(), ctl.value(stop=1, reset=1, start=1))
         self.logger.info("fpga cache warmed")
 
     def cool_fpga_cache(self, handle, dsm):
@@ -113,17 +114,12 @@ class nlb3(diagtest):
         ctl.write(handle, reset=1)
         handle.write_csr64(self.SRC_ADDR, cl_align(ice.io_address()))
         handle.write_csr32(self.NUM_LINES, COOL_CACHE_LINES)
-        if self.args.mode == "read":
-            cfg.write(handle, mode=int(self.modes("read")),
-                      rd_chsel=int(self.rd_chsel("vl0")))
-        else:
-            cfg.write(handle, mode=int(self.modes("write")),
-                      rd_chsel=int(self.wr_chsel("vl0")))
-        cfg.write(handle, mode=int(self.modes["read"]),
-                  rd_chsel=int(self.rd_chsel("vl0")),
-                  cache_hint=int(self.cache_hint("rdline-I")))
-
-        ctl.write(handle, reset=1, start=1)
+        cfg_offset = cfg.offset()
+        cfg_value = cfg.value(mode=int(self.modes["read"]),
+                              rd_chsel=int(self.rd_chsel("vl0")),
+                              cache_hint=int(self.cache_hint("rdline-I")))
+        handle.write_csr32(cfg_offset, cfg_value)
+        handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
         if not self.wait_for_dsm(dsm):
             raise RuntimeError("DSM Complete timeout during cool fpga cache")
         ctl.write(handle, stop=1, reset=1, start=1)

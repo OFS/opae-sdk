@@ -311,15 +311,15 @@ class diagtest(object):
 
         handle.write_csr64(self.DSM_ADDR, dsm.io_address())
 
-        ctl.write(handle, reset=0)
-        ctl.write(handle, reset=1)
+        handle.write_csr32(ctl.offset(), ctl.value(reset=0))
+        handle.write_csr32(ctl.offset(), ctl.value(reset=1))
 
         handle.write_csr64(self.SRC_ADDR, cl_align(src.io_address()))
         handle.write_csr64(self.DST_ADDR, cl_align(dst.io_address()))
 
         self.configure_test()
         self.logger.debug("Writing 0x{:04X}".format(self.cfg.value()))
-        self.cfg.write(handle)
+        handle.write_csr32(self.cfg.offset(), self.cfg.value())
 
         c_counters = nlb.cache_counters(device)
         f_counters = nlb.fabric_counters(device)
@@ -328,8 +328,8 @@ class diagtest(object):
         for i in range(args.begin, args.end+1, args.multi_cl):
             self.logger.debug("running test with cl: %s", i)
             dsm.fill(0)
-            ctl.write(handle, reset=0)
-            ctl.write(handle, reset=1)
+            handle.write_csr32(ctl.offset(), ctl.value(reset=0))
+            handle.write_csr32(ctl.offset(), ctl.value(reset=1))
 
             handle.write_csr64(self.NUM_LINES, i)
 
@@ -340,11 +340,13 @@ class diagtest(object):
                 begin_fabric = r.read()
 
             self.logger.debug("starting test")
-            ctl.write(handle, reset=1, start=1)
+            handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
 
             self.test_buffers(handle, i, dsm, src, dst)
 
-            ctl.write(handle, stop=1, reset=1, start=1)
+            handle.write_csr32(
+                ctl.offset(), ctl.value(
+                    stop=1, reset=1, start=1))
 
             with c_counters.reader() as r:
                 end_cache = r.read()
