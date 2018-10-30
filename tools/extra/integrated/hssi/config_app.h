@@ -31,6 +31,7 @@
 #include "option_map.h"
 #include "cmd_handler.h"
 #include "log.h"
+#include "mmio.h"
 
 namespace intel
 {
@@ -115,7 +116,7 @@ private:
     std::ostringstream        header_stream_;
     std::string               input_file_;
     intel::utils::logger      log_;
-    opae::fpga::types::handle::ptr_t handle_;
+    mmio::ptr_t               mmio_;
     przone_interface::ptr_t   przone_;
     i2c::ptr_t                i2c_;
     mdio::ptr_t               mdio_;

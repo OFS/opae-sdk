@@ -40,8 +40,8 @@ using namespace intel::fpga::hssi::controller;
 using namespace std;
 using namespace std::chrono;
 
-hssi_przone::hssi_przone(opae::fpga::types::handle::ptr_t h, uint32_t ctrl, uint32_t stat)
-: handle_(h)
+hssi_przone::hssi_przone(mmio::ptr_t mmio, uint32_t ctrl, uint32_t stat)
+: mmio_(mmio)
 , ctrl_(ctrl)
 , stat_(stat)
 {
@@ -55,7 +55,7 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     msg.set_address(aux_bus::prmgmt_cmd);
     msg.set_data(address);
     msg.set_command(hssi_cmd::aux_write);
-    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
+    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -67,7 +67,7 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     msg.set_address(aux_bus::prmgmt_dout);
     msg.set_bus_command(bus_cmd::prmgmt_write, address);
     msg.set_command(hssi_cmd::aux_read);
-    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
+    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -75,7 +75,11 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     }
 
 
-    uint64_t hssi_value = handle_->read_csr64(static_cast<uint32_t>(stat_));
+    uint64_t hssi_value;
+    if (!mmio_->read_mmio64(static_cast<uint32_t>(stat_), hssi_value))
+    {
+        return false;
+    }
 
     value = static_cast<uint32_t>(hssi_value & 0x00000000FFFFFFFF);
 
@@ -90,7 +94,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
     msg.set_address(aux_bus::prmgmt_din);
     msg.set_data(static_cast<uint32_t>(value));
     msg.set_command(hssi_cmd::aux_write);
-    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
+    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -102,7 +106,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
     msg.set_address(aux_bus::prmgmt_cmd);
     msg.set_bus_command(bus_cmd::prmgmt_write, address);
     msg.set_command(hssi_cmd::aux_write);
-    handle_->write_csr64(static_cast<uint32_t>(ctrl_), msg.data());
+    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), msg.data());
 
     if (!hssi_ack())
     {
@@ -115,7 +119,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
 bool hssi_przone::wait_for_ack(ack_t response, uint32_t timeout_usec, uint32_t * duration)
 {
     uint64_t value = response == ack_t::ack ? 0 : 0xFFFF;
-    // write a little lambda to check the value basked on response type we are
+    // write a little lambda to check the value based on response type we are
     // waiting on
     auto check_ack = [response](uint64_t v) -> bool
     {
@@ -126,8 +130,7 @@ bool hssi_przone::wait_for_ack(ack_t response, uint32_t timeout_usec, uint32_t *
     auto delta = high_resolution_clock::now() - begin;
     while (delta < microseconds(timeout_usec))
     {
-        value = handle_->read_csr64(static_cast<uint32_t>(stat_));
-        if (check_ack(value))
+        if (mmio_->read_mmio64(static_cast<uint32_t>(stat_), value) && check_ack(value))
         {
             if (duration)
             {
@@ -149,7 +152,7 @@ bool hssi_przone::hssi_ack(uint32_t timeout_usec, uint32_t * duration)
     {
         return false;
     }
-    handle_->write_csr64(static_cast<uint32_t>(ctrl_), 0UL);
+    mmio_->write_mmio64(static_cast<uint32_t>(ctrl_), 0UL);
     if (!wait_for_ack(ack_t::nack, timeout_usec, duration))
     {
         return false;
@@ -160,7 +163,7 @@ bool hssi_przone::hssi_ack(uint32_t timeout_usec, uint32_t * duration)
 uint32_t hssi_przone::get_ctrl() const { return ctrl_; }
 uint32_t hssi_przone::get_stat() const { return stat_; }
 
-opae::fpga::types::handle::ptr_t hssi_przone::get_handle() const { return handle_; };
+mmio::ptr_t hssi_przone::get_mmio() const { return mmio_; }
 
 } // end of namespace hssi
 } // end of namespace fpga

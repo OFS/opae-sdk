@@ -31,7 +31,7 @@ namespace fpga {
 namespace hssi {
 
 nios::nios(hssi_przone::ptr_t przone)
-    : przone_{przone}, handle_{przone->get_handle()} {}
+    : przone_{przone}, mmio_{przone->get_mmio()} {}
 
 bool nios::write(uint32_t nios_func, std::vector<uint32_t> args) {
   uint32_t junk;
@@ -50,7 +50,7 @@ bool nios::write(uint32_t nios_func, std::vector<uint32_t> args,
     msg.set_command(controller::hssi_cmd::sw_write);
     msg.set_address(i + 2);
     msg.set_data(args[i]);
-    handle_->write_csr64(przone_->get_ctrl(), msg.data());
+    mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
     if (!przone_->hssi_ack(100000)) {
       return false;
     }
@@ -59,7 +59,7 @@ bool nios::write(uint32_t nios_func, std::vector<uint32_t> args,
   msg.set_command(controller::hssi_cmd::sw_write);
   msg.set_address(1);
   msg.set_data(nios_func);
-  handle_->write_csr64(przone_->get_ctrl(), msg.data());
+  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
   if (!przone_->hssi_ack(100000)) {
     return false;
   }
@@ -74,12 +74,16 @@ bool nios::write(uint32_t nios_func, std::vector<uint32_t> args,
       msg.set_command(controller::hssi_cmd::sw_read);
       msg.set_address(6);
       msg.set_data(nios_func);
-      handle_->write_csr64(przone_->get_ctrl(), msg.data());
+      mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
       if (!przone_->hssi_ack(100000)) {
         return false;
       }
 
-      uint64_t value64 = handle_->read_csr64(przone_->get_stat());
+      uint64_t value64;
+      if (!mmio_->read_mmio64(przone_->get_stat(), value64))
+      {
+        return false;
+      }
 
       value_out = static_cast<uint32_t>(value64);
     } break;

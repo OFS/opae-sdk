@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "przone.h"
-#include <opae/cxx/core/handle.h>
+#include "mmio.h"
 
 namespace intel
 {
@@ -53,7 +53,7 @@ public:
     };
 
 
-    hssi_przone(opae::fpga::types::handle::ptr_t h, uint32_t ctrl, uint32_t stat);
+    hssi_przone(mmio::ptr_t mmio, uint32_t ctrl, uint32_t stat);
     virtual ~hssi_przone(){}
 
     virtual bool read(uint32_t address, uint32_t & value);
@@ -69,13 +69,13 @@ public:
 
     uint32_t get_ctrl() const;
     uint32_t get_stat() const;
-    opae::fpga::types::handle::ptr_t get_handle() const;
+    mmio::ptr_t get_mmio() const;
 
 private:
 
     static const uint32_t ack_bit = 32;
 
-    opae::fpga::types::handle::ptr_t handle_;
+    mmio::ptr_t mmio_;
     uint32_t ctrl_;
     uint32_t stat_;
 

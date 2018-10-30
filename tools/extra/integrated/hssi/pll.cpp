@@ -31,7 +31,7 @@ namespace fpga {
 namespace hssi {
 
 pll::pll(hssi_przone::ptr_t przone)
-    : przone_{przone}, handle_{przone->get_handle()} {}
+    : przone_{przone}, mmio_{przone->get_mmio()} {}
 
 bool pll::read(uint32_t info_sel, uint32_t& value) {
   controller::hssi_ctrl msg;
@@ -48,7 +48,7 @@ bool pll::read(uint32_t info_sel, uint32_t& value) {
     msg.set_bus_command(controller::bus_cmd::local_read,
                         controller::local_bus::pll_locked_status);
   msg.set_command(controller::hssi_cmd::aux_write);
-  handle_->write_csr64(przone_->get_ctrl(), msg.data());
+  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
@@ -59,13 +59,17 @@ bool pll::read(uint32_t info_sel, uint32_t& value) {
   msg.clear();
   msg.set_address(controller::aux_bus::local_dout);
   msg.set_command(controller::hssi_cmd::aux_read);
-  handle_->write_csr64(przone_->get_ctrl(), msg.data());
+  mmio_->write_mmio64(przone_->get_ctrl(), msg.data());
 
   if (!przone_->hssi_ack()) {
     return false;
   }
 
-  uint64_t hssi_value = handle_->read_csr64(przone_->get_stat());
+  uint64_t hssi_value;
+  if (!mmio_->read_mmio64(przone_->get_stat(), hssi_value))
+  {
+    return false;
+  }
 
   value = static_cast<uint32_t>(hssi_value & 0x00000000FFFFFFFF);
   return true;

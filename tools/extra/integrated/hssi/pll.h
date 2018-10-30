@@ -26,7 +26,7 @@
 #pragma once
 
 #include "hssi_przone.h"
-#include <opae/cxx/core/handle.h>
+#include "mmio.h"
 
 namespace intel {
 namespace fpga {
@@ -41,7 +41,7 @@ class pll {
 
  private:
   hssi_przone::ptr_t przone_;
-  opae::fpga::types::handle::ptr_t handle_;
+  mmio::ptr_t mmio_;
 };
 }
 }
