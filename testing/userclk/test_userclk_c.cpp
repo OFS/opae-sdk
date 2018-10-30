@@ -348,14 +348,15 @@ TEST_P(userclk_c_hw_p, main3) {
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
   strcpy(three, "-B");
-  //sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(four, "0x5e");
+  sprintf(four, "%d", platform_.devices[0].bus);
   strcpy(five, "-D");
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
   strcpy(eleven, "-H");
   strcpy(twelve, "400");
 
@@ -392,14 +393,15 @@ TEST_P(userclk_c_hw_p, main4) {
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
   strcpy(three, "-B");
-  //sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(four, "0x5e");
+  sprintf(four, "%d", platform_.devices[0].bus);
   strcpy(five, "-D");
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
   strcpy(eleven, "-L");
   strcpy(twelve, "200");
 
@@ -438,14 +440,15 @@ TEST_P(userclk_c_hw_p, main5) {
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
   strcpy(three, "-B");
-  //sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(four, "0x5e");
+  sprintf(four, "%d", platform_.devices[0].bus);
   strcpy(five, "-D");
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
   strcpy(eleven, "-H");
   strcpy(twelve, "300");
   strcpy(thirteen, "-L");
@@ -482,14 +485,15 @@ TEST_P(userclk_c_hw_p, main6) {
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
   strcpy(three, "-B");
-  //sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(four, "0x5e");
+  sprintf(four, "%d", platform_.devices[0].bus);
   strcpy(five, "-D");
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
@@ -499,7 +503,8 @@ TEST_P(userclk_c_hw_p, main6) {
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
+
 
 class userclk_c_mock_p : public userclk_c_p{
   protected:
