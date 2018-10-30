@@ -65,7 +65,7 @@ class fpgadiag(object):
             '--version',
             help='print version information then quit',
             action='store_true',
-            default='false')
+            default=False)
         parser.add_argument('-h', '--help',
                             action='store_true',
                             default=False,
