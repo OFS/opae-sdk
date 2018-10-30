@@ -351,17 +351,19 @@ std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t de
 
 void fpga_db::discover_hw() {
   platform_db db;
+#ifdef ENABLE_MOCK
+  std::cout << "Mock is enabled." << std::endl;
+  platforms_ = MOCK_PLATFORMS;
+#else
   auto sys_pci_devs = find_supported_devices();
-  if (sys_pci_devs.empty()) {
-    platforms_ = MOCK_PLATFORMS;
-  } else {
-    for (auto kv : known_devices) {
-      if (!kv.second.empty()) {
-        ven_dev_id id = kv.first;
-        platforms_.insert(make_platform(id.first, id.second, kv.second));
-      }
+
+  for (auto kv : known_devices) {
+    if (!kv.second.empty()) {
+      ven_dev_id id = kv.first;
+      platforms_.insert(make_platform(id.first, id.second, kv.second));
     }
   }
+#endif
 }
 
 std::vector<std::string> fpga_db::keys(bool sorted) {
