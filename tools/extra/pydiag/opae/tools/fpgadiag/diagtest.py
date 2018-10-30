@@ -410,7 +410,7 @@ class diagtest(object):
 
     def write_csr32(self, handle, offset, value):
         self.logger.debug(
-            "write_csr64(0x{:016x}, 0x{:08x})".format(
+            "write_csr32(0x{:016x}, 0x{:08x})".format(
                 offset, value))
         handle.write_csr32(offset, value)
 
@@ -418,4 +418,4 @@ class diagtest(object):
         self.logger.debug(
             "write_csr64(0x{:016x}, 0x{:016x})".format(
                 offset, value))
-        handle.write_csr32(offset, value)
+        handle.write_csr64(offset, value)
