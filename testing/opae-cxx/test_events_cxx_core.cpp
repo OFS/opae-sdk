@@ -63,7 +63,10 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
 
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
 
-    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
+    properties::ptr_t props = properties::get(FPGA_ACCELERATOR);
+    props->device_id = platform_.devices[0].device_id;
+
+    tokens_ = token::enumerate({props});
     ASSERT_TRUE(tokens_.size() > 0);
 
     handle_= handle::open(tokens_[0], 0);
