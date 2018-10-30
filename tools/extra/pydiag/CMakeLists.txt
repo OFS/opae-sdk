@@ -25,37 +25,39 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-project(pydiag)
+project(fpgadiag)
 
-if (BUILD_PYTHON_DIST)
-    set(PYFILES
-        setup.py
-        opae/__init__.py
-        opae/utils/__init__.py
-        opae/utils/utils.py
-        opae/utils/byteutils.py
-        opae/utils/csr.py
-        opae/tools/__init__.py
-        opae/tools/fpgadiag/__init__.py
-        opae/tools/fpgadiag/diagtest.py
-        opae/tools/fpgadiag/nlb.py
-        opae/tools/fpgadiag/nlb0.py
-        opae/tools/fpgadiag/nlb3.py
-        opae/tools/fpgadiag/nlb7.py
-        opae/tools/fpgadiag/fpgadiag.py
-        )
+set(PYFILES
+    setup.py
+    opae/__init__.py
+    opae/utils/__init__.py
+    opae/utils/utils.py
+    opae/utils/byteutils.py
+    opae/utils/csr.py
+    opae/tools/__init__.py
+    opae/tools/fpgadiag/__init__.py
+    opae/tools/fpgadiag/diagtest.py
+    opae/tools/fpgadiag/nlb.py
+    opae/tools/fpgadiag/nlb0.py
+    opae/tools/fpgadiag/nlb3.py
+    opae/tools/fpgadiag/nlb7.py
+    opae/tools/fpgadiag/fpgadiag.py
+    )
 
-    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
-    configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
-    foreach(pyfile ${PYFILES})
-        configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
-    endforeach(pyfile ${PYFILES})
+configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
+foreach(pyfile ${PYFILES})
+    configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+endforeach(pyfile ${PYFILES})
 
-    add_custom_target(pydiag-dist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
-        DEPENDS ${PYFILES}
-        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
-        COMMENT "Building Python distrubutions of pydiag")
-endif (BUILD_PYTHON_DIST)
+add_custom_target(pydiag-dist
+    COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+    DEPENDS ${PYFILES}
+    WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+    COMMENT "Building Python distrubutions of pydiag")
+
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install
+              --user dist/opae.fpgadiag-${INTEL_FPGA_API_VERSION}.tar.gz"
+        COMPONENT toolfpgadiagapps)

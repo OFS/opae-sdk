@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="opae.diag",
+    name="opae.fpgadiag",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
     install_requires=['opae.fpga>=1.2'],
