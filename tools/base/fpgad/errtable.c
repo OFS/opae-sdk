@@ -257,31 +257,31 @@ struct fpga_err fme_error_table_rev_1[] = {
 
 
 
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedCatastErr",  11, 11),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].ThermCatastErr",     10, 10),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CrcCatastErr",        9,  9),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedFatalErr",    8,  8),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].PciePoisonErr",       7,  7),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].FabricFatalErr",      6,  6),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].IommuFatalErr",       5,  5),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].DramFatalErr",        4,  4),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiProtoFatalErr",    3,  3),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CciFatalErr",         2,  2),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].TagCchFatalErr",      1,  1),
-	FME_ERR(0, SYSFS_FME0 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiLinkFatalErr",     0,  0),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedCatastErr",  11, 11),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].ThermCatastErr",     10, 10),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CrcCatastErr",        9,  9),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedFatalErr",    8,  8),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].PciePoisonErr",       7,  7),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].FabricFatalErr",      6,  6),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].IommuFatalErr",       5,  5),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].DramFatalErr",        4,  4),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiProtoFatalErr",    3,  3),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CciFatalErr",         2,  2),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].TagCchFatalErr",      1,  1),
+	FME_ERR(0, SYSFS_FME0 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiLinkFatalErr",     0,  0),
 
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedCatastErr",  11, 11),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].ThermCatastErr",     10, 10),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CrcCatastErr",        9,  9),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedFatalErr",    8,  8),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].PciePoisonErr",       7,  7),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].FabricFatalErr",      6,  6),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].IommuFatalErr",       5,  5),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].DramFatalErr",        4,  4),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiProtoFatalErr",    3,  3),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CciFatalErr",         2,  2),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].TagCchFatalErr",      1,  1),
-	FME_ERR(1, SYSFS_FME1 "/errors/fatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiLinkFatalErr",     0,  0),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedCatastErr",  11, 11),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].ThermCatastErr",     10, 10),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CrcCatastErr",        9,  9),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].InjectedFatalErr",    8,  8),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].PciePoisonErr",       7,  7),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].FabricFatalErr",      6,  6),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].IommuFatalErr",       5,  5),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].DramFatalErr",        4,  4),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiProtoFatalErr",    3,  3),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].CciFatalErr",         2,  2),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].TagCchFatalErr",      1,  1),
+	FME_ERR(1, SYSFS_FME1 "/errors/catfatal_errors",  "RAS_CATFAT_ERROR_STAT[0x4060].KtiLinkFatalErr",     0,  0),
 
 
 	TABLE_TERMINATOR
@@ -369,6 +369,8 @@ void *logger_thread(void *thread_context)
 	struct fpga_err *port_error_table = port_error_table_rev_1;
 	struct fpga_err *fme_error_table  = fme_error_table_rev_1;
 
+	dlog("logger: starting\n");
+
 	/*
 	 * Check the errors/revision sysfs file to determine
 	 * which table to use.
@@ -426,12 +428,15 @@ void *logger_thread(void *thread_context)
 	while (c->running) {
 		/* read port error */
 		if ((poll_errors(port_error_table) < 0) ||
-		    (poll_errors(fme_error_table) < 0))
+		    (poll_errors(fme_error_table) < 0)) {
+			dlog("logger: thread exiting\n");
 			return NULL;
+		}
 		usleep(c->poll_interval_usec);
 	}
 
 out_exit:
+	dlog("logger: thread exiting\n");
 	return NULL;
 }
 
