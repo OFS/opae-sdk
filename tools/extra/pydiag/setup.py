@@ -4,7 +4,7 @@ setup(
     name="opae.diag",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
-    install_requires=['opae.fpga'],
+    install_requires=['opae.fpga>=1.2'],
     entry_points={
         'console_scripts': [
             "fpgadiag=opae.tools.fpgadiag:main"
