@@ -28,6 +28,7 @@ import argparse
 import logging
 import sys
 from collections import OrderedDict
+from os.path import basename
 
 from opae import fpga
 from nlb0 import nlb0
@@ -60,13 +61,24 @@ class fpgadiag(object):
                 'debug'],
             default='warning',
             help='error level to set')
+        parser.add_argument(
+            '--version',
+            help='print version information then quit',
+            action='store_true',
+            default='false')
         parser.add_argument('-h', '--help',
                             action='store_true',
                             default=False,
                             help='print help message and exit')
 
         args, _ = parser.parse_known_args()
-
+        if args.version:
+            print(
+                "{} OPAE {}, build {}".format(
+                    basename(sys.argv[0]),
+                    fpga.version(),
+                    fpga.build()))
+            sys.exit(0)
         test = cls.mode_class[args.mode](args.mode, parser)
         test.logger.setLevel(getattr(logging, args.loglevel.upper()))
         return test
@@ -84,8 +96,10 @@ def main():
             with fpga.open(parent, fpga.OPEN_SHARED) as device:
                 try:
                     test.logger.info(
-                        "fpgadiag OPAE {} build {}".format(
-                            fpga.version(), fpga.build()))
+                        "{} OPAE {}, build {}".format(
+                            basename(sys.argv[0]),
+                            fpga.version(),
+                            fpga.build()))
                     test.run(handle, device)
                 except KeyboardInterrupt:
                     test.logger.info(
