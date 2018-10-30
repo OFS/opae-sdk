@@ -90,7 +90,7 @@ class nlb7(diagtest):
         # fence operation
         fpga.memory_barrier()
         if self.args.notice == "csr-write":
-            handle.write_csr32(self.SW_NOTICE, self.NOTICE_VALUE)
+            self.write_csr32(handle, self.SW_NOTICE, self.NOTICE_VALUE)
         else:  # poll
             src.write32(HIGH, sz)
             src.write32(HIGH, sz+4)

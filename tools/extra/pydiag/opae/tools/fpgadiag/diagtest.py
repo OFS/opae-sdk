@@ -309,17 +309,17 @@ class diagtest(object):
         self.logger.info("setup buffers")
         self.setup_buffers(handle, dsm, src, dst)
 
-        handle.write_csr64(self.DSM_ADDR, dsm.io_address())
+        self.write_csr64(handle, self.DSM_ADDR, dsm.io_address())
 
-        handle.write_csr32(ctl.offset(), ctl.value(reset=0))
-        handle.write_csr32(ctl.offset(), ctl.value(reset=1))
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
 
-        handle.write_csr64(self.SRC_ADDR, cl_align(src.io_address()))
-        handle.write_csr64(self.DST_ADDR, cl_align(dst.io_address()))
+        self.write_csr64(handle, self.SRC_ADDR, cl_align(src.io_address()))
+        self.write_csr64(handle, self.DST_ADDR, cl_align(dst.io_address()))
 
         self.configure_test()
         self.logger.debug("Writing 0x{:04X}".format(self.cfg.value()))
-        handle.write_csr32(self.cfg.offset(), self.cfg.value())
+        self.write_csr32(handle, self.cfg.offset(), self.cfg.value())
 
         c_counters = nlb.cache_counters(device)
         f_counters = nlb.fabric_counters(device)
@@ -328,10 +328,10 @@ class diagtest(object):
         for i in range(args.begin, args.end+1, args.multi_cl):
             self.logger.debug("running test with cl: %s", i)
             dsm.fill(0)
-            handle.write_csr32(ctl.offset(), ctl.value(reset=0))
-            handle.write_csr32(ctl.offset(), ctl.value(reset=1))
+            self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
+            self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
 
-            handle.write_csr64(self.NUM_LINES, i)
+            self.write_csr64(handle, self.NUM_LINES, i)
 
             with c_counters.reader() as r:
                 begin_cache = r.read()
@@ -340,7 +340,7 @@ class diagtest(object):
                 begin_fabric = r.read()
 
             self.logger.debug("starting test")
-            handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
+            self.write_csr32(handle, ctl.offset(), ctl.value(reset=1, start=1))
 
             self.test_buffers(handle, i, dsm, src, dst)
 
@@ -407,3 +407,15 @@ class diagtest(object):
             print(stats.to_csv(not self.args.suppress_hdr))
         else:
             print(stats.to_str())
+
+    def write_csr32(self, handle, offset, value):
+        self.logger.debug(
+            "write_csr64(0x{:016x}, 0x{:08x})".format(
+                offset, value))
+        handle.write_csr32(offset, value)
+
+    def write_csr64(self, handle, offset, value):
+        self.logger.debug(
+            "write_csr64(0x{:016x}, 0x{:016x})".format(
+                offset, value))
+        handle.write_csr32(offset, value)

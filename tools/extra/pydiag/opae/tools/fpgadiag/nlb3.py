@@ -83,12 +83,12 @@ class nlb3(diagtest):
         ctl = nlb.CTL(width=32)
         cfg = nlb.CFG(width=32)
         self.logger.info("warming fpga cache for mode: %s", self.args.mode)
-        handle.write_csr64(self.DSM_ADDR, dsm.io_address())
-        ctl.write(handle, reset=0)
-        ctl.write(handle, reset=1)
-        handle.write_csr64(self.SRC_ADDR, cl_align(src.io_address()))
-        handle.write_csr64(self.DST_ADDR, cl_align(dst.io_address()))
-        handle.write_csr32(self.NUM_LINES, src.size()/CACHELINE_BYTES)
+        self.write_csr64(handle, self.DSM_ADDR, dsm.io_address())
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
+        self.write_csr64(handle, self.SRC_ADDR, cl_align(src.io_address()))
+        self.write_csr64(handle, self.DST_ADDR, cl_align(dst.io_address()))
+        self.write_csr32(handle, self.NUM_LINES, src.size()/CACHELINE_BYTES)
         cfg_offset = cfg.offset()
         if self.args.mode == "read":
             cfg_value = cfg.value(mode=int(self.modes("read")),
@@ -96,31 +96,35 @@ class nlb3(diagtest):
         else:
             cfg_value = cfg.value(mode=int(self.modes("write")),
                                   rd_chsel=int(self.wr_chsel("vl0")))
-        handle.write_csr32(cfg_offset, cfg_value)
-        handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
+        self.write_csr32(handle, cfg_offset, cfg_value)
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=1, start=1))
         if not self.wait_for_dsm(dsm):
             raise RuntimeError("DSM Complete timeout during warm fpga cache")
-        handle.write_csr32(ctl.offset(), ctl.value(stop=1, reset=1, start=1))
+        self.write_csr32(
+            handle, ctl.offset(), ctl.value(
+                stop=1, reset=1, start=1))
         self.logger.info("fpga cache warmed")
 
     def cool_fpga_cache(self, handle, dsm):
         ice = fpga.allocate_shared_buffer(handle, COOL_CACHE_SIZE)
         dsm.fill(0)
-        ctl = nlb.CTL()
-        cfg = nlb.CFG()
+        ctl = nlb.CTL(width=32)
+        cfg = nlb.CFG(width=32)
         self.logger.info("cooling fpga cache for mode: %s", self.args.mode)
-        handle.write_csr64(self.DSM_ADDR, dsm.io_address())
-        ctl.write(handle, reset=0)
-        ctl.write(handle, reset=1)
-        handle.write_csr64(self.SRC_ADDR, cl_align(ice.io_address()))
-        handle.write_csr32(self.NUM_LINES, COOL_CACHE_LINES)
+        self.write_csr64(handle, self.DSM_ADDR, dsm.io_address())
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=0))
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=1))
+        self.write_csr64(handle, self.SRC_ADDR, cl_align(ice.io_address()))
+        self.write_csr32(handle, self.NUM_LINES, COOL_CACHE_LINES)
         cfg_offset = cfg.offset()
         cfg_value = cfg.value(mode=int(self.modes["read"]),
                               rd_chsel=int(self.rd_chsel("vl0")),
                               cache_hint=int(self.cache_hint("rdline-I")))
-        handle.write_csr32(cfg_offset, cfg_value)
-        handle.write_csr32(ctl.offset(), ctl.value(reset=1, start=1))
+        self.write_csr32(handle, cfg_offset, cfg_value)
+        self.write_csr32(handle, ctl.offset(), ctl.value(reset=1, start=1))
         if not self.wait_for_dsm(dsm):
             raise RuntimeError("DSM Complete timeout during cool fpga cache")
-        ctl.write(handle, stop=1, reset=1, start=1)
+        self.write_csr32(
+            handle, ctl.offset(), ctl.value(
+                stop=1, reset=1, start=1))
         self.logger.info("fpga cache cooled")
