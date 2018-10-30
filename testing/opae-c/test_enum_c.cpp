@@ -421,9 +421,20 @@ TEST_P(enum_c_p, device_id) {
 }
 
 TEST_P(enum_c_p, object_id_fme) {
-  auto device = platform_.devices[0];
+  fpga_properties prop;
+  uint64_t object_id;
 
-  ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, device.fme_object_id), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                          &num_matches_),
+            FPGA_OK);
+  ASSERT_GT(num_matches_, 0);
+
+  EXPECT_EQ(fpgaGetProperties(tokens_[0], &prop), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesGetObjectID(prop, &object_id), FPGA_OK);
+
+  DestroyTokens();
+
+  ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, object_id), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
