@@ -89,7 +89,7 @@ class diagtest(object):
         self.logger = logging.getLogger(self.__class__.__name__)
         stream_handler = logging.StreamHandler(stream=sys.stderr)
         stream_handler.setFormatter(logging.Formatter(
-            '%(asctime)s: [%(name)s][%(levelname)s] - %(message)s'))
+            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
         self.logger.addHandler(stream_handler)
 
         parser.add_argument(
@@ -376,6 +376,7 @@ class diagtest(object):
 
             self.logger.info("validating results")
             self.validate_results(i, dsm, src, dst)
+            self.logger.info("end of test")
 
     def test_buffers(self, handle, cachelines, dsm, src, dst):
         """test_buffers The base version of test_buffers only waits for the
