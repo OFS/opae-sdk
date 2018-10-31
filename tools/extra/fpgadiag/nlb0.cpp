@@ -27,6 +27,7 @@
 #include "nlb0.h"
 #include "fpga_app/fpga_common.h"
 #include "nlb_stats.h"
+#include <uuid/uuid.h>
 #include <chrono>
 #include <thread>
 //#include "perf_counters.h"
@@ -47,6 +48,7 @@ nlb0::nlb0()
 , config_("nlb0.json")
 , target_("fpga")
 , afu_id_("D8424DC4-A4A3-C413-F89E-433683F9040B")
+, nlb0_id_("D8424DC4-A4A3-C413-F89E-433683F9040B")
 , dsm_size_(MB(2))
 , step_(1)
 , begin_(1)
@@ -58,6 +60,7 @@ nlb0::nlb0()
 , csv_format_(false)
 , suppress_stats_(false)
 , cachelines_(0)
+, offset_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
@@ -82,6 +85,7 @@ nlb0::nlb0()
     options_.add_option<uint8_t>("device",           'D', option::with_argument, "Device number of PCIe device");
     options_.add_option<uint8_t>("function",         'F', option::with_argument, "Function number of PCIe device");
     options_.add_option<std::string>("guid",         'G', option::with_argument, "accelerator id to enumerate", afu_id_);
+    options_.add_option<std::string>("id",           'I', option::with_argument, "NLB0 id to enumerate", nlb0_id_);
     options_.add_option<uint32_t>("freq",            'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",             option::no_argument,   "Suppress column headers", suppress_header_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
@@ -305,11 +309,39 @@ bool nlb0::setup()
     options_.get_value<bool>("suppress-hdr", suppress_header_);
     options_.get_value<bool>("csv", csv_format_);
 
+    options_.get_value<std::string>("id", nlb0_id_);
+    fpga_guid nlb0_id;
+
+    if (uuid_parse(nlb0_id_.c_str(), nlb0_id)<0) {
+        std::cerr << "Invalid NLB0 id:" << nlb0_id_ << std::endl;
+        return false;
+    }
+
+    uint32_t offset = 0;
+    uint64_t dfh = 0;
+    uint8_t* n = (uint8_t *)&nlb0_id;
+    uint64_t nlb0_hi = swap64(uint64_t, n);
+    uint64_t nlb0_lo = swap64(uint64_t, n+8);
+
+    do {
+        uint64_t feature_uuid_lo, feature_uuid_hi;
+        // Read the next feature header
+        accelerator_->read_mmio64(static_cast<uint32_t>(offset), dfh);
+        accelerator_->read_mmio64(static_cast<uint32_t>(offset+8), feature_uuid_lo);
+        accelerator_->read_mmio64(static_cast<uint32_t>(offset+16), feature_uuid_hi);
+        if ((nlb0_lo == feature_uuid_lo)&&(nlb0_hi == feature_uuid_hi)) {
+            offset_ = offset;
+            printf("found the NLB offset=0x%x\n", offset);
+            //break;
+        }
+        offset += NEXT_DFH_OFFSET(dfh);
+    } while (!DFH_EOL(dfh));
+
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
     uint64_t s2 = 0;
-    if (accelerator_->read_mmio64(static_cast<uint32_t>(nlb0_csr::status2), s2)){
+    if (accelerator_->read_mmio64(static_cast<uint32_t>(nlb0_csr::status2)+offset_, s2)){
       uint32_t freq = (s2 >> 32) & 0xffff;
       if (freq > 0){
         // frequency_ is in Hz
@@ -374,17 +406,17 @@ bool nlb0::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel)+offset_, reinterpret_cast<uint64_t>(dsm_->iova()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr)+offset_, CACHELINE_ALIGNED_ADDR(inp->iova()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr)+offset_, CACHELINE_ALIGNED_ADDR(out->iova()));
     // set the test mode
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
+    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg)+offset_, cfg_.value());
 
     for (size_t i = 0; i < inp->size()/sizeof(size_t); ++i)
     {
@@ -398,12 +430,12 @@ bool nlb0::run()
         out->fill(0);
 
         // assert afu reset
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 0);
         // de-assert afu reset
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 1);
 
         // set number of cache lines for test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), i);
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines)+offset_, i);
 
         // Read perf counters.
         fpga_cache_counters  start_cache_ctrs;
@@ -414,13 +446,13 @@ bool nlb0::run()
             start_fabric_ctrs = accelerator_->fabric_counters();
         }
         // start the test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
+        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 3);
 
         if (cont_)
         {
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
-            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 7);
             if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
                            dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
             {
@@ -439,7 +471,7 @@ bool nlb0::run()
                 return false;
             }
             // stop the device
-            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 7);
         }
         cachelines_ += i;
         // if we don't suppress stats then we show them at the end of each iteration
