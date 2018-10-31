@@ -70,6 +70,37 @@ on the platform.
 * The sw test requires the nlb mode 7 AF. This AF is only available for the integrated FPGA platform.
      You cannot run it on the PCIe accelerator card (PAC).
 
+
+**fpgalpbk**
+
+This enable/disable FPGA loopback.
+
+
+**fpgastats**
+
+This get fpga mac statistics.
+
+
+**pkvllpbk**
+
+This enable/disable Marvell 88EC055 chip loopback.
+
+
+**pkvlstats**
+
+This get Marvell 88EC055 chip statistics.
+
+
+**pkvllink**
+
+This get Marvell 88EC055 chip link status.
+
+
+**mactest**
+
+This compare mac addresses that read from MAC ROM with mac addresses read from Fortville.
+
+
 ## OPTIONS ##
 ### Common options ###
 `--help, -h`
@@ -345,7 +376,7 @@ on the platform.
 
 `--cache-hint= -i`
 
-    Can be rdline-I or rdline-S. The ddfault=rdline-I. 
+    Can be rdline-I or rdline-S. The default=rdline-I. 
 
 `--read-vc=, -r`
 
@@ -362,6 +393,76 @@ on the platform.
 `--notice=, -N`
 
     Can be poll or csr-write. The default=poll. 
+
+
+### **fpgalpbk** test options ###
+`--enable`
+
+    Enable fpga phy loopback.
+
+`--disable`
+
+    Disable fpga phy loopback.
+
+`--direction`
+
+    Can be local, remote.
+
+`--type`
+
+    Can be serial, precdr, postcdr.
+
+`--side`
+
+    Can be line, host.
+
+`--port`
+
+    0 <= port <= 7, the default is all.
+
+
+### **pkvllpbk** test options ###
+`--enable`
+
+    Enable Marvell 88EC055 phy loopback.
+
+`--disable`
+
+    Disable Marvell 88EC055 phy loopback.
+
+`--direction`
+
+    Can be local, remote.
+
+`--port`
+
+    0 <= port <= 7, the default is all.
+
+
+### **pkvlsetup** test options ###
+`--speed`
+
+    Can be 10G, 25G, The default=10G.
+
+`--port`
+
+    0 <= port <= 7, the default is all.
+
+
+### **pkvlstats** test options ###
+`--enable`
+
+    Enable statistics registers.
+
+`--clear`
+
+    Clear statistics registers.
+
+
+### **mactest** test options ###
+`--offset`
+
+    Read mac addresses from an offset, The default=0.
 
 
 ## EXAMPLES ##
@@ -390,6 +491,43 @@ signals completion using a CSR write.
 ./fpgadiag --mode=sw --target=fpga -V --bus=0xbe --begin=4 --end=8192
 --cache-hint=rdline-I --cache-policy=wrline-I --notice=csr-write --write-vc=vl0
 --wrfence-vc=auto --read-vc=random 
+```
+
+
+This command enable a `fpgalpbk` on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m fpgalpbk --bus 0xbe --enable --direction local --type postcdr
+--side host
+```
+
+
+This command show `fpgastats` on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m fpgastats --bus 0xbe
+```
+
+
+This command enable loopback on Marvell 88EC055 on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m pkvllpbk --bus 0xbe --enable --direction local
+```
+
+
+This command show statistics of Marvell 88EC055 on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m pkvlstats --bus 0xbe
+```
+
+
+This command configure 10G mode on Marvell 88EC055 on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m pkvlsetup --bus 0xbe --speed 10G
+```
+
+
+This command show Marvell 88EC055 link status on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m pkvllink --bus 0xbe
 ```
 
 

@@ -32,6 +32,19 @@
 #include "log.h"
 #include <chrono>
 
+#define AFU_DFH_EOL_OFFSET 40
+#define NEXT_DFH_OFFSET(dfh) ((dfh >> 16) & 0xffffff)
+#define DFH_EOL(dfh) ((((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1) || \
+                        (NEXT_DFH_OFFSET(dfh)==0))
+#define swap64(type, ptr) (((type)(*(ptr))<<56)  | \
+                          ((type)(*(ptr+1))<<48) | \
+                          ((type)(*(ptr+2))<<40) | \
+                          ((type)(*(ptr+3))<<32) | \
+                          ((type)(*(ptr+4))<<24) | \
+                          ((type)(*(ptr+5))<<16) | \
+                          ((type)(*(ptr+6))<<8)  | \
+                          ((type)(*(ptr+7))))
+
 namespace intel
 {
 namespace fpga
@@ -67,6 +80,7 @@ private:
     std::string config_;
     std::string target_;
     std::string afu_id_;
+    std::string nlb0_id_;
 
     std::size_t dsm_size_;
     uint32_t step_;
@@ -89,6 +103,7 @@ private:
     bool csv_format_;
     bool suppress_stats_;
     uint64_t cachelines_;
+    uint32_t offset_;
 };
 
 } // end of namespace diag
