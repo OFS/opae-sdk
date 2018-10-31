@@ -409,7 +409,7 @@ class diagtest(object):
 
     def wait_for_dsm(self, dsm):
         if not dsm.poll(self.DSM_COMPLETE, 0x1, mask=0x1,
-                        timeout=self.DSM_TIMEOUT_USEC):
+                        timeout_usec=self.DSM_TIMEOUT_USEC):
             self.logger.error("Timeout waiting for DSM")
             return False
         return True
