@@ -82,7 +82,7 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
 
 void shared_buffer::release() {
   // If the allocation was successful.
-  if (virt_) {
+  if (virt_ && handle_) {
     auto res = fpgaReleaseBuffer(handle_->c_type(), wsid_);
     if (res == FPGA_OK) {
       virt_ = nullptr;

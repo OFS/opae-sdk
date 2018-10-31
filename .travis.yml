@@ -4,6 +4,8 @@ matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
     cache: pip
+    env:
+    - BUILD_JOB=Code Style Check
     install:
     - pip install --user pylint
     - pip install --user pycodestyle
@@ -13,24 +15,12 @@ matrix:
       apt:
         packages:
           - clang-format-3.9    
-  - script: scripts/test-build.sh
-    install:
-    - pip install --user pybind11 nose2
-    cache: ccache
-    env:
-    - TRAVIS_BUILD_TYPE=RelWithDebInfo
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
   - script: scripts/build-pypi.sh
     install:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
+    - BUILD_JOB=Build python distribution and upload to PyPI
     - TRAVIS_BUILD_TYPE=RelWithDebInfo
     addons:
       apt:
@@ -52,6 +42,21 @@ matrix:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
+    - BUILD_JOB=Build in RelWithDebInfo mode
+    - TRAVIS_BUILD_TYPE=RelWithDebInfo
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+  - script: scripts/test-build.sh
+    install:
+    - pip install --user pybind11 nose2
+    cache: ccache
+    env:
+    - BUILD_JOB=Build in Release mode
     - TRAVIS_BUILD_TYPE=Release
     addons:
       apt:
@@ -65,33 +70,8 @@ matrix:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
+    - BUILD_JOB=Build in Debug mode
     - TRAVIS_BUILD_TYPE=Debug
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/test-build.sh
-    install:
-    - pip install --user pybind11 nose2
-    cache: ccache
-    env:
-    - TRAVIS_BUILD_TYPE=Debug
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/test-build.sh
-    install:
-    - pip install --user pybind11 nose2
-    cache: ccache
-    env:
-    - TRAVIS_BUILD_TYPE=Release
     addons:
       apt:
         packages:
@@ -100,6 +80,8 @@ matrix:
         - uuid-dev
         - doxygen
   - script: scripts/cover.sh
+    env:
+    - BUILD_JOB=Run tests and generate coverage
     before_script:
     - sudo sysctl -w vm.nr_hugepages=8
     install:
@@ -119,6 +101,8 @@ matrix:
     after_success:
       - coveralls -l $TRAVIS_BUILD_DIR/unittests/coverage.info.cleaned -E .*pybind11.*
   - script: scripts/build-documentation.sh
+    env:
+    - BUILD_JOB=Build documentation
     cache:
       - ccache
       - pip

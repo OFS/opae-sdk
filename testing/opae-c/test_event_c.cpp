@@ -65,7 +65,6 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
@@ -74,7 +73,7 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_),
               FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+    EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 
@@ -133,7 +132,6 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
   fpga_event_handle event_handle_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -258,6 +256,5 @@ TEST_P(event_c_p, destroy_err) {
 			  event_handle_), FPGA_OK);
 }
 
-
-
-INSTANTIATE_TEST_CASE_P(event_c, event_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(event_c, event_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
