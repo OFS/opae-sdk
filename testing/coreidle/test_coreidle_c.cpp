@@ -231,7 +231,7 @@ TEST_P(coreidle_coreidle_c_p, cpu_setaff3) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 class coreidle_coreidle_c_mock_p : public coreidle_coreidle_c_p {
   protected:
@@ -307,7 +307,7 @@ TEST_P(coreidle_coreidle_c_mock_p, sys_read2) {
  *             set_cpu_core_idle sets the CPU affinity appropriately,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(coreidle_coreidle_c_p, set_cpu2) {
+TEST_P(coreidle_coreidle_c_mock_p, set_cpu2) {
   uint64_t xeon_limit = get_xeon_limit();
   set_xeon_limit(9999);
   EXPECT_EQ(set_cpu_core_idle(device_, 25), FPGA_OK);
@@ -315,6 +315,6 @@ TEST_P(coreidle_coreidle_c_p, set_cpu2) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
 
 
