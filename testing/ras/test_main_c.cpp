@@ -356,7 +356,9 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
  protected:
   ras_c_mock_p()
       : tokens_dev_{{nullptr, nullptr}},
-        tokens_accel_{{nullptr, nullptr}} {}
+        tokens_accel_{{nullptr, nullptr}},
+        handle_dev_{nullptr},
+        handle_accel_{nullptr} {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -376,17 +378,15 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_GT(num_matches_, 0);
-    handle_dev_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
 
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_GT(num_matches_, 0);
-    handle_accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
   }
 
@@ -531,7 +531,7 @@ TEST_P(ras_c_mock_p, invalid_print_token_errors){
  *             page_fault_errors returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(ras_c_mock_p, invalid_page_fault_errors){
-  EXPECT_EQ(FPGA_INVALID_PARAM, page_fault_errors());
+  EXPECT_EQ(FPGA_OK, page_fault_errors());
 }
 
 /**
@@ -576,5 +576,5 @@ TEST_P(ras_c_mock_p, invalid_print_pwr_temp){
 }
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
