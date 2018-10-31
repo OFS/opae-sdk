@@ -28,8 +28,7 @@ import argparse
 import logging
 import sys
 from collections import OrderedDict
-from os.path import basename
-
+from os.path import basename, EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
 from opae import fpga
 from nlb0 import nlb0
 from nlb3 import nlb3
@@ -78,7 +77,7 @@ class fpgadiag(object):
                     basename(sys.argv[0]),
                     fpga.version(),
                     fpga.build()))
-            sys.exit(0)
+            sys.exit(EX_OK)
         test = cls.mode_class[args.mode](args.mode, parser)
         test.logger.setLevel(getattr(logging, args.loglevel.upper()))
         return test
@@ -86,29 +85,30 @@ class fpgadiag(object):
 
 def main():
     test = fpgadiag.create()
-    if test.setup():
-        tokens = test.enumerate()
-        if not tokens:
-            test.logger.error("Could not find suitable accelerator")
-            sys.exit(100)
-        with fpga.open(tokens[0]) as handle:
-            parent = fpga.properties(handle).parent
-            with fpga.open(parent, fpga.OPEN_SHARED) as device:
-                try:
-                    test.logger.info(
-                        "{} OPAE {}, build {}".format(
-                            basename(sys.argv[0]),
-                            fpga.version(),
-                            fpga.build()))
-                    test.run(handle, device)
-                except KeyboardInterrupt:
-                    test.logger.info(
-                        "User requested interrupt - ending execution")
-                except RuntimeError as e:
-                    test.logger.error("Error running test: %s", e)
-                else:
-                    return 0
-        return 100
+    if not test.setup():
+        sys.exit(EX_USAGE)
+    tokens = test.enumerate()
+    if not tokens:
+        test.logger.error("Could not find suitable accelerator")
+        sys.exit(EX_UNAVAILABLE)
+    with fpga.open(tokens[0]) as handle:
+        parent = fpga.properties(handle).parent
+        with fpga.open(parent, fpga.OPEN_SHARED) as device:
+            try:
+                test.logger.info(
+                    "{} OPAE {}, build {}".format(
+                        basename(sys.argv[0]),
+                        fpga.version(),
+                        fpga.build()))
+                test.run(handle, device)
+            except KeyboardInterrupt:
+                test.logger.info(
+                    "User requested interrupt - ending execution")
+            except RuntimeError as e:
+                test.logger.error("Error running test: %s", e)
+            else:
+                return EX_OK
+    return EX_SOFTWARE
 
 
 if __name__ == '__main__':
