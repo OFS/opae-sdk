@@ -47,11 +47,13 @@ extensions = [
               extra_link_args=["-std=c++11"],
               include_dirs=[
                   "@CMAKE_INSTALL_PREFIX@/include",
+                  os.environ.get("OPAE_INCLUDE_DIR", ""),
                   pybind_include_dirs(),
                   pybind_include_dirs(True)
               ],
-              libraries=["opae-c", "opae-cxx-core"],
-              library_dirs=["@CMAKE_INSTALL_PREFIX@/lib",
+              libraries=["opae-c", "opae-cxx-core", "uuid"],
+              library_dirs=[os.environ.get("OPAE_LIBRARY_DIR", ""),
+                            "@CMAKE_INSTALL_PREFIX@/lib",
                             "@CMAKE_INSTALL_PREFIX@/lib64"])
 ]
 

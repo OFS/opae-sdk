@@ -58,6 +58,6 @@ add_custom_target(pydiag-dist
     WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
     COMMENT "Building Python distrubutions of pydiag")
 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install
-              --user dist/opae.fpgadiag-${INTEL_FPGA_API_VERSION}.tar.gz"
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/opae.fpgadiag-${INTEL_FPGA_API_VERSION}.tar.gz
+                              WORKING_DIRECTORY ${PYDIST_STAGE_DIR})"
         COMPONENT toolfpgadiagapps)
