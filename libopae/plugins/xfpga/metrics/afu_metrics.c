@@ -65,7 +65,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	feature_definition feature_def;
 	uint64_t bbs_offset              = 0;
 
-	memset_s(&feature_def, 0, sizeof(feature_def));
+	memset_s(&feature_def, sizeof(feature_def), 0);
 
 	if (offset == NULL) {
 		FPGA_ERR("Invlaid Input Paramters");
@@ -136,7 +136,7 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	struct _fpga_enum_metric *_fpga_enum_metric  = NULL;
 	uint64_t num_enun_metrics                    = 0;
 
-	memset_s(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&metric_csr, sizeof(metric_csr), 0);
 
 	if (handle == NULL ||
 		enum_vector == NULL ||
@@ -183,8 +183,8 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	char qualifier_name[SYSFS_PATH_MAX]     = { 0 };
 	char metric_units[SYSFS_PATH_MAX]       = { 0 };
 
-	memset_s(&group_csr, 0, sizeof(group_csr));
-	memset_s(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&group_csr, sizeof(group_csr), 0);
+	memset_s(&metric_csr, sizeof(metric_csr), 0);
 
 	if (metric_id == NULL ||
 		vector == NULL) {
@@ -221,8 +221,8 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 	uint64_t value_offset                 = 0;
 	uint64_t group_offset                 = 0;
 
-	memset_s(&group_csr, 0, sizeof(group_csr));
-	memset_s(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&group_csr, sizeof(group_csr), 0);
+	memset_s(&metric_csr, sizeof(metric_csr), 0);
 
 	if (handle == NULL ||
 		vector == NULL ||
