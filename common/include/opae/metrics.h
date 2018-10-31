@@ -45,9 +45,10 @@ extern "C" {
 /**
  * Enumerates number of metrics
  *
- * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] num_metrics number of metrics are discovered in
- *                        fpga resource
+ * @param[in] handle Handle to previously opened fpga resource
+ * @param[inout] num_metrics Number of metrics are discovered in
+ * fpga resource
+ *
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * discovered
  *
@@ -58,13 +59,15 @@ fpga_result fpgaGetNumMetrics(fpga_handle handle,
 /**
  * Retrieve metrics information
  *
- * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] metric_info pointer to array of metric info struct
- *                        user allocates metrics info array
- * @param[inout] num_metrics size of metric info array
+ * @param[in] handle Handle to previously opened fpga resource
+ * @param[inout] metric_info Pointer to array of metric info struct
+ * user allocates metrics info array
+ *
+ * @param[inout] num_metrics Size of metric info array
  *
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
- * found
+ * found. FPGA_NO_MEMORY if there was not enough memory to enumerates
+ * metrics.
  *
  */
 fpga_result fpgaGetMetricsInfo(fpga_handle handle,
@@ -74,13 +77,15 @@ fpga_result fpgaGetMetricsInfo(fpga_handle handle,
 /**
  * Retrieve metrics values by index
  *
- * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] metric_num pointer to array of metric index
- *                        user allocates metric array
- * @param[inout] num_metric_indexs size of metric array
+ * @param[in] handle Handle to previously opened fpga resource
+ * @param[inout] metric_num Pointer to array of metric index
+ * user allocates metric array
+ * @param[inout] num_metric_indexs Size of metric array
  * @param[inout] metrics pointer to array of metric struct
+ *
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
- * found
+ * found. FPGA_NO_MEMORY if there was not enough memory to enumerates
+ * metrics.
  *
  */
 fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
@@ -91,11 +96,12 @@ fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
 /**
  * Retrieve metric values by names
  *
- * @param[in]  handle     Handle to previously opened fpga resource
- * @param[inout] metrics_names pointer to array of metrics name
- *                        user allocates metrics name array
- * @param[inout] num_metric_names size of metric name array
- * @param[inout] metrics pointer to array of metric struct
+ * @param[in] handle Handle to previously opened fpga resource
+ * @param[inout] metrics_names Pointer to array of metrics name
+ * user allocates metrics name array
+ * @param[inout] num_metric_names Size of metric name array
+ * @param[inout] metrics Pointer to array of metric struct
+ *
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
  * found
  *
