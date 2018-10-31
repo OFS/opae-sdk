@@ -205,7 +205,25 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
+	
+	fpga_feature_properties feature_prop;
+	EXPECT_EQ(fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_OK);
+	
+	for(int i=0; i<16; i++)
+		printf("0x%2x ",feature_prop.guid[i]);
+	printf("\n");
+	
 	EXPECT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h), FPGA_OK);
+	
+	fpgaDMAProperties dma_prop;
+	EXPECT_EQ(fpgaDMAPropertiesGet(ftokens_[0], &dma_prop, 16), FPGA_OK);
+	
+	transfer_list t_list;
+	EXPECT_EQ(fpgaDMATransferSync(feature_h, &t_list), FPGA_OK);
+	
+	EXPECT_EQ(fpgaFeatureClose(feature_h), FPGA_OK);
+	EXPECT_EQ(fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
+
 	printf("test done\n");
 }
 
@@ -257,8 +275,7 @@ TEST_P(feature_open_c_p, mallocfail) {
 
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
-
-
+	
 	ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
 	  FPGA_NO_MEMORY);
 	EXPECT_EQ(feature_h, nullptr);

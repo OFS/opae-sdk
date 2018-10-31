@@ -1635,7 +1635,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 					}
 					adapter = get_feature_plugin_adapter(guid);
 					opae_wrapped_feature_token *wt = 
-					     opae_allocate_wrapped_feature_token((fpga_feature_token)&tmp, adapter);
+					     opae_allocate_wrapped_feature_token(tmp, adapter);
 					tokens[*num_matches] = wt;
 				}
 				++(*num_matches);
@@ -1649,7 +1649,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 	return res;
 }
 
-fpga_result fpgaFeatureTokenDestroy(fpga_feature_token *token)
+fpga_result fpgaDestroyFeatureToken(fpga_feature_token *token)
 {
 	opae_wrapped_feature_token *wrapped_token;
 
@@ -1683,9 +1683,7 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(_ftoken);
 
-	_ftoken = (struct _fpga_feature_token *)wrapped_token->feature_token;
-
-	if (_ftoken->magic != OPAE_WRAPPED_FEATURE_TOKEN_MAGIC ) {  // should be OPAE_FEATURE_TOKEN_MAGIC
+	if (_ftoken->magic != OPAE_FEATURE_TOKEN_MAGIC) {
 		OPAE_ERR("Invalid feature token");
 		return FPGA_INVALID_PARAM;
 	}

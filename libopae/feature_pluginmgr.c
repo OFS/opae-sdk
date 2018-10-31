@@ -244,7 +244,6 @@ static int opae_plugin_mgr_detect_feature(fpga_guid guid)
 
 			feature_data_table[i].flags |=
 				OPAE_FEATURE_DATA_DETECTED;
-			printf("feature mgr: set OPAE_FEATURE_DATA_DETECTED\n");
 		}
 	}
 
@@ -293,7 +292,7 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 		OPAE_ERR("fpgaReadMMIO64() failed");
 		return res;
 	}
-	printf("dfh.next_header_offset=0x%x\n", dfh.next_header_offset);
+
 	offset = dfh.next_header_offset;
 	
 	do {
@@ -352,21 +351,21 @@ int feature_plugin_mgr_initialize(fpga_handle handle)
 	if (res != FPGA_OK)
 		goto out_unlock;
 
-	// Load each of the native plugins that were detected.
+	// Load each of the native feature plugins that were detected.
 	for (i = 0; feature_data_table[i].feature_plugin; ++i) {
 		const char *feature_plugin;
 		const char *feature_id;
 		int already_loaded;
 
 		if (!(feature_data_table[i].flags & OPAE_FEATURE_DATA_DETECTED))
-			continue; // This platform was not detected.
+			continue; // This feature was not detected.
 
 		feature_plugin = feature_data_table[i].feature_plugin;
 		feature_id = feature_data_table[i].feature_id;
 		features_detected++;
 
 		// Iterate over the table again to prevent multiple loads
-		// of the same native plugin.
+		// of the same native feature plugin.
 		already_loaded = 0;
 		for (j = 0; feature_data_table[j].feature_plugin; ++j) {
 
@@ -420,7 +419,7 @@ int feature_plugin_mgr_initialize(fpga_handle handle)
 		feature_data_table[i].flags |= OPAE_FEATURE_DATA_LOADED;
 	}
 
-	// TODO: load non-native plugins described in config file.
+	// TODO: load non-native feature plugins described in config file.
 
 	// Call each plugin's initialization routine.
 	errors += feature_plugin_mgr_initialize_all();
