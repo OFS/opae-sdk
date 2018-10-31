@@ -231,7 +231,7 @@ TEST_P(coreidle_coreidle_c_p, cpu_setaff3) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
 class coreidle_coreidle_c_mock_p : public coreidle_coreidle_c_p {
   protected:
@@ -315,6 +315,6 @@ TEST_P(coreidle_coreidle_c_mock_p, set_cpu2) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_coreidle_c, coreidle_coreidle_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
 
