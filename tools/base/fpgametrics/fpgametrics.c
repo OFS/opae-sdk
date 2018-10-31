@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -56,11 +56,6 @@
 			goto label;                \
 		}                                  \
 	} while (0)
-
-/* Type definitions */
-typedef struct {
-	uint32_t uint[16];
-} cache_line;
 
 void print_err(const char *s, fpga_result res)
 {
@@ -195,7 +190,6 @@ void print_bus_info(struct bdf_info *info){
 
 int main(int argc, char *argv[])
 {
-
 	char               library_version[FPGA_VERSION_STR_MAX];
 	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_token         fpga_token;
@@ -290,7 +284,6 @@ int main(int argc, char *argv[])
 		goto out_close;
 	}
 
-
 	printf("---------------------------------------------------------------------------------------------------\n");
 	printf("metric_num              qualifier_name      group_name             metric_name            metric_units\n");
 	printf("---------------------------------------------------------------------------------------------------\n");
@@ -312,7 +305,6 @@ int main(int argc, char *argv[])
 		res = FPGA_NO_MEMORY;
 		goto out_close;
 	}
-
 
 	res = fpgaGetMetricsByIndex(fpga_handle, id_array, num_metrics, metric_array);
 	ON_ERR_GOTO(res, out_close, "get num of metrics value by index");
@@ -343,9 +335,7 @@ int main(int argc, char *argv[])
 				metric_info[num].metric_units);
 		}
 
-
 	}
-
 
 	/* Release fpga */
 out_close:

@@ -154,7 +154,7 @@ enum fpga_sysobject_flags {
 
 
 /** fpga metrics types
-* opae defines power,theraml, performance counter
+* opae defines power,thermal, performance counter
 * and afu metric types
 */
 enum fpga_metric_type {

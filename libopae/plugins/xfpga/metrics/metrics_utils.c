@@ -225,7 +225,7 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	char metric_sysfs[SYSFS_PATH_MAX]       = { 0 };
 	fpga_metric_metadata metric_data;
 
-	memset(&metric_data, 0, sizeof(metric_data));
+	memset_s(&metric_data, sizeof(metric_data), 0);
 
 	if (vector == NULL ||
 		sysfspath == NULL ||
@@ -285,7 +285,7 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	char metric_sysfs[SYSFS_PATH_MAX]   = { 0 };
 	fpga_metric_metadata metric_data ;
 
-	memset(&metric_data, 0, sizeof(metric_data));
+	memset_s(&metric_data, sizeof(metric_data), 0);
 
 	if (vector == NULL ||
 		sysfspath == NULL ||
@@ -1170,7 +1170,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 		if (metric_num == _fpga_enum_metric->metric_num) {
 
 			// Found Metic
-			memset(&value, 0, sizeof(value));
+			memset_s(&value, sizeof(value), 0);
 
 			// DCP Power & Thermal
 			if ((_fpga_enum_metric->hw_type == FPGA_HW_DCP_RC) &&
