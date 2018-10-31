@@ -66,11 +66,11 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    system_->finalize();
     tokens_.clear();
     tokens_dev_.clear();
     handle_->close();
     handle_.reset();
+    system_->finalize();
   }
 
   std::vector<token::ptr_t> tokens_;
