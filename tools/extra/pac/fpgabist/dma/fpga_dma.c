@@ -579,7 +579,7 @@ out:
 }
 
 // Public APIs
-fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma_p)
+fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 {
 	fpga_result res = FPGA_OK;
 	fpga_dma_handle dma_h = NULL;
@@ -590,6 +590,10 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma_p)
 	if (!dma_p) {
 		return FPGA_INVALID_PARAM;
 	}
+    if (dma_idx < 0 || dma_idx > 3) {
+        return FPGA_INVALID_PARAM;
+    }
+
 	// init the dma handle
 	dma_h = (fpga_dma_handle)malloc(sizeof(struct _dma_handle_t));
 	if (!dma_h) {
@@ -621,16 +625,18 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma_p)
 		if (_fpga_dma_feature_is_bbb(dfh.dfh)
 		    && (dfh.feature_uuid_lo == FPGA_DMA_UUID_L)
 		    && (dfh.feature_uuid_hi == FPGA_DMA_UUID_H)) {
-			// Found one. Record it.
-			dma_h->dma_base = offset;
-			dma_h->dma_csr_base = dma_h->dma_base + FPGA_DMA_CSR;
-			dma_h->dma_desc_base = dma_h->dma_base + FPGA_DMA_DESC;
-			dma_h->dma_ase_cntl_base =
-				dma_h->dma_base + FPGA_DMA_ADDR_SPAN_EXT_CNTL;
-			dma_h->dma_ase_data_base =
-				dma_h->dma_base + FPGA_DMA_ADDR_SPAN_EXT_DATA;
-			dma_found = true;
-			break;
+			if (dma_idx-- == 0) {
+				// Found the specific one. Record it.
+				dma_h->dma_base = offset;
+				dma_h->dma_csr_base = dma_h->dma_base + FPGA_DMA_CSR;
+				dma_h->dma_desc_base = dma_h->dma_base + FPGA_DMA_DESC;
+				dma_h->dma_ase_cntl_base =
+					dma_h->dma_base + FPGA_DMA_ADDR_SPAN_EXT_CNTL;
+				dma_h->dma_ase_data_base =
+					dma_h->dma_base + FPGA_DMA_ADDR_SPAN_EXT_DATA;
+				dma_found = true;
+				break;
+			}
 		}
 		// End of the list?
 		end_of_list = _fpga_dma_feature_eol(dfh.dfh);

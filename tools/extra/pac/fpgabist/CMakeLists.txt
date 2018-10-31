@@ -29,6 +29,7 @@ set(PYTHON_SRC
      bist_app.py
      bist_common.py
      bist_dma.py
+     bist_nlb0.py
      bist_nlb3.py
      fpgabist)
 

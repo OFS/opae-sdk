@@ -34,6 +34,7 @@ import sys
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
+VCP_ID = 0x0b30 # Vista Creek dev ID
 
 def find_exec(cmd, paths):
     for p in paths:
@@ -50,25 +51,30 @@ def check_required_cmds():
 
 
 # Return a list of all available bus numbers
-def get_all_fpga_bdfs():
+def get_all_fpga_bdfs(args):
     pattern = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
                r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
     bdf_pattern = re.compile(pattern)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
-        symlink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+        devpath = os.path.join(fpga, "device")
+        symlink = os.path.basename(os.readlink(devpath))
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, hex(int(v,16)).lstrip("0x"))
-                            for (k, v) in data.iteritems()]))
+            with open(os.path.join(devpath, "device"), 'r') as fd:
+                device_id = fd.read().strip()
+            if int(device_id,16) == int(vars(args)['device_id'],16):
+                bdf_list.append(dict([(k, hex(int(v,16)).lstrip("0x"))
+                                for (k, v) in data.iteritems()]))
     return bdf_list
 
 
 def get_bdf_from_args(args):
     pattern = (r'(?P<bus>[a-fA-F0-9]{2}):'
                r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
-    bdf_pattern = re.compile(pattern)
+    dev_id = r'{:04x}'.format(int(vars(args)['device_id'], 16))
+    bdf_pattern = re.compile(pattern+dev_id)
     bdf_list = []
     param = ':{}:{}.{}'.format(
             hex(int(vars(args)['bus'], 16))
@@ -80,8 +86,7 @@ def get_bdf_from_args(args):
     host = subprocess.check_output(['lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
     for bus, device, function in matches:
-        bdf_list.append({'bus': bus, 'device': device,
-                        'function': function})
+        bdf_list.append({'bus': bus, 'device': device, 'function': function})
     return bdf_list
 
 
@@ -126,5 +131,5 @@ def global_arguments(parser):
     parser.add_argument('-F', '--function', type=str,
                         help='Function number for specific FPGA')
 
-    parser.add_argument('gbs_paths', nargs='+', type=str,
+    parser.add_argument('gbs_paths', nargs='*', type=str,
                         help='Paths for the gbs files for BIST')

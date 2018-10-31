@@ -52,6 +52,7 @@
 #define HELLO_AFU_ID "331DB30C-9885-41EA-9081-F88B8F655CAA"
 #define TEST_BUF_SIZE (10 * 1024 * 1024)
 #define ASE_TEST_BUF_SIZE (4 * 1024)
+#define TEST_TOTAL_SIZE (uint64_t)4 * 1024 * 1024 * 1024
 
 #ifdef CHECK_DELAYS
 extern double poll_wait_count;
@@ -89,20 +90,34 @@ bool memory_affinity = true;
  *  *  * Global configuration of bus, set during parse_args()
  *   *   * */
 struct config {
-	struct target {
-		int bus;
-	} target;
+    struct target {
+        int bus;
+        int dma;
+        uint64_t size;
+        char* guid;
+    } target;
 }
-
-config = {.target = {.bus = -1}};
+config = {
+    .target = {
+        .bus = -1,
+        .dma = 0,
+        .size = TEST_TOTAL_SIZE,
+        .guid = HELLO_AFU_ID
+    }
+};
 
 /*
  *  *  * Parse command line arguments
  *   *   */
-#define GETOPT_STRING ":B:mpc2nayCM"
+#define GETOPT_STRING ":B:D:S:G:mpc2nayCM"
 fpga_result parse_args(int argc, char *argv[])
 {
-	struct option longopts[] = {{"bus", required_argument, NULL, 'B'}};
+    struct option longopts[] = {
+        {"bus", required_argument, NULL, 'B'},
+        {"dma", required_argument, NULL, 'D'},
+        {"size", required_argument, NULL, 'S'},
+        {"guid", required_argument, NULL, 'G'}
+    };
 
 	int getopt_ret;
 	int option_index;
@@ -131,6 +146,31 @@ fpga_result parse_args(int argc, char *argv[])
 				return FPGA_EXCEPTION;
 			}
 			break;
+        case 'D':   /* dma */
+            if (NULL == tmp_optarg)
+                break;
+            endptr = NULL;
+            config.target.dma =
+			    (int)strtoul(tmp_optarg, &endptr, 10);
+            if (endptr != tmp_optarg + strnlen(tmp_optarg, 16)) {
+                fprintf(stderr, "invalid dma: %s\n", tmp_optarg);
+                return FPGA_EXCEPTION;
+            }
+            break;
+        case 'S':   /* size */
+            if (NULL == tmp_optarg)
+                break;
+            endptr = NULL;
+            config.target.size = (unsigned long)strtoul(tmp_optarg, &endptr, 0);
+            if (endptr != tmp_optarg + strnlen(tmp_optarg, 16)) {
+                fprintf(stderr, "invalid size: %s\n", tmp_optarg);
+                return FPGA_EXCEPTION;
+            }
+            break;
+        case 'G':   /* AFU ID */
+            config.target.guid = (char *)malloc(36);
+            memcpy(config.target.guid, tmp_optarg, 36);
+            break;
 		case 'm':
 			use_malloc = true;
 			break;
@@ -366,13 +406,13 @@ void print_bus_info(struct bus_info *info)
 }
 
 
-fpga_result ddr_sweep(fpga_dma_handle dma_h, uint64_t ptr_align,
+fpga_result ddr_sweep(fpga_dma_handle dma_h, uint64_t mem_size, uint64_t ptr_align,
 		      uint64_t siz_align)
 {
 	int res;
 	struct timespec start, end;
 
-	ssize_t total_mem_size = (uint64_t)(4 * 1024) * (uint64_t)(1024 * 1024);
+	uint64_t total_mem_size = mem_size;
 
 	uint64_t *dma_buf_ptr = malloc_aligned(getpagesize(), total_mem_size);
 	if (dma_buf_ptr == NULL) {
@@ -491,7 +531,10 @@ static void usage(void)
 	printf("\t-y\tDo not verify buffer contents - faster (default is to verify)\n");
 	printf("\t-C\tDo not restrict process to CPUs attached to DCP NUMA node\n");
 	printf("\t-M\tDo not restrict process memory allocation to DCP NUMA node\n");
-	printf("\t-B\t Set a target bus number\n");
+	printf("\t-B\tSet a target bus number\n");
+	printf("\t-D\tSelect DMA to test\n");
+	printf("\t-S\tSet memory test size\n");
+	printf("\t-G\tSet AFU GUID\n");
 }
 
 int main(int argc, char *argv[])
@@ -528,7 +571,7 @@ int main(int argc, char *argv[])
 
 
 	// enumerate the afc
-	if (uuid_parse(HELLO_AFU_ID, guid) < 0) {
+	if (uuid_parse(config.target.guid, guid) < 0) {
 		return 1;
 	}
 
@@ -622,12 +665,12 @@ int main(int argc, char *argv[])
 	res = fpgaReset(afc_h);
 	ON_ERR_GOTO(res, out_unmap, "fpgaReset");
 
-	res = fpgaDmaOpen(afc_h, &dma_h);
-	ON_ERR_GOTO(res, out_dma_close, "fpgaDmaOpen");
-	if (!dma_h) {
-		res = FPGA_EXCEPTION;
-		ON_ERR_GOTO(res, out_dma_close, "Invaid DMA Handle");
-	}
+    res = fpgaDmaOpen(afc_h, config.target.dma, &dma_h);
+    ON_ERR_GOTO(res, out_dma_close, "fpgaDmaOpen");
+    if (!dma_h) {
+        res = FPGA_EXCEPTION;
+        ON_ERR_GOTO(res, out_dma_close, "Invaid DMA Handle");
+    }
 
 	if (use_ase)
 		count = ASE_TEST_BUF_SIZE;
@@ -721,25 +764,26 @@ int main(int argc, char *argv[])
 
 	if (!use_ase) {
 		printf("Running DDR sweep test\n");
-		res = ddr_sweep(dma_h, 0, 0);
+		res = ddr_sweep(dma_h, config.target.size, 0, 0);
 		printf("DDR sweep with unaligned pointer and size\n");
-		res |= ddr_sweep(dma_h, 61, 5);
-		res |= ddr_sweep(dma_h, 3, 0);
-		res |= ddr_sweep(dma_h, 7, 3);
-		res |= ddr_sweep(dma_h, 0, 3);
-		res |= ddr_sweep(dma_h, 0, 61);
-		res |= ddr_sweep(dma_h, 0, 7);
+		res |= ddr_sweep(dma_h, config.target.size, 61, 5);
+		res |= ddr_sweep(dma_h, config.target.size, 3, 0);
+		res |= ddr_sweep(dma_h, config.target.size, 7, 3);
+		res |= ddr_sweep(dma_h, config.target.size, 0, 3);
+		res |= ddr_sweep(dma_h, config.target.size, 0, 61);
+		res |= ddr_sweep(dma_h, config.target.size, 0, 7);
 		ON_ERR_GOTO(res, out_dma_close, "ddr_sweep");
 	}
 
 	free(verify_buf);
 
 out_dma_close:
-	free_aligned(dma_buf_ptr);
-	if (dma_h)
+	if (dma_buf_ptr)
+		free_aligned(dma_buf_ptr);
+	if (dma_h) {
 		res = fpgaDmaClose(dma_h);
-	ON_ERR_GOTO(res, out_unmap, "fpgaDmaClose");
-
+		ON_ERR_GOTO(res, out_unmap, "fpgaDmaClose");
+	}
 out_unmap:
 	if (!use_ase) {
 		res = fpgaUnmapMMIO(afc_h, 0);

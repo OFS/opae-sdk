@@ -66,10 +66,11 @@ typedef void (*fpga_dma_transfer_cb)(void *context);
  *                  Scans the device feature chain looking for a DMA BBB.
  *
  * @param[in]  fpga Handle to the FPGA AFU object obtained via fpgaOpen()
+ * @param[in]  dma_idx FPGA dma index
  * @param[out] dma  DMA object handle
  * @returns         FPGA_OK on success, return code otherwise
  */
-fpga_result fpgaDmaOpen(fpga_handle fpga, fpga_dma_handle *dma);
+fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma);
 
 /**
  * fpgaDmaTransferSync
