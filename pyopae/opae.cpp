@@ -203,13 +203,16 @@ PYBIND11_MODULE(_opae, m) {
       .def("fill", &shared_buffer::fill, shared_buffer_doc_fill())
       .def("poll", shared_buffer_poll<uint8_t>,
            "Poll for an 8-bit value being set at given offset",
-           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
+           py::arg("offset"), py::arg("value"), py::arg("mask") = 0,
+           py::arg("timeout_usec") = 1000)
       .def("poll32", shared_buffer_poll<uint32_t>,
            "Poll for a 32-bit value being set at given offset",
-           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
+           py::arg("offset"), py::arg("value"), py::arg("mask") = 0,
+           py::arg("timeout_usec") = 1000)
       .def("poll64", shared_buffer_poll<uint64_t>,
            "Poll for a 64-bit value being set at given offset",
-           py::arg("offset"), py::arg("value"), py::arg("timeout_usec") = 1000)
+           py::arg("offset"), py::arg("value"), py::arg("mask"),
+           py::arg("timeout_usec") = 1000)
       .def("compare", &shared_buffer::compare, shared_buffer_doc_compare())
       .def("copy", shared_buffer_copy, shared_buffer_doc_copy(),
            py::arg("other"), py::arg("size") = 0)

@@ -51,7 +51,7 @@ class diagtest(object):
     DSM_ADDR = 0x0110
     STATUS2 = 0x0170
     DSM_COMPLETE = 0x40
-    DSM_TIMEOUT = 1.0
+    DSM_TIMEOUT_USEC = 10000
     MODE_LPBK1 = "lpbk1"
     MODE_READ = "read"
     MODE_WRITE = "write"
@@ -177,8 +177,10 @@ class diagtest(object):
                             choices=self.wf_chsel.keys(),
                             type=self.wf_chsel,
                             help="auto")
-        parser.add_argument("--dsm-timeout-usec",
-                            type=int, help="Timeout for test completion")
+        parser.add_argument(
+            "--dsm-timeout-usec",
+            type=int,
+            help="Timeout for test completion")
         parser.add_argument(
             "--timeout-usec", type=int, default=0,
             help="Timeout for continuous mode (microseconds portion)")
@@ -211,7 +213,7 @@ class diagtest(object):
                             help="Show stas at end")
         parser.add_argument(
             "--mem-timeout", default=0.5, type=float,
-            help="seconds to wait before timeing out on memory poll")
+            help="seconds to wait before timing out on memory poll")
 
     def setup(self):
         """setup is called to validate arguments and will return True
@@ -231,8 +233,12 @@ class diagtest(object):
            and to perform any other test configuration steps before the test
            starts"""
         args = self.args
+
         if self.args.target == 'ase':
-            self.DSM_TIMEOUT = 10.0
+            self.DSM_TIMEOUT_USEC = 10000000
+
+        if args.dsm_timeout_usec:
+            self.DSM_TIMEOUT_USEC = args.dsm_timeout_usec
 
         self.cfg["mode"] = int(self.modes(args.mode))
 
@@ -402,12 +408,10 @@ class diagtest(object):
         pass
 
     def wait_for_dsm(self, dsm):
-        begin = time.time()
-        while dsm[self.DSM_COMPLETE] & 0x1 == 0:
-            if time.time() - begin > self.DSM_TIMEOUT:
-                self.logger.error("Timeout waiting for DSM")
-                return False
-            time.sleep(0.001)
+        if not dsm.poll(self.DSM_COMPLETE, 0x1, mask=0x1,
+                        timeout=self.DSM_TIMEOUT_USEC):
+            self.logger.error("Timeout waiting for DSM")
+            return False
         return True
 
     def display_stats(self, cachelines, dsm, cache, fabric):

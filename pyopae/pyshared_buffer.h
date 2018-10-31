@@ -71,12 +71,17 @@ std::vector<opae::fpga::types::shared_buffer::ptr_t> shared_buffer_split(
 
 template <typename T>
 bool shared_buffer_poll(opae::fpga::types::shared_buffer::ptr_t self,
-                        size_t offset, T value, uint64_t timeout_usec = 1000) {
+                        size_t offset, T value, T mask = 0,
+                        uint64_t timeout_usec = 1000) {
   using hrc = std::chrono::high_resolution_clock;
   auto ptr = self->c_type();
   auto begin = hrc::now();
   std::chrono::microseconds timeout(timeout_usec);
-  while (*reinterpret_cast<volatile T *>(ptr + offset) != value) {
+  if (!mask) {
+    mask = ~mask;
+  }
+
+  while ((*reinterpret_cast<volatile T *>(ptr + offset) & mask) != value) {
     if (std::chrono::duration_cast<std::chrono::microseconds>(
             hrc::now() - begin) >= timeout) {
       return false;
