@@ -221,8 +221,8 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 	uint64_t value_offset                 = 0;
 	uint64_t group_offset                 = 0;
 
-	memset(&group_csr, 0, sizeof(group_csr));
-	memset(&metric_csr, 0, sizeof(metric_csr));
+	memset_s(&group_csr, 0, sizeof(group_csr));
+	memset_s(&metric_csr, 0, sizeof(metric_csr));
 
 	if (handle == NULL ||
 		vector == NULL ||
