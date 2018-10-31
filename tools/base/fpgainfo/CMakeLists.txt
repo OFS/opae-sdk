@@ -34,7 +34,9 @@ add_executable(fpgainfo main.c
 			  bmcdata.c
 			  powerinfo.c
 			  tempinfo.c
-			  portinfo.c)
+			  portinfo.c
+			  phyinfo.c
+			  macinfo.c)
 
 set_install_rpath(fpgainfo)
 target_link_libraries(fpgainfo opae-c argsfilter bmc)
@@ -49,7 +51,9 @@ add_library(fpgainfo-static
     bmcdata.c
     powerinfo.c
     tempinfo.c
-    portinfo.c)
+    portinfo.c
+    phyinfo.c
+    macinfo.c)
 set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
 target_link_libraries(fpgainfo-static opae-c argsfilter)
 

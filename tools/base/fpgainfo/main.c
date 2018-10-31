@@ -50,6 +50,8 @@
 #include "tempinfo.h"
 #include "powerinfo.h"
 #include "bmcdata.h"
+#include "phyinfo.h"
+#include "macinfo.h"
 
 void help(void);
 
@@ -89,6 +91,14 @@ static struct command_handler {
 	 .filter = bmc_filter,
 	 .run = bmc_command,
 	 .help = bmc_help},
+	{.command = "phy",
+	 .filter = phy_filter,
+	 .run = phy_command,
+	 .help = phy_help},
+	{.command = "mac",
+	 .filter = mac_filter,
+	 .run = mac_command,
+	 .help = mac_help},
 };
 
 /*
