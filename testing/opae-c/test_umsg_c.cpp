@@ -128,16 +128,15 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
+    filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
+                            &num_matches_), FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_port_info);
@@ -164,7 +163,6 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
   fpga_handle accel_;
   test_platform platform_;
   uint32_t num_matches_;
-  test_device invalid_device_;
   test_system *system_;
 };
 
@@ -194,6 +192,13 @@ TEST_P(umsg_c_p, set_attr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
 }
 
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
+
+class umsg_c_mock_p: public umsg_c_p{
+  protected:
+    umsg_c_mock_p() {};
+};
 /**
  * @test       trigger
  * @brief      Test: fpgaTriggerUmsg
@@ -201,7 +206,7 @@ TEST_P(umsg_c_p, set_attr) {
  *             fpgaTriggerUmsg is called with a valid value,<br>
  *             then the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_p, DISABLED_trigger) {
+TEST_P(umsg_c_mock_p, trigger) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
@@ -216,7 +221,7 @@ TEST_P(umsg_c_p, DISABLED_trigger) {
  *             fpgaGetUmsgPtr is called with a valid value,<br>
  *             then the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_p, get_ptr) {
+TEST_P(umsg_c_mock_p, get_ptr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   uint64_t *umsg_ptr = nullptr;
@@ -226,4 +231,6 @@ TEST_P(umsg_c_p, get_ptr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, 
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+
