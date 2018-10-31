@@ -656,14 +656,14 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 		if (details.type == BMC_THERMAL) {
 
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
-			snprintf(group_name, sizeof(group_name), "%s", THERLGMT);
-			snprintf(units, sizeof(units), "%s", TEMP);
+			snprintf_s_s(group_name, sizeof(group_name), "%s", THERLGMT);
+			snprintf_s_s(units, sizeof(units), "%s", TEMP);
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", THERLGMT, details.name);
 
 		} else if (details.type == BMC_POWER) {
 
 			metric_type = FPGA_METRIC_TYPE_POWER;
-			snprintf(group_name, sizeof(group_name), "%s", PWRMGMT);
+			snprintf_s_s(group_name, sizeof(group_name), "%s", PWRMGMT);
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PWRMGMT, details.name);
 			snprintf(units, sizeof(units), "%ls", details.units);
 		} else {
@@ -940,6 +940,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 	uint32_t x                          = 0;
 	uint32_t is_valid                   = 0;
 	double tmp                          = 0;
+	int metric_indicator                = 0;
 	bmc_sdr_handle records;
 	bmc_values_handle values;
 	sdr_details details;
@@ -950,11 +951,15 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 
 		for (x = 0; x < _handle->num_bmc_metric; x++) {
 
-			if (strcasecmp(_handle->_bmc_metric_cache_value[x].metric_name, _fpga_enum_metric->metric_name) == 0) {
-			fpga_metric->value.dvalue = _handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue;
+			strcasecmp_s(_handle->_bmc_metric_cache_value[x].metric_name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name),
+				_fpga_enum_metric->metric_name, &metric_indicator);
+
+			if (metric_indicator == 0) {
+				fpga_metric->value.dvalue = _handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue;
+				return result;
 			}
 		}
-		return result;
+		return FPGA_NOT_FOUND;
 	}
 
 	result = xfpga_bmcLoadSDRs(_handle, &records, &num_sensors);
@@ -996,7 +1001,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 			continue;
 		}
 
-		snprintf(_handle->_bmc_metric_cache_value[x].metric_name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name), "%s", details.name);
+		snprintf_s_s(_handle->_bmc_metric_cache_value[x].metric_name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name), "%s", details.name);
 		_handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue = tmp;
 
 	}

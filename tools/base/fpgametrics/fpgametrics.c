@@ -169,19 +169,23 @@ struct bdf_info {
 };
 
 fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
-	fpga_result res = FPGA_OK;
+	fpga_result res    = FPGA_OK;
+	fpga_result resval = FPGA_OK;
 	fpga_properties props;
+
 	res = fpgaGetProperties(tok, &props);
 	ON_ERR_GOTO(res, out, "reading properties from Token");
 
 	res = fpgaPropertiesGetBus(props, &finfo->bus);
 	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
 
-out_destroy: 
+out_destroy:
+	resval = (res != FPGA_OK) ? res : resval;
 	res = fpgaDestroyProperties(&props);
 	ON_ERR_GOTO(res, out, "fpgaDestroyProps");
 out:
-	return res;
+	resval = (res != FPGA_OK) ? res : resval;
+	return resval;
 }
 
 void print_bus_info(struct bdf_info *info){
@@ -196,17 +200,17 @@ int main(int argc, char *argv[])
 	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_token         fpga_token;
 	fpga_handle        fpga_handle;
-	uint32_t           num_matches_fpgas = 0;
- 	uint64_t           num_metrics = 0;
-	fpga_result     res = FPGA_OK;
-	struct bdf_info info;
-	uint64_t *id_array = NULL;
-	uint64_t i = 0;
-	struct fpga_metric_info  *metric_info = NULL;
-	struct fpga_metric  *metric_array = NULL;
 
-
-  fpga_properties filter = NULL;
+	uint32_t num_matches_fpgas                 = 0;
+	uint64_t num_metrics                       = 0;
+	fpga_result resval                         = FPGA_OK;
+	fpga_result res                            = FPGA_OK;
+	struct bdf_info info                       = { 0 };
+	uint64_t *id_array                         = NULL;
+	uint64_t i                                 = 0;
+	struct fpga_metric_info  *metric_info      = NULL;
+	struct fpga_metric  *metric_array          = NULL;
+	fpga_properties filter                     = NULL;
 
 	/* Print version information of the underlying library */
 	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
@@ -255,7 +259,7 @@ int main(int argc, char *argv[])
 	if (num_matches_fpgas > 1) {
 		fprintf(stderr, "Found more than one suitable fpga. ");
 		res = get_bus_info(fpga_token, &info);
-		ON_ERR_GOTO(res, out_exit, "getting bus num");
+		ON_ERR_GOTO(res, out_destroy_tok, "getting bus num");
 		printf("Running on bus 0x%02X. \n", info.bus);
 	}
 
@@ -272,6 +276,7 @@ int main(int argc, char *argv[])
 	metric_info = calloc(sizeof(struct fpga_metric_info), num_metrics);
 	if (metric_info == NULL) {
 		printf(" Failed to allocate memroy \n");
+		res = FPGA_NO_MEMORY;
 		goto out_close;
 	}
 
@@ -281,6 +286,7 @@ int main(int argc, char *argv[])
 	id_array = calloc(sizeof(uint64_t), num_metrics);
 	if (id_array == NULL) {
 		printf(" Failed to allocate memroy \n");
+		res = FPGA_NO_MEMORY;
 		goto out_close;
 	}
 
@@ -303,6 +309,7 @@ int main(int argc, char *argv[])
 	metric_array = calloc(sizeof(struct fpga_metric), num_metrics);
 	if (metric_array == NULL) {
 		printf(" Failed to allocate memroy \n");
+		res = FPGA_NO_MEMORY;
 		goto out_close;
 	}
 
@@ -342,6 +349,7 @@ int main(int argc, char *argv[])
 
 	/* Release fpga */
 out_close:
+	resval = (res != FPGA_OK) ? res : resval;
 	if (metric_array)
 		free(metric_array);
 
@@ -356,13 +364,17 @@ out_close:
 
 	/* Destroy token */
 out_destroy_tok:
+	resval = (res != FPGA_OK) ? res : resval;
 	res = fpgaDestroyToken(&fpga_token);
-	ON_ERR_GOTO(res, out_exit, "destroying token");
+	ON_ERR_GOTO(res, out_destroy, "destroying token");
 
+	/* Destroy Properties */
 out_destroy:
+	resval = (res != FPGA_OK) ? res : resval;
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out_exit, "destroying properties object");
  
 out_exit:
-	return (res == FPGA_OK) ? 0 : 1;
+	resval = (res != FPGA_OK) ? res : resval;
+	return (resval == FPGA_OK) ? 0 : 1;
 }
