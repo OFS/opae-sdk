@@ -519,7 +519,7 @@ endif
 
 ## VCS base Quartus Verilog libraries
 $(WORK)/synopsys_sim_quartus_verilog.setup:
-	mkdir -p $(WORK)
+	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
 	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language verilog -gen_only -cmd_file quartus_vcs_verilog.sh; chmod a+x quartus_vcs_verilog.sh; cd -
@@ -532,7 +532,7 @@ endif
 
 ## Questasim base Quartus Verilog libraries
 $(WORK)/quartus_msim_verilog_libs:
-	mkdir -p $(WORK)
+	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
 	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool modelsim -language verilog -gen_only -cmd_file quartus_msim_verilog.do; cd -
@@ -548,6 +548,7 @@ endif
 $(WORK)/synopsys_sim_quartus_vhdl.setup: $(WORK)/synopsys_sim_quartus_verilog.setup
 ifdef DUT_VHD_SRC_LIST
   ifeq ($(GLS_SIM), 1)
+	mkdir -p $(WORK)/vhdl_libs
 	@# Generate the Quartus family-dependent simulation library list
 	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language vhdl -gen_only -cmd_file quartus_vcs_vhdl.sh; chmod a+x quartus_vcs_vhdl.sh; cd -
 	@# Compile the libraries
