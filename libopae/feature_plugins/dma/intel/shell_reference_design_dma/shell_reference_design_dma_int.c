@@ -204,8 +204,8 @@ fpga_result isrd_free_ch(isrd_ch_t *ch)
 	fpga_result res;
 	uint32_t val;
 
-	if (ch == NULL) {
-		FPGA_MSG("channel is NULL");
+	if (ch == NULL || ch->fpga_h == NULL) {
+		FPGA_MSG("channel or fpga_h is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -230,14 +230,14 @@ out:
 	return res;
 }
 
-
+/* Call this function with mutex lock */
 fpga_result isrd_reset_ch(isrd_ch_t *ch)
 {
 	fpga_result res;
 	uint32_t val, timeout = 100000;
 
-	if (ch == NULL) {
-		FPGA_MSG("channel is NULL");
+	if (ch == NULL || ch->fpga_h == NULL) {
+		FPGA_MSG("channel or handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -246,16 +246,20 @@ fpga_result isrd_reset_ch(isrd_ch_t *ch)
 		ISRD_CH_MEMBER_OFFSET(ch, reset) , RESET_RST);
 	ON_ERR_GOTO(res, out, "writing reset faild");
 
-	do {
+	while(true) {
 		res = fpgaReadMMIO32(ch->fpga_h, ch->mmio_num,
 			ISRD_CH_MEMBER_OFFSET(ch, reset), &val);
 		ON_ERR_GOTO(res, out, "reading  reset faild");
+
+		if (!(val & RESET_RST))
+			break;
+
 		usleep(100);
 		if (--timeout == 0) {
 			res = FPGA_EXCEPTION;
 			ON_ERR_GOTO(res, out, "reset timed out");
 		}
-	} while (val);
+	}
 
 	return FPGA_OK;
 

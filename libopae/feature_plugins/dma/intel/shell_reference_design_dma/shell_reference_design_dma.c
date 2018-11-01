@@ -68,16 +68,23 @@ fpga_result fpgaFeatureOpen(struct _fpga_feature_token *token,
 	/* Initialize Tx channels */
 	for (i = 0; i < isrd_handle->channel_number; i++) {
 		res = isrd_init_ch(i, isrd_handle, HOST_MM_TO_FPGA_ST, DEFAULT_TX_PD_RING_SIZE);
-		ON_ERR_GOTO(res, out, "Failed to init Tx ch");
+		ON_ERR_GOTO(res, out_free_tx_ch, "Failed to init Tx ch");
 	}
 
 
 	return  FPGA_OK;
 
+
+out_free_tx_ch:
+	for (j = 0; j < i; j++) {
+		isrd_free_ch(isrd_handle->tx_channels[j]);
+	}
+	i = isrd_handle->channel_number;
 out_free_rx_ch:
 	for (j = 0; j < i; j++) {
-		isrd_free_ch(j, isrd_handle);
+		isrd_free_ch(isrd_handle->rx_channels[j]);
 	}
+
 	free(isrd_handle);
 	return res;
 }
