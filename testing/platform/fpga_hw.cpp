@@ -31,6 +31,10 @@
 #include <iostream>
 #include <fstream>
 #include "test_utils.h"
+#include <glob.h>
+#include "safe_string/safe_string.h"
+#include <iomanip>
+#include <sstream>
 
 namespace opae {
 namespace testing {
@@ -241,6 +245,56 @@ static T parse_file(const std::string &path) {
   return value;
 }
 
+static std::string make_path(int seg, int bus, int dev, int func){
+    std::stringstream num;
+    num << std::setw(2) << std::hex << bus; 
+    std::string b (num.str());
+    num.clear();
+    num.str(std::string());
+
+    num << std::setw(4) << std::setfill('0') << seg;
+    std::string s (num.str());
+
+    num.clear();
+    num.str(std::string());
+    num << std::setw(2) << std::setfill('0') << dev;
+    std::string d (num.str());
+
+    std::string device_string = s + ":" + b + ":" + d + "." + std::to_string(func);
+    return device_string;
+}
+
+static uint16_t read_socket_id(const std::string devices) {
+  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
+  std::string socket_path;
+
+  std::cout << "This is the glob path: " << glob_path << std::endl;
+  glob_t glob_buf;
+  glob_buf.gl_pathc = 0;
+  glob_buf.gl_pathv = NULL;
+  int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
+  if (!globres){
+    std::cout << "Glob count. " << glob_buf.gl_pathc << std::endl;
+    if (glob_buf.gl_pathc > 1) {
+        std::cerr << std::string("Ambiguous object key - using first one") << "\n";
+    }
+    if (strncpy_s(const_cast<char*>(socket_path.c_str()), 256, glob_buf.gl_pathv[0], 256)){
+        std::cerr << std::string("Could not copy globbed path.") << "\n";
+    }
+    globfree(&glob_buf);
+  }
+
+  struct stat st;
+  if (stat(socket_path.c_str(), &st)) {
+    std::cout << "Failed to get file stat." << std::endl;
+    std::cout << socket_path << std::endl;
+    return -1;
+  }
+
+  std::cout << socket_path << std::endl;
+  return parse_file<uint8_t>(socket_path);
+}
+
 static uint16_t read_device_id(const std::string &pci_dir) {
   std::string device_path = pci_dir + "/device";
   struct stat st;
@@ -324,7 +378,6 @@ const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([
 test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
   test_device dev = MOCK_PLATFORMS[platform].devices[0];
   auto r = regex<>::create(PCI_DEV_PATTERN);
-
   auto m = r->match(pci_path);
   if (m) {
     dev.segment = std::stoi(m->group(1), nullptr, 16);
@@ -333,6 +386,10 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.function = std::stoi(m->group(4), nullptr, 10);
     dev.vendor_id = ven_id;
     dev.device_id = dev_id;
+
+    std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
+    auto sock_id = read_socket_id(device_string);
+    dev.socket_id = sock_id;
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }

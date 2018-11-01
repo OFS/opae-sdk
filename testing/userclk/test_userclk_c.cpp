@@ -354,9 +354,10 @@ TEST_P(userclk_c_hw_p, main3) {
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  //if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  //else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  //else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-H");
   strcpy(twelve, "400");
 
@@ -399,9 +400,10 @@ TEST_P(userclk_c_hw_p, main4) {
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  //if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  //else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  //else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-L");
   strcpy(twelve, "200");
 
@@ -446,9 +448,10 @@ TEST_P(userclk_c_hw_p, main5) {
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  //if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  //else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  //else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-H");
   strcpy(twelve, "300");
   strcpy(thirteen, "-L");
@@ -491,9 +494,10 @@ TEST_P(userclk_c_hw_p, main6) {
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  //if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  //else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  //else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
