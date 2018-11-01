@@ -55,7 +55,7 @@ static int ase_pt_length_to_level(uint64_t length);
 static uint64_t ase_pt_level_to_bit_idx(int pt_level);
 static void ase_pt_delete_tree(uint64_t **pt, int pt_level);
 static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
-static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level);
+static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level);
 static int ase_pt_unpin_page(uint64_t iova, int pt_level);
 
 
@@ -72,9 +72,9 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 	if (pt_level == -1)
 		return -1;
 
-	int status = ase_pt_pin_page(va, iova, pt_level);
+	int status = ase_pt_pin_page((uint64_t)va, iova, pt_level);
 	if (status == 0) {
-		note_pinned_page(va, *iova, length);
+		note_pinned_page((uint64_t)va, *iova, length);
 	}
 
 	pthread_mutex_unlock(&ase_pt_lock);
@@ -109,7 +109,7 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 /*
  * Translate to simulated physical address space.
  */
-uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
+uint64_t ase_host_memory_va_to_pa(uint64_t va, uint64_t length)
 {
 	// We use a simple transformation to generate a fake physical space, merely
 	// inverting bits of the page address. Inverting these bits forces AFUs to
@@ -118,14 +118,14 @@ uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
 
 	// Confirm that the top virtual bits are 0. They should be non-zero only
 	// for kernel addresses.  This simulation is user space.
-	if ((uint64_t) va >> 48) {
+	if (va >> 48) {
 		ASE_ERR("Unexpected virtual address (0x" PRIx64 "), high bits set!", va);
 		raise(SIGABRT);
 	}
 
 	int pt_level = ase_pt_length_to_level(length);
 	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return (uint64_t) va ^ mask;
+	return va ^ mask;
 }
 
 /*
@@ -134,7 +134,7 @@ uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
  * "lock" must call ase_host_memory_unlock() or subsequent calls to
  * ase_host_memory functions will deadlock.
  */
-void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
+uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 {
 	// The inverse of ase_host_memory_va_to_pa.
 	if (pa >> 48) {
@@ -154,11 +154,11 @@ void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 	}
 
 	if (!found_addr) {
-		return NULL;
+		return 0;
 	}
 
 	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return (void *) (pa ^ mask);
+	return pa ^ mask;
 }
 
 
@@ -357,14 +357,14 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	return false;
 }
 
-static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
+static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 {
 	assert((pt_level >= 0) && (pt_level < 3));
 
 	// Virtual to physical mapping is just an XOR
 	*iova = ase_host_memory_va_to_pa(va, 4096 * (1UL << (9 * pt_level)));
 
-	ASE_MSG("Add pinned page VA %p, IOVA 0x%" PRIx64 ", level %d\n", va, *iova, pt_level);
+	ASE_MSG("Add pinned page VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 ", level %d\n", va, *iova, pt_level);
 
 	int idx;
 	int level = 3;
@@ -424,7 +424,7 @@ static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
 	}
 
 	if (ase_pt_enable_debug) {
-		printf("\nASE simulated page table (pinned VA %p, IOVA 0x%" PRIx64 "):\n",
+		printf("\nASE simulated page table (pinned VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 "):\n",
 		       va, *iova);
 		ase_pt_dump(ase_pt_root, 0, 3);
 		printf("\n");

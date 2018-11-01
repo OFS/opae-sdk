@@ -44,29 +44,29 @@
 
 //
 // Requests types that may be sent from simulator to application.
+// We define these as const uint64_t instead of enum for alignment
+// when passing between 32 bit simulators and 64 bit applications.
 //
-typedef enum {
-	HOST_MEM_REQ_READ_LINE,
-	HOST_MEM_REQ_WRITE_LINE
-} ase_host_memory_req;
+#define HOST_MEM_REQ_READ_LINE 0
+#define HOST_MEM_REQ_WRITE_LINE 1
+typedef uint64_t ase_host_memory_req;
 
-typedef enum {
-	HOST_MEM_STATUS_VALID,
-	// Reference to illegal address
-	HOST_MEM_STATUS_ILLEGAL,
-	// Reference to address that isn't pinned for I/O
-	HOST_MEM_STATUS_NOT_PINNED,
-	// Address is pinned but the page is unmapped. This state most likely
-	// happens when the program unmaps a page that is still pinned.
-	HOST_MEM_STATUS_NOT_MAPPED
-} ase_host_memory_status;
+#define HOST_MEM_STATUS_VALID 0
+// Reference to illegal address
+#define HOST_MEM_STATUS_ILLEGAL 1
+// Reference to address that isn't pinned for I/O
+#define HOST_MEM_STATUS_NOT_PINNED 2
+// Address is pinned but the page is unmapped. This state most likely
+// happens when the program unmaps a page that is still pinned.
+#define HOST_MEM_STATUS_NOT_MAPPED 3
+typedef uint64_t ase_host_memory_status;
 
 //
 // Read request, simulator to application.
 //
 typedef struct {
-	ase_host_memory_req req;
 	uint64_t addr;
+	ase_host_memory_req req;
 } ase_host_memory_read_req;
 
 //
@@ -77,8 +77,9 @@ typedef struct {
 
 	// Simulated host physical address
 	uint64_t pa;
-	// Virtual address in application space
-	void *va;
+	// Virtual address in application space.  We store this as
+	// a uint64_t so the size is consistent even in 32 bit simulators.
+	uint64_t va;
 
 	// Does the response hold valid data?
 	ase_host_memory_status status;
@@ -88,9 +89,9 @@ typedef struct {
 // Write request, simulator to application.
 //
 typedef struct {
-	ase_host_memory_req req;
 	uint64_t addr;
 	uint8_t data[CL_BYTE_WIDTH];
+	ase_host_memory_req req;
 } ase_host_memory_write_req;
 
 //
@@ -99,8 +100,9 @@ typedef struct {
 typedef struct {
 	// Simulated host physical address
 	uint64_t pa;
-	// Virtual address in application space
-	void *va;
+	// Virtual address in application space.  We store this as
+	// a uint64_t so the size is consistent even in 32 bit simulators.
+	uint64_t va;
 
 	// Was the request to a valid address?
 	ase_host_memory_status status;
@@ -116,7 +118,7 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length);
 int ase_host_memory_unpin(uint64_t iova, uint64_t length);
 
 // Translate to simulated physical address space.
-uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length);
+uint64_t ase_host_memory_va_to_pa(uint64_t va, uint64_t length);
 
 // Translate from simulated physical address space.  By setting "lock"
 // in the request, the internal page table lock is not released on
@@ -124,7 +126,7 @@ uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length);
 // in the table long enough to access the data to which pa points.
 // Callers using "lock" must call ase_host_memory_unlock() to
 // release the page table lock and avoid deadlocks.
-void *ase_host_memory_pa_to_va(uint64_t pa, bool lock);
+uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock);
 void ase_host_memory_unlock(void);
 
 // Initialize/terminate page address translation.

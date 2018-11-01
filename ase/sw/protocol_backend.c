@@ -228,7 +228,7 @@ void sv2c_script_dex(const char *str)
  */
 static void memline_addr_error(const char *access_type,
 			       ase_host_memory_status status,
-			       uint64_t pa, void *va)
+			       uint64_t pa, uint64_t va)
 {
 	FUNC_CALL_ENTRY;
 
@@ -259,7 +259,7 @@ static void memline_addr_error(const char *access_type,
 		"        Simulation cannot continue, please check the code.\n" \
 		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
 		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
-		"                    line-level virtual_addr = %p\n" \
+		"                    line-level virtual_addr = 0x%" PRIx64 "\n" \
 		"        See ERROR log file ase_memory_error.log and timestamped\n" \
 		"        transactions in ccip_transactions.tsv.\n" \
 		"@ERROR: This most often happens when the application munmaps or frees\n" \
@@ -398,7 +398,6 @@ void rd_memline_req_dex(cci_pkt *pkt)
 
 	rd_req.req = HOST_MEM_REQ_READ_LINE;
 	rd_req.addr = phys_addr;
-
 	mqueue_send(sim2app_membus_rd_req_tx, (char *) &rd_req, sizeof(rd_req));
 
 	FUNC_CALL_EXIT;

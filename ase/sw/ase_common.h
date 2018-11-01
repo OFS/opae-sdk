@@ -496,7 +496,7 @@ extern "C" {
 	void send_simkill(int);
 	void send_swreset(void);
 	// Note pinned/unpinned pages
-	void note_pinned_page(void *, uint64_t, uint64_t);
+	void note_pinned_page(uint64_t, uint64_t, uint64_t);
 	void note_unpinned_page(uint64_t, uint64_t);
 	// Shared memory alloc/dealloc operations
 	void allocate_buffer(struct buffer_t *, uint64_t *);

@@ -1152,13 +1152,13 @@ void shm_error(const char *msg)
 /*
  * Note pinned pages. This is used only for logging in the simulator.
  */
-void note_pinned_page(void *va, uint64_t iova, uint64_t length)
+void note_pinned_page(uint64_t va, uint64_t iova, uint64_t length)
 {
 	struct buffer_t mem;
 	ase_memset(&mem, 0, sizeof(mem));
 	mem.is_pinned = true;
 	mem.valid = true;
-	mem.vbase = (uint64_t) va;
+	mem.vbase = va;
 	mem.fake_paddr = iova;
 	mem.memsize = length;
 
@@ -1266,7 +1266,7 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 #endif
 
 	// Assign a simulated physical address
-	mem->fake_paddr = ase_host_memory_va_to_pa((void *)mem->vbase, mem->memsize);
+	mem->fake_paddr = ase_host_memory_va_to_pa(mem->vbase, mem->memsize);
 
 	// Autogenerate buffer index
 	mem->index = asebuf_index_count;
@@ -1623,7 +1623,7 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
-static ase_host_memory_status membus_op_status(void *va, uint64_t pa)
+static ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
 {
 	ase_host_memory_status st;
 
@@ -1636,7 +1636,7 @@ static ase_host_memory_status membus_op_status(void *va, uint64_t pa)
 	if (pa & 0x3f) {
 		// Not line-aligned address
 		st = HOST_MEM_STATUS_ILLEGAL;
-	} else if (va == NULL) {
+	} else if (va == 0) {
 		st = HOST_MEM_STATUS_NOT_PINNED;
 	} else {
 		// We use mincore to detect whether the virtual address is mapped.
@@ -1649,7 +1649,7 @@ static ase_host_memory_status membus_op_status(void *va, uint64_t pa)
 		// location. The race is short and there isn't much we can do other
 		// than raise a SEGV.
 		unsigned char vec[8];
-		if (mincore((void *)((uint64_t)va & page_mask), CL_BYTE_WIDTH, vec)) {
+		if (mincore((void *)(va & page_mask), CL_BYTE_WIDTH, vec)) {
 			st = HOST_MEM_STATUS_NOT_MAPPED;
 		} else {
 			st = HOST_MEM_STATUS_VALID;
