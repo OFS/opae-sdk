@@ -175,6 +175,27 @@ TEST_P(err_inj_c_p, fpga_mock_errinj_03) {
 }
 
 /**
+* @test    fpga_mock_errinj_02
+* @brief   Tests:fpgaAssignPortToInterface
+* @details fpgaAssignPortToInterface Assign and Release port
+*          Then the return FPGA_OK 
+*/
+TEST_P(err_inj_c_p, fpga_mock_errinj_02) {
+  fpga_result res;
+   
+  res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
+
+  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
+  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
+  EXPECT_EQ(FPGA_OK, res);
+
+  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
+  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
+  EXPECT_EQ(FPGA_OK, res);
+}
+
+/**
  * @test       invalid_max_interface_num
  *
  * @brief      When the interface_num parameter to fpgaAssignPortToInterface
@@ -211,27 +232,6 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_01) {
   
   // Release buffer
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
-}
-
-/**
-* @test    fpga_mock_errinj_02
-* @brief   Tests:fpgaAssignPortToInterface
-* @details fpgaAssignPortToInterface Assign and Release port
-*          Then the return FPGA_OK 
-*/
-TEST_P(err_inj_c_mock_p, fpga_mock_errinj_02) {
-  fpga_result res;
-   
-  res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
-
-  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
-
-  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
 }
 
 /**
