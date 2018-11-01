@@ -91,26 +91,26 @@ out_free_rx_ch:
 }
 
 fpga_result fpgaDMATransferSync(fpga_feature_handle dma_handle,
-				   transfer_list *dma_xfer)
+				   transfer_list *dma_xfer_list)
 {
 	fpga_result res;
 	isrd_dma_t *isrd_handle = (isrd_dma_t *)dma_handle;
 
 	if (isrd_handle == NULL || isrd_handle->magic_num != ISRD_MAGIC_NUM ||
-	    dma_xfer == NULL ||dma_xfer->entries_num == 0 ||
-	    dma_xfer->array == NULL ||
-	    dma_xfer->ch_index >= isrd_handle->channel_number) {
+	    dma_xfer_list == NULL ||dma_xfer_list->entries_num == 0 ||
+	    dma_xfer_list->array == NULL ||
+	    dma_xfer_list->ch_index >= isrd_handle->channel_number) {
 		FPGA_MSG("Invalid param to xfer sync");
 		return FPGA_INVALID_PARAM;
 	}
-	switch (dma_xfer->type) {
+	switch (dma_xfer_list->type) {
 		case HOST_MM_TO_FPGA_ST:
-			res = isrd_xfer_tx_sync(&isrd_handle->tx_channels[dma_xfer->ch_index],
-						dma_xfer);
+			res = isrd_xfer_tx_sync(&isrd_handle->tx_channels[dma_xfer_list->ch_index],
+						dma_xfer_list);
 			break;
 		case FPGA_ST_TO_HOST_MM:
-			res = isrd_xfer_rx_sync(&isrd_handle->rx_channels[dma_xfer->ch_index],
-						dma_xfer);
+			res = isrd_xfer_rx_sync(&isrd_handle->rx_channels[dma_xfer_list->ch_index],
+						dma_xfer_list);
 			break;
 		default:
 			FPGA_MSG("Invalid xfer type");
@@ -122,7 +122,7 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_handle,
 
 
 fpga_result fpgaDMATransferAsync(fpga_feature_handle dma,
-				    transfer_list *dma_xfer,
+				    transfer_list *dma_xfer_list,
 				    fpga_dma_cb cb,
 				    void *context)
 {

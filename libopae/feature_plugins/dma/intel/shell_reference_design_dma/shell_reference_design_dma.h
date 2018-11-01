@@ -57,7 +57,6 @@ extern "C" {
 
 #define TWO_16B_INTO_32B (h, l) ((((h) & 0xFFFF) << 16 ) | ((l) & 0xFFFF))
 
-#define PD_BATCH_BEST_SIZE		11
 #define CTRL_EN				0x1
 #define INT_CTRL_EN			0x1
 #define INT_CTRL_ARM			0x2
