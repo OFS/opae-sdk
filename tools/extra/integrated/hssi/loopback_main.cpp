@@ -118,23 +118,28 @@ int main(int argc, char* argv[])
     }
 
     option_map::ptr_t filter(new option_map(opts));
+    option::ptr_t opt;
     opae::fpga::types::properties::ptr_t props =
 	    opae::fpga::types::properties::get();
 
     uint8_t bus = 0;
-    if (filter->get_value<uint8_t>("bus", bus)) {
+    opt = filter->find("bus");
+    if (opt && opt->is_set() && filter->get_value<uint8_t>("bus", bus)) {
         props->bus = bus;
     }
     uint8_t device = 0;
-    if (filter->get_value<uint8_t>("device", device)) {
+    opt = filter->find("device");
+    if (opt && opt->is_set() && filter->get_value<uint8_t>("device", device)) {
         props->device = device;
     }
     uint8_t function = 0;
-    if (filter->get_value<uint8_t>("function", function)) {
+    opt = filter->find("function");
+    if (opt && opt->is_set() && filter->get_value<uint8_t>("function", function)) {
         props->function = function;
     }
     uint8_t socket_id = 0;
-    if (filter->get_value<uint8_t>("socket-id", socket_id)) {
+    opt = filter->find("socket-id");
+    if (opt && opt->is_set() && filter->get_value<uint8_t>("socket-id", socket_id)) {
         props->socket_id = socket_id;
     }
 
