@@ -1544,12 +1544,11 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 {
 	fpga_result res = FPGA_OK;
 	uint32_t mmio_num = 0;
-	fpga_properties accel_prop;
+	//fpga_properties accel_prop;
 	uint64_t offset = 0;
 	fpga_guid guid;
 	struct _fpga_feature_token *_ftoken;
 	struct DFH dfh;
-	errno_t e;
 	int errors;
 	
 	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
@@ -1626,7 +1625,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
 				|| (uuid_is_null(prop->guid))) { 
 				if (*num_matches < max_tokens) {
-					fpga_feature_token tmp;
+					fpga_feature_token tmp = 0;
 					opae_feature_adapter_table * adapter;
 					
 					res = fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);

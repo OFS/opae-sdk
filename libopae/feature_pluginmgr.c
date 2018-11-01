@@ -285,7 +285,6 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 	uint64_t offset = 0;
 	fpga_guid guid;
 	struct DFH dfh;
-	int i = 0;
 	
 	res = fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (res != FPGA_OK) {

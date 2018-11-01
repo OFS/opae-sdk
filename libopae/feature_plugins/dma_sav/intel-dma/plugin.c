@@ -52,31 +52,40 @@ int __FPGA_API__ feature_finalize(void)
 fpga_result __FPGA_API__ feature_open(fpga_feature_token token, int flags,
 				   fpga_feature_handle *handle)
 {
-
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(flags); 
+	UNUSED_PARAM(handle); 
 	return FPGA_OK;
 }
 fpga_result __FPGA_API__ feature_close(fpga_feature_handle *_dma_h)
 {
-
+	UNUSED_PARAM(_dma_h); 
 	return FPGA_OK;
 }
 fpga_result __FPGA_API__ dma_propertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
 				int max_ch)
 {
-
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(max_ch);
 	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ dma_transferSync(fpga_feature_handle dma_handle,
 			transfer_list *dma_xfer)
 {
+	UNUSED_PARAM(dma_handle);
+	UNUSED_PARAM(dma_xfer);
 
 	return FPGA_OK;
 }
 fpga_result __FPGA_API__ dma_transferAsync(fpga_feature_handle dma,
 			transfer_list *dma_xfer, fpga_dma_cb cb, void *context)
 {
-
+	UNUSED_PARAM(dma);
+	UNUSED_PARAM(dma_xfer);
+	UNUSED_PARAM(cb);
+	UNUSED_PARAM(context);
 	return FPGA_OK;
 }
 
