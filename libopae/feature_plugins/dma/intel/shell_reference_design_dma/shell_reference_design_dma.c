@@ -71,6 +71,7 @@ fpga_result fpgaFeatureOpen(struct _fpga_feature_token *token,
 		ON_ERR_GOTO(res, out_free_tx_ch, "Failed to init Tx ch");
 	}
 
+	*handle = (fpga_feature_handle)isrd_handle;
 
 	return  FPGA_OK;
 
@@ -89,8 +90,48 @@ out_free_rx_ch:
 	return res;
 }
 
-fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
-		transfer_list *dma_xfer);
-fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
-		transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
-fpga_result (*fpgaFeatureClose)(fpga_feature_handle *_dma_h);
+fpga_result fpgaDMATransferSync(fpga_feature_handle dma_handle,
+				   transfer_list *dma_xfer)
+{
+	fpga_result res;
+	isrd_dma_t *isrd_handle = (isrd_dma_t *)dma_handle;
+
+	if (isrd_handle == NULL || isrd_handle->magic_num != ISRD_MAGIC_NUM ||
+	    dma_xfer == NULL ||dma_xfer->entries_num == 0 ||
+	    dma_xfer->array == NULL ||
+	    dma_xfer->ch_index >= isrd_handle->channel_number) {
+		FPGA_MSG("Invalid param to xfer sync");
+		return FPGA_INVALID_PARAM;
+	}
+	switch (dma_xfer->type) {
+		case HOST_MM_TO_FPGA_ST:
+			res = isrd_xfer_tx_sync(isrd_handle->tx_channels[dma_xfer->ch_index],
+						dma_xfer);
+			break;
+		case FPGA_ST_TO_HOST_MM:
+			res = isrd_xfer_rx_sync(isrd_handle->rx_channels[dma_xfer->ch_index],
+						dma_xfer);
+			break;
+		default:
+			FPGA_MSG("Invalid xfer type");
+			return FPGA_INVALID_PARAM;
+	}
+
+	return res;
+}
+
+
+fpga_result fpgaDMATransferAsync(fpga_feature_handle dma,
+				    transfer_list *dma_xfer,
+				    fpga_dma_cb cb,
+				    void *context)
+{
+		return FPGA_NOT_SUPPORTED;
+
+}
+
+fpga_result fpgaFeatureClose(fpga_feature_handle *_dma_h)
+{
+		return FPGA_NOT_SUPPORTED;
+
+}
