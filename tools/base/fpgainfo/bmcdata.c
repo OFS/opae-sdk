@@ -494,8 +494,10 @@ static void print_body(sdr_body *body, int level)
 				str3 = unit == 1 ? "/" : "*";
 			}
 
-			PRINT(level, "Modifier unit is %ls %s %ls ", wstr, str3,
-			      wstr2);
+                        if (str3) {
+                            PRINT(level, "Modifier unit is %ls %s %ls ", wstr, str3,
+                                  wstr2);
+                        }
 		}
 		PRINT(level, "Is%s a percentage",
 		      body->sensor_units_1.bits.percentage ? "" : " not");

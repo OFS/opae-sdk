@@ -177,7 +177,9 @@ int main()
 
 	res = bmcGetLastResetCause(token, &string);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy_token, "last reset cause");
-	printf("Last reset cause: '%s'\n", string);
+        if (string) {
+                printf("Last reset cause: '%s'\n", string);
+        }
 	free(string);
 
 	// Read in sensor data records

@@ -155,6 +155,9 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 	}
 
 	*records = (bmc_sdr_handle)calloc(1, sizeof(struct _sdr_rec));
+        if (!records) {
+            return FPGA_NO_MEMORY;
+        }
 	recs = (struct _sdr_rec *)*records;
 
 	recs->contents = tmp;
@@ -177,6 +180,8 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 {
 	fpga_result res = FPGA_OK;
 	struct _bmc_values *vals = NULL;
+	sensor_reading *tmp = NULL;
+	uint32_t tot_bytes;
 
 	NULL_CHECK(records);
 	struct _sdr_rec *sdr = (struct _sdr_rec *)records;
@@ -194,15 +199,12 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 		goto out;
 	}
 
-	sensor_reading *tmp = NULL;
-	uint32_t tot_bytes;
-
 	res = read_sysfs_file(sdr->token, SYSFS_SENSOR_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
-		if (tmp) {
-			free(tmp);
-		}
+	if (!tmp || FPGA_OK != res) {
+                if (tmp) {
+                    free(tmp);
+                }
 		goto out;
 	}
 
@@ -219,14 +221,20 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	*num_values = sdr->num_records;
 
 	*values = (bmc_values_handle)calloc(1, sizeof(struct _bmc_values));
-	vals = (struct _bmc_values *)*values;
+        if (!values) {
+            goto out;
+        }
 
-	vals->contents = tmp;
+	vals = (struct _bmc_values *)*values;
+        vals->contents = tmp;
 
 	vals->magic = BMC_VALUES_MAGIC;
 	vals->num_records = sdr->num_records;
 
 	vals->values = (Values **)calloc(sdr->num_records, sizeof(Values *));
+        if (!vals->values) {
+            goto out;
+        }
 
 	uint32_t i;
 	for (i = 0; i < sdr->num_records; i++) {
@@ -237,6 +245,9 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	}
 
 out:
+        if (tmp) {
+            free(tmp);
+        }
 	return res;
 }
 
@@ -309,6 +320,10 @@ fpga_result bmcThresholdsTripped(bmc_values_handle values,
 	*tripped = (tripped_thresholds *)calloc(num_tripd,
 						sizeof(tripped_thresholds));
 	tripped_thresholds *rets = *tripped;
+        if (!rets) {
+            return res;
+        }
+
 	int index = 0;
 
 	// Fill in the tripped structures
@@ -539,11 +554,11 @@ fpga_result bmcGetLastPowerdownCause(fpga_token token, char **cause)
 
 	res = read_sysfs_file(token, SYSFS_PWRDN_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
+	if (FPGA_OK != res || !tmp) {
 		goto out;
 	}
 
-	if (tmp->completion_code != 0) {
+	if (tmp && tmp->completion_code != 0) {
 		res = FPGA_NOT_FOUND;
 		goto out;
 	}
@@ -571,7 +586,7 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 
 	res = read_sysfs_file(token, SYSFS_RESET_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
+	if (FPGA_OK != res || !tmp) {
 		goto out;
 	}
 
