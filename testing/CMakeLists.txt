@@ -466,6 +466,11 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
         ${libjson-c_LIBRARIES})
 
+set_tests_properties(
+    test_xfpga_events_c
+    PROPERTIES TIMEOUT 70
+)
+
 ############################################################################
 # fpgad tests ##############################################################
 ############################################################################
