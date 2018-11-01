@@ -385,3 +385,31 @@ fpga_result __FPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsi
 	}
 	return result;
 }
+
+fpga_result fpgaGetWsidInfo(fpga_handle handle, uint64_t wsid,
+			    uint64_t *user_addr, uint64_t *ioaddr)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		FPGA_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+	} else {
+		*ioaddr = wm->phys;
+		*user_addr = wm->addr;
+	}
+
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
