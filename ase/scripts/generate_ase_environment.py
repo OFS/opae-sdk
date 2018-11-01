@@ -386,7 +386,8 @@ def config_qsys_sources(filelist, vlog_srcs):
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
             copied_qsys_dirs[src_dir] = tgt_dir
-            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            print("Preparing {0}:".format(q))
+            print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
                 shutil.copytree(src_dir, tgt_dir)
             except Exception:
@@ -409,7 +410,8 @@ def config_qsys_sources(filelist, vlog_srcs):
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
             copied_tcl_dirs[src_dir] = tgt_dir
-            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            print("Preparing {0}:".format(t))
+            print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
                 shutil.copytree(src_dir, tgt_dir)
             except Exception:
@@ -820,8 +822,15 @@ fd.close()
 # Scripts for multiple tools are written since the default tool
 # can be selected at build time.
 
-# Write Synopsys Setup file & TCL script
-open("synopsys_sim.setup", "w").write("WORK > DEFAULT\nDEFAULT : ./work\n")
+# Write Synopsys setup file & TCL script. Setup includes stub
+# files that will hold lists of Quartus simulation libraries
+# that will be populated by the ASE Makefile.
+with open("synopsys_sim.setup", "w") as fd:
+    fd.write("WORK > DEFAULT\n")
+    fd.write("DEFAULT : ./work\n")
+    fd.write("OTHERS = ./work/synopsys_sim_quartus_verilog.setup\n")
+    fd.write("OTHERS = ./work/synopsys_sim_quartus_vhdl.setup\n")
+
 open("vcs_run.tcl", "w").write('dump -depth 0 \ndump -aggregates -add /'
                                '\nrun \nquit\n')
 
