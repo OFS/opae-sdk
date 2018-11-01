@@ -42,6 +42,7 @@ extern "C" {
 #endif
 
 #define ISRD_MAGIC_NUM			0x1ECCA5AD
+#define ISRD_CH_MAGIC_NUM		0x7DEF18AA
 #define DEFAULT_CHANNEL_NUMBEER		8
 #define DEFAULT_TX_PD_RING_SIZE		1024
 #define DEFAULT_RX_PD_RING_SIZE		1024
@@ -82,6 +83,7 @@ typedef struct {
 	uint64_t		hw_ring_head_iova;
 	fpga_dma_transfer_type	ch_type;
 	pthread_mutex_t lock;
+	uint32_t	magic_num;
 } isrd_ch_t;
 
 
@@ -100,6 +102,17 @@ typedef struct {
 isrd_dma_t *isrd_init_dma_handle(struct _fpga_feature_token *token, void *priv_config);
 fpga_result isrd_init_ch(int ch_num, isrd_dma_t *isrd_handle,
 			 fpga_dma_transfer_type ch_type, int ring_size);
+fpga_result isrd_init_hw_ch(isrd_ch_t *ch);
+fpga_result isrd_free_ch(isrd_ch_t *ch);
+fpga_result isrd_reset_ch(isrd_ch_t *ch);
+fpga_result isrd_ch_check_and_lock(isrd_ch_t *ch);
+fpga_result isrd_xfer_tx_sync(isrd_ch_t *ch, transfer_list *dma_xfer);
+fpga_result isrd_xfer_rx_sync(isrd_ch_t *ch, transfer_list *dma_xfer);
+
+
+
+
+
 
 
 #ifdef __cplusplus

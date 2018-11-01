@@ -107,6 +107,7 @@ fpga_result isrd_init_ch(int ch_num, isrd_dma_t *isrd_handle,
 		goto out_attr_destroy;
 	}
 
+	ch->magic_num = ISRD_CH_MAGIC_NUM;
 	ch->fpga_h = isrd_handle->fpga_h;
 	ch->mmio_num = isrd_handle->mmio_num;
 	ch->pd_ring_size = ring_size;
@@ -129,6 +130,8 @@ fpga_result isrd_init_ch(int ch_num, isrd_dma_t *isrd_handle,
 out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
 out:
+	ch->magic_num = 0;
+	ch->fpga_h = NULL;
 	return res;
 }
 
@@ -222,6 +225,7 @@ fpga_result isrd_free_ch(isrd_ch_t *ch)
 	res = fpgaReleaseBuffer(ch->fpga_h, ch->pds_base_wsid);
 	FPGA_MSG("failed to release pds");
 	ch->fpga_h = NULL;
+	ch->magic_num = 0;
 	pthread_mutex_unlock(&ch->lock)
 	pthread_mutex_destroy(&ch->lock);
 
@@ -265,4 +269,37 @@ fpga_result isrd_reset_ch(isrd_ch_t *ch)
 
 out:
 	return res;
+}
+
+/*
+ * Check handle object for validity and lock its mutex
+ * If handle_check_and_lock() returns FPGA_OK, assume the mutex to be locked.
+ */
+fpga_result isrd_ch_check_and_lock(isrd_ch_t *ch)
+{
+	ASSERT_NOT_NULL(ch);
+
+	if (pthread_mutex_lock(&ch->lock)) {
+		FPGA_MSG("Failed to lock mutex");
+		return FPGA_EXCEPTION;
+	}
+
+
+	if (ch->magic_num != ISRD_CH_MAGIC_NUM) {
+		FPGA_MSG("Invalid handle object");
+		int err = pthread_mutex_unlock(&ch->lock);
+		if (err) {
+			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				 strerror(err));
+		}
+		return FPGA_INVALID_PARAM;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result isrd_xfer_tx_sync(isrd_ch_t *ch, transfer_list *dma_xfer)
+{
+	if ()
+
 }

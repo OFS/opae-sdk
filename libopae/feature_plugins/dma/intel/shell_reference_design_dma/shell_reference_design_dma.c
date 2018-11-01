@@ -105,11 +105,11 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_handle,
 	}
 	switch (dma_xfer->type) {
 		case HOST_MM_TO_FPGA_ST:
-			res = isrd_xfer_tx_sync(isrd_handle->tx_channels[dma_xfer->ch_index],
+			res = isrd_xfer_tx_sync(&isrd_handle->tx_channels[dma_xfer->ch_index],
 						dma_xfer);
 			break;
 		case FPGA_ST_TO_HOST_MM:
-			res = isrd_xfer_rx_sync(isrd_handle->rx_channels[dma_xfer->ch_index],
+			res = isrd_xfer_rx_sync(&isrd_handle->rx_channels[dma_xfer->ch_index],
 						dma_xfer);
 			break;
 		default:
