@@ -332,7 +332,7 @@ bool nlb0::setup()
         if ((nlb0_lo == feature_uuid_lo)&&(nlb0_hi == feature_uuid_hi)) {
             offset_ = offset;
             printf("found the NLB offset=0x%x\n", offset);
-            //break;
+            break;
         }
         offset += NEXT_DFH_OFFSET(dfh);
     } while (!DFH_EOL(dfh));

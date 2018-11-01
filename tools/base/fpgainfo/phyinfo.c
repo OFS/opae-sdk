@@ -119,7 +119,8 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 			return;
 		}
 		sz = read(fd, cdevid, CDEV_ID_SIZE);
-		cdevid[sz-1] = '\0';
+		if (sz > 0)
+			cdevid[sz-1] = '\0';
 		close(fd);
 
 		// Get information from PHY group char device
@@ -192,6 +193,8 @@ int parse_phy_args(int argc, char *argv[])
 
 		switch (getopt_ret) {
 		case 'G':
+            if (NULL == tmp_optarg)
+                break;
 			if (!strcmp("0", tmp_optarg)) {
 				phy_config.group_num = 0;
 			} else if (!strcmp("1", tmp_optarg)) {

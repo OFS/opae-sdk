@@ -35,6 +35,8 @@
 #include "bmcinfo.h"
 #include "safe_string/safe_string.h"
 
+#define PRINT_PKG_TEMP	// for Vista Creek
+
 /*
  * Print help
  */

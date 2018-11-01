@@ -94,7 +94,7 @@ struct config {
         int bus;
         int dma;
         uint64_t size;
-        char* guid;
+        char guid[48];
     } target;
 }
 config = {
@@ -102,7 +102,7 @@ config = {
         .bus = -1,
         .dma = 0,
         .size = TEST_TOTAL_SIZE,
-        .guid = HELLO_AFU_ID
+        .guid = {0}
     }
 };
 
@@ -122,6 +122,8 @@ fpga_result parse_args(int argc, char *argv[])
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
+
+	memcpy(config.target.guid, HELLO_AFU_ID, strlen(HELLO_AFU_ID));
 
 	while (-1
 	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
@@ -168,8 +170,8 @@ fpga_result parse_args(int argc, char *argv[])
             }
             break;
         case 'G':   /* AFU ID */
-            config.target.guid = (char *)malloc(36);
-            memcpy(config.target.guid, tmp_optarg, 36);
+            if (tmp_optarg)
+				memcpy(config.target.guid, tmp_optarg, 36);
             break;
 		case 'm':
 			use_malloc = true;
@@ -284,26 +286,35 @@ static inline void free_aligned(void *ptr)
 
 static inline void fill_buffer(char *buf, size_t size)
 {
+	char *data = NULL;
+
 	if (do_not_verify)
 		return;
 	size_t i = 0;
 
 	if (verify_buf_size < size) {
-		free(verify_buf);
+		if (verify_buf)
+			free(verify_buf);
 		verify_buf = (char *)malloc(size);
-		verify_buf_size = size;
-		char *buf = verify_buf;
+		if (NULL == verify_buf) {
+			verify_buf_size = 0;
+			data = buf;
+		} else {
+			verify_buf_size = size;
+			data = verify_buf;
+		}
 
 		// use a deterministic seed to generate pseudo-random numbers
 		srand(99);
 
 		for (i = 0; i < size; i++) {
-			*buf = rand() % 256;
-			buf++;
+			*data = rand() % 256;
+			data++;
 		}
 	}
 
-	memcpy(buf, verify_buf, size);
+	if (verify_buf)
+		memcpy(buf, verify_buf, size);
 }
 
 static inline fpga_result verify_buffer(char *buf, size_t size)
@@ -551,6 +562,7 @@ int main(int argc, char *argv[])
 	uint64_t *dma_buf_ptr = NULL;
 	uint32_t use_ase;
 	struct bus_info info;
+	fpga_properties props = NULL;
 
 	if (argc < 2) {
 		usage();
@@ -601,19 +613,18 @@ int main(int argc, char *argv[])
 	// Set up proper affinity if requested
 	if (cpu_affinity || memory_affinity) {
 		unsigned dom = 0, bus = 0, dev = 0, func = 0;
-		fpga_properties props;
 		int retval;
 #ifdef FPGA_DMA_DEBUG
 		char str[4096];
 #endif
 		res = fpgaGetProperties(afc_token, &props);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaGetProperties");
+		ON_ERR_GOTO(res, out_close, "fpgaGetProperties");
 		res = fpgaPropertiesGetBus(props, (uint8_t *)&bus);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetBus");
+		ON_ERR_GOTO(res, out_close, "fpgaPropertiesGetBus");
 		res = fpgaPropertiesGetDevice(props, (uint8_t *)&dev);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetDevice");
+		ON_ERR_GOTO(res, out_close, "fpgaPropertiesGetDevice");
 		res = fpgaPropertiesGetFunction(props, (uint8_t *)&func);
-		ON_ERR_GOTO(res, out_destroy_tok, "fpgaPropertiesGetFunction");
+		ON_ERR_GOTO(res, out_close, "fpgaPropertiesGetFunction");
 
 		// Find the device from the topology
 		hwloc_topology_t topology;
@@ -645,13 +656,13 @@ int main(int argc, char *argv[])
 				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
 				HWLOC_MEMBIND_MIGRATE);
 #endif
-			ON_ERR_GOTO(retval, out_destroy_tok,
+			ON_ERR_GOTO(retval, out_close,
 				    "hwloc_set_membind");
 		}
 		if (cpu_affinity) {
 			retval = hwloc_set_cpubind(topology, obj2->cpuset,
 						   HWLOC_CPUBIND_STRICT);
-			ON_ERR_GOTO(retval, out_destroy_tok,
+			ON_ERR_GOTO(retval, out_close,
 				    "hwloc_set_cpubind");
 		}
 	}
@@ -794,6 +805,8 @@ out_close:
 	ON_ERR_GOTO(res, out_destroy_tok, "fpgaClose");
 
 out_destroy_tok:
+	if (props)
+		fpgaDestroyProperties(&props);
 	res = fpgaDestroyToken(&afc_token);
 	ON_ERR_GOTO(res, out, "fpgaDestroyToken");
 

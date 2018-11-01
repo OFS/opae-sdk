@@ -104,6 +104,10 @@ static void print_mac_rom_info(fpga_properties props)
 	char addr[18];
 
 	// Open FME device directory
+	if (NULL == sysfspath) {
+		fprintf(stderr, "WARNING: sysfs path not found\n");
+		return;
+	}
 	if (0 != get_mac_rom_path(sysfspath, path, SYSFS_PATH_MAX)) {
 		fprintf(stderr, "WARNING: nvmem not found\n");
 		return;

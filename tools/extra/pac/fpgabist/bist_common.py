@@ -34,7 +34,7 @@ import sys
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
-VCP_ID = 0x0b30 # Vista Creek dev ID
+VCP_ID = 0x09c4 # TODO: update to Vista Creek dev ID if determinated
 
 def find_exec(cmd, paths):
     for p in paths:

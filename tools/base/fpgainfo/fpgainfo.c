@@ -107,7 +107,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		fpgainfo_print_err("reading objtype from properties", res);
 
 		if (pprops != props) {
-			res = fpgaDestroyProperties(pprops);
+			res = fpgaDestroyProperties(&pprops);
 			fpgainfo_print_err("destroying parent properties", res);
 			pprops = props;
 		}

@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
 
 	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
+		fpgaDestroyProperties(&filter);
 		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
 
@@ -246,6 +247,10 @@ int main(int argc, char *argv[])
 
 	num_tokens = matches;
 	tokens = (fpga_token *)malloc(num_tokens * sizeof(fpga_token));
+	if (NULL == tokens) {
+		fprintf(stderr, "tokens malloc failed.\n");
+		goto out_destroy;
+	}
 	res = fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "enumerating resources");
 	if (num_tokens != matches) {
@@ -261,6 +266,8 @@ int main(int argc, char *argv[])
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, 0);
 
 out_destroy:
+	if (tokens)
+		free(tokens);
 	if (res != FPGA_OK)
 		ret_value = EX_SOFTWARE;
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
