@@ -92,7 +92,8 @@ typedef struct {
 	uint64_t len; /**< Transactions  length */
 	uint64_t wsid; /**< wsid of the host memory if it was allocated with prepareBuffer */
 	void *meta_data; /**< stream - user meta data for the receiving IP */
-	uint64_t *meta_data_len; /**< stream - length of the meta data */
+	uint64_t meta_data_len; /**< stream - length of the meta data */
+	uint64_t meta_data_wsid; /**< stream - wsid of the meta data */
 	bool tx_eop; /**< Tx strean - indicate last buffer for the stream */
 	uint64_t *rx_len; /**< Rx stream - length of Rx data */
 	bool *rx_eop; /**< Rx stream - Set is end of packet was received */
