@@ -166,6 +166,35 @@ target_include_directories(userclk-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(argsfilter-static
+    ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
+    )
+
+target_include_directories(argsfilter-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(fpgainfo-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcdata.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/errors.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/fmeinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/fpgainfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/portinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/powerinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/tempinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/main.c
+    )
+
+target_compile_definitions(fpgainfo-static PRIVATE main=fpgainfo_main)
+
+target_include_directories(fpgainfo-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base/argsfilter
+  $<INSTALL_INTERFACE:include>)
+
 add_library(hello_fpga-static
     ${OPAE_SDK_SOURCE}/samples/hello_fpga.c
     )
@@ -537,6 +566,16 @@ add_unit_test(test_coreidle_main_c coreidle-static
 add_unit_test(test_userclk_c userclk-static
     userclk/test_userclk_c.cpp
 )
+
+############################################################################
+# fpgainfo tests ############################################################
+############################################################################
+
+add_unit_test(test_fpgainfo_c fpgainfo-static
+    fpgainfo/test_fpgainfo_c.cpp
+)
+target_link_libraries(test_fpgainfo_c argsfilter-static)
+
 
 ############################################################################
 # hello_fpga tests #########################################################
