@@ -37,6 +37,10 @@ fpga_result get_metrics(fpga_token token,
                         fpga_metric *metrics, 
                         uint64_t *num_metrics)
 {
+        if (!metrics_info || !metrics || !num_metrics) {
+            return FPGA_INVALID_PARAM;
+        }
+
         fpga_result res = FPGA_OK;
         fpga_result ret = FPGA_OK;
         fpga_handle handle;
@@ -110,16 +114,19 @@ void print_metrics(const fpga_metric_info *metrics_info,
 {
     for (uint64_t i = 0; i < num_metrics; ++i) {
         uint64_t idx = metrics[i].metric_num;
-        printf("%-29s : ", metrics_info[idx].metric_name);
+        
+        if (idx < num_metrics) {
+            printf("%-29s : ", metrics_info[idx].metric_name);
 
-        if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_INT) {
-            printf("%" PRId64 "", metrics[i].value.ivalue);
-        } else if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_FLOAT ||
-                metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_DOUBLE) {
-            printf("%0.2f", metrics[i].value.dvalue);
+            if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_INT) {
+                printf("%" PRId64 "", metrics[i].value.ivalue);
+            } else if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_FLOAT ||
+                    metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_DOUBLE) {
+                printf("%0.2f", metrics[i].value.dvalue);
+            }
+
+            printf(" %s\n", metrics_info[idx].metric_units);
         }
-
-        printf(" %s\n", metrics_info[idx].metric_units);
     }
 }
 
