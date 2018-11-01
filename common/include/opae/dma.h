@@ -108,9 +108,9 @@ typedef struct {
 typedef struct {
 	uint64_t xfer_id; /**< User ID for this transaction */
 	fpga_dma_transfer *array; /**< Pointer to transfer array */
-	int entries_num; /**< number of entries in array */
+	uint32_t entries_num; /**< number of entries in array */
 	fpga_dma_transfer_type type; /**< Direction and streaming or memory */
-	int ch_index; /**< in case of multi channel DMA, which channel to use */
+	uint32_t ch_index; /**< in case of multi channel DMA, which channel to use */
 } transfer_list;
 
 /**
