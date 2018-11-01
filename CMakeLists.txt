@@ -225,13 +225,14 @@ endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
+
+#list of components to be included in the package
+set(CPACK_COMPONENTS_ALL toolfpgainfo toolfpgadiag toolfpgabist toolfpgadiagapps toolpackager jsonschema opaecase asertl asescripts aseextra asesw libopaeheaders dochtml doclatex docrtf docman docxml platform samplesrc safestrlib safestrheaders opaeclib opaecxxcorelib) 
+
 # Component definition
 define_pkg(tools
   COMPONENTS
-  toolfpgad
-  toolfpgaconf
   toolfpgainfo
-  toolfpgaport
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE base tool binaries"
@@ -240,26 +241,11 @@ define_pkg(tools
 
   define_pkg(tools-extra
   COMPONENTS
-  tooluserclk
-  toolras
-  toolmmlink
-  toolcoreidle
   toolfpgadiag
   toolfpgabist
-  toolpacd
-  toolfpga_dma_test
-  toolbist_app
   toolfpgadiagapps
-  toolfpgaflash
-  toolpachssiconfig
   toolpackager
   jsonschema
-  opaetoolslibs
-  opaecxxutils
-  opaecxxlib
-  opaecxxnlb
-  hssiiolib
-  hssiprograms
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"

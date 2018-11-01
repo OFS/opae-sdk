@@ -124,10 +124,7 @@ ldconfig
 
 %files tools
 %defattr(-,root,root,-)
-@CMAKE_INSTALL_PREFIX@/bin/fpgaconf
-@CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
-@CMAKE_INSTALL_PREFIX@/bin/fpgaport
 
 
 %files tools-extra
@@ -138,26 +135,20 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_dma.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
-@CMAKE_INSTALL_PREFIX@/bin/coreidle
-@CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
+@CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
-@CMAKE_INSTALL_PREFIX@/bin/pacd
-@CMAKE_INSTALL_PREFIX@/bin/pacd.conf
-@CMAKE_INSTALL_PREFIX@/bin/pacd.service
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
 @CMAKE_INSTALL_PREFIX@/bin/fpgamux
-@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
-@CMAKE_INSTALL_PREFIX@/bin/hssi_config
-@CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
-@CMAKE_INSTALL_PREFIX@/bin/mmlink
 @CMAKE_INSTALL_PREFIX@/bin/packager
-@CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
-@CMAKE_INSTALL_PREFIX@/bin/ras
-@CMAKE_INSTALL_PREFIX@/bin/userclk
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
+@CMAKE_INSTALL_PREFIX@/bin/pkvllink
+@CMAKE_INSTALL_PREFIX@/bin/mactest
+@CMAKE_INSTALL_PREFIX@/bin/pkvlstats
+@CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
+@CMAKE_INSTALL_PREFIX@/bin/pkvllpbk
+@CMAKE_INSTALL_PREFIX@/bin/fpgastats
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
