@@ -776,6 +776,7 @@ int main(int argc, char *argv[])
 	if (!use_ase) {
 		printf("Running DDR sweep test\n");
 		res = ddr_sweep(dma_h, config.target.size, 0, 0);
+	#if 0	// skip unaligned DDR sweep test temporarily for Vista Creek board
 		printf("DDR sweep with unaligned pointer and size\n");
 		res |= ddr_sweep(dma_h, config.target.size, 61, 5);
 		res |= ddr_sweep(dma_h, config.target.size, 3, 0);
@@ -783,6 +784,7 @@ int main(int argc, char *argv[])
 		res |= ddr_sweep(dma_h, config.target.size, 0, 3);
 		res |= ddr_sweep(dma_h, config.target.size, 0, 61);
 		res |= ddr_sweep(dma_h, config.target.size, 0, 7);
+	#endif
 		ON_ERR_GOTO(res, out_dma_close, "ddr_sweep");
 	}
 

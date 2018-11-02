@@ -390,7 +390,7 @@ out_close:
 //
 
 // FIXME: uses same number for device and FME (may not be true in future)
-fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id)
+fpga_result sysfs_get_socket_id(int dev, int subdev, uint8_t *socket_id)
 {
 	fpga_result result;
 	char spath[SYSFS_PATH_MAX];
@@ -400,7 +400,7 @@ fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id)
 		 SYSFS_FPGA_CLASS_PATH
 		 SYSFS_FME_PATH_FMT "/"
 		 FPGA_SYSFS_SOCKET_ID,
-		 dev, dev);
+		 dev, subdev);
 
 	i = 0;
 	result = sysfs_read_int(spath, &i);
@@ -413,7 +413,7 @@ fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id)
 }
 
 // FIXME: uses same number for device and PORT (may not be true in future)
-fpga_result sysfs_get_afu_id(int dev, fpga_guid guid)
+fpga_result sysfs_get_afu_id(int dev, int subdev, fpga_guid guid)
 {
 	char spath[SYSFS_PATH_MAX];
 
@@ -421,12 +421,12 @@ fpga_result sysfs_get_afu_id(int dev, fpga_guid guid)
 		 SYSFS_FPGA_CLASS_PATH
 		 SYSFS_AFU_PATH_FMT "/"
 		 FPGA_SYSFS_AFU_GUID,
-		 dev, dev);
+		 dev, subdev);
 
 	return sysfs_read_guid(spath, guid);
 }
 
-fpga_result sysfs_get_pr_id(int dev, fpga_guid guid)
+fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid)
 {
 	char spath[SYSFS_PATH_MAX];
 
@@ -434,13 +434,13 @@ fpga_result sysfs_get_pr_id(int dev, fpga_guid guid)
 		 SYSFS_FPGA_CLASS_PATH
 		 SYSFS_FME_PATH_FMT "/"
 		 FPGA_SYSFS_FME_INTERFACE_ID,
-		 dev, dev);
+		 dev, subdev);
 
 	return sysfs_read_guid(spath, guid);
 }
 
 // FIXME: uses same number for device and FME (may not be true in future)
-fpga_result sysfs_get_slots(int dev, uint32_t *slots)
+fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots)
 {
 	char spath[SYSFS_PATH_MAX];
 
@@ -448,13 +448,13 @@ fpga_result sysfs_get_slots(int dev, uint32_t *slots)
 		 SYSFS_FPGA_CLASS_PATH
 		 SYSFS_FME_PATH_FMT "/"
 		 FPGA_SYSFS_NUM_SLOTS,
-		 dev, dev);
+		 dev, subdev);
 
 	return sysfs_read_u32(spath, slots);
 }
 
 // FIXME: uses same number for device and FME (may not be true in future)
-fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)
+fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id)
 {
 	char spath[SYSFS_PATH_MAX];
 
@@ -462,7 +462,7 @@ fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id)
 		 SYSFS_FPGA_CLASS_PATH
 		 SYSFS_FME_PATH_FMT "/"
 		 FPGA_SYSFS_BITSTREAM_ID,
-		 dev, dev);
+		 dev, subdev);
 
 	return sysfs_read_u64(spath, id);
 }
@@ -497,15 +497,10 @@ fpga_result get_port_sysfs(fpga_handle handle,
 		FPGA_ERR("Invalid sysfspath in token");
 		return FPGA_INVALID_PARAM;
 	}
-	p = strrchr(_token->sysfspath, '.');
-	if (NULL == p) {
-		FPGA_ERR("Invalid sysfspath in token");
-		return FPGA_INVALID_PARAM;
-	}
 
 	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
 		SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		_token->instance, _token->instance);
+		_token->device_instance, _token->subdev_instance);
 
 	return FPGA_OK;
 }
@@ -553,7 +548,7 @@ fpga_result get_fpga_deviceid(fpga_handle handle,
 	snprintf_s_is(sysfs_path,
 		 SYSFS_PATH_MAX,
 		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		 _token->instance,
+		 _token->device_instance,
 		 FPGA_SYSFS_DEVICEID);
 
 	result = sysfs_read_u64(sysfs_path, deviceid);
@@ -589,7 +584,7 @@ fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 		return FPGA_NOT_SUPPORTED;
 	}
 
-	p = strrchr(sysfspath, '.');
+	p = strchr(sysfspath, '.');
 	if (p == NULL) {
 		FPGA_ERR("Failed to read sysfs path");
 		return FPGA_NOT_SUPPORTED;

@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 #include "safe_string/safe_string.h"
 #include "error_int.h"
@@ -57,19 +58,33 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	struct token_map *tmp;
 	errno_t e;
 	int err = 0;
-	uint32_t num = 0;
+	uint32_t device_instance;
+	uint32_t subdev_instance;
 	char *endptr = NULL;
-	const char *ptr = strrchr(sysfspath, '.');
+	const char *ptr;
 
 	/* get the device instance id */
+	ptr = strchr(sysfspath, '.');
 	if (ptr == NULL) {
 		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
-	num = strtoul(++ptr, &endptr, 10);
+	device_instance = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */
-	if (num == 0 && endptr == ptr) {
+	if (endptr == ptr) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
+ 	/* get the sub-device (FME/Port) instance id */
+	ptr = strrchr(sysfspath, '.');
+	if (ptr == NULL) {
+		FPGA_MSG("sysfspath does not meet expected format");
+		return NULL;
+	}
+ 	subdev_instance = strtoul(++ptr, &endptr, 10);
+	/* no digits in path */
+	if (endptr == ptr) {
 		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
@@ -112,8 +127,9 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	/* mark data structure as valid */
 	tmp->_token.magic = FPGA_TOKEN_MAGIC;
 
-	/* assign the instance num from above */
-	tmp->_token.instance = num;
+	/* assign the instances num from above */
+	tmp->_token.device_instance = device_instance;
+	tmp->_token.subdev_instance = subdev_instance;
 
 	/* deep copy token data */
 	e = strncpy_s(tmp->_token.sysfspath, sizeof(tmp->_token.sysfspath),
@@ -160,23 +176,65 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 {
 	char *p;
 	char spath[SYSFS_PATH_MAX];
-	int device_instance;
 	struct token_map *itr;
 	int err = 0;
+	errno_t e;
+	DIR *dir;
+	struct dirent *dirent;
+	int i;
+	int found;
 
 	p = strstr(_t->sysfspath, FPGA_SYSFS_AFU);
 	if (!p) // FME objects have no parent.
 		return NULL;
 
-	p = strrchr(_t->sysfspath, '.');
-	if (!p)
+	// Find the parent FME device of the specified Port device.
+	e = strncpy_s(spath, sizeof(spath),
+			_t->sysfspath, sizeof(_t->sysfspath));
+	if (EOK != e) {
+		FPGA_ERR("strncpy_s failed");
 		return NULL;
+	}
+ 	p = strrchr(spath, '/');
+	if (!p) {
+		FPGA_ERR("Invalid token sysfs path %s", spath);
+		return NULL;
+	}
+	*(p+1) = 0;
 
-	device_instance = atoi(p+1);
+	dir = opendir(spath);
+	if (!dir) {
+		FPGA_ERR("can't open directory: %s", spath);
+		return NULL;
+	}
 
-	snprintf_s_ii(spath, sizeof(spath),
-			SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
-			device_instance, device_instance);
+	found = 0;
+	while ((dirent = readdir(dir)) != NULL) {
+		e = strcmp_s(dirent->d_name, sizeof(dirent->d_name),
+				".", &i);
+		if (e != EOK || i == 0)
+			continue;
+		e = strcmp_s(dirent->d_name, sizeof(dirent->d_name),
+				"..", &i);
+		if (e != EOK || i == 0)
+			continue;
+ 		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
+			e = strcat_s(spath, sizeof(spath),
+					dirent->d_name);
+			if (e != EOK) {
+				FPGA_ERR("strcat_s failed");
+				closedir(dir);
+				return NULL;
+			}
+			found = 1;
+			break;
+		}
+	}
+ 	closedir(dir);
+ 	if (!found) {
+		FPGA_ERR("can't find parent in: %s", spath);
+		return NULL;
+	}
 
 	if (pthread_mutex_lock(&global_lock)) {
 		FPGA_MSG("Failed to lock global mutex");

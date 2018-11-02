@@ -73,11 +73,11 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 fpga_result sysfs_read_u64(const char *path, uint64_t *u);
 fpga_result sysfs_write_u64(const char *path, uint64_t u);
 fpga_result sysfs_read_guid(const char *path, fpga_guid guid);
-fpga_result sysfs_get_socket_id(int dev, uint8_t *socket_id);
-fpga_result sysfs_get_afu_id(int dev, fpga_guid guid);
-fpga_result sysfs_get_pr_id(int dev, fpga_guid guid);
-fpga_result sysfs_get_slots(int dev, uint32_t *slots);
-fpga_result sysfs_get_bitstream_id(int dev, uint64_t *id);
+fpga_result sysfs_get_socket_id(int dev, int subdev, uint8_t *socket_id);
+fpga_result sysfs_get_afu_id(int dev, int subdev, fpga_guid guid);
+fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid);
+fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots);
+fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
 fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid);
 fpga_result sysfs_deviceid_from_path(const char *sysfspath,

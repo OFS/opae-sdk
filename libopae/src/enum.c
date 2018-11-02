@@ -91,6 +91,7 @@ static bool matches_filter(const struct dev_list *attr,
 			(struct _fpga_token *)_filter->parent;
 		char spath[SYSFS_PATH_MAX];
 		char *p;
+		int subdev_instance;
 		int device_instance;
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
@@ -103,9 +104,18 @@ static bool matches_filter(const struct dev_list *attr,
 			goto out_unlock;
 		}
 
+		// Find the FME/Port sub-device instance.
 		p = strrchr(attr->sysfspath, '.');
 
 		if (NULL == p) {
+			res = false;
+			goto out_unlock;
+		}
+
+		subdev_instance = (int)strtoul(p + 1, NULL, 10);
+ 		// Find the device instance.
+		p = strchr(attr->sysfspath, '.');
+ 		if (NULL == p) {
 			res = false;
 			goto out_unlock;
 		}
@@ -114,7 +124,7 @@ static bool matches_filter(const struct dev_list *attr,
 
 		snprintf_s_ii(spath, SYSFS_PATH_MAX,
 			      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
-			      device_instance, device_instance);
+			      device_instance, subdev_instance);
 
 		if (strcmp(spath, _parent_tok->sysfspath)) {
 			res = false;
@@ -763,7 +773,8 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 	}
 
 	_dst->magic = FPGA_TOKEN_MAGIC;
-	_dst->instance = _src->instance;
+	_dst->device_instance = _src->device_instance;
+	_dst->subdev_instance = _src->subdev_instance;
 
 	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath), _src->sysfspath,
 		      sizeof(_src->sysfspath));
