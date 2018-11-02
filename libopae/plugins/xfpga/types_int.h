@@ -39,6 +39,8 @@
 #include <opae/types.h>
 #include <opae/sysobject.h>
 #include <opae/types_enum.h>
+#include <opae/metrics.h>
+#include "metrics/vector.h"
 
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -110,11 +112,53 @@ struct _fpga_token {
 	struct error_list *errors;
 };
 
+enum fpga_hw_type {
+	FPGA_HW_MCP,
+	FPGA_HW_DCP_RC,
+	FPGA_HW_DCP_DC,
+	FPGA_HW_DCP_VC,
+	FPGA_HW_UNKNOWN
+};
+
+// FPGA enum metrics struct
+struct _fpga_enum_metric {
+
+	char group_name[FPGA_METRIC_STR_SIZE];            // Metrics Group name
+	char group_sysfs[FPGA_METRIC_STR_SIZE];           // Metrics Group sysfs path
+
+	char metric_name[FPGA_METRIC_STR_SIZE];           // Metrics name
+	char metric_sysfs[FPGA_METRIC_STR_SIZE];          // Metrics sysfs path
+
+	char qualifier_name[FPGA_METRIC_STR_SIZE];        // Metrics qualifier name
+
+	char metric_units[FPGA_METRIC_STR_SIZE];          // Metrics units
+
+	uint64_t metric_num;                              // Metrics ID
+
+	enum fpga_metric_datatype metric_datatype;        // Metrics datatype
+
+	enum fpga_metric_type metric_type;                // Metric type
+
+	enum fpga_hw_type hw_type;                       // Hardware type
+
+	uint64_t mmio_offset;                            // AFU Metric BBS mmio offset
+
+};
+
+
+struct _fpga_bmc_metric {
+
+	char group_name[FPGA_METRIC_STR_SIZE];     // Metrics Group name
+	char metric_name[FPGA_METRIC_STR_SIZE];    // Metrics  name
+	struct fpga_metric fpga_metric;             // Metric value
+};
+
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
 	pthread_mutex_t lock;
 	uint64_t magic;
 	fpga_token token;
+
 	int fddev;                      // file descriptor for the device.
 	int fdfpgad;                    // file descriptor for the event daemon.
 	struct wsid_tracker *wsid_root; // wsid information (list)
@@ -122,6 +166,13 @@ struct _fpga_handle {
 	void *umsg_virt;	        // umsg Virtual Memory pointer
 	uint64_t umsg_size;	        // umsg Virtual Memory Size
 	uint64_t *umsg_iova;	        // umsg IOVA from driver
+
+	// Metric
+	bool metric_enum_status;                             // metric enum status
+	fpga_metric_vector fpga_enum_metric_vector;          // metric enum vector
+	void *bmc_handle;                                    // bmc module handle
+	struct _fpga_bmc_metric *_bmc_metric_cache_value;    // bmc cache values
+	uint64_t num_bmc_metric;                             // num of bmc values
 };
 
 /*

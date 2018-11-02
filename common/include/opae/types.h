@@ -188,4 +188,46 @@ struct fpga_error_info {
  */
 typedef void *fpga_object;
 
+/** FPGA Metric string size
+ *
+ *
+ */
+#define FPGA_METRIC_STR_SIZE   256
+/** Metric value union
+ *
+ *
+ */
+typedef union {
+	uint64_t   ivalue;  // Metric integer value
+	double     dvalue;  // Metric double value
+	float      fvalue;  // Metric float value
+	bool       bvalue;  // Metric bool value
+} metric_value;
+
+
+/** Metric info struct
+ *
+ *
+ */
+typedef struct fpga_metric_info {
+	uint64_t metric_num;                         // Metric index num
+	fpga_guid metric_guid;                       // Metric guid
+	char qualifier_name[FPGA_METRIC_STR_SIZE];   // Metric full name
+	char group_name[FPGA_METRIC_STR_SIZE];       // Metric group name
+	char metric_name[FPGA_METRIC_STR_SIZE];      // Metric name
+	char metric_units[FPGA_METRIC_STR_SIZE];     // Metric units
+	enum fpga_metric_datatype metric_datatype;   // Metric data type
+	enum fpga_metric_type metric_type;           // Metric group type
+} fpga_metric_info;
+
+/** Metric struct
+ *
+ *
+ */
+typedef struct fpga_metric {
+	uint64_t metric_num;    // Metric index num
+	metric_value value;     // Metric value
+} fpga_metric;
+
+
 #endif // __FPGA_TYPES_H__

@@ -51,6 +51,7 @@
 #include <opae/version.h>
 #include <opae/sysobject.h>
 #include <opae/userclk.h>
+#include <opae/metrics.h>
 
 #endif // __FPGA_FPGA_H__
 
