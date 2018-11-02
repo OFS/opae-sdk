@@ -152,4 +152,29 @@ enum fpga_sysobject_flags {
   FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
 };
 
+
+/** fpga metrics types
+* opae defines power,thermal, performance counter
+* and afu metric types
+*/
+enum fpga_metric_type {
+	FPGA_METRIC_TYPE_POWER,             // Metric power
+	FPGA_METRIC_TYPE_THERMAL,           // Metric Thermal
+	FPGA_METRIC_TYPE_PERFORMANCE_CTR,   // Metric Performance counter
+	FPGA_METRIC_TYPE_AFU,               // Metric AFU
+	FPGA_METRIC_TYPE_UNKNOWN            // Unknown
+};
+
+/** Metrics data type
+*
+*
+*/
+enum fpga_metric_datatype {
+	FPGA_METRIC_DATATYPE_INT,       // Metric datatype integer
+	FPGA_METRIC_DATATYPE_FLOAT,     // Metric datatype float
+	FPGA_METRIC_DATATYPE_DOUBLE,    // Metric datatype double
+	FPGA_METRIC_DATATYPE_BOOL,      // Metric datatype bool
+	FPGA_METRIC_DATATYPE_UNKNOWN    // Metric datatype unknown
+};
+
 #endif // __FPGA_TYPES_ENUM_H__

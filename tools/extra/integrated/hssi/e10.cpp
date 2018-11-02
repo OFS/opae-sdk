@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "e10.h"
-#include "fpga_app/fpga_common.h"
 #include <chrono>
 #include <thread>
 
@@ -65,9 +64,9 @@ e10::~e10()
 
 }
 
-void e10::assign(accelerator::ptr_t accelerator_ptr)
+void e10::assign(opae::fpga::types::handle::ptr_t h)
 {
-    loopback::assign(accelerator_ptr);
+    loopback::assign(h);
     eth_.reset(new eth_ctrl(przone_, eth_ctrl::gbs_version::e10));
 }
 

@@ -13,3 +13,5 @@ include pyevents.h
 include pyevents.cpp
 include pyerrors.h
 include pyerrors.cpp
+include pysysobject.h
+include pysysobject.cpp
