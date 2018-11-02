@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,33 +25,42 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * \file fpga.h
- * \brief FPGA API
- *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
- */
+* \file vector.h
+* \brief fpga metrics vector
+*/
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#ifndef __FPGA_METRICS_VECTOR_H__
+#define __FPGA_METRICS_VECTOR_H__
 
-#include <opae/log.h>
-#include <opae/init.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <opae/fpga.h>
 #include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/error.h>
-#include <opae/version.h>
-#include <opae/sysobject.h>
-#include <opae/userclk.h>
-#include <opae/metrics.h>
+#include <stdint.h>
 
-#endif // __FPGA_FPGA_H__
 
+typedef struct fpga_metric_vector {
+	void **fpga_metric_item;
+	uint64_t capacity;
+	uint64_t total;
+} fpga_metric_vector;
+
+
+fpga_result fpga_vector_init(fpga_metric_vector *vector);
+
+fpga_result fpga_vector_free(fpga_metric_vector *vector);
+
+fpga_result fpga_vector_total(fpga_metric_vector *vector, uint64_t *total);
+
+fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity);
+
+fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item);
+
+void *fpga_vector_get(fpga_metric_vector *vector, uint64_t value);
+
+fpga_result fpga_vector_delete(fpga_metric_vector *v, uint64_t index);
+
+#endif // __FPGA_METRICS_VECTOR_H__

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,35 +23,86 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-/**
- * \file fpga.h
- * \brief FPGA API
+/*
+ * @file bmc_ioctl.h
  *
- * This conveniently includes all APIs that a part of the OPAE release (base and
- * extensions).
+ * @brief
  */
+#ifndef BMC_IOCTL_H
+#define BMC_IOCTL_H
 
-#ifndef __FPGA_FPGA_H__
-#define __FPGA_FPGA_H__
+#include <opae/fpga.h>
+#include <wchar.h>
 
-#include <opae/log.h>
-#include <opae/init.h>
-#include <opae/types.h>
-#include <opae/access.h>
-#include <opae/buffer.h>
-#include <opae/enum.h>
-#include <opae/event.h>
-#include <opae/manage.h>
-#include <opae/mmio.h>
-#include <opae/properties.h>
-#include <opae/umsg.h>
-#include <opae/utils.h>
-#include <opae/error.h>
-#include <opae/version.h>
-#include <opae/sysobject.h>
-#include <opae/userclk.h>
-#include <opae/metrics.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif // __FPGA_FPGA_H__
+//#define BMC_IOCTL_MAGIC (0xc0187600)
+#define AVMMI_BMC_MAGIC (0x76)
 
+#define BMC_THRESH_HEADER_0 (0x4 << 2)
+#define BMC_THRESH_HEADER_1 (0)
+#define BMC_SET_THRESH_CMD (0x26)
+#define BMC_GET_THRESH_CMD (0x27)
+
+#pragma pack(push, 1)
+
+typedef struct avmmi_bmc_xact {
+	uint32_t argsz;
+	uint16_t txlen;
+	uint16_t rxlen;
+	uint64_t txbuf;
+	uint64_t rxbuf;
+} bmc_xact;
+
+typedef struct {
+	uint8_t header[3];
+	uint8_t sens_num;
+	uint8_t mask;
+	uint8_t LNC;
+	uint8_t LC;
+	uint8_t LNR;
+	uint8_t UNC;
+	uint8_t UC;
+	uint8_t UNR;
+} bmc_set_thresh_request;
+
+typedef struct {
+	uint8_t header[3];
+	uint8_t cc;
+} bmc_set_thresh_response;
+
+typedef struct {
+	uint8_t header[3];
+	uint8_t sens_num;
+} bmc_get_thresh_request;
+
+typedef struct {
+	uint8_t header[3];
+	uint8_t cc;
+	uint8_t mask;
+	uint8_t LNC;
+	uint8_t LC;
+	uint8_t LNR;
+	uint8_t UNC;
+	uint8_t UC;
+	uint8_t UNR;
+} bmc_get_thresh_response;
+
+#pragma pack(pop)
+
+typedef enum {
+	LNC_thresh = 0x01,
+	LC_thresh = 0x02,
+	LNR_thresh = 0x04,
+	UNC_thresh = 0x08,
+	UC_thresh = 0x10,
+	UNR_thresh = 0x20,
+} Thresh;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !BMC_IOCTL_H */
