@@ -268,13 +268,11 @@ static uint16_t read_socket_id(const std::string devices) {
   std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
   std::string socket_path;
 
-  std::cout << "This is the glob path: " << glob_path << std::endl;
   glob_t glob_buf;
   glob_buf.gl_pathc = 0;
   glob_buf.gl_pathv = NULL;
   int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
   if (!globres){
-    std::cout << "Glob count. " << glob_buf.gl_pathc << std::endl;
     if (glob_buf.gl_pathc > 1) {
         std::cerr << std::string("Ambiguous object key - using first one") << "\n";
     }
@@ -286,9 +284,8 @@ static uint16_t read_socket_id(const std::string devices) {
 
   struct stat st;
   if (stat(socket_path.c_str(), &st)) {
-    std::cout << "Failed to get file stat." << std::endl;
-    std::cout << socket_path << std::endl;
-    return -1;
+    std::cerr << "Failed to get file stat." << "\n";
+    return 0;
   }
 
   std::cout << socket_path << std::endl;
