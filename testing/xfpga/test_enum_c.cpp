@@ -390,7 +390,11 @@ TEST_P(enum_c_p, socket_id) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgaTypes() * 2);
+  if (device.socket_id == 0) {
+    EXPECT_EQ(num_matches_, GetNumFpgaTypes() * 2);
+  } else {
+    EXPECT_EQ(num_matches_, GetNumFpgaTypes());
+  }
 }
 
 /**

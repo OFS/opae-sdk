@@ -166,64 +166,6 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-// TEST_P(enum_c_p, matches_1filter) {
-//  // null filter
-//  EXPECT_EQ(fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(),
-//                          &num_matches),
-//            FPGA_OK);
-//
-//  EXPECT_FALSE(matches_filter(devices[0], filters["invalid"]));
-//
-//  //
-//}
-//
-// TEST_P(enum_c_p, matches_filters) {
-//  const struct dev_list *attr = 0;
-//  const fpga_properties *filter = 0;
-//  uint32_t num_filter = 0;
-//  auto res = matches_filters(attr, filter, num_filter);
-//  EXPECT_EQ(res, 0);
-//}
-//
-// TEST_P(enum_c_p, add_dev) {
-//  const char *sysfspath = 0;
-//  const char *devpath = 0;
-//  struct dev_list *parent = 0;
-//  auto res = add_dev(sysfspath, devpath, parent);
-//  (void)res;
-//}
-//
-// TEST_P(enum_c_p, enum_fme) {
-//  const char *sysfspath = 0;
-//  const char *name = 0;
-//  struct dev_list *parent = 0;
-//  auto res = enum_fme(sysfspath, name, parent);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-// TEST_P(enum_c_p, enum_afu) {
-//  const char *sysfspath = 0;
-//  const char *name = 0;
-//  struct dev_list *parent = 0;
-//  auto res = enum_afu(sysfspath, name, parent);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-// TEST_P(enum_c_p, enum_top_dev) {
-//  const char *sysfspath = 0;
-//  struct dev_list *list = 0;
-//  int include_port = 0;
-//  auto res = enum_top_dev(sysfspath, list, include_port);
-//  EXPECT_EQ(res, FPGA_OK);
-//}
-//
-// TEST_P(enum_c_p, include_afu) {
-//  const fpga_properties *filters = 0;
-//  uint32_t num_filters = 0;
-//  auto res = include_afu(filters, num_filters);
-//  EXPECT_EQ(res, 0);
-//}
-//
 TEST_P(enum_c_p, nullfilter) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
@@ -368,7 +310,11 @@ TEST_P(enum_c_p, socket_id) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgaTypes() * 2);
+  if (device.socket_id == 0) {
+    EXPECT_EQ(num_matches_, GetNumFpgaTypes() * 2);
+  } else {
+    EXPECT_EQ(num_matches_, GetNumFpgaTypes());
+  }
 
   DestroyTokens();
 
@@ -702,7 +648,7 @@ TEST(wrapper, validate) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
 
 class enum_c_mock_p : public enum_c_p {};
 
