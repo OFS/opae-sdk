@@ -1,3 +1,28 @@
+// Copyright(c) 2017-2018, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 #include "nios.h"
 #include "hssi_msg.h"
 
@@ -45,7 +70,7 @@ bool nios::write(uint32_t nios_func, std::vector<uint32_t> args,
     case controller::nios_cmd::hssi_init_done:
     case controller::nios_cmd::fatal_err:
     case controller::nios_cmd::get_hssi_enable:
-    case controller::nios_cmd::get_hssi_mode:
+    case controller::nios_cmd::get_hssi_mode: {
       msg.set_command(controller::hssi_cmd::sw_read);
       msg.set_address(6);
       msg.set_data(nios_func);
@@ -53,13 +78,15 @@ bool nios::write(uint32_t nios_func, std::vector<uint32_t> args,
       if (!przone_->hssi_ack(100000)) {
         return false;
       }
-      uint64_t value64;
 
-      if (!mmio_->read_mmio64(przone_->get_stat(), value64)) {
+      uint64_t value64;
+      if (!mmio_->read_mmio64(przone_->get_stat(), value64))
+      {
         return false;
       }
+
       value_out = static_cast<uint32_t>(value64);
-      break;
+    } break;
     default:
       break;
   }

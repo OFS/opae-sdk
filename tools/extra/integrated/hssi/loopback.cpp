@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -73,11 +73,11 @@ loopback::loopback(const std::string & name)
 
 loopback::~loopback()
 {
-    if (accelerator_ && accelerator_->ready())
+    if (accelerator_ /* && accelerator_->ready() */)
         accelerator_->close();
 }
 
-void loopback::assign(accelerator::ptr_t accelerator)
+void loopback::assign(opae::fpga::types::handle::ptr_t accelerator)
 {
     accelerator_ = accelerator;
     przone_.reset(new accelerator_przone(accelerator_));
@@ -86,22 +86,23 @@ void loopback::assign(accelerator::ptr_t accelerator)
 
 bool loopback::initialize()
 {
-    uint64_t value = 0x0;
-    if (accelerator_->read_mmio64(afu_init, value) && (value & 0x2) == 0x2)
+    uint64_t value = accelerator_->read_csr64(afu_init);
+    if ((value & 0x2) == 0x2)
     {
         return true;
     }
     value = 0x1;
     using hrc = std::chrono::high_resolution_clock;
-    if (accelerator_->write_mmio64(afu_init, value))
+
+    accelerator_->write_csr64(afu_init, value);
+
+    auto begin = hrc::now();
+    while((hrc::now() - begin) < std::chrono::seconds(1))
     {
-        auto begin = hrc::now();
-        while((hrc::now() - begin) < std::chrono::seconds(1))
+        value = accelerator_->read_csr64(afu_init);
+        if ((value & 0x2) == 0x2)
         {
-            if (accelerator_->read_mmio64(afu_init, value) && (value & 0x2) == 0x2)
-            {
-                return przone_->write(0x1,0x0);
-            }
+            return przone_->write(0x1, 0x0);
         }
     }
 

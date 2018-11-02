@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,27 +26,68 @@
 
 #pragma once
 #include <memory>
+#include "option_map.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/shared_buffer.h>
+#include <thread>
+#include <future>
+
 
 namespace intel
 {
 namespace fpga
 {
-
-class mmio
+class accelerator_app
 {
 public:
-    typedef std::shared_ptr<mmio> ptr_t;
+    accelerator_app()
+    : name_("none")
+    , disabled_(false)
+    {
 
-    virtual bool write_mmio32(uint32_t offset, uint32_t value) = 0;
+    }
 
-    virtual bool write_mmio64(uint32_t offset, uint64_t value) = 0;
+    explicit accelerator_app(const std::string &name)
+    : name_(name)
+    , disabled_(false)
+    {
+    }
 
-    virtual bool read_mmio32(uint32_t offset, uint32_t & value) = 0;
+    virtual const std::string & name()
+    {
+        return name_;
+    }
 
-    virtual bool read_mmio64(uint32_t offset, uint64_t & value) = 0;
+    virtual void disabled(bool value)
+    {
+        disabled_ = value;
+    }
 
-    virtual uint8_t* mmio_pointer(uint32_t offset) = 0;
+    virtual bool disabled() const
+    {
+        return disabled_;
+    }
+
+
+    typedef std::shared_ptr<accelerator_app> ptr_t;
+    virtual const std::string & afu_id() = 0;
+    virtual intel::utils::option_map & get_options() = 0;
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator) = 0;
+    virtual bool setup() = 0;
+    virtual bool run() = 0;
+    virtual std::future<bool> run_async()
+    {
+        return std::async(std::launch::async, &accelerator_app::run, this);
+    }
+
+    virtual opae::fpga::types::shared_buffer::ptr_t dsm() const = 0;
+    virtual uint64_t cachelines()    const  = 0;
+
+private:
+    std::string name_;
+    bool disabled_;
 };
 
 } // end of namespace fpga
 } // end of namespace intel
+
