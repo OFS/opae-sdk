@@ -32,7 +32,6 @@
 #include <fstream>
 #include "test_utils.h"
 #include <glob.h>
-#include "safe_string/safe_string.h"
 #include <iomanip>
 #include <sstream>
 
@@ -276,7 +275,7 @@ static uint16_t read_socket_id(const std::string devices) {
     if (glob_buf.gl_pathc > 1) {
         std::cerr << std::string("Ambiguous object key - using first one") << "\n";
     }
-    if (strncpy_s(const_cast<char*>(socket_path.c_str()), 256, glob_buf.gl_pathv[0], 256)){
+    if (strncpy(const_cast<char*>(socket_path.c_str()), glob_buf.gl_pathv[0], 256)){
         std::cerr << std::string("Could not copy globbed path.") << "\n";
     }
     globfree(&glob_buf);
