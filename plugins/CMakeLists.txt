@@ -4,3 +4,4 @@ cmake_minimum_required (VERSION 2.8)
 project(plugins)
 
 add_subdirectory(xfpga)
+add_subdirectory(xfpga/metrics/bmc)

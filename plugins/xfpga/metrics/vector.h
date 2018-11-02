@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,70 +24,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+/**
+* \file vector.h
+* \brief fpga metrics vector
+*/
 
-#include <opae/access.h>
-#include "common_int.h"
-#include "wsid_list_int.h"
-#include "metrics/metrics_int.h"
+#ifndef __FPGA_METRICS_VECTOR_H__
+#define __FPGA_METRICS_VECTOR_H__
 
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <opae/fpga.h>
+#include <opae/types.h>
+#include <stdint.h>
 
-STATIC void unmap_mmio_region(struct wsid_map *wm)
-{
-	if (munmap((void *)wm->offset, wm->len)) {
-		FPGA_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
-}
 
-fpga_result __FPGA_API__ xfpga_fpgaClose(fpga_handle handle)
-{
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_OK;
-	int err = 0;
+typedef struct fpga_metric_vector {
+	void **fpga_metric_item;
+	uint64_t capacity;
+	uint64_t total;
+} fpga_metric_vector;
 
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
 
-	if (-1 == _handle->fddev) {
-		FPGA_ERR("Invalid handle file descriptor");
-		err = pthread_mutex_unlock(&_handle->lock);
-		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
-		return FPGA_INVALID_PARAM;
-	}
+fpga_result fpga_vector_init(fpga_metric_vector *vector);
 
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
-	free_umsg_buffer(handle);
+fpga_result fpga_vector_free(fpga_metric_vector *vector);
 
-	// free metric enum vector
-	free_fpga_enum_metrics_vector(_handle);
+fpga_result fpga_vector_total(fpga_metric_vector *vector, uint64_t *total);
 
-	close(_handle->fddev);
-	if (_handle->fdfpgad >= 0)
-		close(_handle->fdfpgad);
+fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity);
 
-	// invalidate magic (just in case)
-	_handle->magic = FPGA_INVALID_MAGIC;
+fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item);
 
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	err = pthread_mutex_destroy(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
+void *fpga_vector_get(fpga_metric_vector *vector, uint64_t value);
 
-	free(_handle);
+fpga_result fpga_vector_delete(fpga_metric_vector *v, uint64_t index);
 
-	return FPGA_OK;
-}
+#endif // __FPGA_METRICS_VECTOR_H__
