@@ -267,13 +267,11 @@ static uint16_t read_socket_id(const std::string devices) {
   std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
   std::string socket_path;
 
-  std::cout << "glob path is : " << glob_path << "\n"; 
   glob_t glob_buf;
   glob_buf.gl_pathc = 0;
   glob_buf.gl_pathv = NULL;
   int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
 
-  std::cout << "glob result is : " << globres << "\n"; 
   if (!globres){
     if (glob_buf.gl_pathc > 1) {
         std::cerr << std::string("Ambiguous object key - using first one") << "\n";
@@ -291,14 +289,11 @@ static uint16_t read_socket_id(const std::string devices) {
         goto err;
   }
 
-  std::cout << "device path is : " << socket_path << "\n"; 
   struct stat st;
   if (stat(socket_path.c_str(), &st)) {
     std::cerr << "Failed to get file stat." << "\n";
     goto err;
   }
-
-  std::cout << socket_path << std::endl;
   return parse_file<uint16_t>(socket_path);
 
 err:
@@ -401,9 +396,7 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.device_id = dev_id;
 
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
-    auto sock_id = read_socket_id(device_string);
-    std::cout << "the socket id is : " << sock_id << "\n"; 
-    dev.socket_id = sock_id;
+    dev.socket_id = read_socket_id(device_string);
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }
