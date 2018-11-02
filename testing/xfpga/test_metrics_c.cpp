@@ -232,7 +232,6 @@ TEST_P(metics_c_p, test_metric_04) {
 		(char**)metric_string,
 		array_size,
 		metric_array_serach);
-	free(metric_array_serach);
 
 	const char* metric_string_invalid[2] = { "power_mgmtconsumed1","performance1:fabric:port0:mmio_read1" };
 	struct fpga_metric*  metric_array_serach_invlaid = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
