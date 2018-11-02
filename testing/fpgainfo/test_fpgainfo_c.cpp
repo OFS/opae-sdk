@@ -183,6 +183,7 @@ TEST_P(fpgainfo_c_p, parse_args1) {
     strcpy(one, "-h");
     EXPECT_NE(parse_args(2, argv), 0);
 
+    optind = 0;
     strcpy(one, "--help");
     EXPECT_NE(parse_args(2, argv), 0);
 }
@@ -945,13 +946,12 @@ TEST_P(fpgainfo_c_p, get_metrics2) {
  */
 TEST_P(fpgainfo_c_p, fpgainfo_print_common) {
     fpga_properties filter = NULL;
-    fpga_token token;
+    fpga_token token = nullptr;
     uint32_t matches = 0;;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(token, &filter), FPGA_OK);
 
     fpgainfo_print_common("//****** HEADER ******//", filter);
 
