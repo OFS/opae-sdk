@@ -26,7 +26,7 @@
 
 #include "bmc.h"
 #define _TIMESPEC_DEFINED
-#include "../../types_int.h" // **HACK to get sysfs path **
+#include "../../types_int.h"
 #include "safe_string/safe_string.h"
 #include "bmcdata.h"
 #include <sys/types.h>
@@ -49,8 +49,8 @@
 		}                                                              \
 	} while (0)
 
-static fpga_result read_sysfs_file(fpga_token token, const char *file,
-				   void **buf, uint32_t *tot_bytes_ret)
+fpga_result read_sysfs_file(fpga_token token, const char *file,
+		   void **buf, uint32_t *tot_bytes_ret)
 {
 	char sysfspath[SYSFS_PATH_MAX];
 	struct stat stats;
