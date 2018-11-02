@@ -406,7 +406,8 @@ TEST_P(metics_uitls_c_p, test_metric_utils_107) {
 		1,
 		FPGA_METRIC_DATATYPE_INT,
 		 FPGA_METRIC_TYPE_POWER,
-		 FPGA_HW_MCP
+		 FPGA_HW_MCP,
+		 0
 	};
 
 
@@ -428,20 +429,12 @@ TEST_P(metics_uitls_c_p, test_metric_utils_107) {
  *
  */
 TEST_P(metics_uitls_c_p, test_metric_utils_109) {
-	fpga_result result;
-
-
 
 	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
 	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
 	EXPECT_NE(FPGA_OK, enum_fpga_metrics(NULL));
-
-	//EXPECT_NE(FPGA_OK, enum_fpga_metrics(&_handle_invlaid));
-
-	
-
 }
 
 /**
@@ -452,8 +445,6 @@ TEST_P(metics_uitls_c_p, test_metric_utils_109) {
  *
  */
 TEST_P(metics_uitls_c_p, test_metric_utils_10) {
-	fpga_result result;
-
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -497,8 +488,6 @@ TEST_P(metics_uitls_c_p, test_metric_utils_10) {
  *
  */
 TEST_P(metics_uitls_c_p, test_metric_utils_11) {
-	fpga_result result;
-
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -528,15 +517,6 @@ TEST_P(metics_uitls_c_p, test_metric_utils_11) {
  *
  */
 TEST_P(metics_uitls_c_p, test_metric_utils_12) {
-	fpga_result result;
-
-
-
-
-	//EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
-
-	//EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(_handle));
 
 	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(NULL));
 
@@ -554,7 +534,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_12) {
  *
  */
 TEST_P(metics_uitls_c_p, test_metric_utils_13) {
-	fpga_result result;
+
 	uint64_t  value;
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
@@ -582,7 +562,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_13) {
 }
 
 TEST_P(metics_uitls_c_p, test_metric_utils_14) {
-	fpga_result result;
+
 	uint64_t  value;
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
@@ -611,9 +591,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_14) {
 }
 
 TEST_P(metics_uitls_c_p, test_metric_utils_15) {
-	fpga_result result;
 
-	
 	fpga_objtype objtype;
 	EXPECT_NE(FPGA_OK, get_fpga_object_type(NULL, &objtype));
 
@@ -672,7 +650,7 @@ protected:
 };
 
 TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
-	fpga_result result;
+
 	uint64_t metric_id;
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
@@ -699,8 +677,6 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
 }
 
 TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
-	fpga_result result;
-
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -716,8 +692,6 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
 }
 
 TEST_P(metics_uitls_dcp_c_p, test_metric_utils_14) {
-	fpga_result result;
-
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
