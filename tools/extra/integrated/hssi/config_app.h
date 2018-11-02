@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <sstream>
-#include "mmio.h"
 #include "przone.h"
 #include "i2c.h"
 #include "mdio.h"
 #include "option_map.h"
 #include "cmd_handler.h"
 #include "log.h"
+#include "mmio.h"
 
 namespace intel
 {

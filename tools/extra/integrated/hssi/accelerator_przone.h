@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "przone.h"
-#include "mmio.h"
+#include <opae/cxx/core/handle.h>
 
 namespace intel
 {
@@ -52,14 +52,14 @@ public:
         afu_rd_data = 0x0030
     };
 
-    accelerator_przone(intel::fpga::mmio::ptr_t acceleratorptr);
+    accelerator_przone(opae::fpga::types::handle::ptr_t acceleratorptr);
     virtual ~accelerator_przone(){}
 
     virtual bool read(uint32_t address, uint32_t & value);
     virtual bool write(uint32_t address, uint32_t value);
 
 private:
-    intel::fpga::mmio::ptr_t mmio_;
+    opae::fpga::types::handle::ptr_t handle_;
 
 };
 

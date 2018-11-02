@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -82,6 +82,7 @@ bool hssi_przone::read(uint32_t address, uint32_t & value)
     }
 
     value = static_cast<uint32_t>(hssi_value & 0x00000000FFFFFFFF);
+
     return true;
 }
 
@@ -118,7 +119,7 @@ bool hssi_przone::write(uint32_t address, uint32_t value)
 bool hssi_przone::wait_for_ack(ack_t response, uint32_t timeout_usec, uint32_t * duration)
 {
     uint64_t value = response == ack_t::ack ? 0 : 0xFFFF;
-    // write a little lambda to check the value basked on response type we are
+    // write a little lambda to check the value based on response type we are
     // waiting on
     auto check_ack = [response](uint64_t v) -> bool
     {
@@ -162,7 +163,7 @@ bool hssi_przone::hssi_ack(uint32_t timeout_usec, uint32_t * duration)
 uint32_t hssi_przone::get_ctrl() const { return ctrl_; }
 uint32_t hssi_przone::get_stat() const { return stat_; }
 
-mmio::ptr_t hssi_przone::get_mmio() const { return mmio_; };
+mmio::ptr_t hssi_przone::get_mmio() const { return mmio_; }
 
 } // end of namespace hssi
 } // end of namespace fpga

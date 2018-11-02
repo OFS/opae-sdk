@@ -24,35 +24,33 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/tools/extra/fpgadiag
-                    ${OPAE_SDK_SOURCE}/tools/extra/c++utils
-                    ${OPAE_SDK_SOURCE}/tools/extra/libopae++)
+                    ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
-add_library(hssi-io  SHARED przone.h
-                            accelerator_przone.h
-                            accelerator_przone.cpp
-                            hssi_przone.h
-                            hssi_przone.cpp
-                            i2c.h
-                            i2c.cpp
-                            fme.h
-                            fme.cpp
-                            eth_ctrl.h
-                            eth_ctrl.cpp
-                            mdio.h
-                            mdio.cpp
-                            nios.h
-                            nios.cpp
-                            xcvr.h
-                            xcvr.cpp
-                            pll.h
-                            pll.cpp
-                            )
+add_library(hssi-io SHARED przone.h
+                           accelerator_przone.h
+                           accelerator_przone.cpp
+                           hssi_przone.h
+                           hssi_przone.cpp
+                           i2c.h
+                           i2c.cpp
+                           fme.h
+                           fme.cpp
+                           eth_ctrl.h
+                           eth_ctrl.cpp
+                           mdio.h
+                           mdio.cpp
+                           nios.h
+                           nios.cpp
+                           xcvr.h
+                           xcvr.cpp
+                           pll.h
+                           pll.cpp
+                           )
 set_install_rpath(hssi-io)
 set_target_properties(hssi-io PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-target_link_libraries(hssi-io opae-c++ opae-c++-utils)
+target_link_libraries(hssi-io opae-cxx-core opae-c++-utils)
 
 add_executable(hssi_loopback loopback_main.cpp
                              loopback_app.h

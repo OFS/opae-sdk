@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ public:
     {
     }
 
-    virtual bool write_mmio32(uint32_t offset, uint32_t value)
+    virtual bool write_mmio32(uint32_t offset, uint32_t value) override
     {
         UNUSED_PARAM(offset);
         for (int i = 0; i < indent_; ++i)
@@ -69,7 +69,7 @@ public:
         return true;
     }
 
-    virtual bool write_mmio64(uint32_t offset, uint64_t value)
+    virtual bool write_mmio64(uint32_t offset, uint64_t value) override
     {
         UNUSED_PARAM(offset);
         for (int i = 0; i < indent_; ++i)
@@ -80,7 +80,7 @@ public:
         return true;
     }
 
-    virtual bool read_mmio32(uint32_t offset, uint32_t & value)
+    virtual bool read_mmio32(uint32_t offset, uint32_t & value) override
     {
         UNUSED_PARAM(offset);
         UNUSED_PARAM(value);
@@ -91,7 +91,7 @@ public:
         return true;
     }
 
-    virtual bool read_mmio64(uint32_t offset, uint64_t & value)
+    virtual bool read_mmio64(uint32_t offset, uint64_t & value) override
     {
         UNUSED_PARAM(offset);
 	UNUSED_PARAM(value);
@@ -102,7 +102,7 @@ public:
         return true;
     }
 
-    virtual uint8_t * mmio_pointer(uint32_t offset)
+    virtual uint8_t * mmio_pointer(uint32_t offset) override
     {
         UNUSED_PARAM(offset);
         return nullptr;
