@@ -172,8 +172,10 @@ int main()
 
 	res = bmcGetLastPowerdownCause(token, &string);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy_token, "last powerdown cause");
-	printf("Last powerdown cause: '%s'\n", string);
-	free(string);
+    if (string) {
+	    printf("Last powerdown cause: '%s'\n", string);
+	    free(string);
+    }
 
 	res = bmcGetLastResetCause(token, &string);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy_token, "last reset cause");
