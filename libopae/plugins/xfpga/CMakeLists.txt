@@ -62,7 +62,11 @@ set(SRC
   usrclk/user_clk_pgm_uclock.c
   plugin.c
   sysobject.c
-  manage.c)
+  manage.c
+  metrics/metrics.c
+  metrics/metrics_utils.c
+  metrics/afu_metrics.c
+  metrics/vector.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})

@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 		add_counter(g_iommu, "iotlb_1g_hit");
 		add_counter(g_iommu, "iotlb_1g_miss");
 	}
-	int count = 100;
+	int count = 10;
 	while (--count > 0) {
 		for (i = 0; i < num_matches; ++i) {
 			for (j = 0; j < metrics[i].count; ++j) {
