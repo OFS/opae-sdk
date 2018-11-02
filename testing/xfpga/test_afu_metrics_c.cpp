@@ -134,7 +134,7 @@ protected:
 		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 			&num_matches_),
 			FPGA_OK);
-		EXPECT_EQ(num_matches_, platform_.devices.size());
+		ASSERT_GT(num_matches_, 0);
 		handle_ = nullptr;
 		ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
 		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
