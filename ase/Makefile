@@ -467,8 +467,8 @@ help: header
 
 ## Build ASE Software objects and shared library ##
 sw_build: $(SIM_QUARTUS_VERILOG) $(SIM_QUARTUS_VHDL)
-	cd $(WORK) ; $(CC) $(CC_OPT) -c $(ASESW_FILE_LIST) || exit 1 ; cd -
-	cd $(WORK) ; $(CC) $(CC_INT_SIZE) -g -shared -o $(ASE_SHOBJ_SO) `ls *.o` $(ASE_LD_SWITCHES) ; cd -
+	cd $(WORK) ; $(CC) $(CC_OPT) -c $(ASESW_FILE_LIST) || exit 1
+	cd $(WORK) ; $(CC) $(CC_INT_SIZE) -g -shared -o $(ASE_SHOBJ_SO) `ls *.o` $(ASE_LD_SWITCHES)
 	nm $(WORK)/$(ASE_SHOBJ_SO) > $(WORK)/$(ASE_SHOBJ_NAME).nm
 
 ## VCS build template ##
@@ -505,16 +505,16 @@ questa_build: sw_build
 	@echo "#              QuestaSim-GCC build initiated               #"
 	@echo "#                                                          #"
 	@echo "############################################################"
-	cd $(WORK) ; vlib $(WORK) ; vmap work $(WORK) ; cd -
+	cd $(WORK) ; vlib $(WORK) ; vmap work $(WORK)
 ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_ADVANCED)
 	cp -f $(ASE_MEM_SRC)/*.hex $(ASE_WORKDIR)
 endif
-	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QSIM_MODEL_VLOG_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlog-ase.log ; cd -
+	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QSIM_MODEL_VLOG_OPT) $(ASEHW_FILE_LIST) $(ASE_PLATFORM_FILE_LIST) -l vlog-ase.log
 ifdef DUT_VHD_SRC_LIST
-	cd $(WORK) ; vcom $(MENT_VCOM_OPT) -F $(DUT_VHD_SRC_LIST) -l vcom-afu.log ; cd -
+	cd $(WORK) ; vcom $(MENT_VCOM_OPT) -F $(DUT_VHD_SRC_LIST) -l vcom-afu.log
 endif
 ifdef DUT_VLOG_SRC_LIST
-	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASE_PLATFORM_INC) -F $(DUT_VLOG_SRC_LIST) -l vlog-afu.log ; cd -
+	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASE_PLATFORM_INC) -F $(DUT_VLOG_SRC_LIST) -l vlog-afu.log
 endif
 
 ## VCS base Quartus Verilog libraries
@@ -522,9 +522,9 @@ $(WORK)/synopsys_sim_quartus_verilog.setup:
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
-	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language verilog -gen_only -cmd_file quartus_vcs_verilog.sh; chmod a+x quartus_vcs_verilog.sh; cd -
+	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language verilog -gen_only -cmd_file quartus_vcs_verilog.sh; chmod a+x quartus_vcs_verilog.sh
 	@# Compile the libraries
-	cd $(WORK); ./quartus_vcs_verilog.sh; cd -
+	cd $(WORK); ./quartus_vcs_verilog.sh
 	ls -1d $(WORK)/verilog_libs/* | awk -F / '{print $$NF ": " $$0}' > $@
 else
 	@echo > $@
@@ -535,11 +535,11 @@ $(WORK)/quartus_msim_verilog_libs:
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
-	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool modelsim -language verilog -gen_only -cmd_file quartus_msim_verilog.do; cd -
+	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool modelsim -language verilog -gen_only -cmd_file quartus_msim_verilog.do
 	@# Compile the libraries
-	cd $(WORK); vsim -c -do quartus_msim_verilog.do; cd -
+	cd $(WORK); vsim -c -do quartus_msim_verilog.do
 	@# Generate an -L command to load these libraries in vsim
-	cd $(WORK)/verilog_libs; libs=`echo *_ver`; echo -L $${libs// / -L } > ../quartus_msim_verilog_libs; cd -
+	cd $(WORK)/verilog_libs; libs=`echo *_ver`; echo -L $${libs// / -L } > ../quartus_msim_verilog_libs
 else
 	@echo > $@
 endif
@@ -550,9 +550,9 @@ ifdef DUT_VHD_SRC_LIST
   ifeq ($(GLS_SIM), 1)
 	mkdir -p $(WORK)/vhdl_libs
 	@# Generate the Quartus family-dependent simulation library list
-	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language vhdl -gen_only -cmd_file quartus_vcs_vhdl.sh; chmod a+x quartus_vcs_vhdl.sh; cd -
+	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language vhdl -gen_only -cmd_file quartus_vcs_vhdl.sh; chmod a+x quartus_vcs_vhdl.sh
 	@# Compile the libraries
-	cd $(WORK); ./quartus_vcs_vhdl.sh; cd -
+	cd $(WORK); ./quartus_vcs_vhdl.sh
 	ls -1d $(WORK)/vhdl_libs/* | awk -F / '{print $$NF ": " $$0}' > $@
   else
 	@echo > $@
@@ -567,9 +567,9 @@ $(WORK)/quartus_msim_vhdl.do: $(WORK)/quartus_msim_verilog_libs
 ifdef DUT_VHD_SRC_LIST
   ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
-	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool modelsim -language vhdl -gen_only -cmd_file quartus_msim_vhdl.do; cd -
+	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool modelsim -language vhdl -gen_only -cmd_file quartus_msim_vhdl.do
 	@# Compile the libraries
-	cd $(WORK); vsim -c -do quartus_msim_vhdl.do; cd -
+	cd $(WORK); vsim -c -do quartus_msim_vhdl.do
   else
 	@echo > $@
   endif
@@ -584,15 +584,15 @@ build: $(BUILD_TARGET)
 ## Run ASE Simulator ##
 sim: check
 ifeq ($(SIMULATOR), VCS)
-	cd $(ASE_WORKDIR) ; ./ase_simv $(SNPS_SIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) ; cd -
+	cd $(ASE_WORKDIR) ; ./ase_simv $(SNPS_SIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT)
 else
   ifeq ($(SIMULATOR), QUESTA)
         ifeq ($(ASE_DISCRETE_EMIF_MODEL), EMIF_MODEL_BASIC)
                 # recompile memory model to keep Questa happy
-		cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv -l vlog-ase.log ; cd -
+		cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(QUARTUS_HOME)/../ip/altera/sopc_builder_ip/verification/altera_avalon_mm_slave_bfm/altera_avalon_mm_slave_bfm.sv -l vlog-ase.log
         endif
 	$(eval VERILOG_LIBS := $(shell cat $(WORK)/quartus_msim_verilog_libs))
-	cd $(ASE_WORKDIR) ; vsim $(MENT_VSIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) $(VERILOG_LIBS) $(ASE_TOP) ; cd -
+	cd $(ASE_WORKDIR) ; vsim $(MENT_VSIM_OPT) +CONFIG=$(ASE_CONFIG) +SCRIPT=$(ASE_SCRIPT) $(VERILOG_LIBS) $(ASE_TOP)
   else
 	@echo "############################################################"
 	@echo "#         SIMULATOR=$(SIMULATOR) not supported             #"

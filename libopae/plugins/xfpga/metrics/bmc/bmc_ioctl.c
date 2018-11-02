@@ -49,7 +49,7 @@
 		}                                                              \
 	} while (0)
 
-static fpga_result rawFromDouble(Values *details, double dbl, uint8_t *raw)
+fpga_result rawFromDouble(Values *details, double dbl, uint8_t *raw)
 {
 	fpga_result res = FPGA_OK;
 
@@ -73,8 +73,8 @@ static fpga_result rawFromDouble(Values *details, double dbl, uint8_t *raw)
 	return res;
 }
 
-static void fill_set_request(Values *vals, threshold_list *thresh,
-			     bmc_set_thresh_request *req)
+void fill_set_request(Values *vals, threshold_list *thresh,
+		     bmc_set_thresh_request *req)
 {
 	fpga_result res = FPGA_OK;
 	uint8_t mask = 0;
@@ -132,8 +132,8 @@ static void fill_set_request(Values *vals, threshold_list *thresh,
 	}
 }
 
-static fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
-				    bmc_set_thresh_request *req)
+fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
+		    bmc_set_thresh_request *req)
 {
 	bmc_xact xact = {0};
 	bmc_set_thresh_response resp;
@@ -165,8 +165,8 @@ out_close:
 	return res;
 }
 
-static fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
-				    bmc_get_thresh_response *resp)
+fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
+			    bmc_get_thresh_response *resp)
 {
 	bmc_xact xact = {0};
 	bmc_get_thresh_request req;

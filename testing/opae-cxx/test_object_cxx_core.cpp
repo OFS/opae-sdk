@@ -47,21 +47,36 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
     invalid_device_ = test_device::unknown();
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
+
+    properties::ptr_t props = properties::get(FPGA_ACCELERATOR);
+    props->device_id = platform_.devices[0].device_id;
+
+    tokens_ = token::enumerate({props});
     ASSERT_GT(tokens_.size(), 0);
     handle_ = handle::open(tokens_[0], 0);
     ASSERT_NE(handle_.get(), nullptr);
+
+    properties::ptr_t props_dev = properties::get(FPGA_DEVICE);
+    props_dev->device_id = platform_.devices[0].device_id;
+
+    tokens_dev_ = token::enumerate({props_dev});
+    ASSERT_GT(tokens_dev_.size(), 0);
+    handle_dev_ = handle::open(tokens_dev_[0], 0);
+    ASSERT_NE(handle_dev_.get(), nullptr);
   }
 
   virtual void TearDown() override {
-    system_->finalize();
     tokens_.clear();
+    tokens_dev_.clear();
     handle_->close();
     handle_.reset();
+    system_->finalize();
   }
 
   std::vector<token::ptr_t> tokens_;
+  std::vector<token::ptr_t> tokens_dev_;
   handle::ptr_t handle_;
+  handle::ptr_t handle_dev_;
   test_platform platform_;
   test_device invalid_device_;
   test_system *system_;
@@ -117,9 +132,17 @@ TEST_P(sysobject_cxx_p, handle_object) {
  * Then no exceptions are thrown
  */
 TEST_P(sysobject_cxx_p, handle_object_write) {
-  auto obj = sysobject::get(handle_, "errors/errors");
+  std::string path = "iperf/fabric/freeze";;
+
+  if (platform_.devices[0].device_id == 0x09c4 || 
+      platform_.devices[0].device_id == 0x09c5) {
+    path = "dperf/fabric/freeze";
+  }
+
+  auto obj = sysobject::get(handle_dev_, path);
   ASSERT_NE(obj.get(), nullptr);
-  EXPECT_NO_THROW(obj->write64((0x1UL << 50)));
+  EXPECT_NO_THROW(obj->write64(0x1));
+  EXPECT_NO_THROW(obj->write64(0x0));
 }
 
 /**
@@ -162,12 +185,20 @@ TEST_P(sysobject_cxx_p, token_subobject_write) {
  * And the value has changed from its original value
  */
 TEST_P(sysobject_cxx_p, handle_subobject_write) {
-  auto h_obj = sysobject::get(handle_, "errors");
+  std::string path = "iperf/fabric";;
+
+  if (platform_.devices[0].device_id == 0x09c4 ||
+      platform_.devices[0].device_id == 0x09c5) {
+    path = "dperf/fabric";
+  }
+
+  auto h_obj = sysobject::get(handle_dev_, path);
   ASSERT_NE(h_obj.get(), nullptr);
-  auto h_value1 = h_obj->get("errors")->read64(FPGA_OBJECT_SYNC);
-  ASSERT_NO_THROW(h_obj->get("errors")->write64(0x100));
-  auto h_value2 = h_obj->get("errors")->read64(FPGA_OBJECT_SYNC);
-  EXPECT_NE(h_value1, h_value2);
+  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
+  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x1));
+  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
+  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x0));
+  EXPECT_EQ(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC), 0x0);
 }
 
 /**
