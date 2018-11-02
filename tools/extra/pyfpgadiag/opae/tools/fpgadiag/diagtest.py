@@ -114,6 +114,10 @@ class diagtest(object):
             help='PCIe function number',
             type=parse_int)
         parser.add_argument(
+            '--segment',
+            help='PCIe segment number',
+            type=parse_int)
+        parser.add_argument(
             '-S',
             '--socket_id',
             help='socket id encoded in BBS',
@@ -126,7 +130,13 @@ class diagtest(object):
 
     def enumerate(self, **kwargs):
         args, _ = self._parser.parse_known_args()
-        prop_names = ['bus', 'device', 'function', 'socket_id', 'guid']
+        prop_names = [
+            'bus',
+            'device',
+            'function',
+            'segment',
+            'socket_id',
+            'guid']
         filt = dict([(p, getattr(args, p))
                      for p in prop_names if getattr(args, p)])
         tokens = fpga.enumerate(type=fpga.ACCELERATOR, **filt)
