@@ -547,7 +547,7 @@ TEST_P(sysfs_c_mock_p, make_sysfs) {
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
                          handle_);
-  EXPECT_NE(res, FPGA_OK);
+  EXPECT_EQ(res, FPGA_OK);
 
   res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
                          &obj, 0, handle_);
@@ -568,7 +568,7 @@ TEST_P(sysfs_c_mock_p, make_object_glob) {
   _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
   fpga_object object;
   // errors is a sysfs directory - this should call make_sysfs_group()
-  ASSERT_NE(make_sysfs_object(tok->sysfspath, "errors", &object, 
+  ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 
                               FPGA_OBJECT_GLOB, 0),
             FPGA_OK);
 }

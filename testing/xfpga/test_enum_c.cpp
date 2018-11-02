@@ -489,6 +489,7 @@ TEST_P(enum_c_p, object_id_fme) {
 
   EXPECT_EQ(xfpga_fpgaGetProperties(tokens_[0], &prop), FPGA_OK);
   EXPECT_EQ(fpgaPropertiesGetObjectID(prop, &object_id), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   DestroyTokens();
 
@@ -533,6 +534,7 @@ TEST_P(enum_c_p, object_id_port) {
 
   EXPECT_EQ(xfpga_fpgaGetProperties(tokens_[0], &prop), FPGA_OK);
   EXPECT_EQ(fpgaPropertiesGetObjectID(prop, &object_id), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   DestroyTokens();
 

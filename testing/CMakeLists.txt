@@ -68,7 +68,11 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/userclk.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/wsid_list.c
-              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_utils.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/afu_metrics.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -77,6 +81,23 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
+add_library(bmc-static STATIC 
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc_ioctl.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
+    )
+    
+
+add_library(libbmc  SHARED
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc_ioctl.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
+    )
+    
+
+  
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
@@ -224,6 +245,7 @@ include_directories(
     ${PROJECT_BINARY_DIR}/include
     ${OPAE_SDK_SOURCE}/libopae
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc
     ${OPAE_SDK_SOURCE}/tools/base
     mock
     ${GTEST_INCLUDE_DIRS}
@@ -424,8 +446,30 @@ add_unit_test(test_xfpga_manage_c xfpga-static
 add_unit_test(test_xfpga_events_c xfpga-static
     xfpga/test_events_c.cpp
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr 
+
+add_unit_test(test_xfpga_metrics_vector_c xfpga-static
+    xfpga/test_metrics_vector_c.cpp
+)
+
+add_unit_test(test_xfpga_metrics_utils_c xfpga-static
+    xfpga/test_metrics_utils_c.cpp
+)
+
+add_unit_test(test_xfpga_afu_metrics_c xfpga-static
+    xfpga/test_afu_metrics_c.cpp
+)
+
+add_unit_test(test_xfpga_metrics_c xfpga-static
+    xfpga/test_metrics_c.cpp
+)
+
+target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
         ${libjson-c_LIBRARIES})
+
+set_tests_properties(
+    test_xfpga_events_c
+    PROPERTIES TIMEOUT 70
+)
 
 ############################################################################
 # fpgad tests ##############################################################

@@ -169,59 +169,6 @@ TEST(ras_c, invalid_print_error){
 }
 
 /**
- * @test       main_params_01
- * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command,<br>
- *             that includes errors injection, ras_main returns zero.<br>
- */
-TEST_P(ras_c_p, main_params_01){
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
-  char fifteen[20];
-  char sixteen[20];
-
-  strcpy(zero, "ras");
-  strcpy(one, "--segment");
-  sprintf(two, "%d", platform_.devices[0].segment);
-  strcpy(three, "-B");
-  sprintf(four, "%d", platform_.devices[0].bus);
-  strcpy(five, "-D");
-  sprintf(six, "%d", platform_.devices[0].device);
-  strcpy(seven, "-F");
-  sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
-  strcpy(eleven, "-P");
-  strcpy(twelve, "-Q");
-  strcpy(thirteen, "-R");
-  strcpy(fourteen, "-O");
-  strcpy(fifteen, "-N");
-  strcpy(sixteen, "-C");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen,
-                   fourteen, fifteen, sixteen };
-
-  EXPECT_EQ(ras_main(17, argv), FPGA_OK);
-}
-
-/**
  * @test       main_params_02
  * @brief      Test: ras_main
  * @details    When ras_main is called with an valid command,<br>
@@ -264,38 +211,6 @@ TEST_P(ras_c_p, main_params_02){
                    ten, eleven, twelve, thirteen };
 
   EXPECT_EQ(ras_main(14, argv), FPGA_INVALID_PARAM);
-}
-/**
- * @test       main_params_03
- * @brief      Test: ras_main
- * @details    When ras_main is called with an valid command option,<br>
- *             injecting mmio error, ras_main returns zero.<br>
- */
-TEST_P(ras_c_p, main_params_03){
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-
-  strcpy(zero, "ras");
-  strcpy(one, "-B");
-  sprintf(two, "%d", platform_.devices[0].bus);
-  strcpy(three, "-P");
-  strcpy(four, "-E");
-  strcpy(five, "-G");
-  strcpy(six, "-H");
-  strcpy(seven, "-I");
-  strcpy(eight, "-C");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight };
-
-  EXPECT_EQ(ras_main(9, argv), FPGA_OK);
 }
 
 /**
@@ -433,6 +348,92 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_system *system_;
 };
+
+/**
+ * @test       main_params_01
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command,<br>
+ *             that includes errors injection, ras_main returns zero.<br>
+ */
+TEST_P(ras_c_mock_p, main_params_01){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  char fifteen[20];
+  char sixteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-Q");
+  strcpy(thirteen, "-R");
+  strcpy(fourteen, "-O");
+  strcpy(fifteen, "-N");
+  strcpy(sixteen, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen,
+                   fourteen, fifteen, sixteen };
+
+  EXPECT_EQ(ras_main(17, argv), FPGA_OK);
+}
+
+/**
+ * @test       main_params_03
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting mmio error, ras_main returns zero.<br>
+ */
+TEST_P(ras_c_mock_p, main_params_03){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+  strcpy(three, "-P");
+  strcpy(four, "-E");
+  strcpy(five, "-G");
+  strcpy(six, "-H");
+  strcpy(seven, "-I");
+  strcpy(eight, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight };
+
+  EXPECT_EQ(ras_main(9, argv), FPGA_OK);
+}
 
 /**
  * @test       mmio_error
@@ -578,3 +579,91 @@ TEST_P(ras_c_mock_p, invalid_print_pwr_temp){
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
+
+class ras_c_hw_skx_p : public ras_c_p {};
+
+/**
+ * @test       main_params_01
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command,<br>
+ *             that includes errors injection, ras_main returns zero.<br>
+ *             On HW, remove the -Q and -R options.
+ */
+TEST_P(ras_c_hw_skx_p, main_params_01){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
+  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
+  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  strcpy(eleven, "-P");
+  strcpy(twelve, "-O");
+  strcpy(thirteen, "-N");
+  strcpy(fourteen, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen,
+                   fourteen };
+
+  EXPECT_EQ(ras_main(15, argv), FPGA_OK);
+}
+
+/**
+ * @test       main_params_03
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with an valid command option,<br>
+ *             injecting mmio error, ras_main returns zero.<br>
+ */
+TEST_P(ras_c_hw_skx_p, main_params_03){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
+  strcpy(three, "-P");
+  strcpy(four, "-E");
+  strcpy(five, "-G");
+  strcpy(six, "-H");
+  strcpy(seven, "-I");
+  strcpy(eight, "-C");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight };
+
+  EXPECT_EQ(ras_main(9, argv), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(ras_c, ras_c_hw_skx_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));

@@ -31,6 +31,7 @@
 #include <opae/access.h>
 #include "common_int.h"
 #include "wsid_list_int.h"
+#include "metrics/metrics_int.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -66,6 +67,10 @@ fpga_result __FPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 	wsid_tracker_cleanup(_handle->wsid_root, NULL);
 	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
 	free_umsg_buffer(handle);
+
+	// free metric enum vector
+	free_fpga_enum_metrics_vector(_handle);
+
 	close(_handle->fddev);
 	if (_handle->fdfpgad >= 0)
 		close(_handle->fdfpgad);

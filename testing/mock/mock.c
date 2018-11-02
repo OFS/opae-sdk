@@ -104,3 +104,13 @@ int scandir(const char *__restrict __dir,
 int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask) {
   return opae_test_sched_setaffinity(pid, cpusetsize, mask);
 }
+
+
+int glob(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob)
+                {
+                 return opae_test_glob(pattern, flags,errfunc ,pglob);
+                
+                }
+                

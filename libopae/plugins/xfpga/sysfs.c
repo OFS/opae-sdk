@@ -336,6 +336,57 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
+
+fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64_decimal(const char *path, uint64_t u)
+{
+	int fd = -1;
+	int res = 0;
+	char buf[SYSFS_PATH_MAX] = {0};
+	int b = 0;
+	int len;
+
+	if (path == NULL) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fd = open(path, O_WRONLY);
+	if (fd < 0) {
+		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		FPGA_MSG("seek: %s", strerror(errno));
+		goto out_close;
+	}
+
+	len = snprintf_s_l(buf, sizeof(buf), "%ld\n", u);
+
+	do {
+		res = write(fd, buf + b, len - b);
+		if (res <= 0) {
+			FPGA_ERR("Failed to write");
+			goto out_close;
+		}
+		b += res;
+
+		if (b > len || b <= 0) {
+			FPGA_MSG("Unexpected size writing to %s", path);
+			goto out_close;
+		}
+
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
+		 && b < len);
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_NOT_FOUND;
+}
+
 fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 {
 	int fd;

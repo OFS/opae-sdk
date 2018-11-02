@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2017-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -30,14 +30,14 @@ add_subdirectory(base/fpgaconf)
 add_subdirectory(base/fpgad)
 add_subdirectory(base/fpgainfo)
 add_subdirectory(base/fpgaport)
+add_subdirectory(base/fpgametrics)
 
 # extra
 add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 add_subdirectory(extra/packager)
 add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
+add_subdirectory(extra/pyfpgadiag)
 add_subdirectory(extra/mmlink)
 add_subdirectory(extra/ras)
 
