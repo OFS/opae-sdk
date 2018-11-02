@@ -35,10 +35,6 @@
 #include <wchar.h>
 #include "bmcinfo.h"
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
 typedef enum {
 	CHIP_RESET_CAUSE_POR = 0x01,
 	CHIP_RESET_CAUSE_EXTRST = 0x02,
@@ -49,26 +45,15 @@ typedef enum {
 	CHIP_RESET_CAUSE_SPIKE = 0x40,
 } ResetCauses;
 
-//extern uint8_t bcd_plus[];
-//extern uint8_t ASCII_6_bit_translation[];
-//extern wchar_t *base_units[];
-//extern size_t max_base_units;
-//extern char *sensor_type_codes[];
-//extern size_t max_sensor_type_code;
-//extern char *event_reading_type_codes[];
-//extern size_t max_event_reading_type_code;
-//extern char *entity_id_codes[];
-//extern size_t max_entity_id_code;
-//extern int bmcdata_verbose;
-
-//void bmc_print_detail(sensor_reading *reading, sdr_header *header, sdr_key *key,
-//		      sdr_body *body);
+#ifdef __cplusplus
+extern "C" {
+#endif
 void calc_params(sdr_body *body, Values *val);
 double getvalue(Values *val, uint8_t raw);
-//void print_reset_cause(reset_cause *cause);
 
-//#ifdef __cplusplus
-//}
-//#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !BMCDATA_H */
