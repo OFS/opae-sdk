@@ -227,7 +227,7 @@ if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
 
 #list of components to be included in the package
-set(CPACK_COMPONENTS_ALL toolfpgainfo toolfpgadiag toolfpgabist toolfpgadiagapps toolpackager jsonschema opaecase asertl asescripts aseextra asesw libopaeheaders dochtml doclatex docrtf docman docxml platform samplesrc safestrlib safestrheaders opaeclib opaecxxcorelib) 
+set(CPACK_COMPONENTS_ALL toolfpgainfo toolfpgadiag toolfpgabist toolfpgadiagapps toolpackager jsonschema opaecase asertl asescripts aseextra asesw libopaeheaders dochtml doclatex docrtf docman docxml platform samplesrc safestrlib safestrheaders opaeclib opaecxxcorelib opaetoolslibs) 
 
 # Component definition
 define_pkg(tools
@@ -246,6 +246,7 @@ define_pkg(tools
   toolfpgadiagapps
   toolpackager
   jsonschema
+  opaetoolslibs
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"
