@@ -36,7 +36,7 @@
 #include <iostream>
 #include "c_test_system.h"
 #include "test_utils.h"
-
+#include <glob.h>
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
@@ -195,6 +195,8 @@ test_system::test_system() : initialized_(false), root_("") {
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
   sched_setaffinity_ = (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
+  
+   glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
 
   hijack_sched_setaffinity_ = false;
   hijack_sched_setaffinity_return_val_ = 0;
@@ -295,6 +297,7 @@ void test_system::initialize() {
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
   ASSERT_FN(sched_setaffinity_);
+    ASSERT_FN(glob_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -670,6 +673,33 @@ void test_system::hijack_sched_setaffinity(int return_val, uint32_t after,
   hijack_sched_setaffinity_caller_ = when_called_from;
 }
 
+int test_system::glob(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob)
+{
+  if (pattern == nullptr) {
+  	return glob_(pattern, flags, errfunc, pglob);
+  }
+	
+  auto path= get_sysfs_path(pattern);
+  
+  auto res = glob_(path.c_str(),flags,errfunc,pglob);
+  if (!res) {
+  	for (int i = 0; i < pglob->gl_pathc; ++i) {
+		std::string tmppath(pglob->gl_pathv[i]);
+		if (tmppath.find(get_root()) == 0) {
+		  auto p = pglob->gl_pathv[i];
+		  auto root_len = get_root().size();
+		  auto new_len = tmppath.size() - root_len;
+		  std::copy(tmppath.begin()+root_len, tmppath.end(), p);
+		  p[new_len] = '\0';
+		}
+	}
+  }
+ 
+ return res;
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
@@ -747,3 +777,13 @@ int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize,
                                 const cpu_set_t *mask) {
   return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
 }
+
+
+ int opae_test_glob(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob)
+ {
+                 return opae::testing::test_system::instance()->glob(pattern,flags,errfunc,pglob);
+                
+ }
+                

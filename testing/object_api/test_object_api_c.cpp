@@ -208,18 +208,11 @@ TEST_P(object_api_c_mock_p, main1) {
 
   char *argv[] = { zero, one, two };
 
-  /*
-  ** FIXME object_api will glob sysfs for *perf directory,
-  ** current test_system does not mock glob and will not
-  ** find *perf/ files,
-  ** but this test should run to successful completion
-  ** on hardware, and the fn should return FPGA_OK.
-  */
-  EXPECT_NE(object_api_main(3, argv), FPGA_OK);
+  EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 class object_api_c_mcp_hw_p : public object_api_c_p {
 };

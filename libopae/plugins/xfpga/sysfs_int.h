@@ -102,6 +102,8 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags, fpga_handle handle);
 
+fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u);
+
 #ifdef __cplusplus
 }
 #endif

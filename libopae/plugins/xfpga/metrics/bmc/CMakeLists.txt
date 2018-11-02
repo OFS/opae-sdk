@@ -24,28 +24,32 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+include_directories(
+	${OPAE_INCLUDE_DIR} )
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/fpgametrics)
+add_library(bmc SHARED
+	bmc.c
+	bmcdata.c
+	bmc_ioctl.c
+	bmcinfo.c)
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+add_library(staticbmc STATIC
+	bmc.c
+	bmcdata.c
+	bmc_ioctl.c
+	bmcinfo.c)
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
+set_install_rpath(bmc)
 
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+set_property(TARGET staticbmc PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_link_libraries(bmc safestr m rt ${CMAKE_THREAD_LIBS_INIT})
+
+set_target_properties(bmc PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
+
+install(TARGETS bmc
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+    COMPONENT opaetoolslibs)
