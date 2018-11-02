@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import nlb
 from diagtest import diagtest
-from opae import fpga
 from opae.utils import cl_align, CACHELINE_BYTES
+# pylint: disable=E0611
+from opae import fpga
 
 COOL_CACHE_LINES = 1024
 COOL_CACHE_SIZE = CACHELINE_BYTES*COOL_CACHE_LINES

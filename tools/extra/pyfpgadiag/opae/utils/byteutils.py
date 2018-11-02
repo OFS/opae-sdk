@@ -1,4 +1,5 @@
-# Copyright(c) 2017, Intel Corporation
+#! /usr/bin/env python
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,8 +24,64 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from diagtest import diagtest
+
+"""
+
+"""
+import inspect
+import math
 
 
-class nlb0(diagtest):
-    guid = "D8424DC4-A4A3-C413-F89E-433683F9040B"
+class Bytes(object):
+    def __init__(self, count):
+        parents = inspect.getmro(type(self))
+        self._count = float(count)
+        self._bytes = float(count) * math.pow(1024, len(parents)-2)
+
+    def count(self):
+        return self._bytes
+
+    def __int__(self):
+        return int(self._bytes)
+
+    def __float__(self):
+        return float(self._bytes)
+
+    def __add__(self, other):
+        return self._bytes + float(other)
+
+    def __sub__(self, other):
+        return self._bytes - float(other)
+
+    def __mul__(self, other):
+        return self._bytes * float(other)
+
+    def __div__(self, other):
+        return self._bytes / float(other)
+
+    def __le__(self, other):
+        return self._bytes <= float(other)
+
+    def __ge__(self, other):
+        return self._bytes >= float(other)
+
+    def __lt__(self, other):
+        return self._bytes < float(other)
+
+    def __gt__(self, other):
+        return self._bytes > float(other)
+
+    def __str__(self):
+        return '{} {}'.format(self._count, self.__class__.__name__)
+
+
+class KiB(Bytes):
+    pass
+
+
+class MiB(KiB):
+    pass
+
+
+class GiB(MiB):
+    pass

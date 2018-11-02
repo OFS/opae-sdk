@@ -1,5 +1,4 @@
-#! /usr/bin/env python
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,18 +23,8 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import re
-CACHELINE_BYTES = 64
+from diagtest import diagtest
 
 
-def cl_align(addr):
-    """cl_align
-    Align an IO Address to be cacheline aligned
-    :param addr: The IO Address to align
-    """
-    return addr >> 6
-
-
-def parse_int(inp):
-    radix = 16 if re.match(r'0x\d+', inp, re.IGNORECASE) else 10
-    return int(inp, radix)
+class nlb0(diagtest):
+    guid = "D8424DC4-A4A3-C413-F89E-433683F9040B"

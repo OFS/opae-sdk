@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,8 +24,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from diagtest import diagtest
-from opae import fpga
 from opae.utils import CACHELINE_BYTES
+# pylint: disable=E0611
+from opae import fpga
 
 HIGH = 0xffffffff
 LOW = 0x0

@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,11 +23,12 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import logging
 from opae.utils import CACHELINE_BYTES
 from opae.utils.byteutils import GiB
 from opae.utils.csr import csr, f_enum
-import opae.fpga as fpga
-import logging
+# pylint: disable=E0611
+from opae import fpga
 
 
 class CFG(csr):

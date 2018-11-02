@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -28,9 +28,10 @@ import sys
 import time
 import nlb
 from datetime import timedelta
-from opae import fpga
 from opae.utils import csr, parse_int, cl_align, CACHELINE_BYTES
 from opae.utils.byteutils import KiB, MiB
+# pylint: disable=E0611
+from opae import fpga
 
 
 def to_seconds(args):
@@ -210,10 +211,10 @@ class diagtest(object):
         parser.add_argument("--suppress-stats",
                             default=False,
                             action='store_true',
-                            help="Show stas at end")
+                            help="Hide stats at end")
         parser.add_argument(
             "--mem-timeout", default=0.5, type=float,
-            help="seconds to wait before timing out on memory poll")
+            help="Seconds to wait before timing out on memory poll")
 
     def setup(self):
         """setup is called to validate arguments and will return True
@@ -263,7 +264,7 @@ class diagtest(object):
         return self.args.end*CACHELINE_BYTES
 
     def get_buffers(self, handle):
-        """get_buffers get the three basic buffers needed for test.
+        """get_buffers gets the three basic buffers needed for test.
            dsm (device status memory), src (source or input),
            and dst (destination or output).
 

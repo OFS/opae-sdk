@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -29,10 +29,11 @@ import logging
 import sys
 from collections import OrderedDict
 from os.path import basename, EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
-from opae import fpga
 from nlb0 import nlb0
 from nlb3 import nlb3
 from nlb7 import nlb7
+# pylint: disable=E0611
+from opae import fpga
 
 
 class fpgadiag(object):

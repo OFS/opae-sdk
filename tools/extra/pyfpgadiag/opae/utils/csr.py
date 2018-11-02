@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -107,7 +107,7 @@ class csr(object):
     _enums_ = []
 
     def __init__(self, value=0, offset=None, **kwargs):
-        """__init_ Create a new csr object and initialize it with the given
+        """__init__ Create a new csr object and initialize it with the given
         value and offset
 
         :param value: Value to initialize the csr object
@@ -127,10 +127,10 @@ class csr(object):
             self._width = kwargs.get('width', 64)
             # if the class has defined bitfields
             if self._bits_:
-                # sort the bitfields by the second element, bit bit range
+                # sort the bitfields by the second element, bit range
                 self._bits_ = sorted(self._bits_, key=lambda b: b[1])
                 # the smallest bit is the last bitfield in the sorted list
-                # the bitfield is make of of the name, bitrange
+                # the bitfield is make of the name, bitrange
                 # first element in the bitrange is the hi bit
                 smallest_bit = self._bits_[-1][1][0]
                 if smallest_bit < 32 and self._width not in [32, 64]:

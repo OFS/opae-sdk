@@ -51,12 +51,12 @@ foreach(pyfile ${PYFILES})
     configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
 endforeach(pyfile ${PYFILES})
 
-add_custom_target(pydiag-dist
+add_custom_target(pyfpgadiag-dist
     COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
     DEPENDS ${PYFILES}
     WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
-    COMMENT "Building Python distrubutions of pydiag")
+    COMMENT "Building Python distrubutions of pyfpgadiag")
 
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/opae.fpgadiag-${INTEL_FPGA_API_VERSION}.tar.gz
                               WORKING_DIRECTORY ${PYDIST_STAGE_DIR})"
