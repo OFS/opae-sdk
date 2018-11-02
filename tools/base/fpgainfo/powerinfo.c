@@ -55,21 +55,18 @@ static void print_power_info(fpga_token token)
         fpga_result res = FPGA_OK;
 
         res = fpgaGetProperties(token, &props);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading properties from token");
+        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading properties from token");
 
 	fpgainfo_print_common("//****** POWER ******//", props);
 
         res = get_metrics(token, POWER, metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading metrics from BMC");
+        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
         print_metrics(metrics_info, metrics, num_metrics);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit,
-                             "destroying properties");
+        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
 out_exit:
         return;

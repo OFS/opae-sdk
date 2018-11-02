@@ -55,34 +55,27 @@ static void print_temp_info(fpga_token token)
         uint64_t pkg_temp;
 
         res = fpgaGetProperties(token, &props);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "Failure reading properties from token");
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading properties from token");
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
         res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "Failure getting temp object from token");
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
 	res = fpgaObjectRead64(obj, &pkg_temp, FPGA_OBJECT_SYNC);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "Failure reading package temperature value");
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading package temperature value");
 
-	printf("%-29s : %02ld %s\n", "Package Temperature", 
-                pkg_temp, "Centigrade");
+	printf("%-29s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
 
         res = get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading metrics from BMC");
+        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
         print_metrics(metrics_info, metrics, num_metrics);
 
 out_destroy:
         res = fpgaDestroyObject(&obj);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit,
-                             "destroying object");
+        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying object");
 
 	res = fpgaDestroyProperties(&props);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit,
-                             "destroying properties");
+        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
 out_exit:
         return;

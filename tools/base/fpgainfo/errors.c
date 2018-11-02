@@ -34,15 +34,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <sysexits.h>
 
 #include "fpgainfo.h"
 #include "safe_string/safe_string.h"
 #include <opae/properties.h>
-
-//#include "sysinfo.h"
 #include "errors.h"
-//#include "bmcinfo.h"
 
 #define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
 
@@ -58,7 +54,6 @@ static const char *const FME_ERROR[FME_ERROR_COUNT] = {
 	"IOMMU Parity error detected",
 	"AFU PF/VF access mismatch detected",
 	"Indicates an MBP event error detected"};
-//#define FME_ERROR_COUNT (sizeof(FME_ERROR) / sizeof(FME_ERROR[0]))
 
 #define PCIE0_ERROR_COUNT 10
 static const char *const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
@@ -67,7 +62,6 @@ static const char *const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
 	"CCI bridge parity error detected", "TLP with EP  error  detected"};
-//#define PCIE0_ERROR_COUNT (sizeof(PCIE0_ERROR) / sizeof(PCIE0_ERROR[0]))
 
 #define PCIE1_ERROR_COUNT 10
 static const char *const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
@@ -76,7 +70,6 @@ static const char *const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
 	"TLP MR length error detected",     "TLP CPL tag error detected",
 	"TLP CPL status error detected",    "TLP CPL timeout error detected",
 	"CCI bridge parity error detected", "TLP with EP  error  detected"};
-//#define PCIE1_ERROR_COUNT (sizeof(PCIE1_ERROR) / sizeof(PCIE1_ERROR[0]))
 
 #define NONFATAL_ERROR_COUNT 13
 static const char *const NONFATAL_ERROR[NONFATAL_ERROR_COUNT] = {
@@ -93,8 +86,6 @@ static const char *const NONFATAL_ERROR[NONFATAL_ERROR_COUNT] = {
 	"Power threshold triggered AP1 error detected",
 	"Power threshold triggered AP2 error detected",
 	"MBP event error detected"};
-//#define NONFATAL_ERROR_COUNT
-//	(sizeof(NONFATAL_ERROR) / sizeof(NONFATAL_ERROR[0]))
 
 #define CATFATAL_ERROR_COUNT 12
 static const char *const CATFATAL_ERROR[CATFATAL_ERROR_COUNT] = {
@@ -110,14 +101,11 @@ static const char *const CATFATAL_ERROR[CATFATAL_ERROR_COUNT] = {
 	"Catastrophic CRC error detected",
 	"Catastrophic thermal runaway event detected",
 	"Injected Catastrophic Error detected"};
-//#define CATFATAL_ERROR_COUNT
-//	(sizeof(CATFATAL_ERROR) / sizeof(CATFATAL_ERROR[0]))
 
 #define INJECT_ERROR_COUNT 3
 static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
 	"Set Catastrophic  error .", "Set Fatal error.",
 	"Ser Non-fatal error ."};
-//#define INJECT_ERROR_COUNT (sizeof(INJECT_ERROR) / sizeof(INJECT_ERROR[0]))
 
 #define PORT_ERROR_COUNT 52
 static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
@@ -173,7 +161,6 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"PMR Erro error detected",
 	"AP6 event detected ",
 	"VF FLR detected on port when PORT configured in PF access mode error detected "};
-//#define PORT_ERROR_COUNT (sizeof(PORT_ERROR) / sizeof(PORT_ERROR[0]))
 
 /*
  * errors command configuration, set during parse_args()
@@ -208,7 +195,7 @@ void errors_help(void)
 	errors_config.help_only = true;
 }
 
-#define ERRORS_GETOPT_STRING ":ch"
+#define ERRORS_GETOPT_STRING ":chf"
 int parse_error_args(int argc, char *argv[])
 {
 	optind = 0;
@@ -247,13 +234,13 @@ int parse_error_args(int argc, char *argv[])
 			return -1;
 
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			errors_help();
 			return -1;
 
 		case '?':
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			errors_help();
 			return -1;
 		}
@@ -263,24 +250,26 @@ int parse_error_args(int argc, char *argv[])
 	// or "port")
 	optind++;
 	if (argc < optind + 1) {
-		fprintf(stderr, "Not enough parameters\n");
+		OPAE_ERR("Not enough parameters\n");
 		errors_help();
 		return -1;
 	}
 
-	if ((optind < argc) && !strcmp(argv[optind - 1], "errors")) {
+        int cmp = 0;
+	if ((optind < argc) && 
+                strcmp_s(argv[optind - 1], RSIZE_MAX_STR, "errors", &cmp) == EOK &&
+                cmp == 0) {
 		char *verb = argv[optind];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
 		if (idx < VERB_MAX) {
 			errors_config.which = idx;
 		} else {
-			fprintf(stderr,
-				"Not a valid errors resource spec: %s\n", verb);
+			OPAE_ERR("Not a valid errors resource spec: %s\n", verb);
 			errors_help();
 			return -1;
 		}
 	} else {
-		fprintf(stderr, "Not a valid errors resource spec: %s\n",
+		OPAE_ERR("Not a valid errors resource spec: %s\n",
 			argv[optind - 1]);
 		errors_help();
 		return -1;
@@ -352,30 +341,37 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			if (!strcmp(errinfos[i].name, "Errors")) {
+                        int cmp = 0;
+			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR, 
+                                    "Errors", &cmp) == EOK && cmp == 0) {
 				size = FME_ERROR_COUNT;
 				error_string = FME_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Next Error")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "Next Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "First Error")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "First Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "PCIe0 Errors")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "PCIe0 Errors", &cmp) == EOK && cmp == 0) {
 				size = PCIE0_ERROR_COUNT;
 				error_string = PCIE0_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Inject Error")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "Inject Error", &cmp) == EOK && cmp == 0) {
 				size = INJECT_ERROR_COUNT;
 				error_string = INJECT_ERROR;
-			} else if (!strcmp(errinfos[i].name,
-					   "Catfatal Errors")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "Catfatal Errors", &cmp) == EOK && cmp == 0) {
 				size = CATFATAL_ERROR_COUNT;
 				error_string = CATFATAL_ERROR;
-			} else if (!strcmp(errinfos[i].name,
-					   "Nonfatal Errors")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "Nonfatal Errors", &cmp) == EOK && cmp == 0) {
 				size = NONFATAL_ERROR_COUNT;
 				error_string = NONFATAL_ERROR;
-			} else if (!strcmp(errinfos[i].name, "PCIe1 Errors")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "PCIe1 Errors", &cmp) == EOK && cmp == 0) {
 				size = PCIE1_ERROR_COUNT;
 				error_string = PCIE1_ERROR;
 			}
@@ -399,14 +395,17 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			if (!strcmp(errinfos[i].name, "Errors")) {
+                        int cmp = 0;
+			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "Errors", &cmp) == EOK && cmp == 0) {
 				size = PORT_ERROR_COUNT;
 				error_string = PORT_ERROR;
-			} else if (!strcmp(errinfos[i].name,
-					   "First Malformed Req")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "First Malformed Req", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "First Error")) {
+			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
+                                    "First Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
 			}
@@ -447,7 +446,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
                                 errinfos = (struct fpga_error_info *)calloc(
                                         num_errors, sizeof(*errinfos));
                                 if (NULL == errinfos) {
-                                        fprintf(stderr, "Error allocating memory");
+                                        OPAE_ERR("Error allocating memory");
                                         goto destroy_and_free;
                                 }
 
@@ -456,9 +455,10 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
                                                                &errinfos[j]);
                                         fpgainfo_print_err(
                                                 "reading error info structure", res);
-                                        (void)replace_chars(errinfos[j].name, '_', ' ');
-                                        (void)upcase_pci(errinfos[j].name);
-                                        (void)upcase_first(errinfos[j].name);
+                                        replace_chars(errinfos[j].name, '_', ' ');
+                                        upcase_pci(errinfos[j].name, 
+                                                    strnlen_s(errinfos[j].name, RSIZE_MAX_STR));
+                                        upcase_first(errinfos[j].name);
                                 }
                         }
 
@@ -466,11 +466,10 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
                 destroy_and_free:
                         free(errinfos);
                         errinfos = NULL;
+                        fpgaDestroyProperties(&props);
                 } else {
                         fpgainfo_print_err("reading properties from token", res);
                 }
-
-                fpgaDestroyProperties(&props);
 	}
 
 	return res;

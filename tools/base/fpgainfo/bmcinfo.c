@@ -155,13 +155,13 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			return res;
 
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			bmc_help();
 			return FPGA_INVALID_PARAM;
 
 		case '?':
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			bmc_help();
 			return FPGA_INVALID_PARAM;
 		}
@@ -207,13 +207,13 @@ fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
 			return res;
 
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			perf_help();
 			return FPGA_INVALID_PARAM;
 
 		case '?':
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			perf_help();
 			return FPGA_INVALID_PARAM;
 		}

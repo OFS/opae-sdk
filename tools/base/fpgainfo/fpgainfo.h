@@ -41,13 +41,13 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props);
 void fpgainfo_print_err(const char *s, fpga_result res);
 
 // Replace occurrences of character within string
-char *replace_chars(char *str, char match, char rep);
+void replace_chars(char *str, char match, char rep);
 
 // Turn all "pcie" into "PCIe"
-char *upcase_pci(char *str);
+void upcase_pci(char *str, size_t len);
 
 // Upper-case the first letter of each word in str
-char *upcase_first(char *str);
+void upcase_first(char *str);
 
 // Find string in list of strings
 int str_in_list(const char *key, const char *list[], size_t size);

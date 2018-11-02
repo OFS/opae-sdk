@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include "fpgainfo.h"
-//#include "bmcinfo.h"
 #include "opae/fpga.h"
 #include <inttypes.h>
 #include <uuid/uuid.h>
@@ -65,7 +64,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
 	int is_accelerator = 0;
-	bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -101,7 +99,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	while (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetParent(pprops, &par);
 		if (FPGA_NOT_FOUND == res) {
-			has_parent = false;
 			break;
 		}
 		fpgainfo_print_err("reading objtype from properties", res);
@@ -153,10 +150,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		pprops = props;
 	}
 
-	if (has_parent) {
-		//print_bmc_info(get_sysfs_path(pprops, FPGA_DEVICE, NULL));
-	}
-
 	printf("%s\n", hdr);
 	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);
 	printf("%-29s : %04X:%02X:%02X:%01X\n", "PCIe s:b:d:f", segment, bus,
@@ -177,49 +170,52 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 }
 
 // Replace occurrences of character within string
-char *replace_chars(char *str, char match, char rep)
+void replace_chars(char *str, char match, char rep)
 {
 	char *tmp = strchr(str, match);
 	while (tmp) {
 		*tmp = rep;
 		tmp = strchr(tmp + 1, match);
 	}
-	return str;
 }
 
 // Turn all "pcie" into "PCIe"
-char *upcase_pci(char *str)
+void upcase_pci(char *str, size_t len)
 {
-	char *tmp = strcasestr(str, "pci");
-	while (tmp) {
+	char *tmp = NULL;
+        errno_t res = EOK;
+        res = strcasestr_s(str, len, "pci", 3, &tmp);
+	while (res == EOK) {
 		*tmp++ = 'P';
 		*tmp++ = 'C';
 		*tmp++ = 'I';
-		tmp = strcasestr(tmp, "pci");
+                str += 3;
+                len -= 3;
+                tmp = NULL;
+		res = strcasestr_s(str, len, "pci", 3, &tmp);
 	}
-	return str;
 }
 
 // Upper-case the first letter of each word in str
-char *upcase_first(char *str)
+void upcase_first(char *str)
 {
-	*str = toupper(*str);
-	char *tmp = strchr(str + 1, ' ');
-	while (tmp) {
-		if (tmp[1] && isalpha(tmp[1])) {
-			tmp[1] = toupper(tmp[1]);
-		}
-		tmp = strchr(tmp + 1, ' ');
-	}
-	return str;
+        *str = toupper(*str);
+        char *tmp = strchr(str + 1, ' ');
+        while (tmp) {
+                if (tmp[1] && isalpha(tmp[1])) {
+                        tmp[1] = toupper(tmp[1]);
+                }
+                tmp = strchr(tmp + 1, ' ');
+        }
 }
 
 // TODO: Move this to a common file for reuse in other fpgainfo files
 int str_in_list(const char *key, const char *list[], size_t size)
 {
-	size_t i = 0;
-	for (; i < size; ++i) {
-		if (!strcmp(key, list[i])) {
+        int ret = 0;
+	for (size_t i = 0; i < size; ++i) {
+		if (strcmp_s(key, RSIZE_MAX_STR, list[i], &ret) == EOK &&
+                        ret == 0) {
 			return (int)i;
 		}
 	}

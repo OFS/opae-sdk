@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/fpga.h>
+#include <limits.h>
 
 extern "C" {
 
@@ -88,9 +89,21 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[]);
 void bmc_help(void);
 
+fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
+			 char *argv[]);
+void perf_help(void);
+
 fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
                         fpga_metric_info *metrics_info, fpga_metric *metrics,
                         uint64_t *num_metrics);
+
+void replace_chars(char *str, char match, char rep);
+
+void upcase_pci(char *str, size_t len);
+
+void upcase_first(char *str);
+
+int str_in_list(const char *key, const char *list[], size_t size);
 
 int fpgainfo_main(int argc, char *argv[]);
 
@@ -183,6 +196,7 @@ TEST_P(fpgainfo_c_p, parse_args1) {
     strcpy(one, "-h");
     EXPECT_NE(parse_args(2, argv), 0);
 
+    optind = 0;
     strcpy(one, "--help");
     EXPECT_NE(parse_args(2, argv), 0);
 }
@@ -436,6 +450,7 @@ TEST_P(fpgainfo_c_p, errors_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -500,6 +515,7 @@ TEST_P(fpgainfo_c_p, fme_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -583,6 +599,7 @@ TEST_P(fpgainfo_c_p, port_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -666,6 +683,7 @@ TEST_P(fpgainfo_c_p, power_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -749,6 +767,7 @@ TEST_P(fpgainfo_c_p, temp_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -832,6 +851,7 @@ TEST_P(fpgainfo_c_p, bmc_command0) {
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
     }
+    free(tokens);
     fpgaDestroyProperties(&filter);
 }
 
@@ -856,12 +876,76 @@ TEST_P(fpgainfo_c_p, bmc_command1) {
 }
 
 /**
+ * @test       perf_command0
+ * @brief      Test: perf_command
+ * @details    When passed with valid arguments, the fn prints <br>
+ *             relevant information and returns FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, perf_command0) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    fpga_properties filter = NULL;
+    fpga_token *tokens = NULL;
+    uint32_t matches = 0, num_tokens = 0;;
+
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_GT(matches, 0);
+    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+
+    num_tokens = matches;
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "perf");
+    EXPECT_EQ(bmc_command(tokens, num_tokens, 2, argv), FPGA_OK);
+
+    for (uint32_t i = 0; i < num_tokens; ++i) {
+        fpgaDestroyToken(&tokens[i]);
+    }
+    free(tokens);
+    fpgaDestroyProperties(&filter);
+}
+
+/**
+ * @test       perf_command1
+ * @brief      Test: perf_command
+ * @details    When passed with '-h', the fn prints <br>
+ *             bmc help message and returns FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, perf_command1) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char *argv[] = { zero, one, two };
+
+    fpga_token *tokens = NULL;
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "perf");
+    strcpy(two, "-h");
+    EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_OK);
+}
+
+/**
  * @test       bmc_help
  * @brief      Test: bmc_help
  * @details    The function prints help message for bmc subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, bmc_help) {
     bmc_help();
+}
+
+/**
+ * @test       perf_help
+ * @brief      Test: perf_help
+ * @details    The function prints help message for perf subcommand.<br>
+ */
+TEST_P(fpgainfo_c_p, perf_help) {
+    perf_help();
 }
 
 /**
@@ -945,13 +1029,12 @@ TEST_P(fpgainfo_c_p, get_metrics2) {
  */
 TEST_P(fpgainfo_c_p, fpgainfo_print_common) {
     fpga_properties filter = NULL;
-    fpga_token token;
+    fpga_token token = nullptr;
     uint32_t matches = 0;;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(token, &filter), FPGA_OK);
 
     fpgainfo_print_common("//****** HEADER ******//", filter);
 
@@ -977,6 +1060,115 @@ TEST_P(fpgainfo_c_p, fpgainfo_print_err) {
 }
 
 
+/**
+ * @test       replace_chars0
+ * @brief      Test: replace_chars
+ */
+TEST(fpgainfo_c, replace_chars0) {
+    char input[256];
+    strcpy(input, "one_two_three_four");
+    replace_chars(input, '_', ' ');
+    EXPECT_STREQ(input, "one two three four");
+}
+
+/**
+ * @test       replace_chars1
+ * @brief      Test: replace_chars
+ */
+TEST(fpgainfo_c, replace_chars1) {
+    char input[256];
+    strcpy(input, "one_two_three_four");
+    replace_chars(input, ':', ' ');
+    EXPECT_STREQ(input, "one_two_three_four");
+}
+
+/**
+ * @test       upcase_pci0
+ * @brief      Test: upcase_pci
+ */
+TEST(fpgainfo_c, upcase_pci0) {
+    char input[256];
+    strcpy(input, "pcie 0");
+    upcase_pci(input, strnlen(input, 256));
+    EXPECT_STREQ(input, "PCIe 0");
+}
+
+/**
+ * @test       upcase_pci1
+ * @brief      Test: upcase_pci
+ */
+TEST(fpgainfo_c, upcase_pci1) {
+    char input[256];
+    strcpy(input, "  pcie 0 pcie 1 pcie 2  ");
+    upcase_pci(input, strnlen(input, 256));
+    EXPECT_STREQ(input, "  PCIe 0 PCIe 1 PCIe 2  ");
+}
+
+/**
+ * @test       upcase_pci2
+ * @brief      Test: upcase_pci
+ */
+TEST(fpgainfo_c, upcase_pci2) {
+    char input[256];
+    strcpy(input, " pc ");
+    upcase_pci(input, strnlen(input, 256));
+    EXPECT_STREQ(input, " pc ");
+}
+
+/**
+ * @test       upcase_first0
+ * @brief      Test: upcase_first
+ */
+TEST(fpgainfo_c, upcase_first0) {
+    char input[256];
+    strcpy(input, "one two three four");
+    upcase_first(input);
+    EXPECT_STREQ(input, "One Two Three Four");
+}
+
+/**
+ * @test       upcase_first1
+ * @brief      Test: upcase_first
+ */
+TEST(fpgainfo_c, upcase_first1) {
+    char input[256];
+    strcpy(input, "One Two Three Four");
+    upcase_first(input);
+    EXPECT_STREQ(input, "One Two Three Four");
+}
+
+/**
+ * @test       upcase_first2
+ * @brief      Test: upcase_first
+ */
+TEST(fpgainfo_c, upcase_first2) {
+    char input[256];
+    strcpy(input, "");
+    upcase_first(input);
+    EXPECT_STREQ(input, "");
+}
+
+/**
+ * @test       str_in_list0
+ * @brief      Test: upcase_first
+ */
+TEST(fpgainfo_c, str_in_list0) {
+    const char *slist[] = { "one", "two", "two", "three", "four" };
+    int idx = str_in_list("one", slist, 5);
+    EXPECT_EQ(idx, 0);
+
+    idx = str_in_list("two", slist, 5);
+    EXPECT_EQ(idx, 1);
+
+    idx = str_in_list("three", slist, 5);
+    EXPECT_EQ(idx, 3);
+
+    idx = str_in_list("four", slist, 5);
+    EXPECT_EQ(idx, 4);
+
+    idx = str_in_list("five", slist, 5);
+    EXPECT_EQ(idx, INT_MAX);
+}
 
 
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,

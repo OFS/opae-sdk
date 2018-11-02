@@ -26,7 +26,6 @@
 
 #include <getopt.h>
 #include "fpgainfo.h"
-//#include "sysinfo.h"
 #include "portinfo.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
@@ -110,13 +109,13 @@ fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 			return res;
 
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR( "Missing option argument\n");
 			port_help();
 			return FPGA_INVALID_PARAM;
 
 		case '?':
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR( "Invalid cmdline options\n");
 			port_help();
 			return FPGA_INVALID_PARAM;
 		}

@@ -127,12 +127,12 @@ int parse_args(int argc, char *argv[])
 			return EX_TEMPFAIL;
 
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			return EX_USAGE;
 
 		case '?':
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			return EX_USAGE;
 		}
 	}
@@ -145,9 +145,10 @@ struct command_handler *get_command(char *cmd)
 {
 	int cmd_size = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	// find the command handler for the command
-	int i;
-	for (i = 0; i < cmd_size; ++i) {
-		if (!strcmp(cmd, cmd_array[i].command)) {
+        int cmp = 0;
+	for (int i = 0; i < cmd_size; ++i) {
+		if (strcmp_s(cmd, RSIZE_MAX_STR, cmd_array[i].command, &cmp) == EOK &&
+                        cmp == 0) {
 			return &cmd_array[i];
 		}
 	}
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
 	fpga_token *tokens = NULL;
 
 	if (NULL == setlocale(LC_ALL, "")) {
-		fprintf(stderr, "Could not set locale\n");
+		OPAE_ERR("Could not set locale\n");
 		return EX_SOFTWARE;
 	}
 
@@ -217,7 +218,7 @@ int main(int argc, char *argv[])
 	uint32_t num_tokens = 0;
 	struct command_handler *handler = get_command(argv[1]);
 	if (handler == NULL) {
-		fprintf(stderr, "Invalid command specified\n");
+		OPAE_ERR("Invalid command specified\n");
 		help();
 		goto out_destroy;
 	}
@@ -230,7 +231,7 @@ int main(int argc, char *argv[])
 
 	if (0 == matches) {
 		ret_value = EX_SOFTWARE;
-		fprintf(stderr, "No FPGA resources found.\n");
+		OPAE_ERR("No FPGA resources found.\n");
 		goto out_destroy;
 	}
 
@@ -240,15 +241,11 @@ int main(int argc, char *argv[])
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy_tokens, "enumerating resources");
 	if (num_tokens != matches) {
 		ret_value = EX_SOFTWARE;
-		fprintf(stderr,
-			"token list changed in "
-			"between enumeration "
-			"calls\n");
+		OPAE_ERR("token list changed in between enumeration calls\n");
 		goto out_destroy_tokens;
 	}
 
 	res = handler->run(tokens, matches, argc, argv);
-	//ON_FPGAINFO_ERR_GOTO(res, out_destroy, 0);
 
 out_destroy_tokens:
         for (uint32_t i = 0; i < num_tokens; i++) {
