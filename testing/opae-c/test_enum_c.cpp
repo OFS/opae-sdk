@@ -96,9 +96,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     }
 
     int value;
-    std::string cmd = "lspci | "
-                      "grep \'Processing accelerators: "
-                            "Intel Corporation\' | "
+    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
                       "wc -l";
 
     ExecuteCmd(cmd, value);
