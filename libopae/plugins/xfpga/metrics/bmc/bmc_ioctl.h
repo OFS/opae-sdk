@@ -33,7 +33,7 @@
 
 #include <opae/fpga.h>
 #include <wchar.h>
-
+#include "bmcdata.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -100,6 +100,20 @@ typedef enum {
 	UC_thresh = 0x10,
 	UNR_thresh = 0x20,
 } Thresh;
+
+fpga_result rawFromDouble(Values *details, double dbl, uint8_t *raw);
+
+void fill_set_request(Values *vals, threshold_list *thresh,
+	bmc_set_thresh_request *req);
+
+fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
+	bmc_set_thresh_request *req);
+
+fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
+	bmc_get_thresh_response *resp);
+
+fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
+	threshold_list *thresh);
 
 #ifdef __cplusplus
 }
