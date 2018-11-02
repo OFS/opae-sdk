@@ -86,7 +86,7 @@ loopback::ptr_t find_app(const std::vector<opae::fpga::types::token::ptr_t> acce
                 }
             }
 
-	    prop_ptr.reset();
+            prop_ptr.reset();
             lpbk.reset();
         }
     }
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
         lpbk = it->second(mode);
         *(*filter)["guid"] = lpbk->afu_id();
 
-	std::string guid_str;
+        std::string guid_str;
         if (filter->get_value<std::string>("guid", guid_str)) {
             fpga_guid g;
 	    if (!uuid_parse(guid_str.c_str(), g))

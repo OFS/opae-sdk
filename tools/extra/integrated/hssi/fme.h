@@ -31,7 +31,6 @@
 #include <cstdint>
 #include <ostream>
 #include "mmio.h"
-#include <opae/cxx/core/handle.h>
 
 namespace intel
 {
