@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,70 +23,86 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+/*
+ * @file bmc_ioctl.h
+ *
+ * @brief
+ */
+#ifndef BMC_IOCTL_H
+#define BMC_IOCTL_H
 
-#pragma once
-#include <memory>
-#include "option_map.h"
-#include "accelerator.h"
-#include <thread>
-#include <future>
+#include <opae/fpga.h>
+#include <wchar.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-namespace intel
-{
-namespace fpga
-{
-class accelerator_app
-{
-public:
-    accelerator_app()
-    : name_("none")
-    , disabled_(false)
-    {
+//#define BMC_IOCTL_MAGIC (0xc0187600)
+#define AVMMI_BMC_MAGIC (0x76)
 
-    }
+#define BMC_THRESH_HEADER_0 (0x4 << 2)
+#define BMC_THRESH_HEADER_1 (0)
+#define BMC_SET_THRESH_CMD (0x26)
+#define BMC_GET_THRESH_CMD (0x27)
 
-    explicit accelerator_app(const std::string &name)
-    : name_(name)
-    , disabled_(false)
-    {
-    }
+#pragma pack(push, 1)
 
-    virtual const std::string & name()
-    {
-        return name_;
-    }
+typedef struct avmmi_bmc_xact {
+	uint32_t argsz;
+	uint16_t txlen;
+	uint16_t rxlen;
+	uint64_t txbuf;
+	uint64_t rxbuf;
+} bmc_xact;
 
-    virtual void disabled(bool value)
-    {
-        disabled_ = value;
-    }
+typedef struct {
+	uint8_t header[3];
+	uint8_t sens_num;
+	uint8_t mask;
+	uint8_t LNC;
+	uint8_t LC;
+	uint8_t LNR;
+	uint8_t UNC;
+	uint8_t UC;
+	uint8_t UNR;
+} bmc_set_thresh_request;
 
-    virtual bool disabled() const
-    {
-        return disabled_;
-    }
+typedef struct {
+	uint8_t header[3];
+	uint8_t cc;
+} bmc_set_thresh_response;
 
+typedef struct {
+	uint8_t header[3];
+	uint8_t sens_num;
+} bmc_get_thresh_request;
 
-    typedef std::shared_ptr<accelerator_app> ptr_t;
-    virtual const std::string & afu_id() = 0;
-    virtual intel::utils::option_map & get_options() = 0;
-    virtual void assign(accelerator::ptr_t accelerator) = 0;
-    virtual bool setup() = 0;
-    virtual bool run() = 0;
-    virtual std::future<bool> run_async()
-    {
-        return std::async(std::launch::async, &accelerator_app::run, this);
-    }
+typedef struct {
+	uint8_t header[3];
+	uint8_t cc;
+	uint8_t mask;
+	uint8_t LNC;
+	uint8_t LC;
+	uint8_t LNR;
+	uint8_t UNC;
+	uint8_t UC;
+	uint8_t UNR;
+} bmc_get_thresh_response;
 
-    virtual dma_buffer::ptr_t  dsm() const { return dma_buffer::ptr_t(); }
-    virtual uint64_t cachelines()    const  = 0;
+#pragma pack(pop)
 
-private:
-    std::string name_;
-    bool disabled_;
-};
+typedef enum {
+	LNC_thresh = 0x01,
+	LC_thresh = 0x02,
+	LNR_thresh = 0x04,
+	UNC_thresh = 0x08,
+	UC_thresh = 0x10,
+	UNR_thresh = 0x20,
+} Thresh;
 
-} // end of namespace fpga
-} // end of namespace intel
+#ifdef __cplusplus
+}
+#endif
 
+#endif /* !BMC_IOCTL_H */

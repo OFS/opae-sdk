@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
-#include "accelerator.h"
-#include "fpga_app/accelerator_app.h"
+#include "accelerator_app.h"
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -88,6 +87,8 @@ extern std::array<uint32_t, 4> mac_offsets;
 class loopback : public accelerator_app
 {
 public:
+    // FIXME: got to be a better way..
+    static const size_t dsm_size_ = 2*1024*1024;
 
     typedef std::shared_ptr<loopback> ptr_t;
 
@@ -108,16 +109,17 @@ public:
     {
         return options_;
     }
-    virtual void assign(accelerator::ptr_t accelerator);
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator) override;
     virtual const std::string & afu_id() = 0;
 
     virtual bool setup();
 
     virtual bool run();
 
-    virtual dma_buffer::ptr_t          dsm()            const override { throw std::logic_error("Not Implemented"); }
+    virtual opae::fpga::types::shared_buffer::ptr_t dsm() const override
+    { return opae::fpga::types::shared_buffer::allocate(accelerator_, loopback::dsm_size_); }
 
-    virtual uint64_t                   cachelines()     const override { throw std::logic_error("Not Implemented"); }
+    virtual uint64_t cachelines() const override { throw std::logic_error("Not Implemented"); }
 
     void show_help(std::ostream &os);
 
@@ -211,7 +213,7 @@ protected:
     przone_interface::ptr_t przone_;
     i2c::ptr_t i2c_;
     std::string afu_id_;
-    accelerator::ptr_t accelerator_;
+    opae::fpga::types::handle::ptr_t accelerator_;
     bool continuous_;
     uint32_t packet_count_;
     uint32_t packet_length_;

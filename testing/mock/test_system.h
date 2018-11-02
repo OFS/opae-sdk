@@ -40,6 +40,7 @@
 #include <mutex>
 #include <atomic>
 #include "platform/fpga_hw.h"
+#include <glob.h>
 
 extern "C" {
 extern void *__libc_malloc(size_t size);
@@ -143,6 +144,11 @@ class test_system {
               compare_func cmp);
   int sched_setaffinity(pid_t pid, size_t cpusetsize,
                         const cpu_set_t *mask);
+                        
+  int glob(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob);
+                
   void hijack_sched_setaffinity(int return_val, uint32_t after=0,
                                 const char *when_called_from=nullptr);
 
@@ -184,6 +190,12 @@ class test_system {
                               compare_func);
   typedef int (*sched_setaffinity_func)(pid_t pid, size_t cpusetsize,
                                         const cpu_set_t *mask);
+                                        
+
+typedef  int (*glob_func)(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob);
+
 
   open_func open_;
   open_create_func open_create_;
@@ -199,6 +211,7 @@ class test_system {
   __xstat_func lstat_;
   scandir_func scandir_;
   sched_setaffinity_func sched_setaffinity_;
+   glob_func glob_;
 
   bool hijack_sched_setaffinity_;
   int hijack_sched_setaffinity_return_val_;
