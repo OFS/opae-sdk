@@ -107,6 +107,20 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 
 
 /*
+ * Generate an XOR mask that will be used to map between virtual and physical
+ * addresses.
+ */
+static uint64_t ase_host_memory_gen_xor_mask(int pt_level)
+{
+	// CCI-P (and our processors) have 48 bit byte-level addresses.
+	// The mask here inverts all but the high 48th bit. We could legally
+	// invert that bit too, except that it causes problems when simulating
+	// old architectures such as the Broadwell integrated Xeon+FPGA, which
+	// use smaller physical address ranges.
+	return 0x7fffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
+}
+
+/*
  * Translate to simulated physical address space.
  */
 uint64_t ase_host_memory_va_to_pa(uint64_t va, uint64_t length)
@@ -124,8 +138,7 @@ uint64_t ase_host_memory_va_to_pa(uint64_t va, uint64_t length)
 	}
 
 	int pt_level = ase_pt_length_to_level(length);
-	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return va ^ mask;
+	return va ^ ase_host_memory_gen_xor_mask(pt_level);
 }
 
 /*
@@ -157,8 +170,7 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 		return 0;
 	}
 
-	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return pa ^ mask;
+	return pa ^ ase_host_memory_gen_xor_mask(pt_level);
 }
 
 
