@@ -172,5 +172,18 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->supports_host =
 		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_supports_host");
 
+	adapter->fpgaGetNumMetrics =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetNumMetrics");
+
+	adapter->fpgaGetMetricsInfo =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsInfo");
+
+	adapter->fpgaGetMetricsByIndex =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsByIndex");
+
+	adapter->fpgaGetMetricsByName =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsByName");
+
 	return 0;
 }
+

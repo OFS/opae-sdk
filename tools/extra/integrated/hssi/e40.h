@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,8 +26,6 @@
 
 #pragma once
 #include "option_map.h"
-#include "accelerator.h"
-#include "csr.h"
 #include "log.h"
 #include <chrono>
 #include "loopback.h"
@@ -139,7 +137,7 @@ public:
 
     ~e40();
 
-    virtual void assign(accelerator::ptr_t accelerator_ptr);
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator_ptr);
 
     virtual const std::string & afu_id()
     {

@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <sched.h>
+#include <glob.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,6 +55,10 @@ extern "C" {
   int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
 
   int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);
+  
+  int opae_test_glob(const char *pattern, int flags,
+                int (*errfunc) (const char *epath, int eerrno),
+                glob_t *pglob);
 
 #ifdef __cplusplus
 }

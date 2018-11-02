@@ -184,6 +184,22 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaGetUserClock)(fpga_handle handle, uint64_t *high_clk,
 					uint64_t *low_clk, int flags);
 
+	fpga_result (*fpgaGetNumMetrics)(fpga_handle handle, uint64_t *num_metrics);
+
+	fpga_result (*fpgaGetMetricsInfo)(fpga_handle handle,
+					fpga_metric_info *metric_info,
+					uint64_t *num_metrics);
+
+	fpga_result (*fpgaGetMetricsByIndex)(fpga_handle handle,
+					uint64_t *metric_num,
+					uint64_t num_metric_indexes,
+					fpga_metric *metrics);
+
+	fpga_result(*fpgaGetMetricsByName)(fpga_handle handle,
+					char **metrics_names,
+					uint64_t num_metric_names,
+					fpga_metric *metrics);
+
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);
