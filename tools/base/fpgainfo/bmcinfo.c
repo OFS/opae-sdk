@@ -168,7 +168,7 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 	}
 
 	int i = 0;
-	for (; i < num_tokens; ++i) {
+	for (i = 0; i < num_tokens; ++i) {
 		print_bmc_info(tokens[i]);
 	}
 
@@ -220,7 +220,7 @@ fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
 	}
 
 	int i = 0;
-	for (; i < num_tokens; ++i) {
+	for (i = 0; i < num_tokens; ++i) {
 		print_perf_info(tokens[i]);
 	}
 

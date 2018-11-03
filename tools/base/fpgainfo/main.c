@@ -147,7 +147,7 @@ struct command_handler *get_command(char *cmd)
 	// find the command handler for the command
         int cmp = 0;
         int i = 0;
-	for (; i < cmd_size; ++i) {
+	for (i = 0; i < cmd_size; ++i) {
 		if (strcmp_s(cmd, RSIZE_MAX_STR, cmd_array[i].command, &cmp) == EOK &&
                         cmp == 0) {
 			return &cmd_array[i];
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
 out_destroy_tokens:
         uint32_t i = 0;
-        for (; i < num_tokens; i++) {
+        for (i = 0; i < num_tokens; i++) {
             fpgaDestroyToken(&tokens[i]);
         }
         free(tokens);

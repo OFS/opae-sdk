@@ -129,7 +129,7 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 	}
 
 	int i = 0;
-	for (; i < num_tokens; ++i) {
+	for (i = 0; i < num_tokens; ++i) {
                 print_power_info(tokens[i]);
 	}
 
