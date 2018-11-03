@@ -138,7 +138,7 @@ fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,
 	}
 
 	int i = 0;
-	for (i = 0; i < num_tokens; ++i) {
+	for (; i < num_tokens; ++i) {
 		print_temp_info(tokens[i]);
 	}
 

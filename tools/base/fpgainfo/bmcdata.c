@@ -59,29 +59,30 @@ fpga_result get_metrics(fpga_token token,
 
         /* get metrics */
         uint64_t id_array[METRICS_MAX_NUM];
+        uint64_t i = 0;
         uint64_t j = 0;
         switch (inquiry) {
         case ALL:
-            for (uint64_t i = 0; i < *num_metrics; ++i) {
+            for (; i < *num_metrics; ++i) {
                 id_array[j++] = i;
             }
             break;
         case POWER:
-            for (uint64_t i = 0; i < *num_metrics; ++i) {
+            for (; i < *num_metrics; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_POWER) {
                     id_array[j++] = i;
                 }
             }
             break;
         case THERMAL:
-            for (uint64_t i = 0; i < *num_metrics; ++i) {
+            for (; i < *num_metrics; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_THERMAL) {
                     id_array[j++] = i;
                 }
             }
             break;
         case PERF:
-            for (uint64_t i = 0; i < *num_metrics; ++i) {
+            for (; i < *num_metrics; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_PERFORMANCE_CTR) {
                     id_array[j++] = i;
                 }
@@ -112,7 +113,8 @@ out_exit:
 void print_metrics(const fpga_metric_info *metrics_info,
                    const fpga_metric *metrics, uint64_t num_metrics)
 {
-    for (uint64_t i = 0; i < num_metrics; ++i) {
+    uint64_t i = 0
+    for (; i < num_metrics; ++i) {
         uint64_t idx = metrics[i].metric_num;
         
         if (idx < num_metrics) {

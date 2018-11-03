@@ -213,7 +213,8 @@ void upcase_first(char *str)
 int str_in_list(const char *key, const char *list[], size_t size)
 {
         int ret = 0;
-	for (size_t i = 0; i < size; ++i) {
+        size_t i = 0;
+	for (; i < size; ++i) {
 		if (strcmp_s(key, RSIZE_MAX_STR, list[i], &ret) == EOK &&
                         ret == 0) {
 			return (int)i;

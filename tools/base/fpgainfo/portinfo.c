@@ -122,7 +122,7 @@ fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 	}
 
 	int i = 0;
-	for (i = 0; i < num_tokens; ++i) {
+	for (; i < num_tokens; ++i) {
                 print_port_info(tokens[i]);
 	}
 
