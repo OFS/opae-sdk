@@ -648,7 +648,7 @@ TEST(wrapper, validate) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 class enum_c_mock_p : public enum_c_p {};
 
