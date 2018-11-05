@@ -84,7 +84,9 @@ TEST(metric_vector, test_metric_vector_01) {
 
 	// Delete with NULL
 	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
-	
+
+	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
+
 }
 
 /**
@@ -97,13 +99,16 @@ TEST(metric_vector, test_metric_vector_01) {
 TEST(metric_vector, test_metric_vector_02) {
 
 	fpga_metric_vector metric_vector;
-	struct _fpga_enum_metric fpga_metric;
+	struct _fpga_enum_metric *fpga_metric = NULL;
+
+	fpga_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+	EXPECT_EQ(NULL, !fpga_metric);
 
 	// Init vector
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
 	// push item to vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric));
 
 	// Delete vector
 	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
@@ -130,20 +135,23 @@ TEST(metric_vector, test_metric_vector_02) {
 TEST(metric_vector, test_metric_vector_03) {
 
 	fpga_metric_vector metric_vector;
-	struct _fpga_enum_metric fpga_metric;
 	uint64_t  total;
 	// Init vector
 	EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
+	struct _fpga_enum_metric *fpga_enum_metric = NULL ;
+	fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+	EXPECT_EQ(NULL, !fpga_enum_metric);
+
+	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_enum_metric));
 
 	EXPECT_EQ(FPGA_OK, fpga_vector_total(&metric_vector,&total));
 
+	struct _fpga_enum_metric *fpga_metric_next = NULL;
+	fpga_metric_next = (struct _fpga_enum_metric*)calloc(sizeof(struct _fpga_enum_metric), 1);
+	EXPECT_EQ(NULL, !fpga_metric_next);
 	// push item to vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, &fpga_metric));
+	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric_next));
 
 	
 	// Get vector
