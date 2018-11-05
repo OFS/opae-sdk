@@ -23,8 +23,8 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required(VERSION 2.8.12)
 
+cmake_minimum_required(VERSION 2.8.12)
 
 ################# Create Staging directory ##########################
 set(FLASHTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
@@ -44,4 +44,3 @@ add_custom_target(fpgaflash-dist
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/*
                 WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})"
         COMPONENT toolfpgaflash)
-
