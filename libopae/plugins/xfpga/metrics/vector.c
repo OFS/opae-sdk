@@ -60,9 +60,16 @@ fpga_result fpga_vector_init(fpga_metric_vector *vector)
 fpga_result fpga_vector_free(fpga_metric_vector *vector)
 {
 	fpga_result result = FPGA_OK;
+	uint64_t i = 0;
 	if (vector == NULL) {
 		FPGA_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
+	}
+	for (i = 0; i < vector->total; i++) {
+		if (vector->fpga_metric_item[i]) {
+			free(vector->fpga_metric_item[i]);
+			vector->fpga_metric_item[i] = NULL;
+		}
 	}
 	if (vector->fpga_metric_item)
 		free(vector->fpga_metric_item);

@@ -328,9 +328,7 @@ def update_flash(update_type, ifile, bdf):
         print "failed to verify flash"
         raise Exception
 
-
-if __name__ == "__main__":
-
+def main():
     args = parse_args()
 
     if args.type == 'factory':
@@ -341,3 +339,6 @@ if __name__ == "__main__":
             sys.exit(1)
 
     update_flash(args.type, args.file, args.bdf)
+
+if __name__ == '__main__':
+    main()
