@@ -2,6 +2,7 @@ Welcome to the OPAE SDK source code repository
 ==============================================
 
 [![Build Status](https://travis-ci.org/OPAE/opae-sdk.svg?branch=master)](https://travis-ci.org/OPAE/opae-sdk)
+[![Coverage Status](https://coveralls.io/repos/github/nakulkorde/opae-sdk/badge.svg?branch=master)](https://coveralls.io/github/nakulkorde/opae-sdk?branch=master)
 
 
 OPAE is the Open Programmable Acceleration Engine, a software framework for
