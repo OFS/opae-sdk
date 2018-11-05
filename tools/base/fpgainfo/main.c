@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
 	int ret_value = EX_OK;
 	fpga_result res = FPGA_OK;
 	uint32_t matches = 0;
+        uint32_t i = 0;
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
 
@@ -249,7 +250,6 @@ int main(int argc, char *argv[])
 	res = handler->run(tokens, matches, argc, argv);
 
 out_destroy_tokens:
-        uint32_t i = 0;
         for (i = 0; i < num_tokens; i++) {
             fpgaDestroyToken(&tokens[i]);
         }

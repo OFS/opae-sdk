@@ -113,7 +113,7 @@ out_exit:
 void print_metrics(const fpga_metric_info *metrics_info,
                    const fpga_metric *metrics, uint64_t num_metrics)
 {
-    uint64_t i = 0
+    uint64_t i = 0;
     for (i = 0; i < num_metrics; ++i) {
         uint64_t idx = metrics[i].metric_num;
         
