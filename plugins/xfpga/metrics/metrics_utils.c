@@ -713,6 +713,7 @@ fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle)
 	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 	if (result != FPGA_OK) {
 		FPGA_MSG("Failed to get metric total");
+		return FPGA_INVALID_PARAM;
 	}
 
 	for (i = 0; i < num_enun_metrics; i++) {
@@ -736,7 +737,8 @@ fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle)
 fpga_result get_fpga_object_type(fpga_handle handle,
 		fpga_objtype *objtype)
 {
-	fpga_result result		= FPGA_OK;
+	fpga_result result     = FPGA_OK;
+	fpga_result resval     = FPGA_OK;
 	fpga_properties prop;
 
 	result = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
@@ -748,12 +750,17 @@ fpga_result get_fpga_object_type(fpga_handle handle,
 	result = fpgaPropertiesGetObjectType(prop, objtype);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to object type.");
-		return result;
 	}
 
-	fpgaDestroyProperties(&prop);
+	resval = (result != FPGA_OK) ? result : resval;
+	result = fpgaDestroyProperties(&prop);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to destroy properties");
+	}
 
-	return result;
+	resval = (result != FPGA_OK) ? result : resval;
+
+	return resval;
 }
 
 // enumerates FME & AFU metrics info
