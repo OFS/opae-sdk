@@ -212,6 +212,8 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 			(int)tot_bytes,
 			(int)(sdr->num_records * sizeof(sensor_reading)));
 		res = FPGA_EXCEPTION;
+		if (tmp)
+			free(tmp);
 		goto out;
 	}
 
