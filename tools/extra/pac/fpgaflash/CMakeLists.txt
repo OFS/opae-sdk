@@ -23,7 +23,25 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+cmake_minimum_required(VERSION 2.8.12)
 
-install(PROGRAMS fpgaflash
-        DESTINATION bin
+
+################# Create Staging directory ##########################
+set(FLASHTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+file(COPY opae DESTINATION ${FLASHTOOLSDIST_STAGE_DIR})
+set(FLASH_DIR ${FLASHTOOLSDIST_STAGE_DIR}/opae/tools/fpgaflash)
+
+################# Configure files ###################
+configure_file(setup.py ${FLASHTOOLSDIST_STAGE_DIR}/setup.py @ONLY)
+configure_file(fpgaflash ${FLASH_DIR}/fpgaflash.py @ONLY)
+
+##################add target to build fpgaflash distribution################
+add_custom_target(fpgaflash-dist
+                COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+                WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})       
+
+################# install tool with pip  ######################## 
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/*
+                WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})"
         COMPONENT toolfpgaflash)
+
