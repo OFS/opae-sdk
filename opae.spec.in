@@ -125,6 +125,7 @@ ldconfig
 %files tools
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
+@CMAKE_INSTALL_PREFIX@/bin/fpgaconf
 
 
 %files tools-extra
@@ -137,6 +138,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
+@CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
+@CMAKE_INSTALL_PREFIX@/bin/bmc_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
