@@ -140,7 +140,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
-@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
 @CMAKE_INSTALL_PREFIX@/bin/hssi_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
 @CMAKE_INSTALL_PREFIX@/bin/mmlink
