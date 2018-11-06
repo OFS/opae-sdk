@@ -36,11 +36,11 @@ configure_file(setup.py ${FLASHTOOLSDIST_STAGE_DIR}/setup.py @ONLY)
 configure_file(fpgaflash ${FLASH_DIR}/fpgaflash.py @ONLY)
 
 ##################add target to build fpgaflash distribution################
-add_custom_target(fpgaflash-dist
+add_custom_target(fpgaflash-dist ALL
                 COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
                 WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})       
 
 ################# install tool with pip  ######################## 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/*
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/opae.fpgaflash-${INTEL_FPGA_API_VERSION}.tar.gz
                 WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})"
         COMPONENT toolfpgaflash)
