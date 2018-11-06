@@ -51,7 +51,7 @@ foreach(pyfile ${PYFILES})
     configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
 endforeach(pyfile ${PYFILES})
 
-add_custom_target(pyfpgadiag-dist
+add_custom_target(pyfpgadiag-dist ALL
     COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
     DEPENDS ${PYFILES}
