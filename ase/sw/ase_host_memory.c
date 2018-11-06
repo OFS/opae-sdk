@@ -65,7 +65,10 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level);
  */
 int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 {
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");
+		return -1;
+	}
 
 	// Map buffer length to a level in the page table.
 	int pt_level = ase_pt_length_to_level(length);
@@ -77,7 +80,11 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 		note_pinned_page((uint64_t)va, *iova, length);
 	}
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");
+		status = -1;
+	}
+	
 	return status;
 }
 
@@ -89,7 +96,10 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 {
 	int status = 0;
 
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		return -1;
+	}
 
 	if (ase_pt_root != NULL) {
 		int pt_level = ase_pt_length_to_level(length);
@@ -99,7 +109,10 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 		status = ase_pt_unpin_page(iova, pt_level);
 	}
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		status = -1;
+	}
 
 	note_unpinned_page(iova, length);
 	return status;
@@ -155,7 +168,10 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 		raise(SIGABRT);
 	}
 
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		return 0;
+	}
 
 	// Is the page pinned?
 	int pt_level;
@@ -163,7 +179,10 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 	found_addr = ase_pt_check_addr(pa, &pt_level);
 
 	if (!lock) {
-		pthread_mutex_unlock(&ase_pt_lock);
+		if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not unlock !\n");
+			return 0;
+		}
 	}
 
 	if (!found_addr) {
@@ -176,7 +195,8 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 
 void ase_host_memory_unlock(void)
 {
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock) != 0)
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");	
 }
 
 
@@ -192,12 +212,14 @@ int ase_host_memory_initialize(void)
 
 void ase_host_memory_terminate(void)
 {
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock) != 0)
+		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");		
 
 	ase_pt_delete_tree(ase_pt_root, 3);
 	ase_pt_root = NULL;
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock) != 0)
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");	
 }
 
 
