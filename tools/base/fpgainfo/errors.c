@@ -255,10 +255,10 @@ int parse_error_args(int argc, char *argv[])
 		return -1;
 	}
 
-        int cmp = 0;
+	int cmp = 0;
 	if ((optind < argc) && 
-                strcmp_s(argv[optind - 1], RSIZE_MAX_STR, "errors", &cmp) == EOK &&
-                cmp == 0) {
+		strcmp_s(argv[optind - 1], RSIZE_MAX_STR, "errors", &cmp) == EOK &&
+		cmp == 0) {
 		char *verb = argv[optind];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
 		if (idx < VERB_MAX) {
@@ -341,37 +341,37 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-                        int cmp = 0;
+			int cmp = 0;
 			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR, 
-                                    "Errors", &cmp) == EOK && cmp == 0) {
+				    "Errors", &cmp) == EOK && cmp == 0) {
 				size = FME_ERROR_COUNT;
 				error_string = FME_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "Next Error", &cmp) == EOK && cmp == 0) {
+				    "Next Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "First Error", &cmp) == EOK && cmp == 0) {
+				    "First Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "PCIe0 Errors", &cmp) == EOK && cmp == 0) {
+				    "PCIe0 Errors", &cmp) == EOK && cmp == 0) {
 				size = PCIE0_ERROR_COUNT;
 				error_string = PCIE0_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "Inject Error", &cmp) == EOK && cmp == 0) {
+				    "Inject Error", &cmp) == EOK && cmp == 0) {
 				size = INJECT_ERROR_COUNT;
 				error_string = INJECT_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "Catfatal Errors", &cmp) == EOK && cmp == 0) {
+				    "Catfatal Errors", &cmp) == EOK && cmp == 0) {
 				size = CATFATAL_ERROR_COUNT;
 				error_string = CATFATAL_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "Nonfatal Errors", &cmp) == EOK && cmp == 0) {
+				    "Nonfatal Errors", &cmp) == EOK && cmp == 0) {
 				size = NONFATAL_ERROR_COUNT;
 				error_string = NONFATAL_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "PCIe1 Errors", &cmp) == EOK && cmp == 0) {
+				    "PCIe1 Errors", &cmp) == EOK && cmp == 0) {
 				size = PCIE1_ERROR_COUNT;
 				error_string = PCIE1_ERROR;
 			}
@@ -395,17 +395,17 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-                        int cmp = 0;
+			int cmp = 0;
 			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "Errors", &cmp) == EOK && cmp == 0) {
+				    "Errors", &cmp) == EOK && cmp == 0) {
 				size = PORT_ERROR_COUNT;
 				error_string = PORT_ERROR;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "First Malformed Req", &cmp) == EOK && cmp == 0) {
+				    "First Malformed Req", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
 			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-                                    "First Error", &cmp) == EOK && cmp == 0) {
+				    "First Error", &cmp) == EOK && cmp == 0) {
 				size = 0;
 				error_string = NULL;
 			}
@@ -437,39 +437,43 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 		uint32_t num_errors;
 
 		res = fpgaGetProperties(tokens[i], &props);
-                if (res == FPGA_OK) {
-                        res = fpgaPropertiesGetNumErrors(props, &num_errors);
-                        fpgainfo_print_err("reading errors from properties", res);
+		if (res == FPGA_OK) {
+			res = fpgaPropertiesGetNumErrors(props, &num_errors);
+			fpgainfo_print_err("reading errors from properties", res);
 
-                        if (0 != num_errors) {
-                                int j;
-                                errinfos = (struct fpga_error_info *)calloc(
-                                        num_errors, sizeof(*errinfos));
-                                if (NULL == errinfos) {
-                                        OPAE_ERR("Error allocating memory");
-                                        goto destroy_and_free;
-                                }
+			if (num_errors != 0) {
+				int j;
+				errinfos = (struct fpga_error_info *)calloc(
+					num_errors, sizeof(*errinfos));
+				if (!errinfos) {
+					res = FPGA_NO_MEMORY;
+					OPAE_ERR("Error allocating memory");
+					goto destroy_and_free;
+				}
 
-                                for (j = 0; j < (int)num_errors; j++) {
-                                        res = fpgaGetErrorInfo(tokens[i], j,
-                                                               &errinfos[j]);
-                                        fpgainfo_print_err(
-                                                "reading error info structure", res);
-                                        replace_chars(errinfos[j].name, '_', ' ');
-                                        upcase_pci(errinfos[j].name, 
-                                                    strnlen_s(errinfos[j].name, RSIZE_MAX_STR));
-                                        upcase_first(errinfos[j].name);
-                                }
-                        }
+				for (j = 0; j < (int)num_errors; j++) {
+					res = fpgaGetErrorInfo(tokens[i], j,
+							       &errinfos[j]);
+					fpgainfo_print_err(
+						"reading error info structure", res);
+					replace_chars(errinfos[j].name, '_', ' ');
+					upcase_pci(errinfos[j].name, 
+						    strnlen_s(errinfos[j].name, RSIZE_MAX_STR));
+					upcase_first(errinfos[j].name);
+				}
+			}
 
-                        print_errors_info(tokens[i], props, errinfos, num_errors);
-                destroy_and_free:
-                        free(errinfos);
-                        errinfos = NULL;
-                        fpgaDestroyProperties(&props);
-                } else {
-                        fpgainfo_print_err("reading properties from token", res);
-                }
+			print_errors_info(tokens[i], props, errinfos, num_errors);
+		destroy_and_free:
+			free(errinfos);
+			errinfos = NULL;
+			fpgaDestroyProperties(&props);
+			if (res == FPGA_NO_MEMORY) {
+			    break;
+			}
+		} else {
+			fpgainfo_print_err("reading properties from token", res);
+		}
 	}
 
 	return res;

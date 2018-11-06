@@ -46,39 +46,39 @@ void temp_help(void)
 
 static void print_temp_info(fpga_token token)
 {
-        fpga_properties props;
-        fpga_object obj = NULL;
-        fpga_metric_info metrics_info[METRICS_MAX_NUM];
-        fpga_metric metrics[METRICS_MAX_NUM];
-        uint64_t num_metrics;
+	fpga_properties props;
+	fpga_object obj = NULL;
+	fpga_metric_info metrics_info[METRICS_MAX_NUM];
+	fpga_metric metrics[METRICS_MAX_NUM];
+	uint64_t num_metrics;
 	fpga_result res = FPGA_OK;
-        uint64_t pkg_temp;
+	uint64_t pkg_temp;
 
-        res = fpgaGetProperties(token, &props);
+	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading properties from token");
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
-        res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
 	res = fpgaObjectRead64(obj, &pkg_temp, FPGA_OBJECT_SYNC);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading package temperature value");
 
 	printf("%-29s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
 
-        res = get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
+	res = get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
-        print_metrics(metrics_info, metrics, num_metrics);
+	print_metrics(metrics_info, metrics, num_metrics);
 
 out_destroy:
-        res = fpgaDestroyObject(&obj);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying object");
+	res = fpgaDestroyObject(&obj);
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying object");
 
 	res = fpgaDestroyProperties(&props);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
 out_exit:
-        return;
+	return;
 }
 
 fpga_result temp_filter(fpga_properties *filter, int argc, char *argv[])

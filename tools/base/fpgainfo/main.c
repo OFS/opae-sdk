@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 	int ret_value = EX_OK;
 	fpga_result res = FPGA_OK;
 	uint32_t matches = 0;
-        uint32_t i = 0;
+	uint32_t i = 0;
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
 
