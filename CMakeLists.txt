@@ -254,10 +254,7 @@ define_pkg(tools
   toolfpga_dma_test
   toolbist_app
   toolfpgadiagapps
-  toolfpgaflash
   toolpachssiconfig
-  toolpackager
-  jsonschema
   opaecxxutils
   opaecxxlib
   opaecxxnlb

@@ -28,7 +28,8 @@ import argparse
 import logging
 import sys
 from collections import OrderedDict
-from os.path import basename, EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
+from os import EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
+from os.path import basename
 from nlb0 import nlb0
 from nlb3 import nlb3
 from nlb7 import nlb7
