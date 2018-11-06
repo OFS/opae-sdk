@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,21 +22,20 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-enable_language(C ASM)
+find_package(PkgConfig)
+pkg_check_modules(PC_HWLOC REQUIRED hwloc)
 
-set(ASM_OPTIONS "-x assembler-with-cpp")
-set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+find_library(HWLOC_LIBRARIES
+    NAMES hwloc
+    HINTS ${PC_HWLOC_LIBDIR}
+          ${PC_HWLOC_LIBRARY_DIRS})
 
-include_directories(${OPAE_INCLUDE_DIR})
+find_path(HWLOC_INCLUDE_DIRS
+    NAMES hwloc.h
+    HINTS ${PC_HWLOC_INCLUDEDIR}
+          ${PC_HWLOC_INCLUDE_DIRS})
 
-file(GLOB CSources *.c *.S)
-add_executable(fpga_dma_vc_test ${CSources})
-set_install_rpath(fpga_dma_vc_test)
-
-target_link_libraries(fpga_dma_vc_test opae-c ${libjson-c_LIBRARIES} uuid rt ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-install(TARGETS fpga_dma_vc_test
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpga_dma_vc_test)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(HWLOC REQUIRED_VARS HWLOC_INCLUDE_DIRS HWLOC_LIBRARIES)
