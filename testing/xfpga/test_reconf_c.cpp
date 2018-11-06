@@ -94,7 +94,10 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    if (handle_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+        handle_ = nullptr
+    }
 
     for (auto &t : tokens_) {
       if (t) {
