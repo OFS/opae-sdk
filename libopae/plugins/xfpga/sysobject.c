@@ -246,12 +246,13 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 		res = FPGA_EXCEPTION;
 	}
 out_unlock:
+	if (fd >= 0)
+		close(fd);
 	err = pthread_mutex_unlock(
 		&((struct _fpga_handle *)_obj->handle)->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 	}
-	close(fd);
 	return res;
 }
