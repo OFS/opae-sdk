@@ -463,7 +463,13 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
     xfpga/test_metrics_c.cpp
 )
 
+add_unit_test(test_xfpga_bmc_c xfpga-static
+    xfpga/test_bmc_c.cpp
+)
 target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
+        ${libjson-c_LIBRARIES})
+
+target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
         ${libjson-c_LIBRARIES})
 
 set_tests_properties(
