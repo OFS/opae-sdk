@@ -96,7 +96,7 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (handle_) { 
         EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
-        handle_ = nullptr
+        handle_ = nullptr;
     }
 
     for (auto &t : tokens_) {
