@@ -115,7 +115,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 /**
 * @test    eintr_write_tests
 * @details Given a valid fd but invalid buffer, eintr_writes
-*          returns -1 on error and empty buffer.
+*          returns -1 on error.
 */
 TEST(sysfs_c, eintr_write_tests) {
   void * data = nullptr;
@@ -128,8 +128,6 @@ TEST(sysfs_c, eintr_write_tests) {
   EXPECT_EQ(-1, eintr_write(fd, data, count));
   EXPECT_EQ(close(fd), 0);
   EXPECT_EQ(std::system("rm empty_file.txt"), 0);
-
-  free(data); 
 }
 
 /**
