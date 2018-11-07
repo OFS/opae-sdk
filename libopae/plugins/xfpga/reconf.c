@@ -123,7 +123,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	fpga_result result                = FPGA_OK;
 	fpga_result destroy_result        = FPGA_OK;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-	fpga_token token;
+	fpga_token token = NULL;
 	fpga_properties props;
 	uint32_t matches = 0;
 

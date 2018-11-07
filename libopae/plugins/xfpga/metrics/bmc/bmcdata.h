@@ -49,9 +49,11 @@ typedef enum {
 extern "C" {
 #endif
 void calc_params(sdr_body *body, Values *val);
+
 double getvalue(Values *val, uint8_t raw);
 
-
+fpga_result read_sysfs_file(fpga_token token, const char *file,
+		   void **buf, uint32_t *tot_bytes_ret);
 #ifdef __cplusplus
 }
 #endif

@@ -59,12 +59,10 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
-              platform_.devices[0].device_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
+                                  &num_matches_), FPGA_OK);
 
     bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
     // Valid bitstream - no clk
@@ -96,13 +94,17 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+        handle_ = nullptr;
+    }
+
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
     token_cleanup();
   }
@@ -179,10 +181,13 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
   // Invalid token within handle
   struct _fpga_handle *handle = (struct _fpga_handle *)handle_;
 
+  auto t = handle->token;
   handle->token = NULL;
 
   result = set_fpga_pwr_threshold(handle_, 60);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+  handle->token = t;
 }
 
 /**
@@ -251,13 +256,13 @@ TEST_P(reconf_c, fpga_reconf_slot) {
 
 /**
 * @test    open_accel
-* @brief   Tests: open_accel
-* @details Returns FPGA_OK if handle is valid and
-*          the accelerator can be opened.
+* @brief   Tests: open_accel_01
+* @details Returns FPGA_INVALID_PARAM when calling open_accel with
+*          an invalid handle.
 */
-TEST_P(reconf_c, open_accel) {
+TEST_P(reconf_c, open_accel_01) {
   fpga_result result;
-  fpga_handle accel;
+  fpga_handle accel = nullptr;
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
@@ -281,11 +286,22 @@ TEST_P(reconf_c, open_accel) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   handle->token = token;
+}
 
-  fpga_properties filter_accel;
+/**
+* @test    open_accel
+* @brief   Tests: open_accel_02
+* @details Returns FPGA_BUSY when calling open_accel with
+*          an opened accel handle.
+*/
+TEST_P(reconf_c, open_accel_02) {
+  fpga_properties filter_accel = nullptr;
   std::array<fpga_token, 2> tokens_accel = {{nullptr,nullptr}};
-  fpga_handle handle_accel;
+  fpga_handle handle_accel = nullptr;
+  fpga_handle accel = nullptr;
   uint32_t num_matches_accel;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel, FPGA_ACCELERATOR),
@@ -295,12 +311,14 @@ TEST_P(reconf_c, open_accel) {
             FPGA_OK);
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_accel[0], &handle_accel, 0));
 
-  result = open_accel(handle_, &accel);
+  EXPECT_NE(handle_, nullptr);
+  EXPECT_NE(handle_accel, nullptr);
+  auto result = open_accel(handle_accel, &accel);
   EXPECT_EQ(result, FPGA_BUSY);
 
-  EXPECT_EQ(xfpga_fpgaClose(handle_accel), FPGA_OK);
+  EXPECT_EQ(accel, nullptr);
   EXPECT_EQ(fpgaDestroyProperties(&filter_accel), FPGA_OK);
-
+  EXPECT_EQ(xfpga_fpgaClose(handle_accel), FPGA_OK);
   for (auto &t : tokens_accel) {
     if (t != nullptr) {
       EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
@@ -309,22 +327,8 @@ TEST_P(reconf_c, open_accel) {
   }
 }
 
-/**
-* @test    clear_port_errors
-* @brief   Tests: clear_port_errors
-* @details Returns FPGA_OK if handle is valid and
-*          can clear port errors.
-*/
-TEST_P(reconf_c, clear_port_errors) {
-  fpga_result result;
-
-  // Null handle
-  result = clear_port_errors(NULL);
-  EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -340,12 +344,11 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
-              platform_.devices[0].device_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
+                                  &num_matches_), FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
     ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
     // assemble valid bitstream header
@@ -374,13 +377,17 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+        handle_ = nullptr;
+    }
+
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
     token_cleanup();
   }
@@ -401,7 +408,6 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
  *          returns FPGA_NOT_SUPPORTED on mock platforms.
  */
 TEST_P(reconf_c_mock_p, set_afu_userclock) {
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
 }
 
@@ -460,9 +466,12 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
 
-class reconf_c_hw_skx_p : public reconf_c {};
+class reconf_c_hw_skx_p : public reconf_c {
+  protected:
+    reconf_c_hw_skx_p() {};
+};
 
 /**
  * @test    set_afu_userclock
@@ -478,7 +487,10 @@ TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
 
-class reconf_c_hw_dcp_p : public reconf_c {};
+class reconf_c_hw_dcp_p : public reconf_c {
+  protected:
+    reconf_c_hw_dcp_p() {};
+};
 
 /**
  * @test    set_afu_userclock
@@ -493,3 +505,18 @@ TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"dcp-p"})));
+
+/**
+* @test    clear_port_errors
+* @brief   Tests: clear_port_errors
+* @details Returns FPGA_OK if handle is valid and
+*          can clear port errors.
+*/
+TEST(reconf, clear_port_errors) {
+  fpga_result result;
+
+  // Null handle
+  result = clear_port_errors(NULL);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
