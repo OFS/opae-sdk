@@ -180,10 +180,8 @@ TEST_P(bmc_c_p, test_bmc_1) {
 
 	// Get firmware version
 	EXPECT_EQ(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+	printf("bmc version=%d \n", version);
+
 	EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], NULL), FPGA_OK);
 }
 
@@ -211,9 +209,11 @@ TEST_P(bmc_c_p, test_bmc_2) {
 	uint32_t is_valid              = 0;
 	double tmp                     = 0;
 	uint8_t raw                    = 0;
-	sdr_details details           = { 0 };
+	sdr_details details;
 
-	// Load SDR
+	memset_s(&details, sizeof(sdr_details), 0);
+
+		// Load SDR
 	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
 	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 	
@@ -223,7 +223,8 @@ TEST_P(bmc_c_p, test_bmc_2) {
 		EXPECT_EQ(bmcGetSDRDetails(values, i, &details), FPGA_OK);
 
 		EXPECT_EQ(bmcGetSensorReading(values, i, &is_valid, &tmp), FPGA_OK);
-		Values detail = { 0 };
+		Values detail;
+		memset_s(&detail, sizeof(detail), 0);
 		EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
 
 		detail.result_exp = 2;
@@ -253,13 +254,11 @@ TEST_P(bmc_c_p, test_bmc_3) {
 	bmc_values_handle values       = NULL;
 	uint32_t num_sensors           = 0;
 	uint32_t num_values            = 0;
-	uint32_t i                     = 0;
-	uint32_t is_valid              = 0;
 	tripped_thresholds *tripped    = NULL;
 	uint32_t num_tripped           = 0;
-	double tmp                     = 0;
 	sdr_details details;
 
+	memset_s(&details, sizeof(details), 0);
 	// Load SDR
 	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
 	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values),FPGA_OK);
@@ -301,18 +300,16 @@ TEST_P(bmc_c_p, test_bmc_4) {
 	bmc_values_handle values         = NULL;
 	uint32_t num_sensors             = 0;
 	uint32_t num_values              = 0;
-	uint32_t i                       = 0;
-	uint32_t is_valid                = 0;
-	tripped_thresholds *tripped      = NULL;
-	uint32_t num_tripped             = 0;
-	double tmp                       = 0;
 	sdr_details details;
 
+	memset_s(&details, sizeof(details), 0);
 	// Load SDR
 	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
 	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
-	threshold_list thresh = { 0 };
+	threshold_list thresh;
+
+	memset_s(&thresh, sizeof(thresh), 0);
 
 	memset_s(&thresh, sizeof(thresh), 0);
 	thresh.upper_nr_thresh.is_valid = 1;
@@ -333,8 +330,8 @@ TEST_P(bmc_c_p, test_bmc_4) {
 	bmc_set_thresh_request req ;
 	_bmcSetThreshold(1, 1, &req);
 
-	Values vals = { 0 };
-
+	Values vals;
+	memset_s(&vals, sizeof(vals), 0);
 	fill_set_request(&vals, &thresh, &req);
 
 
@@ -372,7 +369,6 @@ TEST_P(bmc_c_p, test_bmc_4) {
 TEST_P(bmc_c_p, test_bmc_5) {
 
 	uint32_t tot_bytes_ret     = 0 ;
-	struct _sdr_content *tmp   = NULL;
 	char *string               = NULL;
 	void *buf = NULL;
 
@@ -380,7 +376,8 @@ TEST_P(bmc_c_p, test_bmc_5) {
 		(void **)&buf, &tot_bytes_ret);
 
 	// write to reset cause
-	reset_cause reset = { 0 };
+	reset_cause reset;
+	memset_s(&reset, sizeof(reset_cause), 0);
 	reset.completion_code = 1;
 	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
 	EXPECT_NE(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
@@ -466,14 +463,20 @@ TEST_P(bmc_c_p, test_bmc_5) {
  */
 TEST_P(bmc_c_p, test_bmc_6) {
 
-	powerdown_cause reset      = { 0 };
-	reset.completion_code      = 1;
+	powerdown_cause reset;
 	char *string               = NULL;
-	device_id dev_id           = { 0 };
+	device_id dev_id ;
 
-	write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void*)(&reset), sizeof(reset_cause));
+	memset_s(&reset, sizeof(powerdown_cause), 0);
+	memset_s(&dev_id, sizeof(device_id), 0);
+	reset.completion_code      = 1;
+	write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void*)(&reset), sizeof(powerdown_cause));
 	EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
+	if (string) {
+		printf("string= %s", string);
+		free(string);
+		string = NULL;
+	}
 
 	dev_id.completion_code = 1;
 	uint32_t version;
@@ -491,11 +494,16 @@ TEST_P(bmc_c_p, test_bmc_6) {
  */
 TEST_P(bmc_c_p, test_bmc_7) {
 	
-	sensor_reading reading = { 0 };
-	sdr_header header = { 0 };
-	sdr_key key = { 0 };
-	sdr_body body = { 0 };
+	sensor_reading reading;
+	sdr_header header;
+	sdr_key key;
+	sdr_body body;
 	Values  *vals = NULL ;
+
+	memset_s(&reading, sizeof(sensor_reading), 0);
+	memset_s(&key, sizeof(sdr_key), 0);
+	memset_s(&header, sizeof(sdr_header), 0);
+	memset_s(&body, sizeof(sdr_body), 0);
 
 	// build bmc values
 	reading.sensor_validity.sensor_state.sensor_scanning_disabled = true;
