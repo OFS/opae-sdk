@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2017, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,19 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+cmake_minimum_required(VERSION 2.8.12)
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/fpgametrics)
+################# Create Staging directory ##########################
+set(FLASHTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+file(COPY opae DESTINATION ${FLASHTOOLSDIST_STAGE_DIR})
+set(FLASH_DIR ${FLASHTOOLSDIST_STAGE_DIR}/opae/tools/fpgaflash)
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/pyfpgadiag)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+################# Configure files ###################
+configure_file(setup.py ${FLASHTOOLSDIST_STAGE_DIR}/setup.py @ONLY)
+configure_file(fpgaflash ${FLASH_DIR}/fpgaflash.py @ONLY)
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
+##################add target to build fpgaflash distribution################
+add_custom_target(fpgaflash-dist ALL
+                COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+                WORKING_DIRECTORY ${FLASHTOOLSDIST_STAGE_DIR})       
 
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pac/pyfpgaflash)
-endif()
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
