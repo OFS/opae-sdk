@@ -352,6 +352,7 @@ void *server_thread(void *thread_context)
 
 	pollfds[SRV_SOCKET].fd = server_socket;
 	pollfds[SRV_SOCKET].events = POLLIN | POLLPRI;
+	num_fds = 1;
 
 	while (c->running) {
 
@@ -401,6 +402,11 @@ void *server_thread(void *thread_context)
 	}
 
 	unregister_all_events();
+
+	// close any active client sockets
+	for (i = FIRST_CLIENT_SOCKET ; i < num_fds ; ++i) {
+		close(pollfds[i].fd);
+	}
 
 out_close_server:
 	close(server_socket);
