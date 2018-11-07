@@ -99,7 +99,7 @@ protected:
 				t = nullptr;
 			}
 		}
-		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+		if (handle_) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
 		system_->finalize();
 	}
 
@@ -197,19 +197,15 @@ TEST_P(metics_c_p, test_metric_03) {
 
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, NULL));
 
-
 	_handle = (struct _fpga_handle *)handle_;
 
 	int fddev = _handle->fddev;
 	_handle->fddev = -1;
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, metric_array));
 
-
 	_handle->fddev = fddev;
 
-
 	free(metric_array);
-
 }
 
 
@@ -227,40 +223,38 @@ TEST_P(metics_c_p, test_metric_04) {
 	const char* metric_string[2] = { "power_mgmt:consumed","performance:fabric:port0:mmio_read" };
 	uint64_t  array_size = 2;
 
-	struct fpga_metric  *metric_array_serach = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
+	struct fpga_metric  *metric_array_search = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
 	xfpga_fpgaGetMetricsByName(handle_,
 		(char**)metric_string,
 		array_size,
-		metric_array_serach);
+		metric_array_search);
 
 	const char* metric_string_invalid[2] = { "power_mgmtconsumed1","performance1:fabric:port0:mmio_read1" };
-	struct fpga_metric*  metric_array_serach_invlaid = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
+	struct fpga_metric*  metric_array_search_invalid = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
 
 	xfpga_fpgaGetMetricsByName(handle_,
 		(char**)metric_string_invalid,
 		array_size,
-		metric_array_serach_invlaid);
+		metric_array_search_invalid);
 
-	free(metric_array_serach_invlaid);
+	free(metric_array_search_invalid);
 
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(NULL, (char**)metric_string, array_size, metric_array_search));
 
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(NULL, (char**)metric_string, array_size, metric_array_serach));
-
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, NULL, array_size, metric_array_serach));
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, NULL, array_size, metric_array_search));
 
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, array_size, NULL));
 
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, 0, metric_array_serach));
-
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, 0, metric_array_search));
 
 	_handle = (struct _fpga_handle *)handle_;
 
 	int fddev = _handle->fddev;
 	_handle->fddev = -1;
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, array_size, metric_array_serach));
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, array_size, metric_array_search));
 
 	_handle->fddev = fddev;
-	free(metric_array_serach);
+	free(metric_array_search);
 
 }
 INSTANTIATE_TEST_CASE_P(metics_c, metics_c_p, ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
