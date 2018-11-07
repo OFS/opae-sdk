@@ -118,7 +118,7 @@ matrix:
         - doxygen
         - lcov
     before_install:
-      - pip install --user coveralls
+      - pip install --user python-coveralls
     after_success:
       - coveralls
   - script: scripts/build-documentation.sh
