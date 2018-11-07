@@ -637,11 +637,7 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
 
 	EXPECT_EQ(FPGA_OK, enum_bmc_metrics_info(_handle,  &vector, &metric_id, FPGA_HW_DCP_RC));
 
-	//EXPECT_NE(FPGA_OK, enum_fpga_metrics(&_handle_invlaid));
-
-
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-	//dlclose(_handle->bmc_handle);
 }
 
 TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
