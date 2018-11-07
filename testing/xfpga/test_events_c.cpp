@@ -619,12 +619,16 @@ TEST_P(events_p, register_event) {
  *
  */
 TEST_P(events_p, event_drv_11) {
-  fpga_event_handle bad_handle;
+  fpga_event_handle bad_handle = nullptr;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
   // Invalid event handle magic
+  auto valid_magic = h->magic;
   h->magic = 0x0;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
+
+  h->magic = valid_magic;
+  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&bad_handle), FPGA_OK);
 }
 
 /**
@@ -635,13 +639,16 @@ TEST_P(events_p, event_drv_11) {
  *
  */
 TEST_P(events_p, event_drv_12) {
-  fpga_event_handle bad_handle;
+  fpga_event_handle bad_handle = nullptr;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaCreateEventHandle(&bad_handle));
   struct _fpga_event_handle *h = (struct _fpga_event_handle *) bad_handle;
 
+  auto valid_magic = h->magic;
   // Invalid event handle magic
   h->magic = 0x0;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
+  h->magic = valid_magic;
+  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&bad_handle), FPGA_OK);
 }
 
 /**
@@ -1297,7 +1304,8 @@ INSTANTIATE_TEST_CASE_P(events, events_mock_p,
 class events_handle_p : public ::testing::TestWithParam<std::string> {
  protected:
   events_handle_p()
-      : tokens_accel_{{nullptr, nullptr}},
+      : filter_accel_(nullptr),
+        tokens_accel_{{nullptr, nullptr}},
         handle_accel_(nullptr) {}
 
   virtual void SetUp() override {
