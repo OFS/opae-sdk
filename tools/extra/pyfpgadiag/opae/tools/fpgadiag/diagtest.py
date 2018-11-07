@@ -226,15 +226,12 @@ class diagtest(object):
             "--mem-timeout", default=0.5, type=float,
             help="Seconds to wait before timing out on memory poll")
 
-    def setup(self):
+    def setup(self, in_args=None):
         """setup is called to validate arguments and will return True
            if arguments are valid, False otherwise."""
         parser = self._parser.add_argument_group(self._mode)
         self.add_arguments(parser)
-        self.args, _ = self._parser.parse_known_args()
-        if self.args.help:
-            self._parser.print_help()
-            return False
+        self.args, _ = self._parser.parse_known_args(in_args)
         if self.args.end is None:
             self.args.end = self.args.begin
         return True

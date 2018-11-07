@@ -55,8 +55,8 @@ class nlb3(diagtest):
                             action='store_true', default=False,
                             help='Attempt to prime the cpu cache with misses')
 
-    def setup(self):
-        result = super(nlb3, self).setup()
+    def setup(self, in_args=None):
+        result = super(nlb3, self).setup(in_args)
         if result:
             if self.args.warm_fpga_cache and self.args.cool_fpga_cache:
                 self.logger.error(
@@ -76,7 +76,7 @@ class nlb3(diagtest):
         return self.args.end*self.args.strided_access*CACHELINE_BYTES
 
     def setup_buffers(self, handle, dsm, src, dst):
-        src.fill32(0xc0cac01a)
+        src.fill(0xc0cac01a)
         dst.fill(0)
         if self.args.warm_fpga_cache:
             self.warm_fpga_cache(handle, dsm, src, dst)
