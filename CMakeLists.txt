@@ -253,6 +253,7 @@ define_pkg(tools
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
+  toolfpgaflash
   toolfpgadiagapps
   toolpachssiconfig
   opaecxxutils
