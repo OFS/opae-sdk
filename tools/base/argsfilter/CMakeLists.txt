@@ -23,30 +23,15 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+cmake_minimum_required (VERSION 2.8)
 
+project(argsfilter)
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/argsfilter)
-add_subdirectory(base/fpgametrics)
+add_library(${PROJECT_NAME} STATIC argsfilter.c)
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(${PROJECT_NAME} PRIVATE PIC=1)
+target_compile_options(${PROJECT_NAME} PRIVATE -O3)
+target_link_libraries(${PROJECT_NAME} opae-c)
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
-
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
