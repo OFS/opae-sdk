@@ -106,7 +106,7 @@ protected:
 
 };
 
-fpga_result bmc_c_p ::write_sysfs_file(fpga_token token, const char* file, void *buf, size_t count)
+fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char* file, void *buf, size_t count)
 {
 	fpga_result res = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX];
