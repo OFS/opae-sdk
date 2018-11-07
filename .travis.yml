@@ -100,6 +100,27 @@ matrix:
       - pip install --user cpp-coveralls
     after_success:
       - coveralls -l $TRAVIS_BUILD_DIR/unittests/coverage.info.cleaned -E .*pybind11.*
+  - script: scripts/cover-py.sh
+    env:
+    - BUILD_JOB=Run python tests and generate coverage
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
+    install:
+    - pip install --user pybind11 nose2 mock numpy
+    cache:
+      - ccache
+      - pip
+    addons:
+      apt:
+       packages:
+        - libjson-c-dev
+        - uuid-dev
+        - doxygen
+        - lcov
+    before_install:
+      - pip install --user coveralls
+    after_success:
+      - coveralls
   - script: scripts/build-documentation.sh
     env:
     - BUILD_JOB=Build documentation
