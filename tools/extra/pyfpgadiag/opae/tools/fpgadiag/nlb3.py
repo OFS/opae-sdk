@@ -51,8 +51,8 @@ class nlb3(diagtest):
                             action='store_true', default=False,
                             help='Attempt to prime the cpu cache with misses')
 
-    def setup(self):
-        result = super(nlb3, self).setup()
+    def setup(self, in_args=None):
+        result = super(nlb3, self).setup(in_args)
         if result:
             if self.args.warm_fpga_cache and self.args.cool_fpga_cache:
                 self.logger.error(
