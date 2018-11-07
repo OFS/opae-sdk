@@ -14,4 +14,4 @@ make -j4 opae-c opae-cxx-core pyopae-dist
 
 python -m pip install pyopae/stage/dist/opae.fpga*.whl --user
 LD_LIBRARY_PATH=$PWD/lib python -m nose2 -F -C --coverage-report term-missing test_fpgadiag -s tools/extra/pyfpgadiag/stage --coverage tools/extra/pyfpgadiag/stage
-pip uninstall opae.fpga
+pip uninstall opae.fpga -y
