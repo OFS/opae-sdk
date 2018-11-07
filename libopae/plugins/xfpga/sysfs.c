@@ -754,6 +754,11 @@ ssize_t eintr_write(int fd, void *buf, size_t count)
 {
 	ssize_t bytes_written = 0, total_written = 0;
 	char *ptr = buf;
+
+	if (!buf) {
+		return -1;
+	}
+
 	while (total_written < (ssize_t)count) {
 		bytes_written =
 			write(fd, ptr + total_written, count - total_written);
