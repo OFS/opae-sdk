@@ -29,6 +29,7 @@ project(fpgadiag)
 
 set(PYFILES
     setup.py
+    test_fpgadiag.py
     opae/__init__.py
     opae/utils/__init__.py
     opae/utils/utils.py
@@ -51,7 +52,7 @@ foreach(pyfile ${PYFILES})
     configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
 endforeach(pyfile ${PYFILES})
 
-add_custom_target(pyfpgadiag-dist
+add_custom_target(pyfpgadiag-dist ALL
     COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
     DEPENDS ${PYFILES}
