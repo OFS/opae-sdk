@@ -384,9 +384,7 @@ TEST_P(ras_c_mock_p, main_params_01){
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-P");
   strcpy(twelve, "-Q");
   strcpy(thirteen, "-R");
@@ -616,9 +614,7 @@ TEST_P(ras_c_hw_skx_p, main_params_01){
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
   strcpy(nine, "-S");
-  if (platform_.devices[0].bus == 129) { strcpy(ten, "0x0"); }
-  else if (platform_.devices[0].bus == 190) { strcpy(ten, "0x1"); }
-  else { sprintf(ten, "%d", platform_.devices[0].socket_id); }
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
   strcpy(eleven, "-P");
   strcpy(twelve, "-O");
   strcpy(thirteen, "-N");

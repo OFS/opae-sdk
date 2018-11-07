@@ -23,22 +23,25 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+import os
 from setuptools import setup, find_packages
 
 setup(
-    name="opae.fpgadiag",
+    name="opae.packager",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
-    install_requires=['opae.fpga'],
-    test_suite='nose2.collector.collector',
-    tests_require=['nose2', 'numpy', 'mock'],
-    entry_points={
-        'console_scripts': [
-            "fpgadiag=opae.tools.fpgadiag:main"
-        ]
+    package_data={
+        'opae.tools.packager' : ['schema/*.json'],
     },
-    description="pyfpgadiag includes fpgadiag and related utility libraries",
+    entry_points={
+        'console_scripts': ['packager = opae.tools.packager:main',
+			     'afu_json_mgr = opae.tools.packager.afu_json_mgr:main',
+		],
+    },
+    install_requires=['jsonschema>=2.3.0'],
+    description="packager tool ",
     license="BSD3",
-    keywords="OPAE accelerator fpga fpgadiag nlb",
+    keywords="OPAE tools extra packager",
     url="https://01.org/OPAE",
 )

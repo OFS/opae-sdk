@@ -33,7 +33,7 @@ if(NOT GCOV_EXECUTABLE)
   message(FATAL_ERROR "gcov not found! Aborting...")
 endif()
 
-set(GCOV_COMPILE_FLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage")
+set(GCOV_COMPILE_FLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage -Wall -Wextra -Werror")
 set(GCOV_LINK_FLAGS "-lgcov")
 
 set(CMAKE_CXX_FLAGS_COVERAGE
