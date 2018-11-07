@@ -314,6 +314,14 @@ TEST_P(userclk_c_p, main2) {
   EXPECT_NE(userclk_main(3, argv), 0);
 }
 
+INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({})));
+
+class userclk_c_hw_p : public userclk_c_p{
+  protected:
+    userclk_c_hw_p() {};
+};
+
 /**
  * @test       main3
  * @brief      Test: userclk_main
@@ -322,7 +330,188 @@ TEST_P(userclk_c_p, main2) {
  *             then low is calculated from high,<br>
  *             and the fn returns zero.<br>
  */
-TEST_P(userclk_c_p, main3) {
+TEST_P(userclk_c_hw_p, main3) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  strcpy(zero, "userclk");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-H");
+  strcpy(twelve, "400");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  EXPECT_EQ(userclk_main(13, argv), FPGA_OK);
+}
+
+/**
+ * @test       main4
+ * @brief      Test: userclk_main
+ * @details    When given valid command parameters that identify an accelerator,<br>
+ *             if --freq-high is not given,<br>
+ *             then high is calculated from low,<br>
+ *             and the fn returns zero.<br>
+ */
+TEST_P(userclk_c_hw_p, main4) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  strcpy(zero, "userclk");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-L");
+  strcpy(twelve, "200");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  EXPECT_EQ(userclk_main(13, argv), FPGA_OK);
+}
+
+/**
+ * @test       main5
+ * @brief      Test: userclk_main
+ * @details    When given valid command parameters that identify an accelerator,<br>
+ *             if both --freq-high (-H) and --freq-low (-L) are given,<br>
+ *             then high must equal 2 * low,<br>
+ *             or else the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(userclk_c_hw_p, main5) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  strcpy(zero, "userclk");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+  strcpy(eleven, "-H");
+  strcpy(twelve, "300");
+  strcpy(thirteen, "-L");
+  strcpy(fourteen, "100");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen, fourteen };
+
+  EXPECT_EQ(userclk_main(15, argv), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       main6
+ * @brief      Test: userclk_main
+ * @details    When given valid command parameters that identify an accelerator,<br>
+ *             if neither --freq-high (-H) nor --freq-low (-L) is given,<br>
+ *             then the function prints an error<br>
+ *             and returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(userclk_c_hw_p, main6) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  strcpy(zero, "userclk");
+  strcpy(one, "--segment");
+  sprintf(two, "%d", platform_.devices[0].segment);
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "-D");
+  sprintf(six, "%d", platform_.devices[0].device);
+  strcpy(seven, "-F");
+  sprintf(eight, "%d", platform_.devices[0].function);
+  strcpy(nine, "-S");
+  sprintf(ten, "%d", platform_.devices[0].socket_id);
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten };
+
+  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
+}
+
+INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
+
+
+class userclk_c_mock_p : public userclk_c_p{
+  protected:
+    userclk_c_mock_p() {};
+};
+
+/**
+ * @test       main3
+ * @brief      Test: userclk_main
+ * @details    When given valid command parameters that identify an accelerator,<br>
+ *             if --freq-low is not given,<br>
+ *             then low is calculated from high,<br>
+ *             and the fn returns zero.<br>
+ */
+TEST_P(userclk_c_mock_p, main3) {
   char zero[20];
   char one[20];
   char two[20];
@@ -373,7 +562,7 @@ TEST_P(userclk_c_p, main3) {
  *             then high is calculated from low,<br>
  *             and the fn returns zero.<br>
  */
-TEST_P(userclk_c_p, main4) {
+TEST_P(userclk_c_mock_p, main4) {
   char zero[20];
   char one[20];
   char two[20];
@@ -424,7 +613,7 @@ TEST_P(userclk_c_p, main4) {
  *             then high must equal 2 * low,<br>
  *             or else the fn returns FPGA_INVALID_PARAM.<br>
  */
-TEST_P(userclk_c_p, main5) {
+TEST_P(userclk_c_mock_p, main5) {
   char zero[20];
   char one[20];
   char two[20];
@@ -471,7 +660,7 @@ TEST_P(userclk_c_p, main5) {
  *             then the function prints an error<br>
  *             and returns FPGA_INVALID_PARAM.<br>
  */
-TEST_P(userclk_c_p, main6) {
+TEST_P(userclk_c_mock_p, main6) {
   char zero[20];
   char one[20];
   char two[20];
@@ -502,5 +691,7 @@ TEST_P(userclk_c_p, main6) {
   EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+
+
