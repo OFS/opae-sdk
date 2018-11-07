@@ -499,7 +499,8 @@ TEST_P(metics_uitls_c_p, test_metric_utils_12) {
 
 	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(NULL));
 
-	struct _fpga_handle _handle_invalid = {0};
+	struct _fpga_handle _handle_invalid ;
+	memset_s(&_handle_invalid, sizeof(struct _fpga_handle), 0);
 
 	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(&_handle_invalid));
 }
