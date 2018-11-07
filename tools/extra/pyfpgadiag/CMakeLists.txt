@@ -29,6 +29,7 @@ project(fpgadiag)
 
 set(PYFILES
     setup.py
+    test_fpgadiag.py
     opae/__init__.py
     opae/utils/__init__.py
     opae/utils/utils.py
