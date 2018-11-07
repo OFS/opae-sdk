@@ -76,7 +76,7 @@ class nlb3(diagtest):
         return self.args.end*self.args.strided_access*CACHELINE_BYTES
 
     def setup_buffers(self, handle, dsm, src, dst):
-        src.fill32(0xc0cac01a)
+        src.fill(0xc0cac01a)
         dst.fill(0)
         if self.args.warm_fpga_cache:
             self.warm_fpga_cache(handle, dsm, src, dst)
