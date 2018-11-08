@@ -100,8 +100,8 @@ int port_assign_ioctl(mock_object * m, int request, va_list argp){
       FPGA_MSG("unexpected port ID %u", port_assign->port_id);
       goto out_EINVAL;
   }
-retval = 0;
-errno = 0;
+  retval = 0;
+  errno = 0;
 out:
   va_end(argp);
   return retval;
@@ -154,26 +154,6 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-/**
-* @test    fpga_mock_errinj_02
-* @brief   Tests:fpgaAssignPortToInterface
-* @details fpgaAssignPortToInterface Assign and Release port
-*          Then the return FPGA_OK 
-*/
-TEST_P(err_inj_c_p, fpga_mock_errinj_02) {
-  fpga_result res;
-   
-  res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
-
-  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
-
-  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
-}
 
 /**
 * @test    fpga_mock_errinj_03
@@ -192,6 +172,27 @@ TEST_P(err_inj_c_p, fpga_mock_errinj_03) {
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->fddev = fddev;
+}
+
+/**
+* @test    fpga_mock_errinj_02
+* @brief   Tests:fpgaAssignPortToInterface
+* @details fpgaAssignPortToInterface Assign and Release port
+*          Then the return FPGA_OK 
+*/
+TEST_P(err_inj_c_p, fpga_mock_errinj_02) {
+  fpga_result res;
+   
+  res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
+
+  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
+  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
+  EXPECT_EQ(FPGA_OK, res);
+
+  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
+  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
+  EXPECT_EQ(FPGA_OK, res);
 }
 
 /**

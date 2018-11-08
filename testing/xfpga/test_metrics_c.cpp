@@ -99,7 +99,7 @@ protected:
 				t = nullptr;
 			}
 		}
-		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+		if (handle_) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
 		system_->finalize();
 	}
 
@@ -113,29 +113,22 @@ protected:
 };
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
+* @test    test_metric_01
+* @brief   Tests: xfpga_fpgaGetNumMetrics
+* @details Validates get number metrics
+*
+*
 */
 TEST_P(metics_c_p, test_metric_01) {
-	fpga_result result;
 
-	fpga_handle handle_invalid;
 	// get number of metrics
 	uint64_t num_metrics;
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
-
 
 	// NULL input parameters
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, NULL));
 
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(NULL, &num_metrics));
-
-
-//	EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_invalid, &num_metrics));
-
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 
@@ -147,28 +140,26 @@ TEST_P(metics_c_p, test_metric_01) {
 }
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
+* @test    test_metric_02
+* @brief   Tests: xfpga_fpgaGetMetricsInfo
+* @details Validates get metrics info
+*
+*
 */
 TEST_P(metics_c_p, test_metric_02) {
-	fpga_result result;
 
 	struct _fpga_handle *_handle = NULL;
 	uint64_t num_metrics;
+
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
 
 	struct fpga_metric_info  *fpga_metric_info = (struct fpga_metric_info *) calloc(sizeof(struct fpga_metric_info), num_metrics);
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
 
-
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsInfo(NULL, fpga_metric_info, &num_metrics));
 
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsInfo(handle_, NULL, &num_metrics));
-
 
 	_handle = (struct _fpga_handle *)handle_;
 
@@ -176,27 +167,21 @@ TEST_P(metics_c_p, test_metric_02) {
 	_handle->fddev = -1;
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
 
-
 	_handle->fddev = fddev;
-
 
 	free(fpga_metric_info);
 }
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
+* @test    test_metric_03
+* @brief   Tests: xfpga_fpgaGetMetricsByIndex
+* @details Validates get metric value by index
+*
+*
 */
 TEST_P(metics_c_p, test_metric_03) {
-	fpga_result result;
 
 	struct _fpga_handle *_handle = NULL;
-	uint64_t num_metrics;
-
-
 
 	uint64_t id_array[] = { 1, 5, 30, 35, 10 };
 
@@ -212,82 +197,64 @@ TEST_P(metics_c_p, test_metric_03) {
 
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, NULL));
 
-
 	_handle = (struct _fpga_handle *)handle_;
 
 	int fddev = _handle->fddev;
 	_handle->fddev = -1;
 	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, metric_array));
 
-
 	_handle->fddev = fddev;
 
-
 	free(metric_array);
-
 }
 
 
 /**
-* @test    set_afu_userclock
-* @brief   Tests: set_afu_userclock
-* @details set_afu_userclock sets afu user clock
-*          Returns FPGA_OK if parameters are valid. Returns
-*          error code if invalid user clock or handle.
+* @test    test_metric_03
+* @brief   Tests: xfpga_fpgaGetMetricsByName
+* @details Validates get metric value by name
+*
+*
 */
 TEST_P(metics_c_p, test_metric_04) {
-	fpga_result result;
 
 	struct _fpga_handle *_handle = NULL;
 
-
-	char* metric_string[] = { "power_mgmt:consumed","performance:fabric:port0:mmio_read" };
+	const char* metric_string[2] = { "power_mgmt:consumed","performance:fabric:port0:mmio_read" };
 	uint64_t  array_size = 2;
 
-	struct fpga_metric  *metric_array_serach = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
+	struct fpga_metric  *metric_array_search = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
 	xfpga_fpgaGetMetricsByName(handle_,
-		metric_string,
+		(char**)metric_string,
 		array_size,
-		metric_array_serach);
+		metric_array_search);
 
+	const char* metric_string_invalid[2] = { "power_mgmtconsumed1","performance1:fabric:port0:mmio_read1" };
+	struct fpga_metric*  metric_array_search_invalid = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
 
-
-
-	char* metric_string_invalid[] = { "power_mgmtconsumed1","performance1:fabric:port0:mmio_read1" };
-
-
-	struct fpga_metric*  metric_array_serach_invlaid = (struct fpga_metric *) calloc(sizeof(struct fpga_metric), array_size);
 	xfpga_fpgaGetMetricsByName(handle_,
-		metric_string_invalid,
+		(char**)metric_string_invalid,
 		array_size,
-		metric_array_serach_invlaid);
+		metric_array_search_invalid);
 
-	free(metric_array_serach_invlaid);
+	free(metric_array_search_invalid);
 
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(NULL, (char**)metric_string, array_size, metric_array_search));
 
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(NULL, metric_string, array_size, metric_array_serach));
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, NULL, array_size, metric_array_search));
 
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, NULL, array_size, metric_array_serach));
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, array_size, NULL));
 
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, metric_string, array_size, NULL));
-
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, metric_string, 0, metric_array_serach));
-
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, 0, metric_array_search));
 
 	_handle = (struct _fpga_handle *)handle_;
 
 	int fddev = _handle->fddev;
 	_handle->fddev = -1;
-	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, metric_string, array_size, metric_array_serach));
-
+	EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char**)metric_string, array_size, metric_array_search));
 
 	_handle->fddev = fddev;
-
-
-	free(metric_array_serach);
-
+	free(metric_array_search);
 
 }
-
-
 INSTANTIATE_TEST_CASE_P(metics_c, metics_c_p, ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

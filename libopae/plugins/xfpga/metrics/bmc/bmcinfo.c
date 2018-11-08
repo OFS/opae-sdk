@@ -199,7 +199,7 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 
 	calc_params(body, val);
 
-	val->raw_value = (uint64_t)reading->sensor_reading;
+	val->raw_value = (uint64_t)reading->sens_reading;
 	val->val_type = SENSOR_FLOAT;
 	val->value.f_val = getvalue(val, val->raw_value);
 

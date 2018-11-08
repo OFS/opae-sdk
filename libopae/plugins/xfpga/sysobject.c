@@ -48,8 +48,8 @@
 	} while (false);
 
 
-fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
-				     fpga_object *object, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
+						  fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
@@ -64,8 +64,8 @@ fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 	return make_sysfs_object(objpath, name, object, flags, NULL);
 }
 
-fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
-				      fpga_object *object, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
+						   fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;
@@ -80,8 +80,8 @@ fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 	return make_sysfs_object(objpath, name, object, flags, handle);
 }
 
-fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
-				      fpga_object *object, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
+						   fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX] = {0};
 	fpga_result res = FPGA_EXCEPTION;
@@ -109,7 +109,7 @@ fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
 
-fpga_result xfpga_fpgaDestroyObject(fpga_object *obj)
+fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 {
 	if (NULL == obj || NULL == *obj) {
 		FPGA_MSG("Invalid object pointer");
@@ -131,7 +131,9 @@ fpga_result xfpga_fpgaDestroyObject(fpga_object *obj)
 	return FPGA_OK;
 }
 
-fpga_result xfpga_fpgaObjectGetSize(fpga_object obj, uint32_t *size, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
+						 uint32_t *size,
+						 int flags)
 {
 	fpga_result res = FPGA_OK;
 	ASSERT_NOT_NULL(obj);
@@ -147,7 +149,9 @@ fpga_result xfpga_fpgaObjectGetSize(fpga_object obj, uint32_t *size, int flags)
 	return res;
 }
 
-fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectRead64(fpga_object obj,
+						uint64_t *value,
+						int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	fpga_result res = FPGA_OK;
@@ -168,8 +172,11 @@ fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 	return FPGA_OK;
 }
 
-fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
-				 size_t offset, size_t len, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectRead(fpga_object obj,
+					      uint8_t *buffer,
+					      size_t offset,
+					      size_t len,
+					      int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	fpga_result res = FPGA_OK;
@@ -197,7 +204,9 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 	return FPGA_OK;
 }
 
-fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
+fpga_result __FPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
+						 uint64_t value,
+						 int flags)
 {
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	size_t bytes_written = 0;
@@ -237,12 +246,13 @@ fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		res = FPGA_EXCEPTION;
 	}
 out_unlock:
+	if (fd >= 0)
+		close(fd);
 	err = pthread_mutex_unlock(
 		&((struct _fpga_handle *)_obj->handle)->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 	}
-	close(fd);
 	return res;
 }

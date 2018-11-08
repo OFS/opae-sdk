@@ -26,7 +26,7 @@
 
 #include "bmc.h"
 #define _TIMESPEC_DEFINED
-#include "../../types_int.h" // **HACK to get sysfs path **
+#include "../../types_int.h"
 #include "safe_string/safe_string.h"
 #include "bmcdata.h"
 #include <sys/types.h>
@@ -49,8 +49,8 @@
 		}                                                              \
 	} while (0)
 
-static fpga_result read_sysfs_file(fpga_token token, const char *file,
-				   void **buf, uint32_t *tot_bytes_ret)
+fpga_result read_sysfs_file(fpga_token token, const char *file,
+		   void **buf, uint32_t *tot_bytes_ret)
 {
 	char sysfspath[SYSFS_PATH_MAX];
 	struct stat stats;
@@ -133,7 +133,7 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 
 	struct _sdr_rec *recs = NULL;
 
-	struct _sdr_content *tmp;
+	struct _sdr_content *tmp = NULL;
 	uint32_t tot_bytes;
 
 	res = read_sysfs_file(token, SYSFS_SDR_FILE, (void **)&tmp, &tot_bytes);
@@ -179,30 +179,29 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 
 	NULL_CHECK(records);
 	struct _sdr_rec *sdr = (struct _sdr_rec *)records;
+	struct _sensor_reading *tmp = NULL;
 
 	if (BMC_SDR_MAGIC != sdr->magic) {
-		res = FPGA_INVALID_PARAM;
-		goto out;
+		return FPGA_INVALID_PARAM;
 	}
 
 	NULL_CHECK(num_values);
 
 	if (NULL == values) {
 		*num_values = sdr->num_records;
-		res = FPGA_OK;
-		goto out;
+		return FPGA_OK;
 	}
 
-	sensor_reading *tmp = NULL;
 	uint32_t tot_bytes;
 
 	res = read_sysfs_file(sdr->token, SYSFS_SENSOR_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
+	if ((NULL == tmp) || (FPGA_OK != res)) {
+		fprintf(stderr, "Cannot read sensor file.\n");
 		if (tmp) {
 			free(tmp);
 		}
-		goto out;
+		return FPGA_EXCEPTION;
 	}
 
 	if (tot_bytes != (sdr->num_records * sizeof(sensor_reading))) {
@@ -211,8 +210,8 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 			" struct size %d.\n",
 			(int)tot_bytes,
 			(int)(sdr->num_records * sizeof(sensor_reading)));
-		res = FPGA_EXCEPTION;
-		goto out;
+		free(tmp);
+		return FPGA_EXCEPTION;
 	}
 
 	*num_values = sdr->num_records;
@@ -235,7 +234,6 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 		vals->values[i]->sdr = &sdr->contents[i];
 	}
 
-out:
 	return res;
 }
 
@@ -243,28 +241,23 @@ fpga_result bmcGetSensorReading(bmc_values_handle values,
 				uint32_t sensor_number, uint32_t *is_valid,
 				double *value)
 {
-	fpga_result res = FPGA_OK;
-
 	NULL_CHECK(values);
 	NULL_CHECK(value);
 	struct _bmc_values *vals = (struct _bmc_values *)values;
 
 	if (BMC_VALUES_MAGIC != vals->magic) {
-		res = FPGA_INVALID_PARAM;
-		goto out;
+		return FPGA_INVALID_PARAM;
 	}
 
 	if (sensor_number >= vals->num_records) {
-		res = FPGA_INVALID_PARAM;
-		goto out;
+		return FPGA_INVALID_PARAM;
 	}
 
 	*is_valid = vals->values[sensor_number]->is_valid;
 
 	*value = vals->values[sensor_number]->value.f_val;
 
-out:
-	return res;
+	return FPGA_OK;
 }
 
 fpga_result bmcThresholdsTripped(bmc_values_handle values,

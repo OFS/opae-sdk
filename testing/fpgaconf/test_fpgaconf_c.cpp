@@ -464,23 +464,6 @@ TEST_P(fpgaconf_c_p, parse_args2) {
 }
 
 /**
- * @test       ifc_id0
- * @brief      Test: print_interface_id
- * @details    When the config.target struct is populated with<br>
- *             bus, device, function, and socket,<br>
- *             print_interface_id uses those settings for enumeration,<br>
- *             returning the number of matches found.<br>
- */
-TEST_P(fpgaconf_c_p, ifc_id0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
-  EXPECT_EQ(print_interface_id(test_guid), 1);
-}
-
-/**
  * @test       ifc_id1
  * @brief      Test: print_interface_id
  * @details    When the given config.target settings match no device,<br>
@@ -502,96 +485,6 @@ TEST_P(fpgaconf_c_p, find_fpga0) {
   fpga_token tok = nullptr;
   EXPECT_EQ(find_fpga(test_guid, &tok), 0);
   EXPECT_EQ(tok, nullptr);
-}
-
-/**
- * @test       find_fpga1
- * @brief      Test: find_fpga
- * @details    When the config.target struct is populated with<br>
- *             bus, device, function, and socket,<br>
- *             find_fpga uses those settings in conjunction with the
- *             given PR interface ID for enumeration,<br>
- *             returning the number of matches found.<br>
- */
-TEST_P(fpgaconf_c_p, find_fpga1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
-
-  fpga_guid pr_ifc_id;
-  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
-
-  fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
-  ASSERT_NE(tok, nullptr);
-  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
-}
-
-/**
- * @test       prog_bs0
- * @brief      Test: program_bitstream
- * @details    When config.dry_run is set to true,<br>
- *             program_bitstream skips the PR step,<br>
- *             and the fn returns 1.<br>
- */
-TEST_P(fpgaconf_c_p, prog_bs0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
-
-  config.dry_run = true;
-
-  fpga_guid pr_ifc_id;
-  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
-
-  struct bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-
-  fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
-  ASSERT_NE(tok, nullptr);
-
-  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
-
-  free(info.data);
-  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
-}
-
-/**
- * @test       prog_bs1
- * @brief      Test: program_bitstream
- * @details    When config.dry_run is set to false,<br>
- *             program_bitstream attempts the PR,<br>
- *             which fails when given an invalid bitstream,<br>
- *             causing the function to return -1.<br>
- */
-TEST_P(fpgaconf_c_p, prog_bs1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
-
-  ASSERT_EQ(config.dry_run, false);
-
-  fpga_guid pr_ifc_id;
-  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
-
-  struct bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-
-  fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
-  ASSERT_NE(tok, nullptr);
-
-  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
-
-  free(info.data);
-  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
 }
 
 /**
@@ -870,4 +763,122 @@ TEST_P(fpgaconf_c_p, read_gbs_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+
+
+class fpgaconf_c_mock_p : public fpgaconf_c_p{
+  protected:
+    fpgaconf_c_mock_p(){}
+};
+
+/**
+ * @test       ifc_id0
+ * @brief      Test: print_interface_id
+ * @details    When the config.target struct is populated with<br>
+ *             bus, device, function, and socket,<br>
+ *             print_interface_id uses those settings for enumeration,<br>
+ *             returning the number of matches found.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, ifc_id0) {
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+  EXPECT_EQ(print_interface_id(test_guid), 1);
+}
+
+/**
+ * @test       find_fpga1
+ * @brief      Test: find_fpga
+ * @details    When the config.target struct is populated with<br>
+ *             bus, device, function, and socket,<br>
+ *             find_fpga uses those settings in conjunction with the
+ *             given PR interface ID for enumeration,<br>
+ *             returning the number of matches found.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, find_fpga1) {
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+
+  fpga_guid pr_ifc_id;
+  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
+
+  fpga_token tok = nullptr;
+  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  ASSERT_NE(tok, nullptr);
+  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+}
+
+/**
+ * @test       prog_bs0
+ * @brief      Test: program_bitstream
+ * @details    When config.dry_run is set to true,<br>
+ *             program_bitstream skips the PR step,<br>
+ *             and the fn returns 1.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, prog_bs0) {
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+
+  config.dry_run = true;
+
+  fpga_guid pr_ifc_id;
+  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
+
+  struct bitstream_info info;
+  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+
+  fpga_token tok = nullptr;
+  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  ASSERT_NE(tok, nullptr);
+
+  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
+
+  free(info.data);
+  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+}
+
+/**
+ * @test       prog_bs1
+ * @brief      Test: program_bitstream
+ * @details    When config.dry_run is set to false,<br>
+ *             program_bitstream attempts the PR,<br>
+ *             which fails when given an invalid bitstream,<br>
+ *             causing the function to return -1.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, prog_bs1) {
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+
+  ASSERT_EQ(config.dry_run, false);
+
+  fpga_guid pr_ifc_id;
+  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
+
+  struct bitstream_info info;
+  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+
+  fpga_token tok = nullptr;
+  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  ASSERT_NE(tok, nullptr);
+
+  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
+
+  free(info.data);
+  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+
+
