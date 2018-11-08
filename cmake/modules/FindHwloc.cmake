@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE
 
 find_package(PkgConfig)
-pkg_check_modules(PC_HWLOC REQUIRED hwloc)
+pkg_check_modules(PC_HWLOC QUIET hwloc)
 
 find_library(HWLOC_LIBRARIES
     NAMES hwloc
