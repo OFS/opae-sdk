@@ -28,7 +28,7 @@
 #include <chrono>
 #include "fpga_app/fpga_common.h"
 #include "nlb_cache_prime.h"
-#include "buffer_utils.h"
+#include "diag_utils.h"
 
 using namespace opae::fpga::types;
 

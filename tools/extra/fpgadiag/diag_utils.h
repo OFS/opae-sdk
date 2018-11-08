@@ -33,9 +33,13 @@
 #include <thread>
 #include <opae/fpga.h>
 #include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/token.h>
 #include <opae/cxx/core/shared_buffer.h>
 
 #include "safe_string/safe_string.h"
+
+#include "option_map.h"
+#include "option.h"
 
 namespace intel
 {
@@ -117,6 +121,17 @@ public:
 private:
   opae::fpga::types::shared_buffer::ptr_t parent_;
 };
+
+
+opae::fpga::types::properties::ptr_t get_properties(intel::utils::option_map::ptr_t opts, fpga_objtype otype);
+
+opae::fpga::types::token::ptr_t get_parent_token(opae::fpga::types::handle::ptr_t h);
+
+uint64_t umsg_num(opae::fpga::types::handle::ptr_t h);
+
+bool umsg_set_mask(opae::fpga::types::handle::ptr_t h, uint64_t mask);
+
+uint64_t * umsg_get_ptr(opae::fpga::types::handle::ptr_t h);
 
 
 } // end of namespace fpga

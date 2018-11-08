@@ -26,7 +26,6 @@
 
 #pragma once
 #include <cstdint>
-#include "accelerator.h"
 
 namespace intel
 {

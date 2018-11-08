@@ -30,7 +30,11 @@
 #include "utils.h"
 #include "option.h"
 #include "option_parser.h"
-#include "accelerator.h"
+#include "diag_utils.h"
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
+
+using namespace opae::fpga::types;
 
 using namespace intel::fpga;
 using namespace intel::fpga::diag;
@@ -74,25 +78,20 @@ int main(int argc, char* argv[])
     std::string target = "fpga";
     opts.get_value("target", target);
     bool shared = target == "fpga";
-    std::vector<accelerator::ptr_t> accelerator_list = accelerator::enumerate({ filter });
+    auto props = get_properties(filter, FPGA_ACCELERATOR);
+    auto accelerator_list = token::enumerate({ props });
     if (accelerator_list.size() >= 1)
     {
-        accelerator::ptr_t accelerator_obj = accelerator_list[0];
-        if (accelerator_obj->open(shared))
+        token::ptr_t accelerator_tok = accelerator_list[0];
+        auto h = handle::open(accelerator_tok, (shared ? FPGA_OPEN_SHARED: 0));
+        nlb.assign(h);
+        if (nlb.setup())
         {
-            nlb.assign(accelerator_obj);
-            if (nlb.setup())
-            {
-                return nlb.run() ? 0 : 3;
-            }
-            else
-            {
-                std::cerr << "Error: configuration failed." << std::endl;
-            }
+            return nlb.run() ? 0 : 3;
         }
         else
         {
-            std::cerr << "Error: couldn't open device." << std::endl;
+            std::cerr << "Error: configuration failed." << std::endl;
         }
     }
     else

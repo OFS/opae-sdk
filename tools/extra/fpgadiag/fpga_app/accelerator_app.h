@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,8 @@
 #pragma once
 #include <memory>
 #include "option_map.h"
-#include "accelerator.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/shared_buffer.h>
 #include <thread>
 #include <future>
 
@@ -71,7 +72,7 @@ public:
     typedef std::shared_ptr<accelerator_app> ptr_t;
     virtual const std::string & afu_id() = 0;
     virtual intel::utils::option_map & get_options() = 0;
-    virtual void assign(accelerator::ptr_t accelerator) = 0;
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator) = 0;
     virtual bool setup() = 0;
     virtual bool run() = 0;
     virtual std::future<bool> run_async()
@@ -79,7 +80,7 @@ public:
         return std::async(std::launch::async, &accelerator_app::run, this);
     }
 
-    virtual opae::fpga::types::shared_buffer::ptr_t  dsm() const { return opae::fpga::types::shared_buffer::ptr_t(); }
+    virtual opae::fpga::types::shared_buffer::ptr_t dsm() const = 0;
     virtual uint64_t cachelines()    const  = 0;
 
 private:

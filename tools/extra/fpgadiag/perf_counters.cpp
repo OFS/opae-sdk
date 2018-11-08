@@ -48,7 +48,7 @@ fpga_cache_counters::fpga_cache_counters(token::ptr_t fme)
 : fme_(fme)
 , perf_feature_rev_(-1)
 {
-    auto rev = sysobject::get(fme_, "*perf/cache/revision", FPGA_OBJECT_GLOB);
+    auto rev = sysobject::get(fme_, "*perf/revision", FPGA_OBJECT_GLOB);
     if (rev) {
         perf_feature_rev_ = rev->read64();
         ctr_map_ = read_counters();
@@ -136,7 +136,9 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
 void fpga_cache_counters::freeze(bool f)
 {
     auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
-    auto freeze = sysobject::get(handle, "*perf/cache/freeze", FPGA_OBJECT_GLOB);
+    auto cache = sysobject::get(handle, "*perf/cache", FPGA_OBJECT_GLOB);
+
+    auto freeze = cache->get("freeze");
     freeze->write64((f ? 1 : 0));
     handle->close();
 }
@@ -146,7 +148,11 @@ fpga_cache_counters::ctr_map_t fpga_cache_counters::read_counters()
     ctr_t c;
     ctr_map_t m;
 
-    freeze(true);
+    try {
+        freeze(true);
+    } catch(not_found &err) {
+        return m;
+    }
 
     c = ctr_t::read_hit;
     m.insert(std::make_pair(c, read_counter(c)));
@@ -214,7 +220,7 @@ fpga_fabric_counters::fpga_fabric_counters(token::ptr_t fme)
 : fme_(fme)
 , perf_feature_rev_(-1)
 {
-    auto rev = sysobject::get(fme_, "*perf/fabric/revision", FPGA_OBJECT_GLOB);
+    auto rev = sysobject::get(fme_, "*perf/revision", FPGA_OBJECT_GLOB);
     if (rev) {
         perf_feature_rev_ = rev->read64();
         ctr_map_ = read_counters();
@@ -298,7 +304,9 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
 void fpga_fabric_counters::freeze(bool f)
 {
     auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
-    auto freeze = sysobject::get(handle, "/fabric/freeze");
+    auto cache = sysobject::get(handle, "*perf/fabric", FPGA_OBJECT_GLOB);
+
+    auto freeze = cache->get("freeze");
     freeze->write64((f ? 1 : 0));
     handle->close();
 }
@@ -307,8 +315,11 @@ fpga_fabric_counters::ctr_map_t fpga_fabric_counters::read_counters()
 {
     ctr_t c;
     ctr_map_t m;
-
-    freeze(true);
+    try {
+        freeze(true);
+    } catch(not_found &err) {
+        return m;
+    }
 
     c = ctr_t::mmio_read;
     m.insert(std::make_pair(c, read_counter(c)));

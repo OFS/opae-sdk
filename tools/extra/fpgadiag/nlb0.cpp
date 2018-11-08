@@ -27,7 +27,7 @@
 #include "nlb0.h"
 #include "fpga_app/fpga_common.h"
 #include "nlb_stats.h"
-#include "buffer_utils.h"
+#include "diag_utils.h"
 #include <chrono>
 #include <thread>
 //#include "perf_counters.h"
@@ -310,17 +310,15 @@ bool nlb0::setup()
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
-    uint64_t s2 = 0;
-    if (accelerator_->read_mmio64(static_cast<uint32_t>(nlb0_csr::status2), s2)){
-      uint32_t freq = (s2 >> 32) & 0xffff;
-      if (freq > 0){
-        // frequency_ is in Hz
-        frequency_ = freq * 1E6;
-      }
+    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
+    uint32_t freq = (s2 >> 32) & 0xffff;
+    if (freq > 0){
+      // frequency_ is in Hz
+      frequency_ = freq * 1E6;
     }
 
     // FIXME: use actual size for dsm size
-    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    dsm_ = shared_buffer::allocate(accelerator_, dsm_size_);
     if (!dsm_) {
         log_.error("nlb0") << "failed to allocate DSM workspace." << std::endl;
         return false;
@@ -330,6 +328,7 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
+    auto fme_token = get_parent_token(accelerator_);
     shared_buffer::ptr_t inout; // shared workspace, if possible
     shared_buffer::ptr_t inp;   // input workspace
     shared_buffer::ptr_t out;   // output workspace
@@ -341,7 +340,7 @@ bool nlb0::run()
 
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
-        inout = accelerator_->allocate_buffer(buf_size * 2);
+        inout = shared_buffer::allocate(accelerator_, buf_size * 2);
         if (!inout) {
             log_.error("nlb0") << "failed to allocate input/output buffers." << std::endl;
             return false;
@@ -350,8 +349,8 @@ bool nlb0::run()
         inp = bufs[0];
         out = bufs[1];
     } else {
-        inp = accelerator_->allocate_buffer(buf_size);
-        out = accelerator_->allocate_buffer(buf_size);
+        inp = shared_buffer::allocate(accelerator_, buf_size);
+        out = shared_buffer::allocate(accelerator_, buf_size);
         if (!inp || !out) {
             log_.error("nlb0") << "failed to allocate input/output buffers." << std::endl;
             return false;
@@ -369,26 +368,22 @@ bool nlb0::run()
 
     inp->write<uint8_t>(0xA, 15);
 
-    if (!accelerator_->reset())
-    {
-        log_.error("nlb0") << "accelerator reset failed." << std::endl;
-        return false;
-    }
+    accelerator_->reset();
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
     // set the test mode
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
 
-    for (size_t i = 0; i < inp->size()/sizeof(size_t); ++i)
+    for (size_t i = 0; i < inp->size(); ++i)
     {
         inp->write(i, i);
     }
@@ -400,29 +395,29 @@ bool nlb0::run()
         out->fill(0);
 
         // assert afu reset
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
         // de-assert afu reset
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
 
         // set number of cache lines for test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), i);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines), i);
 
         // Read perf counters.
         fpga_cache_counters  start_cache_ctrs;
         fpga_fabric_counters start_fabric_ctrs;
         if (!suppress_stats_)
         {
-            start_cache_ctrs  = accelerator_->cache_counters();
-            start_fabric_ctrs = accelerator_->fabric_counters();
+            start_cache_ctrs  = fpga_cache_counters(fme_token);
+            start_fabric_ctrs = fpga_fabric_counters(fme_token);
         }
         // start the test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
 
         if (cont_)
         {
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
-            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
             if (!buffer_wait(dsm_, static_cast<size_t>(nlb0_dsm::test_complete),
                            std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
@@ -441,15 +436,15 @@ bool nlb0::run()
                 return false;
             }
             // stop the device
-            accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
         }
         cachelines_ += i;
         // if we don't suppress stats then we show them at the end of each iteration
 	if (!suppress_stats_)
         {
             // Read Perf Counters
-            fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
-            fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
+            fpga_cache_counters  end_cache_ctrs  = fpga_cache_counters(fme_token);
+            fpga_fabric_counters end_fabric_ctrs = fpga_fabric_counters(fme_token);
             std::cout << intel::fpga::nlb::nlb_stats(dsm_,
                                                      i,
                                                      end_cache_ctrs - start_cache_ctrs,

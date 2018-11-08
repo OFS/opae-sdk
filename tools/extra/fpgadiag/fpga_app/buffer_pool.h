@@ -27,7 +27,7 @@
 #include <mutex>
 #include "fpga_common.h"
 #include <opae/cxx/core/shared_buffer.h>
-#include "buffer_utils.h"
+#include "diag_utils.h"
 
 namespace intel
 {

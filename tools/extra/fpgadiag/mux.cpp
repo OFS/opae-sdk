@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
     for (auto app : apps)
     {
         accelerator::ptr_t muxed(new accelerator_mux(acceleratorlist[0], apps.size(), instance++, pool));
-        app->assign(muxed);
+        app->assign(muxed->handle());
         if (!app->disabled() && app->setup())
         {
             results[app->name()] = test_result::incomplete;

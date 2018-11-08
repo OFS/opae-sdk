@@ -35,7 +35,7 @@
 #include "nlb.h"
 #include "nlb_stats.h"
 #include "safe_string/safe_string.h"
-#include "buffer_utils.h"
+#include "diag_utils.h"
 
 
 #define USE_UMSG 0
@@ -330,7 +330,7 @@ bool nlb7::setup()
     options_.get_value<bool>("csv", csv_format_);
 
     // FIXME: use actual size for dsm size
-    dsm_ = accelerator_->allocate_buffer(dsm_size_);
+    dsm_ = shared_buffer::allocate(accelerator_, dsm_size_);
     if (!dsm_) {
         log_.error("nlb7") << "failed to allocate DSM workspace." << std::endl;
         return false;
@@ -356,7 +356,7 @@ bool nlb7::run()
 
     if (buf_size <= KB(2) || (buf_size > KB(4) && buf_size <= MB(1)) ||
                              (buf_size > MB(2) && buf_size < MB(512))) {  // split
-        inout = accelerator_->allocate_buffer(buf_size * 2);
+        inout = shared_buffer::allocate(accelerator_, buf_size * 2);
         if (!inout) {
             log_.error("nlb7") << "failed to allocate input/output buffers." << std::endl;
             return false;
@@ -365,8 +365,8 @@ bool nlb7::run()
         inp = bufs[0];
         out = bufs[1];
     } else {
-        inp = accelerator_->allocate_buffer(buf_size);
-        out = accelerator_->allocate_buffer(buf_size);
+        inp = shared_buffer::allocate(accelerator_, buf_size);
+        out = shared_buffer::allocate(accelerator_, buf_size);
         if (!inp || !out) {
             log_.error("nlb7") << "failed to allocate input/output buffers." << std::endl;
             return false;
@@ -382,12 +382,12 @@ bool nlb7::run()
         return false;
     }
 
-    accelerator_->umsg_set_mask(LOW);
+    umsg_set_mask(accelerator_, LOW);
 
 #if USE_UMSG
     volatile uint8_t *pUMsgUsrVirt = (volatile uint8_t *) accelerator_->umsg_get_ptr();
     size_t pagesize = (size_t) sysconf(_SC_PAGESIZE);
-    size_t UMsgBufSize = pagesize * (size_t) accelerator_->umsg_num();
+    size_t UMsgBufSize = pagesize * (size_t) umsg_num(accelerator_);
 #else
     volatile uint8_t *pUMsgUsrVirt = (volatile uint8_t *) NULL;
     size_t UMsgBufSize = 0;
@@ -398,38 +398,34 @@ bool nlb7::run()
     {
        if (nlb7_notice::umsg_data == notice_)
        {
-           accelerator_->umsg_set_mask(LOW);
+           umsg_set_mask(accelerator_, LOW);
        }
        else
        {
-           accelerator_->umsg_set_mask(HIGH);
+           umsg_set_mask(accelerator_, HIGH);
        }
     }
 
-    if (!accelerator_->reset())
-    {
-        std::cerr << "accelerator reset failed." << std::endl;
-        return false;
-    }
+    accelerator_->reset();
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb7_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb7_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
 
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::cfg), cfg_.value());
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::cfg), cfg_.value());
 
     uint32_t sz = CL(begin_);
-
+    auto fme_token = get_parent_token(accelerator_);
     // Read perf counters.
-    fpga_cache_counters  start_cache_ctrs  = accelerator_->cache_counters();
-    fpga_fabric_counters start_fabric_ctrs = accelerator_->fabric_counters();
+    fpga_cache_counters  start_cache_ctrs  = fpga_cache_counters(fme_token);
+    fpga_fabric_counters start_fabric_ctrs = fpga_fabric_counters(fme_token);
 
     while (sz <= CL(end_))
     {
@@ -450,15 +446,15 @@ bool nlb7::run()
             inp->write(InputData, i);
 
         // assert AFU reset.
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
         // clear the DSM.
         dsm_->fill(0);
         // de-assert afu reset
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 1);
         // set number of cache lines for test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::num_lines), sz / CL(1));
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::num_lines), sz / CL(1));
         // start the test
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 3);
 
         // Test flow
         // 1. CPU polls on address N+1
@@ -486,7 +482,7 @@ bool nlb7::run()
         // 3. CPU to FPGA message. Select notice type.
         if (nlb7_notice::csr_write == notice_)
         {
-            accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::sw_notice), 0x10101010);
+            accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::sw_notice), 0x10101010);
         }
         else if (pUMsgUsrVirt && ((nlb7_notice::umsg_data == notice_) ||
                  (nlb7_notice::umsg_hint == notice_)))
@@ -513,7 +509,7 @@ bool nlb7::run()
         }
 
         // stop the device
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 7);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 7);
 
         while ((0 == dsm_->read<uint32_t>((size_t)nlb0_dsm::test_complete)) &&
                MaxPoll)
@@ -526,8 +522,8 @@ bool nlb7::run()
         }
 
         // Read Perf Counters
-        fpga_cache_counters  end_cache_ctrs  = accelerator_->cache_counters();
-        fpga_fabric_counters end_fabric_ctrs = accelerator_->fabric_counters();
+        fpga_cache_counters  end_cache_ctrs  = fpga_cache_counters(fme_token);
+        fpga_fabric_counters end_fabric_ctrs = fpga_fabric_counters(fme_token);
 
         if (!MaxPoll)
         {
@@ -641,13 +637,9 @@ bool nlb7::run()
         sz += CL(1);
     }
 
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb7_csr::ctl), 0);
 
-    if (!accelerator_->reset())
-    {
-        std::cerr << "accelerator reset failed after test completion." << std::endl;
-        return false;
-    }
+    accelerator_->reset();
 
     dsm_.reset();
 

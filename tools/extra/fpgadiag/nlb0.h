@@ -28,7 +28,6 @@
 #include "nlb.h"
 #include "option_map.h"
 #include "fpga_app/accelerator_app.h"
-#include "accelerator.h"
 #include "csr.h"
 #include "log.h"
 #include <chrono>
@@ -52,7 +51,7 @@ public:
     ~nlb0();
 
     virtual intel::utils::option_map & get_options()          override { return options_; }
-    virtual void                       assign(accelerator::ptr_t accelerator) override { accelerator_ = accelerator;      }
+    virtual void                       assign(opae::fpga::types::handle::ptr_t accelerator) override { accelerator_ = accelerator;      }
     virtual const std::string &        afu_id()               override { return afu_id_;  }
     virtual const std::string &        name()                 override { return name_;    }
     virtual bool                       setup()                override;
@@ -79,7 +78,7 @@ private:
     intel::utils::logger log_;
     intel::utils::option_map options_;
 
-    accelerator::ptr_t accelerator_;
+    opae::fpga::types::handle::ptr_t accelerator_;
     opae::fpga::types::shared_buffer::ptr_t dsm_;
     csr_t<uint32_t> cfg_;
 

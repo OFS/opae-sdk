@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <cmath>
 #include <memory>
-#include "accelerator.h"
 #include "buffer_pool.h"
 
 namespace intel
