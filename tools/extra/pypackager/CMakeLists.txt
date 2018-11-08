@@ -24,6 +24,46 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-install(PROGRAMS fpgaflash	
-        DESTINATION bin
-        COMPONENT toolfpgaflash)
+cmake_minimum_required(VERSION 2.8.12)
+
+
+################# Create Staging directory ##########################
+set(PACKTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+file(COPY opae DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+set(PACKGER_DIR ${PACKTOOLSDIST_STAGE_DIR}/opae/tools/packager)
+
+################# Configure files ###################
+set(PACKCONFIGFILES
+        setup.py
+        README
+        )
+
+foreach(packconfigfile ${PACKCONFIGFILES})
+        configure_file(${packconfigfile} ${PACKTOOLSDIST_STAGE_DIR}/${packconfigfile} @ONLY)
+endforeach(packconfigfile ${PACKCONFIGFILES})
+
+configure_file(packager.py ${PACKGER_DIR}/packager.py @ONLY)
+################# Copy files and directories ###################
+set(PACKCOPYFILES
+        afu_json_mgr.py
+        afu.py
+        gbs.py
+        utils.py
+        )
+
+foreach(packcopyfile ${PACKCOPYFILES})
+        file(COPY ${packcopyfile} DESTINATION ${PACKGER_DIR})
+endforeach(packcopyfile ${PACKCOPYFILES})
+        
+file(COPY MANIFEST.in DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+
+file(COPY test DESTINATION ${PACKGER_DIR})
+file(COPY metadata DESTINATION ${PACKGER_DIR})
+file(COPY schema DESTINATION ${PACKGER_DIR})
+
+##################add target to build packager distribution################
+add_custom_target(packager-dist ALL
+                COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+                WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})       
+
+
