@@ -66,8 +66,4 @@ add_custom_target(packager-dist ALL
                 COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
                 WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})       
 
-################# install tool with pip  ######################## 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/opae.packager-${INTEL_FPGA_API_VERSION}.tar.gz
-                WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})"
-        COMPONENT toolpackager)
 
