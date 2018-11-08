@@ -25,49 +25,41 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
+include(packaging)
 
+## Install target for jsonschema files
+set(JSONSCHEMA_SHARE_DIR share/opae/python)
+set(JSONSCHEMA_BIN_DIR ${PROJECT_BINARY_DIR}/share/opae/jsonschema-2.3.0)
+set(JSONSCHEMA_DIR ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0)
 
-################# Create Staging directory ##########################
-set(PACKTOOLSDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
-file(COPY opae DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
-set(PACKGER_DIR ${PACKTOOLSDIST_STAGE_DIR}/opae/tools/packager)
+################# Add version to packager.py ########################
+configure_file(packager.py ${CMAKE_CURRENT_BINARY_DIR}/packager.py @ONLY)
 
-################# Configure files ###################
-set(PACKCONFIGFILES
-        setup.py
-        README
-        )
+set(PKG_PATH_MODULE ${CMAKE_CURRENT_BINARY_DIR}/packager.py packager.py)
 
-foreach(packconfigfile ${PACKCONFIGFILES})
-        configure_file(${packconfigfile} ${PACKTOOLSDIST_STAGE_DIR}/${packconfigfile} @ONLY)
-endforeach(packconfigfile ${PACKCONFIGFILES})
+################# generate executable python zip files ########################
+set(METADATA_FILES metadata/constants.py metadata/__init__.py metadata/metadata.py)
+set(SCHEMA_FILES schema/afu_schema_v01.json)
 
-configure_file(packager.py ${PACKGER_DIR}/packager.py @ONLY)
-################# Copy files and directories ###################
-set(PACKCOPYFILES
-        afu_json_mgr.py
-        afu.py
-        gbs.py
-        utils.py
-        )
+set(PKG_COMMON_FILES afu.py gbs.py utils.py ${METADATA_FILES} ${SCHEMA_FILES})
 
-foreach(packcopyfile ${PACKCOPYFILES})
-        file(COPY ${packcopyfile} DESTINATION ${PACKGER_DIR})
-endforeach(packcopyfile ${PACKCOPYFILES})
-        
-file(COPY MANIFEST.in DESTINATION ${PACKTOOLSDIST_STAGE_DIR})
+set(PKG_PYTHON_FILES PKG_PATH_MODULE ${PKG_COMMON_FILES} README)
+CREATE_PYTHON_EXE(packager packager ${PKG_PYTHON_FILES})
+set(PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
-file(COPY test DESTINATION ${PACKGER_DIR})
-file(COPY metadata DESTINATION ${PACKGER_DIR})
-file(COPY schema DESTINATION ${PACKGER_DIR})
+set(AFU_JSON_MGR_FILES afu_json_mgr.py ${PKG_COMMON_FILES} schema/afu_template.json)
+CREATE_PYTHON_EXE(afu_json_mgr afu_json_mgr ${AFU_JSON_MGR_FILES})
+list(APPEND PACKAGER_BIN_LIST ${PACKAGER_BIN})
 
-##################add target to build packager distribution################
-add_custom_target(packager-dist ALL
-                COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
-                WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})       
+file(COPY ${OPAE_SDK_SOURCE}/tools/extra/packager/jsonschema-2.3.0/ DESTINATION ${JSONSCHEMA_BIN_DIR})
 
-################# install tool with pip  ######################## 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --user dist/opae.packager-${INTEL_FPGA_API_VERSION}.tar.gz
-                WORKING_DIRECTORY ${PACKTOOLSDIST_STAGE_DIR})"
+################# install executable python zip files  ######################## 
+install(PROGRAMS ${PACKAGER_BIN_LIST}
+        DESTINATION bin
         COMPONENT toolpackager)
+
+################# install jsonschema files  ######################## 
+install(DIRECTORY ${JSONSCHEMA_DIR}
+        DESTINATION ${JSONSCHEMA_SHARE_DIR}
+        COMPONENT jsonschema)
 
