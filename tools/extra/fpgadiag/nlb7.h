@@ -29,7 +29,6 @@
 #include "option_map.h"
 #include "fpga_app/accelerator_app.h"
 #include "accelerator.h"
-#include "dma_buffer.h"
 #include "csr.h"
 #include "log.h"
 #include "perf_counters.h"
@@ -58,7 +57,7 @@ public:
     virtual const std::string &        name()                 { return name_;    }
     virtual bool                       setup();
     virtual bool                       run();
-    virtual dma_buffer::ptr_t          dsm()            const override { return dsm_; }
+    virtual opae::fpga::types::shared_buffer::ptr_t          dsm()            const override { return dsm_; }
     virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_help(std::ostream &os);
@@ -88,7 +87,7 @@ private:
     intel::utils::option_map options_;
 
     accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t dsm_;
+    opae::fpga::types::shared_buffer::ptr_t dsm_;
     csr_t<uint32_t> cfg_;
 
     std::chrono::microseconds dsm_timeout_;

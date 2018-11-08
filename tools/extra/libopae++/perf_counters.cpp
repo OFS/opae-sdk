@@ -28,41 +28,36 @@
 #include <fstream>
 #include <cstdint>
 #include "perf_counters.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/sysobject.h>
+
+using namespace opae::fpga::types;
 
 namespace intel
 {
 namespace fpga
 {
 
-const std::string sysfs_perf_choices[] = { "/perf", "/dperf", "/iperf" };
-
 fpga_cache_counters::fpga_cache_counters()
-: sysfspath_("")
-, perf_feature_path_("")
+: fme_()
 , perf_feature_rev_(-1)
 {
 }
 
-fpga_cache_counters::fpga_cache_counters(std::string sysfspath)
-: sysfspath_(sysfspath)
-, perf_feature_path_("")
+fpga_cache_counters::fpga_cache_counters(token::ptr_t fme)
+: fme_(fme)
 , perf_feature_rev_(-1)
 {
-    std::ifstream inf;
-    for (const std::string & perf : sysfs_perf_choices){
-        if (inf.open(sysfspath_ + perf + "/revision"), inf) {
-            perf_feature_path_ = perf;
-            inf >> std::hex >> perf_feature_rev_;
-            break;
-        }
+    auto rev = sysobject::get(fme_, "*perf/cache/revision", FPGA_OBJECT_GLOB);
+    if (rev) {
+        perf_feature_rev_ = rev->read64();
+        ctr_map_ = read_counters();
     }
 
-    ctr_map_ = read_counters();
 }
 
 fpga_cache_counters::fpga_cache_counters(const fpga_cache_counters &other)
-: sysfspath_(other.sysfspath_)
-, perf_feature_path_(other.perf_feature_path_)
+: fme_(other.fme_)
 , perf_feature_rev_(other.perf_feature_rev_)
 , ctr_map_(other.ctr_map_)
 {
@@ -72,9 +67,7 @@ fpga_cache_counters & fpga_cache_counters::operator = (const fpga_cache_counters
 {
     if (&other != this)
     {
-        sysfspath_ = other.sysfspath_;
-        perf_feature_path_ = other.perf_feature_path_;
-        perf_feature_rev_ = other.perf_feature_rev_;
+        fme_ = other.fme_;
         ctr_map_ = other.ctr_map_;
     }
     return *this;
@@ -142,14 +135,10 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
 
 void fpga_cache_counters::freeze(bool f)
 {
-    std::string fr = sysfspath_ + perf_feature_path_ + "/cache/freeze";
-    std::ofstream of;
-    of.open(fr);
-    if (of)
-    {
-        of << (f ? "1" : "0") << std::endl;
-    }
-    of.close();
+    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
+    auto freeze = sysobject::get(handle, "*perf/cache/freeze", FPGA_OBJECT_GLOB);
+    freeze->write64((f ? 1 : 0));
+    handle->close();
 }
 
 fpga_cache_counters::ctr_map_t fpga_cache_counters::read_counters()
@@ -187,7 +176,7 @@ fpga_cache_counters::ctr_map_t fpga_cache_counters::read_counters()
 
 uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
 {
-    std::string ctr(sysfspath_ + perf_feature_path_ + "/cache/");
+    std::string ctr("*perf/cache/");
 
 #define CASE(x) case x : ctr += #x; break
     switch(c)
@@ -206,46 +195,34 @@ uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
     }
 #undef CASE
 
-    std::ifstream inf;
-    inf.open(ctr);
-    if (inf)
-    {
-        uint64_t u = 0;
-        inf >> std::hex >> u;
-        return u;
+    auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
+    if (counter) {
+      return counter->read64();
     }
 
-    return (uint64_t)-1;
+    return 0;
 }
 
 
 fpga_fabric_counters::fpga_fabric_counters()
-: sysfspath_("")
-, perf_feature_path_("")
+: fme_()
 , perf_feature_rev_(-1)
 {
 }
 
-fpga_fabric_counters::fpga_fabric_counters(std::string sysfspath)
-: sysfspath_(sysfspath)
-, perf_feature_path_("")
+fpga_fabric_counters::fpga_fabric_counters(token::ptr_t fme)
+: fme_(fme)
 , perf_feature_rev_(-1)
 {
-    std::ifstream inf;
-    for (const std::string & perf : sysfs_perf_choices){
-        if (inf.open(sysfspath_ + perf + "/revision"), inf) {
-            perf_feature_path_ = perf;
-            inf >> std::hex >> perf_feature_rev_;
-            break;
-        }
+    auto rev = sysobject::get(fme_, "*perf/fabric/revision", FPGA_OBJECT_GLOB);
+    if (rev) {
+        perf_feature_rev_ = rev->read64();
+        ctr_map_ = read_counters();
     }
-
-    ctr_map_ = read_counters();
 }
 
 fpga_fabric_counters::fpga_fabric_counters(const fpga_fabric_counters &other)
-: sysfspath_(other.sysfspath_)
-, perf_feature_path_(other.perf_feature_path_)
+: fme_(other.fme_)
 , perf_feature_rev_(other.perf_feature_rev_)
 , ctr_map_(other.ctr_map_)
 {
@@ -255,8 +232,7 @@ fpga_fabric_counters & fpga_fabric_counters::operator = (const fpga_fabric_count
 {
     if (&other != this)
     {
-        sysfspath_ = other.sysfspath_;
-        perf_feature_path_ = other.perf_feature_path_;
+        fme_ = other.fme_;
         perf_feature_rev_ = other.perf_feature_rev_;
         ctr_map_ = other.ctr_map_;
     }
@@ -321,14 +297,10 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
 
 void fpga_fabric_counters::freeze(bool f)
 {
-    std::string fr = sysfspath_ + perf_feature_path_ + "/fabric/freeze";
-    std::ofstream of;
-    of.open(fr);
-    if (of)
-    {
-        of << (f ? "1" : "0") << std::endl;
-    }
-    of.close();
+    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
+    auto freeze = sysobject::get(handle, "/fabric/freeze");
+    freeze->write64((f ? 1 : 0));
+    handle->close();
 }
 
 fpga_fabric_counters::ctr_map_t fpga_fabric_counters::read_counters()
@@ -362,7 +334,7 @@ fpga_fabric_counters::ctr_map_t fpga_fabric_counters::read_counters()
 
 uint64_t fpga_fabric_counters::read_counter(fpga_fabric_counters::ctr_t c)
 {
-    std::string ctr(sysfspath_ + perf_feature_path_ + "/fabric/");
+    std::string ctr("*perf/fabric/");
 
 #define CASE(x) case x : ctr += #x; break
     switch(c)
@@ -378,17 +350,12 @@ uint64_t fpga_fabric_counters::read_counter(fpga_fabric_counters::ctr_t c)
         default : return (uint64_t)-1;
     }
 #undef CASE
-
-    std::ifstream inf;
-    inf.open(ctr);
-    if (inf)
-    {
-        uint64_t u = 0;
-        inf >> std::hex >> u;
-        return u;
+    auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
+    if (counter) {
+      return counter->read64();
     }
 
-    return (uint64_t)-1;
+    return 0;
 }
 
 } // end of namespace fpga

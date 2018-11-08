@@ -28,6 +28,8 @@
 #include <iomanip>
 #include "nlb_stats.h"
 
+using namespace opae::fpga::types;
+
 namespace intel
 {
 namespace fpga
@@ -57,7 +59,7 @@ enum class cmdqbatch_dsm : uint32_t
     end_overhead    = 0x005f
 };
 
-nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
+nlb_stats::nlb_stats(shared_buffer::ptr_t dsm,
                      uint32_t cachelines,
                      const fpga_cache_counters &cache_counters,
                      const fpga_fabric_counters &fabric_counters,
@@ -79,7 +81,7 @@ nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
 }
 
 
-nlb_stats::nlb_stats(dma_buffer::ptr_t dsm,
+nlb_stats::nlb_stats(shared_buffer::ptr_t dsm,
                      dsm_version dsm_v,
                      uint32_t cachelines,
                      const fpga_cache_counters &cache_counters,
@@ -226,7 +228,7 @@ std::string nlb_stats::normalized_freq() const
 std::string nlb_stats::read_bandwidth() const
 {
     auto clockfreq = clock_freq_;
-    const double giga = 1000.0 * 1000.0 * 1000.0;
+    const double giga = 1024.0 * 1024.0 * 1024.0;
 
     dsm_tuple dsm(dsm_, dsm_version_);
     auto rawticks = dsm.raw_ticks();
@@ -269,7 +271,7 @@ std::string nlb_stats::read_bandwidth() const
 std::string nlb_stats::write_bandwidth() const
 {
     auto clockfreq = clock_freq_;
-    const double giga = 1000.0 * 1000.0 * 1000.0;
+    const double giga = 1024.0 * 1024.0 * 1024.0;
 
     dsm_tuple dsm(dsm_, dsm_version_);
     auto rawticks = dsm.raw_ticks();
@@ -319,7 +321,7 @@ dsm_tuple::dsm_tuple(dsm_version v)
 {
 }
 
-dsm_tuple::dsm_tuple(dma_buffer::ptr_t dsm, dsm_version v)
+dsm_tuple::dsm_tuple(shared_buffer::ptr_t dsm, dsm_version v)
 : dsm_tuple(v)
 {
     get(dsm);
@@ -350,7 +352,7 @@ dsm_tuple & dsm_tuple::operator += (const dsm_tuple &rhs)
     return *this;
 }
 
-void dsm_tuple::get(dma_buffer::ptr_t dsm)
+void dsm_tuple::get(shared_buffer::ptr_t dsm)
 {
     switch(version_)
     {
@@ -373,7 +375,7 @@ void dsm_tuple::get(dma_buffer::ptr_t dsm)
     }
 }
 
-void dsm_tuple::put(dma_buffer::ptr_t dsm)
+void dsm_tuple::put(shared_buffer::ptr_t dsm)
 {
     switch(version_)
     {

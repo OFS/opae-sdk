@@ -27,9 +27,11 @@
 #include "nlb0.h"
 #include "fpga_app/fpga_common.h"
 #include "nlb_stats.h"
+#include "buffer_utils.h"
 #include <chrono>
 #include <thread>
 //#include "perf_counters.h"
+using namespace opae::fpga::types;
 
 using namespace std::chrono;
 using namespace intel::utils;
@@ -328,9 +330,9 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    dma_buffer::ptr_t inout; // shared workspace, if possible
-    dma_buffer::ptr_t inp;   // input workspace
-    dma_buffer::ptr_t out;   // output workspace
+    shared_buffer::ptr_t inout; // shared workspace, if possible
+    shared_buffer::ptr_t inp;   // input workspace
+    shared_buffer::ptr_t out;   // output workspace
 
     std::size_t buf_size = CL(end_);  // size of input and output buffer (each)
 
@@ -344,7 +346,7 @@ bool nlb0::run()
             log_.error("nlb0") << "failed to allocate input/output buffers." << std::endl;
             return false;
         }
-        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        std::vector<shared_buffer::ptr_t> bufs = split_buffer::split(inout, {buf_size, buf_size});
         inp = bufs[0];
         out = bufs[1];
     } else {
@@ -374,15 +376,15 @@ bool nlb0::run()
     }
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
     // set the test mode
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
 
@@ -421,8 +423,8 @@ bool nlb0::run()
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
-            if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
-                           dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
+            if (!buffer_wait(dsm_, static_cast<size_t>(nlb0_dsm::test_complete),
+                           std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
                 log_.error("nlb0") << "test timeout at "
                                    << i << " cachelines." << std::endl;
@@ -431,8 +433,8 @@ bool nlb0::run()
         }
         else
         {
-            if (!dsm_->wait(static_cast<size_t>(nlb0_dsm::test_complete),
-                        dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
+            if (!buffer_wait(dsm_, static_cast<size_t>(nlb0_dsm::test_complete),
+                        std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
                 log_.error("nlb0") << "test timeout at "
                                    << i << " cachelines." << std::endl;
@@ -463,7 +465,7 @@ bool nlb0::run()
             dsm_tpl += dsm_tuple(dsm_);
         }
         // verify in and out
-        if (!inp->equal(out, i * cacheline_size))
+        if (!inp->compare(out, i * cacheline_size))
         {
             // put the tuple back into the dsm buffer
             dsm_tpl.put(dsm_);

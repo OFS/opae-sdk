@@ -26,7 +26,7 @@
 
 #pragma once
 #include <iostream>
-#include "dma_buffer.h"
+#include <opae/cxx/core/shared_buffer.h>
 #include "perf_counters.h"
 
 namespace intel
@@ -45,7 +45,7 @@ enum class dsm_version
 class nlb_stats
 {
 public:
-    nlb_stats(dma_buffer::ptr_t dsm,
+    nlb_stats(opae::fpga::types::shared_buffer::ptr_t dsm,
               dsm_version dsm_v,
               uint32_t cachelines,
               const fpga_cache_counters &cache_counters,
@@ -54,7 +54,7 @@ public:
               bool continuous=false,
               bool suppress_hdr=false,
               bool csv=false);
-    nlb_stats(dma_buffer::ptr_t dsm,
+    nlb_stats(opae::fpga::types::shared_buffer::ptr_t dsm,
               uint32_t cachelines,
               const fpga_cache_counters &cache_counters,
               const fpga_fabric_counters &fabric_counters,
@@ -66,7 +66,7 @@ public:
 friend std::ostream & operator << (std::ostream &os, const nlb_stats &stats);
 
 private:
-    dma_buffer::ptr_t dsm_;
+    opae::fpga::types::shared_buffer::ptr_t dsm_;
     dsm_version dsm_version_;
     uint32_t cachelines_;
     const fpga_cache_counters &cache_counters_;
@@ -86,10 +86,10 @@ class dsm_tuple
 public:
 
     dsm_tuple(dsm_version v = dsm_version::nlb_classic);
-    dsm_tuple(dma_buffer::ptr_t dsm, dsm_version v = dsm_version::nlb_classic);
+    dsm_tuple(opae::fpga::types::shared_buffer::ptr_t dsm, dsm_version v = dsm_version::nlb_classic);
     dsm_tuple & operator += (const dsm_tuple &rhs);
-    void put(dma_buffer::ptr_t dsm);
-    void get(dma_buffer::ptr_t dsm);
+    void put(opae::fpga::types::shared_buffer::ptr_t dsm);
+    void get(opae::fpga::types::shared_buffer::ptr_t dsm);
 
     uint64_t raw_ticks()
     {

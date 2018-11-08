@@ -71,7 +71,7 @@ public:
         return accelerator::read_mmio64(mask32_ | offset, value);
     }
 
-    virtual dma_buffer::ptr_t allocate_buffer(std::size_t size)
+    virtual opae::fpga::types::shared_buffer::ptr_t allocate_buffer(std::size_t size)
     {
         if (pool_)
         {

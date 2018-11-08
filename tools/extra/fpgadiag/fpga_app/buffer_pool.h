@@ -25,8 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <mutex>
-#include "dma_buffer.h"
 #include "fpga_common.h"
+#include <opae/cxx/core/shared_buffer.h>
+#include "buffer_utils.h"
 
 namespace intel
 {
@@ -38,22 +39,23 @@ class buffer_pool
 public:
     typedef std::shared_ptr<buffer_pool> ptr_t;
 
-    buffer_pool(dma_buffer::ptr_t buffer)
+    buffer_pool(opae::fpga::types::shared_buffer::ptr_t buffer)
     : buffer_(buffer)
     , addr_offset_(0)
-    , iova_offset_(0)
+    , io_address_offset_(0)
     {
         if (buffer)
         {
-            addr_offset_ = const_cast<uint8_t*>(buffer->address());
-            iova_offset_ = buffer->iova();
+            addr_offset_ = const_cast<uint8_t*>(buffer->c_type());
+            io_address_offset_ = buffer->io_address();
         }
     }
 
-    dma_buffer::ptr_t allocate_buffer(std::size_t size)
+
+    opae::fpga::types::shared_buffer::ptr_t allocate_buffer(std::size_t size)
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        dma_buffer::ptr_t buffer(0);
+        opae::fpga::types::shared_buffer::ptr_t buffer(0);
         // round up to next multiple of 4MB
         auto next_size = size;
         if (next_size % MB(4) != 0)
@@ -61,22 +63,23 @@ public:
             next_size = (size/MB(4) + 1)*MB(4);
         }
 
-        if (!buffer_ || addr_offset_ + next_size > buffer_->address() + buffer_->size())
+        if (!buffer_ || addr_offset_ + next_size > buffer_->c_type() + buffer_->size())
         {
             // TODO: Log some sort of error or throw an exception?
             // but for now return a null buffer
             return buffer;
         }
-        buffer.reset(new dma_buffer(buffer_, addr_offset_, iova_offset_, next_size));
+        buffer.reset(new split_buffer(buffer_, next_size, addr_offset_, buffer_->wsid(), io_address_offset_));
         addr_offset_ += next_size;
-        iova_offset_ += next_size;
+        io_address_offset_ += next_size;
         return buffer;
     }
 
 private:
-    dma_buffer::ptr_t buffer_;
+    opae::fpga::types::shared_buffer::ptr_t buffer_;
     uint8_t          *addr_offset_;
-    uint64_t          iova_offset_;
+    uint64_t          io_address_offset_;
+    size_t size_;
     std::mutex        mutex_;
 
 };

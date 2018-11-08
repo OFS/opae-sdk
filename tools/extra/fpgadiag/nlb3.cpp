@@ -31,7 +31,9 @@
 #include "log.h"
 #include <chrono>
 #include <thread>
+#include "buffer_utils.h"
 
+using namespace opae::fpga::types;
 using namespace intel::fpga::nlb;
 using namespace intel::utils;
 using namespace std::chrono;
@@ -416,10 +418,10 @@ bool nlb3::setup()
 
 bool nlb3::run()
 {
-    dma_buffer::ptr_t ice;
-    dma_buffer::ptr_t inout; // shared workspace, if possible
-    dma_buffer::ptr_t inp;   // input workspace
-    dma_buffer::ptr_t out;   // output workspace
+    shared_buffer::ptr_t ice;
+    shared_buffer::ptr_t inout; // shared workspace, if possible
+    shared_buffer::ptr_t inp;   // input workspace
+    shared_buffer::ptr_t out;   // output workspace
 
     std::size_t buf_size = CL(stride_acs_ * end_);  // size of input and output buffer (each)
 
@@ -439,7 +441,7 @@ bool nlb3::run()
             log_.error("nlb3") << "failed to allocate input/output buffers." << std::endl;
             return false;
         }
-        std::vector<dma_buffer::ptr_t> bufs = dma_buffer::split(inout, {buf_size, buf_size});
+        std::vector<shared_buffer::ptr_t> bufs = split_buffer::split(inout, {buf_size, buf_size});
         inp = bufs[0];
         out = bufs[1];
     } else {
@@ -488,7 +490,7 @@ bool nlb3::run()
 
     if (do_cool_fpga)
     {
-        nlb_cache_cool cooler(target_, accelerator_, dsm_, ice);
+        nlb_cache_cool cooler(target_, accelerator_->handle(), dsm_, ice);
         cooler.cool();
     }
 
@@ -502,13 +504,13 @@ bool nlb3::run()
         {
             if (do_read_warm_fpga)
             {
-                nlb_read_cache_warm warmer(target_, accelerator_, dsm_, inp, out);
+                nlb_read_cache_warm warmer(target_, accelerator_->handle(), dsm_, inp, out);
                 warmer.warm();
             }
 
             if (do_write_warm_fpga)
             {
-                nlb_write_cache_warm warmer(target_, accelerator_, dsm_, inp, out);
+                nlb_write_cache_warm warmer(target_, accelerator_->handle(), dsm_, inp, out);
                 warmer.warm();
             }
         }
@@ -530,11 +532,11 @@ bool nlb3::run()
     // de-assert afu reset
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 1);
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm_->iova());
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_dsm::basel), dsm_->io_address());
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->iova()));
+    accelerator_->write_mmio64(static_cast<uint32_t>(nlb3_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
 
     // set the test mode
     accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::cfg), 0);
@@ -574,8 +576,8 @@ bool nlb3::run()
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
             accelerator_->write_mmio32(static_cast<uint32_t>(nlb3_csr::ctl), 7);
-            if (!dsm_->wait(static_cast<size_t>(nlb3_dsm::test_complete),
-                        dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
+            if (!buffer_wait(dsm_, static_cast<size_t>(nlb3_dsm::test_complete),
+                        std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
                 log_.error("nlb3") << "test timeout at "
                                    << i << " cachelines." << std::endl;
@@ -584,8 +586,8 @@ bool nlb3::run()
         }
         else
         {
-            if (!dsm_->wait(static_cast<size_t>(nlb3_dsm::test_complete),
-                        dma_buffer::microseconds_t(10), dsm_timeout_, 0x1, 1))
+            if (!buffer_wait(dsm_, static_cast<size_t>(nlb3_dsm::test_complete),
+                        std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
                 log_.error("nlb3") << "test timeout at "
                                    << i << " cachelines." << std::endl;

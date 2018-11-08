@@ -26,7 +26,8 @@
 
 #pragma once
 #include "nlb.h"
-#include "accelerator.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/shared_buffer.h>
 
 namespace intel
 {
@@ -41,17 +42,17 @@ public:
 static const uint32_t fpga_cache_cool_size = CL(1024);
 
     nlb_cache_cool(const std::string & target,
-                   accelerator::ptr_t accelerator,
-                   dma_buffer::ptr_t dsm,
-                   dma_buffer::ptr_t cool_buf,
+                   opae::fpga::types::handle::ptr_t accelerator,
+                   opae::fpga::types::shared_buffer::ptr_t dsm,
+                   opae::fpga::types::shared_buffer::ptr_t cool_buf,
                    bool cmdq=false);
     bool cool();
 
 private:
     std::string target_;
-    accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t dsm_;
-    dma_buffer::ptr_t cool_buf_;
+    opae::fpga::types::handle::ptr_t accelerator_;
+    opae::fpga::types::shared_buffer::ptr_t dsm_;
+    opae::fpga::types::shared_buffer::ptr_t cool_buf_;
     bool cmdq_;
 };
 
@@ -59,19 +60,19 @@ class nlb_read_cache_warm
 {
 public:
     nlb_read_cache_warm(const std::string & target,
-                        accelerator::ptr_t accelerator,
-                        dma_buffer::ptr_t dsm,
-                        dma_buffer::ptr_t src_buf,
-                        dma_buffer::ptr_t dst_buf,
+                        opae::fpga::types::handle::ptr_t accelerator,
+                        opae::fpga::types::shared_buffer::ptr_t dsm,
+                        opae::fpga::types::shared_buffer::ptr_t src_buf,
+                        opae::fpga::types::shared_buffer::ptr_t dst_buf,
                         bool cmdq=false);
     bool warm();
 
 private:
     std::string target_;
-    accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t dsm_;
-    dma_buffer::ptr_t src_buf_;
-    dma_buffer::ptr_t dst_buf_;
+    opae::fpga::types::handle::ptr_t accelerator_;
+    opae::fpga::types::shared_buffer::ptr_t dsm_;
+    opae::fpga::types::shared_buffer::ptr_t src_buf_;
+    opae::fpga::types::shared_buffer::ptr_t dst_buf_;
     bool cmdq_;
 };
 
@@ -79,19 +80,19 @@ class nlb_write_cache_warm
 {
 public:
     nlb_write_cache_warm(const std::string & target,
-                         accelerator::ptr_t accelerator,
-                         dma_buffer::ptr_t dsm,
-                         dma_buffer::ptr_t src_buf,
-                         dma_buffer::ptr_t dst_buf,
+                         opae::fpga::types::handle::ptr_t accelerator,
+                         opae::fpga::types::shared_buffer::ptr_t dsm,
+                         opae::fpga::types::shared_buffer::ptr_t src_buf,
+                         opae::fpga::types::shared_buffer::ptr_t dst_buf,
                          bool cmdq=false);
     bool warm();
 
 private:
     std::string target_;
-    accelerator::ptr_t accelerator_;
-    dma_buffer::ptr_t dsm_;
-    dma_buffer::ptr_t src_buf_;
-    dma_buffer::ptr_t dst_buf_;
+    opae::fpga::types::handle::ptr_t accelerator_;
+    opae::fpga::types::shared_buffer::ptr_t dsm_;
+    opae::fpga::types::shared_buffer::ptr_t src_buf_;
+    opae::fpga::types::shared_buffer::ptr_t dst_buf_;
     bool cmdq_;
 };
 

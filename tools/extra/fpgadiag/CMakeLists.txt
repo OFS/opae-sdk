@@ -31,6 +31,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(
     ${OPAE_INCLUDE_DIR}
     ${libjson-c_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${OPAE_SDK_SOURCE}/tools/extra/c++utils
     ${OPAE_SDK_SOURCE}/tools/extra/libopae++
     )
@@ -57,7 +58,8 @@ set_target_properties(opae-c++-nlb PROPERTIES
 
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
-    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c opae-c++ opae-c++-nlb)
+    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c
+        opae-cxx-core opae-c++ opae-c++-nlb)
     set_install_rpath(${target_name})
 endmacro(add_fpgadiag_app target_name sources)
 

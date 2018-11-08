@@ -25,79 +25,68 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
-#include "option_map.h"
 #include <memory>
-#include <vector>
-#include <opae/types.h>
-#include <opae/cxx/core/token.h>
-#include <opae/cxx/core/handle.h>
-#include <opae/cxx/core/properties.h>
-#include <opae/cxx/core/events.h>
+#include "option_map.h"
+#include "accelerator.h"
+#include <thread>
+#include <future>
+
 
 namespace intel
 {
 namespace fpga
 {
-
-class fpga_resource
+class accelerator_app
 {
 public:
-    typedef std::shared_ptr<fpga_resource> ptr_t;
-
-    enum type_t
+    accelerator_app()
+    : name_("none")
+    , disabled_(false)
     {
-        fpga = 0,
-        accelerator,
-    };
+
+    }
+
+    explicit accelerator_app(const std::string &name)
+    : name_(name)
+    , disabled_(false)
+    {
+    }
+
+    virtual const std::string & name()
+    {
+        return name_;
+    }
+
+    virtual void disabled(bool value)
+    {
+        disabled_ = value;
+    }
+
+    virtual bool disabled() const
+    {
+        return disabled_;
+    }
 
 
-    fpga_resource(opae::fpga::types::token::ptr_t token, opae::fpga::types::properties::ptr_t props, opae::fpga::types::token::ptr_t parent = opae::fpga::types::token::ptr_t());
-    virtual ~fpga_resource();
+    typedef std::shared_ptr<accelerator_app> ptr_t;
+    virtual const std::string & afu_id() = 0;
+    virtual intel::utils::option_map & get_options() = 0;
+    virtual void assign(accelerator::ptr_t accelerator) = 0;
+    virtual bool setup() = 0;
+    virtual bool run() = 0;
+    virtual std::future<bool> run_async()
+    {
+        return std::async(std::launch::async, &accelerator_app::run, this);
+    }
 
-    static bool enumerate_tokens(fpga_objtype ojbtype, const std::vector<intel::utils::option_map::ptr_t> & options, std::vector<opae::fpga::types::token::ptr_t> & tokens);
-
-    virtual type_t type() = 0;
-
-    virtual bool is_open();
-
-    virtual bool open(bool shared);
-
-    virtual bool close();
-
-    virtual std::string guid();
-
-    virtual opae::fpga::types::token::ptr_t parent();
-
-    virtual uint8_t bus();
-
-    virtual uint8_t device();
-
-    virtual uint8_t function();
-
-    virtual uint8_t socket_id();
-
-    opae::fpga::types::handle::ptr_t handle() { return handle_; }
-
-
-    opae::fpga::types::event::ptr_t register_event(fpga_event_type ev) const;
-
-protected:
-    fpga_resource(const fpga_resource &other);
-    fpga_resource & operator=(const fpga_resource & other);
-    opae::fpga::types::handle::ptr_t  handle_;
-    intel::utils::logger log_;
-    opae::fpga::types::token::ptr_t token_;
+    virtual opae::fpga::types::shared_buffer::ptr_t  dsm() const { return opae::fpga::types::shared_buffer::ptr_t(); }
+    virtual uint64_t cachelines()    const  = 0;
 
 private:
-    opae::fpga::types::properties::ptr_t  props_;
-    opae::fpga::types::token::ptr_t parent_;
-    std::string          guid_;
-    uint8_t              bus_;
-    uint8_t              device_;
-    uint8_t              function_;
-    uint8_t              socket_id_;
-    bool                 is_copy_;
+    std::string name_;
+    bool disabled_;
 };
 
 } // end of namespace fpga
 } // end of namespace intel
+

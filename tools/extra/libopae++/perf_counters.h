@@ -27,6 +27,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <opae/cxx/core/token.h>
 
 namespace intel
 {
@@ -52,7 +53,7 @@ public:
     };
 
     fpga_cache_counters();
-    fpga_cache_counters(std::string sysfspath);
+    fpga_cache_counters(opae::fpga::types::token::ptr_t fme);
     fpga_cache_counters(const fpga_cache_counters &other);
     fpga_cache_counters & operator = (const fpga_cache_counters &other);
 
@@ -73,8 +74,7 @@ protected:
     uint64_t read_counter(ctr_t c);
 
 private:
-    std::string sysfspath_;
-    std::string perf_feature_path_;
+    opae::fpga::types::token::ptr_t fme_;
     uint64_t perf_feature_rev_;
     ctr_map_t ctr_map_;
 };
@@ -95,7 +95,7 @@ public:
     };
 
     fpga_fabric_counters();
-    fpga_fabric_counters(std::string sysfspath);
+    fpga_fabric_counters(opae::fpga::types::token::ptr_t fme);
     fpga_fabric_counters(const fpga_fabric_counters &other);
     fpga_fabric_counters & operator = (const fpga_fabric_counters &other);
 
@@ -116,8 +116,7 @@ protected:
     uint64_t read_counter(ctr_t c);
 
 private:
-    std::string sysfspath_;
-    std::string perf_feature_path_;
+    opae::fpga::types::token::ptr_t fme_;
     uint64_t perf_feature_rev_;
     ctr_map_t ctr_map_;
 };
