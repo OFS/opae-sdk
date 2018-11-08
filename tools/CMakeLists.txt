@@ -35,7 +35,7 @@ add_subdirectory(base/fpgametrics)
 # extra
 add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
-#add_subdirectory(extra/packager)
+add_subdirectory(extra/packager)
 if (BUILD_PYTHON_DIST)
     add_subdirectory(extra/pypackager)
 endif()

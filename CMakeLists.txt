@@ -257,6 +257,8 @@ define_pkg(tools
   toolfpgadiagapps
   toolpachssiconfig
   opaecxxutils
+  toolpackager
+  jsonschema
   opaecxxlib
   opaecxxnlb
   hssiiolib
