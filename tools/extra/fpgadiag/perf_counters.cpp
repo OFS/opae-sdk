@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -200,10 +200,13 @@ uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
         default : return (uint64_t)-1;
     }
 #undef CASE
-
-    auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
-    if (counter) {
-      return counter->read64();
+    try {
+        auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
+        if (counter) {
+          return counter->read64();
+        }
+    }catch(not_found &err) {
+       return 0;
     }
 
     return 0;
@@ -361,9 +364,13 @@ uint64_t fpga_fabric_counters::read_counter(fpga_fabric_counters::ctr_t c)
         default : return (uint64_t)-1;
     }
 #undef CASE
-    auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
-    if (counter) {
-      return counter->read64();
+    try {
+        auto counter = sysobject::get(fme_, ctr, FPGA_OBJECT_GLOB);
+        if (counter) {
+          return counter->read64();
+        }
+    }catch(not_found &err) {
+       return 0;
     }
 
     return 0;
