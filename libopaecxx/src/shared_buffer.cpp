@@ -99,7 +99,7 @@ void shared_buffer::release() {
 void shared_buffer::fill(int c) { std::fill(virt_, virt_ + len_, c); }
 
 int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
-  return std::equal(virt_, virt_ + len, other->virt_);
+  return std::equal(virt_, virt_ + len, other->virt_) ? 0 : 1;
 }
 
 shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,

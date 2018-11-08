@@ -460,7 +460,7 @@ bool nlb0::run()
             dsm_tpl += dsm_tuple(dsm_);
         }
         // verify in and out
-        if (!inp->compare(out, i * cacheline_size))
+        if (inp->compare(out, i * cacheline_size))
         {
             // put the tuple back into the dsm buffer
             dsm_tpl.put(dsm_);
