@@ -265,6 +265,8 @@ class diagtest(object):
         if args.cont:
             self.cfg["cont"] = 1
 
+        self.cfg["multiCL_len"] = args.multi_cl - 1
+
     def buffer_size(self):
         """buffer_size is used to get the number of bytes necessary for each
            test buffer (src and dst)."""

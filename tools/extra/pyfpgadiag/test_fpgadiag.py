@@ -222,11 +222,12 @@ write_ch = ('auto', 'vl0', 'vh0', 'vh1')
 cont_mode = (True, False)
 with_csv = (True, False)
 prime_fpga = (None, '--warm-fpga-cache', '--cool-fpga-cache')
+mcl_choices = (1, 2, 4)
 
 nlb0_params = [
-    (str(b), rd, wr, c, v) for (
-        b, rd, wr, c, v) in itertools.product(
-            begin_cl, read_ch, write_ch, cont_mode, with_csv)]
+    (str(b), rd, wr, c, v, str(mcl)) for (
+        b, rd, wr, c, v, mcl) in itertools.product(
+            begin_cl, read_ch, write_ch, cont_mode, with_csv, mcl_choices)]
 
 nlb3_params = [
     (m,
@@ -299,7 +300,7 @@ class NLBTest(unittest.TestCase):
                                   help='print help message and exit')
 
     @params(*nlb0_params)
-    def test_nlb0(self, begin, read_ch, write_ch, cont, csv):
+    def test_nlb0(self, begin, read_ch, write_ch, cont, csv, mcl):
         h = self._acc_handle
         cmdline_args = [
             '-m',
@@ -310,6 +311,8 @@ class NLBTest(unittest.TestCase):
             read_ch,
             '-w',
             write_ch,
+            '--multi-cl',
+            mcl,
             '--loglevel',
             'warning']
         if cont:
@@ -384,4 +387,5 @@ class NLBTest(unittest.TestCase):
         self.assertEqual(((cfg >> 12) & 7), int(args.read_vc))
         self.assertEqual(((cfg >> 17) & 7), int(args.write_vc))
         self.assertEqual(((cfg >> 1) & 1), 1 if args.cont else 0)
+        self.assertEqual(((cfg >> 5) & 3), args.multi_cl-1)
         self.assertEqual(num_lines, args.end)
