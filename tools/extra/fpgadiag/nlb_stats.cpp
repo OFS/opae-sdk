@@ -228,7 +228,7 @@ std::string nlb_stats::normalized_freq() const
 std::string nlb_stats::read_bandwidth() const
 {
     auto clockfreq = clock_freq_;
-    const double giga = 1024.0 * 1024.0 * 1024.0;
+    const double giga = 1000.0 * 1000.0 * 1000.0;
 
     dsm_tuple dsm(dsm_, dsm_version_);
     auto rawticks = dsm.raw_ticks();
@@ -271,7 +271,7 @@ std::string nlb_stats::read_bandwidth() const
 std::string nlb_stats::write_bandwidth() const
 {
     auto clockfreq = clock_freq_;
-    const double giga = 1024.0 * 1024.0 * 1024.0;
+    const double giga = 1000.0 * 1000.0 * 1000.0;
 
     dsm_tuple dsm(dsm_, dsm_version_);
     auto rawticks = dsm.raw_ticks();
