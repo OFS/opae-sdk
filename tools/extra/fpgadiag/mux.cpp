@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,7 @@ using namespace intel::fpga;
 using namespace intel::fpga::diag;
 using namespace intel::fpga::nlb;
 using namespace intel::utils;
+using namespace opae::fpga::types;
 
 
 std::map<std::string, accelerator_app::ptr_t(*)(const std::string &)> app_factory =
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
     bool shared = target == "fpga";
     std::map<std::string, std::future<bool>> futures;
     std::map<std::string, test_result>       results;
-    std::map<std::string, dma_buffer::ptr_t> dsm_list;
+    std::map<std::string, shared_buffer::ptr_t> dsm_list;
     size_t instance = 0;
     auto accelerator_ptr = acceleratorlist[0];
     if (!accelerator_ptr->open(shared))
@@ -236,7 +237,7 @@ int main(int argc, char* argv[])
     for (auto app : apps)
     {
         accelerator::ptr_t muxed(new accelerator_mux(acceleratorlist[0], apps.size(), instance++, pool));
-        app->assign(muxed);
+        app->assign(muxed->handle());
         if (!app->disabled() && app->setup())
         {
             results[app->name()] = test_result::incomplete;

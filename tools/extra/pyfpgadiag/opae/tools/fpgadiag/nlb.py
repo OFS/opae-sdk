@@ -322,6 +322,7 @@ def normalize_frequency(freq):
 class nlb_stats(stats_printer):
     def __init__(self, cachelines, dsm, cache, fabric, **kwargs):
         super(nlb_stats, self).__init__()
+        Gbit = 1000.0 * 1000.0 * 1000.0
         freq = kwargs.get('frequency', 400000000)
         freq_str = normalize_frequency(freq)
         is_cont = kwargs.get("cont", False)
@@ -332,10 +333,10 @@ class nlb_stats(stats_printer):
             ticks = raw_ticks - (dsm.start_overhead + dsm.end_overhead)
 
         rd_bw = (dsm.num_reads * CACHELINE_BYTES * freq)/ticks
-        rd_bw /= GiB(1).count()
+        rd_bw /= Gbit
 
         wr_bw = (dsm.num_writes * CACHELINE_BYTES * freq)/ticks
-        wr_bw /= GiB(1).count()
+        wr_bw /= Gbit
 
         self.register(('Cachelines', cachelines),
                       ('Read_Count', dsm.num_reads),

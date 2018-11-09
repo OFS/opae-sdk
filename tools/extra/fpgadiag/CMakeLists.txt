@@ -31,8 +31,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(
     ${OPAE_INCLUDE_DIR}
     ${libjson-c_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${OPAE_SDK_SOURCE}/tools/extra/c++utils
-    ${OPAE_SDK_SOURCE}/tools/extra/libopae++
     )
 
 add_library(opae-c++-nlb SHARED nlb.h
@@ -45,11 +45,14 @@ add_library(opae-c++-nlb SHARED nlb.h
                        nlb3.h
                        nlb3.cpp
                        nlb7.h
-                       nlb7.cpp)
+                       nlb7.cpp
+                       perf_counters.h
+                       perf_counters.cpp
+                       diag_utils.cpp)
 
 set_install_rpath(opae-c++-nlb)
 
-target_link_libraries(opae-c++-nlb opae-c opae-c++ pthread)
+target_link_libraries(opae-c++-nlb opae-c opae-cxx-core pthread)
 
 set_target_properties(opae-c++-nlb PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
@@ -57,19 +60,18 @@ set_target_properties(opae-c++-nlb PROPERTIES
 
 macro(add_fpgadiag_app target_name sources)
     add_executable(${target_name} ${sources})
-    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c opae-c++ opae-c++-nlb)
+    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c
+        opae-cxx-core opae-c++-nlb)
     set_install_rpath(${target_name})
 endmacro(add_fpgadiag_app target_name sources)
 
 add_fpgadiag_app( nlb0    nlb0_main.cpp   )
 add_fpgadiag_app( nlb3    nlb3_main.cpp   )
 add_fpgadiag_app( nlb7    nlb7_main.cpp   )
-add_fpgadiag_app( fpgamux mux.cpp         )
 
 set(binaries nlb0
              nlb3
-             nlb7
-             fpgamux)
+             nlb7)
 
 install(PROGRAMS fpgadiag
     DESTINATION bin
