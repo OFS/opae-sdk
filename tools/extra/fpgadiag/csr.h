@@ -26,71 +26,55 @@
 
 #pragma once
 #include <cstdint>
-#include <cmath>
-#include <memory>
-#include "buffer_pool.h"
 
-namespace intel
-{
-namespace fpga
-{
-
-class accelerator_mux : public accelerator
+template<typename T = uint32_t>
+class csr_t
 {
 public:
-    typedef std::shared_ptr<accelerator_mux> ptr_t;
+    csr_t()
+        : value_(0){}
 
-    accelerator_mux(accelerator::ptr_t accelerator_ptr, uint32_t count, uint32_t mux_id, buffer_pool::ptr_t pool = buffer_pool::ptr_t(0))
-    : accelerator(*accelerator_ptr)
-    , count_(count)
-    , mux_id_(mux_id)
-    , pool_(pool)
+    csr_t(T value)
+        : value_(value){}
+
+    template<typename U>
+    csr_t & operator=(U t)
     {
-        double bits = std::ceil(std::log2(count));
-        mask32_ = static_cast<uint32_t>(mux_id) << static_cast<uint32_t>(18-bits);
+        value_ = static_cast<T>(t);
+        return *this;
     }
 
-    virtual bool write_mmio32(unsigned int offset, uint32_t value)
+    template<typename U>
+    uint32_t operator|(U t)
     {
-        return accelerator::write_mmio32(mask32_ | offset, value);
+        return value_ | static_cast<T>(t);
     }
 
-    virtual bool write_mmio64(unsigned int offset, uint64_t value)
+    template<typename U>
+    csr_t & operator|=(U t)
     {
-        return accelerator::write_mmio64(mask32_ | offset, value);
+        value_ |= static_cast<T>(t);
+        return *this;
     }
 
-    virtual bool read_mmio32(unsigned int offset, unsigned int & value)
+    template<typename U>
+    uint32_t operator&(U t)
     {
-        return accelerator::read_mmio32(mask32_ | offset, value);
+        return value_ & static_cast<T>(t);
     }
 
-    virtual bool read_mmio64(unsigned int offset, uint64_t & value)
+    template<typename U>
+    csr_t & operator&=(U t)
     {
-        return accelerator::read_mmio64(mask32_ | offset, value);
+        value_ &= static_cast<T>(t);
+        return *this;
     }
 
-    virtual opae::fpga::types::shared_buffer::ptr_t allocate_buffer(std::size_t size)
+    T value()
     {
-        if (pool_)
-        {
-            return pool_->allocate_buffer(size);
-        }
-        return accelerator::allocate_buffer(size);
-    }
-
-    virtual bool reset()
-    {
-        return true;
+        return value_;
     }
 
 private:
-    uint32_t           count_;
-    uint32_t           mux_id_;
-    uint32_t           mask32_;
-    buffer_pool::ptr_t pool_;
-
+    T value_;
 };
-
-} // end of namespace fpga
-} // end of namespace intel
