@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,56 +25,69 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
-#include <cstdint>
+#include <memory>
+#include "option_map.h"
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/shared_buffer.h>
+#include <thread>
+#include <future>
 
-template<typename T = uint32_t>
-class csr_t
+
+namespace intel
+{
+namespace fpga
+{
+class accelerator_app
 {
 public:
-    csr_t()
-        : value_(0){}
-
-    csr_t(T value)
-        : value_(value){}
-
-    template<typename U>
-    csr_t & operator=(U t)
+    accelerator_app()
+    : name_("none")
+    , disabled_(false)
     {
-        value_ = static_cast<T>(t);
-        return *this;
+
     }
 
-    template<typename U>
-    uint32_t operator|(U t)
+    explicit accelerator_app(const std::string &name)
+    : name_(name)
+    , disabled_(false)
     {
-        return value_ | static_cast<T>(t);
     }
 
-    template<typename U>
-    csr_t & operator|=(U t)
+    virtual const std::string & name()
     {
-        value_ |= static_cast<T>(t);
-        return *this;
+        return name_;
     }
 
-    template<typename U>
-    uint32_t operator&(U t)
+    virtual void disabled(bool value)
     {
-        return value_ & static_cast<T>(t);
+        disabled_ = value;
     }
 
-    template<typename U>
-    csr_t & operator&=(U t)
+    virtual bool disabled() const
     {
-        value_ &= static_cast<T>(t);
-        return *this;
+        return disabled_;
     }
 
-    T value()
+
+    typedef std::shared_ptr<accelerator_app> ptr_t;
+    virtual const std::string & afu_id() = 0;
+    virtual intel::utils::option_map & get_options() = 0;
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator) = 0;
+    virtual bool setup() = 0;
+    virtual bool run() = 0;
+    virtual std::future<bool> run_async()
     {
-        return value_;
+        return std::async(std::launch::async, &accelerator_app::run, this);
     }
+
+    virtual opae::fpga::types::shared_buffer::ptr_t dsm() const = 0;
+    virtual uint64_t cachelines()    const  = 0;
 
 private:
-    T value_;
+    std::string name_;
+    bool disabled_;
 };
+
+} // end of namespace fpga
+} // end of namespace intel
+

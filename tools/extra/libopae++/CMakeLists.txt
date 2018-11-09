@@ -33,18 +33,14 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 add_library(opae-c++ SHARED
                    fpga_resource.h
                    fpga_resource.cpp
+                   fpga_errors.h
+                   fpga_errors.cpp
                    property_map.h
                    property_map.cpp
                    accelerator.h
                    accelerator.cpp
                    perf_counters.h
                    perf_counters.cpp
-                   fpga_event.h
-                   fpga_event.cpp
-                   fpga_errors.h
-                   fpga_errors.cpp
-                   mmio_resource.h
-                   mmio_resource.cpp
 )
 
 set_install_rpath(opae-c++)
