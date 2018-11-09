@@ -142,7 +142,9 @@ class perf_counters(object):
 
     def read(self, *args):
         if self._group is None:
-            values = null_values(self._name)
+            values = counter_values(
+                dict([(c, 0)
+                      for c in args or self._counters]))
         else:
             values = counter_values(
                 dict([(c, self._group[c].read64())
