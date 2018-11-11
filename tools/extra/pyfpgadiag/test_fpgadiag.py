@@ -38,6 +38,7 @@ import unittest
 from StringIO import StringIO
 from nose2.tools import params
 
+from opae.tools.fpgadiag import nlb
 from opae.tools.fpgadiag.nlb0 import nlb0
 from opae.tools.fpgadiag.nlb3 import nlb3
 
@@ -389,3 +390,55 @@ class NLBTest(unittest.TestCase):
         self.assertEqual(((cfg >> 1) & 1), 1 if args.cont else 0)
         self.assertEqual(((cfg >> 5) & 3), args.multi_cl-1)
         self.assertEqual(num_lines, args.end)
+
+
+class PerfCountersTests(unittest.TestCase):
+    def test_no_counters(self):
+        h = mock.MagicMock()
+        h.find = mock.Mock(side_effect=RuntimeError())
+        c_counters = nlb.cache_counters(h)
+        c_values = c_counters.read()
+        self.assertFalse(all(c_values._values.values()))
+        print(c_values)
+
+    def test_missing_counters(self):
+        h = mock.MagicMock()
+        h.find.return_value = mock.Mock()
+
+        fake_value = 0
+
+        def get_fabric_counter(_, name):
+            if name.startswith("mmio_"):
+                raise RuntimeError
+            m = mock.Mock()
+            m.read64 = mock.Mock(return_value=fake_value)
+            return m
+
+        h.find.return_value.__getitem__ = get_fabric_counter
+        f_counters = nlb.fabric_counters(h)
+        f_values = f_counters.read()
+        self.assertEqual(sum(f_values._values.values()), 0)
+
+        fake_value = 100
+        begin_f, end_f = (None, None)
+        r = f_counters.reader()
+        self.assertNotEqual(r, None)
+        with f_counters.reader() as r:
+            begin_f = r.read()
+        self.assertNotEqual(begin_f, None)
+
+        fake_value = 275
+        with f_counters.reader() as r:
+            end_f = r.read()
+        self.assertNotEqual(end_f, None)
+
+        delta = end_f - begin_f
+        self.assertNotEqual(delta, None)
+        self.assertEqual(
+            sum(delta._values.values()),
+            175 * (len(delta._values) - 2))
+
+
+if __name__ == "__main__":
+    t = PerfCountersTests("test_missing_counters")
+    t.run()

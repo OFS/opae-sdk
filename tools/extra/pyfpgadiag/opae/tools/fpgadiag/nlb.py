@@ -146,9 +146,14 @@ class perf_counters(object):
                 dict([(c, 0)
                       for c in args or self._counters]))
         else:
-            values = counter_values(
-                dict([(c, self._group[c].read64())
-                      for c in args or self._counters]))
+            values_dict = {}
+            for c in args or self._counters:
+                try:
+                    c_obj = self._group[c]
+                    values_dict[c] = c_obj.read64() if c_obj else 0
+                except RuntimeError:
+                    values_dict[c] = 0
+            values = counter_values(values_dict)
         return values
 
     def reader(self):
