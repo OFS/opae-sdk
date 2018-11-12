@@ -25,7 +25,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import logging
 from opae.utils import CACHELINE_BYTES
-from opae.utils.byteutils import GiB
 from opae.utils.csr import csr, f_enum
 # pylint: disable=E0611
 from opae import fpga
@@ -130,7 +129,8 @@ class perf_counters(object):
     _values = dict()
 
     def __init__(self, handle):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        logger_name = "fpgadiag.{}".format(self.__class__.__name__)
+        self.logger = logging.getLogger(logger_name)
         self._handle = handle
         try:
             self._group = handle.find(self._name, fpga.SYSOBJECT_GLOB)

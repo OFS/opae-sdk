@@ -322,6 +322,14 @@ class NLBTest(unittest.TestCase):
             cmdline_args.append('--csv')
 
         args, _ = self._parser.parse_known_args(cmdline_args)
+
+        logger = logging.getLogger("fpgadiag")
+        stream_handler = logging.StreamHandler(stream=sys.stderr)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
+        logger.addHandler(stream_handler)
+        logger.setLevel(getattr(logging, args.loglevel.upper()))
+
         nlb = nlb0('lpbk1', self._parser)
         nlb.logger.setLevel(getattr(logging, args.loglevel.upper()))
         self.assertTrue(nlb.setup(cmdline_args))
@@ -399,7 +407,6 @@ class PerfCountersTests(unittest.TestCase):
         c_counters = nlb.cache_counters(h)
         c_values = c_counters.read()
         self.assertFalse(all(c_values._values.values()))
-        print(c_values)
 
     def test_missing_counters(self):
         h = mock.MagicMock()
