@@ -73,7 +73,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	}
 
 	// Read AFU DFH
-	result = fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
+	result = xfpga_fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
 	if (result != FPGA_OK) {
 		FPGA_ERR("Invalid handle file descriptor");
 		result = FPGA_NOT_SUPPORTED;
@@ -85,7 +85,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 
 		bbs_offset = feature_def.dfh.next_header_offset;
 
-		result = fpgaReadMMIO64(handle, 0, feature_def.dfh.next_header_offset, &(feature_def.dfh.csr));
+		result = xfpga_fpgaReadMMIO64(handle, 0, feature_def.dfh.next_header_offset, &(feature_def.dfh.csr));
 		if (result != FPGA_OK) {
 			FPGA_ERR("Invalid handle file descriptor");
 			result = FPGA_NOT_SUPPORTED;
@@ -94,14 +94,14 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 
 		if (feature_def.dfh.type == FEATURE_TYPE_BBB) {
 
-			result = fpgaReadMMIO64(handle, 0, bbs_offset +0x8, &(feature_def.guid[0]));
+			result = xfpga_fpgaReadMMIO64(handle, 0, bbs_offset +0x8, &(feature_def.guid[0]));
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
 				return result;
 			}
 
-			result = fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
+			result = xfpga_fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
@@ -151,16 +151,17 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 		return FPGA_NOT_FOUND;
 	}
 
-
+	result = FPGA_NOT_FOUND;
 	for (index = 0; index < num_enun_metrics; index++) {
 
 		_fpga_enum_metric = (struct _fpga_enum_metric *)	fpga_vector_get(enum_vector, index);
 
 		if (metric_num == _fpga_enum_metric->metric_num) {
 
-			result = fpgaReadMMIO64(handle, 0, _fpga_enum_metric->mmio_offset, &metric_csr.csr);
+			result = xfpga_fpgaReadMMIO64(handle, 0, _fpga_enum_metric->mmio_offset, &metric_csr.csr);
 
 				fpga_metric->value.ivalue = metric_csr.value;
+				result = FPGA_OK;
 
 		}
 
@@ -198,7 +199,7 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	snprintf_s_i(group_name, sizeof(group_name), "%x", group_csr.group_id);
 	snprintf_s_i(metric_name, sizeof(metric_name), "%x", metric_csr.counter_id);
 
-	sprintf(qualifier_name, "%s:%x:%x", "AFU", group_csr.group_id, metric_csr.counter_id);
+	sprintf(qualifier_name, "%s:%x", "AFU", group_csr.group_id);
 	snprintf_s_i(metric_units, sizeof(metric_units), "%x", group_csr.units);
 
 	*metric_id = *metric_id + 1;
@@ -235,12 +236,12 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 
 	while (true) {
 
-			result = fpgaReadMMIO64(handle, 0, group_offset, &group_csr.csr);
+			result = xfpga_fpgaReadMMIO64(handle, 0, group_offset, &group_csr.csr);
 
 			if (group_csr.group_id != 0) {
 
 				value_offset = group_offset + METRIC_NEXT_CSR;
-				result = fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
+				result = xfpga_fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
 
 				while (metric_csr.counter_id != 0) {
 
@@ -253,7 +254,7 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 
 					if (metric_csr.eol == 0) {
 						value_offset = value_offset + METRIC_NEXT_CSR;
-						result = fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
+						result = xfpga_fpgaReadMMIO64(handle, 0, value_offset, &metric_csr.csr);
 					} else {
 						break;
 					}

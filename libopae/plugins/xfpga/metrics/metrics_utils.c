@@ -1170,6 +1170,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 		return FPGA_NOT_FOUND;
 	}
 
+	result = FPGA_NOT_FOUND;
 	for (index = 0; index < num_enun_metrics ; index++) {
 
 		_fpga_enum_metric = (struct _fpga_enum_metric *)	fpga_vector_get(enum_vector, index);
