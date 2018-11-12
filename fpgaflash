@@ -224,6 +224,7 @@ def parse_args():
                                  'eeprom', 'phy_eeprom', 'bmc_bl', 'bmc_app',
                                  'bmc_fw', 'bmc_img', 'bmc_factory', 'dtb'])
 
+
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
