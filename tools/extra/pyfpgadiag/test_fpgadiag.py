@@ -38,6 +38,7 @@ import unittest
 from StringIO import StringIO
 from nose2.tools import params
 
+from opae.tools.fpgadiag import nlb
 from opae.tools.fpgadiag.nlb0 import nlb0
 from opae.tools.fpgadiag.nlb3 import nlb3
 
@@ -222,11 +223,12 @@ write_ch = ('auto', 'vl0', 'vh0', 'vh1')
 cont_mode = (True, False)
 with_csv = (True, False)
 prime_fpga = (None, '--warm-fpga-cache', '--cool-fpga-cache')
+mcl_choices = (1, 2, 4)
 
 nlb0_params = [
-    (str(b), rd, wr, c, v) for (
-        b, rd, wr, c, v) in itertools.product(
-            begin_cl, read_ch, write_ch, cont_mode, with_csv)]
+    (str(b), rd, wr, c, v, str(mcl)) for (
+        b, rd, wr, c, v, mcl) in itertools.product(
+            begin_cl, read_ch, write_ch, cont_mode, with_csv, mcl_choices)]
 
 nlb3_params = [
     (m,
@@ -299,7 +301,7 @@ class NLBTest(unittest.TestCase):
                                   help='print help message and exit')
 
     @params(*nlb0_params)
-    def test_nlb0(self, begin, read_ch, write_ch, cont, csv):
+    def test_nlb0(self, begin, read_ch, write_ch, cont, csv, mcl):
         h = self._acc_handle
         cmdline_args = [
             '-m',
@@ -310,6 +312,8 @@ class NLBTest(unittest.TestCase):
             read_ch,
             '-w',
             write_ch,
+            '--multi-cl',
+            mcl,
             '--loglevel',
             'warning']
         if cont:
@@ -318,6 +322,14 @@ class NLBTest(unittest.TestCase):
             cmdline_args.append('--csv')
 
         args, _ = self._parser.parse_known_args(cmdline_args)
+
+        logger = logging.getLogger("fpgadiag")
+        stream_handler = logging.StreamHandler(stream=sys.stderr)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
+        logger.addHandler(stream_handler)
+        logger.setLevel(getattr(logging, args.loglevel.upper()))
+
         nlb = nlb0('lpbk1', self._parser)
         nlb.logger.setLevel(getattr(logging, args.loglevel.upper()))
         self.assertTrue(nlb.setup(cmdline_args))
@@ -384,4 +396,56 @@ class NLBTest(unittest.TestCase):
         self.assertEqual(((cfg >> 12) & 7), int(args.read_vc))
         self.assertEqual(((cfg >> 17) & 7), int(args.write_vc))
         self.assertEqual(((cfg >> 1) & 1), 1 if args.cont else 0)
+        self.assertEqual(((cfg >> 5) & 3), args.multi_cl-1)
         self.assertEqual(num_lines, args.end)
+
+
+class PerfCountersTests(unittest.TestCase):
+    def test_no_counters(self):
+        h = mock.MagicMock()
+        h.find = mock.Mock(side_effect=RuntimeError())
+        c_counters = nlb.cache_counters(h)
+        c_values = c_counters.read()
+        self.assertFalse(all(c_values._values.values()))
+
+    def test_missing_counters(self):
+        h = mock.MagicMock()
+        h.find.return_value = mock.Mock()
+
+        fake_value = 0
+
+        def get_fabric_counter(_, name):
+            if name.startswith("mmio_"):
+                raise RuntimeError
+            m = mock.Mock()
+            m.read64 = mock.Mock(return_value=fake_value)
+            return m
+
+        h.find.return_value.__getitem__ = get_fabric_counter
+        f_counters = nlb.fabric_counters(h)
+        f_values = f_counters.read()
+        self.assertEqual(sum(f_values._values.values()), 0)
+
+        fake_value = 100
+        begin_f, end_f = (None, None)
+        r = f_counters.reader()
+        self.assertNotEqual(r, None)
+        with f_counters.reader() as r:
+            begin_f = r.read()
+        self.assertNotEqual(begin_f, None)
+
+        fake_value = 275
+        with f_counters.reader() as r:
+            end_f = r.read()
+        self.assertNotEqual(end_f, None)
+
+        delta = end_f - begin_f
+        self.assertNotEqual(delta, None)
+        self.assertEqual(
+            sum(delta._values.values()),
+            175 * (len(delta._values) - 2))
+
+
+if __name__ == "__main__":
+    t = PerfCountersTests("test_missing_counters")
+    t.run()

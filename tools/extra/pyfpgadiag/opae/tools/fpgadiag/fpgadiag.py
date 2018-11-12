@@ -80,8 +80,13 @@ class fpgadiag(object):
                     fpga.version(),
                     fpga.build()))
             sys.exit(EX_OK)
+        logger = logging.getLogger("fpgadiag")
+        stream_handler = logging.StreamHandler(stream=sys.stderr)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
+        logger.addHandler(stream_handler)
+        logger.setLevel(getattr(logging, args.loglevel.upper()))
         test = cls.mode_class[args.mode](args.mode, parser)
-        test.logger.setLevel(getattr(logging, args.loglevel.upper()))
         return test
 
 
