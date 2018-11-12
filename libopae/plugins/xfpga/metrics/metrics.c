@@ -241,8 +241,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 		// API returns not found if doesnot found any metric
 		if (found == 0 || num_metric_indexes == 0) {
 			result = FPGA_NOT_FOUND;
-		}
-		else {
+		} else {
 			result = FPGA_OK;
 		}
 
@@ -258,8 +257,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 				FPGA_ERR("Failed to get metric value  at Index = %ld", metric_num[i]);
 				metrics[i].metric_num = metric_num[i];
 				continue;
-			}
-			else {
+			} else {
 				// found metrics num
 				found++;
 			}
@@ -362,8 +360,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				FPGA_ERR("Failed to get metric value  for metric = %s", metrics_names[i]);
 				metrics[i].metric_num = 0xFFFF;
 				continue;
-			}
-			else {
+			} else {
 				// found metrics num
 				found++;
 			}
@@ -372,8 +369,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		// API returns not found if doesnot found any metric
 		if (found == 0 || num_metric_names == 0) {
 			result = FPGA_NOT_FOUND;
-		}
-		else {
+		} else {
 			result = FPGA_OK;
 		}
 	} else	if (objtype == FPGA_DEVICE) {
@@ -397,8 +393,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				FPGA_ERR("Failed to get metric value  for metric = %s \n", metrics_names[i]);
 				metrics[i].metric_num = 0xFFFF;
 				continue;
-			}
-			else {
+			} else {
 				// found metrics num
 				found++;
 			}
@@ -407,8 +402,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		// API returns not found if doesnot found any metric
 		if (found == 0 || num_metric_names == 0) {
 			result = FPGA_NOT_FOUND;
-		}
-		else {
+		} else {
 			result = FPGA_OK;
 		}
 	} else {
