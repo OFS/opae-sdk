@@ -178,10 +178,10 @@ void afu_metrics_c_p::create_metric_bbb_dfh() {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-
 	printf("------dfh.csr = %lx \n", dfh.csr);
+	// AFU DFH
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
-
+	// AFU GUID
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x10, 0xd8424dc4a4a3c413));
 
@@ -196,9 +196,9 @@ void afu_metrics_c_p::create_metric_bbb_dfh() {
 	dfh_bbb.reserved = 0;
 	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
 
-
+	// Metrics DFH
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x100, dfh_bbb.csr));
-
+	// Metrics GUID
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
 }

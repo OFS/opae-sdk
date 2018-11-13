@@ -199,7 +199,7 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	snprintf_s_i(group_name, sizeof(group_name), "%x", group_csr.group_id);
 	snprintf_s_i(metric_name, sizeof(metric_name), "%x", metric_csr.counter_id);
 
-	sprintf(qualifier_name, "%s:%x", "AFU", group_csr.group_id);
+	snprintf_s_si(qualifier_name, sizeof(qualifier_name), "%s:%x", "AFU", group_csr.group_id);
 	snprintf_s_i(metric_units, sizeof(metric_units), "%x", group_csr.units);
 
 	*metric_id = *metric_id + 1;
