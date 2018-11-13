@@ -182,7 +182,7 @@ function(set_target_for_coverage_local target_name)
 		DEPENDS ${target_name}
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		COMMENT "Run coverage tests.")
-  else()
+  elseif(BUILD_ASE_INTR)
  		add_custom_target(${name} 
 
 		# Wrap test on script, so coverage files generate even if tests return 1
@@ -197,6 +197,30 @@ function(set_target_for_coverage_local target_name)
 
 		# Capturing lcov counters and generating report
 		COMMAND ${LCOV_EXECUTABLE} -a ase_client.info -a ase_nlb.info -a ase_intr.info -t ${target_name} -o ${coverage_info}
+
+		# Clean coverage file
+		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
+		COMMAND ${GENHTML_EXECUTABLE} --branch-coverage --function-coverage ${coverage_info} -o coverage_${target_name} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+
+		# Add dependencies
+		DEPENDS ${target_name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run coverage tests.")
+  else()
+   		add_custom_target(${name} 
+
+		# Wrap test on script, so coverage files generate even if tests return 1
+		# CMake will stop if this step returns 1
+		COMMAND chmod 755 ${coverage_runtest_script}
+		COMMAND ${CMAKE_BINARY_DIR}/${coverage_runtest_script}	
+
+		# Capturing lcov counters from ASE client, NLB test and interrupt test
+		COMMAND ${LCOV_EXECUTABLE} -o ase_client.info -c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}
+		COMMAND ${LCOV_EXECUTABLE} -o ase_nlb.info 	-c -d ${CMAKE_BINARY_DIR}/coverage_${target_name}/nlb
+
+		# Capturing lcov counters and generating report
+		COMMAND ${LCOV_EXECUTABLE} -a ase_client.info -a ase_nlb.info -t ${target_name} -o ${coverage_info}
 
 		# Clean coverage file
 		COMMAND ${LCOV_EXECUTABLE} --remove ${coverage_info} '/usr/**' 'tests/**' '*/**/*CMakefiles*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
