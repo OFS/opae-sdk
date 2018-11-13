@@ -135,7 +135,7 @@ class perf_counters(object):
         try:
             self._group = handle.find(self._name, fpga.SYSOBJECT_GLOB)
         except RuntimeError:
-            self.logger.warn("Could not find group with name: %s", self._name)
+            self.logger.debug("Could not find group with name: %s", self._name)
             self._group = None
         else:
             self._values = dict([(k, 0) for k in self._counters])
