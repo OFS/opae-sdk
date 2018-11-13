@@ -30,7 +30,6 @@
 
 #include "common_int.h"
 #include "types_int.h"
-#include "config_int.h"
 #include "ase_common.h"
 
 #include <string.h>
