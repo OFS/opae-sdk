@@ -78,7 +78,7 @@ target_include_directories(gtAseU PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/ase/sw>)
 target_link_libraries(gtAseU opae-c-ase ${libjson-c_LIBRARIES}
-  uuid ${GTEST_BOTH_LIBRARIES} opae-c++-utils opae-cxx-core)
+  uuid ${GTEST_BOTH_LIBRARIES})
 
 ############################################################################
 ## ASE compatible version of gtapi (gtase)  ################################
