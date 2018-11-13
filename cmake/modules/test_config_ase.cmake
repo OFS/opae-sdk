@@ -145,11 +145,21 @@ set_property(TEST ase_all
   PROPERTY
   ENVIRONMENT "LD_PRELOAD=${CMAKE_BINARY_DIR}/lib/libopae-c-ase.so")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set_target_for_coverage_local(opae-c-ase
-    TESTRUNNER ctest
-    TESTRUNNER_ARGS "-R;ase_all"
-    COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb"
-	COVERAGE_EXTRA_COMPONENTS2 "opae-c-ase-server-hello_intr_afu")
-  add_dependencies(coverage_opae-c-ase gtase gtAseU)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+if(BUILD_ASE_INTR)
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+	set_target_for_coverage_local(opae-c-ase
+      TESTRUNNER ctest
+      TESTRUNNER_ARGS "-R;ase_all"
+      COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb"
+	  COVERAGE_EXTRA_COMPONENTS2 "opae-c-ase-server-hello_intr_afu")
+    add_dependencies(coverage_opae-c-ase gtase gtAseU)
+  endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+else(BUILD_ASE_INTR)
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+	set_target_for_coverage_local(opae-c-ase
+      TESTRUNNER ctest
+      TESTRUNNER_ARGS "-R;ase_all"
+      COVERAGE_EXTRA_COMPONENTS "opae-c-ase-server-intg_xeon_nlb")
+	add_dependencies(coverage_opae-c-ase gtase gtAseU)
+  endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+endif(BUILD_ASE_INTR)
