@@ -87,4 +87,5 @@ add_dependencies(docs
   copy-markdown-files
   copy-include-files
   copy-sample-files
-  doxygen)
+  doxygen
+  _opae)
