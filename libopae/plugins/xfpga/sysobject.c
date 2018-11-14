@@ -47,6 +47,13 @@
 		}                                                              \
 	} while (false);
 
+#define VALIDATE_NAME(_N)                                                      \
+	do {                                                                   \
+		if (_N[0] == '.' || _N[0] == '/') {                            \
+			FPGA_MSG("%s is not a valid input", _N);               \
+			return FPGA_INVALID_PARAM;                             \
+		}                                                              \
+	} while (false);
 
 fpga_result __FPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 						  fpga_object *object, int flags)
@@ -56,6 +63,7 @@ fpga_result __FPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *
 
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(name);
+	VALIDATE_NAME(name);
 	res = cat_token_sysfs_path(objpath, token, name);
 	if (res) {
 		return res;
@@ -72,6 +80,7 @@ fpga_result __FPGA_API__ xfpga_fpgaHandleGetObject(fpga_token handle, const char
 
 	ASSERT_NOT_NULL(handle);
 	ASSERT_NOT_NULL(name);
+	VALIDATE_NAME(name);
 	res = cat_handle_sysfs_path(objpath, handle, name);
 	if (res) {
 		return res;
@@ -87,6 +96,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 	fpga_result res = FPGA_EXCEPTION;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(name);
+	VALIDATE_NAME(name);
 	struct _fpga_object *_obj = (struct _fpga_object *)parent;
 	if (_obj->type == FPGA_SYSFS_FILE) {
 		return FPGA_INVALID_PARAM;

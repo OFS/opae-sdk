@@ -97,6 +97,8 @@ TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
@@ -117,6 +119,8 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
@@ -126,7 +130,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
                                 &num_matches),
             FPGA_OK);
   ASSERT_GT(num_matches, 0);
-  fpga_object err_object, object;
+  fpga_object err_object, object, non_object;
   int flags = 0;
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
@@ -134,6 +138,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "revision", &object,
                                       flags),
             FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(err_object, "../../../fpga", &non_object, 0),
+            FPGA_INVALID_PARAM);
   uint64_t bbs_errors = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, 0),
             FPGA_OK);
