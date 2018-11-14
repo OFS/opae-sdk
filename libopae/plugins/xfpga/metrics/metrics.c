@@ -43,6 +43,9 @@
 #include "metrics/vector.h"
 #include "metrics/metrics_int.h"
 
+//Wrong search string invalid array index
+#define METRIC_ARRAY_INVALID_INDEX     0xFFFFFF
+
 fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 					uint64_t *num_metrics)
 {
@@ -349,7 +352,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&metric_num);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
-				metrics[i].metric_num = 0xFFFF;
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
 
@@ -358,7 +361,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				&metrics[i]);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to get metric value  for metric = %s", metrics_names[i]);
-				metrics[i].metric_num = 0xFFFF;
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			} else {
 				// found metrics num
@@ -381,7 +384,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&metric_num);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
-				metrics[i].metric_num = 0xFFFF;
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
 
@@ -391,7 +394,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&metrics[i]);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to get metric value  for metric = %s \n", metrics_names[i]);
-				metrics[i].metric_num = 0xFFFF;
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			} else {
 				// found metrics num
