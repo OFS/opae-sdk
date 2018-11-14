@@ -87,5 +87,6 @@ add_dependencies(docs
   copy-markdown-files
   copy-include-files
   copy-sample-files
+  copy-python-files
   doxygen
   _opae)
