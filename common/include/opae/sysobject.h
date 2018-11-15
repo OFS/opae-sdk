@@ -59,8 +59,8 @@ extern "C" {
  * given key. FPGA_NOT_SUPPORTED if this function is not supported by the
  * current implementation of this API.
  *
- * @note Names that begin with '.' or '/' are not allowed and result in
- * FPGA_INVALID_PARAM being returned
+ * @note Names that begin with '.' or '/' or contain '..' are not allowed and
+ * result in FPGA_INVALID_PARAM being returned
  *
  */
 fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
@@ -86,8 +86,8 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
  * given key. FPGA_NOT_SUPPORTED if this function is not supported by the
  * current implementation of this API.
  *
- * @note Names that begin with '.' or '/' are not allowed and result in
- * FPGA_INVALID_PARAM being returned
+ * @note Names that begin with '.' or '/' or contain '..' are not allowed and
+ * result in FPGA_INVALID_PARAM being returned
  *
  */
 fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
@@ -116,8 +116,8 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
  * key. FPGA_NOT_SUPPORTED if this function is not supported by the current
  * implementation of this API.
  *
- * @note Names that begin with '.' or '/' are not allowed and result in
- * FPGA_INVALID_PARAM being returned
+ * @note Names that begin with '.' or '/' or contain '..' are not allowed and
+ * result in FPGA_INVALID_PARAM being returned
  *
  */
 fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
