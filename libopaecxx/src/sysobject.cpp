@@ -31,7 +31,8 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-sysobject::sysobject() : sysobject_(nullptr), token_(0), handle_(0) {}
+sysobject::sysobject(fpga_object sysobj, token::ptr_t tok, handle::ptr_t hnd)
+    : sysobject_(sysobj), token_(tok), handle_(hnd) {}
 sysobject::~sysobject() {
   if (sysobject_ != nullptr) {
     auto res = fpgaDestroyObject(&sysobject_);
@@ -50,39 +51,39 @@ uint32_t sysobject::size() const {
 
 sysobject::ptr_t sysobject::get(token::ptr_t tok, const std::string &path,
                                 int flags) {
-  sysobject::ptr_t obj(new sysobject());
-  auto res =
-      fpgaTokenGetObject(tok->c_type(), path.c_str(), &obj->sysobject_, flags);
-  if (res) {
-    obj.reset();
+  fpga_object sysobj;
+  sysobject::ptr_t obj;
+  auto res = fpgaTokenGetObject(tok->c_type(), path.c_str(), &sysobj, flags);
+  if (!res) {
+    obj.reset(new sysobject(sysobj, tok, nullptr));
+  } else if (res != FPGA_NOT_FOUND) {
+    ASSERT_FPGA_OK(res);
   }
-  ASSERT_FPGA_OK(res);
-  obj->token_ = tok;
   return obj;
 }
 
 sysobject::ptr_t sysobject::get(handle::ptr_t hnd, const std::string &path,
                                 int flags) {
-  sysobject::ptr_t obj(new sysobject());
-  obj->handle_ = hnd;
-  auto res =
-      fpgaHandleGetObject(hnd->c_type(), path.c_str(), &obj->sysobject_, flags);
-  if (res) {
-    obj.reset();
+  fpga_object sysobj;
+  sysobject::ptr_t obj;
+  auto res = fpgaHandleGetObject(hnd->c_type(), path.c_str(), &sysobj, flags);
+  if (!res) {
+    obj.reset(new sysobject(sysobj, nullptr, hnd));
+  } else if (res != FPGA_NOT_FOUND) {
+    ASSERT_FPGA_OK(res);
   }
-  ASSERT_FPGA_OK(res);
-  obj->handle_ = hnd;
   return obj;
 }
 
 sysobject::ptr_t sysobject::get(const std::string &path, int flags) {
-  sysobject::ptr_t obj(new sysobject());
-  auto res =
-      fpgaObjectGetObject(sysobject_, path.c_str(), &obj->sysobject_, flags);
-  if (res) {
-    obj.reset();
+  fpga_object sysobj;
+  sysobject::ptr_t obj;
+  auto res = fpgaObjectGetObject(sysobject_, path.c_str(), &sysobj, flags);
+  if (!res) {
+    obj.reset(new sysobject(sysobj, token_, handle_));
+  } else if (res != FPGA_NOT_FOUND) {
+    ASSERT_FPGA_OK(res);
   }
-  ASSERT_FPGA_OK(res);
   return obj;
 }
 
