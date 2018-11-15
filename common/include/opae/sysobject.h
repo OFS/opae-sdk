@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file sysobject.h
+ * @file opae/sysobject.h
  * @brief Functions to read/write from system objects.
  * On Linux systems with the OPAE kernel driver, this is used to access sysfs
  * nodes created by the driver.
@@ -131,7 +131,7 @@ fpga_result fpgaDestroyObject(fpga_object *obj);
  * @brief Retrieve the size of the object.
  *
  * @param[in] obj An fpga_object instance.
- * @param[out] size Pointer to variable to store size in.
+ * @param[out] value Pointer to variable to store size in.
  * @param[in] flags Flags that control how the object is read
  * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
  * retrieving the size.
@@ -144,12 +144,12 @@ fpga_result fpgaObjectGetSize(fpga_object obj, uint32_t *value, int flags);
 /**
  * @brief Read bytes from an FPGA object
  *
- * @param[in]obj An fpga_object instance.
- * @param[out]buffer Pointer to a buffer to read bytes into.
- * @param[in]offset Byte offset relative to objects internal buffer where to
+ * @param[in] obj An fpga_object instance.
+ * @param[out] buffer Pointer to a buffer to read bytes into.
+ * @param[in] offset Byte offset relative to objects internal buffer where to
  * begin reading bytes from.
- * @param[in]len The length, in bytes, to read from the object.
- * @param[in]flags Flags that control how object is read
+ * @param[in] len The length, in bytes, to read from the object.
+ * @param[in] flags Flags that control how object is read
  * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
  * retrieving the data.
  *
@@ -189,7 +189,7 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
  *
- * @notes The object must have been created using a handle to a resource.
+ * @note The object must have been created using a handle to a resource.
  */
 fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
 
