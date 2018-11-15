@@ -121,6 +121,9 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
             FPGA_NOT_FOUND);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "../../../fpga", &object, 0),
             FPGA_INVALID_PARAM);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "errors/../../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
+
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 

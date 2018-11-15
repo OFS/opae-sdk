@@ -49,7 +49,7 @@
 
 #define VALIDATE_NAME(_N)                                                      \
 	do {                                                                   \
-		if (_N[0] == '.' || _N[0] == '/') {                            \
+		if (_N[0] == '.' || _N[0] == '/' || strstr(_N, "..")) {        \
 			FPGA_MSG("%s is not a valid input", _N);               \
 			return FPGA_INVALID_PARAM;                             \
 		}                                                              \
