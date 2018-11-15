@@ -76,13 +76,13 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
- 	/* get the sub-device (FME/Port) instance id */
+	/* get the sub-device (FME/Port) instance id */
 	ptr = strrchr(sysfspath, '.');
 	if (ptr == NULL) {
 		FPGA_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
- 	subdev_instance = strtoul(++ptr, &endptr, 10);
+	subdev_instance = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */
 	if (endptr == ptr) {
 		FPGA_MSG("sysfspath does not meet expected format");
@@ -195,7 +195,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 		FPGA_ERR("strncpy_s failed");
 		return NULL;
 	}
- 	p = strrchr(spath, '/');
+	p = strrchr(spath, '/');
 	if (!p) {
 		FPGA_ERR("Invalid token sysfs path %s", spath);
 		return NULL;
@@ -218,7 +218,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 				"..", &i);
 		if (e != EOK || i == 0)
 			continue;
- 		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
+		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
 			e = strcat_s(spath, sizeof(spath),
 					dirent->d_name);
 			if (e != EOK) {
@@ -230,8 +230,8 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 			break;
 		}
 	}
- 	closedir(dir);
- 	if (!found) {
+	closedir(dir);
+	if (!found) {
 		FPGA_ERR("can't find parent in: %s", spath);
 		return NULL;
 	}

@@ -32,6 +32,7 @@ import bist_common as bc
 
 afu_clk_freqs = {bc.VCP_ID: 200000000}
 
+
 class Nlb0Mode(bc.BistMode):
     name = "nlb"
 
@@ -41,7 +42,7 @@ class Nlb0Mode(bc.BistMode):
         params = ('--mode=lpbk1 --read-vc={rvc} --write-vc={wvc} '
                   '--multi-cl=4 --begin=1024 --end=1024 --timeout-sec=1 '
                   '--cont')
-        self.executables = {'-'.join(ch): params.format(rvc=ch[0],wvc=ch[1])
+        self.executables = {'-'.join(ch): params.format(rvc=ch[0], wvc=ch[1])
                             for ch in channel}
 
     def run(self, path, bus_num, bd_id=0, guid=''):

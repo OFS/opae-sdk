@@ -26,11 +26,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import argparse, time, struct, os
+import argparse
+import time
+import struct
+import os
 from common import FpgaFinder, exception_quit, COMMON
 from common import convert_argument_str2hex
 
-FPGA_PHY_GROUP_ID = {'host':1, 'line':0}
+FPGA_PHY_GROUP_ID = {'host': 1, 'line': 0}
 
 FPGA_PHY_REG_RX_SERIALLPBKEN = 0x2E1
 
@@ -53,10 +56,12 @@ rd_len = struct.calcsize(rd_fmt)
 wr_len = struct.calcsize(wr_fmt)
 reset_len = struct.calcsize(reset_fmt)
 
+
 class FPGALPBK(COMMON):
     ports = []
     phy_number = 0
     phy_group_dev = ''
+
     def __init__(self, args):
         self.en = args.en
         self.side = args.side
@@ -66,8 +71,12 @@ class FPGALPBK(COMMON):
         self.phy_grps = args.phy_grps
 
     def check_args(self):
-        type_dict = {'line': {'local':['serial'], 'remote':['precdr', 'postcdr']},
-                     'host': {'remote':['serial'], 'local':['precdr', 'postcdr']}}
+        type_dict = {
+            'line': {
+                'local': ['serial'], 'remote': [
+                    'precdr', 'postcdr']}, 'host': {
+                'remote': ['serial'], 'local': [
+                    'precdr', 'postcdr']}}
         support_type = type_dict[self.side][self.direction]
         if self.type not in support_type:
             prompt_msg = ('fpga support loopback type {} at side [{}] '
@@ -83,30 +92,42 @@ class FPGALPBK(COMMON):
     # width: propose to change register field length
     # value: propose to change register field value
     def fpga_phy_reg_set_field(self, f, phy, reg, idx, width, value):
-        print('===============================================================')
+        print('='*63)
         v = struct.pack(rd_fmt, rd_len, 0, phy, reg, 0)
         ret = self.ioctl(f, PHY_GROUP_READ_REG, v)
         arg, flag, p, a, v = struct.unpack(rd_fmt, ret)
         v = self.register_field_set(v, idx, width, value)
-        print('WRITE   phy: {}   register: 0x{:x}   value: 0x{:x}'.format(phy, reg, v))
+        print(
+            'WRITE   phy: {}   register: 0x{:x}   value: 0x{:x}'.format(
+                phy,
+                reg,
+                v))
         v = struct.pack(wr_fmt, wr_len, 0, phy, reg, v)
         self.ioctl(f, PHY_GROUP_WRITE_REG, v)
         # read back value to check if configuration is effective or not
         v = struct.pack(rd_fmt, rd_len, 0, phy, reg, 0)
         ret = self.ioctl(f, PHY_GROUP_READ_REG, v)
         arg, flag, p, a, v = struct.unpack(rd_fmt, ret)
-        print('VERIFY  phy: {}   register: 0x{:x}   value: 0x{:x}'.format(phy, reg, v))
+        print(
+            'VERIFY  phy: {}   register: 0x{:x}   value: 0x{:x}'.format(
+                phy,
+                reg,
+                v))
 
     def fpga_phy_read_reg(self, f, phy, reg):
-        print('===============================================================')
+        print('='*63)
         v = struct.pack(rd_fmt, rd_len, 0, phy, reg, 0)
         ret = self.ioctl(f, PHY_GROUP_READ_REG, v)
         arg, flag, p, a, v = struct.unpack(rd_fmt, ret)
-        print('READ   phy: {}   register: 0x{:x}   value: 0x{:x}'.format(phy, reg, v))
+        print(
+            'READ   phy: {}   register: 0x{:x}   value: 0x{:x}'.format(
+                phy,
+                reg,
+                v))
         return v
 
     def fpga_phy_enable(self, f, en):
-        print('===============================================================')
+        print('='*63)
         flag = PHY_GROUP_ENABLE_PHY if en else PHY_GROUP_DISABLE_PHY
         op = 'enable' if en else 'disable'
         for i in self.ports:
@@ -120,7 +141,8 @@ class FPGALPBK(COMMON):
             time.sleep(1)
             if self.type == 'serial':
                 for i in self.ports:
-                    self.fpga_phy_reg_set_field(f, i, FPGA_PHY_REG_RX_SERIALLPBKEN, 0, 1, en)
+                    self.fpga_phy_reg_set_field(
+                        f, i, FPGA_PHY_REG_RX_SERIALLPBKEN, 0, 1, en)
             elif self.type == 'precdr':
                 for i in self.ports:
                     self.fpga_phy_reg_set_field(f, i, 0x137, 7, 1, en)
@@ -142,8 +164,13 @@ class FPGALPBK(COMMON):
         for phy_grp in self.phy_grps:
             with open(phy_grp, 'r') as f:
                 node = f.readline().strip()
-            data = struct.pack(grp_info_fmt, info_len, *[0]*4)
-            ret = self.ioctl(os.path.join(char_dev, node), PHY_GROUP_GET_INFO, data)
+            data = struct.pack(grp_info_fmt, info_len, *[0] * 4)
+            ret = self.ioctl(
+                os.path.join(
+                    char_dev,
+                    node),
+                PHY_GROUP_GET_INFO,
+                data)
             arg, flag, spd, num, grp = struct.unpack(grp_info_fmt, ret)
             if grp == FPGA_PHY_GROUP_ID[self.side]:
                 self.speed = spd
@@ -158,42 +185,43 @@ class FPGALPBK(COMMON):
         self.ports = self.get_port_list(self.argport, self.phy_number)
         self.fpga_loopback_en(self.en)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus', '-B',
-                        help = 'Bus number of PCIe device')
+                        help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
-                        help = 'Device number of PCIe device')
+                        help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
-                        help = 'Function number of PCIe device')
+                        help='Function number of PCIe device')
     parser.add_argument('--direction',
-                        required = True,
-                        choices = ['local', 'remote'],
-                        help = 'choose loopback direction from chip view')
+                        required=True,
+                        choices=['local', 'remote'],
+                        help='choose loopback direction from chip view')
     parser.add_argument('--enable',
-                        action = 'store_const',
-                        dest = 'en',
-                        const = 1,
-                        help = 'loopback enable')
+                        action='store_const',
+                        dest='en',
+                        const=1,
+                        help='loopback enable')
     parser.add_argument('--disable',
-                        action = 'store_const',
-                        dest = 'en',
-                        const = 0,
-                        help = 'loopback disable')
+                        action='store_const',
+                        dest='en',
+                        const=0,
+                        help='loopback disable')
     parser.add_argument('--type',
-                        choices = ['serial', 'precdr', 'postcdr'],
-                        help = 'choose loopback type')
+                        choices=['serial', 'precdr', 'postcdr'],
+                        help='choose loopback type')
     parser.add_argument('--port',
-                        nargs = '*',
-                        default = 'all',
-                        help = 'enable/disable loopback on specific port')
+                        nargs='*',
+                        default='all',
+                        help='enable/disable loopback on specific port')
     parser.add_argument('--side',
-                        required = True,
-                        choices = ['line', 'host'],
-                        help = 'choose loopback on which side')
+                        required=True,
+                        choices=['line', 'host'],
+                        help='choose loopback on which side')
     args, left = parser.parse_known_args()
 
-    if args.en == None:
+    if args.en is None:
         exception_quit('please specify --enable/--disable loopback!')
     else:
         op = 'enable' if args.en else 'disable'
@@ -203,10 +231,11 @@ def main():
 
     if not args.type:
         if ((args.side == 'line' and args.direction == 'local') or
-            (args.side == 'host' and args.direction == 'remote')):
+                (args.side == 'host' and args.direction == 'remote')):
             args.type = 'serial'
         else:
-            exception_quit('missing argument --type [serial | precdr | postcdr]')
+            exception_quit(
+                'missing argument --type [serial | precdr | postcdr]')
 
     f = FpgaFinder(args.bus, args.device, args.function)
     devs = f.find()
@@ -214,7 +243,7 @@ def main():
         print('bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(**d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
-                        'one FPGA'.format(len(devs)))
+                       'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
     args.phy_grps = f.find_node(devs[0].get('path'), 'phy_group*/dev', depth=3)
@@ -226,6 +255,7 @@ def main():
     lp = FPGALPBK(args)
     lp.start()
     print('Done')
+
 
 if __name__ == "__main__":
     main()

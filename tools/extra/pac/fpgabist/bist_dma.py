@@ -36,11 +36,13 @@ dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
                         3: ('QDR', 16*1024*1024)}
             }
 
+
 class DmaMode(bc.BistMode):
     name = "dma_afu"
 
     def __init__(self):
         self.executables = {'fpga_dma_test': '0'}
+
     def run_cmd(self, cmd):
         try:
             subprocess.check_call(cmd, shell=True)
@@ -55,8 +57,8 @@ class DmaMode(bc.BistMode):
             if bd_id in dma_list:
                 for i, c in dma_list[bd_id].items():
                     name, size = c
-                    cmd = "{} {} -B 0x{} -D {} -S {}".format(func,
-                                    param, bus_num, i, size)
+                    cmd = "{} {} -B 0x{} -D {} -S {}".format(func, param,
+                                                             bus_num, i, size)
                     if guid:
                         cmd += ' -G {}'.format(guid)
                     print "Running {} test on {}...\n".format(func, name)

@@ -34,7 +34,8 @@ import sys
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
-VCP_ID = 0x09c4 # TODO: update to Vista Creek dev ID if determinated
+VCP_ID = 0x09c4     # TODO: update to Vista Creek dev ID if determinated
+
 
 def find_exec(cmd, paths):
     for p in paths:
@@ -64,8 +65,8 @@ def get_all_fpga_bdfs(args):
         if data:
             with open(os.path.join(devpath, "device"), 'r') as fd:
                 device_id = fd.read().strip()
-            if int(device_id,16) == int(vars(args)['device_id'],16):
-                bdf_list.append(dict([(k, hex(int(v,16)).lstrip("0x"))
+            if int(device_id, 16) == int(vars(args)['device_id'], 16):
+                bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
                                 for (k, v) in data.iteritems()]))
     return bdf_list
 

@@ -26,16 +26,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import os, argparse, binascii, sys
+import os
+import argparse
+import binascii
+import sys
 from common import FpgaFinder, exception_quit, convert_argument_str2hex
 
 sys_if = '/sys/class/net'
 divide = '-----------------------------------------'
 
+
 class MacromCompare(object):
     def __init__(self, args):
         self.args = args
-        self.ethif = dict(zip(args.ethif, ['',]*len(args.ethif)))
+        self.ethif = dict(zip(args.ethif, ['', ] * len(args.ethif)))
         self.mac = []
 
     def print_error_exit(self, msg):
@@ -47,9 +51,9 @@ class MacromCompare(object):
         # a group has 4 interfaces
         for i in ifs:
             t = [j for j in ifs if j[:-1] == i[:-1]]
-            if self.args.ethif or len(t)==4:
+            if self.args.ethif or len(t) == 4:
                 with open(os.path.join(sys_if, i, 'address')) as f:
-                    self.ethif[i] = f.read().strip() 
+                    self.ethif[i] = f.read().strip()
 
         if self.ethif:
             print('Found {} ethernet interfaces:'.format(len(self.ethif)))
@@ -78,7 +82,7 @@ class MacromCompare(object):
             if m not in self.ethif.values():
                 print('{} in MAC ROM, have no relative interface!'.format(m))
                 result = 'FAIL'
-        for e,m in self.ethif.items():
+        for e, m in self.ethif.items():
             if m not in self.mac:
                 print('{} associate with {}, is not from MAC ROM'.format(m, e))
                 result = 'FAIL'
@@ -89,35 +93,39 @@ class MacromCompare(object):
         self.read_mac_from_nvmem()
         self.compare_eth_mac_with_macrom()
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus', '-B',
-                        help = 'Bus number of PCIe device')
+                        help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
-                        help = 'Device number of PCIe device')
+                        help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
-                        help = 'Function number of PCIe device')
+                        help='Function number of PCIe device')
     parser.add_argument('--nvmem',
-                        help = 'nvmem path')
+                        help='nvmem path')
     parser.add_argument('--ethif',
-                        nargs = '*',
-                        default = [],
-                        help = 'specify ethernet interfaces')
+                        nargs='*',
+                        default=[],
+                        help='specify ethernet interfaces')
     parser.add_argument('--offset',
-                        default = '0',
-                        help = 'read mac address from a offset address')
+                        default='0',
+                        help='read mac address from a offset address')
     args, left = parser.parse_known_args()
-    
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function', 'offset'])
+
+    args = convert_argument_str2hex(
+        args, ['bus', 'device', 'function', 'offset'])
 
     if not args.nvmem:
         f = FpgaFinder(args.bus, args.device, args.function)
         devs = f.find()
         for d in devs:
-            print('bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(**d))
+            print(
+                'bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(
+                    **d))
         if len(devs) > 1:
             exception_quit('{} FPGAs are found\nplease choose '
-                            'one FPGA to do mactest'.format(len(devs)))
+                           'one FPGA to do mactest'.format(len(devs)))
         if not devs:
             exception_quit('no FPGA found')
         nvmem_path = f.find_node(devs[0].get('path'), 'nvmem')
@@ -127,13 +135,15 @@ def main():
             print('found nvmem: {}'.format(p))
         args.nvmem = nvmem_path[0]
         if len(nvmem_path) > 1:
-            print('multi nvmem found, select {} to do mactest'.format(args.nvmem))
+            print('multi nvmem found, '
+                  'select {} to do mactest'.format(args.nvmem))
 
     if os.path.exists(args.nvmem):
         m = MacromCompare(args)
         m.start()
     else:
         print('Error: {} is not exist!'.format(args.nvmem))
+
 
 if __name__ == "__main__":
     main()

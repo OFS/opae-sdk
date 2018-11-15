@@ -113,9 +113,9 @@ static bool matches_filter(const struct dev_list *attr,
 		}
 
 		subdev_instance = (int)strtoul(p + 1, NULL, 10);
- 		// Find the device instance.
+		// Find the device instance.
 		p = strchr(attr->sysfspath, '.');
- 		if (NULL == p) {
+		if (NULL == p) {
 			res = false;
 			goto out_unlock;
 		}

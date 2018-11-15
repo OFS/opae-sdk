@@ -38,7 +38,8 @@ import bist_nlb3
 import bist_nlb0
 
 FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
-PRIVATE_FEATURES = {bist_common.VCP_ID : ['phy', 'mac']}
+PRIVATE_FEATURES = {bist_common.VCP_ID: ['phy', 'mac']}
+
 
 def get_afu_id(bus):
     cmd = 'fpgainfo port -B 0x{}'.format(bus)
@@ -47,6 +48,7 @@ def get_afu_id(bus):
     m = re.search('Accelerator Id\s+:\s(\S+)', output)
     afu_id = (m.group(1) if m else m)
     return afu_id
+
 
 def main(args):
     bdf = bist_common.get_all_fpga_bdfs(args)
@@ -96,6 +98,7 @@ def main(args):
         mode.run(path, bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

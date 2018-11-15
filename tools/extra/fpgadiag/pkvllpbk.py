@@ -26,12 +26,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import argparse, time, os, fcntl, struct, stat, re
+import argparse
+import time
+import os
+import fcntl
+import struct
+import stat
+import re
 from common import exception_quit, FpgaFinder, PKVLCOMMON
 from common import convert_argument_str2hex
 
 # PKVL DEVICE NUMBER DEFINITION
-PKVL_DEV_SIDE = {'local':4, 'remote':3}
+PKVL_DEV_SIDE = {'local': 4, 'remote': 3}
 PKVL_REG_PCS_CTL = 0xF010
 PKVL_REG_PCS_25G_CNTL = 0x2000
 PKVL_PCS_LANE_OFFSET_SHIFT = 0x200
@@ -39,11 +45,13 @@ PKVL_REG_LINE_PMA_CNTL = 0x0000
 PKVL_REG_HOST_PMA_CNTL = 0x1000
 PKVL_PMA_LANE_OFFSET_SHIFT = 0x2000
 
-PKVL_PMA_CNTL = {'local':PKVL_REG_HOST_PMA_CNTL,
-                 'remote':PKVL_REG_LINE_PMA_CNTL}
+PKVL_PMA_CNTL = {'local': PKVL_REG_HOST_PMA_CNTL,
+                 'remote': PKVL_REG_LINE_PMA_CNTL}
+
 
 class PKVLLPBK(PKVLCOMMON):
     ports = []
+
     def __init__(self, args):
         self.en = args.en
         self.direction = args.direction
@@ -54,48 +62,58 @@ class PKVLLPBK(PKVLCOMMON):
         dev = PKVL_DEV_SIDE[self.direction]
         for i in range(self.PKVL_PHY_NUMBER):
             v = 0
-            ports = [(p-i*self.PKVL_PHY_NUMBER) for p in self.ports \
-                    if (p-i*self.PKVL_PHY_NUMBER) in range(self.PKVL_PORT_NUMBER)]
+            ports = [
+                (p -
+                 i *
+                 self.PKVL_PHY_NUMBER) for p in self.ports if (
+                    p -
+                    i *
+                    self.PKVL_PHY_NUMBER) in range(
+                    self.PKVL_PORT_NUMBER)]
             if not ports:
                 continue
             for p in ports:
-                v |= (en<<p)
+                v |= (en << p)
             self.pkvl_phy_reg_set_field(i, dev, PKVL_REG_PCS_CTL, 12, 4, v)
 
     def start(self):
-        self.ports = self.get_port_list(self.argport, self.PKVL_PHY_NUMBER*self.PKVL_PORT_NUMBER)
+        self.ports = self.get_port_list(
+            self.argport,
+            self.PKVL_PHY_NUMBER *
+            self.PKVL_PORT_NUMBER)
         self.char_devs = self.get_pkvl_char_device(self.pkvl_devs)
         self.pkvl_loopback_en(self.en)
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus', '-B',
-                        help = 'Bus number of PCIe device')
+                        help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
-                        help = 'Device number of PCIe device')
+                        help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
-                        help = 'Function number of PCIe device')
+                        help='Function number of PCIe device')
     parser.add_argument('--direction',
-                        required = True,
-                        choices = ['local', 'remote'],
-                        help = 'choose loopback direction from chip view')
+                        required=True,
+                        choices=['local', 'remote'],
+                        help='choose loopback direction from chip view')
     parser.add_argument('--enable',
-                        action = 'store_const',
-                        dest = 'en',
-                        const = 1,
-                        help = 'loopback enable')
+                        action='store_const',
+                        dest='en',
+                        const=1,
+                        help='loopback enable')
     parser.add_argument('--disable',
-                        action = 'store_const',
-                        dest = 'en',
-                        const = 0,
-                        help = 'loopback disable')
+                        action='store_const',
+                        dest='en',
+                        const=0,
+                        help='loopback disable')
     parser.add_argument('--port',
-                        nargs = '*',
-                        default = 'all',
-                        help = 'enable/disable loopback on specific port')
+                        nargs='*',
+                        default='all',
+                        help='enable/disable loopback on specific port')
     args, left = parser.parse_known_args()
 
-    if args.en == None:
+    if args.en is None:
         exception_quit('please specify --enable/--disable loopback!')
     else:
         op = 'enable' if args.en else 'disable'
@@ -112,7 +130,10 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.pkvl_devs = f.find_node(devs[0].get('path'), 'misc/pkvl*/dev', depth=8)
+    args.pkvl_devs = f.find_node(
+        devs[0].get('path'),
+        'misc/pkvl*/dev',
+        depth=8)
     if not args.pkvl_devs:
         exception_quit('No pkvl device found')
     for dev in args.pkvl_devs:
@@ -121,6 +142,7 @@ def main():
     lp = PKVLLPBK(args)
     lp.start()
     print('Done')
+
 
 if __name__ == "__main__":
     main()

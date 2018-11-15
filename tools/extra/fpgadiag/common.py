@@ -26,8 +26,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import re, os, glob, argparse, sys, time
-import traceback, fcntl, stat, struct
+import re
+import os
+import glob
+import argparse
+import sys
+import time
+import traceback
+import fcntl
+import stat
+import struct
 
 pattern = (r'.*/\d+:(?P<bus>\w{2}):'
            r'(?P<dev>\d{2})\.(?P<func>\d).*')
@@ -37,19 +45,25 @@ bdf_pattern = re.compile(pattern)
 ROOT_PATH = '/sys/class/fpga'
 char_dev = '/dev/char'
 
+
 def exception_quit(msg, retcode=-1):
     print(msg)
     sys.exit(retcode)
+
 
 def convert_argument_str2hex(args, arg_list):
     if isinstance(arg_list, list):
         for i in arg_list:
             try:
-                if getattr(args, i) != None:
+                if getattr(args, i) is not None:
                     setattr(args, i, int(getattr(args, i), 16))
-            except:
-                exception_quit('Invlid argument {}: {}'.format(i, getattr(args, i)))
+            except BaseException:
+                exception_quit(
+                    'Invlid argument {}: {}'.format(
+                        i, getattr(
+                            args, i)))
     return args
+
 
 class FpgaFinder(object):
     def __init__(self, bus, dev, func):
@@ -81,8 +95,8 @@ class FpgaFinder(object):
         for dev in self.all_devs:
             r = True
             for i in dev:
-                r &= (getattr(self, i) == dev.get(i) \
-                      if hasattr(self, i) and getattr(self, i)!=None \
+                r &= (getattr(self, i) == dev.get(i)
+                      if hasattr(self, i) and getattr(self, i) is not None
                       else True)
             if r:
                 self.match_dev.append(dev)
@@ -91,9 +105,10 @@ class FpgaFinder(object):
     def find_node(self, root, node, depth=5):
         paths = []
         for x in range(depth):
-            r = glob.glob(os.path.join(os.path.join(root, *['*']*x), node))
+            r = glob.glob(os.path.join(os.path.join(root, *['*'] * x), node))
             paths.extend(r)
         return paths
+
 
 class COMMON(object):
     def ioctl(self, handler, op, data):
@@ -122,10 +137,10 @@ class COMMON(object):
     def register_field_set(self, reg_data, idx, width, value):
         mask = 0
         for x in range(width):
-            mask |= (1<<x)
+            mask |= (1 << x)
         value &= mask
-        reg_data &= ~(mask<<idx)
-        reg_data |= (value<<idx)
+        reg_data &= ~(mask << idx)
+        reg_data |= (value << idx)
         return reg_data
 
     def get_port_list(self, argport, total):
@@ -137,15 +152,17 @@ class COMMON(object):
                 if p.isdigit():
                     ports.append(int(p))
                 elif '-' in p:
-                    s,e = p.split('-')
+                    s, e = p.split('-')
                     s = s.strip()
                     e = e.strip()
-                    if s.isdigit() and e.isdigit() and total>=(int(e)+1):
-                        ports.extend(range(int(s), int(e)+1))
+                    if s.isdigit() and e.isdigit() and total >= (int(e) + 1):
+                        ports.extend(range(int(s), int(e) + 1))
                     else:
-                        exception_quit('Invalid argument port {}-{}'.format(s, e))
+                        exception_quit(
+                            'Invalid argument port {}-{}'.format(s, e))
             ports.sort()
             return ports
+
 
 class PKVLCOMMON(COMMON):
     PKVL_PHY_NUMBER = 2
@@ -157,6 +174,7 @@ class PKVLCOMMON(COMMON):
     PKVL_REG_WIDTH = 16
     data_fmt = '=IIHHH'
     data_len = struct.calcsize(data_fmt)
+
     def get_pkvl_char_device(self, pkvl_devs):
         pkvl_char_dev = {}
         for d in pkvl_devs:
@@ -164,7 +182,7 @@ class PKVLCOMMON(COMMON):
                 dev = f.readline().strip()
             pkvl_dev = os.path.join(char_dev, dev)
             pn = os.path.basename(os.path.dirname(d))
-            m = re.match('pkvl(\d+)', pn)
+            m = re.match(r'pkvl(\d+)', pn)
             if m:
                 phy = int(m.group(1))
                 if phy not in pkvl_char_dev:
@@ -187,6 +205,7 @@ class PKVLCOMMON(COMMON):
             self.ioctl(f, self.PKVL_WRITE_PHY_REG, v)
             time.sleep(0.001)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus')
@@ -199,6 +218,7 @@ def main():
     print('find {} node'.format(len(finder.match_dev)))
     for n in finder.match_dev:
         print(n)
+
 
 if __name__ == "__main__":
     main()

@@ -26,11 +26,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import argparse, time, os, fcntl, struct
+import argparse
+import time
+import os
+import fcntl
+import struct
 from common import exception_quit, FpgaFinder, PKVLCOMMON
 from common import convert_argument_str2hex
 
 stats_shift = 0x200
+
 
 class PKVLSTATS(PKVLCOMMON):
     # statistics item : (dev, group register number, base)
@@ -49,57 +54,59 @@ class PKVLSTATS(PKVLCOMMON):
     counter_rst = 6
     pkt_gen_en = 1
     pkt_chk_en = 0
+
     def __init__(self, args):
         self.en = args.enable
         self.clr = args.clear
         self.pkvl_devs = args.pkvl_devs
 
     def print_port_stats(self, handler, stats, phy, dev, num, reg):
-        print("{0: <30}".format(stats), end = ' | ')
+        print("{0: <30}".format(stats), end=' | ')
         for i in range(self.PKVL_PORT_NUMBER):
             value = 0
             for r in range(num):
                 v = struct.pack(self.data_fmt, self.data_len, 0, dev,
-                            reg+r+i*stats_shift, 0)
+                                reg + r + i * stats_shift, 0)
                 data = self.ioctl(handler, self.PKVL_READ_PHY_REG, v)
                 _, _, _, _, v = struct.unpack(self.data_fmt, data)
-                value |= v<<(r*self.PKVL_REG_WIDTH)
-            print("{0: <12}".format(value), end =  ' | ')
+                value |= v << (r * self.PKVL_REG_WIDTH)
+            print("{0: <12}".format(value), end=' | ')
         print()
-    
+
     def print_pkvl_stats(self):
         for p in range(self.PKVL_PHY_NUMBER):
             with open(self.char_devs[p], 'rw') as f:
-                print('='*100)
+                print('=' * 100)
                 print('PKVL PHY {}'.format(p))
                 for side in ['host', 'line']:
-                    print("{0: <30}".format(side), end = ' | ')
+                    print("{0: <30}".format(side), end=' | ')
                     for i in range(self.PKVL_PORT_NUMBER):
                         print('port {:<7}'.format(i), end=' | ')
                     print()
-                    for stats,c in getattr(self, '{}_stats'.format(side)).items():
+                    for stats, c in getattr(
+                            self, '{}_stats'.format(side)).items():
                         dev, num, base = c
                         self.print_port_stats(f, stats, p, dev, num, base)
 
     def enable_statistics(self):
         value = 0
-        value |= (1<<self.pkt_chk_en)
-        value |= (1<<self.pkt_gen_en)
+        value |= (1 << self.pkt_chk_en)
+        value |= (1 << self.pkt_gen_en)
         for p in range(self.PKVL_PHY_NUMBER):
-            for k,c in self.pkt_gen_ctl_1.items():
+            for k, c in self.pkt_gen_ctl_1.items():
                 for i in range(self.PKVL_PORT_NUMBER):
                     dev, reg = c
-                    self.pkvl_phy_reg_set_field(p, dev, reg+i*stats_shift,
-                                            self.pkt_chk_en, 2, value)
+                    self.pkvl_phy_reg_set_field(p, dev, reg + i * stats_shift,
+                                                self.pkt_chk_en, 2, value)
         print('PKVL Statistics counter enabled')
 
     def clear_statistics(self):
         for p in range(self.PKVL_PHY_NUMBER):
-            for k,c in self.pkt_gen_ctl_1.items():
+            for k, c in self.pkt_gen_ctl_1.items():
                 for i in range(self.PKVL_PORT_NUMBER):
                     dev, reg = c
-                    self.pkvl_phy_reg_set_field(p, dev, reg+i*stats_shift,
-                                            self.counter_rst, 1, 1)
+                    self.pkvl_phy_reg_set_field(p, dev, reg + i * stats_shift,
+                                                self.counter_rst, 1, 1)
         print('PKVL Statistics counter clear')
 
     def start(self):
@@ -112,22 +119,23 @@ class PKVLSTATS(PKVLCOMMON):
         else:
             self.print_pkvl_stats()
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus', '-B',
-                        help = 'Bus number of PCIe device')
+                        help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
-                        help = 'Device number of PCIe device')
+                        help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
-                        help = 'Function number of PCIe device')
+                        help='Function number of PCIe device')
     parser.add_argument('--enable',
-                        action = 'store_true',
-                        default = False,
-                        help = 'PKVL Statistics enable')
+                        action='store_true',
+                        default=False,
+                        help='PKVL Statistics enable')
     parser.add_argument('--clear',
-                        action = 'store_true',
-                        default = False,
-                        help = 'PKVL Statistics clear')
+                        action='store_true',
+                        default=False,
+                        help='PKVL Statistics clear')
     args, left = parser.parse_known_args()
 
     args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
@@ -140,7 +148,10 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.pkvl_devs = f.find_node(devs[0].get('path'), 'misc/pkvl*/dev', depth=8)
+    args.pkvl_devs = f.find_node(
+        devs[0].get('path'),
+        'misc/pkvl*/dev',
+        depth=8)
     if not args.pkvl_devs:
         exception_quit('No pkvl device found')
     for dev in args.pkvl_devs:
@@ -149,6 +160,7 @@ def main():
     ps = PKVLSTATS(args)
     ps.start()
     print('Done')
+
 
 if __name__ == "__main__":
     main()

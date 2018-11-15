@@ -26,39 +26,46 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-import argparse, time, os, fcntl, struct
+import argparse
+import time
+import os
+import fcntl
+import struct
 from common import exception_quit, FpgaFinder, PKVLCOMMON
 from common import convert_argument_str2hex
 
 status_shift = 0x200
 
+
 class PKVLSTATS(PKVLCOMMON):
     # PCS status item : (dev, bit index, base)
     pcs_status = {'line': (3, 2, 0xa002),
                   'host': (4, 2, 0xa002)}
+
     def __init__(self, args):
         self.pkvl_devs = args.pkvl_devs
 
     def print_port_link_status(self, handler, side, phy, dev, idx, reg):
-        print("{0: <30}".format(side+' side'), end = ' | ')
+        print("{0: <30}".format(side + ' side'), end=' | ')
         for i in range(self.PKVL_PORT_NUMBER):
-            v = struct.pack(self.data_fmt, self.data_len, 0, dev, reg+i*status_shift, 0)
+            v = struct.pack(self.data_fmt, self.data_len, 0,
+                            dev, reg + i * status_shift, 0)
             data = self.ioctl(handler, self.PKVL_READ_PHY_REG, v)
             _, _, _, _, v = struct.unpack(self.data_fmt, data)
-            status = ('up' if v&(1<<idx) else 'down')
-            print("{0: <12}".format(status), end =  ' | ')
+            status = ('up' if v & (1 << idx) else 'down')
+            print("{0: <12}".format(status), end=' | ')
         print()
-    
+
     def print_pkvl_link_status(self):
         for p in range(self.PKVL_PHY_NUMBER):
             with open(self.char_devs[p], 'rw') as f:
-                print('='*100)
+                print('=' * 100)
                 print('PKVL PHY {}'.format(p))
-                print("{0: <30}".format('side'), end = ' | ')
+                print("{0: <30}".format('side'), end=' | ')
                 for i in range(self.PKVL_PORT_NUMBER):
                     print('port {:<7}'.format(i), end=' | ')
                 print()
-                for side,c in self.pcs_status.items():
+                for side, c in self.pcs_status.items():
                     dev, idx, base = c
                     self.print_port_link_status(f, side, p, dev, idx, base)
 
@@ -66,14 +73,15 @@ class PKVLSTATS(PKVLCOMMON):
         self.char_devs = self.get_pkvl_char_device(self.pkvl_devs)
         self.print_pkvl_link_status()
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus', '-B',
-                        help = 'Bus number of PCIe device')
+                        help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
-                        help = 'Device number of PCIe device')
+                        help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
-                        help = 'Function number of PCIe device')
+                        help='Function number of PCIe device')
     args, left = parser.parse_known_args()
 
     args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
@@ -86,7 +94,10 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.pkvl_devs = f.find_node(devs[0].get('path'), 'misc/pkvl*/dev', depth=8)
+    args.pkvl_devs = f.find_node(
+        devs[0].get('path'),
+        'misc/pkvl*/dev',
+        depth=8)
     if not args.pkvl_devs:
         exception_quit('No pkvl device found')
     for dev in args.pkvl_devs:
@@ -95,6 +106,7 @@ def main():
     ps = PKVLSTATS(args)
     ps.start()
     print('Done')
+
 
 if __name__ == "__main__":
     main()
