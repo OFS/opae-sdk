@@ -1011,6 +1011,11 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 		snprintf_s_s(_handle->_bmc_metric_cache_value[x].metric_name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name), "%s", details.name);
 		_handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue = tmp;
 
+		strcasecmp_s(details.name, sizeof(details.name), _fpga_enum_metric->metric_name, &metric_indicator);
+		if (metric_indicator == 0) {
+			fpga_metric->value.dvalue = tmp;
+		}
+
 	}
 
 
