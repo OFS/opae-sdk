@@ -1047,8 +1047,8 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	int function                      = 0;
 	int fd                            = 0;
 	uint8_t *ptr                      = 0;
-	uint64_t value                    = 0;
-	fpga_object dev_object;
+	uint16_t value                    = 0;
+	fpga_properties props;
 
 	if (rasCmdLine  == NULL ) {
 		OPAE_ERR("Invalid input ");
@@ -1064,25 +1064,23 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	if ( rasCmdLine->function >0 )
 		function = rasCmdLine->bus;
 
-	result = fpgaHandleGetObject(afu_handle, FPAG_DEVICEID_PATH, &dev_object, 0);
+	result = fpgaGetPropertiesFromHandle(afu_handle, &props);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Handle Object");
+		OPAE_ERR("Failed to get properties from handle");
 		return result;
 	}
 
-	result = fpgaObjectRead64(dev_object, &value, 0);
+	result = fpgaPropertiesGetDeviceID(props, &value);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Read Object ");
+		OPAE_ERR("Failed to get device id from properties");
 		return result;
 	}
 
-	printf(" Device ID : 0x%lx \n", value);
-
-	result = fpgaDestroyObject(&dev_object);
-	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Destroy Object");
-		return result;
+	if (fpgaDestroyProperties(&props)) {
+		OPAE_ERR("Failed to destroy properties");
 	}
+
+	printf(" Device ID : 0x%x \n", value);
 
 	if ((value != FPGA_INTEGRATED_DEVICEID) &&
 		(value != FPGA_DISCRETE_DEVICEID)) {
