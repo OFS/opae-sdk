@@ -43,6 +43,8 @@ class sysobject {
  public:
   typedef std::shared_ptr<sysobject> ptr_t;
 
+  sysobject() = delete;
+
   sysobject(const sysobject &o) = delete;
 
   sysobject &operator=(const sysobject &o) = delete;
@@ -173,7 +175,7 @@ class sysobject {
   operator fpga_object() const { return sysobject_; }
 
  private:
-  sysobject();
+  sysobject(fpga_object sysobj, token::ptr_t token, handle::ptr_t hnd);
   fpga_object sysobject_;
   token::ptr_t token_;
   handle::ptr_t handle_;

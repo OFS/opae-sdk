@@ -160,6 +160,8 @@ TEST_P(sysobject_cxx_p, object_object) {
   ASSERT_NE(h_obj.get(), nullptr);
   auto h_value = h_obj->get("errors")->read64();
   EXPECT_EQ(t_value, h_value);
+  EXPECT_EQ(t_obj->get("abc").get(), nullptr);
+  EXPECT_EQ(h_obj->get("abc").get(), nullptr);
 }
 
 /**
