@@ -335,8 +335,9 @@ class NLBTest(unittest.TestCase):
         self.assertTrue(nlb.setup(cmdline_args))
         output = ''
         with mock.patch('sys.stdout', new=StringIO()) as fake_stdout:
-            nlb.run(h, mock_fmehandle())
-            output = fake_stdout.getvalue().strip()
+            with mock.patch('time.sleep', new=lambda x: None):
+                nlb.run(h, mock_fmehandle())
+                output = fake_stdout.getvalue().strip()
         self.assertFalse(output == '')
         if not csv:
             m = NORMAL_OUTPUT.match(output)
@@ -376,8 +377,9 @@ class NLBTest(unittest.TestCase):
         self.assertTrue(nlb.setup(cmdline_args))
         output = ''
         with mock.patch('sys.stdout', new=StringIO()) as fake_stdout:
-            nlb.run(h, mock_fmehandle())
-            output = fake_stdout.getvalue().strip()
+            with mock.patch('time.sleep', new=lambda x: None):
+                nlb.run(h, mock_fmehandle())
+                output = fake_stdout.getvalue().strip()
         self.assertFalse(output == '')
         if not csv:
             m = NORMAL_OUTPUT.match(output)
