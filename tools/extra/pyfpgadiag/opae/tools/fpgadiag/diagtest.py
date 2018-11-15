@@ -228,6 +228,14 @@ class diagtest(object):
         parser = self._parser.add_argument_group(self._mode)
         self.add_arguments(parser)
         self.args, _ = self._parser.parse_known_args(in_args)
+        if self.args.help:
+            self._parser.description = '''
+            fpgadiag testing tool for NLB (native loopback) accelerator.'''
+            self._parser.epilog = '''Current mode is {}.
+                                     Current accelerator is {}'''.format(
+                                           self._mode, self.__class__.__name__)
+            self._parser.print_help()
+            return False
         if self.args.end is None:
             self.args.end = self.args.begin
         return True
