@@ -56,9 +56,9 @@ extern "C" {
 using namespace opae::testing;
 
 
-class metics_uitls_c_p : public ::testing::TestWithParam<std::string> {
+class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
 protected:
-	metics_uitls_c_p()
+	metrics_utils_c_p()
 		: tokens_{ {nullptr, nullptr} },
 		handle_(nullptr) {}
 
@@ -110,7 +110,7 @@ protected:
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_100) {
+TEST_P(metrics_utils_c_p, test_metric_utils_100) {
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 
@@ -123,7 +123,6 @@ TEST_P(metics_uitls_c_p, test_metric_utils_100) {
 	EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir((const char*)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id1"));
 
 	std::string sysclass_path = system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-	//printf("sysclass_path %s \n", sysclass_path.c_str());
 
 	EXPECT_EQ(FPGA_OK, metric_sysfs_path_is_dir((const char*)sysclass_path.c_str()));
 
@@ -136,7 +135,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_100) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_101) {
+TEST_P(metrics_utils_c_p, test_metric_utils_101) {
 
 	char metric_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 
@@ -164,7 +163,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_101) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_102) {
+TEST_P(metrics_utils_c_p, test_metric_utils_102) {
 
 	char group_name[FPGA_METRIC_STR_SIZE] = { "power_mgmt" };
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/" };
@@ -215,7 +214,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_102) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_103) {
+TEST_P(metrics_utils_c_p, test_metric_utils_103) {
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
 	char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = { 0 };
@@ -251,7 +250,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_103) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_104) {
+TEST_P(metrics_utils_c_p, test_metric_utils_104) {
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0" };
 	char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = { 0 };
@@ -288,7 +287,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_104) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_105) {
+TEST_P(metrics_utils_c_p, test_metric_utils_105) {
 
 	char qualifier_name[FPGA_METRIC_STR_SIZE] = { 0 };
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
@@ -339,7 +338,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_105) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_106) {
+TEST_P(metrics_utils_c_p, test_metric_utils_106) {
 
 	char group_sysfs[FPGA_METRIC_STR_SIZE] = { 0 };
 	fpga_metric_vector vector;
@@ -374,7 +373,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_106) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_107) {
+TEST_P(metrics_utils_c_p, test_metric_utils_107) {
 
 	struct _fpga_enum_metric _enum_metric = {
 		 "power_mgmt",
@@ -407,7 +406,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_107) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_109) {
+TEST_P(metrics_utils_c_p, test_metric_utils_109) {
 
 	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
@@ -423,7 +422,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_109) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_10) {
+TEST_P(metrics_utils_c_p, test_metric_utils_10) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -466,7 +465,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_10) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_11) {
+TEST_P(metrics_utils_c_p, test_metric_utils_11) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -495,7 +494,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_11) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_12) {
+TEST_P(metrics_utils_c_p, test_metric_utils_12) {
 
 	EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(NULL));
 
@@ -512,7 +511,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_12) {
  *
  *
  */
-TEST_P(metics_uitls_c_p, test_metric_utils_13) {
+TEST_P(metrics_utils_c_p, test_metric_utils_13) {
 
 	uint64_t  value;
 
@@ -538,7 +537,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_13) {
 	EXPECT_EQ(FPGA_OK, get_pwr_thermal_value(group_sysfs, &value));
 }
 
-TEST_P(metics_uitls_c_p, test_metric_utils_14) {
+TEST_P(metrics_utils_c_p, test_metric_utils_14) {
 
 	uint64_t  value;
 
@@ -564,7 +563,7 @@ TEST_P(metics_uitls_c_p, test_metric_utils_14) {
 	EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, metric_sysfs, &value));
 }
 
-TEST_P(metics_uitls_c_p, test_metric_utils_15) {
+TEST_P(metrics_utils_c_p, test_metric_utils_15) {
 
 	fpga_objtype objtype;
 	EXPECT_NE(FPGA_OK, get_fpga_object_type(NULL, &objtype));
@@ -572,13 +571,13 @@ TEST_P(metics_uitls_c_p, test_metric_utils_15) {
 	EXPECT_NE(FPGA_OK, get_fpga_object_type(handle_,NULL));
 }
 
-INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_c_p, 
+INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_c_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})) );
 
 
-class metics_uitls_dcp_c_p : public ::testing::TestWithParam<std::string> {
+class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
 protected:
-	metics_uitls_dcp_c_p()
+	metrics_utils_dcp_c_p()
 		: tokens_{ {nullptr, nullptr} },
 		handle_(nullptr) {}
 
@@ -620,7 +619,7 @@ protected:
 
 };
 
-TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
+TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
 
 	uint64_t metric_id;
 
@@ -641,7 +640,7 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_12) {
 	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 
-TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
+TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -656,7 +655,7 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_13) {
 
 }
 
-TEST_P(metics_uitls_dcp_c_p, test_metric_utils_14) {
+TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle_;
 
@@ -676,6 +675,6 @@ TEST_P(metics_uitls_dcp_c_p, test_metric_utils_14) {
 
 }
 
-INSTANTIATE_TEST_CASE_P(metics_uitls_c, metics_uitls_dcp_c_p, 
+INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 

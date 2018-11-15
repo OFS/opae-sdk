@@ -43,6 +43,9 @@
 #include "metrics/vector.h"
 #include "metrics/metrics_int.h"
 
+//Wrong search string invalid array index
+#define METRIC_ARRAY_INVALID_INDEX     0xFFFFFF
+
 fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 					uint64_t *num_metrics)
 {
@@ -178,6 +181,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 						fpga_metric *metrics)
 {
 	fpga_result result                      = FPGA_OK;
+	uint64_t found                          = 0;
 	struct _fpga_handle *_handle            = (struct _fpga_handle *)handle;
 	int err                                 = 0;
 	uint64_t i                              = 0;
@@ -228,10 +232,22 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 						metric_num[i],
 						&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value");
+				FPGA_ERR("Failed to get metric value  at Index = %ld", metric_num[i]);
+				metrics[i].metric_num = metric_num[i];
 				continue;
+			} else {
+				// found metrics num
+				found++;
 			}
 		}
+
+		// API returns not found if doesnot found any metric
+		if (found == 0 || num_metric_indexes == 0) {
+			result = FPGA_NOT_FOUND;
+		} else {
+			result = FPGA_OK;
+		}
+
 	} else if (objtype == FPGA_DEVICE) {
 		// get FME metrics
 		for (i = 0; i < num_metric_indexes; i++) {
@@ -241,10 +257,22 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 							metric_num[i],
 							&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value");
+				FPGA_ERR("Failed to get metric value  at Index = %ld", metric_num[i]);
+				metrics[i].metric_num = metric_num[i];
 				continue;
+			} else {
+				// found metrics num
+				found++;
 			}
 		}
+
+		// API returns not found if doesnot found any metric
+		if (found == 0 || num_metric_indexes == 0) {
+			result = FPGA_NOT_FOUND;
+		} else {
+			result = FPGA_OK;
+		}
+
 	} else {
 		result = FPGA_INVALID_PARAM;
 	}
@@ -266,6 +294,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 						fpga_metric *metrics)
 {
 	fpga_result result                     = FPGA_OK;
+	uint64_t found                         = 0;
 	struct _fpga_handle *_handle           = (struct _fpga_handle *)handle;
 	int err                                = 0;
 	uint64_t i                             = 0;
@@ -300,6 +329,14 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		goto out_unlock;
 	}
 
+	result = enum_fpga_metrics(handle);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to Discover Metrics");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to init vector");
@@ -310,12 +347,12 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 	if (objtype == FPGA_ACCELERATOR) {
 		// get AFU metrics
 		for (i = 0; i < num_metric_names; i++) {
-
 			result = parse_metric_num_name(metrics_names[i],
 							&(_handle->fpga_enum_metric_vector),
 							&metric_num);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid Input Metrics string");
+				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
 
@@ -323,10 +360,20 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				metric_num,
 				&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value");
+				FPGA_ERR("Failed to get metric value  for metric = %s", metrics_names[i]);
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
+			} else {
+				// found metrics num
+				found++;
 			}
+		}
 
+		// API returns not found if doesnot found any metric
+		if (found == 0 || num_metric_names == 0) {
+			result = FPGA_NOT_FOUND;
+		} else {
+			result = FPGA_OK;
 		}
 	} else	if (objtype == FPGA_DEVICE) {
 		// get FME metrics
@@ -336,7 +383,8 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&(_handle->fpga_enum_metric_vector),
 							&metric_num);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid Input Metrics string");
+				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
 
@@ -345,10 +393,20 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							metric_num,
 							&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value");
-				goto out_unlock;
+				FPGA_ERR("Failed to get metric value  for metric = %s \n", metrics_names[i]);
+				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
+				continue;
+			} else {
+				// found metrics num
+				found++;
 			}
+		}
 
+		// API returns not found if doesnot found any metric
+		if (found == 0 || num_metric_names == 0) {
+			result = FPGA_NOT_FOUND;
+		} else {
+			result = FPGA_OK;
 		}
 	} else {
 		result = FPGA_INVALID_PARAM;
