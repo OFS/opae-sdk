@@ -1066,7 +1066,7 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 
 	result = fpgaGetPropertiesFromHandle(afu_handle, &props);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get properteis from handle");
+		OPAE_ERR("Failed to get properties from handle");
 		return result;
 	}
 
