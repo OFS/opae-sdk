@@ -52,8 +52,8 @@ class sysobject {
   /**
    * @brief Get a sysobject from a token. This will be read-only.
    *
-   * @param t[in] Token object representing a resource.
-   * @param name[in] An identifier representing an object belonging to a
+   * @param[in] t Token object representing a resource.
+   * @param[in] name An identifier representing an object belonging to a
    * resource represented by the token.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
@@ -70,8 +70,8 @@ class sysobject {
   /**
    * @brief Get a sysobject from a handle. This will be read-write.
    *
-   * @param h[in] Handle object representing an open resource.
-   * @param name[in] An identifier representing an object belonging to a
+   * @param[in] h Handle object representing an open resource.
+   * @param[in] name An identifier representing an object belonging to a
    * resource represented by the handle.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
@@ -86,10 +86,10 @@ class sysobject {
                               int flags = 0);
 
   /**
-   * @brief Get a sysobject froman object. This will be read-write if its
+   * @brief Get a sysobject from an object. This will be read-write if its
    * parent was created from a handle..
    *
-   * @param name[in] An identifier representing an object belonging to this
+   * @param[in] name An identifier representing an object belonging to this
    * object.
    * @param[in] flags Control behavior of object identification and creation.
    * FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a
@@ -144,7 +144,7 @@ class sysobject {
   /**
    * @brief Get all raw bytes from the object.
    *
-   * @param[in]flags Flags that control how object is read
+   * @param[in] flags Flags that control how object is read
    * If FPGA_OBJECT_SYNC is used then object will update its buffered copy
    * before retrieving the data.
    *
@@ -155,7 +155,9 @@ class sysobject {
   /**
    * @brief Get a subset of raw bytes from the object.
    *
-   * @param[in]flags Flags that control how object is read
+   * @param[in] offset The bytes offset for the start of the returned vector.
+   * @param[in] size The number of bytes for the returned vector.
+   * @param[in] flags Flags that control how object is read
    * If FPGA_OBJECT_SYNC is used then object will update its buffered copy
    * before retrieving the data.
    *

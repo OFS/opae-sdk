@@ -80,7 +80,7 @@ fpga_result fpgaGetMetricsInfo(fpga_handle handle,
  * @param[in] handle Handle to previously opened fpga resource
  * @param[inout] metric_num Pointer to array of metric index
  * user allocates metric array
- * @param[inout] num_metric_indexs Size of metric array
+ * @param[inout] num_metric_indexes Size of metric array
  * @param[inout] metrics pointer to array of metric struct
  *
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
