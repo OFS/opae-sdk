@@ -266,10 +266,6 @@ TEST_P(fpgad_fpgad_c_p, main_symlink_log) {
     ASSERT_EQ(mkdir(dir.c_str(), 0770), 0);
   }
 
-  if (stat(test_symlink.c_str(), &buffer) == 0) {
-    ASSERT_EQ(unlink(test_symlink.c_str()), 0);
-  }
-
   ASSERT_EQ(symlink("/tmp/fpgad.log", test_symlink.c_str()), 0);
   EXPECT_NE(fpgad_main(4, argv), 0);
   EXPECT_EQ(unlink(test_symlink.c_str()), 0);
@@ -310,10 +306,6 @@ TEST_P(fpgad_fpgad_c_p, main_symlink_pid) {
 
   if (stat(dir.c_str(), &buffer)) {
     ASSERT_EQ(mkdir(dir.c_str(), 0770), 0);
-  }
-
-  if (stat(test_symlink.c_str(), &buffer) == 0) {
-    ASSERT_EQ(unlink(test_symlink.c_str()), 0);
   }
 
   ASSERT_EQ(symlink("/tmp/fpgad.pid", test_symlink.c_str()), 0);
