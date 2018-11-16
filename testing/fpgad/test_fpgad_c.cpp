@@ -47,6 +47,7 @@ int fpgad_main(int argc, char *argv[]);
 #include <config.h>
 #include <opae/fpga.h>
 
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -62,12 +63,21 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
   fpgad_fpgad_c_p() {}
 
   virtual void SetUp() override {
+    strcpy(tmp_gbs_, "tmp-XXXXXX.gbs");
+    close(mkstemps(tmp_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
+    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+
+    std::ofstream gbs;
+    gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
+    gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
+    gbs.close();
 
     fLog = stdout;
     optind = 0;
@@ -78,8 +88,12 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
     config = config_;
 
     system_->finalize();
+
+    unlink(tmp_gbs_);
   }
 
+  char tmp_gbs_[20];
+  std::vector<uint8_t> bitstream_valid_;
   struct config config_;
   test_platform platform_;
   test_system *system_;
@@ -189,6 +203,30 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
   char *argv[] = { zero, one };
 
   EXPECT_NE(fpgad_main(2, argv), 0);
+}
+
+/**
+ * @test       main_symlink
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with valid params<br>
+ *             but the input bitstream file is a symlink<br>
+ *             to a bitstream, fpgad returns non-zero.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, main_symlink) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  strcpy(zero, "fpgad");
+  strcpy(one, "-n");
+  strcpy(two, "test_symlink");
+  strcpy(three, "-h");
+
+  char *argv[] = { zero, one, two, three };
+
+  ASSERT_EQ(symlink(tmp_gbs_, "test_symlink"), 0);
+  EXPECT_NE(fpgad_main(4, argv), 0);
+  EXPECT_EQ(unlink("test_symlink"), 0);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,

@@ -228,6 +228,29 @@ TEST_P(coreidle_main_c_p, main0) {
 }
 
 /**
+ * @test       main_symlink
+ * @brief      Test: coreidle_main
+ * @details    When called with parameters that specify<br>
+ *             a device that is found,<br>
+ *             but the input bitstream file is a symlink<br>
+ *             to a bitstream, coreidle returns non-zero.<br>
+ */
+TEST_P(coreidle_main_c_p, main_symlink) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+  strcpy(two, "test_symlink");
+
+  char *argv[] = { zero, one, two };
+
+  ASSERT_EQ(symlink(tmp_gbs_, "test_symlink"), 0);
+  EXPECT_NE(coreidle_main(3, argv), 0);
+  EXPECT_EQ(unlink("test_symlink"), 0);
+}
+
+/**
  * @test       parse0
  * @brief      Test: ParseCmds
  * @details    When given "-h",<br>

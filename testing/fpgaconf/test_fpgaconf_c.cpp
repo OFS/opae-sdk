@@ -571,6 +571,35 @@ TEST_P(fpgaconf_c_p, main2) {
 }
 
 /**
+ * @test       main_symlink
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params are valid,<br>
+ *             but the input bitstream file is a symlink<br>
+ *             to a bitstream, fpgaconf returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_symlink) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  sprintf(four, "%d", platform_.devices[0].bus);
+  strcpy(five, "test_symlink");
+
+  char *argv[] = { zero, one, two, three, four, five };
+
+  ASSERT_EQ(symlink(tmp_gbs_, "test_symlink"), 0);
+
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  EXPECT_EQ(unlink("test_symlink"), 0);
+}
+
+/**
  * @test       str_to_guid
  * @brief      Test: string_to_guid
  * @details    When the given string does not represent a valid GUID,<br>
