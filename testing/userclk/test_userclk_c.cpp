@@ -260,6 +260,105 @@ TEST_P(userclk_c_p, parse_cmd3) {
 }
 
 /**
+ * @test       invalid_cmd_characters_02
+ * @brief      Test: ParseCmds, userclk_main 
+ * @details    When given invalid command options,<br>
+ *             ParseCmds populates the given UserClkCommandLine,<br>
+ *             returning FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(userclk_c_p, invalid_cmd_characters_01) {
+  struct UserClkCommandLine cmd = cmd_line_;
+
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  strcpy(zero, "userclk_+*(^> ");
+  strcpy(one, "--segm ent");
+  strcpy(two, "0x1234");
+  strcpy(three, "-Bus");
+  strcpy(four, "3");
+  strcpy(five, "-Devi +_( \v           -0923198 (*)& ces");
+  strcpy(six, "4");
+  strcpy(seven, "-Fun\t\nction");
+  strcpy(eight, "5");
+  strcpy(nine, "-Sockett\e \'\?//tttttt \b");
+  strcpy(ten, "6");
+  strcpy(eleven, "-   High");
+  strcpy(twelve, "-100");
+  strcpy(thirteen, " ---Low");
+  strcpy(fourteen, "-200");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen, fourteen };
+
+  EXPECT_NE(ParseCmds(&cmd, 15, argv), 0);
+  EXPECT_NE(userclk_main(15, argv), 0);
+}
+
+/**
+ * @test       invalid_cmd_characters_02
+ * @brief      Test: ParseCmds, userclk_main 
+ * @details    When given invalid command options,<br>
+ *             ParseCmds populates the given UserClkCommandLine,<br>
+ *             returning zero. Userclk_main returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(userclk_c_p, invalid_cmd_characters_02) {
+  struct UserClkCommandLine cmd;
+
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  strcpy(zero, "");
+  strcpy(one, "--segment");
+  strcpy(two, "0x0123897349  *(^%$%^$%@^?><? 6121234");
+  strcpy(three, " --B");
+  strcpy(four, "334987238689 \x01\x05\x0a\x15");
+  strcpy(five, "-D");
+  strcpy(six, "41278991 02a8974913");
+  strcpy(seven, "-F");
+  strcpy(eight, "529378190 \t 3haskfhahhi\\ | // o=1-21");
+  strcpy(nine, "-S");
+  strcpy(ten, "        6`1238 \n -349287419=-0;");
+  strcpy(eleven, "-H");
+  strcpy(twelve, "400000000000000000000000000");
+  strcpy(thirteen, "-L");
+  strcpy(fourteen, "9.999");
+
+  char *argv[] = { zero, one, two, three, four,
+                   eleven, twelve, thirteen, fourteen,
+                   five, six, seven, eight, nine, ten};
+
+  EXPECT_EQ(ParseCmds(&cmd, 15, argv), 0);
+  EXPECT_NE(userclk_main(15, argv), 0);
+}
+
+
+/**
  * @test       main0
  * @brief      Test: userclk_main
  * @details    When given no command options,<br>
