@@ -185,8 +185,8 @@ void wsid_tracker_cleanup(struct wsid_tracker *root,
 	}
 
 	free(root->table);
-	free(root);
 	root->table = NULL;
+	free(root);
 	root = NULL;
 }
 
