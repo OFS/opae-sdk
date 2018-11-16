@@ -226,6 +226,10 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 void ase_eval_session_directory(void)
 {
 	FUNC_CALL_ENTRY;
+	struct stat ase_dir_info;
+	int status;
+
+	(void) status;
 
 	// Evaluate location of simulator or own location
 #ifdef SIM_SIDE
@@ -246,6 +250,16 @@ void ase_eval_session_directory(void)
 	} else {
 		// Check if directory exists here
 		DIR *ase_dir;
+		status = stat(ase_workdir_path, &ase_dir_info);
+
+		if (S_ISLNK(ase_dir_info.st_mode)) {
+			// sanity check: not a directory
+			ASE_ERR
+				("ASE workdir path pointed by env(ASE_WORKDIR) is a symbolic link !\n"
+				 "Cannot continue execution... exiting !\n");
+			perror("s_islnk");
+			exit(1);
+		}
 		ase_dir = opendir(ase_workdir_path);
 		if (!ase_dir) {
 			ASE_ERR

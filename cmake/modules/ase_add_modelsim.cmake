@@ -123,7 +123,7 @@ endfunction(questa_vlog_add_definitions flags)
 
 #  _ase_module_clean_modelsim_files(module_name ...)
 #
-# Tell CMake that intermediate files, created by kbuild system,
+# Tell CMake that intermediate files, created by build system,
 # should be cleaned with 'make clean'.
 function(ase_module_clean_modelsim_files module_name)
   cmake_parse_arguments(ase_module_clean_modelsim_files "" "" "SV_SOURCE;JSON_SOURCE;PRJ_SOURCE;SHIPPED_SOURCE" ${ARGN})

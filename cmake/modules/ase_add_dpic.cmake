@@ -79,25 +79,25 @@ function(ase_module_add_dpic name)
   # Assure position indenpendent code
   set_property(TARGET opae-c-ase-server-${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-if(BUILD_ASE_TESTS)
-  target_compile_definitions(opae-c-ase-server-${name} 
-	PRIVATE
-	_GLIBCXX_USE_CXX11_ABI=0
-    SIM_SIDE=1
-    SIMULATOR=${ASE_SIMULATOR}
-    ${used_platform}
-    ASE_LL_VIEW=1
-    ASE_MSG_VIEW=1
-    ASE_UNIT=1)
-else()
-  # Add required compilation flags
-  target_compile_definitions(opae-c-ase-server-${name}
-    PRIVATE
-    _GLIBCXX_USE_CXX11_ABI=0
-    SIM_SIDE=1
-    SIMULATOR=${ASE_SIMULATOR}
-    ${used_platform})
-endif()
+  if(BUILD_ASE_TESTS)
+    target_compile_definitions(opae-c-ase-server-${name}
+      PRIVATE
+      _GLIBCXX_USE_CXX11_ABI=0
+      SIM_SIDE=1
+      SIMULATOR=${ASE_SIMULATOR}
+      ${used_platform}
+      ASE_LL_VIEW=1
+      ASE_MSG_VIEW=1
+      ASE_UNIT=1)
+  else()
+    # Add required compilation flags
+    target_compile_definitions(opae-c-ase-server-${name}
+      PRIVATE
+      _GLIBCXX_USE_CXX11_ABI=0
+      SIM_SIDE=1
+      SIMULATOR=${ASE_SIMULATOR}
+      ${used_platform})
+  endif()
 
   # Define include directories
   target_include_directories(opae-c-ase-server-${name} PUBLIC
