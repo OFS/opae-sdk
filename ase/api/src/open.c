@@ -77,7 +77,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	// ASE Session Initialization
 	session_init();
 
-	_handle = malloc(sizeof(struct _fpga_handle));
+	_handle = ase_malloc(sizeof(struct _fpga_handle));
 	if (NULL == _handle) {
 		FPGA_MSG("Failed to allocate memory for handle");
 		return FPGA_NO_MEMORY;

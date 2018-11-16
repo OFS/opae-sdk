@@ -405,10 +405,12 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	struct wsid_map *wm;
 	fpga_result result = FPGA_OK;
 	int err;
-
+    
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
+	if (!ioaddr)
+		return FPGA_INVALID_PARAM;
 
 	wm = wsid_find(_handle->wsid_root, wsid);
 	if (!wm) {
