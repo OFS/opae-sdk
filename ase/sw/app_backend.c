@@ -189,15 +189,15 @@ void close_mq(void)
  */
 void failure_cleanup(void)
 {
-  ASE_ERR("FAILED\n");
-  BEGIN_RED_FONTCOLOR;
-  perror("pthread_create");
-  END_RED_FONTCOLOR;
-  cleanup_umas();
-  cleanup_mmio();
-  close_mq();
-  free_buffers();
-  ase_exit();
+	ASE_ERR("FAILED\n");
+	BEGIN_RED_FONTCOLOR;
+	perror("pthread_create");
+	END_RED_FONTCOLOR;
+	cleanup_umas();
+	cleanup_mmio();
+	close_mq();
+	free_buffers();
+	ase_exit();
 }
 
 /*
@@ -247,12 +247,12 @@ void *mmio_response_watcher(void *arg)
 
 		// If received, update global message
 		ret = mqueue_recv(sim2app_mmiorsp_rx, (char *) io_s.mmio_rsp_pkt,
-				sizeof(mmio_t));
+				  sizeof(mmio_t));
 		if (ret == ASE_MSG_PRESENT) {
 #ifdef ASE_DEBUG
 			// Logging event
 			print_mmiopkt(fp_mmioaccess_log, "Got ",
-						io_s.mmio_rsp_pkt);
+				      io_s.mmio_rsp_pkt);
 			if (io_s.mmio_rsp_pkt->write_en == MMIO_WRITE_REQ) {
 				ase_string_copy(mmio_type, "WR\0", 3);
 			} else if (io_s.mmio_rsp_pkt->write_en == MMIO_READ_REQ) {
@@ -302,9 +302,11 @@ void *mmio_response_watcher(void *arg)
 		}
 	}
 
-	if (io_s.mmio_rsp_pkt)
+	if (io_s.mmio_rsp_pkt) {
 		free(io_s.mmio_rsp_pkt);
-		io_s.mmio_rsp_pkt = NULL;
+	}
+
+	io_s.mmio_rsp_pkt = NULL;
 	return 0;
 }
 
@@ -384,7 +386,7 @@ void session_init(void)
 		// Craft a .app_lock.pid lock filepath string
 		ase_memset(app_ready_lockpath, 0, ASE_FILEPATH_LEN);
 		snprintf(app_ready_lockpath, ASE_FILEPATH_LEN, "%s/%s",
-			ase_workdir_path, APP_LOCK_FILENAME);
+			 ase_workdir_path, APP_LOCK_FILENAME);
 
 		// Check if .app_lock.pid lock already exists or not.
 		if (check_app_lock_file(app_ready_lockpath)) {
@@ -459,7 +461,7 @@ void session_init(void)
 		fp_pagetable_log = fopen("app_pagetable.log", "w");
 		if (fp_pagetable_log == NULL) {
 			ASE_ERR
-			("APP pagetable logger initialization failed !\n");
+				("APP pagetable logger initialization failed !\n");
 		} else {
 			ASE_MSG("APP pagetable logger initialized\n");
 		}
@@ -468,7 +470,7 @@ void session_init(void)
 		fp_mmioaccess_log = fopen("app_mmioaccess.log", "w");
 		if (fp_mmioaccess_log == NULL) {
 			ASE_ERR
-			("APP MMIO access logger initialization failed !\n");
+				("APP MMIO access logger initialization failed !\n");
 		} else {
 			ASE_MSG("APP MMIO access logger initialized\n");
 		}
@@ -503,7 +505,7 @@ void session_init(void)
 		io_s.mmio_region->is_mmiomap = 1;
 		allocate_buffer(io_s.mmio_region, NULL);
 		mmio_afu_vbase = (uint64_t *)((uint64_t)io_s.mmio_region->vbase +
-			MMIO_AFU_OFFSET);
+					      MMIO_AFU_OFFSET);
 		mmio_exist_status = ESTABLISHED;
 
 		ASE_MSG("AFU MMIO Virtual Base Address = %p\n",
@@ -530,7 +532,7 @@ void session_init(void)
 		if (rc != 0)
 			ASE_ERR("Failed to initialize the pthread_mutex_lock\n");
 		thr_err = pthread_create(&io_s.mmio_watch_tid, NULL,
-			&mmio_response_watcher, NULL);
+					 &mmio_response_watcher, NULL);
 		if (thr_err != 0) {
 			failure_cleanup();
 		} else {
@@ -640,7 +642,7 @@ bool remove_existing_lock_file(const char *filename)
 		if (errno == ESRCH) {
 			ASE_MSG
 				("ASE found a stale Application lock with PID = %d -- this will be removed\n",
-					lock);
+				 lock);
 			fclose(fp_app_lockfile);
 			// Delete lock file
 			delete_lock_file(filename);
@@ -648,13 +650,13 @@ bool remove_existing_lock_file(const char *filename)
 		} else if (errno == EPERM) {
 			ASE_ERR ("Application does not have permission to remove $ASE_WORKDIR/.app_lock.pid \n");
 		} else
-				ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
+			ASE_ERR("ASE session in env(ASE_WORKDIR) is currently used by PID=%d\n", lock);
 	} else {
 		ASE_ERR("Error reading PID of application using ASE, EXITING\n"
-				"ASE was found to be running with another application !\n\n"
-				"If you think this is in error:\n"
-				" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n"
-				" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
+			"ASE was found to be running with another application !\n\n"
+			"If you think this is in error:\n"
+			" - Manually delete $ASE_WORKDIR/.app_lock.pid file\n"
+			" - Close any ASE simulator is running from the $ASE_WORKDIR directory\n");
 	}
 	fclose(fp_app_lockfile);
 	return false;
@@ -762,7 +764,7 @@ void session_deinit(void)
 	clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
 	runtime_nsec =
 		1e9 * (end_time_snapshot.tv_sec -
-				start_time_snapshot.tv_sec) +
+		       start_time_snapshot.tv_sec) +
 		(end_time_snapshot.tv_nsec - start_time_snapshot.tv_nsec);
 
 	// Set locale, inherit locale, and reset back
@@ -791,7 +793,7 @@ int find_empty_mmio_scoreboard_slot(void)
 	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
 		idx = ii % MMIO_MAX_OUTSTANDING;
 		if ((mmio_table[idx].tx_flag == false)
-			&& (mmio_table[idx].rx_flag == false))
+		    && (mmio_table[idx].rx_flag == false))
 			return idx;
 	}
 	return 0xFFFF;
@@ -806,7 +808,7 @@ int get_scoreboard_slot_by_tid(int in_tid)
 	int ii;
 	for (ii = 0; ii < MMIO_MAX_OUTSTANDING; ii = ii + 1) {
 		if ((mmio_table[ii].tx_flag == true)
-			&& (mmio_table[ii].tid == in_tid))
+		    && (mmio_table[ii].tid == in_tid))
 			return ii;
 	}
 	return 0xFFFF;
@@ -874,8 +876,8 @@ int mmio_request_put(struct mmio_t *pkt)
  */
 void exit_cleanup(void)
 {
-  session_deinit();
-  ase_exit();
+	session_deinit();
+	ase_exit();
 }
 
 /*
@@ -973,7 +975,7 @@ void mmio_write64(int offset, uint64_t data)
 		// Write to MMIO Map
 		uint64_t *mmio_vaddr;
 		mmio_vaddr =
-		(uint64_t *) ((uint64_t) mmio_afu_vbase + offset);
+			(uint64_t *) ((uint64_t) mmio_afu_vbase + offset);
 		*mmio_vaddr = data;
 
 
@@ -1110,7 +1112,7 @@ void mmio_read64(int offset, uint64_t *data64)
 
 		ASE_MSG
 			("MMIO Read      : tid = 0x%03x, offset = 0x%x\n",
-			mmio_pkt->tid, mmio_pkt->addr);
+			 mmio_pkt->tid, mmio_pkt->addr);
 
 #ifdef ASE_DEBUG
 		ASE_DBG("slot_idx = %d\n", slot_idx);
@@ -1146,11 +1148,11 @@ void mmio_read64(int offset, uint64_t *data64)
  */
 void shm_error(const char *msg)
 {
-  BEGIN_RED_FONTCOLOR;
-  perror(msg);
-  END_RED_FONTCOLOR;
-  session_deinit();
-  ase_exit();
+	BEGIN_RED_FONTCOLOR;
+	perror(msg);
+	END_RED_FONTCOLOR;
+	session_deinit();
+	ase_exit();
 }
 
 /*
@@ -1217,10 +1219,10 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 	ase_memset(mem->memname, 0, sizeof(mem->memname));
 	if (mem->is_mmiomap == 1) {
 		snprintf(mem->memname, ASE_FILENAME_LEN, "/mmio.%s",
-			tstamp_string);
+			 tstamp_string);
 	} else if (mem->is_umas == 1) {
 		snprintf(mem->memname, ASE_FILENAME_LEN, "/umas.%s",
-			tstamp_string);
+			 tstamp_string);
 	} else {
 		snprintf(mem->memname, ASE_FILENAME_LEN, "/buf%d.%s",
 			 userbuf_index_count, tstamp_string);
@@ -1310,8 +1312,8 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 #ifdef ASE_DEBUG
 	if (fp_pagetable_log != NULL) {
 		if (mem->index % 20 == 0) {
-		fprintf(fp_pagetable_log,
-					"Index\tAppVBase\tASEVBase\tBufsize\tBufname\t\tPhysBase\n");
+			fprintf(fp_pagetable_log,
+				"Index\tAppVBase\tASEVBase\tBufsize\tBufname\t\tPhysBase\n");
 		}
 		fprintf(fp_pagetable_log,
 			"%d\t%p\t%p\t%x\t%s\t\t%p\n",
@@ -1491,16 +1493,16 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
 	trav_ptr = buf_head;
 	while (trav_ptr != NULL) {
 		if ((uint64_t)(trav_ptr->index) == wsid) {
-		bufptr = trav_ptr;
-		break;
+			bufptr = trav_ptr;
+			break;
 		} else {
 			trav_ptr = trav_ptr->next;
 		}
 	}
 
 	if (bufptr == (struct buffer_t *) NULL) {
-	ASE_ERR
-		("find_buffer_by_index: Couldn't find buffer by WSID\n");
+		ASE_ERR
+			("find_buffer_by_index: Couldn't find buffer by WSID\n");
 	}
 
 	return bufptr;
@@ -1511,31 +1513,31 @@ struct buffer_t *find_buffer_by_index(uint64_t wsid)
  * umsg_get_address: Takes in umsg_id, and returns App virtual address
  */
 /* uint64_t *umsg_get_address(int umsg_id)
-{
-	uint64_t *ret_vaddr;
-	if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
-		ret_vaddr = (uint64_t *) ((uint64_t) umsg_umas_vbase +
-					(uint64_t) ((uint64_t) umsg_id *
-							(ASE_PAGESIZE + 64)));
-	} else {
-		ret_vaddr = NULL;
-		ASE_ERR
-			("**ERROR** Requested umsg_id out of range... EXITING\n");
-		session_deinit();
-		exit(1);
-	}
-	return ret_vaddr;
-} */
+   {
+   uint64_t *ret_vaddr;
+   if ((umsg_id >= 0) && (umsg_id < NUM_UMSG_PER_AFU)) {
+   ret_vaddr = (uint64_t *) ((uint64_t) umsg_umas_vbase +
+   (uint64_t) ((uint64_t) umsg_id *
+   (ASE_PAGESIZE + 64)));
+   } else {
+   ret_vaddr = NULL;
+   ASE_ERR
+   ("**ERROR** Requested umsg_id out of range... EXITING\n");
+   session_deinit();
+   exit(1);
+   }
+   return ret_vaddr;
+   } */
 
 
 /*
  * umsg_send: Write data to umsg region
  */
 /*void umsg_send(int umsg_id, uint64_t *umsg_data)
-{
-	ase_memcpy((char *) umsg_addr_array[umsg_id], (char *) umsg_data,
-		   sizeof(uint64_t));
-}*/
+  {
+  ase_memcpy((char *) umsg_addr_array[umsg_id], (char *) umsg_data,
+  sizeof(uint64_t));
+  }*/
 
 
 /*
@@ -1572,14 +1574,14 @@ void *umsg_watcher(void *arg)
 	for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
 		// Original copy
 		ase_memcpy((char *) umsg_old_data[cl_index],
-				(char *) ((uint64_t) umas_s.umas_region->vbase +
-					umsg_byteindex_arr[cl_index]),
-					CL_BYTE_WIDTH);
+			   (char *) ((uint64_t) umas_s.umas_region->vbase +
+				     umsg_byteindex_arr[cl_index]),
+			   CL_BYTE_WIDTH);
 
 		// Calculate addres
 		umas_s.umsg_addr_array[cl_index] =
 			(char *) ((uint64_t) umas_s.umas_region->vbase +
-				umsg_byteindex_arr[cl_index]);
+				  umsg_byteindex_arr[cl_index]);
 #ifdef ASE_DEBUG
 
 		ASE_DBG("umas_s.umsg_addr_array[%d] = %p\n", cl_index,
@@ -1596,26 +1598,26 @@ void *umsg_watcher(void *arg)
 		// Walk through each line
 		for (cl_index = 0; cl_index < NUM_UMSG_PER_AFU; cl_index++) {
 			if (memcmp
-				(umas_s.umsg_addr_array[cl_index],
-				 umsg_old_data[cl_index],
-				 CL_BYTE_WIDTH) != 0) {
+			    (umas_s.umsg_addr_array[cl_index],
+			     umsg_old_data[cl_index],
+			     CL_BYTE_WIDTH) != 0) {
 				// Construct UMsg packet
 				umsg_pkt->id = cl_index;
 				ase_memcpy((char *) umsg_pkt->qword,
-						(char *)
-						umas_s.umsg_addr_array[cl_index],
-						CL_BYTE_WIDTH);
+					   (char *)
+					   umas_s.umsg_addr_array[cl_index],
+					   CL_BYTE_WIDTH);
 
 				// Send UMsg
 				mqueue_send(app2sim_umsg_tx,
-						(char *) umsg_pkt,
-						sizeof(struct umsgcmd_t));
+					    (char *) umsg_pkt,
+					    sizeof(struct umsgcmd_t));
 
 				// Update local mirror
 				ase_memcpy((char *)
-						umsg_old_data[cl_index],
-						(char *) umsg_pkt->qword,
-						CL_BYTE_WIDTH);
+					   umsg_old_data[cl_index],
+					   (char *) umsg_pkt->qword,
+					   CL_BYTE_WIDTH);
 			}
 		}
 		usleep(1);
@@ -1782,7 +1784,7 @@ int register_event(int event_handle, int flags)
 		return 1;
 	}
 	res = connect(sock_fd, (struct sockaddr *) &saddr,
-			  sizeof(struct sockaddr_un));
+		      sizeof(struct sockaddr_un));
 	if (res < 0) {
 		ASE_ERR("%s: Error connecting to stream socket: %s\n",
 			__func__, strerror(errno));
@@ -1822,7 +1824,7 @@ int unregister_event(int event_handle)
 
 	saddr.sun_family = AF_UNIX;
 	res =  connect(sock_fd, (struct sockaddr *) &saddr,
-				sizeof(struct sockaddr_un));
+		       sizeof(struct sockaddr_un));
 	if (res < 0) {
 		ASE_ERR("%s: Error connecting to stream socket: %s\n",
 			__func__, strerror(errno));
