@@ -120,7 +120,7 @@ matrix:
     before_install:
       - pip install --user python-coveralls
     after_success:
-      - coveralls
+      - if [ -f .coverage ]; then coveralls; fi
   - script: scripts/build-documentation.sh
     env:
     - BUILD_JOB=Build documentation
