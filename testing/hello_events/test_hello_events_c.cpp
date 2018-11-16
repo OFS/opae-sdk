@@ -299,15 +299,17 @@ class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>
       .verbosity = 0,
       .poll_interval_usec = 100 * 1000,
       .daemon = 0,
-      .directory = ".",
-      .logfile = tmpfpgad_log_,
-      .pidfile = tmpfpgad_pid_,
+      .directory = { 0, },
+      .logfile = { 0, },
+      .pidfile = { 0, },
       .filemode = 0,
       .running = true,
       .socket = "/tmp/fpga_event_socket",
       .null_gbs = {0},
       .num_null_gbs = 0,
     };
+    strcpy(config_.logfile, tmpfpgad_log_);
+    strcpy(config_.pidfile, tmpfpgad_pid_);
 
     open_log(tmpfpgad_log_);
     fpgad_log_ = std::thread(logger_thread, &config_);
