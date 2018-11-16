@@ -51,6 +51,7 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 	wsid_tracker_cleanup(_handle->wsid_root, NULL);
 
 	free(_handle);
+	_handle = NULL;
 	result = FPGA_OK;
 	return result;
 }
