@@ -59,8 +59,9 @@ class TestSysObject(unittest.TestCase):
         assert u1 == u2
         afuid2 = self.afu_toks[0]["afu_id"].bytes()[:-1]
         assert afuid == afuid2
+        self.assertEquals(self.afu_toks[0].wrong, None)
         with self.assertRaises(RuntimeError):
-            print(self.afu_toks[0].wrong)
+            print(self.afu_toks[0]['../fpga'].read64())
 
     def test_handle_object(self):
         afuid = self.afu_handle.afu_id.bytes()[:-1]
@@ -80,10 +81,7 @@ class TestSysObject(unittest.TestCase):
         errors = self.afu_handle.errors
         rev = errors.revision
         n1 = rev.read64()
-        assert n1 is not None
-        n2 = int(rev)
-
-        assert n1 == n2, "{} != {}".format(n1, n2)
+        self.assertEquals(n1, 1)
         with self.assertRaises(RuntimeError):
             print(errors.read64())
 

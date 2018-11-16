@@ -6,7 +6,7 @@ mkdir -p unittests
 cd unittests
 
 if [ ! -f CMakeCache.txt ]; then
-	cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DBUILD_LIBOPAE_PY=ON
+	cmake .. -DOPAE_PYTHON_VERSION=2.7 -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DBUILD_LIBOPAE_PY=ON
 fi
 
 mkdir -p coverage_files
