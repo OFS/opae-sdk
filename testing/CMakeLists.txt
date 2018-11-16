@@ -631,7 +631,16 @@ add_custom_command(TARGET test_unit
 ############################################################################
 # pyopae tests #############################################################
 ############################################################################
-if (DEFINED ENV{TRAVIS_PYTHON_VERSION})
+try_compile(SUPPORTS_EMBEDDED_PYTHON
+    ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/test_embed.cpp
+    CMAKE_FLAGS
+    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${CMAKE_SOURCE_DIR}/pyopae/pybind11/include"
+    LINK_LIBRARIES ${PYTHON_LIBRARIES}
+    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+    CXX_STANDARD 11
+    )
+
+if (SUPPORTS_EMBEDDED_PYTHON)
     add_executable(test_pyopae
          ${MOCK_C}
          pyopae/test_pyopae.cpp
@@ -681,5 +690,8 @@ if (DEFINED ENV{TRAVIS_PYTHON_VERSION})
     add_pyopae_test(test_properties.py)
     add_pyopae_test(test_shared_buffers.py)
     add_pyopae_test(test_sysobject.py)
-
-endif (DEFINED ENV{TRAVIS_PYTHON_VERSION})
+else(SUPPORTS_EMBEDDED_PYTHON)
+    message(WARNING
+        "Could not compile embedded Python. See errors in embed.txt")
+    file(WRITE embed.txt ${TRY_COMPILE_OUTPUT})
+endif (SUPPORTS_EMBEDDED_PYTHON)
