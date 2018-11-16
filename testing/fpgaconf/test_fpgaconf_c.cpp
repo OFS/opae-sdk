@@ -594,7 +594,6 @@ TEST_P(fpgaconf_c_p, main_symlink) {
   char *argv[] = { zero, one, two, three, four, five };
 
   ASSERT_EQ(symlink(tmp_gbs_, "test_symlink"), 0);
-
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   EXPECT_EQ(unlink("test_symlink"), 0);
 }
