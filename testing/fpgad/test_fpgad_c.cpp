@@ -206,13 +206,13 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
 }
 
 /**
- * @test       main_symlink
+ * @test       main_symlink_gbs
  * @brief      Test: fpgad_main
  * @details    When fpgad_main is called with valid params<br>
  *             but the input bitstream file is a symlink<br>
  *             to a bitstream, fpgad returns non-zero.<br>
  */
-TEST_P(fpgad_fpgad_c_p, main_symlink) {
+TEST_P(fpgad_fpgad_c_p, main_symlink_gbs) {
   char zero[20];
   char one[20];
   char two[20];
@@ -227,6 +227,98 @@ TEST_P(fpgad_fpgad_c_p, main_symlink) {
   ASSERT_EQ(symlink(tmp_gbs_, "test_symlink"), 0);
   EXPECT_NE(fpgad_main(4, argv), 0);
   EXPECT_EQ(unlink("test_symlink"), 0);
+}
+
+/**
+ * @test       main_symlink_log
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with valid params<br>
+ *             but the output log file is a symlink<br>
+ *             to a file, fpgad returns non-zero.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, main_symlink_log) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  strcpy(zero, "fpgad");
+  strcpy(one, "-l");
+  strcpy(two, "test_symlink");
+  strcpy(three, "-h");
+
+  char *argv[] = { zero, one, two, three };
+
+  std::string dir;
+  std::string test_symlink;
+
+  if (!geteuid()) {
+    dir = "/var/lib/opae";
+  } else {
+    dir = std::string(getenv("HOME")) +
+               std::string("/.opae");
+  }
+
+  test_symlink = dir + "/test_symlink";
+
+  struct stat buffer;
+
+  if (stat(dir.c_str(), &buffer)) {
+    ASSERT_EQ(mkdir(dir.c_str(), 0770), 0);
+  }
+
+  if (stat(test_symlink.c_str(), &buffer) == 0) {
+    ASSERT_EQ(unlink(test_symlink.c_str()), 0);
+  }
+
+  ASSERT_EQ(symlink("/tmp/fpgad.log", test_symlink.c_str()), 0);
+  EXPECT_NE(fpgad_main(4, argv), 0);
+  EXPECT_EQ(unlink(test_symlink.c_str()), 0);
+}
+
+/**
+ * @test       main_symlink_pid
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with valid params<br>
+ *             but the output log file is a symlink<br>
+ *             to a file, fpgad returns non-zero.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, main_symlink_pid) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  strcpy(zero, "fpgad");
+  strcpy(one, "-p");
+  strcpy(two, "test_symlink");
+  strcpy(three, "-h");
+
+  char *argv[] = { zero, one, two, three };
+
+  std::string dir;
+  std::string test_symlink;
+
+  if (!geteuid()) {
+    dir = "/var/lib/opae";
+  } else {
+    dir = std::string(getenv("HOME")) +
+               std::string("/.opae");
+  }
+
+  test_symlink = dir + "/test_symlink";
+
+  struct stat buffer;
+
+  if (stat(dir.c_str(), &buffer)) {
+    ASSERT_EQ(mkdir(dir.c_str(), 0770), 0);
+  }
+
+  if (stat(test_symlink.c_str(), &buffer) == 0) {
+    ASSERT_EQ(unlink(test_symlink.c_str()), 0);
+  }
+
+  ASSERT_EQ(symlink("/tmp/fpgad.pid", test_symlink.c_str()), 0);
+  EXPECT_NE(fpgad_main(4, argv), 0);
+  EXPECT_EQ(unlink(test_symlink.c_str()), 0);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,
