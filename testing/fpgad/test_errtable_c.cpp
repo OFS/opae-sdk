@@ -96,15 +96,17 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
       .verbosity = 0,
       .poll_interval_usec = 1000 * 1000,
       .daemon = 0,
-      .directory = ".",
-      .logfile = tmpfpgad_log_,
-      .pidfile = tmpfpgad_pid_,
+      .directory = { 0, },
+      .logfile = { 0, },
+      .pidfile = { 0, },
       .filemode = 0,
       .running = true,
       .socket = "/tmp/fpga_event_socket",
       .null_gbs = {0},
       .num_null_gbs = 0,
     };
+    strcpy(config_.logfile, tmpfpgad_log_);
+    strcpy(config_.pidfile, tmpfpgad_pid_);
 
     logger_thread_ = std::thread(logger_thread, &config_);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

@@ -265,11 +265,11 @@ void ase_eval_session_directory(void)
  * ASE malloc
  * Malloc wrapped with ASE closedown if failure accures
  */
-char *ase_malloc(size_t size)
+void *ase_malloc(size_t size)
 {
 	FUNC_CALL_ENTRY;
 
-	char *buffer;
+	void *buffer;
 
 	buffer = malloc(size);
 	// posix_memalign((void**)&buffer, (size_t)getpagesize(), size);
@@ -461,7 +461,7 @@ int ase_read_lock_file(const char *workdir)
 						remove_newline(value);
 						// Line 1/2/3/4 check
 						if (ase_strncmp(parameter, "pid", 3) == 0) {
-							readback_pid = atoi(value);
+							readback_pid = strtol(value, NULL, 10);
 						} else if (ase_strncmp(parameter, "host", 4) == 0) {
 							ase_string_copy(readback_hostname, value, ASE_FILENAME_LEN);
 						} else if (ase_strncmp(parameter, "dir", 3) == 0) {
@@ -580,6 +580,7 @@ void ase_free_buffer(char *ptr)
 {
 	if (ptr != (char *) NULL) {
 		free(ptr);
+		ptr = NULL;
 	}
 }
 
@@ -744,7 +745,7 @@ int ase_calc_loglevel(void)
 	char *str_env;
 	str_env = getenv("ASE_LOG");
 	if (str_env) {
-		ret_loglevel = atoi(str_env);
+		ret_loglevel = strtol(str_env, NULL, 10);
 	} else {
 		ret_loglevel = ASE_LOG_MESSAGE;
 	}

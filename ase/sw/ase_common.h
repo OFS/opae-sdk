@@ -527,7 +527,7 @@ extern "C" {
 	// Threaded watch processes
 	void *mmio_response_watcher();
 	// ASE-special malloc
-	char *ase_malloc(size_t);
+	void *ase_malloc(size_t);
 	void *umsg_watcher();
 	// void *intr_request_watcher();
 	void register_signal(int, void *);
@@ -729,7 +729,7 @@ void count_error_flag_pong(int);
 void update_glbl_dealloc(int);
 
 // Redeclaring ase_malloc, following maintainer-check issues !!! Do Not Edit !!!
-char *ase_malloc(size_t);
+void *ase_malloc(size_t);
 
 // Ready filepath
 extern char *ase_ready_filepath;
