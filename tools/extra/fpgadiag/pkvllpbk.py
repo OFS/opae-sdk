@@ -81,7 +81,7 @@ class PKVLLPBK(PKVLCOMMON):
             self.argport,
             self.PKVL_PHY_NUMBER *
             self.PKVL_PORT_NUMBER)
-        self.char_devs = self.get_pkvl_char_device(self.pkvl_devs)
+        self.get_pkvl_char_device(self.pkvl_devs)
         self.pkvl_loopback_en(self.en)
 
 

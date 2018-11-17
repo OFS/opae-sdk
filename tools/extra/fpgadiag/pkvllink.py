@@ -70,7 +70,7 @@ class PKVLSTATS(PKVLCOMMON):
                     self.print_port_link_status(f, side, p, dev, idx, base)
 
     def start(self):
-        self.char_devs = self.get_pkvl_char_device(self.pkvl_devs)
+        self.get_pkvl_char_device(self.pkvl_devs)
         self.print_pkvl_link_status()
 
 

@@ -110,7 +110,7 @@ class PKVLSTATS(PKVLCOMMON):
         print('PKVL Statistics counter clear')
 
     def start(self):
-        self.char_devs = self.get_pkvl_char_device(self.pkvl_devs)
+        self.get_pkvl_char_device(self.pkvl_devs)
         if self.en:
             self.enable_statistics()
         elif self.clr:

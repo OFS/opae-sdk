@@ -174,9 +174,9 @@ class PKVLCOMMON(COMMON):
     PKVL_REG_WIDTH = 16
     data_fmt = '=IIHHH'
     data_len = struct.calcsize(data_fmt)
+    char_devs = {}
 
     def get_pkvl_char_device(self, pkvl_devs):
-        pkvl_char_dev = {}
         for d in pkvl_devs:
             with open(d, 'r') as f:
                 dev = f.readline().strip()
@@ -185,15 +185,14 @@ class PKVLCOMMON(COMMON):
             m = re.match(r'pkvl(\d+)', pn)
             if m:
                 phy = int(m.group(1))
-                if phy not in pkvl_char_dev:
+                if phy not in self.char_devs:
                     print('PKVL phy: {} device: {}'.format(phy, pkvl_dev))
-                pkvl_char_dev[phy] = pkvl_dev
-        if not pkvl_char_dev:
+                self.char_devs[phy] = pkvl_dev
+        if not self.char_devs:
             exception_quit('Not found pkvl char device to do ioctl')
-        m = [i for i in range(self.PKVL_PHY_NUMBER) if i not in pkvl_char_dev]
+        m = [i for i in range(self.PKVL_PHY_NUMBER) if i not in self.char_devs]
         if m:
             exception_quit('pkvl phy {} not found'.format(m))
-        return pkvl_char_dev
 
     def pkvl_phy_reg_set_field(self, phy, dev, reg, idx, width, value):
         with open(self.char_devs[phy], 'rw') as f:
