@@ -1459,32 +1459,32 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			if (ase_strncmp(parameter, "ASE_MODE", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_mode = strtol(pch, NULL, 10);
+					cfg->ase_mode = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "ASE_TIMEOUT", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_timeout = strtol(pch, NULL, 10);
+					cfg->ase_timeout = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "ASE_NUM_TESTS", 13) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_num_tests = strtol(pch, NULL, 10);
+					cfg->ase_num_tests = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_REUSE_SEED", 17) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_reuse_seed = strtol(pch, NULL, 10);
+					cfg->enable_reuse_seed = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "ASE_SEED", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_seed = strtol(pch, NULL, 10);
+					cfg->ase_seed = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_CL_VIEW", 14) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_cl_view = strtol(pch, NULL, 10);
+					cfg->enable_cl_view = atoi(pch);
 				}
 			} else if (ase_strncmp(parameter, "USR_CLK_MHZ", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
@@ -1512,7 +1512,7 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					value = strtol(pch, NULL, 10);
+					value = atoi(pch);
 					if (value < 0) {
 						ASE_ERR("Physical memory size is negative in %s\n", filename);
 						ASE_ERR("        Reverting to default 256 GB\n");

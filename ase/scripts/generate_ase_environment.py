@@ -52,13 +52,11 @@ from __future__ import print_function
 import argparse
 import ase_functions
 import os
-import re
 import sys
 import subprocess
 from collections import defaultdict
 import fnmatch
 import json
-import subprocess
 from sets import Set
 import shutil
 
@@ -369,7 +367,6 @@ def config_qsys_sources(filelist, vlog_srcs):
     # source tree with Qsys-generated files.
     copied_qsys_dirs = dict()
     copied_tcl_dirs = dict()
-    tgt_idx = 0
     os.mkdir('qsys_sim')
     qsys_srcs_copy = []
     tcl_srcs_copy = []
@@ -381,7 +378,6 @@ def config_qsys_sources(filelist, vlog_srcs):
         # Has the source been copied already? Multiple Qsys files in the same
         # directory are copied together.
         if (src_dir not in copied_qsys_dirs):
-            src_dir_base = os.path.basename(src_dir)
             b = remove_prefix(src_dir, common_prefix)
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
@@ -405,7 +401,6 @@ def config_qsys_sources(filelist, vlog_srcs):
         # Has the source been copied already? Multiple Qsys files in the same
         # directory are copied together.
         if (src_dir not in copied_tcl_dirs):
-            src_dir_base = os.path.basename(src_dir)
             b = remove_prefix(src_dir, common_prefix)
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
@@ -491,7 +486,6 @@ def auto_find_sources(fd):
     # Prepare list of candidate directories
     print("Valid directories supplied => ")
     valid_dirlist = filter(lambda p: os.path.exists(p), args.dirlist)
-    str_dirlist = " ".join(valid_dirlist)
     if len(valid_dirlist) == 0:
         # This line should never be reached since the directory list was
         # already checked after argument parsing.
@@ -522,7 +516,6 @@ def auto_find_sources(fd):
     str = ""
     pkgfiles = []
     vlog_filepaths = ""
-    cmd = ""
     for extn in VLOG_EXTENSIONS:
         for dir in valid_dirlist:
             pkgfiles = search_file("*pkg*" + extn, dir)
