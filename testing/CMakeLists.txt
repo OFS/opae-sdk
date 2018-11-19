@@ -666,10 +666,9 @@ if (SUPPORTS_EMBEDDED_PYTHON)
          PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
          PRIVATE ${PYTHON_INCLUDE_DIRS}
          PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    add_library(embed INTERFACE)
+
     target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
-         test_system ${PYTHON_LIBRARIES}
-         PRIVATE embed)
+         test_system ${PYTHON_LIBRARIES})
     add_dependencies(test_unit test_pyopae)
 
     macro(add_pyopae_test pytest)
