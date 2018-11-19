@@ -206,7 +206,8 @@ void resolve_dirs(struct config *c)
 	dlog("daemon pid file is %s\n", c->pidfile);
 }
 
-bool register_null_gbs(struct config *c, char *null_gbs_path) {
+bool register_null_gbs(struct config *c, char *null_gbs_path)
+{
 	char *canon_path = NULL;
 	if (config.num_null_gbs < MAX_NULL_GBS) {
 		canon_path = canonicalize_file_name(null_gbs_path);
@@ -295,7 +296,7 @@ int main(int argc, char *argv[])
 
 		case 'n':
 			if (tmp_optarg) {
-				if (!register_null_gbs(&config, (char*)tmp_optarg)) {
+				if (!register_null_gbs(&config, (char *)tmp_optarg)) {
 					fprintf(stderr, "invalid null gbs path: \"%s\"\n", tmp_optarg);
 					return 1;
 				}
