@@ -296,6 +296,9 @@ TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
                    five, six, seven, eight, nine,
                    ten, eleven, twelve, thirteen, fourteen };
 
+  /*FIXME: When fpgad_main is called with iinvalid command options,
+           it should return a non-zero.
+  */
   EXPECT_EQ(fpgad_main(15, argv), 0);
 }
 
