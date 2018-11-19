@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 
-        uint32_t i;
+	uint32_t i;
 
 	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
 		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
