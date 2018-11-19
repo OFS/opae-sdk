@@ -204,7 +204,7 @@ void fpga_print(int loglevel, char *fmt, ...)
 		/* try to read loglevel from environment */
 		char *s = getenv("LIBFPGA_LOG");
 		if (s)
-			g_loglevel = atoi(s);
+			g_loglevel = strtol(s, NULL, 10);
 #ifndef LIBFGPA_DEBUG
 		if (g_loglevel >= FPGA_LOG_DEBUG)
 			fprintf(stderr,

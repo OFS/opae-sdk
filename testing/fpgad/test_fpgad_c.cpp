@@ -40,6 +40,8 @@ void show_help(void);
 
 void sig_handler(int sig, siginfo_t *info, void *unused);
 
+void resolve_dirs(struct config *c);
+
 int fpgad_main(int argc, char *argv[]);
 
 }
@@ -107,6 +109,77 @@ TEST_P(fpgad_fpgad_c_p, sig) {
 }
 
 /**
+ * @test       resolve0
+ * @brief      Test: resolve_dirs
+ * @details    When the .logfile and .pidfile members of<br>
+ *             the input config don't contain ".." nor "/",<br>
+ *             then resolve_dirs prepends a suitable prefix.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, resolve0) {
+
+  strcpy(config.logfile, "log");
+  strcpy(config.pidfile, "pid");
+
+  mode_t filemode;
+
+  std::string dir;
+
+  if (!geteuid()) {
+    dir = "/var/lib/opae";
+    filemode = 0026;
+  } else {
+    dir = std::string(getenv("HOME")) + std::string("/.opae");
+    filemode = 0022;
+  }
+
+  std::string log = dir + std::string("/log");
+  std::string pid = dir + std::string("/pid");
+
+  resolve_dirs(&config);
+
+  EXPECT_STREQ(config.directory, dir.c_str());
+  EXPECT_STREQ(config.logfile, log.c_str());
+  EXPECT_STREQ(config.pidfile, pid.c_str());
+  EXPECT_EQ(config.filemode, filemode);
+}
+
+/**
+ * @test       resolve1
+ * @brief      Test: resolve_dirs
+ * @details    If the .logfile and .pidfile members of<br>
+ *             the input config contain ".." or "/",<br>
+ *             then resolve_dirs prepends a suitable prefix
+ *             and uses the default names fpgad.log and fpgad.pid.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, resolve1) {
+
+  strcpy(config.logfile, "../../etc/something_im_not_supposed_to_access");
+  strcpy(config.pidfile, "..");
+
+  mode_t filemode;
+
+  std::string dir;
+
+  if (!geteuid()) {
+    dir = "/var/lib/opae";
+    filemode = 0026;
+  } else {
+    dir = std::string(getenv("HOME")) + std::string("/.opae");
+    filemode = 0022;
+  }
+
+  std::string log = dir + std::string("/fpgad.log");
+  std::string pid = dir + std::string("/fpgad.pid");
+
+  resolve_dirs(&config);
+
+  EXPECT_STREQ(config.directory, dir.c_str());
+  EXPECT_STREQ(config.logfile, log.c_str());
+  EXPECT_STREQ(config.pidfile, pid.c_str());
+  EXPECT_EQ(config.filemode, filemode);
+}
+
+/**
  * @test       main_help
  * @brief      Test: fpgad_main
  * @details    When fpgad_main is called with -h,<br>
@@ -139,36 +212,26 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
   strcpy(zero, "fpgad");
   strcpy(one, "-d");
-  strcpy(two, "-D");
-  strcpy(three, "dir");
-  strcpy(four, "-l");
-  strcpy(five, "log");
-  strcpy(six, "-p");
-  strcpy(seven, "pid");
-  strcpy(eight, "-m");
-  strcpy(nine, "0x777");
-  strcpy(ten, "-s");
-  strcpy(eleven, "sock");
-  strcpy(twelve, "-n");
-  strcpy(thirteen, "null_gbs");
-  strcpy(fourteen, "-h");
+  strcpy(two, "-l");
+  strcpy(three, "log");
+  strcpy(four, "-p");
+  strcpy(five, "pid");
+  strcpy(six, "-s");
+  strcpy(seven, "sock");
+  strcpy(eight, "-n");
+  strcpy(nine, "null_gbs");
+  strcpy(ten, "-h");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+                   ten };
 
-  EXPECT_EQ(fpgad_main(15, argv), 0);
+  EXPECT_EQ(fpgad_main(11, argv), 0);
   EXPECT_NE(config.daemon, 0);
-  EXPECT_STREQ(config.directory, "dir");
   EXPECT_STREQ(config.logfile, "log");
   EXPECT_STREQ(config.pidfile, "pid");
-  EXPECT_EQ(config.filemode, 0x777);
   EXPECT_STREQ(config.socket, "sock");
   EXPECT_STREQ(config.null_gbs[0], "null_gbs");
   EXPECT_EQ(config.num_null_gbs, 1);

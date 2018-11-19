@@ -249,7 +249,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 	fpga_result result = FPGA_OK;
 	ASSERT_NOT_NULL(prop);
 	//ASSERT_NOT_NULL(token);
-	_prop = malloc(sizeof(struct _fpga_properties));
+	_prop = ase_malloc(sizeof(struct _fpga_properties));
 	if (NULL == _prop) {
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
@@ -269,6 +269,7 @@ fpga_result __FPGA_API__ fpgaGetProperties(fpga_token token,
 	return result;
 out_free:
 	free(_prop);
+	_prop = NULL;
 	return result;
 }
 
@@ -286,7 +287,7 @@ fpga_result __FPGA_API__ fpgaCloneProperties(fpga_properties src,
 		FPGA_MSG("Invalid properties object");
 		return FPGA_INVALID_PARAM;
 	}
-	_dst = malloc(sizeof(struct _fpga_properties));
+	_dst = ase_malloc(sizeof(struct _fpga_properties));
 	if (NULL == _dst) {
 		FPGA_MSG("Failed to allocate memory for properties");
 		return FPGA_NO_MEMORY;
@@ -1047,7 +1048,7 @@ fpga_result __FPGA_API__ fpgaCloneToken(fpga_token src,
 		return FPGA_INVALID_PARAM;
 	}
 
-	_dst = malloc(sizeof(struct _fpga_token));
+	_dst = ase_malloc(sizeof(struct _fpga_token));
 	if (NULL == _dst) {
 		FPGA_MSG("Failed to allocate memory for token");
 		return FPGA_NO_MEMORY;
