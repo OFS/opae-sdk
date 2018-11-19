@@ -246,6 +246,14 @@ void ase_eval_session_directory(void)
 	} else {
 		// Check if directory exists here
 		DIR *ase_dir;
+		if(!is_directory(ase_workdir_path)) {
+			ASE_ERR
+				("ASE workdir path pointed by env(ASE_WORKDIR) is a non-accessible directory !\n"
+				 "Cannot continue execution... exiting !\n");
+			perror("stat");
+			exit(1);
+		}
+
 		ase_dir = opendir(ase_workdir_path);
 		if (!ase_dir) {
 			ASE_ERR
