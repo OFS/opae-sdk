@@ -39,13 +39,15 @@
 
 #include <opae/types.h>
 #include <stddef.h>
+#include "/home/lab/workspace/amirh/opae-sdk/libopae/opae_int.h"
+#include "queue.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#define MAX_CHANNEL_SUPPORTED			32
+#define MAX_CHANNEL_SUPPORTED			2048
 #define CHANNEL_CONFIGURATION_SPACE_SIZE	(1<<16)  /* (2^16 ) */
 #define MAX_MTU					9600
 #define MSXI_VECTORS_PER_CHANNEL		4
@@ -93,11 +95,12 @@ typedef struct {
 	uint32_t	buffer_addr_lo;
 	struct {
 		uint32_t	res:14;
-		uint32_t	sop:1;
 		uint32_t	eop:1;
+		uint32_t	sop:1;
 		uint32_t	len:16;
 	};
-	uint32_t	res;
+	uint16_t	res2;
+	uint16_t	metadata_len;
 	uint32_t	metadata[4];
 } tx_pd_t;
 
@@ -131,6 +134,9 @@ typedef struct {
 	msix_vector	tx_event;
 	msix_vector	rx_event;
 } msix_channel_vectors_t;
+
+
+
 
 
 
@@ -188,7 +194,7 @@ typedef	struct {
 	uint32_t	hdr:8;
 	uint32_t	res:8;
 	uint32_t	data:12;
-	uint32_t	res2:4
+	uint32_t	res2:4;
 } cred_p_t;
 
 typedef	struct {

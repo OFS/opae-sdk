@@ -86,7 +86,7 @@ fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
  * @note rx_len and rx_eop is output only
  */
 typedef struct {
-	void *priv_data; /**< Private data for internal use - must be first */
+	void *priv_data; /**< Private data for internal use */
 	uint64_t src; /**< Source address */
 	uint64_t dst; /**< Destination address */
 	uint64_t len; /**< Transactions  length */

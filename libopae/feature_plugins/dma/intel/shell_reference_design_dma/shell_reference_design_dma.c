@@ -39,22 +39,29 @@ fpga_result fpgaDMAPropertiesGet(fpga_feature_token token,
 				 fpgaDMAProperties *prop,
 				 int max_ch)
 {
+	UNUSED_PARAM(token);
+	UNUSED_PARAM(prop);
+	UNUSED_PARAM(max_ch);
+
 	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result fpgaFeatureOpen(struct _fpga_feature_token *token,
+fpga_result fpgaFeatureOpen(fpga_feature_token	token,
 			    int flags,
 			    void *priv_config,
 			    fpga_feature_handle *handle)
 {
+	struct _fpga_feature_token *_token = (struct _fpga_feature_token *)token;
 	isrd_dma_t	*isrd_handle;
 	fpga_result	res;
-	int i, j;
+	uint32_t i, j;
+
+	UNUSED_PARAM(flags);
 
 	if (token == NULL || handle == NULL)
 		return FPGA_INVALID_PARAM;
 
-	isrd_handle = isrd_init_dma_handle(token, priv_config);
+	isrd_handle = isrd_init_dma_handle(_token, priv_config);
 	if (isrd_handle == NULL) {
 			FPGA_MSG("Failed to allocate DMA device handle");
 			return FPGA_NO_MEMORY;
@@ -65,6 +72,7 @@ fpga_result fpgaFeatureOpen(struct _fpga_feature_token *token,
 		res = isrd_init_ch(i, isrd_handle, FPGA_ST_TO_HOST_MM, DEFAULT_RX_PD_RING_SIZE);
 		ON_ERR_GOTO(res, out_free_rx_ch, "Failed to init Rx ch");
 	}
+
 	/* Initialize Tx channels */
 	for (i = 0; i < isrd_handle->channel_number; i++) {
 		res = isrd_init_ch(i, isrd_handle, HOST_MM_TO_FPGA_ST, DEFAULT_TX_PD_RING_SIZE);
@@ -78,12 +86,12 @@ fpga_result fpgaFeatureOpen(struct _fpga_feature_token *token,
 
 out_free_tx_ch:
 	for (j = 0; j < i; j++) {
-		isrd_free_ch(isrd_handle->tx_channels[j]);
+		isrd_free_ch(&isrd_handle->tx_channels[j]);
 	}
 	i = isrd_handle->channel_number;
 out_free_rx_ch:
 	for (j = 0; j < i; j++) {
-		isrd_free_ch(isrd_handle->rx_channels[j]);
+		isrd_free_ch(&isrd_handle->rx_channels[j]);
 	}
 
 	free(isrd_handle);
@@ -97,12 +105,13 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_handle,
 	isrd_dma_t *isrd_handle = (isrd_dma_t *)dma_handle;
 
 	if (isrd_handle == NULL || isrd_handle->magic_num != ISRD_MAGIC_NUM ||
-	    dma_xfer_list == NULL ||dma_xfer_list->entries_num == 0 ||
+	    dma_xfer_list == NULL || dma_xfer_list->entries_num == 0 ||
 	    dma_xfer_list->array == NULL ||
 	    dma_xfer_list->ch_index >= isrd_handle->channel_number) {
 		FPGA_MSG("Invalid param to xfer sync");
 		return FPGA_INVALID_PARAM;
 	}
+
 	switch (dma_xfer_list->type) {
 		case HOST_MM_TO_FPGA_ST:
 			res = isrd_xfer_tx_sync(&isrd_handle->tx_channels[dma_xfer_list->ch_index],
@@ -126,12 +135,19 @@ fpga_result fpgaDMATransferAsync(fpga_feature_handle dma,
 				    fpga_dma_cb cb,
 				    void *context)
 {
+		UNUSED_PARAM(dma);
+		UNUSED_PARAM(dma_xfer_list);
+		UNUSED_PARAM(cb);
+		UNUSED_PARAM(context);
+
 		return FPGA_NOT_SUPPORTED;
 
 }
 
-fpga_result fpgaFeatureClose(fpga_feature_handle *_dma_h)
+fpga_result fpgaFeatureClose(fpga_feature_handle dma_h)
 {
-		return FPGA_NOT_SUPPORTED;
+	UNUSED_PARAM(dma_h);
+
+	return FPGA_NOT_SUPPORTED;
 
 }

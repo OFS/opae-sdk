@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef __FPGA_ISRD__INTERNAL_DMA_H__
-#define __FPGA_ISRD__INTERNAL_DMA_H__
+#ifndef __FPGA_ISRD_DMA_INTERNAL_H__
+#define __FPGA_ISRD_DMA_INTERNAL_H__
 
 #include <opae/fpga.h>
 #include "shell_reference_design_dma.h"
@@ -46,18 +46,18 @@ extern "C" {
 #define DEFAULT_CHANNEL_NUMBEER		8
 #define DEFAULT_TX_PD_RING_SIZE		1024
 #define DEFAULT_RX_PD_RING_SIZE		1024
-#define ISRD_BUFFER_MAX_LEN		((1 << 16) -1 )
+#define ISRD_BUFFER_MAX_LEN		((1 << 16) - 1)
 #define ISRD_CH_MEMBER_OFFSET(ch, member)  (((ch)->csr_base_offset) +	\
 					   (offsetof(ch_register_map_t, member)))
 #define LOW_32B_OF_64B(x)	((uint32_t)(x))
-#define HIGH_32B_OF_64B		((uint32_t)((x) >> 32))
+#define HIGH_32B_OF_64B(x)	((uint32_t)((x) >> 32))
 #define METADATA_AT_FIRST_PD	16
 #define METADATA_AT_FULL_PD	32
 #define PD_BATCH_BEST_SIZE	11
 #define FORCE_SUBMIT_PD		1
 
 
-void print_err(const char *s, fpga_result res)
+void printError(const char *s, fpga_result res)
 {
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
@@ -66,13 +66,28 @@ void print_err(const char *s, fpga_result res)
  * macro to check return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
  */
-#define ON_ERR_GOTO(res, label, desc)              \
-	do {                                       \
-		if ((res) != FPGA_OK) {            \
-			print_err((desc), (res));  \
-			goto label;                \
-		}                                  \
+#define ON_ERR_GOTO(res, label, desc)			\
+	do {						\
+		if ((res) != FPGA_OK) {			\
+			printError((desc), (res));	\
+			goto label;			\
+		}					\
 	} while (0)
+
+#define ON_ERR_RETURN(res, desc)			\
+	do {						\
+		if ((res) != FPGA_OK) {			\
+			printError((desc), (res));	\
+			return res;			\
+		}					\
+	} while (0)
+
+
+typedef struct {
+	volatile void	*usr_addr;
+	uint64_t	wsid;
+	uint64_t	iova;
+} pre_alloc_buf_t;
 
 typedef struct {
 	fpga_handle	fpga_h;
@@ -86,7 +101,7 @@ typedef struct {
 	union {
 		volatile tx_pd_t	*tx_pds_usr_addr;
 		volatile rx_pd_t	*rx_pds_usr_addr;
-	}
+	};
 	uint64_t		pds_wsid;
 	uint64_t 		pds_iova;
 	/* HW write the HW ring head to here */
@@ -95,6 +110,10 @@ typedef struct {
 	uint64_t		hw_ring_head_iova;
 	/* Max data len that a single PD can point to */
 	uint64_t		buffer_max_len;
+	/* pre allocated 2M huge pages - each one is used to get 32 buffers of 64K */
+	uint64_t		pre_alloc_huge_pages_number;
+	uint64_t		*pre_alloc_huge_pages_wsid_arr;
+	pre_alloc_buf_t		*pre_alloc_64k_mem_arr;
 	/* Number of PDs that were not submitted to HW */
 	uint64_t		unsubmitted_pds;
 	fpga_dma_transfer_type	ch_type;
@@ -118,16 +137,31 @@ typedef struct {
 	isrd_ch_t	rx_channels[MAX_CHANNEL_SUPPORTED];
 } isrd_dma_t;
 
+typedef struct {
+	uint64_t	wsid_iova;
+	uint64_t	wsid_useraddr;
+} isrd_xfer_priv_t;
 
 isrd_dma_t *isrd_init_dma_handle(struct _fpga_feature_token *token, void *priv_config);
-fpga_result isrd_init_ch(int ch_num, isrd_dma_t *isrd_handle,
-			 fpga_dma_transfer_type ch_type, int ring_size);
-fpga_result isrd_init_hw_ch(isrd_ch_t *ch);
+fpga_result isrd_init_ch(uint32_t ch_num, isrd_dma_t *isrd_handle, fpga_dma_transfer_type ch_type, int ring_size);
+fpga_result isrd_init_ch_buffers(isrd_ch_t *ch);
+fpga_result isrd_init_ch_hw(isrd_ch_t *ch);
 fpga_result isrd_free_ch(isrd_ch_t *ch);
 fpga_result isrd_reset_ch(isrd_ch_t *ch);
 fpga_result isrd_ch_check_and_lock(isrd_ch_t *ch);
+fpga_result update_pd_tail(isrd_ch_t *ch, uint32_t flags);
+int get_next_empty_pd_index(isrd_ch_t *ch);
+fpga_result isrd_setup_buffer_for_pd(isrd_ch_t *ch, fpga_dma_transfer *xfer,
+				     int pd_index, uint64_t data_xfered,
+				     uint64_t data_len, uint64_t *buffer_iova);
+fpga_result isrd_xfer_tx(isrd_ch_t *ch, fpga_dma_transfer *xfer);
 fpga_result isrd_xfer_tx_sync(isrd_ch_t *ch, transfer_list *dma_xfer_list);
 fpga_result isrd_xfer_rx_sync(isrd_ch_t *ch, transfer_list *dma_xfer_list);
+
+
+
+
+
 
 
 
@@ -139,4 +173,4 @@ fpga_result isrd_xfer_rx_sync(isrd_ch_t *ch, transfer_list *dma_xfer_list);
 } // extern "C"
 #endif // __cplusplus
 
-#endif // __FPGA_ISRD__INTERNAL_DMA_H__
+#endif // __FPGA_ISRD_DMA_INTERNAL_H__
