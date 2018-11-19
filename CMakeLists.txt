@@ -237,6 +237,7 @@ define_pkg(tools
   toolfpgaconf
   toolfpgainfo
   toolfpgaport
+  toolfpgametrics
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE base tool binaries"
@@ -253,13 +254,17 @@ define_pkg(tools
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
+  toolfpgaflash
   toolfpgadiagapps
   toolpachssiconfig
   opaecxxutils
+  toolpackager
+  jsonschema
   opaecxxlib
   opaecxxnlb
   hssiiolib
   hssiprograms
+  opaetoolslibs
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"

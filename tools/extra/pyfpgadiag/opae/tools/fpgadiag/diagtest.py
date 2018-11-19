@@ -24,7 +24,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import logging
-import sys
 import time
 import nlb
 from datetime import timedelta
@@ -87,11 +86,8 @@ class diagtest(object):
         self.cfg = nlb.CFG(width=32)
         self.ctl = nlb.CTL(width=32)
         self._parser = parser
-        self.logger = logging.getLogger(self.__class__.__name__)
-        stream_handler = logging.StreamHandler(stream=sys.stderr)
-        stream_handler.setFormatter(logging.Formatter(
-            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
-        self.logger.addHandler(stream_handler)
+        logger_name = "fpgadiag.{}".format(self.__class__.__name__)
+        self.logger = logging.getLogger(logger_name)
 
         parser.add_argument(
             "-c",
@@ -199,7 +195,7 @@ class diagtest(object):
             "--timeout-msec", type=int, default=0,
             help="Timeout for continuous mode (milliseconds portion)")
         parser.add_argument(
-            "--timeout-sec", type=int, default=0,
+            "--timeout-sec", type=int, default=1,
             help="Timeout for continuous mode (seconds portion)")
         parser.add_argument(
             "--timeout-min", type=int, default=0,
@@ -226,13 +222,18 @@ class diagtest(object):
             "--mem-timeout", default=0.5, type=float,
             help="Seconds to wait before timing out on memory poll")
 
-    def setup(self):
+    def setup(self, in_args=None):
         """setup is called to validate arguments and will return True
            if arguments are valid, False otherwise."""
         parser = self._parser.add_argument_group(self._mode)
         self.add_arguments(parser)
-        self.args, _ = self._parser.parse_known_args()
+        self.args, _ = self._parser.parse_known_args(in_args)
         if self.args.help:
+            self._parser.description = '''
+            fpgadiag testing tool for NLB (native loopback) accelerator.'''
+            self._parser.epilog = '''Current mode is {}.
+                                     Current accelerator is {}'''.format(
+                                           self._mode, self.__class__.__name__)
             self._parser.print_help()
             return False
         if self.args.end is None:
@@ -267,6 +268,8 @@ class diagtest(object):
 
         if args.cont:
             self.cfg["cont"] = 1
+
+        self.cfg["multiCL_len"] = args.multi_cl - 1
 
     def buffer_size(self):
         """buffer_size is used to get the number of bytes necessary for each

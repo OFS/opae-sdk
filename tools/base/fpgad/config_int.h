@@ -28,6 +28,7 @@
 #define __FPGAD_CONFIG_H__
 #include <fcntl.h>
 #include <stdbool.h>
+#include <linux/limits.h>
 
 #define MAX_NULL_GBS 16
 #define MAX_SOCKETS 2
@@ -43,11 +44,11 @@ struct config {
 	unsigned int verbosity;
 	useconds_t   poll_interval_usec;
 
-	int daemon;            // whether to daemonize
-	const char *directory; // working directory when daemonizing
-	const char *logfile;   // location of log file
-	const char *pidfile;   // where to write fpgad.pid
-	mode_t filemode;       // argument for umask
+	int daemon;               // whether to daemonize
+	char directory[PATH_MAX]; // working directory when daemonizing
+	char logfile[PATH_MAX];   // location of log file
+	char pidfile[PATH_MAX];   // where to write fpgad.pid
+	mode_t filemode;          // argument for umask
 
 	bool running;
 

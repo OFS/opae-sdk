@@ -48,7 +48,6 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
 
     fpga_guid fme_guid;
 
@@ -56,39 +55,30 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetGUID(dev_filter_, fme_guid), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &acc_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(acc_filter_, FPGA_ACCELERATOR),
-              FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&dev_filter_), FPGA_OK); 
-    EXPECT_EQ(fpgaDestroyProperties(&acc_filter_), FPGA_OK); 
+    if (handle_) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
+    }
+
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-    if (handle_) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
-    system_->finalize();
+      system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
   test_platform platform_;
-  test_device invalid_device_;
   test_system *system_;
   fpga_properties dev_filter_;
-  fpga_properties acc_filter_;
 };
-
-
-class mock_sysobject_p : public sysobject_p{};
-class hw_sysobject_p : public sysobject_p{};
 
 TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   uint32_t num_matches = 0;
@@ -107,6 +97,8 @@ TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
@@ -127,6 +119,11 @@ TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "errors/../../../../fpga", &object, 0),
+            FPGA_INVALID_PARAM);
+
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
@@ -136,7 +133,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
                                 &num_matches),
             FPGA_OK);
   ASSERT_GT(num_matches, 0);
-  fpga_object err_object, object;
+  fpga_object err_object, object, non_object;
   int flags = 0;
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
@@ -144,6 +141,8 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "revision", &object,
                                       flags),
             FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(err_object, "../../../fpga", &non_object, 0),
+            FPGA_INVALID_PARAM);
   uint64_t bbs_errors = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bbs_errors, 0),
             FPGA_OK);
@@ -155,7 +154,16 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
   EXPECT_EQ(xfpga_fpgaDestroyObject(NULL), FPGA_INVALID_PARAM);
 }
 
-TEST_P(mock_sysobject_p, xfpga_fpgaObjectRead) {
+INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
+                        ::testing::ValuesIn(test_platform::platforms({})));
+
+
+class sysobject_mock_p : public sysobject_p{
+  protected:
+    sysobject_mock_p() {};
+};
+
+TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -185,12 +193,13 @@ TEST_P(mock_sysobject_p, xfpga_fpgaObjectRead) {
   uint64_t value = 0;
   fwrite(c0c0str.c_str(), c0c0str.size(), 1, fp);
   fflush(fp);
+  fclose(fp);
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value, FPGA_OBJECT_SYNC), FPGA_OK);
   EXPECT_EQ(value, 0xc0c0cafe);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
-TEST_P(mock_sysobject_p, xfpga_fpgaObjectWrite64) {
+TEST_P(sysobject_mock_p, xfpga_fpgaObjectWrite64) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -227,10 +236,11 @@ TEST_P(mock_sysobject_p, xfpga_fpgaObjectWrite64) {
   std::vector<char> buffer(256);
   auto result = fread(buffer.data(), buffer.size(), 1, fp);
   (void) result;
+  fclose(fp);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
-TEST_P(mock_sysobject_p, xfpga_fpgaGetSize) {
+TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
   uint32_t num_matches = 0;
   ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
                                 &num_matches),
@@ -243,6 +253,7 @@ TEST_P(mock_sysobject_p, xfpga_fpgaGetSize) {
   ASSERT_NE(fp, nullptr) << strerror(errno);
   fwrite(DATA.c_str(), DATA.size(), 1, fp);
   fflush(fp);
+  fclose(fp);
   fpga_object object;
   int flags = 0;
   ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
@@ -252,8 +263,5 @@ TEST_P(mock_sysobject_p, xfpga_fpgaGetSize) {
   EXPECT_EQ(value, DATA.size());
 }
 
-
-INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::platforms()));
-INSTANTIATE_TEST_CASE_P(sysobject_c, mock_sysobject_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));

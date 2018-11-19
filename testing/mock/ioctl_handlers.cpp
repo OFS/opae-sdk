@@ -49,7 +49,7 @@ static int validate_argp(mock_object* mock, int request, va_list argp) {
 
 #define DEFAULT_IOCTL_HANDLER(_REQ, _S)                                        \
   namespace {                                                                  \
-  static bool r##_S =                                                          \
+  static bool r##_S __attribute__((unused)) =                                  \
       test_system::instance()->default_ioctl_handler(_REQ, validate_argp<_S>); \
   }
 

@@ -69,29 +69,6 @@ TEST(LibopaecOpenCommonALL, 07) {
 }
 
 /**
- * @test       open_drv_09
- *
- * @brief      When the parameters are valid and the drivers are loaded,
- *             and the flag FPGA_OPEN_SHARED is not given, fpgaOpen on
- *             an already opened token returns FPGA_BUSY.
- *
- */
-TEST_F(LibopaecOpenFCommonMOCK, open_drv_09) {
-  auto functor = [=]() -> void {
-    fpga_handle h1, h2;
-
-    EXPECT_EQ(FPGA_OK, fpgaOpen(tokens[index], &h1, 0));
-    EXPECT_EQ(FPGA_BUSY, fpgaOpen(tokens[index], &h2, 0));
-    fpgaClose(h1);
-  };
-
-  // pass test code to enumerator
-  TestAllFPGA(FPGA_ACCELERATOR,  // object type
-              true,              // reconfig default NLB0
-              functor);          // test code
-}
-
-/**
  * @test       open_drv_10
  *
  * @brief      When the parameters are valid and the drivers are loaded,

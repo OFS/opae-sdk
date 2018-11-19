@@ -26,15 +26,19 @@
 import nlb
 from diagtest import diagtest
 from opae.utils import cl_align, CACHELINE_BYTES
+
 # pylint: disable=E0611
 from opae import fpga
 
+
 COOL_CACHE_LINES = 1024
 COOL_CACHE_SIZE = CACHELINE_BYTES*COOL_CACHE_LINES
+MAX_CPU_CACHE_SIZE = 100 * 1024 * 1024
 
 
 class nlb3(diagtest):
     guid = "F7DF405C-BD7A-CF72-22F1-44B0B93ACD18"
+    _cpu_cache_buffer = ''
 
     def add_arguments(self, parser):
         super(nlb3, self).add_arguments(parser)
@@ -51,8 +55,8 @@ class nlb3(diagtest):
                             action='store_true', default=False,
                             help='Attempt to prime the cpu cache with misses')
 
-    def setup(self):
-        result = super(nlb3, self).setup()
+    def setup(self, in_args=None):
+        result = super(nlb3, self).setup(in_args)
         if result:
             if self.args.warm_fpga_cache and self.args.cool_fpga_cache:
                 self.logger.error(
@@ -72,12 +76,16 @@ class nlb3(diagtest):
         return self.args.end*self.args.strided_access*CACHELINE_BYTES
 
     def setup_buffers(self, handle, dsm, src, dst):
+        src.fill(0xc01a)
+        dst.fill(0)
         if self.args.warm_fpga_cache:
             self.warm_fpga_cache(handle, dsm, src, dst)
         elif self.args.cool_fpga_cache:
             self.cool_fpga_cache(handle, dsm)
-        else:
-            src.fill(0xcafe)
+
+        if self.args.cool_cpu_cache:
+            with open("/dev/urandom", "rb") as rbytes:
+                self._cpu_cache_buffer = rbytes.read(MAX_CPU_CACHE_SIZE)
 
     def warm_fpga_cache(self, handle, dsm, src, dst):
         dsm.fill(0)

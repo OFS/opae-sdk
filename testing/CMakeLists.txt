@@ -166,6 +166,35 @@ target_include_directories(userclk-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(argsfilter-static
+    ${OPAE_SDK_SOURCE}/tools/base/argsfilter/argsfilter.c
+    )
+
+target_include_directories(argsfilter-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+add_library(fpgainfo-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcdata.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/errors.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/fmeinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/fpgainfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/portinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/powerinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/tempinfo.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/main.c
+    )
+
+target_compile_definitions(fpgainfo-static PRIVATE main=fpgainfo_main)
+
+target_include_directories(fpgainfo-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base/argsfilter
+  $<INSTALL_INTERFACE:include>)
+
 add_library(hello_fpga-static
     ${OPAE_SDK_SOURCE}/samples/hello_fpga.c
     )
@@ -463,7 +492,13 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
     xfpga/test_metrics_c.cpp
 )
 
+add_unit_test(test_xfpga_bmc_c xfpga-static
+    xfpga/test_bmc_c.cpp
+)
 target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
+        ${libjson-c_LIBRARIES})
+
+target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
         ${libjson-c_LIBRARIES})
 
 set_tests_properties(
@@ -544,6 +579,16 @@ add_unit_test(test_userclk_c userclk-static
 )
 
 ############################################################################
+# fpgainfo tests ############################################################
+############################################################################
+
+add_unit_test(test_fpgainfo_c fpgainfo-static
+    fpgainfo/test_fpgainfo_c.cpp
+)
+target_link_libraries(test_fpgainfo_c argsfilter-static)
+
+
+############################################################################
 # hello_fpga tests #########################################################
 ############################################################################
 
@@ -586,55 +631,67 @@ add_custom_command(TARGET test_unit
 ############################################################################
 # pyopae tests #############################################################
 ############################################################################
-if (PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
- add_executable(test_pyopae
-     ${MOCK_C}
-     pyopae/test_pyopae.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/opae.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pycontext.h
-     ${OPAE_SDK_SOURCE}/pyopae/pycontext.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyproperties.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyhandle.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pytoken.h
-     ${OPAE_SDK_SOURCE}/pyopae/pytoken.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
-     ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp
-     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.h
-     ${OPAE_SDK_SOURCE}/pyopae/pysysobject.cpp)
-target_compile_definitions(test_pyopae PRIVATE
-    OPAE_EMBEDDED)
-target_include_directories(test_pyopae
-     PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
-     PRIVATE ${PYTHON_INCLUDE_DIRS}
-     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(embed INTERFACE)
-target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
-     test_system ${PYTHON_LIBRARIES}
-     PRIVATE embed)
-add_dependencies(test_unit test_pyopae)
-
-macro(add_pyopae_test pytest)
-    add_custom_command(TARGET test_pyopae
-       POST_BUILD
-       COMMAND ${CMAKE_COMMAND} -E copy
-       ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/${pytest}
-       ${CMAKE_BINARY_DIR}
-       )
-    add_test(
-        NAME ${pytest}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMAND $<TARGET_FILE:test_pyopae> test ${pytest}
+try_compile(SUPPORTS_EMBEDDED_PYTHON
+    ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/test_embed.cpp
+    CMAKE_FLAGS
+    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${CMAKE_SOURCE_DIR}/pyopae/pybind11/include"
+    LINK_LIBRARIES ${PYTHON_LIBRARIES}
+    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+    CXX_STANDARD 11
     )
-endmacro(add_pyopae_test pytest)
 
-add_pyopae_test(test_properties.py)
-add_pyopae_test(test_shared_buffers.py)
-add_pyopae_test(test_sysobject.py)
+if (SUPPORTS_EMBEDDED_PYTHON)
+    add_executable(test_pyopae
+         ${MOCK_C}
+         pyopae/test_pyopae.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/opae.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pycontext.h
+         ${OPAE_SDK_SOURCE}/pyopae/pycontext.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pyproperties.h
+         ${OPAE_SDK_SOURCE}/pyopae/pyproperties.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pyhandle.h
+         ${OPAE_SDK_SOURCE}/pyopae/pyhandle.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pytoken.h
+         ${OPAE_SDK_SOURCE}/pyopae/pytoken.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.h
+         ${OPAE_SDK_SOURCE}/pyopae/pyshared_buffer.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pyevents.h
+         ${OPAE_SDK_SOURCE}/pyopae/pyevents.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pyerrors.h
+         ${OPAE_SDK_SOURCE}/pyopae/pyerrors.cpp
+         ${OPAE_SDK_SOURCE}/pyopae/pysysobject.h
+         ${OPAE_SDK_SOURCE}/pyopae/pysysobject.cpp)
+    target_compile_definitions(test_pyopae PRIVATE
+        OPAE_EMBEDDED)
+    target_include_directories(test_pyopae
+         PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
+         PRIVATE ${PYTHON_INCLUDE_DIRS}
+         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    add_library(embed INTERFACE)
+    target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
+         test_system ${PYTHON_LIBRARIES}
+         PRIVATE embed)
+    add_dependencies(test_unit test_pyopae)
 
-endif(PYTHONLIBS_VERSION_STRING GREATER "2.7.14")
+    macro(add_pyopae_test pytest)
+        add_custom_command(TARGET test_pyopae
+           POST_BUILD
+           COMMAND ${CMAKE_COMMAND} -E copy
+           ${CMAKE_CURRENT_SOURCE_DIR}/pyopae/${pytest}
+           ${CMAKE_BINARY_DIR}
+           )
+        add_test(
+            NAME ${pytest}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMAND $<TARGET_FILE:test_pyopae> test ${pytest}
+        )
+    endmacro(add_pyopae_test pytest)
+
+    add_pyopae_test(test_properties.py)
+    add_pyopae_test(test_shared_buffers.py)
+    add_pyopae_test(test_sysobject.py)
+else(SUPPORTS_EMBEDDED_PYTHON)
+    message(WARNING
+        "Could not compile embedded Python. See errors in embed.txt")
+    file(WRITE embed.txt ${TRY_COMPILE_OUTPUT})
+endif (SUPPORTS_EMBEDDED_PYTHON)

@@ -33,7 +33,7 @@ include(opae_devpkgs_cmake_install)
 ############################################################################
 
 configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )
+                "${PROJECT_BINARY_DIR}/include/config.h" )
 
 ############################################################################
 ## Set base directories ####################################################

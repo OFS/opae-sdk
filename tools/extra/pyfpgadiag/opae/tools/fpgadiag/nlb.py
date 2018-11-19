@@ -25,7 +25,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import logging
 from opae.utils import CACHELINE_BYTES
-from opae.utils.byteutils import GiB
 from opae.utils.csr import csr, f_enum
 # pylint: disable=E0611
 from opae import fpga
@@ -130,23 +129,31 @@ class perf_counters(object):
     _values = dict()
 
     def __init__(self, handle):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        logger_name = "fpgadiag.{}".format(self.__class__.__name__)
+        self.logger = logging.getLogger(logger_name)
         self._handle = handle
         try:
             self._group = handle.find(self._name, fpga.SYSOBJECT_GLOB)
         except RuntimeError:
-            self.logger.warn("Could not find group with name: %s", self._name)
+            self.logger.debug("Could not find group with name: %s", self._name)
             self._group = None
         else:
             self._values = dict([(k, 0) for k in self._counters])
 
     def read(self, *args):
         if self._group is None:
-            values = null_values(self._name)
-        else:
             values = counter_values(
-                dict([(c, self._group[c].read64())
+                dict([(c, 0)
                       for c in args or self._counters]))
+        else:
+            values_dict = {}
+            for c in args or self._counters:
+                try:
+                    c_obj = self._group[c]
+                    values_dict[c] = c_obj.read64() if c_obj else 0
+                except RuntimeError:
+                    values_dict[c] = 0
+            values = counter_values(values_dict)
         return values
 
     def reader(self):
@@ -322,6 +329,7 @@ def normalize_frequency(freq):
 class nlb_stats(stats_printer):
     def __init__(self, cachelines, dsm, cache, fabric, **kwargs):
         super(nlb_stats, self).__init__()
+        Gbit = 1000.0 * 1000.0 * 1000.0
         freq = kwargs.get('frequency', 400000000)
         freq_str = normalize_frequency(freq)
         is_cont = kwargs.get("cont", False)
@@ -332,10 +340,10 @@ class nlb_stats(stats_printer):
             ticks = raw_ticks - (dsm.start_overhead + dsm.end_overhead)
 
         rd_bw = (dsm.num_reads * CACHELINE_BYTES * freq)/ticks
-        rd_bw /= GiB(1).count()
+        rd_bw /= Gbit
 
         wr_bw = (dsm.num_writes * CACHELINE_BYTES * freq)/ticks
-        wr_bw /= GiB(1).count()
+        wr_bw /= Gbit
 
         self.register(('Cachelines', cachelines),
                       ('Read_Count', dsm.num_reads),

@@ -50,6 +50,7 @@ char* cstr_dup(const char *str);
 #include "sysfs_int.h"
 #include "types_int.h"
 #include "xfpga.h"
+#include <fcntl.h>
 
 #include "gtest/gtest.h"
 #include "test_system.h"
@@ -88,6 +89,10 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+        handle_ = nullptr;
+    }
 
     for (auto &t : tokens_) {
       if (t) {
@@ -96,7 +101,6 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
       }
     }
 
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
     system_->finalize();
   }
 
@@ -110,12 +114,20 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
 * @test    eintr_write_tests
-* @details
+* @details Given a valid fd but invalid buffer, eintr_writes
+*          returns -1 on error.
 */
 TEST(sysfs_c, eintr_write_tests) {
-  int fd = 0;
+  void * data = nullptr;
+  std::string filename = "empty_file.txt";
+  EXPECT_EQ(std::system("touch empty_file.txt"), 0);
+
+  int fd = open(filename.c_str(), O_RDWR);
+  EXPECT_NE(fd, -1);
   size_t count = 1024;
-  EXPECT_NE(0, eintr_write(fd, NULL, count));
+  EXPECT_EQ(-1, eintr_write(fd, data, count));
+  EXPECT_EQ(close(fd), 0);
+  EXPECT_EQ(std::system("rm empty_file.txt"), 0);
 }
 
 /**
@@ -474,11 +486,11 @@ TEST(sysfs_c, cstr_dup) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({})));
 
 class sysfs_c_hw_p : public sysfs_c_p {
- protected:
-  sysfs_c_hw_p() {}
+  protected:
+    sysfs_c_hw_p() {}
 };
 
 /**

@@ -40,7 +40,7 @@ fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 	if (!handle)
 		return FPGA_INVALID_PARAM;
 
-	_eh = malloc(sizeof(struct _fpga_event_handle));
+	_eh = ase_malloc(sizeof(struct _fpga_event_handle));
 	if (NULL == _eh) {
 		FPGA_ERR("Could not allocate memory for event handle");
 		return FPGA_NO_MEMORY;
@@ -51,6 +51,7 @@ fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 	if (_eh->fd < 0) {
 		FPGA_ERR("eventfd : %s", strerror(errno));
 		free(_eh);
+		_eh = NULL;
 		return FPGA_NOT_FOUND;
 	}
 

@@ -365,38 +365,4 @@ TEST(LibopaecBufCommonALL, WriteRead01) {
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
 
-/**
- * @test       PrepPre2MB01
- *
- * @brief      When the parameters are valid and the drivers are loaded:
- *             with pre-allocated buffer, fpgaPrepareBuffer must
- *             allocate a shared memory buffer. fpgaReleaseBuffer must
- *             release a shared memory buffer.
- *
- */
-TEST(LibopaecBufCommonMOCKHW, PrepPre2MB01) {
-  struct _fpga_token _tok;
-  fpga_token tok = &_tok;
-  fpga_handle h;
-  uint64_t buf_len;
-  uint64_t* buf_addr;
-  uint64_t wsid = 1;
 
-  // Open  port device
-  token_for_afu0(&_tok);
-  ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-
-  // Allocate buffer in MB range
-  buf_len = 2 * 1024 * 1024;
-  buf_addr = (uint64_t*)mmap(ADDR, buf_len, PROTECTION, FLAGS_2M, 0, 0);
-  EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(h, buf_len, (void**)&buf_addr, &wsid,
-                                       FPGA_BUF_PREALLOCATED));
-
-  // Release buffer in MB range
-  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(h, wsid));
-
-  // buf_addr was preallocated, do not touch it
-  ASSERT_NE(buf_addr, (void*)NULL);
-  munmap(buf_addr, buf_len);
-  ASSERT_EQ(FPGA_OK, fpgaClose(h));
-}

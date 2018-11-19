@@ -74,15 +74,16 @@ class fpgad_ap_event_c_p : public ::testing::TestWithParam<std::string> {
       .verbosity = 0,
       .poll_interval_usec = 100 * 1000,
       .daemon = 0,
-      .directory = ".",
-      .logfile = tmpfpgad_log_,
-      .pidfile = "",
+      .directory = { 0, },
+      .logfile = { 0, },
+      .pidfile = { 0, },
       .filemode = 0,
       .running = true,
       .socket = "/tmp/fpga_event_socket",
       .null_gbs = {0},
       .num_null_gbs = 0,
     };
+    strcpy(config_.logfile, tmpfpgad_log_);
 
     ap_thread_ = std::thread(apevent_thread, &config_);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

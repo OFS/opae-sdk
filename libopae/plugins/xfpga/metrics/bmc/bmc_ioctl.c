@@ -233,6 +233,7 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 
 	char *avmmi = strrchr(pglob.gl_pathv[0], '/');
 	if (NULL == avmmi) {
+		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -252,6 +253,7 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 				&sdr->contents[sensor].body);
 
 	if (NULL == vals) {
+		close(fd);
 		return FPGA_NO_MEMORY;
 	}
 

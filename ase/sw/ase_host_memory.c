@@ -424,7 +424,7 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 				pt[idx] = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
 							   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 			} else {
-				pt[idx] = malloc(64);
+				pt[idx] = ase_malloc(64);
 			}
 			if ((pt[idx] == NULL) || (pt[idx] == MAP_FAILED)) {
 				ASE_ERR("Simulated page table out of memory!\n");

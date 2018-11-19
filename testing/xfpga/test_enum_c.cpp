@@ -90,21 +90,25 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     return value;
   }
 
-  int GetNumFpgaTypes() {
+  int GetNumMatchedFpga () {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
+    
+    int matches = 0;
+    int socket_id;
+    int i;
+    for (i = 0; i < GetNumFpgas(); i++) {
+      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
+                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
 
-    int value;
-    std::string cmd = "lspci | "
-                      "grep \'Processing accelerators: "
-                            "Intel Corporation\' | "
-                      "grep -oE \'[^ ]+$\' | "
-                      "sort --unique | "
-                      "wc -l";
+      ExecuteCmd(cmd, socket_id);
+      if (socket_id == (int)platform_.devices[0].socket_id) {
+          matches++;
+      }
+    }
 
-    ExecuteCmd(cmd, value);
-    return value;
+    return matches;
   }
 
   void ExecuteCmd(std::string cmd, int &value) {
@@ -390,7 +394,7 @@ TEST_P(enum_c_p, socket_id) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgaTypes() * 2);
+  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
 }
 
 /**
@@ -1023,4 +1027,5 @@ TEST_P(enum_c_p, get_guid) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
