@@ -206,13 +206,14 @@ TEST_P(coreidle_main_c_p, main_err1) {
   EXPECT_NE(coreidle_main(13, argv), 0);
 }
 
+
 /**
  * @test       main0
  * @brief      Test: coreidle_main
  * @details    When called with parameters that specify<br>
  *             a device that is found,<br>
  *             but that device is a TDP+ SKU,<br>
- *             coreidle_main runs to completion, returning FPGA_INVALID_PARAM.<br>
+ *             coreidle_main runs to completion, returns 1.<br>
  */
 TEST_P(coreidle_main_c_p, main0) {
   char zero[20];
@@ -224,7 +225,7 @@ TEST_P(coreidle_main_c_p, main0) {
 
   char *argv[] = { zero, one, two };
 
-  EXPECT_EQ(coreidle_main(3, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(coreidle_main(3, argv), 1);
 }
 
 /**
@@ -312,6 +313,94 @@ TEST_P(coreidle_main_c_p, parse_err0) {
 }
 
 /**
+ * @test       parse_err1
+ * @brief      Test: ParseCmds
+ * @details    When given an invalid commnad option,<br>
+ *             ParseCmds displays an error message and returns -1.<br>
+ */
+TEST_P(coreidle_main_c_p, parse_err1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  strcpy(zero, "    coreidle+_=`~!@#$%^&*_+=-");
+  strcpy(one, "-Green_Bitstream");
+  strcpy(two, tmp_gbs_);
+  strcpy(three, "--seg ment|{};:'<>?");
+  strcpy(four, "0x9999");
+  strcpy(five, "-BBBBB");
+  strcpy(six, "99");
+  strcpy(seven, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(eight, "99");
+  strcpy(nine, "-F\x00\x08\x09\x0B\x0D");
+  strcpy(ten, "7");
+  strcpy(eleven, "\xF1-\xF3    \x80-\x8F");
+  strcpy(twelve, "99");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  struct CoreIdleCommandLine cmd;
+  EXPECT_LT(ParseCmds(&cmd, 13, argv), 0);
+}
+
+/**
+ * @test       parse_err2
+ * @brief      Test: ParseCmds
+ * @details    When given an invalid commnad option,<br>
+ *             ParseCmds and coreidle_main return 0.<br>
+ */
+TEST_P(coreidle_main_c_p, parse_err2) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  strcpy(zero, "        ");
+  strcpy(one, "-G");
+  strcpy(two, tmp_gbs_);
+  strcpy(three, "--segment");
+  strcpy(four, "---6121\xE1-\xEC\xFF\xEF 234");
+  strcpy(five, " --B");
+  strcpy(six, "\000 \x01\x05\x0a\x15");
+  strcpy(seven, "-D");
+  strcpy(eight, "\xC2-\xDF");
+  strcpy(nine, "-F");
+  strcpy(ten, "4\x09\x0A\x0D\x20-\x7E");
+  strcpy(eleven, "-S");
+  strcpy(twelve, "   \xED\x80-\x9F 2374891shf./m'");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve };
+
+  struct CoreIdleCommandLine cmd;
+  EXPECT_EQ(ParseCmds(&cmd, 13, argv), 0);
+  // FIXME, the return of coreidle should not be 0 when invalid 
+  // are passed to the executable.
+  EXPECT_EQ(coreidle_main(13, argv), 0);
+}
+
+
+/**
  * @test       read_bits0
  * @brief      Test: read_bitstream
  * @details    When read_bitstream is given a NULL pointer,<br>
@@ -362,4 +451,4 @@ TEST_P(coreidle_main_c_p, read_bits3) {
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_main_c, coreidle_main_c_p,
-                        ::testing::Values(std::string("skx-p")));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));

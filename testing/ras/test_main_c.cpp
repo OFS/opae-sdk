@@ -56,6 +56,7 @@ extern struct RASCommandLine rasCmdLine;
 void RASAppShowHelp(void);
 void print_err(const char*, fpga_result);
 int ras_main(int argc, char *argv[]);
+int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[]);
 fpga_result print_errors(fpga_token, const char*, const char*, int);
 fpga_result print_ras_errors(fpga_token);
 fpga_result print_port_errors(fpga_token);
@@ -262,6 +263,52 @@ TEST_P(ras_c_p, invalid_cmd_03){
   char *argv[] = { zero, one, two };
   EXPECT_EQ(ras_main(3, argv), 2);
 }
+
+/**
+ * @test       invalid_parse_cmd_01
+ * @brief      Test: ParseCmd 
+ * @details    When ParseCmd is called with an invalid command option,<br>
+ *             ras_main returns non-zero.<br>
+ */
+TEST_P(ras_c_p, invalid_parse_cmd_01){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+
+  strcpy(zero, "ras");
+  strcpy(one, "--segmenttt \xF0\x90-\xBF afsd907123&^%~!#");
+  strcpy(two, "\x00");
+  strcpy(three, "-Bi \t \v\n");
+  strcpy(four, "0x1\x80 \x8F");
+  strcpy(five, "   \n -De \xE1-\xEC\xEE\xEFvicessss");
+  strcpy(six, "0x100");
+  strcpy(seven, "-Ffun \xE1 ction");
+  strcpy(eight, "0xFFFFFFFFFFFFFFFFFF");
+  strcpy(nine, "--S\xE0\xA0-\xBFoooock ");
+  strcpy(ten, "0x0000000000000000");
+  strcpy(eleven, "-pr\x09\x0A\x0D\x20-\x7Eint >?<:'|");
+  strcpy(twelve, "-N");
+  strcpy(thirteen, "-Cclear");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen };
+
+  struct RASCommandLine cmd;
+  EXPECT_NE(ParseCmds(&cmd, 14, argv), 0);
+}
+
 
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

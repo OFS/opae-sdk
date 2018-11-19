@@ -191,5 +191,50 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
   EXPECT_NE(fpgad_main(2, argv), 0);
 }
 
+/**
+ * @test       main_invalid
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with an invalid command option,<br>
+ *             it returns non-zero.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  strcpy(zero, "  fpgad  ");
+  strcpy(one, "--daemon\x00\x08\x09\x0B\x0D");
+  strcpy(two, "-D");
+  strcpy(three, "dir \t\n\v");
+  strcpy(four, "-l");
+  strcpy(five, "log~`1$#%#&%&*&$^&$&*");
+  strcpy(six, "-p");
+  strcpy(seven, "     231478937024**%^%$&pid");
+  strcpy(eight, "-m");
+  strcpy(nine, "\000");
+  strcpy(ten, "-s");
+  strcpy(eleven, "sock \x00\x00\x08\x09\x0B\x0D");
+  strcpy(twelve, "-n");
+  strcpy(thirteen, "null_gbs");
+  strcpy(fourteen, "-hhelp");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen, fourteen };
+
+  EXPECT_EQ(fpgad_main(15, argv), 0);
+}
+
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,
                         ::testing::Values(std::string("skx-p")));

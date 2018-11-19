@@ -217,6 +217,34 @@ TEST_P(fpgainfo_c_p, parse_args2) {
     EXPECT_EQ(parse_args(2, argv), 0);
 }
 
+/**
+ * @test       parse_args3
+ * @brief      Test: parse_args
+ * @details    When passed with an invalid options, the fn <br>
+ *             returns zero. <br>
+ */
+TEST_P(fpgainfo_c_p, parse_args3) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "κόσμε");
+
+    /* FIXME: Parse_arg will return 0 on all inputs
+              that doesn't match MAIN_GETOPT_STRING.
+              Main fails on get_command call but 
+              will return 0. 
+
+    */
+    EXPECT_EQ(parse_args(2, argv), 0);
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+
+    strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
+
+    EXPECT_EQ(parse_args(2, argv), 0);
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+}
 
 /**
  * @test       get_command0
