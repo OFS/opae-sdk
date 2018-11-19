@@ -65,7 +65,7 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level);
  */
 int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 {
-	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+	if (pthread_mutex_lock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");
 		return -1;
 	}
@@ -80,7 +80,7 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 		note_pinned_page((uint64_t)va, *iova, length);
 	}
 
-	if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+	if (pthread_mutex_unlock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not unlock !\n");
 		status = -1;
 	}
@@ -96,7 +96,7 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 {
 	int status = 0;
 
-	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+	if (pthread_mutex_lock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 		return -1;
 	}
@@ -109,7 +109,7 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 		status = ase_pt_unpin_page(iova, pt_level);
 	}
 
-	if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+	if (pthread_mutex_unlock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 		status = -1;
 	}
@@ -168,7 +168,7 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 		raise(SIGABRT);
 	}
 
-	if (pthread_mutex_lock(&ase_pt_lock) != 0) {
+	if (pthread_mutex_lock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
 		return 0;
 	}
@@ -179,7 +179,7 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 	found_addr = ase_pt_check_addr(pa, &pt_level);
 
 	if (!lock) {
-		if (pthread_mutex_unlock(&ase_pt_lock) != 0) {
+		if (pthread_mutex_unlock(&ase_pt_lock)) {
 			ASE_ERR("pthread_mutex_lock could not unlock !\n");
 			return 0;
 		}
@@ -195,7 +195,7 @@ uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 
 void ase_host_memory_unlock(void)
 {
-	if (pthread_mutex_unlock(&ase_pt_lock) != 0)
+	if (pthread_mutex_unlock(&ase_pt_lock))
 		ASE_ERR("pthread_mutex_lock could not unlock !\n");	
 }
 
@@ -212,13 +212,13 @@ int ase_host_memory_initialize(void)
 
 void ase_host_memory_terminate(void)
 {
-	if (pthread_mutex_lock(&ase_pt_lock) != 0)
+	if (pthread_mutex_lock(&ase_pt_lock))
 		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");		
 
 	ase_pt_delete_tree(ase_pt_root, 3);
 	ase_pt_root = NULL;
 
-	if (pthread_mutex_unlock(&ase_pt_lock) != 0)
+	if (pthread_mutex_unlock(&ase_pt_lock))
 		ASE_ERR("pthread_mutex_lock could not unlock !\n");	
 }
 
