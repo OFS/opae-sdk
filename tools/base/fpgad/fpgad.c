@@ -206,6 +206,27 @@ void resolve_dirs(struct config *c)
 	dlog("daemon pid file is %s\n", c->pidfile);
 }
 
+bool register_null_gbs(struct config *c, char *null_gbs_path) {
+	char *canon_path = NULL;
+	if (config.num_null_gbs < MAX_NULL_GBS) {
+		canon_path = canonicalize_file_name(null_gbs_path);
+		if (canon_path) {
+			c->null_gbs[c->num_null_gbs++] = canon_path;
+			// canonicalize_file_name allocates memory, remeber to
+			// free it!
+			dlog("registering NULL bitstream \"%s\"\n", canon_path);
+			/* TODO: check NULL bitstream
+			 * compatibility */
+		} else {
+			dlog("error with null_gbs argument: \"%s\"\n", strerror(errno));
+			return false;
+		}
+	} else {
+		dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
+	}
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	int getopt_ret;
@@ -213,6 +234,7 @@ int main(int argc, char *argv[])
 	int res;
 	int i;
 	int j;
+	unsigned k;
 	pthread_t logger;
 	pthread_t server;
 	pthread_t apevent;
@@ -273,13 +295,9 @@ int main(int argc, char *argv[])
 
 		case 'n':
 			if (tmp_optarg) {
-				if (config.num_null_gbs < MAX_NULL_GBS) {
-					config.null_gbs[config.num_null_gbs++] = tmp_optarg;
-					dlog("registering NULL bitstream \"%s\"\n", tmp_optarg);
-					/* TODO: check NULL bitstream
-					 * compatibility */
-				} else {
-					dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
+				if (!register_null_gbs(&config, (char*)tmp_optarg)) {
+					fprintf(stderr, "invalid null gbs path: \"%s\"\n", tmp_optarg);
+					return 1;
 				}
 			} else {
 				fprintf(stderr, "missing bitstream parameter.\n");
@@ -408,6 +426,13 @@ int main(int argc, char *argv[])
 
 	if (config.daemon)
 		unlink(config.pidfile);
+
+	for (k = 0; k < config.num_null_gbs; ++k) {
+		if (config.null_gbs[k]) {
+			free(config.null_gbs[k]);
+			config.null_gbs[k] = NULL;
+		}
+	}
 
 	return 0;
 }

@@ -64,13 +64,15 @@ int read_bitstream(const char *filename, struct bitstream_info *info);
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "safe_string/safe_string.h"
 
 using namespace opae::testing;
 
 class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   fpgad_ap6_c_p()
-   : port0_("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0"),
+   : junk_gbs_(nullptr),
+     port0_("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0"),
      fme0_("/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0") {}
 
   virtual void SetUp() override {
@@ -99,6 +101,9 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
     gbs.write((const char *) null_gbs_.data(), null_gbs_.size());
     gbs.close();
 
+    junk_gbs_ = (char*)malloc(9);
+    ASSERT_TRUE(junk_gbs_) << "Error allocating buffer for junk.gbs";
+    ASSERT_EQ(strncpy_s(junk_gbs_, 9, "junk.gbs", 9), 0) << "error copying string: junk.gbs";
     config_ = {
       .verbosity = 0,
       .poll_interval_usec = 1000 * 1000,
@@ -109,7 +114,7 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
       .filemode = 0,
       .running = true,
       .socket = "/tmp/fpga_event_socket",
-      .null_gbs = { "junk.gbs", tmpnull_gbs_ },
+      .null_gbs = { junk_gbs_, tmpnull_gbs_ },
       .num_null_gbs = 2,
     };
     strcpy(config_.logfile, tmpfpgad_log_);
@@ -138,8 +143,13 @@ class fpgad_ap6_c_p : public ::testing::TestWithParam<std::string> {
       unlink(tmpfpgad_log_);
       unlink(tmpnull_gbs_);
     }
+    if (junk_gbs_) {
+      free(junk_gbs_);
+      junk_gbs_ = nullptr;
+    }
   }
 
+  char *junk_gbs_;
   std::string port0_;
   std::string fme0_;
   struct config config_;
