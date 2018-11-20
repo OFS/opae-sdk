@@ -801,7 +801,8 @@ extern struct ase_capability_t ase_capability;
 #endif
 // ------------------------------------------ //
 
-static inline int is_directory(const char *path) {
+static inline int is_directory(const char *path)
+{
 	struct stat path_stat;
 
 	/* handle error, follows the symbolic link */
