@@ -556,6 +556,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
   EXPECT_LT(parse_args(15, argv), 0);
 } 
 
+/*
  * @test       parse_args3
  * @brief      Test: parse_args
  * @details    When given a gbs file that does not exist<br>
