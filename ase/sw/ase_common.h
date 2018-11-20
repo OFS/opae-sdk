@@ -801,4 +801,16 @@ extern struct ase_capability_t ase_capability;
 #endif
 // ------------------------------------------ //
 
+static inline int is_directory(const char *path)
+{
+	struct stat path_stat;
+
+	/* handle error, follows the symbolic link */
+	if (stat(path, &path_stat) != 0) {
+		return 0;
+	}
+
+	return S_ISDIR(path_stat.st_mode);
+}
+
 #endif	// End _ASE_COMMON_H_
