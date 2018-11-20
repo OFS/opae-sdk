@@ -313,7 +313,7 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
  * @test       main_invalid
  * @brief      Test: fpgad_main
  * @details    When fpgad_main is called with an invalid command option,<br>
- *             it returns non-zero.<br>
+ *             it returns 1.<br>
  */
 TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
   char zero[20];
@@ -351,10 +351,7 @@ TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
                    five, six, seven, eight, nine,
                    ten, eleven, twelve, thirteen, fourteen };
 
-  /*FIXME: When fpgad_main is called with iinvalid command options,
-           it should return a non-zero.
-  */
-  EXPECT_EQ(fpgad_main(15, argv), 0);
+  EXPECT_EQ(fpgad_main(15, argv), 1);
 }
 
 TEST_P(fpgad_fpgad_c_p, gbsarg_lead_nullchar) {
