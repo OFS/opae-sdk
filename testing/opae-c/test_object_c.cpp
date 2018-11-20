@@ -176,13 +176,13 @@ TEST_P(object_c_p, obj_write64) {
 }
 
 /**
- * @test       obj_get_obj
+ * @test       obj_get_obj0
  * @brief      Test: fpgaObjectGetObject
  * @details    When fpgaObjectGetObject is called with valid parameters,<br>
  *             the fn opens the underlying object<br>
  *             and returns FPGA_OK.<br>
  */
-TEST_P(object_c_p, obj_get_obj) {
+TEST_P(object_c_p, obj_get_obj0) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
@@ -193,6 +193,54 @@ TEST_P(object_c_p, obj_get_obj) {
   ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_obj1
+ * @brief      Test: fpgaObjectGetObject
+ * @details    When fpgaObjectGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_p, obj_get_obj1) {
+  fpga_object errors_obj = nullptr;
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0),FPGA_NOT_FOUND);
+
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+}
+
+/**
+ * @test       handle_get_obj
+ * @brief      Test: fpgaHandleGetObject
+ * @details    When fpgaHandleGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, handle_get_obj) {
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  EXPECT_EQ(fpgaHandleGetObject(accel_, bad_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       token_get_obj
+ * @brief      Test: fpgaTokenGetObject
+ * @details    When fpgaTokenGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, token_get_obj) {
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], bad_name, &obj, 0), 
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
 /**
