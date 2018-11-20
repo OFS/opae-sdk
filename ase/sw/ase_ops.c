@@ -211,7 +211,7 @@ void ase_str_to_buffer_t(char *str, struct buffer_t *buf)
 	FUNC_CALL_EXIT;
 }
 
-/*
+ /*
  * Evaluate Session directory
  * If SIM_SIDE is set, Return "$ASE_WORKDIR/work/"
  *               else, Return "$PWD/work/"
@@ -246,7 +246,7 @@ void ase_eval_session_directory(void)
 	} else {
 		// Check if directory exists here
 		DIR *ase_dir;
-		if(!is_directory(ase_workdir_path)) {
+		if (!is_directory(ase_workdir_path)) {
 			ASE_ERR
 				("ASE workdir path pointed by env(ASE_WORKDIR) is a non-accessible directory !\n"
 				 "Cannot continue execution... exiting !\n");
