@@ -36,7 +36,7 @@
  *   * Auto-discovery of compatible slots for supplied bitstream
  *   * Dry-run mode ("what would happen if...?")
  */
-
+#define _GNU_SOURCE
 #include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -372,9 +372,13 @@ int parse_args(int argc, char *argv[])
 		fprintf(stderr, "No GBS file\n");
 		return -1;
 	}
-	config.filename = argv[optind];
-
-	return 0;
+	config.filename = canonicalize_file_name(argv[optind]);
+	if (config.filename) {
+		return 0;
+	} else {
+		fprintf(stderr, "Error locating GBS file specified: \"%s\"\n", strerror(errno));
+		return -1;
+	}
 }
 
 /*
@@ -753,5 +757,9 @@ out_destroy:
 out_free:
 	free(info.data);
 out_exit:
+	if (config.filename) {
+		free(config.filename);
+		config.filename = NULL;
+	}
 	return retval;
 }
