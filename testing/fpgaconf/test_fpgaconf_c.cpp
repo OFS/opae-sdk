@@ -467,6 +467,96 @@ TEST_P(fpgaconf_c_p, parse_args2) {
 }
 
 /**
+ * @test       invalid_parse_args1
+ * @brief      Test: parse_args
+ * @details    When given an invalid command options,<br>
+ *             parse_args populates the global config struct<br>
+ *             and the fn returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, invalid_parse_args1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  strcpy(zero, " fpgaconf Q&%^#>x[;;'kk/");
+  strcpy(one, "-verbosesss \n\t\b\e\a\?");
+  strcpy(two, "--n");
+  strcpy(three, "--f123413 23kshfa hfa;.'/'l|hrce");
+  strcpy(four, "--se!gmenttttt     lsdfhskfa");
+  strcpy(five, "0x1234");
+  strcpy(six, "-bussssss");
+  strcpy(seven, "0x5e");
+  strcpy(eight, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(nine, "0xab");
+  strcpy(ten, " =============  %34   -Function    \x00\x08\x09\x0B\x0D");
+  strcpy(eleven, "3");
+  strcpy(twelve, "-Socket__________id \xF1-\xF3    \x80-\x8F");
+  strcpy(thirteen, "2");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten, eleven, twelve, thirteen };
+
+  EXPECT_LT(parse_args(14, argv), 0);
+}
+
+/**
+ * @test       invalid_parse_args2
+ * @brief      Test: parse_args
+ * @details    When given an invalid command options,<br>
+ *             parse_args populates the global config struct<br>
+ *             and the fn returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, invalid_parse_args2) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
+  strcpy(zero, "        ");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "--force");
+  strcpy(four, "--segment");
+  strcpy(five, "0xffff1234");
+  strcpy(six, "-B");
+  strcpy(seven, "0x5eeeeeeeee");
+  strcpy(eight, "-D");
+  strcpy(nine, "0xab124 \xF1 0");
+  strcpy(ten, "-F");
+  strcpy(eleven, "-33492\t000");
+  strcpy(twelve, "-S");
+  strcpy(thirteen, "\000 00000000000000000000");
+  strcpy(fourteen, "-A");
+
+  char *argv[] = { zero, one, two, three,
+                   ten, eleven, twelve, thirteen, fourteen,
+                   four, five, six, seven, eight, nine};
+
+  EXPECT_LT(parse_args(15, argv), 0);
+} 
+
+/*
  * @test       parse_args3
  * @brief      Test: parse_args
  * @details    When given a gbs file that does not exist<br>
@@ -477,6 +567,7 @@ TEST_P(fpgaconf_c_p, parse_args3) {
   const char *argv[] = { "fpgaconf", "no-file.gbs" };
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
+
 
 
 
