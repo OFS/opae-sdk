@@ -52,13 +52,11 @@ from __future__ import print_function
 import argparse
 import ase_functions
 import os
-import re
 import sys
 import subprocess
 from collections import defaultdict
 import fnmatch
 import json
-import subprocess
 from sets import Set
 import shutil
 
