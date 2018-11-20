@@ -302,9 +302,11 @@ void *mmio_response_watcher(void *arg)
 		}
 	}
 
-	if (io_s.mmio_rsp_pkt)
+	if (io_s.mmio_rsp_pkt) {
 		free(io_s.mmio_rsp_pkt);
 		io_s.mmio_rsp_pkt = NULL;
+	}
+
 	return 0;
 }
 

@@ -637,7 +637,6 @@ try_compile(SUPPORTS_EMBEDDED_PYTHON
     "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${CMAKE_SOURCE_DIR}/pyopae/pybind11/include"
     LINK_LIBRARIES ${PYTHON_LIBRARIES}
     OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
-    CXX_STANDARD 11
     )
 
 if (SUPPORTS_EMBEDDED_PYTHON)
@@ -667,10 +666,9 @@ if (SUPPORTS_EMBEDDED_PYTHON)
          PRIVATE ${CMAKE_SOURCE_DIR}/pyopae/pybind11/include
          PRIVATE ${PYTHON_INCLUDE_DIRS}
          PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    add_library(embed INTERFACE)
+
     target_link_libraries(test_pyopae PUBLIC opae-c opae-cxx-core
-         test_system ${PYTHON_LIBRARIES}
-         PRIVATE embed)
+         test_system ${PYTHON_LIBRARIES})
     add_dependencies(test_unit test_pyopae)
 
     macro(add_pyopae_test pytest)
@@ -692,6 +690,6 @@ if (SUPPORTS_EMBEDDED_PYTHON)
     add_pyopae_test(test_sysobject.py)
 else(SUPPORTS_EMBEDDED_PYTHON)
     message(WARNING
-        "Could not compile embedded Python. See errors in embed.txt")
-    file(WRITE embed.txt ${TRY_COMPILE_OUTPUT})
+        "Could not compile embedded Python. See errors in embed_errors.txt")
+    file(WRITE ${CMAKE_BINARY_DIR}/embed_errors.txt ${TRY_COMPILE_OUTPUT})
 endif (SUPPORTS_EMBEDDED_PYTHON)
