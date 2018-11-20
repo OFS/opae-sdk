@@ -392,6 +392,8 @@ TEST_P(fpgaconf_c_p, parse_args0) {
  *             and the fn returns 0.<br>
  */
 TEST_P(fpgaconf_c_p, parse_args1) {
+  char tmpfilename[] = "tmp-empty-XXXXXX.gbs";
+  close(mkstemps(tmpfilename, 4));
   char zero[20];
   char one[20];
   char two[20];
@@ -425,7 +427,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   strcpy(thirteen, "2");
   strcpy(fourteen, "-A");
   strcpy(fifteen, "-I");
-  strcpy(sixteen, "file.gbs");
+  strcpy(sixteen, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
@@ -443,7 +445,8 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   EXPECT_EQ(config.target.socket, 2);
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
-  EXPECT_STREQ(config.filename, "file.gbs");
+  EXPECT_STREQ(basename(config.filename), tmpfilename);
+  unlink(tmpfilename);
 }
 
 /**
@@ -462,6 +465,20 @@ TEST_P(fpgaconf_c_p, parse_args2) {
 
   EXPECT_LT(parse_args(2, argv), 0);
 }
+
+/**
+ * @test       parse_args3
+ * @brief      Test: parse_args
+ * @details    When given a gbs file that does not exist<br>
+ *             parse_args fails at parsing the command line<br>
+ *             and the fn returns non-zero value
+ */
+TEST_P(fpgaconf_c_p, parse_args3) {
+  const char *argv[] = { "fpgaconf", "no-file.gbs" };
+  EXPECT_NE(parse_args(2, (char**)argv), 0);
+}
+
+
 
 /**
  * @test       ifc_id1
