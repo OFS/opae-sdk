@@ -54,7 +54,7 @@ struct config {
 
 	const char *socket;
 
-	const char *null_gbs[MAX_NULL_GBS];
+	char *null_gbs[MAX_NULL_GBS];
 	unsigned int num_null_gbs;
 };
 

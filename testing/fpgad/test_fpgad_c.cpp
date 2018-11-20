@@ -54,6 +54,7 @@ int fpgad_main(int argc, char *argv[]);
 #include <cstring>
 #include <errno.h>
 #include <unistd.h>
+#include <fstream>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -64,12 +65,20 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
   fpgad_fpgad_c_p() {}
 
   virtual void SetUp() override {
+    strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
+    close(mkstemps(tmpnull_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+    null_gbs_ = system_->assemble_gbs_header(platform_.devices[0]);
+
+    std::ofstream gbs;
+    gbs.open(tmpnull_gbs_, std::ios::out|std::ios::binary);
+    gbs.write((const char *) null_gbs_.data(), null_gbs_.size());
+    gbs.close();
 
     fLog = stdout;
     optind = 0;
@@ -82,6 +91,8 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  std::vector<uint8_t> null_gbs_;
+  char tmpnull_gbs_[20];
   struct config config_;
   test_platform platform_;
   test_system *system_;
@@ -221,7 +232,7 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   strcpy(six, "-s");
   strcpy(seven, "sock");
   strcpy(eight, "-n");
-  strcpy(nine, "null_gbs");
+  strcpy(nine, tmpnull_gbs_);
   strcpy(ten, "-h");
 
   char *argv[] = { zero, one, two, three, four,
@@ -233,8 +244,51 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   EXPECT_STREQ(config.logfile, "log");
   EXPECT_STREQ(config.pidfile, "pid");
   EXPECT_STREQ(config.socket, "sock");
-  EXPECT_STREQ(config.null_gbs[0], "null_gbs");
+  EXPECT_STREQ(basename(config.null_gbs[0]), tmpnull_gbs_);
   EXPECT_EQ(config.num_null_gbs, 1);
+}
+
+/**
+ * @test       invalid_nullgbs
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with a null_gbs that is invalid<br>
+ *             it fails to add the null gbs to the config struct<br>
+ */
+TEST_P(fpgad_fpgad_c_p, invalid_nullgbs) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  strcpy(zero, "fpgad");
+  strcpy(one, "-d");
+  strcpy(two, "-l");
+  strcpy(three, "log");
+  strcpy(four, "-p");
+  strcpy(five, "pid");
+  strcpy(six, "-s");
+  strcpy(seven, "sock");
+  strcpy(eight, "-n");
+  strcpy(nine, "no-file");
+  strcpy(ten, "-h");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six, seven, eight, nine,
+                   ten };
+
+  EXPECT_NE(fpgad_main(11, argv), 0);
+  EXPECT_NE(config.daemon, 0);
+  EXPECT_STREQ(config.logfile, "log");
+  EXPECT_STREQ(config.pidfile, "pid");
+  EXPECT_STREQ(config.socket, "sock");
+  EXPECT_FALSE(config.null_gbs[0]);
+  EXPECT_EQ(config.num_null_gbs, 0);
 }
 
 /**
@@ -253,6 +307,7 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
 
   EXPECT_NE(fpgad_main(2, argv), 0);
 }
+
 
 /**
  * @test       main_invalid
@@ -300,6 +355,31 @@ TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
            it should return a non-zero.
   */
   EXPECT_EQ(fpgad_main(15, argv), 0);
+}
+
+TEST_P(fpgad_fpgad_c_p, gbsarg_lead_nullchar) {
+  const char* argv[] = { "fpgad", "-n", "\0null.gbs"};
+  EXPECT_NE(fpgad_main(3, (char**)argv), 0);
+}
+
+TEST_P(fpgad_fpgad_c_p, gbsarg_inner_nullchar) {
+  const char* argv[] = { "fpgad", "-n", "null\0.gbs"};
+  EXPECT_NE(fpgad_main(3, (char**)argv), 0);
+}
+
+TEST_P(fpgad_fpgad_c_p, gbsarg_carriage_return) {
+  const char* argv[] = { "fpgad", "-n", "n\15ll.gbs"};
+  EXPECT_NE(fpgad_main(3, (char**)argv), 0);
+}
+
+TEST_P(fpgad_fpgad_c_p, gbsarg_backtick) {
+  const char* argv[] = { "fpgad", "-n", "/tmp/`rm dummy.txt`/three/four/five/null.gbs"};
+  EXPECT_NE(fpgad_main(3, (char**)argv), 0);
+}
+
+TEST_P(fpgad_fpgad_c_p, gbsarg_non_print) {
+  const char* argv[] = { "fpgad", "-n", "/one/\07/three/\21/four/five\32/null.gbs"};
+  EXPECT_NE(fpgad_main(3, (char**)argv), 0);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,

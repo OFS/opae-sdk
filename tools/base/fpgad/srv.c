@@ -410,7 +410,6 @@ void *server_thread(void *thread_context)
 
 out_close_server:
 	close(server_socket);
-
 	return NULL;
 }
 
