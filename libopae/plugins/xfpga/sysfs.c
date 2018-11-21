@@ -879,7 +879,7 @@ fpga_result opae_glob_path(char *path)
 		default:
 			res = FPGA_EXCEPTION;
 		}
-		if (pglob.gl_pathc && pglob.gl_pathv) {
+		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
 	}
@@ -992,10 +992,6 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	if (flags & FPGA_OBJECT_GLOB) {
 		res = opae_glob_path(sysfspath);
 	}
-	obj = alloc_fpga_object(sysfspath, name);
-	if (!obj) {
-		return FPGA_NO_MEMORY;
-	}
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
 		FPGA_MSG("Error accessing %s: %s", sysfspath, strerror(errno));
@@ -1016,6 +1012,10 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 
 	if (S_ISDIR(objstat.st_mode)) {
 		return make_sysfs_group(sysfspath, name, object, flags, handle);
+	}
+	obj = alloc_fpga_object(sysfspath, name);
+	if (!obj) {
+		return FPGA_NO_MEMORY;
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
