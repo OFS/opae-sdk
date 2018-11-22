@@ -164,47 +164,6 @@ class COMMON(object):
             return ports
 
 
-class PKVLCOMMON(COMMON):
-    PKVL_PHY_NUMBER = 2
-    PKVL_PORT_NUMBER = 4
-    # IOCTL command
-    PKVL_READ_PHY_REG = 0xB800
-    PKVL_WRITE_PHY_REG = 0xB801
-
-    PKVL_REG_WIDTH = 16
-    data_fmt = '=IIHHH'
-    data_len = struct.calcsize(data_fmt)
-    char_devs = {}
-
-    def get_pkvl_char_device(self, pkvl_devs):
-        for d in pkvl_devs:
-            with open(d, 'r') as f:
-                dev = f.readline().strip()
-            pkvl_dev = os.path.join(char_dev, dev)
-            pn = os.path.basename(os.path.dirname(d))
-            m = re.match(r'pkvl(\d+)', pn)
-            if m:
-                phy = int(m.group(1))
-                if phy not in self.char_devs:
-                    print('PKVL phy: {} device: {}'.format(phy, pkvl_dev))
-                self.char_devs[phy] = pkvl_dev
-        if not self.char_devs:
-            exception_quit('Not found pkvl char device to do ioctl')
-        m = [i for i in range(self.PKVL_PHY_NUMBER) if i not in self.char_devs]
-        if m:
-            exception_quit('pkvl phy {} not found'.format(m))
-
-    def pkvl_phy_reg_set_field(self, phy, dev, reg, idx, width, value):
-        with open(self.char_devs[phy], 'rw') as f:
-            v = struct.pack(self.data_fmt, self.data_len, 0, dev, reg, 0)
-            r = self.ioctl(f, self.PKVL_READ_PHY_REG, v)
-            l, a, d, r, v = struct.unpack(self.data_fmt, r)
-            v = self.register_field_set(v, idx, width, value)
-            v = struct.pack(self.data_fmt, self.data_len, 0, dev, reg, v)
-            self.ioctl(f, self.PKVL_WRITE_PHY_REG, v)
-            time.sleep(0.001)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bus')

@@ -81,21 +81,6 @@ This enable/disable FPGA loopback.
 This get fpga mac statistics.
 
 
-**pkvllpbk**
-
-This enable/disable Marvell 88EC055 chip loopback.
-
-
-**pkvlstats**
-
-This get Marvell 88EC055 chip statistics.
-
-
-**pkvllink**
-
-This get Marvell 88EC055 chip link status.
-
-
 **mactest**
 
 This compare mac addresses that read from MAC ROM with mac addresses read from Fortville.
@@ -421,44 +406,6 @@ This compare mac addresses that read from MAC ROM with mac addresses read from F
     0 <= port <= 7, the default is all.
 
 
-### **pkvllpbk** test options ###
-`--enable`
-
-    Enable Marvell 88EC055 phy loopback.
-
-`--disable`
-
-    Disable Marvell 88EC055 phy loopback.
-
-`--direction`
-
-    Can be local, remote.
-
-`--port`
-
-    0 <= port <= 7, the default is all.
-
-
-### **pkvlsetup** test options ###
-`--speed`
-
-    Can be 10G, 25G, The default=10G.
-
-`--port`
-
-    0 <= port <= 7, the default is all.
-
-
-### **pkvlstats** test options ###
-`--enable`
-
-    Enable statistics registers.
-
-`--clear`
-
-    Clear statistics registers.
-
-
 ### **mactest** test options ###
 `--offset`
 
@@ -504,30 +451,6 @@ This command enable a `fpgalpbk` on the FPGA located on bus `0xbe`.
 This command show `fpgastats` on the FPGA located on bus `0xbe`.
 ```console
 ./fpgadiag -m fpgastats --bus 0xbe
-```
-
-
-This command enable loopback on Marvell 88EC055 on the FPGA located on bus `0xbe`.
-```console
-./fpgadiag -m pkvllpbk --bus 0xbe --enable --direction local
-```
-
-
-This command show statistics of Marvell 88EC055 on the FPGA located on bus `0xbe`.
-```console
-./fpgadiag -m pkvlstats --bus 0xbe
-```
-
-
-This command configure 10G mode on Marvell 88EC055 on the FPGA located on bus `0xbe`.
-```console
-./fpgadiag -m pkvlsetup --bus 0xbe --speed 10G
-```
-
-
-This command show Marvell 88EC055 link status on the FPGA located on bus `0xbe`.
-```console
-./fpgadiag -m pkvllink --bus 0xbe
 ```
 
 
