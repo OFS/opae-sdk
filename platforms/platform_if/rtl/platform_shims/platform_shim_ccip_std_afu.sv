@@ -167,6 +167,13 @@ module platform_shim_ccip_std_afu
     //  Instantiate the AFU
     // ====================================================================
 
+    // Add a timing stage to reset
+    logic afu_cp2af_softReset_q = 1'b1;
+    always @(posedge `PLATFORM_PARAM_CCI_P_CLOCK)
+    begin
+        afu_cp2af_softReset_q <= afu_cp2af_softReset;
+    end
+
     `AFU_TOP_MODULE_NAME
       #(
         `PLATFORM_ARG_LIST_BEGIN
@@ -191,7 +198,7 @@ module platform_shim_ccip_std_afu
         .pClkDiv4(pClkDiv4),
         .uClk_usr(uClk_usr),
         .uClk_usrDiv2(uClk_usrDiv2),
-        .pck_cp2af_softReset(afu_cp2af_softReset),
+        .pck_cp2af_softReset(afu_cp2af_softReset_q),
 `ifdef AFU_TOP_REQUIRES_POWER_2BIT
         .pck_cp2af_pwrState(afu_cp2af_pwrState),
 `endif
