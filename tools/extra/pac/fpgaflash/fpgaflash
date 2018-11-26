@@ -39,8 +39,9 @@ import re
 import time
 from array import array
 
-VCP_ID = 0x09c4     # TODO: update to Vista Creek dev ID if determinated
-VCP_RPD_USER_IMAGE_OFFSET = 0x20000
+VCP_ID = 0x0b30
+VCP_PF1_ID = 0x0b32
+VCP_RPD_USER_IMAGE_OFFSET = 0x3ff0000
 VCP_RPD_USER_IMAGE_LENGTH = 0x3800000
 VCP_FLASH_PAGE1_OFFSET = 0x4000000
 VCP_FLASH_SECTOR_SIZE = 0x10000
@@ -170,6 +171,10 @@ def parse_args():
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
+    rsu_help = "enable remote system upgrade (RSU) feature"
+    rsu_help += ", valid only for type 'user'"
+    parser.add_argument('-r', '--rsu', action='store_true', help=rsu_help)
+
     bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
     bdf_help += " optional when one device in system"
 
@@ -197,24 +202,23 @@ def get_fpga_sysfs_path(bdf):
     return None
 
 
-def get_spi_sysfs_path(bdf, master, slave):
+def get_spi_sysfs_path(bdf):
     fpga_path = get_fpga_sysfs_path(bdf)
     if not fpga_path:
         return None
     else:
         paths = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
                                        'spi-altera.*', 'spi_master',
-                                       'spi{}'.format(master),
-                                       'spi{}.{}'.format(master, slave)))
+                                       'spi*', 'spi*.*'))
         if not paths:
             return None
         if len(paths) > 1:
-            print("multiple spi{}.{} found @ {}".format(master, slave, bdf))
+            print("multiple spi found @ {}".format(bdf))
         return paths[0]
 
 
 def set_flash_mode(bdf, type, value):
-    spi_path = get_spi_sysfs_path(bdf, 0, 0)
+    spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
         return
     else:
@@ -245,7 +249,7 @@ def disable_mtd(bdf):
 
 
 def get_mtd(bdf):
-    spi_path = get_spi_sysfs_path(bdf, 0, 0)
+    spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
         return
     else:
@@ -729,6 +733,76 @@ def bmc_update(utype, ifile, bdf):
     return 0
 
 
+def read_root_ports(path):
+    p = re.compile(r'\d{4}:(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d)')
+    symlink = os.readlink(path)
+    m = p.findall(symlink)
+    ports = []
+    for n in m:
+        ports.append(n[0]+':'+n[1]+'.'+n[2])
+
+    # search FPGA PF1 root path
+    if len(ports) > 2:
+        paths = glob.glob(os.path.join('/sys/bus/pci/devices',
+                                       '*:' + ports[-3], '*:*:*.*', '*:*:*.*',
+                                       'device'))
+        for devpath in paths:
+            with open(devpath, 'r') as fd:
+                devid = fd.read().strip()
+                if int(devid, 16) == VCP_PF1_ID:
+                    m = p.findall(devpath)
+                    for n in m:
+                        port = n[0]+':'+n[1]+'.'+n[2]
+                        if port not in ports:
+                            ports.append(port)
+                    break
+
+    return ports
+
+
+def set_aer(port, mask):
+    r = os.system("sudo setpci -s {} ECAP_AER+0x08.L={:#x}".format(port, mask))
+    if r != 0:
+        return r
+    r = os.system("sudo setpci -s {} ECAP_AER+0x14.L={:#x}".format(port, mask))
+    return r
+
+
+def disable_aer(port):
+    return set_aer(port, 0xFFFFFFFF)
+
+
+def enable_aer(port):
+    return set_aer(port, 0x00000000)
+
+
+def write_sysfs_node(path, value):
+    if not os.path.exists(path):
+        print("WARNING: {} not found".format(path))
+        return 1
+    with open(path, 'w') as fd:
+        fd.write(str(value))
+        return 0
+
+
+def trigger_rsu(bdf):
+    spi_path = get_spi_sysfs_path(bdf)
+    if not spi_path:
+        return 1
+    else:
+        path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
+        return write_sysfs_node(path, 1)
+
+
+def remove_device(bdf):
+    path = os.path.join('/sys/bus/pci/devices', bdf, 'remove')
+    return write_sysfs_node(path, 1)
+
+
+def rescan_device():
+    return write_sysfs_node('/sys/bus/pci/rescan', 1)
+
+
 def main():
     args = parse_args()
 
@@ -761,6 +835,28 @@ def main():
         ret = fpga_update(args.type, args.file, bdf, bdf_map)
 
     disable_mtd(bdf)
+
+    # RSU procedure
+    if args.type == 'user' and ret == 0 and args.rsu:
+        print("reloading fpga")
+        ports = read_root_ports(os.path.join('/sys/bus/pci/drivers',
+                                             'intel-fpga-pci', bdf))
+        if len(ports) > 0:
+            pf1_bdf = normalize_bdf(ports[-1])
+            for p in ports:
+                ret = disable_aer(p)
+                if ret != 0:
+                    sys.exit(ret)
+            ret = trigger_rsu(bdf)
+            if ret == 0:
+                ret = remove_device(bdf)
+                if ret == 0 and pf1_bdf != bdf:
+                    remove_device(pf1_bdf)
+                time.sleep(10)
+                ret = rescan_device()
+            for p in ports:
+                enable_aer(p)
+
     sys.exit(ret)
 
 
