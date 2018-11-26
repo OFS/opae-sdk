@@ -1289,7 +1289,8 @@ fpga_result  parse_metric_num_name(const char *search_string,
 		FPGA_ERR("Invlaid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
-	qualifier_name[init_size - 1] = '\0';
+	if (init_size < FPGA_METRIC_STR_SIZE)
+		qualifier_name[init_size - 1] = '\0';
 
 	result = fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
