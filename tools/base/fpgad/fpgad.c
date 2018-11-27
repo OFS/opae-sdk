@@ -131,7 +131,7 @@ void resolve_dirs(struct config *c)
 
 		// Accept ${HOME} only if it is rooted at /home.
 		if (home) {
-			char *canon_path = canonicalize_file_name(home);
+			canon_path = canonicalize_file_name(home);
 			int len = strnlen_s(canon_path, PATH_MAX);
 			if (len >= 5)
 				strcmp_s(canon_path, 5, "/home/", &res);
