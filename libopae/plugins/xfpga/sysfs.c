@@ -920,6 +920,8 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	errno_t err;
 	fpga_object subobj;
 	fpga_result res = FPGA_OK;
+	struct _fpga_object *group;
+
 	if (flags & FPGA_OBJECT_GLOB) {
 		res = opae_glob_path(sysfspath);
 	}
@@ -944,7 +946,13 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 		FPGA_ERR("Group is empty");
 		return FPGA_EXCEPTION;
 	}
-	struct _fpga_object *group = alloc_fpga_object(sysfspath, name);
+
+	group = alloc_fpga_object(sysfspath, name);
+	if (!group) {
+		res = FPGA_NO_MEMORY;
+		goto out_free_namelist;
+	}
+
 	group->handle = handle;
 	group->type = FPGA_SYSFS_DIR;
 	if (flags & FPGA_OBJECT_RECURSE_ONE
@@ -952,6 +960,10 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 		ptr = sysfspath + pathlen;
 		*ptr++ = '/';
 		group->objects = calloc(n, sizeof(fpga_object));
+		if (!group->objects) {
+			res = FPGA_NO_MEMORY;
+			goto out_free_group;
+		}
 		group->size = 0;
 		while (n--) {
 			err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
@@ -978,6 +990,20 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 
 	*object = (fpga_object)group;
 	return FPGA_OK;
+
+out_free_group:
+	if (group->path)
+		free(group->path);
+	if (group->name)
+		free(group->name);
+	free(group);
+
+out_free_namelist:
+	while (n--)
+		free(namelist[n]);
+	free(namelist);
+
+	return res;
 }
 
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
