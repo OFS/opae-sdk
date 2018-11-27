@@ -68,8 +68,6 @@ protected:
     typedef ctr_map_t::iterator ctr_map_iter_t;
     typedef ctr_map_t::const_iterator const_ctr_map_iter_t;
 
-    void freeze(bool f);
-
     ctr_map_t read_counters();
     uint64_t read_counter(ctr_t c);
 
@@ -109,8 +107,6 @@ protected:
     typedef std::map<ctr_t, uint64_t> ctr_map_t;
     typedef ctr_map_t::iterator ctr_map_iter_t;
     typedef ctr_map_t::const_iterator const_ctr_map_iter_t;
-
-    void freeze(bool f);
 
     ctr_map_t read_counters();
     uint64_t read_counter(ctr_t c);
