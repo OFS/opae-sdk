@@ -126,8 +126,16 @@ void resolve_dirs(struct config *c)
 	} else {
 		// We're not root. Try to use ${HOME}/.opae
 		char *home = getenv("HOME");
+		int res = 1;
 
+		// Accept ${HOME} only if it is rooted at /home.
 		if (home) {
+			int len = strnlen_s(home, PATH_MAX);
+			if (len >= 5)
+				strcmp_s(home, 5, "/home/", &res);
+		}
+
+		if (home && !res) {
 			snprintf_s_s(c->directory, sizeof(c->directory),
 					"%s/.opae", home);
 		} else {
