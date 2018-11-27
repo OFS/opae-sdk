@@ -60,11 +60,11 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		{"segment", required_argument, NULL, 0xe},
 		{0, 0, 0, 0},
 	};
-	int supported_options = sizeof(longopts) / sizeof(longopts[0]) - 1;
 	int getopt_ret = -1;
 	int option_index = 0;
 	char *endptr = NULL;
 	int found_opts[] = {0, 0, 0, 0};
+	int supported_options = sizeof(found_opts) / sizeof(int);
 	int next_found = 0;
 	int old_opterr = opterr;
 	opterr = 0;
