@@ -266,6 +266,10 @@ int main(int argc, char *argv[])
 	}
 
 	metrics = calloc(num_matches, sizeof(token_group));
+	if (metrics == NULL) {
+		fprintf(stderr, "Could not allocate array for metrics\n");
+		goto out_free;
+	}
 
 	for (i = 0; i < num_matches; ++i) {
 		metrics[i].token = tokens[i];
