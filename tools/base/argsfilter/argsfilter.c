@@ -64,7 +64,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	int getopt_ret = -1;
 	int option_index = 0;
 	char *endptr = NULL;
-	int found_opts[] = {0, 0, 0, 0};
+	int found_opts[] = {0, 0, 0, 0, 0};
 	int next_found = 0;
 	int old_opterr = opterr;
 	opterr = 0;
