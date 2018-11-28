@@ -126,18 +126,20 @@ void resolve_dirs(struct config *c)
 	} else {
 		// We're not root. Try to use ${HOME}/.opae
 		char *home = getenv("HOME");
+		char *canon_path = NULL;
 		int res = 1;
 
 		// Accept ${HOME} only if it is rooted at /home.
 		if (home) {
-			int len = strnlen_s(home, PATH_MAX);
+			canon_path = canonicalize_file_name(home);
+			int len = strnlen_s(canon_path, PATH_MAX);
 			if (len >= 5)
-				strcmp_s(home, 5, "/home/", &res);
+				strcmp_s(canon_path, 5, "/home/", &res);
 		}
 
-		if (home && !res) {
+		if (canon_path && !res) {
 			snprintf_s_s(c->directory, sizeof(c->directory),
-					"%s/.opae", home);
+					"%s/.opae", canon_path);
 		} else {
 			char cwd[PATH_MAX];
 			// ${HOME} not found - use current dir.
@@ -149,6 +151,10 @@ void resolve_dirs(struct config *c)
 				strncpy_s(c->directory, sizeof(c->directory),
 						"/.opae", 6);
 			}
+		}
+
+		if (canon_path) {
+			free(canon_path);
 		}
 		mode = 0775;
 		c->filemode = 0022;
