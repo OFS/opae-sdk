@@ -1,4 +1,4 @@
-Open Programmable Acceleration Engine (OPAE )is a software framework for managing and accessing programmable accelerators (FPGAs). Its main parts are:
+Open Programmable Acceleration Engine (OPAE)is a software framework for managing and accessing programmable accelerators (FPGAs). Its main parts are:
 
 -   OPAE Software Development Kit (OPAE SDK),
 
