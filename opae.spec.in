@@ -125,7 +125,6 @@ ldconfig
 %files tools
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
-@CMAKE_INSTALL_PREFIX@/bin/fpgaconf
 
 
 %files tools-extra
@@ -146,11 +145,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
 @CMAKE_INSTALL_PREFIX@/bin/fpgamux
 @CMAKE_INSTALL_PREFIX@/bin/packager
-@CMAKE_INSTALL_PREFIX@/bin/pkvllink
 @CMAKE_INSTALL_PREFIX@/bin/mactest
-@CMAKE_INSTALL_PREFIX@/bin/pkvlstats
 @CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
-@CMAKE_INSTALL_PREFIX@/bin/pkvllpbk
 @CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae

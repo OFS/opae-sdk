@@ -32,7 +32,7 @@ import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
-REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
+REQ_CMDS = ['lspci', 'fpgainfo', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 VCP_ID = 0x0b30
 
