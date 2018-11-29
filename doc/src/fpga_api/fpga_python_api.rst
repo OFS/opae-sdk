@@ -52,4 +52,7 @@ Error
 .. autoclass:: opae.fpga.error
         :members: name, can_clear, read_value
 
-
+SysObject
+---------
+.. autoclass:: opae.fpga.sysobject
+        :members: __getattr__, __getitem__, find, read64, write64, size, bytes
