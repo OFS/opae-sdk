@@ -52,7 +52,7 @@ typedef struct fpga_metric_metadata {
 
 } fpga_metric_metadata;
 
-#define MCP_MDATA_SIZE 62
+#define MCP_MDATA_SIZE 61
 
 fpga_metric_metadata mcp_metric_metadata[] = {
 
