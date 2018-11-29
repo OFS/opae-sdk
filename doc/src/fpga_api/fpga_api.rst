@@ -120,6 +120,18 @@ manage.h
 
 .. doxygenfile:: include/opae/manage.h
 
+
+Metrics API
+==============
+
+The metrics APIs define functions for discover/enumerates metrics information
+and retrieves/read metric current values.
+
+metrics.h
+--------
+
+.. doxygenfile:: include/opae/metrics.h
+
 Utilities
 =========
 
