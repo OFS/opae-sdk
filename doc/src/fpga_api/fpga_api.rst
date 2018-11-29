@@ -124,8 +124,8 @@ manage.h
 Metrics API
 ==============
 
-The metrics APIs define functions for discover/enumerates metrics information
-and retrieves/read metric current values.
+The metrics APIs define functions for discovery/enumeration of metrics information
+and reading metrics values.
 
 metrics.h
 --------
