@@ -58,9 +58,9 @@ Major Changes from 1.1.0 to 1.2.0
 
 Notes / Known Issues
 --------------------
--   OPAE in transitioning to a plugin-centric model. What was the opae-c library in
+-   OPAE is transitioning to a plugin-centric model. What was the opae-c library in
 prior releases now exists as a local plugin, named xfpga. The new opae-c library
-is an API shell that discovers and utilizes plugins. For more information, refer
+is an API shell that discovers and utilizes plugins. This enables supporting multiple platforms simultaneously through dynamic discovery and loading of plugins. For more information, refer
 to the [plugin developer's guide](https://opae.github.io/latest/docs/fpga_api/plug_guide/readme.html). 
 
 -   Metrics API / fpgainfo tool require latest FIM and drivers for PAC platforms
