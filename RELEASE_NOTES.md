@@ -50,7 +50,7 @@ Major Changes from 1.1.0 to 1.2.0
 - Defined and implemented Metrics API
 - Added Python version for fpgadiag
 - Implemented Python distributions to be generated for pyfpgadiag, pypackager and pyfpgaflash
-- Defined and implemented Object API
+- Defined and implemented SysObject API
 - Increased test coverage
 - Cleaned up dead/legacy code
 - Various bug fixes
@@ -64,6 +64,12 @@ is an API shell that discovers and utilizes plugins. For more information, refer
 to the [plugin developer's guide](https://opae.github.io/latest/docs/fpga_api/plug_guide/readme.html). 
 
 -   Metrics API / fpgainfo tool require latest FIM and drivers for PAC platforms
+
+-   fpgadiag has also been ported to use the supported OPAE C++ API (in addition to Python version).
+    fpgamux has not been ported but will be ported in a future release.
+    The C++ library previously used will be deprecated.
+
+-   Any SysObject names used with the SysObject API are driver specific and may not be compatible accross plugins and/or drivers.
 
 -   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10. Preliminary debug information seems to indicate it may be related to hugepage support in the Linux kernel.
 
