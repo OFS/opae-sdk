@@ -124,10 +124,10 @@ SysObject
 =========
 
 The SysObject API can be used to get system objects by name. Names used with
-the SysObject API are driver specific any may not be compatible accross plugins
-and/or drivers. For example, SysObject names used with xfpga plugin will apply
-to the OPAE Linux Kernel driver and refer to sysfs nodes under the sysfs tree
-for the resource used with the SysObject API.
+the SysObject API are driver specific any may not be compatible across plugins
+and/or drivers. For example, SysObject names used with the xfpga plugin will
+apply to the OPAE Linux Kernel driver and refer to sysfs nodes under the sysfs
+tree for the resource used with the SysObject API.
 
 
 sysobject.h
