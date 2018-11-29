@@ -133,50 +133,45 @@ fpga_cache_counters operator - (const fpga_cache_counters &l,
     return ctrs;
 }
 
-void fpga_cache_counters::freeze(bool f)
-{
-    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
-    auto cache = sysobject::get(handle, "*perf/cache", FPGA_OBJECT_GLOB);
-
-    auto freeze = cache->get("freeze");
-    freeze->write64((f ? 1 : 0));
-    handle->close();
-}
-
 fpga_cache_counters::ctr_map_t fpga_cache_counters::read_counters()
 {
     ctr_t c;
     ctr_map_t m;
+    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
 
-    try {
-        freeze(true);
-    } catch(not_found &err) {
-        return m;
+    if (handle) {
+        auto cache = sysobject::get(handle, "*perf/cache", FPGA_OBJECT_GLOB);
+
+        if (cache) {
+            auto freeze = cache->get("freeze");
+            freeze->write64(1);
+
+            c = ctr_t::read_hit;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::write_hit;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::read_miss;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::write_miss;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::hold_request;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::data_write_port_contention;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::tag_write_port_contention;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::tx_req_stall;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::rx_req_stall;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::rx_eviction;
+            m.insert(std::make_pair(c, read_counter(c)));
+
+            freeze->write64(0);
+        }
+
+        handle->close();
     }
-
-    c = ctr_t::read_hit;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::write_hit;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::read_miss;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::write_miss;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::hold_request;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::data_write_port_contention;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::tag_write_port_contention;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::tx_req_stall;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::rx_req_stall;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::rx_eviction;
-    m.insert(std::make_pair(c, read_counter(c)));
-
-    freeze(false);
-
     return m;
 }
 
@@ -304,44 +299,40 @@ fpga_fabric_counters operator - (const fpga_fabric_counters &l,
     return ctrs;
 }
 
-void fpga_fabric_counters::freeze(bool f)
-{
-    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
-    auto cache = sysobject::get(handle, "*perf/fabric", FPGA_OBJECT_GLOB);
-
-    auto freeze = cache->get("freeze");
-    freeze->write64((f ? 1 : 0));
-    handle->close();
-}
-
 fpga_fabric_counters::ctr_map_t fpga_fabric_counters::read_counters()
 {
     ctr_t c;
     ctr_map_t m;
-    try {
-        freeze(true);
-    } catch(not_found &err) {
-        return m;
+    auto handle = handle::open(fme_, FPGA_OPEN_SHARED);
+
+    if (handle) {
+        auto fabric = sysobject::get(handle, "*perf/fabric", FPGA_OBJECT_GLOB);
+
+        if (fabric) {
+            auto freeze = fabric->get("freeze");
+            freeze->write64(1);
+
+            c = ctr_t::mmio_read;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::mmio_write;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::pcie0_read;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::pcie0_write;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::pcie1_read;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::pcie1_write;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::upi_read;
+            m.insert(std::make_pair(c, read_counter(c)));
+            c = ctr_t::upi_write;
+            m.insert(std::make_pair(c, read_counter(c)));
+
+            freeze->write64(0);
+        }
+        handle->close();
     }
-
-    c = ctr_t::mmio_read;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::mmio_write;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::pcie0_read;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::pcie0_write;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::pcie1_read;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::pcie1_write;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::upi_read;
-    m.insert(std::make_pair(c, read_counter(c)));
-    c = ctr_t::upi_write;
-    m.insert(std::make_pair(c, read_counter(c)));
-
-    freeze(false);
 
     return m;
 }
