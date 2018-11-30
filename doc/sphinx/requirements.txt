@@ -1,4 +1,4 @@
-requests==2.18.4
+requests==2.20.0
 docutils==0.14
 pygments==2.2.0
 sphinx==1.6.5
