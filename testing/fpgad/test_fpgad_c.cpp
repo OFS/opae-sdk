@@ -316,21 +316,21 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
  *             it returns 1.<br>
  */
 TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
-  char zero[32];
-  char one[32];
-  char two[32];
-  char three[32];
-  char four[32];
-  char five[32];
-  char six[32];
-  char seven[32];
-  char eight[32];
-  char nine[32];
-  char ten[32];
-  char eleven[32];
-  char twelve[32];
-  char thirteen[32];
-  char fourteen[32];
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  char seven[20];
+  char eight[20];
+  char nine[20];
+  char ten[20];
+  char eleven[20];
+  char twelve[20];
+  char thirteen[20];
+  char fourteen[20];
   strcpy(zero, "  fpgad  ");
   strcpy(one, "--daemon\x00\x08\x09\x0B\x0D");
   strcpy(two, "-D");
