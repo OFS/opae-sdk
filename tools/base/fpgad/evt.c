@@ -43,8 +43,9 @@ static void evt_notify_error_callback(struct client_event_registry *r,
 	}
 }
 
-void evt_notify_error(const struct fpga_err *e)
+void evt_notify_error(uint8_t socket_id, const struct fpga_err *e)
 {
+	UNUSED_PARAM(socket_id);
 	for_each_registered_event(evt_notify_error_callback, e);
 }
 
@@ -60,16 +61,17 @@ static void evt_notify_ap6_callback(struct client_event_registry *r,
 	}
 }
 
-void evt_notify_ap6(const struct fpga_err *e)
+void evt_notify_ap6(uint8_t socket_id, const struct fpga_err *e)
 {
+	UNUSED_PARAM(socket_id);
 	for_each_registered_event(evt_notify_ap6_callback, e);
 }
 
 /* trigger NULL bitstream programming and notify AP6 event clients */
-void evt_notify_ap6_and_null(const struct fpga_err *e)
+void evt_notify_ap6_and_null(uint8_t socket_id, const struct fpga_err *e)
 {
-	dlog("triggering NULL bitstream programming on socket %i\n", e->socket);
-	sem_post(&ap6_sem[e->socket]);
-	evt_notify_ap6(e);
+	dlog("triggering NULL bitstream programming on socket %d\n", (int)socket_id);
+	sem_post(&ap6_sem[socket_id]);
+	evt_notify_ap6(socket_id, e);
 }
 

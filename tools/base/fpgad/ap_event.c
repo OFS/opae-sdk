@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,10 @@
 
 #include "safe_string/safe_string.h"
 
+
+#define SYSFS_PORT0 "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0"
+#define SYSFS_PORT1 "/sys/class/fpga/intel-fpga-dev.1/intel-fpga-port.1"
+
 enum fpga_power_state {
 	NORMAL_PWR = 0,
 	AP1_STATE,
@@ -42,30 +46,206 @@ enum fpga_power_state {
 	AP6_STATE
 };
 
+#define PORT_AP(fil, field, lo, hi) { fil, field, lo, hi, NULL }
 
-static int read_event(char *sysfspath, uint64_t *value)
+struct fpga_err mcp_ap_event_table_rev_0[] = {
+	PORT_AP("ap1_event",   "AP1 Triggered!",      0, 0),
+	PORT_AP("ap2_event",   "AP2 Triggered!",      0, 0),
+	PORT_AP("power_state", "Power state changed", 0, 1),
+	TABLE_TERMINATOR
+};
+
+supported_devices ap_supported_port_devices[] = {
+	{ 0x8086, 0xbcc0, 0, mcp_ap_event_table_rev_0 },
+	{ 0x8086, 0xbcc1, 0, mcp_ap_event_table_rev_0 },
+};
+
+monitored_device *ap_monitored_device_list;
+
+
+
+
+monitored_device * ap_add_monitored_device(fpga_token token,
+					   uint8_t socket_id,
+					   supported_device *device)
 {
-	struct stat st;
-	int i;
-	fpga_result res;
+	monitored_device *md = malloc(sizeof(monitored_device));
 
-	if (sysfspath == NULL || value == NULL) {
-		return -1;
+	if (md) {
+		md->token = token;
+		md->socket_id = socket_id;
+		md->device = device;
+		md->num_error_occurrences = 0;
+
+		/* Add it to the list */
+		md->next = ap_monitored_device_list;
+		ap_monitored_device_list = md;
 	}
 
-	i = stat(sysfspath, &st);
-	if (i != 0) {// file may not exist on single-socket.
-		return 0;
-	}
-
-	res = fpgad_sysfs_read_u64(sysfspath, value);
-	if (res != FPGA_OK) {
-		return -1;
-	}
-
-	return 0;
+	return md;
 }
 
+
+
+int log_ap_event(monitored_device *d, struct fpga_err *e)
+{
+	if (error_already_occurred(d, e))
+		return 0;
+
+	error_just_occurred(d, e);
+
+	dlog("socket %i: %s\n", d->socket_id, e->reg_field);
+
+	if (e->callback)
+		e->callback(d->socket_id, e);
+
+	return 1;
+}
+
+int ap_poll_error(monitored_device *d, struct fpga_err *e)
+{
+	int i;
+	int count = 0;
+
+	uint64_t err = 0;
+	uint64_t mask;
+
+	fpga_result res;
+	fpga_object err_obj = NULL;
+
+	res = fpgaTokenGetObject(d->token, e->sysfsfile, &err_obj, 0);
+	if (res != FPGA_OK) {
+		dlog("logger: failed to get error object\n");
+		return -1;
+	}
+
+	res = fpgaObjectRead64(err_obj, &err, 0);
+	if (res != FPGA_OK) {
+		dlog("logger: failed to read error object\n");
+		fpgaDestroyObject(&err_obj);
+		return -1;
+	}
+
+	fpgaDestroyObject(&err_obj);
+
+	mask = 0;
+	for (i = e->lowbit ; i <= e->highbit ; ++i)
+		mask |= 1ULL << i;
+
+	if (err & mask) {
+		count += log_ap_event(err & mask, d, e);
+	} else {
+		clear_occurrences_of(d, e);
+	}
+
+	return count;
+}
+
+/*
+ * Poll AP Event registers
+ *
+ * @returns number of (new) events that were found
+ */
+int ap_poll_errors(monitored_device *d)
+{
+	unsigned i;
+	int errors = 0;
+	int res;
+
+	for (i = 0 ; d->device->error_table[i].sysfsfile ; ++i) {
+		res = ap_poll_error(d, &d->device->error_table[i]);
+		if (-1 == res)
+			return res;
+		errors += res;
+	}
+
+	return errors;
+}
+
+void *apevent_thread(void *thread_context)
+{
+	struct config *c = (struct config *)thread_context;
+
+	fpga_result res;
+	uint32_t i;
+	uint32_t num_matches = 0;
+	fpga_token *tokens = NULL;
+	monitored_device *d;
+
+	ap_monitored_device_list = NULL;
+
+	dlog("apevent: starting\n");
+
+	/* Enumerate all devices */
+	res = fpgaEnumerate(NULL, 0, NULL, 0, &num_matches);
+	if (res != FPGA_OK) {
+		dlog("apevent: enumeration failed\n");
+		goto out_exit;
+	}
+
+	if (!num_matches) {
+		dlog("apevent: no devices present. Nothing to do.\n");
+		goto out_exit;
+	}
+
+	tokens = calloc(num_matches, sizeof(fpga_token));
+	if (!tokens) {
+		dlog("apevent: calloc failed.\n");
+		goto out_exit;
+	}
+
+	res = fpgaEnumerate(NULL, 0, tokens, num_matches, &num_matches);
+	if (res != FPGA_OK) {
+		dlog("apevent: enumeration failed\n");
+		free(tokens);
+		goto out_exit;
+	}
+
+	/*
+	** Determine if we support this device. If so,
+	** then add it to monitored_device_list.
+	*/
+	for (i = 0 ; i < num_matches ; ++i) {
+		ap_consider_device(tokens[i]);
+	}
+
+	if (!ap_monitored_device_list) {
+		dlog("apevent: no matching devices\n");
+		goto out_destroy_tokens;
+	}
+
+	while (c->running) {
+
+		for (d = ap_monitored_device_list ; d ; d = d->next) {
+			if (ap_poll_errors(d) < 0) {
+				dlog("apevent: error polling errors. Aborting!\n");
+				goto out_destroy_list;
+			}
+		}
+
+		usleep(c->poll_interval_usec);
+	}
+
+out_destroy_list:
+	for (d = ap_monitored_device_list ; d ; ) {
+		monitored_device *trash = d;
+		d = d->next;
+		free(trash);
+	}
+	ap_monitored_device_list = NULL;
+
+out_destroy_tokens:
+	for (i = 0 ; i < num_matches ; ++i) {
+		fpgaDestroyToken(&tokens[i]);
+	}
+	free(tokens);
+
+out_exit:
+	dlog("apevent: thread exiting\n");
+	return NULL;
+}
+
+#if 0
 static int poll_ap_event(struct fpga_ap_event *event)
 {
 	char sysfspath[SYSFS_PATH_MAX];
@@ -159,3 +339,4 @@ void *apevent_thread(void *thread_context)
 
 	return NULL;
 }
+#endif

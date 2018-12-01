@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,15 +29,12 @@
 
 struct fpga_err;
 
-// FPGA_EVENT_INTERRUPT
-void evt_notify_accelerator_interrupt(const struct fpga_err *);
-
 // FPGA_EVENT_ERROR
-void evt_notify_error(const struct fpga_err *);
+void evt_notify_error(uint8_t socket_id, const struct fpga_err *);
 
 // FPGA_EVENT_POWER_THERMAL
-void evt_notify_ap6(const struct fpga_err *);
-void evt_notify_ap6_and_null(const struct fpga_err *);
+void evt_notify_ap6(uint8_t socket_id, const struct fpga_err *);
+void evt_notify_ap6_and_null(uint8_t socket_id, const struct fpga_err *);
 
 #endif // __FPGAD_EVT_H__
 
