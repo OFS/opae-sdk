@@ -35,6 +35,7 @@ import sys
 from os import EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
 from os.path import basename
 from fpgadiag import fpgadiag
+# pylint: disable=E0611
 from opae import fpga
 
 
