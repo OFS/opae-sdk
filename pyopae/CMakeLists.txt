@@ -27,85 +27,97 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
 set(PYOPAE_PYBIND11_VERSION "2.2.4")
-set(PYOPAE_SRC opae.cpp
-               pycontext.h
-               pycontext.cpp
-               pyproperties.h
-               pyproperties.cpp
-               pyhandle.h
-               pyhandle.cpp
-               pytoken.h
-               pytoken.cpp
-               pyshared_buffer.h
-               pyshared_buffer.cpp
-               pyevents.h
-               pyevents.cpp
-               pyerrors.h
-               pyerrors.cpp
-               pysysobject.h
-               pysysobject.cpp
-               )
-
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 include_directories(${PYBIND_INCLUDE_DIR}
                     ${PYTHON_INCLUDE_DIRS})
-add_library(_opae MODULE ${PYOPAE_SRC})
-target_include_directories(_opae
+# set(PYOPAE_SRC opae.cpp
+#                pycontext.h
+#                pycontext.cpp
+#                pyproperties.h
+#                pyproperties.cpp
+#                pyhandle.h
+#                pyhandle.cpp
+#                pytoken.h
+#                pytoken.cpp
+#                pyshared_buffer.h
+#                pyshared_buffer.cpp
+#                pyevents.h
+#                pyevents.cpp
+#                pyerrors.h
+#                pyerrors.cpp
+#                pysysobject.h
+#                pysysobject.cpp
+#                )
+# 
+# add_library(_opae MODULE ${PYOPAE_SRC})
+# target_include_directories(_opae
+#     PRIVATE ${PYBIND11_INCLUDE_DIR}
+#     PRIVATE ${PYTHON_INCLUDE_DIRS})
+# target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
+# set_target_properties(_opae PROPERTIES PREFIX ""
+#                        CXX_VISIBILITY_PRESET "hidden"
+#                        LINK_FLAGS "-std=c++11"
+#                        LIBRARY_OUTPUT_DIRECTORY
+#                        ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+#                       )
+# add_custom_command(TARGET _opae
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy
+#     ${CMAKE_CURRENT_SOURCE_DIR}/opae/__init__.py
+#     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae
+#     COMMAND ${CMAKE_COMMAND} -E copy
+#     ${CMAKE_CURRENT_SOURCE_DIR}/opae/fpga/__init__.py
+#     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+#     COMMENT "Copying namespace package files")
+# 
+# add_custom_command(TARGET _opae
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy
+#     ${CMAKE_CURRENT_SOURCE_DIR}/test_pyopae.py
+#     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
+#     COMMENT "Copying Python test files")
+# 
+# if (BUILD_PYTHON_DIST)
+#     set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
+# 
+# 
+#     set(PYFILES
+#         setup.py
+#         opae/__init__.py
+#         opae/fpga/__init__.py
+#         test_pyopae.py
+#         )
+# 
+#     set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+# 
+#     configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
+#     foreach(pyfile ${PYFILES})
+#         configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+#     endforeach(pyfile ${PYFILES})
+# 
+#     foreach(cppfile ${PYOPAE_SRC})
+#         file(COPY ${cppfile} DESTINATION ${PYDIST_STAGE_DIR})
+#     endforeach(cppfile ${PYOPAE_SRC})
+#     file(COPY MANIFEST.in DESTINATION ${PYDIST_STAGE_DIR})
+#     add_custom_target(pyopae-dist
+#         COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+#         COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
+#         --include-dirs=${OPAE_INCLUDE_DIR}
+#         --library-dirs=${LIBRARY_OUTPUT_PATH}
+#         COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+#         DEPENDS ${PYFILES} ${PYOPAE_SRC}
+#         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+#         COMMENT "Building Python distrubutions")
+# endif (BUILD_PYTHON_DIST)
+
+add_library(opae MODULE opae2.cpp)
+target_include_directories(opae
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
-set_target_properties(_opae PROPERTIES PREFIX ""
+target_link_libraries(opae PUBLIC opae-c opae-cxx-core)
+set_target_properties(opae PROPERTIES PREFIX ""
                        CXX_VISIBILITY_PRESET "hidden"
                        LINK_FLAGS "-std=c++11"
                        LIBRARY_OUTPUT_DIRECTORY
-                       ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+                       ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
                       )
-add_custom_command(TARGET _opae
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/opae/__init__.py
-    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/opae/fpga/__init__.py
-    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
-    COMMENT "Copying namespace package files")
-
-add_custom_command(TARGET _opae
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_pyopae.py
-    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
-    COMMENT "Copying Python test files")
-
-if (BUILD_PYTHON_DIST)
-    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
-
-
-    set(PYFILES
-        setup.py
-        opae/__init__.py
-        opae/fpga/__init__.py
-        test_pyopae.py
-        )
-
-    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
-
-    configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
-    foreach(pyfile ${PYFILES})
-        configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
-    endforeach(pyfile ${PYFILES})
-
-    foreach(cppfile ${PYOPAE_SRC})
-        file(COPY ${cppfile} DESTINATION ${PYDIST_STAGE_DIR})
-    endforeach(cppfile ${PYOPAE_SRC})
-    file(COPY MANIFEST.in DESTINATION ${PYDIST_STAGE_DIR})
-    add_custom_target(pyopae-dist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
-        --include-dirs=${OPAE_INCLUDE_DIR}
-        --library-dirs=${LIBRARY_OUTPUT_PATH}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
-        DEPENDS ${PYFILES} ${PYOPAE_SRC}
-        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
-        COMMENT "Building Python distrubutions")
-endif (BUILD_PYTHON_DIST)
