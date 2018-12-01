@@ -37,10 +37,12 @@ from os.path import basename
 from fpgadiag import fpgadiag
 from opae import fpga
 
+
 def mux_csrwrite(fn, mask):
     def write_csr(handle, offset, value):
         fn(handle, mask | offset, value)
     return write_csr
+
 
 def mux_run(test, handle, device):
     # get counters
@@ -57,7 +59,6 @@ def mux_run(test, handle, device):
     with f_counters.reader() as r:
         end_fabric = r.read()
     test.display_stats(cl, dsm, end_cache-begin_cache, end_fabric-begin_fabric)
-
 
 
 class fpgamux(fpgadiag):
@@ -135,7 +136,8 @@ class fpgamux(fpgadiag):
                     app_args.extend(['--{}'.format(k), str(v)])
             app.write_csr32 = mux_csrwrite(app.write_csr32, i << (18-bits))
             app.write_csr64 = mux_csrwrite(app.write_csr64, i << (18-bits))
-            app.setup(app_args)
+            if not app.setup(app_args):
+                sys.exit(EX_USAGE)
             apps.append(app)
         return apps
 
@@ -145,20 +147,23 @@ def main():
     threads = []
     tokens = tests[0].enumerate()
     if not tokens:
-        test.logger.error("Could not find suitable accelerator")
-        sys.exit(-1)
+        tests[0].logger.error("Could not find suitable accelerator")
+        sys.exit(EX_UNAVAILABLE)
     with fpga.open(tokens[0]) as h:
         parent = fpga.properties(h).parent
         with fpga.open(parent, fpga.OPEN_SHARED) as d:
             for test in tests:
-                threads.append(threading.Thread(target=mux_run, args=(test, h, d)))
+                threads.append(
+                        threading.Thread(
+                            target=mux_run, args=(test, h, d)))
 
             for t in threads:
                 t.start()
             for t in threads:
                 t.join()
 
-    return 0
+        return EX_OK
+    return EX_SOFTWARE
 
 
 if __name__ == '__main__':
