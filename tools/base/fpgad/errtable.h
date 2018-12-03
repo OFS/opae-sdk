@@ -79,8 +79,6 @@ void clear_occurrences_of(monitored_device *d, struct fpga_err *e);
 
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
 
-fpga_result fpgad_sysfs_read_u64(const char *path, uint64_t *u);
-
 void *logger_thread(void *);
 
 #endif

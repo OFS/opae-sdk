@@ -29,14 +29,6 @@
 
 #include "errtable.h"
 
-struct fpga_ap_event {
-	int socket;
-	const char *sysfsfile;
-	uint64_t ap1_last_event;
-	uint64_t ap2_last_event;
-	uint64_t pwr_last_state;
-};
-
 void *apevent_thread(void *);
 
 #endif
