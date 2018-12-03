@@ -28,6 +28,7 @@
 #define __FPGAD_CONFIG_H__
 #include <fcntl.h>
 #include <stdbool.h>
+#include <sys/types.h>
 #include <linux/limits.h>
 
 #define MAX_NULL_GBS 16
