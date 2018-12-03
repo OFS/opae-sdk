@@ -110,6 +110,7 @@ ldconfig
 %files devel
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
+@CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
 %dir @CMAKE_INSTALL_PREFIX@/include/opae

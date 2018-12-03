@@ -319,19 +319,19 @@ TEST_P(coreidle_main_c_p, parse_err0) {
  *             ParseCmds displays an error message and returns -1.<br>
  */
 TEST_P(coreidle_main_c_p, parse_err1) {
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  char four[32];
+  char five[32];
+  char six[32];
+  char seven[32];
+  char eight[32];
+  char nine[32];
+  char ten[32];
+  char eleven[32];
+  char twelve[32];
   strcpy(zero, "    coreidle+_=`~!@#$%^&*_+=-");
   strcpy(one, "-Green_Bitstream");
   strcpy(two, tmp_gbs_);
@@ -361,19 +361,19 @@ TEST_P(coreidle_main_c_p, parse_err1) {
  *             ParseCmds and coreidle_main return 0.<br>
  */
 TEST_P(coreidle_main_c_p, parse_err2) {
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  char four[32];
+  char five[32];
+  char six[32];
+  char seven[32];
+  char eight[32];
+  char nine[32];
+  char ten[32];
+  char eleven[32];
+  char twelve[32];
   strcpy(zero, "        ");
   strcpy(one, "-G");
   strcpy(two, tmp_gbs_);

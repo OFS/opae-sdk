@@ -120,7 +120,6 @@ manage.h
 
 .. doxygenfile:: include/opae/manage.h
 
-
 Metrics API
 ==============
 
@@ -131,6 +130,22 @@ metrics.h
 --------
 
 .. doxygenfile:: include/opae/metrics.h
+
+SysObject
+=========
+
+The SysObject API can be used to get system objects by name. Names used with
+the SysObject API are driver-specific and may not be compatible across plugins
+and/or drivers. For example, SysObject names used with the xfpga plugin will
+apply to the OPAE Linux Kernel driver and refer to sysfs nodes under the sysfs
+tree for the resource used with the SysObject API.
+
+
+sysobject.h
+-------
+
+.. doxygenfile:: include/opae/sysobject.h
+
 
 Utilities
 =========

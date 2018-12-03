@@ -283,8 +283,10 @@ static uint16_t read_socket_id(const std::string devices) {
         switch (globres) {
         case GLOB_NOSPACE:
             std::cerr << std::string("FPGA No Memory found.") << "\n";
+            break;
         case GLOB_NOMATCH:
             std::cerr << std::string("FPGA Not found.") << "\n";
+            break;
         }
         goto err;
   }

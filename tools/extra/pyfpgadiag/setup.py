@@ -29,7 +29,7 @@ setup(
     name="opae.fpgadiag",
     version="@INTEL_FPGA_API_VERSION@",
     packages=find_packages(),
-    install_requires=['opae.fpga'],
+    install_requires=['opae.fpga>=1.2'],
     test_suite='nose2.collector.collector',
     tests_require=['nose2', 'numpy', 'mock'],
     entry_points={
