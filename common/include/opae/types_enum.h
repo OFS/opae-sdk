@@ -177,4 +177,33 @@ enum fpga_metric_datatype {
 	FPGA_METRIC_DATATYPE_UNKNOWN    // Metric datatype unknown
 };
 
+/**
+ * fpga feature
+ *
+ * DFH feature types
+ */
+
+typedef enum { DMA = 2 } fpga_feature_type;
+
+/**
+ * fpga dma transfer type
+ *
+ * Indicate the required transfer type.
+ * For streaming: host to AFU, AFU to host, FPGA local mem to AFU, AFU to FPGA
+ * local mem memory to memory: host to fpga, fpga to host, fpga internal  memory
+ * copy
+ */
+typedef enum {
+	HOST_MM_TO_FPGA_ST = (1u << 0), /**< streaming, host to AFU */
+	FPGA_ST_TO_HOST_MM = (1u << 1), /**< streaming, AFU to host */
+	FPGA_MM_TO_FPGA_ST =
+		(1u << 2), /**< streaming, FPGA local mem to AFU   */
+	FPGA_ST_TO_FPGA_MM =
+		(1u << 3),	   /**< streaming, AFU to FPGA local mem   */
+	//HOST_TO_FPGA_MM = (1u << 4), /**< Memory mapped FPGA interface       */
+	//FPGA_TO_HOST_MM = (1u << 5), /**< Memory mapped FPGA interface       */
+	//FPGA_TO_FPGA_MM = (1u << 6), /**< Memory mapped FPGA interface       */
+	//FPGA_MAX_TRANSFER_TYPE = FPGA_TO_FPGA_MM,
+} fpga_dma_transfer_type;
+
 #endif // __FPGA_TYPES_ENUM_H__

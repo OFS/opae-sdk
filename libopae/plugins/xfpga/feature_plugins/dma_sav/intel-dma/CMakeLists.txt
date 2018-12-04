@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libxfpga)
+#project(libxfpga)
 
 ############################################################################
 ## Add 'coverage' ##########################################################
@@ -35,46 +35,17 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 ############################################################################
-## Add 'libxfpga' library ###################################################
+## Add 'libintel-dma' library ###################################################
 ############################################################################
 set(SRC
-  common.c
-  enum.c
-  error.c
-  umsg.c
-  reconf.c
-  open.c
-  close.c
-  reset.c
-  mmio.c
-  buffer.c
-  bitstream.c
-  hostif.c
-  event.c
-  properties.c
   init.c
-  sysfs.c
-  wsid_list.c
-  token_list.c
-  mmap.c
-  version.c
-  userclk.c
-  usrclk/user_clk_pgm_uclock.c
   plugin.c
-  sysobject.c
-  manage.c
-  metrics/metrics.c
-  metrics/metrics_utils.c
-  metrics/afu_metrics.c
-  metrics/vector.c
-  feature_plugins/feature_pluginmgr.c
-  feature_plugins/feature_token_list.c
-  feature_plugins/feature_api.c)
+  )
 
 # Define target
-add_library(xfpga MODULE ${SRC})
-#add_dependencies(xfpga copy-common-opae-header-files)
-target_link_libraries(xfpga
+add_library(intel-dma MODULE ${SRC})
+
+target_link_libraries(intel-dma
   m
   safestr
   dl
@@ -88,7 +59,7 @@ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
-target_include_directories(xfpga PUBLIC
+target_include_directories(intel-dma PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
@@ -102,14 +73,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Target properties
-set_property(TARGET xfpga PROPERTY C_STANDARD 99)
-set_target_properties(xfpga PROPERTIES
+set_property(TARGET intel-dma PROPERTY C_STANDARD 99)
+set_target_properties(intel-dma PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(xfpga ${GCOV_LINK_FLAGS})
+  target_link_libraries(intel-dma ${GCOV_LINK_FLAGS})
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Set debug flags, if required
@@ -120,23 +91,23 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # Hide non-public symbols when building release
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   message("!! Building for release, may break internal tests")
-  set_property(TARGET xfpga PROPERTY C_VISIBILITY_PRESET hidden)
+  set_property(TARGET intel-dma PROPERTY C_VISIBILITY_PRESET hidden)
 endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 
-install(TARGETS xfpga
+install(TARGETS intel-dma
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
 
-#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-#if ("${LIB64}" STREQUAL "TRUE")
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib64
-#      COMPONENT opaeclib)
-#else()
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib
-#      COMPONENT opaeclib)
-#endif() 
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+if ("${LIB64}" STREQUAL "TRUE")
+    install(TARGETS intel-dma
+      LIBRARY DESTINATION lib64
+      COMPONENT opaeclib)
+else()
+    install(TARGETS intel-dma
+      LIBRARY DESTINATION lib
+      COMPONENT opaeclib)
+endif() 
 
 
 ############################################################################
@@ -145,7 +116,7 @@ install(TARGETS xfpga
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   if(BUILD_TESTS AND GTEST_FOUND)
-    set_target_for_coverage(xfpga bin/gtapi -p)
-    add_dependencies(coverage_xfpga gtapi)
+    set_target_for_coverage(intel-dma bin/gtapi -p)
+    add_dependencies(coverage_intel-dma gtapi)
   endif(BUILD_TESTS AND GTEST_FOUND)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

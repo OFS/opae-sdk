@@ -29,6 +29,8 @@
 #include <stdbool.h>
 
 #include <opae/types.h>
+#include <opae/feature.h>
+#include <opae/dma.h>
 
 typedef struct _opae_plugin {
 	char *path;      // location on file system
@@ -195,10 +197,35 @@ typedef struct _opae_api_adapter_table {
 					uint64_t num_metric_indexes,
 					fpga_metric *metrics);
 
-	fpga_result(*fpgaGetMetricsByName)(fpga_handle handle,
+	fpga_result (*fpgaGetMetricsByName)(fpga_handle handle,
 					char **metrics_names,
 					uint64_t num_metric_names,
 					fpga_metric *metrics);
+	
+	fpga_result (*fpgaFeatureEnumerate)(fpga_handle handle,
+					fpga_feature_properties *prop,
+					fpga_feature_token *tokens, uint32_t max_tokens,
+					uint32_t *num_matches);
+
+	fpga_result (*fpgaDestroyFeatureToken)(fpga_feature_token *token);
+
+	fpga_result (*fpgaFeaturePropertiesGet)(fpga_feature_token token,
+					fpga_feature_properties *prop);
+
+	fpga_result (*fpgaFeatureOpen)(fpga_feature_token token, int flags,
+					void *priv_config, fpga_feature_handle *handle);
+
+	fpga_result (*fpgaFeatureClose)(fpga_feature_handle handle);
+
+	fpga_result (*fpgaDMAPropertiesGet)(fpga_feature_token token,
+					fpgaDMAProperties *prop, int max_ch);
+
+	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_h,
+					transfer_list *xfer_list);
+
+	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma_h,
+					transfer_list *dma_xfer,
+					fpga_dma_cb cb, void *context);
 
 	// configuration functions
 	int (*initialize)(void);

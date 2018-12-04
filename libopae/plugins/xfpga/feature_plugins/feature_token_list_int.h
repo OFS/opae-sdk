@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,27 +24,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#ifndef __FEATURE_TOKEN_LIST_INT_H__
+#define __FEATURE_TOKEN_LIST_INT_H__
 
-#include "common_int.h"
-#include "token_list_int.h"
-#include "feature_token_list_int.h"
-#include "feature_pluginmgr.h"
+#include "feature_int.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
+/*
+ * Feature token list structure manipulation functions
+ */
+struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
+			fpga_guid guid, uint64_t offset, fpga_handle handle);
+void feature_token_cleanup(void);
 
-__attribute__((constructor))
-STATIC void fpga_init(void)
-{
-}
-
-__attribute__((destructor))
-STATIC void fpga_release(void)
-{
-	token_cleanup();
-	feature_token_cleanup();
-}
+#endif // ___FEATURE_TOKEN_LIST_INT_H__
