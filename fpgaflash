@@ -74,6 +74,7 @@ VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
 BMC_FW_HEAD_SIZE = 256
 
 
+
 def check_rpd(ifile):
     data = ifile.read(0x20)
     pof_hdr = struct.unpack('IIIIIIII', data)
@@ -261,7 +262,6 @@ def get_pvid(bdf):
 
     return "{}:{}".format(vendor, device)
 
-
 def get_bdf_pvid_mapping():
     bdf_map = dict()
     for fpga in glob.glob('/sys/class/fpga/*'):
@@ -270,6 +270,7 @@ def get_bdf_pvid_mapping():
             continue
 
         bdf_map[bdf] = get_pvid(bdf)
+
 
     return bdf_map
 
@@ -336,6 +337,7 @@ def normalize_bdf(bdf):
 def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
                  no_verify):
 
+
     ofile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
 
     ifile.seek(input_offset)
@@ -348,16 +350,19 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
     flash_erase(mtd_dev, target_offset, erase_len)
 
+
     nbytes = os.path.getsize(ofile.name)
 
     with open(ofile.name, 'rb') as rfile:
         nbytes = flash_write(mtd_dev, target_offset, nbytes, rfile)
+
 
     with open(ofile.name, 'rb+') as rfile:
         rfile.truncate(nbytes)
 
     if not no_verify:
         vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+
 
         flash_read(mtd_dev, target_offset, nbytes, vfile)
 
@@ -395,6 +400,7 @@ def fpga_update(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
     update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
                  no_verify)
+
     return 0
 
 
@@ -833,7 +839,9 @@ def validate_bdf(bdf, bdf_pvid_map):
             bdf, bdf_pvid_map[bdf])
         sys.exit(1)
 
+
     return bdf
+
 
 
 def rc_fpga_update(ifile, utype, bdf, no_verify):
@@ -1173,10 +1181,24 @@ def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     return ret
 
 
-def main():
-    args = parse_args()
+def validate_bdf(bdf, bdf_pvid_map):
+    if not bdf:
+        if len(bdf_pvid_map) > 1:
+            print "Must specify a bdf. More than one device found."
+            print_bdf_mtd_mapping(bdf_pvid_map)
+        else:
+            bdf = bdf_pvid_map.keys()[0]
+    else:
+        bdf = normalize_bdf(bdf)
+        if not bdf:
+            print "{} is an invalid bdf".format(bdf)
+            sys.exit(1)
+        elif bdf not in bdf_pvid_map.keys():
+            print "Could not find fpga device for {}".format(bdf)
+            print_bdf_mtd_mapping(bdf_pvid_map)
 
     bdf_pvid_map = get_bdf_pvid_mapping()
+
 
     if len(bdf_pvid_map) == 0:
         print "No FPGA devices found"
@@ -1197,6 +1219,7 @@ def main():
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
             sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify))
+
         else:
             print "bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID)
             sys.exit(1)
