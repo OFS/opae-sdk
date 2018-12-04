@@ -172,10 +172,10 @@ supported_device supported_fme_devices[] = {
 
 monitored_device *monitored_device_list;
 
-monitored_device * add_monitored_device(fpga_token token,
-					uint8_t socket_id,
-					uint64_t object_id,
-					supported_device *device)
+monitored_device *add_monitored_device(fpga_token token,
+				       uint8_t socket_id,
+				       uint64_t object_id,
+				       supported_device *device)
 {
 	monitored_device *md = malloc(sizeof(monitored_device));
 
@@ -190,7 +190,7 @@ monitored_device * add_monitored_device(fpga_token token,
 		md->next = monitored_device_list;
 		monitored_device_list = md;
 	}
-	
+
 	return md;
 }
 
@@ -486,7 +486,7 @@ void *logger_thread(void *thread_context)
 
 	/*
 	** Determine if we support this device. If so,
-        ** then add it to monitored_device_list.
+	** then add it to monitored_device_list.
 	*/
 	for (i = 0 ; i < num_matches ; ++i) {
 		consider_device(tokens[i]);

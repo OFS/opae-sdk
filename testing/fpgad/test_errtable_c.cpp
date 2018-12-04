@@ -282,48 +282,5 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   close(evt_fds[1]);
 }
 
-/**
- * @test       sysfs_read_err03
- * @brief      Test: poll_error
- * @details    When fpgad_sysfs_read_u64 fails,<br>
- *             poll_error returns -1.<br>
- */
-TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
-#if 0
-  std::string fname = port0_ + "/errors/errors";
-  struct fpga_err err = {
-    .socket = -1,
-    .sysfsfile = fname.c_str(),
-    .reg_field = "reg_field",
-    .lowbit = 0,
-    .highbit = 1,
-    .occurred = true,
-    .callback = nullptr
-  };
-  system_->invalidate_read(0, "fpgad_sysfs_read_u64");
-  EXPECT_EQ(-1, poll_error(&err));
-#endif
-}
-
 INSTANTIATE_TEST_CASE_P(fpgad_errtable_c, fpgad_errtable_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
-
-/**
- * @test       log_fpga_err
- * @brief      Test: log_fpga_error
- * @details    When the input error struct's occurred field is true,<br>
- *             log_fpga_error returns 0.<br>
- */
-TEST(errtable_c, log_fpga_err) {
-#if 0
-  struct fpga_err err = {
-    .sysfsfile = "devc",
-    .reg_field = "reg_field",
-    .lowbit = 0,
-    .highbit = 1,
-    .callback = nullptr
-  };
-
-  EXPECT_EQ(log_fpga_error(&err), 0);
-#endif
-}

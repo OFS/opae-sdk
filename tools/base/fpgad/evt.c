@@ -61,7 +61,7 @@ static void evt_notify_ap6_callback(struct client_event_registry *r,
 	if ((FPGA_EVENT_POWER_THERMAL == r->event) &&
 	    (object_id == r->object_id)) {
 		dlog("object: 0x%" PRIx64
-	 	     " event: FPGA_EVENT_POWER_THERMAL (%s)\n",
+		     " event: FPGA_EVENT_POWER_THERMAL (%s)\n",
 		     object_id,
 		     e->reg_field);
 		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
