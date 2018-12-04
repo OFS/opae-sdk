@@ -130,6 +130,39 @@ opae_allocate_wrapped_object(fpga_object opae_object,
 	return wobj;
 }
 
+opae_wrapped_feature_token *
+opae_allocate_wrapped_feature_token(fpga_feature_token token,
+			    const opae_api_adapter_table *adapter)
+{
+	opae_wrapped_feature_token *wtok =
+		(opae_wrapped_feature_token *)malloc(sizeof(opae_wrapped_feature_token));
+
+	if (wtok) {
+		wtok->magic = OPAE_WRAPPED_FEATURE_TOKEN_MAGIC;
+		wtok->feature_token = token;
+		wtok->adapter_table = (opae_api_adapter_table *)adapter;
+	}
+
+	return wtok;
+}
+
+opae_wrapped_feature_handle *
+opae_allocate_wrapped_feature_handle(opae_wrapped_feature_token *wt, fpga_feature_handle feature_handle,
+			     opae_api_adapter_table *adapter)
+{
+	opae_wrapped_feature_handle *whan =
+		(opae_wrapped_feature_handle *)malloc(sizeof(opae_wrapped_feature_handle));
+
+	if (whan) {
+		whan->magic = OPAE_WRAPPED_FEATURE_HANDLE_MAGIC;
+		whan->wrapped_feature_token = wt;
+		whan->feature_handle = feature_handle;
+		whan->adapter_table = adapter;
+	}
+
+	return whan;
+}
+
 fpga_result fpgaInitialize(const char *config_file)
 {
 	return opae_plugin_mgr_initialize(config_file) ? FPGA_EXCEPTION
@@ -1541,7 +1574,6 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 		wrapped_handle->opae_handle, metrics_names, num_metric_names, metrics);
 }
 
-
 fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	metric_threshold *metric_thresholds,
 	uint32_t *num_thresholds)
@@ -1557,4 +1589,203 @@ fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
 
 	return wrapped_handle->adapter_table->fpgaGetMetricsThresholdInfo(
 		wrapped_handle->opae_handle, metric_thresholds, num_thresholds);
+}
+
+fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
+                      fpga_feature_token *tokens, uint32_t max_tokens,
+                      uint32_t *num_matches)
+{
+	fpga_result res = FPGA_OK;
+	uint32_t i;
+	uint32_t num_tokens;
+	fpga_feature_token * d_tokens = NULL;
+	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
+  
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(prop);
+	ASSERT_NOT_NULL(num_matches);
+ 
+	if ((max_tokens > 0) && !tokens) {
+		OPAE_ERR("max_tokens > 0 with NULL tokens");
+		return FPGA_INVALID_PARAM;
+	}
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureEnumerate,
+		FPGA_NOT_SUPPORTED);
+	
+	if (tokens) {
+		d_tokens = (fpga_feature_token *)calloc(max_tokens, sizeof(fpga_feature_token));
+		if (!d_tokens) {
+			OPAE_ERR("out of memory");
+			return FPGA_NO_MEMORY;
+		}
+	}
+	res = wrapped_handle->adapter_table->fpgaFeatureEnumerate(wrapped_handle->opae_handle,
+							prop, d_tokens,	max_tokens, num_matches);
+	if (res != FPGA_OK) {
+		OPAE_ERR("fpgaFeatureEnumerate failed");
+		return res;
+	}
+	
+	if (*num_matches > max_tokens)
+		num_tokens = max_tokens;
+	else
+		num_tokens = *num_matches;
+
+	for (i = 0; i < num_tokens; ++i) {
+		opae_wrapped_feature_token *wt = opae_allocate_wrapped_feature_token(
+			d_tokens[i], wrapped_handle->adapter_table);
+		if (!wt) {
+			OPAE_ERR("opae_allocate_wrapped_feature_token failed");
+			return OPAE_ENUM_STOP;
+		}
+		tokens[i] = wt;
+	}
+	
+	return res;
+}
+
+fpga_result fpgaDestroyFeatureToken(fpga_feature_token *token)
+{
+	fpga_result res = FPGA_OK;
+	opae_wrapped_feature_token *wrapped_token;
+
+	ASSERT_NOT_NULL(token);
+
+	wrapped_token = opae_validate_wrapped_feature_token(*token);
+
+	ASSERT_NOT_NULL(wrapped_token);
+	
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDestroyFeatureToken,
+		FPGA_NOT_SUPPORTED);
+	
+	res = wrapped_token->adapter_table->fpgaDestroyFeatureToken(wrapped_token->feature_token);
+	
+	opae_destroy_wrapped_feature_token(wrapped_token);
+
+	return res;
+	
+}
+
+fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
+	fpga_feature_properties *prop)
+{
+	fpga_result res = FPGA_OK;
+	opae_wrapped_feature_token *wrapped_token;
+
+	wrapped_token = opae_validate_wrapped_feature_token(token);
+	//wrapped_token->feature_token;
+	
+	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL(prop);
+
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeaturePropertiesGet,
+		FPGA_NOT_SUPPORTED);
+		
+	res = wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
+			prop);
+
+	return res;
+}
+
+fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
+                            void *priv_config, fpga_feature_handle *handle)
+{
+	fpga_result res;
+	fpga_result cres = FPGA_OK;
+	opae_wrapped_feature_token *wrapped_token;
+	fpga_feature_handle feature_handle = NULL;
+	opae_wrapped_feature_handle *wrapped_handle;
+
+	wrapped_token = opae_validate_wrapped_feature_token(token);
+
+	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureOpen,
+		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureClose,
+		FPGA_NOT_SUPPORTED);
+
+	res = wrapped_token->adapter_table->fpgaFeatureOpen(wrapped_token->feature_token,
+						    flags, priv_config, &feature_handle);
+
+	ASSERT_RESULT(res);
+
+	wrapped_handle = opae_allocate_wrapped_feature_handle(
+		wrapped_token, feature_handle, wrapped_token->adapter_table);
+
+	if (!wrapped_handle) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		cres = wrapped_token->adapter_table->fpgaFeatureClose(feature_handle);
+	}
+
+	*handle = wrapped_handle;
+
+	return res != FPGA_OK ? res : cres;
+}
+
+fpga_result fpgaFeatureClose(fpga_feature_handle handle)
+{
+	fpga_result res;
+	opae_wrapped_feature_handle *wrapped_handle =
+		opae_validate_wrapped_feature_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureClose,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_handle->adapter_table->fpgaFeatureClose(
+		wrapped_handle->feature_handle);
+
+	opae_destroy_wrapped_feature_handle(wrapped_handle);
+
+	return res;
+}	
+	
+fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+									int max_ch)
+{
+	opae_wrapped_feature_token *wrapped_token =
+				opae_validate_wrapped_feature_token(token);;
+
+	ASSERT_NOT_NULL(token);
+	ASSERT_NOT_NULL(prop);
+	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDMAPropertiesGet,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_token->adapter_table->fpgaDMAPropertiesGet(wrapped_token->feature_token,
+															prop, max_ch);
+}
+
+fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
+{
+	opae_wrapped_feature_handle *wrapped_handle =
+		opae_validate_wrapped_feature_handle(dma_h);
+
+	ASSERT_NOT_NULL(xfer_list);
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDMATransferSync,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaDMATransferSync(wrapped_handle->feature_handle,
+																xfer_list);
+
+}
+
+fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+								fpga_dma_cb cb, void *context)
+{
+	opae_wrapped_feature_handle *wrapped_handle =
+		opae_validate_wrapped_feature_handle(dma_h);
+
+	ASSERT_NOT_NULL(dma_xfer);
+	ASSERT_NOT_NULL(context);
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDMATransferAsync,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaDMATransferAsync(wrapped_handle->feature_handle,
+																dma_xfer, cb, context);
+
 }

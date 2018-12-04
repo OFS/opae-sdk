@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,27 +24,38 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#ifndef __FEATURE_ADAPTER_H__
+#define __FEATURE_ADAPTER_H__
+#include <stdbool.h>
 
-#include "common_int.h"
-#include "token_list_int.h"
-#include "feature_token_list_int.h"
-#include "feature_pluginmgr.h"
+#include <opae/types.h>
+#include <opae/feature.h>
+#include <opae/dma.h>
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
+typedef struct _feature_plugin {
+	char *path;      // location on file system
+	void *dl_handle; // handle to the loaded library instance
+} feature_plugin;
 
-__attribute__((constructor))
-STATIC void fpga_init(void)
-{
-}
+typedef struct _feature_adapter_table {
 
-__attribute__((destructor))
-STATIC void fpga_release(void)
-{
-	token_cleanup();
-	feature_token_cleanup();
-}
+	struct _feature_adapter_table *next;
+	feature_plugin plugin;
+	fpga_guid guid;
+
+	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token, fpgaDMAProperties *prop,
+				int max_ch);
+	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
+			transfer_list *dma_xfer);
+	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
+			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
+	fpga_result (*fpgaFeatureOpen)(fpga_feature_token token, int flags,
+				   void *priv_config, fpga_feature_handle *handle);
+	fpga_result (*fpgaFeatureClose)(fpga_feature_handle *_dma_h);
+	// configuration functions
+	int (*initialize)(void);
+	int (*finalize)(void);
+
+} feature_adapter_table;
+
+#endif /* __FEATURE_ADAPTER_H__ */

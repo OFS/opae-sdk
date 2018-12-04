@@ -219,4 +219,68 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 	free(wo);
 }
 
+//                                  f e a t    
+#define OPAE_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
+#define OPAE_FEATURE_TOKEN_MAGIC 0x66656178
+#define OPAE_INVALID_MAGIC 0x46504741
+//typedef void *opae_feature_adapter_table;
+
+typedef struct _opae_wrapped_feature_token {
+	uint64_t magic;
+	fpga_feature_token feature_token;
+	opae_api_adapter_table *adapter_table;
+} opae_wrapped_feature_token;
+
+opae_wrapped_feature_token *
+opae_allocate_wrapped_feature_token(fpga_feature_token token,
+			    const opae_api_adapter_table *adapter);
+
+static inline opae_wrapped_feature_token *opae_validate_wrapped_feature_token(fpga_feature_token t)
+{
+	opae_wrapped_feature_token *wt;
+	if (!t)
+		return NULL;
+	wt = (opae_wrapped_feature_token *)t;
+	return (wt->magic == OPAE_WRAPPED_FEATURE_TOKEN_MAGIC) ? wt : NULL;
+}
+
+static inline void opae_destroy_wrapped_feature_token(opae_wrapped_feature_token *wt)
+{
+	wt->magic = 0;
+	free(wt);
+	wt = NULL;
+}
+//                                   f e a h 
+#define OPAE_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
+#define OPAE_FEATURE_HANDLE_MAGIC 0x66656170
+
+
+/** Process-wide unique FPGA feature handle */
+typedef struct _opae_wrapped_feature_handle {
+	uint32_t magic;
+	opae_wrapped_feature_token *wrapped_feature_token;
+	fpga_feature_handle feature_handle;
+	opae_api_adapter_table *adapter_table;	
+} opae_wrapped_feature_handle;
+
+opae_wrapped_feature_handle *
+opae_allocate_wrapped_feature_handle(opae_wrapped_feature_token *t, fpga_feature_handle opae_feature_handle,
+			     opae_api_adapter_table *adapter);
+
+static inline opae_wrapped_feature_handle *opae_validate_wrapped_feature_handle(fpga_feature_handle h)
+{
+	opae_wrapped_feature_handle *wh;
+	if (!h)
+		return NULL;
+	wh = (opae_wrapped_feature_handle *)h;
+	return (wh->magic == OPAE_WRAPPED_FEATURE_HANDLE_MAGIC) ? wh : NULL;
+}
+
+static inline void opae_destroy_wrapped_feature_handle(opae_wrapped_feature_handle *wh)
+{
+	wh->magic = 0;
+	free(wh);
+	wh = NULL;
+}
+
 #endif // ___OPAE_OPAE_INT_H__

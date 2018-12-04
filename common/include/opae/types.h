@@ -230,7 +230,6 @@ typedef struct fpga_metric {
 	bool isvalid;           // Metric value is valid
 } fpga_metric;
 
-
 /** Threshold struct
  *
  *
@@ -251,5 +250,28 @@ typedef struct metric_threshold {
 	threshold lower_nc_threshold;                  // Lower Non-Critical Threshold
 	threshold hysteresis;                          // Hysteresis
 } metric_threshold;
+
+/**
+ * Token for referencing FPGA feature resources
+ *
+ * A valid `fpga_feature_token` object, as populated by fpgaFeatureEnumerate()
+ * An `fpga_feature_token` serves as a reference to a specific FPGA feature resource present in
+ * the system. Holding an `fpga_feature_token` does not constitute ownership of the
+ * feature resource - it merely allows the user to query further information about
+ * a resource, or to use the feature open function to acquire ownership.
+ *
+ * Used by feature open function to acquire ownership and yield a handle to the resource.
+ */
+typedef void *fpga_feature_token;
+
+/**
+ * Handle to a feature resource
+ *
+ * A valid `fpga_feature_handle` object, as populated by fpgaFeatureOpen(), denotes ownership
+ * of a resource. Note that ownership can be exclusive or shared,
+ * depending on the flags used in fpgaFeatureOpen(). Ownership can be released by
+ * calling fpgaFeatureClose(), which will render the underlying handle invalid.
+ */
+typedef void *fpga_feature_handle;
 
 #endif // __FPGA_TYPES_H__

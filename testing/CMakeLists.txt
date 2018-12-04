@@ -91,13 +91,17 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/afu_metrics.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c
-              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/threshold.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/threshold.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_pluginmgr.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_token_list.c
+			  ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_api.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 add_library(ase-static STATIC
@@ -141,6 +145,13 @@ add_library(bmc-static STATIC
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
     )
+<<<<<<< HEAD
+=======
+    
+add_library(intel-dma-static
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/plugin.c
+    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/init.c)
+>>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
   
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
@@ -356,9 +367,13 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+<<<<<<< HEAD
         PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
+=======
+		PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins
+>>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
         )
     target_link_libraries(${test_name}
         ${static_lib}
@@ -668,6 +683,27 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
+<<<<<<< HEAD
+=======
+
+add_unit_test(test_xfpga_feature_enum_c xfpga-static
+    xfpga/test_feature_enum_c.cpp
+)
+
+add_unit_test(test_xfpga_feature_open_c xfpga-static
+    xfpga/test_feature_open_c.cpp
+)
+
+add_unit_test(test_xfpga_feature_pluginmgr_c xfpga-static
+    xfpga/test_feature_pluginmgr_c.cpp
+)
+
+add_unit_test(test_xfpga_feature_token_list_c xfpga-static
+    xfpga/test_feature_token_list_c.cpp
+)
+target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
+        ${libjson-c_LIBRARIES})
+>>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
 
 add_unit_test(test_xfpga_max10_c xfpga-static
     xfpga/test_metrics_max10_c.cpp

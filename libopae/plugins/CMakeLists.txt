@@ -5,3 +5,4 @@ project(plugins)
 
 add_subdirectory(xfpga)
 add_subdirectory(xfpga/metrics/bmc)
+add_subdirectory(xfpga/feature_plugins/dma_sav/intel-dma)

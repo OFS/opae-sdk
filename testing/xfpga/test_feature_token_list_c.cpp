@@ -1,3 +1,4 @@
+
 // Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -24,27 +25,49 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#ifdef __cplusplus
 
-#include "common_int.h"
-#include "token_list_int.h"
+extern "C" {
+#endif
+#include "safe_string/safe_string.h"
 #include "feature_token_list_int.h"
-#include "feature_pluginmgr.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-
-__attribute__((constructor))
-STATIC void fpga_init(void)
-{
+#ifdef __cplusplus
 }
+#endif
 
-__attribute__((destructor))
-STATIC void fpga_release(void)
+#include "test_system.h"
+#include "gtest/gtest.h"
+
+extern pthread_mutex_t ftoken_lock;
+
+using namespace opae::testing;
+
+TEST(feature_token_list_c, simple_case)
 {
-	token_cleanup();
+	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+
+	struct _fpga_feature_token *ftoken = 
+		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr); 
+
+	ASSERT_NE(ftoken, nullptr);
+  
 	feature_token_cleanup();
 }
+
+TEST(feature_token_list_c, invalid_mutex)
+{
+	pthread_mutex_destroy(&ftoken_lock);
+	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+	struct _fpga_feature_token *ftoken = 
+		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr );
+	EXPECT_EQ(ftoken, nullptr);
+
+	pthread_mutex_init(&ftoken_lock, NULL);
+ 
+	feature_token_cleanup();
+}
+
+

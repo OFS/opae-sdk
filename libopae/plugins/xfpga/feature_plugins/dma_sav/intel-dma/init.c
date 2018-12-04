@@ -24,27 +24,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
+/*#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
-
-#include "common_int.h"
-#include "token_list_int.h"
-#include "feature_token_list_int.h"
-#include "feature_pluginmgr.h"
-
+*/
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
 __attribute__((constructor))
-STATIC void fpga_init(void)
+void fpga_dma_init(void)
 {
 }
 
 __attribute__((destructor))
-STATIC void fpga_release(void)
+void fpga_dma_release(void)
 {
-	token_cleanup();
-	feature_token_cleanup();
 }
