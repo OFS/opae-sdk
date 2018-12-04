@@ -163,6 +163,7 @@ def flash_write(dev, start, nbytes, ifile):
                 os.write(file_.fileno(), ichunk)
                 last_write_position = file_.tell()
 
+
             nbytes -= rbytes
 
     bytes_written = last_write_position - start
