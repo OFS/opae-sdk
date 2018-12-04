@@ -37,15 +37,15 @@ extern "C" {
 #include "fpgad/ap6.h"
 
 struct client_event_registry *register_event(int conn_socket, int fd,
-	                                     fpga_event_type e, const char *device);
+	                                     fpga_event_type e, uint64_t object_id);
 
 void unregister_all_events(void);
 
 void *logger_thread(void *thread_context);
 
-int log_fpga_error(struct fpga_err *e);
+int log_fpga_error(monitored_device *d, struct fpga_err *e);
 
-int poll_error(struct fpga_err *e);
+int poll_error(monitored_device *d, struct fpga_err *e);
 
 }
 
@@ -86,6 +86,10 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    port0_obj_id_ = 0;
+    fme0_obj_id_ = 0;
 
     open_log(tmpfpgad_log_);
     int i;
@@ -182,8 +186,13 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void GetPort0ObjID();
+  void GetFME0ObjID();
+
   std::string port0_;
   std::string fme0_;
+  uint64_t port0_obj_id_;
+  uint64_t fme0_obj_id_;
   struct config config_;
   char tmpfpgad_log_[20];
   char tmpfpgad_pid_[20];
@@ -191,6 +200,54 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
   test_platform platform_;
   test_system *system_;
 };
+
+void fpgad_errtable_c_p::GetPort0ObjID()
+{
+  fpga_token tok = nullptr;
+  fpga_properties prop = nullptr;
+  uint32_t matches = 0;
+
+  ASSERT_EQ(FPGA_OK, fpgaGetProperties(nullptr, &prop));
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(prop, FPGA_ACCELERATOR));
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSocketID(prop, 0));
+
+  ASSERT_EQ(FPGA_OK, fpgaEnumerate(&prop, 1, &tok, 1, &matches));
+  EXPECT_EQ(1, matches);
+  ASSERT_NE(nullptr, tok);
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+  ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesGetObjectID(prop, &port0_obj_id_));
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+  EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&tok));
+}
+
+void fpgad_errtable_c_p::GetFME0ObjID()
+{
+  fpga_token tok = nullptr;
+  fpga_properties prop = nullptr;
+  uint32_t matches = 0;
+
+  ASSERT_EQ(FPGA_OK, fpgaGetProperties(nullptr, &prop));
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetObjectType(prop, FPGA_DEVICE));
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesSetSocketID(prop, 0));
+
+  ASSERT_EQ(FPGA_OK, fpgaEnumerate(&prop, 1, &tok, 1, &matches));
+  EXPECT_EQ(1, matches);
+  ASSERT_NE(nullptr, tok);
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+  ASSERT_EQ(FPGA_OK, fpgaGetProperties(tok, &prop));
+
+  EXPECT_EQ(FPGA_OK, fpgaPropertiesGetObjectID(prop, &fme0_obj_id_));
+
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
+  EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&tok));
+}
 
 /**
  * @test       logger_ap6_ktilinkfatal
@@ -201,11 +258,15 @@ class fpgad_errtable_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
   int conn_sockets[2] = { 0, 1 };
   int evt_fds[2]      = { eventfd(0, 0), eventfd(0, 0) };
-  const char *devs[2] = { port0_.c_str(),  // for AP6
-	                  fme0_.c_str() }; // for KtiLinkFatalErr 
 
-  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_POWER_THERMAL, devs[0]));
-  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_ERROR, devs[1]));
+  GetPort0ObjID();
+  GetFME0ObjID();
+
+  uint64_t obj_ids[2] = { port0_obj_id_,  // for AP6
+	                  fme0_obj_id_ }; // for KtiLinkFatalErr 
+
+  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_POWER_THERMAL, obj_ids[0]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_ERROR, obj_ids[1]));
 
   cause_ap6_port0();
   ASSERT_TRUE(do_poll(evt_fds[0]));
@@ -222,25 +283,13 @@ TEST_P(fpgad_errtable_c_p, logger_ap6_ktilinkfatal) {
 }
 
 /**
- * @test       sysfs_read_err02
- * @brief      Test: fpgad_sysfs_read_u64
- * @details    When read fails<br>
- *             fpgad_sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
- */
-TEST_P(fpgad_errtable_c_p, sysfs_read_err02) {
-  uint64_t u;
-  system_->invalidate_read(0, "fpgad_sysfs_read_u64");
-  std::string fname = port0_ + "/errors/errors";
-  EXPECT_EQ(fpgad_sysfs_read_u64(fname.c_str(), &u), FPGA_NOT_FOUND);
-}
-
-/**
  * @test       sysfs_read_err03
  * @brief      Test: poll_error
  * @details    When fpgad_sysfs_read_u64 fails,<br>
  *             poll_error returns -1.<br>
  */
 TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
+#if 0
   std::string fname = port0_ + "/errors/errors";
   struct fpga_err err = {
     .socket = -1,
@@ -253,6 +302,7 @@ TEST_P(fpgad_errtable_c_p, sysfs_read_err03) {
   };
   system_->invalidate_read(0, "fpgad_sysfs_read_u64");
   EXPECT_EQ(-1, poll_error(&err));
+#endif
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_errtable_c, fpgad_errtable_c_p,
@@ -265,26 +315,15 @@ INSTANTIATE_TEST_CASE_P(fpgad_errtable_c, fpgad_errtable_c_p,
  *             log_fpga_error returns 0.<br>
  */
 TEST(errtable_c, log_fpga_err) {
+#if 0
   struct fpga_err err = {
-    .socket = -1,
     .sysfsfile = "devc",
     .reg_field = "reg_field",
     .lowbit = 0,
     .highbit = 1,
-    .occurred = true,
     .callback = nullptr
   };
 
   EXPECT_EQ(log_fpga_error(&err), 0);
-}
-
-/**
- * @test       sysfs_read_err01
- * @brief      Test: fpgad_sysfs_read_u64
- * @details    When the named file does not exist,<br>
- *             fpgad_sysfs_read_u64 returns FPGA_NOT_FOUND.<br>
- */
-TEST(errtable_c, sysfs_read_err01) {
-  uint64_t u;
-  EXPECT_EQ(fpgad_sysfs_read_u64("/doesnt/exist", &u), FPGA_NOT_FOUND);
+#endif
 }

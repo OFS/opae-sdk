@@ -30,11 +30,17 @@
 struct fpga_err;
 
 // FPGA_EVENT_ERROR
-void evt_notify_error(uint8_t socket_id, const struct fpga_err *);
+void evt_notify_error(uint8_t socket_id,
+		      uint64_t object_id,
+		      const struct fpga_err *);
 
 // FPGA_EVENT_POWER_THERMAL
-void evt_notify_ap6(uint8_t socket_id, const struct fpga_err *);
-void evt_notify_ap6_and_null(uint8_t socket_id, const struct fpga_err *);
+void evt_notify_ap6(uint8_t socket_id,
+		    uint64_t object_id,
+		    const struct fpga_err *);
+void evt_notify_ap6_and_null(uint8_t socket_id,
+			     uint64_t object_id,
+			     const struct fpga_err *);
 
 #endif // __FPGAD_EVT_H__
 

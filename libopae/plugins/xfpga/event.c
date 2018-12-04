@@ -47,14 +47,13 @@
 
 #define EVENT_SOCKET_NAME "/tmp/fpga_event_socket"
 #define EVENT_SOCKET_NAME_LEN 23
-#define MAX_PATH_LEN 256
 
 enum request_type { REGISTER_EVENT = 0, UNREGISTER_EVENT = 1 };
 
 struct event_request {
 	enum request_type type;
 	fpga_event_type event;
-	char device[MAX_PATH_LEN];
+	uint64_t object_id;
 };
 
 fpga_result send_event_request(int conn_socket, int fd,
@@ -402,12 +401,13 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 	struct sockaddr_un addr;
 	struct event_request req;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
-	errno_t e;
+	fpga_properties prop = NULL;
+	uint64_t object_id = (uint64_t) -1;
 
 	UNUSED_PARAM(flags);
 
 	if (_handle->fdfpgad < 0) {
+		errno_t e;
 
 		/* connect to event socket */
 		_handle->fdfpgad = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -433,21 +433,29 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 		}
 	}
 
-	/* create event registration request */
-	memset_s(&req, sizeof(req), 0);
-
-	req.type = REGISTER_EVENT;
-	req.event = event_type;
-
-	e = strncpy_s(req.device, sizeof(req.device), _token->sysfspath,
-		      sizeof(_token->sysfspath));
-	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
-		result = FPGA_EXCEPTION;
+	/* get the requestor's object ID */
+	result = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to get props");
 		goto out_close_conn;
 	}
 
-	req.device[sizeof(req.device) - 1] = '\0';
+	result = fpgaPropertiesGetObjectID(prop, &object_id);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to get object ID");
+		goto out_close_conn;
+	}
+
+	result = fpgaDestroyProperties(&prop);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to destroy props");
+		goto out_close_conn;
+	}
+
+	/* create event registration request */
+	req.type = REGISTER_EVENT;
+	req.event = event_type;
+	req.object_id = object_id;
 
 	/* send event packet */
 	result = send_event_request(_handle->fdfpgad, fd, &req);
@@ -468,32 +476,39 @@ STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 					   fpga_event_type event_type)
 {
 	fpga_result result = FPGA_OK;
-
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
-
 	struct event_request req;
 	ssize_t n;
-	errno_t e;
+	fpga_properties prop = NULL;
+	uint64_t object_id = (uint64_t) -1;
 
 	if (_handle->fdfpgad < 0) {
 		FPGA_MSG("No fpgad connection");
 		return FPGA_INVALID_PARAM;
 	}
 
-	memset_s(&req, sizeof(req), 0);
-	req.type = UNREGISTER_EVENT;
-	req.event = event_type;
-
-	e = strncpy_s(req.device, sizeof(req.device), _token->sysfspath,
-		      sizeof(_token->sysfspath));
-	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
-		result = FPGA_EXCEPTION;
+	/* get the requestor's object ID */
+	result = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to get properties");
 		goto out_close_conn;
 	}
 
-	req.device[sizeof(req.device) - 1] = '\0';
+	result = fpgaPropertiesGetObjectID(prop, &object_id);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to get object ID");
+		goto out_close_conn;
+	}
+
+	result = fpgaDestroyProperties(&prop);
+	if (result != FPGA_OK) {
+		FPGA_ERR("failed to destroy properties");
+		goto out_close_conn;
+	}
+
+	req.type = UNREGISTER_EVENT;
+	req.event = event_type;
+	req.object_id = object_id;
 
 	n = send(_handle->fdfpgad, &req, sizeof(req), 0);
 	if (n < 0) {

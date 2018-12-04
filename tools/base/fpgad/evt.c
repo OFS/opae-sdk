@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,46 +32,65 @@
 #include "safe_string/safe_string.h"
 
 static void evt_notify_error_callback(struct client_event_registry *r,
-			const struct fpga_err *e)
+				      uint64_t object_id,
+				      const struct fpga_err *e)
 {
 	if ((FPGA_EVENT_ERROR == r->event) &&
-		!strncmp(e->sysfsfile, r->device, strnlen_s(r->device, sizeof(r->device)))) {
-		dlog("event: FPGA_EVENT_ERROR\n");
+	    (object_id == r->object_id)) {
+		dlog("object: 0x%" PRIx64 " event: FPGA_EVENT_ERROR (%s)\n",
+			object_id,
+			e->reg_field);
 		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
 			dlog("write: %s\n", strerror(errno));
 		r->data++;
 	}
 }
 
-void evt_notify_error(uint8_t socket_id, const struct fpga_err *e)
+void evt_notify_error(uint8_t socket_id,
+		      uint64_t object_id,
+		      const struct fpga_err *e)
 {
 	UNUSED_PARAM(socket_id);
-	for_each_registered_event(evt_notify_error_callback, e);
+	for_each_registered_event(evt_notify_error_callback, object_id, e);
 }
 
 static void evt_notify_ap6_callback(struct client_event_registry *r,
-			const struct fpga_err *e)
+				    uint64_t object_id,
+				    const struct fpga_err *e)
 {
 	if ((FPGA_EVENT_POWER_THERMAL == r->event) &&
-		!strncmp(e->sysfsfile, r->device, strnlen_s(r->device, sizeof(r->device)))) {
-		dlog("event: FPGA_EVENT_POWER_THERMAL\n");
+	    (object_id == r->object_id)) {
+		dlog("object: 0x%" PRIx64
+	 	     " event: FPGA_EVENT_POWER_THERMAL (%s)\n",
+		     object_id,
+		     e->reg_field);
 		if (write(r->fd, &r->data, sizeof(r->data)) < 0)
 			dlog("write: %s\n", strerror(errno));
 		r->data++;
 	}
 }
 
-void evt_notify_ap6(uint8_t socket_id, const struct fpga_err *e)
+void evt_notify_ap6(uint8_t socket_id,
+		    uint64_t object_id,
+		    const struct fpga_err *e)
 {
 	UNUSED_PARAM(socket_id);
-	for_each_registered_event(evt_notify_ap6_callback, e);
+	for_each_registered_event(evt_notify_ap6_callback, object_id, e);
 }
 
 /* trigger NULL bitstream programming and notify AP6 event clients */
-void evt_notify_ap6_and_null(uint8_t socket_id, const struct fpga_err *e)
+void evt_notify_ap6_and_null(uint8_t socket_id,
+			     uint64_t object_id,
+			     const struct fpga_err *e)
 {
-	dlog("triggering NULL bitstream programming on socket %d\n", (int)socket_id);
+	if (socket_id >= MAX_SOCKETS) {
+		dlog("internal error: exceeded max supported sockets\n");
+		return;
+	}
+
+	dlog("triggering NULL bitstream programming on socket %d\n",
+		(int)socket_id);
 	sem_post(&ap6_sem[socket_id]);
-	evt_notify_ap6(socket_id, e);
+	evt_notify_ap6(socket_id, object_id, e);
 }
 

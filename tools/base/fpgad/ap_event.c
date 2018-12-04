@@ -60,6 +60,7 @@ monitored_device *ap_monitored_device_list;
 
 monitored_device * ap_add_monitored_device(fpga_token token,
 					   uint8_t socket_id,
+					   uint64_t object_id,
 					   supported_device *device)
 {
 	monitored_device *md = malloc(sizeof(monitored_device));
@@ -67,6 +68,7 @@ monitored_device * ap_add_monitored_device(fpga_token token,
 	if (md) {
 		md->token = token;
 		md->socket_id = socket_id;
+		md->object_id = object_id;
 		md->device = device;
 		md->num_error_occurrences = 0;
 
@@ -90,6 +92,7 @@ void ap_consider_device(fpga_token token)
 	uint16_t vendor_id;
 	uint16_t device_id;
 	uint8_t socket_id;
+	uint64_t object_id;
 	fpga_objtype objtype;
 	fpga_properties props = NULL;
 	fpga_result res;
@@ -129,6 +132,13 @@ void ap_consider_device(fpga_token token)
 		goto out_destroy_props;
 	}
 
+	object_id = 0;
+	res = fpgaPropertiesGetObjectID(props, &object_id);
+	if (res != FPGA_OK) {
+		dlog("apevent: failed to get object ID\n");
+		goto out_destroy_props;
+	}
+
 	added = false;
 
 	if (objtype == FPGA_ACCELERATOR) {
@@ -144,6 +154,7 @@ void ap_consider_device(fpga_token token)
 
 				if (ap_add_monitored_device(token,
 							    socket_id,
+							    object_id,
 							    d)) {
 					added = true;
 				}
@@ -179,7 +190,8 @@ int log_ap_event(uint64_t reg_val, monitored_device *d, struct fpga_err *e)
 
 	error_just_occurred(d, e);
 
-	dlog("socket %d: %s", d->socket_id, e->reg_field);
+	dlog("socket %d, object 0x%" PRIx64 ": %s",
+		d->socket_id, d->object_id, e->reg_field);
 
 	strcmp_s(e->sysfsfile, 32,
 		 "power_state", &indicator);
@@ -191,7 +203,7 @@ int log_ap_event(uint64_t reg_val, monitored_device *d, struct fpga_err *e)
 		dlog("\n");
 
 	if (e->callback)
-		e->callback(d->socket_id, e);
+		e->callback(d->socket_id, d->object_id, e);
 
 	return 1;
 }

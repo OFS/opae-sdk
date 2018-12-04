@@ -51,7 +51,9 @@ struct fpga_err {
 	const char *reg_field;
 	int lowbit;
 	int highbit;
-	void (*callback)(uint8_t socket_id, const struct fpga_err *);
+	void (*callback)(uint8_t socket_id,
+			 uint64_t object_id,
+			 const struct fpga_err *);
 };
 #define TABLE_TERMINATOR { NULL, NULL, 0, 0, NULL }
 
@@ -68,6 +70,7 @@ typedef struct _monitored_device {
 	struct _monitored_device *next;
 	fpga_token token;
 	uint8_t socket_id;
+	uint64_t object_id;
 	supported_device *device;
 	struct fpga_err *error_occurrences[MAX_ERROR_COUNT];
 	uint32_t num_error_occurrences;
