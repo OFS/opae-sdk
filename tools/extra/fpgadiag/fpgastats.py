@@ -39,11 +39,11 @@ dev_sel_bit = 45
 
 
 class FPGASTATS(COMMON):
-    wrapper_0_base = 0x1000
+    wrapper_0_base = 0x0000
     wrapper_0_info = wrapper_0_base + 0x8
     wrapper_0_ctl = wrapper_0_base + 0x10
     wrapper_0_stat = wrapper_0_base + 0x18
-    wrapper_1_base = 0x2000
+    wrapper_1_base = 0x8000
     wrapper_1_info = wrapper_1_base + 0x8
     wrapper_1_ctl = wrapper_1_base + 0x10
     wrapper_1_stat = wrapper_1_base + 0x18
