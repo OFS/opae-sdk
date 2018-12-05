@@ -163,7 +163,10 @@ def flash_write(dev, start, nbytes, ifile):
             else:
                 os.write(file_.fileno(), ichunk)
                 last_write_position = file_.tell()
+<<<<<<< HEAD
 
+=======
+>>>>>>> fpgaflash: add fpga flashing support for Darby Creek and N3000
 
             nbytes -= rbytes
 
@@ -337,7 +340,6 @@ def normalize_bdf(bdf):
 def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
                  no_verify):
 
-
     ofile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
 
     ifile.seek(input_offset)
@@ -350,7 +352,6 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
     flash_erase(mtd_dev, target_offset, erase_len)
 
-
     nbytes = os.path.getsize(ofile.name)
 
     with open(ofile.name, 'rb') as rfile:
@@ -360,8 +361,10 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
     with open(ofile.name, 'rb+') as rfile:
         rfile.truncate(nbytes)
 
+
     if not no_verify:
         vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+
 
 
         flash_read(mtd_dev, target_offset, nbytes, vfile)
@@ -369,6 +372,7 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
         vfile.close()
 
         print "%s verifying flash" % (datetime.datetime.now())
+
 
         retval = filecmp.cmp(ofile.name, vfile.name)
 
@@ -385,6 +389,7 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
 def fpga_update(ifile, mtd_dev, target_offset, input_offset, erase_len,
                 no_verify):
 
+
     if not mtd_dev:
         raise Exception("null mtd_dev")
 
@@ -400,6 +405,7 @@ def fpga_update(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
     update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
                  no_verify)
+
 
     return 0
 
@@ -875,6 +881,7 @@ def get_aer(bdf):
     return [val1, val2]
 
 
+
 def set_aer(bdf, val1, val2):
     cmd = 'setpci -s %s ECAP_AER+0x08.l=0x%x' % (bdf, val1)
 
@@ -1301,6 +1308,7 @@ def validate_bdf(bdf, bdf_pvid_map):
 
             ret = dc_vc_fpga_update(sfile, args.type, bdf, spi_path,
                                     args.rsu, boot_page, args.no_verify)
+
 
     sys.exit(ret)
 
