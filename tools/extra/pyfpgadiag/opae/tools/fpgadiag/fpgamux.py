@@ -29,13 +29,31 @@ import json
 import logging
 import math
 import threading
+import nlb
 from fpgadiag import fpgadiag
+from opae import fpga
 
-
-def muxify(fn, mask):
-    def write_csr(offset, value):
-        fn(mask | offset, value)
+def mux_csrwrite(fn, mask):
+    def write_csr(handle, offset, value):
+        fn(handle, mask | offset, value)
     return write_csr
+
+def mux_run(test, handle, device):
+    # get counters
+    c_counters = nlb.cache_counters(device)
+    f_counters = nlb.fabric_counters(device)
+    with c_counters.reader() as r:
+        begin_cache = r.read()
+    with f_counters.reader() as r:
+        begin_fabric = r.read()
+    cl, dsm = test.run(handle, None)
+    # get counters
+    with c_counters.reader() as r:
+        end_cache = r.read()
+    with f_counters.reader() as r:
+        end_fabric = r.read()
+    test.display_stats(cl, dsm, end_cache-begin_cache, end_fabric-begin_fabric)
+
 
 
 class fpgamux(fpgadiag):
@@ -93,15 +111,15 @@ class fpgamux(fpgadiag):
             app_mode = c['config'].get('mode', modes.get(app_name))
             app = app_classes[app_name](app_mode, app_parser)
             app_config = c['config']
-            app_args = []
+            app_args = ['--mode', app_mode]
             for k, v in app_config.iteritems():
                 if type(v) is bool:
                     if v:
                         app_args.append('--{}'.format(k))
                 else:
                     app_args.extend(['--{}'.format(k), str(v)])
-            app.write_csr32 = muxify(app.write_csr32, i << (18-bits))
-            app.write_csr64 = muxify(app.write_csr64, i << (18-bits))
+            app.write_csr32 = mux_csrwrite(app.write_csr32, i << (18-bits))
+            app.write_csr64 = mux_csrwrite(app.write_csr64, i << (18-bits))
             app.setup(app_args)
             apps.append(app)
         return apps
@@ -110,11 +128,20 @@ class fpgamux(fpgadiag):
 def main():
     tests = fpgamux.create()
     threads = []
-    for test in tests:
-        threads.append(threading.Thread(target=test.run, args=(h, d)))
+    tokens = tests[0].enumerate()
+    if not tokens:
+        test.logger.error("Could not find suitable accelerator")
+        sys.exit(-1)
+    with fpga.open(tokens[0]) as h:
+        parent = fpga.properties(h).parent
+        with fpga.open(parent, fpga.OPEN_SHARED) as d:
+            for test in tests:
+                threads.append(threading.Thread(target=mux_run, args=(test, h, d)))
 
-    for t in threads:
-        t.join()
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
 
     return 0
 
