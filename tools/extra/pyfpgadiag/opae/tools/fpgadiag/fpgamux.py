@@ -30,6 +30,10 @@ import logging
 import math
 import threading
 import nlb
+import sys
+
+from os import EX_OK, EX_USAGE, EX_SOFTWARE, EX_UNAVAILABLE
+from os.path import basename
 from fpgadiag import fpgadiag
 from opae import fpga
 
@@ -60,7 +64,7 @@ class fpgamux(fpgadiag):
 
     @classmethod
     def create(cls):
-        parser = argparse.ArgumentParser(add_help=False)
+        parser = argparse.ArgumentParser(add_help=True)
         parser.add_argument(
             '-c',
             '--config',
@@ -82,12 +86,23 @@ class fpgamux(fpgadiag):
             help='print version information then quit',
             action='store_true',
             default=False)
-        parser.add_argument('-h', '--help',
-                            action='store_true',
-                            default=False,
-                            help='print help message and exit')
 
         args, _ = parser.parse_known_args()
+        if args.version:
+            print(
+                "{} OPAE {}, build {}".format(
+                    basename(sys.argv[0]),
+                    fpga.version(),
+                    fpga.build()))
+            sys.exit(EX_OK)
+
+        logger = logging.getLogger("fpgadiag")
+        stream_handler = logging.StreamHandler(stream=sys.stderr)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s: [%(name)-8s][%(levelname)-6s] - %(message)s'))
+        logger.addHandler(stream_handler)
+        logger.setLevel(getattr(logging, args.loglevel.upper()))
+
         config = json.load(args.config)
         app_classes = dict([(n.__name__, n)
                             for n in set(cls.mode_class.values())])
