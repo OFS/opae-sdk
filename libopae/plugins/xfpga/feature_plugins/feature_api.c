@@ -76,7 +76,7 @@ allocate_wrapped_feature_handle(wrapped_feature_token *wt, fpga_feature_handle f
 	return whan;
 }
 
-static fpga_result
+fpga_result
 xfpga_fpgaCloneFeatureToken(fpga_feature_token src, fpga_feature_token *dst)
 {
 	struct _fpga_feature_token *_src = (struct _fpga_feature_token *)src;

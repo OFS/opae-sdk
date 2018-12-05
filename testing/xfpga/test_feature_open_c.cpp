@@ -236,7 +236,7 @@ TEST_P(feature_open_c_p, nullhandle) {
 }
 
 TEST_P(feature_open_c_p, mallocfail) {
-	system_->invalidate_malloc(0, "opae_allocate_wrapped_feature_handle");
+	system_->invalidate_malloc(0, "allocate_wrapped_feature_handle");
 
 	struct DFH dfh ;
 	dfh.id = 0x1;

@@ -27,7 +27,8 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make -j4 test_unit xfpga modbmc fpgad-xfpga test_ase
+
+make -j4 test_unit xfpga modbmc fpgad-xfpga test_ase intel-dma
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base 2> /dev/null
