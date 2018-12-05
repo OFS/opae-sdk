@@ -442,6 +442,7 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 
 	result = fpgaPropertiesGetObjectID(prop, &object_id);
 	if (result != FPGA_OK) {
+		fpgaDestroyProperties(&prop);
 		FPGA_ERR("failed to get object ID");
 		goto out_close_conn;
 	}
@@ -496,6 +497,7 @@ STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 
 	result = fpgaPropertiesGetObjectID(prop, &object_id);
 	if (result != FPGA_OK) {
+		fpgaDestroyProperties(&prop);
 		FPGA_ERR("failed to get object ID");
 		goto out_close_conn;
 	}
