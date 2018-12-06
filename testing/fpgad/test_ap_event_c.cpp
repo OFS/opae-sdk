@@ -67,6 +67,8 @@ class fpgad_ap_event_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+
     open_log(tmpfpgad_log_);
     save_fLog_ = fLog;
 
@@ -177,7 +179,7 @@ TEST_P(fpgad_ap_event_c_p, ap1_event_log) {
 
   clear_ap1_port0();
 
-  EXPECT_STREQ(captured.c_str(), "AP1 Triggered for socket 0\n");
+  EXPECT_NE(nullptr, strstr(captured.c_str(), "AP1 Triggered"));
 }
 
 /**
@@ -203,7 +205,7 @@ TEST_P(fpgad_ap_event_c_p, ap2_event_log) {
 
   clear_ap2_port0();
 
-  EXPECT_STREQ(captured.c_str(), "AP2 Triggered for socket 0\n");
+  EXPECT_NE(nullptr, strstr(captured.c_str(), "AP2 Triggered"));
 }
 
 /**
@@ -230,7 +232,7 @@ TEST_P(fpgad_ap_event_c_p, ap1_power_state_log) {
 
   write_power_state_port0(NORMAL_PWR);
 
-  EXPECT_STREQ(captured.c_str(), " FPGA Power State changed to AP1 for socket 0\n");
+  EXPECT_NE(nullptr, strstr(captured.c_str(), "Power state changed to AP1"));
 }
 
 /**
@@ -257,7 +259,7 @@ TEST_P(fpgad_ap_event_c_p, ap2_power_state_log) {
 
   write_power_state_port0(NORMAL_PWR);
 
-  EXPECT_STREQ(captured.c_str(), " FPGA Power State changed to AP2 for socket 0\n");
+  EXPECT_NE(nullptr, strstr(captured.c_str(), "Power state changed to AP2"));
 }
 
 /**
@@ -284,7 +286,7 @@ TEST_P(fpgad_ap_event_c_p, ap6_power_state_log) {
 
   write_power_state_port0(NORMAL_PWR);
 
-  EXPECT_STREQ(captured.c_str(), " FPGA Power State changed to AP6 for socket 0\n");
+  EXPECT_NE(nullptr, strstr(captured.c_str(), "Power state changed to AP6"));
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_ap_event_c, fpgad_ap_event_c_p,
