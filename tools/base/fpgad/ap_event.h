@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,14 +28,6 @@
 #define __FPGAD_AP_EVENT_H__
 
 #include "errtable.h"
-
-struct fpga_ap_event {
-	int socket;
-	const char *sysfsfile;
-	uint64_t ap1_last_event;
-	uint64_t ap2_last_event;
-	uint64_t pwr_last_state;
-};
 
 void *apevent_thread(void *);
 
