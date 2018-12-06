@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -129,7 +129,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 		which_mmio_ = 0;
 		//uint64_t *mmio_ptr = nullptr;
 
-		feature_filter_.type = DMA;     // TODO: 
+		feature_filter_.type = FPGA_DMA_FEATURE;
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
@@ -213,10 +213,10 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 	
 	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h), FPGA_OK);
 	
-	fpgaDMAProperties dma_prop;
+	fpga_dma_properties dma_prop;
 	EXPECT_EQ(xfpga_fpgaDMAPropertiesGet(ftokens_[0], &dma_prop, 16), FPGA_OK);
 	
-	transfer_list t_list;
+	dma_transfer_list t_list;
 	EXPECT_EQ(xfpga_fpgaDMATransferSync(feature_h, &t_list), FPGA_OK);
 	
 	EXPECT_EQ(xfpga_fpgaFeatureClose(feature_h), FPGA_OK);

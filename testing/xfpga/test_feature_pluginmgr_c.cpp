@@ -214,7 +214,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 		which_mmio_ = 0;
 		num_matches_ = 0;
-		feature_filter_.type = DMA;
+		feature_filter_.type = FPGA_DMA_FEATURE;
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));

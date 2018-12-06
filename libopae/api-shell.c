@@ -1586,12 +1586,9 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
+	ASSERT_NOT_NULL(tokens);
 	ASSERT_NOT_NULL(num_matches);
  
-	if ((max_tokens > 0) && !tokens) {
-		OPAE_ERR("max_tokens > 0 with NULL tokens");
-		return FPGA_INVALID_PARAM;
-	}
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureEnumerate,
 		FPGA_NOT_SUPPORTED);
 	
@@ -1606,7 +1603,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 							prop, d_tokens,	max_tokens, num_matches);
 	if (res != FPGA_OK) {
 		OPAE_ERR("fpgaFeatureEnumerate failed");
-		return res;
+		goto out_free;
 	}
 	
 	if (*num_matches > max_tokens)
@@ -1619,11 +1616,16 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 			d_tokens[i], wrapped_handle->adapter_table);
 		if (!wt) {
 			OPAE_ERR("opae_allocate_wrapped_feature_token failed");
-			return OPAE_ENUM_STOP;
+			res = FPGA_EXCEPTION;
+			goto out_free;
 		}
 		tokens[i] = wt;
 	}
-	
+
+	return res;
+
+out_free:
+	free(d_tokens);
 	return res;
 }
 
@@ -1637,26 +1639,23 @@ fpga_result fpgaDestroyFeatureToken(fpga_feature_token *token)
 	wrapped_token = opae_validate_wrapped_feature_token(*token);
 
 	ASSERT_NOT_NULL(wrapped_token);
-	
+
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDestroyFeatureToken,
 		FPGA_NOT_SUPPORTED);
-	
+
 	res = wrapped_token->adapter_table->fpgaDestroyFeatureToken(wrapped_token->feature_token);
-	
+
 	opae_destroy_wrapped_feature_token(wrapped_token);
 
 	return res;
-	
 }
 
 fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 	fpga_feature_properties *prop)
 {
-	fpga_result res = FPGA_OK;
 	opae_wrapped_feature_token *wrapped_token;
 
 	wrapped_token = opae_validate_wrapped_feature_token(token);
-	//wrapped_token->feature_token;
 	
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(prop);
@@ -1664,10 +1663,8 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeaturePropertiesGet,
 		FPGA_NOT_SUPPORTED);
 		
-	res = wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
+	return wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
 			prop);
-
-	return res;
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
@@ -1723,13 +1720,13 @@ fpga_result fpgaFeatureClose(fpga_feature_handle handle)
 	opae_destroy_wrapped_feature_handle(wrapped_handle);
 
 	return res;
-}	
-	
-fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+}
+
+fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
 									int max_ch)
 {
 	opae_wrapped_feature_token *wrapped_token =
-				opae_validate_wrapped_feature_token(token);;
+				opae_validate_wrapped_feature_token(token);
 
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(prop);
@@ -1741,7 +1738,7 @@ fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *pr
 															prop, max_ch);
 }
 
-fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
+fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list)
 {
 	opae_wrapped_feature_handle *wrapped_handle =
 		opae_validate_wrapped_feature_handle(dma_h);
@@ -1753,10 +1750,9 @@ fpga_result fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_l
 
 	return wrapped_handle->adapter_table->fpgaDMATransferSync(wrapped_handle->feature_handle,
 																xfer_list);
-
 }
 
-fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,
 								fpga_dma_cb cb, void *context)
 {
 	opae_wrapped_feature_handle *wrapped_handle =
@@ -1770,5 +1766,4 @@ fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_x
 
 	return wrapped_handle->adapter_table->fpgaDMATransferAsync(wrapped_handle->feature_handle,
 																dma_xfer, cb, context);
-
 }

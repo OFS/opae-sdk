@@ -223,7 +223,6 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 #define OPAE_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
 #define OPAE_FEATURE_TOKEN_MAGIC 0x66656178
 #define OPAE_INVALID_MAGIC 0x46504741
-//typedef void *opae_feature_adapter_table;
 
 typedef struct _opae_wrapped_feature_token {
 	uint64_t magic;

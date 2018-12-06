@@ -150,12 +150,12 @@ fpga_result xfpga_fpgaFeatureOpen(fpga_feature_token token,
 					fpga_feature_handle *handle);
 fpga_result xfpga_fpgaFeatureClose(fpga_feature_handle handle);
 fpga_result xfpga_fpgaDMAPropertiesGet(fpga_feature_token token,
-					fpgaDMAProperties *prop,
+					fpga_dma_properties *prop,
 					int max_ch);
 fpga_result xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h,
-					transfer_list *xfer_list);
+					dma_transfer_list *xfer_list);
 fpga_result xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h,
-					transfer_list *dma_xfer,
+					dma_transfer_list *dma_xfer,
 					fpga_dma_cb cb,
 					void *context);
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,6 +42,8 @@
 #include "feature_pluginmgr.h"
 #include "feature_int.h"
 #include "feature_token_list_int.h"
+
+extern pthread_mutex_t global_lock;
 
 wrapped_feature_token *
 allocate_wrapped_feature_token(fpga_feature_token token,
@@ -124,7 +126,6 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
                       fpga_feature_token *tokens, uint32_t max_tokens,
                       uint32_t *num_matches)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	fpga_result result = FPGA_OK;
 	uint32_t mmio_num = 0;
 	uint64_t offset = 0;
@@ -134,16 +135,8 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 	int errors;
 	
 	ASSERT_NOT_NULL(prop);
-	ASSERT_NOT_NULL(num_matches);
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
- 
-	if ((max_tokens > 0) && !tokens) {
-		FPGA_ERR("max_tokens > 0 with NULL tokens");
-		return FPGA_INVALID_PARAM;
-	}
+	ASSERT_NOT_NULL(tokens);
+	ASSERT_NOT_NULL(num_matches);	
   
 	*num_matches = 0;
 	
@@ -153,18 +146,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 		result = FPGA_EXCEPTION;
 	}	
 	
-	/*res = fpgaGetProperties(wrapped_handle->wrapped_token, &accel_prop);
-	if (res != FPGA_OK) {
-		FPGA_ERR("fpgaGetProperties() failed");
-		return res;
-	}
-	
-	res = fpgaPropertiesGetNumMMIO(accel_prop, &mmio_num);
-	if (res != FPGA_OK) {
-		FPGA_ERR("fpgaPropertiesGetNumMMIO() failed");
-		return res;
-	} */
-	mmio_num = 0;  // TODO : debug above
+	mmio_num = 0;  // TODO : check how to get the mmio_num
 	result = xfpga_fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (result != FPGA_OK) {
 		FPGA_ERR("fpgaReadMMIO64() failed");
@@ -214,6 +196,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 					result = xfpga_fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);
 					if (result	!= FPGA_OK) {
 						FPGA_MSG("Error cloning token");
+						return result;
 					}
 					adapter = get_feature_plugin_adapter(guid);
 					wrapped_feature_token *wt = 
@@ -233,6 +216,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 
 fpga_result __FPGA_API__ xfpga_fpgaDestroyFeatureToken(fpga_feature_token *token)
 {
+	int err = 0;
 	wrapped_feature_token *wrapped_token;
 
 	ASSERT_NOT_NULL(token);
@@ -240,14 +224,22 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyFeatureToken(fpga_feature_token *token
 	wrapped_token = validate_wrapped_feature_token(*token);
 
 	ASSERT_NOT_NULL(wrapped_token);
-	
+
+	if (pthread_mutex_lock(&global_lock)) {
+		FPGA_MSG("Failed to lock global mutex");
+		return FPGA_EXCEPTION;
+	}
+
 	free(wrapped_token->feature_token);
 	wrapped_token->feature_token = NULL;
 
 	destroy_wrapped_feature_token(wrapped_token);
 
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
 	return FPGA_OK;
-	
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token,
@@ -276,6 +268,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token
 
 	if (EOK != e) {
 		FPGA_ERR("memcpy_s failed");
+		res = FPGA_EXCEPTION;
 	}
 
 	return res;
@@ -295,6 +288,8 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureOpen(fpga_feature_token token, int fla
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureOpen,
+			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureClose,
 			       FPGA_NOT_SUPPORTED);
 
 	res = wrapped_token->adapter_table->fpgaFeatureOpen(wrapped_token->feature_token,
@@ -335,11 +330,11 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureClose(fpga_feature_handle handle)
 }	
 	
 fpga_result __FPGA_API__
-xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
 									int max_ch)
 {
 	wrapped_feature_token *wrapped_token =
-				validate_wrapped_feature_token(token);;
+				validate_wrapped_feature_token(token);
 
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(prop);
@@ -352,7 +347,7 @@ xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
 }
 
 fpga_result __FPGA_API__
-xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
+xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list)
 {
 	//fpga_result res;
 	wrapped_feature_handle *wrapped_handle =
@@ -369,7 +364,7 @@ xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list)
 }
 
 fpga_result __FPGA_API__
-xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,
 								fpga_dma_cb cb, void *context)
 {
 	//fpga_result res;

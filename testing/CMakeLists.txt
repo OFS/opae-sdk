@@ -75,7 +75,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_pluginmgr.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_token_list.c
-			  ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_api.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_api.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>

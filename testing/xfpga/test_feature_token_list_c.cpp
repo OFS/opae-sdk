@@ -1,5 +1,4 @@
-
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,7 +38,7 @@ extern "C" {
 #include "test_system.h"
 #include "gtest/gtest.h"
 
-extern pthread_mutex_t ftoken_lock;
+extern pthread_mutex_t global_lock;
 
 using namespace opae::testing;
 
@@ -58,14 +57,14 @@ TEST(feature_token_list_c, simple_case)
 
 TEST(feature_token_list_c, invalid_mutex)
 {
-	pthread_mutex_destroy(&ftoken_lock);
+	pthread_mutex_destroy(&global_lock);
 	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 	struct _fpga_feature_token *ftoken = 
 		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr );
 	EXPECT_EQ(ftoken, nullptr);
 
-	pthread_mutex_init(&ftoken_lock, NULL);
+	pthread_mutex_init(&global_lock, NULL);
  
 	feature_token_cleanup();
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -50,16 +50,15 @@ extern "C" {
  * Output of fpgaDMAPropertiesGet.
  */
 typedef struct {
-	uint64_t maxChannelNum; /**< Max number of channels that the DMA engine support */
-	uint64_t maxRingSize; /**< Max number of buffers that the DMA can hold */
-	uint64_t maxBufferSize; /**< Max size of one buffer */
-	uint64_t addrAlignmentForDMA; /**< The DMA will be used only when reaching this alignment */
-	uint64_t minimumXferSizeForDMA; /**< DMA will be used only at a multiplication of this size */
+	uint64_t max_channel_num; /**< Max number of channels that the DMA engine support */
+	uint64_t max_ring_size; /**< Max number of buffers that the DMA can hold */
+	uint64_t max_buffer_size; /**< Max size of one buffer */
+	uint64_t addr_alignment_for_dma; /**< The DMA will be used only when reaching this alignment */
+	uint64_t minimum_xfer_size_for_dma; /**< DMA will be used only at a multiplication of this size */
 	uint64_t capabilities_mask; /**< Bit mask of fpga_dma_transfer_type */
-	uint64_t reserved[32];
-	fpga_guid *txEndPGuid; /**< Pointer to a table of Guid of the connected IP to a Tx channels */
-	fpga_guid *rxEndPGuid; /**< Pointer to a table of Guid of the connected IP to a Rx channels */
-} fpgaDMAProperties;
+	fpga_guid *tx_endp_guid; /**< Pointer to a table of Guid of the connected IP to a Tx channels */
+	fpga_guid *rx_endp_guid; /**< Pointer to a table of Guid of the connected IP to a Rx channels */
+} fpga_dma_properties;
 
 /**
  * Get DMA feature properties.
@@ -67,14 +66,14 @@ typedef struct {
  * Get DMA properties from a feature token (DMA feature type)
  *
  * @param[in]   token   Feature token
- * @param[out]  prop    pre allocated fpgaDMAProperties structure to write information into
+ * @param[out]  prop    pre allocated fpga_dma_properties structure to write information into
  * @param[in]   max_ch  Entry number in the Tx/Rx end point GUID array
  *
  * @returns FPGA_OK on success.
  */
 
 fpga_result
-fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
+fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
 		int max_ch);
 
 /**
@@ -97,7 +96,6 @@ typedef struct {
 	bool tx_eop; /**< Tx strean - indicate last buffer for the stream */
 	uint64_t *rx_len; /**< Rx stream - length of Rx data */
 	bool *rx_eop; /**< Rx stream - Set is end of packet was received */
-	uint64_t reserved[8];
 } fpga_dma_transfer;
 
 /**
@@ -112,33 +110,33 @@ typedef struct {
 	uint32_t entries_num; /**< number of entries in array */
 	fpga_dma_transfer_type type; /**< Direction and streaming or memory */
 	uint32_t ch_index; /**< in case of multi channel DMA, which channel to use */
-} transfer_list;
+} dma_transfer_list;
 
 /**
  * Start a blocking transfer.
  *
  * Start a sync transfer and return only all the data was copied.
  *
- * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
- * @param[in]   dma_xfer        transfer information
+ * @param[in]   dma_h      as populated by fpgaFeatureOpen()
+ * @param[in]   xfer_list        transfer information
  *
  * @returns FPGA_OK on success.
  */
 fpga_result
-fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list);
+fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list);
 
 /**
  * FPGA DMA callback function for asynchronous operation
  */
-typedef void (*fpga_dma_cb)(transfer_list *xfer_list, void *context);
+typedef void (*fpga_dma_cb)(dma_transfer_list *xfer_list, void *context);
 
 /**
- * Start a none blocking transfer (callback).
+ * Start a non-blocking transfer (callback).
  *
  * Start an Async transfer (Return immediately)
- * Callback will be invoke when the transfer is completed.
+ * Callback will be invoked when the transfer is completed.
  *
- * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
+ * @param[in]   dma_h      as populated by fpgaFeatureOpen()
  * @param[in]   dma_xfer        transfer information
  * @param[in]   cb              Call back function to call when the transfer is completed
  * @param[in]   context         argument to pass to the callback function
@@ -149,7 +147,7 @@ typedef void (*fpga_dma_cb)(transfer_list *xfer_list, void *context);
  * @returns FPGA_OK on success.
  */
 fpga_result
-fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,
 		fpga_dma_cb cb, void *context);
 
 #ifdef __cplusplus
