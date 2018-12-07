@@ -387,8 +387,7 @@ def config_qsys_sources(filelist, vlog_srcs):
             print("Preparing {0}:".format(q))
             print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                if not os.path.exists(tgt_dir):
-                    shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
+                shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
             except Exception as e:
                 errorExit("Failed to copy tree {0} to {1}: Exception {2}".format(src_dir,
                                                                   tgt_dir, e))
