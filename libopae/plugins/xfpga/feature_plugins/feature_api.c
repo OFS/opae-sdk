@@ -225,20 +225,11 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyFeatureToken(fpga_feature_token *token
 
 	ASSERT_NOT_NULL(wrapped_token);
 
-	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
-		return FPGA_EXCEPTION;
-	}
-
 	free(wrapped_token->feature_token);
 	wrapped_token->feature_token = NULL;
 
 	destroy_wrapped_feature_token(wrapped_token);
 
-	err = pthread_mutex_unlock(&global_lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
 	return FPGA_OK;
 }
 

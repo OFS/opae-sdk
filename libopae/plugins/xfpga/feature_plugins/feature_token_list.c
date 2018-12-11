@@ -73,7 +73,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 		if ((uuid_compare(guid, tmp->feature_guid)) == 0) {
 			err = pthread_mutex_unlock(&global_lock);
 			if (err) {
-				FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				FPGA_ERR("pthread_mutex_unlock() failed: %s",
 					 strerror(err));
 			}
 			return tmp;
@@ -108,8 +108,9 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		goto out_free;
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		free(tmp);
+		tmp = NULL;
 	}
 
 	return tmp;
@@ -120,7 +121,7 @@ out_free:
 out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return NULL;
 }
