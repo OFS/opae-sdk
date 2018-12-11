@@ -32,6 +32,7 @@
 #include "opae/utils.h"
 #include "common_int.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -53,6 +54,7 @@ STATIC fpga_result port_get_region_info(fpga_handle handle,
 {
 	int err;
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
 	fpga_result result = FPGA_OK;
 
 	ASSERT_NOT_NULL(flags);
@@ -63,22 +65,41 @@ STATIC fpga_result port_get_region_info(fpga_handle handle,
 	if (result)
 		return result;
 
-	/* Set ioctl fpga_port_region_info struct parameters */
-	struct fpga_port_region_info rinfo = {.argsz = sizeof(rinfo),
-					      .padding = 0,
-					      .index = (__u32) mmio_num};
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
+		/* Set ioctl fpga_port_region_info struct parameters */
+		struct fpga_port_region_info rinfo = { .argsz = sizeof(rinfo),
+							  .padding = 0,
+							  .index = (__u32)mmio_num };
 
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_GET_REGION_INFO, &rinfo) != 0) {
-		FPGA_MSG("FPGA_PORT_GET_REGION_INFO ioctl failed: %s",
-			 strerror(errno));
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, FPGA_PORT_GET_REGION_INFO, &rinfo) != 0) {
+			FPGA_MSG("FPGA_PORT_GET_REGION_INFO ioctl failed: %s",
+				strerror(errno));
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
+		}
+
+		*flags = (uint32_t)rinfo.flags;
+		*size = (uint64_t)rinfo.size;
+		*offset = (uint64_t)rinfo.offset;
+	} else {
+
+		struct dfl_fpga_port_region_info rinfo = { .argsz = sizeof(rinfo),
+					  .padding = 0,
+					  .index = (__u32)mmio_num };
+
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, DFL_FPGA_PORT_GET_REGION_INFO, &rinfo) != 0) {
+			FPGA_MSG("FPGA_PORT_GET_REGION_INFO ioctl failed: %s",
+				strerror(errno));
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
+		}
+
+		*flags = (uint32_t)rinfo.flags;
+		*size = (uint64_t)rinfo.size;
+		*offset = (uint64_t)rinfo.offset;
 	}
-
-	*flags = (uint32_t) rinfo.flags;
-	*size = (uint64_t) rinfo.size;
-	*offset = (uint64_t) rinfo.offset;
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

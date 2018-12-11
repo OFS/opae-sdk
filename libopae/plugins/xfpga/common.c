@@ -34,6 +34,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <glob.h>
+
+#include "safe_string/safe_string.h"
 
 // Buffer Allocation constants
 #define KB 1024
@@ -188,4 +193,257 @@ uint64_t wsid_gen(void)
 	uint64_t id = __sync_fetch_and_add(&ctr, 1);
 	id ^= ((unsigned long) getpid() % 16777216) << 40;
 	return id;
+}
+
+//
+enum fpga_drv_devl_ver get_fpga_drv_devl_ver(void)
+{
+	struct stat astats;
+	static enum fpga_drv_devl_ver drv_devl_ver = FPGA_UNKNOWN_DRV_VER;
+
+	if (drv_devl_ver == FPGA_UNKNOWN_DRV_VER) {
+
+		// check for linux upstream driver
+		if ((stat(SYSFS_FPGA_UPS_DRV_CLASS_PATH, &astats)) == 0) {
+			if (S_ISDIR(astats.st_mode)) {
+
+				drv_devl_ver = FPGA_LINUX_UPS_DRV_VER;
+				return drv_devl_ver;
+			}
+		}
+		drv_devl_ver = FPGA_LATEST_DRV_VER;
+	}
+
+	return drv_devl_ver;
+}
+
+char *get_fpga_class_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_FPGA_CLASS_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_FPGA_UPS_DRV_CLASS_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_FPGA_CLASS_PATH;
+}
+
+char *get_fpga_fme_sysfs_path()
+{
+
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_FME_PATH_FMT;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_FME_PATH_FMT;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_FME_PATH_FMT;
+}
+
+char *get_fpga_port_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_AFU_PATH_FMT;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_AFU_PATH_FMT;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_AFU_PATH_FMT;
+}
+
+char *get_fpga_fme_socketid_sysfs_path()
+{
+
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_SOCKET_ID_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_SOCKET_ID_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_SOCKET_ID_PATH;
+}
+
+char *get_fpga_slots_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_NUM_SLOTS_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_NUM_SLOTS_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_NUM_SLOTS_PATH;
+}
+
+char *get_fpga_fme_interfaceid_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_INTERFACE_ID_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_INTERFACE_ID_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_INTERFACE_ID_PATH;
+}
+
+char *get_fpga_fme_bitstreamid_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_BITSTREAM_ID_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_INTERFACE_ID_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_BITSTREAM_ID_PATH;
+}
+
+char *get_fpga_afu_id_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_AFU_GUID_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_AFU_GUID_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_AFU_GUID_PATH;
+}
+
+char *get_fpga_deviceid_sysfs_path()
+{
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		return SYSFS_DEVICEID_PATH;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		return SYSFS_UPS_DRV_DEVICEID_PATH;
+		break;
+	default:
+		break;
+	}
+
+	return SYSFS_DEVICEID_PATH;
+}
+
+int get_fpga_pr_interfaceid_sysfs_path(const char *device_path, char *sysfs_path)
+{
+	int ret = 0;
+	char path[SYSFS_PATH_MAX];
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER: {
+		snprintf_s_s(sysfs_path, sizeof(sysfs_path), "%s" FPGA_SYSFS_FME_INTERFACE_ID,
+			device_path);
+		ret = 0;
+		}
+		break;
+	case FPGA_LINUX_UPS_DRV_VER: {
+		snprintf_s_s(path, sizeof(path), "%s" "/dfl-fme-region.*/fpga_region/*/compat_id",
+			device_path);
+		glob_t pglob;
+		int gres = glob(path, GLOB_NOSORT, NULL, &pglob);
+		if ((gres) || (1 != pglob.gl_pathc)) {
+			globfree(&pglob);
+			ret = -1;
+			break;
+		}
+		snprintf_s_s(sysfs_path, sizeof(path), "%s", pglob.gl_pathv[0]);
+		globfree(&pglob);
+		ret = 0;
+		}
+		break;
+	default:
+		ret = -1;
+		break;
+	}
+
+	return ret;
+}
+
+int get_fpga_pr_interfaceid_dev_sysfs_path(int dev, int subdev, char *sysfs_path)
+{
+	int ret = 0;
+	char path[SYSFS_PATH_MAX];
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER: {
+		snprintf_s_ii(sysfs_path, SYSFS_PATH_MAX,
+			SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
+			"/" FPGA_SYSFS_FME_INTERFACE_ID,
+			dev, subdev);
+		ret = 0;
+		}
+		break;
+	case FPGA_LINUX_UPS_DRV_VER: {
+
+			snprintf_s_ii(path, SYSFS_PATH_MAX,
+				SYSFS_UPS_DRV_FME_PATH_FMT,
+				dev, subdev);
+			snprintf_s_s(sysfs_path, sizeof(path), "%s" "/dfl-fme-region.*/fpga_region/*/compat_id",
+				path);
+
+			glob_t pglob;
+			int gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+			if ((gres) || (1 != pglob.gl_pathc)) {
+				globfree(&pglob);
+				return -1;
+			}
+			snprintf_s_s(sysfs_path, sizeof(path), "%s", pglob.gl_pathv[0]);
+			globfree(&pglob);
+			ret = 0;
+		}
+		 break;
+	default:
+		ret = -1;
+		break;
+	}
+
+	return ret;
 }

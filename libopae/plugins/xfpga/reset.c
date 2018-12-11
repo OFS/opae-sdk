@@ -33,12 +33,14 @@
 #include "opae/utils.h"
 #include "common_int.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 // Reset slot
 fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result 	     = FPGA_OK;
+	struct _fpga_token *_token   = (struct _fpga_token *)_handle->token;
+	fpga_result result 	         = FPGA_OK;
 	int err                      = 0;
 
 	result = handle_check_and_lock(_handle);
@@ -51,11 +53,23 @@ fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 		goto out_unlock;
 	}
 
-	// reset ioctl
-	result = ioctl(_handle->fddev, FPGA_PORT_RESET, NULL);
-	if (result != 0) {
-		FPGA_MSG("Reset failed");
-		result = FPGA_EXCEPTION;
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
+
+		// reset ioctl
+		result = ioctl(_handle->fddev, FPGA_PORT_RESET, NULL);
+		if (result != 0) {
+			FPGA_MSG("Reset failed");
+			result = FPGA_EXCEPTION;
+		}
+	} else {
+
+		// reset ioctl
+		result = ioctl(_handle->fddev, DFL_FPGA_PORT_RESET, NULL);
+		if (result != 0) {
+			FPGA_MSG("Reset failed");
+			result = FPGA_EXCEPTION;
+		}
+
 	}
 
 out_unlock:

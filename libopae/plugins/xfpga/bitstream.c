@@ -147,8 +147,12 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t
 	}
 
 	// PR Interface id path
-	snprintf_s_ss(file_path, sizeof(file_path), "%s/%s", _token->sysfspath,
-		 PR_INTERFACE_ID);
+	//snprintf_s_ss(file_path, sizeof(file_path), "%s/%s", _token->sysfspath,
+	//	 PR_INTERFACE_ID);
+
+	if (get_fpga_pr_interfaceid_sysfs_path(_token->sysfspath, file_path) != 0) {
+		return FPGA_EXCEPTION;
+	}
 
 	if ((stat(file_path, &astats)) != FPGA_OK) {
 		FPGA_MSG("stat(%s) failed", file_path);

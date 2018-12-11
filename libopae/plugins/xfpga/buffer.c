@@ -32,6 +32,7 @@
 #include "opae/utils.h"
 #include "common_int.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -151,6 +152,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 	void *addr = NULL;
 	fpga_result result = FPGA_OK;
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
 	int err;
 
 	bool preallocated = (flags & FPGA_BUF_PREALLOCATED);
@@ -229,48 +231,100 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		}
 	}
 
-	/* Set ioctl fpga_port_dma_map struct parameters */
-	struct fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),
-					    .flags = 0,
-					    .user_addr = (__u64) addr,
-					    .length = (__u64) len,
-					    .iova = 0};
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_DMA_MAP, &dma_map) != 0) {
-		if (!preallocated) {
-			buffer_release(addr, len);
+		/* Set ioctl fpga_port_dma_map struct parameters */
+		struct fpga_port_dma_map dma_map = { .argsz = sizeof(dma_map),
+							.flags = 0,
+							.user_addr = (__u64)addr,
+							.length = (__u64)len,
+							.iova = 0 };
+
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, FPGA_PORT_DMA_MAP, &dma_map) != 0) {
+			if (!preallocated) {
+				buffer_release(addr, len);
+			}
+
+			if (!quiet) {
+				FPGA_MSG("FPGA_PORT_DMA_MAP ioctl failed: %s",
+					strerror(errno));
+			}
+
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
 		}
 
-		if (!quiet) {
-			FPGA_MSG("FPGA_PORT_DMA_MAP ioctl failed: %s",
-				 strerror(errno));
+		/* Generate unique workspace ID */
+		*wsid = wsid_gen();
+
+		/* Add to workspace id in order to store buffer length */
+		if (!wsid_add(_handle->wsid_root,
+			*wsid,
+			dma_map.user_addr,
+			dma_map.iova,
+			len,
+			0,
+			0,
+			flags)) {
+			if (!preallocated) {
+				buffer_release(addr, len);
+			}
+
+			FPGA_MSG("Failed to add workspace id %lu", *wsid);
+			result = FPGA_NO_MEMORY;
+			goto out_unlock;
 		}
 
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
+	} else {
+
+
+		/* Set ioctl fpga_port_dma_map struct parameters */
+		struct dfl_fpga_port_dma_map dma_map = { .argsz = sizeof(dma_map),
+							.flags = 0,
+							.user_addr = (__u64)addr,
+							.length = (__u64)len,
+							.iova = 0 };
+
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, DFL_FPGA_PORT_DMA_MAP, &dma_map) != 0) {
+			if (!preallocated) {
+				buffer_release(addr, len);
+			}
+
+			if (!quiet) {
+				FPGA_MSG("FPGA_PORT_DMA_MAP ioctl failed: %s",
+					strerror(errno));
+			}
+
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
+		}
+
+		/* Generate unique workspace ID */
+		*wsid = wsid_gen();
+
+		/* Add to workspace id in order to store buffer length */
+		if (!wsid_add(_handle->wsid_root,
+			*wsid,
+			dma_map.user_addr,
+			dma_map.iova,
+			len,
+			0,
+			0,
+			flags)) {
+			if (!preallocated) {
+				buffer_release(addr, len);
+			}
+
+			FPGA_MSG("Failed to add workspace id %lu", *wsid);
+			result = FPGA_NO_MEMORY;
+			goto out_unlock;
+		}
+
 	}
 
-	/* Generate unique workspace ID */
-	*wsid = wsid_gen();
 
-	/* Add to workspace id in order to store buffer length */
-	if (!wsid_add(_handle->wsid_root,
-		      *wsid,
-		      dma_map.user_addr,
-		      dma_map.iova,
-		      len,
-		      0,
-		      0,
-		      flags)) {
-		if (!preallocated) {
-			buffer_release(addr, len);
-		}
-
-		FPGA_MSG("Failed to add workspace id %lu", *wsid);
-		result = FPGA_NO_MEMORY;
-		goto out_unlock;
-	}
 
 	/* Update buf_addr */
 	if (buf_addr)
@@ -296,6 +350,7 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	int err;
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token = (struct _fpga_token *)_handle->token;
 	fpga_result result = FPGA_NOT_FOUND;
 
 	result = handle_check_and_lock(_handle);
@@ -316,21 +371,42 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 
 	bool preallocated = (wm->flags & FPGA_BUF_PREALLOCATED);
 
-	/* Set ioctl fpga_port_dma_unmap struct parameters */
-	struct fpga_port_dma_unmap dma_unmap = {.argsz = sizeof(dma_unmap),
-						.flags = 0,
-						.iova = iova};
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
-		if (!preallocated) {
-			buffer_release(buf_addr, len);
+		/* Set ioctl fpga_port_dma_unmap struct parameters */
+		struct fpga_port_dma_unmap dma_unmap = { .argsz = sizeof(dma_unmap),
+							.flags = 0,
+							.iova = iova };
+
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
+			if (!preallocated) {
+				buffer_release(buf_addr, len);
+			}
+
+			FPGA_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
+				strerror(errno));
+			result = FPGA_INVALID_PARAM;
+			goto ws_free;
 		}
+	} else {
 
-		FPGA_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
-			 strerror(errno));
-		result = FPGA_INVALID_PARAM;
-	goto ws_free;
+		/* Set ioctl fpga_port_dma_unmap struct parameters */
+		struct dfl_fpga_port_dma_unmap dma_unmap = { .argsz = sizeof(dma_unmap),
+							.flags = 0,
+							.iova = iova };
+
+		/* Dispatch ioctl command */
+		if (ioctl(_handle->fddev, DFL_FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
+			if (!preallocated) {
+				buffer_release(buf_addr, len);
+			}
+
+			FPGA_ERR("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
+				strerror(errno));
+			result = FPGA_INVALID_PARAM;
+			goto ws_free;
+		}
 	}
 
 	/* If the buffer was allocated in xfpga_fpgaPrepareBuffer() (i.e. it was not

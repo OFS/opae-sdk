@@ -40,6 +40,7 @@
 #include <dirent.h>
 #include <uuid/uuid.h>
 #include <dlfcn.h>
+#include <glob.h>
 
 #include "common_int.h"
 #include "metrics_int.h"
@@ -415,8 +416,6 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 	DIR *dir                            = NULL;
 	struct dirent *dirent               = NULL;
 	char sysfs_path[SYSFS_PATH_MAX]     = { 0 };
-	char sysfs_ipath[SYSFS_PATH_MAX]    = { 0 };
-	char sysfs_dpath[SYSFS_PATH_MAX]    = { 0 };
 	char qualifier_name[SYSFS_PATH_MAX] = { 0 };
 
 	if (vector == NULL ||
@@ -426,23 +425,17 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ss(sysfs_ipath, sizeof(sysfs_ipath), "%s/%s", sysfspath, IPERF);
-	snprintf_s_ss(sysfs_dpath, sizeof(sysfs_dpath), "%s/%s", sysfspath, DPERF);
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, "*perf");
 
-
-	if (metric_sysfs_path_is_dir(sysfs_ipath) == FPGA_OK) {
-
-		snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, IPERF);
-
-
-	} else if (metric_sysfs_path_is_dir(sysfs_dpath) == FPGA_OK) {
-
-		snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, DPERF);
-
-	} else {
-		FPGA_MSG("NO Perf Counters");
+	glob_t pglob;
+	int gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	if ((gres) || (1 != pglob.gl_pathc)) {
+		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
+
+	snprintf_s_s(sysfs_path, sizeof(sysfs_path), "%s", pglob.gl_pathv[0]);
+	globfree(&pglob);
 
 	dir = opendir(sysfs_path);
 	if (NULL == dir) {
