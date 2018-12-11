@@ -133,18 +133,22 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 	struct _fpga_feature_token *_ftoken;
 	struct DFH dfh;
 	int errors;
-	
+
 	ASSERT_NOT_NULL(prop);
-	ASSERT_NOT_NULL(tokens);
-	ASSERT_NOT_NULL(num_matches);	
-  
+	ASSERT_NOT_NULL(num_matches);
+
+	if ((max_tokens > 0) && (NULL == tokens)) {
+		FPGA_MSG("max_tokens > 0 with NULL tokens");
+		return FPGA_INVALID_PARAM;
+	}
+
 	*num_matches = 0;
-	
+
 	errors = feature_plugin_mgr_initialize(handle);
 	if (errors) {
 		FPGA_ERR("Feature token initialize errors");
 		result = FPGA_EXCEPTION;
-	}	
+	}
 	
 	mmio_num = 0;  // TODO : check how to get the mmio_num
 	result = xfpga_fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
@@ -188,20 +192,22 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 
 		if (_ftoken->feature_type == prop->type) {
 			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
-				|| (uuid_is_null(prop->guid))) { 
-				if (*num_matches < max_tokens) {
-					fpga_feature_token tmp = 0;
-					feature_adapter_table * adapter;
+				|| (uuid_is_null(prop->guid))) {
+				if (tokens) {
+					if (*num_matches < max_tokens) {
+						fpga_feature_token tmp = 0;
+						feature_adapter_table * adapter;
 					
-					result = xfpga_fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);
-					if (result	!= FPGA_OK) {
-						FPGA_MSG("Error cloning token");
-						return result;
+						result = xfpga_fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);
+						if (result	!= FPGA_OK) {
+							FPGA_MSG("Error cloning token");
+							return result;
+						}
+						adapter = get_feature_plugin_adapter(guid);
+						wrapped_feature_token *wt = 
+							allocate_wrapped_feature_token(tmp, adapter);
+						tokens[*num_matches] = wt;
 					}
-					adapter = get_feature_plugin_adapter(guid);
-					wrapped_feature_token *wt = 
-					     allocate_wrapped_feature_token(tmp, adapter);
-					tokens[*num_matches] = wt;
 				}
 				++(*num_matches);
 			}
@@ -216,7 +222,6 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 
 fpga_result __FPGA_API__ xfpga_fpgaDestroyFeatureToken(fpga_feature_token *token)
 {
-	int err = 0;
 	wrapped_feature_token *wrapped_token;
 
 	ASSERT_NOT_NULL(token);
