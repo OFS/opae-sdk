@@ -568,9 +568,6 @@ TEST_P(fpgaconf_c_p, parse_args3) {
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
 
-
-
-
 /**
  * @test       ifc_id1
  * @brief      Test: print_interface_id
@@ -678,6 +675,42 @@ TEST_P(fpgaconf_c_p, main2) {
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 }
 
+/**
+ * @test       invalid_main*
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params contains nullbyte,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, invalid_main1) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+  strcpy(five, "temp\0.gbs");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+
+  memset(five, 0, 20);
+  strcpy(five, "temp.gbs\0");
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+
+  memset(five, 0, 20);
+  strcpy(five, "\0temp.gbs");
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+
+  memset(five, 0, 20);
+  strcpy(five, "temp.gbs%00");
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+}
 /**
  * @test       str_to_guid
  * @brief      Test: string_to_guid

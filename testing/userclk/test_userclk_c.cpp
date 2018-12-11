@@ -413,6 +413,79 @@ TEST_P(userclk_c_p, main2) {
   EXPECT_NE(userclk_main(3, argv), 0);
 }
 
+/**
+ * @test       nullbyte_main0
+ * @brief      Test: userclk_main
+ * @details    When given command with nullbyte,<br>
+ *             ParseCmd failed to parse cmd, userclk returns 1.<br>
+ */
+TEST_P(userclk_c_p, nullbyte_main0){
+  char zero[20];
+  char one[20];
+  char two[20];
+ 
+  strcpy(zero, "userclk");
+  strcpy(one, "\0--segment");
+  strcpy(two, "0");
+  char *argv[] = { zero, one, two };
+  EXPECT_NE(userclk_main(3, argv), 0);
+
+  memset(one, 0, 20);
+  strcpy(one, "--\0segment");
+  EXPECT_NE(userclk_main(3, argv), 0);
+}
+
+/**
+ * @test       nullbyte_main*
+ * @brief      Test: userclk_main
+ * @details    When given command with nullbyte,<br>
+ *             ParseCmd succeeds but fails to set userclock <br> 
+ *             frequency, userclk returns 1.<br>
+ */
+TEST_P(userclk_c_p, nullbyte_main1){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  
+  strcpy(zero, "userclk");
+  strcpy(one, "--seg\0ment");
+  strcpy(two, "0");
+  strcpy(three, "-H");
+  strcpy(four, "400");
+  strcpy(five, "-L");
+  strcpy(six, "200");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six };
+  EXPECT_NE(userclk_main(7, argv), 0);
+}
+
+TEST_P(userclk_c_p, nullbyte_main2){
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  char six[20];
+  
+  strcpy(zero, "userclk");
+  strcpy(one, "--segment\0");
+  strcpy(two, "0");
+  strcpy(three, "-H");
+  strcpy(four, "400");
+  strcpy(five, "-L");
+  strcpy(six, "200");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five, six };
+  EXPECT_NE(userclk_main(7, argv), 0);
+}
+
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 

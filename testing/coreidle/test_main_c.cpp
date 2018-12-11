@@ -31,8 +31,7 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 
-struct  CoreIdleCommandLine
-{
+struct  CoreIdleCommandLine {
         int      segment;
         int      bus;
         int      device;
@@ -41,8 +40,8 @@ struct  CoreIdleCommandLine
         char     filename[512];
         uint8_t *gbs_data;
         size_t   gbs_len;
-
 };
+
 extern struct CoreIdleCommandLine coreidleCmdLine;
 
 void CoreidleAppShowHelp();
@@ -52,16 +51,13 @@ void print_err(const char *s, fpga_result res);
 int coreidle_main(int argc, char *argv[]);
 
 int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
-	      int argc,
-	      char *argv[]);
+	      int argc, char *argv[]);
 
 int read_bitstream(struct CoreIdleCommandLine *cmdline);
 
 }
 
 #include <config.h>
-#include <opae/fpga.h>
-
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -206,7 +202,6 @@ TEST_P(coreidle_main_c_p, main_err1) {
   EXPECT_NE(coreidle_main(13, argv), 0);
 }
 
-
 /**
  * @test       main0
  * @brief      Test: coreidle_main
@@ -318,7 +313,7 @@ TEST_P(coreidle_main_c_p, parse_err0) {
  * @details    When given an invalid commnad option,<br>
  *             ParseCmds displays an error message and returns -1.<br>
  */
-TEST_P(coreidle_main_c_p, parse_err1) {
+TEST_P(coreidle_main_c_p, invalid_parse_err1) {
   char zero[32];
   char one[32];
   char two[32];
@@ -360,7 +355,7 @@ TEST_P(coreidle_main_c_p, parse_err1) {
  * @details    When given an invalid commnad option,<br>
  *             ParseCmds and coreidle_main return 0.<br>
  */
-TEST_P(coreidle_main_c_p, parse_err2) {
+TEST_P(coreidle_main_c_p, invalid_parse_err2) {
   char zero[32];
   char one[32];
   char two[32];
@@ -399,6 +394,36 @@ TEST_P(coreidle_main_c_p, parse_err2) {
   EXPECT_EQ(coreidle_main(13, argv), 0);
 }
 
+/**
+ * @test       invalid_main*
+ * @brief      Test: coreidle_main
+ * @details    When called with parameters will nullbytes,<br>
+ *             coreidle_main runs to completion, it fails to read <br>
+ *             .gbs file and returns zero upon successful cleanup.<br>
+ */
+TEST_P(coreidle_main_c_p, invalid_main0) {
+  char zero[32];
+  char one[32];
+  char two[32];
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+  strcpy(two, "temp\0.gbs");
+
+  char *argv[] = { zero, one, two };
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+
+  memset(two, 0, 32);
+  strcpy(two, "\0temp.gbs");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+
+  memset(two, 0, 32);
+  strcpy(two, "temp.gbs%00");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+  
+  memset(two, 0, 32);
+  strcpy(two, "temp.gbs\0");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+}
 
 /**
  * @test       read_bits0

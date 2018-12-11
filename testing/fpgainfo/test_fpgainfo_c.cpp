@@ -226,10 +226,12 @@ TEST_P(fpgainfo_c_p, parse_args2) {
 TEST_P(fpgainfo_c_p, parse_args3) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char two[20];
+    char *argv[] = { zero, one, two };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "κόσμε");
+    strcpy(two, "all\0");
 
     /* FIXME: Parse_arg will return 0 on all inputs
               that doesn't match MAIN_GETOPT_STRING.
@@ -237,13 +239,74 @@ TEST_P(fpgainfo_c_p, parse_args3) {
               will return 0. 
 
     */
-    EXPECT_EQ(parse_args(2, argv), 0);
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+    EXPECT_EQ(parse_args(3, argv), 0);
+    EXPECT_EQ(fpgainfo_main(3, argv), 0);
 
+    memset(one, 0, 20);
     strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
 
-    EXPECT_EQ(parse_args(2, argv), 0);
+    EXPECT_EQ(parse_args(3, argv), 0);
+    EXPECT_EQ(fpgainfo_main(3, argv), 0);
+}
+
+/**
+ * @test       nullbyte_main*
+ * @brief      Test: fpgainfo_main
+ * @details    When pass argument with nullbyte, fpgainfo fails<br>
+ *             to compare with defined cmds. fpgainfo returns zero<br>
+ *             upon clean up success. <br>
+ */
+TEST_P(fpgainfo_c_p, nullbyte_main0) {
+    char zero[20];
+    char one[20];
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "\0power");
+    char *argv[] = { zero, one };
     EXPECT_EQ(fpgainfo_main(2, argv), 0);
+
+    memset(one, 0, 20);
+    strcpy(one, "power\0");    
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+}
+
+TEST_P(fpgainfo_c_p, nullbyte_main1) {
+    char zero[20];
+    char one[20];
+    char two[20];
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "err\0ors");
+    strcpy(two, "all");
+
+    char *argv[] = { zero, one, two };
+    EXPECT_EQ(fpgainfo_main(3, argv), 0);
+}
+
+TEST_P(fpgainfo_c_p, nullbyte_main2) {
+    char zero[20];
+    char one[20];
+    char two[20];
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    strcpy(two, "all\0");
+
+    char *argv[] = { zero, one, two };
+    EXPECT_EQ(fpgainfo_main(3, argv), 0);
+}
+
+TEST_P(fpgainfo_c_p, nullbyte_main3) {
+    char zero[20];
+    char one[20];
+    char two[20];
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    strcpy(two, "a\0ll");
+
+    char *argv[] = { zero, one, two };
+    EXPECT_EQ(fpgainfo_main(3, argv), 0);
 }
 
 /**
@@ -1198,6 +1261,5 @@ TEST(fpgainfo_c, str_in_list0) {
     EXPECT_EQ(idx, INT_MAX);
 }
 
-
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({})));

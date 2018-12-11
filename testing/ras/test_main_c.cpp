@@ -265,6 +265,52 @@ TEST_P(ras_c_p, invalid_cmd_03){
 }
 
 /**
+ * @test       nullbyte_main*
+ * @brief      Test: ras_main
+ * @details    When ras_main is called with nullbyte command option,<br>
+ *             ras_main fails to parse and returns 0 upon successful<br>
+ *             clean up.<br>
+ */
+TEST_P(ras_c_p, nullbyte_main){
+  char zero[20];
+  char one[20];
+  char two[20];
+  
+  strcpy(zero, "ras");
+  strcpy(one, "\0--segment");
+  strcpy(two, "0");
+
+  char *argv[] = { zero, one, two };
+  EXPECT_EQ(ras_main(3, argv), 0);
+}
+
+TEST_P(ras_c_p, nullbyte_main1){
+  char zero[20];
+  char one[20];
+  char two[20];
+  
+  strcpy(zero, "ras");
+  strcpy(one, "--seg\0ment");
+  strcpy(two, "0");
+
+  char *argv[] = { zero, one, two };
+  EXPECT_EQ(ras_main(3, argv), 0);
+}
+
+TEST_P(ras_c_p, nullbyte_main2){
+  char zero[20];
+  char one[20];
+  char two[20];
+  
+  strcpy(zero, "ras");
+  strcpy(one, "--segment\0");
+  strcpy(two, "0");
+
+  char *argv[] = { zero, one, two };
+  EXPECT_EQ(ras_main(3, argv), 0);
+}
+
+/**
  * @test       invalid_parse_cmd_01
  * @brief      Test: ParseCmd 
  * @details    When ParseCmd is called with an invalid command option,<br>
