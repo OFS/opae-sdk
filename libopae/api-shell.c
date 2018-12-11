@@ -1586,9 +1586,13 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
   
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
-	ASSERT_NOT_NULL(tokens);
 	ASSERT_NOT_NULL(num_matches);
- 
+
+	if ((max_tokens > 0) && (NULL == tokens)) {
+		FPGA_MSG("max_tokens > 0 with NULL tokens");
+		return FPGA_INVALID_PARAM;
+	}
+
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureEnumerate,
 		FPGA_NOT_SUPPORTED);
 	
@@ -1606,6 +1610,9 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 		goto out_free;
 	}
 	
+	if (tokens == NULL)
+		goto out_free;
+
 	if (*num_matches > max_tokens)
 		num_tokens = max_tokens;
 	else
