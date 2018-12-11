@@ -493,6 +493,8 @@ out_close:
 	ON_ERR_GOTO(res, out_destroy, "closing fme");
 
 out_destroy:
+	if (fpga_token)
+		fpgaDestroyToken(&fpga_token);
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
 	ON_ERR_GOTO(res, out_err, "destroying properties object");
 out_err:
