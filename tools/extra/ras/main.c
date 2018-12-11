@@ -63,7 +63,7 @@
 
 // SYFS Thermal
 #define FME_SYSFS_THERMAL_MGMT_TEMP            "thermal_mgmt/temperature"
-#define FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP  "thermal_mgmt/threshold_trip"
+#define FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP  "thermal_mgmt/*trip*"
 
 // SYSFS Power
 #define FME_SYSFS_POWER_MGMT_CONSUMED          "power_mgmt/consumed"
@@ -1011,7 +1011,8 @@ fpga_result print_pwr_temp(fpga_token token)
 	}
 
 
-	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP, &pwr_temp_object, 0);
+	result = fpgaTokenGetObject(token, FME_SYSFS_THERMAL_MGMT_THRESHOLD_TRIP,
+			&pwr_temp_object, FPGA_OBJECT_GLOB);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get Token Object");
 		return result;

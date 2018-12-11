@@ -43,11 +43,45 @@
 #include "metrics/vector.h"
 
 #define SYSFS_PATH_MAX 256
-#define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 #define FPGA_DEV_PATH "/dev"
 
-#define SYSFS_AFU_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-port.%d"
-#define SYSFS_FME_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-fme.%d"
+// fpga driver sysfs class path
+#define SYSFS_FPGA_CLASS_PATH             "/sys/class/fpga"
+#define SYSFS_FPGA_UPS_DRV_CLASS_PATH     "/sys/class/fpga_region"
+
+// fpga driver fme and afu sysfs path
+#define SYSFS_AFU_PATH_FMT                "/intel-fpga-dev.%d/intel-fpga-port.%d"
+#define SYSFS_FME_PATH_FMT                 "/intel-fpga-dev.%d/intel-fpga-fme.%d"
+
+#define SYSFS_UPS_DRV_AFU_PATH_FMT         "/sys/class/fpga_region/region%d/dfl-port.%d"
+#define SYSFS_UPS_DRV_FME_PATH_FMT         "/sys/class/fpga_region/region%d/dfl-fme.%d"
+
+// fpga driver socketid sysfs path
+#define SYSFS_SOCKET_ID_PATH               "/sys/class/fpga/intel-fpga-dev.%d/intel-fpga-fme.%d/socket_id"
+#define SYSFS_UPS_DRV_SOCKET_ID_PATH       "/sys/class/fpga_region/region%d/dfl-fme.%d/socket_id"
+
+// fpga driver slots sysfs path
+#define SYSFS_NUM_SLOTS_PATH               "/sys/class/fpga/intel-fpga-dev.%d/intel-fpga-fme.%d/ports_num"
+#define SYSFS_UPS_DRV_NUM_SLOTS_PATH       "/sys/class/fpga_region/region%d/dfl-fme.%d/ports_num"
+
+// fpga driver pr interface id sysfs path
+#define SYSFS_INTERFACE_ID_PATH            "/sys/class/fpga/intel-fpga-dev.%d/intel-fpga-fme.%d/pr/interface_id"
+#define SYSFS_UPS_DRV_INTERFACE_ID_PATH    "/sys/class/fpga_region/region%d/dfl-fme.%d/dfl-fme-region.%d/fpga_region/region*/compat_id"
+
+// fpga driver bitstream id sysfs path
+#define SYSFS_BITSTREAM_ID_PATH            "/sys/class/fpga/intel-fpga-dev.%d/intel-fpga-fme.%d/bitstream_id"
+#define SYSFS_UPS_DRV_BITSTREAM_ID_PATH    "/sys/class/fpga_region/region%d/dfl-fme.%d/bitstream_id"
+
+// fpga driver guidsysfs path
+#define SYSFS_AFU_GUID_PATH                "/sys/class/fpga/intel-fpga-dev.%d/intel-fpga-port.%d/afu_id"
+#define SYSFS_UPS_DRV_AFU_GUID_PATH        "/sys/class/fpga_region/region%d/dfl-port.%d/afu_id"
+
+#define SYSFS_UPS_DRV_AFU_PR_STATUS        "dfl-fme-mgr.*/fpga_manager/fpga*/status"
+
+
+// fpga driver device id path
+#define SYSFS_DEVICEID_PATH                "/sys/class/fpga/intel-fpga-dev.%d/%s"
+#define SYSFS_UPS_DRV_DEVICEID_PATH        "/sys/class/fpga_region/region%d/%s"
 
 // substring that identifies a sysfs directory as the FME device.
 #define FPGA_SYSFS_FME "fme"
@@ -65,7 +99,8 @@
 #define FPGA_SYSFS_BITSTREAM_ID "bitstream_id"
 
 // fpga device path
-#define SYSFS_FPGA_FMT "/intel-fpga-dev.%d"
+#define SYSFS_FPGA_FMT            "/intel-fpga-dev.%d"
+#define SYSFS_UPS_DRV_FPGA_FMT    "/region%d"
 
 // FPGA device id
 #define FPGA_SYSFS_DEVICEID "device/device"
@@ -102,6 +137,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// fpga driver development version
+enum fpga_drv_devl_ver {
+	FPGA_LATEST_DRV_VER,
+	FPGA_LINUX_UPS_DRV_VER,
+	FPGA_UNKNOWN_DRV_VER
+};
+
+
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint32_t device_instance;
@@ -110,6 +154,7 @@ struct _fpga_token {
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
 	struct error_list *errors;
+	enum fpga_drv_devl_ver drv_devl_ver;
 };
 
 enum fpga_hw_type {
@@ -233,6 +278,20 @@ struct _fpga_object {
 	uint8_t *buffer;
 	fpga_object *objects;
 };
+
+
+enum fpga_drv_devl_ver get_fpga_drv_devl_ver(void);
+char *get_fpga_class_sysfs_path();
+char *get_fpga_fme_sysfs_path();
+char *get_fpga_port_sysfs_path();
+char *get_fpga_fme_socketid_sysfs_path();
+char *get_fpga_fme_interfaceid_sysfs_path();
+char *get_fpga_slots_sysfs_path();
+char *get_fpga_fme_bitstreamid_sysfs_path();
+char *get_fpga_afu_id_sysfs_path();
+char *get_fpga_deviceid_sysfs_path();
+int get_fpga_pr_interfaceid_sysfs_path(const char *device_path, char *sysfs_path);
+int get_fpga_pr_interfaceid_dev_sysfs_path(int dev, int subdev, char *sysfs_path);
 
 
 #ifdef __cplusplus

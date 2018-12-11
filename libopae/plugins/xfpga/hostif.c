@@ -33,6 +33,7 @@
 #include "opae/manage.h"
 #include "common_int.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 #define FPGA_MAX_INTERFACE_NUM      1
 
@@ -49,15 +50,14 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 						int flags)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)fpga;
-	fpga_result result = FPGA_OK;
-	struct fpga_fme_port_assign config = {0};
+	struct _fpga_token *_token   = (struct _fpga_token *)_handle->token;
+	fpga_result result           = FPGA_OK;
+	struct fpga_fme_port_assign config                = {0};
+	struct dfl_fpga_fme_port_assign dfl_port_assign   = {0};
+	struct dfl_fpga_fme_port_release dfl_port_release = {0};
 	int err;
 
 	UNUSED_PARAM(flags);
-
-	config.argsz = sizeof(config);
-	config.flags = 0;
-	config.port_id = slot_num;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -75,25 +75,64 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 		goto out_unlock;
 	}
 
-	// Assign Port to PF from Interface
-	if (interface_num == ASSIGN_PORT_TO_PF) {
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-		result = ioctl(_handle->fddev, FPGA_FME_PORT_ASSIGN, &config);
-		if (result != 0) {
-			FPGA_ERR("Failed to assign port");
-			result = FPGA_NOT_SUPPORTED;
-			goto out_unlock;
+		config.argsz = sizeof(config);
+		config.flags = 0;
+		config.port_id = slot_num;
+
+		// Assign Port to PF from Interface
+		if (interface_num == ASSIGN_PORT_TO_PF) {
+
+			result = ioctl(_handle->fddev, FPGA_FME_PORT_ASSIGN, &config);
+			if (result != 0) {
+				FPGA_ERR("Failed to assign port");
+				result = FPGA_NOT_SUPPORTED;
+				goto out_unlock;
+			}
 		}
-	}
 
-	// Release Port from PF and assign to Interface
-	if (interface_num == ASSIGN_PORT_TO_HOST) {
+		// Release Port from PF and assign to Interface
+		if (interface_num == ASSIGN_PORT_TO_HOST) {
 
-		result = ioctl(_handle->fddev, FPGA_FME_PORT_RELEASE, &config);
-		if (result != 0) {
-			FPGA_ERR("Failed to release port");
-			result = FPGA_NOT_SUPPORTED;
-			goto out_unlock;
+			result = ioctl(_handle->fddev, FPGA_FME_PORT_RELEASE, &config);
+			if (result != 0) {
+				FPGA_ERR("Failed to release port");
+				result = FPGA_NOT_SUPPORTED;
+				goto out_unlock;
+			}
+		}
+	} else {
+
+		// Assign Port to PF from Interface
+		if (interface_num == ASSIGN_PORT_TO_PF) {
+
+			dfl_port_assign.argsz = sizeof(dfl_port_assign);
+			dfl_port_assign.flags = 0;
+			dfl_port_assign.port_id = slot_num;
+
+
+			result = ioctl(_handle->fddev, DFL_FPGA_FME_PORT_ASSIGN, &dfl_port_assign);
+			if (result != 0) {
+				FPGA_ERR("Failed to assign port");
+				result = FPGA_NOT_SUPPORTED;
+				goto out_unlock;
+			}
+		}
+
+		// Release Port from PF and assign to Interface
+		if (interface_num == ASSIGN_PORT_TO_HOST) {
+
+			dfl_port_release.argsz = sizeof(dfl_port_release);
+			dfl_port_release.flags = 0;
+			dfl_port_release.port_id = slot_num;
+
+			result = ioctl(_handle->fddev, DFL_FPGA_FME_PORT_RELEASE, &dfl_port_release);
+			if (result != 0) {
+				FPGA_ERR("Failed to release port");
+				result = FPGA_NOT_SUPPORTED;
+				goto out_unlock;
+			}
 		}
 	}
 

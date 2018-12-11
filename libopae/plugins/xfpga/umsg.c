@@ -42,8 +42,9 @@ fpga_result __FPGA_API__
 xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token    = (struct _fpga_token *)_handle->token;
 	fpga_result result            = FPGA_OK;
-	struct fpga_port_info info    = { 0 };
+	struct fpga_port_info info    = {0};
 	int err                       = 0;
 
 	ASSERT_NOT_NULL(value);
@@ -57,25 +58,30 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 		goto out_unlock;
 	}
 
-	// Set ioctl port info struct parameters
-	info.argsz = sizeof(info);
-	info.flags = 0;
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-	// ioctl
-	result = ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &info);
-	if (result != 0) {
-		FPGA_MSG("FPGA_PORT_GET_INFO ioctl failed");
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
-			result = FPGA_INVALID_PARAM;
-		} else {
-			result = FPGA_EXCEPTION;
+		// Set ioctl port info struct parameters
+		info.argsz = sizeof(info);
+		info.flags = 0;
+
+		// ioctl
+		result = ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &info);
+		if (result != 0) {
+			FPGA_MSG("FPGA_PORT_GET_INFO ioctl failed");
+			if ((errno == EINVAL) ||
+				(errno == EFAULT)) {
+				result = FPGA_INVALID_PARAM;
+			} else {
+				result = FPGA_EXCEPTION;
+			}
+			goto out_unlock;
 		}
-		goto out_unlock;
-	}
 
-	// Assign number of umsgs
-	*value = info.num_umsgs;
+		// Assign number of umsgs
+		*value = info.num_umsgs;
+	} else {
+		result = FPGA_NOT_SUPPORTED;
+	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -89,6 +95,7 @@ fpga_result __FPGA_API__
 xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle         = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token            = (struct _fpga_token *)_handle->token;
 	fpga_result result                    = FPGA_OK;
 	struct fpga_port_umsg_cfg umsg_cfg    = {0};
 	int err                               = 0;
@@ -103,20 +110,25 @@ xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 		goto out_unlock;
 	}
 
-	// Set ioctl Umsg  config struct parameters
-	umsg_cfg.argsz = sizeof(umsg_cfg);
-	umsg_cfg.flags = 0;
-	umsg_cfg.hint_bitmap = (__u32)value ;
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-	result = ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
-	if (result != 0) {
-		FPGA_MSG("FPGA_PORT_UMSG_SET_MODE ioctl failed");
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
-			result = FPGA_INVALID_PARAM;
-		} else {
-			result = FPGA_EXCEPTION;
+		// Set ioctl Umsg  config struct parameters
+		umsg_cfg.argsz = sizeof(umsg_cfg);
+		umsg_cfg.flags = 0;
+		umsg_cfg.hint_bitmap = (__u32)value;
+
+		result = ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
+		if (result != 0) {
+			FPGA_MSG("FPGA_PORT_UMSG_SET_MODE ioctl failed");
+			if ((errno == EINVAL) ||
+				(errno == EFAULT)) {
+				result = FPGA_INVALID_PARAM;
+			} else {
+				result = FPGA_EXCEPTION;
+			}
 		}
+	} else {
+		result = FPGA_NOT_SUPPORTED;
 	}
 
 out_unlock:
@@ -130,7 +142,8 @@ out_unlock:
 fpga_result __FPGA_API__
 xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
-	struct _fpga_handle  *_handle           = (struct _fpga_handle *)handle;
+	struct _fpga_handle  *_handle            = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token               = (struct _fpga_token *)_handle->token;
 	struct fpga_port_dma_map dma_map         = {0};
 	struct fpga_port_dma_unmap dma_unmap     = {0};
 	struct fpga_port_umsg_base_addr baseaddr = {0};
@@ -169,61 +182,65 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 		goto out_unlock;
 	}
 
-	umsg_size = (uint64_t)umsg_count  * pagesize;
-	umsg_virt = alloc_buffer(umsg_size);
-	if (umsg_virt == NULL) {
-		FPGA_MSG("Failed to allocate memory");
-		result = FPGA_NO_MEMORY;
-		goto out_unlock;
-	}
-
-	// Map Umsg Buffer
-	dma_map.argsz = sizeof(dma_map);
-	dma_map.flags = 0;
-	dma_map.user_addr = (__u64) umsg_virt;
-	dma_map.length = umsg_size;
-	dma_map.iova = 0 ;
-
-	result = ioctl(_handle->fddev, FPGA_PORT_DMA_MAP, &dma_map);
-	if (result != 0) {
-		FPGA_MSG("Failed to map UMSG buffer");
-		result = FPGA_INVALID_PARAM;
-		goto umsg_exit;
-	}
-
-	// Set Umsg Address
-	baseaddr.argsz = sizeof(baseaddr);
-	baseaddr.flags = 0;
-	baseaddr.iova = dma_map.iova ;
-
-	result = ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
-	if (result != 0) {
-		FPGA_MSG("Failed to set UMSG base address");
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
-			result = FPGA_INVALID_PARAM;
-		} else {
-			result = FPGA_EXCEPTION;
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
+		umsg_size = (uint64_t)umsg_count  * pagesize;
+		umsg_virt = alloc_buffer(umsg_size);
+		if (umsg_virt == NULL) {
+			FPGA_MSG("Failed to allocate memory");
+			result = FPGA_NO_MEMORY;
+			goto out_unlock;
 		}
-		goto umsg_map_exit;
-	}
 
-	result = ioctl(_handle->fddev, FPGA_PORT_UMSG_ENABLE, NULL);
-	if (result != 0) {
-		FPGA_MSG("Failed to enable UMSG");
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
+		// Map Umsg Buffer
+		dma_map.argsz = sizeof(dma_map);
+		dma_map.flags = 0;
+		dma_map.user_addr = (__u64)umsg_virt;
+		dma_map.length = umsg_size;
+		dma_map.iova = 0;
+
+		result = ioctl(_handle->fddev, FPGA_PORT_DMA_MAP, &dma_map);
+		if (result != 0) {
+			FPGA_MSG("Failed to map UMSG buffer");
 			result = FPGA_INVALID_PARAM;
-		} else {
-			result = FPGA_EXCEPTION;
+			goto umsg_exit;
 		}
-		goto umsg_map_exit;
-	}
 
-	*umsg_ptr = (uint64_t *) umsg_virt;
-	_handle->umsg_iova = (uint64_t *) dma_map.iova;
-	_handle->umsg_virt = umsg_virt;
-	_handle->umsg_size = umsg_size;
+		// Set Umsg Address
+		baseaddr.argsz = sizeof(baseaddr);
+		baseaddr.flags = 0;
+		baseaddr.iova = dma_map.iova;
+
+		result = ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
+		if (result != 0) {
+			FPGA_MSG("Failed to set UMSG base address");
+			if ((errno == EINVAL) ||
+				(errno == EFAULT)) {
+				result = FPGA_INVALID_PARAM;
+			} else {
+				result = FPGA_EXCEPTION;
+			}
+			goto umsg_map_exit;
+		}
+
+		result = ioctl(_handle->fddev, FPGA_PORT_UMSG_ENABLE, NULL);
+		if (result != 0) {
+			FPGA_MSG("Failed to enable UMSG");
+			if ((errno == EINVAL) ||
+				(errno == EFAULT)) {
+				result = FPGA_INVALID_PARAM;
+			} else {
+				result = FPGA_EXCEPTION;
+			}
+			goto umsg_map_exit;
+		}
+
+		*umsg_ptr = (uint64_t *)umsg_virt;
+		_handle->umsg_iova = (uint64_t *)dma_map.iova;
+		_handle->umsg_virt = umsg_virt;
+		_handle->umsg_size = umsg_size;
+	} else {
+		result = FPGA_NOT_SUPPORTED;
+	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -260,7 +277,8 @@ umsg_exit:
 fpga_result free_umsg_buffer(fpga_handle handle)
 {
 	fpga_result result                = FPGA_OK;
-	struct _fpga_handle  *_handle     = (struct _fpga_handle *)handle;
+	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
+	struct _fpga_token *_token        = (struct _fpga_token *)_handle->token;
 	int err                           = 0;
 
 
@@ -268,35 +286,40 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 	if (result)
 		return result;
 
-	if (_handle->umsg_virt != NULL) {
-		struct fpga_port_umsg_base_addr baseaddr;
-		struct fpga_port_dma_unmap dma_unmap;
+	if (_token->drv_devl_ver == FPGA_LATEST_DRV_VER) {
 
-		if (ioctl(_handle->fddev, FPGA_PORT_UMSG_DISABLE, NULL) != 0) {
-			FPGA_ERR("Failed to disable UMSG");
+		if (_handle->umsg_virt != NULL) {
+			struct fpga_port_umsg_base_addr baseaddr;
+			struct fpga_port_dma_unmap dma_unmap;
+
+			if (ioctl(_handle->fddev, FPGA_PORT_UMSG_DISABLE, NULL) != 0) {
+				FPGA_ERR("Failed to disable UMSG");
+			}
+
+			baseaddr.argsz = sizeof(baseaddr);
+			baseaddr.flags = 0;
+			baseaddr.iova = 0;
+
+			if (ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr) != 0) {
+				FPGA_ERR("Failed to zero UMSG address");
+			}
+
+			dma_unmap.argsz = sizeof(dma_unmap);
+			dma_unmap.flags = 0;
+			dma_unmap.iova = (__u64)_handle->umsg_iova;
+
+			if (ioctl(_handle->fddev, FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
+				FPGA_ERR("Failed to unmap UMSG Buffer");
+			}
+
+			free_buffer(_handle->umsg_virt, _handle->umsg_size);
+
+			_handle->umsg_virt = NULL;
+			_handle->umsg_size = 0;
+			_handle->umsg_iova = NULL;
 		}
-
-		baseaddr.argsz = sizeof(baseaddr);
-		baseaddr.flags = 0;
-		baseaddr.iova = 0;
-
-		if (ioctl(_handle->fddev, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr) != 0) {
-			FPGA_ERR("Failed to zero UMSG address");
-		}
-
-		dma_unmap.argsz = sizeof(dma_unmap);
-		dma_unmap.flags = 0;
-		dma_unmap.iova = (__u64) _handle->umsg_iova;
-
-		if (ioctl(_handle->fddev, FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
-			FPGA_ERR("Failed to unmap UMSG Buffer");
-		}
-
-		free_buffer(_handle->umsg_virt, _handle->umsg_size);
-
-		_handle->umsg_virt = NULL;
-		_handle->umsg_size = 0;
-		_handle->umsg_iova = NULL;
+	} else {
+		result = FPGA_NOT_SUPPORTED;
 	}
 
 	err = pthread_mutex_unlock(&_handle->lock);

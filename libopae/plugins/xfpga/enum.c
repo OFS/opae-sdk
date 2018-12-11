@@ -37,8 +37,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "types_int.h"
 #include "safe_string/safe_string.h"
-
 #include "xfpga.h"
 #include "common_int.h"
 #include "error_int.h"
@@ -122,7 +122,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		device_instance = (int)strtoul(p + 1, NULL, 10);
 
 		snprintf_s_ii(spath, SYSFS_PATH_MAX,
-			      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
+				get_fpga_fme_sysfs_path(),
 			      device_instance, subdev_instance);
 
 		if (strcmp(spath, _parent_tok->sysfspath)) {
@@ -344,7 +344,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	fpga_result result;
 	struct stat stats;
 	struct dev_list *pdev;
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0 };
 	char dpath[DEV_PATH_MAX];
 
 	// Make sure it's a directory.
@@ -375,8 +375,12 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->device_id = parent->device_id;
 
 	// Discover the FME GUID from sysfs (pr/interface_id)
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
-		     sysfspath);
+	//snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
+	//	     sysfspath);
+
+	if (get_fpga_pr_interfaceid_sysfs_path(sysfspath, spath) != 0) {
+		return FPGA_EXCEPTION;
+	}
 
 	result = sysfs_read_guid(spath, pdev->guid);
 	if (FPGA_OK != result)
@@ -591,7 +595,6 @@ STATIC fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
 
 		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
 			      dirent->d_name);
-
 		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
 			result = enum_fme(spath, dirent->d_name, pdev);
 			if (result != FPGA_OK)
@@ -648,6 +651,7 @@ fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	char sysfspath[SYSFS_PATH_MAX];
 	struct dev_list head;
 	struct dev_list *lptr;
+	int count = 0;
 
 	if (NULL == num_matches) {
 		FPGA_MSG("num_matches is NULL");
@@ -676,9 +680,9 @@ fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	memset_s(&head, sizeof(head), 0);
 
 	// Find the top-level FPGA devices.
-	dir = opendir(SYSFS_FPGA_CLASS_PATH);
+	dir = opendir(get_fpga_class_sysfs_path());
 	if (NULL == dir) {
-		FPGA_MSG("can't find %s (no driver?)", SYSFS_FPGA_CLASS_PATH);
+		FPGA_MSG("can't find %s (no driver?)", get_fpga_class_sysfs_path());
 		return FPGA_NO_DRIVER;
 	}
 
@@ -689,12 +693,16 @@ fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 			continue;
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
-			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
+			get_fpga_class_sysfs_path(), dirent->d_name);
 
 		result = enum_top_dev(sysfspath, &head,
 				      include_afu(filters, num_filters));
-		if (result != FPGA_OK)
-			break;
+		if (result == FPGA_OK) {
+			count++;
+			continue;
+		}
+		if (count > 0)
+			result = FPGA_OK;
 	}
 
 	closedir(dir);
@@ -791,6 +799,20 @@ fpga_result __FPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		FPGA_MSG("strncpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
+	}
+
+	// driver version
+	switch (get_fpga_drv_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER:
+		_dst->drv_devl_ver = FPGA_LATEST_DRV_VER;
+		break;
+	case FPGA_LINUX_UPS_DRV_VER:
+		_dst->drv_devl_ver = FPGA_LINUX_UPS_DRV_VER;
+		break;
+	default:
+		_dst->drv_devl_ver = FPGA_UNKNOWN_DRV_VER;
+		break;
 	}
 
 	// shallow-copy error list

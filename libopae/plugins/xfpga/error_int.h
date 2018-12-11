@@ -30,6 +30,7 @@
 #include <opae/types.h>
 
 #include "sysfs_int.h"
+#include "types_int.h"
 
 #ifdef __cplusplus
 extern "C" {

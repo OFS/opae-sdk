@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <uuid/uuid.h>
 #include <json-c/json.h>
+#include <sys/stat.h>
 
 #define METADATA_GUID                      "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN                   16
@@ -86,6 +87,35 @@ struct gbs_metadata {
 
 };
 
+#define SYSFS_UPS_DRV_INTERFACE_ID     "dfl-fme-region.*/fpga_region/*/compat_id"
+#define SYSFS_FPGA_UPS_DRV_CLASS_PATH     "/sys/class/fpga_region"
+
+enum fpga_drv_devl_ver {
+	FPGA_LATEST_DRV_VER,
+	FPGA_LINUX_UPS_DRV_VER,
+	FPGA_UNKNOWN_DRV_VER
+};
+
+enum fpga_drv_devl_ver get_fpga_driver_devl_ver(void)
+{
+	struct stat astats;
+	static enum fpga_drv_devl_ver drv_devl_ver = FPGA_UNKNOWN_DRV_VER;
+
+	if (drv_devl_ver == FPGA_UNKNOWN_DRV_VER) {
+
+		// check for linux upstream driver
+		if ((stat(SYSFS_FPGA_UPS_DRV_CLASS_PATH, &astats)) == 0) {
+			if (S_ISDIR(astats.st_mode)) {
+
+				drv_devl_ver = FPGA_LINUX_UPS_DRV_VER;
+				return drv_devl_ver;
+			}
+		}
+		drv_devl_ver = FPGA_LATEST_DRV_VER;
+	}
+
+	return drv_devl_ver;
+}
 
 
 json_bool get_json_object(json_object **object, json_object **parent,
@@ -179,10 +209,31 @@ fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
 	fpga_object pr_object;
 	errno_t e;
 
-	result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, 0);
-	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Token Object \n");
-		return result;
+	switch (get_fpga_driver_devl_ver()) {
+
+	case FPGA_LATEST_DRV_VER: {
+
+			result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, FPGA_OBJECT_GLOB);
+			if (result != FPGA_OK) {
+				OPAE_ERR("Failed to get Token Object \n");
+				return result;
+			}
+		}
+
+		break;
+	case FPGA_LINUX_UPS_DRV_VER: {
+
+		result = fpgaTokenGetObject(token, SYSFS_UPS_DRV_INTERFACE_ID, &pr_object, FPGA_OBJECT_GLOB);
+		if (result != FPGA_OK) {
+			OPAE_ERR("Failed to get Token Object \n");
+			return result;
+		}
+
+		}
+		break;
+	default:
+		return FPGA_NOT_FOUND;
+		break;
 	}
 
 	result = fpgaObjectRead(pr_object, buffer, 0,
