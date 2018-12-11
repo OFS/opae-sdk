@@ -60,6 +60,7 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/fpgamux/fpgamux
    docs/fpga_tools/fpgaport/fpgaport
    docs/fpga_tools/mmlink/mmlink
+   docs/fpga_tools/pacd/pacd
    docs/fpga_tools/packager/packager
    docs/fpga_tools/userclk/userclk
 
