@@ -43,6 +43,8 @@
 extern "C" {
 #endif
 
+#define MAX_CLIENT_NUM 8
+
 /**
  * DMA properties
  *
@@ -50,14 +52,16 @@ extern "C" {
  * Output of fpgaDMAPropertiesGet.
  */
 typedef struct {
-	uint64_t max_channel_num; /**< Max number of channels that the DMA engine support */
-	uint64_t max_ring_size; /**< Max number of buffers that the DMA can hold */
+	uint64_t max_channel_num; /**< Max number of channels that the DMA engine supports */
+	uint64_t max_ring_size;   /**< Max number of buffers that the DMA can hold */
 	uint64_t max_buffer_size; /**< Max size of one buffer */
-	uint64_t addr_alignment_for_dma; /**< The DMA will be used only when reaching this alignment */
-	uint64_t minimum_xfer_size_for_dma; /**< DMA will be used only at a multiplication of this size */
-	uint64_t capabilities_mask; /**< Bit mask of fpga_dma_transfer_type */
-	fpga_guid *tx_endp_guid; /**< Pointer to a table of Guid of the connected IP to a Tx channels */
-	fpga_guid *rx_endp_guid; /**< Pointer to a table of Guid of the connected IP to a Rx channels */
+	uint64_t addr_alignment_for_dma;    /**< Address alignment requirement for DMA */
+	uint64_t minimum_xfer_size_for_dma; /**< DMA tranfer size should be multiples of this size */
+	uint64_t capabilities_mask;         /**< Bit mask of fpga_dma_transfer_type */
+	fpga_guid tx_endp_guid[MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Tx channels */
+	fpga_guid rx_endp_guid[MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Rx channels */
+	uint32_t tx_client_num; /**< Number of tx clients that the DMA is connected to */
+	uint32_t rx_client_num; /**< Number of rx clients that the DMA is connected to */
 } fpga_dma_properties;
 
 /**
@@ -66,15 +70,16 @@ typedef struct {
  * Get DMA properties from a feature token (DMA feature type)
  *
  * @param[in]   token   Feature token
- * @param[out]  prop    pre allocated fpga_dma_properties structure to write information into
- * @param[in]   max_ch  Entry number in the Tx/Rx end point GUID array
+ * @param[out]  prop    Pre-allocated fpga_dma_properties structure to
+ *                      write information into                         
  *
- * @returns FPGA_OK on success.
+ * @returns             FPGA_OK on success.
+ *                      FPGA_INVALID_PARAM if invalid pointers are passed
+ *                      into the function.
  */
 
 fpga_result
-fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
-		int max_ch);
+fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop);
 
 /**
  * DMA transfer
@@ -86,16 +91,16 @@ fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
  */
 typedef struct {
 	void *priv_data; /**< Private data for internal use - must be first */
-	uint64_t src; /**< Source address */
-	uint64_t dst; /**< Destination address */
-	uint64_t len; /**< Transactions  length */
-	uint64_t wsid; /**< wsid of the host memory if it was allocated with prepareBuffer */
+	uint64_t src;    /**< Source address */
+	uint64_t dst;    /**< Destination address */
+	uint64_t len;    /**< Transactions  length */
+	uint64_t wsid;   /**< wsid of the host memory if it was allocated with prepareBuffer */
 	void *meta_data; /**< stream - user meta data for the receiving IP */
-	uint64_t meta_data_len; /**< stream - length of the meta data */
+	uint64_t meta_data_len;  /**< stream - length of the meta data */
 	uint64_t meta_data_wsid; /**< stream - wsid of the meta data */
-	bool tx_eop; /**< Tx strean - indicate last buffer for the stream */
+	bool tx_eop;      /**< Tx strean - indicate last buffer for the stream */
 	uint64_t *rx_len; /**< Rx stream - length of Rx data */
-	bool *rx_eop; /**< Rx stream - Set is end of packet was received */
+	bool *rx_eop;     /**< Rx stream - Set is end of packet was received */
 } fpga_dma_transfer;
 
 /**

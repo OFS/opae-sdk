@@ -43,8 +43,8 @@ typedef struct _feature_adapter_table {
 	feature_plugin plugin;
 	fpga_guid guid;
 
-	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token, fpga_dma_properties *prop,
-				int max_ch);
+	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token,
+				fpga_dma_properties *prop);
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
 			dma_transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,

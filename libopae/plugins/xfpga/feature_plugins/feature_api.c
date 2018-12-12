@@ -83,7 +83,7 @@ xfpga_fpgaCloneFeatureToken(fpga_feature_token src, fpga_feature_token *dst)
 {
 	struct _fpga_feature_token *_src = (struct _fpga_feature_token *)src;
 	struct _fpga_feature_token *_dst;
-	fpga_result res;
+	fpga_result res = FPGA_OK;
 	errno_t e;
 
 	if (NULL == src || NULL == dst) {
@@ -147,9 +147,9 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 	errors = feature_plugin_mgr_initialize(handle);
 	if (errors) {
 		FPGA_ERR("Feature token initialize errors");
-		result = FPGA_EXCEPTION;
+		return FPGA_EXCEPTION;
 	}
-	
+
 	mmio_num = 0;  // TODO : check how to get the mmio_num
 	result = xfpga_fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (result != FPGA_OK) {
@@ -163,7 +163,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 	do {
 		uint64_t feature_uuid_lo, feature_uuid_hi;
 		uint32_t feature_type;
-		
+
 		result = xfpga_fpgaReadMMIO64(handle, mmio_num, offset + 0, &(dfh.csr));
 		if (result != FPGA_OK) {
 			FPGA_ERR("fpgaReadMMIO64() failed");
@@ -314,20 +314,23 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureClose(fpga_feature_handle handle)
 		validate_wrapped_feature_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureClose,
-			       FPGA_NOT_SUPPORTED);
+	
+	if (wrapped_handle->adapter_table->fpgaFeatureClose == NULL) {
+		 res = FPGA_NOT_SUPPORTED;
+		 goto out_free;
+	}
 
 	res = wrapped_handle->adapter_table->fpgaFeatureClose(
 		wrapped_handle->feature_handle);
 
+out_free:
 	destroy_wrapped_feature_handle(wrapped_handle);
 
 	return res;
 }	
 	
 fpga_result __FPGA_API__
-xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
-									int max_ch)
+xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop)
 {
 	wrapped_feature_token *wrapped_token =
 				validate_wrapped_feature_token(token);
@@ -339,7 +342,7 @@ xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
 			       FPGA_NOT_SUPPORTED);
 
 	return wrapped_token->adapter_table->fpgaDMAPropertiesGet(wrapped_token->feature_token,
-															prop, max_ch);
+															prop);
 }
 
 fpga_result __FPGA_API__
@@ -377,5 +380,4 @@ xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfe
 																dma_xfer, cb, context);
 
 }
-
 

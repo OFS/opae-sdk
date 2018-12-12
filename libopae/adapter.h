@@ -218,7 +218,7 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaFeatureClose)(fpga_feature_handle handle);
 
 	fpga_result (*fpgaDMAPropertiesGet)(fpga_feature_token token,
-					fpga_dma_properties *prop, int max_ch);
+					fpga_dma_properties *prop);
 
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_h,
 					dma_transfer_list *xfer_list);

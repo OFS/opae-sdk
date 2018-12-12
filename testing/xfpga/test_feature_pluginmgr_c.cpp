@@ -71,9 +71,9 @@ using namespace opae::testing;
 
 /**
  * @test       alloc_adapter01
- * @brief      Test: opae_plugin_mgr_alloc_adapter
+ * @brief      Test: feature_plugin_mgr_alloc_adapter
  * @details    When the given library name is not found,<br>
- *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
+ *             feature_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter01) {
 	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
@@ -83,9 +83,9 @@ TEST(feature_pluginmgr, alloc_adapter01) {
 
 /**
  * @test       alloc_adapter02
- * @brief      Test: opae_plugin_mgr_alloc_adapter
+ * @brief      Test: feature_plugin_mgr_alloc_adapter
  * @details    When calloc fails,<br>
- *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
+ *             feature_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST(feature_pluginmgr, alloc_adapter02) {
 	fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
@@ -96,8 +96,8 @@ TEST(feature_pluginmgr, alloc_adapter02) {
 
 /**
  * @test       free_adapter01
- * @brief      Test: opae_plugin_mgr_free_adapter
- * @details    opae_plugin_mgr_free_adapter frees the given adapter table<br>
+ * @brief      Test: feature_plugin_mgr_free_adapter
+ * @details    feature_plugin_mgr_free_adapter frees the given adapter table<br>
  *             and returns 0 on success.<br>
  */
 TEST(feature_pluginmgr, free_adapter) {
@@ -111,9 +111,9 @@ TEST(feature_pluginmgr, free_adapter) {
 
 /**
  * @test       config_err
- * @brief      Test: opae_plugin_mgr_configure_plugin
- * @details    When opae_plugin_mgr_configure_plugin is called on a load library<br>
- *             that has no opae_plugin_configure symbol,<br>
+ * @brief      Test: feature_plugin_mgr_configure_plugin
+ * @details    When feature_plugin_mgr_configure_plugin is called on a load library<br>
+ *             that has no FEATURE_PLUGIN_CONFIGURE symbol,<br>
  *             then the fn returns non-zero.<br>
  */
 TEST(feature_pluginmgr, config_err) {
@@ -216,7 +216,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		num_matches_ = 0;
 		feature_filter_.type = FPGA_DMA_FEATURE;
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 
 		// save the global adapter list.
@@ -246,7 +246,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		}
-		// restore the global adapter list.
+		// Restore the global adapter list.
 		feature_adapter_list = feature_adapter_list_;
 
 		if (accel_) {
@@ -277,7 +277,13 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 	test_system *system_;
 };
 
-TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
+/**
+ * @test       get_feature_plugin_adapter
+ * @brief      Test: get_feature_plugin_adapte()
+ * @details    When a bad guid of a feature is given to get_feature_plugin_adapter(),<br>
+ *             it should return nullptr <br>
+ */
+TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -287,7 +293,6 @@ TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	printf("------dfh.csr = %lx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
@@ -301,8 +306,6 @@ TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
-		
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
@@ -314,22 +317,19 @@ TEST_P(feature_pluginmgr_c_p, test_feature_mmio_setup) {
 		ftokens_.size(), &num_matches_), FPGA_OK);
 
 	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
- 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));	
-	
-	printf("test done\n");
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
+	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
 } 
 
 /**
  * @test       bad_init_all
- * @brief      Test: opae_plugin_mgr_initialize_all
+ * @brief      Test: feature_plugin_mgr_initialize_all, feature_plugin_mgr_finalize_all
  * @details    When any of the registered adapters' initialize fn returns non-zero,<br>
- *             then opae_plugin_mgr_initialize_all returns non-zero.<br>
+ *             then feature_plugin_mgr_initialize_all returns non-zero.<br>
+ *             When any of the registered adapters' finalize fn returns non-zero,<br>
+ *             then feature_plugin_mgr_finalize_all returns non-zero.<br>
  */
- 
-
 TEST_P(feature_pluginmgr_c_p, bad_init_all) {
-	faux_adapter1_->initialize = test_feature_plugin_bad_initialize;
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -339,7 +339,6 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	printf("------dfh.csr = %lx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
@@ -353,28 +352,21 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);		
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
-
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
-		ftokens_.size(), &num_matches_), FPGA_OK);
-
+	faux_adapter1_->initialize = test_feature_plugin_bad_initialize;
 	test_feature_plugin_initialize_called = 0;
 	EXPECT_NE(0, feature_plugin_mgr_initialize_all());
 	EXPECT_EQ(2, test_feature_plugin_initialize_called);
-  
-    faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
 
-	EXPECT_NE(0, feature_plugin_mgr_finalize_all());
-  
+	faux_adapter1_->finalize = test_feature_plugin_bad_finalize;
+	EXPECT_NE(0, feature_plugin_mgr_finalize_all());  
 	EXPECT_EQ(nullptr, feature_adapter_list);
 	EXPECT_EQ(2, test_feature_plugin_finalize_called);
  }
-
 
 INSTANTIATE_TEST_CASE_P(feature_pluginmgr_c, feature_pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));

@@ -103,6 +103,12 @@ add_library(libbmc  SHARED
 add_library(intel-dma-static
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/plugin.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/init.c)
+
+target_include_directories(intel-dma-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins)
   
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c

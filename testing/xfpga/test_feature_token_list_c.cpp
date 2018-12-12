@@ -42,26 +42,38 @@ extern pthread_mutex_t global_lock;
 
 using namespace opae::testing;
 
+/**
+ * @test       simple_case
+ * @brief      Test: feature_token_add
+ * @details    When feature_token_add is called,<br>
+ *             feature_token_add returns a valid feature token.<br>
+ */
 TEST(feature_token_list_c, simple_case)
 {
 	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 
 	struct _fpga_feature_token *ftoken = 
-		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr); 
+		feature_token_add(FPGA_DMA_FEATURE, 0, feature_guid, 0x100, nullptr); 
 
 	ASSERT_NE(ftoken, nullptr);
   
 	feature_token_cleanup();
 }
 
+/**
+ * @test       invalid_mutex
+ * @brief      Test: feature_token_add
+ * @details    When feature_token_add is called,<br>
+ *             feature_token_add returns NULL.<br>
+ */
 TEST(feature_token_list_c, invalid_mutex)
 {
 	pthread_mutex_destroy(&global_lock);
 	fpga_guid feature_guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 	struct _fpga_feature_token *ftoken = 
-		feature_token_add(0x2, 0, feature_guid, 0x100, nullptr );
+		feature_token_add(FPGA_DMA_FEATURE, 0, feature_guid, 0x100, nullptr );
 	EXPECT_EQ(ftoken, nullptr);
 
 	pthread_mutex_init(&global_lock, NULL);
