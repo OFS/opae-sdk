@@ -303,7 +303,7 @@ TEST_P(ras_c_p, nullbyte_main2){
   char two[20];
   
   strcpy(zero, "ras");
-  strcpy(one, "--segment\0");
+  strcpy(one, "-\0-segment");
   strcpy(two, "0");
 
   char *argv[] = { zero, one, two };

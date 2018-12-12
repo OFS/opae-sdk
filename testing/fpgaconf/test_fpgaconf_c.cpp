@@ -172,7 +172,15 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void copy_bitstream() {
+    std::ifstream src(tmp_gbs_, std::ios::binary);
+    std::ofstream dst(copy_gbs, std::ios::binary);
+  
+    dst << src.rdbuf(); 
+  }
+
   char tmp_gbs_[20];
+  const std::string copy_gbs = "copy_bitstream.gbs";
   std::vector<uint8_t> bitstream_valid_;
   struct config config_;
   test_platform platform_;
@@ -492,15 +500,15 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
   strcpy(one, "-verbosesss \n\t\b\e\a\?");
   strcpy(two, "--n");
   strcpy(three, "--f123413 23kshfa hfa;.'/'l|hrce");
-  strcpy(four, "--se!gmenttttt     lsdfhskfa");
+  strcpy(four, "--se!gmenttttt   ihfa");
   strcpy(five, "0x1234");
   strcpy(six, "-bussssss");
   strcpy(seven, "0x5e");
   strcpy(eight, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
   strcpy(nine, "0xab");
-  strcpy(ten, " =============  %34   -Function    \x00\x08\x09\x0B\x0D");
+  strcpy(ten, " ===  %34-Function \x08\x09\x0B");
   strcpy(eleven, "3");
-  strcpy(twelve, "-Socket__________id \xF1-\xF3    \x80-\x8F");
+  strcpy(twelve, "-Socket___id \xF1-\xF3\x8F");
   strcpy(thirteen, "2");
 
   char *argv[] = { zero, one, two, three, four,
@@ -546,7 +554,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
   strcpy(ten, "-F");
   strcpy(eleven, "-33492\t000");
   strcpy(twelve, "-S");
-  strcpy(thirteen, "\000 00000000000000000000");
+  strcpy(thirteen, "\000 00000");
   strcpy(fourteen, "-A");
 
   char *argv[] = { zero, one, two, three,
@@ -676,12 +684,13 @@ TEST_P(fpgaconf_c_p, main2) {
 }
 
 /**
- * @test       invalid_main*
+ * @test       embed_nullchar
  * @brief      Test: fpgaconf_main
  * @details    When the command params contains nullbyte,<br>
  *             fpgaconf_main displays an error and returns non-zero.<br>
  */
-TEST_P(fpgaconf_c_p, invalid_main1) {
+TEST_P(fpgaconf_c_p, embed_nullchar) {
+  copy_bitstream();
   char zero[20];
   char one[20];
   char two[20];
@@ -693,24 +702,17 @@ TEST_P(fpgaconf_c_p, invalid_main1) {
   strcpy(two, "-n");
   strcpy(three, "-B");
   strcpy(four, "0x5e");
-  strcpy(five, "temp\0.gbs");
+  strcpy(five, "copy_bitstream\0.gbs");
 
   char *argv[] = { zero, one, two, three, four,
                    five };
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
   memset(five, 0, 20);
-  strcpy(five, "temp.gbs\0");
-  EXPECT_NE(fpgaconf_main(6, argv), 0);
-
-  memset(five, 0, 20);
-  strcpy(five, "\0temp.gbs");
-  EXPECT_NE(fpgaconf_main(6, argv), 0);
-
-  memset(five, 0, 20);
-  strcpy(five, "temp.gbs%00");
+  strcpy(five, "\0copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 }
+
 /**
  * @test       str_to_guid
  * @brief      Test: string_to_guid

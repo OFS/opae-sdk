@@ -105,8 +105,16 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void copy_bitstream() {
+    std::ifstream src(tmp_gbs_, std::ios::binary);
+    std::ofstream dst(copy_gbs, std::ios::binary);
+  
+    dst << src.rdbuf(); 
+  }
+
   struct CoreIdleCommandLine cmd_line_;
   char tmp_gbs_[20];
+  const std::string copy_gbs = "copy_bitstream.gbs";
   test_platform platform_;
   test_system *system_;
 };
@@ -327,18 +335,18 @@ TEST_P(coreidle_main_c_p, invalid_parse_err1) {
   char ten[32];
   char eleven[32];
   char twelve[32];
-  strcpy(zero, "    coreidle+_=`~!@#$%^&*_+=-");
+  strcpy(zero, "    coreidle+_=`~!%^&*_+=-");
   strcpy(one, "-Green_Bitstream");
   strcpy(two, tmp_gbs_);
   strcpy(three, "--seg ment|{};:'<>?");
   strcpy(four, "0x9999");
   strcpy(five, "-BBBBB");
   strcpy(six, "99");
-  strcpy(seven, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(seven, "-Devic\xF0\x90 esss\t\n\b\a\e\v");
   strcpy(eight, "99");
   strcpy(nine, "-F\x00\x08\x09\x0B\x0D");
   strcpy(ten, "7");
-  strcpy(eleven, "\xF1-\xF3    \x80-\x8F");
+  strcpy(eleven, "\xF1-\xF3 \x80\x8F");
   strcpy(twelve, "99");
 
   char *argv[] = { zero, one, two, three, four,
@@ -381,7 +389,7 @@ TEST_P(coreidle_main_c_p, invalid_parse_err2) {
   strcpy(nine, "-F");
   strcpy(ten, "4\x09\x0A\x0D\x20-\x7E");
   strcpy(eleven, "-S");
-  strcpy(twelve, "   \xED\x80-\x9F 2374891shf./m'");
+  strcpy(twelve, " \xED\x80-\x9F 2374891shf./m'");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
@@ -395,34 +403,46 @@ TEST_P(coreidle_main_c_p, invalid_parse_err2) {
 }
 
 /**
- * @test       invalid_main*
+ * @test       lead_null_char
  * @brief      Test: coreidle_main
- * @details    When called with parameters will nullbytes,<br>
- *             coreidle_main runs to completion, it fails to read <br>
- *             .gbs file and returns zero upon successful cleanup.<br>
+ * @details    When called with parameters that contains nullbytes<br>
+ *             it fails to find file and coreidle_main flags bitstream
+ *             invalid error. It returns 0 on cleanup success.<br>
  */
-TEST_P(coreidle_main_c_p, invalid_main0) {
+TEST_P(coreidle_main_c_p, lead_null_char) {
+  copy_bitstream();
   char zero[32];
   char one[32];
   char two[32];
+  char *argv[] = { zero, one, two };
+
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
-  strcpy(two, "temp\0.gbs");
+  strcpy(two, "\0 copy_bitstream.gbs");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
 
+  unlink(copy_gbs.c_str());
+}
+
+/**
+ * @test       mid_null_char
+ * @brief      Test: coreidle_main
+ * @details    When called with parameters that contains nullbytes<br>
+ *             it fails to find file and coreidle_main flags bitstream
+ *             invalid error. It returns 0 on cleanup success.<br>
+ */
+TEST_P(coreidle_main_c_p, mid_null_char) {
+  copy_bitstream();
+  char zero[32];
+  char one[32];
+  char two[32];
   char *argv[] = { zero, one, two };
-  EXPECT_EQ(coreidle_main(3, argv), 0);
 
   memset(two, 0, 32);
-  strcpy(two, "\0temp.gbs");
+  strcpy(two, "copy_bit\0stream.gbs");
   EXPECT_EQ(coreidle_main(3, argv), 0);
 
-  memset(two, 0, 32);
-  strcpy(two, "temp.gbs%00");
-  EXPECT_EQ(coreidle_main(3, argv), 0);
-  
-  memset(two, 0, 32);
-  strcpy(two, "temp.gbs\0");
-  EXPECT_EQ(coreidle_main(3, argv), 0);
+  unlink(copy_gbs.c_str());
 }
 
 /**
@@ -474,6 +494,27 @@ TEST_P(coreidle_main_c_p, read_bits3) {
   EXPECT_EQ(read_bitstream(&cmd), 0);
   free(cmd.gbs_data);
 }
+
+//TEST_P(coreidle_main_c_p, read_symlink_bits) {
+//  const std::string copy_gbs = "copy_bitstream.gbs";
+//  const std::string symlink_gbs = "bits_symlink";
+//  struct CoreIdleCommandLine cmd;
+//  strcpy(cmd.filename, tmp_gbs_);
+//
+//  std::ifstream src(tmp_gbs_, std::ios::binary);
+//  std::ofstream dst(copy_gbs, std::ios::binary);
+//
+//  dst << src.rdbuf(); 
+//
+//  if (!symlink(copy_gbs.c_str(), symlink_gbs.c_str())) {
+//     strcpy(cmd.filename, symlink_gbs.c_str());
+//     EXPECT_EQ(read_bitstream(&cmd), 0);
+//     free(cmd.gbs_data);
+//  }
+//
+//  unlink(copy_gbs.c_str());
+//  unlink(symlink_gbs.c_str());
+//}
 
 INSTANTIATE_TEST_CASE_P(coreidle_main_c, coreidle_main_c_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));

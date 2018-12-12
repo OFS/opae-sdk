@@ -289,7 +289,7 @@ TEST_P(userclk_c_p, invalid_cmd_characters_01) {
   strcpy(two, "0x1234");
   strcpy(three, "-Bus");
   strcpy(four, "3");
-  strcpy(five, "-Devi +_( \v           -0923198 (*)& ces");
+  strcpy(five, "-Devi +_( \v  -0923198 (*)& ces");
   strcpy(six, "4");
   strcpy(seven, "-Fun\t\nction");
   strcpy(eight, "5");
@@ -335,17 +335,17 @@ TEST_P(userclk_c_p, invalid_cmd_characters_02) {
   char fourteen[32];
   strcpy(zero, "");
   strcpy(one, "--segment");
-  strcpy(two, "0x0123897349  *(^%$%^$%@^?><? 6121234");
+  strcpy(two, "0x0123897349  *(^%@^?><? 6121234");
   strcpy(three, " --B");
   strcpy(four, "334987238689 \x01\x05\x0a\x15");
   strcpy(five, "-D");
   strcpy(six, "41278991 02a8974913");
   strcpy(seven, "-F");
-  strcpy(eight, "529378190 \t 3haskfhahhi\\ | // o=1-21");
+  strcpy(eight, "529378190 \t 3haahi\\ | // o=1-21");
   strcpy(nine, "-S");
-  strcpy(ten, "        6`1238 \n -349287419=-0;");
+  strcpy(ten, "   6`1238 \n -349287419=-0;");
   strcpy(eleven, "-H");
-  strcpy(twelve, "400000000000000000000000000");
+  strcpy(twelve, "400000000000000000000");
   strcpy(thirteen, "-L");
   strcpy(fourteen, "9.999");
 
@@ -356,7 +356,6 @@ TEST_P(userclk_c_p, invalid_cmd_characters_02) {
   EXPECT_EQ(ParseCmds(&cmd, 15, argv), 0);
   EXPECT_NE(userclk_main(15, argv), 0);
 }
-
 
 /**
  * @test       main0
@@ -431,7 +430,7 @@ TEST_P(userclk_c_p, nullbyte_main0){
   EXPECT_NE(userclk_main(3, argv), 0);
 
   memset(one, 0, 20);
-  strcpy(one, "--\0segment");
+  strcpy(one, "--s\0egment");
   EXPECT_NE(userclk_main(3, argv), 0);
 }
 

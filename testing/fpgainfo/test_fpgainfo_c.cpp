@@ -243,7 +243,7 @@ TEST_P(fpgainfo_c_p, parse_args3) {
     EXPECT_EQ(fpgainfo_main(3, argv), 0);
 
     memset(one, 0, 20);
-    strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
+    strcpy(one, "\x00\x09\x0A\x0D\x20\x7E");
 
     EXPECT_EQ(parse_args(3, argv), 0);
     EXPECT_EQ(fpgainfo_main(3, argv), 0);
@@ -254,7 +254,7 @@ TEST_P(fpgainfo_c_p, parse_args3) {
  * @brief      Test: fpgainfo_main
  * @details    When pass argument with nullbyte, fpgainfo fails<br>
  *             to compare with defined cmds. fpgainfo returns zero<br>
- *             upon clean up success. <br>
+ *             on clean up success. <br>
  */
 TEST_P(fpgainfo_c_p, nullbyte_main0) {
     char zero[20];
@@ -266,7 +266,7 @@ TEST_P(fpgainfo_c_p, nullbyte_main0) {
     EXPECT_EQ(fpgainfo_main(2, argv), 0);
 
     memset(one, 0, 20);
-    strcpy(one, "power\0");    
+    strcpy(one, "po\nwer");    
     EXPECT_EQ(fpgainfo_main(2, argv), 0);
 }
 
