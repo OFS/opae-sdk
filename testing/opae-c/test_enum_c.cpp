@@ -365,7 +365,7 @@ TEST_P(enum_c_p, device_id) {
 }
 
 TEST_P(enum_c_p, object_id_fme) {
-  fpga_properties prop;
+  fpga_properties prop = nullptr;
   uint64_t object_id;
 
   ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -383,6 +383,7 @@ TEST_P(enum_c_p, object_id_fme) {
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
 }
 
 TEST_P(enum_c_p, object_id_fme_neg) {
@@ -395,7 +396,7 @@ TEST_P(enum_c_p, object_id_fme_neg) {
 }
 
 TEST_P(enum_c_p, object_id_port) {
-  fpga_properties prop;
+  fpga_properties prop = nullptr;
   uint64_t object_id;
 
   ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -413,6 +414,7 @@ TEST_P(enum_c_p, object_id_port) {
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&prop));
 }
 
 TEST_P(enum_c_p, object_id_port_neg) {
