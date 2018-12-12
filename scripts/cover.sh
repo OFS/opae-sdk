@@ -13,7 +13,7 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make -j test_unit xfpga
+make -j4 test_unit xfpga
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base
