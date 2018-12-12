@@ -585,6 +585,18 @@ out_close:
 	}
 
 out_destroy_prop:
+	if (fme_token) {
+		result = fpgaDestroyToken(&fme_token);
+		if (result != FPGA_OK)
+			OPAE_ERR("destroying token");
+	}
+
+	if (afu_token) {
+		result = fpgaDestroyToken(&afu_token);
+		if (result != FPGA_OK)
+			OPAE_ERR("destroying token");
+	}
+
 	if (afu_filter) {
 		result = fpgaDestroyProperties(&afu_filter);
 		if (result != FPGA_OK)

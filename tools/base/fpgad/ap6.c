@@ -269,7 +269,7 @@ void *ap6_thread(void *thread_context)
 	int ret;
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000 }; /* 100ms */
 
-	fpga_token fme_token;
+	fpga_token fme_token = NULL;
 	fpga_handle fme_handle;
 	fpga_properties filter;
 	fpga_result res;
@@ -349,6 +349,8 @@ void *ap6_thread(void *thread_context)
 	}
 
 out_exit:
+	if (fme_token)
+		fpgaDestroyToken(&fme_token);
 	if (null_gbs_info.data)
 		free(null_gbs_info.data);
 	return NULL;
