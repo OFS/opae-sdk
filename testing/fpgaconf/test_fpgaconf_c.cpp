@@ -446,6 +446,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
+  free(config.filename);
   unlink(tmpfilename);
 }
 
