@@ -1233,7 +1233,7 @@ TEST(fpgainfo_c, upcase_first1) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, upcase_first2) {
-    char input[256];
+    char input[256] = { 0 };
     strcpy(input, "");
     upcase_first(input);
     EXPECT_STREQ(input, "");

@@ -976,7 +976,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 	}
 
 	if (_handle->_bmc_metric_cache_value == NULL) {
-		_handle->_bmc_metric_cache_value = malloc(sizeof(struct _fpga_bmc_metric)* num_sensors);
+		_handle->_bmc_metric_cache_value = calloc(sizeof(struct _fpga_bmc_metric), num_sensors);
 		if (_handle->_bmc_metric_cache_value == NULL) {
 			FPGA_ERR("Failed to allocate memory");
 			result = FPGA_NO_MEMORY;
@@ -1161,7 +1161,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 	uint64_t index                              = 0;
 	struct _fpga_enum_metric *_fpga_enum_metric = NULL;
 	uint64_t num_enun_metrics                  = 0;
-	metric_value value;
+	metric_value value = {0};
 
 	if (enum_vector == NULL ||
 		fpga_metric == NULL) {
