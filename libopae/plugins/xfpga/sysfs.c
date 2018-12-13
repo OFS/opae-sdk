@@ -66,7 +66,7 @@ static struct {
 	 "dfl-(fme|port)\\.([0-9]+)"},
 	// intel driver sysfs formats
 	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
-	 "intel-fpga-(fme|port)\\.([0-9]+)"}};
+	 "intel-fpga-(fme|port)\\.([0-9]+)"} };
 
 static uint32_t _sysfs_format_index;
 static uint32_t _sysfs_region_count;
@@ -203,11 +203,12 @@ STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 	return FPGA_OK;
 }
 
-int sysfs_region_count() {
+int sysfs_region_count(void)
+{
 	return _sysfs_region_count;
 }
 
-int sysfs_initialize()
+int sysfs_initialize(void)
 {
 	int stat_res = -1;
 	int reg_res = -1;
@@ -294,7 +295,7 @@ int sysfs_initialize()
 	return FPGA_OK;
 }
 
-int sysfs_finalize()
+int sysfs_finalize(void)
 {
 	uint32_t i = 0;
 	for (; i < _sysfs_region_count; ++i) {

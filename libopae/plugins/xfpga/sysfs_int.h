@@ -56,9 +56,10 @@
 extern "C" {
 #endif
 
-int sysfs_initialize();
-int sysfs_finalize();
-int sysfs_region_count();
+int sysfs_initialize(void);
+int sysfs_finalize(void);
+int sysfs_region_count(void);
+
 /**
  * @brief Get BBS interface id
  *
