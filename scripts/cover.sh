@@ -35,5 +35,5 @@ lcov -c -i -d . -o coverage.base
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \
 OPAE_EXPLICIT_INITIALIZE=1 \
-ctest --timeout 60
+ctest -j3 --timeout 60
 
