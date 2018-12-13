@@ -1606,10 +1606,9 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 							prop, d_tokens,	max_tokens, num_matches);
 	if (res != FPGA_OK) {
 		OPAE_ERR("fpgaFeatureEnumerate failed");
-		printf("fpgaFeatureEnumerate in opae layer failed");
 		goto out_free;
 	}
-	printf("fpgaFeatureEnumerate in opae layer succeeded \n");
+
 	if (tokens == NULL)
 		return res;
 
