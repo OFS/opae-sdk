@@ -76,6 +76,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 				FPGA_ERR("pthread_mutex_unlock() failed: %s",
 					 strerror(err));
 			}
+			printf("feature_token_add found token in the list, return immedaitely\n");
 			return tmp;
 		}
 	}

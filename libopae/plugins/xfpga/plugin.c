@@ -184,6 +184,30 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaGetMetricsByName =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsByName");
 
+	adapter->fpgaFeatureEnumerate =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeatureEnumerate");
+
+	adapter->fpgaDestroyFeatureToken =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDestroyFeatureToken");
+
+	adapter->fpgaFeaturePropertiesGet =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeaturePropertiesGet");
+		
+	adapter->fpgaFeatureOpen =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeatureOpen");
+
+	adapter->fpgaFeatureClose =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeatureClose");
+
+	adapter->fpgaDMAPropertiesGet =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDMAPropertiesGet");
+
+	adapter->fpgaDMATransferSync =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDMATransferSync");
+
+	adapter->fpgaDMATransferAsync =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaDMATransferAsync");
+
 	return 0;
 }
 

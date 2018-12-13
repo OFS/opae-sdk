@@ -1574,27 +1574,27 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 		wrapped_handle->opae_handle, metrics_names, num_metric_names, metrics);
 }
 
-fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
-                      fpga_feature_token *tokens, uint32_t max_tokens,
-                      uint32_t *num_matches)
+fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
+						fpga_feature_token *tokens, uint32_t max_tokens,
+						uint32_t *num_matches)
 {
 	fpga_result res = FPGA_OK;
 	uint32_t i;
 	uint32_t num_tokens;
-	fpga_feature_token * d_tokens = NULL;
+	fpga_feature_token *d_tokens = NULL;
 	opae_wrapped_handle *wrapped_handle = opae_validate_wrapped_handle(handle);
-  
+
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(num_matches);
- 
+
 	if ((max_tokens > 0) && !tokens) {
 		OPAE_ERR("max_tokens > 0 with NULL tokens");
 		return FPGA_INVALID_PARAM;
 	}
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaFeatureEnumerate,
 		FPGA_NOT_SUPPORTED);
-	
+
 	if (tokens) {
 		d_tokens = (fpga_feature_token *)calloc(max_tokens, sizeof(fpga_feature_token));
 		if (!d_tokens) {
@@ -1606,12 +1606,13 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 							prop, d_tokens,	max_tokens, num_matches);
 	if (res != FPGA_OK) {
 		OPAE_ERR("fpgaFeatureEnumerate failed");
+		printf("fpgaFeatureEnumerate in opae layer failed");
 		goto out_free;
 	}
-
+	printf("fpgaFeatureEnumerate in opae layer succeeded \n");
 	if (tokens == NULL)
 		return res;
-	
+
 	if (*num_matches > max_tokens)
 		num_tokens = max_tokens;
 	else
@@ -1627,7 +1628,7 @@ fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *pr
 		}
 		tokens[i] = wt;
 	}
-	
+
 	return res;
 
 out_free:
@@ -1652,7 +1653,7 @@ fpga_result fpgaDestroyFeatureToken(fpga_feature_token *token)
 		goto out_free;
 	}
 
-	res = wrapped_token->adapter_table->fpgaDestroyFeatureToken(wrapped_token->feature_token);
+	res = wrapped_token->adapter_table->fpgaDestroyFeatureToken(&(wrapped_token->feature_token));
 
 out_free:
 	opae_destroy_wrapped_feature_token(wrapped_token);
@@ -1667,13 +1668,13 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 
 	wrapped_token = opae_validate_wrapped_feature_token(token);
 	//wrapped_token->feature_token;
-	
+
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(prop);
 
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeaturePropertiesGet,
 		FPGA_NOT_SUPPORTED);
-		
+
 	res = wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
 			prop);
 
@@ -1681,7 +1682,7 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
-                            void *priv_config, fpga_feature_handle *handle)
+							void *priv_config, fpga_feature_handle *handle)
 {
 	fpga_result res;
 	fpga_result cres = FPGA_OK;

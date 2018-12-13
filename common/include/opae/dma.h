@@ -71,7 +71,7 @@ typedef struct {
  *
  * @param[in]   token   Feature token
  * @param[out]  prop    Pre-allocated fpga_dma_properties structure to
- *                      write information into                         
+ *                      write information into
  *
  * @returns             FPGA_OK on success.
  *                      FPGA_INVALID_PARAM if invalid pointers are passed

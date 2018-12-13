@@ -122,9 +122,9 @@ out_free:
 }
 
 fpga_result __FPGA_API__
-xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop, 
-                      fpga_feature_token *tokens, uint32_t max_tokens,
-                      uint32_t *num_matches)
+xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
+						fpga_feature_token *tokens, uint32_t max_tokens,
+						uint32_t *num_matches)
 {
 	fpga_result result = FPGA_OK;
 	uint32_t mmio_num = 0;
@@ -156,10 +156,10 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 		FPGA_ERR("fpgaReadMMIO64() failed");
 		return result;
 	}
-	
-	// Discover feature BBB by traversing the device feature list 
+
+	// Discover feature BBB by traversing the device feature list
 	offset = dfh.next_header_offset;
-	
+
 	do {
 		uint64_t feature_uuid_lo, feature_uuid_hi;
 		uint32_t feature_type;
@@ -196,15 +196,15 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 				if (tokens) {
 					if (*num_matches < max_tokens) {
 						fpga_feature_token tmp = 0;
-						feature_adapter_table * adapter;
-					
+						feature_adapter_table *adapter;
+
 						result = xfpga_fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);
-						if (result	!= FPGA_OK) {
+						if (result != FPGA_OK) {
 							FPGA_MSG("Error cloning token");
 							return result;
 						}
 						adapter = get_feature_plugin_adapter(guid);
-						wrapped_feature_token *wt = 
+						wrapped_feature_token *wt =
 							allocate_wrapped_feature_token(tmp, adapter);
 						tokens[*num_matches] = wt;
 					}
@@ -213,7 +213,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 			}
 		}
 
-		// Move to the next feature header 
+		// Move to the next feature header
 		offset = offset + dfh.next_header_offset;
 	} while (!dfh.eol);
 
@@ -248,7 +248,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token
 
 	wrapped_token = validate_wrapped_feature_token(token);
 	_ftoken = (struct _fpga_feature_token *)wrapped_token->feature_token;
-	
+
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(_ftoken);
@@ -258,7 +258,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token
 		return FPGA_INVALID_PARAM;
 	}
 
-	prop->type = (fpga_feature_type )_ftoken->feature_type;
+	prop->type = (fpga_feature_type)_ftoken->feature_type;
 	e = memcpy_s(prop->guid, sizeof(fpga_guid), _ftoken->feature_guid,
 		sizeof(fpga_guid));
 
@@ -271,7 +271,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaFeatureOpen(fpga_feature_token token, int flags,
-                            void *priv_config, fpga_feature_handle *handle)
+								void *priv_config, fpga_feature_handle *handle)
 {
 	fpga_result res;
 	fpga_result cres = FPGA_OK;
@@ -314,7 +314,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureClose(fpga_feature_handle handle)
 		validate_wrapped_feature_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
-	
+
 	if (wrapped_handle->adapter_table->fpgaFeatureClose == NULL) {
 		 res = FPGA_NOT_SUPPORTED;
 		 goto out_free;
@@ -327,8 +327,8 @@ out_free:
 	destroy_wrapped_feature_handle(wrapped_handle);
 
 	return res;
-}	
-	
+}
+
 fpga_result __FPGA_API__
 xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop)
 {

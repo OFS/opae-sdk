@@ -77,7 +77,7 @@ typedef struct {
  * @param[out]  tokens          Pointer to an array of fpga_feature_token variables
  *                              to be populated.  If NULL is supplied,
  *                              fpgaFeatureEnumerate() will not create any tokens,
- *                              but it will return the number of possible matches 
+ *                              but it will return the number of possible matches
  *                              in `num_matches`.
  * @param[in]   max_tokens      Maximum number of tokens that fpgaFeatureEnumerate() shall
  *                              return (length of `tokens` array). There may be more
@@ -118,7 +118,7 @@ fpgaDestroyFeatureToken(fpga_feature_token *feature_token);
  *
  * @param[in] token             fpga_feature_token to get its property
  *
- * @param[out] prop             fpga_feature_properties output   
+ * @param[out] prop             fpga_feature_properties output
  * @returns                     FPGA_OK on success
  *                              FPGA_INVALID_PARAM if invalid pointers or objects
  *                              are passed into the function.

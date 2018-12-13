@@ -54,13 +54,13 @@ fpga_result __FPGA_API__ feature_open(fpga_feature_token token, int flags,
 				   fpga_feature_handle *handle)
 {
 	UNUSED_PARAM(token);
-	UNUSED_PARAM(flags); 
-	UNUSED_PARAM(handle); 
+	UNUSED_PARAM(flags);
+	UNUSED_PARAM(handle);
 	return FPGA_OK;
 }
 fpga_result __FPGA_API__ feature_close(fpga_feature_handle *_dma_h)
 {
-	UNUSED_PARAM(_dma_h); 
+	UNUSED_PARAM(_dma_h);
 	return FPGA_OK;
 }
 fpga_result __FPGA_API__ dma_propertiesGet(fpga_feature_token token, fpga_dma_properties *prop,
@@ -96,10 +96,10 @@ int __FPGA_API__ feature_plugin_configure(feature_adapter_table *adapter,
 	UNUSED_PARAM(jsonConfig);
 
 	adapter->fpgaFeatureOpen =
-		dlsym(adapter->plugin.dl_handle, "feature_open"); 
+		dlsym(adapter->plugin.dl_handle, "feature_open");
 	adapter->fpgaFeatureClose =
 		dlsym(adapter->plugin.dl_handle, "feature_close");
-		
+
 	adapter->fpgaDMAPropertiesGet =
 		dlsym(adapter->plugin.dl_handle, "dma_propertiesGet");
 	adapter->fpgaDMATransferSync =

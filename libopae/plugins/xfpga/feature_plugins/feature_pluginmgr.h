@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __OPAE_FEATURE_PLUGINMGR_H__
-#define __OPAE_FEATURE_PLUGINMGR_H__
+#ifndef __FEATURE_PLUGINMGR_H__
+#define __FEATURE_PLUGINMGR_H__
 
 #include "feature_adapter.h"
 
@@ -59,10 +59,8 @@ int feature_plugin_mgr_initialize(fpga_handle handle);
 int feature_plugin_mgr_finalize_all(void);
 
 /* Iteration stops if callback returns non-zero */
-#define OPAE_ENUM_STOP 1
-#define OPAE_ENUM_CONTINUE 0
 feature_adapter_table *get_feature_plugin_adapter(fpga_guid guid);
 
 void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid);
 
-#endif /* __OPAE_FEATURE_PLUGINMGR_H__ */
+#endif /* __FEATURE_PLUGINMGR_H__ */

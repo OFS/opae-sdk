@@ -49,7 +49,7 @@
 #define UNUSED_PARAM(x) ((void)x)
 
 typedef struct _feature_adapter_table feature_adapter_table;
-//                                  f e a t    
+//                                  f e a t
 #define FPGA_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
 #define FPGA_FEATURE_TOKEN_MAGIC 0x66656178
 
@@ -89,7 +89,7 @@ static inline void destroy_wrapped_feature_token(wrapped_feature_token *wt)
 	free(wt);
 	wt = NULL;
 }
-//                                   f e a h 
+//                                   f e a h
 #define FPGA_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
 #define FPGA_FEATURE_HANDLE_MAGIC 0x66656170
 
@@ -99,7 +99,7 @@ typedef struct _wrapped_feature_handle {
 	uint32_t magic;
 	wrapped_feature_token *wrapped_feature_token;
 	fpga_feature_handle feature_handle;
-	feature_adapter_table *adapter_table;	
+	feature_adapter_table *adapter_table;
 } wrapped_feature_handle;
 
 wrapped_feature_handle *

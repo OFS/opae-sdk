@@ -222,7 +222,7 @@ STATIC int feature_plugin_mgr_register_adapter(feature_adapter_table *adapter)
 	return 0;
 }
 
-static int opae_plugin_mgr_detect_feature(fpga_guid guid)
+static int feature_plugin_mgr_detect_feature(fpga_guid guid)
 {
 	int i;
 	int res, errors;
@@ -243,9 +243,8 @@ static int opae_plugin_mgr_detect_feature(fpga_guid guid)
 		}
 
 		if (0 == res) {
-			OPAE_DBG("platform detected: feature_id=%s -> %s",
-				 feature_id feature_data_table[i]
-					 .feature_plugin);
+			FPGA_DBG("feature detected: feature_id=%s -> %s",
+				 feature_id, feature_data_table[i].feature_plugin);
 
 			feature_data_table[i].flags |=
 				FPGA_FEATURE_DATA_DETECTED;
@@ -282,7 +281,7 @@ void get_guid(uint64_t uuid_lo, uint64_t uuid_hi, fpga_guid *guid)
 	}
 }
 
-static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
+static fpga_result feature_plugin_mgr_detect_features(fpga_handle handle)
 {
 	fpga_result res = FPGA_OK;
 	// Discover feature BBB by traversing the device feature list
@@ -290,7 +289,7 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 	uint64_t offset = 0;
 	fpga_guid guid;
 	struct DFH dfh;
-	
+
 	res = xfpga_fpgaReadMMIO64(handle, mmio_num, 0x0, &(dfh.csr));
 	if (res != FPGA_OK) {
 		FPGA_ERR("fpgaReadMMIO64() failed");
@@ -298,7 +297,7 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 	}
 
 	offset = dfh.next_header_offset;
-	
+
 	do {
 		uint64_t feature_uuid_lo, feature_uuid_hi;
 		res = xfpga_fpgaReadMMIO64(handle, mmio_num, offset + 0, &(dfh.csr));
@@ -323,9 +322,9 @@ static fpga_result opae_plugin_mgr_detect_features(fpga_handle handle)
 		}
 
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
-		
+
 		// Detect feature for this guid.
-		opae_plugin_mgr_detect_feature(guid);
+		feature_plugin_mgr_detect_feature(guid);
 
 		// Move to the next feature header
 		offset = offset + dfh.next_header_offset;
@@ -356,7 +355,7 @@ int feature_plugin_mgr_initialize(fpga_handle handle)
 		return 0;
 	}
 
-	res = opae_plugin_mgr_detect_features(handle);
+	res = feature_plugin_mgr_detect_features(handle);
 	if (res != FPGA_OK)
 		goto out_unlock;
 
