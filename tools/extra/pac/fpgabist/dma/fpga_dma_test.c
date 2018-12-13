@@ -122,8 +122,9 @@ fpga_result parse_args(int argc, char *argv[])
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
+    int buf_size = sizeof(config.target.guid);
 
-	memcpy(config.target.guid, HELLO_AFU_ID, strlen(HELLO_AFU_ID));
+	memcpy_s(config.target.guid, buf_size, HELLO_AFU_ID, strlen(HELLO_AFU_ID));
 
 	while (-1
 	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
@@ -171,7 +172,7 @@ fpga_result parse_args(int argc, char *argv[])
             break;
         case 'G':   /* AFU ID */
             if (tmp_optarg)
-				memcpy(config.target.guid, tmp_optarg, 36);
+                memcpy_s(config.target.guid, buf_size, tmp_optarg, buf_size);
             break;
 		case 'm':
 			use_malloc = true;
@@ -348,7 +349,7 @@ static inline void clear_buffer(char *buf, size_t size)
 {
 	if (do_not_verify)
 		return;
-	memset(buf, 0, size);
+	memset_s(buf, size, 0);
 }
 
 static inline char *showDelays(char *buf)

@@ -47,23 +47,23 @@ class FPGASTATS(COMMON):
     wrapper_1_info = wrapper_1_base + 0x8
     wrapper_1_ctl = wrapper_1_base + 0x10
     wrapper_1_stat = wrapper_1_base + 0x18
-    stats = {'tx_stats_framesOK': 0x142,
-             'rx_stats_framesOK': 0x1c2,
-             'tx_stats_pauseMACCtrl_Frames': 0x14a,
-             'rx_stats_pauseMACCtrl_Frames': 0x1ca,
-             'tx_stats_framesErr': 0x144,
-             'rx_stats_framesErr': 0x1c4,
-             'rx_stats_framesCRCErr': 0x1c6,
-             'tx_stats_ifErrors': 0x14c,
-             'rx_stats_ifErrors': 0x1cc}
-    fifo_stats = {'MUX_CDC_FIFO_CNTR_FULL': 0x4,
-                  'MUX_CDC_FIFO_CNTR_ERROR': 0x8,
-                  'MUX_CDC_FIFO_CNTR_SOP_MISSED': 0xc,
-                  'MUX_CDC_FIFO_CNTR_EOP_MISSED': 0x10,
-                  'DEMUX_CDC_FIFO_CNTR_FULL': 0x204,
-                  'DEMUX_CDC_FIFO_CNTR_ERROR': 0x208,
-                  'DEMUX_CDC_FIFO_CNTR_SOP_MISSED': 0x20c,
-                  'DEMUX_CDC_FIFO_CNTR_EOP_MISSED': 0x210}
+    stats = (('tx_stats_framesOK', 0x142),
+             ('rx_stats_framesOK', 0x1c2),
+             ('tx_stats_pauseMACCtrl_Frames', 0x14a),
+             ('rx_stats_pauseMACCtrl_Frames', 0x1ca),
+             ('tx_stats_framesErr', 0x144),
+             ('rx_stats_framesErr', 0x1c4),
+             ('rx_stats_framesCRCErr', 0x1c6),
+             ('tx_stats_ifErrors', 0x14c),
+             ('rx_stats_ifErrors', 0x1cc))
+    fifo_stats = (('MUX_CDC_FIFO_CNTR_FULL', 0x1),
+                  ('MUX_CDC_FIFO_CNTR_ERROR', 0x2),
+                  ('MUX_CDC_FIFO_CNTR_SOP_MISSED', 0x3),
+                  ('MUX_CDC_FIFO_CNTR_EOP_MISSED', 0x4),
+                  ('DEMUX_CDC_FIFO_CNTR_FULL', 0x101),
+                  ('DEMUX_CDC_FIFO_CNTR_ERROR', 0x102),
+                  ('DEMUX_CDC_FIFO_CNTR_SOP_MISSED', 0x103),
+                  ('DEMUX_CDC_FIFO_CNTR_EOP_MISSED', 0x104))
 
     def __init__(self, args):
         self.guid = args.guid
@@ -95,13 +95,13 @@ class FPGASTATS(COMMON):
     def print_device_stats(self, handler, stats, wrapper, reg, fifo=False):
         print("{0: <30}".format(stats), end=' | ')
         for i in range(mac_number):
-            reg = (reg + i * fifo_shift) if fifo else reg
+            addr = (reg + i * fifo_shift) if fifo else reg
             dev = 0 if fifo else i
             print("{0: <12}".format(self.indirect_read(handler,
                                                        wrapper,
                                                        fifo,
                                                        dev,
-                                                       reg)), end=' | ')
+                                                       addr)), end=' | ')
         print()
 
     def print_stats(self, handler):
@@ -112,9 +112,9 @@ class FPGASTATS(COMMON):
             for i in range(mac_number):
                 print('mac {:<8}'.format(i), end=' | ')
             print()
-            for stats, reg in self.stats.items():
+            for stats, reg in self.stats:
                 self.print_device_stats(handler, stats, w, reg)
-            for stats, reg in self.fifo_stats.items():
+            for stats, reg in self.fifo_stats:
                 self.print_device_stats(handler, stats, w, reg, True)
 
     def start(self):

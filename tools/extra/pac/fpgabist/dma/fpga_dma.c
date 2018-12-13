@@ -40,6 +40,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <signal.h>
+#include "safe_string/safe_string.h"
 #include "fpga_dma_internal.h"
 #include "fpga_dma.h"
 
@@ -616,7 +617,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 #endif
 
 	uint64_t offset = dma_h->mmio_offset;
-	dfh_feature_t dfh;
+	dfh_feature_t dfh = {0, 0, 0};
 	do {
 		// Read the next feature header
 		res = MMIORead64Blk(dma_h, offset, (uint64_t)&dfh, sizeof(dfh));
@@ -675,7 +676,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 	res = fpgaGetIOAddress(dma_h->fpga_h, dma_h->magic_wsid,
 			       &dma_h->magic_iova);
 	ON_ERR_GOTO(res, rel_buf, "fpgaGetIOAddress");
-	memset((void *)dma_h->magic_buf, 0, FPGA_DMA_ALIGN_BYTES);
+	memset_s((void *)dma_h->magic_buf, FPGA_DMA_ALIGN_BYTES, 0);
 
 	// turn on global interrupts
 	msgdma_ctrl_t ctrl = {0};
@@ -695,7 +696,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 	struct sigaction sa;
 	int sigres;
 
-	memset(&sa, 0, sizeof(sa));
+	memset_s(&sa, sizeof(sa), 0);
 	sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
 	sa.sa_sigaction = sig_handler;
 
