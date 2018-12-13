@@ -55,6 +55,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int sysfs_initialize();
+int sysfs_finalize();
+int sysfs_region_count();
 /**
  * @brief Get BBS interface id
  *

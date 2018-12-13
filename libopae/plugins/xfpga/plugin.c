@@ -33,16 +33,20 @@
 #include "xfpga.h"
 #include "common_int.h"
 #include "adapter.h"
+#include "sysfs_int.h"
 
 int __FPGA_API__ xfpga_plugin_initialize(void)
 {
-
+	int res = sysfs_initialize();
+	if (res) {
+		return res;
+	}
 	return 0;
 }
 
 int __FPGA_API__ xfpga_plugin_finalize(void)
 {
-
+	sysfs_finalize();
 	return 0;
 }
 
