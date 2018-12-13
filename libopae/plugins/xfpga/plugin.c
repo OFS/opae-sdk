@@ -192,7 +192,7 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 
 	adapter->fpgaFeaturePropertiesGet =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeaturePropertiesGet");
-		
+
 	adapter->fpgaFeatureOpen =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaFeatureOpen");
 
