@@ -61,30 +61,6 @@ TEST(init, opae_init_rel) {
 }
 
 /**
- * @test       log_debug
- *
- * @brief      When the log level is set to debug, then all errors,
- *             messages, and debug info is logged.
- */
-TEST(init, log_debug) {
-  ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOG=2"));
-  opae_init();
-  testing::internal::CaptureStdout();
-  testing::internal::CaptureStderr();
-
-  OPAE_ERR("Error log.");
-  OPAE_MSG("Message log.");
-  OPAE_DBG("Debug log.");
-
-  std::string log_stdout = testing::internal::GetCapturedStdout();
-  std::string log_stderr = testing::internal::GetCapturedStderr();
-
-  EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
-  EXPECT_TRUE(log_stdout.find("Message log.") != std::string::npos);
-  EXPECT_TRUE(log_stdout.find("Debug log.") != std::string::npos);
-}
-
-/**
  * @test       log_message
  *
  * @brief      When the log level is set to message, then all errors
