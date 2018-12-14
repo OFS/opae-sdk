@@ -56,6 +56,27 @@
 extern "C" {
 #endif
 
+
+typedef struct _sysfs_fpga_region sysfs_fpga_region;
+
+typedef struct _sysfs_fpga_resource {
+	sysfs_fpga_region *region;
+	char path[SYSFS_PATH_MAX];
+	fpga_objtype type;
+	int num;
+} sysfs_fpga_resource;
+
+#define SYSFS_MAX_RESOURCES 4
+typedef struct _sysfs_fpga_region {
+	char path[SYSFS_PATH_MAX];
+	int number;
+	sysfs_fpga_resource *fme;
+	sysfs_fpga_resource *port;
+  uint32_t segment;
+  uint8_t bus;
+  uint8_t device;
+  uint8_t function;
+} sysfs_fpga_region;
 int sysfs_initialize(void);
 int sysfs_finalize(void);
 int sysfs_region_count(void);
