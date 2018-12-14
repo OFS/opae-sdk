@@ -38,6 +38,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <regex.h>
 #include <opae/types.h>
 #include <opae/log.h>
 #include <opae/types_enum.h>
@@ -48,10 +49,267 @@
 #include "sysfs_int.h"
 #include "common_int.h"
 
+// substring that identifies a sysfs directory as the FME device.
+#define FPGA_SYSFS_FME "fme"
+#define FPGA_SYSFS_FME_LEN 3
+// substring that identifies a sysfs directory as the AFU device.
+#define FPGA_SYSFS_PORT "port"
+#define FPGA_SYSFS_PORT_LEN 4
+#define OPAE_KERNEL_DRIVERS 2
+static struct {
+	const char *sysfs_class_path;
+	const char *sysfs_region_fmt;
+	const char *sysfs_resource_fmt;
+} sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
+	// upstream driver sysfs formats
+	{"/sys/class/fpga_region", "region([0-9])+",
+	 "dfl-(fme|port)\\.([0-9]+)"},
+	// intel driver sysfs formats
+	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
+	 "intel-fpga-(fme|port)\\.([0-9]+)"} };
+
+static uint32_t _sysfs_format_index;
+static uint32_t _sysfs_region_count;
+
+#define SYSFS_FORMAT(s) sysfs_path_table[_sysfs_format_index].s
+
+typedef enum { SYSFS_FME = 0, SYSFS_PORT } resource_type;
+
+typedef struct sysfs_region sysfs_fpga_region;
+
+typedef struct fpga_resource {
+	sysfs_fpga_region *region;
+	char path[SYSFS_PATH_MAX];
+	resource_type type;
+	int num;
+} sysfs_fpga_resource;
+
+#define SYSFS_MAX_RESOURCES 4
+typedef struct sysfs_region {
+	char path[SYSFS_PATH_MAX];
+	int number;
+	sysfs_fpga_resource *fme;
+	sysfs_fpga_resource *port;
+} sysfs_fpga_region;
+
+#define SYSFS_MAX_REGIONS 128
+static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
+
+STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
+		       char *dir_name, int num)
+{
+	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
+			  sysfs_class_fpga, dir_name)
+	    < 0) {
+		FPGA_ERR("Error formatting sysfs paths");
+		return FPGA_EXCEPTION;
+	}
+
+	region->number = num;
+
+	return FPGA_OK;
+}
+
+STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
+					  int num, resource_type type)
+{
+	sysfs_fpga_resource *resource = malloc(sizeof(sysfs_fpga_resource));
+	if (resource == NULL) {
+		FPGA_ERR("error creating resource");
+		return NULL;
+	}
+	resource->region = region;
+	resource->type = type;
+	resource->num = num;
+	// copy the full path to the parent region object
+	strcpy_s(resource->path, SYSFS_PATH_MAX, region->path);
+	// add a trailing path seperator '/'
+	int len = strlen(resource->path);
+	char *ptr = resource->path + len;
+	*ptr = '/';
+	ptr++;
+	*ptr = '\0';
+	// append the name to get the full path to the resource
+	if (cat_sysfs_path(resource->path, name)) {
+		FPGA_ERR("error concatenating path");
+		free(resource);
+		return NULL;
+	}
+	return resource;
+}
+
+
+STATIC void find_resources(sysfs_fpga_region *region)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	regex_t re;
+	int reg_res = -1;
+	int num = -1;
+	char err[128] = {0};
+	regmatch_t matches[SYSFS_MAX_RESOURCES];
+	reg_res = regcomp(&re, SYSFS_FORMAT(sysfs_resource_fmt), REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &re, err, 128);
+		FPGA_MSG("Error compiling regex: %s", err);
+	}
+
+	dir = opendir(region->path);
+	while ((dirent = readdir(dir)) != NULL) {
+		if (!strcmp(dirent->d_name, "."))
+			continue;
+		if (!strcmp(dirent->d_name, ".."))
+			continue;
+		reg_res = regexec(&re, dirent->d_name, SYSFS_MAX_RESOURCES,
+				  matches, 0);
+		if (!reg_res) {
+			int type_beg = matches[1].rm_so;
+			// int type_end = matches[1].rm_eo;
+			int num_beg = matches[2].rm_so;
+			// int num_end = matches[2].rm_eo;
+			if (type_beg < 1 || num_beg < 1) {
+				FPGA_MSG("Invalid sysfs resource format");
+				continue;
+			}
+			num = strtoul(dirent->d_name + num_beg, NULL, 10);
+			if (!strncmp(FPGA_SYSFS_FME, dirent->d_name + type_beg,
+				     FPGA_SYSFS_FME_LEN)) {
+				region->fme = make_resource(
+					region, dirent->d_name, num, SYSFS_FME);
+			} else if (!strncmp(FPGA_SYSFS_PORT,
+					    dirent->d_name + type_beg,
+					    FPGA_SYSFS_PORT_LEN)) {
+				region->port =
+					make_resource(region, dirent->d_name,
+						      num, SYSFS_PORT);
+			}
+		}
+	}
+
+	closedir(dir);
+}
+
+STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
+{
+	ASSERT_NOT_NULL(region);
+	if (region->fme) {
+		free(region->fme);
+		region->fme = NULL;
+	}
+	if (region->port) {
+		free(region->port);
+		region->port = NULL;
+	}
+	return FPGA_OK;
+}
+
+int sysfs_region_count(void)
+{
+	return _sysfs_region_count;
+}
+
+int sysfs_initialize(void)
+{
+	int stat_res = -1;
+	int reg_res = -1;
+	int res = 0;
+	uint32_t i = 0;
+	struct stat st;
+	DIR *dir = NULL;
+	char err[128] = {0};
+	struct dirent *dirent = NULL;
+	regex_t region_re;
+	regmatch_t matches[SYSFS_MAX_REGIONS];
+	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
+		errno = 0;
+		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
+		if (!stat_res) {
+			_sysfs_format_index = i;
+			break;
+		}
+		if (errno != ENOENT) {
+			FPGA_ERR("Error while inspecting sysfs: %s",
+				 strerror(errno));
+			return FPGA_EXCEPTION;
+		}
+	}
+	if (i == OPAE_KERNEL_DRIVERS) {
+		FPGA_ERR(
+			"No valid sysfs class files found - a suitable driver may not be loaded");
+		return FPGA_NO_DRIVER;
+	}
+
+	_sysfs_region_count = 0;
+	reg_res = regcomp(&region_re, SYSFS_FORMAT(sysfs_region_fmt),
+			  REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &region_re, err, 128);
+		FPGA_ERR("Error compling regex: %s", err);
+		return FPGA_EXCEPTION;
+	};
+
+	const char *sysfs_class_fpga = SYSFS_FORMAT(sysfs_class_path);
+	// open the root sysfs class directory
+	// look in the directory and get region (device) objects
+	dir = opendir(sysfs_class_fpga);
+	while ((dirent = readdir(dir))) {
+		if (!strcmp(dirent->d_name, "."))
+			continue;
+		if (!strcmp(dirent->d_name, ".."))
+			continue;
+		// if the current directory matches the region (device) regex
+		reg_res = regexec(&region_re, dirent->d_name, SYSFS_MAX_REGIONS,
+				  matches, 0);
+		if (!reg_res) {
+			int num_begin = matches[1].rm_so;
+			if (num_begin < 0) {
+				FPGA_ERR("sysfs format invalid: %s", dirent->d_name);
+				continue;
+			}
+			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
+			// increment our region count after filling out details
+			// of the discovered region in our _regions array
+			res = make_region(&_regions[_sysfs_region_count++],
+					  sysfs_class_fpga, dirent->d_name,
+					  num);
+			if (res) {
+				FPGA_MSG("Error processing region: %s",
+					 dirent->d_name);
+			}
+		}
+	}
+
+	closedir(dir);
+	if (!_sysfs_region_count) {
+		FPGA_ERR("Error discovering fpga regions");
+		return FPGA_NO_DRIVER;
+	}
+
+	// now, for each discovered region, look inside for resources
+	// (fme|port)
+	for (i = 0; i < _sysfs_region_count; ++i) {
+		find_resources(&_regions[i]);
+	}
+
+
+	return FPGA_OK;
+}
+
+int sysfs_finalize(void)
+{
+	uint32_t i = 0;
+	for (; i < _sysfs_region_count; ++i) {
+		sysfs_region_destroy(&_regions[i]);
+	}
+	_sysfs_region_count = 0;
+	return FPGA_OK;
+}
+
 int sysfs_filter(const struct dirent *de)
 {
 	return de->d_name[0] != '.';
 }
+
 //
 // sysfs access (read/write) functions
 //

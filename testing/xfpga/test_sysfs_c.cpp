@@ -64,6 +64,38 @@ const std::string single_dev_port = "/dev/intel-fpga-port.0";
 
 using namespace opae::testing;
 
+
+
+class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  sysfsinit_c_p(){}
+
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+  }
+
+  virtual void TearDown() override {
+    system_->finalize();
+  }
+
+  test_platform platform_;
+  test_system *system_;
+};
+
+TEST_P(sysfsinit_c_p, sysfs_initialize) {
+  EXPECT_EQ(0, sysfs_initialize());
+  EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
+  EXPECT_EQ(0, sysfs_finalize());
+}
+
+INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
+                        ::testing::ValuesIn(test_platform::platforms()));
+
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   sysfs_c_p()
