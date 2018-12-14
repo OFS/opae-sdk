@@ -46,6 +46,10 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
+#undef FPGA_MSG
+#define FPGA_MSG(fmt, ...) \
+	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
 using namespace opae::testing;
 
 int umsg_port_info(mock_object * m, int request, va_list argp){
