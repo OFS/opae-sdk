@@ -73,31 +73,56 @@ static uint32_t _sysfs_region_count;
 
 #define SYSFS_FORMAT(s) sysfs_path_table[_sysfs_format_index].s
 
-typedef enum { SYSFS_FME = 0, SYSFS_PORT } resource_type;
-
-typedef struct sysfs_region sysfs_fpga_region;
-
-typedef struct fpga_resource {
-	sysfs_fpga_region *region;
-	char path[SYSFS_PATH_MAX];
-	resource_type type;
-	int num;
-} sysfs_fpga_resource;
-
-#define SYSFS_MAX_RESOURCES 4
-typedef struct sysfs_region {
-	char path[SYSFS_PATH_MAX];
-	int number;
-	sysfs_fpga_resource *fme;
-	sysfs_fpga_resource *port;
-} sysfs_fpga_region;
 
 #define SYSFS_MAX_REGIONS 128
 static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
 
+#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
+#define PCIE_PATH_PATTERN_GROUPS 5
+
+#define PARSE_REGEX_INT(_p, _m, _v, _b) \
+	do { \
+		errno = 0; \
+		_v = strtoul(_p + _m.rm_so, NULL, _b); \
+		if (errno) {\
+			FPGA_MSG("error parsing int"); \
+			return FPGA_EXCEPTION; \
+		} \
+	} while(0);
+
+STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer) {
+	char err[128] = {0};
+	regex_t re;
+	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = {{0}};
+
+	int reg_res = regcomp(&re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
+	if (reg_res) {
+		FPGA_ERR("Error compling regex");
+		return FPGA_EXCEPTION;
+	}
+	reg_res = regexec(&re, buffer, PCIE_PATH_PATTERN_GROUPS, matches, 0);
+	if (reg_res) {
+		regerror(reg_res, &re, err, 128);
+		FPGA_ERR("Error executing regex: %s", err);
+		return FPGA_EXCEPTION;
+	}
+	PARSE_REGEX_INT(buffer, matches[1], region->segment, 16);
+	PARSE_REGEX_INT(buffer, matches[2], region->bus, 16);
+	PARSE_REGEX_INT(buffer, matches[3], region->device, 16);
+	PARSE_REGEX_INT(buffer, matches[4], region->function, 10);
+	return FPGA_OK;
+}
+
 STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
+	int res = FPGA_OK;
+	char buffer[SYSFS_PATH_MAX] = {0};
+	ssize_t r = readlink(region->path, buffer, SYSFS_PATH_MAX);
+	if (r < 0) {
+		FPGA_ERR("Error readling sysfs link: %s", region->path);
+		return FPGA_EXCEPTION;
+	}
 	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
 			  sysfs_class_fpga, dir_name)
 	    < 0) {
@@ -106,12 +131,17 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 	}
 
 	region->number = num;
+	res = parse_pcie_info(region, buffer);
+	if (res) {
+		return res;
+	}
 
-	return FPGA_OK;
+
+	return res;
 }
 
 STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
-					  int num, resource_type type)
+					  int num, fpga_objtype type)
 {
 	sysfs_fpga_resource *resource = malloc(sizeof(sysfs_fpga_resource));
 	if (resource == NULL) {
@@ -175,13 +205,13 @@ STATIC void find_resources(sysfs_fpga_region *region)
 			if (!strncmp(FPGA_SYSFS_FME, dirent->d_name + type_beg,
 				     FPGA_SYSFS_FME_LEN)) {
 				region->fme = make_resource(
-					region, dirent->d_name, num, SYSFS_FME);
+					region, dirent->d_name, num, FPGA_DEVICE);
 			} else if (!strncmp(FPGA_SYSFS_PORT,
 					    dirent->d_name + type_beg,
 					    FPGA_SYSFS_PORT_LEN)) {
 				region->port =
 					make_resource(region, dirent->d_name,
-						      num, SYSFS_PORT);
+						      num, FPGA_ACCELERATOR);
 			}
 		}
 	}

@@ -26,6 +26,8 @@
 
 extern "C" {
 #include <opae/utils.h>
+#include "sysfs_int.h"
+#include "types_int.h"
 fpga_result cat_token_sysfs_path(char *, fpga_token, const char *);
 fpga_result get_port_sysfs(fpga_handle, char *);
 //    fpga_result get_fpga_deviceid(fpga_handle,uint64_t*);
@@ -38,6 +40,7 @@ fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
 char* cstr_dup(const char *str);
+int parse_pcie_info(sysfs_fpga_region *region, char *buffer);
 }
 
 #include <opae/enum.h>
@@ -47,8 +50,6 @@ char* cstr_dup(const char *str);
 #include <uuid/uuid.h>
 #include <string>
 #include <vector>
-#include "sysfs_int.h"
-#include "types_int.h"
 #include "xfpga.h"
 #include <fcntl.h>
 
@@ -91,6 +92,24 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   EXPECT_EQ(0, sysfs_initialize());
   EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
   EXPECT_EQ(0, sysfs_finalize());
+}
+
+TEST(sysfsinit_c_p, sysfs_parse_pcie) {
+  sysfs_fpga_region region;
+  char buffer1[] = "../../devices/pci0000:00/0000:00:02.0/0f0f:05:04.3/fpga/intel-fpga-dev.0";
+  char buffer2[] = "../../devices/pci0000:5e/a0a0:5e:02.1/fpga_region/region0";
+  auto res = parse_pcie_info(&region, buffer1);
+  EXPECT_EQ(res, 0);
+  EXPECT_EQ(region.segment, 0x0f0f);
+  EXPECT_EQ(region.bus, 0x05);
+  EXPECT_EQ(region.device, 0x04);
+  EXPECT_EQ(region.function, 0x03);
+  res = parse_pcie_info(&region, buffer2);
+  EXPECT_EQ(res, 0);
+  EXPECT_EQ(region.segment, 0xa0a0);
+  EXPECT_EQ(region.bus, 0x5e);
+  EXPECT_EQ(region.device, 0x02);
+  EXPECT_EQ(region.function, 0x01);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
