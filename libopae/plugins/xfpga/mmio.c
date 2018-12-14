@@ -38,7 +38,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <stdbool.h>
+#include <inttypes.h>
 
 /* Port UAFU */
 #define AFU_PERMISSION (FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP)
@@ -222,6 +223,8 @@ fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO32(fpga_handle handle,
 	struct wsid_map *wm = NULL;
 	fpga_result result = FPGA_OK;
 
+	FPGA_MSG("num: (%d), offset(0x%" PRIx64 "), value: (0x%" PRIx32 ")\n", mmio_num, offset, value);
+
 	if (offset % sizeof(uint32_t) != 0) {
 		FPGA_MSG("Misaligned MMIO access");
 		return FPGA_INVALID_PARAM;
@@ -299,6 +302,8 @@ fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO64(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	struct wsid_map *wm = NULL;
 	fpga_result result = FPGA_OK;
+
+	FPGA_MSG("num: (%d), offset(0x%" PRIx64 "), value: (0x%" PRIx64 ")\n", mmio_num, offset, value);
 
 	if (offset % sizeof(uint64_t) != 0) {
 		FPGA_MSG("Misaligned MMIO access");
