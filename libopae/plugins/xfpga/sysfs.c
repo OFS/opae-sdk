@@ -88,12 +88,13 @@ static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
 			FPGA_MSG("error parsing int"); \
 			return FPGA_EXCEPTION; \
 		} \
-	} while(0);
+	} while (0);
 
-STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer) {
+STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
+{
 	char err[128] = {0};
 	regex_t re;
-	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = {{0}};
+	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
 
 	int reg_res = regcomp(&re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
@@ -118,15 +119,16 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 {
 	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
-	ssize_t r = readlink(region->path, buffer, SYSFS_PATH_MAX);
-	if (r < 0) {
-		FPGA_ERR("Error readling sysfs link: %s", region->path);
-		return FPGA_EXCEPTION;
-	}
+	ssize_t sym_link_len = 0;
 	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
 			  sysfs_class_fpga, dir_name)
 	    < 0) {
 		FPGA_ERR("Error formatting sysfs paths");
+		return FPGA_EXCEPTION;
+	}
+	sym_link_len = readlink(region->path, buffer, SYSFS_PATH_MAX);
+	if (sym_link_len < 0) {
+		FPGA_ERR("Error readling sysfs link: %s", region->path);
 		return FPGA_EXCEPTION;
 	}
 
