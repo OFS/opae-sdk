@@ -109,8 +109,17 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void copy_bitstream(std::string path) {
+    copy_gbs_ = path;
+    std::ifstream src(tmp_gbs_, std::ios::binary);
+    std::ofstream dst(copy_gbs_, std::ios::binary);
+  
+    dst << src.rdbuf();
+  }
+
   struct CoreIdleCommandLine cmd_line_;
   char tmp_gbs_[20];
+  std::string copy_gbs_;
   test_platform platform_;
   test_system *system_;
 };
@@ -399,6 +408,49 @@ TEST_P(coreidle_main_c_p, parse_err2) {
   EXPECT_EQ(coreidle_main(13, argv), 0);
 }
 
+
+/**
+ * @test       lead_null_char
+ * @brief      Test: coreidle_main
+ * @details    When called with parameters that contains nullbytes<br>
+ *             it fails to find file and coreidle_main flags bitstream
+ *             invalid error. It returns 0 on cleanup success.<br>
+ */
+TEST_P(coreidle_main_c_p, lead_null_char) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char *argv[] = { zero, one, two };
+
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+  strcpy(two, "\0 copy_bitstream.gbs");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       mid_null_char
+ * @brief      Test: coreidle_main
+ * @details    When called with parameters that contains nullbytes<br>
+ *             it fails to find file and coreidle_main flags bitstream
+ *             invalid error. It returns 0 on cleanup success.<br>
+ */
+TEST_P(coreidle_main_c_p, mid_null_char) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char *argv[] = { zero, one, two };
+
+  memset(two, 0, 32);
+  strcpy(two, "copy_bit\0stream.gbs");
+  EXPECT_EQ(coreidle_main(3, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
 
 /**
  * @test       read_bits0
