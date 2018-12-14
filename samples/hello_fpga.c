@@ -123,13 +123,15 @@ struct config {
 		int bus;
 	} target;
 	int open_flags;
+	int mmio_num;
 }
 
 config = {
 	.target = {
 		.bus = -1,
 	},
-	.open_flags = 0
+	.open_flags = 0,
+	.mmio_num = 0
 };
 
 #define GETOPT_STRING "B:s"
@@ -138,6 +140,7 @@ fpga_result parse_args(int argc, char *argv[])
 	struct option longopts[] = {
 		{ "bus",    required_argument, NULL, 'B' },
 		{ "shared", no_argument,       NULL, 's' },
+		{ "mmio-num", required_argument, NULL, 'M' },
 		{ NULL,     0,                 NULL,  0  }
 	};
 
@@ -167,6 +170,17 @@ fpga_result parse_args(int argc, char *argv[])
 			break;
 		case 's':
 			config.open_flags |= FPGA_OPEN_SHARED;
+			break;
+		case 'M':
+			if (NULL == tmp_optarg){
+				return FPGA_EXCEPTION;
+			}
+			endptr = NULL;
+			config.mmio_num = (int) strtoul(tmp_optarg, &endptr, 10);
+			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
+				fprintf(stderr, "invalid mmio num: %s\n", tmp_optarg);
+				return FPGA_EXCEPTION;
+			}
 			break;
 
 		default: /* invalid option */
@@ -252,6 +266,7 @@ int main(int argc, char *argv[])
 	uint32_t           timeout;
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
+	int mmio = 0;
 
 
 	/* Print version information of the underlying library */
@@ -262,6 +277,7 @@ int main(int argc, char *argv[])
 
 	res1 = parse_args(argc, argv);
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
+	mmio = config.mmio_num;
 
 	if (uuid_parse(NLB0_AFUID, guid) < 0) {
 		res1 = FPGA_EXCEPTION;
@@ -290,7 +306,7 @@ int main(int argc, char *argv[])
 	res1 = fpgaOpen(accelerator_token, &accelerator_handle, config.open_flags);
 	ON_ERR_GOTO(res1, out_destroy_tok, "opening accelerator");
 
-	res1 = fpgaMapMMIO(accelerator_handle, 0, NULL);
+	res1 = fpgaMapMMIO(accelerator_handle, mmio, NULL);
 	ON_ERR_GOTO(res1, out_close, "mapping MMIO space");
 
 
@@ -336,34 +352,34 @@ int main(int argc, char *argv[])
 	res1 = fpgaGetIOAddress(accelerator_handle, dsm_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting DSM IOVA");
 
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_AFU_DSM_BASEL, iova);
+	res1 = fpgaWriteMMIO64(accelerator_handle, mmio, CSR_AFU_DSM_BASEL, iova);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_AFU_DSM_BASEL");
 
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 0);
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_CTL, 0);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 1);
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_CTL, 1);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	res1 = fpgaGetIOAddress(accelerator_handle, input_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting input IOVA");
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	res1 = fpgaWriteMMIO64(accelerator_handle, mmio, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_SRC_ADDR");
 
 	res1 = fpgaGetIOAddress(accelerator_handle, output_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting output IOVA");
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	res1 = fpgaWriteMMIO64(accelerator_handle, mmio, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_DST_ADDR");
 
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_NUM_LINES");
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CFG, 0x42000);
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_CFG, 0x42000);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
 
 
 	/* Start the test */
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 3);
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_CTL, 3);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
@@ -377,7 +393,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Stop the device */
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
+	res1 = fpgaWriteMMIO32(accelerator_handle, mmio, CSR_CTL, 7);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 
@@ -406,7 +422,7 @@ out_free_dsm:
 
 	/* Unmap MMIO space */
 out_unmap:
-	res2 = fpgaUnmapMMIO(accelerator_handle, 0);
+	res2 = fpgaUnmapMMIO(accelerator_handle, mmio);
 	ON_ERR_GOTO(res2, out_close, "unmapping MMIO space");
 
 	/* Release accelerator */
