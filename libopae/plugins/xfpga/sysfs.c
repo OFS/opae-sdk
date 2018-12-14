@@ -80,7 +80,7 @@ static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
 #define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
 #define PCIE_PATH_PATTERN_GROUPS 5
 
-#define PARSE_REGEX_INT(_p, _m, _v, _b) \
+#define PARSE_MATCH_INT(_p, _m, _v, _b) \
 	do { \
 		errno = 0; \
 		_v = strtoul(_p + _m.rm_so, NULL, _b); \
@@ -95,6 +95,7 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 	char err[128] = {0};
 	regex_t re;
 	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
+	int res = FPGA_OK;
 
 	int reg_res = regcomp(&re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
@@ -105,19 +106,20 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 	if (reg_res) {
 		regerror(reg_res, &re, err, 128);
 		FPGA_ERR("Error executing regex: %s", err);
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
+	} else {
+		PARSE_MATCH_INT(buffer, matches[1], region->segment, 16);
+		PARSE_MATCH_INT(buffer, matches[2], region->bus, 16);
+		PARSE_MATCH_INT(buffer, matches[3], region->device, 16);
+		PARSE_MATCH_INT(buffer, matches[4], region->function, 10);
 	}
-	PARSE_REGEX_INT(buffer, matches[1], region->segment, 16);
-	PARSE_REGEX_INT(buffer, matches[2], region->bus, 16);
-	PARSE_REGEX_INT(buffer, matches[3], region->device, 16);
-	PARSE_REGEX_INT(buffer, matches[4], region->function, 10);
-	return FPGA_OK;
+	regfree(&re);
+	return res;
 }
 
 STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
-	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
 	ssize_t sym_link_len = 0;
 	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
@@ -128,18 +130,12 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 	}
 	sym_link_len = readlink(region->path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
-		FPGA_ERR("Error readling sysfs link: %s", region->path);
+		FPGA_ERR("Error reading sysfs link: %s", region->path);
 		return FPGA_EXCEPTION;
 	}
 
 	region->number = num;
-	res = parse_pcie_info(region, buffer);
-	if (res) {
-		return res;
-	}
-
-
-	return res;
+	return parse_pcie_info(region, buffer);
 }
 
 STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
@@ -217,7 +213,7 @@ STATIC void find_resources(sysfs_fpga_region *region)
 			}
 		}
 	}
-
+	regfree(&re);
 	closedir(dir);
 }
 
@@ -310,6 +306,7 @@ int sysfs_initialize(void)
 			}
 		}
 	}
+	regfree(&region_re);
 
 	closedir(dir);
 	if (!_sysfs_region_count) {
