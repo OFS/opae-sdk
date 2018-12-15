@@ -1662,11 +1662,9 @@ out_free:
 fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 	fpga_feature_properties *prop)
 {
-	fpga_result res = FPGA_OK;
 	opae_wrapped_feature_token *wrapped_token;
 
 	wrapped_token = opae_validate_wrapped_feature_token(token);
-	//wrapped_token->feature_token;
 
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(prop);
@@ -1674,10 +1672,8 @@ fpga_result fpgaFeaturePropertiesGet(fpga_feature_token token,
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeaturePropertiesGet,
 		FPGA_NOT_SUPPORTED);
 
-	res = wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
+	return wrapped_token->adapter_table->fpgaFeaturePropertiesGet(wrapped_token->feature_token,
 			prop);
-
-	return res;
 }
 
 fpga_result fpgaFeatureOpen(fpga_feature_token token, int flags,
@@ -1741,7 +1737,7 @@ out_free:
 fpga_result fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop)
 {
 	opae_wrapped_feature_token *wrapped_token =
-				opae_validate_wrapped_feature_token(token);;
+				opae_validate_wrapped_feature_token(token);
 
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(prop);
@@ -1775,6 +1771,7 @@ fpga_result fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *d
 		opae_validate_wrapped_feature_handle(dma_h);
 
 	ASSERT_NOT_NULL(dma_xfer);
+	ASSERT_NOT_NULL(cb);
 	ASSERT_NOT_NULL(context);
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDMATransferAsync,

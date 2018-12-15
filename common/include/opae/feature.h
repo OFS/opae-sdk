@@ -71,6 +71,8 @@ typedef struct {
  * in `tokens`. It is the responsibility of the user application to free this
  * memory after use by calling fpgaFeatureDestroyToken() for each of the returned
  * tokens.
+ * @note Use fpgaFeaturePropertiesGet() to get detailed information about any feature
+ * returned.
  *
  * @param[in]   fpga_h          Handle to previously opened accelerator resource
  * @param[in]   prop            The feature property that is being searched.
@@ -90,7 +92,8 @@ typedef struct {
  *                         are passed into the function.
  *                         FPGA_NO_MEMORY if there was not enough memory to
  *                         create tokens.
- *                         FPGA_NOT_SUPPORTED if internal function pointer is null.
+ *                         FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                         feature enumeration.
  *                         FPGA_EXCEPTION if some other errors occur.
  */
 fpga_result
@@ -114,15 +117,14 @@ fpgaDestroyFeatureToken(fpga_feature_token *feature_token);
 /**
  * Get feature properties from a feature token
  *
- * @note: Use fpgaFeaturePropertiesGet() to get detailed information about any feature returned
- *
  * @param[in] token             fpga_feature_token to get its property
  *
  * @param[out] prop             fpga_feature_properties output
  * @returns                     FPGA_OK on success
  *                              FPGA_INVALID_PARAM if invalid pointers or objects
  *                              are passed into the function.
- *                              FPGA_NOT_SUPPORTED if internal function pointer is null.
+ *                              FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                              feature token destroy functionality.
  */
 fpga_result
 fpgaFeaturePropertiesGet(fpga_feature_token token,
@@ -145,7 +147,8 @@ fpgaFeaturePropertiesGet(fpga_feature_token token,
  * @returns                   FPGA_OK on success.
  *                            FPGA_INVALID_PARAM if invalid pointers or objects
  *                            are passed into the function.
- *                            FPGA_NOT_SUPPORTED if internal function pointer is null.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support feature
+ *                            open functionality.
  */
 fpga_result fpgaFeatureOpen(fpga_feature_token feature_token, int flags,
 							void *priv_config, fpga_feature_handle *handle);
@@ -161,7 +164,8 @@ fpga_result fpgaFeatureOpen(fpga_feature_token feature_token, int flags,
  * @returns                   FPGA_OK on success.
  *                            FPGA_INVALID_PARAM if invalid pointers or objects
  *                            are passed into the function.
- *                            FPGA_NOT_SUPPORTED if internal function pointer is null.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support feature
+ *                            close functionality.
  */
 fpga_result fpgaFeatureClose(fpga_feature_handle handle);
 

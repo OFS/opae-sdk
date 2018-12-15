@@ -43,11 +43,9 @@
 #include "feature_int.h"
 #include "feature_token_list_int.h"
 
-extern pthread_mutex_t global_lock;
-
 wrapped_feature_token *
 allocate_wrapped_feature_token(fpga_feature_token token,
-			    const feature_adapter_table *adapter)
+				const feature_adapter_table *adapter)
 {
 	wrapped_feature_token *wtok =
 		(wrapped_feature_token *)malloc(sizeof(wrapped_feature_token));
@@ -55,7 +53,7 @@ allocate_wrapped_feature_token(fpga_feature_token token,
 	if (wtok) {
 		wtok->magic = FPGA_WRAPPED_FEATURE_TOKEN_MAGIC;
 		wtok->feature_token = token;
-		wtok->adapter_table = (feature_adapter_table *)adapter;
+		wtok->ftr_adapter_table = (feature_adapter_table *)adapter;
 	}
 
 	return wtok;
@@ -63,7 +61,7 @@ allocate_wrapped_feature_token(fpga_feature_token token,
 
 wrapped_feature_handle *
 allocate_wrapped_feature_handle(wrapped_feature_token *wt, fpga_feature_handle feature_handle,
-			     feature_adapter_table *adapter)
+				feature_adapter_table *adapter)
 {
 	wrapped_feature_handle *whan =
 		(wrapped_feature_handle *)malloc(sizeof(wrapped_feature_handle));
@@ -72,7 +70,7 @@ allocate_wrapped_feature_handle(wrapped_feature_token *wt, fpga_feature_handle f
 		whan->magic = FPGA_WRAPPED_FEATURE_HANDLE_MAGIC;
 		whan->wrapped_feature_token = wt;
 		whan->feature_handle = feature_handle;
-		whan->adapter_table = adapter;
+		whan->ftr_adapter_table = adapter;
 	}
 
 	return whan;
@@ -169,7 +167,7 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 			FPGA_ERR("fpgaReadMMIO64() failed");
 			return result;
 		}
-		feature_type = dfh.type;   // TODO: check bit
+		feature_type = dfh.type;
 
 		// Read the current feature's UUID
 		result = xfpga_fpgaReadMMIO64(handle, mmio_num, offset + 8,
@@ -188,12 +186,11 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 
 		get_guid(feature_uuid_lo, feature_uuid_hi, &guid);
 
-		_ftoken = feature_token_add(feature_type, mmio_num, guid, offset, handle);
-
-		if (_ftoken->feature_type == prop->type) {
+		if (feature_type == prop->type) {
 			if ((!uuid_is_null(prop->guid) && (uuid_compare(prop->guid, guid) == 0))
 				|| (uuid_is_null(prop->guid))) {
 				if (tokens) {
+					_ftoken = feature_token_add(feature_type, mmio_num, guid, offset, handle);
 					if (*num_matches < max_tokens) {
 						fpga_feature_token tmp = 0;
 						feature_adapter_table *adapter;
@@ -247,9 +244,10 @@ fpga_result __FPGA_API__ xfpga_fpgaFeaturePropertiesGet(fpga_feature_token token
 	errno_t e;
 
 	wrapped_token = validate_wrapped_feature_token(token);
+	ASSERT_NOT_NULL(wrapped_token);
+
 	_ftoken = (struct _fpga_feature_token *)wrapped_token->feature_token;
 
-	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(_ftoken);
 
@@ -283,23 +281,23 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureOpen(fpga_feature_token token, int fla
 
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureOpen,
-			       FPGA_NOT_SUPPORTED);
-	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaFeatureClose,
-			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaFeatureOpen,
+					FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaFeatureClose,
+					FPGA_NOT_SUPPORTED);
 
-	res = wrapped_token->adapter_table->fpgaFeatureOpen(wrapped_token->feature_token,
+	res = wrapped_token->ftr_adapter_table->fpgaFeatureOpen(wrapped_token->feature_token,
 						    flags, priv_config, &feature_handle);
 
 	ASSERT_RESULT(res);
 
 	wrapped_handle = allocate_wrapped_feature_handle(
-		wrapped_token, feature_handle, wrapped_token->adapter_table);
+		wrapped_token, feature_handle, wrapped_token->ftr_adapter_table);
 
 	if (!wrapped_handle) {
 		FPGA_ERR("malloc failed");
 		res = FPGA_NO_MEMORY;
-		cres = wrapped_token->adapter_table->fpgaFeatureClose(feature_handle);
+		cres = wrapped_token->ftr_adapter_table->fpgaFeatureClose(feature_handle);
 	}
 
 	*handle = wrapped_handle;
@@ -315,12 +313,12 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureClose(fpga_feature_handle handle)
 
 	ASSERT_NOT_NULL(wrapped_handle);
 
-	if (wrapped_handle->adapter_table->fpgaFeatureClose == NULL) {
-		 res = FPGA_NOT_SUPPORTED;
-		 goto out_free;
+	if (wrapped_handle->ftr_adapter_table->fpgaFeatureClose == NULL) {
+		res = FPGA_NOT_SUPPORTED;
+		goto out_free;
 	}
 
-	res = wrapped_handle->adapter_table->fpgaFeatureClose(
+	res = wrapped_handle->ftr_adapter_table->fpgaFeatureClose(
 		wrapped_handle->feature_handle);
 
 out_free:
@@ -338,26 +336,25 @@ xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop)
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(wrapped_token);
-	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDMAPropertiesGet,
-			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaDMAPropertiesGet,
+					FPGA_NOT_SUPPORTED);
 
-	return wrapped_token->adapter_table->fpgaDMAPropertiesGet(wrapped_token->feature_token,
+	return wrapped_token->ftr_adapter_table->fpgaDMAPropertiesGet(wrapped_token->feature_token,
 															prop);
 }
 
 fpga_result __FPGA_API__
 xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list)
 {
-	//fpga_result res;
 	wrapped_feature_handle *wrapped_handle =
 		validate_wrapped_feature_handle(dma_h);
 
 	ASSERT_NOT_NULL(xfer_list);
 	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDMATransferSync,
-			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->ftr_adapter_table->fpgaDMATransferSync,
+					FPGA_NOT_SUPPORTED);
 
-	return wrapped_handle->adapter_table->fpgaDMATransferSync(wrapped_handle->feature_handle,
+	return wrapped_handle->ftr_adapter_table->fpgaDMATransferSync(wrapped_handle->feature_handle,
 																xfer_list);
 
 }
@@ -366,17 +363,17 @@ fpga_result __FPGA_API__
 xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,
 								fpga_dma_cb cb, void *context)
 {
-	//fpga_result res;
 	wrapped_feature_handle *wrapped_handle =
 		validate_wrapped_feature_handle(dma_h);
 
 	ASSERT_NOT_NULL(dma_xfer);
+	ASSERT_NOT_NULL(cb);
 	ASSERT_NOT_NULL(context);
 	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaDMATransferAsync,
-			       FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->ftr_adapter_table->fpgaDMATransferAsync,
+					FPGA_NOT_SUPPORTED);
 
-	return wrapped_handle->adapter_table->fpgaDMATransferAsync(wrapped_handle->feature_handle,
+	return wrapped_handle->ftr_adapter_table->fpgaDMATransferAsync(wrapped_handle->feature_handle,
 																dma_xfer, cb, context);
 
 }

@@ -104,15 +104,15 @@ typedef struct {
 } fpga_dma_transfer;
 
 /**
- * Transfer list
+ * DMA transfer list
  *
- * Array of DMA transactions
+ * A list of DMA transfers with different buffers.
  */
 
 typedef struct {
-	uint64_t xfer_id; /**< User ID for this transaction */
-	fpga_dma_transfer *array; /**< Pointer to transfer array */
-	uint32_t entries_num; /**< number of entries in array */
+	uint64_t xfer_id;            /**< User ID for this transaction */
+	fpga_dma_transfer *xfers;    /**< Pointer to a transfer array */
+	uint32_t entries_num;        /**< number of entries in array */
 	fpga_dma_transfer_type type; /**< Direction and streaming or memory */
 	uint32_t ch_index; /**< in case of multi channel DMA, which channel to use */
 } dma_transfer_list;
@@ -122,10 +122,14 @@ typedef struct {
  *
  * Start a sync transfer and return only all the data was copied.
  *
- * @param[in]   dma_h      as populated by fpgaFeatureOpen()
- * @param[in]   xfer_list        transfer information
+ * @param[in]   dma_h         as populated by fpgaFeatureOpen()
+ * @param[in]   xfer_list     transfer information
  *
- * @returns FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                            DMA sync tranfers.
  */
 fpga_result
 fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list);
@@ -141,15 +145,19 @@ typedef void (*fpga_dma_cb)(dma_transfer_list *xfer_list, void *context);
  * Start an Async transfer (Return immediately)
  * Callback will be invoked when the transfer is completed.
  *
- * @param[in]   dma_h      as populated by fpgaFeatureOpen()
- * @param[in]   dma_xfer        transfer information
- * @param[in]   cb              Call back function to call when the transfer is completed
- * @param[in]   context         argument to pass to the callback function
+ * @param[in]   dma_h         as populated by fpgaFeatureOpen()
+ * @param[in]   dma_xfer      transfer information
+ * @param[in]   cb            Call back function to call when the transfer is completed
+ * @param[in]   context       argument to pass to the callback function
  *
  * @note For posting receive buffers to the DMA in Rx streaming mode,
  *       call this function with NULL back.
  *
- * @returns FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                            DMA async tranfers.
  */
 fpga_result
 fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,

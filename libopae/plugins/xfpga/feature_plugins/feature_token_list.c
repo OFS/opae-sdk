@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define __USE_GNU
 #include <pthread.h>
 #undef _GNU_SOURCE
 
@@ -45,7 +46,9 @@
 /* global list of tokens we've seen */
 static struct _fpga_feature_token *ftoken_root;
 
-extern pthread_mutex_t global_lock;
+/** Mutex to protect feature tokens */  
+pthread_mutex_t ftoken_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
 /**
  * @brief Add entry to linked list for feature tokens
  *	Will allocate memory (which is freed by feature_token_cleanup())
@@ -63,7 +66,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 	errno_t e;
 	int err = 0;
 
-	if (pthread_mutex_lock(&global_lock)) {
+	if (pthread_mutex_lock(&ftoken_lock)) {
 		FPGA_ERR("Failed to lock feature token mutex");
 		return NULL;
 	}
@@ -71,7 +74,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 	/* Prevent duplicate entries. */
 	for (tmp = ftoken_root; NULL != tmp; tmp = tmp->next) {
 		if ((uuid_compare(guid, tmp->feature_guid)) == 0) {
-			err = pthread_mutex_unlock(&global_lock);
+			err = pthread_mutex_unlock(&ftoken_lock);
 			if (err) {
 				FPGA_ERR("pthread_mutex_unlock() failed: %s",
 					 strerror(err));
@@ -107,7 +110,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 	tmp->next = ftoken_root;
 	ftoken_root = tmp;
 
-	err = pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 		free(tmp);
@@ -120,7 +123,7 @@ out_free:
 	free(tmp);
 
 out_unlock:
-	err = pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
@@ -135,7 +138,7 @@ void feature_token_cleanup(void)
 {
 	int err = 0;
 	struct _fpga_feature_token *current = ftoken_root;
-	err = pthread_mutex_lock(&global_lock);
+	err = pthread_mutex_lock(&ftoken_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_lock() failed: %s", strerror(err));
 		return;
@@ -157,7 +160,7 @@ void feature_token_cleanup(void)
 	ftoken_root = NULL;
 
 out_unlock:
-	err = pthread_mutex_unlock(&global_lock);
+	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}

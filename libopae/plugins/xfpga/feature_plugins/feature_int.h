@@ -67,7 +67,7 @@ struct _fpga_feature_token {
 typedef struct _wrapped_feature_token {
 	uint64_t magic;
 	fpga_feature_token feature_token;
-	feature_adapter_table *adapter_table;
+	feature_adapter_table *ftr_adapter_table;
 } wrapped_feature_token;
 
 wrapped_feature_token *
@@ -87,7 +87,6 @@ static inline void destroy_wrapped_feature_token(wrapped_feature_token *wt)
 {
 	wt->magic = 0;
 	free(wt);
-	wt = NULL;
 }
 //                                   f e a h
 #define FPGA_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
@@ -99,7 +98,7 @@ typedef struct _wrapped_feature_handle {
 	uint32_t magic;
 	wrapped_feature_token *wrapped_feature_token;
 	fpga_feature_handle feature_handle;
-	feature_adapter_table *adapter_table;
+	feature_adapter_table *ftr_adapter_table;
 } wrapped_feature_handle;
 
 wrapped_feature_handle *
@@ -119,7 +118,6 @@ static inline void destroy_wrapped_feature_handle(wrapped_feature_handle *wh)
 {
 	wh->magic = 0;
 	free(wh);
-	wh = NULL;
 }
 
 #endif //__FEATURE_INT_H__
