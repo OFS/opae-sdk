@@ -46,7 +46,7 @@
 /* global list of tokens we've seen */
 static struct _fpga_feature_token *ftoken_root;
 
-/** Mutex to protect feature tokens */  
+/** Mutex to protect feature tokens */
 pthread_mutex_t ftoken_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 /**
