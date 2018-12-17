@@ -100,7 +100,6 @@ typedef struct {
 	uint64_t metadata_wsid; /**< stream - wsid of the metadata */
 	bool eop;      /**< Indicate last buffer for the stream */
 	uint64_t rx_len; /**< Rx stream - length of Rx data */
-	bool *rx_eop;     /**< Rx stream - Set is end of packet was received */
 } fpga_dma_transfer;
 
 /**
