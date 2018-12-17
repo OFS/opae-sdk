@@ -88,9 +88,45 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
+// convert segment, bus, device, function to a 32 bit number
+uint32_t to_uint32(uint16_t segment, uint8_t bus, uint8_t device,
+                   uint8_t function) {
+  return (segment << 16) | (bus << 8) | (device << 5) | (function & 7);
+}
+
 TEST_P(sysfsinit_c_p, sysfs_initialize) {
+  std::map<uint64_t, test_device> devices;
+
+  // define a callback to be used with sysfs_foreach_region
+  // this callback is given a map of devices using the sbdf as the key
+  // (as a 32-bit number);
+  auto cb = [](sysfs_fpga_region *r, void* data) {
+    auto& devs = *reinterpret_cast<std::map<uint64_t, test_device>*>(data);
+    auto id = to_uint32(r->segment, r->bus, r->device, r->function);
+    auto it = devs.find(id);
+    if (it != devs.end()) {
+      if (it->second.device_id == r->device_id &&
+          it->second.vendor_id == r->vendor_id) {
+        devs.erase(id);
+      }
+    }
+  };
+
+  // build a map of tests devices where the key is the sbdf as a 32-bit number
+  for (const auto &d : platform_.devices) {
+    devices[to_uint32(d.segment, d.bus, d.device, d.function)] = d;
+  }
+
+  // the size of this map should be equal to the number of devices in our
+  // platform
+  ASSERT_EQ(devices.size(), platform_.devices.size());
   EXPECT_EQ(0, sysfs_initialize());
   EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
+  // call sysfs_foreach_region with our callback, cb
+  sysfs_foreach_region(cb, &devices);
+  // our devices map should be empty after this call as this callback removes
+  // entries if the region structure matches a device object in the map
+  EXPECT_EQ(devices.size(), 0);
   EXPECT_EQ(0, sysfs_finalize());
 }
 

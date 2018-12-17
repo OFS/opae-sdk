@@ -117,9 +117,66 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 	return res;
 }
 
+int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value)
+{
+	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
+	char path[SYSFS_PATH_MAX];
+	char buffer[pg_size];
+	int fd = -1;
+	ssize_t bytes_read = 0;
+	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
+				root, attr_path);
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			 root, attr_path);
+		return FPGA_EXCEPTION;
+	}
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		FPGA_ERR("Error opening %s: %s", path, strerror(errno));
+		return FPGA_EXCEPTION;
+	}
+	bytes_read = eintr_read(fd, buffer, pg_size);
+	if (bytes_read < 0) {
+		FPGA_ERR("Error reading from %s: %s", path,
+			 strerror(errno));
+		close(fd);
+		return FPGA_EXCEPTION;
+	}
+
+	*value = strtoull(buffer, NULL, 0);
+
+	close(fd);
+	return FPGA_OK;
+}
+
+STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
+{
+	uint64_t value = 0;
+	int res = syfs_parse_attribute64(region->path, "device/device", &value);
+	if (res) {
+		FPGA_ERR("Error parsing device_id for region: %s",
+			 region->path);
+		return res;
+	}
+	region->device_id = value;
+
+	res = syfs_parse_attribute64(region->path, "device/vendor", &value);
+
+	if (res) {
+		FPGA_ERR("Error parsing vendor_id for region: %s",
+			 region->path);
+		return res;
+	}
+	region->vendor_id = value;
+
+	return FPGA_OK;
+}
+
 STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
+	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
 	ssize_t sym_link_len = 0;
 	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
@@ -135,7 +192,14 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 	}
 
 	region->number = num;
-	return parse_pcie_info(region, buffer);
+	res = parse_pcie_info(region, buffer);
+
+	if (res) {
+		FPGA_ERR("Could not parse symlink");
+		return res;
+	}
+
+	return parse_device_vendor_id(region);
 }
 
 STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
@@ -234,6 +298,14 @@ STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 int sysfs_region_count(void)
 {
 	return _sysfs_region_count;
+}
+
+void sysfs_foreach_region(region_cb cb, void *context)
+{
+	uint32_t i = 0;
+	for ( ; i < _sysfs_region_count; ++i) {
+		cb(&_regions[i], context);
+	}
 }
 
 int sysfs_initialize(void)
