@@ -219,11 +219,8 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 	free(wo);
 }
 
-//                                  f e a t    
+//                                         f e a t
 #define OPAE_WRAPPED_FEATURE_TOKEN_MAGIC 0x66656174
-#define OPAE_FEATURE_TOKEN_MAGIC 0x66656178
-#define OPAE_INVALID_MAGIC 0x46504741
-//typedef void *opae_feature_adapter_table;
 
 typedef struct _opae_wrapped_feature_token {
 	uint64_t magic;
@@ -248,19 +245,16 @@ static inline void opae_destroy_wrapped_feature_token(opae_wrapped_feature_token
 {
 	wt->magic = 0;
 	free(wt);
-	wt = NULL;
 }
-//                                   f e a h 
+//                                          f e a h
 #define OPAE_WRAPPED_FEATURE_HANDLE_MAGIC 0x66656168
-#define OPAE_FEATURE_HANDLE_MAGIC 0x66656170
-
 
 /** Process-wide unique FPGA feature handle */
 typedef struct _opae_wrapped_feature_handle {
 	uint32_t magic;
 	opae_wrapped_feature_token *wrapped_feature_token;
 	fpga_feature_handle feature_handle;
-	opae_api_adapter_table *adapter_table;	
+	opae_api_adapter_table *adapter_table;
 } opae_wrapped_feature_handle;
 
 opae_wrapped_feature_handle *
@@ -280,7 +274,6 @@ static inline void opae_destroy_wrapped_feature_handle(opae_wrapped_feature_hand
 {
 	wh->magic = 0;
 	free(wh);
-	wh = NULL;
 }
 
 #endif // ___OPAE_OPAE_INT_H__

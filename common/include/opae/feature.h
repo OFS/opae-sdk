@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -48,45 +48,53 @@ extern "C" {
  * Used for selective feature enumeration (discovery)
  *
  * For selective enumeration, set the relevant fields with the desired resource information.
- * Pass this structure to fpgaFeatureEnumetate.
+ * Pass this structure to fpgaFeatureEnumerate.
  *
  * @note Initialize the fields in this structure to 0xFF to indicate value is not set.
  */
 typedef struct {
 	fpga_feature_type type;
 	fpga_guid guid;
-	uint64_t reserved[32];
 } fpga_feature_properties;
 
 /**
  * Enumerate feature resources present in a FPGA device (discovery)
  *
- * fpgaFeatureEnumerate() will create a number of `feature_token`s to represent the
- * matching resources and populate the array `feature_tokens` with these tokens. The
+ * fpgaFeatureEnumerate() will create a number of `fpga_feature_token`s to represent the
+ * matching resources and populate the array `fpga_feature_tokens` with these tokens. The
  * `max_tokens` argument can be used to limit the number of tokens
  * allocated/returned by fpgaFeatuerEnumerate(); i.e., the number of tokens in the
  * returned `tokens` array will be either `max_tokens` or `num_matches`,
  *  whichever is smaller.
  *
  * @note fpgaFeatureEnumerate() will allocate memory for the created tokens returned
- * in `tokens`. It is the responsibility of the using application to free this
+ * in `tokens`. It is the responsibility of the user application to free this
  * memory after use by calling fpgaFeatureDestroyToken() for each of the returned
  * tokens.
+ * @note Use fpgaFeaturePropertiesGet() to get detailed information about any feature
+ * token returned.
  *
  * @param[in]   fpga_h          Handle to previously opened accelerator resource
- * @param[in]   prop            feature properties that we are looking for
- * @param[out]  feature_token   Pointer to token identifying resource to acquire
+ * @param[in]   prop            The feature property that is being searched.
+ * @param[out]  tokens          Pointer to an array of fpga_feature_token variables
+ *                              to be populated.  If NULL is supplied,
+ *                              fpgaFeatureEnumerate() will not create any tokens,
+ *                              but it will return the number of possible matches
+ *                              in `num_matches`.
  * @param[in]   max_tokens      Maximum number of tokens that fpgaFeatureEnumerate() shall
  *                              return (length of `tokens` array). There may be more
  *                              or fewer matches than this number; `num_matches` is
  *                              set to the number of actual matches.
- * @param[out]                  num_matches Number of feature resources
+ * @param[out]  num_matches     Number of feature resources
  *
  * @returns                FPGA_OK on success.
  *                         FPGA_INVALID_PARAM if invalid pointers or objects
  *                         are passed into the function.
  *                         FPGA_NO_MEMORY if there was not enough memory to
  *                         create tokens.
+ *                         FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                         feature enumeration.
+ *                         FPGA_EXCEPTION if some other errors occur.
  */
 fpga_result
 fpgaFeatureEnumerate(fpga_handle fpga_h, fpga_feature_properties *prop,
@@ -109,12 +117,14 @@ fpgaDestroyFeatureToken(fpga_feature_token *feature_token);
 /**
  * Get feature properties from a feature token
  *
- * Search results can be muliple feature tikens.
- * Use this function to get the sull information about each feature token.
+ * @param[in] token             fpga_feature_token to get its property
  *
- * @param[in] feature_token     fpga_feature_token to destroy
- *
+ * @param[out] prop             fpga_feature_properties output
  * @returns                     FPGA_OK on success
+ *                              FPGA_INVALID_PARAM if invalid pointers or objects
+ *                              are passed into the function.
+ *                              FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                              feature token destroy functionality.
  */
 fpga_result
 fpgaFeaturePropertiesGet(fpga_feature_token token,
@@ -123,35 +133,39 @@ fpgaFeaturePropertiesGet(fpga_feature_token token,
 /**
  * Open a feature object
  *
- * Acquires ownership of the feature resource referred to by 'feature token'.
+ * Acquires ownership of the feature resource referred to by 'feature_token'.
  *
- * @param[in]   feature_token Pointer to a feature_token identifying resource to acquire
+ * @param[in]   feature_token Pointer to a fpga_feature_token identifying resource to acquire
  *                            ownership of.
- * @param[in]  flags         One of the following flags:
- *                           FPGA_OPEN_SHARED allows the resource to be opened
- *                           multiple times.
- *                           Shared resources (including buffers) are released
- *                           when all associated handles have been closed
- *                           (either explicitly with fpgaClose() or by process
- *                           termination).
- * @param[in]   priv_config Private data for a specific implementation.
- * @param[out]  handle   Pointer to preallocated memory to place a feature handle in.
- *                           This handle will be used in subsequent API calls.
+ * @param[in]   flags         One of the following flags:
+ *                            FPGA_OPEN_SHARED allows the resource to be opened
+ *                            multiple times.
+ * @param[in]   priv_config   Private data for a specific implementation.
+ * @param[out]  handle        Pointer to preallocated memory to place a feature handle in.
+ *                            This handle will be used in subsequent API calls.
  *
- * @returns             FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support feature
+ *                            open functionality.
  */
 fpga_result fpgaFeatureOpen(fpga_feature_token feature_token, int flags,
 							void *priv_config, fpga_feature_handle *handle);
 
 /**
- * Close a previously opened feature object
+ * Close a previously-opened feature object
  *
  * Relinquishes ownership of a previously fpgaFeatureOpen()ed resource. This enables
  * others to acquire ownership if the resource was opened exclusively.
  *
- * @param[in]   fpga_feature_handle  Handle to previously opened feature object
+ * @param[in]   handle        Handle to previously-opened feature object
  *
- * @returns FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support feature
+ *                            close functionality.
  */
 fpga_result fpgaFeatureClose(fpga_feature_handle handle);
 

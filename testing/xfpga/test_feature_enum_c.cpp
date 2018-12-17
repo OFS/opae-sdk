@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -60,14 +60,6 @@ extern "C" {
 #include <linux/ioctl.h>
 
 using namespace opae::testing;
-
-/**
- * @test       opaec
- * @brief      Tests: feature_enum_c
- * @details    When fpgaFeatureEnumerate() is called with a valid param,<br>
- *             then it enumerates the accelerateor's DFH to find specific<br>
- *             type of BBB specified in the feature filter<br>
- */
 
 int mmio_ioctl(mock_object * m, int request, va_list argp) {
 	int retval = -1;
@@ -132,9 +124,9 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 		EXPECT_EQ(xfpga_fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
 		EXPECT_NE(mmio_ptr, nullptr);
 
-		feature_filter_.type = DMA;     // TODO: 
+		feature_filter_.type = FPGA_DMA_FEATURE;
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
-					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };  // TODO: replace with DMA guid
+					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
 	}
 
@@ -169,7 +161,16 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	test_system *system_;
 };
 
-TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
+/**
+ * @test       test_feature_enumerate
+ * @brief      Tests: xfpga_fpgaFeatureEnumerate, xfpga_fpgaCloneFeatureToken
+ * @details    When xfpga_fpgaFeatureEnumerate() is called with a valid param,<br>
+ *             then it enumerates the accelerateor's DFH to find specific<br>
+ *             type of BBB specified in the feature filter<br>
+ *             When xfpga_fpgaCloneFeatureToken() is called with a valid param,<br>
+ *             fpga_feature_token is cloned.<br>
+ */
+TEST_P(feature_enum_c_p, test_feature_enumerate) {
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -179,7 +180,6 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	printf("------dfh.csr = %lx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
@@ -193,33 +193,77 @@ TEST_P(feature_enum_c_p, test_feature_mmio_setup) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
-		
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
-	printf("Before featureEnumerate\n");
+
+	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
+		0, &num_matches_), FPGA_OK);
 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
-	printf("test done\n");
+
+	int d;
+	fpga_feature_token tmp;
+	wrapped_feature_token *wt = (wrapped_feature_token *)ftokens_[0];
+	fpga_feature_token src1 = wt->feature_token;
+
+	EXPECT_EQ(xfpga_fpgaCloneFeatureToken(src1, &tmp), FPGA_OK);
+	EXPECT_EQ(memcmp_s(ftokens_[0], sizeof(struct _fpga_feature_token), tmp, 
+		sizeof(struct _fpga_feature_token), &d), EOK);
+	free(tmp);  // Free up memory for the clone token
+
+	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
 }
 
+/**
+ * @test       nullfilter
+ * @brief      Tests: xfpga_fpgaFeatureEnumerate
+ * @details    When xfpga_fpgaFeatureEnumerate() is called with an invalid<br>
+ *             feature property, then it will return FPGA_INVALID_PARAM.<br>
+ */
 TEST_P(feature_enum_c_p, nullfilter) { 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
 }
 
+/**
+ * @test       nullmatches
+ * @brief      Tests: xfpga_fpgaFeatureEnumerate
+ * @details    When xfpga_fpgaFeatureEnumerate() is called with null for num_matches,<br>
+ *             it will return FPGA_INVALID_PARAM.<br>
+ */
 TEST_P(feature_enum_c_p, nullmatches) {
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
             FPGA_INVALID_PARAM);
 }
 
+/**
+ * @test       nulltokens
+ * @brief      Tests: xfpga_fpgaFeatureEnumerate
+ * @details    When xfpga_fpgaFeatureEnumerate() is called with null for tokens,<br>
+ *             it will return FPGA_INVALID_PARAM.<br>
+ */
 TEST_P(feature_enum_c_p, nulltokens) {
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
             FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       destroy_token_neg
+ * @brief      Tests: xfpga_fpgaDestroyFeatureToken
+ * @details    When xfpga_fpgaDestroyFeatureToken() is called with null or invalide token,<br>
+ *             it will return FPGA_INVALID_PARAM.<br>
+ *
+ */
+TEST_P(feature_enum_c_p, destroy_token_neg) {
+	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(nullptr), FPGA_INVALID_PARAM);
+
+	struct _fpga_feature_token *dummy = new struct _fpga_feature_token;
+	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken((fpga_feature_token *)dummy), FPGA_INVALID_PARAM);
+	delete dummy;
 }
 
 INSTANTIATE_TEST_CASE_P(feature_enum_c, feature_enum_c_p,

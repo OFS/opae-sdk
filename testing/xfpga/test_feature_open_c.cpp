@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -60,14 +60,6 @@ extern "C" {
 
 using namespace opae::testing;
 
-/**
- * @test       opaec
- * @brief      Tests: feature_enum_c
- * @details    When fpgaFeatureEnumerate() is called with a valid param,<br>
- *             then it enumerates the accelerateor's DFH to find specific<br>
- *             type of BBB specified in the feature filter<br>
- */
-
 int mmio_ioctl(mock_object * m, int request, va_list argp) {
 	int retval = -1;
 	errno = EINVAL;
@@ -127,9 +119,8 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 		which_mmio_ = 0;
-		//uint64_t *mmio_ptr = nullptr;
 
-		feature_filter_.type = DMA;     // TODO: 
+		feature_filter_.type = FPGA_DMA_FEATURE;
 		fpga_guid guid = {0xE7, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 						0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87 };
 		memcpy_s(feature_filter_.guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
@@ -167,8 +158,18 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	test_system *system_;
 };
 
-
-TEST_P(feature_open_c_p, test_feature_mmio_setup) {
+/**
+ * @test       test_feature_functions
+ * @brief      Tests: xfpga_fpgaFeatureOpen, xfpga_fpgaFeaturePropertiesGet 
+ *                    xfpga_fpgaDMAPropertiesGet, xfpga_fpgaDMATransferSync
+ *                    xfpga_fpgaFeatureClose, xfpga_fpgaDestroyFeatureToken
+ * @details    When xfpga_fpgaFeatureOpen() is called with a valid param,<br>
+ *             then it creates the accelerateor feature handle for the feature<br>
+ *             token given in the parameter.<br>
+ *             When xfpga_fpgaFeatureClose() is called with a valid feature<br>
+ *             handle, it will close the feature handle.<br>
+ */
+TEST_P(feature_open_c_p, test_feature_functions) {
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -178,7 +179,6 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	printf("------dfh.csr = %lx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
@@ -192,8 +192,6 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
-		
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
@@ -206,37 +204,49 @@ TEST_P(feature_open_c_p, test_feature_mmio_setup) {
 	
 	fpga_feature_properties feature_prop;
 	EXPECT_EQ(xfpga_fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_OK);
-	
-	for(int i=0; i<16; i++)
-		printf("0x%2x ",feature_prop.guid[i]);
-	printf("\n");
-	
+
 	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h), FPGA_OK);
 	
-	fpgaDMAProperties dma_prop;
-	EXPECT_EQ(xfpga_fpgaDMAPropertiesGet(ftokens_[0], &dma_prop, 16), FPGA_OK);
+	fpga_dma_properties dma_prop;
+	EXPECT_EQ(xfpga_fpgaDMAPropertiesGet(ftokens_[0], &dma_prop), FPGA_OK);
 	
-	transfer_list t_list;
+	dma_transfer_list t_list;
 	EXPECT_EQ(xfpga_fpgaDMATransferSync(feature_h, &t_list), FPGA_OK);
 	
 	EXPECT_EQ(xfpga_fpgaFeatureClose(feature_h), FPGA_OK);
 	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
-
-	printf("test done\n");
 }
 
+/**
+ * @test       nulltokens
+ * @brief      Tests: xfpga_fpgaFeatureOpen
+ * @details    When xfpga_fpgaFeatureOpen() is called with nullptr for<br>
+ *             feature token, it will return FPGA_INVALID_PARAM.<br>
+ */
 TEST_P(feature_open_c_p, nulltokens) {
 	EXPECT_EQ(xfpga_fpgaFeatureOpen(nullptr, 0, nullptr, &feature_h),
 	  FPGA_INVALID_PARAM);
  }
 
+ /**
+ * @test       nullhandle
+ * @brief      Tests: xfpga_fpgaFeatureOpen
+ * @details    When xfpga_fpgaFeatureOpen() is called with nullptr for<br>
+ *             the feature handle, it will return FPGA_INVALID_PARAM.<br>
+ */
 TEST_P(feature_open_c_p, nullhandle) {
 	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, nullptr),
 	  FPGA_INVALID_PARAM);
 }
 
+ /**
+ * @test       mallocfail
+ * @brief      Tests: xfpga_fpgaFeatureOpen
+ * @details    When the system is running out of memory, xfpga_fpgaFeatureOpen()<br>
+ *             will return FPGA_NO_MEMORY.<br>
+ */
 TEST_P(feature_open_c_p, mallocfail) {
-	system_->invalidate_malloc(0, "opae_allocate_wrapped_feature_handle");
+	system_->invalidate_malloc(0, "allocate_wrapped_feature_handle");
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -246,7 +256,6 @@ TEST_P(feature_open_c_p, mallocfail) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	printf("------dfh.csr = %lx \n", dfh.csr);
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
@@ -260,14 +269,11 @@ TEST_P(feature_open_c_p, mallocfail) {
 	dfh_bbb.next_header_offset = 0x000;
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
-	printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
-		
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
 
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
-	printf("Before featureEnumerate\n");
 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,8 @@
 extern "C" {
 #endif
 
+#define FPGA_DMA_MAX_CLIENT_NUM 8
+
 /**
  * DMA properties
  *
@@ -50,16 +52,17 @@ extern "C" {
  * Output of fpgaDMAPropertiesGet.
  */
 typedef struct {
-	uint64_t maxChannelNum; /**< Max number of channels that the DMA engine support */
-	uint64_t maxRingSize; /**< Max number of buffers that the DMA can hold */
-	uint64_t maxBufferSize; /**< Max size of one buffer */
-	uint64_t addrAlignmentForDMA; /**< The DMA will be used only when reaching this alignment */
-	uint64_t minimumXferSizeForDMA; /**< DMA will be used only at a multiplication of this size */
-	uint64_t capabilities_mask; /**< Bit mask of fpga_dma_transfer_type */
-	uint64_t reserved[32];
-	fpga_guid *txEndPGuid; /**< Pointer to a table of Guid of the connected IP to a Tx channels */
-	fpga_guid *rxEndPGuid; /**< Pointer to a table of Guid of the connected IP to a Rx channels */
-} fpgaDMAProperties;
+	uint64_t max_channel_num; /**< Max number of channels that the DMA engine supports */
+	uint64_t max_ring_size;   /**< Max number of buffers that the DMA can hold */
+	uint64_t max_buffer_size; /**< Max size of one buffer */
+	uint64_t addr_alignment_for_dma;    /**< Address alignment requirement for DMA */
+	uint64_t minimum_xfer_size_for_dma; /**< DMA tranfer size should be multiples of this size */
+	uint64_t capabilities_mask;         /**< Bit mask of fpga_dma_transfer_type */
+	fpga_guid tx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Tx channels */
+	fpga_guid rx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Rx channels */
+	uint32_t tx_client_num; /**< Number of tx clients that the DMA is connected to */
+	uint32_t rx_client_num; /**< Number of rx clients that the DMA is connected to */
+} fpga_dma_properties;
 
 /**
  * Get DMA feature properties.
@@ -67,15 +70,16 @@ typedef struct {
  * Get DMA properties from a feature token (DMA feature type)
  *
  * @param[in]   token   Feature token
- * @param[out]  prop    pre allocated fpgaDMAProperties structure to write information into
- * @param[in]   max_ch  Entry number in the Tx/Rx end point GUID array
+ * @param[out]  prop    Pre-allocated fpga_dma_properties structure to
+ *                      write information into
  *
- * @returns FPGA_OK on success.
+ * @returns             FPGA_OK on success.
+ *                      FPGA_INVALID_PARAM if invalid pointers are passed
+ *                      into the function.
  */
 
 fpga_result
-fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
-		int max_ch);
+fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop);
 
 /**
  * DMA transfer
@@ -87,69 +91,75 @@ fpgaDMAPropertiesGet(fpga_feature_token token, fpgaDMAProperties *prop,
  */
 typedef struct {
 	void *priv_data; /**< Private data for internal use - must be first */
-	uint64_t src; /**< Source address */
-	uint64_t dst; /**< Destination address */
-	uint64_t len; /**< Transactions  length */
-	uint64_t wsid; /**< wsid of the host memory if it was allocated with prepareBuffer */
-	void *meta_data; /**< stream - user meta data for the receiving IP */
-	uint64_t meta_data_len; /**< stream - length of the meta data */
-	uint64_t meta_data_wsid; /**< stream - wsid of the meta data */
-	bool tx_eop; /**< Tx strean - indicate last buffer for the stream */
-	uint64_t *rx_len; /**< Rx stream - length of Rx data */
-	bool *rx_eop; /**< Rx stream - Set is end of packet was received */
-	uint64_t reserved[8];
+	uint64_t src;    /**< Source address */
+	uint64_t dst;    /**< Destination address */
+	uint64_t len;    /**< Transactions  length */
+	uint64_t wsid;   /**< wsid of the host memory if it was allocated with prepareBuffer */
+	void *metadata; /**< stream - user metadata for the receiving IP */
+	uint64_t metadata_len;  /**< stream - length of the metadata */
+	uint64_t metadata_wsid; /**< stream - wsid of the metadata */
+	bool eop;      /**< Indicate last buffer for the stream */
+	uint64_t rx_len; /**< Rx stream - length of Rx data */
 } fpga_dma_transfer;
 
 /**
- * Transfer list
+ * DMA transfer list
  *
- * Array of DMA transactions
+ * A list of DMA transfers with different buffers.
  */
 
 typedef struct {
-	uint64_t xfer_id; /**< User ID for this transaction */
-	fpga_dma_transfer *array; /**< Pointer to transfer array */
-	uint32_t entries_num; /**< number of entries in array */
+	uint64_t xfer_id;            /**< User ID for this transaction */
+	fpga_dma_transfer *xfers;    /**< Pointer to a transfer array */
+	uint32_t entries_num;        /**< number of entries in array */
 	fpga_dma_transfer_type type; /**< Direction and streaming or memory */
 	uint32_t ch_index; /**< in case of multi channel DMA, which channel to use */
-} transfer_list;
+} dma_transfer_list;
 
 /**
  * Start a blocking transfer.
  *
  * Start a sync transfer and return only all the data was copied.
  *
- * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
- * @param[in]   dma_xfer        transfer information
+ * @param[in]   dma_h         as populated by fpgaFeatureOpen()
+ * @param[in]   xfer_list     transfer information
  *
- * @returns FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                            DMA sync tranfers.
  */
 fpga_result
-fpgaDMATransferSync(fpga_feature_handle dma_h, transfer_list *xfer_list);
+fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_list);
 
 /**
  * FPGA DMA callback function for asynchronous operation
  */
-typedef void (*fpga_dma_cb)(transfer_list *xfer_list, void *context);
+typedef void (*fpga_dma_cb)(dma_transfer_list *xfer_list, void *context);
 
 /**
- * Start a none blocking transfer (callback).
+ * Start a non-blocking transfer (callback).
  *
  * Start an Async transfer (Return immediately)
- * Callback will be invoke when the transfer is completed.
+ * Callback will be invoked when the transfer is completed.
  *
- * @param[in]   dma_handle      as populated by fpgaFeatureOpen()
- * @param[in]   dma_xfer        transfer information
- * @param[in]   cb              Call back function to call when the transfer is completed
- * @param[in]   context         argument to pass to the callback function
+ * @param[in]   dma_h         as populated by fpgaFeatureOpen()
+ * @param[in]   dma_xfer      transfer information
+ * @param[in]   cb            Call back function to call when the transfer is completed
+ * @param[in]   context       argument to pass to the callback function
  *
  * @note For posting receive buffers to the DMA in Rx streaming mode,
  *       call this function with NULL back.
  *
- * @returns FPGA_OK on success.
+ * @returns                   FPGA_OK on success.
+ *                            FPGA_INVALID_PARAM if invalid pointers or objects
+ *                            are passed into the function.
+ *                            FPGA_NOT_SUPPORTED if the accelerator doesn't support
+ *                            DMA async tranfers.
  */
 fpga_result
-fpgaDMATransferAsync(fpga_feature_handle dma_h, transfer_list *dma_xfer,
+fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfer,
 		fpga_dma_cb cb, void *context);
 
 #ifdef __cplusplus

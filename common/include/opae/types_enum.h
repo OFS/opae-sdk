@@ -183,7 +183,7 @@ enum fpga_metric_datatype {
  * DFH feature types
  */
 
-typedef enum { DMA = 2 } fpga_feature_type;
+typedef enum { FPGA_DMA_FEATURE = 2 } fpga_feature_type;
 
 /**
  * fpga dma transfer type
