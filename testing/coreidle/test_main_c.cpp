@@ -403,9 +403,7 @@ TEST_P(coreidle_main_c_p, parse_err2) {
 
   struct CoreIdleCommandLine cmd;
   EXPECT_EQ(ParseCmds(&cmd, 13, argv), 0);
-  // FIXME, the return of coreidle should not be 0 when invalid 
-  // are passed to the executable.
-  EXPECT_EQ(coreidle_main(13, argv), 0);
+  EXPECT_NE(coreidle_main(13, argv), 0);
 }
 
 
@@ -426,7 +424,7 @@ TEST_P(coreidle_main_c_p, lead_null_char) {
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
   strcpy(two, "\0 copy_bitstream.gbs");
-  EXPECT_EQ(coreidle_main(3, argv), 0);
+  EXPECT_NE(coreidle_main(3, argv), 0);
 
   unlink(copy_gbs_.c_str());
 }
@@ -447,7 +445,7 @@ TEST_P(coreidle_main_c_p, mid_null_char) {
 
   memset(two, 0, 32);
   strcpy(two, "copy_bit\0stream.gbs");
-  EXPECT_EQ(coreidle_main(3, argv), 0);
+  EXPECT_NE(coreidle_main(3, argv), 0);
 
   unlink(copy_gbs_.c_str());
 }
