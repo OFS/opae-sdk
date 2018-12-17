@@ -246,6 +246,7 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   EXPECT_STREQ(config.socket, "sock");
   EXPECT_STREQ(basename(config.null_gbs[0]), tmpnull_gbs_);
   EXPECT_EQ(config.num_null_gbs, 1);
+  free(config.null_gbs[0]);
 }
 
 /**
