@@ -43,7 +43,7 @@
 extern "C" {
 #endif
 
-#define MAX_CLIENT_NUM 8
+#define FPGA_DMA_MAX_CLIENT_NUM 8
 
 /**
  * DMA properties
@@ -58,8 +58,8 @@ typedef struct {
 	uint64_t addr_alignment_for_dma;    /**< Address alignment requirement for DMA */
 	uint64_t minimum_xfer_size_for_dma; /**< DMA tranfer size should be multiples of this size */
 	uint64_t capabilities_mask;         /**< Bit mask of fpga_dma_transfer_type */
-	fpga_guid tx_endp_guid[MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Tx channels */
-	fpga_guid rx_endp_guid[MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Rx channels */
+	fpga_guid tx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Tx channels */
+	fpga_guid rx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Rx channels */
 	uint32_t tx_client_num; /**< Number of tx clients that the DMA is connected to */
 	uint32_t rx_client_num; /**< Number of rx clients that the DMA is connected to */
 } fpga_dma_properties;

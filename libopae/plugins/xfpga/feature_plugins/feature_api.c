@@ -191,13 +191,19 @@ xfpga_fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 				|| (uuid_is_null(prop->guid))) {
 				if (tokens) {
 					_ftoken = feature_token_add(feature_type, mmio_num, guid, offset, handle);
+
+					if (_ftoken == NULL) {
+						FPGA_ERR("fpgaFeatureEnumerate failed");
+						return FPGA_EXCEPTION;
+					}
+
 					if (*num_matches < max_tokens) {
 						fpga_feature_token tmp = 0;
 						feature_adapter_table *adapter;
 
 						result = xfpga_fpgaCloneFeatureToken((fpga_feature_token)_ftoken, &tmp);
 						if (result != FPGA_OK) {
-							FPGA_MSG("Error cloning token");
+							FPGA_ERR("Error cloning token");
 							return result;
 						}
 						adapter = get_feature_plugin_adapter(guid);

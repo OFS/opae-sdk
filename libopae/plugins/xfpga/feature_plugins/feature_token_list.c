@@ -51,10 +51,12 @@ pthread_mutex_t ftoken_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 /**
  * @brief Add entry to linked list for feature tokens
- *	Will allocate memory (which is freed by feature_token_cleanup())
+ * Will allocate memory (which is freed by feature_token_cleanup())
  *
  * @param type
+ * @param mmio_num
  * @param guid
+ * @param offset
  * @param handle
  *
  * @return
@@ -79,7 +81,6 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 				FPGA_ERR("pthread_mutex_unlock() failed: %s",
 					 strerror(err));
 			}
-			printf("feature_token_add found token in the list, return immedaitely\n");
 			return tmp;
 		}
 	}
@@ -113,8 +114,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-		free(tmp);
-		tmp = NULL;
+		return NULL;
 	}
 
 	return tmp;
