@@ -128,6 +128,9 @@ TEST(common, prop_check_and_lock) {
   prop->magic = 0x123;
   res = prop_check_and_lock(prop);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  free(prop);
+  prop = nullptr;
 }
 
 /**
