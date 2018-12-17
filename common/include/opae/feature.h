@@ -72,7 +72,7 @@ typedef struct {
  * memory after use by calling fpgaFeatureDestroyToken() for each of the returned
  * tokens.
  * @note Use fpgaFeaturePropertiesGet() to get detailed information about any feature
- * returned.
+ * token returned.
  *
  * @param[in]   fpga_h          Handle to previously opened accelerator resource
  * @param[in]   prop            The feature property that is being searched.
