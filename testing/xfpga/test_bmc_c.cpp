@@ -26,17 +26,18 @@
 
 extern "C" {
 
+#include <fcntl.h>
 #include <json-c/json.h>
+#include <stdlib.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
 #include "types_int.h"
-#include <fcntl.h>
-#include <stdlib.h>
 }
 
 #include <config.h>
 #include <opae/fpga.h>
 
+#include <dlfcn.h>
 #include <array>
 #include <cstdlib>
 #include <map>
@@ -44,107 +45,104 @@ extern "C" {
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-#include "test_system.h"
-#include "xfpga.h"
-#include "token_list_int.h"
-#include <dlfcn.h>
-#include "test_utils.h"
-#include "safe_string/safe_string.h"
 #include "metrics/bmc/bmc.h"
+#include "metrics/bmc/bmc_ioctl.h"
 #include "metrics/bmc/bmcdata.h"
 #include "metrics/bmc/bmcinfo.h"
-#include "metrics/bmc/bmc_ioctl.h"
+#include "safe_string/safe_string.h"
 #include "sysfs_int.h"
+#include "test_system.h"
+#include "test_utils.h"
+#include "token_list_int.h"
+#include "xfpga.h"
 using namespace opae::testing;
 
-
 class bmc_c_p : public ::testing::TestWithParam<std::string> {
-protected:
-	bmc_c_p()
-		: tokens_{ {nullptr, nullptr} },
-		handle_(nullptr) {}
+  protected:
+    bmc_c_p() 
+      : tokens_{{nullptr, nullptr}}, 
+        handle_(nullptr) {}
 
-	virtual void SetUp() override {
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
 
-		ASSERT_TRUE(test_platform::exists(GetParam()));
-		platform_ = test_platform::get(GetParam());
-		system_ = test_system::instance();
-		system_->initialize();
-		system_->prepare_syfs(platform_);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  }
 
-		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_),
-			FPGA_OK);
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+    if (handle_ != nullptr) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
+    }
+    system_->finalize();
+  }
 
-		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  fpga_result write_sysfs_file(fpga_token token, const char *file, void *buf,
+                               size_t count);
 
-
-	}
-
-	virtual void TearDown() override {
-		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-		for (auto &t : tokens_) {
-			if (t) {
-				EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-				t = nullptr;
-			}
-		}
-		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-		system_->finalize();
-	}
-
-	fpga_result write_sysfs_file(fpga_token token, const char* file, void *buf, size_t count);
-
-	std::array<fpga_token, 2> tokens_;
-	fpga_handle handle_;
-	fpga_properties filter_;
-	uint32_t num_matches_;
-	test_platform platform_;
-	test_system *system_;
-
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
 };
 
-fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char* file, void *buf, size_t count)
-{
-	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_PATH_MAX];
-	int fd = 0;
+fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
+                                      void *buf, size_t count) {
+  fpga_result res = FPGA_OK;
+  char sysfspath[SYSFS_PATH_MAX];
+  int fd = 0;
 
-	struct _fpga_token *tok = (struct _fpga_token *)token;
-	if (FPGA_TOKEN_MAGIC != tok->magic) {
-		return FPGA_INVALID_PARAM;
-	}
+  struct _fpga_token *tok = (struct _fpga_token *)token;
+  if (FPGA_TOKEN_MAGIC != tok->magic) {
+    return FPGA_INVALID_PARAM;
+  }
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath, file);
+  snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath, file);
 
-	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-	fd = open(pglob.gl_pathv[0], O_WRONLY);
-	globfree(&pglob);
-	if (fd < 0) {
-		printf("open faild \n");
-		return FPGA_NOT_FOUND;
-	}
+  glob_t pglob;
+  int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+  if ((gres) || (1 != pglob.gl_pathc)) {
+    globfree(&pglob);
+    return FPGA_NOT_FOUND;
+  }
+  fd = open(pglob.gl_pathv[0], O_WRONLY);
+  globfree(&pglob);
+  if (fd < 0) {
+    printf("open faild \n");
+    return FPGA_NOT_FOUND;
+  }
 
-	ssize_t  total_written  = eintr_write(fd, buf, count);
-	printf("count %ld \n", count);
-	printf("total_written %ld \n", total_written);
+  ssize_t total_written = eintr_write(fd, buf, count);
+  printf("count %ld \n", count);
+  printf("total_written %ld \n", total_written);
 
-	if (total_written == 0) {
-		close(fd);
-		printf("total_written faild \n");
-		return FPGA_INVALID_PARAM;
-	}
+  if (total_written == 0) {
+    close(fd);
+    printf("total_written faild \n");
+    return FPGA_INVALID_PARAM;
+  }
 
-	close(fd);
+  close(fd);
 
-	return  res;
+  return res;
 }
 
 /**
@@ -155,34 +153,32 @@ fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char* file, void *
  * @details    Validates bmc reset cause ,power down cause
  *.....................bmc version
  *
- *
  */
 TEST_P(bmc_c_p, test_bmc_1) {
+  uint32_t version = 0;
+  char *string = NULL;
 
-	uint32_t version    = 0;
-	char *string        = NULL;
+  // Get Reset & Power down cause
 
-	// Get Reset & Power down cause
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
+  EXPECT_NE(bmcGetLastResetCause(tokens_[0], NULL), FPGA_OK);
 
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
-	EXPECT_NE(bmcGetLastResetCause(tokens_[0], NULL), FPGA_OK);
+  EXPECT_EQ(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
+  EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], NULL), FPGA_OK);
 
-	EXPECT_EQ(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
-	EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0],NULL), FPGA_OK);
+  // Get firmware version
+  EXPECT_EQ(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
+  printf("bmc version=%d \n", version);
 
-	// Get firmware version
-	EXPECT_EQ(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
-	printf("bmc version=%d \n", version);
-
-	EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], NULL), FPGA_OK);
+  EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], NULL), FPGA_OK);
 }
 
 /**
@@ -196,47 +192,43 @@ TEST_P(bmc_c_p, test_bmc_1) {
  *....................bmcDestroySDRs functions
  * @details    Validates bmc load SDR and Read sensor values
  *
- *
- *
  */
 TEST_P(bmc_c_p, test_bmc_2) {
+  bmc_sdr_handle sdrs = NULL;
+  bmc_values_handle values = NULL;
+  uint32_t num_sensors = 0;
+  uint32_t num_values = 0;
+  uint32_t i = 0;
+  uint32_t is_valid = 0;
+  double tmp = 0;
+  uint8_t raw = 0;
+  sdr_details details;
 
-	bmc_sdr_handle sdrs            = NULL;
-	bmc_values_handle values       = NULL;
-	uint32_t num_sensors           = 0;
-	uint32_t num_values            = 0;
-	uint32_t i                     = 0;
-	uint32_t is_valid              = 0;
-	double tmp                     = 0;
-	uint8_t raw                    = 0;
-	sdr_details details;
+  memset_s(&details, sizeof(sdr_details), 0);
 
-	memset_s(&details, sizeof(sdr_details), 0);
+  // Load SDR
+  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
-		// Load SDR
-	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
-	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
-	
-	// Read sensor details & value
-	for (i = 0; i < num_sensors; i++) {
+  // Read sensor details & value
+  for (i = 0; i < num_sensors; i++) {
+    EXPECT_EQ(bmcGetSDRDetails(values, i, &details), FPGA_OK);
+    EXPECT_EQ(bmcGetSensorReading(values, i, &is_valid, &tmp), FPGA_OK);
 
-		EXPECT_EQ(bmcGetSDRDetails(values, i, &details), FPGA_OK);
+    Values detail;
+    memset_s(&detail, sizeof(detail), 0);
+    EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
 
-		EXPECT_EQ(bmcGetSensorReading(values, i, &is_valid, &tmp), FPGA_OK);
-		Values detail;
-		memset_s(&detail, sizeof(detail), 0);
-		EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
+    detail.result_exp = 2;
+    EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
 
-		detail.result_exp = 2;
-		EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
+    detail.result_exp = -2;
+    EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
+  }
 
-		detail.result_exp = -2;
-		EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
-	}
-
-	// Destroy Sensor values & SDR
-	EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
-	EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
+  // Destroy Sensor values & SDR
+  EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
+  EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
 }
 
 /**
@@ -245,42 +237,39 @@ TEST_P(bmc_c_p, test_bmc_2) {
  *....................bmcDestroyTripped functions
  * @details    Validates bmc threshold trip
  *
- *
- *
  */
 TEST_P(bmc_c_p, test_bmc_3) {
+  bmc_sdr_handle sdrs = NULL;
+  bmc_values_handle values = NULL;
+  uint32_t num_sensors = 0;
+  uint32_t num_values = 0;
+  tripped_thresholds *tripped = NULL;
+  uint32_t num_tripped = 0;
+  sdr_details details;
 
-	bmc_sdr_handle sdrs            = NULL;
-	bmc_values_handle values       = NULL;
-	uint32_t num_sensors           = 0;
-	uint32_t num_values            = 0;
-	tripped_thresholds *tripped    = NULL;
-	uint32_t num_tripped           = 0;
-	sdr_details details;
+  memset_s(&details, sizeof(details), 0);
+  // Load SDR
+  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
-	memset_s(&details, sizeof(details), 0);
-	// Load SDR
-	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
-	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values),FPGA_OK);
+  // Get threshold trip point
+  EXPECT_EQ(bmcThresholdsTripped(values, &tripped, &num_tripped), FPGA_OK);
+  printf("num_tripped = %d \n", num_tripped);
 
-	// Get threshold trip point
-	EXPECT_EQ(bmcThresholdsTripped(values, &tripped, &num_tripped), FPGA_OK);
-	printf("num_tripped = %d \n", num_tripped);
+  struct _bmc_values *vals = (struct _bmc_values *)values;
+  for (uint32_t i = 0; i < vals->num_records; i++) {
+    vals->contents[i].threshold_events._value = 1;
+  }
 
-	struct _bmc_values *vals = (struct _bmc_values *)values;
-	for (uint32_t i = 0; i < vals->num_records; i++) {
-		vals->contents[i].threshold_events._value = 1;
-	}
+  // Get threshold trip point
+  EXPECT_EQ(bmcThresholdsTripped(values, &tripped, &num_tripped), FPGA_OK);
+  printf("num_tripped = %d \n", num_tripped);
 
-	// Get threshold trip point
-	EXPECT_EQ(bmcThresholdsTripped(values, &tripped, &num_tripped), FPGA_OK);
-	printf("num_tripped = %d \n", num_tripped);
+  // Destroy Threshold
+  EXPECT_EQ(bmcDestroyTripped(tripped), FPGA_OK);
 
-	// Destroy Threshold
-	EXPECT_EQ(bmcDestroyTripped(tripped), FPGA_OK);
-
-	EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
-	EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
+  EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
+  EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
 }
 
 /**
@@ -291,166 +280,164 @@ TEST_P(bmc_c_p, test_bmc_3) {
  *................. .fill_set_request fucntions
  * @details    Validates bmc set and get thresholds
  *
- *
- *
  */
 TEST_P(bmc_c_p, test_bmc_4) {
+  bmc_sdr_handle sdrs = NULL;
+  bmc_values_handle values = NULL;
+  uint32_t num_sensors = 0;
+  uint32_t num_values = 0;
+  sdr_details details;
 
-	bmc_sdr_handle sdrs              = NULL;
-	bmc_values_handle values         = NULL;
-	uint32_t num_sensors             = 0;
-	uint32_t num_values              = 0;
-	sdr_details details;
+  memset_s(&details, sizeof(details), 0);
+  // Load SDR
+  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
-	memset_s(&details, sizeof(details), 0);
-	// Load SDR
-	EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
-	EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
+  threshold_list thresh;
 
-	threshold_list thresh;
+  memset_s(&thresh, sizeof(thresh), 0);
+  thresh.upper_nr_thresh.is_valid = 1;
+  thresh.upper_nr_thresh.value = 20;
 
-	memset_s(&thresh, sizeof(thresh), 0);
+  EXPECT_NE(bmcSetHWThresholds(sdrs, 1, &thresh), FPGA_OK);
 
-	memset_s(&thresh, sizeof(thresh), 0);
-	thresh.upper_nr_thresh.is_valid = 1;
-	thresh.upper_nr_thresh.value = 20;
+  // Destroy sensor value and SDR
+  EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
+  EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
 
-	EXPECT_NE(bmcSetHWThresholds(sdrs, 1, &thresh), FPGA_OK);
+  // Set & Get  threshold
+  bmc_get_thresh_response thres;
+  _bmcGetThreshold(1, 1, &thres);
 
-	// Destroy sensor value and SDR
-	EXPECT_EQ(bmcDestroySensorValues(&values), FPGA_OK);
-	EXPECT_EQ(bmcDestroySDRs(&sdrs), FPGA_OK);
-	
+  bmc_set_thresh_request req;
+  _bmcSetThreshold(1, 1, &req);
 
-	// Set & Get  threshold
-	bmc_get_thresh_response  thres ;
-	_bmcGetThreshold(1, 1, &thres);
+  Values vals;
+  memset_s(&vals, sizeof(vals), 0);
+  fill_set_request(&vals, &thresh, &req);
 
+  thresh.upper_nr_thresh.is_valid = true;
+  thresh.upper_c_thresh.is_valid = true;
+  thresh.upper_nc_thresh.is_valid = true;
+  thresh.lower_nr_thresh.is_valid = true;
+  thresh.lower_c_thresh.is_valid = true;
+  thresh.lower_nc_thresh.is_valid = true;
 
-	bmc_set_thresh_request req ;
-	_bmcSetThreshold(1, 1, &req);
+  fill_set_request(&vals, &thresh, &req);
 
-	Values vals;
-	memset_s(&vals, sizeof(vals), 0);
-	fill_set_request(&vals, &thresh, &req);
+  thresh.upper_nr_thresh.is_valid = false;
+  thresh.upper_c_thresh.is_valid = false;
+  thresh.upper_nc_thresh.is_valid = false;
+  thresh.lower_nr_thresh.is_valid = false;
+  thresh.lower_c_thresh.is_valid = false;
+  thresh.lower_nc_thresh.is_valid = false;
 
+  fill_set_request(&vals, &thresh, &req);
 
-	thresh.upper_nr_thresh.is_valid = true;
-	thresh.upper_c_thresh.is_valid = true;
-	thresh.upper_nc_thresh.is_valid = true;
-	thresh.lower_nr_thresh.is_valid = true;
-	thresh.lower_c_thresh.is_valid = true;
-	thresh.lower_nc_thresh.is_valid = true;
-
-	fill_set_request(&vals, &thresh, &req);
-
-	thresh.upper_nr_thresh.is_valid = false;
-	thresh.upper_c_thresh.is_valid = false;
-	thresh.upper_nc_thresh.is_valid = false;
-	thresh.lower_nr_thresh.is_valid = false;
-	thresh.lower_c_thresh.is_valid = false;
-	thresh.lower_nc_thresh.is_valid = false;
-
-	fill_set_request(&vals, &thresh, &req);
-
-	thresh.upper_nr_thresh.is_valid = false;
-	fill_set_request(&vals, &thresh, &req);
+  thresh.upper_nr_thresh.is_valid = false;
+  fill_set_request(&vals, &thresh, &req);
 }
-
 
 /**
  * @test       bmc
  * @brief      Tests: bmcGetLastResetCause
  * @details    Validates reset cause
  *
- *
- *
  */
 TEST_P(bmc_c_p, test_bmc_5) {
+  uint32_t tot_bytes_ret = 0;
+  char *string = NULL;
+  void *buf = NULL;
 
-	uint32_t tot_bytes_ret     = 0 ;
-	char *string               = NULL;
-	void *buf = NULL;
+  read_sysfs_file(
+      tokens_[0],
+      (const char *)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/",
+      (void **)&buf, &tot_bytes_ret);
 
-	read_sysfs_file(tokens_[0], (const char*) "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/",
-		(void **)&buf, &tot_bytes_ret);
+  // write to reset cause
+  reset_cause reset;
+  memset_s(&reset, sizeof(reset_cause), 0);
+  reset.completion_code = 1;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
 
-	// write to reset cause
-	reset_cause reset;
-	memset_s(&reset, sizeof(reset_cause), 0);
-	reset.completion_code = 1;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_NE(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  EXPECT_NE(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.completion_code = 0;
-	reset.reset_cause = CHIP_RESET_CAUSE_EXTRST;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.completion_code = 0;
+  reset.reset_cause = CHIP_RESET_CAUSE_EXTRST;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.reset_cause = CHIP_RESET_CAUSE_OCD;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.reset_cause = CHIP_RESET_CAUSE_OCD;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
+  reset.reset_cause = CHIP_RESET_CAUSE_POR;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.reset_cause = CHIP_RESET_CAUSE_POR;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.reset_cause = CHIP_RESET_CAUSE_SOFT;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.reset_cause = CHIP_RESET_CAUSE_SOFT;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.reset_cause = CHIP_RESET_CAUSE_SPIKE;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 
-	reset.reset_cause = CHIP_RESET_CAUSE_SPIKE;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
-
-	reset.reset_cause = CHIP_RESET_CAUSE_WDT;
-	write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void*)(&reset), sizeof(reset_cause));
-	EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
-	printf("string= %s", string);
-	if (string) {
-		free(string);
-		string = NULL;
-	}
+  reset.reset_cause = CHIP_RESET_CAUSE_WDT;
+  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+                   sizeof(reset_cause));
+  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  printf("string= %s", string);
+  if (string) {
+    free(string);
+    string = NULL;
+  }
 }
 
 /**
@@ -459,30 +446,29 @@ TEST_P(bmc_c_p, test_bmc_5) {
  *...................bmcGetFirmwareVersion functions
  * @details    Validates power down cause & FW version
  *
- *
  */
 TEST_P(bmc_c_p, test_bmc_6) {
+  powerdown_cause reset;
+  char *string = NULL;
+  device_id dev_id;
 
-	powerdown_cause reset;
-	char *string               = NULL;
-	device_id dev_id ;
+  memset_s(&reset, sizeof(powerdown_cause), 0);
+  memset_s(&dev_id, sizeof(device_id), 0);
+  reset.completion_code = 1;
+  write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void *)(&reset),
+                   sizeof(powerdown_cause));
+  EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
+  if (string) {
+    printf("string= %s", string);
+    free(string);
+    string = NULL;
+  }
 
-	memset_s(&reset, sizeof(powerdown_cause), 0);
-	memset_s(&dev_id, sizeof(device_id), 0);
-	reset.completion_code      = 1;
-	write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void*)(&reset), sizeof(powerdown_cause));
-	EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
-	if (string) {
-		printf("string= %s", string);
-		free(string);
-		string = NULL;
-	}
-
-	dev_id.completion_code = 1;
-	uint32_t version;
-	write_sysfs_file(tokens_[0], SYSFS_DEVID_FILE, (void*)(&dev_id), sizeof(device_id));
-	EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
-
+  dev_id.completion_code = 1;
+  uint32_t version;
+  write_sysfs_file(tokens_[0], SYSFS_DEVID_FILE, (void *)(&dev_id),
+                   sizeof(device_id));
+  EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
 }
 
 /**
@@ -490,80 +476,71 @@ TEST_P(bmc_c_p, test_bmc_6) {
  * @brief      Tests: bmc_build_values
  * @details    Validates build values
  *
- *
  */
 TEST_P(bmc_c_p, test_bmc_7) {
-	
-	sensor_reading reading;
-	sdr_header header;
-	sdr_key key;
-	sdr_body body;
-	Values  *vals = NULL ;
+  sensor_reading reading;
+  sdr_header header;
+  sdr_key key;
+  sdr_body body;
+  Values *vals = NULL;
 
-	memset_s(&reading, sizeof(sensor_reading), 0);
-	memset_s(&key, sizeof(sdr_key), 0);
-	memset_s(&header, sizeof(sdr_header), 0);
-	memset_s(&body, sizeof(sdr_body), 0);
+  memset_s(&reading, sizeof(sensor_reading), 0);
+  memset_s(&key, sizeof(sdr_key), 0);
+  memset_s(&header, sizeof(sdr_header), 0);
+  memset_s(&body, sizeof(sdr_body), 0);
 
-	// build bmc values
-	reading.sensor_validity.sensor_state.sensor_scanning_disabled = true;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
+  // build bmc values
+  reading.sensor_validity.sensor_state.sensor_scanning_disabled = true;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 
-	}
+  reading.sensor_validity.sensor_state.sensor_scanning_disabled = false;
+  reading.sensor_validity.sensor_state.event_messages_disabled = true;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 
+  reading.sensor_validity.sensor_state.sensor_scanning_disabled = false;
+  reading.sensor_validity.sensor_state.event_messages_disabled = false;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 
-	reading.sensor_validity.sensor_state.sensor_scanning_disabled = false;
-	reading.sensor_validity.sensor_state.event_messages_disabled = true;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
+  body.id_string_type_length_code.bits.format = ASCII_8;
+  body.id_string_type_length_code.bits.len_in_characters = 0;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 
-	}
+  body.sensor_units_1.bits.analog_data_format = 0x3;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 
-
-	reading.sensor_validity.sensor_state.sensor_scanning_disabled = false;
-	reading.sensor_validity.sensor_state.event_messages_disabled = false;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
-
-	}
-
-	body.id_string_type_length_code.bits.format = ASCII_8;
-	body.id_string_type_length_code.bits.len_in_characters = 0;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
-
-	}
-
-	body.sensor_units_1.bits.analog_data_format = 0x3;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
-
-	}
-
-	body.sensor_units_2 = 0xff;
-	vals = bmc_build_values(&reading, &header, &key, &body);
-	if (vals) {
-		free(vals->name);
-		free(vals);
-		vals = NULL;
-
-	}
-
+  body.sensor_units_2 = 0xff;
+  vals = bmc_build_values(&reading, &header, &key, &body);
+  if (vals) {
+    free(vals->name);
+    free(vals);
+    vals = NULL;
+  }
 }
-INSTANTIATE_TEST_CASE_P(bmc_c, bmc_c_p, ::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
+
+INSTANTIATE_TEST_CASE_P(bmc_c, bmc_c_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
