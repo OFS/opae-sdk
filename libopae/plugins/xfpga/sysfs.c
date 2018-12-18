@@ -107,6 +107,7 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 		regerror(reg_res, &re, err, 128);
 		FPGA_ERR("Error executing regex: %s", err);
 		res = FPGA_EXCEPTION;
+		goto out;
 	} else {
 		PARSE_MATCH_INT(buffer, matches[1], region->segment, 16, out);
 		PARSE_MATCH_INT(buffer, matches[2], region->bus, 16, out);
