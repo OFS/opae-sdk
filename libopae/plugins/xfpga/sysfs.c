@@ -406,6 +406,16 @@ int sysfs_finalize(void)
 	return FPGA_OK;
 }
 
+const sysfs_fpga_region *sysfs_get_region(size_t num)
+{
+	if (num >= _sysfs_region_count) {
+		FPGA_ERR("No such region with index: %d", num);
+		return NULL;
+	}
+
+	return &_regions[num];
+}
+
 int sysfs_filter(const struct dirent *de)
 {
 	return de->d_name[0] != '.';

@@ -130,6 +130,36 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   EXPECT_EQ(0, sysfs_finalize());
 }
 
+TEST_P(sysfsinit_c_p, sysfs_get_region) {
+  std::map<uint64_t, test_device> devices;
+
+  // build a map of tests devices where the key is the sbdf as a 32-bit number
+  for (const auto &d : platform_.devices) {
+    devices[to_uint32(d.segment, d.bus, d.device, d.function)] = d;
+  }
+
+  // the size of this map should be equal to the number of devices in our
+  // platform
+  ASSERT_EQ(devices.size(), platform_.devices.size());
+  EXPECT_EQ(0, sysfs_initialize());
+  EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
+
+  // use sysfs_get_region API to count how many regions match our devices map
+  for (int i = 0; i < sysfs_region_count(); ++i) {
+    auto region = sysfs_get_region(i);
+    ASSERT_NE(region, nullptr);
+    auto id = to_uint32(region->segment, region->bus, region->device, region->function);
+    auto it = devices.find(id);
+    if (it != devices.end() && it->second.device_id == region->device_id &&
+        it->second.vendor_id == region->vendor_id) {
+      devices.erase(id);
+    }
+  }
+  // our devices map should be empty after the loop above
+  EXPECT_EQ(devices.size(), 0);
+  EXPECT_EQ(0, sysfs_finalize());
+}
+
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
   sysfs_fpga_region region;
   char buffer1[] = "../../devices/pci0000:00/0000:00:02.0/0f0f:05:04.3/fpga/intel-fpga-dev.0";

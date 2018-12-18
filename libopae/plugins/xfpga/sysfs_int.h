@@ -87,6 +87,8 @@ int sysfs_region_count(void);
 typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
 void sysfs_foreach_region(region_cb cb, void *context);
 
+const sysfs_fpga_region *sysfs_get_region(size_t num);
+
 /**
  * @brief Get BBS interface id
  *
