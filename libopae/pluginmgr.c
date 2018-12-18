@@ -187,7 +187,6 @@ int opae_plugin_mgr_finalize_all(void)
 	// reset platforms detected to 0
 	for (i = 0 ; platform_data_table[i].native_plugin ; ++i) {
 		platform_data_table[i].flags = 0;
-
 	}
 
 	initialized = 0;
