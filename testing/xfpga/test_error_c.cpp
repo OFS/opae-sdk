@@ -76,12 +76,26 @@ class error_c_mock_p
   }
 
   virtual void TearDown() override {
+    if (fake_fme_token_.errors) {
+      free_error_list(fake_fme_token_.errors);
+    }
+    if (fake_port_token_.errors) {
+      free_error_list(fake_port_token_.errors);
+    }
     if (filter_) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
       filter_ = nullptr;
     }
     token_cleanup();
     system_->finalize();
+  }
+
+  void free_error_list(struct error_list *p) {
+    while (p) {
+      struct error_list *q = p->next;
+      free(p);
+      p = q;
+    }
   }
 
   fpga_properties filter_;
@@ -430,6 +444,8 @@ TEST_P(error_c_mock_p, error_06) {
       EXPECT_EQ(FPGA_OK, xfpga_fpgaClearError(t, i));
     }
   }
+
+  free_error_list(fake_fme_token_.errors);
 
   // set error list to null
   fake_fme_token_.errors = nullptr;
