@@ -36,6 +36,12 @@
 
 int __FPGA_API__ xfpga_plugin_initialize(void)
 {
+	const char *begin = getenv("OPAE_MMIO_BASE");
+	if (begin) {
+		_mmio_base = strtoul(begin, NULL, 0);
+	} else {
+		_mmio_base = 0;
+	}
 
 	return 0;
 }

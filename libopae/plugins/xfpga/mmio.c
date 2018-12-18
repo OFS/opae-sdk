@@ -46,6 +46,7 @@
 #define AFU_SIZE	0x40000
 #define AFU_OFFSET	0
 
+
 STATIC fpga_result port_get_region_info(fpga_handle handle,
 				 uint32_t mmio_num,
 				 uint32_t *flags,
@@ -222,6 +223,7 @@ fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO32(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	struct wsid_map *wm = NULL;
 	fpga_result result = FPGA_OK;
+	offset += _mmio_base;
 
 	FPGA_MSG("num: (%d), offset(0x%" PRIx64 "), value: (0x%" PRIx32 ")\n", mmio_num, offset, value);
 
@@ -302,6 +304,7 @@ fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO64(fpga_handle handle,
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	struct wsid_map *wm = NULL;
 	fpga_result result = FPGA_OK;
+	offset += _mmio_base;
 
 	FPGA_MSG("num: (%d), offset(0x%" PRIx64 "), value: (0x%" PRIx64 ")\n", mmio_num, offset, value);
 

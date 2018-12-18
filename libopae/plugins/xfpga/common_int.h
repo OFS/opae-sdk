@@ -61,4 +61,6 @@ fpga_result prop_check_and_lock(struct _fpga_properties *prop);
 fpga_result handle_check_and_lock(struct _fpga_handle *handle);
 fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
 
+uint64_t _mmio_base;
+
 #endif // ___FPGA_COMMON_INT_H__
