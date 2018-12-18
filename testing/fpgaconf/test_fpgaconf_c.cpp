@@ -172,7 +172,16 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void copy_bitstream(std::string path) {
+    copy_gbs_ = path;
+    std::ifstream src(tmp_gbs_, std::ios::binary);
+    std::ofstream dst(copy_gbs_, std::ios::binary);
+  
+    dst << src.rdbuf(); 
+  }
+
   char tmp_gbs_[20];
+  std::string copy_gbs_;
   std::vector<uint8_t> bitstream_valid_;
   struct config config_;
   test_platform platform_;
@@ -446,6 +455,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
+  free(config.filename);
   unlink(tmpfilename);
 }
 
@@ -676,6 +686,54 @@ TEST_P(fpgaconf_c_p, main2) {
                    five };
 
   EXPECT_NE(fpgaconf_main(6, argv), 0);
+}
+
+/**
+ * @test       embed_nullchar
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params contains nullbyte,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, embed_nullchar1) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+  strcpy(five, "copy_bitstream\0.gbs");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(fpgaconf_c_p, embed_nullchar2) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+  strcpy(five, "\0copy_bitstream.gbs");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  unlink(copy_gbs_.c_str());
 }
 
 /**
