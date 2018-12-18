@@ -39,6 +39,9 @@
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "types_int.h"
+extern "C" {
+#include "token_list_int.h"
+}
 #include "xfpga.h"
 
 using namespace opae::testing;
@@ -46,6 +49,8 @@ using namespace opae::testing;
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   enum_c_p() : tokens_{{nullptr, nullptr}} {}
+
+  virtual ~enum_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -62,6 +67,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     DestroyTokens();
+    token_cleanup();
     system_->finalize();
   }
 
@@ -762,7 +768,8 @@ TEST_P(enum_c_p, destroy_token_neg) {
   EXPECT_EQ(xfpga_fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
 
   _fpga_token *dummy = new _fpga_token;
-  EXPECT_EQ(xfpga_fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
+  memset(dummy, 0, sizeof(*dummy));
+  EXPECT_EQ(xfpga_fpgaDestroyToken((fpga_token *)&dummy), FPGA_INVALID_PARAM);
   delete dummy;
 }
 
