@@ -159,6 +159,7 @@ int opae_plugin_mgr_finalize_all(void)
 	int res;
 	opae_api_adapter_table *aptr;
 	int errors = 0;
+	int i = 0;
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
@@ -182,6 +183,13 @@ int opae_plugin_mgr_finalize_all(void)
 	}
 
 	adapter_list = NULL;
+
+	// reset platforms detected to 0
+	for (i = 0 ; platform_data_table[i].native_plugin ; ++i) {
+		platform_data_table[i].flags = 0;
+
+	}
+
 	initialized = 0;
 
 	opae_mutex_unlock(res, &adapter_list_lock);
