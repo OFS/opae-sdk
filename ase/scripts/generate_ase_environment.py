@@ -389,8 +389,8 @@ def config_qsys_sources(filelist, vlog_srcs):
             try:
                 shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
             except Exception as e:
-                errorExit("""Failed to copy tree {0} to
-                          {1}: Exception {2}""".
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception {2}".
                           format(src_dir, tgt_dir, e))
 
         # Point to the copy
@@ -416,8 +416,8 @@ def config_qsys_sources(filelist, vlog_srcs):
                     shutil.copytree(src_dir, tgt_dir,
                                     symlinks=False, ignore=None)
             except Exception as e:
-                errorExit("""Failed to copy tree {0} to
-                          {1}: Exception = {2}""".format(src_dir, tgt_dir, e))
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception = {2}".format(src_dir, tgt_dir, e))
         tcl_srcs_copy.append(tgt_dir + q[len(src_dir):])
 
     # Second step: now that the trees are copied, update the paths in
