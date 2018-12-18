@@ -80,14 +80,14 @@ static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
 #define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
 #define PCIE_PATH_PATTERN_GROUPS 5
 
-#define PARSE_MATCH_INT(_p, _m, _v, _b) \
-	do { \
-		errno = 0; \
-		_v = strtoul(_p + _m.rm_so, NULL, _b); \
-		if (errno) {\
-			FPGA_MSG("error parsing int"); \
-			return FPGA_EXCEPTION; \
-		} \
+#define PARSE_MATCH_INT(_p, _m, _v, _b, _l)                                    \
+	do {                                                                   \
+		errno = 0;                                                     \
+		_v = strtoul(_p + _m.rm_so, NULL, _b);                         \
+		if (errno) {                                                   \
+			FPGA_MSG("error parsing int");                         \
+			goto _l;                                               \
+		}                                                              \
 	} while (0);
 
 STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
@@ -95,7 +95,7 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 	char err[128] = {0};
 	regex_t re;
 	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
-	int res = FPGA_OK;
+	int res = FPGA_EXCEPTION;
 
 	int reg_res = regcomp(&re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
@@ -107,12 +107,16 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 		regerror(reg_res, &re, err, 128);
 		FPGA_ERR("Error executing regex: %s", err);
 		res = FPGA_EXCEPTION;
+		goto out;
 	} else {
-		PARSE_MATCH_INT(buffer, matches[1], region->segment, 16);
-		PARSE_MATCH_INT(buffer, matches[2], region->bus, 16);
-		PARSE_MATCH_INT(buffer, matches[3], region->device, 16);
-		PARSE_MATCH_INT(buffer, matches[4], region->function, 10);
+		PARSE_MATCH_INT(buffer, matches[1], region->segment, 16, out);
+		PARSE_MATCH_INT(buffer, matches[2], region->bus, 16, out);
+		PARSE_MATCH_INT(buffer, matches[3], region->device, 16, out);
+		PARSE_MATCH_INT(buffer, matches[4], region->function, 10, out);
 	}
+	res = FPGA_OK;
+
+out:
 	regfree(&re);
 	return res;
 }
