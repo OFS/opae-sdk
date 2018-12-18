@@ -56,17 +56,19 @@
 #define FPGA_SYSFS_PORT "port"
 #define FPGA_SYSFS_PORT_LEN 4
 #define OPAE_KERNEL_DRIVERS 2
+
 static struct {
 	const char *sysfs_class_path;
 	const char *sysfs_region_fmt;
 	const char *sysfs_resource_fmt;
+	const char *sysfs_compat_id;
 } sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	// upstream driver sysfs formats
 	{"/sys/class/fpga_region", "region([0-9])+",
-	 "dfl-(fme|port)\\.([0-9]+)"},
+	 "dfl-(fme|port)\\.([0-9]+)", "fpga_region/region*/dfl-fme.*/dfl-fme-region.*/fpga_region/region*/compat_id"},
 	// intel driver sysfs formats
 	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
-	 "intel-fpga-(fme|port)\\.([0-9]+)"} };
+	 "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"} };
 
 static uint32_t _sysfs_format_index;
 static uint32_t _sysfs_region_count;
@@ -336,6 +338,23 @@ int sysfs_finalize(void)
 	}
 	_sysfs_region_count = 0;
 	return FPGA_OK;
+}
+
+fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
+{
+	fpga_result res = FPGA_OK;
+	char path[SYSFS_PATH_MAX];
+	struct _fpga_token *_token = (struct _fpga_token*)token;
+	ASSERT_NOT_NULL(_token);
+	res = cat_token_sysfs_path(path, token, SYSFS_FORMAT(sysfs_compat_id));
+	if (res) {
+		return res;
+	}
+	res = opae_glob_path(path);
+	if (res) {
+		return res;
+	}
+	return sysfs_read_guid(path, guid);
 }
 
 int sysfs_filter(const struct dirent *de)

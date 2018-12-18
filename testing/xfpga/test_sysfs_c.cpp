@@ -41,6 +41,7 @@ fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
 ssize_t eintr_write(int, void *, size_t);
 char* cstr_dup(const char *str);
 int parse_pcie_info(sysfs_fpga_region *region, char *buffer);
+fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 }
 
 #include <opae/enum.h>
@@ -92,6 +93,30 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   EXPECT_EQ(0, sysfs_initialize());
   EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
   EXPECT_EQ(0, sysfs_finalize());
+}
+
+/**
+* @test   get_interface_id
+* @details Given a valid token
+           When I call sysfs_get_interface_id with that token
+*          I get the expected interface_id
+*/
+TEST_P(sysfsinit_c_p, get_interface_id) {
+  fpga_guid guid;
+  fpga_properties props;
+  fpga_token fme;
+  uint32_t matches = 0;
+  fpga_guid parsed_guid;
+  ASSERT_EQ(sysfs_initialize(), 0);
+  ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(props, FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaEnumerate(&props, 1, &fme, 1, &matches), FPGA_OK);
+  EXPECT_EQ(matches, 1);
+  ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
+  EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
+  EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
+  EXPECT_EQ(sysfs_finalize(), 0);
+
 }
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
@@ -163,6 +188,8 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
+
+
 /**
 * @test    eintr_write_tests
 * @details Given a valid fd but invalid buffer, eintr_writes
@@ -180,6 +207,7 @@ TEST(sysfs_c, eintr_write_tests) {
   EXPECT_EQ(close(fd), 0);
   EXPECT_EQ(std::system("rm empty_file.txt"), 0);
 }
+
 
 /**
 * @test    sysfs_invalid_tests
