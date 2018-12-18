@@ -351,7 +351,9 @@ class diagtest(object):
         f_counters = nlb.fabric_counters(device)
 
         dsm_tpl = nlb.dsm_tuple()
+        cl = 0
         for i in range(args.begin, args.end+1, args.multi_cl):
+            cl += i
             self.logger.debug("running test with cl: %s", i)
             dsm.fill(0)
             self.logger.info("deassert/assert reset bit")
@@ -397,6 +399,7 @@ class diagtest(object):
             self.logger.info("validating results")
             self.validate_results(i, dsm, src, dst)
             self.logger.info("end of test")
+        return (cl, dsm_tpl)
 
     def test_buffers(self, handle, cachelines, dsm, src, dst):
         """test_buffers The base version of test_buffers only waits for the
