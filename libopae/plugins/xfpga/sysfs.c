@@ -307,29 +307,29 @@ STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 int sysfs_region_count(void)
 {
 	int res = 0;
-	if (pthread_mutex_lock(&_sysfs_region_lock)) {
-		FPGA_MSG("Error locking sysfs region lock");
-	} else {
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
 		res = _sysfs_region_count;
 	}
 
-	if (pthread_mutex_unlock(&_sysfs_region_lock)) {
-		FPGA_MSG("Error unlocking sysfs region lock");
-	}
+	opae_mutex_unlock(res, &_sysfs_region_lock);
 	return res;
 }
 
 void sysfs_foreach_region(region_cb cb, void *context)
 {
 	uint32_t i = 0;
-	for ( ; i < _sysfs_region_count; ++i) {
-		cb(&_regions[i], context);
+	int res = 0;
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
+		for ( ; i < _sysfs_region_count; ++i) {
+			cb(&_regions[i], context);
+		}
+
+		opae_mutex_unlock(res, &_sysfs_region_lock);
 	}
 }
 
 int sysfs_initialize(void)
 {
-	pthread_mutexattr_t mattr;
 	int stat_res = -1;
 	int reg_res = -1;
 	int res = FPGA_OK;
@@ -340,21 +340,6 @@ int sysfs_initialize(void)
 	struct dirent *dirent = NULL;
 	regex_t region_re;
 	regmatch_t matches[SYSFS_MAX_REGIONS];
-	if (pthread_mutexattr_init(&mattr)) {
-		FPGA_MSG("Failed to init sysfs regions mutex attributes");
-		return FPGA_EXCEPTION;
-	}
-
-	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
-	    pthread_mutex_init(&_sysfs_region_lock, &mattr)) {
-		FPGA_MSG("Failed to init sysfs regions mutex");
-		res = FPGA_EXCEPTION;
-	}
-
-	pthread_mutexattr_destroy(&mattr);
-	if (res != FPGA_OK) {
-		return res;
-	}
 
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
@@ -405,9 +390,7 @@ int sysfs_initialize(void)
 			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
 			// increment our region count after filling out details
 			// of the discovered region in our _regions array
-			if (pthread_mutex_lock(&_sysfs_region_lock)) {
-				FPGA_MSG("Failed to lock sysfs region mutex");
-				res = FPGA_EXCEPTION;
+			if (opae_mutex_lock(res, &_sysfs_region_lock)) {
 				goto out_free;
 			}
 			if (make_region(&_regions[_sysfs_region_count++],
@@ -416,17 +399,13 @@ int sysfs_initialize(void)
 				FPGA_MSG("Error processing region: %s",
 					 dirent->d_name);
 			}
-			if (pthread_mutex_unlock(&_sysfs_region_lock)) {
-				FPGA_MSG("Failed to unlock sysfs region mutex");
-				res = FPGA_EXCEPTION;
+			if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
 				goto out_free;
 			}
 		}
 	}
 
-	if (pthread_mutex_lock(&_sysfs_region_lock)) {
-		FPGA_MSG("Failed to lock sysfs region mutex");
-		res = FPGA_EXCEPTION;
+	if (opae_mutex_lock(res, &_sysfs_region_lock)) {
 		goto out_free;
 	} else if (!_sysfs_region_count) {
 		FPGA_ERR("Error discovering fpga regions");
@@ -443,7 +422,7 @@ int sysfs_initialize(void)
 out_unlock:
 	if (pthread_mutex_unlock(&_sysfs_region_lock)) {
 		FPGA_MSG("error unlocking sysfs region mutex");
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
 out_free:
 	regfree(&region_re);
@@ -464,17 +443,16 @@ int sysfs_finalize(void)
 const sysfs_fpga_region *sysfs_get_region(size_t num)
 {
 	const sysfs_fpga_region *ptr = NULL;
-	if (pthread_mutex_lock(&_sysfs_region_lock)) {
-		FPGA_MSG("Error locking sysfs region lock");
-	} else if (num >= _sysfs_region_count) {
-		FPGA_ERR("No such region with index: %d", num);
-	} else {
-		ptr = &_regions[num];
-	}
-
-	if (pthread_mutex_unlock(&_sysfs_region_lock)) {
-		FPGA_MSG("Error unlocking sysfs region lock");
-		ptr = NULL;
+	int res = 0;
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
+		if (num >= _sysfs_region_count) {
+			FPGA_ERR("No such region with index: %d", num);
+		} else {
+			ptr = &_regions[num];
+		}
+		if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+			ptr = NULL;
+		}
 	}
 
 	return ptr;
