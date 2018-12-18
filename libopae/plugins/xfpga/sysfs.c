@@ -306,13 +306,16 @@ STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 
 int sysfs_region_count(void)
 {
-	int res = 0;
+	int res = 0, count = 0;
 	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
-		res = _sysfs_region_count;
+		count = _sysfs_region_count;
 	}
 
-	opae_mutex_unlock(res, &_sysfs_region_lock);
-	return res;
+	if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+		count = 0;
+	}
+
+	return count;
 }
 
 void sysfs_foreach_region(region_cb cb, void *context)
