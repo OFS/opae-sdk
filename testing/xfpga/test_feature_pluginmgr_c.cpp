@@ -246,6 +246,9 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		}
+
+		EXPECT_EQ(feature_plugin_mgr_finalize_all(), 0);
+
 		// Restore the global adapter list.
 		feature_adapter_list = feature_adapter_list_;
 
@@ -319,6 +322,8 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
+
+	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
 } 
 
 /**
