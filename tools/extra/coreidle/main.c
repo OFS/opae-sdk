@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
 	printf(" ------- Command line Input END   ----\n\n");
 
 	if(read_bitstream(&coreidleCmdLine) !=0) {
-		ON_ERR_GOTO(FPGA_INVALID_PARAM, out_exit, "Invalid Input bitstream");
+                res = FPGA_INVALID_PARAM;
+		ON_ERR_GOTO(res, out_exit, "Invalid Input bitstream");
 	}
 
 	// Enum FPGA device
