@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,11 +31,12 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <pthread.h>
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define __USE_GNU
+#include <pthread.h>
 #undef _GNU_SOURCE
 
 #include "safe_string/safe_string.h"
@@ -44,15 +45,18 @@
 
 /* global list of tokens we've seen */
 static struct _fpga_feature_token *ftoken_root;
+
 /** Mutex to protect feature tokens */
-pthread_mutex_t ftoken_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ftoken_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 /**
  * @brief Add entry to linked list for feature tokens
- *	Will allocate memory (which is freed by feature_token_cleanup())
+ * Will allocate memory (which is freed by feature_token_cleanup())
  *
  * @param type
+ * @param mmio_num
  * @param guid
+ * @param offset
  * @param handle
  *
  * @return
@@ -74,7 +78,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 		if ((uuid_compare(guid, tmp->feature_guid)) == 0) {
 			err = pthread_mutex_unlock(&ftoken_lock);
 			if (err) {
-				FPGA_ERR("pthread_mutex_unlock() failed: %S",
+				FPGA_ERR("pthread_mutex_unlock() failed: %s",
 					 strerror(err));
 			}
 			return tmp;
@@ -85,7 +89,7 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 		sizeof(struct _fpga_feature_token));
 	if (NULL == tmp) {
 		FPGA_ERR("Failed to allocate memory for fhandle");
-		return NULL;
+		goto out_unlock;
 	}
 
 	uuid_clear(tmp->feature_guid);
@@ -109,17 +113,19 @@ struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, 
 
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		goto out_free;
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		return NULL;
 	}
 
 	return tmp;
 
 out_free:
 	free(tmp);
+
+out_unlock:
 	err = pthread_mutex_unlock(&ftoken_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return NULL;
 }

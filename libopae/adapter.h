@@ -201,7 +201,7 @@ typedef struct _opae_api_adapter_table {
 					char **metrics_names,
 					uint64_t num_metric_names,
 					fpga_metric *metrics);
-	
+
 	fpga_result (*fpgaFeatureEnumerate)(fpga_handle handle,
 					fpga_feature_properties *prop,
 					fpga_feature_token *tokens, uint32_t max_tokens,
@@ -218,13 +218,13 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaFeatureClose)(fpga_feature_handle handle);
 
 	fpga_result (*fpgaDMAPropertiesGet)(fpga_feature_token token,
-					fpgaDMAProperties *prop, int max_ch);
+					fpga_dma_properties *prop);
 
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_h,
-					transfer_list *xfer_list);
+					dma_transfer_list *xfer_list);
 
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma_h,
-					transfer_list *dma_xfer,
+					dma_transfer_list *dma_xfer,
 					fpga_dma_cb cb, void *context);
 
 	// configuration functions

@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,12 +43,12 @@ typedef struct _feature_adapter_table {
 	feature_plugin plugin;
 	fpga_guid guid;
 
-	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token, fpgaDMAProperties *prop,
-				int max_ch);
+	fpga_result(*fpgaDMAPropertiesGet)(fpga_feature_token token,
+				fpga_dma_properties *prop);
 	fpga_result (*fpgaDMATransferSync)(fpga_feature_handle dma_handle,
-			transfer_list *dma_xfer);
+			dma_transfer_list *dma_xfer);
 	fpga_result (*fpgaDMATransferAsync)(fpga_feature_handle dma,
-			transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
+			dma_transfer_list *dma_xfer, fpga_dma_cb cb, void *context);
 	fpga_result (*fpgaFeatureOpen)(fpga_feature_token token, int flags,
 				   void *priv_config, fpga_feature_handle *handle);
 	fpga_result (*fpgaFeatureClose)(fpga_feature_handle *_dma_h);

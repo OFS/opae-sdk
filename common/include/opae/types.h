@@ -229,7 +229,6 @@ typedef struct fpga_metric {
 	metric_value value;     // Metric value
 } fpga_metric;
 
-
 /**
  * Token for referencing FPGA feature resources
  *
@@ -252,7 +251,5 @@ typedef void *fpga_feature_token;
  * calling fpgaFeatureClose(), which will render the underlying handle invalid.
  */
 typedef void *fpga_feature_handle;
-
-
 
 #endif // __FPGA_TYPES_H__
