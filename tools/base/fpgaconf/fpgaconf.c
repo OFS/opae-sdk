@@ -749,7 +749,7 @@ int main(int argc, char *argv[])
 	res = program_bitstream(token, slot_num, &info, config.flags);
 	if (res < 0) {
 		retval = 5;
-		goto out_free;
+		goto out_destroy;
 	}
 	print_msg(1, "Done");
 
