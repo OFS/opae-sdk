@@ -197,7 +197,6 @@ TEST_P(fpgaconf_c_p, help) {
   help();
 }
 
-
 /**
  * @test       parse_err0
  * @brief      Test: parse_metadata
@@ -498,19 +497,19 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
   char eleven[32];
   char twelve[32];
   char thirteen[32];
-  strcpy(zero, " fpgaconf Q&%^#>x[;;'kk/");
+  strcpy(zero, " fpgaconf Q&%^#;'kk/");
   strcpy(one, "-verbosesss \n\t\b\e\a\?");
   strcpy(two, "--n");
-  strcpy(three, "--f123413 23kshfa hfa;.'/'l|hrce");
-  strcpy(four, "--se!gmenttttt     lsdfhskfa");
+  strcpy(three, "--f123 23ksfa;.'/'l|hrce");
+  strcpy(four, "--se!gmentt  lsdfhskfa");
   strcpy(five, "0x1234");
   strcpy(six, "-bussssss");
   strcpy(seven, "0x5e");
-  strcpy(eight, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(eight, "-Devic\xF0\x90sss \t\n\b\a\e\v");
   strcpy(nine, "0xab");
-  strcpy(ten, " =============  %34   -Function    \x00\x08\x09\x0B\x0D");
+  strcpy(ten, " =====%34 -Function \x09\x0B\x0D");
   strcpy(eleven, "3");
-  strcpy(twelve, "-Socket__________id \xF1-\xF3    \x80-\x8F");
+  strcpy(twelve, "-Socket__ \xF1-\xF3 \x8F");
   strcpy(thirteen, "2");
 
   char *argv[] = { zero, one, two, three, four,
@@ -556,7 +555,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
   strcpy(ten, "-F");
   strcpy(eleven, "-33492\t000");
   strcpy(twelve, "-S");
-  strcpy(thirteen, "\000 00000000000000000000");
+  strcpy(thirteen, "\000 00000000");
   strcpy(fourteen, "-A");
 
   char *argv[] = { zero, one, two, three,
@@ -577,9 +576,6 @@ TEST_P(fpgaconf_c_p, parse_args3) {
   const char *argv[] = { "fpgaconf", "no-file.gbs" };
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
-
-
-
 
 /**
  * @test       ifc_id1
@@ -696,27 +692,146 @@ TEST_P(fpgaconf_c_p, main2) {
  */
 TEST_P(fpgaconf_c_p, embed_nullchar1) {
   copy_bitstream("copy_bitstream.gbs");
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  strcpy(zero, "fpgaconf");
-  strcpy(one, "-v");
-  strcpy(two, "-n");
-  strcpy(three, "-B");
-  strcpy(four, "0x5e");
-  strcpy(five, "copy_bitstream\0.gbs");
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs"};
 
-  char *argv[] = { zero, one, two, three, four,
-                   five };
-  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
   unlink(copy_gbs_.c_str());
 }
 
 TEST_P(fpgaconf_c_p, embed_nullchar2) {
   copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs"};
+
+  EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       encoding_path
+ * @brief      Test: fpgaconf_main
+ * @details    When command param is encoding path,<br>
+ *             fpgaconf_main displays file error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, encoding_path) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "0x5e");
+
+  char *argv[] = { zero, one, two, three};
+
+  // File not found
+  strcpy(three, "copy_bitstream%2egbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "copy_bitstream..gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "....copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       relative_path
+ * @brief      Test: fpgaconf_main
+ * @details    When gbs file locates in parent directory and command params<br>
+ *             contains path traversal, fpgaconf_main displays file<br>
+ *             error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, relative_path) {
+  copy_bitstream("../copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "0x5e");
+
+  char *argv[] = { zero, one, two, three};
+
+  // File found but fails to set userclock
+  strcpy(three, "../copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // Fail not found
+  memset(three, 0, 32);
+  strcpy(three, "../..../copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // Fail not found
+  memset(three, 0, 32);
+  strcpy(three, "..%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // Fail not found
+  memset(three, 0, 32);
+  strcpy(three, "%2e%2e/copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // Fail not found
+  memset(three, 0, 32);
+  strcpy(three, "%2e%2e%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       absolute_path 
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params are valid with absolute gbs path,<br>
+ *             but no valid accelerator device can be found,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, absolute_path) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[128];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "0x5e");
+
+  char *argv[] = { zero, one, two, three};
+
+  char* current_path = get_current_dir_name();
+  std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
+
+  // File found but fails to set userclock
+  strcpy(three, bitstream_path.c_str());
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       read_symlink_bs
+ * @brief      Test: 
+ * @details    Tests for symlink on gbs file. When successful,<br>
+ *             fpgaconf_main loads the bitstream into the gbs_data field<br>
+ *             and the fn returns 0. When file doesn't exist, fpgaconf_main<br>
+ *             displays error and returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, main_symlink_bs) {
+  copy_bitstream("copy_bitstream.gbs"); 
+  const std::string symlink_gbs = "bits_symlink";
   char zero[20];
   char one[20];
   char two[20];
@@ -728,12 +843,71 @@ TEST_P(fpgaconf_c_p, embed_nullchar2) {
   strcpy(two, "-n");
   strcpy(three, "-B");
   strcpy(four, "0x5e");
-  strcpy(five, "\0copy_bitstream.gbs");
 
   char *argv[] = { zero, one, two, three, four,
                    five };
-  EXPECT_NE(fpgaconf_main(6, argv), 0);
-  unlink(copy_gbs_.c_str());
+
+  if (!symlink(copy_gbs_.c_str(), symlink_gbs.c_str())) {
+     // Success case
+     strcpy(five, symlink_gbs.c_str());
+     EXPECT_EQ(fpgaconf_main(6, argv), 0);
+
+     // remove bitstream file
+     unlink(copy_gbs_.c_str());
+
+     // Fail case
+     EXPECT_NE(fpgaconf_main(6, argv), 0);
+  }
+
+  unlink(symlink_gbs.c_str());
+}
+
+/**
+ * @test       circular_symlink
+ * @brief      Test: fpgaconf_c_p
+ * @details    Tests for circular symlink on gbs file. <br>
+ *             fpgaconf_c_p displays error and returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, circular_symlink) {
+  const std::string symlink_A = "./link1/bits_symlink_A";
+  const std::string symlink_B = "./link2/bits_symlink_B";
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+
+  // Create link directories
+  if (!(mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))
+       && !(mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))){
+
+      // Create circular symlinks
+      if (!symlink("link1", symlink_B.c_str())
+           && !symlink("link2", symlink_A.c_str())) {
+
+          strcpy(five, symlink_A.c_str());
+          EXPECT_NE(fpgaconf_main(6, argv), 0);
+
+          memset(five, 0, 20);
+          strcpy(five, symlink_B.c_str());
+          EXPECT_NE(fpgaconf_main(6, argv), 0);
+     }
+  }
+  // Clean up
+  unlink(symlink_A.c_str());
+  unlink(symlink_B.c_str());
+  remove("link1");
+  remove("link2");
+   
 }
 
 /**
