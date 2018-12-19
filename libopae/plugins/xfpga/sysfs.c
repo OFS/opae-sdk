@@ -195,9 +195,7 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 		return FPGA_EXCEPTION;
 	}
 
-	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s",
-		dir_name)
-		< 0) {
+	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
 		FPGA_ERR("Error formatting sysfs name");
 		return FPGA_EXCEPTION;
 	}
@@ -245,10 +243,9 @@ STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
 		return NULL;
 	}
 
-	if (snprintf_s_s(resource->res_name, SYSFS_PATH_MAX, "%s",
-		name)
-		< 0) {
+	if (snprintf_s_s(resource->res_name, SYSFS_PATH_MAX, "%s", name) < 0) {
 		FPGA_ERR("Error formatting sysfs name");
+		free(resource);
 		return NULL;
 	}
 

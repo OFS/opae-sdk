@@ -385,9 +385,9 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	// Discover the socket id from the FME's sysfs entry.
 	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
-		if (resval != 0) {
-			return FPGA_NOT_FOUND;
-			}
+	if (resval != 0) {
+		return FPGA_NOT_FOUND;
+	}
 	parent->socket_id = (uint8_t) value;
 
 	// Read number of slots
@@ -491,7 +491,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 	region_count = sysfs_region_count();
 
 	if (region_count <= 0) {
-		FPGA_MSG("Not found fpga regions");
+		FPGA_MSG("Not found fpga region's");
 		return FPGA_NO_DRIVER;;
 	}
 
@@ -500,7 +500,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 		region  = (sysfs_fpga_region *)sysfs_get_region(i);
 
 		if (!region) {
-			FPGA_MSG("failed to enum regions");
+			FPGA_MSG("failed to enum region");
 			return FPGA_NO_DRIVER;
 		}
 
@@ -524,6 +524,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 							region->fme->res_name, pdev);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to enum FME");
+				break;
 			}
 		}
 
@@ -533,6 +534,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 				region->port->res_name, pdev);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to enum PORT");
+				break;
 			}
 		}
 
