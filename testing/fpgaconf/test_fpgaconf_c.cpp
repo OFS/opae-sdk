@@ -288,8 +288,8 @@ TEST_P(fpgaconf_c_p, get_bits_err2) {
  * @test       get_bits_err3
  * @brief      Test: get_bitstream_ifc_id
  * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of that is invalid,
- *             then the fn returns FPGA_EXCEPTION.<br>
+ *             and that buffer has a json data length field of that is valid,
+ *             then the fn returns FPGA_OK.<br>
  */
 TEST_P(fpgaconf_c_p, get_bits_err3) {
   struct bitstream_info info;
@@ -297,7 +297,7 @@ TEST_P(fpgaconf_c_p, get_bits_err3) {
 
   fpga_guid guid;
   *(uint32_t *) (info.data + 16) = 65535;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_EXCEPTION);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_OK);
   free(info.data);
 }
 
