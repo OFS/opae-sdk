@@ -28,6 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define _GNU_SOURCE
 #include <pthread.h>
 #include <glob.h>
 #include <dirent.h>
@@ -39,6 +40,8 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <regex.h>
+#undef _GNU_SOURCE
+
 #include <opae/types.h>
 #include <opae/log.h>
 #include <opae/types_enum.h>
@@ -72,6 +75,8 @@ static struct {
 
 static uint32_t _sysfs_format_index;
 static uint32_t _sysfs_region_count;
+/* mutex to protect sysfs region data structures */
+pthread_mutex_t _sysfs_region_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 #define SYSFS_FORMAT(s) sysfs_path_table[_sysfs_format_index].s
 
@@ -123,9 +128,66 @@ out:
 	return res;
 }
 
+int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value)
+{
+	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
+	char path[SYSFS_PATH_MAX];
+	char buffer[pg_size];
+	int fd = -1;
+	ssize_t bytes_read = 0;
+	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
+				root, attr_path);
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			 root, attr_path);
+		return FPGA_EXCEPTION;
+	}
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		FPGA_ERR("Error opening %s: %s", path, strerror(errno));
+		return FPGA_EXCEPTION;
+	}
+	bytes_read = eintr_read(fd, buffer, pg_size);
+	if (bytes_read < 0) {
+		FPGA_ERR("Error reading from %s: %s", path,
+			 strerror(errno));
+		close(fd);
+		return FPGA_EXCEPTION;
+	}
+
+	*value = strtoull(buffer, NULL, 0);
+
+	close(fd);
+	return FPGA_OK;
+}
+
+STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
+{
+	uint64_t value = 0;
+	int res = syfs_parse_attribute64(region->path, "device/device", &value);
+	if (res) {
+		FPGA_ERR("Error parsing device_id for region: %s",
+			 region->path);
+		return res;
+	}
+	region->device_id = value;
+
+	res = syfs_parse_attribute64(region->path, "device/vendor", &value);
+
+	if (res) {
+		FPGA_ERR("Error parsing vendor_id for region: %s",
+			 region->path);
+		return res;
+	}
+	region->vendor_id = value;
+
+	return FPGA_OK;
+}
+
 STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
+	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
 	ssize_t sym_link_len = 0;
 	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
@@ -141,7 +203,14 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 	}
 
 	region->number = num;
-	return parse_pcie_info(region, buffer);
+	res = parse_pcie_info(region, buffer);
+
+	if (res) {
+		FPGA_ERR("Could not parse symlink");
+		return res;
+	}
+
+	return parse_device_vendor_id(region);
 }
 
 STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
@@ -239,14 +308,36 @@ STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 
 int sysfs_region_count(void)
 {
-	return _sysfs_region_count;
+	int res = 0, count = 0;
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
+		count = _sysfs_region_count;
+	}
+
+	if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+		count = 0;
+	}
+
+	return count;
+}
+
+void sysfs_foreach_region(region_cb cb, void *context)
+{
+	uint32_t i = 0;
+	int res = 0;
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
+		for ( ; i < _sysfs_region_count; ++i) {
+			cb(&_regions[i], context);
+		}
+
+		opae_mutex_unlock(res, &_sysfs_region_lock);
+	}
 }
 
 int sysfs_initialize(void)
 {
 	int stat_res = -1;
 	int reg_res = -1;
-	int res = 0;
+	int res = FPGA_OK;
 	uint32_t i = 0;
 	struct stat st;
 	DIR *dir = NULL;
@@ -254,6 +345,7 @@ int sysfs_initialize(void)
 	struct dirent *dirent = NULL;
 	regex_t region_re;
 	regmatch_t matches[SYSFS_MAX_REGIONS];
+
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
 		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
@@ -303,21 +395,27 @@ int sysfs_initialize(void)
 			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
 			// increment our region count after filling out details
 			// of the discovered region in our _regions array
-			res = make_region(&_regions[_sysfs_region_count++],
-					  sysfs_class_fpga, dirent->d_name,
-					  num);
-			if (res) {
+			if (opae_mutex_lock(res, &_sysfs_region_lock)) {
+				goto out_free;
+			}
+			if (make_region(&_regions[_sysfs_region_count++],
+					sysfs_class_fpga, dirent->d_name,
+					num)) {
 				FPGA_MSG("Error processing region: %s",
 					 dirent->d_name);
 			}
+			if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+				goto out_free;
+			}
 		}
 	}
-	regfree(&region_re);
 
-	closedir(dir);
-	if (!_sysfs_region_count) {
+	if (opae_mutex_lock(res, &_sysfs_region_lock)) {
+		goto out_free;
+	} else if (!_sysfs_region_count) {
 		FPGA_ERR("Error discovering fpga regions");
-		return FPGA_NO_DRIVER;
+		res = FPGA_NO_DRIVER;
+		goto out_unlock;
 	}
 
 	// now, for each discovered region, look inside for resources
@@ -326,8 +424,15 @@ int sysfs_initialize(void)
 		find_resources(&_regions[i]);
 	}
 
-
-	return FPGA_OK;
+out_unlock:
+	if (pthread_mutex_unlock(&_sysfs_region_lock)) {
+		FPGA_MSG("error unlocking sysfs region mutex");
+		res = FPGA_EXCEPTION;
+	}
+out_free:
+	regfree(&region_re);
+	closedir(dir);
+	return res;
 }
 
 int sysfs_finalize(void)
@@ -338,6 +443,24 @@ int sysfs_finalize(void)
 	}
 	_sysfs_region_count = 0;
 	return FPGA_OK;
+}
+
+const sysfs_fpga_region *sysfs_get_region(size_t num)
+{
+	const sysfs_fpga_region *ptr = NULL;
+	int res = 0;
+	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
+		if (num >= _sysfs_region_count) {
+			FPGA_ERR("No such region with index: %d", num);
+		} else {
+			ptr = &_regions[num];
+		}
+		if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+			ptr = NULL;
+		}
+	}
+
+	return ptr;
 }
 
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)

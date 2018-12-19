@@ -76,10 +76,18 @@ typedef struct _sysfs_fpga_region {
   uint8_t bus;
   uint8_t device;
   uint8_t function;
+  uint32_t device_id;
+  uint32_t vendor_id;
 } sysfs_fpga_region;
+
 int sysfs_initialize(void);
 int sysfs_finalize(void);
 int sysfs_region_count(void);
+
+typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
+void sysfs_foreach_region(region_cb cb, void *context);
+
+const sysfs_fpga_region *sysfs_get_region(size_t num);
 
 /**
  * @brief Get BBS interface id
