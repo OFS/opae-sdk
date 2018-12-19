@@ -181,6 +181,8 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
   EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
   EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
+  EXPECT_EQ(xfpga_fpgaDestroyToken(&fme), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
   EXPECT_EQ(sysfs_finalize(), 0);
 
 }
