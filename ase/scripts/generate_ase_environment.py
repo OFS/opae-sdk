@@ -387,10 +387,11 @@ def config_qsys_sources(filelist, vlog_srcs):
             print("Preparing {0}:".format(q))
             print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception {2}".
+                          format(src_dir, tgt_dir, e))
 
         # Point to the copy
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
@@ -411,10 +412,12 @@ def config_qsys_sources(filelist, vlog_srcs):
             print("Preparing {0}:".format(t))
             print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                if not os.path.exists(tgt_dir):
+                    shutil.copytree(src_dir, tgt_dir,
+                                    symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception = {2}".format(src_dir, tgt_dir, e))
         tcl_srcs_copy.append(tgt_dir + q[len(src_dir):])
 
     # Second step: now that the trees are copied, update the paths in
