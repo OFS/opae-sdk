@@ -564,6 +564,7 @@ TEST_P(coreidle_main_c_p, absolute_path) {
   strcpy(two, bitstream_path.c_str());
   EXPECT_EQ(coreidle_main(3, argv), 1);
 
+  free(current_path);
   unlink(copy_gbs_.c_str());
 }
 

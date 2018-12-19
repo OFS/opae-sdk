@@ -810,14 +810,14 @@ TEST_P(fpgaconf_c_p, absolute_path) {
   strcpy(two, "0x5e");
 
   char *argv[] = { zero, one, two, three};
-
-  char* current_path = get_current_dir_name();
+  char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
   // File found but fails to set userclock
   strcpy(three, bitstream_path.c_str());
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
+  free(current_path);
   unlink(copy_gbs_.c_str());
 }
 
@@ -1220,5 +1220,4 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
 
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
-
 
