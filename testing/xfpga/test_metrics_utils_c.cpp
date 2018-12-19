@@ -71,8 +71,9 @@ protected:
 		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
 		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_),
-			FPGA_OK);
+                                  &num_matches_), FPGA_OK);
+		ASSERT_GT(num_matches_, 0);
+
 
 		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
 
@@ -87,19 +88,21 @@ protected:
 				t = nullptr;
 			}
 		}
-		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+
+    if (handle_ != nullptr) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
+    }
 		fpgaFinalize();
 		system_->finalize();
 	}
 
-	std::array<fpga_token, 2> tokens_;
-	fpga_handle handle_;
-	fpga_properties filter_;
-	uint32_t num_matches_;
-	test_platform platform_;
-	test_system *system_;
-
-
+  std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
 };
 
 /**
@@ -669,8 +672,8 @@ protected:
 		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
 		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_),
-			FPGA_OK);
+                                  &num_matches_), FPGA_OK);
+	    ASSERT_GT(num_matches_, 0);
 
 		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
 	}
@@ -683,8 +686,11 @@ protected:
 				t = nullptr;
 			}
 		}
-		if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-		fpgaFinalize();
+    if (handle_ != nullptr) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
+    }
+ 		fpgaFinalize();
 		system_->finalize();
 	}
 

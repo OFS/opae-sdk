@@ -88,6 +88,15 @@ int mmio_ioctl(mock_object *m, int request, va_list argp) {
   retval = 0;
   errno = 0;
 
+ out:
+  return retval;
+  
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
 class metrics_c_p : public ::testing::TestWithParam<std::string> {
 protected:
 	metrics_c_p()
@@ -132,54 +141,9 @@ protected:
 	test_platform platform_;
 	test_system *system_;
 
-out_EINVAL:
-  retval = -1;
-  errno = EINVAL;
-  goto out;
-}
-
-
-class metrics_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  metrics_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
+
+
 
 /**
 * @test    test_metric_01
