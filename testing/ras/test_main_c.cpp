@@ -135,14 +135,14 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-	ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     optind = 0;
     cmd_line_ = rasCmdLine;
  }
 
   virtual void TearDown() override {
     rasCmdLine = cmd_line_;
-	fpgaFinalize();
+    fpgaFinalize();
     system_->finalize();
   }
 

@@ -51,10 +51,10 @@ protected:
   }
 
   virtual void TearDown() override {
-	  tokens_.clear();
-	  handle_.reset();
-	  fpgaFinalize();
-	  system_->finalize();
+    tokens_.clear();
+    handle_.reset();
+    fpgaFinalize();
+    system_->finalize();
   }
 
   std::vector<token::ptr_t> tokens_;
