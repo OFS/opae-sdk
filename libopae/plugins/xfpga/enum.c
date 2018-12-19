@@ -492,7 +492,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 
 	if (region_count <= 0) {
 		FPGA_MSG("Not found fpga region's");
-		return FPGA_NO_DRIVER;;
+		return FPGA_NO_DRIVER;
 	}
 
 	for (i = 0; i < region_count; i++) {
