@@ -97,7 +97,7 @@ struct bitstream_info {
 	fpga_guid interface_id;
 };
 
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len,
 				 fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
@@ -117,6 +117,12 @@ fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 	if (json_len == 0) {
 		OPAE_MSG("Bitstream has no metadata");
 		result = FPGA_OK;
+		goto out_free;
+	}
+
+	if (json_len > bs_len) {
+		OPAE_ERR("invalid bitstream metadata size");
+		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
 
@@ -577,7 +583,7 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
 
-		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
+		if (get_bitstream_ifc_id(info->data, info->data_len, &(info->interface_id))
 		    != FPGA_OK) {
 			fprintf(stderr, "Invalid metadata in the bitstream\n");
 			goto out_free;

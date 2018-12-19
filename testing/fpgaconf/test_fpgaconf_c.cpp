@@ -59,7 +59,7 @@ struct bitstream_info {
   fpga_guid interface_id;
 };
 
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid);
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len, fpga_guid *guid);
 
 int parse_metadata(struct bitstream_info *info);
 
@@ -248,7 +248,7 @@ TEST_P(fpgaconf_c_p, parse) {
  *             the fn returns FPGA_EXCEPTION.<br>
  */
 TEST_P(fpgaconf_c_p, get_bits_err0) {
-  EXPECT_EQ(get_bitstream_ifc_id(nullptr, nullptr), FPGA_EXCEPTION);
+  EXPECT_EQ(get_bitstream_ifc_id(nullptr, 0, nullptr), FPGA_EXCEPTION);
 }
 
 /**
@@ -263,7 +263,7 @@ TEST_P(fpgaconf_c_p, get_bits_err1) {
 
   fpga_guid guid;
   system_->invalidate_malloc(0, "get_bitstream_ifc_id");
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_NO_MEMORY);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_NO_MEMORY);
   free(info.data);
 }
 
@@ -280,7 +280,7 @@ TEST_P(fpgaconf_c_p, get_bits_err2) {
 
   fpga_guid guid;
   *(uint32_t *) (info.data + 16) = 0;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_OK);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_OK);
   free(info.data);
 }
 
@@ -288,8 +288,8 @@ TEST_P(fpgaconf_c_p, get_bits_err2) {
  * @test       get_bits_err3
  * @brief      Test: get_bitstream_ifc_id
  * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of that is valid,
- *             then the fn returns FPGA_OK.<br>
+ *             and that buffer has a json data length field of that is invalid,
+ *             then the fn returns FPGA_EXCEPTION.<br>
  */
 TEST_P(fpgaconf_c_p, get_bits_err3) {
   struct bitstream_info info;
@@ -297,7 +297,7 @@ TEST_P(fpgaconf_c_p, get_bits_err3) {
 
   fpga_guid guid;
   *(uint32_t *) (info.data + 16) = 65535;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_OK);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_EXCEPTION);
   free(info.data);
 }
 
