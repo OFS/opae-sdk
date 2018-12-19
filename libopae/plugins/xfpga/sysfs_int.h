@@ -61,14 +61,16 @@ typedef struct _sysfs_fpga_region sysfs_fpga_region;
 
 typedef struct _sysfs_fpga_resource {
 	sysfs_fpga_region *region;
-	char path[SYSFS_PATH_MAX];
+	char res_path[SYSFS_PATH_MAX];
+	char res_name[SYSFS_PATH_MAX];
 	fpga_objtype type;
 	int num;
 } sysfs_fpga_resource;
 
 #define SYSFS_MAX_RESOURCES 4
 typedef struct _sysfs_fpga_region {
-	char path[SYSFS_PATH_MAX];
+	char region_path[SYSFS_PATH_MAX];
+	char region_name[SYSFS_PATH_MAX];
 	int number;
 	sysfs_fpga_resource *fme;
 	sysfs_fpga_resource *port;
@@ -88,6 +90,7 @@ typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
 void sysfs_foreach_region(region_cb cb, void *context);
 
 const sysfs_fpga_region *sysfs_get_region(size_t num);
+int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
 
 /**
  * @brief Get BBS interface id

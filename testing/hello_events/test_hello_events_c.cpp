@@ -96,6 +96,7 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
       token_ = nullptr;
     }
+    fpgaFinalize();
     system_->finalize();
   }
 

@@ -87,7 +87,7 @@ class userclk_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     userclkCmdLine = cmd_line_;
-
+    fpgaFinalize();
     system_->finalize();
   }
 

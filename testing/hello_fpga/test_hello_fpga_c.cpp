@@ -129,7 +129,7 @@ class hello_fpga_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config = config_;
-
+    fpgaFinalize();
     system_->finalize();
   }
 

@@ -28,34 +28,33 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
-#include "types_int.h"
-#include "metrics/vector.h"
-#include "metrics/metrics_int.h"
 #include "intel-fpga.h"
+#include "types_int.h"
+#include "metrics/metrics_int.h"
+#include "metrics/vector.h"
+#include "opae_int.h"
 }
 
 #include <config.h>
 #include <opae/fpga.h>
 
+#include <linux/ioctl.h>
+#include <sys/mman.h>
 #include <array>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "test_utils.h"
 #include "token_list_int.h"
 #include "xfpga.h"
-#include "test_utils.h"
-#include <linux/ioctl.h>
-#include <sys/mman.h>
 
 #undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+#define FPGA_MSG(fmt, ...) printf("MOCK " fmt "\n", ##__VA_ARGS__)
 
 using namespace opae::testing;
 
@@ -97,7 +96,6 @@ out_EINVAL:
   goto out;
 }
 
-
 class metrics_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   metrics_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
@@ -109,11 +107,13 @@ class metrics_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
+                                  &num_matches_),
+              FPGA_OK);
+
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -127,8 +127,8 @@ class metrics_c_p : public ::testing::TestWithParam<std::string> {
     }
     if (handle_) {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -178,7 +178,7 @@ TEST_P(metrics_c_p, test_metric_02) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
 
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
-         sizeof(struct fpga_metric_info), num_metrics);
+      sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
@@ -213,7 +213,7 @@ TEST_P(metrics_c_p, test_metric_03) {
   uint64_t id_array[] = {1, 5, 30, 35, 10};
 
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 5);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 5);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, metric_array));
@@ -252,7 +252,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   uint64_t array_size = 2;
 
   struct fpga_metric *metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string, array_size,
                              metric_array_search);
@@ -260,7 +260,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   const char *metric_string_invalid[2] = {
       "power_mgmtconsumed1", "performance1:fabric:port0:mmio_read1"};
   struct fpga_metric *metric_array_search_invalid =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string_invalid,
                              array_size, metric_array_search_invalid);
@@ -293,8 +293,9 @@ TEST_P(metrics_c_p, test_metric_04) {
   free(metric_array_search);
 }
 
-INSTANTIATE_TEST_CASE_P(metrics_c, metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(
+    metrics_c, metrics_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
 /**
 * @brief metrics afu gtest fixture
@@ -302,10 +303,7 @@ INSTANTIATE_TEST_CASE_P(metrics_c, metrics_c_p,
 */
 class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  metrics_afu_c_p() 
-    : tokens_{{nullptr, nullptr}}, 
-      handle_(nullptr) {}
-
+  metrics_afu_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
   void create_metric_bbb_dfh();
   void create_metric_bbb_csr();
   virtual void SetUp() override {
@@ -314,12 +312,13 @@ class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
+                                  &num_matches_),
+              FPGA_OK);
+
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
 
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
@@ -340,12 +339,10 @@ class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
     }
     if (handle_) {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
     }
-
+    fpgaFinalize();
     system_->finalize();
   }
-
   uint32_t which_mmio_;
   std::array<fpga_token, 2> tokens_;
   fpga_handle handle_;
@@ -461,7 +458,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_01) {
   printf("num_metrics =%ld \n", num_metrics);
 
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
-         sizeof(struct fpga_metric_info), num_metrics);
+      sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
@@ -485,7 +482,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
 
   // No AFU metrics
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
-         sizeof(struct fpga_metric_info), num_metrics);
+      sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
@@ -494,7 +491,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
   // No AFU metrics
   uint64_t id_array[] = {1, 2, 3};
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(handle_, id_array, 3, metric_array));
@@ -515,7 +512,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
   // valid index
   uint64_t id_array[] = {1, 2, 3};
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(handle_, id_array, 3, metric_array));
@@ -528,7 +525,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
   // invalid index
   uint64_t id_array_invalid[] = {10, 20, 30};
   struct fpga_metric *metric_array_invalid =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array_invalid, 3,
                                                  metric_array_invalid));
@@ -551,7 +548,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
   uint64_t array_size = 2;
 
   struct fpga_metric *metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string,
@@ -564,7 +561,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
                                           "performance:fabric:port0:mmio_read"};
 
   metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+      (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string_invalid,
@@ -572,5 +569,6 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
 
   free(metric_array_search);
 }
-INSTANTIATE_TEST_CASE_P(metrics_c, metrics_afu_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(
+    metrics_c, metrics_afu_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

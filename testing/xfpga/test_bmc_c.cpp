@@ -58,10 +58,8 @@ extern "C" {
 using namespace opae::testing;
 
 class bmc_c_p : public ::testing::TestWithParam<std::string> {
-  protected:
-    bmc_c_p() 
-      : tokens_{{nullptr, nullptr}}, 
-        handle_(nullptr) {}
+ protected:
+  bmc_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -69,12 +67,13 @@ class bmc_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
+                                  &num_matches_),
+              FPGA_OK);
+
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -88,8 +87,8 @@ class bmc_c_p : public ::testing::TestWithParam<std::string> {
     }
     if (handle_ != nullptr) {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -542,5 +541,6 @@ TEST_P(bmc_c_p, test_bmc_7) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(bmc_c, bmc_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+INSTANTIATE_TEST_CASE_P(
+    bmc_c, bmc_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

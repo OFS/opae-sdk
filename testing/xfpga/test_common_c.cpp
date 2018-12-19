@@ -58,6 +58,7 @@ class common_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -79,6 +80,7 @@ class common_c_p
 
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
     if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    fpgaFinalize();
     system_->finalize();
   }
 

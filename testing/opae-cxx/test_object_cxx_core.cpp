@@ -70,6 +70,8 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
     tokens_dev_.clear();
     handle_->close();
     handle_.reset();
+    handle_dev_.reset();
+    fpgaFinalize();
     system_->finalize();
   }
 

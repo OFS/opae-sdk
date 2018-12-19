@@ -124,6 +124,7 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -142,7 +143,7 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
+    fpgaFinalize();
     system_->finalize();
   }
 
