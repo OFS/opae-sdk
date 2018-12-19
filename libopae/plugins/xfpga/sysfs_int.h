@@ -98,11 +98,13 @@ const sysfs_fpga_region *sysfs_get_region(size_t num);
  *
  * @return
  */
-fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h);
+fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 
 /*
  * sysfs utility functions.
  */
+
+fpga_result opae_glob_path(char *path);
 fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f);
 fpga_result sysfs_read_int(const char *path, int *i);
 fpga_result sysfs_read_u32(const char *path, uint32_t *u);
