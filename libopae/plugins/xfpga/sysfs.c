@@ -467,7 +467,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 {
 	fpga_result res = FPGA_OK;
 	char path[SYSFS_PATH_MAX];
-	struct _fpga_token *_token = (struct _fpga_token*)token;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 	res = cat_token_sysfs_path(path, token, SYSFS_FORMAT(sysfs_compat_id));
 	if (res) {
