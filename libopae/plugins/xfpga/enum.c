@@ -346,7 +346,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	struct dev_list *pdev;
 	char spath[SYSFS_PATH_MAX];
 	char dpath[DEV_PATH_MAX];
-
+	int resval                = 0;
+	uint64_t value            = 0;
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
 		FPGA_MSG("stat failed: %s", strerror(errno));
@@ -383,24 +384,24 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 		return result;
 
 	// Discover the socket id from the FME's sysfs entry.
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_SOCKET_ID,
-		     sysfspath);
+	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
+		if (resval != 0) {
+			return FPGA_NOT_FOUND;
+			}
+	parent->socket_id = (uint8_t) value;
 
-	result = sysfs_read_int(spath, &socket_id);
-	if (FPGA_OK != result)
-		return result;
+	// Read number of slots
+	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_NUM_SLOTS, &value);
+	if (resval != 0) {
+		return FPGA_NOT_FOUND;
+	}
+	pdev->fpga_num_slots = (uint32_t) value;
 
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_NUM_SLOTS,
-		     sysfspath);
-	result = sysfs_read_u32(spath, &pdev->fpga_num_slots);
-	if (FPGA_OK != result)
-		return result;
-
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_BITSTREAM_ID,
-		     sysfspath);
-	result = sysfs_read_u64(spath, &pdev->fpga_bitstream_id);
-	if (FPGA_OK != result)
-		return result;
+	// Read bitstream id
+	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_BITSTREAM_ID, &pdev->fpga_bitstream_id);
+	if (resval != 0) {
+		return FPGA_NOT_FOUND;
+	}
 
 	pdev->fpga_bbs_version.major =
 		FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
@@ -477,134 +478,65 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
-STATIC fpga_result enum_top_dev(const char *sysfspath, struct dev_list *list,
-			 bool include_port)
+
+STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
+				bool include_port)
 {
-	fpga_result result = FPGA_NOT_FOUND;
-	struct stat stats;
+	fpga_result result                 = FPGA_NOT_FOUND;
+	struct dev_list *pdev              = NULL;
+	int i                              = 0;
+	int region_count                   = 0 ;
+	sysfs_fpga_region *region          = NULL;
 
-	struct dev_list *pdev;
+	region_count = sysfs_region_count();
 
-	DIR *dir;
-	struct dirent *dirent;
-	char spath[SYSFS_PATH_MAX];
-	int res;
-	char *p;
-	int f;
-	unsigned s, b, d;
-
-	// Make sure it's a directory.
-	if (stat(sysfspath, &stats) != 0) {
-		FPGA_MSG("stat failed: %s", strerror(errno));
-		return FPGA_NO_DRIVER;
+	if (region_count <= 0) {
+		FPGA_MSG("Not found fpga regions");
+		return FPGA_NO_DRIVER;;
 	}
 
-	if (!S_ISDIR(stats.st_mode))
-		return FPGA_OK;
+	for (i = 0; i < region_count; i++) {
 
-	res = readlink(sysfspath, spath, sizeof(spath));
-	if (-1 == res) {
-		FPGA_MSG("Can't read link");
-		return FPGA_NO_DRIVER;
-	}
+		region  = (sysfs_fpga_region *)sysfs_get_region(i);
 
-	pdev = add_dev(sysfspath, "", list);
-	if (!pdev) {
-		FPGA_MSG("Failed to allocate device");
-		return FPGA_NO_MEMORY;
-	}
-
-	// Find the BDF from the link path.
-	spath[res] = 0;
-	p = strrchr(spath, '/');
-	if (!p) {
-		FPGA_MSG("Invalid link");
-		return FPGA_NO_DRIVER;
-	}
-	*p = 0;
-	p = strrchr(spath, '/');
-	if (!p) {
-		FPGA_MSG("Invalid link");
-		return FPGA_NO_DRIVER;
-	}
-	*p = 0;
-	p = strrchr(spath, '/');
-	if (!p) {
-		FPGA_MSG("Invalid link");
-		return FPGA_NO_DRIVER;
-	}
-	++p;
-
-	//           11
-	// 012345678901
-	// ssss:bb:dd.f
-	f = 0;
-	sscanf_s_i(p + 11, "%d", &f);
-
-	pdev->function = (uint8_t)f;
-	*(p + 10) = 0;
-
-	d = 0;
-	sscanf_s_u(p + 8, "%x", &d);
-
-	pdev->device = (uint8_t)d;
-	*(p + 7) = 0;
-
-	b = 0;
-	sscanf_s_u(p + 5, "%x", &b);
-
-	pdev->bus = (uint8_t)b;
-	*(p + 4) = 0;
-
-	s = 0;
-	sscanf_s_u(p, "%x", &s);
-	pdev->segment = (uint16_t)s;
-
-	// read the vendor and device ID from the 'device' path
-	uint32_t x = 0;
-	char vendorpath[SYSFS_PATH_MAX];
-	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/device/vendor", sysfspath);
-	result = sysfs_read_u32(vendorpath, &x);
-	if (result != FPGA_OK)
-		return result;
-	pdev->vendor_id = (uint16_t)x;
-
-	char devicepath[SYSFS_PATH_MAX];
-	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/device/device", sysfspath);
-	result = sysfs_read_u32(devicepath, &x);
-	if (result != FPGA_OK)
-		return result;
-	pdev->device_id = (uint16_t)x;
-
-	// Find the FME and AFU devices.
-	dir = opendir(sysfspath);
-	if (NULL == dir) {
-		FPGA_MSG("Can't open directory: %s", sysfspath);
-		return FPGA_NO_DRIVER;
-	}
-
-	while ((dirent = readdir(dir)) != NULL) {
-		if (!strcmp(dirent->d_name, "."))
-			continue;
-		if (!strcmp(dirent->d_name, ".."))
-			continue;
-
-		snprintf_s_ss(spath, sizeof(spath), "%s/%s", sysfspath,
-			      dirent->d_name);
-
-		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
-			result = enum_fme(spath, dirent->d_name, pdev);
-			if (result != FPGA_OK)
-				break;
-		} else if (include_port
-			   && strstr(dirent->d_name, FPGA_SYSFS_AFU)) {
-			result = enum_afu(spath, dirent->d_name, pdev);
-			if (result != FPGA_OK)
-				break;
+		if (!region) {
+			FPGA_MSG("failed to enum regions");
+			return FPGA_NO_DRIVER;
 		}
-	}
 
-	closedir(dir);
+		pdev = add_dev(region->region_path, "", list);
+		if (!pdev) {
+			FPGA_MSG("Failed to allocate device");
+			return FPGA_NO_MEMORY;
+		}
+		// Assign bus, function, device
+		// segment,device_id ,vendor_id
+		pdev->function       = region->function;
+		pdev->segment        = region->segment;
+		pdev->bus            = region->bus;
+		pdev->device         = region->device;
+		pdev->device_id      = region->device_id;
+		pdev->vendor_id      = region->vendor_id;
+
+		// Enum fme
+		if (region->fme) {
+			result = enum_fme(region->fme->res_path,
+							region->fme->res_name, pdev);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to enum FME");
+			}
+		}
+
+		// Enum port
+		if (region->port && include_port) {
+			result = enum_afu(region->port->res_path,
+				region->port->res_name, pdev);
+			if (result != FPGA_OK) {
+				FPGA_ERR("Failed to enum PORT");
+			}
+		}
+
+	} // end of region loop
 
 	return result;
 }
@@ -643,9 +575,7 @@ fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 {
 	fpga_result result = FPGA_NOT_FOUND;
 
-	DIR *dir = NULL;
-	struct dirent *dirent = NULL;
-	char sysfspath[SYSFS_PATH_MAX];
+
 	struct dev_list head;
 	struct dev_list *lptr;
 
@@ -675,29 +605,9 @@ fpga_result __FPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 
 	memset_s(&head, sizeof(head), 0);
 
-	// Find the top-level FPGA devices.
-	dir = opendir(SYSFS_FPGA_CLASS_PATH);
-	if (NULL == dir) {
-		FPGA_MSG("can't find %s (no driver?)", SYSFS_FPGA_CLASS_PATH);
-		return FPGA_NO_DRIVER;
-	}
-
-	while ((dirent = readdir(dir)) != NULL) {
-		if (!strcmp(dirent->d_name, "."))
-			continue;
-		if (!strcmp(dirent->d_name, ".."))
-			continue;
-
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s",
-			      SYSFS_FPGA_CLASS_PATH, dirent->d_name);
-
-		result = enum_top_dev(sysfspath, &head,
-				      include_afu(filters, num_filters));
-		if (result != FPGA_OK)
-			break;
-	}
-
-	closedir(dir);
+	//enum FPGA regions & resources
+	result = enum_fpga_region_resources(&head,
+				include_afu(filters, num_filters));
 
 	if (result != FPGA_OK) {
 		FPGA_MSG("No FPGA resources found");

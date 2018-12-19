@@ -63,6 +63,7 @@ class usrclk_c
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_,
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -100,6 +101,7 @@ class usrclk_c
 
     if (handle_dev_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    fpgaFinalize();
     system_->finalize();
   }
 

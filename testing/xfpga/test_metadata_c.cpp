@@ -51,7 +51,7 @@ class metadata_c
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     fpga_guid fme_guid;
 
     ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
@@ -73,6 +73,7 @@ class metadata_c
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 

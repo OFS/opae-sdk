@@ -162,19 +162,19 @@ int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *va
 STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
 {
 	uint64_t value = 0;
-	int res = syfs_parse_attribute64(region->path, "device/device", &value);
+	int res = syfs_parse_attribute64(region->region_path, "device/device", &value);
 	if (res) {
 		FPGA_ERR("Error parsing device_id for region: %s",
-			 region->path);
+			 region->region_path);
 		return res;
 	}
 	region->device_id = value;
 
-	res = syfs_parse_attribute64(region->path, "device/vendor", &value);
+	res = syfs_parse_attribute64(region->region_path, "device/vendor", &value);
 
 	if (res) {
 		FPGA_ERR("Error parsing vendor_id for region: %s",
-			 region->path);
+			 region->region_path);
 		return res;
 	}
 	region->vendor_id = value;
@@ -188,15 +188,23 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
 	ssize_t sym_link_len = 0;
-	if (snprintf_s_ss(region->path, SYSFS_PATH_MAX, "%s/%s",
+	if (snprintf_s_ss(region->region_path, SYSFS_PATH_MAX, "%s/%s",
 			  sysfs_class_fpga, dir_name)
 	    < 0) {
 		FPGA_ERR("Error formatting sysfs paths");
 		return FPGA_EXCEPTION;
 	}
-	sym_link_len = readlink(region->path, buffer, SYSFS_PATH_MAX);
+
+	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s",
+		dir_name)
+		< 0) {
+		FPGA_ERR("Error formatting sysfs name");
+		return FPGA_EXCEPTION;
+	}
+
+	sym_link_len = readlink(region->region_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
-		FPGA_ERR("Error reading sysfs link: %s", region->path);
+		FPGA_ERR("Error reading sysfs link: %s", region->region_path);
 		return FPGA_EXCEPTION;
 	}
 
@@ -223,19 +231,27 @@ STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
 	resource->type = type;
 	resource->num = num;
 	// copy the full path to the parent region object
-	strcpy_s(resource->path, SYSFS_PATH_MAX, region->path);
+	strcpy_s(resource->res_path, SYSFS_PATH_MAX, region->region_path);
 	// add a trailing path seperator '/'
-	int len = strlen(resource->path);
-	char *ptr = resource->path + len;
+	int len = strlen(resource->res_path);
+	char *ptr = resource->res_path + len;
 	*ptr = '/';
 	ptr++;
 	*ptr = '\0';
 	// append the name to get the full path to the resource
-	if (cat_sysfs_path(resource->path, name)) {
+	if (cat_sysfs_path(resource->res_path, name)) {
 		FPGA_ERR("error concatenating path");
 		free(resource);
 		return NULL;
 	}
+
+	if (snprintf_s_s(resource->res_name, SYSFS_PATH_MAX, "%s",
+		name)
+		< 0) {
+		FPGA_ERR("Error formatting sysfs name");
+		return NULL;
+	}
+
 	return resource;
 }
 
@@ -255,7 +271,7 @@ STATIC void find_resources(sysfs_fpga_region *region)
 		FPGA_MSG("Error compiling regex: %s", err);
 	}
 
-	dir = opendir(region->path);
+	dir = opendir(region->region_path);
 	while ((dirent = readdir(dir)) != NULL) {
 		if (!strcmp(dirent->d_name, "."))
 			continue;

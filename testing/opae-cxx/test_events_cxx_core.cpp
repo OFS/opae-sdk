@@ -99,6 +99,7 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
     close_log();
+    fpgaFinalize();
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&

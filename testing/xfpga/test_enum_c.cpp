@@ -53,7 +53,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
@@ -62,6 +62,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     DestroyTokens();
+    fpgaFinalize();
     system_->finalize();
   }
 

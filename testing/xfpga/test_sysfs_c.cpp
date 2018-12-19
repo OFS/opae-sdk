@@ -77,10 +77,11 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
   }
 
   virtual void TearDown() override {
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -193,7 +194,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -217,7 +218,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
           t = nullptr;
       }
     }
-
+    fpgaFinalize();
     system_->finalize();
   }
 

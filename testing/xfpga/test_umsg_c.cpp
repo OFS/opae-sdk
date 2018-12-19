@@ -155,7 +155,7 @@ class umsg_c_p
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     filter_ = nullptr;
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -178,6 +178,7 @@ class umsg_c_p
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 

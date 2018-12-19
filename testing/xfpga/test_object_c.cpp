@@ -48,7 +48,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     fpga_guid fme_guid;
 
     ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
@@ -70,7 +70,8 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-      system_->finalize();
+    fpgaFinalize();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_;

@@ -370,7 +370,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
+   fpgaFinalize();
    system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
@@ -1377,7 +1377,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
+    fpgaFinalize();
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&

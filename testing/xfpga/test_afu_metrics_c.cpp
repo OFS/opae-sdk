@@ -127,6 +127,7 @@ protected:
 		system_->initialize();
 		system_->prepare_syfs(platform_);
 
+		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
 		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
 		num_matches_ = 0;
@@ -156,6 +157,7 @@ protected:
 				t = nullptr;
 			}
 		}
+		fpgaFinalize();
 		system_->finalize();
 	}
 	uint32_t which_mmio_;
