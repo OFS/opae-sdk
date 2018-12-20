@@ -30,6 +30,7 @@
 #include <linux/ioctl.h>
 #include <cstdarg>
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "test_system.h"
 
 namespace opae {
@@ -72,6 +73,21 @@ DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_SET_MODE, fpga_port_umsg_cfg);
 DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_SET_BASE_ADDR, fpga_port_umsg_base_addr);
 // DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_ENABLE);
 // DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_DISABLE);
+
+// fpga upstream driver ioctl
+
+// FPGA DEVICE
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_RELEASE, dfl_fpga_fme_port_release);
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_PR, dfl_fpga_fme_port_pr);
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_ASSIGN, dfl_fpga_fme_port_assign);
+
+
+// FPGA ACCELERATOR
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_PORT_DMA_MAP, dfl_fpga_port_dma_map);
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_PORT_DMA_UNMAP, dfl_fpga_port_dma_unmap);
+
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_PORT_GET_REGION_INFO, dfl_fpga_port_region_info);
+DEFAULT_IOCTL_HANDLER(DFL_FPGA_PORT_GET_INFO, dfl_fpga_port_info);
 
 }  // end of namespace testing
 }  // end of namespace opae
