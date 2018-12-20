@@ -158,7 +158,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t
 	*id_h = int64_be_to_le(*id_h);
 
 	e = memcpy_s(id_l, sizeof(id_l),
-		guid+ +sizeof(uint64_t), sizeof(uint64_t));
+		guid + sizeof(uint64_t), sizeof(uint64_t));
 	if (EOK != e) {
 		FPGA_ERR("memcpy_s failed");
 		return FPGA_EXCEPTION;
