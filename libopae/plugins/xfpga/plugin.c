@@ -188,6 +188,9 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaGetMetricsByName =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsByName");
 
+	adapter->fpgaGetReconfInterfaceId =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetReconfInterfaceId");
+
 	return 0;
 }
 

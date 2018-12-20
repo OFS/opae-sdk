@@ -106,5 +106,15 @@ TEST_P(reconf_c_p, pr) {
 		  bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 
+/**
+ * @test       pr_01
+ * @brief      Test: fpgaGetReconfInterfaceId
+ * @details    When fpgaGetReconfInterfaceId is called with valid params,<br>
+ *             then the fn returns FPGA_OK.<br>
+ */
+TEST_P(reconf_c_p, pr_01) {
+	fpga_guid guid;
+	EXPECT_EQ(fpgaGetReconfInterfaceId(tokens_[0], guid), FPGA_OK);
+}
 INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

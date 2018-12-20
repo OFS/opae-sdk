@@ -140,6 +140,22 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				const uint8_t *bitstream,
 				size_t bitstream_len, int flags);
 
+
+/**
+ * Retrieve reconfiguration interface id
+ *
+ *
+ * @param[in]  token          token to an FPGA Management object
+ * @param[out] guid           pointer to reconfiguration interface Id
+
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if the provided parameters
+ * are not valid. FPGA_EXCEPTION if an internal error occurred accessing the
+ * token.
+ *
+ */
+fpga_result fpgaGetReconfInterfaceId(fpga_token token,
+			fpga_guid guid);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

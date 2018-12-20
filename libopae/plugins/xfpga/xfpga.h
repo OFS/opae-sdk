@@ -133,6 +133,9 @@ fpga_result xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				    uint64_t num_metric_names,
 				    fpga_metric *metrics);
 
+fpga_result xfpga_fpgaGetReconfInterfaceId(fpga_token token,
+			      fpga_guid guid);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

@@ -480,3 +480,28 @@ out_unlock:
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
+
+fpga_result __FPGA_API__ xfpga_fpgaGetReconfInterfaceId(fpga_token token,
+			fpga_guid guid)
+{
+	fpga_result result = FPGA_OK;
+	struct _fpga_token  *_token;
+
+	_token = (struct _fpga_token *)token;
+	if (!_token) {
+		FPGA_MSG("Token is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (_token->magic != FPGA_TOKEN_MAGIC) {
+		FPGA_MSG("Invalid token ");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = sysfs_get_interface_id(_token, guid);
+	if (FPGA_OK != result) {
+		FPGA_ERR("Failed to get PR interface id");
+	}
+
+	return result;
+}

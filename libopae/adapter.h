@@ -200,6 +200,9 @@ typedef struct _opae_api_adapter_table {
 					uint64_t num_metric_names,
 					fpga_metric *metrics);
 
+	fpga_result(*fpgaGetReconfInterfaceId)(fpga_token token,
+		fpga_guid guid);
+
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);

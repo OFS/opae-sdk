@@ -493,6 +493,27 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 	return sysfs_read_guid(path, guid);
 }
 
+
+fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid)
+{
+	fpga_result res = FPGA_OK;
+	char sysfs_path[SYSFS_PATH_MAX];
+
+	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
+		sysfs_res_path, SYSFS_FORMAT(sysfs_compat_id));
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			sysfs_res_path, sysfs_path);
+		return FPGA_EXCEPTION;
+	}
+
+	res = opae_glob_path(sysfs_path);
+	if (res) {
+		return res;
+	}
+	return sysfs_read_guid(sysfs_path, guid);
+}
+
 int sysfs_filter(const struct dirent *de)
 {
 	return de->d_name[0] != '.';
