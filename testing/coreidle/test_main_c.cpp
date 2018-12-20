@@ -443,7 +443,8 @@ TEST_P(coreidle_main_c_p, mid_null_char) {
   char two[32];
   char *argv[] = { zero, one, two };
 
-  memset(two, 0, 32);
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
   strcpy(two, "copy_bit\0stream.gbs");
   EXPECT_NE(coreidle_main(3, argv), 0);
 
