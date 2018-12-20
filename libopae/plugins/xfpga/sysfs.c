@@ -128,7 +128,7 @@ out:
 	return res;
 }
 
-int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value)
+int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value)
 {
 	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
 	char path[SYSFS_PATH_MAX];
@@ -164,7 +164,7 @@ int syfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *va
 STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
 {
 	uint64_t value = 0;
-	int res = syfs_parse_attribute64(region->region_path, "device/device", &value);
+	int res = sysfs_parse_attribute64(region->region_path, "device/device", &value);
 	if (res) {
 		FPGA_ERR("Error parsing device_id for region: %s",
 			 region->region_path);
@@ -172,7 +172,7 @@ STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
 	}
 	region->device_id = value;
 
-	res = syfs_parse_attribute64(region->region_path, "device/vendor", &value);
+	res = sysfs_parse_attribute64(region->region_path, "device/vendor", &value);
 
 	if (res) {
 		FPGA_ERR("Error parsing vendor_id for region: %s",

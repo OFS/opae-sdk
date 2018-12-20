@@ -384,21 +384,21 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 		return result;
 
 	// Discover the socket id from the FME's sysfs entry.
-	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
+	resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
 	if (resval != 0) {
 		return FPGA_NOT_FOUND;
 	}
 	parent->socket_id = (uint8_t) value;
 
 	// Read number of slots
-	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_NUM_SLOTS, &value);
+	resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_NUM_SLOTS, &value);
 	if (resval != 0) {
 		return FPGA_NOT_FOUND;
 	}
 	pdev->fpga_num_slots = (uint32_t) value;
 
 	// Read bitstream id
-	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_BITSTREAM_ID, &pdev->fpga_bitstream_id);
+	resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_BITSTREAM_ID, &pdev->fpga_bitstream_id);
 	if (resval != 0) {
 		return FPGA_NOT_FOUND;
 	}
