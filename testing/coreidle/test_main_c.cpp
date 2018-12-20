@@ -56,12 +56,12 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 	      char *argv[]);
 
 int read_bitstream(struct CoreIdleCommandLine *cmdline);
-
 }
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <config.h>
 #include <opae/fpga.h>
-
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -341,18 +341,18 @@ TEST_P(coreidle_main_c_p, parse_err1) {
   char ten[32];
   char eleven[32];
   char twelve[32];
-  strcpy(zero, "    coreidle+_=`~!@#$%^&*_+=-");
+  strcpy(zero, "  coreidle+_~_+=-");
   strcpy(one, "-Green_Bitstream");
   strcpy(two, tmp_gbs_);
   strcpy(three, "--seg ment|{};:'<>?");
   strcpy(four, "0x9999");
   strcpy(five, "-BBBBB");
   strcpy(six, "99");
-  strcpy(seven, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(seven, "-Devic\xF0\x90-\xBF ess\n\b\a\e\v");
   strcpy(eight, "99");
   strcpy(nine, "-F\x00\x08\x09\x0B\x0D");
   strcpy(ten, "7");
-  strcpy(eleven, "\xF1-\xF3    \x80-\x8F");
+  strcpy(eleven, "\xF1-\xF3  \x80-\x8F");
   strcpy(twelve, "99");
 
   char *argv[] = { zero, one, two, three, four,
@@ -406,7 +406,6 @@ TEST_P(coreidle_main_c_p, parse_err2) {
   EXPECT_NE(coreidle_main(13, argv), 0);
 }
 
-
 /**
  * @test       lead_null_char
  * @brief      Test: coreidle_main
@@ -448,6 +447,124 @@ TEST_P(coreidle_main_c_p, mid_null_char) {
   strcpy(two, "copy_bit\0stream.gbs");
   EXPECT_NE(coreidle_main(3, argv), 0);
 
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       encoding_path*
+ * @brief      Test: coreidle_main
+ * @details    When command param is encoding path,<br>
+ *             coreidle_main displays file error and returns zero.<br>
+ */
+TEST_P(coreidle_main_c_p, encoding_path1) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "copy_bitstream%2Egbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, encoding_path2) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "copy_bitstream..gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, encoding_path3) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "....copy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, encoding_path4) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "%252E%252E%252Fcopy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       relative_path1
+ * @brief      Test: coreidle_main
+ * @details    Tests for absolute path on gbs file. When file found<br>
+ *             and successful, set_cpu_core_idle flags INVALID PARAM and
+ *             forces coreidle to return 1.<br>
+ */
+TEST_P(coreidle_main_c_p, relative_path1) {
+  copy_bitstream("../copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "../copy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       relative_path*
+ * @brief      Test: coreidle_main
+ * @details    When command param is encoding path,<br>
+ *             coreidle_main displays file error and returns zero.<br>
+ */
+TEST_P(coreidle_main_c_p, relative_path2) {
+  copy_bitstream("../copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "../..../copy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, relative_path3) {
+  copy_bitstream("../copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "..%2fcopy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, relative_path4) {
+  copy_bitstream("../copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "%2e%2e/copy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(coreidle_main_c_p, relative_path5) {
+  copy_bitstream("../copy_bitstream.gbs");
+  const char *argv[] = { "coreidle", "-G", "%2e%2e%2fcopy_bitstream.gbs"};
+
+  EXPECT_EQ(coreidle_main(3, (char**)argv), 1);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       absolute_path 
+ * @brief      Test: coreidle_main 
+ * @details    Tests for absolute path on gbs file. When file found<br>
+ *             and successful, set_cpu_core_idle flags INVALID PARAM and
+ *             forces coreidle to return 1.<br>
+ */
+TEST_P(coreidle_main_c_p, absolute_path) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[128];
+  char *argv[] = { zero, one, two };
+
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+
+  char* current_path = get_current_dir_name();
+  std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
+
+  strcpy(two, bitstream_path.c_str());
+  EXPECT_EQ(coreidle_main(3, argv), 1);
+
+  free(current_path);
   unlink(copy_gbs_.c_str());
 }
 
@@ -499,6 +616,103 @@ TEST_P(coreidle_main_c_p, read_bits3) {
   strcpy(cmd.filename, tmp_gbs_);
   EXPECT_EQ(read_bitstream(&cmd), 0);
   free(cmd.gbs_data);
+}
+
+/**
+ * @test       main_symlink_bs1
+ * @brief      Test: coreidle_main
+ * @details    Tests for symlink on gbs file. When successful,<br>
+ *             set_cpu_core_idle flags INVALID PARAM and
+ *             forces coreidle to return 1.<br>
+ */
+TEST_P(coreidle_main_c_p, main_symlink_bs1) {
+  copy_bitstream("copy_bitstream.gbs"); 
+  const std::string symlink_gbs = "bits_symlink";
+  char zero[32];
+  char one[32];
+  char two[32];
+  char *argv[] = { zero, one, two };
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+ 
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
+
+  strcpy(two, symlink_gbs.c_str());
+  EXPECT_EQ(coreidle_main(3, argv), 1);
+
+  // remove bitstream file and symlink
+  unlink(copy_gbs_.c_str());
+  unlink(symlink_gbs.c_str());
+}
+
+/**
+ * @test       main_symlink_bs2
+ * @brief      Test: coreidle_main
+ * @details    Tests for symlink on gbs file. When file pointed by <br>
+ *             symlink doesn't exist. Coreidle fails to read file and <br>
+ *             displays error and returns 0.<br>
+ */
+TEST_P(coreidle_main_c_p, main_symlink_bs2) {
+  copy_bitstream("copy_bitstream.gbs"); 
+  const std::string symlink_gbs = "bits_symlink";
+  char zero[32];
+  char one[32];
+  char two[32];
+  char *argv[] = { zero, one, two };
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+ 
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
+
+  strcpy(two, symlink_gbs.c_str());
+
+  // remove bitstream file
+  unlink(copy_gbs_.c_str());
+
+  // fails to read file
+  EXPECT_EQ(coreidle_main(3, argv), 1);
+
+  unlink(symlink_gbs.c_str());
+}
+
+/**
+ * @test       circular_symlink
+ * @brief      Test: read_bitstream
+ * @details    Tests for circular symlink on gbs file. <br>
+ *             read_bitstream displays error and returns -1.<br>
+ */
+TEST_P(coreidle_main_c_p, main_circular_symlink) {
+  const std::string symlink_A = "./link1/bits_symlink_A";
+  const std::string symlink_B = "./link2/bits_symlink_B";
+  char zero[32];
+  char one[32];
+  char two[32];
+  char *argv[] = { zero, one, two };
+  strcpy(zero, "coreidle");
+  strcpy(one, "-G");
+
+  // Create link directories
+  auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+  ret = mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+
+  // Create circular symlinks
+  ret = symlink("link1", symlink_B.c_str());
+  EXPECT_EQ(ret, 0);
+  ret = symlink("link2", symlink_A.c_str());
+  EXPECT_EQ(ret, 0);
+
+  strcpy(two, symlink_A.c_str());
+  EXPECT_EQ(coreidle_main(3, argv), 1);
+
+  // Clean up
+  unlink(symlink_A.c_str());
+  unlink(symlink_B.c_str());
+  remove("link1");
+  remove("link2");
 }
 
 INSTANTIATE_TEST_CASE_P(coreidle_main_c, coreidle_main_c_p,
