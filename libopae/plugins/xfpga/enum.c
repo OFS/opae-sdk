@@ -486,7 +486,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 	struct dev_list *pdev              = NULL;
 	int i                              = 0;
 	int region_count                   = 0 ;
-	sysfs_fpga_region *region          = NULL;
+	const sysfs_fpga_region *region    = NULL;
 
 	region_count = sysfs_region_count();
 
@@ -497,7 +497,7 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 
 	for (i = 0; i < region_count; i++) {
 
-		region  = (sysfs_fpga_region *)sysfs_get_region(i);
+		region  = sysfs_get_region(i);
 
 		if (!region) {
 			FPGA_MSG("failed to enum region");

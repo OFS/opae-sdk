@@ -31,10 +31,10 @@ extern "C" {
 #include <memory.h>
 #include <stdio.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
 #include "types_int.h"
-#include "metrics/vector.h"
 #include "metrics/metrics_int.h"
+#include "metrics/vector.h"
+#include "opae_int.h"
 #include "xfpga.h"
 }
 
@@ -55,8 +55,7 @@ extern "C" {
 #include "test_system.h"
 
 #undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+#define FPGA_MSG(fmt, ...) printf("MOCK " fmt "\n", ##__VA_ARGS__)
 
 using namespace opae::testing;
 
@@ -106,63 +105,60 @@ out_EINVAL:
   goto out;
 }
 
-class afu_metrics_c_p
-	: public ::testing::TestWithParam<std::string> {
-protected:
-	afu_metrics_c_p()
-		: handle_(nullptr),
-		tokens_{ {nullptr, nullptr} } {}
+class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  afu_metrics_c_p() : handle_(nullptr), tokens_{{nullptr, nullptr}} {}
 
-	void create_metric_bbb_dfh();
-	void create_metric_bbb_csr();
+  void create_metric_bbb_dfh();
+  void create_metric_bbb_csr();
 
-	virtual void SetUp() override {
-		ASSERT_TRUE(test_platform::exists(GetParam()));
-		platform_ = test_platform::get(GetParam());
-		system_ = test_system::instance();
-		system_->initialize();
-		system_->prepare_syfs(platform_);
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
 
-		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-		num_matches_ = 0;
-		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_),
-			FPGA_OK);
-		ASSERT_GT(num_matches_, 0);
-		handle_ = nullptr;
-		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
-		which_mmio_ = 0;
-		uint64_t *mmio_ptr = nullptr;
-		EXPECT_EQ(xfpga_fpgaMapMMIO(handle_, which_mmio_, &mmio_ptr), FPGA_OK);
-		EXPECT_NE(mmio_ptr, nullptr);
-	}
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_),
+              FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
+    handle_ = nullptr;
+    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+    which_mmio_ = 0;
+    uint64_t *mmio_ptr = nullptr;
+    EXPECT_EQ(xfpga_fpgaMapMMIO(handle_, which_mmio_, &mmio_ptr), FPGA_OK);
+    EXPECT_NE(mmio_ptr, nullptr);
+  }
 
-	virtual void TearDown() override {
-		EXPECT_EQ(xfpga_fpgaUnmapMMIO(handle_, which_mmio_), FPGA_OK);
-		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-		if (handle_) {
-			EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-			handle_ = nullptr;
-		}
-		for (auto &t : tokens_) {
-			if (t) {
-				EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-				t = nullptr;
-			}
-		}
-		fpgaFinalize();
-		system_->finalize();
-	}
-	uint32_t which_mmio_;
-	fpga_handle handle_;
-	std::array<fpga_token, 2> tokens_;
-	fpga_properties filter_;
-	uint32_t num_matches_;
-	test_platform platform_;
-	test_system *system_;
+  virtual void TearDown() override {
+    EXPECT_EQ(xfpga_fpgaUnmapMMIO(handle_, which_mmio_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    if (handle_) {
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
+      handle_ = nullptr;
+    }
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+    fpgaFinalize();
+    system_->finalize();
+  }
+  uint32_t which_mmio_;
+  fpga_handle handle_;
+  std::array<fpga_token, 2> tokens_;
+  fpga_properties filter_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
 };
 
 void afu_metrics_c_p::create_metric_bbb_dfh() {
