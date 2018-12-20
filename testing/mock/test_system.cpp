@@ -28,6 +28,7 @@
  */
 
 #include "test_system.h"
+#include <glob.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <algorithm>
@@ -36,7 +37,6 @@
 #include <iostream>
 #include "c_test_system.h"
 #include "test_utils.h"
-#include <glob.h>
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
@@ -123,9 +123,13 @@ namespace opae {
 namespace testing {
 
 static const char *dev_pattern =
-    R"regex(/dev/intel-fpga-(fme|port)\.([0-9]+))regex";
+    R"regex(/dev/(intel-fpga|dfl)-(fme|port)\.([0-9]+))regex";
 static const char *sysclass_pattern =
-    R"regex(/sys/class/fpga/intel-fpga-dev\.([0-9]+))regex";
+    R"regex(/sys/class/fpga((?:_region)?/(region|intel-fpga-dev\.)([0-9]+))regex";
+
+static std::map<std::string, std::string> fpga_sysfs_path_map = {
+    {"/dev/intel", "/sys/class/fpga/intel-fpga-dev."},
+    {"/dev/dfl", "/sys/class/fpga_region/region"}};
 
 mock_object::mock_object(const std::string &devpath,
                          const std::string &sysclass, uint32_t device_id,
@@ -194,9 +198,10 @@ test_system::test_system() : initialized_(false), root_("") {
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
-  sched_setaffinity_ = (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
-  
-   glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
+  sched_setaffinity_ =
+      (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
+
+  glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
 
   hijack_sched_setaffinity_ = false;
   hijack_sched_setaffinity_return_val_ = 0;
@@ -225,7 +230,7 @@ void test_system::prepare_syfs(const test_platform &platform) {
                       root_ + " --strip 1";
     result = std::system(cmd.c_str());
   }
-  return (void) result;
+  return (void)result;
 }
 
 void test_system::remove_sysfs() {
@@ -242,7 +247,7 @@ void test_system::remove_sysfs() {
       result = std::system(cmd.c_str());
     }
   }
-  return (void) result;
+  return (void)result;
 }
 
 void test_system::set_root(const char *root) { root_ = root; }
@@ -253,7 +258,8 @@ std::string test_system::get_sysfs_path(const std::string &src) {
   if (it != registered_files_.end()) {
     return it->second;
   }
-  if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0) {
+  if (src.find("/sys") == 0 || src.find("/dev/intel-fpga") == 0 ||
+      src.find("/dev/dfl-") == 0) {
     if (!root_.empty() && root_.size() > 1) {
       return root_ + src;
     }
@@ -274,7 +280,8 @@ std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td) {
   return gbs_header;
 }
 
-std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td, const char *mdata) {
+std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td,
+                                                      const char *mdata) {
   if (mdata) {
     test_device copy = td;
     copy.mdata = mdata;
@@ -297,7 +304,7 @@ void test_system::initialize() {
   ASSERT_FN(lstat_);
   ASSERT_FN(scandir_);
   ASSERT_FN(sched_setaffinity_);
-    ASSERT_FN(glob_);
+  ASSERT_FN(glob_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -357,7 +364,7 @@ void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
   const size_t std_guid_str_size = 36;
   const size_t char_guid_str_size = 32;
   if (guid_str.back() == '\n') {
-    guid_str.erase(guid_str.end()-1);
+    guid_str.erase(guid_str.end() - 1);
   }
   std::locale lc;
   auto c_idx = guid_str.find('-');
@@ -385,7 +392,7 @@ void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
     }
   }
 
-  for (auto & c : guid_str) {
+  for (auto &c : guid_str) {
     c = std::tolower(c, lc);
   }
 }
@@ -401,6 +408,15 @@ uint32_t get_device_id(const std::string &sysclass) {
     return std::stoul(line, 0, 16);
   }
   return res;
+}
+
+std::string test_system::get_sysfs_claass_path(const std::string &path) {
+  for (auto it : fpga_sysfs_path_map) {
+    if (path.find(it.first) == 0) {
+      return it.second;
+    }
+  }
+  return "";
 }
 
 int test_system::open(const std::string &path, int flags) {
@@ -434,12 +450,12 @@ int test_system::open(const std::string &path, int flags) {
     // path matches /dev/intel-fpga-(fme|port)\..*
     // we are opening a device
     fd = open_(syspath.c_str(), flags);
-    auto sysclass_path = "/sys/class/fpga/intel-fpga-dev." + m->group(2);
+    auto sysclass_path = get_sysfs_claass_path(path) + m->group(3);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
-    if (m->group(1) == "fme") {
+    if (m->group(2) == "fme") {
       std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_fme(path, sysclass_path, device_id);
-    } else if (m->group(1) == "port") {
+    } else if (m->group(2) == "port") {
       std::lock_guard<std::mutex> guard(fds_mutex_);
       fds_[fd] = new mock_port(path, sysclass_path, device_id);
     }
@@ -459,7 +475,9 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
   if (syspath.find(root_) == 0) {
     std::lock_guard<std::mutex> guard(fds_mutex_);
     std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end()) { delete it->second; }
+    if (it != fds_.end()) {
+      delete it->second;
+    }
     fds_[fd] = new mock_object(path, "", 0);
   }
   return fd;
@@ -526,7 +544,7 @@ FILE *test_system::popen(const std::string &cmd, const std::string &type) {
     FILE *fp = fopen(tmpfile, "w+");
 
     size_t last_spc = cmd.find_last_of(' ');
-    std::string msr(cmd.substr(last_spc+1));
+    std::string msr(cmd.substr(last_spc + 1));
 
     if (0 == msr.compare("0x35")) {
       fprintf(fp, "0x0000000000180030");
@@ -547,13 +565,12 @@ FILE *test_system::popen(const std::string &cmd, const std::string &type) {
 
 int test_system::pclose(FILE *stream) {
   // Is this something we intercepted?
-  std::map<FILE *, std::string>::iterator it =
-	  popen_requests_.find(stream);
+  std::map<FILE *, std::string>::iterator it = popen_requests_.find(stream);
   if (it != popen_requests_.end()) {
     unlink(it->second.c_str());
     popen_requests_.erase(it);
     fclose(stream);
-    return 0; // process exit status
+    return 0;  // process exit status
   }
   return pclose_(stream);
 }
@@ -571,27 +588,26 @@ int test_system::close(int fd) {
 }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
-  mock_object *mo  = nullptr;
+  mock_object *mo = nullptr;
   {
-      std::lock_guard<std::mutex> guard(fds_mutex_);
-      auto mi = fds_.find(fd);
-      if (mi != fds_.end()) {
-          mo = mi->second;
-      }
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    auto mi = fds_.find(fd);
+    if (mi != fds_.end()) {
+      mo = mi->second;
+    }
   }
-  
+
   if (mo == nullptr) {
-      char *arg = va_arg(argp, char *);
-      return ioctl_(fd, request, arg);
+    char *arg = va_arg(argp, char *);
+    return ioctl_(fd, request, arg);
   }
-  
+
   // replace mock_it->second with mo
   auto handler_it = ioctl_handlers_.find(request);
   if (handler_it != ioctl_handlers_.end()) {
-      return handler_it->second(mo, request, argp);
+    return handler_it->second(mo, request, argp);
   }
   return mo->ioctl(request, argp);
-
 }
 
 DIR *test_system::opendir(const char *path) {
@@ -631,7 +647,7 @@ int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
         hijack_sched_setaffinity_ = false;
         int res = hijack_sched_setaffinity_return_val_;
         hijack_sched_setaffinity_return_val_ = 0;
-	return res;
+        return res;
       }
 
       --hijack_sched_setaffinity_after_;
@@ -656,13 +672,13 @@ int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
         hijack_sched_setaffinity_caller_ = nullptr;
         res = hijack_sched_setaffinity_return_val_;
         hijack_sched_setaffinity_return_val_ = 0;
-	return res;
+        return res;
       } else if (!res)
         --hijack_sched_setaffinity_after_;
     }
   }
-  return 0; // return success - we don't actually
-            // want to change the affinity.
+  return 0;  // return success - we don't actually
+             // want to change the affinity.
 }
 
 void test_system::hijack_sched_setaffinity(int return_val, uint32_t after,
@@ -674,30 +690,29 @@ void test_system::hijack_sched_setaffinity(int return_val, uint32_t after,
 }
 
 int test_system::glob(const char *pattern, int flags,
-                int (*errfunc) (const char *epath, int eerrno),
-                glob_t *pglob)
-{
+                      int (*errfunc)(const char *epath, int eerrno),
+                      glob_t *pglob) {
   if (pattern == nullptr) {
-  	return glob_(pattern, flags, errfunc, pglob);
+    return glob_(pattern, flags, errfunc, pglob);
   }
-	
-  auto path= get_sysfs_path(pattern);
-  
-  auto res = glob_(path.c_str(),flags,errfunc,pglob);
+
+  auto path = get_sysfs_path(pattern);
+
+  auto res = glob_(path.c_str(), flags, errfunc, pglob);
   if (!res) {
-  	for (int i = 0; i < pglob->gl_pathc; ++i) {
-		std::string tmppath(pglob->gl_pathv[i]);
-		if (tmppath.find(get_root()) == 0) {
-		  auto p = pglob->gl_pathv[i];
-		  auto root_len = get_root().size();
-		  auto new_len = tmppath.size() - root_len;
-		  std::copy(tmppath.begin()+root_len, tmppath.end(), p);
-		  p[new_len] = '\0';
-		}
-	}
+    for (int i = 0; i < pglob->gl_pathc; ++i) {
+      std::string tmppath(pglob->gl_pathv[i]);
+      if (tmppath.find(get_root()) == 0) {
+        auto p = pglob->gl_pathv[i];
+        auto root_len = get_root().size();
+        auto new_len = tmppath.size() - root_len;
+        std::copy(tmppath.begin() + root_len, tmppath.end(), p);
+        p[new_len] = '\0';
+      }
+    }
   }
- 
- return res;
+
+  return res;
 }
 
 void test_system::invalidate_malloc(uint32_t after,
@@ -775,15 +790,13 @@ int opae_test_scandir(const char *dirp, struct dirent ***namelist,
 
 int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize,
                                 const cpu_set_t *mask) {
-  return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
+  return opae::testing::test_system::instance()->sched_setaffinity(
+      pid, cpusetsize, mask);
 }
 
-
- int opae_test_glob(const char *pattern, int flags,
-                int (*errfunc) (const char *epath, int eerrno),
-                glob_t *pglob)
- {
-                 return opae::testing::test_system::instance()->glob(pattern,flags,errfunc,pglob);
-                
- }
-                
+int opae_test_glob(const char *pattern, int flags,
+                   int (*errfunc)(const char *epath, int eerrno),
+                   glob_t *pglob) {
+  return opae::testing::test_system::instance()->glob(pattern, flags, errfunc,
+                                                      pglob);
+}
