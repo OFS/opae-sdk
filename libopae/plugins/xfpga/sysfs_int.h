@@ -92,6 +92,8 @@ void sysfs_foreach_region(region_cb cb, void *context);
 const sysfs_fpga_region *sysfs_get_region(size_t num);
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
 
+fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
+
 /**
  * @brief Get BBS interface id
  *
