@@ -68,12 +68,13 @@ extern "C" {
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
-#pragma pack(1)
+#pragma pack(push, 1)
 struct buffer_params {
   fpga_result result;
   size_t size;
   int flags;
 };
+#pragma pack(pop)
 
 using namespace opae::testing;
 
