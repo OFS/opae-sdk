@@ -635,10 +635,11 @@ TEST_P(coreidle_main_c_p, main_symlink_bs1) {
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
  
-  if (!symlink(copy_gbs_.c_str(), symlink_gbs.c_str())) {
-     strcpy(two, symlink_gbs.c_str());
-     EXPECT_EQ(coreidle_main(3, argv), 1);
-  }
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
+
+  strcpy(two, symlink_gbs.c_str());
+  EXPECT_EQ(coreidle_main(3, argv), 1);
 
   // remove bitstream file and symlink
   unlink(copy_gbs_.c_str());
@@ -662,14 +663,16 @@ TEST_P(coreidle_main_c_p, main_symlink_bs2) {
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
  
-  if (!symlink(copy_gbs_.c_str(), symlink_gbs.c_str())) {
-     strcpy(two, symlink_gbs.c_str());
-     // remove bitstream file
-     unlink(copy_gbs_.c_str());
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
 
-     // fails to read file
-     EXPECT_EQ(coreidle_main(3, argv), 1);
-  }
+  strcpy(two, symlink_gbs.c_str());
+
+  // remove bitstream file
+  unlink(copy_gbs_.c_str());
+
+  // fails to read file
+  EXPECT_EQ(coreidle_main(3, argv), 1);
 
   unlink(symlink_gbs.c_str());
 }
@@ -689,19 +692,22 @@ TEST_P(coreidle_main_c_p, main_circular_symlink) {
   char *argv[] = { zero, one, two };
   strcpy(zero, "coreidle");
   strcpy(one, "-G");
- 
+
   // Create link directories
-  if (!(mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))
-       && !(mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))){
+  auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+  ret = mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
 
-      // Create circular symlinks
-      if (!symlink("link1", symlink_B.c_str())
-           && !symlink("link2", symlink_A.c_str())) {
+  // Create circular symlinks
+  ret = symlink("link1", symlink_B.c_str());
+  EXPECT_EQ(ret, 0);
+  ret = symlink("link2", symlink_A.c_str());
+  EXPECT_EQ(ret, 0);
 
-          strcpy(two, symlink_A.c_str());
-          EXPECT_EQ(coreidle_main(3, argv), 1);
-     }
-  }
+  strcpy(two, symlink_A.c_str());
+  EXPECT_EQ(coreidle_main(3, argv), 1);
+
   // Clean up
   unlink(symlink_A.c_str());
   unlink(symlink_B.c_str());

@@ -896,18 +896,17 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   char *argv[] = { zero, one, two, three, four,
                    five };
 
-  if (!symlink(copy_gbs_.c_str(), symlink_gbs.c_str())) {
-     // Success case
-     strcpy(five, symlink_gbs.c_str());
-     EXPECT_EQ(fpgaconf_main(6, argv), 0);
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
+  // Success case
+  strcpy(five, symlink_gbs.c_str());
+  EXPECT_EQ(fpgaconf_main(6, argv), 0);
 
-     // remove bitstream file
-     unlink(copy_gbs_.c_str());
+  // remove bitstream file
+  unlink(copy_gbs_.c_str());
 
-     // Fail case
-     EXPECT_NE(fpgaconf_main(6, argv), 0);
-  }
-
+  // Fail case
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
   unlink(symlink_gbs.c_str());
 }
 
@@ -936,27 +935,29 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
                    five };
 
   // Create link directories
-  if (!(mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))
-       && !(mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))){
+  auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+  ret = mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
 
-      // Create circular symlinks
-      if (!symlink("link1", symlink_B.c_str())
-           && !symlink("link2", symlink_A.c_str())) {
+  // Create circular symlinks
+  ret = symlink("link1", symlink_B.c_str());
+  EXPECT_EQ(ret, 0);
+  ret = symlink("link2", symlink_A.c_str());
+  EXPECT_EQ(ret, 0);
 
-          strcpy(five, symlink_A.c_str());
-          EXPECT_NE(fpgaconf_main(6, argv), 0);
+  strcpy(five, symlink_A.c_str());
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-          memset(five, 0, 20);
-          strcpy(five, symlink_B.c_str());
-          EXPECT_NE(fpgaconf_main(6, argv), 0);
-     }
-  }
+  memset(five, 0, 20);
+  strcpy(five, symlink_B.c_str());
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  
   // Clean up
   unlink(symlink_A.c_str());
   unlink(symlink_B.c_str());
   remove("link1");
   remove("link2");
-   
 }
 
 /**
@@ -1262,6 +1263,45 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
+
+  free(info.data);
+  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+}
+
+/**
+ * @test       prog_bs2
+ * @brief      Test: program_bitstream
+ * @details    When config.dry_run is set to false,<br>
+ *             program_bitstream attempts the PR,<br>
+ *             which fails when given an invalid bitstream,<br>
+ *             causing the function to return -1.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, prog_bs2) {
+  bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+  std::ofstream gbs;
+  gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
+  gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
+  gbs.close();
+
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+
+  ASSERT_EQ(config.dry_run, false);
+
+  fpga_guid pr_ifc_id;
+  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
+
+  struct bitstream_info info;
+  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+
+  fpga_token tok = nullptr;
+  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  ASSERT_NE(tok, nullptr);
+
+  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
   free(info.data);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
