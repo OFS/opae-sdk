@@ -58,6 +58,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/mmap.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/mmio.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/open.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/opae_ioctl.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/properties.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reconf.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reset.c

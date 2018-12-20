@@ -53,6 +53,7 @@ set(SRC
   event.c
   properties.c
   init.c
+  opae_ioctl.c
   sysfs.c
   wsid_list.c
   token_list.c
