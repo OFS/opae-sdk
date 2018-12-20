@@ -41,23 +41,23 @@ fpga_result opae_ioctl(int fd, int request, ...)
 	fpga_result res = FPGA_OK;
 	va_list argp;
 	va_start(argp, request);
-	void *msg = va_arg(argp, void*);
+	void *msg = va_arg(argp, void *);
 	errno = 0;
 	if (ioctl(fd, request, msg) != 0) {
 		FPGA_MSG("error executing ioctl: %s", strerror(errno));
 		switch (errno) {
-			case EINVAL:
-				res = FPGA_INVALID_PARAM;
-				break;
-			default:
-				// other errors could be
-				// EBADF - fd is bad file descriptor
-				// EFAULT - argp references an inaccessible
-				// memory area
-				// ENOTTY - fd is not associated with a char.
-				// special device
-				res = FPGA_EXCEPTION;
-				break;
+		case EINVAL:
+			res = FPGA_INVALID_PARAM;
+			break;
+		default:
+			// other errors could be
+			// EBADF - fd is bad file descriptor
+			// EFAULT - argp references an inaccessible
+			// memory area
+			// ENOTTY - fd is not associated with a char.
+			// special device
+			res = FPGA_EXCEPTION;
+			break;
 		}
 	}
 	va_end(argp);
@@ -91,9 +91,8 @@ int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
 int opae_port_unmap(int fd, uint64_t io_addr)
 {
 	/* Set ioctl fpga_port_dma_unmap struct parameters */
-	struct fpga_port_dma_unmap dma_unmap = { .argsz = sizeof(dma_unmap),
-						.flags = 0,
-						.iova = io_addr };
+	struct fpga_port_dma_unmap dma_unmap = {
+		.argsz = sizeof(dma_unmap), .flags = 0, .iova = io_addr};
 
 	/* Dispatch ioctl command */
 	return opae_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
