@@ -214,7 +214,7 @@ TEST_P(buffer_prepare, PrepPre2MB01) {
 
   // buf_addr was preallocated, do not touch it
   ASSERT_NE(buf_addr, (void*)nullptr);
-  munmap(ADDR, buf_len);
+  munmap(buf_addr, buf_len);
 }
 
 TEST_P(buffer_prepare, prepare_buf_err) {
