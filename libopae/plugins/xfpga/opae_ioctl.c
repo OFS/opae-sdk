@@ -44,7 +44,7 @@ fpga_result opae_ioctl(int fd, int request, ...)
 	void *msg = va_arg(argp, void *);
 	errno = 0;
 	if (ioctl(fd, request, msg) != 0) {
-		FPGA_MSG("error executing ioctl: %s", strerror(errno));
+		OPAE_MSG("error executing ioctl: %s", strerror(errno));
 		switch (errno) {
 		case EINVAL:
 			res = FPGA_INVALID_PARAM;
