@@ -188,28 +188,28 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char syfs_path[SYSFS_PATH_MAX]    = {0};
-	char syfs_errpath[SYSFS_PATH_MAX] = {0};
+	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
 	fpga_result result                = FPGA_OK;
 	uint64_t error                    = 0 ;
 
-	result = get_port_sysfs(handle, syfs_path);
+	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port syfs path");
 		return result;
 	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERRORS);
+	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERRORS);
 	// Read port error.
-	result = sysfs_read_u64(syfs_errpath, &error);
+	result = sysfs_read_u64(sysfs_errpath, &error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port errors");
 		return result;
 	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
+	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERR_CLEAR);
 	// Clear port error.
-	result = sysfs_write_u64(syfs_errpath, error);
+	result = sysfs_write_u64(sysfs_errpath, error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors");
 		return result;
@@ -223,27 +223,27 @@ fpga_result set_afu_userclock(fpga_handle handle,
 				uint64_t usrlclock_high,
 				uint64_t usrlclock_low)
 {
-	char syfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result                = FPGA_OK;
 	uint64_t userclk_high             = 0;
 	uint64_t userclk_low              = 0;
 
 	// Read port sysfs path
-	result = get_port_sysfs(handle, syfs_path);
+	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port syfs path");
 		return result;
 	}
 
 	// set user clock
-	result = set_userclock(syfs_path, usrlclock_high, usrlclock_low);
+	result = set_userclock(sysfs_path, usrlclock_high, usrlclock_low);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to set user clock");
 		return result;
 	}
 
 	// read user clock
-	result = get_userclock(syfs_path, &userclk_high, &userclk_low);
+	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get user clock");
 		return result;
