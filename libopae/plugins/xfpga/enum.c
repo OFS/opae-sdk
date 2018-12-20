@@ -344,7 +344,6 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	fpga_result result;
 	struct stat stats;
 	struct dev_list *pdev;
-	char spath[SYSFS_PATH_MAX];
 	char dpath[DEV_PATH_MAX];
 	int resval                = 0;
 	uint64_t value            = 0;
@@ -376,12 +375,11 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->device_id = parent->device_id;
 
 	// Discover the FME GUID from sysfs (pr/interface_id)
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_FME_INTERFACE_ID,
-		     sysfspath);
-
-	result = sysfs_read_guid(spath, pdev->guid);
-	if (FPGA_OK != result)
+	result = sysfs_get_fme_pr_interface_id(sysfspath, pdev->guid);
+	if (FPGA_OK != result) {
+		FPGA_MSG("Failed to get PR interface id");
 		return result;
+	}
 
 	// Discover the socket id from the FME's sysfs entry.
 	resval = syfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
