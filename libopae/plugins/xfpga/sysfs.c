@@ -1024,6 +1024,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	char *p                           = 0;
 	char sysfs_path[SYSFS_PATH_MAX]   = {0};
 	fpga_result result                = FPGA_OK;
+	errno_t e;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -1049,9 +1050,8 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 	int len  = snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../*-port.*",
 		_token->sysfspath);
-
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings");
+		FPGA_ERR("Error formatting sysfs path");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1060,13 +1060,11 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return result;
 	}
 
-	len = snprintf_s_s(sysfs_port, SYSFS_PATH_MAX, "%s", sysfs_path);
-
-	if (len < 0) {
-		FPGA_ERR("error concatenating strings");
+	e = strncpy_s(sysfs_port, SYSFS_PATH_MAX,
+		sysfs_path, SYSFS_PATH_MAX);
+	if (EOK != e) {
 		return FPGA_EXCEPTION;
 	}
-
 
 	return FPGA_OK;
 }

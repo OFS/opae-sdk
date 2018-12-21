@@ -222,13 +222,11 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
 	// only set socket id if we have it on sysfs
-	resval = sysfs_parse_attribute64(_token->sysfspath,
-		FPGA_SYSFS_SOCKET_ID, &value);
+	result = sysfs_get_socket_id(_token->device_instance,
+		_token->subdev_instance,
+		&_iprop.socket_id);
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
-
-	
-	_iprop.socket_id = (uint8_t)value;
 
 	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
 	if (0 == result)
