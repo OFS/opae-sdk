@@ -1000,7 +1000,7 @@ TEST_P(events_mock_p, invalid_fme_event_request_01){
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
@@ -1025,7 +1025,7 @@ TEST_P(events_mock_p, invalid_port_event_request_01){
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
   res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
@@ -1050,7 +1050,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_01){
   port_op = FPGA_IRQ_ASSIGN;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
 /**
@@ -1061,12 +1061,12 @@ TEST_P(events_mock_p, invalid_uafu_event_request_01){
 TEST_P(events_mock_p, invalid_uafu_event_request_02){
   int port_op = FPGA_IRQ_ASSIGN;
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
 
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
@@ -1135,7 +1135,7 @@ TEST_P(events_mock_p, afu_interrupts_check){
   // interrupt ioctl
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   res = check_interrupts_supported(handle_accel_,&obj);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   // change sysfspath
   strncpy(t->sysfspath,"null",sizeof(t->sysfspath));

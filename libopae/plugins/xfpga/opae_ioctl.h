@@ -32,7 +32,31 @@
 #define OPAE_IOCTL_H
 #include <stdint.h>
 
+typedef struct _opae_fme_info {
+	uint32_t flags;
+	uint32_t capability;
+} opae_fme_info;
+
+typedef struct _opae_port_info {
+	uint32_t flags;
+	uint32_t capability;
+	uint32_t num_regions;
+	uint32_t num_umsgs;
+	uint32_t num_uafu_irqs;
+} opae_port_info;
+
+typedef struct _opae_port_region_info {
+	uint32_t flags;
+	uint64_t size;
+	uint64_t offset;
+} opae_port_region_info;
+
+int opae_get_fme_info(int fd, opae_fme_info *info);
+int opae_get_port_info(int fd, opae_port_info *info);
+int opae_get_port_region_info(int fd, uint32_t index, opae_port_region_info *info);
+
 int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr);
 int opae_port_unmap(int fd, uint64_t io_addr);
+
 
 #endif /* !OPAE_IOCTL_H */

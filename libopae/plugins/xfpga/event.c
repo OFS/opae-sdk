@@ -42,6 +42,7 @@
 #include <opae/properties.h>
 #include "xfpga.h"
 #include "common_int.h"
+#include "opae_ioctl.h"
 #include "types_int.h"
 #include "intel-fpga.h"
 
@@ -99,9 +100,10 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 {
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
 	struct fpga_fme_err_irq_set fme_irq = {.argsz = sizeof(fme_irq),
 					       .flags = 0};
+	fpga_result res = FPGA_OK;
+	opae_fme_info fme_info = { 0 };
 
 	if (fme_operation != FPGA_IRQ_ASSIGN
 	    && fme_operation != FPGA_IRQ_DEASSIGN) {
@@ -109,9 +111,8 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (ioctl(_handle->fddev, FPGA_FME_GET_INFO, &fme_info) != 0) {
-		FPGA_ERR("Could not get FME info: %s", strerror(errno));
-		return FPGA_EXCEPTION;
+	if ((res = opae_get_fme_info(_handle->fddev, &fme_info))) {
+		return res;
 	}
 
 	/*capability field is set to 1 if the platform supports interrupts*/
@@ -124,36 +125,34 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 		if (ioctl(_handle->fddev, FPGA_FME_ERR_SET_IRQ, &fme_irq)
 		    != 0) {
 			FPGA_ERR("Could not set eventfd %s", strerror(errno));
-			return FPGA_EXCEPTION;
+			res = FPGA_EXCEPTION;
 		}
 	} else {
 		FPGA_ERR("FME interrupts not supported in hw");
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
 
-	return FPGA_OK;
+	return res;
 }
 
 STATIC fpga_result send_port_event_request(fpga_handle handle,
 					   fpga_event_handle event_handle,
 					   int port_operation)
 {
+	fpga_result res = FPGA_OK;
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
-					   .flags = 0};
 	struct fpga_port_err_irq_set port_irq = {.argsz = sizeof(port_irq),
 						 .flags = 0};
-
+	opae_port_info port_info = { 0 };
 	if (port_operation != FPGA_IRQ_ASSIGN
 	    && port_operation != FPGA_IRQ_DEASSIGN) {
 		FPGA_ERR("Invalid PORT operation requested");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info) != 0) {
-		FPGA_ERR("Could not get PORT info");
-		return FPGA_EXCEPTION;
+	if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
+		return res;
 	}
 
 	/*capability field is set to 1 if the platform supports interrupts*/
@@ -166,30 +165,30 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 		if (ioctl(_handle->fddev, FPGA_PORT_ERR_SET_IRQ, &port_irq)
 		    != 0) {
 			FPGA_ERR("Could not set eventfd");
-			return FPGA_EXCEPTION;
+			res = FPGA_EXCEPTION;
 		}
 	} else {
 		FPGA_ERR("PORT interrupts not supported in hw");
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
 
-	return FPGA_OK;
+	return res;
 }
 
 STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 					   fpga_event_handle event_handle,
 					   uint32_t flags, int uafu_operation)
 {
+	int res = FPGA_OK;
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_event_handle *_eh =
 		(struct _fpga_event_handle *)event_handle;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
-					   .flags = 0};
 	uint8_t uafu_irq_buf[sizeof(struct fpga_port_uafu_irq_set)
 			     + sizeof(int32_t)];
 	struct fpga_port_uafu_irq_set *uafu_irq =
 		(struct fpga_port_uafu_irq_set *)uafu_irq_buf;
+	opae_port_info port_info = { 0 };
 
 	if (uafu_operation != FPGA_IRQ_ASSIGN
 	    && uafu_operation != FPGA_IRQ_DEASSIGN) {
@@ -197,9 +196,8 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info) != 0) {
-		FPGA_ERR("Could not get PORT info");
-		return FPGA_EXCEPTION;
+	if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
+		return res;
 	}
 
 	/*capability field is set to 1 if the platform supports interrupts*/
@@ -228,14 +226,14 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 		if (ioctl(_handle->fddev, FPGA_PORT_UAFU_SET_IRQ, uafu_irq)
 		    != 0) {
 			FPGA_ERR("Could not set eventfd");
-			return FPGA_EXCEPTION;
+			res = FPGA_EXCEPTION;
 		}
 	} else {
 		FPGA_ERR("UAFU interrupts not supported in hw");
-		return FPGA_EXCEPTION;
+		res = FPGA_NOT_SUPPORTED;
 	}
 
-	return FPGA_OK;
+	return res;
 }
 
 /*
@@ -249,10 +247,8 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 	fpga_result destroy_res = FPGA_OK;
 	fpga_properties prop = NULL;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-
-	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
-	struct fpga_port_info port_info = {.argsz = sizeof(port_info),
-					   .flags = 0};
+	opae_fme_info fme_info = { 0 };
+	opae_port_info port_info = { 0 };
 
 	res = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
 	if (res != FPGA_OK) {
@@ -267,8 +263,7 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 	}
 
 	if (*objtype == FPGA_DEVICE) {
-		if (ioctl(_handle->fddev, FPGA_FME_GET_INFO, &fme_info) != 0) {
-			FPGA_ERR("Could not get FME info: %s", strerror(errno));
+		if ((res = opae_get_fme_info(_handle->fddev, &fme_info))) {
 			res = FPGA_EXCEPTION;
 			goto destroy_prop;
 		}
@@ -280,11 +275,9 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 			res = FPGA_NOT_SUPPORTED;
 		}
 	} else if (*objtype == FPGA_ACCELERATOR) {
-		if (ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &port_info)
-		    != 0) {
+		if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
 			FPGA_ERR("Could not get PORT info: %s",
 				 strerror(errno));
-			res = FPGA_EXCEPTION;
 			goto destroy_prop;
 		}
 
