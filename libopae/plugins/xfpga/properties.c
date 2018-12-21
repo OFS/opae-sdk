@@ -176,7 +176,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		_iprop.objtype = FPGA_DEVICE;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 		// get bitstream id
-		result = sysfs_get_interface_id(_token, _iprop.guid);	
+		result = sysfs_get_interface_id(_token, _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
