@@ -143,7 +143,7 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	umsg_size = (uint64_t)umsg_count  * pagesize;
 	umsg_virt = alloc_buffer(umsg_size);
 	if (umsg_virt == NULL) {
-		OPAE_MSG("Failed to allocate memory");
+		OPAE_ERR("Failed to allocate memory");
 		result = FPGA_NO_MEMORY;
 		goto out_unlock;
 	}
@@ -151,20 +151,20 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	// Map Umsg Buffer
 	result = opae_port_map(_handle->fddev, umsg_virt, umsg_size, &io_addr);
 	if (result != 0) {
-		OPAE_MSG("Failed to map UMSG buffer");
+		OPAE_ERR("Failed to map UMSG buffer");
 		goto umsg_exit;
 	}
 
 	// Set Umsg Address
 	result = opae_port_umsg_set_base_addr(_handle->fddev, 0, io_addr);
 	if (result != 0) {
-		OPAE_MSG("Failed to set UMSG base address");
+		OPAE_ERR("Failed to set UMSG base address");
 		goto umsg_map_exit;
 	}
 
 	result = opae_port_umsg_enable(_handle->fddev);
 	if (result != 0) {
-		OPAE_MSG("Failed to enable UMSG");
+		OPAE_ERR("Failed to enable UMSG");
 		goto umsg_map_exit;
 	}
 
