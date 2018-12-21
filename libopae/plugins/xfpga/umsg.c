@@ -169,7 +169,7 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	}
 
 	*umsg_ptr = (uint64_t *) umsg_virt;
-	_handle->umsg_iova = (uint64_t*)io_addr;
+	_handle->umsg_iova = (uint64_t *)io_addr;
 	_handle->umsg_virt = umsg_virt;
 	_handle->umsg_size = umsg_size;
 
