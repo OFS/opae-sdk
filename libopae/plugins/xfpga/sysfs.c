@@ -527,7 +527,7 @@ fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid gu
 		_token->sysfspath, sysfspath);
 	if (len < 0) {
 		FPGA_ERR("error concatenating strings (%s, %s)",
-			sysfs_path, sysfs_path);
+			_token->sysfspath, sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 	res = opae_glob_path(sysfs_path);
