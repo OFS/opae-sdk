@@ -31,7 +31,8 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
-#include "intel-fpga.h"
+
+#include "opae_ioctl.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -150,6 +151,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 {
 	void *addr = NULL;
 	fpga_result result = FPGA_OK;
+	uint64_t io_addr = 0;
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	int err;
 
@@ -229,15 +231,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		}
 	}
 
-	/* Set ioctl fpga_port_dma_map struct parameters */
-	struct fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),
-					    .flags = 0,
-					    .user_addr = (__u64) addr,
-					    .length = (__u64) len,
-					    .iova = 0};
-
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_DMA_MAP, &dma_map) != 0) {
+	if (opae_port_map(_handle->fddev, addr, len, &io_addr)) {
 		if (!preallocated) {
 			buffer_release(addr, len);
 		}
@@ -251,18 +245,13 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		goto out_unlock;
 	}
 
+
 	/* Generate unique workspace ID */
 	*wsid = wsid_gen();
 
 	/* Add to workspace id in order to store buffer length */
-	if (!wsid_add(_handle->wsid_root,
-		      *wsid,
-		      dma_map.user_addr,
-		      dma_map.iova,
-		      len,
-		      0,
-		      0,
-		      flags)) {
+	if (!wsid_add(_handle->wsid_root, *wsid, (uint64_t)addr, io_addr, len,
+		      0, 0, flags)) {
 		if (!preallocated) {
 			buffer_release(addr, len);
 		}
@@ -271,6 +260,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		result = FPGA_NO_MEMORY;
 		goto out_unlock;
 	}
+
 
 	/* Update buf_addr */
 	if (buf_addr)
@@ -316,21 +306,11 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 
 	bool preallocated = (wm->flags & FPGA_BUF_PREALLOCATED);
 
-	/* Set ioctl fpga_port_dma_unmap struct parameters */
-	struct fpga_port_dma_unmap dma_unmap = {.argsz = sizeof(dma_unmap),
-						.flags = 0,
-						.iova = iova};
-
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_DMA_UNMAP, &dma_unmap) != 0) {
-		if (!preallocated) {
-			buffer_release(buf_addr, len);
-		}
-
+	if (opae_port_unmap(_handle->fddev, iova)) {
 		FPGA_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
 			 strerror(errno));
 		result = FPGA_INVALID_PARAM;
-	goto ws_free;
+		goto ws_free;
 	}
 
 	/* If the buffer was allocated in xfpga_fpgaPrepareBuffer() (i.e. it was not
