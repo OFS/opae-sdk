@@ -83,6 +83,26 @@ const char *skx_mdata =
      "platform-name": "MCP"}";
 )mdata";
 
+const char *skx_mdata_ups =
+R"mdata({"version": 640,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "power": 50,
+     "interface-uuid": "1a422218-6dba-448e-b302-425cbcde1406",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb_400",
+          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
+        }
+      ]
+     },
+     "platform-name": "MCP"}";
+)mdata";
+
 const char *rc_mdata =
     R"mdata({"version": 112,
    "afu-image":
@@ -151,6 +171,31 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = rc_mdata}}}},
+
+	{"skx-p-ups",
+	 test_platform{.mock_sysfs = "mock_sys_tmp-mcp-ups-nlb0.tar.gz",
+				   .devices = {test_device{
+					   .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
+					   .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+					   .segment = 0x0,
+					   .bus = 0x5e,
+					   .device = 0,
+					   .function = 0,
+					   .socket_id = 0,
+					   .num_slots = 1,
+					   .bbs_id = 0x6400002fc614bb9,
+					   .bbs_version = {6, 4, 0},
+					   .state = FPGA_ACCELERATOR_UNASSIGNED,
+					   .num_mmio = 0x2,
+					   .num_interrupts = 0,
+					   .fme_object_id = 0xf500000,
+					   .port_object_id = 0xf400000,
+					   .vendor_id = 0x8086,
+					   .device_id = 0xbcc0,
+					   .fme_num_errors = 8,
+					   .port_num_errors = 3,
+					   .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+					   .mdata = skx_mdata_ups}}}},
 };
 
 
@@ -380,7 +425,8 @@ static std::map<ven_dev_id, std::string> devid_name = {
   { { 0x8086, 0xbcc0}, "skx-p" },
   { { 0x8086, 0xbcc1}, "skx-p-v" },
   { { 0x8086, 0x09c4}, "dcp-rc" },
-  { { 0x8086, 0x09c5}, "dcp-rc-v" }
+  { { 0x8086, 0x09c5}, "dcp-rc-v" },
+  { { 0x8086, 0xbcc0}, "skx-p-ups" }
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
