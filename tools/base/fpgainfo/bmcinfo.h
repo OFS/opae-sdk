@@ -498,7 +498,10 @@ typedef struct _Values {
 } Values;
 
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type);
-
+int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
+				 int size);
+void get_sysfs_attr(const char *attr_path, char *buf, int size);
+void print_sensor_info(const char *sysfspath, BMC_TYPE type);
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
 void print_bmc_info(const char *sysfspath);
 fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,

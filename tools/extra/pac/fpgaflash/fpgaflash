@@ -300,6 +300,8 @@ def get_bdf_mtd_mapping(type):
                     bdf_map[bdf] = os.path.join('/dev', os.path.basename(mtd))
                     break
 
+    if len(bdf_map) == 0:
+        print "No mtd devices found for FPGA with device id", get_devid(bdf)
     return bdf_map
 
 
@@ -819,7 +821,6 @@ def main():
     bdf_map = get_bdf_mtd_mapping(args.type)
 
     if len(bdf_map) == 0:
-        print "No FPGA devices found"
         sys.exit(1)
 
     bdf = args.bdf

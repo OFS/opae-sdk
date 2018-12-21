@@ -38,6 +38,8 @@
 #include <getopt.h>
 #include <wchar.h>
 #include <glob.h>
+#include <dirent.h>
+#include <ctype.h>
 
 #ifdef DEBUG
 #define DBG_PRINT(...)                                                         \
@@ -396,6 +398,27 @@ void print_bmc_info(const char *sysfspath)
 	fd = -1;
 	printf("Board Management Controller, microcontroller FW version ");
 
+	char buf[8];
+	uint16_t devid = 0;
+	uint32_t bmcfw_ver = 0;
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, "../device/device");
+	get_sysfs_attr(path, buf, sizeof(buf));
+	devid = strtoul(buf, NULL, 16);
+	if (devid != FPGA_DISCRETE_DEVICEID) {
+		if (0 == get_bmc_path(sysfspath, "spi", path, SYSFS_PATH_MAX)) {
+			off = strlen(path);
+			snprintf_s_s(path+off, sizeof(path)-off, "/%s",
+						 "bmcfw_flash_ctrl/bmcfw_version");
+			get_sysfs_attr(path, buf, sizeof(buf));
+			bmcfw_ver = strtoul(buf, NULL, 16);
+			printf("%u.%u.%u\n", (bmcfw_ver >> 16) & 0xff,
+				   (bmcfw_ver >> 8) & 0xff, bmcfw_ver & 0xff);
+		} else {
+			printf("unavailable\n");
+		}
+		return;
+	}
+
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, SYSFS_DEVID_FILE);
 
 	gres = glob(path, GLOB_NOSORT, NULL, &pglob);
@@ -503,6 +526,208 @@ void print_bmc_info(const char *sysfspath)
 	}
 }
 
+#define BMC_FW_NAME 	"bmcfw"
+
+int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
+				 int size)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	char path[SYSFS_PATH_MAX] = {0};
+	char *substr;
+	int ret = -1;
+	int result;
+
+	if (in_path == NULL || key_str == NULL || out_path == NULL)
+		return ret;
+	strncpy_s(path, sizeof(path), in_path, strlen(in_path));
+
+	while (1) {
+		dir = opendir(path);
+		if (NULL == dir) {
+			break;
+		}
+		while (NULL != (dirent = readdir(dir))) {
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								".", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								"..", &result)) {
+				if (result == 0)
+					continue;
+			}
+
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								BMC_FW_NAME, strlen(BMC_FW_NAME), &substr)) {
+				strncpy_s(out_path, size, path, strlen(path));
+				ret = 0;
+				break;
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								key_str, strlen(key_str), &substr)) {
+				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 "/%s", dirent->d_name);
+				break;
+			}
+		}
+		closedir(dir);
+		if (dirent == NULL || ret == 0)
+			break;
+	}
+	return ret;
+}
+
+
+void get_sysfs_attr(const char *attr_path, char *buf, int size)
+{
+	int fd;
+	ssize_t sz;
+
+	fd = open(attr_path, O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr, "Open %s failed\n", attr_path);
+		return;
+	}
+	sz = read(fd, buf, size);
+	if (sz > 0)
+		buf[sz-1] = '\0';
+	close(fd);
+}
+
+
+static inline void strlower(char *str)
+{
+    for (; *str!='\0'; str++)
+        *str = tolower(*str);
+}
+
+#define POWER_SENSOR	"power"
+#define VOLTAGE_SENSOR	"voltage"
+#define CURRENT_SENSOR	"current"
+#define THERMAL_SENSOR	"temperature"
+#define CLOCK_SENSOR	"clock"
+
+BMC_TYPE get_sensor_type(const char *sensor_path)
+{
+	char path[SYSFS_PATH_MAX];
+	char buf[32] = {0};
+	char *substr;
+
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "type");
+	get_sysfs_attr(path, buf, sizeof(buf));
+	strlower(buf);
+
+	if (EOK == strstr_s(buf, strlen(buf), THERMAL_SENSOR,
+						strlen(THERMAL_SENSOR), &substr)) {
+		return BMC_THERMAL;
+	}
+	if (EOK == strstr_s(buf, strlen(buf), POWER_SENSOR,
+						strlen(POWER_SENSOR), &substr) ||
+		EOK == strstr_s(buf, strlen(buf), VOLTAGE_SENSOR,
+						strlen(VOLTAGE_SENSOR), &substr) ||
+		EOK == strstr_s(buf, strlen(buf), CURRENT_SENSOR,
+						strlen(CURRENT_SENSOR), &substr)) {
+		return BMC_POWER;
+	}
+
+	return BMC_SENSORS;
+}
+
+
+void print_sensor_value(const char *sensor_path)
+{
+	char path[SYSFS_PATH_MAX];
+	char id[16] = {0};
+	char name[32] = {0};
+	char type[32] = {0};
+	char value[16] = {0};
+	char *substr;
+	int val;
+
+	/* read sensor attributes */
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "id");
+	get_sysfs_attr(path, id, sizeof(id));
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "name");
+	get_sysfs_attr(path, name, sizeof(name));
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "type");
+	get_sysfs_attr(path, type, sizeof(type));
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "value");
+	get_sysfs_attr(path, value, sizeof(value));
+	val = atoi(value);
+
+	strlower(type);
+	if (EOK == strstr_s(type, strlen(type), THERMAL_SENSOR,
+						strlen(THERMAL_SENSOR), &substr)) {
+		printf("(%2s) %-24s : %d %ls\n", id, name, val/1000, L"\x00b0\x0043");
+		return;
+	}
+	if (EOK == strstr_s(type, strlen(type), POWER_SENSOR,
+						strlen(POWER_SENSOR), &substr)) {
+		snprintf_s_i(value, sizeof(value), "%d mW", val);
+	} else if (EOK == strstr_s(type, strlen(type), VOLTAGE_SENSOR,
+							   strlen(VOLTAGE_SENSOR), &substr)) {
+		snprintf_s_i(value, sizeof(value), "%d mV", val);
+	} else if (EOK == strstr_s(type, strlen(type), CURRENT_SENSOR,
+							   strlen(CURRENT_SENSOR), &substr)) {
+		snprintf_s_i(value, sizeof(value), "%d mA", val);
+	} else if (EOK == strstr_s(type, strlen(type), CLOCK_SENSOR,
+							   strlen(CLOCK_SENSOR), &substr)) {
+		snprintf_s_i(value, sizeof(value), "%d Hz", val);
+	} else {
+		snprintf_s_i(value, sizeof(value), "%d", val);
+	}
+	printf("(%2s) %-24s : %s\n", id, name, value);
+}
+
+#define SENSOR_NAME 	"sensor"
+
+void print_sensor_info(const char *sysfspath, BMC_TYPE type)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	char path[SYSFS_PATH_MAX];
+	char *substr;
+	int len;
+	int result;
+
+	if (!sysfspath) {
+		return;
+	}
+	if (0 != get_bmc_path(sysfspath, "spi", path, SYSFS_PATH_MAX)) {
+		fprintf(stderr, "WARNING: bmc not found\n");
+		return;
+	}
+
+	len = strlen(path);
+	dir = opendir(path);
+	if (NULL == dir) {
+		return;
+	}
+	while (NULL != (dirent = readdir(dir))) {
+		if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+							".", &result)) {
+			if (result == 0)
+				continue;
+		}
+		if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+							"..", &result)) {
+			if (result == 0)
+				continue;
+		}
+
+		if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+							SENSOR_NAME, strlen(SENSOR_NAME), &substr)) {
+			snprintf_s_s(path+len, sizeof(path)-len, "/%s", dirent->d_name);
+			if (type == BMC_SENSORS || type == get_sensor_type(path)) {
+				print_sensor_value(path);
+			}
+		}
+	}
+	closedir(dir);
+}
+
 
 fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			char *argv[])
@@ -565,6 +790,15 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 		// print_bmc_info(sysfs_path);
 
 		fpgainfo_print_common("//****** BMC SENSORS ******//", props);
+
+		uint16_t devid = 0;
+		if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
+			if (devid != FPGA_DISCRETE_DEVICEID) {
+				print_sensor_info(sysfs_path, BMC_SENSORS);
+				fpgaDestroyProperties(&props);
+				return res;
+			}
+		}
 
 		Values *vals = NULL;
 		int tmp = bmcdata_verbose;

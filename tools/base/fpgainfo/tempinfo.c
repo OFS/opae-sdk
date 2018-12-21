@@ -67,6 +67,14 @@ static void print_temp_info(fpga_properties props)
 	       L"\x00b0\x0043");
 #endif
 
+	uint16_t devid = 0;
+	if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
+		if (devid != FPGA_DISCRETE_DEVICEID) {
+			print_sensor_info(sysfspath, BMC_THERMAL);
+			return;
+		}
+	}
+
 	res = bmc_print_values(sysfspath, BMC_THERMAL);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }

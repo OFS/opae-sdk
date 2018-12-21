@@ -54,41 +54,66 @@ void mac_help(void)
 #define I2C_DEVNAME  	"i2c"
 #define MACROM_DEVNAME  "nvmem"
 
-static int get_mac_rom_path(const char *in_path, char *out_path, int size)
+static int get_mac_rom_path(const char *in_path, const char *key_str,
+							char *out_path, int size)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
-	char path[SYSFS_PATH_MAX];
+	char path[SYSFS_PATH_MAX] = {0};
+	char key[8] = {0};
+	char *substr;
 	int ret = -1;
+	int result;
 
-	dir = opendir(in_path);
-	if (NULL == dir) {
+	if (in_path == NULL || key_str == NULL || out_path == NULL)
 		return ret;
-	}
+	strncpy_s(path, sizeof(path), in_path, strlen(in_path));
 
-	// Search specified MAC ROM device
-	while (NULL != (dirent = readdir(dir))) {
-		if (!strcmp(dirent->d_name, "."))
-			continue;
-		if (!strcmp(dirent->d_name, ".."))
-			continue;
+	if (strlen(key_str) == 0)
+		return ret;
+	strncpy_s(key, sizeof(key), key_str, sizeof(key)-1);
 
-		if (!strcmp(dirent->d_name, MACROM_DEVNAME)) {
-			snprintf_s_ss(out_path, size, "%s/%s", in_path, dirent->d_name);
-			ret = 0;
+	while (1) {
+		dir = opendir(path);
+		if (NULL == dir) {
 			break;
 		}
-		if (!strncmp(dirent->d_name, I2C_DEVNAME, strlen(I2C_DEVNAME))) {
-			snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s", in_path,
-						  dirent->d_name);
-			if (0 == get_mac_rom_path(path, out_path, size)) {
-				ret = 0;
+		while (NULL != (dirent = readdir(dir))) {
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								".", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								"..", &result)) {
+				if (result == 0)
+					continue;
+			}
+
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								MACROM_DEVNAME, &result)) {
+				if (result == 0) {
+					snprintf_s_ss(out_path, size, "%s/%s", path,
+								  dirent->d_name);
+					ret = 0;
+					break;
+				}
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								key, sizeof(key), &substr)) {
+				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 "/%s", dirent->d_name);
+				if (!strncmp(dirent->d_name, "i2c-", 4)) {
+					sscanf_s_i(dirent->d_name, "i2c-%d", &result);
+					snprintf_s_i(key, sizeof(key), "%d", result);
+				}
 				break;
 			}
 		}
+		closedir(dir);
+		if (dirent == NULL || ret == 0)
+			break;
 	}
-
-	closedir(dir);
 	return ret;
 }
 
@@ -108,7 +133,7 @@ static void print_mac_rom_info(fpga_properties props)
 		fprintf(stderr, "WARNING: sysfs path not found\n");
 		return;
 	}
-	if (0 != get_mac_rom_path(sysfspath, path, SYSFS_PATH_MAX)) {
+	if (0 != get_mac_rom_path(sysfspath, I2C_DEVNAME, path, SYSFS_PATH_MAX)) {
 		fprintf(stderr, "WARNING: nvmem not found\n");
 		return;
 	}

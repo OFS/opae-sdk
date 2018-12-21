@@ -28,9 +28,11 @@
 #include "fpgainfo.h"
 #include "sysinfo.h"
 #include "phyinfo.h"
+#include "bmcinfo.h"
 #include <opae/fpga.h>
 #include <wchar.h>
 #include <dirent.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -45,7 +47,9 @@
  */
 static struct _phy_config {
 	int group_num;
-} phy_config = {.group_num = -1};
+	int show_pkvl;
+} phy_config = {.group_num = -1,
+				.show_pkvl = 1};
 
 /*
  * Print help
@@ -157,6 +161,87 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 	}
 }
 
+#define PKVL_NAME	"pkvl"
+#define SPI_NAME	"spi"
+
+static void print_pkvl_info(fpga_properties props)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	char path[SYSFS_PATH_MAX] = {0};
+	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
+	char *substr;
+	int found = 0;
+	int offset;
+	int ports;
+	int result;
+	char mode[16] = {0};
+	char status[16] = {0};
+
+	printf("//****** PKVL ******//\n");
+
+	if (sysfspath == NULL)
+		return;
+	strncpy_s(path, sizeof(path), sysfspath, strlen(sysfspath));
+
+	while (1) {
+		dir = opendir(path);
+		if (NULL == dir) {
+			break;
+		}
+		while (NULL != (dirent = readdir(dir))) {
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								".", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								"..", &result)) {
+				if (result == 0)
+					continue;
+			}
+
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								PKVL_NAME, &result)) {
+				if (result == 0) {
+					snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+								 "/%s", PKVL_NAME);
+					found = 1;
+					break;
+				}
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								SPI_NAME, strlen(SPI_NAME), &substr)) {
+				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 "/%s", dirent->d_name);
+				break;
+			}
+		}
+		closedir(dir);
+		if (dirent == NULL || found == 1)
+			break;
+	}
+
+	if (found) {
+		offset = strlen(path);
+		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "polling_mode");
+		get_sysfs_attr(path, mode, sizeof(mode));
+		result = strtol(mode, NULL, 16);
+		ports = result == 1 ? 4 : 8;
+		strncpy_s(mode, sizeof(mode), result == 1 ? "25G" : "10G", 3);
+
+		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
+		get_sysfs_attr(path, status, sizeof(status));
+		result = strtol(status, NULL, 16);
+		for (offset = 0; offset < ports; offset++) {
+			printf("%s%-2d%-23s : %s\n", "Port",
+				   offset, mode, result&(1<<offset) ? "Up" : "Down");
+		}
+	} else {
+		fprintf(stderr, "WARNING: pkvl not found\n");
+	}
+}
+
 static void print_phy_info(fpga_properties props, struct _phy_config *config)
 {
 	fpgainfo_print_common("//****** PHY ******//", props);
@@ -165,6 +250,9 @@ static void print_phy_info(fpga_properties props, struct _phy_config *config)
 	}
 	if ((config->group_num == 1) || (config->group_num == -1)) {
 		print_phy_group_info(props, 1);
+	}
+	if (config->show_pkvl == 1) {
+		print_pkvl_info(props);
 	}
 }
 

@@ -53,8 +53,16 @@ static void print_power_info(fpga_properties props)
 
 	fpgainfo_print_common("//****** POWER ******//", props);
 
-	res = bmc_print_values(get_sysfs_path(props, FPGA_DEVICE, NULL),
-			       BMC_POWER);
+	const char *sysfs_path = get_sysfs_path(props, FPGA_DEVICE, NULL);
+	uint16_t devid = 0;
+	if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
+		if (devid != FPGA_DISCRETE_DEVICEID) {
+			print_sensor_info(sysfs_path, BMC_POWER);
+			return;
+		}
+	}
+
+	res = bmc_print_values(sysfs_path, BMC_POWER);
 	fpgainfo_print_err("Cannot read BMC telemetry", res);
 }
 
