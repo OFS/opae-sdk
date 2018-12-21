@@ -28,6 +28,7 @@
 #include "opae/utils.h"
 #include "opae/umsg.h"
 #include "common_int.h"
+#include "opae_ioctl.h"
 #include "intel-fpga.h"
 
 #include <sys/types.h>
@@ -43,8 +44,8 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
 	fpga_result result            = FPGA_OK;
-	struct fpga_port_info info    = { 0 };
 	int err                       = 0;
+	opae_port_info port_info      = { 0 };
 
 	ASSERT_NOT_NULL(value);
 	result = handle_check_and_lock(_handle);
@@ -57,25 +58,11 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 		goto out_unlock;
 	}
 
-	// Set ioctl port info struct parameters
-	info.argsz = sizeof(info);
-	info.flags = 0;
 
-	// ioctl
-	result = ioctl(_handle->fddev, FPGA_PORT_GET_INFO, &info);
-	if (result != 0) {
-		FPGA_MSG("FPGA_PORT_GET_INFO ioctl failed");
-		if ((errno == EINVAL) ||
-		(errno == EFAULT)) {
-			result = FPGA_INVALID_PARAM;
-		} else {
-			result = FPGA_EXCEPTION;
-		}
-		goto out_unlock;
+	result = opae_get_port_info(_handle->fddev, &port_info);
+	if (!result) {
+		*value = port_info.num_umsgs;
 	}
-
-	// Assign number of umsgs
-	*value = info.num_umsgs;
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

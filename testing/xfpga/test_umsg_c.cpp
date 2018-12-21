@@ -427,7 +427,7 @@ TEST_P(umsg_c_mock_p, get_num_umsg_ioctl_err) {
 
   // register an ioctl handler that will return -1 and set errno to EFAULT
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EFAULT>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetNumUmsg(handle_, &num));
+  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetNumUmsg(handle_, &num));
 
   // register an ioctl handler that will return -1 and set errno to ENOTSUP
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,ENOTSUP>);
