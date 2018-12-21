@@ -99,6 +99,8 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	int res;
 	errno_t e;
 	int err = 0;
+	int resval = 0;
+	uint64_t value = 0;
 
 	pthread_mutex_t lock;
 
@@ -138,9 +140,8 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL != p) {
 		// AFU
-		result = sysfs_get_afu_id(_token->device_instance,
-					  _token->subdev_instance,
-					  _iprop.guid);
+		result = sysfs_get_guid(_token, FPGA_SYSFS_AFU_GUID,
+			 _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
@@ -182,18 +183,19 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
 
-		result = sysfs_get_slots(_token->device_instance,
-					 _token->subdev_instance,
-					 &_iprop.u.fpga.num_slots);
-		if (FPGA_OK != result)
-			return result;
+		resval = sysfs_parse_attribute64(_token->sysfspath,
+			FPGA_SYSFS_NUM_SLOTS, &value);
+		if (resval != 0) {
+			return FPGA_NOT_FOUND;
+		}
+		_iprop.u.fpga.num_slots = (uint32_t)value;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
 
-		result = sysfs_get_bitstream_id(_token->device_instance,
-						_token->subdev_instance,
-						&_iprop.u.fpga.bbs_id);
-		if (FPGA_OK != result)
-			return result;
+		resval = sysfs_parse_attribute64(_token->sysfspath,
+			FPGA_SYSFS_BITSTREAM_ID, &_iprop.u.fpga.bbs_id);
+		if (resval != 0) {
+			return FPGA_NOT_FOUND;
+		}
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
 
 		_iprop.u.fpga.bbs_version.major =
