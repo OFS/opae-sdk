@@ -111,7 +111,8 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((res = opae_get_fme_info(_handle->fddev, &fme_info))) {
+	res = opae_get_fme_info(_handle->fddev, &fme_info);
+	if (res) {
 		return res;
 	}
 
@@ -151,7 +152,8 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
+	res = opae_get_port_info(_handle->fddev, &port_info);
+	if (res) {
 		return res;
 	}
 
@@ -196,7 +198,8 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
+	res = opae_get_port_info(_handle->fddev, &port_info);
+	if (res) {
 		return res;
 	}
 
@@ -263,7 +266,8 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 	}
 
 	if (*objtype == FPGA_DEVICE) {
-		if ((res = opae_get_fme_info(_handle->fddev, &fme_info))) {
+		res = opae_get_fme_info(_handle->fddev, &fme_info);
+		if (res) {
 			res = FPGA_EXCEPTION;
 			goto destroy_prop;
 		}
@@ -275,7 +279,8 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 			res = FPGA_NOT_SUPPORTED;
 		}
 	} else if (*objtype == FPGA_ACCELERATOR) {
-		if ((res = opae_get_port_info(_handle->fddev, &port_info))) {
+		res = opae_get_port_info(_handle->fddev, &port_info);
+		if (res) {
 			FPGA_ERR("Could not get PORT info: %s",
 				 strerror(errno));
 			goto destroy_prop;

@@ -59,7 +59,8 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 	}
 
 
-	if (!(result = opae_get_port_info(_handle->fddev, &port_info))) {
+	result = opae_get_port_info(_handle->fddev, &port_info);
+	if (!result) {
 		*value = port_info.num_umsgs;
 	}
 
