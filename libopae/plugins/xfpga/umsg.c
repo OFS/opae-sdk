@@ -53,7 +53,7 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -67,7 +67,7 @@ xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -84,7 +84,7 @@ xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -95,7 +95,7 @@ xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -120,7 +120,7 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -136,14 +136,14 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	// get umsg count
 	result = opae_get_port_info(_handle->fddev, &port_info);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to get UMSG count");
+		OPAE_MSG("Failed to get UMSG count");
 		goto out_unlock;
 	}
 	umsg_count = port_info.num_umsgs;
 	umsg_size = (uint64_t)umsg_count  * pagesize;
 	umsg_virt = alloc_buffer(umsg_size);
 	if (umsg_virt == NULL) {
-		FPGA_MSG("Failed to allocate memory");
+		OPAE_MSG("Failed to allocate memory");
 		result = FPGA_NO_MEMORY;
 		goto out_unlock;
 	}
@@ -151,20 +151,20 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	// Map Umsg Buffer
 	result = opae_port_map(_handle->fddev, umsg_virt, umsg_size, &io_addr);
 	if (result != 0) {
-		FPGA_MSG("Failed to map UMSG buffer");
+		OPAE_MSG("Failed to map UMSG buffer");
 		goto umsg_exit;
 	}
 
 	// Set Umsg Address
 	result = opae_port_umsg_set_base_addr(_handle->fddev, 0, io_addr);
 	if (result != 0) {
-		FPGA_MSG("Failed to set UMSG base address");
+		OPAE_MSG("Failed to set UMSG base address");
 		goto umsg_map_exit;
 	}
 
 	result = opae_port_umsg_enable(_handle->fddev);
 	if (result != 0) {
-		FPGA_MSG("Failed to enable UMSG");
+		OPAE_MSG("Failed to enable UMSG");
 		goto umsg_map_exit;
 	}
 
@@ -176,13 +176,13 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 
 umsg_map_exit:
 	result = opae_port_unmap(_handle->fddev, io_addr);
 	if (result) {
-		FPGA_MSG("Failed to unmap UMSG buffer");
+		OPAE_MSG("Failed to unmap UMSG buffer");
 	}
 
 umsg_exit:
@@ -191,7 +191,7 @@ umsg_exit:
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -208,15 +208,15 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 
 	if (_handle->umsg_virt != NULL) {
 		if (opae_port_umsg_disable(_handle->fddev)) {
-			FPGA_ERR("Failed to disable UMSG");
+			OPAE_ERR("Failed to disable UMSG");
 		}
 
 		if (opae_port_umsg_set_base_addr(_handle->fddev, 0, 0)) {
-			FPGA_ERR("Failed to zero UMSG address");
+			OPAE_ERR("Failed to zero UMSG address");
 		}
 
 		if (opae_port_unmap(_handle->fddev, (uint64_t)_handle->umsg_iova)) {
-			FPGA_ERR("Failed to unmap UMSG Buffer");
+			OPAE_ERR("Failed to unmap UMSG Buffer");
 		}
 
 		free_buffer(_handle->umsg_virt, _handle->umsg_size);
@@ -228,7 +228,7 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -246,14 +246,14 @@ xfpga_fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = xfpga_fpgaGetUmsgPtr(handle, &umsg_ptr);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get UMsg buffer");
+		OPAE_ERR("Failed to get UMsg buffer");
 		goto out_unlock;
 	}
 
@@ -263,6 +263,6 @@ xfpga_fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
