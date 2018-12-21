@@ -94,6 +94,9 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
 
+fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid);
+
+
 /**
  * @brief Get BBS interface id
  *

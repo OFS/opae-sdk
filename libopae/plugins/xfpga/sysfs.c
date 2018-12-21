@@ -514,6 +514,29 @@ fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid 
 	return sysfs_read_guid(sysfs_path, guid);
 }
 
+fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid)
+{
+	fpga_result res = FPGA_OK;
+	char sysfs_path[SYSFS_PATH_MAX];
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+
+	if (_token == NULL || sysfspath == NULL)
+		return FPGA_EXCEPTION;
+
+	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
+		_token->sysfspath, sysfspath);
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			sysfs_path, sysfs_path);
+		return FPGA_EXCEPTION;
+	}
+	res = opae_glob_path(sysfs_path);
+	if (res) {
+		return res;
+	}
+	return sysfs_read_guid(sysfs_path, guid);
+}
+
 int sysfs_filter(const struct dirent *de)
 {
 	return de->d_name[0] != '.';
@@ -1068,9 +1091,8 @@ fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
 		goto out_unlock;
 	}
 
-	snprintf_s_is(sysfs_path, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		      _token->device_instance, FPGA_SYSFS_DEVICEID);
+	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/device",
+		_token->sysfspath);
 
 	result = sysfs_read_u64(sysfs_path, deviceid);
 	if (result != 0) {
