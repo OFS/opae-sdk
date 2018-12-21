@@ -301,7 +301,7 @@ def get_bdf_mtd_mapping(type):
                     break
 
     if len(bdf_map) == 0:
-        print "No mtd devices found for FPGA with device id", get_devid(bdf)
+        print "No flash devices found for FPGA"
     return bdf_map
 
 
