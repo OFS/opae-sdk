@@ -479,9 +479,11 @@ TEST_P(metrics_afu_c_p, test_afc_metric_01) {
 */
 TEST_P(metrics_afu_c_p, test_afc_metric_02) {
   uint64_t num_metrics = 0;
+  auto handle = (struct _fpga_handle*)handle_;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
   printf("num_metrics =%ld \n", num_metrics);
+  EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
 
   // No AFU metrics
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
@@ -490,6 +492,8 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
   free(fpga_metric_info);
+
+  EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
 
   // No AFU metrics
   uint64_t id_array[] = {1, 2, 3};
