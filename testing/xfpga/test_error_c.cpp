@@ -59,7 +59,7 @@ class error_c_mock_p
     system_->initialize();
     system_->prepare_syfs(platform_);
     tmpsysfs_ = system_->get_root();
-
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
     strncpy_s(fake_port_token_.sysfspath,sizeof(fake_port_token_.sysfspath),sysfs_port.c_str(),sysfs_port.size());
     strncpy_s(fake_port_token_.devpath,sizeof(fake_port_token_.devpath),dev_port.c_str(),dev_port.size());
     fake_port_token_.magic = FPGA_TOKEN_MAGIC;
@@ -81,6 +81,7 @@ class error_c_mock_p
       filter_ = nullptr;
     }
     token_cleanup();
+    fpgaFinalize();
     system_->finalize();
   }
 

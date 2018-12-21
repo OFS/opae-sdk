@@ -1020,8 +1020,10 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 {
 
 	struct _fpga_token *_token;
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	char *p = 0;
+	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
+	char *p                           = 0;
+	char sysfs_path[SYSFS_PATH_MAX]   = {0};
+	fpga_result result                = FPGA_OK;
 
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
@@ -1045,9 +1047,26 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ii(sysfs_port, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT,
-		      _token->device_instance, _token->subdev_instance);
+	int len  = snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../*-port.*",
+		_token->sysfspath);
+
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings");
+		return FPGA_EXCEPTION;
+	}
+
+	result = opae_glob_path(sysfs_path);
+	if (result) {
+		return result;
+	}
+
+	len = snprintf_s_s(sysfs_port, SYSFS_PATH_MAX, "%s", sysfs_path);
+
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings");
+		return FPGA_EXCEPTION;
+	}
+
 
 	return FPGA_OK;
 }

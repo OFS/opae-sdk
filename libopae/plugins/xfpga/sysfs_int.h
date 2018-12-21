@@ -32,25 +32,7 @@
 #include <unistd.h>
 
 #define SYSFS_PATH_MAX 256
-#define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 
-#define SYSFS_AFU_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-port.%d"
-#define SYSFS_FME_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-fme.%d"
-
-// substring that identifies a sysfs directory as the FME device.
-#define FPGA_SYSFS_FME "fme"
-// substring that identifies a sysfs directory as the AFU device.
-#define FPGA_SYSFS_AFU "port"
-// name of the FME interface ID (GUID) sysfs node.
-#define FPGA_SYSFS_FME_INTERFACE_ID "pr/interface_id"
-// name of the AFU GUID sysfs node.
-#define FPGA_SYSFS_AFU_GUID "afu_id"
-// name of the socket id sysfs node.
-#define FPGA_SYSFS_SOCKET_ID "socket_id"
-// name of the number of slots sysfs node.
-#define FPGA_SYSFS_NUM_SLOTS "ports_num"
-// name of the bitstream id sysfs node.
-#define FPGA_SYSFS_BITSTREAM_ID "bitstream_id"
 
 #ifdef __cplusplus
 extern "C" {

@@ -117,6 +117,7 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgad_.join();
     close_log();
+    fpgaFinalize();
     system_->finalize();
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
