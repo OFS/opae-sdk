@@ -116,14 +116,12 @@ struct gbs_metadata {
 
 fpga_result read_gbs_metadata(const uint8_t *bitstream,
                               struct gbs_metadata *gbs_metadata);
-
 }
 
 fpga_guid test_guid = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
                         0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
 
 #include <config.h>
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -778,34 +776,36 @@ TEST_P(fpgaconf_c_p, relative_path) {
   char one[32];
   char two[32];
   char three[32];
+  char four[32];
   strcpy(zero, "fpgaconf");
-  strcpy(one, "-B");
-  strcpy(two, "0x5e");
+  strcpy(one, "-n");
+  strcpy(two, "-B");
+  strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, four};
 
-  strcpy(three, "../copy_bitstream.gbs");
-  EXPECT_EQ(fpgaconf_main(4, argv), 0);
-
-  // Fail not found
-  memset(three, 0, 32);
-  strcpy(three, "../..../copy_bitstream.gbs");
-  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  strcpy(four, "../copy_bitstream.gbs");
+  EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(three, 0, 32);
-  strcpy(three, "..%2fcopy_bitstream.gbs");
-  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  memset(four, 0, 32);
+  strcpy(four, "../..../copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(three, 0, 32);
-  strcpy(three, "%2e%2e/copy_bitstream.gbs");
-  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  memset(four, 0, 32);
+  strcpy(four, "..%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(three, 0, 32);
-  strcpy(three, "%2e%2e%2fcopy_bitstream.gbs");
-  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  memset(four, 0, 32);
+  strcpy(four, "%2e%2e/copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
+
+  // Fail not found
+  memset(four, 0, 32);
+  strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   unlink(copy_gbs_.c_str());
 }
@@ -821,17 +821,19 @@ TEST_P(fpgaconf_c_p, absolute_path_pos) {
   char zero[32];
   char one[32];
   char two[32];
-  char three[128];
+  char three[32];
+  char four[128];
   strcpy(zero, "fpgaconf");
-  strcpy(one, "-B");
-  strcpy(two, "0x5e");
+  strcpy(one, "-n");
+  strcpy(two, "-B");
+  strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, four};
   char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
-  strcpy(three, bitstream_path.c_str());
-  EXPECT_EQ(fpgaconf_main(4, argv), 0);
+  strcpy(four, bitstream_path.c_str());
+  EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   free(current_path);
   unlink(copy_gbs_.c_str());
@@ -870,6 +872,7 @@ TEST_P(fpgaconf_c_p, absolute_path_neg) {
   free(current_path);
   unlink(copy_gbs_.c_str());
 }
+
 /**
  * @test       read_symlink_bs
  * @brief      Test: 
