@@ -233,7 +233,7 @@ int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t coun
 	irq->flags = 0;
 	irq->start = start;
 	irq->count = count;
-	err = memcpy32_s((uint32_t*)irq->evtfd, count, (uint32_t*)eventfd, count);
+	err = memcpy32_s((uint32_t *)irq->evtfd, count, (uint32_t *)eventfd, count);
 	if (err) {
 		res = FPGA_INVALID_PARAM;
 		goto out_free;
