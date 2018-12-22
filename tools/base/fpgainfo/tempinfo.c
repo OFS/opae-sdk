@@ -69,7 +69,8 @@ static void print_temp_info(fpga_properties props)
 
 	uint16_t devid = 0;
 	if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
-		if (devid != FPGA_DISCRETE_DEVICEID) {
+		if (devid != FPGA_DISCRETE_DEVICEID &&
+			devid != FPGA_INTEGRATED_DEVICEID) {
 			print_sensor_info(sysfspath, BMC_THERMAL);
 			return;
 		}

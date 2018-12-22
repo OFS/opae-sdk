@@ -497,6 +497,21 @@ typedef struct _Values {
 	sensor_value_type val_type;
 } Values;
 
+#define SENSOR_TYPE_OTHER	0
+#define SENSOR_TYPE_POWER	1
+#define SENSOR_TYPE_VOLTAGE	2
+#define SENSOR_TYPE_CURRENT	3
+#define SENSOR_TYPE_THERMAL	4
+#define SENSOR_TYPE_CLOCK	5
+
+typedef struct _sensor_attr {
+	struct _sensor_attr *next;
+	int id;
+	int type;
+	int value;
+	char name[32];
+} sensor_attr;
+
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type);
 int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
 				 int size);
