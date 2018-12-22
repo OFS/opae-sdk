@@ -849,7 +849,7 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 				devid != FPGA_INTEGRATED_DEVICEID) {
 				print_sensor_info(sysfs_path, BMC_SENSORS);
 				fpgaDestroyProperties(&props);
-				return res;
+				continue;
 			}
 		}
 
