@@ -49,6 +49,9 @@ fpga_result opae_ioctl(int fd, int request, ...)
 		case EINVAL:
 			res = FPGA_INVALID_PARAM;
 			break;
+		case ENOTSUP:
+			res = FPGA_NOT_SUPPORTED;
+			break;
 		default:
 			// other errors could be
 			// EBADF - fd is bad file descriptor
@@ -142,4 +145,37 @@ int opae_port_unmap(int fd, uint64_t io_addr)
 
 	/* Dispatch ioctl command */
 	return opae_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
+}
+
+int opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
+{
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_MODE");
+	}
+
+	struct fpga_port_umsg_cfg umsg_cfg = {.argsz = sizeof(umsg_cfg),
+					      .flags = 0,
+					      .hint_bitmap = hint_bitmap};
+	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
+}
+
+int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr)
+{
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_BASE_ADDR");
+	}
+
+	struct fpga_port_umsg_base_addr baseaddr = {
+		.argsz = sizeof(baseaddr), .flags = 0, .iova = io_addr};
+	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
+}
+
+int opae_port_umsg_enable(int fd)
+{
+	return opae_ioctl(fd, FPGA_PORT_UMSG_ENABLE, NULL);
+}
+
+int opae_port_umsg_disable(int fd)
+{
+	return opae_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
 }
