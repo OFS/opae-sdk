@@ -33,35 +33,42 @@ import sys
 from common import FpgaFinder, exception_quit, convert_argument_str2hex
 
 sys_if = '/sys/class/net'
-divide = '-----------------------------------------'
+divide = '-'*80
 
 
 class MacromCompare(object):
     def __init__(self, args):
         self.args = args
-        self.ethif = dict(zip(args.ethif, ['', ] * len(args.ethif)))
+        self.ethif = {}
         self.mac = []
 
-    def print_error_exit(self, msg):
-        print('Error: {}'.format(msg))
-        exit(-1)
+    def get_pci_common_root_path(self, path):
+        link = os.readlink(path)
+        m = link.split(os.sep)
+        if len(m) > 4:
+            return os.sep.join(m[:-4])
 
     def get_if_and_mac_list(self):
-        ifs = self.args.ethif or os.listdir(sys_if)
+        pci_root = self.get_pci_common_root_path(self.args.fpga_root)
+        ifs = os.listdir(sys_if)
         # a group has 4 interfaces
         for i in ifs:
             t = [j for j in ifs if j[:-1] == i[:-1]]
-            if self.args.ethif or len(t) == 4:
-                with open(os.path.join(sys_if, i, 'address')) as f:
-                    self.ethif[i] = f.read().strip()
+            if len(t) == 4:
+                root = self.get_pci_common_root_path(os.path.join(sys_if, i))
+                if pci_root == root:
+                    with open(os.path.join(sys_if, i, 'address')) as f:
+                        self.ethif[i] = f.read().strip()
 
         if self.ethif:
             print('Found {} ethernet interfaces:'.format(len(self.ethif)))
-            for i in self.ethif.items():
+            ethifs = self.ethif.items()
+            ethifs.sort()
+            for i in ethifs:
                 print('  {:<20} {}'.format(*i))
             print(divide)
         else:
-            self.print_error_exit('No ethernet interface found!')
+            exception_quit('No ethernet interface found!')
 
     def read_mac_from_nvmem(self):
         with open(self.args.nvmem, 'rb') as f:
@@ -82,9 +89,11 @@ class MacromCompare(object):
             if m not in self.ethif.values():
                 print('{} in MAC ROM, have no relative interface!'.format(m))
                 result = 'FAIL'
-        for e, m in self.ethif.items():
+        ethifs = self.ethif.items()
+        ethifs.sort()
+        for e, m in ethifs:
             if m not in self.mac:
-                print('{} associate with {}, is not from MAC ROM'.format(m, e))
+                print('{} mac {}, is not from MAC ROM'.format(e, m))
                 result = 'FAIL'
         print('TEST {}!'.format(result))
 
@@ -102,12 +111,6 @@ def main():
                         help='Device number of PCIe device')
     parser.add_argument('--function', '-F',
                         help='Function number of PCIe device')
-    parser.add_argument('--nvmem',
-                        help='nvmem path')
-    parser.add_argument('--ethif',
-                        nargs='*',
-                        default=[],
-                        help='specify ethernet interfaces')
     parser.add_argument('--offset',
                         default='0',
                         help='read mac address from a offset address')
@@ -116,33 +119,30 @@ def main():
     args = convert_argument_str2hex(
         args, ['bus', 'device', 'function', 'offset'])
 
-    if not args.nvmem:
-        f = FpgaFinder(args.bus, args.device, args.function)
-        devs = f.find()
-        for d in devs:
-            print(
-                'bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(
-                    **d))
-        if len(devs) > 1:
-            exception_quit('{} FPGAs are found\nplease choose '
-                           'one FPGA to do mactest'.format(len(devs)))
-        if not devs:
-            exception_quit('no FPGA found')
-        nvmem_path = f.find_node(devs[0].get('path'), 'nvmem')
-        if not nvmem_path:
-            exception_quit('No nvmem found at {}'.format(devs[0].get('path')))
-        for p in nvmem_path:
-            print('found nvmem: {}'.format(p))
-        args.nvmem = nvmem_path[0]
-        if len(nvmem_path) > 1:
-            print('multi nvmem found, '
-                  'select {} to do mactest'.format(args.nvmem))
+    f = FpgaFinder(args.bus, args.device, args.function)
+    devs = f.find()
+    for d in devs:
+        print(
+            'bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(
+                **d))
+    if len(devs) > 1:
+        exception_quit('{} FPGAs are found\nplease choose '
+                       'one FPGA to do mactest'.format(len(devs)))
+    if not devs:
+        exception_quit('no FPGA found')
+    args.fpga_root = devs[0].get('path')
+    nvmem_path = f.find_node(devs[0].get('path'), 'nvmem', depth=7)
+    if not nvmem_path:
+        exception_quit('No nvmem found at {}'.format(devs[0].get('path')))
+    for p in nvmem_path:
+        print('found nvmem: {}'.format(p))
+    args.nvmem = nvmem_path[0]
+    if len(nvmem_path) > 1:
+        print('multi nvmem found, '
+              'select {} to do mactest'.format(args.nvmem))
 
-    if os.path.exists(args.nvmem):
-        m = MacromCompare(args)
-        m.start()
-    else:
-        print('Error: {} is not exist!'.format(args.nvmem))
+    m = MacromCompare(args)
+    m.start()
 
 
 if __name__ == "__main__":
