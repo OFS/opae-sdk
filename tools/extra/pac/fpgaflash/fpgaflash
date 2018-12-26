@@ -43,6 +43,8 @@ VCP_ID = 0x0b30
 VCP_PF1_ID = 0x0b32
 VCP_RPD_USER_IMAGE_OFFSET = 0x3ff0000
 VCP_RPD_USER_IMAGE_LENGTH = 0x3800000
+VCP_FLASH_DTB_OFFSET = 0x3820000
+VCP_FLASH_DTB_LENGTH = 0x1000
 VCP_FLASH_PAGE1_OFFSET = 0x4000000
 VCP_FLASH_SECTOR_SIZE = 0x10000
 
@@ -174,7 +176,7 @@ def parse_args():
                                      formatter_class=fc_)
 
     parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory',
+                        choices=['user', 'factory', 'dtb',
                                  'bmc_bl', 'bmc_app', 'bmc_fw'])
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
@@ -230,7 +232,7 @@ def set_flash_mode(bdf, type, value):
     if not spi_path:
         return
     else:
-        if type == 'user':
+        if type == 'user' or type == 'dtb':
             path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_flash_mode')
         elif type == 'bmc_fw':
             path = os.path.join(spi_path, 'bmcfw_flash_ctrl',
@@ -337,6 +339,10 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
         if update_type == 'user':
             start_addr = VCP_RPD_USER_IMAGE_OFFSET
             image_len = VCP_RPD_USER_IMAGE_LENGTH
+        elif update_type == 'dtb':
+            start_addr = 0
+            ifile.seek(0, 2)
+            image_len = ifile.tell()
         elif update_type == 'bmc_fw':
             ihex = IntelHex(ifile)
             for (start, size) in ihex.segments():
@@ -362,6 +368,8 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
     if int(get_devid(bdf), 16) == VCP_ID:
         if update_type == 'user':
             reverse_bits_in_file(ifile, ofile, image_len)
+        elif update_type == 'dtb':
+            ofile.write(ifile.read(image_len))
         elif update_type == 'bmc_fw':
             ofile.write(bdata)
     else:
@@ -375,6 +383,9 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
         if update_type == 'user':
             start_addr = VCP_FLASH_PAGE1_OFFSET
             flash_erase(mtd_dev, start_addr, image_len)
+        elif update_type == 'dtb':
+            start_addr = VCP_FLASH_DTB_OFFSET
+            flash_erase(mtd_dev, start_addr, VCP_FLASH_DTB_LENGTH)
         elif update_type == 'bmc_fw':
             for i in range(0, image_len, VCP_FLASH_SECTOR_SIZE):
                 flash_erase(mtd_dev, i, VCP_FLASH_SECTOR_SIZE)
