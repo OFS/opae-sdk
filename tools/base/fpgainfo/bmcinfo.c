@@ -409,10 +409,13 @@ void print_bmc_info(const char *sysfspath)
 			off = strlen(path);
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s",
 						 "bmcfw_flash_ctrl/bmcfw_version");
-			get_sysfs_attr(path, buf, sizeof(buf));
-			bmcfw_ver = strtoul(buf, NULL, 16);
-			printf("%u.%u.%u\n", (bmcfw_ver >> 16) & 0xff,
-				   (bmcfw_ver >> 8) & 0xff, bmcfw_ver & 0xff);
+			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
+				bmcfw_ver = strtoul(buf, NULL, 16);
+				printf("%u.%u.%u\n", (bmcfw_ver >> 16) & 0xff,
+					   (bmcfw_ver >> 8) & 0xff, bmcfw_ver & 0xff);
+			} else {
+				printf("unavailable (I/O error)\n");
+			}
 		} else {
 			printf("unavailable\n");
 		}
@@ -580,7 +583,7 @@ int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
 }
 
 
-void get_sysfs_attr(const char *attr_path, char *buf, int size)
+int get_sysfs_attr(const char *attr_path, char *buf, int size)
 {
 	int fd;
 	ssize_t sz;
@@ -588,12 +591,17 @@ void get_sysfs_attr(const char *attr_path, char *buf, int size)
 	fd = open(attr_path, O_RDONLY);
 	if (fd < 0) {
 		fprintf(stderr, "Open %s failed\n", attr_path);
-		return;
+		return -1;
 	}
 	sz = read(fd, buf, size);
-	if (sz > 0)
-		buf[sz-1] = '\0';
 	close(fd);
+
+	if (sz > 0) {
+		buf[sz-1] = '\0';
+		return (int)sz;
+	} else {
+		return 0;
+	}
 }
 
 
@@ -616,29 +624,104 @@ BMC_TYPE get_bmc_sensor_type(sensor_attr *sensor)
 	}
 }
 
-void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
+void print_sensor_verbose_value(sensor_attr *sensors, BMC_TYPE type)
 {
 	sensor_attr *attr;
-	char value[16];
 
 	for (attr = sensors; attr != NULL; attr = attr->next) {
 		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
-			if (attr->type == SENSOR_TYPE_THERMAL) {
-				printf("(%2d) %-24s : %d %ls\n",
-					   attr->id, attr->name, attr->value/1000, L"\x00b0\x0043");
-			} else {
-				if (attr->type == SENSOR_TYPE_POWER) {
-					snprintf_s_i(value, sizeof(value), "%d mW", attr->value);
-				} else if (attr->type == SENSOR_TYPE_VOLTAGE) {
-					snprintf_s_i(value, sizeof(value), "%d mV", attr->value);
-				} else if (attr->type == SENSOR_TYPE_CURRENT) {
-					snprintf_s_i(value, sizeof(value), "%d mA", attr->value);
-				} else if (attr->type == SENSOR_TYPE_CLOCK) {
-					snprintf_s_i(value, sizeof(value), "%d Hz", attr->value);
+			printf("Sensor ID %d:\n", attr->id);
+
+			printf("\tSensor type '%s' (0x%x): Flag (%02xh)\n",
+				   attr->stype, attr->type, attr->flag);
+
+			printf("\tSensor name:\n");
+			printf("\t\tLength is %lu bytes\n", strlen(attr->name));
+			printf("\t\tString type is 8-bit ASCII\n");
+			printf("\t\tName is '%s'\n", attr->name);
+
+			if (attr->flag & ~0x1) {
+				printf("\tThreshold values:\n");
+				if (attr->type == SENSOR_TYPE_CLOCK ||
+					attr->type == SENSOR_TYPE_OTHER) {
+					if (attr->flag & SENSOR_FLAG_HIGH_FATAL)
+						printf("\t\tUpper critical threshold value is %d\n",
+							   attr->high_fatal.i_val);
+					if (attr->flag & SENSOR_FLAG_HIGH_WARN)
+						printf("\t\tUpper warning threshold value is %d\n",
+							   attr->high_warn.i_val);
+					if (attr->flag & SENSOR_FLAG_LOW_FATAL)
+						printf("\t\tLower critical threshold value is %d\n",
+							   attr->low_fatal.i_val);
+					if (attr->flag & SENSOR_FLAG_LOW_WARN)
+						printf("\t\tLower warning threshold value is %d\n",
+							   attr->low_warn.i_val);
+				    if (attr->flag & SENSOR_FLAG_HYSTERESIS)
+						printf("\t\tHysteresis value is %d\n",
+							   attr->hysteresis.i_val);
 				} else {
-					snprintf_s_i(value, sizeof(value), "%d", attr->value);
+					if (attr->flag & SENSOR_FLAG_HIGH_FATAL)
+						printf("\t\tUpper critical threshold value is %.6f\n",
+							   attr->high_fatal.f_val);
+					if (attr->flag & SENSOR_FLAG_HIGH_WARN)
+						printf("\t\tUpper warning threshold value is %.6f\n",
+							   attr->high_warn.f_val);
+					if (attr->flag & SENSOR_FLAG_LOW_FATAL)
+						printf("\t\tLower critical threshold value is %.6f\n",
+							   attr->low_fatal.f_val);
+					if (attr->flag & SENSOR_FLAG_LOW_WARN)
+						printf("\t\tLower warning threshold value is %.6f\n",
+							   attr->low_warn.f_val);
+				    if (attr->flag & SENSOR_FLAG_HYSTERESIS)
+						printf("\t\tHysteresis value is %.6f\n",
+							   attr->hysteresis.f_val);
 				}
-				printf("(%2d) %-24s : %s\n", attr->id, attr->name, value);
+			} else {
+				printf("\tNo threshold provided\n");
+			}
+
+			printf("\tSensor reading:\n");
+			printf("\t\tRaw value: 0x%x\n", attr->value.r_val);
+			if (attr->type == SENSOR_TYPE_CLOCK ||
+				attr->type == SENSOR_TYPE_OTHER) {
+				printf("\t\t\tScaled value is %d\n", attr->value.i_val);
+			} else {
+				printf("\t\t\tScaled value is %.6f\n", attr->value.f_val);
+			}
+		}
+	}
+}
+
+void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
+{
+	sensor_attr *attr;
+
+	for (attr = sensors; attr != NULL; attr = attr->next) {
+		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
+			if (attr->flag & SENSOR_FLAG_VALUE) {
+				if (attr->type == SENSOR_TYPE_THERMAL) {
+					printf("(%2d) %-24s : %.2f %ls\n",
+						   attr->id, attr->name, attr->value.f_val,
+						   L"\x00b0\x0043");
+				} else if (attr->type == SENSOR_TYPE_POWER) {
+					printf("(%2d) %-24s : %.2f Watts\n",
+						   attr->id, attr->name, attr->value.f_val);
+				} else if (attr->type == SENSOR_TYPE_VOLTAGE) {
+					printf("(%2d) %-24s : %.2f Volts\n",
+						   attr->id, attr->name, attr->value.f_val);
+				} else if (attr->type == SENSOR_TYPE_CURRENT) {
+					printf("(%2d) %-24s : %.2f Amps\n",
+						   attr->id, attr->name, attr->value.f_val);
+				} else if (attr->type == SENSOR_TYPE_CLOCK) {
+					printf("(%2d) %-24s : %d Hz\n",
+						   attr->id, attr->name, attr->value.i_val);
+				} else {
+					printf("(%2d) %-24s : %d\n",
+						   attr->id, attr->name, attr->value.i_val);
+				}
+			} else {
+				printf("(%2d) %-24s : No reading (reading state unavailable)\n",
+					   attr->id, attr->name);
 			}
 		}
 	}
@@ -649,6 +732,59 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 #define CURRENT_SENSOR	"current"
 #define THERMAL_SENSOR	"temperature"
 #define CLOCK_SENSOR	"clock"
+
+static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
+{
+	int *r_val;
+	int *i_val;
+	double *f_val;
+
+	switch (flag) {
+	case SENSOR_FLAG_VALUE:
+		r_val = &(attr->value.r_val);
+		i_val = &(attr->value.i_val);
+		f_val = &(attr->value.f_val);
+		break;
+	case SENSOR_FLAG_LOW_WARN:
+		r_val = &(attr->low_warn.r_val);
+		i_val = &(attr->low_warn.i_val);
+		f_val = &(attr->low_warn.f_val);
+		break;
+	case SENSOR_FLAG_LOW_FATAL:
+		r_val = &(attr->low_fatal.r_val);
+		i_val = &(attr->low_fatal.i_val);
+		f_val = &(attr->low_fatal.f_val);
+		break;
+	case SENSOR_FLAG_HIGH_WARN:
+		r_val = &(attr->high_warn.r_val);
+		i_val = &(attr->high_warn.i_val);
+		f_val = &(attr->high_warn.f_val);
+		break;
+	case SENSOR_FLAG_HIGH_FATAL:
+		r_val = &(attr->high_fatal.r_val);
+		i_val = &(attr->high_fatal.i_val);
+		f_val = &(attr->high_fatal.f_val);
+		break;
+	case SENSOR_FLAG_HYSTERESIS:
+		r_val = &(attr->hysteresis.r_val);
+		i_val = &(attr->hysteresis.i_val);
+		f_val = &(attr->hysteresis.f_val);
+		break;
+	default:
+		return;
+	}
+
+	*r_val = atoi(value);
+	if (attr->type == SENSOR_TYPE_THERMAL) {
+		*f_val = (*r_val) * 0.001;
+	} else if (attr->type == SENSOR_TYPE_CLOCK ||
+			   attr->type == SENSOR_TYPE_OTHER) {
+		*i_val = *r_val;
+	} else {
+		*f_val = (*r_val) * 0.001;
+	}
+	attr->flag |= flag;
+}
 
 void build_sensor_list(const char *sensor_path, sensor_attr **head)
 {
@@ -664,6 +800,7 @@ void build_sensor_list(const char *sensor_path, sensor_attr **head)
 	if (attr == NULL)
 		return;
 	attr->next = NULL;
+	attr->flag = 0;
 
 	/* read sensor attributes */
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "id");
@@ -675,6 +812,7 @@ void build_sensor_list(const char *sensor_path, sensor_attr **head)
 
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "type");
 	get_sysfs_attr(path, type, sizeof(type));
+	strncpy_s(attr->stype, sizeof(attr->stype), type, strlen(type));
 	strlower(type);
 	if (EOK == strstr_s(type, strlen(type), POWER_SENSOR,
 						strlen(POWER_SENSOR), &substr)) {
@@ -696,9 +834,31 @@ void build_sensor_list(const char *sensor_path, sensor_attr **head)
 	}
 
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "value");
-	get_sysfs_attr(path, value, sizeof(value));
-	attr->value = atoi(value);
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_VALUE);
+	}
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "low_warn");
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_LOW_WARN);
+	}
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "low_fatal");
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_LOW_FATAL);
+	}
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "high_warn");
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_HIGH_WARN);
+	}
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "high_fatal");
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_HIGH_FATAL);
+	}
+	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "hysteresis");
+	if (get_sysfs_attr(path, value, sizeof(value)) > 0) {
+		convert_sensor_value(attr, value, SENSOR_FLAG_HYSTERESIS);
+	}
 
+	/* add sensor to list */
 	if (*head == NULL) {
 		*head = attr;
 	} else {
@@ -730,7 +890,7 @@ void destroy_sensor_list(sensor_attr **head)
 
 #define SENSOR_NAME 	"sensor"
 
-void print_sensor_info(const char *sysfspath, BMC_TYPE type)
+void print_sensor_info(const char *sysfspath, BMC_TYPE type, int verbose)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
@@ -776,7 +936,11 @@ void print_sensor_info(const char *sysfspath, BMC_TYPE type)
 	}
 	closedir(dir);
 
-	print_sensor_value(sensors, type);
+	if (verbose) {
+		print_sensor_verbose_value(sensors, type);
+	} else {
+		print_sensor_value(sensors, type);
+	}
 	destroy_sensor_list(&sensors);
 }
 
@@ -847,7 +1011,7 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 		if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
 			if (devid != FPGA_DISCRETE_DEVICEID &&
 				devid != FPGA_INTEGRATED_DEVICEID) {
-				print_sensor_info(sysfs_path, BMC_SENSORS);
+				print_sensor_info(sysfs_path, BMC_SENSORS, verbose_opt);
 				fpgaDestroyProperties(&props);
 				continue;
 			}

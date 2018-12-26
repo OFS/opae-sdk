@@ -504,19 +504,57 @@ typedef struct _Values {
 #define SENSOR_TYPE_THERMAL	4
 #define SENSOR_TYPE_CLOCK	5
 
+#define SENSOR_FLAG_VALUE		(1 << 0)
+#define SENSOR_FLAG_LOW_WARN	(1 << 1)
+#define SENSOR_FLAG_LOW_FATAL	(1 << 2)
+#define SENSOR_FLAG_HIGH_WARN	(1 << 3)
+#define SENSOR_FLAG_HIGH_FATAL	(1 << 4)
+#define SENSOR_FLAG_HYSTERESIS	(1 << 5)
+
 typedef struct _sensor_attr {
 	struct _sensor_attr *next;
+	int flag;
 	int id;
 	int type;
-	int value;
+	char stype[32];
 	char name[32];
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} value;
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} low_warn;
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} high_warn;
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} low_fatal;
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} high_fatal;
+	struct {
+		int r_val;
+		int i_val;
+		double f_val;
+	} hysteresis;
 } sensor_attr;
 
 fpga_result bmc_print_values(const char *sysfs_path, BMC_TYPE type);
 int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
 				 int size);
-void get_sysfs_attr(const char *attr_path, char *buf, int size);
-void print_sensor_info(const char *sysfspath, BMC_TYPE type);
+int get_sysfs_attr(const char *attr_path, char *buf, int size);
+void print_sensor_info(const char *sysfspath, BMC_TYPE type, int verbose);
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
 void print_bmc_info(const char *sysfspath);
 fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,

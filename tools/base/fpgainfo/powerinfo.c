@@ -58,7 +58,7 @@ static void print_power_info(fpga_properties props)
 	if (FPGA_OK == fpgaPropertiesGetDeviceID(props, &devid)) {
 		if (devid != FPGA_DISCRETE_DEVICEID &&
 			devid != FPGA_INTEGRATED_DEVICEID) {
-			print_sensor_info(sysfs_path, BMC_POWER);
+			print_sensor_info(sysfs_path, BMC_POWER, 0);
 			return;
 		}
 	}

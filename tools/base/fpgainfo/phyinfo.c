@@ -42,6 +42,8 @@
 
 #include "safe_string/safe_string.h"
 
+static int num_ports = 8;
+
 /*
  * phy command configuration, set during parse_phy_args()
  */
@@ -155,6 +157,7 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 		} else {
 			printf("ioctl error\n");
 		}
+		num_ports = info.num_phys;
 		close(fd);
 	} else {
 		fprintf(stderr, "WARNING: phy_group %d not found\n", group_num);
@@ -175,6 +178,7 @@ static void print_pkvl_info(fpga_properties props)
 	int offset;
 	int ports;
 	int result;
+	int fd;
 	char mode[16] = {0};
 	char status[16] = {0};
 
@@ -227,6 +231,20 @@ static void print_pkvl_info(fpga_properties props)
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "polling_mode");
 		get_sysfs_attr(path, mode, sizeof(mode));
 		result = strtol(mode, NULL, 16);
+		if (result == 0) {
+			fd = open(path, O_WRONLY);
+			if (fd >= 0) {
+				if (num_ports == 4) {
+					result = 1;
+					write(fd, "1", 1);
+				} else {
+					result = 3;
+					write(fd, "3", 1);
+				}
+				close(fd);
+			}
+			sleep(1);	// wait for polling
+		}
 		ports = result == 1 ? 4 : 8;
 		strncpy_s(mode, sizeof(mode), result == 1 ? "25G" : "10G", 3);
 
