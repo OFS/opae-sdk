@@ -29,7 +29,6 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
 #include <opae/fpga.h>
@@ -62,7 +61,8 @@ class reset_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
+                            &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
@@ -71,8 +71,8 @@ class reset_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+      EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+      accel_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -80,6 +80,7 @@ class reset_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -91,9 +92,7 @@ class reset_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-TEST_P(reset_c_p, success) {
-    EXPECT_EQ(fpgaReset(accel_), FPGA_OK);
-}
+TEST_P(reset_c_p, success) { EXPECT_EQ(fpgaReset(accel_), FPGA_OK); }
 
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, 
+INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

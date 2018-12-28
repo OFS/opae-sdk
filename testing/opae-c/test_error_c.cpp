@@ -61,7 +61,8 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
+                            &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
   }
 
@@ -75,6 +76,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -112,12 +114,11 @@ TEST_P(error_c_p, get_info) {
   ASSERT_EQ(fpgaPropertiesGetNumErrors(props, &num_errors), FPGA_OK);
   // this is a port, which only has three error registers
   ASSERT_EQ(num_errors, platform_.devices[0].port_num_errors);
-  std::map<std::string, bool> knows_errors = {{"errors", true},
-                                              {"first_error", false},
-                                              {"first_malformed_req", false}};
+  std::map<std::string, bool> knows_errors = {
+      {"errors", true}, {"first_error", false}, {"first_malformed_req", false}};
   std::vector<fpga_error_info> info_list(num_errors);
   for (int i = 0; i < num_errors; ++i) {
-    fpga_error_info & info = info_list[i];
+    fpga_error_info &info = info_list[i];
     EXPECT_EQ(fpgaGetErrorInfo(tokens_[0], i, &info), FPGA_OK);
     EXPECT_EQ(info.can_clear, knows_errors[info.name]);
   }

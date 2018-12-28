@@ -24,18 +24,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "gtest/gtest.h"
-#include "test_system.h"
-#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/errors.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
-#include <opae/cxx/core/errors.h>
+#include <opae/cxx/core/token.h>
+#include "gtest/gtest.h"
+#include "test_system.h"
 
 #include "intel-fpga.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
-
 
 class errors_cxx_core : public ::testing::TestWithParam<std::string> {
  protected:
@@ -55,6 +54,14 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
+    tokens_.clear();
+    if (handle_) {
+      handle_->close();
+      handle_.reset();
+    }
+
+    fpgaFinalize();
+
     system_->finalize();
   }
 
@@ -77,7 +84,8 @@ TEST_P(errors_cxx_core, get_error) {
     ASSERT_NE(props, nullptr);
     for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
       auto err = error::get(t, i);
-      std::cout << "Error [" << err->name() << "]: " << err->read_value() << "\n";
+      std::cout << "Error [" << err->name() << "]: " << err->read_value()
+                << "\n";
     }
   }
 }
@@ -92,6 +100,5 @@ TEST_P(errors_cxx_core, throw_error) {
   ASSERT_THROW(error::get(nullptr, 0), std::invalid_argument);
 }
 
-
-
-INSTANTIATE_TEST_CASE_P(error, errors_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(error, errors_cxx_core,
+                        ::testing::ValuesIn(test_platform::keys(true)));

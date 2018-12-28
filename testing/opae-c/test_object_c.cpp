@@ -29,16 +29,15 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
+#include <linux/ioctl.h>
 #include <opae/fpga.h>
 #include "intel-fpga.h"
-#include <linux/ioctl.h>
 
 #include <array>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
@@ -51,8 +50,7 @@ using namespace opae::testing;
 class object_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   object_c_p()
-  : tokens_accel_{{nullptr, nullptr}},
-    tokens_device_{{nullptr, nullptr}} {}
+      : tokens_accel_{{nullptr, nullptr}}, tokens_device_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -66,8 +64,9 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_accel_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(),
+                            tokens_accel_.size(), &num_matches_accel_),
+              FPGA_OK);
     EXPECT_GT(num_matches_accel_, 0);
 
     accel_ = nullptr;
@@ -75,14 +74,15 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
 
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     num_matches_device_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(),
+                            tokens_device_.size(), &num_matches_device_),
+              FPGA_OK);
     EXPECT_GT(num_matches_device_, 0);
 
-    EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num", &token_obj_, 0),
-		    FPGA_OK);
-    EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0),
-		    FPGA_OK);
+    EXPECT_EQ(
+        fpgaTokenGetObject(tokens_device_[0], "ports_num", &token_obj_, 0),
+        FPGA_OK);
+    EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0), FPGA_OK);
     afu_guid_ = platform_.devices[0].afu_guid;
     system_->normalize_guid(afu_guid_, false);
   }
@@ -92,8 +92,8 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyObject(&token_obj_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+      EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+      accel_ = nullptr;
     }
     for (auto &t : tokens_accel_) {
       if (t) {
@@ -107,6 +107,7 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -132,8 +133,7 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(object_c_p, obj_read) {
   char afu_id[33];
-  EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *) afu_id, 0,
-                           32, 0), FPGA_OK);
+  EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *)afu_id, 0, 32, 0), FPGA_OK);
   afu_id[32] = 0;
   EXPECT_STREQ(afu_id, afu_guid_.c_str());
 }
@@ -163,14 +163,12 @@ TEST_P(object_c_p, obj_write64) {
   fpga_object obj = nullptr;
 
   // read the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
-		    FPGA_OK);
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0), FPGA_OK);
   ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 
   // clear the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0),
-		    FPGA_OK);
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0), FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -186,10 +184,8 @@ TEST_P(object_c_p, obj_get_obj0) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
-		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
-                                &clear_obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear", &clear_obj, 0), FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
@@ -208,7 +204,7 @@ TEST_P(object_c_p, obj_get_obj1) {
   const char *bad_name = "err\0rs";
 
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
-  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0),FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0), FPGA_NOT_FOUND);
 
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
   ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
@@ -238,8 +234,8 @@ TEST_P(object_c_p, token_get_obj) {
   fpga_object obj = nullptr;
   const char *bad_name = "err\0rs";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], bad_name, &obj, 0), 
-                                FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], bad_name, &obj, 0),
+            FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
@@ -261,8 +257,8 @@ INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class object_c_mock_p : public object_c_p {
-  protected:
-    object_c_mock_p() {};
+ protected:
+  object_c_mock_p(){};
 };
 
 /**
@@ -275,8 +271,8 @@ class object_c_mock_p : public object_c_p {
 TEST_P(object_c_mock_p, tok_get_err) {
   fpga_object obj = nullptr;
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num",
-                               &obj, 0), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num", &obj, 0),
+            FPGA_NO_MEMORY);
 }
 
 /**
@@ -289,8 +285,7 @@ TEST_P(object_c_mock_p, tok_get_err) {
 TEST_P(object_c_mock_p, handle_get_err) {
   fpga_object obj = nullptr;
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  EXPECT_EQ(fpgaHandleGetObject(accel_, "id",
-                               &obj, 0), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaHandleGetObject(accel_, "id", &obj, 0), FPGA_NO_MEMORY);
 }
 
 /**
@@ -304,16 +299,14 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
-		    FPGA_OK);
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
 
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
-                                &clear_obj, 0), FPGA_NO_MEMORY);
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear", &clear_obj, 0),
+            FPGA_NO_MEMORY);
 
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
-

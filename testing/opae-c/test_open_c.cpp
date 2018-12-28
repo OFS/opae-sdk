@@ -29,7 +29,6 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
 #include <opae/fpga.h>
@@ -76,6 +75,7 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -88,11 +88,11 @@ class open_c_p : public ::testing::TestWithParam<std::string> {
 };
 
 TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+  // Invalidate the allocation of the wrapped handle.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
+  ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
+  EXPECT_EQ(accel_, nullptr);
 }
 
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, 
+INSTANTIATE_TEST_CASE_P(open_c, open_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));

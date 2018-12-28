@@ -25,15 +25,15 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include "fpga_hw.h"
 #include <dirent.h>
+#include <glob.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <algorithm>
-#include <iostream>
 #include <fstream>
-#include "test_utils.h"
-#include <glob.h>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
+#include "test_utils.h"
 
 namespace opae {
 namespace testing {
@@ -62,7 +62,6 @@ test_device test_device::unknown() {
                      .mdata = ""};
 }
 
-
 const char *skx_mdata =
     R"mdata({"version": 640,
    "afu-image":
@@ -84,7 +83,7 @@ const char *skx_mdata =
 )mdata";
 
 const char *skx_mdata_ups =
-R"mdata({"version": 640,
+    R"mdata({"version": 640,
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
@@ -172,32 +171,31 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = rc_mdata}}}},
 
-	{"skx-p-ups",
-	 test_platform{.mock_sysfs = "mock_sys_tmp-mcp-ups-nlb0.tar.gz",
-				   .devices = {test_device{
-					   .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
-					   .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
-					   .segment = 0x0,
-					   .bus = 0x5e,
-					   .device = 0,
-					   .function = 0,
-					   .socket_id = 0,
-					   .num_slots = 1,
-					   .bbs_id = 0x6400002fc614bb9,
-					   .bbs_version = {6, 4, 0},
-					   .state = FPGA_ACCELERATOR_UNASSIGNED,
-					   .num_mmio = 0x2,
-					   .num_interrupts = 0,
-					   .fme_object_id = 0xf500000,
-					   .port_object_id = 0xf400000,
-					   .vendor_id = 0x8086,
-					   .device_id = 0xbcc0,
-					   .fme_num_errors = 8,
-					   .port_num_errors = 3,
-					   .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
-					   .mdata = skx_mdata_ups}}}},
+    {"skx-p-ups",
+     test_platform{.mock_sysfs = "mock_sys_tmp-mcp-ups-nlb0.tar.gz",
+                   .devices = {test_device{
+                       .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x5e,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x6400002fc614bb9,
+                       .bbs_version = {6, 4, 0},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0xbcc0,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = skx_mdata_ups}}}},
 };
-
 
 test_platform test_platform::get(const std::string &key) {
   return fpga_db::instance()->get(key);
@@ -220,8 +218,8 @@ std::vector<std::string> test_platform::platforms(
   // from the list of platform names requested, remove the ones not found in
   // the platform db
   std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
-      auto db = fpga_db::instance();
-      return !db->exists(n);
+    auto db = fpga_db::instance();
+    return !db->exists(n);
   });
   return keys;
 }
@@ -234,10 +232,10 @@ std::vector<std::string> test_platform::mock_platforms(
   }
   std::vector<std::string> want;
   std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
-    [](const std::string &k) {
-      auto db = fpga_db::instance();
-      return db->exists(k) && db->get(k).mock_sysfs != nullptr;
-    });
+               [](const std::string &k) {
+                 auto db = fpga_db::instance();
+                 return db->exists(k) && db->get(k).mock_sysfs != nullptr;
+               });
   return want;
 }
 
@@ -249,10 +247,10 @@ std::vector<std::string> test_platform::hw_platforms(
   }
   std::vector<std::string> want;
   std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
-    [](const std::string &k) {
-      auto db = fpga_db::instance();
-      return db->exists(k) && db->get(k).mock_sysfs == nullptr;
-    });
+               [](const std::string &k) {
+                 auto db = fpga_db::instance();
+                 return db->exists(k) && db->get(k).mock_sysfs == nullptr;
+               });
   return want;
 }
 
@@ -260,11 +258,10 @@ const std::string PCI_DEVICES = "/sys/bus/pci/devices";
 
 typedef std::pair<uint16_t, uint64_t> ven_dev_id;
 std::map<ven_dev_id, std::vector<std::string>> known_devices = {
-  { { 0x8086, 0xbcc0}, std::vector<std::string>() },
-  { { 0x8086, 0xbcc1}, std::vector<std::string>() },
-  { { 0x8086, 0x09c4}, std::vector<std::string>() },
-  { { 0x8086, 0x09c5}, std::vector<std::string>() }
-};
+    {{0x8086, 0xbcc0}, std::vector<std::string>()},
+    {{0x8086, 0xbcc1}, std::vector<std::string>()},
+    {{0x8086, 0x09c4}, std::vector<std::string>()},
+    {{0x8086, 0x09c5}, std::vector<std::string>()}};
 
 static std::vector<ven_dev_id> supported_devices() {
   std::vector<ven_dev_id> devs;
@@ -274,7 +271,7 @@ static std::vector<ven_dev_id> supported_devices() {
   return devs;
 }
 
-template<typename T>
+template <typename T>
 static T parse_file(const std::string &path) {
   std::ifstream df;
   df.open(path);
@@ -289,27 +286,29 @@ static T parse_file(const std::string &path) {
   return value;
 }
 
-static std::string make_path(int seg, int bus, int dev, int func){
-    std::stringstream num;
-    num << std::setw(2) << std::hex << bus; 
-    std::string b (num.str());
-    num.clear();
-    num.str(std::string());
+static std::string make_path(int seg, int bus, int dev, int func) {
+  std::stringstream num;
+  num << std::setw(2) << std::hex << bus;
+  std::string b(num.str());
+  num.clear();
+  num.str(std::string());
 
-    num << std::setw(4) << std::setfill('0') << seg;
-    std::string s (num.str());
+  num << std::setw(4) << std::setfill('0') << seg;
+  std::string s(num.str());
 
-    num.clear();
-    num.str(std::string());
-    num << std::setw(2) << std::setfill('0') << dev;
-    std::string d (num.str());
+  num.clear();
+  num.str(std::string());
+  num << std::setw(2) << std::setfill('0') << dev;
+  std::string d(num.str());
 
-    std::string device_string = s + ":" + b + ":" + d + "." + std::to_string(func);
-    return device_string;
+  std::string device_string =
+      s + ":" + b + ":" + d + "." + std::to_string(func);
+  return device_string;
 }
 
 static uint16_t read_socket_id(const std::string devices) {
-  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
+  std::string glob_path =
+      PCI_DEVICES + "/" + devices + "/fpga*/*/*-fme.*/socket_id";
   std::string socket_path;
 
   glob_t glob_buf;
@@ -317,35 +316,36 @@ static uint16_t read_socket_id(const std::string devices) {
   glob_buf.gl_pathv = NULL;
   int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
 
-  if (!globres){
+  if (!globres) {
     if (glob_buf.gl_pathc > 1) {
-        std::cerr << std::string("Ambiguous object key - using first one") << "\n";
+      std::cerr << std::string("Ambiguous object key - using first one")
+                << "\n";
     }
     socket_path = std::string(glob_buf.gl_pathv[0]);
     globfree(&glob_buf);
-  }
-  else {
-        switch (globres) {
-        case GLOB_NOSPACE:
-            std::cerr << std::string("FPGA No Memory found.") << "\n";
-            break;
-        case GLOB_NOMATCH:
-            std::cerr << std::string("FPGA Not found.") << "\n";
-            break;
-        }
-        goto err;
+  } else {
+    switch (globres) {
+      case GLOB_NOSPACE:
+        std::cerr << std::string("FPGA No Memory found.") << "\n";
+        break;
+      case GLOB_NOMATCH:
+        std::cerr << std::string("FPGA Not found.") << "\n";
+        break;
+    }
+    goto err;
   }
 
   struct stat st;
   if (stat(socket_path.c_str(), &st)) {
-    std::cerr << "Failed to get file stat." << "\n";
+    std::cerr << "Failed to get file stat."
+              << "\n";
     goto err;
   }
   return parse_file<uint16_t>(socket_path);
 
 err:
   if (glob_buf.gl_pathc && glob_buf.gl_pathv) {
-      globfree(&glob_buf);
+    globfree(&glob_buf);
   }
   return -1;
 }
@@ -355,7 +355,8 @@ static uint16_t read_device_id(const std::string &pci_dir) {
   struct stat st;
 
   if (stat(device_path.c_str(), &st)) {
-    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
+    std::cerr << std::string("WARNING: stat:") + device_path << ":"
+              << strerror(errno) << "\n";
     return 0;
   }
   return parse_file<uint16_t>(device_path);
@@ -366,7 +367,8 @@ static uint16_t read_vendor_id(const std::string &pci_dir) {
   struct stat st;
 
   if (stat(device_path.c_str(), &st)) {
-    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
+    std::cerr << std::string("WARNING: stat:") + device_path << ":"
+              << strerror(errno) << "\n";
     return 0;
   }
   return parse_file<uint16_t>(device_path);
@@ -382,7 +384,8 @@ int filter_fpga(const struct dirent *ent) {
   auto vid = read_vendor_id(pci_path);
 
   auto devices = supported_devices();
-  std::vector<ven_dev_id>::const_iterator it = std::find(devices.begin(), devices.end(), ven_dev_id(vid, did));
+  std::vector<ven_dev_id>::const_iterator it =
+      std::find(devices.begin(), devices.end(), ven_dev_id(vid, did));
   if (it == devices.end()) {
     return 0;
   }
@@ -394,7 +397,8 @@ std::vector<std::string> find_supported_devices() {
   struct dirent **dirs;
   int n = scandir(PCI_DEVICES.c_str(), &dirs, filter_fpga, alphasort);
   if (n == -1) {
-    std::string msg = "error scanning pci devices: " + std::string(strerror(errno));
+    std::string msg =
+        "error scanning pci devices: " + std::string(strerror(errno));
     throw std::runtime_error(msg);
   }
   std::vector<std::string> entries;
@@ -408,10 +412,7 @@ std::vector<std::string> find_supported_devices() {
 
 fpga_db *fpga_db::instance_ = nullptr;
 
-fpga_db::fpga_db()
-{
-
-}
+fpga_db::fpga_db() {}
 
 fpga_db *fpga_db::instance() {
   if (fpga_db::instance_ == nullptr) {
@@ -422,16 +423,18 @@ fpga_db *fpga_db::instance() {
 }
 
 static std::map<ven_dev_id, std::string> devid_name = {
-  { { 0x8086, 0xbcc0}, "skx-p" },
-  { { 0x8086, 0xbcc1}, "skx-p-v" },
-  { { 0x8086, 0x09c4}, "dcp-rc" },
-  { { 0x8086, 0x09c5}, "dcp-rc-v" },
-  { { 0x8086, 0xbcc0}, "skx-p-ups" }
-};
+    {{0x8086, 0xbcc0}, "skx-p"},
+    {{0x8086, 0xbcc1}, "skx-p-v"},
+    {{0x8086, 0x09c4}, "dcp-rc"},
+    {{0x8086, 0x09c5}, "dcp-rc-v"},
+    {{0x8086, 0xbcc0}, "skx-p-ups"}};
 
-const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
+const char *PCI_DEV_PATTERN =
+    "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
 
-test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
+test_device make_device(uint16_t ven_id, uint16_t dev_id,
+                        const std::string &platform,
+                        const std::string &pci_path) {
   test_device dev = MOCK_PLATFORMS[platform].devices[0];
   auto r = regex<>::create(PCI_DEV_PATTERN);
   auto m = r->match(pci_path);
@@ -443,7 +446,8 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.vendor_id = ven_id;
     dev.device_id = dev_id;
 
-    std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
+    std::string device_string =
+        make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
@@ -451,7 +455,9 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
   return dev;
 }
 
-std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t dev_id, const std::vector<std::string> &pci_paths) {
+std::pair<std::string, test_platform> make_platform(
+    uint16_t ven_id, uint16_t dev_id,
+    const std::vector<std::string> &pci_paths) {
   std::string name = devid_name[{ven_id, dev_id}];
   test_platform platform;
   platform.mock_sysfs = nullptr;
@@ -490,9 +496,7 @@ std::vector<std::string> fpga_db::keys(bool sorted) {
   return keys;
 }
 
-test_platform fpga_db::get(const std::string &key) {
-  return platforms_[key];
-}
+test_platform fpga_db::get(const std::string &key) { return platforms_[key]; }
 
 bool fpga_db::exists(const std::string &key) {
   return platforms_.find(key) != platforms_.end();

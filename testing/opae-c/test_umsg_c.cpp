@@ -29,16 +29,15 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
+#include <linux/ioctl.h>
 #include <opae/fpga.h>
 #include "intel-fpga.h"
-#include <linux/ioctl.h>
 
 #include <array>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
@@ -48,74 +47,74 @@ extern "C" {
 
 using namespace opae::testing;
 
-int umsg_port_info(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    static bool gEnableIRQ = false;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
-    if (!pinfo) {
-        FPGA_MSG("pinfo is NULL");
-        goto out_EINVAL;
-    }
-    if (pinfo->argsz != sizeof(*pinfo)) {
-        FPGA_MSG("wrong structure size");
-        goto out_EINVAL;
-    }
-    pinfo->flags = 0;
-    pinfo->num_regions = 1;
-    pinfo->num_umsgs = 8;
-    if (gEnableIRQ) {
-        pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
-        pinfo->num_uafu_irqs = 1;
-    } else {
-        pinfo->capability = 0;
-        pinfo->num_uafu_irqs = 0;
-    }
-    retval = 0;
-    errno = 0;
+int umsg_port_info(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  static bool gEnableIRQ = false;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
+  if (!pinfo) {
+    FPGA_MSG("pinfo is NULL");
+    goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 1;
+  pinfo->num_umsgs = 8;
+  if (gEnableIRQ) {
+    pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+    pinfo->num_uafu_irqs = 1;
+  } else {
+    pinfo->capability = 0;
+    pinfo->num_uafu_irqs = 0;
+  }
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
-int umsg_set_mode(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
-    if (!ucfg) {
-    	FPGA_MSG("ucfg is NULL");
-    	goto out_EINVAL;
-    }
-    if (ucfg->argsz != sizeof(*ucfg)) {
-    	FPGA_MSG("wrong structure size");
-    	goto out_EINVAL;
-    }
-    if (ucfg->flags != 0) {
-    	FPGA_MSG("unexpected flags %u", ucfg->flags);
-    	goto out_EINVAL;
-    }
-    /* TODO: check hint_bitmap */
-    if (ucfg->hint_bitmap >> 8) {
-    	FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
-    	goto out_EINVAL;
-    }
-    retval = 0;
-    errno = 0;
+int umsg_set_mode(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
+  if (!ucfg) {
+    FPGA_MSG("ucfg is NULL");
+    goto out_EINVAL;
+  }
+  if (ucfg->argsz != sizeof(*ucfg)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  if (ucfg->flags != 0) {
+    FPGA_MSG("unexpected flags %u", ucfg->flags);
+    goto out_EINVAL;
+  }
+  /* TODO: check hint_bitmap */
+  if (ucfg->hint_bitmap >> 8) {
+    FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
+    goto out_EINVAL;
+  }
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
 class umsg_c_p : public ::testing::TestWithParam<std::string> {
@@ -135,7 +134,8 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
+                            &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
     dev_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
@@ -146,8 +146,8 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (dev_) {
-        EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-        dev_ = nullptr;
+      EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+      dev_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -155,6 +155,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -186,18 +187,18 @@ TEST_P(umsg_c_p, get_num) {
  *             then the fn returns FPGA_OK.<br>
  */
 TEST_P(umsg_c_p, set_attr) {
-  uint64_t enable  = 0xff;
+  uint64_t enable = 0xff;
   uint64_t disable = 0;
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class umsg_c_mock_p: public umsg_c_p{
-  protected:
-    umsg_c_mock_p() {};
+class umsg_c_mock_p : public umsg_c_p {
+ protected:
+  umsg_c_mock_p(){};
 };
 /**
  * @test       trigger
@@ -207,7 +208,7 @@ class umsg_c_mock_p: public umsg_c_p{
  *             then the fn returns FPGA_OK.<br>
  */
 TEST_P(umsg_c_mock_p, trigger) {
-  uint64_t enable  = 0xff;
+  uint64_t enable = 0xff;
   uint64_t disable = 0;
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
   EXPECT_EQ(fpgaTriggerUmsg(dev_, 1), FPGA_OK);
@@ -222,7 +223,7 @@ TEST_P(umsg_c_mock_p, trigger) {
  *             then the fn returns FPGA_OK.<br>
  */
 TEST_P(umsg_c_mock_p, get_ptr) {
-  uint64_t enable  = 0xff;
+  uint64_t enable = 0xff;
   uint64_t disable = 0;
   uint64_t *umsg_ptr = nullptr;
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
@@ -231,6 +232,5 @@ TEST_P(umsg_c_mock_p, get_ptr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, 
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
-

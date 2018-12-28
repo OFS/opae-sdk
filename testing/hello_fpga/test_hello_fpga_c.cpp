@@ -43,70 +43,70 @@ extern struct config config;
 
 fpga_result parse_args(int argc, char *argv[]);
 
-fpga_result find_fpga(fpga_guid afu_guid,
-                      fpga_token *accelerator_token,
+fpga_result find_fpga(fpga_guid afu_guid, fpga_token *accelerator_token,
                       uint32_t *num_matches_accelerators);
 
 fpga_result get_bus(fpga_token tok, uint8_t *bus);
 
 int hello_fpga_main(int argc, char *argv[]);
-
 }
 
 #define INVALID_AFU_ID "00000000-0000-0000-0000-000000000000"
 
 #include <config.h>
 
-#include <iostream>
-#include <vector>
+#include <errno.h>
+#include <getopt.h>
+#include <linux/ioctl.h>
+#include <stdarg.h>
+#include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <stdarg.h>
+#include <iostream>
+#include <vector>
+#include "fpga-dfl.h"
 #include "gtest/gtest.h"
-#include "test_system.h"
-#include <linux/ioctl.h>
 #include "intel-fpga.h"
+#include "test_system.h"
 
 using namespace opae::testing;
 
-int mmio_ioctl(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
-    if (!rinfo) {
-      FPGA_MSG("rinfo is NULL");
-      goto out_EINVAL;
-    }
-    if (rinfo->argsz != sizeof(*rinfo)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-    }
-    if (rinfo->index > 1 ) {
-      FPGA_MSG("unsupported MMIO index");
-      goto out_EINVAL;
-    }
-    if (rinfo->padding != 0) {
-      FPGA_MSG("unsupported padding");
-      goto out_EINVAL;
-    }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-    rinfo->size = 0x40000;
-    rinfo->offset = 0;
-    retval = 0;
-    errno = 0;
+int mmio_ioctl(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_region_info *rinfo =
+      va_arg(argp, struct fpga_port_region_info *);
+  if (!rinfo) {
+    FPGA_MSG("rinfo is NULL");
+    goto out_EINVAL;
+  }
+  if (rinfo->argsz != sizeof(*rinfo)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  if (rinfo->index > 1) {
+    FPGA_MSG("unsupported MMIO index");
+    goto out_EINVAL;
+  }
+  if (rinfo->padding != 0) {
+    FPGA_MSG("unsupported padding");
+    goto out_EINVAL;
+  }
+  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+  rinfo->size = 0x40000;
+  rinfo->offset = 0;
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
 class hello_fpga_c_p : public ::testing::TestWithParam<std::string> {
@@ -145,9 +145,7 @@ class hello_fpga_c_p : public ::testing::TestWithParam<std::string> {
  *             the decoded representation of the fpga_result<br>
  *             to stderr.<br>
  */
-TEST_P(hello_fpga_c_p, print_err) {
-  print_err("msg", FPGA_OK);
-}
+TEST_P(hello_fpga_c_p, print_err) { print_err("msg", FPGA_OK); }
 
 /**
  * @test       parse_args0
@@ -162,7 +160,7 @@ TEST_P(hello_fpga_c_p, parse_args0) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = {zero, one};
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -180,7 +178,7 @@ TEST_P(hello_fpga_c_p, parse_args1) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-B");
 
-  char *argv[] = { zero, one };
+  char *argv[] = {zero, one};
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -202,7 +200,7 @@ TEST_P(hello_fpga_c_p, parse_args2) {
   strcpy(two, "3");
   strcpy(three, "-s");
 
-  char *argv[] = { zero, one, two, three };
+  char *argv[] = {zero, one, two, three};
 
   EXPECT_EQ(parse_args(4, argv), FPGA_OK);
   EXPECT_EQ(config.target.bus, 3);
@@ -268,7 +266,7 @@ TEST_P(hello_fpga_c_p, main0) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = {zero, one};
 
   EXPECT_NE(hello_fpga_main(2, argv), 0);
 }
@@ -297,9 +295,10 @@ TEST_P(mock_hello_fpga_c_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = {zero, one, two};
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_EXCEPTION);
 }
@@ -327,7 +326,7 @@ TEST_P(hw_hello_fpga_c_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = {zero, one, two};
 
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_OK);
 }

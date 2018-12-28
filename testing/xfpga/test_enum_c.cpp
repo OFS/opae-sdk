@@ -24,7 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-
 #include <json-c/json.h>
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
@@ -67,7 +66,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   void DestroyTokens() {
-    for (auto & t : tokens_) {
+    for (auto &t : tokens_) {
       if (t != nullptr) {
         EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
@@ -77,35 +76,36 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
 
   // Need a concrete way to determine the number of fpgas on the system
   // without relying on fpgaEnumerate() since that is the function that
-  // is under test. 
+  // is under test.
   int GetNumFpgas() {
     if (platform_.mock_sysfs != nullptr) {
       return platform_.devices.size();
     }
 
     int value;
-    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
-                      "wc -l";
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "/sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
   }
 
-  int GetNumMatchedFpga () {
+  int GetNumMatchedFpga() {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
-    
+
     int matches = 0;
     int socket_id;
     int i;
     for (i = 0; i < GetNumFpgas(); i++) {
-      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
-                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*fme." + std::to_string(i) + "/socket_id";
 
       ExecuteCmd(cmd, socket_id);
       if (socket_id == (int)platform_.devices[0].socket_id) {
-          matches++;
+        matches++;
       }
     }
 
@@ -144,9 +144,9 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
  *             is zero, the function returns all matches.
  */
 TEST_P(enum_c_p, nullfilter) {
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 }
 
@@ -158,9 +158,9 @@ TEST_P(enum_c_p, nullfilter) {
  *             FPGA_INVALID_PARAM.
  */
 TEST_P(enum_c_p, nullfilter_neg) {
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(nullptr, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_INVALID_PARAM);
+  EXPECT_EQ(xfpga_fpgaEnumerate(nullptr, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_INVALID_PARAM);
 }
 
 /**
@@ -196,9 +196,9 @@ TEST_P(enum_c_p, nulltokens) {
  */
 TEST_P(enum_c_p, object_type_accel) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -211,9 +211,9 @@ TEST_P(enum_c_p, object_type_accel) {
  */
 TEST_P(enum_c_p, object_type_dev) {
   EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -225,9 +225,9 @@ TEST_P(enum_c_p, object_type_dev) {
  */
 TEST_P(enum_c_p, parent) {
   EXPECT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 
   ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
@@ -235,9 +235,8 @@ TEST_P(enum_c_p, parent) {
   fpga_token token;
 
   EXPECT_EQ(fpgaPropertiesSetParent(filter_, tokens_[0]), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, &token, 1, &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, &token, 1, &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
   EXPECT_EQ(xfpga_fpgaDestroyToken(&token), FPGA_OK);
 }
@@ -271,9 +270,9 @@ TEST_P(enum_c_p, parent_neg) {
 TEST_P(enum_c_p, segment) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetSegment(filter_, device.segment), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 }
 
@@ -284,10 +283,11 @@ TEST_P(enum_c_p, segment) {
  *             the function returns zero matches.
  */
 TEST_P(enum_c_p, segment_neg) {
-  ASSERT_EQ(fpgaPropertiesSetSegment(filter_, invalid_device_.segment), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter_, invalid_device_.segment),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -301,23 +301,23 @@ TEST_P(enum_c_p, segment_neg) {
 TEST_P(enum_c_p, bus) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetBus(filter_, device.bus), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 2);
 }
 
 /**
  * @test       bus_neg
  *
- * @brief      When the filter bus is set and it is invalid, 
+ * @brief      When the filter bus is set and it is invalid,
  *             the function returns zero matches
  */
 TEST_P(enum_c_p, bus_neg) {
   ASSERT_EQ(fpgaPropertiesSetBus(filter_, invalid_device_.bus), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -331,9 +331,9 @@ TEST_P(enum_c_p, bus_neg) {
 TEST_P(enum_c_p, device) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetDevice(filter_, device.device), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 }
 
@@ -345,9 +345,9 @@ TEST_P(enum_c_p, device) {
  */
 TEST_P(enum_c_p, device_neg) {
   ASSERT_EQ(fpgaPropertiesSetDevice(filter_, invalid_device_.device), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -361,9 +361,9 @@ TEST_P(enum_c_p, device_neg) {
 TEST_P(enum_c_p, function) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, device.function), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 }
 
@@ -376,9 +376,9 @@ TEST_P(enum_c_p, function) {
 TEST_P(enum_c_p, function_neg) {
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, invalid_device_.function),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -392,9 +392,9 @@ TEST_P(enum_c_p, function_neg) {
 TEST_P(enum_c_p, socket_id) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
 }
 
@@ -407,9 +407,9 @@ TEST_P(enum_c_p, socket_id) {
 TEST_P(enum_c_p, socket_id_neg) {
   ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, invalid_device_.socket_id),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -423,9 +423,9 @@ TEST_P(enum_c_p, socket_id_neg) {
 TEST_P(enum_c_p, vendor_id) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, device.vendor_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 }
 
@@ -438,9 +438,9 @@ TEST_P(enum_c_p, vendor_id) {
 TEST_P(enum_c_p, vendor_id_neg) {
   ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, invalid_device_.vendor_id),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -454,9 +454,9 @@ TEST_P(enum_c_p, vendor_id_neg) {
 TEST_P(enum_c_p, device_id) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, platform_.devices.size() * 2);
 }
 
@@ -469,9 +469,9 @@ TEST_P(enum_c_p, device_id) {
 TEST_P(enum_c_p, device_id_neg) {
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, invalid_device_.device_id),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -483,9 +483,9 @@ TEST_P(enum_c_p, device_id_neg) {
  *             that match that object_id.
  */
 TEST_P(enum_c_p, object_id_fme) {
-  ASSERT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
 
   ASSERT_GT(num_matches_, 0);
 
@@ -499,9 +499,9 @@ TEST_P(enum_c_p, object_id_fme) {
   DestroyTokens();
 
   ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, object_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
 }
 
@@ -514,9 +514,9 @@ TEST_P(enum_c_p, object_id_fme) {
 TEST_P(enum_c_p, object_id_fme_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, invalid_device_.fme_object_id),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -528,9 +528,9 @@ TEST_P(enum_c_p, object_id_fme_neg) {
  *             that match that port_id.
  */
 TEST_P(enum_c_p, object_id_port) {
-  ASSERT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
 
   ASSERT_GT(num_matches_, 0);
 
@@ -544,9 +544,9 @@ TEST_P(enum_c_p, object_id_port) {
   DestroyTokens();
 
   EXPECT_EQ(fpgaPropertiesSetObjectID(filter_, object_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
 }
 
@@ -559,9 +559,9 @@ TEST_P(enum_c_p, object_id_port) {
 TEST_P(enum_c_p, object_id_port_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, invalid_device_.port_object_id),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -575,10 +575,11 @@ TEST_P(enum_c_p, object_id_port_neg) {
 TEST_P(enum_c_p, num_errors_fme) {
   auto device = platform_.devices[0];
 
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -591,9 +592,9 @@ TEST_P(enum_c_p, num_errors_fme) {
 TEST_P(enum_c_p, num_errors_fme_neg) {
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, invalid_device_.fme_num_errors),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -609,9 +610,9 @@ TEST_P(enum_c_p, num_errors_port) {
 
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -622,11 +623,12 @@ TEST_P(enum_c_p, num_errors_port) {
  *             invalid, the function returns zero matches.
  */
 TEST_P(enum_c_p, num_errors_port_neg) {
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+  ASSERT_EQ(
+      fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
       FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -644,9 +646,9 @@ TEST_P(enum_c_p, guid_fme) {
   ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);
 
   ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, platform_.devices.size());
 }
 
@@ -661,9 +663,9 @@ TEST_P(enum_c_p, guid_fme_neg) {
   ASSERT_EQ(uuid_parse(invalid_device_.fme_guid, invalid_guid), 0);
 
   ASSERT_EQ(fpgaPropertiesSetGUID(filter_, invalid_guid), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -681,9 +683,9 @@ TEST_P(enum_c_p, guid_port) {
   ASSERT_EQ(uuid_parse(device.afu_guid, afu_guid), 0);
 
   ASSERT_EQ(fpgaPropertiesSetGUID(filter_, afu_guid), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -698,9 +700,9 @@ TEST_P(enum_c_p, guid_port_neg) {
   ASSERT_EQ(uuid_parse(invalid_device_.afu_guid, invalid_guid), 0);
 
   ASSERT_EQ(fpgaPropertiesSetGUID(filter_, invalid_guid), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -711,9 +713,9 @@ TEST_P(enum_c_p, guid_port_neg) {
  *             xfpga_fpgaCloneToken() returns FPGA_OK.
  */
 TEST_P(enum_c_p, clone_token) {
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_GT(num_matches_, 0);
   fpga_token src = tokens_[0];
   fpga_token dst;
@@ -728,9 +730,9 @@ TEST_P(enum_c_p, clone_token) {
  *             xfpga_fpgaCloneToken() returns FPGA_INVALID_PARAM
  */
 TEST_P(enum_c_p, clone_token_neg) {
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_GT(num_matches_, 0);
   fpga_token src = tokens_[0];
   fpga_token dst;
@@ -746,8 +748,7 @@ TEST_P(enum_c_p, clone_token_neg) {
  */
 TEST_P(enum_c_p, destroy_token) {
   fpga_token token;
-  ASSERT_EQ(xfpga_fpgaEnumerate(nullptr, 0, &token, 1, &num_matches_),
-            FPGA_OK);
+  ASSERT_EQ(xfpga_fpgaEnumerate(nullptr, 0, &token, 1, &num_matches_), FPGA_OK);
   ASSERT_GT(num_matches_, 0);
 
   EXPECT_EQ(xfpga_fpgaDestroyToken(&token), FPGA_OK);
@@ -778,9 +779,9 @@ TEST_P(enum_c_p, num_slots) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumSlots(filter_, device.num_slots), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -792,10 +793,11 @@ TEST_P(enum_c_p, num_slots) {
  */
 TEST_P(enum_c_p, num_slots_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter_, invalid_device_.num_slots), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumSlots(filter_, invalid_device_.num_slots),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -810,9 +812,9 @@ TEST_P(enum_c_p, bbs_id) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetBBSID(filter_, device.bbs_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, platform_.devices.size());
 }
 
@@ -825,9 +827,9 @@ TEST_P(enum_c_p, bbs_id) {
 TEST_P(enum_c_p, bbs_id_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetBBSID(filter_, invalid_device_.bbs_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -842,9 +844,9 @@ TEST_P(enum_c_p, bbs_version) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetBBSVersion(filter_, device.bbs_version), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, platform_.devices.size());
 }
 
@@ -856,10 +858,11 @@ TEST_P(enum_c_p, bbs_version) {
  */
 TEST_P(enum_c_p, bbs_version_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetBBSVersion(filter_, invalid_device_.bbs_version), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBBSVersion(filter_, invalid_device_.bbs_version),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -874,9 +877,9 @@ TEST_P(enum_c_p, accel_state) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetAcceleratorState(filter_, device.state), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -888,10 +891,11 @@ TEST_P(enum_c_p, accel_state) {
  */
 TEST_P(enum_c_p, state_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetAcceleratorState(filter_, invalid_device_.state), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetAcceleratorState(filter_, invalid_device_.state),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -906,9 +910,9 @@ TEST_P(enum_c_p, num_mmio) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, device.num_mmio), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -920,10 +924,11 @@ TEST_P(enum_c_p, num_mmio) {
  */
 TEST_P(enum_c_p, num_mmio_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -937,10 +942,11 @@ TEST_P(enum_c_p, num_mmio_neg) {
 TEST_P(enum_c_p, num_interrupts) {
   auto device = platform_.devices[0];
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, device.num_interrupts), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, device.num_interrupts),
+            FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
@@ -952,10 +958,12 @@ TEST_P(enum_c_p, num_interrupts) {
  */
 TEST_P(enum_c_p, num_interrupts_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetNumInterrupts(filter_, invalid_device_.num_interrupts), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+  ASSERT_EQ(
+      fpgaPropertiesSetNumInterrupts(filter_, invalid_device_.num_interrupts),
       FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                &num_matches_),
+            FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
 
@@ -981,8 +989,9 @@ TEST_P(enum_c_p, num_filter_neg) {
 TEST_P(enum_c_p, max_tokens) {
   uint32_t max_tokens = 1;
 
-  EXPECT_EQ(xfpga_fpgaEnumerate(NULL, 0, tokens_.data(), max_tokens, &num_matches_),
-            FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(NULL, 0, tokens_.data(), max_tokens, &num_matches_),
+      FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
 
   EXPECT_NE(tokens_[0], nullptr);
@@ -1028,5 +1037,5 @@ TEST_P(enum_c_p, get_guid) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

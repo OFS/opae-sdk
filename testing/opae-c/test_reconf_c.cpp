@@ -29,16 +29,15 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
+#include <linux/ioctl.h>
 #include <opae/fpga.h>
 #include "intel-fpga.h"
-#include <linux/ioctl.h>
 
 #include <array>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
@@ -65,7 +64,8 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
+                            &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
     dev_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
@@ -74,8 +74,8 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (dev_) {
-        EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-        dev_ = nullptr;
+      EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+      dev_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -83,6 +83,7 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -101,9 +102,8 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
  *             then the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(reconf_c_p, pr) {
-  uint8_t bitstream[] = { 'b', 'i', 't', 's', 0 };
-  EXPECT_EQ(fpgaReconfigureSlot(dev_, 0,
-		  bitstream, 5, 0), FPGA_INVALID_PARAM);
+  uint8_t bitstream[] = {'b', 'i', 't', 's', 0};
+  EXPECT_EQ(fpgaReconfigureSlot(dev_, 0, bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p,

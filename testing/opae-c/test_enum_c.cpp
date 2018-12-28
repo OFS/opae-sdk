@@ -97,28 +97,29 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     }
 
     int value;
-    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
-                      "wc -l";
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "/sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
   }
 
-  int GetNumMatchedFpga () {
+  int GetNumMatchedFpga() {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
-    
+
     int matches = 0;
     int socket_id;
     int i;
     for (i = 0; i < GetNumFpgas(); i++) {
-      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
-                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*fme." + std::to_string(i) + "/socket_id";
 
       ExecuteCmd(cmd, socket_id);
       if (socket_id == (int)platform_.devices[0].socket_id) {
-          matches++;
+        matches++;
       }
     }
 
@@ -135,12 +136,15 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     std::string device_id(stream.str());
 
     int value;
-    std::string cmd = "lspci | "
-                      "grep \'Processing accelerators: "
-                            "Intel Corporation\' | "
-                      "grep -oE \'[^ ]+$\' | "
-                      "grep " + device_id + " | "
-                      "wc -l";
+    std::string cmd =
+        "lspci | "
+        "grep \'Processing accelerators: "
+        "Intel Corporation\' | "
+        "grep -oE \'[^ ]+$\' | "
+        "grep " +
+        device_id +
+        " | "
+        "wc -l";
 
     ExecuteCmd(cmd, value);
     return value;
@@ -251,7 +255,6 @@ TEST_P(enum_c_p, segment) {
       FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
 }
-
 
 TEST_P(enum_c_p, bus) {
   auto device = platform_.devices[0];
@@ -369,9 +372,9 @@ TEST_P(enum_c_p, object_id_fme) {
   fpga_properties prop = nullptr;
   uint64_t object_id;
 
-  ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                          &num_matches_),
-            FPGA_OK);
+  ASSERT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
   ASSERT_GT(num_matches_, 0);
 
   EXPECT_EQ(fpgaGetProperties(tokens_[0], &prop), FPGA_OK);
@@ -400,9 +403,9 @@ TEST_P(enum_c_p, object_id_port) {
   fpga_properties prop = nullptr;
   uint64_t object_id;
 
-  ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                          &num_matches_),
-            FPGA_OK);
+  ASSERT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
   ASSERT_GT(num_matches_, 0);
 
   EXPECT_EQ(fpgaGetProperties(tokens_[0], &prop), FPGA_OK);

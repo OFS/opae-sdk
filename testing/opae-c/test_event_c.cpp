@@ -28,23 +28,22 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
 #include "fpgad/config_int.h"
 #include "fpgad/log.h"
 #include "fpgad/srv.h"
-
+#include "opae_int.h"
 }
 
+#include <linux/ioctl.h>
 #include <opae/fpga.h>
 #include "intel-fpga.h"
-#include <linux/ioctl.h>
 
+#include <unistd.h>
 #include <array>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
-#include <chrono>
 #include <thread>
-#include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -52,8 +51,7 @@ using namespace opae::testing;
 
 class event_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  event_c_p()
-    : tokens_{{nullptr, nullptr}} {}
+  event_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
@@ -84,9 +82,18 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
         .verbosity = 0,
         .poll_interval_usec = 100 * 1000,
         .daemon = 0,
-        .directory = { 0, },
-        .logfile = { 0, },
-        .pidfile = { 0, },
+        .directory =
+            {
+                0,
+            },
+        .logfile =
+            {
+                0,
+            },
+        .pidfile =
+            {
+                0,
+            },
         .filemode = 0,
         .running = true,
         .socket = "/tmp/fpga_event_socket",
@@ -106,8 +113,8 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyEventHandle(&event_handle_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+      EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+      accel_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -117,6 +124,7 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgad_.join();
     close_log();
+    fpgaFinalize();
     system_->finalize();
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
@@ -147,7 +155,8 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(event_c_p, get_obj_err01) {
   int fd = -1;
-  EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd),
+            FPGA_INVALID_PARAM);
 }
 
 /**
@@ -158,40 +167,42 @@ TEST_P(event_c_p, get_obj_err01) {
  *             the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, get_obj_err02) {
-  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR,
-                              event_handle_, 0), FPGA_OK);
+  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_, 0),
+            FPGA_OK);
 
   opae_wrapped_event_handle *wrapped_evt_handle =
-	  opae_validate_wrapped_event_handle(event_handle_);
+      opae_validate_wrapped_event_handle(event_handle_);
   ASSERT_NE(wrapped_evt_handle, nullptr);
 
   fpga_event_handle eh = wrapped_evt_handle->opae_event_handle;
   wrapped_evt_handle->opae_event_handle = nullptr;
 
   int fd = -1;
-  EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd),
+            FPGA_INVALID_PARAM);
 
   wrapped_evt_handle->opae_event_handle = eh;
 
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_OK);
 }
 
 /**
  * @test       get_obj_success
- * @brief      Test: fpgaRegisterEvent, fpgaUnregisterEvent, fpgaGetOSObjectFromEventHandle
+ * @brief      Test: fpgaRegisterEvent, fpgaUnregisterEvent,
+ * fpgaGetOSObjectFromEventHandle
  * @details    When fpgaGetOSObjectFromEventHandle is called after<br>
  *             registering an event type,<br>
  *             the fn returns FPGA_OK.<br>
  */
 TEST_P(event_c_p, get_obj_success) {
   int fd = -1;
-  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR,
-                              event_handle_, 0), FPGA_OK);
+  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_, 0),
+            FPGA_OK);
   EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd), FPGA_OK);
 
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_OK);
 }
 
 /**
@@ -202,8 +213,8 @@ TEST_P(event_c_p, get_obj_success) {
  *             the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, unreg_err01) {
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_INVALID_PARAM);
 }
 
 /**
@@ -214,23 +225,23 @@ TEST_P(event_c_p, unreg_err01) {
  *             the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, unreg_err02) {
-  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR,
-                              event_handle_, 0), FPGA_OK);
+  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_, 0),
+            FPGA_OK);
 
   opae_wrapped_event_handle *wrapped_evt_handle =
-	  opae_validate_wrapped_event_handle(event_handle_);
+      opae_validate_wrapped_event_handle(event_handle_);
   ASSERT_NE(wrapped_evt_handle, nullptr);
 
   fpga_event_handle eh = wrapped_evt_handle->opae_event_handle;
   wrapped_evt_handle->opae_event_handle = nullptr;
 
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_INVALID_PARAM);
 
   wrapped_evt_handle->opae_event_handle = eh;
 
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_OK);
 }
 
 /**
@@ -241,11 +252,11 @@ TEST_P(event_c_p, unreg_err02) {
  *             the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, destroy_err) {
-  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR,
-                              event_handle_, 0), FPGA_OK);
+  EXPECT_EQ(fpgaRegisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_, 0),
+            FPGA_OK);
 
   opae_wrapped_event_handle *wrapped_evt_handle =
-	  opae_validate_wrapped_event_handle(event_handle_);
+      opae_validate_wrapped_event_handle(event_handle_);
   ASSERT_NE(wrapped_evt_handle, nullptr);
 
   fpga_event_handle eh = wrapped_evt_handle->opae_event_handle;
@@ -255,9 +266,9 @@ TEST_P(event_c_p, destroy_err) {
 
   wrapped_evt_handle->opae_event_handle = eh;
 
-  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+  EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR, event_handle_),
+            FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(event_c, event_c_p, 
+INSTANTIATE_TEST_CASE_P(event_c, event_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

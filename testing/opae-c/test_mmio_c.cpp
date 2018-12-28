@@ -29,16 +29,16 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
-
 }
 
-#include <opae/fpga.h>
-#include "intel-fpga.h"
 #include <linux/ioctl.h>
+#include <opae/fpga.h>
+#include "fpga-dfl.h"
+#include "intel-fpga.h"
 
 #include <array>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
@@ -48,40 +48,41 @@ extern "C" {
 
 using namespace opae::testing;
 
-static int mmio_ioctl(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
-    if (!rinfo) {
-      FPGA_MSG("rinfo is NULL");
-      goto out_EINVAL;
-    }
-    if (rinfo->argsz != sizeof(*rinfo)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-    }
-    if (rinfo->index > 1 ) {
-      FPGA_MSG("unsupported MMIO index");
-      goto out_EINVAL;
-    }
-    if (rinfo->padding != 0) {
-      FPGA_MSG("unsupported padding");
-      goto out_EINVAL;
-    }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-    rinfo->size = 0x40000;
-    rinfo->offset = 0;
-    retval = 0;
-    errno = 0;
+static int mmio_ioctl(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_region_info *rinfo =
+      va_arg(argp, struct fpga_port_region_info *);
+  if (!rinfo) {
+    FPGA_MSG("rinfo is NULL");
+    goto out_EINVAL;
+  }
+  if (rinfo->argsz != sizeof(*rinfo)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  if (rinfo->index > 1) {
+    FPGA_MSG("unsupported MMIO index");
+    goto out_EINVAL;
+  }
+  if (rinfo->padding != 0) {
+    FPGA_MSG("unsupported padding");
+    goto out_EINVAL;
+  }
+  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+  rinfo->size = 0x40000;
+  rinfo->offset = 0;
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
 class mmio_c_p : public ::testing::TestWithParam<std::string> {
@@ -101,12 +102,14 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
+                            &num_matches_),
+              FPGA_OK);
 
     EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+    system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
     which_mmio_ = 0;
     uint64_t *mmio_ptr = nullptr;
@@ -118,8 +121,8 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaUnmapMMIO(accel_, which_mmio_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+      EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+      accel_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -127,6 +130,9 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+
+    fpgaFinalize();
+
     system_->finalize();
   }
 
@@ -149,11 +155,11 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(mmio_c_p, mmio64) {
   const uint64_t val_written = 0xdeadbeefdecafbad;
-  EXPECT_EQ(fpgaWriteMMIO64(accel_, which_mmio_,
-                            CSR_SCRATCHPAD0, val_written), FPGA_OK);
+  EXPECT_EQ(fpgaWriteMMIO64(accel_, which_mmio_, CSR_SCRATCHPAD0, val_written),
+            FPGA_OK);
   uint64_t val_read = 0;
-  EXPECT_EQ(fpgaReadMMIO64(accel_, which_mmio_,
-                           CSR_SCRATCHPAD0, &val_read), FPGA_OK);
+  EXPECT_EQ(fpgaReadMMIO64(accel_, which_mmio_, CSR_SCRATCHPAD0, &val_read),
+            FPGA_OK);
   EXPECT_EQ(val_written, val_read);
 }
 
@@ -166,11 +172,11 @@ TEST_P(mmio_c_p, mmio64) {
  */
 TEST_P(mmio_c_p, mmio32) {
   const uint32_t val_written = 0xc0cac01a;
-  EXPECT_EQ(fpgaWriteMMIO32(accel_, which_mmio_,
-                            CSR_SCRATCHPAD0, val_written), FPGA_OK);
+  EXPECT_EQ(fpgaWriteMMIO32(accel_, which_mmio_, CSR_SCRATCHPAD0, val_written),
+            FPGA_OK);
   uint32_t val_read = 0;
-  EXPECT_EQ(fpgaReadMMIO32(accel_, which_mmio_,
-                           CSR_SCRATCHPAD0, &val_read), FPGA_OK);
+  EXPECT_EQ(fpgaReadMMIO32(accel_, which_mmio_, CSR_SCRATCHPAD0, &val_read),
+            FPGA_OK);
   EXPECT_EQ(val_written, val_read);
 }
 

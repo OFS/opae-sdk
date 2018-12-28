@@ -37,19 +37,19 @@
 #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
 #endif
 
-#include "test_system.h"
-#include "gtest/gtest.h"
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/token.h>
 #include <sys/mman.h>
+#include "gtest/gtest.h"
+#include "test_system.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
 class buffer_cxx_core : public ::testing::TestWithParam<std::string> {
-protected:
+ protected:
   buffer_cxx_core() : handle_(nullptr) {}
 
   virtual void SetUp() override {
@@ -68,7 +68,14 @@ protected:
     ASSERT_NE(nullptr, handle_.get());
   }
 
-  virtual void TearDown() override { system_->finalize(); }
+  virtual void TearDown() override {
+    tokens_.clear();
+    handle_->close();
+    handle_.reset();
+    fpgaFinalize();
+
+    system_->finalize();
+  }
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;

@@ -31,8 +31,7 @@ extern "C" {
 #include <uuid/uuid.h>
 
 // RAS Command line struct
-struct  RASCommandLine
-{
+struct RASCommandLine {
   uint32_t flags;
   int segment;
   int bus;
@@ -54,74 +53,74 @@ struct  RASCommandLine
 extern struct RASCommandLine rasCmdLine;
 
 void RASAppShowHelp(void);
-void print_err(const char*, fpga_result);
+void print_err(const char *, fpga_result);
 int ras_main(int argc, char *argv[]);
 int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[]);
-fpga_result print_errors(fpga_token, const char*, const char*, int);
+fpga_result print_errors(fpga_token, const char *, const char *, int);
 fpga_result print_ras_errors(fpga_token);
 fpga_result print_port_errors(fpga_token);
 fpga_result clear_port_errors(fpga_token);
 fpga_result print_pwr_temp(fpga_token);
-fpga_result mmio_error(fpga_handle, struct RASCommandLine*);
+fpga_result mmio_error(fpga_handle, struct RASCommandLine *);
 fpga_result page_fault_errors();
-fpga_result inject_ras_errors(fpga_token, struct RASCommandLine*);
-fpga_result clear_inject_ras_errors(fpga_token); 
+fpga_result inject_ras_errors(fpga_token, struct RASCommandLine *);
+fpga_result clear_inject_ras_errors(fpga_token);
 }
 
-#include "intel-fpga.h"
-#include "types_int.h"
-#include <iostream>
-#include <fstream>
+#include <linux/ioctl.h>
 #include <opae/mmio.h>
 #include <sys/mman.h>
-#include <linux/ioctl.h>
-#include <string>
 #include <cstdarg>
+#include <fstream>
+#include <iostream>
+#include <string>
 #include "gtest/gtest.h"
+#include "intel-fpga.h"
 #include "test_system.h"
+#include "types_int.h"
 #define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
 using namespace opae::testing;
 
 #undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-        printf("MOCK " fmt "\n", ## __VA_ARGS__)
+#define FPGA_MSG(fmt, ...) printf("MOCK " fmt "\n", ##__VA_ARGS__)
 
 using namespace opae::testing;
 
-int mmio_ioctl(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
-    if (!rinfo) {
-      FPGA_MSG("rinfo is NULL");
-      goto out_EINVAL;
-    }
-    if (rinfo->argsz != sizeof(*rinfo)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-    }
-    if (rinfo->index > 1 ) {
-      FPGA_MSG("unsupported MMIO index");
-      goto out_EINVAL;
-    }
-    if (rinfo->padding != 0) {
-      FPGA_MSG("unsupported padding");
-      goto out_EINVAL;
-    }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-    rinfo->size = 0x40000;
-    rinfo->offset = 0;
-    retval = 0;
-    errno = 0;
+int mmio_ioctl(mock_object *m, int request, va_list argp) {
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_region_info *rinfo =
+      va_arg(argp, struct fpga_port_region_info *);
+  if (!rinfo) {
+    FPGA_MSG("rinfo is NULL");
+    goto out_EINVAL;
+  }
+  if (rinfo->argsz != sizeof(*rinfo)) {
+    FPGA_MSG("wrong structure size");
+    goto out_EINVAL;
+  }
+  if (rinfo->index > 1) {
+    FPGA_MSG("unsupported MMIO index");
+    goto out_EINVAL;
+  }
+  if (rinfo->padding != 0) {
+    FPGA_MSG("unsupported padding");
+    goto out_EINVAL;
+  }
+  rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+  rinfo->size = 0x40000;
+  rinfo->offset = 0;
+  retval = 0;
+  errno = 0;
 out:
-    return retval;
+  return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+  retval = -1;
+  errno = EINVAL;
+  goto out;
 }
 
 class ras_c_p : public ::testing::TestWithParam<std::string> {
@@ -138,7 +137,7 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     optind = 0;
     cmd_line_ = rasCmdLine;
- }
+  }
 
   virtual void TearDown() override {
     rasCmdLine = cmd_line_;
@@ -156,16 +155,14 @@ class ras_c_p : public ::testing::TestWithParam<std::string> {
  * @brief      Test: show_help
  * @details    RASAppShowHelp displays the application help message.<br>
  */
-TEST(ras_c, show_help){
-  RASAppShowHelp();
-}
+TEST(ras_c, show_help) { RASAppShowHelp(); }
 
 /**
  * @test       print_err
  * @brief      Test: invalid_print_error
  * @details    When params to print_err is valid, it displays the std error.<br>
  */
-TEST(ras_c, invalid_print_error){
+TEST(ras_c, invalid_print_error) {
   const std::string des = "/sys/class/fpga/intel-fpga-dev.01";
   print_err(des.c_str(), FPGA_INVALID_PARAM);
 }
@@ -177,7 +174,7 @@ TEST(ras_c, invalid_print_error){
  *             that includes errors injection, ras_main returns<br>
  *             FPGA_INVALID_PARAM for fpga not found.<br>
  */
-TEST_P(ras_c_p, main_params_02){
+TEST_P(ras_c_p, main_params_02) {
   char zero[20];
   char one[20];
   char two[20];
@@ -208,9 +205,8 @@ TEST_P(ras_c_p, main_params_02){
   strcpy(twelve, "-N");
   strcpy(thirteen, "-C");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen };
+  char *argv[] = {zero,  one,   two,  three, four,   five,   six,
+                  seven, eight, nine, ten,   eleven, twelve, thirteen};
 
   EXPECT_EQ(ras_main(14, argv), FPGA_INVALID_PARAM);
 }
@@ -221,11 +217,11 @@ TEST_P(ras_c_p, main_params_02){
  * @details    When ras_main is called with only 1 arg,<br>
  *             ras_main returns 1.<br>
  */
-TEST_P(ras_c_p, invalid_cmd_01){
+TEST_P(ras_c_p, invalid_cmd_01) {
   char zero[20];
   strcpy(zero, "ras");
 
-  char *argv[] = { zero }; 
+  char *argv[] = {zero};
   EXPECT_EQ(ras_main(1, argv), FPGA_INVALID_PARAM);
 }
 
@@ -235,14 +231,14 @@ TEST_P(ras_c_p, invalid_cmd_01){
  * @details    When ras_main is called with an invalid command option,<br>
  *             ras_main returns 2.<br>
  */
-TEST_P(ras_c_p, invalid_cmd_02){
+TEST_P(ras_c_p, invalid_cmd_02) {
   char zero[20];
   char one[20];
-  
+
   strcpy(zero, "ras");
   strcpy(one, "-h");
 
-  char *argv[] = { zero, one };
+  char *argv[] = {zero, one};
   EXPECT_EQ(ras_main(2, argv), 2);
 }
 
@@ -252,26 +248,26 @@ TEST_P(ras_c_p, invalid_cmd_02){
  * @details    When ras_main is called with an invalid command option,<br>
  *             ras_main returns 2.<br>
  */
-TEST_P(ras_c_p, invalid_cmd_03){
+TEST_P(ras_c_p, invalid_cmd_03) {
   char zero[20];
   char one[20];
   char two[20];
-  
+
   strcpy(zero, "ras");
   strcpy(one, "-h");
   strcpy(one, "-Z");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = {zero, one, two};
   EXPECT_EQ(ras_main(3, argv), 2);
 }
 
 /**
  * @test       invalid_parse_cmd_01
- * @brief      Test: ParseCmd 
+ * @brief      Test: ParseCmd
  * @details    When ParseCmd is called with an invalid command option,<br>
  *             ras_main returns non-zero.<br>
  */
-TEST_P(ras_c_p, invalid_parse_cmd_01){
+TEST_P(ras_c_p, invalid_parse_cmd_01) {
   char zero[32];
   char one[48];
   char two[32];
@@ -302,18 +298,15 @@ TEST_P(ras_c_p, invalid_parse_cmd_01){
   strcpy(twelve, "-N");
   strcpy(thirteen, "-Cclear");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen };
+  char *argv[] = {zero,  one,   two,  three, four,   five,   six,
+                  seven, eight, nine, ten,   eleven, twelve, thirteen};
 
   struct RASCommandLine cmd;
   EXPECT_NE(ParseCmds(&cmd, 14, argv), 0);
 }
 
-
 INSTANTIATE_TEST_CASE_P(ras_c, ras_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
-
 
 class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -338,17 +331,20 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
-                            &num_matches_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
+                            tokens_dev_.size(), &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
     ASSERT_EQ(fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
 
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR),
+              FPGA_OK);
     num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
+                            tokens_accel_.size(), &num_matches_),
+              FPGA_OK);
     EXPECT_GT(num_matches_, 0);
     ASSERT_EQ(fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
   }
@@ -366,7 +362,7 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(fpgaClose(handle_accel_), FPGA_OK);
       handle_accel_ = nullptr;
     }
-  
+
     for (auto &t : tokens_dev_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
@@ -382,6 +378,7 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
     }
 
     rasCmdLine = cmd_line_;
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -403,7 +400,7 @@ class ras_c_mock_p : public ::testing::TestWithParam<std::string> {
  * @details    When ras_main is called with an valid command,<br>
  *             that includes errors injection, ras_main returns zero.<br>
  */
-TEST_P(ras_c_mock_p, main_params_01){
+TEST_P(ras_c_mock_p, main_params_01) {
   char zero[20];
   char one[20];
   char two[20];
@@ -440,10 +437,9 @@ TEST_P(ras_c_mock_p, main_params_01){
   strcpy(fifteen, "-N");
   strcpy(sixteen, "-C");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen,
-                   fourteen, fifteen, sixteen };
+  char *argv[] = {zero,   one,      two,      three,   four,   five,
+                  six,    seven,    eight,    nine,    ten,    eleven,
+                  twelve, thirteen, fourteen, fifteen, sixteen};
 
   EXPECT_EQ(ras_main(17, argv), FPGA_OK);
 }
@@ -454,7 +450,7 @@ TEST_P(ras_c_mock_p, main_params_01){
  * @details    When ras_main is called with an valid command option,<br>
  *             injecting mmio error, ras_main returns zero.<br>
  */
-TEST_P(ras_c_mock_p, main_params_03){
+TEST_P(ras_c_mock_p, main_params_03) {
   char zero[20];
   char one[20];
   char two[20];
@@ -475,22 +471,20 @@ TEST_P(ras_c_mock_p, main_params_03){
   strcpy(seven, "-I");
   strcpy(eight, "-C");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight };
+  char *argv[] = {zero, one, two, three, four, five, six, seven, eight};
 
   EXPECT_EQ(ras_main(9, argv), FPGA_OK);
 }
 
 /**
  * @test       mmio_error
- * @brief      Test: test_mmio_error 
+ * @brief      Test: test_mmio_error
  * @details    When mmio_error is called with an valid afu handle<br>
  *             and RAS command to inject, it returns FPGA_OK.<br>
  */
-TEST_P(ras_c_mock_p, test_mmio_error){
-  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
-                false, false, false,false,
-                false, false, true, true, false};
+TEST_P(ras_c_mock_p, test_mmio_error) {
+  cmd_line_ = {0,     -1,    -1,    -1,    -1,    -1,   false, false,
+               false, false, false, false, false, true, true,  false};
 
   EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(handle_accel_, nullptr));
 
@@ -503,8 +497,8 @@ TEST_P(ras_c_mock_p, test_mmio_error){
  * @details    When given an invalid handle, mmio_errors returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_mmio_errors){
-  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(nullptr, &cmd_line_)); 
+TEST_P(ras_c_mock_p, invalid_mmio_errors) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, mmio_error(nullptr, &cmd_line_));
 }
 
 /**
@@ -513,8 +507,8 @@ TEST_P(ras_c_mock_p, invalid_mmio_errors){
  * @details    When fpga_token is invalid, inject_ras_error returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_inject_ras_errors){
-  EXPECT_EQ(FPGA_INVALID_PARAM, inject_ras_errors(nullptr, &rasCmdLine)); 
+TEST_P(ras_c_mock_p, invalid_inject_ras_errors) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, inject_ras_errors(nullptr, &rasCmdLine));
 }
 
 /**
@@ -523,7 +517,7 @@ TEST_P(ras_c_mock_p, invalid_inject_ras_errors){
  * @details    When fpga_token is invalid, print_ras_errors returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_ras_errors){
+TEST_P(ras_c_mock_p, invalid_ras_errors) {
   EXPECT_EQ(FPGA_INVALID_PARAM, print_ras_errors(nullptr));
 }
 
@@ -533,7 +527,7 @@ TEST_P(ras_c_mock_p, invalid_ras_errors){
  * @details    When fpga_token is invalid, print_port_errors returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_print_port_errors){
+TEST_P(ras_c_mock_p, invalid_print_port_errors) {
   EXPECT_EQ(FPGA_INVALID_PARAM, print_port_errors(nullptr));
 }
 
@@ -543,7 +537,7 @@ TEST_P(ras_c_mock_p, invalid_print_port_errors){
  * @details    When fpga_token is invalid, clear_port_errors returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_clear_port_errors){
+TEST_P(ras_c_mock_p, invalid_clear_port_errors) {
   EXPECT_EQ(FPGA_INVALID_PARAM, clear_port_errors(nullptr));
 }
 
@@ -553,7 +547,7 @@ TEST_P(ras_c_mock_p, invalid_clear_port_errors){
  * @details    When mmio ioctl FPGA_PORT_GET_REGION_INFO is valid, <br>
  *             page_fault_errors returns FPGA_OK.<br>
  */
-TEST_P(ras_c_mock_p, test_page_fault_errors){
+TEST_P(ras_c_mock_p, test_page_fault_errors) {
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   EXPECT_EQ(FPGA_OK, page_fault_errors());
 }
@@ -564,11 +558,13 @@ TEST_P(ras_c_mock_p, test_page_fault_errors){
  * @details    When fpga_token is invalid, print_errors returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_print_token_errors){
+TEST_P(ras_c_mock_p, invalid_print_token_errors) {
   fpga_token tok = nullptr;
-  const std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
+  const std::string sysfs_port =
+      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/errors/errors";
 
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_errors(tok, sysfs_port.c_str(), nullptr, 0)); 
+  EXPECT_EQ(FPGA_INVALID_PARAM,
+            print_errors(tok, sysfs_port.c_str(), nullptr, 0));
 }
 
 /**
@@ -577,7 +573,7 @@ TEST_P(ras_c_mock_p, invalid_print_token_errors){
  * @details    When mmio ioctl fails on FPGA_PORT_GET_REGION_INFO, <br>
  *             page_fault_errors returns FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_page_fault_errors){
+TEST_P(ras_c_mock_p, invalid_page_fault_errors) {
   EXPECT_EQ(FPGA_OK, page_fault_errors());
 }
 
@@ -587,25 +583,25 @@ TEST_P(ras_c_mock_p, invalid_page_fault_errors){
  * @details    When fpga_token is invalid, clear_inject_ras_error returns <br>
  *             FPGA_INVALID_PARAM.<br>
  */
-TEST_P(ras_c_mock_p, invalid_clear_inject_ras_errors){
-  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(nullptr)); 
+TEST_P(ras_c_mock_p, invalid_clear_inject_ras_errors) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, clear_inject_ras_errors(nullptr));
 }
 
 /**
  * @test       inject_ras_errors
  * @brief      Test: test_inject_ras_errors
- * @details    When given a valid fpga_token with valid magic, inject_ras_error<br>
+ * @details    When given a valid fpga_token with valid magic,
+ * inject_ras_error<br>
  *             returns FPGA_OK.<br>
  */
-TEST_P(ras_c_mock_p, test_inject_ras_errors){
-  cmd_line_ = { 0, -1, -1, -1, -1, -1, false,
-               false, false, true, false,
-               false, false, false, false, true};
-  struct _fpga_token * tok = static_cast<_fpga_token*>(tokens_dev_[0]);
+TEST_P(ras_c_mock_p, test_inject_ras_errors) {
+  cmd_line_ = {0,     -1,   -1,    -1,    -1,    -1,    false, false,
+               false, true, false, false, false, false, false, true};
+  struct _fpga_token *tok = static_cast<_fpga_token *>(tokens_dev_[0]);
 
   auto current_magic = tok->magic;
   tok->magic = OPAE_WRAPPED_HANDLE_MAGIC;
-  EXPECT_EQ(FPGA_OK, inject_ras_errors(handle_dev_, &cmd_line_)); 
+  EXPECT_EQ(FPGA_OK, inject_ras_errors(handle_dev_, &cmd_line_));
 
   tok->magic = current_magic;
 }
@@ -616,15 +612,15 @@ TEST_P(ras_c_mock_p, test_inject_ras_errors){
  * @details    When fpga_token is invalid, print_pwr_temp returns <br>
  *             FPGA_INVALID_PARAM. Else, it returns FPGA_OK.<br>
  */
-TEST_P(ras_c_mock_p, invalid_print_pwr_temp){
-  EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(nullptr)); 
+TEST_P(ras_c_mock_p, invalid_print_pwr_temp) {
+  EXPECT_EQ(FPGA_INVALID_PARAM, print_pwr_temp(nullptr));
 
-  EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_dev_[0])); 
+  EXPECT_EQ(FPGA_OK, print_pwr_temp(tokens_dev_[0]));
 }
 
-INSTANTIATE_TEST_CASE_P(ras_c, ras_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
-
+INSTANTIATE_TEST_CASE_P(
+    ras_c, ras_c_mock_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
 class ras_c_hw_skx_p : public ras_c_p {};
 
@@ -635,7 +631,7 @@ class ras_c_hw_skx_p : public ras_c_p {};
  *             that includes errors injection, ras_main returns zero.<br>
  *             On HW, remove the -Q and -R options.
  */
-TEST_P(ras_c_hw_skx_p, main_params_01){
+TEST_P(ras_c_hw_skx_p, main_params_01) {
   char zero[20];
   char one[20];
   char two[20];
@@ -668,10 +664,8 @@ TEST_P(ras_c_hw_skx_p, main_params_01){
   strcpy(thirteen, "-N");
   strcpy(fourteen, "-C");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen,
-                   fourteen };
+  char *argv[] = {zero,  one,  two, three,  four,   five,     six,     seven,
+                  eight, nine, ten, eleven, twelve, thirteen, fourteen};
 
   EXPECT_EQ(ras_main(15, argv), FPGA_OK);
 }
@@ -682,7 +676,7 @@ TEST_P(ras_c_hw_skx_p, main_params_01){
  * @details    When ras_main is called with an valid command option,<br>
  *             injecting mmio error, ras_main returns zero.<br>
  */
-TEST_P(ras_c_hw_skx_p, main_params_03){
+TEST_P(ras_c_hw_skx_p, main_params_03) {
   char zero[20];
   char one[20];
   char two[20];
@@ -703,11 +697,11 @@ TEST_P(ras_c_hw_skx_p, main_params_03){
   strcpy(seven, "-I");
   strcpy(eight, "-C");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight };
+  char *argv[] = {zero, one, two, three, four, five, six, seven, eight};
 
   EXPECT_EQ(ras_main(9, argv), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(ras_c, ras_c_hw_skx_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(
+    ras_c, ras_c_hw_skx_p,
+    ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));

@@ -41,8 +41,7 @@ using namespace opae::testing;
 class properties_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   properties_c_p()
-  : tokens_device_{{nullptr, nullptr}},
-    tokens_accel_{{nullptr, nullptr}} {}
+      : tokens_device_{{nullptr, nullptr}}, tokens_accel_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -55,13 +54,15 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(),
+                            tokens_device_.size(), &num_matches_device_),
+              FPGA_OK);
 
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(),
+                            tokens_accel_.size(), &num_matches_accel_),
+              FPGA_OK);
 
     ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
     ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
@@ -70,18 +71,19 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-    for (auto &t : tokens_accel_) {
+    for (auto& t : tokens_accel_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
-    for (auto &t : tokens_device_) {
+    for (auto& t : tokens_device_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -114,9 +116,8 @@ TEST_P(properties_c_p, get_parent01) {
 
   ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
   EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(
-      fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
-      FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
+            FPGA_OK);
 
   EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
@@ -130,7 +131,7 @@ TEST_P(properties_c_p, get_parent01) {
   // GetParent clones the token so compare object_id of the two
   fpga_properties p1 = nullptr, p2 = nullptr;
   ASSERT_EQ(fpgaGetProperties(toks[0], &p1), FPGA_OK);
-  ASSERT_EQ(fpgaGetProperties(parent,  &p2), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent, &p2), FPGA_OK);
   EXPECT_EQ(((_fpga_properties*)p1)->object_id,
             ((_fpga_properties*)p2)->object_id);
 
@@ -139,7 +140,7 @@ TEST_P(properties_c_p, get_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
-  for (auto &t : toks) {
+  for (auto& t : toks) {
     if (t) {
       EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
       t = nullptr;
@@ -190,9 +191,8 @@ TEST_P(properties_c_p, set_parent01) {
 
   ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
   EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(
-      fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
-      FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&prop, 1, toks.data(), toks.size(), &matches),
+            FPGA_OK);
   EXPECT_GT(matches, 0);
 
   EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
@@ -213,7 +213,7 @@ TEST_P(properties_c_p, set_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
   EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
-  for (auto &t : toks) {
+  for (auto& t : toks) {
     if (t) {
       EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
       t = nullptr;
@@ -225,7 +225,8 @@ TEST_P(properties_c_p, set_parent01) {
  * @test    set_parent02
  * @brief   Tests: fpgaPropertiesSetParent
  * @details When setting the parent token in a properties object<br>
- *          that has a wrapped parent token resulting from fpgaGetProperties[FromParent]<br>
+ *          that has a wrapped parent token resulting from
+ * fpgaGetProperties[FromParent]<br>
  *          or fpgaUpdateProperties,<br>
  *          fpgaPropertiesSetParent will free the token wrapper.<br>
  */
@@ -262,7 +263,8 @@ TEST_P(properties_c_p, from_token03) {
  * @brief   Tests: fpgaUpdateProperties
  * @details When the input properties object has a parent token set,<br>
  *          fpgaUpdateProperties re-uses the wrapper object.<br>
- *          If a subsequent call to fpgaUpdateProperties results in a properites<br>
+ *          If a subsequent call to fpgaUpdateProperties results in a
+ * properites<br>
  *          object without a parent token,<br>
  *          then the wrapper object is freed.<br>
  */
@@ -272,7 +274,8 @@ TEST_P(properties_c_p, update01) {
   EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
   // The output properties for the accelerator will have a parent token.
 
-  // Updating the properties again (accelerator) will re-use the existing token wrapper.
+  // Updating the properties again (accelerator) will re-use the existing token
+  // wrapper.
   EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
 
   // Updating the properties for a device token will not result in
@@ -3300,8 +3303,7 @@ TEST(properties, fpga_destroy_properties01) {
 #endif
 }
 
-TEST_P(properties_c_p, get_num_errors01)
-{
+TEST_P(properties_c_p, get_num_errors01) {
   fpga_properties prop = nullptr;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   EXPECT_EQ(result, FPGA_OK);
@@ -3336,7 +3338,7 @@ TEST_P(properties_c_p, get_num_errors02) {
  *
  */
 TEST_P(properties_c_p, validate01) {
-  struct _fpga_properties *p = (struct _fpga_properties *) filter_;
+  struct _fpga_properties* p = (struct _fpga_properties*)filter_;
   ASSERT_EQ(p->magic, FPGA_PROPERTY_MAGIC);
   p->magic = 0;
   EXPECT_EQ(NULL, opae_validate_and_lock_properties(filter_));
@@ -3346,9 +3348,9 @@ TEST_P(properties_c_p, validate01) {
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class properties_c_mock_p : public properties_c_p{
-  protected:
-    properties_c_mock_p() {};
+class properties_c_mock_p : public properties_c_p {
+ protected:
+  properties_c_mock_p(){};
 };
 
 /**
@@ -3423,4 +3425,3 @@ TEST_P(properties_c_mock_p, fpga_clone_properties02) {
 
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
-
