@@ -416,6 +416,7 @@ int sysfs_initialize(void)
 					num)) {
 				FPGA_MSG("Error processing region: %s",
 					 dirent->d_name);
+				_sysfs_region_count--;
 			}
 			if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
 				goto out_free;
@@ -540,6 +541,37 @@ fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid gu
 int sysfs_filter(const struct dirent *de)
 {
 	return de->d_name[0] != '.';
+}
+
+fpga_result sysfs_get_fme_path(int dev, int subdev, char *path)
+{
+	fpga_result result = FPGA_OK;
+	char spath[SYSFS_PATH_MAX];
+	char sysfs_path[SYSFS_PATH_MAX];
+	errno_t e;
+
+	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
+		SYSFS_FORMAT(sysfs_class_path), SYSFS_FME_PATH);
+	if (len < 0) {
+		FPGA_ERR("Error formatting sysfs path");
+		return FPGA_EXCEPTION;
+	}
+
+	snprintf_s_ii(spath, SYSFS_PATH_MAX,
+		sysfs_path, dev, subdev);
+
+	result = opae_glob_path(spath);
+	if (result) {
+		return result;
+	}
+
+	e = strncpy_s(path, SYSFS_PATH_MAX,
+		spath, SYSFS_PATH_MAX);
+	if (EOK != e) {
+		return FPGA_EXCEPTION;
+	}
+
+	return result;
 }
 
 //
