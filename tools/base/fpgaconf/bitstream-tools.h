@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <uuid/uuid.h>
 #include <json-c/json.h>
+#include "opae/fpga.h"
 
 #define METADATA_GUID                      "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN                   16
@@ -168,58 +169,65 @@ fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	return FPGA_OK;
 }
 
-fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
-								uint64_t *id_h)
+int64_t bs_int64_be_to_le(int64_t val)
 {
-	fpga_result result = FPGA_OK;
-	char buf_l[INTFC_ID_LOW_LEN + 1] = { 0 };
-	char buf_h[INTFC_ID_HIGH_LEN + 1] = { 0 };
-	uint8_t buffer[INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN] = { 0 };
+	val = ((val << 8) & 0xFF00FF00FF00FF00ULL) |
+		((val >> 8) & 0x00FF00FF00FF00FFULL);
+	val = ((val << 16) & 0xFFFF0000FFFF0000ULL) |
+		((val >> 16) & 0x0000FFFF0000FFFFULL);
+	return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
+}
 
-	fpga_object pr_object;
+
+fpga_result get_fpga_interface_id(fpga_token token,
+						uint64_t *id_l,
+						uint64_t *id_h)
+{
+	fpga_result result         = FPGA_OK;
+	fpga_result resval         = FPGA_OK;
+	fpga_properties filter     = NULL;
+	fpga_guid guid;
 	errno_t e;
 
-	result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, 0);
+	result = fpgaGetProperties(token, &filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Token Object \n");
-		return result;
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out;
+	}
+	result = fpgaPropertiesGetGUID(filter, &guid);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get PR guid \n");
+		goto out_destroy;
 	}
 
-	result = fpgaObjectRead(pr_object, buffer, 0,
-		INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN, 0);
-	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Read Object \n");
-		return result;
-	}
-
-	// PR Inteface Id h
-	memset_s(buf_h, sizeof(buf_h), 0);
-	e = strncpy_s(buf_h, sizeof(buf_h), (char *) buffer, INTFC_ID_HIGH_LEN);
+	e = memcpy_s(id_h, sizeof(id_h),
+		guid, sizeof(uint64_t));
 	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
+		OPAE_ERR("memcpy_s failed");
+		goto out_destroy;
 	}
 
-	*id_h = strtoull(buf_h, NULL, 16);
+	*id_h = bs_int64_be_to_le(*id_h);
 
-	// PR Inteface Id l
-	memset_s(buf_l, sizeof(buf_l), 0);
-	e = strncpy_s(buf_l, sizeof(buf_l), (char *) buffer + INTFC_ID_LOW_LEN,
-		INTFC_ID_LOW_LEN);
+	e = memcpy_s(id_l, sizeof(id_l),
+		guid + sizeof(uint64_t), sizeof(uint64_t));
 	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
+		OPAE_ERR("memcpy_s failed");
+		goto out_destroy;
 	}
 
-	*id_l = strtoull(buf_l, NULL, 16);
+	*id_l = bs_int64_be_to_le(*id_l);
 
-	result = fpgaDestroyObject(&pr_object);
+out_destroy:
+	resval = (result != FPGA_OK) ? result : resval;
+	result = fpgaDestroyProperties(&filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Destroy Object \n");
-		return result;
+		OPAE_ERR("Failed to destroy properties \n");
 	}
 
-	return result;
+out:
+	resval = (result != FPGA_OK) ? result : resval;
+	return resval;
 }
 
 
