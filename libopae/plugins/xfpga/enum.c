@@ -121,7 +121,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 
 		device_instance = (int)strtoul(p + 1, NULL, 10);
 
-		if(sysfs_get_fme_path(device_instance, subdev_instance, spath)
+		if (sysfs_get_fme_path(device_instance, subdev_instance, spath)
 			!= FPGA_OK) {
 			res = false;
 			goto out_unlock;
