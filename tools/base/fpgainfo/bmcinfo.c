@@ -720,8 +720,7 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 						   attr->id, attr->name, attr->value.i_val);
 				}
 			} else {
-				printf("(%2d) %-24s : No reading (reading state unavailable)\n",
-					   attr->id, attr->name);
+				printf("(%2d) %-24s : N/A\n", attr->id, attr->name);
 			}
 		}
 	}
@@ -732,6 +731,13 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 #define CURRENT_SENSOR	"current"
 #define THERMAL_SENSOR	"temperature"
 #define CLOCK_SENSOR	"clock"
+
+#define THERMAL_HIGH_LIMIT	300.00
+#define THERMAL_LOW_LIMIT	-273.00
+#define POWER_HIGH_LIMIT	1000.00
+#define POWER_LOW_LIMIT		0.00
+#define VOLTAMP_HIGH_LIMIT	100.00
+#define VOLTAMP_LOW_LIMIT	-100.00
 
 static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
 {
@@ -777,11 +783,19 @@ static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
 	*r_val = atoi(value);
 	if (attr->type == SENSOR_TYPE_THERMAL) {
 		*f_val = (*r_val) * 0.001;
-	} else if (attr->type == SENSOR_TYPE_CLOCK ||
-			   attr->type == SENSOR_TYPE_OTHER) {
-		*i_val = *r_val;
-	} else {
+		if (*f_val < THERMAL_LOW_LIMIT || *f_val > THERMAL_HIGH_LIMIT)
+			return;
+	} else if (attr->type == SENSOR_TYPE_POWER) {
 		*f_val = (*r_val) * 0.001;
+		if (*f_val < POWER_LOW_LIMIT || *f_val > POWER_HIGH_LIMIT)
+			return;
+	} else if (attr->type == SENSOR_TYPE_VOLTAGE ||
+			   attr->type == SENSOR_TYPE_CURRENT) {
+		*f_val = (*r_val) * 0.001;
+		if (*f_val < VOLTAMP_LOW_LIMIT || *f_val > VOLTAMP_HIGH_LIMIT)
+			return;
+	} else {
+		*i_val = *r_val;
 	}
 	attr->flag |= flag;
 }
