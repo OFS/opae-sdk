@@ -31,6 +31,7 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
+#include "opae_ioctl.h"
 #include "intel-fpga.h"
 
 #include <sys/types.h>
@@ -44,49 +45,6 @@
 #define AFU_PERMISSION (FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP)
 #define AFU_SIZE	0x40000
 #define AFU_OFFSET	0
-
-STATIC fpga_result port_get_region_info(fpga_handle handle,
-				 uint32_t mmio_num,
-				 uint32_t *flags,
-				 uint64_t *size,
-				 uint64_t *offset)
-{
-	int err;
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-	fpga_result result = FPGA_OK;
-
-	ASSERT_NOT_NULL(flags);
-	ASSERT_NOT_NULL(size);
-	ASSERT_NOT_NULL(offset);
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	/* Set ioctl fpga_port_region_info struct parameters */
-	struct fpga_port_region_info rinfo = {.argsz = sizeof(rinfo),
-					      .padding = 0,
-					      .index = (__u32) mmio_num};
-
-	/* Dispatch ioctl command */
-	if (ioctl(_handle->fddev, FPGA_PORT_GET_REGION_INFO, &rinfo) != 0) {
-		FPGA_MSG("FPGA_PORT_GET_REGION_INFO ioctl failed: %s",
-			 strerror(errno));
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
-
-	*flags = (uint32_t) rinfo.flags;
-	*size = (uint64_t) rinfo.size;
-	*offset = (uint64_t) rinfo.offset;
-
-out_unlock:
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
-	}
-	return result;
-}
 
 STATIC fpga_result port_mmap_region(fpga_handle handle,
 			     void **vaddr,
@@ -134,19 +92,12 @@ STATIC fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	void     *addr  = NULL;
 	uint64_t wsid   = 0;
-	uint32_t flags  = 0;
-	uint64_t size   = 0;
-	uint64_t offset = 0;
 	fpga_result result = FPGA_OK;
+	opae_port_region_info rinfo = { 0 };
 
-	/* Obtain MMIO region information */
-	result = port_get_region_info(handle,
-				      mmio_num,
-				      &flags,
-				      &size,
-				      &offset);
-
-	if (flags != AFU_PERMISSION) {
+	result = opae_get_port_region_info(_handle->fddev, mmio_num, &rinfo);
+	// TODO: process result seperately of rinfo.flags
+	if (result || (rinfo.flags != AFU_PERMISSION)) {
 		FPGA_MSG("Invalid MMIO permission flags");
 		result = FPGA_NO_ACCESS;
 		return result;
@@ -155,9 +106,9 @@ STATIC fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 	/* Map UAFU MMIO */
 	result = port_mmap_region(handle,
 				    (void **) &addr,
-				    size,
+				    rinfo.size,
 				    PROT_READ | PROT_WRITE,
-				    offset,
+				    rinfo.offset,
 				    mmio_num);
 	if (result != FPGA_OK)
 		return result;
@@ -168,11 +119,11 @@ STATIC fpga_result map_mmio_region(fpga_handle handle, uint32_t mmio_num)
 		      wsid,
 		      (uint64_t) addr,
 		      (uint64_t) NULL,
-		      size,
+		      rinfo.size,
 		      (uint64_t) addr,
 		      mmio_num,
 		      0)) {
-		if (munmap(addr, size)) {
+		if (munmap(addr, rinfo.size)) {
 			FPGA_MSG("munmap failed. Error value is : %s",
 				 strerror(errno));
 			return FPGA_INVALID_PARAM;

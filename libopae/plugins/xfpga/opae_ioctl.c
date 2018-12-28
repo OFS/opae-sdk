@@ -49,6 +49,9 @@ fpga_result opae_ioctl(int fd, int request, ...)
 		case EINVAL:
 			res = FPGA_INVALID_PARAM;
 			break;
+		case ENOTSUP:
+			res = FPGA_NOT_SUPPORTED;
+			break;
 		default:
 			// other errors could be
 			// EBADF - fd is bad file descriptor
@@ -65,6 +68,52 @@ fpga_result opae_ioctl(int fd, int request, ...)
 	return res;
 }
 
+int opae_get_fme_info(int fd, opae_fme_info *info)
+{
+	ASSERT_NOT_NULL(info);
+	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
+	int res = opae_ioctl(fd, FPGA_FME_GET_INFO, &fme_info);
+	if (!res) {
+		info->flags = fme_info.flags;
+		info->capability = fme_info.capability;
+	}
+	return res;
+}
+
+int opae_get_port_info(int fd, opae_port_info *info)
+{
+	ASSERT_NOT_NULL(info);
+	struct fpga_port_info pinfo = {.argsz = sizeof(pinfo), .flags = 0};
+	int res = opae_ioctl(fd, FPGA_PORT_GET_INFO, &pinfo);
+	if (!res) {
+		info->flags = pinfo.flags;
+		info->capability = pinfo.capability;
+		info->num_regions = pinfo.num_regions;
+		info->num_umsgs = pinfo.num_umsgs;
+		info->num_uafu_irqs = pinfo.num_uafu_irqs;
+	}
+	return res;
+
+
+}
+
+int opae_get_port_region_info(int fd, uint32_t index,
+			      opae_port_region_info *info)
+{
+	ASSERT_NOT_NULL(info);
+	struct fpga_port_region_info rinfo = {.argsz = sizeof(rinfo),
+					      .padding = 0,
+					      .index = index};
+	int res = opae_ioctl(fd, FPGA_PORT_GET_REGION_INFO, &rinfo);
+	if (!res) {
+		info->flags = rinfo.flags;
+		info->size = rinfo.size;
+		info->offset = rinfo.offset;
+	}
+	return res;
+
+}
+
 int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
 {
 	int res = 0;
@@ -76,7 +125,7 @@ int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
 					    .user_addr = (__u64)addr,
 					    .length = (__u64)len,
 					    .iova = 0};
-
+	ASSERT_NOT_NULL(io_addr);
 	/* Dispatch ioctl command */
 	req = FPGA_PORT_DMA_MAP;
 	msg = &dma_map;
@@ -96,4 +145,37 @@ int opae_port_unmap(int fd, uint64_t io_addr)
 
 	/* Dispatch ioctl command */
 	return opae_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
+}
+
+int opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
+{
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_MODE");
+	}
+
+	struct fpga_port_umsg_cfg umsg_cfg = {.argsz = sizeof(umsg_cfg),
+					      .flags = 0,
+					      .hint_bitmap = hint_bitmap};
+	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
+}
+
+int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr)
+{
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_BASE_ADDR");
+	}
+
+	struct fpga_port_umsg_base_addr baseaddr = {
+		.argsz = sizeof(baseaddr), .flags = 0, .iova = io_addr};
+	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
+}
+
+int opae_port_umsg_enable(int fd)
+{
+	return opae_ioctl(fd, FPGA_PORT_UMSG_ENABLE, NULL);
+}
+
+int opae_port_umsg_disable(int fd)
+{
+	return opae_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
 }
