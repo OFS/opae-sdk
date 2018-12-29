@@ -323,7 +323,12 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
 
-	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
+        for (auto &ft : ftokens_) {
+            if (ft) {
+                EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+                ft = nullptr;
+            }
+        }
 } 
 
 /**

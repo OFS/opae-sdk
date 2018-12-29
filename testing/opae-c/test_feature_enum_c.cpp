@@ -142,6 +142,11 @@ class opae_feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	virtual void TearDown() override {
+                EXPECT_EQ(fpgaUnmapMMIO(accel_, which_mmio_), FPGA_OK);
+                if (accel_) {
+                    EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+                    accel_ = nullptr;
+                }
 		DestroyTokens();
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
@@ -203,8 +208,12 @@ TEST_P(opae_feature_enum_c_p, test_feature_enumerate) {
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
 		0, &num_matches_), FPGA_OK);
 
+        EXPECT_EQ(num_matches_, 1);
+
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
+
+        EXPECT_EQ(num_matches_, 1);
 
 	EXPECT_EQ(fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
 }
@@ -224,7 +233,7 @@ TEST_P(opae_feature_enum_c_p, nullfilter) {
  * @test       nullmatches
  * @brief      Tests: fpgaFeatureEnumerate
  * @details    When fpgaFeatureEnumerate() is called with null for num_matches,<br>
- *             it will return FPGA_INVALID_PARAM.<br>
+ *             and with non-empty ftokens, it will return FPGA_INVALID_PARAM.<br>
  */
 TEST_P(opae_feature_enum_c_p, nullmatches) {
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
@@ -245,7 +254,7 @@ TEST_P(opae_feature_enum_c_p, nulltokens) {
 /**
  * @test       destroy_token_neg
  * @brief      Tests: fpgaDestroyFeatureToken
- * @details    When fpgaDestroyFeatureToken() is called with null or invalide token,<br>
+ * @details    When fpgaDestroyFeatureToken() is called with null or invalid token,<br>
  *             it will return FPGA_INVALID_PARAM.<br>
  *
  */
