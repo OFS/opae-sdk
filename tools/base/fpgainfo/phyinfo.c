@@ -179,6 +179,7 @@ static void print_pkvl_info(fpga_properties props)
 	int ports;
 	int result;
 	int fd;
+	ssize_t ret;
 	char mode[16] = {0};
 	char status[16] = {0};
 
@@ -232,18 +233,25 @@ static void print_pkvl_info(fpga_properties props)
 		get_sysfs_attr(path, mode, sizeof(mode));
 		result = strtol(mode, NULL, 16);
 		if (result == 0) {
+			if (num_ports == 4) {
+				result = 1;
+			} else {
+				result = 3;
+			}
+			/* set polling mode */
 			fd = open(path, O_WRONLY);
 			if (fd >= 0) {
-				if (num_ports == 4) {
-					result = 1;
-					write(fd, "1", 1);
-				} else {
-					result = 3;
-					write(fd, "3", 1);
-				}
+				snprintf_s_i(mode, sizeof(mode), "%d", result);
+				ret = write(fd, mode, strlen(mode));
 				close(fd);
+				if (ret > 0) {
+					sleep(1);	// wait for polling
+				} else {
+					printf("write %s to %s failed\n", mode, path);
+				}
+			} else {
+				printf("open %s failed\n", path);
 			}
-			sleep(1);	// wait for polling
 		}
 		ports = result == 1 ? 4 : 8;
 		strncpy_s(mode, sizeof(mode), result == 1 ? "25G" : "10G", 3);
