@@ -53,6 +53,7 @@ void mac_help(void)
 
 #define I2C_DEVNAME  	"i2c"
 #define MACROM_DEVNAME  "nvmem"
+#define EEPROM_DEVNAME  "eeprom"
 
 static int get_mac_rom_path(const char *in_path, const char *key_str,
 							char *out_path, int size)
@@ -92,6 +93,15 @@ static int get_mac_rom_path(const char *in_path, const char *key_str,
 
 			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
 								MACROM_DEVNAME, &result)) {
+				if (result == 0) {
+					snprintf_s_ss(out_path, size, "%s/%s", path,
+								  dirent->d_name);
+					ret = 0;
+					break;
+				}
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								EEPROM_DEVNAME, &result)) {
 				if (result == 0) {
 					snprintf_s_ss(out_path, size, "%s/%s", path,
 								  dirent->d_name);
