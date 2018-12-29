@@ -230,6 +230,7 @@ def parse_args():
                                  'bmc_fw', 'bmc_img', 'bmc_factory', 'dtb'])
 
 
+
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -250,6 +251,7 @@ def parse_args():
     yes_help = "answer Yes to all confirmation prompts"
     parser.add_argument('-y', '--yes', default=False,
                         action='store_true', help=yes_help)
+
 
     return parser.parse_args()
 
@@ -873,6 +875,8 @@ def get_aer(bdf):
     output = subprocess.check_output(cmd, shell=True)
     val1 = int(output, 16)
 
+
+
     cmd = 'setpci -s {} ECAP_AER+0x14.l'.format(bdf)
 
     output = subprocess.check_output(cmd, shell=True)
@@ -1046,6 +1050,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
     if not ret and rsu:
         ret = board_rsu(bdf, spi_path, boot_page)
+
 
     return ret
 
@@ -1308,6 +1313,7 @@ def validate_bdf(bdf, bdf_pvid_map):
 
             ret = dc_vc_fpga_update(sfile, args.type, bdf, spi_path,
                                     args.rsu, boot_page, args.no_verify)
+
 
 
     sys.exit(ret)
