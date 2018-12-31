@@ -324,8 +324,8 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
 
         for (auto &ft : ftokens_) {
-            if (ft) {
-                EXPECT_NE(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+            if (ft && &ft) {
+                xfpga_fpgaDestroyFeatureToken(&ft);
                 ft = nullptr;
             }
         }
