@@ -32,9 +32,7 @@
 #include "opae/utils.h"
 #include "opae/manage.h"
 #include "common_int.h"
-#include "intel-fpga.h"
-
-#define FPGA_MAX_INTERFACE_NUM      1
+#include "opae_ioctl.h"
 
 //Assign Port to PF from Interface
 #define ASSIGN_PORT_TO_PF           0
@@ -50,24 +48,11 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)fpga;
 	fpga_result result = FPGA_OK;
-	struct fpga_fme_port_assign config = {0};
 	int err;
-
-	UNUSED_PARAM(flags);
-
-	config.argsz = sizeof(config);
-	config.flags = 0;
-	config.port_id = slot_num;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
-
-	if (interface_num > FPGA_MAX_INTERFACE_NUM) {
-		FPGA_ERR("Invalid input parameters");
-		result = FPGA_INVALID_PARAM;
-		goto out_unlock;
-	}
 
 	if (_handle->fddev < 0) {
 		FPGA_ERR("Invalid handle file descriptor");
@@ -75,27 +60,24 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 		goto out_unlock;
 	}
 
-	// Assign Port to PF from Interface
-	if (interface_num == ASSIGN_PORT_TO_PF) {
-
-		result = ioctl(_handle->fddev, FPGA_FME_PORT_ASSIGN, &config);
-		if (result != 0) {
-			FPGA_ERR("Failed to assign port");
-			result = FPGA_NOT_SUPPORTED;
-			goto out_unlock;
-		}
+	switch(interface_num) {
+		case ASSIGN_PORT_TO_PF:
+			result = opae_fme_port_assign(_handle->fddev, flags, slot_num);
+			if (result) {
+				FPGA_ERR("Failed to assign port");
+			}
+			break;
+		case ASSIGN_PORT_TO_HOST:
+			result = opae_fme_port_release(_handle->fddev, flags, slot_num);
+			if (result) {
+				FPGA_ERR("Failed to releae port");
+			}
+			break;
+		default:
+			FPGA_MSG("Unknown port assignment operation: %d", interface_num);
+			result = FPGA_INVALID_PARAM;
 	}
 
-	// Release Port from PF and assign to Interface
-	if (interface_num == ASSIGN_PORT_TO_HOST) {
-
-		result = ioctl(_handle->fddev, FPGA_FME_PORT_RELEASE, &config);
-		if (result != 0) {
-			FPGA_ERR("Failed to release port");
-			result = FPGA_NOT_SUPPORTED;
-			goto out_unlock;
-		}
-	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

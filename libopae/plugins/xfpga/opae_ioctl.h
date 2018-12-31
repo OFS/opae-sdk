@@ -64,4 +64,10 @@ int opae_port_umsg_enable(int fd);
 int opae_port_umsg_disable(int fd);
 
 
+int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id);
+int opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id);
+int opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id, uint32_t sz,
+		     uint64_t addr, uint64_t *status);
+int opae_fme_port_reset(int fd);
+
 #endif /* !OPAE_IOCTL_H */
