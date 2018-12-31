@@ -60,22 +60,23 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 		goto out_unlock;
 	}
 
-	switch(interface_num) {
-		case ASSIGN_PORT_TO_PF:
-			result = opae_fme_port_assign(_handle->fddev, flags, slot_num);
-			if (result) {
-				FPGA_ERR("Failed to assign port");
-			}
-			break;
-		case ASSIGN_PORT_TO_HOST:
-			result = opae_fme_port_release(_handle->fddev, flags, slot_num);
-			if (result) {
-				FPGA_ERR("Failed to releae port");
-			}
-			break;
-		default:
-			FPGA_MSG("Unknown port assignment operation: %d", interface_num);
-			result = FPGA_INVALID_PARAM;
+	switch (interface_num) {
+	case ASSIGN_PORT_TO_PF:
+		result = opae_fme_port_assign(_handle->fddev, flags, slot_num);
+		if (result) {
+			FPGA_ERR("Failed to assign port");
+		}
+		break;
+	case ASSIGN_PORT_TO_HOST:
+		result = opae_fme_port_release(_handle->fddev, flags, slot_num);
+		if (result) {
+			FPGA_ERR("Failed to releae port");
+		}
+		break;
+	default:
+		FPGA_MSG("Unknown port assignment operation: %d",
+			 interface_num);
+		result = FPGA_INVALID_PARAM;
 	}
 
 
