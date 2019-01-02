@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <uuid/uuid.h>
 #include <json-c/json.h>
+#include <byteswap.h>
+
 #include "opae/fpga.h"
 
 #define METADATA_GUID                      "58656F6E-4650-4741-B747-425376303031"
@@ -169,16 +171,6 @@ fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	return FPGA_OK;
 }
 
-int64_t bs_int64_be_to_le(int64_t val)
-{
-	val = ((val << 8) & 0xFF00FF00FF00FF00ULL) |
-		((val >> 8) & 0x00FF00FF00FF00FFULL);
-	val = ((val << 16) & 0xFFFF0000FFFF0000ULL) |
-		((val >> 16) & 0x0000FFFF0000FFFFULL);
-	return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
-}
-
-
 fpga_result get_fpga_interface_id(fpga_token token,
 						uint64_t *id_l,
 						uint64_t *id_h)
@@ -207,7 +199,7 @@ fpga_result get_fpga_interface_id(fpga_token token,
 		goto out_destroy;
 	}
 
-	*id_h = bs_int64_be_to_le(*id_h);
+	*id_h = bswap_64(*id_h);
 
 	e = memcpy_s(id_l, sizeof(id_l),
 		guid + sizeof(uint64_t), sizeof(uint64_t));
@@ -216,7 +208,7 @@ fpga_result get_fpga_interface_id(fpga_token token,
 		goto out_destroy;
 	}
 
-	*id_l = bs_int64_be_to_le(*id_l);
+	*id_l = bswap_64(*id_l);
 
 out_destroy:
 	resval = (result != FPGA_OK) ? result : resval;
