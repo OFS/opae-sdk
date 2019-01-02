@@ -243,6 +243,7 @@ define_pkg(tools
   define_pkg(tools-extra
   COMPONENTS
   toolfpgadiag
+  toolmmlink
   toolfpga_dma_test
   toolfpgabist
   toolbist_app
