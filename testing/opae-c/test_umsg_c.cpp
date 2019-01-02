@@ -137,17 +137,17 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+    dev_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_port_info);
     system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, umsg_set_mode);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+    if (dev_) {
+        EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+        dev_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -160,7 +160,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
 
   std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  fpga_handle accel_;
+  fpga_handle dev_;
   test_platform platform_;
   uint32_t num_matches_;
   test_system *system_;
@@ -175,7 +175,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(umsg_c_p, get_num) {
   uint64_t num = 0;
-  EXPECT_EQ(fpgaGetNumUmsg(accel_, &num), FPGA_OK);
+  EXPECT_EQ(fpgaGetNumUmsg(dev_, &num), FPGA_OK);
   EXPECT_GT(num, 0);
 }
 
@@ -188,8 +188,8 @@ TEST_P(umsg_c_p, get_num) {
 TEST_P(umsg_c_p, set_attr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
@@ -209,9 +209,9 @@ class umsg_c_mock_p: public umsg_c_p{
 TEST_P(umsg_c_mock_p, trigger) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaTriggerUmsg(accel_, 1), FPGA_OK);
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaTriggerUmsg(dev_, 1), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
 /**
@@ -225,10 +225,10 @@ TEST_P(umsg_c_mock_p, get_ptr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   uint64_t *umsg_ptr = nullptr;
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaGetUmsgPtr(accel_, &umsg_ptr), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaGetUmsgPtr(dev_, &umsg_ptr), FPGA_OK);
   EXPECT_NE(umsg_ptr, nullptr);
-  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, 
