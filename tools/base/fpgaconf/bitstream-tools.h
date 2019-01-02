@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <uuid/uuid.h>
 #include <json-c/json.h>
-#include <byteswap.h>
 
 #include "opae/fpga.h"
 
@@ -130,25 +129,6 @@ uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 	return ret;
 }
 
-void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
-{
-	uint32_t i;
-	uint32_t s;
-
-	// The function expects the MSB of the GUID at [0] and the LSB at [15].
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[i] = (uint8_t)((guidh >> s) & 0xff);
-	}
-
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[8 + i] = (uint8_t)((guidl >> s) & 0xff);
-	}
-}
-
 fpga_result check_bitstream_guid(const uint8_t *bitstream)
 {
 	fpga_guid bitstream_guid;
@@ -171,13 +151,12 @@ fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	return FPGA_OK;
 }
 
-fpga_result get_fpga_interface_id(fpga_token token,
-						uint64_t *id_l,
-						uint64_t *id_h)
+
+fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 {
-	fpga_result result         = FPGA_OK;
-	fpga_result resval         = FPGA_OK;
-	fpga_properties filter     = NULL;
+	fpga_result result = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	fpga_properties filter = NULL;
 	fpga_guid guid;
 	errno_t e;
 
@@ -192,23 +171,12 @@ fpga_result get_fpga_interface_id(fpga_token token,
 		goto out_destroy;
 	}
 
-	e = memcpy_s(id_h, sizeof(id_h),
-		guid, sizeof(uint64_t));
+	e = memcpy_s(interface_id, sizeof(fpga_guid),
+		guid, sizeof(guid));
 	if (EOK != e) {
 		OPAE_ERR("memcpy_s failed");
 		goto out_destroy;
 	}
-
-	*id_h = bswap_64(*id_h);
-
-	e = memcpy_s(id_l, sizeof(id_l),
-		guid + sizeof(uint64_t), sizeof(uint64_t));
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
-		goto out_destroy;
-	}
-
-	*id_l = bswap_64(*id_l);
 
 out_destroy:
 	resval = (result != FPGA_OK) ? result : resval;
@@ -221,7 +189,6 @@ out:
 	resval = (result != FPGA_OK) ? result : resval;
 	return resval;
 }
-
 
 fpga_result read_gbs_metadata(const uint8_t *bitstream,
 							struct gbs_metadata *gbs_metadata)
