@@ -245,3 +245,48 @@ out_free:
 	free(irq);
 	return res;
 }
+
+int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
+{
+	struct fpga_fme_port_assign assign = {
+		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in FPGA_FME_PORT_ASSIGN");
+	}
+	return opae_ioctl(fd, FPGA_FME_PORT_ASSIGN, &assign);
+}
+
+int opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
+{
+	struct fpga_fme_port_assign assign = {
+		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in FPGA_FME_PORT_RELEASE");
+	}
+	return opae_ioctl(fd, FPGA_FME_PORT_RELEASE, &assign);
+}
+
+int opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id, uint32_t sz,
+		     uint64_t addr, uint64_t *status)
+{
+	struct fpga_fme_port_pr port_pr = {.argsz = sizeof(port_pr),
+					   .flags = 0,
+					   .port_id = port_id,
+					   .buffer_size = sz,
+					   .buffer_address = addr};
+	int res = FPGA_OK;
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_FME_PORT_PR");
+	}
+	ASSERT_NOT_NULL(status);
+	res = opae_ioctl(fd, FPGA_FME_PORT_PR, &port_pr);
+	*status = port_pr.status;
+	return res;
+}
+
+int opae_fme_port_reset(int fd)
+{
+	return opae_ioctl(fd, FPGA_PORT_RESET, NULL);
+}

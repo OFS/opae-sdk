@@ -32,7 +32,7 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
-#include "intel-fpga.h"
+#include "opae_ioctl.h"
 
 // Reset slot
 fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
@@ -52,10 +52,9 @@ fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 	}
 
 	// reset ioctl
-	result = ioctl(_handle->fddev, FPGA_PORT_RESET, NULL);
+	result = opae_fme_port_reset(_handle->fddev);
 	if (result != 0) {
 		FPGA_MSG("Reset failed");
-		result = FPGA_EXCEPTION;
 	}
 
 out_unlock:

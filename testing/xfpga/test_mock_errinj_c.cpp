@@ -302,11 +302,11 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
    
   system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
