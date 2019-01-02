@@ -63,5 +63,8 @@ int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr);
 int opae_port_umsg_enable(int fd);
 int opae_port_umsg_disable(int fd);
 
+int opae_fme_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
+int opae_port_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
+int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t count, int32_t *eventfd);
 
 #endif /* !OPAE_IOCTL_H */
