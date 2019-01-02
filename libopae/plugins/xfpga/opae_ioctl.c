@@ -244,6 +244,7 @@ int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t coun
 out_free:
 	free(irq);
 	return res;
+}
 
 int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 {
