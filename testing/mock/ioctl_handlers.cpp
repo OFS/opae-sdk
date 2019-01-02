@@ -54,6 +54,19 @@ static int validate_argp(mock_object* mock, int request, va_list argp) {
       test_system::instance()->default_ioctl_handler(_REQ, validate_argp<_S>); \
   }
 
+template <>
+int validate_argp<fpga_port_uafu_irq_set>(mock_object* mock, int request, va_list argp) {
+  UNUSED_PARAM(mock);
+  UNUSED_PARAM(request);
+  fpga_port_uafu_irq_set* ptr = va_arg(argp, fpga_port_uafu_irq_set*);
+  if (ptr->argsz != sizeof(*ptr)+(ptr->count*sizeof(int32_t))) {
+    return -1;
+  }
+
+  return 0;
+}
+
+
 // FPGA DEVICE
 DEFAULT_IOCTL_HANDLER(FPGA_FME_PORT_RELEASE, fpga_fme_port_release);
 DEFAULT_IOCTL_HANDLER(FPGA_FME_PORT_PR, fpga_fme_port_pr);
