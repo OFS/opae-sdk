@@ -32,6 +32,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <opae/fpga.h>
+#include <safe_string/safe_string.h>
 #include "common_int.h"
 #include "opae_ioctl.h"
 #include "intel-fpga.h"
@@ -178,4 +179,69 @@ int opae_port_umsg_enable(int fd)
 int opae_port_umsg_disable(int fd)
 {
 	return opae_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
+}
+
+int opae_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
+{
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
+	}
+
+	struct fpga_fme_err_irq_set irq = {
+		.argsz = sizeof(irq), .flags = flags, .evtfd = evtfd};
+	return opae_ioctl(fd, FPGA_FME_ERR_SET_IRQ, &irq);
+}
+
+int opae_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
+{
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
+	}
+
+	struct fpga_port_err_irq_set irq = {
+		.argsz = sizeof(irq), .flags = flags, .evtfd = evtfd};
+	return opae_ioctl(fd, FPGA_PORT_ERR_SET_IRQ, &irq);
+}
+
+int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t count, int32_t *eventfd)
+{
+	uint32_t sz = sizeof(struct fpga_port_uafu_irq_set) + count*sizeof(int32_t);
+	struct fpga_port_uafu_irq_set *irq = NULL;
+	errno_t err = 0;
+	int res = 0;
+
+	ASSERT_NOT_NULL(eventfd);
+	if (!count) {
+		OPAE_ERR("set_user irq with emtpy count");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
+	}
+	irq = malloc(sz);
+
+	if (!irq) {
+		OPAE_ERR("Could not allocate memory for irq request");
+		return FPGA_NO_MEMORY;
+	}
+
+	irq->argsz = sz;
+	irq->flags = 0;
+	irq->start = start;
+	irq->count = count;
+	err = memcpy32_s((uint32_t *)irq->evtfd, count, (uint32_t *)eventfd, count);
+	if (err) {
+		res = FPGA_INVALID_PARAM;
+		goto out_free;
+	}
+
+	res = opae_ioctl(fd, FPGA_PORT_UAFU_SET_IRQ, irq);
+
+out_free:
+	free(irq);
+	return res;
 }
