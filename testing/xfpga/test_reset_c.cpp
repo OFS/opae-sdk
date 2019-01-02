@@ -157,7 +157,7 @@ class reset_c_mock_p : public reset_c_p {
  */
 TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
   system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
 }
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,

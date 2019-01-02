@@ -39,7 +39,7 @@
 #include "xfpga.h"
 #include "bitstream_int.h"
 #include "common_int.h"
-#include "intel-fpga.h"
+#include "opae_ioctl.h"
 #include "usrclk/user_clk_pgm_uclock.h"
 
 #include "reconf_int.h"
@@ -314,7 +314,6 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 {
 	struct _fpga_handle *_handle    = (struct _fpga_handle *)fpga;
 	fpga_result result              = FPGA_OK;
-	struct fpga_fme_port_pr port_pr = {0};
 	struct reconf_error  error      = { {0} };
 	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
@@ -412,13 +411,9 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 
 	}
 
-	port_pr.flags                 = 0;
-	port_pr.argsz                 = sizeof(struct fpga_fme_port_pr);
-	port_pr.buffer_address        = (__u64)bitstream + bitstream_header_len;
-	port_pr.buffer_size           = (__u32) bitstream_len - bitstream_header_len;
-	port_pr.port_id               = slot;
-
-	result = ioctl(_handle->fddev, FPGA_FME_PORT_PR, &port_pr);
+	result = opae_fme_port_pr(
+		_handle->fddev, 0, slot, bitstream_len - bitstream_header_len,
+		(uint64_t)bitstream + bitstream_header_len, &error.csr);
 	if (result != 0) {
 		FPGA_ERR("Failed to reconfigure bitstream: %s",
 			  strerror(errno));
@@ -429,9 +424,6 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 			result = FPGA_EXCEPTION;
 		}
 	}
-
-	// PR error
-	error.csr = port_pr.status;
 
 	if (error.reconf_operation_error == 0x1) {
 		FPGA_ERR("PR operation error detected");
