@@ -430,8 +430,6 @@ int print_interface_id(fpga_guid actual_interface_id)
 	fpga_properties filter = NULL;
 	uint32_t num_matches = 0;
 	int retval = -1;
-	uint64_t intfc_id_l = 0;
-	uint64_t intfc_id_h = 0;
 	fpga_handle fpga_handle = NULL;
 	fpga_result res = -1;
 	fpga_token fpga_token = NULL;
@@ -482,10 +480,8 @@ int print_interface_id(fpga_guid actual_interface_id)
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
 	ON_ERR_GOTO(res, out_destroy, "opening fpga");
 
-	res = get_fpga_interface_id(fpga_token, &intfc_id_l, &intfc_id_h);
+	res = get_fpga_interface_id(fpga_token, expt_interface_id);
 	ON_ERR_GOTO(res, out_close, "interfaceid get");
-
-	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
 
 	uuid_unparse(expt_interface_id, guid_str);
 	printf("Expected Interface id:  %s\n", guid_str);

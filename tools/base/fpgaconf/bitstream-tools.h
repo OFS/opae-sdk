@@ -35,6 +35,8 @@
 #include <uuid/uuid.h>
 #include <json-c/json.h>
 
+#include "opae/fpga.h"
+
 #define METADATA_GUID                      "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN                   16
 #define GBS_AFU_IMAGE                       "afu-image"
@@ -127,25 +129,6 @@ uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
 	return ret;
 }
 
-void fpga_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid)
-{
-	uint32_t i;
-	uint32_t s;
-
-	// The function expects the MSB of the GUID at [0] and the LSB at [15].
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[i] = (uint8_t)((guidh >> s) & 0xff);
-	}
-
-	s = 64;
-	for (i = 0; i < 8; ++i) {
-		s -= 8;
-		guid[8 + i] = (uint8_t)((guidl >> s) & 0xff);
-	}
-}
-
 fpga_result check_bitstream_guid(const uint8_t *bitstream)
 {
 	fpga_guid bitstream_guid;
@@ -168,60 +151,58 @@ fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	return FPGA_OK;
 }
 
-fpga_result get_fpga_interface_id(fpga_token token, uint64_t *id_l,
-								uint64_t *id_h)
+
+fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 {
 	fpga_result result = FPGA_OK;
-	char buf_l[INTFC_ID_LOW_LEN + 1] = { 0 };
-	char buf_h[INTFC_ID_HIGH_LEN + 1] = { 0 };
-	uint8_t buffer[INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN] = { 0 };
-
-	fpga_object pr_object;
+	fpga_result resval = FPGA_OK;
+	fpga_properties filter = NULL;
+	fpga_objtype objtype;
+	fpga_guid guid;
 	errno_t e;
 
-	result = fpgaTokenGetObject(token, PR_INTERFACE_ID, &pr_object, 0);
+	result = fpgaGetProperties(token, &filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Token Object \n");
-		return result;
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out;
 	}
 
-	result = fpgaObjectRead(pr_object, buffer, 0,
-		INTFC_ID_LOW_LEN + INTFC_ID_HIGH_LEN, 0);
+	result = fpgaPropertiesGetObjectType(filter, &objtype);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Read Object \n");
-		return result;
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out_destroy;
 	}
 
-	// PR Inteface Id h
-	memset_s(buf_h, sizeof(buf_h), 0);
-	e = strncpy_s(buf_h, sizeof(buf_h), (char *) buffer, INTFC_ID_HIGH_LEN);
+	if (objtype != FPGA_DEVICE) {
+		OPAE_ERR("Invalid FPGA object type \n");
+		result = FPGA_EXCEPTION;
+		goto out_destroy;
+	}
+
+	result = fpgaPropertiesGetGUID(filter, &guid);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get PR guid \n");
+		goto out_destroy;
+	}
+
+	e = memcpy_s(interface_id, sizeof(fpga_guid),
+		guid, sizeof(guid));
 	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
+		OPAE_ERR("memcpy_s failed");
+		goto out_destroy;
 	}
 
-	*id_h = strtoull(buf_h, NULL, 16);
-
-	// PR Inteface Id l
-	memset_s(buf_l, sizeof(buf_l), 0);
-	e = strncpy_s(buf_l, sizeof(buf_l), (char *) buffer + INTFC_ID_LOW_LEN,
-		INTFC_ID_LOW_LEN);
-	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed (buf_l)\n");
-		return FPGA_EXCEPTION;
-	}
-
-	*id_l = strtoull(buf_l, NULL, 16);
-
-	result = fpgaDestroyObject(&pr_object);
+out_destroy:
+	resval = (result != FPGA_OK) ? result : resval;
+	result = fpgaDestroyProperties(&filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to Destroy Object \n");
-		return result;
+		OPAE_ERR("Failed to destroy properties \n");
 	}
 
-	return result;
+out:
+	resval = (result != FPGA_OK) ? result : resval;
+	return resval;
 }
-
 
 fpga_result read_gbs_metadata(const uint8_t *bitstream,
 							struct gbs_metadata *gbs_metadata)
