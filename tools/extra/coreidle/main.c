@@ -120,8 +120,6 @@ int main(int argc, char *argv[])
 	fpga_handle  fme_handle            = NULL;
 	struct gbs_metadata  metadata;
 	fpga_result res                    = FPGA_OK;
-	uint64_t intfc_id_l                = 0;
-	uint64_t intfc_id_h                = 0;
 	fpga_guid expt_interface_id        = { 0 };
 	fpga_guid act_interface_id         = { 0 };
 
@@ -208,9 +206,8 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(result, out_close, "closing FME");
 
 	// Read FPGA Interafce id
-	res = get_fpga_interface_id(fme_token, &intfc_id_l, &intfc_id_h);
+	res = get_fpga_interface_id(fme_token, expt_interface_id);
 	ON_ERR_GOTO(res, out_close, "interfaceid get");
-	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
 
 	// Verify bitstream metadata
 	if (uuid_parse(metadata.afu_image.interface_uuid, act_interface_id) < 0) {
