@@ -175,6 +175,7 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 
 	if (objtype != FPGA_DEVICE) {
 		OPAE_ERR("Invalid FPGA object type \n");
+		result = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
 
