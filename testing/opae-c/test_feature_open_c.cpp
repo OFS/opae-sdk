@@ -138,6 +138,10 @@ class opae_feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	virtual void TearDown() override {
+                if (accel_) {
+                    EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+                    accel_ = nullptr;
+                }
 		DestroyTokens();
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
@@ -277,6 +281,8 @@ TEST_P(opae_feature_open_c_p, mallocfail) {
 
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
+
+        ASSERT_EQ(num_matches_, 1);
 	
 	ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
 	  FPGA_NO_MEMORY);
