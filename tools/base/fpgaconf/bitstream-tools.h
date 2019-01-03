@@ -157,6 +157,7 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 	fpga_result result = FPGA_OK;
 	fpga_result resval = FPGA_OK;
 	fpga_properties filter = NULL;
+	fpga_objtype objtype;
 	fpga_guid guid;
 	errno_t e;
 
@@ -165,6 +166,18 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 		OPAE_ERR("Failed to get Token Properties Object \n");
 		goto out;
 	}
+
+	result = fpgaPropertiesGetObjectType(filter, &objtype);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out_destroy;
+	}
+
+	if (objtype != FPGA_DEVICE) {
+		OPAE_ERR("Invalid FPGA object type \n");
+		goto out_destroy;
+	}
+
 	result = fpgaPropertiesGetGUID(filter, &guid);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to get PR guid \n");
