@@ -242,7 +242,7 @@ TEST_P(opae_feature_open_c_p, nullhandle) {
  /**
  * @test       mallocfail
  * @brief      Tests: fpgaFeatureOpen
- * @details    When the system is running out of memory, xfpga_fpgaFeatureOpen()<br>
+ * @details    When the system is running out of memory, fpgaFeatureOpen()<br>
  *             will return FPGA_NO_MEMORY.<br>
  */
 TEST_P(opae_feature_open_c_p, mallocfail) {

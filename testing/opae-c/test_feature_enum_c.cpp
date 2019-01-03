@@ -164,11 +164,11 @@ class opae_feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test       test_feature_enumerate
- * @brief      Tests: fpgaFeatureEnumerate, xfpga_fpgaCloneFeatureToken
+ * @brief      Tests: fpgaFeatureEnumerate, fpgaCloneFeatureToken
  * @details    When fpgaFeatureEnumerate() is called with a valid param,<br>
  *             then it enumerates the accelerateor's DFH to find specific<br>
  *             type of BBB specified in the feature filter<br>
- *             When xfpga_fpgaCloneFeatureToken() is called with a valid param,<br>
+ *             When fpgaCloneFeatureToken() is called with a valid param,<br>
  *             fpga_feature_token is cloned.<br>
  */
 TEST_P(opae_feature_enum_c_p, test_feature_enumerate) {
