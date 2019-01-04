@@ -27,6 +27,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -105,6 +106,7 @@ const char *rc_mdata =
 static platform_db MOCK_PLATFORMS = {
     {"skx-p",
      test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
+                   .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
                        .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
@@ -129,6 +131,7 @@ static platform_db MOCK_PLATFORMS = {
                        .mdata = skx_mdata}}}},
     {"dcp-rc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
+                   .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
                        .fme_guid = "9926AB6D-6C92-5A68-AABC-A7D84C545738",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
@@ -167,53 +170,58 @@ std::vector<std::string> test_platform::keys(bool sorted) {
 }
 
 std::vector<std::string> test_platform::platforms(
-    std::initializer_list<std::string> names) {
+    std::initializer_list<std::string> names, fpga_driver drv) {
   std::vector<std::string> keys(names);
   if (keys.empty()) {
     keys = fpga_db::instance()->keys();
   }
   // from the list of platform names requested, remove the ones not found in
   // the platform db
-  std::remove_if(keys.begin(), keys.end(), [](const std::string &n) {
-      auto db = fpga_db::instance();
-      return !db->exists(n);
+  std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
+    auto db = fpga_db::instance();
+    return !db->exists(n) || drv != db->get(n).driver;
   });
   return keys;
 }
 
 std::vector<std::string> test_platform::mock_platforms(
-    std::initializer_list<std::string> names) {
+    std::initializer_list<std::string> names, fpga_driver drv) {
   std::vector<std::string> keys(names);
   if (keys.empty()) {
     keys = fpga_db::instance()->keys();
   }
   std::vector<std::string> want;
   std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
-    [](const std::string &k) {
-      auto db = fpga_db::instance();
-      return db->exists(k) && db->get(k).mock_sysfs != nullptr;
-    });
+               [drv](const std::string &k) {
+                 auto db = fpga_db::instance();
+                 return db->exists(k) && (drv == fpga_driver::linux_any ||
+                                          db->get(k).driver == drv),
+                        db->get(k).mock_sysfs != nullptr;
+               });
   return want;
 }
 
 std::vector<std::string> test_platform::hw_platforms(
-    std::initializer_list<std::string> names) {
+    std::initializer_list<std::string> names, fpga_driver drv) {
   std::vector<std::string> keys(names);
   if (keys.empty()) {
     keys = fpga_db::instance()->keys();
   }
   std::vector<std::string> want;
   std::copy_if(keys.begin(), keys.end(), std::back_inserter(want),
-    [](const std::string &k) {
-      auto db = fpga_db::instance();
-      return db->exists(k) && db->get(k).mock_sysfs == nullptr;
-    });
+               [drv](const std::string &k) {
+                 auto db = fpga_db::instance();
+                 return db->exists(k) && (drv == fpga_driver::linux_any ||
+                                          db->get(k).driver == drv) &&
+                        db->get(k).mock_sysfs == nullptr;
+               });
   return want;
 }
 
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
 
 typedef std::pair<uint16_t, uint64_t> ven_dev_id;
+typedef std::tuple<uint16_t, uint64_t, fpga_driver> platform_cfg;
 std::map<ven_dev_id, std::vector<std::string>> known_devices = {
   { { 0x8086, 0xbcc0}, std::vector<std::string>() },
   { { 0x8086, 0xbcc1}, std::vector<std::string>() },
@@ -376,11 +384,11 @@ fpga_db *fpga_db::instance() {
   return fpga_db::instance_;
 }
 
-static std::map<ven_dev_id, std::string> devid_name = {
-  { { 0x8086, 0xbcc0}, "skx-p" },
-  { { 0x8086, 0xbcc1}, "skx-p-v" },
-  { { 0x8086, 0x09c4}, "dcp-rc" },
-  { { 0x8086, 0x09c5}, "dcp-rc-v" }
+static std::map<platform_cfg, std::string> platform_names = {
+  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_intel), "skx-p" },
+  {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
+  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
+  {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" }
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
@@ -405,10 +413,42 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
   return dev;
 }
 
+/**
+ * @brief read the 'driver' symlink to determine if the driver is dfl or intel
+ *
+ * @param path a sysfs path representing a device (under
+ * /sys/bus/pci/<s:b:d:f>)
+ *
+ * @return fpga_driver enumerating indicating what kind of driver is bound to
+ * the device
+ */
+fpga_driver get_driver(const std::string &path)
+{
+  char buffer[PATH_MAX];
+  ssize_t lnk_len = readlink(path.c_str(), buffer, PATH_MAX);
+  if (!lnk_len) {
+    auto msg = std::string("error readling link: ") + path;
+    throw std::runtime_error(msg);
+  }
+  std::string bname = basename(buffer);
+  if (bname == "intel-fpga-pci") {
+    return fpga_driver::linux_intel;
+  }
+  if (bname == "dfl-pci") {
+    return fpga_driver::linux_dfl0;
+  }
+  return fpga_driver::none;
+}
+
 std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t dev_id, const std::vector<std::string> &pci_paths) {
-  std::string name = devid_name[{ven_id, dev_id}];
   test_platform platform;
+  // test_platform data structure only supports one driver (for now)
+  // TODO: assert that all devices represented by pci_patsh are all bound to
+  // the same driver - for now, just use the first path
+  platform.driver = get_driver(pci_paths[0]);
+  // this is discovered hw platform, set mock_sysfs to null
   platform.mock_sysfs = nullptr;
+  std::string name = platform_names[platform_cfg(ven_id, dev_id, platform.driver)];
   for (auto p : pci_paths) {
     platform.devices.push_back(make_device(ven_id, dev_id, name, p));
   }
