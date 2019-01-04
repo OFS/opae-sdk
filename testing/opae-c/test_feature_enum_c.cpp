@@ -243,8 +243,8 @@ TEST_P(opae_feature_enum_c_p, nullmatches) {
 /**
  * @test       nulltokens
  * @brief      Tests: fpgaFeatureEnumerate
- * @details    When fpgaFeatureEnumerate() is called with null for tokens,<br>
- *             and with non-zero ftokens size, it will return FPGA_INVALID_PARAM.<br>
+ * @details    When fpgaFeatureEnumerate() is called with NULL for feature tokens,<br>
+ *             and with non-zero ftokens_.size(), it will return FPGA_INVALID_PARAM.<br>
  */
 TEST_P(opae_feature_enum_c_p, nulltokens) {
 	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
