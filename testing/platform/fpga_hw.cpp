@@ -176,6 +176,7 @@ static platform_db MOCK_PLATFORMS = {
 
     {"skx-p-dfl-v1",
      test_platform{.mock_sysfs = "mock_sys_tmp-dfl-v1-nlb0.tar.gz",
+                   .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
