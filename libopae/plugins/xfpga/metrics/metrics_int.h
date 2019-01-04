@@ -37,8 +37,8 @@
 
 // Power,Thermal & Performance definations
 
-#define IPERF                               "iperf"
-#define DPERF                               "dperf"
+#define PERF                               "*perf"
+
 
 #define PWRMGMT                             "power_mgmt"
 #define THERLGMT                            "thermal_mgmt"
@@ -48,10 +48,10 @@
 #define PERF_CACHE                          "cache"
 #define PERF_FABRIC                         "fabric"
 #define PERF_IOMMU                          "iommu"
-#define PERF                                 "performance"
-#define FPGA_LIMIT                           "fpga_limit"
-#define XEON_LIMIT                           "xeon_limit"
-#define TEMP                                 "Centigrade"
+#define PERFORMANCE                         "performance"
+#define FPGA_LIMIT                          "fpga_limit"
+#define XEON_LIMIT                          "xeon_limit"
+#define TEMP                                "Centigrade"
 
 
 #define BMC_LIB                              "libbmc.so"
