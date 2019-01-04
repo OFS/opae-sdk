@@ -504,7 +504,7 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 
 set_tests_properties(
     test_xfpga_events_c
-    PROPERTIES TIMEOUT 75
+    PROPERTIES TIMEOUT 120
 )
 
 ############################################################################
