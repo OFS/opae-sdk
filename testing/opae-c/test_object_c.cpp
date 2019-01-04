@@ -152,65 +152,6 @@ TEST_P(object_c_p, obj_read64) {
 }
 
 /**
- * @test       obj_write64
- * @brief      Test: fpgaObjectWrite64
- * @details    When fpgaObjectWrite64 is called with valid params,<br>
- *             the fn sets the value of the targeted object<br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(object_c_p, obj_write64) {
-  uint64_t errors = 0xbaddecaf;
-  fpga_object obj = nullptr;
-
-  // read the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
-
-  // clear the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
- * @test       obj_get_obj0
- * @brief      Test: fpgaObjectGetObject
- * @details    When fpgaObjectGetObject is called with valid parameters,<br>
- *             the fn opens the underlying object<br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(object_c_p, obj_get_obj0) {
-  fpga_object errors_obj = nullptr;
-  fpga_object clear_obj = nullptr;
-
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear", &clear_obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
-}
-
-/**
- * @test       obj_get_obj1
- * @brief      Test: fpgaObjectGetObject
- * @details    When fpgaObjectGetObject is called with a name that has a null
- *             byte, the function returns FPGA_NOT_FOUND. <br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(object_c_p, obj_get_obj1) {
-  fpga_object errors_obj = nullptr;
-  fpga_object obj = nullptr;
-  const char *bad_name = "err\0rs";
-
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
-  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0), FPGA_NOT_FOUND);
-
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-  ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
-}
-
-/**
  * @test       handle_get_obj
  * @brief      Test: fpgaHandleGetObject
  * @details    When fpgaHandleGetObject is called with a name that has a null
@@ -256,6 +197,74 @@ TEST_P(object_c_p, obj_get_size) {
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
+class object_c_skx_dcp_p : public object_c_p {
+  protected:
+    object_c_skx_dcp_p() {}
+};
+
+/**
+ * @test       obj_write64
+ * @brief      Test: fpgaObjectWrite64
+ * @details    When fpgaObjectWrite64 is called with valid params,<br>
+ *             the fn sets the value of the targeted object<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_skx_dcp_p, obj_write64) {
+  uint64_t errors = 0xbaddecaf;
+  fpga_object obj = nullptr;
+
+  // read the port errors
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+
+  // clear the port errors
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_obj0
+ * @brief      Test: fpgaObjectGetObject
+ * @details    When fpgaObjectGetObject is called with valid parameters,<br>
+ *             the fn opens the underlying object<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_skx_dcp_p, obj_get_obj0) {
+  fpga_object errors_obj = nullptr;
+  fpga_object clear_obj = nullptr;
+
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear", &clear_obj, 0), FPGA_OK);
+  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_obj1
+ * @brief      Test: fpgaObjectGetObject
+ * @details    When fpgaObjectGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_skx_dcp_p, obj_get_obj1) {
+  fpga_object errors_obj = nullptr;
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0), FPGA_NOT_FOUND);
+
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+}
+
+
+INSTANTIATE_TEST_CASE_P(object_c, object_c_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
+
 class object_c_mock_p : public object_c_p {
  protected:
   object_c_mock_p(){};
@@ -288,6 +297,14 @@ TEST_P(object_c_mock_p, handle_get_err) {
   EXPECT_EQ(fpgaHandleGetObject(accel_, "id", &obj, 0), FPGA_NO_MEMORY);
 }
 
+INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+
+class object_c_mock_skx_dcp_p : public object_c_p {
+ protected:
+  object_c_mock_skx_dcp_p(){};
+};
+
 /**
  * @test       obj_get_obj_err
  * @brief      Test: fpgaObjectGetObject
@@ -295,7 +312,7 @@ TEST_P(object_c_mock_p, handle_get_err) {
  *             fpgaObjectGetObject frees the underlying object<br>
  *             and returns FPGA_NO_MEMORY.<br>
  */
-TEST_P(object_c_mock_p, obj_get_obj_err) {
+TEST_P(object_c_mock_skx_dcp_p, obj_get_obj_err) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
@@ -308,5 +325,6 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
+
