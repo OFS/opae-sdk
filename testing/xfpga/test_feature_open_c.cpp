@@ -137,6 +137,10 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	virtual void TearDown() override {
+		if (accel_) {
+			EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
+			accel_ = nullptr;
+		}
 		DestroyTokens();
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
@@ -185,8 +189,8 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
+	// Write to AFU's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
@@ -199,15 +203,15 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
 
+	// Write to DMA BBB's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
-	printf("Before featureEnumerate\n");
 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
-	
+	EXPECT_EQ(num_matches_, 1);
+
 	fpga_feature_properties feature_prop;
 	EXPECT_EQ(xfpga_fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_OK);
 
@@ -250,7 +254,7 @@ TEST_P(feature_open_c_p, nulltokens) {
  */
 TEST_P(feature_open_c_p, nullhandle) {
 	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, nullptr),
-	  FPGA_INVALID_PARAM);
+		FPGA_INVALID_PARAM);
 }
 
  /**
