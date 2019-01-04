@@ -430,39 +430,6 @@ TEST_P(enum_c_p, object_id_port_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-TEST_P(enum_c_p, num_errors) {
-  auto device = platform_.devices[0];
-
-  // fme num_errors
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-
-  DestroyTokens();
-
-  // afu num_errors
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-
-  DestroyTokens();
-
-  // invalid
-  ASSERT_EQ(
-      fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
-      FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, 0);
-}
-
 TEST_P(enum_c_p, guid) {
   auto device = platform_.devices[0];
   // fme guid
@@ -655,6 +622,46 @@ TEST(wrapper, validate) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
+
+class enum_c_skx_dcp_p : public enum_c_p {
+ protected:
+   enum_c_skx_dcp_p() {}
+};
+
+TEST_P(enum_c_skx_dcp_p, num_errors) {
+  auto device = platform_.devices[0];
+
+  // fme num_errors
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+            FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+
+  DestroyTokens();
+
+  // afu num_errors
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
+            FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+
+  DestroyTokens();
+
+  // invalid
+  ASSERT_EQ(
+      fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
 
 class enum_c_mock_p : public enum_c_p {};
 
