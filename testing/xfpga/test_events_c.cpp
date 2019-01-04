@@ -1336,6 +1336,8 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
 
     ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
 
+    get_path("port", handle_accel_);
+
     ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
 
     config_ = {
