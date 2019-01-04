@@ -171,8 +171,8 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = rc_mdata}}}},
 
-    {"skx-p-ups",
-     test_platform{.mock_sysfs = "mock_sys_tmp-mcp-ups-nlb0.tar.gz",
+    {"skx-p-dfl-v1",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dfl-v1-nlb0.tar.gz",
                    .devices = {test_device{
                        .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
@@ -427,7 +427,7 @@ static std::map<ven_dev_id, std::string> devid_name = {
     {{0x8086, 0xbcc1}, "skx-p-v"},
     {{0x8086, 0x09c4}, "dcp-rc"},
     {{0x8086, 0x09c5}, "dcp-rc-v"},
-    {{0x8086, 0xbcc0}, "skx-p-ups"}};
+    {{0x8086, 0xbcc0}, "skx-p-dfl-v1"}};
 
 const char *PCI_DEV_PATTERN =
     "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
