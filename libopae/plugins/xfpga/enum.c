@@ -121,9 +121,11 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 
 		device_instance = (int)strtoul(p + 1, NULL, 10);
 
-		snprintf_s_ii(spath, SYSFS_PATH_MAX,
-			      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT,
-			      device_instance, subdev_instance);
+		if (sysfs_get_fme_path(device_instance, subdev_instance, spath)
+			!= FPGA_OK) {
+			res = false;
+			goto out_unlock;
+		}
 
 		if (strcmp(spath, _parent_tok->sysfspath)) {
 			res = false;
@@ -355,7 +357,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	if (!S_ISDIR(stats.st_mode))
 		return FPGA_OK;
-	int socket_id = 0;
+
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
@@ -408,7 +410,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->fpga_bbs_version.patch =
 		FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
 
-	parent->socket_id = socket_id;
+
 	parent->fme = pdev;
 	return FPGA_OK;
 }

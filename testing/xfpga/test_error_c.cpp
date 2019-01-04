@@ -69,6 +69,7 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
         dev_port = std::string("/dev/") + std::string(region->port->res_name);
       }
     }
+    
     strncpy_s(fake_port_token_.sysfspath, sizeof(fake_port_token_.sysfspath),
               sysfs_port.c_str(), sysfs_port.size());
     strncpy_s(fake_port_token_.devpath, sizeof(fake_port_token_.devpath),
@@ -645,6 +646,7 @@ TEST_P(error_c_p, error_13) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
 }
 
+
 /**
  * @test       error_06
  *
@@ -664,6 +666,7 @@ TEST_P(error_c_p, error_06) {
   auto result = build_error_list(invalid_errpath.c_str(), &_t.errors);
   EXPECT_EQ(result, 0);
 }
+
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
@@ -686,6 +689,8 @@ TEST(error_c, error_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(tok));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(tok, 0, NULL));
 }
+
+
 
 /**
  * @test       error_07
