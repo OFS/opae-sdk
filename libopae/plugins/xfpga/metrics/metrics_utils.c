@@ -33,7 +33,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-
+#include <glob.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -415,8 +415,6 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 	DIR *dir                            = NULL;
 	struct dirent *dirent               = NULL;
 	char sysfs_path[SYSFS_PATH_MAX]     = { 0 };
-	char sysfs_ipath[SYSFS_PATH_MAX]    = { 0 };
-	char sysfs_dpath[SYSFS_PATH_MAX]    = { 0 };
 	char qualifier_name[SYSFS_PATH_MAX] = { 0 };
 
 	if (vector == NULL ||
@@ -426,23 +424,16 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ss(sysfs_ipath, sizeof(sysfs_ipath), "%s/%s", sysfspath, IPERF);
-	snprintf_s_ss(sysfs_dpath, sizeof(sysfs_dpath), "%s/%s", sysfspath, DPERF);
+	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, PERF);
 
-
-	if (metric_sysfs_path_is_dir(sysfs_ipath) == FPGA_OK) {
-
-		snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, IPERF);
-
-
-	} else if (metric_sysfs_path_is_dir(sysfs_dpath) == FPGA_OK) {
-
-		snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s", sysfspath, DPERF);
-
-	} else {
-		FPGA_MSG("NO Perf Counters");
+	glob_t pglob;
+	int gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	if ((gres) || (1 != pglob.gl_pathc)) {
+		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
+	snprintf_s_s(sysfs_path, sizeof(sysfs_path), "%s", pglob.gl_pathv[0]);
+	globfree(&pglob);
 
 	dir = opendir(sysfs_path);
 	if (NULL == dir) {
@@ -461,7 +452,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 
 		if (strcmp(dirent->d_name, PERF_CACHE) == 0) {
-			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERF, PERF_CACHE);
+			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_CACHE);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
 				FPGA_MSG("Failed to add metrics");
@@ -470,7 +461,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 		}
 
 		if (strcmp(dirent->d_name, PERF_FABRIC) == 0) {
-			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERF, PERF_FABRIC);
+			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_FABRIC);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
 				FPGA_MSG("Failed to add metrics");
@@ -479,7 +470,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 		}
 
 		if (strcmp(dirent->d_name, PERF_IOMMU) == 0) {
-			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERF, PERF_IOMMU);
+			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_IOMMU);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
 				FPGA_MSG("Failed to add metrics");
