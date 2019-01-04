@@ -127,85 +127,6 @@ TEST_P(sysobject_cxx_p, handle_object) {
 }
 
 /**
- * @btest handle_object_write
- * Given an open handle object
- * When I get a suboject from the handle
- * And I  write a 64-bit value to it using its write64 function
- * Then no exceptions are thrown
- */
-TEST_P(sysobject_cxx_p, handle_object_write) {
-  std::string path = "iperf/fabric/freeze";;
-
-  if (platform_.devices[0].device_id == 0x09c4 || 
-      platform_.devices[0].device_id == 0x09c5) {
-    path = "dperf/fabric/freeze";
-  }
-
-  auto obj = sysobject::get(handle_dev_, path);
-  ASSERT_NE(obj.get(), nullptr);
-  EXPECT_NO_THROW(obj->write64(0x1));
-  EXPECT_NO_THROW(obj->write64(0x0));
-}
-
-/**
- * @btest object_object
- * Given an object from an enumerated token
- * And an object from an open handle
- * When I use read64 from both objects
- * Then the values are the same
- */
-TEST_P(sysobject_cxx_p, object_object) {
-  auto t_obj = sysobject::get(tokens_[0], "errors");
-  ASSERT_NE(t_obj.get(), nullptr);
-  auto t_value = t_obj->get("errors")->read64();
-  auto h_obj = sysobject::get(handle_, "errors");
-  ASSERT_NE(h_obj.get(), nullptr);
-  auto h_value = h_obj->get("errors")->read64();
-  EXPECT_EQ(t_value, h_value);
-  EXPECT_EQ(t_obj->get("abc").get(), nullptr);
-  EXPECT_EQ(h_obj->get("abc").get(), nullptr);
-}
-
-/**
- * @btest token_subobject_write
- * Given an object from an enumerated token
- * And a suboject from that object
- * When I use write64 from the token subobject
- * Then an invalid_param exception is thrown
- */
-TEST_P(sysobject_cxx_p, token_subobject_write) {
-  auto t_obj = sysobject::get(tokens_[0], "errors");
-  ASSERT_NE(t_obj.get(), nullptr);
-  EXPECT_THROW(t_obj->get("errors")->write64(0x100),
-               opae::fpga::types::invalid_param);
-}
-
-/**
- * @btest handle_subobject_write
- * Given an object from an open handle
- * And a suboject from that object
- * When I use write64 from the token subobject
- * Then no exceptions are thrown
- * And the value has changed from its original value
- */
-TEST_P(sysobject_cxx_p, handle_subobject_write) {
-  std::string path = "iperf/fabric";;
-
-  if (platform_.devices[0].device_id == 0x09c4 ||
-      platform_.devices[0].device_id == 0x09c5) {
-    path = "dperf/fabric";
-  }
-
-  auto h_obj = sysobject::get(handle_dev_, path);
-  ASSERT_NE(h_obj.get(), nullptr);
-  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
-  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x1));
-  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
-  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x0));
-  EXPECT_EQ(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC), 0x0);
-}
-
-/**
  * @btest read_bytes
  * Given an enumerated token object
  * And its afu_id as an object from the token
@@ -243,3 +164,87 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
+
+class sysobject_cxx_skx_dcp_p : public sysobject_cxx_p {};
+
+/**
+ * @btest handle_object_write
+ * Given an open handle object
+ * When I get a suboject from the handle
+ * And I  write a 64-bit value to it using its write64 function
+ * Then no exceptions are thrown
+ */
+TEST_P(sysobject_cxx_skx_dcp_p, handle_object_write) {
+  std::string path = "iperf/fabric/freeze";;
+
+  if (platform_.devices[0].device_id == 0x09c4 ||
+      platform_.devices[0].device_id == 0x09c5) {
+    path = "dperf/fabric/freeze";
+  }
+
+  auto obj = sysobject::get(handle_dev_, path);
+  ASSERT_NE(obj.get(), nullptr);
+  EXPECT_NO_THROW(obj->write64(0x1));
+  EXPECT_NO_THROW(obj->write64(0x0));
+}
+
+/**
+ * @btest object_object
+ * Given an object from an enumerated token
+ * And an object from an open handle
+ * When I use read64 from both objects
+ * Then the values are the same
+ */
+TEST_P(sysobject_cxx_skx_dcp_p, object_object) {
+  auto t_obj = sysobject::get(tokens_[0], "errors");
+  ASSERT_NE(t_obj.get(), nullptr);
+  auto t_value = t_obj->get("errors")->read64();
+  auto h_obj = sysobject::get(handle_, "errors");
+  ASSERT_NE(h_obj.get(), nullptr);
+  auto h_value = h_obj->get("errors")->read64();
+  EXPECT_EQ(t_value, h_value);
+  EXPECT_EQ(t_obj->get("abc").get(), nullptr);
+  EXPECT_EQ(h_obj->get("abc").get(), nullptr);
+}
+
+/**
+ * @btest token_subobject_write
+ * Given an object from an enumerated token
+ * And a suboject from that object
+ * When I use write64 from the token subobject
+ * Then an invalid_param exception is thrown
+ */
+TEST_P(sysobject_cxx_skx_dcp_p, token_subobject_write) {
+  auto t_obj = sysobject::get(tokens_[0], "errors");
+  ASSERT_NE(t_obj.get(), nullptr);
+  EXPECT_THROW(t_obj->get("errors")->write64(0x100),
+               opae::fpga::types::invalid_param);
+}
+
+/**
+ * @btest handle_subobject_write
+ * Given an object from an open handle
+ * And a suboject from that object
+ * When I use write64 from the token subobject
+ * Then no exceptions are thrown
+ * And the value has changed from its original value
+ */
+TEST_P(sysobject_cxx_skx_dcp_p, handle_subobject_write) {
+  std::string path = "iperf/fabric";;
+
+  if (platform_.devices[0].device_id == 0x09c4 ||
+      platform_.devices[0].device_id == 0x09c5) {
+    path = "dperf/fabric";
+  }
+
+  auto h_obj = sysobject::get(handle_dev_, path);
+  ASSERT_NE(h_obj.get(), nullptr);
+  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
+  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x1));
+  ASSERT_NO_THROW(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC));
+  ASSERT_NO_THROW(h_obj->get("freeze")->write64(0x0));
+  EXPECT_EQ(h_obj->get("freeze")->read64(FPGA_OBJECT_SYNC), 0x0);
+}
+
+INSTANTIATE_TEST_CASE_P(sysobject_cxx_skx_dcp, sysobject_cxx_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
