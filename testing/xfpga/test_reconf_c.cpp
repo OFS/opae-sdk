@@ -331,7 +331,7 @@ TEST_P(reconf_c, open_accel_02) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -463,7 +463,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 class reconf_c_hw_skx_p : public reconf_c {
  protected:
