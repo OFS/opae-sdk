@@ -44,9 +44,9 @@ extern "C" {
 
 using namespace opae::testing;
 
-class error_c_p : public ::testing::TestWithParam<std::string> {
+class error_c_skx_dcp_p : public ::testing::TestWithParam<std::string> {
  protected:
-  error_c_p() : tokens_{{nullptr, nullptr}} {}
+  error_c_skx_dcp_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -94,7 +94,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
  *             it retrieves the value of the requested error,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, read) {
+TEST_P(error_c_skx_dcp_p, read) {
   uint64_t val = 0xdeadbeefdecafbad;
   EXPECT_EQ(fpgaReadError(tokens_[0], 0, &val), FPGA_OK);
   EXPECT_EQ(val, 0);
@@ -107,7 +107,7 @@ TEST_P(error_c_p, read) {
  *             it retrieves the info of the requested error,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, get_info) {
+TEST_P(error_c_skx_dcp_p, get_info) {
   fpga_properties props = nullptr;
   uint32_t num_errors = 0;
   ASSERT_EQ(fpgaGetProperties(tokens_[0], &props), FPGA_OK);
@@ -133,7 +133,7 @@ TEST_P(error_c_p, get_info) {
  *             it clears the requested error,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, clear) {
+TEST_P(error_c_skx_dcp_p, clear) {
   fpga_error_info info;
   uint32_t e = 0;
   bool cleared = false;
@@ -148,6 +148,13 @@ TEST_P(error_c_p, clear) {
   EXPECT_EQ(cleared, true);
 }
 
+INSTANTIATE_TEST_CASE_P(error_c, error_c_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
+
+class error_c_p_all : public error_c_skx_dcp_p {
+  protected:
+    error_c_p_all() {}
+};
 /**
  * @test       clear
  * @brief      Test: fpgaClearAllErrors
@@ -155,9 +162,9 @@ TEST_P(error_c_p, clear) {
  *             it clears the requested errors,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, clear_all) {
+TEST_P(error_c_p_all, clear_all) {
   EXPECT_EQ(fpgaClearAllErrors(tokens_[0]), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
+INSTANTIATE_TEST_CASE_P(error_c, error_c_p_all,
                         ::testing::ValuesIn(test_platform::platforms({})));
