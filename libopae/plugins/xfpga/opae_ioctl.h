@@ -51,7 +51,7 @@ typedef struct _opae_port_region_info {
 	uint64_t offset;
 } opae_port_region_info;
 
-int opae_ioctl_initialize();
+int opae_ioctl_initialize(void);
 
 fpga_result opae_get_fme_info(int fd, opae_fme_info *info);
 fpga_result opae_get_port_info(int fd, opae_port_info *info);

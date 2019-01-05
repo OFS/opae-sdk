@@ -476,11 +476,11 @@ static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
 	 .fme_port_assign = intel_fme_port_assign,
 	 .fme_port_release = intel_fme_port_release,
 	 .fme_port_pr = intel_fme_port_pr,
-	 .fme_port_reset = intel_fme_port_reset}};
+	 .fme_port_reset = intel_fme_port_reset} };
 
 static ioctl_ops *io_ptr;
 
-int opae_ioctl_initialize()
+int opae_ioctl_initialize(void)
 {
 	struct stat st;
 	if (!stat("/sys/class/fpga_region", &st)) {
