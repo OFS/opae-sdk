@@ -34,10 +34,16 @@
 #include "common_int.h"
 #include "adapter.h"
 #include "sysfs_int.h"
+#include "opae_ioctl.h"
 
 int __FPGA_API__ xfpga_plugin_initialize(void)
 {
 	int res = sysfs_initialize();
+	if (res) {
+		return res;
+	}
+
+	res = opae_ioctl_initialize();
 	if (res) {
 		return res;
 	}
