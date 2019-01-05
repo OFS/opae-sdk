@@ -155,7 +155,7 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	uint32_t which_mmio_;
-	std::array<fpga_feature_token, 2> ftokens_;
+	std::array<fpga_feature_token, 1> ftokens_;
 	fpga_handle accel_;
 	fpga_feature_properties feature_filter_;
 
@@ -220,7 +220,12 @@ TEST_P(feature_enum_c_p, test_feature_enumerate) {
 	EXPECT_EQ(xfpga_fpgaCloneFeatureToken(src1, &tmp), FPGA_OK);
 	free(tmp);  // Free up memory for the clone token
 
-	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
+	for (auto &ft : ftokens_) {
+		if (ft) {
+			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			ft = nullptr;
+		}
+	}
 }
 
 /**
@@ -272,8 +277,8 @@ TEST_P(feature_enum_c_p, mallocfail) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
+	// Write to AFU's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
@@ -286,16 +291,19 @@ TEST_P(feature_enum_c_p, mallocfail) {
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
 
+	// Write to DMA BBB's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
 		0, &num_matches_), FPGA_OK);
+	EXPECT_EQ(num_matches_, 1);
 
+	num_matches_ = 0;
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_NO_MEMORY);
+	EXPECT_EQ(num_matches_, 0);
 }
 
 /**

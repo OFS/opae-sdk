@@ -149,7 +149,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	uint32_t which_mmio_;
-	std::array<fpga_feature_token, 2> ftokens_;
+	std::array<fpga_feature_token, 1> ftokens_;
 	fpga_handle accel_;
 	fpga_feature_properties feature_filter_;
 	fpga_feature_handle feature_h;
@@ -232,7 +232,13 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 	uint64_t context = 0;
 	EXPECT_EQ(xfpga_fpgaDMATransferAsync(feature_h, &t_list, dma_cb, (void*)&context), FPGA_OK);
 	EXPECT_EQ(xfpga_fpgaFeatureClose(feature_h), FPGA_OK);
-	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
+
+	for (auto &ft : ftokens_) {
+		if (ft) {
+			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			ft = nullptr;
+		}
+	}
 }
 
 /**
@@ -296,9 +302,17 @@ TEST_P(feature_open_c_p, mallocfail) {
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
 
+	EXPECT_EQ(num_matches_, 1);
 	ASSERT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
 	  FPGA_NO_MEMORY);
 	EXPECT_EQ(feature_h, nullptr);
+
+	for (auto &ft : ftokens_) {
+		if (ft) {
+			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			ft = nullptr;
+		}
+	}
 }
 
 INSTANTIATE_TEST_CASE_P(feature_open_c, feature_open_c_p,

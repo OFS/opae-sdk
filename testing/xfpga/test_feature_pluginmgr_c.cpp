@@ -267,7 +267,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 
 	std::array<fpga_token, 2> tokens_;
 	uint32_t which_mmio_;
-	std::array<fpga_feature_token, 2> ftokens_;
+	std::array<fpga_feature_token, 1> ftokens_;
 	fpga_properties filter_;  
 	fpga_handle accel_;
 	fpga_feature_properties feature_filter_;
@@ -326,7 +326,7 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 
 	for (auto &ft : ftokens_) {
 		if (ft && &ft) {
-			xfpga_fpgaDestroyFeatureToken(&ft);
+			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
 			ft = nullptr;
 		}
 	}

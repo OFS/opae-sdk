@@ -155,7 +155,7 @@ class opae_feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	uint32_t which_mmio_;
-	std::array<fpga_feature_token, 2> ftokens_;
+	std::array<fpga_feature_token, 1> ftokens_;
 	fpga_handle accel_;
 	fpga_feature_properties feature_filter_;
 
@@ -215,7 +215,12 @@ TEST_P(opae_feature_enum_c_p, test_feature_enumerate) {
 
 	EXPECT_EQ(num_matches_, 1);
 
-	EXPECT_EQ(fpgaDestroyFeatureToken(&(ftokens_[0])), FPGA_OK);
+	for (auto &ft : ftokens_) {
+		if (ft && &ft) {
+			EXPECT_EQ(fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			ft = nullptr;
+		}
+	}
 }
 
 /**
