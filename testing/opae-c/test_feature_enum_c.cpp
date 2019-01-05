@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+/// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ extern "C" {
 #include <json-c/json.h>
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
-#include "feature_int.h"
+#include "opae_int.h"
 #include "safe_string/safe_string.h"
 
 #include "types_int.h"
@@ -40,8 +40,6 @@ extern "C" {
 #include "intel-fpga.h"
 #include "feature_pluginmgr.h"
 
-struct _fpga_feature_token *feature_token_add(uint32_t type, uint32_t mmio_num, fpga_guid guid,
-						uint64_t offset, fpga_handle handle);
 #ifdef __cplusplus
 }
 #endif
@@ -99,9 +97,9 @@ out_EINVAL:
 	return retval;
 }
 
-class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
+class opae_feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	protected:
-	feature_enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
+	opae_feature_enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
 	virtual void SetUp() override {
 
@@ -112,18 +110,19 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 		system_->prepare_syfs(platform_);
 		invalid_device_ = test_device::unknown();
 
-		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
 		num_matches_ = 0;
-		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 		  &num_matches_), FPGA_OK);
 		EXPECT_EQ(num_matches_, platform_.devices.size());
 		accel_ = nullptr;
-		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+		ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 		which_mmio_ = 0;
 		uint64_t *mmio_ptr = nullptr;
-		EXPECT_EQ(xfpga_fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
+		EXPECT_EQ(fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
 		EXPECT_NE(mmio_ptr, nullptr);
 
 		feature_filter_.type = FPGA_DMA_FEATURE;
@@ -135,7 +134,7 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	void DestroyTokens() {
 		for (auto &t : tokens_) {
 			if (t) {
-				EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
 				t = nullptr;
 			}
 		}
@@ -143,8 +142,9 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 	}
 
 	virtual void TearDown() override {
+		EXPECT_EQ(fpgaUnmapMMIO(accel_, which_mmio_), FPGA_OK);
 		if (accel_) {
-			EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
+			EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
 			accel_ = nullptr;
 		}
 		DestroyTokens();
@@ -169,14 +169,14 @@ class feature_enum_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test       test_feature_enumerate
- * @brief      Tests: xfpga_fpgaFeatureEnumerate, xfpga_fpgaCloneFeatureToken
- * @details    When xfpga_fpgaFeatureEnumerate() is called with a valid param,<br>
+ * @brief      Tests: fpgaFeatureEnumerate, fpgaCloneFeatureToken
+ * @details    When fpgaFeatureEnumerate() is called with a valid param,<br>
  *             then it enumerates the accelerateor's DFH to find specific<br>
  *             type of BBB specified in the feature filter<br>
- *             When xfpga_fpgaCloneFeatureToken() is called with a valid param,<br>
+ *             When fpgaCloneFeatureToken() is called with a valid param,<br>
  *             fpga_feature_token is cloned.<br>
  */
-TEST_P(feature_enum_c_p, test_feature_enumerate) {
+TEST_P(opae_feature_enum_c_p, test_feature_enumerate) {
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -187,9 +187,9 @@ TEST_P(feature_enum_c_p, test_feature_enumerate) {
 	dfh.type = 0x1;
 
 	// Write to AFU's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
 	struct DFH dfh_bbb = { 0 };
 
@@ -201,28 +201,23 @@ TEST_P(feature_enum_c_p, test_feature_enumerate) {
 	dfh_bbb.reserved = 0;
 
 	// Write to DMA BBB's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
 		0, &num_matches_), FPGA_OK);
+
 	EXPECT_EQ(num_matches_, 1);
 
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
-	EXPECT_EQ(num_matches_, 1);
 
-	fpga_feature_token tmp;
-	wrapped_feature_token *wt = (wrapped_feature_token *)ftokens_[0];
-	fpga_feature_token src1 = wt->feature_token;
-	EXPECT_EQ(xfpga_fpgaCloneFeatureToken(nullptr, &tmp), FPGA_INVALID_PARAM);
-	EXPECT_EQ(xfpga_fpgaCloneFeatureToken(src1, &tmp), FPGA_OK);
-	free(tmp);  // Free up memory for the clone token
+	EXPECT_EQ(num_matches_, 1);
 
 	for (auto &ft : ftokens_) {
-		if (ft) {
-			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+		if (ft && &ft) {
+			EXPECT_EQ(fpgaDestroyFeatureToken(&ft), FPGA_OK);
 			ft = nullptr;
 		}
 	}
@@ -230,96 +225,47 @@ TEST_P(feature_enum_c_p, test_feature_enumerate) {
 
 /**
  * @test       nullfilter
- * @brief      Tests: xfpga_fpgaFeatureEnumerate
- * @details    When xfpga_fpgaFeatureEnumerate() is called with an invalid<br>
+ * @brief      Tests: fpgaFeatureEnumerate
+ * @details    When fpgaFeatureEnumerate() is called with an invalid<br>
  *             feature property, then it will return FPGA_INVALID_PARAM.<br>
  */
-TEST_P(feature_enum_c_p, nullfilter) { 
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
+TEST_P(opae_feature_enum_c_p, nullfilter) {
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, nullptr, ftokens_.data(), ftokens_.size(), &num_matches_),
 			FPGA_INVALID_PARAM);
 }
 
 /**
  * @test       nullmatches
- * @brief      Tests: xfpga_fpgaFeatureEnumerate
- * @details    When xfpga_fpgaFeatureEnumerate() is called with null for num_matches,<br>
- *             it will return FPGA_INVALID_PARAM.<br>
+ * @brief      Tests: fpgaFeatureEnumerate
+ * @details    When fpgaFeatureEnumerate() is called with null for num_matches,<br>
+ *             and with non-empty ftokens, it will return FPGA_INVALID_PARAM.<br>
  */
-TEST_P(feature_enum_c_p, nullmatches) {
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
+TEST_P(opae_feature_enum_c_p, nullmatches) {
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(), ftokens_.size(), NULL),
 			FPGA_INVALID_PARAM);
 }
 
 /**
  * @test       nulltokens
- * @brief      Tests: xfpga_fpgaFeatureEnumerate
- * @details    When xfpga_fpgaFeatureEnumerate() is called with null for tokens,<br>
- *             it will return FPGA_INVALID_PARAM.<br>
+ * @brief      Tests: fpgaFeatureEnumerate
+ * @details    When fpgaFeatureEnumerate() is called with NULL for feature tokens,<br>
+ *             and with non-zero ftokens_.size(), it will return FPGA_INVALID_PARAM.<br>
  */
-TEST_P(feature_enum_c_p, nulltokens) {
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
+TEST_P(opae_feature_enum_c_p, nulltokens) {
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, NULL, ftokens_.size(), &num_matches_),
 			FPGA_INVALID_PARAM);
 }
 
 /**
- * @test       mallocfail
- * @brief      Tests: xfpga_fpgaFeatureEnumerate
- * @details    When xfpga_fpgaFeatureEnumerate() is called with malloc failures<br>
- *             it will return FPGA_NO_MEMORY.<br>
- */
-TEST_P(feature_enum_c_p, mallocfail) {
-	system_->invalidate_malloc(0, "xfpga_fpgaCloneFeatureToken");
-	struct DFH dfh ;
-	dfh.id = 0x1;
-	dfh.revision = 0;
-	dfh.next_header_offset = 0x100;
-	dfh.eol = 1;
-	dfh.reserved = 0;
-	dfh.type = 0x1;
-
-	// Write to AFU's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
-
-	struct DFH dfh_bbb = { 0 };
-
-	dfh_bbb.type = 0x2;
-	dfh_bbb.id = 0x2;
-	dfh_bbb.revision = 0;
-	dfh_bbb.next_header_offset = 0x000;
-	dfh_bbb.eol = 1;
-	dfh_bbb.reserved = 0;
-
-	// Write to DMA BBB's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
-
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, NULL,
-		0, &num_matches_), FPGA_OK);
-	EXPECT_EQ(num_matches_, 1);
-
-	num_matches_ = 0;
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
-		ftokens_.size(), &num_matches_), FPGA_NO_MEMORY);
-	EXPECT_EQ(num_matches_, 0);
-}
-
-/**
  * @test       destroy_token_neg
- * @brief      Tests: xfpga_fpgaDestroyFeatureToken
- * @details    When xfpga_fpgaDestroyFeatureToken() is called with null or invalide token,<br>
+ * @brief      Tests: fpgaDestroyFeatureToken
+ * @details    When fpgaDestroyFeatureToken() is called with null or invalid token,<br>
  *             it will return FPGA_INVALID_PARAM.<br>
  *
  */
-TEST_P(feature_enum_c_p, destroy_token_neg) {
-	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(nullptr), FPGA_INVALID_PARAM);
-
-	struct _fpga_feature_token *dummy = new struct _fpga_feature_token;
-	EXPECT_EQ(xfpga_fpgaDestroyFeatureToken((fpga_feature_token *)dummy), FPGA_INVALID_PARAM);
-	delete dummy;
+TEST_P(opae_feature_enum_c_p, destroy_token_neg) {
+	EXPECT_EQ(fpgaDestroyFeatureToken(nullptr), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(feature_enum_c, feature_enum_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(opae_feature_enum_c, opae_feature_enum_c_p,
+						::testing::ValuesIn(test_platform::keys(true)));

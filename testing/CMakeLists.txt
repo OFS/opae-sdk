@@ -364,6 +364,13 @@ add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
 
+add_unit_test(test_opae_feature_enum_c opae-c-static
+    opae-c/test_feature_enum_c.cpp
+)
+
+add_unit_test(test_opae_feature_open_c opae-c-static
+    opae-c/test_feature_open_c.cpp
+)
 ############################################################################
 # cxx core tests ###########################################################
 ############################################################################
