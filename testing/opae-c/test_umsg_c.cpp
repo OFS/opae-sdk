@@ -155,6 +155,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 

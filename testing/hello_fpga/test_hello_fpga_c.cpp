@@ -70,6 +70,7 @@ int hello_fpga_main(int argc, char *argv[]);
 #include "test_system.h"
 #include <linux/ioctl.h>
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 using namespace opae::testing;
 
@@ -300,6 +301,7 @@ TEST_P(mock_hello_fpga_c_p, main1) {
   char *argv[] = { zero, one, two };
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_EXCEPTION);
 }

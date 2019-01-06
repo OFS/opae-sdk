@@ -62,6 +62,18 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     tmpsysfs_ = system_->get_root();
     ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    if (sysfs_region_count() > 0) {
+      const sysfs_fpga_region *region = sysfs_get_region(0);
+      ASSERT_NE(region, nullptr);
+      if (region->fme) {
+        sysfs_fme = std::string(region->fme->res_path);
+        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+      }
+      if (region->port) {
+        sysfs_port = std::string(region->port->res_path);
+        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+      }
+    }
     strncpy_s(fake_port_token_.sysfspath, sizeof(fake_port_token_.sysfspath),
               sysfs_port.c_str(), sysfs_port.size());
     strncpy_s(fake_port_token_.devpath, sizeof(fake_port_token_.devpath),
@@ -97,6 +109,10 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
   _fpga_token fake_fme_token_;
   _fpga_token fake_port_token_;
+  std::string sysfs_fme;
+  std::string dev_fme;
+  std::string sysfs_port;
+  std::string dev_port;
 };
 
 int error_c_mock_p::delete_errors(std::string fpga_type, std::string filename) {
@@ -557,7 +573,7 @@ TEST_P(error_c_mock_p, error_12) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 class error_c_p : public error_c_mock_p {};
 
@@ -635,7 +651,7 @@ TEST_P(error_c_p, error_13) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 /**
  * @test       error_01
