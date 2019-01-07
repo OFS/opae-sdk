@@ -99,7 +99,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     int value;
     std::string cmd =
         "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
-        "/sys/class/fpga*/*intel*) |  (wc -l)";
+        "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
