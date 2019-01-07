@@ -51,26 +51,31 @@ typedef struct _opae_port_region_info {
 	uint64_t offset;
 } opae_port_region_info;
 
-int opae_get_fme_info(int fd, opae_fme_info *info);
-int opae_get_port_info(int fd, opae_port_info *info);
-int opae_get_port_region_info(int fd, uint32_t index, opae_port_region_info *info);
+int opae_ioctl_initialize(void);
 
-int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr);
-int opae_port_unmap(int fd, uint64_t io_addr);
+fpga_result opae_get_fme_info(int fd, opae_fme_info *info);
+fpga_result opae_get_port_info(int fd, opae_port_info *info);
+fpga_result opae_get_port_region_info(int fd, uint32_t index,
+				      opae_port_region_info *info);
 
-int opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap);
-int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr);
-int opae_port_umsg_enable(int fd);
-int opae_port_umsg_disable(int fd);
+fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr);
+fpga_result opae_port_unmap(int fd, uint64_t io_addr);
 
-int opae_fme_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
-int opae_port_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
-int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t count, int32_t *eventfd);
+fpga_result opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap);
+fpga_result opae_port_umsg_set_base_addr(int fd, uint32_t flags,
+					 uint64_t io_addr);
+fpga_result opae_port_umsg_enable(int fd);
+fpga_result opae_port_umsg_disable(int fd);
 
-int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id);
-int opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id);
-int opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id, uint32_t sz,
-		     uint64_t addr, uint64_t *status);
-int opae_fme_port_reset(int fd);
+fpga_result opae_fme_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
+fpga_result opae_port_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
+fpga_result opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
+				   uint32_t count, int32_t *eventfd);
+
+fpga_result opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id);
+fpga_result opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id);
+fpga_result opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
+			     uint32_t sz, uint64_t addr, uint64_t *status);
+fpga_result opae_fme_port_reset(int fd);
 
 #endif /* !OPAE_IOCTL_H */
