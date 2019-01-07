@@ -112,6 +112,16 @@ class wsid_list_f : public ::testing::Test {
   std::uniform_int_distribution<int> distribution_;
 };
 
+/*
+ * @test    wsid_init_neg
+ *
+ * @details When wsid_tracker_init()'s n_hash_buckets parameter
+ *          is greater then the max, the function returns NULL.
+ */
+TEST_F(wsid_list_f, wsid_init_neg) {
+  EXPECT_EQ(wsid_tracker_init(123456789), nullptr);
+}
+
 TEST_F(wsid_list_f, wsid_add) {
   // the setup adds, now we just confirm that it added the right data
   wsid_map *it = nullptr;

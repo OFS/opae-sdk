@@ -87,6 +87,7 @@ class error_c_mock_p
       filter_ = nullptr;
     }
     token_cleanup();
+    tmpsysfs_ = "";
     system_->finalize();
   }
 
