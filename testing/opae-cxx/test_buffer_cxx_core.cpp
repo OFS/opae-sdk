@@ -68,7 +68,14 @@ protected:
     ASSERT_NE(nullptr, handle_.get());
   }
 
-  virtual void TearDown() override { system_->finalize(); }
+  virtual void TearDown() override {
+    tokens_.clear();
+    handle_->close();
+    handle_.reset();
+    fpgaFinalize();
+
+    system_->finalize();
+  }
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
