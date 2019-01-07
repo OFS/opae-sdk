@@ -140,6 +140,7 @@ class fpgainfo_c_p : public ::testing::TestWithParam<std::string> {
         }
 
         virtual void TearDown() override {
+            fpgaFinalize();
             system_->finalize();
         }
 

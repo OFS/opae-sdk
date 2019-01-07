@@ -79,8 +79,21 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-  }
+    if (sysfs_region_count() > 0) {
+      const sysfs_fpga_region *region = sysfs_get_region(0);
+      ASSERT_NE(region, nullptr);
+      if (region->fme) {
+        sysfs_fme = std::string(region->fme->res_path);
 
+        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+      }
+      if (region->port) {
+        sysfs_port = std::string(region->port->res_path);
+
+        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+      }
+    }
+  }
   virtual void TearDown() override {
     fpgaFinalize();
     system_->finalize();
@@ -88,6 +101,10 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
 
   test_platform platform_;
   test_system *system_;
+  std::string sysfs_fme;
+  std::string dev_fme;
+  std::string sysfs_port;
+  std::string dev_port;
 };
 
 // convert segment, bus, device, function to a 32 bit number
@@ -230,6 +247,20 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
                                   &num_matches_),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    if (sysfs_region_count() > 0) {
+      const sysfs_fpga_region *region = sysfs_get_region(0);
+      ASSERT_NE(region, nullptr);
+      if (region->fme) {
+        sysfs_fme = std::string(region->fme->res_path);
+
+        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+      }
+      if (region->port) {
+        sysfs_port = std::string(region->port->res_path);
+
+        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+      }
+    }
   }
 
   virtual void TearDown() override {
@@ -255,6 +286,10 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
+  std::string sysfs_fme;
+  std::string dev_fme;
+  std::string sysfs_port;
+  std::string dev_port;
 };
 
 
@@ -684,7 +719,7 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" })));
 
 class sysfs_c_mock_p : public sysfs_c_p {
  protected:
@@ -739,14 +774,14 @@ TEST_P(sysfs_c_mock_p, make_object_glob) {
  */
 TEST_P(sysfs_c_mock_p, fpga_sysfs_02) {
   fpga_result result;
+  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
   // valid path
-  result = sysfs_write_u64(
-           "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/socket_id", 0);
+  result = sysfs_write_u64(str.c_str(), 0);
   EXPECT_EQ(result, FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
  protected:

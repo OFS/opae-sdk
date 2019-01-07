@@ -582,6 +582,7 @@ class reconf_c_hw_p : public reconf_c {
       }
     }
     system_->finalize();
+    fpgaFinalize();
     token_cleanup();
   }
 
