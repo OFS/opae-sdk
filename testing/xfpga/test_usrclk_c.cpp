@@ -296,7 +296,7 @@ TEST_P(usrclk_c, get_user_clock) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms()));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 class usrclk_mock_c : public usrclk_c {};
 
@@ -338,4 +338,4 @@ uint64_t high = 312;
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" })));

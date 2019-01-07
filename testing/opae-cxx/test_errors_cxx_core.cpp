@@ -55,6 +55,14 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
+    tokens_.clear();
+    if (handle_) {
+      handle_->close();
+      handle_.reset();
+    }
+
+    fpgaFinalize();
+
     system_->finalize();
   }
 
