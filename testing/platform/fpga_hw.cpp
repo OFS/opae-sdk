@@ -202,10 +202,10 @@ std::vector<std::string> test_platform::platforms(
   }
   // from the list of platform names requested, remove the ones not found in
   // the platform db
-  std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
+  keys.erase(std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
     auto db = fpga_db::instance();
-    return !db->exists(n) || drv != db->get(n).driver;
-  });
+    return !db->exists(n);
+  }), keys.end());
   return keys;
 }
 
