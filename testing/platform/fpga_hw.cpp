@@ -450,7 +450,7 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
  */
 fpga_driver get_driver(const std::string &path)
 {
-  char buffer[PATH_MAX];
+  char buffer[PATH_MAX] = { 0 };
   std::string sysfs_drvpath = path + "/driver";
   ssize_t lnk_len = readlink(sysfs_drvpath.c_str(), buffer, PATH_MAX);
   if (!lnk_len) {
