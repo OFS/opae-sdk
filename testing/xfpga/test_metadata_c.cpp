@@ -52,11 +52,9 @@ class metadata_c
     system_->initialize();
     system_->prepare_syfs(platform_);
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    fpga_guid fme_guid;
 
-    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 						&num_matches_),  FPGA_OK);
@@ -251,10 +249,6 @@ TEST_P(metadata_c, validate_bitstream_metadata) {
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
-  // Valid metadata
-  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
-  EXPECT_EQ(result, FPGA_OK);
-
   test_system::instance()->invalidate_malloc();
 
   // Valid metadata - malloc fail
@@ -398,3 +392,23 @@ TEST_P(metadata_c, get_interface_id_03) {
 
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
+
+class metadata_c_skx_dcp : public metadata_c {};
+
+/**
+ * @test    validate_bitstream_metadata_valid
+ * @brief   Tests: validate_bitstream_metadata
+ * @details validate_bitstream_metadata validates BS metadata
+ *          Returns FPGA_OK if metadata is valid
+ */
+TEST_P(metadata_c_skx_dcp, validate_bitstream_metadata_valid) {
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  EXPECT_EQ(result, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(metadata_skx_dcp, metadata_c_skx_dcp,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
