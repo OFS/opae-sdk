@@ -81,24 +81,6 @@ TEST_P(properties_cxx_core, get_no_filter) {
 }
 
 /**
- * @test properties::get_guid_valid
- * Calling properties::get with a valid guid returns a properties
- * object that will return a token with the same guid when enumerated.
- */
-TEST_P(properties_cxx_core, get_guid_valid) {
-  std::vector<token::ptr_t> tokens;
-  const char *guid = nullptr;
-  fpga_guid valid_guid;
-
-  // Retrieve first platform device afu guid.
-  guid = platform_.devices[0].afu_guid;
-  ASSERT_EQ(0, uuid_parse(guid, valid_guid));
-
-  tokens = token::enumerate({properties::get(valid_guid)});
-  EXPECT_GT(tokens.size(), 0);
-}
-
-/**
  * @test properties::get_guid_invalid
  * Calling properties::get with an invalid guid returns a properties
  * object that will return no tokens when enumerated.
@@ -282,3 +264,26 @@ TEST_P(properties_cxx_core, get_segment) {
 
 INSTANTIATE_TEST_CASE_P(properties, properties_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));
+
+class properties_skx_dcp_cxx_core : public properties_cxx_core {};
+
+/**
+ * @test properties::get_guid_valid
+ * Calling properties::get with a valid guid returns a properties
+ * object that will return a token with the same guid when enumerated.
+ */
+TEST_P(properties_skx_dcp_cxx_core, get_guid_valid) {
+  std::vector<token::ptr_t> tokens;
+  const char *guid = nullptr;
+  fpga_guid valid_guid;
+
+  // Retrieve first platform device afu guid.
+  guid = platform_.devices[0].afu_guid;
+  ASSERT_EQ(0, uuid_parse(guid, valid_guid));
+
+  tokens = token::enumerate({properties::get(valid_guid)});
+  EXPECT_GT(tokens.size(), 0);
+}
+
+INSTANTIATE_TEST_CASE_P(properties_skx_dcp, properties_skx_dcp_cxx_core,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
