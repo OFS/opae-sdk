@@ -80,6 +80,8 @@ fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid gu
 
 fpga_result sysfs_get_fme_path(int dev, int subdev, char *path);
 
+fpga_result sysfs_path_isvalid(const char *root, const char *attr_path);
+
 /**
  * @brief Get BBS interface id
  *

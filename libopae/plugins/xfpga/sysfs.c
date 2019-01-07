@@ -974,6 +974,37 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
+fpga_result sysfs_path_isvalid(const char *root, const char *attr_path)
+{
+	char path[SYSFS_PATH_MAX]    = {0};
+	fpga_result result          = FPGA_OK;
+	struct stat stats;
+
+	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
+		root, attr_path);
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			root, attr_path);
+		return FPGA_EXCEPTION;
+	}
+
+	result = opae_glob_path(path);
+	if (result) {
+		return result;
+	}
+
+	if (stat(path, &stats) != 0) {
+		FPGA_ERR("stat failed: %s", strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	if (S_ISDIR(stats.st_mode) || S_ISREG(stats.st_mode)) {
+		return FPGA_OK;
+	}
+
+	return FPGA_EXCEPTION;
+}
+
 //
 // sysfs convenience functions to access device components by device number
 //
