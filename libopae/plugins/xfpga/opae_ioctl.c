@@ -30,12 +30,47 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <opae/fpga.h>
 #include <safe_string/safe_string.h>
 #include "common_int.h"
 #include "opae_ioctl.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
+
+typedef struct _ioctl_ops {
+	fpga_result (*get_fme_info)(int fd, opae_fme_info *info);
+	fpga_result (*get_port_info)(int fd, opae_port_info *info);
+	fpga_result (*get_port_region_info)(int fd, uint32_t index,
+					    opae_port_region_info *info);
+
+	fpga_result (*port_map)(int fd, void *addr, uint64_t len,
+				uint64_t *io_addr);
+	fpga_result (*port_unmap)(int fd, uint64_t io_addr);
+
+	fpga_result (*port_umsg_cfg)(int fd, uint32_t flags,
+				     uint32_t hint_bitmap);
+	fpga_result (*port_umsg_set_base_addr)(int fd, uint32_t flags,
+					       uint64_t io_addr);
+	fpga_result (*port_umsg_enable)(int fd);
+	fpga_result (*port_umsg_disable)(int fd);
+
+	fpga_result (*fme_set_err_irq)(int fd, uint32_t flags, int32_t eventfd);
+	fpga_result (*port_set_err_irq)(int fd, uint32_t flags,
+					int32_t eventfd);
+	fpga_result (*port_set_user_irq)(int fd, uint32_t flags, uint32_t start,
+					 uint32_t count, int32_t *eventfd);
+
+	fpga_result (*fme_port_assign)(int fd, uint32_t flags,
+				       uint32_t port_id);
+	fpga_result (*fme_port_release)(int fd, uint32_t flags,
+					uint32_t port_id);
+	fpga_result (*fme_port_pr)(int fd, uint32_t flags, uint32_t port_id,
+				   uint32_t sz, uint64_t addr,
+				   uint64_t *status);
+	fpga_result (*fme_port_reset)(int fd);
+} ioctl_ops;
 
 fpga_result opae_ioctl(int fd, int request, ...)
 {
@@ -69,7 +104,13 @@ fpga_result opae_ioctl(int fd, int request, ...)
 	return res;
 }
 
-int opae_get_fme_info(int fd, opae_fme_info *info)
+
+fpga_result intel_fpga_version(int fd)
+{
+	return opae_ioctl(fd, FPGA_GET_API_VERSION, NULL);
+}
+
+fpga_result intel_get_fme_info(int fd, opae_fme_info *info)
 {
 	ASSERT_NOT_NULL(info);
 	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
@@ -81,7 +122,7 @@ int opae_get_fme_info(int fd, opae_fme_info *info)
 	return res;
 }
 
-int opae_get_port_info(int fd, opae_port_info *info)
+fpga_result intel_get_port_info(int fd, opae_port_info *info)
 {
 	ASSERT_NOT_NULL(info);
 	struct fpga_port_info pinfo = {.argsz = sizeof(pinfo), .flags = 0};
@@ -94,17 +135,15 @@ int opae_get_port_info(int fd, opae_port_info *info)
 		info->num_uafu_irqs = pinfo.num_uafu_irqs;
 	}
 	return res;
-
-
 }
 
-int opae_get_port_region_info(int fd, uint32_t index,
-			      opae_port_region_info *info)
+
+fpga_result intel_get_port_region_info(int fd, uint32_t index,
+				       opae_port_region_info *info)
 {
 	ASSERT_NOT_NULL(info);
-	struct fpga_port_region_info rinfo = {.argsz = sizeof(rinfo),
-					      .padding = 0,
-					      .index = index};
+	struct fpga_port_region_info rinfo = {
+		.argsz = sizeof(rinfo), .padding = 0, .index = index};
 	int res = opae_ioctl(fd, FPGA_PORT_GET_REGION_INFO, &rinfo);
 	if (!res) {
 		info->flags = rinfo.flags;
@@ -112,10 +151,10 @@ int opae_get_port_region_info(int fd, uint32_t index,
 		info->offset = rinfo.offset;
 	}
 	return res;
-
 }
 
-int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+
+fpga_result intel_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
 {
 	int res = 0;
 	int req = 0;
@@ -138,7 +177,7 @@ int opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
 	return res;
 }
 
-int opae_port_unmap(int fd, uint64_t io_addr)
+fpga_result intel_port_unmap(int fd, uint64_t io_addr)
 {
 	/* Set ioctl fpga_port_dma_unmap struct parameters */
 	struct fpga_port_dma_unmap dma_unmap = {
@@ -148,10 +187,11 @@ int opae_port_unmap(int fd, uint64_t io_addr)
 	return opae_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
 }
 
-int opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
+fpga_result intel_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
 {
 	if (flags) {
-		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_MODE");
+		OPAE_MSG(
+			"flags currently not supported in FPGA_PORT_UMSG_SET_MODE");
 	}
 
 	struct fpga_port_umsg_cfg umsg_cfg = {.argsz = sizeof(umsg_cfg),
@@ -160,10 +200,12 @@ int opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
 	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
 }
 
-int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr)
+fpga_result intel_port_umsg_set_base_addr(int fd, uint32_t flags,
+					  uint64_t io_addr)
 {
 	if (flags) {
-		OPAE_MSG("flags currently not supported in FPGA_PORT_UMSG_SET_BASE_ADDR");
+		OPAE_MSG(
+			"flags currently not supported in FPGA_PORT_UMSG_SET_BASE_ADDR");
 	}
 
 	struct fpga_port_umsg_base_addr baseaddr = {
@@ -171,17 +213,17 @@ int opae_port_umsg_set_base_addr(int fd, uint32_t flags, uint64_t io_addr)
 	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
 }
 
-int opae_port_umsg_enable(int fd)
+fpga_result intel_port_umsg_enable(int fd)
 {
 	return opae_ioctl(fd, FPGA_PORT_UMSG_ENABLE, NULL);
 }
 
-int opae_port_umsg_disable(int fd)
+fpga_result intel_port_umsg_disable(int fd)
 {
 	return opae_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
 }
 
-int opae_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
+fpga_result intel_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 {
 	if (flags) {
 		OPAE_MSG(
@@ -193,7 +235,7 @@ int opae_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 	return opae_ioctl(fd, FPGA_FME_ERR_SET_IRQ, &irq);
 }
 
-int opae_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
+fpga_result intel_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 {
 	if (flags) {
 		OPAE_MSG(
@@ -205,9 +247,11 @@ int opae_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 	return opae_ioctl(fd, FPGA_PORT_ERR_SET_IRQ, &irq);
 }
 
-int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t count, int32_t *eventfd)
+fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
+				    uint32_t count, int32_t *eventfd)
 {
-	uint32_t sz = sizeof(struct fpga_port_uafu_irq_set) + count*sizeof(int32_t);
+	uint32_t sz =
+		sizeof(struct fpga_port_uafu_irq_set) + count * sizeof(int32_t);
 	struct fpga_port_uafu_irq_set *irq = NULL;
 	errno_t err = 0;
 	int res = 0;
@@ -233,7 +277,8 @@ int opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start, uint32_t coun
 	irq->flags = 0;
 	irq->start = start;
 	irq->count = count;
-	err = memcpy32_s((uint32_t *)irq->evtfd, count, (uint32_t *)eventfd, count);
+	err = memcpy32_s((uint32_t *)irq->evtfd, count, (uint32_t *)eventfd,
+			 count);
 	if (err) {
 		res = FPGA_INVALID_PARAM;
 		goto out_free;
@@ -246,7 +291,7 @@ out_free:
 	return res;
 }
 
-int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
+fpga_result intel_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 {
 	struct fpga_fme_port_assign assign = {
 		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
@@ -257,7 +302,7 @@ int opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 	return opae_ioctl(fd, FPGA_FME_PORT_ASSIGN, &assign);
 }
 
-int opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
+fpga_result intel_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 {
 	struct fpga_fme_port_assign assign = {
 		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
@@ -268,8 +313,8 @@ int opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 	return opae_ioctl(fd, FPGA_FME_PORT_RELEASE, &assign);
 }
 
-int opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id, uint32_t sz,
-		     uint64_t addr, uint64_t *status)
+fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
+			      uint32_t sz, uint64_t addr, uint64_t *status)
 {
 	struct fpga_fme_port_pr port_pr = {.argsz = sizeof(port_pr),
 					   .flags = 0,
@@ -286,7 +331,262 @@ int opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id, uint32_t sz,
 	return res;
 }
 
-int opae_fme_port_reset(int fd)
+fpga_result intel_fme_port_reset(int fd)
 {
 	return opae_ioctl(fd, FPGA_PORT_RESET, NULL);
+}
+
+fpga_result dfl_fpga_version(int fd)
+{
+	return opae_ioctl(fd, DFL_FPGA_GET_API_VERSION, NULL);
+}
+
+fpga_result dfl_get_port_info(int fd, opae_port_info *info)
+{
+	ASSERT_NOT_NULL(info);
+	struct dfl_fpga_port_info pinfo = {.argsz = sizeof(pinfo), .flags = 0};
+	int res = opae_ioctl(fd, DFL_FPGA_PORT_GET_INFO, &pinfo);
+	if (!res) {
+		info->flags = pinfo.flags;
+		info->num_regions = pinfo.num_regions;
+		info->num_umsgs = pinfo.num_umsgs;
+	}
+	return res;
+}
+
+fpga_result dfl_get_port_region_info(int fd, uint32_t index,
+				     opae_port_region_info *info)
+{
+	ASSERT_NOT_NULL(info);
+	struct dfl_fpga_port_region_info rinfo = {
+		.argsz = sizeof(rinfo), .padding = 0, .index = index};
+	int res = opae_ioctl(fd, DFL_FPGA_PORT_GET_REGION_INFO, &rinfo);
+	if (!res) {
+		info->flags = rinfo.flags;
+		info->size = rinfo.size;
+		info->offset = rinfo.offset;
+	}
+	return res;
+}
+
+fpga_result dfl_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+{
+	int res = 0;
+	/* Set ioctl fpga_port_dma_map struct parameters */
+	struct dfl_fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),
+						.flags = 0,
+						.user_addr = (__u64)addr,
+						.length = (__u64)len,
+						.iova = 0};
+	ASSERT_NOT_NULL(io_addr);
+	/* Dispatch ioctl command */
+	res = opae_ioctl(fd, DFL_FPGA_PORT_DMA_MAP, &dma_map);
+	if (!res) {
+		*io_addr = dma_map.iova;
+	}
+	return res;
+}
+
+fpga_result dfl_port_unmap(int fd, uint64_t io_addr)
+{
+	/* Set ioctl fpga_port_dma_unmap struct parameters */
+	struct dfl_fpga_port_dma_unmap dma_unmap = {
+		.argsz = sizeof(dma_unmap), .flags = 0, .iova = io_addr};
+
+	/* Dispatch ioctl command */
+	return opae_ioctl(fd, DFL_FPGA_PORT_DMA_UNMAP, &dma_unmap);
+}
+
+
+fpga_result dfl_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
+{
+	struct dfl_fpga_fme_port_assign assign = {
+		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in DFL_FPGA_FME_PORT_ASSIGN");
+	}
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, &assign);
+}
+
+fpga_result dfl_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
+{
+	struct dfl_fpga_fme_port_assign assign = {
+		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
+	if (flags) {
+		OPAE_MSG(
+			"flags currently not supported in DFL_FPGA_FME_PORT_RELEASE");
+	}
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, &assign);
+}
+
+fpga_result dfl_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
+			    uint32_t sz, uint64_t addr, uint64_t *status)
+{
+	struct dfl_fpga_fme_port_pr port_pr = {.argsz = sizeof(port_pr),
+					       .flags = 0,
+					       .port_id = port_id,
+					       .buffer_size = sz,
+					       .buffer_address = addr};
+	int res = FPGA_OK;
+	if (flags) {
+		OPAE_MSG("flags currently not supported in FPGA_FME_PORT_PR");
+	}
+	ASSERT_NOT_NULL(status);
+	res = opae_ioctl(fd, DFL_FPGA_FME_PORT_PR, &port_pr);
+	*status = 0;
+	return res;
+}
+
+fpga_result dfl_fme_port_reset(int fd)
+{
+	return opae_ioctl(fd, DFL_FPGA_PORT_RESET, NULL);
+}
+
+#define MAX_KERNEL_DRIVERS 2
+static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
+	{.get_fme_info = NULL,
+	 .get_port_info = dfl_get_port_info,
+	 .get_port_region_info = dfl_get_port_region_info,
+	 .port_map = dfl_port_map,
+	 .port_unmap = dfl_port_unmap,
+	 .port_umsg_cfg = NULL,
+	 .port_umsg_set_base_addr = NULL,
+	 .port_umsg_enable = NULL,
+	 .port_umsg_disable = NULL,
+	 .fme_set_err_irq = NULL,
+	 .port_set_err_irq = NULL,
+	 .port_set_user_irq = NULL,
+	 .fme_port_assign = dfl_fme_port_assign,
+	 .fme_port_release = dfl_fme_port_release,
+	 .fme_port_pr = dfl_fme_port_pr,
+	 .fme_port_reset = dfl_fme_port_reset},
+	{.get_fme_info = intel_get_fme_info,
+	 .get_port_info = intel_get_port_info,
+	 .get_port_region_info = intel_get_port_region_info,
+	 .port_map = intel_port_map,
+	 .port_unmap = intel_port_unmap,
+	 .port_umsg_cfg = intel_port_umsg_cfg,
+	 .port_umsg_set_base_addr = intel_port_umsg_set_base_addr,
+	 .port_umsg_enable = intel_port_umsg_enable,
+	 .port_umsg_disable = intel_port_umsg_disable,
+	 .fme_set_err_irq = intel_fme_set_err_irq,
+	 .port_set_err_irq = intel_port_set_err_irq,
+	 .port_set_user_irq = intel_port_set_user_irq,
+	 .fme_port_assign = intel_fme_port_assign,
+	 .fme_port_release = intel_fme_port_release,
+	 .fme_port_pr = intel_fme_port_pr,
+	 .fme_port_reset = intel_fme_port_reset} };
+
+static ioctl_ops *io_ptr;
+
+int opae_ioctl_initialize(void)
+{
+	struct stat st;
+	if (!stat("/sys/class/fpga_region", &st)) {
+		io_ptr = &ioctl_table[0];
+		return 0;
+	}
+	if (!stat("/sys/class/fpga", &st)) {
+		io_ptr = &ioctl_table[1];
+		return 0;
+	}
+	return 1;
+}
+
+#define IOCTL(_FN, ...)                                                        \
+	do {                                                                   \
+		if (!io_ptr) {                                                 \
+			OPAE_ERR("ioctl interface has not been initialized");  \
+			return FPGA_EXCEPTION;                                 \
+		}                                                              \
+		if (!io_ptr->_FN) {                                            \
+			OPAE_MSG("ioctl function not yet supported");          \
+			return FPGA_NOT_SUPPORTED;                             \
+		}                                                              \
+		return io_ptr->_FN(__VA_ARGS__);                               \
+	} while (0);
+
+fpga_result opae_get_fme_info(int fd, opae_fme_info *info)
+{
+	IOCTL(get_fme_info, fd, info);
+}
+
+fpga_result opae_get_port_info(int fd, opae_port_info *info)
+{
+	IOCTL(get_port_info, fd, info);
+}
+
+fpga_result opae_get_port_region_info(int fd, uint32_t index,
+				      opae_port_region_info *info)
+{
+	IOCTL(get_port_region_info, fd, index, info);
+}
+
+fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+{
+	IOCTL(port_map, fd, addr, len, io_addr);
+}
+
+fpga_result opae_port_unmap(int fd, uint64_t io_addr)
+{
+	IOCTL(port_unmap, fd, io_addr);
+}
+
+fpga_result opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
+{
+	IOCTL(port_umsg_cfg, fd, flags, hint_bitmap);
+}
+
+fpga_result opae_port_umsg_set_base_addr(int fd, uint32_t flags,
+					 uint64_t io_addr)
+{
+	IOCTL(port_umsg_set_base_addr, fd, flags, io_addr);
+}
+
+fpga_result opae_port_umsg_enable(int fd)
+{
+	IOCTL(port_umsg_enable, fd);
+}
+
+fpga_result opae_port_umsg_disable(int fd)
+{
+	IOCTL(port_umsg_disable, fd);
+}
+
+fpga_result opae_fme_set_err_irq(int fd, uint32_t flags, int32_t eventfd)
+{
+	IOCTL(fme_set_err_irq, fd, flags, eventfd);
+}
+
+fpga_result opae_port_set_err_irq(int fd, uint32_t flags, int32_t eventfd)
+{
+	IOCTL(port_set_err_irq, fd, flags, eventfd);
+}
+
+fpga_result opae_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
+				   uint32_t count, int32_t *eventfd)
+{
+	IOCTL(port_set_user_irq, fd, flags, start, count, eventfd);
+}
+
+fpga_result opae_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
+{
+	IOCTL(fme_port_assign, fd, flags, port_id);
+}
+
+fpga_result opae_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
+{
+	IOCTL(fme_port_release, fd, flags, port_id);
+}
+
+fpga_result opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
+			     uint32_t sz, uint64_t addr, uint64_t *status)
+{
+	IOCTL(fme_port_pr, fd, flags, port_id, sz, addr, status);
+}
+
+fpga_result opae_fme_port_reset(int fd)
+{
+	IOCTL(fme_port_reset, fd);
 }
