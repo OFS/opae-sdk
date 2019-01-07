@@ -974,7 +974,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result sysfs_path_isvalid(const char *root, const char *attr_path)
+fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 {
 	char path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result          = FPGA_OK;

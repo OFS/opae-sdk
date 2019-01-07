@@ -384,7 +384,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	}
 
 	// Discover the socket id from the FME's sysfs entry.
-	if (sysfs_path_isvalid(sysfspath, FPGA_SYSFS_SOCKET_ID) == FPGA_OK) {
+	if (sysfs_path_is_valid(sysfspath, FPGA_SYSFS_SOCKET_ID) == FPGA_OK) {
 
 		resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
 		if (resval != 0) {
