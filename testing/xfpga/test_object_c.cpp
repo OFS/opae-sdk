@@ -156,7 +156,7 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 
 class sysobject_mock_p : public sysobject_p{

@@ -33,6 +33,7 @@ extern "C"{
 #include "types_int.h"
 #include "opae/mmio.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "opae/access.h"
 #include "linux/ioctl.h"
 #include "cstdarg"
@@ -299,6 +300,7 @@ TEST_P(openclose_c_p, close_03) {
 
   // Register valid ioctl
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));

@@ -741,7 +741,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 
 class events_mock_p : public events_p {
@@ -1303,7 +1303,7 @@ TEST_P(events_mock_p, irq_event_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 
 class events_handle_p : public ::testing::TestWithParam<std::string> {
