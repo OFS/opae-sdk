@@ -626,7 +626,7 @@ TEST_P(enum_c_p, clone_token) {
       FPGA_OK);
   EXPECT_GT(num_matches_, 0);
   fpga_token src = tokens_[0];
-  fpga_token ds
+  fpga_token dst;
   EXPECT_EQ(xfpga_fpgaCloneToken(src, &dst), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyToken(&dst), FPGA_OK);
 }
