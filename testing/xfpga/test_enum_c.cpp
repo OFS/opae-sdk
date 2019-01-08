@@ -566,22 +566,6 @@ TEST_P(enum_c_p, object_id_port_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_fme
- *
- * @brief      When the filter num_errors for fme is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for fme.
- */
-TEST_P(enum_c_p, num_errors_fme) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_fme_neg
@@ -598,23 +582,6 @@ TEST_P(enum_c_p, num_errors_fme_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_port
- *
- * @brief      When the filter num_errors for port is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for port.
- */
-TEST_P(enum_c_p, num_errors_port) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_port_neg
@@ -1031,3 +998,47 @@ TEST_P(enum_c_p, get_guid) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
+						
+class enum_err_c_p : public enum_c_p
+{
+
+};
+/**
+ * @test       num_errors_fme
+ *
+ * @brief      When the filter num_errors for fme is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for fme.
+ */
+TEST_P(enum_err_c_p, num_errors_fme) {
+	auto device = platform_.devices[0];
+
+	ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+		FPGA_OK);
+	EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+		&num_matches_),
+		FPGA_OK);
+	EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+
+/**
+ * @test       num_errors_port
+ *
+ * @brief      When the filter num_errors for port is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for port.
+ */
+TEST_P(enum_err_c_p, num_errors_port) {
+	auto device = platform_.devices[0];
+
+	ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
+		FPGA_OK);
+	EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+		&num_matches_),
+		FPGA_OK);
+	EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
+	::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
