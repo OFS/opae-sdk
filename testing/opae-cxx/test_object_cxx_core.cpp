@@ -242,4 +242,5 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
