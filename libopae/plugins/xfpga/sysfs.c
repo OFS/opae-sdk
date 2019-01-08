@@ -60,12 +60,14 @@
 #define FPGA_SYSFS_PORT_LEN 4
 #define OPAE_KERNEL_DRIVERS 2
 
-static struct {
+typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
 	const char *sysfs_region_fmt;
 	const char *sysfs_resource_fmt;
 	const char *sysfs_compat_id;
-} sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
+} sysfs_formats;
+
+static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	// upstream driver sysfs formats
 	{"/sys/class/fpga_region", "region([0-9])+",
 	 "dfl-(fme|port)\\.([0-9]+)", "/dfl-fme-region.*/fpga_region/region*/compat_id"},
@@ -73,12 +75,12 @@ static struct {
 	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
 	 "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"} };
 
-static uint32_t _sysfs_format_index;
+static sysfs_formats *_sysfs_format_ptr;
 static uint32_t _sysfs_region_count;
 /* mutex to protect sysfs region data structures */
 pthread_mutex_t _sysfs_region_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-#define SYSFS_FORMAT(s) sysfs_path_table[_sysfs_format_index].s
+#define SYSFS_FORMAT(s) _sysfs_format_ptr ? _sysfs_format_ptr->s : NULL
 
 
 #define SYSFS_MAX_REGIONS 128
@@ -363,7 +365,7 @@ int sysfs_initialize(void)
 		errno = 0;
 		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
 		if (!stat_res) {
-			_sysfs_format_index = i;
+			_sysfs_format_ptr = &sysfs_path_table[i];
 			break;
 		}
 		if (errno != ENOENT) {
