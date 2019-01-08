@@ -155,7 +155,7 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = rc_mdata}}}},
    {"skx-p-dfl0",
-     test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dfl0-nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
