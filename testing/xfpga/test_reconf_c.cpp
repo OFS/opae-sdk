@@ -33,6 +33,7 @@ extern "C" {
 #include <opae/enum.h>
 #include <opae/properties.h>
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "reconf_int.h"
 #include "token_list_int.h"
 #include "xfpga.h"
@@ -444,6 +445,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_einval) {
 
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
   result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
@@ -463,13 +465,14 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 
   // register an ioctl handler that will return -1 and set errno to ENOTSUP
   system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
   result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
   EXPECT_EQ(result, FPGA_EXCEPTION);
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 class reconf_c_hw_skx_p : public reconf_c {
   protected:
