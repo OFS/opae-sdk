@@ -410,6 +410,38 @@ TEST_P(enum_c_p, object_id_port_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+TEST_P(enum_c_p, guid) {
+  auto device = platform_.devices[0];
+  // fme guid
+  fpga_guid fme_guid, afu_guid, random_guid;
+  ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);
+  ASSERT_EQ(uuid_parse(device.afu_guid, afu_guid), 0);
+  ASSERT_EQ(uuid_parse(invalid_device_.afu_guid, random_guid), 0);
+  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
+
+  DestroyTokens();
+
+  // afu guid
+  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, afu_guid), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+
+  DestroyTokens();
+
+  // random guid
+  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, random_guid), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
 TEST_P(enum_c_p, clone_token01) {
   EXPECT_EQ(
       fpgaEnumerate(nullptr, 0, tokens_.data(), tokens_.size(), &num_matches_),
@@ -600,38 +632,6 @@ TEST_P(enum_c_skx_dcp_p, num_errors) {
   ASSERT_EQ(
       fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
       FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, 0);
-}
-
-TEST_P(enum_c_skx_dcp_p, guid) {
-  auto device = platform_.devices[0];
-  // fme guid
-  fpga_guid fme_guid, afu_guid, random_guid;
-  ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);
-  ASSERT_EQ(uuid_parse(device.afu_guid, afu_guid), 0);
-  ASSERT_EQ(uuid_parse(invalid_device_.afu_guid, random_guid), 0);
-  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
-
-  DestroyTokens();
-
-  // afu guid
-  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, afu_guid), FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-
-  DestroyTokens();
-
-  // random guid
-  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, random_guid), FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);

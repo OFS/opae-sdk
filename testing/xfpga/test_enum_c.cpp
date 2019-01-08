@@ -615,6 +615,46 @@ TEST_P(enum_c_p, guid_port_neg) {
 }
 
 /**
+ * @test       guid_fme
+ *
+ * @brief      When the filter guid for fme is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that guid for fme.
+ */
+TEST_P(enum_c_p, guid_fme) {
+  auto device = platform_.devices[0];
+
+  fpga_guid fme_guid;
+  ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);
+
+  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, platform_.devices.size());
+}
+
+/**
+ * @test       guid_port
+ *
+ * @brief      When the filter guid for port is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that guid for port.
+ */
+TEST_P(enum_c_p, guid_port) {
+  auto device = platform_.devices[0];
+
+  fpga_guid afu_guid;
+  ASSERT_EQ(uuid_parse(device.afu_guid, afu_guid), 0);
+
+  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, afu_guid), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+/**
  * @test       clone_token
  *
  * @brief      Given a valid source token and a valid destination,
@@ -955,46 +995,6 @@ TEST_P(enum_c_skx_dcp_p, num_errors_port) {
 
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
             FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
-
-/**
- * @test       guid_fme
- *
- * @brief      When the filter guid for fme is set and it is
- *             valid, the function returns the number of resources
- *             that match that guid for fme.
- */
-TEST_P(enum_c_skx_dcp_p, guid_fme) {
-  auto device = platform_.devices[0];
-
-  fpga_guid fme_guid;
-  ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);
-
-  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size());
-}
-
-/**
- * @test       guid_port
- *
- * @brief      When the filter guid for port is set and it is
- *             valid, the function returns the number of resources
- *             that match that guid for port.
- */
-TEST_P(enum_c_skx_dcp_p, guid_port) {
-  auto device = platform_.devices[0];
-
-  fpga_guid afu_guid;
-  ASSERT_EQ(uuid_parse(device.afu_guid, afu_guid), 0);
-
-  ASSERT_EQ(fpgaPropertiesSetGUID(filter_, afu_guid), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
