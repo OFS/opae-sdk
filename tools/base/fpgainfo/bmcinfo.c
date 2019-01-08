@@ -596,8 +596,8 @@ int get_sysfs_attr(const char *attr_path, char *buf, int size)
 	sz = read(fd, buf, size);
 	close(fd);
 
+	buf[size-1] = '\0';
 	if (sz > 0) {
-		buf[sz-1] = '\0';
 		return (int)sz;
 	} else {
 		return 0;
