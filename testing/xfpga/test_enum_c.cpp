@@ -939,14 +939,6 @@ TEST_P(enum_c_skx_dcp_p, num_errors_fme) {
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-
-TEST_P(enum_err_c_p, num_errors_fme) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
-      FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-      &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
