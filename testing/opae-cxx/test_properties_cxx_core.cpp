@@ -286,4 +286,4 @@ TEST_P(properties_skx_dcp_cxx_core, get_guid_valid) {
 }
 
 INSTANTIATE_TEST_CASE_P(properties_skx_dcp, properties_skx_dcp_cxx_core,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::platforms({}, fpga_driver::linux_intel)));

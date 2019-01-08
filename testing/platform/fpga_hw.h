@@ -89,7 +89,7 @@ struct test_platform {
   static test_platform get(const std::string &key);
   static bool exists(const std::string &key);
   static std::vector<std::string> keys(bool sorted = false);
-  static std::vector<std::string> platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_intel);
+  static std::vector<std::string> platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_any);
   static std::vector<std::string> mock_platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_intel);
   static std::vector<std::string> hw_platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_intel);
   template<class P>

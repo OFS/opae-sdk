@@ -205,7 +205,8 @@ std::vector<std::string> test_platform::platforms(
   keys.erase(
     std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
       auto db = fpga_db::instance();
-      return !db->exists(n);
+      return !db->exists(n) || (drv != fpga_driver::linux_any
+                                && drv != db->get(n).driver);
   }), keys.end());
   return keys;
 }
