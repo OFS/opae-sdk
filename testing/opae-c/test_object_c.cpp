@@ -316,5 +316,5 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 

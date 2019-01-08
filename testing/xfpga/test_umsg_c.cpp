@@ -352,7 +352,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08) {
   _handle->fddev = fddev;
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({})));
+INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 class umsg_c_mcp_p : public umsg_c_p {
 };
@@ -611,5 +611,5 @@ TEST_P(umsg_c_mock_p, test_umsg_09) {
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 
