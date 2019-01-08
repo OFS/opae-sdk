@@ -36,6 +36,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include <linux/ioctl.h>
 #include <cstdarg>
 #include "types_int.h"
@@ -418,6 +419,7 @@ TEST_P(buffer_c_mock_p, port_dma_unmap) {
   EXPECT_EQ(res, FPGA_OK);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
         << "result is " << fpgaErrStr(res);
 }
@@ -428,6 +430,7 @@ TEST_P(buffer_c_mock_p, port_dma_map) {
   uint64_t buf_len = KiB(1);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_MAP, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_MAP, dummy_ioctl<-1, EINVAL>);
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }

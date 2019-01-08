@@ -626,7 +626,7 @@ TEST_P(enum_c_p, clone_token) {
       FPGA_OK);
   EXPECT_GT(num_matches_, 0);
   fpga_token src = tokens_[0];
-  fpga_token dst;
+  fpga_token ds
   EXPECT_EQ(xfpga_fpgaCloneToken(src, &dst), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyToken(&dst), FPGA_OK);
 }
@@ -939,6 +939,14 @@ TEST_P(enum_c_skx_dcp_p, num_errors_fme) {
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+
+TEST_P(enum_err_c_p, num_errors_fme) {
+  auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+      &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
@@ -1035,4 +1043,3 @@ TEST_P(enum_c_skx_dcp_p, state_neg) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_skx_dcp_p, 
                         ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
-

@@ -677,4 +677,3 @@ TEST_P(enum_c_mock_p, clone_token02) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
-
