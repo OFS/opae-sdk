@@ -290,4 +290,4 @@ TEST_P(fpgad_ap_event_c_p, ap6_power_state_log) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_ap_event_c, fpgad_ap_event_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
