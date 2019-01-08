@@ -504,7 +504,7 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 
 set_tests_properties(
     test_xfpga_events_c
-    PROPERTIES TIMEOUT 75
+    PROPERTIES TIMEOUT 120
 )
 
 ############################################################################
@@ -627,6 +627,12 @@ add_custom_command(TARGET test_unit
     ${CMAKE_BINARY_DIR}
     )
 
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
 
 
 ############################################################################

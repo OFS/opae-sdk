@@ -154,6 +154,31 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = rc_mdata}}}},
+   {"skx-p-dfl0",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dfl0-nlb0.tar.gz",
+                   .driver = fpga_driver::linux_dfl0,
+                   .devices = {test_device{
+                       .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x5e,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x6400002fc614bb9,
+                       .bbs_version = {6, 4, 0},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0xbcc0,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = skx_mdata}}}},
 };
 
 
@@ -177,10 +202,11 @@ std::vector<std::string> test_platform::platforms(
   }
   // from the list of platform names requested, remove the ones not found in
   // the platform db
-  std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
-    auto db = fpga_db::instance();
-    return !db->exists(n) || drv != db->get(n).driver;
-  });
+  keys.erase(
+    std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
+      auto db = fpga_db::instance();
+      return !db->exists(n);
+  }), keys.end());
   return keys;
 }
 
@@ -388,7 +414,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_intel), "skx-p" },
   {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
-  {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" }
+  {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
+  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0), "skx-p-dfl0" }
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
@@ -424,10 +451,11 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
  */
 fpga_driver get_driver(const std::string &path)
 {
-  char buffer[PATH_MAX];
-  ssize_t lnk_len = readlink(path.c_str(), buffer, PATH_MAX);
+  char buffer[PATH_MAX] = { 0 };
+  std::string sysfs_drvpath = path + "/driver";
+  ssize_t lnk_len = readlink(sysfs_drvpath.c_str(), buffer, PATH_MAX);
   if (!lnk_len) {
-    auto msg = std::string("error readling link: ") + path;
+    auto msg = std::string("error readling link: ") + sysfs_drvpath;
     throw std::runtime_error(msg);
   }
   std::string bname = basename(buffer);
