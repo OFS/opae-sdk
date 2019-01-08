@@ -27,6 +27,7 @@
 #include "types_int.h"
 #include "xfpga.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include <linux/ioctl.h>
@@ -157,6 +158,7 @@ class reset_c_mock_p : public reset_c_p {
  */
 TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
   system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_RESET, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
 }
 
