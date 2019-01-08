@@ -80,7 +80,7 @@ static uint32_t _sysfs_region_count;
 /* mutex to protect sysfs region data structures */
 pthread_mutex_t _sysfs_region_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-#define SYSFS_FORMAT(s) _sysfs_format_ptr ? _sysfs_format_ptr->s : NULL
+#define SYSFS_FORMAT(s) (_sysfs_format_ptr ? _sysfs_format_ptr->s : NULL)
 
 
 #define SYSFS_MAX_REGIONS 128
