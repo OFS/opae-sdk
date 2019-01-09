@@ -206,7 +206,8 @@ std::vector<std::string> test_platform::platforms(
     std::remove_if(keys.begin(), keys.end(), [drv](const std::string &n) {
       auto db = fpga_db::instance();
       return !db->exists(n) || (drv != fpga_driver::linux_any
-                                && drv != db->get(n).driver);
+                                && drv != db->get(n).driver)
+                            || db->get(n).devices.empty();
   }), keys.end());
   return keys;
 }
@@ -240,6 +241,7 @@ std::vector<std::string> test_platform::hw_platforms(
                  auto db = fpga_db::instance();
                  return db->exists(k) && (drv == fpga_driver::linux_any ||
                                           db->get(k).driver == drv) &&
+                        !db->get(k).devices.empty() &&
                         db->get(k).mock_sysfs == nullptr;
                });
   return want;
