@@ -537,6 +537,7 @@ class reconf_c_hw_p : public reconf_c {
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
     system_->initialize();
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     system_->prepare_syfs(platform_);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
