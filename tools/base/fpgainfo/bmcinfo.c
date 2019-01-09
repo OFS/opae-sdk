@@ -600,6 +600,7 @@ int get_sysfs_attr(const char *attr_path, char *buf, int size)
 	if (sz > 0) {
 		return (int)sz;
 	} else {
+		buf[0] = '\0';
 		return 0;
 	}
 }

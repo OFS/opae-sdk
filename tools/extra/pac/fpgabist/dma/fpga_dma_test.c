@@ -70,8 +70,8 @@ bool use_malloc = true;
 bool use_memcpy = true;
 bool use_advise = false;
 bool do_not_verify = false;
-bool cpu_affinity = true;
-bool memory_affinity = true;
+bool cpu_affinity = false;
+bool memory_affinity = false;
 
 /*
  * macro for checking return codes
