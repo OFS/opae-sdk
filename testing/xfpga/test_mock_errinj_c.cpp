@@ -129,13 +129,17 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
     // Open port device
     ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) { ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_)); }
+    if (handle_) { 
+      ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_)); 
+      handle_ = nullptr;
+    }
 
     for (auto &t : tokens_) {
       if (t) {
@@ -208,8 +212,7 @@ TEST_P(err_inj_c_p, invalid_max_interface_num) {
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
-
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
 
 class err_inj_c_mock_p : public err_inj_c_p {
  protected:
