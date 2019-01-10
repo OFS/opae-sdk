@@ -497,7 +497,7 @@ TEST_P(sysfs_c_p, cstr_dup_1) {
   std::string inp("this is an input string");
   test_system::instance()->invalidate_malloc();
   char *dup = cstr_dup(inp.c_str());
-  EXPECT_STRNE(dup, inp.c_str());
+  EXPECT_EQ(dup, nullptr);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
@@ -898,10 +898,6 @@ TEST_P(sysfs_sockid_c_p, sysfs_get_guid_neg) {
  *          it returns FPGA_NOT_FOUND. 
  */
 TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
-  const std::string root = ""; 
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
-  std::string sysfspath = tok->sysfspath;
- 
   EXPECT_EQ(sysfs_path_is_valid(nullptr, nullptr), FPGA_NOT_FOUND);
 }
 
@@ -911,7 +907,6 @@ TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
  *          it returns FPGA_INVALID_PARAM. 
  */
 TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
-  const std::string sysfs_port = ""; 
   _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
   _fpga_token *tok = static_cast<_fpga_token *>(h->token);
   std::string sysfspath = tok->sysfspath;
