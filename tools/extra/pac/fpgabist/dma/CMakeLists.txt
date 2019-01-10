@@ -28,16 +28,17 @@ enable_language(C ASM)
 
 set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 -DFPGA_DMA_MAX_BLOCKS=256 -DFPGA_DMA_BLOCK_SIZE=64")
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
                     ${HWLOC_INCLUDE_DIRS})
 
-file(GLOB CSources *.c *.S)
+file(GLOB CSources *.cpp *.S)
 add_executable(fpga_dma_test ${CSources})
 set_install_rpath(fpga_dma_test)
 
-target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt tbb ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS fpga_dma_test
         RUNTIME DESTINATION bin
