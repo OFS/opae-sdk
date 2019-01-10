@@ -1189,44 +1189,6 @@ out_unlock:
 	return result;
 }
 
-// get fpga device id using the sysfs path
-fpga_result sysfs_deviceid_from_path(const char *sysfspath, uint64_t *deviceid)
-{
-	char sysfs_path[SYSFS_PATH_MAX] = {0};
-	char *p = NULL;
-	int device_instance = 0;
-	fpga_result result = FPGA_OK;
-
-	if (deviceid == NULL) {
-		FPGA_ERR("Invalid input Parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	p = strstr(sysfspath, FPGA_SYSFS_FME);
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		return FPGA_NOT_SUPPORTED;
-	}
-
-	p = strchr(sysfspath, '.');
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		return FPGA_NOT_SUPPORTED;
-	}
-
-	device_instance = atoi(p + 1);
-
-	snprintf_s_is(sysfs_path, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		      device_instance, FPGA_SYSFS_DEVICEID);
-
-	result = sysfs_read_u64(sysfs_path, deviceid);
-	if (result != 0)
-		FPGA_ERR("Failed to read device ID");
-
-	return result;
-}
-
 /*
  * The rlpath path is assumed to be of the form:
  * ../../devices/pci0000:5e/0000:5e:00.0/fpga/intel-fpga-dev.0
