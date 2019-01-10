@@ -909,13 +909,8 @@ TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
 TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
   _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
   _fpga_token *tok = static_cast<_fpga_token *>(h->token);
-  std::string sysfspath = tok->sysfspath;
 
-  strcpy(tok->sysfspath,"intel-fpga"); 
-  EXPECT_EQ(get_port_sysfs(handle_, const_cast<char *>(sysfs_port.c_str())), FPGA_INVALID_PARAM);
-
-  strcpy(tok->sysfspath, sysfspath.c_str());
-  EXPECT_EQ(get_port_sysfs(handle_, const_cast<char *>(sysfs_port.c_str())), FPGA_OK);
+  EXPECT_EQ(get_port_sysfs(handle_, tok->sysfspath), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
