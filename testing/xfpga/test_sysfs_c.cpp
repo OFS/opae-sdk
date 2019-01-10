@@ -30,7 +30,8 @@ extern "C" {
 #include "types_int.h"
 fpga_result cat_token_sysfs_path(char *, fpga_token, const char *);
 fpga_result get_port_sysfs(fpga_handle, char *);
-//    fpga_result get_fpga_deviceid(fpga_handle,uint64_t*);
+fpga_result sysfs_get_socket_id(int, int, fpga_guid);
+fpga_result sysfs_get_afu_id(int, int, fpga_guid);
 fpga_result sysfs_get_pr_id(int, int, fpga_guid);
 fpga_result sysfs_get_slots(int, int, uint32_t *);
 fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
@@ -42,6 +43,7 @@ ssize_t eintr_write(int, void *, size_t);
 char* cstr_dup(const char *str);
 int parse_pcie_info(sysfs_fpga_region *region, char *buffer);
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
+sysfs_fpga_resource* make_resource(sysfs_fpga_region*, char*, int, fpga_objtype);
 }
 
 #include <opae/enum.h>
@@ -53,7 +55,6 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 #include <vector>
 #include "xfpga.h"
 #include <fcntl.h>
-
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -65,7 +66,6 @@ const std::string single_dev_fme = "/dev/intel-fpga-fme.0";
 const std::string single_dev_port = "/dev/intel-fpga-port.0";
 
 using namespace opae::testing;
-
 
 
 class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
@@ -202,7 +202,6 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   EXPECT_EQ(xfpga_fpgaDestroyToken(&fme), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
   EXPECT_EQ(sysfs_finalize(), 0);
-
 }
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
@@ -452,7 +451,6 @@ TEST_P(sysfs_c_p, make_object) {
 }
 
 
-
 /**
 * @test    sysfs_sbdf_invalid_tests
 * @details When calling sysfs_sbdf_from path with invalid params
@@ -484,11 +482,22 @@ TEST_P(sysfs_c_p, get_fpga_deviceid) {
 * @test    cstr_dup
 * @details Duplicate an input string
 */
-TEST(sysfs_c, cstr_dup) {
+TEST_P(sysfs_c_p, cstr_dup) {
   std::string inp("this is an input string");
   char *dup = cstr_dup(inp.c_str());
   EXPECT_STREQ(dup, inp.c_str());
   free(dup);
+}
+
+/**
+* @test    cstr_dup
+* @details Invalidate malloc call
+*/
+TEST_P(sysfs_c_p, cstr_dup_1) {
+  std::string inp("this is an input string");
+  test_system::instance()->invalidate_malloc();
+  char *dup = cstr_dup(inp.c_str());
+  EXPECT_STRNE(dup, inp.c_str());
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
@@ -603,6 +612,19 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_02) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+/**
+ * @test    fpga_sysfs_02
+ *          sysfs_write_u64_decimal
+ */
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_03) {
+  fpga_result result;
+  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
+  // valid path
+  result = sysfs_write_u64_decimal(str.c_str(), 0x100);
+  EXPECT_EQ(result, FPGA_OK);
+}
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
@@ -613,15 +635,42 @@ class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test    sysfs_get_pr_id
- * @details sysfs_get_pr_id given a valid bitstream
- *          return FPGA_NOT_FOUND from sysfs_read_guid
+ * @details sysfs_get_pr_id given invalid path parameters. 
+ *          It returns FPGA_NOT_FOUND.
  */
 TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_pr_id) {
   int dev = 0;
   int subdev = 0;
   fpga_guid guid;
   auto res = sysfs_get_pr_id(dev, subdev, guid);
-  EXPECT_NE(res, FPGA_OK);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    sysfs_get_afu_id
+ * @details sysfs_get_afu_id given invalid path parameters. 
+ *          It returns FPGA_NOT_FOUND.
+ */
+
+TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_afu_id) {
+  int dev = 0;
+  int subdev = 0;
+  fpga_guid guid;
+  auto res = sysfs_get_afu_id(dev, subdev, guid);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    sysfs_get_socket_id
+ * @details sysfs_get_socket_id given invalid parameters. 
+ *          It returns FPGA_NOT_FOUND.
+ */
+TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_socket_id) {
+  int dev = 0;
+  int subdev = 0;
+  uint8_t socket_id;
+  auto res = sysfs_get_socket_id(dev, subdev, &socket_id);
+  EXPECT_EQ(res, FPGA_NOT_FOUND);
 }
 
 /**
@@ -778,6 +827,12 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   result = sysfs_write_u64(sysfs_fme.c_str(), 0x100);
   EXPECT_NE(result, FPGA_OK);
 
+  result = sysfs_write_u64_decimal(NULL, 0);
+  EXPECT_NE(result, FPGA_OK);
+
+  result = sysfs_write_u64_decimal(sysfs_fme.c_str(), 0x100);
+  EXPECT_NE(result, FPGA_OK);
+
   // Invalid input parameters
   fpga_guid guid;
   result = sysfs_read_guid(NULL, NULL);
@@ -800,5 +855,73 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   EXPECT_NE(result, FPGA_OK);
 }
 
+/**
+ * @test    make_resource
+ * @details Given valid parameters to make_resources but failed on malloc,
+ *          it returns nullptr for sysfs_fpga_resource. 
+ */
+TEST_P(sysfs_sockid_c_p, make_resources) {
+  sysfs_fpga_resource *fpga_resource;
+  sysfs_fpga_region region;
+  std::string name = "fme";
+  int num = 1;
+  fpga_objtype type = FPGA_DEVICE;
+  test_system::instance()->invalidate_malloc();
+  fpga_resource = make_resource(&region, const_cast<char*>(name.c_str()), num, type);
+  EXPECT_EQ(fpga_resource, nullptr);
+}
+
+/**
+ * @test    sysfs_get_guid
+ * @details Given invalid parameters to sysfs_get_guid. 
+ *          it returns FPGA_EXCEPTION. When an invalid path is 
+ *          passed in, it returns FPGA_NOT_FOUND.
+ */
+TEST_P(sysfs_sockid_c_p, sysfs_get_guid_neg) {
+  fpga_guid guid;
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  std::string sysfspath = tok->sysfspath;
+ 
+  EXPECT_EQ(sysfs_get_guid(nullptr, nullptr, guid),FPGA_EXCEPTION); 
+
+  EXPECT_EQ(sysfs_get_guid(tokens_[0], nullptr, guid),FPGA_EXCEPTION); 
+
+  EXPECT_EQ(sysfs_get_guid(nullptr, const_cast<char*>(sysfspath.c_str()), guid),FPGA_EXCEPTION); 
+
+  sysfspath = "";
+  EXPECT_EQ(sysfs_get_guid(tokens_[0], const_cast<char*>(sysfspath.c_str()), guid),FPGA_NOT_FOUND); 
+}
+
+/**
+ * @test    sysfs_path_is_valid
+ * @details Given invalid parameters to sysfs_path_is_valid. 
+ *          it returns FPGA_NOT_FOUND. 
+ */
+TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
+  const std::string root = ""; 
+  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  std::string sysfspath = tok->sysfspath;
+ 
+  EXPECT_EQ(sysfs_path_is_valid(nullptr, nullptr), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    get_port_sysfspath
+ * @details When token's sysfs is invalid for get_port_sysfspath. 
+ *          it returns FPGA_INVALID_PARAM. 
+ */
+TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
+  const std::string sysfs_port = ""; 
+  _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
+  _fpga_token *tok = static_cast<_fpga_token *>(h->token);
+  std::string sysfspath = tok->sysfspath;
+
+  strcpy(tok->sysfspath,"intel-fpga"); 
+  EXPECT_EQ(get_port_sysfs(handle_, const_cast<char *>(sysfs_port.c_str())), FPGA_INVALID_PARAM);
+
+  strcpy(tok->sysfspath, sysfspath.c_str());
+  EXPECT_EQ(get_port_sysfs(handle_, const_cast<char *>(sysfs_port.c_str())), FPGA_OK);
+}
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                       ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
