@@ -265,7 +265,6 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	int reg_res = -1;
 	int num = -1;
 	char err[128] = {0};
-	int res = FPGA_OK;
 	regmatch_t matches[SYSFS_MAX_RESOURCES];
 
 	if (SYSFS_FORMAT(sysfs_resource_fmt)) {
@@ -281,8 +280,8 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	dir = opendir(region->region_path);
 	if (!dir) {
 		FPGA_MSG("failed to open region path: %s", region->region_path);
-		res = FPGA_EXCEPTION;
-		goto out_free;
+		regfree(&re);
+		return FPGA_EXCEPTION;
 	}
 
 	while ((dirent = readdir(dir)) != NULL) {
@@ -316,10 +315,9 @@ STATIC int find_resources(sysfs_fpga_region *region)
 		}
 	}
 
-out_free:
 	regfree(&re);
 	closedir(dir);
-	return res;
+	return FPGA_OK;
 }
 
 STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
