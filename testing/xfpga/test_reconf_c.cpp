@@ -341,7 +341,7 @@ TEST_P(reconf_c, open_accel_02) {
  */
 TEST_P(reconf_c, validate_bitstream) {
   uint8_t bitstream_invalid_len[] = "XeonFPGA·GBSv001\255\255\255\255";
-  size_t bitstream_len = sizeof(bitstream_invalid_len) / sizeof(*bitstream_invalid_len);
+  size_t bitstream_len = sizeof(bitstream_invalid_len) / sizeof(uint8_t);
   int header_len;
   fpga_result result;
 
