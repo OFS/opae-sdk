@@ -134,7 +134,7 @@ class perf_counters(object):
         self._handle = handle
         try:
             self._group = handle.find(self._name, fpga.SYSOBJECT_GLOB)
-        except RuntimeError:
+        except (RuntimeError, AttributeError):
             self.logger.debug("Could not find group with name: %s", self._name)
             self._group = None
         else:
@@ -242,6 +242,7 @@ class dsm_tuple(object):
         self._end_overhead = self._end_overhead + other._end_overhead
         self._num_reads = self._num_reads + other._num_reads
         self._num_writes = self._num_writes + other._num_writes
+        return self
 
     @property
     def num_clocks(self):

@@ -25,7 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/fpga.h>
-
+#include "gtest/gtest.h"
+#include "test_system.h"
+#include "test_utils.h"
 extern "C" {
 
 #include <json-c/json.h>
@@ -114,14 +116,12 @@ struct gbs_metadata {
 
 fpga_result read_gbs_metadata(const uint8_t *bitstream,
                               struct gbs_metadata *gbs_metadata);
-
 }
 
 fpga_guid test_guid = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
                         0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
 
 #include <config.h>
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -130,9 +130,6 @@ fpga_guid test_guid = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
 #include <cstring>
 #include <errno.h>
 #include <unistd.h>
-#include "gtest/gtest.h"
-#include "test_system.h"
-
 using namespace opae::testing;
 
 class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
@@ -151,7 +148,27 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
 
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
-    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+    // assemble valid bitstream header
+    auto fme_guid = platform_.devices[0].fme_guid;
+    auto afu_guid = platform_.devices[0].afu_guid;
+
+    auto bitstream_j = jobject
+    ("version", "640")
+    ("afu-image", jobject
+                  ("interface-uuid", fme_guid)
+                  ("magic-no", int32_t(488605312))
+                  ("accelerator-clusters", {
+                                             jobject
+                                             ("total-contexts", int32_t(1))
+                                             ("name", "nlb")
+                                             ("accelerator-type-uuid", afu_guid)
+                                            }
+                  )
+    )
+    ("platform-name", "");
+
+    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0], bitstream_j.c_str());
+    bitstream_j.put();
 
     std::ofstream gbs;
     gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
@@ -172,7 +189,16 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
 
+  void copy_bitstream(std::string path) {
+    copy_gbs_ = path;
+    std::ifstream src(tmp_gbs_, std::ios::binary);
+    std::ofstream dst(copy_gbs_, std::ios::binary);
+  
+    dst << src.rdbuf(); 
+  }
+
   char tmp_gbs_[20];
+  std::string copy_gbs_;
   std::vector<uint8_t> bitstream_valid_;
   struct config config_;
   test_platform platform_;
@@ -187,7 +213,6 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(fpgaconf_c_p, help) {
   help();
 }
-
 
 /**
  * @test       parse_err0
@@ -489,19 +514,19 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
   char eleven[32];
   char twelve[32];
   char thirteen[32];
-  strcpy(zero, " fpgaconf Q&%^#>x[;;'kk/");
+  strcpy(zero, " fpgaconf Q&%^#;'kk/");
   strcpy(one, "-verbosesss \n\t\b\e\a\?");
   strcpy(two, "--n");
-  strcpy(three, "--f123413 23kshfa hfa;.'/'l|hrce");
-  strcpy(four, "--se!gmenttttt     lsdfhskfa");
+  strcpy(three, "--f123 23ksfa;.'/'l|hrce");
+  strcpy(four, "--se!gmentt  lsdfhskfa");
   strcpy(five, "0x1234");
   strcpy(six, "-bussssss");
   strcpy(seven, "0x5e");
-  strcpy(eight, "-Devic\xF0\x90-\xBF essssss \t\n\b\a\e\v");
+  strcpy(eight, "-Devic\xF0\x90sss \t\n\b\a\e\v");
   strcpy(nine, "0xab");
-  strcpy(ten, " =============  %34   -Function    \x00\x08\x09\x0B\x0D");
+  strcpy(ten, " =====%34 -Function \x09\x0B\x0D");
   strcpy(eleven, "3");
-  strcpy(twelve, "-Socket__________id \xF1-\xF3    \x80-\x8F");
+  strcpy(twelve, "-Socket__ \xF1-\xF3 \x8F");
   strcpy(thirteen, "2");
 
   char *argv[] = { zero, one, two, three, four,
@@ -547,7 +572,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
   strcpy(ten, "-F");
   strcpy(eleven, "-33492\t000");
   strcpy(twelve, "-S");
-  strcpy(thirteen, "\000 00000000000000000000");
+  strcpy(thirteen, "\000 00000000");
   strcpy(fourteen, "-A");
 
   char *argv[] = { zero, one, two, three,
@@ -568,9 +593,6 @@ TEST_P(fpgaconf_c_p, parse_args3) {
   const char *argv[] = { "fpgaconf", "no-file.gbs" };
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
-
-
-
 
 /**
  * @test       ifc_id1
@@ -677,6 +699,268 @@ TEST_P(fpgaconf_c_p, main2) {
                    five };
 
   EXPECT_NE(fpgaconf_main(6, argv), 0);
+}
+
+/**
+ * @test       embed_nullchar
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params contains nullbyte,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, embed_nullchar1) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs"};
+
+  EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
+  unlink(copy_gbs_.c_str());
+}
+
+TEST_P(fpgaconf_c_p, embed_nullchar2) {
+  copy_bitstream("copy_bitstream.gbs");
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs"};
+
+  EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       encoding_path
+ * @brief      Test: fpgaconf_main
+ * @details    When command param is encoding path,<br>
+ *             fpgaconf_main displays file error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, encoding_path) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "0x5e");
+
+  char *argv[] = { zero, one, two, three};
+
+  // File not found
+  strcpy(three, "copy_bitstream%2egbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "copy_bitstream..gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+  
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "....copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  // File not found
+  memset(three, 0, 32);
+  strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       relative_path
+ * @brief      Test: fpgaconf_main
+ * @details    When gbs file locates in parent directory and command params<br>
+ *             contains path traversal. On success, fpgaconf_main loads bitstream<br>
+ *             and returns zero. Otherwise, it displays file error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, relative_path) {
+  copy_bitstream("../copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  char four[32];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-n");
+  strcpy(two, "-B");
+  strcpy(three, "0x5e");
+
+  char *argv[] = { zero, one, two, three, four};
+
+  strcpy(four, "../copy_bitstream.gbs");
+  EXPECT_EQ(fpgaconf_main(5, argv), 0);
+
+  // Fail not found
+  memset(four, 0, 32);
+  strcpy(four, "../..../copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
+
+  // Fail not found
+  memset(four, 0, 32);
+  strcpy(four, "..%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
+
+  // Fail not found
+  memset(four, 0, 32);
+  strcpy(four, "%2e%2e/copy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
+
+  // Fail not found
+  memset(four, 0, 32);
+  strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
+  EXPECT_NE(fpgaconf_main(5, argv), 0);
+
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       absolute_path_pos 
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params are valid with absolute gbs path,<br>
+ *             fpgaconf_main loads in bitstream and returns 0.<br>
+ */
+TEST_P(fpgaconf_c_p, absolute_path_pos) {
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[32];
+  char four[128];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-n");
+  strcpy(two, "-B");
+  strcpy(three, "0x5e");
+
+  char *argv[] = { zero, one, two, three, four};
+  char *current_path = get_current_dir_name();
+  std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
+
+  strcpy(four, bitstream_path.c_str());
+  EXPECT_EQ(fpgaconf_main(5, argv), 0);
+
+  free(current_path);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       absolute_path_neg 
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params are valid but bitstream data is,<br>
+ *             invalid, fpgaconf_main loads in bitstream and fails to <br>
+ *             set userclock, it returns none-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, absolute_path_neg) {
+  bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+  std::ofstream gbs;
+  gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
+  gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
+  gbs.close();
+
+  copy_bitstream("copy_bitstream.gbs");
+  char zero[32];
+  char one[32];
+  char two[32];
+  char three[128];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "0x5e");
+
+  char *argv[] = { zero, one, two, three};
+  char *current_path = get_current_dir_name();
+  std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
+
+  strcpy(three, bitstream_path.c_str());
+  EXPECT_NE(fpgaconf_main(4, argv), 0);
+
+  free(current_path);
+  unlink(copy_gbs_.c_str());
+}
+
+/**
+ * @test       read_symlink_bs
+ * @brief      Test: 
+ * @details    Tests for symlink on gbs file. When successful,<br>
+ *             fpgaconf_main loads the bitstream into the gbs_data field<br>
+ *             and the fn returns 0. When file doesn't exist, fpgaconf_main<br>
+ *             displays error and returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, main_symlink_bs) {
+  copy_bitstream("copy_bitstream.gbs"); 
+  const std::string symlink_gbs = "bits_symlink";
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+
+  auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
+  EXPECT_EQ(ret, 0);
+  // Success case
+  strcpy(five, symlink_gbs.c_str());
+  EXPECT_EQ(fpgaconf_main(6, argv), 0);
+
+  // remove bitstream file
+  unlink(copy_gbs_.c_str());
+
+  // Fail case
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  unlink(symlink_gbs.c_str());
+}
+
+/**
+ * @test       circular_symlink
+ * @brief      Test: fpgaconf_c_p
+ * @details    Tests for circular symlink on gbs file. <br>
+ *             fpgaconf_c_p displays error and returns -1.<br>
+ */
+TEST_P(fpgaconf_c_p, circular_symlink) {
+  const std::string symlink_A = "./link1/bits_symlink_A";
+  const std::string symlink_B = "./link2/bits_symlink_B";
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char four[20];
+  char five[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-v");
+  strcpy(two, "-n");
+  strcpy(three, "-B");
+  strcpy(four, "0x5e");
+
+  char *argv[] = { zero, one, two, three, four,
+                   five };
+
+  // Create link directories
+  auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+  ret = mkdir("./link2", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  EXPECT_EQ(ret, 0);
+
+  // Create circular symlinks
+  ret = symlink("link1", symlink_B.c_str());
+  EXPECT_EQ(ret, 0);
+  ret = symlink("link2", symlink_A.c_str());
+  EXPECT_EQ(ret, 0);
+
+  strcpy(five, symlink_A.c_str());
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+
+  memset(five, 0, 20);
+  strcpy(five, symlink_B.c_str());
+  EXPECT_NE(fpgaconf_main(6, argv), 0);
+  
+  // Clean up
+  unlink(symlink_A.c_str());
+  unlink(symlink_B.c_str());
+  remove("link1");
+  remove("link2");
 }
 
 /**
@@ -959,10 +1243,49 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
  * @brief      Test: program_bitstream
  * @details    When config.dry_run is set to false,<br>
  *             program_bitstream attempts the PR,<br>
+ *             and succeeds with a valid bitstream,<br>
+ *             causing the function to return 1.<br>
+ */
+TEST_P(fpgaconf_c_mock_p, prog_bs1) {
+  config.target.segment = platform_.devices[0].segment;
+  config.target.bus = platform_.devices[0].bus;
+  config.target.device = platform_.devices[0].device;
+  config.target.function = platform_.devices[0].function;
+  config.target.socket = platform_.devices[0].socket_id;
+
+  ASSERT_EQ(config.dry_run, false);
+
+  fpga_guid pr_ifc_id;
+  ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
+
+  struct bitstream_info info;
+  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+
+  fpga_token tok = nullptr;
+  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  ASSERT_NE(tok, nullptr);
+
+  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
+
+  free(info.data);
+  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+}
+
+/**
+ * @test       prog_bs2
+ * @brief      Test: program_bitstream
+ * @details    When config.dry_run is set to false,<br>
+ *             program_bitstream attempts the PR,<br>
  *             which fails when given an invalid bitstream,<br>
  *             causing the function to return -1.<br>
  */
-TEST_P(fpgaconf_c_mock_p, prog_bs1) {
+TEST_P(fpgaconf_c_mock_p, prog_bs2) {
+  bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
+  std::ofstream gbs;
+  gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
+  gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
+  gbs.close();
+
   config.target.segment = platform_.devices[0].segment;
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
@@ -989,5 +1312,4 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
 
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
-
 
