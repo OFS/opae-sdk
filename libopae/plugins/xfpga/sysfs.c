@@ -257,7 +257,7 @@ STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
 }
 
 
-STATIC void find_resources(sysfs_fpga_region *region)
+STATIC int find_resources(sysfs_fpga_region *region)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
@@ -265,6 +265,7 @@ STATIC void find_resources(sysfs_fpga_region *region)
 	int reg_res = -1;
 	int num = -1;
 	char err[128] = {0};
+	int res = FPGA_OK;
 	regmatch_t matches[SYSFS_MAX_RESOURCES];
 
 	if (SYSFS_FORMAT(sysfs_resource_fmt)) {
@@ -273,13 +274,15 @@ STATIC void find_resources(sysfs_fpga_region *region)
 		if (reg_res) {
 			regerror(reg_res, &re, err, 128);
 			FPGA_MSG("Error compiling regex: %s", err);
+			return FPGA_EXCEPTION;
 		}
 	}
 
 	dir = opendir(region->region_path);
 	if (!dir) {
 		FPGA_MSG("failed to open region path: %s", region->region_path);
-		return;
+		res = FPGA_EXCEPTION;
+		goto out_free;
 	}
 
 	while ((dirent = readdir(dir)) != NULL) {
@@ -312,8 +315,11 @@ STATIC void find_resources(sysfs_fpga_region *region)
 			}
 		}
 	}
+
+out_free:
 	regfree(&re);
 	closedir(dir);
+	return res;
 }
 
 STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
@@ -399,13 +405,14 @@ int sysfs_initialize(void)
 			regerror(reg_res, &region_re, err, 128);
 			FPGA_ERR("Error compling regex: %s", err);
 			return FPGA_EXCEPTION;
-		};
+		}
 	}
 
 	const char *sysfs_class_fpga = SYSFS_FORMAT(sysfs_class_path);
 	if (!sysfs_class_fpga) {
 		FPGA_ERR("Invalid fpga class path: %s", sysfs_class_fpga);
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
+		goto out_free;
 	}
 
 	// open the root sysfs class directory
@@ -413,7 +420,8 @@ int sysfs_initialize(void)
 	dir = opendir(sysfs_class_fpga);
 	if (!dir) {
 		FPGA_MSG("failed to open region path: %s", sysfs_class_fpga);
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
+		goto out_free;
 	}
 
 	while ((dirent = readdir(dir))) {
