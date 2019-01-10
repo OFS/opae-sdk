@@ -316,7 +316,8 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	}
 
 	regfree(&re);
-	closedir(dir);
+	if (dir)
+		closedir(dir);
 	return FPGA_OK;
 }
 
@@ -476,7 +477,8 @@ out_unlock:
 	}
 out_free:
 	regfree(&region_re);
-	closedir(dir);
+	if (dir)
+		closedir(dir);
 	return res;
 }
 
