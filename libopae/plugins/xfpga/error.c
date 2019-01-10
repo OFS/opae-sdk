@@ -312,6 +312,7 @@ build_error_list(const char *path, struct error_list **list)
 			FPGA_MSG("strncpy_s() failed with return value %u", err);
 			n--;
 			free(new_entry);
+			new_entry = NULL;
 			break;
 		}
 		err = strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
@@ -319,6 +320,7 @@ build_error_list(const char *path, struct error_list **list)
 			FPGA_MSG("strncpy_s() failed with return value %u", err);
 			n--;
 			free(new_entry);
+			new_entry = NULL;
 			break;
 		}
 		new_entry->next = NULL;
@@ -332,6 +334,7 @@ build_error_list(const char *path, struct error_list **list)
 				FPGA_MSG("strncpy_s() failed with return value %u", err);
 				n--;
 				free(new_entry);
+				new_entry = NULL;
 				break;
 			}
 			// try accessing clear file
@@ -342,6 +345,7 @@ build_error_list(const char *path, struct error_list **list)
 					FPGA_MSG("strncpy_s() failed with return value %u", err);
 					n--;
 					free(new_entry);
+					new_entry = NULL;
 					break;
 				}
 			}
@@ -353,6 +357,7 @@ build_error_list(const char *path, struct error_list **list)
 						FPGA_MSG("strncpy_s() failed with return value %u", err);
 						n--;
 						free(new_entry);
+						new_entry = NULL;
 						break;
 					}
 					// try accessing clear file
@@ -363,6 +368,7 @@ build_error_list(const char *path, struct error_list **list)
 							FPGA_MSG("strncpy_s() failed with return value %u", err);
 							n--;
 							free(new_entry);
+							new_entry = NULL;
 							break;
 						}
 					}
@@ -370,7 +376,7 @@ build_error_list(const char *path, struct error_list **list)
 			}
 		}
 
-		if (!new_entry && !new_entry->info.can_clear) {
+		if (new_entry && !new_entry->info.can_clear) {
 			err = memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
 			// the first two arguments passed in to memset_s are
 			// always valid - no need to check for error code
@@ -381,7 +387,8 @@ build_error_list(const char *path, struct error_list **list)
 			el = &(*el)->next;
 
 		// append
-		*el = new_entry;
+		if (new_entry)
+			*el = new_entry;
 		el = &new_entry->next;
 	}
 	closedir(dir);
