@@ -740,6 +740,7 @@ def write_file(fname, data):
 
 def get_mtd_from_spi_path(mode_path, spi_path):
 
+
     write_file(mode_path, "1")
 
     for i in range(20):
@@ -991,6 +992,7 @@ def board_rsu(bdf, spi_path, boot_page):
     return dc_vc_reconfigure(bdf, ld_path, boot_page)
 
 
+
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
     if utype in ['bmc_img', 'bmc_factory']:
@@ -1034,6 +1036,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         target_offset = 0x3820000
         input_offset = 0
         erase_len = VC_DC_DTB_BLOCK_SIZE
+
     else:
         target_offset = 0x4000000
         input_offset = 0x3ff0000
@@ -1258,6 +1261,7 @@ def validate_bdf(bdf, bdf_pvid_map):
     if bdf_pvid_map[bdf] == RC_PVID:
         if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_factory']:
             print "%s not supported on %s" % (args.type, RC)
+
             sys.exit(1)
 
         ret = rc_fpga_update(args.file, args.type, bdf, args.no_verify)
@@ -1280,6 +1284,7 @@ def validate_bdf(bdf, bdf_pvid_map):
                 print "eeprom only supported on {} and {}".format(DC_PVID,
                                                                   VC_PVID)
                 ret = 1
+
         else:
             # file validation check for Vista Creek
             if bdf_pvid_map[bdf] == VC_PVID:
