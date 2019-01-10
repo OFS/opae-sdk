@@ -370,7 +370,7 @@ build_error_list(const char *path, struct error_list **list)
 			}
 		}
 
-		if (!new_entry->info.can_clear) {
+		if (!new_entry && !new_entry->info.can_clear) {
 			err = memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
 			// the first two arguments passed in to memset_s are
 			// always valid - no need to check for error code
