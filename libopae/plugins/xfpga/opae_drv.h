@@ -31,6 +31,33 @@
 #ifndef OPAE_IOCTL_H
 #define OPAE_IOCTL_H
 #include <stdint.h>
+#include <linux/limits.h>
+#include <opae/types_enum.h>
+
+typedef struct _opae_device opae_device;
+
+typedef struct _opae_resource {
+	opae_device *device;
+	char sysfs_path[PATH_MAX];
+	char sysfs_name[PATH_MAX];
+	char devfs_path[PATH_MAX];
+	fpga_objtype type;
+	int instance;
+} opae_resource;
+
+typedef struct _opae_device {
+	char sysfs_path[PATH_MAX];
+	char sysfs_name[PATH_MAX];
+	int instance;
+	opae_resource *fme;
+	opae_resource *port;
+	uint32_t segment;
+	uint8_t bus;
+	uint8_t device;
+	uint8_t function;
+	uint32_t device_id;
+	uint32_t vendor_id;
+} opae_device;
 
 typedef struct _opae_fme_info {
 	uint32_t flags;
@@ -51,7 +78,8 @@ typedef struct _opae_port_region_info {
 	uint64_t offset;
 } opae_port_region_info;
 
-int opae_ioctl_initialize(void);
+int opae_drv_initialize(void);
+int opae_drv_finalize(void);
 
 fpga_result opae_get_fme_info(int fd, opae_fme_info *info);
 fpga_result opae_get_port_info(int fd, opae_port_info *info);

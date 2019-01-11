@@ -43,7 +43,7 @@ int __FPGA_API__ xfpga_plugin_initialize(void)
 		return res;
 	}
 
-	res = opae_ioctl_initialize();
+	res = opae_drv_initialize();
 	if (res) {
 		return res;
 	}

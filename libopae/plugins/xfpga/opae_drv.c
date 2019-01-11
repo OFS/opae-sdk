@@ -27,17 +27,55 @@
  * opae_ioctl.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
+#define _GNU_SOURCE
+#include <pthread.h>
+#include <glob.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <regex.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <errno.h>
+#undef _GNU_SOURCE
+
 #include <opae/fpga.h>
 #include <safe_string/safe_string.h>
 #include "common_int.h"
 #include "opae_drv.h"
 #include "intel-fpga.h"
 #include "fpga-dfl.h"
+
+#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])"
+#define PCIE_PATH_PATTERN_GROUPS 5
+
+#define RE_GROUP_INT(_p, _m, _v, _b, _l)                                       \
+	do {                                                                   \
+		errno = 0;                                                     \
+		_v = strtoul(_p + _m.rm_so, NULL, _b);                         \
+		if (errno) {                                                   \
+			FPGA_MSG("error parsing int");                         \
+			goto _l;                                               \
+		}                                                              \
+	} while (0);
+
+
+typedef struct _sysfs_formats {
+	const char *class_path;
+	const char *region_fmt;
+	const char *resource_fmt;
+	const char *compat_id;
+} sysfs_formats;
 
 typedef struct _ioctl_ops {
 	fpga_result (*get_fme_info)(int fd, opae_fme_info *info);
@@ -443,68 +481,396 @@ fpga_result dfl_fme_port_reset(int fd)
 	return opae_ioctl(fd, DFL_FPGA_PORT_RESET, NULL);
 }
 
-#define MAX_KERNEL_DRIVERS 2
-static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
-	{.get_fme_info = NULL,
-	 .get_port_info = dfl_get_port_info,
-	 .get_port_region_info = dfl_get_port_region_info,
-	 .port_map = dfl_port_map,
-	 .port_unmap = dfl_port_unmap,
-	 .port_umsg_cfg = NULL,
-	 .port_umsg_set_base_addr = NULL,
-	 .port_umsg_enable = NULL,
-	 .port_umsg_disable = NULL,
-	 .fme_set_err_irq = NULL,
-	 .port_set_err_irq = NULL,
-	 .port_set_user_irq = NULL,
-	 .fme_port_assign = dfl_fme_port_assign,
-	 .fme_port_release = dfl_fme_port_release,
-	 .fme_port_pr = dfl_fme_port_pr,
-	 .fme_port_reset = dfl_fme_port_reset},
-	{.get_fme_info = intel_get_fme_info,
-	 .get_port_info = intel_get_port_info,
-	 .get_port_region_info = intel_get_port_region_info,
-	 .port_map = intel_port_map,
-	 .port_unmap = intel_port_unmap,
-	 .port_umsg_cfg = intel_port_umsg_cfg,
-	 .port_umsg_set_base_addr = intel_port_umsg_set_base_addr,
-	 .port_umsg_enable = intel_port_umsg_enable,
-	 .port_umsg_disable = intel_port_umsg_disable,
-	 .fme_set_err_irq = intel_fme_set_err_irq,
-	 .port_set_err_irq = intel_port_set_err_irq,
-	 .port_set_user_irq = intel_port_set_user_irq,
-	 .fme_port_assign = intel_fme_port_assign,
-	 .fme_port_release = intel_fme_port_release,
-	 .fme_port_pr = intel_fme_port_pr,
-	 .fme_port_reset = intel_fme_port_reset} };
+#define OPAE_KERNEL_DRIVERS 2
 
-static ioctl_ops *io_ptr;
+typedef struct _drv_iface {
+	sysfs_formats sysfs;
+	ioctl_ops io;
+} drv_iface;
 
-int opae_ioctl_initialize(void)
+static drv_iface _opae_drivers[OPAE_KERNEL_DRIVERS] = {
+	{ {"/sys/class/fpga_region", "region([0-9])+",
+	  "dfl-(fme|port)\\.([0-9]+)",
+	  "/dfl-fme-region.*/fpga_region/region*/compat_id"},
+	 {.get_fme_info = NULL,
+	  .get_port_info = dfl_get_port_info,
+	  .get_port_region_info = dfl_get_port_region_info,
+	  .port_map = dfl_port_map,
+	  .port_unmap = dfl_port_unmap,
+	  .port_umsg_cfg = NULL,
+	  .port_umsg_set_base_addr = NULL,
+	  .port_umsg_enable = NULL,
+	  .port_umsg_disable = NULL,
+	  .fme_set_err_irq = NULL,
+	  .port_set_err_irq = NULL,
+	  .port_set_user_irq = NULL,
+	  .fme_port_assign = dfl_fme_port_assign,
+	  .fme_port_release = dfl_fme_port_release,
+	  .fme_port_pr = dfl_fme_port_pr,
+	  .fme_port_reset = dfl_fme_port_reset} },
+	{ {"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
+	  "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"},
+	 {.get_fme_info = intel_get_fme_info,
+	  .get_port_info = intel_get_port_info,
+	  .get_port_region_info = intel_get_port_region_info,
+	  .port_map = intel_port_map,
+	  .port_unmap = intel_port_unmap,
+	  .port_umsg_cfg = intel_port_umsg_cfg,
+	  .port_umsg_set_base_addr = intel_port_umsg_set_base_addr,
+	  .port_umsg_enable = intel_port_umsg_enable,
+	  .port_umsg_disable = intel_port_umsg_disable,
+	  .fme_set_err_irq = intel_fme_set_err_irq,
+	  .port_set_err_irq = intel_port_set_err_irq,
+	  .port_set_user_irq = intel_port_set_user_irq,
+	  .fme_port_assign = intel_fme_port_assign,
+	  .fme_port_release = intel_fme_port_release,
+	  .fme_port_pr = intel_fme_port_pr,
+	  .fme_port_reset = intel_fme_port_reset}
+	} };
+
+static drv_iface *_drv;
+
+
+#define SYSFS_MAX_DEVICES 128
+#define RE_REGION_GROUPS 2
+#define RE_RESOURCE_GROUPS 3
+
+static opae_device _devices[SYSFS_MAX_DEVICES];
+static uint32_t _sysfs_device_count;
+pthread_mutex_t _sysfs_device_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+STATIC int sysfs_parse_device_vendor_id(opae_device *device)
+{
+	uint64_t value = 0;
+	int res = sysfs_parse_attribute64(device->sysfs_path, "device/device", &value);
+	if (res) {
+		FPGA_ERR("Error parsing device_id for region: %s",
+			 device->sysfs_path);
+		return res;
+	}
+	device->device_id = value;
+
+	res = sysfs_parse_attribute64(device->sysfs_path, "device/vendor", &value);
+
+	if (res) {
+		FPGA_ERR("Error parsing vendor_id for region: %s",
+			 device->sysfs_path);
+		return res;
+	}
+	device->vendor_id = value;
+
+	return FPGA_OK;
+}
+
+STATIC int sysfs_parse_pcie_info(regex_t *re, opae_device *device, char *buffer)
+{
+	char err[128] = {0};
+	int res = FPGA_EXCEPTION;
+	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
+
+	int reg_res = regexec(re, buffer, PCIE_PATH_PATTERN_GROUPS, matches, 0);
+	if (reg_res) {
+		regerror(reg_res, re, err, 128);
+		FPGA_ERR("Error executing regex: %s", err);
+		res = FPGA_EXCEPTION;
+		goto out;
+	} else {
+		RE_GROUP_INT(buffer, matches[1], device->segment, 16, out);
+		RE_GROUP_INT(buffer, matches[2], device->bus, 16, out);
+		RE_GROUP_INT(buffer, matches[3], device->device, 16, out);
+		RE_GROUP_INT(buffer, matches[4], device->function, 10, out);
+	}
+	res = FPGA_OK;
+
+out:
+	return res;
+}
+
+STATIC int add_device(opae_device *device, const char *sysfs_class_fpga,
+		      char *dir_name, int num, regex_t *pcie_re)
+{
+	int res = FPGA_OK;
+	char buffer[PATH_MAX] = {0};
+	ssize_t sym_link_len = 0;
+
+	if (snprintf_s_ss(device->sysfs_path, PATH_MAX, "%s/%s",
+			  sysfs_class_fpga, dir_name)
+	    < 0) {
+		FPGA_ERR("Error formatting sysfs paths");
+		return FPGA_EXCEPTION;
+	}
+
+	if (snprintf_s_s(device->sysfs_name, PATH_MAX, "%s", dir_name) < 0) {
+		FPGA_ERR("Error formatting sysfs name");
+		return FPGA_EXCEPTION;
+	}
+
+	sym_link_len = readlink(device->sysfs_path, buffer, PATH_MAX);
+	if (sym_link_len < 0) {
+		FPGA_ERR("Error reading sysfs link: %s", device->sysfs_path);
+		return FPGA_EXCEPTION;
+	}
+
+	device->instance = num;
+	res = sysfs_parse_pcie_info(pcie_re, device, buffer);
+
+	if (res) {
+		FPGA_ERR("Could not parse symlink");
+		return res;
+	}
+
+	return sysfs_parse_device_vendor_id(device);
+}
+
+#define OPAE_FME "fme"
+#define OPAE_FME_LEN 3
+
+#define OPAE_PORT "port"
+#define OPAE_PORT_LEN 4
+
+STATIC opae_resource *make_opae_resource(opae_device *device, char *name,
+				    int num, fpga_objtype type)
 {
 	struct stat st;
+	opae_resource *res = (opae_resource*)malloc(sizeof(opae_resource));
+	if (!res) {
+		OPAE_MSG("error allocating resource struct");
+		return NULL;
+	}
+
+	res->device = device;
+	res->type = type;
+	res->instance = num;
+	// copy the full path to the parent region object
+	strcpy_s(res->sysfs_path, SYSFS_PATH_MAX, device->sysfs_path);
+	// add a trailing path seperator '/'
+	int len = strlen(res->sysfs_path);
+	char *ptr = res->sysfs_path + len;
+	*ptr = '/';
+	ptr++;
+	*ptr = '\0';
+	// append the name to get the full path to the res
+	if (cat_sysfs_path(res->sysfs_path, name)) {
+		FPGA_ERR("error concatenating path");
+		free(res);
+		return NULL;
+	}
+	if (stat(res->sysfs_path, &st)) {
+		FPGA_ERR("Resource sysfs path does not exist: %s", res->sysfs_path);
+		free(res);
+		return NULL;
+	}
+
+	if (snprintf_s_s(res->sysfs_name, PATH_MAX, "%s", name) < 0) {
+		FPGA_ERR("Error formatting sysfs name");
+		free(res);
+		return NULL;
+	}
+	if (snprintf_s_s(res->devfs_path, PATH_MAX, "/dev/%s", name) < 0) {
+		FPGA_ERR("Error formatting devfs path");
+		free(res);
+		return NULL;
+	}
+
+	if (stat(res->devfs_path, &st)) {
+		FPGA_ERR("Resource devfs path does not exist: %s", res->devfs_path);
+		free(res);
+		return NULL;
+	}
+
+	return res;
+}
+
+STATIC void sysfs_find_resources(opae_device *device)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	regex_t re;
+	int reg_res = -1;
+	int num = -1;
+	char err[128] = {0};
+	regmatch_t matches[RE_RESOURCE_GROUPS];
+	reg_res = regcomp(&re, _drv->sysfs.resource_fmt, REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &re, err, 128);
+		FPGA_MSG("Error compiling regex: %s", err);
+	}
+
+	dir = opendir(device->sysfs_path);
+	while ((dirent = readdir(dir)) != NULL) {
+		if (!strcmp(dirent->d_name, "."))
+			continue;
+		if (!strcmp(dirent->d_name, ".."))
+			continue;
+		reg_res = regexec(&re, dirent->d_name, SYSFS_MAX_RESOURCES,
+				  matches, 0);
+		if (!reg_res) {
+			int type_beg = matches[1].rm_so;
+			// int type_end = matches[1].rm_eo;
+			int num_beg = matches[2].rm_so;
+			// int num_end = matches[2].rm_eo;
+			if (type_beg < 1 || num_beg < 1) {
+				FPGA_MSG("Invalid sysfs resource format");
+				continue;
+			}
+			num = strtoul(dirent->d_name + num_beg, NULL, 10);
+			if (!strncmp(OPAE_FME, dirent->d_name + type_beg,
+				     OPAE_FME_LEN)) {
+				device->fme = make_opae_resource(
+					device, dirent->d_name, num,
+					FPGA_DEVICE);
+			} else if (!strncmp(OPAE_PORT,
+					    dirent->d_name + type_beg,
+					    OPAE_PORT_LEN)) {
+				device->port = make_opae_resource(
+					device, dirent->d_name, num,
+					FPGA_ACCELERATOR);
+			}
+		}
+	}
+	regfree(&re);
+	closedir(dir);
+}
+
+STATIC void discover()
+{
+	int res = 0;
+	uint32_t i = 0;
+	char err[128];
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	const char *sysfs_class_path = _drv->sysfs.class_path;
+	regex_t device_re, pcie_re;
+	regmatch_t matches[RE_REGION_GROUPS];
+	int reg_res = regcomp(&device_re, _drv->sysfs.region_fmt,
+			      REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &device_re, err, 128);
+		FPGA_ERR("Error compling regex: %s", err);
+		return;
+	};
+
+	reg_res = regcomp(&pcie_re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
+	if (reg_res) {
+		regfree(&device_re);
+		FPGA_ERR("Error compling regex");
+		return;
+	}
+
+	dir = opendir(sysfs_class_path);
+	while ((dirent = readdir(dir))) {
+		if (!strcmp(dirent->d_name, "."))
+			continue;
+		if (!strcmp(dirent->d_name, ".."))
+			continue;
+		// if the current directory matches the device regex
+		reg_res = regexec(&device_re, dirent->d_name, RE_REGION_GROUPS,
+				  matches, 0);
+		if (!reg_res) {
+			int num_begin = matches[1].rm_so;
+			if (num_begin < 0) {
+				FPGA_ERR("sysfs format invalid: %s", dirent->d_name);
+				continue;
+			}
+			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
+			// increment our device count after filling out details
+			// of the discovered region in our _devices array
+			if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+				goto out_free;
+			}
+			if (add_device(&_devices[_sysfs_device_count++],
+					sysfs_class_path, dirent->d_name,
+					num, &pcie_re)) {
+				FPGA_MSG("Error processing device: %s",
+					 dirent->d_name);
+				_sysfs_device_count--;
+			}
+			if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
+				goto out_free;
+			}
+		}
+	}
+
+	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+		goto out_free;
+	} else if (!_sysfs_device_count) {
+		FPGA_ERR("Error discovering fpga regions");
+		goto out_unlock;
+	}
+
+	// now, for each discovered region, look inside for resources
+	// (fme|port)
+	for (i = 0; i < _sysfs_device_count; ++i) {
+		sysfs_find_resources(&_devices[i]);
+	}
+
+out_unlock:
+	if (pthread_mutex_unlock(&_sysfs_device_lock)) {
+		FPGA_MSG("error unlocking sysfs region mutex");
+	}
+out_free:
+	regfree(&device_re);
+	regfree(&pcie_re);
+	closedir(dir);
+}
+
+STATIC int sysfs_device_destroy(opae_device *device)
+{
+	ASSERT_NOT_NULL(device);
+	if (device->fme) {
+		free(device->fme);
+		device->fme = NULL;
+	}
+	if (device->port) {
+		free(device->port);
+		device->port = NULL;
+	}
+	return FPGA_OK;
+}
+
+int opae_drv_initialize(void)
+{
+	opae_drv_finalize();
+	struct stat st;
 	if (!stat("/sys/class/fpga_region", &st)) {
-		io_ptr = &ioctl_table[0];
-		return 0;
+		_drv = &_opae_drivers[0];
 	}
 	if (!stat("/sys/class/fpga", &st)) {
-		io_ptr = &ioctl_table[1];
-		return 0;
+		_drv = &_opae_drivers[1];
 	}
-	return 1;
+
+	if (!_drv) {
+		OPAE_ERR("Did not find OPAE sysfs path");
+		return FPGA_NO_DRIVER;
+	}
+
+	discover();
+
+
+	return 0;
+}
+
+int opae_drv_finalize(void)
+{
+	uint32_t i = 0;
+	for (; i < _sysfs_device_count; ++i) {
+		sysfs_device_destroy(&_devices[i]);
+	}
+	_sysfs_device_count = 0;
+	return FPGA_OK;
 }
 
 #define IOCTL(_FN, ...)                                                        \
 	do {                                                                   \
-		if (!io_ptr) {                                                 \
+		if (!_drv) {                                                   \
 			OPAE_ERR("ioctl interface has not been initialized");  \
 			return FPGA_EXCEPTION;                                 \
 		}                                                              \
-		if (!io_ptr->_FN) {                                            \
+		if (!_drv->io._FN) {                                           \
 			OPAE_MSG("ioctl function not yet supported");          \
 			return FPGA_NOT_SUPPORTED;                             \
 		}                                                              \
-		return io_ptr->_FN(__VA_ARGS__);                               \
+		return _drv->io._FN(__VA_ARGS__);                              \
 	} while (0);
 
 fpga_result opae_get_fme_info(int fd, opae_fme_info *info)
