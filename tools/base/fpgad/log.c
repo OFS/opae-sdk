@@ -37,9 +37,7 @@ int open_log(const char *filename)
 	int res;
 	int err;
 
-	err = pthread_mutex_lock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
+	opae_mutex_lock(err, &log_lock);
 
 	fLog = fopen(filename, "a");
 	if (fLog) {
@@ -49,9 +47,8 @@ int open_log(const char *filename)
 		res = -1;
 	}
 
-	err = pthread_mutex_unlock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
+	opae_mutex_unlock(err, &log_lock);
+
 	return res;
 }
 
@@ -63,16 +60,12 @@ int dlog(const char *fmt, ...)
 
 	va_start(l, fmt);
 
-	err = pthread_mutex_lock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_lock() failed: %s", strerror(err));
+	opae_mutex_lock(err, &log_lock);
 
 	res = vfprintf(fLog, fmt, l);
 	fflush(fLog);
 
-	err = pthread_mutex_unlock(&log_lock);
-	if (err)
-		fprintf(stderr, "pthread_mutex_unlock() failed: %s", strerror(err));
+	opae_mutex_unlock(err, &log_lock);
 
 	va_end(l);
 

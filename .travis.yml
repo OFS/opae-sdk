@@ -2,24 +2,47 @@ language: c
 compiler: gcc
 matrix:
   include:
-  - script: scripts/test-codingstyle.sh
-  - script: scripts/test-codingstyle-cpp.sh
-    addons:
-      apt:
-        packages:
-          - clang-format-3.9
-  - script: scripts/test-codingstyle-py.sh
+  - script: scripts/test-codingstyle-all.sh
     cache: pip
+    env:
+    - BUILD_JOB=Code Style Check
     install:
     - pip install --user pylint
     - pip install --user pycodestyle
     - pip install --user jsonschema
     - pip install --user jinja2
+    addons:
+      apt:
+        packages:
+          - clang-format-3.9    
+  - script: scripts/build-pypi.sh
+    install:
+    - pip install --user pybind11 nose2
+    cache: ccache
+    env:
+    - BUILD_JOB=Build python distribution and upload to PyPI
+    - TRAVIS_BUILD_TYPE=RelWithDebInfo
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - uuid-dev
+        - doxygen
+    deploy:
+      provider: pypi
+      user: opae_robot
+      password:
+         secure: "nbiIOg2D8zYuQaSBuVNam5ga3OORqukpFYl8W/uV5r5rh81TwhsY0Y45HLxviRRUK/5/cBgVxfXDzKlzJSG0LDW3zz9ivaAihVARRmOlyCN9akvx6XnAE4kJ/al4qdsC4u0rOUWkS9FwEqlhF6sgpDiJzD/USjItkDKnWampU3j9jW85as52jngP8f8DKgL0k6lOXi//AfdZSdsXE5sSUUx1DDOk5ta3SL+Qeme2C46bnjkPLiJusPn76AfB1IcfcgNzHtieLkR/LRe3rewmG7u/GRlCWkNRYHeXfPdqAHizN+wE68ypdVRKWS3eUtAu2X3Y/Dc0+VrGR7zVpqb8YJNxZ7kmG05wWrF6Gb6KGD3bu59CnSKNvELFgZxZrGyYNJdX5w9qLdWE1I05bKvi5bFGYtxzaCLV9lIEuhQegYW+ADFki8n9/edUPnV7choobfKRluiVIi0q2pbQKxqZKSQ8JBrH8Jo5AIqAxv43PmbU+eHmxS9iyNsUtxTns2vuPr+dmO51JfdufkWLrxZDN7Ygz2Z71z7fCrb/BPQ2oU6fnamr3kco3eLBcgEiLVbcBIjNPI2rCjJFN4Tgs63nwqVFVZciOH3IFRcNi0S8Nxbb8C3QnD9DLffv23n9XNI8ffJ1fjp+bpRuZ61HMktuKR5dV9mqivFCF98TSd0O5Xc=" 
+      distributions: sdist
+      on:
+        tags: true
   - script: scripts/test-build.sh
     install:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
+    - BUILD_JOB=Build in RelWithDebInfo mode
     - TRAVIS_BUILD_TYPE=RelWithDebInfo
     addons:
       apt:
@@ -33,7 +56,8 @@ matrix:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
-    - TRAVIS_BUILD_TYPE=Debug
+    - BUILD_JOB=Build in Release mode
+    - TRAVIS_BUILD_TYPE=Release
     addons:
       apt:
         packages:
@@ -46,7 +70,8 @@ matrix:
     - pip install --user pybind11 nose2
     cache: ccache
     env:
-    - TRAVIS_BUILD_TYPE=Release
+    - BUILD_JOB=Build in Debug mode
+    - TRAVIS_BUILD_TYPE=Debug
     addons:
       apt:
         packages:
@@ -54,27 +79,11 @@ matrix:
         - libhwloc-dev
         - uuid-dev
         - doxygen
-  - script: scripts/test-gtapi-mock-drv.sh
-    install:
-    - pip install --user pybind11 nose2
-    cache: ccache
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/build-tests-default.sh
-    cache: ccache
-    addons:
-      apt:
-        packages:
-        - libjson-c-dev
-        - libhwloc-dev
-        - uuid-dev
-        - doxygen
-  - script: scripts/coverage-gtapi-mock-drv.sh
+  - script: scripts/cover.sh
+    env:
+    - BUILD_JOB=Run tests and generate coverage
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
     install:
     - pip install --user pybind11 nose2
     cache:
@@ -90,9 +99,32 @@ matrix:
     before_install:
       - pip install --user cpp-coveralls
     after_success:
-      - coveralls -l $TRAVIS_BUILD_DIR/coverage_gtapi_mock_drv/coverage.info.cleaned -E .*pybind11.*
+      - coveralls -l $TRAVIS_BUILD_DIR/unittests/coverage.info.cleaned -E .*pybind11.*
+  - script: scripts/cover-py.sh
+    env:
+    - BUILD_JOB=Run python tests and generate coverage
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
+    install:
+    - pip install --user pybind11 nose2 mock numpy
+    cache:
+      - ccache
+      - pip
+    addons:
+      apt:
+       packages:
+        - libjson-c-dev
+        - uuid-dev
+        - doxygen
+        - lcov
+    before_install:
+      - pip install --user python-coveralls
+    after_success:
+      - if [ -f .coverage ]; then coveralls; fi
   - script: scripts/build-documentation.sh
-    cache: 
+    env:
+    - BUILD_JOB=Build documentation
+    cache:
       - ccache
       - pip
     addons:

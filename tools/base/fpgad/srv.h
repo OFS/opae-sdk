@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,22 +31,23 @@
 
 struct fpga_err;
 
-#define MAX_PATH_LEN 256
-
 struct client_event_registry {
 	int conn_socket;
 	int fd;
 	uint64_t data;
 	fpga_event_type event;
-	char device[MAX_PATH_LEN];
+	uint64_t object_id;
 	struct client_event_registry *next;
 };
 
 void *server_thread(void *thread_context);
 
 void for_each_registered_event(
-	void (*cb)(struct client_event_registry *, const struct fpga_err *),
-				const struct fpga_err *);
+	void (*cb)(struct client_event_registry *,
+		   uint64_t object_id,
+		   const struct fpga_err *),
+	uint64_t object_id,
+	const struct fpga_err *);
 
 #endif // __FPGAD_SRV_H__
 

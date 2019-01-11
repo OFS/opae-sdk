@@ -14,7 +14,7 @@ _hssi_loopback_ - Software utility to run HSSI loopback tests on FPGA
 The ```hssi_loopback``` utility works in conjunction with a packet generator accelerator function unit (AFU)
 to test high-speed serial interface (HSSI) cards. The ```hssi_loopback``` utility tests both external and internal loopbacks.
 ```hssi_loopback``` runs an external loopback test when the command line arguments include both source and destination ports.
-```hssi_loopback``` runs an internal loopback test when command line argurments include a single port. ```hssi_loopback```
+```hssi_loopback``` runs an internal loopback test when command line arguments include a single port. ```hssi_loopback```
 only runs on the Intel Xeon with Arria 10 FPGA. You cannot run it on the Intel PAC (programmable accelerator card).
 
 
@@ -48,12 +48,12 @@ Specifies guid for the AFC enumeration.
 `-m, --mode`
     
 One of the following: [`auto`, `e40`, `e10`]
-`auto` is the default and indicates that the software runs the mode based on the first acclerator functional
+`auto` is the default and indicates that the software runs the mode based on the first accelerator functional
 context (AFC) it enumerates.
 
 `-t, --timeout`
 
-Timeout (in seconds) before the application terminates in continous mode. Continuous mode is the default
+Timeout (in seconds) before the application terminates in continuous mode. Continuous mode is the default
 when you do not specify the number of packets.
 
 `-y, --delay`
@@ -119,3 +119,8 @@ Run an internal loopback until a timeout of 5 seconds is reached. The AFU is on 
 >sudo hssi_loopback -B 0x5e send 0 -t 5
 
 ```
+## Revision History ##
+
+ | Document Version |  Intel Acceleration Stack Version  | Changes  |
+ | ---------------- |------------------------------------|----------|
+ | 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Corrected typos.  | 

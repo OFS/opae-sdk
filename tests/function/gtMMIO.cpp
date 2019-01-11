@@ -41,10 +41,8 @@
 using namespace common_test;
 
 
-#ifndef BUILD_ASE
-
 /*
- * On hardware, the mmio map is a hash table.
+ * The mmio map is a hash table.
  */
 static bool mmio_map_is_empty(struct wsid_tracker *root) {
   if (!root || (root->n_hash_buckets == 0))
@@ -57,17 +55,6 @@ static bool mmio_map_is_empty(struct wsid_tracker *root) {
 
   return true;
 }
-
-#else
-
-/*
- * In ASE, the mmio map is a list.
- */
-static bool mmio_map_is_empty(struct wsid_map *root) {
-  return !root;
-}
-
-#endif
 
 
 /**

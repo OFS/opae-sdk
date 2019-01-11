@@ -344,6 +344,13 @@ class jsondb(object):
                 port['define'] = []
 
             if (not port['vector']):
+                # Can't define min/max entries unless the port is a vector
+                if ('min-entries' in port or 'max-entries' in port):
+                    self.__errorExit(
+                        ("module port class '{0}:{1}' min/max-entries " +
+                         "may not be set for non-vector types {2}").format(
+                             port['class'], port['interface'], fname))
+
                 # Define min/max entries even when the port isn't a vector
                 port['min-entries'] = 1
                 port['max-entries'] = 1

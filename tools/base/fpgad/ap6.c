@@ -35,9 +35,8 @@
 #include "ap6.h"
 #include "config_int.h"
 #include "log.h"
-#include "bitstream_int.h"
 #include "safe_string/safe_string.h"
-#include "bitstream-tools.h"
+#include "fpgaconf/bitstream-tools.h"
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
@@ -98,7 +97,7 @@ int parse_metadata(struct bitstream_info *info)
 /*
  * Read inferface id from bistream
  */
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;
@@ -114,7 +113,7 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 
 	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN, sizeof(uint32_t));
 	if (json_len == 0) {
-		PRINT_MSG("Bitstream has no metadata");
+		OPAE_MSG("Bitstream has no metadata");
 		result = FPGA_OK;
 		goto out_free;
 	}
@@ -123,14 +122,14 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 
 	json_metadata = (char *) malloc(json_len + 1);
 	if (json_metadata == NULL) {
-		PRINT_ERR("Could not allocate memory for metadata!");
+		OPAE_ERR("Could not allocate memory for metadata!");
 		return FPGA_NO_MEMORY;
 	}
 
 	e = memcpy_s(json_metadata, json_len+1,
 			json_metadata_ptr, json_len);
 	if (EOK != e) {
-		PRINT_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -143,18 +142,18 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID, &interface_id);
 
 			if (interface_id == NULL) {
-				PRINT_ERR("Invalid metadata");
+				OPAE_ERR("Invalid metadata");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
 
 			result = string_to_guid(json_object_get_string(interface_id), guid);
 			if (result != FPGA_OK) {
-				PRINT_ERR("Invalid BBS interface id ");
+				OPAE_ERR("Invalid BBS interface id ");
 				goto out_free;
 			}
 		} else {
-			PRINT_ERR("Invalid metadata");
+			OPAE_ERR("Invalid metadata");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -270,7 +269,7 @@ void *ap6_thread(void *thread_context)
 	int ret;
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000 }; /* 100ms */
 
-	fpga_token fme_token;
+	fpga_token fme_token = NULL;
 	fpga_handle fme_handle;
 	fpga_properties filter;
 	fpga_result res;
@@ -350,6 +349,8 @@ void *ap6_thread(void *thread_context)
 	}
 
 out_exit:
+	if (fme_token)
+		fpgaDestroyToken(&fme_token);
 	if (null_gbs_info.data)
 		free(null_gbs_info.data);
 	return NULL;

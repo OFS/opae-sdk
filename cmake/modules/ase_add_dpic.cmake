@@ -50,7 +50,7 @@ set(ASESW_FILE_LIST
   ${ASE_SERVER_SRC}/ase_ops.c
   ${ASE_SERVER_SRC}/ase_strings.c
   ${ASE_SERVER_SRC}/ipc_mgmt_ops.c
-  ${ASE_SERVER_SRC}/mem_model.c
+  ${ASE_SERVER_SRC}/ase_shbuf.c
   ${ASE_SERVER_SRC}/protocol_backend.c
   ${ASE_SERVER_SRC}/mqueue_ops.c
   ${ASE_SERVER_SRC}/error_report.c

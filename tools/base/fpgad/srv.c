@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include <poll.h>
 #include <sys/eventfd.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "safe_string/safe_string.h"
 #undef _GNU_SOURCE
@@ -46,6 +47,7 @@
 #include "config_int.h"
 #include "log.h"
 
+#define MAX_PATH_LEN           256
 #define MAX_CLIENT_CONNECTIONS 41
 
 pthread_mutex_t list_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -56,14 +58,14 @@ enum request_type {
 	UNREGISTER_EVENT = 1
 };
 
-struct request {
+struct event_request {
 	enum request_type type;
 	fpga_event_type event;
-	char device[MAX_PATH_LEN];
+	uint64_t object_id;
 };
 
 struct client_event_registry *register_event(int conn_socket, int fd,
-					fpga_event_type e, const char *device)
+					fpga_event_type e, uint64_t object_id)
 {
 	struct client_event_registry *r =
 		(struct client_event_registry *) malloc(sizeof(*r));
@@ -76,30 +78,16 @@ struct client_event_registry *register_event(int conn_socket, int fd,
 	r->fd = fd;
 	r->data = 1;
 	r->event = e;
+	r->object_id = object_id;
 
-	err = strncpy_s(r->device, sizeof(r->device),
-			device, MAX_PATH_LEN);
-
-	if (EOK != err) {
-		goto out_free;
-	}
-
-	err = pthread_mutex_lock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_lock() failed: %s", strerror(err));
+	fpgad_mutex_lock(err, &list_lock);
 
 	r->next = event_registry_list;
 	event_registry_list = r;
 
-	err = pthread_mutex_unlock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
+	fpgad_mutex_unlock(err, &list_lock);
 
 	return r;
-
-out_free:
-	free(r);
-	return NULL;
 }
 
 void release_event_registry(struct client_event_registry *r)
@@ -108,15 +96,13 @@ void release_event_registry(struct client_event_registry *r)
 	free(r);
 }
 
-void unregister_event(int conn_socket, fpga_event_type e, const char *device)
+void unregister_event(int conn_socket, fpga_event_type e, uint64_t object_id)
 {
 	struct client_event_registry *trash;
 	struct client_event_registry *save;
 	int err;
 
-	err = pthread_mutex_lock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_lock() failed: %s", strerror(err));
+	fpgad_mutex_lock(err, &list_lock);
 
 	trash = event_registry_list;
 
@@ -125,7 +111,7 @@ void unregister_event(int conn_socket, fpga_event_type e, const char *device)
 
 	if ((conn_socket == trash->conn_socket) &&
 		(e == trash->event) &&
-		!strncmp(device, trash->device, MAX_PATH_LEN)) {
+		(object_id == trash->object_id)) {
 
 		// found at head of list
 
@@ -140,7 +126,7 @@ void unregister_event(int conn_socket, fpga_event_type e, const char *device)
 
 		if ((conn_socket == trash->conn_socket) &&
 			(e == trash->event) &&
-			!strncmp(device, trash->device, MAX_PATH_LEN))
+			(object_id == trash->object_id))
 			break;
 
 		save = trash;
@@ -153,10 +139,9 @@ void unregister_event(int conn_socket, fpga_event_type e, const char *device)
 	// found at trash
 	save->next = trash->next;
 	release_event_registry(trash);
+
 out_unlock:
-	err = pthread_mutex_unlock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
+	fpgad_mutex_unlock(err, &list_lock);
 }
 
 struct client_event_registry *
@@ -176,19 +161,15 @@ void unregister_all_events_for(int conn_socket)
 	struct client_event_registry *r;
 	int err;
 
-	err = pthread_mutex_lock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_lock() failed: %s", strerror(err));
+	fpgad_mutex_lock(err, &list_lock);
 
 	r = find_event_for(conn_socket);
 	while (r) {
-		unregister_event(conn_socket, r->event, r->device);
+		unregister_event(conn_socket, r->event, r->object_id);
 		r = find_event_for(conn_socket);
 	}
 
-	err = pthread_mutex_unlock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
+	fpgad_mutex_unlock(err, &list_lock);
 }
 
 void unregister_all_events(void)
@@ -196,9 +177,7 @@ void unregister_all_events(void)
 	struct client_event_registry *r;
 	int err;
 
-	err = pthread_mutex_lock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_lock() failed: %s", strerror(err));
+	fpgad_mutex_lock(err, &list_lock);
 
 	for (r = event_registry_list ; r != NULL ; ) {
 		struct client_event_registry *trash;
@@ -209,28 +188,24 @@ void unregister_all_events(void)
 
 	event_registry_list = NULL;
 
-	err = pthread_mutex_unlock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
+	fpgad_mutex_unlock(err, &list_lock);
 }
 
 void for_each_registered_event(void (*cb)(struct client_event_registry *,
+					  uint64_t object_id,
 					  const struct fpga_err *),
+			       uint64_t object_id,
 			       const struct fpga_err *e) {
 	struct client_event_registry *r;
 	int err;
 
-	err = pthread_mutex_lock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_lock() failed: %s", strerror(err));
+	fpgad_mutex_lock(err, &list_lock);
 
 	for (r = event_registry_list; r != NULL; r = r->next) {
-		cb(r, e);
+		cb(r, object_id, e);
 	}
 
-	err = pthread_mutex_unlock(&list_lock);
-	if (err)
-		dlog("pthread_mutex_unlock() failed: %s", strerror(err));
+	fpgad_mutex_unlock(err, &list_lock);
 }
 
 #define SRV_SOCKET          0
@@ -266,7 +241,7 @@ int handle_message(int conn_socket)
 	struct msghdr mh;
 	struct cmsghdr *cmh;
 	struct iovec iov[1];
-	struct request req;
+	struct event_request req;
 	char buf[CMSG_SPACE(sizeof(int))];
 	ssize_t n;
 	int *fd_ptr;
@@ -303,19 +278,25 @@ int handle_message(int conn_socket)
 	case REGISTER_EVENT:
 		fd_ptr = (int *)CMSG_DATA(cmh);
 
-		if (!register_event(conn_socket, *fd_ptr, req.event,
-							  req.device)) {
+		if (!register_event(conn_socket, *fd_ptr,
+				    req.event, req.object_id)) {
 			dlog("server: failed to register event\n");
 			return -1;
 		}
 
-		dlog("server: registered event %d:%d(%d %s)\n",
-			conn_socket, *fd_ptr, req.event, req.device);
+		dlog("server: registered event sock=%d:fd=%d"
+		     "(event=%d object_id=%" PRIx64  ")\n",
+			conn_socket, *fd_ptr, req.event, req.object_id);
 
 		break;
 
 	case UNREGISTER_EVENT:
-		unregister_event(conn_socket, req.event, req.device);
+		unregister_event(conn_socket, req.event, req.object_id);
+
+		dlog("server: unregistered event sock=%d:"
+		     "(event=%d object_id=%" PRIx64  ")\n",
+			conn_socket, req.event, req.object_id);
+
 		break;
 
 	default:
@@ -371,6 +352,7 @@ void *server_thread(void *thread_context)
 
 	pollfds[SRV_SOCKET].fd = server_socket;
 	pollfds[SRV_SOCKET].events = POLLIN | POLLPRI;
+	num_fds = 1;
 
 	while (c->running) {
 
@@ -421,9 +403,13 @@ void *server_thread(void *thread_context)
 
 	unregister_all_events();
 
+	// close any active client sockets
+	for (i = FIRST_CLIENT_SOCKET ; i < num_fds ; ++i) {
+		close(pollfds[i].fd);
+	}
+
 out_close_server:
 	close(server_socket);
-
 	return NULL;
 }
 

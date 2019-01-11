@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,12 @@
 #include "config_int.h"
 #include "log.h"
 #include "ap_event.h"
+#include <stdlib.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "safe_string/safe_string.h"
 
@@ -65,22 +70,25 @@ void show_help(void)
 	fprintf(fp, "Usage: fpgad <options>\n");
 	fprintf(fp, "\n");
 	fprintf(fp, "\t-d,--daemon                 run as daemon process.\n");
-	fprintf(fp, "\t-D,--directory <dir>        the working directory for daemon mode [/tmp].\n");
-	fprintf(fp, "\t-l,--logfile <file>         the log file for daemon mode [/tmp/fpgad.log].\n");
-	fprintf(fp, "\t-p,--pidfile <file>         the pid file for daemon mode [/tmp/fpgad.pid].\n");
-	fprintf(fp, "\t-m,--umask <mode>           the file mode for daemon mode [0].\n");
+	fprintf(fp, "\t-l,--logfile <file>         the log file for daemon mode [fpgad.log].\n");
+	fprintf(fp, "\t-p,--pidfile <file>         the pid file for daemon mode [fpgad.pid].\n");
 	fprintf(fp, "\t-s,--socket <sock>          the unix domain socket [/tmp/fpga_event_socket].\n");
 	fprintf(fp, "\t-n,--null-bitstream <file>  NULL bitstream (for AP6 handling, may be\n"
 		    "\t                            given multiple times).\n");
 }
 
+#define DEFAULT_DIR_ROOT      "/var/lib/opae"
+#define DEFAULT_DIR_ROOT_SIZE 13
+#define DEFAULT_LOG           "fpgad.log"
+#define DEFAULT_PID           "fpgad.pid"
+
 struct config config = {
 	.verbosity = 0,
 	.poll_interval_usec = 100 * 1000,
 	.daemon = 0,
-	.directory = "/tmp",
-	.logfile = "/tmp/fpgad.log",
-	.pidfile = "/tmp/fpgad.pid",
+	.directory = { 0, },
+	.logfile = { 0, },
+	.pidfile = { 0, },
 	.filemode = 0,
 	.running = true,
 	.socket = "/tmp/fpga_event_socket",
@@ -101,6 +109,139 @@ void sig_handler(int sig, siginfo_t *info, void *unused)
 	}
 }
 
+void resolve_dirs(struct config *c)
+{
+	char *sub;
+	bool def;
+	mode_t mode;
+	struct stat stat_buf;
+
+	if (!geteuid()) {
+		// If we're being run as root, then use DEFAULT_DIR_ROOT
+		// as the working directory.
+		strncpy_s(c->directory, sizeof(c->directory),
+				DEFAULT_DIR_ROOT, DEFAULT_DIR_ROOT_SIZE);
+		mode = 0755;
+		c->filemode = 0026;
+	} else {
+		// We're not root. Try to use ${HOME}/.opae
+		char *home = getenv("HOME");
+		char *canon_path = NULL;
+		int res = 1;
+
+		// Accept ${HOME} only if it is rooted at /home.
+		if (home) {
+			canon_path = canonicalize_file_name(home);
+			int len = strnlen_s(canon_path, PATH_MAX);
+			if (len >= 5)
+				strcmp_s(canon_path, 5, "/home/", &res);
+		}
+
+		if (canon_path && !res) {
+			snprintf_s_s(c->directory, sizeof(c->directory),
+					"%s/.opae", canon_path);
+		} else {
+			char cwd[PATH_MAX];
+			// ${HOME} not found - use current dir.
+			if (getcwd(cwd, sizeof(cwd))) {
+				snprintf_s_s(c->directory, sizeof(c->directory),
+						"%s/.opae", cwd);
+			} else {
+				// Current directory not found - use /
+				strncpy_s(c->directory, sizeof(c->directory),
+						"/.opae", 6);
+			}
+		}
+
+		if (canon_path) {
+			free(canon_path);
+		}
+		mode = 0775;
+		c->filemode = 0022;
+	}
+	dlog("daemon working directory is %s\n", c->directory);
+
+	// Create the directory if it doesn't exist.
+	if (lstat(c->directory, &stat_buf) && (errno == ENOENT)) {
+		if (mkdir(c->directory, mode))
+			dlog("mkdir failed\n");
+	}
+
+	// Verify logfile and pidfile do not contain ".."
+	// nor "/".
+	def = false;
+	sub = NULL;
+	strstr_s(c->logfile, sizeof(c->logfile),
+			"..", 2, &sub);
+	if (sub)
+		def = true;
+
+	sub = NULL;
+	strstr_s(c->logfile, sizeof(c->logfile),
+			"/", 1, &sub);
+	if (sub)
+		def = true;
+
+	if (def || (c->logfile[0] == '\0')) {
+		snprintf_s_ss(c->logfile, sizeof(c->logfile),
+				"%s/%s", c->directory, DEFAULT_LOG);
+	} else {
+		char tmp[PATH_MAX];
+		strncpy_s(tmp, sizeof(tmp),
+				c->logfile, sizeof(c->logfile));
+		snprintf_s_ss(c->logfile, sizeof(c->logfile),
+				"%s/%s", c->directory, tmp);
+	}
+	dlog("daemon log file is %s\n", c->logfile);
+
+	def = false;
+	sub = NULL;
+	strstr_s(c->pidfile, sizeof(c->pidfile),
+			"..", 2, &sub);
+	if (sub)
+		def = true;
+
+	sub = NULL;
+	strstr_s(c->pidfile, sizeof(c->pidfile),
+			"/", 1, &sub);
+	if (sub)
+		def = true;
+
+	if (def || (c->pidfile[0] == '\0')) {
+		snprintf_s_ss(c->pidfile, sizeof(c->pidfile),
+				"%s/%s", c->directory, DEFAULT_PID);
+	} else {
+		char tmp[PATH_MAX];
+		strncpy_s(tmp, sizeof(tmp),
+				c->pidfile, sizeof(c->pidfile));
+		snprintf_s_ss(c->pidfile, sizeof(c->pidfile),
+				"%s/%s", c->directory, tmp);
+	}
+	dlog("daemon pid file is %s\n", c->pidfile);
+}
+
+bool register_null_gbs(struct config *c, char *null_gbs_path)
+{
+	char *canon_path = NULL;
+	if (config.num_null_gbs < MAX_NULL_GBS) {
+		canon_path = canonicalize_file_name(null_gbs_path);
+		if (canon_path) {
+			c->null_gbs[c->num_null_gbs++] = canon_path;
+			// canonicalize_file_name allocates memory, remeber to
+			// free it!
+			dlog("registering NULL bitstream \"%s\"\n", canon_path);
+			/* TODO: check NULL bitstream
+			 * compatibility */
+		} else {
+			dlog("error with null_gbs argument: \"%s\"\n", strerror(errno));
+			return false;
+		}
+	} else {
+		dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
+	}
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	int getopt_ret;
@@ -108,6 +249,7 @@ int main(int argc, char *argv[])
 	int res;
 	int i;
 	int j;
+	unsigned k;
 	pthread_t logger;
 	pthread_t server;
 	pthread_t apevent;
@@ -122,8 +264,9 @@ int main(int argc, char *argv[])
 		if (optarg && ('=' == *tmp_optarg))
 			++tmp_optarg;
 
-		if (!optarg && (NULL != argv[optind]) &&
-						('-' != argv[optind][0]))
+		if (!optarg && (optind < argc) &&
+			(NULL != argv[optind]) &&
+			('-' != argv[optind][0]))
 			tmp_optarg = argv[optind++];
 
 		switch (getopt_ret) {
@@ -138,19 +281,13 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'D':
-			if (tmp_optarg) {
-				config.directory = tmp_optarg;
-				dlog("daemon directory is %s\n", config.directory);
-			} else {
-				fprintf(stderr, "missing directory parameter.\n");
-				return 1;
-			}
+			fprintf(stderr, "warning --directory,-D are deprecated.\n");
 			break;
 
 		case 'l':
 			if (tmp_optarg) {
-				config.logfile = tmp_optarg;
-				dlog("daemon log file is %s\n", config.logfile);
+				strncpy_s(config.logfile, sizeof(config.logfile),
+						tmp_optarg, PATH_MAX);
 			} else {
 				fprintf(stderr, "missing logfile parameter.\n");
 				return 1;
@@ -159,8 +296,8 @@ int main(int argc, char *argv[])
 
 		case 'p':
 			if (tmp_optarg) {
-				config.pidfile = tmp_optarg;
-				dlog("daemon pid file is %s\n", config.pidfile);
+				strncpy_s(config.pidfile, sizeof(config.pidfile),
+						tmp_optarg, PATH_MAX);
 			} else {
 				fprintf(stderr, "missing pidfile parameter.\n");
 				return 1;
@@ -168,24 +305,14 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'm':
-			if (tmp_optarg) {
-				config.filemode = (mode_t) strtoul(tmp_optarg, NULL, 0);
-				dlog("daemon umask is 0x%x\n", config.filemode);
-			} else {
-				fprintf(stderr, "missing filemode parameter.\n");
-				return 1;
-			}
+			fprintf(stderr, "warning --umask,-m are deprecated.\n");
 			break;
 
 		case 'n':
 			if (tmp_optarg) {
-				if (config.num_null_gbs < MAX_NULL_GBS) {
-					config.null_gbs[config.num_null_gbs++] = tmp_optarg;
-					dlog("registering NULL bitstream \"%s\"\n", tmp_optarg);
-					/* TODO: check NULL bitstream
-					 * compatibility */
-				} else {
-					dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
+				if (!register_null_gbs(&config, (char *)tmp_optarg)) {
+					fprintf(stderr, "invalid null gbs path: \"%s\"\n", tmp_optarg);
+					return 1;
 				}
 			} else {
 				fprintf(stderr, "missing bitstream parameter.\n");
@@ -217,6 +344,8 @@ int main(int argc, char *argv[])
 		}
 
 	}
+
+	resolve_dirs(&config);
 
 	if (config.daemon) {
 		FILE *fp;
@@ -311,7 +440,14 @@ int main(int argc, char *argv[])
 		close_log();
 
 	if (config.daemon)
-		remove(config.pidfile);
+		unlink(config.pidfile);
+
+	for (k = 0; k < config.num_null_gbs; ++k) {
+		if (config.null_gbs[k]) {
+			free(config.null_gbs[k]);
+			config.null_gbs[k] = NULL;
+		}
+	}
 
 	return 0;
 }

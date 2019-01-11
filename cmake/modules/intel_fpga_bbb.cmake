@@ -43,7 +43,7 @@ function (Build_Intel_FPGA_BBB)
     ExternalProject_Add(
       intel-fpga-bbb
       GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
-      GIT_TAG "feature/opae_samples"
+      GIT_TAG "feature/opae_samples_2"
       UPDATE_COMMAND ""
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
       CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
@@ -57,7 +57,7 @@ function (Build_Intel_FPGA_BBB)
     ExternalProject_Add(
       intel-fpga-bbb
       GIT_REPOSITORY "https://github.com/OPAE/intel-fpga-bbb"
-      GIT_TAG "feature/opae_samples"
+      GIT_TAG "feature/opae_samples_2"
       UPDATE_COMMAND ""
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/intel-fpga-bbb
       CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON

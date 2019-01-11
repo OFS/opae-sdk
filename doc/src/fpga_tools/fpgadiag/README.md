@@ -416,3 +416,8 @@ and `write` tests are mutually exclusive.
 * The timeout options are only meaningful for the continuous mode 
 (with the `--cont` option).
 
+## Revision History ##
+
+| Date | Intel Acceleration Stack Version | Changes Made |
+|:------|----------------------------|:--------------|
+|2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) | fpgadiag now reports the correct values for bandwidth. |
