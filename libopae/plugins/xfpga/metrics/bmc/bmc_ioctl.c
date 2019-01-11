@@ -270,7 +270,11 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 
 	fill_set_request(vals, thresh, &req);
 
-	free(vals);
+	if (vals->name)
+		free(vals->name);
+
+	if (vals)
+		free(vals);
 
 	res = _bmcSetThreshold(fd, sensor, &req);
 
