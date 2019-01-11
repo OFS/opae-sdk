@@ -31,11 +31,12 @@ Show total the power in watts that the FPGA hardware consumes.
 
 `port`
 
-Shows information about the port such as the AFU ID of currently loaded AFU.
+Show information about the port such as the AFU ID of currently loaded AFU.
 
 `fme`
 
-Show information about the FPGA platform such as the FPGA Interface Manager (FIM) ID.
+Show information about the FPGA platform including the partial reconfiguration (PR) Interface ID, the OPAE version,
+and the FPGA Interface Manager (FIM) ID.
 
 ## OPTIONAL ARGUMENTS ##
 `--help, -h`
@@ -83,7 +84,7 @@ Clear errors for the given FPGA resource.
 
 
 ## EXAMPLES ##
-This command shows the current power consumtion:
+This command shows the current power consumption:
 ```console
 ./fpgainfo power
 ```
@@ -105,3 +106,9 @@ This command shows information of the FME on bus 0x5e
 ```console
 ./fpgainfo fme -b 0x5e
 ```
+
+## Revision History ##
+
+ | Document Version |  Intel Acceleration Stack Version  | Changes  |
+ | ---------------- |------------------------------------|----------|
+ | 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the `fme` command | 

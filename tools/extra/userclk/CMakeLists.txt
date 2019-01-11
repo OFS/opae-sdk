@@ -25,8 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR})
 
 set(SRC main.c )
 

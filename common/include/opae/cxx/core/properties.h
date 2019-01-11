@@ -108,7 +108,7 @@ class properties {
   static properties::ptr_t get(std::shared_ptr<handle> h);
 
  private:
-  properties();
+  properties(bool alloc_props = true);
   fpga_properties props_;
 
  public:

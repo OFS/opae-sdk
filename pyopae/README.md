@@ -99,6 +99,7 @@ NUM_LINES = 0x130
 SRC_ADDR = 0x0120
 DST_ADDR = 0x0128
 DSM_ADDR = 0x0110
+DSM_STATUS = 0x40
 
 def cl_align(addr):
     return addr >> 6
@@ -118,7 +119,7 @@ with fpga.open(tokens[0], fpga.OPEN_SHARED) as handle:
     handle.write_csr32(CFG, 0x42000)
     handle.write_csr32(NUM_LINES, 4096/64)
     handle.write_csr32(CTL, 3)
-    while dsm[0x42] & 0x1 == 0:
+    while dsm[DSM_STATUS] & 0x1 == 0:
         time.sleep(0.001)
     handle.write_csr32(CTL, 7)
 

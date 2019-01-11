@@ -23,10 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif				// HAVE_CONFIG_H
+#endif
 
 #include <opae/access.h>
 #include "common_int.h"
@@ -46,11 +45,13 @@ fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
-
 	// ASE Release
 	session_deinit();
 
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
+
 	free(_handle);
+	_handle = NULL;
 	result = FPGA_OK;
 	return result;
 }

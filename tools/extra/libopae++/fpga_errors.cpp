@@ -28,6 +28,10 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <opae/error.h>
+#include <opae/cxx/core/properties.h>
+
+using namespace opae::fpga::types;
 
 namespace intel
 {
@@ -91,25 +95,30 @@ port_error::port_error(uint64_t err)
 {
 }
 
-uint64_t port_error::read(uint8_t socket_id)
+uint64_t port_error::read(token::ptr_t tok)
 {
-    uint64_t errors = 0;
-    std::stringstream ss;
-    ss << SYSFS_DEV << +socket_id << SYSFS_PORT << +socket_id << ERRORS_ERRORS;
-    std::string filename = ss.str();
-    std::ifstream portfile(filename);
-    portfile >> std::hex >> errors;
-    return errors;
+    auto p = properties::get(tok);
+    for (int i = 0; i < p->num_errors; ++i) {
+      auto err = error::get(tok, i);
+      if (err->name() == "errors") {
+          return err->read_value();
+      }
+    }
+    return 0;
 }
 
-uint64_t port_error::clear(uint8_t socket_id, uint64_t errs)
+uint64_t port_error::clear(token::ptr_t tok, uint64_t errs)
 {
-    std::stringstream ss;
-    ss << SYSFS_DEV << +socket_id << SYSFS_PORT << +socket_id << ERRORS_CLEAR;
-    std::ofstream clearfile(ss.str());
-    clearfile << "0x" << std::hex << errs << "\n";
-    clearfile.close();
-    return port_error::read(socket_id);
+    auto p = properties::get(tok);
+    for (int i = 0; i < p->num_errors; ++i) {
+      auto err = error::get(tok, i);
+      if (err->name() == "errors") {
+          if (fpgaClearError(*tok, i) == FPGA_OK) {
+              return err->read_value();
+          }
+      }
+    }
+    return errs;
 }
 
 std::ostream & operator<<(std::ostream & str, const port_error & err)

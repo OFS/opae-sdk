@@ -6,8 +6,8 @@
 
 ## DESCRIPTION ##
 
-```fpgaconf``` configures the FPGA with the accelerator funciton (AF). It also checks the AF for compatibility with 
-the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the following arguments:
+```fpgaconf``` configures the FPGA with the accelerator function (AF). It also checks the AF for compatibility with 
+the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the following arguments: 
 
 `-h, --help`
 
@@ -55,3 +55,9 @@ socket number or a PCIe BDF.
 
 	Program "my_af.gbs" to the FPGA in socket 0, if compatible,
 	while printing out slightly more verbose information.
+	
+	## Revision History ##
+
+ | Document Version |  Intel Acceleration Stack Version  | Changes  |
+ | ---------------- |------------------------------------|----------|
+ |2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | Corrected typos. |

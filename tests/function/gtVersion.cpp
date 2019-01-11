@@ -28,7 +28,7 @@
 
 #include "common_test.h"
 #include "gtest/gtest.h"
-#include "config_int.h"
+#include "config.h"
 
 using namespace common_test;
 using namespace std;

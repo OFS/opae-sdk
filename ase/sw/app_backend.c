@@ -27,7 +27,11 @@
 
 #define _GNU_SOURCE
 
+#include <unistd.h>
+#include <sys/mman.h>
+
 #include "ase_common.h"
+#include "ase_host_memory.h"
 
 const int TID_DELAY = 10000;   // Wait time for generating TID
 
@@ -56,6 +60,11 @@ typedef struct umas_s {
 
 	char *umsg_addr_array[NUM_UMSG_PER_AFU];  // UMsg address array
 } UMAS_S;
+
+typedef struct membus_s {
+	pthread_t membus_rd_watch_tid;     // Memory bus watch TID
+	pthread_t membus_wr_watch_tid;
+} MEMBUS_S;
 
 // MMIO Scoreboard (used in APP-side only)
 struct mmio_scoreboard_line_t {
@@ -93,9 +102,14 @@ static int app2sim_dealloc_tx;
 static int sim2app_dealloc_rx;
 static int sim2app_portctrl_rsp_rx;
 static int sim2app_intr_request_rx;
+static int sim2app_membus_rd_req_rx;
+static int app2sim_membus_rd_rsp_tx;
+static int sim2app_membus_wr_req_rx;
+static int app2sim_membus_wr_rsp_tx;
 
 MMIO_S io_s;
 UMAS_S umas_s;
+MEMBUS_S membus_s;
 
 uint64_t *mmio_afu_vbase;
 uint64_t *umsg_umas_vbase;            // Base addresses of required regions
@@ -116,6 +130,10 @@ static uint32_t session_exist_status;
 static uint32_t mq_exist_status;
 static uint32_t mmio_exist_status;
 static uint32_t umas_exist_status;
+static uint32_t membus_exist_status;
+
+static void *membus_rd_watcher(void *arg);
+static void *membus_wr_watcher(void *arg);
 
 // Debug logs
 #ifdef ASE_DEBUG
@@ -131,7 +149,6 @@ void cleanup_umas(void)
 	// Deallocate the region
 	ASE_MSG("Deallocating UMAS\n");
 	deallocate_buffer(umas_s.umas_region);
-
 }
 
 /*
@@ -160,6 +177,11 @@ void close_mq(void)
 	mqueue_close(app2sim_dealloc_tx);
 	mqueue_close(sim2app_dealloc_rx);
 	mqueue_close(sim2app_portctrl_rsp_rx);
+	mqueue_close(sim2app_intr_request_rx);
+	mqueue_close(sim2app_membus_rd_req_rx);
+	mqueue_close(app2sim_membus_rd_rsp_tx);
+	mqueue_close(sim2app_membus_wr_req_rx);
+	mqueue_close(app2sim_membus_wr_rsp_tx);
 }
 
 /*
@@ -280,8 +302,10 @@ void *mmio_response_watcher(void *arg)
 		}
 	}
 
-	if (io_s.mmio_rsp_pkt)
+	if (io_s.mmio_rsp_pkt) {
 		free(io_s.mmio_rsp_pkt);
+		io_s.mmio_rsp_pkt = NULL;
+	}
 
 	return 0;
 }
@@ -411,6 +435,17 @@ void session_init(void)
 		sim2app_intr_request_rx =
 			mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
 
+		// Memory read/write requests.	All simulated references to shared memory are
+		// handled by the application.
+		sim2app_membus_rd_req_rx =
+			mqueue_open(mq_array[10].name, mq_array[10].perm_flag);
+		app2sim_membus_rd_rsp_tx =
+			mqueue_open(mq_array[11].name, mq_array[11].perm_flag);
+		sim2app_membus_wr_req_rx =
+			mqueue_open(mq_array[12].name, mq_array[12].perm_flag);
+		app2sim_membus_wr_rsp_tx =
+			mqueue_open(mq_array[13].name, mq_array[13].perm_flag);
+
 		// Message queues have been established
 		mq_exist_status = ESTABLISHED;
 
@@ -418,8 +453,11 @@ void session_init(void)
 		send_swreset();
 
 		// Page table tracker (optional logger)
+		if (ase_host_memory_initialize()) {
+			ASE_ERR("Error initializing simulated host memory.\n");
+		}
 #ifdef ASE_DEBUG
-	// Create debug log of page table
+		// Create debug log of page table
 		fp_pagetable_log = fopen("app_pagetable.log", "w");
 		if (fp_pagetable_log == NULL) {
 			ASE_ERR
@@ -511,6 +549,22 @@ void session_init(void)
 			ASE_MSG("SUCCESS\n");
 		}
 
+		// Initiate memory bus watcher
+		ASE_MSG("Starting memory bus watcher ... \n");
+		membus_exist_status = ESTABLISHED;
+		thr_err = pthread_create(&membus_s.membus_rd_watch_tid, NULL, &membus_rd_watcher, NULL);
+		if (thr_err != 0) {
+			failure_cleanup();
+		} else {
+			ASE_MSG("RD SUCCESS\n");
+		}
+		thr_err = pthread_create(&membus_s.membus_wr_watch_tid, NULL, &membus_wr_watcher, NULL);
+		if (thr_err != 0) {
+			failure_cleanup();
+		} else {
+			ASE_MSG("WR SUCCESS\n");
+		}
+
 		while (umas_init_flag != 1)
 			usleep(1);
 
@@ -530,7 +584,7 @@ void session_init(void)
 		ASE_DBG("Session already exists\n");
 #endif
 	}
-    FUNC_CALL_EXIT;
+	FUNC_CALL_EXIT;
 }
 
 /*
@@ -658,9 +712,28 @@ void session_deinit(void)
 
 			// Close MMIO Response tracker thread
 			if (pthread_cancel(io_s.mmio_watch_tid) != 0) {
-				printf("MMIO pthread_cancel failed -- Ignoring\n");
+				fprintf(stderr, "MMIO pthread_cancel failed -- Ignoring\n");
 			}
 		}
+
+		// Stop memory bus watcher
+		ASE_MSG("Stopping memory bus watcher\n");
+		if (membus_exist_status == ESTABLISHED) {
+			membus_exist_status = NOT_ESTABLISHED;
+
+			if (pthread_cancel(membus_s.membus_rd_watch_tid) != 0) {
+				fprintf(stderr, "Memory bus pthread_cancel failed -- Ignoring\n");
+			} else {
+				pthread_join(membus_s.membus_rd_watch_tid, NULL);
+			}
+
+			if (pthread_cancel(membus_s.membus_wr_watch_tid) != 0) {
+				fprintf(stderr, "Memory bus pthread_cancel failed -- Ignoring\n");
+			} else {
+				pthread_join(membus_s.membus_wr_watch_tid, NULL);
+			}
+		}
+
 		//free memory
 		free_buffers();
 
@@ -814,10 +887,6 @@ void mmio_write32(int offset, uint32_t data)
 {
 	FUNC_CALL_ENTRY;
 
-#ifdef ASE_DEBUG
-	int slot_idx;
-#endif
-
 	if (offset < 0) {
 		ASE_ERR("Requested offset is not in AFU MMIO region\n");
 		ASE_ERR("MMIO Write Error\n");
@@ -840,11 +909,7 @@ void mmio_write32(int offset, uint32_t data)
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
-#ifdef ASE_DEBUG
-		slot_idx = mmio_request_put(mmio_pkt);
-#else
 		mmio_request_put(mmio_pkt);
-#endif
 
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR
@@ -864,6 +929,7 @@ void mmio_write32(int offset, uint32_t data)
 			mmio_pkt->tid, mmio_pkt->addr, data);
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -876,10 +942,6 @@ void mmio_write32(int offset, uint32_t data)
 void mmio_write64(int offset, uint64_t data)
 {
 	FUNC_CALL_ENTRY;
-
-#ifdef ASE_DEBUG
-	int slot_idx;
-#endif
 
 	if (offset < 0) {
 		ASE_ERR("Requested offset is not in AFU MMIO region\n");
@@ -903,11 +965,7 @@ void mmio_write64(int offset, uint64_t data)
 		}
 
 		mmio_pkt->tid = generate_mmio_tid();
-#ifdef ASE_DEBUG
-		slot_idx = mmio_request_put(mmio_pkt);
-#else
 		mmio_request_put(mmio_pkt);
-#endif
 
 		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 			ASE_ERR("Mutex unlock failure ... Application Exit here\n");
@@ -926,6 +984,7 @@ void mmio_write64(int offset, uint64_t data)
 			(unsigned long long) data);
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -1008,6 +1067,7 @@ void mmio_read32(int offset, uint32_t *data32)
 		mmio_table[slot_idx].rx_flag = false;
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -1021,10 +1081,6 @@ void mmio_read64(int offset, uint64_t *data64)
 {
 	FUNC_CALL_ENTRY;
 	int slot_idx;
-
-#ifdef ASE_DEBUG
-	void *retptr;
-#endif
 
 	if (offset < 0) {
 		ASE_ERR("Requested offset is not in AFU MMIO region\n");
@@ -1081,6 +1137,7 @@ void mmio_read64(int offset, uint64_t *data64)
 		mmio_table[slot_idx].rx_flag = false;
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -1096,6 +1153,37 @@ void shm_error(const char *msg)
   END_RED_FONTCOLOR;
   session_deinit();
   ase_exit();
+}
+
+/*
+ * Note pinned pages. This is used only for logging in the simulator.
+ */
+void note_pinned_page(uint64_t va, uint64_t iova, uint64_t length)
+{
+	struct buffer_t mem;
+	ase_memset(&mem, 0, sizeof(mem));
+	mem.is_pinned = true;
+	mem.valid = true;
+	mem.vbase = va;
+	mem.fake_paddr = iova;
+	mem.memsize = length;
+
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	ase_buffer_t_to_str(&mem, tmp_msg);
+	mqueue_send(app2sim_alloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
+}
+
+void note_unpinned_page(uint64_t iova, uint64_t length)
+{
+	struct buffer_t mem;
+	ase_memset(&mem, 0, sizeof(mem));
+	mem.is_pinned = true;
+	mem.fake_paddr = iova;
+	mem.memsize = length;
+
+	char tmp_msg[ASE_MQ_MSGSIZE] = { 0, };
+	ase_buffer_t_to_str(&mem, tmp_msg);
+	mqueue_send(app2sim_dealloc_tx, tmp_msg, ASE_MQ_MSGSIZE);
 }
 
 /*
@@ -1182,6 +1270,9 @@ void allocate_buffer(struct buffer_t *mem, uint64_t *suggested_vaddr)
 
 	}
 #endif
+
+	// Assign a simulated physical address
+	mem->fake_paddr = ase_host_memory_va_to_pa(mem->vbase, mem->memsize);
 
 	// Autogenerate buffer index
 	mem->index = asebuf_index_count;
@@ -1386,6 +1477,8 @@ void free_buffers(void)
 	buf_head = NULL;
 	buf_end = NULL;
 
+	ase_host_memory_terminate();
+
 	FUNC_CALL_EXIT;
 }
 
@@ -1536,6 +1629,106 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
+static ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
+{
+	ase_host_memory_status st;
+
+	static uint64_t page_mask;
+	if (!page_mask) {
+		page_mask = sysconf(_SC_PAGESIZE);
+		page_mask = ~(page_mask - 1);
+	}
+
+	if (pa & 0x3f) {
+		// Not line-aligned address
+		st = HOST_MEM_STATUS_ILLEGAL;
+	} else if (va == 0) {
+		st = HOST_MEM_STATUS_NOT_PINNED;
+	} else {
+		// We use mincore to detect whether the virtual address is mapped.
+		// mincore returns an error when it isn't. This will detect most cases
+		// where the user code pins a page and subsequently unmaps the
+		// page without unpinnning it with fpgaReleaseBuffer() first.
+		//
+		// There is still a race here. The user code could unmap the page
+		// after this check and before the simulator reads or writes the
+		// location. The race is short and there isn't much we can do other
+		// than raise a SEGV.
+		unsigned char vec[8];
+		if (mincore((void *)(va & page_mask), CL_BYTE_WIDTH, vec)) {
+			st = HOST_MEM_STATUS_NOT_MAPPED;
+		} else {
+			st = HOST_MEM_STATUS_VALID;
+		}
+	}
+
+	return st;
+}
+
+
+/*
+ * Service simulator memory read/write requests.
+ */
+static void *membus_rd_watcher(void *arg)
+{
+	UNUSED_PARAM(arg);
+	// Mark as thread that can be cancelled anytime
+	pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
+
+	ase_host_memory_read_req rd_req;
+	ase_host_memory_read_rsp rd_rsp;
+	ase_memset(&rd_rsp, 0, sizeof(rd_rsp));
+
+	// While application is running
+	while (membus_exist_status == ESTABLISHED) {
+		if (mqueue_recv(sim2app_membus_rd_req_rx, (char *) &rd_req, sizeof(rd_req)) == ASE_MSG_PRESENT) {
+			rd_rsp.pa = rd_req.addr;
+			rd_rsp.va = ase_host_memory_pa_to_va(rd_req.addr, true);
+			rd_rsp.status = membus_op_status(rd_rsp.va, rd_rsp.pa);
+			if (rd_rsp.status == HOST_MEM_STATUS_VALID) {
+				ase_memcpy(rd_rsp.data, (char *) rd_rsp.va, CL_BYTE_WIDTH);
+			}
+			ase_host_memory_unlock();
+
+			mqueue_send(app2sim_membus_rd_rsp_tx, (char *) &rd_rsp, sizeof(rd_rsp));
+		}
+	}
+
+	printf("Stop MEMBUS RD REQ\n");
+
+	return 0;
+}
+
+static void *membus_wr_watcher(void *arg)
+{
+	UNUSED_PARAM(arg);
+	// Mark as thread that can be cancelled anytime
+	pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
+
+	ase_host_memory_write_req wr_req;
+	ase_host_memory_write_rsp wr_rsp;
+	ase_memset(&wr_rsp, 0, sizeof(wr_rsp));
+
+	// While application is running
+	while (membus_exist_status == ESTABLISHED) {
+		if (mqueue_recv(sim2app_membus_wr_req_rx, (char *) &wr_req, sizeof(wr_req)) == ASE_MSG_PRESENT) {
+			wr_rsp.pa = wr_req.addr;
+			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr, true);
+			wr_rsp.status = membus_op_status(wr_rsp.va, wr_rsp.pa);
+			if (wr_rsp.status == HOST_MEM_STATUS_VALID) {
+				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
+			}
+			ase_host_memory_unlock();
+
+			mqueue_send(app2sim_membus_wr_rsp_tx, (char *) &wr_rsp, sizeof(wr_rsp));
+		}
+	}
+
+	printf("Stop MEMBUS WR REQ\n");
+
+	return 0;
+}
+
 /*
  * Helper for sending a file descriptor over a socket
  */
@@ -1636,6 +1829,7 @@ int unregister_event(int event_handle)
 		ASE_ERR("%s: Error connecting to stream socket: %s\n",
 			__func__, strerror(errno));
 	} else {
+		ase_memset(&req, 0, sizeof(req));
 		req.type = UNREGISTER_EVENT;
 		res = send_fd(sock_fd, event_handle, &req);
 	}

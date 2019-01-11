@@ -28,7 +28,7 @@
 #include <iostream>
 #include <getopt.h>
 #include <json-c/json.h>
-#include <common_test.h>
+#include "common_test.h"
 #include <types_int.h>
 #include "gtest/gtest.h"
 

@@ -195,27 +195,23 @@ module ccip_logger
 
    // Print CSR data
    function string csr_data(int num_bytes, logic [CCIP_DATA_WIDTH-1:0] rx0_data);
-      string str_4;
-      string str_8;
-      string str_64;
+      string str;
       begin
 	 case (num_bytes)
 	   4 :
 	     begin
-		str_4.hextoa(rx0_data[31:0]);
-		return str_4;
+		$sformat(str, "%08h", rx0_data[31:0]);
 	     end
 	   8 :
 	     begin
-		str_8.hextoa(rx0_data[63:0]);
-		return str_8;
+		$sformat(str, "%016h", rx0_data[63:0]);
 	     end
 	   64 :
 	     begin
-		str_64.hextoa(rx0_data[511:0]);
-		return str_64;
+		$sformat(str, "%0128h", rx0_data[511:0]);
 	     end
 	 endcase
+      return str;
       end
    endfunction
 

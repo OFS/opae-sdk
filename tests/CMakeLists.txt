@@ -44,14 +44,18 @@ endif()
 #############################################################################
 ## Build GTASE OR GTAPI  ####################################################
 #############################################################################
-add_library(commonlib SHARED common_test.h common_test.cpp)
+include_directories(
+	${CMAKE_SOURCE_DIR}/ase/api/src
+	${CMAKE_SOURCE_DIR}/libopae/plugins/xfpga
+	${CMAKE_SOURCE_DIR}/tests
+	${CMAKE_SOURCE_DIR}/tools/extra/libopae++
+	${CMAKE_SOURCE_DIR}/tools/extra/c++utils
+	)
 
 if(BUILD_ASE_TESTS)
      include(test_config_ase)
 endif()
-if(BUILD_LIBOPAE_C)
-     Build_Test_Target(gtapi opae-c)
-endif()
+
 
 ###########################################################################
 #### COMMON for GTAPI & GTASE ##############################################
@@ -73,7 +77,7 @@ Build_MOCk_DRV()
 macro(add_gtfilter test_name gtfilter is_mock)
     add_test(NAME ${test_name}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMAND $<TARGET_FILE:gtapi> "--gtest_filter=${gtfilter}")
+        COMMAND $<TARGET_FILE:gtase> "--gtest_filter=${gtfilter}")
     if(${is_mock})
         set_tests_properties(
             ${test_name}

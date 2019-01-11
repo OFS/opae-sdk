@@ -145,8 +145,6 @@ enum ase_loglevel {
 int get_loglevel(void);
 void set_loglevel(int level);
 
-void calc_phys_memory_ranges(void);
-
 int ase_calc_loglevel(void);
 void ase_print(int loglevel, char *fmt, ...);
 int generate_sockname(char *);
@@ -326,13 +324,13 @@ struct buffer_t			//  Descriptiion                    Computed by
 	int32_t valid;		// Valid buffer indicator          | INTERNAL
 	uint64_t vbase;		// SW virtual address              |   APP
 	uint64_t pbase;		// SIM virtual address             |   SIM
-	uint64_t fake_paddr;	// unique low FPGA_ADDR_WIDTH addr |   SIM
-	uint64_t fake_paddr_hi;	// unique hi FPGA_ADDR_WIDTH addr  |   SIM
-	int32_t is_privmem;	// Flag memory as a private memory |
-	int32_t is_mmiomap;	// Flag memory as CSR map          |
-	int32_t is_umas;	// Flag memory as UMAS region      |
+	uint64_t fake_paddr;	// Simulated physical address      |   APP
+	bool is_privmem;	// Flag memory as a private memory |
+	bool is_mmiomap;	// Flag memory as CSR map          |
+	bool is_umas;		// Flag memory as UMAS region      |
+	bool is_pinned;		// Flag standard pinned region     |   APP
 	uint32_t memsize;	// Memory size                     |   APP
-	char memname[ASE_FILENAME_LEN];	// Shared memory name              | INTERNAL
+	char memname[ASE_FILENAME_LEN];	// Shared memory name      | INTERNAL
 	struct buffer_t *next;
 };
 
@@ -415,19 +413,15 @@ void ll_print_info(struct buffer_t *);
 void ll_traverse_print(void);
 void ll_append_buffer(struct buffer_t *);
 void ll_remove_buffer(struct buffer_t *);
-uint32_t check_if_physaddr_used(uint64_t);
 struct buffer_t *ll_search_buffer(int);
 
 // Mem-ops functions
 int ase_recv_msg(struct buffer_t *);
-void ase_alloc_action(struct buffer_t *);
-void ase_dealloc_action(struct buffer_t *, int);
-void ase_destroy(void);
-uint64_t *ase_fakeaddr_to_vaddr(uint64_t);
+void ase_shmem_alloc_action(struct buffer_t *);
+void ase_shmem_dealloc_action(struct buffer_t *, int);
+void ase_shmem_destroy(void);
 void ase_dbg_memtest(struct buffer_t *);
-void ase_perror_teardown(char *, int);
-void ase_empty_buffer(struct buffer_t *);
-uint64_t get_range_checked_physaddr(uint32_t);
+void ase_shmem_perror_teardown(char *, int);
 #ifdef ASE_DEBUG
 void print_mmiopkt(FILE *, char *, struct mmio_t *);
 #endif
@@ -451,6 +445,8 @@ int ase_instance_running(void);
 void parse_ase_cfg_line(char *, char *, float *);
 uint32_t ret_random_in_range(int, int);
 void ase_string_copy(char *, const char *, size_t);
+// Is environment variable defined?
+bool ase_checkenv(const char *);
 char *ase_getenv(const char *);
 void ase_memcpy(void *, const void *, size_t);
 int ase_strncmp(const char *, const char *, size_t);
@@ -499,6 +495,9 @@ extern "C" {
 	int ase_read_lock_file(const char *);
 	void send_simkill(int);
 	void send_swreset(void);
+	// Note pinned/unpinned pages
+	void note_pinned_page(uint64_t, uint64_t, uint64_t);
+	void note_unpinned_page(uint64_t, uint64_t);
 	// Shared memory alloc/dealloc operations
 	void allocate_buffer(struct buffer_t *, uint64_t *);
 	void deallocate_buffer(struct buffer_t *);
@@ -528,7 +527,7 @@ extern "C" {
 	// Threaded watch processes
 	void *mmio_response_watcher();
 	// ASE-special malloc
-	char *ase_malloc(size_t);
+	void *ase_malloc(size_t);
 	void *umsg_watcher();
 	// void *intr_request_watcher();
 	void register_signal(int, void *);
@@ -560,10 +559,11 @@ extern "C" {
 #define ASE_MQ_MAXMSG     8
 #define ASE_MQ_MSGSIZE    1024
 #define ASE_MQ_NAME_LEN   64
-#define ASE_MQ_INSTANCES  10
+#define ASE_MQ_INSTANCES  14
 // Message presence setting
 #define ASE_MSG_PRESENT 0xD33D
 #define ASE_MSG_ABSENT  0xDEAD
+#define ASE_MSG_ERROR   -1
 // Message queue controls
 struct ipc_t {
 	char name[ASE_MQ_NAME_LEN];
@@ -701,10 +701,12 @@ void ase_reset_trig(void);
 void sw_reset_response(void);
 
 // Read system memory line
-void rd_memline_dex(cci_pkt *pkt);
+void rd_memline_req_dex(cci_pkt *pkt);
+void rd_memline_rsp_dex(cci_pkt *pkt);
 
 // Write system memory line
-void wr_memline_dex(cci_pkt *pkt);
+void wr_memline_req_dex(cci_pkt *pkt);
+void wr_memline_rsp_dex(cci_pkt *pkt);
 
 // MMIO request
 void mmio_dispatch(int init, struct mmio_t *mmio_pkt);
@@ -727,7 +729,7 @@ void count_error_flag_pong(int);
 void update_glbl_dealloc(int);
 
 // Redeclaring ase_malloc, following maintainer-check issues !!! Do Not Edit !!!
-char *ase_malloc(size_t);
+void *ase_malloc(size_t);
 
 // Ready filepath
 extern char *ase_ready_filepath;
@@ -798,5 +800,17 @@ extern struct ase_capability_t ase_capability;
 #undef  ASE_ENABLE_MMIO512
 #endif
 // ------------------------------------------ //
+
+static inline int is_directory(const char *path)
+{
+	struct stat path_stat;
+
+	/* handle error, follows the symbolic link */
+	if (stat(path, &path_stat) != 0) {
+		return 0;
+	}
+
+	return S_ISDIR(path_stat.st_mode);
+}
 
 #endif	// End _ASE_COMMON_H_

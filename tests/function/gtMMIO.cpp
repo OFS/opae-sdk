@@ -41,6 +41,22 @@
 using namespace common_test;
 
 
+/*
+ * The mmio map is a hash table.
+ */
+static bool mmio_map_is_empty(struct wsid_tracker *root) {
+  if (!root || (root->n_hash_buckets == 0))
+    return true;
+
+  for (uint32_t i = 0; i < root->n_hash_buckets; i += 1) {
+    if (root->table[i])
+      return false;
+  }
+
+  return true;
+}
+
+
 /**
  * @test       mmio_drv_init_01
  *
@@ -56,7 +72,12 @@ TEST(LibopaecMmioCommonALL, mmio_drv_positive_init_01) {
   // Open  port device
   token_for_afu0(&_tok);
   ASSERT_EQ(FPGA_OK, fpgaOpen(tok, &h, 0));
-  EXPECT_TRUE(((struct _fpga_handle*)h)->mmio_root == NULL);
+#ifndef BUILD_ASE
+  // On HW we build a hash table
+  EXPECT_FALSE(((struct _fpga_handle*)h)->mmio_root == NULL);
+  EXPECT_FALSE(((struct _fpga_handle*)h)->mmio_root->n_hash_buckets == 0);
+#endif
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)h)->mmio_root));
   ASSERT_EQ(FPGA_OK, fpgaClose(h));
 }
 
@@ -79,7 +100,7 @@ TEST(LibopaecMmioCommonALL, mmio_drv_positive_map_mmio_01) {
 #ifndef BUILD_ASE
   ASSERT_EQ(FPGA_OK, fpgaMapMMIO(h, 0, &mmio_ptr));
   EXPECT_FALSE(mmio_ptr == NULL);
-  EXPECT_FALSE(((struct _fpga_handle *)h)->mmio_root == NULL);
+  EXPECT_FALSE(mmio_map_is_empty(((struct _fpga_handle*)h)->mmio_root));
 #else
   // ASE
   ASSERT_EQ(FPGA_NOT_SUPPORTED, fpgaMapMMIO(h, 0, &mmio_ptr));
@@ -119,7 +140,7 @@ TEST(LibopaecMmioCommonALL, mmio_drv_negative_map_mmio_02) {
 
   // Do not modify mmio_ptr and mmio_root
   EXPECT_TRUE(mmio_ptr == NULL);
-  EXPECT_TRUE(((struct _fpga_handle*)h)->mmio_root == NULL);
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)h)->mmio_root));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE

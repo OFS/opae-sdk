@@ -366,12 +366,11 @@ TEST(LibopaecAseStr, ase_str_02) {
 TEST(LibopaecAseStr, ase_str_03) {
 	int a = 0;
 	int b = 2018;
-	int ret = 0;
 	FILE *fp = fopen("str_test.txt", "w+");
 	fprintf(fp, "%d ", b);
 
 	rewind(fp);
-	ret = fscanf_s_i(fp, "%d", &a);
+	fscanf_s_i(fp, "%d", &a);
 	EXPECT_EQ(2018, a);
 
 	fclose(fp);
@@ -387,12 +386,10 @@ TEST(LibopaecAseStr, ase_str_03) {
 TEST(LibopaecAseApi, ase_buffer_01) {
 	uint64_t* buf_addr;
 	uint64_t wsid = 1;
-	fpga_handle h = (fpga_handle)0x123;
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**)&buf_addr, &wsid, 0));
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(NULL, 0x10001));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReleaseBuffer(h, 0));
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetIOAddress(NULL, 0x10001, NULL));
 }
@@ -463,7 +460,6 @@ TEST(LibopaecAseApi, ase_eve_01) {
 *
 */
 TEST(LibopaecAseApi, ase_mmio_01) {
-	uint64_t *mmio_afu_vbase = NULL;
 	struct _fpga_handle _handle;
 	uint32_t value;
 	uint64_t value1;
@@ -497,8 +493,6 @@ TEST(LibopaecAseApi, ase_mmio_01) {
 *
 */
 TEST(LibopaecAseApi, ase_open_01) {
-	uint64_t *mmio_afu_vbase = NULL;
-	struct _fpga_handle _handle;
 	struct _fpga_token _token;
 	fpga_token token = (fpga_token)&_token;
 

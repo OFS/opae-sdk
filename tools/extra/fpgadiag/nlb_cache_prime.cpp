@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,9 @@
 #include <chrono>
 #include "fpga_app/fpga_common.h"
 #include "nlb_cache_prime.h"
-#include "dma_buffer.h"
+#include "diag_utils.h"
+
+using namespace opae::fpga::types;
 
 namespace intel
 {
@@ -38,9 +40,9 @@ namespace nlb
 {
 
 nlb_cache_cool::nlb_cache_cool(const std::string & target,
-                               accelerator::ptr_t accelerator,
-                               dma_buffer::ptr_t dsm,
-                               dma_buffer::ptr_t cool_buf,
+                               handle::ptr_t accelerator,
+                               shared_buffer::ptr_t dsm,
+                               shared_buffer::ptr_t cool_buf,
                                bool cmdq)
 : target_(target)
 , accelerator_(accelerator)
@@ -50,7 +52,7 @@ nlb_cache_cool::nlb_cache_cool(const std::string & target,
 {
     const uint32_t cool_data = 0xc001c001;
 
-    volatile uint32_t *pCool    = (volatile uint32_t *) cool_buf_->address();
+    volatile uint32_t *pCool    = (volatile uint32_t *) cool_buf_->c_type();
     volatile uint32_t *pEndCool = pCool + (cool_buf_->size() / sizeof(uint32_t));
 
     for ( ; pCool < pEndCool ; ++pCool)
@@ -62,38 +64,39 @@ bool nlb_cache_cool::cool()
     bool res = true;
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // clear the DSM
     dsm_->fill(0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(cool_buf_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(cool_buf_->io_address()));
     // set number of cache lines for test
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), cool_buf_->size() / CL(1));
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines), cool_buf_->size() / CL(1));
 
     const uint32_t test_mode = static_cast<uint32_t>(nlb0_ctl::read) |
                                static_cast<uint32_t>(nlb0_ctl::rdi)  |
                                static_cast<uint32_t>(nlb0_ctl::read_vl0);
 
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
 
     // start the test
     if (cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
     }
     else
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
     }
 
     // wait for test complete
-    dma_buffer::microseconds_t dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
-    if (!dsm_->wait<uint32_t>(static_cast<size_t>(nlb0_dsm::test_complete),
-                              dma_buffer::microseconds_t(10),
+    std::chrono::microseconds dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
+    if (!buffer_wait<uint32_t>(dsm_,
+                              static_cast<size_t>(nlb0_dsm::test_complete),
+                              std::chrono::microseconds(10),
                               dsm_timeout,
                               static_cast<uint32_t>(0x1),
                               static_cast<uint32_t>(1)))
@@ -104,7 +107,7 @@ bool nlb_cache_cool::cool()
     // stop the device
     if (!cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
     }
 
     return res;
@@ -112,10 +115,10 @@ bool nlb_cache_cool::cool()
 
 
 nlb_read_cache_warm::nlb_read_cache_warm(const std::string & target,
-                                         accelerator::ptr_t accelerator,
-                                         dma_buffer::ptr_t dsm,
-                                         dma_buffer::ptr_t src_buf,
-                                         dma_buffer::ptr_t dst_buf,
+                                         handle::ptr_t accelerator,
+                                         shared_buffer::ptr_t dsm,
+                                         shared_buffer::ptr_t src_buf,
+                                         shared_buffer::ptr_t dst_buf,
                                          bool cmdq)
 : target_(target)
 , accelerator_(accelerator)
@@ -130,39 +133,40 @@ bool nlb_read_cache_warm::warm()
     bool res = true;
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // clear the DSM
     dsm_->fill(0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(src_buf_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(src_buf_->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(dst_buf_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(dst_buf_->io_address()));
     // set number of cache lines for test
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), src_buf_->size() / CL(1));
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines), src_buf_->size() / CL(1));
 
     const uint32_t test_mode = static_cast<uint32_t>(nlb0_ctl::read) |
                                static_cast<uint32_t>(nlb0_ctl::read_vl0);
  
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
 
     // start the test
     if (cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
     }
     else
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
     }
 
     // wait for test complete
-    dma_buffer::microseconds_t dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
-    if (!dsm_->wait<uint32_t>(static_cast<size_t>(nlb0_dsm::test_complete),
-                              dma_buffer::microseconds_t(10),
+    std::chrono::microseconds dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
+    if (!buffer_wait<uint32_t>(dsm_,
+                              static_cast<size_t>(nlb0_dsm::test_complete),
+                              std::chrono::microseconds(10),
                               dsm_timeout,
                               static_cast<uint32_t>(0x1),
                               static_cast<uint32_t>(1)))
@@ -173,7 +177,7 @@ bool nlb_read_cache_warm::warm()
     // stop the device
     if (!cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
     }
 
     return res;
@@ -181,10 +185,10 @@ bool nlb_read_cache_warm::warm()
 
 
 nlb_write_cache_warm::nlb_write_cache_warm(const std::string & target,
-                                           accelerator::ptr_t accelerator,
-                                           dma_buffer::ptr_t dsm,
-                                           dma_buffer::ptr_t src_buf,
-                                           dma_buffer::ptr_t dst_buf,
+                                           handle::ptr_t accelerator,
+                                           shared_buffer::ptr_t dsm,
+                                           shared_buffer::ptr_t src_buf,
+                                           shared_buffer::ptr_t dst_buf,
                                            bool cmdq)
 : target_(target)
 , accelerator_(accelerator)
@@ -199,39 +203,40 @@ bool nlb_write_cache_warm::warm()
     bool res = true;
 
     // set dsm base, high then low
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // clear the DSM
     dsm_->fill(0);
     // de-assert afu reset
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(src_buf_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(src_buf_->io_address()));
     // set output workspace address
-    accelerator_->write_mmio64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(dst_buf_->iova()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(dst_buf_->io_address()));
     // set number of cache lines for test
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::num_lines), src_buf_->size() / CL(1));
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines), src_buf_->size() / CL(1));
 
     const uint32_t test_mode = static_cast<uint32_t>(nlb0_ctl::write) |
                                static_cast<uint32_t>(nlb0_ctl::write_vl0);
  
-    accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg), test_mode);
 
     // start the test
     if (cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cmdq_sw), 1);
     }
     else
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
     }
 
     // wait for test complete
-    dma_buffer::microseconds_t dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
-    if (!dsm_->wait<uint32_t>(static_cast<size_t>(nlb0_dsm::test_complete),
-                              dma_buffer::microseconds_t(10),
+    std::chrono::microseconds dsm_timeout = (target_ == "ase") ? ASE_DSM_TIMEOUT : FPGA_DSM_TIMEOUT;
+    if (!buffer_wait<uint32_t>(dsm_,
+                              static_cast<size_t>(nlb0_dsm::test_complete),
+                              std::chrono::microseconds(10),
                               dsm_timeout,
                               static_cast<uint32_t>(0x1),
                               static_cast<uint32_t>(1)))
@@ -242,7 +247,7 @@ bool nlb_write_cache_warm::warm()
     // stop the device
     if (!cmdq_)
     {
-        accelerator_->write_mmio32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
     }
 
     return res;

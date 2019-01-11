@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2017-2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,16 +28,21 @@
 # base
 add_subdirectory(base/fpgaconf)
 add_subdirectory(base/fpgad)
+add_subdirectory(base/argsfilter)
 add_subdirectory(base/fpgainfo)
 add_subdirectory(base/fpgaport)
+add_subdirectory(base/fpgametrics)
 
 # extra
 add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 add_subdirectory(extra/packager)
+if (BUILD_PYTHON_DIST)
+    add_subdirectory(extra/pypackager)
+	add_subdirectory(extra/pyfpgadiag)
+endif()
 add_subdirectory(extra/c++utils)
 add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/libopae++)
 add_subdirectory(extra/mmlink)
 add_subdirectory(extra/ras)
 
@@ -46,5 +51,8 @@ add_subdirectory(extra/integrated/hssi)
 
 # pac
 add_subdirectory(extra/pac/fpgaflash)
+if (BUILD_PYTHON_DIST)
+    add_subdirectory(extra/pac/pyfpgaflash)
+endif()
 add_subdirectory(extra/pac/pac_hssi_config)
 add_subdirectory(extra/pac/fpgabist)

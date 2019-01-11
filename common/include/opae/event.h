@@ -68,6 +68,10 @@ fpga_result fpgaCreateEventHandle(fpga_event_handle *event_handle);
  * Destroy handle and free resources. On Linux this corresponds
  * to closing the file descriptor pointed to by handle
  *
+ * @note fpgaDestroyEventHandle() requires the address of an
+ * event_handle as created by fpgaCreateEventHandle(). Passing
+ * any other value results in undefined behavior.
+ *
  * @param[in] event_handle Pointer to handle to be destroyed
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if `event_handle` is NULL.

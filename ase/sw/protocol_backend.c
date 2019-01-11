@@ -31,6 +31,7 @@
  * - Interface to page table
  */
 #include "ase_common.h"
+#include "ase_host_memory.h"
 
 //const int NUM_DS = 10;
 
@@ -46,12 +47,16 @@ static int app2sim_dealloc_rx;
 int sim2app_dealloc_tx;
 static int sim2app_portctrl_rsp_tx;
 static int sim2app_intr_request_tx;
+static int sim2app_membus_rd_req_tx;
+static int app2sim_membus_rd_rsp_rx;
+static int sim2app_membus_wr_req_tx;
+static int app2sim_membus_wr_rsp_rx;
 static int intr_event_fds[MAX_USR_INTRS];
 
 int glbl_test_cmplt_cnt;                // Keeps the number of session_deinits received
 
 volatile int sockserver_kill;
-pthread_t socket_srv_tid;
+static pthread_t socket_srv_tid;
 
 // MMIO Respons lock
 // pthread_mutex_t mmio_resp_lock;
@@ -219,35 +224,108 @@ void sv2c_script_dex(const char *str)
 
 
 /*
- * DPI: WriteLine Data exchange
+ * Print an error for accesses to illegal (unpinned) addresses.
  */
-void wr_memline_dex(cci_pkt *pkt)
+static void memline_addr_error(const char *access_type,
+			       ase_host_memory_status status,
+			       uint64_t pa, uint64_t va)
+{
+	FUNC_CALL_ENTRY;
+
+	#define MEMLINE_ADDR_ILLEGAL_MSG \
+		"@ERROR: ASE has detected a memory %s to an ILLEGAL memory address.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n"
+
+	#define MEMLINE_ADDR_UNPINNED_MSG \
+		"@ERROR: ASE has detected a memory %s to an UNPINNED memory region.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n" \
+		"@ERROR: Check that previously requested memories have not been deallocated\n" \
+		"        before an AFU transaction could access them.\n" \
+		"        NOTE: If your application polls for an AFU completion message,\n" \
+		"              and you deallocate after that, consider using a\n" \
+		"              write fence before AFU status message. The simulator may\n" \
+		"              be committing AFU transactions out of order.\n"
+
+	#define MEMLINE_ADDR_UNMAPPED_MSG \
+		"@ERROR: ASE has detected a memory %s to an UNMAPPED memory region.\n" \
+		"        Simulation cannot continue, please check the code.\n" \
+		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
+		"                    line-level virtual_addr = 0x%" PRIx64 "\n" \
+		"        See ERROR log file ase_memory_error.log and timestamped\n" \
+		"        transactions in ccip_transactions.tsv.\n" \
+		"@ERROR: This most often happens when the application munmaps or frees\n" \
+		"        a region before calling fpgaReleaseBuffer().\n"
+
+	FILE *error_fp = fopen("ase_memory_error.log", "w");
+
+	if (status == HOST_MEM_STATUS_ILLEGAL) {
+		ASE_ERR("\n" MEMLINE_ADDR_ILLEGAL_MSG, access_type, pa, pa >> 6);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_ILLEGAL_MSG, access_type, pa, pa >> 6);
+		}
+	} else if (status == HOST_MEM_STATUS_NOT_PINNED) {
+		ASE_ERR("\n" MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_UNPINNED_MSG, access_type, pa, pa >> 6);
+		}
+	} else if (status == HOST_MEM_STATUS_NOT_MAPPED) {
+		ASE_ERR("\n" MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
+		if (error_fp != NULL) {
+			fprintf(error_fp, MEMLINE_ADDR_UNMAPPED_MSG, access_type, pa, pa >> 6, va);
+		}
+	} else {
+		ASE_ERR("\n @ERROR: Unknown memory reference error.\n");
+	}
+
+	if (error_fp != NULL) {
+		fclose(error_fp);
+	}
+
+	#undef MEMLINE_ADDR_ILLEGAL_MSG
+	#undef MEMLINE_ADDR_UNPINNED_MSG
+	#undef MEMLINE_ADDR_UNMAPPED_MSG
+
+	// Request SIMKILL
+	start_simkill_countdown();
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Write line request (sent to application)
+ */
+void wr_memline_req_dex(cci_pkt *pkt)
 {
 	FUNC_CALL_ENTRY;
 
 	uint64_t phys_addr;
-	uint64_t *wr_target_vaddr = (uint64_t *) NULL;
 	int intr_id;
-	//int ret_fd;
-	/* #ifndef DEFEATURE_ATOMICS */
-	/*   uint64_t *rd_target_vaddr = (uint64_t*)NULL; */
-	/*   long long cmp_qword;  // Data to be compared */
-	/*   long long new_qword;  // Data to be writen if compare passes */
-	/* #endif */
+
+	ase_host_memory_write_req wr_req;
 
 	if (pkt->mode == CCIPKT_WRITE_MODE) {
 		/*
 		 * Normal write operation
 		 * Takes Write request and performs verbatim
 		 */
-		// Get cl_addr, deduce wr_target_vaddr
 		phys_addr = (uint64_t) pkt->cl_addr << 6;
-		wr_target_vaddr =
-			ase_fakeaddr_to_vaddr((uint64_t) phys_addr);
 
 		// Write to memory
-		ase_memcpy(wr_target_vaddr, (char *) pkt->qword,
-			   CL_BYTE_WIDTH);
+		wr_req.req = HOST_MEM_REQ_WRITE_LINE;
+		wr_req.addr = phys_addr;
+		ase_memcpy(wr_req.data, (char *) pkt->qword, CL_BYTE_WIDTH);
+
+		mqueue_send(sim2app_membus_wr_req_tx, (char *) &wr_req, sizeof(wr_req));
 
 		// Success
 		pkt->success = 1;
@@ -262,59 +340,100 @@ void wr_memline_dex(cci_pkt *pkt)
 		// Success
 		pkt->success = 1;
 	}
-	/* #ifndef DEFEATURE_ATOMICS */
-	/*   else if (pkt->mode == CCIPKT_ATOMIC_MODE) */
-	/*     { */
-	/*       /\* */
-	/*        * This is a special mode in which read response goes back */
-	/*        * WRITE request is responded with a READ response */
-	/*        *\/ */
-	/*       // Specifics of the requested compare operation */
-	/*       cmp_qword = pkt->qword[0]; */
-	/*       new_qword = pkt->qword[4]; */
-
-	/*       // Get cl_addr, deduce rd_target_vaddr */
-	/*       phys_addr = (uint64_t)pkt->cl_addr << 6; */
-	/*       rd_target_vaddr = ase_fakeaddr_to_vaddr((uint64_t)phys_addr); */
-
-	/*       // Perform read first and set response packet accordingly */
-	/*       ase_memcpy((char*)pkt->qword, rd_target_vaddr, CL_BYTE_WIDTH); */
-
-	/*       // Get cl_addr, deduct wr_target, use qw_start to determine exact qword */
-	/*       wr_target_vaddr = (uint64_t*)( (uint64_t)rd_target_vaddr + pkt->qw_start*8 ); */
-
-	/*       // CmpXchg output */
-	/*       pkt->success = (int)__sync_bool_compare_and_swap (wr_target_vaddr, cmp_qword, new_qword); */
-
-	/*       // Debug output */
-	/* #ifdef ASE_DEBUG */
-	/*        */
-	/*       ASE_DBG("CmpXchg_op=%d\n", pkt->success); */
-	/*        */
-	/* #endif */
-	/*     } */
-	/* #endif */
 
 	FUNC_CALL_EXIT;
 }
 
 
 /*
- * DPI: ReadLine Data exchange
+ * DPI: Write line response (from application)
  */
-void rd_memline_dex(cci_pkt *pkt)
+void wr_memline_rsp_dex(cci_pkt *pkt)
+{
+	FUNC_CALL_ENTRY;
+
+	ase_host_memory_write_rsp wr_rsp;
+	int status;
+
+	// The only task required here is to consume the response from the application.
+	// triggered by wr_memline_req_dex. The response indicates whether the address
+	// was valid.  Raise an error for invalid addresses.
+
+	if (pkt->mode == CCIPKT_WRITE_MODE) {
+		while (true) {
+			status = mqueue_recv(app2sim_membus_wr_rsp_rx, (char *) &wr_rsp, sizeof(wr_rsp));
+
+			if (status == ASE_MSG_PRESENT) {
+				if (wr_rsp.status != HOST_MEM_STATUS_VALID) {
+					memline_addr_error("WRITE", wr_rsp.status, wr_rsp.pa, wr_rsp.va);
+					pkt->success = 0;
+				}
+				break;
+			}
+
+			// Error?  Probably channel closed and the simulator will be closing
+			// soon.
+			if (status == ASE_MSG_ERROR) {
+				pkt->success = 0;
+				break;
+			}
+		}
+	}
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Read line request
+ */
+void rd_memline_req_dex(cci_pkt *pkt)
 {
 	FUNC_CALL_ENTRY;
 
 	uint64_t phys_addr;
-	uint64_t *rd_target_vaddr = (uint64_t *) NULL;
+	ase_host_memory_read_req rd_req;
 
-	// Get cl_addr, deduce rd_target_vaddr
 	phys_addr = (uint64_t) pkt->cl_addr << 6;
-	rd_target_vaddr = ase_fakeaddr_to_vaddr((uint64_t) phys_addr);
 
-	// Read from memory
-	ase_memcpy((char *) pkt->qword, rd_target_vaddr, CL_BYTE_WIDTH);
+	rd_req.req = HOST_MEM_REQ_READ_LINE;
+	rd_req.addr = phys_addr;
+	mqueue_send(sim2app_membus_rd_req_tx, (char *) &rd_req, sizeof(rd_req));
+
+	FUNC_CALL_EXIT;
+}
+
+
+/*
+ * DPI: Read line data response
+ */
+void rd_memline_rsp_dex(cci_pkt *pkt)
+{
+	FUNC_CALL_ENTRY;
+
+	ase_host_memory_read_rsp rd_rsp;
+	int status;
+
+	while (true) {
+		status = mqueue_recv(app2sim_membus_rd_rsp_rx, (char *) &rd_rsp, sizeof(rd_rsp));
+
+		if (status == ASE_MSG_PRESENT) {
+			if (rd_rsp.status != HOST_MEM_STATUS_VALID) {
+				memline_addr_error("READ", rd_rsp.status, rd_rsp.pa, rd_rsp.va);
+			}
+
+			// Read from memory
+			ase_memcpy((char *) pkt->qword, rd_rsp.data, CL_BYTE_WIDTH);
+			break;
+		}
+
+		// Error?  Probably channel closed and the simulator will be closing
+		// soon.
+		if (status == ASE_MSG_ERROR) {
+			pkt->success = 0;
+			break;
+		}
+	}
 
 	FUNC_CALL_EXIT;
 }
@@ -606,7 +725,7 @@ static void *start_socket_srv(void *args)
 				break;
 			}
 #ifdef ASE_DEBUG
-      ASE_MSG("SIM-C : accept success\n");
+			ASE_MSG("SIM-C : accept success\n");
 #endif
 		}
 		if (sockserver_kill)
@@ -640,15 +759,15 @@ int ase_listener(void)
 {
 	// Buffer management variables
 	static struct buffer_t ase_buffer;
-	char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
-	char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
+	static char incoming_alloc_msgstr[ASE_MQ_MSGSIZE];
+	static char incoming_dealloc_msgstr[ASE_MQ_MSGSIZE];
 	int  rx_portctrl_cmd;
 	int  portctrl_value;
 
 	// Portctrl variables
-	char portctrl_msgstr[ASE_MQ_MSGSIZE];
-	char logger_str[ASE_LOGGER_LEN];
-	char umsg_mapstr[ASE_MQ_MSGSIZE];
+	static char portctrl_msgstr[ASE_MQ_MSGSIZE];
+	static char logger_str[ASE_LOGGER_LEN];
+	static char umsg_mapstr[ASE_MQ_MSGSIZE];
 
 	// Session status
 	static int   session_empty;
@@ -741,7 +860,7 @@ int ase_listener(void)
 					ASE_MSG("ASE running in daemon mode (see ase.cfg)\n");
 					ASE_MSG("Reseting buffers ... Simulator RUNNING\n");
 					ase_reset_trig();
-					ase_destroy();
+					ase_shmem_destroy();
 					ASE_INFO("Ready to run next test\n");
 					session_empty = 1;
 					buffer_msg_inject(0, TEST_SEPARATOR);
@@ -750,12 +869,12 @@ int ase_listener(void)
 				} else if (cfg->ase_mode == ASE_MODE_DAEMON_SW_SIMKILL) {
 					ASE_INFO("ASE recognized a SW simkill (see ase.cfg)... Simulator will EXIT\n");
 					run_clocks (500);
-					ase_perror_teardown(NULL, 0);
+					ase_shmem_perror_teardown(NULL, 0);
 				} else if (cfg->ase_mode == ASE_MODE_REGRESSION) {
 					if (cfg->ase_num_tests == glbl_test_cmplt_cnt) {
 						ASE_INFO("ASE completed %d tests (see supplied ASE config file)... Simulator will EXIT\n", cfg->ase_num_tests);
 						run_clocks (500);
-						ase_perror_teardown(NULL, 0);
+						ase_shmem_perror_teardown(NULL, 0);
 					} else {
 						ase_reset_trig();
 					}
@@ -770,7 +889,7 @@ int ase_listener(void)
 						("** ERROR ** Transaction counts do not match, something got lost\n");
 					run_clocks(500);
 					self_destruct_in_progress = 1;
-					ase_destroy();
+					ase_shmem_destroy();
 					start_simkill_countdown();
 				}
 #endif
@@ -798,7 +917,6 @@ int ase_listener(void)
 		 * Buffer Allocation Replicator
 		 */
 		// Receive a DPI message and get information from replicated buffer
-		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
 		    (app2sim_alloc_rx, (char *) incoming_alloc_msgstr,
 		     ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
@@ -807,55 +925,56 @@ int ase_listener(void)
 				   incoming_alloc_msgstr,
 				   sizeof(struct buffer_t));
 
-			// Allocate action
-			ase_alloc_action(&ase_buffer);
-			ase_buffer.is_privmem = 0;
-			if (ase_buffer.index == 0) {
-				ase_buffer.is_mmiomap = 1;
+			if (ase_buffer.is_pinned) {
+				// Pinned buffer (host memory) messages are sent only for
+				// logging. The actual buffer is not shared with the simulator.
+				// The simulator will send read/write memory requests to the
+				// application.
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Pinned host memory page =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tPage size (bytes)       = %" PRId32 "\n",
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 			} else {
-				ase_buffer.is_mmiomap = 0;
-			}
+				// Allocate action
+				ase_shmem_alloc_action(&ase_buffer);
+				ase_buffer.is_privmem = 0;
+				if (ase_buffer.index == 0) {
+					ase_buffer.is_mmiomap = 1;
+				} else {
+					ase_buffer.is_mmiomap = 0;
+				}
 
-			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
-			if (ase_buffer.is_mmiomap) {
+				char *buffer_class = "Buffer";
+				if (ase_buffer.is_mmiomap) {
+					buffer_class = "MMIO map";
+					initialize_fme_dfh(&ase_buffer);
+				} else if (ase_buffer.is_umas) {
+					buffer_class = "UMAS";
+					update_fme_dfh(&ase_buffer);
+				}
+
 				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "MMIO map Allocated ");
-				initialize_fme_dfh(&ase_buffer);
-			} else if (ase_buffer.is_umas) {
-				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "UMAS Allocated ");
-				update_fme_dfh(&ase_buffer);
-			} else {
-				snprintf(logger_str,
-					 ASE_LOGGER_LEN,
-					 "Buffer %d Allocated ",
-					 ase_buffer.index);
+						 ASE_LOGGER_LEN,
+						 "%s allocated, index %d (located /dev/shm%s) =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tWorkspace size (bytes)  = %" PRId32 "\n",
+						 buffer_class,
+						 ase_buffer.index,
+						 ase_buffer.memname,
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 			}
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 " (located /dev/shm/%s) =>\n",
-				 ase_buffer.memname);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHost App Virtual Addr  = 0x%" PRIx64
-				 "\n", ase_buffer.vbase);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHW Physical Addr       = 0x%" PRIx64
-				 "\n", ase_buffer.fake_paddr);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tHW CacheAligned Addr   = 0x%" PRIx64
-				 "\n", ase_buffer.fake_paddr >> 6);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\t\tWorkspace Size (bytes) = %" PRId32
-				 "\n", ase_buffer.memsize);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN, "\n");
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);
@@ -864,23 +983,17 @@ int ase_listener(void)
 			ase_buffer_oneline(&ase_buffer);
 
 			// Write buffer information to file
-			if ((ase_buffer.is_mmiomap == 0)
-			    || (ase_buffer.is_privmem == 0)) {
-				// Flush info to file
-				if (fp_workspace_log != NULL) {
-					fprintf(fp_workspace_log, "%s",
-						logger_str);
-					fflush(fp_workspace_log);
-				}
+			if (fp_workspace_log != NULL) {
+				fprintf(fp_workspace_log, "%s", logger_str);
+				fflush(fp_workspace_log);
 			}
-			// Debug only
+
 #ifdef ASE_DEBUG
 			ase_buffer_info(&ase_buffer);
 #endif
 		}
 
 		// ------------------------------------------------------------------------------- //
-		ase_empty_buffer(&ase_buffer);
 		if (mqueue_recv
 		    (app2sim_dealloc_rx, (char *) incoming_dealloc_msgstr,
 		     ASE_MQ_MSGSIZE) == ASE_MSG_PRESENT) {
@@ -889,17 +1002,37 @@ int ase_listener(void)
 				   incoming_dealloc_msgstr,
 				   sizeof(struct buffer_t));
 
-			// Format workspace info string
-			ase_memset(logger_str, 0, ASE_LOGGER_LEN);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN,
-				 "\nBuffer %d Deallocated =>\n",
-				 ase_buffer.index);
-			snprintf(logger_str,
-				 ASE_LOGGER_LEN, "\n");
+			if (ase_buffer.is_pinned) {
+				// Pinned buffer (host memory) messages are sent only for
+				// logging.
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Unpinned host memory page =>\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tPage size (bytes)       = %" PRId32 "\n",
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
+			} else {
+				// Format workspace info string
+				snprintf(logger_str,
+						 ASE_LOGGER_LEN,
+						 "Buffer deallocated, index %d (located /dev/shm%s) =>\n"
+						 "\t\tHost app virtual addr   = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (byte) = 0x%" PRIx64 "\n"
+						 "\t\tHW physical addr (line) = 0x%" PRIx64 "\n"
+						 "\t\tWorkspace size (bytes)  = %" PRId32 "\n",
+						 ase_buffer.index,
+						 ase_buffer.memname,
+						 ase_buffer.vbase,
+						 ase_buffer.fake_paddr,
+						 ase_buffer.fake_paddr >> 6,
+						 ase_buffer.memsize);
 
-			// Deallocate action
-			ase_dealloc_action(&ase_buffer, 1);
+				// Deallocate action
+				ase_shmem_dealloc_action(&ase_buffer, 1);
+			}
 
 			// Inject buffer message
 			buffer_msg_inject(1, logger_str);
@@ -907,6 +1040,12 @@ int ase_listener(void)
 			// Standard oneline message ---> Hides internal info
 			ase_buffer.valid = ASE_BUFFER_INVALID;
 			ase_buffer_oneline(&ase_buffer);
+
+			// Write buffer information to file
+			if (fp_workspace_log != NULL) {
+				fprintf(fp_workspace_log, "%s", logger_str);
+				fflush(fp_workspace_log);
+			}
 
 			// Debug only
 #ifdef ASE_DEBUG
@@ -1094,16 +1233,23 @@ int ase_init(void)
 	sim2app_intr_request_tx =
 		mqueue_open(mq_array[9].name, mq_array[9].perm_flag);
 
+	// Memory read/write requests.	All simulated references to shared memory are
+	// handled by the application.
+	sim2app_membus_rd_req_tx =
+		mqueue_open(mq_array[10].name, mq_array[10].perm_flag);
+	app2sim_membus_rd_rsp_rx =
+		mqueue_open(mq_array[11].name, mq_array[11].perm_flag);
+	sim2app_membus_wr_req_tx =
+		mqueue_open(mq_array[12].name, mq_array[12].perm_flag);
+	app2sim_membus_wr_rsp_rx =
+		mqueue_open(mq_array[13].name, mq_array[13].perm_flag);
+
 	int i;
 
 	for (i = 0; i < MAX_USR_INTRS; i++)
 		intr_event_fds[i] = -1;
 
 	sockserver_kill = 0;
-
-	// Calculate memory map regions
-	ASE_MSG("Calculating memory map...\n");
-	calc_phys_memory_ranges();
 
 	srand(cfg->ase_seed);
 
@@ -1216,14 +1362,14 @@ void start_simkill_countdown(void)
 	mqueue_close(sim2app_dealloc_tx);
 	mqueue_close(sim2app_portctrl_rsp_tx);
 	mqueue_close(sim2app_intr_request_tx);
+	mqueue_close(sim2app_membus_rd_req_tx);
+	mqueue_close(app2sim_membus_rd_rsp_rx);
+	mqueue_close(sim2app_membus_wr_req_tx);
+	mqueue_close(app2sim_membus_wr_rsp_rx);
 
 	int ipc_iter;
 	for (ipc_iter = 0; ipc_iter < ASE_MQ_INSTANCES; ipc_iter++)
 		mqueue_destroy(mq_array[ipc_iter].name);
-
-	// Destroy all open shared memory regions
-	ASE_MSG("Unlinking Shared memory regions.... \n");
-	// ase_destroy();
 
 	if (unlink(tstamp_filepath) == -1) {
 		ASE_MSG
@@ -1236,20 +1382,8 @@ void start_simkill_countdown(void)
 	final_ipc_cleanup();
 
 	// wait for server shutdown
+	pthread_cancel(socket_srv_tid);
 	pthread_join(socket_srv_tid, NULL);
-
-	// Close workspace log
-	if (fp_workspace_log != NULL) {
-		fclose(fp_workspace_log);
-	}
-#ifdef ASE_DEBUG
-	if (fp_memaccess_log != NULL) {
-		fclose(fp_memaccess_log);
-	}
-	if (fp_pagetable_log != NULL) {
-		fclose(fp_pagetable_log);
-	}
-#endif
 
 	// Remove session files
 	ASE_MSG("Cleaning session files...\n");
@@ -1290,6 +1424,19 @@ void start_simkill_countdown(void)
 	// Issue Simulation kill
 	simkill();
 
+	// Close workspace log
+	if (fp_workspace_log != NULL) {
+		fclose(fp_workspace_log);
+	}
+#ifdef ASE_DEBUG
+	if (fp_memaccess_log != NULL) {
+		fclose(fp_memaccess_log);
+	}
+	if (fp_pagetable_log != NULL) {
+		fclose(fp_pagetable_log);
+	}
+#endif
+
 	FUNC_CALL_EXIT;
 }
 
@@ -1312,32 +1459,32 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			if (ase_strncmp(parameter, "ASE_MODE", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_mode = atoi(pch);
+					cfg->ase_mode = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_TIMEOUT", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_timeout = atoi(pch);
+					cfg->ase_timeout = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_NUM_TESTS", 13) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_num_tests = atoi(pch);
+					cfg->ase_num_tests = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_REUSE_SEED", 17) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_reuse_seed = atoi(pch);
+					cfg->enable_reuse_seed = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_SEED", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_seed = atoi(pch);
+					cfg->ase_seed = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_CL_VIEW", 14) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_cl_view = atoi(pch);
+					cfg->enable_cl_view = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "USR_CLK_MHZ", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
@@ -1365,7 +1512,7 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					value = atoi(pch);
+					value = strtol(pch, NULL, 10);
 					if (value < 0) {
 						ASE_ERR("Physical memory size is negative in %s\n", filename);
 						ASE_ERR("        Reverting to default 256 GB\n");

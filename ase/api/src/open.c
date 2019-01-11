@@ -77,7 +77,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	// ASE Session Initialization
 	session_init();
 
-	_handle = malloc(sizeof(struct _fpga_handle));
+	_handle = ase_malloc(sizeof(struct _fpga_handle));
 	if (NULL == _handle) {
 		FPGA_MSG("Failed to allocate memory for handle");
 		return FPGA_NO_MEMORY;
@@ -87,8 +87,13 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 
 	_handle->token = token;
 	_handle->magic = FPGA_HANDLE_MAGIC;
+
 	// Init MMIO table
 	_handle->mmio_root = NULL;
+
+	// Init workspace table
+	_handle->wsid_root = wsid_tracker_init(16384);
+
 	// set handle return value
 	*handle = (void *)_handle;
 

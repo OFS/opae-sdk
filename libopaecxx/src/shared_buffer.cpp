@@ -82,7 +82,7 @@ shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
 
 void shared_buffer::release() {
   // If the allocation was successful.
-  if (virt_) {
+  if (virt_ && handle_) {
     auto res = fpgaReleaseBuffer(handle_->c_type(), wsid_);
     if (res == FPGA_OK) {
       virt_ = nullptr;
@@ -99,7 +99,7 @@ void shared_buffer::release() {
 void shared_buffer::fill(int c) { std::fill(virt_, virt_ + len_, c); }
 
 int shared_buffer::compare(shared_buffer::ptr_t other, size_t len) const {
-  return ::memcmp(virt_, other->virt_, len);
+  return std::equal(virt_, virt_ + len, other->virt_) ? 0 : 1;
 }
 
 shared_buffer::shared_buffer(handle::ptr_t handle, size_t len, uint8_t *virt,

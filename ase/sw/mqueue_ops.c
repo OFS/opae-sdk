@@ -40,7 +40,11 @@ const char *mq_name_arr[] = {
 	"app2sim_dealloc_ping_smq\0",
 	"sim2app_dealloc_pong_smq\0",
 	"sim2app_portctrl_rsp_smq\0",
-	"sim2app_intr_request_smq\0"
+	"sim2app_intr_request_smq\0",
+	"sim2app_membus_rd_req_smq\0",
+	"app2sim_membus_rd_rsp_smq\0",
+	"sim2app_membus_wr_req_smq\0",
+	"app2sim_membus_wr_rsp_smq\0"
 };
 
 
@@ -179,6 +183,7 @@ void mqueue_create(char *mq_name_suffix)
 
 	// Free memories
 	free(mq_path);
+	mq_path = NULL;
 
 	FUNC_CALL_EXIT;
 }
@@ -209,7 +214,7 @@ int mqueue_open(char *mq_name, int perm_flag)
 	// Named pipe requires non-blocking write-only move on from here
 	// only when reader is ready.
 #ifdef SIM_SIDE
-	int dummy_fd;
+	int dummy_fd = -1;
 	if (perm_flag == O_WRONLY) {
 		ASE_DBG("Opening IPC in write-only mode with dummy fd\n");
 		dummy_fd = open(mq_path, O_RDONLY | O_NONBLOCK);
@@ -228,7 +233,7 @@ int mqueue_open(char *mq_name, int perm_flag)
 #endif
 	}
 #ifdef SIM_SIDE
-	if (perm_flag == O_WRONLY) {
+	if (dummy_fd != -1) {
 		close(dummy_fd);
 	}
 #endif
@@ -237,6 +242,7 @@ int mqueue_open(char *mq_name, int perm_flag)
 
 	// Free temp variables
 	free(mq_path);
+	mq_path = NULL;
 
 	return mq;
 }
@@ -287,6 +293,7 @@ void mqueue_destroy(char *mq_name_suffix)
 	}
 	// Free memory
 	free(mq_path);
+	mq_path = NULL;
 
 	FUNC_CALL_EXIT;
 }
@@ -329,6 +336,6 @@ int mqueue_recv(int mq, char *str, int size)
 	if (ret > 0) {
 		return ASE_MSG_PRESENT;
 	} else {
-		return ASE_MSG_ABSENT;
+		return ((ret == 0) || (errno == EAGAIN)) ? ASE_MSG_ABSENT : ASE_MSG_ERROR;
 	}
 }

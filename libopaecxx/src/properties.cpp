@@ -35,7 +35,7 @@ namespace types {
 
 const std::vector<properties::ptr_t> properties::none = {};
 
-properties::properties()
+properties::properties(bool alloc_props)
     : props_(nullptr),
       type(&props_, fpgaPropertiesGetObjectType, fpgaPropertiesSetObjectType),
       num_errors(&props_, fpgaPropertiesGetNumErrors,
@@ -64,7 +64,9 @@ properties::properties()
       object_id(&props_, fpgaPropertiesGetObjectID, fpgaPropertiesSetObjectID),
       parent(&props_, fpgaPropertiesGetParent, fpgaPropertiesSetParent),
       guid(&props_) {
-  ASSERT_FPGA_OK(fpgaGetProperties(nullptr, &props_));
+  if (alloc_props) {
+    ASSERT_FPGA_OK(fpgaGetProperties(nullptr, &props_));
+  }
 }
 
 properties::ptr_t properties::get() {
@@ -85,7 +87,7 @@ properties::ptr_t properties::get(fpga_objtype objtype) {
 }
 
 properties::ptr_t properties::get(fpga_token tok) {
-  ptr_t p(new properties());
+  ptr_t p(new properties(false));
   auto res = fpgaGetProperties(tok, &p->props_);
   if (res != FPGA_OK) {
     p.reset();
@@ -95,7 +97,7 @@ properties::ptr_t properties::get(fpga_token tok) {
 }
 
 properties::ptr_t properties::get(handle::ptr_t h) {
-  ptr_t p(new properties());
+  ptr_t p(new properties(false));
   auto res = fpgaGetPropertiesFromHandle(h->c_type(), &p->props_);
   if (res != FPGA_OK) {
     p.reset();
