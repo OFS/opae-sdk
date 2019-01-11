@@ -730,9 +730,9 @@ STATIC void sysfs_find_resources(opae_device *device)
 	closedir(dir);
 }
 
-STATIC void discover(void)
+STATIC fpga_result discover(void)
 {
-	int res = 0;
+	fpga_result res = FPGA_OK;
 	uint32_t i = 0;
 	char err[128];
 	DIR *dir = NULL;
@@ -745,20 +745,22 @@ STATIC void discover(void)
 	if (reg_res) {
 		regerror(reg_res, &device_re, err, 128);
 		FPGA_ERR("Error compling regex: %s", err);
-		return;
+		return FPGA_EXCEPTION;
 	}
 
 	reg_res = regcomp(&pcie_re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
 		regfree(&device_re);
 		FPGA_ERR("Error compling regex");
-		return;
+		return FPGA_EXCEPTION;
 	}
 
 	dir = opendir(sysfs_class_path);
 	if (!dir) {
 		FPGA_ERR("Error opening directory: %s", sysfs_class_path);
-		return;
+		regfree(&device_re);
+		regfree(&pcie_re);
+		return FPGA_EXCEPTION;
 	}
 
 	while ((dirent = readdir(dir))) {
@@ -779,6 +781,7 @@ STATIC void discover(void)
 			// increment our device count after filling out details
 			// of the discovered region in our _devices array
 			if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+				res = FPGA_EXCEPTION;
 				goto out_free;
 			}
 			if (add_device(&_devices[_sysfs_device_count++],
@@ -789,14 +792,17 @@ STATIC void discover(void)
 				_sysfs_device_count--;
 			}
 			if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
+				res = FPGA_EXCEPTION;
 				goto out_free;
 			}
 		}
 	}
 
 	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+		res = FPGA_EXCEPTION;
 		goto out_free;
 	} else if (!_sysfs_device_count) {
+		res = FPGA_NO_DRIVER;
 		FPGA_ERR("Error discovering fpga regions");
 		goto out_unlock;
 	}
@@ -815,6 +821,7 @@ out_free:
 	regfree(&device_re);
 	regfree(&pcie_re);
 	closedir(dir);
+	return res;
 }
 
 STATIC void sysfs_device_clear(opae_device *device)
