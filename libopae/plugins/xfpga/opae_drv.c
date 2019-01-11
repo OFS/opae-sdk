@@ -862,9 +862,7 @@ fpga_result opae_drv_initialize(void)
 		return FPGA_NO_DRIVER;
 	}
 
-	discover();
-
-	return FPGA_OK;
+	return discover();
 }
 
 fpga_result opae_drv_finalize(void)
