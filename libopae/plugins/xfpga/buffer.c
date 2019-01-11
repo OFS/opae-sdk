@@ -32,7 +32,7 @@
 #include "opae/utils.h"
 #include "common_int.h"
 
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

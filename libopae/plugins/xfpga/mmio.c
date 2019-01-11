@@ -31,7 +31,7 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 #include "intel-fpga.h"
 
 #include <sys/types.h>
