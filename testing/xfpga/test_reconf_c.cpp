@@ -42,6 +42,8 @@ extern "C" {
 extern "C" {
 fpga_result open_accel(fpga_handle handle, fpga_handle *accel);
 fpga_result clear_port_errors(fpga_handle handle);
+fpga_result validate_bitstream(fpga_handle, const uint8_t *bitstream, 
+                               size_t bitstream_len, int *header_len);
 }
 
 using namespace opae::testing;
@@ -328,6 +330,26 @@ TEST_P(reconf_c, open_accel_02) {
       t = nullptr;
     }
   }
+}
+
+/**
+ * @test validate_bitstream
+ * @brief Tests: validate_bitstream
+ * @details: When validate_bitstream is given an invalid
+ *           bitstream header length, the function returns
+ *           FPGA_EXCEPTION.
+ */
+TEST_P(reconf_c, validate_bitstream) {
+  uint8_t bitstream_invalid_len[] = "XeonFPGA·GBSv001\255\255\255\255";
+  size_t bitstream_len = sizeof(bitstream_invalid_len) / sizeof(uint8_t);
+  int header_len;
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  result = validate_bitstream(handle_, bitstream_invalid_len,
+                              bitstream_len, &header_len);
+  EXPECT_EQ(FPGA_EXCEPTION, result);
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
