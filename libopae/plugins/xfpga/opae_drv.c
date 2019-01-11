@@ -603,7 +603,7 @@ STATIC int add_device(opae_device *device, const char *sysfs_class_fpga,
 		return FPGA_EXCEPTION;
 	}
 
-	sym_link_len = readlink(device->sysfs_path, buffer, PATH_MAX);
+	sym_link_len = readlink(device->sysfs_path, buffer, sizeof(buffer));
 	if (sym_link_len < 0) {
 		FPGA_ERR("Error reading sysfs link: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
@@ -640,7 +640,7 @@ STATIC opae_resource *make_opae_resource(opae_device *device, char *name,
 	res->type = type;
 	res->instance = num;
 	// copy the full path to the parent region object
-	strcpy_s(res->sysfs_path, SYSFS_PATH_MAX, device->sysfs_path);
+	strcpy_s(res->sysfs_path, PATH_MAX, device->sysfs_path);
 	// add a trailing path seperator '/'
 	int len = strlen(res->sysfs_path);
 	char *ptr = res->sysfs_path + len;
@@ -659,8 +659,8 @@ STATIC opae_resource *make_opae_resource(opae_device *device, char *name,
 		return NULL;
 	}
 
-	if (snprintf_s_s(res->sysfs_name, PATH_MAX, "%s", name) < 0) {
-		FPGA_ERR("Error formatting sysfs name");
+	if (strcpy_s(res->sysfs_name, PATH_MAX, name)) {
+		FPGA_ERR("Error copying sysfs name: %s", name);
 		free(res);
 		return NULL;
 	}
@@ -746,7 +746,7 @@ STATIC void discover(void)
 		regerror(reg_res, &device_re, err, 128);
 		FPGA_ERR("Error compling regex: %s", err);
 		return;
-	};
+	}
 
 	reg_res = regcomp(&pcie_re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
@@ -756,6 +756,11 @@ STATIC void discover(void)
 	}
 
 	dir = opendir(sysfs_class_path);
+	if (!dir) {
+		FPGA_ERR("Error opening directory: %s", sysfs_class_path);
+		return;
+	}
+
 	while ((dirent = readdir(dir))) {
 		if (!strcmp(dirent->d_name, "."))
 			continue;
