@@ -53,7 +53,6 @@ int __FPGA_API__ xfpga_plugin_initialize(void)
 int __FPGA_API__ xfpga_plugin_finalize(void)
 {
 	sysfs_finalize();
-	opae_ioctl_finalize();
 	return 0;
 }
 
