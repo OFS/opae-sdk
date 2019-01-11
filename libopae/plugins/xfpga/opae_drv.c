@@ -67,7 +67,7 @@
 			FPGA_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
-	} while (0);
+	} while (0)
 
 
 typedef struct _sysfs_formats {
@@ -562,28 +562,26 @@ STATIC int sysfs_parse_device_vendor_id(opae_device *device)
 	return FPGA_OK;
 }
 
-STATIC int sysfs_parse_pcie_info(regex_t *re, opae_device *device, char *buffer)
+STATIC fpga_result sysfs_parse_pcie_info(regex_t *re, opae_device *device, char *buffer)
 {
 	char err[128] = {0};
-	int res = FPGA_EXCEPTION;
 	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
 
 	int reg_res = regexec(re, buffer, PCIE_PATH_PATTERN_GROUPS, matches, 0);
 	if (reg_res) {
-		regerror(reg_res, re, err, 128);
+		regerror(reg_res, re, err, sizeof(err));
 		FPGA_ERR("Error executing regex: %s", err);
-		res = FPGA_EXCEPTION;
-		goto out;
-	} else {
-		RE_GROUP_INT(buffer, matches[1], device->segment, 16, out);
-		RE_GROUP_INT(buffer, matches[2], device->bus, 16, out);
-		RE_GROUP_INT(buffer, matches[3], device->device, 16, out);
-		RE_GROUP_INT(buffer, matches[4], device->function, 10, out);
+		return FPGA_EXCEPTION;
 	}
-	res = FPGA_OK;
 
-out:
-	return res;
+	RE_GROUP_INT(buffer, matches[1], device->segment, 16, out_err);
+	RE_GROUP_INT(buffer, matches[2], device->bus, 16, out_err);
+	RE_GROUP_INT(buffer, matches[3], device->device, 16, out_err);
+	RE_GROUP_INT(buffer, matches[4], device->function, 10, out_err);
+	return FPGA_OK;
+
+out_err:
+	return FPGA_EXCEPTION;
 }
 
 STATIC int add_device(opae_device *device, const char *sysfs_class_fpga,
@@ -814,9 +812,12 @@ out_free:
 	closedir(dir);
 }
 
-STATIC int sysfs_device_destroy(opae_device *device)
+STATIC void sysfs_device_clear(opae_device *device)
 {
-	ASSERT_NOT_NULL(device);
+	if (!device) {
+		return;
+	}
+
 	if (device->fme) {
 		free(device->fme);
 		device->fme = NULL;
@@ -825,12 +826,17 @@ STATIC int sysfs_device_destroy(opae_device *device)
 		free(device->port);
 		device->port = NULL;
 	}
-	return FPGA_OK;
 }
 
-int opae_drv_initialize(void)
+fpga_result opae_drv_initialize(void)
 {
-	opae_drv_finalize();
+	if (_drv) {
+		// indicates that we have already initialized
+		// let's finalize and re-initialize
+		// this helps in cases when finalize isn't called
+		opae_drv_finalize();
+	}
+
 	struct stat st;
 	if (!stat("/sys/class/fpga_region", &st)) {
 		_drv = &_opae_drivers[0];
@@ -846,18 +852,28 @@ int opae_drv_initialize(void)
 
 	discover();
 
-
-	return 0;
+	return FPGA_OK;
 }
 
-int opae_drv_finalize(void)
+fpga_result opae_drv_finalize(void)
 {
 	uint32_t i = 0;
+	fpga_result res = FPGA_OK;
+	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+		OPAE_ERR("error locking mutex");
+		goto out;
+	}
 	for (; i < _sysfs_device_count; ++i) {
-		sysfs_device_destroy(&_devices[i]);
+		sysfs_device_clear(&_devices[i]);
 	}
 	_sysfs_device_count = 0;
-	return FPGA_OK;
+	if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
+		OPAE_ERR("error unlocking mutex");
+		goto out;
+	}
+	_drv = NULL;
+out:
+	return res;
 }
 
 #define IOCTL(_FN, ...)                                                        \
