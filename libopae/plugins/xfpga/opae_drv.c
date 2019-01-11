@@ -632,7 +632,7 @@ STATIC opae_resource *make_opae_resource(opae_device *device, char *name,
 				    int num, fpga_objtype type)
 {
 	struct stat st;
-	opae_resource *res = (opae_resource*)malloc(sizeof(opae_resource));
+	opae_resource *res = (opae_resource *)malloc(sizeof(opae_resource));
 	if (!res) {
 		OPAE_MSG("error allocating resource struct");
 		return NULL;
@@ -732,7 +732,7 @@ STATIC void sysfs_find_resources(opae_device *device)
 	closedir(dir);
 }
 
-STATIC void discover()
+STATIC void discover(void)
 {
 	int res = 0;
 	uint32_t i = 0;
