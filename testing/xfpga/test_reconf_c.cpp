@@ -42,6 +42,8 @@ extern "C" {
 extern "C" {
 fpga_result open_accel(fpga_handle handle, fpga_handle *accel);
 fpga_result clear_port_errors(fpga_handle handle);
+fpga_result validate_bitstream(fpga_handle, const uint8_t *bitstream, 
+                               size_t bitstream_len, int *header_len);
 }
 
 using namespace opae::testing;
@@ -330,6 +332,26 @@ TEST_P(reconf_c, open_accel_02) {
   }
 }
 
+/**
+ * @test validate_bitstream
+ * @brief Tests: validate_bitstream
+ * @details: When validate_bitstream is given an invalid
+ *           bitstream header length, the function returns
+ *           FPGA_EXCEPTION.
+ */
+TEST_P(reconf_c, validate_bitstream) {
+  uint8_t bitstream_invalid_len[] = "XeonFPGA·GBSv001\255\255\255\255";
+  size_t bitstream_len = sizeof(bitstream_invalid_len) / sizeof(uint8_t);
+  int header_len;
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  result = validate_bitstream(handle_, bitstream_invalid_len,
+                              bitstream_len, &header_len);
+  EXPECT_EQ(FPGA_EXCEPTION, result);
+}
+
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -526,77 +548,7 @@ TEST(reconf, clear_port_errors) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
-class reconf_c_hw_p : public reconf_c {
-  protected:
-    reconf_c_hw_p()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr) {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
-    // assemble valid bitstream header
-    auto fme_guid = platform_.devices[0].fme_guid;
-    auto afu_guid = platform_.devices[0].afu_guid;
-
-    auto bitstream_j = jobject
-    ("version", "640")
-    ("afu-image", jobject
-                  ("interface-uuid", fme_guid)
-                  ("magic-no", int32_t(488605312))
-                  ("accelerator-clusters", {
-                                             jobject
-                                             ("total-contexts", int32_t(1))
-                                             ("name", "nlb")
-                                             ("accelerator-type-uuid", afu_guid)
-                                            }
-                  )
-    )
-    ("platform-name", "");
-
-    bitstream_valid_ =
-          system_->assemble_gbs_header(platform_.devices[0], bitstream_j.c_str());
-    bitstream_j.put();
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) {
-        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-        handle_ = nullptr;
-    }
-
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    system_->finalize();
-    fpgaFinalize();
-    token_cleanup();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  std::vector<uint8_t> bitstream_valid_;
-};
+class reconf_c_hw_p : public reconf_c {};
 
 /*
  * @test    fpga_reconf_slot_inv_len

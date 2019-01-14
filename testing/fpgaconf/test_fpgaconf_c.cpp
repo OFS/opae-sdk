@@ -410,7 +410,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char thirteen[20];
   char fourteen[20];
   char fifteen[20];
-  char sixteen[20];
+  char sixteen[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-v");
   strcpy(two, "-n");

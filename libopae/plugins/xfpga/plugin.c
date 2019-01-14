@@ -34,7 +34,7 @@
 #include "common_int.h"
 #include "adapter.h"
 #include "sysfs_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 
 int __FPGA_API__ xfpga_plugin_initialize(void)
 {
