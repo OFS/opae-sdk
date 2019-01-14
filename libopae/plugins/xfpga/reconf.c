@@ -39,7 +39,7 @@
 #include "xfpga.h"
 #include "bitstream_int.h"
 #include "common_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 #include "usrclk/user_clk_pgm_uclock.h"
 
 #include "reconf_int.h"

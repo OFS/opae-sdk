@@ -32,7 +32,7 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 
 // Reset slot
 fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
