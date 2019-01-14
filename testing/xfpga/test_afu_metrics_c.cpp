@@ -55,7 +55,8 @@ extern "C" {
 #include "test_system.h"
 
 #undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) printf("MOCK " fmt "\n", ##__VA_ARGS__)
+#define FPGA_MSG(fmt, ...) \
+	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
 using namespace opae::testing;
 
@@ -107,8 +108,10 @@ out_EINVAL:
 
 class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  afu_metrics_c_p() : handle_(nullptr), tokens_{{nullptr, nullptr}} {}
-
+  afu_metrics_c_p() 
+    : tokens_{{nullptr, nullptr}}, 
+      handle_(nullptr) {}
+      
   void create_metric_bbb_dfh();
   void create_metric_bbb_csr();
 
@@ -124,10 +127,8 @@ class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
+                                  &num_matches_), FPGA_OK);
     ASSERT_GT(num_matches_, 0);
-    handle_ = nullptr;
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
     which_mmio_ = 0;
@@ -153,8 +154,8 @@ class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
   uint32_t which_mmio_;
-  fpga_handle handle_;
   std::array<fpga_token, 2> tokens_;
+  fpga_handle handle_;
   fpga_properties filter_;
   uint32_t num_matches_;
   test_platform platform_;
@@ -336,4 +337,4 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
 }
 
 INSTANTIATE_TEST_CASE_P(afu_metrics_c, afu_metrics_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p", "dcp-rc" })));
