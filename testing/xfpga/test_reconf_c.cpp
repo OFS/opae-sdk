@@ -142,13 +142,13 @@ TEST_P(reconf_c, set_afu_userclock) {
 }
 
 /**
-* @test    set_fpga_pwr_threshold
+* @test    set_fpga_pwr_threshold_01
 * @brief   Tests: set_fpga_pwr_threshold
 * @details set_fpga_pwr_threshold sets power threshold
 *          Returns FPGA_OK if parameters are valid. Returns
 *          error code if invalid power threshold or handle.
 */
-TEST_P(reconf_c, set_fpga_pwr_threshold) {
+TEST_P(reconf_c, set_fpga_pwr_threshold_01) {
   fpga_result result;
   bool have_powermgmt;
   struct stat _st;
@@ -174,10 +174,6 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
   result = set_fpga_pwr_threshold(handle_, 65);
   EXPECT_EQ(result, FPGA_NOT_SUPPORTED);
 
-  // Valid power threshold
-  result = set_fpga_pwr_threshold(handle_, 60);
-  EXPECT_EQ(result, have_powermgmt ? FPGA_OK : FPGA_NOT_FOUND);
-
   // Invalid token within handle
   struct _fpga_handle *handle = (struct _fpga_handle *)handle_;
 
@@ -188,6 +184,31 @@ TEST_P(reconf_c, set_fpga_pwr_threshold) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   handle->token = t;
+}
+
+/*
+* @test    set_fpga_pwr_threshold_02
+* @brief   Tests: set_fpga_pwr_threshold
+* @details set_fpga_pwr_threshold sets power threshold
+*          Returns FPGA_OK if parameters are valid.
+*/
+TEST_P(reconf_c, set_fpga_pwr_threshold_02) {
+  fpga_result result;
+  bool have_powermgmt;
+  struct stat _st;
+
+  // Open port device
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  // Check if power attribute exists in sysfs tree
+  struct _fpga_token *token = (struct _fpga_token *)tokens_[0];
+  std::string sysfspath(token->sysfspath);
+  auto power_mgmt = sysfspath + "/power_mgmt";
+  have_powermgmt = stat(power_mgmt.c_str(), &_st) == 0;
+
+  // Valid power threshold
+  result = set_fpga_pwr_threshold(handle_, 60);
+  EXPECT_EQ(result, have_powermgmt ? FPGA_OK : FPGA_NOT_FOUND);
 }
 
 /**
