@@ -42,7 +42,7 @@
 #include <opae/properties.h>
 #include "xfpga.h"
 #include "common_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 #include "types_int.h"
 #include "intel-fpga.h"
 
