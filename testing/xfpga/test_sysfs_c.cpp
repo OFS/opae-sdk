@@ -46,6 +46,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_resource* make_resource(sysfs_fpga_region*, char*, int, fpga_objtype);
 }
 
+#include <fstream>
 #include <opae/enum.h>
 #include <opae/fpga.h>
 #include <opae/properties.h>
