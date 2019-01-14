@@ -657,23 +657,6 @@ TEST_P(events_p, event_drv_12) {
 }
 
 /**
- * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle and flag.
- *             It returns FPGA_NOT_SUPPORTED if interrupt is not
- *             supported or ioctl fails.
- */
-TEST_P(events_p, invalid_port_event_request_02){
-  int port_op = FPGA_IRQ_ASSIGN;
-  auto res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
-
-  gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
-}
-
-/**
  * @test       create_destory_invalid
  * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
  *             FPGA_NO_MEMORY.
@@ -825,6 +808,23 @@ TEST_P(events_mock_p, invalid_fme_event_request_02){
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
+}
+
+/**
+ * @test       send_port_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_NOT_SUPPORTED if interrupt is not
+ *             supported or ioctl fails.
+ */
+TEST_P(events_mock_p, invalid_port_event_request_02){
+  int port_op = FPGA_IRQ_ASSIGN;
+  auto res = send_port_event_request(handle_dev_,eh_,port_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 }
 
