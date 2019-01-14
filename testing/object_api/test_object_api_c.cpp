@@ -66,6 +66,7 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     options = options_;
+    fpgaFinalize();
     system_->finalize();
   }
 
