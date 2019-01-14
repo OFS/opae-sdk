@@ -99,6 +99,11 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif(CMAKE_COMPILER_IS_GNUCC)
 
+# Set debug flags, if required
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_definitions(-DLIBOPAE_DEBUG)
+endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 ############################################################################
 ## Defensive compilation for Release #######################################
 ############################################################################
