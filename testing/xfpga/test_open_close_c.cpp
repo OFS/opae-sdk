@@ -344,7 +344,7 @@ class openclose_c_dfl_p
  *
  * @brief      When the parameters are valid and the drivers are loaded,
  *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
- *             already opened token returns FPGA_OK.
+ *             already opened token returns FPGA_BUSY.
  */
 TEST_P(openclose_c_dfl_p, open_share) {
   fpga_handle h1 = nullptr;
