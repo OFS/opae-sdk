@@ -32,7 +32,7 @@
 #include "opae/utils.h"
 #include "opae/manage.h"
 #include "common_int.h"
-#include "opae_ioctl.h"
+#include "opae_drv.h"
 
 //Assign Port to PF from Interface
 #define ASSIGN_PORT_TO_PF           0
