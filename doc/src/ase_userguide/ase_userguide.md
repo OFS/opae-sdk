@@ -64,7 +64,7 @@ before in-system deployment.
 * The ASE can help identify certain lock conditions and Configuration and Status Registers (CSR) address mapping and pointer
 math errors.
 
-* The ASE presents a memory model to the AFU that tracks memory requested as accelerator workspaces. The memory model immediately
+* The ASE tracks memory requested from the accelerator. The memory model immediately
 flags illegal memory transactions to locations outside of requested memory spaces. Consequently, you can fix incorrect memory
 accesses early, during the simulation phase.
 
@@ -129,11 +129,11 @@ The AFU RTL code and OPAE software code you create in the ASE is compatible with
 * The AFU RTL code meets timing.
 
 In the simulation environment, complete the following steps to create an AF bitstream and program the hardware:
-    1. Compile the AFU RTL in either the Synopsys VCS-MX or in the Mentor Graphics ModelSim-SE
+1. Compile the AFU RTL in either the Synopsys VCS-MX or in the Mentor Graphics ModelSim-SE
     or QuestaSim simulators.
-    2. Compile the software application for an ASE-specific implementation of the OPAE API.
-    3. Synthesize the AFU RTL in the Intel Quartus Prime Pro software to generate a bitstream.
-    4. Program the hardware using this bitstream.
+2. Compile the software application for an ASE-specific implementation of the OPAE API.
+3. Synthesize the AFU RTL in the Intel Quartus Prime Pro software to generate a bitstream.
+4. Program the hardware using this bitstream.
 
 ```eval_rst
 .. note::
@@ -186,6 +186,7 @@ verify the your installation.
 
 Check the RTL simulator product information for supported operating systems, installation notes, and other related information.
 The RTL simulator must be able to perform the following functions:
+
 * Compilation of the SystemVerilog Direct Programming Interface (DPI) constructs
 * Compilation of the standard examples that are included in the installation
 * Support for SystemC
@@ -202,11 +203,12 @@ The source directory tree is:
     OPAE_BASEDIR
         |-- ase
         |   |-- api
-        |   |   `-- src
+        |   |   -- src
+        |   |-- in
         |   |-- rtl
-        |   |   `-- dcp_emif_model
+        |   |   -- dcp_emif_model
         |   |-- scripts
-        |   `-- sw
+        |   |-- sw
         |
         |-- cmake
         |-- common
@@ -216,7 +218,9 @@ The source directory tree is:
         |
         |-- doc
         |-- libopae
+        |-- libopaecxx
         |-- platforms
+        |-- pyopae
         |-- safe_string
         |-- samples
         |-- scripts
@@ -228,14 +232,14 @@ This directory tree shows the package structure of the ASE distribution. The fol
 
 * ```ase```: This is the ASE simulator implementation directory. It contains the following subdirectories:
     * ```api/src```: This directory contains the OPAE Intel ASE implementation as a compiled library. You can link statically
-    or dynamically to this library.
+      or dynamically to this library.
     * ```rtl```: This directory contains the RTL components of the ASE. You can compile this RTL for either platform.
         * ```dcp_emif_model```: This is the local DDR memory model for PAC card. Compile this model for PAC
-        mode simulations.
+          mode simulations.
     * ```scripts```: This directory contains several useful scripts. Refer to the [ASE Scripts](#ase-scripts)
-    Section for more information.
+      Section for more information.
     * ``` sw```: This directory contains the software components of the ASE. All simulations require the software components.
-    The GNU Compiler Collection (GCC) compiles these components.
+      The GNU Compiler Collection (GCC) compiles these components.
 * ```common```: This directory contains the OPAE library definitions. It defines various macros for access to an FPGA in
 an OPAE context.
 * ```libopae```: This library is the Intel platform-specific implementation of the OPAE API.
@@ -300,7 +304,7 @@ optional arguments:
 
 *  ```rtl_src_config```: This script transforms the list of RTL sources into simulator configuration files.
 
-* `generate_ase_environment.py`: This script instantiates a your simulated platform configuration.
+* `generate_ase_environment.py`: This script instantiates your simulated platform configuration.
 
 #### rtl_src_config ####
 
@@ -328,6 +332,7 @@ Platform. Use ```discrete``` for the Intel PAC.
 * ```-x```: The optional exclusions argument lists exclusions for path searches.
 
 The Synopsys and Mentor Graphics RTL simulators generate the following scripts.
+
 * Synopsys: Creates ```synopsys_sim.setup``` and ```vcs_run.tcl``` in the ```VCS``` configuration directory.
 * Mentor Graphics: Creates ```vsim_run.tcl``` in the ```QUESTA``` configuration directory.
 
@@ -339,7 +344,7 @@ Details on generated files:
 * ```ase_sources.mk```: Ties the above two files into ```DUT_VLOG_SRC_LIST``` and ```DUT_VHD_SRC_LIST``` Makefile variables.
   * ```ASE_PLATFORM```: Sets the platform type to the default type or the type you specify.
   * Set additional VCS or QUESTA options using the ```SNPS_{VLOGAN,VHDLAN,VCS}_OPT``` or ```MENT_{VLOG,VCOM,VSIM}_OPT``` options
-  in the Makefile. Refer to [ASE Makefile Variables](#ase-makefile-variables) for more information.
+    in the Makefile. Refer to [ASE Makefile Variables](#ase-makefile-variables) for more information.
 
 The simulation files use absolute paths when possible. To improve portability across users and groups, substitute  environment
 variables in the generated files that build and run the simulator.
@@ -378,21 +383,19 @@ The AFU ASE is a server-client simulation environment. The AFU RTL is the server
 compiled and linked to the  OPAE ASE library is the client process. Communication between server and client uses named pipes.
 The ASE abstracts most of the simulation infrastructure. You do not need to modify it.
 
-![ASE Server-Client Process Flow](ase_server_client_process_rev1.PNG "ASE Server-Client Process Flow")
+![ASE Server-Client Process Flow](ase_server_client_process_rev2.PNG "ASE Server-Client Process Flow")
 
 
 * **Server Process**:
     * The server process interfaces to 3rd-Party RTL Simulator packages. The server process currently supports Mentor
-    Modelsim-SE\*  Questasim\* and Synopsys CS-MX\* via the SystemVerilog-DPI library and simulator software interface.
+      Modelsim-SE\*  Questasim\* and Synopsys CS-MX\* via the SystemVerilog-DPI library and simulator software interface.
     * Named pipes implement communication to the client.  Named pipes also implement control, status and session management.
-    The server process includes a pipe event monitoring engine.
-    * The server process also provides a physical memory model that simulates the RTL AFU access to physical
-    addresses. The physical memory model simulates address translation from virtual addresses to physical addresses.
+      The server process includes a pipe event monitoring engine.
     * SystemVerilog manages the CCI-P interface. All CCI-P events are logged and time stamped.
     * The server also includes a CCI-P protocol checker that checks CCI-P transactions originating in the AFU. This checker
-    identifies CCI-P protocol issues, hazards, race conditions, and so on.
+      identifies CCI-P protocol issues, hazards, race conditions, and so on.
     * The buffer allocation calls map to POSIX Shared Memory (```/dev/shm```). The server-client processes share information
-    about these buffers using named pipes.
+      about these buffers using named pipes.
 
 .. note::
 ```
@@ -401,17 +404,19 @@ The Physical addresses generated in ASE are not realistic and are not replicable
 
 * **Client Process**:
     * The client implements an OPAE interface and a library to access the ASE platform functionality including MMIO,
-    Buffer management, and session control. The features available depend on the platform you specify at build time.
-    These functions are available using the OPAE API.
+      Buffer management, and session control. The features available depend on the platform you specify at build time.
+      These functions are available using the OPAE API.
+    * The client process also provides a physical memory model that simulates the RTL AFU access to physical
+      addresses. The physical memory model simulates address translation from virtual addresses to physical addresses.
     * A compiled program compiles and links to the ASE implementation of OPAE library. All OPAE calls route to ASE
-    instead of the OPAE platform driver.
+      instead of the OPAE platform driver.
 
 Separate build scripts build the server and client processes.
 
 * Server: A makefile in the ```ase``` directory compiles the ASE server process, containing the ASE Software, SystemVerilog
-engines and the AFU RTL logic code.
+  engines and the AFU RTL logic code.
 * Client: The main ```cmake``` script in the root of the distribution builds the OPAE library implementations for the System
-and ASE.  The cmake script installs the library in the  ```lib``` directory.
+  and ASE.  The cmake script installs the library in the  ```lib``` directory.
 
 ### AFU Build Instructions ###
 
@@ -542,7 +547,8 @@ You must note the following required build configurations:
 For more information on other switches, refer to [ASE Makefile targets](#ase-makefile-targets)
 
 Use the ```scripts/generate_ase_environment.py``` script to generate the AFU-specific files for the simulator build.
-This script is not infallible requires manual inspection of generated configurations to achieve correct results.
+This script is not infallible and 
+requires manual inspection of generated configurations to achieve correct results.
 
 ```eval_rst
 .. note::
@@ -895,13 +901,13 @@ Complete the following steps to compile ASE Simulator:
 ```
 
 2. Compile The ASE SystemVerilog files located in the ```ase/rtl/``` directory.
-    * Compile ASE RTL the platform components for the Integrated FPGA Platform or the Intel PAC into the
-    * simulation databases. For the PAC, compile the embedded memory interface (EMIF) Memory controller
-    * model into the ASE environment. If the simulation requires the Intel FPGA Gate libraries, compile
-    * the models into the ASE environment.
+    Compile ASE RTL the platform components for the Integrated FPGA Platform or the Intel PAC into the
+    simulation databases. For the PAC, compile the embedded memory interface (EMIF) Memory controller
+    model into the ASE environment. If the simulation requires the Intel FPGA Gate libraries, compile
+    the models into the ASE environment.
 
 3. Compile AFU components into the ASE environment.
-    * Use the RTL simulator software tools to compile the AFU components. Use Synopsys or Mentor utilities to compile
+    Use the RTL simulator software tools to compile the AFU components. Use Synopsys or Mentor utilities to compile
     VHDL or SystemVerilog components.
 
 #### ASE Makefile Targets ####
@@ -977,6 +983,7 @@ The ASE configuration file configures simulator behavior. An example configurati
 ### Logging Verbosity Control ###
 
 ASE provides the following three levels for logging message verbosity. By default, these messages print to ```stdout```:
+
 * ASE_INFO: Prints mandatory information messages required to specify operation.
 * ASE_ERR: Prints error messages during operation.
 * ASE_MSG: Prints general messages indicating check points in the ASE. Suppress these messages by setting the environment
