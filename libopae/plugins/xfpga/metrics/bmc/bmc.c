@@ -511,7 +511,7 @@ fpga_result bmcGetFirmwareVersion(fpga_token token, uint32_t *version)
 
 	res = read_sysfs_file(token, SYSFS_DEVID_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res) {
+	if (FPGA_OK != res || !tmp) {
 		goto out;
 	}
 
