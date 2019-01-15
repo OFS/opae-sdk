@@ -29,6 +29,7 @@ import argparse
 import math
 import mock
 import itertools
+import json
 import numpy as np
 import random
 import logging
@@ -41,6 +42,7 @@ from nose2.tools import params
 from opae.tools.fpgadiag import nlb
 from opae.tools.fpgadiag.nlb0 import nlb0
 from opae.tools.fpgadiag.nlb3 import nlb3
+from opae.tools.fpgadiag.fpgamux import fpgamux
 
 import opae.fpga
 
@@ -446,6 +448,20 @@ class PerfCountersTests(unittest.TestCase):
         self.assertEqual(
             sum(delta._values.values()),
             175 * (len(delta._values) - 2))
+
+
+class FpgaMuxTests(unittest.TestCase):
+    def test_fpgamux_create(self):
+        muxconfig = [{ "app": "nlb0",
+                      "name": "nlb0",
+                      "disabled": False,
+                      "config": { "begin": 1 } }]
+        with open('mux.json', 'w') as fd:
+            json.dump(muxconfig, fd)
+
+        tests = fpgamux.create()
+        self.assertNotEqual(len(tests), 0)
+        self.assertEqual(type(tests[0]), nlb0)
 
 
 if __name__ == "__main__":

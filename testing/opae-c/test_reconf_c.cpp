@@ -62,20 +62,20 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
     filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_), FPGA_OK);
     EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+    dev_ = nullptr;
+    ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
+    if (dev_) {
+        EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+        dev_ = nullptr;
     }
     for (auto &t : tokens_) {
       if (t) {
@@ -88,7 +88,7 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
 
   std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
-  fpga_handle accel_;
+  fpga_handle dev_;
   test_platform platform_;
   uint32_t num_matches_;
   test_system *system_;
@@ -102,7 +102,7 @@ class reconf_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(reconf_c_p, pr) {
   uint8_t bitstream[] = { 'b', 'i', 't', 's', 0 };
-  EXPECT_EQ(fpgaReconfigureSlot(accel_, 0,
+  EXPECT_EQ(fpgaReconfigureSlot(dev_, 0,
 		  bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 

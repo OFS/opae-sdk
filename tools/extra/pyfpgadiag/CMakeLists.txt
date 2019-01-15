@@ -43,6 +43,7 @@ set(PYFILES
     opae/tools/fpgadiag/nlb3.py
     opae/tools/fpgadiag/nlb7.py
     opae/tools/fpgadiag/fpgadiag.py
+    opae/tools/fpgadiag/fpgamux.py
     )
 
 set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)

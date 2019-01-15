@@ -35,13 +35,17 @@ extern "C" {
 #include "fpgad/ap6.h"
 
 struct client_event_registry *register_event(int conn_socket, int fd,
-	                                     fpga_event_type e, const char *device);
+	                                     fpga_event_type e, uint64_t object_id);
 
 void unregister_all_events(void);
 
-void evt_notify_error(const struct fpga_err *e);
+void evt_notify_error(uint8_t socket_id,
+		      uint64_t object_id,
+		      const struct fpga_err *e);
 
-void evt_notify_ap6_and_null(const struct fpga_err *e);
+void evt_notify_ap6_and_null(uint8_t socket_id,
+			     uint64_t object_id,
+			     const struct fpga_err *e);
 
 }
 
@@ -121,23 +125,21 @@ class fpgad_evt_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(fpgad_evt_c_p, notify_err) {
   int conn_sockets[3] = { 0, 1, 2 };
   int evt_fds[3]      = { -1, -1, eventfd(0, 0) };
-  const char *devs[3] = { "deva", "devb", "devc" }; 
+  uint64_t obj_ids[3] = { 0, 1, 2 };
 
-  EXPECT_NE(nullptr, register_event(conn_sockets[2], evt_fds[2], FPGA_EVENT_ERROR, devs[2]));
-  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_ERROR, devs[1]));
-  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_ERROR, devs[0]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[2], evt_fds[2], FPGA_EVENT_ERROR, obj_ids[2]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_ERROR, obj_ids[1]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_ERROR, obj_ids[0]));
 
   struct fpga_err err = {
-    .socket = -1,
     .sysfsfile = "devc",
     .reg_field = "reg_field",
     .lowbit = 0,
     .highbit = 1,
-    .occurred = true,
     .callback = nullptr
   };
 
-  evt_notify_error(&err);
+  evt_notify_error(0, obj_ids[2], &err);
 
   ASSERT_TRUE(do_poll(evt_fds[2]));
 
@@ -153,23 +155,21 @@ TEST_P(fpgad_evt_c_p, notify_err) {
 TEST_P(fpgad_evt_c_p, notify_ap6) {
   int conn_sockets[3] = { 0, 1, 2 };
   int evt_fds[3]      = { -1, eventfd(0, 0), -1 };
-  const char *devs[3] = { "deva", "devb", "devc" }; 
+  uint64_t obj_ids[3] = { 0, 1, 2 };
 
-  EXPECT_NE(nullptr, register_event(conn_sockets[2], evt_fds[2], FPGA_EVENT_POWER_THERMAL, devs[2]));
-  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_POWER_THERMAL, devs[1]));
-  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_POWER_THERMAL, devs[0]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[2], evt_fds[2], FPGA_EVENT_POWER_THERMAL, obj_ids[2]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[1], evt_fds[1], FPGA_EVENT_POWER_THERMAL, obj_ids[1]));
+  EXPECT_NE(nullptr, register_event(conn_sockets[0], evt_fds[0], FPGA_EVENT_POWER_THERMAL, obj_ids[0]));
 
   struct fpga_err err = {
-    .socket = 0,
     .sysfsfile = "devb",
     .reg_field = "reg_field",
     .lowbit = 0,
     .highbit = 1,
-    .occurred = true,
     .callback = nullptr
   };
 
-  evt_notify_ap6_and_null(&err);
+  evt_notify_ap6_and_null(0, obj_ids[1], &err);
 
   ASSERT_TRUE(do_poll(evt_fds[1]));
 

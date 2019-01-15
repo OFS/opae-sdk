@@ -34,7 +34,8 @@ setup(
     tests_require=['nose2', 'numpy', 'mock'],
     entry_points={
         'console_scripts': [
-            "fpgadiag=opae.tools.fpgadiag:main"
+            "fpgadiag=opae.tools.fpgadiag:main",
+            "fpgamux=opae.tools.fpgadiag.fpgamux:main"
         ]
     },
     description="pyfpgadiag includes fpgadiag and related utility libraries",

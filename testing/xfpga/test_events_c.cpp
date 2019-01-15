@@ -300,6 +300,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_, 
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -1322,6 +1324,8 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
