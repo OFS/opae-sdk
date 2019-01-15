@@ -680,6 +680,114 @@ TEST_P(fpgaconf_c_p, main2) {
 }
 
 /**
+ * @test       main_seg_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for sement are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_seg_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "--segment");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_bus_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for bus are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_bus_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_dev_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for device are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_dev_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-D");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_soc_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for socket are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_soc_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-S");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_missing_arg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params is missing an argument,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_missing_arg) {
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-S");
+
+  char *argv[] = { zero, one };
+
+  EXPECT_NE(fpgaconf_main(2, argv), 0);
+}
+
+/**
+ * @test       main_missing_gbs
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params is missing the gbs param,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_missing_gbs) {
+  char zero[20];
+  strcpy(zero, "fpgaconf");
+
+  char *argv[] = { zero };
+
+  EXPECT_NE(fpgaconf_main(1, argv), 0);
+}
+
+/**
  * @test       str_to_guid
  * @brief      Test: string_to_guid
  * @details    When the given string does not represent a valid GUID,<br>

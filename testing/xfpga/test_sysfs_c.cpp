@@ -46,6 +46,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_resource* make_resource(sysfs_fpga_region*, char*, int, fpga_objtype);
 }
 
+#include <fstream>
 #include <opae/enum.h>
 #include <opae/fpga.h>
 #include <opae/properties.h>
@@ -99,6 +100,53 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_->finalize();
   }
 
+  int GetNumFpgas() {
+    if (platform_.mock_sysfs != nullptr) {
+      return platform_.devices.size();
+    }
+
+    int value;
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
+
+    ExecuteCmd(cmd, value);
+    return value;
+  }
+
+  int GetNumMatchedFpga() {
+    if (platform_.mock_sysfs != nullptr) {
+      return platform_.devices.size();
+    }
+
+    std::stringstream ss;
+    ss << std::setw(4) << std::hex << platform_.devices[0].device_id;
+    std::string deviceid (ss.str());
+
+    std::string cmd =  "lspci | grep " + deviceid + " | wc -l";
+
+    int value;
+    ExecuteCmd(cmd, value);
+    return value;
+  }
+
+  void ExecuteCmd(std::string cmd, int &value) {
+    std::string line;
+    std::string command = cmd + " > output.txt";
+
+    EXPECT_EQ(std::system(command.c_str()), 0);
+
+    std::ifstream file("output.txt");
+
+    ASSERT_TRUE(file.is_open());
+    EXPECT_TRUE(std::getline(file, line));
+    file.close();
+
+    EXPECT_EQ(std::system("rm output.txt"), 0);
+
+    value = std::stoi(line);
+  }
+
   test_platform platform_;
   test_system *system_;
   std::string sysfs_fme;
@@ -140,7 +188,7 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
   EXPECT_EQ(0, sysfs_initialize());
-  EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
+  EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
   // call sysfs_foreach_region with our callback, cb
   sysfs_foreach_region(cb, &devices);
   // our devices map should be empty after this call as this callback removes
@@ -161,7 +209,7 @@ TEST_P(sysfsinit_c_p, sysfs_get_region) {
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
   EXPECT_EQ(0, sysfs_initialize());
-  EXPECT_EQ(platform_.devices.size(), sysfs_region_count());
+  EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
 
   // use sysfs_get_region API to count how many regions match our devices map
   for (int i = 0; i < sysfs_region_count(); ++i) {
@@ -193,9 +241,11 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   fpga_guid parsed_guid;
   ASSERT_EQ(sysfs_initialize(), 0);
   ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDeviceID(props,platform_.devices[0].device_id), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetVendorID(props,platform_.devices[0].vendor_id), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetObjectType(props, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(xfpga_fpgaEnumerate(&props, 1, &fme, 1, &matches), FPGA_OK);
-  EXPECT_EQ(matches, 1);
+  EXPECT_EQ(matches, GetNumMatchedFpga());
   ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
   EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
   EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
