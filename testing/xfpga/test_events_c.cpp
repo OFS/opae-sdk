@@ -846,7 +846,7 @@ TEST_P(events_mock_p, valid_fme_event_request){
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  auto res = send_fme_event_request(handle_accel_,eh_,fme_op);
+  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_OK,res);
 }
 
