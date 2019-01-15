@@ -842,7 +842,7 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   char zero[32];
   char one[32];
   char two[32];
-  char three[32];
+  char three[40];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-B");
   strcpy(two, "0x5e");
@@ -854,17 +854,17 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, 40);
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, 40);
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, 40);
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
@@ -1035,7 +1035,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   char two[20];
   char three[20];
   char four[20];
-  char five[20];
+  char five[32];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-v");
   strcpy(two, "-n");
@@ -1060,7 +1060,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(five, symlink_A.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-  memset(five, 0, 20);
+  memset(five, 0, 32);
   strcpy(five, symlink_B.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   
