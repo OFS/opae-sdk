@@ -203,10 +203,10 @@ The source directory tree is:
     OPAE_BASEDIR
         |-- ase
         |   |-- api
-        |   |   `-- src
+        |   |   -- src
         |   |-- in
         |   |-- rtl
-        |   |   `-- dcp_emif_model
+        |   |   -- dcp_emif_model
         |   |-- scripts
         |   |-- sw
         |
@@ -231,16 +231,15 @@ The source directory tree is:
 This directory tree shows the package structure of the ASE distribution. The following directories implement and run the ASE simulator:
 
 * ```ase```: This is the ASE simulator implementation directory. It contains the following subdirectories:
-
     * ```api/src```: This directory contains the OPAE Intel ASE implementation as a compiled library. You can link statically
-    or dynamically to this library.
+      or dynamically to this library.
     * ```rtl```: This directory contains the RTL components of the ASE. You can compile this RTL for either platform.
         * ```dcp_emif_model```: This is the local DDR memory model for PAC card. Compile this model for PAC
-        mode simulations.
+          mode simulations.
     * ```scripts```: This directory contains several useful scripts. Refer to the [ASE Scripts](#ase-scripts)
-    Section for more information.
+      Section for more information.
     * ``` sw```: This directory contains the software components of the ASE. All simulations require the software components.
-    The GNU Compiler Collection (GCC) compiles these components.
+      The GNU Compiler Collection (GCC) compiles these components.
 * ```common```: This directory contains the OPAE library definitions. It defines various macros for access to an FPGA in
 an OPAE context.
 * ```libopae```: This library is the Intel platform-specific implementation of the OPAE API.
@@ -340,13 +339,12 @@ The Synopsys and Mentor Graphics RTL simulators generate the following scripts.
 The run-time simultation uses the ```.tcl``` files.
 
 Details on generated files:
-
 * ```vlog_files.list```: Lists all the Verilog and SystemVerilog files found in the AFU directory path.
 * ```vhdl_files.list```: Lists all the VHDL files found in the AFU directory path.
 * ```ase_sources.mk```: Ties the above two files into ```DUT_VLOG_SRC_LIST``` and ```DUT_VHD_SRC_LIST``` Makefile variables.
   * ```ASE_PLATFORM```: Sets the platform type to the default type or the type you specify.
   * Set additional VCS or QUESTA options using the ```SNPS_{VLOGAN,VHDLAN,VCS}_OPT``` or ```MENT_{VLOG,VCOM,VSIM}_OPT``` options
-  in the Makefile. Refer to [ASE Makefile Variables](#ase-makefile-variables) for more information.
+    in the Makefile. Refer to [ASE Makefile Variables](#ase-makefile-variables) for more information.
 
 The simulation files use absolute paths when possible. To improve portability across users and groups, substitute  environment
 variables in the generated files that build and run the simulator.
@@ -389,16 +387,15 @@ The ASE abstracts most of the simulation infrastructure. You do not need to modi
 
 
 * **Server Process**:
-
     * The server process interfaces to 3rd-Party RTL Simulator packages. The server process currently supports Mentor
-    Modelsim-SE\*  Questasim\* and Synopsys CS-MX\* via the SystemVerilog-DPI library and simulator software interface.
+      Modelsim-SE\*  Questasim\* and Synopsys CS-MX\* via the SystemVerilog-DPI library and simulator software interface.
     * Named pipes implement communication to the client.  Named pipes also implement control, status and session management.
-    The server process includes a pipe event monitoring engine.
+      The server process includes a pipe event monitoring engine.
     * SystemVerilog manages the CCI-P interface. All CCI-P events are logged and time stamped.
     * The server also includes a CCI-P protocol checker that checks CCI-P transactions originating in the AFU. This checker
-    identifies CCI-P protocol issues, hazards, race conditions, and so on.
+      identifies CCI-P protocol issues, hazards, race conditions, and so on.
     * The buffer allocation calls map to POSIX Shared Memory (```/dev/shm```). The server-client processes share information
-    about these buffers using named pipes.
+      about these buffers using named pipes.
 
 .. note::
 ```
@@ -406,21 +403,20 @@ The Physical addresses generated in ASE are not realistic and are not replicable
 ```
 
 * **Client Process**:
-
     * The client implements an OPAE interface and a library to access the ASE platform functionality including MMIO,
-    Buffer management, and session control. The features available depend on the platform you specify at build time.
-    These functions are available using the OPAE API.
+      Buffer management, and session control. The features available depend on the platform you specify at build time.
+      These functions are available using the OPAE API.
     * The client process also provides a physical memory model that simulates the RTL AFU access to physical
-    addresses. The physical memory model simulates address translation from virtual addresses to physical addresses.
+      addresses. The physical memory model simulates address translation from virtual addresses to physical addresses.
     * A compiled program compiles and links to the ASE implementation of OPAE library. All OPAE calls route to ASE
-    instead of the OPAE platform driver.
+      instead of the OPAE platform driver.
 
 Separate build scripts build the server and client processes.
 
 * Server: A makefile in the ```ase``` directory compiles the ASE server process, containing the ASE Software, SystemVerilog
-engines and the AFU RTL logic code.
+  engines and the AFU RTL logic code.
 * Client: The main ```cmake``` script in the root of the distribution builds the OPAE library implementations for the System
-and ASE.  The cmake script installs the library in the  ```lib``` directory.
+  and ASE.  The cmake script installs the library in the  ```lib``` directory.
 
 ### AFU Build Instructions ###
 
