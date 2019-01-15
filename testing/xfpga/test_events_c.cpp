@@ -308,6 +308,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
@@ -315,7 +316,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
                             tokens_accel_.size(), &num_matches_), FPGA_OK);
-
+    ASSERT_GT(num_matches_, 0);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
 
@@ -354,8 +355,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
-    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); handle_dev_ = nullptr;}
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); handle_accel_ = nullptr;}
+    if (handle_dev_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); 
+        handle_dev_ = nullptr;
+    }
+
+    if (handle_accel_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); 
+        handle_accel_ = nullptr;
+    }
  
     for (auto &t : tokens_dev_) {
       if (t) {
@@ -762,7 +770,7 @@ TEST_P(events_dcp_p, invalid_fme_event_request){
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_dcp_p,
-                        ::testing::ValuesIn(test_platform::platforms({"dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc" })));
 
 
 class events_mcp_p : public events_p {};
