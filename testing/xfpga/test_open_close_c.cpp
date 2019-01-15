@@ -310,6 +310,12 @@ TEST_P(openclose_c_p, close_03) {
   EXPECT_EQ(res, FPGA_OK);
 }
 
+INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
+                        ::testing::ValuesIn(test_platform::platforms({})));
+
+class openclose_c_skx_dcp_p
+    : public openclose_c_p {};
+
 /**
  * @test       open_share
  *
@@ -317,7 +323,7 @@ TEST_P(openclose_c_p, close_03) {
  *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
  *             already opened token returns FPGA_OK.
  */
-TEST_P(openclose_c_p, open_share) {
+TEST_P(openclose_c_skx_dcp_p, open_share) {
   fpga_handle h1 = nullptr;
   fpga_handle h2 = nullptr;
 
@@ -327,8 +333,30 @@ TEST_P(openclose_c_p, open_share) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
 }
 
-INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+INSTANTIATE_TEST_CASE_P(openclose_c_skx_dcp, openclose_c_skx_dcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({}, fpga_driver::linux_intel)));
+
+class openclose_c_dfl_p
+    : public openclose_c_p {};
+
+/**
+ * @test       open_share
+ *
+ * @brief      When the parameters are valid and the drivers are loaded,
+ *             and the flag FPGA_OPEN_SHARED is given, fpgaOpen on an
+ *             already opened token returns FPGA_BUSY.
+ */
+TEST_P(openclose_c_dfl_p, open_share) {
+  fpga_handle h1 = nullptr;
+  fpga_handle h2 = nullptr;
+
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_BUSY, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
+}
+
+INSTANTIATE_TEST_CASE_P(openclose_c_dfl, openclose_c_dfl_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_dfl0)));
 
 /**
  * @test       invalid_open_close
