@@ -854,17 +854,17 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 40);
+  memset(three, 0, sizeof(three));
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, 40);
+  memset(three, 0, sizeof(three));
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 40);
+  memset(three, 0, sizeof(three));
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
@@ -896,22 +896,22 @@ TEST_P(fpgaconf_c_p, relative_path) {
   EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "../..../copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "..%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "%2e%2e/copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
@@ -1060,7 +1060,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(five, symlink_A.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-  memset(five, 0, 32);
+  memset(five, 0, sizeof(five));
   strcpy(five, symlink_B.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   
