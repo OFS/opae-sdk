@@ -294,6 +294,7 @@ define_pkg(devel
   docxml
   platform
   samplesrc
+  samplebin
   safestrlib
   safestrheaders
   GROUP "devel"
