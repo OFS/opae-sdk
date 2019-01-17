@@ -30,7 +30,13 @@
 #include "types_int.h"
 #include "xfpga.h"
 #include "props.h"
+#include "sysfs_int.h"
 
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+
+}
 using namespace opae::testing;
 
 class properties_c_p : public ::testing::TestWithParam<std::string> {
@@ -45,7 +51,7 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -92,7 +98,7 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_initialize();
     system_->finalize();
   }
 

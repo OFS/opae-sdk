@@ -60,6 +60,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/open.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/opae_drv.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/properties.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/plugin.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reconf.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reset.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/sysfs.c
