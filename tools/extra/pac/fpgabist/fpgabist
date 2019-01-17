@@ -33,6 +33,7 @@ import re
 
 import bist_app
 import bist_common
+import bist_def
 import bist_dma
 import bist_nlb3
 import bist_nlb0
@@ -74,6 +75,7 @@ def main(args):
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
         cmd = "fpgainfo {} -B 0x{}".format(feature, bdf['bus'])
         subprocess.call(cmd, shell=True)
+        print("\n")
 
     if dev_id == bist_common.VCP_ID:
         for name in ['nlb0', 'dma']:
@@ -84,18 +86,26 @@ def main(args):
             mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
 
     gbs_paths = args.gbs_paths
+    afu_ids = {}
     for path in gbs_paths:
-        mode_name = bist_common.get_mode_from_path(path)
-        if mode_name == 'nlb_mode_3':
+        afu_ids.update({bist_common.get_afu_id(path): path})
+    if not gbs_paths:
+        # Get the afu ID of the afu in the slot (defaut persona)
+        afu_ids.update({bist_common.get_afu_id(): ""})
+
+    for afu_id in afu_ids.keys():
+        if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
+            mode = bist_def.DefaultMode()
+        elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
             mode = bist_nlb3.Nlb3Mode()
-        elif mode_name == 'dma_afu':
+        elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
             mode = bist_dma.DmaMode()
-        elif mode_name == 'bist_afu':
+        elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
             mode = bist_app.BistMode()
         else:
-            sys.exit("Unknown AFU for available BIST Modes: {}\n".format(path))
+            sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
         print "Running mode: {}".format(mode.name)
-        mode.run(path, bdf['bus'])
+        mode.run(afu_ids.get(afu_id), bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
 

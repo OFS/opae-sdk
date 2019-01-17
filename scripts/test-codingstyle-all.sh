@@ -5,7 +5,7 @@ check_c () {
     pushd $(dirname $0)
 
     CHECKPATCH=checkpatch.pl
-    FILES=$(find ../libopae ../common/include/opae ../ase/api/src ../ase/sw ../tools/base/fpgaconf ../tools/base/fpgad \( -iname "*.c" -or -iname "*.h" \) -and \( ! -name "srv.c" \) -and \( ! -path "../libopae/src/usrclk/*" \) -and \( ! -path "../common/include/opae/cxx/*" \) )
+    FILES=$(find ../libopae ../common/include/opae ../ase/api/src ../ase/sw ../tools/base/fpgaconf ../tools/base/fpgad \( -iname "*.c" -or -iname "*.h" \) -and \( ! -name "srv.c" \) -and \( ! -path "../libopae/plugins/xfpga/usrclk/*" \) -and \( ! -path "../common/include/opae/cxx/*" \) )
 
     if [ ! -f $CHECKPATCH ]; then
         wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/master/scripts/checkpatch.pl
@@ -65,7 +65,7 @@ check_py () {
 
     PYCODESTYLE=$(which pycodestyle)
     PYLINT=$(which pylint)
-    FILES=$(find . -iname "*.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" -and \( ! -name "__init__.py" \))
+    FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./pyopae/pybind11/*" -and \( ! -name "__init__.py" \))
     FILES+=" "
     FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 
@@ -109,7 +109,7 @@ check_py () {
     fi
 
     echo -e "\n===== pylint -E ====="
-    $PYLINT -E -f parseable --ignore=__init__.py,test_*.py $FILES
+    $PYLINT -E -f parseable --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
     if [ $? -ne 0 ]; then
 	    echo "test-codingstyle-py FAILED"
 	    popd

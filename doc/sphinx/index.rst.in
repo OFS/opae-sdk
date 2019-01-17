@@ -32,6 +32,7 @@ The main documentation for the site is organized into following sections:
    docs/fpga_api/fpga_api
    docs/fpga_api/fpga_cxx_api
    docs/fpga_api/fpga_python_api
+   docs/fpga_api/plug_guide/readme
 
 .. _driver-docs:
 

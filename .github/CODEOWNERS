@@ -24,6 +24,7 @@
 CMakeLists.txt                 @OPAE/ci
 /scripts/                      @OPAE/ci
 /tests/                        @OPAE/ci
+/testing/                      @OPAE/ci
 .travis.yml                    @OPAE/ci
 /cmake/                        @OPAE/ci
 

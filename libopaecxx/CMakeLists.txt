@@ -53,11 +53,12 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/shared_buffer.cpp
                     src/events.cpp
                     src/except.cpp
-		    src/errors.cpp
+                    src/errors.cpp
+                    src/sysobject.cpp
                     src/version.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
-target_link_libraries(opae-cxx-core opae-c)
+target_link_libraries(opae-cxx-core opae-c uuid)
 
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )

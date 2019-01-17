@@ -28,7 +28,18 @@
  * reset_bmc.c : Builds and tears down context for bmc_thermal
  */
 
+#include <errno.h>
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <sys/stat.h>
+
+#include "safe_string/safe_string.h"
+
 #include <opae/fpga.h>
+#include "bitstream-tools.h"
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -36,9 +47,7 @@
 #include "bmc_thermal.h"
 #include "config_int.h"
 #include "log.h"
-#include "bitstream_int.h"
 #include "safe_string/safe_string.h"
-#include "bitstream-tools.h"
 #include "bmc/bmc.h"
 #include "reset_bmc.h"
 
@@ -46,6 +55,9 @@ static struct timespec wait_for_card_ts = {
 	.tv_sec = PACD_WAIT_FOR_CARD,
 	.tv_nsec = 0,
 };
+
+#define PRINT_MSG printf
+#define PRINT_ERR(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label

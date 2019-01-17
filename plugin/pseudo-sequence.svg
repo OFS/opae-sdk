@@ -1,0 +1,350 @@
+<svg id="mermaid-1533084704946" width="100%" xmlns="http://www.w3.org/2000/svg" height="100%" style="max-width:1250px;" viewBox="-50 -10 1250 1889"><style>
+
+
+#mermaid-1533084704946 .label {
+  font-family: 'trebuchet ms', verdana, arial;
+  color: #333; }
+
+#mermaid-1533084704946 .node rect,
+#mermaid-1533084704946 .node circle,
+#mermaid-1533084704946 .node ellipse,
+#mermaid-1533084704946 .node polygon {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1px; }
+
+#mermaid-1533084704946 .node.clickable {
+  cursor: pointer; }
+
+#mermaid-1533084704946 .arrowheadPath {
+  fill: #333333; }
+
+#mermaid-1533084704946 .edgePath .path {
+  stroke: #333333;
+  stroke-width: 1.5px; }
+
+#mermaid-1533084704946 .edgeLabel {
+  background-color: #e8e8e8; }
+
+#mermaid-1533084704946 .cluster rect {
+  fill: #ffffde !important;
+  stroke: #aaaa33 !important;
+  stroke-width: 1px !important; }
+
+#mermaid-1533084704946 .cluster text {
+  fill: #333; }
+
+#mermaid-1533084704946 div.mermaidTooltip {
+  position: absolute;
+  text-align: center;
+  max-width: 200px;
+  padding: 2px;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 12px;
+  background: #ffffde;
+  border: 1px solid #aaaa33;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 100; }
+
+#mermaid-1533084704946 .actor {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1533084704946 text.actor {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1533084704946 .actor-line {
+  stroke: grey; }
+
+#mermaid-1533084704946 .messageLine0 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  marker-end: 'url(#arrowhead)';
+  stroke: #333; }
+
+#mermaid-1533084704946 .messageLine1 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1533084704946 #arrowhead {
+  fill: #333; }
+
+#mermaid-1533084704946 #crosshead path {
+  fill: #333 !important;
+  stroke: #333 !important; }
+
+#mermaid-1533084704946 .messageText {
+  fill: #333;
+  stroke: none; }
+
+#mermaid-1533084704946 .labelBox {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1533084704946 .labelText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1533084704946 .loopText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1533084704946 .loopLine {
+  stroke-width: 2;
+  stroke-dasharray: '2 2';
+  marker-end: 'url(#arrowhead)';
+  stroke: #CCCCFF; }
+
+#mermaid-1533084704946 .note {
+  stroke: #aaaa33;
+  fill: #fff5ad; }
+
+#mermaid-1533084704946 .noteText {
+  fill: black;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 14px; }
+
+
+#mermaid-1533084704946 .section {
+  stroke: none;
+  opacity: 0.2; }
+
+#mermaid-1533084704946 .section0 {
+  fill: rgba(102, 102, 255, 0.49); }
+
+#mermaid-1533084704946 .section2 {
+  fill: #fff400; }
+
+#mermaid-1533084704946 .section1,
+#mermaid-1533084704946 .section3 {
+  fill: white;
+  opacity: 0.2; }
+
+#mermaid-1533084704946 .sectionTitle0 {
+  fill: #333; }
+
+#mermaid-1533084704946 .sectionTitle1 {
+  fill: #333; }
+
+#mermaid-1533084704946 .sectionTitle2 {
+  fill: #333; }
+
+#mermaid-1533084704946 .sectionTitle3 {
+  fill: #333; }
+
+#mermaid-1533084704946 .sectionTitle {
+  text-anchor: start;
+  font-size: 11px;
+  text-height: 14px; }
+
+
+#mermaid-1533084704946 .grid .tick {
+  stroke: lightgrey;
+  opacity: 0.3;
+  shape-rendering: crispEdges; }
+
+#mermaid-1533084704946 .grid path {
+  stroke-width: 0; }
+
+
+#mermaid-1533084704946 .today {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px; }
+
+
+
+#mermaid-1533084704946 .task {
+  stroke-width: 2; }
+
+#mermaid-1533084704946 .taskText {
+  text-anchor: middle;
+  font-size: 11px; }
+
+#mermaid-1533084704946 .taskTextOutsideRight {
+  fill: black;
+  text-anchor: start;
+  font-size: 11px; }
+
+#mermaid-1533084704946 .taskTextOutsideLeft {
+  fill: black;
+  text-anchor: end;
+  font-size: 11px; }
+
+
+#mermaid-1533084704946 .taskText0,
+#mermaid-1533084704946 .taskText1,
+#mermaid-1533084704946 .taskText2,
+#mermaid-1533084704946 .taskText3 {
+  fill: white; }
+
+#mermaid-1533084704946 .task0,
+#mermaid-1533084704946 .task1,
+#mermaid-1533084704946 .task2,
+#mermaid-1533084704946 .task3 {
+  fill: #8a90dd;
+  stroke: #534fbc; }
+
+#mermaid-1533084704946 .taskTextOutside0,
+#mermaid-1533084704946 .taskTextOutside2 {
+  fill: black; }
+
+#mermaid-1533084704946 .taskTextOutside1,
+#mermaid-1533084704946 .taskTextOutside3 {
+  fill: black; }
+
+
+#mermaid-1533084704946 .active0,
+#mermaid-1533084704946 .active1,
+#mermaid-1533084704946 .active2,
+#mermaid-1533084704946 .active3 {
+  fill: #bfc7ff;
+  stroke: #534fbc; }
+
+#mermaid-1533084704946 .activeText0,
+#mermaid-1533084704946 .activeText1,
+#mermaid-1533084704946 .activeText2,
+#mermaid-1533084704946 .activeText3 {
+  fill: black !important; }
+
+
+#mermaid-1533084704946 .done0,
+#mermaid-1533084704946 .done1,
+#mermaid-1533084704946 .done2,
+#mermaid-1533084704946 .done3 {
+  stroke: grey;
+  fill: lightgrey;
+  stroke-width: 2; }
+
+#mermaid-1533084704946 .doneText0,
+#mermaid-1533084704946 .doneText1,
+#mermaid-1533084704946 .doneText2,
+#mermaid-1533084704946 .doneText3 {
+  fill: black !important; }
+
+
+#mermaid-1533084704946 .crit0,
+#mermaid-1533084704946 .crit1,
+#mermaid-1533084704946 .crit2,
+#mermaid-1533084704946 .crit3 {
+  stroke: #ff8888;
+  fill: red;
+  stroke-width: 2; }
+
+#mermaid-1533084704946 .activeCrit0,
+#mermaid-1533084704946 .activeCrit1,
+#mermaid-1533084704946 .activeCrit2,
+#mermaid-1533084704946 .activeCrit3 {
+  stroke: #ff8888;
+  fill: #bfc7ff;
+  stroke-width: 2; }
+
+#mermaid-1533084704946 .doneCrit0,
+#mermaid-1533084704946 .doneCrit1,
+#mermaid-1533084704946 .doneCrit2,
+#mermaid-1533084704946 .doneCrit3 {
+  stroke: #ff8888;
+  fill: lightgrey;
+  stroke-width: 2;
+  cursor: pointer;
+  shape-rendering: crispEdges; }
+
+#mermaid-1533084704946 .doneCritText0,
+#mermaid-1533084704946 .doneCritText1,
+#mermaid-1533084704946 .doneCritText2,
+#mermaid-1533084704946 .doneCritText3 {
+  fill: black !important; }
+
+#mermaid-1533084704946 .activeCritText0,
+#mermaid-1533084704946 .activeCritText1,
+#mermaid-1533084704946 .activeCritText2,
+#mermaid-1533084704946 .activeCritText3 {
+  fill: black !important; }
+
+#mermaid-1533084704946 .titleText {
+  text-anchor: middle;
+  font-size: 18px;
+  fill: black; }
+
+#mermaid-1533084704946 g.classGroup text {
+  fill: #9370DB;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 10px; }
+
+#mermaid-1533084704946 g.classGroup rect {
+  fill: #ECECFF;
+  stroke: #9370DB; }
+
+#mermaid-1533084704946 g.classGroup line {
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 .classLabel .box {
+  stroke: none;
+  stroke-width: 0;
+  fill: #ECECFF;
+  opacity: 0.5; }
+
+#mermaid-1533084704946 .classLabel .label {
+  fill: #9370DB;
+  font-size: 10px; }
+
+#mermaid-1533084704946 .relation {
+  stroke: #9370DB;
+  stroke-width: 1;
+  fill: none; }
+
+#mermaid-1533084704946 #compositionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #compositionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #aggregationStart {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #aggregationEnd {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #dependencyStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #dependencyEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #extensionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 #extensionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1533084704946 .commit-id,
+#mermaid-1533084704946 .commit-msg,
+#mermaid-1533084704946 .branch-label {
+  fill: lightgrey;
+  color: lightgrey; }
+</style><style>#mermaid-1533084704946 {
+    color: rgba(0, 0, 0, 0.65);
+    font: normal normal 400 normal 14px / 21px "Monospaced Number", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }</style><g></g><g><line id="actor0" x1="75" y1="5" x2="75" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="0" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="75" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="75" dy="0">ClientApp</tspan></text></g><g><line id="actor1" x1="275" y1="5" x2="275" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="200" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="275" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="275" dy="0">PluginManager</tspan></text></g><g><line id="actor2" x1="475" y1="5" x2="475" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="400" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="475" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="475" dy="0">PluginLoader</tspan></text></g><g><line id="actor3" x1="675" y1="5" x2="675" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="600" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="675" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="675" dy="0">PluginA</tspan></text></g><g><line id="actor4" x1="875" y1="5" x2="875" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="800" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="875" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="875" dy="0">ProxyPlugin</tspan></text></g><g><line id="actor5" x1="1075" y1="5" x2="1075" y2="1878" class="actor-line" stroke-width="0.5px" stroke="#999"></line><rect x="1000" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="1075" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="1075" dy="0">RemoteEndpoint</tspan></text></g><defs><marker id="arrowhead" refX="5" refY="2" markerWidth="6" markerHeight="4" orient="auto"><path d="M 0,0 V 4 L6,2 Z"></path></marker></defs><defs><marker id="crosshead" markerWidth="15" markerHeight="8" orient="auto" refX="16" refY="4"><path fill="black" stroke="#000000" stroke-width="1px" d="M 9,2 V 6 L16,4 Z" style="stroke-dasharray: 0, 0;"></path><path fill="none" stroke="#000000" stroke-width="1px" d="M 0,1 L 6,7 M 6,1 L 0,7" style="stroke-dasharray: 0, 0;"></path></marker></defs><g><text x="175" y="93" class="messageText" style="text-anchor: middle;">initialize(cfile)</text><line x1="75" y1="100" x2="275" y2="100" class="messageLine0" stroke-width="2" stroke="black" style="fill: none;"></line></g><g><text x="275" y="128" class="messageText" style="text-anchor: middle;">parseConfig(cfile)</text><path d="M 275,135 C 335,125 335,165 275,155" class="messageLine0" stroke-width="2" stroke="black" style="fill: none;"></path></g><g><text x="375" y="218" class="messageText" style="text-anchor: middle;">loadPlugin(A)</text><line x1="275" y1="225" x2="475" y2="225" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="575" y="253" class="messageText" style="text-anchor: middle;">configure(cdata)</text><line x1="475" y1="260" x2="675" y2="260" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="575" y="288" class="messageText" style="text-anchor: middle;">initialize()</text><line x1="475" y1="295" x2="675" y2="295" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="575" y="348" class="messageText" style="text-anchor: middle;">LookupAPI</text><line x1="475" y1="355" x2="675" y2="355" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="575" y="383" class="messageText" style="text-anchor: middle;">Return fnPtr</text><line x1="475" y1="390" x2="675" y2="390" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="475" y="418" class="messageText" style="text-anchor: middle;">Map fnPtr in AdapterTable</text><path d="M 475,425 C 535,415 535,455 475,445" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><line x1="365" y1="305" x2="685" y2="305" class="loopLine"></line><line x1="685" y1="305" x2="685" y2="465" class="loopLine"></line><line x1="365" y1="465" x2="685" y2="465" class="loopLine"></line><line x1="365" y1="305" x2="365" y2="465" class="loopLine"></line><polygon points="365,305 415,305 415,318 406.6,325 365,325" class="labelBox"></polygon><text x="372.5" y="320" fill="black" class="labelText"><tspan x="372.5" fill="black">loop</tspan></text><text x="525" y="320" fill="black" class="loopText" style="text-anchor: middle;"><tspan x="525" fill="black">[ ForEachManagementAPI ]</tspan></text></g><g><text x="375" y="493" class="messageText" style="text-anchor: middle;">Return AdapterTable</text><line x1="475" y1="500" x2="275" y2="500" class="messageLine1" stroke-width="2" stroke="black" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="275" y="528" class="messageText" style="text-anchor: middle;">StoreAdapterTable</text><path d="M 275,535 C 335,525 335,565 275,555" class="messageLine0" stroke-width="2" stroke="black" style="fill: none;"></path></g><g><line x1="165" y1="175" x2="695" y2="175" class="loopLine"></line><line x1="695" y1="175" x2="695" y2="575" class="loopLine"></line><line x1="165" y1="575" x2="695" y2="575" class="loopLine"></line><line x1="165" y1="175" x2="165" y2="575" class="loopLine"></line><polygon points="165,175 215,175 215,188 206.6,195 165,195" class="labelBox"></polygon><text x="172.5" y="190" fill="black" class="labelText"><tspan x="172.5" fill="black">loop</tspan></text><text x="430" y="190" fill="black" class="loopText" style="text-anchor: middle;"><tspan x="430" fill="black">[ ForEachPlugin ]</tspan></text></g><g><text x="175" y="603" class="messageText" style="text-anchor: middle;">fpgaEnumerate</text><line x1="75" y1="610" x2="275" y2="610" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><rect x="200" y="620" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="196" y="644" fill="black" class="noteText"><tspan x="216" fill="black">ForEachAdapterTable</tspan></text></g><g><text x="475" y="684" class="messageText" style="text-anchor: middle;">fpgaEnumerate()</text><line x1="275" y1="691" x2="675" y2="691" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="475" y="719" class="messageText" style="text-anchor: middle;">ReturnTokenList(PluginA)</text><line x1="675" y1="726" x2="275" y2="726" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="275" y="779" class="messageText" style="text-anchor: middle;">tag(Token, PluginA)</text><path d="M 275,786 C 335,776 335,816 275,806" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><line x1="165" y1="736" x2="385" y2="736" class="loopLine"></line><line x1="385" y1="736" x2="385" y2="826" class="loopLine"></line><line x1="165" y1="826" x2="385" y2="826" class="loopLine"></line><line x1="165" y1="736" x2="165" y2="826" class="loopLine"></line><polygon points="165,736 215,736 215,749 206.6,756 165,756" class="labelBox"></polygon><text x="172.5" y="751" fill="black" class="labelText"><tspan x="172.5" fill="black">loop</tspan></text><text x="275" y="751" fill="black" class="loopText" style="text-anchor: middle;"><tspan x="275" fill="black">[ ForEachToken(PluginA) ]</tspan></text></g><g><text x="275" y="854" class="messageText" style="text-anchor: middle;">ExtendTokenList(TokensA)</text><path d="M 275,861 C 335,851 335,891 275,881" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><text x="575" y="919" class="messageText" style="text-anchor: middle;">fpgaEnumerate()</text><line x1="275" y1="926" x2="875" y2="926" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="975" y="954" class="messageText" style="text-anchor: middle;">send_msg(enumerate, filter)</text><line x1="875" y1="961" x2="1075" y2="961" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="975" y="989" class="messageText" style="text-anchor: middle;">recv_msg(tokens)</text><line x1="1075" y1="996" x2="875" y2="996" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="875" y="1049" class="messageText" style="text-anchor: middle;">deserialize(messageToken, fpga_token)</text><path d="M 875,1056 C 935,1046 935,1086 875,1076" class="messageLine0" stroke-width="2" stroke="black" style="fill: none;"></path></g><g><text x="875" y="1114" class="messageText" style="text-anchor: middle;">associate(fpga_token, endpoint_connection)</text><path d="M 875,1121 C 935,1111 935,1151 875,1141" class="messageLine0" stroke-width="2" stroke="black" style="fill: none;"></path></g><g><line x1="729.5703125" y1="1006" x2="1020.4296875" y2="1006" class="loopLine"></line><line x1="1020.4296875" y1="1006" x2="1020.4296875" y2="1161" class="loopLine"></line><line x1="729.5703125" y1="1161" x2="1020.4296875" y2="1161" class="loopLine"></line><line x1="729.5703125" y1="1006" x2="729.5703125" y2="1161" class="loopLine"></line><polygon points="729.5703125,1006 779.5703125,1006 779.5703125,1019 771.1703125,1026 729.5703125,1026" class="labelBox"></polygon><text x="737.0703125" y="1021" fill="black" class="labelText"><tspan x="737.0703125" fill="black">loop</tspan></text><text x="875" y="1021" fill="black" class="loopText" style="text-anchor: middle;"><tspan x="875" fill="black">[ ForEachToken ]</tspan></text></g><g><text x="575" y="1189" class="messageText" style="text-anchor: middle;">ReturnTokenList(ProxyPlugin)</text><line x1="875" y1="1196" x2="275" y2="1196" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="275" y="1249" class="messageText" style="text-anchor: middle;">tag(Token, ProxyPlugin)</text><path d="M 275,1256 C 335,1246 335,1286 275,1276" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><line x1="165" y1="1206" x2="385" y2="1206" class="loopLine"></line><line x1="385" y1="1206" x2="385" y2="1296" class="loopLine"></line><line x1="165" y1="1296" x2="385" y2="1296" class="loopLine"></line><line x1="165" y1="1206" x2="165" y2="1296" class="loopLine"></line><polygon points="165,1206 215,1206 215,1219 206.6,1226 165,1226" class="labelBox"></polygon><text x="172.5" y="1221" fill="black" class="labelText"><tspan x="172.5" fill="black">loop</tspan></text><text x="275" y="1221" fill="black" class="loopText" style="text-anchor: middle;"><tspan x="275" fill="black">[ ForEachToken(ProxyPlugin) ]</tspan></text></g><g><text x="275" y="1324" class="messageText" style="text-anchor: middle;">ExtendTokenList(TokensB)</text><path d="M 275,1331 C 335,1321 335,1361 275,1351" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><text x="175" y="1389" class="messageText" style="text-anchor: middle;">ReturnAllTokenList</text><line x1="275" y1="1396" x2="75" y2="1396" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="175" y="1424" class="messageText" style="text-anchor: middle;">fpgaOpen(Token)</text><line x1="75" y1="1431" x2="275" y2="1431" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="275" y="1459" class="messageText" style="text-anchor: middle;">untag(Token, AdapterTableB)</text><path d="M 275,1466 C 335,1456 335,1496 275,1486" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><text x="575" y="1524" class="messageText" style="text-anchor: middle;">fpgaOpen(Token)</text><line x1="275" y1="1531" x2="875" y2="1531" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="975" y="1559" class="messageText" style="text-anchor: middle;">send_msg(open, token)</text><line x1="875" y1="1566" x2="1075" y2="1566" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></line></g><g><text x="975" y="1594" class="messageText" style="text-anchor: middle;">recv_msg(handle)</text><line x1="1075" y1="1601" x2="875" y2="1601" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><text x="875" y="1629" class="messageText" style="text-anchor: middle;">make_fpga_handle(handle)</text><path d="M 875,1636 C 935,1626 935,1666 875,1656" class="messageLine0" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="fill: none;"></path></g><g><rect x="800" y="1676" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="796" y="1700" fill="black" class="noteText"><tspan x="816" fill="black">associate handle to endpoint</tspan></text></g><g><text x="575" y="1740" class="messageText" style="text-anchor: middle;">return FPGA_OK, handle</text><line x1="875" y1="1747" x2="275" y2="1747" class="messageLine1" stroke-width="2" stroke="black" marker-end="url(#arrowhead)" style="stroke-dasharray: 3, 3; fill: none;"></line></g><g><rect x="200" y="1757" fill="#EDF2AE" stroke="#666" width="150" height="36" rx="0" ry="0" class="note"></rect><text x="196" y="1781" fill="black" class="noteText"><tspan x="216" fill="black">associate handle to ProxyPlugin</tspan></text></g><g><rect x="0" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="75" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="75" dy="0">ClientApp</tspan></text></g><g><rect x="200" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="275" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="275" dy="0">PluginManager</tspan></text></g><g><rect x="400" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="475" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="475" dy="0">PluginLoader</tspan></text></g><g><rect x="600" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="675" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="675" dy="0">PluginA</tspan></text></g><g><rect x="800" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="875" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="875" dy="0">ProxyPlugin</tspan></text></g><g><rect x="1000" y="1813" fill="#eaeaea" stroke="#666" width="150" height="65" rx="3" ry="3" class="actor"></rect><text x="1075" y="1845.5" dominant-baseline="central" alignment-baseline="central" class="actor" style="text-anchor: middle;"><tspan x="1075" dy="0">RemoteEndpoint</tspan></text></g></svg>

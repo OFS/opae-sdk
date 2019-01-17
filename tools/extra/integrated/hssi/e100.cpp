@@ -62,9 +62,9 @@ e100::~e100()
 {
 }
 
-void e100::assign(accelerator::ptr_t accelerator_ptr)
+void e100::assign(opae::fpga::types::handle::ptr_t h)
 {
-    accelerator_  = accelerator_ptr;
+    accelerator_  = h;
     przone_.reset(new accelerator_przone(accelerator_));
     // e100 uses 2 bytes for the byte address field
     i2c_.reset(new i2c(przone_, 2));

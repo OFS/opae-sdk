@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import glob
+import json
 import os
 import re
 import subprocess
@@ -34,6 +35,8 @@ import sys
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
+BDF_PATTERN = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
+               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
 VCP_ID = 0x0b30
 
 
@@ -51,11 +54,30 @@ def check_required_cmds():
         sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
+def get_afu_id(gbs_path=""):
+    if os.path.isfile(gbs_path):
+        cmd = ["packager", "gbs-info", "--gbs={}".format(gbs_path)]
+        output = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        json_data = json.loads(output.communicate()[0])
+        accel_data = json_data["afu-image"]["accelerator-clusters"]
+        uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
+        return uuid.lower().replace("-", "")
+    else:
+        bdf_pattern = re.compile(BDF_PATTERN)
+        for fpga in glob.glob('/sys/class/fpga/*'):
+            slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+            m = bdf_pattern.match(slink)
+            if m:
+                id_path = os.path.join(fpga, 'intel-fpga-port.0', 'afu_id')
+                with open(id_path) as f:
+                    uuid = f.read().rstrip("\n")
+                    return uuid.lower()
+    return None
+
+
 # Return a list of all available bus numbers
 def get_all_fpga_bdfs(args):
-    pattern = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
-               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
-    bdf_pattern = re.compile(pattern)
+    bdf_pattern = re.compile(BDF_PATTERN)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
         devpath = os.path.join(fpga, "device")
@@ -111,6 +133,7 @@ def load_gbs(gbs_file, bus_num):
 
 class BistMode(object):
     name = ""
+    afu_id = ""
     executables = {}
     dir_path = ""
 

@@ -33,22 +33,6 @@
 
 #include <opae/fpga.h>
 
-#define FPGA_MSG(...)                                                          \
-	{                                                                      \
-		printf(__VA_ARGS__);                                           \
-		printf("\n");                                                  \
-	}
-#define FPGA_ERR(...)                                                          \
-	{                                                                      \
-		fprintf(stderr, __VA_ARGS__);                                  \
-		fprintf(stderr, "\n");                                         \
-	}
-#define FPGA_DBG(...)                                                          \
-	{                                                                      \
-		fprintf(stderr, "DEBUG: " __VA_ARGS__);                        \
-		fprintf(stderr, "\n");                                         \
-	}
-
 #define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 #define FPGA_DEV_PATH "/dev"

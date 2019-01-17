@@ -1,0 +1,13 @@
+How to generate A10 flash file
+1. change QUARTUS_ROOT in sof_conver.sh to your quartus installation directory
+2. generate flash file
+   # ./sof_convert.sh -u [a10_sof_file] -o [flash_file_name]
+3. check generated flash file
+   # ls -l ./output_files/[flash_file_name]
+
+How to generate NIOS flash file
+1. generate flash file 
+   # ./fw_convert.sh [nios_bin_file]
+2. check generated flash file
+   # ls -l ./output_files/[nios_ihex_file]
+

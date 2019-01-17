@@ -29,15 +29,15 @@
 #include <memory>
 #include <vector>
 #include <opae/types.h>
-#include "fpga_event.h"
+#include <opae/cxx/core/token.h>
+#include <opae/cxx/core/handle.h>
+#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/events.h>
 
 namespace intel
 {
 namespace fpga
 {
-
-
-typedef std::shared_ptr<fpga_token> shared_token;
 
 class fpga_resource
 {
@@ -51,10 +51,10 @@ public:
     };
 
 
-    fpga_resource(shared_token token, fpga_properties props, ptr_t parent = ptr_t());
+    fpga_resource(opae::fpga::types::token::ptr_t token, opae::fpga::types::properties::ptr_t props, opae::fpga::types::token::ptr_t parent = opae::fpga::types::token::ptr_t());
     virtual ~fpga_resource();
 
-    static bool enumerate_tokens(fpga_objtype ojbtype, const std::vector<intel::utils::option_map::ptr_t> & options, std::vector<shared_token> & tokens);
+    static bool enumerate_tokens(fpga_objtype ojbtype, const std::vector<intel::utils::option_map::ptr_t> & options, std::vector<opae::fpga::types::token::ptr_t> & tokens);
 
     virtual type_t type() = 0;
 
@@ -66,7 +66,7 @@ public:
 
     virtual std::string guid();
 
-    virtual ptr_t parent();
+    virtual opae::fpga::types::token::ptr_t parent();
 
     virtual uint8_t bus();
 
@@ -76,20 +76,21 @@ public:
 
     virtual uint8_t socket_id();
 
-    static std::string sysfs_path_from_token(fpga_token t);
+    opae::fpga::types::handle::ptr_t handle() { return handle_; }
 
-    fpga_event::ptr_t register_event(fpga_event::event_type ev) const;
+
+    opae::fpga::types::event::ptr_t register_event(fpga_event_type ev) const;
 
 protected:
     fpga_resource(const fpga_resource &other);
     fpga_resource & operator=(const fpga_resource & other);
-    fpga_handle          handle_;
+    opae::fpga::types::handle::ptr_t  handle_;
     intel::utils::logger log_;
+    opae::fpga::types::token::ptr_t token_;
 
 private:
-    shared_token         token_;
-    fpga_properties      props_;
-    ptr_t                parent_;
+    opae::fpga::types::properties::ptr_t  props_;
+    opae::fpga::types::token::ptr_t parent_;
     std::string          guid_;
     uint8_t              bus_;
     uint8_t              device_;

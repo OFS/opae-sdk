@@ -105,10 +105,12 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libxfpga.so*
 
 %files devel
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
+@CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
@@ -144,7 +146,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
-@CMAKE_INSTALL_PREFIX@/bin/fpgamux
 @CMAKE_INSTALL_PREFIX@/bin/fpgaflash
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/mactest
@@ -152,10 +153,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
+%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/	
+%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*	
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-
 
 %files ase
 %defattr(-,root,root,-)

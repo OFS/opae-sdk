@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+find_package(UUID REQUIRED)
+
 include_directories(${OPAE_SDK_SOURCE}/tools/base/argsfilter)
 add_executable(fpgainfo main.c
 	          fpgainfo.c
@@ -39,23 +41,8 @@ add_executable(fpgainfo main.c
 			  macinfo.c)
 
 set_install_rpath(fpgainfo)
-target_link_libraries(fpgainfo opae-c argsfilter bmc)
+target_link_libraries(fpgainfo opae-c argsfilter bmc uuid)
 set_property(TARGET fpgainfo PROPERTY C_STANDARD 99)
-
-add_library(fpgainfo-static
-    fpgainfo.c
-    errors.c
-    fmeinfo.c
-    sysinfo.c
-    bmcinfo.c
-    bmcdata.c
-    powerinfo.c
-    tempinfo.c
-    portinfo.c
-    phyinfo.c
-    macinfo.c)
-set_property(TARGET fpgainfo-static PROPERTY C_STANDARD 99)
-target_link_libraries(fpgainfo-static opae-c argsfilter)
 
 install(TARGETS fpgainfo
     RUNTIME DESTINATION bin

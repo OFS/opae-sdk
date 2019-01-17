@@ -39,6 +39,7 @@ dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
 
 class DmaMode(bc.BistMode):
     name = "dma_afu"
+    afu_id = "331db30c-9885-41ea-9081-f88b8f655caa"
 
     def __init__(self):
         self.executables = {'fpga_dma_test': '0'}

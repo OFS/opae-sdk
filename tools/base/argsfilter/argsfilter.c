@@ -57,13 +57,14 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		{"device", required_argument, NULL, 'D'},
 		{"function", required_argument, NULL, 'F'},
 		{"socket-id", required_argument, NULL, 'S'},
+		{"segment", required_argument, NULL, 0xe},
 		{0, 0, 0, 0},
 	};
 	int supported_options = sizeof(longopts) / sizeof(longopts[0]) - 1;
 	int getopt_ret = -1;
 	int option_index = 0;
 	char *endptr = NULL;
-	int found_opts[] = {0, 0, 0, 0};
+	int found_opts[] = {0, 0, 0, 0, 0};
 	int next_found = 0;
 	int old_opterr = opterr;
 	opterr = 0;
@@ -72,8 +73,10 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		int device;
 		int function;
 		int socket_id;
+                int segment;
 	} args_filter_config = {
-		.bus = -1, .device = -1, .function = -1, .socket_id = -1};
+		.bus = -1, .device = -1, .function = -1, .socket_id = -1, 
+                .segment = -1 };
 
 	while (-1
 	       != (getopt_ret = getopt_long(*argc, argv, short_opts, longopts,
@@ -139,6 +142,19 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
+        case 0xe: /* segment */
+			if (NULL == tmp_optarg)
+				break;
+			endptr = NULL;
+			args_filter_config.segment =
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "invalid socket: %s\n",
+					tmp_optarg);
+				return EX_USAGE;
+			}
+			found_opts[next_found++] = optind - 2;
+                        break;
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
 			return EX_USAGE;
@@ -173,6 +189,12 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		*result = fpgaPropertiesSetSocketID(
 			filter, args_filter_config.socket_id);
 		RETURN_ON_ERR(*result, "setting socket id");
+	}
+
+	if (-1 != args_filter_config.segment) {
+		*result = fpgaPropertiesSetSegment(
+			filter, args_filter_config.segment);
+		RETURN_ON_ERR(*result, "setting segment");
 	}
 	// using the list of optind values
 	// shorten the argv vector starting with a decrease

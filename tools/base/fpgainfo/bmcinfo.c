@@ -401,6 +401,7 @@ void print_bmc_info(const char *sysfspath)
 	char buf[8];
 	uint16_t devid = 0;
 	uint32_t bmcfw_ver = 0;
+	uint32_t max10_ver = 0;
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, "../device/device");
 	get_sysfs_attr(path, buf, sizeof(buf));
 	devid = strtoul(buf, NULL, 16);
@@ -415,6 +416,17 @@ void print_bmc_info(const char *sysfspath)
 					   (bmcfw_ver >> 8) & 0xff, bmcfw_ver & 0xff);
 			} else {
 				printf("unavailable (I/O error)\n");
+			}
+			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "max10_version");
+			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
+				max10_ver = strtoul(buf, NULL, 16);
+				printf("Board Management Controller, MAX10 version %u.%u.%u\n",
+					   (max10_ver >> 16) & 0xff, (max10_ver >> 8) & 0xff,
+					   max10_ver & 0xff);
+			}
+			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "pcb_info");
+			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
+				printf("Board PCB version %s\n", buf);
 			}
 		} else {
 			printf("unavailable\n");

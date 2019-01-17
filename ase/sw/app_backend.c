@@ -302,8 +302,10 @@ void *mmio_response_watcher(void *arg)
 		}
 	}
 
-	if (io_s.mmio_rsp_pkt)
+	if (io_s.mmio_rsp_pkt) {
 		free(io_s.mmio_rsp_pkt);
+		io_s.mmio_rsp_pkt = NULL;
+	}
 
 	return 0;
 }
@@ -927,6 +929,7 @@ void mmio_write32(int offset, uint32_t data)
 			mmio_pkt->tid, mmio_pkt->addr, data);
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -981,6 +984,7 @@ void mmio_write64(int offset, uint64_t data)
 			(unsigned long long) data);
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -1063,6 +1067,7 @@ void mmio_read32(int offset, uint32_t *data32)
 		mmio_table[slot_idx].rx_flag = false;
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;
@@ -1132,6 +1137,7 @@ void mmio_read64(int offset, uint64_t *data64)
 		mmio_table[slot_idx].rx_flag = false;
 
 		free(mmio_pkt);
+		mmio_pkt = NULL;
 	}
 
 	FUNC_CALL_EXIT;

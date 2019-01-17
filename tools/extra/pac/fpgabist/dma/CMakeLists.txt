@@ -29,8 +29,8 @@ enable_language(C ASM)
 set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR})
+
 file(GLOB CSources *.c *.S)
 add_executable(fpga_dma_test ${CSources})
 set_install_rpath(fpga_dma_test)

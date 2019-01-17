@@ -35,9 +35,8 @@
 #ifndef __FPGA_FPGA_H__
 #define __FPGA_FPGA_H__
 
-#define FPGA_API_VERSION_MAJOR 0
-#define FPGA_API_VERSION_MINOR 1
-
+#include <opae/log.h>
+#include <opae/init.h>
 #include <opae/types.h>
 #include <opae/access.h>
 #include <opae/buffer.h>
@@ -48,7 +47,11 @@
 #include <opae/properties.h>
 #include <opae/umsg.h>
 #include <opae/utils.h>
+#include <opae/error.h>
 #include <opae/version.h>
+#include <opae/sysobject.h>
+#include <opae/userclk.h>
+#include <opae/metrics.h>
 
 #endif // __FPGA_FPGA_H__
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,6 @@
 
 #pragma once
 #include <cstdint>
-#include "accelerator.h"
 
 namespace intel
 {
@@ -64,6 +63,7 @@ enum class nlb0_csr : uint32_t
     num_lines   = 0x0130,
     src_addr    = 0x0120,
     dst_addr    = 0x0128,
+    status1     = 0x0168,
     status2     = 0x0170,
     mode7_args  = 0x0180,
     cmdq_sw     = 0x0190,
@@ -129,6 +129,7 @@ enum class nlb3_csr : uint32_t
     num_lines   = 0x0130,
     src_addr    = 0x0120,
     dst_addr    = 0x0128,
+    status1     = 0x0168,
     status2     = 0x0170,
     strided_acs = 0x0178,
     mode7_args  = 0x0180,

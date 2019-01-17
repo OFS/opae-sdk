@@ -27,7 +27,8 @@
 
 
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src
+                    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
+                    ${OPAE_SDK_SOURCE}/libopae
                     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf
                     ${OPAE_SDK_SOURCE}/tools/include )
 
@@ -47,7 +48,7 @@ add_executable(pacd ${SRC})
 
 set_install_rpath(pacd)
 
-target_link_libraries(pacd bmc safestr opae-c pthread rt)
+target_link_libraries(pacd bmc safestr uuid opae-c pthread rt)
 
 if (IS_DIRECTORY /usr/lib/systemd/system)
 #    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE} DESTINATION ${SERVICE_FILE_DIR} COMPONENT toolpacd)

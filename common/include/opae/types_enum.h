@@ -137,11 +137,44 @@ enum fpga_open_flags {
 /**
  * Reconfiguration flags
  *
- * These flags can be passed to the fpgaReconfigure() function.
+ * These flags can be passed to the fpgaReconfigureSlot() function.
  */
 enum fpga_reconf_flags {
 	/** Reconfigure the slot without checking if it is in use */
 	FPGA_RECONF_FORCE = (1u << 0)
+};
+
+enum fpga_sysobject_flags {
+  FPGA_OBJECT_SYNC = (1u << 0), /**< Synchronize data from driver */
+  FPGA_OBJECT_GLOB = (1u << 1), /**< Treat names as glob expressions */
+  FPGA_OBJECT_RAW  = (1u << 2), /**< Read or write object data as raw bytes */
+  FPGA_OBJECT_RECURSE_ONE = (1u << 3), /**< Create subobjects one level down from containers */
+  FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
+};
+
+
+/** fpga metrics types
+* opae defines power,thermal, performance counter
+* and afu metric types
+*/
+enum fpga_metric_type {
+	FPGA_METRIC_TYPE_POWER,             // Metric power
+	FPGA_METRIC_TYPE_THERMAL,           // Metric Thermal
+	FPGA_METRIC_TYPE_PERFORMANCE_CTR,   // Metric Performance counter
+	FPGA_METRIC_TYPE_AFU,               // Metric AFU
+	FPGA_METRIC_TYPE_UNKNOWN            // Unknown
+};
+
+/** Metrics data type
+*
+*
+*/
+enum fpga_metric_datatype {
+	FPGA_METRIC_DATATYPE_INT,       // Metric datatype integer
+	FPGA_METRIC_DATATYPE_FLOAT,     // Metric datatype float
+	FPGA_METRIC_DATATYPE_DOUBLE,    // Metric datatype double
+	FPGA_METRIC_DATATYPE_BOOL,      // Metric datatype bool
+	FPGA_METRIC_DATATYPE_UNKNOWN    // Metric datatype unknown
 };
 
 #endif // __FPGA_TYPES_ENUM_H__

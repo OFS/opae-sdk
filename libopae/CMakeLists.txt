@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2018, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,60 +26,20 @@
 
 project(libopae-c)
 
-############################################################################
-## Add 'coverage' ##########################################################
-############################################################################
-
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  include(coverage)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-############################################################################
-## Add 'libopae-c' library ###################################################
-############################################################################
 set(SRC
-  src/common.c
-  src/enum.c
-  src/error.c
-  src/umsg.c
-  src/reconf.c
-  src/open.c
-  src/close.c
-  src/reset.c
-  src/mmio.c
-  src/buffer.c
-  src/bitstream.c
-  src/hostif.c
-  src/event.c
-  src/properties.c
-  src/init.c
-  src/sysfs.c
-  src/wsid_list.c
-  src/token_list.c
-  src/mmap.c
-  src/version.c
-  src/usrclk/user_clk_pgm_uclock.c)
+    pluginmgr.c
+    api-shell.c
+    init.c
+    props.c
+    )
 
-# Define target
 add_library(opae-c SHARED ${SRC})
-add_dependencies(opae-c copy-common-opae-header-files)
-target_link_libraries(opae-c
-  m
-  safestr
-  ${libjson-c_LIBRARIES}
-  ${libuuid_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
 target_include_directories(opae-c PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src)
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${libjson-c_INCLUDE_DIRS})
 
 include_directories(${libjson-c_INCLUDE_DIRS})
 
@@ -99,47 +59,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   target_link_libraries(opae-c ${GCOV_LINK_FLAGS})
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
-# Set debug flags, if required
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_definitions(-DLIBOPAE_DEBUG)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+target_link_libraries(opae-c
+  dl
+  ${CMAKE_THREAD_LIBS_INIT}
+  safestr
+  ${libjson-c_LIBRARIES})
 
-# Hide non-public symbols when building release
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  message("!! Building for release, may break internal tests")
-  set_property(TARGET opae-c PROPERTY C_VISIBILITY_PRESET hidden)
-endif(CMAKE_BUILD_TYPE STREQUAL "Release")
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+
+add_subdirectory(plugins)
 
 install(TARGETS opae-c
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
-
-#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-#if ("${LIB64}" STREQUAL "TRUE")
-#    install(TARGETS opae-c
-#      LIBRARY DESTINATION lib64
-#      COMPONENT opaeclib)
-#else()
-#    install(TARGETS opae-c
-#      LIBRARY DESTINATION lib
-#      COMPONENT opaeclib)
-#endif() 
-
-
-############################################################################
-## Add 'coverage' ##########################################################
-############################################################################
-
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  if(BUILD_TESTS AND GTEST_FOUND)
-    set_target_for_coverage(opae-c bin/gtapi -p)
-    add_dependencies(coverage_opae-c gtapi)
-  endif(BUILD_TESTS AND GTEST_FOUND)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-############################################################################
-## Create config_int.h #########################################################
-############################################################################
-
-configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )

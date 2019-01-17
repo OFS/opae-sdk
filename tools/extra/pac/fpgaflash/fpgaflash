@@ -43,6 +43,8 @@ VCP_ID = 0x0b30
 VCP_PF1_ID = 0x0b32
 VCP_RPD_USER_IMAGE_OFFSET = 0x3ff0000
 VCP_RPD_USER_IMAGE_LENGTH = 0x3800000
+VCP_FLASH_OPT_OFFSET = 0x10000
+VCP_FLASH_OPT_LENGTH = 0x10000
 VCP_FLASH_DTB_OFFSET = 0x3820000
 VCP_FLASH_DTB_LENGTH = 0x10000
 VCP_FLASH_PAGE1_OFFSET = 0x4000000
@@ -329,6 +331,29 @@ def normalize_bdf(bdf):
         return "0000:{}".format(bdf)
 
 
+def option_bits_update(mtd_dev):
+    vfile = tempfile.NamedTemporaryFile(delete=True)
+    flash_read(mtd_dev, VCP_FLASH_OPT_OFFSET, VCP_FLASH_OPT_LENGTH, vfile)
+    vfile.seek(0)
+    ichunk = vfile.read(4096)
+    opt = [0x04,0x00,0x61,0x54,0x00,0x02,0x66,0x56]
+    need_update = False
+    for i in range(8):
+        if ord(ichunk[i]) != opt[i]:
+            need_update = True
+    if need_update:
+        ochunk = ''
+        for b in opt:
+            ochunk += chr(b)
+        vfile.seek(0)
+        vfile.write(ochunk)
+        flash_erase(mtd_dev, VCP_FLASH_OPT_OFFSET, VCP_FLASH_OPT_LENGTH)
+        vfile.seek(0)
+        nbytes = flash_write(mtd_dev, VCP_FLASH_OPT_OFFSET,
+                             VCP_FLASH_OPT_LENGTH, vfile)
+
+    vfile.close()
+
 def update_flash(update_type, ifile, mtd_dev, bdf):
 
     flash_size = get_flash_size(mtd_dev)
@@ -339,6 +364,7 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
         if update_type == 'user':
             start_addr = VCP_RPD_USER_IMAGE_OFFSET
             image_len = VCP_RPD_USER_IMAGE_LENGTH
+            option_bits_update(mtd_dev)
         elif update_type == 'dtb':
             start_addr = 0
             ifile.seek(0, 2)

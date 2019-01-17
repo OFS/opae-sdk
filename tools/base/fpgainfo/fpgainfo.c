@@ -48,24 +48,24 @@ void fpgainfo_print_err(const char *s, fpga_result res)
 void fpgainfo_print_common(const char *hdr, fpga_properties props)
 {
 	fpga_result res = FPGA_OK;
-	char guid_str[38];
-	uint64_t object_id;
-	uint8_t bus;
-	uint16_t segment;
-	uint8_t device;
-	uint8_t function;
-	uint16_t device_id;
-	uint8_t socket_id;
-	fpga_guid guid;
-	fpga_guid port_guid;
-	uint32_t num_slots;
-	uint64_t bbs_id;
-	fpga_version bbs_version;
+	char guid_str[38] = {0};
+	uint64_t object_id = (uint64_t)-1;
+	uint8_t bus = (uint8_t)-1;
+	uint16_t segment = (uint16_t)-1;
+	uint8_t device = (uint8_t)-1;
+	uint8_t function = (uint8_t)-1;
+	uint16_t device_id = (uint16_t)-1;
+	uint8_t socket_id = (uint8_t)-1;
+	fpga_guid guid = {0};
+	fpga_guid port_guid = {0};
+	uint32_t num_slots = (uint32_t)-1;
+	uint64_t bbs_id = (uint64_t)-1;
+	fpga_version bbs_version = { 0, 0, 0 };
 	fpga_objtype objtype;
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
 	int is_accelerator = 0;
-	bool has_parent = true;
+        bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -165,8 +165,8 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	printf("%-29s : 0x%02X\n", "Socket Id", socket_id);
 	printf("%-29s : %02d\n", "Ports Num", num_slots);
 	printf("%-29s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
-	printf("%-29s : 0x%lX\n", "Bitstream Version",
-	       *(uint64_t *)&bbs_version);
+	printf("%-29s : %d.%d.%d\n", "Bitstream Version",
+	       bbs_version.major, bbs_version.minor, bbs_version.patch);
 	uuid_unparse(guid, guid_str);
 	printf("%-29s : %s\n", "Pr Interface Id", guid_str);
 

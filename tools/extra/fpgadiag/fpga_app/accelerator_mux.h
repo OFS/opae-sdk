@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <cmath>
 #include <memory>
-#include "accelerator.h"
 #include "buffer_pool.h"
 
 namespace intel
@@ -71,7 +70,7 @@ public:
         return accelerator::read_mmio64(mask32_ | offset, value);
     }
 
-    virtual dma_buffer::ptr_t allocate_buffer(std::size_t size)
+    virtual opae::fpga::types::shared_buffer::ptr_t allocate_buffer(std::size_t size)
     {
         if (pool_)
         {

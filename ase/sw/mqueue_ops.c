@@ -183,6 +183,7 @@ void mqueue_create(char *mq_name_suffix)
 
 	// Free memories
 	free(mq_path);
+	mq_path = NULL;
 
 	FUNC_CALL_EXIT;
 }
@@ -241,6 +242,7 @@ int mqueue_open(char *mq_name, int perm_flag)
 
 	// Free temp variables
 	free(mq_path);
+	mq_path = NULL;
 
 	return mq;
 }
@@ -291,6 +293,7 @@ void mqueue_destroy(char *mq_name_suffix)
 	}
 	// Free memory
 	free(mq_path);
+	mq_path = NULL;
 
 	FUNC_CALL_EXIT;
 }

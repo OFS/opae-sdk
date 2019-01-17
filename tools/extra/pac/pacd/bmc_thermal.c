@@ -300,9 +300,6 @@ void *bmc_thermal_thread(void *thread_context)
 
 	ctx.s_state.last_state = (uint8_t *)calloc((num_sensors + 7) / 8, 1);
 	ctx.s_state.tripped = (uint8_t *)calloc((num_sensors + 7) / 8, 1);
-        if (!ctx.s_state.last_state || !ctx.s_state.tripped) {
-            goto out_exit;
-        }
 
 	while (ctx.c->config->running) {
 		uint32_t i;
