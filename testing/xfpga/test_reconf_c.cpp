@@ -37,6 +37,7 @@ extern "C" {
 #include "reconf_int.h"
 #include "token_list_int.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
 }
 
 extern "C" {
@@ -44,6 +45,8 @@ fpga_result open_accel(fpga_handle handle, fpga_handle *accel);
 fpga_result clear_port_errors(fpga_handle handle);
 fpga_result validate_bitstream(fpga_handle, const uint8_t *bitstream, 
                                size_t bitstream_len, int *header_len);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 using namespace opae::testing;
@@ -61,7 +64,7 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
@@ -109,7 +112,7 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
     token_cleanup();
   }
@@ -388,7 +391,7 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
@@ -434,7 +437,7 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
     token_cleanup();
   }

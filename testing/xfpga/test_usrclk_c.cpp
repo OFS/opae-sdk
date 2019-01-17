@@ -42,6 +42,13 @@ extern "C" {
 #include "types_int.h"
 #include "test_system.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
+
 
 using namespace opae::testing;
 
@@ -63,7 +70,7 @@ class usrclk_c
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_,
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -101,7 +108,7 @@ class usrclk_c
 
     if (handle_dev_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

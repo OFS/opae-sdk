@@ -30,7 +30,13 @@
 #include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "sysfs_int.h"
 #include <linux/ioctl.h>
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -48,7 +54,7 @@ class reset_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -66,7 +72,7 @@ class reset_c_p
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

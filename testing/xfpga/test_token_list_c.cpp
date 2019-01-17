@@ -29,6 +29,8 @@
 extern "C" {
 #endif
 #include "token_list_int.h"
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 
 #ifdef __cplusplus
 }
@@ -37,6 +39,8 @@ extern "C" {
 #include "sysfs_int.h"
 #include "test_system.h"
 #include "types_int.h"
+#include "sysfs_int.h"
+
 
 extern pthread_mutex_t global_lock;
 
@@ -53,7 +57,7 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
     if (sysfs_region_count() > 0) {
       const sysfs_fpga_region* region = sysfs_get_region(0);
@@ -71,7 +75,7 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
   virtual void TearDown() override {
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     token_cleanup();
     system_->finalize();
   }
