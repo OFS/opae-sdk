@@ -70,6 +70,9 @@
 // FPGA device id
 #define FPGA_SYSFS_DEVICEID "device/device"
 
+// FME path
+#define SYSFS_FME_PATH         "*%d/*-fme.%d"
+
 // Integrated FPGA Device ID
 #define FPGA_INTEGRATED_DEVICEID 0xbcc0
 
