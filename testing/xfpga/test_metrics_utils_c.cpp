@@ -56,7 +56,9 @@ using namespace opae::testing;
 
 class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  metrics_utils_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
+  metrics_utils_c_p() 
+    : tokens_{{nullptr, nullptr}}, 
+      handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -68,8 +70,7 @@ class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
+                                  &num_matches_), FPGA_OK);
     ASSERT_GT(num_matches_, 0);
 
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
@@ -83,7 +84,6 @@ class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
     if (handle_ != nullptr) {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
       handle_ = nullptr;
@@ -114,15 +114,15 @@ TEST_P(metrics_utils_c_p, test_metric_utils_100) {
   EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir(group_sysfs));
 
   EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir(
-                         (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
+                     (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
                                        "intel-fpga-fme.0/bitstream_id"));
 
   EXPECT_NE(FPGA_OK, metric_sysfs_path_is_dir(
-                         (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
+                     (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
                                        "intel-fpga-fme.0/bitstream_id1"));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
 
   EXPECT_EQ(FPGA_OK,
             metric_sysfs_path_is_dir((const char *)sysclass_path.c_str()));
@@ -141,17 +141,15 @@ TEST_P(metrics_utils_c_p, test_metric_utils_101) {
 
   EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file(metric_sysfs));
 
-  EXPECT_NE(
-      FPGA_OK,
-      metric_sysfs_path_is_file(
-          (const char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"));
+  EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file(
+                     (const char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"));
 
   EXPECT_NE(FPGA_OK, metric_sysfs_path_is_file(
-                         (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
+                     (const char *)"/tmp/class/fpga/intel-fpga-dev.0/"
                                        "intel-fpga-fme.0/bitstream_id1"));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
 
   snprintf_s_ss(metric_sysfs, sizeof(metric_sysfs), "%s/%s",
                 sysclass_path.c_str(), "intel-fpga-fme.0/bitstream_id");
@@ -171,11 +169,11 @@ TEST_P(metrics_utils_c_p, test_metric_utils_101) {
 TEST_P(metrics_utils_c_p, test_metric_utils_102) {
   char group_name[FPGA_METRIC_STR_SIZE] = {"power_mgmt"};
   char group_sysfs[FPGA_METRIC_STR_SIZE] = {
-      "tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"};
+       "tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"};
 
   char metrics_name[FPGA_METRIC_STR_SIZE] = {"consumed"};
   char metrics_sysfs[FPGA_METRIC_STR_SIZE] = {
-      "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"};
+       "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/"};
 
   char qualifier_name[FPGA_METRIC_STR_SIZE] = {"power_mgmt"};
   char metric_units[FPGA_METRIC_STR_SIZE] = {"watts"};
@@ -240,7 +238,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_102) {
  */
 TEST_P(metrics_utils_c_p, test_metric_utils_103) {
   char group_sysfs[FPGA_METRIC_STR_SIZE] = {
-      "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
+       "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
   char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = {0};
 
   fpga_metric_vector vector;
@@ -262,7 +260,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_103) {
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(), "intel-fpga-fme.0/");
   printf("sysclass_path %s \n", sysclass_path.c_str());
@@ -283,7 +281,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_103) {
  */
 TEST_P(metrics_utils_c_p, test_metric_utils_104) {
   char group_sysfs[FPGA_METRIC_STR_SIZE] = {
-      "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
+       "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
   char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = {0};
   uint64_t metric_id = 0;
   fpga_metric_vector vector;
@@ -303,7 +301,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_104) {
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(), "intel-fpga-fme.0/");
   printf("sysclass_path %s \n", sysclass_path.c_str());
@@ -361,7 +359,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_105) {
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(), "intel-fpga-fme.0/iperf/");
   printf("sysclass_path %s \n", sysclass_path.c_str());
@@ -407,7 +405,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_106) {
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(), "intel-fpga-fme.0/");
   printf("sysclass_path %s \n", sysclass_path.c_str());
@@ -588,13 +586,11 @@ TEST_P(metrics_utils_c_p, test_metric_utils_13) {
   EXPECT_NE(FPGA_OK, get_pwr_thermal_value(group_sysfs, NULL));
   EXPECT_NE(FPGA_OK, get_pwr_thermal_value(NULL, &value));
 
-  EXPECT_NE(
-      FPGA_OK,
-      get_pwr_thermal_value(
-          (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", &value));
+  EXPECT_NE(FPGA_OK, get_pwr_thermal_value(
+                     (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", &value));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(),
                 "intel-fpga-fme.0/power_mgmt/fpga_limit");
@@ -623,13 +619,12 @@ TEST_P(metrics_utils_c_p, test_metric_utils_14) {
   EXPECT_NE(FPGA_OK, get_performance_counter_value(NULL, metric_sysfs, &value));
   EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, NULL, &value));
 
-  EXPECT_NE(FPGA_OK,
-            get_performance_counter_value(
-                (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1",
-                metric_sysfs, &value));
+  EXPECT_NE(FPGA_OK, get_performance_counter_value(
+                     (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1",
+                     metric_sysfs, &value));
 
   std::string sysclass_path =
-      system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
+              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
                 sysclass_path.c_str(),
                 "intel-fpga-fme.0/power_mgmt/iperf/cache");
@@ -652,13 +647,14 @@ TEST_P(metrics_utils_c_p, test_metric_utils_15) {
   EXPECT_NE(FPGA_OK, get_fpga_object_type(handle_, NULL));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    metrics_utils_c, metrics_utils_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_c_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
 class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  metrics_utils_dcp_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
+  metrics_utils_dcp_c_p() 
+    : tokens_{{nullptr, nullptr}},
+      handle_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -666,14 +662,13 @@ class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
+                                  &num_matches_), FPGA_OK);
     ASSERT_GT(num_matches_, 0);
-
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -750,6 +745,5 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
   get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric);
 }
 
-INSTANTIATE_TEST_CASE_P(
-    metrics_utils_c, metrics_utils_dcp_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
