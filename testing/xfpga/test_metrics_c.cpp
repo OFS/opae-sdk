@@ -30,6 +30,7 @@ extern "C" {
 #include <uuid/uuid.h>
 #include "intel-fpga.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 #include "metrics/metrics_int.h"
 #include "metrics/vector.h"
 #include "opae_int.h"
@@ -56,6 +57,11 @@ extern "C" {
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -108,7 +114,7 @@ class metrics_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -129,7 +135,7 @@ class metrics_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
       handle_ = nullptr;
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -315,7 +321,7 @@ class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -344,7 +350,7 @@ class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
       handle_ = nullptr;
     }
 
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

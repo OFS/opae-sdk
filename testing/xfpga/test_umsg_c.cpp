@@ -26,6 +26,8 @@
 extern "C"{
 #include "types_int.h"
 fpga_result free_umsg_buffer(fpga_handle);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include "xfpga.h"
@@ -35,10 +37,12 @@ fpga_result free_umsg_buffer(fpga_handle);
 
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "sysfs_int.h"
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
 
 using namespace opae::testing;
 
@@ -155,7 +159,7 @@ class umsg_c_p
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     filter_ = nullptr;
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
@@ -178,7 +182,7 @@ class umsg_c_p
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

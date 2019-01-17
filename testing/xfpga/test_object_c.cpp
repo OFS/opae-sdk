@@ -30,6 +30,12 @@
 #include "test_system.h"
 #include "types_int.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -48,7 +54,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     fpga_guid fme_guid;
 
     ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
@@ -70,7 +76,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
