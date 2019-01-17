@@ -39,10 +39,16 @@
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 extern "C" {
 #include "token_list_int.h"
 }
 #include "xfpga.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -58,7 +64,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
@@ -68,6 +74,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     DestroyTokens();
     token_cleanup();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -89,8 +96,9 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     }
 
     int value;
-    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
-                      "wc -l";
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
@@ -105,8 +113,8 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     int socket_id;
     int i;
     for (i = 0; i < GetNumFpgas(); i++) {
-      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
-                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*fme." + std::to_string(i) + "/socket_id";
 
       ExecuteCmd(cmd, socket_id);
       if (socket_id == (int)platform_.devices[0].socket_id) {
@@ -387,21 +395,6 @@ TEST_P(enum_c_p, function_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       socket_id
- *
- * @brief      When the filter socket_id is set and it is valid,
- *             the function returns the number of resources that
- *             match that socket_id.
- */
-TEST_P(enum_c_p, socket_id) {
-  auto device = platform_.devices[0];
-  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
-}
 
 /**
  * @test       socket_id_neg
@@ -570,22 +563,6 @@ TEST_P(enum_c_p, object_id_port_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_fme
- *
- * @brief      When the filter num_errors for fme is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for fme.
- */
-TEST_P(enum_c_p, num_errors_fme) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_fme_neg
@@ -602,23 +579,6 @@ TEST_P(enum_c_p, num_errors_fme_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_port
- *
- * @brief      When the filter num_errors for port is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for port.
- */
-TEST_P(enum_c_p, num_errors_port) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_port_neg
@@ -1036,3 +996,65 @@ TEST_P(enum_c_p, get_guid) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
+
+class enum_err_c_p : public enum_c_p {};
+/**
+ * @test       num_errors_fme
+ *
+ * @brief      When the filter num_errors for fme is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for fme.
+ */
+TEST_P(enum_err_c_p, num_errors_fme) {
+  auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+      &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+
+/**
+ * @test       num_errors_port
+ *
+ * @brief      When the filter num_errors for port is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for port.
+ */
+TEST_P(enum_err_c_p, num_errors_port) {
+  auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+      &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
+                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
+class enum_socket_c_p : public enum_c_p {};
+
+/**
+ * @test       socket_id
+ *
+ * @brief      When the filter socket_id is set and it is valid,
+ *             the function returns the number of resources that
+ *             match that socket_id.
+ */
+TEST_P(enum_socket_c_p, socket_id) {
+  auto device = platform_.devices[0];
+  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
+                          ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));

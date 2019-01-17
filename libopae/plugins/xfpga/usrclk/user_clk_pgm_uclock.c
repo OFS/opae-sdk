@@ -221,7 +221,7 @@ int fi_RunInitz(const char* sysfs_path)
 	uint64_t u64i_PrtData;
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat;
 	int      i_ReturnErr;
-	char syfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX];
 
 	gQUCPU_Uclock.i_InitzState = 0;
 	gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (uint64_t) 0;
@@ -272,8 +272,8 @@ int fi_RunInitz(const char* sysfs_path)
 	if (i_ReturnErr == 0) // This always true; added for future safety
 	{
 		// Verifying User Clock version number
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath, &u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+		sysfs_read_u64(sysfs_usrpath, &u64i_PrtData);
 		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
 
 		gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (u64i_PrtData & QUCPU_UI64_STS_1_VER_b63t60) >> 60;
@@ -302,15 +302,15 @@ int fi_RunInitz(const char* sysfs_path)
 		gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_MRN_b52);
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
 
 		// Deasserting management & machine reset
 		gQUCPU_Uclock.u64i_cmd_reg_0 |= (QUCPU_UI64_CMD_0_MRN_b52);
 		gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_PRS_b56);
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
 		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
 
 		// Waiting for fcr PLL calibration not to be busy
@@ -367,7 +367,7 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	uint64_t u64i_FastPoll, u64i_SlowPoll;
 	long int li_sleep_nanoseconds;
 	int      i_ReturnErr;
-	char syfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX];
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -399,13 +399,13 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	// Write register 0 to kick it off
 
 	u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
-	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-	sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+	snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+	sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
 
 	li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
 	fv_SleepShort(li_sleep_nanoseconds);
 
-	snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+	snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
 
 	// Poll register 0 for completion.
 	// CCI is synchronous and needs only 1 read with matching sequence.
@@ -415,7 +415,7 @@ int fi_AvmmRWcom(int i_CmdWrite,
 		for (u64i_FastPoll = 0; u64i_FastPoll<100; ++u64i_FastPoll)
 		{
 			// Poll 0, fast inner loop with no sleep
-			sysfs_read_u64(syfs_usrpath, &u64i_DataX);
+			sysfs_read_u64(sysfs_usrpath, &u64i_DataX);
 
 			if ((u64i_DataX & QUCPU_UI64_STS_0_SEQ_b49t48) == (u64i_SeqCmdAddrData & QUCPU_UI64_STS_0_SEQ_b49t48))
 			{ // Have result
@@ -507,7 +507,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 	uint64_t u64i_PrtData                 = 0;
 	long int li_sleep_nanoseconds         = 0;
 	int      res                          = 0;
-	char syfs_usrpath[SYSFS_PATH_MAX]     = {0};
+	char sysfs_usrpath[SYSFS_PATH_MAX]     = {0};
 
 	// Assume return error okay, for now
 	res                           = 0;
@@ -520,15 +520,15 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 		gQUCPU_Uclock.u64i_cmd_reg_1 &= ~QUCPU_UI64_CMD_1_MEA_b32;
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
-		sysfs_write_u64(syfs_usrpath, u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
 
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS;            // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 
 
 		ptFreqs_retFreqs->u64i_Frq_DivBy2 = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
@@ -541,14 +541,14 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
-		sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+		sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS; // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
+		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 		ptFreqs_retFreqs->u64i_Frq_ClkUsr = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
 		//printf(" ptFreqs_retFreqs->u64i_Frq_ClkUsr %llx \n", ptFreqs_retFreqs->u64i_Frq_ClkUsr);
 
@@ -575,7 +575,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk;
 	long int li_sleep_nanoseconds;
 	int      i_ReturnErr;
-	char syfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX];
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -630,8 +630,8 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 	if (i_ReturnErr == 0)
 	{ // Verifying fcr PLL not locking
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 		//sysfs_read_uint64(gQUCPU_Uclock.sys_path, USER_CLOCK_STS0, &u64i_PrtData);
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0)
@@ -647,8 +647,8 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		if (u64i_Refclk) gQUCPU_Uclock.u64i_cmd_reg_0 |= QUCPU_UI64_CMD_0_SR1_b58;
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(syfs_usrpath,  u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
+		sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
 
 		// Sleep 1 ms
 		li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
@@ -735,8 +735,8 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		for (u64i_I = 0; u64i_I<100; u64i_I++)
 		{ // Poll with 100 ms timeout
 
-			snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-			sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+			snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 
 			if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0) break;
 
@@ -852,14 +852,14 @@ int fi_WaitCalDone(void)
 	uint64_t u64i_I                      = 0;
 	long int li_sleep_nanoseconds        = 0;
 	int      res                         = 0;
-	char syfs_usrpath[SYSFS_PATH_MAX]    = {0};
+	char sysfs_usrpath[SYSFS_PATH_MAX]    = {0};
 
 	// Waiting for fcr PLL calibration not to be busy
 	for (u64i_I = 0; u64i_I<1000; u64i_I++)
 	{ // Poll with 1000 ms timeout
 
-		snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-		sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_BSY_b61) == 0) break;
 

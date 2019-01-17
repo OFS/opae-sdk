@@ -58,7 +58,9 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/mmap.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/mmio.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/open.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/opae_drv.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/properties.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/plugin.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reconf.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/reset.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/sysfs.c
@@ -503,7 +505,7 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 
 set_tests_properties(
     test_xfpga_events_c
-    PROPERTIES TIMEOUT 75
+    PROPERTIES TIMEOUT 120
 )
 
 ############################################################################
@@ -626,6 +628,12 @@ add_custom_command(TARGET test_unit
     ${CMAKE_BINARY_DIR}
     )
 
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
 
 
 ############################################################################

@@ -113,6 +113,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
+@CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/include/safe_string

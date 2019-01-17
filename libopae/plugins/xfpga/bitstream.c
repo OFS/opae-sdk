@@ -118,16 +118,11 @@ STATIC int64_t int64_be_to_le(int64_t val)
 
 fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 {
-	char file_path[SYSFS_PATH_MAX];
-	struct stat astats;
-	int fd;
-	int ret;
-	int b;
-	char buf[BUFFER_SIZE];
-	char buf_l[INTFC_ID_LOW_LEN + 1];
-	char buf_h[INTFC_ID_HIGH_LEN + 1];
+
 	struct _fpga_token  *_token;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	fpga_result result = FPGA_OK;
+	fpga_guid guid;
 	errno_t e;
 
 	_token = (struct _fpga_token *)_handle->token;
@@ -146,81 +141,29 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t
 		return FPGA_INVALID_PARAM;
 	}
 
-	// PR Interface id path
-	snprintf_s_ss(file_path, sizeof(file_path), "%s/%s", _token->sysfspath,
-		 PR_INTERFACE_ID);
-
-	if ((stat(file_path, &astats)) != FPGA_OK) {
-		FPGA_MSG("stat(%s) failed", file_path);
+	// PR Interface id
+	result = sysfs_get_interface_id(_token, guid);
+	if (FPGA_OK != result) {
+		FPGA_ERR("Failed to get PR interface id");
 		return FPGA_EXCEPTION;
 	}
 
-	if (S_ISDIR(astats.st_mode)) {
-		FPGA_MSG("%s should not be a directory", file_path);
-		return FPGA_EXCEPTION;
-	}
-
-	fd = open(file_path, O_RDONLY);
-	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", file_path);
-		return FPGA_EXCEPTION;
-	}
-
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed on %s", file_path);
-		close(fd);
-		return FPGA_EXCEPTION;
-	}
-
-	memset_s(buf, sizeof(buf), 0);
-
-	b = 0;
-	do {
-		ret = read(fd, buf+b, sizeof(buf)-b);
-		if (ret <= 0) {
-			FPGA_MSG("read failed on %s", file_path);
-			close(fd);
-			return FPGA_EXCEPTION;
-		}
-		b += ret;
-
-		if ((unsigned)b > sizeof(buf) || b <= 0) {
-			FPGA_MSG("unexpected size on read from %s", file_path);
-			close(fd);
-			return FPGA_EXCEPTION;
-		}
-
-	} while (buf[b-1] != '\n' && buf[b-1] != '\0' && (unsigned)b < sizeof(buf));
-
-
-	// PR Inteface Id h
-	memset_s(buf_h, sizeof(buf_h), 0);
-
-	e = strncpy_s(buf_h, sizeof(buf_h),
-			buf, INTFC_ID_HIGH_LEN);
+	e = memcpy_s(id_h, sizeof(id_h),
+		guid, sizeof(uint64_t));
 	if (EOK != e) {
-		FPGA_MSG("strncpy_s failed (buf_h)");
-		close(fd);
+		FPGA_ERR("memcpy_s failed");
 		return FPGA_EXCEPTION;
 	}
 
-	*id_h = strtoull(buf_h, NULL, 16);
+	*id_h = int64_be_to_le(*id_h);
 
-	// PR Inteface Id l
-	memset_s(buf_l, sizeof(buf_l), 0);
-
-	e = strncpy_s(buf_l, sizeof(buf_l),
-			buf+INTFC_ID_LOW_LEN, INTFC_ID_LOW_LEN);
-
+	e = memcpy_s(id_l, sizeof(id_l),
+		guid + sizeof(uint64_t), sizeof(uint64_t));
 	if (EOK != e) {
-		FPGA_MSG("strncpy_s failed (buf_l)");
-		close(fd);
+		FPGA_ERR("memcpy_s failed");
 		return FPGA_EXCEPTION;
 	}
-
-	*id_l = strtoull(buf_l, NULL, 16);
-
-	close(fd);
+	*id_l = int64_be_to_le(*id_l);
 
 	return FPGA_OK;
 }

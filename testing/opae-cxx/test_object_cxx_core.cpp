@@ -70,6 +70,8 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
     tokens_dev_.clear();
     handle_->close();
     handle_.reset();
+    handle_dev_.reset();
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -240,4 +242,5 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
