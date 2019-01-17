@@ -186,41 +186,6 @@ STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
 	return FPGA_OK;
 }
 
-STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
-		       char *dir_name, int num)
-{
-	int res = FPGA_OK;
-	char buffer[SYSFS_PATH_MAX] = {0};
-	ssize_t sym_link_len = 0;
-	if (snprintf_s_ss(region->region_path, SYSFS_PATH_MAX, "%s/%s",
-			  sysfs_class_fpga, dir_name)
-	    < 0) {
-		FPGA_ERR("Error formatting sysfs paths");
-		return FPGA_EXCEPTION;
-	}
-
-	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
-		FPGA_ERR("Error formatting sysfs name");
-		return FPGA_EXCEPTION;
-	}
-
-	sym_link_len = readlink(region->region_path, buffer, SYSFS_PATH_MAX);
-	if (sym_link_len < 0) {
-		FPGA_ERR("Error reading sysfs link: %s", region->region_path);
-		return FPGA_EXCEPTION;
-	}
-
-	region->number = num;
-	res = parse_pcie_info(region, buffer);
-
-	if (res) {
-		FPGA_ERR("Could not parse symlink");
-		return res;
-	}
-
-	return parse_device_vendor_id(region);
-}
-
 STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
 					  int num, fpga_objtype type)
 {
@@ -255,7 +220,6 @@ STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
 
 	return resource;
 }
-
 
 STATIC int find_resources(sysfs_fpga_region *region)
 {
@@ -318,8 +282,57 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	regfree(&re);
 	if (dir)
 		closedir(dir);
+	if (!region->fme && !region->port) {
+		FPGA_MSG("did not find fme/port in region: %s", region->region_path);
+		return FPGA_NOT_FOUND;
+	}
+
 	return FPGA_OK;
 }
+
+
+STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
+		       char *dir_name, int num)
+{
+	int res = FPGA_OK;
+	char buffer[SYSFS_PATH_MAX] = {0};
+	ssize_t sym_link_len = 0;
+	if (snprintf_s_ss(region->region_path, SYSFS_PATH_MAX, "%s/%s",
+			  sysfs_class_fpga, dir_name)
+	    < 0) {
+		FPGA_ERR("Error formatting sysfs paths");
+		return FPGA_EXCEPTION;
+	}
+
+	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
+		FPGA_ERR("Error formatting sysfs name");
+		return FPGA_EXCEPTION;
+	}
+
+	sym_link_len = readlink(region->region_path, buffer, SYSFS_PATH_MAX);
+	if (sym_link_len < 0) {
+		FPGA_ERR("Error reading sysfs link: %s", region->region_path);
+		return FPGA_EXCEPTION;
+	}
+
+	region->number = num;
+	res = parse_pcie_info(region, buffer);
+
+	if (res) {
+		FPGA_ERR("Could not parse symlink");
+		return res;
+	}
+
+	res = parse_device_vendor_id(region);
+	if (res) {
+		FPGA_ERR("Could not parse vendor/device id");
+		return res;
+	}
+
+	return find_resources(region);
+}
+
+
 
 STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
 {
@@ -456,24 +469,9 @@ int sysfs_initialize(void)
 		}
 	}
 
-	if (opae_mutex_lock(res, &_sysfs_region_lock)) {
-		goto out_free;
-	} else if (!_sysfs_region_count) {
+	if (!_sysfs_region_count) {
 		FPGA_ERR("Error discovering fpga regions");
 		res = FPGA_NO_DRIVER;
-		goto out_unlock;
-	}
-
-	// now, for each discovered region, look inside for resources
-	// (fme|port)
-	for (i = 0; i < _sysfs_region_count; ++i) {
-		find_resources(&_regions[i]);
-	}
-
-out_unlock:
-	if (pthread_mutex_unlock(&_sysfs_region_lock)) {
-		FPGA_MSG("error unlocking sysfs region mutex");
-		res = FPGA_EXCEPTION;
 	}
 out_free:
 	regfree(&region_re);
