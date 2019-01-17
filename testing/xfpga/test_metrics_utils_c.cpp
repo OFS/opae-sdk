@@ -77,7 +77,6 @@ class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                                   &num_matches_), FPGA_OK);
     ASSERT_GT(num_matches_, 0);
-
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -744,10 +743,16 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
 
   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
-  struct _fpga_enum_metric _fpga_enum_metric;
+  struct _fpga_enum_metric _fpga_enum_metric = {
+      "", "", "", "", "", "", 0,
+      FPGA_METRIC_DATATYPE_INT,
+      FPGA_METRIC_TYPE_POWER,
+      FPGA_HW_UNKNOWN,
+      0};
+
   struct fpga_metric fpga_metric;
 
-  get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric);
+  EXPECT_EQ(FPGA_OK, get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric));
 }
 
 INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p,
