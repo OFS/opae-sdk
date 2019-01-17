@@ -74,7 +74,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     DestroyTokens();
     token_cleanup();
-    xfpga_plugin_initialize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

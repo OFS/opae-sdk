@@ -98,7 +98,7 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    xfpga_plugin_initialize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
