@@ -1379,7 +1379,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(FPGA_OK, xfpga_plugin_finalize());
+    ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
