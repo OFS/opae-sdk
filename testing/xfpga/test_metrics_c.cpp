@@ -44,6 +44,7 @@ extern "C" {
 #include <array>
 #include <cstdarg>
 #include <cstdlib>
+#include <cstdarg>
 #include <map>
 #include <memory>
 #include <string>

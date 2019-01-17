@@ -225,7 +225,7 @@ $ make package_rpm
 ```
 .. note::
 ```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
 ```
 This will generate the following rpm packages.
 
@@ -254,7 +254,7 @@ $ make package_deb
 ```
 .. note::
 ```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
 ```
 This will generate the following deb packages.
 
