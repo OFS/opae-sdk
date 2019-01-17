@@ -55,6 +55,12 @@ extern "C" {
 #include "test_utils.h"
 #include "token_list_int.h"
 #include "xfpga.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
+
 using namespace opae::testing;
 
 class bmc_c_p : public ::testing::TestWithParam<std::string> {
@@ -69,7 +75,7 @@ class bmc_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
@@ -91,7 +97,7 @@ class bmc_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
       handle_ = nullptr;
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

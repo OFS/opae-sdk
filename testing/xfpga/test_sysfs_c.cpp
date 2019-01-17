@@ -44,6 +44,8 @@ char* cstr_dup(const char *str);
 int parse_pcie_info(sysfs_fpga_region *region, char *buffer);
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_resource* make_resource(sysfs_fpga_region*, char*, int, fpga_objtype);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include <fstream>
@@ -79,7 +81,7 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     if (sysfs_region_count() > 0) {
       const sysfs_fpga_region *region = sysfs_get_region(0);
       ASSERT_NE(region, nullptr);
@@ -96,7 +98,7 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     }
   }
   virtual void TearDown() override {
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -287,7 +289,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -325,7 +327,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
           t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

@@ -39,10 +39,16 @@
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 extern "C" {
 #include "token_list_int.h"
 }
 #include "xfpga.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -58,7 +64,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     num_matches_ = 0xc01a;
     invalid_device_ = test_device::unknown();
@@ -68,7 +74,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     DestroyTokens();
     token_cleanup();
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

@@ -27,6 +27,8 @@
 extern "C" {
 #include "token_list_int.h"
 fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include <uuid/uuid.h>
@@ -35,6 +37,7 @@ fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
 
 using namespace opae::testing;
 
@@ -51,7 +54,7 @@ class metadata_c
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, platform_.devices[0].vendor_id), FPGA_OK);
@@ -72,7 +75,7 @@ class metadata_c
         t = nullptr;
       }
     }
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

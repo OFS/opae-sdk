@@ -28,6 +28,8 @@
 extern "C" {
     fpga_result buffer_allocate(void*,uint64_t,int);
     fpga_result buffer_release(void*,uint64_t);
+    int xfpga_plugin_initialize(void);
+    int xfpga_plugin_finalize(void);
 }
 
 #include "error_int.h"
@@ -76,6 +78,8 @@ struct buffer_params {
   int flags;
 };
 #pragma pack(pop)
+
+
 
 using namespace opae::testing;
 
@@ -156,7 +160,7 @@ class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, b
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -180,7 +184,7 @@ class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, b
       handle_ = nullptr;
     }
 
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -380,7 +384,7 @@ class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -404,7 +408,7 @@ class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
       handle_ = nullptr;
     }
 
-    fpgaFinalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 

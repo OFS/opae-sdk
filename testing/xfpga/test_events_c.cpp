@@ -38,6 +38,8 @@ fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, in
 fpga_result check_interrupts_supported(fpga_handle, fpga_objtype*);
 fpga_result driver_register_event(fpga_handle, fpga_event_type, fpga_event_handle, uint32_t);
 fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_handle);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include "intel-fpga.h"
@@ -300,7 +302,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_, 
@@ -378,8 +380,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-   fpgaFinalize();
-   system_->finalize();
+    xfpga_plugin_finalize();
+    system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {

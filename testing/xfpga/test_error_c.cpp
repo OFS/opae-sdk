@@ -37,7 +37,14 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 #include "xfpga.h"
+
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 const std::string sysfs_fme =
@@ -61,7 +68,7 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
     tmpsysfs_ = system_->get_root();
-    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
     if (sysfs_region_count() > 0) {
       const sysfs_fpga_region *region = sysfs_get_region(0);
       ASSERT_NE(region, nullptr);
@@ -106,7 +113,7 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
     }
     token_cleanup();
     tmpsysfs_ = "";
-    fpgaFinalize();
+	xfpga_plugin_finalize();
     system_->finalize();
   }
 
