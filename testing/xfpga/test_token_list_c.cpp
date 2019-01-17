@@ -1,4 +1,3 @@
-
 // Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -46,6 +45,7 @@ using namespace opae::testing;
 class token_list_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   token_list_c_p() {}
+  virtual ~token_list_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -72,6 +72,7 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
   }
   virtual void TearDown() override {
     fpgaFinalize();
+    token_cleanup();
     system_->finalize();
   }
 
@@ -88,15 +89,11 @@ TEST_P(token_list_c_p, simple_case) {
   ASSERT_NE(fme, nullptr);
   auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
+
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
 
   parent = token_get_parent(fme);
-  EXPECT_EQ(nullptr, parent);
-
-  token_cleanup();
-
-  parent = token_get_parent(port);
   EXPECT_EQ(nullptr, parent);
 }
 
@@ -119,11 +116,6 @@ TEST_P(token_list_c_p, invalid_mutex) {
   pthread_mutex_init(&global_lock, NULL);
   parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
-
-  token_cleanup();
-
-  parent = token_get_parent(port);
-  EXPECT_EQ(nullptr, parent);
 }
 
 TEST_P(token_list_c_p, invalid_paths) {
@@ -149,14 +141,13 @@ TEST_P(token_list_c_p, invalid_paths) {
             &port->sysfspath[0]);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, nullptr);
+  delete port;
 
   // invalidate malloc
 
   test_system::instance()->invalidate_malloc();
   fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_EQ(fme, nullptr);
-
-  token_cleanup();
 }
 
 INSTANTIATE_TEST_CASE_P(token_list_c, token_list_c_p,

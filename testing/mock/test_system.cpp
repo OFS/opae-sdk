@@ -329,6 +329,7 @@ void test_system::finalize() {
   for (auto kv : registered_files_) {
     unlink(kv.second.c_str());
   }
+  registered_files_.clear();
   ioctl_handlers_.clear();
 }
 

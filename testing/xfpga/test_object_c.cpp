@@ -262,6 +262,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
   uint32_t value = 0;
   EXPECT_EQ(xfpga_fpgaObjectGetSize(object, &value, 0), FPGA_OK);
   EXPECT_EQ(value, DATA.size());
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_mock_p,
