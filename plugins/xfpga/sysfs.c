@@ -146,7 +146,7 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 	}
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_ERR("Error opening %s: %s", path, strerror(errno));
+		FPGA_MSG("Error opening %s: %s", path, strerror(errno));
 		return FPGA_EXCEPTION;
 	}
 	bytes_read = eintr_read(fd, buffer, pg_size);
@@ -168,7 +168,7 @@ STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
 	uint64_t value = 0;
 	int res = sysfs_parse_attribute64(region->region_path, "device/device", &value);
 	if (res) {
-		FPGA_ERR("Error parsing device_id for region: %s",
+		FPGA_MSG("Error parsing device_id for region: %s",
 			 region->region_path);
 		return res;
 	}
@@ -325,7 +325,7 @@ STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
 
 	res = parse_device_vendor_id(region);
 	if (res) {
-		FPGA_ERR("Could not parse vendor/device id");
+		FPGA_MSG("Could not parse vendor/device id");
 		return res;
 	}
 
