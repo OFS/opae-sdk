@@ -487,6 +487,7 @@ int sysfs_finalize(void)
 		sysfs_region_destroy(&_regions[i]);
 	}
 	_sysfs_region_count = 0;
+	_sysfs_format_ptr = NULL;
 	return FPGA_OK;
 }
 
