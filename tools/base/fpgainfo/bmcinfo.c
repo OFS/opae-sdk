@@ -395,9 +395,6 @@ void print_bmc_info(const char *sysfspath)
 	}
 
 	off = 0;
-	fd = -1;
-	printf("Board Management Controller, microcontroller FW version ");
-
 	char buf[8];
 	uint16_t devid = 0;
 	uint32_t bmcfw_ver = 0;
@@ -407,6 +404,7 @@ void print_bmc_info(const char *sysfspath)
 	devid = strtoul(buf, NULL, 16);
 	if (devid != FPGA_DISCRETE_DEVICEID && devid != FPGA_INTEGRATED_DEVICEID) {
 		if (0 == get_bmc_path(sysfspath, "spi", path, SYSFS_PATH_MAX)) {
+			printf("Board Management Controller, MAX10 NIOS FW version ");
 			off = strlen(path);
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s",
 						 "bmcfw_flash_ctrl/bmcfw_version");
@@ -417,22 +415,20 @@ void print_bmc_info(const char *sysfspath)
 			} else {
 				printf("unavailable (I/O error)\n");
 			}
+			printf("Board Management Controller, MAX10 Build version ");
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "max10_version");
 			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
 				max10_ver = strtoul(buf, NULL, 16);
-				printf("Board Management Controller, MAX10 version %u.%u.%u\n",
-					   (max10_ver >> 16) & 0xff, (max10_ver >> 8) & 0xff,
-					   max10_ver & 0xff);
+				printf("%u.%u.%u\n", (max10_ver >> 16) & 0xff,
+					   (max10_ver >> 8) & 0xff, max10_ver & 0xff);
+			} else {
+				printf("unavailable (I/O error)\n");
 			}
-			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "pcb_info");
-			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
-				printf("Board PCB version %s\n", buf);
-			}
-		} else {
-			printf("unavailable\n");
 		}
 		return;
 	}
+
+	printf("Board Management Controller, microcontroller FW version ");
 
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sysfspath, SYSFS_DEVID_FILE);
 
