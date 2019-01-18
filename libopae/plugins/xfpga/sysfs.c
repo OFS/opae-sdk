@@ -483,10 +483,20 @@ out_free:
 int sysfs_finalize(void)
 {
 	uint32_t i = 0;
+	int res = 0;
+	if (opae_mutex_lock(res, &_sysfs_region_lock)) {
+		FPGA_ERR("Error locking mutex");
+		return FPGA_EXCEPTION;
+	}
 	for (; i < _sysfs_region_count; ++i) {
 		sysfs_region_destroy(&_regions[i]);
 	}
 	_sysfs_region_count = 0;
+	_sysfs_format_ptr = NULL;
+	if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+		FPGA_ERR("Error unlocking mutex");
+		return FPGA_EXCEPTION;
+	}
 	return FPGA_OK;
 }
 
