@@ -32,29 +32,56 @@
 #include <unistd.h>
 
 #define SYSFS_PATH_MAX 256
-#define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 
-#define SYSFS_AFU_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-port.%d"
-#define SYSFS_FME_PATH_FMT "/intel-fpga-dev.%d/intel-fpga-fme.%d"
-
-// substring that identifies a sysfs directory as the FME device.
-#define FPGA_SYSFS_FME "fme"
-// substring that identifies a sysfs directory as the AFU device.
-#define FPGA_SYSFS_AFU "port"
-// name of the FME interface ID (GUID) sysfs node.
-#define FPGA_SYSFS_FME_INTERFACE_ID "pr/interface_id"
-// name of the AFU GUID sysfs node.
-#define FPGA_SYSFS_AFU_GUID "afu_id"
-// name of the socket id sysfs node.
-#define FPGA_SYSFS_SOCKET_ID "socket_id"
-// name of the number of slots sysfs node.
-#define FPGA_SYSFS_NUM_SLOTS "ports_num"
-// name of the bitstream id sysfs node.
-#define FPGA_SYSFS_BITSTREAM_ID "bitstream_id"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+typedef struct _sysfs_fpga_region sysfs_fpga_region;
+
+typedef struct _sysfs_fpga_resource {
+	sysfs_fpga_region *region;
+	char res_path[SYSFS_PATH_MAX];
+	char res_name[SYSFS_PATH_MAX];
+	fpga_objtype type;
+	int num;
+} sysfs_fpga_resource;
+
+#define SYSFS_MAX_RESOURCES 4
+typedef struct _sysfs_fpga_region {
+	char region_path[SYSFS_PATH_MAX];
+	char region_name[SYSFS_PATH_MAX];
+	int number;
+	sysfs_fpga_resource *fme;
+	sysfs_fpga_resource *port;
+  uint32_t segment;
+  uint8_t bus;
+  uint8_t device;
+  uint8_t function;
+  uint32_t device_id;
+  uint32_t vendor_id;
+} sysfs_fpga_region;
+
+int sysfs_initialize(void);
+int sysfs_finalize(void);
+int sysfs_region_count(void);
+
+typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
+void sysfs_foreach_region(region_cb cb, void *context);
+
+const sysfs_fpga_region *sysfs_get_region(size_t num);
+int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
+
+fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
+
+fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid);
+
+fpga_result sysfs_get_fme_path(int dev, int subdev, char *path);
+
+fpga_result sysfs_path_is_valid(const char *root, const char *attr_path);
+
 /**
  * @brief Get BBS interface id
  *
@@ -64,11 +91,13 @@ extern "C" {
  *
  * @return
  */
-fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h);
+fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 
 /*
  * sysfs utility functions.
  */
+
+fpga_result opae_glob_path(char *path);
 fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f);
 fpga_result sysfs_read_int(const char *path, int *i);
 fpga_result sysfs_read_u32(const char *path, uint32_t *u);

@@ -96,6 +96,7 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
       token_ = nullptr;
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -398,4 +399,4 @@ TEST_P(hw_hello_events_c_fpgad_p, main2) {
 }
 
 INSTANTIATE_TEST_CASE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_intel)));

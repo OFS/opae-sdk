@@ -38,6 +38,8 @@ fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, in
 fpga_result check_interrupts_supported(fpga_handle, fpga_objtype*);
 fpga_result driver_register_event(fpga_handle, fpga_event_type, fpga_event_handle, uint32_t);
 fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_handle);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include "intel-fpga.h"
@@ -300,7 +302,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_, 
@@ -308,6 +310,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
                             &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
@@ -315,7 +318,7 @@ class events_p : public ::testing::TestWithParam<std::string> {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
                             tokens_accel_.size(), &num_matches_), FPGA_OK);
-
+    ASSERT_GT(num_matches_, 0);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
 
@@ -354,8 +357,15 @@ class events_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
 
-    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    if (handle_dev_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); 
+        handle_dev_ = nullptr;
+    }
+
+    if (handle_accel_) { 
+        EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); 
+        handle_accel_ = nullptr;
+    }
  
     for (auto &t : tokens_dev_) {
       if (t) {
@@ -370,8 +380,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
-   system_->finalize();
+    xfpga_plugin_finalize();
+    system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
@@ -657,23 +667,6 @@ TEST_P(events_p, event_drv_12) {
 }
 
 /**
- * @test       send_port_event_request
- * @brief      When passed a valid event handle, handle and flag.
- *             It returns FPGA_EXCEPTION if interrupt is not
- *             supported or ioctl fails.
- */
-TEST_P(events_p, invalid_port_event_request_02){
-  int port_op = FPGA_IRQ_ASSIGN;
-  auto res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
-
-  gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
-}
-
-/**
  * @test       create_destory_invalid
  * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
  *             FPGA_NO_MEMORY.
@@ -741,7 +734,85 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
+
+class events_dcp_p : public events_p {};
+
+/**
+ * @test       send_port_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_OK for dcp only.
+ */
+TEST_P(events_dcp_p, invalid_port_event_request){
+  int port_op = FPGA_IRQ_ASSIGN;
+  auto res = send_port_event_request(handle_accel_,eh_,port_op);
+  EXPECT_EQ(FPGA_OK, res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  res = send_port_event_request(handle_accel_,eh_,port_op);
+  EXPECT_EQ(FPGA_OK, res);
+}
+
+/**
+ * @test       send_fme_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_OK for dcp only.
+ */
+TEST_P(events_dcp_p, invalid_fme_event_request){
+  int fme_op = FPGA_IRQ_ASSIGN;
+  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_OK, res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_OK, res);
+}
+
+INSTANTIATE_TEST_CASE_P(events, events_dcp_p,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc" })));
+
+
+class events_mcp_p : public events_p {};
+
+/**
+ * @test       send_port_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_NOT_SUPPORTED if interrupt is not
+ *             supported or ioctl fails.
+ */
+TEST_P(events_mcp_p, invalid_port_event_request){
+  int port_op = FPGA_IRQ_ASSIGN;
+  auto res = send_port_event_request(handle_accel_,eh_,port_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  res = send_port_event_request(handle_accel_,eh_,port_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
+}
+
+/**
+ * @test       send_fme_event_request
+ * @brief      When passed a valid event handle, handle and flag.
+ *             It returns FPGA_NOT_SUPPORTED if interrupt is not
+ *             supported or ioctl fails.
+ */
+TEST_P(events_mcp_p, invalid_fme_event_request){
+  int fme_op = FPGA_IRQ_ASSIGN;
+  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
+
+  gEnableIRQ = false;
+  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  res = send_fme_event_request(handle_dev_,eh_,fme_op);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
+}
+
+INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p" })));
 
 
 class events_mock_p : public events_p {
@@ -792,7 +863,7 @@ TEST_P(events_mock_p, valid_port_event_request){
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  auto res = send_port_event_request(handle_dev_,eh_,port_op);
+  auto res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_OK,res);
 }
 
@@ -807,25 +878,8 @@ TEST_P(events_mock_p, valid_port_event_request_01){
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  auto res = send_port_event_request(handle_dev_,eh_,port_op);
+  auto res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_OK,res);
-}
-
-/**
- * @test       send_fme_event_request
- * @brief      When passed a valid event handle, handle and flag.
- *             It returns FPGA_EXCEPTION if interrupt is not
- *             supported or ioctl fails.
- */
-TEST_P(events_mock_p, invalid_fme_event_request_02){
-  int fme_op = FPGA_IRQ_ASSIGN;
-  auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
-
-  gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
 }
 
 /**
@@ -989,7 +1043,7 @@ TEST_P(events_mock_p, event_drv_14) {
 /**
  * @test       send_fme_event_request
  * @brief      When passed a valid event handle but invalid fme params.
- *             It returns FPGA_INVALID_PARAM, or FPGA_EXCEPTION.
+ *             It returns FPGA_INVALID_PARAM
  */
 TEST_P(events_mock_p, invalid_fme_event_request_01){
   int fme_op = 0;
@@ -1000,20 +1054,20 @@ TEST_P(events_mock_p, invalid_fme_event_request_01){
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
   system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
 /**
  * @test       send_port_event_request
  *
  * @brief      When passed a valid event handle but invalid port params.
- *             It returns FPGA_INVALID_PARAM or FPGA_EXCEPTION.
+ *             It returns FPGA_INVALID_PARAM
  *
  */
 TEST_P(events_mock_p, invalid_port_event_request_01){
@@ -1025,13 +1079,13 @@ TEST_P(events_mock_p, invalid_port_event_request_01){
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
 
   res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_port_event_request(handle_dev_,eh_,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
 /**
@@ -1050,7 +1104,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_01){
   port_op = FPGA_IRQ_ASSIGN;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
 
 /**
@@ -1061,12 +1115,12 @@ TEST_P(events_mock_p, invalid_uafu_event_request_01){
 TEST_P(events_mock_p, invalid_uafu_event_request_02){
   int port_op = FPGA_IRQ_ASSIGN;
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res) << "\t result is " << res;
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
 
   gEnableIRQ = false;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   gEnableIRQ = true;
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
@@ -1135,7 +1189,7 @@ TEST_P(events_mock_p, afu_interrupts_check){
   // interrupt ioctl
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   res = check_interrupts_supported(handle_accel_,&obj);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   // change sysfspath
   strncpy(t->sysfspath,"null",sizeof(t->sysfspath));
@@ -1146,7 +1200,7 @@ TEST_P(events_mock_p, afu_interrupts_check){
 /**
  * @test       afu_driver_unregister_event
  * @brief      Given invalid ioctls, driver_unregister_event returns
- *             FPGA_EXCEPTION.
+ *             FPGA_INVALID_PARAM.
  */
 TEST_P(events_mock_p, afu_driver_unregister_event){
   // Invalid ioctl
@@ -1154,7 +1208,7 @@ TEST_P(events_mock_p, afu_driver_unregister_event){
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
   system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   auto res = driver_unregister_event(handle_accel_, FPGA_EVENT_ERROR, eh_);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = driver_unregister_event(handle_accel_, FPGA_EVENT_INTERRUPT, eh_);
@@ -1303,7 +1357,7 @@ TEST_P(events_mock_p, irq_event_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 
 class events_handle_p : public ::testing::TestWithParam<std::string> {
@@ -1377,7 +1431,7 @@ class events_handle_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
+    fpgaFinalize();
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&

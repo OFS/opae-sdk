@@ -57,13 +57,11 @@ class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
     open_log(tmpfpgad_log_);
   }
 
   virtual void TearDown() override {
     close_log();
-
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
@@ -88,4 +86,4 @@ TEST_P(fpgad_log_c_p, log01) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
-                        ::testing::Values(std::string("skx-p")));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));

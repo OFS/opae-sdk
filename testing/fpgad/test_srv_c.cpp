@@ -265,4 +265,4 @@ TEST_P(fpgad_srv_c_p, for_each) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_srv_c, fpgad_srv_c_p,
-                        ::testing::Values(std::string("skx-p")));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));

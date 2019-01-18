@@ -381,4 +381,4 @@ TEST_P(fpgad_fpgad_c_p, gbsarg_non_print) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,
-                        ::testing::Values(std::string("skx-p")));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));

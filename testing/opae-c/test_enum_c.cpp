@@ -97,8 +97,9 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     }
 
     int value;
-    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
-                      "wc -l";
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
@@ -113,8 +114,8 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     int socket_id;
     int i;
     for (i = 0; i < GetNumFpgas(); i++) {
-      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
-                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*fme." + std::to_string(i) + "/socket_id";
 
       ExecuteCmd(cmd, socket_id);
       if (socket_id == (int)platform_.devices[0].socket_id) {
@@ -309,23 +310,6 @@ TEST_P(enum_c_p, function) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-TEST_P(enum_c_p, socket_id) {
-  auto device = platform_.devices[0];
-  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
-
-  DestroyTokens();
-
-  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, invalid_device_.socket_id),
-            FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, 0);
-}
 
 TEST_P(enum_c_p, vendor_id) {
   auto device = platform_.devices[0];
@@ -421,39 +405,6 @@ TEST_P(enum_c_p, object_id_port) {
 TEST_P(enum_c_p, object_id_port_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectID(filter_, invalid_device_.port_object_id),
             FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, 0);
-}
-
-TEST_P(enum_c_p, num_errors) {
-  auto device = platform_.devices[0];
-
-  // fme num_errors
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-
-  DestroyTokens();
-
-  // afu num_errors
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-
-  DestroyTokens();
-
-  // invalid
-  ASSERT_EQ(
-      fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
-      FPGA_OK);
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
@@ -669,3 +620,63 @@ TEST_P(enum_c_mock_p, clone_token02) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class enum_c_err_p : public enum_c_p {};
+
+TEST_P(enum_c_err_p, num_errors) {
+  auto device = platform_.devices[0];
+
+  // fme num_errors
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+
+  DestroyTokens();
+
+  // afu num_errors
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
+     FPGA_OK);
+  EXPECT_EQ(
+     fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+     FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+
+  DestroyTokens();
+
+  // invalid
+  ASSERT_EQ(
+        fpgaPropertiesSetNumErrors(filter_, invalid_device_.port_num_errors),
+        FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_err_p,
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
+class enum_c_socket_p : public enum_c_p {};
+
+TEST_P(enum_c_socket_p, socket_id) {
+  auto device = platform_.devices[0];
+  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
+
+  DestroyTokens();
+
+  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, invalid_device_.socket_id),
+      FPGA_OK);
+  EXPECT_EQ(
+      fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));

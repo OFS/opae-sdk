@@ -27,9 +27,16 @@
 #include "types_int.h"
 #include "xfpga.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "sysfs_int.h"
 #include <linux/ioctl.h>
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -47,6 +54,7 @@ class reset_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -64,6 +72,7 @@ class reset_c_p
         t = nullptr;
       }
     }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -155,7 +164,8 @@ class reset_c_mock_p : public reset_c_p {
  */
 TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
   system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaReset(handle_));
+  system_->register_ioctl_handler(DFL_FPGA_PORT_RESET, dummy_ioctl<-1, EINVAL>);
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
 }
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,

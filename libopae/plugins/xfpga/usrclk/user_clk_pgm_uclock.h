@@ -225,7 +225,7 @@ extern "C" {
 /**
  * @brief Get fpga user clock
  *
- * @param syfs_path  port sysfs path
+ * @param sysfs_path  port sysfs path
  * @parm  pointer to  high user clock
  * @parm  pointer to  low user clock
  *
@@ -237,7 +237,7 @@ fpga_result get_userclock(const char *sysfs_path, uint64_t *userclk_high,
 /**
  * @brief set fpga user clock
  *
- * @param syfs_path  port sysfs path
+ * @param sysfs_path  port sysfs path
  * @parm  high user clock
  * @parm  low user clock
  *
