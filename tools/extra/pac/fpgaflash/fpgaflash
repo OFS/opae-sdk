@@ -323,7 +323,7 @@ def print_bdf_mtd_mapping(bdf_map):
 
 def normalize_bdf(bdf):
 
-    pat = r'[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
+    pat = r'[0-9a-fA-F]{4,}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
     if re.match(pat, bdf):
         return bdf
 
