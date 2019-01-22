@@ -24,17 +24,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
 
 extern "C" {
-#endif
 #include "token_list_int.h"
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
-
-#ifdef __cplusplus
 }
-#endif
+
 #include "gtest/gtest.h"
 #include "sysfs_int.h"
 #include "test_system.h"
@@ -124,24 +120,25 @@ TEST_P(token_list_c_p, invalid_mutex) {
 
 TEST_P(token_list_c_p, invalid_paths) {
   // paths missing dot
-  std::string sysfs_fme_invlaid =
+  std::string sysfs_fme_invalid =
       "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
-  std::string dev_fme_invlaid = "/dev/intel-fpga-fme";
-  std::string sysfs_port_invlaid =
+  std::string dev_fme_invalid = "/dev/intel-fpga-fme";
+  std::string sysfs_port_invalid =
       "/sys/class/fpga/intel-fpga-dev/intel-fpga-port";
-  std::string dev_port_invlaid = "/dev/intel-fpga-port";
-  auto fme = token_add(sysfs_fme_invlaid.c_str(), dev_fme_invlaid.c_str());
+  std::string dev_port_invalid = "/dev/intel-fpga-port";
+  auto fme = token_add(sysfs_fme_invalid.c_str(), dev_fme_invalid.c_str());
   EXPECT_EQ(fme, nullptr);
 
   // paths with dot, but non-decimal character afterwards
-  sysfs_fme_invlaid += ".z";
-  sysfs_port_invlaid += ".z";
-  fme = token_add(sysfs_fme_invlaid.c_str(), dev_fme_invlaid.c_str());
+  sysfs_fme_invalid += ".z";
+  sysfs_port_invalid += ".z";
+  fme = token_add(sysfs_fme_invalid.c_str(), dev_fme_invalid.c_str());
   EXPECT_EQ(fme, nullptr);
 
   // get a parent of a bogus token
-  auto port = new _fpga_token;
-  std::copy(sysfs_port_invlaid.begin(), sysfs_port_invlaid.end(),
+  _fpga_token *port = new struct _fpga_token;
+  memset(port, 0, sizeof(struct _fpga_token));
+  std::copy(sysfs_port_invalid.begin(), sysfs_port_invalid.end(),
             &port->sysfspath[0]);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, nullptr);
