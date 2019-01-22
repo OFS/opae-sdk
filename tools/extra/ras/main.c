@@ -830,9 +830,7 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 		OPAE_ERR("Failed to get Token Object");
 		return result;
 	}
-
 	
-
 	result = fpgaObjectRead64(port_error_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
