@@ -835,7 +835,7 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 	result = fpgaObjectRead64(port_error_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -844,7 +844,7 @@ fpga_result clear_port_errors(fpga_handle afu_handle)
 	result = fpgaObjectWrite64(port_error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -852,7 +852,7 @@ out:
 	result = fpgaDestroyObject(&port_error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 	}
 
 	printf("----------- PORT ERROR CLEARED ERROR  END-------- \n \n");
@@ -879,7 +879,7 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 	result = fpgaObjectRead64(inj_error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -902,14 +902,14 @@ fpga_result inject_ras_errors(fpga_handle fme_handle,
 	result = fpgaObjectWrite64(inj_error_object, inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 out:
 	result = fpgaDestroyObject(&inj_error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 	}
 
 	printf("----------- INJECT ERROR  END-------- \n \n");
@@ -936,14 +936,14 @@ static fpga_result clear_fpga_errors(fpga_handle handle, char *error )
 	result = fpgaObjectRead64(error_object, &value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
 	result = fpgaObjectWrite64(error_object, value, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -951,7 +951,7 @@ out:
 	result = fpgaDestroyObject(&error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 	}
 
 	return resval;
@@ -976,7 +976,7 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 	result = fpgaObjectRead64(error_object, &inj_error.csr, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -985,7 +985,7 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 	result = fpgaObjectWrite64(error_object, 0x0, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Write Object ");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -997,21 +997,21 @@ fpga_result clear_inject_ras_errors(fpga_handle fme_handle)
 	result = clear_fpga_errors(fme_handle, FME_SYSFS_CLEAR_ERRORS);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to clear FME ERROR");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
 	result = clear_fpga_errors(fme_handle, FME_SYSFS_PCIE0_ERRORS);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to clear FME PCIE0 ERROR");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
 	result = clear_fpga_errors(fme_handle, FME_SYSFS_PCIE1_ERRORS);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to clear FME PCIE1 ERROR");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = result;
 		goto out;
 	}
 
@@ -1019,7 +1019,7 @@ out:
 	result = fpgaDestroyObject(&error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = (result != FPGA_OK) ? result : resval;
+		resval = resval;
 	}
 
 	printf("----------- FME ERROR  END-------- \n \n");
