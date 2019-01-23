@@ -27,16 +27,14 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <dlfcn.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <linux/limits.h>
-#define __USE_GNU
 #include <pthread.h>
 
 #include <json-c/json.h>
@@ -81,8 +79,8 @@ static int plugin_count;
 #define CFG_PATHS 4
 static const char *_opae_cfg_files[CFG_PATHS] = {
 	"/etc/opae.cfg",
-	"~/.config/opae/config",
-	"~/.local/opae/config",
+	"~/.config/opae/opae.cfg",
+	"~/.local/opae/opae.cfg",
 	"~/.local/opae.cfg"
 };
 
@@ -93,17 +91,18 @@ int opae_plugin_mgr_plugin_count(void)
 
 const plugin_cfg *opae_plugin_mgr_get(int i)
 {
-	return plugin_count ? &plugin_list[i] : NULL;
+	return (plugin_count && i < MAX_PLUGINS) ? &plugin_list[i] : NULL;
 }
 
-STATIC const char *find_cfg()
+STATIC char *find_cfg()
 {
 	int i = 0;
-	struct stat st;
+	char *canon_name = NULL;
 
 	for (; i < CFG_PATHS; ++i) {
-		if (stat(_opae_cfg_files[i], &st)) {
-			return _opae_cfg_files[i];
+		canon_name = canonicalize_file_name(_opae_cfg_files[i]);
+		if (canon_name) {
+			return canon_name;
 		}
 	}
 	return NULL;
@@ -259,13 +258,13 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 {
 	plugin_cfg *cfg = &plugin_list[plugin_count];
 	const char *stringified = NULL;
-	json_object *j_module = NULL;
+	json_object *j_plugin = NULL;
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
-	JSON_GET(j_config, "module", &j_module);
+	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
-	if (json_object_get_string_len(j_module) > PLUGIN_NAME_MAX) {
+	if (json_object_get_string_len(j_plugin) > PLUGIN_NAME_MAX) {
 		OPAE_ERR("module name too long");
 		return 1;
 	}
@@ -294,7 +293,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		goto out_err;
 	}
 
-	if (strcpy_s(cfg->module, PLUGIN_NAME_MAX, json_object_get_string(j_module))) {
+	if (strcpy_s(cfg->module, PLUGIN_NAME_MAX, json_object_get_string(j_plugin))) {
 		OPAE_ERR("error copying module name");
 		goto out_err;
 	}
@@ -587,13 +586,13 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
 	plugin_count = 0;
+	char *found_cfg = find_cfg();
 
-	// TODO: parse config file
-	if (!cfg_file) {
-		cfg_file = find_cfg();
+
+	opae_plugin_mgr_parse_config(cfg_file ? cfg_file : found_cfg);
+	if (found_cfg) {
+		free(found_cfg);
 	}
-
-	opae_plugin_mgr_parse_config(cfg_file);
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
