@@ -96,7 +96,8 @@ const plugin_cfg *opae_plugin_mgr_get(int i)
 	return plugin_count ? &plugin_list[i] : NULL;
 }
 
-STATIC const char *find_cfg() {
+STATIC const char *find_cfg()
+{
 	int i = 0;
 	struct stat st;
 
@@ -568,7 +569,7 @@ STATIC int opae_plugin_mgr_load_cfg_plugin(int i)
 	return 0;
 }
 
-STATIC int opae_plugin_mgr_load_cfg_plugins()
+STATIC int opae_plugin_mgr_load_cfg_plugins(void)
 {
 	int i = 0;
 	for ( ; i < plugin_count; ++i) {
