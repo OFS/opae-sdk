@@ -39,8 +39,9 @@ int opae_plugin_mgr_for_each_adapter
 	(int (*callback)(const opae_api_adapter_table *, void *), void *context);
 int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 				     const char *config);
-
+int process_cfg_buffer(const char *buffer, const char *filename);
 extern opae_api_adapter_table *adapter_list;
+
 }
 
 #include <config.h>
@@ -228,6 +229,181 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_NE(0, opae_plugin_mgr_finalize_all());
   EXPECT_EQ(nullptr, adapter_list);
   EXPECT_EQ(2, test_plugin_finalize_called);
+}
+
+const char *plugin_cfg_1 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "module": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "module": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// missing comma (,) on line 272
+const char *plugin_cfg_2 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "module": "libplugin1.so"
+        }
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "module": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// keyword enabled misspelled on line 298
+const char *plugin_cfg_3 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enable": true,
+            "module": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "module": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// plugin name different on line 321
+const char *plugin_cfg_4 = R"plug(
+{
+    "configurations": {
+        "plugin10": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "module": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "module": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// plugins not array type
+const char *plugin_cfg_5 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "module": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "module": "libplugin2.so"
+        }
+    },
+    "plugins": 0
+}
+)plug";
+
+
+extern "C" {
+  void opae_plugin_mgr_reset_cfg(void);
+}
+
+TEST(pluginmgr_c_p, process_cfg_buffer) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  ASSERT_EQ(process_cfg_buffer(plugin_cfg_1, "plugin1.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 2);
+  auto p1 = opae_plugin_mgr_get(0);
+  auto p2 = opae_plugin_mgr_get(1);
+  ASSERT_NE(p1, nullptr);
+  ASSERT_NE(p2, nullptr);
+  EXPECT_TRUE(p1->enabled);
+  EXPECT_FALSE(p2->enabled);
+}
+
+TEST(pluginmgr_c_p, process_cfg_buffer_err) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_2, "plugin2.json"), 0);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_3, "plugin3.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 1);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_4, "plugin4.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 1);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_5, "plugin5.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
 }
 
 INSTANTIATE_TEST_CASE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
