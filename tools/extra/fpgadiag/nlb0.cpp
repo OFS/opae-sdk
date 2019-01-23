@@ -337,7 +337,7 @@ bool nlb0::run()
         fme_token = get_parent_token(accelerator_);
     }
     catch (opae::fpga::types::not_found) {
-        std::cerr << "Parent token not found. " << std::endl;
+        std::cerr << "Error locating device token. Stats will be disabled." << std::endl;
         suppress_stats_ = true;
     }
     shared_buffer::ptr_t inout; // shared workspace, if possible
