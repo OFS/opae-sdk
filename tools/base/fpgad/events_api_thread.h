@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,11 +24,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_AP_EVENT_H__
-#define __FPGAD_AP_EVENT_H__
+#ifndef __FPGAD_EVENTS_API_THREAD_H__
+#define __FPGAD_EVENTS_API_THREAD_H__
 
-#include "errtable.h"
+#include "fpgad.h"
+#include <opae/types.h>
 
-void *apevent_thread(void *);
+typedef struct _events_api_thread_config {
+	struct config *global;
+	int sched_policy;
+	int sched_priority;
+} events_api_thread_config;
 
-#endif
+extern events_api_thread_config events_api_config;
+
+void *events_api_thread(void *);
+
+#endif /* __FPGAD_EVENTS_API_THREAD_H__ */

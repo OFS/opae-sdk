@@ -904,8 +904,6 @@ fpga_result sync_object(fpga_object obj)
 	}
 	bytes_read = eintr_read(fd, _obj->buffer, _obj->max_size);
 	if (bytes_read < 0) {
-		FPGA_ERR("Error reading from %s: %s", _obj->path,
-			 strerror(errno));
 		close(fd);
 		return FPGA_EXCEPTION;
 	}

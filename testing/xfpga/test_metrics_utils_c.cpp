@@ -698,7 +698,7 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
   fpga_metric_vector vector;
 
-  _handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+  _handle->bmc_handle = dlopen("libbmc.so", RTLD_LAZY | RTLD_LOCAL);
 
   if (!_handle->bmc_handle) {
     OPAE_ERR("--------------------------failed to load ");

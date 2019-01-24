@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,38 +24,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_CONFIG_H__
-#define __FPGAD_CONFIG_H__
-#include <fcntl.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <linux/limits.h>
-#include <inttypes.h>
+#ifndef __FPGAD_BITSTREAM_H__
+#define __FPGAD_BITSTREAM_H__
 
-#define MAX_NULL_GBS 16
-#define MAX_SOCKETS 2
+#include <opae/types.h>
+#include <uuid/uuid.h>
 
-#define UNUSED_PARAM(x) ((void)x)
-
-/*
- * Global configuration, set during parse_args()
- */
-struct config {
-	unsigned int verbosity;
-	useconds_t   poll_interval_usec;
-
-	int daemon;               // whether to daemonize
-	char directory[PATH_MAX]; // working directory when daemonizing
-	char logfile[PATH_MAX];   // location of log file
-	char pidfile[PATH_MAX];   // where to write fpgad.pid
-	mode_t filemode;          // argument for umask
-
-	bool running;
-
-	const char *socket;
-
-	char *null_gbs[MAX_NULL_GBS];
-	unsigned int num_null_gbs;
+struct bitstream_info {
+	char *filename;
+	uint8_t *data;
+	size_t data_len;
+	uint8_t *rbf_data;
+	size_t rbf_len;
+	fpga_guid interface_id;
 };
 
-#endif
+// 0 on success
+int bitstr_load_bitstream(const char *file, struct bitstream_info *info);
+
+void bitstr_unload_bitstream(struct bitstream_info *info);
+
+#endif /* __FPGAD_BITSTREAM_H__ */

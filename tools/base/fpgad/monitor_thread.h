@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_SRV_H__
-#define __FPGAD_SRV_H__
-#include <stdint.h>
-#include <opae/types.h>
+#ifndef __FPGAD_MONITOR_THREAD_H__
+#define __FPGAD_MONITOR_THREAD_H__
 
-struct fpga_err;
+#include "fpgad.h"
+#include "monitored_device.h"
 
-struct client_event_registry {
-	int conn_socket;
-	int fd;
-	uint64_t data;
-	fpga_event_type event;
-	uint64_t object_id;
-	struct client_event_registry *next;
-};
+typedef struct _monitor_thread_config {
+	struct config *global;
+	int sched_policy;
+	int sched_priority;
+} monitor_thread_config;
 
-void *server_thread(void *thread_context);
+extern monitor_thread_config monitor_config;
 
-void for_each_registered_event(
-	void (*cb)(struct client_event_registry *,
-		   uint64_t object_id,
-		   const struct fpga_err *),
-	uint64_t object_id,
-	const struct fpga_err *);
+void *monitor_thread(void *);
 
-#endif // __FPGAD_SRV_H__
+// 0 on success
+int mon_enumerate(struct config *c);
 
+// 0 on success
+int mon_enumerate_vc(struct config *c);
+
+void mon_destroy(void);
+
+void mon_monitor_device(fpgad_monitored_device *d);
+
+#endif /* __FPGAD_MONITOR_THREAD_H__ */

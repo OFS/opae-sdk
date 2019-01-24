@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,78 +24,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * daemonize.c : routine to become a system daemon process.
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
+#include "device_monitoring.h"
 
-#include "safe_string/safe_string.h"
+#ifdef LOG
+#undef LOG
+#endif
+#define LOG(format, ...) \
+log_printf("device_monitoring: " format, ##__VA_ARGS__)
 
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir)
+bool mon_has_error_occurred(fpgad_monitored_device *d, void *err)
 {
-	pid_t pid;
-	pid_t sid;
-	int res;
-	int fd;
-	struct sigaction sa;
-
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
-
-	// 1) Orphan the child process so that it runs in the background.
-	if (pid > 0)
-		exit(0);
-
-	// 2) Become leader of a new session and process group leader of new process
-	// group. The process is now detached from its controlling terminal.
-	sid = setsid();
-	if (sid < 0)
-		return errno;
-
-	// 3) Establish signal handler.
-	memset_s(&sa, sizeof(sa), 0);
-	sa.sa_flags     = SA_SIGINFO | SA_RESETHAND;
-	sa.sa_sigaction = hndlr;
-
-	res = sigaction(SIGINT, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	res = sigaction(SIGTERM, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	// 4) Orphan the child again - the session leading process terminates.
-	// (only session leaders can request TTY).
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
-
-	if (pid > 0)
-		exit(0);
-
-	// 5) Set new file mode mask.
-	umask(mask);
-
-	// 6) change directory
-	res = chdir(dir);
-	if (res < 0)
-		return errno;
-
-	// 7) Close all open file descriptors
-	fd = sysconf(_SC_OPEN_MAX);
-	while (fd >= 0)
-		close(fd--);
-
-	return 0;
+	unsigned i;
+	for (i = 0 ; i < d->num_error_occurrences ; ++i) {
+		if (err == d->error_occurrences[i])
+			return true;
+	}
+	return false;
 }
 
+bool mon_add_device_error(fpgad_monitored_device *d, void *err)
+{
+	if (d->num_error_occurrences <
+		(sizeof(d->error_occurrences) /
+		 sizeof(d->error_occurrences[0]))) {
+		d->error_occurrences[d->num_error_occurrences++] = err;
+		return true;
+	}
+	LOG("exceeded max number of device errors!\n");
+	return false;
+}
+
+void mon_remove_device_error(fpgad_monitored_device *d, void *err)
+{
+	unsigned i;
+	unsigned j;
+	unsigned removed = 0;
+	for (i = j = 0 ; i < d->num_error_occurrences ; ++i) {
+		if (d->error_occurrences[i] != err)
+			d->error_occurrences[j++] = d->error_occurrences[i];
+		else
+			++removed;
+	}
+	d->num_error_occurrences -= removed;
+}
