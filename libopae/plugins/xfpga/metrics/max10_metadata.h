@@ -41,7 +41,7 @@
 
 fpga_metric_metadata fpga_max10_metric_metadata[] = {
 
-	// POWER 
+	// POWER
 	{ .group_name = "power_mgmt", .metric_name = "Board Power",
 		.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
 
