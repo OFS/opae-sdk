@@ -373,7 +373,14 @@ STATIC int opae_plugin_mgr_parse_config(const char *filename)
 	char buffer[MAX_CFG_SIZE] = { 0 };
 	char *ptr = &buffer[0];
 	size_t bytes_read = 0, total_read = 0;
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = NULL;
+	if (filename) {
+		fp = fopen(filename, "r");
+	} else {
+		OPAE_MSG("config file is NULL");
+		return 1;
+	}
+
 	if (!fp) {
 		OPAE_ERR("Error opening config file: %s", filename);
 		return 1;
