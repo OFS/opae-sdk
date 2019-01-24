@@ -22,33 +22,22 @@
 // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAG
+// POSSIBILITY OF SUCH DAMAGE.
 
 /**
-* \file metrics_metadata.h
-* \brief fpga metrics utils functions
+* \file metrics_max10.h
+* \brief fpga metrics max10 functions
 */
 
-#ifndef __FPGA_METRICS_METADATA_H__
-#define __FPGA_METRICS_METADATA_H__
+#ifndef __FPGA_METRICS_MAX10_H__
+#define __FPGA_METRICS_MAX10_H__
 
-#include <stdio.h>
-#include <string.h>
-#include "opae/fpga.h"
+fpga_result read_sysfs_file(char *sysfs, const char *file,
+			void **buf, uint32_t *tot_bytes_ret);
 
-typedef struct fpga_metric_metadata {
+fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
+			fpga_metric_vector *vector,
+			uint64_t *metric_num,
+			enum fpga_hw_type  hw_type);
 
-	char group_name[FPGA_METRIC_STR_SIZE];
-	char metric_name[FPGA_METRIC_STR_SIZE];
-	char qualifier_name[FPGA_METRIC_STR_SIZE];
-
-	enum fpga_metric_datatype data_type;
-	enum fpga_metric_type metric_type;
-	char metric_units[FPGA_METRIC_STR_SIZE];
-	uint64_t mmio_offset;
-
-	uint32_t range_start;
-	uint32_t range_end;
-
-} fpga_metric_metadata;
-#endif //__FPGA_METRICS_METADATA_H__
+#endif // __FPGA_METRICS_MAX10_H__

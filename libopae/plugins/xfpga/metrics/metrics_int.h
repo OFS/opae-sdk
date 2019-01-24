@@ -34,6 +34,7 @@
 
 #include "vector.h"
 #include "opae/metrics.h"
+#include "metrics_metadata.h"
 
 // Power,Thermal & Performance definations
 
@@ -53,6 +54,22 @@
 #define XEON_LIMIT                          "xeon_limit"
 #define TEMP                                "Centigrade"
 
+#define TEMPERATURE                         "Temperature"
+#define VOLTAGE                             "Voltage"
+#define CURRENT                             "Current"
+#define POWER                               "Power"
+
+#define MAX10_SYSFS_PATH                     "spi-altera.*.auto/spi_master/spi*/spi*.*"
+#define MAX10_SENSOR_SYSFS_PATH              "spi-altera.*.auto/spi_master/spi*/spi*.*/sensor*"
+#define SENSOR_SYSFS_NAME                    "name"
+#define SENSOR_SYSFS_TYPE                    "type"
+#define SENSOR_SYSFS_ID                      "id"
+#define SENSOR_SYSFS_VALUE                   "value"
+#define MILLI                                 1000
+
+#define  FPGA_DISCRETE_VC_DEVICEID           0x0B30
+
+#define  FPGA_DISCRETE_DC_DEVICEID           0x0B2B
 
 #define BMC_LIB                              "libbmc.so"
 
@@ -213,5 +230,11 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 				uint64_t metric_offset);
 
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset);
+
+fpga_result get_metric_data_info(const char *group_name,
+		const char *metric_name,
+		fpga_metric_metadata *metric_data_serach,
+		uint64_t size,
+		fpga_metric_metadata *metric_data);
 
 #endif // __FPGA_METRICS_INT_H__
