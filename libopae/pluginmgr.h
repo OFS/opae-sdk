@@ -41,4 +41,17 @@ int opae_plugin_mgr_finalize_all(void);
 int opae_plugin_mgr_for_each_adapter(
 	int (*callback)(const opae_api_adapter_table *, void *), void *context);
 
+#define PLUGIN_SUPPORTED_DEVICES_MAX 256
+#define PLUGIN_NAME_MAX 64
+typedef struct _plugin_cfg {
+	char name[PLUGIN_NAME_MAX];
+	char plugin[PLUGIN_NAME_MAX];
+	bool enabled;
+	char *cfg;
+	size_t cfg_size;
+	uint32_t supported_devices[PLUGIN_SUPPORTED_DEVICES_MAX];
+} plugin_cfg;
+int opae_plugin_mgr_plugin_count(void);
+const plugin_cfg *opae_plugin_mgr_get(int i);
+
 #endif /* __OPAE_PLUGINMGR_H__ */
