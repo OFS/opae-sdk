@@ -294,7 +294,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	}
 
 	if (strcpy_s(cfg->plugin, PLUGIN_NAME_MAX, json_object_get_string(j_plugin))) {
-		OPAE_ERR("error copying plugin name");
+		OPAE_ERR("error copying plugin file name");
 		goto out_err;
 	}
 
