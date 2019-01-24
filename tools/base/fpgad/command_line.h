@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,78 +24,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef __FPGAD_COMMAND_LINE_H__
+#define __FPGAD_COMMAND_LINE_H__
+
+#include "fpgad.h"
+#include "bitstream.h"
+
+#define MAX_NULL_GBS 32
+
+struct config {
+	useconds_t poll_interval_usec;
+
+	bool daemon;
+	char directory[PATH_MAX];
+	char logfile[PATH_MAX];
+	char pidfile[PATH_MAX];
+	mode_t filemode;
+
+	bool running;
+
+	const char *api_socket;
+
+	struct bitstream_info null_gbs[MAX_NULL_GBS];
+	unsigned num_null_gbs;
+
+	pthread_t bmc_monitor_thr;
+	pthread_t monitor_thr;
+	pthread_t event_dispatcher_thr;
+	pthread_t events_api_thr;
+};
+
+extern struct config global_config;
+
 /*
- * daemonize.c : routine to become a system daemon process.
- */
+** Returns
+**  -2 if --help requested
+**  -1 on parse error
+**   0 on success
+*/
+int cmd_parse_args(struct config *c, int argc, char *argv[]);
 
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
+void cmd_show_help(FILE *fptr);
 
-#include "safe_string/safe_string.h"
+void cmd_canonicalize_paths(struct config *c);
 
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir)
-{
-	pid_t pid;
-	pid_t sid;
-	int res;
-	int fd;
-	struct sigaction sa;
+void cmd_destroy(struct config *c);
 
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
-
-	// 1) Orphan the child process so that it runs in the background.
-	if (pid > 0)
-		exit(0);
-
-	// 2) Become leader of a new session and process group leader of new process
-	// group. The process is now detached from its controlling terminal.
-	sid = setsid();
-	if (sid < 0)
-		return errno;
-
-	// 3) Establish signal handler.
-	memset_s(&sa, sizeof(sa), 0);
-	sa.sa_flags     = SA_SIGINFO | SA_RESETHAND;
-	sa.sa_sigaction = hndlr;
-
-	res = sigaction(SIGINT, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	res = sigaction(SIGTERM, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	// 4) Orphan the child again - the session leading process terminates.
-	// (only session leaders can request TTY).
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
-
-	if (pid > 0)
-		exit(0);
-
-	// 5) Set new file mode mask.
-	umask(mask);
-
-	// 6) change directory
-	res = chdir(dir);
-	if (res < 0)
-		return errno;
-
-	// 7) Close all open file descriptors
-	fd = sysconf(_SC_OPEN_MAX);
-	while (fd >= 0)
-		close(fd--);
-
-	return 0;
-}
-
+#endif /* __FPGAD_COMMAND_LINE_H__ */

@@ -100,29 +100,29 @@ add_library(libbmc  SHARED
     
 
   
-add_library(fpgad-static
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
-    )
+# add_library(fpgad-static
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
+#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
+#     )
 
-target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
+# target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
-target_include_directories(fpgad-static PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+# target_include_directories(fpgad-static PUBLIC
+#   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+#   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+#   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(fpgad-static
-    safestr
-    ${libjson-c_LIBRARIES}
-    ${libuuid_LIBRARIES}
-    )
+# target_link_libraries(fpgad-static
+#     safestr
+#     ${libjson-c_LIBRARIES}
+#     ${libuuid_LIBRARIES}
+#     )
 
 add_library(fpgaconf-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
@@ -324,10 +324,10 @@ add_unit_test(test_opae_error_c opae-c-static
     opae-c/test_error_c.cpp
 )
 
-add_unit_test(test_opae_event_c opae-c-static
-    opae-c/test_event_c.cpp
-)
-target_link_libraries(test_opae_event_c fpgad-static safestr)
+# add_unit_test(test_opae_event_c opae-c-static
+#     opae-c/test_event_c.cpp
+# )
+# target_link_libraries(test_opae_event_c fpgad-static safestr)
 
 add_unit_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
@@ -369,11 +369,11 @@ add_unit_test(test_opae_errors_cxx_core opae-cxx-core-static
     opae-cxx/test_errors_cxx_core.cpp
 )
 
-add_unit_test(test_opae_events_cxx_core opae-cxx-core-static
-    opae-cxx/test_events_cxx_core.cpp
-)
-target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
-        ${libjson-c_LIBRARIES})
+# add_unit_test(test_opae_events_cxx_core opae-cxx-core-static
+#     opae-cxx/test_events_cxx_core.cpp
+# )
+# target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
+#         ${libjson-c_LIBRARIES})
 
 add_unit_test(test_opae_properties_cxx_core opae-cxx-core-static
     opae-cxx/test_properties_cxx_core.cpp
@@ -474,9 +474,15 @@ add_unit_test(test_xfpga_manage_c xfpga-static
     xfpga/test_manage_c.cpp
 )
 
-add_unit_test(test_xfpga_events_c xfpga-static
-    xfpga/test_events_c.cpp
-)
+# add_unit_test(test_xfpga_events_c xfpga-static
+#     xfpga/test_events_c.cpp
+# )
+# target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
+#         ${libjson-c_LIBRARIES})
+# set_tests_properties(
+#     test_xfpga_events_c
+#     PROPERTIES TIMEOUT 75
+# )
 
 add_unit_test(test_xfpga_metrics_vector_c xfpga-static
     xfpga/test_metrics_vector_c.cpp
@@ -497,9 +503,6 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
-        ${libjson-c_LIBRARIES})
-
 target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
         ${libjson-c_LIBRARIES})
 
@@ -512,37 +515,37 @@ set_tests_properties(
 # fpgad tests ##############################################################
 ############################################################################
 
-add_unit_test(test_fpgad_log_c fpgad-static
-    fpgad/test_log_c.cpp
-)
+# add_unit_test(test_fpgad_log_c fpgad-static
+#     fpgad/test_log_c.cpp
+# )
 
-add_unit_test(test_fpgad_srv_c fpgad-static
-    fpgad/test_srv_c.cpp
-)
+# add_unit_test(test_fpgad_srv_c fpgad-static
+#     fpgad/test_srv_c.cpp
+# )
 
-add_unit_test(test_fpgad_evt_c fpgad-static
-    fpgad/test_evt_c.cpp
-)
+# add_unit_test(test_fpgad_evt_c fpgad-static
+#     fpgad/test_evt_c.cpp
+# )
 
-add_unit_test(test_fpgad_errtable_c fpgad-static
-    fpgad/test_errtable_c.cpp
-)
+# add_unit_test(test_fpgad_errtable_c fpgad-static
+#     fpgad/test_errtable_c.cpp
+# )
 
-add_unit_test(test_fpgad_ap_event_c fpgad-static
-    fpgad/test_ap_event_c.cpp
-)
+# add_unit_test(test_fpgad_ap_event_c fpgad-static
+#     fpgad/test_ap_event_c.cpp
+# )
 
-add_unit_test(test_fpgad_daemonize_c fpgad-static
-    fpgad/test_daemonize_c.cpp
-)
+# add_unit_test(test_fpgad_daemonize_c fpgad-static
+#     fpgad/test_daemonize_c.cpp
+# )
 
-add_unit_test(test_fpgad_fpgad_c fpgad-static
-    fpgad/test_fpgad_c.cpp
-)
+# add_unit_test(test_fpgad_fpgad_c fpgad-static
+#     fpgad/test_fpgad_c.cpp
+# )
 
-add_unit_test(test_fpgad_ap6_c fpgad-static
-    fpgad/test_ap6_c.cpp
-)
+# add_unit_test(test_fpgad_ap6_c fpgad-static
+#     fpgad/test_ap6_c.cpp
+# )
 
 ############################################################################
 # RAS tests ##############################################################
@@ -602,10 +605,10 @@ add_unit_test(test_hello_fpga_c hello_fpga-static
 # hello_events tests #######################################################
 ############################################################################
 
-add_unit_test(test_hello_events_c hello_events-static
-    hello_events/test_hello_events_c.cpp
-)
-target_link_libraries(test_hello_events_c fpgad-static safestr)
+# add_unit_test(test_hello_events_c hello_events-static
+#     hello_events/test_hello_events_c.cpp
+# )
+# target_link_libraries(test_hello_events_c fpgad-static safestr)
 
 ############################################################################
 # object_api tests #######################################################

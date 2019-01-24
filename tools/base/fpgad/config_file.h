@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,65 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_ERRTABLE_H__
-#define __FPGAD_ERRTABLE_H__
+#ifndef __FPGAD_CONFIG_FILE_H__
+#define __FPGAD_CONFIG_FILE_H__
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
-#include <pthread.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <opae/fpga.h>
-#undef _GNU_SOURCE
+#include "fpgad.h"
 
-struct fpga_err {
-	const char *sysfsfile;
-	const char *reg_field;
-	int lowbit;
-	int highbit;
-	void (*callback)(uint8_t socket_id,
-			 uint64_t object_id,
-			 const struct fpga_err *);
-};
-#define TABLE_TERMINATOR { NULL, NULL, 0, 0, NULL }
 
-typedef struct _supported_device {
-	uint16_t vendor_id;
-	uint16_t device_id;
-	uint64_t error_revision;
-	struct fpga_err *error_table;
-} supported_device;
-
-#define MAX_ERROR_COUNT 64
-
-typedef struct _monitored_device {
-	struct _monitored_device *next;
-	fpga_token token;
-	uint8_t socket_id;
-	uint64_t object_id;
-	supported_device *device;
-	struct fpga_err *error_occurrences[MAX_ERROR_COUNT];
-	uint32_t num_error_occurrences;
-} monitored_device;
-
-bool error_already_occurred(monitored_device *d, struct fpga_err *e);
-void error_just_occurred(monitored_device *d, struct fpga_err *e);
-void clear_occurrences_of(monitored_device *d, struct fpga_err *e);
-
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t, const char *);
-
-void *logger_thread(void *);
-
-#endif
-
+#endif /* __FPGAD_CONFIG_FILE_H__ */

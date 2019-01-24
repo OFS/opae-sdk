@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_AP6_H__
-#define __FPGAD_AP6_H__
+#ifndef __FPGAD_API_LOGGING_H__
+#define __FPGAD_API_LOGGING_H__
 
-#include <semaphore.h>
-#include "config_int.h"
+#include "fpgad/fpgad.h"
 
-struct ap6_context {
-	struct config *config;
-	int socket;
-};
+int log_open(const char *filename);
+int log_printf(const char *fmt, ...);
+void log_set(FILE *fptr);
+void log_close(void);
 
-void *ap6_thread(void *thread_context);
-
-extern sem_t ap6_sem[MAX_SOCKETS];
-
-#endif // __FPGAD_AP6_H__
-
+#endif /* __FPGAD_API_LOGGING_H__ */

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,23 +24,62 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_EVT_H__
-#define __FPGAD_EVT_H__
+#ifndef __FPGAD_API_OPAE_EVENTS_API_H__
+#define __FPGAD_API_OPAE_EVENTS_API_H__
 
-struct fpga_err;
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
-// FPGA_EVENT_ERROR
-void evt_notify_error(uint8_t socket_id,
-		      uint64_t object_id,
-		      const struct fpga_err *);
+#include <opae/types.h>
 
-// FPGA_EVENT_POWER_THERMAL
-void evt_notify_ap6(uint8_t socket_id,
-		    uint64_t object_id,
-		    const struct fpga_err *);
-void evt_notify_ap6_and_null(uint8_t socket_id,
-			     uint64_t object_id,
-			     const struct fpga_err *);
+#include "fpgad/fpgad.h"
+#include "fpgad/monitored_device.h"
 
-#endif // __FPGAD_EVT_H__
+enum request_type {
+	REGISTER_EVENT = 0,
+	UNREGISTER_EVENT
+};
 
+struct event_request {
+	enum request_type type;
+	fpga_event_type event;
+	uint64_t object_id;
+};
+
+typedef struct _api_client_event_registry {
+	int conn_socket;
+	int fd;
+	uint64_t data;
+	fpga_event_type event;
+	uint64_t object_id;
+	struct _api_client_event_registry *next;
+} api_client_event_registry;
+
+// 0 on success
+int opae_api_register_event(int conn_socket,
+			    int fd,
+			    fpga_event_type e,
+			    uint64_t object_id);
+
+// 0 on success
+int opae_api_unregister_event(int conn_socket,
+			      fpga_event_type e,
+			      uint64_t object_id);
+
+void opae_api_unregister_all_events_for(int conn_socket);
+
+void opae_api_unregister_all_events(void);
+
+void opae_api_for_each_registered_event(void (*cb)(api_client_event_registry *r,
+						   void *context),
+					void *context);
+
+void opae_api_send_EVENT_ERROR(fpgad_monitored_device *d);
+
+void opae_api_send_EVENT_POWER_THERMAL(fpgad_monitored_device *d);
+
+#endif /* __FPGAD_API_OPAE_EVENTS_API_H__ */

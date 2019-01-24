@@ -233,10 +233,56 @@ endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
+
+#list of components to be included in the package
+set(CPACK_COMPONENTS_ALL 
+	toolfpgaconf
+	toolfpgainfo 
+	toolfpgaport
+	toolfpgametrics
+	toolfpgadiag 
+	toolfpga_dma_test 
+	toolfpgabist 
+	toolfpgadiagapps 
+	toolpackager 
+	jsonschema 
+	opaecase 
+	asertl 
+	asescripts 
+	aseextra 
+	asesw 
+	libopaeheaders 
+	dochtml 
+	doclatex 
+	docrtf 
+	docman 
+	docxml 
+	platform 
+	samplesrc 
+	safestrlib 
+	safestrheaders 
+	opaeclib 
+	opaecxxcorelib 
+	opaetoolslibs 
+	opaecxxutils 
+	opaecxxlib 
+	opaecxxnlb 
+	toolfpgaconf 
+	toolbist_app 
+	toolbist 
+	toolfpgad
+	toolfpgad_api
+	toolfpgad_xfpga
+	toolfpgad_vc
+	)
+
 # Component definition
 define_pkg(tools
   COMPONENTS
   toolfpgad
+  toolfpgad_api
+  toolfpgad_xfpga
+  toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
   toolfpgaport
