@@ -331,7 +331,15 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    auto fme_token = get_parent_token(accelerator_);
+    token::ptr_t fme_token = nullptr;
+
+    try {
+        fme_token = get_parent_token(accelerator_);
+    }
+    catch (opae::fpga::types::not_found) {
+        std::cerr << "Error locating device token. Stats will be disabled." << std::endl;
+        suppress_stats_ = true;
+    }
     shared_buffer::ptr_t inout; // shared workspace, if possible
     shared_buffer::ptr_t inp;   // input workspace
     shared_buffer::ptr_t out;   // output workspace
