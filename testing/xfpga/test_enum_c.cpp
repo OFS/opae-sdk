@@ -54,7 +54,7 @@ using namespace opae::testing;
 
 class enum_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  enum_c_p() : tokens_{{nullptr, nullptr}} {}
+  enum_c_p() : tokens_{{nullptr, nullptr}}, filter_(nullptr) {}
 
   virtual ~enum_c_p() {}
 
