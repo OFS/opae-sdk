@@ -481,7 +481,7 @@ add_unit_test(test_xfpga_manage_c xfpga-static
 #         ${libjson-c_LIBRARIES})
 # set_tests_properties(
 #     test_xfpga_events_c
-#     PROPERTIES TIMEOUT 75
+#     PROPERTIES TIMEOUT 120
 # )
 
 add_unit_test(test_xfpga_metrics_vector_c xfpga-static
@@ -505,11 +505,6 @@ add_unit_test(test_xfpga_bmc_c xfpga-static
 )
 target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
         ${libjson-c_LIBRARIES})
-
-set_tests_properties(
-    test_xfpga_events_c
-    PROPERTIES TIMEOUT 120
-)
 
 ############################################################################
 # fpgad tests ##############################################################
