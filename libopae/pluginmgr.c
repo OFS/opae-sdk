@@ -265,7 +265,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
 	if (json_object_get_string_len(j_plugin) > PLUGIN_NAME_MAX) {
-		OPAE_ERR("module name too long");
+		OPAE_ERR("plugin name too long");
 		return 1;
 	}
 
@@ -293,8 +293,8 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		goto out_err;
 	}
 
-	if (strcpy_s(cfg->module, PLUGIN_NAME_MAX, json_object_get_string(j_plugin))) {
-		OPAE_ERR("error copying module name");
+	if (strcpy_s(cfg->plugin, PLUGIN_NAME_MAX, json_object_get_string(j_plugin))) {
+		OPAE_ERR("error copying plugin name");
 		goto out_err;
 	}
 
@@ -309,6 +309,8 @@ out_err:
 	cfg->cfg_size = 0;
 	return 1;
 }
+
+
 
 STATIC int process_cfg_buffer(const char *buffer, const char *filename)
 {
@@ -550,7 +552,7 @@ STATIC int opae_plugin_mgr_load_cfg_plugin(int i)
 	opae_api_adapter_table *adapter = NULL;
 
 	if (cfg->enabled && cfg->cfg && cfg->cfg_size) {
-		adapter = opae_plugin_mgr_alloc_adapter(cfg->module);
+		adapter = opae_plugin_mgr_alloc_adapter(cfg->plugin);
 		if (!adapter) {
 			OPAE_ERR("malloc failed");
 			return 1;

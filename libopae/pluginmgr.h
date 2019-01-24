@@ -45,7 +45,7 @@ int opae_plugin_mgr_for_each_adapter(
 #define PLUGIN_NAME_MAX 64
 typedef struct _plugin_cfg {
 	char name[PLUGIN_NAME_MAX];
-	char module[PLUGIN_NAME_MAX];
+	char plugin[PLUGIN_NAME_MAX];
 	bool enabled;
 	char *cfg;
 	size_t cfg_size;

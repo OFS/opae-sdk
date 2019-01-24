@@ -240,7 +240,7 @@ const char *plugin_cfg_1 = R"plug(
                 "key1b": "hello"
             },
             "enabled": true,
-            "module": "libplugin1.so"
+            "plugin": "libplugin1.so"
         },
         "plugin2": {
             "configuration": {
@@ -248,7 +248,7 @@ const char *plugin_cfg_1 = R"plug(
                 "key1b": "goodbye"
             },
             "enabled": false,
-            "module": "libplugin2.so"
+            "plugin": "libplugin2.so"
         }
     },
     "plugins": [
@@ -268,7 +268,7 @@ const char *plugin_cfg_2 = R"plug(
                 "key1b": "hello"
             },
             "enabled": true,
-            "module": "libplugin1.so"
+            "plugin": "libplugin1.so"
         }
         "plugin2": {
             "configuration": {
@@ -276,7 +276,7 @@ const char *plugin_cfg_2 = R"plug(
                 "key1b": "goodbye"
             },
             "enabled": false,
-            "module": "libplugin2.so"
+            "plugin": "libplugin2.so"
         }
     },
     "plugins": [
@@ -296,7 +296,7 @@ const char *plugin_cfg_3 = R"plug(
                 "key1b": "hello"
             },
             "enable": true,
-            "module": "libplugin1.so"
+            "plugin": "libplugin1.so"
         },
         "plugin2": {
             "configuration": {
@@ -304,7 +304,7 @@ const char *plugin_cfg_3 = R"plug(
                 "key1b": "goodbye"
             },
             "enabled": false,
-            "module": "libplugin2.so"
+            "plugin": "libplugin2.so"
         }
     },
     "plugins": [
@@ -324,7 +324,7 @@ const char *plugin_cfg_4 = R"plug(
                 "key1b": "hello"
             },
             "enabled": true,
-            "module": "libplugin1.so"
+            "plugin": "libplugin1.so"
         },
         "plugin2": {
             "configuration": {
@@ -332,7 +332,7 @@ const char *plugin_cfg_4 = R"plug(
                 "key1b": "goodbye"
             },
             "enabled": false,
-            "module": "libplugin2.so"
+            "plugin": "libplugin2.so"
         }
     },
     "plugins": [
@@ -352,7 +352,7 @@ const char *plugin_cfg_5 = R"plug(
                 "key1b": "hello"
             },
             "enabled": true,
-            "module": "libplugin1.so"
+            "plugin": "libplugin1.so"
         },
         "plugin2": {
             "configuration": {
@@ -360,7 +360,7 @@ const char *plugin_cfg_5 = R"plug(
                 "key1b": "goodbye"
             },
             "enabled": false,
-            "module": "libplugin2.so"
+            "plugin": "libplugin2.so"
         }
     },
     "plugins": 0
