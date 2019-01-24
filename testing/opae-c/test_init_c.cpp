@@ -151,5 +151,6 @@ TEST(init, log_file) {
   opae_init();
 
   EXPECT_EQ(0, stat("opae_log.log", &buf));
+  unlink("opae_log.log");
 }
 
