@@ -370,7 +370,7 @@ const char *plugin_cfg_5 = R"plug(
 
 extern "C" {
   void opae_plugin_mgr_reset_cfg(void);
-  extern plugin_cfg *opae_plugin_mgr_plugin_list;
+  extern plugin_cfg *opae_plugin_mgr_config_list;
   extern int opae_plugin_mgr_plugin_count;
 }
 
@@ -379,12 +379,13 @@ TEST(pluginmgr_c_p, process_cfg_buffer) {
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(process_cfg_buffer(plugin_cfg_1, "plugin1.json"), 0);
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 2);
-  auto p1 = opae_plugin_mgr_plugin_list;
+  auto p1 = opae_plugin_mgr_config_list;
   ASSERT_NE(p1, nullptr);
   auto p2 = p1->next;
   ASSERT_NE(p2, nullptr);
   EXPECT_TRUE(p1->enabled);
   EXPECT_FALSE(p2->enabled);
+  ASSERT_EQ(p2->next, nullptr);
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer_err) {

@@ -73,7 +73,7 @@ static pthread_mutex_t adapter_list_lock =
 
 
 #define MAX_PLUGINS PLUGIN_SUPPORTED_DEVICES_MAX
-STATIC plugin_cfg *opae_plugin_mgr_plugin_list;
+STATIC plugin_cfg *opae_plugin_mgr_config_list;
 STATIC int opae_plugin_mgr_plugin_count;
 
 #define CFG_PATHS 4
@@ -162,7 +162,7 @@ STATIC int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 
 STATIC void opae_plugin_mgr_reset_cfg(void)
 {
-	plugin_cfg *ptr = opae_plugin_mgr_plugin_list;
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
 	plugin_cfg *tmp = NULL;
 	while (ptr) {
 		tmp = ptr;
@@ -170,16 +170,16 @@ STATIC void opae_plugin_mgr_reset_cfg(void)
 		free(tmp->cfg);
 		free(tmp);
 	}
-	opae_plugin_mgr_plugin_list = NULL;
+	opae_plugin_mgr_config_list = NULL;
 	opae_plugin_mgr_plugin_count = 0;
 }
 
 STATIC void opae_plugin_mgr_add_plugin(plugin_cfg *cfg)
 {
-	plugin_cfg *ptr = opae_plugin_mgr_plugin_list;
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
 	cfg->next = NULL;
 	if (!ptr) {
-		opae_plugin_mgr_plugin_list = cfg;
+		opae_plugin_mgr_config_list = cfg;
 	} else {
 		while (ptr->next) {
 			ptr = ptr->next;
@@ -263,11 +263,15 @@ int opae_plugin_mgr_finalize_all(void)
 #define MAX_PLUGIN_CFG_SIZE 1024
 STATIC int process_plugin(const char *name, json_object *j_config)
 {
-	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
-	const char *stringified = NULL;
 	json_object *j_plugin = NULL;
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
+	const char *stringified = NULL;
+	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
+	if (!cfg) {
+		OPAE_ERR("Could not allocate memory for plugin cfg");
+		return 1;
+	}
 	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
@@ -585,7 +589,7 @@ STATIC int opae_plugin_mgr_load_cfg_plugin(plugin_cfg *cfg)
 
 STATIC int opae_plugin_mgr_load_cfg_plugins(void)
 {
-	plugin_cfg *ptr = opae_plugin_mgr_plugin_list;
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
 	int errors = 0;
 	while (ptr) {
 		errors += opae_plugin_mgr_load_cfg_plugin(ptr);

@@ -50,7 +50,7 @@ typedef struct _plugin_cfg {
 	char *cfg;
 	size_t cfg_size;
 	uint32_t supported_devices[PLUGIN_SUPPORTED_DEVICES_MAX];
-  struct _plugin_cfg *next;
+	struct _plugin_cfg *next;
 } plugin_cfg;
 
 #endif /* __OPAE_PLUGINMGR_H__ */
