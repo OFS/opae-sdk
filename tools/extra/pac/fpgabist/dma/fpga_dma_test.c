@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
+#include <ctype.h>
 #include <uuid/uuid.h>
 #include <opae/fpga.h>
 #include <time.h>
@@ -50,6 +51,7 @@
 #include <assert.h>
 
 #define HELLO_AFU_ID "331DB30C-9885-41EA-9081-F88B8F655CAA"
+#define VC_AFU_ID	 "9AEFFE5F-8457-0612-C000-C9660D824272"
 #define TEST_BUF_SIZE (10 * 1024 * 1024)
 #define ASE_TEST_BUF_SIZE (4 * 1024)
 #define TEST_TOTAL_SIZE (uint64_t)4 * 1024 * 1024 * 1024
@@ -426,6 +428,11 @@ fpga_result ddr_sweep(fpga_dma_handle dma_h, uint64_t mem_size, uint64_t ptr_ali
 
 	uint64_t total_mem_size = mem_size;
 
+	if (total_mem_size < (ptr_align + siz_align)) {
+		printf("Skip unaligned sweep test for memory size is not applicable\n");
+		return FPGA_OK;
+	}
+
 	uint64_t *dma_buf_ptr = malloc_aligned(getpagesize(), total_mem_size);
 	if (dma_buf_ptr == NULL) {
 		printf("Unable to allocate %ld bytes of memory",
@@ -549,6 +556,29 @@ static void usage(void)
 	printf("\t-G\tSet AFU GUID\n");
 }
 
+static int check_config()
+{
+	int i;
+	char guid[48];
+
+    for (i = 0; i < (int)sizeof(config.target.guid); i++) {
+        guid[i] = toupper(config.target.guid[i]);
+	}
+	if (EOK == memcmp_s(VC_AFU_ID, strlen(VC_AFU_ID), guid,
+						strlen(VC_AFU_ID), &i)) {
+		if (i == 0) {
+			if (config.target.dma == 3) {
+				if (config.target.size % 64) {
+					config.target.size &= ~63;
+					printf("Round test size to 64-bytes aligned for QDR\n");
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	fpga_result res = FPGA_OK;
@@ -572,6 +602,10 @@ int main(int argc, char *argv[])
 
 	res = parse_args(argc, argv);
 	if (res == FPGA_EXCEPTION) {
+		return 1;
+	}
+
+	if (check_config()) {
 		return 1;
 	}
 
