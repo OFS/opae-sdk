@@ -369,6 +369,17 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             start_addr = 0
             ifile.seek(0, 2)
             image_len = ifile.tell()
+            ifile.seek(0)
+            data = ifile.read(8)
+            dtb_hdr = struct.unpack('>II', data)
+            if dtb_hdr[0] != 0xd00dfeed:
+                print "invalid dtb file"
+                disable_mtd(bdf)
+                return 1
+            if dtb_hdr[1] != image_len:
+                print "invalid dtb length"
+                disable_mtd(bdf)
+                return 1
         elif update_type == 'bmc_fw':
             try:
                 ihex = IntelHex(ifile)
