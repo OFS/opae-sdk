@@ -40,7 +40,7 @@
 #define LOG(format, ...) \
 log_printf("main: " format, ##__VA_ARGS__)
 
-struct config global_config;
+struct fpgad_config global_config;
 
 void sig_handler(int sig, siginfo_t *info, void *unused)
 {

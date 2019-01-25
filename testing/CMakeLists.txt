@@ -100,29 +100,51 @@ add_library(libbmc  SHARED
     
 
   
-# add_library(fpgad-static
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap6.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/ap_event.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/errtable.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/evt.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/log.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/srv.c
-#     ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
-#     )
+add_library(fpgad-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/bitstream.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/config_file.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/event_dispatcher_thread.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/events_api_thread.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/fpgad.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/monitored_device.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/monitor_thread.c
+    )
 
-# target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
+target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
-# target_include_directories(fpgad-static PUBLIC
-#   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-#   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-#   $<INSTALL_INTERFACE:include>)
+target_include_directories(fpgad-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
-# target_link_libraries(fpgad-static
-#     safestr
-#     ${libjson-c_LIBRARIES}
-#     ${libuuid_LIBRARIES}
-#     )
+target_link_libraries(fpgad-static
+    safestr
+    ${libjson-c_LIBRARIES}
+    ${libuuid_LIBRARIES}
+    )
+
+add_library(fpgad-api-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/api/logging.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/api/opae_events_api.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/api/device_monitoring.c
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/api/sysfs.c
+    ) 
+
+target_include_directories(fpgad-api-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+target_link_libraries(fpgad-api-static
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${libjson-c_LIBRARIES}
+    )
 
 add_library(fpgaconf-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgaconf/fpgaconf.c
@@ -324,10 +346,14 @@ add_unit_test(test_opae_error_c opae-c-static
     opae-c/test_error_c.cpp
 )
 
-# add_unit_test(test_opae_event_c opae-c-static
-#     opae-c/test_event_c.cpp
-# )
-# target_link_libraries(test_opae_event_c fpgad-static safestr)
+add_unit_test(test_opae_event_c opae-c-static
+    opae-c/test_event_c.cpp
+)
+target_link_libraries(test_opae_event_c
+    safestr
+    fpgad-static
+    fpgad-api-static
+    )
 
 add_unit_test(test_opae_hostif_c opae-c-static
     opae-c/test_hostif_c.cpp
@@ -369,11 +395,14 @@ add_unit_test(test_opae_errors_cxx_core opae-cxx-core-static
     opae-cxx/test_errors_cxx_core.cpp
 )
 
-# add_unit_test(test_opae_events_cxx_core opae-cxx-core-static
-#     opae-cxx/test_events_cxx_core.cpp
-# )
-# target_link_libraries(test_opae_events_cxx_core fpgad-static safestr
-#         ${libjson-c_LIBRARIES})
+add_unit_test(test_opae_events_cxx_core opae-cxx-core-static
+    opae-cxx/test_events_cxx_core.cpp
+)
+target_link_libraries(test_opae_events_cxx_core
+    safestr
+    fpgad-static
+    fpgad-api-static
+    ${libjson-c_LIBRARIES})
 
 add_unit_test(test_opae_properties_cxx_core opae-cxx-core-static
     opae-cxx/test_properties_cxx_core.cpp
@@ -474,15 +503,15 @@ add_unit_test(test_xfpga_manage_c xfpga-static
     xfpga/test_manage_c.cpp
 )
 
-# add_unit_test(test_xfpga_events_c xfpga-static
-#     xfpga/test_events_c.cpp
-# )
-# target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
-#         ${libjson-c_LIBRARIES})
-# set_tests_properties(
-#     test_xfpga_events_c
-#     PROPERTIES TIMEOUT 120
-# )
+add_unit_test(test_xfpga_events_c xfpga-static
+    xfpga/test_events_c.cpp
+)
+target_link_libraries(test_xfpga_events_c
+    safestr
+    fpgad-static
+    fpgad-api-static
+    libbmc
+    ${libjson-c_LIBRARIES})
 
 add_unit_test(test_xfpga_metrics_vector_c xfpga-static
     xfpga/test_metrics_vector_c.cpp
@@ -600,10 +629,14 @@ add_unit_test(test_hello_fpga_c hello_fpga-static
 # hello_events tests #######################################################
 ############################################################################
 
-# add_unit_test(test_hello_events_c hello_events-static
-#     hello_events/test_hello_events_c.cpp
-# )
-# target_link_libraries(test_hello_events_c fpgad-static safestr)
+add_unit_test(test_hello_events_c hello_events-static
+    hello_events/test_hello_events_c.cpp
+)
+target_link_libraries(test_hello_events_c
+    safestr
+    fpgad-static
+    fpgad-api-static
+    )
 
 ############################################################################
 # object_api tests #######################################################

@@ -30,10 +30,6 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "fpgad/config_int.h"
-#include "fpgad/log.h"
-#include "fpgad/srv.h"
-#include "fpgad/errtable.h"
 
 void print_err(const char *s, fpga_result res);
 
@@ -69,6 +65,7 @@ int hello_events_main(int argc, char *argv[]);
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "fpgad_control.h"
 
 using namespace opae::testing;
 
@@ -275,15 +272,12 @@ INSTANTIATE_TEST_CASE_P(hello_events_c, hello_events_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
 
-class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string> {
+class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>,
+                                    public fpgad_control {
  protected:
-  mock_hello_events_c_fpgad_p() : token_(nullptr) {}
+  mock_hello_events_c_fpgad_p() {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    close(mkstemps(tmpfpgad_log_, 4));
-    close(mkstemps(tmpfpgad_pid_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -296,55 +290,18 @@ class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>
     optind = 0;
     events_config_ = events_config;
 
-    config_ = {
-      .verbosity = 0,
-      .poll_interval_usec = 100 * 1000,
-      .daemon = 0,
-      .directory = { 0, },
-      .logfile = { 0, },
-      .pidfile = { 0, },
-      .filemode = 0,
-      .running = true,
-      .socket = "/tmp/fpga_event_socket",
-      .null_gbs = {0},
-      .num_null_gbs = 0,
-    };
-    strcpy(config_.logfile, tmpfpgad_log_);
-    strcpy(config_.pidfile, tmpfpgad_pid_);
-
-    open_log(tmpfpgad_log_);
-    fpgad_log_ = std::thread(logger_thread, &config_);
-    fpgad_srv_ = std::thread(server_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    fpgad_start();
   }
 
   virtual void TearDown() override {
-    config_.running = false;
+    fpgad_stop();
     events_config = events_config_;
 
-    if (token_) {
-      EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
-      token_ = nullptr;
-    }
-
-    fpgad_srv_.join();
-    fpgad_log_.join();
-    close_log();
+    fpgaFinalize();
     system_->finalize();
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-      unlink(tmpfpgad_pid_);
-    }
   }
 
-  fpga_token token_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
   struct events_config events_config_;
-  struct config config_;
-  std::thread fpgad_srv_;
-  std::thread fpgad_log_;
   test_platform platform_;
   test_system *system_;
 };
@@ -385,7 +342,11 @@ class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {
  *             hello_events_main (hw) runs to completion,<br>
  *             and the fn returns zero.<br>
  */
-TEST_P(hw_hello_events_c_fpgad_p, main2) {
+/* Disabling this test, because there is no way for fpgad
+   to monitor hello_events' fpga_device_token. That token
+   is known only to hello_events_main.
+*/
+TEST_P(hw_hello_events_c_fpgad_p, DISABLED_main2) {
   char zero[20];
   char one[20];
   char two[20];

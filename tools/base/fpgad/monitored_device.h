@@ -63,7 +63,7 @@ typedef void * (*fpgad_plugin_thread_t)(void *context);
 typedef void (*fpgad_plugin_thread_stop_t)(void);
 
 typedef struct _fpgad_monitored_device {
-	struct config *config;
+	struct fpgad_config *config;
 	fpgad_supported_device *supported;
 	fpga_token token;
 	uint64_t object_id;

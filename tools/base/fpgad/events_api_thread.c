@@ -160,6 +160,13 @@ STATIC int handle_message(int conn_socket)
 	return 0;
 }
 
+STATIC volatile bool evt_api_is_ready = false;
+
+bool events_api_is_ready(void)
+{
+	return evt_api_is_ready;
+}
+
 void *events_api_thread(void *thread_context)
 {
 	events_api_thread_config *c =
@@ -222,6 +229,8 @@ void *events_api_thread(void *thread_context)
 	}
 	LOG("listening for connections.\n");
 
+	evt_api_is_ready = true;
+
 	pollfds[SRV_SOCKET].fd = server_socket;
 	pollfds[SRV_SOCKET].events = POLLIN | POLLPRI;
 	num_fds = 1;
@@ -281,6 +290,7 @@ void *events_api_thread(void *thread_context)
 	}
 
 out_close_server:
+	evt_api_is_ready = false;
 	close(server_socket);
 out_exit:
 	LOG("exiting\n");

@@ -74,7 +74,7 @@ STATIC fpgad_supported_device *mon_is_loaded(const char *library_path)
 }
 
 STATIC fpgad_monitored_device *
-allocate_monitored_device(struct config *config,
+allocate_monitored_device(struct fpgad_config *config,
 			  fpgad_supported_device *supported,
 			  fpga_token token,
 			  uint64_t object_id,
@@ -101,7 +101,7 @@ allocate_monitored_device(struct config *config,
 	return d;
 }
 
-STATIC bool mon_consider_device(struct config *c, fpga_token token)
+STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 {
 	unsigned i;
 	fpga_properties props = NULL;
@@ -326,7 +326,7 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 	return added;
 }
 
-int mon_enumerate(struct config *c)
+int mon_enumerate(struct fpgad_config *c)
 {
 	fpga_token *tokens = NULL;
 	fpga_result res;

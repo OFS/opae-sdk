@@ -67,7 +67,7 @@ void cmd_show_help(FILE *fptr)
 		      "\t                            given multiple times).\n");
 }
 
-bool cmd_register_null_gbs(struct config *c, char *null_gbs_path)
+bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 {
 	char *canon_path = NULL;
 
@@ -98,7 +98,7 @@ bool cmd_register_null_gbs(struct config *c, char *null_gbs_path)
 	return true;
 }
 
-int cmd_parse_args(struct config *c, int argc, char *argv[])
+int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 {
 	int getopt_ret;
 	int option_index;
@@ -187,7 +187,7 @@ int cmd_parse_args(struct config *c, int argc, char *argv[])
 	return 0;
 }
 
-void cmd_canonicalize_paths(struct config *c)
+void cmd_canonicalize_paths(struct fpgad_config *c)
 {
 	char *sub;
 	bool def;
@@ -298,7 +298,7 @@ void cmd_canonicalize_paths(struct config *c)
 	LOG("daemon pid file is %s\n", c->pidfile);
 }
 
-void cmd_destroy(struct config *c)
+void cmd_destroy(struct fpgad_config *c)
 {
 	unsigned i;
 

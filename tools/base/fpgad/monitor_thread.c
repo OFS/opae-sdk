@@ -113,6 +113,13 @@ STATIC void mon_monitor(fpgad_monitored_device *d)
 	}
 }
 
+STATIC volatile bool mon_is_ready = false;
+
+bool monitor_is_ready(void)
+{
+	return mon_is_ready;
+}
+
 void *monitor_thread(void *thread_context)
 {
 	monitor_thread_config *c = (monitor_thread_config *)thread_context;
@@ -140,6 +147,8 @@ void *monitor_thread(void *thread_context)
 		}
 	}
 
+	mon_is_ready = true;
+
 	while (c->global->running) {
 		fpgad_mutex_lock(err, &mon_list_lock);
 
@@ -159,6 +168,7 @@ void *monitor_thread(void *thread_context)
 	}
 
 	mon_destroy();
+	mon_is_ready = false;
 
 	LOG("exiting\n");
 	return NULL;

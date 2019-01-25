@@ -31,7 +31,7 @@
 #include "monitored_device.h"
 
 typedef struct _event_dispatcher_thread_config {
-	struct config *global;
+	struct fpgad_config *global;
 	int sched_policy;
 	int sched_priority;
 } event_dispatcher_thread_config;
