@@ -279,7 +279,7 @@ TEST_P(fpgad_ap6_c_p, get_bits_err3) {
   //fpga_guid guid;
   //*(uint32_t *) (info.data + 16) = 65535;
   //EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_EXCEPTION);
-  //free(info.data);
+  free(info.data);
   // ********************** DISABLED ********************************//
 }
 
