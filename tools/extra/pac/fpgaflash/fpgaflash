@@ -370,7 +370,12 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             ifile.seek(0, 2)
             image_len = ifile.tell()
         elif update_type == 'bmc_fw':
-            ihex = IntelHex(ifile)
+            try:
+                ihex = IntelHex(ifile)
+            except Exception as ex:
+                print ex
+                disable_mtd(bdf)
+                return 1
             for (start, size) in ihex.segments():
                 print "segment: start 0x%x, size 0x%x" % (start, size)
             start_addr = start
