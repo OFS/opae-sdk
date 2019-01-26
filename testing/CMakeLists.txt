@@ -353,6 +353,9 @@ add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
 
+set_tests_properties(test_opae_pluginmgr_c
+    PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${LIBRARY_OUTPUT_PATH}")
+
 ############################################################################
 # cxx core tests ###########################################################
 ############################################################################
