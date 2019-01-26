@@ -635,7 +635,8 @@ add_custom_command(TARGET test_unit
     ${CMAKE_BINARY_DIR}
     )
 
-
+add_library(dummy_plugin MODULE opae-c/dummy_plugin.c)
+target_link_libraries(dummy_plugin ${libjson-c_LIBRARIES})
 ############################################################################
 # pyopae tests #############################################################
 ############################################################################
