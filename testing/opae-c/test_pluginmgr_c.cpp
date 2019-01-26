@@ -370,40 +370,43 @@ const char *plugin_cfg_5 = R"plug(
 
 extern "C" {
   void opae_plugin_mgr_reset_cfg(void);
+  extern plugin_cfg *opae_plugin_mgr_config_list;
+  extern int opae_plugin_mgr_plugin_count;
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer) {
   opae_plugin_mgr_reset_cfg();
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(process_cfg_buffer(plugin_cfg_1, "plugin1.json"), 0);
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 2);
-  auto p1 = opae_plugin_mgr_get(0);
-  auto p2 = opae_plugin_mgr_get(1);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 2);
+  auto p1 = opae_plugin_mgr_config_list;
   ASSERT_NE(p1, nullptr);
+  auto p2 = p1->next;
   ASSERT_NE(p2, nullptr);
   EXPECT_TRUE(p1->enabled);
   EXPECT_FALSE(p2->enabled);
+  ASSERT_EQ(p2->next, nullptr);
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer_err) {
   opae_plugin_mgr_reset_cfg();
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_NE(process_cfg_buffer(plugin_cfg_2, "plugin2.json"), 0);
 
   opae_plugin_mgr_reset_cfg();
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_NE(process_cfg_buffer(plugin_cfg_3, "plugin3.json"), 0);
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 1);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
 
   opae_plugin_mgr_reset_cfg();
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_NE(process_cfg_buffer(plugin_cfg_4, "plugin4.json"), 0);
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 1);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
 
   opae_plugin_mgr_reset_cfg();
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_NE(process_cfg_buffer(plugin_cfg_5, "plugin5.json"), 0);
-  EXPECT_EQ(opae_plugin_mgr_plugin_count(), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
 }
 
 INSTANTIATE_TEST_CASE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));

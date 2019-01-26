@@ -73,8 +73,8 @@ static pthread_mutex_t adapter_list_lock =
 
 
 #define MAX_PLUGINS PLUGIN_SUPPORTED_DEVICES_MAX
-static plugin_cfg plugin_list[MAX_PLUGINS];
-static int plugin_count;
+STATIC plugin_cfg *opae_plugin_mgr_config_list;
+STATIC int opae_plugin_mgr_plugin_count;
 
 #define CFG_PATHS 4
 static const char *_opae_cfg_files[CFG_PATHS] = {
@@ -83,16 +83,6 @@ static const char *_opae_cfg_files[CFG_PATHS] = {
 	"~/.local/opae/opae.cfg",
 	"~/.local/opae.cfg"
 };
-
-int opae_plugin_mgr_plugin_count(void)
-{
-	return plugin_count;
-}
-
-const plugin_cfg *opae_plugin_mgr_get(int i)
-{
-	return (plugin_count && i < MAX_PLUGINS) ? &plugin_list[i] : NULL;
-}
 
 STATIC char *find_cfg()
 {
@@ -172,14 +162,31 @@ STATIC int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 
 STATIC void opae_plugin_mgr_reset_cfg(void)
 {
-	int i = 0;
-	for ( ; i < plugin_count; ++i) {
-		if (plugin_list[i].cfg) {
-			free(plugin_list[i].cfg);
-			plugin_list[i].cfg = NULL;
-		}
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
+	plugin_cfg *tmp = NULL;
+	while (ptr) {
+		tmp = ptr;
+		ptr = ptr->next;
+		free(tmp->cfg);
+		free(tmp);
 	}
-	plugin_count = 0;
+	opae_plugin_mgr_config_list = NULL;
+	opae_plugin_mgr_plugin_count = 0;
+}
+
+STATIC void opae_plugin_mgr_add_plugin(plugin_cfg *cfg)
+{
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
+	cfg->next = NULL;
+	if (!ptr) {
+		opae_plugin_mgr_config_list = cfg;
+	} else {
+		while (ptr->next) {
+			ptr = ptr->next;
+		}
+		ptr->next = cfg;
+	}
+	opae_plugin_mgr_plugin_count++;
 }
 
 STATIC int opae_plugin_mgr_initialize_all(void)
@@ -256,11 +263,15 @@ int opae_plugin_mgr_finalize_all(void)
 #define MAX_PLUGIN_CFG_SIZE 1024
 STATIC int process_plugin(const char *name, json_object *j_config)
 {
-	plugin_cfg *cfg = &plugin_list[plugin_count];
-	const char *stringified = NULL;
 	json_object *j_plugin = NULL;
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
+	const char *stringified = NULL;
+	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
+	if (!cfg) {
+		OPAE_ERR("Could not allocate memory for plugin cfg");
+		return 1;
+	}
 	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
@@ -299,14 +310,14 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	}
 
 	cfg->enabled = json_object_get_boolean(j_enabled);
-	plugin_count++;
+	opae_plugin_mgr_add_plugin(cfg);
 	return 0;
 out_err:
 	if (cfg->cfg) {
 		free(cfg->cfg);
 		cfg->cfg = NULL;
 	}
-	cfg->cfg_size = 0;
+	free(cfg);
 	return 1;
 }
 
@@ -545,10 +556,9 @@ out_close:
 	return errors;
 }
 
-STATIC int opae_plugin_mgr_load_cfg_plugin(int i)
+STATIC int opae_plugin_mgr_load_cfg_plugin(plugin_cfg *cfg)
 {
 	int res = 0;
-	plugin_cfg *cfg = &plugin_list[i];
 	opae_api_adapter_table *adapter = NULL;
 
 	if (cfg->enabled && cfg->cfg && cfg->cfg_size) {
@@ -579,11 +589,13 @@ STATIC int opae_plugin_mgr_load_cfg_plugin(int i)
 
 STATIC int opae_plugin_mgr_load_cfg_plugins(void)
 {
-	int i = 0;
-	for ( ; i < plugin_count; ++i) {
-		opae_plugin_mgr_load_cfg_plugin(i);
+	plugin_cfg *ptr = opae_plugin_mgr_config_list;
+	int errors = 0;
+	while (ptr) {
+		errors += opae_plugin_mgr_load_cfg_plugin(ptr);
+		ptr = ptr->next;
 	}
-	return 0;
+	return errors;
 }
 
 int opae_plugin_mgr_initialize(const char *cfg_file)
@@ -594,7 +606,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int errors = 0;
 	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
-	plugin_count = 0;
+	opae_plugin_mgr_plugin_count = 0;
 	char *found_cfg = find_cfg();
 
 
