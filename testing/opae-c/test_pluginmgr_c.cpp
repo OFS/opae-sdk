@@ -431,9 +431,10 @@ const char *dummy_cfg = R"plug(
 }
 )plug";
 
-const char* err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
+const char *err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
 
 TEST(pluginmgr_c_p, dummy_plugin) {
+  auto ldl_path = getenv("LD_LIBRARY_PATH");
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(process_cfg_buffer(dummy_cfg, "dummy.json"), 0);
@@ -444,16 +445,18 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   ASSERT_EQ(p2, nullptr);
   EXPECT_TRUE(p1->enabled);
   testing::internal::CaptureStdout();
-  ASSERT_EQ(opae_plugin_mgr_load_cfg_plugins(), 0);
+  ASSERT_EQ(opae_plugin_mgr_load_cfg_plugins(), 0) << "LD_LIBRARY_PATH: '"
+                                                   << ldl_path << "'";
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_STREQ(output.c_str(), "hello plugin!\n");
 
   uint32_t matches = 0;
   EXPECT_EQ(fpgaEnumerate(nullptr, 0, nullptr, 0, &matches), FPGA_OK);
   EXPECT_EQ(matches, 99);
-  std::array<fpga_token, 99> tokens = { 0 };
-  std::array<fpga_handle, 99> handles = { 0 };
-  EXPECT_EQ(fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &matches), FPGA_OK);
+  std::array<fpga_token, 99> tokens = {0};
+  std::array<fpga_handle, 99> handles = {0};
+  EXPECT_EQ(fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &matches),
+            FPGA_OK);
   int i = 0;
   for (auto t : tokens) {
     EXPECT_EQ(fpgaOpen(t, &handles[i], i), FPGA_OK);
@@ -466,4 +469,3 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   }
   unlink("opae_log.log");
 }
-
