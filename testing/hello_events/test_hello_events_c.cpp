@@ -291,6 +291,7 @@ class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>
     events_config_ = events_config;
 
     fpgad_start();
+    fpgad_watch();
   }
 
   virtual void TearDown() override {
@@ -327,7 +328,7 @@ TEST_P(mock_hello_events_c_fpgad_p, main2) {
 }
 
 INSTANTIATE_TEST_CASE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+  ::testing::ValuesIn(test_platform::mock_platforms()));
 
 
 class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {
@@ -342,11 +343,7 @@ class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {
  *             hello_events_main (hw) runs to completion,<br>
  *             and the fn returns zero.<br>
  */
-/* Disabling this test, because there is no way for fpgad
-   to monitor hello_events' fpga_device_token. That token
-   is known only to hello_events_main.
-*/
-TEST_P(hw_hello_events_c_fpgad_p, DISABLED_main2) {
+TEST_P(hw_hello_events_c_fpgad_p, main2) {
   char zero[20];
   char one[20];
   char two[20];
@@ -360,4 +357,4 @@ TEST_P(hw_hello_events_c_fpgad_p, DISABLED_main2) {
 }
 
 INSTANTIATE_TEST_CASE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_intel)));
+  ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_intel)));

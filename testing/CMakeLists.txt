@@ -142,8 +142,41 @@ target_include_directories(fpgad-api-static PUBLIC
   )
 
 target_link_libraries(fpgad-api-static
+    safestr
     ${CMAKE_THREAD_LIBS_INIT}
     ${libjson-c_LIBRARIES}
+    )
+
+add_library(fpgad-xfpga-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/plugins/fpgad-xfpga/fpgad-xfpga.c
+    ) 
+
+target_include_directories(fpgad-xfpga-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
+  )
+
+target_link_libraries(fpgad-xfpga-static
+    ${CMAKE_THREAD_LIBS_INIT}
+    )
+
+add_library(fpgad-vc-static
+    ${OPAE_SDK_SOURCE}/tools/base/fpgad/plugins/fpgad-vc/fpgad-vc.c
+    ) 
+
+target_include_directories(fpgad-vc-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
+  )
+
+target_link_libraries(fpgad-vc-static
+    ${CMAKE_THREAD_LIBS_INIT}
     )
 
 add_library(fpgaconf-static
@@ -559,9 +592,9 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 #     fpgad/test_ap_event_c.cpp
 # )
 
-# add_unit_test(test_fpgad_daemonize_c fpgad-static
-#     fpgad/test_daemonize_c.cpp
-# )
+add_unit_test(test_fpgad_daemonize_c fpgad-static
+    fpgad/test_daemonize_c.cpp
+)
 
 # add_unit_test(test_fpgad_fpgad_c fpgad-static
 #     fpgad/test_fpgad_c.cpp
@@ -570,6 +603,42 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 # add_unit_test(test_fpgad_ap6_c fpgad-static
 #     fpgad/test_ap6_c.cpp
 # )
+
+############################################################################
+# fpgad-api tests ##########################################################
+############################################################################
+
+add_unit_test(test_fpgad_api_logging_c fpgad-static
+    fpgad/test_api_logging_c.cpp
+)
+target_link_libraries(test_fpgad_api_logging_c
+    safestr
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_api_device_monitoring_c fpgad-static
+    fpgad/test_api_device_monitoring_c.cpp
+)
+target_link_libraries(test_fpgad_api_device_monitoring_c
+    safestr
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_api_opae_events_api_c fpgad-static
+    fpgad/test_api_opae_events_api_c.cpp
+)
+target_link_libraries(test_fpgad_api_opae_events_api_c
+    safestr
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_api_sysfs_c fpgad-static
+    fpgad/test_api_sysfs_c.cpp
+)
+target_link_libraries(test_fpgad_api_sysfs_c
+    safestr
+    fpgad-api-static
+    )
 
 ############################################################################
 # RAS tests ##############################################################

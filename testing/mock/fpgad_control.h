@@ -118,6 +118,11 @@ class fpgad_control {
     }
   }
 
+  bool fpgad_watch()
+  {
+    return mon_enumerate(&fpgad_config_) == 0;
+  }
+
   bool fpgad_watch(fpga_token token)
   {
     return mon_consider_device(&fpgad_config_, token);
