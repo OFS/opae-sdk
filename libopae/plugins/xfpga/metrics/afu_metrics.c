@@ -146,7 +146,7 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	}
 
 	fpga_vector_total(enum_vector, &num_enun_metrics);
-	
+
 	result = FPGA_NOT_FOUND;
 	for (index = 0; index < num_enun_metrics; index++) {
 
