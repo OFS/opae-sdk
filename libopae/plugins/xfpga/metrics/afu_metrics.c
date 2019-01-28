@@ -145,12 +145,8 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpga_vector_total(enum_vector, &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
-		return FPGA_NOT_FOUND;
-	}
-
+	fpga_vector_total(enum_vector, &num_enun_metrics);
+	
 	result = FPGA_NOT_FOUND;
 	for (index = 0; index < num_enun_metrics; index++) {
 
@@ -204,8 +200,8 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 
 	*metric_id = *metric_id + 1;
 
-	add_metric_vector(vector, *metric_id, qualifier_name, group_name, "",
-		metric_name, "", metric_units, FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_AFU, FPGA_HW_MCP, metric_offset);
+	result = add_metric_vector(vector, *metric_id, qualifier_name, group_name, "",
+			metric_name, "", metric_units, FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_AFU, FPGA_HW_MCP, metric_offset);
 
 	return result;
 }

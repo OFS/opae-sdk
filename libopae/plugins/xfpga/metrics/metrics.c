@@ -82,12 +82,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
-		goto out_unlock;
-	}
-
+	fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 
 	if (num_enun_metrics == 0)
 		result = FPGA_NOT_FOUND;
@@ -144,11 +139,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
-		goto out_unlock;
-	}
+	fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 
 	// get metric info
 	for (i = 0; i < *num_metrics; i++) {
@@ -273,8 +264,6 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 			result = FPGA_OK;
 		}
 
-	} else {
-		result = FPGA_INVALID_PARAM;
 	}
 
 out_unlock:
@@ -408,8 +397,6 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		} else {
 			result = FPGA_OK;
 		}
-	} else {
-		result = FPGA_INVALID_PARAM;
 	}
 
 out_unlock:

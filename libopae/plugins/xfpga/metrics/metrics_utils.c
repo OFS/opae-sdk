@@ -701,11 +701,7 @@ fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle)
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to get metric total");
-		return FPGA_INVALID_PARAM;
-	}
+	fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 
 	for (i = 0; i < num_enun_metrics; i++) {
 		fpga_vector_delete(&(_handle->fpga_enum_metric_vector), i);
@@ -1002,7 +998,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 		snprintf_s_s(_handle->_bmc_metric_cache_value[x].metric_name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name), "%s", details.name);
 		_handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue = tmp;
 
-		strcasecmp_s(details.name, sizeof(details.name), _fpga_enum_metric->metric_name, &metric_indicator);
+		strcasecmp_s(details.name, strnlen_s(details.name, SYSFS_PATH_MAX), _fpga_enum_metric->metric_name, &metric_indicator);
 		if (metric_indicator == 0) {
 			fpga_metric->value.dvalue = tmp;
 		}
@@ -1160,11 +1156,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	result = fpga_vector_total(enum_vector, &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
-		return FPGA_NOT_FOUND;
-	}
+	fpga_vector_total(enum_vector, &num_enun_metrics);
 
 	result = FPGA_NOT_FOUND;
 	for (index = 0; index < num_enun_metrics ; index++) {
@@ -1283,11 +1275,7 @@ fpga_result  parse_metric_num_name(const char *search_string,
 	if (init_size < FPGA_METRIC_STR_SIZE)
 		qualifier_name[init_size - 1] = '\0';
 
-	result = fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
-	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
-		return FPGA_NOT_FOUND;
-	}
+	fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
 
 
 	for (i = 0; i < num_enun_metrics; i++) {
