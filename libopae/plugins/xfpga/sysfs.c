@@ -500,9 +500,8 @@ int sysfs_finalize(void)
 	}
 	_sysfs_region_count = 0;
 	_sysfs_format_ptr = NULL;
-	
-	opae_mutex_unlock(res, &_sysfs_region_lock);
 
+	opae_mutex_unlock(res, &_sysfs_region_lock);
 	if (res) {
 		FPGA_ERR("Error unlocking mutex");
 		return FPGA_EXCEPTION;
