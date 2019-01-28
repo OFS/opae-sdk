@@ -127,16 +127,19 @@ static int get_mac_rom_path(const char *in_path, const char *key_str,
 	return ret;
 }
 
-#define NUM_MACS	8
 static void print_mac_rom_info(fpga_properties props)
 {
 	char path[SYSFS_PATH_MAX];
+	get_sysfs_path(props, FPGA_DEVICE, NULL);
 	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
 	int fd;
-	int i, j;
+	int i, n;
 	ssize_t sz;
-	unsigned char buf[64];
-	char addr[18];
+	unsigned char buf[8];
+	union {
+		unsigned int dword;
+		unsigned char byte[4];
+	} mac;
 
 	// Open FME device directory
 	if (NULL == sysfspath) {
@@ -160,16 +163,17 @@ static void print_mac_rom_info(fpga_properties props)
 		fprintf(stderr, "Read %s failed\n", path);
 		return;
 	}
-	printf("%-29s : %d\n", "Number of MACs", NUM_MACS);
-	printf("%-29s : ", "MAC address");
-	for (i = 0; i < NUM_MACS; ++i) {
-		j = i * 6;
-		snprintf(addr, sizeof(addr), "%02X:%02X:%02X:%02X:%02X:%02X",
-				 buf[j], buf[j+1], buf[j+2], buf[j+3], buf[j+4], buf[j+5]);
-		if (i == 0)
-			printf("%s\n", addr);
-		else
-			printf("%49s\n", addr);
+	n = (int)buf[6];
+	printf("%-29s : %d\n", "Number of MACs", n);
+	mac.byte[0] = buf[5];
+	mac.byte[1] = buf[4];
+	mac.byte[2] = buf[3];
+	mac.byte[3] = 0;
+	for (i = 0; i < n; ++i) {
+		printf("%s %-17d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+			   "MAC address", i, buf[0], buf[1], buf[2],
+			   mac.byte[2], mac.byte[1], mac.byte[0]);
+	    mac.dword += 1;
 	}
 }
 
