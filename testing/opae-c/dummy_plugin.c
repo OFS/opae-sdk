@@ -76,10 +76,19 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaEnumerate(const fpga_properties *filte
 
 	for ( ; i < min; ++i) {
 		dummy_token *t = (dummy_token*)malloc(sizeof(dummy_token));
+		if (!t) {
+			goto err_enum;
+		}
 		t->number = i;
 		tokens[i] = t;
 	}
 	return FPGA_OK;
+err_enum:
+	while (--i) {
+		free(tokens[i]);
+	}
+	free(tokens[0]);
+	return FPGA_NO_MEMORY;
 }
 
 fpga_result DUMMY_HIDDEN dummy_plugin_fpgaDestroyToken(fpga_token *t)
@@ -98,7 +107,7 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaOpen(fpga_token t, fpga_handle *h, int
 	//printf("dummy/fpgaOpen %d %d\n", dh->number, flags);
 	dh->number = dt->number*flags*2;
 	dh->token = dt;
-	h = (fpga_handle)dh;
+	*h = (fpga_handle)dh;
 	return FPGA_OK;
 }
 
