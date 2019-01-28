@@ -273,8 +273,6 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 			result = FPGA_OK;
 		}
 
-	} else {
-		result = FPGA_INVALID_PARAM;
 	}
 
 out_unlock:
@@ -408,8 +406,6 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		} else {
 			result = FPGA_OK;
 		}
-	} else {
-		result = FPGA_INVALID_PARAM;
 	}
 
 out_unlock:
