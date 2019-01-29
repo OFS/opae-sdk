@@ -163,10 +163,6 @@ def flash_write(dev, start, nbytes, ifile):
             else:
                 os.write(file_.fileno(), ichunk)
                 last_write_position = file_.tell()
-<<<<<<< HEAD
-
-=======
->>>>>>> fpgaflash: add fpga flashing support for Darby Creek and N3000
 
             nbytes -= rbytes
 
@@ -217,26 +213,9 @@ def parse_args():
     epi += '  bmc_img	BMC user image update\n'
     epi += '  bmc_factory	BMC factory image update\n\n'
     epi += 'example usages:\n\n'
-
-    epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
-    epi += '    fpgaflash rsu dcp_2_0.bin 0000:08:00.0\n\n'
-
-    fc_ = argparse.RawDescriptionHelpFormatter
-    parser = argparse.ArgumentParser(description=descr, epilog=epi,
-                                     formatter_class=fc_)
-
-    parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory', 'factory_only', 'rsu',
-                                 'eeprom', 'phy_eeprom', 'bmc_bl', 'bmc_app',
-                                 'bmc_fw', 'bmc_img', 'bmc_factory', 'dtb'])
-
-
-
-
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
-    bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
     bdf_help += " optional when one device in system"
 
     parser.add_argument('bdf', nargs='?', help=bdf_help)
@@ -951,8 +930,8 @@ def rescan_pci_bus(bdf, bus):
     if ctrl != "on":    # revert power control
         write_file(power_path, ctrl)
 
-
 def dc_vc_reconfigure(bdf, ld_path, boot_page):
+
     print "%s performing remote system update" % (datetime.datetime.now())
 
     (upstream_bdf, target_bdf) = get_upstream_bdf(bdf)
@@ -968,31 +947,16 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
     except Exception:
         time.sleep(5)
 
+
     write_file(rm_path, "1")
 
     print "%s waiting for FPGA reconfiguration" % (datetime.datetime.now())
 
     time.sleep(10)
-
-    rescan_pci_bus(upstream_bdf, target_bdf[:7])
-
-    time.sleep(1)
-
-    cmd = 'setpci -s %s ECAP_AER+0x10.l=0x00002000' % (bdf)
-
-    subprocess.check_call(cmd, shell=True)
-
-    set_aer(upstream_bdf, 0, 0)
-
-    print "%s pci bus rescanned" % (datetime.datetime.now())
-
-    return 0
-
-
-def board_rsu(bdf, spi_path, boot_page):
+def dc_rc_reconfigure_bmc(bdf, spi_path):
     ld_path = os.path.join(spi_path, 'bmcimg_flash_ctrl', 'bmcimg_image_load')
-    return dc_vc_reconfigure(bdf, ld_path, boot_page)
-
+    print "ld path %s" % (ld_path)
+    return dc_vc_reconfigure(bdf, ld_path)
 
 
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
@@ -1038,6 +1002,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         target_offset = 0x3820000
         input_offset = 0
         erase_len = VC_DC_DTB_BLOCK_SIZE
+
 
     else:
         target_offset = 0x4000000
@@ -1124,34 +1089,10 @@ def check_file(ifile, utype):
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
-            bin_hdr = struct.unpack('>II', data)
-            if bin_hdr[0] != VC_FPGA_IMAGE_MAGIC_NUM1 or \
-               bin_hdr[1] != VC_FPGA_IMAGE_MAGIC_NUM2:
-                print "invalid fpga image file"
-                ret = 1
-            if utype == 'dtb':
-                ifile.seek(VC_DC_DTB_BLOCK_OFFSET)
-                data = ifile.read(4)
-                dtb_hdr = struct.unpack('>I', data)
-                if dtb_hdr[0] != DTB_REVERSED_MAGIC_NUM:
-                    print "invalid dtb magic number"
-                    ret = 1
-        else:
-            print "invalid fpga image length {}".format(image_len)
-            ret = 1
-    elif utype in ['bmc_img', 'bmc_factory']:
-        if image_len == VC_MAX10_IMAGE_LENGTH:
-            ifile.seek(0x8c)
-            data = ifile.read(4)
-            rpd_hdr = struct.unpack('I', data)
-            if rpd_hdr[0] != VC_MAX10_IMAGE_MAGIC_NUM:
-                print "invalid max10 image file"
-                ret = 1
         else:
             print "invalid max10 image length {}".format(image_len)
             ret = 1
     else:
-        ret = 0
 
     ifile.seek(0)
     return ret
@@ -1266,6 +1207,7 @@ def validate_bdf(bdf, bdf_pvid_map):
             print "%s not supported on %s" % (args.type, RC)
 
 
+
             sys.exit(1)
 
         ret = rc_fpga_update(args.file, args.type, bdf, args.no_verify)
@@ -1288,6 +1230,7 @@ def validate_bdf(bdf, bdf_pvid_map):
                 print "eeprom only supported on {} and {}".format(DC_PVID,
                                                                   VC_PVID)
                 ret = 1
+
 
 
         else:
