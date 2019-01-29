@@ -200,7 +200,7 @@ uint64_t fpga_cache_counters::read_counter(fpga_cache_counters::ctr_t c)
         if (counter) {
           return counter->read64();
         }
-    }catch(not_found &err) {
+    }catch(not_found &) {
        return 0;
     }
 
@@ -360,7 +360,7 @@ uint64_t fpga_fabric_counters::read_counter(fpga_fabric_counters::ctr_t c)
         if (counter) {
           return counter->read64();
         }
-    }catch(not_found &err) {
+    }catch(not_found &) {
        return 0;
     }
 
