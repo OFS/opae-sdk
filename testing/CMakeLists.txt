@@ -160,6 +160,7 @@ target_include_directories(fpgad-xfpga-static PUBLIC
   )
 
 target_link_libraries(fpgad-xfpga-static
+    fpgad-api-static
     ${CMAKE_THREAD_LIBS_INIT}
     )
 
@@ -638,6 +639,19 @@ add_unit_test(test_fpgad_api_sysfs_c fpgad-static
 target_link_libraries(test_fpgad_api_sysfs_c
     safestr
     fpgad-api-static
+    )
+
+############################################################################
+# fpgad-xfpga tests ########################################################
+############################################################################
+
+add_unit_test(test_fpgad_plugin_fpgad_xfpga_c fpgad-static
+    fpgad/test_plugin_fpgad_xfpga_c.cpp
+)
+target_link_libraries(test_fpgad_plugin_fpgad_xfpga_c
+    safestr
+    fpgad-api-static
+    fpgad-xfpga-static
     )
 
 ############################################################################
