@@ -67,7 +67,7 @@ void cmd_show_help(FILE *fptr)
 		      "\t                            given multiple times).\n");
 }
 
-bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
+STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 {
 	char *canon_path = NULL;
 
@@ -170,16 +170,14 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 		case ':':
 			LOG("Missing option argument.\n");
 			return 1;
-			break;
 
 		case '?':
-			break;
+			LOG("Invalid command option.\n");
+			return 1;
 
 		default:
 			LOG("Invalid command option.\n");
 			return 1;
-			break;
-
 		}
 
 	}

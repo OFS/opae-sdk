@@ -593,9 +593,23 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 # fpgad tests ##############################################################
 ############################################################################
 
-# add_unit_test(test_fpgad_log_c fpgad-static
-#     fpgad/test_log_c.cpp
-# )
+add_unit_test(test_fpgad_command_line_c fpgad-static
+    fpgad/test_command_line_c.cpp
+)
+target_link_libraries(test_fpgad_command_line_c
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_fpgad_c fpgad-static
+    fpgad/test_fpgad_c.cpp
+)
+target_link_libraries(test_fpgad_fpgad_c
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_daemonize_c fpgad-static
+    fpgad/test_daemonize_c.cpp
+)
 
 # add_unit_test(test_fpgad_srv_c fpgad-static
 #     fpgad/test_srv_c.cpp
@@ -613,13 +627,6 @@ target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
 #     fpgad/test_ap_event_c.cpp
 # )
 
-add_unit_test(test_fpgad_daemonize_c fpgad-static
-    fpgad/test_daemonize_c.cpp
-)
-
-# add_unit_test(test_fpgad_fpgad_c fpgad-static
-#     fpgad/test_fpgad_c.cpp
-# )
 
 # add_unit_test(test_fpgad_ap6_c fpgad-static
 #     fpgad/test_ap6_c.cpp

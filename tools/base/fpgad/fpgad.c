@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 			res = 0;
 		else
 			LOG("error parsing command line.\n");
-		return res;
+		goto out_destroy;
 	}
 
 	cmd_canonicalize_paths(&global_config);
