@@ -27,6 +27,7 @@ CMakeLists.txt                 @OPAE/ci
 /testing/                      @OPAE/ci
 .travis.yml                    @OPAE/ci
 /cmake/                        @OPAE/ci
+opae.spec.in                   @OPAE/ci
 
 # Safestring library
 /common/include/safe_string/   @OPAE/safe
