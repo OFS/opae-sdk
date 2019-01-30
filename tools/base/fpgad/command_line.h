@@ -45,7 +45,7 @@ struct fpgad_config {
 
 	const char *api_socket;
 
-	struct bitstream_info null_gbs[MAX_NULL_GBS];
+	opae_bitstream_info null_gbs[MAX_NULL_GBS];
 	unsigned num_null_gbs;
 
 	pthread_t bmc_monitor_thr;

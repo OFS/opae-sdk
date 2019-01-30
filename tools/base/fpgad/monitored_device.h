@@ -68,7 +68,7 @@ typedef struct _fpgad_monitored_device {
 	fpga_token token;
 	uint64_t object_id;
 	fpga_objtype object_type;
-	struct bitstream_info *bitstr;
+	opae_bitstream_info *bitstr;
 
 	fpgad_plugin_type type;
 

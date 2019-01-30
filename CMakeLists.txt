@@ -130,6 +130,7 @@ endif()
 ############################################################################
 
 add_subdirectory(safe_string)
+add_subdirectory(libbitstream)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)

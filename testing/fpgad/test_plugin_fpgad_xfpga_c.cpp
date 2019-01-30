@@ -409,8 +409,8 @@ TEST_P(mock_port_fpgad_xfpga_c_p, AP6) {
   fpgad_supported_device s;
   init_monitored_device(&d, &s);
 
-  struct bitstream_info binfo;
-  memset_s(&binfo, sizeof(bitstream_info), 0);
+  opae_bitstream_info binfo;
+  memset_s(&binfo, sizeof(opae_bitstream_info), 0);
   binfo.filename = (char *)"null.gbs";
   binfo.data = bitstream_.data();
   binfo.data_len = bitstream_.size();

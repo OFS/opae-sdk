@@ -76,8 +76,8 @@ bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 
 		if (canon_path) {
 
-			if (bitstr_load_bitstream(canon_path,
-						  &c->null_gbs[c->num_null_gbs])) {
+			if (opae_load_bitstream(canon_path,
+						&c->null_gbs[c->num_null_gbs])) {
 				LOG("failed to load NULL GBS \"%s\"\n", canon_path);
 				free(canon_path);
 				return false;
@@ -306,7 +306,9 @@ void cmd_destroy(struct fpgad_config *c)
 		unlink(c->pidfile);
 
 	for (i = 0 ; i < c->num_null_gbs ; ++i) {
-		bitstr_unload_bitstream(&c->null_gbs[i]);
+		if (c->null_gbs[i].filename)
+			free((char *)c->null_gbs[i].filename);
+		opae_unload_bitstream(&c->null_gbs[i]);
 	}
 	c->num_null_gbs = 0;
 }

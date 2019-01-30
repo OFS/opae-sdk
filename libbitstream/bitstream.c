@@ -28,16 +28,19 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <uuid/uuid.h>
 #include <json-c/json.h>
 #include "bitstream.h"
-#include "fpgad.h"
 
-#ifdef LOG
-#undef LOG
-#endif
-#define LOG(format, ...) \
-log_printf("bitstream: " format, ##__VA_ARGS__)
+#include "safe_string/safe_string.h"
+#include <opae/log.h>
+#include <opae/properties.h>
+#include <opae/sysobject.h>
 
 #define METADATA_GUID     "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN 16
@@ -47,10 +50,10 @@ log_printf("bitstream: " format, ##__VA_ARGS__)
 /*
  * Check for bitstream header and fill out bistream_info fields
  */
-#define MAGIC 0x1d1f8680
-#define MAGIC_SIZE 4
+#define MAGIC       0x1d1f8680
+#define MAGIC_SIZE  4
 #define HEADER_SIZE 20
-STATIC int parse_metadata(struct bitstream_info *info)
+STATIC int parse_metadata(opae_bitstream_info *info)
 {
 	unsigned i;
 
@@ -58,12 +61,12 @@ STATIC int parse_metadata(struct bitstream_info *info)
 		return -EINVAL;
 
 	if (info->data_len < HEADER_SIZE) {
-		fprintf(stderr, "File too small to be GBS\n");
+		OPAE_ERR("File too small to be GBS.");
 		return -1;
 	}
 
 	if (((uint32_t *)info->data)[0] != MAGIC) {
-		fprintf(stderr, "No valid GBS header\n");
+		OPAE_ERR("No valid GBS header.");
 		return -1;
 	}
 
@@ -81,7 +84,7 @@ STATIC int parse_metadata(struct bitstream_info *info)
 STATIC fpga_result string_to_guid(const char *guid, fpga_guid *result)
 {
 	if (uuid_parse(guid, *result) < 0) {
-		OPAE_ERR("Error parsing guid %s\n", guid);
+		OPAE_ERR("Error parsing guid: %s.", guid);
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -97,7 +100,7 @@ STATIC fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid), bitstream,
 		     sizeof(fpga_guid));
 	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed.");
 		return FPGA_EXCEPTION;
 	}
 
@@ -110,33 +113,9 @@ STATIC fpga_result check_bitstream_guid(const uint8_t *bitstream)
 	return FPGA_OK;
 }
 
-STATIC uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size)
-{
-	uint64_t ret = 0;
-	switch (size) {
-	case sizeof(uint8_t):
-		ret = *((uint8_t *)bitstream);
-		break;
-	case sizeof(uint16_t):
-		ret = *((uint16_t *)bitstream);
-		break;
-	case sizeof(uint32_t):
-		ret = *((uint32_t *)bitstream);
-		break;
-	case sizeof(uint64_t):
-		ret = *((uint64_t *)bitstream);
-		break;
-	default:
-		OPAE_ERR("Unknown integer size");
-	}
-
-	return ret;
-}
-
-/*
- * Read inferface id from bitstream
- */
-STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
+					size_t bs_len,
+					fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;
@@ -150,25 +129,30 @@ STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 	if (check_bitstream_guid(bitstream) != FPGA_OK)
 		goto out_free;
 
-	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN, sizeof(uint32_t));
+	json_len = *((uint32_t *)(bitstream + METADATA_GUID_LEN));
 	if (json_len == 0) {
-		OPAE_MSG("Bitstream has no metadata");
+		OPAE_MSG("Bitstream has no metadata.");
 		result = FPGA_OK;
+		goto out_free;
+	}
+
+	if (json_len > bs_len) {
+		OPAE_ERR("invalid bitstream metadata size.");
+		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
 
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
-	json_metadata = (char *) malloc(json_len + 1);
+	json_metadata = (char *)malloc(json_len + 1);
 	if (json_metadata == NULL) {
 		OPAE_ERR("Could not allocate memory for metadata!");
 		return FPGA_NO_MEMORY;
 	}
 
-	e = memcpy_s(json_metadata, json_len+1,
-			json_metadata_ptr, json_len);
+	e = memcpy_s(json_metadata, json_len + 1, json_metadata_ptr, json_len);
 	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed.");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -177,22 +161,25 @@ STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 	root = json_tokener_parse(json_metadata);
 
 	if (root != NULL) {
-		if (json_object_object_get_ex(root, GBS_AFU_IMAGE, &afu_image)) {
-			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID, &interface_id);
+		if (json_object_object_get_ex(root, GBS_AFU_IMAGE,
+					      &afu_image)) {
+			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID,
+						  &interface_id);
 
 			if (interface_id == NULL) {
-				OPAE_ERR("Invalid metadata");
+				OPAE_ERR("Invalid metadata.");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
 
-			result = string_to_guid(json_object_get_string(interface_id), guid);
+			result = string_to_guid(
+				json_object_get_string(interface_id), guid);
 			if (result != FPGA_OK) {
-				OPAE_ERR("Invalid BBS interface id ");
+				OPAE_ERR("Invalid BBS interface id.");
 				goto out_free;
 			}
 		} else {
-			OPAE_ERR("Invalid metadata");
+			OPAE_ERR("Invalid metadata.");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -208,79 +195,90 @@ out_free:
 }
 
 /*
- * Read bitstream from file and populate bitstream_info structure
+ * Read bitstream from file and populate opae_bitstream_info structure
  */
 //TODO: remove this check when all bitstreams conform to JSON
 //metadata spec.
 static bool skip_header_checks;
-STATIC int read_bitstream(const char *filename, struct bitstream_info *info)
+STATIC fpga_result read_bitstream(const char *filename, opae_bitstream_info *info)
 {
 	FILE *f;
 	long len;
 	int ret;
+	fpga_result res = FPGA_EXCEPTION;
+	struct stat file_mode;
 
 	if (!filename || !info)
-		return -EINVAL;
+		return FPGA_INVALID_PARAM;
 
-	memset_s(info, sizeof(*info), 0);
+	memset_s(&file_mode, sizeof(file_mode), 0);
 
-	info->filename = (char *)filename;
+	if (stat(filename, &file_mode) != 0) {
+		OPAE_ERR("stat failed for \"%s\"", filename);
+		return res;
+	}
+
+	if (S_ISREG(file_mode.st_mode) == 0) {
+		OPAE_ERR("Invalid input GBS file \"%s\"", filename);
+		return res;
+	}
 
 	/* open file */
 	f = fopen(filename, "rb");
 	if (!f) {
-		perror(filename);
-		return -1;
+		OPAE_ERR("fopen failed for \"%s\"", filename);
+		return res;
 	}
+	info->filename = filename;
 
 	/* get filesize */
 	ret = fseek(f, 0, SEEK_END);
 	if (ret < 0) {
-		perror(filename);
+		OPAE_ERR("fseek failed for \"%s\"", filename);
 		goto out_close;
 	}
 	len = ftell(f);
 	if (len < 0) {
-		perror(filename);
+		OPAE_ERR("ftell failed for \"%s\"", filename);
 		goto out_close;
 	}
 
 	/* allocate memory */
 	info->data = (uint8_t *)malloc(len);
 	if (!info->data) {
-		perror("malloc");
+		OPAE_ERR("malloc failed.");
 		goto out_close;
 	}
 
 	/* read bistream data */
 	ret = fseek(f, 0, SEEK_SET);
 	if (ret < 0) {
-		perror(filename);
+		OPAE_ERR("fseek failed for \"%s\"", filename);
 		goto out_free;
 	}
 	info->data_len = fread(info->data, 1, len, f);
 	if (ferror(f)) {
-		perror(filename);
+		OPAE_ERR("ferror \"%s\"", filename);
 		goto out_free;
 	}
 	if (info->data_len != (size_t)len) {
-		fprintf(stderr,
-		     "Filesize and number of bytes read don't match\n");
+		OPAE_ERR(
+			 "File size and number of bytes "
+			 "read don't match for \"%s\"", filename);
 		goto out_free;
 	}
-
 
 	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
 
-		printf(" 	skip_header_checks = true;\n");
-
-		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
-			!= FPGA_OK) {
-			fprintf(stderr, "Invalid metadata in the bitstream\n");
+		res = get_bitstream_ifc_id(info->data,
+					   info->data_len,
+					   &(info->interface_id));
+		if (res != FPGA_OK) {
+			OPAE_ERR("Invalid metadata in the "
+				 "bitstream \"%s\"", filename);
 			goto out_free;
 		}
-
 	}
 
 	if (!skip_header_checks) {
@@ -291,27 +289,25 @@ STATIC int read_bitstream(const char *filename, struct bitstream_info *info)
 	}
 
 	fclose(f);
-	return 0;
+	return FPGA_OK;
 
 out_free:
-	if (info->data)
-		free((void *)info->data);
-	info->data = NULL;
+	free((void *)info->data);
 out_close:
 	fclose(f);
-	return -1;
+	return res;
 }
 
-int bitstr_load_bitstream(const char *file, struct bitstream_info *info)
+fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 {
 	return read_bitstream(file, info);
 }
 
-void bitstr_unload_bitstream(struct bitstream_info *info)
+void opae_unload_bitstream(opae_bitstream_info *info)
 {
-	if (info->filename)
-		free(info->filename);
-	if (info->data)
-		free(info->data);
-	memset_s(info, sizeof(*info), 0);
+	if (info) {
+		if (info->data)
+			free(info->data);
+		memset_s(info, sizeof(*info), 0);
+	}
 }

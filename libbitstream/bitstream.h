@@ -24,24 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_BITSTREAM_H__
-#define __FPGAD_BITSTREAM_H__
+#ifndef __OPAE_BITSTREAM_H__
+#define __OPAE_BITSTREAM_H__
 
 #include <opae/types.h>
-#include <uuid/uuid.h>
 
-struct bitstream_info {
-	char *filename;
+typedef struct _opae_bitstream_info {
+	const char *filename;
 	uint8_t *data;
 	size_t data_len;
 	uint8_t *rbf_data;
 	size_t rbf_len;
 	fpga_guid interface_id;
-};
+} opae_bitstream_info;
 
-// 0 on success
-int bitstr_load_bitstream(const char *file, struct bitstream_info *info);
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-void bitstr_unload_bitstream(struct bitstream_info *info);
+fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info);
 
-#endif /* __FPGAD_BITSTREAM_H__ */
+void opae_unload_bitstream(opae_bitstream_info *info);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __OPAE_BITSTREAM_H__ */

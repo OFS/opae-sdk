@@ -33,6 +33,8 @@
 #include <dlfcn.h>
 #include <glob.h>
 
+#include <uuid/uuid.h>
+
 #include "monitored_device.h"
 #include "monitor_thread.h"
 #include "api/sysfs.h"
@@ -79,7 +81,7 @@ allocate_monitored_device(struct fpgad_config *config,
 			  fpga_token token,
 			  uint64_t object_id,
 			  fpga_objtype object_type,
-			  struct bitstream_info *bitstr)
+			  opae_bitstream_info *bitstr)
 {
 	fpgad_monitored_device *d;
 
@@ -110,7 +112,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	uint16_t device_id;
 	uint64_t object_id;
 	fpga_objtype object_type;
-	struct bitstream_info *bitstr = NULL;
+	opae_bitstream_info *bitstr = NULL;
 	bool added = false;
 
 	res = fpgaGetProperties(token, &props);

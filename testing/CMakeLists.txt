@@ -27,6 +27,14 @@ target_include_directories(opae-c-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
+add_library(bitstream-static
+    ${OPAE_SDK_SOURCE}/libbitstream/bitstream.c
+    )
+target_include_directories(bitstream-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
 add_library(opae-cxx-core-static
     ${OPAE_SDK_SOURCE}/libopaecxx/src/errors.cpp
     ${OPAE_SDK_SOURCE}/libopaecxx/src/events.cpp
@@ -101,7 +109,6 @@ add_library(libbmc  SHARED
 
   
 add_library(fpgad-static
-    ${OPAE_SDK_SOURCE}/tools/base/fpgad/bitstream.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/config_file.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/daemonize.c
@@ -117,10 +124,12 @@ target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 target_include_directories(fpgad-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
   $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(fpgad-static
     safestr
+    bitstream-static
     ${libjson-c_LIBRARIES}
     ${libuuid_LIBRARIES}
     )
@@ -137,6 +146,7 @@ target_include_directories(fpgad-api-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
   PRIVATE ${OPAE_SDK_SOURCE}/tools/base
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -156,6 +166,7 @@ target_include_directories(fpgad-xfpga-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
   PRIVATE ${OPAE_SDK_SOURCE}/tools/base
   )
 
@@ -302,6 +313,7 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
         )
     target_link_libraries(${test_name}
         ${static_lib}
@@ -411,6 +423,14 @@ add_unit_test(test_opae_init_c opae-c-static
 
 add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
+)
+
+############################################################################
+# bitstream tests ##########################################################
+############################################################################
+
+add_unit_test(test_bitstream_bitstream_c bitstream-static
+    bitstream/test_bitstream_c.cpp
 )
 
 ############################################################################
