@@ -71,7 +71,7 @@ set(SRC
 
 # Define target
 add_library(xfpga MODULE ${SRC})
-#add_dependencies(xfpga copy-common-opae-header-files)
+
 target_link_libraries(xfpga
   m
   safestr
