@@ -42,12 +42,11 @@ Major Changes from 1.2.0 to 1.3.0
 - Added Python version of fpgamux
 - Added deprecation notice for legacy C++ API
 - Updated default installation location for packages generated through CMake to "/usr" instead of "/usr/local"
-- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set1. (see Notes below for more information)
-- Updated RPM package
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set 1. (see Notes below for more information)
 - Increased test cases and test coverage
 - Cleaned up dead/legacy code
 - Various bug fixes
-- Various warning fixes
+- Various compiler warning fixes
 - Various memory leak fixes
 
 Notes / Known Issues
@@ -59,7 +58,7 @@ This directory, however, will be removed in future versions of OPAE.
 For more information and reference on the official API, see the
 [documentation](https://opae.github.io/latest/docs/fpga_api/fpga_cxx_api.html).
 
--   fpgamux has been ported to use the supported OPAE C++ API (in addition to Python version).
+-   fpgamux has been ported to use the OPAE Python API.
 
 -   In addition to supporting the OPAE driver bundled with OPAE SDK releases, the OPAE SDK libraries now
 support the FPGA driver that has been upstreamed to the Linux Kernel 4.18.
