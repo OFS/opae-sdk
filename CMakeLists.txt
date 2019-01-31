@@ -211,7 +211,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
-if(NOT CMAKE_INSTALL_PREFIX)
+if(CPACK_GENERATOR)
   set(CMAKE_INSTALL_PREFIX "/usr")
 endif()
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
