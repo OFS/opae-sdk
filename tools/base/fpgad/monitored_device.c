@@ -107,12 +107,15 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 {
 	unsigned i;
 	fpga_properties props = NULL;
+	fpga_token parent = NULL;
+	fpga_properties parent_props = NULL;
 	fpga_result res;
 	uint16_t vendor_id;
 	uint16_t device_id;
 	uint64_t object_id;
 	fpga_objtype object_type;
 	opae_bitstream_info *bitstr = NULL;
+	fpga_guid pr_ifc_id;
 	bool added = false;
 
 	res = fpgaGetProperties(token, &props);
@@ -125,48 +128,40 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	res = fpgaPropertiesGetVendorID(props, &vendor_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get vendor ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	device_id = 0;
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get device ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	object_id = 0;
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get object ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	object_type = FPGA_ACCELERATOR;
 	res = fpgaPropertiesGetObjectType(props, &object_type);
 	if (res != FPGA_OK) {
 		LOG("failed to get object type\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	// Do we have a NULL GBS from the command line
 	// that matches this device?
 
 	if (object_type == FPGA_DEVICE) {
-		fpga_guid pr_ifc_id;
-		unsigned i;
-
 		// The token's guid is the PR interface ID.
 
 		res = fpgaPropertiesGetGUID(props, &pr_ifc_id);
 		if (res != FPGA_OK) {
-			LOG("failed to get PR interface ID\n");
-			fpgaDestroyProperties(&props);
-			return false;
+			LOG("failed to get PR interface ID\n");\
+			goto err_out_destroy;
 		}
 
 		for (i = 0 ; i < c->num_null_gbs ; ++i) {
@@ -178,33 +173,23 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 		}
 	} else {
 		// The parent token's guid is the PR interface ID.
-		fpga_token parent = NULL;
-		fpga_properties parent_props = NULL;
-		fpga_guid pr_ifc_id;
-		unsigned i;
 
 		res = fpgaPropertiesGetParent(props, &parent);
 		if (res != FPGA_OK) {
 			LOG("failed to get parent token\n");
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		res = fpgaGetProperties(parent, &parent_props);
 		if (res != FPGA_OK) {
 			LOG("failed to get parent properties\n");
-			fpgaDestroyToken(&parent);
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		res = fpgaPropertiesGetGUID(parent_props, &pr_ifc_id);
 		if (res != FPGA_OK) {
 			LOG("failed to get PR interface ID\n");
-			fpgaDestroyProperties(&parent_props);
-			fpgaDestroyToken(&parent);
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		fpgaDestroyProperties(&parent_props);
@@ -326,6 +311,15 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	}
 
 	return added;
+
+err_out_destroy:
+	if (props)
+		fpgaDestroyProperties(&props);
+	if (parent)
+		fpgaDestroyToken(&parent);
+	if (parent_props)
+		fpgaDestroyProperties(&parent_props);
+	return false;
 }
 
 int mon_enumerate(struct fpgad_config *c)

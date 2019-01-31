@@ -632,21 +632,12 @@ target_link_libraries(test_fpgad_monitor_thread_c
     fpgad-api-static
     )
 
-# add_unit_test(test_fpgad_srv_c fpgad-static
-#     fpgad/test_srv_c.cpp
-# )
-
-# add_unit_test(test_fpgad_evt_c fpgad-static
-#     fpgad/test_evt_c.cpp
-# )
-
-# add_unit_test(test_fpgad_errtable_c fpgad-static
-#     fpgad/test_errtable_c.cpp
-# )
-
-# add_unit_test(test_fpgad_ap_event_c fpgad-static
-#     fpgad/test_ap_event_c.cpp
-# )
+add_unit_test(test_fpgad_monitored_device_c fpgad-static
+    fpgad/test_monitored_device_c.cpp
+)
+target_link_libraries(test_fpgad_monitored_device_c
+    fpgad-api-static
+    )
 
 ############################################################################
 # fpgad-api tests ##########################################################
