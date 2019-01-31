@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,25 +22,28 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-enable_language(C ASM)
+find_package(PkgConfig)
+pkg_check_modules(PC_TBB QUIET tbb)
 
-set(ASM_OPTIONS "-x assembler-with-cpp")
-set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DFPGA_DMA_MAX_BLOCKS=256 -DFPGA_DMA_BLOCK_SIZE=64")
+if(NOT TBB_LIBRARY_DIRS)
+  set(TBB_LIBRARY_DIRS "")
+endif()
+find_library(TBB_LIBRARIES
+    NAMES tbb
+    HINTS ${PC_TBB_LIBDIR}
+          ${PC_TBB_LIBRARY_DIRS}
+          ${TBB_LIBRARY_DIRS})
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src
-                    ${HWLOC_INCLUDE_DIRS}
-                    ${TBB_INCLUDE_DIRS})
+if(NOT TBB_INCLUDE_DIRS)
+  set(TBB_INCLUDE_DIRS "")
+endif()
+find_path(TBB_INCLUDE_DIRS
+    NAMES tbb.h
+    HINTS ${PC_TBB_INCLUDEDIR}
+          ${PC_TBB_INCLUDE_DIRS}
+          ${TBB_INCLUDE_DIRS})
 
-file(GLOB CSources *.cpp *.S)
-add_executable(fpga_dma_test ${CSources})
-set_install_rpath(fpga_dma_test)
-
-target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt ${TBB_LIBRARIES} ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-install(TARGETS fpga_dma_test
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpga_dma_test)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(TBB REQUIRED_VARS TBB_INCLUDE_DIRS TBB_LIBRARIES)
