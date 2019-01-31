@@ -34,6 +34,11 @@ target_include_directories(bitstream-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+target_link_libraries(bitstream-static
+    safestr
+    ${libjson-c_LIBRARIES}
+    ${libuuid_LIBRARIES}
+    )
 
 add_library(opae-cxx-core-static
     ${OPAE_SDK_SOURCE}/libopaecxx/src/errors.cpp
