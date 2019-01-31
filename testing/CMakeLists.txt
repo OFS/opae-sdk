@@ -611,6 +611,27 @@ add_unit_test(test_fpgad_daemonize_c fpgad-static
     fpgad/test_daemonize_c.cpp
 )
 
+add_unit_test(test_fpgad_event_dispatcher_thread_c fpgad-static
+    fpgad/test_event_dispatcher_thread_c.cpp
+)
+target_link_libraries(test_fpgad_event_dispatcher_thread_c
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_events_api_thread_c fpgad-static
+    fpgad/test_events_api_thread_c.cpp
+)
+target_link_libraries(test_fpgad_events_api_thread_c
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_monitor_thread_c fpgad-static
+    fpgad/test_monitor_thread_c.cpp
+)
+target_link_libraries(test_fpgad_monitor_thread_c
+    fpgad-api-static
+    )
+
 # add_unit_test(test_fpgad_srv_c fpgad-static
 #     fpgad/test_srv_c.cpp
 # )
@@ -625,11 +646,6 @@ add_unit_test(test_fpgad_daemonize_c fpgad-static
 
 # add_unit_test(test_fpgad_ap_event_c fpgad-static
 #     fpgad/test_ap_event_c.cpp
-# )
-
-
-# add_unit_test(test_fpgad_ap6_c fpgad-static
-#     fpgad/test_ap6_c.cpp
 # )
 
 ############################################################################

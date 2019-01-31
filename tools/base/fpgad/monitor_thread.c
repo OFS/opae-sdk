@@ -91,9 +91,6 @@ STATIC void mon_monitor(fpgad_monitored_device *d)
 			d->detection_contexts ?
 			d->detection_contexts[i] : NULL;
 
-		if (!detect)
-			continue;
-
 		result = detect(d, detect_context);
 
 		if (result != FPGAD_STATUS_NOT_DETECTED && d->responses) {
