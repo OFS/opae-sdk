@@ -45,7 +45,7 @@ class Nlb3Mode(bc.BistMode):
         bc.load_gbs(gbs_path, bus_num)
         for test, param in self.executables.items():
             print "Running fpgadiag {} test...\n".format(test)
-            cmd = "fpgadiag -B {} {}".format(bus_num, param)
+            cmd = "fpgadiag -B 0x{} {}".format(bus_num, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
