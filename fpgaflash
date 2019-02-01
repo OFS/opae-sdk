@@ -75,6 +75,7 @@ BMC_FW_HEAD_SIZE = 256
 
 
 
+
 def check_rpd(ifile):
     data = ifile.read(0x20)
     pof_hdr = struct.unpack('IIIIIIII', data)
@@ -940,6 +941,7 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
     set_aer(upstream_bdf, 0xffffffff, 0xffffffff)
 
+
     rm_path = os.path.join('/sys/bus/pci/devices', target_bdf, 'remove')
 
     try:
@@ -955,7 +957,6 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
     time.sleep(10)
 def dc_rc_reconfigure_bmc(bdf, spi_path):
     ld_path = os.path.join(spi_path, 'bmcimg_flash_ctrl', 'bmcimg_image_load')
-    print "ld path %s" % (ld_path)
     return dc_vc_reconfigure(bdf, ld_path)
 
 
@@ -1205,6 +1206,7 @@ def validate_bdf(bdf, bdf_pvid_map):
     if bdf_pvid_map[bdf] == RC_PVID:
         if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_factory']:
             print "%s not supported on %s" % (args.type, RC)
+
 
 
 
