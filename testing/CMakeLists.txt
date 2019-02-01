@@ -189,6 +189,7 @@ target_include_directories(fpgad-vc-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
   PRIVATE ${OPAE_SDK_SOURCE}/tools/base
   )
 
