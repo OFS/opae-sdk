@@ -48,6 +48,7 @@ int fpgad_main(int argc, char *argv[]);
 #include <errno.h>
 #include <unistd.h>
 #include <fstream>
+#include <vector>
 #include <thread>
 #include <chrono>
 #include "gtest/gtest.h"

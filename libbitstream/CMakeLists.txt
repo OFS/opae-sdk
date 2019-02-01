@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libbitsream)
+project(libbitstream)
 
 set(SRC
     bitstream.c
@@ -36,9 +36,8 @@ target_include_directories(bitstream PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${libjson-c_INCLUDE_DIRS})
-
-include_directories(${libjson-c_INCLUDE_DIRS})
+  PUBLIC ${libjson-c_INCLUDE_DIRS}
+  PUBLIC ${libuuid_INCLUDE_DIRS})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
@@ -60,7 +59,8 @@ target_link_libraries(bitstream
   safestr
   opae-c
   ${CMAKE_THREAD_LIBS_INIT}
-  ${libjson-c_LIBRARIES})
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES})
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 

@@ -39,6 +39,7 @@ bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path);
 #include <opae/fpga.h>
 
 #include <fstream>
+#include <vector>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
