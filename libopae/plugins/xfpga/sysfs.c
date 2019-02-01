@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1400,8 +1400,13 @@ STATIC char *cstr_dup(const char *str)
 {
 	size_t s = strlen(str);
 	char *p = malloc(s+1);
+	if (!p) {
+		FPGA_ERR("malloc failed");
+		return NULL;
+	}
 	if (strncpy_s(p, s+1, str, s)) {
 		FPGA_ERR("Error copying string");
+		free(p);
 		return NULL;
 	}
 	p[s] = '\0';
