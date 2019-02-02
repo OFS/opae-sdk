@@ -42,6 +42,9 @@
 #include <opae/properties.h>
 #include <opae/sysobject.h>
 
+/*
+ * TODO: is this expected to change?
+ */
 #define METADATA_GUID     "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN 16
 #define GBS_AFU_IMAGE     "afu-image"
@@ -70,12 +73,19 @@ STATIC int parse_metadata(opae_bitstream_info *info)
 		return -1;
 	}
 
+	/*
+	 * TODO: Is this 128-bit?
+	 * TODO: Is this really reversed like this or should
+	 * it be bswap64 on the two components?
+	 */
+
 	/* reverse byte order when reading GBS */
 	for (i = 0; i < sizeof(info->interface_id); i++)
 		info->interface_id[i] =
 			info->data[MAGIC_SIZE+sizeof(info->interface_id)-1-i];
 
 	info->rbf_data = &info->data[HEADER_SIZE];
+	// TODO: does this length include the metadata?
 	info->rbf_len = info->data_len - HEADER_SIZE;
 
 	return 0;
@@ -104,6 +114,10 @@ STATIC fpga_result check_bitstream_guid(const uint8_t *bitstream)
 		return FPGA_EXCEPTION;
 	}
 
+	/*
+	 * TODO: Would it make sense to encode the metadata
+	 * guid as raw bytes?
+	 */
 	if (string_to_guid(METADATA_GUID, &expected_guid) != FPGA_OK)
 		return FPGA_INVALID_PARAM;
 
@@ -126,8 +140,9 @@ STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 	json_object *interface_id = NULL;
 	errno_t e;
 
-	if (check_bitstream_guid(bitstream) != FPGA_OK)
-		goto out_free;
+	result = check_bitstream_guid(bitstream);
+	if (result != FPGA_OK)
+		return result;
 
 	json_len = *((uint32_t *)(bitstream + METADATA_GUID_LEN));
 	if (json_len == 0) {
@@ -142,6 +157,9 @@ STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 		goto out_free;
 	}
 
+	/*
+	 * TODO: METADATA_GUID_LEN + sizeof(uint32_t) == HEADER_SIZE?
+	 */
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
 	json_metadata = (char *)malloc(json_len + 1);
@@ -158,15 +176,25 @@ STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 	}
 	json_metadata[json_len] = '\0';
 
+	/*
+	 * TODO: Here, we're calling json_tokener_parse just to get the
+	 * interface id. Would it make sense to parse this once and stash
+	 * (in the opae_bitstream_info struct) either of these?
+	 * 1. The resulting root json_object structure.
+	 * 2. A metadata struct that encapsulates the metadata fields.
+	 *
+	 * Just a parsing optimization to think about.
+	 */
 	root = json_tokener_parse(json_metadata);
 
 	if (root != NULL) {
 		if (json_object_object_get_ex(root, GBS_AFU_IMAGE,
 					      &afu_image)) {
-			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID,
-						  &interface_id);
 
-			if (interface_id == NULL) {
+			if (!json_object_object_get_ex(afu_image,
+						       BBS_INTERFACE_ID,
+						       &interface_id) ||
+			    (interface_id == NULL)) {
 				OPAE_ERR("Invalid metadata.");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
