@@ -304,6 +304,7 @@ define_pkg(tools
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
+  toolbist
   toolfpgaflash
   toolfpgadiagapps
   toolpachssiconfig
