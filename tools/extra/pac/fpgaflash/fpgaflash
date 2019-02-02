@@ -49,6 +49,8 @@ VCP_FLASH_DTB_OFFSET = 0x3820000
 VCP_FLASH_DTB_LENGTH = 0x10000
 VCP_FLASH_PAGE1_OFFSET = 0x4000000
 VCP_FLASH_SECTOR_SIZE = 0x10000
+MAX10_USER_FLASH_OFFSET = 0xb8000
+MAX10_USER_FLASH_LENGTH = 0xa8000
 
 try:
     from intelhex import IntelHex
@@ -170,7 +172,16 @@ def parse_args():
     descr = 'A tool to help update the flash used to configure an '
     descr += 'Intel FPGA at power up.'
 
-    epi = 'example usage:\n\n'
+    epi = 'flash programming types:\n\n'
+    epi += '  user		FPGA user image update\n'
+    epi += '  factory	FPGA factory image update\n'
+    epi += '  dtb		Vista Creek device tree update\n'
+    epi += '  eeprom	EEPROM update\n'
+    epi += '  bmc_bl	Rush Creek BMC boot loader update\n'
+    epi += '  bmc_app	Rush Creek BMC application update\n'
+    epi += '  bmc_fw	BMC firmware update\n'
+    epi += '  bmc_img	BMC image update\n\n'
+    epi += 'example usage:\n\n'
     epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
 
     fc_ = argparse.RawDescriptionHelpFormatter
@@ -178,8 +189,8 @@ def parse_args():
                                      formatter_class=fc_)
 
     parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory', 'dtb',
-                                 'bmc_bl', 'bmc_app', 'bmc_fw'])
+                        choices=['user', 'factory', 'dtb', 'eeprom',
+                                 'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img'])
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -239,6 +250,9 @@ def set_flash_mode(bdf, type, value):
         elif type == 'bmc_fw':
             path = os.path.join(spi_path, 'bmcfw_flash_ctrl',
                                 'bmcfw_flash_mode')
+        elif type == 'bmc_img':
+            path = os.path.join(spi_path, 'bmcimg_flash_ctrl',
+                                'bmcimg_flash_mode')
         else:
             return
         if not os.path.exists(path):
@@ -258,6 +272,7 @@ def disable_mtd(bdf):
     if int(get_devid(bdf), 16) == VCP_ID:
         set_flash_mode(bdf, 'user', 0)
         set_flash_mode(bdf, 'bmc_fw', 0)
+        set_flash_mode(bdf, 'bmc_img', 0)
 
 
 def get_mtd(bdf):
@@ -265,7 +280,7 @@ def get_mtd(bdf):
     if not spi_path:
         return
     else:
-        paths = glob.glob(os.path.join(spi_path, 'intel-generic-qspi.*',
+        paths = glob.glob(os.path.join(spi_path, '*.*.auto',
                                        'mtd', 'mtd*'))
         if not paths:
             print("WARNING: mtd not found @ {}".format(bdf))
@@ -392,6 +407,9 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             start_addr = start
             image_len = size
             bdata = ihex.tobinarray()
+        elif update_type == 'bmc_img':
+            start_addr = 0
+            image_len = MAX10_USER_FLASH_LENGTH
     else:
         try:
             start_addr = check_rpd(ifile)
@@ -414,6 +432,14 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             ofile.write(ifile.read(image_len))
         elif update_type == 'bmc_fw':
             ofile.write(bdata)
+        elif update_type == 'bmc_img':
+            sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=True)
+            a = array("I", ifile.read())
+            for elem in a:
+                sfile.write(struct.pack('>I', elem))
+            sfile.seek(0)
+            reverse_bits_in_file(sfile, ofile, image_len)
+            sfile.close()
     else:
         reverse_bits_in_file(ifile, ofile)
 
@@ -431,6 +457,9 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
         elif update_type == 'bmc_fw':
             for i in range(0, image_len, VCP_FLASH_SECTOR_SIZE):
                 flash_erase(mtd_dev, i, VCP_FLASH_SECTOR_SIZE)
+        elif update_type == 'bmc_img':
+            start_addr = MAX10_USER_FLASH_OFFSET
+            flash_erase(mtd_dev, start_addr, image_len)
     else:
         flash_erase(mtd_dev, start_addr, (flash_size - start_addr))
 
@@ -799,30 +828,31 @@ def bmc_update(utype, ifile, bdf):
     return 0
 
 
-def read_root_ports(path):
+def read_root_ports(path, type):
     p = re.compile(r'\d{4}:(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d)')
     symlink = os.readlink(path)
     m = p.findall(symlink)
     ports = []
     for n in m:
-        ports.append(n[0]+':'+n[1]+'.'+n[2])
+        ports.append('{}:{}.{}'.format(*n))
+    up_port = ports[-3]
 
-    # search FPGA PF1 root path
+    # search other devices root path
     if len(ports) > 2:
         paths = glob.glob(os.path.join('/sys/bus/pci/devices',
-                                       '*:' + ports[-3], '*:*:*.*', '*:*:*.*',
+                                       '*:' + up_port, '*:*:*.*', '*:*:*.*',
                                        'device'))
         for devpath in paths:
             with open(devpath, 'r') as fd:
                 devid = fd.read().strip()
-                if int(devid, 16) == VCP_PF1_ID:
+                if type == 'bmc_img' or int(devid, 16) == VCP_PF1_ID:
                     m = p.findall(devpath)
                     for n in m:
-                        port = n[0]+':'+n[1]+'.'+n[2]
+                        port = '{}:{}.{}'.format(*n)
                         if port not in ports:
                             ports.append(port)
 
-    return ports
+    return (ports, up_port)
 
 
 def set_aer(port, mask):
@@ -850,12 +880,18 @@ def write_sysfs_node(path, value):
         return 0
 
 
-def trigger_rsu(bdf):
+def trigger_rsu(bdf, type):
     spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
         return 1
     else:
-        path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
+        if type == 'user':
+            path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
+        elif type == 'bmc_img':
+            path = os.path.join(spi_path, 'bmcimg_flash_ctrl',
+                                'bmcimg_image_load')
+        else:
+            return 1
         return write_sysfs_node(path, 1)
 
 
@@ -868,8 +904,40 @@ def rescan_device():
     return write_sysfs_node('/sys/bus/pci/rescan', 1)
 
 
+def eeprom_update(ifile, bdf):
+    ret = 0
+    fpga_path = get_fpga_sysfs_path(bdf)
+    if not fpga_path:
+        return 1
+    nvmem_path = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
+                           'altera-i2c.*.auto', 'i2c-*', '*-*', '*-*', 'nvmem'))
+    if len(nvmem_path) == 1:
+        with open(nvmem_path[0], 'wb') as wfile:
+            wfile.write(ifile.read())
+    elif len(nvmem_path) > 1:
+        print "multiple nvmem found"
+        ret = 1
+    else:
+        eeprom_path = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
+                                'altera-i2c.*.auto', 'i2c-*', '*-*', 'eeprom'))
+        if len(eeprom_path) == 1:
+            with open(eeprom_path[0], 'wb') as wfile:
+                wfile.write(ifile.read())
+        elif len(eeprom_path) > 1:
+            print "multiple eeprom found"
+            ret = 1
+        else:
+            print "no nvmem or eeprom found"
+            ret = 1
+    return ret
+
+
 def main():
     args = parse_args()
+
+    if args.type == 'eeprom':
+        ret = eeprom_update(args.file, args.bdf)
+        sys.exit(ret)
 
     bdf_map = get_bdf_mtd_mapping(args.type)
 
@@ -901,23 +969,37 @@ def main():
     disable_mtd(bdf)
 
     # RSU procedure
-    if args.type == 'user' and ret == 0 and args.rsu:
-        print("reloading fpga")
-        ports = read_root_ports(os.path.join('/sys/bus/pci/drivers',
-                                             'intel-fpga-pci', bdf))
+    if args.type in ['user', 'bmc_img'] and ret == 0 and args.rsu:
+        print("reloading {}".format('fpga' if args.type == 'user' else 'max10'))
+        (ports, up_port) = read_root_ports(os.path.join('/sys/bus/pci/drivers',
+                                                        'intel-fpga-pci', bdf),
+                                                        args.type)
         if len(ports) > 0:
             pf1_bdf = normalize_bdf(ports[-1])
             for p in ports:
                 ret = disable_aer(p)
                 if ret != 0:
                     sys.exit(ret)
-            ret = trigger_rsu(bdf)
+            ret = trigger_rsu(bdf, args.type)
             if ret == 0:
-                ret = remove_device(bdf)
-                if ret == 0 and pf1_bdf != bdf:
-                    remove_device(pf1_bdf)
+                if args.type == 'user':
+                    ret = remove_device(bdf)
+                    if ret == 0 and pf1_bdf != bdf:
+                        ret = remove_device(pf1_bdf)
+                else:
+                    ret = remove_device(normalize_bdf(up_port))
                 time.sleep(10)
-                ret = rescan_device()
+                ret |= rescan_device()
+                if args.type == 'bmc_img':
+                    bdf_map_update = get_bdf_mtd_mapping(args.type)
+                    if bdf not in bdf_map_update:
+                        for b in bdf_map_update:
+                            if b not in bdf_map:
+                                bdf = b
+                    (ports, up_port) = read_root_ports(os.path.join(
+                                                       '/sys/bus/pci/drivers',
+                                                       'intel-fpga-pci', bdf),
+                                                       args.type)
             for p in ports:
                 enable_aer(p)
 
