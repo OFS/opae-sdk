@@ -713,9 +713,8 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
 			if (attr->flag & SENSOR_FLAG_VALUE) {
 				if (attr->type == SENSOR_TYPE_THERMAL) {
-					printf("(%2d) %-24s : %.2f %ls\n",
-						   attr->id, attr->name, attr->value.f_val,
-						   L"\x00b0\x0043");
+					printf("(%2d) %-24s : %.2f Celsius\n",
+						   attr->id, attr->name, attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_POWER) {
 					printf("(%2d) %-24s : %.2f Watts\n",
 						   attr->id, attr->name, attr->value.f_val);

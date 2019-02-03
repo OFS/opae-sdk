@@ -64,9 +64,9 @@ uint8_t ASCII_6_bit_translation[64] = {
 	'T', 'U', 'V',  'W', 'X', 'Y', 'Z', '[',  '\\', ']', '^', '_'};
 
 wchar_t *base_units[] = {L"unspecified",
-			 L"\x00b0\x0043", // degrees C
-			 L"\x00b0\x0046", // degrees F
-			 L"\x00b0\x004b", // degrees K
+			 L"Celsius", // degrees C
+			 L"Fahrenheit", // degrees F
+			 L"Kelvin", // degrees K
 			 L"Volts",
 			 L"Amps",
 			 L"Watts",

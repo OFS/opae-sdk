@@ -63,8 +63,7 @@ static void print_temp_info(fpga_properties props)
 	fpgainfo_print_err("Failure reading package temperature value", res);
 
 #ifdef PRINT_PKG_TEMP
-	printf("%-29s : %02d %ls\n", "Package Temperature", temperature,
-	       L"\x00b0\x0043");
+	printf("%-29s : %02d Celsius\n", "Package Temperature", temperature);
 #endif
 
 	uint16_t devid = 0;
