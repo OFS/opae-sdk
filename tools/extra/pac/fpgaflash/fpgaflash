@@ -409,7 +409,19 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             bdata = ihex.tobinarray()
         elif update_type == 'bmc_img':
             start_addr = 0
-            image_len = MAX10_USER_FLASH_LENGTH
+            ifile.seek(0, 2)
+            image_len = ifile.tell()
+            if image_len != MAX10_USER_FLASH_LENGTH:
+                print "invalid rpd length"
+                disable_mtd(bdf)
+                return 1
+            ifile.seek(0x8c)
+            data = ifile.read(4)
+            rpd_hdr = struct.unpack('I', data)
+            if rpd_hdr[0] != 0x56565656:
+                print "invalid rpd file"
+                disable_mtd(bdf)
+                return 1
     else:
         try:
             start_addr = check_rpd(ifile)
@@ -932,6 +944,22 @@ def eeprom_update(ifile, bdf):
     return ret
 
 
+def update_bdf(port):
+    p = re.compile(r'\d{4}:(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d)')
+    paths = glob.glob(os.path.join('/sys/bus/pci/devices', '*:' + port,
+                                   '*:*:*.*', '*:*:*.*', 'device'))
+    ports = []
+    for devpath in paths:
+        with open(devpath, 'r') as fd:
+            devid = fd.read().strip()
+            if int(devid, 16) == VCP_ID:
+                m = p.findall(devpath)
+                for n in m:
+                    ports.append('{}:{}.{}'.format(*n))
+
+    return normalize_bdf(ports[-1])
+
+
 def main():
     args = parse_args()
 
@@ -991,11 +1019,7 @@ def main():
                 time.sleep(10)
                 ret |= rescan_device()
                 if args.type == 'bmc_img':
-                    bdf_map_update = get_bdf_mtd_mapping(args.type)
-                    if bdf not in bdf_map_update:
-                        for b in bdf_map_update:
-                            if b not in bdf_map:
-                                bdf = b
+                    bdf = update_bdf(up_port)
                     (ports, up_port) = read_root_ports(os.path.join(
                                                        '/sys/bus/pci/drivers',
                                                        'intel-fpga-pci', bdf),
