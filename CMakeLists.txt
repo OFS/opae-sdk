@@ -315,7 +315,6 @@ define_pkg(tools
   opaecxxnlb
   hssiiolib
   hssiprograms
-  opaetoolslibs
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"
@@ -358,6 +357,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
+  opaetoolslibs
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
