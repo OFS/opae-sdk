@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2018-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,26 +25,40 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(
-	${OPAE_INCLUDE_DIR} )
+    ${OPAE_INCLUDE_DIR})
 
-add_library(bmc MODULE
-	bmc.c
-	bmcdata.c
-	bmc_ioctl.c
-	bmcinfo.c)
+set(SRC
+    bmc.c
+    bmcdata.c
+    bmc_ioctl.c
+    bmcinfo.c)
 
-add_library(staticbmc STATIC
-	bmc.c
-	bmcdata.c
-	bmc_ioctl.c
-	bmcinfo.c)
+add_library(bmc SHARED ${SRC})
 
 set_install_rpath(bmc)
 
+target_link_libraries(bmc
+    safestr
+    m
+    rt
+    ${CMAKE_THREAD_LIBS_INIT})
+
+add_library(staticbmc STATIC ${SRC})
+
 set_property(TARGET staticbmc PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(bmc safestr m rt ${CMAKE_THREAD_LIBS_INIT})
+add_library(modbmc MODULE ${SRC})
+
+target_link_libraries(modbmc
+    safestr
+    m
+    rt
+    ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS bmc
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+    COMPONENT opaetoolslibs)
+
+install(TARGETS modbmc
     LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
     COMPONENT opaetoolslibs)
