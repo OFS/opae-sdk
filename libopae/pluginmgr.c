@@ -79,20 +79,49 @@ STATIC int opae_plugin_mgr_plugin_count;
 #define CFG_PATHS 4
 static const char *_opae_cfg_files[CFG_PATHS] = {
 	"/etc/opae.cfg",
-	"~/.config/opae/opae.cfg",
-	"~/.local/opae/opae.cfg",
-	"~/.local/opae.cfg"
+	"$HOME/.config/opae/opae.cfg",
+	"$HOME/.local/opae/opae.cfg",
+	"$HOME/.local/opae.cfg"
 };
+
+STATIC void resolve_file_name(char *dst, const char *src)
+{
+	char src_cpy[PATH_MAX];
+	char *ptok = src_cpy;
+	char *pstr = src_cpy;
+	char *pdst = dst;
+	size_t len = strlen(src);
+	size_t len_cpy = len;
+
+	strncpy_s(src_cpy, PATH_MAX, src, len);
+
+	while(ptok && len_cpy) {
+		*pdst++ = '/';
+		ptok = strtok_s(NULL, &len_cpy, "/", &pstr);
+		if (ptok[0] == '$') {
+			strncpy_s(pdst, len, getenv(ptok+1), len);
+		} else {
+			strncpy_s(pdst, len, ptok, len);
+		}
+		pdst = dst + strlen(dst);
+	}
+	*++pdst = '\0';
+}
 
 STATIC char *find_cfg()
 {
 	int i = 0;
-	char *canon_name = NULL;
+	char *file_name = NULL;
+	char opae_cfg_files[PATH_MAX][CFG_PATHS] = {{0}};
 
 	for (; i < CFG_PATHS; ++i) {
-		canon_name = canonicalize_file_name(_opae_cfg_files[i]);
-		if (canon_name) {
-			return canon_name;
+		resolve_file_name(opae_cfg_files[i], _opae_cfg_files[i]);
+	}
+
+	for (i = 0; i < CFG_PATHS; ++i) {
+		file_name = canonicalize_file_name(opae_cfg_files[i]);
+		if (file_name) {
+			return file_name;
 		}
 	}
 	return NULL;
@@ -607,19 +636,22 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
 	opae_plugin_mgr_plugin_count = 0;
-	char *found_cfg = find_cfg();
-
-
-	opae_plugin_mgr_parse_config(cfg_file ? cfg_file : found_cfg);
-	if (found_cfg) {
-		free(found_cfg);
-	}
+	char *found_cfg = NULL;
+	const char *use_cfg = NULL;
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
 	if (initialized) { // prevent multiple init.
 		opae_mutex_unlock(res, &adapter_list_lock);
 		return 0;
+	}
+	found_cfg = find_cfg();
+	use_cfg = cfg_file ? cfg_file : found_cfg;
+	if (use_cfg) {
+		opae_plugin_mgr_parse_config(use_cfg);
+		if (found_cfg) {
+			free(found_cfg);
+		}
 	}
 
 	errors = opae_plugin_mgr_detect_platforms();

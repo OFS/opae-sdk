@@ -49,6 +49,7 @@ extern opae_api_adapter_table *adapter_list;
 
 #include <array>
 #include <cstdlib>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
@@ -375,6 +376,7 @@ extern "C" {
   int opae_plugin_mgr_load_cfg_plugins(void);
   extern plugin_cfg *opae_plugin_mgr_config_list;
   extern int opae_plugin_mgr_plugin_count;
+  void resolve_file_name(char *, const char *);
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer) {
@@ -390,6 +392,7 @@ TEST(pluginmgr_c_p, process_cfg_buffer) {
   EXPECT_FALSE(p2->enabled);
   ASSERT_EQ(p2->next, nullptr);
 }
+
 
 TEST(pluginmgr_c_p, process_cfg_buffer_err) {
   opae_plugin_mgr_reset_cfg();
@@ -468,4 +471,32 @@ TEST(pluginmgr_c_p, dummy_plugin) {
     EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
   }
   unlink("opae_log.log");
+}
+
+TEST(pluginmgr_c_p, find_cfg) {
+  auto cfg_dir = std::string(getenv("HOME")) + "/.local";
+  struct stat st;
+  if (stat(cfg_dir.c_str(), &st) != 0) {
+    ASSERT_EQ(mkdir(cfg_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+  }
+
+  auto cfg_file = cfg_dir + "/opae.cfg";
+  if (stat(cfg_file.c_str(), &st) == 0) {
+    unlink(cfg_file.c_str());
+  }
+
+  std::ofstream cfg_stream(cfg_file);
+  cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+  cfg_stream.close();
+
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_NE(p1, nullptr);
+  ASSERT_EQ(p1->next, nullptr);
+  EXPECT_TRUE(p1->enabled);
+  unlink(cfg_file.c_str());
 }
