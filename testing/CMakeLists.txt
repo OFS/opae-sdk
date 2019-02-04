@@ -102,16 +102,6 @@ add_library(bmc-static STATIC
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
     )
-    
-
-add_library(libbmc  SHARED
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc_ioctl.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
-    )
-    
-
   
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
@@ -570,7 +560,7 @@ target_link_libraries(test_xfpga_events_c
     safestr
     fpgad-static
     fpgad-api-static
-    libbmc
+    bmc
     ${libjson-c_LIBRARIES})
 
 add_unit_test(test_xfpga_metrics_vector_c xfpga-static
@@ -592,8 +582,10 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
-target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
-        ${libjson-c_LIBRARIES})
+target_link_libraries(test_xfpga_bmc_c
+    safestr
+    bmc-static
+    ${libjson-c_LIBRARIES})
 
 ############################################################################
 # fpgad tests ##############################################################
