@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,55 +24,101 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * log.c : logging routines
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "log.h"
+#include <time.h>
+#include "logging.h"
 
-static pthread_mutex_t log_lock = PTHREAD_MUTEX_INITIALIZER;
-FILE *fLog;
-int open_log(const char *filename)
+#ifdef LOG
+#undef LOG
+#endif
+#define LOG(format, ...) \
+log_printf("logging: " format, ##__VA_ARGS__)
+
+STATIC pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+STATIC FILE *log_file;
+
+int log_open(const char *filename)
 {
 	int res;
 	int err;
 
-	opae_mutex_lock(err, &log_lock);
+	fpgad_mutex_lock(err, &log_lock);
 
-	fLog = fopen(filename, "a");
-	if (fLog) {
-		res = fprintf(fLog, "----- MARK -----\n");
-		fflush(fLog);
+	log_file = fopen(filename, "a");
+	if (log_file) {
+		time_t raw;
+		struct tm tm;
+		char timebuf[256];
+		int len;
+
+		time(&raw);
+		localtime_r(&raw, &tm);
+		asctime_r(&tm, timebuf);
+
+		len = strnlen_s(timebuf, sizeof(timebuf));
+		timebuf[len-1] = '\0'; /* erase \n */
+
+		res = fprintf(log_file, "----- %s -----\n", timebuf);
+		fflush(log_file);
 	} else {
 		res = -1;
 	}
 
-	opae_mutex_unlock(err, &log_lock);
+	fpgad_mutex_unlock(err, &log_lock);
 
 	return res;
 }
 
-int dlog(const char *fmt, ...)
+int log_printf(const char *fmt, ...)
 {
 	va_list l;
-	int res;
+	int res = -1;
 	int err;
 
 	va_start(l, fmt);
 
-	opae_mutex_lock(err, &log_lock);
+	fpgad_mutex_lock(err, &log_lock);
 
-	res = vfprintf(fLog, fmt, l);
-	fflush(fLog);
+	if (log_file) {
+		res = vfprintf(log_file, fmt, l);
+		fflush(log_file);
+	}
 
-	opae_mutex_unlock(err, &log_lock);
+	fpgad_mutex_unlock(err, &log_lock);
 
 	va_end(l);
 
 	return res;
 }
 
-void close_log(void)
+void log_set(FILE *fptr)
 {
-	fclose(fLog);
+	int err;
+
+	fpgad_mutex_lock(err, &log_lock);
+
+	log_close();
+	log_file = fptr;
+
+	fpgad_mutex_unlock(err, &log_lock);
+}
+
+void log_close(void)
+{
+	int err;
+
+	fpgad_mutex_lock(err, &log_lock);
+
+	if (log_file) {
+		if (log_file != stdout &&
+		    log_file != stderr) {
+			fclose(log_file);
+		}
+		log_file = NULL;
+	}
+
+	fpgad_mutex_unlock(err, &log_lock);
 }
